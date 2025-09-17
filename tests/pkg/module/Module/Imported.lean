@@ -133,6 +133,3 @@ info: f_exp_wfrec.induct_unfolding (motive : Nat → Nat → Nat → Prop) (case
 -/
 #guard_msgs(pass trace, all) in
 #check f_exp_wfrec.induct_unfolding
-
-set_option trace.compiler.ir.result true in
-def Fun.mk' := Fun.mk

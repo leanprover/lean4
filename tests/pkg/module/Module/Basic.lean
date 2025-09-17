@@ -44,7 +44,7 @@ error: Compilation failed, locally inferred compilation type
   (Nat → Nat) → Nat → Nat
 differs from type
   (Nat → Nat) → lcAny
-that would be inferred in other modules. This usually means that a type `def` involved with the mentioned declarations needs to be `@[expose]`d. This is a current compiler limitation that may be lifted in the future.
+that would be inferred in other modules. This usually means that a type `def` involved with the mentioned declarations needs to be `@[expose]`d. This is a current compiler limitation for `module`s that may be lifted in the future.
 -/
 #guard_msgs in
 public def Fun.mk (f : Nat → Nat) : Fun := f

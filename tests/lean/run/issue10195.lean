@@ -2,7 +2,8 @@ inductive Vec (α : Type u) : Nat → Type u
   | nil  : Vec α 0
   | cons : α → {n : Nat} → Vec α n → Vec α (n+1)
 
-set_option trace.split.failure true
+-- set_option trace.split.failure true
+-- set_option trace.split.debug true
 -- set_option trace.Elab.definition.structural.eqns true
 
 def decEqVecPlain {α} {a} [DecidableEq α] (x : @Vec α a) (x_1 : @Vec α a) : Decidable (x = x_1) :=
@@ -25,29 +26,6 @@ termination_by structural x
 #print sig decEqVecPlain.match_1
 #guard_msgs(drop info) in
 #print sig decEqVecPlain.match_1.eq_1
-
--- Some theorem that lets us try split
-
--- Simple case that seems to work
-example :
-  decEqVecPlain.match_1 (motive := fun _ _ _ _ => Nat) n x1 x2 h (fun _ => 0) (fun _ _ _ _ _ _ => 1) = x1.ctorIdx := by
-  split <;> rfl
-
--- This case also seems to work
-theorem decEqVecPlain.match_1_cases
-  (motive : (n : Nat) → (x1 x2 : Vec α n) → Sort u)
-  (anil : motive 0 Vec.nil Vec.nil)
-  (acons : ∀ n a1 as1 b1 bs1, motive (n + 1) (Vec.cons a1 as1) (Vec.cons b1 bs1))
-  (P : (n : Nat) → (x1 x2 : Vec α n) → (m : motive n x1 x2) → Prop)
-  (hnil : P 0 Vec.nil Vec.nil anil)
-  (hcons : ∀ n a1 as1 b1 bs1, P (n + 1) (Vec.cons a1 as1) (Vec.cons b1 bs1) (acons n a1 as1 b1 bs1))  :
-  P n x1 x2 (decEqVecPlain.match_1 (motive := fun n x1 x2 _ => motive n x1 x2) n x1 x2 h
-    (fun _ => anil) (@fun a1 n as1 b1 bs1 _ => @acons n a1 as1 b1 bs1)) := by
-  split
-  · apply hnil
-  · apply hcons
-
--- So why does this split not work?
 
 /--
 error: Failed to realize constant decEqVecPlain.eq_def:
@@ -95,94 +73,53 @@ error: Failed to realize constant decEqVecPlain.eq_def:
         else isFalse ⋯
 ---
 error: Unknown constant `decEqVecPlain.eq_def`
----
-trace: [split.failure] `split` tactic failed to generalize discriminant(s) at
-      match (motive :=
-        (a : Nat) →
-          (x x_1 : Vec α a) →
-            x.ctorIdx = x_1.ctorIdx →
-              Vec.rec PUnit (fun a {n} a_1 a_ih => ((x_1 : Vec α n) → Decidable (a_1 = x_1)) ×' a_ih) x →
-                Decidable (x = x_1))
-        0, Vec.nil, x_1, ⋯ with
-      | .(0), Vec.nil, Vec.nil, x => fun x => isTrue ⋯
-      | .(n + 1), Vec.cons a_1 a_2, Vec.cons b b_1, x => fun x_2 =>
-        if h : a_1 = b then
-          Eq.rec (motive := fun x x_3 =>
-            (Vec.cons a_1 a_2).ctorIdx = (Vec.cons x b_1).ctorIdx → Decidable (Vec.cons a_1 a_2 = Vec.cons x b_1))
-            (fun x =>
-              if h_2 : a_2 = b_1 then
-                Eq.rec (motive := fun x x_3 =>
-                  (Vec.cons a_1 a_2).ctorIdx = (Vec.cons a_1 x).ctorIdx → Decidable (Vec.cons a_1 a_2 = Vec.cons a_1 x))
-                  (fun x => isTrue ⋯) h_2 x
-              else isFalse ⋯)
-            ⋯ x
-        else isFalse ⋯
-    resulting expression was not type correct
-    possible solution: generalize discriminant(s) manually before using `split`
-[split.failure] `split` tactic failed to generalize discriminant(s) at
-      match 0, Vec.nil, x_1, ⋯ with
-      | .(0), Vec.nil, Vec.nil, x => isTrue ⋯
-      | .(n + 1), Vec.cons a_1 a_2, Vec.cons b b_1, x =>
-        if h : a_1 = b then
-          Eq.rec (motive := fun x x_2 =>
-            (Vec.cons a_1 a_2).ctorIdx = (Vec.cons x b_1).ctorIdx → Decidable (Vec.cons a_1 a_2 = Vec.cons x b_1))
-            (fun x =>
-              if h_2 : a_2 = b_1 then
-                Eq.rec (motive := fun x x_2 =>
-                  (Vec.cons a_1 a_2).ctorIdx = (Vec.cons a_1 x).ctorIdx → Decidable (Vec.cons a_1 a_2 = Vec.cons a_1 x))
-                  (fun x => isTrue ⋯) h_2 x
-              else isFalse ⋯)
-            ⋯ x
-        else isFalse ⋯
-    resulting expression was not type correct
-    possible solution: generalize discriminant(s) manually before using `split`
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #print sig decEqVecPlain.eq_def
 
--- Nonrecursive
 
-inductive Vec' (α : Type u) : Nat → Type u
-  | nil  : Vec' α 0
-  | cons : α → {n : Nat} → Vec' α (n+1)
+axiom testSorry : α
 
-set_option trace.split.failure true
+inductive I : Nat → Type u | cons : I n → I (n + 1)
+axiom P : I n → Prop
+@[instance] axiom instDecEqI : ∀ (x : I n), Decidable (P x)
+axiom R : I n → Type
+set_option trace.split.failure true in
+noncomputable def foo (x x' : I n) : R x :=
+ if h : P x then
+ match (generalizing := false) x, x', id h with --NB: non-FVar discr
+ | .cons a_2, .cons a_2', _ => (testSorry : _ → _ → _) (foo a_2 a_2') h
+ else testSorry
+termination_by structural x
 
-def decEqVec' {α} {a} [DecidableEq α] (x : @Vec' α a) (x_1 : @Vec' α a) : Decidable (x = x_1) :=
-  if h : x.ctorIdx = x_1.ctorIdx then
-    match x, x_1, h with
-    | .nil, .nil, _ => isTrue rfl
-    | .cons a_1, .cons b, _ =>
-        if h_1 : @a_1 = @b then by
-          subst h_1
-          exact
-            isTrue rfl
-        else isFalse (by intro n_1; injection n_1; apply h_1 _; assumption)
-  else isFalse (fun h' => h (congrArg Vec'.ctorIdx h'))
 
--- Splitter and eqns generated just fine
-#guard_msgs(drop info) in
-#print sig decEqVec'.match_1
-#guard_msgs(drop info) in
-#print sig decEqVec'.match_1.eq_1
-
--- Some theorem that lets us try split
-
--- Simple case that seems to work
-example :
-  decEqVec'.match_1 (motive := fun _ _ _ _ => Nat) n x1 x2 h (fun _ => 0) (fun _ _ _ _ => 1) = x1.ctorIdx := by
-  split <;> rfl
-
--- This case also seems to work
-theorem decEqVec'.match_1_cases
-  (motive : (n : Nat) → (x1 x2 : Vec' α n) → Sort u)
-  (anil : motive 0 Vec'.nil Vec'.nil)
-  (acons : ∀ n a1 b1, motive (n + 1) (Vec'.cons a1) (Vec'.cons b1))
-  (P : (n : Nat) → (x1 x2 : Vec' α n) → (m : motive n x1 x2) → Prop)
-  (hnil : P 0 Vec'.nil Vec'.nil anil)
-  (hcons : ∀ n a1 b1, P (n + 1) (Vec'.cons a1) (Vec'.cons b1) (acons n a1 b1))  :
-  P n x1 x2 (decEqVec'.match_1 (motive := fun n x1 x2 _ => motive n x1 x2) n x1 x2 h
-    (fun _ => anil) (@fun a1 n b1 _ => @acons n a1 b1)) := by
-  split
-  · apply hnil
-  · apply hcons
+/--
+error: Failed to realize constant foo.eq_def:
+  failed to generate equational theorem for `foo`
+  case isTrue
+  n_1 : Nat
+  a : I n_1
+  x' : I (n_1 + 1)
+  h✝ : P a.cons
+  ⊢ (match (motive := (n : Nat) → (x : I n) → I n → P x → I.rec (fun {n} a a_ih => (I n → R a) ×' a_ih) x → R x)
+          n_1 + 1, a.cons, x', ⋯ with
+        | .(n + 1), a_2.cons, a_2'.cons, x => fun x => testSorry (x.1 a_2') h✝)
+        (I.rec
+          (fun {n} a a_ih =>
+            ⟨fun x' =>
+              if h : P a.cons then
+                (match (motive :=
+                    (n : Nat) → (x : I n) → I n → P x → I.rec (fun {n} a a_ih => (I n → R a) ×' a_ih) x → R x) n + 1,
+                    a.cons, x', ⋯ with
+                  | .(n_2 + 1), a_2.cons, a_2'.cons, x => fun x => testSorry (x.1 a_2') h)
+                  a_ih
+              else testSorry,
+              a_ih⟩)
+          a) =
+      match n_1 + 1, a.cons, x', ⋯ with
+      | .(n + 1), a_2.cons, a_2'.cons, x => testSorry (foo a_2 a_2') h✝
+---
+error: Unknown constant `foo.eq_def`
+-/
+#guard_msgs(pass trace, all) in
+#print sig foo.eq_def

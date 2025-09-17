@@ -287,10 +287,10 @@ private def toInductive (mvar : MVarId) (cs : List Name)
                           let mvar'' ← mvar'.tryClear fvars.getLast!
                           pure ⟨mvar'', fvars, 0⟩
         | some (e + 1) => do
-           let (mv', fvars) ← nCasesProd n mv h
-           let lastfv := fvars.getLast!
-           let (mv2, fvars') ← nCasesProd e mv' lastfv
-           let numHEqs ← mv2.withContext do
+          let (mv', fvars) ← nCasesProd n mv h
+          let lastfv := fvars.getLast!
+          let (mv2, fvars') ← nCasesProd e mv' lastfv
+          let numHEqs ← mv2.withContext do
             let fvarTypes ← fvars'.mapM (·.getType)
             let res := fvarTypes.map (·.isAppOf `HEq)
             let res := res.filter id

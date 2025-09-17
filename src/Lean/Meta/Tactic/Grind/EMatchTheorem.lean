@@ -388,15 +388,17 @@ structure EMatchTheorem where
   Recall that it is non-empty only when we elaborate an expression provided by the user.
   When `proof` is just a constant, we can use the universe parameter names stored in the declaration.
   -/
-  levelParams : Array Name
-  proof       : Expr
-  numParams   : Nat
-  patterns    : List Expr
+  levelParams  : Array Name
+  proof        : Expr
+  numParams    : Nat
+  patterns     : List Expr
   /-- Contains all symbols used in `patterns`. -/
-  symbols     : List HeadIndex
-  origin      : Origin
+  symbols      : List HeadIndex
+  origin       : Origin
   /-- The `kind` is used for generating the `patterns`. We save it here to implement `grind?`. -/
-  kind        : EMatchTheoremKind
+  kind         : EMatchTheoremKind
+  /-- Stores whether patterns were inferred using the minimal indexable subexpression condition. -/
+  minIndexable : Bool
   deriving Inhabited
 
 /-- Set of E-matching theorems. -/
@@ -881,7 +883,7 @@ Creates an E-matching theorem for a theorem with proof `proof`, `numParams` para
 Pattern variables are represented using de Bruijn indices.
 -/
 def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams : Nat) (proof : Expr)
-    (patterns : List Expr) (kind : EMatchTheoremKind) (showInfo := false) : MetaM EMatchTheorem := do
+    (patterns : List Expr) (kind : EMatchTheoremKind) (showInfo := false) (minIndexable : Bool := false) : MetaM EMatchTheorem := do
   -- the patterns have already been selected, there is no point in using priorities here
   let (patterns, symbols, bvarFound) ← NormalizePattern.main patterns (← getGlobalSymbolPriorities) (minPrio := 1)
   if symbols.isEmpty then
@@ -893,7 +895,7 @@ def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams 
   logPatternWhen showInfo origin patterns
   return {
     proof, patterns, numParams, symbols
-    levelParams, origin, kind
+    levelParams, origin, kind, minIndexable
   }
 
 private def getProofFor (declName : Name) : MetaM Expr := do
@@ -909,8 +911,9 @@ private def getProofFor (declName : Name) : MetaM Expr := do
 Creates an E-matching theorem for `declName` with `numParams` parameters, and the given set of patterns.
 Pattern variables are represented using de Bruijn indices.
 -/
-def mkEMatchTheorem (declName : Name) (numParams : Nat) (patterns : List Expr) (kind : EMatchTheoremKind) : MetaM EMatchTheorem := do
-  mkEMatchTheoremCore (.decl declName) #[] numParams (← getProofFor declName) patterns kind
+def mkEMatchTheorem (declName : Name) (numParams : Nat) (patterns : List Expr)
+    (kind : EMatchTheoremKind) (minIndexable : Bool) : MetaM EMatchTheorem := do
+  mkEMatchTheoremCore (.decl declName) #[] numParams (← getProofFor declName) patterns kind (minIndexable := minIndexable)
 
 /--
 Given a theorem with proof `proof` and type of the form `∀ (a_1 ... a_n), lhs = rhs`,
@@ -931,7 +934,8 @@ def mkEMatchEqTheoremCore (origin : Origin) (levelParams : Array Name) (proof : 
     trace[grind.debug.ematch.pattern] "mkEMatchEqTheoremCore: after preprocessing: {pat}, {← normalize pat normConfig}"
     let pats := splitWhileForbidden (pat.abstract xs)
     return (xs.size, pats)
-  mkEMatchTheoremCore origin levelParams numParams proof patterns (if useLhs then .eqLhs gen else .eqRhs gen) (showInfo := showInfo)
+  mkEMatchTheoremCore origin levelParams numParams proof patterns (if useLhs then .eqLhs gen else .eqRhs gen)
+    (showInfo := showInfo) (minIndexable := false)
 
 def mkEMatchEqBwdTheoremCore (origin : Origin) (levelParams : Array Name) (proof : Expr) (showInfo := false) : MetaM EMatchTheorem := do
   let (numParams, patterns) ← forallTelescopeReducing (← inferEMatchProofType proof (gen := false)) fun xs type => do
@@ -940,6 +944,7 @@ def mkEMatchEqBwdTheoremCore (origin : Origin) (levelParams : Array Name) (proof
     let pat ← preprocessPattern (mkEqBwdPattern f.constLevels! α lhs rhs)
     return (xs.size, [pat.abstract xs])
   mkEMatchTheoremCore origin levelParams numParams proof patterns .eqBwd (showInfo := showInfo)
+    (minIndexable := false)
 
 /--
 Given theorem with name `declName` and type of the form `∀ (a_1 ... a_n), lhs = rhs`,
@@ -955,8 +960,9 @@ def mkEMatchEqTheorem (declName : Name) (normalizePattern := true) (useLhs : Boo
 Adds an E-matching theorem to the environment.
 See `mkEMatchTheorem`.
 -/
-def addEMatchTheorem (declName : Name) (numParams : Nat) (patterns : List Expr) (kind : EMatchTheoremKind) (attrKind := AttributeKind.global) : MetaM Unit := do
-  ematchTheoremsExt.add (← mkEMatchTheorem declName numParams patterns kind) attrKind
+def addEMatchTheorem (declName : Name) (numParams : Nat) (patterns : List Expr) (kind : EMatchTheoremKind)
+    (minIndexable : Bool) (attrKind := AttributeKind.global) : MetaM Unit := do
+  ematchTheoremsExt.add (← mkEMatchTheorem declName numParams patterns kind (minIndexable := minIndexable)) attrKind
 
 /--
 Adds an E-matching equality theorem to the environment.
@@ -1330,6 +1336,7 @@ def mkEMatchTheoremUsingSingletonPatterns (origin : Origin) (levelParams : Array
       let thm : EMatchTheorem := {
         proof, patterns, numParams, symbols,
         levelParams, origin, kind := .default false
+        minIndexable := false
       }
       thms := thms.push thm
     return thms
@@ -1406,7 +1413,7 @@ where
     logPatternWhen showInfo origin patterns
     return some {
       proof, patterns, numParams, symbols
-      levelParams, origin, kind
+      levelParams, origin, kind, minIndexable
     }
 
 def mkEMatchTheoremForDecl (declName : Name) (thmKind : EMatchTheoremKind) (prios : SymbolPriorities)
@@ -1502,7 +1509,11 @@ Remark: if `backward.grind.inferPattern` is `true`, then `.default false` is use
 The parameter `showInfo` is only taken into account when `backward.grind.inferPattern` is `true`.
 -/
 def addEMatchAttrAndSuggest (ref : Syntax) (declName : Name) (attrKind : AttributeKind) (prios : SymbolPriorities) (minIndexable : Bool) (showInfo : Bool) : MetaM Unit := do
-  if backward.grind.inferPattern.get (← getOptions) then
+  let info ← getConstInfo declName
+  if !wasOriginallyTheorem (← getEnv) declName && !info.isCtor && !info.isAxiom then
+    ensureNoMinIndexable minIndexable
+    addGrindEqAttr declName attrKind (.default false) (showInfo := showInfo)
+  else if backward.grind.inferPattern.get (← getOptions) then
     addEMatchAttr declName attrKind (.default false) prios (minIndexable := minIndexable) (showInfo := showInfo)
   else
     let tryModifier (thmKind : EMatchTheoremKind) (minIndexable : Bool) : SelectM Unit := do

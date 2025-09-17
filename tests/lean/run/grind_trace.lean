@@ -14,14 +14,14 @@ attribute [grind =] List.getElem?_map
 attribute [grind =] List.getElem?_replicate
 
 attribute [grind =] List.getLast?_eq_some_iff
-attribute [grind] List.mem_concat_self
+attribute [grind ←] List.mem_concat_self
 
 attribute [grind =] List.getElem_cons_zero in
 attribute [grind =] List.getElem?_cons_zero in
 
 /--
 info: Try this:
-  grind only [= List.getElem?_eq_none, = List.getElem?_eq_getElem, = List.getElem?_replicate]
+  grind only [= List.getElem?_eq_none, = List.getElem?_replicate, = List.getElem?_eq_getElem]
 -/
 #guard_msgs (info) in
 theorem getElem?_replicate' : (List.replicate n a)[m]? = if m < n then some a else none := by
@@ -38,9 +38,9 @@ example : 0 < (x :: t).length := by
 attribute [grind ext] List.ext_getElem?
 /--
 info: Try this:
-  grind only [= List.length_replicate, = List.getElem?_eq_none, = List.getElem?_eq_getElem,
-      = List.getElem?_eq_some_iff, = Option.map_some, = Option.map_none, = List.getElem?_replicate,
-      = List.getElem_replicate, = List.getElem?_map]
+  grind only [= List.getElem?_eq_some_iff, = List.length_replicate, = List.getElem?_eq_none,
+      = List.getElem_replicate, = Option.map_some, = Option.map_none, = List.getElem?_replicate,
+      = List.getElem?_eq_getElem, = List.getElem?_map]
 -/
 #guard_msgs (info) in
 theorem map_replicate' : (List.replicate n a).map f = List.replicate n (f a) := by
@@ -48,7 +48,7 @@ theorem map_replicate' : (List.replicate n a).map f = List.replicate n (f a) := 
 
 /--
 info: Try this:
-  grind only [List.mem_concat_self, = List.getLast?_eq_some_iff]
+  grind only [= List.getLast?_eq_some_iff, ← List.mem_concat_self]
 -/
 #guard_msgs (info) in
 theorem mem_of_getLast?_eq_some' {xs : List α} {a : α} (h : xs.getLast? = some a) : a ∈ xs := by

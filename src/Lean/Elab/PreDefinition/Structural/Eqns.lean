@@ -29,7 +29,7 @@ structure EqnInfo extends EqnInfoCore where
   fixedParamPerms : FixedParamPerms
   deriving Inhabited
 
-private partial def mkProof (type : Expr) : MetaM Expr := do
+private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
   withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} proving:{indentExpr type}") do
     withNewMCtxDepth do
       let main ← mkFreshExprSyntheticOpaqueMVar type
@@ -126,7 +126,7 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
   return thmNames
 where
   doRealize name type := withOptions (tactic.hygienic.set · false) do
-    let value ← withoutExporting do mkProof type
+    let value ← withoutExporting do mkProof info.declName type
     let (type, value) ← removeUnusedEqnHypotheses type value
     let type ← letToHave type
     addDecl <| Declaration.thmDecl {

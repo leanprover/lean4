@@ -302,24 +302,13 @@ theorem ofBool_eq_iff_eq : ∀ {b b' : Bool}, BitVec.ofBool b = BitVec.ofBool b'
 
 @[simp] theorem toNat_ofNatLT (x : Nat) (p : x < 2^w) : (x#'p).toNat = x := rfl
 
-@[deprecated toNat_ofNatLT (since := "2025-02-13")]
-theorem toNat_ofNatLt (x : Nat) (p : x < 2^w) : (x#'p).toNat = x := rfl
-
 @[simp] theorem getLsbD_ofNatLT {n : Nat} (x : Nat) (lt : x < 2^n) (i : Nat) :
   getLsbD (x#'lt) i = x.testBit i := by
   simp [getLsbD, BitVec.ofNatLT]
 
-@[deprecated getLsbD_ofNatLT (since := "2025-02-13")]
-theorem getLsbD_ofNatLt {n : Nat} (x : Nat) (lt : x < 2^n) (i : Nat) :
-  getLsbD (x#'lt) i = x.testBit i := getLsbD_ofNatLT x lt i
-
 @[simp] theorem getMsbD_ofNatLT {n x i : Nat} (h : x < 2^n) :
     getMsbD (x#'h) i = (decide (i < n) && x.testBit (n - 1 - i)) := by
   simp [getMsbD, getLsbD]
-
-@[deprecated getMsbD_ofNatLT (since := "2025-02-13")]
-theorem getMsbD_ofNatLt {n x i : Nat} (h : x < 2^n) :
-    getMsbD (x#'h) i = (decide (i < n) && x.testBit (n - 1 - i)) := getMsbD_ofNatLT h
 
 @[simp, bitvec_to_nat] theorem toNat_ofNat (x w : Nat) : (BitVec.ofNat w x).toNat = x % 2^w := by
   simp [BitVec.toNat, BitVec.ofNat, Fin.ofNat]
@@ -5477,16 +5466,5 @@ instance instDecidableExistsBitVec :
     ∀ (n : Nat) (P : BitVec n → Prop) [DecidablePred P], Decidable (∃ v, P v)
   | 0, _, _ => inferInstance
   | _ + 1, _, _ => inferInstance
-
-/-! ### Deprecations -/
-
-set_option linter.missingDocs false
-
-@[deprecated toFin_uShiftRight (since := "2025-02-18")]
-abbrev toFin_uShiftRight := @toFin_ushiftRight
-
-
-
-
 
 end BitVec'

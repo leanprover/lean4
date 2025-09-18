@@ -176,9 +176,6 @@ theorem attach_map_val (xs : Array α) (f : α → β) :
   cases xs
   simp
 
-@[deprecated attach_map_val (since := "2025-02-17")]
-abbrev attach_map_coe := @attach_map_val
-
 -- The argument `xs : Array α` is explicit to allow rewriting from right to left.
 theorem attach_map_subtype_val (xs : Array α) : xs.attach.map Subtype.val = xs := by
   cases xs; simp
@@ -186,9 +183,6 @@ theorem attach_map_subtype_val (xs : Array α) : xs.attach.map Subtype.val = xs 
 theorem attachWith_map_val {p : α → Prop} {f : α → β} {xs : Array α} (H : ∀ a ∈ xs, p a) :
     ((xs.attachWith p H).map fun (i : { i // p i}) => f i) = xs.map f := by
   cases xs; simp
-
-@[deprecated attachWith_map_val (since := "2025-02-17")]
-abbrev attachWith_map_coe := @attachWith_map_val
 
 theorem attachWith_map_subtype_val {p : α → Prop} {xs : Array α} (H : ∀ a ∈ xs, p a) :
     (xs.attachWith p H).map Subtype.val = xs := by
@@ -400,9 +394,6 @@ theorem map_attach_eq_pmap {xs : Array α} {f : { x // x ∈ xs } → β} :
     xs.attach.map f = xs.pmap (fun a h => f ⟨a, h⟩) (fun _ => id) := by
   cases xs
   ext <;> simp
-
-@[deprecated map_attach_eq_pmap (since := "2025-02-09")]
-abbrev map_attach := @map_attach_eq_pmap
 
 @[grind =]
 theorem attach_filterMap {xs : Array α} {f : α → Option β} :

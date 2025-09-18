@@ -73,9 +73,6 @@ def Promise.result! (promise : @& Promise α) : Task α :=
   let _ : Nonempty α := promise.h
   promise.result?.map (sync := true) Option.getOrBlock!
 
-@[inherit_doc Promise.result!, deprecated Promise.result! (since := "2025-02-05")]
-def Promise.result := @Promise.result!
-
 /--
 Like `Promise.result`, but resolves to `dflt` if the promise is dropped without ever being resolved.
 -/

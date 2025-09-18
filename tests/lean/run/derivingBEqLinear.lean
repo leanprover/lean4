@@ -1,6 +1,6 @@
 module
 
-set_option deriving.beq.linear_construction_threshold 1000
+set_option deriving.beq.linear_construction_threshold 0
 
 public section
 
@@ -33,13 +33,17 @@ inductive L (α : Type u) : Type u
 /--
 info: instBEqL.beq_spec.{u_1} {α✝ : Type u_1} [BEq α✝] (x✝ x✝¹ : L α✝) :
   (x✝ == x✝¹) =
-    match x✝, x✝¹ with
-    | L.nil, L.nil => true
-    | L.cons a a_1, L.cons b b_1 => a == b && a_1 == b_1
-    | x, x_1 => false
+    match decEq x✝.ctorIdx x✝¹.ctorIdx with
+    | isTrue h =>
+      match x✝, x✝¹, h with
+      | L.nil, L.nil, ⋯ => true
+      | L.cons a a_1, L.cons a' a'_1, ⋯ => a == a' && a_1 == a'_1
+    | isFalse h => false
 -/
-#guard_msgs in
-#check instBEqL.beq_spec
+#guard_msgs in #check instBEqL.beq_spec
+
+/-- error: Unknown identifier `instBEqL.beq_spec_2` -/
+#guard_msgs in #check instBEqL.beq_spec_2
 
 namespace L
 theorem ex1 : (L.cons 10 L.nil == L.cons 20 L.nil) = false := rfl
@@ -60,10 +64,12 @@ info: @[expose] def InNamespace.instBEqL'.{u_1} : {α : Type u_1} → [BEq α] �
 /--
 info: theorem InNamespace.instBEqL'.beq_spec.{u_1} : ∀ {α : Type u_1} [inst : BEq α] (x x_1 : InNamespace.L' α),
   (x == x_1) =
-    match x, x_1 with
-    | InNamespace.L'.nil, InNamespace.L'.nil => true
-    | InNamespace.L'.cons a a_1, InNamespace.L'.cons b b_1 => a == b && a_1 == b_1
-    | x, x_2 => false
+    match decEq x.ctorIdx x_1.ctorIdx with
+    | isTrue h =>
+      match x, x_1, h with
+      | InNamespace.L'.nil, InNamespace.L'.nil, ⋯ => true
+      | InNamespace.L'.cons a a_1, InNamespace.L'.cons a' a'_1, ⋯ => a == a' && a_1 == a'_1
+    | isFalse h => false
 -/
 #guard_msgs in #print sig InNamespace.instBEqL'.beq_spec
 
@@ -75,10 +81,12 @@ inductive Vec (α : Type u) : Nat → Type u
 /--
 info: instBEqVec.beq_spec.{u_1} {α✝ : Type u_1} {a✝ : Nat} [BEq α✝] (x✝ x✝¹ : Vec α✝ a✝) :
   (x✝ == x✝¹) =
-    match a✝, x✝, x✝¹ with
-    | .(0), Vec.nil, Vec.nil => true
-    | .(a_1 + 1), Vec.cons a a_2, Vec.cons b b_1 => a == b && a_2 == b_1
-    | x, x_1, x_2 => false
+    match decEq x✝.ctorIdx x✝¹.ctorIdx with
+    | isTrue h =>
+      match a✝, x✝, x✝¹ with
+      | 0, Vec.nil, Vec.nil, ⋯ => true
+      | x + 1, Vec.cons a a_1, Vec.cons a' a'_1, ⋯ => a == a' && a_1 == a'_1
+    | isFalse h => false
 -/
 #guard_msgs in
 #check instBEqVec.beq_spec
@@ -125,27 +133,6 @@ def ex1 [BEq α] : BEq (Tree α) :=
 
 def ex2 [BEq α] : BEq (TreeList α) :=
   inferInstance
-
--- The tricky inductive from issue #3386
-
-inductive Tyₛ : Type (u+1)
-| SPi : (T : Type u) -> (T -> Tyₛ) -> Tyₛ
-
-/--
-error: Tactic `cases` failed with a nested error:
-Dependent elimination failed: Failed to solve equation
-  A✝¹ arg✝¹ = A✝ arg✝
-at case `Tmₛ.app` after processing
-  _, (Tmₛ.app _ _ _ _), _
-the dependent pattern matcher can solve the following kinds of equations
-- <var> = <term> and <term> = <var>
-- <term> = <term> where the terms are definitionally equal
-- <constructor> = <constructor>, examples: List.cons x xs = List.cons y ys, and List.cons x xs = List.nil
--/
-#guard_msgs(pass trace, all) in
-inductive Tmₛ.{u} :  Tyₛ.{u} -> Type (u+1)
-| app : Tmₛ (.SPi T A) -> (arg : T) -> Tmₛ (A arg)
-deriving BEq
 
 /-! Private fields should yield public, no-expose instances. -/
 

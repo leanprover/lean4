@@ -3010,218 +3010,56 @@ def List.concat {α : Type u} : List α → α → List α
   | cons a as, b => cons a (concat as b)
 
 /--
-Returns the sequence of bytes in a character's UTF-8 encoding.
+Appends two lists. Normally used via the `++` operator.
+
+Appending lists takes time proportional to the length of the first list: `O(|xs|)`.
+
+Examples:
+  * `[1, 2, 3] ++ [4, 5] = [1, 2, 3, 4, 5]`.
+  * `[] ++ [4, 5] = [4, 5]`.
+  * `[1, 2, 3] ++ [] = [1, 2, 3]`.
 -/
-def String.utf8EncodeChar (c : Char) : List UInt8 :=
-  let v := c.val.toNat
-  ite (LE.le v 0x7f)
-    (List.cons (UInt8.ofNat v) List.nil)
-    (ite (LE.le v 0x7ff)
-      (List.cons
-        (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 64) 0x20) 0xc0))
-        (List.cons
-          (UInt8.ofNat (HAdd.hAdd (HMod.hMod v 0x40) 0x80))
-          List.nil))
-      (ite (LE.le v 0xffff)
-        (List.cons
-          (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 4096) 0x10) 0xe0))
-          (List.cons
-            (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 64) 0x40) 0x80))
-            (List.cons
-              (UInt8.ofNat (HAdd.hAdd (HMod.hMod v 0x40) 0x80))
-              List.nil)))
-        (List.cons
-          (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 262144) 0x08) 0xf0))
-          (List.cons
-            (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 4096) 0x40) 0x80))
-            (List.cons
-              (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 64) 0x40) 0x80))
-              (List.cons
-                (UInt8.ofNat (HAdd.hAdd (HMod.hMod v 0x40) 0x80))
-                List.nil))))))
+protected def List.append : (xs ys : List α) → List α
+  | nil,       bs => bs
+  | cons a as, bs => cons a (List.append as bs)
 
 /--
-A string is a sequence of Unicode code points.
+Concatenates a list of lists into a single list, preserving the order of the elements.
 
-At runtime, strings are represented by [dynamic arrays](https://en.wikipedia.org/wiki/Dynamic_array)
-of bytes using the UTF-8 encoding. Both the size in bytes (`String.utf8ByteSize`) and in characters
-(`String.length`) are cached and take constant time. Many operations on strings perform in-place
-modifications when the reference to the string is unique.
+`O(|flatten L|)`.
+
+Examples:
+* `[["a"], ["b", "c"]].flatten = ["a", "b", "c"]`
+* `[["a"], [], ["b", "c"], ["d", "e", "f"]].flatten = ["a", "b", "c", "d", "e", "f"]`
 -/
-structure String where
-  /-- Pack a `List Char` into a `String`. This function is overridden by the
-  compiler and is O(n) in the length of the list. -/
-  mk ::
-  /-- Unpack `String` into a `List Char`. This function is overridden by the
-  compiler and is O(n) in the length of the list. -/
-  data : List Char
-
-attribute [extern "lean_string_mk"] String.mk
-attribute [extern "lean_string_data"] String.data
+def List.flatten : List (List α) → List α
+  | nil      => nil
+  | cons l L => List.append l (flatten L)
 
 /--
-Decides whether two strings are equal. Normally used via the `DecidableEq String` instance and the
-`=` operator.
+Applies a function to each element of the list, returning the resulting list of values.
 
-At runtime, this function is overridden with an efficient native implementation.
+`O(|l|)`.
+
+Examples:
+* `[a, b, c].map f = [f a, f b, f c]`
+* `[].map Nat.succ = []`
+* `["one", "two", "three"].map (·.length) = [3, 3, 5]`
+* `["one", "two", "three"].map (·.reverse) = ["eno", "owt", "eerht"]`
 -/
-@[extern "lean_string_dec_eq"]
-def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
-  match s₁, s₂ with
-  | ⟨s₁⟩, ⟨s₂⟩ =>
-    dite (Eq s₁ s₂) (fun h => isTrue (congrArg _ h)) (fun h => isFalse (fun h' => String.noConfusion h' (fun h' => absurd h' h)))
-
-instance : DecidableEq String := String.decEq
+@[specialize] def List.map (f : α → β) : (l : List α) → List β
+  | nil       => nil
+  | cons a as => cons (f a) (map f as)
 
 /--
-A byte position in a `String`, according to its UTF-8 encoding.
+Applies a function that returns a list to each element of a list, and concatenates the resulting
+lists.
 
-Character positions (counting the Unicode code points rather than bytes) are represented by plain
-`Nat`s. Indexing a `String` by a `String.Pos` takes constant time, while character positions need to
-be translated internally to byte positions, which takes linear time.
-
-A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.endPos` and `p` lies on a UTF-8
-character boundary.
+Examples:
+* `[2, 3, 2].flatMap List.range = [0, 1, 0, 1, 2, 0, 1]`
+* `["red", "blue"].flatMap String.toList = ['r', 'e', 'd', 'b', 'l', 'u', 'e']`
 -/
-structure String.Pos where
-  /-- Get the underlying byte index of a `String.Pos` -/
-  byteIdx : Nat := 0
-
-instance : Inhabited String.Pos where
-  default := {}
-
-instance : DecidableEq String.Pos :=
-  fun ⟨a⟩ ⟨b⟩ => match decEq a b with
-    | isTrue h => isTrue (h ▸ rfl)
-    | isFalse h => isFalse (fun he => String.Pos.noConfusion he fun he => absurd he h)
-
-/--
-A region or slice of some underlying string.
-
-A substring contains an string together with the start and end byte positions of a region of
-interest. Actually extracting a substring requires copying and memory allocation, while many
-substrings of the same underlying string may exist with very little overhead, and they are more
-convenient than tracking the bounds by hand.
-
-Using its constructor explicitly, it is possible to construct a `Substring` in which one or both of
-the positions is invalid for the string. Many operations will return unexpected or confusing results
-if the start and stop positions are not valid. Instead, it's better to use API functions that ensure
-the validity of the positions in a substring to create and manipulate them.
--/
-structure Substring where
-  /-- The underlying string. -/
-  str      : String
-  /-- The byte position of the start of the string slice. -/
-  startPos : String.Pos
-  /-- The byte position of the end of the string slice. -/
-  stopPos  : String.Pos
-
-instance : Inhabited Substring where
-  default := ⟨"", {}, {}⟩
-
-/--
-The number of bytes used by the string's UTF-8 encoding.
--/
-@[inline, expose] def Substring.bsize : Substring → Nat
-  | ⟨_, b, e⟩ => e.byteIdx.sub b.byteIdx
-
-/--
-The number of bytes used by the string's UTF-8 encoding.
-
-At runtime, this function takes constant time because the byte length of strings is cached.
--/
-@[extern "lean_string_utf8_byte_size"]
-def String.utf8ByteSize : (@& String) → Nat
-  | ⟨s⟩ => go s
-where
-  go : List Char → Nat
-   | .nil       => 0
-   | .cons c cs => hAdd (go cs) c.utf8Size
-
-/--
-A UTF-8 byte position that points at the end of a string, just after the last character.
-
-* `"abc".endPos = ⟨3⟩`
-* `"L∃∀N".endPos = ⟨8⟩`
--/
-@[inline] def String.endPos (s : String) : String.Pos where
-  byteIdx := utf8ByteSize s
-
-/--
-Converts a `String` into a `Substring` that denotes the entire string.
--/
-@[inline] def String.toSubstring (s : String) : Substring where
-  str      := s
-  startPos := {}
-  stopPos  := s.endPos
-
-/--
-Converts a `String` into a `Substring` that denotes the entire string.
-
-This is a version of `String.toSubstring` that doesn't have an `@[inline]` annotation.
--/
-def String.toSubstring' (s : String) : Substring :=
-  s.toSubstring
-
-/--
-This function will cast a value of type `α` to type `β`, and is a no-op in the
-compiler. This function is **extremely dangerous** because there is no guarantee
-that types `α` and `β` have the same data representation, and this can lead to
-memory unsafety. It is also logically unsound, since you could just cast
-`True` to `False`. For all those reasons this function is marked as `unsafe`.
-
-It is implemented by lifting both `α` and `β` into a common universe, and then
-using `cast (lcProof : ULift (PLift α) = ULift (PLift β))` to actually perform
-the cast. All these operations are no-ops in the compiler.
-
-Using this function correctly requires some knowledge of the data representation
-of the source and target types. Some general classes of casts which are safe in
-the current runtime:
-
-* `Array α` to `Array β` where `α` and `β` have compatible representations,
-  or more generally for other inductive types.
-* `Quot α r` and `α`.
-* `@Subtype α p` and `α`, or generally any structure containing only one
-  non-`Prop` field of type `α`.
-* Casting `α` to/from `NonScalar` when `α` is a boxed generic type
-  (i.e. a function that accepts an arbitrary type `α` and is not specialized to
-  a scalar type like `UInt8`).
--/
-unsafe def unsafeCast {α : Sort u} {β : Sort v} (a : α) : β :=
-  PLift.down (ULift.down.{max u v} (cast lcProof (ULift.up.{max u v} (PLift.up a))))
-
-
-/-- Auxiliary definition for `panic`. -/
-/-
-This is a workaround for `panic` occurring in monadic code. See issue #695.
-The `panicCore` definition cannot be specialized since it is an extern.
-When `panic` occurs in monadic code, the `Inhabited α` parameter depends on a
-`[inst : Monad m]` instance. The `inst` parameter will not be eliminated during
-specialization if it occurs inside of a binder (to avoid work duplication), and
-will prevent the actual monad from being "copied" to the code being specialized.
-When we reimplement the specializer, we may consider copying `inst` if it also
-occurs outside binders or if it is an instance.
--/
-@[never_extract, extern "lean_panic_fn"]
-def panicCore {α : Sort u} [Inhabited α] (msg : String) : α := default
-
-/--
-`(panic "msg" : α)` has a built-in implementation which prints `msg` to
-the error buffer. It *does not* terminate execution, and because it is a safe
-function, it still has to return an element of `α`, so it takes `[Inhabited α]`
-and returns `default`. It is primarily intended for debugging in pure contexts,
-and assertion failures.
-
-Because this is a pure function with side effects, it is marked as
-`@[never_extract]` so that the compiler will not perform common sub-expression
-elimination and other optimizations that assume that the expression is pure.
--/
-@[noinline, never_extract]
-def panic {α : Sort u} [Inhabited α] (msg : String) : α :=
-  panicCore msg
-
--- TODO: this be applied directly to `Inhabited`'s definition when we remove the above workaround
-attribute [nospecialize] Inhabited
+@[inline] def List.flatMap {α : Type u} {β : Type v} (b : α → List β) (as : List α) : List β := flatten (map b as)
 
 /--
 `Array α` is the type of [dynamic arrays](https://en.wikipedia.org/wiki/Dynamic_array) with elements
@@ -3451,6 +3289,276 @@ def Array.extract (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : A
       (fun _ => bs)
   let sz' := Nat.sub (min stop as.size) start
   loop sz' start (emptyWithCapacity sz')
+
+/-- `ByteArray` is like `Array UInt8`, but with an efficient run-time representation as a packed
+byte buffer. -/
+structure ByteArray where
+  /-- The data contained in the byte array. -/
+  data : Array UInt8
+
+attribute [extern "lean_byte_array_mk"] ByteArray.mk
+attribute [extern "lean_byte_array_data"] ByteArray.data
+
+/--
+Constructs a new empty byte array with initial capacity `c`.
+-/
+@[extern "lean_mk_empty_byte_array"]
+def ByteArray.emptyWithCapacity (c : @& Nat) : ByteArray :=
+  { data := Array.empty }
+
+/--
+Constructs a new empty byte array with initial capacity `0`.
+
+Use `ByteArray.emptyWithCapacity` to create an array with a greater initial capacity.
+-/
+def ByteArray.empty : ByteArray := emptyWithCapacity 0
+
+/--
+Adds an element to the end of an array. The resulting array's size is one greater than the input
+array. If there are no other references to the array, then it is modified in-place.
+
+This takes amortized `O(1)` time because `Array α` is represented by a dynamic array.
+-/
+@[extern "lean_byte_array_push"]
+def ByteArray.push : ByteArray → UInt8 → ByteArray
+  | ⟨bs⟩, b => ⟨bs.push b⟩
+
+/--
+Converts a list of bytes into a `ByteArray`.
+-/
+def List.toByteArray (bs : List UInt8) : ByteArray :=
+  let rec loop
+    | nil,        r => r
+    | cons b bs,  r => loop bs (r.push b)
+  loop bs ByteArray.empty
+
+/-- Returns the size of the byte array. -/
+@[extern "lean_byte_array_size"]
+def ByteArray.size : (@& ByteArray) → Nat
+  | ⟨bs⟩ => bs.size
+
+/--
+Returns the sequence of bytes in a character's UTF-8 encoding.
+-/
+def String.utf8EncodeChar (c : Char) : List UInt8 :=
+  let v := c.val.toNat
+  ite (LE.le v 0x7f)
+    (List.cons (UInt8.ofNat v) List.nil)
+    (ite (LE.le v 0x7ff)
+      (List.cons
+        (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 64) 0x20) 0xc0))
+        (List.cons
+          (UInt8.ofNat (HAdd.hAdd (HMod.hMod v 0x40) 0x80))
+          List.nil))
+      (ite (LE.le v 0xffff)
+        (List.cons
+          (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 4096) 0x10) 0xe0))
+          (List.cons
+            (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 64) 0x40) 0x80))
+            (List.cons
+              (UInt8.ofNat (HAdd.hAdd (HMod.hMod v 0x40) 0x80))
+              List.nil)))
+        (List.cons
+          (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 262144) 0x08) 0xf0))
+          (List.cons
+            (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 4096) 0x40) 0x80))
+            (List.cons
+              (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 64) 0x40) 0x80))
+              (List.cons
+                (UInt8.ofNat (HAdd.hAdd (HMod.hMod v 0x40) 0x80))
+                List.nil))))))
+
+/-- Encode a list of characters (Unicode scalar value) in UTF-8. This is an inefficient model
+implementation. Use `List.asString` instead. -/
+def List.utf8Encode (l : List Char) : ByteArray :=
+  l.flatMap String.utf8EncodeChar |>.toByteArray
+
+/-- A byte array is valid UTF-8 if it is of the form `List.Internal.utf8Encode m` for some `m`.
+
+Note that in order for this definition to be well-behaved it is necessary to know that this `m`
+is unique. To show this, one defines UTF-8 decoding and shows that encoding and decoding are
+mutually inverse. -/
+inductive ByteArray.IsValidUtf8 (b : ByteArray) : Prop
+  /-- Show that a byte -/
+  | intro (m : List Char) (hm : Eq b (List.utf8Encode m))
+
+/--
+A string is a sequence of Unicode scalar values.
+
+At runtime, strings are represented by [dynamic arrays](https://en.wikipedia.org/wiki/Dynamic_array)
+of bytes using the UTF-8 encoding. Both the size in bytes (`String.utf8ByteSize`) and in characters
+(`String.length`) are cached and take constant time. Many operations on strings perform in-place
+modifications when the reference to the string is unique.
+-/
+structure String where ofByteArray ::
+  /-- The bytes of the UTF-8 encoding of the string. -/
+  bytes : ByteArray
+  /-- The bytes of the string form valid UTF-8. -/
+  isValidUtf8 : ByteArray.IsValidUtf8 bytes
+
+attribute [extern "lean_string_to_utf8"] String.bytes
+
+/--
+Decides whether two strings are equal. Normally used via the `DecidableEq String` instance and the
+`=` operator.
+
+At runtime, this function is overridden with an efficient native implementation.
+-/
+@[extern "lean_string_dec_eq"]
+def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
+  match s₁, s₂ with
+  | ⟨⟨⟨s₁⟩⟩, _⟩, ⟨⟨⟨s₂⟩⟩, _⟩ =>
+    dite (Eq s₁ s₂) (fun h => match s₁, s₂, h with | _, _, Eq.refl _ => isTrue rfl)
+      (fun h => isFalse
+        (fun h' => h (congrArg (fun s => Array.toList (ByteArray.data (String.bytes s))) h')))
+
+instance : DecidableEq String := String.decEq
+
+/--
+A byte position in a `String`, according to its UTF-8 encoding.
+
+Character positions (counting the Unicode code points rather than bytes) are represented by plain
+`Nat`s. Indexing a `String` by a `String.Pos` takes constant time, while character positions need to
+be translated internally to byte positions, which takes linear time.
+
+A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.endPos` and `p` lies on a UTF-8
+character boundary.
+-/
+structure String.Pos where
+  /-- Get the underlying byte index of a `String.Pos` -/
+  byteIdx : Nat := 0
+
+instance : Inhabited String.Pos where
+  default := {}
+
+instance : DecidableEq String.Pos :=
+  fun ⟨a⟩ ⟨b⟩ => match decEq a b with
+    | isTrue h => isTrue (h ▸ rfl)
+    | isFalse h => isFalse (fun he => String.Pos.noConfusion he fun he => absurd he h)
+
+/--
+A region or slice of some underlying string.
+
+A substring contains an string together with the start and end byte positions of a region of
+interest. Actually extracting a substring requires copying and memory allocation, while many
+substrings of the same underlying string may exist with very little overhead, and they are more
+convenient than tracking the bounds by hand.
+
+Using its constructor explicitly, it is possible to construct a `Substring` in which one or both of
+the positions is invalid for the string. Many operations will return unexpected or confusing results
+if the start and stop positions are not valid. Instead, it's better to use API functions that ensure
+the validity of the positions in a substring to create and manipulate them.
+-/
+structure Substring where
+  /-- The underlying string. -/
+  str      : String
+  /-- The byte position of the start of the string slice. -/
+  startPos : String.Pos
+  /-- The byte position of the end of the string slice. -/
+  stopPos  : String.Pos
+
+instance : Inhabited Substring where
+  default := ⟨"", {}, {}⟩
+
+/--
+The number of bytes used by the string's UTF-8 encoding.
+-/
+@[inline, expose] def Substring.bsize : Substring → Nat
+  | ⟨_, b, e⟩ => e.byteIdx.sub b.byteIdx
+
+/--
+The number of bytes used by the string's UTF-8 encoding.
+
+At runtime, this function takes constant time because the byte length of strings is cached.
+-/
+@[extern "lean_string_utf8_byte_size"]
+def String.utf8ByteSize (s : @& String) : Nat :=
+  s.bytes.size
+
+/--
+A UTF-8 byte position that points at the end of a string, just after the last character.
+
+* `"abc".endPos = ⟨3⟩`
+* `"L∃∀N".endPos = ⟨8⟩`
+-/
+@[inline] def String.endPos (s : String) : String.Pos where
+  byteIdx := utf8ByteSize s
+
+/--
+Converts a `String` into a `Substring` that denotes the entire string.
+-/
+@[inline] def String.toSubstring (s : String) : Substring where
+  str      := s
+  startPos := {}
+  stopPos  := s.endPos
+
+/--
+Converts a `String` into a `Substring` that denotes the entire string.
+
+This is a version of `String.toSubstring` that doesn't have an `@[inline]` annotation.
+-/
+def String.toSubstring' (s : String) : Substring :=
+  s.toSubstring
+
+/--
+This function will cast a value of type `α` to type `β`, and is a no-op in the
+compiler. This function is **extremely dangerous** because there is no guarantee
+that types `α` and `β` have the same data representation, and this can lead to
+memory unsafety. It is also logically unsound, since you could just cast
+`True` to `False`. For all those reasons this function is marked as `unsafe`.
+
+It is implemented by lifting both `α` and `β` into a common universe, and then
+using `cast (lcProof : ULift (PLift α) = ULift (PLift β))` to actually perform
+the cast. All these operations are no-ops in the compiler.
+
+Using this function correctly requires some knowledge of the data representation
+of the source and target types. Some general classes of casts which are safe in
+the current runtime:
+
+* `Array α` to `Array β` where `α` and `β` have compatible representations,
+  or more generally for other inductive types.
+* `Quot α r` and `α`.
+* `@Subtype α p` and `α`, or generally any structure containing only one
+  non-`Prop` field of type `α`.
+* Casting `α` to/from `NonScalar` when `α` is a boxed generic type
+  (i.e. a function that accepts an arbitrary type `α` and is not specialized to
+  a scalar type like `UInt8`).
+-/
+unsafe def unsafeCast {α : Sort u} {β : Sort v} (a : α) : β :=
+  PLift.down (ULift.down.{max u v} (cast lcProof (ULift.up.{max u v} (PLift.up a))))
+
+
+/-- Auxiliary definition for `panic`. -/
+/-
+This is a workaround for `panic` occurring in monadic code. See issue #695.
+The `panicCore` definition cannot be specialized since it is an extern.
+When `panic` occurs in monadic code, the `Inhabited α` parameter depends on a
+`[inst : Monad m]` instance. The `inst` parameter will not be eliminated during
+specialization if it occurs inside of a binder (to avoid work duplication), and
+will prevent the actual monad from being "copied" to the code being specialized.
+When we reimplement the specializer, we may consider copying `inst` if it also
+occurs outside binders or if it is an instance.
+-/
+@[never_extract, extern "lean_panic_fn"]
+def panicCore {α : Sort u} [Inhabited α] (msg : String) : α := default
+
+/--
+`(panic "msg" : α)` has a built-in implementation which prints `msg` to
+the error buffer. It *does not* terminate execution, and because it is a safe
+function, it still has to return an element of `α`, so it takes `[Inhabited α]`
+and returns `default`. It is primarily intended for debugging in pure contexts,
+and assertion failures.
+
+Because this is a pure function with side effects, it is marked as
+`@[never_extract]` so that the compiler will not perform common sub-expression
+elimination and other optimizations that assume that the expression is pure.
+-/
+@[noinline, never_extract]
+def panic {α : Sort u} [Inhabited α] (msg : String) : α :=
+  panicCore msg
+
+-- TODO: this be applied directly to `Inhabited`'s definition when we remove the above workaround
+attribute [nospecialize] Inhabited
 
 /--
 The `>>=` operator is overloaded via instances of `bind`.

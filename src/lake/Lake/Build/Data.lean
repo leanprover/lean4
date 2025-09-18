@@ -10,8 +10,9 @@ public import Lake.Build.Key
 public import Lake.Util.Family
 public import Lake.Config.Dynlib
 public import Lake.Config.Kinds
-meta import all Lake.Config.Kinds
-meta import Lake.Util.Name
+public meta import Lake.Config.Kinds
+public meta import Lake.Util.Name
+import all Lake.Config.Kinds
 
 open Lean
 

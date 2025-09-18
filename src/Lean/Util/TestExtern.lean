@@ -6,11 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Lean.Elab.Command
-meta import Lean.Meta.Tactic.Unfold
-meta import Lean.Meta.Eval
-meta import Lean.Compiler.ImplementedByAttr
-meta import Lean.Elab.Command
+public meta import Lean.Meta.Tactic.Unfold
+public meta import Lean.Meta.Eval
+public meta import Lean.Compiler.ImplementedByAttr
+public meta import Lean.Elab.Command
 
 public section
 

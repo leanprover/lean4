@@ -193,7 +193,7 @@ theorem attachWith_map_subtype_val {p : α → Prop} {xs : Vector α n} (H : ∀
   rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp, grind]
+@[simp, grind ←]
 theorem mem_attach (xs : Vector α n) : ∀ x, x ∈ xs.attach
   | ⟨a, h⟩ => by
     have := mem_map.1 (by rw [attach_map_subtype_val] <;> exact h)

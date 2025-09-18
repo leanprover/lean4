@@ -202,7 +202,7 @@ info: Try these:
   • fun_induction bla <;> simp_all
   • fun_induction bla <;> simp [*]
   • fun_induction bla <;> simp only [List.length_reverse, *]
-  • fun_induction bla <;> grind only [List.length_reverse]
+  • fun_induction bla <;> grind only [= List.length_reverse]
 -/
 #guard_msgs (info) in
 example : (bla xs ys).length = ys.length := by

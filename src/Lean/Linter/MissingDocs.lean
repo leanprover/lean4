@@ -87,6 +87,8 @@ builtin_initialize
     applicationTime := .afterCompilation
     add             := fun declName stx kind => do
       unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
+      if !builtin then
+        ensureAttrDeclIsMeta name declName kind
       let env ← getEnv
       unless builtin || (env.getModuleIdxFor? declName).isNone do
         throwAttrDeclInImportedModule name declName

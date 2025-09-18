@@ -120,16 +120,6 @@ private def strLitRange [Monad m] [MonadFileMap m] (s : StrLit) : m String.Range
   return ⟨pos, endPos⟩
 
 /--
-A name that will be checked to exist later.
--/
-structure PostponedName where
-  /--
-  The name to check for.
-  -/
-  name : Name
-deriving TypeName
-
-/--
 Checks that a name exists when it is expected to.
 -/
 meta def checkNameExists : PostponedCheckHandler := fun _ info => do

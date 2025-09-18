@@ -1580,6 +1580,7 @@ instance {p q : Prop} [d : Decidable (p ↔ q)] : Decidable (p = q) :=
 
 gen_injective_theorems% Array
 gen_injective_theorems% BitVec
+gen_injective_theorems% ByteArray
 gen_injective_theorems% Char
 gen_injective_theorems% DoResultBC
 gen_injective_theorems% DoResultPR

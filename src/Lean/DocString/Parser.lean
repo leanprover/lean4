@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Parser.Types
 public import Lean.DocString.Syntax
-meta import Lean.DocString.Syntax
 
 set_option linter.missingDocs true
 
@@ -612,7 +611,7 @@ mutual
           asStringFn (atomicFn (noSpaceBefore >> repFn count (satisfyFn (· == char) s!"'{tok count}'"))))
 
   where
-    tok (count : Nat) : String := ⟨List.replicate count char⟩
+    tok (count : Nat) : String := (List.replicate count char).asString
     opener (ctxt : InlineCtxt) : ParserFn :=
       match getter ctxt with
       | none => many1Fn (satisfyFn (· == char) s!"any number of {char}s")
@@ -793,11 +792,15 @@ Parses a line of text (that is, one or more inline elements).
 def textLine (allowNewlines := true) : ParserFn := many1Fn (inline { allowNewlines })
 
 open Lean.Parser.Term in
+def metadataContents : Parser :=
+  structInstFields (sepByIndent structInstField ", " (allowTrailingSep := true))
+
+open Lean.Parser.Term in
 /--
 Parses a metadata block, which contains the contents of a Lean structure initialization but is
 surrounded by `%%%` on each side.
 -/
-public meta def metadataBlock : ParserFn :=
+public def metadataBlock : ParserFn :=
   nodeFn ``metadata_block <|
     opener >>
     metadataContents.fn >>

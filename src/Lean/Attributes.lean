@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.CoreM
 public import Lean.MonadEnv
+public import Lean.Compiler.MetaAttr
 
 public section
 
@@ -141,6 +142,15 @@ def throwAttrNotInAsyncCtx (attrName declName : Name) (asyncPrefix? : Option Nam
 def throwAttrDeclNotOfExpectedType (attrName declName : Name) (givenType expectedType : Expr) : m α :=
   throwError m!"Cannot add attribute `[{attrName}]`: Declaration `{.ofConstName declName}` has type{indentExpr givenType}\n\
     but `[{attrName}]` can only be added to declarations of type{indentExpr expectedType}"
+
+def ensureAttrDeclIsMeta [MonadEnv m] (attrName declName : Name) (attrKind : AttributeKind) : m Unit := do
+  if (← getEnv).header.isModule && !isMeta (← getEnv) declName then
+    throwError m!"Cannot add attribute `[{attrName}]`: Declaration `{.ofConstName declName}` must be marked as `meta`"
+  -- Make sure attributed decls can't refer to private meta imports, which is already checked for
+  -- public decls.
+  if (← getEnv).header.isModule && attrKind == .global && !((← getEnv).setExporting true).contains declName then
+    throwError m!"Cannot add attribute `[{attrName}]`: Declaration `{.ofConstName declName}` must be public"
+
 end
 
 /--

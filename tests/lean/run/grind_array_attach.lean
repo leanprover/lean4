@@ -42,3 +42,12 @@ reprove pmap_reverse reverse_pmap attachWith_reverse reverse_attachWith attach_r
 reprove getLast?_pmap getLast?_attachWith getLast?_attach by grind
 
 end List
+
+namespace Option
+
+reprove pmap_none pmap_some attach_none attachWith_none by grind
+reprove map_pmap pmap_map attach_some attachWith_some by grind
+reprove attach_map_val attach_map_subtype_val attachWith_map_val attachWith_map_subtype_val by grind [cases Option]
+reprove attach_map attachWith_map map_attachWith map_attachWith_eq_pmap map_attach_eq_pmap by grind [cases Option]
+
+end Option

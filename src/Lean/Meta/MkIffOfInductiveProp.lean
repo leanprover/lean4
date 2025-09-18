@@ -296,15 +296,15 @@ private def toInductive (mvar : MVarId) (cs : List Name)
             let res := res.filter id
             pure res.length
 
-           /- `fvars'.foldlM subst mv2` fails when we have dependent equalities (`HEq`).
-           `subst` will change the dependent hypotheses, so that the `uniq` local names
-           are wrong afterwards. Instead we revert them and pull them out one-by-one. -/
-           let (_, mv3) ← mv2.revert fvars'.toArray
-           let mv4 ← fvars'.foldlM (fun mv _ ↦ do
+          /- `fvars'.foldlM subst mv2` fails when we have dependent equalities (`HEq`).
+          `subst` will change the dependent hypotheses, so that the `uniq` local names
+          are wrong afterwards. Instead we revert them and pull them out one-by-one. -/
+          let (_, mv3) ← mv2.revert fvars'.toArray
+          let mv4 ← fvars'.foldlM (fun mv _ ↦ do
             let ⟨fv, mv'⟩ ← mv.intro1
             let #[res] ← mv'.cases fv | throwError "expected one case subgoal"
             return res.mvarId) mv3
-           pure (mv4, fvars, numHEqs)
+          pure (mv4, fvars, numHEqs)
         mvar'.withContext do
           let fvarIds := (← getLCtx).getFVarIds.toList
           let gs := fvarIds.take gs.length

@@ -20,7 +20,7 @@ open Meta
 
 
 register_builtin_option deriving.beq.linear_construction_threshold : Nat := {
-  defValue := 0 -- only for testing, reset to 10 before merging
+  defValue := 10
   descr := "If the inductive data type has this many or more constructors, use a different \
     implementation for implementing `BEq` that avoids the quadratic code size produced by the \
     default implementation.\n\n\

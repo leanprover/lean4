@@ -62,7 +62,8 @@ class Formula (α : outParam (Type u)) (β : outParam (Type v)) [Clause α β] (
 
 open Formula
 
-attribute [grind] insert_iff delete_subset
+attribute [grind =] insert_iff
+attribute [grind →] delete_subset
 
 grind_pattern readyForRupAdd_insert => ReadyForRupAdd (insert f c)
 grind_pattern readyForRupAdd_delete => ReadyForRupAdd (delete f arr)

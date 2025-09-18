@@ -5792,7 +5792,6 @@ lean_dec_ref(x_1);
 x_5 = l___private_Lean_DocString_Markdown_0__Lean_Doc_escape(x_4);
 x_6 = l___private_Lean_DocString_Markdown_0__Lean_Doc_MarkdownM_push(x_5, x_2, x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_5);
 return x_6;
 }
 case 1:
@@ -5988,7 +5987,6 @@ lean_dec_ref(x_1);
 x_67 = l___private_Lean_DocString_Markdown_0__Lean_Doc_quoteCode(x_66);
 x_68 = l___private_Lean_DocString_Markdown_0__Lean_Doc_MarkdownM_push(x_67, x_2, x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_67);
 return x_68;
 }
 case 4:
@@ -6003,11 +6001,9 @@ lean_inc_ref(x_70);
 lean_dec_ref(x_1);
 x_71 = l___private_Lean_DocString_Markdown_0__Lean_Doc_inlineMarkdown___at_____private_Lean_DocString_Markdown_0__Lean_Doc_blockMarkdown___at_____private_Lean_DocString_Markdown_0__Lean_Doc_partMarkdown___at___Lean_Doc_instToMarkdownPartOfMarkdownInlineOfMarkdownBlock___private__1___at_____private_Lean_DocString_Extension_0__Lean_findSimpleDocString_x3f_toMarkdown_spec__0_spec__0_spec__1_spec__1___closed__2;
 x_72 = lean_string_append(x_71, x_70);
-lean_dec_ref(x_70);
 x_73 = lean_string_append(x_72, x_71);
 x_74 = l___private_Lean_DocString_Markdown_0__Lean_Doc_MarkdownM_push(x_73, x_2, x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_73);
 return x_74;
 }
 else
@@ -6018,11 +6014,9 @@ lean_inc_ref(x_75);
 lean_dec_ref(x_1);
 x_76 = l___private_Lean_DocString_Markdown_0__Lean_Doc_inlineMarkdown___at_____private_Lean_DocString_Markdown_0__Lean_Doc_blockMarkdown___at_____private_Lean_DocString_Markdown_0__Lean_Doc_partMarkdown___at___Lean_Doc_instToMarkdownPartOfMarkdownInlineOfMarkdownBlock___private__1___at_____private_Lean_DocString_Extension_0__Lean_findSimpleDocString_x3f_toMarkdown_spec__0_spec__0_spec__1_spec__1___closed__3;
 x_77 = lean_string_append(x_76, x_75);
-lean_dec_ref(x_75);
 x_78 = lean_string_append(x_77, x_76);
 x_79 = l___private_Lean_DocString_Markdown_0__Lean_Doc_MarkdownM_push(x_78, x_2, x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_78);
 return x_79;
 }
 }
@@ -6034,13 +6028,12 @@ lean_inc_ref(x_80);
 lean_dec_ref(x_1);
 x_81 = lean_ctor_get(x_2, 0);
 x_82 = l___private_Lean_DocString_Markdown_0__Lean_Doc_inlineMarkdown___at_____private_Lean_DocString_Markdown_0__Lean_Doc_blockMarkdown___at_____private_Lean_DocString_Markdown_0__Lean_Doc_partMarkdown___at___Lean_Doc_instToMarkdownPartOfMarkdownInlineOfMarkdownBlock___private__1___at_____private_Lean_DocString_Extension_0__Lean_findSimpleDocString_x3f_toMarkdown_spec__0_spec__0_spec__1_spec__1___closed__4;
+lean_inc_ref(x_81);
 x_83 = lean_string_append(x_82, x_81);
 x_84 = l_String_replace(x_80, x_82, x_83);
-lean_dec_ref(x_83);
 lean_dec_ref(x_80);
 x_85 = l___private_Lean_DocString_Markdown_0__Lean_Doc_MarkdownM_push(x_84, x_2, x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_84);
 return x_85;
 }
 case 6:
@@ -6075,7 +6068,6 @@ x_99 = lean_ctor_get(x_98, 1);
 lean_inc(x_99);
 lean_dec_ref(x_98);
 x_100 = l___private_Lean_DocString_Markdown_0__Lean_Doc_MarkdownM_push(x_88, x_2, x_99);
-lean_dec_ref(x_88);
 x_101 = lean_ctor_get(x_100, 1);
 lean_inc(x_101);
 lean_dec_ref(x_100);
@@ -6133,12 +6125,12 @@ if (lean_is_exclusive(x_1)) {
  x_115 = lean_box(0);
 }
 x_116 = l___private_Lean_DocString_Markdown_0__Lean_Doc_inlineMarkdown___at_____private_Lean_DocString_Markdown_0__Lean_Doc_blockMarkdown___at_____private_Lean_DocString_Markdown_0__Lean_Doc_partMarkdown___at___Lean_Doc_instToMarkdownPartOfMarkdownInlineOfMarkdownBlock___private__1___at_____private_Lean_DocString_Extension_0__Lean_findSimpleDocString_x3f_toMarkdown_spec__0_spec__0_spec__1_spec__1___closed__8;
+lean_inc_ref(x_113);
 x_117 = lean_string_append(x_116, x_113);
 x_118 = l___private_Lean_DocString_Markdown_0__Lean_Doc_inlineMarkdown___at_____private_Lean_DocString_Markdown_0__Lean_Doc_blockMarkdown___at_____private_Lean_DocString_Markdown_0__Lean_Doc_partMarkdown___at___Lean_Doc_instToMarkdownPartOfMarkdownInlineOfMarkdownBlock___private__1___at_____private_Lean_DocString_Extension_0__Lean_findSimpleDocString_x3f_toMarkdown_spec__0_spec__0_spec__1_spec__1___closed__9;
 x_119 = lean_string_append(x_117, x_118);
 x_120 = l___private_Lean_DocString_Markdown_0__Lean_Doc_MarkdownM_push(x_119, x_2, x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_119);
 x_121 = lean_ctor_get(x_120, 1);
 lean_inc(x_121);
 if (lean_is_exclusive(x_120)) {
@@ -6264,16 +6256,13 @@ lean_dec_ref(x_1);
 x_154 = l___private_Lean_DocString_Markdown_0__Lean_Doc_inlineMarkdown___at_____private_Lean_DocString_Markdown_0__Lean_Doc_blockMarkdown___at_____private_Lean_DocString_Markdown_0__Lean_Doc_partMarkdown___at___Lean_Doc_instToMarkdownPartOfMarkdownInlineOfMarkdownBlock___private__1___at_____private_Lean_DocString_Extension_0__Lean_findSimpleDocString_x3f_toMarkdown_spec__0_spec__0_spec__1_spec__1___closed__13;
 x_155 = l___private_Lean_DocString_Markdown_0__Lean_Doc_escape(x_152);
 x_156 = lean_string_append(x_154, x_155);
-lean_dec_ref(x_155);
 x_157 = l___private_Lean_DocString_Markdown_0__Lean_Doc_inlineMarkdown___at_____private_Lean_DocString_Markdown_0__Lean_Doc_blockMarkdown___at_____private_Lean_DocString_Markdown_0__Lean_Doc_partMarkdown___at___Lean_Doc_instToMarkdownPartOfMarkdownInlineOfMarkdownBlock___private__1___at_____private_Lean_DocString_Extension_0__Lean_findSimpleDocString_x3f_toMarkdown_spec__0_spec__0_spec__1_spec__1___closed__6;
 x_158 = lean_string_append(x_156, x_157);
 x_159 = lean_string_append(x_158, x_153);
-lean_dec_ref(x_153);
 x_160 = l___private_Lean_DocString_Markdown_0__Lean_Doc_inlineMarkdown___at_____private_Lean_DocString_Markdown_0__Lean_Doc_blockMarkdown___at_____private_Lean_DocString_Markdown_0__Lean_Doc_partMarkdown___at___Lean_Doc_instToMarkdownPartOfMarkdownInlineOfMarkdownBlock___private__1___at_____private_Lean_DocString_Extension_0__Lean_findSimpleDocString_x3f_toMarkdown_spec__0_spec__0_spec__1_spec__1___closed__7;
 x_161 = lean_string_append(x_159, x_160);
 x_162 = l___private_Lean_DocString_Markdown_0__Lean_Doc_MarkdownM_push(x_161, x_2, x_3);
 lean_dec_ref(x_2);
-lean_dec_ref(x_161);
 return x_162;
 }
 case 9:
@@ -6489,7 +6478,6 @@ x_14 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____
 lean_inc_ref(x_13);
 x_15 = lean_string_append(x_13, x_14);
 x_16 = l___private_Lean_DocString_Markdown_0__Lean_Doc_MarkdownM_push(x_15, x_6, x_7);
-lean_dec_ref(x_15);
 x_17 = lean_ctor_get(x_16, 1);
 lean_inc(x_17);
 lean_dec_ref(x_16);
@@ -6558,9 +6546,7 @@ x_15 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____
 x_16 = lean_string_append(x_14, x_15);
 lean_inc_ref(x_13);
 x_17 = lean_string_append(x_13, x_16);
-lean_dec_ref(x_16);
 x_18 = l___private_Lean_DocString_Markdown_0__Lean_Doc_MarkdownM_push(x_17, x_6, x_7);
-lean_dec_ref(x_17);
 x_19 = lean_ctor_get(x_18, 1);
 lean_inc(x_19);
 lean_dec_ref(x_18);
@@ -6619,9 +6605,7 @@ x_15 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____
 x_16 = lean_string_append(x_14, x_15);
 lean_inc_ref(x_13);
 x_17 = lean_string_append(x_13, x_16);
-lean_dec_ref(x_16);
 x_18 = l___private_Lean_DocString_Markdown_0__Lean_Doc_MarkdownM_push(x_17, x_6, x_7);
-lean_dec_ref(x_17);
 x_19 = lean_ctor_get(x_18, 1);
 lean_inc(x_19);
 lean_dec_ref(x_18);
@@ -6694,7 +6678,6 @@ x_14 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____
 lean_inc_ref(x_13);
 x_15 = lean_string_append(x_13, x_14);
 x_16 = l___private_Lean_DocString_Markdown_0__Lean_Doc_MarkdownM_push(x_15, x_6, x_7);
-lean_dec_ref(x_15);
 x_17 = lean_ctor_get(x_16, 1);
 lean_inc(x_17);
 lean_dec_ref(x_16);
@@ -6732,7 +6715,6 @@ x_32 = lean_ctor_get(x_31, 1);
 lean_inc(x_32);
 lean_dec_ref(x_31);
 x_33 = l___private_Lean_DocString_Markdown_0__Lean_Doc_MarkdownM_push(x_23, x_24, x_32);
-lean_dec_ref(x_23);
 x_34 = lean_ctor_get(x_33, 1);
 lean_inc(x_34);
 lean_dec_ref(x_33);
@@ -6887,10 +6869,10 @@ block_20:
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_14 = lean_ctor_get(x_12, 0);
+lean_inc_ref(x_14);
 x_15 = lean_string_length(x_14);
 x_16 = l___private_Lean_DocString_Markdown_0__Lean_Doc_quoteCodeBlock(x_15, x_11);
 x_17 = l___private_Lean_DocString_Markdown_0__Lean_Doc_MarkdownM_push(x_16, x_12, x_13);
-lean_dec_ref(x_16);
 x_18 = lean_ctor_get(x_17, 1);
 lean_inc(x_18);
 lean_dec_ref(x_17);
@@ -7227,7 +7209,6 @@ x_8 = lean_nat_add(x_1, x_7);
 lean_inc(x_8);
 x_9 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at_____private_Lean_DocString_Markdown_0__Lean_Doc_partMarkdown___at___Lean_Doc_instToMarkdownPartOfMarkdownInlineOfMarkdownBlock___private__1___at_____private_Lean_DocString_Extension_0__Lean_findSimpleDocString_x3f_toMarkdown_spec__0_spec__0_spec__0(x_6, x_8, x_5);
 x_10 = l___private_Lean_DocString_Markdown_0__Lean_Doc_MarkdownM_push(x_9, x_3, x_4);
-lean_dec_ref(x_9);
 x_11 = lean_ctor_get(x_10, 1);
 lean_inc(x_11);
 lean_dec_ref(x_10);

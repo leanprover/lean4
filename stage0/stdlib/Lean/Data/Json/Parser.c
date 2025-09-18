@@ -40,7 +40,6 @@ static lean_object* l_Lean_Json_Parser_objectCore___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_natNumDigits(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_hexChar(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Json_Parser_lookahead___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Json_Parser_arrayCore___closed__1;
 static lean_object* l_Lean_Json_Parser_objectCore___closed__3;
 static lean_object* l_Lean_Json_Parser_numWithDecimals___closed__0;
@@ -73,7 +72,6 @@ static lean_object* l_Lean_Json_Parser_natNumDigits___closed__1;
 static lean_object* l_Lean_Json_Parser_anyCore___closed__4;
 static lean_object* l_Lean_Json_Parser_numSign___closed__0;
 uint16_t lean_uint32_to_uint16(uint32_t);
-LEAN_EXPORT lean_object* l_Lean_Json_Parser_lookahead___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Json_Parser_natNumDigits___closed__0;
 static lean_object* l_Lean_Json_Parser_objectCore___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_exponent(lean_object*, lean_object*);
@@ -2876,6 +2874,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 
 lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_8 = lean_box(0);
 x_9 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_9, 0, x_3);
@@ -2904,6 +2903,7 @@ return x_17;
 else
 {
 lean_object* x_18; lean_object* x_19; 
+lean_dec_ref(x_1);
 x_18 = lean_box(0);
 x_19 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_19, 0, x_3);
@@ -2926,6 +2926,7 @@ if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; 
 lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 x_9 = lean_box(0);
 x_10 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_10, 0, x_4);
@@ -2954,6 +2955,7 @@ return x_18;
 else
 {
 lean_object* x_19; lean_object* x_20; 
+lean_dec_ref(x_2);
 x_19 = lean_box(0);
 x_20 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_20, 0, x_4);
@@ -2961,24 +2963,6 @@ lean_ctor_set(x_20, 1, x_19);
 return x_20;
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Json_Parser_lookahead___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Json_Parser_lookahead___redArg(x_1, x_2, x_3);
-lean_dec_ref(x_1);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Json_Parser_lookahead___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_Json_Parser_lookahead(x_1, x_2, x_3, x_4);
-lean_dec_ref(x_2);
-return x_5;
 }
 }
 static lean_object* _init_l_Lean_Json_Parser_natNonZero___closed__0() {

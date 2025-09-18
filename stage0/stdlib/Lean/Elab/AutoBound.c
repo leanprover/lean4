@@ -438,6 +438,7 @@ x_4 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_4);
 lean_dec_ref(x_1);
 x_5 = lean_unsigned_to_nat(0u);
+lean_inc_ref(x_4);
 x_6 = lean_string_length(x_4);
 x_7 = lean_nat_dec_lt(x_5, x_6);
 lean_dec(x_6);
@@ -503,6 +504,7 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_8 = lean_unsigned_to_nat(0u);
+lean_inc_ref(x_4);
 x_9 = lean_string_length(x_4);
 x_10 = lean_nat_dec_lt(x_8, x_9);
 lean_dec(x_9);

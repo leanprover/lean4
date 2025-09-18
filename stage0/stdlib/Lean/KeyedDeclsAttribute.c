@@ -8223,6 +8223,7 @@ lean_closure_set(x_48, 4, x_47);
 lean_closure_set(x_48, 5, x_2);
 lean_closure_set(x_48, 6, x_24);
 x_49 = l_Lean_KeyedDeclsAttribute_init___redArg___closed__0;
+lean_inc_ref(x_21);
 x_50 = lean_string_append(x_49, x_21);
 x_51 = 1;
 lean_inc(x_19);

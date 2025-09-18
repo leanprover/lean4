@@ -469,7 +469,6 @@ x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec_ref(x_10);
 x_30 = l_System_FilePath_parent(x_11);
-lean_dec(x_11);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; lean_object* x_32; 
@@ -5111,7 +5110,6 @@ x_58 = l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___closed__0;
 x_59 = lean_array_get_size(x_42);
 x_60 = l_Nat_reprFast(x_59);
 x_61 = lean_string_append(x_58, x_60);
-lean_dec_ref(x_60);
 x_62 = l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___closed__2;
 x_63 = lean_string_append(x_61, x_62);
 x_64 = lean_alloc_ctor(3, 1, 0);
@@ -5218,7 +5216,6 @@ x_25 = l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___closed__0;
 x_26 = lean_array_get_size(x_13);
 x_27 = l_Nat_reprFast(x_26);
 x_28 = lean_string_append(x_25, x_27);
-lean_dec_ref(x_27);
 x_29 = l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___closed__1;
 x_30 = lean_string_append(x_28, x_29);
 x_31 = lean_alloc_ctor(3, 1, 0);

@@ -763,12 +763,10 @@ x_6 = lean_nat_sub(x_3, x_1);
 lean_dec(x_3);
 x_7 = l_Nat_reprFast(x_6);
 x_8 = lean_string_append(x_5, x_7);
-lean_dec_ref(x_7);
 x_9 = l___private_Lean_Elab_GuardMsgs_0__Lean_Elab_Tactic_GuardMsgs_messageToString___lam__0___closed__1;
 x_10 = lean_string_append(x_8, x_9);
 x_11 = l_Nat_reprFast(x_4);
 x_12 = lean_string_append(x_10, x_11);
-lean_dec_ref(x_11);
 return x_12;
 }
 }
@@ -879,7 +877,6 @@ x_80 = l___private_Lean_Elab_GuardMsgs_0__Lean_Elab_Tactic_GuardMsgs_messageToSt
 lean_inc_ref(x_28);
 x_81 = lean_string_append(x_28, x_80);
 x_82 = lean_string_append(x_81, x_31);
-lean_dec(x_31);
 x_72 = x_82;
 goto block_77;
 }
@@ -959,15 +956,12 @@ lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean
 x_37 = l___private_Lean_Elab_GuardMsgs_0__Lean_Elab_Tactic_GuardMsgs_messageToString___closed__1;
 x_38 = l___private_Lean_Elab_GuardMsgs_0__Lean_Elab_Tactic_GuardMsgs_messageToString___lam__0(x_34, x_25);
 x_39 = lean_string_append(x_37, x_38);
-lean_dec_ref(x_38);
 x_40 = l___private_Lean_Elab_GuardMsgs_0__Lean_Elab_Tactic_GuardMsgs_messageToString___closed__2;
 x_41 = lean_string_append(x_39, x_40);
 x_42 = lean_string_append(x_41, x_36);
-lean_dec_ref(x_36);
 x_43 = l___private_Lean_Elab_GuardMsgs_0__Lean_Elab_Tactic_GuardMsgs_messageToString___closed__0;
 x_44 = lean_string_append(x_42, x_43);
 x_45 = lean_string_append(x_44, x_33);
-lean_dec_ref(x_33);
 x_15 = x_45;
 x_16 = x_35;
 goto block_24;
@@ -1044,7 +1038,6 @@ case 0:
 lean_object* x_63; lean_object* x_64; 
 x_63 = l___private_Lean_Elab_GuardMsgs_0__Lean_Elab_Tactic_GuardMsgs_messageToString___closed__4;
 x_64 = lean_string_append(x_63, x_60);
-lean_dec_ref(x_60);
 x_47 = x_64;
 x_48 = x_61;
 goto block_59;
@@ -1054,7 +1047,6 @@ case 1:
 lean_object* x_65; lean_object* x_66; 
 x_65 = l___private_Lean_Elab_GuardMsgs_0__Lean_Elab_Tactic_GuardMsgs_messageToString___closed__5;
 x_66 = lean_string_append(x_65, x_60);
-lean_dec_ref(x_60);
 x_47 = x_66;
 x_48 = x_61;
 goto block_59;
@@ -1064,7 +1056,6 @@ default:
 lean_object* x_67; lean_object* x_68; 
 x_67 = l___private_Lean_Elab_GuardMsgs_0__Lean_Elab_Tactic_GuardMsgs_messageToString___closed__6;
 x_68 = lean_string_append(x_67, x_60);
-lean_dec_ref(x_60);
 x_47 = x_68;
 x_48 = x_61;
 goto block_59;
@@ -1076,7 +1067,6 @@ else
 lean_object* x_69; lean_object* x_70; 
 x_69 = l___private_Lean_Elab_GuardMsgs_0__Lean_Elab_Tactic_GuardMsgs_messageToString___closed__7;
 x_70 = lean_string_append(x_69, x_60);
-lean_dec_ref(x_60);
 x_47 = x_70;
 x_48 = x_61;
 goto block_59;
@@ -1092,7 +1082,6 @@ if (x_74 == 0)
 lean_object* x_75; lean_object* x_76; 
 x_75 = l___private_Lean_Elab_GuardMsgs_0__Lean_Elab_Tactic_GuardMsgs_messageToString___closed__8;
 x_76 = lean_string_append(x_75, x_72);
-lean_dec_ref(x_72);
 x_60 = x_76;
 x_61 = x_32;
 goto block_71;
@@ -10041,11 +10030,9 @@ x_17 = l_Lean_Diff_Action_linePrefix(x_16);
 x_18 = l___private_Lean_Elab_GuardMsgs_0__Lean_Elab_Tactic_GuardMsgs_messageToString___closed__8;
 x_19 = lean_string_append(x_17, x_18);
 x_20 = lean_string_append(x_19, x_14);
-lean_dec(x_14);
 x_21 = l___private_Lean_Elab_GuardMsgs_0__Lean_Elab_Tactic_GuardMsgs_messageToString___closed__0;
 x_22 = lean_string_append(x_20, x_21);
 x_23 = lean_string_append(x_5, x_22);
-lean_dec_ref(x_22);
 x_6 = x_23;
 goto block_10;
 }
@@ -10059,7 +10046,6 @@ x_25 = l_Lean_Diff_Action_linePrefix(x_24);
 x_26 = l___private_Lean_Elab_GuardMsgs_0__Lean_Elab_Tactic_GuardMsgs_messageToString___closed__0;
 x_27 = lean_string_append(x_25, x_26);
 x_28 = lean_string_append(x_5, x_27);
-lean_dec_ref(x_27);
 x_6 = x_28;
 goto block_10;
 }
@@ -14057,6 +14043,7 @@ x_66 = lean_nat_dec_eq(x_65, x_18);
 if (x_66 == 0)
 {
 lean_object* x_67; lean_object* x_68; uint8_t x_69; 
+lean_inc_ref(x_53);
 x_67 = lean_string_length(x_53);
 x_68 = lean_unsigned_to_nat(93u);
 x_69 = lean_nat_dec_le(x_67, x_68);
@@ -14200,7 +14187,6 @@ block_58:
 lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; 
 x_54 = l_Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction___redArg___lam__0___closed__3;
 x_55 = lean_string_append(x_54, x_53);
-lean_dec_ref(x_53);
 x_56 = l_Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction___redArg___lam__0___closed__4;
 x_57 = lean_string_append(x_55, x_56);
 x_25 = x_57;
@@ -14217,7 +14203,6 @@ else
 lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
 x_60 = l_Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction___redArg___lam__0___closed__5;
 x_61 = lean_string_append(x_60, x_53);
-lean_dec_ref(x_53);
 x_62 = l_Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction___redArg___lam__0___closed__6;
 x_63 = lean_string_append(x_61, x_62);
 x_25 = x_63;

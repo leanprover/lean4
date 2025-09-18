@@ -61,7 +61,6 @@ lean_object* l_System_FilePath_isDir(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instCoeFilePathGitRepo;
 static lean_object* l_Lake_GitRepo_fetch___closed__5;
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
-LEAN_EXPORT lean_object* l_Lake_GitRepo_branchExists___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_GitRepo_cwd;
 static lean_object* l_Lake_GitRepo_hasNoDiff___closed__3;
 LEAN_EXPORT lean_object* l_Lake_GitRepo_branchExists(lean_object*, lean_object*, lean_object*);
@@ -399,12 +398,14 @@ LEAN_EXPORT uint8_t l_Lake_Git_isFullObjectName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
+lean_inc_ref(x_1);
 x_2 = lean_string_length(x_1);
 x_3 = lean_unsigned_to_nat(40u);
 x_4 = lean_nat_dec_eq(x_2, x_3);
 lean_dec(x_2);
 if (x_4 == 0)
 {
+lean_dec_ref(x_1);
 return x_4;
 }
 else
@@ -414,6 +415,7 @@ x_5 = lean_string_utf8_byte_size(x_1);
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = l_String_anyAux___at___Lake_Git_isFullObjectName_spec__0(x_4, x_1, x_5, x_6);
 lean_dec(x_5);
+lean_dec_ref(x_1);
 if (x_7 == 0)
 {
 return x_4;
@@ -444,7 +446,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lake_Git_isFullObjectName(x_1);
-lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -1240,12 +1241,14 @@ LEAN_EXPORT lean_object* l_Lake_GitRepo_resolveRemoteRevision(lean_object* x_1, 
 _start:
 {
 uint8_t x_6; 
+lean_inc_ref(x_1);
 x_6 = l_Lake_Git_isFullObjectName(x_1);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = l_Lake_GitRepo_resolveRemoteRevision___closed__0;
 x_8 = lean_string_append(x_2, x_7);
+lean_inc_ref(x_1);
 x_9 = lean_string_append(x_8, x_1);
 lean_inc_ref(x_3);
 x_10 = l_Lake_GitRepo_resolveRevision_x3f(x_9, x_3, x_5);
@@ -1274,7 +1277,6 @@ lean_dec(x_16);
 x_17 = l_Lake_GitRepo_resolveRemoteRevision___closed__1;
 x_18 = lean_string_append(x_3, x_17);
 x_19 = lean_string_append(x_18, x_1);
-lean_dec_ref(x_1);
 x_20 = l_Lake_GitRepo_resolveRemoteRevision___closed__2;
 x_21 = lean_string_append(x_19, x_20);
 x_22 = 3;
@@ -1298,7 +1300,6 @@ lean_dec(x_13);
 x_28 = l_Lake_GitRepo_resolveRemoteRevision___closed__1;
 x_29 = lean_string_append(x_3, x_28);
 x_30 = lean_string_append(x_29, x_1);
-lean_dec_ref(x_1);
 x_31 = l_Lake_GitRepo_resolveRemoteRevision___closed__2;
 x_32 = lean_string_append(x_30, x_31);
 x_33 = 3;
@@ -1575,15 +1576,6 @@ lean_ctor_set_uint8(x_14, sizeof(void*)*5, x_12);
 lean_ctor_set_uint8(x_14, sizeof(void*)*5 + 1, x_13);
 x_15 = l_Lake_testProc(x_14, x_3);
 return x_15;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_GitRepo_branchExists___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lake_GitRepo_branchExists(x_1, x_2, x_3);
-lean_dec_ref(x_1);
-return x_4;
 }
 }
 static lean_object* _init_l_Lake_GitRepo_revisionExists___closed__0() {

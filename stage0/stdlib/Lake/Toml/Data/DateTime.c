@@ -710,7 +710,6 @@ lean_dec(x_54);
 x_55 = lean_ctor_get(x_48, 3);
 lean_dec(x_55);
 x_56 = lean_string_length(x_37);
-lean_dec(x_37);
 x_57 = lean_unsigned_to_nat(1u);
 x_58 = lean_nat_sub(x_56, x_57);
 lean_dec(x_56);
@@ -731,7 +730,6 @@ lean_inc(x_61);
 lean_inc(x_60);
 lean_dec(x_48);
 x_63 = lean_string_length(x_37);
-lean_dec(x_37);
 x_64 = lean_unsigned_to_nat(1u);
 x_65 = lean_nat_sub(x_63, x_64);
 lean_dec(x_63);
@@ -769,7 +767,6 @@ if (lean_is_exclusive(x_48)) {
  x_71 = lean_box(0);
 }
 x_72 = lean_string_length(x_37);
-lean_dec(x_37);
 x_73 = lean_unsigned_to_nat(1u);
 x_74 = lean_nat_sub(x_72, x_73);
 lean_dec(x_72);
@@ -902,11 +899,9 @@ x_9 = l_Lake_Toml_Time_toString___closed__0;
 x_10 = lean_string_append(x_8, x_9);
 x_11 = l_Lake_zpad(x_3, x_7);
 x_12 = lean_string_append(x_10, x_11);
-lean_dec_ref(x_11);
 x_13 = lean_string_append(x_12, x_9);
 x_14 = l_Lake_zpad(x_4, x_7);
 x_15 = lean_string_append(x_13, x_14);
-lean_dec_ref(x_14);
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_nat_dec_eq(x_6, x_16);
 if (x_17 == 0)
@@ -920,7 +915,6 @@ x_21 = 48;
 x_22 = lean_unsigned_to_nat(3u);
 x_23 = l_Lake_rpad(x_20, x_21, x_22);
 x_24 = lean_string_append(x_19, x_23);
-lean_dec_ref(x_23);
 return x_24;
 }
 else
@@ -2566,7 +2560,6 @@ x_6 = l_Lake_Toml_DateTime_toString___closed__0;
 x_7 = lean_string_append(x_5, x_6);
 x_8 = l_Lake_Toml_Time_toString(x_4);
 x_9 = lean_string_append(x_7, x_8);
-lean_dec_ref(x_8);
 x_10 = l_Lake_Toml_DateTime_toString___closed__1;
 x_11 = lean_string_append(x_9, x_10);
 return x_11;
@@ -2597,18 +2590,15 @@ x_21 = l_Lake_Toml_DateTime_toString___closed__0;
 x_22 = lean_string_append(x_20, x_21);
 x_23 = l_Lake_Toml_Time_toString(x_17);
 x_24 = lean_string_append(x_22, x_23);
-lean_dec_ref(x_23);
 x_25 = l_Lake_Toml_DateTime_toString___closed__2;
 x_26 = lean_string_append(x_24, x_25);
 x_27 = lean_unsigned_to_nat(2u);
 x_28 = l_Lake_zpad(x_18, x_27);
 x_29 = lean_string_append(x_26, x_28);
-lean_dec_ref(x_28);
 x_30 = l_Lake_Toml_Time_toString___closed__0;
 x_31 = lean_string_append(x_29, x_30);
 x_32 = l_Lake_zpad(x_19, x_27);
 x_33 = lean_string_append(x_31, x_32);
-lean_dec_ref(x_32);
 return x_33;
 }
 else
@@ -2631,18 +2621,15 @@ x_40 = l_Lake_Toml_DateTime_toString___closed__0;
 x_41 = lean_string_append(x_39, x_40);
 x_42 = l_Lake_Toml_Time_toString(x_36);
 x_43 = lean_string_append(x_41, x_42);
-lean_dec_ref(x_42);
 x_44 = l_Lake_Toml_DateTime_toString___closed__3;
 x_45 = lean_string_append(x_43, x_44);
 x_46 = lean_unsigned_to_nat(2u);
 x_47 = l_Lake_zpad(x_37, x_46);
 x_48 = lean_string_append(x_45, x_47);
-lean_dec_ref(x_47);
 x_49 = l_Lake_Toml_Time_toString___closed__0;
 x_50 = lean_string_append(x_48, x_49);
 x_51 = l_Lake_zpad(x_38, x_46);
 x_52 = lean_string_append(x_50, x_51);
-lean_dec_ref(x_51);
 return x_52;
 }
 }
@@ -2660,7 +2647,6 @@ x_56 = l_Lake_Toml_DateTime_toString___closed__0;
 x_57 = lean_string_append(x_55, x_56);
 x_58 = l_Lake_Toml_Time_toString(x_54);
 x_59 = lean_string_append(x_57, x_58);
-lean_dec_ref(x_58);
 return x_59;
 }
 case 2:

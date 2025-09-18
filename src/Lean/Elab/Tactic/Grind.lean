@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Tactics
 public import Lean.Meta.Tactic.Grind.Main
@@ -15,9 +14,7 @@ public import Lean.Elab.Tactic.Config
 import Lean.Meta.Tactic.Grind.SimpUtil
 import Lean.Elab.MutualDef
 meta import Lean.Meta.Tactic.Grind.Parser
-
 public section
-
 namespace Lean.Elab.Tactic
 open Meta
 

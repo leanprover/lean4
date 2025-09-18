@@ -14,6 +14,7 @@ public import Lean.Meta.Basic
 public import Lean.Meta.InferType
 public import Lean.Meta.Eqns
 public import Lean.Meta.Tactic.Grind.Util
+public import Lean.Meta.Tactic.Grind.Theorems
 import Lean.Message
 import Lean.Meta.Tactic.FVarSubst
 import Lean.Meta.Match.Basic
@@ -290,40 +291,6 @@ def preprocessPattern (pat : Expr) (normalizePattern := true) : MetaM Expr := do
   let pat ← foldProjs pat
   return pat
 
-inductive Origin where
-  /-- A global declaration in the environment. -/
-  | decl (declName : Name)
-  /-- A local hypothesis. -/
-  | fvar (fvarId : FVarId)
-  /--
-  A proof term provided directly to a call to `grind` where `ref`
-  is the provided grind argument. The `id` is a unique identifier for the call.
-  -/
-  | stx (id : Name) (ref : Syntax)
-  /-- It is local, but we don't have a local hypothesis for it. -/
-  | local (id : Name)
-  deriving Inhabited, Repr
-
-/-- A unique identifier corresponding to the origin. -/
-def Origin.key : Origin → Name
-  | .decl declName => declName
-  | .fvar fvarId   => fvarId.name
-  | .stx id _      => id
-  | .local id      => id
-
-def Origin.pp (o : Origin) : MessageData :=
-  match o with
-  | .decl declName => MessageData.ofConstName declName
-  | .fvar fvarId   => mkFVar fvarId
-  | .stx _ ref     => ref
-  | .local id      => id
-
-instance : BEq Origin where
-  beq a b := a.key == b.key
-
-instance : Hashable Origin where
-  hash a := hash a.key
-
 inductive EMatchTheoremKind where
   | eqLhs (gen : Bool)
   | eqRhs (gen : Bool)
@@ -397,112 +364,37 @@ structure EMatchTheorem where
   minIndexable : Bool
   deriving Inhabited
 
+instance : TheoremLike EMatchTheorem where
+  getSymbols thm := thm.symbols
+  setSymbols thm symbols := { thm with symbols }
+  getOrigin thm := thm.origin
+  getProof thm := thm.proof
+  getLevelParams thm := thm.levelParams
+
 /-- Set of E-matching theorems. -/
-structure EMatchTheorems where
-  /-- The key is a symbol from `EMatchTheorem.symbols`. -/
-  private smap : PHashMap Name (List EMatchTheorem) := {}
-  /-- Set of theorem ids that have been inserted using `insert`. -/
-  private origins : PHashSet Origin := {}
-  /-- Theorems that have been marked as erased -/
-  private erased  : PHashSet Origin := {}
-  /-- Mapping from origin to E-matching theorems associated with this origin. -/
-  private omap : PHashMap Origin (List EMatchTheorem) := {}
-  deriving Inhabited
-
-/--
-Inserts a `thm` with symbols `[s_1, ..., s_n]` to `s`.
-We add `s_1 -> { thm with symbols := [s_2, ..., s_n] }`.
-When `grind` internalizes a term containing symbol `s`, we
-process all theorems `thm` associated with key `s`.
-If their `thm.symbols` is empty, we say they are activated.
-Otherwise, we reinsert into `map`.
--/
-def EMatchTheorems.insert (s : EMatchTheorems) (thm : EMatchTheorem) : EMatchTheorems := Id.run do
-  let .const declName :: syms := thm.symbols
-    | unreachable!
-  let thm := { thm with symbols := syms }
-  let { smap, origins, erased, omap } := s
-  let origin := thm.origin
-  let origins := origins.insert origin
-  let erased := erased.erase origin
-  let smap := if let some thms := smap.find? declName then
-    smap.insert declName (thm::thms)
-  else
-    smap.insert declName [thm]
-  let omap := if let some thms := omap.find? origin then
-    omap.insert origin (thm::thms)
-  else
-    omap.insert origin [thm]
-  return { smap, origins, erased, omap }
-
-/-- Returns `true` if `s` contains a theorem with the given origin. -/
-def EMatchTheorems.contains (s : EMatchTheorems) (origin : Origin) : Bool :=
-  s.origins.contains origin
-
-/-- Marks the theorem with the given origin as `erased` -/
-def EMatchTheorems.erase (s : EMatchTheorems) (origin : Origin) : EMatchTheorems :=
-  { s with erased := s.erased.insert origin, origins := s.origins.erase origin }
-
-/-- Returns `true` if the theorem has been marked as erased. -/
-def EMatchTheorems.isErased (s : EMatchTheorems) (origin : Origin) : Bool :=
-  s.erased.contains origin
+abbrev EMatchTheorems := Theorems EMatchTheorem
 
 /-- Returns `true` if there is a theorem with exactly the same pattern is already in `s` -/
 def EMatchTheorems.containsWithSamePatterns (s : EMatchTheorems) (origin : Origin) (patterns : List Expr) : Bool :=
-  if let some thms := s.omap.find? origin then
-    thms.any fun thm => thm.patterns == patterns
-  else
-    false
+  let thms := s.find origin
+  thms.any fun thm => thm.patterns == patterns
 
 def EMatchTheorems.getKindsFor (s : EMatchTheorems) (origin : Origin) : List EMatchTheoremKind :=
-  if let some thms := s.omap.find? origin then
-    thms.map (·.kind)
-  else
-    []
-
-/--
-Retrieves theorems from `s` associated with the given symbol. See `EMatchTheorem.insert`.
-The theorems are removed from `s`.
--/
-@[inline]
-def EMatchTheorems.retrieve? (s : EMatchTheorems) (sym : Name) : Option (List EMatchTheorem × EMatchTheorems) :=
-  if let some thms := s.smap.find? sym then
-    some (thms, { s with smap := s.smap.erase sym })
-  else
-    none
-
-/--
-Returns theorems associated with the given origin.
--/
-def EMatchTheorems.find (s : EMatchTheorems) (origin : Origin) : List EMatchTheorem :=
-  if let some thms := s.omap.find? origin then
-    thms
-  else
-    []
+  let thms := s.find origin
+  thms.map (·.kind)
 
 def EMatchTheorem.getProofWithFreshMVarLevels (thm : EMatchTheorem) : MetaM Expr := do
-  if thm.proof.isConst && thm.levelParams.isEmpty then
-    let declName := thm.proof.constName!
-    let info ← getConstVal declName
-    if info.levelParams.isEmpty then
-      return thm.proof
-    else
-      mkConstWithFreshMVarLevels declName
-  else if thm.levelParams.isEmpty then
-    return thm.proof
-  else
-    let us ← thm.levelParams.mapM fun _ => mkFreshLevelMVar
-    return thm.proof.instantiateLevelParamsArray thm.levelParams us
+  Grind.getProofWithFreshMVarLevels thm
 
-private builtin_initialize ematchTheoremsExt : SimpleScopedEnvExtension EMatchTheorem EMatchTheorems ←
+private builtin_initialize ematchTheoremsExt : SimpleScopedEnvExtension EMatchTheorem (Theorems EMatchTheorem) ←
   registerSimpleScopedEnvExtension {
-    addEntry := EMatchTheorems.insert
-    initial  := {}
-  }
+      addEntry := Theorems.insert
+      initial  := {}
+    }
 
 /-- Returns `true` if `declName` has been tagged as an E-match theorem using `[grind]`. -/
 def isEMatchTheorem (declName : Name) : CoreM Bool := do
-  return ematchTheoremsExt.getState (← getEnv) |>.omap.contains (.decl declName)
+  return ematchTheoremsExt.getState (← getEnv) |>.contains (.decl declName)
 
 def resetEMatchTheoremsExt : CoreM Unit := do
   modifyEnv fun env => ematchTheoremsExt.modifyState env fun _ => {}
@@ -968,9 +860,6 @@ def addEMatchEqTheorem (declName : Name) : MetaM Unit := do
 /-- Returns the E-matching theorems registered in the environment. -/
 def getEMatchTheorems : CoreM EMatchTheorems :=
   return ematchTheoremsExt.getState (← getEnv)
-
-def EMatchTheorems.getOrigins (s : EMatchTheorems) : List Origin :=
-  s.origins.toList
 
 /-- Returns the types of `xs` that are propositions. -/
 private def getPropTypes (xs : Array Expr) : MetaM (Array Expr) :=

@@ -115,13 +115,6 @@ theorem List.getElem_eq_getElem_toByteArray {l : List UInt8} {i : Nat} {h : i < 
     l[i]'h = l.toByteArray[i]'(by simp_all) := by
   simp
 
-def ByteArray.drop (b : ByteArray) (i : Nat) : ByteArray :=
-  b.extract i b.size
-
-@[simp]
-theorem ByteArray.drop_eq_extract {b : ByteArray} {i : Nat} :
-  b.drop i = b.extract i b.size := (rfl)
-
 @[simp]
 theorem ByteArray.size_extract {a : ByteArray} {b e : Nat} :
     (a.extract b e).size = min e a.size - b := by

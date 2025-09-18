@@ -151,3 +151,7 @@ run_meta analyzeEMatchTheorem ``List.getLast_filter {}
 
 -- * ick!
 run_meta analyzeEMatchTheorem ``Option.attachWith_map_subtype_val {}
+
+run_meta analyzeEMatchTheorem ``List.attachWith_map_subtype_val {}
+
+run_meta analyzeEMatchTheorem ``Array.attachWith_map_subtype_val {}

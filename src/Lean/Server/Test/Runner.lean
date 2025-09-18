@@ -277,6 +277,10 @@ partial def main (args : List String) : IO Unit := do
               let r ← Ipc.readResponseAs requestNo CompletionItem
               IO.eprintln (toJson r.result)
               requestNo := requestNo + 1
+          | "incomingCallHierarchy" =>
+            let (callHierarchy?, callHierarchyRequestNo) ← Ipc.expandIncomingCallHierarchy requestNo uri pos
+            IO.eprintln (toJson callHierarchy?)
+            requestNo := callHierarchyRequestNo
           | _ =>
             let Except.ok params ← pure <| Json.parse params
               | throw <| IO.userError s!"failed to parse {params}"

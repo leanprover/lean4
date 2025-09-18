@@ -16,7 +16,7 @@ error: Dependent elimination failed: Failed to solve equation
 inductive T : (n : Nat) → Type where
   | mk1 : Fin n → T (f n)
   | mk2 : Fin (2*n) → T (f n)
-deriving BEq
+deriving BEq, DecidableEq
 
 
 set_option deriving.decEq.linear_construction_threshold 10000

@@ -44,7 +44,7 @@ info: Linear.instBEqL.beq.eq_1.{u_1} {α✝ : Type u_1} [BEq α✝] (x✝ x✝¹
 
 example {n m : Nat} (h : n = m) :
     (L.cons n (L.nil : L Nat) == L.cons m (L.nil : L Nat)) = true := by
-  simp [reduceBEq, L.ctorIdx]
+  simp [reduceBEq, reduceCtorIdx]
   assumption
 
 end Linear

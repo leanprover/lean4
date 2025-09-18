@@ -28,8 +28,26 @@ meta def reproveDecl (declName : Name) (tacticSeq : TSyntax `Lean.Parser.Tactic.
   let some info := (← getEnv).find? declName
     | throwError "unknown declaration '{declName}'"
 
-  let typeStx ← liftTermElabM <| PrettyPrinter.delab info.type
-  elabCommand (← `(command| example : $typeStx := by $tacticSeq))
+  let uniqueName ← liftCoreM <| mkFreshUserName `reprove_example
+
+  let value ← liftTermElabM do
+    Term.withDeclName uniqueName do
+      let goal ← mkFreshExprMVar info.type
+      let goalMVar := goal.mvarId!
+      let _goals ← Tactic.run goalMVar do
+        Tactic.evalTactic tacticSeq
+      instantiateMVars goal
+
+  let decl := Declaration.defnDecl {
+    name := uniqueName
+    type := info.type
+    value := value
+    levelParams := info.levelParams
+    hints := ReducibilityHints.opaque
+    safety := DefinitionSafety.safe
+  }
+
+  liftCoreM <| addAndCompile decl
 
 /--
 Reproves a list of declarations with a given tactic sequence.

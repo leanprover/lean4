@@ -20,6 +20,7 @@ inductive AttrKind where
   | intro
   | infer
   | ext
+  | inj
   | symbol (prio : Nat)
 
 /-- Return theorem kind for `stx` of the form `Attr.grindThmMod` -/
@@ -43,6 +44,7 @@ def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   | `(Parser.Attr.grindMod|cases eager) => return .cases true
   | `(Parser.Attr.grindMod|intro) => return .intro
   | `(Parser.Attr.grindMod|ext) => return .ext
+  | `(Parser.Attr.grindMod|inj) => return .inj
   | `(Parser.Attr.grindMod|symbol $prio:prio) =>
     let some prio := prio.raw.isNatLit? | throwErrorAt prio "priority expected"
     return .symbol prio
@@ -117,6 +119,7 @@ private def registerGrindAttr (minIndexable : Bool) (showInfo : Bool) : IO Unit 
         else
           addEMatchAttrAndSuggest stx declName attrKind (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
       | .symbol prio => addSymbolPriorityAttr declName attrKind prio
+      | .inj => throwError "NIY"
     erase := fun declName => MetaM.run' do
       if showInfo then
         throwError "`[grind?]` is a helper attribute for displaying inferred patterns, if you want to remove the attribute, consider using `[grind]` instead"

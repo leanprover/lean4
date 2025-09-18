@@ -174,6 +174,12 @@ available extensionality theorems whose matches the type of `a` and `b`.
 -/
 syntax grindExt    := &"ext"
 /--
+The `inj` modifier marks injectivity theorems for use by `grind`.
+The conclusion of the theorem must be of the form `Function.Injective f`
+where the term `f` contains at least one constant symbol.
+-/
+syntax grindInj    := &"inj"
+/--
 `symbol <prio>` sets the priority of a constant for `grind`’s pattern-selection
 procedure. `grind` prefers patterns that contain higher-priority symbols.
 Example:
@@ -199,7 +205,7 @@ syntax grindSym    := &"symbol" ppSpace prio
 syntax grindMod :=
     grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd
     <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager
-    <|> grindCases <|> grindIntro <|> grindExt <|> grindGen <|> grindSym
+    <|> grindCases <|> grindIntro <|> grindExt <|> grindGen <|> grindSym <|> grindInj
 syntax (name := grind) "grind" (ppSpace grindMod)? : attr
 syntax (name := grind!) "grind!" (ppSpace grindMod)? : attr
 syntax (name := grind?) "grind?" (ppSpace grindMod)? : attr

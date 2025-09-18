@@ -378,7 +378,11 @@ def execute_release_steps(repo, version, config):
             print(red("Tests failed, but continuing with PR creation..."))
             print(red(f"Test error: {e}"))
     elif repo_name == "cslib":
+        print(blue("Updating lakefile.toml..."))
         run_command(f'perl -pi -e \'s/"v4\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?"/"' + version + '"/g\' lakefile.*', cwd=repo_path)
+        
+        print(blue("Updating docs/lakefile.toml..."))
+        run_command(f'perl -pi -e \'s/"v4\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?"/"' + version + '"/g\' lakefile.*', cwd=repo_path / "docs")
 
         # Update lean-toolchain in docs
         print(blue("Updating docs/lean-toolchain..."))

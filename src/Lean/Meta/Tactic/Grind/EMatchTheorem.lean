@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Util
 public import Init.Grind.Tactics
@@ -19,11 +18,8 @@ import Lean.Message
 import Lean.Meta.Tactic.FVarSubst
 import Lean.Meta.Match.Basic
 import Lean.Meta.Tactic.TryThis
-
 public section
-
 namespace Lean.Meta.Grind
-
 /--
 `grind` uses symbol priorities when inferring patterns for E-matching.
 Symbols not in `map` are assumed to have default priority (i.e., `eval_prio default`).
@@ -411,8 +407,6 @@ structure EMatchTheorems where
   private erased  : PHashSet Origin := {}
   /-- Mapping from origin to E-matching theorems associated with this origin. -/
   private omap : PHashMap Origin (List EMatchTheorem) := {}
-  /-- Priorities for pattern inference -/
-  private prios : SymbolPriorities := {}
   deriving Inhabited
 
 /--
@@ -427,7 +421,7 @@ def EMatchTheorems.insert (s : EMatchTheorems) (thm : EMatchTheorem) : EMatchThe
   let .const declName :: syms := thm.symbols
     | unreachable!
   let thm := { thm with symbols := syms }
-  let { smap, origins, erased, omap, prios } := s
+  let { smap, origins, erased, omap } := s
   let origin := thm.origin
   let origins := origins.insert origin
   let erased := erased.erase origin
@@ -439,7 +433,7 @@ def EMatchTheorems.insert (s : EMatchTheorems) (thm : EMatchTheorem) : EMatchThe
     omap.insert origin (thm::thms)
   else
     omap.insert origin [thm]
-  return { smap, origins, erased, omap, prios }
+  return { smap, origins, erased, omap }
 
 /-- Returns `true` if `s` contains a theorem with the given origin. -/
 def EMatchTheorems.contains (s : EMatchTheorems) (origin : Origin) : Bool :=

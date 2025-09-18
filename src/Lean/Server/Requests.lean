@@ -123,6 +123,26 @@ partial def SnapshotTree.findInfoTreeAtPos (text : FileMap) (tree : SnapshotTree
         | return (none, .proceed (foldChildren := true))
       return (infoTree, .done)
 
+partial def SnapshotTree.foldInfosInRange (tree : SnapshotTree) (requestedRange : String.Range)
+    (init : α) (f : Elab.ContextInfo → Elab.Info → α → α) : ServerTask α :=
+  tree.foldSnaps (init := init) fun snap acc => Id.run do
+    let some stx := snap.stx?
+      | return .pure (acc, .proceed (foldChildren := false))
+    let some range := stx.getRangeWithTrailing? (canonicalOnly := true)
+      | return .pure (acc, .proceed (foldChildren := true))
+    if ! range.overlaps requestedRange (includeFirstStop := true) (includeSecondStop := true) then
+      return .pure (acc, .proceed (foldChildren := false))
+    return snap.task.asServerTask.mapCheap fun tree => Id.run do
+      let some infoTree := tree.element.infoTree?
+        | return (acc, .proceed (foldChildren := true))
+      let acc := infoTree.foldInfo (init := acc) fun ctx i acc => Id.run do
+        let some r := i.range?
+          | return acc
+        if ! r.overlaps requestedRange (includeFirstStop := true) (includeSecondStop := true) then
+          return acc
+        return f ctx i acc
+      return (acc, .proceed (foldChildren := true))
+
 partial def SnapshotTree.collectMessagesInRange (tree : SnapshotTree)
     (requestedRange : String.Range) : ServerTask MessageLog :=
   tree.foldSnaps (init := .empty) fun snap log => Id.run do

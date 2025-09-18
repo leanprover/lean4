@@ -49,10 +49,14 @@ def PartialContextInfo.mergeIntoOuter?
     some { info with }
   | .parentDeclCtx _, none =>
     panic! "Unexpected incomplete InfoTree context info."
+  | .autoImplicitCtx _, none =>
+    panic! "Unexpected incomplete InfoTree context info."
   | .commandCtx innerInfo, some outer =>
     some { outer with toCommandContextInfo := innerInfo }
   | .parentDeclCtx innerParentDecl, some outer =>
     some { outer with parentDecl? := innerParentDecl }
+  | .autoImplicitCtx innerAutoImplicits, some outer =>
+    some { outer with autoImplicits := innerAutoImplicits }
 
 def CompletionInfo.stx : CompletionInfo → Syntax
   | dot i ..          => i.stx
@@ -277,6 +281,7 @@ def PartialContextInfo.format (ctx : PartialContextInfo) : Format :=
   match ctx with
   | .commandCtx _ => "command"
   | .parentDeclCtx n => s!"parent[{n}]"
+  | .autoImplicitCtx implicits => s!"autoImplicits[{implicits}]"
 
 partial def InfoTree.format (tree : InfoTree) (ctx? : Option ContextInfo := none) : IO Format := do
   match tree with
@@ -447,6 +452,16 @@ def withSaveParentDeclInfoContext [MonadFinally m] [MonadParentDecl m] (x : m α
     let some declName ← getParentDeclName?
       | return none
     return some <| .parentDeclCtx declName
+
+/--
+Resets the trees state `t₀`, runs `x` to produce a new trees state `t₁` and sets the state to be
+`t₀ ++ (InfoTree.context (PartialContextInfo.autoImplicitCtx Γ) <$> t₁)` where `Γ` is the set of
+auto-implicits provided by `MonadAutoImplicits m`.
+-/
+def withSaveAutoImplicitInfoContext [MonadFinally m] [MonadAutoImplicits m] (x : m α) : m α := do
+  withSavedPartialInfoContext x do
+    let autoImplicits ← getAutoImplicits
+    return some <| .autoImplicitCtx autoImplicits
 
 def getInfoHoleIdAssignment? (mvarId : MVarId) : m (Option InfoTree) :=
   return (← getInfoState).assignment[mvarId]

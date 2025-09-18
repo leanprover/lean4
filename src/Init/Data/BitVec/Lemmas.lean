@@ -5792,6 +5792,12 @@ theorem reverse_eq_zero_iff {x : BitVec w} :
     rw [← getLsbD_eq_getElem, getLsbD_eq_getMsbD, getMsbD_reverse]
     simp [hi, hzero]
 
+@[simp]
+theorem reverse_reverse_eq {x : BitVec w} :
+    x.reverse.reverse = x := by
+  ext k hk
+  rw [getElem_reverse, getMsbD_reverse, getLsbD_eq_getElem]
+
 /-! ### Inequalities (le / lt) -/
 
 theorem ule_eq_not_ult (x y : BitVec w) : x.ule y = !y.ult x := by
@@ -6194,6 +6200,10 @@ theorem toNat_lt_two_pow_sub_clz {x : BitVec w} :
         · simp [hiw, hxw]
         · simp [show w + 1 ≤ i by omega]
       · simp; omega
+
+theorem clz_eq_reverse_ctz {x : BitVec w} :
+    x.clz = (x.reverse).ctz := by
+  simp [ctz]
 
 /-! ### Count trailing zeros -/
 

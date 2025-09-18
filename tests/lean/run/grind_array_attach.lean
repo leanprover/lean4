@@ -2,7 +2,7 @@ import Lean.Util.Reprove
 
 namespace Array
 
-reprove pmap_empty pmap_push attach_empty attachWith_empty map_map pmap_push attach_empty attachWith_empty by grind
+reprove pmap_empty pmap_push attach_empty attachWith_empty by grind
 reprove map_pmap pmap_map attach_push attachWith_push pmap_eq_map_attach pmap_eq_attachWith by grind
 reprove attach_map_val attach_map_subtype_val attachWith_map_val attachWith_map_subtype_val by grind
 reprove pmap_attach pmap_attachWith by grind
@@ -15,7 +15,7 @@ end Array
 
 namespace Vector
 
-reprove pmap_empty pmap_push attach_empty attachWith_empty map_map pmap_push attach_empty attachWith_empty by grind
+reprove pmap_empty pmap_push attach_empty attachWith_empty by grind
 reprove map_pmap pmap_map attach_push attachWith_push pmap_eq_map_attach pmap_eq_attachWith by grind
 reprove attach_map_val attach_map_subtype_val attachWith_map_val attachWith_map_subtype_val by grind
 reprove pmap_attach pmap_attachWith by grind

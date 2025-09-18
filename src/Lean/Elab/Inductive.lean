@@ -29,6 +29,8 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Term
   let (binders, type?) := expandOptDeclSig decl[2]
   let declId           := decl[1]
   let ⟨name, declName, levelNames, docString?⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
+  if modifiers.isMeta then
+    modifyEnv (addMeta · declName)
   addDeclarationRangesForBuiltin declName modifiers.stx decl
   let ctors      ← decl[4].getArgs.mapM fun ctor => withRef ctor do
     /-
@@ -193,6 +195,7 @@ private def elabCtors (indFVars : Array Expr) (params : Array Expr) (r : ElabHea
   let indFVar := r.indFVar
   let indFamily ← isInductiveFamily params.size indFVar
   r.view.ctors.toList.mapM fun ctorView =>
+    withoutExporting (when := isPrivateName ctorView.declName) do
     Term.withAutoBoundImplicit <| Term.elabBinders ctorView.binders.getArgs fun ctorParams =>
       withRef ctorView.ref do
         let elabCtorType : TermElabM Expr := do

@@ -12,7 +12,7 @@ public theorem fthm : f (f x) = f x := sorry
 #guard_msgs (trace) in
 set_option trace.grind.ematch.pattern true in
 example : f (f (f x)) = f x := by
-  grind only [fthm]
+  grind only [!fthm]
 
 /--
 trace: [grind.ematch.instance] fthm: f (f x) = f x
@@ -22,7 +22,7 @@ trace: [grind.ematch.instance] fthm: f (f x) = f x
 #guard_msgs (trace) in
 set_option trace.grind.ematch.instance true in
 example : f (f (f x)) = f x := by
-  grind only [fthm]
+  grind only [!fthm]
 
 /--
 trace: [grind.ematch.instance] fthm: f (f x) = f x
@@ -32,7 +32,7 @@ trace: [grind.ematch.instance] fthm: f (f x) = f x
 -- should not instantiate anything using pattern `f (f #0)`
 set_option trace.grind.ematch.instance true in
 example : f x = x := by
-  fail_if_success grind only [fthm]
+  fail_if_success grind only [!fthm]
   sorry
 
 /--
@@ -68,7 +68,7 @@ trace: [grind.ematch.instance] fthm: f (f x) = f x
 #guard_msgs (trace) in
 set_option trace.grind.ematch.instance true in
 example : f x = x := by
-  fail_if_success grind only [fthm]
+  fail_if_success grind only [!fthm]
   sorry
 
 /--

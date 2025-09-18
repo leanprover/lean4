@@ -1,6 +1,6 @@
 module
 
-import Lean.ErrorExplanation
+meta import Lean.ErrorExplanation
 import Lean.Meta.Basic
 import all Lean.Language.Basic
 open Lean Meta

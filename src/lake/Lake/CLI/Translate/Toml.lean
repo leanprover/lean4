@@ -149,7 +149,7 @@ public instance : ToToml Dependency := ⟨(toToml ·.toToml)⟩
 
 /-! ## Package & Target Configuration Encoders -/
 
-private def genToToml
+private meta def genToToml
   (cmds : Array Command)
   (tyName : Name) [info : ConfigInfo tyName] (takesName : Bool)
   (exclude : Array Name := #[])

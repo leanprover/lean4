@@ -151,11 +151,11 @@ theorem subset_replicate {n : Nat} {a : α} {l : List α} (h : n ≠ 0) : l ⊆ 
 
 /-! ### Sublist and isSublist -/
 
-@[simp, grind] theorem nil_sublist : ∀ l : List α, [] <+ l
+@[simp, grind ←] theorem nil_sublist : ∀ l : List α, [] <+ l
   | [] => .slnil
   | a :: l => (nil_sublist l).cons a
 
-@[simp, grind] theorem Sublist.refl : ∀ l : List α, l <+ l
+@[simp, grind ←] theorem Sublist.refl : ∀ l : List α, l <+ l
   | [] => .slnil
   | a :: l => (Sublist.refl l).cons₂ a
 
@@ -172,7 +172,7 @@ theorem Sublist.trans {l₁ l₂ l₃ : List α} (h₁ : l₁ <+ l₂) (h₂ : l
 
 instance : Trans (@Sublist α) Sublist Sublist := ⟨Sublist.trans⟩
 
-attribute [simp, grind] Sublist.cons
+attribute [simp, grind ←] Sublist.cons
 
 theorem sublist_cons_self (a : α) (l : List α) : l <+ a :: l := (Sublist.refl l).cons _
 
@@ -664,20 +664,20 @@ theorem IsSuffix.isInfix : l₁ <:+ l₂ → l₁ <:+: l₂ := fun ⟨t, h⟩ =>
 
 grind_pattern IsSuffix.isInfix => l₁ <:+ l₂, IsInfix
 
-@[simp, grind] theorem nil_prefix {l : List α} : [] <+: l := ⟨l, rfl⟩
+@[simp, grind ←] theorem nil_prefix {l : List α} : [] <+: l := ⟨l, rfl⟩
 
-@[simp, grind] theorem nil_suffix {l : List α} : [] <:+ l := ⟨l, append_nil _⟩
+@[simp, grind ←] theorem nil_suffix {l : List α} : [] <:+ l := ⟨l, append_nil _⟩
 
-@[simp, grind] theorem nil_infix {l : List α} : [] <:+: l := nil_prefix.isInfix
+@[simp, grind ←] theorem nil_infix {l : List α} : [] <:+: l := nil_prefix.isInfix
 
 theorem prefix_refl (l : List α) : l <+: l := ⟨[], append_nil _⟩
-@[simp, grind] theorem prefix_rfl {l : List α} : l <+: l := prefix_refl l
+@[simp, grind ←] theorem prefix_rfl {l : List α} : l <+: l := prefix_refl l
 
 theorem suffix_refl (l : List α) : l <:+ l := ⟨[], rfl⟩
-@[simp, grind] theorem suffix_rfl {l : List α} : l <:+ l := suffix_refl l
+@[simp, grind ←] theorem suffix_rfl {l : List α} : l <:+ l := suffix_refl l
 
 theorem infix_refl (l : List α) : l <:+: l := prefix_rfl.isInfix
-@[simp, grind] theorem infix_rfl {l : List α} : l <:+: l := infix_refl l
+@[simp, grind ←] theorem infix_rfl {l : List α} : l <:+: l := infix_refl l
 
 @[simp] theorem suffix_cons (a : α) : ∀ l, l <:+ a :: l := suffix_append [a]
 

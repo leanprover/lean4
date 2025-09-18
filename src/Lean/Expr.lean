@@ -70,7 +70,7 @@ def bar ⦃x : Nat⦄ : Nat := x
 #check bar -- bar : ⦃x : Nat⦄ → Nat
 ```
 
-See also [the Lean manual](https://lean-lang.org/lean4/doc/expressions.html#implicit-arguments).
+See also [the Lean Language Reference](https://lean-lang.org/doc/reference/latest/Terms/Functions/#implicit-functions).
 -/
 inductive BinderInfo where
   /-- Default binder annotation, e.g. `(x : α)` -/

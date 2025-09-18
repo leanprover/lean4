@@ -313,19 +313,22 @@ private def isPersistent : Expr → Bool
 
 /-- Return true iff `v` at runtime is a scalar value stored in a tagged pointer.
    We do not need RC operations for this kind of value. -/
-private def typeForScalarBoxedInTaggedPtr? (v : Expr) : Option IRType :=
-  match v with
-  | .ctor c _ =>
-    some c.type
-  | .lit (.num n) =>
-    if n ≤ maxSmallNat then
-      some .tagged
-    else
-      some .tobject
-  | _ => none
+private def typeForScalarBoxedInTaggedPtr? (v : Expr) (origt : IRType) : Option IRType :=
+  if origt.isScalar then
+    none
+  else
+    match v with
+    | .ctor c _ =>
+      some c.type
+    | .lit (.num n) =>
+      if n ≤ maxSmallNat then
+        some .tagged
+      else
+        some .tobject
+    | _ => none
 
 private def updateVarInfo (ctx : Context) (x : VarId) (t : IRType) (v : Expr) : Context :=
-  let type := typeForScalarBoxedInTaggedPtr? v |>.getD t
+  let type := typeForScalarBoxedInTaggedPtr? v t |>.getD t
   let isPossibleRef := type.isPossibleRef
   let isDefiniteRef := type.isDefiniteRef
   { ctx with

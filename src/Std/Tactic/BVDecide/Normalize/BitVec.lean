@@ -493,9 +493,6 @@ theorem BitVec.mul_beq_mul_short_circuit_right {x y₁ y₂ : BitVec w} :
   intros
   congr
 
-theorem BitVec.ctz_eq_clz_reverse {x : BitVec w} :
-    BitVec.ctz x = (x.reverse).clz := by rfl
-
 @[int_toBitVec]
 theorem UInt8.toBitVec_cond :
     UInt8.toBitVec (bif c then t else e) = bif c then t.toBitVec else e.toBitVec := by

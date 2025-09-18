@@ -6233,8 +6233,7 @@ theorem getLsbD_false_of_lt_ctz {x : BitVec w} (hi : i < x.ctz.toNat) :
     simp only [hi', decide_true, Bool.true_and]
     have : (x.reverse.clzAuxRec (w - 1)).toNat ≤ w := by
       rw [show ((x.reverse.clzAuxRec (w - 1)).toNat ≤ w) =
-            ((x.reverse.clzAuxRec (w - 1)).toNat ≤ (BitVec.ofNat w w).toNat) by simp only [toNat_ofNat,
-              Nat.mod_two_pow_self], ← le_def]
+            ((x.reverse.clzAuxRec (w - 1)).toNat ≤ (BitVec.ofNat w w).toNat) by simp, ← le_def]
       apply clzAuxRec_le (x := x.reverse) (n := w - 1)
     let j := (x.reverse.clzAuxRec (w - 1)).toNat - 1 - i
     rw [show w - 1 - i = w - (x.reverse.clzAuxRec (w - 1)).toNat + j by
@@ -6242,7 +6241,10 @@ theorem getLsbD_false_of_lt_ctz {x : BitVec w} (hi : i < x.ctz.toNat) :
       rw [Nat.sub_sub (n := (x.reverse.clzAuxRec (w - 1)).toNat),
         ← Nat.add_sub_assoc (by exact Nat.one_add_le_iff.mpr hi)]
       omega]
-    exact getLsbD_false_of_clzAuxRec (x := x.reverse) (n := w - 1) (by intros i hj; simp [show w ≤ i by omega]) (j := j)
+    have : ∀ (i : Nat), w - 1 < i → x.reverse.getLsbD i = false := by
+      intros i hj
+      simp [show w ≤ i by omega]
+    exact getLsbD_false_of_clzAuxRec (x := x.reverse) (n := w - 1) this (j := j)
 
 /-- If a bitvec is different than zero, the bit at index `ctz x`, i.e., the first bit after the
   trailing zeros, is true. -/

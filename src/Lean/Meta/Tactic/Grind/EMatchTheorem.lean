@@ -1176,7 +1176,7 @@ where
     | _ => return ()
 
 register_builtin_option backward.grind.inferPattern : Bool := {
-  defValue := true
+  defValue := false
   group    := "backward compatibility"
   descr    := "use old E-matching pattern inference"
 }

@@ -25,7 +25,6 @@ instance : OfNat String.Pos (nat_lit 0) where
 instance : Inhabited String where
   default := ""
 
-
 /--
 Adds a character to the end of a string.
 

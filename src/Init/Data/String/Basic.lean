@@ -266,11 +266,9 @@ private theorem ByteArray.utf8Decode?go_eq_utf8Decode?go_extract {b : ByteArray}
       have := c.utf8Size_pos
       conv => lhs; rw [ByteArray.utf8Decode?go_eq_utf8Decode?go_extract]
       conv => rhs; rw [ByteArray.utf8Decode?go_eq_utf8Decode?go_extract]
-      simp only [size_extract, Nat.le_refl, Nat.min_eq_left, Option.map_map]
-      simp only [ByteArray.extract_extract]
-      simp [(by omega : i + (b.size - i) = b.size)]
+      simp only [size_extract, Nat.le_refl, Nat.min_eq_left, Option.map_map, ByteArray.extract_extract]
       have : (fun x => acc ++ x) ∘ (fun x => #[c] ++ x) = fun x => acc.push c ++ x := by funext; simp
-      simp [this]
+      simp [(by omega : i + (b.size - i) = b.size), this]
 
 theorem ByteArray.utf8Decode?_utf8Encode_singleton_append {l : ByteArray} {c : Char} :
     ([c].utf8Encode ++ l).utf8Decode? = l.utf8Decode?.map (#[c] ++ ·) := by
@@ -335,13 +333,6 @@ theorem String.utf8encode_data {b : String} : b.data.utf8Encode = b.bytes := by
   have := congrArg String.bytes (String.asString_data (b := b))
   rwa [← List.bytes_asString]
 
-private noncomputable def String.utf8ByteSize' : String → Nat
-  | s => go s.data
-where
-  go : List Char → Nat
-  | []    => 0
-  | c::cs => go cs + c.utf8Size
-
 @[simp]
 theorem String.utf8ByteSize_empty : "".utf8ByteSize = 0 := (rfl)
 
@@ -356,6 +347,15 @@ theorem String.size_bytes {s : String} : s.bytes.size = s.utf8ByteSize := rfl
 @[simp]
 theorem String.bytes_push {s : String} {c : Char} : (s.push c).bytes = s.bytes ++ [c].utf8Encode := by
   simp [push]
+
+-- This is just to keep the proof of `set_next_add` below from breaking; if that lemma goes away
+-- or the proof is rewritten, it can be removed.
+private noncomputable def String.utf8ByteSize' : String → Nat
+  | s => go s.data
+where
+  go : List Char → Nat
+  | []    => 0
+  | c::cs => go cs + c.utf8Size
 
 private theorem String.utf8ByteSize'_eq (s : String) : s.utf8ByteSize' = s.utf8ByteSize := by
   suffices ∀ l, utf8ByteSize'.go l = l.asString.utf8ByteSize by

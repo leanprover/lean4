@@ -16,12 +16,13 @@ namespace ByteArray
 @[simp]
 theorem data_push {a : ByteArray} {b : UInt8} : (a.push b).data = a.data.push b := rfl
 
-noncomputable def Internal.append (a b : ByteArray) : ByteArray :=
+@[expose]
+protected def append (a b : ByteArray) : ByteArray :=
   ⟨⟨a.data.toList ++ b.data.toList⟩⟩
 
 @[simp]
-theorem Internal.toList_data_append {a b : ByteArray} :
-    (Internal.append a b).data.toList = a.data.toList ++ b.data.toList := by
+theorem toList_data_append' {a b : ByteArray} :
+    (a.append b).data.toList = a.data.toList ++ b.data.toList := by
   have ⟨⟨a⟩⟩ := a
   have ⟨⟨b⟩⟩ := b
   rfl
@@ -44,8 +45,8 @@ where
     have ⟨xs⟩ := xs
     simp [Array.push, List.concat_eq_append]
 
-theorem List.toByteArray_append_eq_internalAppend {l l' : List UInt8} :
-    (l ++ l').toByteArray = ByteArray.Internal.append l.toByteArray l'.toByteArray :=
+theorem List.toByteArray_append' {l l' : List UInt8} :
+    (l ++ l').toByteArray = l.toByteArray.append l'.toByteArray :=
   ByteArray.ext (ext (by simp))
 where
   ext : {x y : Array UInt8} → x.toList = y.toList → x = y

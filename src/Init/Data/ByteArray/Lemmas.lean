@@ -23,10 +23,6 @@ theorem ByteArray.data_extract {a : ByteArray} {b e : Nat} :
   · rw [Array.extract_eq_empty_of_le (by omega), Array.extract_eq_empty_of_le (by omega)]
 
 @[simp]
-theorem ByteArray.size_data {a : ByteArray} :
-  a.data.size = a.size := rfl
-
-@[simp]
 theorem ByteArray.extract_zero_size {b : ByteArray} : b.extract 0 b.size = b := by
   ext1
   simp
@@ -36,13 +32,23 @@ theorem ByteArray.extract_same {b : ByteArray} {i : Nat} : b.extract i i = ByteA
   ext1
   simp [Nat.min_le_left]
 
-theorem ByteArray.append_eq_copySlice {a b : ByteArray} :
-  a ++ b = b.copySlice 0 a a.size b.size false := rfl
+theorem ByteArray.fastAppend_eq_copySlice {a b : ByteArray} :
+  a.fastAppend b = b.copySlice 0 a a.size b.size false := rfl
+
+@[simp]
+theorem List.toByteArray_append {l l' : List UInt8} :
+    (l ++ l').toByteArray = l.toByteArray ++ l'.toByteArray := by
+  simp [List.toByteArray_append']
+
+@[simp]
+theorem ByteArray.toList_data_append {l l' : ByteArray} :
+    (l ++ l').data.toList = l.data.toList ++ l'.data.toList := by
+  simp [← append_eq]
 
 @[simp]
 theorem ByteArray.data_append {l l' : ByteArray} :
     (l ++ l').data = l.data ++ l'.data := by
-  simp [append_eq_copySlice, copySlice, ← ByteArray.size_data, - Array.append_assoc]
+  simp [← Array.toList_inj]
 
 @[simp]
 theorem ByteArray.size_empty : ByteArray.empty.size = 0 := by
@@ -61,12 +67,6 @@ theorem List.data_toByteArray {l : List UInt8} :
 theorem List.size_toByteArray {l : List UInt8} :
     l.toByteArray.size = l.length := by
   simp [← ByteArray.size_data]
-
-@[simp]
-theorem List.toByteArray_append {l l' : List UInt8} :
-    (l ++ l').toByteArray = l.toByteArray ++ l'.toByteArray := by
-  ext1
-  simp
 
 @[simp]
 theorem List.toByteArray_nil : List.toByteArray [] = ByteArray.empty := rfl
@@ -250,9 +250,3 @@ theorem ByteArray.copySlice_eq_append {src : ByteArray} {srcOff : Nat} {dest : B
       dest.extract 0 destOff ++ src.extract srcOff (srcOff +len) ++ dest.extract (destOff + min len (src.data.size - srcOff)) dest.data.size := by
   ext1
   simp [copySlice]
-
-@[simp]
-theorem ByteArray.internalAppend_eq_append {a b : ByteArray} : Internal.append a b = a ++ b := by
-  ext1
-  apply Array.ext'
-  simp

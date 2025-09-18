@@ -422,7 +422,6 @@ where
       let hlr := hinv hidx elem
       let laig ← go (acc ++ curr) decls hinv lidx (by omega)
       go laig decls hinv ridx (by omega)
-  termination_by idx
   invEdgeStyle (isInv : Bool) : String :=
     if isInv then " [color=red]" else " [color=blue]"
   toGraphvizString {α : Type} [DecidableEq α] [ToString α] [Hashable α] (decls : Array (Decl α))

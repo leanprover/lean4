@@ -12,11 +12,6 @@ public import Init.Data.ByteArray.Bootstrap
 
 public section
 
-theorem List.utf8Encode_append_eq_internalAppend {l l' : List Char} :
-    List.utf8Encode (l ++ l') = ByteArray.Internal.append
-      (List.utf8Encode l) (List.utf8Encode l') := by
-  simp [utf8Encode, List.toByteArray_append_eq_internalAppend]
-
 namespace String
 
 instance : OfNat String.Pos (nat_lit 0) where
@@ -37,11 +32,11 @@ Examples:
 -/
 @[extern "lean_string_push", expose]
 def push : String → Char → String
-  | ⟨b, h⟩, c => ⟨ByteArray.Internal.append b (List.utf8Encode [c]), ?pf⟩
+  | ⟨b, h⟩, c => ⟨b.append (List.utf8Encode [c]), ?pf⟩
 where finally
   have ⟨m, hm⟩ := h
   cases hm
-  exact .intro (m ++ [c]) (by simp [List.utf8Encode_append_eq_internalAppend])
+  exact .intro (m ++ [c]) (by simp [List.utf8Encode, List.toByteArray_append'])
 
 /--
 Returns a new string that contains only the character `c`.

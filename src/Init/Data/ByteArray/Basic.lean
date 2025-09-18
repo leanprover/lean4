@@ -11,6 +11,7 @@ public import Init.Data.UInt.Basic
 public import Init.Data.UInt.BasicAux
 import all Init.Data.UInt.BasicAux
 public import Init.Data.Option.Basic
+public import Init.Data.Array.Extract
 
 @[expose] public section
 universe u
@@ -86,11 +87,31 @@ def copySlice (src : @& ByteArray) (srcOff : Nat) (dest : ByteArray) (destOff le
 def extract (a : ByteArray) (b e : Nat) : ByteArray :=
   a.copySlice b empty 0 (e - b)
 
-protected def append (a : ByteArray) (b : ByteArray) : ByteArray :=
+protected def fastAppend (a : ByteArray) (b : ByteArray) : ByteArray :=
   -- we assume that `append`s may be repeated, so use asymptotic growing; use `copySlice` directly to customize
   b.copySlice 0 a a.size b.size false
 
-instance : Append ByteArray := ⟨ByteArray.append⟩
+@[simp]
+theorem size_data {a : ByteArray} :
+  a.data.size = a.size := rfl
+
+@[csimp]
+theorem append_eq_fastAppend : @ByteArray.append = @ByteArray.fastAppend := by
+  funext a b
+  ext1
+  apply Array.ext'
+  simp [ByteArray.fastAppend, copySlice, ← size_data, - Array.append_assoc]
+
+-- Needs to come after the `csimp` lemma
+instance : Append ByteArray where
+  append := ByteArray.append
+
+@[simp]
+theorem append_eq {a b : ByteArray} : a.append b = a ++ b := rfl
+
+@[simp]
+theorem fastAppend_eq {a b : ByteArray} : a.fastAppend b = a ++ b := by
+  simp [← append_eq_fastAppend]
 
 def toList (bs : ByteArray) : List UInt8 :=
   let rec loop (i : Nat) (r : List UInt8) :=

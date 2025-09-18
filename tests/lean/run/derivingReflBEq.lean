@@ -5,6 +5,14 @@ inductive L (α : Type u) where
   | cons : α → L α → L α
 deriving BEq, ReflBEq, LawfulBEq
 
+example :
+  (match decEq (@L.nil Int).ctorIdx (@L.nil Int).ctorIdx with
+  | isTrue h => true
+  | isFalse h => false) =
+  true := by
+  simp only [ BEq.refl, ↓reduceDIte, Bool.and_true, *, reduceBEq ,reduceCtorIdx]
+
+
 /-- info: theorem instReflBEqL.{u_1} : ∀ {α : Type u_1} [inst : BEq α] [ReflBEq α], ReflBEq (L α) -/
 #guard_msgs in
 #print sig instReflBEqL

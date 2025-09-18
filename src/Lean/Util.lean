@@ -38,5 +38,6 @@ public import Lean.Util.NumObjs
 public import Lean.Util.NumApps
 public import Lean.Util.FVarSubset
 public import Lean.Util.SortExprs
+public import Lean.Util.Reprove
 
 public section

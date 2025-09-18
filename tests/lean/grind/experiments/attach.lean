@@ -5,9 +5,8 @@ theorem Option.attachWith_map_subtype_val' {p : α → Prop} (o : Option α) (H 
 
 namespace Array
 
-reprove Array.pmap_empty by grind
-
-theorem pmap_empty' {P : α → Prop} (f : ∀ a, P a → β) : pmap f #[] (by simp) = #[] := by grind
+reprove pmap_empty pmap_push by grind
+-- pmap_push attach_empty attachWith_empty map_map by grind
 
 theorem pmap_push' {P : α → Prop} (f : ∀ a, P a → β) (a : α) (xs : Array α) (h : ∀ b ∈ xs.push a, P b) :
     pmap f (xs.push a) h =

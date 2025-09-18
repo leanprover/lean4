@@ -24,7 +24,7 @@ private meta def elabWidgetInstanceSpecAux (mod : Ident) (props : Term) : TermEl
       javascriptHash := (ToModule.toModule $mod).javascriptHash
       props := Server.RpcEncodable.rpcEncode $props })
 
-private meta def elabWidgetInstanceSpec : TSyntax ``widgetInstanceSpec → TermElabM Expr
+meta def elabWidgetInstanceSpec : TSyntax ``widgetInstanceSpec → TermElabM Expr
   | `(widgetInstanceSpec| $mod:ident) => do
     elabWidgetInstanceSpecAux mod (← ``(Json.mkObj []))
   | `(widgetInstanceSpec| $mod:ident with $props:term) => do

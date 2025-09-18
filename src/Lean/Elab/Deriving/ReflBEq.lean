@@ -15,22 +15,26 @@ open Lean.Parser.Term
 open Meta
 
 open TSyntax.Compat in
-open Parser.Tactic in
-def mkReflBEqInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
+def mkReflBEqInstanceCmds (declName : Name)  : TermElabM (Array Syntax) := do
   let indVal ← getConstInfoInduct declName
   if indVal.all.length > 1 then
     throwError "Deriving `ReflBEq` for mutual inductives is not supported"
   if indVal.isNested then
     throwError "Deriving `ReflBEq` for nested inductives is not supported"
 
+  let isEnum ← isEnumType declName
+
   let argNames     ← mkInductArgNames indVal
-  let binders      ← mkImplicitBinders argNames
-  let binders      := binders ++ (← mkInstImplicitBinders ``BEq indVal argNames)
-  let binders      := binders ++ (← mkInstImplicitBinders ``ReflBEq indVal argNames)
+  let mut binders  ← mkImplicitBinders argNames
+  binders          := binders ++ (← mkInstImplicitBinders ``BEq indVal argNames)
+  unless isEnum do
+    binders        := binders ++ (← mkInstImplicitBinders ``ReflBEq indVal argNames)
   let indType      ← mkInductiveApp indVal argNames
   let type         ← `($(mkCIdent ``ReflBEq) $indType)
-  let instCmd ← `( instance $binders:implicitBinder* : $type where
-    rfl := by deriving_ReflEq_tactic)
+  let instCmd ←
+    if isEnum
+    then `( instance $binders:implicitBinder* : $type where rfl := @fun x => BEq.refl x.ctorIdx)
+    else `( instance $binders:implicitBinder* : $type where rfl := by deriving_ReflEq_tactic)
   let cmds := #[instCmd]
   trace[Elab.Deriving.reflBEq] "\n{cmds}"
   return cmds

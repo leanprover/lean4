@@ -23,11 +23,103 @@ info: theorem instReflBEqVec.{u_1} : ∀ {α : Type u_1} {a : Nat} [inst : BEq �
 
 inductive Enum
   | mk1 | mk2 | mk3
-deriving BEq, ReflBEq, LawfulBEq
+deriving BEq, ReflBEq --, LawfulBEq
 
-/-- info: theorem instReflBEqEnum : ReflBEq Enum -/
-#guard_msgs in
-#print sig instReflBEqEnum
+/--
+info: theorem instReflBEqEnum : ReflBEq Enum :=
+{ rfl := fun x => BEq.refl x.ctorIdx }
+-/
+#guard_msgs in #print instReflBEqEnum
+
+/--
+info: theorem instLawfulBEqEnum : LawfulBEq Enum :=
+{ toReflBEq := instReflBEqEnum,
+  eq_of_beq := fun {x} =>
+    @Enum.rec (fun {x} => ∀ {b : Enum}, (x == b) = true → x = b)
+      (fun {y} =>
+        Enum.casesOn (motive := fun t => y = t → (Enum.mk1 == y) = true → Enum.mk1 = y) y
+          (fun h =>
+            Eq.ndrec (motive := fun {y} => (Enum.mk1 == y) = true → Enum.mk1 = y)
+              (Eq.mpr
+                (id
+                  (implies_congr (congrArg (fun x => x = true) (instBEqEnum.beq_spec_1 Enum.mk1 Enum.mk1))
+                    (eq_self Enum.mk1)))
+                fun a => True.intro)
+              (Eq.symm h))
+          (fun h =>
+            Eq.ndrec (motive := fun {y} => (Enum.mk1 == y) = true → Enum.mk1 = y)
+              (Eq.mpr
+                (id
+                  (implies_congr (congrArg (fun x => x = true) (instBEqEnum.beq_spec_1 Enum.mk1 Enum.mk2))
+                    (Eq.refl (Enum.mk1 = Enum.mk2))))
+                fun a => Bool.noConfusion a)
+              (Eq.symm h))
+          (fun h =>
+            Eq.ndrec (motive := fun {y} => (Enum.mk1 == y) = true → Enum.mk1 = y)
+              (Eq.mpr
+                (id
+                  (implies_congr (congrArg (fun x => x = true) (instBEqEnum.beq_spec_1 Enum.mk1 Enum.mk3))
+                    (Eq.refl (Enum.mk1 = Enum.mk3))))
+                fun a => Bool.noConfusion a)
+              (Eq.symm h))
+          (Eq.refl y))
+      (fun {y} =>
+        Enum.casesOn (motive := fun t => y = t → (Enum.mk2 == y) = true → Enum.mk2 = y) y
+          (fun h =>
+            Eq.ndrec (motive := fun {y} => (Enum.mk2 == y) = true → Enum.mk2 = y)
+              (Eq.mpr
+                (id
+                  (implies_congr (congrArg (fun x => x = true) (instBEqEnum.beq_spec_1 Enum.mk2 Enum.mk1))
+                    (Eq.refl (Enum.mk2 = Enum.mk1))))
+                fun a => Bool.noConfusion a)
+              (Eq.symm h))
+          (fun h =>
+            Eq.ndrec (motive := fun {y} => (Enum.mk2 == y) = true → Enum.mk2 = y)
+              (Eq.mpr
+                (id
+                  (implies_congr (congrArg (fun x => x = true) (instBEqEnum.beq_spec_1 Enum.mk2 Enum.mk2))
+                    (eq_self Enum.mk2)))
+                fun a => True.intro)
+              (Eq.symm h))
+          (fun h =>
+            Eq.ndrec (motive := fun {y} => (Enum.mk2 == y) = true → Enum.mk2 = y)
+              (Eq.mpr
+                (id
+                  (implies_congr (congrArg (fun x => x = true) (instBEqEnum.beq_spec_1 Enum.mk2 Enum.mk3))
+                    (Eq.refl (Enum.mk2 = Enum.mk3))))
+                fun a => Bool.noConfusion a)
+              (Eq.symm h))
+          (Eq.refl y))
+      (fun {y} =>
+        Enum.casesOn (motive := fun t => y = t → (Enum.mk3 == y) = true → Enum.mk3 = y) y
+          (fun h =>
+            Eq.ndrec (motive := fun {y} => (Enum.mk3 == y) = true → Enum.mk3 = y)
+              (Eq.mpr
+                (id
+                  (implies_congr (congrArg (fun x => x = true) (instBEqEnum.beq_spec_1 Enum.mk3 Enum.mk1))
+                    (Eq.refl (Enum.mk3 = Enum.mk1))))
+                fun a => Bool.noConfusion a)
+              (Eq.symm h))
+          (fun h =>
+            Eq.ndrec (motive := fun {y} => (Enum.mk3 == y) = true → Enum.mk3 = y)
+              (Eq.mpr
+                (id
+                  (implies_congr (congrArg (fun x => x = true) (instBEqEnum.beq_spec_1 Enum.mk3 Enum.mk2))
+                    (Eq.refl (Enum.mk3 = Enum.mk2))))
+                fun a => Bool.noConfusion a)
+              (Eq.symm h))
+          (fun h =>
+            Eq.ndrec (motive := fun {y} => (Enum.mk3 == y) = true → Enum.mk3 = y)
+              (Eq.mpr
+                (id
+                  (implies_congr (congrArg (fun x => x = true) (instBEqEnum.beq_spec_1 Enum.mk3 Enum.mk3))
+                    (eq_self Enum.mk3)))
+                fun a => True.intro)
+              (Eq.symm h))
+          (Eq.refl y))
+      x }
+-/
+#guard_msgs in #print instLawfulBEqEnum
 
 -- The following type has `Eq.rec`’s in its `BEq` implementation,
 -- but `simp` seems to handle that just fine

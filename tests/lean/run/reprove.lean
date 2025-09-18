@@ -26,11 +26,7 @@ reprove simpleTheorem by
   sorry
 
 -- Test failed reprove - incomplete proof
-/--
-error: unsolved goals
-n : Nat
-⊢ n + 0 = n
--/
+/-- error: (kernel) declaration has metavariables 'reprove_example✝' -/
 #guard_msgs in
 reprove withTactics by
   intro n
@@ -109,3 +105,5 @@ Hint: Reflexivity tactics can only be used on goals of the form `x ~ x` or `R x 
 -/
 #guard_msgs in
 reprove simpleEq needsIntro simpleTheorem by rfl
+
+reprove Array.attach_empty by grind

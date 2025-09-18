@@ -509,20 +509,16 @@ if (x_2 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = lean_string_append(x_4, x_3);
-lean_dec_ref(x_3);
 x_7 = lean_string_append(x_6, x_5);
-lean_dec_ref(x_5);
 return x_7;
 }
 else
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_8 = lean_string_append(x_4, x_3);
-lean_dec_ref(x_3);
 x_9 = l_Std_Time_TimeZone_Offset_toIsoString___closed__0;
 x_10 = lean_string_append(x_8, x_9);
 x_11 = lean_string_append(x_10, x_5);
-lean_dec_ref(x_5);
 return x_11;
 }
 }
@@ -530,7 +526,6 @@ block_18:
 {
 lean_object* x_17; 
 x_17 = lean_string_append(x_15, x_16);
-lean_dec_ref(x_16);
 x_3 = x_13;
 x_4 = x_14;
 x_5 = x_17;
@@ -618,7 +613,6 @@ block_53:
 {
 lean_object* x_52; 
 x_52 = lean_string_append(x_50, x_51);
-lean_dec_ref(x_51);
 x_19 = x_47;
 x_20 = x_48;
 x_21 = x_49;

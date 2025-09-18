@@ -1470,7 +1470,6 @@ lean_dec_ref(x_42);
 x_45 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_Simp_mkSimpDiagSummary_spec__11___redArg___closed__9;
 x_46 = l_Nat_reprFast(x_44);
 x_47 = lean_string_append(x_45, x_46);
-lean_dec_ref(x_46);
 x_20 = x_7;
 x_21 = x_47;
 goto block_39;

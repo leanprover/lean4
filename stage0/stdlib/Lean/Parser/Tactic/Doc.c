@@ -492,7 +492,6 @@ lean_object* l_Std_DTreeMap_Internal_Impl_foldl___redArg(lean_object*, lean_obje
 static lean_object* l_Lean_Parser_Tactic_Doc_initFn___closed__4____x40_Lean_Parser_Tactic_Doc_44007290____hygCtx___hyg_2_;
 static lean_object* l_Lean_throwAttrDeclInImportedModule___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc_3979087799____hygCtx___hyg_2__spec__10___redArg___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn___lam__0____x40_Lean_Parser_Tactic_Doc_1804727373____hygCtx___hyg_2____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_foldl___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_getTacticExtensionString_bullet_spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc_3979087799____hygCtx___hyg_2__spec__0_spec__0___closed__6;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAtAux___at___Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at___Lean_Parser_Tactic_Doc_isTactic_spec__3_spec__3_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -9372,7 +9371,6 @@ else
 lean_object* x_9; lean_object* x_10; 
 x_9 = l___private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_getTacticExtensionString_indentLine___closed__1;
 x_10 = lean_string_append(x_9, x_1);
-lean_dec_ref(x_1);
 x_2 = x_10;
 goto block_5;
 }
@@ -9455,7 +9453,10 @@ else
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
+lean_inc(x_4);
+lean_dec_ref(x_2);
 x_5 = lean_string_append(x_1, x_3);
 x_1 = x_5;
 x_2 = x_4;
@@ -9529,13 +9530,10 @@ lean_inc(x_16);
 lean_dec_ref(x_13);
 x_17 = l___private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_getTacticExtensionString_bullet___closed__0;
 x_18 = lean_string_append(x_17, x_16);
-lean_dec(x_16);
 x_19 = lean_string_append(x_18, x_8);
 x_20 = l_List_mapTR_loop___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_getTacticExtensionString_bullet_spec__0(x_14, x_12);
 x_21 = l_List_foldl___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_getTacticExtensionString_bullet_spec__1(x_9, x_20);
-lean_dec(x_20);
 x_22 = lean_string_append(x_19, x_21);
-lean_dec_ref(x_21);
 x_23 = l___private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_getTacticExtensionString_bullet___closed__1;
 x_24 = lean_string_append(x_22, x_23);
 return x_24;
@@ -9552,20 +9550,10 @@ block_7:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = l___private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_getTacticExtensionString_bullet___closed__0;
 x_4 = lean_string_append(x_3, x_2);
-lean_dec_ref(x_2);
 x_5 = l___private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_getTacticExtensionString_bullet___closed__1;
 x_6 = lean_string_append(x_4, x_5);
 return x_6;
 }
-}
-}
-LEAN_EXPORT lean_object* l_List_foldl___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_getTacticExtensionString_bullet_spec__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_List_foldl___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_getTacticExtensionString_bullet_spec__1(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_Parser_Tactic_Doc_getTacticExtensionString_spec__0(lean_object* x_1, lean_object* x_2) {
@@ -9716,9 +9704,7 @@ x_9 = lean_box(0);
 x_10 = l_List_mapTR_loop___at___Lean_Parser_Tactic_Doc_getTacticExtensionString_spec__0(x_8, x_9);
 x_11 = l_Lean_Parser_Tactic_Doc_tagInfo___redArg___lam__1___closed__1;
 x_12 = l_List_foldl___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_getTacticExtensionString_bullet_spec__1(x_11, x_10);
-lean_dec(x_10);
 x_13 = lean_string_append(x_7, x_12);
-lean_dec_ref(x_12);
 x_14 = lean_string_utf8_byte_size(x_13);
 x_15 = l_Substring_takeRightWhileAux___at___Lean_Parser_Tactic_Doc_getTacticExtensionString_spec__1(x_13, x_5, x_14);
 x_16 = lean_string_utf8_extract(x_13, x_5, x_15);

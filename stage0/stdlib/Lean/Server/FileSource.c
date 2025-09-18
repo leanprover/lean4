@@ -111,7 +111,6 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceSemanticTokensRangeParams;
 static lean_object* l_Lean_Lsp_instInhabitedFileIdent_default___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceDidChangeTextDocumentParams___lam__0___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_CompletionItem_getFileSource_x21_spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___Lean_Lsp_CompletionItem_getFileSource_x21_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceInlayHintParams;
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
@@ -1027,7 +1026,6 @@ lean_inc_ref(x_11);
 lean_dec_ref(x_1);
 x_12 = l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__2;
 x_13 = lean_string_append(x_12, x_11);
-lean_dec_ref(x_11);
 x_2 = x_13;
 goto block_9;
 }
@@ -1132,7 +1130,6 @@ x_30 = l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__4;
 x_31 = lean_unsigned_to_nat(80u);
 x_32 = l_Lean_Json_pretty(x_14, x_31);
 x_33 = lean_string_append(x_30, x_32);
-lean_dec_ref(x_32);
 x_2 = x_33;
 goto block_9;
 }
@@ -1150,15 +1147,6 @@ lean_dec_ref(x_2);
 x_8 = l_panic___at___Lean_Lsp_CompletionItem_getFileSource_x21_spec__0(x_7);
 return x_8;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_CompletionItem_getFileSource_x21_spec__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_CompletionItem_getFileSource_x21_spec__1(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
 }
 }
 static lean_object* _init_l_Lean_Lsp_instFileSourceCompletionItem___closed__0() {

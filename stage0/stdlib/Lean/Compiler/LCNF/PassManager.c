@@ -1571,7 +1571,6 @@ block_38:
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; 
 x_33 = lean_string_append(x_31, x_32);
-lean_dec_ref(x_32);
 x_34 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Compiler_LCNF_PassManager_0__Lean_Compiler_LCNF_PassManager_validatePasses_spec__2_spec__2___closed__1;
 x_35 = lean_string_append(x_33, x_34);
 if (x_1 == 0)
@@ -1614,7 +1613,6 @@ block_22:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_18 = lean_string_append(x_16, x_17);
-lean_dec_ref(x_17);
 x_19 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
 x_20 = l_Lean_MessageData_ofFormat(x_19);
@@ -1669,7 +1667,6 @@ block_38:
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; 
 x_33 = lean_string_append(x_31, x_32);
-lean_dec_ref(x_32);
 x_34 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Compiler_LCNF_PassManager_0__Lean_Compiler_LCNF_PassManager_validatePasses_spec__2_spec__2___closed__1;
 x_35 = lean_string_append(x_33, x_34);
 if (x_1 == 0)
@@ -1710,7 +1707,6 @@ block_22:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_18 = lean_string_append(x_16, x_17);
-lean_dec_ref(x_17);
 x_19 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
 x_20 = l_Lean_MessageData_ofFormat(x_19);
@@ -2147,7 +2143,6 @@ x_9 = l_Lean_Compiler_LCNF_PassManager_findOccurrenceBounds___closed__0;
 x_10 = 1;
 x_11 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_10);
 x_12 = lean_string_append(x_9, x_11);
-lean_dec_ref(x_11);
 x_13 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
 x_14 = l_Lean_MessageData_ofFormat(x_13);
@@ -3123,16 +3118,15 @@ lean_dec_ref(x_4);
 x_11 = l_Lean_Compiler_LCNF_PassInstaller_installAfter___lam__1___closed__0;
 x_12 = 1;
 x_13 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_2, x_12);
+lean_inc_ref(x_13);
 x_14 = lean_string_append(x_11, x_13);
 x_15 = l_Lean_Compiler_LCNF_PassInstaller_installAfter___lam__1___closed__1;
 x_16 = lean_string_append(x_14, x_15);
 x_17 = l_Nat_reprFast(x_3);
 x_18 = lean_string_append(x_16, x_17);
-lean_dec_ref(x_17);
 x_19 = l_Lean_Compiler_LCNF_PassInstaller_installAfter___lam__1___closed__2;
 x_20 = lean_string_append(x_18, x_19);
 x_21 = lean_string_append(x_20, x_13);
-lean_dec_ref(x_13);
 x_22 = l_Lean_Compiler_LCNF_PassInstaller_installAfter___lam__1___closed__3;
 x_23 = lean_string_append(x_21, x_22);
 x_24 = lean_alloc_ctor(3, 1, 0);
@@ -3271,16 +3265,15 @@ lean_dec_ref(x_4);
 x_11 = l_Lean_Compiler_LCNF_PassInstaller_installAfter___lam__1___closed__0;
 x_12 = 1;
 x_13 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_2, x_12);
+lean_inc_ref(x_13);
 x_14 = lean_string_append(x_11, x_13);
 x_15 = l_Lean_Compiler_LCNF_PassInstaller_installAfter___lam__1___closed__1;
 x_16 = lean_string_append(x_14, x_15);
 x_17 = l_Nat_reprFast(x_3);
 x_18 = lean_string_append(x_16, x_17);
-lean_dec_ref(x_17);
 x_19 = l_Lean_Compiler_LCNF_PassInstaller_installAfter___lam__1___closed__2;
 x_20 = lean_string_append(x_18, x_19);
 x_21 = lean_string_append(x_20, x_13);
-lean_dec_ref(x_13);
 x_22 = l_Lean_Compiler_LCNF_PassInstaller_installAfter___lam__1___closed__3;
 x_23 = lean_string_append(x_21, x_22);
 x_24 = lean_alloc_ctor(3, 1, 0);
@@ -3412,16 +3405,15 @@ lean_dec_ref(x_4);
 x_11 = l_Lean_Compiler_LCNF_PassInstaller_replacePass___lam__1___closed__0;
 x_12 = 1;
 x_13 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_2, x_12);
+lean_inc_ref(x_13);
 x_14 = lean_string_append(x_11, x_13);
 x_15 = l_Lean_Compiler_LCNF_PassInstaller_installAfter___lam__1___closed__1;
 x_16 = lean_string_append(x_14, x_15);
 x_17 = l_Nat_reprFast(x_3);
 x_18 = lean_string_append(x_16, x_17);
-lean_dec_ref(x_17);
 x_19 = l_Lean_Compiler_LCNF_PassInstaller_installAfter___lam__1___closed__2;
 x_20 = lean_string_append(x_18, x_19);
 x_21 = lean_string_append(x_20, x_13);
-lean_dec_ref(x_13);
 x_22 = l_Lean_Compiler_LCNF_PassInstaller_installAfter___lam__1___closed__3;
 x_23 = lean_string_append(x_21, x_22);
 x_24 = lean_alloc_ctor(3, 1, 0);

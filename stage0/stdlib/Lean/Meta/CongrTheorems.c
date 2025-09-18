@@ -14379,7 +14379,6 @@ x_36 = l_Lean_Meta_mkHCongrWithArityForConst_x3f___closed__0;
 x_37 = l_Lean_Meta_hcongrThmSuffixBasePrefix___closed__0;
 x_38 = l_Nat_reprFast(x_3);
 x_39 = lean_string_append(x_37, x_38);
-lean_dec_ref(x_38);
 x_40 = l_Lean_Name_str___override(x_1, x_39);
 x_41 = l_Lean_Environment_containsOnBranch(x_35, x_40);
 if (x_41 == 0)

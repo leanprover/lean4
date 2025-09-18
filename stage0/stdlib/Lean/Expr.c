@@ -3049,7 +3049,6 @@ x_59 = l_Lean_Expr_Data_hash(x_1);
 x_60 = lean_uint64_to_nat(x_59);
 x_61 = l_Nat_reprFast(x_60);
 x_62 = lean_string_append(x_58, x_61);
-lean_dec_ref(x_61);
 x_63 = l_Lean_Expr_Data_looseBVarRange(x_1);
 x_64 = 0;
 x_65 = lean_uint32_dec_eq(x_63, x_64);
@@ -3061,7 +3060,6 @@ x_67 = lean_string_append(x_62, x_66);
 x_68 = lean_uint32_to_nat(x_63);
 x_69 = l_Nat_reprFast(x_68);
 x_70 = lean_string_append(x_67, x_69);
-lean_dec_ref(x_69);
 x_71 = l_Lean_instReprData__1___lam__0___closed__0;
 x_72 = lean_string_append(x_70, x_71);
 x_46 = x_72;
@@ -3084,7 +3082,6 @@ block_12:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_9 = lean_string_append(x_7, x_8);
-lean_dec_ref(x_8);
 x_10 = l_Lean_instReprData__1___lam__0___closed__0;
 x_11 = lean_string_append(x_9, x_10);
 x_3 = x_11;
@@ -3126,7 +3123,6 @@ block_25:
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_22 = lean_string_append(x_20, x_21);
-lean_dec_ref(x_21);
 x_23 = l_Lean_instReprData__1___lam__0___closed__0;
 x_24 = lean_string_append(x_22, x_23);
 x_13 = x_24;
@@ -3168,7 +3164,6 @@ block_38:
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 x_35 = lean_string_append(x_33, x_34);
-lean_dec_ref(x_34);
 x_36 = l_Lean_instReprData__1___lam__0___closed__0;
 x_37 = lean_string_append(x_35, x_36);
 x_26 = x_37;
@@ -3220,7 +3215,6 @@ x_51 = lean_string_append(x_46, x_50);
 x_52 = lean_uint8_to_nat(x_47);
 x_53 = l_Nat_reprFast(x_52);
 x_54 = lean_string_append(x_51, x_53);
-lean_dec_ref(x_53);
 x_55 = l_Lean_instReprData__1___lam__0___closed__0;
 x_56 = lean_string_append(x_54, x_55);
 x_39 = x_56;

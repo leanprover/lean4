@@ -1216,7 +1216,6 @@ lean_inc_ref(x_2);
 lean_dec_ref(x_1);
 x_3 = l_Lean_LeanOptionValue_asCliFlagValue___closed__0;
 x_4 = lean_string_append(x_3, x_2);
-lean_dec_ref(x_2);
 x_5 = lean_string_append(x_4, x_3);
 return x_5;
 }
@@ -1669,12 +1668,10 @@ x_4 = l_Lean_LeanOption_asCliArg___closed__0;
 x_5 = 1;
 x_6 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_2, x_5);
 x_7 = lean_string_append(x_4, x_6);
-lean_dec_ref(x_6);
 x_8 = l_Lean_LeanOption_asCliArg___closed__1;
 x_9 = lean_string_append(x_7, x_8);
 x_10 = l_Lean_LeanOptionValue_asCliFlagValue(x_3);
 x_11 = lean_string_append(x_9, x_10);
-lean_dec_ref(x_10);
 return x_11;
 }
 }

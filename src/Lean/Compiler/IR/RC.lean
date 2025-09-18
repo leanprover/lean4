@@ -311,24 +311,25 @@ private def isPersistent : Expr → Bool
   | .fap _ xs => xs.isEmpty -- all global constants are persistent objects
   | _         => false
 
-/-- Return true iff `v` at runtime is a scalar value stored in a tagged pointer.
-   We do not need RC operations for this kind of value. -/
-private def typeForScalarBoxedInTaggedPtr? (v : Expr) (origt : IRType) : Option IRType :=
+/--
+If `v` is a value that does not need ref counting return `.tagged` so it is never ref counted,
+otherwise `origt` unmodified.
+-/
+private def refineTypeForExpr (v : Expr) (origt : IRType) : IRType :=
   if origt.isScalar then
-    none
+    origt
   else
     match v with
-    | .ctor c _ =>
-      some c.type
+    | .ctor c _ => c.type
     | .lit (.num n) =>
       if n ≤ maxSmallNat then
-        some .tagged
+        .tagged
       else
-        some .tobject
-    | _ => none
+        origt
+    | _ => origt
 
 private def updateVarInfo (ctx : Context) (x : VarId) (t : IRType) (v : Expr) : Context :=
-  let type := typeForScalarBoxedInTaggedPtr? v t |>.getD t
+  let type := refineTypeForExpr v t
   let isPossibleRef := type.isPossibleRef
   let isDefiniteRef := type.isDefiniteRef
   { ctx with

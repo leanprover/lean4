@@ -6,7 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Lean.Elab.Command
+public meta import Lean.Elab.Command
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Term
 
@@ -24,7 +24,7 @@ namespace Lean.Elab.Command
 open Meta
 
 /-- Reproving a declaration with a given tactic sequence -/
-def reproveDecl (declName : Name) (tacticSeq : TSyntax `Lean.Parser.Tactic.tacticSeq) : CommandElabM Unit := do
+meta def reproveDecl (declName : Name) (tacticSeq : TSyntax `Lean.Parser.Tactic.tacticSeq) : CommandElabM Unit := do
   let some info := (← getEnv).find? declName
     | throwError "unknown declaration '{declName}'"
 
@@ -41,10 +41,11 @@ reprove theorem1 theorem2 theorem3 by simp
 syntax (name := reprove) "reprove " ident+ " by " tacticSeq : command
 
 @[command_elab «reprove»]
-def elabReprove : CommandElab := fun stx => do
-  let declNames := stx[1].getArgs.map (·.getId)
+meta def elabReprove : CommandElab := fun stx => do
+  let identStxs := stx[1].getArgs
   let tacticSeq : TSyntax `Lean.Parser.Tactic.tacticSeq := ⟨stx[3]⟩
-  for declName in declNames do
+  for identStx in identStxs do
+    let declName ← liftCoreM <| realizeGlobalConstNoOverloadWithInfo identStx
     reproveDecl declName tacticSeq
 
 end Lean.Elab.Command

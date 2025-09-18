@@ -37,7 +37,7 @@ reprove withTactics by
 
 -- Test unknown declaration
 /--
-error: unknown declaration 'nonExistentTheorem'
+error: Unknown constant `nonExistentTheorem`
 -/
 #guard_msgs in
 reprove nonExistentTheorem by
@@ -74,9 +74,20 @@ theorem theorem3 : 4 + 4 = 8 := by simp
 
 reprove theorem1 theorem2 theorem3 by simp
 
+-- Test namespace functionality
+namespace Test
+
+theorem namespaceTheorem : 5 + 5 = 10 := by simp
+
+end Test
+
+open Test
+
+reprove namespaceTheorem by simp
+
 -- Test multiple declarations where one fails due to unknown name
 /--
-error: unknown declaration 'unknownTheorem'
+error: Unknown constant `unknownTheorem`
 -/
 #guard_msgs in
 reprove

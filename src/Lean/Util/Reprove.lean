@@ -30,7 +30,6 @@ meta def reproveDecl (declName : Name) (tacticSeq : TSyntax `Lean.Parser.Tactic.
 
   let uniqueName ← liftCoreM <| mkFreshUserName `reprove_example
 
-  -- Build the declaration directly
   let value ← liftTermElabM do
     Term.withDeclName uniqueName do
       let goal ← mkFreshExprMVar info.type

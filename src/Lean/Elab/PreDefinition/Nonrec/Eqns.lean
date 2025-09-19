@@ -6,14 +6,12 @@ Authors: Leonardo de Moura, Joachim Breitner
 module
 
 prelude
-public import Lean.Meta.Tactic.Rewrite
-public import Lean.Meta.Tactic.Split
-public import Lean.Elab.PreDefinition.Basic
-public import Lean.Elab.PreDefinition.Eqns
-public import Lean.Meta.ArgsPacker.Basic
-public import Init.Data.Array.Basic
-
-public section
+import Lean.Meta.Tactic.Rewrite
+import Lean.Meta.Tactic.Split
+import Lean.Elab.PreDefinition.Basic
+import Lean.Elab.PreDefinition.Eqns
+import Lean.Meta.ArgsPacker.Basic
+import Init.Data.Array.Basic
 
 namespace Lean.Elab.Nonrec
 open Meta
@@ -22,7 +20,7 @@ open Eqns
 /--
 Simple, coarse-grained equation theorem for nonrecursive definitions.
 -/
-private def mkSimpleEqThm (declName : Name) : MetaM (Option Name) := do
+def mkSimpleEqThm (declName : Name) : MetaM (Option Name) := do
   if let some (.defnInfo info) := (← getEnv).find? declName then
     let name := mkEqLikeNameFor (← getEnv) declName eqn1ThmSuffix
     trace[Elab.definition.eqns] "mkSimpleEqnThm: {name}"

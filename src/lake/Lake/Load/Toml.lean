@@ -245,7 +245,7 @@ public instance : DecodeToml PathPatDescr := ⟨PathPatDescr.decodeToml⟩
 public def decodeVersionTags (v : Value) : EDecodeM StrPat :=
   inline <| Pattern.decodeToml (presets := versionTagPresets) v
 
-public instance : DecodeField (PackageConfig n) `versionTags where
+public instance : DecodeField (PackageConfig p n) `versionTags where
   decodeField := decodeFieldCore `versionTags decodeVersionTags
 
 -- for `platformIndependent`, `releaseRepo`, `buildArchive`, etc.
@@ -360,11 +360,13 @@ section
 set_option internal.parseQuotWithCurrentStage false
 private meta def genDecodeToml
   (cmds : Array Command)
-  (tyName : Name) [info : ConfigInfo tyName]  (takesName : Bool)
+  (tyName : Name) [info : ConfigInfo tyName]
   (exclude : Array Name := {})
 : MacroM (Array Command) := do
   let init ← `(TomlFieldInfos.empty)
-  let ty := if takesName then Syntax.mkCApp tyName #[mkIdent `n] else mkCIdent tyName
+  let tyArgs := info.arity.fold (init := Array.emptyWithCapacity info.arity) fun i _ as =>
+    as.push (mkIdent <| .mkSimple s!"x_{i+1}")
+  let ty := Syntax.mkCApp tyName tyArgs
   let infos ← info.fields.foldlM (init := init) fun infos {name, parent, ..} =>
     if parent || exclude.contains name then
       return infos
@@ -382,16 +384,16 @@ end
 local macro "gen_toml_decoders%" : command => do
   let cmds := #[]
   -- Targets
-  let cmds ← genDecodeToml cmds ``LeanConfig false
-  let cmds ← genDecodeToml cmds ``LeanLibConfig true
+  let cmds ← genDecodeToml cmds ``LeanConfig
+  let cmds ← genDecodeToml cmds ``LeanLibConfig
     (exclude := #[`nativeFacets])
-  let cmds ← genDecodeToml cmds ``LeanExeConfig true
+  let cmds ← genDecodeToml cmds ``LeanExeConfig
     (exclude := #[`nativeFacets])
-  let cmds ← genDecodeToml cmds ``InputFileConfig true
-  let cmds ← genDecodeToml cmds ``InputDirConfig true
+  let cmds ← genDecodeToml cmds ``InputFileConfig
+  let cmds ← genDecodeToml cmds ``InputDirConfig
   -- Package
-  let cmds ← genDecodeToml cmds ``WorkspaceConfig false
-  let cmds ← genDecodeToml cmds ``PackageConfig true
+  let cmds ← genDecodeToml cmds ``WorkspaceConfig
+  let cmds ← genDecodeToml cmds ``PackageConfig
   return ⟨mkNullNode cmds⟩
 
 gen_toml_decoders%
@@ -435,14 +437,15 @@ public def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
   match (← loadToml ictx |>.toBaseIO) with
   | .ok table =>
     let .ok pkg errs := EStateM.run (s := #[]) do
-      let name ← stringToLegalOrSimpleName <$> table.tryDecode `name
-      let config ← @PackageConfig.decodeToml name table
+      let origName ← stringToLegalOrSimpleName <$> table.tryDecode `name
+      let name := if cfg.pkgName.isAnonymous then origName else cfg.pkgName
+      let config ← @PackageConfig.decodeToml name origName table
       let (targetDecls, targetDeclMap) ← decodeTargetDecls name table
       let defaultTargets ← table.tryDecodeD `defaultTargets #[]
       let defaultTargets := defaultTargets.map stringToLegalOrSimpleName
       let depConfigs ← table.tryDecodeD `require #[]
       return {
-        name := name
+        name, origName
         dir := cfg.pkgDir
         relDir := cfg.relPkgDir
         configFile := cfg.configFile

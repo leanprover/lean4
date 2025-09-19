@@ -42,6 +42,7 @@ public class ConfigInfo (name : Name) where
   fields : Array ConfigFieldInfo
   fieldMap : NameMap ConfigFieldInfo :=
     fields.foldl (init := ∅) fun m i => m.insert i.name i
+  arity : Nat
 
 public instance [parent : ConfigParent σ ρ] [field : ConfigField ρ name α] : ConfigField σ name α where
   mkDefault s := field.mkDefault (parent.get s)

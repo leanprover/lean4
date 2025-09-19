@@ -161,13 +161,13 @@ where
       | Except.error inner => throw $ userError s!"Cannot decode publishDiagnostics parameters\n{inner}"
     | _ => loop
 
-structure IncomingCallHierarchy where
+structure CallHierarchy where
   item       : CallHierarchyItem
   fromRanges : Array Range
-  children   : Array IncomingCallHierarchy
+  children   : Array CallHierarchy
   deriving FromJson, ToJson
 
-partial def expandIncomingCallHierarchy (requestNo : Nat) (uri : DocumentUri) (pos : Lsp.Position) : IpcM (Array IncomingCallHierarchy × Nat) := do
+partial def expandIncomingCallHierarchy (requestNo : Nat) (uri : DocumentUri) (pos : Lsp.Position) : IpcM (Array CallHierarchy × Nat) := do
   writeRequest {
     id := requestNo
     method := "textDocument/prepareCallHierarchy"
@@ -187,7 +187,7 @@ partial def expandIncomingCallHierarchy (requestNo : Nat) (uri : DocumentUri) (p
     hierarchies := hierarchies.push hierarchy
   return (hierarchies, requestNo)
 where
-  go (requestNo : Nat) (item : CallHierarchyItem) (fromRanges : Array Range) (visited : Std.TreeSet String) : IpcM (IncomingCallHierarchy × Nat) := do
+  go (requestNo : Nat) (item : CallHierarchyItem) (fromRanges : Array Range) (visited : Std.TreeSet String) : IpcM (CallHierarchy × Nat) := do
     if visited.contains item.name then
       return ({ item, fromRanges := #[], children := #[] }, requestNo)
     writeRequest {
@@ -205,6 +205,48 @@ where
     let mut childHierarchies := #[]
     for c in children do
       let (childHierarchy, childRequestNo) ← go requestNo c.from c.fromRanges visited
+      childHierarchies := childHierarchies.push childHierarchy
+      requestNo := childRequestNo
+    return ({ item, fromRanges, children := childHierarchies }, requestNo)
+
+partial def expandOutgoingCallHierarchy (requestNo : Nat) (uri : DocumentUri) (pos : Lsp.Position) : IpcM (Array CallHierarchy × Nat) := do
+  writeRequest {
+    id := requestNo
+    method := "textDocument/prepareCallHierarchy"
+    param := {
+      textDocument := { uri }
+      position := pos
+      : CallHierarchyPrepareParams
+    }
+  }
+  let r ← readResponseAs requestNo (Option (Array CallHierarchyItem))
+  let mut requestNo := requestNo + 1
+  let roots := r.result.getD #[]
+  let mut hierarchies := #[]
+  for root in roots do
+    let (hierarchy, rootRequestNo) ← go requestNo root #[] {}
+    requestNo := rootRequestNo
+    hierarchies := hierarchies.push hierarchy
+  return (hierarchies, requestNo)
+where
+  go (requestNo : Nat) (item : CallHierarchyItem) (fromRanges : Array Range) (visited : Std.TreeSet String) : IpcM (CallHierarchy × Nat) := do
+    if visited.contains item.name then
+      return ({ item, fromRanges := #[], children := #[] }, requestNo)
+    writeRequest {
+      id := requestNo
+      method := "callHierarchy/outgoingCalls"
+      param := {
+        item
+        : CallHierarchyOutgoingCallsParams
+      }
+    }
+    let r ← readResponseAs requestNo (Option (Array CallHierarchyOutgoingCall))
+    let visited : Std.TreeSet String := visited.insert item.name
+    let mut requestNo := requestNo + 1
+    let children := r.result.getD #[]
+    let mut childHierarchies := #[]
+    for c in children do
+      let (childHierarchy, childRequestNo) ← go requestNo c.to c.fromRanges visited
       childHierarchies := childHierarchies.push childHierarchy
       requestNo := childRequestNo
     return ({ item, fromRanges, children := childHierarchies }, requestNo)

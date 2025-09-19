@@ -91,7 +91,7 @@ builtin_initialize
 
   At the very end, we make use of the syntax references from the original `InductiveView`s
   and set them to newly generated constructors. We apply deriving handlers and docstrings.
-  Note that attributes and modifiers are handled earlier by `PartialFixpoint` machinery.
+  Note that attributes and modifiers are handled earlier by `PartialFixpoint` machinery
 -/
 
 /-- This structure contains the data carried in `InductiveElabStep1` that are solely used in
@@ -285,8 +285,6 @@ private def mkCasesOnCoinductive (infos : Array InductiveVal) : MetaM Unit := do
     let originalCasesOn ← mkConstWithLevelParams (info.name ++ `casesOn)
     let originalCasesOn := mkAppN originalCasesOn (params ++ predicates)
 
-    trace[Elab.coinductive] "originalCasesOn: {originalCasesOn}"
-
     let goalTypeWithParamsApplied ← inferType originalCasesOn
     /-
       We replace the mentions of the flat inductive with a coinductive predicate
@@ -330,8 +328,6 @@ private def mkCasesOnCoinductive (infos : Array InductiveVal) : MetaM Unit := do
       -/
       let (fvars, subgoal) ← motiveMVar.mvarId!.introN (info.numIndices + 1)
       subgoal.withContext do
-        trace[Elab.coinductive] "subgoal: {subgoal}"
-        trace[Elab.coinductive] "fvars: {fvars.map (Expr.fvar)}"
         let lastAssumption := fvars[fvars.size -1]!
 
         -- We perform the rewrite at the hypothesis

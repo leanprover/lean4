@@ -39,7 +39,8 @@ theorem mkUlt_denote_eq (aig : AIG α) (lhs rhs : BitVec w) (input : BinaryRefVe
   · simp
   · dsimp only
     intro idx hidx
-    rw [AIG.LawfulVecOperator.denote_mem_prefix (f := BVExpr.bitblast.blastNot)]
+    rw [AIG.LawfulVecOperator.denote_mem_prefix (f := BVExpr.bitblast.blastNot) (h := ?h)]
+    case h => simp [Ref.hgate]
     apply hleft
   · dsimp only
     intro idx hidx

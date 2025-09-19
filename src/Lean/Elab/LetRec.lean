@@ -54,11 +54,12 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
       if decls.any fun decl => decl.declName == declName then
         withRef declId do
           throwError "`{.ofConstName declName}` has already been declared"
+      let binders := decl[1]
       checkNotAlreadyDeclared declName
       applyAttributesAt declName attrs AttributeApplicationTime.beforeElaboration
-      addDocString' declName docStr?
+      addDocString' declName binders docStr?
       addDeclarationRangesFromSyntax declName decl declId
-      let binders := decl[1].getArgs
+      let binders := binders.getArgs
       let typeStx := expandOptType declId decl[2]
       let (type, binderIds) ← elabBindersEx binders fun xs => do
           let type ← elabType typeStx

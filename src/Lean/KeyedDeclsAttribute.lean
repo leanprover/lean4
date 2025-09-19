@@ -46,7 +46,7 @@ structure Def (γ : Type) where
     if (← getEnv).contains kind && (← Elab.getInfoState).enabled then
       Elab.addConstInfo stx kind none
     pure kind)
-  onAdded (builtin : Bool) (declName : Name) : AttrM Unit := pure ()
+  onAdded (builtin : Bool) (declName : Name) (key : Key) : AttrM Unit := pure ()
   deriving Inhabited
 
 structure OLeanEntry where
@@ -139,7 +139,7 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name := by exact de
             /- builtin_initialize @addBuiltin $(mkConst valueTypeName) $(mkConst attrDeclName) $(key) $(declName) $(mkConst declName) -/
             let val := mkAppN (mkConst ``addBuiltin) #[mkConst df.valueTypeName, mkConst attrDeclName, toExpr key, toExpr declName, mkConst declName]
             declareBuiltin declName val
-            df.onAdded true declName
+            df.onAdded true declName key
         | _ => throwUnexpectedType
       applicationTime := AttributeApplicationTime.afterCompilation
     }
@@ -152,12 +152,13 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name := by exact de
       let s ← s.erase df.name declName
       modifyEnv fun env => ext.modifyState env fun _ => s
     add             := fun declName stx attrKind => do
+      ensureAttrDeclIsMeta attrDeclName declName attrKind
       let key ← df.evalKey false stx
       match IR.getSorryDep (← getEnv) declName with
       | none =>
         let val ← evalConstCheck γ df.valueTypeName declName
         ext.add { key := key, declName := declName, value := val } attrKind
-        df.onAdded false declName
+        df.onAdded false declName key
       | _ =>
         -- If the declaration contains `sorry`, we skip `evalConstCheck` to avoid unnecessary bizarre error message
         pure ()

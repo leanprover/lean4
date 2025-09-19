@@ -1091,8 +1091,8 @@ if (x_196 == 0)
 {
 lean_dec(x_195);
 lean_dec_ref(x_194);
-x_112 = x_182;
-x_113 = x_191;
+x_112 = x_191;
+x_113 = x_182;
 x_114 = x_179;
 x_115 = x_178;
 x_116 = x_190;
@@ -1113,8 +1113,8 @@ if (x_197 == 0)
 {
 lean_dec(x_195);
 lean_dec_ref(x_194);
-x_112 = x_182;
-x_113 = x_191;
+x_112 = x_191;
+x_113 = x_182;
 x_114 = x_179;
 x_115 = x_178;
 x_116 = x_190;
@@ -1134,8 +1134,8 @@ x_198 = lean_usize_of_nat(x_195);
 lean_dec(x_195);
 x_199 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Elab_Command_elabAuxDef_spec__4(x_194, x_193, x_198, x_191);
 lean_dec_ref(x_194);
-x_112 = x_182;
-x_113 = x_191;
+x_112 = x_191;
+x_113 = x_182;
 x_114 = x_179;
 x_115 = x_178;
 x_116 = x_190;
@@ -1481,8 +1481,8 @@ x_144 = l_String_intercalate(x_137, x_143);
 x_145 = l_Lean_Environment_setExporting(x_134, x_8);
 lean_inc(x_133);
 x_146 = l_Lean_DeclNameGenerator_ofPrefix(x_133);
-lean_inc(x_113);
-x_147 = l_Lean_Name_str___override(x_113, x_144);
+lean_inc(x_112);
+x_147 = l_Lean_Name_str___override(x_112, x_144);
 x_148 = l_Lean_DeclNameGenerator_mkUniqueName(x_145, x_146, x_147);
 x_149 = lean_ctor_get(x_148, 0);
 lean_inc(x_149);
@@ -1504,8 +1504,8 @@ x_154 = lean_ctor_get(x_153, 1);
 lean_inc(x_154);
 lean_dec_ref(x_153);
 x_155 = lean_ctor_get(x_115, 5);
-x_156 = l_Lean_Name_replacePrefix(x_149, x_133, x_113);
-lean_dec(x_113);
+x_156 = l_Lean_Name_replacePrefix(x_149, x_133, x_112);
+lean_dec(x_112);
 lean_dec(x_133);
 x_157 = 0;
 x_158 = l_Lean_SourceInfo_fromRef(x_151, x_157);
@@ -1517,7 +1517,7 @@ x_159 = l_Lean_getMainModule___at___Lean_Elab_Command_elabAuxDef_spec__1___redAr
 x_160 = lean_ctor_get(x_159, 1);
 lean_inc(x_160);
 lean_dec_ref(x_159);
-x_90 = x_112;
+x_90 = x_113;
 x_91 = x_114;
 x_92 = x_156;
 x_93 = x_115;
@@ -1533,7 +1533,7 @@ goto block_111;
 }
 else
 {
-x_90 = x_112;
+x_90 = x_113;
 x_91 = x_114;
 x_92 = x_156;
 x_93 = x_115;

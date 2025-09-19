@@ -21,6 +21,10 @@ def abstractProof [Monad m] [MonadLiftT MetaM m] [MonadEnv m] [MonadOptions m] [
   let type ← (Core.betaReduce type : MetaM _)
   let type ← zetaReduce type
   let type ← postprocessType type
+  /- https://github.com/leanprover/lean4/issues/10196
+     If we use the cache when the proof contains `sorry`,
+     then we may fail to get a "declaration contains 'sorry'" warning for the current declaration. -/
+  let cache := cache && !proof.hasSorry
   /- We turn on zetaDelta-expansion to make sure we don't need to perform an expensive `check` step to
     identify which let-decls can be abstracted. If we design a more efficient test, we can avoid the eager zetaDelta expansion step.
     In a benchmark created by @selsam, The extra `check` step was a bottleneck. -/

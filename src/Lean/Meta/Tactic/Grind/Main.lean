@@ -31,6 +31,7 @@ namespace Lean.Meta.Grind
 structure Params where
   config     : Grind.Config
   ematch     : EMatchTheorems := default
+  inj        : InjectiveTheorems := default
   symPrios   : SymbolPriorities := {}
   casesTypes : CasesTypes := {}
   extra      : PArray EMatchTheorem := {}
@@ -109,7 +110,8 @@ private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
   let thmMap := params.ematch
   let casesTypes := params.casesTypes
   let clean ← mkCleanState mvarId params
-  GoalM.run' { mvarId, ematch.thmMap := thmMap, split.casesTypes := casesTypes, clean } do
+  let sstates ← Solvers.mkInitialStates
+  GoalM.run' { mvarId, ematch.thmMap := thmMap, inj.thms := params.inj, split.casesTypes := casesTypes, clean, sstates } do
     mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
     mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
     mkENodeCore btrueExpr (interpreted := false) (ctor := true) (generation := 0)

@@ -360,8 +360,7 @@ private def EqCnstr.assert (c : EqCnstr) : ACM Unit := do
   else
     c.addToQueue
 
-@[export lean_process_ac_eq]
-def processNewEqImpl (a b : Expr) : GoalM Unit := withExprs a b do
+def processNewEq(a b : Expr) : GoalM Unit := withExprs a b do
   let ea ← asACExpr a
   let lhs ← norm ea
   let eb ← asACExpr b
@@ -369,8 +368,7 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := withExprs a b do
   let c ← mkEqCnstr lhs rhs (.core a b ea eb)
   c.assert
 
-@[export lean_process_ac_diseq]
-def processNewDiseqImpl (a b : Expr) : GoalM Unit := withExprs a b do
+def processNewDiseq (a b : Expr) : GoalM Unit := withExprs a b do
   let ea ← asACExpr a
   let lhs ← norm ea
   let eb ← asACExpr b
@@ -499,8 +497,6 @@ def check : GoalM Bool := do profileitM Exception "grind ac" (← getOptions) do
       let r ← ACM.run opId checkStruct
       progress := progress || r
       if (← isInconsistent) then return true
-    if progress then
-      processNewFacts
     return progress
   finally
     checkInvariants

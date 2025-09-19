@@ -87,6 +87,8 @@ builtin_initialize
     applicationTime := .afterCompilation
     add             := fun declName stx kind => do
       unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
+      if !builtin then
+        ensureAttrDeclIsMeta name declName kind
       let env ← getEnv
       unless builtin || (env.getModuleIdxFor? declName).isNone do
         throwAttrDeclInImportedModule name declName
@@ -124,8 +126,11 @@ def hasInheritDoc (attrs : Syntax) : Bool :=
     attr[1].isOfKind ``Parser.Attr.simple &&
     attr[1][0].getId.eraseMacroScopes == `inherit_doc
 
-def declModifiersPubNoDoc (mods : Syntax) : Bool :=
-  mods[2][0].getKind != ``Command.private && mods[0].isNone && !hasInheritDoc mods[1]
+def declModifiersPubNoDoc (mods : Syntax) : CommandElabM Bool := do
+  let isPublic := if (← getEnv).header.isModule && !(← getScope).isPublic then
+    mods[2][0].getKind == ``Command.public else
+    mods[2][0].getKind != ``Command.private
+  return isPublic && mods[0].isNone && !hasInheritDoc mods[1]
 
 def lintDeclHead (k : SyntaxNodeKind) (id : Syntax) : CommandElabM Unit := do
   if k == ``«abbrev» then lintNamed id "public abbrev"
@@ -141,17 +146,17 @@ def checkDecl : SimpleHandler := fun stx => do
   let head := stx[0]; let rest := stx[1]
   if head[2][0].getKind == ``Command.private then return -- not private
   let k := rest.getKind
-  if declModifiersPubNoDoc head then -- no doc string
+  if (← declModifiersPubNoDoc head) then -- no doc string
     lintDeclHead k rest[1][0]
   if k == ``«inductive» || k == ``classInductive then
     for stx in rest[4].getArgs do
       let head := stx[2]
-      if stx[0].isNone && declModifiersPubNoDoc head then
+      if stx[0].isNone && (← declModifiersPubNoDoc head) then
         lintField rest[1][0] stx[3] "public constructor"
     unless rest[5].isNone do
       for stx in rest[5][0][1].getArgs do
         let head := stx[0]
-        if declModifiersPubNoDoc head then -- no doc string
+        if (← declModifiersPubNoDoc head) then -- no doc string
           lintField rest[1][0] stx[1] "computed field"
   else if rest.getKind == ``«structure» then
     unless rest[4][2].isNone do
@@ -170,7 +175,7 @@ def checkDecl : SimpleHandler := fun stx => do
         lintField parent stx "public field"
       for stx in rest[4][2][0].getArgs do
         let head := stx[0]
-        if declModifiersPubNoDoc head then
+        if (← declModifiersPubNoDoc head) then
           if stx.getKind == ``structSimpleBinder then
             lint1 stx[1]
           else
@@ -179,7 +184,7 @@ def checkDecl : SimpleHandler := fun stx => do
 
 @[builtin_missing_docs_handler «initialize»]
 def checkInit : SimpleHandler := fun stx => do
-  if !stx[2].isNone && declModifiersPubNoDoc stx[0] then
+  if !stx[2].isNone && (← declModifiersPubNoDoc stx[0]) then
     lintNamed stx[2][0] "initializer"
 
 @[builtin_missing_docs_handler «notation»]
@@ -224,7 +229,7 @@ def checkElab : SimpleHandler := fun stx => do
 
 @[builtin_missing_docs_handler classAbbrev]
 def checkClassAbbrev : SimpleHandler := fun stx => do
-  if declModifiersPubNoDoc stx[0] then
+  if (← declModifiersPubNoDoc stx[0]) then
     lintNamed stx[3] "class abbrev"
 
 @[builtin_missing_docs_handler Parser.Tactic.declareSimpLikeTactic]

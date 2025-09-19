@@ -58,11 +58,11 @@ theorem compare_ne_iff_beq_eq_false {a b : α} :
     compare a b ≠ Ordering.eq ↔ (a == b) = false := by
   simp only [ne_eq, compare_eq_iff_beq, Bool.not_eq_true]
 
-private def helperLemmaNames : Array Name :=
+private meta def helperLemmaNames : Array Name :=
   #[``compare_eq_iff_beq, ``compare_beq_eq_beq, ``compare_ne_iff_beq_eq_false,
     ``Bool.not_eq_true, ``mem_iff_contains]
 
-private def modifyMap : Std.HashMap Name Name :=
+private meta def modifyMap : Std.HashMap Name Name :=
   .ofList
     [⟨`insert, ``toListModel_insert⟩,
      ⟨`insertIfNew, ``toListModel_insertIfNew⟩,
@@ -75,7 +75,7 @@ private def modifyMap : Std.HashMap Name Name :=
      (`modify, ``toListModel_modify),
      (`Const.modify, ``Const.toListModel_modify)]
 
-private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSyntax `term))) :=
+private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSyntax `term))) :=
   .ofList
     [⟨`isEmpty, (``isEmpty_eq_isEmpty, #[``(_root_.List.Perm.isEmpty_eq)])⟩,
      ⟨`contains, (``contains_eq_containsKey, #[``(containsKey_of_perm)])⟩,
@@ -394,7 +394,7 @@ theorem containsThenInsert_fst [TransOrd α] (h : t.WF) {k : α} {v : β k} :
 
 theorem containsThenInsert!_fst [TransOrd α] (h : t.WF) {k : α} {v : β k} :
     (t.containsThenInsert! k v).1 = t.contains k := by
-  rw [containsThenInsert!_fst_eq_containsThenInsert_fst, containsThenInsert_fst h]
+  rw [containsThenInsert!_fst_eq_containsThenInsert_fst _ h.balanced, containsThenInsert_fst h]
 
 theorem containsThenInsert_snd [TransOrd α] (h : t.WF) {k : α} {v : β k} :
     (t.containsThenInsert k v h.balanced).2.impl = (t.insert k v h.balanced).impl := by
@@ -411,7 +411,7 @@ theorem containsThenInsertIfNew_fst [TransOrd α] (h : t.WF) {k : α} {v : β k}
 
 theorem containsThenInsertIfNew!_fst [TransOrd α] (h : t.WF) {k : α} {v : β k} :
     (t.containsThenInsertIfNew! k v).1 = t.contains k := by
-  rw [containsThenInsertIfNew!_fst_eq_containsThenInsertIfNew_fst, containsThenInsertIfNew_fst h]
+  rw [containsThenInsertIfNew!_fst_eq_containsThenInsertIfNew_fst _ h.balanced, containsThenInsertIfNew_fst h]
 
 theorem containsThenInsertIfNew_snd [TransOrd α] (h : t.WF) {k : α} {v : β k} :
     (t.containsThenInsertIfNew k v h.balanced).2.impl = (t.insertIfNew k v h.balanced).impl := by
@@ -535,6 +535,10 @@ theorem mem_iff_isSome_get? [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} :
     a ∈ t ↔ (t.get? a).isSome := by
   simpa [mem_iff_contains] using contains_eq_isSome_get? h
 
+theorem get?_eq_some_iff [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {v : β k} :
+    t.get? k = some v ↔ ∃ h, t.get k h = v := by
+  simp_to_model [contains, get?, get] using List.getValueCast?_eq_some_iff
+
 theorem get?_eq_none_of_contains_eq_false [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} :
     t.contains a = false → t.get? a = none := by
   simp_to_model [contains, get?] using List.getValueCast?_eq_none
@@ -595,6 +599,10 @@ theorem contains_eq_isSome_get? [TransOrd α] (h : t.WF) {a : α} :
 theorem mem_iff_isSome_get? [TransOrd α] (h : t.WF) {a : α} :
     a ∈ t ↔ (get? t a).isSome := by
   simpa [mem_iff_contains] using contains_eq_isSome_get? h
+
+theorem get?_eq_some_iff [TransOrd α] (h : t.WF) {k : α} {v : β} :
+    get? t k = some v ↔ ∃ h, get t k h = v := by
+  simp_to_model [contains, Const.get?, Const.get] using List.getValue?_eq_some_iff
 
 theorem get?_eq_none_of_contains_eq_false [TransOrd α] (h : t.WF) {a : α} :
     t.contains a = false → get? t a = none := by
@@ -1050,6 +1058,10 @@ theorem mem_iff_isSome_getKey? [TransOrd α] (h : t.WF) {a : α} :
 theorem mem_of_getKey?_eq_some [TransOrd α] {a a' : α} (h : t.WF) :
     t.getKey? a = some a' → a' ∈ t := by
   simp_to_model [getKey?, contains] using List.containsKey_of_getKey?_eq_some
+
+theorem getKey?_eq_some_iff [TransOrd α] {k k' : α} (h : t.WF) :
+    t.getKey? k = some k' ↔ ∃ h, t.getKey k h = k' := by
+  simp_to_model [getKey?, contains, getKey] using List.getKey?_eq_some_iff'
 
 theorem getKey?_eq_none_of_contains_eq_false [TransOrd α] (h : t.WF) {a : α} :
     t.contains a = false → t.getKey? a = none := by

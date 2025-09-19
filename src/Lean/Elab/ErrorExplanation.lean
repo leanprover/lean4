@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.ErrorExplanation
+meta import Lean.ErrorExplanation
 public import Lean.Meta.Eval
 public import Lean.Elab.Term
 public import Lean.Elab.Command
@@ -118,7 +119,7 @@ open Command in
     throwErrorAt id m!"Invalid name `{name}`: Error explanation names must have two components"
       ++ .note m!"The first component of an error explanation name identifies the package from \
         which the error originates, and the second identifies the error itself."
-  validateDocComment docStx
+  runTermElabM fun _ => validateDocComment docStx
   let doc ← getDocStringText docStx
   if errorExplanationExt.getState (← getEnv) |>.contains name then
     throwErrorAt id m!"Cannot add explanation: An error explanation already exists for `{name}`"

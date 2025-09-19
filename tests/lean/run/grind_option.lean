@@ -9,17 +9,17 @@ variable [BEq α] {o₁ o₂ o₃ o₄ o₅ : Option α}
 
 /--
 info: Try this:
-  grind only [=_
-      Option.or_assoc,
-    = Option.getD_or, = Option.or_some, = Option.some_beq_none, = Option.or_assoc, = Option.some_or]
+  grind only [=
+      Option.or_some,
+    = Option.some_beq_none, = Option.getD_or, = Option.some_or, =_ Option.or_assoc, = Option.or_assoc]
 -/
 #guard_msgs in
 example : ((o₁.or (o₂.or (some x))).or (o₄.or o₅) == none) = false := by grind?
 
 /--
 info: Try this:
-  grind only [Option.max_none_right,
-    Option.min_some_some, = Nat.min_def]
+  grind only [= Option.max_none_right,
+    = Option.min_some_some, = Nat.min_def]
 -/
 #guard_msgs in
 example : max (some 7) none = min (some 13) (some 7) := by grind?

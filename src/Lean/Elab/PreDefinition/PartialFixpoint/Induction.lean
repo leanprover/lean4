@@ -7,19 +7,18 @@ Authors: Joachim Breitner
 module
 
 prelude
-public import Lean.Meta.Basic
-public import Lean.Meta.Match.MatcherApp.Transform
-public import Lean.Meta.Check
-public import Lean.Meta.Tactic.Subst
-public import Lean.Meta.Injective -- for elimOptParam
-public import Lean.Meta.ArgsPacker
-public import Lean.Meta.PProdN
-public import Lean.Meta.Tactic.Apply
-public import Lean.Elab.PreDefinition.PartialFixpoint.Eqns
-public import Lean.Elab.Command
-public import Lean.Meta.Tactic.ElimInfo
-
-public section
+import Lean.Meta.Basic
+import Lean.Meta.Match.MatcherApp.Transform
+import Lean.Meta.Check
+import Lean.Meta.Tactic.Subst
+import Lean.Meta.Injective -- for elimOptParam
+import Lean.Meta.ArgsPacker
+import Lean.Meta.PProdN
+import Lean.Meta.Tactic.Apply
+import Lean.Elab.PreDefinition.PartialFixpoint.Eqns
+import Lean.Elab.Command
+import Lean.Meta.Tactic.ElimInfo
+import Init.Internal.Order.Basic
 
 namespace Lean.Elab.PartialFixpoint
 
@@ -42,7 +41,7 @@ partial def mkAdmProj (packedInst : Expr) (i : Nat) (e : Expr) : MetaM Expr := d
     assert! i == 0
     return e
 
-@[expose] def CCPOProdProjs (n : Nat) (inst : Expr) : Array Expr := Id.run do
+def CCPOProdProjs (n : Nat) (inst : Expr) : Array Expr := Id.run do
   let mut insts := #[inst]
   while insts.size < n do
     let inst := insts.back!
@@ -58,31 +57,21 @@ Unfolds an appropriate `PartialOrder` instance on predicates to quantifications 
 I.e. `ImplicationOrder.instPartialOrder.rel P Q` becomes
 `∀ x y, P x y → Q x y`.
 In the premise of the Park induction principle (`lfp_le_of_le_monotone`) we use a monotone map defining the predicate in the eta expanded form. In such a case, besides desugaring the predicate, we need to perform a weak head reduction.
-The optional parameter `reduceConclusion` (false by default) indicates whether we need to perform this reduction.
+The optional parameter `reducePremise` (false by default) indicates whether we need to perform this reduction.
 -/
-def unfoldPredRel (predType : Expr) (lhs rhs : Expr) (fixpointType : PartialFixpointType) (reduceConclusion : Bool := false) : MetaM Expr := do
-  match fixpointType with
-  | .partialFixpoint => throwError "Trying to apply lattice induction to a non-lattice fixpoint. Please report this issue."
-  | .inductiveFixpoint | .coinductiveFixpoint =>
-    let predType ← lambdaTelescope predType fun _ res => pure res
-    forallTelescope predType fun ts _ => do
-      let lhsTypes ← ts.mapM inferType
-      let names ← lhsTypes.mapM fun _ => mkFreshUserName `x
-      withLocalDeclsDND (names.zip lhsTypes) fun exprs => do
-        let mut applied  := match fixpointType with
-          | .inductiveFixpoint => (lhs, rhs)
-          | .coinductiveFixpoint => (rhs, lhs)
-          | .partialFixpoint => panic! "Cannot apply lattice induction to a non-lattice fixpoint"
-        for e in exprs do
-          applied := (mkApp applied.1 e, mkApp applied.2 e)
-        if reduceConclusion then
-          match fixpointType with
-          | .inductiveFixpoint => applied := ((←whnf applied.1), applied.2)
-          | .coinductiveFixpoint => applied := (applied.1, (←whnf applied.2))
-          | .partialFixpoint => throwError "Cannot apply lattice induction to a non-lattice fixpoint"
-        let impl ← mkArrow applied.1 applied.2
-        mkForallFVars exprs impl
-
+def unfoldPredRel (predType : Expr) (lhs rhs : Expr) (fixpointType : PartialFixpointType) (reducePremise : Bool := false) : MetaM Expr := do
+  guard <| isLatticeTheoretic fixpointType
+  forallTelescope predType fun ts _ => do
+    let mut lhs : Expr := mkAppN lhs ts
+    let rhs : Expr := mkAppN rhs ts
+    if reducePremise then
+        lhs ← whnf lhs
+    match fixpointType with
+    | .inductiveFixpoint =>
+      mkForallFVars ts (←mkArrow lhs rhs)
+    | .coinductiveFixpoint =>
+      mkForallFVars ts (←mkArrow rhs lhs)
+    | .partialFixpoint => throwError "Cannot apply lattice induction to a non-lattice fixpoint"
 /--
 Unfolds a PartialOrder relation between tuples of predicates into an array of quantified implications.
 
@@ -378,7 +367,7 @@ def mkOptionAdm (motive : Expr) : MetaM Expr := do
     inst ← mkAppOptM ``admissible_pi #[none, none, none, none, inst]
     for y in ys.reverse do
       inst ← mkLambdaFVars #[y] inst
-      inst ← mkAppOptM ``admissible_pi_apply #[none, none, none, none, inst]
+      inst ← mkAppOptM ``Order.admissible_pi_apply #[none, none, none, none, inst]
     pure inst
 
 def derivePartialCorrectness (name : Name) (isConclusionMutual : Bool) : MetaM Unit := do

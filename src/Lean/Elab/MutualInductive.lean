@@ -19,7 +19,9 @@ public import Lean.Elab.DefView
 public import Lean.Elab.DeclUtil
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.DeclarationRange
+public import Lean.Parser.Command
 import Lean.Elab.ComputedFields
+import Lean.DocString.Extension
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CtorElim
 import Lean.Meta.IndPredBelow
@@ -110,6 +112,8 @@ structure InductiveView where
   ctors           : Array CtorView
   computedFields  : Array ComputedFieldView
   derivingClasses : Array DerivingClassView
+  /-- The declaration docstring, and whether it's Verso -/
+  docString?      : Option (TSyntax ``Lean.Parser.Command.docComment × Bool)
   deriving Inhabited
 
 /-- Elaborated header for an inductive type before fvars for each inductive are added to the local context. -/
@@ -1071,6 +1075,18 @@ private def elabInductiveViewsPostprocessing (views : Array InductiveView) (res 
     for view in views do withRef view.declId <| Term.applyAttributesAt view.declName view.modifiers.attrs .afterTypeChecking
     for elab' in finalizers do elab'.finalize
   applyDerivingHandlers views
+  -- Docstrings are added during postprocessing to allow them to have checked references to
+  -- the type and its constructors, but before attributes to enable e.g. `@[inherit_doc X]`
+  runTermElabM fun _ => Term.withDeclName view0.declName do withRef ref do
+    for view in views do
+      withRef view.declId do
+        if let some (doc, verso) := view.docString? then
+          addDocStringOf verso view.declName view.binders doc
+      for ctor in view.ctors do
+        withRef ctor.declId do
+          if let some (doc, verso) := ctor.modifiers.docString? then
+            addDocStringOf verso ctor.declName ctor.binders doc
+
   runTermElabM fun _ => Term.withDeclName view0.declName do withRef ref do
     for view in views do withRef view.declId <| Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
 
@@ -1099,6 +1115,8 @@ def elabMutualInductive (elems : Array Syntax) : CommandElabM Unit := do
   let inductives ← elems.mapM fun stx => do
     let modifiers ← elabModifiers ⟨stx[0]⟩
     pure (modifiers, stx[1])
+  if inductives.any (·.1.isMeta) && inductives.any (!·.1.isMeta) then
+    throwError "A mix of `meta` and non-`meta` declarations in the same `mutual` block is not supported"
   elabInductives inductives
 
 end Lean.Elab.Command

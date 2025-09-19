@@ -10,9 +10,11 @@ import Init.Data.Nat.Lemmas
 public import Init.Data.Nat.Order
 public import Init.Data.Range.Polymorphic.Instances
 public import Init.Data.Order.Classes
-import Init.Data.Order.Lemmas
+public import Init.Data.Order.Lemmas
 
 public section
+
+open Std PRange
 
 namespace Std.PRange
 
@@ -24,7 +26,7 @@ instance : Least? Nat where
   least? := some 0
 
 instance : LawfulUpwardEnumerableLeast? Nat where
-  eq_succMany?_least? a := by
+  least?_le a := by
     simpa [Least?.least?] using ⟨a, by simp [UpwardEnumerable.succMany?]⟩
 
 instance : LawfulUpwardEnumerableLE Nat where
@@ -39,7 +41,7 @@ instance : LawfulUpwardEnumerableLE Nat where
 
 instance : LawfulUpwardEnumerable Nat where
   succMany?_zero := by simp [UpwardEnumerable.succMany?]
-  succMany?_succ := by simp [UpwardEnumerable.succMany?, UpwardEnumerable.succ?, Nat.add_assoc]
+  succMany?_succ? := by simp [UpwardEnumerable.succMany?, UpwardEnumerable.succ?, Nat.add_assoc]
   ne_of_lt a b hlt := by
     have hn := hlt.choose_spec
     simp only [UpwardEnumerable.succMany?, Option.some.injEq] at hn
@@ -76,8 +78,7 @@ instance : LawfulRangeSize .closed Nat where
 instance : LawfulRangeSize .open Nat := inferInstance
 instance : HasFiniteRanges .closed Nat := inferInstance
 instance : HasFiniteRanges .open Nat := inferInstance
-instance : LinearlyUpwardEnumerable Nat := by
-  exact instLinearlyUpwardEnumerableOfTotalLeOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLE
+instance : LinearlyUpwardEnumerable Nat := inferInstance
 
 /-!
 The following instances are used for the implementation of array slices a.k.a. `Subarray`.

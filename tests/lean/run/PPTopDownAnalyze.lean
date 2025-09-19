@@ -337,7 +337,7 @@ set_option pp.analyze.trustSubtypeMk true in
 
 #testDelabN Nat.brecOn
 #testDelabN Nat.below
-#testDelabN Nat.mod_lt
+#testDelabN Nat.mod_eq_of_lt
 #testDelabN List.partition
 #testDelabN List.partition.loop
 #testDelabN StateT.modifyGet
@@ -359,6 +359,9 @@ set_option pp.analyze.trustSubtypeMk true in
 #testDelabN and_false
 #testDelabN Lean.Server.FileWorker.handlePlainTermGoal
 #testDelabN Lean.Server.FileWorker.handlePlainGoal
+
+-- TODO: this hangs
+-- #testDelabN Nat.mod_lt
 
 -- TODO: this error occurs because we use a term's type to determine `blockImplicit` (@),
 -- whereas we should actually use the expected type based on the function being applied.

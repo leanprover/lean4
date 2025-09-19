@@ -19,7 +19,7 @@ namespace Lean
 Auxiliary type used to represent syntax categories. We mainly use auxiliary
 definitions with this type to attach doc strings to syntax categories.
 -/
-structure Parser.Category
+meta structure Parser.Category
 
 namespace Parser.Category
 

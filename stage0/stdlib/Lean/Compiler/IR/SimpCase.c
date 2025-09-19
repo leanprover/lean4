@@ -59,6 +59,7 @@ lean_object* lean_array_pop(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_initFn____x40_Lean_Compiler_IR_SimpCase_2342465999____hygCtx___hyg_2_(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_IR_ensureHasDefault_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_initFn___closed__6____x40_Lean_Compiler_IR_SimpCase_2342465999____hygCtx___hyg_2_;
+extern lean_object* l_Lean_IR_instInhabitedAlt_default__1;
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_initFn___closed__14____x40_Lean_Compiler_IR_SimpCase_2342465999____hygCtx___hyg_2_;
 static lean_object* l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_initFn___closed__17____x40_Lean_Compiler_IR_SimpCase_2342465999____hygCtx___hyg_2_;
@@ -108,7 +109,6 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_FnBody_simpCase_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_initFn___closed__3____x40_Lean_Compiler_IR_SimpCase_2342465999____hygCtx___hyg_2_;
-extern lean_object* l_Lean_IR_defaultAlt____x40_Lean_Compiler_IR_Basic_2898322213____hygCtx___hyg_5_;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_initFn___closed__5____x40_Lean_Compiler_IR_SimpCase_2342465999____hygCtx___hyg_2_;
 LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_IR_ensureHasDefault_spec__0(lean_object* x_1, size_t x_2, size_t x_3) {
@@ -147,7 +147,7 @@ static lean_object* _init_l_Lean_IR_ensureHasDefault___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_IR_defaultAlt____x40_Lean_Compiler_IR_Basic_2898322213____hygCtx___hyg_5_;
+x_1 = l_Lean_IR_instInhabitedAlt_default__1;
 return x_1;
 }
 }

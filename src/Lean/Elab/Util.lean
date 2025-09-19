@@ -123,7 +123,7 @@ unsafe def mkElabAttribute (γ) (attrBuiltinName attrName : Name) (parserNamespa
       if (← getEnv).contains kind && (← getInfoState).enabled then
         addConstInfo stx[1] kind none
       return kind
-    onAdded       := fun builtin declName => do
+    onAdded       := fun builtin declName kind => do
       if builtin then
         declareBuiltinDocStringAndRanges declName
   } attrDeclName

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Bitblast.BoolExpr.Basic
-// Imports: Init.Notation Init.Data.Bool
+// Imports: Init.Notation Init.Data.Bool Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -833,7 +833,6 @@ lean_dec_ref(x_2);
 x_9 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg___closed__2;
 x_10 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg(x_1, x_8);
 x_11 = lean_string_append(x_9, x_10);
-lean_dec_ref(x_10);
 return x_11;
 }
 case 3:
@@ -849,16 +848,13 @@ x_15 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg___closed__3;
 lean_inc_ref(x_1);
 x_16 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg(x_1, x_13);
 x_17 = lean_string_append(x_15, x_16);
-lean_dec_ref(x_16);
 x_18 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg___closed__4;
 x_19 = lean_string_append(x_17, x_18);
 x_20 = l_Std_Tactic_BVDecide_Gate_toString(x_12);
 x_21 = lean_string_append(x_19, x_20);
-lean_dec_ref(x_20);
 x_22 = lean_string_append(x_21, x_18);
 x_23 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg(x_1, x_14);
 x_24 = lean_string_append(x_22, x_23);
-lean_dec_ref(x_23);
 x_25 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg___closed__5;
 x_26 = lean_string_append(x_24, x_25);
 return x_26;
@@ -877,17 +873,14 @@ x_30 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg___closed__6;
 lean_inc_ref(x_1);
 x_31 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg(x_1, x_27);
 x_32 = lean_string_append(x_30, x_31);
-lean_dec_ref(x_31);
 x_33 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg___closed__4;
 x_34 = lean_string_append(x_32, x_33);
 lean_inc_ref(x_1);
 x_35 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg(x_1, x_28);
 x_36 = lean_string_append(x_34, x_35);
-lean_dec_ref(x_35);
 x_37 = lean_string_append(x_36, x_33);
 x_38 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg(x_1, x_29);
 x_39 = lean_string_append(x_37, x_38);
-lean_dec_ref(x_38);
 x_40 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg___closed__5;
 x_41 = lean_string_append(x_39, x_40);
 return x_41;
@@ -1116,6 +1109,7 @@ return x_8;
 }
 lean_object* initialize_Init_Notation(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Bool(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BoolExpr_Basic(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1125,6 +1119,9 @@ res = initialize_Init_Notation(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Bool(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Tactic_BVDecide_Gate_toString___closed__0 = _init_l_Std_Tactic_BVDecide_Gate_toString___closed__0();

@@ -63,7 +63,9 @@ private def isEqTrueHyp? (proof : Expr) : Option FVarId := Id.run do
 /-- Similar to `mkEMatchTheoremWithKind?`, but swallow any exceptions. -/
 private def mkEMatchTheoremWithKind'? (origin : Origin) (proof : Expr) (kind : EMatchTheoremKind) (prios : SymbolPriorities) : MetaM (Option EMatchTheorem) := do
   try
-    mkEMatchTheoremWithKind? origin #[] proof kind prios (groundPatterns := false)
+    -- **Note**: for local theorems, we want to use very general patterns, this is why we set `minIndexable := true`
+    -- The same approach is used in Z3.
+    mkEMatchTheoremWithKind? origin #[] proof kind prios (groundPatterns := false) (minIndexable := true)
   catch _ =>
     return none
 

@@ -121,7 +121,7 @@ theorem pmap_eq_map {p : α → Prop} {f : α → β} {xs : Array α} (H) :
 theorem pmap_congr_left {p q : α → Prop} {f : ∀ a, p a → β} {g : ∀ a, q a → β} (xs : Array α) {H₁ H₂}
     (h : ∀ a ∈ xs, ∀ (h₁ h₂), f a h₁ = g a h₂) : pmap f xs H₁ = pmap g xs H₂ := by
   cases xs
-  simp only [mem_toArray] at h
+  simp only [List.mem_toArray] at h
   simp only [List.pmap_toArray, mk.injEq]
   rw [List.pmap_congr_left _ h]
 
@@ -194,14 +194,14 @@ theorem attachWith_map_subtype_val {p : α → Prop} {xs : Array α} (H : ∀ a 
     (xs.attachWith p H).map Subtype.val = xs := by
   cases xs; simp
 
-@[simp, grind]
+@[simp, grind ←]
 theorem mem_attach (xs : Array α) : ∀ x, x ∈ xs.attach
   | ⟨a, h⟩ => by
     have := mem_map.1 (by rw [attach_map_subtype_val] <;> exact h)
     rcases this with ⟨⟨_, _⟩, m, rfl⟩
     exact m
 
-@[simp, grind]
+@[simp, grind =]
 theorem mem_attachWith {xs : Array α} {q : α → Prop} (H) (x : {x // q x}) :
     x ∈ xs.attachWith q H ↔ x.1 ∈ xs := by
   cases xs
@@ -212,11 +212,12 @@ theorem mem_pmap {p : α → Prop} {f : ∀ a, p a → β} {xs H b} :
     b ∈ pmap f xs H ↔ ∃ (a : _) (h : a ∈ xs), f a (H a h) = b := by
   simp only [pmap_eq_map_attach, mem_map, mem_attach, true_and, Subtype.exists, eq_comm]
 
-@[grind]
 theorem mem_pmap_of_mem {p : α → Prop} {f : ∀ a, p a → β} {xs H} {a} (h : a ∈ xs) :
     f a (H a h) ∈ pmap f xs H := by
   rw [mem_pmap]
   exact ⟨a, h, rfl⟩
+
+grind_pattern mem_pmap_of_mem => _ ∈ pmap f xs H, a ∈ xs
 
 @[simp, grind =]
 theorem size_pmap {p : α → Prop} {f : ∀ a, p a → β} {xs H} : (pmap f xs H).size = xs.size := by
@@ -345,7 +346,7 @@ theorem foldl_attach {xs : Array α} {f : β → α → β} {b : β} :
     xs.attach.foldl (fun acc t => f acc t.1) b = xs.foldl f b := by
   rcases xs with ⟨xs⟩
   simp only [List.attach_toArray, List.attachWith_mem_toArray, List.size_toArray,
-    List.foldl_toArray', mem_toArray, List.foldl_subtype]
+    List.foldl_toArray', List.mem_toArray, List.foldl_subtype]
   congr
   ext
   simpa using fun a => List.mem_of_getElem? a
@@ -364,7 +365,7 @@ theorem foldr_attach {xs : Array α} {f : α → β → β} {b : β} :
     xs.attach.foldr (fun t acc => f t.1 acc) b = xs.foldr f b := by
   rcases xs with ⟨xs⟩
   simp only [List.attach_toArray, List.attachWith_mem_toArray, List.size_toArray,
-    List.foldr_toArray', mem_toArray, List.foldr_subtype]
+    List.foldr_toArray', List.mem_toArray, List.foldr_subtype]
   congr
   ext
   simpa using fun a => List.mem_of_getElem? a
@@ -706,7 +707,7 @@ and simplifies these to the function directly taking the value.
     {f : { x // p x } → Array β} {g : α → Array β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     (xs.flatMap f) = xs.unattach.flatMap g := by
   cases xs
-  simp only [List.flatMap_toArray, List.unattach_toArray, 
+  simp only [List.flatMap_toArray, List.unattach_toArray,
     mk.injEq]
   rw [List.flatMap_subtype]
   simp [hf]

@@ -6,10 +6,10 @@ Authors: Joachim Breitner
 module
 
 prelude
-public import Init.Data.Range.Polymorphic.Nat
-public import Init.Data.Range.Polymorphic.Iterators
-
-public section
+public import Init.Prelude
+import Init.Data.Stream
+import Init.Data.Range.Polymorphic.Nat
+import Init.Data.Range.Polymorphic.Iterators
 
 namespace Array
 
@@ -37,7 +37,7 @@ Example:
 #["a", "red", "x", "r"]
 ```
 -/
-def filterPairsM {m} [Monad m] {α} (a : Array α) (f : α → α → m (Bool × Bool)) :
+public def filterPairsM {m} [Monad m] {α} (a : Array α) (f : α → α → m (Bool × Bool)) :
     m (Array α) := do
   let mut removed := Array.replicate a.size false
   let mut numRemoved := 0
@@ -57,5 +57,39 @@ def filterPairsM {m} [Monad m] {α} (a : Array α) (f : α → α → m (Bool ×
     unless removed[i]! do
       a' := a'.push a[i]
   return a'
+
+/--
+`maskArray mask xs` keeps those `x` where the corresponding entry in `mask` is `true`
+-/
+public def mask {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
+  let mut ys := #[]
+  for b in mask, x in xs do
+    if b then ys := ys.push x
+  return ys
+
+/--
+Inverse of `Array.mask`:
+```
+Array.zipMasked mask (Array.mask (mask.map not) xs) (Array.mask mask xs) == xs
+```
+-/
+public def zipMasked {α} (mask : Array Bool) (xs ys : Array α) : Array α := Id.run do
+  let mut i := 0
+  let mut j := 0
+  let mut zs := #[]
+  for b in mask do
+    if b then
+      if h : j < ys.size then
+        zs := zs.push ys[j]
+        j := j + 1
+      else
+        panic! "zipMaskedArray: not enough elements in ys"
+    else
+      if h : i < xs.size then
+        zs := zs.push xs[i]
+        i := i + 1
+      else
+        panic! "zipMaskedArray: not enough elements in xs"
+  return zs
 
 end Array

@@ -288,7 +288,12 @@ private partial def shouldPreprocess (type : Expr) : MetaM Bool :=
       return true
 
 private partial def preprocess (e type : Expr) (inv : Bool) (isGlobal : Bool) : MetaM (List (Expr × Expr)) :=
-  go e type
+  -- Make sure `mkAppM` etc used below can access private declarations when synthesizing proofs.
+  -- When synthesizing new types, only elementary declarations like `Eq` and `False` from
+  -- `Init.Prelude` are used and we can assume they are always publicly imported (and if not, we
+  -- still get an error, just later than without this line).
+  withoutExporting do
+    go e type
 where
   go (e type : Expr) : MetaM (List (Expr × Expr)) := do
   let type ← whnf type
@@ -341,7 +346,7 @@ where
       else if rhs.isConstOf ``Bool.false then
         return [(← mkAppM ``Bool.of_not_eq_false #[e], ← mkEq lhs (mkConst ``Bool.true))]
     let type ← mkEq p (mkConst ``False)
-    let e    ← mkEqFalse e
+    let e    ← withoutExporting do mkEqFalse e
     return [(e, type)]
   else if let some (type₁, type₂) := type.and? then
     let e₁ := mkProj ``And 0 e
@@ -352,24 +357,26 @@ where
       throwError m!"Invalid `←` modifier: Cannot be applied to a rule that rewrites to `True`"
         ++ .note m!"This simp theorem will rewrite{inlineExpr type}to `True`, which should not be applied in the reverse direction"
     let type ← mkEq type (mkConst ``True)
-    let e    ← mkEqTrue e
+    let e    ← withoutExporting do mkEqTrue e
     return [(e, type)]
 
 private def checkTypeIsProp (type : Expr) : MetaM Unit :=
   unless (← isProp type) do
     throwError "Invalid simp theorem: Expected a proposition, but found{indentExpr type}"
 
-private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array Name) (proof : Expr) (post : Bool) (prio : Nat) (noIndexAtArgs : Bool) : MetaM SimpTheorem := do
-  assert! origin != .fvar ⟨.anonymous⟩
-  let type ← instantiateMVars (← inferType e)
+private def mkSimpTheoremKeys (type : Expr) (noIndexAtArgs : Bool) : MetaM (Array SimpTheoremKey × Bool) := do
   withNewMCtxDepth do
     let (_, _, type) ← forallMetaTelescopeReducing type
     let type ← whnfR type
-    let (keys, perm) ←
-      match type.eq? with
-      | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs noIndexAtArgs, ← isPerm lhs rhs)
-      | none => throwError "Unexpected kind of simp theorem{indentExpr type}"
-    return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl := (← isRflProof proof) }
+    match type.eq? with
+    | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs noIndexAtArgs, ← isPerm lhs rhs)
+    | none => throwError "Unexpected kind of simp theorem{indentExpr type}"
+
+private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array Name) (proof : Expr) (post : Bool) (prio : Nat) (noIndexAtArgs : Bool) : MetaM SimpTheorem := do
+  assert! origin != .fvar ⟨.anonymous⟩
+  let type ← instantiateMVars (← inferType e)
+  let (keys, perm) ← mkSimpTheoremKeys type noIndexAtArgs
+  return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl := (← isRflProof proof) }
 
 /--
 Creates a `SimpTheorem` from a global theorem.
@@ -388,7 +395,7 @@ def mkSimpTheoremFromConst (declName : Name) (post := true) (inv := false)
       let mut r := #[]
       for (val, type) in (← preprocess val type inv (isGlobal := true)) do
         let auxName ← mkAuxLemma (kind? := `_simp) cinfo.levelParams type val (inferRfl := true)
-        r := r.push <| (← withoutExporting do mkSimpTheoremCore origin (mkConst auxName us) #[] (mkConst auxName) post prio (noIndexAtArgs := false))
+        r := r.push <| (← do mkSimpTheoremCore origin (mkConst auxName us) #[] (mkConst auxName) post prio (noIndexAtArgs := false))
       return r
     else
       return #[← withoutExporting do mkSimpTheoremCore origin (mkConst declName us) #[] (mkConst declName) post prio (noIndexAtArgs := false)]
@@ -421,6 +428,19 @@ def mkSimpTheoremFromExpr (id : Origin) (levelParams : Array Name) (proof : Expr
       withReducible do
         (← preprocessProof proof inv).mapM fun val =>
           mkSimpTheoremCore id val levelParams val post prio (noIndexAtArgs := true)
+
+/-- Creates a `SimpTheorem` from a definitional equality.  -/
+def mkDSimpTheorem (id : Origin) (levelParams : Array Name) (type : Expr)
+    (post := true) (prio : Nat := eval_prio default) (config : ConfigWithKey := simpGlobalConfig) :
+    MetaM SimpTheorem := do
+  withConfigWithKey config do
+    let (keys, perm) ← mkSimpTheoremKeys type (noIndexAtArgs := true)
+    let proof ← forallTelescopeReducing type fun xs r => do
+      let some (_, lhs, _rhs) := r.eq?
+        | throwError "Unexpected kind of dsimp theorem{indentExpr type}"
+      -- We need to wrap the proof in a type hint, else the type is lost
+      mkExpectedTypeHint (← mkLambdaFVars xs (← mkEqRefl lhs)) type
+    return { origin := id, keys, perm, post, levelParams, proof, priority := prio, rfl := true }
 
 /--
 A simp theorem or information about a declaration to unfold by simp.

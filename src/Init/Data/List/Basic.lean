@@ -80,17 +80,17 @@ namespace List
 
 /-! ### length -/
 
-@[simp, grind] theorem length_nil : length ([] : List α) = 0 :=
+@[simp, grind =] theorem length_nil : length ([] : List α) = 0 :=
   rfl
 
 @[simp] theorem length_singleton {a : α} : length [a] = 1 := rfl
 
-@[simp, grind] theorem length_cons {a : α} {as : List α} : (cons a as).length = as.length + 1 :=
+@[simp, grind =] theorem length_cons {a : α} {as : List α} : (cons a as).length = as.length + 1 :=
   rfl
 
 /-! ### set -/
 
-@[simp, grind] theorem length_set {as : List α} {i : Nat} {a : α} : (as.set i a).length = as.length := by
+@[simp, grind =] theorem length_set {as : List α} {i : Nat} {a : α} : (as.set i a).length = as.length := by
   induction as generalizing i with
   | nil => rfl
   | cons x xs ih =>
@@ -101,8 +101,8 @@ namespace List
 /-! ### foldl -/
 
 -- As `List.foldl` is defined in `Init.Prelude`, we write the basic simplification lemmas here.
-@[simp, grind] theorem foldl_nil : [].foldl f b = b := rfl
-@[simp, grind] theorem foldl_cons {l : List α} {f : β → α → β} {b : β} : (a :: l).foldl f b = l.foldl f (f b a) := rfl
+@[simp, grind =] theorem foldl_nil : [].foldl f b = b := rfl
+@[simp, grind =] theorem foldl_cons {l : List α} {f : β → α → β} {b : β} : (a :: l).foldl f b = l.foldl f (f b a) := rfl
 
 /-! ### concat -/
 
@@ -332,7 +332,7 @@ def getLast? : List α → Option α
   | []    => none
   | a::as => some (getLast (a::as) (fun h => List.noConfusion h))
 
-@[simp, grind] theorem getLast?_nil : @getLast? α [] = none := rfl
+@[simp, grind =] theorem getLast?_nil : @getLast? α [] = none := rfl
 
 /-! ### getLastD -/
 
@@ -365,7 +365,7 @@ Returns the first element of a non-empty list.
 def head : (as : List α) → as ≠ [] → α
   | a::_, _ => a
 
-@[simp, grind] theorem head_cons {a : α} {l : List α} {h} : head (a::l) h = a := rfl
+@[simp, grind =] theorem head_cons {a : α} {l : List α} {h} : head (a::l) h = a := rfl
 
 /-! ### head? -/
 
@@ -383,8 +383,8 @@ def head? : List α → Option α
   | []   => none
   | a::_ => some a
 
-@[simp, grind] theorem head?_nil : head? ([] : List α) = none := rfl
-@[simp, grind] theorem head?_cons {a : α} {l : List α} : head? (a::l) = some a := rfl
+@[simp, grind =] theorem head?_nil : head? ([] : List α) = none := rfl
+@[simp, grind =] theorem head?_cons {a : α} {l : List α} : head? (a::l) = some a := rfl
 
 /-! ### headD -/
 
@@ -420,8 +420,8 @@ def tail : List α → List α
   | []    => []
   | _::as => as
 
-@[simp, grind] theorem tail_nil : tail ([] : List α) = [] := rfl
-@[simp, grind] theorem tail_cons {a : α} {as : List α} : tail (a::as) = as := rfl
+@[simp, grind =] theorem tail_nil : tail ([] : List α) = [] := rfl
+@[simp, grind =] theorem tail_cons {a : α} {as : List α} : tail (a::as) = as := rfl
 
 /-! ### tail? -/
 
@@ -441,8 +441,8 @@ def tail? : List α → Option (List α)
   | []    => none
   | _::as => some as
 
-@[simp, grind] theorem tail?_nil : tail? ([] : List α) = none := rfl
-@[simp, grind] theorem tail?_cons {a : α} {l : List α} : tail? (a::l) = some l := rfl
+@[simp, grind =] theorem tail?_nil : tail? ([] : List α) = none := rfl
+@[simp, grind =] theorem tail?_cons {a : α} {l : List α} : tail? (a::l) = some l := rfl
 
 /-! ### tailD -/
 
@@ -475,23 +475,8 @@ We define the basic functional programming operations on `List`:
 
 /-! ### map -/
 
-/--
-Applies a function to each element of the list, returning the resulting list of values.
-
-`O(|l|)`.
-
-Examples:
-* `[a, b, c].map f = [f a, f b, f c]`
-* `[].map Nat.succ = []`
-* `["one", "two", "three"].map (·.length) = [3, 3, 5]`
-* `["one", "two", "three"].map (·.reverse) = ["eno", "owt", "eerht"]`
--/
-@[specialize] def map (f : α → β) : (l : List α) → List β
-  | []    => []
-  | a::as => f a :: map f as
-
-@[simp, grind] theorem map_nil {f : α → β} : map f [] = [] := rfl
-@[simp, grind] theorem map_cons {f : α → β} {a : α} {l : List α} : map f (a :: l) = f a :: map f l := rfl
+@[simp, grind =] theorem map_nil {f : α → β} : map f [] = [] := rfl
+@[simp, grind =] theorem map_cons {f : α → β} {a : α} {l : List α} : map f (a :: l) = f a :: map f l := rfl
 
 /-! ### filter -/
 
@@ -511,7 +496,7 @@ def filter (p : α → Bool) : (l : List α) → List α
     | true => a :: filter p as
     | false => filter p as
 
-@[simp, grind] theorem filter_nil {p : α → Bool} : filter p [] = [] := rfl
+@[simp, grind =] theorem filter_nil {p : α → Bool} : filter p [] = [] := rfl
 
 /-! ### filterMap -/
 
@@ -537,8 +522,8 @@ Example:
     | none   => filterMap f as
     | some b => b :: filterMap f as
 
-@[simp, grind] theorem filterMap_nil {f : α → Option β} : filterMap f [] = [] := rfl
-@[grind] theorem filterMap_cons {f : α → Option β} {a : α} {l : List α} :
+@[simp, grind =] theorem filterMap_nil {f : α → Option β} : filterMap f [] = [] := rfl
+@[grind =] theorem filterMap_cons {f : α → Option β} {a : α} {l : List α} :
     filterMap f (a :: l) =
       match f a with
       | none => filterMap f l
@@ -561,8 +546,8 @@ Examples:
   | []     => init
   | a :: l => f a (foldr f init l)
 
-@[simp, grind] theorem foldr_nil : [].foldr f b = b := rfl
-@[simp, grind] theorem foldr_cons {a} {l : List α} {f : α → β → β} {b} :
+@[simp, grind =] theorem foldr_nil : [].foldr f b = b := rfl
+@[simp, grind =] theorem foldr_cons {a} {l : List α} {f : α → β → β} {b} :
     (a :: l).foldr f b = f a (l.foldr f b) := rfl
 
 /-! ### reverse -/
@@ -591,7 +576,7 @@ Examples:
 @[expose] def reverse (as : List α) : List α :=
   reverseAux as []
 
-@[simp, grind] theorem reverse_nil : reverse ([] : List α) = [] := rfl
+@[simp, grind =] theorem reverse_nil : reverse ([] : List α) = [] := rfl
 
 theorem reverseAux_reverseAux {as bs cs : List α} :
     reverseAux (reverseAux as bs) cs = reverseAux bs (reverseAux (reverseAux as []) cs) := by
@@ -600,20 +585,6 @@ theorem reverseAux_reverseAux {as bs cs : List α} :
   | cons a as ih => simp [reverseAux, ih (bs := a::bs), ih (bs := [a])]
 
 /-! ### append -/
-
-/--
-Appends two lists. Normally used via the `++` operator.
-
-Appending lists takes time proportional to the length of the first list: `O(|xs|)`.
-
-Examples:
-  * `[1, 2, 3] ++ [4, 5] = [1, 2, 3, 4, 5]`.
-  * `[] ++ [4, 5] = [4, 5]`.
-  * `[1, 2, 3] ++ [] = [1, 2, 3]`.
--/
-protected def append : (xs ys : List α) → List α
-  | [],    bs => bs
-  | a::as, bs => a :: List.append as bs
 
 /--
 Appends two lists. Normally used via the `++` operator.
@@ -645,10 +616,10 @@ instance : Append (List α) := ⟨List.append⟩
 
 @[simp] theorem append_eq {as bs : List α} : List.append as bs = as ++ bs := rfl
 
-@[simp, grind] theorem nil_append (as : List α) : [] ++ as = as := rfl
+@[simp, grind =] theorem nil_append (as : List α) : [] ++ as = as := rfl
 @[simp, grind _=_] theorem cons_append {a : α} {as bs : List α} : (a::as) ++ bs = a::(as ++ bs) := rfl
 
-@[simp, grind] theorem append_nil (as : List α) : as ++ [] = as := by
+@[simp, grind =] theorem append_nil (as : List α) : as ++ [] = as := by
   induction as with
   | nil => rfl
   | cons a as ih =>
@@ -658,7 +629,7 @@ instance : Std.LawfulIdentity (α := List α) (· ++ ·) [] where
   left_id := nil_append
   right_id := append_nil
 
-@[simp, grind] theorem length_append {as bs : List α} : (as ++ bs).length = as.length + bs.length := by
+@[simp, grind =] theorem length_append {as bs : List α} : (as ++ bs).length = as.length + bs.length := by
   induction as with
   | nil => simp
   | cons _ as ih => simp [ih, Nat.succ_add]
@@ -685,27 +656,15 @@ theorem reverseAux_eq_append {as bs : List α} : reverseAux as bs = reverseAux a
     rw [ih (bs := a :: bs), ih (bs := [a]), append_assoc]
     rfl
 
-@[simp, grind] theorem reverse_cons {a : α} {as : List α} : reverse (a :: as) = reverse as ++ [a] := by
+@[simp, grind =] theorem reverse_cons {a : α} {as : List α} : reverse (a :: as) = reverse as ++ [a] := by
   simp [reverse, reverseAux]
   rw [← reverseAux_eq_append]
 
 /-! ### flatten -/
 
-/--
-Concatenates a list of lists into a single list, preserving the order of the elements.
 
-`O(|flatten L|)`.
-
-Examples:
-* `[["a"], ["b", "c"]].flatten = ["a", "b", "c"]`
-* `[["a"], [], ["b", "c"], ["d", "e", "f"]].flatten = ["a", "b", "c", "d", "e", "f"]`
--/
-def flatten : List (List α) → List α
-  | []      => []
-  | l :: L => l ++ flatten L
-
-@[simp, grind] theorem flatten_nil : List.flatten ([] : List (List α)) = [] := rfl
-@[simp, grind] theorem flatten_cons : (l :: L).flatten = l ++ L.flatten := rfl
+@[simp, grind =] theorem flatten_nil : List.flatten ([] : List (List α)) = [] := rfl
+@[simp, grind =] theorem flatten_cons : (l :: L).flatten = l ++ L.flatten := rfl
 
 /-! ### singleton -/
 
@@ -721,19 +680,13 @@ Examples:
 
 /-! ### flatMap -/
 
-/--
-Applies a function that returns a list to each element of a list, and concatenates the resulting
-lists.
-
-Examples:
-* `[2, 3, 2].flatMap List.range = [0, 1, 0, 1, 2, 0, 1]`
-* `["red", "blue"].flatMap String.toList = ['r', 'e', 'd', 'b', 'l', 'u', 'e']`
--/
-@[inline] def flatMap {α : Type u} {β : Type v} (b : α → List β) (as : List α) : List β := flatten (map b as)
-
-@[simp, grind] theorem flatMap_nil {f : α → List β} : List.flatMap f [] = [] := by simp [List.flatMap]
-@[simp, grind] theorem flatMap_cons {x : α} {xs : List α} {f : α → List β} :
+@[simp, grind =] theorem flatMap_nil {f : α → List β} : List.flatMap f [] = [] := by simp [List.flatMap]
+@[simp, grind =] theorem flatMap_cons {x : α} {xs : List α} {f : α → List β} :
   List.flatMap f (x :: xs) = f x ++ List.flatMap f xs := by simp [List.flatMap]
+
+@[simp, grind _=_] theorem flatMap_append {xs ys : List α} {f : α → List β} :
+    (xs ++ ys).flatMap f = xs.flatMap f ++ ys.flatMap f := by
+  induction xs; {rfl}; simp_all [flatMap_cons, append_assoc]
 
 /-! ### replicate -/
 
@@ -748,10 +701,10 @@ def replicate : (n : Nat) → (a : α) → List α
   | 0,   _ => []
   | n+1, a => a :: replicate n a
 
-@[simp, grind] theorem replicate_zero {a : α} : replicate 0 a = [] := rfl
-@[grind] theorem replicate_succ {a : α} {n : Nat} : replicate (n+1) a = a :: replicate n a := rfl
+@[simp, grind =] theorem replicate_zero {a : α} : replicate 0 a = [] := rfl
+@[grind =] theorem replicate_succ {a : α} {n : Nat} : replicate (n+1) a = a :: replicate n a := rfl
 
-@[simp, grind] theorem length_replicate {n : Nat} {a : α} : (replicate n a).length = n := by
+@[simp, grind =] theorem length_replicate {n : Nat} {a : α} : (replicate n a).length = n := by
   induction n with
   | zero => simp
   | succ n ih => simp only [ih, replicate_succ, length_cons]
@@ -819,8 +772,8 @@ def isEmpty : List α → Bool
   | []     => true
   | _ :: _ => false
 
-@[simp, grind] theorem isEmpty_nil : ([] : List α).isEmpty = true := rfl
-@[simp, grind] theorem isEmpty_cons : (x :: xs : List α).isEmpty = false := rfl
+@[simp, grind =] theorem isEmpty_nil : ([] : List α).isEmpty = true := rfl
+@[simp, grind =] theorem isEmpty_cons : (x :: xs : List α).isEmpty = false := rfl
 
 /-! ### elem -/
 
@@ -842,7 +795,7 @@ def elem [BEq α] (a : α) : (l : List α) → Bool
     | true  => true
     | false => elem a bs
 
-@[simp, grind] theorem elem_nil [BEq α] : ([] : List α).elem a = false := rfl
+@[simp, grind =] theorem elem_nil [BEq α] : ([] : List α).elem a = false := rfl
 theorem elem_cons [BEq α] {a : α} :
     (b::bs).elem a = match a == b with | true => true | false => bs.elem a := rfl
 
@@ -958,9 +911,9 @@ def take : (n : Nat) → (xs : List α) → List α
   | _+1, []    => []
   | n+1, a::as => a :: take n as
 
-@[simp, grind] theorem take_nil {i : Nat} : ([] : List α).take i = [] := by cases i <;> rfl
-@[simp, grind] theorem take_zero {l : List α} : l.take 0 = [] := rfl
-@[simp, grind] theorem take_succ_cons {a : α} {as : List α} {i : Nat} : (a::as).take (i+1) = a :: as.take i := rfl
+@[simp, grind =] theorem take_nil {i : Nat} : ([] : List α).take i = [] := by cases i <;> rfl
+@[simp, grind =] theorem take_zero {l : List α} : l.take 0 = [] := rfl
+@[simp, grind =] theorem take_succ_cons {a : α} {as : List α} {i : Nat} : (a::as).take (i+1) = a :: as.take i := rfl
 
 /-! ### drop -/
 
@@ -980,10 +933,10 @@ def drop : (n : Nat) → (xs : List α) → List α
   | _+1, []    => []
   | n+1, _::as => drop n as
 
-@[simp, grind] theorem drop_nil : ([] : List α).drop i = [] := by
+@[simp, grind =] theorem drop_nil : ([] : List α).drop i = [] := by
   cases i <;> rfl
-@[simp, grind] theorem drop_zero {l : List α} : l.drop 0 = l := rfl
-@[simp, grind] theorem drop_succ_cons {a : α} {l : List α} {i : Nat} : (a :: l).drop (i + 1) = l.drop i := rfl
+@[simp, grind =] theorem drop_zero {l : List α} : l.drop 0 = l := rfl
+@[simp, grind =] theorem drop_succ_cons {a : α} {l : List α} {i : Nat} : (a :: l).drop (i + 1) = l.drop i := rfl
 
 theorem drop_eq_nil_of_le {as : List α} {i : Nat} (h : as.length ≤ i) : as.drop i = [] := by
   match as, i with
@@ -1094,13 +1047,13 @@ def dropLast {α} : List α → List α
   | [_]   => []
   | a::as => a :: dropLast as
 
-@[simp, grind] theorem dropLast_nil : ([] : List α).dropLast = [] := rfl
-@[simp, grind] theorem dropLast_singleton : [x].dropLast = [] := rfl
+@[simp, grind =] theorem dropLast_nil : ([] : List α).dropLast = [] := rfl
+@[simp, grind =] theorem dropLast_singleton : [x].dropLast = [] := rfl
 
 @[deprecated dropLast_singleton (since := "2025-04-16")]
 theorem dropLast_single : [x].dropLast = [] := dropLast_singleton
 
-@[simp, grind] theorem dropLast_cons₂ :
+@[simp, grind =] theorem dropLast_cons₂ :
     (x::y::zs).dropLast = x :: (y::zs).dropLast := rfl
 
 -- Later this can be proved by `simp` via `[List.length_dropLast, List.length_cons, Nat.add_sub_cancel]`,
@@ -1439,8 +1392,8 @@ def replace [BEq α] : (l : List α) → (a : α) → (b : α) → List α
     | true  => c::as
     | false => a :: replace as b c
 
-@[simp, grind] theorem replace_nil [BEq α] : ([] : List α).replace a b = [] := rfl
-@[grind] theorem replace_cons [BEq α] {a : α} :
+@[simp, grind =] theorem replace_nil [BEq α] : ([] : List α).replace a b = [] := rfl
+@[grind =] theorem replace_cons [BEq α] {a : α} :
     (a::as).replace b c = match b == a with | true => c::as | false => a :: replace as b c :=
   rfl
 
@@ -1648,8 +1601,8 @@ def findSome? (f : α → Option β) : List α → Option β
     | some b => some b
     | none   => findSome? f as
 
-@[simp, grind] theorem findSome?_nil : ([] : List α).findSome? f = none := rfl
-@[grind] theorem findSome?_cons {f : α → Option β} :
+@[simp, grind =] theorem findSome?_nil : ([] : List α).findSome? f = none := rfl
+@[grind =] theorem findSome?_cons {f : α → Option β} :
     (a::as).findSome? f = match f a with | some b => some b | none => as.findSome? f :=
   rfl
 
@@ -1906,8 +1859,8 @@ def any : (l : List α) → (p : α → Bool) → Bool
   | [], _ => false
   | h :: t, p => p h || any t p
 
-@[simp, grind] theorem any_nil : [].any f = false := rfl
-@[simp, grind] theorem any_cons : (a::l).any f = (f a || l.any f) := rfl
+@[simp, grind =] theorem any_nil : [].any f = false := rfl
+@[simp, grind =] theorem any_cons : (a::l).any f = (f a || l.any f) := rfl
 
 /-! ### all -/
 
@@ -1925,8 +1878,8 @@ def all : List α → (α → Bool) → Bool
   | [], _ => true
   | h :: t, p => p h && all t p
 
-@[simp, grind] theorem all_nil : [].all f = true := rfl
-@[simp, grind] theorem all_cons : (a::l).all f = (f a && l.all f) := rfl
+@[simp, grind =] theorem all_nil : [].all f = true := rfl
+@[simp, grind =] theorem all_cons : (a::l).all f = (f a && l.all f) := rfl
 
 /-! ### or -/
 
@@ -2066,8 +2019,8 @@ Examples:
 def sum {α} [Add α] [Zero α] : List α → α :=
   foldr (· + ·) 0
 
-@[simp, grind] theorem sum_nil [Add α] [Zero α] : ([] : List α).sum = 0 := rfl
-@[simp, grind] theorem sum_cons [Add α] [Zero α] {a : α} {l : List α} : (a::l).sum = a + l.sum := rfl
+@[simp, grind =] theorem sum_nil [Add α] [Zero α] : ([] : List α).sum = 0 := rfl
+@[simp, grind =] theorem sum_cons [Add α] [Zero α] {a : α} {l : List α} : (a::l).sum = a + l.sum := rfl
 
 /-! ### range -/
 

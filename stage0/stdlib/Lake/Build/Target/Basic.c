@@ -15,7 +15,6 @@ extern "C" {
 #endif
 static lean_object* l_Lake_Target_repr___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Target_instRepr(lean_object*);
-lean_object* l_Lake_reprBuildKey____x40_Lake_Build_Key_961682309____hygCtx___hyg_74_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_ctorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_Target_repr___redArg___closed__0;
 static lean_object* l_Lake_Target_repr___redArg___closed__3;
@@ -31,6 +30,7 @@ static lean_object* l_Lake_Target_instRepr___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Target_instToString___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_ctorIdx(lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
+lean_object* l_Lake_instReprBuildKey_repr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_instCoePartialBuildKey___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_instToString(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_repr___redArg___boxed(lean_object*, lean_object*);
@@ -126,7 +126,7 @@ block_12:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; 
 x_4 = l_Lake_Target_repr___redArg___closed__2;
 x_5 = lean_unsigned_to_nat(1024u);
-x_6 = l_Lake_reprBuildKey____x40_Lake_Build_Key_961682309____hygCtx___hyg_74_(x_1, x_5);
+x_6 = l_Lake_instReprBuildKey_repr(x_1, x_5);
 x_7 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_7, 0, x_4);
 lean_ctor_set(x_7, 1, x_6);

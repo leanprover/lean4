@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DHashMap.Internal.RawLemmas
-// Imports: Std.Data.Internal.List.Associative Std.Data.DHashMap.Internal.Defs Std.Data.DHashMap.Internal.WF Std.Data.DHashMap.Raw Std.Data.DHashMap.Basic
+// Imports: Std.Data.Internal.List.Associative Std.Data.DHashMap.Internal.Defs Std.Data.DHashMap.Internal.WF Std.Data.DHashMap.Raw Std.Data.DHashMap.Basic Std.Data.DHashMap.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -12183,6 +12183,7 @@ lean_object* initialize_Std_Data_DHashMap_Internal_Defs(uint8_t builtin, lean_ob
 lean_object* initialize_Std_Data_DHashMap_Internal_WF(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_DHashMap_Raw(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_DHashMap_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_DHashMap_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_DHashMap_Internal_RawLemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -12198,6 +12199,9 @@ res = initialize_Std_Data_DHashMap_Internal_WF(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_DHashMap_Raw(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_DHashMap_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_DHashMap_Basic(builtin, lean_io_mk_world());

@@ -42,6 +42,7 @@ LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_subDays(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_inLeapYear___boxed(lean_object*);
 static lean_object* l_Std_Time_ZonedDateTime_instHAddOffset__4___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_toPlainDateTime(lean_object*);
+extern lean_object* l_Std_Time_TimeZone_instInhabitedZoneRules_default;
 static lean_object* l_Std_Time_ZonedDateTime_addMinutes___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_withMinutes(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofPlainDateTimeAssumingUTC___lam__0(lean_object*, lean_object*, lean_object*);
@@ -74,12 +75,12 @@ LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_month(lean_object*);
 lean_object* l_Std_Time_PlainDate_quarter(lean_object*);
 static lean_object* l_Std_Time_ZonedDateTime_instHSubOffset__5___closed__0;
 lean_object* l_instNatCastInt___lam__0(lean_object*);
+extern lean_object* l_Std_Time_instInhabitedPlainDateTime_default;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_addHours___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_withMonthRollOver(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_instHSubDuration___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_time___boxed(lean_object*);
-extern lean_object* l_Std_Time_defaultTimestamp____x40_Std_Time_DateTime_Timestamp_1067989854____hygCtx___hyg_201_;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_toDaysSinceUNIXEpoch(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_withWeekday(lean_object*, uint8_t);
 lean_object* l_Std_Time_PlainDateTime_weekOfMonth(lean_object*);
@@ -153,6 +154,7 @@ lean_object* l_Std_Time_PlainDateTime_withWeekday(lean_object*, uint8_t);
 lean_object* l_Std_Time_PlainDate_weekOfYear(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_millisecond(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_withDaysClip(lean_object*, lean_object*);
+extern lean_object* l_Std_Time_instInhabitedTimestamp_default;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_weekOfMonth___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_addYearsRollOver___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_subYearsRollOver(lean_object*, lean_object*);
@@ -194,14 +196,12 @@ LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_addYearsClip___boxed(lean_obje
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_subMinutes(lean_object*, lean_object*);
 static lean_object* l_Std_Time_ZonedDateTime_instHSubOffset__1___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_addMilliseconds(lean_object*, lean_object*);
-extern lean_object* l_Std_Time_TimeZone_defaultZoneRules____x40_Std_Time_Zoned_ZoneRules_2220816387____hygCtx___hyg_31_;
 static lean_object* l_Std_Time_ZonedDateTime_instHAddOffset__5___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_withWeekday___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_instInhabitedZonedDateTime___private__1___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_withSeconds(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_addMonthsClip(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_addMonthsRollOver(lean_object*, lean_object*);
-extern lean_object* l_Std_Time_defaultTimeZone____x40_Std_Time_Zoned_TimeZone_3161280324____hygCtx___hyg_38_;
 static lean_object* l_Std_Time_ZonedDateTime_instHAddOffset__1___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_subDays___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_instHSubOffset__5;
@@ -215,7 +215,6 @@ LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_quarter(lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_instHAddOffset;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_instHAddOffset__3;
-extern lean_object* l_Std_Time_defaultPlainDateTime____x40_Std_Time_DateTime_PlainDateTime_219837899____hygCtx___hyg_253_;
 static lean_object* l_Std_Time_ZonedDateTime_instHSubOffset__4___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_instInhabitedZonedDateTime___private__1___lam__0(lean_object*);
 static lean_object* l_Std_Time_ZonedDateTime_instHSubOffset___closed__0;
@@ -243,6 +242,7 @@ LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_minute___boxed(lean_object*);
 lean_object* l_Std_Time_PlainDate_addMonthsRollOver(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_instHSubOffset;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_quarter___boxed(lean_object*);
+extern lean_object* l_Std_Time_instInhabitedTimeZone_default;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_withNanoseconds(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_instHSubOffset__4;
@@ -268,7 +268,7 @@ LEAN_EXPORT lean_object* l_Std_Time_instInhabitedZonedDateTime___private__1___la
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Std_Time_defaultPlainDateTime____x40_Std_Time_DateTime_PlainDateTime_219837899____hygCtx___hyg_253_;
+x_2 = l_Std_Time_instInhabitedPlainDateTime_default;
 return x_2;
 }
 }
@@ -276,7 +276,7 @@ static lean_object* _init_l_Std_Time_instInhabitedZonedDateTime___private__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_Time_defaultTimestamp____x40_Std_Time_DateTime_Timestamp_1067989854____hygCtx___hyg_201_;
+x_1 = l_Std_Time_instInhabitedTimestamp_default;
 return x_1;
 }
 }
@@ -284,7 +284,7 @@ static lean_object* _init_l_Std_Time_instInhabitedZonedDateTime___private__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_Time_TimeZone_defaultZoneRules____x40_Std_Time_Zoned_ZoneRules_2220816387____hygCtx___hyg_31_;
+x_1 = l_Std_Time_TimeZone_instInhabitedZoneRules_default;
 return x_1;
 }
 }
@@ -292,7 +292,7 @@ static lean_object* _init_l_Std_Time_instInhabitedZonedDateTime___private__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_Time_defaultTimeZone____x40_Std_Time_Zoned_TimeZone_3161280324____hygCtx___hyg_38_;
+x_1 = l_Std_Time_instInhabitedTimeZone_default;
 return x_1;
 }
 }

@@ -388,11 +388,14 @@ where
         return (some { eFmt with fmt := f!"```lean\n{eFmt.fmt}\n```" }, ← fmtModule? c)
       let eFmt ← Meta.ppExpr e
       -- Try not to show too scary internals
-      let showTerm := if let .fvar _ := e then
-        if let some ldecl := (← getLCtx).findFVar? e then
-          !ldecl.userName.hasMacroScopes
-        else false
-      else isAtomicFormat eFmt
+      let showTerm :=
+        if let .fvar _ := e then
+          if let some ldecl := (← getLCtx).findFVar? e then
+            !ldecl.userName.hasMacroScopes
+          else
+            false
+        else
+          isAtomicFormat eFmt
       let fmt := if showTerm then f!"{eFmt} : {tpFmt}" else tpFmt
       return (some f!"```lean\n{fmt}\n```", none)
     | Info.ofFieldInfo fi =>

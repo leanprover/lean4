@@ -353,7 +353,7 @@ def instantiateValueLevelParams (c : ConstantInfo) (us : List Level) : CoreM Exp
     if us == us' then
       return r
   unless c.hasValue do
-    throwError "Not a definition or theorem: {c.name}"
+    throwError "Not a definition or theorem: {.ofConstName c.name}"
   let r := c.instantiateValueLevelParams! us
   modifyInstLevelValueCache fun s => s.insert c.name (us, r)
   return r
@@ -408,7 +408,9 @@ itself after calling `act` as well as by reuse-handling code such as the one sup
 
 /-- Restore backtrackable parts of the state. -/
 def SavedState.restore (b : SavedState) : CoreM Unit :=
-  modify fun s => { s with env := b.env, messages := b.messages, infoState := b.infoState }
+  modify fun s => { s with
+      env := b.env, messages := b.messages, infoState := b.infoState
+      snapshotTasks := b.snapshotTasks }
 
 private def mkFreshNameImp (n : Name) : CoreM Name := do
   withFreshMacroScope do

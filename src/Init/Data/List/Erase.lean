@@ -130,7 +130,7 @@ theorem le_length_eraseP {l : List α} : l.length - 1 ≤ (l.eraseP p).length :=
 @[grind →]
 theorem mem_of_mem_eraseP {l : List α} : a ∈ l.eraseP p → a ∈ l := (eraseP_subset ·)
 
-@[simp, grind] theorem mem_eraseP_of_neg {l : List α} (pa : ¬p a) : a ∈ l.eraseP p ↔ a ∈ l := by
+@[simp, grind =] theorem mem_eraseP_of_neg {l : List α} (pa : ¬p a) : a ∈ l.eraseP p ↔ a ∈ l := by
   refine ⟨mem_of_mem_eraseP, fun al => ?_⟩
   match exists_or_eq_self_of_eraseP p l with
   | .inl h => rw [h]; assumption
@@ -265,13 +265,17 @@ theorem eraseP_eq_iff {p} {l : List α} :
         subst p
         simp_all
 
-@[grind ←]
 theorem Pairwise.eraseP (q) : Pairwise p l → Pairwise p (l.eraseP q) :=
   Pairwise.sublist <| eraseP_sublist
 
-@[grind ←]
+grind_pattern Pairwise.eraseP => Pairwise p (l.eraseP q)
+grind_pattern Pairwise.eraseP => Pairwise p l, l.eraseP q
+
 theorem Nodup.eraseP (p) : Nodup l → Nodup (l.eraseP p) :=
   Pairwise.eraseP p
+
+grind_pattern Nodup.eraseP => Nodup (l.eraseP p)
+grind_pattern Nodup.eraseP => Nodup l, l.eraseP p
 
 @[grind =]
 theorem eraseP_comm {l : List α} (h : ∀ a ∈ l, ¬ p a ∨ ¬ q a) :
@@ -393,7 +397,7 @@ theorem le_length_erase [LawfulBEq α] {a : α} {l : List α} : l.length - 1 ≤
 @[grind →]
 theorem mem_of_mem_erase {a b : α} {l : List α} (h : a ∈ l.erase b) : a ∈ l := erase_subset h
 
-@[simp, grind] theorem mem_erase_of_ne [LawfulBEq α] {a b : α} {l : List α} (ab : a ≠ b) :
+@[simp, grind =] theorem mem_erase_of_ne [LawfulBEq α] {a b : α} {l : List α} (ab : a ≠ b) :
     a ∈ l.erase b ↔ a ∈ l :=
   erase_eq_eraseP b l ▸ mem_eraseP_of_neg (mt eq_of_beq ab.symm)
 
@@ -508,9 +512,11 @@ theorem Nodup.not_mem_erase [LawfulBEq α] {a : α} (h : Nodup l) : a ∉ l.eras
 -- Only activate `not_mem_erase` when `l.Nodup` is already available.
 grind_pattern List.Nodup.not_mem_erase => a ∈ l.erase a, l.Nodup
 
-@[grind]
 theorem Nodup.erase [LawfulBEq α] (a : α) : Nodup l → Nodup (l.erase a) :=
   Pairwise.erase a
+
+grind_pattern Nodup.erase => Nodup (l.erase a)
+grind_pattern Nodup.erase => Nodup l, l.erase a
 
 theorem head_erase_mem (xs : List α) (a : α) (h) : (xs.erase a).head h ∈ xs :=
   erase_sublist.head_mem h
@@ -578,20 +584,20 @@ theorem eraseIdx_ne_nil_iff {l : List α} {i : Nat} : eraseIdx l i ≠ [] ↔ 2 
   | [a]
   | a::b::l => simp
 
-
-
-@[grind]
 theorem eraseIdx_sublist : ∀ (l : List α) (k : Nat), eraseIdx l k <+ l
   | [], _ => by simp
   | a::l, 0 => by simp
   | a::l, k + 1 => by simp [eraseIdx_sublist]
 
+grind_pattern eraseIdx_sublist => l.eraseIdx k, _ <+ l
+
 theorem mem_of_mem_eraseIdx {l : List α} {i : Nat} {a : α} (h : a ∈ l.eraseIdx i) : a ∈ l :=
   (eraseIdx_sublist _ _).mem h
 
-@[grind]
 theorem eraseIdx_subset {l : List α} {k : Nat} : eraseIdx l k ⊆ l :=
   (eraseIdx_sublist _ _).subset
+
+grind_pattern eraseIdx_sublist => l.eraseIdx k, _ ⊆ l
 
 @[simp]
 theorem eraseIdx_eq_self : ∀ {l : List α} {k : Nat}, eraseIdx l k = l ↔ length l ≤ k
@@ -649,15 +655,18 @@ theorem eraseIdx_replicate {n : Nat} {a : α} {k : Nat} :
     exact m.2
   · rw [eraseIdx_of_length_le (by simpa using h)]
 
-@[grind ←]
 theorem Pairwise.eraseIdx {l : List α} (k) : Pairwise p l → Pairwise p (l.eraseIdx k) :=
   Pairwise.sublist <| eraseIdx_sublist _ _
 
-@[grind ←]
+grind_pattern Pairwise.eraseIdx => Pairwise p (l.eraseIdx k)
+grind_pattern Pairwise.eraseIdx => Pairwise p l, l.eraseIdx k
+
 theorem Nodup.eraseIdx {l : List α} (k) : Nodup l → Nodup (l.eraseIdx k) :=
   Pairwise.eraseIdx k
 
-@[grind ←]
+grind_pattern Nodup.eraseIdx => Nodup (l.eraseIdx k)
+grind_pattern Nodup.eraseIdx => Nodup l, l.eraseIdx k
+
 protected theorem IsPrefix.eraseIdx {l l' : List α} (h : l <+: l') (k : Nat) :
     eraseIdx l k <+: eraseIdx l' k := by
   rcases h with ⟨t, rfl⟩
@@ -666,6 +675,10 @@ protected theorem IsPrefix.eraseIdx {l l' : List α} (h : l <+: l') (k : Nat) :
   else
     rw [Nat.not_lt] at hkl
     simp [eraseIdx_append_of_length_le hkl, eraseIdx_of_length_le hkl]
+
+grind_pattern IsPrefix.eraseIdx => eraseIdx l k <+: eraseIdx l' k
+grind_pattern IsPrefix.eraseIdx => eraseIdx l k, l <+: l'
+grind_pattern IsPrefix.eraseIdx => eraseIdx l' k, l <+: l'
 
 -- See also `mem_eraseIdx_iff_getElem` and `mem_eraseIdx_iff_getElem?` in
 -- `Init/Data/List/Nat/Basic.lean`.
@@ -685,7 +698,5 @@ theorem erase_eq_eraseIdx_of_idxOf [BEq α] [LawfulBEq α]
     refine ⟨h, ?_⟩
     rw [eq_comm, eraseIdx_eq_self]
     exact Nat.le_of_eq (idxOf_eq_length h).symm
-
-
 
 end List

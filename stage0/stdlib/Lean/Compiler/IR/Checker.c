@@ -36,6 +36,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_Checker_usizeSize;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_ReaderT_instFunctorOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_maxCtorScalarsSize;
+uint8_t l_Lean_IR_instBEqIRType_beq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_IR_Checker_markIndex_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_throwCheckerError___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_get_max_ctor_fields(lean_object*);
@@ -124,7 +125,6 @@ static lean_object* l_Lean_IR_Checker_markIndex___closed__1;
 static lean_object* l_Lean_IR_Checker_checkExpr___closed__5;
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_markIndex(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Checker_checkFullApp___closed__3;
-static lean_object* l_Lean_IR_Checker_throwCheckerError___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkFullApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_maxCtorTag;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at___Lean_IR_Checker_markIndex_spec__0___redArg___boxed(lean_object*, lean_object*);
@@ -137,7 +137,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_IR_Checker_throwCheckerEr
 LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_IR_Checker_throwCheckerError_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkPartialApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_IR_Checker_throwCheckerError___redArg___closed__4;
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_markIndex___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkEqTypes(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -154,7 +153,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkScalarVar(lean_object*, lean_obj
 lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_IR_beqIRType____x40_Lean_Compiler_IR_Basic_840659257____hygCtx___hyg_68_(lean_object*, lean_object*);
 lean_object* l_Lean_IR_instToFormatIRType___private__1(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Checker_getDecl___closed__0;
@@ -561,27 +559,10 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_IR_Checker_throwCheckerError___redArg___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("", 0, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_IR_Checker_throwCheckerError___redArg___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_IR_Checker_throwCheckerError___redArg___closed__4;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_throwCheckerError___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_7 = lean_ctor_get(x_2, 1);
 x_8 = l_Lean_IR_Decl_name(x_7);
 x_9 = l_Lean_IR_Checker_throwCheckerError___redArg___closed__1;
@@ -598,12 +579,8 @@ x_15 = l_Lean_stringToMessageData(x_1);
 x_16 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_15);
-x_17 = l_Lean_IR_Checker_throwCheckerError___redArg___closed__5;
-x_18 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_18, 0, x_16);
-lean_ctor_set(x_18, 1, x_17);
-x_19 = l_Lean_throwError___at___Lean_IR_Checker_throwCheckerError_spec__0___redArg(x_18, x_4, x_5, x_6);
-return x_19;
+x_17 = l_Lean_throwError___at___Lean_IR_Checker_throwCheckerError_spec__0___redArg(x_16, x_4, x_5, x_6);
+return x_17;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_throwCheckerError(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -1768,7 +1745,6 @@ lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean
 x_27 = l_Lean_IR_Checker_markIndex___closed__0;
 x_28 = l_Nat_reprFast(x_1);
 x_29 = lean_string_append(x_27, x_28);
-lean_dec_ref(x_28);
 x_30 = l_Lean_IR_Checker_markIndex___closed__1;
 x_31 = lean_string_append(x_29, x_30);
 x_32 = l_Lean_IR_Checker_throwCheckerError___redArg(x_31, x_2, x_3, x_4, x_5, x_19);
@@ -1917,7 +1893,6 @@ x_14 = l_Lean_IR_Checker_getDecl___closed__0;
 x_15 = 1;
 x_16 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_15);
 x_17 = lean_string_append(x_14, x_16);
-lean_dec_ref(x_16);
 x_18 = l_Lean_IR_Checker_getDecl___closed__1;
 x_19 = lean_string_append(x_17, x_18);
 x_20 = l_Lean_IR_Checker_throwCheckerError___redArg(x_19, x_2, x_3, x_4, x_5, x_10);
@@ -1956,7 +1931,6 @@ x_27 = l_Lean_IR_Checker_getDecl___closed__0;
 x_28 = 1;
 x_29 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_28);
 x_30 = lean_string_append(x_27, x_29);
-lean_dec_ref(x_29);
 x_31 = l_Lean_IR_Checker_getDecl___closed__1;
 x_32 = lean_string_append(x_30, x_31);
 x_33 = l_Lean_IR_Checker_throwCheckerError___redArg(x_32, x_2, x_3, x_4, x_5, x_23);
@@ -2041,9 +2015,7 @@ x_8 = l_Lean_IR_Checker_checkVar___closed__0;
 x_9 = l_Lean_IR_Checker_checkVar___closed__1;
 x_10 = l_Nat_reprFast(x_1);
 x_11 = lean_string_append(x_9, x_10);
-lean_dec_ref(x_10);
 x_12 = lean_string_append(x_8, x_11);
-lean_dec_ref(x_11);
 x_13 = l_Lean_IR_Checker_checkVar___closed__2;
 x_14 = lean_string_append(x_12, x_13);
 x_15 = l_Lean_IR_Checker_throwCheckerError___redArg(x_14, x_2, x_3, x_4, x_5, x_6);
@@ -2104,9 +2076,7 @@ x_9 = l_Lean_IR_Checker_checkJP___closed__0;
 x_10 = l_Lean_IR_Checker_checkJP___closed__1;
 x_11 = l_Nat_reprFast(x_1);
 x_12 = lean_string_append(x_10, x_11);
-lean_dec_ref(x_11);
 x_13 = lean_string_append(x_9, x_12);
-lean_dec_ref(x_12);
 x_14 = l_Lean_IR_Checker_checkVar___closed__2;
 x_15 = lean_string_append(x_13, x_14);
 x_16 = l_Lean_IR_Checker_throwCheckerError___redArg(x_15, x_2, x_3, x_4, x_5, x_6);
@@ -2296,7 +2266,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkEqTypes(lean_object* x_1, lean_o
 _start:
 {
 uint8_t x_8; 
-x_8 = l_Lean_IR_beqIRType____x40_Lean_Compiler_IR_Basic_840659257____hygCtx___hyg_68_(x_1, x_2);
+x_8 = l_Lean_IR_instBEqIRType_beq(x_1, x_2);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; 
@@ -2369,7 +2339,6 @@ x_13 = l_Lean_IR_Checker_checkType___closed__1;
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_format_pretty(x_12, x_13, x_14, x_14);
 x_16 = lean_string_append(x_11, x_15);
-lean_dec_ref(x_15);
 x_17 = l_Lean_IR_Checker_checkVar___closed__2;
 x_18 = lean_string_append(x_16, x_17);
 if (lean_obj_tag(x_3) == 0)
@@ -2383,6 +2352,8 @@ else
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_20 = lean_ctor_get(x_3, 0);
+lean_inc(x_20);
+lean_dec_ref(x_3);
 x_21 = l_Lean_IR_Checker_checkType___closed__2;
 x_22 = lean_string_append(x_18, x_21);
 x_23 = lean_string_append(x_22, x_20);
@@ -2394,6 +2365,7 @@ return x_24;
 else
 {
 lean_object* x_25; lean_object* x_26; 
+lean_dec(x_3);
 lean_dec(x_1);
 x_25 = lean_box(0);
 x_26 = lean_alloc_ctor(0, 2, 0);
@@ -2412,7 +2384,6 @@ lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
-lean_dec(x_3);
 return x_9;
 }
 }
@@ -2439,7 +2410,6 @@ x_11 = l_Lean_IR_Checker_checkType___closed__1;
 x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_format_pretty(x_10, x_11, x_12, x_12);
 x_14 = lean_string_append(x_9, x_13);
-lean_dec_ref(x_13);
 x_15 = l_Lean_IR_Checker_checkVar___closed__2;
 x_16 = lean_string_append(x_14, x_15);
 x_17 = l_Lean_IR_Checker_checkType___closed__2;
@@ -2496,7 +2466,6 @@ x_11 = l_Lean_IR_Checker_checkType___closed__1;
 x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_format_pretty(x_10, x_11, x_12, x_12);
 x_14 = lean_string_append(x_9, x_13);
-lean_dec_ref(x_13);
 x_15 = l_Lean_IR_Checker_checkVar___closed__2;
 x_16 = lean_string_append(x_14, x_15);
 x_17 = l_Lean_IR_Checker_checkType___closed__2;
@@ -2543,9 +2512,7 @@ x_9 = l_Lean_IR_Checker_checkVar___closed__0;
 x_10 = l_Lean_IR_Checker_checkVar___closed__1;
 x_11 = l_Nat_reprFast(x_1);
 x_12 = lean_string_append(x_10, x_11);
-lean_dec_ref(x_11);
 x_13 = lean_string_append(x_9, x_12);
-lean_dec_ref(x_12);
 x_14 = l_Lean_IR_Checker_checkVar___closed__2;
 x_15 = lean_string_append(x_13, x_14);
 x_16 = l_Lean_IR_Checker_throwCheckerError___redArg(x_15, x_2, x_3, x_4, x_5, x_6);
@@ -2605,7 +2572,6 @@ x_17 = l_Lean_IR_Checker_checkType___closed__1;
 x_18 = lean_unsigned_to_nat(0u);
 x_19 = lean_format_pretty(x_16, x_17, x_18, x_18);
 x_20 = lean_string_append(x_15, x_19);
-lean_dec_ref(x_19);
 x_21 = l_Lean_IR_Checker_checkVar___closed__2;
 x_22 = lean_string_append(x_20, x_21);
 if (lean_obj_tag(x_3) == 0)
@@ -2619,6 +2585,8 @@ else
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 x_24 = lean_ctor_get(x_3, 0);
+lean_inc(x_24);
+lean_dec_ref(x_3);
 x_25 = l_Lean_IR_Checker_checkType___closed__2;
 x_26 = lean_string_append(x_22, x_25);
 x_27 = lean_string_append(x_26, x_24);
@@ -2631,6 +2599,7 @@ else
 {
 lean_object* x_29; 
 lean_dec(x_11);
+lean_dec(x_3);
 x_29 = lean_box(0);
 lean_ctor_set(x_9, 0, x_29);
 return x_9;
@@ -2656,7 +2625,6 @@ x_36 = l_Lean_IR_Checker_checkType___closed__1;
 x_37 = lean_unsigned_to_nat(0u);
 x_38 = lean_format_pretty(x_35, x_36, x_37, x_37);
 x_39 = lean_string_append(x_34, x_38);
-lean_dec_ref(x_38);
 x_40 = l_Lean_IR_Checker_checkVar___closed__2;
 x_41 = lean_string_append(x_39, x_40);
 if (lean_obj_tag(x_3) == 0)
@@ -2670,6 +2638,8 @@ else
 {
 lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
 x_43 = lean_ctor_get(x_3, 0);
+lean_inc(x_43);
+lean_dec_ref(x_3);
 x_44 = l_Lean_IR_Checker_checkType___closed__2;
 x_45 = lean_string_append(x_41, x_44);
 x_46 = lean_string_append(x_45, x_43);
@@ -2682,6 +2652,7 @@ else
 {
 lean_object* x_48; lean_object* x_49; 
 lean_dec(x_30);
+lean_dec(x_3);
 x_48 = lean_box(0);
 x_49 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_49, 0, x_48);
@@ -2693,6 +2664,7 @@ return x_49;
 else
 {
 uint8_t x_50; 
+lean_dec(x_3);
 lean_dec_ref(x_2);
 x_50 = !lean_is_exclusive(x_9);
 if (x_50 == 0)
@@ -2724,7 +2696,6 @@ lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
-lean_dec(x_3);
 return x_9;
 }
 }
@@ -2754,7 +2725,6 @@ x_15 = l_Lean_IR_Checker_checkType___closed__1;
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_format_pretty(x_14, x_15, x_16, x_16);
 x_18 = lean_string_append(x_13, x_17);
-lean_dec_ref(x_17);
 x_19 = l_Lean_IR_Checker_checkVar___closed__2;
 x_20 = lean_string_append(x_18, x_19);
 x_21 = l_Lean_IR_Checker_checkType___closed__2;
@@ -2792,7 +2762,6 @@ x_32 = l_Lean_IR_Checker_checkType___closed__1;
 x_33 = lean_unsigned_to_nat(0u);
 x_34 = lean_format_pretty(x_31, x_32, x_33, x_33);
 x_35 = lean_string_append(x_30, x_34);
-lean_dec_ref(x_34);
 x_36 = l_Lean_IR_Checker_checkVar___closed__2;
 x_37 = lean_string_append(x_35, x_36);
 x_38 = l_Lean_IR_Checker_checkType___closed__2;
@@ -2876,7 +2845,6 @@ x_15 = l_Lean_IR_Checker_checkType___closed__1;
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_format_pretty(x_14, x_15, x_16, x_16);
 x_18 = lean_string_append(x_13, x_17);
-lean_dec_ref(x_17);
 x_19 = l_Lean_IR_Checker_checkVar___closed__2;
 x_20 = lean_string_append(x_18, x_19);
 x_21 = l_Lean_IR_Checker_checkType___closed__2;
@@ -2914,7 +2882,6 @@ x_32 = l_Lean_IR_Checker_checkType___closed__1;
 x_33 = lean_unsigned_to_nat(0u);
 x_34 = lean_format_pretty(x_31, x_32, x_33, x_33);
 x_35 = lean_string_append(x_30, x_34);
-lean_dec_ref(x_34);
 x_36 = l_Lean_IR_Checker_checkVar___closed__2;
 x_37 = lean_string_append(x_35, x_36);
 x_38 = l_Lean_IR_Checker_checkType___closed__2;
@@ -3031,17 +2998,14 @@ x_15 = l_Lean_IR_Checker_checkFullApp___closed__0;
 x_16 = 1;
 x_17 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_16);
 x_18 = lean_string_append(x_15, x_17);
-lean_dec_ref(x_17);
 x_19 = l_Lean_IR_Checker_checkFullApp___closed__1;
 x_20 = lean_string_append(x_18, x_19);
 x_21 = l_Nat_reprFast(x_11);
 x_22 = lean_string_append(x_20, x_21);
-lean_dec_ref(x_21);
 x_23 = l_Lean_IR_Checker_checkFullApp___closed__2;
 x_24 = lean_string_append(x_22, x_23);
 x_25 = l_Nat_reprFast(x_13);
 x_26 = lean_string_append(x_24, x_25);
-lean_dec_ref(x_25);
 x_27 = l_Lean_IR_Checker_checkFullApp___closed__3;
 x_28 = lean_string_append(x_26, x_27);
 x_29 = l_Lean_IR_Checker_throwCheckerError___redArg(x_28, x_3, x_4, x_5, x_6, x_10);
@@ -3147,17 +3111,14 @@ x_15 = l_Lean_IR_Checker_checkPartialApp___closed__0;
 x_16 = 1;
 x_17 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_16);
 x_18 = lean_string_append(x_15, x_17);
-lean_dec_ref(x_17);
 x_19 = l_Lean_IR_Checker_checkPartialApp___closed__1;
 x_20 = lean_string_append(x_18, x_19);
 x_21 = l_Nat_reprFast(x_11);
 x_22 = lean_string_append(x_20, x_21);
-lean_dec_ref(x_21);
 x_23 = l_Lean_IR_Checker_checkPartialApp___closed__2;
 x_24 = lean_string_append(x_22, x_23);
 x_25 = l_Nat_reprFast(x_13);
 x_26 = lean_string_append(x_24, x_25);
-lean_dec_ref(x_25);
 x_27 = l_Lean_IR_Checker_throwCheckerError___redArg(x_26, x_3, x_4, x_5, x_6, x_10);
 lean_dec_ref(x_26);
 return x_27;
@@ -3374,7 +3335,6 @@ lean_dec(x_1);
 x_30 = l_Lean_IR_Checker_checkExpr___closed__0;
 x_31 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_11, x_23);
 x_32 = lean_string_append(x_30, x_31);
-lean_dec_ref(x_31);
 x_33 = l_Lean_IR_Checker_checkExpr___closed__1;
 x_34 = lean_string_append(x_32, x_33);
 x_35 = l_Lean_IR_Checker_throwCheckerError___redArg(x_34, x_3, x_4, x_5, x_6, x_7);
@@ -3393,7 +3353,6 @@ lean_dec(x_1);
 x_36 = l_Lean_IR_Checker_checkExpr___closed__0;
 x_37 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_11, x_18);
 x_38 = lean_string_append(x_36, x_37);
-lean_dec_ref(x_37);
 x_39 = l_Lean_IR_Checker_checkExpr___closed__2;
 x_40 = lean_string_append(x_38, x_39);
 x_41 = l_Lean_IR_Checker_throwCheckerError___redArg(x_40, x_3, x_4, x_5, x_6, x_7);
@@ -3412,7 +3371,6 @@ lean_dec(x_1);
 x_42 = l_Lean_IR_Checker_checkExpr___closed__3;
 x_43 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_11, x_16);
 x_44 = lean_string_append(x_42, x_43);
-lean_dec_ref(x_43);
 x_45 = l_Lean_IR_Checker_checkExpr___closed__4;
 x_46 = lean_string_append(x_44, x_45);
 x_47 = l_Lean_IR_Checker_throwCheckerError___redArg(x_46, x_3, x_4, x_5, x_6, x_7);
@@ -3550,7 +3508,7 @@ lean_object* x_79; uint8_t x_80;
 x_79 = lean_array_fget(x_74, x_63);
 lean_dec(x_63);
 lean_dec_ref(x_74);
-x_80 = l_Lean_IR_beqIRType____x40_Lean_Compiler_IR_Basic_840659257____hygCtx___hyg_68_(x_79, x_1);
+x_80 = l_Lean_IR_instBEqIRType_beq(x_79, x_1);
 lean_dec(x_1);
 lean_dec(x_79);
 if (x_80 == 0)
@@ -3598,7 +3556,7 @@ lean_object* x_90; uint8_t x_91;
 x_90 = lean_array_fget(x_85, x_63);
 lean_dec(x_63);
 lean_dec_ref(x_85);
-x_91 = l_Lean_IR_beqIRType____x40_Lean_Compiler_IR_Basic_840659257____hygCtx___hyg_68_(x_90, x_1);
+x_91 = l_Lean_IR_instBEqIRType_beq(x_90, x_1);
 lean_dec(x_1);
 lean_dec(x_90);
 if (x_91 == 0)
@@ -3653,7 +3611,7 @@ lean_object* x_104; uint8_t x_105;
 x_104 = lean_array_fget(x_99, x_63);
 lean_dec(x_63);
 lean_dec_ref(x_99);
-x_105 = l_Lean_IR_beqIRType____x40_Lean_Compiler_IR_Basic_840659257____hygCtx___hyg_68_(x_104, x_1);
+x_105 = l_Lean_IR_instBEqIRType_beq(x_104, x_1);
 lean_dec(x_1);
 lean_dec(x_104);
 if (x_105 == 0)
@@ -3701,7 +3659,7 @@ lean_object* x_115; uint8_t x_116;
 x_115 = lean_array_fget(x_110, x_63);
 lean_dec(x_63);
 lean_dec_ref(x_110);
-x_116 = l_Lean_IR_beqIRType____x40_Lean_Compiler_IR_Basic_840659257____hygCtx___hyg_68_(x_115, x_1);
+x_116 = l_Lean_IR_instBEqIRType_beq(x_115, x_1);
 lean_dec(x_1);
 lean_dec(x_115);
 if (x_116 == 0)
@@ -3737,7 +3695,6 @@ x_124 = l_Lean_IR_Checker_checkType___closed__1;
 x_125 = lean_unsigned_to_nat(0u);
 x_126 = lean_format_pretty(x_123, x_124, x_125, x_125);
 x_127 = lean_string_append(x_122, x_126);
-lean_dec_ref(x_126);
 x_128 = l_Lean_IR_Checker_checkVar___closed__2;
 x_129 = lean_string_append(x_127, x_128);
 x_130 = l_Lean_IR_Checker_throwCheckerError___redArg(x_129, x_3, x_4, x_5, x_6, x_121);
@@ -3789,7 +3746,7 @@ x_138 = lean_ctor_get(x_136, 1);
 x_139 = lean_ctor_get(x_136, 0);
 lean_dec(x_139);
 x_140 = lean_box(5);
-x_141 = l_Lean_IR_beqIRType____x40_Lean_Compiler_IR_Basic_840659257____hygCtx___hyg_68_(x_1, x_140);
+x_141 = l_Lean_IR_instBEqIRType_beq(x_1, x_140);
 if (x_141 == 0)
 {
 lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; lean_object* x_149; lean_object* x_150; 
@@ -3800,7 +3757,6 @@ x_144 = l_Lean_IR_Checker_checkType___closed__1;
 x_145 = lean_unsigned_to_nat(0u);
 x_146 = lean_format_pretty(x_143, x_144, x_145, x_145);
 x_147 = lean_string_append(x_142, x_146);
-lean_dec_ref(x_146);
 x_148 = l_Lean_IR_Checker_checkVar___closed__2;
 x_149 = lean_string_append(x_147, x_148);
 x_150 = l_Lean_IR_Checker_throwCheckerError___redArg(x_149, x_3, x_4, x_5, x_6, x_138);
@@ -3823,7 +3779,7 @@ x_152 = lean_ctor_get(x_136, 1);
 lean_inc(x_152);
 lean_dec(x_136);
 x_153 = lean_box(5);
-x_154 = l_Lean_IR_beqIRType____x40_Lean_Compiler_IR_Basic_840659257____hygCtx___hyg_68_(x_1, x_153);
+x_154 = l_Lean_IR_instBEqIRType_beq(x_1, x_153);
 if (x_154 == 0)
 {
 lean_object* x_155; lean_object* x_156; lean_object* x_157; lean_object* x_158; lean_object* x_159; lean_object* x_160; lean_object* x_161; lean_object* x_162; lean_object* x_163; 
@@ -3833,7 +3789,6 @@ x_157 = l_Lean_IR_Checker_checkType___closed__1;
 x_158 = lean_unsigned_to_nat(0u);
 x_159 = lean_format_pretty(x_156, x_157, x_158, x_158);
 x_160 = lean_string_append(x_155, x_159);
-lean_dec_ref(x_159);
 x_161 = l_Lean_IR_Checker_checkVar___closed__2;
 x_162 = lean_string_append(x_160, x_161);
 x_163 = l_Lean_IR_Checker_throwCheckerError___redArg(x_162, x_3, x_4, x_5, x_6, x_152);
@@ -3990,7 +3945,7 @@ if (x_192 == 0)
 lean_object* x_193; lean_object* x_194; uint8_t x_195; 
 x_193 = lean_ctor_get(x_191, 0);
 x_194 = lean_ctor_get(x_191, 1);
-x_195 = l_Lean_IR_beqIRType____x40_Lean_Compiler_IR_Basic_840659257____hygCtx___hyg_68_(x_193, x_185);
+x_195 = l_Lean_IR_instBEqIRType_beq(x_193, x_185);
 lean_dec(x_185);
 if (x_195 == 0)
 {
@@ -4002,7 +3957,6 @@ x_198 = l_Lean_IR_Checker_checkType___closed__1;
 x_199 = lean_unsigned_to_nat(0u);
 x_200 = lean_format_pretty(x_197, x_198, x_199, x_199);
 x_201 = lean_string_append(x_196, x_200);
-lean_dec_ref(x_200);
 x_202 = l_Lean_IR_Checker_checkVar___closed__2;
 x_203 = lean_string_append(x_201, x_202);
 x_204 = l_Lean_IR_Checker_throwCheckerError___redArg(x_203, x_3, x_4, x_5, x_6, x_194);
@@ -4026,7 +3980,7 @@ x_207 = lean_ctor_get(x_191, 1);
 lean_inc(x_207);
 lean_inc(x_206);
 lean_dec(x_191);
-x_208 = l_Lean_IR_beqIRType____x40_Lean_Compiler_IR_Basic_840659257____hygCtx___hyg_68_(x_206, x_185);
+x_208 = l_Lean_IR_instBEqIRType_beq(x_206, x_185);
 lean_dec(x_185);
 if (x_208 == 0)
 {
@@ -4037,7 +3991,6 @@ x_211 = l_Lean_IR_Checker_checkType___closed__1;
 x_212 = lean_unsigned_to_nat(0u);
 x_213 = lean_format_pretty(x_210, x_211, x_212, x_212);
 x_214 = lean_string_append(x_209, x_213);
-lean_dec_ref(x_213);
 x_215 = l_Lean_IR_Checker_checkVar___closed__2;
 x_216 = lean_string_append(x_214, x_215);
 x_217 = l_Lean_IR_Checker_throwCheckerError___redArg(x_216, x_3, x_4, x_5, x_6, x_207);
@@ -4159,7 +4112,7 @@ x_235 = lean_ctor_get(x_233, 1);
 x_236 = lean_ctor_get(x_233, 0);
 lean_dec(x_236);
 x_237 = lean_box(1);
-x_238 = l_Lean_IR_beqIRType____x40_Lean_Compiler_IR_Basic_840659257____hygCtx___hyg_68_(x_1, x_237);
+x_238 = l_Lean_IR_instBEqIRType_beq(x_1, x_237);
 if (x_238 == 0)
 {
 lean_object* x_239; lean_object* x_240; lean_object* x_241; lean_object* x_242; lean_object* x_243; lean_object* x_244; lean_object* x_245; lean_object* x_246; lean_object* x_247; 
@@ -4170,7 +4123,6 @@ x_241 = l_Lean_IR_Checker_checkType___closed__1;
 x_242 = lean_unsigned_to_nat(0u);
 x_243 = lean_format_pretty(x_240, x_241, x_242, x_242);
 x_244 = lean_string_append(x_239, x_243);
-lean_dec_ref(x_243);
 x_245 = l_Lean_IR_Checker_checkVar___closed__2;
 x_246 = lean_string_append(x_244, x_245);
 x_247 = l_Lean_IR_Checker_throwCheckerError___redArg(x_246, x_3, x_4, x_5, x_6, x_235);
@@ -4193,7 +4145,7 @@ x_249 = lean_ctor_get(x_233, 1);
 lean_inc(x_249);
 lean_dec(x_233);
 x_250 = lean_box(1);
-x_251 = l_Lean_IR_beqIRType____x40_Lean_Compiler_IR_Basic_840659257____hygCtx___hyg_68_(x_1, x_250);
+x_251 = l_Lean_IR_instBEqIRType_beq(x_1, x_250);
 if (x_251 == 0)
 {
 lean_object* x_252; lean_object* x_253; lean_object* x_254; lean_object* x_255; lean_object* x_256; lean_object* x_257; lean_object* x_258; lean_object* x_259; lean_object* x_260; 
@@ -4203,7 +4155,6 @@ x_254 = l_Lean_IR_Checker_checkType___closed__1;
 x_255 = lean_unsigned_to_nat(0u);
 x_256 = lean_format_pretty(x_253, x_254, x_255, x_255);
 x_257 = lean_string_append(x_252, x_256);
-lean_dec_ref(x_256);
 x_258 = l_Lean_IR_Checker_checkVar___closed__2;
 x_259 = lean_string_append(x_257, x_258);
 x_260 = l_Lean_IR_Checker_throwCheckerError___redArg(x_259, x_3, x_4, x_5, x_6, x_249);
@@ -6008,10 +5959,6 @@ l_Lean_IR_Checker_throwCheckerError___redArg___closed__2 = _init_l_Lean_IR_Check
 lean_mark_persistent(l_Lean_IR_Checker_throwCheckerError___redArg___closed__2);
 l_Lean_IR_Checker_throwCheckerError___redArg___closed__3 = _init_l_Lean_IR_Checker_throwCheckerError___redArg___closed__3();
 lean_mark_persistent(l_Lean_IR_Checker_throwCheckerError___redArg___closed__3);
-l_Lean_IR_Checker_throwCheckerError___redArg___closed__4 = _init_l_Lean_IR_Checker_throwCheckerError___redArg___closed__4();
-lean_mark_persistent(l_Lean_IR_Checker_throwCheckerError___redArg___closed__4);
-l_Lean_IR_Checker_throwCheckerError___redArg___closed__5 = _init_l_Lean_IR_Checker_throwCheckerError___redArg___closed__5();
-lean_mark_persistent(l_Lean_IR_Checker_throwCheckerError___redArg___closed__5);
 l_Lean_IR_Checker_markIndex___closed__0 = _init_l_Lean_IR_Checker_markIndex___closed__0();
 lean_mark_persistent(l_Lean_IR_Checker_markIndex___closed__0);
 l_Lean_IR_Checker_markIndex___closed__1 = _init_l_Lean_IR_Checker_markIndex___closed__1();

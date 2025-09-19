@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.PP
-// Imports: Init.NotationExtra
+// Imports: Init.NotationExtra Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -245,7 +245,6 @@ x_19 = l_Lean_TSyntax_getNat(x_13);
 lean_dec(x_13);
 x_20 = l_Nat_reprFast(x_19);
 x_21 = lean_string_append(x_18, x_20);
-lean_dec_ref(x_20);
 x_22 = lean_box(0);
 x_23 = l_Lean_Name_str___override(x_22, x_21);
 x_24 = lean_mk_syntax_ident(x_23);
@@ -332,12 +331,16 @@ return x_4;
 }
 }
 lean_object* initialize_Init_NotationExtra(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_PP(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_NotationExtra(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Grind_nodeDefUnexpander___redArg___closed__0 = _init_l_Lean_Grind_nodeDefUnexpander___redArg___closed__0();

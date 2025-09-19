@@ -256,7 +256,6 @@ if (lean_obj_tag(x_7) == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_8 = l_Lean_loadPlugin___closed__0;
 x_9 = lean_string_append(x_8, x_5);
-lean_dec(x_5);
 x_10 = l_Lean_loadPlugin___closed__1;
 x_11 = lean_string_append(x_9, x_10);
 x_12 = lean_mk_io_user_error(x_11);
@@ -288,7 +287,6 @@ x_20 = l_Lean_loadPlugin___closed__3;
 x_21 = l_String_stripSuffix(x_19, x_20);
 x_22 = l_Lean_loadPlugin___closed__4;
 x_23 = lean_string_append(x_22, x_21);
-lean_dec_ref(x_21);
 x_24 = lean_dynlib_get(x_16, x_23);
 if (lean_obj_tag(x_24) == 0)
 {
@@ -296,7 +294,6 @@ lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean
 lean_dec(x_16);
 x_25 = l_Lean_loadPlugin___closed__5;
 x_26 = lean_string_append(x_25, x_23);
-lean_dec_ref(x_23);
 x_27 = l_Lean_loadPlugin___closed__1;
 x_28 = lean_string_append(x_26, x_27);
 x_29 = lean_mk_io_user_error(x_28);
@@ -337,7 +334,6 @@ x_38 = l_Lean_loadPlugin___closed__3;
 x_39 = l_String_stripSuffix(x_37, x_38);
 x_40 = l_Lean_loadPlugin___closed__4;
 x_41 = lean_string_append(x_40, x_39);
-lean_dec_ref(x_39);
 x_42 = lean_dynlib_get(x_34, x_41);
 if (lean_obj_tag(x_42) == 0)
 {
@@ -345,7 +341,6 @@ lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean
 lean_dec(x_34);
 x_43 = l_Lean_loadPlugin___closed__5;
 x_44 = lean_string_append(x_43, x_41);
-lean_dec_ref(x_41);
 x_45 = l_Lean_loadPlugin___closed__1;
 x_46 = lean_string_append(x_44, x_45);
 x_47 = lean_mk_io_user_error(x_46);
@@ -413,7 +408,6 @@ if (lean_obj_tag(x_59) == 0)
 lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; 
 x_60 = l_Lean_loadPlugin___closed__0;
 x_61 = lean_string_append(x_60, x_57);
-lean_dec(x_57);
 x_62 = l_Lean_loadPlugin___closed__1;
 x_63 = lean_string_append(x_61, x_62);
 x_64 = lean_mk_io_user_error(x_63);
@@ -451,7 +445,6 @@ x_73 = l_Lean_loadPlugin___closed__3;
 x_74 = l_String_stripSuffix(x_72, x_73);
 x_75 = l_Lean_loadPlugin___closed__4;
 x_76 = lean_string_append(x_75, x_74);
-lean_dec_ref(x_74);
 x_77 = lean_dynlib_get(x_68, x_76);
 if (lean_obj_tag(x_77) == 0)
 {
@@ -459,7 +452,6 @@ lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean
 lean_dec(x_68);
 x_78 = l_Lean_loadPlugin___closed__5;
 x_79 = lean_string_append(x_78, x_76);
-lean_dec_ref(x_76);
 x_80 = l_Lean_loadPlugin___closed__1;
 x_81 = lean_string_append(x_79, x_80);
 x_82 = lean_mk_io_user_error(x_81);

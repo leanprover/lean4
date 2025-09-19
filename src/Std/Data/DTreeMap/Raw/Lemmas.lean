@@ -255,6 +255,10 @@ theorem isSome_get?_iff_mem [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α}
     (t.get? a).isSome ↔ a ∈ t :=
   (mem_iff_isSome_get? h).symm
 
+theorem get?_eq_some_iff [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} {v : β k} :
+    t.get? k = some v ↔ ∃ h, t.get k h = v :=
+  Impl.get?_eq_some_iff h
+
 theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} :
     t.contains a = false → t.get? a = none :=
   Impl.get?_eq_none_of_contains_eq_false h
@@ -307,6 +311,10 @@ theorem isSome_get?_eq_contains [TransCmp cmp] (h : t.WF) {a : α} :
 theorem mem_iff_isSome_get? [TransCmp cmp] (h : t.WF) {a : α} :
     a ∈ t ↔ (get? t a).isSome :=
   Impl.Const.mem_iff_isSome_get? h
+
+theorem get?_eq_some_iff [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
+    get? t k = some v ↔ ∃ h, get t k h = v :=
+  Impl.Const.get?_eq_some_iff h
 
 @[simp]
 theorem isSome_get?_iff_mem [TransCmp cmp] (h : t.WF) {a : α} :
@@ -696,6 +704,10 @@ theorem isSome_getKey?_iff_mem [TransCmp cmp] (h : t.WF) {a : α} :
 theorem mem_of_getKey?_eq_some [TransCmp cmp] (h : t.WF) {k k' : α} :
     t.getKey? k = some k' → k' ∈ t :=
   Impl.mem_of_getKey?_eq_some h
+
+theorem getKey?_eq_some_iff [TransCmp cmp] (h : t.WF) {k k' : α} :
+    getKey? t k = some k' ↔ ∃ h, getKey t k h = k' :=
+  Impl.getKey?_eq_some_iff h
 
 theorem getKey?_eq_none_of_contains_eq_false [TransCmp cmp] (h : t.WF) {a : α} :
     t.contains a = false → t.getKey? a = none :=
@@ -3231,10 +3243,11 @@ theorem contains_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpt
     t.contains t.minKey! :=
   Impl.contains_minKey! h he
 
-@[grind]
 theorem minKey!_mem [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) :
     t.minKey! ∈ t :=
   Impl.minKey!_mem h he
+
+grind_pattern contains_minKey! => t.contains t.minKey!
 
 theorem minKey!_le_of_contains [TransCmp cmp] [Inhabited α] (h : t.WF) {k} (hc : t.contains k) :
     cmp t.minKey! k |>.isLE :=
@@ -3380,6 +3393,8 @@ theorem contains_minKeyD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fal
 theorem minKeyD_mem [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback} :
     t.minKeyD fallback ∈ t :=
   Impl.minKeyD_mem h he
+
+grind_pattern minKeyD_mem => t.minKeyD fallback ∈ t
 
 theorem minKeyD_le_of_contains [TransCmp cmp] (h : t.WF) {k} (hc : t.contains k) {fallback} :
     cmp (t.minKeyD fallback) k |>.isLE :=
@@ -3728,10 +3743,11 @@ theorem contains_maxKey! [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpt
     t.contains t.maxKey! :=
   Impl.contains_maxKey! h he
 
-@[grind]
 theorem maxKey!_mem [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) :
     t.maxKey! ∈ t :=
   Impl.maxKey!_mem h he
+
+grind_pattern contains_maxKey! => t.contains t.maxKey!
 
 theorem le_maxKey!_of_contains [TransCmp cmp] [Inhabited α] (h : t.WF) {k} (hc : t.contains k) :
     cmp k t.maxKey! |>.isLE :=
@@ -3875,10 +3891,11 @@ theorem contains_maxKeyD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fal
     t.contains (t.maxKeyD fallback) :=
   Impl.contains_maxKeyD h he
 
-@[grind]
 theorem maxKeyD_mem [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback} :
     t.maxKeyD fallback ∈ t :=
   Impl.maxKeyD_mem h he
+
+grind_pattern maxKeyD_mem => t.maxKeyD fallback ∈ t
 
 theorem le_maxKeyD_of_contains [TransCmp cmp] (h : t.WF) {k} (hc : t.contains k) {fallback} :
     cmp k (t.maxKeyD fallback) |>.isLE :=

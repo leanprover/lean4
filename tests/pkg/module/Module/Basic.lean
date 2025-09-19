@@ -1,5 +1,7 @@
 module
 
+meta import Init.Dynamic
+
 public axiom testSorry : α
 
 /-! Module docstring -/
@@ -41,6 +43,20 @@ public theorem t : f = 1 := testSorry
 /-- A private definition. -/
 def fpriv := 1
 
+public section
+/-- Examples are always private. -/
+example : fpriv = 1 := rfl
+
+/--
+error: Unknown identifier `fpriv`
+
+Note: A private declaration `fpriv` (from the current module) exists but would need to be public to access here.
+-/
+#guard_msgs in
+/-- ...unless explicitly marked `public`. -/
+public example : fpriv = 1 := rfl
+end
+
 /--
 error: Unknown identifier `fpriv`
 
@@ -53,6 +69,7 @@ public class X
 
 /-- A local instance of a public class. -/
 instance : X := ⟨⟩
+
 
 -- Check that the theorem types are checked in exported context, where `f` is not defeq to `1`
 -- (but `fexp` is)
@@ -349,15 +366,26 @@ constructor:
 section
 set_option pp.oneline true
 /--
-info: private def OptParamStruct.pauto._autoParam : Lean.Syntax :=
+info: private meta def OptParamStruct.pauto._autoParam : Lean.Syntax :=
 Lean.Syntax.node Lean.SourceInfo.none `Lean.Parser.Tactic.tacticSeq [...]
 -/
 #guard_msgs in
 #print OptParamStruct.pauto._autoParam
 /--
-info: @[expose] def OptParamStruct.auto._autoParam : Lean.Syntax :=
+info: @[expose] meta def OptParamStruct.auto._autoParam : Lean.Syntax :=
 Lean.Syntax.node Lean.SourceInfo.none `Lean.Parser.Tactic.tacticSeq [...]
 -/
 #guard_msgs in
 #print OptParamStruct.auto._autoParam
 end
+
+/-! `deriving` should derive `meta` defs on `meta` structures. -/
+meta structure Foo where
+deriving TypeName
+
+/--
+info: private meta def instTypeNameFoo : TypeName Foo :=
+inst✝
+-/
+#guard_msgs in
+#print instTypeNameFoo

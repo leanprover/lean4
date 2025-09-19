@@ -46,6 +46,8 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref
     ref := ref
     name := attrName
     descr := "initialization procedure for global references"
+    -- We want to run `[init]` in declaration order
+    preserveOrder := true
     getParam := fun declName stx => do
       let decl ← getConstInfo declName
       match (← Attribute.Builtin.getIdent? stx) with
@@ -64,7 +66,6 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref
       let ctx ← read
       if runAfterImport && (← isInitializerExecutionEnabled) then
         for mod in ctx.env.header.moduleNames,
-            modData in ctx.env.header.moduleData,
             modEntries in entries do
           -- any native Lean code reachable by the interpreter (i.e. from shared
           -- libraries with their corresponding module in the Environment) must
@@ -83,14 +84,14 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref
           if (← interpretedModInits.get).contains mod then
             continue
           interpretedModInits.modify (·.insert mod)
-          for c in modData.constNames do
-            -- make sure to run initializers in declaration order, not extension state order, to respect dependencies
-            if let some (decl, initDecl) := modEntries.binSearch (c, default) (Name.quickLt ·.1 ·.1) then
-              if initDecl.isAnonymous then
-                let initFn ← IO.ofExcept <| ctx.env.evalConst (IO Unit) ctx.opts decl
-                initFn
-              else
-                runInit ctx.env ctx.opts decl initDecl
+          for (decl, initDecl) in modEntries do
+            if getIRPhases ctx.env decl == .runtime then
+              continue
+            if initDecl.isAnonymous then
+              let initFn ← IO.ofExcept <| ctx.env.evalConst (IO Unit) ctx.opts decl
+              initFn
+            else
+              runInit ctx.env ctx.opts decl initDecl
   }
 
 @[implemented_by registerInitAttrUnsafe]

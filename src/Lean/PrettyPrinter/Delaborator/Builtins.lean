@@ -10,10 +10,11 @@ public import Lean.PrettyPrinter.Delaborator.Attributes
 public import Lean.PrettyPrinter.Delaborator.Basic
 public import Lean.PrettyPrinter.Delaborator.SubExpr
 public import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
-public import Lean.Parser.Term
-meta import Lean.Parser.Command
 public import Lean.Meta.CoeAttr
 public import Lean.Meta.Structure
+import Lean.Parser.Command
+meta import Lean.Parser.Do
+meta import Lean.Parser.Command
 
 public section
 
@@ -862,8 +863,7 @@ Return `true` iff current binder should be merged with the nested
 binder, if any, into a single binder group:
 * both binders must have same binder info and domain
 * they cannot be inst-implicit (`[a b : A]` is not valid syntax)
-* `pp.binderTypes` must be the same value for both terms
-* prefer `fun a b` over `fun (a b)`
+* `pp.XXBinderTypes` must be the same value for both terms
 -/
 private def shouldGroupWithNext : DelabM Bool := do
   let e ← getExpr
@@ -873,8 +873,7 @@ private def shouldGroupWithNext : DelabM Bool := do
     pure $ e.binderInfo == e'.binderInfo &&
       e.bindingDomain! == e'.bindingDomain! &&
       e'.binderInfo != BinderInfo.instImplicit &&
-      ppEType == ppE'Type &&
-      (e'.binderInfo != BinderInfo.default || ppE'Type)
+      ppEType == ppE'Type
   match e with
   | Expr.lam _ _     e'@(Expr.lam _ _ _ _) _     => go e'
   | Expr.forallE _ _ e'@(Expr.forallE _ _ _ _) _ => go e'
@@ -883,26 +882,39 @@ where
   getPPBinderTypes (e : Expr) :=
     if e.isForall then getPPPiBinderTypes else getPPFunBinderTypes
 
-private partial def delabBinders (delabGroup : Array Syntax → Syntax → Delab) : optParam (Array Syntax) #[] → Delab
-  -- Accumulate names (`Syntax.ident`s with position information) of the current, unfinished
-  -- binder group `(d e ...)` as determined by `shouldGroupWithNext`. We cannot do grouping
-  -- inside-out, on the Syntax level, because it depends on comparing the Expr binder types.
-  | curNames => do
-    if ← shouldGroupWithNext then
-      -- group with nested binder => recurse immediately
-      withBindingBodyUnusedName fun stxN => delabBinders delabGroup (curNames.push stxN)
-    else
-      -- don't group => delab body and prepend current binder group
-      let (stx, stxN) ← withBindingBodyUnusedName fun stxN => return (← delab, stxN)
-      delabGroup (curNames.push stxN) stx
+/--
+Accumulate names (`Syntax.ident`s with position information) of the current, unfinished
+binder group `(d e ...)` as determined by `shouldGroupWithNext`. We cannot do grouping
+inside-out, on the Syntax level, because it depends on comparing the Expr binder types.
 
-@[builtin_delab lam]
-def delabLam : Delab :=
-  delabBinders fun curNames stxBody => do
+The `allNames` set is used to make sure names in the same `fun` binders are unique.
+Users have reported than `fun x x x => x` is confusing.
+-/
+private partial def delabBinders (allNames : NameSet) (curNames : Array Syntax) (dep ppTypes : Bool)
+    (delabBody : NameSet → Delab)
+    (delabGroup : NameSet → Array Syntax → (dep ppTypes : Bool) → Syntax → Delab) : Delab := do
+  let dep := dep || (← getExpr).bindingBody!.hasLooseBVars
+  let ppTypes ← pure ppTypes <||> getPPOption getPPFunBinderTypes
+  if ← shouldGroupWithNext then
+    -- group with nested binder => recurse immediately
+    withBindingBodyUnusedName (avoid := allNames) fun stxN => delabBinders (allNames.insert stxN.getId) (curNames.push stxN) dep ppTypes delabBody delabGroup
+  else
+    -- don't group => delab body and prepend current binder group
+    let (allNames', curNames', stx) ← withBindingBodyUnusedName (avoid := allNames) fun stxN =>
+      let allNames' := allNames.insert stxN.getId
+      let curNames' := curNames.push stxN
+      return (allNames', curNames', ← delabBody allNames')
+    delabGroup allNames' curNames' dep ppTypes stx
+
+private partial def delabLamAux (allNames : NameSet) : Delab := do
+  let delabBody (allNames' : NameSet) : Delab := do
+    if (← getExpr).isLambda then
+      delabLamAux allNames'
+    else
+      delab
+  delabBinders allNames #[] false false delabBody fun _ curNames dep ppTypes stxBody => do
     let e ← getExpr
-    let stxT ← withBindingDomain delab
-    let ppTypes ← getPPOption getPPFunBinderTypes
-    let usedDownstream := curNames.any (fun n => stxBody.hasIdent n.getId)
+    let mstxT := withBindingDomain delab
 
     -- leave lambda implicit if possible
     -- TODO: for now we just always block implicit lambdas when delaborating. We can revisit.
@@ -916,46 +928,50 @@ def delabLam : Delab :=
       -- but this condition may still not be perfectly in sync with the elaborator.
       e.binderInfo == BinderInfo.instImplicit ||
       Elab.Term.blockImplicitLambda stxBody ||
-      usedDownstream
+      dep
     -/
 
     if !blockImplicitLambda then
       pure stxBody
     else
-      let defaultCase (_ : Unit) : Delab := do
-        if ppTypes then
-          -- "default" binder group is the only one that expects binder names
-          -- as a term, i.e. a single `Syntax.ident` or an application thereof
-          let stxCurNames ←
-            if h : curNames.size > 1 then
-              `($(curNames[0]!) $(curNames.eraseIdx 0)*)
-            else
-              pure $ curNames[0]!;
-          `(funBinder| ($stxCurNames : $stxT))
-        else
-          pure curNames.back!  -- here `curNames.size == 1`
-      let group ← match e.binderInfo, ppTypes with
-        | BinderInfo.default,        _      => defaultCase ()
-        | BinderInfo.implicit,       true   => `(funBinder| {$curNames* : $stxT})
-        | BinderInfo.implicit,       false  => `(funBinder| {$curNames*})
-        | BinderInfo.strictImplicit, true   => `(funBinder| ⦃$curNames* : $stxT⦄)
-        | BinderInfo.strictImplicit, false  => `(funBinder| ⦃$curNames*⦄)
-        | BinderInfo.instImplicit,   _     =>
-          if usedDownstream then `(funBinder| [$curNames.back! : $stxT])  -- here `curNames.size == 1`
-          else  `(funBinder| [$stxT])
-      let (binders, stxBody) :=
+      let mut (binders, stxBody) :=
         match stxBody with
-        | `(fun $binderGroups* => $stxBody) => (#[group] ++ binderGroups, stxBody)
-        | _                                 => (#[group], stxBody)
+        | `(fun $binderGroups* => $stxBody) => (binderGroups, stxBody)
+        | _                                 => (#[], stxBody)
+      if e.binderInfo.isExplicit && !ppTypes then
+        binders := curNames ++ binders
+      else
+        let newBinder : TSyntax ``Lean.Parser.Term.funBinder ←
+          match e.binderInfo, ppTypes with
+          | BinderInfo.default, _ =>
+            -- "default" binder group is the only one that expects binder names as a term,
+            -- i.e. a single `Syntax.ident` or an application.
+            let stxCurNames := Syntax.mkApp curNames[0]! curNames[1:]
+            `(funBinder| ($stxCurNames : $(← mstxT)))
+          | BinderInfo.implicit, true  => `(funBinder| {$curNames* : $(← mstxT)})
+          | BinderInfo.implicit, false => `(funBinder| {$curNames*})
+          | BinderInfo.strictImplicit, true  => `(funBinder| ⦃$curNames* : $(← mstxT)⦄)
+          | BinderInfo.strictImplicit, false => `(funBinder| ⦃$curNames*⦄)
+          | BinderInfo.instImplicit, _ =>
+            -- here `curNames.size == 1`
+            -- Approximation: if the name does not appear in the pretty printed body
+            -- then don't use the name, even if it is dependent.
+            if dep && curNames.any (fun n => stxBody.raw.hasIdent n.getId) then
+              `(funBinder| [$curNames.back! : $(← mstxT)])
+            else
+              `(funBinder| [$(← mstxT)])
+        binders := #[newBinder] ++ binders
       if ← getPPOption getPPUnicodeFun then
         `(fun $binders* ↦ $stxBody)
       else
         `(fun $binders* => $stxBody)
 
+@[builtin_delab lam]
+def delabLam : Delab :=
+  delabLamAux {}
+
 /-- Don't do any renaming for forall binders, but do add fresh macro scopes when there is shadowing. -/
 private def ppPiPreserveNames := `pp.piPreserveNames
-/-- Causes non-dependent foralls to print with binder names. -/
-private def ppPiBinderNames := `pp.piBinderNames
 
 /--
 Similar to `delabBinders`, but tracking whether `forallE` is dependent or not.
@@ -964,7 +980,11 @@ See issue #1571
 -/
 private partial def delabForallBinders (prop : Bool) (delabGroup : Array Syntax → Bool → Syntax → Delab) (curNames : Array Syntax := #[]) (curDep := false) : Delab := do
   -- Logic note: wanting to print with binder names is equivalent to pretending the forall is dependent.
-  let mut dep := !(← getExpr).isArrow || (← getOptionsAtCurrPos).get ppPiBinderNames false
+  let opts ← getOptionsAtCurrPos
+  let mut dep :=
+    !(← getExpr).isArrow
+    || (getPPPiBinderNames opts
+        && (!(← getExpr).bindingName!.hasMacroScopes || getPPPiBinderNamesHygienic opts))
   if !dep && prop && (← getExpr).binderInfo.isExplicit then
     -- RFC #1834: If `∀` notation is enabled, avoid using `→` for propositions if the domain is not a proposition.
     -- We can pretend the type is dependent in this case.
@@ -975,7 +995,7 @@ private partial def delabForallBinders (prop : Bool) (delabGroup : Array Syntax 
     -- don't group
     delabGroup curNames curDep (← delab)
   else
-    let preserve := (← getOptionsAtCurrPos).get ppPiPreserveNames false
+    let preserve := opts.get ppPiPreserveNames false
     let curDep := dep
     if ← shouldGroupWithNext then
       -- group with nested binder => recurse immediately
@@ -990,25 +1010,26 @@ def delabForall : Delab := do
   let prop ← try isProp (← getExpr) catch _ => pure false
   delabForallBinders prop fun curNames dependent stxBody => do
     let e ← getExpr
-    let stxT ← withBindingDomain delab
+    let mstxT := withBindingDomain delab
     let group ← match e.binderInfo with
-    | BinderInfo.implicit       => `(bracketedBinderF|{$curNames* : $stxT})
-    | BinderInfo.strictImplicit => `(bracketedBinderF|⦃$curNames* : $stxT⦄)
+    | BinderInfo.implicit       => `(bracketedBinderF|{$curNames* : $(← mstxT)})
+    | BinderInfo.strictImplicit => `(bracketedBinderF|⦃$curNames* : $(← mstxT)⦄)
     | BinderInfo.instImplicit   =>
       -- here `curNames.size == 1`
       if dependent || !e.bindingName!.hasMacroScopes then
-        `(bracketedBinderF|[$curNames.back! : $stxT])
+        `(bracketedBinderF|[$curNames.back! : $(← mstxT)])
       else
         -- omit the binder name if it's not used and not accessible
-        `(bracketedBinderF|[$stxT])
-    | _                         =>
+        `(bracketedBinderF|[$(← mstxT)])
+    | BinderInfo.default        =>
       -- NOTE: non-dependent arrows are available only for the default binder info
       if dependent then
         if prop && !(← getPPOption getPPPiBinderTypes) && (← getPPOption getPPForalls) then
           return ← `(∀ $curNames:ident*, $stxBody)
         else
-          `(bracketedBinderF|($curNames* : $stxT))
+          `(bracketedBinderF|($curNames* : $(← mstxT)))
       else
+        let stxT ← mstxT
         return ← curNames.foldrM (fun _ stxBody => `($stxT → $stxBody)) stxBody
     if prop && (← getPPOption getPPForalls) then
       match stxBody with
@@ -1442,7 +1463,7 @@ def delabSorry : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExp
 open Parser Command Term in
 @[run_builtin_parser_attribute_hooks]
 -- use `termParser` instead of `declId` so we can reuse `delabConst`
-meta def declSigWithId := leading_parser termParser maxPrec >> declSig
+def declSigWithId := leading_parser termParser maxPrec >> declSig
 
 private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax :=
   env.evalConstCheck Syntax opts ``Syntax constName
@@ -1554,7 +1575,7 @@ where
         if n.hasMacroScopes then
           return (opts, .forallE n t b' bi)
         else if !used then
-          let opts := opts.insertAt subExpr.pos ppPiBinderNames true
+          let opts := opts.insertAt subExpr.pos pp.piBinderNames.name true
           return (opts, .forallE n t b' bi)
         else
           let n' ← withFreshMacroScope <| MonadQuotation.addMacroScope n

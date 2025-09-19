@@ -79,7 +79,7 @@ theorem getElem_of_getLsbD_eq_true {x : BitVec w} {i : Nat} (h : x.getLsbD i = t
 This normalized a bitvec using `ofFin` to `ofNat`.
 -/
 theorem ofFin_eq_ofNat : @BitVec.ofFin w (Fin.mk x lt) = BitVec.ofNat w x := by
-  simp only [BitVec.ofNat, Fin.ofNat, lt, Nat.mod_eq_of_lt]
+  simp only [BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, lt, Nat.mod_eq_of_lt]
 
 /-- Prove nonequality of bitvectors in terms of nat operations. -/
 theorem toNat_ne_iff_ne {n} {x y : BitVec n} : x.toNat ≠ y.toNat ↔ x ≠ y := by
@@ -212,7 +212,7 @@ theorem length_pos_of_ne {x y : BitVec w} (h : x ≠ y) : 0 < w := by grind
 
 theorem ofFin_ofNat (n : Nat) :
     ofFin (no_index (OfNat.ofNat n : Fin (2^w))) = OfNat.ofNat n := by
-  simp only [OfNat.ofNat, Fin.ofNat, BitVec.ofNat]
+  simp only [OfNat.ofNat, Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, BitVec.ofNat]
 
 -- We use a `grind_pattern` as `@[grind]` will not use the `no_index` term.
 grind_pattern ofFin_ofNat => ofFin (OfNat.ofNat n : Fin (2^w))
@@ -337,7 +337,7 @@ theorem sub_sub_toNat_cancel {x : BitVec w} :
 theorem sub_add_bmod_cancel {x y : BitVec w} :
     ((((2 ^ w : Nat) - y.toNat) : Int) + x.toNat).bmod (2 ^ w) =
       ((x.toNat : Int) - y.toNat).bmod (2 ^ w) := by
-  grind [Int.add_bmod_right] -- TODO: teach `grind` about Int.bmod
+  grind [=_ Int.add_bmod_right] -- TODO: teach `grind` about Int.bmod
 
 private theorem lt_two_pow_of_le {x m n : Nat} (lt : x < 2 ^ m) (le : m ≤ n) : x < 2 ^ n :=
   Nat.lt_of_lt_of_le lt (Nat.pow_le_pow_right (by trivial : 0 < 2) le)

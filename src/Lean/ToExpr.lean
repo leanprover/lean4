@@ -260,12 +260,4 @@ instance : ToExpr Syntax.Preresolved where
     | .namespace ns => mkApp (.const ``Syntax.Preresolved.namespace []) (toExpr ns)
     | .decl a ls => mkApp2 (.const ``Syntax.Preresolved.decl []) (toExpr a) (toExpr ls)
 
-def Expr.toCtorIfLit : Expr → Expr
-  | .lit (.natVal v) =>
-    if v == 0 then mkConst ``Nat.zero
-    else mkApp (mkConst ``Nat.succ) (mkRawNatLit (v-1))
-  | .lit (.strVal v) =>
-    mkApp (mkConst ``String.mk) (toExpr v.toList)
-  | e => e
-
 end Lean

@@ -10,7 +10,8 @@ import all Std.Data.Internal.List.Associative
 import all Std.Data.DHashMap.Internal.Defs
 public import Std.Data.DHashMap.Internal.WF
 import all Std.Data.DHashMap.Raw
-meta import all Std.Data.DHashMap.Basic
+import all Std.Data.DHashMap.Basic
+meta import Std.Data.DHashMap.Basic
 
 public section
 
@@ -113,7 +114,7 @@ scoped macro "empty" : tactic => `(tactic| { intros; simp_all [List.isEmpty_iff]
 
 open Lean
 
-private def modifyMap : Std.DHashMap Name (fun _ => Name) :=
+private meta def modifyMap : Std.DHashMap Name (fun _ => Name) :=
   .ofList
     [⟨`insert, ``toListModel_insert⟩,
      ⟨`erase, ``toListModel_erase⟩,
@@ -137,7 +138,7 @@ private theorem perm_keys_congr_left {α : Type u} {β : α → Type v} {l l' : 
     {l₂ : List α} (h : l.Perm l') : (List.keys l).Perm l₂ ↔ (List.keys l').Perm l₂ := by
   simp [List.keys_eq_map, perm_map_congr_left h]
 
-private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSyntax `term))) :=
+private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSyntax `term))) :=
   .ofList
     [⟨`isEmpty, (``Raw.isEmpty_eq_isEmpty, #[`(_root_.List.Perm.isEmpty_eq)])⟩,
      ⟨`contains, (``contains_eq_containsKey, #[`(containsKey_of_perm)])⟩,
@@ -334,6 +335,10 @@ theorem contains_eq_isSome_get? [LawfulBEq α] (h : m.1.WF) {a : α} :
     m.contains a = (m.get? a).isSome := by
   simp_to_model [contains, get?] using List.containsKey_eq_isSome_getValueCast?
 
+theorem get?_eq_some_iff [LawfulBEq α] (h : m.1.WF) {k : α} {v : β k} :
+    m.get? k = some v ↔ ∃ h : m.contains k, m.get k h = v := by
+  simp_to_model [contains, get?, get] using List.getValueCast?_eq_some_iff
+
 theorem get?_eq_none [LawfulBEq α] (h : m.1.WF) {a : α} :
     m.contains a = false → m.get? a = none := by
   simp_to_model [contains, get?] using List.getValueCast?_eq_none
@@ -372,6 +377,10 @@ theorem get?_insert_self [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α}
 theorem contains_eq_isSome_get? [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} :
     m.contains a = (get? m a).isSome := by
   simp_to_model [contains, Const.get?] using List.containsKey_eq_isSome_getValue?
+
+theorem get?_eq_some_iff [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} {v : β} :
+    get? m k = some v ↔ ∃ h : m.contains k, get m k h = v := by
+  simp_to_model [contains, Const.get?, Const.get] using List.getValue?_eq_some_iff
 
 theorem get?_eq_none [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} :
     m.contains a = false → get? m a = none := by
@@ -700,6 +709,10 @@ theorem getKey?_beq [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} :
 theorem getKey?_eq_some [LawfulBEq α] (h : m.1.WF) {a : α} :
     m.contains a → m.getKey? a = some a := by
   simp_to_model [getKey?, contains] using List.getKey?_eq_some
+
+theorem getKey?_eq_some_iff [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k k' : α} :
+    m.getKey? k = some k' ↔ ∃ h : m.contains k, m.getKey k h = k' := by
+  simp_to_model [contains, getKey?, getKey] using List.getKey?_eq_some_iff'
 
 theorem getKey?_congr [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {k k' : α} (h : k == k') :

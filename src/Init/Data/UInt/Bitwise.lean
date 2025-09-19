@@ -1327,3 +1327,14 @@ theorem UInt64.right_le_or {a b : UInt64} : b ≤ a ||| b := by
   simpa [UInt64.le_iff_toNat_le] using Nat.right_le_or
 theorem USize.right_le_or {a b : USize} : b ≤ a ||| b := by
   simpa [USize.le_iff_toNat_le] using Nat.right_le_or
+
+theorem UInt8.and_lt_add_one {b c : UInt8} (h : c ≠ -1) : b &&& c < c + 1 :=
+  UInt8.lt_of_le_of_lt UInt8.and_le_right (UInt8.lt_add_one h)
+theorem UInt16.and_lt_add_one {b c : UInt16} (h : c ≠ -1) : b &&& c < c + 1 :=
+  UInt16.lt_of_le_of_lt UInt16.and_le_right (UInt16.lt_add_one h)
+theorem UInt32.and_lt_add_one {b c : UInt32} (h : c ≠ -1) : b &&& c < c + 1 :=
+  UInt32.lt_of_le_of_lt UInt32.and_le_right (UInt32.lt_add_one h)
+theorem UInt64.and_lt_add_one {b c : UInt64} (h : c ≠ -1) : b &&& c < c + 1 :=
+  UInt64.lt_of_le_of_lt UInt64.and_le_right (UInt64.lt_add_one h)
+theorem USize.and_lt_add_one {b c : USize} (h : c ≠ -1) : b &&& c < c + 1 :=
+  USize.lt_of_le_of_lt USize.and_le_right (USize.lt_add_one h)

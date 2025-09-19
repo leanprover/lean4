@@ -8,21 +8,370 @@ module
 prelude
 public import Init.Data.List.Basic
 public import Init.Data.Char.Basic
+public import Init.Data.String.Bootstrap
+public import Init.Data.ByteArray.Basic
+public import Init.Data.String.Decode
+import Init.Data.ByteArray.Lemmas
 
 public section
 
 universe u
 
+section
+
+@[simp]
+theorem List.utf8Encode_nil : List.utf8Encode [] = ByteArray.empty := by simp [utf8Encode]
+
+theorem List.utf8Encode_singleton {c : Char} : [c].utf8Encode = (String.utf8EncodeChar c).toByteArray := by
+  simp [utf8Encode]
+
+@[simp]
+theorem List.utf8Encode_append {l l' : List Char} :
+    (l ++ l').utf8Encode = l.utf8Encode ++ l'.utf8Encode := by
+  simp [utf8Encode]
+
+theorem List.utf8Encode_cons {c : Char} {l : List Char} : (c :: l).utf8Encode = [c].utf8Encode ++ l.utf8Encode := by
+  rw [← singleton_append, List.utf8Encode_append]
+
+@[simp]
+theorem String.utf8EncodeChar_ne_nil {c : Char} : String.utf8EncodeChar c ≠ [] := by
+  fun_cases String.utf8EncodeChar with simp
+
+@[simp]
+theorem List.utf8Encode_eq_empty {l : List Char} : l.utf8Encode = ByteArray.empty ↔ l = [] := by
+  simp [utf8Encode, ← List.eq_nil_iff_forall_not_mem]
+
+theorem ByteArray.isValidUtf8_utf8Encode {l : List Char} : IsValidUtf8 l.utf8Encode :=
+  .intro l rfl
+
+@[simp]
+theorem ByteArray.isValidUtf8_empty : IsValidUtf8 ByteArray.empty :=
+  .intro [] (by simp)
+
+theorem Char.isValidUtf8_toByteArray_utf8EncodeChar {c : Char} :
+    ByteArray.IsValidUtf8 (String.utf8EncodeChar c).toByteArray :=
+  .intro [c] (by simp [List.utf8Encode_singleton])
+
+theorem ByteArray.IsValidUtf8.append {b b' : ByteArray} (h : IsValidUtf8 b) (h' : IsValidUtf8 b') :
+    IsValidUtf8 (b ++ b') := by
+  rcases h with ⟨m, rfl⟩
+  rcases h' with ⟨m', rfl⟩
+  exact .intro (m ++ m') (by simp)
+
+theorem ByteArray.isValidUtf8_utf8Encode_singleton_append_iff {b : ByteArray} {c : Char} :
+    IsValidUtf8 ([c].utf8Encode ++ b) ↔ IsValidUtf8 b := by
+  refine ⟨?_, fun h => IsValidUtf8.append isValidUtf8_utf8Encode h⟩
+  rintro ⟨l, hl⟩
+  match l with
+  | [] => simp at hl
+  | d::l =>
+    obtain rfl : c = d := by
+      replace hl := congrArg (fun l => utf8DecodeChar? l 0) hl
+      simpa [List.utf8DecodeChar?_utf8Encode_singleton_append,
+        List.utf8DecodeChar?_utf8Encode_cons] using hl
+    rw [← List.singleton_append (l := l), List.utf8Encode_append,
+      ByteArray.append_right_inj] at hl
+    exact hl ▸ isValidUtf8_utf8Encode
+
+@[expose]
+def ByteArray.utf8Decode? (b : ByteArray) : Option (Array Char) :=
+  go (b.size + 1) 0 #[] (by simp) (by simp)
+where
+  go (fuel : Nat) (i : Nat) (acc : Array Char) (hi : i ≤ b.size) (hf : b.size - i < fuel) : Option (Array Char) :=
+    match fuel, hf with
+    | fuel + 1, _ =>
+      if i = b.size then
+        some acc
+      else
+        match h : utf8DecodeChar? b i with
+        | none => none
+        | some c => go fuel (i + c.utf8Size) (acc.push c)
+            (le_size_of_utf8DecodeChar?_eq_some h)
+            (have := c.utf8Size_pos; have := le_size_of_utf8DecodeChar?_eq_some h; by omega)
+  termination_by structural fuel
+
+theorem ByteArray.utf8Decode?.go.congr {b b' : ByteArray} {fuel fuel' i i' : Nat} {acc acc' : Array Char} {hi hi' hf hf'}
+    (hbb' : b = b') (hii' : i = i') (hacc : acc = acc') :
+    ByteArray.utf8Decode?.go b fuel i acc hi hf = ByteArray.utf8Decode?.go b' fuel' i' acc' hi' hf' := by
+  subst hbb' hii' hacc
+  fun_induction ByteArray.utf8Decode?.go b fuel i acc hi hf generalizing fuel' with
+  | case1 =>
+    rw [go.eq_def]
+    split
+    simp
+  | case2 =>
+    rw [go.eq_def]
+    split <;> split
+    · simp_all
+    · split <;> simp_all
+  | case3 =>
+    conv => rhs; rw [go.eq_def]
+    split <;> split
+    · simp_all
+    · split
+      · simp_all
+      · rename_i c₁ hc₁ ih _ _ _ _ _ c₂ hc₂
+        obtain rfl : c₁ = c₂ := by rw [← Option.some_inj, ← hc₁, ← hc₂]
+        apply ih
+
+@[simp]
+theorem ByteArray.utf8Decode?_empty : ByteArray.empty.utf8Decode? = some #[] := by
+  simp [utf8Decode?, utf8Decode?.go]
+
+private theorem ByteArray.isSome_utf8Decode?go_iff {b : ByteArray} {fuel i : Nat} {hi : i ≤ b.size} {hf} {acc : Array Char} :
+    (ByteArray.utf8Decode?.go b fuel i acc hi hf).isSome ↔ IsValidUtf8 (b.extract i b.size) := by
+  fun_induction ByteArray.utf8Decode?.go with
+  | case1 => simp
+  | case2 fuel i hi hf acc h₁ h₂ =>
+    simp only [Option.isSome_none, Bool.false_eq_true, false_iff]
+    rintro ⟨l, hl⟩
+    have : l ≠ [] := by
+      rintro rfl
+      simp at hl
+      omega
+    rw [← l.cons_head_tail this] at hl
+    rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract, hl, List.utf8DecodeChar?_utf8Encode_cons] at h₂
+    simp at h₂
+  | case3 i acc hi fuel hf h₁ c h₂ ih =>
+    rw [ih]
+    have h₂' := h₂
+    rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract] at h₂'
+    obtain ⟨l, hl⟩ := exists_of_utf8DecodeChar?_eq_some h₂'
+    rw [ByteArray.extract_eq_extract_append_extract (i := i) (i + c.utf8Size) (by omega)
+      (le_size_of_utf8DecodeChar?_eq_some h₂)] at hl ⊢
+    rw [ByteArray.append_inj_left hl (by have := le_size_of_utf8DecodeChar?_eq_some h₂; simp; omega),
+      ← List.utf8Encode_singleton, isValidUtf8_utf8Encode_singleton_append_iff]
+
+theorem ByteArray.isSome_utf8Decode?_iff {b : ByteArray} :
+    b.utf8Decode?.isSome ↔ IsValidUtf8 b := by
+  rw [utf8Decode?, isSome_utf8Decode?go_iff, extract_zero_size]
+
+@[simp]
+theorem String.bytes_empty : "".bytes = ByteArray.empty := (rfl)
+
 /--
-Creates a string that contains the characters in a list, in order.
+Appends two strings. Usually accessed via the `++` operator.
+
+The internal implementation will perform destructive updates if the string is not shared.
 
 Examples:
- * `['L', '∃', '∀', 'N'].asString = "L∃∀N"`
- * `[].asString = ""`
- * `['a', 'a', 'a'].asString = "aaa"`
+ * `"abc".append "def" = "abcdef"`
+ * `"abc" ++ "def" = "abcdef"`
+ * `"" ++ "" = ""`
 -/
-def List.asString (s : List Char) : String :=
-  ⟨s⟩
+@[extern "lean_string_append", expose]
+def String.append (s t : String) : String where
+  bytes := s.bytes ++ t.bytes
+  isValidUtf8 := s.isValidUtf8.append t.isValidUtf8
+
+instance : Append String where
+  append s t := s.append t
+
+@[simp]
+theorem String.bytes_append {s t : String} : (s ++ t).bytes = s.bytes ++ t.bytes := (rfl)
+
+theorem String.bytes_inj {s t : String} : s.bytes = t.bytes ↔ s = t := by
+  refine ⟨fun h => ?_, (· ▸ rfl)⟩
+  rcases s with ⟨s⟩
+  rcases t with ⟨t⟩
+  subst h
+  rfl
+
+@[simp]
+theorem String.empty_append {s : String} : "" ++ s = s := by
+  simp [← String.bytes_inj]
+
+@[simp]
+theorem String.append_empty {s : String} : s ++ "" = s := by
+  simp [← String.bytes_inj]
+
+@[simp] theorem List.bytes_asString {l : List Char} : l.asString.bytes = l.utf8Encode := by
+  simp [List.asString, String.mk]
+
+@[simp]
+theorem List.asString_nil : List.asString [] = "" := by
+  simp [← String.bytes_inj]
+
+@[simp]
+theorem List.asString_append {l₁ l₂ : List Char} : (l₁ ++ l₂).asString = l₁.asString ++ l₂.asString := by
+  simp [← String.bytes_inj]
+
+@[expose]
+def String.Internal.toArray (b : String) : Array Char :=
+  b.bytes.utf8Decode?.get (b.bytes.isSome_utf8Decode?_iff.2 b.isValidUtf8)
+
+@[simp]
+theorem String.Internal.toArray_empty : String.Internal.toArray "" = #[] := by
+  simp [toArray]
+
+@[extern "lean_string_data", expose]
+def String.data (b : String) : List Char :=
+  (String.Internal.toArray b).toList
+
+@[simp]
+theorem String.data_empty : "".data = [] := by
+  simp [data]
+
+/--
+Returns the length of a string in Unicode code points.
+
+Examples:
+* `"".length = 0`
+* `"abc".length = 3`
+* `"L∃∀N".length = 4`
+-/
+@[extern "lean_string_length"]
+def String.length (b : String) : Nat :=
+  b.data.length
+
+@[simp]
+theorem String.Internal.size_toArray {b : String} : (String.Internal.toArray b).size = b.length :=
+  (rfl)
+
+@[simp]
+theorem String.length_data {b : String} : b.data.length = b.length := (rfl)
+
+theorem String.exists_eq_asString (s : String) :
+    ∃ l : List Char, s = l.asString := by
+  rcases s with ⟨_, ⟨l, rfl⟩⟩
+  refine ⟨l, by simp [← String.bytes_inj]⟩
+
+private theorem ByteArray.utf8Decode?go_eq_utf8Decode?go_extract {b : ByteArray} {fuel i : Nat} {hi : i ≤ b.size} {hf} {acc : Array Char} :
+    utf8Decode?.go b fuel i acc hi hf = (utf8Decode?.go (b.extract i b.size) fuel 0 #[] (by simp) (by simp [hf])).map (acc ++ ·) := by
+  fun_cases utf8Decode?.go b fuel i acc hi hf with
+  | case1 =>
+      rw [utf8Decode?.go]
+      simp only [size_extract, Nat.le_refl, Nat.min_eq_left, Nat.zero_add, List.push_toArray,
+        List.nil_append]
+      rw [if_pos (by omega)]
+      simp
+  | case2 fuel hf₁ h₁ h₂ hf₂ =>
+    rw [utf8Decode?.go]
+    simp only [size_extract, Nat.le_refl, Nat.min_eq_left, Nat.zero_add, List.push_toArray,
+      List.nil_append]
+    rw [if_neg (by omega)]
+    rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract] at h₂
+    split <;> simp_all
+  | case3 fuel hf₁ h₁ c h₂ hf₂ =>
+    conv => rhs; rw [utf8Decode?.go]
+    simp only [size_extract, Nat.le_refl, Nat.min_eq_left, Nat.zero_add, List.push_toArray,
+      List.nil_append]
+    rw [if_neg (by omega)]
+    rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract] at h₂
+    split
+    · simp_all
+    · rename_i c' hc'
+      obtain rfl : c = c' := by
+        rw [← Option.some_inj, ← h₂, hc']
+      have := c.utf8Size_pos
+      conv => lhs; rw [ByteArray.utf8Decode?go_eq_utf8Decode?go_extract]
+      conv => rhs; rw [ByteArray.utf8Decode?go_eq_utf8Decode?go_extract]
+      simp only [size_extract, Nat.le_refl, Nat.min_eq_left, Option.map_map, ByteArray.extract_extract]
+      have : (fun x => acc ++ x) ∘ (fun x => #[c] ++ x) = fun x => acc.push c ++ x := by funext; simp
+      simp [(by omega : i + (b.size - i) = b.size), this]
+
+theorem ByteArray.utf8Decode?_utf8Encode_singleton_append {l : ByteArray} {c : Char} :
+    ([c].utf8Encode ++ l).utf8Decode? = l.utf8Decode?.map (#[c] ++ ·) := by
+  rw [utf8Decode?, utf8Decode?.go,
+    if_neg (by simp [List.utf8Encode_singleton]; have := c.utf8Size_pos; omega)]
+  split
+  · simp_all [List.utf8DecodeChar?_utf8Encode_singleton_append]
+  · rename_i d h
+    obtain rfl : c = d := by simpa [List.utf8DecodeChar?_utf8Encode_singleton_append] using h
+    rw [utf8Decode?go_eq_utf8Decode?go_extract, utf8Decode?]
+    simp only [List.push_toArray, List.nil_append, Nat.zero_add]
+    congr 1
+    apply ByteArray.utf8Decode?.go.congr _ rfl rfl
+    apply extract_append_eq_right
+    simp [List.utf8Encode_singleton]
+
+@[simp]
+theorem List.utf8Decode?_utf8Encode {l : List Char} :
+    l.utf8Encode.utf8Decode? = some l.toArray := by
+  induction l with
+  | nil => simp
+  | cons c l ih =>
+    rw [← List.singleton_append, List.utf8Encode_append]
+    simp only [ByteArray.utf8Decode?_utf8Encode_singleton_append, cons_append, nil_append,
+      Option.map_eq_some_iff, Array.append_eq_toArray_iff, cons.injEq, true_and]
+    refine ⟨l.toArray, ih, by simp⟩
+
+@[simp]
+theorem ByteArray.utf8Encode_get_utf8Decode? {b : ByteArray} {h} :
+    (b.utf8Decode?.get h).toList.utf8Encode = b := by
+  obtain ⟨l, rfl⟩ := isSome_utf8Decode?_iff.1 h
+  simp
+
+@[simp]
+theorem List.data_asString {l : List Char} : l.asString.data = l := by
+  simp [String.data, String.Internal.toArray]
+
+@[simp]
+theorem String.asString_data {b : String} : b.data.asString = b := by
+  obtain ⟨l, rfl⟩ := String.exists_eq_asString b
+  rw [List.data_asString]
+
+theorem List.asString_injective {l₁ l₂ : List Char} (h : l₁.asString = l₂.asString) : l₁ = l₂ := by
+  simpa using congrArg String.data h
+
+theorem List.asString_inj {l₁ l₂ : List Char} : l₁.asString = l₂.asString ↔ l₁ = l₂ :=
+  ⟨asString_injective, (· ▸ rfl)⟩
+
+theorem String.data_injective {s₁ s₂ : String} (h : s₁.data = s₂.data) : s₁ = s₂ := by
+  simpa using congrArg List.asString h
+
+theorem String.data_inj {s₁ s₂ : String} : s₁.data = s₂.data ↔ s₁ = s₂ :=
+  ⟨data_injective, (· ▸ rfl)⟩
+
+@[simp]
+theorem String.data_append {l₁ l₂ : String} : (l₁ ++ l₂).data = l₁.data ++ l₂.data := by
+  apply List.asString_injective
+  simp
+
+@[simp]
+theorem String.utf8encode_data {b : String} : b.data.utf8Encode = b.bytes := by
+  have := congrArg String.bytes (String.asString_data (b := b))
+  rwa [← List.bytes_asString]
+
+@[simp]
+theorem String.utf8ByteSize_empty : "".utf8ByteSize = 0 := (rfl)
+
+@[simp]
+theorem String.utf8ByteSize_append {s t : String} :
+    (s ++ t).utf8ByteSize = s.utf8ByteSize + t.utf8ByteSize := by
+  simp [utf8ByteSize]
+
+@[simp]
+theorem String.size_bytes {s : String} : s.bytes.size = s.utf8ByteSize := rfl
+
+@[simp]
+theorem String.bytes_push {s : String} {c : Char} : (s.push c).bytes = s.bytes ++ [c].utf8Encode := by
+  simp [push]
+
+-- This is just to keep the proof of `set_next_add` below from breaking; if that lemma goes away
+-- or the proof is rewritten, it can be removed.
+private noncomputable def String.utf8ByteSize' : String → Nat
+  | s => go s.data
+where
+  go : List Char → Nat
+  | []    => 0
+  | c::cs => go cs + c.utf8Size
+
+private theorem String.utf8ByteSize'_eq (s : String) : s.utf8ByteSize' = s.utf8ByteSize := by
+  suffices ∀ l, utf8ByteSize'.go l = l.asString.utf8ByteSize by
+    obtain ⟨m, rfl⟩ := s.exists_eq_asString
+    rw [utf8ByteSize', this, asString_data]
+  intro l
+  induction l with
+  | nil => simp [utf8ByteSize'.go]
+  | cons c cs ih =>
+    rw [utf8ByteSize'.go, ih, ← List.singleton_append, List.asString_append,
+      utf8ByteSize_append, Nat.add_comm]
+    congr
+    rw [← size_bytes, List.bytes_asString, List.utf8Encode_singleton,
+      List.size_toByteArray, length_utf8EncodeChar]
+
+end
 
 namespace String
 
@@ -31,6 +380,10 @@ instance : HAdd String.Pos String.Pos String.Pos where
 
 instance : HSub String.Pos String.Pos String.Pos where
   hSub p₁ p₂ := { byteIdx :=  p₁.byteIdx - p₂.byteIdx }
+
+@[export lean_string_pos_sub]
+def Pos.Internal.subImpl : String.Pos → String.Pos → String.Pos :=
+  (· - ·)
 
 instance : HAdd String.Pos Char String.Pos where
   hAdd p c := { byteIdx := p.byteIdx + c.utf8Size }
@@ -53,17 +406,12 @@ instance (p₁ p₂ : String.Pos) : Decidable (LT.lt p₁ p₂) :=
 instance : Min String.Pos := minOfLe
 instance : Max String.Pos := maxOfLe
 
-instance : OfNat String.Pos (nat_lit 0) where
-  ofNat := {}
-
 instance : LT String :=
   ⟨fun s₁ s₂ => s₁.data < s₂.data⟩
 
 @[extern "lean_string_dec_lt"]
 instance decidableLT (s₁ s₂ : @& String) : Decidable (s₁ < s₂) :=
   List.decidableLT s₁.data s₂.data
-
-
 
 /--
 Non-strict inequality on strings, typically used via the `≤` operator.
@@ -77,46 +425,6 @@ instance : LE String :=
 
 instance decLE (s₁ s₂ : String) : Decidable (s₁ ≤ s₂) :=
   inferInstanceAs (Decidable (Not _))
-
-/--
-Returns the length of a string in Unicode code points.
-
-Examples:
-* `"".length = 0`
-* `"abc".length = 3`
-* `"L∃∀N".length = 4`
--/
-@[extern "lean_string_length", expose]
-def length : (@& String) → Nat
-  | ⟨s⟩ => s.length
-
-/--
-Adds a character to the end of a string.
-
-The internal implementation uses dynamic arrays and will perform destructive updates
-if the string is not shared.
-
-Examples:
-* `"abc".push 'd' = "abcd"`
-* `"".push 'a' = "a"`
--/
-@[extern "lean_string_push", expose]
-def push : String → Char → String
-  | ⟨s⟩, c => ⟨s ++ [c]⟩
-
-/--
-Appends two strings. Usually accessed via the `++` operator.
-
-The internal implementation will perform destructive updates if the string is not shared.
-
-Examples:
- * `"abc".append "def" = "abcdef"`
- * `"abc" ++ "def" = "abcdef"`
- * `"" ++ "" = ""`
--/
-@[extern "lean_string_append", expose]
-def append : String → (@& String) → String
-  | ⟨a⟩, ⟨b⟩ => ⟨a ++ b⟩
 
 /--
 Converts a string to a list of characters.
@@ -176,8 +484,7 @@ Examples:
 -/
 @[extern "lean_string_utf8_get", expose]
 def get (s : @& String) (p : @& Pos) : Char :=
-  match s with
-  | ⟨s⟩ => utf8GetAux s 0 p
+  utf8GetAux s.data 0 p
 
 def utf8GetAux? : List Char → Pos → Pos → Option Char
   | [],    _, _ => none
@@ -198,7 +505,7 @@ Examples:
 -/
 @[extern "lean_string_utf8_get_opt"]
 def get? : (@& String) → (@& Pos) → Option Char
-  | ⟨s⟩, p => utf8GetAux? s 0 p
+  | s, p => utf8GetAux? s.data 0 p
 
 /--
 Returns the character at position `p` of a string. Panics if `p` is not a valid position.
@@ -214,7 +521,7 @@ Examples
 @[extern "lean_string_utf8_get_bang", expose]
 def get! (s : @& String) (p : @& Pos) : Char :=
   match s with
-  | ⟨s⟩ => utf8GetAux s 0 p
+  | s => utf8GetAux s.data 0 p
 
 def utf8SetAux (c' : Char) : List Char → Pos → Pos → List Char
   | [],    _, _ => []
@@ -237,7 +544,7 @@ Examples:
 -/
 @[extern "lean_string_utf8_set"]
 def set : String → (@& Pos) → Char → String
-  | ⟨s⟩, i, c => ⟨utf8SetAux c s 0 i⟩
+  | s, i, c => (utf8SetAux c s.data 0 i).asString
 
 /--
 Replaces the character at position `p` in the string `s` with the result of applying `f` to that
@@ -293,7 +600,7 @@ Examples:
 -/
 @[extern "lean_string_utf8_prev", expose]
 def prev : (@& String) → (@& Pos) → Pos
-  | ⟨s⟩, p => utf8PrevAux s 0 p
+  | s, p => utf8PrevAux s.data 0 p
 
 /--
 Returns the first character in `s`. If `s = ""`, returns `(default : Char)`.
@@ -304,6 +611,10 @@ Examples:
 -/
 @[inline] def front (s : String) : Char :=
   get s 0
+
+@[export lean_string_front]
+def Internal.frontImpl (s : String) : Char :=
+  String.front s
 
 /--
 Returns the last character in `s`. If `s = ""`, returns `(default : Char)`.
@@ -355,7 +666,7 @@ Examples:
 @[extern "lean_string_utf8_get_fast", expose]
 def get' (s : @& String) (p : @& Pos) (h : ¬ s.atEnd p) : Char :=
   match s with
-  | ⟨s⟩ => utf8GetAux s 0 p
+  | s => utf8GetAux s.data 0 p
 
 /--
 Returns the next position in a string after position `p`. The result is unspecified if `p` is not a
@@ -378,12 +689,6 @@ Example:
 def next' (s : @& String) (p : @& Pos) (h : ¬ s.atEnd p) : Pos :=
   let c := get s p
   p + c
-
-theorem _root_.Char.utf8Size_pos (c : Char) : 0 < c.utf8Size := by
-  repeat first | apply iteInduction (motive := (0 < ·)) <;> intros | decide
-
-theorem _root_.Char.utf8Size_le_four (c : Char) : c.utf8Size ≤ 4 := by
-  repeat first | apply iteInduction (motive := (· ≤ 4)) <;> intros | decide
 
 @[deprecated Char.utf8Size_pos (since := "2026-06-04")] abbrev one_le_csize := Char.utf8Size_pos
 
@@ -429,6 +734,10 @@ Examples:
 -/
 @[inline] def posOf (s : String) (c : Char) : Pos :=
   posOfAux s c s.endPos 0
+
+@[export lean_string_posof]
+def Internal.posOfImpl (s : String) (c : Char) : Pos :=
+  String.posOf s c
 
 def revPosOfAux (s : String) (c : Char) (pos : Pos) : Option Pos :=
   if h : pos = 0 then none
@@ -500,6 +809,10 @@ Returns either `p₁` or `p₂`, whichever has the least byte index.
 abbrev Pos.min (p₁ p₂ : Pos) : Pos :=
   { byteIdx := p₁.byteIdx.min p₂.byteIdx }
 
+@[export lean_string_pos_min]
+def Pos.Internal.minImpl (p₁ p₂ : Pos) : Pos :=
+  Pos.min p₁ p₂
+
 /--
 Returns the first position where the two strings differ.
 
@@ -541,7 +854,7 @@ Examples:
 -/
 @[extern "lean_string_utf8_extract", expose]
 def extract : (@& String) → (@& Pos) → (@& Pos) → String
-  | ⟨s⟩, b, e => if b.byteIdx ≥ e.byteIdx then "" else ⟨go₁ s 0 b e⟩
+  | s, b, e => if b.byteIdx ≥ e.byteIdx then "" else (go₁ s.data 0 b e).asString
 where
   go₁ : List Char → Pos → Pos → Pos → List Char
     | [],        _, _, _ => []
@@ -660,6 +973,10 @@ Examples:
 @[inline] def pushn (s : String) (c : Char) (n : Nat) : String :=
   n.repeat (fun s => s.push c) s
 
+@[export lean_string_pushn]
+def Internal.pushnImpl (s : String) (c : Char) (n : Nat) : String :=
+  String.pushn s c n
+
 /--
 Checks whether a string is empty.
 
@@ -672,6 +989,10 @@ Examples:
 -/
 @[inline] def isEmpty (s : String) : Bool :=
   s.endPos == 0
+
+@[export lean_string_isempty]
+def Internal.isEmptyImpl (s : String) : Bool :=
+  String.isEmpty s
 
 /--
 Appends all the strings in a list of strings, in order.
@@ -687,20 +1008,6 @@ Examples:
   l.foldl (fun r s => r ++ s) ""
 
 /--
-Returns a new string that contains only the character `c`.
-
-Because strings are encoded in UTF-8, the resulting string may take multiple bytes.
-
-Examples:
- * `String.singleton 'L' = "L"`
- * `String.singleton ' ' = " "`
- * `String.singleton '"' = "\""`
- * `String.singleton '𝒫' = "𝒫"`
--/
-@[inline,expose] def singleton (c : Char) : String :=
-  "".push c
-
-/--
 Appends the strings in a list of strings, placing the separator `s` between each pair.
 
 Examples:
@@ -714,6 +1021,10 @@ def intercalate (s : String) : List String → String
 where go (acc : String) (s : String) : List String → String
   | a :: as => go (acc ++ s ++ a) s as
   | []      => acc
+
+@[export lean_string_intercalate]
+def Internal.intercalateImpl (s : String) : List String → String :=
+  String.intercalate s
 
 /--
 An iterator over the characters (Unicode code points) in a `String`. Typically created by
@@ -926,6 +1237,10 @@ Examples:
 @[inline] def offsetOfPos (s : String) (pos : Pos) : Nat :=
   offsetOfPosAux s pos 0 0
 
+@[export lean_string_offsetofpos]
+def Internal.offsetOfPosImpl (s : String) (pos : Pos) : Nat :=
+  String.offsetOfPos s pos
+
 @[specialize] def foldlAux {α : Type u} (f : α → Char → α) (s : String) (stopPos : Pos) (i : Pos) (a : α) : α :=
   if h : i < stopPos then
     have := Nat.sub_lt_sub_left h (lt_next s i)
@@ -944,6 +1259,10 @@ Examples:
 -/
 @[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : String) : α :=
   foldlAux f s s.endPos 0 init
+
+@[export lean_string_foldl]
+def Internal.foldlImpl (f : String → Char → String) (init : String) (s : String) : String :=
+  String.foldl f init s
 
 @[specialize] def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (i begPos : Pos) : α :=
   if h : begPos < i then
@@ -990,6 +1309,10 @@ Examples:
 @[inline] def any (s : String) (p : Char → Bool) : Bool :=
   anyAux s s.endPos p 0
 
+@[export lean_string_any]
+def Internal.anyImpl (s : String) (p : Char → Bool) :=
+  String.any s p
+
 /--
 Checks whether the Boolean predicate `p` returns `true` for every character in a string.
 
@@ -1012,7 +1335,11 @@ Examples:
 * `"".contains 'x' = false`
 -/
 @[inline] def contains (s : String) (c : Char) : Bool :=
-s.any (fun a => a == c)
+  s.any (fun a => a == c)
+
+@[export lean_string_contains]
+def Internal.containsImpl (s : String) (c : Char) : Bool :=
+  String.contains s c
 
 theorem utf8SetAux_of_gt (c' : Char) : ∀ (cs : List Char) {i p : Pos}, i > p → utf8SetAux c' cs i p = cs
   | [],    _, _, _ => rfl
@@ -1023,37 +1350,31 @@ theorem utf8SetAux_of_gt (c' : Char) : ∀ (cs : List Char) {i p : Pos}, i > p �
 theorem set_next_add (s : String) (i : Pos) (c : Char) (b₁ b₂)
     (h : (s.next i).1 + b₁ = s.endPos.1 + b₂) :
     ((s.set i c).next i).1 + b₁ = (s.set i c).endPos.1 + b₂ := by
-  simp [next, get, set, endPos, utf8ByteSize] at h ⊢
+  simp [next, get, set, endPos, ← utf8ByteSize'_eq, utf8ByteSize'] at h ⊢
   rw [Nat.add_comm i.1, Nat.add_assoc] at h ⊢
   let rec foo : ∀ cs a b₁ b₂,
-    (utf8GetAux cs a i).utf8Size + b₁ = utf8ByteSize.go cs + b₂ →
-    (utf8GetAux (utf8SetAux c cs a i) a i).utf8Size + b₁ = utf8ByteSize.go (utf8SetAux c cs a i) + b₂
+    (utf8GetAux cs a i).utf8Size + b₁ = utf8ByteSize'.go cs + b₂ →
+    (utf8GetAux (utf8SetAux c cs a i) a i).utf8Size + b₁ = utf8ByteSize'.go (utf8SetAux c cs a i) + b₂
   | [], _, _, _, h => h
   | c'::cs, a, b₁, b₂, h => by
     unfold utf8SetAux
-    apply iteInduction (motive := fun p => (utf8GetAux p a i).utf8Size + b₁ = utf8ByteSize.go p + b₂) <;>
-      intro h' <;> simp [utf8GetAux, h', utf8ByteSize.go] at h ⊢
+    apply iteInduction (motive := fun p => (utf8GetAux p a i).utf8Size + b₁ = utf8ByteSize'.go p + b₂) <;>
+      intro h' <;> simp [utf8GetAux, h', utf8ByteSize'.go] at h ⊢
     next =>
       rw [Nat.add_assoc, Nat.add_left_comm] at h ⊢; rw [Nat.add_left_cancel h]
     next =>
       rw [Nat.add_assoc] at h ⊢
       refine foo cs (a + c') b₁ (c'.utf8Size + b₂) h
-  exact foo s.1 0 _ _ h
+  exact foo s.data 0 _ _ h
 
 theorem mapAux_lemma (s : String) (i : Pos) (c : Char) (h : ¬s.atEnd i) :
-    (s.set i c).endPos.1 - ((s.set i c).next i).1 < s.endPos.1 - i.1 :=
+    (s.set i c).endPos.1 - ((s.set i c).next i).1 < s.endPos.1 - i.1 := by
   suffices (s.set i c).endPos.1 - ((s.set i c).next i).1 = s.endPos.1 - (s.next i).1 by
     rw [this]
     apply Nat.sub_lt_sub_left (Nat.gt_of_not_le (mt decide_eq_true h)) (lt_next ..)
-  Nat.sub.elim (motive := (_ = ·)) _ _
-    (fun _ k e =>
-      have := set_next_add _ _ _ k 0 e.symm
-      Nat.sub_eq_of_eq_add <| this.symm.trans <| Nat.add_comm ..)
-    (fun h => by
-      have ⟨k, e⟩ := Nat.le.dest h
-      rw [Nat.succ_add] at e
-      have : ((s.set i c).next i).1 = _ := set_next_add _ _ c 0 k.succ e.symm
-      exact Nat.sub_eq_zero_of_le (this ▸ Nat.le_add_right ..))
+  have := set_next_add s i c (s.endPos.byteIdx - (s.next i).byteIdx) 0
+  have := set_next_add s i c 0 ((s.next i).byteIdx - s.endPos.byteIdx)
+  omega
 
 @[specialize] def mapAux (f : Char → Char) (i : Pos) (s : String) : String :=
   if h : s.atEnd i then s
@@ -1155,6 +1476,10 @@ Examples:
 def isPrefixOf (p : String) (s : String) : Bool :=
   substrEq p 0 s 0 p.endPos.byteIdx
 
+@[export lean_string_isprefixof]
+def Internal.isPrefixOfImpl (p : String) (s : String) : Bool :=
+  String.isPrefixOf p s
+
 /--
 In the string `s`, replaces all occurrences of `pattern` with `replacement`.
 
@@ -1204,11 +1529,19 @@ A substring is empty if its start and end positions are the same.
 @[inline] def isEmpty (ss : Substring) : Bool :=
   ss.bsize == 0
 
+@[export lean_substring_isempty]
+def Internal.isEmptyImpl (ss : Substring) : Bool :=
+  Substring.isEmpty ss
+
 /--
 Copies the region of the underlying string pointed to by a substring into a fresh string.
 -/
 @[inline] def toString : Substring → String
   | ⟨s, b, e⟩ => s.extract b e
+
+@[export lean_substring_tostring]
+def Internal.toStringImpl : Substring → String :=
+  Substring.toString
 
 /--
 Returns an iterator into the underlying string, at the substring's starting position. The ending
@@ -1228,6 +1561,10 @@ returned.  Does not panic.
 -/
 @[inline] def get : Substring → String.Pos → Char
   | ⟨s, b, _⟩, p => s.get (b+p)
+
+@[export lean_substring_get]
+def Internal.getImpl : Substring → String.Pos → Char :=
+  Substring.get
 
 /--
 Returns the next position in a substring after the given position. If the position is at the end of
@@ -1262,6 +1599,10 @@ position, not the underlying string.
     let absP := b+p
     if absP = b then p else { byteIdx := (s.prev absP).byteIdx - b.byteIdx }
 
+@[export lean_substring_prev]
+def Internal.prevImpl : Substring → String.Pos → String.Pos :=
+  Substring.prev
+
 /--
 Returns the position that's the specified number of characters forward from the given position in a
 substring. If the end position of the substring is reached, it is returned.
@@ -1295,6 +1636,10 @@ returned.  Does not panic.
 @[inline] def front (s : Substring) : Char :=
   s.get 0
 
+@[export lean_substring_front]
+def Internal.frontImpl : Substring → Char :=
+  Substring.front
+
 /--
 Returns the substring-relative position of the first occurrence of `c` in `s`, or `s.bsize` if `c`
 doesn't occur.
@@ -1311,6 +1656,10 @@ If the substring's end position is reached, the start position is not advanced p
 -/
 @[inline] def drop : Substring → Nat → Substring
   | ss@⟨s, b, e⟩, n => ⟨s, b + ss.nextn n 0, e⟩
+
+@[export lean_substring_drop]
+def Internal.dropImpl : Substring → Nat → Substring :=
+  Substring.drop
 
 /--
 Removes the specified number of characters (Unicode code points) from the end of a substring
@@ -1359,6 +1708,10 @@ positions adjusted.
 -/
 @[inline] def extract : Substring → String.Pos → String.Pos → Substring
   | ⟨s, b, e⟩, b', e' => if b' ≥ e' then ⟨"", 0, 0⟩ else ⟨s, e.min (b+b'), e.min (b+e')⟩
+
+@[export lean_substring_extract]
+def Internal.extractImpl : Substring → String.Pos → String.Pos → Substring :=
+  Substring.extract
 
 /--
 Splits a substring `s` on occurrences of the separator string `sep`. The default separator is `" "`.
@@ -1426,6 +1779,10 @@ Short-circuits at the first character for which `p` returns `false`.
 @[inline] def all (s : Substring) (p : Char → Bool) : Bool :=
   !s.any (fun c => !p c)
 
+@[export lean_substring_all]
+def Internal.allImpl (s : Substring) (p : Char → Bool) : Bool :=
+  Substring.all s p
+
 /--
 Checks whether a substring contains the specified character.
 -/
@@ -1449,6 +1806,10 @@ characters by moving the substring's end position towards its start position.
   | ⟨s, b, e⟩, p =>
     let e := takeWhileAux s e p b;
     ⟨s, b, e⟩
+
+@[export lean_substring_takewhile]
+def Internal.takeWhileImpl : Substring → (Char → Bool) → Substring :=
+  Substring.takeWhile
 
 /--
 Removes the longest prefix of a substring in which a Boolean predicate returns `true` for all
@@ -1567,6 +1928,10 @@ instead, they are equal if they contain the same sequence of characters.
 def beq (ss1 ss2 : Substring) : Bool :=
   ss1.bsize == ss2.bsize && ss1.str.substrEq ss1.startPos ss2.str ss2.startPos ss1.bsize
 
+@[export lean_substring_beq]
+def Internal.beqImpl (ss1 ss2 : Substring) : Bool :=
+  Substring.beq ss1 ss2
+
 instance hasBeq : BEq Substring := ⟨beq⟩
 
 /--
@@ -1664,6 +2029,10 @@ Examples:
 @[inline] def drop (s : String) (n : Nat) : String :=
   (s.toSubstring.drop n).toString
 
+@[export lean_string_drop]
+def Internal.dropImpl (s : String) (n : Nat) : String :=
+  String.drop s n
+
 /--
 Removes the specified number of characters (Unicode code points) from the end of the string.
 
@@ -1676,6 +2045,10 @@ Examples:
 -/
 @[inline] def dropRight (s : String) (n : Nat) : String :=
   (s.toSubstring.dropRight n).toString
+
+@[export lean_string_dropright]
+def Internal.dropRightImpl (s : String) (n : Nat) : String :=
+  String.dropRight s n
 
 /--
 Creates a new string that contains the first `n` characters (Unicode code points) of `s`.
@@ -1828,6 +2201,10 @@ Examples:
 @[inline] def trim (s : String) : String :=
   s.toSubstring.trim.toString
 
+@[export lean_string_trim]
+def Internal.trimImpl (s : String) : String :=
+  String.trim s
+
 /--
 Repeatedly increments a position in a string, as if by `String.next`, while the predicate `p`
 returns `true` for the character at the position. Stops incrementing at the end of the string or
@@ -1840,6 +2217,10 @@ Examples:
 -/
 @[inline] def nextWhile (s : String) (p : Char → Bool) (i : String.Pos) : String.Pos :=
   Substring.takeWhileAux s s.endPos p i
+
+@[export lean_string_nextwhile]
+def Internal.nextWhileImpl (s : String) (p : Char → Bool) (i : String.Pos) : String.Pos :=
+  String.nextWhile s p i
 
 /--
 Repeatedly increments a position in a string, as if by `String.next`, while the predicate `p`
@@ -1890,8 +2271,12 @@ Examples:
 * `"ORANGE".capitalize = "ORANGE"`
 * `"".capitalize = ""`
 -/
-@[inline] def capitalize (s : String) :=
+@[inline] def capitalize (s : String) : String :=
   s.set 0 <| s.get 0 |>.toUpper
+
+@[export lean_string_capitalize]
+def Internal.capitalizeImpl (s : String) : String :=
+  String.capitalize s
 
 /--
 Replaces the first character in `s` with the result of applying `Char.toLower` to it. Returns the
@@ -1973,50 +2358,51 @@ def stripSuffix (s : String) (suff : String) : String :=
 
 end String
 
-namespace Char
-
-/--
-Constructs a singleton string that contains only the provided character.
-
-Examples:
- * `'L'.toString = "L"`
- * `'"'.toString = "\""`
--/
-@[inline, expose] protected def toString (c : Char) : String :=
-  String.singleton c
-
-@[simp] theorem length_toString (c : Char) : c.toString.length = 1 := rfl
-
-end Char
-
 namespace String
 
+@[ext]
 theorem ext {s₁ s₂ : String} (h : s₁.data = s₂.data) : s₁ = s₂ :=
-  show ⟨s₁.data⟩ = (⟨s₂.data⟩ : String) from h ▸ rfl
-
-theorem ext_iff {s₁ s₂ : String} : s₁ = s₂ ↔ s₁.data = s₂.data := ⟨fun h => h ▸ rfl, ext⟩
+  data_injective h
 
 @[simp] theorem default_eq : default = "" := rfl
 
-@[simp] theorem length_mk (s : List Char) : (String.mk s).length = s.length := rfl
+@[simp]
+theorem String.mk_eq_asString (s : List Char) : String.mk s = List.asString s := rfl
 
-@[simp] theorem length_empty : "".length = 0 := rfl
+@[simp]
+theorem _root_.List.length_asString (s : List Char) : (List.asString s).length = s.length := by
+  rw [← length_data, List.data_asString]
 
-@[simp] theorem length_singleton (c : Char) : (String.singleton c).length = 1 := rfl
+@[simp] theorem length_empty : "".length = 0 := by simp [← length_data, data_empty]
+
+@[simp]
+theorem bytes_singleton {c : Char} : (String.singleton c).bytes = [c].utf8Encode := by
+  simp [singleton]
+
+theorem singleton_eq {c : Char} : String.singleton c = [c].asString := by
+  simp [← bytes_inj]
+
+@[simp] theorem data_singleton (c : Char) : (String.singleton c).data = [c] := by
+  simp [singleton_eq]
+
+@[simp]
+theorem length_singleton {c : Char} : (String.singleton c).length = 1 := by
+  simp [← length_data]
+
+theorem push_eq_append (c : Char) : String.push s c = s ++ singleton c := by
+  simp [← bytes_inj]
+
+@[simp] theorem data_push (c : Char) : (String.push s c).data = s.data ++ [c] := by
+  simp [push_eq_append]
 
 @[simp] theorem length_push (c : Char) : (String.push s c).length = s.length + 1 := by
-  rw [push, length_mk, List.length_append, List.length_singleton, Nat.succ.injEq]
-  rfl
+  simp [← length_data]
 
 @[simp] theorem length_pushn (c : Char) (n : Nat) : (pushn s c n).length = s.length + n := by
   unfold pushn; induction n <;> simp [Nat.repeat, Nat.add_assoc, *]
 
 @[simp] theorem length_append (s t : String) : (s ++ t).length = s.length + t.length := by
-  simp only [length, append, List.length_append]
-
-@[simp] theorem data_push (s : String) (c : Char) : (s.push c).data = s.data ++ [c] := rfl
-
-@[simp] theorem data_append (s t : String) : (s ++ t).data = s.data ++ t.data := rfl
+  simp [← length_data]
 
 attribute [simp] toList -- prefer `String.data` over `String.toList` in lemmas
 
@@ -2100,10 +2486,8 @@ end Pos
 theorem lt_next' (s : String) (p : Pos) : p < next s p := lt_next ..
 
 @[simp] theorem prev_zero (s : String) : prev s 0 = 0 := by
-  cases s with | mk cs
-  cases cs
-  next => rfl
-  next => simp [prev, utf8PrevAux, Pos.le_iff]
+  rw [prev]
+  cases s.data <;> simp [utf8PrevAux, Pos.le_iff]
 
 @[simp] theorem get'_eq (s : String) (p : Pos) (h) : get' s p h = get s p := rfl
 
@@ -2113,18 +2497,19 @@ theorem lt_next' (s : String) (p : Pos) : p < next s p := lt_next ..
 -- so for proving can be unfolded.
 attribute [simp] toSubstring'
 
-theorem singleton_eq (c : Char) : singleton c = ⟨[c]⟩ := rfl
-
-@[simp] theorem data_singleton (c : Char) : (singleton c).data = [c] := rfl
-
-@[simp] theorem append_empty (s : String) : s ++ "" = s := ext (List.append_nil _)
-
-@[simp] theorem empty_append (s : String) : "" ++ s = s := rfl
-
 theorem append_assoc (s₁ s₂ s₃ : String) : (s₁ ++ s₂) ++ s₃ = s₁ ++ (s₂ ++ s₃) :=
-  ext (List.append_assoc ..)
+  ext (by simp [data_append])
 
 end String
+
+namespace Char
+
+theorem toString_eq_singleton {c : Char} : c.toString = String.singleton c := rfl
+
+@[simp] theorem length_toString (c : Char) : c.toString.length = 1 := by
+  simp [toString_eq_singleton]
+
+end Char
 
 open String
 

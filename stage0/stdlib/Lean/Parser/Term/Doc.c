@@ -53,7 +53,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_
 static lean_object* l___private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet___closed__8;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Parser_Term_Doc_initFn____x40_Lean_Parser_Term_Doc_383197578____hygCtx___hyg_2__spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
-LEAN_EXPORT lean_object* l_List_foldl___at_____private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet_spec__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_Doc_RecommendedSpelling_ctorIdx(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l___private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet___closed__6;
@@ -1438,7 +1437,6 @@ else
 lean_object* x_9; lean_object* x_10; 
 x_9 = l___private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSpellingString_indentLine___closed__1;
 x_10 = lean_string_append(x_9, x_1);
-lean_dec_ref(x_1);
 x_2 = x_10;
 goto block_5;
 }
@@ -1595,7 +1593,10 @@ else
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
+lean_inc(x_4);
+lean_dec_ref(x_2);
 x_5 = lean_string_append(x_1, x_3);
 x_1 = x_5;
 x_2 = x_4;
@@ -1690,11 +1691,9 @@ lean_inc(x_4);
 lean_dec_ref(x_1);
 x_5 = l___private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet___closed__0;
 x_6 = lean_string_append(x_5, x_2);
-lean_dec_ref(x_2);
 x_7 = l___private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet___closed__1;
 x_8 = lean_string_append(x_6, x_7);
 x_9 = lean_string_append(x_8, x_3);
-lean_dec_ref(x_3);
 x_10 = l___private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet___closed__2;
 x_11 = lean_string_append(x_9, x_10);
 if (lean_obj_tag(x_4) == 0)
@@ -1743,9 +1742,7 @@ x_35 = l___private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSp
 x_36 = lean_string_append(x_11, x_35);
 x_37 = l_List_mapTR_loop___at_____private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet_spec__1(x_32, x_31);
 x_38 = l_List_foldl___at_____private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet_spec__2(x_28, x_37);
-lean_dec(x_37);
 x_39 = lean_string_append(x_36, x_38);
-lean_dec_ref(x_38);
 x_40 = l___private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet___closed__8;
 x_41 = lean_string_append(x_39, x_40);
 return x_41;
@@ -1769,11 +1766,9 @@ x_17 = lean_string_utf8_extract(x_12, x_14, x_16);
 lean_dec(x_16);
 lean_dec_ref(x_12);
 x_18 = lean_string_append(x_13, x_17);
-lean_dec_ref(x_17);
 x_19 = l___private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet___closed__4;
 x_20 = lean_string_append(x_18, x_19);
 x_21 = lean_string_append(x_11, x_20);
-lean_dec_ref(x_20);
 return x_21;
 }
 block_25:
@@ -1793,15 +1788,6 @@ x_4 = l_Substring_takeRightWhileAux___at_____private_Lean_Parser_Term_Doc_0__Lea
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_List_foldl___at_____private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet_spec__2___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_List_foldl___at_____private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet_spec__2(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_Parser_Term_Doc_getRecommendedSpellingString_spec__0(lean_object* x_1, lean_object* x_2) {
@@ -1878,9 +1864,7 @@ x_9 = lean_box(0);
 x_10 = l_List_mapTR_loop___at___Lean_Parser_Term_Doc_getRecommendedSpellingString_spec__0(x_8, x_9);
 x_11 = l___private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet___closed__6;
 x_12 = l_List_foldl___at_____private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet_spec__2(x_11, x_10);
-lean_dec(x_10);
 x_13 = lean_string_append(x_7, x_12);
-lean_dec_ref(x_12);
 x_14 = lean_string_utf8_byte_size(x_13);
 x_15 = l_Substring_takeRightWhileAux___at_____private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet_spec__0(x_13, x_5, x_14);
 x_16 = lean_string_utf8_extract(x_13, x_5, x_15);

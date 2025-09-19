@@ -216,7 +216,7 @@ def mkInstanceCmds (ctx : Deriving.Context) (typeNames : Array Name) :
 Returns all the commands necessary to construct the `ToExpr` instances.
 -/
 def mkToExprInstanceCmds (declNames : Array Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "toExpr" declNames[0]!
+  let ctx ← mkContext ``ToExpr "toExpr" declNames[0]!
   let cmds := #[← mkAuxFunctions ctx] ++ (← mkInstanceCmds ctx declNames)
   trace[Elab.Deriving.toExpr] "\n{cmds}"
   return cmds

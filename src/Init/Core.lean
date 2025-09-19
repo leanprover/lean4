@@ -1580,6 +1580,7 @@ instance {p q : Prop} [d : Decidable (p ↔ q)] : Decidable (p = q) :=
 
 gen_injective_theorems% Array
 gen_injective_theorems% BitVec
+gen_injective_theorems% ByteArray
 gen_injective_theorems% Char
 gen_injective_theorems% DoResultBC
 gen_injective_theorems% DoResultPR
@@ -2546,7 +2547,3 @@ class Irrefl (r : α → α → Prop) : Prop where
   irrefl : ∀ a, ¬r a a
 
 end Std
-
-/-- Deprecated alias for `XorOp`. -/
-@[deprecated XorOp (since := "2025-07-30")]
-abbrev Xor := XorOp

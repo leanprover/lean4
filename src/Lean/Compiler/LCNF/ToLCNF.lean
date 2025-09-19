@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.ProjFns
+public import Lean.Meta.AppBuilder
 public import Lean.Meta.CtorRecognizer
 public import Lean.Compiler.BorrowedAnnotation
 public import Lean.Compiler.CSimpAttr
@@ -668,8 +669,8 @@ where
       let args := e.getAppArgs
       let lhs ← liftMetaM do Meta.whnf args[inductVal.numParams + inductVal.numIndices + 1]!
       let rhs ← liftMetaM do Meta.whnf args[inductVal.numParams + inductVal.numIndices + 2]!
-      let lhs := lhs.toCtorIfLit
-      let rhs := rhs.toCtorIfLit
+      let lhs ← liftMetaM lhs.toCtorIfLit
+      let rhs ← liftMetaM rhs.toCtorIfLit
       match (← liftMetaM <| Meta.isConstructorApp? lhs), (← liftMetaM <| Meta.isConstructorApp? rhs) with
       | some lhsCtorVal, some rhsCtorVal =>
         if lhsCtorVal.name == rhsCtorVal.name then
@@ -787,9 +788,14 @@ where
     visit e
 
   visitProj (s : Name) (i : Nat) (e : Expr) : M Arg := do
-    match (← visit e) with
-    | .erased | .type .. => return .erased
-    | .fvar fvarId => letValueToArg <| .proj s i fvarId
+    if isRuntimeBuiltinType s then
+      let structInfo := getStructureInfo (← getEnv) s
+      let projExpr ← liftMetaM <| Meta.mkProjection e structInfo.fieldNames[i]!
+      visitApp projExpr
+    else
+      match (← visit e) with
+      | .erased | .type .. => return .erased
+      | .fvar fvarId => letValueToArg <| .proj s i fvarId
 
   visitLet (e : Expr) (xs : Array Expr) : M Arg := do
     match e with

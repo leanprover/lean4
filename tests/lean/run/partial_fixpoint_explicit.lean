@@ -52,7 +52,7 @@ partial_fixpoint monotonicity
 
 /--
 info: Try this:
-  exact fun x y a x => a (x + 1)
+  exact fun x y a x_1 => a (x_1 + 1)
 -/
 #guard_msgs in
 def nullary6 (x : Nat) : Option Unit := nullary6 (x + 1)

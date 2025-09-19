@@ -41,6 +41,7 @@ structure PreDefinition where
   levelParams : List Name
   modifiers   : Modifiers
   declName    : Name
+  binders     : Syntax
   type        : Expr
   value       : Expr
   termination : TerminationHints
@@ -159,21 +160,28 @@ private def reportTheoremDiag (d : TheoremVal) : TermElabM Unit := do
       -- let info
       logInfo <| MessageData.trace { cls := `theorem } m!"{d.name}" (#[sizeMsg] ++ constOccsMsg)
 
--- TODO: should become part of the compiler to deal with erasure
-private def checkMeta (preDef : PreDefinition) : TermElabM Unit := do
-  preDef.value.forEach' fun e => do
-    if e.isAutoParam then
-      return false
-    if let .const c .. := e then
-      match getIRPhases (← getEnv) c, preDef.modifiers.isMeta with
-      | .runtime, true =>
-        throwError "Invalid meta definition, `{.ofConstName c}` must be `meta` to access"
-      | .comptime, false =>
-        throwError "Invalid definition, may not access `meta` declaration `{.ofConstName c}`"
-      | _, _ => pure ()
-    return true
+/--
+Adds the docstring, if relevant.
 
-private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) (cacheProofs := true) (cleanupValue := false) : TermElabM Unit :=
+This should be done just after compilation so the predefinition can be executed in examples in its
+docstring. If code generation will not occur, then it should be done after adding the declaration
+to the environment.
+-/
+def addPreDefDocs (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) : TermElabM Unit := do
+  if let some (doc, isVerso) := preDef.modifiers.docString? then
+    withLCtx docCtx.1 docCtx.2 do
+      addDocStringOf isVerso preDef.declName preDef.binders doc
+
+/--
+Adds constant info to the definition name. This should occur after executing post-compilation
+attributes, in case they have an effect on hovers.
+-/
+def addPreDefInfo (preDef : PreDefinition) : TermElabM Unit := do
+  withSaveInfoContext do  -- save new env that includes docstring and constant
+    addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
+
+
+private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) (cacheProofs := true) (cleanupValue := false) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs (cache := cacheProofs) preDef
     let preDef ← letToHaveType preDef
@@ -207,26 +215,29 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List N
       | DefKind.def | DefKind.example => mkDefDecl
       | DefKind.«instance» => if ← Meta.isProp preDef.type then mkThmDecl else mkDefDecl
     addDecl decl
-    withSaveInfoContext do  -- save new env
-      addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
     match preDef.modifiers.computeKind with
     | .meta          => modifyEnv (addMeta · preDef.declName)
     | .noncomputable => modifyEnv (addNoncomputable · preDef.declName)
-    | _              => pure ()
-    checkMeta preDef
+    | _              =>
+      if !preDef.kind.isTheorem then
+        modifyEnv (addNotMeta · preDef.declName)
     if compile && shouldGenCodeFor preDef then
       compileDecl decl
     if applyAttrAfterCompilation then
       enableRealizationsForConst preDef.declName
       generateEagerEqns preDef.declName
+    addPreDefDocs docCtx preDef
+    if applyAttrAfterCompilation then
       applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
+    addPreDefInfo preDef
 
-def addAndCompileNonRec (preDef : PreDefinition) (all : List Name := [preDef.declName]) (cleanupValue := false) : TermElabM Unit := do
-  addNonRecAux preDef (compile := true) (all := all) (cleanupValue := cleanupValue)
 
-def addNonRec (preDef : PreDefinition) (applyAttrAfterCompilation := true) (all : List Name := [preDef.declName]) (cacheProofs := true) (cleanupValue := false) : TermElabM Unit := do
-  addNonRecAux preDef (compile := false) (applyAttrAfterCompilation := applyAttrAfterCompilation) (all := all) (cacheProofs := cacheProofs) (cleanupValue := cleanupValue)
+def addAndCompileNonRec (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) (all : List Name := [preDef.declName]) (cleanupValue := false) : TermElabM Unit := do
+  addNonRecAux docCtx preDef (compile := true) (all := all) (cleanupValue := cleanupValue)
+
+def addNonRec (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) (applyAttrAfterCompilation := true) (all : List Name := [preDef.declName]) (cacheProofs := true) (cleanupValue := false) : TermElabM Unit := do
+  addNonRecAux docCtx preDef (compile := false) (applyAttrAfterCompilation := applyAttrAfterCompilation) (all := all) (cacheProofs := cacheProofs) (cleanupValue := cleanupValue)
 
 /--
   Eliminate recursive application annotations containing syntax. These annotations are used by the well-founded recursion module
@@ -240,7 +251,10 @@ def eraseRecAppSyntaxExpr (e : Expr) : CoreM Expr := do
 def eraseRecAppSyntax (preDef : PreDefinition) : CoreM PreDefinition :=
   return { preDef with value := (← eraseRecAppSyntaxExpr preDef.value) }
 
-def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSafety.unsafe) : TermElabM Unit := do
+def addAndCompileUnsafe
+    (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDefinition)
+    (safety := DefinitionSafety.unsafe) :
+    TermElabM Unit := do
   let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
   withRef preDefs[0]!.ref do
     let all  := preDefs.toList.map (·.declName)
@@ -253,18 +267,21 @@ def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSaf
         safety, all
       }
     addDecl decl
-    withSaveInfoContext do  -- save new env
-      for preDef in preDefs do
-        addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf preDefs AttributeApplicationTime.afterTypeChecking
     compileDecl decl
+    for preDef in preDefs do
+      addPreDefDocs docCtx preDef
     applyAttributesOf preDefs AttributeApplicationTime.afterCompilation
+    for preDef in preDefs do
+      addPreDefInfo preDef
     return ()
 
-def addAndCompilePartialRec (preDefs : Array PreDefinition) : TermElabM Unit := do
+def addAndCompilePartialRec
+    (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDefinition) :
+    TermElabM Unit := do
   if preDefs.all shouldGenCodeFor then
     withEnableInfoTree false do
-      addAndCompileUnsafe (safety := DefinitionSafety.partial) <| preDefs.map fun preDef =>
+      addAndCompileUnsafe docCtx (safety := DefinitionSafety.partial) <| preDefs.map fun preDef =>
         { preDef with
           declName  := Compiler.mkUnsafeRecName preDef.declName
           value     := preDef.value.replace fun e => match e with

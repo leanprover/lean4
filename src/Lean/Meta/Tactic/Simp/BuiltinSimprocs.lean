@@ -17,5 +17,7 @@ public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.String
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.BitVec
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.List
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Array
+public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.MethodSpecs
+public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.CtorIdx
 
 public section

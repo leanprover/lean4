@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Cycle
-// Imports: Init.Control.Except Init.Data.ToString
+// Imports: Init.Control.Except Init.Data.ToString Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -84,7 +84,6 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_3 = l_Lake_formatCycle___redArg___lam__0___closed__0;
 x_4 = lean_apply_1(x_1, x_2);
 x_5 = lean_string_append(x_3, x_4);
-lean_dec_ref(x_4);
 return x_5;
 }
 }
@@ -714,6 +713,7 @@ return x_7;
 }
 lean_object* initialize_Init_Control_Except(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_ToString(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Util_Cycle(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -723,6 +723,9 @@ res = initialize_Init_Control_Except(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_ToString(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_formatCycle___redArg___lam__0___closed__0 = _init_l_Lake_formatCycle___redArg___lam__0___closed__0();

@@ -1,5 +1,8 @@
-import Lean.ErrorExplanation
+module
+
+meta import Lean.ErrorExplanation
 import Lean.Meta.Basic
+import all Lean.Language.Basic
 open Lean Meta
 
 /-!
@@ -111,7 +114,7 @@ def withReportedOutput (x : MetaM α) : MetaM Unit := do
   let (res, fileName) ← IO.FS.withIsolatedStreams do
     let msgs := (← getThe Core.State).messages
     let fileName := msgs.toList[0]!.fileName
-    discard <| Language.reportMessages msgs {}
+    discard <| Language.reportMessages msgs {} false {} 0
     pure fileName
   Core.resetMessageLog
   -- We need to omit the path to the file, since that's host-dependent; also drop line

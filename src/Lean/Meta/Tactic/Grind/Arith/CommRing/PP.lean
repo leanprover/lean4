@@ -12,13 +12,15 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 
-private abbrev M := StateT Ring MetaM
+private abbrev M := StateT CommRing MetaM
 
-private instance : MonadRing M where
-  getRing := get
-  modifyRing := modify
+private instance : MonadCanon M where
   canonExpr e := return e
   synthInstance? e := Meta.synthInstance? e none
+
+private instance : MonadCommRing M where
+  getCommRing := get
+  modifyCommRing := modify
 
 private def toOption (cls : Name) (header : Thunk MessageData) (msgs : Array MessageData) : Option MessageData :=
   if msgs.isEmpty then
@@ -31,13 +33,13 @@ private def push (msgs : Array MessageData) (msg? : Option MessageData) : Array 
 
 private def ppBasis? : M (Option MessageData) := do
   let mut basis := #[]
-  for c in (← getRing).basis do
+  for c in (← getCommRing).basis do
     basis := basis.push (toTraceElem (← c.denoteExpr))
   return toOption `basis "Basis" basis
 
 private def ppDiseqs? : M (Option MessageData) := do
   let mut diseqs := #[]
-  for d in (← getRing).diseqs do
+  for d in (← getCommRing).diseqs do
     diseqs := diseqs.push (toTraceElem (← d.denoteExpr))
   return toOption `diseqs "Disequalities" diseqs
 
@@ -49,7 +51,7 @@ private def ppRing? : M (Option MessageData) := do
 
 def pp? (goal : Goal) : MetaM (Option MessageData) := do
   let mut msgs := #[]
-  for ring in goal.arith.ring.rings do
+  for ring in (← ringExt.getStateCore goal).rings do
     let some msg ← ppRing? |>.run' ring | pure ()
     msgs := msgs.push msg
   if msgs.isEmpty then
@@ -58,5 +60,12 @@ def pp? (goal : Goal) : MetaM (Option MessageData) := do
     return some msgs[0]
   else
     return some (.trace { cls := `ring } "Rings" msgs)
+
+def addThresholdMessage (goal : Goal) (c : Grind.Config) (msgs : Array MessageData) : IO (Array MessageData) := do
+  let s ← ringExt.getStateCore goal
+  if s.steps ≥ c.ringSteps then
+    return msgs.push <| .trace { cls := `limit } m!"maximum number of ring steps has been reached, threshold: `(ringSteps := {c.ringSteps})`" #[]
+  else
+    return msgs
 
 end Lean.Meta.Grind.Arith.CommRing

@@ -61,7 +61,7 @@ where
   /-- Create an `instance` command using the constructor `ctorName` with a hypothesis `Inhabited α` when `α` is one of the inductive type parameters
      at position `i` and `i ∈ assumingParamIdxs`. -/
   mkInstanceCmdWith (assumingParamIdxs : IndexSet) : TermElabM Syntax := do
-    let ctx ← Deriving.mkContext "inhabited" inductiveTypeName
+    let ctx ← Deriving.mkContext ``Inhabited "inhabited" inductiveTypeName
     let indVal ← getConstInfoInduct inductiveTypeName
     let ctorVal ← getConstInfoCtor ctorName
     let mut indArgs := #[]
@@ -81,7 +81,7 @@ where
     for _ in *...ctorVal.numFields do
       ctorArgs := ctorArgs.push (← ``(Inhabited.default))
     let val ← `(@$(mkIdent ctorName):ident $ctorArgs*)
-    let ctx ← mkContext "default" inductiveTypeName
+    let ctx ← mkContext ``Inhabited "default" inductiveTypeName
     let auxFunName := ctx.auxFunNames[0]!
     `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type := $val
       instance $binders:bracketedBinder* : Inhabited $type := ⟨$(mkIdent auxFunName)⟩)

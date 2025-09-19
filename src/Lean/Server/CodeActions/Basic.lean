@@ -37,12 +37,12 @@ structure CodeActionResolveData where
   providerResultIndex : Nat
   deriving ToJson, FromJson
 
-def CodeAction.getFileSource! (ca : CodeAction) : DocumentUri :=
-  let r : Except String DocumentUri := do
+def CodeAction.getFileSource! (ca : CodeAction) : FileIdent :=
+  let r : Except String FileIdent := do
     let some data := ca.data?
       | throw s!"no data param on code action {ca.title}"
     let data : CodeActionResolveData ← fromJson? data
-    return data.params.textDocument.uri
+    return .uri data.params.textDocument.uri
   match r with
   | Except.ok uri => uri
   | Except.error e => panic! e
@@ -91,6 +91,8 @@ builtin_initialize
       "Use to decorate methods for suggesting code actions. This is a low-level interface for making code actions."
     applicationTime := .afterCompilation
     add             := fun decl stx kind => do
+      if !builtin then
+        ensureAttrDeclIsMeta `name decl kind
       Attribute.Builtin.ensureNoArgs stx
       unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
       let declType := (← getConstInfo decl).type

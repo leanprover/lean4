@@ -24,7 +24,7 @@ namespace Option
 @[deprecated mem_def (since := "2025-04-07")]
 theorem mem_iff {a : α} {b : Option α} : a ∈ b ↔ b = some a := .rfl
 
-@[grind] theorem mem_some {a b : α} : a ∈ some b ↔ b = a := by simp
+@[grind =] theorem mem_some {a b : α} : a ∈ some b ↔ b = a := by simp
 
 theorem mem_some_iff {a b : α} : a ∈ some b ↔ b = a := mem_some
 
@@ -52,7 +52,7 @@ theorem get_of_mem : ∀ {o : Option α} (h : isSome o), a ∈ o → o.get h = a
 theorem get_of_eq_some : ∀ {o : Option α} (h : isSome o), o = some a → o.get h = a
   | _, _, rfl => rfl
 
-@[simp, grind] theorem not_mem_none (a : α) : a ∉ (none : Option α) := nofun
+@[simp, grind ←] theorem not_mem_none (a : α) : a ∉ (none : Option α) := nofun
 
 theorem getD_of_ne_none {x : Option α} (hx : x ≠ none) (y : α) : some (x.getD y) = x := by
   cases x; {contradiction}; rw [getD_some]

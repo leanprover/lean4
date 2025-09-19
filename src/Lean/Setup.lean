@@ -27,7 +27,7 @@ structure Import where
   importAll  : Bool := false
   /-- Whether to activate this import when the current module itself is imported. -/
   isExported : Bool := true
-  /-- Whether all definitions (transitively) reachable through the -/
+  /-- Whether to import IR for all definitions (transitively) reachable. -/
   isMeta     : Bool := false
   deriving Repr, Inhabited, ToJson, FromJson,
     BEq, Hashable -- needed by Lake (in `Lake.Load.Elab.Lean`)

@@ -9,6 +9,7 @@ prelude
 public import Lean.Parser.Attr
 public import Lean.Parser.Level
 public import Lean.Parser.Term.Doc
+meta import Lean.Parser.Basic
 
 public section
 
@@ -548,9 +549,9 @@ def funBinder : Parser :=
 -- NOTE: we disable anonymous antiquotations to ensure that `fun $b => ...`
 -- remains a `term` antiquotation
 def basicFun : Parser := leading_parser (withAnonymousAntiquot := false)
-  ppGroup (many1 (ppSpace >> funBinder) >> optType >> unicodeSymbol " ↦" " =>") >> ppSpace >> termParser
+  ppGroup (many1 (ppSpace >> funBinder) >> optType >> unicodeSymbol " ↦" " =>" (preserveForPP := true)) >> ppSpace >> termParser
 @[builtin_term_parser] def «fun» := leading_parser:maxPrec
-  ppAllowUngrouped >> unicodeSymbol "λ" "fun" >> (basicFun <|> matchAlts)
+  ppAllowUngrouped >> unicodeSymbol "λ" "fun" (preserveForPP := true) >> (basicFun <|> matchAlts)
 
 def optExprPrecedence := optional (atomic ":" >> termParser maxPrec)
 def withAnonymousAntiquot := leading_parser
@@ -568,7 +569,7 @@ Being borrowed only affects the ABI and runtime behavior of the function when co
 
 When a function argument is borrowed, the function does not consume the value. This means that the function will not decrement the value's reference count or deallocate it, and the caller is responsible for doing so.
 
-Please see https://lean-lang.org/lean4/doc/dev/ffi.html#borrowing for a complete description.
+Please see https://lean-lang.org/doc/reference/latest/find/?domain=Verso.Genre.Manual.section&name=ffi-borrowing for a complete description.
 -/
 @[builtin_term_parser] def borrowed   := leading_parser
   "@& " >> termParser leadPrec

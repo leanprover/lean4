@@ -60,6 +60,9 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
   if isProtected (← getEnv) id then
     m := m ++ "protected "
 
+  if isMeta (← getEnv) id then
+    m := m ++ "meta "
+
   if sig then
     return m!"{m}{kind} {id'}{levelParamsToMessageData levelParams} : {type}"
   else

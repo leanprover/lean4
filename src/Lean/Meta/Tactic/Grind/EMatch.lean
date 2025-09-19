@@ -395,21 +395,21 @@ private def assignUnassignedLevelMVars (us : Array LMVarId) (proof : Expr) (prop
       for c' in cs do
         let saved ← getMCtx
         try
-          unless (← isDefEq c c') do return ()
-          -- update pending universe metavariables
-          let us ← us.filterMapM fun u => do
-            let u ← instantiateLevelMVars u
-            if (← hasAssignableLevelMVar u) then
-              return some u
-            else
-              return none
-          if us.isEmpty then
-            -- all universe metavariables have been assigned
-            let prop ← instantiateMVars prop
-            let proof ← instantiateMVars proof
-            modify (·.push (proof, prop))
-            return () -- Found instantiation
-          search us (i+1)
+          if (← isDefEq c c') then
+            -- update pending universe metavariables
+            let us ← us.filterMapM fun u => do
+              let u ← instantiateLevelMVars u
+              if (← hasAssignableLevelMVar u) then
+                return some u
+              else
+                return none
+            if us.isEmpty then
+              -- all universe metavariables have been assigned
+              let prop ← instantiateMVars prop
+              let proof ← instantiateMVars proof
+              modify (·.push (proof, prop))
+              return () -- Found instantiation
+            search us (i+1)
         finally
           setMCtx saved
     else
@@ -421,6 +421,12 @@ private def getUnassignedLevelMVars (e : Expr) : MetaM (Array LMVarId) := do
   unless e.hasLevelMVar do return #[]
   let us := collectLevelMVars {} e |>.result
   us.filterM fun u => isLevelMVarAssignable u
+
+/-- Similar to `reportIssue!`, but only reports issue if `grind.debug` is set to `true` -/
+-- **Note**: issues reported by the E-matching module are too distractive. We only
+-- report them if `set_option grind.debug true`
+macro "reportEMatchIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
+  expandReportDbgIssueMacro s.raw
 
 /--
 Stores new theorem instance in the state.
@@ -435,7 +441,7 @@ private def addNewInstance (thm : EMatchTheorem) (proof : Expr) (generation : Na
   if !us.isEmpty then
     let pps ← assignUnassignedLevelMVars us proof prop
     if pps.isEmpty then
-      reportIssue! "failed to instantiate `{thm.origin.pp}`, proposition contains universe metavariables{indentExpr prop}"
+      reportEMatchIssue! "failed to instantiate `{thm.origin.pp}`, proposition contains universe metavariables{indentExpr prop}"
       return ()
     for (proof, prop) in pps do
       go proof prop
@@ -464,7 +470,7 @@ private def synthesizeInsts (mvars : Array Expr) (bis : Array BinderInfo) : Opti
     if bi.isInstImplicit && !(← mvar.mvarId!.isAssigned) then
       let type ← inferType mvar
       unless (← synthInstanceAndAssign mvar type) do
-        reportIssue! "failed to synthesize instance when instantiating {thm.origin.pp}{indentExpr type}"
+        reportEMatchIssue! "failed to synthesize instance when instantiating {thm.origin.pp}{indentExpr type}"
         failure
 
 private def preprocessGeneralizedPatternRHS (lhs : Expr) (rhs : Expr) (origin : Origin) (expectedType : Expr) : OptionT (StateT Choice M) Expr := do
@@ -476,12 +482,12 @@ private def preprocessGeneralizedPatternRHS (lhs : Expr) (rhs : Expr) (origin : 
   if (← isEqv lhs rhs) then
     return rhs
   else
-    reportIssue! "invalid generalized pattern at `{origin.pp}`\nwhen processing argument with type{indentExpr expectedType}\nfailed to prove{indentExpr lhs}\nis equal to{indentExpr rhs}"
+    reportEMatchIssue! "invalid generalized pattern at `{origin.pp}`\nwhen processing argument with type{indentExpr expectedType}\nfailed to prove{indentExpr lhs}\nis equal to{indentExpr rhs}"
     failure
 
 private def assignGeneralizedPatternProof (mvarId : MVarId) (eqProof : Expr) (origin : Origin) : OptionT (StateT Choice M) Unit := do
   unless (← mvarId.checkedAssign eqProof) do
-    reportIssue! "invalid generalized pattern at `{origin.pp}`\nfailed to assign {mkMVar mvarId}\nwith{indentExpr eqProof}"
+    reportEMatchIssue! "invalid generalized pattern at `{origin.pp}`\nfailed to assign {mkMVar mvarId}\nwith{indentExpr eqProof}"
     failure
 
 /-- Helper function for `applyAssignment. -/
@@ -497,7 +503,7 @@ private def processDelayed (mvars : Array Expr) (i : Nat) (h : i < mvars.size) :
     let rhs ← preprocessGeneralizedPatternRHS lhs rhs thm.origin mvarIdType
     assignGeneralizedPatternProof mvarId (← mkHEqProof lhs rhs) thm.origin
   | _ =>
-    reportIssue! "invalid generalized pattern at `{thm.origin.pp}`\nequality type expected{indentExpr mvarIdType}"
+    reportEMatchIssue! "invalid generalized pattern at `{thm.origin.pp}`\nequality type expected{indentExpr mvarIdType}"
     failure
 
 /-- Helper function for `applyAssignment. -/
@@ -530,7 +536,7 @@ private def processUnassigned (mvars : Array Expr) (i : Nat) (v : Expr) (h : i <
     if (← isProp vType) then
       modify (unassign · bidx)
     else
-      reportIssue! "type error constructing proof for {thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
+      reportEMatchIssue! "type error constructing proof for {thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
       failure
   if (← isDefEqD mvarIdType vType) then
     unless (← mvarId.checkedAssign v) do unassignOrFail
@@ -560,10 +566,26 @@ private def applyAssignment (mvars : Array Expr) : OptionT (StateT Choice M) Uni
   go 0
 
 /--
+Use a fresh name generator for creating internal metavariables for theorem instantiation.
+This is technique to ensure the metavariables ids do not depend on operations performed before invoking `grind`.
+Without this trick, we experience counterintuitive behavior where small changes affect the metavariable ids, and
+consequently the hash code for expressions, and operations such as `qsort` using `Expr.quickLt` in
+`assignUnassignedLevelMVars`.
+This code is correct because the auxiliary metavariables created during theorem instantiation cannot escape.
+-/
+private abbrev withFreshNGen (x : M α) : M α := do
+  let ngen ← getNGen
+  try
+    setNGen { namePrefix := `_uniq.grind.ematch, idx := 1 }
+    x
+  finally
+    setNGen ngen
+
+/--
 After processing a (multi-)pattern, use the choice assignment to instantiate the proof.
 Missing parameters are synthesized using type inference and type class synthesis."
 -/
-private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do withNewMCtxDepth do
+private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do withNewMCtxDepth do withFreshNGen do
   let thm := (← read).thm
   unless (← markTheoremInstance thm.proof c.assignment) do
     return ()
@@ -573,7 +595,7 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
   assert! c.assignment.size == numParams
   let (mvars, bis, _) ← forallMetaBoundedTelescope (← inferType proof) numParams
   if mvars.size != thm.numParams then
-    reportIssue! "unexpected number of parameters at {thm.origin.pp}"
+    reportEMatchIssue! "unexpected number of parameters at {thm.origin.pp}"
     return ()
   let (some _, c) ← applyAssignment mvars |>.run c | return ()
   let some _ ← synthesizeInsts mvars bis | return ()
@@ -583,7 +605,7 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
   else
     let mvars ← mvars.filterM fun mvar => return !(← mvar.mvarId!.isAssigned)
     if let some mvarBad ← mvars.findM? fun mvar => return !(← isProof mvar) then
-      reportIssue! "failed to instantiate {thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
+      reportEMatchIssue! "failed to instantiate {thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
     let proof ← mkLambdaFVars (binderInfoForMVars := .default) mvars (← instantiateMVars proof)
     addNewInstance thm proof c.gen
 

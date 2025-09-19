@@ -87,7 +87,7 @@ theorem mem_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {a b : α} (hab :
 @[simp, grind =] theorem contains_emptyWithCapacity {a : α} {c} : (emptyWithCapacity c : Raw α).contains a = false :=
   HashMap.Raw.contains_emptyWithCapacity
 
-@[simp, grind] theorem not_mem_emptyWithCapacity {a : α} {c} : ¬a ∈ (emptyWithCapacity c : Raw α) :=
+@[simp, grind ←] theorem not_mem_emptyWithCapacity {a : α} {c} : ¬a ∈ (emptyWithCapacity c : Raw α) :=
   HashMap.Raw.not_mem_emptyWithCapacity
 
 @[simp, grind =] theorem contains_empty {a : α} : (∅ : Raw α).contains a = false :=
@@ -268,6 +268,10 @@ theorem mem_iff_isSome_get? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α
 theorem isSome_get?_iff_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     (m.get? a).isSome ↔ a ∈ m :=
   (mem_iff_isSome_get? h).symm
+
+theorem get?_eq_some_iff [EquivBEq α] [LawfulHashable α] (h : m.WF) {k k' : α} :
+    m.get? k = some k' ↔ ∃ h : k ∈ m, m.get k h = k' :=
+  HashMap.Raw.getKey?_eq_some_iff h.out
 
 theorem mem_of_get?_eq_some [EquivBEq α] [LawfulHashable α] (h : m.WF) {a a' : α} :
     m.get? a = some a' → a' ∈ m :=
@@ -783,6 +787,12 @@ theorem ofList_singleton {k : α} :
 theorem ofList_cons {hd : α} {tl : List α} :
     ofList (hd :: tl) = insertMany ((∅ : Raw α).insert hd) tl :=
   ext HashMap.Raw.unitOfList_cons
+
+theorem ofList_eq_insertMany_empty {l : List α} :
+    ofList l = insertMany (∅ : Raw α) l :=
+  match l with
+  | [] => by simp [insertMany_nil .empty]
+  | hd :: tl => by simp [ofList_cons, insertMany_cons .empty]
 
 @[simp, grind =]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]

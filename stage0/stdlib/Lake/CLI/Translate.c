@@ -23,6 +23,7 @@ uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_mkConfigString___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_toString(lean_object*, lean_object*);
+extern lean_object* l_Lean_instInhabitedFileMap_default;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_0__Lake_descopeTSyntax(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
@@ -70,7 +71,6 @@ static lean_object* l_Lake_Package_mkConfigString___closed__8;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lake_CLI_Translate_0__Lake_descopeSyntax_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_Format_defWidth;
 extern lean_object* l_Lean_inheritedTraceOptions;
-extern lean_object* l_Lean_defaultFileMap____x40_Lean_Data_Position_635931889____hygCtx___hyg_23_;
 static lean_object* l_Lake_Package_mkConfigString___closed__30;
 static lean_object* l_Lake_Package_mkConfigString___closed__25;
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___Lake_Package_mkConfigString_spec__1___boxed(lean_object*, lean_object*);
@@ -734,7 +734,7 @@ static lean_object* _init_l_Lake_Package_mkConfigString___closed__25() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_defaultFileMap____x40_Lean_Data_Position_635931889____hygCtx___hyg_23_;
+x_1 = l_Lean_instInhabitedFileMap_default;
 return x_1;
 }
 }
@@ -1067,7 +1067,6 @@ lean_dec_ref(x_104);
 x_113 = l_Lake_Package_mkConfigString___closed__31;
 x_114 = l_Nat_reprFast(x_112);
 x_115 = lean_string_append(x_113, x_114);
-lean_dec_ref(x_114);
 x_116 = lean_mk_io_user_error(x_115);
 x_5 = x_116;
 x_6 = x_111;
@@ -1224,7 +1223,6 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object*
 x_7 = l_Lake_Package_mkConfigString___closed__0;
 x_8 = lean_io_error_to_string(x_5);
 x_9 = lean_string_append(x_7, x_8);
-lean_dec_ref(x_8);
 x_10 = 3;
 x_11 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_11, 0, x_9);

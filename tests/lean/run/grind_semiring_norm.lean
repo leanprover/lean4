@@ -15,11 +15,11 @@ example (a b : R) : (a + b)^2 ≠ a^2 + 2 * a * b + b^2 → False := by grind
 /--
 trace: [grind.debug.proof] fun h h_1 =>
       h_1
-        (Ring.OfSemiring.eq_normS (RArray.branch 1 (RArray.leaf a) (RArray.leaf b))
-          (((Ring.OfSemiring.Expr.var 0).add (Ring.OfSemiring.Expr.var 1)).pow 2)
-          ((((Ring.OfSemiring.Expr.var 0).pow 2).add
-                (((Ring.OfSemiring.Expr.num 2).mul (Ring.OfSemiring.Expr.var 0)).mul (Ring.OfSemiring.Expr.var 1))).add
-            ((Ring.OfSemiring.Expr.var 1).pow 2))
+        (CommRing.eq_normS (RArray.branch 1 (RArray.leaf a) (RArray.leaf b))
+          (((CommRing.Expr.var 0).add (CommRing.Expr.var 1)).pow 2)
+          ((((CommRing.Expr.var 0).pow 2).add
+                (((CommRing.Expr.num 2).mul (CommRing.Expr.var 0)).mul (CommRing.Expr.var 1))).add
+            ((CommRing.Expr.var 1).pow 2))
           (eagerReduce (Eq.refl true)))
 -/
 #guard_msgs in -- context should contain only `a` and `b`

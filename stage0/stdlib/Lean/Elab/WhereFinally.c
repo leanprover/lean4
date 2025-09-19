@@ -17,14 +17,14 @@ LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_none;
 LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_ctorIdx___boxed(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
-static lean_object* l_Lean_Elab_defaultWhereFinallyView___closed__0____x40_Lean_Elab_WhereFinally_1897664882____hygCtx___hyg_23_;
 LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_isNone___boxed(lean_object*);
+static lean_object* l_Lean_Elab_instInhabitedWhereFinallyView_default___closed__0;
 LEAN_EXPORT uint8_t l_Lean_Elab_WhereFinallyView_isNone(lean_object*);
 static lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__1;
 static lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Elab_defaultWhereFinallyView____x40_Lean_Elab_WhereFinally_1897664882____hygCtx___hyg_23_;
 uint8_t l_Lean_Syntax_isMissing(lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedWhereFinallyView_default;
 LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__0(lean_object*, lean_object*, lean_object*);
@@ -50,7 +50,7 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_defaultWhereFinallyView___closed__0____x40_Lean_Elab_WhereFinally_1897664882____hygCtx___hyg_23_() {
+static lean_object* _init_l_Lean_Elab_instInhabitedWhereFinallyView_default___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -61,11 +61,11 @@ lean_ctor_set(x_2, 1, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_defaultWhereFinallyView____x40_Lean_Elab_WhereFinally_1897664882____hygCtx___hyg_23_() {
+static lean_object* _init_l_Lean_Elab_instInhabitedWhereFinallyView_default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_defaultWhereFinallyView___closed__0____x40_Lean_Elab_WhereFinally_1897664882____hygCtx___hyg_23_;
+x_1 = l_Lean_Elab_instInhabitedWhereFinallyView_default___closed__0;
 return x_1;
 }
 }
@@ -73,7 +73,7 @@ static lean_object* _init_l_Lean_Elab_instInhabitedWhereFinallyView() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_defaultWhereFinallyView____x40_Lean_Elab_WhereFinally_1897664882____hygCtx___hyg_23_;
+x_1 = l_Lean_Elab_instInhabitedWhereFinallyView_default;
 return x_1;
 }
 }
@@ -81,7 +81,7 @@ static lean_object* _init_l_Lean_Elab_WhereFinallyView_none() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_defaultWhereFinallyView___closed__0____x40_Lean_Elab_WhereFinally_1897664882____hygCtx___hyg_23_;
+x_1 = l_Lean_Elab_instInhabitedWhereFinallyView_default___closed__0;
 return x_1;
 }
 }
@@ -306,10 +306,10 @@ _G_initialized = true;
 res = initialize_Lean_Parser_Term(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_defaultWhereFinallyView___closed__0____x40_Lean_Elab_WhereFinally_1897664882____hygCtx___hyg_23_ = _init_l_Lean_Elab_defaultWhereFinallyView___closed__0____x40_Lean_Elab_WhereFinally_1897664882____hygCtx___hyg_23_();
-lean_mark_persistent(l_Lean_Elab_defaultWhereFinallyView___closed__0____x40_Lean_Elab_WhereFinally_1897664882____hygCtx___hyg_23_);
-l_Lean_Elab_defaultWhereFinallyView____x40_Lean_Elab_WhereFinally_1897664882____hygCtx___hyg_23_ = _init_l_Lean_Elab_defaultWhereFinallyView____x40_Lean_Elab_WhereFinally_1897664882____hygCtx___hyg_23_();
-lean_mark_persistent(l_Lean_Elab_defaultWhereFinallyView____x40_Lean_Elab_WhereFinally_1897664882____hygCtx___hyg_23_);
+l_Lean_Elab_instInhabitedWhereFinallyView_default___closed__0 = _init_l_Lean_Elab_instInhabitedWhereFinallyView_default___closed__0();
+lean_mark_persistent(l_Lean_Elab_instInhabitedWhereFinallyView_default___closed__0);
+l_Lean_Elab_instInhabitedWhereFinallyView_default = _init_l_Lean_Elab_instInhabitedWhereFinallyView_default();
+lean_mark_persistent(l_Lean_Elab_instInhabitedWhereFinallyView_default);
 l_Lean_Elab_instInhabitedWhereFinallyView = _init_l_Lean_Elab_instInhabitedWhereFinallyView();
 lean_mark_persistent(l_Lean_Elab_instInhabitedWhereFinallyView);
 l_Lean_Elab_WhereFinallyView_none = _init_l_Lean_Elab_WhereFinallyView_none();

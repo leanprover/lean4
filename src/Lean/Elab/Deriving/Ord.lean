@@ -12,6 +12,7 @@ import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CasesOnSameCtor
+import Lean.Meta.SameCtorUtils
 
 register_builtin_option deriving.ord.linear_construction_threshold : Nat := {
   defValue := 0 -- only for testing, reset to 10 before merging
@@ -53,10 +54,17 @@ where
           ctorArgs2 := ctorArgs2.push (← `(_))
         for i in *...ctorInfo.numFields do
           let x := xs[indVal.numParams + i]!
-          if type.containsFVar x.fvarId! || (←isProp (←inferType x)) then
+          if (← isProof x) then
             -- If resulting type depends on this field or is a proof, we don't need to compare
             ctorArgs1 := ctorArgs1.push (← `(_))
             ctorArgs2 := ctorArgs2.push (← `(_))
+          else if occursOrInType (← getLCtx) x type then
+            -- If resulting type depends on this field, we don't need to compare
+            -- but use inaccessible patterns fail during pattern match compilation if their
+            -- equality does not actually follow from the equality between their types
+            let a := mkIdent (← mkFreshUserName `a)
+            ctorArgs1 := ctorArgs1.push a
+            ctorArgs2 := ctorArgs2.push (← `(term|.( $a:ident )))
           else
             let a := mkIdent (← mkFreshUserName `a)
             let b := mkIdent (← mkFreshUserName `b)
@@ -95,7 +103,7 @@ def mkMatchNew (header : Header) (indVal : InductiveVal) : TermElabM Term := do
       let mut rhsCont : Term → TermElabM Term := fun rhs => pure rhs
       for i in *...ctorInfo.numFields do
         let x := xs[indVal.numParams + i]!
-        if type.containsFVar x.fvarId! then
+        if occursOrInType (← getLCtx) x type then
           -- If resulting type depends on this field, we don't need to compare
           -- and the casesOnSameCtor only has a parameter for it once
           ctorArgs1 := ctorArgs1.push (← `(_))
@@ -133,11 +141,11 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   let indVal     := ctx.typeInfos[i]!
   let header     ← mkOrdHeader indVal
   let mut body   ← mkMatch header indVal
-  if ctx.usePartial || indVal.isRec then
+  if ctx.usePartial then
     let letDecls ← mkLocalInstanceLetDecls ctx `Ord header.argNames
     body ← mkLet letDecls body
   let binders    := header.binders
-  if ctx.usePartial || indVal.isRec then
+  if ctx.usePartial then
     `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Ordering := $body:term)
   else
     `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Ordering := $body:term)
@@ -152,8 +160,10 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
     end)
 
 private def mkOrdInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "ord" declName
-  let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Ord #[declName])
+  let ctx ← mkContext ``Ord "ord" declName (supportsRec := false)
+  let mut cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Ord #[declName])
+  unless ctx.usePartial do
+    cmds := cmds.push (← `(command| attribute [method_specs] $(mkIdent ctx.instName):ident))
   trace[Elab.Deriving.ord] "\n{cmds}"
   return cmds
 
@@ -162,7 +172,7 @@ private def mkOrdEnumFun (ctx : Context) (name : Name) : TermElabM Syntax := do
   `(def $(mkIdent auxFunName):ident (x y : $(mkCIdent name)) : Ordering := compare x.ctorIdx y.ctorIdx)
 
 private def mkOrdEnumCmd (name : Name): TermElabM (Array Syntax) := do
-  let ctx ← mkContext "ord" name
+  let ctx ← mkContext ``Ord "ord" name
   let cmds := #[← mkOrdEnumFun ctx name] ++ (← mkInstanceCmds ctx `Ord #[name])
   trace[Elab.Deriving.ord] "\n{cmds}"
   return cmds

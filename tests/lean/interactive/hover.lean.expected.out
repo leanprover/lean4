@@ -112,7 +112,8 @@
 {"range":
  {"start": {"line": 73, "character": 18}, "end": {"line": 73, "character": 25}},
  "contents":
- {"value": "```lean\nmyInfix : Lean.TrailingParserDescr\n```",
+ {"value":
+  "```lean\nmyInfix : Lean.TrailingParserDescr\n```\n***\nAddition of natural numbers, typically used via the `+` operator.\n\nThis function is overridden in both the kernel and the compiler to efficiently evaluate using the\narbitrary-precision arithmetic library. The definition provided here is the logical model.\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 73, "character": 39}}
@@ -630,7 +631,7 @@
   "end": {"line": 294, "character": 20}},
  "contents":
  {"value":
-  "```lean\nList.map.{u, v} {α : Type u} {β : Type v} (f : α → β) (l : List α) : List β\n```\n***\nApplies a function to each element of the list, returning the resulting list of values.\n\n`O(|l|)`.\n\nExamples:\n* `[a, b, c].map f = [f a, f b, f c]`\n* `[].map Nat.succ = []`\n* `[\"one\", \"two\", \"three\"].map (·.length) = [3, 3, 5]`\n* `[\"one\", \"two\", \"three\"].map (·.reverse) = [\"eno\", \"owt\", \"eerht\"]`\n\n***\n*import Init.Data.List.Basic*",
+  "```lean\nList.map.{u_1, u_2} {α : Type u_1} {β : Type u_2} (f : α → β) (l : List α) : List β\n```\n***\nApplies a function to each element of the list, returning the resulting list of values.\n\n`O(|l|)`.\n\nExamples:\n* `[a, b, c].map f = [f a, f b, f c]`\n* `[].map Nat.succ = []`\n* `[\"one\", \"two\", \"three\"].map (·.length) = [3, 3, 5]`\n* `[\"one\", \"two\", \"three\"].map (·.reverse) = [\"eno\", \"owt\", \"eerht\"]`\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 297, "character": 26}}

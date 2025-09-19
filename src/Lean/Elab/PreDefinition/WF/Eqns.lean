@@ -6,33 +6,31 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Tactic.Rewrite
-public import Lean.Meta.Tactic.Split
-public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.Eqns
-public import Lean.Meta.ArgsPacker.Basic
 public import Lean.Elab.PreDefinition.FixedParams
-public import Init.Data.Array.Basic
-
-public section
+public import Lean.Meta.ArgsPacker.Basic
+import Lean.Meta.Tactic.Rewrite
+import Lean.Meta.Tactic.Split
+import Lean.Elab.PreDefinition.Basic
+import Init.Data.Array.Basic
 
 namespace Lean.Elab.WF
 open Meta
 open Eqns
 
-structure EqnInfo extends EqnInfoCore where
+public structure EqnInfo extends EqnInfoCore where
   declNames       : Array Name
   declNameNonRec  : Name
   argsPacker      : ArgsPacker
   fixedParamPerms : FixedParamPerms
   deriving Inhabited
 
-builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ←
+public builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ←
   mkMapDeclarationExtension (exportEntriesFn := fun env s _ =>
     -- Do not export for non-exposed defs
     s.filter (fun n _ => env.find? n |>.any (·.hasValue)) |>.toArray)
 
-def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedParamPerms : FixedParamPerms)
+public def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedParamPerms : FixedParamPerms)
     (argsPacker : ArgsPacker) : MetaM Unit := do
   preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
   /-

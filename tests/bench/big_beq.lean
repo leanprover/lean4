@@ -33,7 +33,7 @@ def testGenImpl: CommandElab := fun stx => do
       -- Create constant case definitions
       `(inductive $t:ident (α : Type) : Type where
         $cons:ctor*
-        deriving BEq
+        deriving instance BEq for $t:ident
       )
     elabCommand idecl
   | _ =>

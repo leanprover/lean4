@@ -181,6 +181,10 @@ partial def reduceProjBeta? (e : Expr) : MetaM (Option Expr) :=
           let e' := mkAppRev f' rargs
           go (some e') e'.getAppFn e'.getAppRevArgs
         | none    => pure lastReduction
+      | .letE x ty val body nondep =>
+        match ← go none body rargs with
+        | none => pure lastReduction
+        | some body' => pure (some (.letE x ty val body' nondep))
       | _ => pure lastReduction
 
 def mkSpecContext (optConfig : Syntax) (lemmas : Syntax) (ignoreStarArg := false) : TacticM Context := do

@@ -348,6 +348,18 @@ theorem ext_getElem {l₁ l₂ : List α} (hl : length l₁ = length l₂)
 theorem getElem?_concat_length {l : List α} {a : α} : (l ++ [a])[l.length]? = some a := by
   simp
 
+theorem eq_getElem_of_length_eq_one : (l : List α) → (hl : l.length = 1) → l = [l[0]'(hl ▸ by decide)]
+  | [_], _ => rfl
+
+theorem eq_getElem_of_length_eq_two : (l : List α) → (hl : l.length = 2) → l = [l[0]'(hl ▸ by decide), l[1]'(hl ▸ by decide)]
+  | [_, _], _ => rfl
+
+theorem eq_getElem_of_length_eq_three : (l : List α) → (hl : l.length = 3) → l = [l[0]'(hl ▸ by decide), l[1]'(hl ▸ by decide), l[2]'(hl ▸ by decide)]
+  | [_, _, _], _ => rfl
+
+theorem eq_getElem_of_length_eq_four : (l : List α) → (hl : l.length = 4) → l = [l[0]'(hl ▸ by decide), l[1]'(hl ▸ by decide), l[2]'(hl ▸ by decide), l[3]'(hl ▸ by decide)]
+  | [_, _, _, _], _ => rfl
+
 /-! ### getD
 
 We simplify away `getD`, replacing `getD l n a` with `(l[n]?).getD a`.
@@ -2135,10 +2147,6 @@ theorem flatMap_singleton (f : α → List β) (x : α) : [x].flatMap f = f x :=
   | cons =>
     simp only [findSome?_cons]
     split <;> simp_all
-
-@[simp, grind _=_] theorem flatMap_append {xs ys : List α} {f : α → List β} :
-    (xs ++ ys).flatMap f = xs.flatMap f ++ ys.flatMap f := by
-  induction xs; {rfl}; simp_all [flatMap_cons, append_assoc]
 
 theorem flatMap_assoc {l : List α} {f : α → List β} {g : β → List γ} :
     (l.flatMap f).flatMap g = l.flatMap fun x => (f x).flatMap g := by

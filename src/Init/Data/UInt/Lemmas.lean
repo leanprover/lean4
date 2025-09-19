@@ -3163,3 +3163,15 @@ protected theorem USize.sub_lt {a b : USize} (hb : 0 < b) (hab : b ≤ a) : a - 
   rw [lt_iff_toNat_lt, USize.toNat_sub_of_le _ _ hab]
   refine Nat.sub_lt ?_ (USize.lt_iff_toNat_lt.1 hb)
   exact USize.lt_iff_toNat_lt.1 (USize.lt_of_lt_of_le hb hab)
+
+theorem UInt8.lt_add_one {c : UInt8} (h : c ≠ -1) : c < c + 1 :=
+  UInt8.lt_iff_toBitVec_lt.2 (BitVec.lt_add_one (by simpa [← UInt8.toBitVec_inj] using h))
+theorem UInt16.lt_add_one {c : UInt16} (h : c ≠ -1) : c < c + 1 :=
+  UInt16.lt_iff_toBitVec_lt.2 (BitVec.lt_add_one (by simpa [← UInt16.toBitVec_inj] using h))
+theorem UInt32.lt_add_one {c : UInt32} (h : c ≠ -1) : c < c + 1 :=
+  UInt32.lt_iff_toBitVec_lt.2 (BitVec.lt_add_one (by simpa [← UInt32.toBitVec_inj] using h))
+theorem UInt64.lt_add_one {c : UInt64} (h : c ≠ -1) : c < c + 1 :=
+  UInt64.lt_iff_toBitVec_lt.2 (BitVec.lt_add_one (by simpa [← UInt64.toBitVec_inj] using h))
+theorem USize.lt_add_one {c : USize} (h : c ≠ -1) : c < c + 1 :=
+  USize.lt_iff_toBitVec_lt.2 (BitVec.lt_add_one
+    (by simpa [← USize.toBitVec_inj, BitVec.neg_one_eq_allOnes] using h))

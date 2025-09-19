@@ -383,6 +383,18 @@ private meta def expandReportIssueMacro (s : Syntax) : MacroM (TSyntax `doElem) 
 macro "reportIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
   expandReportIssueMacro s.raw
 
+/-- Similar to `expandReportIssueMacro`, but only reports issue if `grind.debug` is set to `true` -/
+meta def expandReportDbgIssueMacro (s : Syntax) : MacroM (TSyntax `doElem) := do
+  let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
+  `(doElem| do
+    if (← getConfig).verbose then
+      if grind.debug.get (← getOptions) then
+        reportIssue $msg)
+
+/-- Similar to `reportIssue!`, but only reports issue if `grind.debug` is set to `true` -/
+macro "reportDbgIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
+  expandReportDbgIssueMacro s.raw
+
 /--
 Each E-node may have "solver terms" attached to them.
 Each term is an element of the equivalence class that the
@@ -460,6 +472,7 @@ inductive NewFact where
   | fact (prop proof : Expr) (generation : Nat)
 
 -- This type should be considered opaque outside this module.
+@[expose]  -- for codegen
 def ENodeMap := PHashMap ExprPtr ENode
 instance : Inhabited ENodeMap where
   default := private (id {})  -- TODO(sullrich): `id` works around `private` not respecting the expected type
@@ -735,6 +748,11 @@ structure UnitLike.State where
   map : PHashMap ExprPtr (Option Expr) := {}
   deriving Inhabited
 
+/-- State for injective theorem support. -/
+structure Injective.State where
+  thms : InjectiveTheorems
+  deriving Inhabited
+
 /-- The `grind` goal. -/
 structure Goal where
   mvarId       : MVarId
@@ -763,6 +781,8 @@ structure Goal where
   extThms      : PHashMap ExprPtr (Array Ext.ExtTheorem) := {}
   /-- State of the E-matching module. -/
   ematch       : EMatch.State
+  /-- State of the injective function procedure. -/
+  inj          : Injective.State
   /-- State of the case-splitting module. -/
   split        : Split.State := {}
   /-- State of the clean name generator. -/

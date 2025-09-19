@@ -1330,7 +1330,7 @@ def emptyRelation {α : Sort u} (_ _ : α) : Prop :=
 `Subrelation q r` means that `q ⊆ r` or `∀ x y, q x y → r x y`.
 It is the analogue of the subset relation on relations.
 -/
-def Subrelation {α : Sort u} (q r : α → α → Prop) :=
+@[reducible] def Subrelation {α : Sort u} (q r : α → α → Prop) :=
   ∀ {x y}, q x y → r x y
 
 /--
@@ -1580,6 +1580,7 @@ instance {p q : Prop} [d : Decidable (p ↔ q)] : Decidable (p = q) :=
 
 gen_injective_theorems% Array
 gen_injective_theorems% BitVec
+gen_injective_theorems% ByteArray
 gen_injective_theorems% Char
 gen_injective_theorems% DoResultBC
 gen_injective_theorems% DoResultPR

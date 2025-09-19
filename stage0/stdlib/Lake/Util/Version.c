@@ -219,7 +219,6 @@ LEAN_EXPORT lean_object* l_Lake_instReprToolchainVer_repr(lean_object*, lean_obj
 static lean_object* l_Lake_instReprSemVerCore_repr___redArg___closed__14;
 static lean_object* l_Lake_SemVerCore_parse___closed__2;
 uint8_t l_Substring_beq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_ToolchainVer_ofFile_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_prOrigin;
 static lean_object* l_Lake_ToolchainVer_ofString___closed__3;
 LEAN_EXPORT lean_object* l_Lake_instCoeStdVerSemVerCore___lam__0___boxed(lean_object*);
@@ -238,7 +237,6 @@ static lean_object* l_Lake_instReprSemVerCore_repr___redArg___closed__9;
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_decLe___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMinSemVerCore;
-LEAN_EXPORT lean_object* l_Lake_SemVerCore_parse___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedSemVerCore_default;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_ctorIdx(lean_object*);
@@ -978,6 +976,8 @@ return x_11;
 else
 {
 uint8_t x_12; 
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_12 = !lean_is_exclusive(x_3);
 if (x_12 == 0)
 {
@@ -1069,7 +1069,6 @@ lean_inc(x_21);
 lean_dec_ref(x_17);
 x_22 = l_Lake_instReprSemVerCore_repr___redArg___closed__1;
 x_23 = l_Lake_SemVerCore_parse___lam__0(x_19, x_22);
-lean_dec(x_19);
 if (lean_obj_tag(x_23) == 0)
 {
 lean_object* x_24; 
@@ -1089,7 +1088,6 @@ lean_inc(x_25);
 lean_dec_ref(x_23);
 x_26 = l_Lake_instReprSemVerCore_repr___redArg___closed__10;
 x_27 = l_Lake_SemVerCore_parse___lam__0(x_20, x_26);
-lean_dec(x_20);
 if (lean_obj_tag(x_27) == 0)
 {
 lean_object* x_28; 
@@ -1109,7 +1107,6 @@ lean_inc(x_29);
 lean_dec_ref(x_27);
 x_30 = l_Lake_instReprSemVerCore_repr___redArg___closed__12;
 x_31 = l_Lake_SemVerCore_parse___lam__0(x_21, x_30);
-lean_dec(x_21);
 if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; 
@@ -1169,7 +1166,6 @@ block_6:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = l_Lake_SemVerCore_parse___closed__0;
 x_4 = lean_string_append(x_3, x_2);
-lean_dec_ref(x_2);
 x_5 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_5, 0, x_4);
 return x_5;
@@ -1182,7 +1178,6 @@ x_9 = l_List_lengthTR___redArg(x_7);
 lean_dec(x_7);
 x_10 = l_Nat_reprFast(x_9);
 x_11 = lean_string_append(x_8, x_10);
-lean_dec_ref(x_10);
 x_12 = l_Lake_SemVerCore_parse___closed__2;
 x_13 = lean_string_append(x_11, x_12);
 x_2 = x_13;
@@ -1206,16 +1201,6 @@ lean_object* x_2;
 x_2 = l_String_split___at___Lake_SemVerCore_parse_spec__0(x_1);
 lean_dec_ref(x_1);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_SemVerCore_parse___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lake_SemVerCore_parse___lam__0(x_1, x_2);
-lean_dec_ref(x_2);
-lean_dec_ref(x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_SemVerCore_parse___boxed(lean_object* x_1) {
@@ -1251,11 +1236,9 @@ x_6 = l_Lake_SemVerCore_toString___closed__0;
 x_7 = lean_string_append(x_5, x_6);
 x_8 = l_Nat_reprFast(x_3);
 x_9 = lean_string_append(x_7, x_8);
-lean_dec_ref(x_8);
 x_10 = lean_string_append(x_9, x_6);
 x_11 = l_Nat_reprFast(x_4);
 x_12 = lean_string_append(x_10, x_11);
-lean_dec_ref(x_11);
 return x_12;
 }
 }
@@ -2157,7 +2140,6 @@ x_7 = l_Lake_SemVerCore_toString(x_2);
 x_8 = l_Lake_StdVer_toString___closed__0;
 x_9 = lean_string_append(x_7, x_8);
 x_10 = lean_string_append(x_9, x_3);
-lean_dec_ref(x_3);
 return x_10;
 }
 else
@@ -3794,15 +3776,6 @@ lean_dec_ref(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_ToolchainVer_ofFile_x3f___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lake_ToolchainVer_ofFile_x3f(x_1, x_2);
-lean_dec_ref(x_1);
-return x_3;
-}
-}
 static lean_object* _init_l_Lake_toolchainFileName___closed__0() {
 _start:
 {
@@ -3826,7 +3799,6 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_3 = l_Lake_toolchainFileName___closed__0;
 x_4 = l_System_FilePath_join(x_1, x_3);
 x_5 = l_Lake_ToolchainVer_ofFile_x3f(x_4, x_2);
-lean_dec_ref(x_4);
 return x_5;
 }
 }
@@ -3867,7 +3839,6 @@ lean_dec_ref(x_1);
 x_3 = l_Lake_ToolchainVer_toString___closed__0;
 x_4 = l_Lake_StdVer_toString(x_2);
 x_5 = lean_string_append(x_3, x_4);
-lean_dec_ref(x_4);
 return x_5;
 }
 case 1:
@@ -3879,7 +3850,6 @@ lean_dec_ref(x_1);
 x_7 = l_Lake_ToolchainVer_toString___closed__1;
 x_8 = l_Lake_Date_toString(x_6);
 x_9 = lean_string_append(x_7, x_8);
-lean_dec_ref(x_8);
 return x_9;
 }
 case 2:
@@ -3891,7 +3861,6 @@ lean_dec_ref(x_1);
 x_11 = l_Lake_ToolchainVer_toString___closed__2;
 x_12 = l_Nat_reprFast(x_10);
 x_13 = lean_string_append(x_11, x_12);
-lean_dec_ref(x_12);
 return x_13;
 }
 default: 

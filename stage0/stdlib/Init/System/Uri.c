@@ -1144,7 +1144,6 @@ x_8 = lean_uint8_to_nat(x_5);
 x_9 = l_hexDigitRepr(x_8);
 lean_dec(x_8);
 x_10 = lean_string_append(x_7, x_9);
-lean_dec_ref(x_9);
 x_11 = lean_unsigned_to_nat(0u);
 x_12 = l_String_mapAux___at_____private_Init_System_Uri_0__System_Uri_UriEscape_uriEscapeAsciiChar_uInt8ToHex_spec__0(x_11, x_10);
 return x_12;
@@ -1180,7 +1179,6 @@ x_7 = l_ByteArray_foldlMUnsafe_fold___at___System_Uri_UriEscape_uriEscapeAsciiCh
 x_8 = lean_string_append(x_4, x_7);
 x_9 = l___private_Init_System_Uri_0__System_Uri_UriEscape_uriEscapeAsciiChar_uInt8ToHex(x_6);
 x_10 = lean_string_append(x_8, x_9);
-lean_dec_ref(x_9);
 x_11 = 1;
 x_12 = lean_usize_add(x_2, x_11);
 x_2 = x_12;
@@ -1304,7 +1302,6 @@ x_20 = lean_uint8_of_nat(x_19);
 lean_dec(x_19);
 x_21 = l___private_Init_System_Uri_0__System_Uri_UriEscape_uriEscapeAsciiChar_uInt8ToHex(x_20);
 x_22 = lean_string_append(x_18, x_21);
-lean_dec_ref(x_21);
 return x_22;
 }
 }
@@ -1363,7 +1360,6 @@ x_7 = lean_string_utf8_get(x_1, x_3);
 lean_dec(x_3);
 x_8 = l_System_Uri_UriEscape_uriEscapeAsciiChar(x_7);
 x_9 = lean_string_append(x_4, x_8);
-lean_dec_ref(x_8);
 x_3 = x_6;
 x_4 = x_9;
 goto _start;
@@ -1536,7 +1532,6 @@ if (x_13 == 0)
 lean_object* x_14; lean_object* x_15; 
 x_14 = l_System_Uri_pathToUri___lam__0___closed__3;
 x_15 = lean_string_append(x_14, x_6);
-lean_dec_ref(x_6);
 return x_15;
 }
 else
@@ -1544,7 +1539,6 @@ else
 lean_object* x_16; lean_object* x_17; 
 x_16 = l_System_Uri_pathToUri___lam__0___closed__4;
 x_17 = lean_string_append(x_16, x_6);
-lean_dec_ref(x_6);
 return x_17;
 }
 }
@@ -1575,6 +1569,7 @@ else
 {
 lean_object* x_22; lean_object* x_23; uint8_t x_24; 
 x_22 = lean_unsigned_to_nat(2u);
+lean_inc_ref(x_8);
 x_23 = lean_string_length(x_8);
 x_24 = lean_nat_dec_le(x_22, x_23);
 lean_dec(x_23);
@@ -1794,6 +1789,7 @@ else
 {
 lean_object* x_58; lean_object* x_59; uint8_t x_60; 
 x_58 = lean_unsigned_to_nat(2u);
+lean_inc_ref(x_19);
 x_59 = lean_string_length(x_19);
 x_60 = lean_nat_dec_le(x_58, x_59);
 lean_dec(x_59);

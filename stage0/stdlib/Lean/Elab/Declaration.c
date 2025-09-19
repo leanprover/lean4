@@ -959,7 +959,6 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean
 x_11 = l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_ensureValidNamespace___closed__1;
 x_12 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_9);
 x_13 = lean_string_append(x_11, x_12);
-lean_dec_ref(x_12);
 x_14 = l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_ensureValidNamespace___closed__2;
 x_15 = lean_string_append(x_13, x_14);
 x_16 = l_Lean_Macro_throwError___redArg(x_15, x_2, x_3);
@@ -987,7 +986,6 @@ x_19 = l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_ensureValidNamespa
 x_20 = 1;
 x_21 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_20);
 x_22 = lean_string_append(x_19, x_21);
-lean_dec_ref(x_21);
 x_23 = l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_ensureValidNamespace___closed__3;
 x_24 = lean_string_append(x_22, x_23);
 x_25 = l_Lean_Macro_throwError___redArg(x_24, x_2, x_3);
@@ -19245,7 +19243,6 @@ x_21 = l_Lean_ensureNonAmbiguous___at___Lean_Elab_Command_elabAttr_spec__1___clo
 x_22 = lean_unsigned_to_nat(0u);
 x_23 = lean_format_pretty(x_20, x_21, x_22, x_22);
 x_24 = lean_string_append(x_17, x_23);
-lean_dec_ref(x_23);
 x_25 = l_Lean_ensureNonAmbiguous___at___Lean_Elab_Command_elabAttr_spec__1___closed__5;
 x_26 = lean_string_append(x_24, x_25);
 x_27 = lean_box(0);
@@ -19253,7 +19250,6 @@ x_28 = l_List_mapTR_loop___at___Lean_ensureNonAmbiguous___at___Lean_Elab_Command
 x_29 = l_List_toString___at___Lean_ensureNonAmbiguous___at___Lean_Elab_Command_elabAttr_spec__1_spec__3(x_28);
 lean_dec(x_28);
 x_30 = lean_string_append(x_26, x_29);
-lean_dec_ref(x_29);
 x_31 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_31, 0, x_30);
 x_32 = l_Lean_MessageData_ofFormat(x_31);

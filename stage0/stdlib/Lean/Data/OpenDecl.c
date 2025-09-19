@@ -342,9 +342,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13;
 x_10 = l_Lean_OpenDecl_instToString___lam__0___closed__0;
 x_11 = l_List_toString___redArg(x_2, x_5);
 x_12 = lean_string_append(x_10, x_11);
-lean_dec_ref(x_11);
 x_13 = lean_string_append(x_7, x_12);
-lean_dec_ref(x_12);
 return x_13;
 }
 else
@@ -370,7 +368,6 @@ x_18 = l_Lean_OpenDecl_instToString___lam__0___closed__1;
 x_19 = lean_string_append(x_17, x_18);
 x_20 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_15, x_16);
 x_21 = lean_string_append(x_19, x_20);
-lean_dec_ref(x_20);
 return x_21;
 }
 }

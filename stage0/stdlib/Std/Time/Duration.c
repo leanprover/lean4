@@ -765,6 +765,7 @@ _start:
 lean_object* x_3; uint32_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_3 = l_Std_Time_instToStringDuration_leftPad___closed__0;
 x_4 = 48;
+lean_inc_ref(x_2);
 x_5 = lean_string_length(x_2);
 x_6 = lean_nat_sub(x_1, x_5);
 lean_dec(x_5);
@@ -788,7 +789,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_Time_instToStringDuration_leftPad(x_1, x_2);
-lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -895,7 +895,6 @@ block_7:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_string_append(x_2, x_3);
-lean_dec_ref(x_3);
 x_5 = l_Std_Time_instToStringDuration___lam__0___closed__0;
 x_6 = lean_string_append(x_4, x_5);
 return x_6;
@@ -904,9 +903,7 @@ block_14:
 {
 lean_object* x_12; lean_object* x_13; 
 x_12 = l_Std_Time_instToStringDuration_leftPad(x_9, x_11);
-lean_dec_ref(x_11);
 x_13 = lean_string_append(x_8, x_12);
-lean_dec_ref(x_12);
 x_2 = x_10;
 x_3 = x_13;
 goto block_7;
@@ -917,7 +914,6 @@ lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23;
 x_20 = l_Std_Time_Internal_UnitVal_instToString___lam__0(x_18);
 lean_dec(x_18);
 x_21 = lean_string_append(x_17, x_20);
-lean_dec_ref(x_20);
 x_22 = l_Std_Time_instToStringDuration___lam__0___closed__1;
 x_23 = lean_int_dec_eq(x_16, x_22);
 lean_dec(x_16);
@@ -1049,7 +1045,6 @@ block_10:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_5 = lean_string_append(x_3, x_4);
-lean_dec_ref(x_4);
 x_6 = l_Std_Time_instToStringDuration___lam__0___closed__0;
 x_7 = lean_string_append(x_5, x_6);
 x_8 = l_String_quote(x_7);
@@ -1061,9 +1056,7 @@ block_17:
 {
 lean_object* x_15; lean_object* x_16; 
 x_15 = l_Std_Time_instToStringDuration_leftPad(x_12, x_14);
-lean_dec_ref(x_14);
 x_16 = lean_string_append(x_11, x_15);
-lean_dec_ref(x_15);
 x_3 = x_13;
 x_4 = x_16;
 goto block_10;
@@ -1074,7 +1067,6 @@ lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26;
 x_23 = l_Std_Time_Internal_UnitVal_instToString___lam__0(x_21);
 lean_dec(x_21);
 x_24 = lean_string_append(x_20, x_23);
-lean_dec_ref(x_23);
 x_25 = l_Std_Time_instToStringDuration___lam__0___closed__1;
 x_26 = lean_int_dec_eq(x_19, x_25);
 lean_dec(x_19);

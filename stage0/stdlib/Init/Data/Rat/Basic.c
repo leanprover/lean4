@@ -768,7 +768,6 @@ x_5 = l_instToStringRat___lam__0___closed__0;
 x_6 = lean_string_append(x_4, x_5);
 x_7 = l_Nat_reprFast(x_3);
 x_8 = lean_string_append(x_6, x_7);
-lean_dec_ref(x_7);
 return x_8;
 }
 }
@@ -843,12 +842,10 @@ block_15:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_9 = lean_string_append(x_7, x_8);
-lean_dec_ref(x_8);
 x_10 = l_instReprRat___lam__0___closed__1;
 x_11 = lean_string_append(x_9, x_10);
 x_12 = l_Nat_reprFast(x_4);
 x_13 = lean_string_append(x_11, x_12);
-lean_dec_ref(x_12);
 x_14 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_14, 0, x_13);
 return x_14;

@@ -3,15 +3,11 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
-
 module
-
 prelude
 public import Init.Core
 public import Init.Grind.Tactics
-
 public section
-
 namespace Function
 
 /--
@@ -51,6 +47,7 @@ theorem curry_apply {α β γ} (f : α × β → γ) (x : α) (y : β) : curry f
   rfl
 
 /-- A function `f : α → β` is called injective if `f x = f y` implies `x = y`. -/
+@[expose]
 def Injective (f : α → β) : Prop :=
   ∀ ⦃a₁ a₂⦄, f a₁ = f a₂ → a₁ = a₂
 
@@ -59,6 +56,7 @@ theorem Injective.comp {α β γ} {g : β → γ} {f : α → β} (hg : Injectiv
 
 /-- A function `f : α → β` is called surjective if every `b : β` is equal to `f a`
 for some `a : α`. -/
+@[expose]
 def Surjective (f : α → β) : Prop :=
   ∀ b, Exists fun a => f a = b
 
@@ -69,20 +67,22 @@ theorem Surjective.comp {α β γ} {g : β → γ} {f : α → β} (hg : Surject
       Exists.intro a (show g (f a) = c from Eq.trans (congrArg g ha) hb)
 
 /-- `LeftInverse g f` means that `g` is a left inverse to `f`. That is, `g ∘ f = id`. -/
-@[grind]
+@[expose, grind]
 def LeftInverse {α β} (g : β → α) (f : α → β) : Prop :=
   ∀ x, g (f x) = x
 
 /-- `HasLeftInverse f` means that `f` has an unspecified left inverse. -/
+@[expose]
 def HasLeftInverse {α β} (f : α → β) : Prop :=
   Exists fun finv : β → α => LeftInverse finv f
 
 /-- `RightInverse g f` means that `g` is a right inverse to `f`. That is, `f ∘ g = id`. -/
-@[grind]
+@[expose, grind]
 def RightInverse {α β} (g : β → α) (f : α → β) : Prop :=
   LeftInverse f g
 
 /-- `HasRightInverse f` means that `f` has an unspecified right inverse. -/
+@[expose]
 def HasRightInverse {α β} (f : α → β) : Prop :=
   Exists fun finv : β → α => RightInverse finv f
 

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Tactics
 public import Lean.Meta.Tactic.Grind.Main
@@ -15,9 +14,7 @@ public import Lean.Elab.Tactic.Config
 import Lean.Meta.Tactic.Grind.SimpUtil
 import Lean.Elab.MutualDef
 meta import Lean.Meta.Tactic.Grind.Parser
-
 public section
-
 namespace Lean.Elab.Tactic
 open Meta
 
@@ -52,6 +49,7 @@ open Command in
 def elabResetGrindAttrs : CommandElab := fun _ => liftTermElabM do
   Grind.resetCasesExt
   Grind.resetEMatchTheoremsExt
+  Grind.resetInjectiveTheoremsExt
   -- Remark: we do not reset symbol priorities because we would have to then set
   -- `[grind symbol 0] Eq` after a `reset_grind_attr%` command.
   -- Grind.resetSymbolPrioExt
@@ -91,6 +89,8 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
       if let some declName ← Grind.isCasesAttrCandidate? declName false then
         Grind.ensureNotBuiltinCases declName
         params := { params with casesTypes := (← params.casesTypes.eraseDecl declName) }
+      else if (← Grind.isInjectiveTheorem declName) then
+        params := { params with inj := params.inj.erase (.decl declName) }
       else
         params := { params with ematch := (← params.ematch.eraseDecl declName) }
     | `(Parser.Tactic.grindParam| $[$mod?:grindMod]? $id:ident) =>
@@ -143,6 +143,9 @@ where
           params ← withRef p <| addEMatchTheorem params ctor (.default false) minIndexable
       else
         throwError "invalid use of `intro` modifier, `{.ofConstName declName}` is not an inductive predicate"
+    | .inj =>
+      let thm ← Grind.mkInjectiveTheorem declName
+      params := { params with inj := params.inj.insert thm }
     | .ext =>
       throwError "`[grind ext]` cannot be set using parameters"
     | .infer =>
@@ -197,9 +200,12 @@ where
 def mkGrindParams (config : Grind.Config) (only : Bool) (ps :  TSyntaxArray ``Parser.Tactic.grindParam) : MetaM Grind.Params := do
   let params ← Grind.mkParams config
   let ematch ← if only then pure default else Grind.getEMatchTheorems
+  let inj ← if only then pure default else Grind.getInjectiveTheorems
   let casesTypes ← if only then pure default else Grind.getCasesTypes
-  let params := { params with ematch, casesTypes }
-  elabGrindParams params ps only
+  let params := { params with ematch, casesTypes, inj }
+  let params ← elabGrindParams params ps only
+  trace[grind.debug.inj] "{params.inj.getOrigins.map (·.pp)}"
+  return params
 
 def grind
     (mvarId : MVarId) (config : Grind.Config)

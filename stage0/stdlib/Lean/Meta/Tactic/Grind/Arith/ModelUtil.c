@@ -7388,7 +7388,6 @@ x_34 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____
 x_35 = lean_string_append(x_33, x_34);
 x_36 = l_Nat_reprFast(x_20);
 x_37 = lean_string_append(x_35, x_36);
-lean_dec_ref(x_36);
 x_23 = x_37;
 goto block_32;
 }
@@ -7509,7 +7508,6 @@ x_77 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____
 x_78 = lean_string_append(x_76, x_77);
 x_79 = l_Nat_reprFast(x_62);
 x_80 = lean_string_append(x_78, x_79);
-lean_dec_ref(x_79);
 x_66 = x_80;
 goto block_75;
 }
@@ -7654,7 +7652,6 @@ x_34 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____
 x_35 = lean_string_append(x_33, x_34);
 x_36 = l_Nat_reprFast(x_20);
 x_37 = lean_string_append(x_35, x_36);
-lean_dec_ref(x_36);
 x_23 = x_37;
 goto block_32;
 }
@@ -7768,7 +7765,6 @@ x_77 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____
 x_78 = lean_string_append(x_76, x_77);
 x_79 = l_Nat_reprFast(x_62);
 x_80 = lean_string_append(x_78, x_79);
-lean_dec_ref(x_79);
 x_66 = x_80;
 goto block_75;
 }

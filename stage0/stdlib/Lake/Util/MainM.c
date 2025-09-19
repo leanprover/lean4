@@ -999,7 +999,6 @@ uint8_t x_6; uint8_t x_7; lean_object* x_8;
 x_6 = lean_unbox(x_2);
 x_7 = lean_unbox(x_3);
 x_8 = l_Lake_MainM_instMonadLog___lam__0(x_1, x_6, x_7, x_4, x_5);
-lean_dec_ref(x_4);
 lean_dec(x_1);
 return x_8;
 }
@@ -1016,7 +1015,6 @@ x_8 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_8, 0, x_1);
 lean_ctor_set_uint8(x_8, sizeof(void*)*1, x_7);
 x_9 = l_Lake_OutStream_logEntry(x_6, x_8, x_4, x_5, x_3);
-lean_dec_ref(x_8);
 x_10 = !lean_is_exclusive(x_9);
 if (x_10 == 0)
 {
@@ -1054,7 +1052,6 @@ x_9 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_9, 0, x_2);
 lean_ctor_set_uint8(x_9, sizeof(void*)*1, x_8);
 x_10 = l_Lake_OutStream_logEntry(x_7, x_9, x_5, x_6, x_4);
-lean_dec_ref(x_9);
 x_11 = !lean_is_exclusive(x_10);
 if (x_11 == 0)
 {
@@ -1121,7 +1118,6 @@ x_8 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_8, 0, x_2);
 lean_ctor_set_uint8(x_8, sizeof(void*)*1, x_7);
 x_9 = l_Lake_OutStream_logEntry(x_6, x_8, x_4, x_5, x_3);
-lean_dec_ref(x_8);
 x_10 = !lean_is_exclusive(x_9);
 if (x_10 == 0)
 {
@@ -1208,7 +1204,6 @@ x_16 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_16, 0, x_11);
 lean_ctor_set_uint8(x_16, sizeof(void*)*1, x_15);
 x_17 = l_Lake_OutStream_logEntry(x_14, x_16, x_12, x_13, x_10);
-lean_dec_ref(x_16);
 x_18 = !lean_is_exclusive(x_17);
 if (x_18 == 0)
 {
@@ -1625,7 +1620,6 @@ uint8_t x_6; uint8_t x_7; lean_object* x_8;
 x_6 = lean_unbox(x_2);
 x_7 = lean_unbox(x_3);
 x_8 = l_Lake_MainM_runLogIO___redArg___lam__0(x_1, x_6, x_7, x_4, x_5);
-lean_dec_ref(x_4);
 return x_8;
 }
 }
@@ -1636,7 +1630,6 @@ uint8_t x_6; uint8_t x_7; lean_object* x_8;
 x_6 = lean_unbox(x_2);
 x_7 = lean_unbox(x_3);
 x_8 = l_Lake_MainM_runLogIO___redArg___lam__1(x_1, x_6, x_7, x_4, x_5);
-lean_dec_ref(x_4);
 return x_8;
 }
 }

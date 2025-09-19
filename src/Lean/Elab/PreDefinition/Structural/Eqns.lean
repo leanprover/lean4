@@ -6,16 +6,16 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Eqns
-public import Lean.Meta.Tactic.Split
-public import Lean.Meta.Tactic.Simp.Main
-public import Lean.Meta.Tactic.Apply
-public import Lean.Elab.PreDefinition.Basic
+public import Lean.Meta.Basic
 public import Lean.Elab.PreDefinition.Eqns
 public import Lean.Elab.PreDefinition.FixedParams
-public import Lean.Elab.PreDefinition.Structural.Basic
-
-public section
+import Lean.Meta.Eqns
+import Lean.Meta.Tactic.Split
+import Lean.Meta.Tactic.Simp.Main
+import Lean.Meta.Tactic.Apply
+import Lean.Elab.PreDefinition.Basic
+import Lean.Elab.PreDefinition.Structural.Basic
+import Lean.Meta.Match.MatchEqs
 
 namespace Lean.Elab
 open Meta
@@ -23,7 +23,7 @@ open Eqns
 
 namespace Structural
 
-structure EqnInfo extends EqnInfoCore where
+public structure EqnInfo extends EqnInfoCore where
   recArgPos : Nat
   declNames : Array Name
   fixedParamPerms : FixedParamPerms
@@ -138,12 +138,12 @@ where
     }
     inferDefEqAttr name
 
-builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ←
+public builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ←
   mkMapDeclarationExtension (exportEntriesFn := fun env s _ =>
     -- Do not export for non-exposed defs
     s.filter (fun n _ => env.find? n |>.any (·.hasValue)) |>.toArray)
 
-def registerEqnsInfo (preDef : PreDefinition) (declNames : Array Name) (recArgPos : Nat)
+public def registerEqnsInfo (preDef : PreDefinition) (declNames : Array Name) (recArgPos : Nat)
     (fixedParamPerms : FixedParamPerms) : CoreM Unit := do
   ensureEqnReservedNamesAvailable preDef.declName
   modifyEnv fun env => eqnInfoExt.insert env preDef.declName

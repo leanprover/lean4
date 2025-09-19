@@ -14608,7 +14608,6 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_obj
 x_2 = l___private_Lake_Config_Meta_0__Lake_mkParentFieldView___lam__0___closed__0;
 x_3 = l_Lean_Name_getString_x21(x_1);
 x_4 = lean_string_append(x_2, x_3);
-lean_dec_ref(x_3);
 x_5 = lean_box(0);
 x_6 = l_Lean_Name_str___override(x_5, x_4);
 return x_6;

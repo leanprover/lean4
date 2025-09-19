@@ -340,8 +340,8 @@ A loop invariant is a `PostCond` that takes as parameters
   `let mut` variables and early return.
 
 The loop specification lemmas will use this in the following way:
-Before entering the loop, the zipper's prefix is empty and the suffix is `xs`.
-After leaving the loop, the zipper's suffix is empty and the prefix is `xs`.
+Before entering the loop, the cursor's prefix is empty and the suffix is `xs`.
+After leaving the loop, the cursor's prefix is `xs` and the suffix is empty.
 During the induction step, the invariant holds for a suffix with head element `x`.
 After running the loop body, the invariant then holds after shifting `x` to the prefix.
 -/

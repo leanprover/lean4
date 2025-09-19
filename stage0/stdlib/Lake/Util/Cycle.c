@@ -84,7 +84,6 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_3 = l_Lake_formatCycle___redArg___lam__0___closed__0;
 x_4 = lean_apply_1(x_1, x_2);
 x_5 = lean_string_append(x_3, x_4);
-lean_dec_ref(x_4);
 return x_5;
 }
 }

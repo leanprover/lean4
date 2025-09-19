@@ -5737,12 +5737,10 @@ x_49 = l_Lean_Environment_realizeValue___at___Lean_Meta_realizeValue___at_____pr
 x_50 = 1;
 x_51 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_50);
 x_52 = lean_string_append(x_49, x_51);
-lean_dec_ref(x_51);
 x_53 = l_Lean_Environment_realizeValue___at___Lean_Meta_realizeValue___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__15_spec__15___closed__1;
 x_54 = lean_string_append(x_52, x_53);
 x_55 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_3, x_50);
 x_56 = lean_string_append(x_54, x_55);
-lean_dec_ref(x_55);
 x_57 = l_Lean_Environment_realizeValue___at___Lean_Meta_realizeValue___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__15_spec__15___closed__2;
 x_58 = lean_string_append(x_56, x_57);
 x_59 = lean_alloc_ctor(18, 1, 0);

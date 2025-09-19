@@ -6758,7 +6758,6 @@ x_21 = l_Lean_ensureNonAmbiguous___at___Lean_resolveGlobalConstNoOverload___at__
 x_22 = lean_unsigned_to_nat(0u);
 x_23 = lean_format_pretty(x_20, x_21, x_22, x_22);
 x_24 = lean_string_append(x_17, x_23);
-lean_dec_ref(x_23);
 x_25 = l_Lean_ensureNonAmbiguous___at___Lean_resolveGlobalConstNoOverload___at_____private_Lean_Elab_Tactic_Grind_0__Lean_Elab_Tactic_elabGrindPattern_go_spec__0_spec__12___closed__6;
 x_26 = lean_string_append(x_24, x_25);
 x_27 = lean_box(0);
@@ -6766,7 +6765,6 @@ x_28 = l_List_mapTR_loop___at___Lean_ensureNonAmbiguous___at___Lean_resolveGloba
 x_29 = l_List_toString___at___Lean_ensureNonAmbiguous___at___Lean_resolveGlobalConstNoOverload___at_____private_Lean_Elab_Tactic_Grind_0__Lean_Elab_Tactic_elabGrindPattern_go_spec__0_spec__12_spec__14(x_28);
 lean_dec(x_28);
 x_30 = lean_string_append(x_26, x_29);
-lean_dec_ref(x_29);
 x_31 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_31, 0, x_30);
 x_32 = l_Lean_MessageData_ofFormat(x_31);

@@ -21622,7 +21622,6 @@ lean_free_object(x_19);
 x_26 = l_Lean_resolveNamespaceCore___at___Lean_resolveNamespace___at___Lean_resolveUniqueNamespace___at___Lean_Elab_OpenDecl_elabOpenDecl___at___Lean_Elab_Term_elabOpen_spec__4_spec__8_spec__8_spec__9___closed__0;
 x_27 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_25);
 x_28 = lean_string_append(x_26, x_27);
-lean_dec_ref(x_27);
 x_29 = l___private_Lean_Elab_BuiltinTerm_0__Lean_Elab_Term_getMVarFromUserName___closed__2;
 x_30 = lean_string_append(x_28, x_29);
 x_31 = lean_alloc_ctor(3, 1, 0);
@@ -21689,7 +21688,6 @@ lean_dec(x_41);
 x_44 = l_Lean_resolveNamespaceCore___at___Lean_resolveNamespace___at___Lean_resolveUniqueNamespace___at___Lean_Elab_OpenDecl_elabOpenDecl___at___Lean_Elab_Term_elabOpen_spec__4_spec__8_spec__8_spec__9___closed__0;
 x_45 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_42);
 x_46 = lean_string_append(x_44, x_45);
-lean_dec_ref(x_45);
 x_47 = l___private_Lean_Elab_BuiltinTerm_0__Lean_Elab_Term_getMVarFromUserName___closed__2;
 x_48 = lean_string_append(x_46, x_47);
 x_49 = lean_alloc_ctor(3, 1, 0);
@@ -22136,12 +22134,10 @@ lean_dec(x_1);
 x_16 = 1;
 x_17 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_15, x_16);
 x_18 = lean_string_append(x_14, x_17);
-lean_dec_ref(x_17);
 x_19 = l_Lean_resolveUniqueNamespace___at___Lean_Elab_OpenDecl_elabOpenDecl___at___Lean_Elab_Term_elabOpen_spec__4_spec__8___closed__1;
 x_20 = lean_string_append(x_18, x_19);
 x_21 = l_List_toString___at___Lean_resolveUniqueNamespace___at___Lean_Elab_OpenDecl_elabOpenDecl___at___Lean_Elab_Term_elabOpen_spec__4_spec__8_spec__13(x_12);
 x_22 = lean_string_append(x_20, x_21);
-lean_dec_ref(x_21);
 x_23 = l___private_Lean_Elab_BuiltinTerm_0__Lean_Elab_Term_getMVarFromUserName___closed__2;
 x_24 = lean_string_append(x_22, x_23);
 x_25 = lean_alloc_ctor(3, 1, 0);
@@ -22195,12 +22191,10 @@ lean_dec(x_1);
 x_35 = 1;
 x_36 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_34, x_35);
 x_37 = lean_string_append(x_33, x_36);
-lean_dec_ref(x_36);
 x_38 = l_Lean_resolveUniqueNamespace___at___Lean_Elab_OpenDecl_elabOpenDecl___at___Lean_Elab_Term_elabOpen_spec__4_spec__8___closed__1;
 x_39 = lean_string_append(x_37, x_38);
 x_40 = l_List_toString___at___Lean_resolveUniqueNamespace___at___Lean_Elab_OpenDecl_elabOpenDecl___at___Lean_Elab_Term_elabOpen_spec__4_spec__8_spec__13(x_31);
 x_41 = lean_string_append(x_39, x_40);
-lean_dec_ref(x_40);
 x_42 = l___private_Lean_Elab_BuiltinTerm_0__Lean_Elab_Term_getMVarFromUserName___closed__2;
 x_43 = lean_string_append(x_41, x_42);
 x_44 = lean_alloc_ctor(3, 1, 0);
@@ -32711,6 +32705,7 @@ lean_inc(x_16);
 lean_dec_ref(x_14);
 x_17 = lean_ctor_get(x_6, 0);
 x_18 = lean_ctor_get(x_6, 5);
+lean_inc_ref(x_17);
 x_19 = l_System_FilePath_parent(x_17);
 if (lean_obj_tag(x_19) == 0)
 {
@@ -32752,9 +32747,7 @@ if (x_27 == 0)
 lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 x_28 = lean_ctor_get(x_19, 0);
 x_29 = l_System_FilePath_join(x_28, x_15);
-lean_dec(x_15);
 x_30 = l_IO_FS_readFile(x_29, x_16);
-lean_dec_ref(x_29);
 if (lean_obj_tag(x_30) == 0)
 {
 uint8_t x_31; 
@@ -32831,9 +32824,7 @@ x_49 = lean_ctor_get(x_19, 0);
 lean_inc(x_49);
 lean_dec(x_19);
 x_50 = l_System_FilePath_join(x_49, x_15);
-lean_dec(x_15);
 x_51 = l_IO_FS_readFile(x_50, x_16);
-lean_dec_ref(x_50);
 if (lean_obj_tag(x_51) == 0)
 {
 lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; 

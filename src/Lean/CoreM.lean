@@ -408,7 +408,9 @@ itself after calling `act` as well as by reuse-handling code such as the one sup
 
 /-- Restore backtrackable parts of the state. -/
 def SavedState.restore (b : SavedState) : CoreM Unit :=
-  modify fun s => { s with env := b.env, messages := b.messages, infoState := b.infoState }
+  modify fun s => { s with
+      env := b.env, messages := b.messages, infoState := b.infoState
+      snapshotTasks := b.snapshotTasks }
 
 private def mkFreshNameImp (n : Name) : CoreM Name := do
   withFreshMacroScope do

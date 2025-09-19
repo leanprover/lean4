@@ -558,7 +558,7 @@ instance : Coe TimeZone Awareness where
   coe := .only
 
 set_option linter.missingDocs false in  -- TODO
-@[simp]
+@[simp, expose /- for codegen -/]
 def type (x : Awareness) : Type :=
   match x with
   | .any => ZonedDateTime
@@ -771,6 +771,7 @@ private def toIsoString (offset : Offset) (withMinutes : Bool) (withSeconds : Bo
   data
 
 set_option linter.missingDocs false in  -- TODO
+@[expose /- for codegen -/]
 def TypeFormat : Modifier → Type
   | .G _ => Year.Era
   | .y _ => Year.Offset
@@ -1273,7 +1274,7 @@ private def formatPartWithDate (date : DateTime tz) (part : FormatPart) : String
   | .string s => s
 
 set_option linter.missingDocs false in  -- TODO
-@[simp]
+@[simp, expose /- for codegen -/]
 def FormatType (result : Type) : FormatString → Type
   | .modifier entry :: xs => (TypeFormat entry) → (FormatType result xs)
   | .string _ :: xs => (FormatType result xs)

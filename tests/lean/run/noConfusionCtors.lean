@@ -82,7 +82,7 @@ info: @[reducible] def Tmₛ.app.noConfusion.{u_1, u} : (P : Sort u_1) →
     {A : T → Tyₛ} →
       (a : Tmₛ (Tyₛ.SPi T A)) →
         (arg : T) → (a' : Tmₛ (Tyₛ.SPi T A)) → a.app arg = a'.app arg → (T = T → A ≍ A → a ≍ a' → arg ≍ arg → P) → P :=
-fun P {T} {A} a arg a' h k => Tmₛ.noConfusion h k
+fun P {T} {A} a arg a' h k => id (Tmₛ.noConfusion h k)
 -/
 #guard_msgs in #print Tmₛ.app.noConfusion
 

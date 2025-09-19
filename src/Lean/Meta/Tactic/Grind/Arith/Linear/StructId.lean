@@ -102,7 +102,8 @@ private def mkLawfulOrderLTInst? (u : Level) (type : Expr) (ltInst? leInst? : Op
   let some leInst := leInst? | return none
   let lawfulOrderLTType := mkApp3 (mkConst ``Std.LawfulOrderLT [u]) type ltInst leInst
   let some inst ← synthInstance? lawfulOrderLTType
-    | reportIssue! "type has `LE` and `LT`, but the `LT` instance is not lawful, failed to synthesize{indentExpr lawfulOrderLTType}"
+    | reportIssue! "type has `LE` and `LT`, but the `LT` instance is not lawful, failed to synthesize{indentExpr lawfulOrderLTType}\n\
+        the `linarith` module will not process strict inequalities in this type"
       return none
   return some inst
 
@@ -110,7 +111,8 @@ private def mkIsPreorderInst? (u : Level) (type : Expr) (leInst? : Option Expr) 
   let some leInst := leInst? | return none
   let isPreorderType := mkApp2 (mkConst ``Std.IsPreorder [u]) type leInst
   let some inst ← synthInstance? isPreorderType
-    | reportIssue! "type has `LE`, but is not a preorder, failed to synthesize{indentExpr isPreorderType}"
+    | reportIssue! "type has `LE`, but is not a preorder, failed to synthesize{indentExpr isPreorderType}\n\
+        the `linarith` module will not run on this type"
       return none
   return some inst
 
@@ -118,7 +120,8 @@ private def mkIsPartialOrderInst? (u : Level) (type : Expr) (leInst? : Option Ex
   let some leInst := leInst? | return none
   let isPartialOrderType := mkApp2 (mkConst ``Std.IsPartialOrder [u]) type leInst
   let some inst ← synthInstance? isPartialOrderType
-    | reportIssue! "type has `LE`, but is not a partial order, failed to synthesize{indentExpr isPartialOrderType}"
+    | -- There is no need to report an issue here, as behaviour doesn't change: we only synthesize the partial order instance
+      -- in order to check the linear order and preorder instances are compatible.
       return none
   return some inst
 
@@ -126,7 +129,8 @@ private def mkIsLinearOrderInst? (u : Level) (type : Expr) (leInst?  : Option Ex
   let some leInst := leInst? | return none
   let isLinearOrderType := mkApp2 (mkConst ``Std.IsLinearOrder [u]) type leInst
   let some inst ← synthInstance? isLinearOrderType
-    | reportIssue! "type has `LE`, but is not a linear order, failed to synthesize{indentExpr isLinearOrderType}"
+    | reportIssue! "type has `LE`, but is not a linear order, failed to synthesize{indentExpr isLinearOrderType}\n\
+        the `linarith` module will not process disequalities in this type (or equality goals)"
       return none
   return some inst
 
@@ -137,7 +141,8 @@ private def mkOrderedRingInst? (u : Level) (type : Expr) (semiringInst? leInst? 
   let some preorderInst := preorderInst? | return none
   let isOrdType := mkApp5 (mkConst ``Grind.OrderedRing [u]) type semiringInst leInst ltInst preorderInst
   let some inst ← synthInstance? isOrdType
-    | reportIssue! "type has a `Preorder` and is a `Semiring`, but is not an ordered ring, failed to synthesize{indentExpr isOrdType}"
+    | -- TODO: this issue message should explain which behaviours are disabled when then ordered ring instance is not available.
+      reportIssue! "type has a `Preorder` and is a `Semiring`, but is not an ordered ring, failed to synthesize{indentExpr isOrdType}"
       return none
   return some inst
 
@@ -288,7 +293,7 @@ where
     let id := (← get').structs.size
     let struct : Struct := {
       id, type, u, intModuleInst, leInst?, ltInst?, lawfulOrderLTInst?, isPreorderInst?,
-      orderedAddInst?, isPartialInst?, isLinearInst?, noNatDivInst?
+      orderedAddInst?, isLinearInst?, noNatDivInst?,
       leFn?, ltFn?, addFn, subFn, negFn, zsmulFn, nsmulFn, zsmulFn?, nsmulFn?, zero, one?
       ringInst?, commRingInst?, orderedRingInst?, charInst?, ringId?, fieldInst?, ofNatZero, homomulFn?
     }

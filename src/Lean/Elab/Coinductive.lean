@@ -170,41 +170,13 @@ private def generateCoinductiveConstructor (infos : Array InductiveVal) (ctorSyn
       -- We start by making the metavariable for it, that we will fill
       let goal ← mkFreshExprMVar <| .some goalType
       let hole := Expr.mvarId! goal
+      let unfoldEq := mkConst ((removeFunctorPostfix name) ++ `functor_unfold) levelParams
+      let unfoldEq := mkAppN unfoldEq params
 
-      /-
-        First, we will reply on the unrolling rule that is registered by `PartialFixpoint` machinery
-      -/
-      let some fixEq
-        ← PartialFixpoint.getUnfoldFor? (removeFunctorPostfix name) | throwError "No unfold lemma"
-      let mut fixEq := mkConst fixEq levelParams
-      fixEq := mkAppN fixEq params
-      /-
-        The right hands side of the unrolling rule is existential form of the flat inductive
-        defining the predicate with all its arguments applied
-      -/
-      let mut unfolded := mkConst (name ++ `existential) levelParams
-      unfolded ← unfoldDefinition unfolded
-      unfolded := mkAppN unfolded bodyExpr.getAppArgs
-      unfolded ← whnf unfolded
-      /-
-        Before we apply the unrolling lemma, we need to bring it to the appropriate form,
-        in which all arguments are applied
-      -/
-      for arg in bodyAppArgs do
-        fixEq ← mkAppM ``congrFun #[fixEq, arg]
-      /-
-        We rewrite by the unrolling rule, the goal is now in the existential form
-      -/
-      let hole ← Lean.MVarId.replaceTargetEq hole unfolded fixEq
-      /-
-        To bring it to the flat inductive type form, we need to apply
-        the lemma that connects both. We instantiate it, and get an appropriate implication.
-      -/
-      let equivLemmaName := name ++ `existential_equiv
-      let mut equivLemma := mkConst equivLemmaName levelParams
-      equivLemma := mkAppN equivLemma bodyExpr.getAppArgs
-      equivLemma ← mkAppM ``Iff.mp #[equivLemma]
-      let [hole] ← hole.apply equivLemma | throwError "Could not apply {equivLemmaName}"
+      let rewriteResult ← hole.rewrite (←hole.getType) unfoldEq
+
+      let newHole ← hole.replaceTargetEq rewriteResult.eNew rewriteResult.eqProof
+
       /-
         Now, all it suffices is to call an approprate constructor of the flat inductive.
       -/
@@ -212,7 +184,7 @@ private def generateCoinductiveConstructor (infos : Array InductiveVal) (ctorSyn
       let constructor := mkAppN constructor params
       let constructor := mkAppN constructor predicates
       let constructor := mkAppN constructor bodyArgs
-      hole.assign constructor
+      newHole.assign constructor
       let conclusion ← instantiateMVars goal
       let conclusion ← mkLambdaFVars bodyArgs conclusion
       mkLambdaFVars params conclusion
@@ -238,8 +210,11 @@ private def generateCoinductiveConstructors (numParams : Nat) (infos : Array Ind
       generateCoinductiveConstructor infos ctorSyntax numParams indType.name
         <| ←getConstInfoCtor ctor
 
+private def rewriteGoalUsingEq (goal : MVarId) (eq : Expr) (symm : Bool := false) : MetaM MVarId := do
+  let rewriteResult ← goal.rewrite (←goal.getType) eq symm
+  goal.replaceTargetEq rewriteResult.eNew rewriteResult.eqProof
+
 private def generateEqLemmas (infos : Array InductiveVal) : MetaM Unit := do
-  trace[Elab.coinductive] "called generateEqLemmas"
   let levels := infos[0]!.levelParams.map mkLevelParam
   for info in infos do
     let res ← forallTelescopeReducing info.type fun args _ => do
@@ -269,8 +244,7 @@ private def generateEqLemmas (infos : Array InductiveVal) : MetaM Unit := do
       for arg in args do
         fixEq ← mkCongrFun fixEq arg
 
-      let rwRes ← goalMVarId.rewrite (←goalMVarId.getType) existentialEquiv
-      let newGoal ← goalMVarId.replaceTargetEq rwRes.eNew rwRes.eqProof
+      let newGoal ← rewriteGoalUsingEq goalMVarId existentialEquiv
       newGoal.assign fixEq
 
       let goal ← instantiateMVars goal
@@ -282,12 +256,12 @@ private def generateEqLemmas (infos : Array InductiveVal) : MetaM Unit := do
 private def mkCasesOnCoinductive (infos : Array InductiveVal) : MetaM Unit := do
   let levels := infos[0]!.levelParams.map mkLevelParam
   let allCtors := infos.flatMap (·.ctors.toArray)
-  trace[Elab.coinductive] "allCtors: {allCtors}"
+
   forallBoundedTelescope infos[0]!.type (infos[0]!.numParams - infos.size) fun params _ => do
   let predicates := infos.map fun info => mkConst (removeFunctorPostfix info.name) levels
   let predicates := predicates.map (mkAppN · params)
   for info in infos do
-    trace[Elab.coinductive] "params are: {params}"
+
     let originalCasesOn ← mkConstWithLevelParams (info.name ++ `casesOn)
     let originalCasesOn := mkAppN originalCasesOn params
     let originalCasesOn := mkAppN originalCasesOn predicates
@@ -304,124 +278,86 @@ private def mkCasesOnCoinductive (infos : Array InductiveVal) : MetaM Unit := do
         none
     )
     -- We then replace all constructors of the original type
-    let goalType := goalType.replace (fun e =>
+    let goalTypeWithParamsApplied := goalType.replace (fun e =>
       if allCtors.any e.isAppOf then
         let bodyArgs := e.getAppArgs.extract info.numParams
         mkAppN (mkConst (removeFunctorPostfixInCtor (e.getAppFn.constName)) levels) <| params ++ bodyArgs
       else none
     )
-
+    -- The type of `casesOn` of the flat inductive, upon having the parameters applied
     let originalType ← inferType originalCasesOn
-    -- We start from the motive type
-
-    forallBoundedTelescope goalType (.some 1) fun args goalType => do
+    -- The equivalence proof, that will be used in the subsequent rewrites
+    let eqProof := mkConst ((removeFunctorPostfix info.name) ++ `functor_unfold) levels
+    /-
+      First, we look at the motive. We construct a free variable `motive` of the type of motive,
+      as it appears in the `goalTypeWithParamsApplied`
+    -/
+    forallBoundedTelescope goalTypeWithParamsApplied (.some 1) fun args goalType => do
       let #[motive] := args | throwError "Expected one argument"
-      trace[Elab.coinductive] "motive: {motive}"
+      /-
+        Similarly, we pull of the type of the motive, as it appears in the `casesOn` of the flat inductive.
+        We then make an mvar of this type and try to fill it using `motive` fvar
+      -/
       let (Expr.forallE _ type _ _) := originalType | throwError "expected to be quantifier"
       let motiveMVar ← mkFreshExprMVar type
+      /-
+        We intro all the indices and the occurence of the coinductive predicate
+      -/
       let (fvars, subgoal) ← motiveMVar.mvarId!.introN (info.numIndices + 1)
       subgoal.withContext do
-        let eqProof := mkConst ((removeFunctorPostfix info.name) ++ `functor_unfold) levels
-        trace[Elab.coinductive] "motiveMVar: {motiveMVar}"
+        trace[Elab.coinductive] "subgoal: {subgoal}"
         trace[Elab.coinductive] "fvars: {fvars.map (Expr.fvar)}"
-        let res := ((←getLCtx).get! (fvars[fvars.size -1]!)).type
-        let rewriteResult ← subgoal.rewrite res eqProof (symm := true)
-        trace[Elab.coinductive] "res: {rewriteResult.eNew}"
-        let res2 ←  subgoal.replaceLocalDecl fvars[fvars.size -1]! rewriteResult.eNew rewriteResult.eqProof
-        let (_, res3) ← res2.mvarId.revert (fvars.extract 0 (fvars.size -1) ++  #[res2.fvarId])
-        res3.assign motive
+        let lastAssumption := fvars[fvars.size -1]!
+
+        -- We perform the rewrite at the hypothesis
+        let rewriteTarget := (←getLCtx).get! lastAssumption
+        let rewriteTarget := rewriteTarget.type
+        let rewriteResult ← subgoal.rewrite rewriteTarget eqProof (symm := true)
+        let replacementResult ← subgoal.replaceLocalDecl lastAssumption rewriteResult.eNew rewriteResult.eqProof
+
+        let newFVars := fvars.modify (fvars.size - 1) fun _ => replacementResult.fvarId
+        let (_, afterReplacing) ← replacementResult.mvarId.revert newFVars
+        -- Now it is in the form that we can assign the `motive` fvar to the goal
+        afterReplacing.assign motive
+        -- Then we apply the metavariable to the `casesOn` of the flat inductive
         let originalCasesOn := mkApp originalCasesOn motiveMVar
 
+        -- The next arguemnts of the `casesOn` are type indices
         forallBoundedTelescope goalType info.numIndices fun indices goalType => do
+          /-
+            The types do not change, so we just make free variables for them
+            and apply them to the `casesOn` of the flat inductive
+          -/
           let originalCasesOn := mkAppN originalCasesOn indices
-          forallBoundedTelescope goalType (.some 1) fun args goalType => do
-            let #[target] := args | throwError "Expected one argument"
+          /-
+            The next argument is the occurence of the coinductive predicate.
+            The original `casesOn` of the flat inductive mentions it in
+            unrolled form, so we need to rewrite it.
+          -/
+          forallBoundedTelescope goalType (.some 1) fun targetArgs _ => do
+            -- We again make a free variable of the type as it appears in the desired type of `casesOn` for the coinductive predicate
+            let #[target] := targetArgs | throwError "Expected one argument"
+            -- And we fish out the type as it appears in the `casesOn` of the flat inductive, then making a metavariable for it
             let (Expr.forallE _ type _ _) ← inferType originalCasesOn | throwError "expected to be quantifier"
             let targetMVar ← mkFreshExprMVar type
-            let targetRewriteRes ← targetMVar.mvarId!.rewrite (←targetMVar.mvarId!.getType) eqProof (symm := true)
-            let targetMVarSubgoal ← targetMVar.mvarId!.replaceTargetEq targetRewriteRes.eNew targetRewriteRes.eqProof
+            let targetMVarSubgoal ← rewriteGoalUsingEq targetMVar.mvarId! eqProof (symm := true)
+            targetMVarSubgoal.assign target
+            let originalCasesOn := mkApp originalCasesOn targetMVar
 
-            trace[Elab.coinductive] "{targetMVarSubgoal}, target: {target}"
-
-        -- forallBoundedTelescope goalType (info.numIndices) fun indices goalType => do
-        --   let goal ← mkFreshExprMVar goalType
-
-        --   let res := subst goal.mvarId!
-        --   let originalCasesOn := mkAppN originalCasesOn indices
-        --   forallBoundedTelescope goalType (.some 1) fun args goalType => do
-        --     let #[predicateOccurence] := args | throwError "Expected one argument"
-        --     trace[Elab.coinductive] "predicateOccurence: {predicateOccurence}"
-        --     let (Expr.forallE _ type _ _) ← inferType originalCasesOn | throwError "expected to be quantifier"
-        --     let predicateOccurenceMVar ← mkFreshExprMVar type
-        --     let predicateOccurenceMVarId := predicateOccurenceMVar.mvarId!
-            -- let rewriteResult ← predicateOccurenceMVarId.rewrite (←predicateOccurenceMVarId.getType) (mkConst ((removeFunctorPostfix info.name) ++ `functor_unfold) levels) (symm := true)
-            -- let subgoal2 ← predicateOccurenceMVarId.replaceTargetDefEq rewriteResult.eNew --rewriteResult.eqProof
-            -- subgoal2.assign predicateOccurence
-
-            -- let originalCasesOn := mkApp originalCasesOn predicateOccurenceMVar
-            -- trace[Elab.coinductive] "originalCasesOn: {originalCasesOn}"
-
-          --   let (goals, _, body) ← forallMetaTelescope (←inferType originalCasesOn)
-          --   for goal in goals do
-          --     let mvarId := goal.mvarId!
-          --     let (fvars, subgoal) ← mvarId.intros
-          --     let res ← subgoal.rewrite (←subgoal.getType) (mkConst ((removeFunctorPostfix info.name) ++ `functor_unfold) levels) (symm := false)
-          --     trace[Elab.coinductive] "{res.eNew}"
+            let originalCasesOn ← mkLambdaFVars targetArgs originalCasesOn
+            let originalCasesOn ← mkLambdaFVars indices originalCasesOn
+            let originalCasesOn ← mkLambdaFVars args originalCasesOn
+            let originalCasesOn ← mkLambdaFVars params originalCasesOn
+            let originalCasesOn ← instantiateMVars originalCasesOn
 
 
-    -- forallTelescope goalType fun goalArgs goal => do
-    --   trace[Elab.coinductive] "goalArgs: {goalArgs}"
-    --   -- motive
-    --   let (casesOnArgs, _ , casesOnBody) ← forallMetaTelescope (←inferType originalCasesOn)
-    --   let motive := casesOnArgs[0]!
-    --   let (fvars, subgoal) ← motive.mvarId!.introN info.numIndices
-    --   let rewriteResult ← subgoal.rewrite (←subgoal.getType) (mkConst ((removeFunctorPostfix info.name) ++ `functor_unfold) levels) (symm := true)
-    --   let subgoal2 ← subgoal.replaceTargetEq rewriteResult.eNew rewriteResult.eqProof
-    --   let (_, subgoal3) ← subgoal2.revert fvars
+            let levelParams := collectLevelParams {} originalCasesOn
+            let levelParams := levelParams.params.toList
 
-    --   trace[Elab.coinductive] "TEST1: {Expr.mvar subgoal3}, {goalArgs[0]!}"
-
-    --   subgoal3.assign goalArgs[0]!
-    --   let originalCasesOn := mkApp originalCasesOn motive
-
-    --   -- indices
-    --   let indices := goalArgs.extract 1 (info.numIndices + 1)
-    --   let indicesMVars := casesOnArgs.extract 1 (info.numIndices + 1)
-    --   discard <| indicesMVars.mapIdxM fun idx mv => do
-    --     mv.mvarId!.assign indices[idx]!
-    --   let originalCasesOn := mkAppN originalCasesOn indicesMVars
-
-    --   -- mention of the predicate
-    --   let mention := goalArgs[info.numIndices + 1]!
-    --   let mentionMVar := casesOnArgs[info.numIndices + 1]!
-    --   let rewriteResult ← mentionMVar.mvarId!.rewrite (←mentionMVar.mvarId!.getType) (mkConst ((removeFunctorPostfix info.name) ++ `functor_unfold) levels) (symm := true)
-    --   let mentionSubgoal ← mentionMVar.mvarId!.replaceTargetEq rewriteResult.eNew rewriteResult.eqProof
-    --   mentionSubgoal.assign mention
-
-    --   let originalCasesOn := mkApp originalCasesOn mentionMVar
-    --   trace[Elab.coinductive] "res: {originalCasesOn}"
-    --   -- Individual constructors
-    --   let ctorHyps := goalArgs.extract <| info.numIndices + 2
-    --   let ctorHypsMVar := casesOnArgs.extract <| info.numIndices + 2
-
-    --   discard <| ctorHypsMVar.mapIdxM fun idx mv => do
-    --     mv.mvarId!.assign ctorHyps[idx]!
-
-      -- let originalCasesOn := mkAppN originalCasesOn ctorHypsMVar
-
-      -- trace[Elab.coinductive] "res: {originalCasesOn}"
-
-      -- let finalGoal ← mkFreshExprMVar goal
-
-      -- finalGoal.mvarId!.assign originalCasesOn
-
-      -- let res ← mkLambdaFVars goalArgs finalGoal
-      -- let res ← mkLambdaFVars params res
-
-      -- let res ← instantiateMVars res
-
-      -- addDecl <| .defnDecl (←mkDefinitionValInferringUnsafe
-      -- ((removeFunctorPostfix info.name) ++ `casesOn) info.levelParams (←inferType res) res .opaque)
+            let casesOnType ← mkForallFVars params goalTypeWithParamsApplied
+            addDecl <| .defnDecl (←mkDefinitionValInferringUnsafe
+              ((removeFunctorPostfix info.name) ++ `casesOn) levelParams casesOnType originalCasesOn .opaque)
+            liftCommandElabM <| liftTermElabM <|  Term.applyAttributes ((removeFunctorPostfix info.name) ++ `casesOn) #[{name := `cases_eliminator}, {name := `elab_as_elim}]
 
 
   pure ()

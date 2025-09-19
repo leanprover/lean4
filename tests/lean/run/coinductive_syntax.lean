@@ -1,4 +1,5 @@
 set_option trace.Elab.coinductive true
+set_option pp.proofs true
 section
 variable (α : Type)
 
@@ -8,35 +9,19 @@ docstring
 coinductive infSeq (r : α → α → Prop) : α → Prop where
   | step : r a b → infSeq r b → infSeq r a
 
+#check infSeq.step
 
-def infSeq.casesOn {α : Type} {r : α → α → Prop}
-  {motive : (a : α) → infSeq α r a → Prop} {a2 : α}
-  (t : infSeq α r a2)
-  (step : ∀ {a b : α} (a_1 : r a b) (a_2 : infSeq α r b  ), motive a (infSeq.step α r a_1 a_2 )) : motive a2 t := by
-    have eq := infSeq.functor_unfold α r
-    revert motive a2
-    intro my_motive
-    have otherCasesOn := @infSeq_functor.casesOn α r (infSeq α r) ?_
-    rotate_left
-    . intro a
-      specialize eq a
-      intro h
-      rw [←eq] at h
-      apply my_motive
-      exact h
-    grind
-
-
-
-
+theorem test (r : α → α → Prop) (a : α) : infSeq α r a → True := by
+  intro h
+  cases h
+  case step => trivial
 /--
-info: infSeq_functor.casesOn {α : Type} {r : α → α → Prop} {infSeq_functor.call : α → Prop}
-  {motive : (a : α) → infSeq_functor α r infSeq_functor.call a → Prop} {a✝ : α}
-  (t : infSeq_functor α r infSeq_functor.call a✝)
-  (step : ∀ {a b : α} (a_1 : r a b) (a_2 : infSeq_functor.call b), motive a ⋯) : motive a✝ t
+info: infSeq.casesOn (α : Type) (r : α → α → Prop) {motive : (a : α) → infSeq α r a → Prop} {a✝ : α} (t : infSeq α r a✝)
+  (step : ∀ {a b : α} (a_1 : r a b) (a_2 : infSeq α r b), motive a (infSeq.step α r a_1 a_2)) : motive a✝ t
 -/
 #guard_msgs in
-#check infSeq_functor.casesOn
+#check infSeq.casesOn
+
 
 #check infSeq.eq_1
 
@@ -156,6 +141,7 @@ info: Foo.coinduct (pred : Set) (hyp : ∀ (a : Nat), pred a → False) (a✝ : 
 coinductive Bar : Set where
   | make : Bar 42
 
+
 /--
 info: Bar.coinduct (pred : Set) (hyp : ∀ (a : Nat), pred a → a = 42) (a✝ : Nat) : pred a✝ → Bar a✝
 -/
@@ -179,6 +165,7 @@ coinductive dependentTest3 : (α : Type) → (ls : List α) → (vec : Vector α
   | mk2 : dependentTest3 String ["hi"] (Vector.singleton b) (Vector.singleton c)
 
 #check dependentTest3.coinduct
+
 
 /--
 info: dependentTest.coinduct.{u_1} {α : Type u_1} (pred : (n : Nat) → Vector α n → Prop)

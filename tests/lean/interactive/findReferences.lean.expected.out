@@ -16,15 +16,15 @@
 [{"uri": "file:///findReferences.lean",
   "range":
   {"start": {"line": 9, "character": 13}, "end": {"line": 9, "character": 40}}},
- {"uri": "file:///home/marc/lean4/src/Lean/Server/Test/Refs.lean",
+ {"uri": "file:///src/Lean/Server/Test/Refs.lean",
   "range":
   {"start": {"line": 13, "character": 11},
    "end": {"line": 13, "character": 16}}},
- {"uri": "file:///home/marc/lean4/src/Lean/Server/Test/Refs.lean",
+ {"uri": "file:///src/Lean/Server/Test/Refs.lean",
   "range":
   {"start": {"line": 14, "character": 20},
    "end": {"line": 14, "character": 25}}},
- {"uri": "file:///home/marc/lean4/src/Lean/Server/Test/Refs.lean",
+ {"uri": "file:///src/Lean/Server/Test/Refs.lean",
   "range":
   {"start": {"line": 15, "character": 20},
    "end": {"line": 15, "character": 25}}}]

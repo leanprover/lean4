@@ -87,6 +87,29 @@ def ident : Parser Name := do
   let xs ← many1 (pchar '.' *> word)
   return xs.foldl .str $ .mkSimple head
 
+def patchUri (s : String) : String := Id.run do
+  let some path := System.Uri.fileUriToPath? s
+    | return s
+  let c := path.components.toArray
+  let some srcIdx := c.findIdx? (· == "src")
+    | return s
+  if ! c[srcIdx + 1]?.any (fun dir => dir == "Init" || dir == "Lean" || dir == "Std") then
+    return s
+  let c := c.drop <| srcIdx
+  let path := System.mkFilePath c.toList
+  return System.Uri.pathToUri path
+
+partial def patchUris : Json → Json
+  | .null => .null
+  | .bool b => .bool b
+  | .num n => .num n
+  | .arr elems => .arr <| elems.map patchUris
+  | .obj kvPairs => .obj <| kvPairs.foldl (init := ∅) fun acc k v => acc.insert k (patchUris v)
+  | .str s => patchUri s
+
+def printOutputLn (j : Json) : IO Unit :=
+  IO.eprintln (patchUris j)
+
 partial def main (args : List String) : IO Unit := do
   let uri := s!"file:///{args.head!}"
   -- We want `dbg_trace` tactics to write directly to stderr instead of being caught in reuse
@@ -178,7 +201,7 @@ partial def main (args : List String) : IO Unit := do
             versionNo := versionNo + 1
           | "collectDiagnostics" =>
             if let some diags ← Ipc.collectDiagnostics requestNo uri (versionNo - 1) then
-              IO.eprintln (toJson diags.param)
+              printOutputLn (toJson diags.param)
             synced := true
             requestNo := requestNo + 1
           | "waitForILeans" =>
@@ -199,7 +222,7 @@ partial def main (args : List String) : IO Unit := do
             Ipc.writeRequest ⟨requestNo, "textDocument/codeAction", params⟩
             let r ← Ipc.readResponseAs requestNo (Array CodeAction)
             for x in r.result do
-              IO.eprintln (toJson x)
+              printOutputLn (toJson x)
             requestNo := requestNo + 1
             for x in r.result do
               if x.data?.isNone then
@@ -207,7 +230,7 @@ partial def main (args : List String) : IO Unit := do
               IO.eprintln s!"resolve: {x.title}"
               Ipc.writeRequest ⟨requestNo, "codeAction/resolve", x⟩
               let r ← Ipc.readResponseAs requestNo CodeAction
-              IO.eprintln (toJson r.result)
+              printOutputLn (toJson r.result)
               requestNo := requestNo + 1
           | "goals" =>
             if rpcSessionId.isNone then
@@ -247,7 +270,7 @@ partial def main (args : List String) : IO Unit := do
             Ipc.writeRequest ⟨requestNo, "$/lean/rpc/call", ps⟩
             let response ← Ipc.readResponseAs requestNo Lean.Widget.GetWidgetsResponse
             requestNo := requestNo + 1
-            IO.eprintln response.result.debugJson
+            printOutputLn response.result.debugJson
             for w in response.result.widgets do
               let params : Lean.Widget.GetWidgetSourceParams := { pos, hash := w.javascriptHash }
               let ps : RpcCallParams := {
@@ -257,17 +280,17 @@ partial def main (args : List String) : IO Unit := do
               }
               Ipc.writeRequest ⟨requestNo, "$/lean/rpc/call", ps⟩
               let resp ← Ipc.readResponseAs requestNo Lean.Widget.WidgetSource
-              IO.eprintln (toJson resp.result)
+              printOutputLn (toJson resp.result)
               requestNo := requestNo + 1
           | "completion" =>
             let p : CompletionParams := {
               textDocument := { uri }
               position := pos
             }
-            IO.eprintln (toJson p)
+            printOutputLn (toJson p)
             Ipc.writeRequest ⟨requestNo, "textDocument/completion", p⟩
             let r ← Ipc.readResponseAs requestNo CompletionList
-            IO.eprintln (toJson r.result)
+            printOutputLn (toJson r.result)
             requestNo := requestNo + 1
             for i in r.result.items do
               if i.data?.isNone then
@@ -275,15 +298,15 @@ partial def main (args : List String) : IO Unit := do
               IO.eprintln s!"resolve: {i.label}"
               Ipc.writeRequest ⟨requestNo, "completionItem/resolve", i⟩
               let r ← Ipc.readResponseAs requestNo CompletionItem
-              IO.eprintln (toJson r.result)
+              printOutputLn (toJson r.result)
               requestNo := requestNo + 1
           | "incomingCallHierarchy" =>
             let (callHierarchy?, callHierarchyRequestNo) ← Ipc.expandIncomingCallHierarchy requestNo uri pos
-            IO.eprintln (toJson callHierarchy?)
+            printOutputLn (toJson callHierarchy?)
             requestNo := callHierarchyRequestNo
           | "outgoingCallHierarchy" =>
             let (callHierarchy?, callHierarchyRequestNo) ← Ipc.expandOutgoingCallHierarchy requestNo uri pos
-            IO.eprintln (toJson callHierarchy?)
+            printOutputLn (toJson callHierarchy?)
             requestNo := callHierarchyRequestNo
           | "references" =>
             let p : ReferenceParams := {
@@ -291,14 +314,14 @@ partial def main (args : List String) : IO Unit := do
               position := pos
               context := { includeDeclaration := true }
             }
-            IO.eprintln (toJson p)
+            printOutputLn (toJson p)
             Ipc.writeRequest ⟨requestNo, "textDocument/references", p⟩
             let r ← Ipc.readResponseAs requestNo (Option (Array Location))
-            IO.eprintln (toJson r.result)
+            printOutputLn (toJson r.result)
             requestNo := requestNo + 1
           | "moduleHierarchyImports" =>
             let (moduleHierarchy?, moduleHierarchyRequestNo) ← Ipc.expandModuleHierarchyImports requestNo uri
-            IO.eprintln (toJson moduleHierarchy?)
+            printOutputLn (toJson moduleHierarchy?)
             requestNo := moduleHierarchyRequestNo
           | _ =>
             let Except.ok params ← pure <| Json.parse params
@@ -306,7 +329,7 @@ partial def main (args : List String) : IO Unit := do
             let params := params.setObjVal! "textDocument" (toJson { uri := uri : TextDocumentIdentifier })
             -- TODO: correctly compute in presence of Unicode
             let params := params.setObjVal! "position" (toJson pos)
-            IO.eprintln params
+            printOutputLn params
             Ipc.writeRequest ⟨requestNo, method, params⟩
             let rec readFirstResponse := do
               match ← Ipc.readMessage with
@@ -317,7 +340,7 @@ partial def main (args : List String) : IO Unit := do
               | Message.request .. => readFirstResponse
               | msg => throw <| IO.userError s!"unexpected message {toJson msg}"
             let resp ← readFirstResponse
-            IO.eprintln resp
+            printOutputLn resp
             requestNo := requestNo + 1
         | _ =>
           lastActualLineNo := lineNo

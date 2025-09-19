@@ -43,7 +43,7 @@
       "end": {"line": 7, "character": 15}}],
     "children": []}]}]
 [{"item":
-  {"uri": "file:///home/marc/lean4/src/Lean/Server/Test/Refs.lean",
+  {"uri": "file:///src/Lean/Server/Test/Refs.lean",
    "selectionRange":
    {"start": {"line": 13, "character": 11},
     "end": {"line": 13, "character": 16}},
@@ -57,7 +57,7 @@
   "fromRanges": [],
   "children":
   [{"item":
-    {"uri": "file:///home/marc/lean4/src/Lean/Server/Test/Refs.lean",
+    {"uri": "file:///src/Lean/Server/Test/Refs.lean",
      "selectionRange":
      {"start": {"line": 14, "character": 11},
       "end": {"line": 14, "character": 16}},
@@ -74,7 +74,7 @@
       "end": {"line": 14, "character": 25}}],
     "children":
     [{"item":
-      {"uri": "file:///home/marc/lean4/src/Lean/Server/Test/Refs.lean",
+      {"uri": "file:///src/Lean/Server/Test/Refs.lean",
        "selectionRange":
        {"start": {"line": 16, "character": 11},
         "end": {"line": 16, "character": 16}},
@@ -91,7 +91,7 @@
         "end": {"line": 16, "character": 25}}],
       "children": []},
      {"item":
-      {"uri": "file:///home/marc/lean4/src/Lean/Server/Test/Refs.lean",
+      {"uri": "file:///src/Lean/Server/Test/Refs.lean",
        "selectionRange":
        {"start": {"line": 17, "character": 11},
         "end": {"line": 17, "character": 16}},
@@ -108,7 +108,7 @@
         "end": {"line": 17, "character": 25}}],
       "children": []}]},
    {"item":
-    {"uri": "file:///home/marc/lean4/src/Lean/Server/Test/Refs.lean",
+    {"uri": "file:///src/Lean/Server/Test/Refs.lean",
      "selectionRange":
      {"start": {"line": 15, "character": 11},
       "end": {"line": 15, "character": 16}},

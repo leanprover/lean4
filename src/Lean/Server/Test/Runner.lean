@@ -285,6 +285,17 @@ partial def main (args : List String) : IO Unit := do
             let (callHierarchy?, callHierarchyRequestNo) ← Ipc.expandOutgoingCallHierarchy requestNo uri pos
             IO.eprintln (toJson callHierarchy?)
             requestNo := callHierarchyRequestNo
+          | "references" =>
+            let p : ReferenceParams := {
+              textDocument := { uri }
+              position := pos
+              context := { includeDeclaration := true }
+            }
+            IO.eprintln (toJson p)
+            Ipc.writeRequest ⟨requestNo, "textDocument/references", p⟩
+            let r ← Ipc.readResponseAs requestNo (Option (Array Location))
+            IO.eprintln (toJson r.result)
+            requestNo := requestNo + 1
           | _ =>
             let Except.ok params ← pure <| Json.parse params
               | throw <| IO.userError s!"failed to parse {params}"

@@ -1,3 +1,5 @@
+set_option deriving.beq.linear_construction_threshold 1000
+
 inductive L (α : Type) where
   | nil  : L α
   | cons : α → L α → L α

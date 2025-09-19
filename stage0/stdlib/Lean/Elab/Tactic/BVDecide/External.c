@@ -4963,7 +4963,6 @@ block_199:
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_28; uint8_t x_29; lean_object* x_30; lean_object* x_31; 
 x_12 = lean_string_append(x_10, x_11);
-lean_dec_ref(x_11);
 x_13 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__2;
 x_14 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__3;
 x_15 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__4;
@@ -5057,11 +5056,9 @@ lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean
 lean_free_object(x_31);
 x_55 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__13;
 x_56 = lean_string_append(x_55, x_39);
-lean_dec_ref(x_39);
 x_57 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__14;
 x_58 = lean_string_append(x_56, x_57);
 x_59 = lean_string_append(x_58, x_40);
-lean_dec_ref(x_40);
 lean_ctor_set_tag(x_32, 3);
 lean_ctor_set(x_32, 0, x_59);
 x_60 = l_Lean_MessageData_ofFormat(x_32);
@@ -5089,11 +5086,9 @@ lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean
 x_66 = lean_ctor_get(x_64, 0);
 x_67 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__15;
 x_68 = lean_string_append(x_67, x_66);
-lean_dec(x_66);
 x_69 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__16;
 x_70 = lean_string_append(x_68, x_69);
 x_71 = lean_string_append(x_70, x_39);
-lean_dec_ref(x_39);
 lean_ctor_set_tag(x_64, 3);
 lean_ctor_set(x_64, 0, x_71);
 x_72 = l_Lean_MessageData_ofFormat(x_64);
@@ -5110,11 +5105,9 @@ lean_inc(x_74);
 lean_dec(x_64);
 x_75 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__15;
 x_76 = lean_string_append(x_75, x_74);
-lean_dec(x_74);
 x_77 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__16;
 x_78 = lean_string_append(x_76, x_77);
 x_79 = lean_string_append(x_78, x_39);
-lean_dec_ref(x_39);
 x_80 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_80, 0, x_79);
 x_81 = l_Lean_MessageData_ofFormat(x_80);
@@ -5172,7 +5165,6 @@ lean_dec_ref(x_39);
 lean_free_object(x_31);
 x_87 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__17;
 x_88 = lean_string_append(x_87, x_40);
-lean_dec_ref(x_40);
 lean_ctor_set_tag(x_32, 3);
 lean_ctor_set(x_32, 0, x_88);
 x_89 = l_Lean_MessageData_ofFormat(x_32);
@@ -5233,11 +5225,9 @@ if (x_109 == 0)
 lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; 
 x_110 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__13;
 x_111 = lean_string_append(x_110, x_94);
-lean_dec_ref(x_94);
 x_112 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__14;
 x_113 = lean_string_append(x_111, x_112);
 x_114 = lean_string_append(x_113, x_95);
-lean_dec_ref(x_95);
 lean_ctor_set_tag(x_32, 3);
 lean_ctor_set(x_32, 0, x_114);
 x_115 = l_Lean_MessageData_ofFormat(x_32);
@@ -5268,11 +5258,9 @@ if (lean_is_exclusive(x_119)) {
 }
 x_122 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__15;
 x_123 = lean_string_append(x_122, x_120);
-lean_dec(x_120);
 x_124 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__16;
 x_125 = lean_string_append(x_123, x_124);
 x_126 = lean_string_append(x_125, x_94);
-lean_dec_ref(x_94);
 if (lean_is_scalar(x_121)) {
  x_127 = lean_alloc_ctor(3, 1, 0);
 } else {
@@ -5337,7 +5325,6 @@ lean_object* x_136; lean_object* x_137; lean_object* x_138; lean_object* x_139;
 lean_dec_ref(x_94);
 x_136 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__17;
 x_137 = lean_string_append(x_136, x_95);
-lean_dec_ref(x_95);
 lean_ctor_set_tag(x_32, 3);
 lean_ctor_set(x_32, 0, x_137);
 x_138 = l_Lean_MessageData_ofFormat(x_32);
@@ -5409,11 +5396,9 @@ lean_object* x_160; lean_object* x_161; lean_object* x_162; lean_object* x_163; 
 lean_dec(x_142);
 x_160 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__13;
 x_161 = lean_string_append(x_160, x_144);
-lean_dec_ref(x_144);
 x_162 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__14;
 x_163 = lean_string_append(x_161, x_162);
 x_164 = lean_string_append(x_163, x_145);
-lean_dec_ref(x_145);
 x_165 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_165, 0, x_164);
 x_166 = l_Lean_MessageData_ofFormat(x_165);
@@ -5444,11 +5429,9 @@ if (lean_is_exclusive(x_170)) {
 }
 x_173 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__15;
 x_174 = lean_string_append(x_173, x_171);
-lean_dec(x_171);
 x_175 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__16;
 x_176 = lean_string_append(x_174, x_175);
 x_177 = lean_string_append(x_176, x_144);
-lean_dec_ref(x_144);
 if (lean_is_scalar(x_172)) {
  x_178 = lean_alloc_ctor(3, 1, 0);
 } else {
@@ -5521,7 +5504,6 @@ lean_dec_ref(x_144);
 lean_dec(x_142);
 x_187 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__17;
 x_188 = lean_string_append(x_187, x_145);
-lean_dec_ref(x_145);
 x_189 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_189, 0, x_188);
 x_190 = l_Lean_MessageData_ofFormat(x_189);

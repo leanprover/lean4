@@ -559,6 +559,13 @@ def Result.mkEqMPR (r : Simp.Result) (e : Expr) : MetaM Expr := do
   else
     Meta.mkEqMPR (← r.getProof) e
 
+/-- Construct the `Expr` `h.mp e`, from a `Simp.Result` with proof `h`. -/
+def Result.mkEqMP (r : Simp.Result) (e : Expr) : MetaM Expr := do
+  if r.proof?.isNone && r.expr == e then
+    pure e
+  else
+    Meta.mkEqMP (← r.getProof) e
+
 def mkCongrFun (r : Result) (a : Expr) : MetaM Result :=
   match r.proof? with
   | none   => return { expr := mkApp r.expr a, proof? := none }

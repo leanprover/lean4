@@ -470,7 +470,6 @@ if (x_44 == 0)
 lean_object* x_45; lean_object* x_46; 
 x_45 = lean_ctor_get(x_35, 0);
 x_46 = lean_string_append(x_32, x_45);
-lean_dec(x_45);
 lean_ctor_set(x_35, 0, x_46);
 return x_34;
 }
@@ -481,7 +480,6 @@ x_47 = lean_ctor_get(x_35, 0);
 lean_inc(x_47);
 lean_dec(x_35);
 x_48 = lean_string_append(x_32, x_47);
-lean_dec(x_47);
 x_49 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_49, 0, x_48);
 lean_ctor_set(x_34, 0, x_49);
@@ -504,7 +502,6 @@ if (lean_is_exclusive(x_35)) {
  x_52 = lean_box(0);
 }
 x_53 = lean_string_append(x_32, x_51);
-lean_dec(x_51);
 if (lean_is_scalar(x_52)) {
  x_54 = lean_alloc_ctor(1, 1, 0);
 } else {
@@ -881,7 +878,6 @@ x_30 = l_Lake_instInhabitedEnv_default___closed__2;
 x_31 = lean_unsigned_to_nat(0u);
 x_32 = l___private_Lake_Config_InstallPath_0__Lake_toolchain2Dir_go(x_2, x_30, x_31);
 x_33 = l_System_FilePath_join(x_29, x_32);
-lean_dec_ref(x_32);
 x_34 = l_Lake_Env_computeCache___closed__1;
 x_35 = l_System_FilePath_join(x_33, x_34);
 x_36 = l_Lake_Env_computeCache___closed__2;
@@ -902,7 +898,6 @@ x_40 = l_Lake_instInhabitedEnv_default___closed__2;
 x_41 = lean_unsigned_to_nat(0u);
 x_42 = l___private_Lake_Config_InstallPath_0__Lake_toolchain2Dir_go(x_2, x_40, x_41);
 x_43 = l_System_FilePath_join(x_39, x_42);
-lean_dec_ref(x_42);
 x_44 = l_Lake_Env_computeCache___closed__1;
 x_45 = l_System_FilePath_join(x_43, x_44);
 x_46 = l_Lake_Env_computeCache___closed__2;
@@ -1068,7 +1063,6 @@ lean_dec(x_6);
 lean_dec(x_4);
 x_21 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Lean_NameMap_fromJson_x3f___at_____private_Lake_Config_Env_0__Lake_Env_compute_computePkgUrlMap_spec__0_spec__0___closed__1;
 x_22 = lean_string_append(x_21, x_3);
-lean_dec(x_3);
 x_23 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Lean_NameMap_fromJson_x3f___at_____private_Lake_Config_Env_0__Lake_Env_compute_computePkgUrlMap_spec__0_spec__0___closed__2;
 x_24 = lean_string_append(x_22, x_23);
 lean_ctor_set_tag(x_7, 0);
@@ -1180,7 +1174,6 @@ lean_dec(x_6);
 lean_dec(x_4);
 x_45 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Lean_NameMap_fromJson_x3f___at_____private_Lake_Config_Env_0__Lake_Env_compute_computePkgUrlMap_spec__0_spec__0___closed__1;
 x_46 = lean_string_append(x_45, x_3);
-lean_dec(x_3);
 x_47 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Lean_NameMap_fromJson_x3f___at_____private_Lake_Config_Env_0__Lake_Env_compute_computePkgUrlMap_spec__0_spec__0___closed__2;
 x_48 = lean_string_append(x_46, x_47);
 x_49 = lean_alloc_ctor(0, 1, 0);
@@ -1268,7 +1261,6 @@ x_5 = l_Lean_NameMap_fromJson_x3f___at_____private_Lake_Config_Env_0__Lake_Env_c
 x_6 = lean_unsigned_to_nat(80u);
 x_7 = l_Lean_Json_pretty(x_1, x_6);
 x_8 = lean_string_append(x_5, x_7);
-lean_dec_ref(x_7);
 x_9 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Lean_NameMap_fromJson_x3f___at_____private_Lake_Config_Env_0__Lake_Env_compute_computePkgUrlMap_spec__0_spec__0___closed__2;
 x_10 = lean_string_append(x_8, x_9);
 x_11 = lean_alloc_ctor(0, 1, 0);
@@ -1372,7 +1364,6 @@ block_11:
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = l___private_Lake_Config_Env_0__Lake_Env_compute_computePkgUrlMap___closed__1;
 x_9 = lean_string_append(x_8, x_7);
-lean_dec_ref(x_7);
 if (lean_is_scalar(x_6)) {
  x_10 = lean_alloc_ctor(1, 2, 0);
 } else {

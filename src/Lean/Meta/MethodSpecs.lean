@@ -163,7 +163,8 @@ def rewriteThm (ctx : Simp.Context) (simprocs : Simprocs)
   let thmInfo ← getConstVal eqThmName
   let (result, _) ← simp thmInfo.type ctx (simprocs := #[simprocs])
   trace[Meta.MethodSpecs] "type for {destThmName}:{indentExpr result.expr}"
-  let value ← result.mkEqMPR <| mkConst eqThmName (thmInfo.levelParams.map mkLevelParam)
+  let eqThmApp := mkConst eqThmName (thmInfo.levelParams.map mkLevelParam)
+  let value := mkAppN (mkConst ``Eq.mp [0]) #[thmInfo.type, result.expr, ← result.getProof, eqThmApp]
   addDecl <| Declaration.thmDecl {
     name          := destThmName
     levelParams   := thmInfo.levelParams
@@ -186,7 +187,7 @@ where
       let ctx ← Simp.mkContext
         (simpTheorems  := #[s])
         (congrTheorems := (← getSimpCongrTheorems))
-        (config        := { } ) -- Simp.neutralConfig with dsimp := true, letToHave := false })
+        (config        := { } )
       let simprocs ← Simp.getSimprocs
 
       let env ← getEnv

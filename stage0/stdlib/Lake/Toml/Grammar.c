@@ -4998,7 +4998,6 @@ x_24 = l_Lake_Toml_numeralFn___lam__0___closed__2;
 x_25 = l___private_Lake_Toml_Grammar_0__Lake_Toml_hourMinFn___closed__3;
 x_26 = lean_string_push(x_25, x_11);
 x_27 = lean_string_append(x_24, x_26);
-lean_dec_ref(x_26);
 x_28 = l___private_Lake_Toml_Grammar_0__Lake_Toml_hourMinFn___closed__2;
 x_29 = lean_string_append(x_27, x_28);
 x_30 = l_Lean_Parser_ParserState_mkUnexpectedError(x_2, x_29, x_8, x_14);

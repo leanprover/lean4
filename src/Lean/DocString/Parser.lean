@@ -611,7 +611,7 @@ mutual
           asStringFn (atomicFn (noSpaceBefore >> repFn count (satisfyFn (· == char) s!"'{tok count}'"))))
 
   where
-    tok (count : Nat) : String := ⟨List.replicate count char⟩
+    tok (count : Nat) : String := (List.replicate count char).asString
     opener (ctxt : InlineCtxt) : ParserFn :=
       match getter ctxt with
       | none => many1Fn (satisfyFn (· == char) s!"any number of {char}s")

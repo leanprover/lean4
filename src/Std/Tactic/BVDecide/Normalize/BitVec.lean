@@ -358,6 +358,7 @@ attribute [bv_normalize] BitVec.smulOverflow_eq
 attribute [bv_normalize] BitVec.usubOverflow_eq
 attribute [bv_normalize] BitVec.ssubOverflow_eq
 attribute [bv_normalize] BitVec.sdivOverflow_eq
+attribute [bv_normalize] BitVec.ctz
 
 
 attribute [bv_normalize] BitVec.append_zero_add_zero_append

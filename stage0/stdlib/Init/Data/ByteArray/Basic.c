@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.ByteArray.Basic
-// Imports: Init.Data.Array.DecidableEq Init.Data.UInt.Basic Init.Data.UInt.BasicAux Init.Data.UInt.BasicAux Init.Data.Option.Basic
+// Imports: Init.Data.Array.DecidableEq Init.Data.UInt.Basic Init.Data.UInt.BasicAux Init.Data.UInt.BasicAux Init.Data.Option.Basic Init.Data.Array.Extract
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20,11 +20,9 @@ LEAN_EXPORT lean_object* l_ByteArray_Iterator_nextn(lean_object*, lean_object*);
 lean_object* lean_byte_array_copy_slice(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l___auto___closed__16____x40_Init_Data_ByteArray_Basic_3380001797____hygCtx___hyg_8_;
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at___ByteArray_instBEq_beq_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ByteArray_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_Iterator_hasPrev___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_Iterator_atEnd___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_ByteArray_Iterator_atEnd(lean_object*);
-lean_object* lean_byte_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_instForInUInt8(lean_object*);
 static lean_object* l___auto___closed__15____x40_Init_Data_ByteArray_Basic_3380001797____hygCtx___hyg_8_;
@@ -37,7 +35,6 @@ LEAN_EXPORT lean_object* l_ByteArray_set_x21___boxed(lean_object*, lean_object*,
 lean_object* lean_byte_array_fset(lean_object*, lean_object*, uint8_t);
 static lean_object* l___auto___closed__13____x40_Init_Data_ByteArray_Basic_3380001797____hygCtx___hyg_8_;
 LEAN_EXPORT lean_object* l_ByteArray_mkIterator(lean_object*);
-LEAN_EXPORT lean_object* l_ByteArray_emptyWithCapacity___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_mkEmpty___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_ByteArray_instGetElemUSizeUInt8LtNatValToFinSize___lam__0(lean_object*, size_t, lean_object*);
 uint64_t lean_byte_array_hash(lean_object*);
@@ -62,16 +59,12 @@ LEAN_EXPORT lean_object* l_ByteArray_foldl___redArg___boxed(lean_object*, lean_o
 LEAN_EXPORT lean_object* l_ByteArray_forIn_loop___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at___ByteArray_instBEq_beq_spec__0___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_toByteArray_loop___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ByteArray_append___boxed(lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_instDecidableEqUInt8___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___auto____x40_Init_Data_ByteArray_Basic_2154413398____hygCtx___hyg_9_;
 LEAN_EXPORT lean_object* l_ByteArray_foldlMUnsafe_fold___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-lean_object* lean_byte_array_push(lean_object*, uint8_t);
 static lean_object* l___auto___closed__10____x40_Init_Data_ByteArray_Basic_3380001797____hygCtx___hyg_8_;
 static lean_object* l___auto___closed__12____x40_Init_Data_ByteArray_Basic_3380001797____hygCtx___hyg_8_;
-LEAN_EXPORT lean_object* l_ByteArray_append(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_hash___boxed(lean_object*);
 static lean_object* l_ByteArray_foldl___redArg___closed__1;
@@ -90,12 +83,11 @@ lean_object* lean_byte_array_set(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_ByteArray_foldlMUnsafe(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_instBEq;
 LEAN_EXPORT lean_object* l_instToStringByteArray___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_toByteArray_loop(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldl___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_instGetElemNatUInt8LtSize___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__7____x40_Init_Data_ByteArray_Basic_3380001797____hygCtx___hyg_8_;
 LEAN_EXPORT lean_object* l___auto____x40_Init_Data_ByteArray_Basic_1017806716____hygCtx___hyg_9_;
-LEAN_EXPORT lean_object* l_ByteArray_empty;
+extern lean_object* l_ByteArray_empty;
 lean_object* l_Array_empty(lean_object*);
 size_t lean_sarray_size(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_instGetElemNatUInt8LtSize;
@@ -103,18 +95,14 @@ LEAN_EXPORT lean_object* l_ByteArray_foldlM_loop(lean_object*, lean_object*, lea
 LEAN_EXPORT lean_object* l_ByteArray_forInUnsafe_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_forIn_loop___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_toByteArray(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldlMUnsafe___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_byte_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_ByteArray_findFinIdx_x3f_loop___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__5____x40_Init_Data_ByteArray_Basic_3380001797____hygCtx___hyg_8_;
 LEAN_EXPORT lean_object* l_ByteArray_Iterator_curr_x27___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldlM_loop___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ByteArray_mk___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_instInhabitedIterator;
 LEAN_EXPORT lean_object* l_ByteArray_uget___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_ByteArray_empty___closed__0;
-LEAN_EXPORT lean_object* l_ByteArray_size___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_copySlice___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_ByteArray_Iterator_curr_x27(lean_object*, lean_object*);
 static lean_object* l___auto___closed__8____x40_Init_Data_ByteArray_Basic_3380001797____hygCtx___hyg_8_;
@@ -129,10 +117,8 @@ LEAN_EXPORT lean_object* l_ByteArray_toList_loop___boxed(lean_object*, lean_obje
 uint8_t l_Array_instDecidableEq___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_instHashable;
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at___ByteArray_instBEq_beq_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ByteArray_data___boxed(lean_object*);
 static lean_object* l_ByteArray_instBEq___closed__0;
 LEAN_EXPORT lean_object* l_ByteArray_instForInUInt8___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_toByteArray___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldlMUnsafe_fold___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_ByteArray_instBEq_beq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_set___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -166,7 +152,6 @@ static lean_object* l_ByteArray_foldl___redArg___closed__5;
 static lean_object* l___auto___closed__11____x40_Init_Data_ByteArray_Basic_3380001797____hygCtx___hyg_8_;
 LEAN_EXPORT lean_object* l_ByteArray_iter(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_instInhabited;
-LEAN_EXPORT lean_object* l_ByteArray_push___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_Iterator_hasNext___boxed(lean_object*);
 static lean_object* l___auto___closed__2____x40_Init_Data_ByteArray_Basic_3380001797____hygCtx___hyg_8_;
 LEAN_EXPORT lean_object* l_ByteArray_Iterator_prev(lean_object*);
@@ -203,7 +188,6 @@ LEAN_EXPORT lean_object* l_ByteArray_forIn_loop___redArg___lam__0(lean_object*, 
 LEAN_EXPORT lean_object* l_ByteArray_toList___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldlMUnsafe___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__9____x40_Init_Data_ByteArray_Basic_3380001797____hygCtx___hyg_8_;
-LEAN_EXPORT lean_object* l_ByteArray_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_forIn_loop___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_ByteArray_instGetElemNatUInt8LtSize___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -213,6 +197,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_ByteArray_instBEq_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_isEmpty___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_ByteArray_fastAppend___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_get___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldlM_loop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -225,6 +210,7 @@ static lean_object* l_ByteArray_foldl___redArg___closed__2;
 lean_object* lean_byte_array_size(lean_object*);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
 uint8_t lean_uint8_of_nat(lean_object*);
+LEAN_EXPORT lean_object* l_ByteArray_fastAppend(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_Iterator_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_forInUnsafe(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldlMUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -239,39 +225,6 @@ static lean_object* l_ByteArray_instHashable___closed__0;
 LEAN_EXPORT lean_object* l_ByteArray_Iterator_next_x27___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_Iterator_next(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldlMUnsafe_fold___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ByteArray_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_ByteArray_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_ByteArray_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_ByteArray_mk___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_byte_array_mk(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_ByteArray_data___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_byte_array_data(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at___ByteArray_instBEq_beq_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -411,15 +364,6 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_ByteArray_emptyWithCapacity___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_mk_empty_byte_array(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_ByteArray_mkEmpty(lean_object* x_1) {
 _start:
 {
@@ -437,23 +381,6 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_ByteArray_empty___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_byte_array(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_ByteArray_empty() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_ByteArray_empty___closed__0;
-return x_1;
-}
-}
 static lean_object* _init_l_ByteArray_instInhabited() {
 _start:
 {
@@ -468,24 +395,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_ByteArray_empty;
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_ByteArray_push___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = lean_unbox(x_2);
-x_4 = lean_byte_array_push(x_1, x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_ByteArray_size___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_byte_array_size(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_ByteArray_usize___boxed(lean_object* x_1) {
@@ -948,7 +857,7 @@ lean_dec_ref(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_ByteArray_append(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_ByteArray_fastAppend(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
@@ -960,11 +869,11 @@ x_7 = lean_byte_array_copy_slice(x_2, x_3, x_1, x_4, x_5, x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_ByteArray_append___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_ByteArray_fastAppend___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_ByteArray_append(x_1, x_2);
+x_3 = l_ByteArray_fastAppend(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }
@@ -973,7 +882,7 @@ static lean_object* _init_l_ByteArray_instAppend___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_ByteArray_append___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_ByteArray_fastAppend___boxed), 2, 0);
 return x_1;
 }
 }
@@ -2578,53 +2487,6 @@ lean_dec(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_List_toByteArray_loop(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-return x_2;
-}
-else
-{
-lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_ctor_get(x_1, 0);
-x_4 = lean_ctor_get(x_1, 1);
-x_5 = lean_unbox(x_3);
-x_6 = lean_byte_array_push(x_2, x_5);
-x_1 = x_4;
-x_2 = x_6;
-goto _start;
-}
-}
-}
-LEAN_EXPORT lean_object* l_List_toByteArray_loop___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_List_toByteArray_loop(x_1, x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_List_toByteArray(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = l_ByteArray_empty;
-x_3 = l_List_toByteArray_loop(x_1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_List_toByteArray___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_List_toByteArray(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_instToStringByteArray___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2666,6 +2528,7 @@ lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_UInt_BasicAux(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_UInt_BasicAux(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Option_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Extract(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_ByteArray_Basic(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -2686,14 +2549,13 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Option_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_Array_Extract(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_ByteArray_instBEq___closed__0 = _init_l_ByteArray_instBEq___closed__0();
 lean_mark_persistent(l_ByteArray_instBEq___closed__0);
 l_ByteArray_instBEq = _init_l_ByteArray_instBEq();
 lean_mark_persistent(l_ByteArray_instBEq);
-l_ByteArray_empty___closed__0 = _init_l_ByteArray_empty___closed__0();
-lean_mark_persistent(l_ByteArray_empty___closed__0);
-l_ByteArray_empty = _init_l_ByteArray_empty();
-lean_mark_persistent(l_ByteArray_empty);
 l_ByteArray_instInhabited = _init_l_ByteArray_instInhabited();
 lean_mark_persistent(l_ByteArray_instInhabited);
 l_ByteArray_instEmptyCollection = _init_l_ByteArray_instEmptyCollection();

@@ -1161,7 +1161,6 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_System_FilePath_normalize(x_2);
 x_4 = l_Lake_joinRelative(x_1, x_3);
-lean_dec_ref(x_3);
 return x_4;
 }
 }
@@ -1225,7 +1224,6 @@ lean_inc_ref(x_4);
 lean_dec_ref(x_2);
 x_5 = l_System_FilePath_normalize(x_4);
 x_6 = l_Lake_joinRelative(x_3, x_5);
-lean_dec_ref(x_5);
 return x_6;
 }
 }
@@ -1294,7 +1292,6 @@ lean_inc_ref(x_4);
 lean_dec_ref(x_2);
 x_5 = l_System_FilePath_normalize(x_4);
 x_6 = l_Lake_joinRelative(x_3, x_5);
-lean_dec_ref(x_5);
 return x_6;
 }
 }
@@ -1308,7 +1305,6 @@ x_3 = lean_ctor_get(x_1, 6);
 lean_inc_ref(x_3);
 lean_dec_ref(x_1);
 x_4 = l_Lake_joinRelative(x_2, x_3);
-lean_dec_ref(x_3);
 return x_4;
 }
 }
@@ -1326,7 +1322,6 @@ lean_inc_ref(x_4);
 lean_dec_ref(x_2);
 x_5 = l_System_FilePath_normalize(x_4);
 x_6 = l_Lake_joinRelative(x_3, x_5);
-lean_dec_ref(x_5);
 return x_6;
 }
 }
@@ -1472,7 +1467,6 @@ lean_dec_ref(x_1);
 x_4 = l_Lake_Package_relLakeDir___closed__0;
 x_5 = l_Lake_joinRelative(x_2, x_4);
 x_6 = l_Lake_joinRelative(x_5, x_3);
-lean_dec_ref(x_3);
 return x_6;
 }
 }
@@ -1851,7 +1845,6 @@ lean_inc_ref(x_4);
 lean_dec_ref(x_2);
 x_5 = l_System_FilePath_normalize(x_4);
 x_6 = l_Lake_joinRelative(x_3, x_5);
-lean_dec_ref(x_5);
 return x_6;
 }
 }
@@ -1869,7 +1862,6 @@ lean_inc_ref(x_4);
 lean_dec_ref(x_2);
 x_5 = l_System_FilePath_normalize(x_4);
 x_6 = l_Lake_joinRelative(x_3, x_5);
-lean_dec_ref(x_5);
 return x_6;
 }
 }
@@ -1889,10 +1881,8 @@ lean_inc_ref(x_5);
 lean_dec_ref(x_2);
 x_6 = l_System_FilePath_normalize(x_4);
 x_7 = l_Lake_joinRelative(x_3, x_6);
-lean_dec_ref(x_6);
 x_8 = l_System_FilePath_normalize(x_5);
 x_9 = l_Lake_joinRelative(x_7, x_8);
-lean_dec_ref(x_8);
 return x_9;
 }
 }
@@ -1912,10 +1902,8 @@ lean_inc_ref(x_5);
 lean_dec_ref(x_2);
 x_6 = l_System_FilePath_normalize(x_4);
 x_7 = l_Lake_joinRelative(x_3, x_6);
-lean_dec_ref(x_6);
 x_8 = l_System_FilePath_normalize(x_5);
 x_9 = l_Lake_joinRelative(x_7, x_8);
-lean_dec_ref(x_8);
 return x_9;
 }
 }
@@ -1935,10 +1923,8 @@ lean_inc_ref(x_5);
 lean_dec_ref(x_2);
 x_6 = l_System_FilePath_normalize(x_4);
 x_7 = l_Lake_joinRelative(x_3, x_6);
-lean_dec_ref(x_6);
 x_8 = l_System_FilePath_normalize(x_5);
 x_9 = l_Lake_joinRelative(x_7, x_8);
-lean_dec_ref(x_8);
 return x_9;
 }
 }
@@ -1958,10 +1944,8 @@ lean_inc_ref(x_5);
 lean_dec_ref(x_2);
 x_6 = l_System_FilePath_normalize(x_4);
 x_7 = l_Lake_joinRelative(x_3, x_6);
-lean_dec_ref(x_6);
 x_8 = l_System_FilePath_normalize(x_5);
 x_9 = l_Lake_joinRelative(x_7, x_8);
-lean_dec_ref(x_8);
 return x_9;
 }
 }
@@ -1981,10 +1965,8 @@ lean_inc_ref(x_5);
 lean_dec_ref(x_2);
 x_6 = l_System_FilePath_normalize(x_4);
 x_7 = l_Lake_joinRelative(x_3, x_6);
-lean_dec_ref(x_6);
 x_8 = l_System_FilePath_normalize(x_5);
 x_9 = l_Lake_joinRelative(x_7, x_8);
-lean_dec_ref(x_8);
 return x_9;
 }
 }
@@ -2004,10 +1986,8 @@ lean_inc_ref(x_5);
 lean_dec_ref(x_2);
 x_6 = l_System_FilePath_normalize(x_4);
 x_7 = l_Lake_joinRelative(x_3, x_6);
-lean_dec_ref(x_6);
 x_8 = l_System_FilePath_normalize(x_5);
 x_9 = l_Lake_joinRelative(x_7, x_8);
-lean_dec_ref(x_8);
 return x_9;
 }
 }
@@ -2443,7 +2423,6 @@ lean_inc_ref(x_5);
 lean_dec_ref(x_3);
 x_6 = l_System_FilePath_normalize(x_5);
 x_7 = l_Lake_joinRelative(x_4, x_6);
-lean_dec_ref(x_6);
 x_8 = l_System_FilePath_pathExists(x_7, x_2);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);

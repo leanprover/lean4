@@ -1345,7 +1345,6 @@ lean_free_object(x_7);
 x_13 = l_Lean_reportOutOfHeartbeats___closed__0;
 x_14 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_11);
 x_15 = lean_string_append(x_13, x_14);
-lean_dec_ref(x_14);
 x_16 = l_Lean_reportOutOfHeartbeats___closed__1;
 x_17 = lean_string_append(x_15, x_16);
 x_18 = lean_alloc_ctor(3, 1, 0);
@@ -1382,7 +1381,6 @@ lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean
 x_26 = l_Lean_reportOutOfHeartbeats___closed__0;
 x_27 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_23);
 x_28 = lean_string_append(x_26, x_27);
-lean_dec_ref(x_27);
 x_29 = l_Lean_reportOutOfHeartbeats___closed__1;
 x_30 = lean_string_append(x_28, x_29);
 x_31 = lean_alloc_ctor(3, 1, 0);

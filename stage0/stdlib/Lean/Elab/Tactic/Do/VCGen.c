@@ -50094,7 +50094,6 @@ x_14 = l___private_Init_Data_Range_Basic_0__Std_Range_forIn_x27_loop___at___Lean
 x_15 = lean_nat_add(x_6, x_2);
 x_16 = l_Nat_reprFast(x_15);
 x_17 = lean_string_append(x_14, x_16);
-lean_dec_ref(x_16);
 x_18 = lean_box(0);
 x_19 = l_Lean_Name_str___override(x_18, x_17);
 lean_inc(x_13);
@@ -50175,7 +50174,6 @@ x_20 = l___private_Init_Data_Range_Basic_0__Std_Range_forIn_x27_loop___at___Lean
 x_21 = lean_nat_add(x_6, x_2);
 x_22 = l_Nat_reprFast(x_21);
 x_23 = lean_string_append(x_20, x_22);
-lean_dec_ref(x_22);
 x_24 = lean_box(0);
 x_25 = l_Lean_Name_str___override(x_24, x_23);
 x_26 = l_Lean_Name_append(x_25, x_18);

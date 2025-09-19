@@ -2764,7 +2764,6 @@ x_39 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Search_0__Lean_Meta_Grind
 x_40 = lean_string_append(x_38, x_39);
 x_41 = l_Nat_reprFast(x_29);
 x_42 = lean_string_append(x_40, x_41);
-lean_dec_ref(x_41);
 x_32 = x_42;
 goto block_37;
 }
@@ -2866,7 +2865,6 @@ x_78 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Search_0__Lean_Meta_Grind
 x_79 = lean_string_append(x_77, x_78);
 x_80 = l_Nat_reprFast(x_67);
 x_81 = lean_string_append(x_79, x_80);
-lean_dec_ref(x_80);
 x_71 = x_81;
 goto block_76;
 }
@@ -14032,7 +14030,6 @@ x_16 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Search_0__Lean_Meta_Grind
 x_17 = lean_string_append(x_15, x_16);
 x_18 = l_Nat_reprFast(x_14);
 x_19 = lean_string_append(x_17, x_18);
-lean_dec_ref(x_18);
 x_7 = x_19;
 goto block_12;
 }
@@ -14767,7 +14764,6 @@ x_86 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Search_0__Lean_Meta_Grind
 x_87 = lean_string_append(x_85, x_86);
 x_88 = l_Nat_reprFast(x_65);
 x_89 = lean_string_append(x_87, x_88);
-lean_dec_ref(x_88);
 x_67 = x_89;
 goto block_84;
 }
@@ -15096,7 +15092,6 @@ x_219 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Search_0__Lean_Meta_Grin
 x_220 = lean_string_append(x_218, x_219);
 x_221 = l_Nat_reprFast(x_158);
 x_222 = lean_string_append(x_220, x_221);
-lean_dec_ref(x_221);
 x_160 = x_222;
 goto block_217;
 }
@@ -15161,7 +15156,6 @@ x_150 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Search_0__Lean_Meta_Grin
 x_151 = lean_string_append(x_149, x_150);
 x_152 = l_Nat_reprFast(x_148);
 x_153 = lean_string_append(x_151, x_152);
-lean_dec_ref(x_152);
 x_128 = x_147;
 x_129 = x_153;
 goto block_146;
@@ -15497,7 +15491,6 @@ x_420 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Search_0__Lean_Meta_Grin
 x_421 = lean_string_append(x_419, x_420);
 x_422 = l_Nat_reprFast(x_359);
 x_423 = lean_string_append(x_421, x_422);
-lean_dec_ref(x_422);
 x_361 = x_423;
 goto block_418;
 }
@@ -15552,7 +15545,6 @@ x_351 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Search_0__Lean_Meta_Grin
 x_352 = lean_string_append(x_350, x_351);
 x_353 = l_Nat_reprFast(x_348);
 x_354 = lean_string_append(x_352, x_353);
-lean_dec_ref(x_353);
 x_329 = x_349;
 x_330 = x_354;
 goto block_347;
@@ -15858,7 +15850,6 @@ x_521 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Search_0__Lean_Meta_Grin
 x_522 = lean_string_append(x_520, x_521);
 x_523 = l_Nat_reprFast(x_518);
 x_524 = lean_string_append(x_522, x_523);
-lean_dec_ref(x_523);
 x_451 = x_515;
 x_452 = x_516;
 x_453 = x_517;
@@ -16079,7 +16070,6 @@ x_596 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Search_0__Lean_Meta_Grin
 x_597 = lean_string_append(x_595, x_596);
 x_598 = l_Nat_reprFast(x_592);
 x_599 = lean_string_append(x_597, x_598);
-lean_dec_ref(x_598);
 x_526 = x_590;
 x_527 = x_591;
 x_528 = x_593;
@@ -16712,7 +16702,6 @@ x_279 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Search_0__Lean_Meta_Grin
 x_280 = lean_string_append(x_278, x_279);
 x_281 = l_Nat_reprFast(x_276);
 x_282 = lean_string_append(x_280, x_281);
-lean_dec_ref(x_281);
 x_250 = x_274;
 x_251 = x_275;
 x_252 = x_277;
@@ -16772,7 +16761,6 @@ x_313 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Search_0__Lean_Meta_Grin
 x_314 = lean_string_append(x_312, x_313);
 x_315 = l_Nat_reprFast(x_308);
 x_316 = lean_string_append(x_314, x_315);
-lean_dec_ref(x_315);
 x_284 = x_309;
 x_285 = x_310;
 x_286 = x_311;
@@ -16825,7 +16813,6 @@ x_50 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Search_0__Lean_Meta_Grind
 x_51 = lean_string_append(x_49, x_50);
 x_52 = l_Nat_reprFast(x_46);
 x_53 = lean_string_append(x_51, x_52);
-lean_dec_ref(x_52);
 x_22 = x_44;
 x_23 = x_45;
 x_24 = x_47;

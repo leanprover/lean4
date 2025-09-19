@@ -19348,7 +19348,6 @@ x_57 = l_Lean_Elab_Term_withoutTacticIncrementality___at_____private_Lean_Elab_T
 x_58 = lean_unsigned_to_nat(0u);
 x_59 = lean_format_pretty(x_56, x_57, x_58, x_58);
 x_60 = lean_string_append(x_54, x_59);
-lean_dec_ref(x_59);
 x_61 = lean_dbg_trace(x_60, x_53);
 x_62 = lean_unbox(x_61);
 x_36 = x_62;
@@ -34024,7 +34023,6 @@ x_15 = l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_inductionAltsP
 x_16 = 1;
 x_17 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_2, x_16);
 x_18 = lean_string_append(x_15, x_17);
-lean_dec_ref(x_17);
 x_19 = l_mkPanicMessageWithDecl(x_11, x_12, x_13, x_14, x_18);
 lean_dec_ref(x_18);
 x_20 = l_panic___at_____private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_inductionAltsPos_spec__0(x_19);

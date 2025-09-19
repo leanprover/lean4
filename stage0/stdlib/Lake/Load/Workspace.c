@@ -829,6 +829,7 @@ lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean
 x_21 = lean_ctor_get(x_18, 0);
 x_22 = lean_ctor_get(x_21, 1);
 x_23 = lean_ctor_get(x_21, 6);
+lean_inc_ref(x_23);
 lean_inc_ref(x_22);
 x_24 = l_Lake_joinRelative(x_22, x_23);
 x_25 = l_Lake_Manifest_load_x3f(x_24, x_20);

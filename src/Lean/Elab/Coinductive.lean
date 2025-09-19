@@ -227,9 +227,7 @@ private def generateEqLemmas (infos : Array InductiveVal) : MetaM Unit := do
 
       let calls := infos.map fun info => mkAppN (mkConst (removeFunctorPostfix info.name) levels) params
       let rhs := mkConst info.name levels
-      let rhs := mkAppN rhs params
-      let rhs := mkAppN rhs calls
-      let rhs := mkAppN rhs args
+      let rhs := mkAppN rhs (params ++ calls ++ args)
 
       let goalType ← mkEq lhs rhs
       let goal ← mkFreshExprMVar goalType
@@ -261,44 +259,56 @@ private def mkCasesOnCoinductive (infos : Array InductiveVal) : MetaM Unit := do
   let predicates := infos.map fun info => mkConst (removeFunctorPostfix info.name) levels
   let predicates := predicates.map (mkAppN · params)
   for info in infos do
-
+    let casesOnName := (info.name ++ `casesOn)
+    let casesOnInfo ← getConstInfo casesOnName
     let originalCasesOn ← mkConstWithLevelParams (info.name ++ `casesOn)
-    let originalCasesOn := mkAppN originalCasesOn params
-    let originalCasesOn := mkAppN originalCasesOn predicates
+    let originalCasesOn := mkAppN originalCasesOn (params ++ predicates)
 
     trace[Elab.coinductive] "originalCasesOn: {originalCasesOn}"
 
-    let goalType ← inferType originalCasesOn
+    let goalTypeWithParamsApplied ← inferType originalCasesOn
     -- We replace the mentions of the flat inductive with a coinductive predicate
-    let goalType := goalType.replace (fun e =>
-      if e.isAppOf info.name then
+    let goalTypeWithParamsApplied := goalTypeWithParamsApplied.replace (fun e =>
+      if e.isApp then
         let bodyArgs := e.getAppArgs.extract info.numParams
-        mkAppN (mkConst (removeFunctorPostfix info.name) levels) <| params ++ bodyArgs
+        if e.isAppOf info.name then
+
+          mkAppN (mkConst (removeFunctorPostfix info.name) levels) <| params ++ bodyArgs
+        else
+          if allCtors.any e.isAppOf then
+            let bodyArgs := e.getAppArgs.extract info.numParams
+            mkAppN (mkConst (removeFunctorPostfixInCtor (e.getAppFn.constName)) levels)
+              <| params ++ bodyArgs
+          else none
       else
         none
     )
-    -- We then replace all constructors of the original type
-    let goalTypeWithParamsApplied := goalType.replace (fun e =>
-      if allCtors.any e.isAppOf then
-        let bodyArgs := e.getAppArgs.extract info.numParams
-        mkAppN (mkConst (removeFunctorPostfixInCtor (e.getAppFn.constName)) levels) <| params ++ bodyArgs
-      else none
-    )
+    -- -- We then replace all constructors of the original type
+    -- let goalTypeWithParamsApplied := goalType.replace (fun e =>
+    --   if allCtors.any e.isAppOf then
+    --     let bodyArgs := e.getAppArgs.extract info.numParams
+    --     mkAppN (mkConst (removeFunctorPostfixInCtor (e.getAppFn.constName)) levels)
+    --       <| params ++ bodyArgs
+    --   else none
+    -- )
     -- The type of `casesOn` of the flat inductive, upon having the parameters applied
     let originalType ← inferType originalCasesOn
     -- The equivalence proof, that will be used in the subsequent rewrites
     let eqProof := mkConst ((removeFunctorPostfix info.name) ++ `functor_unfold) levels
     /-
-      First, we look at the motive. We construct a free variable `motive` of the type of motive,
-      as it appears in the `goalTypeWithParamsApplied`
+      First, we look at the motive. We construct a free variable `motive`
+      of the type of motive, as it appears in the `goalTypeWithParamsApplied`
     -/
     forallBoundedTelescope goalTypeWithParamsApplied (.some 1) fun args goalType => do
-      let #[motive] := args | throwError "Expected one argument"
+      let #[motive] := args
+        | throwError "Expected one argument"
       /-
-        Similarly, we pull of the type of the motive, as it appears in the `casesOn` of the flat inductive.
-        We then make an mvar of this type and try to fill it using `motive` fvar
+        Similarly, we pull of the type of the motive, as it appears in the `casesOn`
+        of the flat inductive. We then make an mvar of this type and try to
+        fill it using `motive` fvar.
       -/
-      let (Expr.forallE _ type _ _) := originalType | throwError "expected to be quantifier"
+      let (Expr.forallE _ type _ _) := originalType
+        | throwError "expected to be quantifier"
       let motiveMVar ← mkFreshExprMVar type
       /-
         We intro all the indices and the occurence of the coinductive predicate
@@ -313,7 +323,8 @@ private def mkCasesOnCoinductive (infos : Array InductiveVal) : MetaM Unit := do
         let rewriteTarget := (←getLCtx).get! lastAssumption
         let rewriteTarget := rewriteTarget.type
         let rewriteResult ← subgoal.rewrite rewriteTarget eqProof (symm := true)
-        let replacementResult ← subgoal.replaceLocalDecl lastAssumption rewriteResult.eNew rewriteResult.eqProof
+        let replacementResult ← subgoal.replaceLocalDecl lastAssumption
+              rewriteResult.eNew rewriteResult.eqProof
 
         let newFVars := fvars.modify (fvars.size - 1) fun _ => replacementResult.fvarId
         let (_, afterReplacing) ← replacementResult.mvarId.revert newFVars
@@ -342,25 +353,27 @@ private def mkCasesOnCoinductive (infos : Array InductiveVal) : MetaM Unit := do
             let targetMVar ← mkFreshExprMVar type
             let targetMVarSubgoal ← rewriteGoalUsingEq targetMVar.mvarId! eqProof (symm := true)
             targetMVarSubgoal.assign target
+            -- Upon performing the rewrite, we apply the mvar to the flat inductive `casesOn`
             let originalCasesOn := mkApp originalCasesOn targetMVar
 
-            let originalCasesOn ← mkLambdaFVars targetArgs originalCasesOn
-            let originalCasesOn ← mkLambdaFVars indices originalCasesOn
-            let originalCasesOn ← mkLambdaFVars args originalCasesOn
-            let originalCasesOn ← mkLambdaFVars params originalCasesOn
+
+            let originalCasesOn ←
+              mkLambdaFVars (params ++ args ++ indices ++ targetArgs) originalCasesOn
             let originalCasesOn ← instantiateMVars originalCasesOn
 
-
-            let levelParams := collectLevelParams {} originalCasesOn
-            let levelParams := levelParams.params.toList
-
+            let levelParams := casesOnInfo.levelParams
+            let casesOnName := (removeFunctorPostfix info.name) ++ `casesOn
             let casesOnType ← mkForallFVars params goalTypeWithParamsApplied
-            addDecl <| .defnDecl (←mkDefinitionValInferringUnsafe
-              ((removeFunctorPostfix info.name) ++ `casesOn) levelParams casesOnType originalCasesOn .opaque)
-            liftCommandElabM <| liftTermElabM <|  Term.applyAttributes ((removeFunctorPostfix info.name) ++ `casesOn) #[{name := `cases_eliminator}, {name := `elab_as_elim}]
+            addDecl <|
+              .defnDecl
+                <| ← mkDefinitionValInferringUnsafe
+                      casesOnName levelParams casesOnType originalCasesOn .opaque
+            -- We apply the attribute so that the `cases` tactic can pick it up
+            liftCommandElabM
+              <| liftTermElabM
+                <| Term.applyAttributes
+                    casesOnName #[{name := `cases_eliminator}, {name := `elab_as_elim}]
 
-
-  pure ()
 /--
   Main entry point for elaborating mutual coinductive predicates. This function is called after
   generating a flat inductive and adding it to the environment.

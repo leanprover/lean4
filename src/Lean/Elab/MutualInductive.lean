@@ -1120,7 +1120,8 @@ private def mkInductiveDeclCore
           enableRealizationsForConst ctor.declName
   return res
 
-private def withElaboratedHeaders (vars : Array Expr) (elabs : Array InductiveElabStep1) (k : Array Expr → Array InductiveElabStep1 → Array PreElabHeaderResult → List Name → TermElabM α ) : TermElabM α :=
+private def withElaboratedHeaders (vars : Array Expr) (elabs : Array InductiveElabStep1)
+  (k : Array Expr → Array InductiveElabStep1 → Array PreElabHeaderResult → List Name → TermElabM α ) : TermElabM α :=
 Term.withoutSavingRecAppSyntax do
   let views := elabs.map (·.view)
   let view0 := views[0]!
@@ -1262,8 +1263,7 @@ private def elabInductiveViewsPostprocessing (views : Array InductiveView) (res 
   liftTermElabM <| withMCtx res.mctx <| withLCtx res.lctx res.localInsts do
     let finalizers ← res.elabs.mapM fun elab' => elab'.prefinalize res.levelParams res.params res.replaceIndFVars
     for view in views do withRef view.declId <|
-      unless (views.any (·.isCoinductive)) do
-        Term.applyAttributesAt view.declName view.modifiers.attrs .afterTypeChecking
+      Term.applyAttributesAt view.declName view.modifiers.attrs .afterTypeChecking
     for elab' in finalizers do elab'.finalize
   applyDerivingHandlers views
   -- Docstrings are added during postprocessing to allow them to have checked references to

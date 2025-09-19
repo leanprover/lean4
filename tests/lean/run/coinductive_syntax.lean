@@ -1,4 +1,3 @@
-set_option trace.Elab.coinductive true
 set_option pp.proofs true
 section
 variable (α : Type)
@@ -11,10 +10,11 @@ coinductive infSeq (r : α → α → Prop) : α → Prop where
 
 #check infSeq.step
 
-theorem test (r : α → α → Prop) (a : α) : infSeq α r a → True := by
+theorem casesOnTest (r : α → α → Prop) (a : α) : infSeq α r a → True := by
   intro h
   cases h
   case step => trivial
+
 /--
 info: infSeq.casesOn (α : Type) (r : α → α → Prop) {motive : (a : α) → infSeq α r a → Prop} {a✝ : α} (t : infSeq α r a✝)
   (step : ∀ {a b : α} (a_1 : r a b) (a_2 : infSeq α r b), motive a (infSeq.step α r a_1 a_2)) : motive a✝ t
@@ -76,6 +76,13 @@ mutual
   | mk : ¬tick → tock
 end
 
+/--
+info: tick_functor.casesOn {tick_functor.call tock_functor.call : Prop}
+  {motive_1 : tick_functor tick_functor.call tock_functor.call → Prop}
+  (t : tick_functor tick_functor.call tock_functor.call)
+  (mk : ∀ (a : ¬tock_functor.call), motive_1 (tick_functor.mk tick_functor.call tock_functor.call a)) : motive_1 t
+-/
+#guard_msgs in
 #check tick_functor.casesOn
 
 /-- info: tick.mk : ¬tock → tick -/
@@ -131,7 +138,6 @@ coinductive my_nat  where
 def Set := Nat → Prop
 coinductive Foo : Set where
 
-
 /--
 info: Foo.coinduct (pred : Set) (hyp : ∀ (a : Nat), pred a → False) (a✝ : Nat) : pred a✝ → Foo a✝
 -/
@@ -140,7 +146,6 @@ info: Foo.coinduct (pred : Set) (hyp : ∀ (a : Nat), pred a → False) (a✝ : 
 
 coinductive Bar : Set where
   | make : Bar 42
-
 
 /--
 info: Bar.coinduct (pred : Set) (hyp : ∀ (a : Nat), pred a → a = 42) (a✝ : Nat) : pred a✝ → Bar a✝
@@ -152,21 +157,6 @@ info: Bar.coinduct (pred : Set) (hyp : ∀ (a : Nat), pred a → a = 42) (a✝ :
 coinductive dependentTest : (n : Nat) → (Vector α n) → Prop  where
   | mk (x : α) : dependentTest m v → dependentTest (m+1) (v.push x)
 
-/-
-  Duplicated parameters and dependent types
--/
-coinductive dependentTest2 : (n : Nat) → (m : Nat) → (Vector α (m + n)) → (Vector α (m + n)) → Prop  where
-  | mk (x : α) : dependentTest2 0 n v v → dependentTest2 0 (n + 1) (v.push x) (v.push x)
-/-
-  Even more complicated dependent test
--/
-coinductive dependentTest3 : (α : Type) → (ls : List α) → (vec : Vector α ls.length) → (Vector α vec.size) → Prop where
-  | mk : dependentTest3 Nat [a] (Vector.singleton a) (Vector.singleton a)
-  | mk2 : dependentTest3 String ["hi"] (Vector.singleton b) (Vector.singleton c)
-
-#check dependentTest3.coinduct
-
-
 /--
 info: dependentTest.coinduct.{u_1} {α : Type u_1} (pred : (n : Nat) → Vector α n → Prop)
   (hyp : ∀ (n : Nat) (a : Vector α n), pred n a → ∃ m v x, pred m v ∧ n = m + 1 ∧ a ≍ v.push x) (n : Nat)
@@ -174,6 +164,29 @@ info: dependentTest.coinduct.{u_1} {α : Type u_1} (pred : (n : Nat) → Vector 
 -/
 #guard_msgs in
 #check dependentTest.coinduct
+
+/-
+  Duplicated parameters and dependent types
+-/
+coinductive dependentTest2 : (n : Nat) → (m : Nat) → (Vector α (m + n)) → (Vector α (m + n)) → Prop  where
+  | mk (x : α) : dependentTest2 0 n v v → dependentTest2 0 (n + 1) (v.push x) (v.push x)
+
+coinductive dependentTest3 : (α : Type) → (ls : List α) → (vec : Vector α ls.length) → (Vector α vec.size) → Prop where
+  | mk : dependentTest3 Nat [a] (Vector.singleton a) (Vector.singleton a)
+  | mk2 : dependentTest3 String ["hi"] (Vector.singleton b) (Vector.singleton c)
+
+/--
+info: dependentTest3.casesOn
+  {motive :
+    (α : Type) →
+      (ls : List α) → (vec : Vector α ls.length) → (a : Vector α vec.size) → dependentTest3 α ls vec a → Prop}
+  {α : Type} {ls : List α} {vec : Vector α ls.length} {a✝ : Vector α vec.size} (t : dependentTest3 α ls vec a✝)
+  (mk : ∀ {a : Nat}, motive Nat [a] (Vector.singleton a) (Vector.singleton a) dependentTest3.mk)
+  (mk2 : ∀ {b c : String}, motive String ["hi"] (Vector.singleton b) (Vector.singleton c) dependentTest3.mk2) :
+  motive α ls vec a✝ t
+-/
+#guard_msgs in
+#check dependentTest3.casesOn
 
 coinductive test1  (r: α → α → Prop) : α → α → Prop where
   | mk : r a b → test1 r a b → test1 r a a

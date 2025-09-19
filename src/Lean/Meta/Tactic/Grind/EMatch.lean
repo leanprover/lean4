@@ -422,6 +422,12 @@ private def getUnassignedLevelMVars (e : Expr) : MetaM (Array LMVarId) := do
   let us := collectLevelMVars {} e |>.result
   us.filterM fun u => isLevelMVarAssignable u
 
+/-- Similar to `reportIssue!`, but only reports issue if `grind.debug` is set to `true` -/
+-- **Note**: issues reported by the E-matching module are too distractive. We only
+-- report them if `set_option grind.debug true`
+macro "reportEMatchIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
+  expandReportDbgIssueMacro s.raw
+
 /--
 Stores new theorem instance in the state.
 Recall that new instances are internalized later, after a full round of ematching.
@@ -435,7 +441,7 @@ private def addNewInstance (thm : EMatchTheorem) (proof : Expr) (generation : Na
   if !us.isEmpty then
     let pps ← assignUnassignedLevelMVars us proof prop
     if pps.isEmpty then
-      reportIssue! "failed to instantiate `{thm.origin.pp}`, proposition contains universe metavariables{indentExpr prop}"
+      reportEMatchIssue! "failed to instantiate `{thm.origin.pp}`, proposition contains universe metavariables{indentExpr prop}"
       return ()
     for (proof, prop) in pps do
       go proof prop
@@ -464,7 +470,7 @@ private def synthesizeInsts (mvars : Array Expr) (bis : Array BinderInfo) : Opti
     if bi.isInstImplicit && !(← mvar.mvarId!.isAssigned) then
       let type ← inferType mvar
       unless (← synthInstanceAndAssign mvar type) do
-        reportIssue! "failed to synthesize instance when instantiating {thm.origin.pp}{indentExpr type}"
+        reportEMatchIssue! "failed to synthesize instance when instantiating {thm.origin.pp}{indentExpr type}"
         failure
 
 private def preprocessGeneralizedPatternRHS (lhs : Expr) (rhs : Expr) (origin : Origin) (expectedType : Expr) : OptionT (StateT Choice M) Expr := do
@@ -476,12 +482,12 @@ private def preprocessGeneralizedPatternRHS (lhs : Expr) (rhs : Expr) (origin : 
   if (← isEqv lhs rhs) then
     return rhs
   else
-    reportIssue! "invalid generalized pattern at `{origin.pp}`\nwhen processing argument with type{indentExpr expectedType}\nfailed to prove{indentExpr lhs}\nis equal to{indentExpr rhs}"
+    reportEMatchIssue! "invalid generalized pattern at `{origin.pp}`\nwhen processing argument with type{indentExpr expectedType}\nfailed to prove{indentExpr lhs}\nis equal to{indentExpr rhs}"
     failure
 
 private def assignGeneralizedPatternProof (mvarId : MVarId) (eqProof : Expr) (origin : Origin) : OptionT (StateT Choice M) Unit := do
   unless (← mvarId.checkedAssign eqProof) do
-    reportIssue! "invalid generalized pattern at `{origin.pp}`\nfailed to assign {mkMVar mvarId}\nwith{indentExpr eqProof}"
+    reportEMatchIssue! "invalid generalized pattern at `{origin.pp}`\nfailed to assign {mkMVar mvarId}\nwith{indentExpr eqProof}"
     failure
 
 /-- Helper function for `applyAssignment. -/
@@ -497,7 +503,7 @@ private def processDelayed (mvars : Array Expr) (i : Nat) (h : i < mvars.size) :
     let rhs ← preprocessGeneralizedPatternRHS lhs rhs thm.origin mvarIdType
     assignGeneralizedPatternProof mvarId (← mkHEqProof lhs rhs) thm.origin
   | _ =>
-    reportIssue! "invalid generalized pattern at `{thm.origin.pp}`\nequality type expected{indentExpr mvarIdType}"
+    reportEMatchIssue! "invalid generalized pattern at `{thm.origin.pp}`\nequality type expected{indentExpr mvarIdType}"
     failure
 
 /-- Helper function for `applyAssignment. -/
@@ -530,7 +536,7 @@ private def processUnassigned (mvars : Array Expr) (i : Nat) (v : Expr) (h : i <
     if (← isProp vType) then
       modify (unassign · bidx)
     else
-      reportIssue! "type error constructing proof for {thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
+      reportEMatchIssue! "type error constructing proof for {thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
       failure
   if (← isDefEqD mvarIdType vType) then
     unless (← mvarId.checkedAssign v) do unassignOrFail
@@ -589,7 +595,7 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
   assert! c.assignment.size == numParams
   let (mvars, bis, _) ← forallMetaBoundedTelescope (← inferType proof) numParams
   if mvars.size != thm.numParams then
-    reportIssue! "unexpected number of parameters at {thm.origin.pp}"
+    reportEMatchIssue! "unexpected number of parameters at {thm.origin.pp}"
     return ()
   let (some _, c) ← applyAssignment mvars |>.run c | return ()
   let some _ ← synthesizeInsts mvars bis | return ()
@@ -599,7 +605,7 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
   else
     let mvars ← mvars.filterM fun mvar => return !(← mvar.mvarId!.isAssigned)
     if let some mvarBad ← mvars.findM? fun mvar => return !(← isProof mvar) then
-      reportIssue! "failed to instantiate {thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
+      reportEMatchIssue! "failed to instantiate {thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
     let proof ← mkLambdaFVars (binderInfoForMVars := .default) mvars (← instantiateMVars proof)
     addNewInstance thm proof c.gen
 

@@ -383,6 +383,18 @@ private meta def expandReportIssueMacro (s : Syntax) : MacroM (TSyntax `doElem) 
 macro "reportIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
   expandReportIssueMacro s.raw
 
+/-- Similar to `expandReportIssueMacro`, but only reports issue if `grind.debug` is set to `true` -/
+meta def expandReportDbgIssueMacro (s : Syntax) : MacroM (TSyntax `doElem) := do
+  let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
+  `(doElem| do
+    if (← getConfig).verbose then
+      if grind.debug.get (← getOptions) then
+        reportIssue $msg)
+
+/-- Similar to `reportIssue!`, but only reports issue if `grind.debug` is set to `true` -/
+macro "reportDbgIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
+  expandReportDbgIssueMacro s.raw
+
 /--
 Each E-node may have "solver terms" attached to them.
 Each term is an element of the equivalence class that the

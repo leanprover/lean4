@@ -47,7 +47,7 @@ namespace Option
 
 reprove pmap_none pmap_some attach_none attachWith_none by grind
 reprove map_pmap pmap_map attach_some attachWith_some by grind
-reprove attach_map_val attach_map_subtype_val attachWith_map_val attachWith_map_subtype_val by grind [cases Option]
+reprove attach_map_subtype_val attachWith_map_val attachWith_map_subtype_val by grind [cases Option]
 reprove attach_map attachWith_map map_attachWith map_attachWith_eq_pmap map_attach_eq_pmap by grind [cases Option]
 
 end Option

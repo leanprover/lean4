@@ -7,6 +7,8 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Canon
+import Init.Grind.Ring.Envelope
+import Init.Grind.Module.Envelope
 public section
 namespace Lean.Meta.Grind
 
@@ -86,6 +88,14 @@ private def isFnInstance (f : Expr) : CoreM Bool := do
   let .const declName _ := f | return false
   isInstance declName
 
+/-- Return `true` if `f` is a cast-like operation. We don't perform mbtc in this kind of function. -/
+private def isCastLike (f : Expr) : Bool := Id.run do
+  let .const declName _ := f | return false
+  return declName == ``Grind.Ring.OfSemiring.toQ ||
+    declName == ``Grind.IntModule.OfNatModule.toQ ||
+    declName == ``NatCast.natCast ||
+    declName == ``IntCast.intCast
+
 /-- Model-based theory combination. -/
 def mbtc (ctx : MBTC.Context) : GoalM Bool := do
   unless (← getConfig).mbtc do return false
@@ -99,10 +109,11 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
     unless (← ctx.isInterpreted e) do
       let f := e.getAppFn
       /-
-      Remark: we ignore type class instances in model-based theory combination.
+      Remark: we ignore type class instances and cast-like applications in model-based theory combination.
       `grind` treats instances as support elements, and they are handled by the canonicalizer.
+      cast-like internal operations and handled by their associated solver.
       -/
-      unless (← isFnInstance f) do
+      if !(← isFnInstance f) && !isCastLike f then
         let mut i := 0
         for arg in e.getAppArgs do
           let some arg ← getRoot? arg | pure ()

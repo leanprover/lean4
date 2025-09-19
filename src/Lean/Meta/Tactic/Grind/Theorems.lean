@@ -166,4 +166,13 @@ def Theorems.mkEmpty (α : Type) : Theorems α := {}
 instance : EmptyCollection (Theorems α) where
   emptyCollection := Theorems.mkEmpty α
 
+def getProofForDecl (declName : Name) : MetaM Expr := do
+  let info ← getConstVal declName
+  -- For theorems, `isProp` has already been checked at declaration time
+  unless wasOriginallyTheorem (← getEnv) declName do
+    unless (← isProp info.type) do
+      throwError "invalid `grind` theorem `{.ofConstName declName}`, type is not a proposition"
+  let us := info.levelParams.map mkLevelParam
+  return mkConst declName us
+
 end Lean.Meta.Grind

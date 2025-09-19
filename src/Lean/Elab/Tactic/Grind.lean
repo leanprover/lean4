@@ -88,6 +88,8 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
       if let some declName ← Grind.isCasesAttrCandidate? declName false then
         Grind.ensureNotBuiltinCases declName
         params := { params with casesTypes := (← params.casesTypes.eraseDecl declName) }
+      else if (← Grind.isInjectiveTheorem declName) then
+        params := { params with inj := params.inj.erase (.decl declName) }
       else
         params := { params with ematch := (← params.ematch.eraseDecl declName) }
     | `(Parser.Tactic.grindParam| $[$mod?:grindMod]? $id:ident) =>
@@ -140,10 +142,11 @@ where
           params ← withRef p <| addEMatchTheorem params ctor (.default false) minIndexable
       else
         throwError "invalid use of `intro` modifier, `{.ofConstName declName}` is not an inductive predicate"
+    | .inj =>
+      let thm ← Grind.mkInjectiveTheorem declName
+      params := { params with inj := params.inj.insert thm }
     | .ext =>
       throwError "`[grind ext]` cannot be set using parameters"
-    | .inj =>
-      throwError "`[grind inj]` cannot be set using parameters"
     | .infer =>
       if let some declName ← Grind.isCasesAttrCandidate? declName false then
         params := { params with casesTypes := params.casesTypes.insert declName false }
@@ -196,8 +199,9 @@ where
 def mkGrindParams (config : Grind.Config) (only : Bool) (ps :  TSyntaxArray ``Parser.Tactic.grindParam) : MetaM Grind.Params := do
   let params ← Grind.mkParams config
   let ematch ← if only then pure default else Grind.getEMatchTheorems
+  let inj ← if only then pure default else Grind.getInjectiveTheorems
   let casesTypes ← if only then pure default else Grind.getCasesTypes
-  let params := { params with ematch, casesTypes }
+  let params := { params with ematch, casesTypes, inj }
   elabGrindParams params ps only
 
 def grind

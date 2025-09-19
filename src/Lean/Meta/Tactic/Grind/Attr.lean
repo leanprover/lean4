@@ -4,14 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Grind.EMatchTheorem
+public import Lean.Meta.Tactic.Grind.Injective
 public import Lean.Meta.Tactic.Grind.Cases
 public import Lean.Meta.Tactic.Grind.ExtAttr
-
 public section
-
 namespace Lean.Meta.Grind
 
 inductive AttrKind where
@@ -20,8 +18,8 @@ inductive AttrKind where
   | intro
   | infer
   | ext
-  | inj
   | symbol (prio : Nat)
+  | inj
 
 /-- Return theorem kind for `stx` of the form `Attr.grindThmMod` -/
 def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
@@ -119,7 +117,7 @@ private def registerGrindAttr (minIndexable : Bool) (showInfo : Bool) : IO Unit 
         else
           addEMatchAttrAndSuggest stx declName attrKind (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
       | .symbol prio => addSymbolPriorityAttr declName attrKind prio
-      | .inj => throwError "NIY"
+      | .inj => addInjectiveAttr declName attrKind
     erase := fun declName => MetaM.run' do
       if showInfo then
         throwError "`[grind?]` is a helper attribute for displaying inferred patterns, if you want to remove the attribute, consider using `[grind]` instead"
@@ -127,6 +125,8 @@ private def registerGrindAttr (minIndexable : Bool) (showInfo : Bool) : IO Unit 
         eraseCasesAttr declName
       else if (← isExtTheorem declName) then
         eraseExtAttr declName
+      else if (← isInjectiveTheorem declName) then
+        eraseInjectiveAttr declName
       else
         eraseEMatchAttr declName
   }

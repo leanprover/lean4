@@ -130,6 +130,7 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
     if (← isKnownCaseSplit info) then
       return none
     let .arg a b _ eq _ := info | return none
+    trace[grind.mbtc] "{eq}"
     internalize eq (Nat.max (← getGeneration a) (← getGeneration b))
     return some info
   if result.isEmpty then

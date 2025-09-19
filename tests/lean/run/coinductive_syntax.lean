@@ -1,3 +1,4 @@
+set_option trace.Elab.coinductive true
 set_option pp.proofs true
 section
 variable (α : Type)
@@ -22,8 +23,11 @@ info: infSeq.casesOn (α : Type) (r : α → α → Prop) {motive : (a : α) →
 #guard_msgs in
 #check infSeq.casesOn
 
-
-#check infSeq.eq_1
+/--
+info: infSeq.functor_unfold (α : Type) (r : α → α → Prop) (a✝ : α) : infSeq α r a✝ = infSeq_functor α r (infSeq α r) a✝
+-/
+#guard_msgs in
+#check infSeq.functor_unfold
 
 /-- info: infSeq (α : Type) (r : α → α → Prop) : α → Prop -/
 #guard_msgs in

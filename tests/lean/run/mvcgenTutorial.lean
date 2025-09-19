@@ -115,6 +115,11 @@ def mkFreshN (n : Nat) : AppM (List Nat) := do
     acc := acc.push n
   return acc.toList
 
+theorem mkFreshN_spec_noncompositional (n : Nat) : ⦃⌜True⌝⦄ mkFreshN n ⦃⇓ r => ⌜r.Nodup⌝⦄ := by
+  mvcgen [mkFreshN, mkFresh, liftCounterM]
+  case inv1 => exact ⇓⟨xs, acc⟩ _ state => ⌜(∀ n ∈ acc, n < state.counter) ∧ acc.toList.Nodup⌝
+  all_goals mleave; grind
+
 @[spec]
 theorem mkFresh_spec [Monad m] [WPMonad m ps] (c : Nat) :
     ⦃fun state => ⌜state.counter = c⌝⦄ mkFresh (m := m) ⦃⇓ r state => ⌜r = c ∧ c < state.counter⌝⦄ := by

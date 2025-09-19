@@ -927,7 +927,7 @@ structure Slice where
 instance : Inhabited Slice where
   default := ⟨"", "".startValidPos, "".startValidPos, by simp [Pos.le_iff]⟩
 
-@[inline]
+@[inline, expose] -- expose for the defeq `s.toSlice.str = s`.
 def toSlice (s : String) : Slice where
   str := s
   startInclusive := s.startValidPos
@@ -1272,6 +1272,66 @@ def Slice.Pos.get? {s : Slice} (pos : s.Pos) : Option Char :=
 position. -/
 def ByteString.Slice.Pos.get! {s : Slice} (pos : s.Pos) : Char :=
   if h : pos = s.endPos then panic! "Cannot retrieve character at end position" else pos.get h
+
+@[simp]
+theorem startInclusive_toSlice {s : String} : s.toSlice.startInclusive = s.startValidPos := rfl
+
+@[simp]
+theorem endExclusive_toSlice {s : String} : s.toSlice.endExclusive = s.endValidPos := rfl
+
+@[simp]
+theorem str_toSlice {s : String} : s.toSlice.str = s := rfl
+
+@[simp]
+theorem offset_endValidPos {s : String} : s.endValidPos.offset = s.endPos := (rfl)
+
+@[simp]
+theorem copy_toSlice {s : String} : s.toSlice.copy = s := by
+  simp [← bytes_inj, Slice.bytes_copy, ← size_bytes]
+
+@[simp]
+theorem Pos.isValidForSlice_toSlice_iff {s : String} {p : Pos} :
+    p.IsValidForSlice s.toSlice ↔ p.IsValid s := by
+  rw [← isValid_copy_iff, copy_toSlice]
+
+theorem Pos.IsValid.toSlice {s : String} {p : Pos} (h : p.IsValid s) :
+    p.IsValidForSlice s.toSlice :=
+  isValidForSlice_toSlice_iff.2 h
+
+theorem Pos.IsValidForSlice.ofSlice {s : String} {p : Pos} (h : p.IsValidForSlice s.toSlice) :
+    p.IsValid s :=
+  isValidForSlice_toSlice_iff.1 h
+
+/-- Turns a valid position on the string `s` into a valid position on the slice `s.toSlice`. -/
+@[inline]
+def ValidPos.toSlice {s : String} (pos : s.ValidPos) : s.toSlice.Pos where
+  offset := pos.offset
+  isValidForSlice := pos.isValid.toSlice
+
+@[simp]
+theorem ValidPos.offset_toSlice {s : String} {pos : s.ValidPos} : pos.toSlice.offset = pos.offset := (rfl)
+
+/-- Given a string `s`, turns a valid position on the slice `s.toSlice` into a valid position on the
+string `s`. -/
+@[inline]
+def Slice.Pos.ofSlice {s : String} (pos : s.toSlice.Pos) : s.ValidPos where
+  offset := pos.offset
+  isValid := pos.isValidForSlice.ofSlice
+
+@[simp]
+theorem Slice.Pos.ofset_ofSlice {s : String} {pos : s.toSlice.Pos} : pos.ofSlice.offset = pos.offset := (rfl)
+
+@[simp]
+theorem utf8ByteSize_toSlice {s : String} : s.toSlice.utf8ByteSize = s.endPos := by
+  rw [← Slice.endPos_copy, copy_toSlice]
+
+@[simp]
+theorem endPos_toSlice {s : String} : s.toSlice.endPos = s.endValidPos.toSlice :=
+  Slice.Pos.ext (by simp)
+
+@[simp]
+theorem startPos_toSlice {s : String} : s.toSlice.startPos = s.startValidPos.toSlice :=
+  Slice.Pos.ext (by simp)
 
 def utf8GetAux : List Char → Pos → Pos → Char
   | [],    _, _ => default

@@ -112,7 +112,9 @@ def run (declNames : Array Name) : CompilerM (Array IR.Decl) := withAtLeastMaxRe
   -- Check meta accesses now before optimizations may obscure references. This check should stay in
   -- `lean` if some compilation is moved out.
   for decl in decls do
-    checkMeta (isMeta (← getEnv) decl.name) decl
+    let irPhases := getIRPhases (← getEnv) decl.name
+    if irPhases != .all then
+      checkMeta (isMeta := irPhases == .comptime) decl
   let decls := markRecDecls decls
   let manager ← getPassManager
   let isCheckEnabled := compiler.check.get (← getOptions)

@@ -363,6 +363,36 @@ theorem toBitVec_eq_of_isInvalidContinuationByte_eq_false {b : UInt8} (hb : isIn
     b.toBitVec = 0b10#2 ++ b.toBitVec.setWidth 6 := by
   exact helper₂ 6 b.toBitVec (isInvalidContinuationByte_eq_false_iff_toBitVec.1 hb)
 
+theorem parseFirstByte_eq_invalid_of_isInvalidContinuationByte_eq_false {b : UInt8}
+    (hb : isInvalidContinuationByte b = false) : parseFirstByte b = .invalid := by
+  replace hb := toBitVec_eq_of_isInvalidContinuationByte_eq_false hb
+  match h : parseFirstByte b with
+  | .done =>
+    rw [toBitVec_eq_of_parseFirstByte_eq_done h] at hb
+    have := congrArg (·[7]) hb
+    simp only at this
+    rw [BitVec.getElem_append, BitVec.getElem_append] at this
+    simp at this
+  | .oneMore =>
+    rw [toBitVec_eq_of_parseFirstByte_eq_oneMore h] at hb
+    have := congrArg (·[6]) hb
+    simp only at this
+    rw [BitVec.getElem_append, BitVec.getElem_append] at this
+    simp at this
+  | .twoMore =>
+    rw [toBitVec_eq_of_parseFirstByte_eq_twoMore h] at hb
+    have := congrArg (·[6]) hb
+    simp only at this
+    rw [BitVec.getElem_append, BitVec.getElem_append] at this
+    simp at this
+  | .threeMore =>
+    rw [toBitVec_eq_of_parseFirstByte_eq_threeMore h] at hb
+    have := congrArg (·[6]) hb
+    simp only at this
+    rw [BitVec.getElem_append, BitVec.getElem_append] at this
+    simp at this
+  | .invalid => rfl
+
 /-! # `parseFirstByte`, `isInvalidContinuationByte` and `utf8EncodeChar` -/
 
 theorem parseFirstByte_utf8EncodeChar_eq_done {c : Char} (hc : c.utf8Size = 1) :
@@ -1237,3 +1267,65 @@ public theorem List.utf8DecodeChar?_utf8Encode_cons {l : List Char} {c : Char} :
 public theorem List.utf8DecodeChar_utf8Encode_cons {l : List Char} {c : Char} {h} :
     ByteArray.utf8DecodeChar (c::l).utf8Encode 0 h = c := by
   simp [ByteArray.utf8DecodeChar]
+
+/-! # `UInt8.IsUtf8FirstByte` -/
+
+namespace UInt8
+
+/--
+Predicate for whether a byte is can appear as the first byte of the UTF-8 encoding of a Unicode
+scalar value.
+-/
+@[expose]
+public def IsUtf8FirstByte (c : UInt8) : Prop :=
+  c &&& 0x80 = 0 ∨ c &&& 0xe0 = 0xc0 ∨ c &&& 0xf0 = 0xe0 ∨ c &&& 0xf8 = 0xf0
+
+public instance {c : UInt8} : Decidable c.IsUtf8FirstByte :=
+  inferInstanceAs <| Decidable (c &&& 0x80 = 0 ∨ c &&& 0xe0 = 0xc0 ∨ c &&& 0xf0 = 0xe0 ∨ c &&& 0xf8 = 0xf0)
+
+theorem isUtf8FirstByte_iff_parseFirstByte_ne_invalid {c : UInt8} :
+    c.IsUtf8FirstByte ↔ parseFirstByte c ≠ FirstByte.invalid := by
+  fun_cases parseFirstByte with simp_all [IsUtf8FirstByte]
+
+@[simp]
+public theorem isUtf8FirstByte_getElem_utf8EncodeChar {c : Char} {i : Nat} {hi : i < (String.utf8EncodeChar c).length} :
+    (String.utf8EncodeChar c)[i].IsUtf8FirstByte ↔ i = 0 := by
+  obtain (rfl|hi₀) := Nat.eq_zero_or_pos i
+  · simp only [isUtf8FirstByte_iff_parseFirstByte_ne_invalid, iff_true]
+    match h : c.utf8Size, c.utf8Size_pos, c.utf8Size_le_four with
+    | 1, _, _ => simp [parseFirstByte_utf8EncodeChar_eq_done h]
+    | 2, _, _ => simp [parseFirstByte_utf8EncodeChar_eq_oneMore h]
+    | 3, _, _ => simp [parseFirstByte_utf8EncodeChar_eq_twoMore h]
+    | 4, _, _ => simp [parseFirstByte_utf8EncodeChar_eq_threeMore h]
+  · simp only [isUtf8FirstByte_iff_parseFirstByte_ne_invalid, ne_eq, Nat.ne_of_lt' hi₀, iff_false,
+      Classical.not_not]
+    apply parseFirstByte_eq_invalid_of_isInvalidContinuationByte_eq_false
+    simp only [String.length_utf8EncodeChar] at hi
+    match h : c.utf8Size, c.utf8Size_pos, c.utf8Size_le_four, i, hi₀, hi with
+    | 1, _, _, 1, _, _ => contradiction
+    | 2, _, _, 1, _, _ => simp [isInvalidContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_two h]
+    | 3, _, _, 1, _, _ => simp [isInvalidContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_three h]
+    | 3, _, _, 2, _, _ => simp [isInvalidContinuationByte_getElem_utf8EncodeChar_two_of_utf8Size_eq_three h]
+    | 4, _, _, 1, _, _ => simp [isInvalidContinuationByte_getElem_utf8EncodeChar_one_of_utf8Size_eq_four h]
+    | 4, _, _, 2, _, _ => simp [isInvalidContinuationByte_getElem_utf8EncodeChar_two_of_utf8Size_eq_four h]
+    | 4, _, _, 3, _, _ => simp [isInvalidContinuationByte_getElem_utf8EncodeChar_three_of_utf8Size_eq_four h]
+
+public theorem isUtf8FirstByte_getElem_zero_utf8EncodeChar {c : Char} :
+    ((String.utf8EncodeChar c)[0]'(by simp [c.utf8Size_pos])).IsUtf8FirstByte := by
+  simp
+
+end UInt8
+
+public theorem ByteArray.isUtf8FirstByte_getElem_zero_utf8EncodeChar_append {c : Char} {b : ByteArray} :
+    (((String.utf8EncodeChar c).toByteArray ++ b)[0]'(by simp; have := c.utf8Size_pos; omega)).IsUtf8FirstByte := by
+  rw [ByteArray.getElem_append_left (by simp [c.utf8Size_pos]),
+    List.getElem_toByteArray, UInt8.isUtf8FirstByte_getElem_utf8EncodeChar]
+
+public theorem ByteArray.isUtf8FirstByte_of_isSome_utf8DecodeChar? {b : ByteArray} {i : Nat}
+    (h : (utf8DecodeChar? b i).isSome) : (b[i]'(lt_size_of_isSome_utf8DecodeChar? h)).IsUtf8FirstByte := by
+  rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract] at h
+  suffices ((b.extract i b.size)[0]'(lt_size_of_isSome_utf8DecodeChar? h)).IsUtf8FirstByte by
+    simpa [ByteArray.getElem_extract, Nat.add_zero] using this
+  obtain ⟨c, hc⟩ := Option.isSome_iff_exists.1 h
+  conv => congr; congr; rw [eq_of_utf8DecodeChar?_eq_some hc]
+  exact isUtf8FirstByte_getElem_zero_utf8EncodeChar_append

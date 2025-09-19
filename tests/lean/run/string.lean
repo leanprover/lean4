@@ -166,3 +166,6 @@ Behavior of `String.next` (`lean_string_utf8_next`) in special cases (see issue 
 #test "L∃∀N".next ⟨2 ^ 128 - 1⟩ = ⟨2 ^ 128⟩ -- large non-scalar
 #test "L∃∀N".next ⟨2 ^ 63 - 1⟩ = ⟨2 ^ 63⟩ -- scalar boundary (64-bit)
 #test "L∃∀N".next ⟨2 ^ 31 - 1⟩ = ⟨2 ^ 31⟩ -- scalar boundary (32-bit)
+
+-- ofByteArray
+#guard (String.ofByteArray ByteArray.empty (by simp)) = ""

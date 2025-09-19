@@ -26,7 +26,7 @@ namespace Lean.Name
 -- If you change this, also change the corresponding function in `Init.Meta`.
 private partial def needsNoEscapeAsciiRest (s : String) (i : Nat) : Bool :=
   if h : i < s.utf8ByteSize then
-    let c := s.getUtf8Byte i h
+    let c := s.getUtf8Byte ⟨i⟩ h
     isIdRestAscii c && needsNoEscapeAsciiRest s (i + 1)
   else
     true

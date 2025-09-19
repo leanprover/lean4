@@ -1,6 +1,2 @@
-do
-  let a ← liftM m
-  pure a.val : ReaderT Int IO Nat
-do
-  let a ← m
-  pure a.val : EIO IO.Error Nat
+(fun x => x.val) <$> liftM m : ReaderT Int IO Nat
+(fun x => x.val) <$> m : EIO IO.Error Nat

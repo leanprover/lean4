@@ -172,9 +172,6 @@ theorem attach_map_val (xs : Vector α n) (f : α → β) :
   rcases xs with ⟨xs, rfl⟩
   simp
 
-@[deprecated attach_map_val (since := "2025-02-17")]
-abbrev attach_map_coe := @attach_map_val
-
 -- The argument `xs : Vector α n` is explicit to allow rewriting from right to left.
 theorem attach_map_subtype_val (xs : Vector α n) : xs.attach.map Subtype.val = xs := by
   rcases xs with ⟨xs, rfl⟩
@@ -184,9 +181,6 @@ theorem attachWith_map_val {p : α → Prop} {f : α → β} {xs : Vector α n} 
     ((xs.attachWith p H).map fun (i : { i // p i}) => f i) = xs.map f := by
   rcases xs with ⟨xs, rfl⟩
   simp
-
-@[deprecated attachWith_map_val (since := "2025-02-17")]
-abbrev attachWith_map_coe := @attachWith_map_val
 
 theorem attachWith_map_subtype_val {p : α → Prop} {xs : Vector α n} (H : ∀ a ∈ xs, p a) :
     (xs.attachWith p H).map Subtype.val = xs := by
@@ -344,9 +338,6 @@ theorem map_attach_eq_pmap {xs : Vector α n} {f : { x // x ∈ xs } → β} :
     xs.attach.map f = xs.pmap (fun a h => f ⟨a, h⟩) (fun _ => id) := by
   rcases xs with ⟨xs, rfl⟩
   ext <;> simp
-
-@[deprecated map_attach_eq_pmap (since := "2025-02-09")]
-abbrev map_attach := @map_attach_eq_pmap
 
 @[grind =]
 theorem pmap_pmap {p : α → Prop} {q : β → Prop} {g : ∀ a, p a → β} {f : ∀ b, q b → γ} {xs : Vector α n} (H₁ H₂) :

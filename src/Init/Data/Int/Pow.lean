@@ -50,14 +50,9 @@ protected theorem pow_ne_zero {n : Int} {m : Nat} : n ≠ 0 → n ^ m ≠ 0 := b
 
 instance {n : Int} {m : Nat} [NeZero n] : NeZero (n ^ m) := ⟨Int.pow_ne_zero (NeZero.ne _)⟩
 
-@[deprecated Nat.pow_le_pow_left (since := "2025-02-17")]
-abbrev pow_le_pow_of_le_left := @Nat.pow_le_pow_left
-
-@[deprecated Nat.pow_le_pow_right (since := "2025-02-17")]
-abbrev pow_le_pow_of_le_right := @Nat.pow_le_pow_right
-
+-- This can't be removed until the next update-stage0
 @[deprecated Nat.pow_pos (since := "2025-02-17")]
-abbrev pos_pow_of_pos := @Nat.pow_pos
+abbrev _root_.Nat.pos_pow_of_pos := @Nat.pow_pos
 
 @[simp, norm_cast]
 protected theorem natCast_pow (b n : Nat) : ((b^n : Nat) : Int) = (b : Int) ^ n := by

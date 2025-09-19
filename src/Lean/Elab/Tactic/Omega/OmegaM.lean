@@ -216,7 +216,7 @@ def analyzeAtom (e : Expr) : OmegaM (List Expr) := do
         | some _ =>
           let b_pos := mkApp4 (.const ``LT.lt [0]) (.const ``Nat []) (.const ``instLTNat [])
             (toExpr (0 : Nat)) b
-          let pow_pos := mkApp3 (.const ``Nat.pos_pow_of_pos []) b exp (← mkDecideProof b_pos)
+          let pow_pos := mkApp3 (.const ``Nat.pow_pos []) b exp (← mkDecideProof b_pos)
           let cast_pos := mkApp2 (.const ``Int.ofNat_pos_of_pos []) k' pow_pos
           pure [mkApp3 (.const ``Int.emod_nonneg []) x k
                   (mkApp3 (.const ``Int.ne_of_gt []) k (toExpr (0 : Int)) cast_pos),

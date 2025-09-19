@@ -1347,8 +1347,6 @@ theorem neg_of_sign_eq_neg_one : ∀ {a : Int}, sign a = -1 → a < 0
   | 0 => Int.mul_zero _
   | -[_+1] => Int.mul_neg_one _
 
-@[deprecated mul_sign_self (since := "2025-02-24")] abbrev mul_sign := @mul_sign_self
-
 @[simp] theorem sign_mul_self (i : Int) : sign i * i = natAbs i := by
   rw [Int.mul_comm, mul_sign_self]
 

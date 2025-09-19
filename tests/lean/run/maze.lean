@@ -126,7 +126,7 @@ partial def extractGameState : Lean.Expr → Lean.MetaM GameState
 
 def update2dArray {α : Type} : Array (Array α) → Coords → α → Array (Array α)
 | a, ⟨x,y⟩, v =>
-   Array.set! a y $ Array.set! (Array.get! a y) x v
+   Array.set! a y $ Array.set! a[y]! x v
 
 def update2dArrayMulti {α : Type} : Array (Array α) → List Coords → α → Array (Array α)
 | a, [], _ => a

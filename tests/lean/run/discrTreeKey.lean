@@ -44,8 +44,8 @@ open Nat List
 #check Nat.pred_succ
 #discr_tree_simp_key Nat.pred_succ
 
-#check get?_nil
-#discr_tree_simp_key get?_nil
+#check getElem?_nil
+#discr_tree_simp_key getElem?_nil
 
 #check or_cons
 #discr_tree_simp_key or_cons

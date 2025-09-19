@@ -289,16 +289,6 @@ theorem cons_lex_nil [BEq α] {a} {as : List α} : lex (a :: as) [] lt = false :
 @[simp] theorem lex_nil [BEq α] {as : List α} : lex as [] lt = false := by
   cases as <;> simp [nil_lex_nil, cons_lex_nil]
 
-@[deprecated nil_lex_nil (since := "2025-02-10")]
-theorem lex_nil_nil [BEq α] : lex ([] : List α) [] lt = false := rfl
-@[deprecated nil_lex_cons (since := "2025-02-10")]
-theorem lex_nil_cons [BEq α] {b} {bs : List α} : lex [] (b :: bs) lt = true := rfl
-@[deprecated cons_lex_nil (since := "2025-02-10")]
-theorem lex_cons_nil [BEq α] {a} {as : List α} : lex (a :: as) [] lt = false := rfl
-@[deprecated cons_lex_cons (since := "2025-02-10")]
-theorem lex_cons_cons [BEq α] {a b} {as bs : List α} :
-    lex (a :: as) (b :: bs) lt = (lt a b || (a == b && lex as bs lt)) := rfl
-
 /-! ## Alternative getters -/
 
 /-! ### getLast -/

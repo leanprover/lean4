@@ -360,9 +360,6 @@ theorem find?_flatten_eq_none_iff {xs : List (List α)} {p : α → Bool} :
     xs.flatten.find? p = none ↔ ∀ ys ∈ xs, ∀ x ∈ ys, !p x := by
   simp
 
-@[deprecated find?_flatten_eq_none_iff (since := "2025-02-03")]
-abbrev find?_flatten_eq_none := @find?_flatten_eq_none_iff
-
 /--
 If `find? p` returns `some a` from `xs.flatten`, then `p a` holds, and
 some list in `xs` contains `a`, and no earlier element of that list satisfies `p`.
@@ -403,9 +400,6 @@ theorem find?_flatten_eq_some_iff {xs : List (List α)} {p : α → Bool} {a : �
     · exact h₁ l ml a m
     · exact h₂ a m
 
-@[deprecated find?_flatten_eq_some_iff (since := "2025-02-03")]
-abbrev find?_flatten_eq_some := @find?_flatten_eq_some_iff
-
 @[simp, grind =] theorem find?_flatMap {xs : List α} {f : α → List β} {p : β → Bool} :
     (xs.flatMap f).find? p = xs.findSome? (fun x => (f x).find? p) := by
   simp [flatMap_def, findSome?_map]; rfl
@@ -434,15 +428,9 @@ theorem find?_replicate_eq_none_iff {n : Nat} {a : α} {p : α → Bool} :
     (replicate n a).find? p = none ↔ n = 0 ∨ !p a := by
   simp [Classical.or_iff_not_imp_left]
 
-@[deprecated find?_replicate_eq_none_iff (since := "2025-02-03")]
-abbrev find?_replicate_eq_none := @find?_replicate_eq_none_iff
-
 @[simp] theorem find?_replicate_eq_some_iff {n : Nat} {a b : α} {p : α → Bool} :
     (replicate n a).find? p = some b ↔ n ≠ 0 ∧ p a ∧ a = b := by
   cases n <;> simp
-
-@[deprecated find?_replicate_eq_some_iff (since := "2025-02-03")]
-abbrev find?_replicate_eq_some := @find?_replicate_eq_some_iff
 
 @[simp] theorem get_find?_replicate {n : Nat} {a : α} {p : α → Bool} (h) : ((replicate n a).find? p).get h = a := by
   cases n with
@@ -836,9 +824,6 @@ theorem of_findIdx?_eq_some {xs : List α} {p : α → Bool} (w : xs.findIdx? p 
     simp_all only [findIdx?_cons]
     split at w <;> cases i <;> simp_all
 
-@[deprecated of_findIdx?_eq_some (since := "2025-02-02")]
-abbrev findIdx?_of_eq_some := @of_findIdx?_eq_some
-
 theorem of_findIdx?_eq_none {xs : List α} {p : α → Bool} (w : xs.findIdx? p = none) :
     ∀ i : Nat, match xs[i]? with | some a => ¬ p a | none => true := by
   intro i
@@ -853,9 +838,6 @@ theorem of_findIdx?_eq_none {xs : List α} {p : α → Bool} (w : xs.findIdx? p 
       simp only [getElem?_cons_succ]
       apply ih
       split at w <;> simp_all
-
-@[deprecated of_findIdx?_eq_none (since := "2025-02-02")]
-abbrev findIdx?_of_eq_none := @of_findIdx?_eq_none
 
 @[simp, grind _=_] theorem findIdx?_map {f : β → α} {l : List β} : findIdx? p (l.map f) = l.findIdx? (p ∘ f) := by
   induction l with

@@ -791,18 +791,6 @@ protected theorem pow_le_pow_right {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i
     | Or.inr h =>
       h.symm ▸ Nat.le_refl _
 
-set_option linter.missingDocs false in
-@[deprecated Nat.pow_le_pow_left (since := "2025-02-17")]
-abbrev pow_le_pow_of_le_left := @Nat.pow_le_pow_left
-
-set_option linter.missingDocs false in
-@[deprecated Nat.pow_le_pow_right (since := "2025-02-17")]
-abbrev pow_le_pow_of_le_right := @Nat.pow_le_pow_right
-
-set_option linter.missingDocs false in
-@[deprecated Nat.pow_pos (since := "2025-02-17")]
-abbrev pos_pow_of_pos := @Nat.pow_pos
-
 @[simp] theorem zero_pow_of_pos (n : Nat) (h : 0 < n) : 0 ^ n = 0 := by
   cases n with
   | zero => cases h
@@ -881,9 +869,6 @@ protected theorem ne_zero_of_lt (h : b < a) : a ≠ 0 := by
   cases a
   exact absurd h (Nat.not_lt_zero _)
   apply Nat.noConfusion
-
-@[deprecated Nat.ne_zero_of_lt (since := "2025-02-06")]
-theorem not_eq_zero_of_lt (h : b < a) : a ≠ 0 := Nat.ne_zero_of_lt h
 
 theorem pred_lt_of_lt {n m : Nat} (h : m < n) : pred n < n :=
   pred_lt (Nat.ne_zero_of_lt h)

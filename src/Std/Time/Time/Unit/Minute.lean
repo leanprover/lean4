@@ -14,7 +14,6 @@ public section
 namespace Std
 namespace Time
 namespace Minute
-open Std.Internal
 open Internal
 
 set_option linter.all true

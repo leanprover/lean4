@@ -264,7 +264,8 @@ def «structure»          := leading_parser
 def sectionHeader := leading_parser
   optional ("@[" >> nonReservedSymbol "expose" >> "] ") >>
   optional ("public ") >>
-  optional ("noncomputable ")
+  optional ("noncomputable ") >>
+  optional ("meta ")
 /--
 A `section`/`end` pair delimits the scope of `variable`, `include`, `open`, `set_option`, and `local`
 commands. Sections can be nested. `section <id>` provides a label to the section that has to appear

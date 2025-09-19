@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Canon
 public section
 namespace Lean.Meta.Grind
 
@@ -36,7 +37,40 @@ private structure ArgInfo where
   arg : Expr
   app : Expr
 
-private abbrev Map := Std.HashMap (Expr × Nat) (List ArgInfo)
+/-- Key for detecting pairs of terms to case-split on. -/
+private structure Key where
+  /--
+  Mask constructed using the application a term occurs in. It includes
+  the function and support arguments.
+  We use two auxiliary "fake" terms to create the mask `_main` and `_other`.
+  Example suppose we have the application `@Prod.mk Bool Nat flag n`, and we
+  are trying to create a key for `n` at this application. The mask will be
+  ```
+  @Prod.mk Bool Nat _other _main
+  ```
+  We define "support" in this module as terms using the canonicalizer `isSupport`
+  function.
+  -/
+  mask : Expr
+  deriving BEq, Hashable
+
+private def mainMark  := mkConst `__grind_main_arg
+private def otherMark := mkConst `__grind_other_arg
+
+private def mkKey (e : Expr) (i : Nat) : MetaM Key :=
+  e.withApp fun f args => do
+    let info ← getFunInfo f
+    let mut args := Array.toVector args
+    for h : j in *...args.size do
+      let arg := args[j]
+      if i == j then
+        args := args.set j mainMark
+      else if !(← Canon.isSupport info.paramInfo j arg) then
+        args := args.set j otherMark
+    let mask := mkAppN f args.toArray
+    return { mask }
+
+private abbrev Map := Std.HashMap Key (List ArgInfo)
 private abbrev Candidates := Std.HashSet SplitInfo
 private def mkCandidate (a b : ArgInfo) (i : Nat) : GoalM SplitInfo := do
   let (lhs, rhs) := if a.arg.lt b.arg then
@@ -75,15 +109,16 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
           if (← ctx.hasTheoryVar arg) then
             trace[grind.debug.mbtc] "{arg} @ {f}:{i}"
             let argInfo : ArgInfo := { arg, app := e }
-            if let some otherInfos := map[(f, i)]? then
+            let key ← mkKey e i
+            if let some otherInfos := map[key]? then
               unless otherInfos.any fun info => isSameExpr arg info.arg do
                 for otherInfo in otherInfos do
                   if (← ctx.eqAssignment arg otherInfo.arg) then
                     if (← hasSameType arg otherInfo.arg) then
                       candidates := candidates.insert (← mkCandidate argInfo otherInfo i)
-                map := map.insert (f, i) (argInfo :: otherInfos)
+                map := map.insert key (argInfo :: otherInfos)
             else
-              map := map.insert (f, i) [argInfo]
+              map := map.insert key [argInfo]
           i := i + 1
   if candidates.isEmpty then
     return false

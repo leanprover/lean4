@@ -160,6 +160,14 @@ private def shouldCanon (pinfos : Array ParamInfo) (i : Nat) (arg : Expr) : Meta
     return .visit
 
 /--
+Returns `true` if `shouldCannon pinfos i arg` is not `.visit`.
+This is a helper function used to implement mbtc.
+-/
+def isSupport (pinfos : Array ParamInfo) (i : Nat) (arg : Expr) : MetaM Bool := do
+  let r ← shouldCanon pinfos i arg
+  return !r matches .visit
+
+/--
 Auxiliary function for normalizing the arguments of `OfNat.ofNat` during canonicalization.
 This is needed because satellite solvers create `Nat` and `Int` numerals using the
 APIs `mkNatLit` and `mkIntLit`, which produce terms of the form

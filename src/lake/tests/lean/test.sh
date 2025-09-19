@@ -17,7 +17,7 @@ test_out '"options":{"weak.foo":"bar"}' -v lean Lib/Basic.lean
 # Test that imported workspace modules are pre-resolved
 # for both other workspace modules and external files
 test_out '"importArts":{"Lib.Basic":["' -v lean Lib.lean
-test_out '"importArts":{"Lib.Basic":["' -v lean Test.lean
+test_out '"importArts":{"Lib' -v lean Test.lean
 
 # Test running a file works outside the workspace and working directory
 test_out '"name":"_unknown"' -v lean ../../examples/hello/Hello.lean

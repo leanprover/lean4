@@ -1293,7 +1293,7 @@ where
 
     withoutExporting (when :=
       headers.all (fun header =>
-        header.modifiers.isMeta ||
+        header.modifiers.isMeta && !header.modifiers.attrs.any (·.name == `expose) ||
         header.modifiers.attrs.any (·.name == `no_expose) ||
         (!(header.kind == .def && sc.attrs.any (· matches `(attrInstance| expose))) &&
          !header.modifiers.attrs.any (·.name == `expose) &&

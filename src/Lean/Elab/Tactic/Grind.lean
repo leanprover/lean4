@@ -49,6 +49,7 @@ open Command in
 def elabResetGrindAttrs : CommandElab := fun _ => liftTermElabM do
   Grind.resetCasesExt
   Grind.resetEMatchTheoremsExt
+  Grind.resetInjectiveTheoremsExt
   -- Remark: we do not reset symbol priorities because we would have to then set
   -- `[grind symbol 0] Eq` after a `reset_grind_attr%` command.
   -- Grind.resetSymbolPrioExt
@@ -202,7 +203,9 @@ def mkGrindParams (config : Grind.Config) (only : Bool) (ps :  TSyntaxArray ``Pa
   let inj ← if only then pure default else Grind.getInjectiveTheorems
   let casesTypes ← if only then pure default else Grind.getCasesTypes
   let params := { params with ematch, casesTypes, inj }
-  elabGrindParams params ps only
+  let params ← elabGrindParams params ps only
+  trace[grind.debug.inj] "{params.inj.getOrigins.map (·.pp)}"
+  return params
 
 def grind
     (mvarId : MVarId) (config : Grind.Config)

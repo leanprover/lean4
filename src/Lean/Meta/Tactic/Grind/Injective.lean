@@ -9,6 +9,9 @@ public import Lean.Meta.Tactic.Grind.Theorems
 public section
 namespace Lean.Meta.Grind
 
+builtin_initialize registerTraceClass `grind.inj
+builtin_initialize registerTraceClass `grind.debug.inj
+
 /-- A theorem marked with `@[grind inj]` -/
 structure InjectiveTheorem where
   levelParams  : Array Name
@@ -36,7 +39,7 @@ private builtin_initialize injectiveTheoremsExt : SimpleScopedEnvExtension Injec
 
 private def getSymbols (proof : Expr) : MetaM (List HeadIndex) := do
   let type ← inferType proof
-  forallTelescopeReducing type fun _ type => do
+  forallTelescope type fun _ type => do
     unless type.isAppOfArity ``Function.Injective 3 do
       throwError "invalid `[grind inj]` theorem, resulting type is not of the form `Function.Injective <fun>`{indentExpr type}"
     let f := type.appArg!
@@ -45,9 +48,15 @@ private def getSymbols (proof : Expr) : MetaM (List HeadIndex) := do
       throwError "invalid `[grind inj]` theorem, injective function must use at least one constant symbol{indentExpr f}"
     return cs.toList.map (.const ·)
 
+private def symbolsToNames (s : List HeadIndex) : List Name :=
+  s.map fun
+    | .const n => n
+    | _ => Name.anonymous
+
 def mkInjectiveTheorem (declName : Name) : MetaM InjectiveTheorem := do
   let proof ← getProofForDecl declName
   let symbols ← getSymbols proof
+  trace[grind.inj] "{declName}: {symbolsToNames symbols}"
   return {
     levelParams := #[]
     origin := .decl declName
@@ -67,7 +76,10 @@ def isInjectiveTheorem (declName : Name) : CoreM Bool := do
   return injectiveTheoremsExt.getState (← getEnv) |>.contains (.decl declName)
 
 /-- Returns the injective theorems registered in the environment. -/
-def getInjectiveTheorems : CoreM InjectiveTheorems :=
+def getInjectiveTheorems : CoreM InjectiveTheorems := do
   return injectiveTheoremsExt.getState (← getEnv)
+
+def resetInjectiveTheoremsExt : CoreM Unit := do
+  modifyEnv fun env => injectiveTheoremsExt.modifyState env fun _ => {}
 
 end Lean.Meta.Grind

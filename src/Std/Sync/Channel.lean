@@ -613,10 +613,10 @@ end Bounded
 /--
 This type represents all flavors of channels that we have available.
 -/
-private inductive Flavors (α : Type) where
-  | unbounded (ch : Unbounded α)
-  | zero (ch : Zero α)
-  | bounded (ch : Bounded α)
+inductive Flavors (α : Type) where
+  | private unbounded (ch : Unbounded α)
+  | private zero (ch : Zero α)
+  | private bounded (ch : Bounded α)
 deriving Nonempty
 
 end CloseableChannel
@@ -629,6 +629,7 @@ Additionally `Std.CloseableChannel` can be closed if necessary, unlike `Std.Chan
 This introduces a need for error handling in some cases, thus it is usually easier to use
 `Std.Channel` if applicable.
 -/
+@[expose] -- for codegen
 def CloseableChannel (α : Type) : Type := CloseableChannel.Flavors α
 
 /--
@@ -640,6 +641,7 @@ Additionally `Std.CloseableChannel.Sync` can be closed if necessary, unlike `Std
 This introduces the need to handle errors in some cases, thus it is usually easier to use
 `Std.Channel` if applicable.
 -/
+@[expose] -- for codegen
 def CloseableChannel.Sync (α : Type) : Type := CloseableChannel α
 
 instance : Nonempty (CloseableChannel α) :=

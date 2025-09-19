@@ -1,7 +1,7 @@
 module
 public import Std.Data.HashMap
 public import Std.Data.TreeMap
-public section -- TODO: Workaround for private declaration + dot-notation issue
+
 /-!
 # If normalization
 

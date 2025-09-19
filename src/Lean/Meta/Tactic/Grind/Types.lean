@@ -472,6 +472,7 @@ inductive NewFact where
   | fact (prop proof : Expr) (generation : Nat)
 
 -- This type should be considered opaque outside this module.
+@[expose]  -- for codegen
 def ENodeMap := PHashMap ExprPtr ENode
 instance : Inhabited ENodeMap where
   default := private (id {})  -- TODO(sullrich): `id` works around `private` not respecting the expected type

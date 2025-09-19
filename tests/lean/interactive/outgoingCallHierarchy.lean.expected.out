@@ -284,7 +284,7 @@
       "end": {"line": 26, "character": 35}}],
     "children":
     [{"item":
-      {"uri": "file:///home/marc/lean4/src/Lean/Server/Test/Refs.lean",
+      {"uri": "file:///src/Lean/Server/Test/Refs.lean",
        "selectionRange":
        {"start": {"line": 24, "character": 11},
         "end": {"line": 24, "character": 17}},
@@ -301,7 +301,7 @@
         "end": {"line": 24, "character": 51}}],
       "children":
       [{"item":
-        {"uri": "file:///home/marc/lean4/src/Lean/Server/Test/Refs.lean",
+        {"uri": "file:///src/Lean/Server/Test/Refs.lean",
          "selectionRange":
          {"start": {"line": 23, "character": 11},
           "end": {"line": 23, "character": 16}},
@@ -318,7 +318,7 @@
           "end": {"line": 24, "character": 26}}],
         "children":
         [{"item":
-          {"uri": "file:///home/marc/lean4/src/Lean/Server/Test/Refs.lean",
+          {"uri": "file:///src/Lean/Server/Test/Refs.lean",
            "selectionRange":
            {"start": {"line": 21, "character": 11},
             "end": {"line": 21, "character": 16}},
@@ -335,7 +335,7 @@
             "end": {"line": 23, "character": 25}}],
           "children":
           [{"item":
-            {"uri": "file:///home/marc/lean4/src/Lean/Server/Test/Refs.lean",
+            {"uri": "file:///src/Lean/Server/Test/Refs.lean",
              "selectionRange":
              {"start": {"line": 19, "character": 17},
               "end": {"line": 19, "character": 22}},
@@ -352,7 +352,7 @@
               "end": {"line": 21, "character": 24}}],
             "children": []},
            {"item":
-            {"uri": "file:///home/marc/lean4/src/Lean/Server/Test/Refs.lean",
+            {"uri": "file:///src/Lean/Server/Test/Refs.lean",
              "selectionRange":
              {"start": {"line": 20, "character": 4},
               "end": {"line": 20, "character": 6}},
@@ -692,7 +692,7 @@
         "end": {"line": 24, "character": 22}}],
       "children":
       [{"item":
-        {"uri": "file:///home/marc/lean4/src/Lean/Server/Test/Refs.lean",
+        {"uri": "file:///src/Lean/Server/Test/Refs.lean",
          "selectionRange":
          {"start": {"line": 19, "character": 17},
           "end": {"line": 19, "character": 22}},

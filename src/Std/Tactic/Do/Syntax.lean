@@ -9,9 +9,10 @@ prelude
 public import Std.Do
 public import Init.NotationExtra
 public import Std.Tactic.Do.ProofMode -- For (meta) importing `mgoalStx`; otherwise users might experience
+                                      -- a broken goal view due to the builtin delaborator for `MGoalEntails`
 
 @[expose] public section
-                               -- a broken goal view due to the builtin delaborator for `MGoalEntails`
+
 
 namespace Lean.Elab.Tactic.Do.VCGen
 
@@ -330,10 +331,17 @@ An invariant alternative of the form `· term`, one per invariant goal.
 syntax invariantAlt  := ppDedent(ppLine) cdotTk (colGe term)
 
 /--
+Either the contextual keyword ` invariants ` or its tracing form ` invariants? ` which suggests
+skeletons for missing invariants as a hint.
+-/
+syntax invariantsKW := &"invariants " <|> &"invariants? "
+
+/--
 After `mvcgen [...]`, there can be an optional `invariants` followed by a bulleted list of
 invariants `· term; · term`.
+The tracing variant ` invariants? ` will suggest a skeleton for missing invariants.
 -/
-syntax invariantAlts := &" invariants" withPosition((colGe invariantAlt)*)
+syntax invariantAlts := invariantsKW withPosition((colGe invariantAlt)*)
 
 /--
 In induction alternative, which can have 1 or more cases on the left
@@ -345,7 +353,7 @@ syntax vcAlt := "| " sepBy1(caseArg, " | ") " => " tacticSeq -- `case` tactic ha
 After `with`, there is an optional tactic that runs on all branches, and
 then a list of alternatives.
 -/
-syntax vcAlts := " with" (ppSpace colGt tactic)? withPosition((colGe vcAlt)*)
+syntax vcAlts := "with " (ppSpace colGt tactic)? withPosition((colGe vcAlt)*)
 
 @[inherit_doc Lean.Parser.Tactic.mvcgenMacro]
 syntax (name := mvcgen) "mvcgen" optConfig

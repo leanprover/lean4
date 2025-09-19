@@ -19,6 +19,12 @@ allows the reference manual to document the DSL syntax.
 namespace Lake.DSL
 
 /--
+A macro that expands to the assigned name of package
+during the Lakefile's elaboration.
+-/
+scoped syntax (name := nameConst) "__name__" : term
+
+/--
 A macro that expands to the path of package's directory
 during the Lakefile's elaboration.
 -/

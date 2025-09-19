@@ -26,12 +26,14 @@ public nonempty_type OpaquePostUpdateHook (pkg : Name)
 public structure Package where
   /-- The name of the package. -/
   name : Name
+  /-- The name specified by the package. -/
+  origName : Name
   /-- The absolute path to the package's directory. -/
   dir : FilePath
   /-- The path to the package's directory relative to the workspace. -/
   relDir : FilePath
   /-- The package's user-defined configuration. -/
-  config : PackageConfig name
+  config : PackageConfig name origName
   /-- The absolute path to the package's configuration file. -/
   configFile : FilePath
   /-- The path to the package's configuration file (relative to `dir`). -/

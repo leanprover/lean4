@@ -16,3 +16,10 @@ public def Test2 := Test1
 public def Test3 := Test1
 public def Test4 := Test2
 public def Test5 := Test2
+
+public inductive Test6
+  | mk
+public def test7 : Test6 := .mk
+public def test8 : Test6 := .mk
+public def test9 := test7
+public def test10 := test9

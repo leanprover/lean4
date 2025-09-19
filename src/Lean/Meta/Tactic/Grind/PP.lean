@@ -15,6 +15,7 @@ public import Lean.Meta.Tactic.Grind.Arith.Linear.PP
 public import Lean.Meta.Tactic.Grind.AC.PP
 import Lean.Meta.Tactic.Grind.CastLike
 import Lean.PrettyPrinter
+import Lean.Meta.CtorRecognizer
 public section
 
 namespace Lean.Meta.Grind
@@ -136,11 +137,15 @@ where
 Returns `true` if `e` is a support-like application.
 Recall that equivalence classes that contain only support applications are displayed in the "others" category.
 -/
-private def isSupportApp (e : Expr) : Bool :=
-  isArithOfCastLike e ||
-  match e.getAppFn with
-  | .const declName _  => isCastLikeDeclName declName || isGadget declName || isBuiltin declName
-  | _ => false
+private def isSupportApp (e : Expr) : MetaM Bool := do
+  if isArithOfCastLike e then return true
+  let .const declName _ := e.getAppFn | return false
+  -- Check whether `e` is the projection of a constructor
+  if let some info ← getProjectionFnInfo? declName then
+    if e.getAppNumArgs == info.numParams + 1 then
+      if (← isConstructorApp e.appArg!) then
+        return true
+  return isCastLikeDeclName declName || isGadget declName || isBuiltin declName || isMatcherCore (← getEnv) declName
 
 end EqcFilter
 
@@ -165,11 +170,11 @@ private def ppEqcs : M Unit := do
      else if let e :: _ :: _ := eqc then
        -- We may want to add a flag to pretty print equivalence classes of nested proofs
        unless (← isProof e) do
-         let mainEqc := eqc.filter (!isSupportApp ·)
+         let mainEqc ← eqc.filterM fun e => return !(← isSupportApp e)
          if mainEqc.length <= 1 then
            otherEqcs := otherEqcs.push <| ppEqc eqc
          else
-           let supportEqc := eqc.filter isSupportApp
+           let supportEqc ← eqc.filterM fun e => isSupportApp e
            if supportEqc.isEmpty then
              regularEqcs := regularEqcs.push <| ppEqc mainEqc
            else

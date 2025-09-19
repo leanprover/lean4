@@ -1356,7 +1356,8 @@ where
       if let some classStxs := view.deriving? then
         for classStx in classStxs do
           let view ← DerivingClassView.ofSyntax ⟨classStx⟩
-          withRef classStx <| withLogging <| withLCtx {} {} do
+          -- Deriving handler will need access to def body, so exit public scope
+          withoutExporting <| withRef classStx <| withLogging <| withLCtx {} {} do
             /-
             Assumption: users intend delta deriving to apply to the body of a definition, even if in the source code
             the function is written as a lambda expression.

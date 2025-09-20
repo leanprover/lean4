@@ -8558,7 +8558,6 @@ lean_inc_ref(x_63);
 lean_inc(x_75);
 lean_inc(x_57);
 x_76 = l_Lean_addDocString_x27(x_57, x_75, x_56, x_63, x_64, x_65, x_66, x_67, x_68, x_74);
-lean_dec(x_56);
 if (lean_obj_tag(x_76) == 0)
 {
 lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; 
@@ -9809,7 +9808,6 @@ lean_inc_ref(x_63);
 lean_inc(x_75);
 lean_inc(x_58);
 x_76 = l_Lean_addDocString_x27(x_58, x_75, x_60, x_63, x_64, x_65, x_66, x_67, x_68, x_74);
-lean_dec(x_60);
 if (lean_obj_tag(x_76) == 0)
 {
 lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; 

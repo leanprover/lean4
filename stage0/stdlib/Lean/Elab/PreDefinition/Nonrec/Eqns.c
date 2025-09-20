@@ -14,34 +14,33 @@
 extern "C" {
 #endif
 static lean_object* l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm___closed__0;
+static lean_object* l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__1;
 static lean_object* l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm___closed__5;
+static lean_object* l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__0;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm___closed__3;
-static lean_object* l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__0;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__1;
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at_____private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm_doRealize_spec__1___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Option_get___at___Lean_Elab_Nonrec_getEqnsFor_x3f_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm_doRealize___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_inferDefEqAttr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm_doRealize___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Option_get___at_____private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f_spec__0(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm___closed__2;
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at_____private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at_____private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_addTrace___at_____private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Nonrec_getEqnsFor_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at_____private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm_doRealize_spec__1___redArg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at_____private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static double l_Lean_addTrace___at_____private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm_spec__1___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at_____private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm_doRealize_spec__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm___closed__1;
+static lean_object* l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__2;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__2;
 static lean_object* l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_initFn___closed__0____x40_Lean_Elab_PreDefinition_Nonrec_Eqns_1787451831____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_addTrace___at_____private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_addTrace___at_____private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm_spec__1___closed__1;
@@ -49,6 +48,7 @@ LEAN_EXPORT lean_object* l_Lean_addTrace___at_____private_Lean_Elab_PreDefinitio
 double lean_float_of_nat(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm_doRealize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Option_get___at_____private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f_spec__0___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
@@ -57,7 +57,7 @@ lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_lambdaTelescopeImp(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at_____private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm_doRealize_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addTrace___at_____private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Option_get___at___Lean_Elab_Nonrec_getEqnsFor_x3f_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_realizeConst(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_addTrace___at_____private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm_spec__1___closed__2;
@@ -1594,7 +1594,7 @@ lean_dec_ref(x_3);
 return x_8;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Option_get___at___Lean_Elab_Nonrec_getEqnsFor_x3f_spec__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Lean_Option_get___at_____private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f_spec__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -1630,7 +1630,7 @@ return x_9;
 }
 }
 }
-static lean_object* _init_l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__0() {
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -1638,7 +1638,7 @@ x_1 = l_Lean_Meta_backward_eqns_nonrecursive;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__1() {
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1647,7 +1647,7 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__2() {
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1656,7 +1656,7 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Nonrec_getEqnsFor_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
@@ -1705,8 +1705,8 @@ else
 lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 lean_free_object(x_11);
 x_19 = lean_ctor_get(x_4, 2);
-x_20 = l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__0;
-x_21 = l_Lean_Option_get___at___Lean_Elab_Nonrec_getEqnsFor_x3f_spec__0(x_19, x_20);
+x_20 = l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__0;
+x_21 = l_Lean_Option_get___at_____private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f_spec__0(x_19, x_20);
 if (x_21 == 0)
 {
 lean_object* x_22; 
@@ -1756,7 +1756,7 @@ if (x_32 == 0)
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; 
 x_33 = lean_ctor_get(x_23, 0);
-x_34 = l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__1;
+x_34 = l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__1;
 x_35 = lean_array_push(x_34, x_33);
 lean_ctor_set(x_23, 0, x_35);
 return x_22;
@@ -1767,7 +1767,7 @@ lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39;
 x_36 = lean_ctor_get(x_23, 0);
 lean_inc(x_36);
 lean_dec(x_23);
-x_37 = l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__1;
+x_37 = l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__1;
 x_38 = lean_array_push(x_37, x_36);
 x_39 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_39, 0, x_38);
@@ -1790,7 +1790,7 @@ if (lean_is_exclusive(x_23)) {
  lean_dec_ref(x_23);
  x_42 = lean_box(0);
 }
-x_43 = l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__1;
+x_43 = l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__1;
 x_44 = lean_array_push(x_43, x_41);
 if (lean_is_scalar(x_42)) {
  x_45 = lean_alloc_ctor(1, 1, 0);
@@ -1831,7 +1831,7 @@ return x_50;
 else
 {
 lean_object* x_51; lean_object* x_52; 
-x_51 = l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__2;
+x_51 = l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__2;
 x_52 = l_Lean_Elab_Eqns_mkEqns(x_1, x_51, x_16, x_2, x_3, x_4, x_5, x_14);
 if (lean_obj_tag(x_52) == 0)
 {
@@ -1919,8 +1919,8 @@ else
 {
 lean_object* x_71; lean_object* x_72; uint8_t x_73; 
 x_71 = lean_ctor_get(x_4, 2);
-x_72 = l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__0;
-x_73 = l_Lean_Option_get___at___Lean_Elab_Nonrec_getEqnsFor_x3f_spec__0(x_71, x_72);
+x_72 = l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__0;
+x_73 = l_Lean_Option_get___at_____private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f_spec__0(x_71, x_72);
 if (x_73 == 0)
 {
 lean_object* x_74; 
@@ -1975,7 +1975,7 @@ if (lean_is_exclusive(x_75)) {
  lean_dec_ref(x_75);
  x_83 = lean_box(0);
 }
-x_84 = l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__1;
+x_84 = l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__1;
 x_85 = lean_array_push(x_84, x_82);
 if (lean_is_scalar(x_83)) {
  x_86 = lean_alloc_ctor(1, 1, 0);
@@ -2021,7 +2021,7 @@ return x_91;
 else
 {
 lean_object* x_92; lean_object* x_93; 
-x_92 = l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__2;
+x_92 = l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__2;
 x_93 = l_Lean_Elab_Eqns_mkEqns(x_1, x_92, x_67, x_2, x_3, x_4, x_5, x_65);
 if (lean_obj_tag(x_93) == 0)
 {
@@ -2138,11 +2138,11 @@ return x_112;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Option_get___at___Lean_Elab_Nonrec_getEqnsFor_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Option_get___at_____private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_Option_get___at___Lean_Elab_Nonrec_getEqnsFor_x3f_spec__0(x_1, x_2);
+x_3 = l_Lean_Option_get___at_____private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f_spec__0(x_1, x_2);
 lean_dec_ref(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -2153,7 +2153,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Nonrec_getEqnsFor_x3f), 6, 0);
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f), 6, 0);
 return x_1;
 }
 }
@@ -2214,12 +2214,12 @@ l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqTh
 lean_mark_persistent(l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm___closed__5);
 l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm___closed__6 = _init_l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm___closed__6();
 lean_mark_persistent(l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm___closed__6);
-l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__0 = _init_l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__0();
-lean_mark_persistent(l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__0);
-l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__1 = _init_l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__1();
-lean_mark_persistent(l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__1);
-l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__2 = _init_l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__2();
-lean_mark_persistent(l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__2);
+l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__0 = _init_l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__0();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__0);
+l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__1 = _init_l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__1();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__1);
+l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__2 = _init_l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__2();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_getEqnsFor_x3f___closed__2);
 l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_initFn___closed__0____x40_Lean_Elab_PreDefinition_Nonrec_Eqns_1787451831____hygCtx___hyg_2_ = _init_l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_initFn___closed__0____x40_Lean_Elab_PreDefinition_Nonrec_Eqns_1787451831____hygCtx___hyg_2_();
 lean_mark_persistent(l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_initFn___closed__0____x40_Lean_Elab_PreDefinition_Nonrec_Eqns_1787451831____hygCtx___hyg_2_);
 if (builtin) {res = l___private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_initFn____x40_Lean_Elab_PreDefinition_Nonrec_Eqns_1787451831____hygCtx___hyg_2_(lean_io_mk_world());

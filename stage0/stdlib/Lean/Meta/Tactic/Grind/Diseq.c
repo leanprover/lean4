@@ -216,7 +216,7 @@ if (x_7 == 0)
 lean_object* x_8; 
 lean_dec_ref(x_5);
 lean_dec(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_8 = lean_box(0);
 return x_8;
 }
@@ -226,7 +226,7 @@ lean_object* x_9; uint8_t x_10;
 x_9 = lean_array_fget_borrowed(x_2, x_4);
 lean_inc_ref(x_9);
 lean_inc_ref(x_5);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_10 = l_Lean_Meta_Grind_instBEqCongrKey___private__1(x_1, x_5, x_9);
 if (x_10 == 0)
 {
@@ -241,7 +241,7 @@ else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 lean_dec_ref(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_14 = lean_array_fget_borrowed(x_3, x_4);
 lean_dec(x_4);
 lean_inc(x_14);
@@ -380,7 +380,7 @@ default:
 lean_object* x_26; 
 lean_free_object(x_2);
 lean_dec_ref(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_26 = lean_box(0);
 return x_26;
 }
@@ -457,7 +457,7 @@ default:
 {
 lean_object* x_44; 
 lean_dec_ref(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_44 = lean_box(0);
 return x_44;
 }
@@ -493,7 +493,7 @@ _start:
 {
 uint64_t x_4; size_t x_5; lean_object* x_6; 
 lean_inc_ref(x_3);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_4 = l_Lean_Meta_Grind_instHashableCongrKey___private__1(x_1, x_3);
 x_5 = lean_uint64_to_usize(x_4);
 x_6 = l_Lean_PersistentHashMap_findEntryAux___at___Lean_PersistentHashMap_findEntry_x3f___at___Lean_Meta_Grind_getDiseqFor_x3f_spec__0_spec__0___redArg(x_1, x_2, x_5, x_3);
@@ -520,7 +520,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_10 = lean_ctor_get(x_8, 0);
 x_11 = lean_ctor_get(x_8, 1);
 x_12 = lean_ctor_get(x_10, 2);
-lean_inc(x_12);
+lean_inc_ref(x_12);
 x_13 = lean_ctor_get(x_10, 5);
 lean_inc_ref(x_13);
 lean_dec(x_10);
@@ -739,7 +739,7 @@ lean_inc(x_56);
 lean_inc(x_55);
 lean_dec(x_8);
 x_57 = lean_ctor_get(x_55, 2);
-lean_inc(x_57);
+lean_inc_ref(x_57);
 x_58 = lean_ctor_get(x_55, 5);
 lean_inc_ref(x_58);
 lean_dec(x_55);

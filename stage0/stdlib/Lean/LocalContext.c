@@ -11645,13 +11645,13 @@ goto block_14;
 block_9:
 {
 uint8_t x_6; 
-x_6 = l_Lean_instBEqFVarId_beq(x_3, x_5);
+x_6 = l_Lean_instBEqFVarId_beq(x_4, x_5);
 lean_dec(x_5);
-lean_dec(x_3);
+lean_dec(x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; 
-lean_dec(x_4);
+lean_dec(x_3);
 x_7 = lean_box(0);
 return x_7;
 }
@@ -11659,7 +11659,7 @@ else
 {
 lean_object* x_8; 
 x_8 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_8, 0, x_4);
+lean_ctor_set(x_8, 0, x_3);
 return x_8;
 }
 }
@@ -11669,8 +11669,8 @@ lean_object* x_13;
 x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
 lean_dec_ref(x_11);
-x_3 = x_12;
-x_4 = x_10;
+x_3 = x_10;
+x_4 = x_12;
 x_5 = x_13;
 goto block_9;
 }

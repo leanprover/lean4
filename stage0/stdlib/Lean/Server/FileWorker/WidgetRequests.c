@@ -12832,7 +12832,7 @@ return x_3;
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; lean_object* x_53; uint8_t x_54; 
+lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; lean_object* x_53; uint8_t x_54; 
 x_28 = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___closed__9;
 x_29 = l_Std_PRange_instUpwardEnumerableNat;
 x_30 = lean_unsigned_to_nat(0u);
@@ -12867,11 +12867,11 @@ goto block_52;
 }
 block_18:
 {
-if (x_7 == 0)
+if (x_8 == 0)
 {
 lean_object* x_10; 
 lean_dec_ref(x_9);
-lean_dec(x_8);
+lean_dec(x_7);
 x_10 = lean_box(0);
 return x_10;
 }
@@ -12885,7 +12885,7 @@ lean_dec(x_11);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
-lean_dec(x_8);
+lean_dec(x_7);
 x_14 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_14, 0, x_9);
 x_15 = lean_alloc_ctor(1, 1, 0);
@@ -12895,8 +12895,8 @@ return x_15;
 else
 {
 lean_object* x_16; lean_object* x_17; 
-x_16 = lean_array_fget(x_9, x_8);
-lean_dec(x_8);
+x_16 = lean_array_fget(x_9, x_7);
+lean_dec(x_7);
 lean_dec_ref(x_9);
 x_17 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
@@ -12914,8 +12914,8 @@ lean_dec(x_21);
 lean_dec_ref(x_2);
 if (lean_obj_tag(x_24) == 0)
 {
-x_7 = x_20;
-x_8 = x_19;
+x_7 = x_19;
+x_8 = x_20;
 x_9 = x_22;
 goto block_18;
 }
@@ -12926,8 +12926,8 @@ x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
 lean_dec_ref(x_24);
 x_26 = lean_array_push(x_22, x_25);
-x_7 = x_20;
-x_8 = x_19;
+x_7 = x_19;
+x_8 = x_20;
 x_9 = x_26;
 goto block_18;
 }

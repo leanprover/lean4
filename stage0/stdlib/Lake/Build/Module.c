@@ -21684,7 +21684,7 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; lean_object* x_12; 
 x_10 = 1;
-lean_inc_n(x_2, 2);
+lean_inc_ref_n(x_2, 2);
 x_11 = l___private_Lake_Build_Target_Fetch_0__Lake_PartialBuildKey_fetchInCoreAux(x_1, x_2, x_2, x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
@@ -21754,7 +21754,7 @@ else
 lean_object* x_48; 
 lean_dec(x_20);
 lean_dec(x_18);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_ctor_set(x_13, 1, x_19);
 lean_ctor_set(x_13, 0, x_15);
 x_48 = lean_alloc_ctor(0, 2, 0);
@@ -21858,7 +21858,7 @@ else
 lean_object* x_81; lean_object* x_82; 
 lean_dec(x_53);
 lean_dec(x_51);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_81 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_81, 0, x_49);
 lean_ctor_set(x_81, 1, x_52);
@@ -21908,7 +21908,7 @@ return x_72;
 else
 {
 uint8_t x_83; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_83 = !lean_is_exclusive(x_11);
 if (x_83 == 0)
 {

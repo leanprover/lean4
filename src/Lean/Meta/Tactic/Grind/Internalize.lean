@@ -380,7 +380,13 @@ where
     trace_goal[grind.internalize] "[{generation}] {e}"
     match e with
     | .bvar .. => unreachable!
-    | .sort .. => return ()
+    | .sort .. =>
+      /-
+      **Note**: It may seem wasteful to create ENodes for sorts, but it is useful for the E-matching module.
+      The E-matching module assumes that the arguments of an internalized application have also been internalized,
+      unless they are `grind` gadgets.
+      -/
+      mkENode' e generation
     | .fvar .. =>
       mkENode' e generation
       checkAndAddSplitCandidate e

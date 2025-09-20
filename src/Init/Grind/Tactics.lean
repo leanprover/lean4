@@ -182,7 +182,10 @@ namespace Lean.Parser.Tactic
 
 syntax grindErase    := "-" ident
 syntax grindLemma    := ppGroup((Attr.grindMod ppSpace)? ident)
--- `!` for enabling minimal indexable subexpression restriction
+/--
+The `!` modifier instructs `grind` to consider only minimal indexable subexpressions
+when selecting patterns.
+-/
 syntax grindLemmaMin := ppGroup("!" (Attr.grindMod ppSpace)? ident)
 syntax grindParam    := grindErase <|> grindLemma <|> grindLemmaMin
 

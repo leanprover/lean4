@@ -66,7 +66,7 @@ structure Config where
   /--
   The server name
   -/
-  serverName : Option String := "LeanHTTP/1.1"
+  serverName : Option String := some "LeanHTTP/1.1"
 
 /--
 Specific HTTP processing errors with detailed information.
@@ -443,7 +443,7 @@ Get the current output data and clear the buffer
 @[inline]
 def takeOutput (writer : Writer) : Option (Writer × ByteArray) :=
   let output := writer.outputData.toByteArray
-  ({ writer with outputData := BufferBuilder.empty }, output)
+  some ({ writer with outputData := BufferBuilder.empty }, output)
 
 /--
 Set the writer state
@@ -804,7 +804,7 @@ def processRead (machine : Machine) : Machine :=
     | some (size, ext) =>
       machine
       |>.setReaderState (.needChunkedBody size)
-      |>.setEvent (ext <&> .chunkExt)
+      |>.setEvent (some ext <&> .chunkExt)
     | none =>
       machine
 
@@ -872,7 +872,7 @@ def takeOutput (machine : Machine) (highMark := 0): Option (Machine × BufferBui
     machine.writer.state == .complete
   then
     let output := machine.writer.outputData
-    ({ machine with writer := { machine.writer with outputData := .empty } }, output)
+    some ({ machine with writer := { machine.writer with outputData := .empty } }, output)
   else
     none
 

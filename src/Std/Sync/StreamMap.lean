@@ -33,7 +33,7 @@ inductive AnyAsyncStream (α : Type) where
   | mk : {t : Type} → [AsyncStream t α] → t → AnyAsyncStream α
 
 def AnyAsyncStream.getSelector : AnyAsyncStream α → Selector α × IO Unit
-  | AnyAsyncStream.mk stream => (AsyncStream.next stream, AsyncStream.stop α stream)
+  | AnyAsyncStream.mk stream => (AsyncStream.next stream, AsyncStream.stop stream)
 
 instance [AsyncStream t α] : CoeDep t x (AnyAsyncStream α) where
   coe := AnyAsyncStream.mk x
@@ -60,7 +60,7 @@ Register a new async stream with the given name
 def register [AsyncStream t α] (sm : StreamMap α) (name : String) (reader : t) : StreamMap α :=
   let newSelector := AsyncStream.next reader
   let filteredStreams := sm.streams.filter (fun (n, _) => n != name)
-  { sm with streams := filteredStreams.push (name, newSelector,  AsyncStream.stop α reader) }
+  { sm with streams := filteredStreams.push (name, newSelector,  AsyncStream.stop reader) }
 
 /--
 Create a StreamMap from an array of named streams

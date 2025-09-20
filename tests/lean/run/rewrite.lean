@@ -110,3 +110,72 @@ example : f 2 = f 0 := by
   -- we can return the problem to the user.
   rw [@t' 2 ?_]
   constructor
+
+/-!
+Conditional theorems create side goals, and they can be discharged with a `by` clause.
+-/
+example (xs : List Nat) (h : xs ≠ []) : xs.head? = some xs.head! := by
+  rw [List.head?_eq_head] by
+    exact h
+  cases xs
+  · simp at h
+  · rfl
+
+/-!
+Side goals are added in order.
+-/
+example (h : ∀ (n : Nat), 0 < n → n + 1 = 3) (a b : Nat) (ha : 0 < a) (hb : 0 < b) :
+    (a + 1) + (b + 1) = 6 := by
+  rw [h a, h b] by
+    · exact ha
+    · exact hb
+
+/-!
+Side goals are added in order in `conv` mode `rw`.
+-/
+example (h : ∀ (n : Nat), 0 < n → n + 1 = 3) (a b c : Nat) (ha : 0 < a) (hb : 0 < b) (hc : c = 6):
+    (a + 1) + (b + 1) = c := by
+  conv =>
+    lhs
+    rw [h a, h b] by
+      · exact ha
+      · exact hb
+  rw [hc]
+
+/-!
+Local definitions can be unfolded and refolded.
+-/
+/--
+trace: x y : Nat
+f : Nat → Nat → Nat := fun a b => a + b
+⊢ x + y = y + x
+---
+trace: x y : Nat
+f : Nat → Nat → Nat := fun a b => a + b
+⊢ f x y = y + x
+-/
+#guard_msgs in
+example (x y : Nat) : let f (a b : Nat) := a + b; x + y = f y x := by
+  intro f
+  rw [f]
+  trace_state
+  rw [← f]
+  trace_state
+  rw [f, Nat.add_comm]
+
+/-!
+Local definitions defined after hypotheses can be used to refold, reordering the local context.
+-/
+/--
+trace: x y : Nat
+f : Nat → Nat → Nat := fun a b => a + b
+h : f x y = 0
+⊢ y + x = 0
+-/
+#guard_msgs in
+example (x y : Nat) (h : x + y = 0) : y + x = 0 := by
+  let f (a b : Nat) := a + b
+  rw [← f] at h
+  trace_state
+  rw [Nat.add_comm, ← f]
+  exact h

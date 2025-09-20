@@ -1396,7 +1396,9 @@ def EMatchTheoremKind.toSyntax (kind : EMatchTheoremKind) : CoreM (TSyntax ``Par
 private def save (ref : Syntax) (thm : EMatchTheorem) (isParam : Bool) (minIndexable : Bool) : SelectM Unit := do
   -- We only save `thm` if the pattern is different from the ones that were already found.
   if (← get).thms.all fun thm' => thm.patterns != thm'.patterns then
-    let pats ← thm.patterns.mapM fun p => (ppPattern p).toString
+    let pats ← thm.patterns.mapM fun p => do
+      let pats ← addMessageContextFull (ppPattern p)
+      pats.format
     let openBracket  := if isParam then "" else "["
     let closeBracket := if isParam then "" else "]"
     let msg := s!"{closeBracket} for pattern: {pats}"

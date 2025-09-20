@@ -600,11 +600,18 @@ structure NewRawFact where
   splitSource  : SplitSource
   deriving Inhabited
 
+structure CanonArgKey where
+  f   : Expr
+  i   : Nat
+  arg : Expr
+  deriving BEq, Hashable
+
 /-- Canonicalizer state. See `Canon.lean` for additional details. -/
 structure Canon.State where
   argMap     : PHashMap (Expr × Nat) (List (Expr × Expr)) := {}
   canon      : PHashMap Expr Expr := {}
   proofCanon : PHashMap Expr Expr := {}
+  canonArg   : PHashMap CanonArgKey Expr := {}
   deriving Inhabited
 
 /-- Trace information for a case split. -/

@@ -24,7 +24,7 @@ Attempt to parse a `RequestTarget` from the given string.
 -/
 @[inline]
 def parse? (string : String) : Option RequestTarget :=
-  Parser.parseRequestTarget.run string.toUTF8 |>.toOption |>.get!
+  Parser.parseRequestTarget.run string.toUTF8 |>.toOption
 
 /--
 Parse a `RequestTarget` from the given string. Panics if parsing fails. Use `parse?`

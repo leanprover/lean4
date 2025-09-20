@@ -235,10 +235,10 @@ private def parsePortNumber (portBytes : ByteSlice) : Option UInt16 := do
   String.toNat? portStr >>= (fun n => if n ≤ 65535 then some n.toUInt16 else none)
 
 private def componentToUserInfo (userBytes : ByteSlice) (passBytes : Option ByteSlice) : Option URI.UserInfo := do
-  return { user := String.fromUTF8! userBytes.toByteArray, pass := String.fromUTF8! <$> passBytes.map (·.toByteArray) }
+  return { user := some <| String.fromUTF8! userBytes.toByteArray, pass := String.fromUTF8! <$> passBytes.map (·.toByteArray) }
 
 private def componentToHost (hostBytes : ByteSlice) : Option URI.Host := do
-  let hostStr ← String.fromUTF8! hostBytes.toByteArray
+  let hostStr := String.fromUTF8! hostBytes.toByteArray
 
   if hostStr.startsWith "[" && hostStr.endsWith "]" then
     return .ipv6 (← Std.Net.IPv6Addr.ofString hostStr)

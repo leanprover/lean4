@@ -634,6 +634,9 @@ def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := return (← getMCtx
 instance : MonadParentDecl TermElabM where
   getParentDeclName? := getDeclName?
 
+instance : MonadAutoImplicits TermElabM where
+  getAutoImplicits := return (← read).autoBoundImplicits.toArray
+
 /--
 Executes `x` in the context of the given declaration name. Ensures that the info tree is set up
 correctly and adjusts the declaration name generator to generate names below this name, resetting
@@ -1786,7 +1789,7 @@ partial def withAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
       let rec loop (s : SavedState) : TermElabM α := withIncRecDepth do
         checkSystem "auto-implicit"
         try
-          k
+          withSaveAutoImplicitInfoContext k
         catch
           | ex => match isAutoBoundImplicitLocalException? ex with
             | some n =>

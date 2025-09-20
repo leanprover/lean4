@@ -499,14 +499,6 @@ instance : MonadFinally BaseAsync where
     let res ← x
     Prod.mk res <$> f (some res)
 
-
-/--
-Converts `Task` into `BaseAsync`.
--/
-@[inline]
-protected def ofEAsyncTask (task : Task α) : BaseAsync α := do
-  pure (f := BaseIO) (MaybeTask.ofTask task)
-
 /--
 Converts `Except` to `BaseAsync`.
 -/
@@ -784,13 +776,6 @@ protected partial def forIn
 
 instance : ForIn (EAsync ε) Lean.Loop Unit where
   forIn _ := EAsync.forIn
-
-/--
-Converts `ETask` into `EAsync`.
--/
-@[inline]
-protected def ofEAsyncTask (task : ETask ε α) : EAsync ε α := do
-  pure (f := BaseIO) (MaybeTask.ofTask task)
 
 /--
 Converts `Except` to `EAsync`.

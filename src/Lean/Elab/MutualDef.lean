@@ -1293,7 +1293,7 @@ where
 
     withoutExporting (when :=
       headers.all (fun header =>
-        header.modifiers.isMeta ||
+        header.modifiers.isMeta && !header.modifiers.attrs.any (·.name == `expose) ||
         header.modifiers.attrs.any (·.name == `no_expose) ||
         (!(header.kind == .def && sc.attrs.any (· matches `(attrInstance| expose))) &&
          !header.modifiers.attrs.any (·.name == `expose) &&
@@ -1356,7 +1356,7 @@ where
       if let some classStxs := view.deriving? then
         for classStx in classStxs do
           let view ← DerivingClassView.ofSyntax ⟨classStx⟩
-          withRef classStx <| withLogging <| withLCtx {} {} do
+          withoutExporting <| withRef classStx <| withLogging <| withLCtx {} {} do
             /-
             Assumption: users intend delta deriving to apply to the body of a definition, even if in the source code
             the function is written as a lambda expression.

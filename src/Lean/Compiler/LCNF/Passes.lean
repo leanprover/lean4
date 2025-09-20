@@ -85,6 +85,7 @@ def builtinPassManager : PassManager := {
     -/
     simp { etaPoly := true, inlinePartial := true, implementedBy := true } (occurrence := 1),
     eagerLambdaLifting,
+    checkTemplateVisibility,
     specialize,
     simp (occurrence := 2),
     cse (shouldElimFunDecls := false) (occurrence := 1),

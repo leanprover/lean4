@@ -591,7 +591,7 @@ instance [Inhabited α] : AsyncRead (Broadcast.Receiver α) (Option α) where
 instance [Inhabited α] : AsyncWrite (Broadcast α) α where
   write receiver x := do
     let task ← receiver.send x
-    discard <| Async.ofETask <| task
+    discard <| Async.ofTask <| task
 
 end Receiver
 

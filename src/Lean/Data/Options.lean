@@ -20,7 +20,7 @@ def Options.empty : Options  := {}
 instance : Inhabited Options where
   default := {}
 instance : ToString Options := inferInstanceAs (ToString KVMap)
-instance : ForIn m Options (Name × DataValue) := inferInstanceAs (ForIn _ KVMap _)
+instance [Monad m] : ForIn m Options (Name × DataValue) := inferInstanceAs (ForIn _ KVMap _)
 instance : BEq Options := inferInstanceAs (BEq KVMap)
 
 structure OptionDecl where

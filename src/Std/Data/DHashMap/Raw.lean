@@ -409,10 +409,10 @@ def foldRev (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : 
 @[inline] def forIn (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (b : Raw α β) : m δ :=
   ForIn.forIn b.buckets init (fun bucket acc => bucket.forInStep acc f)
 
-instance : ForM m (Raw α β) ((a : α) × β a) where
+instance [Monad m] : ForM m (Raw α β) ((a : α) × β a) where
   forM m f := m.forM (fun a b => f ⟨a, b⟩)
 
-instance : ForIn m (Raw α β) ((a : α) × β a) where
+instance [Monad m] : ForIn m (Raw α β) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
 namespace Const

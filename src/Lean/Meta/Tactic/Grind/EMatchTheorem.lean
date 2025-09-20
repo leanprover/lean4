@@ -1455,7 +1455,7 @@ def mkEMatchTheoremAndSuggest (ref : Syntax) (declName : Name) (prios : SymbolPr
           save ref thm₂ (minIndexable := false) (isParam := isParam)
         else
           save ref thm₁ (minIndexable := true) (isParam := isParam)
-          save ref thm₁ (minIndexable := false) (isParam := isParam)
+          save ref thm₂ (minIndexable := false) (isParam := isParam)
     catch _ =>
       return ()
   let searchCore (minIndexable : MinIndexableMode) : SelectM Unit := do

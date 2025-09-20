@@ -9,7 +9,7 @@ prelude
 public import Lake.Build.Fetch
 public import Lake.Build.Job.Basic
 import Lake.Build.Infos
-import Lake.Build.Job.Monad
+public import Lake.Build.Job.Monad
 import Lake.Config.Monad
 import all Lake.Build.Key
 

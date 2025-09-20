@@ -566,7 +566,7 @@ private partial def recvSelector (ch : Bounded α) : Selector (Option α) where
       else
         return none
 
-  registerFn := registerAux ch
+  registerFn x := registerAux ch x
 
   unregisterFn := do
     ch.state.atomically do
@@ -597,8 +597,7 @@ where
         let promise ← IO.Promise.new
         modify fun st => { st with consumers := st.consumers.enqueue ⟨promise, some waiter⟩ }
 
-        IO.chainTask promise.result? fun res? => do
-          match res? with
+        IO.chainTask promise.result? fun
           | none => return ()
           | some res =>
             if res then

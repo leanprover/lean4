@@ -68,6 +68,12 @@ public structure LakeOptions where
 def LakeOptions.outLv (opts : LakeOptions) : LogLevel :=
   opts.outLv?.getD opts.verbosity.minLogLv
 
+@[inline] def LakeOptions.toLogConfig (opts : LakeOptions) : LogConfig where
+  failLv := opts.failLv
+  outLv := opts.outLv
+  ansiMode := opts.ansiMode
+  out := .stderr
+
 /-- Get the Lean installation. Error if missing. -/
 def LakeOptions.getLeanInstall (opts : LakeOptions) : Except CliError LeanInstall :=
   match opts.leanInstall? with
@@ -133,15 +139,13 @@ def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
   let main := main.run >>= fun | .ok a => pure a | .error e => error e.toString
   main.run
 
-@[inline] def CliStateM.runLogIO (x : LogIO α) : CliStateM α := do
-  let opts ← get
-  MainM.runLogIO x opts.outLv opts.ansiMode
+def CliStateM.runLogIO (x : LogIO α) : CliStateM α := do
+  MainM.runLogIO x (← get).toLogConfig
 
 instance (priority := low) : MonadLift LogIO CliStateM := ⟨CliStateM.runLogIO⟩
 
-@[inline] def CliStateM.runLoggerIO (x : LoggerIO α) : CliStateM α := do
-  let opts ← get
-  MainM.runLoggerIO x opts.outLv opts.ansiMode
+def CliStateM.runLoggerIO (x : LoggerIO α) : CliStateM α := do
+  MainM.runLoggerIO x (← get).toLogConfig
 
 instance (priority := low) : MonadLift LoggerIO CliStateM := ⟨CliStateM.runLoggerIO⟩
 
@@ -468,7 +472,7 @@ protected def setupFile : CliM PUnit := do
     match Json.parse header >>= fromJson? with
     | .ok header => pure header
     | .error e => error s!"failed to parse header JSON: {e}"
-  setupFile loadConfig filePath header buildConfig
+  exit <| ← setupFile loadConfig filePath header buildConfig
 
 protected def test : CliM PUnit := do
   processOptions lakeOption

@@ -1421,18 +1421,44 @@ register_builtin_option grind.param.codeAction : Bool := {
   descr    := "code-action for `grind` parameters"
 }
 
+/-- Helper type for generating suggestions for `grind` parameters -/
+inductive MinIndexableMode where
+  | /-- `minIndexable := true` -/
+    yes
+  | /-- `minIndexable := false` -/
+    no
+  | /--
+    Tries with and without the minimal indexable subexpression condition, if both produce the
+    same pattern, use the one `minIndexable := false` since it is more compact.
+    -/
+    both
+
 /--
 Tries different modifiers, logs info messages with modifiers that worked, but returns just the first one that worked.
 -/
 def mkEMatchTheoremAndSuggest (ref : Syntax) (declName : Name) (prios : SymbolPriorities)
     (minIndexable : Bool) (isParam : Bool := false) : MetaM EMatchTheorem := do
-  let tryModifier (thmKind : EMatchTheoremKind) (minIndexable : Bool) : SelectM Unit := do
+  let tryModifier (thmKind : EMatchTheoremKind) (minIndexable : MinIndexableMode) : SelectM Unit := do
     try
-      let thm ← mkEMatchTheoremForDecl declName thmKind prios (showInfo := false) (minIndexable := minIndexable)
-      save ref thm (minIndexable := minIndexable) (isParam := isParam)
+      match minIndexable with
+      | .yes =>
+        let thm ← mkEMatchTheoremForDecl declName thmKind prios (showInfo := false) (minIndexable := true)
+        save ref thm (minIndexable := true) (isParam := isParam)
+      | .no =>
+        let thm ← mkEMatchTheoremForDecl declName thmKind prios (showInfo := false) (minIndexable := false)
+        save ref thm (minIndexable := false) (isParam := isParam)
+      | .both =>
+        let thm₁ ← mkEMatchTheoremForDecl declName thmKind prios (showInfo := false) (minIndexable := true)
+        let thm₂ ← mkEMatchTheoremForDecl declName thmKind prios (showInfo := false) (minIndexable := false)
+        if thm₁.patterns == thm₂.patterns then
+          -- If both produce the same pattern, we save only `minIndexable := false` since it is more compact
+          save ref thm₂ (minIndexable := false) (isParam := isParam)
+        else
+          save ref thm₁ (minIndexable := true) (isParam := isParam)
+          save ref thm₁ (minIndexable := false) (isParam := isParam)
     catch _ =>
       return ()
-  let searchCore (minIndexable : Bool) : SelectM Unit := do
+  let searchCore (minIndexable : MinIndexableMode) : SelectM Unit := do
     tryModifier (.default false) minIndexable
     tryModifier (.bwd false) minIndexable
     tryModifier .fwd minIndexable
@@ -1440,17 +1466,16 @@ def mkEMatchTheoremAndSuggest (ref : Syntax) (declName : Name) (prios : SymbolPr
     tryModifier .leftRight minIndexable
   let search : SelectM Unit := do
     if minIndexable then
-      searchCore true
+      searchCore .yes
     else if isParam then
-      searchCore true
-      searchCore false
-      tryModifier (.eqLhs false) false
-      tryModifier (.eqRhs false) false
+      searchCore .both
+      tryModifier (.eqLhs false) .no
+      tryModifier (.eqRhs false) .no
     else
-      tryModifier (.eqLhs false) false
-      tryModifier (.eqRhs false) false
-      searchCore false
-      searchCore true
+      tryModifier (.eqLhs false) .no
+      tryModifier (.eqRhs false) .no
+      searchCore .no
+      searchCore .yes
   let (_, s) ← search.run {}
   if h₁ : 0 < s.thms.size then
     if !isParam || grind.param.codeAction.get (← getOptions) then

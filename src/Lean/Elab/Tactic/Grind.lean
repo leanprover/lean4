@@ -70,13 +70,14 @@ def elabInitGrindNorm : CommandElab := fun stx =>
   | _ => throwUnsupportedSyntax
 
 private def warnRedundantEMatchArg (s : Grind.EMatchTheorems) (declName : Name) : MetaM Unit := do
+  let minIndexable := false -- TODO: infer it
   let kinds ← match s.getKindsFor (.decl declName) with
     | [] => return ()
-    | [k] => pure m!"@{k.toAttribute}"
+    | [k] => pure m!"@{k.toAttribute minIndexable}"
     | [.eqLhs gen, .eqRhs _]
-    | [.eqRhs gen, .eqLhs _] => pure m!"@{(Grind.EMatchTheoremKind.eqBoth gen).toAttribute}"
+    | [.eqRhs gen, .eqLhs _] => pure m!"@{(Grind.EMatchTheoremKind.eqBoth gen).toAttribute minIndexable}"
     | ks =>
-      let ks := ks.map fun k => m!"@{k.toAttribute}"
+      let ks := ks.map fun k => m!"@{k.toAttribute minIndexable}"
       pure m!"{ks}"
   logWarning m!"this parameter is redundant, environment already contains `{declName}` annotated with `{kinds}`"
 
@@ -132,7 +133,7 @@ where
       for thm in thms do
         params := { params with extra := params.extra.push thm }
     | .ematch kind =>
-      params ← withRef p <| addEMatchTheorem params declName kind minIndexable
+      params ← withRef p <| addEMatchTheorem params id declName kind minIndexable
     | .cases eager =>
       ensureNoMinIndexable minIndexable
       withRef p <| Grind.validateCasesAttr declName eager
@@ -140,7 +141,7 @@ where
     | .intro =>
       if let some info ← Grind.isCasesAttrPredicateCandidate? declName false then
         for ctor in info.ctors do
-          params ← withRef p <| addEMatchTheorem params ctor (.default false) minIndexable
+          params ← withRef p <| addEMatchTheorem params id ctor (.default false) minIndexable
       else
         throwError "invalid use of `intro` modifier, `{.ofConstName declName}` is not an inductive predicate"
     | .inj =>
@@ -155,17 +156,17 @@ where
           -- If it is an inductive predicate,
           -- we also add the constructors (intro rules) as E-matching rules
           for ctor in info.ctors do
-            params ← withRef p <| addEMatchTheorem params ctor (.default false) minIndexable
+            params ← withRef p <| addEMatchTheorem params id ctor (.default false) minIndexable
       else
-        params ← withRef p <| addEMatchTheorem params declName (.default false) minIndexable
+        params ← withRef p <| addEMatchTheorem params id declName (.default false) minIndexable (suggest := true)
     | .symbol prio =>
       ensureNoMinIndexable minIndexable
       params := { params with symPrios := params.symPrios.insert declName prio }
     return params
 
-  addEMatchTheorem (params : Grind.Params) (declName : Name)
+  addEMatchTheorem (params : Grind.Params) (id : Ident) (declName : Name)
       (kind : Grind.EMatchTheoremKind)
-      (minIndexable : Bool) : MetaM Grind.Params := do
+      (minIndexable : Bool) (suggest : Bool := false) : MetaM Grind.Params := do
     let info ← getAsyncConstInfo declName
     match info.kind with
     | .thm | .axiom | .ctor =>
@@ -181,7 +182,10 @@ where
       | _ =>
         if kind matches .eqLhs _ | .eqRhs _ then
           ensureNoMinIndexable minIndexable
-        let thm ← Grind.mkEMatchTheoremForDecl declName kind params.symPrios (minIndexable := minIndexable)
+        let thm ← if suggest && !Grind.backward.grind.inferPattern.get (← getOptions) then
+          Grind.mkEMatchTheoremAndSuggest id declName params.symPrios minIndexable (isParam := true)
+        else
+          Grind.mkEMatchTheoremForDecl declName kind params.symPrios (minIndexable := minIndexable)
         if params.ematch.containsWithSamePatterns thm.origin thm.patterns then
           warnRedundantEMatchArg params.ematch declName
         return { params with extra := params.extra.push thm }

@@ -57,7 +57,7 @@ set_option internal.parseQuotWithCurrentStage false
 
 private meta def mkConfigAuxDecls
   (vis? : Option (TSyntax ``visibility))
-  (structId : Ident) (structTy : Term) (views : Array FieldView)
+  (structId : Ident) (structArity : Nat) (structTy : Term) (views : Array FieldView)
 : MacroM (Array Command) := do
   let data : FieldMetadata := {}
   -- `..` is used to avoid missing pattern error from an incomplete match.
@@ -113,7 +113,8 @@ private meta def mkConfigAuxDecls
   let fieldsInst ← `( $[$vis?:visibility]? instance $instId:ident : ConfigFields $structTy := ⟨$fieldsId⟩)
   let instId := mkIdentFrom structId <| structId.getId.modifyBase (·.str "instConfigInfo")
   let structNameLit : Term := ⟨mkNode ``Term.doubleQuotedName #[mkAtom "`", mkAtom "`", structId]⟩
-  let infoInst ← `( $[$vis?:visibility]? instance $instId:ident : ConfigInfo $structNameLit := {fields := $fieldsId})
+  let info ← `({fields := $fieldsId, arity := $(quote structArity)})
+  let infoInst ← `( $[$vis?:visibility]? instance $instId:ident : ConfigInfo $structNameLit := $info)
   let instId := mkIdentFrom structId <| structId.getId.modifyBase (·.str "instEmptyCollection")
   let emptyInst ← `( $[$vis?:visibility]? instance $instId:ident : EmptyCollection $structTy := ⟨{}⟩)
   return data.cmds.push fieldsDef |>.push fieldsInst |>.push infoInst |>.push emptyInst
@@ -166,6 +167,6 @@ public meta def expandConfigDecl : Macro := fun stx => do
     extends $ps,* $(xty?.join)? where $(ctor?.join)? $fields* $drv:optDeriving
   )
   let vis? := mods.raw[2].getOptional?.map (⟨·⟩)
-  let auxDecls ← mkConfigAuxDecls vis? structId structTy views
+  let auxDecls ← mkConfigAuxDecls vis? structId bs.size structTy views
   let cmds := #[struct] ++ auxDecls
   return mkNullNode cmds

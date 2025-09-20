@@ -312,25 +312,31 @@ def EMatchTheoremKind.isDefault : EMatchTheoremKind → Bool
   | .default _ => true
   | _ => false
 
-def EMatchTheoremKind.toAttributeCore : EMatchTheoremKind → String
-  | .eqLhs true     => " = gen"
-  | .eqLhs false    => " ="
-  | .eqRhs true     => " =_ gen"
-  | .eqRhs false    => " =_"
-  | .eqBoth false   => " _=_"
-  | .eqBoth true    => " _=_ gen"
-  | .eqBwd          => " ←="
-  | .fwd            => " →"
-  | .bwd false      => " ←"
-  | .bwd true       => " ← gen"
-  | .leftRight      => " =>"
-  | .rightLeft      => " <="
-  | .default false  => ""
-  | .default true   => " gen"
+def EMatchTheoremKind.toAttributeCore (kind : EMatchTheoremKind) : String :=
+  match kind with
+  | .eqLhs true     => "= gen"
+  | .eqLhs false    => "="
+  | .eqRhs true     => "=_ gen"
+  | .eqRhs false    => "=_"
+  | .eqBoth false   => "_=_"
+  | .eqBoth true    => "_=_ gen"
+  | .eqBwd          => "←="
+  | .fwd            => "→"
+  | .bwd false      => "←"
+  | .bwd true       => "← gen"
+  | .leftRight      => "=>"
+  | .rightLeft      => "<="
+  | .default false  => "."
+  | .default true   => ". gen"
   | .user           => ""
 
-def EMatchTheoremKind.toAttribute (k : EMatchTheoremKind) : String :=
-  s!"[grind{toAttributeCore k}]"
+def EMatchTheoremKind.toAttribute (k : EMatchTheoremKind) (minIndexable : Bool): String :=
+  if k matches .user then
+    "[grind]"
+  else if minIndexable then
+    s!"[grind! {toAttributeCore k}]"
+  else
+    s!"[grind {toAttributeCore k}]"
 
 private def EMatchTheoremKind.explainFailure : EMatchTheoremKind → String
   | .eqLhs _   => "failed to find pattern in the left-hand side of the theorem's conclusion"
@@ -1302,7 +1308,7 @@ where
 def mkEMatchTheoremForDecl (declName : Name) (thmKind : EMatchTheoremKind) (prios : SymbolPriorities)
     (showInfo := false) (minIndexable := false) : MetaM EMatchTheorem := do
   let some thm ← mkEMatchTheoremWithKind? (.decl declName) #[] (← getProofFor declName) thmKind prios (showInfo := showInfo) (minIndexable := minIndexable)
-    | throwError "`@{thmKind.toAttribute} theorem {.ofConstName declName}` {thmKind.explainFailure}, consider using different options or the `grind_pattern` command"
+    | throwError "`@{thmKind.toAttribute minIndexable} theorem {.ofConstName declName}` {thmKind.explainFailure}, consider using different options or the `grind_pattern` command"
   return thm
 
 def mkEMatchEqTheoremsForDef? (declName : Name) (showInfo := false) : MetaM (Option (Array EMatchTheorem)) := do
@@ -1318,7 +1324,7 @@ private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind
       throwError "`{.ofConstName declName}` is a definition, you must only use the left-hand side for extracting patterns"
     thms.forM (ematchTheoremsExt.add · attrKind)
   else
-    throwError s!"`{thmKind.toAttribute}` attribute can only be applied to equational theorems or function definitions"
+    throwError s!"`{thmKind.toAttribute false}` attribute can only be applied to equational theorems or function definitions"
 
 def EMatchTheorems.eraseDecl (s : EMatchTheorems) (declName : Name) : MetaM EMatchTheorems := do
   let throwErr {α} : MetaM α :=
@@ -1369,21 +1375,117 @@ private structure SelectM.State where
 
 private abbrev SelectM := StateT SelectM.State MetaM
 
-private def save (thm : EMatchTheorem) (minIndexable : Bool) : SelectM Unit := do
+def EMatchTheoremKind.toSyntax (kind : EMatchTheoremKind) : CoreM (TSyntax ``Parser.Attr.grindMod) :=
+  match kind with
+  | .eqLhs true     => `(Parser.Attr.grindMod| = gen)
+  | .eqLhs false    => `(Parser.Attr.grindMod|=)
+  | .eqRhs true     => `(Parser.Attr.grindMod|=_ gen)
+  | .eqRhs false    => `(Parser.Attr.grindMod|=_)
+  | .eqBoth false   => `(Parser.Attr.grindMod|_=_)
+  | .eqBoth true    => `(Parser.Attr.grindMod|_=_ gen)
+  | .eqBwd          => `(Parser.Attr.grindMod|←=)
+  | .fwd            => `(Parser.Attr.grindMod|→)
+  | .bwd false      => `(Parser.Attr.grindMod|←)
+  | .bwd true       => `(Parser.Attr.grindMod|← gen)
+  | .leftRight      => `(Parser.Attr.grindMod|=>)
+  | .rightLeft      => `(Parser.Attr.grindMod|<=)
+  | .default false  => `(Parser.Attr.grindMod|.)
+  | .default true   => `(Parser.Attr.grindMod|. gen)
+  | .user           => throwError "`grind` theorem kind is not a modifier"
+
+private def save (ref : Syntax) (thm : EMatchTheorem) (isParam : Bool) (minIndexable : Bool) : SelectM Unit := do
   -- We only save `thm` if the pattern is different from the ones that were already found.
   if (← get).thms.all fun thm' => thm.patterns != thm'.patterns then
-    let baseAttr := if minIndexable then "grind!" else "grind"
-    let msg := s!"] for pattern: {← thm.patterns.mapM fun p => (ppPattern p).toString}"
+    let pats ← thm.patterns.mapM fun p => (ppPattern p).toString
+    let openBracket  := if isParam then "" else "["
+    let closeBracket := if isParam then "" else "]"
+    let msg := s!"{closeBracket} for pattern: {pats}"
+    let suggestion : Tactic.TryThis.SuggestionText ← match isParam, minIndexable with
+      | false, true  => pure <| Tactic.TryThis.SuggestionText.tsyntax (← `(attr|grind! $(← thm.kind.toSyntax)))
+      | false, false => pure <| .tsyntax (← `(attr|grind $(← thm.kind.toSyntax)))
+      | true,  true  => pure <| .tsyntax (← `(Parser.Tactic.grindParam|!$(← thm.kind.toSyntax)$(⟨ref⟩):ident))
+      | true, false  => pure <| .tsyntax (← `(Parser.Tactic.grindParam|$(← thm.kind.toSyntax) $(⟨ref⟩):ident))
     modify fun s => { s with
       thms := s.thms.push thm
       suggestions := s.suggestions.push {
-        suggestion := .string s!"{baseAttr}{thm.kind.toAttributeCore}"
+        suggestion
         -- **Note**: small hack to include brackets in the suggestion
-        preInfo?   := some "["
-        -- **Note**: appears only on the info view.
+        preInfo?   := some openBracket
+        -- **Note**: appears only in the info view.
         postInfo?  := some msg
       }
     }
+
+register_builtin_option grind.param.codeAction : Bool := {
+  defValue := false
+  descr    := "code-action for `grind` parameters"
+}
+
+/-- Helper type for generating suggestions for `grind` parameters -/
+inductive MinIndexableMode where
+  | /-- `minIndexable := true` -/
+    yes
+  | /-- `minIndexable := false` -/
+    no
+  | /--
+    Tries with and without the minimal indexable subexpression condition, if both produce the
+    same pattern, use the one `minIndexable := false` since it is more compact.
+    -/
+    both
+
+/--
+Tries different modifiers, logs info messages with modifiers that worked, but returns just the first one that worked.
+-/
+def mkEMatchTheoremAndSuggest (ref : Syntax) (declName : Name) (prios : SymbolPriorities)
+    (minIndexable : Bool) (isParam : Bool := false) : MetaM EMatchTheorem := do
+  let tryModifier (thmKind : EMatchTheoremKind) (minIndexable : MinIndexableMode) : SelectM Unit := do
+    try
+      match minIndexable with
+      | .yes =>
+        let thm ← mkEMatchTheoremForDecl declName thmKind prios (showInfo := false) (minIndexable := true)
+        save ref thm (minIndexable := true) (isParam := isParam)
+      | .no =>
+        let thm ← mkEMatchTheoremForDecl declName thmKind prios (showInfo := false) (minIndexable := false)
+        save ref thm (minIndexable := false) (isParam := isParam)
+      | .both =>
+        let thm₁ ← mkEMatchTheoremForDecl declName thmKind prios (showInfo := false) (minIndexable := true)
+        let thm₂ ← mkEMatchTheoremForDecl declName thmKind prios (showInfo := false) (minIndexable := false)
+        if thm₁.patterns == thm₂.patterns then
+          -- If both produce the same pattern, we save only `minIndexable := false` since it is more compact
+          save ref thm₂ (minIndexable := false) (isParam := isParam)
+        else
+          save ref thm₁ (minIndexable := true) (isParam := isParam)
+          save ref thm₂ (minIndexable := false) (isParam := isParam)
+    catch _ =>
+      return ()
+  let searchCore (minIndexable : MinIndexableMode) : SelectM Unit := do
+    tryModifier (.default false) minIndexable
+    tryModifier (.bwd false) minIndexable
+    tryModifier .fwd minIndexable
+    tryModifier .rightLeft minIndexable
+    tryModifier .leftRight minIndexable
+  let search : SelectM Unit := do
+    if minIndexable then
+      searchCore .yes
+    else if isParam then
+      searchCore .both
+      tryModifier (.eqLhs false) .no
+      tryModifier (.eqRhs false) .no
+    else
+      tryModifier (.eqLhs false) .no
+      tryModifier (.eqRhs false) .no
+      searchCore .no
+      searchCore .yes
+  let (_, s) ← search.run {}
+  if h₁ : 0 < s.thms.size then
+    if !isParam || grind.param.codeAction.get (← getOptions) then
+      if s.suggestions.size == 1 then
+        Tactic.TryThis.addSuggestion ref s.suggestions[0]!
+      else
+        Tactic.TryThis.addSuggestions ref s.suggestions
+    return s.thms[0]
+  else
+    throwError "invalid `grind` theorem, failed to find an usable pattern using different modifiers"
 
 /--
 Tries different modifiers, logs info messages with modifiers that worked, but stores just the first one that worked.
@@ -1391,7 +1493,8 @@ Tries different modifiers, logs info messages with modifiers that worked, but st
 Remark: if `backward.grind.inferPattern` is `true`, then `.default false` is used.
 The parameter `showInfo` is only taken into account when `backward.grind.inferPattern` is `true`.
 -/
-def addEMatchAttrAndSuggest (ref : Syntax) (declName : Name) (attrKind : AttributeKind) (prios : SymbolPriorities) (minIndexable : Bool) (showInfo : Bool) : MetaM Unit := do
+def addEMatchAttrAndSuggest (ref : Syntax) (declName : Name) (attrKind : AttributeKind) (prios : SymbolPriorities)
+    (minIndexable : Bool) (showInfo : Bool) (isParam : Bool := false) : MetaM Unit := do
   let info ← getConstInfo declName
   if !wasOriginallyTheorem (← getEnv) declName && !info.isCtor && !info.isAxiom then
     ensureNoMinIndexable minIndexable
@@ -1399,34 +1502,8 @@ def addEMatchAttrAndSuggest (ref : Syntax) (declName : Name) (attrKind : Attribu
   else if backward.grind.inferPattern.get (← getOptions) then
     addEMatchAttr declName attrKind (.default false) prios (minIndexable := minIndexable) (showInfo := showInfo)
   else
-    let tryModifier (thmKind : EMatchTheoremKind) (minIndexable : Bool) : SelectM Unit := do
-      try
-        let thm ← mkEMatchTheoremForDecl declName thmKind prios (showInfo := false) (minIndexable := minIndexable)
-        save thm minIndexable
-      catch _ =>
-        return ()
-    let searchCore (minIndexable : Bool) : SelectM Unit := do
-      tryModifier (.bwd false) minIndexable
-      tryModifier .fwd minIndexable
-      tryModifier .rightLeft minIndexable
-      tryModifier .leftRight minIndexable
-    let search : SelectM Unit := do
-      if minIndexable then
-        searchCore true
-      else
-        tryModifier (.eqLhs false) false
-        tryModifier (.eqRhs false) false
-        searchCore false
-        searchCore true
-    let (_, s) ← search.run {}
-    if h₁ : 0 < s.thms.size then
-      if s.suggestions.size == 1 then
-        Tactic.TryThis.addSuggestion ref s.suggestions[0]!
-      else
-        Tactic.TryThis.addSuggestions ref s.suggestions
-      ematchTheoremsExt.add s.thms[0] attrKind
-    else
-      throwError "invalid `grind` theorem, failed to find an usable pattern using different modifiers"
+    let thm ← mkEMatchTheoremAndSuggest ref declName prios minIndexable isParam
+    ematchTheoremsExt.add thm attrKind
 
 def eraseEMatchAttr (declName : Name) : MetaM Unit := do
   /-

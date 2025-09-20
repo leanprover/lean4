@@ -129,6 +129,14 @@ If `grind!` is used, then only minimal indexable subexpressions are considered.
 -/
 syntax grindLR     := patternIgnore("⇒" <|> "=>")
 /--
+The `.` modifier instructs `grind` to select a multi-pattern by traversing the conclusion of the
+theorem, and then the hypotheses from eft to right. We say this is the default modifier.
+Each time it encounters a subexpression which covers an argument which was not
+previously covered, it adds that subexpression as a pattern, until all arguments have been covered.
+If `grind!` is used, then only minimal indexable subexpressions are considered.
+-/
+syntax grindDef    := "." (grindGen)?
+/--
 The `usr` modifier indicates that this theorem was applied using a
 **user-defined instantiation pattern**. Such patterns are declared with
 the `grind_pattern` command, which lets you specify how `grind` should
@@ -206,6 +214,7 @@ syntax grindMod :=
     grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd
     <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager
     <|> grindCases <|> grindIntro <|> grindExt <|> grindGen <|> grindSym <|> grindInj
+    <|> grindDef
 syntax (name := grind) "grind" (ppSpace grindMod)? : attr
 syntax (name := grind!) "grind!" (ppSpace grindMod)? : attr
 syntax (name := grind?) "grind?" (ppSpace grindMod)? : attr

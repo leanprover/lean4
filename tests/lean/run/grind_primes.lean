@@ -41,7 +41,7 @@ and showing that `n! + 1` has a prime factor larger than `n`.
 -/
 theorem InfinitudeOfPrimes : ∀ n, ∃ p > n, IsPrime p := by
   intro n
-  have : 1 < n ! + 1 := by grind [!factorial_pos]
+  have : 1 < n ! + 1 := by grind [factorial_pos]
   obtain ⟨p, hp, _⟩ := exists_prime_factor (n ! + 1) this
   suffices ¬p ≤ n by grind
   intro (_ : p ≤ n)

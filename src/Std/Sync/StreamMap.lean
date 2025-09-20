@@ -35,8 +35,8 @@ inductive AnyAsyncStream (α : Type) where
 def AnyAsyncStream.getSelector : AnyAsyncStream α → Selector α × IO Unit
   | AnyAsyncStream.mk stream => (AsyncStream.next stream, AsyncStream.stop stream)
 
-instance [AsyncStream t α] : CoeHead t (AnyAsyncStream α) where
-  coe := AnyAsyncStream.mk
+instance [AsyncStream t α] : CoeDep t x (AnyAsyncStream α) where
+  coe := AnyAsyncStream.mk x
 
 /--
 A map container that associates string keys with async streams.

@@ -10,9 +10,9 @@ def testSimpleMessages : Async Unit := do
   let channelC ← Std.Channel.new (α := Nat)
 
   let channel := Std.StreamMap.ofArray #[
-    ("a", .mk channelA),
-    ("b", .mk channelB),
-    ("c", .mk channelC),
+    ("a", channelA),
+    ("b", channelB),
+    ("c", channelC),
   ]
 
   await (← channelC.send 1)

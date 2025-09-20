@@ -42,7 +42,7 @@ class AsyncWrite (α : Type) (β : Type) where
 /--
 Interface for asynchronous streaming with selector-based iteration.
 -/
-class AsyncStream (α : Type) (β : outParam Type) where
+class AsyncStream (α : Type) (β : Type) where
   next : α → Selector β
 
   stop : α → IO Unit :=

@@ -311,15 +311,21 @@ where
     throwNamedErrorAt ctorType lean.ctorResultingTypeMismatch "Unexpected resulting type for constructor `{declName}`: \
       Expected a type, but found{indentExpr resultingType}\nof type{lazyMsg}"
 
-@[builtin_inductive_elab Lean.Parser.Command.inductive, builtin_inductive_elab Lean.Parser.Command.classInductive]
-def elabInductiveCommand : InductiveElabDescr where
-  mkInductiveView (modifiers : Modifiers) (stx : Syntax) := do
+def mkInductiveElabDescr (isCoinductive := false) : InductiveElabDescr where
+mkInductiveView (modifiers : Modifiers) (stx : Syntax) := do
     let view ← inductiveSyntaxToView modifiers stx
+    let view := { view with isCoinductive := isCoinductive}
     return {
       view
       elabCtors := fun rs r params => do
         let ctors ← elabCtors (rs.map (·.indFVar)) params r
         return { ctors }
     }
+
+@[builtin_inductive_elab Lean.Parser.Command.inductive, builtin_inductive_elab Lean.Parser.Command.classInductive]
+def elabInductiveCommand : InductiveElabDescr := mkInductiveElabDescr
+
+@[builtin_inductive_elab Lean.Parser.Command.coinductive]
+def elabCoinductiveCommand : InductiveElabDescr := mkInductiveElabDescr (isCoinductive := true)
 
 end Lean.Elab.Command

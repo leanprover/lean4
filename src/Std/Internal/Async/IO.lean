@@ -22,15 +22,15 @@ This module provides buffered asynchronous I/O operations for efficient reading 
 -/
 
 /--
-Interface for asynchronous reading operations
+Interface for asynchronous reading operations.
 -/
-class AsyncRead (α : Type) (β : outParam Type) where
+class AsyncRead (α : Type) (β : Type) where
   read : α → Async β
 
 /--
-Interface for asynchronous writing operations
+Interface for asynchronous writing operations.
 -/
-class AsyncWrite (α : Type) (β : outParam Type) where
+class AsyncWrite (α : Type) (β : Type) where
   write : α → β → Async Unit
 
   writeAll : α → Array β → Async Unit :=
@@ -40,9 +40,9 @@ class AsyncWrite (α : Type) (β : outParam Type) where
     fun _ => pure ()
 
 /--
-Interface for asynchronous streaming with selector-based iteration
+Interface for asynchronous streaming with selector-based iteration.
 -/
-class AsyncStream (α : Type) (β : outParam Type) where
+class AsyncStream (α : Type) (β : Type) where
   next : α → Selector β
 
   stop : α → IO Unit :=

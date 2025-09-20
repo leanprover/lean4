@@ -879,13 +879,6 @@ protected def ofAsyncTask (task : AsyncTask α) : Async α := do
   pure (f := BaseIO) (MaybeTask.ofTask task)
 
 /--
-Converts `AsyncTask` into `Async`.
--/
-@[inline]
-protected def ofETask (task : ETask IO.Error α) : Async α := do
-  pure (f := BaseIO) (MaybeTask.ofTask task)
-
-/--
 Converts `IO (Task α)` into `Async`.
 -/
 @[inline]

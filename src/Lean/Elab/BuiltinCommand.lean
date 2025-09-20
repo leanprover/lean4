@@ -23,13 +23,20 @@ public section
 namespace Lean.Elab.Command
 
 @[builtin_command_elab moduleDoc] def elabModuleDoc : CommandElab := fun stx => do
+  let some range ← Elab.getDeclarationRange? stx
+    | return  -- must be from partial syntax, ignore
+
   match stx[1] with
   | Syntax.atom _ val =>
-    let doc := val.extract 0 (val.endPos - ⟨2⟩)
-    let some range ← Elab.getDeclarationRange? stx
-      | return  -- must be from partial syntax, ignore
-    modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
-  | _ => throwErrorAt stx "unexpected module doc string{indentD stx[1]}"
+    if getVersoModuleDocs (← getEnv) |>.isEmpty then
+      let doc := val.extract 0 (val.endPos - ⟨2⟩)
+      modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
+    else
+      throwError m!"Can't add Markdown-format module docs because there is already Verso-format content present."
+  | Syntax.node _ ``Lean.Parser.Command.versoCommentBody args =>
+    runTermElabM fun _ => do
+      addVersoModDocString range ⟨args.getD 0 .missing⟩
+  | _ => throwErrorAt stx "unexpected module doc string{indentD <| stx}"
 
 private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : Name)
     (isNoncomputable isPublic : Bool := false) (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) :

@@ -221,6 +221,12 @@ def DelabTermInfo.format (ctx : ContextInfo) (info : DelabTermInfo) : IO Format 
 def ChoiceInfo.format (ctx : ContextInfo) (info : ChoiceInfo) : Format :=
   f!"[Choice] @ {formatElabInfo ctx info.toElabInfo}"
 
+def DocInfo.format (ctx : ContextInfo) (info : DocInfo) : Format :=
+  f!"[Doc] {info.stx.getKind} @ {formatElabInfo ctx info.toElabInfo}"
+
+def DocElabInfo.format (ctx : ContextInfo) (info : DocElabInfo) : Format :=
+  f!"[DocElab] {info.name} ({repr info.kind}) @ {formatElabInfo ctx info.toElabInfo}"
+
 def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofTacticInfo i         => i.format ctx
   | ofTermInfo i           => i.format ctx
@@ -237,6 +243,8 @@ def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofFieldRedeclInfo i    => pure <| i.format ctx
   | ofDelabTermInfo i      => i.format ctx
   | ofChoiceInfo i         => pure <| i.format ctx
+  | ofDocInfo i            => pure <| i.format ctx
+  | ofDocElabInfo i        => pure <| i.format ctx
 
 def Info.toElabInfo? : Info → Option ElabInfo
   | ofTacticInfo i         => some i.toElabInfo
@@ -254,6 +262,8 @@ def Info.toElabInfo? : Info → Option ElabInfo
   | ofFieldRedeclInfo _    => none
   | ofDelabTermInfo i      => some i.toElabInfo
   | ofChoiceInfo i         => some i.toElabInfo
+  | ofDocInfo i            => some i.toElabInfo
+  | ofDocElabInfo i        => some i.toElabInfo
 
 /--
   Helper function for propagating the tactic metavariable context to its children nodes.

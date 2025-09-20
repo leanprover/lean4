@@ -7,6 +7,8 @@ module
 prelude
 public import Lean.Parser.Types
 public import Lean.DocString.Syntax
+import Lean.PrettyPrinter.Formatter
+import Lean.Parser.Term.Basic
 
 set_option linter.missingDocs true
 
@@ -230,6 +232,16 @@ is different enough from Lean's that this isn't always a good match.
 public def fakeAtom (str : String) (info : SourceInfo := SourceInfo.none) : ParserFn := fun _c s =>
   let atom := .atom info str
   s.pushSyntax atom
+
+/--
+Construct a “fake” atom with the given string content, with zero-width source information at the
+current position.
+
+Normally, atoms are always substrings of the original input; however, Verso's concrete syntax is
+different enough from Lean's that this isn't always a good match.
+-/
+private def fakeAtomHere (str : String) : ParserFn :=
+  withInfoSyntaxFn skip.fn (fun info => fakeAtom str (info := info))
 
 private def pushMissing : ParserFn := fun _c s =>
   s.pushSyntax .missing
@@ -586,7 +598,7 @@ A linebreak that isn't a block break (that is, there's non-space content on the 
 def linebreak (ctxt : InlineCtxt) : ParserFn :=
   if ctxt.allowNewlines then
     nodeFn ``linebreak <|
-      andthenFn (withInfoSyntaxFn skip.fn (fun info => fakeAtom "line!" info)) <|
+      andthenFn (fakeAtomHere "line!") <|
         nodeFn strLitKind <|
         asStringFn (quoted := true) <|
           atomicFn (chFn '\n' >> lookaheadFn (manyFn (chFn ' ') >> notFollowedByFn (chFn '\n' <|> blockOpener) "newline"))
@@ -795,6 +807,9 @@ open Lean.Parser.Term in
 def metadataContents : Parser :=
   structInstFields (sepByIndent structInstField ", " (allowTrailingSep := true))
 
+def withPercents : ParserFn → ParserFn := fun p =>
+  adaptUncacheableContextFn (fun c => {c with tokens := c.tokens.insert "%%%" "%%%"}) p
+
 open Lean.Parser.Term in
 /--
 Parses a metadata block, which contains the contents of a Lean structure initialization but is
@@ -803,8 +818,7 @@ surrounded by `%%%` on each side.
 public def metadataBlock : ParserFn :=
   nodeFn ``metadata_block <|
     opener >>
-    metadataContents.fn >>
-    takeWhileFn (·.isWhitespace) >>
+    withPercents metadataContents.fn >>
     closer
 where
   opener := atomicFn (bolThen (eatSpaces >> strFn "%%%") "%%% (at line beginning)") >> eatSpaces >> ignoreFn (chFn '\n')
@@ -956,35 +970,35 @@ mutual
     nodeFn ``ul <|
       lookaheadUnorderedListIndicator ctxt fun type =>
         withCurrentColumn fun c =>
-          fakeAtom "ul{" >>
+          fakeAtomHere "ul{" >>
           many1Fn (listItem {ctxt with minIndent := c + 1 , inLists := ⟨c, .inr type⟩  :: ctxt.inLists}) >>
-          fakeAtom "}"
+          fakeAtomHere "}"
 
   /-- Parses an ordered list. -/
   public partial def orderedList (ctxt : BlockCtxt) : ParserFn :=
     nodeFn ``ol <|
-      fakeAtom "ol(" >>
+      fakeAtomHere "ol(" >>
       lookaheadOrderedListIndicator ctxt fun type _start => -- TODO? Validate list numbering?
         withCurrentColumn fun c =>
-          fakeAtom ")" >> fakeAtom "{" >>
+          fakeAtomHere ")" >> fakeAtomHere "{" >>
           many1Fn (listItem {ctxt with minIndent := c + 1 , inLists := ⟨c, .inl type⟩  :: ctxt.inLists}) >>
-          fakeAtom "}"
+          fakeAtomHere "}"
 
   /-- Parses a definition list. -/
   public partial def definitionList (ctxt : BlockCtxt) : ParserFn :=
     nodeFn ``dl <|
       atomicFn (onlyBlockOpeners >> takeWhileFn (· == ' ') >> ignoreFn (lookaheadFn (chFn ':' >> chFn ' ')) >> guardMinColumn ctxt.minIndent) >>
-      withInfoSyntaxFn skip.fn (fun info => fakeAtom "dl{" info) >>
+      fakeAtomHere "dl{" >>
       withCurrentColumn (fun c => many1Fn (descItem {ctxt with minIndent := c})) >>
-      withInfoSyntaxFn skip.fn (fun info => fakeAtom "}" info)
+      fakeAtomHere "}"
 
   /-- Parses a paragraph (that is, a sequence of otherwise-undecorated inlines). -/
   public partial def para (ctxt : BlockCtxt) : ParserFn :=
     nodeFn ``para <|
       atomicFn (takeWhileFn (· == ' ') >> notFollowedByFn blockOpener "block opener" >> guardMinColumn ctxt.minIndent) >>
-      withInfoSyntaxFn skip.fn (fun info => fakeAtom "para{" (info := info)) >>
+      fakeAtomHere "para{" >>
       textLine >>
-      withInfoSyntaxFn skip.fn (fun info => fakeAtom "}" (info := info))
+      fakeAtomHere "}"
 
   /-- Parses a header. -/
   public partial def header (ctxt : BlockCtxt) : ParserFn :=
@@ -999,7 +1013,7 @@ mutual
             fakeAtom ")") >>
       fakeAtom "{" >>
       textLine (allowNewlines := false) >>
-      fakeAtom "}"
+      fakeAtomHere "}"
 
   /--
   Parses a code block. The resulting string literal has already had the fences' leading indentation
@@ -1170,3 +1184,56 @@ mutual
   -/
   public partial def document (blockContext : BlockCtxt := {}) : ParserFn := ignoreFn (manyFn blankLine) >> blocks blockContext
 end
+
+section
+open Lean.PrettyPrinter
+
+/--
+Parses as `ifVerso` if the option `doc.verso` is `true`, or as `ifNotVerso` otherwise.
+-/
+public def ifVersoFn (ifVerso ifNotVerso : ParserFn) : ParserFn := fun c s =>
+  if c.options.getBool `doc.verso then ifVerso c s
+  else ifNotVerso c s
+
+@[inherit_doc ifVersoFn]
+public def ifVerso (ifVerso ifNotVerso : Parser) : Parser where
+  fn :=
+    ifVersoFn ifVerso.fn ifNotVerso.fn
+
+/--
+Formatter for `ifVerso`—formats according to the underlying formatters.
+-/
+@[combinator_formatter ifVerso, expose]
+public def ifVerso.formatter (f1 f2 : Formatter) : Formatter := f1 <|> f2
+
+/--
+Parenthesizer for `ifVerso`—parenthesizes according to the underlying parenthesizers.
+-/
+@[combinator_parenthesizer ifVerso, expose]
+public def ifVerso.parenthesizer (p1 p2 : Parenthesizer) : Parenthesizer := p1 <|> p2
+
+/--
+Disables the option `doc.verso` while running a parser.
+-/
+public def withoutVersoSyntax (p : Parser) : Parser where
+  fn :=
+    adaptUncacheableContextFn
+      (fun c => { c with options := c.options.setBool `doc.verso false })
+      p.fn
+  info := p.info
+
+/--
+Formatter for `withoutVersoSyntax`—formats according to the underlying formatter.
+-/
+@[combinator_formatter withoutVersoSyntax, expose]
+public def withoutVersoSyntax.formatter (p : Formatter) : Formatter := p
+/--
+Parenthesizer for `withoutVersoSyntax`—parenthesizes according to the underlying parenthesizer.
+-/
+@[combinator_parenthesizer withoutVersoSyntax, expose]
+public def withoutVersoSyntax.parenthesizer (p : Parenthesizer) : Parenthesizer := p
+
+end
+
+builtin_initialize
+  register_parser_alias withoutVersoSyntax

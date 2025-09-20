@@ -1416,6 +1416,11 @@ private def save (ref : Syntax) (thm : EMatchTheorem) (isParam : Bool) (minIndex
       }
     }
 
+register_builtin_option grind.param.codeAction : Bool := {
+  defValue := false
+  descr    := "code-action for `grind` parameters"
+}
+
 /--
 Tries different modifiers, logs info messages with modifiers that worked, but returns just the first one that worked.
 -/
@@ -1448,10 +1453,11 @@ def mkEMatchTheoremAndSuggest (ref : Syntax) (declName : Name) (prios : SymbolPr
       searchCore true
   let (_, s) ← search.run {}
   if h₁ : 0 < s.thms.size then
-    if s.suggestions.size == 1 then
-      Tactic.TryThis.addSuggestion ref s.suggestions[0]!
-    else
-      Tactic.TryThis.addSuggestions ref s.suggestions
+    if !isParam || grind.param.codeAction.get (← getOptions) then
+      if s.suggestions.size == 1 then
+        Tactic.TryThis.addSuggestion ref s.suggestions[0]!
+      else
+        Tactic.TryThis.addSuggestions ref s.suggestions
     return s.thms[0]
   else
     throwError "invalid `grind` theorem, failed to find an usable pattern using different modifiers"

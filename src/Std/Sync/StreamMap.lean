@@ -33,7 +33,7 @@ inductive AnyAsyncStream (α : Type) where
   | mk : {t : Type} → [AsyncStream t α] → t → AnyAsyncStream α
 
 def AnyAsyncStream.getSelector : AnyAsyncStream α → Selector α × IO Unit
-  | AnyAsyncStream.mk stream => (AsyncStream.next stream, AsyncStream.stop α stream)
+  | AnyAsyncStream.mk stream => (AsyncStream.next stream, AsyncStream.stop stream)
 
 instance [AsyncStream t α] : CoeDep t x (AnyAsyncStream α) where
   coe := AnyAsyncStream.mk x

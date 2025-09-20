@@ -16,17 +16,17 @@ public section
 
 /-!
 This module implements a hierarchical cancellation token system with bottom-up
-cancellation propagation.
+cancellation propagation and automatic cleanup.
 
 Features:
 - Parent-child token relationships
 - Bottom-up cancellation (children cancelled before parents)
 - Asynchronous cancellation notifications with acknowledgments
 - Safe propagation that avoids cancellation loops
+- Automatic cleanup of cancelled tokens from the tree
 -/
 
 namespace Std
-namespace Sync
 namespace CancellationToken
 
 /--
@@ -87,21 +87,29 @@ private structure Consumer where
 
   /--
   Promise for the consumer's acknowledgment of cancellation.
+  If None, no acknowledgment is expected (fire-and-forget).
   -/
-  responsePromise : IO.Promise Bool
+  responsePromise : Option (IO.Promise Bool)
 
 /--
-Notify a consumer of cancellation and return a task for its response.
+Notify a consumer of cancellation.
+For consumers with acknowledgment, return a task for the response.
+For fire-and-forget consumers, return a completed task.
 -/
 private def Consumer.resolve (c : Consumer) (cancelled : Bool) : BaseIO (Task Bool) := do
   c.promise.resolve cancelled
-  return c.responsePromise.result!
+  match c.responsePromise with
+  | some rp => return rp.result!
+  | none => return Task.pure true  -- Fire-and-forget, immediately acknowledge
 
 /--
 Acknowledge or reject a cancellation request.
+Only works if the consumer was created with acknowledgment support.
 -/
 private def Consumer.acknowledge (c : Consumer) (accepted : Bool) : BaseIO Unit :=
-  c.responsePromise.resolve accepted
+  match c.responsePromise with
+  | some rp => rp.resolve accepted
+  | none => pure ()  -- No-op for fire-and-forget consumers
 
 /--
 Internal state for a token in the tree.
@@ -137,6 +145,12 @@ private structure TokenInfo where
   ID of the initiator token (to prevent loops).
   -/
   cancellationInitiator : Option Nat
+
+  /--
+  Whether this token should be cleaned up after cancellation.
+  Root tokens are typically not cleaned up automatically.
+  -/
+  cleanupAfterCancel : Bool
 deriving Inhabited
 
 /--
@@ -159,6 +173,11 @@ private structure State where
   -/
   disposed : Bool
 
+  /--
+  Tokens scheduled for cleanup (processed asynchronously to avoid blocking cancellation).
+  -/
+  cleanupQueue : Std.Queue Nat
+
 end CancellationToken
 
 /--
@@ -174,6 +193,7 @@ namespace CancellationToken
 
 /--
 Create a new root cancellation token.
+Root tokens are not automatically cleaned up when cancelled.
 -/
 def new : BaseIO CancellationToken := do
   let state ← Mutex.new {
@@ -183,16 +203,19 @@ def new : BaseIO CancellationToken := do
       children := .empty,
       consumers := .empty,
       cancellationInProgress := false,
-      cancellationInitiator := none
+      cancellationInitiator := none,
+      cleanupAfterCancel := false  -- Root tokens are not auto-cleaned
     }
     nextId := 1
     disposed := false
+    cleanupQueue := .empty
   }
   return ⟨state, 0⟩
 
 /--
 Create a child token from a parent.
 The child is cancelled automatically if the parent is cancelled.
+Child tokens are automatically cleaned up after cancellation.
 -/
 def fork (parent : CancellationToken) : IO CancellationToken := do
   let childId ← parent.state.atomically do
@@ -211,7 +234,8 @@ def fork (parent : CancellationToken) : IO CancellationToken := do
       children := .empty,
       consumers := .empty,
       cancellationInProgress := false,
-      cancellationInitiator := none
+      cancellationInitiator := none,
+      cleanupAfterCancel := true  -- Child tokens are auto-cleaned
     }
 
     set {
@@ -225,20 +249,82 @@ def fork (parent : CancellationToken) : IO CancellationToken := do
   return ⟨parent.state, childId⟩
 
 /--
-Cancel a token, propagating bottom-up.
+Remove a token from the tree and clean up references.
+This is called after a token has been cancelled and all consumers notified.
+-/
+private def cleanupToken (state : Mutex CancellationToken.State) (tokenId : Nat) : BaseIO Unit := do
+  state.atomically do
+    let st ← get
+    match st.tokens.get? tokenId with
+    | none => return ()
+    | some tokenInfo =>
+      let updatedTokens :=
+        match tokenInfo.parent with
+        | some pId =>
+          match st.tokens.get? pId with
+          | none => st.tokens.erase tokenId
+          | some parentInfo =>
+            let updatedParent := { parentInfo with children := parentInfo.children.erase tokenId }
+            st.tokens.insert pId updatedParent |>.erase tokenId
+        | none => st.tokens.erase tokenId
 
-Process:
+      let updatedCleanupQueue := tokenInfo.children.foldl (·.enqueue ·) st.cleanupQueue
+
+      set {
+        st with
+        tokens := updatedTokens,
+        cleanupQueue := updatedCleanupQueue
+      }
+
+/--
+Process the cleanup queue, removing cancelled tokens that are eligible for cleanup.
+This runs asynchronously to avoid blocking the cancellation process.
+-/
+private def processCleanupQueue (state : Mutex CancellationToken.State) : BaseIO Unit := do
+  let batchSize := 10
+  for _ in [0:batchSize] do
+    let tokenIdOpt ← state.atomically do
+      let st ← get
+      match st.cleanupQueue.dequeue? with
+      | none => return none
+      | some (tokenId, newQueue) =>
+        set { st with cleanupQueue := newQueue }
+        return some tokenId
+
+    match tokenIdOpt with
+    | none => break
+    | some tokenId =>
+      let shouldCleanup ← state.atomically do
+        let st ← get
+        match st.tokens.get? tokenId with
+        | none => return false
+        | some tokenInfo =>
+          return tokenInfo.cancelled &&
+                 tokenInfo.cleanupAfterCancel &&
+                 not tokenInfo.cancellationInProgress &&
+                 tokenInfo.consumers.isEmpty
+
+      if shouldCleanup then
+        cleanupToken state tokenId
+
+/--
+Cancel a token, propagating bottom-up, with automatic cleanup.
+
+zProcess:
 1. Mark token as cancelling and collect children
 2. Recursively cancel children first
-3. Notify and wait for consumers
+3. Notify consumers (fire-and-forget for simple consumers)
 4. Mark token as cancelled
+5. Schedule cleanup for eligible tokens
 -/
 partial def cancel (source : CancellationToken) : EIO CancellationToken.Error Unit := do
   cancelBottomUp source.state source.id none
+  -- Process cleanup queue after cancellation is complete
+  processCleanupQueue source.state
 where
   cancelBottomUp (state : Mutex CancellationToken.State) (tokenId : Nat) (initiatorId : Option Nat) : EIO CancellationToken.Error Unit := do
     -- Phase 1: mark token and get children
-    let (_, children) ← state.atomically do
+    let (tokenInfo, children) ← state.atomically do
       let st ← get
       if st.disposed then
         throw .disposed
@@ -259,7 +345,11 @@ where
 
     -- Phase 2: cancel children
     for childId in children do
-      cancelBottomUp state childId (some tokenId)
+      try
+        cancelBottomUp state childId (some tokenId)
+      catch e =>
+        -- Continue cancelling other children even if one fails
+        continue
 
     -- Phase 3: notify consumers and mark cancelled
     let responses ← state.atomically do
@@ -269,8 +359,15 @@ where
       | some tokenInfo =>
         let mut responseTasks := #[]
         for consumer in tokenInfo.consumers.toArray do
-          let responseTask ← consumer.resolve true
-          responseTasks := responseTasks.push responseTask
+          try
+            let responseTask ← consumer.resolve true
+            -- Only collect tasks that actually need acknowledgment
+            match consumer.responsePromise with
+            | some _ => responseTasks := responseTasks.push responseTask
+            | none => pure ()  -- Fire-and-forget, no need to wait
+          catch e =>
+            -- Continue with other consumers even if one fails
+            continue
 
         let updatedInfo := {
           tokenInfo with
@@ -281,9 +378,18 @@ where
         set { st with tokens := st.tokens.insert tokenId updatedInfo }
         return responseTasks
 
-    -- Phase 4: wait for responses
+    -- Phase 4: wait for responses (only from consumers that require acknowledgment)
     for responseTask in responses do
-      let _ := responseTask.get
+      try
+        let _ := responseTask.get
+      catch e =>
+        -- Consumer didn't acknowledge properly, continue anyway
+        continue
+
+    -- Phase 5: schedule cleanup if eligible
+    if tokenInfo.cleanupAfterCancel then
+      state.atomically do
+        modify fun st => { st with cleanupQueue := st.cleanupQueue.enqueue tokenId }
 
 /--
 Check if a token is cancelled.
@@ -292,15 +398,55 @@ def isCancelled (source : CancellationToken) : BaseIO Bool :=
   source.state.atomically do
     let st ← get
     match st.tokens.get? source.id with
-    | none => return false
+    | none => return true  -- If token is not found, consider it cancelled (cleaned up)
     | some tokenInfo => return tokenInfo.cancelled
 
 /--
-Dispose the token source, making all tokens invalid.
+Explicitly clean up a cancelled token.
+This can be called manually to clean up tokens immediately rather than waiting
+for the automatic cleanup process.
+-/
+def cleanup (source : CancellationToken) : BaseIO Unit := do
+  let shouldCleanup ← source.state.atomically do
+    let st ← get
+    match st.tokens.get? source.id with
+    | none => return false  -- Already cleaned up
+    | some tokenInfo =>
+      return tokenInfo.cancelled &&
+             not tokenInfo.cancellationInProgress &&
+             tokenInfo.consumers.isEmpty
+
+  if shouldCleanup then
+    cleanupToken source.state source.id
+
+/--
+Force cleanup of all eligible tokens in the cleanup queue.
+This can be called periodically for maintenance.
+-/
+partial def forceCleanup (source : CancellationToken) : BaseIO Unit := do
+  -- Process the entire cleanup queue
+  let rec processAll : BaseIO Unit := do
+    let hasMore ← source.state.atomically do
+      let st ← get
+      return not st.cleanupQueue.isEmpty
+
+    if hasMore then
+      processCleanupQueue source.state
+      processAll
+
+  processAll
+
+/--
+Dispose the token source, making all tokens invalid and cleaning up all state.
 -/
 def dispose (source : CancellationToken) : BaseIO Unit := do
   source.state.atomically do
-    modify fun st => { st with disposed := true }
+    modify fun st => {
+      st with
+      disposed := true,
+      tokens := .empty,  -- Clean up all tokens
+      cleanupQueue := .empty
+    }
 
 /--
 Throw if the token is cancelled.
@@ -332,7 +478,11 @@ def waitForCancellationWithResponse (token : CancellationToken) : BaseIO (Task B
       else
         let promise ← IO.Promise.new
         let responsePromise ← IO.Promise.new
-        let consumer : CancellationToken.Consumer := { promise, waiter := none, responsePromise }
+        let consumer : CancellationToken.Consumer := {
+          promise,
+          waiter := none,
+          responsePromise := some responsePromise
+        }
         let updatedInfo := { tokenInfo with consumers := tokenInfo.consumers.enqueue consumer }
         set { st with tokens := st.tokens.insert token.id updatedInfo }
 
@@ -340,13 +490,33 @@ def waitForCancellationWithResponse (token : CancellationToken) : BaseIO (Task B
         return (promise.result!, responseFunc)
 
 /--
-Wait for cancellation (simplified).
+Wait for cancellation (simplified, fire-and-forget).
 Returns a task that resolves when cancellation is requested.
+No acknowledgment is required or expected.
 -/
 def waitForCancellation (token : CancellationToken) : BaseIO (Task Bool) := do
-  let (task, _) ← token.waitForCancellationWithResponse
-  return task
+  token.state.atomically do
+    let st ← get
+    if st.disposed then
+      return .pure false
+
+    match st.tokens.get? token.id with
+    | none =>
+      return .pure true
+    | some tokenInfo =>
+      if tokenInfo.cancelled then
+        return .pure true
+      else
+        let promise ← IO.Promise.new
+        let consumer : CancellationToken.Consumer := {
+          promise,
+          waiter := none,
+          responsePromise := none  -- Fire-and-forget, no response expected
+        }
+        let updatedInfo := { tokenInfo with consumers := tokenInfo.consumers.enqueue consumer }
+        set { st with tokens := st.tokens.insert token.id updatedInfo }
+
+        return promise.result!
 
 end CancellationToken
-end Sync
 end Std

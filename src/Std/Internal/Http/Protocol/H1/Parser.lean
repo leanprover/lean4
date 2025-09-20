@@ -123,11 +123,11 @@ def parseHttpVersion : Parser Version := do
 --   method         = token
 def parseMethod : Parser Method := do
   let method ← token 16
-  opt <| Method.fromString? =<< (String.fromUTF8! method.toByteArray)
+  opt <| Method.fromString? (String.fromUTF8! method.toByteArray)
 
 def parseURI : Parser String := do
   let uri ← takeUntil (· == ' '.toUInt8)
-  opt <| String.fromUTF8! uri.toByteArray
+  return String.fromUTF8! uri.toByteArray
 
 /--
 Parses a request line
@@ -182,7 +182,7 @@ partial def parseQuotedString : Parser String := do
     else
       fail s!"invalid qdtext byte: {Char.ofUInt8 b |>.quote}"
 
-  opt <| String.fromUTF8! (← loop .empty)
+  return String.fromUTF8! (← loop .empty)
 
 -- chunk-ext = *( BWS ";" BWS chunk-ext-name [ BWS "=" BWS chunk-ext-val] )
 def parseChunkExt : Parser (String × Option String) := do
@@ -192,7 +192,7 @@ def parseChunkExt : Parser (String × Option String) := do
   if (← peekWhen? (· == '='.toUInt8)) |>.isSome then
     osp *> skipByte '='.toUInt8 *> osp
     let value ← osp *> (parseQuotedString <|> String.fromUTF8! <$> ByteSlice.toByteArray <$> token 256)
-    return (name, value)
+    return (name, some value)
 
   return (name, none)
 

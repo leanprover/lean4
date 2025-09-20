@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init
-public import Lean
 public import Std.Internal.Http.Encode
 public import Std.Internal.Http.Data.Body
 public import Std.Internal.Http.Data.Headers
@@ -144,14 +143,6 @@ Builds and returns the final HTTP Request without a body
 -/
 def build (builder : Builder) : Request Body :=
   { head := builder.head, body := .zero }
-
-/--
-Builds and returns the final HTTP Request with the specified body as JSON
--/
-def json [ToJson t] (builder : Builder) (body : t) : Request Body :=
-  builder
-  |>.header "Content-Type" "application/json"
-  |>.body (ToJson.toJson body |> toString |>.toUTF8 |> Body.bytes)
 
 /--
 Builds and returns the final HTTP Request with the specified body as binary data

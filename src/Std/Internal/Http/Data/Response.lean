@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init
-public import Lean
 public import Std.Internal.Http.Encode
 public import Std.Internal.Http.Data.Body
 public import Std.Internal.Http.Data.Status
@@ -116,21 +115,13 @@ def header (builder : Builder) (key : String) (value : String) : Builder :=
 Builds and returns the final HTTP Response with the specified body
 -/
 def body (builder : Builder) (body : t) : Response t :=
-  { head := builder.head, body := body }
+  { head := builder.head, body := some body }
 
 /--
 Builds and returns the final HTTP Response.
 -/
 def build (builder : Builder) : Response t :=
   { head := builder.head, body := none }
-
-/--
-Builds and returns the final HTTP Response with the specified body
--/
-def json [ToJson t] (builder : Builder) (body : t) : Response Body :=
-  builder
-  |>.header "Content-Type" "application/json"
-  |>.body (ToJson.toJson body |> toString |>.toUTF8 |> Body.bytes)
 
 /--
 Builds and returns the final HTTP Response with the specified body as binary data.

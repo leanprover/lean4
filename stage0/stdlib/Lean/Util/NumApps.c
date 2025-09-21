@@ -1220,18 +1220,18 @@ if (x_32 == 0)
 {
 lean_inc(x_31);
 x_12 = x_27;
-x_13 = x_28;
+x_13 = x_25;
 x_14 = x_31;
-x_15 = x_25;
+x_15 = x_28;
 x_16 = x_31;
 goto block_18;
 }
 else
 {
 x_12 = x_27;
-x_13 = x_28;
+x_13 = x_25;
 x_14 = x_31;
-x_15 = x_25;
+x_15 = x_28;
 x_16 = x_20;
 goto block_18;
 }
@@ -1280,18 +1280,18 @@ if (x_43 == 0)
 {
 lean_inc(x_42);
 x_12 = x_38;
-x_13 = x_39;
+x_13 = x_36;
 x_14 = x_42;
-x_15 = x_36;
+x_15 = x_39;
 x_16 = x_42;
 goto block_18;
 }
 else
 {
 x_12 = x_38;
-x_13 = x_39;
+x_13 = x_36;
 x_14 = x_42;
-x_15 = x_36;
+x_15 = x_39;
 x_16 = x_20;
 goto block_18;
 }
@@ -1308,12 +1308,12 @@ return x_37;
 block_11:
 {
 lean_object* x_9; lean_object* x_10; 
-lean_dec(x_5);
+lean_dec(x_7);
 x_9 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Expr_numApps_spec__0___redArg(x_4, x_6, x_8);
 lean_dec(x_8);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
-lean_ctor_set(x_10, 1, x_7);
+lean_ctor_set(x_10, 1, x_5);
 return x_10;
 }
 block_18:

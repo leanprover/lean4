@@ -4313,7 +4313,7 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_Elab_elabModifiers___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; lean_object* x_26; uint8_t x_27; uint8_t x_33; lean_object* x_47; lean_object* x_48; uint8_t x_49; 
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; uint8_t x_27; uint8_t x_33; lean_object* x_47; lean_object* x_48; uint8_t x_49; 
 x_13 = l_Lean_KVMap_instValueBool;
 x_14 = lean_ctor_get(x_1, 0);
 x_15 = lean_ctor_get(x_1, 1);
@@ -4366,7 +4366,7 @@ goto block_46;
 block_32:
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
-x_28 = lean_box(x_25);
+x_28 = lean_box(x_26);
 x_29 = lean_box(x_27);
 lean_inc(x_8);
 lean_inc(x_15);
@@ -4375,7 +4375,7 @@ lean_closure_set(x_30, 0, x_12);
 lean_closure_set(x_30, 1, x_28);
 lean_closure_set(x_30, 2, x_29);
 lean_closure_set(x_30, 3, x_16);
-lean_closure_set(x_30, 4, x_26);
+lean_closure_set(x_30, 4, x_25);
 lean_closure_set(x_30, 5, x_20);
 lean_closure_set(x_30, 6, x_17);
 lean_closure_set(x_30, 7, x_15);
@@ -4418,8 +4418,8 @@ if (x_42 == 0)
 {
 uint8_t x_43; 
 x_43 = 1;
-x_25 = x_33;
-x_26 = x_35;
+x_25 = x_35;
+x_26 = x_33;
 x_27 = x_43;
 goto block_32;
 }
@@ -4427,8 +4427,8 @@ else
 {
 uint8_t x_44; 
 x_44 = 0;
-x_25 = x_33;
-x_26 = x_35;
+x_25 = x_35;
+x_26 = x_33;
 x_27 = x_44;
 goto block_32;
 }
@@ -4438,8 +4438,8 @@ else
 uint8_t x_45; 
 lean_dec(x_37);
 x_45 = 2;
-x_25 = x_33;
-x_26 = x_35;
+x_25 = x_35;
+x_26 = x_33;
 x_27 = x_45;
 goto block_32;
 }

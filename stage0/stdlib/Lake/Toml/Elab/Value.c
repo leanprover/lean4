@@ -3348,13 +3348,13 @@ lean_object* x_25; uint32_t x_26; lean_object* x_27;
 x_25 = lean_ctor_get(x_24, 2);
 lean_inc(x_25);
 lean_dec_ref(x_24);
-x_26 = lean_uint32_of_nat(x_21);
-lean_dec(x_21);
+x_26 = lean_uint32_of_nat(x_22);
+lean_dec(x_22);
 x_27 = lean_string_push(x_3, x_26);
 x_2 = x_25;
 x_3 = x_27;
 x_4 = x_20;
-x_5 = x_22;
+x_5 = x_21;
 x_6 = x_23;
 goto _start;
 }
@@ -3400,8 +3400,8 @@ goto block_19;
 else
 {
 x_20 = x_31;
-x_21 = x_34;
-x_22 = x_32;
+x_21 = x_32;
+x_22 = x_34;
 x_23 = x_33;
 x_24 = x_30;
 goto block_29;
@@ -3411,8 +3411,8 @@ goto block_29;
 else
 {
 x_20 = x_31;
-x_21 = x_34;
-x_22 = x_32;
+x_21 = x_32;
+x_22 = x_34;
 x_23 = x_33;
 x_24 = x_30;
 goto block_29;
@@ -5563,8 +5563,8 @@ goto block_88;
 block_66:
 {
 lean_object* x_41; lean_object* x_42; 
-x_41 = l_Array_back_x21___redArg(x_36, x_37);
-lean_dec_ref(x_37);
+x_41 = l_Array_back_x21___redArg(x_37, x_36);
+lean_dec_ref(x_36);
 lean_inc_ref(x_13);
 lean_inc(x_41);
 x_42 = l_Lake_Toml_elabSimpleKey(x_41, x_13, x_14, x_40);
@@ -5713,8 +5713,8 @@ if (x_76 == 0)
 {
 lean_dec(x_75);
 lean_dec_ref(x_74);
-x_36 = x_72;
-x_37 = x_71;
+x_36 = x_71;
+x_37 = x_72;
 x_38 = x_73;
 x_39 = x_12;
 x_40 = x_15;
@@ -5728,8 +5728,8 @@ if (x_77 == 0)
 {
 lean_dec(x_75);
 lean_dec_ref(x_74);
-x_36 = x_72;
-x_37 = x_71;
+x_36 = x_71;
+x_37 = x_72;
 x_38 = x_73;
 x_39 = x_12;
 x_40 = x_15;
@@ -5758,8 +5758,8 @@ lean_inc(x_82);
 x_83 = lean_ctor_get(x_80, 1);
 lean_inc(x_83);
 lean_dec(x_80);
-x_36 = x_72;
-x_37 = x_71;
+x_36 = x_71;
+x_37 = x_72;
 x_38 = x_82;
 x_39 = x_83;
 x_40 = x_81;

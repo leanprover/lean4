@@ -3675,60 +3675,36 @@ return x_6;
 LEAN_EXPORT uint8_t l_IO_instOrdTaskState_ord(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-switch (x_1) {
-case 0:
-{
-if (x_2 == 0)
-{
-uint8_t x_3; 
-x_3 = 1;
-return x_3;
-}
-else
-{
-uint8_t x_4; 
-x_4 = 0;
-return x_4;
-}
-}
-case 1:
-{
-switch (x_2) {
-case 0:
-{
-uint8_t x_5; 
-x_5 = 2;
-return x_5;
-}
-case 1:
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = l_IO_TaskState_ctorIdx(x_1);
+x_4 = l_IO_TaskState_ctorIdx(x_2);
+x_5 = lean_nat_dec_lt(x_3, x_4);
+if (x_5 == 0)
 {
 uint8_t x_6; 
-x_6 = 1;
-return x_6;
-}
-default: 
+x_6 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+if (x_6 == 0)
 {
 uint8_t x_7; 
-x_7 = 0;
+x_7 = 2;
 return x_7;
 }
-}
-}
-default: 
-{
-if (x_2 == 2)
+else
 {
 uint8_t x_8; 
 x_8 = 1;
 return x_8;
 }
+}
 else
 {
 uint8_t x_9; 
-x_9 = 2;
+lean_dec(x_4);
+lean_dec(x_3);
+x_9 = 0;
 return x_9;
-}
-}
 }
 }
 }
@@ -10551,8 +10527,8 @@ goto block_19;
 block_7:
 {
 uint32_t x_5; uint32_t x_6; 
-x_5 = lean_uint32_lor(x_2, x_4);
-x_6 = lean_uint32_lor(x_3, x_5);
+x_5 = lean_uint32_lor(x_3, x_4);
+x_6 = lean_uint32_lor(x_2, x_5);
 return x_6;
 }
 block_15:
@@ -10561,8 +10537,8 @@ if (x_10 == 0)
 {
 uint32_t x_13; 
 x_13 = 0;
-x_2 = x_12;
-x_3 = x_11;
+x_2 = x_11;
+x_3 = x_12;
 x_4 = x_13;
 goto block_7;
 }
@@ -10570,8 +10546,8 @@ else
 {
 uint32_t x_14; 
 x_14 = 1;
-x_2 = x_12;
-x_3 = x_11;
+x_2 = x_11;
+x_3 = x_12;
 x_4 = x_14;
 goto block_7;
 }

@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init
 public import Std.Internal.Http.Encode
 public import Std.Internal.Http.Data.Body
 public import Std.Internal.Http.Data.Headers

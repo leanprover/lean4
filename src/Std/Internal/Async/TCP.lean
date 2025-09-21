@@ -119,18 +119,11 @@ def connect (s : Client) (addr : SocketAddress) : Async Unit :=
   Async.ofPromise <| s.native.connect addr
 
 /--
-Sends multiple data buffers through the client socket.
--/
-@[inline]
-def sendAll (s : Client) (data : Array ByteArray) : Async Unit :=
-  Async.ofPromise <| s.native.send data
-
-/--
 Sends data through the client socket.
 -/
 @[inline]
 def send (s : Client) (data : ByteArray) : Async Unit :=
-  Async.ofPromise <| s.native.send #[data]
+  Async.ofPromise <| s.native.send data
 
 /--
 Receives data from the client socket. If data is received, it’s wrapped in .some. If EOF is reached,

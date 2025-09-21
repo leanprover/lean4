@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init
 public import Std.Internal.Http.Data.Body.Length
 public import Std.Internal.Http.Data.Body.ByteStream
 

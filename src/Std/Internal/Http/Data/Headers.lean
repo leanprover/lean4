@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init
 public import Std.Data.HashMap
 public import Std.Data.HashSet
 public import Std.Internal.Http.Encode

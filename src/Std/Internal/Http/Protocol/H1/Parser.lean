@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init
 public import Std.Internal.Parsec
 public import Std.Internal.Http.Data
 public import Std.Internal.Parsec.ByteArray
@@ -72,7 +71,7 @@ def manyItems {α : Type} (parser : Parser (Option α)) (maxCount : Nat) : Parse
 
 def opt (x : Option α) : Parser α :=
   if let some res := x then
-    pure res
+    return res
   else
     fail "expected value but got none"
 

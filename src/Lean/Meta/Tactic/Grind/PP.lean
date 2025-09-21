@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Grind.Util
+public import Init.Grind.Injective
 public import Init.Grind.PP
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Arith.Model
@@ -97,7 +98,7 @@ when displaying equivalence classes.
 This is hard-coded for now. We will probably make it extensible in the future.
 -/
 private def isGadget (declName : Name) : Bool :=
-  declName == ``Grind.nestedDecidable
+  declName == ``Grind.nestedDecidable || declName == ``Grind.leftInv
 
 private def isBuiltin (declName : Name) : Bool :=
   declName == ``ite || declName == ``dite || declName == ``cast

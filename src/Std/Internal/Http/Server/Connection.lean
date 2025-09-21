@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init
 public import Std.Internal.Async.TCP
 public import Std.Internal.Http.Protocol.H1
 public import Std.Internal.Http.Server.Config

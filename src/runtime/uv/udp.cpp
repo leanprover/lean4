@@ -183,7 +183,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
         lean_dec(tup->socket);
         lean_dec(tup->data);
 
-        free(req->bufs);
+        free(tup->bufs);
         free(req->data);
         free(req);
     });

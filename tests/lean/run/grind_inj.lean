@@ -45,3 +45,22 @@ error: invalid `[grind inj]` theorem, resulting type is not of the form `Functio
 #guard_msgs in
 @[grind inj] theorem succ_inj' : succ x = succ y → x = y := by
   grind [succ]
+
+/-- trace: [grind.inj] mul_2_inj: [HMul.hMul, OfNat.ofNat] -/
+#guard_msgs in
+set_option trace.grind.inj true in
+@[grind inj] theorem mul_2_inj : Function.Injective (2 * ·) := by
+  grind [Function.Injective]
+
+def Array.IsId (as : Array Nat) : Prop :=
+  ∀ i : Fin as.size, as[i] = i
+
+/-- trace: [grind.inj] array_inj: [Array, GetElem?.getElem?, Fin, Array.size] -/
+#guard_msgs in
+set_option trace.grind.inj true in
+@[grind inj] theorem array_inj {as : Array Nat} (h : as.IsId) : Function.Injective (as[·]? : Fin as.size → Option Nat) := by
+  intro a b; simp
+  have ha := h a
+  have hb := h b
+  simp at ha hb
+  grind

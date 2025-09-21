@@ -18,6 +18,7 @@ import Lean.Meta.Tactic.Grind.Beta
 import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
+import Lean.Meta.Tactic.Grind.PropagateInj
 public section
 namespace Lean.Meta.Grind
 
@@ -509,5 +510,6 @@ where
         Solvers.internalize e parent?
         propagateUp e
         propagateBetaForNewApp e
+        mkInjEq e
 
 end Lean.Meta.Grind

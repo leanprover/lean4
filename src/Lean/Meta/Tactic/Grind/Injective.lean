@@ -11,6 +11,7 @@ public section
 namespace Lean.Meta.Grind
 
 builtin_initialize registerTraceClass `grind.inj
+builtin_initialize registerTraceClass `grind.inj.assert
 builtin_initialize registerTraceClass `grind.debug.inj
 
 /-- A theorem marked with `@[grind inj]` -/

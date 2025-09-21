@@ -758,10 +758,15 @@ structure UnitLike.State where
   map : PHashMap ExprPtr (Option Expr) := {}
   deriving Inhabited
 
+structure InjectiveInfo where
+  inv : Expr
+  heq : Expr
+  deriving Inhabited
+
 /-- State for injective theorem support. -/
 structure Injective.State where
-  thms   : InjectiveTheorems
-  injFns : PHashMap ExprPtr Expr := {}
+  thms : InjectiveTheorems
+  fns  : PHashMap ExprPtr InjectiveInfo := {}
   deriving Inhabited
 
 /-- The `grind` goal. -/

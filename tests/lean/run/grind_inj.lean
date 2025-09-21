@@ -64,3 +64,13 @@ set_option trace.grind.inj true in
   have hb := h b
   simp at ha hb
   grind
+
+def weird.{u} : PUnit.{u} → PUnit.{u} := id
+
+/--
+error: invalid `[grind inj]` theorem, theorem has universe levels, but no hypotheses
+  Function.Injective weird
+-/
+#guard_msgs in
+@[grind inj] theorem weird_inj : Function.Injective weird := by
+  intro a b; simp

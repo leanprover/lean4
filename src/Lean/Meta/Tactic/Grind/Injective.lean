@@ -38,11 +38,13 @@ private builtin_initialize injectiveTheoremsExt : SimpleScopedEnvExtension Injec
       initial  := {}
     }
 
-private partial def getSymbols (proof : Expr) : MetaM (List HeadIndex) := do
+private partial def getSymbols (proof : Expr) (hasUniverses : Bool) : MetaM (List HeadIndex) := do
   let type ← inferType proof
-  forallTelescope type fun _ type => do
+  forallTelescope type fun xs type => do
     unless type.isAppOfArity ``Function.Injective 3 do
       throwError "invalid `[grind inj]` theorem, resulting type is not of the form `Function.Injective <fun>`{indentExpr type}"
+    if xs.isEmpty && hasUniverses then
+      throwError "invalid `[grind inj]` theorem, theorem has universe levels, but no hypotheses{indentExpr type}"
     let f := type.appArg!.eta
     let cs ← collectFnNames f
     if cs.isEmpty then
@@ -72,8 +74,9 @@ private def symbolsToNames (s : List HeadIndex) : List Name :=
     | _ => Name.anonymous
 
 def mkInjectiveTheorem (declName : Name) : MetaM InjectiveTheorem := do
+  let info ← getConstInfo declName
   let proof ← getProofForDecl declName
-  let symbols ← getSymbols proof
+  let symbols ← getSymbols proof !info.levelParams.isEmpty
   trace[grind.inj] "{declName}: {symbolsToNames symbols}"
   return {
     levelParams := #[]

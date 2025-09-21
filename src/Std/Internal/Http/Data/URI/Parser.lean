@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init
 public import Std.Internal.Parsec
 public import Std.Internal.Parsec.ByteArray
 public import Std.Internal.Http.Data.URI.Basic

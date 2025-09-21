@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init
 public import Std.Time
 public import Std.Internal.Http.Protocol.H1
 

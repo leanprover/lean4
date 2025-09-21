@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init
 public import Std.Sync
 public import Std.Internal.Async
 public import Std.Internal.Http.Util.BufferBuilder

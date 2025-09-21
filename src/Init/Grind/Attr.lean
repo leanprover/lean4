@@ -135,7 +135,7 @@ Each time it encounters a subexpression which covers an argument which was not
 previously covered, it adds that subexpression as a pattern, until all arguments have been covered.
 If `grind!` is used, then only minimal indexable subexpressions are considered.
 -/
-syntax grindDef    := "." (grindGen)?
+syntax grindDef    := patternIgnore("." <|> "·") (grindGen)?
 /--
 The `usr` modifier indicates that this theorem was applied using a
 **user-defined instantiation pattern**. Such patterns are declared with
@@ -215,9 +215,47 @@ syntax grindMod :=
     <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager
     <|> grindCases <|> grindIntro <|> grindExt <|> grindGen <|> grindSym <|> grindInj
     <|> grindDef
+
+/--
+Marks a theorem or definition for use by the `grind` tactic.
+
+An optional modifier (e.g. `=`, `→`, `←`, `cases`, `intro`, `ext`, `inj`, etc.)
+controls how `grind` uses the declaration:
+* whether it is applied forwards, backwards, or both,
+* whether equalities are used on the left, right, or both sides,
+* whether case-splits, constructors, extensionality, or injectivity are applied,
+* or whether custom instantiation patterns are used.
+
+See the individual modifier docstrings for details.
+-/
 syntax (name := grind) "grind" (ppSpace grindMod)? : attr
+/--
+Like `@[grind]`, but enforces the **minimal indexable subexpression condition**:
+when several subterms cover the same free variables, `grind!` chooses the smallest one.
+
+This influences E-matching pattern selection.
+
+### Example
+```lean
+theorem fg_eq (h : x > 0) : f (g x) = x
+
+@[grind <-] theorem fg_eq (h : x > 0) : f (g x) = x
+-- Pattern selected: `f (g x)`
+
+-- With minimal subexpression:
+@[grind! <-] theorem fg_eq (h : x > 0) : f (g x) = x
+-- Pattern selected: `g x`
+-/
 syntax (name := grind!) "grind!" (ppSpace grindMod)? : attr
+/--
+Like `@[grind]`, but also prints the pattern(s) selected by `grind`
+as info messages. Useful for debugging annotations and modifiers.
+-/
 syntax (name := grind?) "grind?" (ppSpace grindMod)? : attr
+/--
+Like `@[grind!]`, but also prints the pattern(s) selected by `grind`
+as info messages. Combines minimal subexpression selection with debugging output.
+-/
 syntax (name := grind!?) "grind!?" (ppSpace grindMod)? : attr
 end Attr
 end Lean.Parser

@@ -124,6 +124,10 @@ structure Config where
   When `true` (default: `true`), automatically creates an auxiliary theorem to store the proof.
   -/
   abstractProof := true
+  /--
+  When `true` (default: `true`), uses procedure for handling injective functions.
+  -/
+  inj := true
   deriving Inhabited, BEq
 
 /--

@@ -18,6 +18,7 @@ import Lean.Meta.Tactic.Grind.Beta
 import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
+import Lean.Meta.Tactic.Grind.PropagateInj
 public section
 namespace Lean.Meta.Grind
 
@@ -236,7 +237,7 @@ private def addMatchEqns (f : Expr) (generation : Nat) : GoalM Unit := do
     activateTheorem (← mkEMatchEqTheorem eqn (normalizePattern := false)) generation
 
 @[specialize]
-private def activateTheorems [TheoremLike α] (declName : Name)
+private def activateTheoremsCore [TheoremLike α] (declName : Name)
     (getThms : GoalM (Theorems α))
     (setThms : Theorems α → GoalM Unit)
     (reinsertThm : α → GoalM Unit)
@@ -260,10 +261,40 @@ private def activateTheorems [TheoremLike α] (declName : Name)
           reinsertThm thm
 
 private def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Unit := do
-  activateTheorems fName (return (← get).ematch.thmMap)
+  activateTheoremsCore fName (return (← get).ematch.thmMap)
     (fun thmMap => modify fun s => { s with ematch.thmMap := thmMap })
     (fun thm => modify fun s => { s with ematch.thmMap := s.ematch.thmMap.insert thm })
     (fun thm => activateTheorem thm generation)
+
+private def mkEMatchTheoremWithKind'? (origin : Origin) (levelParams : Array Name) (proof : Expr) (kind : EMatchTheoremKind)
+    (symPrios : SymbolPriorities) : MetaM (Option EMatchTheorem) := do
+  try
+    mkEMatchTheoremWithKind? origin levelParams proof kind symPrios (minIndexable := true)
+  catch _ =>
+    return none
+
+private def activateInjectiveTheorem (injThm : InjectiveTheorem) (generation : Nat) : GoalM Unit := do
+  let type ← inferType injThm.proof
+  if type.isForall then
+    let symPrios ← getSymbolPriorities
+    let thm? ← mkEMatchTheoremWithKind'? injThm.origin injThm.levelParams injThm.proof .fwd symPrios
+      <||>
+      mkEMatchTheoremWithKind'? injThm.origin injThm.levelParams injThm.proof (.default false) symPrios
+    let some thm := thm? | reportIssue! "failed to assert injectivity theorem `{injThm.origin.pp}`"
+    activateTheorem thm generation
+  else
+    addNewRawFact injThm.proof type generation (.inj injThm.origin)
+
+private def activateInjectiveTheorems (declName : Name) (generation : Nat) : GoalM Unit := do
+  if (← getConfig).inj then
+    activateTheoremsCore declName (return (← get).inj.thms)
+      (fun thms => modify fun s => { s with inj.thms := thms })
+      (fun thm => modify fun s => { s with inj.thms := s.inj.thms.insert thm })
+      (fun thm => activateInjectiveTheorem thm generation)
+
+private def activateTheorems (declName : Name) (generation : Nat) : GoalM Unit := do
+  activateTheoremPatterns declName generation
+  activateInjectiveTheorems declName generation
 
 /--
 If type of `a` is a structure and is tagged with `[grind ext]` attribute,
@@ -424,7 +455,7 @@ where
       mkENode e generation
     | .const declName _ =>
       mkENode e generation
-      activateTheoremPatterns declName generation
+      activateTheorems declName generation
     | .mvar .. =>
       if (← reportMVarInternalization) then
         reportIssue! "unexpected metavariable during internalization{indentExpr e}\n`grind` is not supposed to be used in goals containing metavariables."
@@ -467,7 +498,7 @@ where
           registerParent e c
         else
           if let .const fName _ := f then
-            activateTheoremPatterns fName generation
+            activateTheorems fName generation
           else
             internalizeImpl f generation e
           registerParent e f
@@ -479,5 +510,6 @@ where
         Solvers.internalize e parent?
         propagateUp e
         propagateBetaForNewApp e
+        mkInjEq e
 
 end Lean.Meta.Grind

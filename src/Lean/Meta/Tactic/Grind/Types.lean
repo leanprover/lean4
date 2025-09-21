@@ -82,6 +82,8 @@ inductive SplitSource where
     existsProp (e : Expr)
   | /-- Input goal -/
     input
+  | /-- Injectivity theorem. -/
+    inj (origin : Origin)
   deriving Inhabited
 
 def SplitSource.toMessageData : SplitSource → MessageData
@@ -92,6 +94,7 @@ def SplitSource.toMessageData : SplitSource → MessageData
   | .forallProp e => m!"Forall propagation at{indentExpr e}"
   | .existsProp e => m!"Exists propagation at{indentExpr e}"
   | .input => "Initial goal"
+  | .inj origin => m!"Injectivity {origin.pp}"
 
 /-- Context for `GrindM` monad. -/
 structure Context where
@@ -755,9 +758,15 @@ structure UnitLike.State where
   map : PHashMap ExprPtr (Option Expr) := {}
   deriving Inhabited
 
+structure InjectiveInfo where
+  inv : Expr
+  heq : Expr
+  deriving Inhabited
+
 /-- State for injective theorem support. -/
 structure Injective.State where
   thms : InjectiveTheorems
+  fns  : PHashMap ExprPtr InjectiveInfo := {}
   deriving Inhabited
 
 /-- The `grind` goal. -/

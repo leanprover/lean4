@@ -1485,7 +1485,8 @@ private def elabModSnippet'
     if let `(block|header($n){$name*}) := b then
         let n := n.getNat
         if n > maxLevel then
-          logErrorAt b m!"Incorrect header nesting: expected at most `{"".pushn '#' n}`"
+          logErrorAt b m!"Incorrect header nesting: expected at most `{"#".pushn '#' maxLevel}` \
+            but got `{"#".pushn '#' n}`"
         else
           let title ←
             liftM <| withInfoContext (mkInfo := pure <| .ofDocInfo {elaborator := `no_elab, stx := b}) <|

@@ -204,14 +204,13 @@ def a := "a"
 def b := "b"
 end A
 
-/- Commented out for bootstrapping
 /-- error: Unknown constant `a` -/
 #guard_msgs in
 /--
 role {name}`a` here
 -/
 def testDef := 15
--/
+
 
 #guard_msgs in
 /--
@@ -229,7 +228,6 @@ def testDef' := 15
 -/
 def testDef'' := 15
 
-/- Commented out for bootstrapping
 /-- error: Unknown constant `b` -/
 #guard_msgs in
 /--
@@ -238,7 +236,6 @@ def testDef'' := 15
 {name}`b`
 -/
 def testDef''' := 15
--/
 
 #guard_msgs in
 /--

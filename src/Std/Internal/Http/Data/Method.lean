@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init.Data
+public import Init.Data.Repr
 public import Std.Internal.Http.Encode
 
 public section

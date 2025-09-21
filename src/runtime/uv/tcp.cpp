@@ -218,7 +218,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
         lean_dec(tup->data);
         lean_dec(tup->socket);
 
-        free(req->bufs);
+        free(tup->bufs);
         free(req->data);
         free(req);
     });

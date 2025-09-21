@@ -235,22 +235,35 @@ private def addMatchEqns (f : Expr) (generation : Nat) : GoalM Unit := do
     -- We disable pattern normalization to prevent the `match`-expression to be reduced.
     activateTheorem (← mkEMatchEqTheorem eqn (normalizePattern := false)) generation
 
-private def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Unit := do
-  if let some (thms, thmMap) := (← get).ematch.thmMap.retrieve? fName then
-    modify fun s => { s with ematch.thmMap := thmMap }
+@[specialize]
+private def activateTheorems [TheoremLike α] (declName : Name)
+    (getThms : GoalM (Theorems α))
+    (setThms : Theorems α → GoalM Unit)
+    (reinsertThm : α → GoalM Unit)
+    (activateThm : α → GoalM Unit) : GoalM Unit := do
+  if let some (thms, s) := (← getThms).retrieve? declName then
+    setThms s
     for thm in thms do
-      trace_goal[grind.debug.ematch.activate] "`{fName}` => `{thm.origin.key}`"
-      unless (← get).ematch.thmMap.isErased thm.origin do
-        let appMap := (← get).appMap
-        let symbols := thm.symbols.filter fun sym => !appMap.contains sym
-        let thm := { thm with symbols }
+      let origin := TheoremLike.getOrigin thm
+      trace_goal[grind.debug.theorem.activate] "`{declName}` => `{origin.key}`"
+      unless s.isErased origin do
+        let appMap  := (← get).appMap
+        let symbols := TheoremLike.getSymbols thm
+        let symbols := symbols.filter fun sym => !appMap.contains sym
+        let thm     := TheoremLike.setSymbols thm symbols
         match symbols with
         | [] =>
-          trace_goal[grind.debug.ematch.activate] "`{thm.origin.key}`"
-          activateTheorem thm generation
+          trace_goal[grind.debug.theorem.activate] "`{origin.key}`"
+          activateThm thm
         | _ =>
-          trace_goal[grind.debug.ematch.activate] "reinsert `{thm.origin.key}`"
-          modify fun s => { s with ematch.thmMap := s.ematch.thmMap.insert thm }
+          trace_goal[grind.debug.theorem.activate] "reinsert `{origin.key}`"
+          reinsertThm thm
+
+private def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Unit := do
+  activateTheorems fName (return (← get).ematch.thmMap)
+    (fun thmMap => modify fun s => { s with ematch.thmMap := thmMap })
+    (fun thm => modify fun s => { s with ematch.thmMap := s.ematch.thmMap.insert thm })
+    (fun thm => activateTheorem thm generation)
 
 /--
 If type of `a` is a structure and is tagged with `[grind ext]` attribute,

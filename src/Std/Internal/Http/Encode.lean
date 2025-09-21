@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init
 public import Std.Internal.Http.Util.Buffer
 public import Std.Internal.Http.Data.Version
 

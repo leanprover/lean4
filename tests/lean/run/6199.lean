@@ -46,7 +46,7 @@ Scientific tests
 #guard_msgs in #term "100_000.0"
 /-- info: 0. : Float -/
 #guard_msgs in #term "0."
--- The decimal parser requires a digit at the start, so the `_` is left over:
+-- The decimal parser requires a digit at the start, so the `_` is left over and read as a distinct identifier:
 /-- error: <input>:1:0: unexpected identifier after decimal point; consider parenthesizing the number -/
 #guard_msgs in #term "100._"
 /-- info: 100.111111 : Float -/

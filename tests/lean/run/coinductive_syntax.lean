@@ -140,6 +140,9 @@ coinductive my_nat  where
   | succ : my_nat → my_nat
 
 def Set := Nat → Prop
+
+set_option trace.Elab.coinductive true
+
 coinductive Foo : Set where
 
 /--

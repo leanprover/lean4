@@ -1303,11 +1303,6 @@ private def elabInductiveViewsPostprocessingCoinductive (views : Array Inductive
           if let some (doc, verso) := ctor.modifiers.docString? then
             addDocStringOf verso ctor.declName ctor.binders doc
 
-  runTermElabM fun _ => Term.withDeclName view0.declName do withRef ref do
-    for view in views do withRef view.declId <|
-      unless (views.any (·.isCoinductive)) do
-        Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
-
 def InductiveViewToCoinductiveElab (e : InductiveElabStep1) : CoinductiveElabData where
   declName := e.view.declName
   ref := e.view.ref

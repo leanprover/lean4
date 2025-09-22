@@ -34,6 +34,12 @@ instance : Inhabited ByteArray where
 instance : EmptyCollection ByteArray where
   emptyCollection := ByteArray.empty
 
+@[simp]
+theorem empty_eq_emptyc : @empty = ∅ := rfl
+
+@[simp]
+theorem emptyWithCapacity_eq_emptyc : @emptyWithCapacity n = ∅ := rfl
+
 @[extern "lean_sarray_size", simp]
 def usize (a : @& ByteArray) : USize :=
   a.size.toUSize

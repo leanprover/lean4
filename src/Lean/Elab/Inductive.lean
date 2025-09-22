@@ -23,13 +23,19 @@ def Lean.Parser.Command.classInductive :=
   leading_parser atomic (group ("class " >> "inductive ")) >> declId >> optDeclSig >> optional ("where" <|> ":=") >> many ctor >> optDeriving
 ```
 -/
-private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : TermElabM InductiveView := do
+private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (isCoinductive : Bool) : TermElabM InductiveView := do
   let isClass := decl.isOfKind ``Parser.Command.classInductive
   let modifiers := if isClass then modifiers.addAttr { name := `class } else modifiers
   let (binders, type?) := expandOptDeclSig decl[2]
   let declId           := decl[1]
   let ⟨name, declName, levelNames, docString?⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
   addDeclarationRangesForBuiltin declName modifiers.stx decl
+  /-
+    Relates to issue
+    https://github.com/leanprover/lean4/issues/10503
+  -/
+  if declName.hasMacroScopes && isCoinductive then
+    throwError "Coinductive predicates are not allowed inside of macro scopes"
   let ctors      ← decl[4].getArgs.mapM fun ctor => withRef ctor do
     /-
     ```
@@ -85,6 +91,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Term
     binders, type?, ctors
     computedFields
     docString?
+    isCoinductive := isCoinductive
   }
 
 private def isInductiveFamily (numParams : Nat) (indFVar : Expr) : TermElabM Bool := do
@@ -310,8 +317,7 @@ where
 
 def mkInductiveElabDescr (isCoinductive := false) : InductiveElabDescr where
 mkInductiveView (modifiers : Modifiers) (stx : Syntax) := do
-    let view ← inductiveSyntaxToView modifiers stx
-    let view := { view with isCoinductive := isCoinductive}
+    let view ← inductiveSyntaxToView modifiers stx isCoinductive
     return {
       view
       elabCtors := fun rs r params => do

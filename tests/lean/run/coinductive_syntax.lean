@@ -238,20 +238,10 @@ mutual
     | mk : A → A.mk
 end
 
-
 macro "test%" : command => `(command|
   coinductive MacroTest : Prop where | mk : MacroTest
 )
 
-/--
-error: (kernel) constant has already been declared '[anonymous]'
----
-error: (kernel) application type mismatch
-  motive [anonymous]
-argument has type
-  (MacroTest._functor.call : Prop) → MacroTest._functor✝ MacroTest._functor.call
-but function has type
-  MacroTest✝ → Sort u
--/
+/-- error: Coinductive predicates are not allowed inside of macro scopes -/
 #guard_msgs in
 test%

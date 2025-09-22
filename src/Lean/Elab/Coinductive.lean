@@ -115,13 +115,11 @@ public structure CoinductiveElabData where
   deriving Inhabited
 
 
-public def addFunctorPostfix (n : Name) : Name :=
-  n.modifyBase (·  ++ `_functor)
+public def addFunctorPostfix : Name → Name := (·  ++ `_functor)
 
-public def removeFunctorPostfix (n : Name) : Name :=
-  n.modifyBase (fun n => n.getPrefix)
+public def removeFunctorPostfix : Name → Name := (Name.modifyBase · Name.getPrefix)
 
-public def removeFunctorPostfixInCtor (n : Name) : Name := n.modifyBase <|
+public def removeFunctorPostfixInCtor : Name → Name :=
   fun | Name.str p s => Name.str (removeFunctorPostfix p) s
       | _ => panic! "UnexpectedName"
 

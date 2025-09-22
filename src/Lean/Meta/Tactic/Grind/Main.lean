@@ -8,8 +8,10 @@ prelude
 public import Lean.Meta.Tactic.Util
 public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind.Lemmas
+import Lean.PrettyPrinter
 import Lean.Meta.Tactic.ExposeNames
 import Lean.Meta.Tactic.Simp.Diagnostics
+import Lean.Meta.Tactic.Simp.Rewrite
 import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.RevertAll
 import Lean.Meta.Tactic.Grind.PropagatorAttr
@@ -20,6 +22,7 @@ import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.Solve
+import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.SimpUtil
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.LawfulEqCmp

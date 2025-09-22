@@ -4,21 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.Util
-public import Lean.Meta.LitValues
 public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Inv
-public import Lean.Meta.Tactic.Grind.PP
-public import Lean.Meta.Tactic.Grind.Ctor
-public import Lean.Meta.Tactic.Grind.Util
-public import Lean.Meta.Tactic.Grind.Beta
-public import Lean.Meta.Tactic.Grind.Internalize
-public import Lean.Meta.Tactic.Grind.Simp
-
+import Init.Grind.Util
+import Lean.Meta.LitValues
+import Lean.Meta.Tactic.Grind.Inv
+import Lean.Meta.Tactic.Grind.PP
+import Lean.Meta.Tactic.Grind.Ctor
+import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Tactic.Grind.Beta
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Internalize
 public section
-
 namespace Lean.Meta.Grind
 
 /--

@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Canon
+import Lean.Meta.Tactic.Grind.Canon
 import Lean.Meta.Tactic.Grind.CastLike
 public section
 namespace Lean.Meta.Grind

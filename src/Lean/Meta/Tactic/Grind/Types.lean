@@ -5,19 +5,20 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Grind.Tactics
-public import Init.Data.Queue
-public import Std.Data.TreeSet.Basic
-public import Lean.HeadIndex
+public import Lean.Meta.Tactic.Grind.EMatchTheorem
 public import Lean.Meta.Tactic.Simp.Types
-public import Lean.Meta.Tactic.Grind.ExprPtr
 public import Lean.Meta.Tactic.Grind.AlphaShareCommon
 public import Lean.Meta.Tactic.Grind.Attr
-public import Lean.Meta.Tactic.Grind.ExtAttr
-public import Lean.Meta.Tactic.Grind.EMatchTheorem
-meta import Lean.Parser.Do
+public import Init.Data.Queue
+import Lean.Meta.Tactic.Grind.ExprPtr
+import Init.Grind.Tactics
+import Std.Data.TreeSet.Basic
+import Lean.HeadIndex
+import Lean.Meta.Tactic.Grind.ExtAttr
+import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Match.MatchEqsExt
 import Lean.PrettyPrinter
+meta import Lean.Parser.Do
 public section
 namespace Lean.Meta.Grind
 

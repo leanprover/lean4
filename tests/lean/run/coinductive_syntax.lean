@@ -165,7 +165,7 @@ coinductive my_nat  where
   | succ : my_nat → my_nat
 
 def Set := Nat → Prop
--- TODO: This triggers an unusd variable warning
+
 coinductive Foo : Set where
 
 /--

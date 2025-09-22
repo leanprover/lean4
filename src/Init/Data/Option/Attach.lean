@@ -168,10 +168,12 @@ theorem toArray_attachWith {p : α → Prop} {o : Option α} {h} :
     o.toList.attach = (o.attach.map fun ⟨a, h⟩ => ⟨a, by simpa using h⟩).toList := by
   cases o <;> simp [toList]
 
+@[grind =]
 theorem attach_map {o : Option α} (f : α → β) :
     (o.map f).attach = o.attach.map (fun ⟨x, h⟩ => ⟨f x, map_eq_some_iff.2 ⟨_, h, rfl⟩⟩) := by
   cases o <;> simp
 
+@[grind =]
 theorem attachWith_map {o : Option α} (f : α → β) {P : β → Prop} {H : ∀ (b : β), o.map f = some b → P b} :
     (o.map f).attachWith P H = (o.attachWith (P ∘ f) (fun _ h => H _ (map_eq_some_iff.2 ⟨_, h, rfl⟩))).map
       fun ⟨x, h⟩ => ⟨f x, h⟩ := by

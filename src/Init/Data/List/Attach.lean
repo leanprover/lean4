@@ -149,9 +149,6 @@ theorem attach_map_val {l : List α} {f : α → β} :
     (l.attach.map fun (i : {i // i ∈ l}) => f i) = l.map f := by
   rw [attach, attachWith, map_pmap]; exact pmap_eq_map _
 
-@[deprecated attach_map_val (since := "2025-02-17")]
-abbrev attach_map_coe := @attach_map_val
-
 -- The argument `l : List α` is explicit to allow rewriting from right to left.
 theorem attach_map_subtype_val (l : List α) : l.attach.map Subtype.val = l :=
   attach_map_val.trans (List.map_id _)
@@ -159,9 +156,6 @@ theorem attach_map_subtype_val (l : List α) : l.attach.map Subtype.val = l :=
 theorem attachWith_map_val {p : α → Prop} {f : α → β} {l : List α} (H : ∀ a ∈ l, p a) :
     ((l.attachWith p H).map fun (i : { i // p i}) => f i) = l.map f := by
   rw [attachWith, map_pmap]; exact pmap_eq_map _
-
-@[deprecated attachWith_map_val (since := "2025-02-17")]
-abbrev attachWith_map_coe := @attachWith_map_val
 
 theorem attachWith_map_subtype_val {p : α → Prop} {l : List α} (H : ∀ a ∈ l, p a) :
     (l.attachWith p H).map Subtype.val = l :=
@@ -254,13 +248,6 @@ theorem getElem?_pmap {p : α → Prop} {f : ∀ a, p a → β} {l : List α} (h
     · simp
     · simp only [pmap, getElem?_cons_succ, hl]
 
-set_option linter.deprecated false in
-@[deprecated List.getElem?_pmap (since := "2025-02-12")]
-theorem get?_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h : ∀ a ∈ l, p a) (n : Nat) :
-    get? (pmap f l h) n = Option.pmap f (get? l n) fun x H => h x (mem_of_get? H) := by
-  simp only [get?_eq_getElem?]
-  simp [getElem?_pmap]
-
 -- The argument `f` is explicit to allow rewriting from right to left.
 @[simp, grind =]
 theorem getElem_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h : ∀ a ∈ l, p a) {i : Nat}
@@ -276,15 +263,6 @@ theorem getElem_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h 
     cases i
     · simp
     · simp [hl]
-
-@[deprecated getElem_pmap (since := "2025-02-13")]
-theorem get_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h : ∀ a ∈ l, p a) {n : Nat}
-    (hn : n < (pmap f l h).length) :
-    get (pmap f l h) ⟨n, hn⟩ =
-      f (get l ⟨n, @length_pmap _ _ p f l h ▸ hn⟩)
-        (h _ (getElem_mem (@length_pmap _ _ p f l h ▸ hn))) := by
-  simp only [get_eq_getElem]
-  simp [getElem_pmap]
 
 @[simp, grind =]
 theorem getElem?_attachWith {xs : List α} {i : Nat} {P : α → Prop} {H : ∀ a ∈ xs, P a} :
@@ -465,9 +443,6 @@ theorem map_attach_eq_pmap {l : List α} {f : { x // x ∈ l } → β} :
     simp only [attach_cons, map_cons, map_map, Function.comp_apply, pmap, cons.injEq, true_and, ih]
     apply pmap_congr_left
     simp
-
-@[deprecated map_attach_eq_pmap (since := "2025-02-09")]
-abbrev map_attach := @map_attach_eq_pmap
 
 @[grind =]
 theorem attach_filterMap {l : List α} {f : α → Option β} :

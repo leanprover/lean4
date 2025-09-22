@@ -165,9 +165,6 @@ theorem take_set {l : List α} {i j : Nat} {a : α} :
     | nil => simp
     | cons hd tl => cases j <;> simp_all
 
-@[deprecated take_set (since := "2025-02-17")]
-abbrev set_take := @take_set
-
 theorem drop_set {l : List α} {i j : Nat} {a : α} :
     (l.set j a).drop i = if j < i then l.drop i else (l.drop i).set (j - i) a := by
   induction i generalizing l j with

@@ -707,8 +707,3 @@ def evalOmega : Tactic
 builtin_initialize bitvec_to_nat : SimpExtension ←
   registerSimpAttr `bitvec_to_nat
     "simp lemmas converting `BitVec` goals to `Nat` goals"
-
-@[deprecated bitvec_to_nat (since := "2025-02-10")]
-builtin_initialize bvOmegaSimpExtension : SimpExtension ←
-  registerSimpAttr `bv_toNat
-    "simp lemmas converting `BitVec` goals to `Nat` goals, for the `bv_omega` preprocessor"

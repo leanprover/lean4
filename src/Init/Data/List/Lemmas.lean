@@ -392,7 +392,7 @@ theorem get!_eq_getElem! [Inhabited α] (l : List α) (i) : l.get! i = l[i]! := 
 
 /-! ### mem -/
 
-@[simp] theorem not_mem_nil {a : α} : ¬ a ∈ [] := nofun
+@[simp, grind ←] theorem not_mem_nil {a : α} : ¬ a ∈ [] := nofun
 
 @[simp, grind =] theorem mem_cons : a ∈ b :: l ↔ a = b ∨ a ∈ l :=
   ⟨fun h => by cases h <;> simp [Membership.mem, *],

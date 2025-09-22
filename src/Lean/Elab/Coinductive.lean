@@ -119,9 +119,9 @@ public def addFunctorPostfix (n : Name) : Name :=
 public def removeFunctorPostfix (n : Name) : Name :=
   n.modifyBase (fun n => n.getPrefix)
 
-public def removeFunctorPostfixInCtor : Name → Name
-  | Name.str p s => Name.str (removeFunctorPostfix p) s
-  | _ => panic! "UnexpectedName"
+public def removeFunctorPostfixInCtor (n : Name) : Name := n.modifyBase <|
+  fun | Name.str p s => Name.str (removeFunctorPostfix p) s
+      | _ => panic! "UnexpectedName"
 
 private def rewriteGoalUsingEq (goal : MVarId) (eq : Expr) (symm : Bool := false) : MetaM MVarId := do
   let rewriteResult ← goal.rewrite (←goal.getType) eq symm

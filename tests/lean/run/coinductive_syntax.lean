@@ -29,7 +29,7 @@ Hint: These are similar:
   'Lean.Order.iterates.step',
   'Nat.le.below.step',
   'Nat.le.step',
-  'infSeq_functor.step'
+  'infSeq._functor.step'
 ---
 error: Case tag `rhs` not found.
 
@@ -237,3 +237,21 @@ mutual
   coinductive A.mk : Prop where
     | mk : A → A.mk
 end
+
+
+macro "test%" : command => `(command|
+  coinductive MacroTest : Prop where | mk : MacroTest
+)
+
+/--
+error: (kernel) constant has already been declared '[anonymous]'
+---
+error: (kernel) application type mismatch
+  motive [anonymous]
+argument has type
+  (MacroTest._functor.call : Prop) → MacroTest._functor✝ MacroTest._functor.call
+but function has type
+  MacroTest✝ → Sort u
+-/
+#guard_msgs in
+test%

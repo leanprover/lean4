@@ -1590,8 +1590,22 @@ theorem Slice.Pos.byteIdx_offset_next {s : Slice} {pos : s.Pos} {h : pos ≠ s.e
     (pos.next h).offset.byteIdx = pos.offset.byteIdx + (pos.get h).utf8Size := by
   simp [next, utf8ByteSize_byte]
 
+/-- Increases the byte offset of the position by `1`. Not to be confused with `ValidPos.next`. -/
+def Pos.inc (p : Pos) : Pos :=
+  ⟨p.byteIdx + 1⟩
+
+@[simp]
+theorem Pos.byteIdx_inc {p : Pos} : p.inc.byteIdx = p.byteIdx + 1 := (rfl)
+
+/-- Decreases the byte offset of the position by `1`. Not to be confused with `ValidPos.prev`. -/
+def Pos.dec (p : Pos) : Pos :=
+  ⟨p.byteIdx - 1⟩
+
+@[simp]
+theorem Pos.byteIdx_dec {p : Pos} : p.dec.byteIdx = p.byteIdx - 1 := (rfl)
+
 def Slice.Pos.prevAux {s : Slice} (pos : s.Pos) (h : pos ≠ s.startPos) : String.Pos :=
-  go ⟨pos.offset.byteIdx - 1⟩ (by
+  go pos.offset.dec (by
     have := pos.isValidForSlice.le_utf8ByteSize
     simp [Pos.le_iff, Pos.lt_iff, Pos.ext_iff] at ⊢ this h
     omega)
@@ -1604,7 +1618,7 @@ where
         intro h
         obtain rfl : off = 0 := by simpa [String.Pos.ext_iff] using h.symm
         simp [s.isUtf8FirstByte_utf8ByteAt_zero] at hbyte
-      go ⟨off.byteIdx - 1⟩ (by simp [Pos.lt_iff] at ⊢ h₁; omega)
+      go off.dec (by simp [Pos.lt_iff] at ⊢ h₁; omega)
   termination_by off.byteIdx
 
 private theorem Pos.isValidForSlice_prevAuxGo {s : Slice} (off : String.Pos) (h₁ : off < s.utf8ByteSize) :
@@ -1719,6 +1733,57 @@ theorem ValidPos.offset_cast {s t : String} {pos : s.ValidPos} {h : s = t} :
 @[simp]
 theorem ValidPos.cast_rfl {s : String} {pos : s.ValidPos} : pos.cast rfl = pos :=
   ValidPos.ext (by simp)
+
+/-- Given a byte position within a string slice, obtains the smallest valid position that is
+strictly greater than the given byte position. -/
+def Slice.findNextPos (offset : String.Pos) (s : Slice) (_h : offset < s.utf8ByteSize) : s.Pos :=
+  go offset.inc
+where
+  go (offset : String.Pos) : s.Pos :=
+    if h : offset < s.utf8ByteSize then
+      if h' : (s.getUtf8Byte offset h).IsUtf8FirstByte then
+        s.pos offset (Pos.isValidForSlice_iff_isUtf8FirstByte.2 (Or.inr ⟨_, h'⟩))
+      else
+        go offset.inc
+    else
+      s.endPos
+  termination_by s.utf8ByteSize.byteIdx - offset.byteIdx
+  decreasing_by
+    simp only [Pos.lt_iff, byteIdx_utf8ByteSize, Pos.byteIdx_inc, gt_iff_lt] at h ⊢
+    omega
+
+private theorem Slice.Pos.prevAuxGo_lt_utf8ByteSize {s : Slice} {p : String.Pos} {h : p < s.utf8ByteSize} :
+    prevAux.go p h < s.utf8ByteSize := by
+  fun_induction prevAux.go with assumption
+
+theorem Slice.Pos.prevAux_lt_utf8ByteSize {s : Slice} {p : s.Pos} {h} : p.prevAux h < s.utf8ByteSize :=
+  Slice.Pos.prevAuxGo_lt_utf8ByteSize
+
+theorem Pos.ne_of_lt {a b : Pos} : a < b → a ≠ b := by
+  simpa [lt_iff, Pos.ext_iff] using Nat.ne_of_lt
+
+theorem Slice.Pos.prev_ne_endPos {s : Slice} {p : s.Pos} {h} : p.prev h ≠ s.endPos := by
+  simpa [Pos.ext_iff, prev] using Pos.ne_of_lt prevAux_lt_utf8ByteSize
+
+/-- Advances the position `p` `n` times, saturating at `s.endPos` if necessary. -/
+def nextn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
+  match n with
+  | 0 => p
+  | n + 1 =>
+    if h : p ≠ s.endPos then
+      nextn (p.next h) n
+    else
+      p
+
+/-- Iterates `p.prev` `n` times, saturating at `s.startPos` if necessary. -/
+def prevn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
+  match n with
+  | 0 => p
+  | n + 1 =>
+    if h : p ≠ s.startPos then
+      nextn (p.prev h) n
+    else
+      p
 
 def utf8GetAux : List Char → Pos → Pos → Char
   | [],    _, _ => default
@@ -3682,8 +3747,6 @@ theorem addChar_right_comm (p : Pos) (c₁ c₂ : Char) : p + c₁ + c₂ = p + 
   apply Pos.ext
   repeat rw [pos_add_char]
   apply Nat.add_right_comm
-
-theorem ne_of_lt {i₁ i₂ : Pos} (h : i₁ < i₂) : i₁ ≠ i₂ := mt Pos.ext_iff.1 (Nat.ne_of_lt h)
 
 theorem ne_of_gt {i₁ i₂ : Pos} (h : i₁ < i₂) : i₂ ≠ i₁ := (ne_of_lt h).symm
 

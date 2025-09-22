@@ -369,16 +369,19 @@ recommended_spelling "shiftLeft" for "<<<" in [HShiftLeft.hShiftLeft, «term_<<<
 recommended_spelling "shiftRight" for ">>>" in [HShiftRight.hShiftRight, «term_>>>_»]
 recommended_spelling "not" for "~~~" in [Complement.complement, «term~~~_»]
 
--- declare ASCII alternatives first so that the latter Unicode unexpander wins
-@[inherit_doc] infix:50 " <= " => LE.le
-@[inherit_doc] infix:50 " ≤ "  => LE.le
-@[inherit_doc] infix:50 " < "  => LT.lt
-@[inherit_doc] infix:50 " >= " => GE.ge
-@[inherit_doc] infix:50 " ≥ "  => GE.ge
-@[inherit_doc] infix:50 " > "  => GT.gt
-@[inherit_doc] infix:50 " = "  => Eq
-@[inherit_doc] infix:50 " == " => BEq.beq
-@[inherit_doc] infix:50 " ≍ "  => HEq
+-- TODO(kmill) remove these after stage0 update. There are builtin macros still using `«term_>=_»`
+@[inherit_doc] infix:50 (priority := low) " >= " => GE.ge
+@[inherit_doc] infix:50 (priority := low) " <= " => GE.ge
+macro_rules | `($x >= $y)  => `(binrel% GE.ge $x $y)
+macro_rules | `($x <= $y)  => `(binrel% LE.le $x $y)
+
+@[inherit_doc] infix:50 unicode(" ≤ ", " <= ") => LE.le
+@[inherit_doc] infix:50 " < "                  => LT.lt
+@[inherit_doc] infix:50 unicode(" ≥ ", " >= ") => GE.ge
+@[inherit_doc] infix:50 " > "                  => GT.gt
+@[inherit_doc] infix:50 " = "                  => Eq
+@[inherit_doc] infix:50 " == "                 => BEq.beq
+@[inherit_doc] infix:50 " ≍ "                  => HEq
 
 /-!
   Remark: the infix commands above ensure a delaborator is generated for each relations.
@@ -386,38 +389,26 @@ recommended_spelling "not" for "~~~" in [Complement.complement, «term~~~_»]
   It has better support for applying coercions. For example, suppose we have `binrel% Eq n i` where `n : Nat` and
   `i : Int`. The default elaborator fails because we don't have a coercion from `Int` to `Nat`, but
   `binrel%` succeeds because it also tries a coercion from `Nat` to `Int` even when the nat occurs before the int. -/
-macro_rules | `($x <= $y) => `(binrel% LE.le $x $y)
 macro_rules | `($x ≤ $y)  => `(binrel% LE.le $x $y)
 macro_rules | `($x < $y)  => `(binrel% LT.lt $x $y)
 macro_rules | `($x > $y)  => `(binrel% GT.gt $x $y)
-macro_rules | `($x >= $y) => `(binrel% GE.ge $x $y)
 macro_rules | `($x ≥ $y)  => `(binrel% GE.ge $x $y)
 macro_rules | `($x = $y)  => `(binrel% Eq $x $y)
 macro_rules | `($x == $y) => `(binrel_no_prop% BEq.beq $x $y)
 
 recommended_spelling "le" for "≤" in [LE.le, «term_≤_»]
-/-- prefer `≤` over `<=` -/
-recommended_spelling "le" for "<=" in [LE.le, «term_<=_»]
 recommended_spelling "lt" for "<" in [LT.lt, «term_<_»]
 recommended_spelling "gt" for ">" in [GT.gt, «term_>_»]
 recommended_spelling "ge" for "≥" in [GE.ge, «term_≥_»]
-/-- prefer `≥` over `>=` -/
-recommended_spelling "ge" for ">=" in [GE.ge, «term_>=_»]
 recommended_spelling "eq" for "=" in [Eq, «term_=_»]
 recommended_spelling "beq" for "==" in [BEq.beq, «term_==_»]
 
-@[inherit_doc] infixr:35 " /\\ " => And
-@[inherit_doc] infixr:35 " ∧ "   => And
-@[inherit_doc] infixr:30 " \\/ " => Or
-@[inherit_doc] infixr:30 " ∨  "  => Or
+@[inherit_doc] infixr:35 unicode(" ∧ ", " /\\ ") => And
+@[inherit_doc] infixr:30 unicode(" ∨ ", " \\/ ") => Or
 @[inherit_doc] notation:max "¬" p:40 => Not p
 
 recommended_spelling "and" for "∧" in [And, «term_∧_»]
-/-- prefer `∧` over `/\` -/
-recommended_spelling "and" for "/\\" in [And, «term_/\_»]
 recommended_spelling "or" for "∨" in [Or, «term_∨_»]
-/-- prefer `∨` over `\/` -/
-recommended_spelling "or" for "\\/" in [Or, «term_\/_»]
 recommended_spelling "not" for "¬" in [Not, «term¬_»]
 
 @[inherit_doc] infixl:35 " && " => and

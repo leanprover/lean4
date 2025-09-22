@@ -34,10 +34,10 @@ instance : Inhabited ByteArray where
 instance : EmptyCollection ByteArray where
   emptyCollection := ByteArray.empty
 
-@[simp]
+@[simp, grind =]
 theorem empty_eq_emptyc : @empty = ∅ := rfl
 
-@[simp]
+@[simp, grind =]
 theorem emptyWithCapacity_eq_emptyc : @emptyWithCapacity n = ∅ := rfl
 
 @[extern "lean_sarray_size", simp]

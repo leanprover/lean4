@@ -1284,7 +1284,6 @@ private def elabInductiveViewsPostprocessingCoinductive (views : Array Inductive
   let views := views.map updateViewRemovingFunctorName
   let view0 := views[0]!
   let ref := view0.ref
-  applyComputedFields views -- NOTE: any generated code before this line is invalid
 
   applyDerivingHandlers views
   -- Docstrings are added during postprocessing to allow them to have checked references to
@@ -1305,6 +1304,7 @@ private def elabInductiveViewsPostprocessingCoinductive (views : Array Inductive
         Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
 
 def InductiveViewToCoinductiveElab (e : InductiveElabStep1) : CoinductiveElabData where
+  declId := e.view.declId
   declName := e.view.declName
   ref := e.view.ref
   modifiers := e.view.modifiers

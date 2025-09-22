@@ -97,6 +97,8 @@ builtin_initialize
 /-- This structure contains the data carried in `InductiveElabStep1` that are solely used in
 mutual coinductive predicate elaboration. -/
 public structure CoinductiveElabData where
+  /-- Declaration Id from the original `InductiveView` -/
+  declId : Syntax
   /-- Declaration name of the predicate-/
   declName : Name
   /-- Ref from the original `InductiveView`-/
@@ -445,8 +447,6 @@ public def elabCoinductive (coinductiveElabData : Array CoinductiveElabData) : T
     We make dummy constants that are used in populating PreDefinitions
   -/
   let consts := namesAndTypes.map fun (name, _) => (mkConst name levelParams)
-  for const in consts, e in coinductiveElabData do
-    Term.addTermInfo' e.ref const (isBinder := true)
   /-
     We create values of each of PreDefinitions, by taking existential (see `Meta.SumOfProducts`)
     form of the associated flat inductives and applying paramaters, as well as recursive calls
@@ -488,5 +488,7 @@ public def elabCoinductive (coinductiveElabData : Array CoinductiveElabData) : T
   generateEqLemmas infos
   generateCoinductiveConstructors originalNumParams infos coinductiveElabData
   mkCasesOnCoinductive infos
+  for e in coinductiveElabData do
+    Term.addTermInfo' e.declId (←mkConstWithLevelParams (removeFunctorPostfix e.declName)) (isBinder := true)
 
 end Lean.Elab.Command

@@ -900,9 +900,17 @@ def endValidPos (s : String) : s.ValidPos where
   offset := s.endPos
   isValid := by simp
 
-theorem ValidPos.isValidUtf8_extract {s : String} (pos₁ pos₂ : s.ValidPos) (h : pos₁.offset ≤ pos₂.offset) :
-    (s.bytes.extract pos₁.offset.byteIdx pos₂.offset.byteIdx).IsValidUtf8 :=
-  (Pos.isValidUtf8_extract_iff _ _   h pos₂.isValid.le_endPos).2 (Or.inr ⟨pos₁.isValid, pos₂.isValid⟩)
+theorem ValidPos.isValidUtf8_extract {s : String} (pos₁ pos₂ : s.ValidPos) :
+    (s.bytes.extract pos₁.offset.byteIdx pos₂.offset.byteIdx).IsValidUtf8 := by
+  by_cases h : pos₁.offset ≤ pos₂.offset
+  · exact (Pos.isValidUtf8_extract_iff _ _   h pos₂.isValid.le_endPos).2 (Or.inr ⟨pos₁.isValid, pos₂.isValid⟩)
+  · rw [ByteArray.extract_eq_empty_iff.2]
+    · exact ByteArray.isValidUtf8_empty
+    · rw [Nat.min_eq_left]
+      · rw [Pos.le_iff] at h
+        omega
+      · have := Pos.le_iff.1 pos₂.isValid.le_endPos
+        rwa [size_bytes, ← byteIdx_endPos]
 
 /--
 A region or slice of some underlying string.
@@ -959,11 +967,14 @@ def Slice.getUtf8Byte (s : Slice) (p : Pos) (h : p < s.utf8ByteSize) : UInt8 :=
     simp only [Pos.lt_iff, byteIdx_utf8ByteSize, Pos.le_iff, byteIdx_endPos, Pos.byteIdx_add] at *
     omega)
 
+@[extern "lean_string_utf8_extract"]
+def ValidPos.extract {s : @& String} (b e : @& s.ValidPos) : String where
+  bytes := s.bytes.extract b.offset.byteIdx e.offset.byteIdx
+  isValidUtf8 := b.isValidUtf8_extract e
+
 /-- Creates a `String` from a `String.Slice` by copying the bytes. -/
--- TODO: this is currently inefficient; it should go through `lean_string_utf8_extract` to avoid doing two copies.
-def Slice.copy (s : Slice) : String where
-  bytes := s.str.bytes.extract s.startInclusive.offset.byteIdx s.endExclusive.offset.byteIdx
-  isValidUtf8 := s.startInclusive.isValidUtf8_extract s.endExclusive s.startInclusive_le_endExclusive
+def Slice.copy (s : Slice) : String :=
+  s.startInclusive.extract s.endExclusive
 
 theorem Slice.bytes_copy {s : Slice} :
     s.copy.bytes = s.str.bytes.extract s.startInclusive.offset.byteIdx s.endExclusive.offset.byteIdx := (rfl)
@@ -971,7 +982,7 @@ theorem Slice.bytes_copy {s : Slice} :
 @[simp]
 theorem Slice.utf8ByteSize_copy {s : Slice} :
     s.copy.utf8ByteSize = s.endExclusive.offset.byteIdx - s.startInclusive.offset.byteIdx:= by
-  simp only [copy, utf8ByteSize_ofByteArray, ByteArray.size_extract, size_bytes]
+  simp [← size_bytes, bytes_copy]
   rw [Nat.min_eq_left (by simpa [Pos.le_iff] using s.endExclusive.isValid.le_endPos)]
 
 @[simp]
@@ -980,7 +991,7 @@ theorem Slice.endPos_copy {s : Slice} : s.copy.endPos = s.utf8ByteSize := by
 
 theorem Slice.getUtf8Byte_eq_getUtf8Byte_copy {s : Slice} {p : Pos} {h : p < s.utf8ByteSize} :
     s.getUtf8Byte p h = s.copy.getUtf8Byte p (by simpa) := by
-  simp [getUtf8Byte, copy, String.getUtf8Byte, ByteArray.getElem_extract]
+  simp [getUtf8Byte, String.getUtf8Byte, bytes_copy, ByteArray.getElem_extract]
 
 theorem Slice.getUtf8Byte_copy {s : Slice} {p : Pos} {h} :
     s.copy.getUtf8Byte p h = s.getUtf8Byte p (by simpa using h) := by
@@ -1258,11 +1269,18 @@ theorem Pos.isValidForSlice_replaceEnd {s : Slice} {p : s.Pos} {off : Pos} :
   · simpa using h₁
   · simpa using h₃
 
+@[extern "lean_string_utf8_get"]
+def decodeChar (s : @& String) (byteIdx : @& Nat) (h : (s.bytes.utf8DecodeChar? byteIdx).isSome) : Char :=
+  s.bytes.utf8DecodeChar byteIdx h
+
 /-- Obtains the byte at the given position in the string. -/
--- TODO: this is currently still inefficient!!!
 def Slice.Pos.get {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : Char :=
-  s.str.bytes.utf8DecodeChar (s.startInclusive.offset.byteIdx + pos.offset.byteIdx)
+  s.str.decodeChar (s.startInclusive.offset.byteIdx + pos.offset.byteIdx)
     ((Pos.isValidForSlice_iff_isSome_utf8DecodeChar?.1 pos.isValidForSlice).elim (by simp_all [Pos.ext_iff]) (·.2))
+
+theorem Slice.Pos.get_eq_utf8DecodeChar {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) :
+    pos.get h = s.str.bytes.utf8DecodeChar (s.startInclusive.offset.byteIdx + pos.offset.byteIdx)
+      ((Pos.isValidForSlice_iff_isSome_utf8DecodeChar?.1 pos.isValidForSlice).elim (by simp_all [Pos.ext_iff]) (·.2)) := (rfl)
 
 /-- Returns the byte at the given position in the string, or `none` if the position is the end
 position. -/
@@ -1489,7 +1507,7 @@ theorem Slice.endValidPos_copy {s : Slice} : s.copy.endValidPos = s.endPos.toCop
 
 theorem Slice.Pos.get_toCopy {s : Slice} {pos : s.Pos} (h) :
     pos.toCopy.get h = pos.get (by rintro rfl; simp at h) := by
-  rw [ValidPos.get, Slice.Pos.get, Slice.Pos.get]
+  rw [ValidPos.get, Slice.Pos.get_eq_utf8DecodeChar, Slice.Pos.get_eq_utf8DecodeChar]
   simp only [str_toSlice, bytes_copy, startInclusive_toSlice, startValidPos_copy, offset_toCopy,
     ByteString.Slice.offset_startPos, Pos.byteIdx_zero, ValidPos.offset_toSlice, Nat.zero_add]
   rw [ByteArray.utf8DecodeChar_eq_utf8DecodeChar_extract]
@@ -1561,7 +1579,7 @@ theorem Slice.Pos.copy_eq_append_get {s : Slice} {pos : s.Pos} (h : pos ≠ s.en
 
 theorem Slice.Pos.utf8ByteSize_byte {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos} :
     (pos.byte h).utf8ByteSize pos.isUtf8FirstByte_byte = ⟨(pos.get h).utf8Size⟩ := by
-  simp [getUtf8Byte, byte, String.getUtf8Byte, get, ByteArray.utf8Size_utf8DecodeChar]
+  simp [getUtf8Byte, byte, String.getUtf8Byte, get_eq_utf8DecodeChar, ByteArray.utf8Size_utf8DecodeChar]
 
 /-- Advances a valid position on a slice to the next valid position, given a proof that the
 position is not the past-the-end position, which guarantees that such a position exists. -/
@@ -2172,17 +2190,15 @@ Examples:
 * `"L∃∀N".extract ⟨2⟩ ⟨100⟩ = "green blue"`
 -/
 @[extern "lean_string_utf8_extract", expose]
-def extract : (@& String) → (@& Pos) → (@& Pos) → String
-  | s, b, e => if b.byteIdx ≥ e.byteIdx then "" else (go₁ s.data 0 b e).asString
-where
-  go₁ : List Char → Pos → Pos → Pos → List Char
-    | [],        _, _, _ => []
-    | s@(c::cs), i, b, e => if i = b then go₂ s i e else go₁ cs (i + c) b e
-
-  go₂ : List Char → Pos → Pos → List Char
-    | [],    _, _ => []
-    | c::cs, i, e => if i = e then [] else c :: go₂ cs (i + c) e
-
+def extract (s : String) (b e : Pos) : String :=
+  if e ≤ b then
+    ""
+  else
+    match s.pos? b with
+    | none => ""
+    | some b =>
+      let e := (s.pos? e).getD s.endValidPos
+      b.extract e
 
 @[specialize] def splitAux (s : String) (p : Char → Bool) (b : Pos) (i : Pos) (r : List String) : List String :=
   if h : s.atEnd i then

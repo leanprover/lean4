@@ -15,10 +15,31 @@ info: infSeq.step (α : Type) (r : α → α → Prop) {a b : α} : r a b → in
 #guard_msgs in
 #check infSeq.step
 
-theorem casesOnTest (r : α → α → Prop) (a : α) : infSeq α r a → True := by
+theorem casesOnTest (r : α → α → Prop) (a : α) : infSeq α r a → ∃ b, r a b := by
   intro h
   cases h
-  case step => trivial
+  case step b _ hr => exists b
+
+-- `match` support does not work yet
+/--
+error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
+
+Hint: These are similar:
+  'Lean.Order.iterates.below.step',
+  'Lean.Order.iterates.step',
+  'Nat.le.below.step',
+  'Nat.le.step',
+  'infSeq_functor.step'
+---
+error: Case tag `rhs` not found.
+
+Note: There are no cases to select.
+-/
+#guard_msgs in
+theorem casesOnTest' (r : α → α → Prop) (a : α) : infSeq α r a → ∃ b, r a b := by
+  intro h
+  match h with
+  | step  b _ hr => exists b
 
 /--
 info: infSeq.casesOn (α : Type) (r : α → α → Prop) {motive : (a : α) → infSeq α r a → Prop} {a✝ : α} (t : infSeq α r a✝)

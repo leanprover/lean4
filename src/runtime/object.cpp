@@ -2331,6 +2331,31 @@ extern "C" LEAN_EXPORT obj_res lean_string_of_usize(size_t n) {
     return mk_ascii_string_unchecked(std::to_string(n));
 }
 
+char const * lean_slice_base(b_obj_arg slice) {
+   b_obj_res string = lean_ctor_get(slice, 0);
+   b_obj_res offset = lean_ctor_get(slice, 1);
+   lean_assert(lean_is_scalar(offset));
+   return lean_string_cstr(string) + lean_unbox(offset);
+}
+
+extern "C" LEAN_EXPORT uint8_t lean_slice_memcmp(b_obj_arg s1, b_obj_arg s2, b_obj_arg olstart, b_obj_arg orstart, b_obj_arg olen) {
+    // Thanks to the proof arguments we know that lstart, rstart and len are all scalars.
+    lean_assert(lean_is_scalar(oldstart));
+    size_t lstart = lean_unbox(olstart);
+    lean_assert(lean_is_scalar(orstart));
+    size_t rstart = lean_unbox(orstart);
+    lean_assert(lean_is_scalar(olen));
+    size_t len = lean_unbox(olen);
+
+    char const * lbase = lean_slice_base(s1) + lstart;
+    char const * rbase = lean_slice_base(s2) + rstart;
+    if (memcmp(lbase, rbase, len) == 0) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 // =======================================
 // ByteArray & FloatArray
 

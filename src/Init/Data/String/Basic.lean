@@ -877,6 +877,7 @@ theorem Pos.isValid_iff_isValidUtf8_extract_utf8ByteSize {s : String} {p : Pos} 
 A `ValidPos s` is a byte offset in `s` together with a proof that this position is at a UTF-8
 character boundary.
 -/
+@[ext]
 structure ValidPos (s : String) where
   /-- The underlying byte offset of the `ValidPos`. -/
   offset : Pos
@@ -1270,7 +1271,7 @@ def Slice.Pos.get? {s : Slice} (pos : s.Pos) : Option Char :=
 
 /-- Returns the byte at the given position in the string, or panicks if the position is the end
 position. -/
-def ByteString.Slice.Pos.get! {s : Slice} (pos : s.Pos) : Char :=
+def Slice.Pos.get! {s : Slice} (pos : s.Pos) : Char :=
   if h : pos = s.endPos then panic! "Cannot retrieve character at end position" else pos.get h
 
 @[simp]
@@ -1332,6 +1333,392 @@ theorem endPos_toSlice {s : String} : s.toSlice.endPos = s.endValidPos.toSlice :
 @[simp]
 theorem startPos_toSlice {s : String} : s.toSlice.startPos = s.startValidPos.toSlice :=
   Slice.Pos.ext (by simp)
+
+@[simp]
+theorem ValidPos.ofSlice_toSlice {s : String} (pos : s.ValidPos) : pos.toSlice.ofSlice = pos :=
+  ValidPos.ext (by simp)
+
+@[simp]
+theorem Slice.Pos.toSlice_ofSlice {s : String} (pos : s.toSlice.Pos) : pos.ofSlice.toSlice = pos :=
+  Slice.Pos.ext (by simp)
+
+/--
+Returns the character at the position `pos` of a string, taking a proof that `p` is not the
+past-the-end position.
+
+This function is overridden with an efficient implementation in runtime code.
+
+Examples: TODO!!
+* `"abc".get ⟨1⟩ = 'b'`
+* `"abc".get ⟨3⟩ = (default : Char)` because byte `3` is at the end of the string.
+* `"L∃∀N".get ⟨2⟩ = (default : Char)` because byte `2` is in the middle of `'∃'`.
+-/
+def ValidPos.get {s : String} (pos : s.ValidPos) (h : pos ≠ s.endValidPos) : Char :=
+  pos.toSlice.get (ne_of_apply_ne Slice.Pos.ofSlice (by simp [h]))
+
+/--
+Returns the character at the position `pos` of a string, or `none` if the position is the
+past-the-end position.
+
+This function is overridden with an efficient implementation in runtime code.
+-/
+def ValidPos.get? {s : String} (pos : s.ValidPos) : Option Char :=
+  pos.toSlice.get?
+
+/--
+Returns the character at the position `pos` of a string, or panics if the position is the
+past-the-end position.
+
+This function is overridden with an efficient implementation in runtime code.
+-/
+def ValidPos.get! {s : String} (pos : s.ValidPos) : Char :=
+  pos.toSlice.get!
+
+/--
+Returns the byte at the position `pos` of a string.
+-/
+def ValidPos.byte {s : String} (pos : s.ValidPos) (h : pos ≠ s.endValidPos) : UInt8 :=
+  pos.toSlice.byte (ne_of_apply_ne Slice.Pos.ofSlice (by simp [h]))
+
+@[simp]
+theorem append_left_inj {s₁ s₂ : String} (t : String) :
+    s₁ ++ t = s₂ ++ t ↔ s₁ = s₂ := by
+  simp [← String.data_inj]
+
+theorem append_assoc {s₁ s₂ s₃ : String} : s₁ ++ s₂ ++ s₃ = s₁ ++ (s₂ ++ s₃) := by
+  simp [← String.data_inj]
+
+@[simp]
+theorem utf8ByteSize_eq_zero_iff {s : String} : s.utf8ByteSize = 0 ↔ s = "" := by
+  refine ⟨fun h => ?_, fun h => h ▸ utf8ByteSize_empty⟩
+  simpa [← bytes_inj, ← ByteArray.size_eq_zero_iff] using h
+
+@[simp]
+theorem Pos.eq_zero_iff {p : Pos} : p = 0 ↔ p.byteIdx = 0 :=
+  Pos.ext_iff
+
+theorem endPos_eq_zero_iff {b : String} : b.endPos = 0 ↔ b = "" := by
+  simp
+
+@[simp]
+theorem startValidPos_eq_endValidPos_iff {b : String} : b.startValidPos = b.endValidPos ↔ b = "" := by
+  simp [← utf8ByteSize_eq_zero_iff, ValidPos.ext_iff, Eq.comm (b := b.endPos)]
+
+@[simp]
+theorem data_eq_nil_iff {b : String} : b.data = [] ↔ b = "" := by
+  rw [← List.asString_inj, asString_data, List.asString_nil]
+
+@[simp]
+theorem _root_.List.asString_eq_empty_iff {l : List Char} : l.asString = "" ↔ l = [] := by
+  rw [← data_inj, List.data_asString, data_empty]
+
+@[simp]
+theorem _root_.List.length_asString {l : List Char} : l.asString.length = l.length := by
+  rw [← String.length_data, List.data_asString]
+
+theorem isSome_utf8DecodeChar?_zero {b : String} (hb : b ≠ "") : (b.bytes.utf8DecodeChar? 0).isSome := by
+  refine (((Pos.isValid_iff_isSome_utf8DecodeChar? (s := b)).1 Pos.isValid_zero).elim ?_ id)
+  rw [eq_comm, endPos_eq_zero_iff]
+  exact fun h => (hb h).elim
+
+theorem head_data {b : String} {h} :
+    b.data.head h = b.bytes.utf8DecodeChar 0 (isSome_utf8DecodeChar?_zero (by simpa using h)) := by
+  obtain ⟨l, rfl⟩ := b.exists_eq_asString
+  match l with
+  | [] => simp at h
+  | c::cs => simp
+
+theorem get_startValidPos {b : String} (h) :
+    b.startValidPos.get h = b.data.head (by rwa [ne_eq, data_eq_nil_iff, ← startValidPos_eq_endValidPos_iff]) :=
+  head_data.symm
+
+theorem eq_singleton_append {s : String} (h : s.startValidPos ≠ s.endValidPos) :
+    ∃ t, s = singleton (s.startValidPos.get h) ++ t := by
+  obtain ⟨m, rfl⟩ := s.exists_eq_asString
+  have hm : m ≠ [] := by
+    rwa [ne_eq, ← List.asString_eq_empty_iff, ← startValidPos_eq_endValidPos_iff]
+  refine ⟨m.tail.asString, ?_⟩
+  rw (occs := [1]) [← List.cons_head_tail hm]
+  rw [← List.singleton_append, List.asString_append, append_left_inj, ← singleton_eq_asString,
+    get_startValidPos]
+  simp
+
+theorem Slice.copy_eq_copy_replaceEnd {s : Slice} {pos : s.Pos} :
+    s.copy = (s.replaceEnd pos).copy ++ (s.replaceStart pos).copy := by
+  rw [← String.bytes_inj, bytes_copy, bytes_append, bytes_copy, bytes_copy]
+  simp only [str_replaceEnd, startInclusive_replaceEnd, endExclusive_replaceEnd,
+    Slice.Pos.offset_str, Pos.byteIdx_add, str_replaceStart, startInclusive_replaceStart,
+    endExclusive_replaceStart, ByteArray.extract_append_extract, Nat.le_add_right, Nat.min_eq_left]
+  rw [Nat.max_eq_right]
+  exact pos.offset_str_le_offset_endExclusive
+
+/-- Given a slice `s` and a position on `s.copy`, obtain the corresponding position on `s`. -/
+def ValidPos.ofCopy {s : Slice} (pos : s.copy.ValidPos) : s.Pos where
+  offset := pos.offset
+  isValidForSlice := Pos.isValid_copy_iff.1 pos.isValid
+
+@[simp]
+theorem ValidPos.offset_ofCopy {s : Slice} {pos : s.copy.ValidPos} : pos.ofCopy.offset = pos.offset := (rfl)
+
+/-- Given a slice `s` and a position on `s`, obtain the corresponding position on `s.copy.` -/
+def Slice.Pos.toCopy {s : Slice} (pos : s.Pos) : s.copy.ValidPos where
+  offset := pos.offset
+  isValid := Pos.isValid_copy_iff.2 pos.isValidForSlice
+
+@[simp]
+theorem Slice.Pos.offset_toCopy {s : Slice} {pos : s.Pos} : pos.toCopy.offset = pos.offset := (rfl)
+
+@[simp]
+theorem Slice.Pos.ofCopy_toCopy {s : Slice} {pos : s.Pos} : pos.toCopy.ofCopy = pos :=
+  Slice.Pos.ext (by simp)
+
+@[simp]
+theorem ValidPos.toCopy_ofCopy {s : Slice} {pos : s.copy.ValidPos} : pos.ofCopy.toCopy = pos :=
+  ValidPos.ext (by simp)
+
+theorem ValidPos.ofCopy_inj {s : Slice} {pos pos' : s.copy.ValidPos} : pos.ofCopy = pos'.ofCopy ↔ pos = pos' :=
+  ⟨fun h => by simpa using congrArg Slice.Pos.toCopy h, (· ▸ rfl)⟩
+
+@[simp]
+theorem Slice.startValidPos_copy {s : Slice} : s.copy.startValidPos = s.startPos.toCopy :=
+  ValidPos.ext (by simp)
+
+@[simp]
+theorem Slice.endValidPos_copy {s : Slice} : s.copy.endValidPos = s.endPos.toCopy :=
+  ValidPos.ext (by simp)
+
+theorem Slice.Pos.get_toCopy {s : Slice} {pos : s.Pos} (h) :
+    pos.toCopy.get h = pos.get (by rintro rfl; simp at h) := by
+  rw [ValidPos.get, Slice.Pos.get, Slice.Pos.get]
+  simp only [str_toSlice, bytes_copy, startInclusive_toSlice, startValidPos_copy, offset_toCopy,
+    ByteString.Slice.offset_startPos, Pos.byteIdx_zero, ValidPos.offset_toSlice, Nat.zero_add]
+  rw [ByteArray.utf8DecodeChar_eq_utf8DecodeChar_extract]
+  conv => lhs; congr; rw [ByteArray.extract_extract]
+  conv => rhs; rw [ByteArray.utf8DecodeChar_eq_utf8DecodeChar_extract]
+  exact ByteArray.utf8DecodeChar_extract_congr _ _ _
+
+theorem Slice.Pos.get_eq_get_toCopy {s : Slice} {pos : s.Pos} {h} :
+    pos.get h = pos.toCopy.get (ne_of_apply_ne ValidPos.ofCopy (by simp [h])) :=
+  (get_toCopy _).symm
+
+theorem Slice.Pos.byte_toCopy {s : Slice} {pos : s.Pos} (h) :
+    pos.toCopy.byte h = pos.byte (by rintro rfl; simp at h) := by
+  rw [ValidPos.byte, Slice.Pos.byte, Slice.Pos.byte]
+  simp [getUtf8Byte, String.getUtf8Byte, bytes_copy, ByteArray.getElem_extract]
+
+theorem Slice.Pos.byte_eq_byte_toCopy {s : Slice} {pos : s.Pos} {h} :
+    pos.byte h = pos.toCopy.byte (ne_of_apply_ne ValidPos.ofCopy (by simp [h])) :=
+  (byte_toCopy _).symm
+
+/-- Given a position in `s.replaceStart p₀`, obtain the corresponding position in `s`. -/
+def Slice.Pos.ofReplaceStart {s : Slice} {p₀ : s.Pos} (pos : (s.replaceStart p₀).Pos) : s.Pos where
+  offset := p₀.offset + pos.offset
+  isValidForSlice := Pos.isValidForSlice_replaceStart.1 pos.isValidForSlice
+
+@[simp]
+theorem Slice.Pos.offset_ofReplaceStart {s : Slice} {p₀ : s.Pos} {pos : (s.replaceStart p₀).Pos} :
+    (ofReplaceStart pos).offset = p₀.offset + pos.offset := (rfl)
+
+/-- Given a position in `s` that is at least `p₀`, obtain the corresponding position in
+`s.replaceStart p₀`. -/
+def Slice.Pos.toReplaceStart {s : Slice} (p₀ : s.Pos) (pos : s.Pos) (h : p₀.offset ≤ pos.offset) :
+    (s.replaceStart p₀).Pos where
+  offset := pos.offset - p₀.offset
+  isValidForSlice := Pos.isValidForSlice_replaceStart.2 (by
+    have : p₀.offset + (pos.offset - p₀.offset) = pos.offset := by
+      simp_all [Pos.le_iff, String.Pos.ext_iff]
+    simpa [this] using pos.isValidForSlice)
+
+@[simp]
+theorem Slice.Pos.offset_toReplaceStart {s : Slice} {p₀ : s.Pos} {pos : s.Pos} {h} :
+    (toReplaceStart p₀ pos h).offset = pos.offset - p₀.offset := (rfl)
+
+@[simp]
+theorem Slice.Pos.ofReplaceStart_startPos {s : Slice} {pos : s.Pos} :
+    ofReplaceStart (s.replaceStart pos).startPos = pos :=
+  Slice.Pos.ext (by simp)
+
+@[simp]
+theorem Slice.Pos.ofReplaceStart_endPos {s : Slice} {pos : s.Pos} :
+    ofReplaceStart (s.replaceStart pos).endPos = s.endPos := by
+  have := pos.isValidForSlice.le_utf8ByteSize
+  simp_all [Pos.ext_iff, String.Pos.ext_iff, Pos.le_iff]
+
+theorem Slice.Pos.ofReplaceStart_inj {s : Slice} {p₀ : s.Pos} {pos pos' : (s.replaceStart p₀).Pos} :
+    ofReplaceStart pos = ofReplaceStart pos' ↔ pos = pos' := by
+  simp [Pos.ext_iff, String.Pos.ext_iff]
+
+theorem Slice.Pos.get_eq_get_ofReplaceStart {s : Slice} {p₀ : s.Pos} {pos : (s.replaceStart p₀).Pos} {h} :
+    pos.get h = (ofReplaceStart pos).get (by rwa [← ofReplaceStart_endPos, ne_eq, ofReplaceStart_inj]) := by
+  simp [Slice.Pos.get, Nat.add_assoc]
+
+theorem Slice.Pos.copy_eq_append_get {s : Slice} {pos : s.Pos} (h : pos ≠ s.endPos) :
+    ∃ t₁ t₂ : String, s.copy = t₁ ++ singleton (pos.get h) ++ t₂ ∧ t₁.utf8ByteSize = pos.offset.byteIdx := by
+  obtain ⟨t₂, ht₂⟩ := (s.replaceStart pos).copy.eq_singleton_append (by simpa [← ValidPos.ofCopy_inj, ← ofReplaceStart_inj])
+  refine ⟨(s.replaceEnd pos).copy, t₂, ?_, by simp⟩
+  simp only [Slice.startValidPos_copy, get_toCopy, get_eq_get_ofReplaceStart, ofReplaceStart_startPos] at ht₂
+  rw [append_assoc, ← ht₂, ← copy_eq_copy_replaceEnd]
+
+theorem Slice.Pos.utf8ByteSize_byte {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos} :
+    (pos.byte h).utf8ByteSize pos.isUtf8FirstByte_byte = ⟨(pos.get h).utf8Size⟩ := by
+  simp [getUtf8Byte, byte, String.getUtf8Byte, get, ByteArray.utf8Size_utf8DecodeChar]
+
+/-- Advances a valid position on a slice to the next valid position, given a proof that the
+position is not the past-the-end position, which guarantees that such a position exists. -/
+def Slice.Pos.next {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : s.Pos where
+  offset := pos.offset + (pos.byte h).utf8ByteSize pos.isUtf8FirstByte_byte
+  isValidForSlice := by
+    obtain ⟨t₁, t₂, ht, ht'⟩ := copy_eq_append_get h
+    replace ht' : pos.offset = ⟨t₁.utf8ByteSize⟩ := Eq.symm (String.Pos.ext ht')
+    rw [utf8ByteSize_byte, ← Pos.isValid_copy_iff, ht, ht']
+    refine Pos.IsValid.append_right ?_ t₂
+    refine Pos.IsValid.append_left ?_ t₁
+    exact Pos.isValid_singleton.2 (Or.inr rfl)
+
+/-- Advances a valid position on a slice to the next valid position, or returns `none` if the
+given position is the past-the-end position. -/
+def Slice.Pos.next? {s : Slice} (pos : s.Pos) : Option s.Pos :=
+  if h : pos = s.endPos then none else some (pos.next h)
+
+/-- Advances a valid position on a slice to the next valid position, or panics if the given
+position is the past-the-end position. -/
+def Slice.Pos.next! {s : Slice} (pos : s.Pos) : s.Pos :=
+  if h : pos = s.endPos then panic! "Cannot advance the end position" else pos.next h
+
+@[simp]
+theorem Slice.Pos.byteIdx_offset_next {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos} :
+    (pos.next h).offset.byteIdx = pos.offset.byteIdx + (pos.get h).utf8Size := by
+  simp [next, utf8ByteSize_byte]
+
+def Slice.Pos.prevAux {s : Slice} (pos : s.Pos) (h : pos ≠ s.startPos) : String.Pos :=
+  go ⟨pos.offset.byteIdx - 1⟩ (by
+    have := pos.isValidForSlice.le_utf8ByteSize
+    simp [Pos.le_iff, Pos.lt_iff, Pos.ext_iff] at ⊢ this h
+    omega)
+where
+  go (off : String.Pos) (h₁ : off < s.utf8ByteSize) : String.Pos :=
+    if hbyte : (s.getUtf8Byte off h₁).IsUtf8FirstByte then
+      off
+    else
+      have : 0 ≠ off.byteIdx := by
+        intro h
+        obtain rfl : off = 0 := by simpa [String.Pos.ext_iff] using h.symm
+        simp [s.isUtf8FirstByte_utf8ByteAt_zero] at hbyte
+      go ⟨off.byteIdx - 1⟩ (by simp [Pos.lt_iff] at ⊢ h₁; omega)
+  termination_by off.byteIdx
+
+private theorem Pos.isValidForSlice_prevAuxGo {s : Slice} (off : String.Pos) (h₁ : off < s.utf8ByteSize) :
+    (Slice.Pos.prevAux.go off h₁).IsValidForSlice s := by
+  fun_induction Slice.Pos.prevAux.go with
+  | case1 off h h' => exact Pos.isValidForSlice_iff_isUtf8FirstByte.2 (Or.inr ⟨h, h'⟩)
+  | case2 => assumption
+
+theorem Pos.isValidForSlice_prevAux {s : Slice} (pos : s.Pos) (h : pos ≠ s.startPos) :
+    (pos.prevAux h).IsValidForSlice s :=
+  isValidForSlice_prevAuxGo ..
+
+/-- Returns the previous valid position before the given position, given a proof that the position
+is not the start position, which guarantees that such a position exists. -/
+def Slice.Pos.prev {s : Slice} (pos : s.Pos) (h : pos ≠ s.startPos) : s.Pos where
+  offset := prevAux pos h
+  isValidForSlice := Pos.isValidForSlice_prevAux _ _
+
+/-- Returns the previous valid position before the given position, or `none` if the position is
+the start position. -/
+def Slice.Pos.prev? {s : Slice} (pos : s.Pos) : Option s.Pos :=
+  if h : pos = s.startPos then none else some (pos.prev h)
+
+/-- Returns the previous valid position before the given position, or panics if the position is
+the start position. -/
+def Slice.Pos.prev! {s : Slice} (pos : s.Pos) : s.Pos :=
+  if h : pos = s.startPos then panic! "The start position has no previous position" else pos.prev h
+
+/-- Constructs a valid position on `s` from a position and a proof that it is valid. -/
+def Slice.pos (s : Slice) (off : String.Pos) (h : off.IsValidForSlice s) : s.Pos where
+  offset := off
+  isValidForSlice := h
+
+/-- Constructs a valid position on `s` from a position, returning `none` if the position is not valid. -/
+def Slice.pos? (s : Slice) (off : String.Pos) : Option s.Pos :=
+  if h : off.isValidForSlice s then
+    some (s.pos off (Pos.isValidForSlice_eq_true_iff.1 h))
+  else
+    none
+
+/-- Constructs a valid position `s` from a position, panicking if the position is not valid. -/
+def Slice.pos! (s : Slice) (off : String.Pos) : s.Pos :=
+  if h : off.isValidForSlice s then
+    s.pos off (Pos.isValidForSlice_eq_true_iff.1 h)
+  else
+    panic! "Offset is not at a valid UTF-8 character boundary"
+
+/-- Advances a valid position on a string to the next valid position, given a proof that the
+position is not the past-the-end position, which guarantees that such a position exists. -/
+def ValidPos.next {s : String} (pos : s.ValidPos) (h : pos ≠ s.endValidPos) : s.ValidPos :=
+  (pos.toSlice.next (ne_of_apply_ne Slice.Pos.ofSlice (by simpa))).ofSlice
+
+/-- Advances a valid position on a string to the next valid position, or returns `none` if the
+given position is the past-the-end position. -/
+def ValidPos.next? {s : String} (pos : s.ValidPos) : Option s.ValidPos :=
+  pos.toSlice.next?.map Slice.Pos.ofSlice
+
+/-- Advances a valid position on a string to the next valid position, or panics if the given
+position is the past-the-end position. -/
+def ValidPos.next! {s : String} (pos : s.ValidPos) : s.ValidPos :=
+  pos.toSlice.next!.ofSlice
+
+/-- Returns the previous valid position before the given position, given a proof that the position
+is not the start position, which guarantees that such a position exists. -/
+def ValidPos.prev {s : String} (pos : s.ValidPos) (h : pos ≠ s.startValidPos) : s.ValidPos :=
+  (pos.toSlice.prev (ne_of_apply_ne Slice.Pos.ofSlice (by simpa))).ofSlice
+
+/-- Returns the previous valid position before the given position, or `none` if the position is
+the start position. -/
+def ValidPos.prev? {s : String} (pos : s.ValidPos) : Option s.ValidPos :=
+  pos.toSlice.prev?.map Slice.Pos.ofSlice
+
+/-- Returns the previous valid position before the given position, or panics if the position is
+the start position. -/
+def ValidPos.prev! {s : String} (pos : s.ValidPos) : s.ValidPos :=
+  pos.toSlice.prev!.ofSlice
+
+/-- Constructs a valid position on `s` from a position and a proof that it is valid. -/
+def pos (s : String) (off : Pos) (h : off.IsValid s) : s.ValidPos :=
+  (s.toSlice.pos off h.toSlice).ofSlice
+
+/-- Constructs a valid position on `s` from a position, returning `none` if the position is not valid. -/
+def pos? (s : String) (off : Pos) : Option s.ValidPos :=
+  (s.toSlice.pos? off).map Slice.Pos.ofSlice
+
+/-- Constructs a valid position `s` from a position, panicking if the position is not valid. -/
+def pos! (s : String) (off : Pos) : s.ValidPos :=
+  (s.toSlice.pos! off).ofSlice
+
+/-- Constructs a valid position on `t` from a valid position on `s` and a proof that `s = t`. -/
+def Slice.Pos.cast {s t : Slice} (pos : s.Pos) (h : s = t) : t.Pos where
+  offset := pos.offset
+  isValidForSlice := h ▸ pos.isValidForSlice
+
+@[simp]
+theorem Slice.Pos.offset_cast {s t : Slice} {pos : s.Pos} {h : s = t} :
+    (pos.cast h).offset = pos.offset := (rfl)
+
+@[simp]
+theorem Slice.Pos.cast_rfl {s : Slice} {pos : s.Pos} : pos.cast rfl = pos :=
+  Slice.Pos.ext (by simp)
+
+/-- Constructs a valid position on `t` from a valid position on `s` and a proof that `s = t`. -/
+def ValidPos.cast {s t : String} (pos : s.ValidPos) (h : s = t) : t.ValidPos where
+  offset := pos.offset
+  isValid := h ▸ pos.isValid
+
+@[simp]
+theorem ValidPos.offset_cast {s t : String} {pos : s.ValidPos} {h : s = t} :
+    (pos.cast h).offset = pos.offset := (rfl)
+
+@[simp]
+theorem ValidPos.cast_rfl {s : String} {pos : s.ValidPos} : pos.cast rfl = pos :=
+  ValidPos.ext (by simp)
 
 def utf8GetAux : List Char → Pos → Pos → Char
   | [],    _, _ => default
@@ -3235,10 +3622,6 @@ theorem ext {s₁ s₂ : String} (h : s₁.data = s₂.data) : s₁ = s₂ :=
 @[simp]
 theorem String.mk_eq_asString (s : List Char) : String.mk s = List.asString s := rfl
 
-@[simp]
-theorem _root_.List.length_asString (s : List Char) : (List.asString s).length = s.length := by
-  rw [← length_data, List.data_asString]
-
 @[simp] theorem length_empty : "".length = 0 := by simp [← length_data, data_empty]
 
 theorem singleton_eq {c : Char} : String.singleton c = [c].asString := by
@@ -3344,9 +3727,6 @@ theorem lt_next' (s : String) (p : Pos) : p < next s p := lt_next ..
 -- `toSubstring'` is just a synonym for `toSubstring` without the `@[inline]` attribute
 -- so for proving can be unfolded.
 attribute [simp] toSubstring'
-
-theorem append_assoc (s₁ s₂ s₃ : String) : (s₁ ++ s₂) ++ s₃ = s₁ ++ (s₂ ++ s₃) :=
-  ext (by simp [data_append])
 
 end String
 

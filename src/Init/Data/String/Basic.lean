@@ -616,10 +616,6 @@ theorem Pos.isValid_singleton {c : Char} {p : Pos} :
     · exact ⟨0, by simp⟩
     · exact ⟨1, by simp [hi, ← singleton_eq_asString]⟩
 
--- TODO
-theorem List.take_eq_take_min {l : List α} {i : Nat} : l.take i = l.take (min i l.length) := by
-  simp [List.take_eq_take_iff]
-
 @[simp]
 theorem Pos.byteIdx_sub {p₁ p₂ : Pos} : (p₁ - p₂).byteIdx = p₁.byteIdx - p₂.byteIdx := rfl
 
@@ -687,25 +683,24 @@ theorem utf8ByteSize_push {s : String} {c : Char} :
 theorem endPos_push {s : String} {c : Char} : (s.push c).endPos = s.endPos + c := by
   simp [Pos.ext_iff]
 
---TODO
-theorem List.append_singleton_induction (l : List α) (motive : List α → Prop) (nil : motive [])
-    (append_singleton : ∀ l a, motive l → motive (l ++ [a])) : motive l := by
-  rw [← l.reverse_reverse]
-  generalize l.reverse = m
-  induction m with
-  | nil => simpa
-  | cons a m ih =>
-    rw [List.reverse_cons]
-    exact append_singleton _ _ ih
-
 theorem push_induction (s : String) (motive : String → Prop) (empty : motive "")
     (push : ∀ b c, motive b → motive (b.push c)) : motive s := by
   obtain ⟨m, rfl⟩ := s.exists_eq_asString
-  apply List.append_singleton_induction m (motive ·.asString)
+  apply append_singleton_induction m (motive ·.asString)
   · simpa
   · intro l c hl
     rw [List.asString_append, ← singleton_eq_asString, append_singleton]
     exact push _ _ hl
+where
+  append_singleton_induction (l : List Char) (motive : List Char → Prop) (nil : motive [])
+      (append_singleton : ∀ l a, motive l → motive (l ++ [a])) : motive l := by
+    rw [← l.reverse_reverse]
+    generalize l.reverse = m
+    induction m with
+    | nil => simpa
+    | cons a m ih =>
+      rw [List.reverse_cons]
+      exact append_singleton _ _ ih
 
 /--
 Accesses the indicated byte in the UTF-8 encoding of a string.

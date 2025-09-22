@@ -162,6 +162,9 @@ theorem take_eq_take_iff :
   | x :: xs, 0, j + 1 => by simp [succ_min_succ]
   | x :: xs, i + 1, j + 1 => by simp [succ_min_succ, take_eq_take_iff]
 
+theorem take_eq_take_min {l : List α} {i : Nat} : l.take i = l.take (min i l.length) := by
+  simp
+
 @[grind =]
 theorem take_add {l : List α} {i j : Nat} : l.take (i + j) = l.take i ++ (l.drop i).take j := by
   suffices take (i + j) (take i l ++ drop i l) = take i l ++ take j (drop i l) by

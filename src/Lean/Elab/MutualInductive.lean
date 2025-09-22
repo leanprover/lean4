@@ -1320,11 +1320,11 @@ def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Uni
   if isCoinductive then
     runTermElabM fun vars => do
       checkNoInductiveNameConflicts elabs (isCoinductive := true)
-      let elabs := elabs.map fun e => {e with view := updateViewWithFunctorName e.view}
-      elabs.forM fun e => checkValidInductiveModifier e.view.modifiers
-      elabFlatInductiveViews vars elabs
-      discard <| elabs.mapM fun e => MetaM.run' do mkSumOfProducts e.view.declName
-      elabCoinductive (elabs.map InductiveViewToCoinductiveElab)
+      let flatElabs := elabs.map fun e => {e with view := updateViewWithFunctorName e.view}
+      flatElabs.forM fun e => checkValidInductiveModifier e.view.modifiers
+      elabFlatInductiveViews vars flatElabs
+      discard <| flatElabs.mapM fun e => MetaM.run' do mkSumOfProducts e.view.declName
+      elabCoinductive (flatElabs.map InductiveViewToCoinductiveElab)
     elabInductiveViewsPostprocessingCoinductive (elabs.map (·.view))
   else
     let res ← runTermElabM fun vars => do

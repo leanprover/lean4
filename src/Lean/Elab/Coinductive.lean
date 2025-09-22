@@ -132,16 +132,29 @@ private def rewriteGoalUsingEq (goal : MVarId) (eq : Expr) (symm : Bool := false
   goal.replaceTargetEq rewriteResult.eNew rewriteResult.eqProof
 
 /--
-  Generates unrolling lemmas that relate coinductive predicates to their flat inductive forms.
+  Generates unfolding lemmas that relate coinductive predicates to their flat inductive forms.
   These lemmas are essential for the constructor generation process, providing the bridge
   between the user-facing coinductive predicates and their internal flat representations.
+
+  Example:
+
+  Given a definition:
+  ```
+  coinductive infSeq (r : α → α → Prop) : α → Prop where
+  | step : r a b → infSeq r b → infSeq r a
+  ```
+
+  We generate the following unfolding lemma:
+  ```
+    infSeq.functor_unfold (α : Type) (r : α → α → Prop) (a✝ : α) : infSeq α r a✝ = infSeq_functor α r (infSeq α r) a✝
+  ```
 -/
 private def generateEqLemmas (infos : Array InductiveVal) : MetaM Unit := do
   let levels := infos[0]!.levelParams.map mkLevelParam
   for info in infos do
     let res ← forallTelescopeReducing info.type fun args _ => do
-      let params := args.take <| info.numParams - infos.size
-      let args := args.extract info.numParams
+      let params := args[:info.numParams - infos.size]
+      let args := args[info.numParams:]
 
       let lhs := mkConst (removeFunctorPostfix info.name) levels
       let lhs := mkAppN lhs params
@@ -170,8 +183,14 @@ private def generateEqLemmas (infos : Array InductiveVal) : MetaM Unit := do
       let goal ← instantiateMVars goal
       mkLambdaFVars (params ++ args) goal
     trace[Elab.coinductive] "res: {res}"
-    addDecl <| .defnDecl (←mkDefinitionValInferringUnsafe
-      ((removeFunctorPostfix info.name) ++ `functor_unfold) info.levelParams (←inferType res) res .opaque)
+    addDecl <|
+      .defnDecl <|
+        ←mkDefinitionValInferringUnsafe
+          (name := (removeFunctorPostfix info.name) ++ `functor_unfold)
+          (levelParams := info.levelParams)
+          (type := (←inferType res))
+          (value := res)
+          (hints := .opaque)
 
 /--
   Generates a constructor for a coinductive predicate that corresponds to constructors
@@ -181,7 +200,7 @@ private def generateEqLemmas (infos : Array InductiveVal) : MetaM Unit := do
   1. Takes the flat inductive constructor type
   2. Fills recursive call parameters with the actual coinductive predicates
   3. Converts to existential form using the equivalence lemma
-  4. Applies the unrolling rule to get the final constructor form
+  4. Applies the unfolding rule to get the final constructor form
 -/
 private def generateCoinductiveConstructor (infos : Array InductiveVal) (ctorSyntax : Syntax)
     (numParams : Nat) (name : Name) (ctor : ConstructorVal) : TermElabM Unit := do
@@ -199,7 +218,7 @@ private def generateCoinductiveConstructor (infos : Array InductiveVal) (ctorSyn
       while the remaining ones are free variables that correspond to recursive calls.
     -/
     let params := args.take numParams
-    let predFVars := args.extract numParams
+    let predFVars := args[numParams:]
     /-
       We will fill recursive calls in the body with the just defined (co)inductive predicates.
     -/
@@ -210,11 +229,11 @@ private def generateCoinductiveConstructor (infos : Array InductiveVal) (ctorSyn
       Now, we look at the rest of the constructor.
       We start by collecting its non-parameter premises, as well as inspecting its conclusion.
     -/
-    let res ← forallTelescope body fun bodyArgs bodyExpr => do
+    let res ← forallTelescope body fun fields bodyExpr => do
       /-
         First, we look at conclusion and pick out all arguments that are non-parameters.
       -/
-      let bodyAppArgs := bodyExpr.getAppArgs.extract (numParams + infos.size)
+      let bodyAppArgs := bodyExpr.getAppArgs[numParams + infos.size:]
       /-
         The goal (i.e. right hands side of a constructor) that we are trying to make is just
         the coinductive predicate with parameters and non-parameter arguments applied.
@@ -240,18 +259,24 @@ private def generateCoinductiveConstructor (infos : Array InductiveVal) (ctorSyn
       let constructor := mkConst ctor.name levelParams
       let constructor := mkAppN constructor params
       let constructor := mkAppN constructor predicates
-      let constructor := mkAppN constructor bodyArgs
+      let constructor := mkAppN constructor fields
       newHole.assign constructor
       let conclusion ← instantiateMVars goal
-      let conclusion ← mkLambdaFVars bodyArgs conclusion
+      let conclusion ← mkLambdaFVars fields conclusion
       mkLambdaFVars params conclusion
     let type ← inferType res
     trace[Elab.coinductive] "The elaborated constructor is of the type: {type}"
     /-
       We finish by registering the appropriate declaration
     -/
-    addDecl <| .defnDecl (←mkDefinitionValInferringUnsafe
-      (removeFunctorPostfixInCtor ctor.name) ctor.levelParams type res .opaque)
+    addDecl <|
+      .defnDecl <|
+        ←mkDefinitionValInferringUnsafe
+          (name := removeFunctorPostfixInCtor ctor.name)
+          (levelParams := ctor.levelParams)
+          (type := type)
+          (value := res)
+          (hints:= .opaque)
     Term.addTermInfo' ctorSyntax res (isBinder := true)
 
 /--
@@ -280,9 +305,9 @@ private def mkCasesOnCoinductive (infos : Array InductiveVal) : MetaM Unit := do
   let predicates := infos.map fun info => mkConst (removeFunctorPostfix info.name) levels
   let predicates := predicates.map (mkAppN · params)
   for info in infos do
-    let casesOnName := (info.name ++ `casesOn)
+    let casesOnName := Lean.mkCasesOnName info.name
     let casesOnInfo ← getConstInfo casesOnName
-    let originalCasesOn ← mkConstWithLevelParams (info.name ++ `casesOn)
+    let originalCasesOn ← mkConstWithLevelParams casesOnName
     let originalCasesOn := mkAppN originalCasesOn (params ++ predicates)
 
     let goalTypeWithParamsApplied ← inferType originalCasesOn
@@ -292,12 +317,12 @@ private def mkCasesOnCoinductive (infos : Array InductiveVal) : MetaM Unit := do
     -/
     let goalTypeWithParamsApplied := goalTypeWithParamsApplied.replace (fun e =>
       if e.isApp then
-        let bodyArgs := e.getAppArgs.extract info.numParams
+        let bodyArgs := e.getAppArgs[info.numParams:]
         if e.isAppOf info.name then
           mkAppN (mkConst (removeFunctorPostfix info.name) levels) <| params ++ bodyArgs
         else
           if allCtors.any e.isAppOf then
-            let bodyArgs := e.getAppArgs.extract info.numParams
+            let bodyArgs := e.getAppArgs[info.numParams:]
             mkAppN (mkConst (removeFunctorPostfixInCtor (e.getAppFn.constName)) levels)
               <| params ++ bodyArgs
           else none
@@ -379,12 +404,16 @@ private def mkCasesOnCoinductive (infos : Array InductiveVal) : MetaM Unit := do
             let originalCasesOn ← instantiateMVars originalCasesOn
 
             let levelParams := casesOnInfo.levelParams
-            let casesOnName := (removeFunctorPostfix info.name) ++ `casesOn
+            let casesOnName := mkCasesOnName (removeFunctorPostfix info.name)
             let casesOnType ← mkForallFVars params goalTypeWithParamsApplied
             addDecl <|
-              .defnDecl
-                <| ← mkDefinitionValInferringUnsafe
-                      casesOnName levelParams casesOnType originalCasesOn .opaque
+              .defnDecl <|
+                ← mkDefinitionValInferringUnsafe
+                    (name := casesOnName)
+                    (levelParams := levelParams)
+                    (type := casesOnType)
+                    (value := originalCasesOn)
+                    (hints := .opaque)
             -- We apply the attribute so that the `cases` tactic can pick it up
             liftCommandElabM
               <| liftTermElabM
@@ -414,7 +443,7 @@ public def elabCoinductive (coinductiveElabData : Array CoinductiveElabData) : T
   let originalNumParams := infos[0]!.numParams - infos.size
   let namesAndTypes : Array (Name × Expr) ← infos.mapM fun info => do
     let type ← forallTelescope info.type fun args body => do
-      mkForallFVars (args.take originalNumParams ++ args.extract info.numParams) body
+      mkForallFVars (args[:originalNumParams] ++ args[info.numParams:]) body
     return (removeFunctorPostfix (info.name), type)
   /-
     We make dummy constants that are used in populating PreDefinitions
@@ -431,7 +460,7 @@ public def elabCoinductive (coinductiveElabData : Array CoinductiveElabData) : T
     infos.mapM fun info => do
       let mut functor := mkConst (info.name ++ `existential) levelParams
       functor ← unfoldDefinition functor
-      functor := mkAppN functor <| params ++ consts.map (mkAppN · <| params)
+      functor := mkAppN functor <| params ++ consts.map (mkAppN · params)
       mkLambdaFVars params functor
   /-
     Finally, we populate the PreDefinitions

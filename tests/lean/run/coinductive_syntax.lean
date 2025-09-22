@@ -28,7 +28,7 @@ info: infSeq.casesOn (α : Type) (r : α → α → Prop) {motive : (a : α) →
 #check infSeq.casesOn
 
 /--
-info: infSeq.functor_unfold (α : Type) (r : α → α → Prop) (a✝ : α) : infSeq α r a✝ = infSeq_functor α r (infSeq α r) a✝
+info: infSeq.functor_unfold (α : Type) (r : α → α → Prop) (a✝ : α) : infSeq α r a✝ = infSeq._functor α r (infSeq α r) a✝
 -/
 #guard_msgs in
 #check infSeq.functor_unfold
@@ -38,28 +38,28 @@ info: infSeq.functor_unfold (α : Type) (r : α → α → Prop) (a✝ : α) : i
 #check infSeq
 
 /--
-info: inductive infSeq_functor : (α : Type) → (α → α → Prop) → (α → Prop) → α → Prop
+info: inductive infSeq._functor : (α : Type) → (α → α → Prop) → (α → Prop) → α → Prop
 number of parameters: 3
 constructors:
-infSeq_functor.step : ∀ (α : Type) (r : α → α → Prop) (infSeq_functor.call : α → Prop) {a b : α},
-  r a b → infSeq_functor.call b → infSeq_functor α r infSeq_functor.call a
+infSeq._functor.step : ∀ (α : Type) (r : α → α → Prop) (infSeq._functor.call : α → Prop) {a b : α},
+  r a b → infSeq._functor.call b → infSeq._functor α r infSeq._functor.call a
 -/
 #guard_msgs in
-#print infSeq_functor
+#print infSeq._functor
 
 /--
-info: def infSeq_functor.existential : (α : Type) → (α → α → Prop) → (α → Prop) → α → Prop :=
-fun α r infSeq_functor.call a => ∃ b, r a b ∧ infSeq_functor.call b
+info: def infSeq._functor.existential : (α : Type) → (α → α → Prop) → (α → Prop) → α → Prop :=
+fun α r infSeq._functor.call a => ∃ b, r a b ∧ infSeq._functor.call b
 -/
 #guard_msgs in
-#print infSeq_functor.existential
+#print infSeq._functor.existential
 
 /--
-info: infSeq_functor.existential_equiv (α : Type) (r : α → α → Prop) (infSeq_functor.call : α → Prop) (a✝ : α) :
-  infSeq_functor α r infSeq_functor.call a✝ ↔ ∃ b, r a✝ b ∧ infSeq_functor.call b
+info: infSeq._functor.existential_equiv (α : Type) (r : α → α → Prop) (infSeq._functor.call : α → Prop) (a✝ : α) :
+  infSeq._functor α r infSeq._functor.call a✝ ↔ ∃ b, r a✝ b ∧ infSeq._functor.call b
 -/
 #guard_msgs in
-#check infSeq_functor.existential_equiv
+#check infSeq._functor.existential_equiv
 
 /--
 info: infSeq.coinduct (α : Type) (r : α → α → Prop) (pred : α → Prop) (hyp : ∀ (a : α), pred a → ∃ b, r a b ∧ pred b)
@@ -85,13 +85,13 @@ mutual
 end
 
 /--
-info: tick_functor.casesOn {tick_functor.call tock_functor.call : Prop}
-  {motive_1 : tick_functor tick_functor.call tock_functor.call → Prop}
-  (t : tick_functor tick_functor.call tock_functor.call)
-  (mk : ∀ (a : ¬tock_functor.call), motive_1 (tick_functor.mk tick_functor.call tock_functor.call a)) : motive_1 t
+info: tick._functor.casesOn {tick._functor.call tock._functor.call : Prop}
+  {motive_1 : tick._functor tick._functor.call tock._functor.call → Prop}
+  (t : tick._functor tick._functor.call tock._functor.call)
+  (mk : ∀ (a : ¬tock._functor.call), motive_1 (tick._functor.mk tick._functor.call tock._functor.call a)) : motive_1 t
 -/
 #guard_msgs in
-#check tick_functor.casesOn
+#check tick._functor.casesOn
 
 /-- info: tick.mk : ¬tock → tick -/
 #guard_msgs in
@@ -101,13 +101,13 @@ info: tick_functor.casesOn {tick_functor.call tock_functor.call : Prop}
 #guard_msgs in
 #check tock.mk
 
-/-- info: tock_functor (tick_functor.call tock_functor.call : Prop) : Prop -/
+/-- info: tock._functor (tick._functor.call tock._functor.call : Prop) : Prop -/
 #guard_msgs in
-#check tock_functor
+#check tock._functor
 
-/-- info: tock_functor.existential (tick_functor.call tock_functor.call : Prop) : Prop -/
+/-- info: tock._functor.existential (tick._functor.call tock._functor.call : Prop) : Prop -/
 #guard_msgs in
-#check tock_functor.existential
+#check tock._functor.existential
 
 /--
 info: tick.coinduct (pred_1 pred_2 : Prop) (hyp_1 : pred_1 → pred_2 → False) (hyp_2 : (pred_1 → False) → pred_2) :
@@ -117,11 +117,11 @@ info: tick.coinduct (pred_1 pred_2 : Prop) (hyp_1 : pred_1 → pred_2 → False)
 #check tick.coinduct
 
 /--
-info: tock_functor.existential_equiv (tick_functor.call tock_functor.call : Prop) :
-  tock_functor tick_functor.call tock_functor.call ↔ ¬tick_functor.call
+info: tock._functor.existential_equiv (tick._functor.call tock._functor.call : Prop) :
+  tock._functor tick._functor.call tock._functor.call ↔ ¬tick._functor.call
 -/
 #guard_msgs in
-#check tock_functor.existential_equiv
+#check tock._functor.existential_equiv
 
 /--
 info: tock.induct (pred_1 pred_2 : Prop) (hyp_1 : pred_1 → pred_2 → False) (hyp_2 : (pred_1 → False) → pred_2) : tock → pred_2

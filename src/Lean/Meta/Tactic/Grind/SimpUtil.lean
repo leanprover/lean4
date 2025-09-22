@@ -14,6 +14,7 @@ public import Lean.Meta.Tactic.Grind.Arith.Simproc
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.List
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Core
 import Lean.Meta.Tactic.Grind.Util
+import Init.Grind.Norm
 public section
 namespace Lean.Meta.Grind
 

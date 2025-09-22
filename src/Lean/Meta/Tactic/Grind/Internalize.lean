@@ -5,9 +5,10 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Grind.Util
-public import Init.Grind.Lemmas
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
+public import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
+import Init.Grind.Util
+import Init.Grind.Lemmas
 import Lean.Meta.LitValues
 import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.MatchEqsExt

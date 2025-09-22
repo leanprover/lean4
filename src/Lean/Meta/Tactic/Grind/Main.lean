@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Util
 public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind.Lemmas
+import Lean.PrettyPrinter
 import Lean.Meta.Tactic.ExposeNames
 import Lean.Meta.Tactic.Simp.Diagnostics
 import Lean.Meta.Tactic.Grind.Split

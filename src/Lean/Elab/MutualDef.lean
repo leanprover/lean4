@@ -30,39 +30,37 @@ open Language
 builtin_initialize
   registerTraceClass `Meta.instantiateMVars
 
--- TODO: this documentation is not shown
 /--
 Makes the bodies of definitions available to importing modules.
 
-This only has an effect if both the module the definition is defined in and the importing module
-have the module system enabled.
+This only has an effect if the module system is enabled.
 -/
 @[builtin_doc]
-builtin_initialize
-  registerBuiltinAttribute {
-    name := `expose
-    descr := "(module system) Make bodies of definitions available to importing modules."
-    add := fun _ _ _ => do
-      -- Attribute will be filtered out by `MutualDef`
-      throwError "Cannot add attribute `[expose]`: This attribute can only be added when declaring a `def`"
-  }
+private def exposeAttr : AttributeImpl where
+  name := `expose
+  descr := "(module system) Make bodies of definitions available to importing modules."
+  add := fun _ _ _ => do
+    -- Attribute will be filtered out by `MutualDef`
+    throwError "Cannot add attribute `[expose]`: This attribute can only be added when declaring a `def`"
 
 /--
-Negates a previous `@[expose]` attribute. This is useful for declaring definitions that shouldn't.
-be exposed in a section tagged `@[expose]`
+Negates a previous `@[expose]` attribute. This is useful for declaring definitions that shouldn't
+be exposed in a section tagged `@[expose]`.
 
-This only has an effect if both the module the definition is defined in and the importing module
-have the module system enabled.
+This only has an effect if the module system is enabled.
 -/
 @[builtin_doc]
-builtin_initialize
-  registerBuiltinAttribute {
+private def noExposeAttr : AttributeImpl where
     name := `no_expose
     descr := "(module system) Negate previous `[expose]` attribute."
+    ref := `Lean.Elab.noExposeAttr  -- not an actual declaration but use for hover
     add := fun _ _ _ => do
       -- Attribute will be filtered out by `MutualDef`
       throwError "Cannot add attribute `[no_expose]`: This attribute can only be added when declaring a `def`"
-  }
+
+builtin_initialize
+  registerBuiltinAttribute exposeAttr
+  registerBuiltinAttribute noExposeAttr
 
 /-- `DefView` plus header elaboration data and snapshot. -/
 structure DefViewElabHeader extends DefView, DefViewElabHeaderData where
@@ -1278,13 +1276,17 @@ where
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
   finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars => do
     let env ← getEnv
-    if warn.exposeOnPrivate.get (← getOptions) then
-      if env.header.isModule && !env.isExporting then
-        for header in headers do
-          for attr in header.modifiers.attrs do
-            if attr.name == `expose then
+    if env.header.isModule then
+      for header in headers do
+        for attr in header.modifiers.attrs do
+          if attr.name == `expose then
+            if !env.isExporting && warn.exposeOnPrivate.get (← getOptions) then
               logWarningAt attr.stx m!"Redundant `[expose]` attribute, it is meaningful on public \
                 definitions only"
+            pushInfoLeaf <| .ofCommandInfo { elaborator := ``exposeAttr, stx := attr.stx }
+          if attr.name == `no_expose then
+            pushInfoLeaf <| .ofCommandInfo { elaborator := ``noExposeAttr, stx := attr.stx }
+
 
     withExporting (isExporting :=
       headers.any (fun header =>

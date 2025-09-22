@@ -1175,7 +1175,7 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
       enableRealizationsForConst e.view.declName
     return res
 
-private def elabInductiveViewsCoinductive (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM Unit := do
+private def elabFlatInductiveViews (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM Unit := do
   let view0 := elabs[0]!.view
   let ref := view0.ref
   Term.withDeclName view0.declName do withRef ref do
@@ -1320,7 +1320,7 @@ def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Uni
       let elabs := elabs.map fun e => {e with view := updateViewWithFunctorName e.view}
       elabs.forM fun e => checkValidInductiveModifier e.view.modifiers
       checkNoInductiveNameConflicts elabs
-      elabInductiveViewsCoinductive vars elabs
+      elabFlatInductiveViews vars elabs
       discard <| elabs.mapM fun e => MetaM.run' do mkSumOfProducts e.view.declName
       elabCoinductive (elabs.map InductiveViewToCoinductiveElab)
     elabInductiveViewsPostprocessingCoinductive (elabs.map (·.view))

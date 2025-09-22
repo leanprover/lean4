@@ -968,7 +968,6 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
         for ctor in view.ctors do
           if (ctor.declId.getPos? (canonicalOnly := true)).isSome then
             Term.addTermInfo' ctor.declId (← mkConstWithLevelParams ctor.declName) (isBinder := true)
-            enableRealizationsForConst ctor.declName
     return res
 
 private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
@@ -1004,6 +1003,8 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
           mkInjectiveTheorems e.view.declName
     for e in elabs do
       enableRealizationsForConst e.view.declName
+      for ctor in e.view.ctors do
+            enableRealizationsForConst ctor.declName
     return res
 
 /-- Ensures that there are no conflicts among or between the type and constructor names defined in `elabs`. -/

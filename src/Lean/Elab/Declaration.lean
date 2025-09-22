@@ -145,6 +145,7 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
         Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
         withSaveInfoContext do  -- save new env with docstring and decl
           Term.addTermInfo' declId (← mkConstWithLevelParams declName) (isBinder := true)
+        enableRealizationsForConst declName
 open Lean.Parser.Command.InternalSyntax in
 /--
 Macro that expands a declaration with a complex name into an explicit `namespace` block.

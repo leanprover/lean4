@@ -10,6 +10,7 @@ public import Init.Grind.Propagator
 import Init.Simproc
 import Init.Grind.Lemmas
 import Init.Grind.Norm
+import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Propagate
 import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.Simp

@@ -6,13 +6,13 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Simp.Simproc
-public import Lean.Meta.Tactic.Grind.Simp
-public import Lean.Meta.Tactic.Grind.MatchDiscrOnly
-public import Lean.Meta.Tactic.Grind.MatchCond
-public import Lean.Meta.Tactic.Grind.ForallProp
-public import Lean.Meta.Tactic.Grind.Arith.Simproc
-public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.List
-public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Core
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.MatchDiscrOnly
+import Lean.Meta.Tactic.Grind.MatchCond
+import Lean.Meta.Tactic.Grind.ForallProp
+import Lean.Meta.Tactic.Grind.Arith.Simproc
+import Lean.Meta.Tactic.Simp.BuiltinSimprocs.List
+import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Core
 import Lean.Meta.Tactic.Grind.Util
 import Init.Grind.Norm
 public section

@@ -1779,7 +1779,7 @@ theorem Slice.Pos.prev_ne_endPos {s : Slice} {p : s.Pos} {h} : p.prev h ≠ s.en
   simpa [Pos.ext_iff, prev] using Pos.ne_of_lt prevAux_lt_utf8ByteSize
 
 /-- Advances the position `p` `n` times, saturating at `s.endPos` if necessary. -/
-def nextn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
+def Slice.Pos.nextn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
   match n with
   | 0 => p
   | n + 1 =>
@@ -1789,12 +1789,12 @@ def nextn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
       p
 
 /-- Iterates `p.prev` `n` times, saturating at `s.startPos` if necessary. -/
-def prevn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
+def Slice.Pos.prevn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
   match n with
   | 0 => p
   | n + 1 =>
     if h : p ≠ s.startPos then
-      nextn (p.prev h) n
+      prevn (p.prev h) n
     else
       p
 

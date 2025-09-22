@@ -24,6 +24,25 @@ info: @[expose] def fexp : Nat :=
 #guard_msgs in
 #print fexp
 
+/-- A definition (equations exposed) -/
+@[expose equations] public def fexpeqns := 1
+
+/--
+info: def fexpeqns : Nat :=
+<not imported>
+-/
+#guard_msgs in
+#with_exporting
+#print fexpeqns
+
+/--
+info: theorem fexpeqns.eq_def : fexpeqns = 1 :=
+<not imported>
+-/
+#guard_msgs in
+#with_exporting
+#print fexpeqns.eq_def
+
 /-- An abbrev (auto-exposed). -/
 public abbrev fabbrev := 1
 

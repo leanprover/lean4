@@ -31,9 +31,14 @@ builtin_initialize
   registerTraceClass `Meta.instantiateMVars
 
 /--
-Makes the bodies of definitions available to importing modules.
+`[expose]` makes the body of a definition available in the public scope, in particular to importing
+modules. It can be used both on definitions and `section`, affecting all applicable definitions
+inside it.
 
-This only has an effect if the module system is enabled.
+`[expose equations]` only makes the equations available such as for use in tactics, but not the
+body for reduction. Generated equations thus will not hold definitionally.
+
+This attribute only has an effect if the module system is enabled.
 -/
 @[builtin_doc]
 private def exposeAttr : AttributeImpl where
@@ -47,7 +52,7 @@ private def exposeAttr : AttributeImpl where
 Negates a previous `@[expose]` attribute. This is useful for declaring definitions that shouldn't
 be exposed in a section tagged `@[expose]`.
 
-This only has an effect if the module system is enabled.
+This attribute only has an effect if the module system is enabled.
 -/
 @[builtin_doc]
 private def noExposeAttr : AttributeImpl where
@@ -1283,6 +1288,8 @@ where
             if !env.isExporting && warn.exposeOnPrivate.get (← getOptions) then
               logWarningAt attr.stx m!"Redundant `[expose]` attribute, it is meaningful on public \
                 definitions only"
+            if let `(Parser.Attr.expose| expose equations) := attr.stx then
+              exposeEquationsOfDecl header.declName
             pushInfoLeaf <| .ofCommandInfo { elaborator := ``exposeAttr, stx := attr.stx }
           if attr.name == `no_expose then
             pushInfoLeaf <| .ofCommandInfo { elaborator := ``noExposeAttr, stx := attr.stx }
@@ -1295,8 +1302,8 @@ where
         !header.modifiers.attrs.any (·.name == `no_expose)) &&
       (isExporting ||
        headers.all (fun header => (header.kind matches .abbrev | .instance)) ||
-       (headers.all (·.kind == .def) && sc.attrs.any (· matches `(attrInstance| expose))) ||
-       headers.any (·.modifiers.attrs.any (·.name == `expose)))) do
+       (headers.all (·.kind == .def) && sc.attrs.any (· matches `(Parser.Attr.expose| expose))) ||
+       headers.any (·.modifiers.attrs.any (·.stx matches `(Parser.Attr.expose| expose))))) do
     let headers := headers.map fun header =>
       { header with modifiers.attrs := header.modifiers.attrs.filter (!·.name ∈ [`expose, `no_expose]) }
     for view in views, funFVar in funFVars do

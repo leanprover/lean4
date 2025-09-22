@@ -72,6 +72,9 @@ Tags should be applied to the canonical names for tactics.
 @[builtin_attr_parser] def «tactic_tag» := leading_parser
   "tactic_tag" >> many1 (ppSpace >> ident)
 
+@[builtin_attr_parser] def expose := leading_parser
+  nonReservedSymbol "expose" >> optional (nonReservedSymbol "equations")
+
 end Attr
 
 end Lean.Parser

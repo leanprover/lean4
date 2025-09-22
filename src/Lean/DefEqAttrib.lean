@@ -97,7 +97,7 @@ For automatically generated theorems (equational theorems etc.), we want to set 
 if the proof is `rfl`, essentially reproducing the behavior before the introduction of the `defeq`
 attribute. This function infers the `defeq` attribute based on the declaration value.
 -/
-def inferDefEqAttr (declName : Name) : MetaM Unit := do
+def inferDefEqAttr (declName : Name) (throwOnInvalid := false) : MetaM Unit := do
   withoutExporting do
     let info ← getConstInfo declName
     let isRfl ←
@@ -110,6 +110,8 @@ def inferDefEqAttr (declName : Name) : MetaM Unit := do
         withExporting (isExporting := !isPrivateName declName) do
           validateDefEqAttr declName -- sanity-check: would we have accepted `@[defeq]` on this?
       catch e =>
-        logError m!"Theorem {declName} has a `rfl`-proof and was thus inferred to be `@[defeq]`, \
-          but validating that attribute failed:{indentD e.toMessageData}"
+        if throwOnInvalid then
+          logError m!"Theorem {declName} has a `rfl`-proof and was thus inferred to be `@[defeq]`, \
+            but validating that attribute failed:{indentD e.toMessageData}"
+        return
       defeqAttr.setTag declName

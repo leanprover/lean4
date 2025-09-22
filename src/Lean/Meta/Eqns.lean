@@ -63,6 +63,21 @@ Returns `true` if `declName` was defined using well-founded recursion, or struct
 def isRecursiveDefinition (declName : Name) : CoreM Bool :=
   return recExt.isTagged (← getEnv) declName
 
+private builtin_initialize exposedEqnsExt : TagDeclarationExtension ←
+  mkTagDeclarationExtension `exposedEqns (asyncMode := .async .mainEnv)
+
+/--
+Ensures the equations of the given declaration are exposed. Must be called before the declaration's
+pre-definition is processed.
+-/
+def exposeEquationsOfDecl (declName : Name) : CoreM Unit := do
+  assert! !(← getEnv).contains declName
+  modifyEnv (exposedEqnsExt.tag · declName)
+
+/-- Checks whether the equations of the given declarations are marked to be exposed. -/
+def areEquationsOfDeclExposed (declName : Name) : CoreM Bool := do
+  return exposedEqnsExt.isTagged (← getEnv) declName
+
 def eqnThmSuffixBase := "eq"
 def eqnThmSuffixBasePrefix := eqnThmSuffixBase ++ "_"
 def eqn1ThmSuffix := eqnThmSuffixBasePrefix ++ "1"
@@ -92,7 +107,8 @@ def declFromEqLikeName (env : Environment) (name : Name) : Option (Name × Strin
   return none
 
 def mkEqLikeNameFor (env : Environment) (declName : Name) (suffix : String) : Name :=
-  let isExposed := !env.header.isModule || ((env.setExporting true).find? declName).elim false (·.hasValue)
+  let isExposed := !env.header.isModule || exposedEqnsExt.isTagged env declName ||
+    ((env.setExporting true).find? declName).elim false (·.hasValue)
   let name := .str declName suffix
   let name := if isExposed then name else mkPrivateName env name
   name
@@ -256,7 +272,8 @@ If any equation theorem affecting option is not the default value, create the eq
 -/
 def generateEagerEqns (declName : Name) : MetaM Unit := do
   let opts ← getOptions
-  if eqnAffectingOptions.any fun o => o.get opts != o.defValue then
+  if (← areEquationsOfDeclExposed declName) ||
+      eqnAffectingOptions.any fun o => o.get opts != o.defValue then
     trace[Elab.definition.eqns] "generating eager equations for {declName}"
     let _ ← getEqnsFor?Core declName
 

@@ -5,16 +5,16 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Grind.Util
-public import Init.Grind.Tactics
-public import Lean.HeadIndex
-public import Lean.Util.FoldConsts
-public import Lean.Util.CollectFVars
 public import Lean.Meta.Basic
-public import Lean.Meta.InferType
-public import Lean.Meta.Eqns
-public import Lean.Meta.Tactic.Grind.Util
 public import Lean.Meta.Tactic.Grind.Theorems
+import Init.Grind.Util
+import Init.Grind.Tactics
+import Lean.Util.FoldConsts
+import Lean.Util.CollectFVars
+import Lean.Meta.Basic
+import Lean.Meta.InferType
+import Lean.Meta.Eqns
+import Lean.Meta.Tactic.Grind.Util
 import Lean.Message
 import Lean.Meta.Tactic.FVarSubst
 import Lean.Meta.Match.Basic

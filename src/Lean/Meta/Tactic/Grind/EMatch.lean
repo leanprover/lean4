@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Util.CollectLevelMVars
 import Lean.Meta.Tactic.Grind.Core
+import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.ProveEq
 import Lean.Meta.Tactic.Grind.SynthInstance

@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Proof
 import Lean.Meta.Tactic.Grind.MatchCond
+import Lean.Meta.Tactic.Grind.Util
 namespace Lean.Meta.Grind
 /-!
 Debugging support code for checking basic invariants.

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Simp.Simproc
 public import Lean.Meta.Tactic.Grind.Simp
@@ -14,9 +13,8 @@ public import Lean.Meta.Tactic.Grind.ForallProp
 public import Lean.Meta.Tactic.Grind.Arith.Simproc
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.List
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Core
-
+import Lean.Meta.Tactic.Grind.Util
 public section
-
 namespace Lean.Meta.Grind
 
 builtin_initialize normExt : SimpExtension ← mkSimpExt

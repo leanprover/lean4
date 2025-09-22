@@ -11,6 +11,13 @@ public import Init.Data.Array.Extract
 
 public section
 
+-- At present the preferred normal form for empty byte arrays is `ByteArray.empty`
+@[simp]
+theorem emptyc_eq_empty : (∅ : ByteArray) = ByteArray.empty := rfl
+
+@[simp]
+theorem emptyWithCapacity_eq_empty : ByteArray.emptyWithCapacity 0 = ByteArray.empty := rfl
+
 @[simp]
 theorem ByteArray.data_empty : ByteArray.empty.data = #[] := rfl
 

@@ -204,14 +204,10 @@ coinductive test1  (r: α → α → Prop) : α → α → Prop where
 coinductive test2  (r: α → α → Prop) : α → α → Prop where
   | mk : r a b → test2 r b b → test2 r a a
 
-
--- TODO: Catch properly (compare the same with `inductive`)
--- This actually panics right now!
 /--
-error: (kernel) constant has already been declared 'A.mk'
+error: Cannot define an coinductive predicate and a constructor with the same name `A.mk`
 ---
-error: (kernel) function expected
-  A.mk a✝
+error: Cannot define an coinductive predicate and a constructor with the same name `A.mk`
 -/
 #guard_msgs in
 mutual

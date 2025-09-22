@@ -1040,10 +1040,10 @@ def popCountParSum {x : BitVec w} : BitVec w :=
 /-- Tail-recursive definition of popcount.
  The bitwidth of `x` explictly boundspop the number of recursions,
  thus bounding the depth of the circuit as well correctness of def -/
-def popCountAuxRec (x r : BitVec w) (n : Nat) :=
+def popCountAuxRec (x : BitVec w) (r : BitVec v) (n : Nat) :=
   match h : (w - n) with
   | 0 => r
-  | n' + 1 => x.popCountAuxRec (r + (x.extractLsb' n 1).zeroExtend w) (n + 1)
+  | n' + 1 => x.popCountAuxRec (r + (x.extractLsb' n 1).zeroExtend v) (n + 1)
 termination_by (w - n)
 
 /-- Count the number of bits with value `1` in a bitvec -/

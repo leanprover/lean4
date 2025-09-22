@@ -11,8 +11,10 @@ public import Init.Data.Array.Extract
 
 public section
 
-@[simp]
 theorem ByteArray.data_empty : ByteArray.empty.data = #[] := rfl
+
+@[simp]
+theorem ByteArray.data_emptyc : (∅ : ByteArray).data = #[] := rfl
 
 @[simp]
 theorem ByteArray.data_extract {a : ByteArray} {b e : Nat} :
@@ -50,8 +52,11 @@ theorem ByteArray.data_append {l l' : ByteArray} :
     (l ++ l').data = l.data ++ l'.data := by
   simp [← Array.toList_inj]
 
-@[simp]
 theorem ByteArray.size_empty : ByteArray.empty.size = 0 := by
+  simp [← ByteArray.size_data]
+
+@[simp]
+theorem ByteArray.size_emptyc : (∅ : ByteArray).size = 0 := by
   simp [← ByteArray.size_data]
 
 @[simp]
@@ -86,7 +91,7 @@ theorem ByteArray.size_append {a b : ByteArray} : (a ++ b).size = a.size + b.siz
   simp [← size_data]
 
 @[simp]
-theorem ByteArray.size_eq_zero_iff {a : ByteArray} : a.size = 0 ↔ a = ByteArray.empty := by
+theorem ByteArray.size_eq_zero_iff {a : ByteArray} : a.size = 0 ↔ a = ∅ := by
   refine ⟨fun h => ?_, fun h => h ▸ ByteArray.size_empty⟩
   ext1
   simp [← Array.size_eq_zero_iff, h]
@@ -121,18 +126,18 @@ theorem ByteArray.size_extract {a : ByteArray} {b e : Nat} :
   simp [← size_data]
 
 @[simp]
-theorem ByteArray.extract_eq_empty_iff {b : ByteArray} {i j : Nat} : b.extract i j = ByteArray.empty ↔ min j b.size ≤ i := by
+theorem ByteArray.extract_eq_empty_iff {b : ByteArray} {i j : Nat} : b.extract i j = ∅ ↔ min j b.size ≤ i := by
   rw [← size_eq_zero_iff, size_extract]
   omega
 
 @[simp]
-theorem ByteArray.extract_add_left {b : ByteArray} {i j : Nat} : b.extract (i + j) i = ByteArray.empty := by
+theorem ByteArray.extract_add_left {b : ByteArray} {i j : Nat} : b.extract (i + j) i = ∅ := by
   simp only [extract_eq_empty_iff]
   exact Nat.le_trans (Nat.min_le_left _ _) (by simp)
 
 @[simp]
 theorem ByteArray.append_eq_empty_iff {a b : ByteArray} :
-    a ++ b = ByteArray.empty ↔ a = ByteArray.empty ∧ b = ByteArray.empty := by
+    a ++ b = ∅ ↔ a = ∅ ∧ b = ∅ := by
   simp [← size_eq_zero_iff, size_append]
 
 @[simp]
@@ -242,8 +247,10 @@ theorem ByteArray.append_assoc {a b c : ByteArray} : a ++ b ++ c = a ++ (b ++ c)
   simp
 
 @[simp]
-theorem ByteArray.toList_empty : ByteArray.empty.toList = [] := by
-  simp [ByteArray.toList, ByteArray.toList.loop]
+theorem ByteArray.toList_empty : (∅ : ByteArray).toList = [] := by
+  simp [ByteArray.toList]
+  rw [toList.loop]
+  simp
 
 theorem ByteArray.copySlice_eq_append {src : ByteArray} {srcOff : Nat} {dest : ByteArray} {destOff len : Nat} {exact : Bool} :
     ByteArray.copySlice src srcOff dest destOff len exact =

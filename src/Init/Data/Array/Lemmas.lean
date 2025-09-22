@@ -371,6 +371,7 @@ abbrev getElem?_mkArray := @getElem?_replicate
 
 /-! ### mem -/
 
+@[grind ←]
 theorem not_mem_empty (a : α) : ¬ a ∈ #[] := by simp
 
 @[simp, grind =] theorem mem_push {xs : Array α} {x y : α} : x ∈ xs.push y ↔ x ∈ xs ∨ x = y := by

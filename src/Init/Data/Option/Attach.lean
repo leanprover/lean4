@@ -177,6 +177,7 @@ theorem attachWith_map {o : Option α} (f : α → β) {P : β → Prop} {H : �
       fun ⟨x, h⟩ => ⟨f x, h⟩ := by
   cases o <;> simp
 
+@[grind =]
 theorem map_attach_eq_pmap {o : Option α} (f : { x // o = some x } → β) :
     o.attach.map f = o.pmap (fun a (h : o = some a) => f ⟨a, h⟩) (fun _ h => h) := by
   cases o <;> simp

@@ -19,9 +19,6 @@ This module contains the implementation of `Std.CancellationToken`. `Std.Cancell
 cancellation primitive for signaling cancellation between tasks or threads. It supports both synchronous
 and asynchronous waiting, and is useful for cases where you want to notify one or more waiters
 that a cancellation has occurred.
-
-When cancelled, all waiting consumers receive `true`. When unregistered normally, consumers receive `false`.
-Once cancelled, the token remains in a cancelled state and all future waits immediately return `true`.
 -/
 
 namespace Std

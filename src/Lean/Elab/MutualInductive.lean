@@ -1004,7 +1004,7 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
     for e in elabs do
       enableRealizationsForConst e.view.declName
       for ctor in e.view.ctors do
-            enableRealizationsForConst ctor.declName
+        enableRealizationsForConst ctor.declName
     return res
 
 /-- Ensures that there are no conflicts among or between the type and constructor names defined in `elabs`. -/

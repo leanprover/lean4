@@ -19,7 +19,7 @@ test_run build --no-build
 if command -v jq > /dev/null; then # skip if no jq found
   jq -r '.depHash' .lake/build/lib/lean/Foo.trace > .lake/build/lib/lean/Foo.trace.hash
   test_cmd cat .lake/build/lib/lean/Foo.trace.hash
-  echo $((16#$(cat .lake/build/lib/lean/Foo.trace.hash))) > .lake/build/lib/lean/Foo.trace
+  perl -le "print hex('$(cat .lake/build/lib/lean/Foo.trace.hash)')" > .lake/build/lib/lean/Foo.trace
   test_cmd cat .lake/build/lib/lean/Foo.trace
   test_run build --no-build
 fi

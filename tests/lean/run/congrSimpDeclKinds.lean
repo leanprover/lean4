@@ -30,3 +30,24 @@ axiom quux (n : Nat) : Fin n → Type
 
 /-- info: theorem quux.congr_simp : ∀ (n : Nat) (a a_1 : Fin n), a = a_1 → quux n a = quux n a_1 -/
 #guard_msgs in #print sig quux.congr_simp
+
+unsafe def unsafe_f (n : Nat) (f : Fin n) : Nat := f
+
+/--
+info: unsafe def unsafe_f.congr_simp : ∀ (n : Nat) (f f_1 : Fin n), f = f_1 → unsafe_f n f = unsafe_f n f_1
+-/
+#guard_msgs in #print sig unsafe_f.congr_simp
+
+unsafe axiom unsafe_ax (n : Nat) (f : Fin n) : Nat
+
+/--
+info: unsafe def unsafe_ax.congr_simp : ∀ (n : Nat) (f f_1 : Fin n), f = f_1 → unsafe_ax n f = unsafe_ax n f_1
+-/
+#guard_msgs in #print sig unsafe_ax.congr_simp
+
+unsafe opaque unsafe_op (n : Nat) (f : Fin n) : Nat := f
+
+/--
+info: unsafe def unsafe_op.congr_simp : ∀ (n : Nat) (f f_1 : Fin n), f = f_1 → unsafe_op n f = unsafe_op n f_1
+-/
+#guard_msgs in #print sig unsafe_op.congr_simp

@@ -425,7 +425,7 @@ builtin_initialize
         let f := mkConst p (info.levelParams.map mkLevelParam)
         let congrThm ← mkHCongrWithArity f numArgs
         realizeConst p name do
-          addDecl <| Declaration.thmDecl {
+          addDecl <| ← mkThmOrUnsafeDef {
             name, type := congrThm.type, value := congrThm.proof
             levelParams := info.levelParams
           }
@@ -441,7 +441,7 @@ builtin_initialize
         let some congrThm ← mkCongrSimpCore? f info (← getCongrSimpKinds f info)
           | return false
         realizeConst p name do
-          addDecl <| Declaration.thmDecl {
+          addDecl <| ← mkThmOrUnsafeDef {
             name, type := congrThm.type, value := congrThm.proof
             levelParams := cinfo.levelParams
           }

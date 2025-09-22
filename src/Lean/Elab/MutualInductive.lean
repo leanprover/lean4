@@ -1334,8 +1334,7 @@ def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Uni
     let res ← runTermElabM fun vars => do
       elabs.forM fun e => checkValidInductiveModifier e.view.modifiers
       checkNoInductiveNameConflicts elabs
-      let res ← elabInductiveViews vars elabs
-      pure res
+      elabInductiveViews vars elabs
     elabInductiveViewsPostprocessing (elabs.map (·.view)) res
 
 def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do

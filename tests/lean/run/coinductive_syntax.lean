@@ -1,4 +1,4 @@
-set_option trace.Elab.coinductive true
+-- set_option trace.Elab.coinductive true
 set_option pp.proofs true
 section
 variable (α : Type)
@@ -9,6 +9,10 @@ docstring
 coinductive infSeq (r : α → α → Prop) : α → Prop where
   | step : r a b → infSeq r b → infSeq r a
 
+/--
+info: infSeq.step (α : Type) (r : α → α → Prop) {a b : α} : r a b → infSeq α r b → infSeq α r a
+-/
+#guard_msgs in
 #check infSeq.step
 
 theorem casesOnTest (r : α → α → Prop) (a : α) : infSeq α r a → True := by
@@ -140,6 +144,7 @@ coinductive my_nat  where
   | succ : my_nat → my_nat
 
 def Set := Nat → Prop
+-- TODO: This triggers an unusd variable warning
 coinductive Foo : Set where
 
 /--
@@ -198,3 +203,20 @@ coinductive test1  (r: α → α → Prop) : α → α → Prop where
 
 coinductive test2  (r: α → α → Prop) : α → α → Prop where
   | mk : r a b → test2 r b b → test2 r a a
+
+
+-- TODO: Catch properly (compare the same with `inductive`)
+-- This actually panics right now!
+/--
+error: (kernel) constant has already been declared 'A.mk'
+---
+error: (kernel) function expected
+  A.mk a✝
+-/
+#guard_msgs in
+mutual
+  coinductive A : Prop where
+    | mk : A.mk → A
+  coinductive A.mk : Prop where
+    | mk : A → A.mk
+end

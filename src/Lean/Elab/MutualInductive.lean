@@ -1033,6 +1033,15 @@ private def addAndFinalizeInductiveDecl (context : AddAndFinalizeContext) : Term
     addAuxRecs indTypes
     buildFinalizeContext context.elabs' context.levelParams context.vars context.params context.views context.indFVars context.rs
 
+private def addTermInfoViews (views : Array InductiveView) : TermElabM Unit := -- save new env
+  withSaveInfoContext do -- save new env
+    for view in views do
+      do Term.addTermInfo' view.declId (← mkConstWithLevelParams view.declName) (isBinder := true)
+      for ctor in view.ctors do
+        if (ctor.declId.getPos? (canonicalOnly := true)).isSome then do
+          Term.addTermInfo' ctor.declId (← mkConstWithLevelParams ctor.declName) (isBinder := true)
+          enableRealizationsForConst ctor.declName
+
 private def mkInductiveDeclCore
   (callback : AddAndFinalizeContext → TermElabM α) (vars : Array Expr)
   (elabs : Array InductiveElabStep1) (rs : Array PreElabHeaderResult) (scopeLevelNames : List Name) : TermElabM α := do
@@ -1094,24 +1103,6 @@ private def mkInductiveDeclCore
               numVars := numVars
               numParams := numParams
             }
-  withSaveInfoContext do -- save new env
-    for view in views do
-      unless isCoinductive do
-        /-
-          If we are elaborating a coinductive predicate, we do not want to register the term info
-          as the inductive we have just obtained is just an auxillary one, used to define the
-          coinductive predicate.
-        -/
-        Term.addTermInfo' view.declId (← mkConstWithLevelParams view.declName) (isBinder := true)
-      for ctor in view.ctors do
-        if (ctor.declId.getPos? (canonicalOnly := true)).isSome then
-          unless isCoinductive do
-            /-
-              Same applies to constructors. The constructors here are constructors of the auxillary
-              inductive type, not the coinductive predicate itself.
-            -/
-            Term.addTermInfo' ctor.declId (← mkConstWithLevelParams ctor.declName) (isBinder := true)
-          enableRealizationsForConst ctor.declName
   return res
 
 private def withElaboratedHeaders (vars : Array Expr) (elabs : Array InductiveElabStep1)
@@ -1130,7 +1121,10 @@ Term.withoutSavingRecAppSyntax do
     k vars elabs rs scopeLevelNames
 
 private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM FinalizeContext :=
-  withElaboratedHeaders vars elabs <| mkInductiveDeclCore addAndFinalizeInductiveDecl
+  withElaboratedHeaders vars elabs fun vars elabs rs scopeLevelNames => do
+    let res ← mkInductiveDeclCore addAndFinalizeInductiveDecl vars elabs rs scopeLevelNames
+    addTermInfoViews <| elabs.map (·.view)
+    return res
 
 private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
   let env ← getEnv
@@ -1325,6 +1319,7 @@ def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Uni
       elabFlatInductiveViews vars flatElabs
       discard <| flatElabs.mapM fun e => MetaM.run' do mkSumOfProducts e.view.declName
       elabCoinductive (flatElabs.map InductiveViewToCoinductiveElab)
+      addTermInfoViews <| elabs.map (·.view)
     elabInductiveViewsPostprocessingCoinductive (elabs.map (·.view))
   else
     let res ← runTermElabM fun vars => do

@@ -488,7 +488,5 @@ public def elabCoinductive (coinductiveElabData : Array CoinductiveElabData) : T
   generateEqLemmas infos
   generateCoinductiveConstructors originalNumParams infos coinductiveElabData
   mkCasesOnCoinductive infos
-  for e in coinductiveElabData do
-    Term.addTermInfo' e.declId (←mkConstWithLevelParams (removeFunctorPostfix e.declName)) (isBinder := true)
 
 end Lean.Elab.Command

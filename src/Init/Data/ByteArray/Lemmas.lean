@@ -30,7 +30,7 @@ theorem ByteArray.extract_zero_size {b : ByteArray} : b.extract 0 b.size = b := 
   simp
 
 @[simp]
-theorem ByteArray.extract_same {b : ByteArray} {i : Nat} : b.extract i i = ByteArray.empty := by
+theorem ByteArray.extract_same {b : ByteArray} {i : Nat} : b.extract i i = ∅ := by
   ext1
   simp [Nat.min_le_left]
 
@@ -64,7 +64,7 @@ theorem List.data_toByteArray {l : List UInt8} :
     l.toByteArray.data = l.toArray := by
   rw [List.toByteArray]
   suffices ∀ a b, (List.toByteArray.loop a b).data = b.data ++ a.toArray by
-    simpa using this l ByteArray.empty
+    simpa using this l ∅
   intro a b
   fun_induction List.toByteArray.loop a b with simp_all
 
@@ -74,15 +74,15 @@ theorem List.size_toByteArray {l : List UInt8} :
   simp [← ByteArray.size_data]
 
 @[simp]
-theorem List.toByteArray_nil : List.toByteArray [] = ByteArray.empty := rfl
+theorem List.toByteArray_nil : List.toByteArray [] = ∅ := rfl
 
 @[simp]
-theorem ByteArray.empty_append {b : ByteArray} : ByteArray.empty ++ b = b := by
+theorem ByteArray.empty_append {b : ByteArray} : ∅ ++ b = b := by
   ext1
   simp
 
 @[simp]
-theorem ByteArray.append_empty {b : ByteArray} : b ++ ByteArray.empty = b := by
+theorem ByteArray.append_empty {b : ByteArray} : b ++ ∅ = b := by
   ext1
   simp
 
@@ -142,7 +142,7 @@ theorem ByteArray.append_eq_empty_iff {a b : ByteArray} :
 
 @[simp]
 theorem List.toByteArray_eq_empty {l : List UInt8} :
-    l.toByteArray = ByteArray.empty ↔ l = [] := by
+    l.toByteArray = ∅ ↔ l = [] := by
   simp [← ByteArray.size_eq_zero_iff]
 
 theorem ByteArray.append_right_inj {ys₁ ys₂ : ByteArray} (xs : ByteArray) :

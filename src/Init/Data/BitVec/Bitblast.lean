@@ -2707,6 +2707,9 @@ theorem extractAndExtendPopulate_append (x : BitVec (w + 1)):
 
 axiom proof_strategy {p: Prop} : p
 
+theorem popCount_eq {w : Nat} (x : BitVec w) :
+  x.popCount = BitVec.popCountAuxRec x 0#w 0 := by rfl
+
 /--
 Sums a collection of packed bitvectors, resulting into a single bitvectors.
 -/
@@ -2770,7 +2773,7 @@ theorem popCountAuxRec_ind {x : BitVec w} {r : BitVec v} (h : 0 < w - n) :
   · omega
   · rfl
 
-theorem popCountAuxRec_eq_self_add_zero (x : BitVec w) (r s : BitVec v) (n : Nat):
+theorem popCountAuxRec_add_eq_add_popCountAuxRec (x : BitVec w) (r s : BitVec v) (n : Nat):
     x.popCountAuxRec (r + s) n = r + x.popCountAuxRec s n := by
   induction h : w - n generalizing n r s
   · simp [h]
@@ -2785,6 +2788,11 @@ theorem popCountAuxRec_eq_self_add_zero (x : BitVec w) (r s : BitVec v) (n : Nat
       omega
     · omega
 
+theorem popCountAuxRec_eq_add_popCountAuxRec_zero (x : BitVec w) (r : BitVec v) (n : Nat):
+    x.popCountAuxRec r n = r + x.popCountAuxRec 0#v n := by
+  rw [show r = r + 0 by simp, popCountAuxRec_add_eq_add_popCountAuxRec (s := 0)]
+  simp
+
 @[simp]
 theorem popCountAuxRec_succ {x : BitVec w} {r : BitVec v} (hn : 0 < w - n) :
     x.popCountAuxRec r n = (x.extractLsb' n 1).zeroExtend v + (x.popCountAuxRec r (n + 1)) := by
@@ -2794,7 +2802,31 @@ theorem popCountAuxRec_succ {x : BitVec w} {r : BitVec v} (hn : 0 < w - n) :
   split
   · case _ heq => omega
   · case _ n' hsucc =>
-    rw [BitVec.add_comm, popCountAuxRec_eq_self_add_zero]
+    rw [BitVec.add_comm, popCountAuxRec_add_eq_add_popCountAuxRec]
+
+theorem popCountAuxRec_eq_popCountAuxRec_of_lt
+    {v1 v2 w : Nat}
+    {x : BitVec w} {r : BitVec v1}
+    (hv : v1 ≤ v2) (hr : r.toNat + (w - n) < 2 ^ v1)
+    :
+    (x.popCountAuxRec r n).setWidth v2 = (x.popCountAuxRec (r.setWidth v2) n):= by
+  induction h : w - n generalizing w n v2
+  · simp [h]
+  · case _ n' ihn' =>
+    rw [popCountAuxRec_succ (by omega)]
+    conv =>
+      rhs
+      rw [popCountAuxRec_succ (by omega)]
+    simp
+    rw [← ihn']
+    · apply BitVec.eq_of_toNat_eq
+      simp
+      congr
+      rw [Nat.mod_eq_of_lt (by sorry)]
+    · exact hv
+    · have : w - (n + 1) < w - n := by omega
+      omega
+    · omega
 
 theorem popCountAuxRec_add {x : BitVec w1} (y : BitVec w2) {r : BitVec v} (n1 n2 : Nat)
     (hxy : ∀ (i : Nat), x.getLsbD (n1 + i) = y.getLsbD (n2 + i)) :
@@ -2828,7 +2860,8 @@ theorem popCountAuxRec_add {x : BitVec w1} (y : BitVec w2) {r : BitVec v} (n1 n2
         · exact h1
         · omega
       · omega
-  sorry
+  ·
+    sorry
 
 theorem popCountAuxRec_eq_popCountAuxRec_extractLsb' (x : BitVec w) (r : BitVec v) :
     x.popCountAuxRec r n = (x.extractLsb' n (w - n)).popCountAuxRec r 0 := by
@@ -2840,11 +2873,16 @@ theorem popCountAuxRec_eq_popCountAuxRec_extractLsb' (x : BitVec w) (r : BitVec 
   omega
 
 theorem popCount_append (x : BitVec (w + 1)) :
-    x.popCount = ((x.extractLsb' 0 w).popCount).zeroExtend (w + 1) +
-        (x.extractLsb' w 1).zeroExtend (w + 1) := by
+    x.popCount = setWidth (w + 1) (extractLsb' 0 1 x) + ((extractLsb' 1 (w + 1 - 1) x).popCount).setWidth (w + 1) := by
   simp [popCount]
-
-  sorry
+  rw [popCountAuxRec_eq_popCountAuxRec_extractLsb']
+  rw [popCountAuxRec_eq_add_popCountAuxRec_zero]
+  simp
+  rw [popCountAuxRec_eq_popCountAuxRec_of_lt]
+  · simp
+  · omega
+  · simp
+    exact Nat.lt_two_pow_self
 
 /-- the popcount equals the result of summing the packed vector. -/
 theorem popCount_eq_sumPackedVec (x : BitVec w) :

@@ -2804,6 +2804,13 @@ theorem popCountAuxRec_succ {x : BitVec w} {r : BitVec v} (hn : 0 < w - n) :
   · case _ n' hsucc =>
     rw [BitVec.add_comm, popCountAuxRec_add_eq_add_popCountAuxRec]
 
+/-
+
+To prove this, we need bounds on the nat-value of popcountauxrec.
+So some thm like (pcar x r n).toNat < r.toNat + (w - n)
+under appropriate hyps for 'r' (e.g. e.toNat + (w - n) < 2 ^v)
+-/
+
 theorem popCountAuxRec_eq_popCountAuxRec_of_lt
     {v1 v2 w : Nat}
     {x : BitVec w} {r : BitVec v1}

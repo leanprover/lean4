@@ -10,8 +10,8 @@
 #eval Int8.ofNat 120 = 120
 #eval Int8.ofInt (-20) = -20
 #eval (Int8.ofInt (-2)).toInt = -2
-#eval (Int8.ofInt (-2)).toFin = 0
-#eval (Int8.ofInt (10)).toFin = 10
+#eval (Int8.ofInt (-2)).toNatClampNeg = 0
+#eval (Int8.ofInt (10)).toNatClampNeg = 10
 #eval (Int8.ofInt (10)).toInt = 10
 #eval Int8.ofNat (2^64) == 0
 #eval Int8.ofInt (-2^64) == 0

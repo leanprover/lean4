@@ -114,7 +114,7 @@ public structure CoinductiveElabData where
 
 
 public def addFunctorPostfix (n : Name) : Name :=
-  n.modifyBase (fun n => Name.str n "_functor")
+  n.modifyBase (·  ++ `_functor)
 
 public def removeFunctorPostfix (n : Name) : Name :=
   n.modifyBase (fun n => n.getPrefix)

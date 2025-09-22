@@ -1030,12 +1030,6 @@ private def addAndFinalizeInductiveDecl (context : AddAndFinalizeContext) : Term
     let decl := Declaration.inductDecl context.levelParams context.numParams indTypes context.isUnsafe
     Term.ensureNoUnassignedMVars decl
     addDecl decl
-
-    -- For nested inductive types, the kernel adds a variable number of auxiliary recursors.
-    -- Let the elaborator know about them as well. (Other auxiliaries have already been
-    -- registered by `addDecl` via `Declaration.getNames`.)
-    -- NOTE: If we want to make inductive elaboration parallel, this should switch to using
-    -- reserved names.
     addAuxRecs indTypes
     buildFinalizeContext context.elabs' context.levelParams context.vars context.params context.views context.indFVars context.rs
 

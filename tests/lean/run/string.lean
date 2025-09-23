@@ -180,12 +180,20 @@ Behavior of `String.next` (`lean_string_utf8_next`) in special cases (see issue 
 #test ("abc".pos ⟨3⟩ (by decide)).get? = none
 #test ("L∃∀N".pos ⟨1⟩ (by decide)).get (by decide) = '∃'
 
-#test (("L∃∀N".pos ⟨1⟩ (by decide)).next (by decide)).offset = ⟨3⟩
+#test (("L∃∀N".pos ⟨0⟩ (by decide)).next (by decide)).offset = ⟨1⟩
+#test (("L∃∀N".pos ⟨1⟩ (by decide)).next (by decide)).offset = ⟨4⟩
+#test (("L∃∀N".pos ⟨4⟩ (by decide)).next (by decide)).offset = ⟨7⟩
+#test (("L∃∀N".pos ⟨7⟩ (by decide)).next (by decide)).offset = ⟨8⟩
 
-#test "abc".get ⟨1⟩ = 'b'
-#test "abc".get ⟨3⟩ = (default : Char)
-#test "L∃∀N".get ⟨2⟩ = (default : Char)
+#test ("L∃∀N".pos ⟨0⟩ (by decide)).next?.map (·.offset) = some ⟨1⟩
+#test ("L∃∀N".pos ⟨8⟩ (by decide)).next? = none
+#test ("L∃∀N".pos ⟨0⟩ (by decide)).next!.offset = ⟨1⟩
 
-example : "".startValidPos = "".endValidPos := by decide
+#test (("L∃∀N".pos ⟨1⟩ (by decide)).prev (by decide)).offset = ⟨0⟩
+#test (("L∃∀N".pos ⟨4⟩ (by decide)).prev (by decide)).offset = ⟨1⟩
+#test (("L∃∀N".pos ⟨7⟩ (by decide)).prev (by decide)).offset = ⟨4⟩
+#test (("L∃∀N".pos ⟨8⟩ (by decide)).prev (by decide)).offset = ⟨7⟩
 
-#eval ("abc".pos ⟨0⟩ (by decide)).get (by decide)
+#test ("L∃∀N".pos ⟨1⟩ (by decide)).prev?.map (·.offset) = some ⟨0⟩
+#test ("L∃∀N".pos ⟨0⟩ (by decide)).prev? = none
+#test ("L∃∀N".pos ⟨1⟩ (by decide)).prev!.offset = ⟨0⟩

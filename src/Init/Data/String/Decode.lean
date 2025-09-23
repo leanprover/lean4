@@ -1314,12 +1314,13 @@ public theorem isUtf8FirstByte_getElem_zero_utf8EncodeChar {c : Char} :
     ((String.utf8EncodeChar c)[0]'(by simp [c.utf8Size_pos])).IsUtf8FirstByte := by
   simp
 
+@[expose]
 public def utf8ByteSize (c : UInt8) (_h : c.IsUtf8FirstByte) : String.Pos :=
-  if c &&& 0x80 == 0 then
+  if c &&& 0x80 = 0 then
     ⟨1⟩
-  else if c &&& 0xe0 == 0xc0 then
+  else if c &&& 0xe0 = 0xc0 then
     ⟨2⟩
-  else if c &&& 0xf0 == 0xe0 then
+  else if c &&& 0xf0 = 0xe0 then
     ⟨3⟩
   else
     ⟨4⟩

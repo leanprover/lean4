@@ -1173,6 +1173,7 @@ theorem Pos.isValidForSlice_iff_isSome_utf8DecodeChar? {s : Slice} {p : Pos} :
     · exact Or.inr ⟨h₁, ByteArray.isUtf8FirstByte_of_isSome_utf8DecodeChar? h₂⟩
 
 /-- Returns the byte at a position in a slice that is not the end position. -/
+@[expose]
 def Slice.Pos.byte {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : UInt8 :=
   s.getUtf8Byte pos.offset (by
     have := pos.isValidForSlice.le_utf8ByteSize
@@ -1702,17 +1703,20 @@ theorem Pos.isValidForSlice_prevAux {s : Slice} (pos : s.Pos) (h : pos ≠ s.sta
 
 /-- Returns the previous valid position before the given position, given a proof that the position
 is not the start position, which guarantees that such a position exists. -/
+@[expose]
 def Slice.Pos.prev {s : Slice} (pos : s.Pos) (h : pos ≠ s.startPos) : s.Pos where
   offset := prevAux pos h
   isValidForSlice := Pos.isValidForSlice_prevAux _ _
 
 /-- Returns the previous valid position before the given position, or `none` if the position is
 the start position. -/
+@[expose]
 def Slice.Pos.prev? {s : Slice} (pos : s.Pos) : Option s.Pos :=
   if h : pos = s.startPos then none else some (pos.prev h)
 
 /-- Returns the previous valid position before the given position, or panics if the position is
 the start position. -/
+@[expose]
 def Slice.Pos.prev! {s : Slice} (pos : s.Pos) : s.Pos :=
   if h : pos = s.startPos then panic! "The start position has no previous position" else pos.prev h
 

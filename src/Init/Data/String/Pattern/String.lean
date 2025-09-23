@@ -22,7 +22,7 @@ inductive ForwardSliceSearcher (s : Slice) where
 
 namespace ForwardSliceSearcher
 
-def buildTable (pat : Slice) : Array String.Pos :=
+partial def buildTable (pat : Slice) : Array String.Pos :=
   if pat.utf8ByteSize == 0 then
     #[]
   else
@@ -34,22 +34,16 @@ where
     if h : pos < pat.utf8ByteSize then
       let patByte := pat.getUtf8Byte pos h
       let distance := computeDistance table[table.size - 1]! patByte table
-      let distance := if patByte = pat.getUtf8Byte distance sorry then distance.inc else distance
+      let distance := if patByte = pat.getUtf8Byte! distance then distance.inc else distance
       go pos.inc (table.push distance)
     else
       table
-  termination_by pat.utf8ByteSize.byteIdx - pos.byteIdx
-  decreasing_by
-    simp at h ⊢
-    omega
 
   computeDistance (distance : String.Pos) (patByte : UInt8) (table : Array String.Pos) : String.Pos :=
-    if distance > 0 && patByte != pat.getUtf8Byte distance sorry then
+    if distance > 0 && patByte != pat.getUtf8Byte! distance then
       computeDistance table[distance.byteIdx - 1]! patByte table
     else
       distance
-  termination_by distance
-  decreasing_by sorry
 
 @[inline]
 def iter (s : Slice) (pat : Slice) : Std.Iter (α := ForwardSliceSearcher s) (SearchStep s) :=
@@ -57,6 +51,13 @@ def iter (s : Slice) (pat : Slice) : Std.Iter (α := ForwardSliceSearcher s) (Se
     { internalState := .empty s.startPos }
   else
     { internalState := .proper pat (buildTable pat) s.startPos.offset pat.startPos.offset }
+
+partial def backtrackIfNecessary (pat : Slice) (table : Array String.Pos) (stackByte : UInt8)
+    (needlePos : String.Pos) : String.Pos :=
+  if needlePos != 0 && stackByte != pat.getUtf8Byte! needlePos then
+    backtrackIfNecessary pat table stackByte table[needlePos.byteIdx - 1]!
+  else
+    needlePos
 
 instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (SearchStep s) where
   IsPlausibleStep := sorry
@@ -69,21 +70,12 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
       else
         pure ⟨.yield ⟨.atEnd⟩ res, sorry⟩
     | .proper needle table stackPos needlePos =>
-      let rec backtrackIfNecessary (pat : Slice) (table : Array String.Pos) (stackByte : UInt8)
-          (needlePos : String.Pos) : String.Pos :=
-        if needlePos != 0 && stackByte != pat.getUtf8Byte needlePos sorry then
-          backtrackIfNecessary pat table stackByte table[needlePos.byteIdx - 1]!
-        else
-          needlePos
-      termination_by needlePos
-      decreasing_by sorry
-
       let rec findNext (startPos : String.Pos) (pat : Slice) (table : Array String.Pos)
           (stackPos : String.Pos) (needlePos : String.Pos) :=
         if h1 : stackPos < s.utf8ByteSize then
           let stackByte := s.getUtf8Byte stackPos h1
           let needlePos := backtrackIfNecessary pat table stackByte needlePos
-          let patByte := pat.getUtf8Byte needlePos sorry
+          let patByte := pat.getUtf8Byte! needlePos
           if stackByte != patByte then
             let nextStackPos := s.findNextPos stackPos h1 |>.offset
             let res := .rejected (s.pos! startPos) (s.pos! nextStackPos)
@@ -104,6 +96,7 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
             ⟨.done, sorry⟩
         termination_by s.utf8ByteSize - stackPos
         decreasing_by sorry
+
       findNext stackPos needle table stackPos needlePos
     | .atEnd => pure ⟨.done, sorry⟩
 
@@ -136,11 +129,6 @@ def startsWith (s : Slice) (pat : Slice) : Bool :=
 @[inline]
 def dropPrefix? (s : Slice) (pat : Slice) : Option Slice :=
   if startsWith s pat then
-    /-
-    SAFETY: This pos! works because `s` has the prefix `pat` starting from the initial value of
-    `sCurr` so `sCurr` is at the end of the `pat` prefix in `s` and thus at a valid unicode offset
-    right now
-    -/
     some <| s.replaceStart <| s.pos! <| s.startPos.offset + pat.utf8ByteSize
   else
     none

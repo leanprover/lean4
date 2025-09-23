@@ -621,27 +621,57 @@ end ByteIterator
 structure RevByteIterator where
   s : Slice
   offset : String.Pos
-  deriving Inhabited
+  hinv : offset ≤ s.utf8ByteSize
 
 def revBytes (s : Slice) : Std.Iter (α := RevByteIterator) UInt8 :=
-  { internalState := { s, offset := s.endPos.offset }}
+  { internalState := { s, offset := s.endPos.offset, hinv := by simp }}
+
+instance : Inhabited RevByteIterator where
+  default :=
+    let s := default
+    { s := s, offset := s.endPos.offset, hinv := by simp}
 
 namespace RevByteIterator
 
 instance [Pure m] : Std.Iterators.Iterator RevByteIterator m UInt8 where
-  IsPlausibleStep it := sorry
-  step := fun ⟨s, offset⟩ =>
-    if offset != 0 then
+  IsPlausibleStep it
+    | .yield it' out =>
+      ∃ h1 : it.internalState.offset.dec < it.internalState.s.utf8ByteSize,
+        it.internalState.s = it'.internalState.s ∧
+        it.internalState.offset ≠ 0 ∧
+        it'.internalState.offset = it.internalState.offset.dec ∧
+        it.internalState.s.getUtf8Byte it.internalState.offset.dec h1 = out
+    | .skip _ => False
+    | .done => it.internalState.offset = 0
+  step := fun ⟨s, offset, hinv⟩ =>
+    if h : offset ≠ 0 then
       let nextOffset := offset.dec
-      pure ⟨.yield ⟨s, nextOffset⟩ (s.getUtf8Byte nextOffset sorry), sorry⟩
+      have hbound := by
+        simp [String.Pos.le_iff, nextOffset] at h hinv ⊢
+        omega
+      have hinv := by
+        simp [String.Pos.le_iff, nextOffset] at hinv ⊢
+        omega
+      have hiter := by simp [nextOffset, hbound, h]
+      pure ⟨.yield ⟨s, nextOffset, hinv⟩ (s.getUtf8Byte nextOffset hbound), hiter⟩
     else
-      pure ⟨.done, sorry⟩
+      pure ⟨.done, by simpa using h⟩
 
 private def finitenessRelation [Pure m] : Std.Iterators.FinitenessRelation (RevByteIterator) m where
   rel := InvImage WellFoundedRelation.rel
       (fun it => it.internalState.offset.byteIdx)
   wf := InvImage.wf _ WellFoundedRelation.wf
-  subrelation := sorry
+  subrelation {it it'} h := by
+    simp_wf
+    obtain ⟨step, h, h'⟩ := h
+    cases step
+    · cases h
+      obtain ⟨h1, h2, h3, h4, h5⟩ := h'
+      rw [h4]
+      simp at h1 h3 ⊢
+      omega
+    · cases h'
+    · cases h
 
 @[no_expose]
 instance [Pure m] : Std.Iterators.Finite RevByteIterator m :=

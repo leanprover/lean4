@@ -26,6 +26,12 @@ namespace String.Slice.Pattern
 theorem offset_prev_lt_offset {s : Slice} {p : s.Pos} (h) : (p.prev h).offset < p.offset := by
   sorry
 
+def _root_.String.Slice.getUtf8Byte! (s : Slice) (p : String.Pos) : UInt8 :=
+  if h : p < s.utf8ByteSize then
+    s.getUtf8Byte p h
+  else
+    panic! "Ahhhh"
+
 /--
 A step taken during the traversal of a `Slice` by a forward or backward searcher.
 -/

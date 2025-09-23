@@ -7,4 +7,4 @@ theorem foo (x: UInt32) :
 
 theorem aa (x : UInt32) :
   x.toNat ≤ sixteen.toNat := by
-  grind [!foo]
+  grind [foo]

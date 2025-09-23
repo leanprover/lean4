@@ -675,7 +675,6 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12;
 x_9 = l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserNameAux___closed__2;
 x_10 = l_Nat_toSuperscriptString(x_3);
 x_11 = lean_string_append(x_9, x_10);
-lean_dec_ref(x_10);
 x_12 = lean_name_append_after(x_2, x_11);
 return x_12;
 }
@@ -737,7 +736,6 @@ x_8 = l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserName(x_1, x_3);
 x_9 = l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserName___closed__0;
 x_10 = l_Nat_toSuperscriptString(x_7);
 x_11 = lean_string_append(x_9, x_10);
-lean_dec_ref(x_10);
 x_12 = lean_name_append_after(x_8, x_11);
 return x_12;
 }

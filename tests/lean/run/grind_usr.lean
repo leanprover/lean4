@@ -12,7 +12,7 @@ public theorem fthm : f (f x) = f x := sorry
 #guard_msgs (trace) in
 set_option trace.grind.ematch.pattern true in
 example : f (f (f x)) = f x := by
-  grind only [!fthm]
+  grind only [!←fthm]
 
 /--
 trace: [grind.ematch.instance] fthm: f (f x) = f x

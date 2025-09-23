@@ -64,7 +64,7 @@ opaque r : Nat → Nat → Nat
 
 /--
 info: Try these:
-  • [grind! ←] for pattern: [r #2 (f #1)]
+  • [grind! .] for pattern: [r #2 (f #1)]
   • [grind! =>] for pattern: [f #2, f #1]
 -/
 #guard_msgs in
@@ -72,7 +72,7 @@ info: Try these:
 
 /--
 info: Try these:
-  • [grind! <=] for pattern: [f #1, f #2]
+  • [grind! .] for pattern: [f #1, f #2]
   • [grind! =>] for pattern: [f #2, f #1]
 -/
 #guard_msgs in
@@ -80,9 +80,9 @@ info: Try these:
 
 /--
 info: Try these:
-  • [grind <=] for pattern: [r #1 (f #1), p (f #2)]
+  • [grind .] for pattern: [r #1 (f #1), p (f #2)]
   • [grind =>] for pattern: [p (f #2), r #1 (f #1)]
-  • [grind! <=] for pattern: [f #1, f #2]
+  • [grind! .] for pattern: [f #1, f #2]
   • [grind! =>] for pattern: [f #2, f #1]
 -/
 #guard_msgs in
@@ -101,7 +101,7 @@ info: Try these:
 /--
 info: Try these:
   • [grind =] for pattern: [f (g #0)]
-  • [grind! ←] for pattern: [g #0]
+  • [grind! .] for pattern: [g #0]
 -/
 #guard_msgs in
 @[grind] axiom fg₆ : f (g x) = x
@@ -110,7 +110,7 @@ info: Try these:
 info: Try these:
   • [grind =] for pattern: [f (g #0)]
   • [grind =_] for pattern: [r #0 #0]
-  • [grind! ←] for pattern: [g #0]
+  • [grind! .] for pattern: [g #0]
 -/
 #guard_msgs in
 @[grind] axiom fg₇ : f (g x) = r x x
@@ -132,13 +132,13 @@ axiom fooInv_foo : fooInv (foo x) = x
 #guard_msgs in
 set_option trace.grind.ematch.pattern true in
 example : foo x = foo y → x = y := by
-  grind [!fooInv_foo]
+  grind [!←fooInv_foo]
 
 /-- trace: [grind.ematch.pattern] fooInv_foo: [fooInv (foo #0)] -/
 #guard_msgs in
 set_option trace.grind.ematch.pattern true in
 example : foo x = foo y → x = y := by
-  fail_if_success grind [fooInv_foo]
+  fail_if_success grind [←fooInv_foo]
   sorry
 
 opaque bar : Nat → Nat

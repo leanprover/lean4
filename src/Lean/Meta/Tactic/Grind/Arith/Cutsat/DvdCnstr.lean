@@ -6,6 +6,8 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
+import Init.Data.Int.OfNat
+import Init.Grind.Propagator
 import Lean.Meta.Tactic.Simp.Arith.Int
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.PropagatorAttr

@@ -29,10 +29,6 @@ set_option linter.missingDocs true
 
 namespace BitVec
 
-@[inline, deprecated BitVec.ofNatLT (since := "2025-02-13"), inherit_doc BitVec.ofNatLT]
-protected def ofNatLt {n : Nat} (i : Nat) (p : i < 2 ^ n) : BitVec n :=
-  BitVec.ofNatLT i p
-
 section Nat
 
 /--
@@ -873,5 +869,8 @@ def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
 
 /-- Count the number of leading zeros. -/
 def clz (x : BitVec w) : BitVec w := clzAuxRec x (w - 1)
+
+/-- Count the number of trailing zeros. -/
+def ctz (x : BitVec w) : BitVec w := (x.reverse).clz
 
 end BitVec

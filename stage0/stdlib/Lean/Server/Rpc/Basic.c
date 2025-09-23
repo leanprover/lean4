@@ -208,7 +208,6 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_instRpcEncodableOfFromJsonOfToJson___redArg___closed__17;
 static lean_object* l_Lean_Server_instRpcEncodableOfFromJsonOfToJson___redArg___closed__3;
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_instFromJsonRpcRef_fromJson_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodableArray___redArg(lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonRpcRef___closed__0;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_Server_rpcReleaseRef_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -566,7 +565,6 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7;
 x_5 = lean_ctor_get(x_3, 0);
 x_6 = l_Lean_Lsp_instFromJsonRpcRef_fromJson___closed__12;
 x_7 = lean_string_append(x_6, x_5);
-lean_dec(x_5);
 lean_ctor_set(x_3, 0, x_7);
 return x_3;
 }
@@ -578,7 +576,6 @@ lean_inc(x_8);
 lean_dec(x_3);
 x_9 = l_Lean_Lsp_instFromJsonRpcRef_fromJson___closed__12;
 x_10 = lean_string_append(x_9, x_8);
-lean_dec(x_8);
 x_11 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
 return x_11;
@@ -626,15 +623,6 @@ return x_17;
 }
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_instFromJsonRpcRef_fromJson_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_instFromJsonRpcRef_fromJson_spec__0(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
 }
 }
 static lean_object* _init_l_Lean_Lsp_instFromJsonRpcRef___closed__0() {
@@ -1325,7 +1313,6 @@ x_9 = l_Lean_Server_rpcGetRef___redArg___closed__0;
 x_10 = lean_usize_to_nat(x_2);
 x_11 = l_Nat_reprFast(x_10);
 x_12 = lean_string_append(x_9, x_11);
-lean_dec_ref(x_11);
 x_13 = l_Lean_Server_rpcGetRef___redArg___closed__1;
 x_14 = lean_string_append(x_12, x_13);
 x_15 = lean_alloc_ctor(0, 1, 0);
@@ -1352,13 +1339,11 @@ x_21 = l_Lean_Server_rpcGetRef___redArg___closed__2;
 x_22 = lean_usize_to_nat(x_2);
 x_23 = l_Nat_reprFast(x_22);
 x_24 = lean_string_append(x_21, x_23);
-lean_dec_ref(x_23);
 x_25 = l_Lean_Server_rpcGetRef___redArg___closed__3;
 x_26 = lean_string_append(x_24, x_25);
 x_27 = 1;
 x_28 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_27);
 x_29 = lean_string_append(x_26, x_28);
-lean_dec_ref(x_28);
 x_30 = l_Lean_Server_rpcGetRef___redArg___closed__4;
 x_31 = lean_string_append(x_29, x_30);
 x_32 = l_Lean_Server_rpcGetRef___redArg___closed__5;
@@ -1366,11 +1351,9 @@ x_33 = l___private_Init_Dynamic_0__Dynamic_typeNameImpl(x_18);
 lean_dec(x_18);
 x_34 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_33, x_27);
 x_35 = lean_string_append(x_32, x_34);
-lean_dec_ref(x_34);
 x_36 = l_Lean_Server_rpcGetRef___redArg___closed__6;
 x_37 = lean_string_append(x_35, x_36);
 x_38 = lean_string_append(x_31, x_37);
-lean_dec_ref(x_37);
 lean_ctor_set_tag(x_8, 0);
 lean_ctor_set(x_8, 0, x_38);
 return x_8;
@@ -1425,13 +1408,11 @@ x_49 = l_Lean_Server_rpcGetRef___redArg___closed__2;
 x_50 = lean_usize_to_nat(x_2);
 x_51 = l_Nat_reprFast(x_50);
 x_52 = lean_string_append(x_49, x_51);
-lean_dec_ref(x_51);
 x_53 = l_Lean_Server_rpcGetRef___redArg___closed__3;
 x_54 = lean_string_append(x_52, x_53);
 x_55 = 1;
 x_56 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_55);
 x_57 = lean_string_append(x_54, x_56);
-lean_dec_ref(x_56);
 x_58 = l_Lean_Server_rpcGetRef___redArg___closed__4;
 x_59 = lean_string_append(x_57, x_58);
 x_60 = l_Lean_Server_rpcGetRef___redArg___closed__5;
@@ -1439,11 +1420,9 @@ x_61 = l___private_Init_Dynamic_0__Dynamic_typeNameImpl(x_46);
 lean_dec(x_46);
 x_62 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_61, x_55);
 x_63 = lean_string_append(x_60, x_62);
-lean_dec_ref(x_62);
 x_64 = l_Lean_Server_rpcGetRef___redArg___closed__6;
 x_65 = lean_string_append(x_63, x_64);
 x_66 = lean_string_append(x_59, x_65);
-lean_dec_ref(x_65);
 x_67 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_67, 0, x_66);
 return x_67;

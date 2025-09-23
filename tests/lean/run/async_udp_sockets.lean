@@ -18,7 +18,7 @@ def runJoe (addr : UInt16 → SocketAddress) (first second : UInt16) : Async Uni
   client.bind (addr second)
   client.connect (addr first)
 
-  await (← client.send (String.toUTF8 "hello robert!"))
+  client.send (String.toUTF8 "hello robert!")
 
 
 def acceptClose (addr : UInt16 → SocketAddress) (first second : UInt16) : IO Unit := do
@@ -29,7 +29,7 @@ def acceptClose (addr : UInt16 → SocketAddress) (first second : UInt16) : IO U
   let res ← (runJoe addr first second).toIO
   res.block
 
-  let res ← server.recv 1024
+  let res ← server.recv 1024 |>.toBaseIO
   let (msg, addr) ← res.block
 
   if let some addr := addr then

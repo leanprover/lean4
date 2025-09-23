@@ -855,7 +855,7 @@ which would include `#guard_msgs` itself, and would cause duplicate and/or uncap
 The top-level command elaborator only runs the linters if `#guard_msgs` is not present.
 -/
 syntax (name := guardMsgsCmd)
-  (docComment)? "#guard_msgs" (ppSpace guardMsgsSpec)? " in" ppLine command : command
+  (plainDocComment)? "#guard_msgs" (ppSpace guardMsgsSpec)? " in" ppLine command : command
 
 /--
 Format and print the info trees for a given command.

@@ -4,11 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Attr
 public import Init.Core
-
 public section
 
 namespace Lean.Grind
@@ -98,8 +96,16 @@ structure Config where
   zeta := true
   /--
   When `true` (default: `true`), uses procedure for handling equalities over commutative rings.
+  This solver also support commutative semirings, fields, and normalizer non-commutative rings and
+  semirings.
   -/
   ring := true
+  /--
+  Maximum number of steps performed by the `ring` solver.
+  A step is counted whenever one polynomial is used to simplify another.
+  For example, given `x^2 + 1` and `x^2 * y^3 + x * y`, the first can be
+  used to simplify the second to `-1 * y^3 + x * y`.
+  -/
   ringSteps := 10000
   /--
   When `true` (default: `true`), uses procedure for handling linear arithmetic for `IntModule`, and
@@ -114,6 +120,12 @@ structure Config where
   When `true` (default: `true`), uses procedure for handling associative (and commutative) operators.
   -/
   ac := true
+  /--
+  Maximum number of steps performed by the `ac` solver.
+  A step is counted whenever one AC equation is used to simplify another.
+  For example, given `ma x z = w` and `max x (max y z) = x`, the first can be
+  used to simplify the second to `max w y = x`.
+  -/
   acSteps := 1000
   /--
   Maximum exponent eagerly evaluated while computing bounds for `ToInt` and
@@ -124,6 +136,14 @@ structure Config where
   When `true` (default: `true`), automatically creates an auxiliary theorem to store the proof.
   -/
   abstractProof := true
+  /--
+  When `true` (default: `true`), enables the procedure for handling injective functions.
+  In this mode, `grind` takes into account theorems such as:
+  ```
+  @[grind inj] theorem double_inj : Function.Injective double
+  ```
+  -/
+  inj := true
   deriving Inhabited, BEq
 
 /--
@@ -182,7 +202,10 @@ namespace Lean.Parser.Tactic
 
 syntax grindErase    := "-" ident
 syntax grindLemma    := ppGroup((Attr.grindMod ppSpace)? ident)
--- `!` for enabling minimal indexable subexpression restriction
+/--
+The `!` modifier instructs `grind` to consider only minimal indexable subexpressions
+when selecting patterns.
+-/
 syntax grindLemmaMin := ppGroup("!" (Attr.grindMod ppSpace)? ident)
 syntax grindParam    := grindErase <|> grindLemma <|> grindLemmaMin
 

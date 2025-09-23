@@ -245,7 +245,6 @@ x_19 = l_Lean_TSyntax_getNat(x_13);
 lean_dec(x_13);
 x_20 = l_Nat_reprFast(x_19);
 x_21 = lean_string_append(x_18, x_20);
-lean_dec_ref(x_20);
 x_22 = lean_box(0);
 x_23 = l_Lean_Name_str___override(x_22, x_21);
 x_24 = lean_mk_syntax_ident(x_23);

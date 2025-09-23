@@ -270,17 +270,9 @@ def filter (f : α → Bool) (t : Raw α cmp) : Raw α cmp :=
 def foldlM (f : δ → (a : α) → m δ) (init : δ) (t : Raw α cmp) : m δ :=
   t.inner.foldlM (fun c a _ => f c a) init
 
-@[inline, inherit_doc foldlM, deprecated foldlM (since := "2025-02-12")]
-def foldM (f : δ → (a : α) → m δ) (init : δ) (t : Raw α cmp) : m δ :=
-  t.foldlM f init
-
 @[inline, inherit_doc TreeSet.empty]
 def foldl (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
   t.inner.foldl (fun c a _ => f c a) init
-
-@[inline, inherit_doc foldl, deprecated foldl (since := "2025-02-12")]
-def fold (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
-  t.foldl f init
 
 @[inline, inherit_doc TreeSet.empty]
 def foldrM (f : (a : α) → δ → m δ) (init : δ) (t : Raw α cmp) : m δ :=
@@ -289,10 +281,6 @@ def foldrM (f : (a : α) → δ → m δ) (init : δ) (t : Raw α cmp) : m δ :=
 @[inline, inherit_doc TreeSet.empty]
 def foldr (f : (a : α) → δ → δ) (init : δ) (t : Raw α cmp) : δ :=
   t.inner.foldr (fun a _ acc => f a acc) init
-
-@[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
-def revFold (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
-  foldr (fun a acc => f acc a) init t
 
 @[inline, inherit_doc TreeSet.partition]
 def partition (f : (a : α) → Bool) (t : Raw α cmp) : Raw α cmp × Raw α cmp :=
@@ -328,10 +316,6 @@ def toList (t : Raw α cmp) : List α :=
 def ofList (l : List α) (cmp : α → α → Ordering := by exact compare) : Raw α cmp :=
   ⟨TreeMap.Raw.unitOfList l cmp⟩
 
-@[inline, inherit_doc ofList, deprecated ofList (since := "2025-02-12")]
-def fromList (l : List α) (cmp : α → α → Ordering) : Raw α cmp :=
-  ofList l cmp
-
 @[inline, inherit_doc TreeSet.empty]
 def toArray (t : Raw α cmp) : Array α :=
   t.foldl (init := #[]) fun acc k => acc.push k
@@ -339,10 +323,6 @@ def toArray (t : Raw α cmp) : Array α :=
 @[inline, inherit_doc TreeSet.ofArray]
 def ofArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : Raw α cmp :=
   ⟨TreeMap.Raw.unitOfArray a cmp⟩
-
-@[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-12")]
-def fromArray (a : Array α) (cmp : α → α → Ordering) : Raw α cmp :=
-  ofArray a cmp
 
 @[inline, inherit_doc TreeSet.empty]
 def merge (t₁ t₂ : Raw α cmp) : Raw α cmp :=

@@ -27,12 +27,12 @@ def oneShotSleep : IO Unit := do
   assertDuration BASE_DURATION EPS do
     let timer ← Timer.mk BASE_DURATION.toUInt64 false
     let p ← timer.next
-    await p.result
+    await p.result!
 
 def promiseBehavior1 : IO Unit := do
     let timer ← Timer.mk BASE_DURATION.toUInt64 false
     let p ← timer.next
-    let r := p.result
+    let r := p.result!
     assert! (← IO.getTaskState r) != .finished
     IO.sleep (BASE_DURATION + EPS).toUInt32
     assert! (← IO.getTaskState r) == .finished
@@ -41,35 +41,35 @@ def promiseBehavior2 : IO Unit := do
   let timer ← Timer.mk BASE_DURATION.toUInt64 false
   let p1 ← timer.next
   let p2 ← timer.next
-  assert! (← IO.getTaskState p1.result) != .finished
-  assert! (← IO.getTaskState p2.result) != .finished
+  assert! (← IO.getTaskState p1.result!) != .finished
+  assert! (← IO.getTaskState p2.result!) != .finished
   IO.sleep (BASE_DURATION + EPS).toUInt32
-  assert! (← IO.getTaskState p1.result) == .finished
-  assert! (← IO.getTaskState p2.result) == .finished
+  assert! (← IO.getTaskState p1.result!) == .finished
+  assert! (← IO.getTaskState p2.result!) == .finished
 
 def promiseBehavior3 : IO Unit := do
   let timer ← Timer.mk BASE_DURATION.toUInt64 false
   let p1 ← timer.next
-  assert! (← IO.getTaskState p1.result) != .finished
+  assert! (← IO.getTaskState p1.result!) != .finished
   IO.sleep (BASE_DURATION + EPS).toUInt32
-  assert! (← IO.getTaskState p1.result) == .finished
+  assert! (← IO.getTaskState p1.result!) == .finished
   let p3 ← timer.next
-  assert! (← IO.getTaskState p3.result) == .finished
+  assert! (← IO.getTaskState p3.result!) == .finished
 
 def resetBehavior : IO Unit := do
   let timer ← Timer.mk BASE_DURATION.toUInt64 false
   let p ← timer.next
-  assert! (← IO.getTaskState p.result) != .finished
+  assert! (← IO.getTaskState p.result!) != .finished
 
   IO.sleep (BASE_DURATION / 2).toUInt32
-  assert! (← IO.getTaskState p.result) != .finished
+  assert! (← IO.getTaskState p.result!) != .finished
   timer.reset
 
   IO.sleep (BASE_DURATION / 2).toUInt32
-  assert! (← IO.getTaskState p.result) != .finished
+  assert! (← IO.getTaskState p.result!) != .finished
 
   IO.sleep ((BASE_DURATION / 2) + EPS).toUInt32
-  assert! (← IO.getTaskState p.result) == .finished
+  assert! (← IO.getTaskState p.result!) == .finished
 
 #eval oneShotSleep
 #eval promiseBehavior1
@@ -88,7 +88,7 @@ where
   go : IO Unit := do
     let timer ← Timer.mk BASE_DURATION.toUInt64 true
     let prom ← timer.next
-    await prom.result
+    await prom.result!
     timer.stop
 
 def sleepSecond : IO Unit := do
@@ -98,8 +98,8 @@ where
     let timer ← Timer.mk BASE_DURATION.toUInt64 true
 
     let task ←
-      IO.bindTask (← timer.next).result fun _ => do
-      IO.bindTask (← timer.next).result fun _ => pure (Task.pure (.ok 2))
+      IO.bindTask (← timer.next).result! fun _ => do
+      IO.bindTask (← timer.next).result! fun _ => pure (Task.pure (.ok 2))
 
     discard <| await task
     timer.stop
@@ -108,88 +108,88 @@ def promiseBehavior1 : IO Unit := do
   let timer ← Timer.mk BASE_DURATION.toUInt64 true
   let p1 ← timer.next
   IO.sleep EPS.toUInt32
-  assert! (← IO.getTaskState p1.result) == .finished
+  assert! (← IO.getTaskState p1.result!) == .finished
   let p2 ← timer.next
-  assert! (← IO.getTaskState p2.result) != .finished
+  assert! (← IO.getTaskState p2.result!) != .finished
   IO.sleep (BASE_DURATION + EPS).toUInt32
-  assert! (← IO.getTaskState p2.result) == .finished
+  assert! (← IO.getTaskState p2.result!) == .finished
   timer.stop
 
 def promiseBehavior2 : IO Unit := do
   let timer ← Timer.mk BASE_DURATION.toUInt64 true
   let p1 ← timer.next
   IO.sleep EPS.toUInt32
-  assert! (← IO.getTaskState p1.result) == .finished
+  assert! (← IO.getTaskState p1.result!) == .finished
 
   let prom1 ← timer.next
   let prom2 ← timer.next
-  assert! (← IO.getTaskState prom1.result) != .finished
-  assert! (← IO.getTaskState prom2.result) != .finished
+  assert! (← IO.getTaskState prom1.result!) != .finished
+  assert! (← IO.getTaskState prom2.result!) != .finished
   IO.sleep (BASE_DURATION + EPS).toUInt32
-  assert! (← IO.getTaskState prom1.result) == .finished
-  assert! (← IO.getTaskState prom2.result) == .finished
+  assert! (← IO.getTaskState prom1.result!) == .finished
+  assert! (← IO.getTaskState prom2.result!) == .finished
   timer.stop
 
 def promiseBehavior3 : IO Unit := do
   let timer ← Timer.mk BASE_DURATION.toUInt64 true
   let p1 ← timer.next
   IO.sleep EPS.toUInt32
-  assert! (← IO.getTaskState p1.result) == .finished
+  assert! (← IO.getTaskState p1.result!) == .finished
 
   let prom1 ← timer.next
-  assert! (← IO.getTaskState prom1.result) != .finished
+  assert! (← IO.getTaskState prom1.result!) != .finished
   IO.sleep (BASE_DURATION + EPS).toUInt32
-  assert! (← IO.getTaskState prom1.result) == .finished
+  assert! (← IO.getTaskState prom1.result!) == .finished
   let prom2 ← timer.next
-  assert! (← IO.getTaskState prom2.result) != .finished
+  assert! (← IO.getTaskState prom2.result!) != .finished
   IO.sleep (BASE_DURATION + EPS).toUInt32
-  assert! (← IO.getTaskState prom2.result) == .finished
+  assert! (← IO.getTaskState prom2.result!) == .finished
   timer.stop
 
 def delayedTickBehavior : IO Unit := do
   let timer ← Timer.mk BASE_DURATION.toUInt64 true
   let p1 ← timer.next
   IO.sleep EPS.toUInt32
-  assert! (← IO.getTaskState p1.result) == .finished
+  assert! (← IO.getTaskState p1.result!) == .finished
 
   IO.sleep (BASE_DURATION / 2).toUInt32
   let p2 ← timer.next
-  assert! (← IO.getTaskState p2.result) != .finished
+  assert! (← IO.getTaskState p2.result!) != .finished
   IO.sleep ((BASE_DURATION / 2) + EPS).toUInt32
-  assert! (← IO.getTaskState p2.result) == .finished
+  assert! (← IO.getTaskState p2.result!) == .finished
   timer.stop
 
 def skippedTickBehavior : IO Unit := do
   let timer ← Timer.mk BASE_DURATION.toUInt64 true
   let p1 ← timer.next
   IO.sleep EPS.toUInt32
-  assert! (← IO.getTaskState p1.result) == .finished
+  assert! (← IO.getTaskState p1.result!) == .finished
 
   IO.sleep (2 * BASE_DURATION + BASE_DURATION / 2).toUInt32
   let p2 ← timer.next
-  assert! (← IO.getTaskState p2.result) != .finished
+  assert! (← IO.getTaskState p2.result!) != .finished
   IO.sleep ((BASE_DURATION / 2) + EPS).toUInt32
-  assert! (← IO.getTaskState p2.result) == .finished
+  assert! (← IO.getTaskState p2.result!) == .finished
   timer.stop
 
 def resetBehavior : IO Unit := do
   let timer ← Timer.mk BASE_DURATION.toUInt64 true
   let p1 ← timer.next
   IO.sleep EPS.toUInt32
-  assert! (← IO.getTaskState p1.result) == .finished
+  assert! (← IO.getTaskState p1.result!) == .finished
 
   let prom ← timer.next
-  assert! (← IO.getTaskState prom.result) != .finished
+  assert! (← IO.getTaskState prom.result!) != .finished
 
   IO.sleep (BASE_DURATION / 2).toUInt32
-  assert! (← IO.getTaskState prom.result) != .finished
+  assert! (← IO.getTaskState prom.result!) != .finished
   timer.reset
 
   IO.sleep (BASE_DURATION / 2).toUInt32
-  assert! (← IO.getTaskState prom.result) != .finished
+  assert! (← IO.getTaskState prom.result!) != .finished
 
   IO.sleep ((BASE_DURATION / 2) + EPS).toUInt32
-  assert! (← IO.getTaskState prom.result) == .finished
+  assert! (← IO.getTaskState prom.result!) == .finished
   timer.stop
 
 def sequentialSleep : IO Unit := do
@@ -199,9 +199,9 @@ where
     let timer ← Timer.mk (BASE_DURATION / 2).toUInt64 true
     -- 0th interval ticks instantly
     let task ←
-      IO.bindTask (← timer.next).result fun _ => do
-      IO.bindTask (← timer.next).result fun _ => do
-      IO.bindTask (← timer.next).result fun _ => pure (Task.pure (.ok 2))
+      IO.bindTask (← timer.next).result! fun _ => do
+      IO.bindTask (← timer.next).result! fun _ => do
+      IO.bindTask (← timer.next).result! fun _ => pure (Task.pure (.ok 2))
 
     discard <| await task
     timer.stop

@@ -9,6 +9,7 @@ public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.SearchM
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.Cases
+import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Internalize
 public section

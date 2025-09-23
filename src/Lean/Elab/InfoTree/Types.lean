@@ -207,6 +207,32 @@ the language server provide interactivity even when all overloaded elaborators f
 -/
 structure ChoiceInfo extends ElabInfo where
 
+inductive DocElabKind where
+  | role | codeBlock | directive | command
+deriving Repr
+
+/--
+Indicates that an extensible document elaborator was used. This info is applied to the name on a
+role, directive, code block, or command, and is used to generate the hover.
+
+A `TermInfo` would not give the correct hover for a few reasons:
+ 1. The name used to invoke a document extension is not necessarily the name of the elaborator that
+    was used, but the elaborator's docstring should be shown rather than that of the name as
+    written.
+ 2. The underlying elaborator's Lean type is not an appropriate signature to show to users.
+-/
+structure DocElabInfo extends ElabInfo where
+  name : Name
+  kind : DocElabKind
+
+/--
+Indicates that a piece of syntax was elaborated as documentation. This info is used for ordinary
+documentation constructs, such as paragraphs, list items, and links. It can be used to determine
+that a given piece of documentation syntax in fact has been elaborated.
+-/
+structure DocInfo extends ElabInfo where
+
+
 /-- Header information for a node in `InfoTree`. -/
 inductive Info where
   | ofTacticInfo (i : TacticInfo)
@@ -224,6 +250,8 @@ inductive Info where
   | ofFieldRedeclInfo (i : FieldRedeclInfo)
   | ofDelabTermInfo (i : DelabTermInfo)
   | ofChoiceInfo (i : ChoiceInfo)
+  | ofDocInfo (i : DocInfo)
+  | ofDocElabInfo (i : DocElabInfo)
   deriving Inhabited
 
 /-- The InfoTree is a structure that is generated during elaboration and used

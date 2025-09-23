@@ -1599,7 +1599,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_PartialBuildKey_parse___closed__4;
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(67u);
+x_3 = lean_unsigned_to_nat(68u);
 x_4 = l_Lake_PartialBuildKey_parse___closed__3;
 x_5 = l_Lake_PartialBuildKey_parse___closed__2;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -1708,7 +1708,6 @@ x_2 = l___private_Lake_Build_Key_0__Lake_PartialBuildKey_parse_parsePackageTarge
 x_3 = 1;
 x_4 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_3);
 x_5 = lean_string_append(x_2, x_4);
-lean_dec_ref(x_4);
 return x_5;
 }
 }
@@ -1739,7 +1738,6 @@ x_6 = l___private_Lake_Build_Key_0__Lake_PartialBuildKey_parse_parseTarget___clo
 x_7 = 1;
 x_8 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_4, x_7);
 x_9 = lean_string_append(x_6, x_8);
-lean_dec_ref(x_8);
 return x_9;
 }
 else
@@ -1792,7 +1790,6 @@ x_16 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_11, x_1
 x_17 = l___private_Lake_Build_Key_0__Lake_PartialBuildKey_parse_parseTarget___closed__6;
 x_18 = lean_string_append(x_16, x_17);
 x_19 = lean_string_append(x_18, x_13);
-lean_dec_ref(x_13);
 return x_19;
 }
 else
@@ -1820,7 +1817,6 @@ x_32 = lean_string_append(x_30, x_31);
 x_33 = 1;
 x_34 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_28, x_33);
 x_35 = lean_string_append(x_32, x_34);
-lean_dec_ref(x_34);
 return x_35;
 }
 else
@@ -1910,7 +1906,6 @@ x_3 = l___private_Lake_Build_Key_0__Lake_PartialBuildKey_parse_parsePackageTarge
 x_4 = 1;
 x_5 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_2, x_4);
 x_6 = lean_string_append(x_3, x_5);
-lean_dec_ref(x_5);
 return x_6;
 }
 case 1:
@@ -1923,7 +1918,6 @@ x_8 = l___private_Lake_Build_Key_0__Lake_PartialBuildKey_parse_parseTarget___clo
 x_9 = 1;
 x_10 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_7, x_9);
 x_11 = lean_string_append(x_8, x_10);
-lean_dec_ref(x_10);
 return x_11;
 }
 case 2:
@@ -1940,7 +1934,6 @@ x_16 = l___private_Lake_Build_Key_0__Lake_PartialBuildKey_parse_parseTarget___cl
 x_17 = lean_string_append(x_15, x_16);
 x_18 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_13, x_14);
 x_19 = lean_string_append(x_17, x_18);
-lean_dec_ref(x_18);
 return x_19;
 }
 default: 
@@ -1958,7 +1951,6 @@ x_25 = l_Lake_Name_eraseHead(x_21);
 x_26 = 1;
 x_27 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_25, x_26);
 x_28 = lean_string_append(x_24, x_27);
-lean_dec_ref(x_27);
 return x_28;
 }
 }
@@ -1983,7 +1975,6 @@ x_10 = l___private_Lake_Build_Key_0__Lake_PartialBuildKey_parse_parseTarget___cl
 x_11 = lean_string_append(x_9, x_10);
 x_12 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_7, x_8);
 x_13 = lean_string_append(x_11, x_12);
-lean_dec_ref(x_12);
 return x_13;
 }
 case 3:
@@ -2001,7 +1992,6 @@ x_19 = l_Lake_Name_eraseHead(x_15);
 x_20 = 1;
 x_21 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_19, x_20);
 x_22 = lean_string_append(x_18, x_21);
-lean_dec_ref(x_21);
 return x_22;
 }
 default: 

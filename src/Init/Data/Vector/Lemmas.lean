@@ -907,6 +907,8 @@ theorem getElem?_singleton {a : α} {i : Nat} : #v[a][i]? = if i = 0 then some a
 
 grind_pattern getElem_mem => xs[i] ∈ xs
 
+
+@[grind ←]
 theorem not_mem_empty (a : α) : ¬ a ∈ #v[] := nofun
 
 @[simp, grind =] theorem mem_push {xs : Vector α n} {x y : α} : x ∈ xs.push y ↔ x ∈ xs ∨ x = y := by

@@ -289,16 +289,6 @@ theorem cons_lex_nil [BEq α] {a} {as : List α} : lex (a :: as) [] lt = false :
 @[simp] theorem lex_nil [BEq α] {as : List α} : lex as [] lt = false := by
   cases as <;> simp [nil_lex_nil, cons_lex_nil]
 
-@[deprecated nil_lex_nil (since := "2025-02-10")]
-theorem lex_nil_nil [BEq α] : lex ([] : List α) [] lt = false := rfl
-@[deprecated nil_lex_cons (since := "2025-02-10")]
-theorem lex_nil_cons [BEq α] {b} {bs : List α} : lex [] (b :: bs) lt = true := rfl
-@[deprecated cons_lex_nil (since := "2025-02-10")]
-theorem lex_cons_nil [BEq α] {a} {as : List α} : lex (a :: as) [] lt = false := rfl
-@[deprecated cons_lex_cons (since := "2025-02-10")]
-theorem lex_cons_cons [BEq α] {a b} {as bs : List α} :
-    lex (a :: as) (b :: bs) lt = (lt a b || (a == b && lex as bs lt)) := rfl
-
 /-! ## Alternative getters -/
 
 /-! ### getLast -/
@@ -475,21 +465,6 @@ We define the basic functional programming operations on `List`:
 
 /-! ### map -/
 
-/--
-Applies a function to each element of the list, returning the resulting list of values.
-
-`O(|l|)`.
-
-Examples:
-* `[a, b, c].map f = [f a, f b, f c]`
-* `[].map Nat.succ = []`
-* `["one", "two", "three"].map (·.length) = [3, 3, 5]`
-* `["one", "two", "three"].map (·.reverse) = ["eno", "owt", "eerht"]`
--/
-@[specialize] def map (f : α → β) : (l : List α) → List β
-  | []    => []
-  | a::as => f a :: map f as
-
 @[simp, grind =] theorem map_nil {f : α → β} : map f [] = [] := rfl
 @[simp, grind =] theorem map_cons {f : α → β} {a : α} {l : List α} : map f (a :: l) = f a :: map f l := rfl
 
@@ -606,20 +581,6 @@ Appends two lists. Normally used via the `++` operator.
 
 Appending lists takes time proportional to the length of the first list: `O(|xs|)`.
 
-Examples:
-  * `[1, 2, 3] ++ [4, 5] = [1, 2, 3, 4, 5]`.
-  * `[] ++ [4, 5] = [4, 5]`.
-  * `[1, 2, 3] ++ [] = [1, 2, 3]`.
--/
-protected def append : (xs ys : List α) → List α
-  | [],    bs => bs
-  | a::as, bs => a :: List.append as bs
-
-/--
-Appends two lists. Normally used via the `++` operator.
-
-Appending lists takes time proportional to the length of the first list: `O(|xs|)`.
-
 This is a tail-recursive version of `List.append`.
 
 Examples:
@@ -691,18 +652,6 @@ theorem reverseAux_eq_append {as bs : List α} : reverseAux as bs = reverseAux a
 
 /-! ### flatten -/
 
-/--
-Concatenates a list of lists into a single list, preserving the order of the elements.
-
-`O(|flatten L|)`.
-
-Examples:
-* `[["a"], ["b", "c"]].flatten = ["a", "b", "c"]`
-* `[["a"], [], ["b", "c"], ["d", "e", "f"]].flatten = ["a", "b", "c", "d", "e", "f"]`
--/
-def flatten : List (List α) → List α
-  | []      => []
-  | l :: L => l ++ flatten L
 
 @[simp, grind =] theorem flatten_nil : List.flatten ([] : List (List α)) = [] := rfl
 @[simp, grind =] theorem flatten_cons : (l :: L).flatten = l ++ L.flatten := rfl
@@ -721,19 +670,13 @@ Examples:
 
 /-! ### flatMap -/
 
-/--
-Applies a function that returns a list to each element of a list, and concatenates the resulting
-lists.
-
-Examples:
-* `[2, 3, 2].flatMap List.range = [0, 1, 0, 1, 2, 0, 1]`
-* `["red", "blue"].flatMap String.toList = ['r', 'e', 'd', 'b', 'l', 'u', 'e']`
--/
-@[inline] def flatMap {α : Type u} {β : Type v} (b : α → List β) (as : List α) : List β := flatten (map b as)
-
 @[simp, grind =] theorem flatMap_nil {f : α → List β} : List.flatMap f [] = [] := by simp [List.flatMap]
 @[simp, grind =] theorem flatMap_cons {x : α} {xs : List α} {f : α → List β} :
   List.flatMap f (x :: xs) = f x ++ List.flatMap f xs := by simp [List.flatMap]
+
+@[simp, grind _=_] theorem flatMap_append {xs ys : List α} {f : α → List β} :
+    (xs ++ ys).flatMap f = xs.flatMap f ++ ys.flatMap f := by
+  induction xs; {rfl}; simp_all [flatMap_cons, append_assoc]
 
 /-! ### replicate -/
 

@@ -259,7 +259,6 @@ block_13:
 {
 lean_object* x_9; uint32_t x_10; lean_object* x_11; 
 x_9 = lean_string_append(x_1, x_8);
-lean_dec_ref(x_8);
 x_10 = 32;
 x_11 = lean_string_push(x_9, x_10);
 x_1 = x_11;
@@ -279,7 +278,6 @@ x_21 = lean_unsigned_to_nat(1u);
 x_22 = lean_nat_add(x_16, x_21);
 x_23 = l_Nat_reprFast(x_22);
 x_24 = lean_string_append(x_20, x_23);
-lean_dec_ref(x_23);
 x_7 = x_18;
 x_8 = x_24;
 goto block_13;
@@ -473,16 +471,13 @@ x_10 = lean_nat_add(x_7, x_9);
 lean_dec(x_7);
 x_11 = l_Nat_reprFast(x_10);
 x_12 = lean_string_append(x_8, x_11);
-lean_dec_ref(x_11);
 x_13 = l_Std_Sat_CNF_dimacs___closed__2;
 x_14 = lean_string_append(x_12, x_13);
 x_15 = l_Nat_reprFast(x_6);
 x_16 = lean_string_append(x_14, x_15);
-lean_dec_ref(x_15);
 x_17 = l_Std_Sat_CNF_dimacs___closed__3;
 x_18 = lean_string_append(x_16, x_17);
 x_19 = lean_string_append(x_18, x_5);
-lean_dec(x_5);
 return x_19;
 }
 }

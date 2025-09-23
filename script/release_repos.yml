@@ -112,3 +112,11 @@ repositories:
     branch: master
     dependencies:
       - mathlib4
+
+  - name: lean-fro.org
+    url: https://github.com/leanprover/lean-fro.org
+    toolchain-tag: false
+    stable-branch: false
+    branch: master
+    dependencies:
+      - verso

@@ -5,19 +5,20 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Grind.Tactics
-public import Init.Data.Queue
-public import Std.Data.TreeSet.Basic
-public import Lean.HeadIndex
+public import Lean.Meta.Tactic.Grind.EMatchTheorem
 public import Lean.Meta.Tactic.Simp.Types
-public import Lean.Meta.Tactic.Grind.ExprPtr
 public import Lean.Meta.Tactic.Grind.AlphaShareCommon
 public import Lean.Meta.Tactic.Grind.Attr
-public import Lean.Meta.Tactic.Grind.ExtAttr
-public import Lean.Meta.Tactic.Grind.EMatchTheorem
-meta import Lean.Parser.Do
+public import Init.Data.Queue
+import Lean.Meta.Tactic.Grind.ExprPtr
+import Init.Grind.Tactics
+import Std.Data.TreeSet.Basic
+import Lean.HeadIndex
+import Lean.Meta.Tactic.Grind.ExtAttr
+import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Match.MatchEqsExt
 import Lean.PrettyPrinter
+meta import Lean.Parser.Do
 public section
 namespace Lean.Meta.Grind
 
@@ -82,6 +83,8 @@ inductive SplitSource where
     existsProp (e : Expr)
   | /-- Input goal -/
     input
+  | /-- Injectivity theorem. -/
+    inj (origin : Origin)
   deriving Inhabited
 
 def SplitSource.toMessageData : SplitSource → MessageData
@@ -92,6 +95,7 @@ def SplitSource.toMessageData : SplitSource → MessageData
   | .forallProp e => m!"Forall propagation at{indentExpr e}"
   | .existsProp e => m!"Exists propagation at{indentExpr e}"
   | .input => "Initial goal"
+  | .inj origin => m!"Injectivity {origin.pp}"
 
 /-- Context for `GrindM` monad. -/
 structure Context where
@@ -383,6 +387,18 @@ private meta def expandReportIssueMacro (s : Syntax) : MacroM (TSyntax `doElem) 
 macro "reportIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
   expandReportIssueMacro s.raw
 
+/-- Similar to `expandReportIssueMacro`, but only reports issue if `grind.debug` is set to `true` -/
+meta def expandReportDbgIssueMacro (s : Syntax) : MacroM (TSyntax `doElem) := do
+  let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
+  `(doElem| do
+    if (← getConfig).verbose then
+      if grind.debug.get (← getOptions) then
+        reportIssue $msg)
+
+/-- Similar to `reportIssue!`, but only reports issue if `grind.debug` is set to `true` -/
+macro "reportDbgIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
+  expandReportDbgIssueMacro s.raw
+
 /--
 Each E-node may have "solver terms" attached to them.
 Each term is an element of the equivalence class that the
@@ -460,6 +476,7 @@ inductive NewFact where
   | fact (prop proof : Expr) (generation : Nat)
 
 -- This type should be considered opaque outside this module.
+@[expose]  -- for codegen
 def ENodeMap := PHashMap ExprPtr ENode
 instance : Inhabited ENodeMap where
   default := private (id {})  -- TODO(sullrich): `id` works around `private` not respecting the expected type
@@ -587,11 +604,18 @@ structure NewRawFact where
   splitSource  : SplitSource
   deriving Inhabited
 
+structure CanonArgKey where
+  f   : Expr
+  i   : Nat
+  arg : Expr
+  deriving BEq, Hashable
+
 /-- Canonicalizer state. See `Canon.lean` for additional details. -/
 structure Canon.State where
   argMap     : PHashMap (Expr × Nat) (List (Expr × Expr)) := {}
   canon      : PHashMap Expr Expr := {}
   proofCanon : PHashMap Expr Expr := {}
+  canonArg   : PHashMap CanonArgKey Expr := {}
   deriving Inhabited
 
 /-- Trace information for a case split. -/
@@ -735,6 +759,17 @@ structure UnitLike.State where
   map : PHashMap ExprPtr (Option Expr) := {}
   deriving Inhabited
 
+structure InjectiveInfo where
+  inv : Expr
+  heq : Expr
+  deriving Inhabited
+
+/-- State for injective theorem support. -/
+structure Injective.State where
+  thms : InjectiveTheorems
+  fns  : PHashMap ExprPtr InjectiveInfo := {}
+  deriving Inhabited
+
 /-- The `grind` goal. -/
 structure Goal where
   mvarId       : MVarId
@@ -763,6 +798,8 @@ structure Goal where
   extThms      : PHashMap ExprPtr (Array Ext.ExtTheorem) := {}
   /-- State of the E-matching module. -/
   ematch       : EMatch.State
+  /-- State of the injective function procedure. -/
+  inj          : Injective.State
   /-- State of the case-splitting module. -/
   split        : Split.State := {}
   /-- State of the clean name generator. -/

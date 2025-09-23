@@ -175,7 +175,7 @@ attribute [deprecated "The `style?` property is not used anymore." (since := "20
 
 /- Use `toMessageData` of the suggestion text. -/
 instance : ToMessageData Suggestion where
-  toMessageData s := toMessageData s.suggestion
+  toMessageData s := s.messageData?.getD (toMessageData s.suggestion)
 
 instance : Coe SuggestionText Suggestion where
   coe t := { suggestion := t }
@@ -233,13 +233,10 @@ code action title if `toCodeActionTitle?` is provided.
 
 If `w := none`, then `w := getInputWidth (← getOptions)` is used.
 -/
-def Suggestion.toJsonAndInfoM (s : Suggestion) (w : Option Nat := none) (indent column : Nat := 0) :
-    CoreM (Json × String × Option String) := do
+def Suggestion.process (s : Suggestion) (w : Option Nat := none) (indent column : Nat := 0) :
+    CoreM (String × Option String) := do
   let text ← s.suggestion.prettyExtra w indent column
-  let mut json := [("suggestion", (text : Json))]
-  if let some preInfo := s.preInfo? then json := ("preInfo", preInfo) :: json
-  if let some postInfo := s.postInfo? then json := ("postInfo", postInfo) :: json
-  return (Json.mkObj json, text, s.toCodeActionTitle?.map (· text))
+  return (text, s.toCodeActionTitle?.map (· text))
 
 /--
 Represents processed data for a collection of suggestions that can be passed to a widget and pushed
@@ -253,7 +250,7 @@ It contains the following data:
 * `range`: the range at which the suggestion is to be applied.
 -/
 structure ProcessedSuggestions where
-  suggestions : Array (Json × String × Option String)
+  suggestions : Array String
   info : Elab.Info
   range : Lsp.Range
 
@@ -268,12 +265,11 @@ def processSuggestions (ref : Syntax) (range : String.Range) (suggestions : Arra
   -- replacing `tac` in `by tac`, because the next line will only be 2 space indented
   -- (less than `tac` which starts at column 3)
   let (indent, column) := getIndentAndColumn map range
-  let suggestions ← suggestions.mapM (·.toJsonAndInfoM (indent := indent) (column := column))
-  let suggestionTexts := suggestions.map (·.2)
+  let suggestions ← suggestions.mapM (·.process (indent := indent) (column := column))
   let ref := Syntax.ofRange <| ref.getRange?.getD range
   let range := map.utf8RangeToLspRange range
   let info := .ofCustomInfo {
     stx := ref
-    value := Dynamic.mk { range, suggestionTexts, codeActionPrefix? : TryThisInfo }
+    value := Dynamic.mk { range, suggestionTexts := suggestions, codeActionPrefix? : TryThisInfo }
   }
-  return { info, suggestions, range }
+  return { info, suggestions := suggestions.map (·.1), range }

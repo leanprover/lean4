@@ -34,6 +34,7 @@ open Lean Elab Tactic PrettyPrinter Meta Server RequestM
 
 -- Because we can't use `builtin_widget_module` in `Lean.Meta.Hint`, we add the attribute here
 attribute [builtin_widget_module] Hint.tryThisDiffWidget
+attribute [builtin_widget_module] Hint.textInsertionWidget
 
 /-! # Code action -/
 
@@ -72,7 +73,7 @@ def delabToRefinableSyntax (e : Expr) : MetaM Term :=
 
 /-- Delaborate `e` into a suggestion suitable for use by `refine`. -/
 def delabToRefinableSuggestion (e : Expr) : MetaM Suggestion :=
-  return { suggestion := ← delabToRefinableSyntax e }
+  return { suggestion := ← delabToRefinableSyntax e, messageData? := e }
 
 /-- Add a "try this" suggestion. This has two effects:
 
@@ -187,19 +188,19 @@ Remark: We cannot determine if a tactic requires `expose_names` merely by inspec
 (shadowed variables are delaborated without daggers) nor the underlying `Expr` used to produce it
 (some inaccessible names may be implicit arguments that do not appear in the delaborated syntax).
 -/
-private def mkValidatedTactic (tac : TSyntax `tactic)
+private def mkValidatedTactic (tac : TSyntax `tactic) (msg : MessageData)
     (initialState : Tactic.SavedState) (expectedType? : Option Expr := none) :
-    TacticM (Option (TSyntax `tactic)) := do
+    TacticM (Option (TSyntax `tactic × MessageData)) := do
   try
     evalTacticWithState initialState tac expectedType?
-    return some tac
+    return some (tac, msg)
   catch _ =>
     -- Note: we must use `(expose_names; _)` and not `· expose_names; _` to avoid generating
     -- spurious tactic-abort exceptions, since these tactics may not close the goal
     let tac ← `(tactic| (expose_names; $tac))
     try
       evalTacticWithState initialState tac expectedType?
-      return some tac
+      return some (tac, m!"(expose_names; {msg})")
     catch _ =>
       return none
 
@@ -231,7 +232,7 @@ private def addExactSuggestionCore (addSubgoalsMsg : Bool) (checkState? : Option
   let hasMVars := !mvars.isEmpty
   let (suggestion, messageData) ← mkExactSuggestionSyntax e (useRefine := hasMVars)
   let some checkState := checkState? | return .inl suggestion
-  let some suggestion ← mkValidatedTactic suggestion checkState
+  let some (suggestion, messageData) ← mkValidatedTactic suggestion messageData checkState
     | let messageData := m!"(expose_names; {messageData})"
       return .inr <| mkFailedToMakeTacticMsg m!"a {if hasMVars then "partial " else ""}proof" messageData
   let postInfo? ← if !addSubgoalsMsg || mvars.isEmpty then pure none else
@@ -241,7 +242,7 @@ private def addExactSuggestionCore (addSubgoalsMsg : Bool) (checkState? : Option
       let e ← withExposedNames <| PrettyPrinter.ppExpr (← instantiateMVars (← g.getType))
       str := str ++ Format.pretty ("\n-- ⊢ " ++ e)
     pure str
-  return .inl { suggestion := suggestion, postInfo? }
+  return .inl { suggestion := suggestion, postInfo?, messageData? := messageData }
 
 /-- Add an `exact e` or `refine e` suggestion.
 
@@ -374,11 +375,12 @@ def addHaveSuggestion (ref : Syntax) (h? : Option Name) (t? : Option Expr) (e : 
         pure (← `(tactic| let $(mkIdent h):ident := $estx), m!"let {h} := {e}")
     pure (tac, ← addMessageContext msg)
   if let some checkState := checkState? then
-    let some tac' ← mkValidatedTactic tac checkState
+    let some (tac', msg') ← mkValidatedTactic tac msg checkState
       | logInfo <| mkFailedToMakeTacticMsg "a proof" msg
         return
     tac := tac'
-  addSuggestion ref (s := { suggestion := tac }) origSpan?
+    msg := msg'
+  addSuggestion ref (s := { suggestion := tac, messageData? := msg }) origSpan?
 
 open Lean.Parser.Tactic
 open Lean.Syntax
@@ -400,7 +402,7 @@ def addRewriteSuggestion (ref : Syntax) (rules : List (Expr × Bool))
   (type? : LOption Expr := .undef) (loc? : Option Expr := none)
   (origSpan? : Option Syntax := none) (checkState? : Option Tactic.SavedState := none) :
     TacticM Unit := do
-  let mut (tac, tacMsg, extraMsg, extraStr) ← withExposedNames do
+  let mut (tac, tacMsg, extraMsg) ← withExposedNames do
     let rulesStx := TSepArray.ofElems <| ← rules.toArray.mapM fun ⟨e, symm⟩ => do
       let t ← delabToRefinableSyntax e
       if symm then `(rwRule| ← $t:term) else `(rwRule| $t:term)
@@ -423,22 +425,23 @@ def addRewriteSuggestion (ref : Syntax) (rules : List (Expr × Bool))
       else
         m!"rw {rulesMsg}"
 
-    let (extraMsg, extraStr) ←
+    let extraMsg ←
       match type? with
       | .some type =>
-        pure (← addMessageContext m!"\n-- {type}", s!"\n-- {← PrettyPrinter.ppExpr type}")
-      | .none => pure (m!"\n-- no goals", "\n-- no goals")
-      | .undef => pure (m!"", "")
-    return (tac, tacMsg, extraMsg, extraStr)
+        pure <| ← addMessageContext m!"\n-- {type}"
+      | .none => pure m!"\n-- no goals"
+      | .undef => pure m!""
+    return (tac, tacMsg, extraMsg)
 
   if let some checkState := checkState? then
     let type? := match type? with
       | .some type => some type
       | _ => none
-    let some tac' ← mkValidatedTactic tac checkState type?
+    let some (tac', tacMsg') ← mkValidatedTactic tac tacMsg checkState type?
       | tacMsg := m!"(expose_names; {tacMsg})"
         logInfo <| mkFailedToMakeTacticMsg "an applicable rewrite lemma" (tacMsg ++ extraMsg)
         return
     tac := tac'
-  addSuggestion ref (s := { suggestion := tac, postInfo? := extraStr })
+    tacMsg := tacMsg'
+  addSuggestion ref (s := { suggestion := tac, messageData? := tacMsg ++ extraMsg })
     origSpan?

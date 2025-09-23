@@ -10,8 +10,10 @@ public import Init.Data.String.Pattern.Basic
 public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.Consumers.Monadic.Loop
 
+set_option doc.verso true
+
 /-!
-This module defines the necessary instances to register `Char` with the pattern framework.
+This module defines the necessary instances to register {name}`Char` with the pattern framework.
 -/
 
 public section

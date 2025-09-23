@@ -9,14 +9,17 @@ prelude
 public import Init.Data.String.Basic
 public import Init.Data.Iterators.Basic
 
+set_option doc.verso true
+
 /-!
-This module defines the notion of patterns which is central to the `Slice` and `String` API.
-All functions on `Slice` and `String` that "search for something" are polymorphic over a pattern
-instead of taking just one particular kind of pattern such as a `Char`. The key components are:
-- `ToForwardSearcher`
-- `ForwardPattern`
-- `ToBackwardSearcher`
-- `SuffixPattern`
+This module defines the notion of patterns which is central to the {name}`String.Slice` and
+{name}`String` API. All functions on {name}`String.Slice` and {name}`String` that
+"search for something" are polymorphic over a pattern instead of taking just one particular kind
+of pattern such as a {name}`Char`. The key components are:
+- {name (scope := "Init.Data.String.Pattern.Basic")}`ToForwardSearcher`
+- {name (scope := "Init.Data.String.Pattern.Basic")}`ForwardPattern`
+- {name (scope := "Init.Data.String.Pattern.Basic")}`ToBackwardSearcher`
+- {name (scope := "Init.Data.String.Pattern.Basic")}`SuffixPattern`
 -/
 
 public section
@@ -24,38 +27,39 @@ public section
 namespace String.Slice.Pattern
 
 /--
-A step taken during the traversal of a `Slice` by a forward or backward searcher.
+A step taken during the traversal of a {name}`Slice` by a forward or backward searcher.
 -/
 inductive SearchStep (s : Slice) where
   /--
-  The subslice starting at `startPos` and ending at `endPos` did not match the pattern.
+  The subslice starting at {name}`startPos` and ending at {name}`endPos` did not match the pattern.
   -/
   | rejected (startPos endPos : s.Pos)
   /--
-  The subslice starting at `startPos` and ending at `endPos` did not match the pattern.
+  The subslice starting at {name}`startPos` and ending at {name}`endPos` did not match the pattern.
   -/
   | matched (startPos endPos : s.Pos)
   deriving Inhabited
 
 /--
-Provides a conversion from a pattern to an iterator of `SearchStep` searching for matches of the
-pattern from the start towards the end of a `Slice`.
+Provides a conversion from a pattern to an iterator of {name}`SearchStep` searching for matches of
+the pattern from the start towards the end of a {name}`Slice`.
 -/
 class ToForwardSearcher (ρ : Type) (σ : outParam (Slice → Type)) where
   /--
-  Build an iterator of `SearchStep` corresponding to matches of `pat` along the slice `s`.
-  The `SearchStep`s returned by this iterator must contain ranges that are adjacent, non-overlapping
-  and cover all of `s`.
+  Build an iterator of {name}`SearchStep` corresponding to matches of {name}`pat` along the slice
+  {name}`s`. The {name}`SearchStep`s returned by this iterator must contain ranges that are
+  adjacent, non-overlapping and cover all of {name}`s`.
   -/
   toSearcher : (s : Slice) → (pat : ρ) → Std.Iter (α := σ s) (SearchStep s)
 
 /--
-Provides simple pattern matching capabilities from the start of a `Slice`.
+Provides simple pattern matching capabilities from the start of a {name}`Slice`.
 
-While these operations can be implemented on top of `ToForwardSearcher` some patterns allow for more
-efficient implementations so this class can be used to specialise for them. If there is no need to
-specialise in this fashion `ForwardPattern.defaultImplementation` can be used to automatically
-derive an instance.
+While these operations can be implemented on top of {name}`ToForwardSearcher` some patterns allow
+for more efficient implementations so this class can be used to specialise for them. If there is no
+need to specialise in this fashion
+{name (scope := "Init.Data.String.Pattern.Basic")}`ForwardPattern.defaultImplementation` can be used
+to automatically derive an instance.
 -/
 class ForwardPattern (ρ : Type) where
   /--
@@ -64,7 +68,7 @@ class ForwardPattern (ρ : Type) where
   startsWith : Slice → ρ → Bool
   /--
   Checks whether the slice starts with the pattern, if it does return slice with the prefix removed,
-  otherwise `none`.
+  otherwise {name}`none`.
   -/
   dropPrefix? : Slice → ρ → Option Slice
 
@@ -99,8 +103,8 @@ variable [∀ s, Std.Iterators.Iterator (σ s) Id (SearchStep s)]
 variable [∀ s, Std.Iterators.Finite (σ s) Id]
 
 /--
-Tries to skip the `searcher` until the next `SearchStep.matched` and return it. If no match is
-found until the end returns `none`.
+Tries to skip the {name}`searcher` until the next {name}`SearchStep.matched` and return it. If no
+match is found until the end returns {name}`none`.
 -/
 @[inline]
 def nextMatch (searcher : Std.Iter (α := σ s) (SearchStep s)) :
@@ -116,8 +120,8 @@ where
   termination_by Std.Iterators.Iter.finitelyManySteps searcher
 
 /--
-Tries to skip the `searcher` until the next `SearchStep.rejected` and return it. If no reject is
-found until the end returns `none`.
+Tries to skip the {name}`searcher` until the next {name}`SearchStep.rejected` and return it. If no
+reject is found until the end returns {name}`none`.
 -/
 @[inline]
 def nextReject (searcher : Std.Iter (α := σ s) (SearchStep s)) :
@@ -162,24 +166,25 @@ def defaultImplementation : ForwardPattern ρ where
 end ForwardPattern
 
 /--
-Provides a conversion from a pattern to an iterator of `SearchStep` searching for matches of the
-pattern from the end towards the start of a `Slice`.
+Provides a conversion from a pattern to an iterator of {name}`SearchStep` searching for matches of
+the pattern from the end towards the start of a {name}`Slice`.
 -/
 class ToBackwardSearcher (ρ : Type) (σ : outParam (Slice → Type)) where
   /--
-  Build an iterator of `SearchStep` corresponding to matches of `pat` along the slice `s`.
-  The `SearchStep`s returned by this iterator must contain ranges that are adjacent, non-overlapping
-  and cover all of `s`.
+  Build an iterator of {name}`SearchStep` corresponding to matches of {lean}`pat` along the slice
+  {name}`s`. The {name}`SearchStep`s returned by this iterator must contain ranges that are
+  adjacent, non-overlapping and cover all of {name}`s`.
   -/
-  toSearcher : (s : Slice) → ρ → Std.Iter (α := σ s) (SearchStep s)
+  toSearcher : (s : Slice) → (pat : ρ) → Std.Iter (α := σ s) (SearchStep s)
 
 /--
-Provides simple pattern matching capabilities from the end of a `Slice`.
+Provides simple pattern matching capabilities from the end of a {name}`Slice`.
 
-While these operations can be implemented on top of `ToBackwardSearcher` some patterns allow for
-more efficient implementations so this class can be used to specialise for them. If there is no
-need to specialise in this fashion `BackwardPattern.defaultImplementation` can be used to
-automatically derive an instance.
+While these operations can be implemented on top of {name}`ToBackwardSearcher` some patterns allow
+for more efficient implementations so this class can be used to specialise for them. If there is no
+need to specialise in this fashion
+{name (scope := "Init.Data.String.Pattern.Basic")}`BackwardPattern.defaultImplementation` can be
+used to automatically derive an instance.
 -/
 class BackwardPattern (ρ : Type) where
   endsWith : Slice → ρ → Bool

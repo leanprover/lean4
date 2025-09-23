@@ -337,7 +337,7 @@ inductive Status where
   511 Network Authentication Required
   -/
   | networkAuthenticationRequired
-deriving Repr, Inhabited
+deriving Repr, Inhabited, BEq
 
 instance : ToString Status where
   toString

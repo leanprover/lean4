@@ -57,11 +57,11 @@ Tests for `String.Slice` functions
 #guard "tea".toSlice.find? (fun (c : Char) => c == 'X') == none
 #guard ("coffee tea water".toSlice.find? "tea").map (·.get!) == some 't'
 
-#guard "coffee tea water".toSlice.contains Char.isWhitespace == true
-#guard "tea".toSlice.contains (fun (c : Char) => c == 'X') == false
-#guard "coffee tea water".toSlice.contains "tea" == true
+#guard "coffee tea water".toSlice.contains Char.isWhitespace = true
+#guard "tea".toSlice.contains (fun (c : Char) => c == 'X') = false
+#guard "coffee tea water".toSlice.contains "tea" = true
 
-#guard "brown".toSlice.all Char.isLower == true
-#guard "brown and orange".toSlice.all Char.isLower == false
-#guard "aaaaaa".toSlice.all 'a' == true
-#guard "aaaaaa".toSlice.all "aa" == true
+#guard "brown".toSlice.all Char.isLower = true
+#guard "brown and orange".toSlice.all Char.isLower = false
+#guard "aaaaaa".toSlice.all 'a' = true
+#guard "aaaaaa".toSlice.all "aa" = true

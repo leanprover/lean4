@@ -327,9 +327,9 @@ Checks whether a slice has a match of the pattern `pat` anywhere.
 This function is generic over all currently supported patterns.
 
 Examples:
- * `"coffee tea water".toSlice.contains Char.isWhitespace == true`
- * `"tea".toSlice.contains (fun (c : Char) => c == 'X') == false`
- * `"coffee tea water".toSlice.contains "tea" == true`
+ * `"coffee tea water".toSlice.contains Char.isWhitespace = true`
+ * `"tea".toSlice.contains (fun (c : Char) => c == 'X') = false`
+ * `"coffee tea water".toSlice.contains "tea" = true`
 -/
 @[specialize pat]
 def contains [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) : Bool :=
@@ -344,10 +344,10 @@ Short-circuits at the first pattern mis-match.
 This function is generic over all currently supported patterns.
 
 Examples:
- * `"brown".toSlice.all Char.isLower == true`
- * `"brown and orange".toSlice.all Char.isLower == false`
- * `"aaaaaa".toSlice.all 'a' == true`
- * `"aaaaaa".toSlice.all "aa" == true`
+ * `"brown".toSlice.all Char.isLower = true`
+ * `"brown and orange".toSlice.all Char.isLower = false`
+ * `"aaaaaa".toSlice.all 'a' = true`
+ * `"aaaaaa".toSlice.all "aa" = true`
 -/
 @[specialize pat]
 def all [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) : Bool :=

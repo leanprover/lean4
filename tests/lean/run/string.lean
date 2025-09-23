@@ -1,3 +1,5 @@
+module
+
 /-!
 # Tests for `String` functions
 -/

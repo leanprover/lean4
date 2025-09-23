@@ -224,7 +224,7 @@ Examples:
 * `"abc".length = 3`
 * `"L∃∀N".length = 4`
 -/
-@[extern "lean_string_length"]
+@[extern "lean_string_length", expose]
 def String.length (b : @& String) : Nat :=
   b.data.length
 
@@ -454,6 +454,7 @@ Examples:
  * `"".toList = []`
  * `"\n".toList = ['\n']`
 -/
+@[expose]
 def toList (s : String) : List Char :=
   s.data
 
@@ -707,7 +708,7 @@ Accesses the indicated byte in the UTF-8 encoding of a string.
 
 At runtime, this function is implemented by efficient, constant-time code.
 -/
-@[extern "lean_string_get_byte_fast"]
+@[extern "lean_string_get_byte_fast", expose]
 def getUtf8Byte (s : @& String) (p : Pos) (h : p < s.endPos) : UInt8 :=
   s.bytes[p.byteIdx]
 
@@ -760,7 +761,7 @@ Examples:
  * `String.Pos.isValid "𝒫(A)" ⟨3⟩ = false`
  * `String.Pos.isValid "𝒫(A)" ⟨4⟩ = true`
 -/
-@[extern "lean_string_is_valid_pos"]
+@[extern "lean_string_is_valid_pos", expose]
 def Pos.isValid (s : @&String) (p : @& Pos) : Bool :=
   if h : p < s.endPos then
     (s.getUtf8Byte p h).IsUtf8FirstByte
@@ -782,7 +783,7 @@ theorem Pos.isValid_eq_false_iff {s : String} {p : Pos} : p.isValid s = false �
   rw [← Bool.not_eq_true, Pos.isValid_eq_true_iff]
 
 instance {s : String} {p : Pos} : Decidable (p.IsValid s) :=
-  decidable_of_iff _ Pos.isValid_eq_true_iff
+  decidable_of_iff (p.isValid s = true) Pos.isValid_eq_true_iff
 
 theorem Pos.isValid_iff_isSome_utf8DecodeChar? {s : String} {p : Pos} :
     p.IsValid s ↔ p = s.endPos ∨ (s.bytes.utf8DecodeChar? p.byteIdx).isSome := by
@@ -878,6 +879,7 @@ structure ValidPos (s : String) where
   offset : Pos
   /-- The proof that `offset` is valid for the string `s`. -/
   isValid : offset.IsValid s
+deriving DecidableEq
 
 /-- The start position of `s`, as an `s.ValidPos`. -/
 def startValidPos (s : String) : s.ValidPos where
@@ -1268,7 +1270,7 @@ theorem Pos.isValidForSlice_replaceEnd {s : Slice} {p : s.Pos} {off : Pos} :
 def decodeChar (s : @& String) (byteIdx : @& Nat) (h : (s.bytes.utf8DecodeChar? byteIdx).isSome) : Char :=
   s.bytes.utf8DecodeChar byteIdx h
 
-/-- Obtains the byte at the given position in the string. -/
+/-- Obtains the character at the given position in the string. -/
 def Slice.Pos.get {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : Char :=
   s.str.decodeChar (s.startInclusive.offset.byteIdx + pos.offset.byteIdx)
     ((Pos.isValidForSlice_iff_isSome_utf8DecodeChar?.1 pos.isValidForSlice).elim (by simp_all [Pos.ext_iff]) (·.2))
@@ -1798,6 +1800,7 @@ def Slice.Pos.prevn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=
     else
       p
 
+@[expose]
 def utf8GetAux : List Char → Pos → Pos → Char
   | [],    _, _ => default
   | c::cs, i, p => if i = p then c else utf8GetAux cs (i + c) p
@@ -1818,6 +1821,7 @@ Examples:
 def get (s : @& String) (p : @& Pos) : Char :=
   utf8GetAux s.data 0 p
 
+@[expose]
 def utf8GetAux? : List Char → Pos → Pos → Option Char
   | [],    _, _ => none
   | c::cs, i, p => if i = p then some c else utf8GetAux? cs (i + c) p
@@ -1835,7 +1839,7 @@ Examples:
 * `"L∃∀N".get? ⟨1⟩ = some '∃'`
 * `"L∃∀N".get? ⟨2⟩ = none`
 -/
-@[extern "lean_string_utf8_get_opt"]
+@[extern "lean_string_utf8_get_opt", expose]
 def get? : (@& String) → (@& Pos) → Option Char
   | s, p => utf8GetAux? s.data 0 p
 
@@ -1855,6 +1859,7 @@ def get! (s : @& String) (p : @& Pos) : Char :=
   match s with
   | s => utf8GetAux s.data 0 p
 
+@[expose]
 def utf8SetAux (c' : Char) : List Char → Pos → Pos → List Char
   | [],    _, _ => []
   | c::cs, i, p =>
@@ -1874,7 +1879,7 @@ Examples:
 * `"L∃∀N".set ⟨2⟩ 'X' = "L∃∀N"` because `'∃'` is a multi-byte character, so the byte index `2` is an
   invalid position.
 -/
-@[extern "lean_string_utf8_set"]
+@[extern "lean_string_utf8_set", expose]
 def set : String → (@& Pos) → Char → String
   | s, i, c => (utf8SetAux c s.data 0 i).asString
 
@@ -1889,6 +1894,7 @@ Examples:
 * `"abc".modify ⟨1⟩ Char.toUpper = "aBc"`
 * `"abc".modify ⟨3⟩ Char.toUpper = "abc"`
 -/
+@[expose]
 def modify (s : String) (i : Pos) (f : Char → Char) : String :=
   s.set i <| f <| s.get i
 
@@ -1912,6 +1918,7 @@ def next (s : @& String) (p : @& Pos) : Pos :=
   let c := get s p
   p + c
 
+@[expose]
 def utf8PrevAux : List Char → Pos → Pos → Pos
   | [],    _, p => ⟨p.byteIdx - 1⟩
   | c::cs, i, p =>
@@ -1941,7 +1948,7 @@ Examples:
 * `"abc".front = 'a'`
 * `"".front = (default : Char)`
 -/
-@[inline] def front (s : String) : Char :=
+@[inline, expose] def front (s : String) : Char :=
   get s 0
 
 @[export lean_string_front]
@@ -1955,7 +1962,7 @@ Examples:
 * `"abc".back = 'c'`
 * `"".back = (default : Char)`
 -/
-@[inline] def back (s : String) : Char :=
+@[inline, expose] def back (s : String) : Char :=
   get s (prev s s.endPos)
 
 /--
@@ -2962,7 +2969,7 @@ string, then the character at the start position is returned. If the substring's
 not a valid position in the string, the fallback value `(default : Char)`, which is `'A'`, is
 returned.  Does not panic.
 -/
-@[inline] def front (s : Substring) : Char :=
+@[inline, expose] def front (s : Substring) : Char :=
   s.get 0
 
 @[export lean_substring_front]

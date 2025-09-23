@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.MatchCond
-// Imports: Init.Grind Init.Simproc Lean.Meta.Tactic.Contradiction Lean.Meta.Tactic.Grind.ProveEq Lean.Meta.Tactic.Grind.PropagatorAttr
+// Imports: Lean.Meta.Tactic.Grind.Types Init.Grind Init.Simproc Lean.Meta.Tactic.Contradiction Lean.Meta.Tactic.Grind.ProveEq Lean.Meta.Tactic.Grind.PropagatorAttr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20723,6 +20723,7 @@ x_4 = l_Lean_Meta_Grind_registerBuiltinDownwardPropagator(x_2, x_3, x_1);
 return x_4;
 }
 }
+lean_object* initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Simproc(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Contradiction(uint8_t builtin, lean_object*);
@@ -20733,6 +20734,9 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_MatchCond(uint8_t bui
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Lean_Meta_Tactic_Grind_Types(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Grind(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

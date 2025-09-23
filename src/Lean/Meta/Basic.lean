@@ -415,6 +415,10 @@ structure PostponedEntry where
 structure Diagnostics where
   /-- Number of times each declaration has been unfolded -/
   unfoldCounter : PHashMap Name Nat := {}
+  /--
+  Number of times each axiom was tried to be unfolded, which may point to an inaccessible def value.
+  -/
+  unfoldAxiomCounter : PHashMap Name Nat := {}
   /-- Number of times `f a =?= f b` heuristic has been used per function `f`. -/
   heuristicCounter : PHashMap Name Nat := {}
   /-- Number of times a TC instance is used. -/
@@ -670,21 +674,30 @@ def mkInfoCacheKey (expr : Expr) (nargs? : Option Nat) : MetaM InfoCacheKey :=
 
 /-- If diagnostics are enabled, record that `declName` has been unfolded. -/
 def recordUnfold (declName : Name) : MetaM Unit := do
-  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
+  modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
     let newC := if let some c := unfoldCounter.find? declName then c + 1 else 1
-    { unfoldCounter := unfoldCounter.insert declName newC, heuristicCounter, instanceCounter, synthPendingFailures }
+    { unfoldCounter := unfoldCounter.insert declName newC, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures }
+
+def recordUnfoldAxiom (declName : Name) : MetaM Unit := do
+  modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
+    let newC := if let some c := unfoldAxiomCounter.find? declName then c + 1 else 1
+    { unfoldCounter, unfoldAxiomCounter := unfoldAxiomCounter.insert declName newC, heuristicCounter, instanceCounter, synthPendingFailures }
+
+def resetUnfoldAxiom : MetaM Unit := do
+  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures, .. } =>
+    { unfoldCounter, unfoldAxiomCounter := {}, heuristicCounter, instanceCounter, synthPendingFailures }
 
 /-- If diagnostics are enabled, record that heuristic for solving `f a =?= f b` has been used. -/
 def recordDefEqHeuristic (declName : Name) : MetaM Unit := do
-  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
+  modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
     let newC := if let some c := heuristicCounter.find? declName then c + 1 else 1
-    { unfoldCounter, heuristicCounter := heuristicCounter.insert declName newC, instanceCounter, synthPendingFailures }
+    { unfoldCounter, unfoldAxiomCounter, heuristicCounter := heuristicCounter.insert declName newC, instanceCounter, synthPendingFailures }
 
 /-- If diagnostics are enabled, record that instance `declName` was used during TC resolution. -/
 def recordInstance (declName : Name) : MetaM Unit := do
-  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
+  modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
     let newC := if let some c := instanceCounter.find? declName then c + 1 else 1
-    { unfoldCounter, heuristicCounter, instanceCounter := instanceCounter.insert declName newC, synthPendingFailures }
+    { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter := instanceCounter.insert declName newC, synthPendingFailures }
 
 /-- If diagnostics are enabled, record that synth pending failures. -/
 def recordSynthPendingFailure (type : Expr) : MetaM Unit := do
@@ -692,8 +705,8 @@ def recordSynthPendingFailure (type : Expr) : MetaM Unit := do
     unless (← get).diag.synthPendingFailures.contains type do
       -- We need to save the full context since type class resolution uses multiple metavar contexts and different local contexts
       let msg ← addMessageContextFull m!"{type}"
-      modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
-        { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures := synthPendingFailures.insert type msg }
+      modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
+        { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures := synthPendingFailures.insert type msg }
 
 def getLocalInstances : MetaM LocalInstances :=
   return (← read).localInstances

@@ -27,7 +27,7 @@ def symbolFrequency (env : Environment) : NameMap Nat := Id.run do
   let mut map := {}
   for (_, ci) in env.constants do
     for n' in ci.type.getUsedConstantsAsSet do
-      map := map.insert n' (map.getD n' 0 + 1)
+      map := map.alter n' fun i? => some (i?.getD 0 + 1)
   return map
 
 def weightedScore (weight : Name → Float) (relevant candidate : NameSet) : Float :=
@@ -84,8 +84,7 @@ public def mepoSelector (useRarity : Bool) (p : Float := 0.6) (c : Float := 2.4)
     frequencyScore (frequency.getD · 0)
   else
     unweightedScore
-  let accept := fun ci => do
-    return ! isDeniedPremise env ci.name
+  let accept := fun ci => return !isDeniedPremise env ci.name
   let suggestions ← mepo constants score accept p c
   let suggestions := suggestions
     |>.map (fun (n, s) => { name := n, score := s })

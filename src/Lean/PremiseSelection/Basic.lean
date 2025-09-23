@@ -133,7 +133,7 @@ def random (gen : StdGen := ⟨37, 59⟩) : Selector := fun _ cfg => do
       suggestions := suggestions.push { name := name, score := 1.0 / consts.size.toFloat }
   return suggestions
 
-initialize premiseSelectorExt : EnvExtension (Option Selector) ←
+builtin_initialize premiseSelectorExt : EnvExtension (Option Selector) ←
   registerEnvExtension (pure none)
 
 /-- Generate premise suggestions for the given metavariable, using the currently registered premise selector. -/

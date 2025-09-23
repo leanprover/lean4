@@ -879,13 +879,7 @@ structure ValidPos (s : String) where
   offset : Pos
   /-- The proof that `offset` is valid for the string `s`. -/
   isValid : offset.IsValid s
-
--- https://github.com/leanprover/lean4/issues/10513
-@[expose] section
-
-deriving instance DecidableEq for ValidPos
-
-end
+deriving @[expose] DecidableEq
 
 /-- The start position of `s`, as an `s.ValidPos`. -/
 @[expose]
@@ -1061,13 +1055,7 @@ structure Slice.Pos (s : Slice) where
   offset : String.Pos
   /-- The proof that `offset` is valid for the string slice `s`. -/
   isValidForSlice : offset.IsValidForSlice s
-
--- https://github.com/leanprover/lean4/issues/10513
-@[expose] section
-
-deriving instance DecidableEq for Slice.Pos
-
-end
+deriving @[expose] DecidableEq
 
 /-- The start position of `s`, as an `s.Pos`. -/
 @[expose]
@@ -1818,7 +1806,7 @@ the start position. -/
 def ValidPos.prev! {s : String} (pos : s.ValidPos) : s.ValidPos :=
   pos.toSlice.prev!.ofSlice
 
-/-- Constructs a valid position on `s` from a position and a proof that it is valid. -/
+/-- Construosition on `s` from a position and a proof that it is valid. -/
 @[expose]
 def pos (s : String) (off : Pos) (h : off.IsValid s) : s.ValidPos :=
   (s.toSlice.pos off h.toSlice).ofSlice

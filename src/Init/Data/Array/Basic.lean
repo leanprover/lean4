@@ -1799,7 +1799,6 @@ Examples:
 * `#["apple", "pear", "orange"].eraseIdxIfInBounds 3 = #["apple", "pear", "orange"]`
 * `#["apple", "pear", "orange"].eraseIdxIfInBounds 5 = #["apple", "pear", "orange"]`
 -/
-@[grind]
 def eraseIdxIfInBounds (xs : Array α) (i : Nat) : Array α :=
   if h : i < xs.size then xs.eraseIdx i h else xs
 

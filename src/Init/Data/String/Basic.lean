@@ -1763,6 +1763,9 @@ def Slice.pos (s : Slice) (off : String.Pos) (h : off.IsValidForSlice s) : s.Pos
   offset := off
   isValidForSlice := h
 
+@[simp]
+theorem Slice.offset_pos {s : Slice} {off h} : (s.pos off h).offset = off := rfl
+
 /-- Constructs a valid position on `s` from a position, returning `none` if the position is not valid. -/
 @[expose]
 def Slice.pos? (s : Slice) (off : String.Pos) : Option s.Pos :=
@@ -1874,18 +1877,40 @@ where
     simp only [Pos.lt_iff, byteIdx_utf8ByteSize, Pos.byteIdx_inc, gt_iff_lt] at h ⊢
     omega
 
+@[simp]
+theorem Pos.le_refl {p : Pos} : p ≤ p := by simp [le_iff]
+
+theorem Pos.lt_inc {p : Pos} : p < p.inc := by simp [lt_iff]
+
+theorem Pos.le_of_lt {p q : Pos} : p < q → p ≤ q := by simpa [lt_iff, le_iff] using Nat.le_of_lt
+
+theorem Pos.inc_le {p q : Pos} : p.inc ≤ q ↔ p < q := by simpa [lt_iff, le_iff] using Nat.succ_le
+
+private theorem Slice.le_offset_findNextPosGo {s : Slice} {o : String.Pos} (h : o ≤ s.utf8ByteSize) :
+    o ≤ (findNextPos.go s o).offset := by
+  fun_induction findNextPos.go with
+  | case1 => simp
+  | case2 x h₁ h₂ ih =>
+    refine Pos.le_of_lt (Pos.lt_of_lt_of_le Pos.lt_inc (ih ?_))
+    rw [Pos.le_iff, Pos.byteIdx_inc]
+    exact Nat.succ_le.2 h₁
+  | case3 x h => exact h
+
+theorem Slice.lt_offset_findNextPos {s : Slice} {o : String.Pos} (h) : o < (s.findNextPos o h).offset :=
+  Pos.lt_of_lt_of_le Pos.lt_inc (le_offset_findNextPosGo (Pos.inc_le.2 h))
+
 theorem Slice.Pos.prevAuxGo_le_self {s : Slice} {p : Nat} {h : ⟨p⟩ < s.utf8ByteSize} :
     prevAux.go p h ≤ ⟨p⟩ := by
   induction p with
   | zero =>
     rw [prevAux.go]
     split
-    · simp [Pos.le_iff]
+    · simp
     · simpa using elim (· ≤ { })
   | succ p ih =>
     rw [prevAux.go]
     split
-    · simp [Pos.le_iff]
+    · simp
     · simpa using Nat.le_trans ih (by simp)
 where
   elim (P : String.Pos → Prop) {h : False} : P h.elim := h.elim
@@ -3917,8 +3942,6 @@ theorem zero_addString_eq (s : String) : (0 : Pos) + s = ⟨s.utf8ByteSize⟩ :=
   rw [← byteIdx_zero_addString]
 
 @[simp] theorem mk_le_mk {i₁ i₂ : Nat} : Pos.mk i₁ ≤ Pos.mk i₂ ↔ i₁ ≤ i₂ := .rfl
-
-@[simp] theorem le_refl {p : Pos} : p ≤ p := mk_le_mk.mpr (Nat.le_refl _)
 
 @[simp] theorem mk_lt_mk {i₁ i₂ : Nat} : Pos.mk i₁ < Pos.mk i₂ ↔ i₁ < i₂ := .rfl
 

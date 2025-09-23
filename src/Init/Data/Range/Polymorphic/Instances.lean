@@ -82,7 +82,7 @@ instance instIsAlwaysFiniteOfLawfulHasSize [LE α] [UpwardEnumerable α]
       | some a =>
         simp only [Option.bind_some]
         apply ih
-        have : lo ≤ hi := size_pos_iff_isSatisfied.mp (by omega)
+        have : lo ≤ hi := size_pos_iff_le.mp (by omega)
         rw [LawfulHasSize.size_eq_succ_of_succ?_eq_some (h := this) (h' := hs)] at hn
         omega
 
@@ -132,7 +132,7 @@ instance LawfulHasSize.of_closed [UpwardEnumerable α] [LE α] [DecidableLE α]
     rw [Rxc.LawfulHasSize.size_eq_succ_of_succ?_eq_some (h := le_of_lt h) (h' := h')]
     rw [← Nat.sub_add_comm]
     · omega
-    · simp only [Nat.succ_le_iff, Rxc.size_pos_iff_isSatisfied]
+    · simp only [Nat.succ_le_iff, Rxc.size_pos_iff_le]
       rw [UpwardEnumerable.le_iff]
       rw [UpwardEnumerable.lt_iff] at h
       refine ⟨h.choose, ?_⟩
@@ -156,7 +156,7 @@ instance instIsAlwaysFiniteOfLawfulHasSize [LT α] [UpwardEnumerable α]
       | some a =>
         simp only [Option.bind_some]
         apply ih
-        have : lo < hi := size_pos_iff_isSatisfied.mp (by omega)
+        have : lo < hi := size_pos_iff_lt.mp (by omega)
         rw [LawfulHasSize.size_eq_succ_of_succ?_eq_some (h := this) (h' := hs)] at hn
         omega
 

@@ -12,45 +12,17 @@ public import Init.Data.Iterators.Combinators.Attach
 
 @[expose] public section
 
+set_option doc.verso true
+
 open Std.Iterators
 
 namespace Std
 open PRange
 
-namespace Rcc
-
-variable {α : Type u}
+namespace Rxc
 
 /--
-Internal function that constructs an iterator for a `PRange`. This is an internal function.
-Use `PRange.iter` instead, which requires importing `Std.Data.Iterators`.
--/
-@[always_inline, inline]
-def Internal.iter [UpwardEnumerable α] (r : Rcc α) : Iter (α := Rxc.Iterator α) α :=
-  ⟨⟨some r.lower, r.upper⟩⟩
-
-/--
-Returns the elements of the given range as a list in ascending order, given that ranges of the given
-type and shape are finite and support this function.
--/
-@[always_inline, inline, expose]
-def toList [UpwardEnumerable α] (r : Rcc α)
-    [Iterator (Rxc.Iterator α) Id α] [Finite (Rxc.Iterator α) Id]
-    [IteratorCollect (Rxc.Iterator α) Id Id] : List α :=
-  Internal.iter r |>.toList
-
-/--
-Returns the elements of the given range as an array in ascending order, given that ranges of the
-given type and shape are finite and support this function.
--/
-@[always_inline, inline, expose]
-def toArray {α} [UpwardEnumerable α] (r : Rcc α)
-    [Iterator (Rxc.Iterator α) Id α] [Finite (Rxc.Iterator α) Id]
-    [IteratorCollect (Rxc.Iterator α) Id Id] : Array α :=
-  Internal.iter r |>.toArray
-
-/--
-Iterators for ranges implementing `RangeSize` support the `size` function.
+Iterators for right-closed ranges implementing {name}`Rxc.HasSize` support {name}`Iter.size`.
 -/
 instance [Rxc.HasSize α] [UpwardEnumerable α] [LE α] [DecidableLE α] :
     IteratorSize (Rxc.Iterator α) Id where
@@ -58,13 +30,70 @@ instance [Rxc.HasSize α] [UpwardEnumerable α] [LE α] [DecidableLE α] :
     | none => pure (.up 0)
     | some next => pure (.up (Rxc.HasSize.size next it.internalState.upperBound))
 
+end Rxc
+
+namespace Rxo
+
 /--
-Returns the number of elements contained in the given range, given that ranges of the given
-type and shape support this function.
+Iterators for ranges implementing {name}`Rxo.HasSize` support {name}`Iter.size`.
+-/
+instance [Rxo.HasSize α] [UpwardEnumerable α] [LT α] [DecidableLT α] :
+    IteratorSize (Rxo.Iterator α) Id where
+  size it := match it.internalState.next with
+    | none => pure (.up 0)
+    | some next => pure (.up (Rxo.HasSize.size next it.internalState.upperBound))
+
+end Rxo
+
+namespace Rxi
+
+/--
+Iterators for ranges implementing {name}`Rxi.HasSize` support {name}`Iter.size`.
+-/
+instance [Rxi.HasSize α] [UpwardEnumerable α] :
+    IteratorSize (Rxi.Iterator α) Id where
+  size it := match it.internalState.next with
+    | none => pure (.up 0)
+    | some next => pure (.up (Rxi.HasSize.size next))
+
+end Rxi
+
+namespace Rcc
+
+variable {α : Type u}
+
+-- TODO: Replace the `lit` role with a `module` role?
+/--
+Internal function that constructs an iterator for a closed range {lit}`lo...=hi`.
+This is an internal function.
+Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Rcc.iter` instead, which requires
+importing {lit}`Std.Data.Iterators`.
 -/
 @[always_inline, inline]
-def size [UpwardEnumerable α] [LE α] [DecidableLE α] (r : Rcc α)
-    [IteratorSize (Rxc.Iterator α) Id] : Nat :=
+def Internal.iter [UpwardEnumerable α] (r : Rcc α) : Iter (α := Rxc.Iterator α) α :=
+  ⟨⟨some r.lower, r.upper⟩⟩
+
+/--
+Returns the elements of the given closed range as a list in ascending order.
+-/
+@[always_inline, inline, expose]
+def toList [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [Rxc.IsAlwaysFinite α] (r : Rcc α) : List α :=
+  Internal.iter r |>.toList
+
+/--
+Returns the elements of the given closed range as an array in ascending order.
+-/
+@[always_inline, inline, expose]
+def toArray [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [Rxc.IsAlwaysFinite α] (r : Rcc α) : Array α :=
+  Internal.iter r |>.toArray
+
+/--
+Returns the number of elements contained in the given closed range.
+-/
+@[always_inline, inline]
+def size [Rxc.HasSize α] [UpwardEnumerable α] [LE α] [DecidableLE α] (r : Rcc α) : Nat :=
   Internal.iter r |>.size
 
 section Iterator
@@ -120,50 +149,38 @@ namespace Rco
 
 variable {α : Type u}
 
+-- TODO: Replace the `lit` role with a `module` role?
 /--
-Internal function that constructs an iterator for a `PRange`. This is an internal function.
-Use `PRange.iter` instead, which requires importing `Std.Data.Iterators`.
+Internal function that constructs an iterator for a closed range {lit}`lo...hi`.
+This is an internal function.
+Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Rco.iter` instead, which requires
+importing {lit}`Std.Data.Iterators`.
 -/
 @[always_inline, inline]
 def Internal.iter [UpwardEnumerable α] (r : Rco α) : Iter (α := Rxo.Iterator α) α :=
   ⟨⟨some r.lower, r.upper⟩⟩
 
 /--
-Returns the elements of the given range as a list in ascending order, given that ranges of the given
-type and shape support this function and the range is finite.
+Returns the elements of the given left-closed right-open range as a list in ascending order.
 -/
 @[always_inline, inline, expose]
-def toList [UpwardEnumerable α] (r : Rco α)
-    [Iterator (Rxo.Iterator α) Id α] [Finite (Rxo.Iterator α) Id]
-    [IteratorCollect (Rxo.Iterator α) Id Id] : List α :=
+def toList [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [Rxo.IsAlwaysFinite α] (r : Rco α) : List α :=
   Internal.iter r |>.toList
 
 /--
-Returns the elements of the given range as an array in ascending order, given that ranges of the
-given type and shape are finite and support this function.
+Returns the elements of the given left-closed right-open range as an array in ascending order.
 -/
 @[always_inline, inline, expose]
-def toArray {α} [UpwardEnumerable α] (r : Rco α)
-    [Iterator (Rxo.Iterator α) Id α] [Finite (Rxo.Iterator α) Id]
-    [IteratorCollect (Rxo.Iterator α) Id Id] : Array α :=
+def toArray [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [Rxo.IsAlwaysFinite α] (r : Rco α) : Array α :=
   Internal.iter r |>.toArray
 
 /--
-Iterators for ranges implementing `RangeSize` support the `size` function.
--/
-instance [Rxo.HasSize α] [UpwardEnumerable α] [LT α] [DecidableLT α] :
-    IteratorSize (Rxo.Iterator α) Id where
-  size it := match it.internalState.next with
-    | none => pure (.up 0)
-    | some next => pure (.up (Rxo.HasSize.size next it.internalState.upperBound))
-
-/--
-Returns the number of elements contained in the given range, given that ranges of the given
-type and shape support this function.
+Returns the number of elements contained in the given left-closed right-open range.
 -/
 @[always_inline, inline]
-def size [UpwardEnumerable α] [LT α] [DecidableLT α] (r : Rco α)
-    [IteratorSize (Rxo.Iterator α) Id] : Nat :=
+def size [Rxo.HasSize α] [UpwardEnumerable α] [LT α] [DecidableLT α] (r : Rco α) : Nat :=
   Internal.iter r |>.size
 
 section Iterator
@@ -219,50 +236,39 @@ namespace Rci
 
 variable {α : Type u}
 
+-- TODO: Replace the `lit` role with a `module` role?
 /--
-Internal function that constructs an iterator for a `PRange`. This is an internal function.
-Use `PRange.iter` instead, which requires importing `Std.Data.Iterators`.
+Internal function that constructs an iterator for a closed range {lit}`lo...*`.
+This is an internal function.
+Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Rcc.iter` instead, which requires
+importing {lit}`Std.Data.Iterators`.
 -/
 @[always_inline, inline]
 def Internal.iter [UpwardEnumerable α] (r : Rci α) : Iter (α := Rxi.Iterator α) α :=
   ⟨⟨some r.lower⟩⟩
 
 /--
-Returns the elements of the given range as a list in ascending order, given that ranges of the given
-type and shape support this function and the range is finite.
+Returns the elements of the given left-closed right-unbounded range as a list in ascending order.
 -/
 @[always_inline, inline, expose]
-def toList [UpwardEnumerable α] (r : Rci α)
-    [Iterator (Rxi.Iterator α) Id α] [Finite (Rxi.Iterator α) Id]
-    [IteratorCollect (Rxi.Iterator α) Id Id] : List α :=
+def toList [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] (r : Rci α) :
+    List α :=
   Internal.iter r |>.toList
 
 /--
-Returns the elements of the given range as an array in ascending order, given that ranges of the
-given type and shape are finite and support this function.
+Returns the elements of the given left-closed right-unbounded range as an array in ascending order.
 -/
 @[always_inline, inline, expose]
-def toArray {α} [UpwardEnumerable α] (r : Rci α)
-    [Iterator (Rxi.Iterator α) Id α] [Finite (Rxi.Iterator α) Id]
-    [IteratorCollect (Rxi.Iterator α) Id Id] : Array α :=
+def toArray [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] (r : Rci α) :
+    Array α :=
   Internal.iter r |>.toArray
 
-/--
-Iterators for ranges implementing `RangeSize` support the `size` function.
--/
-instance [Rxi.HasSize α] [UpwardEnumerable α] :
-    IteratorSize (Rxi.Iterator α) Id where
-  size it := match it.internalState.next with
-    | none => pure (.up 0)
-    | some next => pure (.up (Rxi.HasSize.size next))
 
 /--
-Returns the number of elements contained in the given range, given that ranges of the given
-type and shape support this function.
+Returns the number of elements contained in the given left-closed right-unbounded range.
 -/
 @[always_inline, inline]
-def size [UpwardEnumerable α] (r : Rci α)
-    [IteratorSize (Rxi.Iterator α) Id] : Nat :=
+def size [Rxi.HasSize α] [UpwardEnumerable α] (r : Rci α) : Nat :=
   Internal.iter r |>.size
 
 section Iterator
@@ -316,50 +322,38 @@ namespace Roc
 
 variable {α : Type u}
 
+-- TODO: Replace the `lit` role with a `module` role?
 /--
-Internal function that constructs an iterator for a `PRange`. This is an internal function.
-Use `PRange.iter` instead, which requires importing `Std.Data.Iterators`.
+Internal function that constructs an iterator for a left-open right-closed range {lit}`lo<...=hi`.
+This is an internal function.
+Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Roc.iter` instead, which requires
+importing {lit}`Std.Data.Iterators`.
 -/
 @[always_inline, inline]
 def Internal.iter [UpwardEnumerable α] (r : Roc α) : Iter (α := Rxc.Iterator α) α :=
   ⟨⟨UpwardEnumerable.succ? r.lower, r.upper⟩⟩
 
 /--
-Returns the elements of the given range as a list in ascending order, given that ranges of the given
-type and shape support this function and the range is finite.
+Returns the elements of the given left-open right-closed range as a list in ascending order.
 -/
 @[always_inline, inline, expose]
-def toList [UpwardEnumerable α] (r : Roc α)
-    [Iterator (Rxc.Iterator α) Id α] [Finite (Rxc.Iterator α) Id]
-    [IteratorCollect (Rxc.Iterator α) Id Id] : List α :=
+def toList [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [Rxc.IsAlwaysFinite α] (r : Roc α) : List α :=
   Internal.iter r |>.toList
 
 /--
-Returns the elements of the given range as an array in ascending order, given that ranges of the
-given type and shape are finite and support this function.
+Returns the elements of the given left-open right-closed range as an array in ascending order.
 -/
 @[always_inline, inline, expose]
-def toArray {α} [UpwardEnumerable α] (r : Roc α)
-    [Iterator (Rxc.Iterator α) Id α] [Finite (Rxc.Iterator α) Id]
-    [IteratorCollect (Rxc.Iterator α) Id Id] : Array α :=
+def toArray [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [Rxc.IsAlwaysFinite α] (r : Roc α) : Array α :=
   Internal.iter r |>.toArray
 
 /--
-Iterators for ranges implementing `RangeSize` support the `size` function.
--/
-instance [Rxc.HasSize α] [UpwardEnumerable α] [LE α] [DecidableLE α] :
-    IteratorSize (Rxc.Iterator α) Id where
-  size it := match it.internalState.next with
-    | none => pure (.up 0)
-    | some next => pure (.up (Rxc.HasSize.size next it.internalState.upperBound))
-
-/--
-Returns the number of elements contained in the given range, given that ranges of the given
-type and shape support this function.
+Returns the number of elements contained in the given left-open right-closed range.
 -/
 @[always_inline, inline]
-def size [UpwardEnumerable α] [LE α] [DecidableLE α] (r : Roc α)
-    [IteratorSize (Rxc.Iterator α) Id] : Nat :=
+def size [Rxc.HasSize α] [UpwardEnumerable α] [LE α] [DecidableLE α] (r : Roc α) : Nat :=
   Internal.iter r |>.size
 
 section Iterator
@@ -408,50 +402,38 @@ namespace Roo
 
 variable {α : Type u}
 
+-- TODO: Replace the `lit` role with a `module` role?
 /--
-Internal function that constructs an iterator for a `PRange`. This is an internal function.
-Use `PRange.iter` instead, which requires importing `Std.Data.Iterators`.
+Internal function that constructs an iterator for an open range {lit}`lo<...hi`.
+This is an internal function.
+Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Roo.iter` instead, which requires
+importing {lit}`Std.Data.Iterators`.
 -/
 @[always_inline, inline]
 def Internal.iter [UpwardEnumerable α] (r : Roo α) : Iter (α := Rxo.Iterator α) α :=
   ⟨⟨UpwardEnumerable.succ? r.lower, r.upper⟩⟩
 
 /--
-Returns the elements of the given range as a list in ascending order, given that ranges of the given
-type and shape support this function and the range is finite.
+Returns the elements of the given open range as a list in ascending order.
 -/
 @[always_inline, inline, expose]
-def toList [UpwardEnumerable α] (r : Roo α)
-    [Iterator (Rxo.Iterator α) Id α] [Finite (Rxo.Iterator α) Id]
-    [IteratorCollect (Rxo.Iterator α) Id Id] : List α :=
+def toList [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [Rxo.IsAlwaysFinite α] (r : Roo α) : List α :=
   Internal.iter r |>.toList
 
 /--
-Returns the elements of the given range as an array in ascending order, given that ranges of the
-given type and shape are finite and support this function.
+Returns the elements of the given open range as an array in ascending order.
 -/
 @[always_inline, inline, expose]
-def toArray {α} [UpwardEnumerable α] (r : Roo α)
-    [Iterator (Rxo.Iterator α) Id α] [Finite (Rxo.Iterator α) Id]
-    [IteratorCollect (Rxo.Iterator α) Id Id] : Array α :=
+def toArray [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [Rxo.IsAlwaysFinite α] (r : Roo α) : Array α :=
   Internal.iter r |>.toArray
 
 /--
-Iterators for ranges implementing `RangeSize` support the `size` function.
--/
-instance [Rxo.HasSize α] [UpwardEnumerable α] [LT α] [DecidableLT α] :
-    IteratorSize (Rxo.Iterator α) Id where
-  size it := match it.internalState.next with
-    | none => pure (.up 0)
-    | some next => pure (.up (Rxo.HasSize.size next it.internalState.upperBound))
-
-/--
-Returns the number of elements contained in the given range, given that ranges of the given
-type and shape support this function.
+Returns the number of elements contained in the given open range.
 -/
 @[always_inline, inline]
-def size [UpwardEnumerable α] [LT α] [DecidableLT α] (r : Roo α)
-    [IteratorSize (Rxo.Iterator α) Id] : Nat :=
+def size [Rxo.HasSize α] [UpwardEnumerable α] [LT α] [DecidableLT α] (r : Roo α) : Nat :=
   Internal.iter r |>.size
 
 section Iterator
@@ -499,50 +481,38 @@ namespace Roi
 
 variable {α : Type u}
 
+-- TODO: Replace the `lit` role with a `module` role?
 /--
-Internal function that constructs an iterator for a `PRange`. This is an internal function.
-Use `PRange.iter` instead, which requires importing `Std.Data.Iterators`.
+Internal function that constructs an iterator for a closed range {lit}`lo<...*`.
+This is an internal function.
+Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Roi.iter` instead, which requires
+importing {lit}`Std.Data.Iterators`.
 -/
 @[always_inline, inline]
 def Internal.iter [UpwardEnumerable α] (r : Roi α) : Iter (α := Rxi.Iterator α) α :=
   ⟨⟨UpwardEnumerable.succ? r.lower⟩⟩
 
 /--
-Returns the elements of the given range as a list in ascending order, given that ranges of the given
-type and shape support this function and the range is finite.
+Returns the elements of the given left-open right-unbounded range as a list in ascending order.
 -/
 @[always_inline, inline, expose]
-def toList [UpwardEnumerable α] (r : Roi α)
-    [Iterator (Rxi.Iterator α) Id α] [Finite (Rxi.Iterator α) Id]
-    [IteratorCollect (Rxi.Iterator α) Id Id] : List α :=
+def toList[UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α]
+    (r : Roi α) : List α :=
   Internal.iter r |>.toList
 
 /--
-Returns the elements of the given range as an array in ascending order, given that ranges of the
-given type and shape are finite and support this function.
+Returns the elements of the given left-open right-unbounded range as an array in ascending order.
 -/
 @[always_inline, inline, expose]
-def toArray {α} [UpwardEnumerable α] (r : Roi α)
-    [Iterator (Rxi.Iterator α) Id α] [Finite (Rxi.Iterator α) Id]
-    [IteratorCollect (Rxi.Iterator α) Id Id] : Array α :=
+def toArray [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α]
+    (r : Roi α) : Array α :=
   Internal.iter r |>.toArray
 
 /--
-Iterators for ranges implementing `RangeSize` support the `size` function.
--/
-instance [Rxi.HasSize α] [UpwardEnumerable α] :
-    IteratorSize (Rxi.Iterator α) Id where
-  size it := match it.internalState.next with
-    | none => pure (.up 0)
-    | some next => pure (.up (Rxi.HasSize.size next))
-
-/--
-Returns the number of elements contained in the given range, given that ranges of the given
-type and shape support this function.
+Returns the number of elements contained in the given left-open right-unbounded range.
 -/
 @[always_inline, inline]
-def size [UpwardEnumerable α] (r : Roi α)
-    [IteratorSize (Rxi.Iterator α) Id] : Nat :=
+def size [Rxi.HasSize α] [UpwardEnumerable α] (r : Roi α) : Nat :=
   Internal.iter r |>.size
 
 section Iterator
@@ -586,50 +556,38 @@ namespace Ric
 
 variable {α : Type u}
 
+-- TODO: Replace the `lit` role with a `module` role?
 /--
-Internal function that constructs an iterator for a `PRange`. This is an internal function.
-Use `PRange.iter` instead, which requires importing `Std.Data.Iterators`.
+Internal function that constructs an iterator for a left-unbounded right-closed range {lit}`*...=hi`.
+This is an internal function.
+Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Ric.iter` instead, which requires
+importing {lit}`Std.Data.Iterators`.
 -/
 @[always_inline, inline]
-def Internal.iter [UpwardEnumerable α] [Least? α] (r : Ric α) : Iter (α := Rxc.Iterator α) α :=
+def Internal.iter [Least? α] (r : Ric α) : Iter (α := Rxc.Iterator α) α :=
   ⟨⟨Least?.least?, r.upper⟩⟩
 
 /--
-Returns the elements of the given range as a list in ascending order, given that ranges of the given
-type and shape support this function and the range is finite.
+Returns the elements of the given closed range as a list in ascending order.
 -/
 @[always_inline, inline, expose]
-def toList [UpwardEnumerable α] [Least? α] (r : Ric α)
-    [Iterator (Rxc.Iterator α) Id α] [Finite (Rxc.Iterator α) Id]
-    [IteratorCollect (Rxc.Iterator α) Id Id] : List α :=
+def toList [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [Rxc.IsAlwaysFinite α] (r : Ric α) : List α :=
   Internal.iter r |>.toList
 
 /--
-Returns the elements of the given range as an array in ascending order, given that ranges of the
-given type and shape are finite and support this function.
+Returns the elements of the given closed range as an array in ascending order.
 -/
 @[always_inline, inline, expose]
-def toArray {α} [UpwardEnumerable α] [Least? α] (r : Ric α)
-    [Iterator (Rxc.Iterator α) Id α] [Finite (Rxc.Iterator α) Id]
-    [IteratorCollect (Rxc.Iterator α) Id Id] : Array α :=
+def toArray [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [Rxc.IsAlwaysFinite α] (r : Ric α) : Array α :=
   Internal.iter r |>.toArray
 
 /--
-Iterators for ranges implementing `RangeSize` support the `size` function.
--/
-instance [Rxc.HasSize α] [UpwardEnumerable α] [LE α] [DecidableLE α] :
-    IteratorSize (Rxc.Iterator α) Id where
-  size it := match it.internalState.next with
-    | none => pure (.up 0)
-    | some next => pure (.up (Rxc.HasSize.size next it.internalState.upperBound))
-
-/--
-Returns the number of elements contained in the given range, given that ranges of the given
-type and shape support this function.
+Returns the number of elements contained in the given closed range.
 -/
 @[always_inline, inline]
-def size [UpwardEnumerable α] [Least? α] [LE α] [DecidableLE α] (r : Ric α)
-    [IteratorSize (Rxc.Iterator α) Id] : Nat :=
+def size [Rxc.HasSize α] [UpwardEnumerable α] [Least? α] [LE α] [DecidableLE α] (r : Ric α) : Nat :=
   Internal.iter r |>.size
 
 section Iterator
@@ -672,50 +630,38 @@ namespace Rio
 
 variable {α : Type u}
 
+-- TODO: Replace the `lit` role with a `module` role?
 /--
-Internal function that constructs an iterator for a `PRange`. This is an internal function.
-Use `PRange.iter` instead, which requires importing `Std.Data.Iterators`.
+Internal function that constructs an iterator for a left-unbounded right-open range {lit}`*...hi`.
+This is an internal function.
+Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Rio.iter` instead, which requires
+importing {lit}`Std.Data.Iterators`.
 -/
 @[always_inline, inline]
 def Internal.iter [UpwardEnumerable α] [Least? α] (r : Rio α) : Iter (α := Rxo.Iterator α) α :=
   ⟨⟨Least?.least?, r.upper⟩⟩
 
 /--
-Returns the elements of the given range as a list in ascending order, given that ranges of the given
-type and shape support this function and the range is finite.
+Returns the elements of the given closed range as a list in ascending order.
 -/
 @[always_inline, inline, expose]
-def toList [UpwardEnumerable α] (r : Rio α) [Least? α]
-    [Iterator (Rxo.Iterator α) Id α] [Finite (Rxo.Iterator α) Id]
-    [IteratorCollect (Rxo.Iterator α) Id Id] : List α :=
+def toList [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [Rxo.IsAlwaysFinite α] (r : Rio α) : List α :=
   Internal.iter r |>.toList
 
 /--
-Returns the elements of the given range as an array in ascending order, given that ranges of the
-given type and shape are finite and support this function.
+Returns the elements of the given closed range as an array in ascending order.
 -/
 @[always_inline, inline, expose]
-def toArray {α} [UpwardEnumerable α] [Least? α] (r : Rio α)
-    [Iterator (Rxo.Iterator α) Id α] [Finite (Rxo.Iterator α) Id]
-    [IteratorCollect (Rxo.Iterator α) Id Id] : Array α :=
+def toArray [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    [Rxo.IsAlwaysFinite α] (r : Rio α) : Array α :=
   Internal.iter r |>.toArray
 
 /--
-Iterators for ranges implementing `RangeSize` support the `size` function.
--/
-instance [Rxo.HasSize α] [UpwardEnumerable α] [LT α] [DecidableLT α] :
-    IteratorSize (Rxo.Iterator α) Id where
-  size it := match it.internalState.next with
-    | none => pure (.up 0)
-    | some next => pure (.up (Rxo.HasSize.size next it.internalState.upperBound))
-
-/--
-Returns the number of elements contained in the given range, given that ranges of the given
-type and shape support this function.
+Returns the number of elements contained in the given closed range.
 -/
 @[always_inline, inline]
-def size [UpwardEnumerable α] [Least? α] [LT α] [DecidableLT α] (r : Rio α)
-    [IteratorSize (Rxo.Iterator α) Id] : Nat :=
+def size [Rxo.HasSize α] [UpwardEnumerable α] [Least? α] [LT α] [DecidableLT α] (r : Rio α) : Nat :=
   Internal.iter r |>.size
 
 section Iterator
@@ -757,17 +703,19 @@ namespace Rii
 
 variable {α : Type u}
 
+-- TODO: Replace the `lit` role with a `module` role?
 /--
-Internal function that constructs an iterator for a `PRange`. This is an internal function.
-Use `PRange.iter` instead, which requires importing `Std.Data.Iterators`.
+Internal function that constructs an iterator for the full range {lean}`*...*`.
+This is an internal function.
+Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Rio.iter` instead, which requires
+importing {lit}`Std.Data.Iterators`.
 -/
 @[always_inline, inline]
 def Internal.iter [UpwardEnumerable α] [Least? α] (_ : Rii α) : Iter (α := Rxi.Iterator α) α :=
   ⟨⟨Least?.least?⟩⟩
 
 /--
-Returns the elements of the given range as a list in ascending order, given that ranges of the given
-type and shape support this function and the range is finite.
+Returns the elements of the given full range as a list in ascending order.
 -/
 @[always_inline, inline, expose]
 def toList [UpwardEnumerable α] [Least? α] (r : Rii α)
@@ -776,8 +724,7 @@ def toList [UpwardEnumerable α] [Least? α] (r : Rii α)
   Internal.iter r |>.toList
 
 /--
-Returns the elements of the given range as an array in ascending order, given that ranges of the
-given type and shape are finite and support this function.
+Returns the elements of the given full range as an array in ascending order.
 -/
 @[always_inline, inline, expose]
 def toArray {α} [UpwardEnumerable α] [Least? α] (r : Rii α)
@@ -786,17 +733,7 @@ def toArray {α} [UpwardEnumerable α] [Least? α] (r : Rii α)
   Internal.iter r |>.toArray
 
 /--
-Iterators for ranges implementing `RangeSize` support the `size` function.
--/
-instance [Rxi.HasSize α] [UpwardEnumerable α] :
-    IteratorSize (Rxi.Iterator α) Id where
-  size it := match it.internalState.next with
-    | none => pure (.up 0)
-    | some next => pure (.up (Rxi.HasSize.size next))
-
-/--
-Returns the number of elements contained in the given range, given that ranges of the given
-type and shape support this function.
+Returns the number of elements contained in the full range.
 -/
 @[always_inline, inline]
 def size [UpwardEnumerable α] [Least? α] (r : Rii α) [IteratorSize (Rxi.Iterator α) Id] : Nat :=

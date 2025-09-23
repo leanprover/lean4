@@ -17,6 +17,8 @@ with the polymorphic ranges. For an example of the required work, take a look at
 `Init.Data.Range.Polymorphic.Nat`.
 -/
 
+set_option doc.verso true
+
 public section
 
 namespace Std
@@ -88,10 +90,11 @@ end Rxc
 
 namespace Rxo
 
+-- TODO: Replace the `lit` role with an intra-module forward reference.
 /--
-Creates a `RangeSize .open α` from a `RangeSize .closed α` instance. If the latter is lawful
+Creates a {lean}`HasSize α` from a {lean}`HasSize α` instance. If the latter is lawful
 and certain other conditions hold, then the former is also lawful by
-`LawfulRangeSize.open_of_closed`.
+{lit}`Rxo.LawfulHasSize.open_of_closed`.
 -/
 @[inline]
 abbrev HasSize.ofClosed [Rxc.HasSize α] : HasSize α where

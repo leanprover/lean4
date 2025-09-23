@@ -12,6 +12,8 @@ public import Init.Data.Range.Polymorphic.Instances
 public import Init.Data.Order.Classes
 public import Init.Data.Order.Lemmas
 
+set_option doc.verso true
+
 public section
 
 open Std PRange
@@ -77,9 +79,11 @@ instance : LinearlyUpwardEnumerable Nat := inferInstance
 
 end PRange
 
+-- TODO: Replace the `lit` role with a `module` role?
 /-!
-The following instances are used for the implementation of array slices a.k.a. `Subarray`.
-See also `Init.Data.Slice.Array`.
+The following instances are used for the implementation of array slices a.k.a.
+{name (scope := "Init.Data.Array.Subarray")}`Subarray`.
+See also {lit}`Init.Data.Slice.Array`.
 -/
 
 instance : Roo.HasRcoIntersection Nat where
@@ -147,11 +151,5 @@ instance : Ric.LawfulRcoIntersection Nat where
   mem_intersection_iff {a r s} := by
     simp only [Ric.HasRcoIntersection.intersection, Membership.mem]
     omega
-
-instance : Rii.HasRcoIntersection Nat where
-  intersection _ s := s
-
-instance : Rii.LawfulRcoIntersection Nat where
-  mem_intersection_iff {a r s} := by simp [Rii.HasRcoIntersection.intersection, Membership.mem]
 
 end Std

@@ -22,47 +22,47 @@ open Std Slice PRange
 
 variable {α : Type u}
 
-instance [Rcc.HasRcoIntersection Nat] : Rcc.Sliceable (Array α) Nat (Subarray α) where
+instance : Rcc.Sliceable (Array α) Nat (Subarray α) where
   mkSlice xs range :=
     let halfOpenRange := Rcc.HasRcoIntersection.intersection range 0...<xs.size
     (xs.toSubarray halfOpenRange.lower halfOpenRange.upper)
 
-instance [Rco.HasRcoIntersection Nat] : Rco.Sliceable (Array α) Nat (Subarray α) where
+instance : Rco.Sliceable (Array α) Nat (Subarray α) where
   mkSlice xs range :=
     let halfOpenRange := Rco.HasRcoIntersection.intersection range 0...<xs.size
     (xs.toSubarray halfOpenRange.lower halfOpenRange.upper)
 
-instance [Rci.HasRcoIntersection Nat] : Rci.Sliceable (Array α) Nat (Subarray α) where
+instance : Rci.Sliceable (Array α) Nat (Subarray α) where
   mkSlice xs range :=
     let halfOpenRange := Rci.HasRcoIntersection.intersection range 0...<xs.size
     (xs.toSubarray halfOpenRange.lower halfOpenRange.upper)
 
-instance [Roc.HasRcoIntersection Nat] : Roc.Sliceable (Array α) Nat (Subarray α) where
+instance : Roc.Sliceable (Array α) Nat (Subarray α) where
   mkSlice xs range :=
     let halfOpenRange := Roc.HasRcoIntersection.intersection range 0...<xs.size
     (xs.toSubarray halfOpenRange.lower halfOpenRange.upper)
 
-instance [Roo.HasRcoIntersection Nat] : Roo.Sliceable (Array α) Nat (Subarray α) where
+instance : Roo.Sliceable (Array α) Nat (Subarray α) where
   mkSlice xs range :=
     let halfOpenRange := Roo.HasRcoIntersection.intersection range 0...<xs.size
     (xs.toSubarray halfOpenRange.lower halfOpenRange.upper)
 
-instance [Roi.HasRcoIntersection Nat] : Roi.Sliceable (Array α) Nat (Subarray α) where
+instance : Roi.Sliceable (Array α) Nat (Subarray α) where
   mkSlice xs range :=
     let halfOpenRange := Roi.HasRcoIntersection.intersection range 0...<xs.size
     (xs.toSubarray halfOpenRange.lower halfOpenRange.upper)
 
-instance [Ric.HasRcoIntersection Nat] : Ric.Sliceable (Array α) Nat (Subarray α) where
+instance : Ric.Sliceable (Array α) Nat (Subarray α) where
   mkSlice xs range :=
     let halfOpenRange := Ric.HasRcoIntersection.intersection range 0...<xs.size
     (xs.toSubarray halfOpenRange.lower halfOpenRange.upper)
 
-instance [Rio.HasRcoIntersection Nat] : Rio.Sliceable (Array α) Nat (Subarray α) where
+instance : Rio.Sliceable (Array α) Nat (Subarray α) where
   mkSlice xs range :=
     let halfOpenRange := Rio.HasRcoIntersection.intersection range 0...<xs.size
     (xs.toSubarray halfOpenRange.lower halfOpenRange.upper)
 
-instance [Rii.HasRcoIntersection Nat] : Rii.Sliceable (Array α) Nat (Subarray α) where
-  mkSlice xs range :=
-    let halfOpenRange := Rii.HasRcoIntersection.intersection range 0...<xs.size
+instance : Rii.Sliceable (Array α) Nat (Subarray α) where
+  mkSlice xs _ :=
+    let halfOpenRange := 0...<xs.size
     (xs.toSubarray halfOpenRange.lower halfOpenRange.upper)

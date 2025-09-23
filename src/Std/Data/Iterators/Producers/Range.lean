@@ -8,12 +8,16 @@ module
 prelude
 public import Init.Data.Range.Polymorphic.Iterators
 
+set_option doc.verso true
+
 @[expose] public section
 
 /-!
 # Range iterator
 
-This module provides iterators over ranges from `Std.PRange` via `Std.PRange.iter`.
+This module provides iterators over ranges {name}`Std.Rcc` (and {name}`Std.Rco`, ...) via
+{name (scope := "Std.Data.Iterators.Producers.Range")}`Std.Rcc.iter` (and
+{name (scope := "Std.Data.Iterators.Producers.Range")}`Std.Rco.iter`, ...).
 -/
 
 open Std.PRange

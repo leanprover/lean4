@@ -164,9 +164,10 @@ def processDefDeriving (view : DerivingClassView) (decl : Expr) : TermElabM Unit
   let decl ← whnfCore decl
   let .const declName _ := decl.getAppFn
     | throwError "Failed to delta derive instance, expecting a term of the form `C ...` where `C` is a constant, given{indentExpr decl}"
-  -- When the definition is private, the deriving handler will need access to the private scope,
-  -- and we make sure to put the instance in the private scope.
-  withoutExporting (when := isPrivateName declName) do
+  let unexposed := (← getEnv).setExporting true |>.find? declName |>.all (!·.hasValue)
+  -- When the definition body is private, the deriving handler will need access to the private scope,
+  -- and the instance body will automatically be private as well.
+  withoutExporting (when := unexposed) do
   let ConstantInfo.defnInfo info ← getConstInfo declName
     | throwError "Failed to delta derive instance, `{.ofConstName declName}` is not a definition."
   let value := info.value.beta decl.getAppArgs

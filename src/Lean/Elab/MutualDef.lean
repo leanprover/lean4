@@ -1356,8 +1356,7 @@ where
       if let some classStxs := view.deriving? then
         for classStx in classStxs do
           let view ← DerivingClassView.ofSyntax ⟨classStx⟩
-          -- Deriving handler will need access to def body, so exit public scope
-          withoutExporting <| withRef classStx <| withLogging <| withLCtx {} {} do
+          withRef classStx <| withLogging <| withLCtx {} {} do
             /-
             Assumption: users intend delta deriving to apply to the body of a definition, even if in the source code
             the function is written as a lambda expression.
@@ -1369,7 +1368,7 @@ where
             and the parameters in the declaration, so for now we do not allow `classStx`
             to refer to section variables that were not included.
             -/
-            let info ← getConstInfo header.declName
+            let info ← withoutExporting <| getConstInfo header.declName
             lambdaTelescope info.value! fun xs _ => do
               let decl := mkAppN (.const header.declName (info.levelParams.map mkLevelParam)) xs
               processDefDeriving view decl

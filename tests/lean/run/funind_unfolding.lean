@@ -47,7 +47,7 @@ def fib'' (n : Nat) : Nat :=
   if _h : n < 2 then
     n
   else
-    let foo := n - 2
+    have foo := n - 2
     if foo < 100 then
       fib'' (n - 1) + fib'' foo
     else
@@ -55,15 +55,8 @@ def fib'' (n : Nat) : Nat :=
 
 /--
 info: fib''.fun_cases_unfolding (n : Nat) (motive : Nat → Prop) (case1 : n < 2 → motive n)
-  (case2 :
-    ¬n < 2 →
-      have foo := n - 2;
-      foo < 100 → motive (fib'' (n - 1) + fib'' foo))
-  (case3 :
-    ¬n < 2 →
-      have foo := n - 2;
-      ¬foo < 100 → motive 0) :
-  motive (fib'' n)
+  (case2 : ¬n < 2 → ∀ (foo : Nat), foo < 100 → motive (fib'' (n - 1) + fib'' foo))
+  (case3 : ¬n < 2 → ∀ (foo : Nat), ¬foo < 100 → motive 0) : motive (fib'' n)
 -/
 #guard_msgs(pass trace, all) in
 #check fib''.fun_cases_unfolding

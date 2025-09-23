@@ -285,9 +285,8 @@ def transform
     let aux1 := mkAppN (mkConst matcherApp.matcherName matcherLevels.toList) params'
     let aux1 := mkApp aux1 motive'
     let aux1 := mkAppN aux1 discrs'
-    unless (← isTypeCorrect aux1) do
-      prependError m!"failed to transform matcher, type error when constructing new pre-splitter motive:{indentExpr aux1}\nfailed with" do
-        check aux1
+    prependError m!"failed to transform matcher, type error when constructing new pre-splitter motive:{indentExpr aux1}\nfailed with" do
+      check aux1
     let origAltTypes ← inferArgumentTypesN matcherApp.alts.size aux1
 
     -- We replace the matcher with the splitter

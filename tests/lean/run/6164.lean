@@ -9,7 +9,7 @@ attribute [simp] Nat.two_mul
 
 /--
 info: Try this:
-  simp only [Nat.two_mul]
+  [apply] simp only [Nat.two_mul]
 -/
 #guard_msgs in
 example (n : Nat) : 123 + 2 * n = 123 + (n + n) := by
@@ -22,7 +22,7 @@ example (n : Nat) : 123 + 2 * n = 123 + (n + n) := by
 
 /--
 info: Try this:
-  dsimp only [foo]
+  [apply] dsimp only [foo]
 -/
 #guard_msgs in
 example (n : Nat) : foo n = n + 1 := by

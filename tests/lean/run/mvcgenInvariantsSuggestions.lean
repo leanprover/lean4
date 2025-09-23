@@ -16,8 +16,8 @@ def mySum (l : List Nat) : Nat := Id.run do
 
 /--
 info: Try this:
-  invariants
-    · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = 0 ∨ xs.suffix = [] ∧ letMuts = l.sum⌝
+  [apply] invariants
+  · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = 0 ∨ xs.suffix = [] ∧ letMuts = l.sum⌝
 -/
 #guard_msgs (info) in
 theorem mySum_suggest_invariant (l : List Nat) : mySum l = l.sum := by
@@ -36,8 +36,8 @@ def mySum2 (l : List Nat) : Nat := Id.run do
 
 /--
 info: Try this:
-  invariants
-    · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = ⟨0, 0⟩ ∨ xs.suffix = [] ∧ letMuts.fst = l.sum⌝
+  [apply] invariants
+  · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = ⟨0, 0⟩ ∨ xs.suffix = [] ∧ letMuts.fst = l.sum⌝
 -/
 #guard_msgs (info) in
 theorem mySum2_suggest_invariant (l : List Nat) : mySum2 l = l.sum := by
@@ -54,8 +54,8 @@ def copy (l : List Nat) : Id (Array Nat) := do
 
 /--
 info: Try this:
-  invariants
-    · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = acc✝ ∨ xs.suffix = [] ∧ letMuts = l.toArray⌝
+  [apply] invariants
+  · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = acc✝ ∨ xs.suffix = [] ∧ letMuts = l.toArray⌝
 -/
 #guard_msgs (info) in
 theorem copy_suggest_invariant (l : List Nat) : ⦃⌜True⌝⦄ copy l ⦃⇓ r => ⌜r = l.toArray⌝⦄ := by
@@ -79,10 +79,10 @@ def nodup (l : List Int) : Bool := Id.run do
 
 /--
 info: Try this:
-  invariants
-    ·
-      Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜l.Nodup ∧ (r = true ↔ l.Nodup)⌝)
-        (onContinue := fun xs letMuts => ⌜xs.prefix = [] ∧ letMuts = ∅ ∨ xs.suffix = [] ∧ l.Nodup⌝)
+  [apply] invariants
+  ·
+    Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜l.Nodup ∧ (r = true ↔ l.Nodup)⌝) (onContinue :=
+      fun xs letMuts => ⌜xs.prefix = [] ∧ letMuts = ∅ ∨ xs.suffix = [] ∧ l.Nodup⌝)
 -/
 #guard_msgs (info) in
 theorem nodup_suggest_invariant (l : List Int) : nodup l ↔ l.Nodup := by
@@ -106,19 +106,18 @@ def nodup_twice (l : List Int) : Bool := Id.run do
 
 /--
 info: Try this:
-  invariants
-    ·
-      Invariant.withEarlyReturn (onReturn := fun r letMuts =>
-        spred(Prod.fst ?inv2 ({ «prefix» := [], suffix := l, property := ⋯ }, ⟨none, ∅⟩) ∧
-            { down := r = true ↔ l.Nodup }))
-        (onContinue := fun xs letMuts =>
-        spred({ down := xs.prefix = [] ∧ letMuts = ∅ } ∨
-            ⌜xs.suffix = []⌝ ∧
-              Prod.fst ?inv2 ({ «prefix» := [], suffix := l, property := ⋯ }, ⟨none, ∅⟩) ∧
-                { down := True }))
-    ·
-      Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜l.Nodup ∧ (r = true ↔ l.Nodup)⌝)
-        (onContinue := fun xs letMuts => ⌜xs.prefix = [] ∧ letMuts = ∅ ∨ xs.suffix = [] ∧ l.Nodup⌝)
+  [apply] invariants
+  ·
+    Invariant.withEarlyReturn (onReturn := fun r letMuts =>
+      spred(Prod.fst ?inv2 ({ «prefix» := [], suffix := l, property := ⋯ }, ⟨none, ∅⟩) ∧
+          { down := r = true ↔ l.Nodup }))
+      (onContinue := fun xs letMuts =>
+      spred({ down := xs.prefix = [] ∧ letMuts = ∅ } ∨
+          ⌜xs.suffix = []⌝ ∧
+            Prod.fst ?inv2 ({ «prefix» := [], suffix := l, property := ⋯ }, ⟨none, ∅⟩) ∧ { down := True }))
+  ·
+    Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜l.Nodup ∧ (r = true ↔ l.Nodup)⌝) (onContinue :=
+      fun xs letMuts => ⌜xs.prefix = [] ∧ letMuts = ∅ ∨ xs.suffix = [] ∧ l.Nodup⌝)
 -/
 #guard_msgs (info) in
 theorem nodup_twice_suggest_invariant (l : List Int) : nodup_twice l ↔ l.Nodup := by
@@ -148,8 +147,8 @@ def mkFreshN (n : Nat) : AppM (List Nat) := do
 -- In the following, we suggest an inaccessible variable `acc` in the invariant. Unfortunate.
 /--
 info: Try this:
-  invariants
-    · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = acc✝ ∨ xs.suffix = [] ∧ letMuts.toList.Nodup⌝
+  [apply] invariants
+  · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = acc✝ ∨ xs.suffix = [] ∧ letMuts.toList.Nodup⌝
 -/
 #guard_msgs (info) in
 theorem mkFreshN_suggest_invariant (n : Nat) : ⦃⌜True⌝⦄ mkFreshN n ⦃⇓ r => ⌜r.Nodup⌝⦄ := by
@@ -166,11 +165,10 @@ def mkFreshN_early_return (n : Nat) : AppM (List Nat) := do
 
 /--
 info: Try this:
-  invariants
-    ·
-      Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜letMuts.toList.Nodup ∧ r.Nodup⌝)
-        (onContinue := fun xs letMuts =>
-        ⌜xs.prefix = [] ∧ letMuts = acc✝ ∨ xs.suffix = [] ∧ letMuts.toList.Nodup⌝)
+  [apply] invariants
+  ·
+    Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜letMuts.toList.Nodup ∧ r.Nodup⌝) (onContinue :=
+      fun xs letMuts => ⌜xs.prefix = [] ∧ letMuts = acc✝ ∨ xs.suffix = [] ∧ letMuts.toList.Nodup⌝)
 -/
 #guard_msgs (info) in
 theorem mkFreshN_early_return_suggest_invariant (n : Nat) : ⦃⌜True⌝⦄ mkFreshN_early_return n ⦃⇓ r => ⌜r.Nodup⌝⦄ := by
@@ -184,10 +182,10 @@ def earlyReturnWithoutLetMut (l : List Int) : Bool := Id.run do
 
 /--
 info: Try this:
-  invariants
-    ·
-      Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜r = true⌝) (onContinue :=
-        fun xs letMuts => ⌜xs.prefix = [] ∨ xs.suffix = []⌝)
+  [apply] invariants
+  ·
+    Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜r = true⌝) (onContinue := fun xs letMuts =>
+      ⌜xs.prefix = [] ∨ xs.suffix = []⌝)
 -/
 #guard_msgs (info) in
 theorem earlyReturnWithoutLetMut_suggest_invariant (l : List Int) : earlyReturnWithoutLetMut l := by
@@ -208,9 +206,8 @@ def notQuiteEarlyReturn (l : List Nat) : Option Nat := Id.run do
 
 /--
 info: Try this:
-  invariants
-    · ⇓⟨xs, letMuts⟩ =>
-      ⌜xs.prefix = [] ∧ letMuts = ⟨none, ()⟩ ∨ xs.suffix = [] ∧ letMuts.fst = l.getLast?⌝
+  [apply] invariants
+  · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = ⟨none, ()⟩ ∨ xs.suffix = [] ∧ letMuts.fst = l.getLast?⌝
 -/
 #guard_msgs (info) in
 theorem notQuiteEarlyReturn_suggest_invariant (l : List Nat) : notQuiteEarlyReturn l = l.getLast? := by
@@ -229,8 +226,8 @@ def polySum [Monad m] (l : List Nat) : m Nat := do
 
 /--
 info: Try this:
-  invariants
-    · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = ⟨0, 0⟩ ∨ xs.suffix = [] ∧ letMuts.fst = l.sum⌝
+  [apply] invariants
+  · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = ⟨0, 0⟩ ∨ xs.suffix = [] ∧ letMuts.fst = l.sum⌝
 -/
 #guard_msgs (info) in
 theorem polySum_suggest_invariant [Monad m] [WPMonad m ps] (l : List Nat) : ⦃⌜True⌝⦄ @polySum m _ l ⦃⇓ r => ⌜r = l.sum⌝⦄ := by
@@ -247,11 +244,10 @@ def polyNodup [Monad m] (l : List Int) : m Bool := do
 
 /--
 info: Try this:
-  invariants
-    ·
-      Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜l.Nodup ∧ (r = true ↔ l.Nodup)⌝)
-        (onContinue := fun xs letMuts =>
-        ⌜xs.prefix = [] ∧ letMuts = seen✝ ∨ xs.suffix = [] ∧ l.Nodup⌝)
+  [apply] invariants
+  ·
+    Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜l.Nodup ∧ (r = true ↔ l.Nodup)⌝) (onContinue :=
+      fun xs letMuts => ⌜xs.prefix = [] ∧ letMuts = seen✝ ∨ xs.suffix = [] ∧ l.Nodup⌝)
 -/
 #guard_msgs (info) in
 theorem polyNodup_suggest_invariant [Monad m] [WPMonad m ps] (l : List Int) : ⦃⌜True⌝⦄ @polyNodup m _ l ⦃⇓r => ⌜r ↔ l.Nodup⌝⦄ := by
@@ -277,9 +273,8 @@ open Std.Do
 
 /--
 info: Try this:
-  invariants
-    · ⇓⟨xs, letMuts⟩ =>
-      ⌜xs.prefix = [] ∧ letMuts = ⟨n, x, 1⟩ ∨ xs.suffix = [] ∧ letMuts.2.snd = x ^ n⌝
+  [apply] invariants
+  · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = ⟨n, x, 1⟩ ∨ xs.suffix = [] ∧ letMuts.2.snd = x ^ n⌝
 -/
 #guard_msgs (info) in
 theorem fast_expo_correct (x n : Nat) : fast_expo x n = x^n := by
@@ -321,11 +316,10 @@ theorem mkFresh_spec (c : Nat) :
 
 /--
 info: Try this:
-  invariants
-    ·
-      post⟨fun ⟨xs, letMuts⟩ =>
-        ⌜xs.prefix = [] ∧ letMuts = acc✝ ∨ xs.suffix = [] ∧ letMuts.toList.Nodup⌝, fun x => ⌜False⌝,
-        fun _msg state => ⌜state.counter = state.limit⌝⟩
+  [apply] invariants
+  ·
+    post⟨fun ⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = acc✝ ∨ xs.suffix = [] ∧ letMuts.toList.Nodup⌝, fun x =>
+      ⌜False⌝, fun _msg state => ⌜state.counter = state.limit⌝⟩
 -/
 #guard_msgs (info) in
 theorem mkFreshN_spec (n : Nat) :

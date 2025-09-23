@@ -5,7 +5,7 @@ decreasing_by decreasing_tactic
 
 /--
 info: Try this:
-  simp only [foo]
+  [apply] simp only [foo]
 -/
 #guard_msgs in
 def foo2 : foo 2 = 0 := by

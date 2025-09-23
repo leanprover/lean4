@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lake.Config.ConfigTarget
-import Lake.Util.NativeLib
+public import Lake.Util.NativeLib
 
 namespace Lake
 open Lean System

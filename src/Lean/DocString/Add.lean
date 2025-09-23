@@ -14,7 +14,7 @@ import Lean.Elab.DocString
 import Lean.DocString.Extension
 import Lean.DocString.Links
 import Lean.Parser.Types
-import Lean.DocString.Parser
+public import Lean.DocString.Parser
 import Lean.ResolveName
 public import Lean.Elab.Term.TermElabM
 import Std.Data.HashMap

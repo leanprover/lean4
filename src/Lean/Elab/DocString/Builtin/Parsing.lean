@@ -6,7 +6,7 @@ Author: David Thrane Christiansen
 module
 prelude
 import Lean.Elab.DocString
-import Lean.Parser.Extension
+public import Lean.Parser.Extension
 public import Lean.Parser.Types
 
 namespace Lean.Doc

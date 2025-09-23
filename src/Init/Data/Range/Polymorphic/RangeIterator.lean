@@ -13,16 +13,21 @@ public import Init.Data.Iterators.Consumers.Collect
 public import Init.Data.Range.Polymorphic.PRange
 public import Init.Data.List.Sublist
 
+set_option doc.verso true
+
 public section
 
 /-!
 # Range iterator
 
-This module implements an iterator for ranges (`Std.PRange`).
+This module implements an iterator for ranges (such as {name}`Std.Rcc`).
 
-This iterator is publicly available via `PRange.iter` after importing
-`Std.Data.Iterators` and it internally powers many functions on ranges such as
-`PRange.toList`.
+This iterator is publicly available via
+{name (scope := "Std.Data.Iterators.Producers.Range")}`Std.Rcc.iter` (and identically named
+functions in the sibling namespaces) after importing {lit}`Std.Data.Iterators`.
+
+It powers many functions on ranges internally, such as
+{name (scope := "Init.Data.Range.Polymorphic.Iterators")}`Rcc.toList`.
 -/
 
 open Std.Iterators
@@ -41,10 +46,10 @@ protected structure Iterator (α : Type u) where
   upperBound : α
 
 /--
-The pure function mapping a range iterator of type `IterM` to the next step of the iterator.
+The pure function mapping a range iterator of type {name}`IterM` to the next step of the iterator.
 
-This function is prefixed with `Monadic` in order to disambiguate it from the version for iterators
-of type `Iter`.
+This function is prefixed with {lit}`Monadic` in order to disambiguate it from the version for
+iterators of type {name}`Iter`.
 -/
 @[inline]
 def Iterator.Monadic.step [UpwardEnumerable α] [LE α] [DecidableLE α]
@@ -59,7 +64,7 @@ def Iterator.Monadic.step [UpwardEnumerable α] [LE α] [DecidableLE α]
       .done
 
 /--
-The pure function mapping a range iterator of type `Iter` to the next step of the iterator.
+The pure function mapping a range iterator of type {name}`Iter` to the next step of the iterator.
 -/
 @[always_inline, inline]
 def Iterator.step [UpwardEnumerable α] [LE α] [DecidableLE α]
@@ -435,12 +440,11 @@ theorem Iterator.isPlausibleIndirectOutput_iff
 
 section IteratorLoop
 
-/-!
-## Efficient `IteratorLoop` instance
-As long as the compiler cannot optimize away the `Option` in the internal state, we use a special
+/--
+An efficient {name}`IteratorLoop` instance:
+As long as the compiler cannot optimize away the {name}`Option` in the internal state, we use a special
 loop implementation.
 -/
-
 @[always_inline, inline]
 instance Iterator.instIteratorLoop [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
@@ -484,6 +488,11 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LE α] [DecidableLE α
       refine UpwardEnumerable.le_trans hl ⟨1, ?_⟩
       simp [succMany?_one, hs]
 
+/--
+An efficient {name}`IteratorLoop` instance:
+As long as the compiler cannot optimize away the {name}`Option` in the internal state, we use a special
+loop implementation.
+-/
 partial instance Iterator.instIteratorLoopPartial [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     {n : Type u → Type w} [Monad n] : IteratorLoopPartial (Rxc.Iterator α) Id n where
@@ -614,10 +623,10 @@ protected structure Iterator (α : Type u) where
   upperBound : α
 
 /--
-The pure function mapping a range iterator of type `IterM` to the next step of the iterator.
+The pure function mapping a range iterator of type {name}`IterM` to the next step of the iterator.
 
-This function is prefixed with `Monadic` in order to disambiguate it from the version for iterators
-of type `Iter`.
+This function is prefixed with {lit}`Monadic` in order to disambiguate it from the version for iterators
+of type {name}`Iter`.
 -/
 @[inline]
 def Iterator.Monadic.step [UpwardEnumerable α] [LT α] [DecidableLT α]
@@ -632,7 +641,7 @@ def Iterator.Monadic.step [UpwardEnumerable α] [LT α] [DecidableLT α]
       .done
 
 /--
-The pure function mapping a range iterator of type `Iter` to the next step of the iterator.
+The pure function mapping a range iterator of type {name}`Iter` to the next step of the iterator.
 -/
 @[always_inline, inline]
 def Iterator.step [UpwardEnumerable α] [LT α] [DecidableLT α]
@@ -1008,12 +1017,11 @@ theorem Iterator.isPlausibleIndirectOutput_iff
 
 section IteratorLoop
 
-/-!
-## Efficient `IteratorLoop` instance
-As long as the compiler cannot optimize away the `Option` in the internal state, we use a special
+/--
+An efficient {name}`IteratorLoop` instance:
+As long as the compiler cannot optimize away the {name}`Option` in the internal state, we use a special
 loop implementation.
 -/
-
 @[always_inline, inline]
 instance Iterator.instIteratorLoop [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
@@ -1057,6 +1065,11 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LT α] [DecidableLT α
       refine UpwardEnumerable.le_trans hl ⟨1, ?_⟩
       simp [succMany?_one, hs]
 
+/--
+An efficient {name}`IteratorLoopPartial` instance:
+As long as the compiler cannot optimize away the {name}`Option` in the internal state, we use a special
+loop implementation.
+-/
 partial instance Iterator.instIteratorLoopPartial [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     {n : Type u → Type w} [Monad n] : IteratorLoopPartial (Rxo.Iterator α) Id n where
@@ -1186,10 +1199,10 @@ protected structure Iterator (α : Type u) where
   next : Option α
 
 /--
-The pure function mapping a range iterator of type `IterM` to the next step of the iterator.
+The pure function mapping a range iterator of type {name}`IterM` to the next step of the iterator.
 
-This function is prefixed with `Monadic` in order to disambiguate it from the version for iterators
-of type `Iter`.
+This function is prefixed with {lit}`Monadic` in order to disambiguate it from the version for iterators
+of type {name}`Iter`.
 -/
 @[inline]
 def Iterator.Monadic.step [UpwardEnumerable α]
@@ -1200,7 +1213,7 @@ def Iterator.Monadic.step [UpwardEnumerable α]
   | some next => .yield ⟨⟨UpwardEnumerable.succ? next⟩⟩ next
 
 /--
-The pure function mapping a range iterator of type `Iter` to the next step of the iterator.
+The pure function mapping a range iterator of type {name}`Iter` to the next step of the iterator.
 -/
 @[always_inline, inline]
 def Iterator.step [UpwardEnumerable α]
@@ -1327,28 +1340,6 @@ theorem Iterator.isSome_next_of_isPlausibleIndirectOutput
     rw [isPlausibleSuccessorOf_iff] at h
     obtain ⟨a, ha, _⟩ := h
     simp [ha]
-
--- private def List.Sublist.filter_mono {l : List α} {P Q : α → Bool} (h : ∀ a, P a → Q a) :
---     List.Sublist (l.filter P) (l.filter Q) := by
---   apply List.Sublist.trans (l₂ := (l.filter Q).filter P)
---   · simp [Bool.and_eq_left_iff_imp.mpr (h _)]
---   · apply List.filter_sublist
-
--- private def List.length_filter_strict_mono {l : List α} {P Q : α → Bool} {a : α}
---     (h : ∀ a, P a → Q a) (ha : a ∈ l) (hPa : ¬ P a) (hQa : Q a) :
---     (l.filter P).length < (l.filter Q).length := by
---   have hsl : List.Sublist (l.filter P) (l.filter Q) := by
---     apply List.Sublist.filter_mono
---     exact h
---   apply Nat.lt_of_le_of_ne
---   · apply List.Sublist.length_le
---     exact hsl
---   · intro h
---     apply hPa
---     have heq := List.Sublist.eq_of_length hsl h
---     have : a ∈ List.filter Q l := List.mem_filter.mpr ⟨ha, hQa⟩
---     rw [← heq, List.mem_filter] at this
---     exact this.2
 
 private def Iterator.instFinitenessRelation [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] :
@@ -1517,12 +1508,11 @@ theorem Iterator.isPlausibleIndirectOutput_iff
 
 section IteratorLoop
 
-/-!
-## Efficient `IteratorLoop` instance
-As long as the compiler cannot optimize away the `Option` in the internal state, we use a special
-loop implementation.
+/--
+An efficient {name}`IteratorLoop` instance:
+As long as the compiler cannot optimize away the {name}`Option` in the internal state, we use a
+special loop implementation.
 -/
-
 @[always_inline, inline]
 instance Iterator.instIteratorLoop [UpwardEnumerable α]
     [LawfulUpwardEnumerable α]
@@ -1559,6 +1549,11 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α]
       refine UpwardEnumerable.le_trans hl ⟨1, ?_⟩
       simp [succMany?_one, hs]
 
+/--
+An efficient {name}`IteratorLoopPartial` instance:
+As long as the compiler cannot optimize away the {name}`Option` in the internal state, we use a
+special loop implementation.
+-/
 partial instance Iterator.instIteratorLoopPartial [UpwardEnumerable α]
     [LawfulUpwardEnumerable α]
     {n : Type u → Type w} [Monad n] : IteratorLoopPartial (Rxi.Iterator α) Id n where

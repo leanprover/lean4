@@ -136,7 +136,7 @@ def finitenessRelation : Std.Iterators.FinitenessRelation (BackwardCharSearcher 
     cases step
     · cases h
       obtain ⟨_, h1, h2, _⟩ := h'
-      have h3 := offset_prev_lt_offset h1
+      have h3 := Pos.offset_prev_lt_offset (h := h1)
       simp [Pos.ext_iff, String.Pos.ext_iff] at h2 h3
       omega
     · cases h'

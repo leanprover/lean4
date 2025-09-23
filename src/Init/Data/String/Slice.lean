@@ -46,12 +46,7 @@ instance [Pure m] : Std.Iterators.Iterator (SplitIterator ρ) m Slice where
     | .operating s currPos searcher =>
       match Internal.nextMatch searcher with
       | some (searcher, startPos, endPos) =>
-        -- TODO: This is difficult, we want to put `startPos` here but our abstract notion of pattern
-        -- might return something that is in fact not `currPos ≤` and as such invalid to be used here.
-        -- we might require some lawfulness annotations on the pattern (or more precisely its searcher
-        -- iterator) to make this work out.
-        let slice := s.replaceStart currPos
-        let slice := { slice with endExclusive := ⟨startPos.str.offset, sorry⟩, startInclusive_le_endExclusive := sorry }
+        let slice := s.replaceStartEnd! currPos startPos
         let nextIt := ⟨.operating s endPos searcher⟩
         pure ⟨.yield nextIt slice, by simp⟩
       | none =>
@@ -95,9 +90,7 @@ instance [Pure m] : Std.Iterators.Iterator (SplitInclusiveIterator ρ) m Slice w
     | .operating s currPos searcher =>
       match Internal.nextMatch searcher with
       | some (searcher, _, endPos) =>
-        -- TODO: difficult for the same reason as normal split
-        let slice := s.replaceStart currPos
-        let slice := { slice with endExclusive := ⟨endPos.str.offset, sorry⟩, startInclusive_le_endExclusive := sorry }
+        let slice := s.replaceStartEnd! currPos endPos
         let nextIt := ⟨.operating s endPos searcher⟩
         pure ⟨.yield nextIt slice, by simp⟩
       | none =>
@@ -210,9 +203,7 @@ instance [Pure m] : Std.Iterators.Iterator (RevSplitIterator ρ) m Slice where
     | .operating s currPos searcher =>
       match Internal.nextMatch searcher with
       | some (searcher, startPos, endPos) =>
-        let slice := s.replaceEnd currPos
-        -- Same thing as in split
-        let slice := { slice with startInclusive := ⟨endPos.str.offset, sorry⟩, startInclusive_le_endExclusive := sorry }
+        let slice := s.replaceStartEnd! endPos currPos
         let nextIt := ⟨.operating s startPos searcher⟩
         pure ⟨.yield nextIt slice, by simp⟩
       | none =>
@@ -428,11 +419,11 @@ private def finitenessRelation [Pure m] : Std.Iterators.FinitenessRelation RevCh
     cases step
     · cases h
       obtain ⟨h1, h2, h3, _⟩ := h'
-      have h4 := offset_prev_lt_offset h2
       rw [h3]
       clear h3
       generalize it'.internalState.s = s at *
       cases h1
+      have h4 := Pos.offset_prev_lt_offset (h := h2)
       simp
       omega
     · cases h'
@@ -548,7 +539,7 @@ private def finitenessRelation [Pure m] : Std.Iterators.FinitenessRelation (RevP
     cases step
     · cases h
       obtain ⟨h1, h2, _⟩ := h'
-      have h3 := offset_prev_lt_offset h1
+      have h3 := Pos.offset_prev_lt_offset (h := h1)
       simp [Pos.ext_iff, String.Pos.ext_iff] at h2 h3
       omega
     · cases h'

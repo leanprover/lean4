@@ -74,10 +74,6 @@ theorem some_eq_getElem?_iff {l : BitVec w} : some a = l[n]? ↔ ∃ h : n < w, 
 theorem getElem_of_getElem? {l : BitVec w} : l[n]? = some a → ∃ h : n < w, l[n] = a :=
   getElem?_eq_some_iff.mp
 
-set_option linter.missingDocs false in
-@[deprecated getElem?_eq_some_iff (since := "2025-02-17")]
-abbrev getElem?_eq_some := @getElem?_eq_some_iff
-
 theorem getElem?_eq_none_iff {l : BitVec w} : l[n]? = none ↔ w ≤ n := by
   simp
 
@@ -350,24 +346,13 @@ theorem ofBool_eq_iff_eq : ∀ {b b' : Bool}, BitVec.ofBool b = BitVec.ofBool b'
 @[simp] theorem ofBool_xor_ofBool : ofBool b ^^^ ofBool b' = ofBool (b ^^ b') := by
   cases b <;> cases b' <;> rfl
 
-@[deprecated toNat_ofNatLT (since := "2025-02-13")]
-theorem toNat_ofNatLt (x : Nat) (p : x < 2^w) : (x#'p).toNat = x := rfl
-
 @[simp, grind =] theorem getLsbD_ofNatLT {n : Nat} (x : Nat) (lt : x < 2^n) (i : Nat) :
   getLsbD (x#'lt) i = x.testBit i := by
   simp [getLsbD, BitVec.ofNatLT]
 
-@[deprecated getLsbD_ofNatLT (since := "2025-02-13")]
-theorem getLsbD_ofNatLt {n : Nat} (x : Nat) (lt : x < 2^n) (i : Nat) :
-  getLsbD (x#'lt) i = x.testBit i := getLsbD_ofNatLT x lt i
-
 @[simp, grind =] theorem getMsbD_ofNatLT {n x i : Nat} (h : x < 2^n) :
     getMsbD (x#'h) i = (decide (i < n) && x.testBit (n - 1 - i)) := by
   simp [getMsbD, getLsbD]
-
-@[deprecated getMsbD_ofNatLT (since := "2025-02-13")]
-theorem getMsbD_ofNatLt {n x i : Nat} (h : x < 2^n) :
-    getMsbD (x#'h) i = (decide (i < n) && x.testBit (n - 1 - i)) := getMsbD_ofNatLT h
 
 @[grind =]
 theorem ofNatLT_eq_ofNat {w : Nat} {n : Nat} (hn) : BitVec.ofNatLT n hn = BitVec.ofNat w n :=
@@ -6360,16 +6345,5 @@ theorem two_pow_ctz_le_toNat_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
     2 ^ (ctz x).toNat ≤ x.toNat := by
   have hclz := getLsbD_true_ctz_of_ne_zero (x := x) hx
   exact Nat.ge_two_pow_of_testBit hclz
-
-/-! ### Deprecations -/
-
-set_option linter.missingDocs false
-
-@[deprecated toFin_uShiftRight (since := "2025-02-18")]
-abbrev toFin_uShiftRight := @toFin_ushiftRight
-
-
-
-
 
 end BitVec

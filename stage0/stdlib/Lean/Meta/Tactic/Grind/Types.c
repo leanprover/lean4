@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Types
-// Imports: Init.Grind.Tactics Init.Data.Queue Std.Data.TreeSet.Basic Lean.HeadIndex Lean.Meta.Tactic.Simp.Types Lean.Meta.Tactic.Grind.ExprPtr Lean.Meta.Tactic.Grind.AlphaShareCommon Lean.Meta.Tactic.Grind.Attr Lean.Meta.Tactic.Grind.ExtAttr Lean.Meta.Tactic.Grind.EMatchTheorem Lean.Parser.Do Lean.Meta.Match.MatchEqsExt Lean.PrettyPrinter
+// Imports: Lean.Meta.Tactic.Grind.EMatchTheorem Lean.Meta.Tactic.Simp.Types Lean.Meta.Tactic.Grind.AlphaShareCommon Lean.Meta.Tactic.Grind.Attr Init.Data.Queue Lean.Meta.Tactic.Grind.ExprPtr Init.Grind.Tactics Std.Data.TreeSet.Basic Lean.HeadIndex Lean.Meta.Tactic.Grind.ExtAttr Lean.Meta.AbstractNestedProofs Lean.Meta.Match.MatchEqsExt Lean.PrettyPrinter Lean.Parser.Do
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -38818,7 +38818,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Grind_foldEqc___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(1268u);
+x_3 = lean_unsigned_to_nat(1269u);
 x_4 = l_Lean_Meta_Grind_foldEqc___redArg___closed__1;
 x_5 = l_Lean_Meta_Grind_foldEqc___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -59020,40 +59020,29 @@ x_11 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_PendingSolver
 return x_11;
 }
 }
-lean_object* initialize_Init_Grind_Tactics(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Queue(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_TreeSet_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_HeadIndex(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_EMatchTheorem(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Simp_Types(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Grind_ExprPtr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_AlphaShareCommon(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Attr(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Queue(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_ExprPtr(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_Tactics(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_TreeSet_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_HeadIndex(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_ExtAttr(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Grind_EMatchTheorem(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Parser_Do(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_AbstractNestedProofs(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Match_MatchEqsExt(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_PrettyPrinter(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Parser_Do(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Grind_Tactics(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Queue(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Data_TreeSet_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_HeadIndex(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Grind_EMatchTheorem(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Simp_Types(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_ExprPtr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_AlphaShareCommon(builtin, lean_io_mk_world());
@@ -59062,19 +59051,34 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Attr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_Queue(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Grind_ExprPtr(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Tactics(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_TreeSet_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_HeadIndex(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_ExtAttr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_EMatchTheorem(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Parser_Do(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_AbstractNestedProofs(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Match_MatchEqsExt(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_PrettyPrinter(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Parser_Do(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_Grind_congrPlaceholderProof___closed__0 = _init_l_Lean_Meta_Grind_congrPlaceholderProof___closed__0();

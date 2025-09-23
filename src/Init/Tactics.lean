@@ -436,8 +436,8 @@ macro "rfl'" : tactic => `(tactic| set_option smartUnfolding false in with_unfol
 /--
 `ac_rfl` proves equalities up to application of an associative and commutative operator.
 ```
-instance : Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
-instance : Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
+instance : Std.Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
+instance : Std.Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
 
 example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by ac_rfl
 ```
@@ -1563,8 +1563,8 @@ syntax (name := normCastAddElim) "norm_cast_add_elim" ident : command
   list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-`
   can also be used, to signify the target of the goal.
 ```
-instance : Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
-instance : Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
+instance : Std.Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
+instance : Std.Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
 
 example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by
  ac_nf

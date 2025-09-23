@@ -15,10 +15,10 @@ def INT32_MIN : Int := -0x80000000
 
 @[noinline] def oneU8 : UInt8 := 1
 
-#reduce (UInt8.mod oneU8 0).val.val
+#reduce (UInt8.mod oneU8 0).toFin.val
 #eval (UInt8.mod oneU8 0)
 
-#reduce (UInt8.mod oneU8 0).val.val
+#reduce (UInt8.mod oneU8 0).toFin.val
 #eval (UInt8.mod oneU8 0)
 
 @[noinline] def int_div x y := Int.ediv x y
@@ -27,14 +27,14 @@ def INT32_MIN : Int := -0x80000000
 
 @[noinline] def oneU16 : UInt16 := 1
 
-#reduce (UInt16.mod oneU16 0).val.val
+#reduce (UInt16.mod oneU16 0).toFin.val
 #eval (UInt16.mod oneU16 0)
 
 @[noinline] def uint16_mod x y := UInt16.mod x y
 
 @[noinline] def oneU32 : UInt32 := 1
 
-#reduce (UInt32.mod oneU32 0).val.val
+#reduce (UInt32.mod oneU32 0).toFin.val
 #eval (UInt32.mod oneU32 0)
 
 @[noinline] def uint32_mod x y := UInt32.mod x y
@@ -42,7 +42,7 @@ def INT32_MIN : Int := -0x80000000
 
 @[noinline] def oneU64 : UInt64 := 1
 
-#reduce (UInt64.mod oneU64 0).val.val
+#reduce (UInt64.mod oneU64 0).toFin.val
 #eval (UInt64.mod oneU64 0)
 
 @[noinline] def uint64_mod x y := UInt64.mod x y

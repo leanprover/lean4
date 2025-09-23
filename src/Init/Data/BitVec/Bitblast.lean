@@ -2810,12 +2810,38 @@ To prove this, we need bounds on the nat-value of popcountauxrec.
 So some thm like (pcar x r n).toNat < r.toNat + (w - n)
 under appropriate hyps for 'r' (e.g. e.toNat + (w - n) < 2 ^v)
 -/
+theorem popCountAuxRec_le {x : BitVec w} {r : BitVec v}
+      (hr' : r.toNat + (w - n) < 2 ^ v) :
+    (x.popCountAuxRec r n).toNat ≤ r.toNat + (w - n) := by
+  induction h : (w - n) generalizing w n r
+  · simp [h]
+  · case _ n' ihn' =>
+    rw [popCountAuxRec_ind]
+    · generalize hgen : (zeroExtend v (extractLsb' n 1 x)) = zext
+      have : zext.toNat ≤ 1 := by
+        rw [← hgen]
+        simp
+        have : x.toNat >>> n % 2 < 2 := by refine mod_lt (x.toNat >>> n) (by omega)
+        have := Nat.pow_pos (a := 2) (n := v) (by omega)
+        have hcases : x.toNat >>> n % 2 = 1 ∨ x.toNat >>> n % 2 = 0 := by omega
+        rcases hcases with hc | hc
+        · simp [hc]
+          rw [Nat.mod_eq_of_lt (by omega)]
+          omega
+        · simp [hc]
+      rw [popCountAuxRec_add_eq_add_popCountAuxRec]
+      specialize ihn' (w := w) (x := x) (n := n + 1) (r := zext)
+            (by omega) (by omega)
+      rw [BitVec.toNat_add_of_lt]
+      · have : w - (n + 1) < w - n := by omega
+        omega
+      · omega
+    · omega
 
 theorem popCountAuxRec_eq_popCountAuxRec_of_lt
     {v1 v2 w : Nat}
     {x : BitVec w} {r : BitVec v1}
-    (hv : v1 ≤ v2) (hr : r.toNat + (w - n) < 2 ^ v1)
-    :
+    (hv : v1 ≤ v2) (hr : r.toNat + (w - n) < 2 ^ v1) :
     (x.popCountAuxRec r n).setWidth v2 = (x.popCountAuxRec (r.setWidth v2) n):= by
   induction h : w - n generalizing w n v2
   · simp [h]
@@ -2828,12 +2854,15 @@ theorem popCountAuxRec_eq_popCountAuxRec_of_lt
     rw [← ihn']
     · apply BitVec.eq_of_toNat_eq
       simp
+      have := popCountAuxRec_le (r := r) (x := x) (n := n + 1) (by omega)
       congr
-      rw [Nat.mod_eq_of_lt (by sorry)]
+      rw [Nat.mod_eq_of_lt (by omega)]
     · exact hv
     · have : w - (n + 1) < w - n := by omega
       omega
     · omega
+
+
 
 theorem popCountAuxRec_add {x : BitVec w1} (y : BitVec w2) {r : BitVec v} (n1 n2 : Nat)
     (hxy : ∀ (i : Nat), x.getLsbD (n1 + i) = y.getLsbD (n2 + i)) :
@@ -2891,12 +2920,35 @@ theorem popCount_append (x : BitVec (w + 1)) :
   · simp
     exact Nat.lt_two_pow_self
 
-/-- the popcount equals the result of summing the packed vector. -/
+theorem eq_append_one (x : BitVec (w + 1)) :
+    x = (extractLsb' 1 w x) ++ (extractLsb' 0 1 x) := by
+  ext k hk
+  rw [getElem_append]
+  split
+  · simp [show k = 0 by omega]
+  · simp [show 1 + (k - 1) = k by omega]
+    rw [getLsbD_eq_getElem]
+
+/--
+ setWidth (w' + 1) (extractLsb' 0 1 x) + setWidth (w' + 1) (extractLsb' 1 w' x).popCount =
+  (extractLsb' 1 w' x ++ extractLsb' 0 1 x).extractAndExtendPopulate.sumPackedVec
+
+  need lemma to push extractandextend populate inside the appned afer whichb sumpackedvec simp lemmas should just rewrite, we finish the goal by usign ih
+
+
+the popcount equals the result of summing the packed vector. -/
 theorem popCount_eq_sumPackedVec (x : BitVec w) :
   x.popCount = sumPackedVec (extractAndExtendPopulate x) := by
   induction w
   · case zero => simp
   · case succ w' ihw' =>
+    rw [popCount_append]
+    simp
+    conv =>
+      rhs
+      rw [eq_append_one (x := x)]
+
+
 
     sorry
 

@@ -12,7 +12,7 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadSemiring
 import Init.Grind.Ring.CommSemiringAdapter
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 

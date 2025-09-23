@@ -8,7 +8,7 @@ prelude
 public import Init.Grind.Ring.CommSemiringAdapter
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 /-!

@@ -67,7 +67,7 @@ theorem size_eq_zero_iff_not_le {α : Type u}
     simp only [decide_eq_false_iff_not] at h
     simp [h, LawfulHasSize.size_eq_zero_of_not_le]
 
-theorem size_pos_iff_isSatisfied {α : Type u}
+theorem size_pos_iff_le {α : Type u}
     [LE α] [UpwardEnumerable α] [HasSize α] [LawfulHasSize α]
     {lo hi : α} :
     0 < HasSize.size lo hi ↔ lo ≤ hi := by
@@ -136,7 +136,7 @@ theorem size_eq_zero_iff_not_le {α : Type u}
     simp only [decide_eq_false_iff_not] at h
     simp [h, LawfulHasSize.size_eq_zero_of_not_le]
 
-theorem size_pos_iff_isSatisfied {α : Type u}
+theorem size_pos_iff_lt {α : Type u}
     [LT α] [UpwardEnumerable α] [HasSize α] [LawfulHasSize α]
     {lo hi : α} :
     0 < HasSize.size lo hi ↔ lo < hi := by

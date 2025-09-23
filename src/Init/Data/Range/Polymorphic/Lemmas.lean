@@ -573,7 +573,7 @@ public instance [LE α] [DecidableLE α] [UpwardEnumerable α] [Rxc.HasSize α] 
       · simp only [Rxc.size_eq_zero_iff_not_le] at h
         simp [Iter.toArray_eq_match_step (it := it), Rxc.Iterator.step_eq_step, Rxc.Iterator.step, heq, h]
       · rename_i ih
-        have h' : next ≤ it.internalState.upperBound := Rxc.size_pos_iff_isSatisfied.mp (by omega)
+        have h' : next ≤ it.internalState.upperBound := Rxc.size_pos_iff_le.mp (by omega)
         simp only [Iter.toArray_eq_match_step (it := it), Rxc.Iterator.step_eq_step,
             Rxc.Iterator.step, heq, h', ↓reduceIte]
         cases hn : UpwardEnumerable.succ? next
@@ -598,7 +598,7 @@ public instance [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.HasSize α]
       · simp only [Rxo.size_eq_zero_iff_not_le] at h
         simp [Iter.toArray_eq_match_step (it := it), Rxo.Iterator.step_eq_step, Rxo.Iterator.step, heq, h]
       · rename_i ih
-        have h' : next < it.internalState.upperBound := Rxo.size_pos_iff_isSatisfied.mp (by omega)
+        have h' : next < it.internalState.upperBound := Rxo.size_pos_iff_lt.mp (by omega)
         simp only [Iter.toArray_eq_match_step (it := it), Rxo.Iterator.step_eq_step,
             Rxo.Iterator.step, heq, h', ↓reduceIte]
         cases hn : UpwardEnumerable.succ? next

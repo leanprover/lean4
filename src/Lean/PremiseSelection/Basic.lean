@@ -43,12 +43,20 @@ structure Suggestion where
   The score of the suggestion, as a probability that this suggestion should be used.
   -/
   score : Float
+  /--
+  Optional flag associated with the suggestion, e.g. "←" or "=",
+  if the premise selection algorithm is aware of the tactic consuming the results,
+  and wants to suggest modifiers for this suggestion.
+  E.g. this supports calling `simp` in the reverse direction,
+  or telling `grind` or `aesop` to use the theorem in a particular way.
+  -/
+  flag : Option String := none
 
 structure Config where
   /--
   The maximum number of suggestions to return.
   -/
-  maxSuggestions : Option Nat := none
+  maxSuggestions? : Option Nat := none
   /--
   The tactic that is calling the premise selection, e.g. `simp`, `grind`, or `aesop`.
   This may be used to adjust the score of the suggestions
@@ -71,7 +79,61 @@ structure Config where
   -/
   hint : Option String := none
 
+def Config.maxSuggestions (c : Config) : Nat :=
+  c.maxSuggestions?.getD 100
+
 abbrev Selector : Type := MVarId → Config → MetaM (Array Suggestion)
+
+/--
+Construct a `Selector` (which acts on an `MVarId`)
+from a function which takes the pretty printed goal.
+-/
+def ppSelector (selector : String → Config → MetaM (Array Suggestion)) (g : MVarId) (c : Config) :
+    MetaM (Array Suggestion) := do
+  selector (toString (← Meta.ppGoal g)) c
+
+namespace Selector
+
+/--
+Respect the `Config.filter` option by implementing it as a post-filter.
+If a premise selection implementation does not natively handle the filter,
+it should be wrapped with this function.
+-/
+def postFilter (selector : Selector) : Selector := fun g c => do
+  let suggestions ← selector g { c with filter := fun _ => pure true }
+  suggestions.filterM (fun s => c.filter s.name)
+
+/--
+Wrapper for `Selector` that ensures
+the `maxSuggestions` field in `Config` is respected, post-hoc.
+-/
+def maxSuggestions (selector : Selector) : Selector := fun g c => do
+  let suggestions ← selector g c
+  match c.maxSuggestions? with
+  | none => return suggestions
+  | some max => return suggestions.take max
+
+/-- Combine two premise selectors, returning the best suggestions. -/
+def combine (selector₁ : Selector) (selector₂ : Selector) : Selector := fun g c => do
+  let suggestions₁ ← selector₁ g c
+  let suggestions₂ ← selector₂ g c
+
+  let mut dedupMap : Std.HashMap (Name × Option String) Suggestion := {}
+
+  for s in suggestions₁ ++ suggestions₂ do
+    let key := (s.name, s.flag)
+    dedupMap := dedupMap.alter key fun
+    | none => some s
+    | some s' => if s.score > s'.score then some s else some s'
+
+  let deduped := dedupMap.valuesArray
+  let sorted := deduped.qsort (fun s₁ s₂ => s₁.score > s₂.score)
+
+  match c.maxSuggestions? with
+  | none => return sorted
+  | some max => return sorted.take max
+
+end Selector
 
 section DenyList
 
@@ -123,7 +185,7 @@ def empty : Selector := fun _ _ => pure #[]
 def random (gen : StdGen := ⟨37, 59⟩) : Selector := fun _ cfg => do
   IO.stdGenRef.set gen
   let env ← getEnv
-  let max := cfg.maxSuggestions.getD 10
+  let max := cfg.maxSuggestions
   let consts := env.const2ModIdx.keysArray
   let mut suggestions := #[]
   while suggestions.size < max do

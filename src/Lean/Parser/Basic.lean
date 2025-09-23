@@ -845,8 +845,8 @@ def decimalNumberFn (startPos : String.Pos) (includeWhitespace := true)
       mkNodeToken numLitKind startPos includeWhitespace c s
 where
   parseScientific s :=
-    let (s, hasDot) := parseOptDot s
-    let s := parseOptExp s hasDot
+    let (s, hasBareDot) := parseOptDot s
+    let s := parseOptExp s hasBareDot
     mkNodeToken scientificLitKind startPos includeWhitespace c s
 
   parseOptDot s :=
@@ -856,13 +856,13 @@ where
       let i    := c.next i
       let curr := c.get i
       if curr.isDigit then
-        (takeDigitsFn (fun c => c.isDigit) "decimal number" false c (s.setPos i), true)
+        (takeDigitsFn (fun c => c.isDigit) "decimal number" false c (s.setPos i), false)
       else
         (s.setPos i, true)
     else
       (s, false)
 
-  parseOptExp s hasDot :=
+  parseOptExp s hasBareDot :=
     if h : c.atEnd s.pos then
       s
     else
@@ -876,7 +876,7 @@ where
           takeDigitsFn (fun c => c.isDigit) "decimal number" false c (s.setPos i)
         else
           s.mkUnexpectedError "missing exponent digits in scientific literal"
-      else if hasDot && ! c.atEnd s.pos && isIdFirst curr then
+      else if hasBareDot && isIdFirst curr then
           (s.setPos startPos).mkUnexpectedError s!"unexpected identifier after decimal point; consider parenthesizing the number"
       else
         s

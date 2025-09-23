@@ -59,9 +59,12 @@ def main (args : List String) : IO Unit := do
 
     let looksMeta := mod.components.any (· ∈ [`Tactic, `Linter])
 
+    -- initial whitespace if empty header
+    let startPos := header.raw.getPos? |>.getD parserState.pos
+
     -- insert section if any trailing text
     if header.raw.getTrailingTailPos?.all (· < text.endPos) then
-      let insertPos := header.raw.getTailPos? |>.getD 0  -- empty header
+      let insertPos := header.raw.getTailPos? |>.getD startPos  -- empty header
       let mut sec := if looksMeta then
         "public meta section"
       else
@@ -79,7 +82,10 @@ def main (args : List String) : IO Unit := do
       text := text.extract 0 insertPos ++ prfx ++ text.extract insertPos text.endPos
 
     -- insert `module` header
-    let insertPos := header.raw.getPos? |>.getD 0  -- empty header
-    text := text.extract 0 insertPos ++ "module\n\n" ++ text.extract insertPos text.endPos
+    let mut initText := text.extract 0 startPos
+    if !initText.trim.isEmpty then
+      -- If there is a header comment, preserve it and put `module` in the line after
+      initText := initText.trimRight ++ "\n"
+    text := initText ++ "module\n\n" ++ text.extract startPos text.endPos
 
     IO.FS.writeFile path text

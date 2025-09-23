@@ -1806,7 +1806,7 @@ the start position. -/
 def ValidPos.prev! {s : String} (pos : s.ValidPos) : s.ValidPos :=
   pos.toSlice.prev!.ofSlice
 
-/-- Construosition on `s` from a position and a proof that it is valid. -/
+/-- Constructs a valid position on `s` from a position and a proof that it is valid. -/
 @[expose]
 def pos (s : String) (off : Pos) (h : off.IsValid s) : s.ValidPos :=
   (s.toSlice.pos off h.toSlice).ofSlice
@@ -2336,15 +2336,16 @@ Examples:
 * `"L∃∀N".extract ⟨2⟩ ⟨100⟩ = "green blue"`
 -/
 @[extern "lean_string_utf8_extract", expose]
-def extract (s : String) (b e : Pos) : String :=
-  if e ≤ b then
-    ""
-  else
-    match s.pos? b with
-    | none => ""
-    | some b =>
-      let e := (s.pos? e).getD s.endValidPos
-      b.extract e
+def extract : (@& String) → (@& Pos) → (@& Pos) → String
+  | s, b, e => if b.byteIdx ≥ e.byteIdx then "" else (go₁ s.data 0 b e).asString
+where
+  go₁ : List Char → Pos → Pos → Pos → List Char
+    | [],        _, _, _ => []
+    | s@(c::cs), i, b, e => if i = b then go₂ s i e else go₁ cs (i + c) b e
+
+  go₂ : List Char → Pos → Pos → List Char
+    | [],    _, _ => []
+    | c::cs, i, e => if i = e then [] else c :: go₂ cs (i + c) e
 
 @[specialize] def splitAux (s : String) (p : Char → Bool) (b : Pos) (i : Pos) (r : List String) : List String :=
   if h : s.atEnd i then

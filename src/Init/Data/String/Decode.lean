@@ -1273,7 +1273,7 @@ public theorem List.utf8DecodeChar_utf8Encode_cons {l : List Char} {c : Char} {h
 namespace UInt8
 
 /--
-Predicate for whether a byte is can appear as the first byte of the UTF-8 encoding of a Unicode
+Predicate for whether a byte can appear as the first byte of the UTF-8 encoding of a Unicode
 scalar value.
 -/
 @[expose]

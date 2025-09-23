@@ -3450,7 +3450,7 @@ convenient than tracking the bounds by hand.
 Using its constructor explicitly, it is possible to construct a `Substring` in which one or both of
 the positions is invalid for the string. Many operations will return unexpected or confusing results
 if the start and stop positions are not valid. For this reason, `Substring` will be deprecated in
-favor of `String.Slice`, which can only represent valid substring.
+favor of `String.Slice`, which always represents a valid substring.
 -/
 structure Substring where
   /-- The underlying string. -/

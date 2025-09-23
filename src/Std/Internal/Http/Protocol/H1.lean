@@ -43,9 +43,9 @@ structure Config where
   maxHeaderSize : Nat := 8192
 
   /--
-  Connection timeout in seconds.
+  Connection timeout in milliseconds.
   -/
-  timeoutSeconds : Time.Second.Offset := 10
+  timeoutMilliseconds : Time.Millisecond.Offset := 1000
 
   /--
   Whether to enable keep-alive connections by default.
@@ -117,6 +117,9 @@ inductive Error
   | other (message : String)
 deriving Repr, BEq
 
+instance : Repr ByteSlice where
+  reprPrec x := reprPrec x.toByteArray.data
+
 /--
 Events that can occur during HTTP message processing.
 -/
@@ -156,7 +159,7 @@ inductive Event
   Awaiting the next request
   -/
   | next
-deriving Inhabited
+deriving Inhabited, Repr
 
 inductive Reader.State : Type
   /--
@@ -502,6 +505,14 @@ structure Machine where
 
 namespace Machine
 
+private def shouldBreakConnection (c : Status) : Bool :=
+  match c with
+  | .uriTooLong
+  | .badRequest
+  | .payloadTooLarge
+  | .requestHeaderFieldsTooLarge => true
+  | _ => false
+
 -- Additional helper functions for writer manipulation
 @[inline]
 private def modifyWriter (machine : Machine) (fn : Writer → Writer) : Machine :=
@@ -557,7 +568,7 @@ private def parseWith (machine : Machine) (parser : Parser α) (limit : Option N
 
     if let some limit := limit then
       if usedBytesUntilFailure ≥ limit
-        then (machine.setError .badRequest, none)
+        then (machine.setFailure .badRequest .badRequest, none)
         else (machine.addEvent (.needMoreData expect), none)
     else (machine.addEvent (.needMoreData expect), none)
   | .error _ _ =>
@@ -666,7 +677,7 @@ def setHeaders (response : Response.Head) (machine : Machine) : Machine :=
 
   let headers := if let some date := machine.instant then headers.insert "Date" (date.format "EEE, dd MMM yyyy HH:mm:ss 'GMT'")  else  headers
 
-  let headers := if ¬machine.keepAlive ∨ response.status.isClientError ∨ response.status.isServerError then
+  let headers := if ¬machine.keepAlive ∨ shouldBreakConnection response.status then
     headers.insert "Connection" "close"
   else
     headers
@@ -748,12 +759,14 @@ def sendResponse (machine : Machine) (response : Response.Head) : Machine :=
   | .waitingHeaders =>
     let machine := machine.modifyWriter ({ · with response, state := .waitingForFlush })
     let conn := response.headers.getD "Connection"
-    if response.status.isClientError || response.status.isServerError || conn.contains "close" then
+
+    if conn.contains "close" then
       machine
       |>.closeConnection
-      |>.setReaderState .complete  -- Stop receiving data
+      |>.setReaderState .complete
     else
       machine
+
   | _ =>
     machine
 
@@ -765,7 +778,7 @@ def isReaderComplete (machine : Machine) : Bool :=
 /--
 Advances the state of the reader.
 -/
-def processRead (machine : Machine) : Machine :=
+partial def processRead (machine : Machine) : Machine :=
   match machine.reader.state with
   | .needStartLine =>
     let (machine, result) := parseWith machine parseRequestLine (limit := some 8192)
@@ -774,6 +787,7 @@ def processRead (machine : Machine) : Machine :=
       machine
       |>.modifyReader (.setRequest head)
       |>.setReaderState (.needHeader 0)
+      |>.processRead
     else
       machine
 
@@ -788,6 +802,7 @@ def processRead (machine : Machine) : Machine :=
           machine
           |>.modifyReader (.addHeader name value)
           |>.setReaderState (.needHeader (headerCount + 1))
+          |>.processRead
         else
           processHeaders machine
       else
@@ -804,6 +819,7 @@ def processRead (machine : Machine) : Machine :=
       machine
       |>.setReaderState (.needChunkedBody size)
       |>.setEvent (some ext <&> .chunkExt)
+      |>.processRead
     | none =>
       machine
 
@@ -817,24 +833,34 @@ def processRead (machine : Machine) : Machine :=
           machine
           |>.setReaderState .needChunkedSize
           |>.addEvent (.gotData false body)
+          |>.processRead
         else
           machine
           |>.setReaderState .complete
           |>.addEvent (.gotData true .empty)
+          |>.processRead
       | .incomplete body remaining => machine
         |>.setReaderState (.needChunkedBody remaining)
         |>.addEvent (.gotData false body)
     else
       machine
 
+  | .needFixedBody 0 =>
+    machine
+    |>.setReaderState .complete
+    |>.addEvent (.gotData true .empty)
+    |>.processRead
+
   | .needFixedBody size =>
     let (machine, result) := parseWith machine (parseFixedSizeData size) (limit := none) (some size)
 
     if let some body := result then
       match body with
-      | .complete body => machine
+      | .complete body =>
+        machine
         |>.setReaderState .complete
         |>.addEvent (.gotData true body)
+        |>.processRead
       | .incomplete body remaining =>
         machine
         |>.setReaderState (.needFixedBody remaining)
@@ -878,14 +904,14 @@ def takeOutput (machine : Machine) (highMark := 0): Option (Machine × BufferBui
 /--
 Write response data to the machine
 -/
-def processWrite (machine : Machine) : Machine :=
+partial def processWrite (machine : Machine) : Machine :=
   match machine.writer.state with
   | .waitingHeaders =>
     machine
 
   | .waitingForFlush =>
     if machine.shouldFlush then
-      machine.setHeaders machine.writer.response
+      machine.setHeaders machine.writer.response |>.processWrite
     else
       machine
 
@@ -893,16 +919,17 @@ def processWrite (machine : Machine) : Machine :=
     if machine.writer.userData.size ≥ machine.config.highMark ∨ machine.writer.closed then
       let machine := machine.modifyWriter Writer.writeFixedBody
       if machine.writer.closed then
-        machine.setWriterState .complete
+        machine.setWriterState .complete |>.processWrite
       else
         machine
     else
       machine
+
   | .writingChunkedBody =>
     if machine.writer.closed then
-      machine.modifyWriter Writer.writeFinalChunk
+      machine.modifyWriter Writer.writeFinalChunk |>.processWrite
     else if machine.writer.userData.size ≥ machine.config.highMark then
-      machine.modifyWriter Writer.writeChunkedBody
+      machine.modifyWriter Writer.writeChunkedBody |>.processWrite
     else
       machine
 

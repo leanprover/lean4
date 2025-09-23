@@ -9,6 +9,7 @@ prelude
 public import Std.Internal.Async.TCP
 public import Std.Internal.Http.Protocol.H1
 public import Std.Internal.Http.Server.Config
+public import Std.Internal.Http.Server.Client
 
 public section
 
@@ -18,7 +19,6 @@ namespace Server
 
 open Std Internal IO Async TCP
 open Time
-
 
 /-!
 This module defines a `Server.Connection` that is a structure used to handle a single HTTP connection with
@@ -30,11 +30,11 @@ set_option linter.all true
 /--
 A single HTTP connection.
 -/
-public structure Connection where
+public structure Connection (α : Type) where
   /--
   The client connection.
   -/
-  socket : Socket.Client
+  socket : α
 
   /--
   The processing machine for HTTP 1.1
@@ -48,19 +48,19 @@ private inductive Recv
   | timeout
 
 private def receiveWithTimeout
-  (socket : Socket.Client) (expect : UInt64) (timeoutMs : Millisecond.Offset := 5000)
-  :
+  [Client α] (socket : α) (expect : UInt64)
+  (timeoutMs : Millisecond.Offset) :
   Async Recv := do
     Selectable.one #[
-      .case (← socket.recvSelector expect) (fun x => pure <| .bytes x),
+      .case (← Client.recvSelector socket expect) (fun x => pure <| .bytes x),
       .case (← (← Sleep.mk timeoutMs).selector) (fun _ => pure <| .timeout)]
 
 private def processNeedMoreData
-  (machine : Protocol.H1.Machine) (socket : Socket.Client) (expect : Option Nat) :
+  [Client α] (machine : Protocol.H1.Machine) (socket : α) (expect : Option Nat) :
   Async (Except Protocol.H1.Machine.Error (Option ByteArray)) := do
     try
       let expect := expect.getD machine.config.defaultPayloadBytes
-      let data ← receiveWithTimeout socket expect.toUInt64
+      let data ← receiveWithTimeout socket expect.toUInt64 machine.config.timeoutMilliseconds
 
       match data with
       | .bytes (some bytes) => pure (.ok <| some bytes)
@@ -71,7 +71,8 @@ private def processNeedMoreData
       pure (.error Protocol.H1.Machine.Error.timeout)
 
 private def handle
-  (connection : Connection)
+  [Client α]
+  (connection : Connection α)
   (handler : Request Body → Async (Response Body))
   (onFailure : Error → Async Unit)
   : Async Unit := do
@@ -94,11 +95,53 @@ private def handle
         let (newMachine, events) := machine.takeEvents
         machine := newMachine
 
-        if let some (newMachine, data) := machine.takeOutput then
-          machine := newMachine
+        for event in events do
+          match event with
+          | .needMoreData expect => do
+            match ← processNeedMoreData machine socket expect with
+            | .ok (some bs) =>
+              machine := machine.feed bs
+            | .ok none =>
+              running := false;
+              break
+            | .error _ => do
+              if let .needStartLine := machine.reader.state then
+                running := false; break
+              else
+                machine := machine.setFailure .timeout .requestTimeout
 
-          if data.size > 0 then
-            socket.sendAll data.data
+          | .endHeaders head => do
+            if let some (.fixed n) := Protocol.H1.Machine.getRequestSize head then
+              requestStream.setKnownSize (some n)
+
+            let newResponse := handler { head, body := (.stream requestStream) }
+            let task ← newResponse.asTask
+
+            BaseIO.chainTask task fun
+              | .error res => errored.resolve res
+              | .ok res => response.resolve res
+
+          | .gotData final data =>
+            discard <| requestStream.send data.toByteArray
+
+            if final then
+              requestStream.close
+
+          | .chunkExt _ =>
+            pure ()
+
+          | .failed =>
+            pure ()
+
+          | .close =>
+            running := false
+
+          | .next =>
+            requestStream ← Body.ByteStream.emptyWithCapacity
+            response ← IO.Promise.new
+            errored ← IO.Promise.new
+            respStream := none
+            sentResponse := false
 
         if not sentResponse ∧ (← response.isResolved) then
           sentResponse := true
@@ -132,52 +175,11 @@ private def handle
           let _ ← await errored.result!
           machine := machine.setFailure (.other "Internal Error") .internalServerError
 
-        for event in events do
-          match event with
-          | .needMoreData expect => do
-            match ← processNeedMoreData machine socket expect with
-            | .ok (some bs) => machine := machine.feed bs
-            | .ok none =>
-              running := false
-              break
-            | .error _ => do
-              if let .needStartLine := machine.reader.state then
-                running := false; break
-              else
-                machine := machine.setFailure .timeout .requestTimeout
+        if let some (newMachine, data) := machine.takeOutput then
+          machine := newMachine
 
-          | .endHeaders head => do
-            if let some (.fixed n) := Protocol.H1.Machine.getRequestSize head then
-              requestStream.setKnownSize (some n)
-
-            let newResponse := handler { head, body := (.stream requestStream) }
-            let task ← newResponse.asTask
-
-            BaseIO.chainTask task fun
-              | .error res => errored.resolve res
-              | .ok res => response.resolve res
-
-          | .gotData final data =>
-            discard <| requestStream.send data.toByteArray
-
-            if final then
-              requestStream.close
-
-          | .chunkExt _ =>
-            pure ()
-
-          | .failed =>
-            running := false
-
-          | .close =>
-            running := false
-
-          | .next =>
-            requestStream ← Body.ByteStream.emptyWithCapacity
-            response ← IO.Promise.new
-            errored ← IO.Promise.new
-            respStream := none
-            sentResponse := false
+          if data.size > 0 then
+            Client.sendAll socket data.data
 
     catch err =>
       onFailure err
@@ -186,21 +188,11 @@ end Connection
 /--
 Serve conection
 -/
-def serve
-  (addr : Net.SocketAddress)
-  (onRequest : Request Body  → Async (Response Body))
-  (onReady : Async Unit := pure ())
+def serveConnection
+  [Client t]
+  (client : t)
+  (onRequest : Request Body → Async (Response Body))
   (onFailure : Error → Async Unit := fun _ => pure ())
-  (config : Config := {})
-  (backlog : UInt32 := 128) : Async Unit := do
-    let server ← Socket.Server.mk
-    server.bind addr
-    server.listen backlog
-
-    onReady
-
-    while true do
-      let client ← server.accept
-      background (prio := .max) <|
-        Connection.mk client { config := config.toH1Config }
-        |>.handle onRequest onFailure
+  (config : Config := {}) : Async Unit := do
+    Connection.mk client { config := config.toH1Config }
+    |>.handle onRequest onFailure

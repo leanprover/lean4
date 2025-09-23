@@ -34,9 +34,9 @@ structure Config where
   maxHeaderSize : Nat := 8192
 
   /--
-  Connection timeout in seconds.
+  Connection timeout in milliseconds.
   -/
-  timeoutSeconds : Time.Second.Offset := 10
+  timeoutMilliseconds : Time.Millisecond.Offset := 1000
 
   /--
   Whether to enable keep-alive connections by default.
@@ -67,7 +67,7 @@ def toH1Config (config : Config) : Protocol.H1.Machine.Config :=
   { maxRequests := config.maxRequests
     maxHeaders := config.maxHeaders
     maxHeaderSize := config.maxHeaderSize
-    timeoutSeconds := config.timeoutSeconds
+    timeoutMilliseconds := config.timeoutMilliseconds
     enableKeepAlive := config.enableKeepAlive
     highMark := config.highMark
     defaultPayloadBytes := config.defaultPayloadBytes

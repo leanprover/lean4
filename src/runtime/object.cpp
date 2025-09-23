@@ -2357,17 +2357,20 @@ extern "C" LEAN_EXPORT uint8_t lean_slice_memcmp(b_obj_arg s1, b_obj_arg s2, b_o
 
     char const * lbase = lean_slice_base(s1) + lstart;
     char const * rbase = lean_slice_base(s2) + rstart;
-    if (std::memcmp(lbase, rbase, len) == 0) {
-        return 1;
-    } else {
-        return 0;
-    }
+    return std::memcmp(lbase, rbase, len) == 0;
 }
 
-extern "C" LEAN_EXPORT uint64 lean_slice_hash(b_obj_arg s) {
+extern "C" LEAN_EXPORT uint64_t lean_slice_hash(b_obj_arg s) {
     size_t sz = lean_slice_size(s) - 1;
     char const * str = lean_slice_base(s);
     return hash_str(sz, (unsigned char const *) str, 11);
+}
+
+extern "C" LEAN_EXPORT uint8_t lean_slice_dec_lt(object * s1, object * s2) {
+    size_t sz1 = lean_slice_size(s1);
+    size_t sz2 = lean_slice_size(s2);
+    int r = std::memcmp(lean_slice_base(s1), lean_slice_base(s2), std::min(sz1, sz2));
+    return r < 0 || (r == 0 && sz1 < sz2);
 }
 
 // =======================================

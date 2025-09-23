@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.String.Pattern
 public import Init.Data.Iterators.Consumers.Monadic.Collect
+public import Init.Data.Ord.Basic
 import Init.Data.Iterators.Combinators.FilterMap
 
 public section
@@ -103,22 +104,27 @@ instance [Pure m] : Std.Iterators.Iterator (SplitInclusiveIterator ρ) m Slice w
 
 -- TODO: Finiteness after we have a notion of lawful searcher
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (SplitInclusiveIterator ρ) m n :=
+instance [Monad m] [Monad n] :
+    Std.Iterators.IteratorCollect (SplitInclusiveIterator ρ) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial (SplitInclusiveIterator ρ) m n :=
+instance [Monad m] [Monad n] :
+    Std.Iterators.IteratorCollectPartial (SplitInclusiveIterator ρ) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (SplitInclusiveIterator ρ) m n :=
+instance [Monad m] [Monad n] :
+    Std.Iterators.IteratorLoop (SplitInclusiveIterator ρ) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (SplitInclusiveIterator ρ) m n :=
+instance [Monad m] [Monad n] :
+    Std.Iterators.IteratorLoopPartial (SplitInclusiveIterator ρ) m n :=
   .defaultImplementation
 
 end SplitInclusiveIterator
 
 @[specialize pat]
-def splitInclusive [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) : Std.Iter (α := SplitInclusiveIterator ρ) Slice :=
+def splitInclusive [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) :
+    Std.Iter (α := SplitInclusiveIterator ρ) Slice :=
   { internalState := .operating s s.startPos (ToForwardSearcher.toSearcher s pat) }
 
 @[inline]
@@ -219,7 +225,8 @@ instance [Pure m] : Std.Iterators.Iterator (RevSplitIterator ρ) m Slice where
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (RevSplitIterator ρ) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial (RevSplitIterator ρ) m n :=
+instance [Monad m] [Monad n] :
+    Std.Iterators.IteratorCollectPartial (RevSplitIterator ρ) m n :=
   .defaultImplementation
 
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (RevSplitIterator ρ) m n :=
@@ -287,7 +294,9 @@ def eqIgnoreAsciiCase (s1 s2 : Slice) : Bool :=
 where
   go (s1 : Slice) (s1Curr : String.Pos) (s2 : Slice) (s2Curr : String.Pos) : Bool :=
     if h : s1Curr < s1.utf8ByteSize ∧ s2Curr < s2.utf8ByteSize then
-      if (s1.getUtf8Byte s1Curr h.left).toAsciiLower == (s2.getUtf8Byte s2Curr h.right).toAsciiLower then
+      let c1 := (s1.getUtf8Byte s1Curr h.left).toAsciiLower
+      let c2 := (s2.getUtf8Byte s2Curr h.right).toAsciiLower
+      if c1 == c2 then
         go s1 s1Curr.inc s2 s2Curr.inc
       else
         false
@@ -315,9 +324,15 @@ opaque hash (s : Slice) : UInt64
 instance : Hashable Slice where
   hash := hash
 
-/-
-instance : Ord Slice := sorry
--/
+instance : LT Slice where
+  lt x y := x.copy < y.copy
+
+@[extern "lean_slice_dec_lt"]
+instance : DecidableLT Slice :=
+  fun x y => inferInstanceAs (Decidable (x.copy < y.copy))
+
+instance : Ord Slice where
+  compare x y := compareOfLessAndBEq x y
 
 structure CharIterator where
   s : Slice
@@ -409,7 +424,8 @@ instance [Pure m] : Std.Iterators.Iterator RevCharIterator m Char where
       let nextPos := currPos.prev h
       pure ⟨.yield ⟨s, nextPos⟩ (nextPos.get Pos.prev_ne_endPos), by simp [h, nextPos]⟩
 
-private def finitenessRelation [Pure m] : Std.Iterators.FinitenessRelation RevCharIterator m where
+private def finitenessRelation [Pure m] :
+    Std.Iterators.FinitenessRelation RevCharIterator m where
   rel := InvImage WellFoundedRelation.rel
       (fun it => it.internalState.currPos.offset.byteIdx)
   wf := InvImage.wf _ WellFoundedRelation.wf
@@ -470,7 +486,8 @@ instance [Pure m] : Std.Iterators.Iterator (PosIterator s) m s.Pos where
     else
       pure ⟨.yield ⟨⟨currPos.next h⟩⟩ currPos, by simp [h]⟩
 
-private def finitenessRelation [Pure m] : Std.Iterators.FinitenessRelation (PosIterator s) m where
+private def finitenessRelation [Pure m] :
+    Std.Iterators.FinitenessRelation (PosIterator s) m where
   rel := InvImage WellFoundedRelation.rel
       (fun it => s.utf8ByteSize.byteIdx - it.internalState.currPos.offset.byteIdx)
   wf := InvImage.wf _ WellFoundedRelation.wf
@@ -529,7 +546,8 @@ instance [Pure m] : Std.Iterators.Iterator (RevPosIterator s) m s.Pos where
       let prevPos := currPos.prev h
       pure ⟨.yield ⟨⟨prevPos⟩⟩ prevPos, by simp [h, prevPos]⟩
 
-private def finitenessRelation [Pure m] : Std.Iterators.FinitenessRelation (RevPosIterator s) m where
+private def finitenessRelation [Pure m] :
+    Std.Iterators.FinitenessRelation (RevPosIterator s) m where
   rel := InvImage WellFoundedRelation.rel
       (fun it => it.internalState.currPos.offset.byteIdx)
   wf := InvImage.wf _ WellFoundedRelation.wf
@@ -552,7 +570,8 @@ instance [Pure m] : Std.Iterators.Finite (RevPosIterator s) m :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (RevPosIterator s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial (RevPosIterator s) m n :=
+instance [Monad m] [Monad n] :
+    Std.Iterators.IteratorCollectPartial (RevPosIterator s) m n :=
   .defaultImplementation
 
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (RevPosIterator s) m n :=
@@ -588,7 +607,8 @@ instance [Pure m] : Std.Iterators.Iterator ByteIterator m UInt8 where
     else
       pure ⟨.done, by simp [h]⟩
 
-private def finitenessRelation [Pure m] : Std.Iterators.FinitenessRelation (ByteIterator) m where
+private def finitenessRelation [Pure m] :
+    Std.Iterators.FinitenessRelation (ByteIterator) m where
   rel := InvImage WellFoundedRelation.rel
       (fun it => it.internalState.s.utf8ByteSize.byteIdx - it.internalState.offset.byteIdx)
   wf := InvImage.wf _ WellFoundedRelation.wf
@@ -663,7 +683,8 @@ instance [Pure m] : Std.Iterators.Iterator RevByteIterator m UInt8 where
     else
       pure ⟨.done, by simpa using h⟩
 
-private def finitenessRelation [Pure m] : Std.Iterators.FinitenessRelation (RevByteIterator) m where
+private def finitenessRelation [Pure m] :
+    Std.Iterators.FinitenessRelation (RevByteIterator) m where
   rel := InvImage WellFoundedRelation.rel
       (fun it => it.internalState.offset.byteIdx)
   wf := InvImage.wf _ WellFoundedRelation.wf

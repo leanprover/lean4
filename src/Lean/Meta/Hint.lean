@@ -22,6 +22,48 @@ namespace Lean.Meta.Hint
 
 open Elab Tactic PrettyPrinter TryThis
 
+/--
+A widget for a clickable link (or icon) that inserts text into the document at a given position.
+
+The props to this widget are of the following form:
+```json
+{
+  "range": {
+    "start": {"line": 100, "character": 0},
+    "end":   {"line": 100, "character": 5}
+  },
+  "suggestion": "hi",
+  "acceptSuggestionProps": {
+    "kind": "text",
+    "hoverText": "Displayed on hover",
+    "linkText": "Displayed as the text of the link"
+  }
+}
+```
+... or the following form, where `codiconName` is one of the icons at
+https://microsoft.github.io/vscode-codicons/dist/codicon.html and `gaps` determines
+whether there are clickable spaces surrounding the icon:
+```json
+{
+  "range": {
+    "start": {"line": 100, "character": 0},
+    "end":   {"line": 100, "character": 5}
+  },
+  "suggestion": "hi",
+  "acceptSuggestionProps": {
+    "kind": "icon",
+    "hoverText": "Displayed on hover",
+    "codiconName": "search",
+    "gaps": true
+  }
+}
+```
+
+Note: we cannot add the `builtin_widget_module` attribute here because that would require importing
+`Lean.Widget.UserWidget`, which in turn imports much of `Lean.Elab` -- the module where we want to
+be able to use this widget. Instead, we register the attribute post-hoc when we declare the regular
+"Try This" widget in `Lean.Meta.Tactic.TryThis`.
+-/
 def textInsertionWidget : Widget.Module where
   javascript := "
 import * as React from 'react';

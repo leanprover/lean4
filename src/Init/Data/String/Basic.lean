@@ -1253,6 +1253,36 @@ theorem Slice.startInclusive_replaceEnd {s : Slice} {pos : s.Pos} :
 theorem Slice.endExclusive_replaceEnd {s : Slice} {pos : s.Pos} :
     (s.replaceEnd pos).endExclusive = pos.str := rfl
 
+/-- Given a slice and two valid positions within the slice, obtain a new slice on the same underlying
+string formed by the new bounds. -/
+@[expose] -- for the defeq `(s.replaceStartEnd newStart newEnd).str = s.str`
+def Slice.replaceStartEnd (s : Slice) (newStart newEnd : s.Pos)
+    (h : newStart.offset ≤ newEnd.offset) : Slice where
+  str := s.str
+  startInclusive := newStart.str
+  endExclusive := newEnd.str
+  startInclusive_le_endExclusive := by simpa [Pos.le_iff] using h
+
+@[simp]
+theorem Slice.str_replaceStartEnd {s : Slice} {newStart newEnd : s.Pos} {h} :
+    (s.replaceStartEnd newStart newEnd h).str = s.str := rfl
+
+@[simp]
+theorem Slice.startInclusive_replaceStartEnd {s : Slice} {newStart newEnd : s.Pos} {h} :
+    (s.replaceStartEnd newStart newEnd h).startInclusive = newStart.str := rfl
+
+@[simp]
+theorem Slice.endExclusive_replaceStartEnd {s : Slice} {newStart newEnd : s.Pos} {h} :
+    (s.replaceStartEnd newStart newEnd h).endExclusive = newEnd.str := rfl
+
+/-- Given a slice and two valid positions within the slice, obtain a new slice on the same underlying
+string formed by the new bounds, or panic if the given end is strictly less than the given start. -/
+def Slice.replaceStartEnd! (s : Slice) (newStart newEnd : s.Pos) : Slice :=
+  if h : newStart.offset ≤ newEnd.offset then
+    s.replaceStartEnd newStart newEnd h
+  else
+    panic! "Starting position must be less than or equal to end position."
+
 @[simp]
 theorem Slice.utf8ByteSize_replaceStart {s : Slice} {pos : s.Pos} :
     (s.replaceStart pos).utf8ByteSize = s.utf8ByteSize - pos.offset := by
@@ -1265,6 +1295,14 @@ theorem Slice.utf8ByteSize_replaceEnd {s : Slice} {pos : s.Pos} :
     (s.replaceEnd pos).utf8ByteSize = pos.offset := by
   ext
   simp
+
+@[simp]
+theorem Slice.utf8ByteSize_replaceStartEnd {s : Slice} {newStart newEnd : s.Pos} {h} :
+    (s.replaceStartEnd newStart newEnd h).utf8ByteSize = newEnd.offset - newStart.offset := by
+  ext
+  simp only [byteIdx_utf8ByteSize, str_replaceStartEnd, endExclusive_replaceStartEnd,
+    Pos.offset_str, Pos.byteIdx_add, startInclusive_replaceStartEnd, Pos.byteIdx_sub]
+  omega
 
 theorem Pos.add_comm (a b : Pos) : a + b = b + a := by
   ext

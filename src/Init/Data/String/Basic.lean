@@ -1397,10 +1397,9 @@ past-the-end position.
 
 This function is overridden with an efficient implementation in runtime code.
 
-Examples: TODO!!
-* `"abc".get ⟨1⟩ = 'b'`
-* `"abc".get ⟨3⟩ = (default : Char)` because byte `3` is at the end of the string.
-* `"L∃∀N".get ⟨2⟩ = (default : Char)` because byte `2` is in the middle of `'∃'`.
+Examples:
+* `("abc".pos ⟨1⟩ (by decide)).get (by decide) = 'b'`
+* `("L∃∀N".pos ⟨1⟩ (by decide)).get (by decide) = '∃'`
 -/
 @[expose]
 def ValidPos.get {s : String} (pos : s.ValidPos) (h : pos ≠ s.endValidPos) : Char :=

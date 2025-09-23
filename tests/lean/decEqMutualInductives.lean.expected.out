@@ -1,5 +1,6 @@
 [Elab.Deriving.decEq] 
     [mutual
+       @[expose✝]
        def instDecidableEqListTree.decEq_1 (x✝ : @A.Tree✝) (x✝¹ : @A.Tree✝) : Decidable✝ (x✝ = x✝¹) :=
          match x✝, x✝¹ with
          | @A.Tree.node a✝, @A.Tree.node b✝ =>
@@ -7,6 +8,7 @@
            if h✝ : @a✝ = @b✝ then by subst h✝; exact isTrue✝ rfl✝
            else isFalse✝ (by intro n✝; injection n✝; apply h✝ _; assumption)
        termination_by structural x✝
+       @[expose✝]
        def instDecidableEqListTree.decEq_2 (x✝² : @A.ListTree✝) (x✝³ : @A.ListTree✝) : Decidable✝ (x✝² = x✝³) :=
          match x✝², x✝³ with
          | @A.ListTree.nil, @A.ListTree.nil => isTrue✝¹ rfl✝¹
@@ -26,6 +28,7 @@
        instDecidableEqListTree.decEq_2]
 [Elab.Deriving.decEq] 
     [mutual
+       @[expose✝]
        def instDecidableEqFoo₁.decEq_1 (x✝ : @A.Foo₁✝) (x✝¹ : @A.Foo₁✝) : Decidable✝ (x✝ = x✝¹) :=
          match x✝, x✝¹ with
          | @A.Foo₁.foo₁₁, @A.Foo₁.foo₁₁ => isTrue✝ rfl✝
@@ -36,6 +39,7 @@
            if h✝¹ : @a✝ = @b✝ then by subst h✝¹; exact isTrue✝¹ rfl✝¹
            else isFalse✝¹ (by intro n✝; injection n✝; apply h✝¹ _; assumption)
        termination_by structural x✝
+       @[expose✝]
        def instDecidableEqFoo₁.decEq_2 (x✝² : @A.Foo₂✝) (x✝³ : @A.Foo₂✝) : Decidable✝ (x✝² = x✝³) :=
          match x✝², x✝³ with
          | @A.Foo₂.foo₂ a✝¹, @A.Foo₂.foo₂ b✝¹ =>
@@ -43,6 +47,7 @@
            if h✝² : @a✝¹ = @b✝¹ then by subst h✝²; exact isTrue✝² rfl✝²
            else isFalse✝² (by intro n✝¹; injection n✝¹; apply h✝² _; assumption)
        termination_by structural x✝²
+       @[expose✝]
        def instDecidableEqFoo₁.decEq_3 (x✝⁴ : @A.Foo₃✝) (x✝⁵ : @A.Foo₃✝) : Decidable✝ (x✝⁴ = x✝⁵) :=
          match x✝⁴, x✝⁵ with
          | @A.Foo₃.foo₃ a✝², @A.Foo₃.foo₃ b✝² =>
@@ -55,6 +60,7 @@
        instDecidableEqFoo₁.decEq_1]
 [Elab.Deriving.decEq] 
     [mutual
+       @[expose✝]
        def instDecidableEqListTree.decEq_1 (x✝ : @B.Tree✝) (x✝¹ : @B.Tree✝) : Decidable✝ (x✝ = x✝¹) :=
          B.Tree.match_on_same_ctor✝ x✝ x✝¹ rfl✝
            @fun a✝ b✝ =>
@@ -62,6 +68,7 @@
              if h✝ : @a✝ = @b✝ then by subst h✝; exact isTrue✝ rfl✝¹
              else isFalse✝ (by intro n✝; injection n✝; apply h✝ _; assumption)
        termination_by structural x✝
+       @[expose✝]
        def instDecidableEqListTree.decEq_2 (x✝² : @B.ListTree✝) (x✝³ : @B.ListTree✝) : Decidable✝ (x✝² = x✝³) :=
          match decEq✝ (B.ListTree.ctorIdx✝ x✝²) (B.ListTree.ctorIdx✝ x✝³) with
          | .isTrue✝¹ h✝¹ =>
@@ -81,6 +88,7 @@
        instDecidableEqListTree.decEq_2]
 [Elab.Deriving.decEq] 
     [mutual
+       @[expose✝]
        def instDecidableEqFoo₁.decEq_1 (x✝ : @B.Foo₁✝) (x✝¹ : @B.Foo₁✝) : Decidable✝ (x✝ = x✝¹) :=
          match decEq✝ (B.Foo₁.ctorIdx✝ x✝) (B.Foo₁.ctorIdx✝ x✝¹) with
          | .isTrue✝ h✝ =>
@@ -91,6 +99,7 @@
                else isFalse✝ (by intro n✝; injection n✝; apply h✝¹ _; assumption)
          | .isFalse✝¹ h✝ => isFalse✝¹ (fun h'✝ => h✝ (congrArg✝ B.Foo₁.ctorIdx✝ h'✝))
        termination_by structural x✝
+       @[expose✝]
        def instDecidableEqFoo₁.decEq_2 (x✝² : @B.Foo₂✝) (x✝³ : @B.Foo₂✝) : Decidable✝ (x✝² = x✝³) :=
          B.Foo₂.match_on_same_ctor✝ x✝² x✝³ rfl✝
            @fun a✝¹ b✝¹ =>
@@ -98,6 +107,7 @@
              if h✝² : @a✝¹ = @b✝¹ then by subst h✝²; exact isTrue✝² rfl✝²
              else isFalse✝² (by intro n✝¹; injection n✝¹; apply h✝² _; assumption)
        termination_by structural x✝²
+       @[expose✝]
        def instDecidableEqFoo₁.decEq_3 (x✝⁴ : @B.Foo₃✝) (x✝⁵ : @B.Foo₃✝) : Decidable✝ (x✝⁴ = x✝⁵) :=
          B.Foo₃.match_on_same_ctor✝ x✝⁴ x✝⁵ rfl✝
            @fun a✝² b✝² =>

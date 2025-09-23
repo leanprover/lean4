@@ -32,9 +32,7 @@ public inductive PubInd where
   | a (n : Nat) | b
 deriving DecidableEq
 
-/--
-info: Decidable.rec (fun h => false) (fun h => true) (instDecidableEqPubInd.decEq PubInd.b PubInd.b)
--/
+/-- info: true -/
 #guard_msgs in
 #with_exporting
 #reduce decide (PubInd.b = PubInd.b)

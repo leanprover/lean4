@@ -134,7 +134,7 @@ def ex1 [BEq α] : BEq (Tree α) :=
 def ex2 [BEq α] : BEq (TreeList α) :=
   inferInstance
 
-/-! Private fields should yield public, no-expose instances. -/
+/-! Private fields should yield public, no-exposed instances. -/
 
 structure PrivField where
   private a : Nat

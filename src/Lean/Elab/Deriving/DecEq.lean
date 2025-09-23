@@ -183,8 +183,9 @@ def mkAuxFunction (ctx : Context) (auxFunName : Name) (indVal : InductiveVal): T
   let termSuffix ← if indVal.isRec
     then `(Parser.Termination.suffix|termination_by structural $target₁)
     else `(Parser.Termination.suffix|)
+  let attrs ← if (← hasPrivateCtors indVal.name) then pure none  else some <$> `(attributes| @[expose])
   let type    ← `(Decidable ($target₁ = $target₂))
-  `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term
+  `($[$attrs:attributes]? def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term
     $termSuffix:suffix)
 
 def mkAuxFunctions (ctx : Context) : TermElabM (TSyntax `command) := do

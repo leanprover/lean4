@@ -67,16 +67,18 @@ def mkInstImplicitBinders (className : Name) (indVal : InductiveVal) (argNames :
         pure ()
     return binders
 
-/--
-Removes any `[expose]` section attributes when running `cont` if `typeName` has private ctors.
--/
-def withoutExposeFromCtors (typeName : Name) (cont : CommandElabM α) : CommandElabM α := do
-  -- TODO: some duplication with `mkContext` but it is in `TermElabM`; should it be?
+def hasPrivateCtors [Monad m] [MonadError m] [MonadEnv m] (typeName : Name) : m Bool := do
   let indVal ← getConstInfoInduct typeName
   let mut typeInfos := #[]
   for typeName in indVal.all do
     typeInfos := typeInfos.push (← getConstInfoInduct typeName)
-  if typeInfos.any (·.ctors.any isPrivateName) then
+  return typeInfos.any (·.ctors.any isPrivateName)
+
+/--
+Removes any `[expose]` section attributes when running `cont` if `typeName` has private ctors.
+-/
+def withoutExposeFromCtors (typeName : Name) (cont : CommandElabM α) : CommandElabM α := do
+  if (← hasPrivateCtors typeName) then
     -- The topmost scope should be the one form
     if (← getScope).attrs.any (· matches `(Parser.Term.attrInstance| expose)) then
       throwError "cannot use `deriving ... @[expose]` with `{.ofConstName typeName}` as it has one or more private constructors"

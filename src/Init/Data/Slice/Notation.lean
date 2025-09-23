@@ -8,6 +8,8 @@ module
 prelude
 public import Init.Data.Range.Polymorphic.PRange
 
+set_option doc.verso true
+
 public section
 
 /-!
@@ -22,82 +24,82 @@ open Std PRange
 namespace Std
 
 /--
-This typeclass indicates how to obtain slices of elements of `α` over ranges in the index type `β`,
-the ranges being closed.
+This typeclass indicates how to obtain slices of elements of {lit}`α` over ranges in the index type
+{lit}`β`, the ranges being closed.
 
-The type of the resulting slices is `γ`.
+The type of the resulting slices is {lit}`γ`.
 -/
 class Rcc.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
   mkSlice (carrier : α) (range : Rcc β) : γ
 
 /--
-This typeclass indicates how to obtain slices of elements of `α` over ranges in the index type `β`,
-the ranges being left-closed right-open.
+This typeclass indicates how to obtain slices of elements of {lit}`α` over ranges in the index type
+{lit}`β`, the ranges being left-closed right-open.
 
-The type of resulting the slices is `γ`.
+The type of resulting the slices is {lit}`γ`.
 -/
 class Rco.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
   mkSlice (carrier : α) (range : Rco β) : γ
 
 /--
-This typeclass indicates how to obtain slices of elements of `α` over ranges in the index type `β`,
-the ranges being left-closed right-unbounded.
+This typeclass indicates how to obtain slices of elements of {lit}`α` over ranges in the index type
+{lit}`β`, the ranges being left-closed right-unbounded.
 
-The type of the resulting slices is `γ`.
+The type of the resulting slices is {lit}`γ`.
 -/
 class Rci.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
   mkSlice (carrier : α) (range : Rci β) : γ
 
 /--
-This typeclass indicates how to obtain slices of elements of `α` over ranges in the index type `β`,
-the ranges being left-open right-closed.
+This typeclass indicates how to obtain slices of elements of {lit}`α` over ranges in the index type
+{lit}`β`, the ranges being left-open right-closed.
 
-The type of the resulting slices is `γ`.
+The type of the resulting slices is {lit}`γ`.
 -/
 class Roc.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
   mkSlice (carrier : α) (range : Roc β) : γ
 
 /--
-This typeclass indicates how to obtain slices of elements of `α` over ranges in the index type `β`,
-the ranges being open.
+This typeclass indicates how to obtain slices of elements of {lit}`α` over ranges in the index type
+{lit}`β`, the ranges being open.
 
-The type of the resulting slices is `γ`.
+The type of the resulting slices is {lit}`γ`.
 -/
 class Roo.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
   mkSlice (carrier : α) (range : Roo β) : γ
 
 /--
-This typeclass indicates how to obtain slices of elements of `α` over ranges in the index type `β`,
-the ranges being left-open right-unbounded.
+This typeclass indicates how to obtain slices of elements of {lit}`α` over ranges in the index type
+{lit}`β`, the ranges being left-open right-unbounded.
 
-The type of the resulting slices is `γ`.
+The type of the resulting slices is {lit}`γ`.
 -/
 class Roi.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
   mkSlice (carrier : α) (range : Roi β) : γ
 
 /--
-This typeclass indicates how to obtain slices of elements of `α` over ranges in the index type `β`,
-the ranges being left-unbounded right-closed.
+This typeclass indicates how to obtain slices of elements of {lit}`α` over ranges in the index type
+{lit}`β`, the ranges being left-unbounded right-closed.
 
-The type of the resulting slices is `γ`.
+The type of the resulting slices is {lit}`γ`.
 -/
 class Ric.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
   mkSlice (carrier : α) (range : Ric β) : γ
 
 /--
-This typeclass indicates how to obtain slices of elements of `α` over ranges in the index type `β`,
-the ranges being left-unbounded right-open.
+This typeclass indicates how to obtain slices of elements of {lit}`α` over ranges in the index type
+{lit}`β`, the ranges being left-unbounded right-open.
 
-The type of the resulting slices is `γ`.
+The type of the resulting slices is {lit}`γ`.
 -/
 class Rio.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
   mkSlice (carrier : α) (range : Rio β) : γ
 
 /--
-This typeclass indicates how to obtain slices of elements of `α` over the full range in the index
-type `β`.
+This typeclass indicates how to obtain slices of elements of {lit}`α` over the full range in the
+index type {lit}`β`.
 
-The type of the resulting slices is `γ`.
+The type of the resulting slices is {lit}`γ`.
 -/
 class Rii.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
   mkSlice (carrier : α) (range : Rii β) : γ

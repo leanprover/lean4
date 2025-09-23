@@ -10,6 +10,10 @@ public import Init.Data.String.Pattern.Basic
 public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.Consumers.Monadic.Loop
 
+/-!
+This module defines the necessary instances to register `Char` with the pattern framework.
+-/
+
 public section
 
 namespace String.Slice.Pattern

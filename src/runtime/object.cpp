@@ -2331,6 +2331,14 @@ extern "C" LEAN_EXPORT obj_res lean_string_of_usize(size_t n) {
     return mk_ascii_string_unchecked(std::to_string(n));
 }
 
+size_t lean_slice_size(b_obj_arg slice) {
+   b_obj_res start = lean_ctor_get(slice, 1);
+   lean_assert(lean_is_scalar(start));
+   b_obj_res end = lean_ctor_get(slice, 1);
+   lean_assert(lean_is_scalar(end));
+   return lean_unbox(end) - lean_unbox(start);
+}
+
 char const * lean_slice_base(b_obj_arg slice) {
    b_obj_res string = lean_ctor_get(slice, 0);
    b_obj_res offset = lean_ctor_get(slice, 1);
@@ -2349,11 +2357,17 @@ extern "C" LEAN_EXPORT uint8_t lean_slice_memcmp(b_obj_arg s1, b_obj_arg s2, b_o
 
     char const * lbase = lean_slice_base(s1) + lstart;
     char const * rbase = lean_slice_base(s2) + rstart;
-    if (memcmp(lbase, rbase, len) == 0) {
+    if (std::memcmp(lbase, rbase, len) == 0) {
         return 1;
     } else {
         return 0;
     }
+}
+
+extern "C" LEAN_EXPORT uint64 lean_slice_hash(b_obj_arg s) {
+    size_t sz = lean_slice_size(s) - 1;
+    char const * str = lean_slice_base(s);
+    return hash_str(sz, (unsigned char const *) str, 11);
 }
 
 // =======================================

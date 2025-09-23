@@ -23,6 +23,9 @@ public section
 
 namespace String.Slice.Pattern
 
+theorem lt_offset_findNextPos {s : Slice} {o : String.Pos} (h) : o < (s.findNextPos o h).offset := by
+  sorry
+
 theorem offset_prev_lt_offset {s : Slice} {p : s.Pos} (h) : (p.prev h).offset < p.offset := by
   sorry
 

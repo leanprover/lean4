@@ -1207,7 +1207,7 @@ public theorem ByteArray.isSome_utf8DecodeChar?_append {b : ByteArray} {i : Nat}
   obtain ⟨c, hc⟩ := Option.isSome_iff_exists.1 h
   rw [utf8DecodeChar?_append_eq_some hc, Option.isSome_some]
 
-@[inline]
+@[inline, expose]
 public def ByteArray.utf8DecodeChar (bytes : ByteArray) (i : Nat) (h : (utf8DecodeChar? bytes i).isSome) : Char :=
   (utf8DecodeChar? bytes i).get h
 

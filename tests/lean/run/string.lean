@@ -170,4 +170,22 @@ Behavior of `String.next` (`lean_string_utf8_next`) in special cases (see issue 
 #test "L∃∀N".next ⟨2 ^ 31 - 1⟩ = ⟨2 ^ 31⟩ -- scalar boundary (32-bit)
 
 -- ofByteArray
-#guard (String.ofByteArray ByteArray.empty (by simp)) = ""
+#test (String.ofByteArray ByteArray.empty (by simp)) = ""
+#test (String.ofByteArray ⟨#[76, 226, 136, 131, 226, 136, 128, 78]⟩ (.intro ['L', '∃', '∀', 'N'] rfl)) = lean
+
+#test "abc".pos? ⟨4⟩ = none
+#test "L∃∀N".pos? ⟨2⟩ = none
+
+#test ("abc".pos ⟨1⟩ (by decide)).get (by decide) = 'b'
+#test ("abc".pos ⟨3⟩ (by decide)).get? = none
+#test ("L∃∀N".pos ⟨1⟩ (by decide)).get (by decide) = '∃'
+
+#test (("L∃∀N".pos ⟨1⟩ (by decide)).next (by decide)).offset = ⟨3⟩
+
+#test "abc".get ⟨1⟩ = 'b'
+#test "abc".get ⟨3⟩ = (default : Char)
+#test "L∃∀N".get ⟨2⟩ = (default : Char)
+
+example : "".startValidPos = "".endValidPos := by decide
+
+#eval ("abc".pos ⟨0⟩ (by decide)).get (by decide)

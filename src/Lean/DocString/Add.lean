@@ -159,7 +159,7 @@ def versoDocStringFromString
   }
   let s := mkParserState docComment
   -- TODO parse one block at a time for error recovery purposes
-  let s := (Doc.Parser.document).run ictx pmctx (getTokenTable env) s
+  let s := Doc.Parser.document.run ictx pmctx (getTokenTable env) s
 
   if !s.allErrors.isEmpty then
     for (pos, _, err) in s.allErrors do

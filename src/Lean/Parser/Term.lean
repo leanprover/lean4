@@ -28,19 +28,35 @@ def versoCommentBodyFn : ParserFn := fun c s =>
   let startPos := s.pos
   let s := finishCommentBlock (pushMissingOnError := true) 1 c s
   if !s.hasError then
+    let iniSz := s.stackSize
     let commentEndPos := s.pos
     let endPos := c.prev (c.prev commentEndPos)
     let endPos := if endPos ≤ c.inputString.endPos then endPos else c.inputString.endPos
     let c' := c.setEndPos endPos (by unfold endPos; split <;> simp [*])
     let s := Doc.Parser.document {} c' (s.setPos startPos)
-    if s.hasError then
-      s.pushSyntax .missing
-    else
-      (rawFn (Doc.Parser.ignoreFn <| chFn '-' >> chFn '/') (trailingWs := true)) c s
+    let s :=
+      if !s.allErrors.isEmpty then
+        -- Docstring parsing must always succeed, or else later error messages are atrocious! Syntax
+        -- errors in the docs should not cause verso-docstring-expecting commands to be removed from
+        -- consideration. So, at this stage, we push an indication of the failure, and then later,
+        -- when adding docstrings, the failing case is re-parsed and the errors are reported then.
+        -- We don't just parse them later because then the syntax of the docs doesn't end up as part
+        -- of the syntax of the actual program.
+        let s := s.restore iniSz endPos
+        let leading := c.mkEmptySubstringAt startPos
+        let trailing := c.mkEmptySubstringAt endPos
+        let s :=
+          s.pushSyntax <|
+          .atom (.original leading startPos trailing endPos) (c.inputString.extract startPos endPos)
+        let s := s.mkNode `Lean.Doc.Syntax.parseFailure iniSz
+        {s with recoveredErrors := #[]}
+      else s
+    rawFn (Doc.Parser.ignoreFn <| chFn '-' >> chFn '/') (trailingWs := true) c s
   else s
 
 public def versoCommentBody : Parser where
-  fn := nodeFn `Lean.Parser.Command.versoCommentBody versoCommentBodyFn
+  fn := fun c s => nodeFn `Lean.Parser.Command.versoCommentBody versoCommentBodyFn c s
+
 
 @[combinator_parenthesizer versoCommentBody, expose]
 public def versoCommentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken

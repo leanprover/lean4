@@ -20,7 +20,8 @@ according to matches etc. The key design principles behind this module are:
   first occurence of a pattern (`String.Slice.find?`). Currently the supported patterns are:
   - `Char`
   - `Char → Bool`
-  - `String` and `String.Slice`
+  - `String` and `String.Slice` (partially: doing non trivial searches backwards is not supported
+    yet)
 - Whenever a slice gets mutated a new slice is returned to allow for repeated chaining of functions
   with minimal allocations. If necessary the slice can ultimately be converted back to `String`
   using `String.Slice.copy`
@@ -194,6 +195,40 @@ def splitInclusive [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) :
   { internalState := .operating s s.startPos (ToForwardSearcher.toSearcher s pat) }
 
 /--
+If `pat` matches a prefix of `s`, returns the remainder. Returns `none` otherwise.
+
+Use `String.Slice.dropPrefix` to return the slice unchanged when `pat` does not match a prefix.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * `"red green blue".toSlice.dropPrefix? "red " == some "green blue".toSlice`
+ * `"red green blue".toSlice.dropPrefix? "reed " == none`
+ * `"red green blue".toSlice.dropPrefix? 'r' == some "ed green blue".toSlice`
+ * `"red green blue".toSlice.dropPrefix? Char.isLower == some "ed green blue".toSlice`
+-/
+@[inline]
+def dropPrefix? [ForwardPattern ρ] (s : Slice) (pat : ρ) : Option Slice :=
+  ForwardPattern.dropPrefix? s pat
+
+/--
+If `pat` matches a prefix of `s`, returns the remainder. Returns `s` unmodified otherwise.
+
+Use `String.Slice.dropPrefix?` to return `none` when `pat` does not match a prefix.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * `"red green blue".toSlice.dropPrefix "red " == "green blue".toSlice`
+ * `"red green blue".toSlice.dropPrefix "reed " == "red green blue".toSlice`
+ * `"red green blue".toSlice.dropPrefix 'r' == "ed green blue".toSlice`
+ * `"red green blue".toSlice.dropPrefix Char.isLower == "ed green blue".toSlice`
+-/
+@[specialize pat]
+def dropPrefix [ForwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+  dropPrefix? s pat |>.getD s
+
+/--
 Removes the specified number of characters (Unicode code points) from the start of the slice.
 
 If `n` is greater than the amount of characters in `s`, returns an empty slice.
@@ -208,8 +243,8 @@ def drop (s : Slice) (n : Nat) : Slice :=
   s.replaceStart (s.startPos.nextn n)
 
 /--
-Creates a new string by removing the longest prefix from `s` in which `p` returns `true` for all
-characters.
+Creates a new slice that contains the longest prefix of `s` for which `pat` matched
+(potentially repeatedly).
 
 Examples:
  * `"red green blue".toSlice.dropWhile Char.isLower == " green blue".toSlice`
@@ -217,18 +252,33 @@ Examples:
  * `"red red green blue".toSlice.dropWhile "red " == "green blue".toSlice`
  * `"red green blue".toSlice.dropWhile (fun (_ : Char) => true) == "".toSlice`
 -/
-@[specialize pat]
-def dropWhile [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) : Slice :=
-  let searcher := ToForwardSearcher.toSearcher s pat
-  match Internal.nextReject searcher with
-  | some (_, startPos, _) => s.replaceStart startPos
-  | none => s.replaceStart s.endPos
+@[inline]
+partial def dropWhile [ForwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+  go s
+where
+  @[specialize pat]
+  go (s : Slice) : Slice :=
+    if let some nextS := dropPrefix? s pat then
+      -- TODO: need lawful patterns to show this terminates
+      if s.startInclusive.offset < nextS.startInclusive.offset then
+        go nextS
+      else
+        s
+    else
+      s
 
 /--
 Removes leading whitespace from a slice by moving its start position to the first non-whitespace
 character, or to its end position if there is no non-whitespace character.
 
 “Whitespace” is defined as characters for which `Char.isWhitespace` returns `true`.
+
+Examples:
+ * `"abc".toSlice.trimAsciiStart == "abc".toSlice`
+ * `"   abc".toSlice.trimAsciiStart == "abc".toSlice`
+ * `"abc \t  ".toSlice.trimAsciiStart == "abc \t  ".toSlice`
+ * `"  abc   ".toSlice.trimAsciiStart == "abc   ".toSlice`
+ * `"abc\ndef\n".toSlice.trimAsciiStart == "abc\ndef\n".toSlice`
 -/
 @[inline]
 def trimAsciiStart (s : Slice) : Slice :=
@@ -238,7 +288,7 @@ def trimAsciiStart (s : Slice) : Slice :=
 /--
 Creates a new slice that contains the first `n` characters (Unicode code points) of `s`.
 
-If `n` is greater than `s.length`, returns `s`.
+If `n` is greater than the amount of characters in `s`, returns `s`.
 
 Examples:
  * `"red green blue".toSlice.take 3 == "red".toSlice`
@@ -262,46 +312,20 @@ Examples:
  * `"red red green blue".toSlice.takeWhile "red " == "red red ".toSlice`
  * `"red green blue".toSlice.takeWhile (fun (_ : Char) => true) == "red green blue".toSlice`
 -/
-@[specialize pat]
-def takeWhile [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) : Slice :=
-  let searcher := ToForwardSearcher.toSearcher s pat
-  match Internal.nextReject searcher with
-  | some (_, startPos, _) => s.replaceEnd startPos
-  | none => s
-
-/--
-If `pat` matches a prefix of `s`, returns the remainder. Returns `none` otherwise.
-
-Use `String.Slice.dropPrefix` to return the string unchanged when `pat` does not match a prefix.
-
-This function is generic over all currently supported patterns.
-
-Examples:
- * `"red green blue".toSlice.dropPrefix? "red " == some "green blue".toSlice`
- * `"red green blue".toSlice.dropPrefix? "reed " == none`
- * `"red green blue".toSlice.dropPrefix? 'r' == some "ed green blue".toSlice`
- * `"red green blue".toSlice.dropPrefix? Char.isLower == some "ed green blue".toSlice`
--/
 @[inline]
-def dropPrefix? [ForwardPattern ρ] (s : Slice) (pat : ρ) : Option Slice :=
-  ForwardPattern.dropPrefix? s pat
-
-/--
-If `pat` matches a prefix of `s`, returns the remainder. Returns `s` unmodified otherwise.
-
-Use `String.Slice.dropPrefix?` to return `none` when `pat` does not match a prefix.
-
-This function is generic over all currently supported patterns.
-
-Examples:
- * `"red green blue".toSlice.dropPrefix "red " == some "green blue".toSlice`
- * `"red green blue".toSlice.dropPrefix "reed " == "red green blue".toSlice`
- * `"red green blue".toSlice.dropPrefix 'r' == some "ed green blue".toSlice`
- * `"red green blue".toSlice.dropPrefix Char.isLower == some "ed green blue".toSlice`
--/
-@[specialize pat]
-def dropPrefix [ForwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
-  dropPrefix? s pat |>.getD s
+partial def takeWhile [ForwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+  go s
+where
+  @[specialize pat]
+  go (curr : Slice) : Slice :=
+    if let some nextCurr := dropPrefix? curr pat then
+      if curr.startInclusive.offset < nextCurr.startInclusive.offset then
+        -- TODO: need lawful patterns to show this terminates
+        go nextCurr
+      else
+        s.replaceEnd <| s.pos! <| curr.startInclusive.offset
+    else
+      s.replaceEnd <| s.pos! <| curr.startInclusive.offset
 
 /--
 Finds the position of the first match of the pattern `pat` in a slice `true`. If there is no match
@@ -349,10 +373,9 @@ Examples:
  * `"aaaaaa".toSlice.all 'a' = true`
  * `"aaaaaa".toSlice.all "aa" = true`
 -/
-@[specialize pat]
-def all [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) : Bool :=
-  let searcher := ToForwardSearcher.toSearcher s pat
-  Internal.nextReject searcher |>.isNone
+@[inline]
+def all [ForwardPattern ρ] (s : Slice) (pat : ρ) : Bool :=
+  s.dropWhile pat |>.isEmpty
 
 end ForwardPatternUsers
 
@@ -363,6 +386,18 @@ variable [∀ s, Std.Iterators.Iterator (σ s) Id (SearchStep s)]
 variable [∀ s, Std.Iterators.Finite (σ s) Id]
 variable [∀ s, Std.Iterators.IteratorLoop (σ s) Id Id]
 
+/--
+Checks whether the slice (`s`) ends with the pattern (`pat`).
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * `"red green blue".toSlice.endsWith "blue" = true`
+ * `"red green blue".toSlice.endsWith "green" = false`
+ * `"red green blue".toSlice.endsWith "" = true`
+ * `"red green blue".toSlice.endsWith 'e' = true`
+ * `"red green blue".toSlice.endsWith Char.isLower = true`
+-/
 @[inline]
 def endsWith [BackwardPattern ρ] (s : Slice) (pat : ρ) : Bool :=
   BackwardPattern.endsWith s pat
@@ -411,46 +446,166 @@ instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (RevSplitIterat
 
 end RevSplitIterator
 
+/--
+Splits a slice at each subslice that matches the pattern `pat`, starting from the end of the slice
+and traversing towards the start.
+
+The subslices that matched the pattern are not included in any of the resulting subslices. If
+multiple subslices in a row match the pattern, the resulting list will contain empty slices.
+
+This function is generic over all currently supported patterns except `String`/`String.Slice`.
+
+Examples:
+ * `("coffee tea water".toSlice.revSplit Char.isWhitespace).allowNontermination.toList == ["water".toSlice, "tea".toSlice, "coffee".toSlice]`
+ * `("coffee tea water".toSlice.revSplit ' ').allowNontermination.toList == ["water".toSlice, "tea".toSlice, "coffee".toSlice]`
+-/
 @[specialize pat]
 def revSplit [ToBackwardSearcher ρ σ] (s : Slice) (pat : ρ) :
     Std.Iter (α := RevSplitIterator ρ) Slice :=
   { internalState := .operating s s.endPos (ToBackwardSearcher.toSearcher s pat) }
 
-@[inline]
-def dropEnd (s : Slice) (n : Nat) : Slice :=
-  s.replaceEnd (s.endPos.prevn n)
+/--
+If `pat` matches a suffix of `s`, returns the remainder. Returns `none` otherwise.
 
-@[specialize pat]
-def dropEndWhile [ToBackwardSearcher ρ σ] (s : Slice) (pat : ρ) : Slice :=
-  let searcher := ToBackwardSearcher.toSearcher s pat
-  match Internal.nextReject searcher with
-  | some (_, _, endPos) => s.replaceEnd endPos
-  | none => s.replaceEnd s.startPos
+Use `String.Slice.dropSuffix` to return the slice unchanged when `pat` does not match a prefix.
 
--- If we want to optimize this can be pushed further by specialising for ASCII
-@[inline]
-def trimAsciiEnd (s : Slice) : Slice :=
-  dropEndWhile s Char.isWhitespace
+This function is generic over all currently supported patterns.
 
-@[inline]
-def takeEnd (s : Slice) (n : Nat) : Slice :=
-  s.replaceStart (s.startPos.prevn n)
-
-@[specialize pat]
-def takeEndWhile [ToBackwardSearcher ρ σ] (s : Slice) (pat : ρ) : Slice :=
-  let searcher := ToBackwardSearcher.toSearcher s pat
-  match Internal.nextReject searcher with
-  | some (_, _, endPos) => s.replaceStart endPos
-  | none => s
-
+Examples:
+ * `"red green blue".toSlice.dropSuffix? " blue" == some "red green".toSlice`
+ * `"red green blue".toSlice.dropSuffix? "bluu " == none`
+ * `"red green blue".toSlice.dropSuffix? 'e' == some "red green blu".toSlice`
+ * `"red green blue".toSlice.dropSuffix? Char.isLower == some "red green blu".toSlice`
+-/
 @[inline]
 def dropSuffix? [BackwardPattern ρ] (s : Slice) (pat : ρ) : Option Slice :=
   BackwardPattern.dropSuffix? s pat
 
+/--
+If `pat` matches a suffix of `s`, returns the remainder. Returns `s` unmodified otherwise.
+
+Use `String.Slice.dropSuffix?` to return `none` when `pat` does not match a prefix.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * `"red green blue".toSlice.dropSuffix " blue" == "red green".toSlice`
+ * `"red green blue".toSlice.dropSuffix "bluu " == "red green blue".toSlice`
+ * `"red green blue".toSlice.dropSuffix 'e' == "red green blu".toSlice`
+ * `"red green blue".toSlice.dropSuffix Char.isLower == "red green blu".toSlice`
+-/
 @[specialize pat]
 def dropSuffix [BackwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
   dropSuffix? s pat |>.getD s
 
+/--
+Removes the specified number of characters (Unicode code points) from the end of the slice.
+
+If `n` is greater than the amount of characters in `s`, returns an empty slice.
+
+Examples:
+ * `"red green blue".toSlice.dropEnd 5 == "red green".toSlice`
+ * `"red green blue".toSlice.dropEnd 11 == "red".toSlice`
+ * `"red green blue".toSlice.dropEnd 50 == "".toSlice`
+-/
+@[inline]
+def dropEnd (s : Slice) (n : Nat) : Slice :=
+  s.replaceEnd (s.endPos.prevn n)
+
+/--
+Creates a new slice that contains the longest suffix of `s` for which `pat` matched
+(potentially repeatedly).
+
+Examples:
+ * `"red green blue".toSlice.dropEndWhile Char.isLower == "red green ".toSlice`
+ * `"red green blue".toSlice.dropEndWhile 'e' == "red green blu".toSlice`
+ * `"red green blue".toSlice.dropEndWhile (fun (_ : Char) => true) == "".toSlice`
+-/
+@[inline]
+partial def dropEndWhile [BackwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+  go s
+where
+  @[specialize pat]
+  go (s : Slice) : Slice :=
+    if let some nextS := dropSuffix? s pat then
+      -- TODO: need lawful patterns to show this terminates
+      if nextS.endExclusive.offset < s.endExclusive.offset then
+        go nextS
+      else
+        s
+    else
+      s
+
+/--
+Removes trailing whitespace from a slice by moving its start position to the first non-whitespace
+character, or to its end position if there is no non-whitespace character.
+
+“Whitespace” is defined as characters for which `Char.isWhitespace` returns `true`.
+
+Examples:
+ * `"abc".toSlice.trimAsciiEnd == "abc".toSlice`
+ * `"   abc".toSlice.trimAsciiEnd == "   abc".toSlice`
+ * `"abc \t  ".toSlice.trimAsciiEnd == "abc".toSlice`
+ * `"  abc   ".toSlice.trimAsciiEnd == "  abc".toSlice`
+ * `"abc\ndef\n".toSlice.trimAsciiEnd == "abc\ndef".toSlice`
+-/
+@[inline]
+def trimAsciiEnd (s : Slice) : Slice :=
+  -- If we want to optimize this can be pushed further by specialising for ASCII
+  dropEndWhile s Char.isWhitespace
+
+/--
+Creates a new slice that contains the last `n` characters (Unicode code points) of `s`.
+
+If `n` is greater than the amount of characters in `s`, returns `s`.
+
+Examples:
+ * `"red green blue".toSlice.takeEnd 4 == "blue".toSlice`
+ * `"red green blue".toSlice.takeEnd 1 == "e".toSlice`
+ * `"red green blue".toSlice.takeEnd 0 == "".toSlice`
+ * `"red green blue".toSlice.takeEnd 100 == "red green blue".toSlice`
+-/
+@[inline]
+def takeEnd (s : Slice) (n : Nat) : Slice :=
+  s.replaceStart (s.endPos.prevn n)
+
+/--
+Creates a new slice that contains the suffix prefix of `s` for which `pat` matched
+(potentially repeatedly).
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * `"red green blue".toSlice.takeEndWhile Char.isLower == "blue".toSlice`
+ * `"red green blue".toSlice.takeEndWhile 'e' == "e".toSlice`
+ * `"red green blue".toSlice.takeEndWhile (fun (_ : Char) => true) == "red green blue".toSlice`
+-/
+@[inline]
+partial def takeEndWhile [BackwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+  go s
+where
+  @[specialize pat]
+  go (curr : Slice) : Slice :=
+    if let some nextCurr := dropSuffix? curr pat then
+      if nextCurr.endExclusive.offset < curr.endExclusive.offset then
+        -- TODO: need lawful patterns to show this terminates
+        go nextCurr
+      else
+        s.replaceStart <| s.pos! <| curr.endExclusive.offset
+    else
+      s.replaceStart <| s.pos! <| curr.endExclusive.offset
+
+/--
+Finds the position of the first match of the pattern `pat` in a slice `true`, starting from the end
+of the slice and traversing towards the start. If there is no match `none` is returned.
+
+This function is generic over all currently supported patterns except `String`/`String.Slice`.
+
+Examples:
+ * `("coffee tea water".toSlice.find? Char.isWhitespace).map (·.get!) == some ' '`
+ * `"tea".toSlice.find? (fun (c : Char) => c == 'X') == none`
+ * `("coffee tea water".toSlice.find? "tea").map (·.get!) == some 't'`
+-/
 @[specialize pat]
 def revFind? [ToBackwardSearcher ρ σ] (s : Slice) (pat : ρ) : Option s.Pos :=
   let searcher := ToBackwardSearcher.toSearcher s pat
@@ -460,9 +615,41 @@ def revFind? [ToBackwardSearcher ρ σ] (s : Slice) (pat : ρ) : Option s.Pos :=
 
 end BackwardPatternUsers
 
+/--
+Removes leading and trailing whitespace from a slice.
+
+“Whitespace” is defined as characters for which `Char.isWhitespace` returns `true`.
+
+Examples:
+ * `"abc".toSlice.trimAscii == "abc".toSlice`
+ * `"   abc".toSlice.trimAscii == "abc".toSlice`
+ * `"abc \t  ".toSlice.trimAscii == "abc".toSlice`
+ * `"  abc   ".toSlice.trimAscii == "abc".toSlice`
+ * `"abc\ndef\n".toSlice.trimAscii == "abc\ndef".toSlice`
+-/
 def trimAscii (s : Slice) : Slice :=
   s.trimAsciiStart.trimAsciiEnd
 
+/--
+Checks whether `s1` and `s2` represent the same string, even if they are slices of different base
+strings or different slices within the same string.
+
+The implementation is an efficient equivalent of `s1.copy == s2.copy`
+-/
+def beq (s1 s2 : Slice) : Bool :=
+  if h : s1.utf8ByteSize = s2.utf8ByteSize then
+    have h1 := by simp [h, String.Pos.le_iff]
+    have h2 := by simp [h, String.Pos.le_iff]
+    Internal.memcmp s1 s2 s1.startPos.offset s2.startPos.offset s1.utf8ByteSize h1 h2
+  else
+    false
+
+instance : BEq Slice where
+  beq := beq
+
+/--
+Checks whether `s1 == s2` if ASCII upper/lowercase are ignored.
+-/
 def eqIgnoreAsciiCase (s1 s2 : Slice) : Bool :=
   s1.utf8ByteSize == s2.utf8ByteSize && go s1 s1.startPos.offset s2 s2.startPos.offset
 where
@@ -480,17 +667,6 @@ where
   decreasing_by
     simp at h ⊢
     omega
-
-def beq (s1 s2 : Slice) : Bool :=
-  if h : s1.utf8ByteSize = s2.utf8ByteSize then
-    have h1 := by simp [h, String.Pos.le_iff]
-    have h2 := by simp [h, String.Pos.le_iff]
-    Internal.memcmp s1 s2 s1.startPos.offset s2.startPos.offset s1.utf8ByteSize h1 h2
-  else
-    false
-
-instance : BEq Slice where
-  beq := beq
 
 @[extern "lean_slice_hash"]
 opaque hash (s : Slice) : UInt64
@@ -513,6 +689,9 @@ structure CharIterator where
   currPos : s.Pos
   deriving Inhabited
 
+/--
+Creates and iterator over all characters (Unicode code points) in `s`.
+-/
 def chars (s : Slice) : Std.Iter (α := CharIterator) Char :=
   { internalState := { s, currPos := s.startPos }}
 
@@ -577,6 +756,10 @@ structure RevCharIterator where
   currPos : s.Pos
   deriving Inhabited
 
+/--
+Creates and iterator over all characters (Unicode code points) in `s`, starting from the end of the
+slice and iterating towards the start.
+-/
 def revChars (s : Slice) : Std.Iter (α := RevCharIterator) Char :=
   { internalState := { s, currPos := s.endPos }}
 
@@ -641,6 +824,9 @@ structure PosIterator (s : Slice) where
   currPos : s.Pos
   deriving Inhabited
 
+/--
+Creates and iterator over all valid positions within `s`.
+-/
 def positions (s : Slice) : Std.Iter (α := PosIterator s) s.Pos :=
   { internalState := { currPos := s.startPos }}
 
@@ -700,6 +886,10 @@ structure RevPosIterator (s : Slice) where
   currPos : s.Pos
   deriving Inhabited
 
+/--
+Creates and iterator over all valid positions within `s`, starting from the last valid position and
+iterating towards the first one.
+-/
 def revPositions (s : Slice) : Std.Iter (α := RevPosIterator s) s.Pos :=
   { internalState := { currPos := s.endPos }}
 
@@ -761,6 +951,9 @@ structure ByteIterator where
   offset : String.Pos
   deriving Inhabited
 
+/--
+Creates and iterator over all bytes in `s`.
+-/
 def bytes (s : Slice) : Std.Iter (α := ByteIterator) UInt8 :=
   { internalState := { s, offset := s.startPos.offset }}
 
@@ -823,6 +1016,10 @@ structure RevByteIterator where
   offset : String.Pos
   hinv : offset ≤ s.utf8ByteSize
 
+/--
+Creates and iterator over all bytes in `s`, starting from the last one and iterating towards the
+first one.
+-/
 def revBytes (s : Slice) : Std.Iter (α := RevByteIterator) UInt8 :=
   { internalState := { s, offset := s.endPos.offset, hinv := by simp }}
 
@@ -901,6 +1098,10 @@ def lines.lineMap (s : Slice) : Slice :=
   else
     s
 
+/--
+Creates an iterator over all lines in `s` with the line ending characters `\r\n` or `\n` being
+stripped.
+-/
 def lines (s : Slice) :=
   s.splitInclusive '\n' |>.map lines.lineMap
 

@@ -59,9 +59,9 @@ private partial def mkErrorMessage (c : InputContext) (pos : String.Pos) (stk : 
       pos := r.start
       endPos? := some r.stop
     let unexpected := match e.unexpectedTk with
-      | .ident .. => "unexpected identifier"
-      | .atom _ v => s!"unexpected token '{v}'"
-      | _         => "unexpected token"  -- TODO: categorize (custom?) literals as well?
+      | .ident .. => "unexpectedqqq identifier"
+      | .atom _ v => s!"unexpectedrrr token '{v}'"  ++ e.unexpected
+      | _         => "unexpectedsss token"  -- TODO: categorize (custom?) literals as well?
     e := { e with unexpected }
     -- if there is an unexpected token, include preceding whitespace as well as the expected token could
     -- be inserted at any of these places to fix the error; see tests/lean/1971.lean
@@ -88,7 +88,7 @@ def parseHeader (inputCtx : InputContext) : IO (TSyntax ``Module.header × Modul
   let stx := if s.stxStack.isEmpty then .missing else s.stxStack.back
   let mut messages : MessageLog := {}
   for (pos, stk, err) in s.allErrors do
-    messages := messages.add <| mkErrorMessage inputCtx pos stk err
+    messages := messages.add <| mkErrorMessage inputCtx pos stk  { err with unexpected := err.unexpected ++ "~~" }
   if let `(Module.header| $[module%$moduleTk?]? $[prelude]? $importsStx*) := stx then
     let mkError ref msg : Message :=
       let pos := ref.getPos?.getD 0
@@ -135,6 +135,7 @@ private def consumeInput (inputCtx : InputContext) (pmctx : ParserModuleContext)
 def topLevelCommandParserFn : ParserFn :=
   commandParser.fn
 
+#check Error
 partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext) (mps : ModuleParserState) (messages : MessageLog) : Syntax × ModuleParserState × MessageLog := Id.run do
   let mut pos := mps.pos
   let mut recovering := mps.recovering
@@ -149,7 +150,7 @@ partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext)
     let s := p.run inputCtx pmctx (getTokenTable pmctx.env) { cache := initCacheForInput inputCtx.inputString, pos }
     -- save errors from sub-recoveries
     for (rpos, rstk, recovered) in s.recoveredErrors do
-      messages := messages.add <| mkErrorMessage inputCtx rpos rstk recovered
+      messages := messages.add <| mkErrorMessage inputCtx rpos rstk { recovered with unexpected := recovered.unexpected ++ "oo" }
     pos := s.pos
     if recovering && !s.stxStack.isEmpty && s.stxStack.back.isAntiquot then
       -- top-level antiquotation during recovery is most likely remnant from unfinished quotation, ignore
@@ -168,7 +169,7 @@ partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext)
           We claim a syntactically incorrect command containing no token or identifier is irrelevant for intellisense and should be ignored. -/
       let ignore := s.stxStack.isEmpty || s.stxStack.back.getPos?.isNone
       unless recovering && ignore do
-        messages := messages.add <| mkErrorMessage inputCtx s.pos s.stxStack errorMsg
+        messages := messages.add <| mkErrorMessage inputCtx s.pos s.stxStack { errorMsg with unexpected := errorMsg.unexpected ++ "--" }
       recovering := true
       if ignore then
         continue

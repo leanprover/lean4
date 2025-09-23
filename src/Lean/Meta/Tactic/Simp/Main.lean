@@ -480,6 +480,7 @@ where
         let level ← getLevel bodyType
         -- Collect fvars appearing in the type of `e`. Computing `bodyType` in particular is where `MetaM` is necessary.
         let bodyTypeFVarIds := (collectFVars {} bodyType).fvarSet
+        trace[Debug.Meta.Tactic.simp] "bodyType {bodyType} with fvars {bodyTypeFVarIds.toList.map mkFVar}"
         let bodyTypeDeps : Std.HashSet Nat := Nat.fold fvars.size (init := {}) fun idx _ deps =>
           if bodyTypeFVarIds.contains fvars[idx].fvarId! then
             deps.insert idx
@@ -492,24 +493,30 @@ Computes which `have`s in the telescope are fixed and which are unused.
 The length of the unused array may be less than the number of `have`s: use `unused.getD i true`.
 -/
 def HaveTelescopeInfo.computeFixedUsed (info : HaveTelescopeInfo) (keepUnused : Bool) :
-    MetaM (Std.HashSet Nat × Array Bool) := do
+    MetaM (Array Bool × Array Bool) := do
+  let fixed ← go info.bodyTypeDeps
   if keepUnused then
-    return (info.bodyTypeDeps, #[])
-  let numHaves := info.haveInfo.size
-  let updateArrayFromBackDeps (arr : Array Bool) (s : Std.HashSet Nat) : Array Bool :=
+    return (fixed, #[])
+  else
+    let used ← go info.bodyDeps
+    return (fixed, used)
+where
+  updateArrayFromBackDeps (arr : Array Bool) (s : Std.HashSet Nat) : Array Bool :=
     s.fold (init := arr) fun arr idx => arr.set! idx true
-  let mut used : Array Bool := Array.replicate numHaves false
-  -- Initialize `used` with the body's dependencies.
-  -- There is no need to consider `info.bodyTypeDeps` in this computation.
-  used := updateArrayFromBackDeps used info.bodyDeps
-  -- For each used `have`, in reverse order, update `used`.
-  for i in *...numHaves do
-    let idx := numHaves - i - 1
-    if used[idx]! then
-      let hinfo := info.haveInfo[idx]!
-      used := updateArrayFromBackDeps used hinfo.typeBackDeps
-      used := updateArrayFromBackDeps used hinfo.valueBackDeps
-  return (info.bodyTypeDeps, used)
+  go init : MetaM (Array Bool) := do
+    let numHaves := info.haveInfo.size
+    let mut used : Array Bool := Array.replicate numHaves false
+    -- Initialize `used` with the body's dependencies.
+    -- There is no need to consider `info.bodyTypeDeps` in this computation.
+    used := updateArrayFromBackDeps used init
+    -- For each used `have`, in reverse order, update `used`.
+    for i in *...numHaves do
+      let idx := numHaves - i - 1
+      if used[idx]! then
+        let hinfo := info.haveInfo[idx]!
+        used := updateArrayFromBackDeps used hinfo.typeBackDeps
+        used := updateArrayFromBackDeps used hinfo.valueBackDeps
+    return used
 
 /--
 Auxiliary structure used to represent the return value of `simpHaveTelescopeAux`.
@@ -618,7 +625,7 @@ by detecting a `simpHaveTelescope` proofs and removing the type hint.
 -/
 def simpHaveTelescope (e : Expr) : SimpM Result := do
   Prod.fst <$> withTraceNode `Debug.Meta.Tactic.simp (fun
-      | .ok (_, used, fixed, modified) => pure m!"{checkEmoji} have telescope; used: {used}; fixed: {fixed.toArray}; modified: {modified}"
+      | .ok (_, used, fixed, modified) => pure m!"{checkEmoji} have telescope; used: {used}; fixed: {fixed}; modified: {modified}"
       | .error ex => pure m!"{crossEmoji} {ex.toMessageData}") do
     let info ← getHaveTelescopeInfo e
     assert! !info.haveInfo.isEmpty
@@ -635,7 +642,7 @@ where
   Note also that we don't enter the body's local context all at once, since we need to be sure that
   when we simplify values they have their correct local context.
   -/
-  simpHaveTelescopeAux (info : HaveTelescopeInfo) (fixed : Std.HashSet Nat) (used : Array Bool) (e : Expr) (i : Nat) (xs : Array Expr) : SimpM SimpHaveResult := do
+  simpHaveTelescopeAux (info : HaveTelescopeInfo) (fixed : Array Bool) (used : Array Bool) (e : Expr) (i : Nat) (xs : Array Expr) : SimpM SimpHaveResult := do
     if h : i < info.haveInfo.size then
       let hinfo := info.haveInfo[i]
       -- `x` and `val` are the fvar and value with respect to the local context.
@@ -673,7 +680,7 @@ where
           let proof := mkApp6 (mkConst ``have_unused' us) t exprType v expr expr
             (mkApp2 (mkConst ``Eq.refl [info.level]) exprType expr)
           return { expr, exprType, exprInit, exprResult, proof, modified := true }
-      else if fixed.contains i then
+      else if fixed.getD i true then
         /-
         Fixed `have` (like `CongrArgKind.fixed`): dsimp the value and simp the body.
         The variable appears in the type of the body.
@@ -715,6 +722,7 @@ where
         withExistingLocalDecls [hinfo.decl] <| withNewLemmas #[x] do
           let rb ← simpHaveTelescopeAux info fixed used b (i + 1) (xs.push x)
           let expr := mkApp (mkLambda n .default t rb.expr) v'
+          -- assert! !rb.exprType.hasLooseBVar 0
           let exprType := rb.exprType.lowerLooseBVars 1 1
           let exprInit := mkApp (mkLambda n .default t rb.exprInit) v
           let exprResult := mkHave n t v' rb.exprResult

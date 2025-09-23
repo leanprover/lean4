@@ -10,6 +10,7 @@ public import Std.Internal.Async.TCP
 public import Std.Internal.Http.Transport
 public import Std.Internal.Http.Protocol.H1
 public import Std.Internal.Http.Server.Config
+public import Std.Internal.Http.Server.Client
 
 public section
 

@@ -20,6 +20,7 @@ set_option linter.all true
 /--
 A `Buffer` is a type alias for `ByteArray` that provides a convenient interface for working with binary data.
 -/
+@[expose]
 def Buffer := ByteArray
 
 namespace Buffer

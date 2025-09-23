@@ -1343,8 +1343,8 @@ def delabRci : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExpli
   -- Std.Rci.mk : {α : Type u} → (lo : α) → Std.Rci α
   guard <| (← getExpr).getAppNumArgs == 2
   -- Lower bound
-  let a ← withAppFn <| withAppArg delab
-  `($a...*)
+  let b ← withAppArg delab
+  `($b...*)
 
 @[builtin_delab app.Std.Roc.mk]
 def delabRoc : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do
@@ -1371,8 +1371,8 @@ def delabRoi : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExpli
   -- Std.Roi.mk : {α : Type u} → (lo : α) → Std.Roi α
   guard <| (← getExpr).getAppNumArgs == 2
   -- Lower bound
-  let a ← withAppFn <| withAppArg delab
-  `($a...*)
+  let b ← withAppArg delab
+  `($b<...*)
 
 @[builtin_delab app.Std.Ric.mk]
 def delabRic : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do

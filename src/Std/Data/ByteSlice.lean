@@ -327,6 +327,8 @@ open Std Slice PRange
 
 variable {α : Type u}
 
+section ByteArray
+
 instance : Rcc.Sliceable ByteArray Nat ByteSlice where
   mkSlice xs range :=
     let halfOpenRange := Rcc.HasRcoIntersection.intersection range 0...<xs.size
@@ -371,3 +373,54 @@ instance : Rii.Sliceable ByteArray Nat ByteSlice where
   mkSlice xs _ :=
     let halfOpenRange := 0...<xs.size
     (xs.toByteSlice halfOpenRange.lower halfOpenRange.upper)
+
+end ByteArray
+
+section ByteSlice
+
+instance : Rcc.Sliceable ByteSlice Nat ByteSlice where
+  mkSlice xs range :=
+    let halfOpenRange := Rcc.HasRcoIntersection.intersection range 0...<xs.size
+    (xs.slice halfOpenRange.lower halfOpenRange.upper)
+
+instance : Rco.Sliceable ByteSlice Nat ByteSlice where
+  mkSlice xs range :=
+    let halfOpenRange := Rco.HasRcoIntersection.intersection range 0...<xs.size
+    (xs.slice halfOpenRange.lower halfOpenRange.upper)
+
+instance : Rci.Sliceable ByteSlice Nat ByteSlice where
+  mkSlice xs range :=
+    let halfOpenRange := Rci.HasRcoIntersection.intersection range 0...<xs.size
+    (xs.slice halfOpenRange.lower halfOpenRange.upper)
+
+instance : Roc.Sliceable ByteSlice Nat ByteSlice where
+  mkSlice xs range :=
+    let halfOpenRange := Roc.HasRcoIntersection.intersection range 0...<xs.size
+    (xs.slice halfOpenRange.lower halfOpenRange.upper)
+
+instance : Roo.Sliceable ByteSlice Nat ByteSlice where
+  mkSlice xs range :=
+    let halfOpenRange := Roo.HasRcoIntersection.intersection range 0...<xs.size
+    (xs.slice halfOpenRange.lower halfOpenRange.upper)
+
+instance : Roi.Sliceable ByteSlice Nat ByteSlice where
+  mkSlice xs range :=
+    let halfOpenRange := Roi.HasRcoIntersection.intersection range 0...<xs.size
+    (xs.slice halfOpenRange.lower halfOpenRange.upper)
+
+instance : Ric.Sliceable ByteSlice Nat ByteSlice where
+  mkSlice xs range :=
+    let halfOpenRange := Ric.HasRcoIntersection.intersection range 0...<xs.size
+    (xs.slice halfOpenRange.lower halfOpenRange.upper)
+
+instance : Rio.Sliceable ByteSlice Nat ByteSlice where
+  mkSlice xs range :=
+    let halfOpenRange := Rio.HasRcoIntersection.intersection range 0...<xs.size
+    (xs.slice halfOpenRange.lower halfOpenRange.upper)
+
+instance : Rii.Sliceable ByteSlice Nat ByteSlice where
+  mkSlice xs _ :=
+    let halfOpenRange := 0...<xs.size
+    (xs.slice halfOpenRange.lower halfOpenRange.upper)
+
+end ByteSlice

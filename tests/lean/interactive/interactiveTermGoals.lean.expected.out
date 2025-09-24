@@ -1,0 +1,265 @@
+{ toInteractiveGoalCore := { hyps := #[],
+                             type := Lean.Widget.TaggedText.tag
+                                       { subexprPos := "/", diffStatus? := none }
+                                       (Lean.Widget.TaggedText.append
+                                         #[Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/0/1", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.text "0"),
+                                           Lean.Widget.TaggedText.text " < ",
+                                           Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/1", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.text "2")]) },
+  range := { start := { line := 2, character := 2 }, end := { line := 2, character := 51 } } }
+
+{ toInteractiveGoalCore := { hyps := #[],
+                             type := Lean.Widget.TaggedText.tag
+                                       { subexprPos := "/", diffStatus? := none }
+                                       (Lean.Widget.TaggedText.append
+                                         #[Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/0/1", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.text "0"),
+                                           Lean.Widget.TaggedText.text " < ",
+                                           Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/1", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.text "1")]) },
+  range := { start := { line := 2, character := 15 }, end := { line := 2, character := 30 } } }
+
+{ toInteractiveGoalCore := { hyps := #[],
+                             type := Lean.Widget.TaggedText.tag
+                                       { subexprPos := "/", diffStatus? := none }
+                                       (Lean.Widget.TaggedText.append
+                                         #[Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/0/1", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.text "0"),
+                                           Lean.Widget.TaggedText.text " < ",
+                                           Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/1", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.text "1")]) },
+  range := { start := { line := 2, character := 15 }, end := { line := 2, character := 30 } } }
+
+{ toInteractiveGoalCore := { hyps := #[],
+                             type := Lean.Widget.TaggedText.tag
+                                       { subexprPos := "/", diffStatus? := none }
+                                       (Lean.Widget.TaggedText.append
+                                         #[Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/0/1", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.text "1"),
+                                           Lean.Widget.TaggedText.text " < ",
+                                           Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/1", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.text "2")]) },
+  range := { start := { line := 2, character := 31 }, end := { line := 2, character := 51 } } }
+
+{ toInteractiveGoalCore := { hyps := #[],
+                             type := Lean.Widget.TaggedText.tag
+                                       { subexprPos := "/", diffStatus? := none }
+                                       (Lean.Widget.TaggedText.append
+                                         #[Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/0/1", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.text "1"),
+                                           Lean.Widget.TaggedText.text " < ",
+                                           Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/1", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.text "2")]) },
+  range := { start := { line := 2, character := 32 }, end := { line := 2, character := 50 } } }
+
+{ toInteractiveGoalCore := { hyps := #[{ type := Lean.Widget.TaggedText.tag
+                                                   { subexprPos := "/", diffStatus? := none }
+                                                   (Lean.Widget.TaggedText.text "Int"),
+                                         names := #["y"],
+                                         isInserted? := none,
+                                         isRemoved? := none }],
+                             type := Lean.Widget.TaggedText.tag
+                                       { subexprPos := "/", diffStatus? := none }
+                                       (Lean.Widget.TaggedText.append
+                                         #[Lean.Widget.TaggedText.text "Option ",
+                                           Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/1", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.text "Unit")]) },
+  range := { start := { line := 11, character := 2 }, end := { line := 11, character := 19 } } }
+
+{ toInteractiveGoalCore := { hyps := #[{ type := Lean.Widget.TaggedText.tag
+                                                   { subexprPos := "/", diffStatus? := none }
+                                                   (Lean.Widget.TaggedText.text "Nat"),
+                                         names := #["m", "n"],
+                                         isInserted? := none,
+                                         isRemoved? := none }],
+                             type := Lean.Widget.TaggedText.tag
+                                       { subexprPos := "/", diffStatus? := none }
+                                       (Lean.Widget.TaggedText.append
+                                         #[Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/0/1", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.append
+                                               #[Lean.Widget.TaggedText.tag
+                                                   { subexprPos := "/0/1/0/0", diffStatus? := none }
+                                                   (Lean.Widget.TaggedText.text "?m"),
+                                                 Lean.Widget.TaggedText.text " ",
+                                                 Lean.Widget.TaggedText.tag
+                                                   { subexprPos := "/0/1/0/1", diffStatus? := none }
+                                                   (Lean.Widget.TaggedText.text "m"),
+                                                 Lean.Widget.TaggedText.text " ",
+                                                 Lean.Widget.TaggedText.tag
+                                                   { subexprPos := "/0/1/1", diffStatus? := none }
+                                                   (Lean.Widget.TaggedText.text "n")]),
+                                           Lean.Widget.TaggedText.text " < ",
+                                           Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/1", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.text "n")]) },
+  range := { start := { line := 16, character := 17 }, end := { line := 16, character := 18 } } }
+
+{ toInteractiveGoalCore := { hyps := #[{ type := Lean.Widget.TaggedText.tag
+                                                   { subexprPos := "/", diffStatus? := none }
+                                                   (Lean.Widget.TaggedText.text "Nat"),
+                                         names := #["m", "n"],
+                                         isInserted? := none,
+                                         isRemoved? := none }],
+                             type := Lean.Widget.TaggedText.tag
+                                       { subexprPos := "/", diffStatus? := none }
+                                       (Lean.Widget.TaggedText.append
+                                         #[Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/0/1", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.append
+                                               #[Lean.Widget.TaggedText.tag
+                                                   { subexprPos := "/0/1/0/0", diffStatus? := none }
+                                                   (Lean.Widget.TaggedText.text "?m"),
+                                                 Lean.Widget.TaggedText.text " ",
+                                                 Lean.Widget.TaggedText.tag
+                                                   { subexprPos := "/0/1/0/1", diffStatus? := none }
+                                                   (Lean.Widget.TaggedText.text "m"),
+                                                 Lean.Widget.TaggedText.text " ",
+                                                 Lean.Widget.TaggedText.tag
+                                                   { subexprPos := "/0/1/1", diffStatus? := none }
+                                                   (Lean.Widget.TaggedText.text "n")]),
+                                           Lean.Widget.TaggedText.text " < ",
+                                           Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/1", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.text "n")]) },
+  range := { start := { line := 16, character := 17 }, end := { line := 16, character := 18 } } }
+
+{ toInteractiveGoalCore := { hyps := #[],
+                             type := Lean.Widget.TaggedText.tag
+                                       { subexprPos := "/", diffStatus? := none }
+                                       (Lean.Widget.TaggedText.text "True") },
+  range := { start := { line := 20, character := 18 }, end := { line := 20, character := 23 } } }
+
+{ toInteractiveGoalCore := { hyps := #[],
+                             type := Lean.Widget.TaggedText.tag
+                                       { subexprPos := "/", diffStatus? := none }
+                                       (Lean.Widget.TaggedText.append
+                                         #[Lean.Widget.TaggedText.text "∀ (",
+                                           Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.text "n"),
+                                           Lean.Widget.TaggedText.text " : ",
+                                           Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/0", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.text "Nat"),
+                                           Lean.Widget.TaggedText.text "), ",
+                                           Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/1", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.append
+                                               #[Lean.Widget.TaggedText.tag
+                                                   { subexprPos := "/1/0/1", diffStatus? := none }
+                                                   (Lean.Widget.TaggedText.text "n"),
+                                                 Lean.Widget.TaggedText.text " < ",
+                                                 Lean.Widget.TaggedText.tag
+                                                   { subexprPos := "/1/1", diffStatus? := none }
+                                                   (Lean.Widget.TaggedText.append
+                                                     #[Lean.Widget.TaggedText.tag
+                                                         { subexprPos := "/1/1/0/1", diffStatus? := none }
+                                                         (Lean.Widget.TaggedText.text "n"),
+                                                       Lean.Widget.TaggedText.text " + ",
+                                                       Lean.Widget.TaggedText.tag
+                                                         { subexprPos := "/1/1/1", diffStatus? := none }
+                                                         (Lean.Widget.TaggedText.text "42")])])]) },
+  range := { start := { line := 24, character := 2 }, end := { line := 24, character := 74 } } }
+
+{ toInteractiveGoalCore := { hyps := #[],
+                             type := Lean.Widget.TaggedText.tag
+                                       { subexprPos := "/", diffStatus? := none }
+                                       (Lean.Widget.TaggedText.text "Nat") },
+  range := { start := { line := 24, character := 6 }, end := { line := 24, character := 7 } } }
+
+{ toInteractiveGoalCore := { hyps := #[{ type := Lean.Widget.TaggedText.tag
+                                                   { subexprPos := "/", diffStatus? := none }
+                                                   (Lean.Widget.TaggedText.text "Nat"),
+                                         names := #["n"],
+                                         isInserted? := none,
+                                         isRemoved? := none }],
+                             type := Lean.Widget.TaggedText.tag
+                                       { subexprPos := "/", diffStatus? := none }
+                                       (Lean.Widget.TaggedText.append
+                                         #[Lean.Widget.TaggedText.text "∀ (",
+                                           Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.text "n "),
+                                           Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.text "m"),
+                                           Lean.Widget.TaggedText.text " : ",
+                                           Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/1/0", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.text "Nat"),
+                                           Lean.Widget.TaggedText.text "), ",
+                                           Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/1/1", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.append
+                                               #[Lean.Widget.TaggedText.tag
+                                                   { subexprPos := "/1/1/0/1", diffStatus? := none }
+                                                   (Lean.Widget.TaggedText.append
+                                                     #[Lean.Widget.TaggedText.tag
+                                                         { subexprPos := "/1/1/0/1/0/1", diffStatus? := none }
+                                                         (Lean.Widget.TaggedText.text "n"),
+                                                       Lean.Widget.TaggedText.text " + ",
+                                                       Lean.Widget.TaggedText.tag
+                                                         { subexprPos := "/1/1/0/1/1", diffStatus? := none }
+                                                         (Lean.Widget.TaggedText.text "m")]),
+                                                 Lean.Widget.TaggedText.text " = ",
+                                                 Lean.Widget.TaggedText.tag
+                                                   { subexprPos := "/1/1/1", diffStatus? := none }
+                                                   (Lean.Widget.TaggedText.append
+                                                     #[Lean.Widget.TaggedText.tag
+                                                         { subexprPos := "/1/1/1/0/1", diffStatus? := none }
+                                                         (Lean.Widget.TaggedText.text "m"),
+                                                       Lean.Widget.TaggedText.text " + ",
+                                                       Lean.Widget.TaggedText.tag
+                                                         { subexprPos := "/1/1/1/1", diffStatus? := none }
+                                                         (Lean.Widget.TaggedText.text "n")])])]) },
+  range := { start := { line := 30, character := 6 }, end := { line := 30, character := 18 } } }
+
+{ toInteractiveGoalCore := { hyps := #[{ type := Lean.Widget.TaggedText.tag
+                                                   { subexprPos := "/", diffStatus? := none }
+                                                   (Lean.Widget.TaggedText.text "Nat"),
+                                         names := #["n"],
+                                         isInserted? := none,
+                                         isRemoved? := none }],
+                             type := Lean.Widget.TaggedText.tag
+                                       { subexprPos := "/", diffStatus? := none }
+                                       (Lean.Widget.TaggedText.append
+                                         #[Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/0/1", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.text "n"),
+                                           Lean.Widget.TaggedText.text " < ",
+                                           Lean.Widget.TaggedText.tag
+                                             { subexprPos := "/1", diffStatus? := none }
+                                             (Lean.Widget.TaggedText.append
+                                               #[Lean.Widget.TaggedText.tag
+                                                   { subexprPos := "/1/0/1", diffStatus? := none }
+                                                   (Lean.Widget.TaggedText.text "n"),
+                                                 Lean.Widget.TaggedText.text " + ",
+                                                 Lean.Widget.TaggedText.tag
+                                                   { subexprPos := "/1/1", diffStatus? := none }
+                                                   (Lean.Widget.TaggedText.text "1")])]) },
+  range := { start := { line := 32, character := 8 }, end := { line := 32, character := 26 } } }
+
+{ toInteractiveGoalCore := { hyps := #[{ type := Lean.Widget.TaggedText.tag
+                                                   { subexprPos := "/", diffStatus? := none }
+                                                   (Lean.Widget.TaggedText.text "Nat"),
+                                         names := #["n"],
+                                         isInserted? := none,
+                                         isRemoved? := none }],
+                             type := Lean.Widget.TaggedText.tag
+                                       { subexprPos := "/", diffStatus? := none }
+                                       (Lean.Widget.TaggedText.text "Nat") },
+  range := { start := { line := 35, character := 14 }, end := { line := 35, character := 15 } } }
+

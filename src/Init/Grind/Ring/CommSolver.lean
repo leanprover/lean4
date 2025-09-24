@@ -55,7 +55,7 @@ noncomputable def denoteInt {α} [Ring α] (k : Int) : α :=
     (- OfNat.ofNat (α := α) k.natAbs)
     (Int.blt' k 0)
 
-noncomputable def Expr.denote {α} [Ring α] (ctx : Context α) (e : Expr) : α :=
+noncomputable def Expr.denote {α} [Ring α] (ctx : Context α) : Expr → α :=
   Expr.rec
     (fun k => denoteInt k)
     (fun k => NatCast.natCast (R := α) k)
@@ -66,15 +66,14 @@ noncomputable def Expr.denote {α} [Ring α] (ctx : Context α) (e : Expr) : α 
     (fun _ _ ih₁ ih₂ => ih₁ - ih₂)
     (fun _ _ ih₁ ih₂ => ih₁ * ih₂)
     (fun _ k ih => ih ^ k)
-    e
 
 structure Power where
   x : Var
   k : Nat
   deriving BEq, ReflBEq, LawfulBEq, Repr, Inhabited, Hashable
 
-protected noncomputable def Power.beq' (pw₁ pw₂ : Power) : Bool :=
-  Power.rec (fun x₁ k₁ => Power.rec (fun x₂ k₂ => Nat.beq x₁ x₂ && Nat.beq k₁ k₂) pw₂) pw₁
+protected noncomputable def Power.beq' : (pw₁ pw₂ : Power) → Bool :=
+  Power.rec (fun x₁ k₁ => Power.rec (fun x₂ k₂ => Nat.beq x₁ x₂ && Nat.beq k₁ k₂))
 
 @[simp] theorem Power.beq'_eq (pw₁ pw₂ : Power) : pw₁.beq' pw₂ = (pw₁ = pw₂) := by
   cases pw₁; cases pw₂; simp [Power.beq']
@@ -94,10 +93,10 @@ inductive Mon where
   | mult (p : Power) (m : Mon)
   deriving BEq, ReflBEq, LawfulBEq, Repr, Inhabited, Hashable
 
-protected noncomputable def Mon.beq' (m₁ : Mon) : Mon → Bool :=
+protected noncomputable def Mon.beq' : (m₁ m₂ : Mon) → Bool :=
   Mon.rec
     (fun m₂ => Mon.rec true (fun _ _ _ => false) m₂)
-    (fun pw₁ _ ih m₂ => Mon.rec false (fun pw₂ m₂ _ => (Power.beq' pw₁ pw₂).and' (ih m₂)) m₂) m₁
+    (fun pw₁ _ ih m₂ => Mon.rec false (fun pw₂ m₂ _ => (Power.beq' pw₁ pw₂).and' (ih m₂)) m₂)
 
 @[simp] theorem Mon.beq'_eq (m₁ m₂ : Mon) : m₁.beq' m₂ = (m₁ = m₂) := by
   induction m₁ generalizing m₂ <;> cases m₂ <;> simp [Mon.beq']
@@ -244,8 +243,9 @@ def Mon.revlex (m₁ m₂ : Mon) : Ordering :=
 def Mon.grevlex (m₁ m₂ : Mon) : Ordering :=
   compare m₁.degree m₂.degree |>.then (revlex m₁ m₂)
 
-noncomputable def Mon.revlex_k : Mon → Mon → Ordering :=
-  Nat.rec
+noncomputable def Mon.revlex_k : Mon → Mon → Ordering := go hugeFuel
+where
+  go : Nat → Mon → Mon → Ordering := Nat.rec
     revlexWF
     (fun _ ih m₁ => Mon.rec
       (fun m₂ => Mon.rec .eq (fun _ _ _ => .gt) m₂)
@@ -260,7 +260,6 @@ noncomputable def Mon.revlex_k : Mon → Mon → Ordering :=
           (Nat.beq pw₁.x pw₂.x))
         m₂)
       m₁)
-    hugeFuel
 
 noncomputable def Mon.grevlex_k (m₁ m₂ : Mon) : Ordering :=
   Bool.rec
@@ -269,7 +268,7 @@ noncomputable def Mon.grevlex_k (m₁ m₂ : Mon) : Ordering :=
     (Nat.beq m₁.degree m₂.degree)
 
 theorem Mon.revlex_k_eq_revlex (m₁ m₂ : Mon) : m₁.revlex_k m₂ = m₁.revlex m₂ := by
-  unfold revlex_k revlex
+  unfold revlex_k revlex revlex_k.go
   generalize hugeFuel = fuel
   induction fuel generalizing m₁ m₂
   next => rfl
@@ -316,14 +315,13 @@ inductive Poly where
   | add (k : Int) (v : Mon) (p : Poly)
   deriving BEq, ReflBEq, LawfulBEq, Repr, Inhabited, Hashable
 
-protected noncomputable def Poly.beq' (p₁ : Poly) : Poly → Bool :=
+protected noncomputable def Poly.beq' : (p₁ p₂ : Poly) → Bool :=
   Poly.rec
     (fun k₁ p₂ => Poly.rec (fun k₂ => Int.beq' k₁ k₂) (fun _ _ _ _ => false) p₂)
     (fun k₁ v₁ _ ih p₂ =>
       Poly.rec
         (fun _ => false)
         (fun k₂ v₂ p₂ _ => (Int.beq' k₁ k₂).and' ((Mon.beq' v₁ v₂).and' (ih p₂))) p₂)
-    p₁
 
 @[simp] theorem Poly.beq'_eq (p₁ p₂ : Poly) : p₁.beq' p₂ = (p₁ = p₂) := by
   induction p₁ generalizing p₂ <;> cases p₂ <;> simp [Poly.beq']
@@ -542,8 +540,10 @@ where
         | .lt => .add k₂ m₂ (go fuel (.add k₁ m₁ p₁) p₂)
 
 /-- A `Poly.combine` optimized for the kernel. -/
-noncomputable def Poly.combine_k : Poly → Poly → Poly :=
-  Nat.rec Poly.concat
+noncomputable def Poly.combine_k : Poly → Poly → Poly := go hugeFuel
+where
+  go : Nat → Poly → Poly → Poly := Nat.rec
+    Poly.concat
     (fun _ ih p₁ =>
       Poly.rec
         (fun k₁ p₂ => Poly.rec
@@ -563,10 +563,9 @@ noncomputable def Poly.combine_k : Poly → Poly → Poly :=
             (m₁.grevlex_k m₂))
           p₂)
         p₁)
-    hugeFuel
 
 @[simp] theorem Poly.combine_k_eq_combine (p₁ p₂ : Poly) : p₁.combine_k p₂ = p₁.combine p₂ := by
-  unfold Poly.combine Poly.combine_k
+  unfold Poly.combine Poly.combine_k Poly.combine_k.go
   generalize hugeFuel = fuel
   induction fuel generalizing p₁ p₂
   next => simp [Poly.combine.go]; rfl
@@ -630,7 +629,7 @@ def Expr.toPoly : Expr → Poly
     | .var x => Poly.ofMon (.mult {x, k} .unit)
     | _ => a.toPoly.pow k
 
-noncomputable def Expr.toPoly_k (e : Expr) : Poly :=
+noncomputable def Expr.toPoly_k : Expr → Poly :=
   Expr.rec
     (fun k => .num k) (fun k => .num k) (fun k => .num k)
     (fun x => .ofVar x)
@@ -648,7 +647,6 @@ noncomputable def Expr.toPoly_k (e : Expr) : Poly :=
         a)
       (.num 1)
       (k.beq 0))
-    e
 
 @[simp] theorem Expr.toPoly_k_eq_toPoly (e : Expr) : e.toPoly_k = e.toPoly := by
   induction e <;> simp only [toPoly, toPoly_k]

@@ -357,8 +357,8 @@ structure RecursorVal extends ConstantVal where
   numMotives : Nat
   /-- Number of minor premises -/
   numMinors : Nat
-  /-- A reduction for each Constructor -/
-  rules : List RecursorRule
+  /-- A reduction for each Constructor, indexed by constructor -/
+  rules : Array RecursorRule
   /-- It supports K-like reduction.
   A recursor is said to support K-like reduction if one can assume it behaves
   like `Eq` under axiom `K` --- that is, it has one constructor, the constructor has 0 arguments,
@@ -374,7 +374,7 @@ structure RecursorVal extends ConstantVal where
 
 @[export lean_mk_recursor_val]
 def mkRecursorValEx (name : Name) (levelParams : List Name) (type : Expr) (all : List Name) (numParams numIndices numMotives numMinors : Nat)
-    (rules : List RecursorRule) (k isUnsafe : Bool) : RecursorVal := {
+    (rules : Array RecursorRule) (k isUnsafe : Bool) : RecursorVal := {
   name, levelParams, type, all, numParams, numIndices,
   numMotives, numMinors, rules, k, isUnsafe
 }

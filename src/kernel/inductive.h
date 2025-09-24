@@ -49,7 +49,7 @@ inline expr to_cnstr_when_K(environment const & env, recursor_val const & rval, 
     return *new_cnstr_app;
 }
 
-optional<recursor_rule> get_rec_rule_for(recursor_val const & rec_val, expr const & major);
+optional<recursor_rule> get_rec_rule_for(environment const & env, recursor_val const & rec_val, expr const & major);
 
 expr nat_lit_to_constructor(expr const & e);
 expr string_lit_to_constructor(expr const & e);
@@ -95,7 +95,7 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
         major = whnf(string_lit_to_constructor(major));
     else
         major = to_cnstr_when_structure(env, rec_val.get_major_induct(), major, whnf, infer_type);
-    optional<recursor_rule> rule = get_rec_rule_for(rec_val, major);
+    optional<recursor_rule> rule = get_rec_rule_for(env, rec_val, major);
     if (!rule) return none_expr();
     buffer<expr> major_args;
     get_app_args(major, major_args);

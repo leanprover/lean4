@@ -110,14 +110,17 @@ expr expand_eta_struct(environment const & env, expr const & e_type, expr const 
     return result;
 }
 
-optional<recursor_rule> get_rec_rule_for(recursor_val const & rec_val, expr const & major) {
+optional<recursor_rule> get_rec_rule_for(environment const & env, recursor_val const & rec_val, expr const & major) {
     expr const & fn = get_app_fn(major);
     if (!is_constant(fn)) return optional<recursor_rule>();
-    for (recursor_rule const & rule : rec_val.get_rules()) {
-        if (rule.get_cnstr() == const_name(fn))
-            return optional<recursor_rule>(rule);
-    }
-    return optional<recursor_rule>();
+    optional<constant_info> ctor_info = env.find(const_name(fn));
+    if (!ctor_info || !ctor_info->is_constructor()) return optional<recursor_rule>();
+    constructor_val const & ctor_val = ctor_info->to_constructor_val();
+    recursor_rules const & rules = rec_val.get_rules();
+    lean_assert(ctor_val.get_cidx() < length(rules));
+    recursor_rule const & rule = rules[ctor_val.get_cidx()];
+    lean_assert(rule.get_cnstr() == const_name(fn));
+    return optional<recursor_rule>(rule);
 }
 
 /* Auxiliary class for adding a mutual inductive datatype declaration. */

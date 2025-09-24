@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <limits>
 #include "kernel/expr.h"
+#include "runtime/array_ref.h"
 
 namespace lean {
 /**
@@ -346,7 +347,7 @@ public:
     expr const & get_rhs() const { return static_cast<expr const &>(cnstr_get_ref(*this, 2)); }
 };
 
-typedef list_ref<recursor_rule> recursor_rules;
+typedef array_ref<recursor_rule> recursor_rules;
 
 /*
 structure RecursorVal extends ConstantVal where
@@ -355,7 +356,7 @@ structure RecursorVal extends ConstantVal where
   numIndices : Nat
   numMotives : Nat
   numMinors : Nat
-  rules : List RecursorRule
+  rules : Array RecursorRule
   k : Bool         -- It supports K-like reduction.
   isUnsafe : Bool
 */

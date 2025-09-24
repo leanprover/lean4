@@ -130,10 +130,14 @@ private def mkNullaryCtor (type : Expr) (nparams : Nat) : MetaM (Option Expr) :=
   let (some ctor) ← getFirstCtor d | pure none
   return mkAppN (mkConst ctor lvls) (type.getAppArgs.shrink nparams)
 
-private def getRecRuleFor (recVal : RecursorVal) (major : Expr) : Option RecursorRule :=
+private def getRecRuleFor (recVal : RecursorVal) (major : Expr) : MetaM (Option RecursorRule) := do
   match major.getAppFn with
-  | .const fn _ => recVal.rules.find? fun r => r.ctor == fn
-  | _           => none
+  | .const fn _ =>
+    let .ctorInfo info ← getConstInfo fn | return none
+    let rule := recVal.rules[info.cidx]!
+    assert! rule.ctor == fn
+    return rule
+  | _           => return none
 
 private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
   let majorType ← inferType major
@@ -242,7 +246,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
     major ← major.toCtorIfLit
     major ← cleanupNatOffsetMajor major
     major ← toCtorWhenStructure recVal.getMajorInduct major
-    match getRecRuleFor recVal major with
+    match (← getRecRuleFor recVal major) with
     | some rule =>
       let majorArgs := major.getAppArgs
       if recLvls.length != recVal.levelParams.length then

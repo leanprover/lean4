@@ -152,7 +152,7 @@ lean_object* l_Nat_blt___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalContextImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withErasedFVars___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos_spec__5___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Tactic_TryThis_addSuggestion(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Tactic_TryThis_addSuggestion(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_withCommonTelescope___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Structural_Positions_mapMwith___at_____private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__22_spec__22___redArg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);
@@ -15307,8 +15307,6 @@ lean_ctor_set(x_33, 1, x_25);
 lean_ctor_set_uint8(x_33, sizeof(void*)*2, x_32);
 lean_inc(x_6);
 lean_inc_ref(x_5);
-lean_inc(x_4);
-lean_inc_ref(x_3);
 x_34 = l_Lean_Elab_TerminationMeasure_delab(x_29, x_14, x_33, x_3, x_4, x_5, x_6, x_30);
 lean_dec(x_29);
 if (lean_obj_tag(x_34) == 0)
@@ -15332,9 +15330,7 @@ lean_ctor_set(x_8, 1, x_39);
 lean_ctor_set(x_8, 0, x_38);
 x_40 = l_Lean_Elab_Structural_reportTermMeasure___closed__5;
 x_41 = 4;
-x_42 = l_Lean_Meta_Tactic_TryThis_addSuggestion(x_20, x_8, x_39, x_40, x_39, x_41, x_3, x_4, x_5, x_6, x_36);
-lean_dec(x_4);
-lean_dec_ref(x_3);
+x_42 = l_Lean_Meta_Tactic_TryThis_addSuggestion(x_20, x_8, x_39, x_40, x_39, x_41, x_5, x_6, x_36);
 return x_42;
 }
 else
@@ -15344,8 +15340,6 @@ lean_dec(x_20);
 lean_free_object(x_8);
 lean_dec(x_6);
 lean_dec_ref(x_5);
-lean_dec(x_4);
-lean_dec_ref(x_3);
 x_43 = !lean_is_exclusive(x_34);
 if (x_43 == 0)
 {
@@ -15478,8 +15472,6 @@ lean_ctor_set(x_69, 1, x_61);
 lean_ctor_set_uint8(x_69, sizeof(void*)*2, x_68);
 lean_inc(x_6);
 lean_inc_ref(x_5);
-lean_inc(x_4);
-lean_inc_ref(x_3);
 x_70 = l_Lean_Elab_TerminationMeasure_delab(x_65, x_55, x_69, x_3, x_4, x_5, x_6, x_66);
 lean_dec(x_65);
 if (lean_obj_tag(x_70) == 0)
@@ -15504,9 +15496,7 @@ lean_ctor_set(x_76, 4, x_75);
 lean_ctor_set(x_76, 5, x_75);
 x_77 = l_Lean_Elab_Structural_reportTermMeasure___closed__5;
 x_78 = 4;
-x_79 = l_Lean_Meta_Tactic_TryThis_addSuggestion(x_56, x_76, x_75, x_77, x_75, x_78, x_3, x_4, x_5, x_6, x_72);
-lean_dec(x_4);
-lean_dec_ref(x_3);
+x_79 = l_Lean_Meta_Tactic_TryThis_addSuggestion(x_56, x_76, x_75, x_77, x_75, x_78, x_5, x_6, x_72);
 return x_79;
 }
 else
@@ -15515,8 +15505,6 @@ lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83;
 lean_dec(x_56);
 lean_dec(x_6);
 lean_dec_ref(x_5);
-lean_dec(x_4);
-lean_dec_ref(x_3);
 x_80 = lean_ctor_get(x_70, 0);
 lean_inc(x_80);
 x_81 = lean_ctor_get(x_70, 1);

@@ -451,7 +451,6 @@ LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_li
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_instBEqOrderedListType_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_emphLike___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_withPosition(lean_object*);
-static uint8_t l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_codeBlock_deIndent___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_metadataBlock_opener___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_OrderedListType_noConfusion___redArg(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_ifVerso_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -16536,89 +16535,63 @@ x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
-static uint8_t _init_l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_codeBlock_deIndent___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; uint8_t x_3; 
-x_1 = l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_unescapeStr___closed__0;
-x_2 = l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_codeBlock_deIndent___closed__0;
-x_3 = lean_string_dec_eq(x_2, x_1);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_codeBlock_deIndent(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; uint8_t x_15; 
+lean_object* x_3; lean_object* x_4; uint8_t x_11; 
 x_3 = l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_unescapeStr___closed__0;
-x_15 = lean_string_dec_eq(x_2, x_3);
-if (x_15 == 0)
+x_11 = lean_string_dec_eq(x_2, x_3);
+if (x_11 == 0)
 {
-lean_object* x_16; lean_object* x_17; uint32_t x_18; uint32_t x_19; uint8_t x_20; 
-x_16 = lean_string_utf8_byte_size(x_2);
-x_17 = lean_string_utf8_prev(x_2, x_16);
-x_18 = lean_string_utf8_get(x_2, x_17);
-lean_dec(x_17);
-x_19 = 10;
-x_20 = lean_uint32_dec_eq(x_18, x_19);
-if (x_20 == 0)
+lean_object* x_12; lean_object* x_13; uint32_t x_14; uint32_t x_15; uint8_t x_16; 
+x_12 = lean_string_utf8_byte_size(x_2);
+x_13 = lean_string_utf8_prev(x_2, x_12);
+x_14 = lean_string_utf8_get(x_2, x_13);
+lean_dec(x_13);
+x_15 = 10;
+x_16 = lean_uint32_dec_eq(x_14, x_15);
+if (x_16 == 0)
 {
-lean_dec(x_16);
+lean_dec(x_12);
 x_4 = x_2;
-goto block_14;
+goto block_10;
 }
 else
 {
-lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-x_21 = lean_unsigned_to_nat(1u);
-x_22 = lean_unsigned_to_nat(0u);
-lean_inc(x_16);
+lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+x_17 = lean_unsigned_to_nat(1u);
+x_18 = lean_unsigned_to_nat(0u);
+lean_inc(x_12);
 lean_inc_ref(x_2);
-x_23 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_23, 0, x_2);
-lean_ctor_set(x_23, 1, x_22);
-lean_ctor_set(x_23, 2, x_16);
-x_24 = l_Substring_prevn(x_23, x_21, x_16);
-lean_dec_ref(x_23);
-x_25 = lean_string_utf8_extract(x_2, x_22, x_24);
-lean_dec(x_24);
+x_19 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_19, 0, x_2);
+lean_ctor_set(x_19, 1, x_18);
+lean_ctor_set(x_19, 2, x_12);
+x_20 = l_Substring_prevn(x_19, x_17, x_12);
+lean_dec_ref(x_19);
+x_21 = lean_string_utf8_extract(x_2, x_18, x_20);
+lean_dec(x_20);
 lean_dec_ref(x_2);
-x_4 = x_25;
-goto block_14;
+x_4 = x_21;
+goto block_10;
 }
 }
 else
 {
 x_4 = x_2;
-goto block_14;
+goto block_10;
 }
-block_14:
+block_10:
 {
-lean_object* x_5; uint8_t x_6; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_5 = l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_codeBlock_deIndent___closed__0;
-x_6 = l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_codeBlock_deIndent___closed__1;
-if (x_6 == 0)
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_7 = lean_unsigned_to_nat(0u);
-x_8 = lean_box(0);
-x_9 = l_String_splitOnAux(x_4, x_5, x_7, x_7, x_7, x_8);
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = lean_box(0);
+x_8 = l_String_splitOnAux(x_4, x_5, x_6, x_6, x_6, x_7);
 lean_dec_ref(x_4);
-x_10 = l_List_forIn_x27_loop___at_____private_Lean_DocString_Parser_0__Lean_Doc_Parser_codeBlock_deIndent_spec__0___redArg(x_1, x_5, x_9, x_3);
-lean_dec(x_9);
-return x_10;
-}
-else
-{
-lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_11 = lean_box(0);
-x_12 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_12, 0, x_4);
-lean_ctor_set(x_12, 1, x_11);
-x_13 = l_List_forIn_x27_loop___at_____private_Lean_DocString_Parser_0__Lean_Doc_Parser_codeBlock_deIndent_spec__0___redArg(x_1, x_5, x_12, x_3);
-lean_dec_ref(x_12);
-return x_13;
-}
+x_9 = l_List_forIn_x27_loop___at_____private_Lean_DocString_Parser_0__Lean_Doc_Parser_codeBlock_deIndent_spec__0___redArg(x_1, x_5, x_8, x_3);
+lean_dec(x_8);
+return x_9;
 }
 }
 }
@@ -21640,7 +21613,6 @@ l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_codeBlock_withIndentColumn_
 lean_mark_persistent(l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_codeBlock_withIndentColumn___closed__2);
 l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_codeBlock_deIndent___closed__0 = _init_l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_codeBlock_deIndent___closed__0();
 lean_mark_persistent(l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_codeBlock_deIndent___closed__0);
-l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_codeBlock_deIndent___closed__1 = _init_l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_codeBlock_deIndent___closed__1();
 l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_codeBlock_codeFrom___lam__1___closed__0___boxed__const__1 = _init_l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_codeBlock_codeFrom___lam__1___closed__0___boxed__const__1();
 lean_mark_persistent(l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_codeBlock_codeFrom___lam__1___closed__0___boxed__const__1);
 l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_codeBlock_codeFrom___lam__1___closed__0 = _init_l___private_Lean_DocString_Parser_0__Lean_Doc_Parser_codeBlock_codeFrom___lam__1___closed__0();

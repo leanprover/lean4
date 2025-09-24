@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Async
-// Imports: Std.Internal.Async.Basic Std.Internal.Async.Timer Std.Internal.Async.TCP Std.Internal.Async.UDP Std.Internal.Async.DNS Std.Internal.Async.Select Std.Internal.Async.Process Std.Internal.Async.System Std.Internal.Async.Signal
+// Imports: Std.Internal.Async.Basic Std.Internal.Async.Timer Std.Internal.Async.TCP Std.Internal.Async.UDP Std.Internal.Async.DNS Std.Internal.Async.Select Std.Internal.Async.Process Std.Internal.Async.System Std.Internal.Async.Signal Std.Internal.Async.IO
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22,6 +22,7 @@ lean_object* initialize_Std_Internal_Async_Select(uint8_t builtin, lean_object*)
 lean_object* initialize_Std_Internal_Async_Process(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Internal_Async_System(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Internal_Async_Signal(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Internal_Async_IO(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_Async(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -52,6 +53,9 @@ res = initialize_Std_Internal_Async_System(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Internal_Async_Signal(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Internal_Async_IO(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

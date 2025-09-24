@@ -9763,6 +9763,7 @@ if (lean_is_exclusive(x_3)) {
  x_6 = lean_box(0);
 }
 x_7 = l_Lake_PartialBuildKey_parse(x_4);
+lean_dec(x_4);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_15; 

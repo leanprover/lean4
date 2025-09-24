@@ -1198,7 +1198,10 @@ private def sortSuggestions (ss : Array Meta.Hint.Suggestion) : Array Meta.Hint.
   ss.qsort (cmp ·.suggestion ·.suggestion)
 
 open Diff in
-private def mkSuggestion  (ref : Syntax) (hintTitle : MessageData) (newStrings : Array (String × Option String × Option String)) : DocM MessageData := do
+private def mkSuggestion
+    (ref : Syntax) (hintTitle : MessageData)
+    (newStrings : Array (String × Option String × Option String)) :
+    DocM MessageData := do
   match (← read).suggestionMode with
   | .interactive =>
     hintTitle.hint (newStrings.map fun (s, preInfo?, postInfo?) => { suggestion := s, preInfo?, postInfo? }) (ref? := some ref)
@@ -1268,6 +1271,11 @@ public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline)
                 snd.snd := moreInfo.map withSpace
               }
           let ss := ss.qsort (fun x y => x.1 < y.1)
+          let litSuggestion :=
+            ( "{lit}" ++ str,
+              some "Use the `lit` role:\n",
+              some "\nto mark the code as literal text and disable suggestions" )
+          let ss := ss.push litSuggestion
           let hint ← mkSuggestion stx m!"Insert a role to document it:" ss
           logWarning m!"Code element could be more specific.{hint}"
     return .code s.getString

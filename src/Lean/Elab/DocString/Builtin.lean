@@ -501,7 +501,7 @@ def syntaxCat (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
 
 private partial def onlyIdent : Syntax → Bool
   | .node _ _ args =>
-    let nonEmpty := args.filter isEmpty
+    let nonEmpty := args.filter (!isEmpty ·)
     if h : nonEmpty.size = 1 then onlyIdent nonEmpty[0]
     else false
   | .ident .. => true
@@ -509,7 +509,7 @@ private partial def onlyIdent : Syntax → Bool
 where
   isEmpty : Syntax → Bool
   | .node _ _ xs =>
-    xs.size = 0 || xs.all isEmpty
+    xs.all isEmpty
   | _ => false
 
 /--
@@ -946,7 +946,7 @@ def suggestName (code : StrLit) : DocM (Array CodeSuggestion) := do
     | _ =>
     if let some (_, []) := (← resolveLocalName stx.getId) then
       suggestions := suggestions.push <| .mk ``name none none
-    else
+    else if stx.getId.components.length == 1 then
       suggestions := suggestions.push <| .mk ``given none none
   return suggestions
 
@@ -974,8 +974,9 @@ def suggestLean (code : StrLit) : DocM (Array CodeSuggestion) := do
         withoutErrToSorry <|
         if stx[1][1].isMissing then pure none
         else some <$> elabType stx[1][1]
-      discard <| withoutErrToSorry <| elabTerm stx[0] ty?
+      let tm ← withoutErrToSorry <| elabTerm stx[0] ty?
     return #[.mk ``lean none none]
+
   catch | _ => return #[]
 
 /--
@@ -1102,3 +1103,15 @@ def suggestSyntax (code : StrLit) : DocM (Array CodeSuggestion) := do
 
   candidates.mapM fun cat => do
     return .mk ``«syntax» (some s!"{cat}") none
+
+/--
+Suggests the `module` role, if applicable.
+-/
+@[builtin_doc_code_suggestions]
+def suggestModule (code : StrLit) : DocM (Array CodeSuggestion) := do
+  let env ← getEnv
+  let moduleNames := env.header.moduleNames
+  let s := code.getString
+  if moduleNames.any (·.toString == s) then
+    return #[.mk ``module none none]
+  else return #[]

@@ -526,6 +526,14 @@
                     "type": "string",
                     "description": "The name of the script, executable, or library by `lake test` when this package is the workspace root. To point to a definition in another package, use the syntax `<pkg>/<def>`.\n\nA script driver will be run by `lake test` with the arguments configured in `testDriverArgs` followed by any specified on the CLI (e.g., via  `lake lint -- <args>...`). An executable driver will be built and then run like a script. A library will just be built."
                 },
+                "testDrivers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "default": [],
+                    "description": "An array of test drivers to run by `lake test` when this package is the workspace root. To point to a definition in another package, use the syntax `<pkg>/<def>`.\n\nEach driver in the array will be run in sequence. Like `testDriver`, each can be a script, executable, or library. If both `testDriver` and `testDrivers` are specified, `testDriver` will be run first, followed by all drivers in `testDrivers`."
+                },
                 "testDriverArgs": {
                     "type": "array",
                     "items": {

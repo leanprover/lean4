@@ -130,6 +130,18 @@ public configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanCo
   testDriver, testRunner : String := ""
 
   /--
+  An array of test drivers to run by `lake test` when this package is the
+  workspace root. To point to a definition in another package, use the
+  syntax `<pkg>/<def>`.
+
+  Each driver in the array will be run in sequence. Like `testDriver`,
+  each can be a script, executable, or library. If both `testDriver` and
+  `testDrivers` are specified, `testDriver` will be run first, followed
+  by all drivers in `testDrivers`.
+  -/
+  testDrivers : Array String := #[]
+
+  /--
   Arguments to pass to the package's test driver.
   These arguments will come before those passed on the command line via
   `lake test -- <args>...`.

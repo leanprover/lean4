@@ -70,11 +70,11 @@ public def Package.resolveDriver
     | _ =>
       error s!"{pkgName}: invalid {kind} driver '{driver}' (too many '/')"
 
-public def Package.test
-  (pkg : Package) (args : List String := []) (buildConfig : BuildConfig := {})
+public def Package.runSingleTestDriver
+  (pkg : Package) (driverName : String) (cfgArgs : Array String)
+  (args : List String) (buildConfig : BuildConfig)
 : LakeT IO UInt32 := do
-  let cfgArgs := pkg.testDriverArgs
-  let (pkg, driver) ← pkg.resolveDriver "test" pkg.testDriver
+  let (pkg, driver) ← pkg.resolveDriver "test" driverName
   let pkgName := pkg.name.toString (escape := false)
   if let some script := pkg.scripts.find? driver.toName then
     script.run (cfgArgs.toList ++ args)
@@ -92,6 +92,36 @@ public def Package.test
       error s!"{pkgName}: invalid test driver: {e}"
   else
     error s!"{pkgName}: invalid test driver: unknown script, executable, or library '{driver}'"
+
+public def Package.test
+  (pkg : Package) (args : List String := []) (buildConfig : BuildConfig := {})
+: LakeT IO UInt32 := do
+  let cfgArgs := pkg.testDriverArgs
+  let pkgName := pkg.name.toString (escape := false)
+
+  -- Collect all drivers to run
+  let mut allDrivers : Array String := #[]
+
+  -- Add primary testDriver if specified
+  if !pkg.testDriver.isEmpty then
+    allDrivers := allDrivers.push pkg.testDriver
+
+  -- Add all testDrivers
+  allDrivers := allDrivers ++ pkg.testDrivers
+
+  -- Check if we have any drivers
+  if allDrivers.isEmpty then
+    error s!"{pkgName}: no test driver configured"
+
+  -- Run each driver in sequence, propagating first non-zero exit code
+  let mut lastExitCode : UInt32 := 0
+  for driver in allDrivers do
+    let exitCode ← pkg.runSingleTestDriver driver cfgArgs args buildConfig
+    if exitCode != 0 then
+      return exitCode
+    lastExitCode := exitCode
+
+  return lastExitCode
 
 public def Package.lint
   (pkg : Package) (args : List String := []) (buildConfig : BuildConfig := {})

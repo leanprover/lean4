@@ -81,7 +81,7 @@ termination_by n => n
 info: have_tailrec.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), n < n + 1 → motive n → motive n.succ)
   (a✝ : Nat) : motive a✝
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check have_tailrec.induct
 
 set_option linter.unusedVariables false in

@@ -911,28 +911,25 @@ do not handle delayed assignments correctly.
 -/
 def abstractIndependentMVars (mvars : Array MVarId) (index : Nat) (e : Expr) : MetaM Expr := do
   trace[Meta.FunInd] "abstractIndependentMVars, to revert after {index}, original mvars: {mvars}"
-  let mvars ← mvars.mapM fun mvar => do
-    let mvar ← cleanupAfter mvar index
-    let goal' ← mvar.withContext do
-      let fvarIds := (← getLCtx).foldl (init := #[]) (start := index+1) fun fvarIds decl => fvarIds.push decl.fvarId
-      let goal ← mvar.getType
-      mkForallFVars (generalizeNondepLet := false) (fvarIds.map mkFVar) goal
-    let mvar' ← mkFreshExprSyntheticOpaqueMVar goal'
-    mvar.withContext do
-      let fvarIds := (← getLCtx).foldl (init := #[]) (start := index+1) fun fvarIds decl => fvarIds.push decl.fvarId
-      let mut e := mvar'
-      for fvar in fvarIds do
-        unless (← fvar.isLetVar (allowNondep := true)) do
-          e := .app e (mkFVar fvar)
-      mvar.assign e
-    pure mvar'.mvarId!
-  trace[Meta.FunInd] "abstractIndependentMVars, reverted mvars: {mvars}"
+  let mvars ← mvars.mapM (cleanupAfter · index)
   let names := Array.ofFn (n := mvars.size) fun ⟨i,_⟩ => .mkSimple s!"case{i+1}"
-  let types ← mvars.mapM MVarId.getType
+  let types ← mvars.mapM fun mvar => do
+    mvar.withContext do
+      let goal ← mvar.getType
+      let xs := (← getLCtx).foldl (init := #[]) (start := index+1) fun fvarIds decl =>
+        fvarIds.push (mkFVar decl.fvarId)
+      mkForallFVars (generalizeNondepLet := true) xs goal
+  trace[Meta.FunInd] "abstractIndependentMVars, reverted types: {types}"
   Meta.withLocalDeclsDND (names.zip types) fun xs => do
-      for mvar in mvars, x in xs do
-        mvar.assign x
-      mkLambdaFVars xs (← instantiateMVars e)
+    for mvar in mvars, x in xs do
+      mvar.withContext do
+        let e := (← getLCtx).foldl (init := x) (start := index+1) fun e decl =>
+          if decl.isLet (allowNondep := false) then
+            e
+          else
+            .app e (mkFVar decl.fvarId)
+        mvar.assign e
+    mkLambdaFVars xs (← instantiateMVars e)
 
 /--
 Given a unary definition `foo` defined via `WellFounded.fixF`, derive a suitable induction principle

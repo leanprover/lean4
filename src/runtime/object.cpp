@@ -2334,7 +2334,7 @@ extern "C" LEAN_EXPORT obj_res lean_string_of_usize(size_t n) {
 size_t lean_slice_size(b_obj_arg slice) {
    b_obj_res start = lean_ctor_get(slice, 1);
    lean_assert(lean_is_scalar(start));
-   b_obj_res end = lean_ctor_get(slice, 1);
+   b_obj_res end = lean_ctor_get(slice, 2);
    lean_assert(lean_is_scalar(end));
    return lean_unbox(end) - lean_unbox(start);
 }
@@ -2361,7 +2361,7 @@ extern "C" LEAN_EXPORT uint8_t lean_slice_memcmp(b_obj_arg s1, b_obj_arg s2, b_o
 }
 
 extern "C" LEAN_EXPORT uint64_t lean_slice_hash(b_obj_arg s) {
-    size_t sz = lean_slice_size(s) - 1;
+    size_t sz = lean_slice_size(s);
     char const * str = lean_slice_base(s);
     return hash_str(sz, (unsigned char const *) str, 11);
 }

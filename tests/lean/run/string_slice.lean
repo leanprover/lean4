@@ -1,4 +1,5 @@
 module
+import Std.Data.HashSet.Basic
 
 /-!
 Tests for `String.Slice` functions
@@ -7,6 +8,10 @@ Tests for `String.Slice` functions
 #guard "".toSlice.isEmpty = true
 #guard " ".toSlice.isEmpty = false
 #guard (" ".toSlice.drop 1).isEmpty = true
+
+#guard "abc".toSlice == "abc".toSlice
+#guard "abcdefg".toSlice.dropEnd 4 == "abc".toSlice
+#guard "abcdefg".toSlice.dropEnd 3 != "abc".toSlice
 
 #guard "red green blue".toSlice.startsWith "red" = true
 #guard "red green blue".toSlice.startsWith "green" = false
@@ -119,10 +124,38 @@ Tests for `String.Slice` functions
 #guard "  abc   ".toSlice.trimAscii == "abc".toSlice
 #guard "abc\ndef\n".toSlice.trimAscii == "abc\ndef".toSlice
 
--- TODO: beq
--- TODO: hashmap
--- TODO: LT/ord
--- TODO: chars/revchars
--- TODO: pos/revpos
--- TODO: bytes/revbytes
--- TODO: lines
+
+#guard ({} : Std.HashSet _).insert "abc".toSlice |>.contains "abc".toSlice
+#guard (({} : Std.HashSet _).insert "abc".toSlice |>.insert "abc".toSlice |>.size) == 1
+
+#guard "abc".toSlice ≤ "abc".toSlice
+#guard "abc".toSlice < "abcd".toSlice
+#guard "abc".toSlice < "zbc".toSlice
+#guard "".toSlice < "zbc".toSlice
+#guard "".toSlice ≤ "".toSlice
+
+#guard "abc".toSlice.chars.toList = ['a', 'b', 'c']
+#guard "ab∀c".toSlice.chars.toList = ['a', 'b', '∀', 'c']
+
+#guard "abc".toSlice.revChars.toList = ['c', 'b', 'a']
+#guard "ab∀c".toSlice.revChars.toList = ['c', '∀', 'b', 'a']
+
+#guard ("abc".toSlice.positions.map (·.get!) |>.toList) = ['a', 'b', 'c']
+#guard ("abc".toSlice.positions.map (·.offset.byteIdx) |>.toList) = [0, 1, 2]
+#guard ("ab∀c".toSlice.positions.map (·.get!) |>.toList) = ['a', 'b', '∀', 'c']
+#guard ("ab∀c".toSlice.positions.map (·.offset.byteIdx) |>.toList) = [0, 1, 2, 5]
+
+#guard ("abc".toSlice.revPositions.map (·.get!) |>.toList) = ['c', 'b', 'a']
+#guard ("abc".toSlice.revPositions.map (·.offset.byteIdx) |>.toList) = [2, 1, 0]
+#guard ("ab∀c".toSlice.revPositions.map (·.get!) |>.toList) = ['c', '∀', 'b', 'a']
+#guard ("ab∀c".toSlice.revPositions.map (·.offset.byteIdx) |>.toList) = [5, 2, 1, 0]
+
+#guard "abc".toSlice.bytes.toList = [97, 98, 99]
+#guard "ab∀c".toSlice.bytes.toList = [97, 98, 226, 136, 128, 99]
+
+#guard "abc".toSlice.revBytes.toList = [99, 98, 97]
+#guard "ab∀c".toSlice.revBytes.toList = [99, 128, 136, 226, 98, 97]
+
+#guard "foo\r\nbar\n\nbaz\n".toSlice.lines.allowNontermination.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz".toSlice]
+#guard "foo\r\nbar\n\nbaz".toSlice.lines.allowNontermination.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz".toSlice]
+#guard "foo\r\nbar\n\nbaz\r".toSlice.lines.allowNontermination.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz\r".toSlice]

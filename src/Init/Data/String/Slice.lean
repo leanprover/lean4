@@ -84,6 +84,12 @@ instance : DecidableLT Slice :=
 instance : Ord Slice where
   compare x y := compareOfLessAndBEq x y
 
+instance : LE Slice where
+  le x y := ¬x < y
+
+instance : DecidableLE Slice :=
+  fun x y => inferInstanceAs (Decidable (¬x < y))
+
 section ForwardPatternUsers
 
 variable {ρ : Type} {σ : Slice → Type}
@@ -697,11 +703,18 @@ structure CharIterator where
   currPos : s.Pos
   deriving Inhabited
 
+set_option doc.verso false
 /--
 Creates and iterator over all characters (Unicode code points) in {name}`s`.
+
+Examples:
+ * {lean}`"abc".toSlice.chars.toList = ['a', 'b', 'c']`
+ * {lean}`"ab∀c".toSlice.chars.toList = ['a', 'b', '∀', 'c']`
 -/
 def chars (s : Slice) : Std.Iter (α := CharIterator) Char :=
   { internalState := { s, currPos := s.startPos }}
+
+set_option doc.verso true
 
 namespace CharIterator
 
@@ -757,6 +770,8 @@ instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop CharIterator m n :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial CharIterator m n :=
   .defaultImplementation
 
+docs_to_verso chars
+
 end CharIterator
 
 structure RevCharIterator where
@@ -764,12 +779,19 @@ structure RevCharIterator where
   currPos : s.Pos
   deriving Inhabited
 
+set_option doc.verso false
 /--
 Creates and iterator over all characters (Unicode code points) in {name}`s`, starting from the end
 of the slice and iterating towards the start.
+
+Example:
+ * {lean}`"abc".toSlice.revChars.toList = ['c', 'b', 'a']`
+ * {lean}`"ab∀c".toSlice.revChars.toList = ['c', '∀', 'b', 'a']`
 -/
 def revChars (s : Slice) : Std.Iter (α := RevCharIterator) Char :=
   { internalState := { s, currPos := s.endPos }}
+
+set_option doc.verso true
 
 namespace RevCharIterator
 
@@ -826,17 +848,28 @@ instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop RevCharIterator m n :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial RevCharIterator m n :=
   .defaultImplementation
 
+docs_to_verso revChars
+
 end RevCharIterator
 
 structure PosIterator (s : Slice) where
   currPos : s.Pos
   deriving Inhabited
 
+set_option doc.verso false
 /--
 Creates and iterator over all valid positions within {name}`s`.
+
+Examples
+ * {lean}`("abc".toSlice.positions.map (·.get!) |>.toList) = ['a', 'b', 'c']`
+ * {lean}`("abc".toSlice.positions.map (·.offset.byteIdx) |>.toList) = [0, 1, 2]`
+ * {lean}`("ab∀c".toSlice.positions.map (·.get!) |>.toList) = ['a', 'b', '∀', 'c']`
+ * {lean}`("ab∀c".toSlice.positions.map (·.offset.byteIdx) |>.toList) = [0, 1, 2, 5]`
 -/
 def positions (s : Slice) : Std.Iter (α := PosIterator s) s.Pos :=
   { internalState := { currPos := s.startPos }}
+
+set_option doc.verso true
 
 namespace PosIterator
 
@@ -888,18 +921,29 @@ instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (PosIterator s) m n :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (PosIterator s) m n :=
   .defaultImplementation
 
+docs_to_verso positions
+
 end PosIterator
 
 structure RevPosIterator (s : Slice) where
   currPos : s.Pos
   deriving Inhabited
 
+set_option doc.verso false
 /--
 Creates and iterator over all valid positions within {name}`s`, starting from the last valid
 position and iterating towards the first one.
+
+Examples
+ * {lean}`("abc".toSlice.revPositions.map (·.get!) |>.toList) = ['c', 'b', 'a']`
+ * {lean}`("abc".toSlice.revPositions.map (·.offset.byteIdx) |>.toList) = [2, 1, 0]`
+ * {lean}`("ab∀c".toSlice.revPositions.map (·.get!) |>.toList) = ['c', '∀', 'b', 'a']`
+ * {lean}`("ab∀c".toSlice.revPositions.map (·.offset.byteIdx) |>.toList) = [5, 2, 1, 0]`
 -/
 def revPositions (s : Slice) : Std.Iter (α := RevPosIterator s) s.Pos :=
   { internalState := { currPos := s.endPos }}
+
+set_option doc.verso true
 
 namespace RevPosIterator
 
@@ -952,6 +996,8 @@ instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (RevPosIterator s) m n
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (RevPosIterator s) m n :=
   .defaultImplementation
 
+docs_to_verso revPositions
+
 end RevPosIterator
 
 structure ByteIterator where
@@ -959,11 +1005,18 @@ structure ByteIterator where
   offset : String.Pos
   deriving Inhabited
 
+set_option doc.verso false
 /--
 Creates and iterator over all bytes in {name}`s`.
+
+Examples:
+ * {lean}`"abc".toSlice.bytes.toList = [97, 98, 99]`
+ * {lean}`"ab∀c".toSlice.bytes.toList = [97, 98, 226, 136, 128, 99]`
 -/
 def bytes (s : Slice) : Std.Iter (α := ByteIterator) UInt8 :=
   { internalState := { s, offset := s.startPos.offset }}
+
+set_option doc.verso true
 
 namespace ByteIterator
 
@@ -1017,6 +1070,8 @@ instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop ByteIterator m n :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial ByteIterator m n :=
   .defaultImplementation
 
+docs_to_verso bytes
+
 end ByteIterator
 
 structure RevByteIterator where
@@ -1024,12 +1079,19 @@ structure RevByteIterator where
   offset : String.Pos
   hinv : offset ≤ s.utf8ByteSize
 
+set_option doc.verso false
 /--
 Creates and iterator over all bytes in {name}`s`, starting from the last one and iterating towards
 the first one.
+
+Examples:
+ * {lean}`"abc".toSlice.revBytes.toList = [99, 98, 97]`
+ * {lean}`"ab∀c".toSlice.revBytes.toList = [99, 128, 136, 226, 98, 97]`
 -/
 def revBytes (s : Slice) : Std.Iter (α := RevByteIterator) UInt8 :=
   { internalState := { s, offset := s.endPos.offset, hinv := by simp }}
+
+set_option doc.verso true
 
 instance : Inhabited RevByteIterator where
   default :=
@@ -1095,6 +1157,8 @@ instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop RevByteIterator m n :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial RevByteIterator m n :=
   .defaultImplementation
 
+docs_to_verso revBytes
+
 end RevByteIterator
 
 def lines.lineMap (s : Slice) : Slice :=
@@ -1109,6 +1173,11 @@ def lines.lineMap (s : Slice) : Slice :=
 /--
 Creates an iterator over all lines in {name}`s` with the line ending characters `\r\n` or `\n` being
 stripped.
+
+Examples:
+ * {lean}`"foo\r\nbar\n\nbaz\n".toSlice.lines.allowNontermination.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz".toSlice]`
+ * {lean}`"foo\r\nbar\n\nbaz".toSlice.lines.allowNontermination.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz".toSlice]`
+ * {lean}`"foo\r\nbar\n\nbaz\r".toSlice.lines.allowNontermination.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz\r".toSlice]`
 -/
 def lines (s : Slice) :=
   s.splitInclusive '\n' |>.map lines.lineMap

@@ -47,7 +47,7 @@ def fib'' (n : Nat) : Nat :=
   if _h : n < 2 then
     n
   else
-    have foo := n - 2
+    let foo := n - 2
     if foo < 100 then
       fib'' (n - 1) + fib'' foo
     else

@@ -38,15 +38,22 @@ structure Hyp where
   isRemoved?: Option Bool
   deriving FromJson, Repr
 
-structure InteractiveGoal where
+structure InteractiveGoalCore where
+  hyps : Array Hyp
   type : Widget.TaggedText SubexprInfo
+  deriving FromJson, Repr
+
+structure InteractiveGoal extends InteractiveGoalCore where
   isInserted?: Option Bool := none
   isRemoved?: Option Bool := none
-  hyps : Array Hyp
   deriving FromJson, Repr
 
 structure InteractiveGoals where
   goals : Array InteractiveGoal
+  deriving FromJson, Repr
+
+structure InteractiveTermGoal extends InteractiveGoalCore where
+  range : Lsp.Range
   deriving FromJson, Repr
 
 end Client
@@ -251,6 +258,28 @@ partial def main (args : List String) : IO Unit := do
             }
             Ipc.writeRequest ⟨requestNo, "$/lean/rpc/call", ps⟩
             let response ← Ipc.readResponseAs requestNo Client.InteractiveGoals
+            requestNo := requestNo + 1
+            IO.eprintln (repr response.result)
+            IO.eprintln ""
+          | "termGoal" =>
+            if rpcSessionId.isNone then
+              Ipc.writeRequest ⟨requestNo, "$/lean/rpc/connect",  RpcConnectParams.mk uri⟩
+              let r ← Ipc.readResponseAs requestNo RpcConnected
+              rpcSessionId := some r.result.sessionId
+              requestNo := requestNo + 1
+            let params : Lsp.PlainTermGoalParams := {
+              textDocument := { uri }
+              position := pos,
+            }
+            let ps : RpcCallParams := {
+              params := toJson params
+              textDocument := { uri }
+              position := pos,
+              sessionId := rpcSessionId.get!,
+              method := `Lean.Widget.getInteractiveTermGoal
+            }
+            Ipc.writeRequest ⟨requestNo, "$/lean/rpc/call", ps⟩
+            let response ← Ipc.readResponseAs requestNo Client.InteractiveTermGoal
             requestNo := requestNo + 1
             IO.eprintln (repr response.result)
             IO.eprintln ""

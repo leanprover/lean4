@@ -3,16 +3,17 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
+public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind
 import Lean.Meta.Tactic.Grind.Proof
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Ext
-import Lean.Meta.Tactic.Grind.Internalize
-
+import Lean.Meta.Tactic.Grind.Diseq
+public section
 namespace Lean.Meta.Grind
-
 /--
 Propagates equalities for a conjunction `a ∧ b` based on the truth values
 of its components `a` and `b`. This function checks the truth value of `a` and `b`,
@@ -75,7 +76,7 @@ builtin_grind_propagator propagateOrUp ↑Or := fun e => do
     pushEqTrue e <| mkApp3 (mkConst ``Grind.or_eq_of_eq_true_right) a b (← mkEqTrueProof b)
 
 /--
-Propagates truth values downwards for a disjuction `a ∨ b` when the
+Propagates truth values downwards for a disjunction `a ∨ b` when the
 expression itself is known to be `False`.
 -/
 builtin_grind_propagator propagateOrDown ↓Or := fun e => do
@@ -119,48 +120,66 @@ builtin_grind_propagator propagateNotDown ↓Not := fun e => do
   else if (← isEqv e a) then
     closeGoal <| mkApp2 (mkConst ``Grind.false_of_not_eq_self) a (← mkEqProof e a)
 
-def propagateBoolDiseq (a : Expr) : GoalM Unit := do
-  if let some h ← mkDiseqProof? a (← getBoolFalseExpr) then
-    pushEqBoolTrue a <| mkApp2 (mkConst ``Grind.Bool.eq_true_of_not_eq_false') a h
-  if let some h ← mkDiseqProof? a (← getBoolTrueExpr) then
-    pushEqBoolFalse a <| mkApp2 (mkConst ``Grind.Bool.eq_false_of_not_eq_true') a h
+def propagateBoolDiseq (eq : Expr) (a b : Expr) : GoalM Unit := do
+  let tt ← getBoolTrueExpr
+  let ff ← getBoolFalseExpr
+  if (← isEqv b ff) then
+    pushEqBoolTrue a <| mkApp2 (mkConst ``Grind.Bool.eq_true_of_not_eq_false') a (← mkDiseqProofUsing a ff eq)
+  else if (← isEqv b tt) then
+    pushEqBoolFalse a <| mkApp2 (mkConst ``Grind.Bool.eq_false_of_not_eq_true') a (← mkDiseqProofUsing a tt eq)
+  else if (← isEqv a ff) then
+    pushEqBoolTrue b <| mkApp2 (mkConst ``Grind.Bool.eq_true_of_not_eq_false') b (← mkDiseqProofUsing b ff eq)
+  else if (← isEqv a tt) then
+    pushEqBoolFalse b <| mkApp2 (mkConst ``Grind.Bool.eq_false_of_not_eq_true') b (← mkDiseqProofUsing b tt eq)
 
 /-- Propagates `Eq` upwards -/
 builtin_grind_propagator propagateEqUp ↑Eq := fun e => do
   let_expr Eq α a b := e | return ()
-  if (← isEqTrue a) then
-    pushEq e b <| mkApp3 (mkConst ``Grind.eq_eq_of_eq_true_left) a b (← mkEqTrueProof a)
-  else if (← isEqTrue b) then
-    pushEq e a <| mkApp3 (mkConst ``Grind.eq_eq_of_eq_true_right) a b (← mkEqTrueProof b)
-  else if (← isEqv a b) then
-    pushEqTrue e <| mkEqTrueCore e (← mkEqProof a b)
-  if α.isConstOf ``Bool then
-    if (← isEqFalse e) then
-      propagateBoolDiseq a
-      propagateBoolDiseq b
   let aRoot ← getRootENode a
   let bRoot ← getRootENode b
-  if aRoot.ctor && bRoot.ctor && aRoot.self.getAppFn != bRoot.self.getAppFn then
-    -- ¬a = b
-    let hne ← withLocalDeclD `h (← mkEq a b) fun h => do
-      let hf ← mkEqTrans (← mkEqProof aRoot.self a) h
-      let hf ← mkEqTrans hf (← mkEqProof b bRoot.self)
-      let hf ← mkNoConfusion (← getFalseExpr) hf
-      mkLambdaFVars #[h] hf
-    pushEqFalse e <| mkApp2 (mkConst ``eq_false) e hne
+  let a' := aRoot.self
+  let b' := bRoot.self
+  let trueExpr ← getTrueExpr
+  if isSameExpr a' trueExpr then
+    unless isSameExpr (← getRoot e) b' do
+      pushEq e b <| mkApp3 (mkConst ``Grind.eq_eq_of_eq_true_left) a b (← mkEqProof a trueExpr)
+  else if isSameExpr b' trueExpr then
+    unless isSameExpr (← getRoot e) a' do
+      pushEq e a <| mkApp3 (mkConst ``Grind.eq_eq_of_eq_true_right) a b (← mkEqProof b trueExpr)
+  else if isSameExpr a' b' then
+    unless isSameExpr (← getRoot e) trueExpr do
+      pushEq e trueExpr <| mkEqTrueCore e (← mkEqProof a b)
+  if α.isConstOf ``Bool then
+    if (← isEqFalse e) then
+      propagateBoolDiseq e a b
+    else
+      let tt ← getBoolTrueExpr
+      let ff ← getBoolFalseExpr
+      if isSameExpr a' tt && isSameExpr b' ff then
+        pushEqFalse e <| mkApp4 (mkConst ``Grind.Bool.ne_of_eq_true_of_eq_false) a b (← mkEqBoolTrueProof a) (← mkEqBoolFalseProof b)
+      else if isSameExpr a' ff && isSameExpr b' tt then
+        pushEqFalse e <| mkApp4 (mkConst ``Grind.Bool.ne_of_eq_false_of_eq_true) a b (← mkEqBoolFalseProof a) (← mkEqBoolTrueProof b)
+  else unless (← isEqFalse e) do
+    if aRoot.ctor && bRoot.ctor && aRoot.self.getAppFn != bRoot.self.getAppFn then
+      -- ¬a = b
+      let hne ← withLocalDeclD `h (← mkEq a b) fun h => do
+        let hf ← mkEqTrans (← mkEqProof aRoot.self a) h
+        let hf ← mkEqTrans hf (← mkEqProof b bRoot.self)
+        let hf ← mkNoConfusion (← getFalseExpr) hf
+        mkLambdaFVars #[h] hf
+      pushEqFalse e <| mkApp2 (mkConst ``eq_false) e hne
 
 /-- Propagates `Eq` downwards -/
 builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
   if (← isEqTrue e) then
     let_expr Eq _ a b := e | return ()
-    pushEq a b <| mkOfEqTrueCore e (← mkEqTrueProof e)
+    unless (← isEqv a b) do
+      pushEq a b <| mkOfEqTrueCore e (← mkEqTrueProof e)
   else if (← isEqFalse e) then
     let_expr Eq α lhs rhs := e | return ()
     if α.isConstOf ``Bool then
-      propagateBoolDiseq lhs
-      propagateBoolDiseq rhs
-    propagateCutsatDiseq lhs rhs
-    propagateCommRingDiseq lhs rhs
+      propagateBoolDiseq e lhs rhs
+    Solvers.propagateDiseqs lhs rhs
     let thms ← getExtTheorems α
     if !thms.isEmpty then
       /-
@@ -173,11 +192,8 @@ builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
       for thm in (← getExtTheorems α) do
         instantiateExtTheorem thm e
 
-private def getLawfulBEqInst? (u : List Level) (α : Expr) (binst : Expr) : MetaM (Option Expr) := do
-  let lawfulBEq := mkApp2 (mkConst ``LawfulBEq u) α binst
-  let .some linst ← trySynthInstance lawfulBEq | return none
-  return some linst
-
+private def getLawfulBEqInst? (u : List Level) (α : Expr) (binst : Expr) : GoalM (Option Expr) := do
+  synthInstance? <| mkApp2 (mkConst ``LawfulBEq u) α binst
 /-
 Note about `BEq.beq`
 Given `a b : α` in a context where we have `[BEq α] [LawfulBEq α]`

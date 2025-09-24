@@ -1,5 +1,4 @@
-set_option grind.warning false
-
+module
 example (f : Int → Int) (x : Int)
     : 0 ≤ x → x ≠ 0 → x ≤ 1 → f x = 2 → f 1 = 2 := by
   grind

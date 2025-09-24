@@ -6,9 +6,11 @@ Authors: Sebastian Ullrich, Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.Ext
-import Init.SimpLemmas
-import Init.Meta
+public import Init.Ext
+public import Init.SimpLemmas
+public import Init.Meta
+
+public section
 
 open Function
 
@@ -50,7 +52,7 @@ attribute [simp] id_map
   (comp_map _ _ _).symm
 
 theorem Functor.map_unit [Functor f] [LawfulFunctor f] {a : f PUnit} : (fun _ => PUnit.unit) <$> a = a := by
-  simp [map]
+  simp
 
 /--
 An applicative functor satisfies the laws of an applicative functor.
@@ -145,10 +147,10 @@ class LawfulMonad (m : Type u → Type v) [Monad m] : Prop extends LawfulApplica
 
 export LawfulMonad (bind_pure_comp bind_map pure_bind bind_assoc)
 attribute [simp] pure_bind bind_assoc bind_pure_comp
-attribute [grind] pure_bind
+attribute [grind <=] pure_bind
 
 @[simp] theorem bind_pure [Monad m] [LawfulMonad m] (x : m α) : x >>= pure = x := by
-  show x >>= (fun a => pure (id a)) = x
+  change x >>= (fun a => pure (id a)) = x
   rw [bind_pure_comp, id_map]
 
 /--

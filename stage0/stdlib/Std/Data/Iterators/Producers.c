@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Producers
-// Imports: Std.Data.Iterators.Producers.Monadic Std.Data.Iterators.Producers.Array Std.Data.Iterators.Producers.List Std.Data.Iterators.Producers.Repeat
+// Imports: Std.Data.Iterators.Producers.Monadic Std.Data.Iterators.Producers.Array Std.Data.Iterators.Producers.Empty Std.Data.Iterators.Producers.List Std.Data.Iterators.Producers.Range Std.Data.Iterators.Producers.Repeat Std.Data.Iterators.Producers.Slice
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,8 +15,11 @@ extern "C" {
 #endif
 lean_object* initialize_Std_Data_Iterators_Producers_Monadic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Producers_Array(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_Iterators_Producers_Empty(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Producers_List(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_Iterators_Producers_Range(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Producers_Repeat(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_Iterators_Producers_Slice(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Producers(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -28,10 +31,19 @@ lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Producers_Array(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Std_Data_Iterators_Producers_Empty(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Producers_List(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Std_Data_Iterators_Producers_Range(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Producers_Repeat(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_Iterators_Producers_Slice(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

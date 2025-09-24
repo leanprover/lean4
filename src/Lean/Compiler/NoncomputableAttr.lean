@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.EnvExtension
+public import Lean.EnvExtension
+
+public section
 
 namespace Lean
 
@@ -15,9 +19,8 @@ def addNoncomputable (env : Environment) (declName : Name) : Environment :=
   noncomputableExt.tag env declName
 
 /--
-  Return true iff the user has declared the given declaration as `noncomputable`.
+Returns `true` when the given declaration is tagged `noncomputable`.
 -/
-@[export lean_is_noncomputable]
 def isNoncomputable (env : Environment) (declName : Name) : Bool :=
   noncomputableExt.isTagged env declName
 

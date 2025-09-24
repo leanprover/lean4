@@ -3,6 +3,8 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
+module
+
 prelude
 import Lean.Meta.Tactic.Rewrite
 import Lean.Meta.Tactic.Split
@@ -18,7 +20,7 @@ open Eqns
 /--
 Simple, coarse-grained equation theorem for nonrecursive definitions.
 -/
-private def mkSimpleEqThm (declName : Name) : MetaM (Option Name) := do
+def mkSimpleEqThm (declName : Name) : MetaM (Option Name) := do
   if let some (.defnInfo info) := (← getEnv).find? declName then
     let name := mkEqLikeNameFor (← getEnv) declName eqn1ThmSuffix
     trace[Elab.definition.eqns] "mkSimpleEqnThm: {name}"
@@ -36,6 +38,7 @@ where
         name, type, value
         levelParams := info.levelParams
       }
+      inferDefEqAttr name
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if (← isRecursiveDefinition declName) then

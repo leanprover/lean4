@@ -1,5 +1,7 @@
-import Lean.Elab.Tactic.Try
-import Std.Tactic.BVDecide
+module
+public meta import Lean.Elab.Tactic
+public import Lean.Elab.Tactic.Try
+public import Std.Tactic.BVDecide
 
 open Lean Elab Tactic Try
 elab tk:"eval_suggest" tac:tactic : tactic => do
@@ -13,10 +15,10 @@ opaque f : Nat → Nat
 
 /--
 info: Try these:
-• simp +arith
-• simp +arith only [Nat.reduceAdd, fthm]
-• grind
-• grind only [= fthm]
+  • simp +arith
+  • simp +arith only [Nat.reduceAdd, fthm]
+  • grind
+  • grind only [= fthm]
 -/
 #guard_msgs (info) in
 example (x : Nat) : 1 + 1 + f x = x + 2 := by
@@ -24,11 +26,11 @@ example (x : Nat) : 1 + 1 + f x = x + 2 := by
 
 /--
 info: Try these:
-• rfl
-• simp
-• simp only [Nat.succ_eq_add_one, Nat.add_left_cancel_iff]
-• grind
-• grind only
+  • rfl
+  • simp
+  • simp only [Nat.succ_eq_add_one, Nat.add_left_cancel_iff]
+  • grind
+  • grind only
 -/
 #guard_msgs (info) in
 example (x : Nat) : x + 1 = Nat.succ x := by
@@ -36,11 +38,11 @@ example (x : Nat) : x + 1 = Nat.succ x := by
 
 /--
 info: Try these:
-• · intros; rfl
-• · intros; simp
-• · intros; simp only [Nat.succ_eq_add_one, Nat.add_left_cancel_iff]
-• · intros; grind
-• · intros; grind only
+  • · intros; rfl
+  • · intros; simp
+  • · intros; simp only [Nat.succ_eq_add_one, Nat.add_left_cancel_iff]
+  • · intros; grind
+  • · intros; grind only
 -/
 #guard_msgs (info) in
 example (x : Nat) : True → x + 1 = Nat.succ x := by
@@ -48,9 +50,9 @@ example (x : Nat) : True → x + 1 = Nat.succ x := by
 
 /--
 info: Try these:
-• simp_all
-• grind
-• grind only
+  • simp_all
+  • grind
+  • grind only
 -/
 #guard_msgs (info) in
 example (h : 0 + x = y) : f x = f y := by
@@ -60,7 +62,8 @@ example (h : 0 + x = y) : f x = f y := by
 macro "bad_tac" : tactic => `(tactic| eval_suggest (intros; (attempt_all | rfl | grind?); simp))
 
 /--
-error: tactic 'try?' failed, consider using `grind` manually, or `try? +missing` for partial proofs containing `sorry`
+error: Tactic `try?` failed: consider using `grind` manually, or `try? +missing` for partial proofs containing `sorry`
+
 ⊢ True
 -/
 #guard_msgs (error) in
@@ -70,7 +73,8 @@ example : True := by
 macro "simple_tac" : tactic => `(tactic| eval_suggest (intros; skip; first | skip | simp))
 
 /--
-info: Try this: simp
+info: Try this:
+  simp
 -/
 #guard_msgs (info) in
 example : True ∧ True := by
@@ -83,7 +87,10 @@ example : False := by
 set_option hygiene false in
 macro "simple_tac2" : tactic => `(tactic| eval_suggest (intros; (simp only [Nat.zero_add]; simp only [Nat.one_mul]); simp [*]))
 
-/-- info: Try this: · intros; simp only [Nat.zero_add]; simp only [Nat.one_mul]; simp [*] -/
+/--
+info: Try this:
+  · intros; simp only [Nat.zero_add]; simp only [Nat.one_mul]; simp [*]
+-/
 #guard_msgs (info) in
 example : x = 0 → 0 + 1*x = 0 := by
   simple_tac2

@@ -1,5 +1,4 @@
-set_option grind.warning false
-
+module
 example : (if (!false) = true then id else id) false = false := by
   grind
 

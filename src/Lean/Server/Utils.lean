@@ -4,13 +4,17 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Marc Huisinga
 -/
+module
+
 prelude
-import Init.System.Uri
-import Lean.Data.Lsp.Communication
-import Lean.Data.Lsp.Diagnostics
-import Lean.Data.Lsp.Extra
-import Lean.Data.Lsp.TextSync
-import Lean.Server.InfoUtils
+public import Init.System.Uri
+public import Lean.Data.Lsp.Communication
+public import Lean.Data.Lsp.Diagnostics
+public import Lean.Data.Lsp.Extra
+public import Lean.Data.Lsp.TextSync
+public import Lean.Server.InfoUtils
+
+public section
 
 namespace IO
 
@@ -93,10 +97,11 @@ structure DocumentMeta where
   deriving Inhabited
 
 /-- Extracts an `InputContext` from `doc`. -/
-def DocumentMeta.mkInputContext (doc : DocumentMeta) : Parser.InputContext where
-  input    := doc.text.source
-  fileName := (System.Uri.fileUriToPath? doc.uri).getD doc.uri |>.toString
-  fileMap  := doc.text
+def DocumentMeta.mkInputContext (doc : DocumentMeta) : Parser.InputContext :=
+  .mk
+    (input := doc.text.source)
+    (fileName := (System.Uri.fileUriToPath? doc.uri).getD doc.uri |>.toString)
+    (fileMap  := doc.text)
 
 /--
 Replaces the range `r` (using LSP UTF-16 positions) in `text` (using UTF-8 positions)

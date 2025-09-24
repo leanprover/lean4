@@ -3,10 +3,14 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Grind.Types
-
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
+import Lean.Meta.Tactic.Grind.Arith.Util
+import Lean.Meta.Tactic.Simp.Arith.Int.Simp
+public section
 namespace Int.Linear
+
 def Poly.isZero : Poly → Bool
   | .num 0 => true
   | _ => false
@@ -28,10 +32,10 @@ end Int.Linear
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 def get' : GoalM State := do
-  return (← get).arith.cutsat
+  cutsatExt.getState
 
 @[inline] def modify' (f : State → State) : GoalM Unit := do
-  modify fun s => { s with arith.cutsat := f s.arith.cutsat }
+  cutsatExt.modifyState f
 
 /-- Returns `true` if the cutsat state is inconsistent. -/
 def inconsistent : GoalM Bool := do
@@ -52,22 +56,15 @@ def getVar (x : Var) : GoalM Expr :=
 def hasVar (e : Expr) : GoalM Bool :=
   return (← get').varMap.contains { expr := e }
 
+def isIntTerm (e : Expr) : GoalM Bool :=
+  hasVar e
+
 /-- Returns `true` if `x` has been eliminated using an equality constraint. -/
 def eliminated (x : Var) : GoalM Bool :=
   return (← get').elimEqs[x]!.isSome
 
 @[extern "lean_grind_cutsat_assert_eq"] -- forward definition
 opaque EqCnstr.assert (c : EqCnstr) : GoalM Unit
-
--- TODO: PArray.shrink and PArray.resize
-partial def shrink (a : PArray Rat) (sz : Nat) : PArray Rat :=
-  if a.size > sz then shrink a.pop sz else a
-
-partial def resize (a : PArray Rat) (sz : Nat) : PArray Rat :=
-  if a.size > sz then shrink a sz else go a
-where
-  go (a : PArray Rat) : PArray Rat :=
-    if a.size < sz then go (a.push 0) else a
 
 /-- Resets the assignment of any variable bigger or equal to `x`. -/
 def resetAssignmentFrom (x : Var) : GoalM Unit := do

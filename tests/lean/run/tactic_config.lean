@@ -47,7 +47,7 @@ Basic errors
 -/
 
 /--
-error: option is not boolean-valued, so '(x := ...)' syntax must be used
+error: Option is not boolean-valued, so `(x := ...)` syntax must be used
 ---
 info: config is { x := 0, y := false }
 ---
@@ -57,7 +57,7 @@ error: unsolved goals
 #guard_msgs in example : True := by my_tactic +x
 
 /--
-error: structure 'MyTacticConfig' does not have a field named 'w'
+error: Structure `MyTacticConfig` does not have a field named `w`
 ---
 info: config is { x := 0, y := false }
 ---
@@ -67,7 +67,7 @@ error: unsolved goals
 #guard_msgs in example : True := by my_tactic +w
 
 /--
-error: field 'x' of structure 'MyTacticConfig' is not a structure
+error: Field `x` of structure `MyTacticConfig` is not a structure
 ---
 info: config is { x := 0, y := false }
 ---
@@ -147,7 +147,7 @@ Responds to recovery mode. In these, `ctac` continues even though configuration 
 -/
 
 /--
-error: structure 'C' does not have a field named 'x'
+error: Structure `C` does not have a field named `x`
 ---
 info: config is { b := { toA := { x := true } } }
 ---
@@ -168,7 +168,7 @@ example : True := by
   trivial
 
 /--
-error: structure 'C' does not have a field named 'x'
+error: Structure `C` does not have a field named `x`
 ---
 info: config is { b := { toA := { x := true } } }
 ---
@@ -184,7 +184,7 @@ example : True := by
 Responds to recovery mode. In this, `ctac` fails, doesn't report anything, and then execution continues to `exact`.
 -/
 
-/-- error: unknown identifier 'blah' -/
+/-- error: Unknown identifier `blah` -/
 #guard_msgs in
 example : True := by
   first | ctac +x | exact blah
@@ -194,12 +194,12 @@ Elaboration errors cause the tactic to use the default configuration.
 -/
 
 /--
-error: type mismatch
+error: Type mismatch
   false
 has type
-  Bool : Type
+  Bool
 but is expected to have type
-  B : Type
+  B
 ---
 info: config is { b := { toA := { x := true } } }
 ---
@@ -236,12 +236,12 @@ elab "my_command" cfg:Parser.Tactic.optConfig : command => do
 /-- info: config is { x := 0, y := false } -/
 #guard_msgs in my_command (x := 1) (y := true) (config := {})
 /--
-error: type mismatch
+error: Type mismatch
   true
 has type
-  Bool : Type
+  Bool
 but is expected to have type
-  Nat : Type
+  Nat
 ---
 info: config is { x := 0, y := false }
 -/

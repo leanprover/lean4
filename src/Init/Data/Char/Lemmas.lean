@@ -6,8 +6,11 @@ Authors: Leonardo de Moura
 module
 
 prelude
+public import Init.Data.Char.Basic
 import all Init.Data.Char.Basic
-import Init.Data.UInt.Lemmas
+public import Init.Data.UInt.Lemmas
+
+public section
 
 namespace Char
 
@@ -59,13 +62,9 @@ instance leTotal : Std.Total (· ≤ · : Char → Char → Prop) where
   total := Char.le_total
 
 -- This instance is useful while setting up instances for `String`.
+@[deprecated ltAsymm (since := "2025-08-01")]
 def notLTTotal : Std.Total (¬ · < · : Char → Char → Prop) where
   total := fun x y => by simpa using Char.le_total y x
-
-theorem utf8Size_eq (c : Char) : c.utf8Size = 1 ∨ c.utf8Size = 2 ∨ c.utf8Size = 3 ∨ c.utf8Size = 4 := by
-  have := c.utf8Size_pos
-  have := c.utf8Size_le_four
-  omega
 
 @[simp] theorem ofNat_toNat (c : Char) : Char.ofNat c.toNat = c := by
   rw [Char.ofNat, dif_pos]

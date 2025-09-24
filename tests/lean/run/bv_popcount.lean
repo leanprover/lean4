@@ -21,7 +21,7 @@ int pop_spec(uint32_t x) {
 def pop_spec (x : BitVec 32) : BitVec 32 := Id.run do
   let mut pop : BitVec 32 := 0
   let mut mask : BitVec 32 := 1
-  for _ in [0:32] do
+  for _ in *...(32 : Nat) do
     if (x &&& mask != 0) then
       pop := pop + 1
     mask := mask <<< 1

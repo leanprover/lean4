@@ -6,7 +6,6 @@
 lake-manifest.json
 /build
 /src/lakefile.toml
-/tests/lakefile.toml
 /lakefile.toml
 GPATH
 GRTAGS
@@ -32,3 +31,4 @@ fwOut.txt
 wdErr.txt
 wdIn.txt
 wdOut.txt
+downstream_releases/

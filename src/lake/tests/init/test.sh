@@ -64,17 +64,19 @@ test_run -d hello build Hello
 test -f hello/.lake/build/lib/lean/Hello.olean
 rm -rf hello
 
-# Test math template
+# Test math-lax template
 
-echo "# TEST: math template"
-test_run new qed math.lean || true # ignore toolchain download errors
-# Remove the require, since we do not wish to download mathlib during tests
+echo "# TEST: math-lax template"
+# Use `--offline` and remove the `require`,
+# since we do not wish to download mathlib during tests
+test_run new qed math-lax.lean --offline
 sed_i '/^require.*/{N;d;}' qed/lakefile.lean
 test_run -d qed build Qed
 test -f qed/.lake/build/lib/lean/Qed.olean
 rm -rf qed
-test_run new qed math.toml || true # ignore toolchain download errors
-# Remove the require, since we do not wish to download mathlib during tests
+# Use `--offline` and remove the `require`,
+# since we do not wish to download mathlib during tests
+test_run new qed math-lax.toml --offline
 sed_i '/^\[\[require\]\]/{N;N;N;d;}' qed/lakefile.toml
 test_run -d qed build Qed
 test -f qed/.lake/build/lib/lean/Qed.olean
@@ -149,6 +151,34 @@ popd
 
 echo "# TEST: init existing"
 test_err "package already initialized" -d hello_world init
+
+# Tests of the `math` template are usually disabled as they fail unless Mathlib
+# and Lean are synchronized. However, it remains here as it useful when testing
+# changes to the template.
+if false; then
+
+# Test that Mathlib-standard packages have the expected strict linter options.
+mkdir mathlib_standards
+pushd mathlib_standards
+test_run init mathlib_standards math
+
+# Run via elan to make sure the version of Lean is compatible with the version of Mathlib.
+ELAN=${ELAN:-elan}
+
+# skip if no elan found
+echo "# Check if elan exists"
+if ! command -v $ELAN > /dev/null; then
+   echo "elan not found; skipping test"
+   exit 0
+fi
+
+# '#'-commands are not allowed only when enabling the Mathlib standard linters.
+echo >MathlibStandards.lean "import Mathlib.Init"
+echo >>MathlibStandards.lean "#guard true"
+test_cmd_out 'note: this linter can be disabled with `set_option linter.hashCommand false`' $ELAN run $(cat lean-toolchain) lake build mathlib_standards
+popd
+
+fi
 
 # Cleanup
 rm -f produced.out

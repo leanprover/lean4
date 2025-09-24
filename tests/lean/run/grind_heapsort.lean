@@ -1,10 +1,9 @@
+module
 import Lean
-set_option grind.warning false
-
 /-
 Use `grind` as one of the tactics for array-element access and termination proofs.
 -/
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| grind)
+macro_rules | `(tactic| get_elem_tactic_extensible) => `(tactic| grind)
 /-
 Note: We disable model-based theory combination (-mbtc) here because `grind` can
 exhaust heartbeats when exploring certain "bad" termination checker scenarios.

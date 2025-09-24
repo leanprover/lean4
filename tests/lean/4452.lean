@@ -11,6 +11,7 @@ example (h : 1 = b) : a = b := by
   exact h
 
 set_option linter.all true
+set_option linter.unusedSimpArgs false
 
 example (h : 1 = b) : a = b := by
   simp[

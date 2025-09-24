@@ -1,7 +1,7 @@
 variable {P Q : Prop}
 
 /--
-error: failed to find a hypothesis with type
+error: Failed to find a hypothesis with type
   P ↔ Q
 -/
 #guard_msgs in

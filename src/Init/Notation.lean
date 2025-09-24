@@ -8,8 +8,9 @@ Notation for operators defined at Prelude.lean
 module
 
 prelude
-import Init.Prelude
-import Init.Coe
+public import Init.Coe
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 namespace Lean
@@ -18,7 +19,7 @@ namespace Lean
 Auxiliary type used to represent syntax categories. We mainly use auxiliary
 definitions with this type to attach doc strings to syntax categories.
 -/
-structure Parser.Category
+meta structure Parser.Category
 
 namespace Parser.Category
 
@@ -27,14 +28,14 @@ of a lean file. For example, `def foo := 1` is a `command`, as is
 `namespace Foo` and `end Foo`. Commands generally have an effect on the state of
 adding something to the environment (like a new definition), as well as
 commands like `variable` which modify future commands within a scope. -/
-def command : Category := {}
+meta def command : Category := {}
 
 /-- `term` is the builtin syntax category for terms. A term denotes an expression
 in lean's type theory, for example `2 + 2` is a term. The difference between
 `Term` and `Expr` is that the former is a kind of syntax, while the latter is
 the result of elaboration. For example `by simp` is also a `Term`, but it elaborates
 to different `Expr`s depending on the context. -/
-def term : Category := {}
+meta def term : Category := {}
 
 /-- `tactic` is the builtin syntax category for tactics. These appear after
 `by` in proofs, and they are programs that take in the proof context
@@ -44,28 +45,28 @@ a term of the expected type. For example, `simp` is a tactic, used in:
 example : 2 + 2 = 4 := by simp
 ```
 -/
-def tactic : Category := {}
+meta def tactic : Category := {}
 
 /-- `doElem` is a builtin syntax category for elements that can appear in the `do` notation.
 For example, `let x ← e` is a `doElem`, and a `do` block consists of a list of `doElem`s. -/
-def doElem : Category := {}
+meta def doElem : Category := {}
 
 /-- `structInstFieldDecl` is the syntax category for value declarations for fields in structure instance notation.
 For example, the `:= 1` and `| 0 => 0 | n + 1 => n` in `{ x := 1, f | 0 => 0 | n + 1 => n }` are in the `structInstFieldDecl` class. -/
-def structInstFieldDecl : Category := {}
+meta def structInstFieldDecl : Category := {}
 
 /-- `level` is a builtin syntax category for universe levels.
 This is the `u` in `Sort u`: it can contain `max` and `imax`, addition with
 constants, and variables. -/
-def level : Category := {}
+meta def level : Category := {}
 
 /-- `attr` is a builtin syntax category for attributes.
 Declarations can be annotated with attributes using the `@[...]` notation. -/
-def attr : Category := {}
+meta def attr : Category := {}
 
 /-- `stx` is a builtin syntax category for syntax. This is the abbreviated
 parser notation used inside `syntax` and `macro` declarations. -/
-def stx : Category := {}
+meta def stx : Category := {}
 
 /-- `prio` is a builtin syntax category for priorities.
 Priorities are used in many different attributes.
@@ -73,7 +74,7 @@ Higher numbers denote higher priority, and for example typeclass search will
 try high priority instances before low priority.
 In addition to literals like `37`, you can also use `low`, `mid`, `high`, as well as
 add and subtract priorities. -/
-def prio : Category := {}
+meta def prio : Category := {}
 
 /-- `prec` is a builtin syntax category for precedences. A precedence is a value
 that expresses how tightly a piece of syntax binds: for example `1 + 2 * 3` is
@@ -84,7 +85,7 @@ In addition to literals like `37`, there are some special named precedence level
 * `max` for the highest precedence used in term parsers (not actually the maximum possible value)
 * `lead` for the precedence of terms not supposed to be used as arguments
 and you can also add and subtract precedences. -/
-def prec : Category := {}
+meta def prec : Category := {}
 
 end Parser.Category
 
@@ -225,7 +226,7 @@ results. It has arity 1, and auto-groups its component parser if needed.
 -/
 macro:arg x:stx:max ",*"   : stx => `(stx| sepBy($x, ",", ", "))
 /--
-`p,+` is shorthand for `sepBy(p, ",")`. It parses 1 or more occurrences of
+`p,+` is shorthand for `sepBy1(p, ",")`. It parses 1 or more occurrences of
 `p` separated by `,`, that is: `p | p,p | p,p,p | ...`.
 
 It produces a `nullNode` containing a `SepArray` with the interleaved parser
@@ -548,7 +549,7 @@ macro_rules
       `($f $a)
 
 /--
-Haskell-like pipe operator `|>`. `x |> f` means the same as the same as `f x`,
+Haskell-like pipe operator `|>`. `x |> f` means the same as `f x`,
 and it chains such that `x |> f |> g` is interpreted as `g (f x)`.
 -/
 syntax:min term " |> " term:min1 : term
@@ -750,7 +751,24 @@ Message ordering for `#guard_msgs`:
 syntax guardMsgsOrdering := &"ordering" " := " guardMsgsOrderingArg
 
 set_option linter.missingDocs false in
-syntax guardMsgsSpecElt := guardMsgsFilter <|> guardMsgsWhitespace <|> guardMsgsOrdering
+syntax guardMsgsPositionsArg := &"true" <|> &"false"
+
+/--
+Position reporting for `#guard_msgs`:
+- `positions := true` will report the positions of messages with the line numbers computed
+  relative to the line of the `#guard_msgs` token, e.g.
+  ```
+  @ +3:7...+4:2
+  info: <message>
+  ```
+  Note that the reported column is absolute.
+- `positions := false` (the default) will not render positions.
+-/
+syntax guardMsgsPositions := &"positions" " := " guardMsgsPositionsArg
+
+set_option linter.missingDocs false in
+syntax guardMsgsSpecElt :=
+  guardMsgsFilter <|> guardMsgsWhitespace <|> guardMsgsOrdering <|> guardMsgsPositions
 
 set_option linter.missingDocs false in
 syntax guardMsgsSpec := "(" guardMsgsSpecElt,* ")"
@@ -762,7 +780,7 @@ and checks that they match the contents of the docstring.
 Basic example:
 ```lean
 /--
-error: unknown identifier 'x'
+error: Unknown identifier `x`
 -/
 #guard_msgs in
 example : α := x
@@ -794,7 +812,8 @@ In general, `#guard_msgs` accepts a comma-separated list of configuration clause
 ```
 #guard_msgs (configElt,*) in cmd
 ```
-By default, the configuration list is `(check all, whitespace := normalized, ordering := exact)`.
+By default, the configuration list is
+`(check all, whitespace := normalized, ordering := exact, positions := false)`.
 
 Message filters select messages by severity:
 - `info`, `warning`, `error`: (non-trace) messages with the given severity level.
@@ -820,6 +839,11 @@ Message ordering:
 - `ordering := sorted` sorts the messages in lexicographic order.
   This helps with testing commands that are non-deterministic in their ordering.
 
+Position reporting:
+- `positions := true` reports the ranges of all messages relative to the line on which
+  `#guard_msgs` appears.
+- `positions := false` does not report position info.
+
 For example, `#guard_msgs (error, drop all) in cmd` means to check warnings and drop
 everything else.
 
@@ -831,7 +855,7 @@ which would include `#guard_msgs` itself, and would cause duplicate and/or uncap
 The top-level command elaborator only runs the linters if `#guard_msgs` is not present.
 -/
 syntax (name := guardMsgsCmd)
-  (docComment)? "#guard_msgs" (ppSpace guardMsgsSpec)? " in" ppLine command : command
+  (plainDocComment)? "#guard_msgs" (ppSpace guardMsgsSpec)? " in" ppLine command : command
 
 /--
 Format and print the info trees for a given command.

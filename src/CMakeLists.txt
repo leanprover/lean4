@@ -10,7 +10,7 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
-set(LEAN_VERSION_MINOR 21)
+set(LEAN_VERSION_MINOR 25)
 set(LEAN_VERSION_PATCH 0)
 set(LEAN_VERSION_IS_RELEASE 0)  # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
@@ -58,9 +58,6 @@ option(USE_GITHASH        "GIT_HASH"           ON)
 option(INSTALL_LICENSE "INSTALL_LICENSE" ON)
 # When ON we install a copy of cadical
 option(INSTALL_CADICAL "Install a copy of cadical" ON)
-# When ON thread storage is automatically finalized, it assumes platform support pthreads.
-# This option is important when using Lean as library that is invoked from a different programming language (e.g., Haskell).
-option(AUTO_THREAD_FINALIZATION "AUTO_THREAD_FINALIZATION" ON)
 
 # FLAGS for disabling optimizations and debugging
 option(FREE_VAR_RANGE_OPT  "FREE_VAR_RANGE_OPT"   ON)
@@ -84,7 +81,7 @@ option(USE_MIMALLOC "use mimalloc" ON)
 
 # development-specific options
 option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" OFF)
-option(USE_LAKE "Use Lake instead of lean.mk for building core libs from language server" OFF)
+option(USE_LAKE "Use Lake instead of lean.mk for building core libs from language server" ON)
 
 set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
 set(LEANC_CC              ${CMAKE_C_COMPILER}          CACHE STRING "C compiler to use in `leanc`")
@@ -180,10 +177,6 @@ if(NOT MULTI_THREAD)
   set(AUTO_THREAD_FINALIZATION OFF)
 else()
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_MULTI_THREAD")
-endif()
-
-if(AUTO_THREAD_FINALIZATION AND NOT MSVC)
-  string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_AUTO_THREAD_FINALIZATION")
 endif()
 
 # Set Module Path
@@ -476,6 +469,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   string(APPEND CMAKE_CXX_FLAGS " -ftls-model=initial-exec")
   string(APPEND INIT_SHARED_LINKER_FLAGS " -install_name @rpath/libInit_shared.dylib")
   string(APPEND LEANSHARED_1_LINKER_FLAGS " -install_name @rpath/libleanshared_1.dylib")
+  string(APPEND LEANSHARED_2_LINKER_FLAGS " -install_name @rpath/libleanshared_2.dylib")
   string(APPEND LEANSHARED_LINKER_FLAGS " -install_name @rpath/libleanshared.dylib")
   string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -install_name @rpath/libLake_shared.dylib")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../lib/lean")
@@ -509,7 +503,7 @@ endif()
 # are already loaded) and probably fail unless we set up LD_LIBRARY_PATH.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   # import libraries created by the stdlib.make targets
-  string(APPEND LEANC_SHARED_LINKER_FLAGS " -lInit_shared -lleanshared_1 -lleanshared")
+  string(APPEND LEANC_SHARED_LINKER_FLAGS " -lInit_shared -lleanshared_2 -lleanshared_1 -lleanshared")
 elseif("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
   # The second flag is necessary to even *load* dylibs without resolved symbols, as can happen
   # if a Lake `extern_lib` depends on a symbols defined by the Lean library but is loaded even
@@ -540,11 +534,20 @@ else()
         OUTPUT_VARIABLE GIT_SHA1
         OUTPUT_STRIP_TRAILING_WHITESPACE)
     message(STATUS "stage0 sha1: ${GIT_SHA1}")
+    # Now that we've prepared the information for the next stage, we can forget that we will use
+    # Lake in the future as we won't use it in this stage
+    set(USE_LAKE OFF)
   else()
     set(GIT_SHA1 "")
   endif()
 endif()
 configure_file("${LEAN_SOURCE_DIR}/githash.h.in" "${LEAN_BINARY_DIR}/githash.h")
+
+if(USE_LAKE AND ${STAGE} EQUAL 0)
+  # Now that we've prepared the information for the next stage, we can forget that we will use
+  # Lake in the future as we won't use it in this stage
+  set(USE_LAKE OFF)
+endif()
 
 # Windows uses ";" as a path separator. We use `LEAN_PATH_SEPARATOR` on scripts such as lean.mk.in
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
@@ -587,7 +590,7 @@ endif()
 
 add_subdirectory(initialize)
 add_subdirectory(shell)
-# to be included in `leanshared` but not the smaller `leanshared_1` (as it would pull
+# to be included in `leanshared` but not the smaller `leanshared_*` (as it would pull
 # in the world)
 add_library(leaninitialize STATIC $<TARGET_OBJECTS:initialize>)
 set_target_properties(leaninitialize PROPERTIES
@@ -641,8 +644,6 @@ else()
   set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:library>)
   add_subdirectory(library/constructions)
   set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:constructions>)
-  add_subdirectory(library/compiler)
-  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:compiler>)
 
   # leancpp without `initialize` (see `leaninitialize` above)
   add_library(leancpp_1 STATIC ${LEAN_OBJS})
@@ -684,12 +685,17 @@ if (LLVM AND ${STAGE} GREATER 0)
   set(EXTRA_LEANMAKE_OPTS "LLVM=1")
 endif()
 
+set(STDLIBS Init Std Lean Leanc)
+if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+  list(APPEND STDLIBS Lake)
+endif()
+
 add_custom_target(make_stdlib ALL
   WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
   # The actual rule is in a separate makefile because we want to prefix it with '+' to use the Make job server
   # for a parallelized nested build, but CMake doesn't let us do that.
   # We use `lean` from the previous stage, but `leanc`, headers, etc. from the current stage
-  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Init Std Lean Leanc
+  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make ${STDLIBS}
   VERBATIM)
 
 # if we have LLVM enabled, then build `lean.h.bc` which has the LLVM bitcode
@@ -709,6 +715,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   )
   add_custom_target(leanshared ALL
     DEPENDS Init_shared leancpp
+    COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_2${CMAKE_SHARED_LIBRARY_SUFFIX}
     COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX}
     COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}
   )
@@ -729,18 +736,13 @@ else()
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanshared
     VERBATIM)
 
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " -lInit_shared -lleanshared_1 -lleanshared")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -lInit_shared -lleanshared_2 -lleanshared_1 -lleanshared")
 endif()
 
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  add_custom_target(lake_lib
-    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-    DEPENDS leanshared
-    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Lake
-    VERBATIM)
   add_custom_target(lake_shared
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-    DEPENDS lake_lib
+    DEPENDS leanshared
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make libLake_shared
     VERBATIM)
   add_custom_target(lake ALL
@@ -821,6 +823,12 @@ if(LEAN_INSTALL_PREFIX)
   set(CMAKE_INSTALL_PREFIX "${LEAN_INSTALL_PREFIX}/lean-${LEAN_VERSION_STRING}${LEAN_INSTALL_SUFFIX}")
 endif()
 
+if (STAGE GREATER 1)
+  # The build of stage2+ may depend on local changes made to src/ that are not reflected by the
+  # commit hash in stage1/bin/lean, so we make sure to disable the global cache
+  string(APPEND LEAN_EXTRA_LAKEFILE_TOML "\n\nenableArtifactCache = false")
+endif()
+
 # Escape for `make`. Yes, twice.
 string(REPLACE "$" "\\\$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
 configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
@@ -847,6 +855,10 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(LAKE_LIB_PREFIX "lib")
 endif()
 
-if(USE_LAKE AND STAGE EQUAL 1)
-  configure_file(${LEAN_SOURCE_DIR}/lakefile.toml.in ${LEAN_SOURCE_DIR}/lakefile.toml)
+if(USE_LAKE)
+  configure_file(${LEAN_SOURCE_DIR}/lakefile.toml.in ${CMAKE_BINARY_DIR}/lakefile.toml)
+  # copy for editing
+  if(STAGE EQUAL 1)
+    configure_file(${LEAN_SOURCE_DIR}/lakefile.toml.in ${LEAN_SOURCE_DIR}/lakefile.toml)
+  endif()
 endif()

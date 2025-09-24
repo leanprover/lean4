@@ -1,5 +1,4 @@
-set_option grind.warning false
-
+module
 example (a : Nat) : max a a = a := by
   grind
 

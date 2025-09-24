@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Data.Json
+public import Lean.Data.Json.FromToJson.Basic
+
+public section
 
 open Lean
 
@@ -44,5 +48,5 @@ structure ShowMessageRequestParams where
   actions? : Option (Array MessageActionItem)
   deriving FromJson, ToJson
 
-def ShowMessageResponse := Option MessageActionItem
+@[expose] def ShowMessageResponse := Option MessageActionItem
   deriving FromJson, ToJson

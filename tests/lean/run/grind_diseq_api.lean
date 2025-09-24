@@ -1,11 +1,12 @@
-import Lean
+module
+meta import Lean
 
 opaque a : Nat
 opaque b : Nat
 
 -- Prints the equivalence class containing a `f` application
 open Lean Meta Grind in
-def fallback : Fallback := do
+meta def fallback : Fallback := do
   let a ← shareCommon <| mkConst ``a
   let b ← shareCommon <| mkConst ``b
   let some h ← mkDiseqProof? a b |

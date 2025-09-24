@@ -6,10 +6,12 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Core
-import Init.Data.Int.Basic
-import Init.Data.ToString.Basic
-import Init.Data.Float
+public import Init.Core
+public import Init.Data.Int.Basic
+public import Init.Data.ToString.Basic
+public import Init.Data.Float
+
+public section
 
 -- Just show FloatSpec is inhabited.
 opaque float32Spec : FloatSpec := {

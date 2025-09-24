@@ -3,8 +3,12 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Meta.Offset
+public import Lean.Meta.Offset
+
+public section
 
 /-! Evaluation by reduction -/
 
@@ -21,13 +25,13 @@ private def throwFailedToEval (e : Expr) : MetaM α :=
   throwError "reduceEval: failed to evaluate argument{indentExpr e}"
 
 instance : ReduceEval Nat where
-  reduceEval e := do
+  reduceEval e := private do
     let e ← whnf e
     let some n ← evalNat e | throwFailedToEval e
     pure n
 
 instance [ReduceEval α] : ReduceEval (Option α) where
-  reduceEval e := do
+  reduceEval e := private do
     let e ← whnf e
     let Expr.const c .. ← pure e.getAppFn | throwFailedToEval e
     let nargs := e.getAppNumArgs
@@ -36,7 +40,7 @@ instance [ReduceEval α] : ReduceEval (Option α) where
     else throwFailedToEval e
 
 instance : ReduceEval String where
-  reduceEval e := do
+  reduceEval e := private do
     let Expr.lit (Literal.strVal s) ← whnf e | throwFailedToEval e
     pure s
 
@@ -57,6 +61,6 @@ private partial def evalName (e : Expr) : MetaM Name := do
     throwFailedToEval e
 
 instance : ReduceEval Name where
-  reduceEval := evalName
+  reduceEval := private evalName
 
 end Lean.Meta

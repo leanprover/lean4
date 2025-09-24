@@ -171,6 +171,9 @@ lean_obj_res lean_sockaddr_to_socketaddress(const struct sockaddr* sockaddr) {
 /* Std.Net.IPV4Addr.ofString (s : @&String) : Option IPV4Addr */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_pton_v4(b_obj_arg str_obj) {
     const char* str = string_cstr(str_obj);
+    if (strlen(str) != lean_string_size(str_obj) - 1) {
+       return mk_option_none();
+    }
     in_addr internal;
     if (uv_inet_pton(AF_INET, str, &internal) == 0) {
         return mk_option_some(lean_in_addr_to_ipv4_addr(&internal));
@@ -192,6 +195,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_ntop_v4(b_obj_arg ipv4_addr) {
 /* Std.Net.IPV6Addr.ofString (s : @&String) : Option IPV6Addr */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_pton_v6(b_obj_arg str_obj) {
     const char* str = string_cstr(str_obj);
+    if (strlen(str) != lean_string_size(str_obj) - 1) {
+       return mk_option_none();
+    }
     in6_addr internal;
     if (uv_inet_pton(AF_INET6, str, &internal) == 0) {
         return mk_option_some(lean_in6_addr_to_ipv6_addr(&internal));
@@ -216,7 +222,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_interface_addresses(obj_arg /* w */)
     int count;
 
     if (uv_interface_addresses(&info, &count) != 0) {
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get interface addresses")));
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to get interface addresses")));
     }
 
     lean_object *arr = lean_alloc_array(0, count);

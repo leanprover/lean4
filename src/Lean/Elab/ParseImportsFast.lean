@@ -1,10 +1,14 @@
 /-
 Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Sebastian Ullrich, Mac Malone
 -/
+module
+
 prelude
-import Lean.Parser.Module
+public import Lean.Parser.Module
+
+public section
 
 namespace Lean
 namespace ParseImports
@@ -12,17 +16,20 @@ namespace ParseImports
 structure State where
   imports       : Array Import := #[]
   pos           : String.Pos := 0
+  badModifier   : Bool := false
   error?        : Option String := none
   isModule      : Bool := false
   -- per-import fields to be consumed by `moduleIdent`
+  isMeta        : Bool := false
   isExported    : Bool := false
   importAll     : Bool := false
   deriving Inhabited
 
-def Parser := String → State → State
+@[expose] def Parser := String → State → State
 
-instance : Inhabited Parser where
-  default := fun _ s => s
+@[inline] def skip : Parser := fun _ s => s
+
+instance : Inhabited Parser := ⟨skip⟩
 
 @[inline] def State.setPos (s : State) (pos : String.Pos) : State :=
   { s with pos := pos }
@@ -32,6 +39,9 @@ instance : Inhabited Parser where
 
 def State.mkEOIError (s : State) : State :=
   s.mkError "unexpected end of input"
+
+@[inline] def State.clearError (s : State) : State :=
+  { s with error? := none, badModifier := false  }
 
 @[inline] def State.next (s : State) (input : String) (pos : String.Pos) : State :=
   { s with pos := input.next pos }
@@ -120,8 +130,8 @@ partial def whitespace : Parser := fun input s =>
         go (k.next' i h₁) (input.next' j h₂)
   go 0 s.pos
 
-@[inline] partial def keyword (k : String) : Parser :=
-  keywordCore k (fun _ s => s.mkError s!"`{k}` expected") (fun _ s => s)
+@[inline] def keyword (k : String) : Parser :=
+  keywordCore k (fun _ s => s.mkError s!"`{k}` expected") skip
 
 @[inline] def isIdCont : String → State → Bool := fun input s =>
   let i := s.pos
@@ -147,7 +157,9 @@ def State.pushImport (i : Import) (s : State) : State :=
 
 partial def moduleIdent : Parser := fun input s =>
   let finalize (module : Name) : Parser := fun input s =>
-    whitespace input (s.pushImport { module, importAll := s.importAll, isExported := s.isExported })
+    let imp := { module, isMeta := s.isMeta, importAll := s.importAll, isExported := s.isExported }
+    let s := whitespace input (s.pushImport imp)
+    {s with isMeta := false, importAll := false, isExported := !s.isModule}
   let rec parse (module : Name) (s : State) :=
     let i := s.pos
     if h : input.atEnd i then
@@ -182,48 +194,67 @@ partial def moduleIdent : Parser := fun input s =>
         s.mkError "expected identifier"
   parse .anonymous s
 
-@[specialize] partial def many (p : Parser) : Parser := fun input s =>
+@[inline] def atomic (p : Parser) : Parser := fun input s =>
   let pos := s.pos
-  let size := s.imports.size
   let s := p input s
-  match s.error? with
-  | none => many p input s
-  | some _ => { pos, error? := none, imports := s.imports.shrink size }
+  if s.error? matches some .. then {s with pos} else s
 
-def setIsExported (isExported : Bool) : Parser := fun _ s =>
-  { s with isExported := isExported }
+@[specialize] partial def manyImports (p : Parser) : Parser := fun input s =>
+  let pos := s.pos
+  let s := p input s
+  if s.error? matches some .. then
+    if s.pos == pos then s.clearError else s
+  else if s.badModifier then
+    let err := "cannot use 'public', 'meta', or 'all' without 'module'"
+    {s with pos, badModifier := false, error? := some err}
+  else
+    manyImports p input s
 
-def setImportAll (importAll : Bool) : Parser := fun _ s =>
-  { s with importAll }
+def setIsModule (isModule : Bool) : Parser := fun _ s =>
+  { s with isModule, isExported := !isModule }
+
+def setMeta : Parser := fun _ s =>
+  if s.isModule then
+    { s with isMeta := true }
+  else
+    { s with badModifier := true }
+
+def setExported : Parser := fun _ s =>
+  if s.isModule then
+    { s with isExported := true }
+  else
+    { s with badModifier := true }
+
+def setImportAll : Parser := fun _ s =>
+  if s.isModule then
+    { s with importAll := true }
+  else
+    { s with badModifier := true }
 
 def main : Parser :=
-  keywordCore "module" (fun _ s => { s with isModule := true }) (fun _ s => s) >>
-  keywordCore "prelude" (fun _ s => s.pushImport `Init) (fun _ s => s) >>
-  many (keywordCore "private" (setIsExported true) (setIsExported false) >>
-    keyword "import" >>
-    keywordCore "all" (setImportAll false) (setImportAll true) >>
+  keywordCore "module" (setIsModule false) (setIsModule true) >>
+  keywordCore "prelude" (fun _ s => s.pushImport `Init) skip >>
+  manyImports (atomic (keywordCore "public" skip setExported >>
+    keywordCore "meta" skip setMeta >>
+    keyword "import") >>
+    keywordCore "all" skip setImportAll >>
     moduleIdent)
 
 end ParseImports
 
-deriving instance ToJson for Import
-
-structure ParseImportsResult where
-  imports  : Array Import
-  isModule : Bool
-  deriving ToJson
-
 /--
 Simpler and faster version of `parseImports`. We use it to implement Lake.
 -/
-def parseImports' (input : String) (fileName : String) : IO ParseImportsResult := do
+def parseImports' (input : String) (fileName : String) : IO ModuleHeader := do
   let s := ParseImports.main input (ParseImports.whitespace input {})
-  match s.error? with
-  | none => return { s with }
-  | some err => throw <| IO.userError s!"{fileName}: {err}"
+  let some err := s.error?
+    | return { s with }
+  let fileMap := input.toFileMap
+  let pos := fileMap.toPosition s.pos
+  throw <| .userError s!"{fileName}:{pos.line}:{pos.column}: {err}"
 
 structure PrintImportResult where
-  result?  : Option ParseImportsResult := none
+  result?  : Option ModuleHeader := none
   errors   : Array String := #[]
   deriving ToJson
 
@@ -231,7 +262,6 @@ structure PrintImportsResult where
   imports : Array PrintImportResult
   deriving ToJson
 
-@[export lean_print_imports_json]
 def printImportsJson (fileNames : Array String) : IO Unit := do
   let rs ← fileNames.mapM fun fn => do
     try

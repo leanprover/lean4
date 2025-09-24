@@ -3,9 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Data.List.Nat.Basic
-import Std.Sat.CNF.Relabel
+public import Init.Data.List.Nat.Basic
+public import Init.Data.Nat.Order
+public import Std.Sat.CNF.Relabel
+
+@[expose] public section
 
 namespace Std
 namespace Sat
@@ -20,7 +25,7 @@ def Clause.maxLiteral (c : Clause Nat) : Option Nat := (c.map (·.1)) |>.max?
 theorem Clause.of_maxLiteral_eq_some (c : Clause Nat) (h : c.maxLiteral = some maxLit) :
     ∀ lit, Mem lit c → lit ≤ maxLit := by
   intro lit hlit
-  simp only [maxLiteral, List.max?_eq_some_iff', List.mem_map, forall_exists_index, and_imp,
+  simp only [maxLiteral, List.max?_eq_some_iff, List.mem_map, forall_exists_index, and_imp,
     forall_apply_eq_imp_iff₂] at h
   simp only [Mem] at hlit
   rcases h with ⟨_, hbar⟩
@@ -53,7 +58,7 @@ def maxLiteral (f : CNF Nat) : Option Nat :=
 theorem of_maxLiteral_eq_some' (f : CNF Nat) (h : f.maxLiteral = some maxLit) :
     ∀ clause, clause ∈ f → clause.maxLiteral = some localMax → localMax ≤ maxLit := by
   intro clause hclause1 hclause2
-  simp [maxLiteral, List.max?_eq_some_iff'] at h
+  simp [maxLiteral, List.max?_eq_some_iff] at h
   rcases h with ⟨_, hclause3⟩
   apply hclause3 localMax clause hclause1 hclause2
 

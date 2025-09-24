@@ -63,14 +63,14 @@ example : True := by
 Nothing to unfold
 -/
 /--
-error: tactic 'unfold' failed to unfold 'id' at
+error: Tactic `unfold` failed to unfold `id` in
   True
 -/
 #guard_msgs in
 example : True := by
   unfold id
 /--
-error: tactic 'unfold' failed to unfold 'x' at
+error: Tactic `unfold` failed to unfold `x` in
   True
 -/
 #guard_msgs in
@@ -98,10 +98,10 @@ example : let x := 1; let y := 2; x + y = y + x := by
 Error: not a local definition
 -/
 
-/-- error: tactic 'unfold' failed, local variable 'x' has no definition -/
+/-- error: Tactic `unfold` failed: Local variable `x` has no definition -/
 #guard_msgs in example (x : Nat) : x + 1 = 1 := by
   unfold x
 
-  /-- error: conv tactic 'unfold' failed, local variable 'x' has no definition -/
+/-- error: conv tactic `unfold` failed, local variable `x` has no definition -/
 #guard_msgs in example (x : Nat) : x + 1 = 1 := by
   conv => unfold x

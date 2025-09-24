@@ -4,11 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Init.Data.String
-import Lean.Data.Lsp.Basic
-import Lean.Data.Position
-import Lean.DeclarationRange
+public import Init.Data.String
+public import Lean.Data.Lsp.BasicAux
+public import Lean.Data.Position
+public import Lean.DeclarationRange
+
+public section
 
 /-! LSP uses UTF-16 for indexing, so we need to provide some primitives
 to interact with Lean strings using UTF-16 indices. -/
@@ -89,6 +93,10 @@ def utf8PosToLspPos (text : FileMap) (pos : String.Pos) : Lsp.Position :=
 /-- Gets the LSP range from a `String.Range`. -/
 def utf8RangeToLspRange (text : FileMap) (range : String.Range) : Lsp.Range :=
   { start := text.utf8PosToLspPos range.start, «end» := text.utf8PosToLspPos range.stop }
+
+/-- Gets the LSP range of syntax `stx`. -/
+def lspRangeOfStx? (text : FileMap) (stx : Syntax) (canonicalOnly := false) : Option Lsp.Range :=
+  text.utf8RangeToLspRange <$> stx.getRange? canonicalOnly
 
 def lspRangeToUtf8Range (text : FileMap) (range : Lsp.Range) : String.Range :=
   { start := text.lspPosToUtf8Pos range.start, stop := text.lspPosToUtf8Pos range.end }

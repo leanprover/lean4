@@ -13,8 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Raw_WF_0__Std_DTreeMap_Raw_WF_instCoeTypeForall(lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Raw_WF_0__Std_DTreeMap_Raw_WF_instCoeTypeForall(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_WF_instCoeTypeForall(lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_WF_instCoeTypeForall(lean_object* x_1) {
 _start:
 {
 return lean_box(0);

@@ -3,31 +3,35 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Conv
-import Lean.Meta.Tactic.Rewrite
-import Lean.Meta.Tactic.Split
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.Eqns
-import Lean.Elab.PreDefinition.FixedParams
+public import Lean.Elab.PreDefinition.Eqns
+public import Lean.Elab.PreDefinition.FixedParams
 import Lean.Meta.ArgsPacker.Basic
 import Init.Data.Array.Basic
 import Init.Internal.Order.Basic
+import Lean.Elab.Tactic.Conv
+import Lean.Meta.Tactic.Rewrite
+import Lean.Meta.Tactic.Split
 
 namespace Lean.Elab.PartialFixpoint
 open Meta
 open Eqns
 
-structure EqnInfo extends EqnInfoCore where
+public structure EqnInfo extends EqnInfoCore where
   declNames       : Array Name
   declNameNonRec  : Name
   fixedParamPerms : FixedParamPerms
   fixpointType    : Array PartialFixpointType
   deriving Inhabited
 
-builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
+public builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ←
+  mkMapDeclarationExtension (exportEntriesFn := fun env s _ =>
+    -- Do not export for non-exposed defs
+    s.filter (fun n _ => env.find? n |>.any (·.hasValue)) |>.toArray)
 
-def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name)
+public def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name)
     (fixedParamPerms : FixedParamPerms) (fixpointType : Array PartialFixpointType): MetaM Unit := do
   preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
   unless preDefs.all fun p => p.kind.isTheorem do
@@ -59,7 +63,7 @@ partial def rwFixUnder (lhs : Expr) : MetaM Expr := do
   else
     throwError "rwFixUnder: unexpected expression {lhs}"
 
-private def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let mut mvarId := mvarId
   let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | unreachable!
@@ -95,8 +99,9 @@ where
           trace[Elab.definition.partialFixpoint] "mkUnfoldEq rfl succeeded"
           instantiateMVars goal
         catch e =>
-          throwError "failed to generate unfold theorem for '{declName}':\n{e.toMessageData}"
+          throwError "failed to generate unfold theorem for `{.ofConstName declName}`:\n{e.toMessageData}"
       let type ← mkForallFVars xs type
+      let type ← letToHave type
       let value ← mkLambdaFVars xs goal
       addDecl <| Declaration.thmDecl {
         name, type, value

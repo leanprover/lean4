@@ -6,11 +6,14 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.List.Nat.Find
+public import Init.Data.List.Nat.Find
+public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
-import Init.Data.Array.Lemmas
-import Init.Data.Array.Attach
-import Init.Data.Array.Range
+public import Init.Data.Array.Lemmas
+public import Init.Data.Array.Attach
+public import Init.Data.Array.Range
+
+public section
 
 /-!
 # Lemmas about `Array.findSome?`, `Array.find?, `Array.findIdx`, `Array.findIdx?`, `Array.idxOf`.
@@ -24,11 +27,11 @@ open Nat
 
 /-! ### findSome? -/
 
-@[simp, grind] theorem findSome?_empty : (#[] : Array α).findSome? f = none := rfl
-@[simp, grind] theorem findSome?_push {xs : Array α} : (xs.push a).findSome? f = (xs.findSome? f).or (f a) := by
+@[simp, grind =] theorem findSome?_empty : (#[] : Array α).findSome? f = none := rfl
+@[simp, grind =] theorem findSome?_push {xs : Array α} : (xs.push a).findSome? f = (xs.findSome? f).or (f a) := by
   cases xs; simp [List.findSome?_append]
 
-@[grind]
+@[grind =]
 theorem findSome?_singleton {a : α} {f : α → Option β} : #[a].findSome? f = f a := by
   simp
 
@@ -38,11 +41,22 @@ theorem findSome?_singleton {a : α} {f : α → Option β} : #[a].findSome? f =
 @[simp] theorem findSomeRev?_push_of_isNone {xs : Array α} (h : (f a).isNone) : (xs.push a).findSomeRev? f = xs.findSomeRev? f := by
   cases xs; simp_all
 
+@[grind =]
+theorem findSomeRev?_push {xs : Array α} {a : α} {f : α → Option β} :
+    (xs.push a).findSomeRev? f = (f a).or (xs.findSomeRev? f) := by
+  match h : f a with
+  | some b =>
+    rw [findSomeRev?_push_of_isSome]
+    all_goals simp_all
+  | none =>
+    rw [findSomeRev?_push_of_isNone]
+    all_goals simp_all
+
 theorem exists_of_findSome?_eq_some {f : α → Option β} {xs : Array α} (w : xs.findSome? f = some b) :
     ∃ a, a ∈ xs ∧ f a = some b := by
   cases xs; simp_all [List.exists_of_findSome?_eq_some]
 
-@[simp] theorem findSome?_eq_none_iff : findSome? p xs = none ↔ ∀ x ∈ xs, p x = none := by
+@[simp, grind =] theorem findSome?_eq_none_iff : findSome? p xs = none ↔ ∀ x ∈ xs, p x = none := by
   cases xs; simp
 
 @[simp] theorem findSome?_isSome_iff {f : α → Option β} {xs : Array α} :
@@ -59,36 +73,39 @@ theorem findSome?_eq_some_iff {f : α → Option β} {xs : Array α} {b : β} :
   · rintro ⟨xs, a, ys, h₀, h₁, h₂⟩
     exact ⟨xs.toList, a, ys.toList, by simpa using congrArg toList h₀, h₁, by simpa⟩
 
-@[simp] theorem findSome?_guard {xs : Array α} : findSome? (Option.guard fun x => p x) xs = find? p xs := by
+@[simp, grind =] theorem findSome?_guard {xs : Array α} : findSome? (Option.guard p) xs = find? p xs := by
   cases xs; simp
 
-theorem find?_eq_findSome?_guard {xs : Array α} : find? p xs = findSome? (Option.guard fun x => p x) xs :=
+theorem find?_eq_findSome?_guard {xs : Array α} : find? p xs = findSome? (Option.guard p) xs :=
   findSome?_guard.symm
 
-@[simp] theorem getElem?_zero_filterMap {f : α → Option β} {xs : Array α} : (xs.filterMap f)[0]? = xs.findSome? f := by
+@[simp, grind =] theorem getElem?_zero_filterMap {f : α → Option β} {xs : Array α} : (xs.filterMap f)[0]? = xs.findSome? f := by
   cases xs; simp [← List.head?_eq_getElem?]
 
-@[simp] theorem getElem_zero_filterMap {f : α → Option β} {xs : Array α} (h) :
+@[simp, grind =] theorem getElem_zero_filterMap {f : α → Option β} {xs : Array α} (h) :
     (xs.filterMap f)[0] = (xs.findSome? f).get (by cases xs; simpa [List.length_filterMap_eq_countP] using h) := by
-  cases xs; simp [← List.head_eq_getElem, ← getElem?_zero_filterMap]
+  cases xs; simp [← getElem?_zero_filterMap]
 
-@[simp] theorem back?_filterMap {f : α → Option β} {xs : Array α} : (xs.filterMap f).back? = xs.findSomeRev? f := by
+@[simp, grind =] theorem back?_filterMap {f : α → Option β} {xs : Array α} : (xs.filterMap f).back? = xs.findSomeRev? f := by
   cases xs; simp
 
-@[simp] theorem back!_filterMap [Inhabited β] {f : α → Option β} {xs : Array α} :
+@[simp, grind =] theorem back!_filterMap [Inhabited β] {f : α → Option β} {xs : Array α} :
     (xs.filterMap f).back! = (xs.findSomeRev? f).getD default := by
   cases xs; simp
 
-@[simp] theorem map_findSome? {f : α → Option β} {g : β → γ} {xs : Array α} :
+@[simp, grind _=_] theorem map_findSome? {f : α → Option β} {g : β → γ} {xs : Array α} :
     (xs.findSome? f).map g = xs.findSome? (Option.map g ∘ f) := by
   cases xs; simp
 
+@[grind _=_]
 theorem findSome?_map {f : β → γ} {xs : Array β} : findSome? p (xs.map f) = xs.findSome? (p ∘ f) := by
   cases xs; simp [List.findSome?_map]
 
+@[grind =]
 theorem findSome?_append {xs ys : Array α} : (xs ++ ys).findSome? f = (xs.findSome? f).or (ys.findSome? f) := by
   cases xs; cases ys; simp [List.findSome?_append]
 
+@[grind =]
 theorem getElem?_zero_flatten (xss : Array (Array α)) :
     (flatten xss)[0]? = xss.findSome? fun xs => xs[0]? := by
   cases xss using array₂_induction
@@ -104,12 +121,14 @@ theorem getElem_zero_flatten.proof {xss : Array (Array α)} (h : 0 < xss.flatten
   obtain ⟨_, ⟨xs, m, rfl⟩, h⟩ := h
   exact ⟨xs, m, by simpa using h⟩
 
+@[grind =]
 theorem getElem_zero_flatten {xss : Array (Array α)} (h) :
     (flatten xss)[0] = (xss.findSome? fun xs => xs[0]?).get (getElem_zero_flatten.proof h) := by
   have t := getElem?_zero_flatten xss
-  simp [getElem?_eq_getElem, h] at t
+  simp at t
   simp [← t]
 
+@[grind =]
 theorem findSome?_replicate : findSome? f (replicate n a) = if n = 0 then none else f a := by
   simp [← List.toArray_replicate, List.findSome?_replicate]
 
@@ -140,8 +159,9 @@ abbrev findSome?_mkArray_of_isNone := @findSome?_replicate_of_isNone
 
 /-! ### find? -/
 
-@[simp] theorem find?_empty : find? p #[] = none := rfl
+@[simp, grind =] theorem find?_empty : find? p #[] = none := rfl
 
+@[grind =]
 theorem find?_singleton {a : α} {p : α → Bool} :
     #[a].find? p = if p a then some a else none := by
   simp
@@ -150,11 +170,26 @@ theorem find?_singleton {a : α} {p : α → Bool} :
     findRev? p (xs.push a) = some a := by
   cases xs; simp [h]
 
-@[simp] theorem findRev?_cons_of_neg {xs : Array α} (h : ¬p a) :
+@[simp] theorem findRev?_push_of_neg {xs : Array α} (h : ¬p a) :
     findRev? p (xs.push a) = findRev? p xs := by
   cases xs; simp [h]
 
-@[simp] theorem find?_eq_none : find? p xs = none ↔ ∀ x ∈ xs, ¬ p x := by
+@[deprecated findRev?_push_of_neg (since := "2025-06-12")]
+abbrev findRev?_cons_of_neg := @findRev?_push_of_neg
+
+@[grind =]
+theorem finRev?_push {xs : Array α} :
+    findRev? p (xs.push a) = (Option.guard p a).or (xs.findRev? p) := by
+  cases h : p a
+  · rw [findRev?_push_of_neg, Option.guard_eq_none_iff.mpr h]
+    all_goals simp [h]
+  · rw [findRev?_push_of_pos, Option.guard_eq_some_iff.mpr ⟨rfl, h⟩]
+    all_goals simp [h]
+
+@[deprecated finRev?_push (since := "2025-06-12")]
+abbrev findRev?_cons := @finRev?_push
+
+@[simp, grind =] theorem find?_eq_none : find? p xs = none ↔ ∀ x ∈ xs, ¬ p x := by
   cases xs; simp
 
 theorem find?_eq_some_iff_append {xs : Array α} :
@@ -178,14 +213,16 @@ theorem find?_push_eq_some {xs : Array α} :
     (xs.push a).find? p = some b ↔ xs.find? p = some b ∨ (xs.find? p = none ∧ (p a ∧ a = b)) := by
   cases xs; simp
 
-@[simp] theorem find?_isSome {xs : Array α} {p : α → Bool} : (xs.find? p).isSome ↔ ∃ x, x ∈ xs ∧ p x := by
+@[simp, grind =] theorem find?_isSome {xs : Array α} {p : α → Bool} : (xs.find? p).isSome ↔ ∃ x, x ∈ xs ∧ p x := by
   cases xs; simp
 
+@[grind →]
 theorem find?_some {xs : Array α} (h : find? p xs = some a) : p a := by
   cases xs
   simp at h
   exact List.find?_some h
 
+@[grind →]
 theorem mem_of_find?_eq_some {xs : Array α} (h : find? p xs = some a) : a ∈ xs := by
   cases xs
   simp at h
@@ -195,52 +232,51 @@ theorem get_find?_mem {xs : Array α} (h) : (xs.find? p).get h ∈ xs := by
   cases xs
   simp [List.get_find?_mem]
 
-@[simp] theorem find?_filter {xs : Array α} (p q : α → Bool) :
+grind_pattern get_find?_mem => (xs.find? p).get h
+
+@[simp, grind =] theorem find?_filter {xs : Array α} (p q : α → Bool) :
     (xs.filter p).find? q = xs.find? (fun a => p a ∧ q a) := by
   cases xs; simp
 
-@[simp] theorem getElem?_zero_filter {p : α → Bool} {xs : Array α} :
+@[simp, grind =] theorem getElem?_zero_filter {p : α → Bool} {xs : Array α} :
     (xs.filter p)[0]? = xs.find? p := by
   cases xs; simp [← List.head?_eq_getElem?]
 
-@[simp] theorem getElem_zero_filter {p : α → Bool} {xs : Array α} (h) :
+@[simp, grind =] theorem getElem_zero_filter {p : α → Bool} {xs : Array α} (h) :
     (xs.filter p)[0] =
       (xs.find? p).get (by cases xs; simpa [← List.countP_eq_length_filter] using h) := by
   cases xs
   simp [List.getElem_zero_eq_head]
 
-@[simp] theorem back?_filter {p : α → Bool} {xs : Array α} : (xs.filter p).back? = xs.findRev? p := by
+@[simp, grind =] theorem back?_filter {p : α → Bool} {xs : Array α} : (xs.filter p).back? = xs.findRev? p := by
   cases xs; simp
 
-@[simp] theorem back!_filter [Inhabited α] {p : α → Bool} {xs : Array α} :
+@[simp, grind =] theorem back!_filter [Inhabited α] {p : α → Bool} {xs : Array α} :
     (xs.filter p).back! = (xs.findRev? p).get! := by
   cases xs; simp [Option.get!_eq_getD]
 
-@[simp] theorem find?_filterMap {xs : Array α} {f : α → Option β} {p : β → Bool} :
+@[simp, grind =] theorem find?_filterMap {xs : Array α} {f : α → Option β} {p : β → Bool} :
     (xs.filterMap f).find? p = (xs.find? (fun a => (f a).any p)).bind f := by
   cases xs; simp
 
-@[simp] theorem find?_map {f : β → α} {xs : Array β} :
+@[simp, grind =] theorem find?_map {f : β → α} {xs : Array β} :
     find? p (xs.map f) = (xs.find? (p ∘ f)).map f := by
   cases xs; simp
 
-@[simp] theorem find?_append {xs ys : Array α} :
+@[simp, grind =] theorem find?_append {xs ys : Array α} :
     (xs ++ ys).find? p = (xs.find? p).or (ys.find? p) := by
   cases xs
   cases ys
   simp
 
-@[simp] theorem find?_flatten {xss : Array (Array α)} {p : α → Bool} :
-    xss.flatten.find? p = xss.findSome? (·.find? p) := by
+@[simp, grind _=_] theorem find?_flatten {xss : Array (Array α)} {p : α → Bool} :
+    xss.flatten.find? p = xss.findSome? (find? p) := by
   cases xss using array₂_induction
   simp [List.findSome?_map, Function.comp_def]
 
 theorem find?_flatten_eq_none_iff {xss : Array (Array α)} {p : α → Bool} :
     xss.flatten.find? p = none ↔ ∀ ys ∈ xss, ∀ x ∈ ys, !p x := by
   simp
-
-@[deprecated find?_flatten_eq_none_iff (since := "2025-02-03")]
-abbrev find?_flatten_eq_none := @find?_flatten_eq_none_iff
 
 /--
 If `find? p` returns `some a` from `xs.flatten`, then `p a` holds, and
@@ -267,27 +303,19 @@ theorem find?_flatten_eq_some_iff {xss : Array (Array α)} {p : α → Bool} {a 
       ⟨zs.toList, bs.toList.map Array.toList, by simpa using h⟩,
         by simpa using h₁, by simpa using h₂⟩
 
-@[deprecated find?_flatten_eq_some_iff (since := "2025-02-03")]
-abbrev find?_flatten_eq_some := @find?_flatten_eq_some_iff
-
-@[simp] theorem find?_flatMap {xs : Array α} {f : α → Array β} {p : β → Bool} :
+@[simp, grind =] theorem find?_flatMap {xs : Array α} {f : α → Array β} {p : β → Bool} :
     (xs.flatMap f).find? p = xs.findSome? (fun x => (f x).find? p) := by
   cases xs
-  simp [List.find?_flatMap, Array.flatMap_toArray]
+  simp [List.find?_flatMap]
 
 theorem find?_flatMap_eq_none_iff {xs : Array α} {f : α → Array β} {p : β → Bool} :
     (xs.flatMap f).find? p = none ↔ ∀ x ∈ xs, ∀ y ∈ f x, !p y := by
   simp
 
-@[deprecated find?_flatMap_eq_none_iff (since := "2025-02-03")]
-abbrev find?_flatMap_eq_none := @find?_flatMap_eq_none_iff
-
+@[grind =]
 theorem find?_replicate :
     find? p (replicate n a) = if n = 0 then none else if p a then some a else none := by
   simp [← List.toArray_replicate, List.find?_replicate]
-
-@[deprecated find?_replicate (since := "2025-03-18")]
-abbrev find?_mkArray := @find?_replicate
 
 @[simp] theorem find?_replicate_of_size_pos (h : 0 < n) :
     find? p (replicate n a) = if p a then some a else none := by
@@ -306,34 +334,20 @@ abbrev find?_mkArray_of_pos := @find?_replicate_of_pos
 @[simp] theorem find?_replicate_of_neg (h : ¬ p a) : find? p (replicate n a) = none := by
   simp [find?_replicate, h]
 
-@[deprecated find?_replicate_of_neg (since := "2025-03-18")]
-abbrev find?_mkArray_of_neg := @find?_replicate_of_neg
-
 -- This isn't a `@[simp]` lemma since there is already a lemma for `l.find? p = none` for any `l`.
 theorem find?_replicate_eq_none_iff {n : Nat} {a : α} {p : α → Bool} :
     (replicate n a).find? p = none ↔ n = 0 ∨ !p a := by
-  simp [← List.toArray_replicate, List.find?_replicate_eq_none_iff, Classical.or_iff_not_imp_left]
-
-@[deprecated find?_replicate_eq_none_iff (since := "2025-03-18")]
-abbrev find?_mkArray_eq_none_iff := @find?_replicate_eq_none_iff
+  simp [← List.toArray_replicate, Classical.or_iff_not_imp_left]
 
 @[simp] theorem find?_replicate_eq_some_iff {n : Nat} {a b : α} {p : α → Bool} :
     (replicate n a).find? p = some b ↔ n ≠ 0 ∧ p a ∧ a = b := by
   simp [← List.toArray_replicate]
 
-@[deprecated find?_replicate_eq_some_iff (since := "2025-03-18")]
-abbrev find?_mkArray_eq_some_iff := @find?_replicate_eq_some_iff
-
-@[deprecated find?_replicate_eq_some_iff (since := "2025-02-03")]
-abbrev find?_mkArray_eq_some := @find?_replicate_eq_some_iff
-
 @[simp] theorem get_find?_replicate {n : Nat} {a : α} {p : α → Bool} (h) :
     ((replicate n a).find? p).get h = a := by
   simp [← List.toArray_replicate]
 
-@[deprecated get_find?_replicate (since := "2025-03-18")]
-abbrev get_find?_mkArray := @get_find?_replicate
-
+@[grind =]
 theorem find?_pmap {P : α → Prop} {f : (a : α) → P a → β} {xs : Array α}
     (H : ∀ (a : α), a ∈ xs → P a) {p : β → Bool} :
     (xs.pmap f H).find? p = (xs.attach.find? (fun ⟨a, m⟩ => p (f a (H a m)))).map fun ⟨a, m⟩ => f a (H a m) := by
@@ -347,8 +361,10 @@ theorem find?_eq_some_iff_getElem {xs : Array α} {p : α → Bool} {b : α} :
 
 /-! ### findIdx -/
 
-theorem findIdx_empty : findIdx p #[] = 0 := rfl
+@[grind =]
+theorem findIdx_empty : findIdx p #[] = 0 := by simp
 
+@[grind =]
 theorem findIdx_singleton {a : α} {p : α → Bool} :
     #[a].findIdx p = if p a then 0 else 1 := by
   simp
@@ -360,6 +376,8 @@ theorem findIdx_of_getElem?_eq_some {xs : Array α} (w : xs[xs.findIdx p]? = som
 theorem findIdx_getElem {xs : Array α} {w : xs.findIdx p < xs.size} :
     p xs[xs.findIdx p] :=
   xs.findIdx_of_getElem?_eq_some (getElem?_eq_getElem w)
+
+grind_pattern findIdx_getElem => xs[xs.findIdx p]
 
 theorem findIdx_lt_size_of_exists {xs : Array α} (h : ∃ x ∈ xs, p x) :
     xs.findIdx p < xs.size := by
@@ -387,17 +405,23 @@ theorem findIdx_le_size {p : α → Bool} {xs : Array α} : xs.findIdx p ≤ xs.
   · simp at e
     exact Nat.le_of_eq (findIdx_eq_size.mpr e)
 
+grind_pattern findIdx_le_size => xs.findIdx p, xs.size
+
 @[simp]
 theorem findIdx_lt_size {p : α → Bool} {xs : Array α} :
     xs.findIdx p < xs.size ↔ ∃ x ∈ xs, p x := by
   rcases xs with ⟨xs⟩
   simp
 
+grind_pattern findIdx_lt_size => xs.findIdx p, xs.size
+
 /-- `p` does not hold for elements with indices less than `xs.findIdx p`. -/
 theorem not_of_lt_findIdx {p : α → Bool} {xs : Array α} {i : Nat} (h : i < xs.findIdx p) :
     p (xs[i]'(Nat.le_trans h findIdx_le_size)) = false := by
   rcases xs with ⟨xs⟩
   simpa using List.not_of_lt_findIdx (by simpa using h)
+
+grind_pattern not_of_lt_findIdx => xs.findIdx p, xs[i]
 
 /-- If `¬ p xs[j]` for all `j < i`, then `i ≤ xs.findIdx p`. -/
 theorem le_findIdx_of_not {p : α → Bool} {xs : Array α} {i : Nat} (h : i < xs.size)
@@ -426,6 +450,7 @@ theorem findIdx_eq {p : α → Bool} {xs : Array α} {i : Nat} (h : i < xs.size)
   simp at h3
   simp_all [not_of_lt_findIdx h3]
 
+@[grind =]
 theorem findIdx_append {p : α → Bool} {xs ys : Array α} :
     (xs ++ ys).findIdx p =
       if xs.findIdx p < xs.size then xs.findIdx p else ys.findIdx p + xs.size := by
@@ -433,12 +458,13 @@ theorem findIdx_append {p : α → Bool} {xs ys : Array α} :
   rcases ys with ⟨ys⟩
   simp [List.findIdx_append]
 
+@[grind =]
 theorem findIdx_push {xs : Array α} {a : α} {p : α → Bool} :
     (xs.push a).findIdx p = if xs.findIdx p < xs.size then xs.findIdx p else xs.size + if p a then 0 else 1 := by
   simp only [push_eq_append, findIdx_append]
   split <;> rename_i h
   · rfl
-  · simp [findIdx_singleton, Nat.add_comm]
+  · simp [Nat.add_comm]
 
 theorem findIdx_le_findIdx {xs : Array α} {p q : α → Bool} (h : ∀ x ∈ xs, p x → q x) : xs.findIdx q ≤ xs.findIdx p := by
   rcases xs with ⟨xs⟩
@@ -455,7 +481,7 @@ theorem false_of_mem_extract_findIdx {xs : Array α} {p : α → Bool} (h : x �
   rcases xs with ⟨xs⟩
   exact List.false_of_mem_take_findIdx (by simpa using h)
 
-@[simp] theorem findIdx_extract {xs : Array α} {i : Nat} {p : α → Bool} :
+@[simp, grind =] theorem findIdx_extract {xs : Array α} {i : Nat} {p : α → Bool} :
     (xs.extract 0 i).findIdx p = min i (xs.findIdx p) := by
   cases xs
   simp
@@ -467,24 +493,24 @@ theorem false_of_mem_extract_findIdx {xs : Array α} {p : α → Bool} (h : x �
 
 /-! ### findIdx? -/
 
-@[simp] theorem findIdx?_empty : (#[] : Array α).findIdx? p = none := by simp
-theorem findIdx?_singleton {a : α} {p : α → Bool} :
+@[simp, grind =] theorem findIdx?_empty : (#[] : Array α).findIdx? p = none := by simp
+@[grind =] theorem findIdx?_singleton {a : α} {p : α → Bool} :
     #[a].findIdx? p = if p a then some 0 else none := by
   simp
 
-@[simp]
+@[simp, grind =]
 theorem findIdx?_eq_none_iff {xs : Array α} {p : α → Bool} :
     xs.findIdx? p = none ↔ ∀ x, x ∈ xs → p x = false := by
   rcases xs with ⟨xs⟩
   simp
 
-@[simp]
+@[simp, grind =]
 theorem findIdx?_isSome {xs : Array α} {p : α → Bool} :
     (xs.findIdx? p).isSome = xs.any p := by
   rcases xs with ⟨xs⟩
   simp [List.findIdx?_isSome]
 
-@[simp]
+@[simp, grind =]
 theorem findIdx?_isNone {xs : Array α} {p : α → Bool} :
     (xs.findIdx? p).isNone = xs.all (¬p ·) := by
   rcases xs with ⟨xs⟩
@@ -503,7 +529,7 @@ theorem findIdx?_eq_some_of_exists {xs : Array α} {p : α → Bool} (h : ∃ x,
 theorem findIdx?_eq_none_iff_findIdx_eq {xs : Array α} {p : α → Bool} :
     xs.findIdx? p = none ↔ xs.findIdx p = xs.size := by
   rcases xs with ⟨xs⟩
-  simp [List.findIdx?_eq_none_iff_findIdx_eq]
+  simp
 
 theorem findIdx?_eq_guard_findIdx_lt {xs : Array α} {p : α → Bool} :
     xs.findIdx? p = Option.guard (fun i => i < xs.size) (xs.findIdx p) := by
@@ -526,18 +552,19 @@ theorem of_findIdx?_eq_none {xs : Array α} {p : α → Bool} (w : xs.findIdx? p
   rcases xs with ⟨xs⟩
   simpa using List.of_findIdx?_eq_none (by simpa using w)
 
-@[simp] theorem findIdx?_map {f : β → α} {xs : Array β} {p : α → Bool} :
+@[simp, grind =] theorem findIdx?_map {f : β → α} {xs : Array β} {p : α → Bool} :
     findIdx? p (xs.map f) = xs.findIdx? (p ∘ f) := by
   rcases xs with ⟨xs⟩
   simp [List.findIdx?_map]
 
-@[simp] theorem findIdx?_append :
+@[simp, grind =] theorem findIdx?_append :
     (xs ++ ys : Array α).findIdx? p =
       (xs.findIdx? p).or ((ys.findIdx? p).map fun i => i + xs.size) := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
   simp [List.findIdx?_append]
 
+@[grind =]
 theorem findIdx?_push {xs : Array α} {a : α} {p : α → Bool} :
     (xs.push a).findIdx? p = (xs.findIdx? p).or (if p a then some xs.size else none) := by
   simp only [push_eq_append, findIdx?_append]
@@ -553,7 +580,7 @@ theorem findIdx?_flatten {xss : Array (Array α)} {p : α → Bool} :
   cases xss using array₂_induction
   simp [List.findIdx?_flatten, Function.comp_def]
 
-@[simp] theorem findIdx?_replicate :
+@[simp, grind =] theorem findIdx?_replicate :
     (replicate n a).findIdx? p = if 0 < n ∧ p a then some 0 else none := by
   rw [← List.toArray_replicate]
   simp only [List.findIdx?_toArray]
@@ -578,6 +605,7 @@ theorem findIdx?_eq_none_of_findIdx?_eq_none {xs : Array α} {p q : α → Bool}
   rcases xs with ⟨xs⟩
   simpa using List.findIdx?_eq_none_of_findIdx?_eq_none (by simpa using w)
 
+@[grind =]
 theorem findIdx_eq_getD_findIdx? {xs : Array α} {p : α → Bool} :
     xs.findIdx p = (xs.findIdx? p).getD xs.size := by
   rcases xs with ⟨xs⟩
@@ -594,15 +622,17 @@ theorem findIdx?_eq_some_le_of_findIdx?_eq_some {xs : Array α} {p q : α → Bo
   cases xs
   simp [hf]
 
-@[simp] theorem findIdx?_take {xs : Array α} {i : Nat} {p : α → Bool} :
+@[simp, grind =] theorem findIdx?_take {xs : Array α} {i : Nat} {p : α → Bool} :
     (xs.take i).findIdx? p = (xs.findIdx? p).bind (Option.guard (fun j => j < i)) := by
   cases xs
   simp
 
 /-! ### findFinIdx? -/
 
+@[grind =]
 theorem findFinIdx?_empty {p : α → Bool} : findFinIdx? p #[] = none := by simp
 
+@[grind =]
 theorem findFinIdx?_singleton {a : α} {p : α → Bool} :
     #[a].findFinIdx? p = if p a then some ⟨0, by simp⟩ else none := by
   simp
@@ -620,7 +650,7 @@ theorem findFinIdx?_eq_pmap_findIdx? {xs : Array α} {p : α → Bool} :
         (fun i h => h) := by
   simp [findIdx?_eq_map_findFinIdx?_val, Option.pmap_map]
 
-@[simp] theorem findFinIdx?_eq_none_iff {xs : Array α} {p : α → Bool} :
+@[simp, grind =] theorem findFinIdx?_eq_none_iff {xs : Array α} {p : α → Bool} :
     xs.findFinIdx? p = none ↔ ∀ x, x ∈ xs → ¬ p x := by
   simp [findFinIdx?_eq_pmap_findIdx?]
 
@@ -636,12 +666,14 @@ theorem findFinIdx?_eq_some_iff {xs : Array α} {p : α → Bool} {i : Fin xs.si
   · rintro ⟨h, w⟩
     exact ⟨i, ⟨i.2, h, fun j hji => w ⟨j, by omega⟩ hji⟩, rfl⟩
 
+@[grind =]
 theorem findFinIdx?_push {xs : Array α} {a : α} {p : α → Bool} :
     (xs.push a).findFinIdx? p =
       ((xs.findFinIdx? p).map (Fin.castLE (by simp))).or (if p a then some ⟨xs.size, by simp⟩ else none) := by
   simp only [findFinIdx?_eq_pmap_findIdx?, findIdx?_push, Option.pmap_or]
   split <;> rename_i h _ <;> split <;> simp [h]
 
+@[grind =]
 theorem findFinIdx?_append {xs ys : Array α} {p : α → Bool} :
     (xs ++ ys).findFinIdx? p =
       ((xs.findFinIdx? p).map (Fin.castLE (by simp))).or
@@ -651,13 +683,13 @@ theorem findFinIdx?_append {xs ys : Array α} {p : α → Bool} :
   · simp [h, Option.pmap_map, Option.map_pmap, Nat.add_comm]
   · simp [h]
 
-@[simp]
+@[simp, grind =]
 theorem isSome_findFinIdx? {xs : Array α} {p : α → Bool} :
     (xs.findFinIdx? p).isSome = xs.any p := by
   rcases xs with ⟨xs⟩
   simp [Array.size]
 
-@[simp]
+@[simp, grind =]
 theorem isNone_findFinIdx? {xs : Array α} {p : α → Bool} :
     (xs.findFinIdx? p).isNone = xs.all (fun x => ¬ p x) := by
   rcases xs with ⟨xs⟩
@@ -669,7 +701,7 @@ theorem isNone_findFinIdx? {xs : Array α} {p : α → Bool} :
   cases xs
   simp only [List.findFinIdx?_toArray, hf, List.findFinIdx?_subtype]
   rw [findFinIdx?_congr List.unattach_toArray]
-  simp only [Option.map_map, Function.comp_def, Fin.cast_trans]
+  simp only [Option.map_map, Function.comp_def, Fin.cast_cast]
   simp [Array.size]
 
 /-! ### idxOf
@@ -678,6 +710,7 @@ The verification API for `idxOf` is still incomplete.
 The lemmas below should be made consistent with those for `findIdx` (and proved using them).
 -/
 
+@[grind =]
 theorem idxOf_append [BEq α] [LawfulBEq α] {xs ys : Array α} {a : α} :
     (xs ++ ys).idxOf a = if a ∈ xs then xs.idxOf a else ys.idxOf a + xs.size := by
   rw [idxOf, findIdx_append]
@@ -691,10 +724,23 @@ theorem idxOf_eq_size [BEq α] [LawfulBEq α] {xs : Array α} (h : a ∉ xs) : x
   rcases xs with ⟨xs⟩
   simp [List.idxOf_eq_length (by simpa using h)]
 
-theorem idxOf_lt_length [BEq α] [LawfulBEq α] {xs : Array α} (h : a ∈ xs) : xs.idxOf a < xs.size := by
+theorem idxOf_lt_length_of_mem [BEq α] [LawfulBEq α] {xs : Array α} (h : a ∈ xs) : xs.idxOf a < xs.size := by
   rcases xs with ⟨xs⟩
-  simp [List.idxOf_lt_length (by simpa using h)]
+  simp [List.idxOf_lt_length_of_mem (by simpa using h)]
 
+theorem idxOf_le_size [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
+    xs.idxOf a ≤ xs.size := by
+  rcases xs with ⟨xs⟩
+  simp [List.idxOf_le_length]
+
+grind_pattern idxOf_le_size => xs.idxOf a, xs.size
+
+theorem idxOf_lt_size_iff [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
+    xs.idxOf a < xs.size ↔ a ∈ xs := by
+  rcases xs with ⟨xs⟩
+  simp [List.idxOf_lt_length_iff]
+
+grind_pattern idxOf_lt_size_iff => xs.idxOf a, xs.size
 
 /-! ### idxOf?
 
@@ -702,19 +748,20 @@ The verification API for `idxOf?` is still incomplete.
 The lemmas below should be made consistent with those for `findIdx?` (and proved using them).
 -/
 
-theorem idxOf?_empty [BEq α] : (#[] : Array α).idxOf? a = none := by simp
+@[grind =] theorem idxOf?_empty [BEq α] : (#[] : Array α).idxOf? a = none := by simp
 
-@[simp] theorem idxOf?_eq_none_iff [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
+@[simp, grind =] theorem idxOf?_eq_none_iff [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
     xs.idxOf? a = none ↔ a ∉ xs := by
   rcases xs with ⟨xs⟩
   simp [List.idxOf?_eq_none_iff]
 
-@[simp]
+@[simp, grind =]
 theorem isSome_idxOf? [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
     (xs.idxOf? a).isSome ↔ a ∈ xs := by
   rcases xs with ⟨xs⟩
   simp
 
+@[grind =]
 theorem isNone_idxOf? [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
     (xs.idxOf? a).isNone = ¬ a ∈ xs := by
   simp
@@ -727,11 +774,11 @@ The lemmas below should be made consistent with those for `findFinIdx?` (and pro
 
 theorem idxOf?_eq_map_finIdxOf?_val [BEq α] {xs : Array α} {a : α} :
     xs.idxOf? a = (xs.finIdxOf? a).map (·.val) := by
-  simp [idxOf?, finIdxOf?, findIdx?_eq_map_findFinIdx?_val]
+  simp [idxOf?, finIdxOf?]
 
-theorem finIdxOf?_empty [BEq α] : (#[] : Array α).finIdxOf? a = none := by simp
+@[grind =] theorem finIdxOf?_empty [BEq α] : (#[] : Array α).finIdxOf? a = none := by simp
 
-@[simp] theorem finIdxOf?_eq_none_iff [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
+@[simp, grind =] theorem finIdxOf?_eq_none_iff [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
     xs.finIdxOf? a = none ↔ a ∉ xs := by
   rcases xs with ⟨xs⟩
   simp [List.finIdxOf?_eq_none_iff, Array.size]
@@ -742,14 +789,16 @@ theorem finIdxOf?_empty [BEq α] : (#[] : Array α).finIdxOf? a = none := by sim
   unfold Array.size at i ⊢
   simp [List.finIdxOf?_eq_some_iff]
 
-@[simp]
-theorem isSome_finIdxOf? [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
-    (xs.finIdxOf? a).isSome ↔ a ∈ xs := by
+@[simp, grind =]
+theorem isSome_finIdxOf? [BEq α] [PartialEquivBEq α] {xs : Array α} {a : α} :
+    (xs.finIdxOf? a).isSome = xs.contains a := by
   rcases xs with ⟨xs⟩
   simp [Array.size]
 
-theorem isNone_finIdxOf? [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
-    (xs.finIdxOf? a).isNone = ¬ a ∈ xs := by
-  simp
+@[simp, grind =]
+theorem isNone_finIdxOf? [BEq α] [PartialEquivBEq α] {xs : Array α} {a : α} :
+    (xs.finIdxOf? a).isNone = !xs.contains a := by
+  rcases xs with ⟨xs⟩
+  simp [Array.size]
 
 end Array

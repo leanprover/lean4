@@ -4,12 +4,17 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Language.Lean.Types
-import Lean.Server.Utils
-import Lean.Server.Snapshots
-import Lean.Server.AsyncList
-import Lean.Server.Rpc.Basic
+public import Lean.Language.Lean.Types
+public import Lean.Server.Utils
+public import Lean.Server.Snapshots
+public import Lean.Server.AsyncList
+public import Lean.Server.Rpc.Basic
+import Init.Data.ByteArray.Extra
+
+public section
 
 namespace Lean.Server.FileWorker
 open Snapshots
@@ -28,7 +33,7 @@ private partial def mkCmdSnaps (initSnap : Language.Lean.InitialSnapshot) :
     } <| .delayed <| headerSuccess.firstCmdSnap.task.asServerTask.bindCheap go
 where
   go cmdParsed :=
-    cmdParsed.resultSnap.task.asServerTask.mapCheap fun result =>
+    cmdParsed.elabSnap.resultSnap.task.asServerTask.mapCheap fun result =>
       .ok <| .cons {
         stx := cmdParsed.stx
         mpState := cmdParsed.parserState
@@ -47,7 +52,7 @@ structure EditableDocumentCore where
   /-- Initial processing snapshot. -/
   initSnap : Language.Lean.InitialSnapshot
   /-- Old representation for backward compatibility. -/
-  cmdSnaps : AsyncList IO.Error Snapshot := mkCmdSnaps initSnap
+  cmdSnaps : AsyncList IO.Error Snapshot := private_decl% mkCmdSnaps initSnap
   /--
   Interactive versions of diagnostics reported so far. Filled by `reportSnapshots` and read by
   `handleGetInteractiveDiagnosticsRequest`.

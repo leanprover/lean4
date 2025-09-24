@@ -3,8 +3,12 @@ Copyright (c) 2022 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Kim Morrison
 -/
+module
+
 prelude
-import Lean.Meta.Basic
+public import Lean.Meta.Basic
+
+public section
 
 namespace Lean.Meta
 /--
@@ -59,7 +63,7 @@ Fails if `f` does not succeed at least once.
 -/
 def repeat1' [Monad m] [MonadError m] [MonadExcept ε m] [MonadBacktrack s m] [MonadMCtx m]
     (f : MVarId → m (List MVarId)) (goals : List MVarId) (maxIters := 100000) : m (List MVarId) := do
-  let (.true, goals) ← repeat'Core f goals maxIters | throwError "repeat1' made no progress"
+  let (.true, goals) ← repeat'Core f goals maxIters | throwError "`repeat1'` made no progress"
   pure goals
 
 end Lean.Meta

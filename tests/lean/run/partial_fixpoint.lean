@@ -13,12 +13,12 @@ partial_fixpoint
 
 /--
 info: equations:
-theorem loop.eq_1 : ∀ (x : Nat), loop x = loop (x + 1)
+@[defeq] theorem loop.eq_1 : ∀ (x : Nat), loop x = loop (x + 1)
 -/
 #guard_msgs in
 #print equations loop
 
-/-- error: unknown constant 'loop.induct' -/
+/-- error: Unknown constant `loop.induct` -/
 #guard_msgs in
 #check loop.induct
 

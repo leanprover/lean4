@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.Iterators.Combinators.Monadic.Zip
-import Std.Data.Iterators.Lemmas.Consumers.Monadic
+public import Std.Data.Iterators.Combinators.Monadic.Zip
+public import Init.Data.Iterators.Lemmas.Consumers.Monadic
+
+@[expose] public section
 
 namespace Std.Iterators
 
@@ -57,7 +61,7 @@ theorem IterM.step_intermediateZip [Monad m] [Iterator α₁ m β₁] [Iterator 
             (.skipRight rfl hp)
         | .done hp =>
           pure <| .done (.doneRight rfl hp)) := by
-  simp only [Intermediate.zip, step, Iterator.step, internalState_toIterM]
+  simp only [Intermediate.zip, step, Iterator.step]
   split
   · apply bind_congr
     intro step

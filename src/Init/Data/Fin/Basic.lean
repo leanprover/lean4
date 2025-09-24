@@ -6,7 +6,9 @@ Author: Leonardo de Moura, Robert Y. Lewis, Keeley Hoek, Mario Carneiro
 module
 
 prelude
-import Init.Data.Nat.Bitwise.Basic
+public import Init.Data.Nat.Bitwise.Basic
+
+public section
 
 @[expose] section
 
@@ -48,6 +50,11 @@ The assumption `NeZero n` ensures that `Fin n` is nonempty.
 -/
 @[expose] protected def ofNat (n : Nat) [NeZero n] (a : Nat) : Fin n :=
   ⟨a % n, Nat.mod_lt _ (pos_of_neZero n)⟩
+
+@[simp]
+theorem Internal.ofNat_eq_ofNat {n : Nat} {hn} {a : Nat} :
+  letI : NeZero n := ⟨Nat.pos_iff_ne_zero.1 hn⟩
+  Fin.Internal.ofNat n hn a = Fin.ofNat n a := rfl
 
 @[deprecated Fin.ofNat (since := "2025-05-28")]
 protected def ofNat' (n : Nat) [NeZero n] (a : Nat) : Fin n :=
@@ -219,7 +226,7 @@ instance : AndOp (Fin n) where
   and := Fin.land
 instance : OrOp (Fin n) where
   or := Fin.lor
-instance : Xor (Fin n) where
+instance : XorOp (Fin n) where
   xor := Fin.xor
 instance : ShiftLeft (Fin n) where
   shiftLeft := Fin.shiftLeft

@@ -6,9 +6,12 @@ Authors: Markus Himmel
 module
 
 prelude
+public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
-import Init.Data.Array.Lemmas
-import Init.Data.List.Nat.TakeDrop
+public import Init.Data.Array.Lemmas
+public import Init.Data.List.Nat.TakeDrop
+
+public section
 
 /-!
 These lemmas are used in the internals of HashMap.

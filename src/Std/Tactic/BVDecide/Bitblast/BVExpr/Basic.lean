@@ -3,11 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.Hashable
-import Init.Data.BitVec
-import Init.Data.RArray
-import Std.Tactic.BVDecide.Bitblast.BoolExpr.Basic
+public import Init.Data.Hashable
+public import Init.Data.BitVec.Lemmas
+public import Init.Data.RArray
+public import Std.Tactic.BVDecide.Bitblast.BoolExpr.Basic
+
+@[expose] public section
 
 /-!
 This module contains the definition of the `BitVec` fragment that `bv_decide` internally operates
@@ -139,6 +143,10 @@ inductive BVUnOp where
   Reverse the bits in a bitvector.
   -/
   | reverse
+  /--
+  Count leading zeros.
+  -/
+  | clz
   deriving Hashable, DecidableEq
 
 namespace BVUnOp
@@ -149,6 +157,7 @@ def toString : BVUnOp → String
   | rotateRight n => s!"rotR {n}"
   | arithShiftRightConst n => s!">>a {n}"
   | reverse => "rev"
+  | clz => "clz"
 
 instance : ToString BVUnOp := ⟨toString⟩
 
@@ -161,6 +170,7 @@ def eval : BVUnOp → (BitVec w → BitVec w)
   | rotateRight n => (BitVec.rotateRight · n)
   | arithShiftRightConst n => (BitVec.sshiftRight · n)
   | reverse =>  BitVec.reverse
+  | clz => BitVec.clz
 
 @[simp] theorem eval_not : eval .not = ((~~~ ·) : BitVec w → BitVec w) := by rfl
 
@@ -177,6 +187,8 @@ theorem eval_arithShiftRightConst : eval (arithShiftRightConst n) = (BitVec.sshi
   rfl
 
 @[simp] theorem eval_reverse : eval .reverse = (BitVec.reverse : BitVec w → BitVec w) := by rfl
+
+@[simp] theorem eval_clz : eval .clz = (BitVec.clz : BitVec w → BitVec w) := by rfl
 
 end BVUnOp
 
@@ -426,7 +438,7 @@ def eval (assign : Assignment) : BVExpr w → BitVec w
 theorem eval_var : eval assign ((.var idx) : BVExpr w) = (assign.get idx).bv.truncate w := by
   rw [eval]
   split
-  · next h =>
+  next h =>
     subst h
     simp
   · rfl

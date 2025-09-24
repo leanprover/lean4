@@ -3,10 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
+public import Lean.ScopedEnvExtension
 import Lean.Compiler.InitAttr
-import Lean.ScopedEnvExtension
 import Lean.Compiler.IR.CompilerM
+
+public section
 
 /-!
 A builder for attributes that are applied to declarations of a common type and
@@ -36,13 +40,13 @@ structure Def (γ : Type) where
   descr         : String
   valueTypeName : Name
   /-- Convert `Syntax` into a `Key`, the default implementation expects an identifier. -/
-  evalKey (builtin : Bool) (stx : Syntax) : AttrM Key := do
+  evalKey (builtin : Bool) (stx : Syntax) : AttrM Key := private_decl% (do
     let stx ← Attribute.Builtin.getIdent stx
     let kind := stx.getId
     if (← getEnv).contains kind && (← Elab.getInfoState).enabled then
       Elab.addConstInfo stx kind none
-    pure kind
-  onAdded (builtin : Bool) (declName : Name) : AttrM Unit := pure ()
+    pure kind)
+  onAdded (builtin : Bool) (declName : Name) (key : Key) : AttrM Unit := pure ()
   deriving Inhabited
 
 structure OLeanEntry where
@@ -101,7 +105,7 @@ def mkStateOfTable (table : Table γ) : ExtensionState γ := {
 
 def ExtensionState.erase (s : ExtensionState γ) (attrName : Name) (declName : Name) : CoreM (ExtensionState γ) := do
   unless s.declNames.contains declName do
-    throwError "'{declName}' does not have [{attrName}] attribute"
+    throwError "Cannot erase attribute `{attrName}`: `{.ofConstName declName}` does not have this attribute"
   return { s with erased := s.erased.insert declName, declNames := s.declNames.erase declName }
 
 protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name := by exact decl_name%) : IO (KeyedDeclsAttribute γ) := do
@@ -123,18 +127,20 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name := by exact de
       name  := df.builtinName
       descr := "(builtin) " ++ df.descr
       add   := fun declName stx kind => do
-        unless kind == AttributeKind.global do throwError "invalid attribute '{df.builtinName}', must be global"
+        unless kind == AttributeKind.global do throwAttrMustBeGlobal df.builtinName kind
         let key ← df.evalKey true stx
         let decl ← getConstInfo declName
+        let throwUnexpectedType :=
+          throwAttrDeclNotOfExpectedType df.builtinName declName decl.type (mkConst df.valueTypeName)
         match decl.type with
         | Expr.const c _ =>
-          if c != df.valueTypeName then throwError "unexpected type at '{declName}', '{df.valueTypeName}' expected"
+          if c != df.valueTypeName then throwUnexpectedType
           else
             /- builtin_initialize @addBuiltin $(mkConst valueTypeName) $(mkConst attrDeclName) $(key) $(declName) $(mkConst declName) -/
             let val := mkAppN (mkConst ``addBuiltin) #[mkConst df.valueTypeName, mkConst attrDeclName, toExpr key, toExpr declName, mkConst declName]
             declareBuiltin declName val
-            df.onAdded true declName
-        | _ => throwError "unexpected type at '{declName}', '{df.valueTypeName}' expected"
+            df.onAdded true declName key
+        | _ => throwUnexpectedType
       applicationTime := AttributeApplicationTime.afterCompilation
     }
   registerBuiltinAttribute {
@@ -146,12 +152,13 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name := by exact de
       let s ← s.erase df.name declName
       modifyEnv fun env => ext.modifyState env fun _ => s
     add             := fun declName stx attrKind => do
+      ensureAttrDeclIsMeta attrDeclName declName attrKind
       let key ← df.evalKey false stx
       match IR.getSorryDep (← getEnv) declName with
       | none =>
         let val ← evalConstCheck γ df.valueTypeName declName
         ext.add { key := key, declName := declName, value := val } attrKind
-        df.onAdded false declName
+        df.onAdded false declName key
       | _ =>
         -- If the declaration contains `sorry`, we skip `evalConstCheck` to avoid unnecessary bizarre error message
         pure ()

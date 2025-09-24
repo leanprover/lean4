@@ -3,11 +3,18 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.KeyedDeclsAttribute
-import Lean.PrettyPrinter.Delaborator.Options
-import Lean.PrettyPrinter.Delaborator.SubExpr
-import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
+public import Lean.KeyedDeclsAttribute
+public import Lean.PrettyPrinter.Delaborator.Options
+public import Lean.PrettyPrinter.Delaborator.SubExpr
+public import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
+import Lean.Elab.InfoTree.Main
+meta import Init.Data.String.Basic
+meta import Init.Data.ToString.Name
+
+public section
 
 /-!
 The delaborator is the first stage of the pretty printer, and the inverse of the
@@ -91,26 +98,21 @@ instance (priority := low) : MonadStateOf SubExpr.HoleIterator DelabM where
     let (ret, holeIter') := f s.holeIter
     (ret, { s with holeIter := holeIter' })
 
--- Macro scopes in the delaborator output are ultimately ignored by the pretty printer,
--- so give a trivial implementation.
-instance : MonadQuotation DelabM := {
-  getCurrMacroScope   := pure default
-  getMainModule       := pure default
-  withFreshMacroScope := fun x => x
-}
+/--
+Registers a delaborator.
 
-unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
+`@[delab k]` registers a declaration of type `Lean.PrettyPrinter.Delaborator.Delab` for the
+`Lean.Expr` constructor `k`. Multiple delaborators for a single constructor are tried in turn until
+the first success. If the term to be delaborated is an application of a constant `c`, elaborators
+for `app.c` are tried first; this is also done for `Expr.const`s ("nullary applications") to reduce
+special casing. If the term is an `Expr.mdata` with a single key `k`, `mdata.k` is tried first.
+-/
+@[builtin_doc]
+unsafe builtin_initialize delabAttribute : KeyedDeclsAttribute Delab ←
   KeyedDeclsAttribute.init {
     builtinName := `builtin_delab,
     name := `delab,
-    descr    := "Register a delaborator.
-
-  [delab k] registers a declaration of type `Lean.PrettyPrinter.Delaborator.Delab` for the `Lean.Expr`
-  constructor `k`. Multiple delaborators for a single constructor are tried in turn until
-  the first success. If the term to be delaborated is an application of a constant `c`,
-  elaborators for `app.c` are tried first; this is also done for `Expr.const`s (\"nullary applications\")
-  to reduce special casing. If the term is an `Expr.mdata` with a single key `k`, `mdata.k`
-  is tried first.",
+    descr    := "Register a delaborator",
     valueTypeName := `Lean.PrettyPrinter.Delaborator.Delab
     evalKey := fun _ stx => do
       let stx ← Attribute.Builtin.getIdent stx
@@ -120,8 +122,7 @@ unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
         if (← getEnv).contains c then
           Elab.addConstInfo stx c none
       pure kind
-  } `Lean.PrettyPrinter.Delaborator.delabAttribute
-@[builtin_init mkDelabAttribute] opaque delabAttribute : KeyedDeclsAttribute Delab
+  }
 
 /--
 `@[app_delab c]` registers a delaborator for applications with head constant `c`.
@@ -134,9 +135,9 @@ as `@[app_delab c]` first performs name resolution on `c` in the current scope.
 -/
 macro "app_delab" id:ident : attr => do
   match ← Macro.resolveGlobalName id.getId with
-  | [] => Macro.throwErrorAt id s!"unknown declaration '{id.getId}'"
+  | [] => Macro.throwErrorAt id s!"unknown declaration `{id.getId}`"
   | [(c, [])] => `(attr| delab $(mkIdentFrom (canonical := true) id (`app ++ c)))
-  | _ => Macro.throwErrorAt id s!"ambiguous declaration '{id.getId}'"
+  | _ => Macro.throwErrorAt id s!"ambiguous declaration `{id.getId}`"
 
 def getExprKind : DelabM Name := do
   let e ← getExpr
@@ -163,7 +164,7 @@ def getExprKind : DelabM Name := do
 def getOptionsAtCurrPos : DelabM Options := do
   let ctx ← read
   let mut opts ← getOptions
-  if let some opts' := ctx.optionsPerPos.find? (← getPos) then
+  if let some opts' := ctx.optionsPerPos.get? (← getPos) then
     for (k, v) in opts' do
       opts := opts.insert k v
   return opts
@@ -185,7 +186,7 @@ def withOptionAtCurrPos (k : Name) (v : DataValue) (x : DelabM α) : DelabM α :
   let pos ← getPos
   withReader
     (fun ctx =>
-      let opts' := ctx.optionsPerPos.find? pos |>.getD {} |>.insert k v
+      let opts' := ctx.optionsPerPos.get? pos |>.getD {} |>.insert k v
       { ctx with optionsPerPos := ctx.optionsPerPos.insert pos opts' })
     x
 
@@ -268,12 +269,13 @@ def withAnnotateTermInfoUnlessAnnotated (d : Delab) : Delab := do
 Gets an name based on `suggestion` that is unused in the local context.
 Erases macro scopes.
 If `pp.safeShadowing` is true, then the name is allowed to shadow a name in the local context
-if the name does not appear in `body`.
+if the name does not appear in `body` or in the `avoid` set.
+(The `avoid` set is assumed to be a subset of the names used by the local context.)
 
 If `preserveName` is false, then returns the name, possibly with fresh macro scopes added.
 If `suggestion` has macro scopes then the result does as well.
 -/
-def getUnusedName (suggestion : Name) (body : Expr) (preserveName : Bool := false) : DelabM Name := do
+def getUnusedName (suggestion : Name) (body : Expr) (preserveName : Bool := false) (avoid : NameSet := {}) : DelabM Name := do
   let (hasScopes, suggestion) :=
     if suggestion.isAnonymous then
       -- Use a nicer binder name than `[anonymous]`. We probably shouldn't do this in all LocalContext use cases, so do it here.
@@ -285,7 +287,7 @@ def getUnusedName (suggestion : Name) (body : Expr) (preserveName : Bool := fals
     return suggestion
   else if preserveName then
     withFreshMacroScope <| MonadQuotation.addMacroScope suggestion
-  else if (← getPPOption getPPSafeShadowing) && !bodyUsesSuggestion lctx suggestion then
+  else if (← getPPOption getPPSafeShadowing) && !avoid.contains suggestion && !bodyUsesSuggestion lctx suggestion then
     return suggestion
   else
     return lctx.getUnusedName suggestion
@@ -312,11 +314,15 @@ Enters the body of the current expression, which must be a lambda or forall.
 The binding variable is passed to `d` as `Syntax`, and it is an identifier that has been annotated with the fvar expression
 for the variable.
 
+If `pp.safeShadowing` is true, then the name is allowed to shadow a name in the local context
+if the name does not appear in the body or in the `avoid` set.
+(The `avoid` set is assumed to be a subset of the names used by the local context.)
+
 If `preserveName` is `false` (the default), gives the binder an unused name.
 Otherwise, it tries to preserve the textual form of the name, preserving whether it is hygienic.
 -/
-def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) (preserveName := false) : DelabM α := do
-  let n ← getUnusedName (← getExpr).bindingName! (← getExpr).bindingBody! (preserveName := preserveName)
+def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) (preserveName := false) (avoid : NameSet := {}) : DelabM α := do
+  let n ← getUnusedName (← getExpr).bindingName! (← getExpr).bindingBody! (preserveName := preserveName) (avoid := avoid)
   withBindingBody' n (mkAnnotatedIdent n) (d ·)
 
 inductive OmissionReason
@@ -438,26 +444,34 @@ partial def delab : Delab := do
       return pf
 
   let k ← getExprKind
-  let stx ← withIncDepth <| delabFor k <|> (liftM $ show MetaM _ from throwError "don't know how to delaborate '{k}'")
+  let stx ← withIncDepth <| delabFor k <|> (liftM $ show MetaM _ from throwError "don't know how to delaborate `{k}`")
   if ← getPPOption getPPAnalyzeTypeAscriptions <&&> getPPOption getPPAnalysisNeedsType <&&> pure !e.isMData then
     let typeStx ← withType delab
     `(($stx : $typeStx)) >>= annotateCurPos
   else
     return stx
 
-unsafe def mkAppUnexpanderAttribute : IO (KeyedDeclsAttribute Unexpander) :=
+/--
+Registers an unexpander for applications of a given constant.
+
+`@[app_unexpander c]` registers a `Lean.PrettyPrinter.Unexpander` for applications of the constant
+`c`. The unexpander is passed the result of pre-pretty printing the application *without*
+implicitly passed arguments. If `pp.explicit` is set to true or `pp.notation` is set to false,
+it will not be called at all.
+
+Unexpanders work as an alternative for delaborators (`@[app_delab]`) that can be used without
+special imports. This however also makes them much less capable since they can only transform
+syntax and don't have access to the expression tree.
+-/
+@[builtin_doc]
+unsafe builtin_initialize appUnexpanderAttribute : KeyedDeclsAttribute Unexpander ←
   KeyedDeclsAttribute.init {
     name  := `app_unexpander,
-    descr := "Register an unexpander for applications of a given constant.
-
-[app_unexpander c] registers a `Lean.PrettyPrinter.Unexpander` for applications of the constant `c`. The unexpander is
-passed the result of pre-pretty printing the application *without* implicitly passed arguments. If `pp.explicit` is set
-to true or `pp.notation` is set to false, it will not be called at all.",
+    descr := "Register an unexpander for applications of a given constant.",
     valueTypeName := `Lean.PrettyPrinter.Unexpander
     evalKey := fun _ stx => do
       Elab.realizeGlobalConstNoOverloadWithInfo (← Attribute.Builtin.getIdent stx)
-  } `Lean.PrettyPrinter.Delaborator.appUnexpanderAttribute
-@[builtin_init mkAppUnexpanderAttribute] opaque appUnexpanderAttribute : KeyedDeclsAttribute Unexpander
+  }
 
 end Delaborator
 

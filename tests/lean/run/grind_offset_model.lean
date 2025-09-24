@@ -1,3 +1,4 @@
+module
 def g (i : Nat) (j : Nat) := i + j
 
 set_option grind.debug true

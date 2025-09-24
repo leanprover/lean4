@@ -1,0 +1,16 @@
+Failure @30 (⟨1, 30⟩): expected ')'
+Final stack:
+  (Lean.Doc.Syntax.codeblock
+   "```"
+   [`scheme
+    [(Lean.Doc.Syntax.named
+      "("
+      `dialect
+      ":="
+      (Lean.Doc.Syntax.arg_str
+       (str "\"chicken\""))
+      <missing>)]]
+   "\n"
+   (str "\"(define x 4)\\nx\\n\"")
+   "```")
+Remaining: "\n(define x 4)\nx\n```"

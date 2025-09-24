@@ -6,10 +6,13 @@ Authors: Kim Morrison
 module
 
 prelude
+public import Init.Data.Range.Basic
 import all Init.Data.Range.Basic
-import Init.Data.List.Range
-import Init.Data.List.Monadic
-import Init.Data.Nat.Div.Lemmas
+public import Init.Data.List.Range
+public import Init.Data.List.Monadic
+public import Init.Data.Nat.Div.Lemmas
+
+public section
 
 /-!
 # Lemmas about `Std.Range`

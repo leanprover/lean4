@@ -141,7 +141,7 @@ def f (true : Bool) : Nat :=
 /--
 info: def MatchTest2.f : Bool → Nat :=
 fun true =>
-  let Bool.true := 1;
+  have Bool.true := 1;
   match true with
   | _root_.Bool.true => 0
   | false => 1
@@ -169,8 +169,8 @@ def f (true : Bool) :=
 /--
 info: def MatchTest3.f : Bool → Bool :=
 fun true =>
-  let Bool.true := true;
-  let false := true;
+  have Bool.true := true;
+  have false := true;
   match true with
   | _root_.Bool.true => false
   | Bool.false =>

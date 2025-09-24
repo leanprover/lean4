@@ -41,13 +41,13 @@ info: Term.replaceConst.induct (a : String) (motive1 : Term → Prop) (motive2 :
 #check replaceConst.induct
 
 theorem numConsts_replaceConst (a b : String) (e : Term) : numConsts (replaceConst a b e) = numConsts e := by
-  apply replaceConst.induct
+  apply replaceConst.induct (a := a)
     (motive1 := fun e => numConsts (replaceConst a b e) = numConsts e)
     (motive2 := fun es =>  numConstsLst (replaceConstLst a b es) = numConstsLst es)
   case case1 => intro c h; guard_hyp h :ₛ (a == c) = true; simp [replaceConst, numConsts, *]
   case case2 => intro c h; guard_hyp h :ₛ ¬(a == c) = true; simp [replaceConst, numConsts, *]
   case case3 =>
-    intros f cs ih
+    intro f cs ih
     guard_hyp ih :ₛnumConstsLst (replaceConstLst a b cs) = numConstsLst cs
     simp [replaceConst, numConsts, *]
   case case4 => simp [replaceConstLst, numConstsLst, *]
@@ -58,7 +58,7 @@ theorem numConsts_replaceConst (a b : String) (e : Term) : numConsts (replaceCon
     simp [replaceConstLst, numConstsLst, *]
 
 theorem numConsts_replaceConst' (a b : String) (e : Term) : numConsts (replaceConst a b e) = numConsts e := by
-  apply replaceConst.induct
+  apply replaceConst.induct (a := a)
     (motive1 := fun e => numConsts (replaceConst a b e) = numConsts e)
     (motive2 := fun es =>  numConstsLst (replaceConstLst a b es) = numConstsLst es)
   <;> intros <;> simp [replaceConst, numConsts, replaceConstLst, numConstsLst, *]

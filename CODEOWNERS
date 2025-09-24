@@ -45,3 +45,10 @@
 /src/Std/Tactic/BVDecide/ @hargoniX
 /src/Lean/Elab/Tactic/BVDecide/ @hargoniX
 /src/Std/Sat/ @hargoniX
+/src/Std/Do @sgraf812
+/src/Std/Tactic/Do @sgraf812
+/src/Lean/Elab/Tactic/Do @sgraf812
+/src/Init/Data/Range/Polymorphic @datokrat
+/src/Init/Data/Slice @datokrat
+/src/Init/Data/Iterators @datokrat
+/src/Std/Data/Iterators @datokrat

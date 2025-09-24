@@ -3,10 +3,15 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.CoreM
-import Lean.Namespace
-import Lean.Util.CollectAxioms
+public import Lean.CoreM
+public import Lean.Meta.Sorry
+public import Lean.Namespace
+public import Lean.Util.CollectAxioms
+
+public section
 
 namespace Lean
 
@@ -22,10 +27,7 @@ private def Environment.addDeclAux (env : Environment) (opts : Options) (decl : 
     (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment :=
   env.addDeclCore (Core.getMaxHeartbeats opts).toUSize decl cancelTk? (!debug.skipKernelTC.get opts)
 
-@[deprecated "use `Lean.addDecl` instead to ensure new namespaces are registered" (since := "2024-12-03")]
-def Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration)
-    (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment :=
-  Environment.addDeclAux env opts decl cancelTk?
+
 
 private def isNamespaceName : Name → Bool
   | .str .anonymous _ => true
@@ -46,7 +48,8 @@ where go env
   | _        => env
 
 private builtin_initialize privateConstKindsExt : MapDeclarationExtension ConstantKind ←
-  mkMapDeclarationExtension
+  -- Use `sync` so we can add entries from anywhere without restrictions
+  mkMapDeclarationExtension (asyncMode := .sync)
 
 /--
 Returns the kind of the declaration as originally declared instead of as exported. This information
@@ -54,7 +57,9 @@ is stored by `Lean.addDecl` and may be inaccurate if that function was circumven
 if the declaration was not found.
 -/
 def getOriginalConstKind? (env : Environment) (declName : Name) : Option ConstantKind := do
-  privateConstKindsExt.find? env declName <|>
+  -- Use `local` as for asynchronous decls from the current module, `findAsync?` below will yield
+  -- the same result but potentially earlier (after `addConstAsync` instead of `addDecl`)
+  privateConstKindsExt.find? (asyncMode := .local) env declName <|>
     (env.setExporting false |>.findAsync? declName).map (·.kind)
 
 /--
@@ -64,18 +69,34 @@ Checks whether the declaration was originally declared as a theorem; see also
 def wasOriginallyTheorem (env : Environment) (declName : Name) : Bool :=
   getOriginalConstKind? env declName |>.map (· matches .thm) |>.getD false
 
--- HACK: remove together with MutualDef HACK when `[dsimp]` is introduced
-private def isSimpleRflProof (proof : Expr) : Bool :=
-  if let .lam _ _ proof _ := proof then
-    isSimpleRflProof proof
-  else
-    proof.isAppOfArity ``rfl 2
+/-- If `warn.sorry` is set to true, then, so long as the message log does not already have any errors,
+declarations with `sorryAx` generate the "declaration uses 'sorry'" warning. -/
+register_builtin_option warn.sorry : Bool := {
+  defValue := true
+  descr    := "warn about uses of `sorry` in declarations added to the environment"
+}
 
-private def looksLikeRelevantTheoremProofType (type : Expr) : Bool :=
-  if let .forallE _ _ type _ := type then
-    looksLikeRelevantTheoremProofType type
-  else
-    type.isAppOfArity ``WellFounded 2
+/--
+If the `warn.sorry` option is set to true and there are no errors in the log already,
+logs a warning if the declaration uses `sorry`.
+-/
+def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
+  if warn.sorry.get (← getOptions) then
+    if !(← MonadLog.hasErrors) && decl.hasSorry then
+      -- Find an actual sorry expression to use for 'sorry'.
+      -- That way the user can hover over it to see its type and use "go to definition" if it is a labeled sorry.
+      let findSorry : StateRefT (Array (Bool × MessageData)) MetaM Unit := decl.forEachSorryM fun s => do
+        let s' ← addMessageContext s
+        modify fun arr => arr.push (s.isSyntheticSorry, s')
+      let (_, sorries) ← findSorry |>.run #[] |>.run'
+      -- Prefer reporting a synthetic sorry.
+      -- These can appear without logged errors if `decl` is referring to declarations with elaboration errors;
+      -- that's where a user should direct their focus.
+      if let some (_, s) := sorries.find? (·.1) <|> sorries[0]? then
+        logWarning <| .tagged `hasSorry m!"declaration uses '{s}'"
+      else
+        -- This case should not happen, but it ensures a warning will get logged no matter what.
+        logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
 
 def addDecl (decl : Declaration) : CoreM Unit := do
   -- register namespaces for newly added constants; this used to be done by the kernel itself
@@ -89,19 +110,17 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   let mut exportedInfo? := none
   let (name, info, kind) ← match decl with
     | .thmDecl thm =>
-      let exportProof := !(← getEnv).header.isModule ||
-        -- We should preserve rfl theorems but also we should not override a decision to hide by the
-        -- MutualDef elaborator via `withoutExporting`
-        (← getEnv).isExporting && isSimpleRflProof thm.value ||
-        -- TODO: this is horrible...
-        looksLikeRelevantTheoremProofType thm.type
-      if !exportProof then
+      if (← getEnv).header.isModule then
         exportedInfo? := some <| .axiomInfo { thm with isUnsafe := false }
       pure (thm.name, .thmInfo thm, .thm)
     | .defnDecl defn | .mutualDefnDecl [defn] =>
       if (← getEnv).header.isModule && !(← getEnv).isExporting then
         exportedInfo? := some <| .axiomInfo { defn with isUnsafe := defn.safety == .unsafe }
       pure (defn.name, .defnInfo defn, .defn)
+    | .opaqueDecl op =>
+      if (← getEnv).header.isModule && !(← getEnv).isExporting then
+        exportedInfo? := some <| .axiomInfo { op with }
+      pure (op.name, .opaqueInfo op, .opaque)
     | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
     | _ => return (← doAdd)
 
@@ -134,8 +153,10 @@ def addDecl (decl : Declaration) : CoreM Unit := do
     let cancelTk ← IO.CancelToken.new
     let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => doAddAndCommit
     let t ← BaseIO.mapTask checkAct env.checked
-    let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
-    Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
+    -- Do not display reporting range; most uses of `addDecl` are for registering auxiliary decls
+    -- users should not worry about and other callers can add a separate task with ranges
+    -- themselves, see `MutualDef`.
+    Core.logSnapshotTask { stx? := none, reportingRange := .skip, task := t, cancelTk? := cancelTk }
   else
     try
       doAddAndCommit
@@ -144,9 +165,8 @@ def addDecl (decl : Declaration) : CoreM Unit := do
 where
   doAdd := do
     profileitM Exception "type checking" (← getOptions) do
-      withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
-        if !(← MonadLog.hasErrors) && decl.hasSorry then
-          logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
+      withTraceNode `Kernel (return m!"{exceptEmoji ·} typechecking declarations {decl.getTopLevelNames}") do
+        warnIfUsesSorry decl
         try
           let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
             |> ofExceptKernelException
@@ -184,8 +204,8 @@ where
       catch _ => pure ()
 
 
-def addAndCompile (decl : Declaration) : CoreM Unit := do
+def addAndCompile (decl : Declaration) (logCompileErrors : Bool := true) : CoreM Unit := do
   addDecl decl
-  compileDecl decl
+  compileDecl decl (logErrors := logCompileErrors)
 
 end Lean

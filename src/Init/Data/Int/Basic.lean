@@ -8,8 +8,10 @@ The integers, with addition, multiplication, and subtraction.
 module
 
 prelude
-import Init.Data.Cast
-import Init.Data.Nat.Div.Basic
+public import Init.Data.Cast
+public import Init.Data.Nat.Div.Basic
+
+public section
 
 @[expose] section
 
@@ -29,6 +31,7 @@ This file defines the `Int` type as well as
 Division and modulus operations are defined in `Init.Data.Int.DivMod.Basic`.
 -/
 
+set_option genCtorIdx false in
 /--
 The integers.
 
@@ -312,11 +315,13 @@ Examples:
  * `(0 : Int).natAbs = 0`
  * `((-11 : Int).natAbs = 11`
 -/
-@[extern "lean_nat_abs"]
+@[extern "lean_nat_abs", expose]
 def natAbs (m : @& Int) : Nat :=
   match m with
   | ofNat m => m
   | -[m +1] => m.succ
+
+attribute [gen_constructor_elims] Int
 
 /-! ## sign -/
 
@@ -401,6 +406,26 @@ instance : LawfulBEq Int where
 instance : Min Int := minOfLe
 
 instance : Max Int := maxOfLe
+
+/-- Equality predicate for kernel reduction. -/
+@[expose] protected noncomputable def beq' (a b : Int) : Bool :=
+  Int.rec
+    (fun a => Int.rec (fun b => Nat.beq a b) (fun _ => false) b)
+    (fun a => Int.rec (fun _ => false) (fun b => Nat.beq a b) b) a
+
+/-- `x ≤ y` for kernel reduction. -/
+@[expose] protected noncomputable def ble' (a b : Int) : Bool :=
+  Int.rec
+    (fun a => Int.rec (fun b => Nat.ble a b) (fun _ => false) b)
+    (fun a => Int.rec (fun _ => true) (fun b => Nat.ble b a) b)
+    a
+
+/-- `x < y` for kernel reduction. -/
+@[expose] protected noncomputable def blt' (a b : Int) : Bool :=
+  Int.rec
+    (fun a => Int.rec (fun b => Nat.blt a b) (fun _ => false) b)
+    (fun a => Int.rec (fun _ => true) (fun b => Nat.blt b a) b)
+    a
 
 end Int
 

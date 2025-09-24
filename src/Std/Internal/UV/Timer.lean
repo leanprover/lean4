@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Init.System.IO
-import Init.System.Promise
+public import Init.System.IO
+public import Init.System.Promise
+
+public section
 
 namespace Std
 namespace Internal
@@ -26,7 +30,7 @@ of all functions on `Timer`s.
 -/
 def Timer : Type := TimerImpl.type
 
-instance : Nonempty Timer := TimerImpl.property
+instance : Nonempty Timer := by exact TimerImpl.property
 
 namespace Timer
 

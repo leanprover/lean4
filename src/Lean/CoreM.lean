@@ -3,15 +3,19 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.RecDepth
-import Lean.Util.Trace
-import Lean.Log
-import Lean.ResolveName
-import Lean.Elab.InfoTree.Types
-import Lean.MonadEnv
-import Lean.Elab.Exception
-import Lean.Language.Basic
+public import Lean.Util.RecDepth
+public import Lean.Util.Trace
+public import Lean.Log
+public import Lean.ResolveName
+public import Lean.Elab.InfoTree.Types
+public import Lean.MonadEnv
+public import Lean.Elab.Exception
+public import Lean.Language.Basic
+
+public section
 
 namespace Lean
 register_builtin_option diagnostics : Bool := {
@@ -68,18 +72,21 @@ def useDiagnosticMsg : MessageData :=
     if diagnostics.get ctx.opts then
       pure ""
     else
-      pure s!"\n\nAdditional diagnostic information may be available using the `set_option {diagnostics.name} true` command."
+      pure <| .hint' s!"Additional diagnostic information may be available using the `set_option {diagnostics.name} true` command."
 
 /-- Name generator that creates user-accessible names. -/
 structure DeclNameGenerator where
   namePrefix : Name := .anonymous
   -- We use a non-nil list instead of changing `namePrefix` as we want to distinguish between
   -- numeric components in the original name (e.g. from macro scopes) and ones added by `mkChild`.
-  private idx        : Nat := 1
-  private parentIdxs : List Nat := .nil
+  idx        : Nat := 1
+  parentIdxs : List Nat := .nil
   deriving Inhabited
 
 namespace DeclNameGenerator
+
+def ofPrefix (namePrefix : Name) : DeclNameGenerator :=
+  { namePrefix }
 
 private def idxs (g : DeclNameGenerator) : List Nat :=
   g.idx :: g.parentIdxs
@@ -223,6 +230,7 @@ structure Context where
   openDecls      : List OpenDecl := []
   initHeartbeats : Nat := 0
   maxHeartbeats  : Nat := getMaxHeartbeats options
+  quotContext    : Name := .anonymous
   currMacroScope : MacroScope := firstFrontendMacroScope
   /--
   If `diag := true`, different parts of the system collect diagnostics.
@@ -315,7 +323,7 @@ protected def withFreshMacroScope (x : CoreM α) : CoreM α := do
 
 instance : MonadQuotation CoreM where
   getCurrMacroScope   := return (← read).currMacroScope
-  getMainModule       := return (← getEnv).mainModule
+  getContext          := return (← read).quotContext
   withFreshMacroScope := Core.withFreshMacroScope
 
 instance : Elab.MonadInfoTree CoreM where
@@ -345,7 +353,7 @@ def instantiateValueLevelParams (c : ConstantInfo) (us : List Level) : CoreM Exp
     if us == us' then
       return r
   unless c.hasValue do
-    throwError "Not a definition or theorem: {c.name}"
+    throwError "Not a definition or theorem: {.ofConstName c.name}"
   let r := c.instantiateValueLevelParams! us
   modifyInstLevelValueCache fun s => s.insert c.name (us, r)
   return r
@@ -400,11 +408,13 @@ itself after calling `act` as well as by reuse-handling code such as the one sup
 
 /-- Restore backtrackable parts of the state. -/
 def SavedState.restore (b : SavedState) : CoreM Unit :=
-  modify fun s => { s with env := b.env, messages := b.messages, infoState := b.infoState }
+  modify fun s => { s with
+      env := b.env, messages := b.messages, infoState := b.infoState
+      snapshotTasks := b.snapshotTasks }
 
 private def mkFreshNameImp (n : Name) : CoreM Name := do
-  let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
-  return addMacroScope (← getEnv).mainModule n fresh
+  withFreshMacroScope do
+    MonadQuotation.addMacroScope n
 
 /--
 Creates a name from `n` that is guaranteed to be unique.
@@ -457,8 +467,8 @@ def throwMaxHeartbeat (moduleName : Name) (optionName : Name) (max : Nat) : Core
   let includeModuleName := debug.moduleNameAtTimeout.get (← getOptions)
   let atModuleName := if includeModuleName then s!" at `{moduleName}`" else ""
   throw <| Exception.error (← getRef) <| .tagged `runtime.maxHeartbeats m!"\
-    (deterministic) timeout{atModuleName}, maximum number of heartbeats ({max/1000}) has been reached\n\
-    Use `set_option {optionName} <num>` to set the limit.\
+    (deterministic) timeout{atModuleName}, maximum number of heartbeats ({max/1000}) has been reached\
+    {.note m!"Use `set_option {optionName} <num>` to set the limit."}\
     {useDiagnosticMsg}"
 
 def checkMaxHeartbeatsCore (moduleName : String) (optionName : Name) (max : Nat) : CoreM Unit := do
@@ -563,8 +573,8 @@ register_builtin_option stderrAsMessages : Bool := {
 Creates snapshot reporting given `withIsolatedStreams` output and diagnostics and traces from the
 given state.
 -/
-def mkSnapshot (output : String) (ctx : Context) (st : State)
-    (desc : String := by exact decl_name%.toString) : BaseIO Language.SnapshotTree := do
+def mkSnapshot? (output : String) (ctx : Context) (st : State)
+    (desc : String := by exact decl_name%.toString) : BaseIO (Option Language.SnapshotTree) := do
   let mut msgs := st.messages
   if !output.isEmpty then
     msgs := msgs.add {
@@ -573,7 +583,9 @@ def mkSnapshot (output : String) (ctx : Context) (st : State)
       pos      := ctx.fileMap.toPosition <| ctx.ref.getPos?.getD 0
       data     := output
     }
-  return .mk {
+  if !msgs.hasUnreported && st.traceState.traces.isEmpty && st.snapshotTasks.isEmpty then
+    return none
+  return some <| .mk {
     desc
     diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog msgs)
     traces := st.traceState
@@ -610,7 +622,8 @@ def wrapAsyncAsSnapshot {α : Type} (act : α → CoreM Unit) (cancelTk? : Optio
   let ctx ← readThe Core.Context
   return fun a => do
     match (← (f a).toBaseIO) with
-    | .ok (output, st) => mkSnapshot output ctx st desc
+    | .ok (output, st) =>
+      return (← mkSnapshot? output ctx st desc).getD (toSnapshotTree (default : SnapshotLeaf))
     -- interrupt or abort exception as `try catch` above should have caught any others
     | .error _ => default
 
@@ -663,14 +676,8 @@ private def checkUnsupported [Monad m] [MonadEnv m] [MonadError m] (decl : Decla
         && !supportedRecursors.contains declName
       | _ => false
     match unsupportedRecursor? with
-    | some (Expr.const declName ..) => throwError "code generator does not support recursor '{declName}' yet, consider using 'match ... with' and/or structural recursion"
+    | some (Expr.const declName ..) => throwError "code generator does not support recursor `{.ofConstName declName}` yet, consider using `match ... with` and/or structural recursion"
     | _ => pure ()
-
-register_builtin_option compiler.enableNew : Bool := {
-  defValue := false
-  group    := "compiler"
-  descr    := "(compiler) enable the new code generator, this should have no significant effect on your code but it does help to test the new code generator; unset to only use the old code generator instead"
-}
 
 /--
 If `t` has not finished yet, waits for it under an `Elab.block` trace node. Returns `t`'s result.
@@ -684,14 +691,10 @@ def traceBlock (tag : String) (t : Task α) : CoreM α := do
 
 -- Forward declaration
 @[extern "lean_lcnf_compile_decls"]
-opaque compileDeclsNew (declNames : List Name) : CoreM Unit
-
-@[extern "lean_compile_decls"]
-opaque compileDeclsOld (env : Environment) (opt : @& Options) (decls : @& List Name) : Except Kernel.Exception Environment
+opaque compileDeclsImpl (declNames : Array Name) : CoreM Unit
 
 -- `ref?` is used for error reporting if available
-partial def compileDecls (decls : List Name) (ref? : Option Declaration := none)
-    (logErrors := true) : CoreM Unit := do
+partial def compileDecls (decls : Array Name) (logErrors := true) : CoreM Unit := do
   -- When inside `realizeConst`, do compilation synchronously so that `_cstage*` constants are found
   -- by the replay code
   if !Elab.async.get (← getOptions) || (← getEnv).isRealizing then
@@ -709,34 +712,26 @@ partial def compileDecls (decls : List Name) (ref? : Option Declaration := none)
     finally
       res.commitChecked (← getEnv)
   let t ← BaseIO.mapTask checkAct env.checked
-  let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
-  Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
+  -- Do not display reporting range; most uses of `addDecl` are for registering auxiliary decls
+  -- users should not worry about and other callers can add a separate task with ranges
+  -- themselves, see `MutualDef`.
+  Core.logSnapshotTask { stx? := none, reportingRange := .skip, task := t, cancelTk? := cancelTk }
 where doCompile := do
   -- don't compile if kernel errored; should be converted into a task dependency when compilation
   -- is made async as well
   if !decls.all (← getEnv).constants.contains then
     return
-  let opts ← getOptions
-  if compiler.enableNew.get opts then
-    withoutExporting
-      try compileDeclsNew decls catch e =>
-        if logErrors then throw e else return ()
-  else
-    let res ← withTraceNode `compiler (fun _ => return m!"compiling old: {decls}") do
-      return compileDeclsOld (← getEnv) opts decls
-    match res with
-    | Except.ok env   => setEnv env
-    | Except.error (.other msg) =>
+  withoutExporting do
+    let state ← Core.saveState
+    try
+      compileDeclsImpl decls
+    catch e =>
+      state.restore
       if logErrors then
-        if let some decl := ref? then
-          checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
-        throwError msg
-    | Except.error ex =>
-      if logErrors then
-        throwKernelException ex
+        throw e
 
 def compileDecl (decl : Declaration) (logErrors := true) : CoreM Unit := do
-  compileDecls (Compiler.getDeclNamesForCodeGen decl) decl logErrors
+  compileDecls (Compiler.getDeclNamesForCodeGen decl) logErrors
 
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts

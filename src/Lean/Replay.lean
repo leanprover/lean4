@@ -3,10 +3,14 @@ Copyright (c) 2023 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.CoreM
-import Lean.AddDecl
-import Lean.Util.FoldConsts
+public import Lean.CoreM
+public import Lean.AddDecl
+public import Lean.Util.FoldConsts
+
+public section
 
 /-!
 # `Lean.Environment.replay`

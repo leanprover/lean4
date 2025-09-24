@@ -3,15 +3,19 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
+public import Lean.Meta.Basic
+public import Lean.Elab.PreDefinition.Eqns
+public import Lean.Elab.PreDefinition.FixedParams
 import Lean.Meta.Eqns
 import Lean.Meta.Tactic.Split
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Apply
 import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.Eqns
-import Lean.Elab.PreDefinition.FixedParams
 import Lean.Elab.PreDefinition.Structural.Basic
+import Lean.Meta.Match.MatchEqs
 
 namespace Lean.Elab
 open Meta
@@ -19,47 +23,92 @@ open Eqns
 
 namespace Structural
 
-structure EqnInfo extends EqnInfoCore where
+public structure EqnInfo extends EqnInfoCore where
   recArgPos : Nat
   declNames : Array Name
   fixedParamPerms : FixedParamPerms
   deriving Inhabited
 
 private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
-  trace[Elab.definition.structural.eqns] "proving: {type}"
-  withNewMCtxDepth do
-    let main ← mkFreshExprSyntheticOpaqueMVar type
-    let (_, mvarId) ← main.mvarId!.intros
-    unless (← tryURefl mvarId) do -- catch easy cases
-      go (← deltaLHS mvarId)
-    instantiateMVars main
+  withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} proving:{indentExpr type}") do
+    withNewMCtxDepth do
+      let main ← mkFreshExprSyntheticOpaqueMVar type
+      let (_, mvarId) ← main.mvarId!.intros
+      unless (← tryURefl mvarId) do -- catch easy cases
+        go1 mvarId
+      instantiateMVars main
 where
-  go (mvarId : MVarId) : MetaM Unit := do
-    trace[Elab.definition.structural.eqns] "step\n{MessageData.ofGoal mvarId}"
-    if (← tryURefl mvarId) then
-      return ()
-    else if (← tryContradiction mvarId) then
-      return ()
-    else if let some mvarId ← whnfReducibleLHS? mvarId then
-      go mvarId
-    else if let some mvarId ← simpMatch? mvarId then
-      go mvarId
-    else if let some mvarId ← simpIf? mvarId then
-      go mvarId
+  /--
+  Step 1: Split the function body into its cases, but keeping the LHS intact, because the
+  `.below`-added `match` statements and the `.rec` can quickly confuse `split`.
+  -/
+  go1 (mvarId : MVarId) : MetaM Unit := do
+    withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} go1:\n{MessageData.ofGoal mvarId}") do
+      if (← tryURefl mvarId) then
+        trace[Elab.definition.structural.eqns] "tryURefl succeeded"
+        return ()
+      else if (← tryContradiction mvarId) then
+        trace[Elab.definition.structural.eqns] "tryContadiction succeeded"
+        return ()
+      else if let some mvarId ← simpMatch? mvarId then
+        trace[Elab.definition.structural.eqns] "simpMatch? succeeded"
+        go1 mvarId
+      else if let some mvarId ← simpIf? mvarId (useNewSemantics := true) then
+        trace[Elab.definition.structural.eqns] "simpIf? succeeded"
+        go1 mvarId
+      else
+        let ctx ← Simp.mkContext
+        match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
+        | TacticResultCNM.closed =>
+          trace[Elab.definition.structural.eqns] "simpTargetStar closed the goal"
+        | TacticResultCNM.modified mvarId =>
+          trace[Elab.definition.structural.eqns] "simpTargetStar modified the goal"
+          go1 mvarId
+        | TacticResultCNM.noChange =>
+          if let some mvarIds ← casesOnStuckLHS? mvarId then
+            trace[Elab.definition.structural.eqns] "casesOnStuckLHS? succeeded"
+            mvarIds.forM go1
+          else if let some mvarIds ← splitTarget? mvarId (useNewSemantics := true) then
+            trace[Elab.definition.structural.eqns] "splitTarget? succeeded"
+            mvarIds.forM go1
+          else
+            go2 (← deltaLHS mvarId)
+  /-- Step 2: Unfold the lhs to expose the recursor. -/
+  go2 (mvarId : MVarId) : MetaM Unit := do
+    withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} go2:\n{MessageData.ofGoal mvarId}") do
+    if let some mvarId ← whnfReducibleLHS? mvarId then
+      go2 mvarId
     else
-      let ctx ← Simp.mkContext
-      match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
-      | TacticResultCNM.closed => return ()
-      | TacticResultCNM.modified mvarId => go mvarId
-      | TacticResultCNM.noChange =>
-        if let some mvarId ← deltaRHS? mvarId declName then
-          go mvarId
-        else if let some mvarIds ← casesOnStuckLHS? mvarId then
-          mvarIds.forM go
-        else if let some mvarIds ← splitTarget? mvarId then
-          mvarIds.forM go
-        else
-          throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
+      go3 mvarId
+  /-- Step 3: Simplify the match and if statements on the left hand side, until we have rfl. -/
+  go3 (mvarId : MVarId) : MetaM Unit := do
+      withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} go3:\n{MessageData.ofGoal mvarId}") do
+      if (← tryURefl mvarId) then
+        trace[Elab.definition.structural.eqns] "tryURefl succeeded"
+        return ()
+      else if (← tryContradiction mvarId) then
+        trace[Elab.definition.structural.eqns] "tryContadiction succeeded"
+        return ()
+      else if let some mvarId ← simpMatch? mvarId then
+        trace[Elab.definition.structural.eqns] "simpMatch? succeeded"
+        go3 mvarId
+      else if let some mvarId ← simpIf? mvarId (useNewSemantics := true) then
+        trace[Elab.definition.structural.eqns] "simpIf? succeeded"
+        go3 mvarId
+      else
+        let ctx ← Simp.mkContext
+        match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
+        | TacticResultCNM.closed =>
+          trace[Elab.definition.structural.eqns] "simpTargetStar closed the goal"
+        | TacticResultCNM.modified mvarId =>
+          trace[Elab.definition.structural.eqns] "simpTargetStar modified the goal"
+          go3 mvarId
+        | TacticResultCNM.noChange =>
+          if let some mvarIds ← casesOnStuckLHS? mvarId then
+            trace[Elab.definition.structural.eqns] "casesOnStuckLHS? succeeded"
+            mvarIds.forM go3
+          else
+            throwError "failed to generate equational theorem for `{.ofConstName declName}`\n{MessageData.ofGoal mvarId}"
 
 def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
   withOptions (tactic.hygienic.set · false) do
@@ -69,9 +118,9 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
     let goal ← mkFreshExprSyntheticOpaqueMVar target
     mkEqnTypes info.declNames goal.mvarId!
   let mut thmNames := #[]
-  for h : i in [: eqnTypes.size] do
+  for h : i in *...eqnTypes.size do
     let type := eqnTypes[i]
-    trace[Elab.definition.structural.eqns] "eqnType {i}: {type}"
+    trace[Elab.definition.structural.eqns] "eqnType {i+1}: {type}"
     let name := mkEqLikeNameFor (← getEnv) info.declName s!"{eqnThmSuffixBasePrefix}{i+1}"
     thmNames := thmNames.push name
     -- determinism: `type` should be independent of the environment changes since `baseName` was
@@ -80,16 +129,21 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
   return thmNames
 where
   doRealize name type := withOptions (tactic.hygienic.set · false) do
-    let value ← mkProof info.declName type
+    let value ← withoutExporting do mkProof info.declName type
     let (type, value) ← removeUnusedEqnHypotheses type value
+    let type ← letToHave type
     addDecl <| Declaration.thmDecl {
       name, type, value
       levelParams := info.levelParams
     }
+    inferDefEqAttr name
 
-builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
+public builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ←
+  mkMapDeclarationExtension (exportEntriesFn := fun env s _ =>
+    -- Do not export for non-exposed defs
+    s.filter (fun n _ => env.find? n |>.any (·.hasValue)) |>.toArray)
 
-def registerEqnsInfo (preDef : PreDefinition) (declNames : Array Name) (recArgPos : Nat)
+public def registerEqnsInfo (preDef : PreDefinition) (declNames : Array Name) (recArgPos : Nat)
     (fixedParamPerms : FixedParamPerms) : CoreM Unit := do
   ensureEqnReservedNamesAvailable preDef.declName
   modifyEnv fun env => eqnInfoExt.insert env preDef.declName
@@ -114,11 +168,13 @@ where
       let goal ← mkFreshExprSyntheticOpaqueMVar type
       mkUnfoldProof declName goal.mvarId!
       let type ← mkForallFVars xs type
+      let type ← letToHave type
       let value ← mkLambdaFVars xs (← instantiateMVars goal)
       addDecl <| Declaration.thmDecl {
         name, type, value
         levelParams := info.levelParams
       }
+      inferDefEqAttr name
 
 def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
   if let some info := eqnInfoExt.find? (← getEnv) declName then

@@ -1,5 +1,4 @@
-set_option grind.warning false
-
+module
 example (f : (Nat → Nat) → Nat → Nat → Nat) : a = b → f (fun x => a + x) 1 b = f (fun x => b + x) 1 a := by
   grind
 

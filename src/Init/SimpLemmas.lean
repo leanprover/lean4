@@ -8,7 +8,9 @@ notation, basic datatypes and type classes
 module
 
 prelude
-import Init.Core
+public import Init.Core
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 theorem of_eq_true (h : p = True) : p := h ▸ trivial
@@ -74,20 +76,66 @@ theorem let_body_congr {α : Sort u} {β : α → Sort v} {b b' : (a : α) → �
     (a : α) (h : ∀ x, b x = b' x) : (let x := a; b x) = (let x := a; b' x) :=
   (funext h : b = b') ▸ rfl
 
-theorem letFun_unused {α : Sort u} {β : Sort v} (a : α) {b b' : β} (h : b = b') : @letFun α (fun _ => β) a (fun _ => b) = b' :=
-  h
+/-!
+Congruence lemmas for `have` have kernel performance issues when stated using `have` directly.
+Illustration of the problem: the kernel infers that the type of
+`have_congr (fun x => b) (fun x => b') h₁ h₂`
+is
+`(have x := a; (fun x => b) x) = (have x := a'; (fun x => b') x)`
+rather than
+`(have x := a; b x) = (have x := a'; b' x)`
+That means the kernel will do `whnf_core` at every step of checking a sequence of these lemmas.
+Thus, we get quadratically many zeta reductions.
 
-theorem letFun_congr {α : Sort u} {β : Sort v}  {a a' : α} {f f' : α → β} (h₁ : a = a') (h₂ : ∀ x, f x = f' x)
-    : @letFun α (fun _ => β) a f = @letFun α (fun _ => β) a' f' := by
-  rw [h₁, funext h₂]
+For reference, we have the `have` versions of the theorems in the following comment,
+and then after that we have the versions that `simpHaveTelescope` actually uses,
+which avoid this issue.
+-/
+/-
+theorem have_unused {α : Sort u} {β : Sort v} (a : α) {b b' : β}
+    (h : b = b') : (have _ := a; b) = b' := h
 
-theorem letFun_body_congr {α : Sort u} {β : Sort v}  (a : α) {f f' : α → β} (h : ∀ x, f x = f' x)
-    : @letFun α (fun _ => β) a f = @letFun α (fun _ => β) a f' := by
-  rw [funext h]
+theorem have_unused_dep {α : Sort u} {β : Sort v} (a : α) {b : α → β} {b' : β}
+    (h : ∀ x, b x = b') : (have x := a; b x) = b' := h a
 
-theorem letFun_val_congr {α : Sort u} {β : Sort v} {a a' : α} {f : α → β} (h : a = a')
-    : @letFun α (fun _ => β) a f = @letFun α (fun _ => β) a' f := by
-  rw [h]
+theorem have_congr {α : Sort u} {β : Sort v} {a a' : α} {f f' : α → β}
+    (h₁ : a = a') (h₂ : ∀ x, f x = f' x) : (have x := a; f x) = (have x := a'; f' x) :=
+  @congr α β f f' a a' (funext h₂) h₁
+
+theorem have_val_congr {α : Sort u} {β : Sort v} {a a' : α} {f : α → β}
+    (h : a = a') : (have x := a; f x) = (have x := a'; f x) :=
+  @congrArg α β a a' f h
+
+theorem have_body_congr_dep {α : Sort u} {β : α → Sort v} (a : α) {f f' : (x : α) → β x}
+    (h : ∀ x, f x = f' x) : (have x := a; f x) = (have x := a; f' x) :=
+  h a
+
+theorem have_body_congr {α : Sort u} {β : Sort v} (a : α) {f f' : α → β}
+    (h : ∀ x, f x = f' x) : (have x := a; f x) = (have x := a; f' x) :=
+  h a
+-/
+
+theorem have_unused' {α : Sort u} {β : Sort v} (a : α) {b b' : β}
+    (h : b = b') : (fun _ => b) a = b' := h
+
+theorem have_unused_dep' {α : Sort u} {β : Sort v} (a : α) {b : α → β} {b' : β}
+    (h : ∀ x, b x = b') : b a = b' := h a
+
+theorem have_congr' {α : Sort u} {β : Sort v} {a a' : α} {f f' : α → β}
+    (h₁ : a = a') (h₂ : ∀ x, f x = f' x) : f a = f' a' :=
+  @congr α β f f' a a' (funext h₂) h₁
+
+theorem have_val_congr' {α : Sort u} {β : Sort v} {a a' : α} {f : α → β}
+    (h : a = a') : f a = f a' :=
+  @congrArg α β a a' f h
+
+theorem have_body_congr_dep' {α : Sort u} {β : α → Sort v} (a : α) {f f' : (x : α) → β x}
+    (h : ∀ x, f x = f' x) : f a = f' a :=
+  h a
+
+theorem have_body_congr' {α : Sort u} {β : Sort v} (a : α) {f f' : α → β}
+    (h : ∀ x, f x = f' x) : f a = f' a :=
+  h a
 
 @[congr]
 theorem ite_congr {x y u v : α} {s : Decidable b} [Decidable c]
@@ -95,6 +143,12 @@ theorem ite_congr {x y u v : α} {s : Decidable b} [Decidable c]
   cases Decidable.em c with
   | inl h => rw [if_pos h]; subst b; rw [if_pos h]; exact h₂ h
   | inr h => rw [if_neg h]; subst b; rw [if_neg h]; exact h₃ h
+
+theorem ite_cond_congr {α} {b c : Prop} {s : Decidable b} [Decidable c] {x y : α}
+    (h₁ : b = c) : ite b x y = ite c x y := by
+  cases Decidable.em c with
+  | inl h => rw [if_pos h]; subst b; rw [if_pos h]
+  | inr h => rw [if_neg h]; subst b; rw [if_neg h]
 
 theorem Eq.mpr_prop {p q : Prop} (h₁ : p = q) (h₂ : q)  : p  := h₁ ▸ h₂
 theorem Eq.mpr_not  {p q : Prop} (h₁ : p = q) (h₂ : ¬q) : ¬p := h₁ ▸ h₂
@@ -109,6 +163,13 @@ theorem dite_congr {_ : Decidable b} [Decidable c]
   cases Decidable.em c with
   | inl h => rw [dif_pos h]; subst b; rw [dif_pos h]; exact h₂ h
   | inr h => rw [dif_neg h]; subst b; rw [dif_neg h]; exact h₃ h
+
+theorem dite_cond_congr {α} {b c : Prop} {s : Decidable b} [Decidable c]
+    {x : b → α} {y : ¬ b → α} (h₁ : b = c) :
+    dite b x y = dite c (fun h => x (h₁.mpr_prop h)) (fun h => y (h₁.mpr_not h)) := by
+  cases Decidable.em c with
+  | inl h => rw [dif_pos h]; subst b; rw [dif_pos h]
+  | inr h => rw [dif_neg h]; subst b; rw [dif_neg h]
 
 @[simp] theorem ne_eq (a b : α) : (a ≠ b) = ¬(a = b) := rfl
 norm_cast_add_elim ne_eq

@@ -6,9 +6,11 @@ Authors: Mario Carneiro
 module
 
 prelude
-import Init.Tactics
-import Init.Conv
-import Init.NotationExtra
+public import Init.Tactics
+public import Init.Conv
+public import Init.NotationExtra
+
+public section
 
 namespace Lean.Parser
 

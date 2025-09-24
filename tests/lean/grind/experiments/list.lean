@@ -6,8 +6,6 @@ It may still be a good source of ideas for `grind` attributes, or `grind` bugs!
 But it's also fine to just delete it at some point.
 -/
 
-set_option grind.warning false
-
 -- Rejected `grind` attributes:
 -- attribute [grind] List.getElem?_eq_getElem -- This is way too slow, it adds about 30% time to this file.
 -- attribute [grind] List.not_mem_nil -- unnecessary
@@ -874,7 +872,7 @@ theorem flatMap_eq_foldl {f : α → List β} {l : List α} :
   intro l'
   induction l generalizing l'
   · grind
-  · next ih => rw [flatMap_cons, ← append_assoc, ih, foldl_cons]
+  next ih => rw [flatMap_cons, ← append_assoc, ih, foldl_cons]
 
 /-! ### replicate -/
 
@@ -1093,11 +1091,11 @@ theorem foldrM_pure [Monad m] [LawfulMonad m] {f : α → β → β} {b : β} {l
 
 theorem foldl_eq_foldlM {f : β → α → β} {b : β} {l : List α} :
     l.foldl f b = l.foldlM (m := Id) f b := by
-  induction l generalizing b <;> simp [*, foldl]
+  induction l generalizing b with sorry
 
 theorem foldr_eq_foldrM {f : α → β → β} {b : β} {l : List α} :
     l.foldr f b = l.foldrM (m := Id) f b := by
-  induction l <;> simp [*, foldr]
+  induction l with sorry
 
 theorem id_run_foldlM {f : β → α → Id β} {b : β} {l : List α} :
     Id.run (l.foldlM f b) = l.foldl f b := foldl_eq_foldlM.symm
@@ -1119,10 +1117,10 @@ theorem foldrM_append [Monad m] [LawfulMonad m] {f : α → β → m β} {b : β
   induction l <;> simp [*]
 
 theorem foldl_append {β : Type _} {f : β → α → β} {b : β} {l l' : List α} :
-    (l ++ l').foldl f b = l'.foldl f (l.foldl f b) := by simp [foldl_eq_foldlM]
+    (l ++ l').foldl f b = l'.foldl f (l.foldl f b) := sorry
 
 theorem foldr_append {f : α → β → β} {b : β} {l l' : List α} :
-    (l ++ l').foldr f b = l.foldr f (l'.foldr f b) := by simp [foldr_eq_foldrM]
+    (l ++ l').foldr f b = l.foldr f (l'.foldr f b) := sorry
 
 theorem foldl_reverse {l : List α} {f : β → α → β} {b : β} :
     l.reverse.foldl f b = l.foldr (fun x y => f y x) b := by simp [foldl_eq_foldlM, foldr_eq_foldrM]

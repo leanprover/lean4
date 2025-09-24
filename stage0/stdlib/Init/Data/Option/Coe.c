@@ -14,8 +14,8 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_optionCoe(lean_object*);
-LEAN_EXPORT lean_object* l_optionCoe___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_optionCoe___rarg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_optionCoe___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_optionCoe___lam__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -28,7 +28,7 @@ LEAN_EXPORT lean_object* l_optionCoe(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_optionCoe___rarg), 1, 0);
+x_2 = lean_alloc_closure((void*)(l_optionCoe___lam__0), 1, 0);
 return x_2;
 }
 }

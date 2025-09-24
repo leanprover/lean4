@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #define LEAN_USING_STD using namespace std; /* NOLINT */
 extern "C" {
 #else
+#include <stdatomic.h>
 #define  LEAN_USING_STD
 #endif
 
@@ -416,6 +417,11 @@ void free(void *);  // avoid including big `stdlib.h`
 #endif
 
 #if !defined(__STDC_VERSION_STDLIB_H__) || __STDC_VERSION_STDLIB_H__ < 202311L
+#if defined(__GLIBC__) && (defined(__GNUC__) || defined(__clang__))
+// glibc tacks on `__attribute__((nothrow))` to its declarations. In C++ this requires either
+// `__attribute__((nothrow))` to be present or `noexcept`.
+__attribute__((nothrow))
+#endif
 void free_sized(void* ptr, size_t);
 #endif
 
@@ -478,23 +484,20 @@ static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
     return (_Atomic(int)*)(&(o->m_rc));
 }
 
-LEAN_EXPORT void lean_inc_ref_cold(lean_object * o);
-LEAN_EXPORT void lean_inc_ref_n_cold(lean_object * o, unsigned n);
-
-static inline void lean_inc_ref(lean_object * o) {
-    if (LEAN_LIKELY(lean_is_st(o))) {
-        o->m_rc++;
-    } else if (o->m_rc != 0) {
-        lean_inc_ref_cold(o);
-    }
-}
-
 static inline void lean_inc_ref_n(lean_object * o, size_t n) {
     if (LEAN_LIKELY(lean_is_st(o))) {
         o->m_rc += n;
     } else if (o->m_rc != 0) {
-        lean_inc_ref_n_cold(o, n);
+#ifdef __cplusplus
+        std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, std::memory_order_relaxed);
+#else
+        atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, memory_order_relaxed);
+#endif
     }
+}
+
+static inline void lean_inc_ref(lean_object * o) {
+    lean_inc_ref_n(o, 1);
 }
 
 LEAN_EXPORT void lean_dec_ref_cold(lean_object * o);
@@ -815,6 +818,10 @@ static inline lean_obj_res lean_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) {
     return lean_array_uget(a, lean_unbox(i));
 }
 
+static inline lean_obj_res lean_array_fget_borrowed(b_lean_obj_arg a, b_lean_obj_arg i) {
+    return lean_array_get_core(a, lean_unbox(i));
+}
+
 LEAN_EXPORT lean_obj_res lean_array_get_panic(lean_obj_arg def_val);
 
 static inline lean_object * lean_array_get(lean_obj_arg def_val, b_lean_obj_arg a, b_lean_obj_arg i) {
@@ -823,6 +830,21 @@ static inline lean_object * lean_array_get(lean_obj_arg def_val, b_lean_obj_arg 
         if (idx < lean_array_size(a)) {
             lean_dec(def_val);
             return lean_array_uget(a, idx);
+        }
+    }
+    /* Recall that if `i` is not a scalar, then it must be out of bounds because
+       i > LEAN_MAX_SMALL_NAT == MAX_UNSIGNED >> 1
+       but each array entry is 8 bytes in 64-bit machines and 4 in 32-bit ones.
+       In both cases, we would be out-of-memory. */
+    return lean_array_get_panic(def_val);
+}
+
+static inline lean_object * lean_array_get_borrowed(lean_obj_arg def_val, b_lean_obj_arg a, b_lean_obj_arg i) {
+    if (lean_is_scalar(i)) {
+        size_t idx = lean_unbox(i);
+        if (idx < lean_array_size(a)) {
+            lean_dec(def_val);
+            return lean_array_get_core(a, idx);
         }
     }
     /* Recall that if `i` is not a scalar, then it must be out of bounds because
@@ -1200,8 +1222,6 @@ LEAN_EXPORT bool lean_io_check_canceled_core(void);
 LEAN_EXPORT void lean_io_cancel_core(b_lean_obj_arg t);
 /* primitive for implementing `IO.getTaskState : Task a -> IO TaskState` */
 LEAN_EXPORT uint8_t lean_io_get_task_state_core(b_lean_obj_arg t);
-/* primitive for implementing `IO.waitAny : List (Task a) -> IO (Task a)` */
-LEAN_EXPORT b_lean_obj_res lean_io_wait_any_core(b_lean_obj_arg task_list);
 
 /* External objects */
 

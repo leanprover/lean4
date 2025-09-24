@@ -3,9 +3,13 @@ Copyright (c) 2022 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Mario Carneiro
 -/
+module
+
 prelude
-import Lean.Elab.Command
-import Lean.Linter.Util
+public import Lean.Elab.Command
+public import Lean.Linter.Util
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 /-! # Unused variable Linter
@@ -132,7 +136,7 @@ abbrev IgnoreFunction := Syntax → Syntax.Stack → LinterOptions → Bool
 unsafe def mkIgnoreFnImpl (constName : Name) : ImportM IgnoreFunction := do
   let { env, opts, .. } ← read
   match env.find? constName with
-  | none      => throw ↑s!"unknown constant '{constName}'"
+  | none      => throw ↑s!"Unknown constant `{constName}`"
   | some info =>
     unless info.type.isConstOf ``IgnoreFunction do
       throw ↑s!"unexpected unused_variables_ignore_fn at '{constName}', must be of type `Lean.Linter.IgnoreFunction`"
@@ -172,9 +176,12 @@ builtin_initialize
     applicationTime := .afterCompilation
     add             := fun decl stx kind => do
       Attribute.Builtin.ensureNoArgs stx
-      unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
-      unless (← getConstInfo decl).type.isConstOf ``IgnoreFunction do
-        throwError "invalid attribute '{name}', must be of type `Lean.Linter.IgnoreFunction`"
+      if !builtin then
+        ensureAttrDeclIsMeta name decl kind
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
+      let declType := (← getConstInfo decl).type
+      unless declType.isConstOf ``IgnoreFunction do
+        throwAttrDeclNotOfExpectedType name decl declType (mkConst ``Lean.Linter.IgnoreFunction)
       let env ← getEnv
       if builtin then
         let h := mkConst decl
@@ -189,16 +196,14 @@ builtin_initialize
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
     stack.matches [`null, none, `null, ``Lean.Parser.Command.variable])
 
-/-- `structure Foo where unused : Nat` -/
+/--
+* `structure Foo (unused : Nat)`
+* `inductive Foo (unused : Foo)`
+-/
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
-  stack.matches [`null, none, `null, ``Lean.Parser.Command.structure])
-
-/-- `inductive Foo where | unused : Foo` -/
-builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
-  stack.matches [`null, none, `null, none, ``Lean.Parser.Command.inductive] &&
-  (stack[3]? |>.any fun (stx, pos) =>
-    pos == 0 &&
-    [``Lean.Parser.Command.optDeclSig, ``Lean.Parser.Command.declSig].any (stx.isOfKind ·)))
+  stack.matches [`null, none, `null, ``Lean.Parser.Command.optDeclSig, none] &&
+  (stack[4]? |>.any fun (stx, _) =>
+    [``Lean.Parser.Command.structure, ``Lean.Parser.Command.inductive].any (stx.isOfKind ·)))
 
 /--
 * `structure Foo where foo (unused : Nat) : Nat`
@@ -229,7 +234,7 @@ builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
     stx.isOfKind ``Lean.Parser.Command.optDeclSig ||
     stx.isOfKind ``Lean.Parser.Command.declSig) &&
   (stack[5]? |>.any fun (stx, _) => match stx[0] with
-    | `(Lean.Parser.Command.declModifiersT| $[$_:docComment]? @[$[$attrs:attr],*] $[$vis]? $[noncomputable]?) =>
+    | `(Lean.Parser.Command.declModifiersT| $[$_:docComment]? @[$[$attrs:attr],*] $[$vis]? $[protected]? $[noncomputable]?) =>
       attrs.any (fun attr => attr.raw.isOfKind ``Parser.Attr.extern || attr matches `(attr| implemented_by $_))
     | _ => false))
 

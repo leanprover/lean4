@@ -6,5 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Nat.Div.Basic
-import Init.Data.Nat.Div.Lemmas
+public import Init.Data.Nat.Div.Basic
+public import Init.Data.Nat.Div.Lemmas
+
+public section

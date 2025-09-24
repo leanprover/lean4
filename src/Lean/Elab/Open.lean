@@ -3,9 +3,15 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Log
-import Lean.Elab.Util
+public import Lean.Log
+public import Lean.Elab.Util
+public import Lean.Parser.Command
+meta import Lean.Parser.Command
+
+public section
 
 namespace Lean.Elab
 namespace OpenDecl
@@ -28,7 +34,7 @@ instance : MonadResolveName (M (m := m)) where
   getCurrNamespace   := return (← get).currNamespace
   getOpenDecls       := return (← get).openDecls
 
-def resolveId (ns : Name) (idStx : Syntax) : M (m := m) Name := do
+def resolveId [MonadResolveName m] (ns : Name) (idStx : Syntax) : m Name := do
   let declName := ns ++ idStx.getId
   if (← getEnv).contains declName then
     return declName
@@ -38,7 +44,13 @@ def resolveId (ns : Name) (idStx : Syntax) : M (m := m) Name := do
 private def addOpenDecl (decl : OpenDecl) : M (m:=m) Unit :=
   modify fun s => { s with openDecls := decl :: s.openDecls }
 
-private def resolveNameUsingNamespacesCore (nss : List Name) (idStx : Syntax) : M (m:=m) Name := do
+/--
+Uniquely resolves the identifier `idStx` in the provided namespaces `nss`.
+
+If the identifier does not indicate a name in exactly one of the namespaces, an exception is thrown.
+-/
+def resolveNameUsingNamespacesCore [MonadResolveName m]
+    (nss : List Name) (idStx : Syntax) : m Name := do
   let mut exs := #[]
   let mut result := #[]
   for ns in nss do
@@ -56,7 +68,7 @@ private def resolveNameUsingNamespacesCore (nss : List Name) (idStx : Syntax) : 
   if h : result.size = 1 then
     return result[0]
   else
-    withRef idStx do throwError "ambiguous identifier '{idStx.getId}', possible interpretations: {result.map mkConst}"
+    withRef idStx do throwError "ambiguous identifier `{idStx.getId}`, possible interpretations: {result.map mkConst}"
 
 def elabOpenDecl [MonadResolveName m] [MonadInfoTree m] (stx : TSyntax ``Parser.Command.openDecl) : m (List OpenDecl) := do
   StateRefT'.run' (s := { openDecls := (← getOpenDecls), currNamespace := (← getCurrNamespace) }) do
@@ -99,7 +111,7 @@ def elabOpenDecl [MonadResolveName m] [MonadInfoTree m] (stx : TSyntax ``Parser.
 
 def resolveNameUsingNamespaces [MonadResolveName m] (nss : List Name) (idStx : Ident) : m Name := do
   StateRefT'.run' (s := { openDecls := (← getOpenDecls), currNamespace := (← getCurrNamespace) }) do
-    resolveNameUsingNamespacesCore nss idStx
+    resolveNameUsingNamespacesCore (m := M) nss idStx
 
 end OpenDecl
 

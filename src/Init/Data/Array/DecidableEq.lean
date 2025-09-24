@@ -6,10 +6,13 @@ Authors: Leonardo de Moura
 module
 
 prelude
+public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
-import Init.Data.BEq
-import Init.Data.List.Nat.BEq
-import Init.ByCases
+public import Init.Data.BEq
+public import Init.Data.List.Nat.BEq
+public import Init.ByCases
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -23,7 +26,7 @@ private theorem rel_of_isEqvAux
   induction i with
   | zero => contradiction
   | succ i ih =>
-    simp only [Array.isEqvAux, Bool.and_eq_true, decide_eq_true_eq] at heqv
+    simp only [Array.isEqvAux, Bool.and_eq_true] at heqv
     by_cases hj' : j < i
     next =>
       exact ih _ heqv.right hj'

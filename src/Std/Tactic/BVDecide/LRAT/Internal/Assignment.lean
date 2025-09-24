@@ -3,13 +3,15 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
-prelude
-import Init.ByCases
-import Std.Tactic.BVDecide.LRAT.Internal.Entails
-import Std.Tactic.BVDecide.LRAT.Internal.PosFin
-import Init.Grind
+module
 
-set_option grind.warning false
+prelude
+public import Init.ByCases
+public import Std.Tactic.BVDecide.LRAT.Internal.Entails
+public import Std.Tactic.BVDecide.LRAT.Internal.PosFin
+public import Init.Grind
+
+@[expose] public section
 
 namespace Std.Tactic.BVDecide
 namespace LRAT

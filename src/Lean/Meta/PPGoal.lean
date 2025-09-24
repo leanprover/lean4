@@ -3,8 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.InferType
+public import Lean.Meta.InferType
+
+public section
 
 namespace Lean.Meta
 
@@ -102,7 +106,8 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
             return fmt ++ (Format.joinSep ids.reverse (format " ") ++ " :" ++ Format.nest indent (Format.line ++ typeFmt)).group
       let rec ppVars (varNames : List Name) (prevType? : Option Expr) (fmt : Format) (localDecl : LocalDecl) : MetaM (List Name × Option Expr × Format) := do
         match localDecl with
-        | .cdecl _ _ varName type _ _ =>
+        | .cdecl _ _ varName type ..
+        | .ldecl _ _ varName type (nondep := true) .. =>
           let varName := varName.simpMacroScopes
           let type ← instantiateMVars type
           if prevType? == none || prevType? == some type then
@@ -110,7 +115,7 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
           else do
             let fmt ← pushPending varNames prevType? fmt
             return ([varName], some type, fmt)
-        | .ldecl _ _ varName type val _ _ => do
+        | .ldecl _ _ varName type val (nondep := false) .. => do
           let varName := varName.simpMacroScopes
           let fmt ← pushPending varNames prevType? fmt
           let fmt  := addLine fmt

@@ -1334,7 +1334,7 @@ def _root_.ByteArray.utf8DecodeChar?.FirstByte.utf8ByteSize : FirstByte → Stri
 
 theorem utf8ByteSize_eq_utf8ByteSize_parseFirstByte {c : UInt8} {h : c.IsUtf8FirstByte} :
     c.utf8ByteSize h = (parseFirstByte c).utf8ByteSize := by
-  simp [utf8ByteSize, FirstByte.utf8ByteSize, parseFirstByte]
+  simp only [utf8ByteSize, FirstByte.utf8ByteSize, parseFirstByte, beq_iff_eq]
   split
   · simp
   · split

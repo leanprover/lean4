@@ -380,7 +380,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
     rw [LawfulUpwardEnumerableLT.lt_iff] at hl
     obtain ⟨n, hn⟩ := hl
     exact ⟨n,
-      by simp [Internal.iter, hn, ← UpwardEnumerable.succMany?_succ?_eq_succ?_bind_succMany?], hu⟩
+      by simp [Internal.iter, hn, ← UpwardEnumerable.succMany?_add_one_eq_succ?_bind_succMany?], hu⟩
 
 @[no_expose]
 instance {m} [UpwardEnumerable α]
@@ -459,7 +459,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
     rw [LawfulUpwardEnumerableLT.lt_iff] at hl
     obtain ⟨n, hn⟩ := hl
     exact ⟨n,
-      by simp [Internal.iter, hn, ← UpwardEnumerable.succMany?_succ?_eq_succ?_bind_succMany?], hu⟩
+      by simp [Internal.iter, hn, ← UpwardEnumerable.succMany?_add_one_eq_succ?_bind_succMany?], hu⟩
 
 @[no_expose]
 instance {m} [UpwardEnumerable α]
@@ -535,7 +535,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
     simp only [Membership.mem, LawfulUpwardEnumerableLT.lt_iff] at hl
     obtain ⟨n, hn⟩ := hl
     exact ⟨n,
-      by simp [Internal.iter, hn, ← UpwardEnumerable.succMany?_succ?_eq_succ?_bind_succMany?]⟩
+      by simp [Internal.iter, hn, ← UpwardEnumerable.succMany?_add_one_eq_succ?_bind_succMany?]⟩
 
 @[no_expose]
 instance {m} [UpwardEnumerable α]

@@ -22,7 +22,9 @@ def foo := Vec.cons N.zero (Vec.cons N.zero Vec.nil)
 noncomputable def Vec.id {α : Type} : {n : N} → (v : Vec α n) → Vec α n :=
   @Vec.rec _ (motive := fun n _ => Vec α n) Vec.nil (fun x _xs ih => Vec.cons x ih)
 
-#print Vec.id
+theorem Vec.id_nil {α : Type} : @Eq (Vec α .zero) (Vec.id Vec.nil) Vec.nil := Eq.refl
+
+theorem Vec.id_cons {α : Type} (x : α) (xs : Vec α n) : Eq (Vec.id (Vec.cons x xs)) (Vec.cons x (Vec.id xs)) := Eq.refl
 
 theorem test : Eq (Vec.id foo) foo := Eq.refl
 

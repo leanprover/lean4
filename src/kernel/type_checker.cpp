@@ -1181,12 +1181,13 @@ optional<recursor_val> type_checker::def_to_recursor(definition_val const & v) {
         rhs = mk_app(rhs, r);
         rhs = mk_app(rhs, rec.get_nminors(), args.data() + rec.get_nparams() + rec.get_nmotives());
         rhs = head_beta_reduce(rhs);
+        // std::cerr << "kernel: rhs now:" << rhs << "'\n";
         rhs = m_lctx.mk_lambda(r, rhs);
         rhs = m_lctx.mk_lambda(xs, rhs);
         return recursor_rule(rule.get_cnstr(), rule.get_nfields(), rhs);
     });
 
-    std::cerr << "kernel: primitive recursion detected at '" << v.get_name() << "'\n";
+    // std::stdout << "kernel: primitive recursion detected at '" << v.get_name() << "'\n";
     recursor_val new_rec = recursor_val(
          v.get_name(),
          v.to_constant_val().get_lparams(),

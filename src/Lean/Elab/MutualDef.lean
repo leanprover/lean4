@@ -1293,7 +1293,7 @@ where
 
     withoutExporting (when :=
       headers.all (fun header =>
-        header.modifiers.isMeta ||
+        header.modifiers.isMeta && !header.modifiers.attrs.any (·.name == `expose) ||
         header.modifiers.attrs.any (·.name == `no_expose) ||
         (!(header.kind == .def && sc.attrs.any (· matches `(attrInstance| expose))) &&
          !header.modifiers.attrs.any (·.name == `expose) &&
@@ -1368,7 +1368,7 @@ where
             and the parameters in the declaration, so for now we do not allow `classStx`
             to refer to section variables that were not included.
             -/
-            let info ← getConstInfo header.declName
+            let info ← withoutExporting <| getConstInfo header.declName
             lambdaTelescope info.value! fun xs _ => do
               let decl := mkAppN (.const header.declName (info.levelParams.map mkLevelParam)) xs
               processDefDeriving view decl

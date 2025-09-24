@@ -109,7 +109,7 @@ theorem read_MonadReaderOf [MonadReaderOf ρ m] [MonadLift m n] [WP n _] :
   wp⟦MonadReaderOf.read : n ρ⟧ Q = wp⟦MonadLift.monadLift (MonadReader.read : m ρ) : n ρ⟧ Q := rfl
 
 @[simp]
-theorem readThe [MonadReaderOf ρ m] [WP m ps] :
+theorem readThe_MonadReaderOf [MonadReaderOf ρ m] [WP m ps] :
   wp⟦readThe ρ : m ρ⟧ Q = wp⟦MonadReaderOf.read : m ρ⟧ Q := rfl
 
 @[simp]
@@ -159,12 +159,20 @@ theorem modify_MonadStateOf [WP m ps] [MonadStateOf σ m] (f : σ → σ) :
 theorem modifyThe_MonadStateOf [WP m ps] [MonadStateOf σ m] (f : σ → σ) :
   wp⟦modifyThe σ f : m PUnit⟧ Q = wp⟦MonadStateOf.modifyGet fun s => (⟨⟩, f s) : m PUnit⟧ Q := rfl
 
+@[simp]
+theorem getModify_MonadStateOf [WP m ps] [MonadStateOf σ m] (f : σ → σ) :
+  wp⟦getModify f : m σ⟧ Q = wp⟦MonadStateOf.modifyGet fun s => (s, f s) : m σ⟧ Q := rfl
+
 -- instances
 
 @[simp]
 theorem read_ReaderT [Monad m] [WPMonad m ps] :
     wp⟦MonadReaderOf.read : ReaderT ρ m ρ⟧ Q = fun r => Q.1 r r := by
   simp [wp, MonadReaderOf.read, ReaderT.read]
+
+@[simp]
+theorem adapt_ReaderT [WP m ps] (f : ρ → ρ') :
+  wp⟦ReaderT.adapt f x : ReaderT ρ m α⟧ Q = fun r => wp⟦x⟧ (fun a _ => Q.1 a r, Q.2) (f r) := rfl
 
 @[simp]
 theorem get_StateT [Monad m] [WPMonad m ps] :
@@ -182,6 +190,14 @@ theorem modifyGet_StateT [Monad m] [WPMonad m ps] (f : σ → α × σ) :
   simp [wp, MonadStateOf.modifyGet, StateT.modifyGet]
 
 @[simp]
+theorem adapt_ExceptT [Monad m] [WPMonad m ps] (f : ε → ε') :
+    wp⟦ExceptT.adapt f x : ExceptT ε' m α⟧ Q = wp⟦x⟧ (Q.1, fun e => Q.2.1 (f e), Q.2.2) := by
+  simp [wp, ExceptT.adapt, ExceptT.mk, Except.mapError]
+  congr
+  ext x
+  cases x <;> simp
+
+@[simp]
 theorem get_EStateM :
     wp⟦MonadStateOf.get : EStateM ε σ σ⟧ Q = fun s => Q.1 s s := by
   simp [wp, MonadStateOf.get, EStateM.get]
@@ -196,6 +212,13 @@ theorem modifyGet_EStateM (f : σ → α × σ) :
     wp⟦MonadStateOf.modifyGet f : EStateM ε σ α⟧ Q = fun s => Q.1 (f s).1 (f s).2 := by
   simp [wp, MonadStateOf.modifyGet, EStateM.modifyGet]
 
+@[simp]
+theorem adaptExcept_EStateM (f : ε → ε') :
+    wp⟦EStateM.adaptExcept f x : EStateM ε' σ α⟧ Q = wp⟦x⟧ (Q.1, fun e => Q.2.1 (f e), Q.2.2) := by
+  simp [wp, EStateM.adaptExcept]
+  ext s
+  cases (x s) <;> simp
+
 end MonadLift
 
 /-! ## `MonadFunctor`
@@ -208,7 +231,7 @@ section MonadFunctor
 
 open MonadFunctor renaming monadMap → mmap
 
--- The following 3 theorems are analogous to *.monadLift_apply.
+-- The following 3 theorems are analogous to monadLift_*.
 -- In the past, we experimented with a more tricky definition by rewriting to special monadMap defns on PredTrans, involving
 --   wp1 : (∀ {α}, m α → m α) → PredTrans ps α → PredTrans ps α
 -- that enjoys quite a tricky definition.
@@ -253,7 +276,7 @@ theorem withReader_MonadWithReader [MonadWithReaderOf ρ m] [WP m ps] (f : ρ �
   wp⟦MonadWithReader.withReader f x⟧ Q = wp⟦MonadWithReaderOf.withReader f x⟧ Q := rfl
 
 @[simp]
-theorem withTheReader [MonadWithReaderOf ρ m] [WP m ps] (f : ρ → ρ) (x : m α) :
+theorem withTheReader_MonadWithReaderOf [MonadWithReaderOf ρ m] [WP m ps] (f : ρ → ρ) (x : m α) :
   wp⟦withTheReader ρ f x⟧ Q = wp⟦MonadWithReaderOf.withReader f x⟧ Q := rfl
 
 end MonadFunctor
@@ -376,3 +399,25 @@ example :
 -/
 
 end MonadExceptOf
+
+section OrElse
+
+open EStateM.Backtrackable in
+@[simp]
+theorem orElse_EStateM {ε σ δ α x h Q} [EStateM.Backtrackable δ σ]:
+    wp⟦OrElse.orElse x h : EStateM ε σ α⟧ Q = fun s => wp⟦x⟧ (Q.1, fun _ s' => wp⟦h ()⟧ Q (restore s' (save s)), Q.2.2) s := by
+  ext s
+  simp only [wp, OrElse.orElse, EStateM.orElse]
+  cases x s <;> simp
+
+@[simp]
+theorem orElse_Except  :
+    wp⟦OrElse.orElse x h : Except ε α⟧ Q = wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2) := by
+  simp [OrElse.orElse, MonadExcept.orElse]
+
+@[simp]
+theorem orElse_ExceptT [Monad m] [WPMonad m ps] :
+    wp⟦OrElse.orElse x h : ExceptT ε m α⟧ Q = wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2) := by
+  simp [OrElse.orElse, MonadExcept.orElse]
+
+end OrElse

@@ -1198,7 +1198,10 @@ private def sortSuggestions (ss : Array Meta.Hint.Suggestion) : Array Meta.Hint.
   ss.qsort (cmp ·.suggestion ·.suggestion)
 
 open Diff in
-private def mkSuggestion  (ref : Syntax) (hintTitle : MessageData) (newStrings : Array (String × Option String × Option String)) : DocM MessageData := do
+private def mkSuggestion
+    (ref : Syntax) (hintTitle : MessageData)
+    (newStrings : Array (String × Option String × Option String)) :
+    DocM MessageData := do
   match (← read).suggestionMode with
   | .interactive =>
     hintTitle.hint (newStrings.map fun (s, preInfo?, postInfo?) => { suggestion := s, preInfo?, postInfo? }) (ref? := some ref)
@@ -1268,6 +1271,11 @@ public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline)
                 snd.snd := moreInfo.map withSpace
               }
           let ss := ss.qsort (fun x y => x.1 < y.1)
+          let litSuggestion :=
+            ( "{lit}" ++ str,
+              some "Use the `lit` role:\n",
+              some "\nto mark the code as literal text and disable suggestions" )
+          let ss := ss.push litSuggestion
           let hint ← mkSuggestion stx m!"Insert a role to document it:" ss
           logWarning m!"Code element could be more specific.{hint}"
     return .code s.getString
@@ -1293,7 +1301,7 @@ public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline)
             continue
           else throw e
         | e => throw e
-    throwErrorAt name "No expander for `{name}`"
+    throwErrorAt name "Unkown role `{name}`"
   | other =>
     throwErrorAt other "Unsupported syntax {other}"
 where
@@ -1359,7 +1367,7 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
             continue
           else throw e
         | e => throw e
-    throwErrorAt name "No directive expander for `{name}`"
+    throwErrorAt name "Unknown directive `{name}`"
   | `(block| ```%$opener | $s ```) =>
     if doc.verso.suggestions.get (← getOptions) then
       if let some ⟨b, e⟩ := opener.getRange? then
@@ -1402,7 +1410,7 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
             continue
           else throw e
         | e => throw e
-    throwErrorAt name "No code block expander for `{name}`"
+    throwErrorAt name "Unknown code block `{name}`"
   | `(block| command{$name $args*}) =>
     let expanders ← commandExpandersFor name
     for (exName, ex) in expanders do
@@ -1421,7 +1429,7 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
             continue
           else throw e
         | e => throw e
-    throwErrorAt name "No document command elaborator for `{name}`"
+    throwErrorAt name "Unknown document command `{name}`"
   | `(block|%%%$_*%%%) =>
     let h ←
       if stx.raw.getRange?.isSome then m!"Remove it".hint #[""] (ref? := stx)

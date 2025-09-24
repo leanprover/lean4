@@ -16187,7 +16187,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_IO_FS_withIsolatedStreams___at___Lean_Elab_Command_wrapAsyncAsSnapshot_spec__21___redArg___closed__3;
 x_2 = lean_unsigned_to_nat(47u);
-x_3 = lean_unsigned_to_nat(134u);
+x_3 = lean_unsigned_to_nat(133u);
 x_4 = l_IO_FS_withIsolatedStreams___at___Lean_Elab_Command_wrapAsyncAsSnapshot_spec__21___redArg___closed__2;
 x_5 = l_IO_FS_withIsolatedStreams___at___Lean_Elab_Command_wrapAsyncAsSnapshot_spec__21___redArg___closed__1;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -34542,11 +34542,12 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_addMessageContextPartial___at___Lean_logAt___at___Lean_logErrorAt___at___Lean_Elab_logException___at___Lean_Elab_Command_runLinters_spec__0_spec__0_spec__0_spec__0___redArg___closed__1;
-x_2 = lean_alloc_ctor(0, 4, 0);
+x_2 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
 lean_ctor_set(x_2, 2, x_1);
 lean_ctor_set(x_2, 3, x_1);
+lean_ctor_set(x_2, 4, x_1);
 return x_2;
 }
 }

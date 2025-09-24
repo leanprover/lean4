@@ -1096,7 +1096,7 @@ lean_dec(x_22);
 x_24 = lean_array_get(x_14, x_23, x_19);
 lean_dec(x_19);
 lean_dec_ref(x_23);
-x_25 = lean_ctor_get(x_24, 11);
+x_25 = lean_ctor_get(x_24, 10);
 if (lean_obj_tag(x_25) == 0)
 {
 uint8_t x_26; lean_object* x_27; 
@@ -1169,7 +1169,7 @@ lean_dec(x_38);
 x_41 = lean_array_get(x_14, x_40, x_19);
 lean_dec(x_19);
 lean_dec_ref(x_40);
-x_42 = lean_ctor_get(x_41, 11);
+x_42 = lean_ctor_get(x_41, 10);
 if (lean_obj_tag(x_42) == 0)
 {
 uint8_t x_43; lean_object* x_44; lean_object* x_45; 

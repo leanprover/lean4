@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Subarray
-// Imports: Init.GetElem Init.Data.Array.GetLit Init.Data.Slice.Basic
+// Imports: Init.GetElem Init.Data.Array.Basic Init.Data.Array.GetLit Init.Data.Slice.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3568,6 +3568,7 @@ return x_53;
 }
 }
 lean_object* initialize_Init_GetElem(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_GetLit(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Slice_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -3576,6 +3577,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_GetElem(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_GetLit(builtin, lean_io_mk_world());

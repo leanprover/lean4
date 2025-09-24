@@ -467,6 +467,7 @@ x_7 = lean_ctor_get(x_3, 0);
 lean_inc(x_7);
 lean_dec_ref(x_3);
 x_8 = l_String_toFormat(x_7);
+lean_dec(x_7);
 return x_8;
 }
 }

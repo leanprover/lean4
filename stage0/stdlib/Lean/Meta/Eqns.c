@@ -10743,11 +10743,12 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_throwReservedNameNotAvailable___at___Lean_ensureReservedNameAvailable___at___Lean_Meta_ensureEqnReservedNamesAvailable_spec__0_spec__0_spec__0_spec__0___closed__1;
-x_2 = lean_alloc_ctor(0, 4, 0);
+x_2 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
 lean_ctor_set(x_2, 2, x_1);
 lean_ctor_set(x_2, 3, x_1);
+lean_ctor_set(x_2, 4, x_1);
 return x_2;
 }
 }

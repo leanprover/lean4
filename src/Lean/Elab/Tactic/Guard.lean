@@ -160,7 +160,7 @@ def evalGuardCmd : Lean.Elab.Command.CommandElab
     let e ← instantiateMVars e
     let mvars ← getMVars e
     if mvars.isEmpty then
-      let v ← unsafe evalExpr Bool (mkConst ``Bool) e
+      let v ← unsafe evalExpr (checkMeta := false) Bool (mkConst ``Bool) e
       unless v do
         throwError "Expression{indentExpr e}\ndid not evaluate to `true`"
     else

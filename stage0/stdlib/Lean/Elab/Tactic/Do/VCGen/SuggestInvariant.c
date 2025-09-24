@@ -2165,7 +2165,7 @@ block_66:
 if (x_55 == 0)
 {
 lean_dec_ref(x_54);
-lean_dec_ref(x_53);
+lean_dec_ref(x_52);
 lean_dec(x_40);
 lean_dec(x_36);
 lean_inc_ref(x_3);
@@ -2177,11 +2177,11 @@ else
 lean_object* x_56; lean_object* x_57; uint8_t x_58; 
 x_56 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_Tactic_Do_VCGen_SuggestInvariant_0__Lean_Elab_Tactic_Do_hasEarlyReturn_spec__12___closed__1;
 x_57 = l_Lean_Name_mkStr2(x_56, x_54);
-x_58 = l_Lean_Expr_isAppOf(x_53, x_57);
+x_58 = l_Lean_Expr_isAppOf(x_52, x_57);
 lean_dec(x_57);
 if (x_58 == 0)
 {
-lean_dec_ref(x_53);
+lean_dec_ref(x_52);
 if (x_58 == 0)
 {
 lean_dec_ref(x_4);
@@ -2199,13 +2199,13 @@ else
 {
 lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; uint8_t x_65; 
 x_59 = lean_unsigned_to_nat(2u);
-x_60 = l_Lean_Expr_getAppNumArgs(x_53);
+x_60 = l_Lean_Expr_getAppNumArgs(x_52);
 x_61 = lean_nat_sub(x_60, x_59);
 lean_dec(x_60);
-x_62 = lean_nat_sub(x_61, x_52);
+x_62 = lean_nat_sub(x_61, x_53);
 lean_dec(x_61);
-x_63 = l_Lean_Expr_getRevArg_x21(x_53, x_62);
-lean_dec_ref(x_53);
+x_63 = l_Lean_Expr_getRevArg_x21(x_52, x_62);
+lean_dec_ref(x_52);
 x_64 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_Tactic_Do_VCGen_SuggestInvariant_0__Lean_Elab_Tactic_Do_hasEarlyReturn_spec__12___closed__4;
 x_65 = l_Lean_Expr_isAppOf(x_63, x_64);
 lean_dec_ref(x_63);
@@ -2446,16 +2446,16 @@ x_101 = l_Lean_Expr_isAppOf(x_99, x_100);
 lean_dec_ref(x_99);
 if (x_101 == 0)
 {
-x_52 = x_68;
-x_53 = x_98;
+x_52 = x_98;
+x_53 = x_68;
 x_54 = x_81;
 x_55 = x_97;
 goto block_66;
 }
 else
 {
-x_52 = x_68;
-x_53 = x_98;
+x_52 = x_98;
+x_53 = x_68;
 x_54 = x_81;
 x_55 = x_5;
 goto block_66;

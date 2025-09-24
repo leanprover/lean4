@@ -34,7 +34,7 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_synthesizeSyntheticMVarsNoPostponing(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_setEnv___at___Lean_withEnv___at___Lean_Elab_Term_evalTerm_spec__2_spec__2___redArg___closed__0;
 extern lean_object* l_Lean_Elab_abortTermExceptionId;
-lean_object* l_Lean_Meta_evalExpr___redArg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_evalExpr___redArg(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_evalTerm___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwAbortTerm___at___Lean_Elab_Term_evalTerm_spec__1___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Elab_Term_evalTerm_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -617,7 +617,7 @@ lean_object* x_30; lean_object* x_31;
 x_30 = lean_ctor_get(x_27, 1);
 lean_inc(x_30);
 lean_dec_ref(x_27);
-x_31 = l_Lean_Meta_evalExpr___redArg(x_5, x_21, x_6, x_9, x_10, x_11, x_12, x_30);
+x_31 = l_Lean_Meta_evalExpr___redArg(x_5, x_21, x_6, x_3, x_9, x_10, x_11, x_12, x_30);
 return x_31;
 }
 else

@@ -63,12 +63,11 @@ partial def checkMeta (origDecl : Decl) : CompilerM Unit := do
   let irPhases := getIRPhases (← getEnv) origDecl.name
   if irPhases == .all then
     return
-  let isMeta := irPhases == .comptime
   -- If the meta decl is public, we want to ensure it can only refer to public meta imports so that
   -- references to private imports cannot escape the current module. In particular, we check that
   -- decls with relevant global attrs are public (`Lean.ensureAttrDeclIsMeta`).
   let isPublic := !isPrivateName origDecl.name
-  go isMeta isPublic origDecl |>.run' {}
+  go (irPhases == .comptime) isPublic origDecl |>.run' {}
 where go (isMeta isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit := do
   decl.value.forCodeM fun code =>
     for ref in collectUsedDecls code do
@@ -132,9 +131,9 @@ partial def checkTemplateVisibility : Pass where
         -- indirectly via a public template-like, we do a recursive check when checking the latter.
         if !isPrivateName decl.name && (← decl.isTemplateLike) then
           let isMeta := isMeta (← getEnv) decl.name
-          go isMeta decl decl |>.run' {}
+          go decl decl |>.run' {}
     return decls
-where go (isMeta : Bool) (origDecl decl : Decl) : StateT NameSet CompilerM Unit := do
+where go (origDecl decl : Decl) : StateT NameSet CompilerM Unit := do
   decl.value.forCodeM fun code =>
     for ref in collectUsedDecls code do
       if (← get).contains ref then
@@ -143,7 +142,7 @@ where go (isMeta : Bool) (origDecl decl : Decl) : StateT NameSet CompilerM Unit 
       if let some localDecl := baseExt.getState (← getEnv) |>.find? ref then
         -- check transitively through local decls
         if isPrivateName localDecl.name && (← localDecl.isTemplateLike) then
-          go isMeta origDecl localDecl
+          go origDecl localDecl
       else if let some modIdx := (← getEnv).getModuleIdxFor? ref then
         if (← getEnv).header.modules[modIdx]?.any (!·.isExported) then
           throwError "Cannot compile inline/specializing declaration `{.ofConstName origDecl.name}` as \

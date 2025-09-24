@@ -6355,12 +6355,12 @@ goto block_41;
 block_297:
 {
 uint8_t x_286; 
-x_286 = lean_nat_dec_lt(x_284, x_285);
+x_286 = lean_nat_dec_lt(x_283, x_285);
 if (x_286 == 0)
 {
 lean_dec(x_285);
-lean_dec(x_284);
-lean_dec_ref(x_283);
+lean_dec_ref(x_284);
+lean_dec(x_283);
 x_70 = x_69;
 x_71 = x_61;
 goto block_282;
@@ -6368,16 +6368,16 @@ goto block_282;
 else
 {
 size_t x_287; size_t x_288; lean_object* x_289; 
-x_287 = lean_usize_of_nat(x_284);
-lean_dec(x_284);
+x_287 = lean_usize_of_nat(x_283);
+lean_dec(x_283);
 x_288 = lean_usize_of_nat(x_285);
 lean_dec(x_285);
 lean_inc(x_17);
 lean_inc_ref(x_16);
 lean_inc(x_15);
 lean_inc_ref(x_14);
-x_289 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at_____private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkMatchOld_mkAlts_spec__13___redArg(x_46, x_283, x_287, x_288, x_14, x_15, x_16, x_17, x_61);
-lean_dec_ref(x_283);
+x_289 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at_____private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkMatchOld_mkAlts_spec__13___redArg(x_46, x_284, x_287, x_288, x_14, x_15, x_16, x_17, x_61);
+lean_dec_ref(x_284);
 if (lean_obj_tag(x_289) == 0)
 {
 lean_object* x_290; lean_object* x_291; uint8_t x_292; 
@@ -6465,16 +6465,16 @@ x_306 = lean_nat_dec_le(x_303, x_305);
 if (x_306 == 0)
 {
 lean_dec(x_303);
-x_283 = x_301;
-x_284 = x_302;
+x_283 = x_302;
+x_284 = x_301;
 x_285 = x_305;
 goto block_297;
 }
 else
 {
 lean_dec(x_305);
-x_283 = x_301;
-x_284 = x_302;
+x_283 = x_302;
+x_284 = x_301;
 x_285 = x_303;
 goto block_297;
 }

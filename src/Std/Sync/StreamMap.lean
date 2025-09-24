@@ -60,7 +60,7 @@ Register a new async stream with the given name
 def register [BEq α] [AsyncStream t β] (sm : StreamMap α β) (name : α) (reader : t) : StreamMap α β :=
   let newSelector := AsyncStream.next reader
   let filteredStreams := sm.streams.filter (fun (n, _) => n != name)
-  { sm with streams := filteredStreams.push (name, newSelector,  AsyncStream.stop reader) }
+  { sm with streams := filteredStreams.push (name, newSelector, AsyncStream.stop reader) }
 
 /--
 Create a StreamMap from an array of named streams

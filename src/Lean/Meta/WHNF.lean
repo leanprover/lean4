@@ -225,8 +225,10 @@ private def cleanupNatOffsetMajor (e : Expr) : MetaM Expr := do
     return mkNatSucc (mkNatAdd e (toExpr (k - 1)))
 
 /-- Auxiliary function for reducing recursor applications. -/
-private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
+private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (e : Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
+  let recArgs := e.getAppArgs
   let majorIdx := recVal.getMajorIdx
+  let recApp := e.stripArgsN (recArgs.size - (recVal.numParams + recVal.numMotives + recVal.numMinors))
   if h : majorIdx < recArgs.size then do
     let major := recArgs[majorIdx]
     let mut major ← if isWFRec recVal.name && (← getTransparency) == .default then
@@ -251,10 +253,14 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
         let rhs := rule.rhs.instantiateLevelParams recVal.levelParams recLvls
         -- Apply parameters, motives and minor premises from recursor application.
         let rhs := mkAppRange rhs 0 (recVal.numParams+recVal.numMotives) recArgs
-        let recApps := recVal.recs.toArray.map fun recName =>
-          let recApp := mkConst recName recLvls -- TODO: Do not reconstruct
-          mkAppRange recApp 0 (recVal.numParams+recVal.numMotives+recVal.numMinors) recArgs
-        let rhs := mkAppN rhs recApps
+        let rhs :=
+          if recVal.numMotives = 1 then
+            mkApp rhs recApp
+          else
+            let recApps := recVal.recs.toArray.map fun recName =>
+              mkAppRange (mkConst recName recLvls)
+                0 (recVal.numParams+recVal.numMotives+recVal.numMinors) recArgs
+            mkAppN rhs recApps
         let rhs := mkAppRange rhs (recVal.numParams+recVal.numMotives) (recVal.numParams+recVal.numMotives+recVal.numMinors) recArgs
         /- The number of parameters in the constructor is not necessarily
            equal to the number of parameters in the recursor when we have
@@ -688,7 +694,7 @@ where
             let .const cname lvls := f'.getAppFn | return e
             let some cinfo := (← getEnv).find? cname | return e
             match cinfo with
-            | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
+            | .recInfo rec    => reduceRec rec lvls e (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
             | .quotInfo rec   => reduceQuotRec rec e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
             | c@(.defnInfo _) => do
               if (← isAuxDef c.name) then
@@ -929,7 +935,7 @@ def reduceRecMatcher? (e : Expr) : MetaM (Option Expr) := do
       let .const cname lvls := e.getAppFn | return none
       let some cinfo := (← getEnv).find? cname | return none
       match cinfo with
-      | .recInfo «rec»  => reduceRec «rec» lvls e.getAppArgs (fun _ => pure none) (fun e => do recordUnfold cinfo.name; pure (some e))
+      | .recInfo «rec»  => reduceRec «rec» lvls e (fun _ => pure none) (fun e => do recordUnfold cinfo.name; pure (some e))
       | .quotInfo «rec» => reduceQuotRec «rec» e.getAppArgs (fun _ => pure none) (fun e => do recordUnfold cinfo.name; pure (some e))
       | c@(.defnInfo _) =>
         if (← isAuxDef c.name) then

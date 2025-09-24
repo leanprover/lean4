@@ -199,7 +199,7 @@ def Selectable.tryOne (selectables : Array (Selectable α)) : Async (Option α) 
 
 /--
 Creates a `Selector` that performs fair and data-loss free multiplexing on multiple `Selectable`s.
-This allows the multiplexing operation to be composed with other selectors or delayed until needed.
+This allows the multiplexing operation to be composed with other selectors.
 -/
 def Selectable.combine (selectables : Array (Selectable α)) : IO (Selector α) := do
   if selectables.isEmpty then

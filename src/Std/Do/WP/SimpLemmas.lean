@@ -258,6 +258,81 @@ theorem withTheReader [MonadWithReaderOf ρ m] [WP m ps] (f : ρ → ρ) (x : m 
 
 end MonadFunctor
 
+/-! ## `MonadControl`
+
+The definitions that follow interpret `liftWith` and thus instances of, e.g., `MonadReaderWithOf`.
+
+-/
+
+section MonadControl
+
+@[simp]
+theorem liftWith_StateT [Monad m] [WPMonad m ps]
+  (f : (∀{β}, StateT σ m β → m (β × σ)) → m α) :
+    wp⟦MonadControl.liftWith (m:=m) f⟧ Q = fun s => wp⟦f (fun x => x.run s)⟧ (fun a => Q.1 a s, Q.2) := by
+  simp [MonadControl.liftWith, StateT.run]
+
+@[simp]
+theorem liftWith_ReaderT [Monad m] [WPMonad m ps]
+  (f : (∀{β}, ReaderT ρ m β → m β) → m α) :
+    wp⟦MonadControl.liftWith (m:=m) f⟧ Q = fun s => wp⟦f (fun x => x.run s)⟧ (fun a => Q.1 a s, Q.2) := by
+  simp [wp, MonadControl.liftWith, ReaderT.run]
+
+@[simp]
+theorem liftWith_ExceptT [Monad m] [WPMonad m ps]
+  (f : (∀{β}, ExceptT ε m β → m (Except ε β)) → m α) :
+    wp⟦MonadControl.liftWith (m:=m) f⟧ Q = wp⟦f (fun x => x.run)⟧ (Q.1, Q.2.2) := by
+  -- For some reason, the spec for `liftM` does not apply.
+  simp [wp, MonadControl.liftWith, ExceptT.run, liftM, monadLift, MonadLift.monadLift, ExceptT.lift, ExceptT.mk]
+
+@[simp]
+theorem liftWith_trans [WP o ps] [MonadControl n o] [MonadControlT m n]
+  (f : (∀{β}, o β → m (stM m o β)) → m α) :
+    wp⟦MonadControlT.liftWith f : o α⟧ Q = wp⟦MonadControl.liftWith (m:=n) fun x₂ => MonadControlT.liftWith fun x₁ => f (x₁ ∘ x₂) : o α⟧ Q := rfl
+
+@[simp]
+theorem liftWith_refl [WP m ps] [Pure m]
+  (f : (∀{β}, m β → m β) → m α) :
+    wp⟦MonadControlT.liftWith (m:=m) f : m α⟧ Q = wp⟦f (fun x => x) : m α⟧ Q := rfl
+
+@[simp]
+theorem restoreM_StateT [Monad m] [WPMonad m ps] (x : m (α × σ)) :
+    wp⟦MonadControl.restoreM (m:=m) x : StateT σ m α⟧ Q = fun _ => wp⟦x⟧ (fun (a, s) => Q.1 a s, Q.2) := by
+  simp [MonadControl.restoreM]
+
+@[simp]
+theorem restoreM_ReaderT [Monad m] [WPMonad m ps] (x : m α) :
+    wp⟦MonadControl.restoreM (m:=m) x : ReaderT ρ m α⟧ Q = fun s => wp⟦x⟧ (fun a => Q.1 a s, Q.2) := by
+  simp [wp, MonadControl.restoreM]
+
+@[simp]
+theorem restoreM_ExceptT [Monad m] [WPMonad m ps] (x : m (Except ε α)) :
+    wp⟦MonadControl.restoreM (m:=m) x : ExceptT ε m α⟧ Q = wp⟦x⟧ (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2) := by
+  simp [wp, MonadControl.restoreM]
+  congr
+  ext
+  split <;> rfl
+
+@[simp]
+theorem restoreM_trans [WP o ps] [MonadControl n o] [MonadControlT m n] (x : stM m o α) :
+  wp⟦MonadControlT.restoreM x : o α⟧ Q = wp⟦MonadControl.restoreM (m:=n) (MonadControlT.restoreM (m:=m) x) : o α⟧ Q := rfl
+
+@[simp]
+theorem restoreM_refl [Pure m] [WP m ps] (x : stM m m α) :
+  wp⟦MonadControlT.restoreM x : m α⟧ Q = wp⟦Pure.pure x : m α⟧ Q := rfl
+
+@[simp]
+theorem controlAt_MonadControlT [Bind n] [WP n ps] [MonadControlT m n]
+  (f : (∀{β}, n β → m (stM m n β)) → m (stM m n α)) :
+    wp⟦controlAt m f⟧ Q = wp⟦liftWith f >>= restoreM⟧ Q := rfl
+
+@[simp]
+theorem control_MonadControlT [Bind n] [WP n ps] [MonadControlT m n]
+  (f : (∀{β}, n β → m (stM m n β)) → m (stM m n α)) :
+    wp⟦control f⟧ Q = wp⟦liftWith f >>= restoreM⟧ Q := rfl
+
+end MonadControl
+
 /-! ## `MonadExceptOf`
 
 The definitions that follow interpret `throw`, `throwThe`, `tryCatch`, etc.

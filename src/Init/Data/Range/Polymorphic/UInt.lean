@@ -57,7 +57,6 @@ instance : LawfulUpwardEnumerableLE UInt8 where
     simpa [upwardEnumerableLE_ofBitVec, UInt8.le_iff_toBitVec_le] using
       LawfulUpwardEnumerableLE.le_iff _ _
 
-instance : LawfulOrderLT UInt8 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt8 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt8 := inferInstance
 
@@ -131,7 +130,6 @@ instance : LawfulUpwardEnumerableLE UInt16 where
     simpa [upwardEnumerableLE_ofBitVec, UInt16.le_iff_toBitVec_le] using
       LawfulUpwardEnumerableLE.le_iff _ _
 
-instance : LawfulOrderLT UInt16 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt16 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt16 := inferInstance
 
@@ -205,7 +203,6 @@ instance : LawfulUpwardEnumerableLE UInt32 where
     simpa [upwardEnumerableLE_ofBitVec, UInt32.le_iff_toBitVec_le] using
       LawfulUpwardEnumerableLE.le_iff _ _
 
-instance : LawfulOrderLT UInt32 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt32 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt32 := inferInstance
 
@@ -279,7 +276,6 @@ instance : LawfulUpwardEnumerableLE UInt64 where
     simpa [upwardEnumerableLE_ofBitVec, UInt64.le_iff_toBitVec_le] using
       LawfulUpwardEnumerableLE.le_iff _ _
 
-instance : LawfulOrderLT UInt64 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt64 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt64 := inferInstance
 
@@ -353,7 +349,6 @@ instance : LawfulUpwardEnumerableLE USize where
     simpa [upwardEnumerableLE_ofBitVec, USize.le_iff_toBitVec_le] using
       LawfulUpwardEnumerableLE.le_iff _ _
 
-instance : LawfulOrderLT USize := inferInstance
 instance : LawfulUpwardEnumerableLT USize := inferInstance
 instance : LawfulUpwardEnumerableLT USize := inferInstance
 

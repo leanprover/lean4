@@ -141,7 +141,7 @@ Examples:
  * `[].asString = ""`
  * `['a', 'a', 'a'].asString = "aaa"`
 -/
-@[expose]
+@[expose, inline]
 def List.asString (s : List Char) : String :=
   String.mk s
 

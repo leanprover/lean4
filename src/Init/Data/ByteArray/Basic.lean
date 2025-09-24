@@ -87,6 +87,7 @@ def copySlice (src : @& ByteArray) (srcOff : Nat) (dest : ByteArray) (destOff le
 def extract (a : ByteArray) (b e : Nat) : ByteArray :=
   a.copySlice b empty 0 (e - b)
 
+@[inline]
 protected def fastAppend (a : ByteArray) (b : ByteArray) : ByteArray :=
   -- we assume that `append`s may be repeated, so use asymptotic growing; use `copySlice` directly to customize
   b.copySlice 0 a a.size b.size false

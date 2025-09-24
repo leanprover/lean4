@@ -1513,6 +1513,16 @@ indicate failure.
 -/
 @[extern "lean_io_exit"] opaque exit : UInt8 → IO α
 
+/--
+Terminates the current process with the provided exit code. `0` indicates success, all other values
+indicate failure.
+
+The key difference to `exit` is that `quickExit` will not run all of the cleanup procedure of a
+regular `exit`. For more information consult
+[N2240](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2440.htm).
+-/
+@[extern "lean_io_quick_exit"] opaque quickExit : UInt8 → IO α
+
 end Process
 
 /-- Returns the thread ID of the calling thread. -/

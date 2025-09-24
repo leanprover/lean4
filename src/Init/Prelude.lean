@@ -3391,12 +3391,15 @@ of bytes using the UTF-8 encoding. Both the size in bytes (`String.utf8ByteSize`
 modifications when the reference to the string is unique.
 -/
 structure String where ofByteArray ::
-  /-- The bytes of the UTF-8 encoding of the string. -/
+  /-- The bytes of the UTF-8 encoding of the string. Since strings have a special representation in
+  the runtime, this function actually takes linear time and space at runtime. For efficient access
+  to the string's bytes, use `String.utf8ByteSize` and `String.getUtf8Byte`. -/
   bytes : ByteArray
   /-- The bytes of the string form valid UTF-8. -/
   isValidUtf8 : ByteArray.IsValidUtf8 bytes
 
 attribute [extern "lean_string_to_utf8"] String.bytes
+attribute [extern "lean_string_from_utf8_unchecked"] String.ofByteArray
 
 /--
 Decides whether two strings are equal. Normally used via the `DecidableEq String` instance and the
@@ -3446,8 +3449,8 @@ convenient than tracking the bounds by hand.
 
 Using its constructor explicitly, it is possible to construct a `Substring` in which one or both of
 the positions is invalid for the string. Many operations will return unexpected or confusing results
-if the start and stop positions are not valid. Instead, it's better to use API functions that ensure
-the validity of the positions in a substring to create and manipulate them.
+if the start and stop positions are not valid. For this reason, `Substring` will be deprecated in
+favor of `String.Slice`, which always represents a valid substring.
 -/
 structure Substring where
   /-- The underlying string. -/

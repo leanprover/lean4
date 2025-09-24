@@ -229,7 +229,7 @@ That is, a `v` followed by a digit.
 -/
 public def isVerLike (s : String) : Bool :=
   if h : s.utf8ByteSize ≥ 2 then
-    s.get' 0 (by simp [String.atEnd]; omega) == 'v' &&
+    s.get' 0 (by simp [-String.utf8ByteSize_eq_zero_iff, String.atEnd]; omega) == 'v' &&
     (s.get' ⟨1⟩ (by simp [String.atEnd]; omega)).isDigit
   else
     false

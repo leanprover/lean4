@@ -1,3 +1,5 @@
+module
+
 /-!
 # Tests for `String` functions
 -/
@@ -166,3 +168,32 @@ Behavior of `String.next` (`lean_string_utf8_next`) in special cases (see issue 
 #test "L∃∀N".next ⟨2 ^ 128 - 1⟩ = ⟨2 ^ 128⟩ -- large non-scalar
 #test "L∃∀N".next ⟨2 ^ 63 - 1⟩ = ⟨2 ^ 63⟩ -- scalar boundary (64-bit)
 #test "L∃∀N".next ⟨2 ^ 31 - 1⟩ = ⟨2 ^ 31⟩ -- scalar boundary (32-bit)
+
+-- ofByteArray
+#test (String.ofByteArray ByteArray.empty (by simp)) = ""
+#test (String.ofByteArray ⟨#[76, 226, 136, 131, 226, 136, 128, 78]⟩ (.intro ['L', '∃', '∀', 'N'] rfl)) = lean
+
+#test "abc".pos? ⟨4⟩ = none
+#test "L∃∀N".pos? ⟨2⟩ = none
+
+#test ("abc".pos ⟨1⟩ (by decide)).get (by decide) = 'b'
+#test ("abc".pos ⟨3⟩ (by decide)).get? = none
+#test ("L∃∀N".pos ⟨1⟩ (by decide)).get (by decide) = '∃'
+
+#test (("L∃∀N".pos ⟨0⟩ (by decide)).next (by decide)).offset = ⟨1⟩
+#test (("L∃∀N".pos ⟨1⟩ (by decide)).next (by decide)).offset = ⟨4⟩
+#test (("L∃∀N".pos ⟨4⟩ (by decide)).next (by decide)).offset = ⟨7⟩
+#test (("L∃∀N".pos ⟨7⟩ (by decide)).next (by decide)).offset = ⟨8⟩
+
+#test ("L∃∀N".pos ⟨0⟩ (by decide)).next?.map (·.offset) = some ⟨1⟩
+#test ("L∃∀N".pos ⟨8⟩ (by decide)).next? = none
+#test ("L∃∀N".pos ⟨0⟩ (by decide)).next!.offset = ⟨1⟩
+
+#test (("L∃∀N".pos ⟨1⟩ (by decide)).prev (by decide)).offset = ⟨0⟩
+#test (("L∃∀N".pos ⟨4⟩ (by decide)).prev (by decide)).offset = ⟨1⟩
+#test (("L∃∀N".pos ⟨7⟩ (by decide)).prev (by decide)).offset = ⟨4⟩
+#test (("L∃∀N".pos ⟨8⟩ (by decide)).prev (by decide)).offset = ⟨7⟩
+
+#test ("L∃∀N".pos ⟨1⟩ (by decide)).prev?.map (·.offset) = some ⟨0⟩
+#test ("L∃∀N".pos ⟨0⟩ (by decide)).prev? = none
+#test ("L∃∀N".pos ⟨1⟩ (by decide)).prev!.offset = ⟨0⟩

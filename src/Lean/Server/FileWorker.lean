@@ -401,7 +401,7 @@ def setupImports
     -- same process and instead ask the watchdog to restart the worker
     IO.sleep 200  -- give user time to make further edits before restart
     unless (← IO.checkCanceled) do
-      IO.Process.quickExit 2  -- signal restart request to watchdog
+      IO.Process.forceExit 2  -- signal restart request to watchdog
     -- should not be visible to user as task is already canceled
     return .error { diagnostics := .empty, result? := none, metaSnap := default }
 
@@ -1095,9 +1095,9 @@ def workerMain (opts : Options) : IO UInt32 := do
   let e ← IO.getStderr
   try
     initAndRunWorker i o e opts
-    IO.Process.quickExit 0 -- Terminate all tasks of this process
+    IO.Process.forceExit 0 -- Terminate all tasks of this process
   catch err =>
     e.putStrLn err.toString
-    IO.Process.quickExit 1 -- Terminate all tasks of this process
+    IO.Process.forceExit 1 -- Terminate all tasks of this process
 
 end Lean.Server.FileWorker

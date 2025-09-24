@@ -1539,8 +1539,8 @@ extern "C" LEAN_EXPORT obj_res lean_io_exit(uint8_t code, obj_arg /* w */) {
     exit(code);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_quick_exit(uint8_t code, obj_arg /* w */) {
-    std::quick_exit((int)code);
+extern "C" LEAN_EXPORT obj_res lean_io_force_exit(uint8_t code, obj_arg /* w */) {
+    std::_Exit((int)code);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_runtime_mark_multi_threaded(obj_arg a, obj_arg /* w */) {

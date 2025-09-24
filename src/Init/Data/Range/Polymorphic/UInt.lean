@@ -46,9 +46,9 @@ instance : LawfulUpwardEnumerable UInt8 where
   succMany?_zero x := by
     cases x
     simpa [succMany?_ofBitVec] using succMany?_zero
-  succMany?_succ? n x := by
+  succMany?_add_one n x := by
     cases x
-    simp [succMany?_ofBitVec, succMany?_succ?, Option.bind_map, Function.comp_def,
+    simp [succMany?_ofBitVec, succMany?_add_one, Option.bind_map, Function.comp_def,
       succ?_ofBitVec]
 
 instance : LawfulUpwardEnumerableLE UInt8 where
@@ -57,7 +57,6 @@ instance : LawfulUpwardEnumerableLE UInt8 where
     simpa [upwardEnumerableLE_ofBitVec, UInt8.le_iff_toBitVec_le] using
       LawfulUpwardEnumerableLE.le_iff _ _
 
-instance : LawfulOrderLT UInt8 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt8 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt8 := inferInstance
 
@@ -120,9 +119,9 @@ instance : LawfulUpwardEnumerable UInt16 where
   succMany?_zero x := by
     cases x
     simpa [succMany?_ofBitVec] using succMany?_zero
-  succMany?_succ? n x := by
+  succMany?_add_one n x := by
     cases x
-    simp [succMany?_ofBitVec, succMany?_succ?, Option.bind_map, Function.comp_def,
+    simp [succMany?_ofBitVec, succMany?_add_one, Option.bind_map, Function.comp_def,
       succ?_ofBitVec]
 
 instance : LawfulUpwardEnumerableLE UInt16 where
@@ -131,7 +130,6 @@ instance : LawfulUpwardEnumerableLE UInt16 where
     simpa [upwardEnumerableLE_ofBitVec, UInt16.le_iff_toBitVec_le] using
       LawfulUpwardEnumerableLE.le_iff _ _
 
-instance : LawfulOrderLT UInt16 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt16 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt16 := inferInstance
 
@@ -194,9 +192,9 @@ instance : LawfulUpwardEnumerable UInt32 where
   succMany?_zero x := by
     cases x
     simpa [succMany?_ofBitVec] using succMany?_zero
-  succMany?_succ? n x := by
+  succMany?_add_one n x := by
     cases x
-    simp [succMany?_ofBitVec, succMany?_succ?, Option.bind_map, Function.comp_def,
+    simp [succMany?_ofBitVec, succMany?_add_one, Option.bind_map, Function.comp_def,
       succ?_ofBitVec]
 
 instance : LawfulUpwardEnumerableLE UInt32 where
@@ -205,7 +203,6 @@ instance : LawfulUpwardEnumerableLE UInt32 where
     simpa [upwardEnumerableLE_ofBitVec, UInt32.le_iff_toBitVec_le] using
       LawfulUpwardEnumerableLE.le_iff _ _
 
-instance : LawfulOrderLT UInt32 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt32 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt32 := inferInstance
 
@@ -268,9 +265,9 @@ instance : LawfulUpwardEnumerable UInt64 where
   succMany?_zero x := by
     cases x
     simpa [succMany?_ofBitVec] using succMany?_zero
-  succMany?_succ? n x := by
+  succMany?_add_one n x := by
     cases x
-    simp [succMany?_ofBitVec, succMany?_succ?, Option.bind_map, Function.comp_def,
+    simp [succMany?_ofBitVec, succMany?_add_one, Option.bind_map, Function.comp_def,
       succ?_ofBitVec]
 
 instance : LawfulUpwardEnumerableLE UInt64 where
@@ -279,7 +276,6 @@ instance : LawfulUpwardEnumerableLE UInt64 where
     simpa [upwardEnumerableLE_ofBitVec, UInt64.le_iff_toBitVec_le] using
       LawfulUpwardEnumerableLE.le_iff _ _
 
-instance : LawfulOrderLT UInt64 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt64 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt64 := inferInstance
 
@@ -342,9 +338,9 @@ instance : LawfulUpwardEnumerable USize where
   succMany?_zero x := by
     cases x
     simpa [succMany?_ofBitVec] using succMany?_zero
-  succMany?_succ? n x := by
+  succMany?_add_one n x := by
     cases x
-    simp [succMany?_ofBitVec, succMany?_succ?, Option.bind_map, Function.comp_def,
+    simp [succMany?_ofBitVec, succMany?_add_one, Option.bind_map, Function.comp_def,
       succ?_ofBitVec]
 
 instance : LawfulUpwardEnumerableLE USize where
@@ -353,7 +349,6 @@ instance : LawfulUpwardEnumerableLE USize where
     simpa [upwardEnumerableLE_ofBitVec, USize.le_iff_toBitVec_le] using
       LawfulUpwardEnumerableLE.le_iff _ _
 
-instance : LawfulOrderLT USize := inferInstance
 instance : LawfulUpwardEnumerableLT USize := inferInstance
 instance : LawfulUpwardEnumerableLT USize := inferInstance
 

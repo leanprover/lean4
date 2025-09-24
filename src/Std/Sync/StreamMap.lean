@@ -60,7 +60,7 @@ Register a new async stream with the given name
 def register [AsyncStream t α] (sm : StreamMap α) (name : String) (reader : t) : StreamMap α :=
   let newSelector := AsyncStream.next reader
   let filteredStreams := sm.streams.filter (fun (n, _) => n != name)
-  { sm with streams := filteredStreams.push (name, newSelector,  AsyncStream.stop reader) }
+  { sm with streams := filteredStreams.push (name, newSelector, AsyncStream.stop reader) }
 
 /--
 Create a StreamMap from an array of named streams

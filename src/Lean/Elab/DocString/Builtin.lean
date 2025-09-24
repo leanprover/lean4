@@ -106,6 +106,13 @@ structure Data.Syntax where
   stx : Lean.Syntax
 deriving TypeName
 
+/-- The code represents a module name. -/
+structure Data.ModuleName where
+  /-- The module. -/
+  «module» : Name
+deriving TypeName
+
+
 private def onlyCode [Monad m] [MonadError m] (xs : TSyntaxArray `inline) : m StrLit := do
   if h : xs.size = 1 then
     match xs[0] with
@@ -176,6 +183,61 @@ def name (full : Option Ident := none) (scope : DocScope := .local) (xs : TSynta
       info := .mk { name : PostponedName }
     }
     return .other { name := ``PostponedCheck, val := .mk val } #[.code s.getString]
+
+private def similarNames (x : Name) (xs : Array Name) : Array Name := Id.run do
+  let s := x.toString
+  let mut threshold := if s.length < 5 then 1 else if s.length < 8 then 2 else 3
+  let mut candidates := #[]
+  for x in xs do
+    if let some d ← levenshtein s x.toString threshold then
+      if d < threshold then threshold := d
+      if d ≤ threshold then candidates := candidates.push (x, d)
+  -- Only keep the smallest distance
+  return candidates.filterMap fun (x, d) => do
+    guard (d ≤ threshold)
+    pure x
+
+/--
+Displays a name, without attempting to elaborate implicit arguments.
+-/
+@[builtin_doc_role]
+def module (checked : flag true) (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+  let s ← onlyCode xs
+  let x := s.getString.toName
+  let n := mkIdentFrom' s x
+  if checked then
+    let env ← getEnv
+    if x ∉ env.header.moduleNames then
+      let ss := similarNames x env.header.moduleNames
+      let ref ← getRef
+      let unchecked : Option Meta.Hint.Suggestion ←
+        match ref with
+        | `(inline|role{$x +checked}%$tk2[$_]) =>
+          let some b := x.raw.getTailPos?
+            | pure none
+          let some e := tk2.getPos?
+            | pure none
+          pure <| some {
+            span? := some (Syntax.mkStrLit ((← getFileMap).source.extract b e) (info := .synthetic b e)),
+            previewSpan? := some ref,
+            suggestion := "" : Meta.Hint.Suggestion
+          }
+        | `(inline|role{$_}%$tk2[$_]) =>
+          pure <| some {
+            span? := some tk2
+            previewSpan? := some ref,
+            suggestion := " -checked}": Meta.Hint.Suggestion
+          }
+        | _ => pure none
+      let ss := unchecked.toArray ++ ss.map fun x =>
+        { suggestion := x.toString, span? := some n, previewSpan? := some ref }
+      let h ←
+        if ss.isEmpty then pure m!""
+        else m!"Either disable the existence check or use an imported module:".hint ss (ref? := some ref)
+      logErrorAt n m!"Module is not transitively imported by the current module.{h}"
+
+  return .other {name := ``Data.ModuleName, val := .mk (Data.ModuleName.mk x)} #[.code s.getString]
+
 
 private def introduceAntiquotes (stx : Syntax) : DocM Unit :=
   discard <| stx.rewriteBottomUpM fun stx' =>

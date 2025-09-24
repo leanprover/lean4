@@ -408,6 +408,44 @@ This is not an attribute: `instantiation`
 -/
 def attrSuggestionTest := ()
 
+/--
+error: Module is not transitively imported by the current module.
+
+Hint: Either disable the existence check or use an imported module:
+  {module ̲+̲c̲h̲e̲c̲k̲e̲d̲}`NonExistent`
+---
+error: Module is not transitively imported by the current module.
+
+Hint: Either disable the existence check or use an imported module:
+  • {module ̲+̲c̲h̲e̲c̲k̲e̲d̲}`Laen.Data.Jsn`
+  • L̵a̵e̵n̵.̵D̵a̵t̵a̵.̵J̵s̵n̵L̲e̲a̲n̲.̲D̲a̲t̲a̲.̲J̲s̲o̲n̲
+---
+error: Module is not transitively imported by the current module.
+
+Hint: Either disable the existence check or use an imported module:
+  • {module ̲+̲c̲h̲e̲c̲k̲e̲d̲}`Lean.Data.jso`
+  • L̵e̵a̵n̵.̵D̵a̵t̵a̵.̵j̵s̵o̵L̲e̲a̲n̲.̲D̲a̲t̲a̲.̲J̲s̲o̲n̲
+  • L̵e̵a̵n̵.̵D̵a̵t̵a̵.̵j̵s̵o̵L̲e̲a̲n̲.̲D̲a̲t̲a̲.̲L̲s̲p̲
+-/
+#guard_msgs in
+/--
+Error, no suggestions:
+{module}`NonExistent`
+
+Error, one suggestions:
+{module}`Laen.Data.Jsn`
+
+No error:
+{module -checked}`NonExistent`
+
+Error, two suggestions:
+{module}`Lean.Data.jso`
+
+No error:
+{module}`Lean.Data.Json`
+-/
+def talksAboutModules := ()
+
 /-
 TODO test:
 * Scope rules for all operators

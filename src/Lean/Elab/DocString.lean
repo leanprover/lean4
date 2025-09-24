@@ -1293,7 +1293,7 @@ public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline)
             continue
           else throw e
         | e => throw e
-    throwErrorAt name "No expander for `{name}`"
+    throwErrorAt name "Unkown role `{name}`"
   | other =>
     throwErrorAt other "Unsupported syntax {other}"
 where
@@ -1359,7 +1359,7 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
             continue
           else throw e
         | e => throw e
-    throwErrorAt name "No directive expander for `{name}`"
+    throwErrorAt name "Unknown directive `{name}`"
   | `(block| ```%$opener | $s ```) =>
     if doc.verso.suggestions.get (← getOptions) then
       if let some ⟨b, e⟩ := opener.getRange? then
@@ -1402,7 +1402,7 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
             continue
           else throw e
         | e => throw e
-    throwErrorAt name "No code block expander for `{name}`"
+    throwErrorAt name "Unknown code block `{name}`"
   | `(block| command{$name $args*}) =>
     let expanders ← commandExpandersFor name
     for (exName, ex) in expanders do
@@ -1421,7 +1421,7 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
             continue
           else throw e
         | e => throw e
-    throwErrorAt name "No document command elaborator for `{name}`"
+    throwErrorAt name "Unknown document command `{name}`"
   | `(block|%%%$_*%%%) =>
     let h ←
       if stx.raw.getRange?.isSome then m!"Remove it".hint #[""] (ref? := stx)

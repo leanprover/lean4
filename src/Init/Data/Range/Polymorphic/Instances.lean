@@ -90,12 +90,6 @@ end Rxc
 
 namespace Rxo
 
--- TODO: Replace the `lit` role with an intra-module forward reference.
-/--
-Creates a {lean}`HasSize α` from a {lean}`HasSize α` instance. If the latter is lawful
-and certain other conditions hold, then the former is also lawful by
-{lit}`Rxo.LawfulHasSize.open_of_closed`.
--/
 @[inline]
 abbrev HasSize.ofClosed [Rxc.HasSize α] : HasSize α where
   size lo hi := Rxc.HasSize.size lo hi - 1
@@ -137,6 +131,13 @@ instance LawfulHasSize.of_closed [UpwardEnumerable α] [LE α] [DecidableLE α]
       rw [UpwardEnumerable.lt_iff] at h
       refine ⟨h.choose, ?_⟩
       simpa [succMany?_succ?_eq_succ?_bind_succMany?, h'] using h.choose_spec
+
+/--
+Creates a {lean}`HasSize α` from a {lean}`HasSize α` instance. If the latter is lawful
+and certain other conditions hold, then the former is also lawful by
+{name}`Rxo.LawfulHasSize.of_closed`.
+-/
+add_decl_doc HasSize.ofClosed
 
 instance instIsAlwaysFiniteOfLawfulHasSize [LT α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [HasSize α] [LawfulHasSize α] :

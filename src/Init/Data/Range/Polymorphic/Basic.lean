@@ -19,16 +19,6 @@ namespace Rxc
 
 variable {α : Type u} {lo hi : α} {a : α}
 
-/--
-This typeclass provides support for the size function for ranges with closed lower bound
-({name (scope := "Init.Data.Range.Polymorphic")}`Rcc.size`,
-{name (scope := "Init.Data.Range.Polymorphic")}`Rco.size` and
-{name (scope := "Init.Data.Range.Polymorphic")}`Rci.size`).
-
-The returned size should be equal to the number of elements returned by {lit}`toList`. This
-condition is captured by the typeclass
-{name (scope := "Init.Data.Range.Polymorphic")}`LawfulRangeSize`.
--/
 class HasSize (α : Type u) where
   /-- Returns the number of elements starting from {name}`lo` that satisfy the given upper bound. -/
   size (lo hi : α) : Nat
@@ -53,6 +43,18 @@ class LawfulHasSize (α : Type u) [LE α] [UpwardEnumerable α] [HasSize α] whe
       (h : lo ≤ hi)
       (h' : UpwardEnumerable.succ? lo = some lo') :
       HasSize.size lo hi = HasSize.size lo' hi + 1
+
+/--
+This typeclass provides support for the size function for ranges with closed lower bound
+({name (scope := "Init.Data.Range.Polymorphic.Iterators")}`Rcc.size`,
+{name (scope := "Init.Data.Range.Polymorphic.Iterators")}`Rco.size` and
+{name (scope := "Init.Data.Range.Polymorphic.Iterators")}`Rci.size`).
+
+The returned size should be equal to the number of elements returned by {lit}`toList`. This
+condition is captured by the typeclass
+{name}`LawfulHasSize`.
+-/
+add_decl_doc HasSize
 
 export LawfulHasSize (size_eq_zero_of_not_le size_eq_one_of_succ?_eq_none
   size_eq_succ_of_succ?_eq_some)
@@ -92,16 +94,6 @@ namespace Rxo
 
 variable {α : Type u} {lo hi : α} {a : α}
 
-/--
-This typeclass provides support for the size function for ranges with open lower bound
-({name (scope := "Init.Data.Range.Polymorphic")}`Roc.size`,
-{name (scope := "Init.Data.Range.Polymorphic")}`Roo.size` and
-{name (scope := "Init.Data.Range.Polymorphic")}`Roi.size`).
-
-The returned size should be equal to the number of elements returned by {lit}`toList`. This
-condition is captured by the typeclass
-{name (scope := "Init.Data.Range.Polymorphic")}`LawfulRangeSize`.
--/
 class HasSize (α : Type u) where
   /-- Returns the number of elements starting from {name}`lo` that satisfy the given upper bound. -/
   size (lo hi : α) : Nat
@@ -126,6 +118,18 @@ class LawfulHasSize (α : Type u) [LT α] [UpwardEnumerable α] [HasSize α] whe
       (h : lo < hi)
       (h' : UpwardEnumerable.succ? lo = some lo') :
       HasSize.size lo hi = HasSize.size lo' hi + 1
+
+/--
+This typeclass provides support for the size function for ranges with open lower bound
+({name (scope := "Init.Data.Range.Polymorphic.Iterators")}`Roc.size`,
+{name (scope := "Init.Data.Range.Polymorphic.Iterators")}`Roo.size` and
+{name (scope := "Init.Data.Range.Polymorphic.Iterators")}`Roi.size`).
+
+The returned size should be equal to the number of elements returned by {lit}`toList`. This
+condition is captured by the typeclass
+{name}`LawfulHasSize`.
+-/
+add_decl_doc HasSize
 
 export LawfulHasSize (size_eq_zero_of_not_le size_eq_one_of_succ?_eq_none
   size_eq_succ_of_succ?_eq_some)
@@ -165,16 +169,6 @@ namespace Rxi
 
 variable {α : Type u} {lo : α} {a : α}
 
-/--
-This typeclass provides support for the size function for ranges with closed lower bound
-({name (scope := "Init.Data.Range.Polymorphic")}`Ric.size`,
-{name (scope := "Init.Data.Range.Polymorphic")}`Rio.size` and
-{name (scope := "Init.Data.Range.Polymorphic")}`Rii.size`).
-
-The returned size should be equal to the number of elements returned by {lit}`toList`. This
-condition is captured by the typeclass
-{name (scope := "Init.Data.Range.Polymorphic")}`LawfulRangeSize`.
--/
 class HasSize (α : Type u) where
   /-- Returns the number of elements starting from {name}`lo` that satisfy the given upper bound. -/
   size (lo : α) : Nat
@@ -196,6 +190,18 @@ class LawfulHasSize (α : Type u) [UpwardEnumerable α] [HasSize α] where
   size_eq_succ_of_succ?_eq_some (lo lo' : α)
       (h : UpwardEnumerable.succ? lo = some lo') :
       HasSize.size lo = HasSize.size lo' + 1
+
+/--
+This typeclass provides support for the size function for ranges with closed lower bound
+({name (scope := "Init.Data.Range.Polymorphic.Iterators")}`Ric.size`,
+{name (scope := "Init.Data.Range.Polymorphic.Iterators")}`Rio.size` and
+{name (scope := "Init.Data.Range.Polymorphic.Iterators")}`Rii.size`).
+
+The returned size should be equal to the number of elements returned by {lit}`toList`. This
+condition is captured by the typeclass
+{name}`LawfulHasSize`.
+-/
+add_decl_doc HasSize
 
 export LawfulHasSize (size_eq_one_of_succ?_eq_none size_eq_succ_of_succ?_eq_some)
 

@@ -31,6 +31,20 @@
    "fullRange":
    {"start": {"line": 6, "character": 0}, "end": {"line": 6, "character": 6}}}]}
 [{"source": "Lean 4",
+  "severity": 2,
+  "range":
+  {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 7}},
+  "message":
+  {"append":
+   [{"tag": [{"expr": {"text": "declaration uses '"}}, {"text": ""}]},
+    {"tag":
+     [{"expr":
+       {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "sorry"}]}},
+      {"text": ""}]},
+    {"tag": [{"expr": {"text": "'"}}, {"text": ""}]}]},
+  "fullRange":
+  {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 7}}},
+ {"source": "Lean 4",
   "severity": 1,
   "range":
   {"start": {"line": 2, "character": 4}, "end": {"line": 2, "character": 7}},
@@ -55,19 +69,6 @@
   {"start": {"line": 2, "character": 4}, "end": {"line": 2, "character": 7}},
   "code": "lean.inferDefTypeFailed"},
  {"source": "Lean 4",
-  "severity": 2,
-  "range":
-  {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 7}},
-  "message":
-  {"append":
-   [{"tag": [{"expr": {"text": "declaration uses '"}}, {"text": ""}]},
-    {"tag":
-     [{"expr": {"tag": [{"subexprPos": "/"}, {"text": "sorry"}]}},
-      {"text": ""}]},
-    {"tag": [{"expr": {"text": "'"}}, {"text": ""}]}]},
-  "fullRange":
-  {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 7}}},
- {"source": "Lean 4",
   "severity": 3,
   "range":
   {"start": {"line": 4, "character": 0}, "end": {"line": 4, "character": 5}},
@@ -82,7 +83,8 @@
   {"tag":
    [{"expr":
      {"append":
-      [{"text": "Nat : "}, {"tag": [{"subexprPos": "/1"}, {"text": "Type"}]}]}},
+      [{"text": "Nat : "},
+       {"tag": [{"subexprPos": "/1", "info": {"p": "1"}}, {"text": "Type"}]}]}},
     {"text": ""}]},
   "fullRange":
   {"start": {"line": 6, "character": 0}, "end": {"line": 6, "character": 6}}}]

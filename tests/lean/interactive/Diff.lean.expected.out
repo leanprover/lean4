@@ -1,180 +1,225 @@
 {"goals":
  [{"type":
    {"tag":
-    [{"subexprPos": "/"},
+    [{"subexprPos": "/", "info": {"p": "1"}},
      {"append":
       [{"tag":
-        [{"subexprPos": "/0"},
+        [{"subexprPos": "/0", "info": {"p": "2"}},
          {"append":
-          [{"tag": [{"subexprPos": "/0/0/1"}, {"text": "x"}]},
+          [{"tag":
+            [{"subexprPos": "/0/0/1", "info": {"p": "3"}}, {"text": "x"}]},
            {"text": " = "},
-           {"tag": [{"subexprPos": "/0/1"}, {"text": "x"}]}]}]},
+           {"tag":
+            [{"subexprPos": "/0/1", "info": {"p": "4"}}, {"text": "x"}]}]}]},
        {"text": " → "},
-       {"tag": [{"subexprPos": "/1"}, {"text": "True"}]}]}]},
+       {"tag":
+        [{"subexprPos": "/1", "info": {"p": "5"}}, {"text": "True"}]}]}]},
    "isInserted": false,
    "hyps":
-   [{"type": {"tag": [{"subexprPos": "/"}, {"text": "Nat"}]},
+   [{"type":
+     {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "Nat"}]},
      "names": ["x"],
      "isInserted": true}]}]}
 {"goals":
  [{"type":
    {"tag":
-    [{"subexprPos": "/"},
+    [{"subexprPos": "/", "info": {"p": "8"}},
      {"append":
       [{"tag":
-        [{"subexprPos": "/0", "diffStatus": "willDelete"},
+        [{"subexprPos": "/0", "info": {"p": "9"}, "diffStatus": "willDelete"},
          {"append":
-          [{"tag": [{"subexprPos": "/0/0/1"}, {"text": "x"}]},
+          [{"tag":
+            [{"subexprPos": "/0/0/1", "info": {"p": "10"}}, {"text": "x"}]},
            {"text": " = "},
-           {"tag": [{"subexprPos": "/0/1"}, {"text": "x"}]}]}]},
+           {"tag":
+            [{"subexprPos": "/0/1", "info": {"p": "11"}}, {"text": "x"}]}]}]},
        {"text": " → "},
-       {"tag": [{"subexprPos": "/1"}, {"text": "True"}]}]}]},
+       {"tag":
+        [{"subexprPos": "/1", "info": {"p": "12"}}, {"text": "True"}]}]}]},
    "isInserted": false,
    "hyps":
-   [{"type": {"tag": [{"subexprPos": "/"}, {"text": "Nat"}]},
+   [{"type":
+     {"tag": [{"subexprPos": "/", "info": {"p": "7"}}, {"text": "Nat"}]},
      "names": ["x"]}]}]}
 {"goals":
  [{"type":
    {"tag":
-    [{"subexprPos": "/"},
+    [{"subexprPos": "/", "info": {"p": "14"}},
      {"append":
       [{"text": "∀ ("},
-       {"tag": [{"subexprPos": "/"}, {"text": "x"}]},
+       {"tag": [{"subexprPos": "/", "info": {"p": "15"}}, {"text": "x"}]},
        {"text": " : "},
        {"tag":
-        [{"subexprPos": "/0", "diffStatus": "willDelete"}, {"text": "Nat"}]},
+        [{"subexprPos": "/0", "info": {"p": "16"}, "diffStatus": "willDelete"},
+         {"text": "Nat"}]},
        {"text": "), "},
        {"tag":
-        [{"subexprPos": "/1"},
+        [{"subexprPos": "/1", "info": {"p": "17"}},
          {"append":
           [{"tag":
-            [{"subexprPos": "/1/0", "diffStatus": "willDelete"},
+            [{"subexprPos": "/1/0",
+              "info": {"p": "18"},
+              "diffStatus": "willDelete"},
              {"append":
-              [{"tag": [{"subexprPos": "/1/0/0/1"}, {"text": "x"}]},
+              [{"tag":
+                [{"subexprPos": "/1/0/0/1", "info": {"p": "19"}},
+                 {"text": "x"}]},
                {"text": " = "},
-               {"tag": [{"subexprPos": "/1/0/1"}, {"text": "x"}]}]}]},
+               {"tag":
+                [{"subexprPos": "/1/0/1", "info": {"p": "20"}},
+                 {"text": "x"}]}]}]},
            {"text": " → "},
-           {"tag": [{"subexprPos": "/1/1"}, {"text": "True"}]}]}]}]}]},
+           {"tag":
+            [{"subexprPos": "/1/1", "info": {"p": "21"}},
+             {"text": "True"}]}]}]}]}]},
    "isInserted": false,
    "hyps": []}]}
 {"goals":
- [{"type": {"tag": [{"subexprPos": "/"}, {"text": "True"}]},
+ [{"type":
+   {"tag": [{"subexprPos": "/", "info": {"p": "34"}}, {"text": "True"}]},
    "isInserted": false,
    "hyps":
-   [{"type": {"tag": [{"subexprPos": "/"}, {"text": "Sort u_1"}]},
+   [{"type":
+     {"tag": [{"subexprPos": "/", "info": {"p": "23"}}, {"text": "Sort u_1"}]},
      "names": ["α"]},
-    {"type": {"tag": [{"subexprPos": "/"}, {"text": "Nat"}]},
+    {"type":
+     {"tag": [{"subexprPos": "/", "info": {"p": "24"}}, {"text": "Nat"}]},
      "names": ["x", "y"]},
     {"type":
      {"tag":
-      [{"subexprPos": "/"},
+      [{"subexprPos": "/", "info": {"p": "25"}},
        {"append":
         [{"text": "∀ ("},
-         {"tag": [{"subexprPos": "/"}, {"text": "a"}]},
+         {"tag": [{"subexprPos": "/", "info": {"p": "26"}}, {"text": "a"}]},
          {"text": " : "},
-         {"tag": [{"subexprPos": "/0"}, {"text": "α"}]},
+         {"tag": [{"subexprPos": "/0", "info": {"p": "27"}}, {"text": "α"}]},
          {"text": "), "},
          {"tag":
-          [{"subexprPos": "/1"},
+          [{"subexprPos": "/1", "info": {"p": "28"}},
            {"append":
-            [{"tag": [{"subexprPos": "/1/0/1"}, {"text": "x"}]},
+            [{"tag":
+              [{"subexprPos": "/1/0/1", "info": {"p": "29"}}, {"text": "x"}]},
              {"text": " = "},
              {"tag":
-              [{"subexprPos": "/1/1", "diffStatus": "willChange"},
+              [{"subexprPos": "/1/1",
+                "info": {"p": "30"},
+                "diffStatus": "willChange"},
                {"text": "y"}]}]}]}]}]},
      "names": ["f"]},
     {"type":
      {"tag":
-      [{"subexprPos": "/"},
+      [{"subexprPos": "/", "info": {"p": "31"}},
        {"append":
-        [{"tag": [{"subexprPos": "/0/1"}, {"text": "y"}]},
+        [{"tag": [{"subexprPos": "/0/1", "info": {"p": "32"}}, {"text": "y"}]},
          {"text": " = "},
-         {"tag": [{"subexprPos": "/1"}, {"text": "x"}]}]}]},
+         {"tag":
+          [{"subexprPos": "/1", "info": {"p": "33"}}, {"text": "x"}]}]}]},
      "names": ["h"]}]}]}
 {"goals":
- [{"type": {"tag": [{"subexprPos": "/"}, {"text": "True"}]},
+ [{"type":
+   {"tag": [{"subexprPos": "/", "info": {"p": "47"}}, {"text": "True"}]},
    "isInserted": false,
    "hyps":
-   [{"type": {"tag": [{"subexprPos": "/"}, {"text": "Sort u_1"}]},
+   [{"type":
+     {"tag": [{"subexprPos": "/", "info": {"p": "36"}}, {"text": "Sort u_1"}]},
      "names": ["α"]},
-    {"type": {"tag": [{"subexprPos": "/"}, {"text": "Nat"}]},
+    {"type":
+     {"tag": [{"subexprPos": "/", "info": {"p": "37"}}, {"text": "Nat"}]},
      "names": ["x", "y"]},
     {"type":
      {"tag":
-      [{"subexprPos": "/"},
+      [{"subexprPos": "/", "info": {"p": "38"}},
        {"append":
         [{"text": "∀ ("},
-         {"tag": [{"subexprPos": "/"}, {"text": "a"}]},
+         {"tag": [{"subexprPos": "/", "info": {"p": "39"}}, {"text": "a"}]},
          {"text": " : "},
-         {"tag": [{"subexprPos": "/0"}, {"text": "α"}]},
+         {"tag": [{"subexprPos": "/0", "info": {"p": "40"}}, {"text": "α"}]},
          {"text": "), "},
          {"tag":
-          [{"subexprPos": "/1"},
+          [{"subexprPos": "/1", "info": {"p": "41"}},
            {"append":
-            [{"tag": [{"subexprPos": "/1/0/1"}, {"text": "x"}]},
+            [{"tag":
+              [{"subexprPos": "/1/0/1", "info": {"p": "42"}}, {"text": "x"}]},
              {"text": " = "},
              {"tag":
-              [{"subexprPos": "/1/1", "diffStatus": "wasChanged"},
+              [{"subexprPos": "/1/1",
+                "info": {"p": "43"},
+                "diffStatus": "wasChanged"},
                {"text": "x"}]}]}]}]}]},
      "names": ["f"]},
     {"type":
      {"tag":
-      [{"subexprPos": "/"},
+      [{"subexprPos": "/", "info": {"p": "44"}},
        {"append":
-        [{"tag": [{"subexprPos": "/0/1"}, {"text": "y"}]},
+        [{"tag": [{"subexprPos": "/0/1", "info": {"p": "45"}}, {"text": "y"}]},
          {"text": " = "},
-         {"tag": [{"subexprPos": "/1"}, {"text": "x"}]}]}]},
+         {"tag":
+          [{"subexprPos": "/1", "info": {"p": "46"}}, {"text": "x"}]}]}]},
      "names": ["h"]}]}]}
 {"goals":
  [{"type":
    {"tag":
-    [{"subexprPos": "/", "diffStatus": "willChange"},
+    [{"subexprPos": "/", "info": {"p": "49"}, "diffStatus": "willChange"},
      {"append":
-      [{"tag": [{"subexprPos": "/0/1"}, {"text": "True"}]},
+      [{"tag": [{"subexprPos": "/0/1", "info": {"p": "50"}}, {"text": "True"}]},
        {"text": " ∧ "},
-       {"tag": [{"subexprPos": "/1"}, {"text": "True"}]}]}]},
+       {"tag":
+        [{"subexprPos": "/1", "info": {"p": "51"}}, {"text": "True"}]}]}]},
    "isInserted": false,
    "hyps": []}]}
 {"goals":
- [{"type": {"tag": [{"subexprPos": "/"}, {"text": "True"}]},
+ [{"type":
+   {"tag": [{"subexprPos": "/", "info": {"p": "53"}}, {"text": "True"}]},
    "isRemoved": true,
    "hyps": []},
-  {"type": {"tag": [{"subexprPos": "/"}, {"text": "True"}]}, "hyps": []}]}
+  {"type":
+   {"tag": [{"subexprPos": "/", "info": {"p": "55"}}, {"text": "True"}]},
+   "hyps": []}]}
 {"goals":
- [{"type": {"tag": [{"subexprPos": "/"}, {"text": "True"}]},
+ [{"type":
+   {"tag": [{"subexprPos": "/", "info": {"p": "57"}}, {"text": "True"}]},
    "isRemoved": true,
    "hyps": []}]}
 {"goals":
  [{"type":
    {"tag":
-    [{"subexprPos": "/"},
+    [{"subexprPos": "/", "info": {"p": "63"}},
      {"append":
       [{"tag":
-        [{"subexprPos": "/0/1"},
+        [{"subexprPos": "/0/1", "info": {"p": "64"}},
          {"append":
           [{"tag":
-            [{"subexprPos": "/0/1/0/1", "diffStatus": "willChange"},
+            [{"subexprPos": "/0/1/0/1",
+              "info": {"p": "65"},
+              "diffStatus": "willChange"},
              {"text": "x"}]},
            {"text": " + "},
            {"tag":
-            [{"subexprPos": "/0/1/1", "diffStatus": "willChange"},
+            [{"subexprPos": "/0/1/1",
+              "info": {"p": "66"},
+              "diffStatus": "willChange"},
              {"text": "z"}]}]}]},
        {"text": " = "},
        {"tag":
-        [{"subexprPos": "/1"},
+        [{"subexprPos": "/1", "info": {"p": "67"}},
          {"append":
-          [{"tag": [{"subexprPos": "/1/0/1"}, {"text": "z"}]},
+          [{"tag":
+            [{"subexprPos": "/1/0/1", "info": {"p": "68"}}, {"text": "z"}]},
            {"text": " + "},
-           {"tag": [{"subexprPos": "/1/1"}, {"text": "y"}]}]}]}]}]},
+           {"tag":
+            [{"subexprPos": "/1/1", "info": {"p": "69"}},
+             {"text": "y"}]}]}]}]}]},
    "isInserted": false,
    "hyps":
-   [{"type": {"tag": [{"subexprPos": "/"}, {"text": "Nat"}]},
+   [{"type":
+     {"tag": [{"subexprPos": "/", "info": {"p": "59"}}, {"text": "Nat"}]},
      "names": ["x", "y", "z"]},
     {"type":
      {"tag":
-      [{"subexprPos": "/"},
+      [{"subexprPos": "/", "info": {"p": "60"}},
        {"append":
-        [{"tag": [{"subexprPos": "/0/1"}, {"text": "y"}]},
+        [{"tag": [{"subexprPos": "/0/1", "info": {"p": "61"}}, {"text": "y"}]},
          {"text": " = "},
-         {"tag": [{"subexprPos": "/1"}, {"text": "x"}]}]}]},
+         {"tag":
+          [{"subexprPos": "/1", "info": {"p": "62"}}, {"text": "x"}]}]}]},
      "names": ["h"]}]}]}

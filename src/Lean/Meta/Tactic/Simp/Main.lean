@@ -722,7 +722,7 @@ where
         withExistingLocalDecls [hinfo.decl] <| withNewLemmas #[x] do
           let rb ← simpHaveTelescopeAux info fixed used b (i + 1) (xs.push x)
           let expr := mkApp (mkLambda n .default t rb.expr) v'
-          -- assert! !rb.exprType.hasLooseBVar 0
+          assert! !rb.exprType.hasLooseBVar 0
           let exprType := rb.exprType.lowerLooseBVars 1 1
           let exprInit := mkApp (mkLambda n .default t rb.exprInit) v
           let exprResult := mkHave n t v' rb.exprResult

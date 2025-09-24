@@ -182,7 +182,7 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
       match specFn msg with
       | .check       => toCheck := toCheck.add msg
       | .drop        => pure ()
-      | pass => toPassthrough := toPassthrough.add msg
+      | .pass => toPassthrough := toPassthrough.add msg
     let strings ← toCheck.toList.mapM (messageToStringWithoutPos ·)
     let strings := ordering.apply strings
     let res := "---\n".intercalate strings |>.trim

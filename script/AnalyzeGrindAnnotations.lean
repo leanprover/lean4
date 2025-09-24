@@ -122,10 +122,6 @@ run_meta analyzeEMatchTheorem ``Array.filterMap_some {}
 -- * We should add `0 >>> n` as a forbidden subterm for `Int.shiftRight_add`.
 run_meta analyzeEMatchTheorem ``Int.zero_shiftRight {}
 
--- * Perhaps forbidding `List.map (f ∘ g) (List.map (h ∘ k) l)` would prevent the explosion here?
---   But that also blocks some proofs.
-run_meta analyzeEMatchTheorem ``List.attach_reverse {}
-
 -- * `eq_empty_of_append_eq_empty` was firing too often, before being removed in https://github.com/leanprover/lean4/pull/10162
 --   Ideally we could instantiate this if we find `xs ++ ys` and `[]` in the same equivalence class,
 --   not just as soon as we see `xs ++ ys`.
@@ -139,6 +135,7 @@ run_meta analyzeEMatchTheorem ``Array.range'_succ {}
 run_meta analyzeEMatchTheorem ``Array.range_succ {}
 
 -- * forbid `modifyHead f (modifyHead g [])`
+-- * actually just making sure that *only* modifyHead_nil acts on `modifyHead g []`
 run_meta analyzeEMatchTheorem ``List.eraseIdx_modifyHead_zero {}
 
 -- * forbid `(List.flatMap (List.reverse ∘ f) l).reverse` for `reverse_flatMap`
@@ -147,11 +144,12 @@ run_meta analyzeEMatchTheorem ``List.flatMap_reverse {}
 
 -- * forbid `List.countP p (List.filter p l)` for `countP_eq_length_filter`
 -- * this one is just crazy; so over-eager instantiation of unhelpful lemmas
+-- I'm changing `countP_eq_length_filter` from `_=_` to `=`.
 run_meta analyzeEMatchTheorem ``List.getLast_filter {}
 
--- * ick!
-run_meta analyzeEMatchTheorem ``Option.attachWith_map_subtype_val {}
+-- Another one: `modify_nil` is the only thing we should ever use on `[].modify i f`
+run_meta analyzeEMatchTheorem ``List.modify_nil {}
 
-run_meta analyzeEMatchTheorem ``List.attachWith_map_subtype_val {}
-
-run_meta analyzeEMatchTheorem ``Array.attachWith_map_subtype_val {}
+-- `count_eq_length_filter` (and related lemmas) shouldn't fire on lists that are already filters?
+-- similarly for `List.filter_subset`?
+run_meta analyzeEMatchTheorem ``List.replicate_sublist_iff {}

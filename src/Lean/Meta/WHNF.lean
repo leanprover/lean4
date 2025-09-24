@@ -254,7 +254,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (e : Expr) (
         -- Apply parameters, motives and minor premises from recursor application.
         let rhs := mkAppRange rhs 0 (recVal.numParams+recVal.numMotives) recArgs
         let rhs :=
-          if recVal.numMotives = 1 then
+          if recVal.recs.length = 1 then
             mkApp rhs recApp
           else
             let recApps := recVal.recs.toArray.map fun recName =>

@@ -144,6 +144,11 @@ structure Config where
   ```
   -/
   inj := true
+  /--
+  When `true` (default: `true`), enables the procedure for handling orders that implement
+  at least `Std.IsPreorder`
+  -/
+  order := true
   deriving Inhabited, BEq
 
 /--

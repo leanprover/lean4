@@ -54,12 +54,30 @@ def fib'' (n : Nat) : Nat :=
       0
 
 /--
+info: fib''.induct_unfolding (motive : Nat → Nat → Prop) (case1 : ∀ (x : Nat), x < 2 → motive x x)
+  (case2 :
+    ∀ (x : Nat),
+      ¬x < 2 →
+        have foo := x - 2;
+        foo < 100 → motive (x - 1) (fib'' (x - 1)) → motive foo (fib'' foo) → motive x (fib'' (x - 1) + fib'' foo))
+  (case3 :
+    ∀ (x : Nat),
+      ¬x < 2 →
+        have foo := x - 2;
+        ¬foo < 100 → motive x 0)
+  (n : Nat) : motive n (fib'' n)
+-/
+#guard_msgs(pass trace, all) in
+#check fib''.induct_unfolding
+
+/--
 info: fib''.fun_cases_unfolding (n : Nat) (motive : Nat → Prop) (case1 : n < 2 → motive n)
   (case2 : ¬n < 2 → ∀ (foo : Nat), foo < 100 → motive (fib'' (n - 1) + fib'' foo))
   (case3 : ¬n < 2 → ∀ (foo : Nat), ¬foo < 100 → motive 0) : motive (fib'' n)
 -/
 #guard_msgs(pass trace, all) in
 #check fib''.fun_cases_unfolding
+
 
 -- set_option trace.Meta.FunInd true in
 def filter (p : Nat → Bool) : List Nat → List Nat

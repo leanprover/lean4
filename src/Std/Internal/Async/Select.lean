@@ -198,18 +198,10 @@ def Selectable.tryOne (selectables : Array (Selectable α)) : Async (Option α) 
   return none
 
 /--
-Creates a `Selector` that performs fair and data-loss free multiplexing on the `Selectable`s. It's
-similar to `Selectable.one` but it creates another selector out of the selector.
-
-The protocol for this is as follows:
-1. The `selectables` are shuffled randomly.
-2. Run `Selector.tryFn` for each element in `selectables`. If any succeed, the corresponding
-  `Selectable.cont` is executed and its result is returned immediately.
-3. If none succeed, a `Waiter` is registered with each `Selector` using `Selector.registerFn`.
-   Once one of them resolves the `Waiter`, all `Selector.unregisterFn` functions are called, and
-   the `Selectable.cont` of the winning `Selector` is executed and returned.
+Creates a `Selector` that performs fair and data-loss free multiplexing on multiple `Selectable`s.
+This allows the multiplexing operation to be composed with other selectors or delayed until needed.
 -/
-def Selectable.combine (selectables : Array (Selectable α)) : Async (Selector α) := do
+def Selectable.combine (selectables : Array (Selectable α)) : IO (Selector α) := do
   if selectables.isEmpty then
     throw <| .userError "Selectable.one requires at least one Selectable"
 

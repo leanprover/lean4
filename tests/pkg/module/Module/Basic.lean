@@ -312,6 +312,15 @@ constructor:
 #with_exporting
 #check { x := 1 : StructWithPrivateField }
 
+#check (⟨1⟩ : StructWithPrivateField)
+
+/--
+error: Invalid `⟨...⟩` notation: Constructor for `StructWithPrivateField` is marked as private
+-/
+#guard_msgs in
+#with_exporting
+#check (⟨1⟩ : StructWithPrivateField)
+
 #check StructWithPrivateField.x
 
 /-- error: Unknown constant `StructWithPrivateField.x` -/

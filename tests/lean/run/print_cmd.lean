@@ -51,8 +51,8 @@ number of indices: 0
 number of motives: 1
 number of minors: 2
 rules:
-for Nat.zero (0 fields): fun motive zero succ => zero
-for Nat.succ (1 fields): fun motive zero succ n => succ n (Nat.rec zero succ n)
+for Nat.zero (0 fields): fun motive rec zero succ => zero
+for Nat.succ (1 fields): fun motive rec zero succ n => succ n (rec n)
 -/
 #guard_msgs in #print Nat.rec
 /--
@@ -66,7 +66,7 @@ number of indices: 1
 number of motives: 1
 number of minors: 1
 rules:
-for Acc.intro (2 fields): fun {α} r motive intro x h => intro x h fun y a => Acc.rec intro ⋯
+for Acc.intro (2 fields): fun {α} r motive rec intro x h => intro x h fun y a => rec y ⋯
 -/
 #guard_msgs in #print Acc.rec
 /--

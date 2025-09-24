@@ -144,7 +144,7 @@ run_meta analyzeEMatchTheorem ``List.flatMap_reverse {}
 
 -- * forbid `List.countP p (List.filter p l)` for `countP_eq_length_filter`
 -- * this one is just crazy; so over-eager instantiation of unhelpful lemmas
--- I'm changing `countP_eq_length_filter` from `_=_` to `=`.
+-- I'm changing `countP_eq_length_filter` from `_=_` to `=` in https://github.com/leanprover/lean4/pull/10532
 run_meta analyzeEMatchTheorem ``List.getLast_filter {}
 
 -- Another one: `modify_nil` is the only thing we should ever use on `[].modify i f`

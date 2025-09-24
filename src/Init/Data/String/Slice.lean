@@ -1182,4 +1182,171 @@ Examples:
 def lines (s : Slice) :=
   s.splitInclusive '\n' |>.map lines.lineMap
 
+/--
+Folds a function over a slice from the start, accumulating a value starting with {name}`init`. The
+accumulated value is combined with each character in order, using {name}`f`.
+
+Examples:
+ * {lean}`"coffee tea water".toSlice.foldl (fun n c => if c.isWhitespace then n + 1 else n) 0 = 2`
+ * {lean}`"coffee tea and water".toSlice.foldl (fun n c => if c.isWhitespace then n + 1 else n) 0 = 3`
+ * {lean}`"coffee tea water".toSlice.foldl (·.push ·) "" = "coffee tea water"`
+-/
+@[inline]
+def foldl {α : Type u} (f : α → Char → α) (init : α) (s : Slice) : α :=
+  go init f s s.startPos
+where
+  @[specialize]
+  go (acc : α) (f : α → Char → α) (s : Slice) (curr : s.Pos) : α :=
+    if h : curr = s.endPos then
+      acc
+    else
+      let c := curr.get h
+      go (f acc c) f s (curr.next h)
+  termination_by s.endPos.offset.byteIdx - curr.offset.byteIdx
+  decreasing_by
+    have := Char.utf8Size_pos (curr.get h)
+    have h2 := curr.isValidForSlice.le_utf8ByteSize
+    simp [Pos.ext_iff, String.Pos.ext_iff, String.Pos.le_iff] at h h2 ⊢
+    omega
+
+/--
+Folds a function over a slice from the end, accumulating a value starting with {name}`init`. The
+accumulated value is combined with each character in reverse order, using {name}`f`.
+
+Examples:
+ * {lean}`"coffee tea water".toSlice.foldr (fun c n => if c.isWhitespace then n + 1 else n) 0 = 2`
+ * {lean}`"coffee tea and water".toSlice.foldr (fun c n => if c.isWhitespace then n + 1 else n) 0 = 3`
+ * {lean}`"coffee tea water".toSlice.foldr (fun c s => s.push c) "" = "retaw aet eeffoc"`
+-/
+@[inline]
+def foldr {α : Type u} (f : Char → α → α) (init : α) (s : Slice) : α :=
+  go init f s s.endPos
+where
+  @[specialize]
+  go (acc : α) (f : Char → α → α) (s : Slice) (curr : s.Pos) : α :=
+    if h : curr = s.startPos then
+      acc
+    else
+      let nextPos := curr.prev h
+      let c := nextPos.get Pos.prev_ne_endPos
+      go (f c acc) f s nextPos
+  termination_by curr.offset.byteIdx
+  decreasing_by exact Pos.offset_prev_lt_offset
+
+/--
+Checks whether the slice can be interpreted as the decimal representation of a natural number.
+
+A slice can be interpreted as a decimal natural number if it is not empty and all the characters in
+it are digits.
+
+Use {name (scope := "Init.Data.String.Slice")}`toNat?` or
+{name (scope := "Init.Data.String.Slice")}`toNat!` to convert such a slice to a natural number.
+
+Examples:
+ * {lean}`"".toSlice.isNat = false`
+ * {lean}`"0".toSlice.isNat = true`
+ * {lean}`"5".toSlice.isNat = true`
+ * {lean}`"05".toSlice.isNat = true`
+ * {lean}`"587".toSlice.isNat = true`
+ * {lean}`"-587".toSlice.isNat = false`
+ * {lean}`" 5".toSlice.isNat = false`
+ * {lean}`"2+3".toSlice.isNat = false`
+ * {lean}`"0xff".toSlice.isNat = false`
+-/
+@[inline]
+def isNat (s : Slice) : Bool :=
+  !s.isEmpty && s.all Char.isDigit
+
+/--
+Interprets a slice as the decimal representation of a natural number, returning it. Returns
+{name}`none` if the slice does not contain a decimal natural number.
+
+A slice can be interpreted as a decimal natural number if it is not empty and all the characters in
+it are digits.
+
+Use {name}`isNat` to check whether {name}`toNat?` would return {name}`some`.
+{name (scope := "Init.Data.String.Slice")}`toNat!` is an alternative that panics instead of
+returning {name}`none` when the slice is not a natural number.
+
+Examples:
+ * {lean}`"".toSlice.toNat? = none`
+ * {lean}`"0".toSlice.toNat? = some 0`
+ * {lean}`"5".toSlice.toNat? = some 5`
+ * {lean}`"587".toSlice.toNat? = some 587`
+ * {lean}`"-587".toSlice.toNat? = none`
+ * {lean}`" 5".toSlice.toNat? = none`
+ * {lean}`"2+3".toSlice.toNat? = none`
+ * {lean}`"0xff".toSlice.toNat? = none`
+-/
+def toNat? (s : Slice) : Option Nat :=
+  if s.isNat then
+    some <| s.foldl (fun n c => n * 10 + (c.toNat - '0'.toNat)) 0
+  else
+    none
+
+/--
+Interprets a slice as the decimal representation of a natural number, returning it. Panics if the
+slice does not contain a decimal natural number.
+
+A slice can be interpreted as a decimal natural number if it is not empty and all the characters in
+it are digits.
+
+Use {name}`isNat` to check whether {name}`toNat!` would return a value. {name}`toNat?` is a safer
+alternative that returns {name}`none` instead of panicking when the string is not a natural number.
+
+Examples:
+ * {lean}`"0".toSlice.toNat! = 0`
+ * {lean}`"5".toSlice.toNat! = 5`
+ * {lean}`"587".toSlice.toNat! = 587`
+-/
+def toNat! (s : Slice) : Nat :=
+  if s.isNat then
+    s.foldl (fun n c => n * 10 + (c.toNat - '0'.toNat)) 0
+  else
+    panic! "Nat expected"
+
+/--
+Returns the first character in {name}`s`. If {name}`s` is empty, {name}`none`.
+
+Examples:
+* {lean}`"abc".toSlice.front? = some 'a'`
+* {lean}`"".toSlice.front? = none`
+-/
+@[inline]
+def front? (s : Slice) : Option Char :=
+  s.startPos.get?
+
+/--
+Returns the first character in {name}`s`. If {name}`s` is empty, returns {lean}`(default : Char)`.
+
+Examples:
+* {lean}`"abc".toSlice.front = 'a'`
+* {lean}`"".toSlice.front = (default : Char)`
+-/
+@[inline]
+def front (s : Slice) : Char :=
+  s.front?.getD default
+
+/--
+Returns the last character in {name}`s`. If {name}`s` is empty, returns {name}`none`.
+
+Examples:
+* {lean}`"abc".toSlice.back? = some 'c'`
+* {lean}`"".toSlice.back? = none`
+-/
+@[inline]
+def back? (s : Slice) : Option Char :=
+  s.endPos.prev? |>.bind (·.get?)
+
+/--
+Returns the last character in {name}`s`. If {name}`s` is empty, returns {lean}`(default : Char)`.
+
+Examples:
+* {lean}`"abc".toSlice.back = 'c'`
+* {lean}`"".toSlice.back = (default : Char)`
+-/
+@[inline]
+def back (s : Slice) : Char :=
+  s.back?.getD default
+
 end String.Slice

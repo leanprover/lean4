@@ -159,3 +159,46 @@ Tests for `String.Slice` functions
 #guard "foo\r\nbar\n\nbaz\n".toSlice.lines.allowNontermination.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz".toSlice]
 #guard "foo\r\nbar\n\nbaz".toSlice.lines.allowNontermination.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz".toSlice]
 #guard "foo\r\nbar\n\nbaz\r".toSlice.lines.allowNontermination.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz\r".toSlice]
+
+#guard "coffee tea water".toSlice.foldl (fun n c => if c.isWhitespace then n + 1 else n) 0 = 2
+#guard "coffee tea and water".toSlice.foldl (fun n c => if c.isWhitespace then n + 1 else n) 0 = 3
+#guard "coffee tea water".toSlice.foldl (·.push ·) "" = "coffee tea water"
+
+#guard "coffee tea water".toSlice.foldr (fun c n => if c.isWhitespace then n + 1 else n) 0 = 2
+#guard "coffee tea and water".toSlice.foldr (fun c n => if c.isWhitespace then n + 1 else n) 0 = 3
+#guard "coffee tea water".toSlice.foldr (fun c s => s.push c) "" = "retaw aet eeffoc"
+
+#guard "".toSlice.isNat = false
+#guard "0".toSlice.isNat = true
+#guard "5".toSlice.isNat = true
+#guard "05".toSlice.isNat = true
+#guard "587".toSlice.isNat = true
+#guard "-587".toSlice.isNat = false
+#guard " 5".toSlice.isNat = false
+#guard "2+3".toSlice.isNat = false
+#guard "0xff".toSlice.isNat = false
+
+#guard "".toSlice.toNat? = none
+#guard "0".toSlice.toNat? = some 0
+#guard "5".toSlice.toNat? = some 5
+#guard "587".toSlice.toNat? = some 587
+#guard "-587".toSlice.toNat? = none
+#guard " 5".toSlice.toNat? = none
+#guard "2+3".toSlice.toNat? = none
+#guard "0xff".toSlice.toNat? = none
+
+#guard "0".toSlice.toNat! = 0
+#guard "5".toSlice.toNat! = 5
+#guard "587".toSlice.toNat! = 587
+
+#guard "abc".toSlice.front? = some 'a'
+#guard "".toSlice.front? = none
+
+#guard "abc".toSlice.front = 'a'
+#guard "".toSlice.front = (default : Char)
+
+#guard "abc".toSlice.back? = some 'c'
+#guard "".toSlice.back? = none
+
+#guard "abc".toSlice.back = 'c'
+#guard "".toSlice.back = (default : Char)

@@ -308,14 +308,14 @@ theorem foldr_pmap {xs : Array α} {P : α → Prop} {f : (a : α) → P a → �
     (xs.pmap f H).foldr g x = xs.attach.foldr (fun a acc => g (f a.1 (H _ a.2)) acc) x := by
   rw [pmap_eq_map_attach, foldr_map]
 
-@[simp] theorem foldl_attachWith
+@[simp, grind =] theorem foldl_attachWith
     {xs : Array α} {q : α → Prop} (H : ∀ a, a ∈ xs → q a) {f : β → { x // q x} → β} {b} (w : stop = xs.size) :
     (xs.attachWith q H).foldl f b 0 stop = xs.attach.foldl (fun b ⟨a, h⟩ => f b ⟨a, H _ h⟩) b := by
   subst w
   rcases xs with ⟨xs⟩
   simp [List.foldl_attachWith, List.foldl_map]
 
-@[simp] theorem foldr_attachWith
+@[simp, grind =] theorem foldr_attachWith
     {xs : Array α} {q : α → Prop} (H : ∀ a, a ∈ xs → q a) {f : { x // q x} → β → β} {b} (w : start = xs.size) :
     (xs.attachWith q H).foldr f b start 0 = xs.attach.foldr (fun a acc => f ⟨a.1, H _ a.2⟩ acc) b := by
   subst w
@@ -397,6 +397,7 @@ theorem attach_filterMap {xs : Array α} {f : α → Option β} :
   rw [attach_congr List.filterMap_toArray]
   simp [List.attach_filterMap, List.map_filterMap, Function.comp_def]
 
+@[grind =]
 theorem attach_filter {xs : Array α} (p : α → Bool) :
     (xs.filter p).attach = xs.attach.filterMap
       fun x => if w : p x.1 then some ⟨x.1, mem_filter.mpr ⟨x.2, w⟩⟩ else none := by
@@ -406,7 +407,7 @@ theorem attach_filter {xs : Array α} (p : α → Bool) :
 
 -- We are still missing here `attachWith_filterMap` and `attachWith_filter`.
 
-@[simp]
+@[simp, grind =]
 theorem filterMap_attachWith {q : α → Prop} {xs : Array α} {f : {x // q x} → Option β} (H)
     (w : stop = (xs.attachWith q H).size) :
     (xs.attachWith q H).filterMap f 0 stop = xs.attach.filterMap (fun ⟨x, h⟩ => f ⟨x, H _ h⟩) := by
@@ -414,7 +415,7 @@ theorem filterMap_attachWith {q : α → Prop} {xs : Array α} {f : {x // q x} �
   cases xs
   simp [Function.comp_def]
 
-@[simp]
+@[simp, grind =]
 theorem filter_attachWith {q : α → Prop} {xs : Array α} {p : {x // q x} → Bool} (H)
     (w : stop = (xs.attachWith q H).size) :
     (xs.attachWith q H).filter p 0 stop =

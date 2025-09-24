@@ -68,6 +68,8 @@ public structure Package where
     if let some n := config.buildArchive then n else defaultBuildArchive name
   /-- The driver used for `lake test` when this package is the workspace root. -/
   testDriver : String := config.testDriver
+  /-- The drivers used for `lake test` when this package is the workspace root. -/
+  testDrivers : Array String := config.testDrivers
   /-- The driver used for `lake lint` when this package is the workspace root. -/
   lintDriver : String := config.lintDriver
   /--

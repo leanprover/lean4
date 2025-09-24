@@ -287,32 +287,6 @@ instance : Decidable (a ∈ r) := inferInstanceAs (Decidable True)
 
 end Rii
 
--- /--
--- This typeclass allows taking the intersection of ranges of the given shape and half-open ranges.
-
--- An element should be contained in the intersection if and only if it is contained in both ranges.
--- This is encoded in `LawfulClosedOpenIntersection`.
--- -/
--- class ClosedOpenIntersection (shape : RangeShape) (α : Type w) where
---   intersection : PRange shape α → PRange ⟨.closed, .open⟩ α → PRange ⟨.closed, .open⟩ α
-
--- /--
--- This typeclass ensures that the intersection according to `ClosedOpenIntersection shape α`
--- of two ranges contains exactly those elements that are contained in both ranges.
--- -/
--- class LawfulClosedOpenIntersection (shape : RangeShape) (α : Type w)
---     [ClosedOpenIntersection shape α]
---     [SupportsLowerBound shape.lower α] [SupportsUpperBound shape.upper α]
---     [SupportsLowerBound .closed α]
---     [SupportsUpperBound .open α] where
---   /--
---   The intersection according to `ClosedOpenIntersection shape α` of two ranges contains exactly
---   those elements that are contained in both ranges.
---   -/
---   mem_intersection_iff {a : α} {r : PRange ⟨shape.lower, shape.upper⟩ α}
---       {s : PRange ⟨.closed, .open⟩ α} :
---     a ∈ ClosedOpenIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s
-
 /--
 This type class allows taking the intersection of a closed range with a
 left-closed right-open range, resulting in another left-closed right-open range.

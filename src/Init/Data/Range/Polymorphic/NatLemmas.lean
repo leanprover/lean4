@@ -26,39 +26,39 @@ theorem ClosedOpen.toList_succ_succ {m n : Nat} :
     ((m+1)...(n+1)).toList = (m...n).toList.map (· + 1) := toList_Rco_succ_succ
 
 @[simp]
-theorem Nat.size_Rcc {a b : Nat} :
+theorem size_Rcc {a b : Nat} :
     (a...=b).size = b + 1 - a := by
   simp [Rcc.size, Std.Iterators.Iter.size, Std.Iterators.IteratorSize.size,
     Rcc.Internal.iter, Std.Iterators.Iter.toIterM, Rxc.HasSize.size]
 
 @[simp]
-theorem Nat.size_Rco {a b : Nat} :
+theorem size_Rco {a b : Nat} :
     (a...b).size = b - a := by
   simp only [Rco.size, Iterators.Iter.size, Iterators.IteratorSize.size, Iterators.Iter.toIterM,
     Rco.Internal.iter, Rxo.HasSize.size, Rxc.HasSize.size, Id.run_pure]
   omega
 
 @[simp]
-theorem Nat.size_Roc {a b : Nat} :
+theorem size_Roc {a b : Nat} :
     (a<...=b).size = b - a := by
   simp [Roc.size, Std.Iterators.Iter.size, Std.Iterators.IteratorSize.size,
     Roc.Internal.iter, Std.Iterators.Iter.toIterM, Rxc.HasSize.size]
 
 @[simp]
-theorem Nat.size_Roo {a b : Nat} :
+theorem size_Roo {a b : Nat} :
     (a<...b).size = b - a - 1 := by
   simp only [Roo.size, Iterators.Iter.size, Iterators.IteratorSize.size, Iterators.Iter.toIterM,
     Roo.Internal.iter, Rxo.HasSize.size, Rxc.HasSize.size, Id.run_pure]
   omega
 
 @[simp]
-theorem Nat.size_Ric {b : Nat} :
+theorem size_Ric {b : Nat} :
     (*...=b).size = b + 1 := by
   simp [Ric.size, Std.Iterators.Iter.size, Std.Iterators.IteratorSize.size,
     Ric.Internal.iter, Std.Iterators.Iter.toIterM, Rxc.HasSize.size]
 
 @[simp]
-theorem Nat.size_Rio {b : Nat} :
+theorem size_Rio {b : Nat} :
     (*...b).size = b := by
   simp only [Rio.size, Iterators.Iter.size, Iterators.IteratorSize.size, Iterators.Iter.toIterM,
     Rio.Internal.iter, Rxo.HasSize.size, Rxc.HasSize.size, Id.run_pure]

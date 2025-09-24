@@ -46,9 +46,9 @@ instance : LawfulUpwardEnumerable UInt8 where
   succMany?_zero x := by
     cases x
     simpa [succMany?_ofBitVec] using succMany?_zero
-  succMany?_succ? n x := by
+  succMany?_add_one n x := by
     cases x
-    simp [succMany?_ofBitVec, succMany?_succ?, Option.bind_map, Function.comp_def,
+    simp [succMany?_ofBitVec, succMany?_add_one, Option.bind_map, Function.comp_def,
       succ?_ofBitVec]
 
 instance : LawfulUpwardEnumerableLE UInt8 where
@@ -136,9 +136,9 @@ instance : LawfulUpwardEnumerable UInt16 where
   succMany?_zero x := by
     cases x
     simpa [succMany?_ofBitVec] using succMany?_zero
-  succMany?_succ? n x := by
+  succMany?_add_one n x := by
     cases x
-    simp [succMany?_ofBitVec, succMany?_succ?, Option.bind_map, Function.comp_def,
+    simp [succMany?_ofBitVec, succMany?_add_one, Option.bind_map, Function.comp_def,
       succ?_ofBitVec]
 
 instance : LawfulUpwardEnumerableLE UInt16 where
@@ -226,9 +226,9 @@ instance : LawfulUpwardEnumerable UInt32 where
   succMany?_zero x := by
     cases x
     simpa [succMany?_ofBitVec] using succMany?_zero
-  succMany?_succ? n x := by
+  succMany?_add_one n x := by
     cases x
-    simp [succMany?_ofBitVec, succMany?_succ?, Option.bind_map, Function.comp_def,
+    simp [succMany?_ofBitVec, succMany?_add_one, Option.bind_map, Function.comp_def,
       succ?_ofBitVec]
 
 instance : LawfulUpwardEnumerableLE UInt32 where
@@ -316,9 +316,9 @@ instance : LawfulUpwardEnumerable UInt64 where
   succMany?_zero x := by
     cases x
     simpa [succMany?_ofBitVec] using succMany?_zero
-  succMany?_succ? n x := by
+  succMany?_add_one n x := by
     cases x
-    simp [succMany?_ofBitVec, succMany?_succ?, Option.bind_map, Function.comp_def,
+    simp [succMany?_ofBitVec, succMany?_add_one, Option.bind_map, Function.comp_def,
       succ?_ofBitVec]
 
 instance : LawfulUpwardEnumerableLE UInt64 where
@@ -406,9 +406,9 @@ instance : LawfulUpwardEnumerable USize where
   succMany?_zero x := by
     cases x
     simpa [succMany?_ofBitVec] using succMany?_zero
-  succMany?_succ? n x := by
+  succMany?_add_one n x := by
     cases x
-    simp [succMany?_ofBitVec, succMany?_succ?, Option.bind_map, Function.comp_def,
+    simp [succMany?_ofBitVec, succMany?_add_one, Option.bind_map, Function.comp_def,
       succ?_ofBitVec]
 
 instance : LawfulUpwardEnumerableLE USize where

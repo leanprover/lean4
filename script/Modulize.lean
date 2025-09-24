@@ -11,7 +11,7 @@ def main (args : List String) : IO Unit := do
   initSearchPath (← findSysroot)
   let mods := args.toArray.map (·.toName)
 
-  -- Determine default module(s) to run shake on
+  -- Determine default module(s) to run modulize on
   let defaultTargetModules : Array Name ← try
     let (elanInstall?, leanInstall?, lakeInstall?) ← Lake.findInstall?
     let config ← Lake.MonadError.runEIO <| Lake.mkLoadConfig { elanInstall?, leanInstall?, lakeInstall? }

@@ -480,7 +480,6 @@ where
         let level ← getLevel bodyType
         -- Collect fvars appearing in the type of `e`. Computing `bodyType` in particular is where `MetaM` is necessary.
         let bodyTypeFVarIds := (collectFVars {} bodyType).fvarSet
-        trace[Debug.Meta.Tactic.simp] "bodyType {bodyType} with fvars {bodyTypeFVarIds.toList.map mkFVar}"
         let bodyTypeDeps : Std.HashSet Nat := Nat.fold fvars.size (init := {}) fun idx _ deps =>
           if bodyTypeFVarIds.contains fvars[idx].fvarId! then
             deps.insert idx

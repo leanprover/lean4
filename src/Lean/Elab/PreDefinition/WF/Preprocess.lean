@@ -98,8 +98,6 @@ builtin_dsimproc paramProj (_) := fun e => do
     unless f.isConst do return .continue
     unless (← isProjectionFn f.constName!) do return .continue
     let e' ← mkWfParam (.app (e.appFn h) a')
-    unless (← withTransparency .all <| isDefEq e e') do
-      throwError m!"paramProj produced non-defeq terms {indentExpr e} and {indentExpr e'}"
     return .done e'
   else
     return .continue
@@ -139,8 +137,8 @@ private partial def processParamLet (e : Expr) : MetaM Expr := do
         processParamLet <| e.updateLetE! t v' b'
     else
       let num := numLetsWithValueNotIsWfParam e
-      letBoundedTelescope (preserveNondepLet := true) e num fun xs b => do
-        trace[Elab.definition.wf] "Processing let telescope {indentExpr e} with {xs.map (·.fvarId!.name)}"
+      assert! num > 0
+      letBoundedTelescope e num fun xs b => do
         let b' ← processParamLet b
         mkLetFVars (usedLetOnly := false) (generalizeNondepLet := false) xs b'
   else
@@ -194,11 +192,9 @@ def preprocess (e : Expr) : MetaM Simp.Result := do
     -- Now run the simplifier
     let simprocs : Simprocs := {}
     let simprocs ← simprocs.add ``paramProj (post := true)
-    -- let simprocs ← simprocs.add ``paramMatcher (post := false)
-    -- let simprocs ← simprocs.add ``paramLet (post := true)
+    let simprocs ← simprocs.add ``paramMatcher (post := false)
+    let simprocs ← simprocs.add ``paramLet (post := true)
     let (result, _) ← Meta.simp e' (← getSimpContext) (simprocs := #[simprocs])
-    prependError m!"after simp of{indentExpr e'}\nto{indentExpr result.expr}\nvia{indentExpr (← result.getProof)}" do
-      withTransparency .all <| check (← result.getProof)
 
     -- Remove left-over markers
     let e'' ← Core.transform result.expr fun e =>

@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 source ../common.sh
 
+./clean.sh
+echo "# TEST: Reservoir Version"
+test_out 'using version `0.1.0`' -f version.toml update --keep-toolchain
+
 export ELAN_TOOLCHAIN=test
 
 ./clean.sh

@@ -9,6 +9,7 @@ prelude
 public import Lake.Util.Log
 public import Lake.Util.JsonObject
 public import Lake.Config.Env
+public import Lake.Util.Version
 import Lake.Util.Proc
 import all Init.Data.String.Extra
 
@@ -193,6 +194,8 @@ public protected def ReservoirResp.fromJson? [FromJson α] (val : Json) : Except
     let status ← err.get "status"
     let message ← err.get "message"
     return .error status message
+  else if let some (val : Json) ← obj.get? "data" then
+    .data <$> fromJson? val
   else
     .data <$> fromJson? val
 
@@ -214,7 +217,7 @@ public def Reservoir.fetchPkg? (lakeEnv : Lake.Env) (owner pkg : String) : LogIO
     catch e =>
       logError s!"{owner}/{pkg}: Reservoir lookup failed"
       throw e
-  match Json.parse out >>= fromJson? with
+  match Json.parse out with
   | .ok json =>
     match fromJson? json with
     | .ok (resp : ReservoirResp RegistryPkg) =>
@@ -226,6 +229,58 @@ public def Reservoir.fetchPkg? (lakeEnv : Lake.Env) (owner pkg : String) : LogIO
           return none
         else
           error s!"{owner}/{pkg}: Reservoir lookup failed: {msg}"
+    | .error e =>
+      errorWithLog do
+      logError s!"{owner}/{pkg}: Reservoir lookup failed; server returned unsupported JSON: {e}"
+      logVerbose s!"{owner}/{pkg}: Reservoir responded with:\n{out.trim}"
+      failure
+  | .error e =>
+    errorWithLog do
+    logError s!"{owner}/{pkg}: Reservoir lookup failed; server returned invalid JSON: {e}"
+    logVerbose s!"{owner}/{pkg}: Reservoir responded with:\n{out.trim}"
+    failure
+
+/--
+Version metadata from a Lake registry (e.g., Reservoir).
+Only contains the subset of fields useful to Lake.
+-/
+public structure RegistryVer where
+  version : StdVer
+  revision : String
+
+public protected def RegistryVer.fromJson? (val : Json) : Except String RegistryVer := do
+  try
+    let obj ← JsonObject.fromJson? val
+    let version ← obj.get "version"
+    let revision ← obj.get "revision"
+    return {version, revision}
+  catch e =>
+    throw s!"invalid registry version: {e}"
+
+public instance : FromJson RegistryVer := ⟨RegistryVer.fromJson?⟩
+
+public def Reservoir.pkgVersionsApiUrl (lakeEnv : Lake.Env) (owner pkg : String) :=
+   s!"{lakeEnv.reservoirApiUrl}/packages/{uriEncode owner}/{uriEncode pkg}/versions"
+
+public def Reservoir.fetchPkgVersions
+  (lakeEnv : Lake.Env) (owner pkg : String)
+: LogIO (Array RegistryVer) := do
+  let url := Reservoir.pkgVersionsApiUrl lakeEnv owner pkg
+  let out ←
+    try
+      getUrl url Reservoir.lakeHeaders
+    catch e =>
+      logError s!"{owner}/{pkg}: Reservoir lookup failed"
+      throw e
+  match Json.parse out with
+  | .ok json =>
+    match fromJson? json with
+    | .ok (resp : ReservoirResp (Array RegistryVer)) =>
+      match resp with
+      | .data vers =>
+        return vers
+      | .error status msg =>
+        error s!"{owner}/{pkg}: Reservoir lookup failed (code: {status}): {msg}"
     | .error e =>
       errorWithLog do
       logError s!"{owner}/{pkg}: Reservoir lookup failed; server returned unsupported JSON: {e}"

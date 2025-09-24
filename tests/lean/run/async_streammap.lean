@@ -31,7 +31,7 @@ def testSimpleMessages : Async Unit := do
 
 -- Test empty StreamMap
 def testEmpty : Async Unit := do
-  let stream : Std.StreamMap Nat := Std.StreamMap.empty
+  let stream : Std.StreamMap String Nat := Std.StreamMap.empty
 
   assert! stream.isEmpty
   assert! stream.size == 0

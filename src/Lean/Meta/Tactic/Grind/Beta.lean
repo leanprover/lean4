@@ -4,12 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-
 public section
-
 namespace Lean.Meta.Grind
 
 /-- Returns all lambda expressions in the equivalence class with root `root`. -/

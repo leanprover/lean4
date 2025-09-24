@@ -879,11 +879,13 @@ set_option linter.indexVariables false in
   rcases xs with ⟨xs, rfl⟩
   simp
 
+@[grind =]
 theorem getElem_push {xs : Vector α n} {x : α} {i : Nat} (h : i < n + 1) :
     (xs.push x)[i] = if h : i < n then xs[i] else x := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.getElem_push]
 
+@[grind =]
 theorem getElem?_push {xs : Vector α n} {x : α} {i : Nat} : (xs.push x)[i]? = if i = n then some x else xs[i]? := by
   simp [getElem?_def, getElem_push]
   (repeat' split) <;> first | rfl | omega
@@ -907,6 +909,8 @@ theorem getElem?_singleton {a : α} {i : Nat} : #v[a][i]? = if i = 0 then some a
 
 grind_pattern getElem_mem => xs[i] ∈ xs
 
+
+@[grind ←]
 theorem not_mem_empty (a : α) : ¬ a ∈ #v[] := nofun
 
 @[simp, grind =] theorem mem_push {xs : Vector α n} {x y : α} : x ∈ xs.push y ↔ x ∈ xs ∨ x = y := by

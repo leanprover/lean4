@@ -195,33 +195,15 @@ expr type_checker::infer_app(expr const & e, bool infer_only) {
     }
 }
 
-static void mark_used(unsigned n, expr const * fvars, expr const & b, bool * used) {
-    if (!has_fvar(b)) return;
-    for_each(b, [&](expr const & x) {
-            if (!has_fvar(x)) return false;
-            if (is_fvar(x)) {
-                for (unsigned i = 0; i < n; i++) {
-                    if (fvar_name(fvars[i]) == fvar_name(x)) {
-                        used[i] = true;
-                        return false;
-                    }
-                }
-            }
-            return true;
-        });
-}
-
 expr type_checker::infer_let(expr const & _e, bool infer_only) {
     flet<local_ctx> save_lctx(m_lctx, m_lctx);
     buffer<expr> fvars;
-    buffer<expr> vals;
     expr e = _e;
     while (is_let(e)) {
         expr type = instantiate_rev(let_type(e), fvars.size(), fvars.data());
         expr val  = instantiate_rev(let_value(e), fvars.size(), fvars.data());
         expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, let_name(e), type, val);
         fvars.push_back(fvar);
-        vals.push_back(val);
         if (!infer_only) {
             ensure_sort_core(infer_type_core(type, infer_only), type);
             expr val_type = infer_type_core(val, infer_only);
@@ -233,21 +215,7 @@ expr type_checker::infer_let(expr const & _e, bool infer_only) {
     }
     expr r = infer_type_core(instantiate_rev(e, fvars.size(), fvars.data()), infer_only);
     r = cheap_beta_reduce(r); // use `cheap_beta_reduce` (to try) to reduce number of dependencies
-    buffer<bool, 128> used;
-    used.resize(fvars.size(), false);
-    mark_used(fvars.size(), fvars.data(), r, used.data());
-    unsigned i = fvars.size();
-    while (i > 0) {
-        --i;
-        if (used[i])
-            mark_used(i, fvars.data(), vals[i], used.data());
-    }
-    buffer<expr> used_fvars;
-    for (unsigned i = 0; i < fvars.size(); i++) {
-        if (used[i])
-            used_fvars.push_back(fvars[i]);
-    }
-    return m_lctx.mk_pi(used_fvars, r);
+    return m_lctx.mk_pi(fvars, r, true);
 }
 
 expr type_checker::infer_proj(expr const & e, bool infer_only) {

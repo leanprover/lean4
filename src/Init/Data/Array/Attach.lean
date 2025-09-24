@@ -174,9 +174,6 @@ theorem attach_map_val (xs : Array α) (f : α → β) :
   cases xs
   simp
 
-@[deprecated attach_map_val (since := "2025-02-17")]
-abbrev attach_map_coe := @attach_map_val
-
 -- The argument `xs : Array α` is explicit to allow rewriting from right to left.
 theorem attach_map_subtype_val (xs : Array α) : xs.attach.map Subtype.val = xs := by
   cases xs; simp
@@ -184,9 +181,6 @@ theorem attach_map_subtype_val (xs : Array α) : xs.attach.map Subtype.val = xs 
 theorem attachWith_map_val {p : α → Prop} {f : α → β} {xs : Array α} (H : ∀ a ∈ xs, p a) :
     ((xs.attachWith p H).map fun (i : { i // p i}) => f i) = xs.map f := by
   cases xs; simp
-
-@[deprecated attachWith_map_val (since := "2025-02-17")]
-abbrev attachWith_map_coe := @attachWith_map_val
 
 theorem attachWith_map_subtype_val {p : α → Prop} {xs : Array α} (H : ∀ a ∈ xs, p a) :
     (xs.attachWith p H).map Subtype.val = xs := by
@@ -395,9 +389,7 @@ theorem map_attach_eq_pmap {xs : Array α} {f : { x // x ∈ xs } → β} :
   cases xs
   ext <;> simp
 
-@[deprecated map_attach_eq_pmap (since := "2025-02-09")]
-abbrev map_attach := @map_attach_eq_pmap
-
+@[grind =]
 theorem attach_filterMap {xs : Array α} {f : α → Option β} :
     (xs.filterMap f).attach = xs.attach.filterMap
       fun ⟨x, h⟩ => (f x).pbind (fun b m => some ⟨b, mem_filterMap.mpr ⟨x, h, m⟩⟩) := by
@@ -501,19 +493,19 @@ theorem reverse_attach {xs : Array α} :
   cases xs
   simp
 
-@[simp, grind =] theorem back?_pmap {P : α → Prop} {f : (a : α) → P a → β} {xs : Array α}
+@[simp] theorem back?_pmap {P : α → Prop} {f : (a : α) → P a → β} {xs : Array α}
     (H : ∀ (a : α), a ∈ xs → P a) :
     (xs.pmap f H).back? = xs.attach.back?.map fun ⟨a, m⟩ => f a (H a m) := by
   cases xs
   simp
 
-@[simp, grind =] theorem back?_attachWith {P : α → Prop} {xs : Array α}
+@[simp] theorem back?_attachWith {P : α → Prop} {xs : Array α}
     {H : ∀ (a : α), a ∈ xs → P a} :
     (xs.attachWith P H).back? = xs.back?.pbind (fun a h => some ⟨a, H _ (mem_of_back? h)⟩) := by
   cases xs
   simp
 
-@[simp, grind =]
+@[simp]
 theorem back?_attach {xs : Array α} :
     xs.attach.back? = xs.back?.pbind fun a h => some ⟨a, mem_of_back? h⟩ := by
   cases xs

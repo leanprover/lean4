@@ -33,6 +33,7 @@ A build key with some missing info.
 * Module package targets are supported via a fake `packageTarget` with
   a target name ending in `moduleTargetIndicator`.
 -/
+@[expose]  -- for codegen
 public def PartialBuildKey := BuildKey
 
 namespace PartialBuildKey

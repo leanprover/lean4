@@ -78,7 +78,7 @@ namespace NonMutual
 
 def lex [Monad m] [MonadExceptOf LexErr m] (current? : Option (List Char × Nat)) (it : String.Iterator) : m (List Token) := do
   let currTok := fun
-    | (cs, n) => { text := {data := cs.reverse}, tok := Tok.num n }
+    | (cs, n) => { text := cs.reverse.asString , tok := Tok.num n }
   if it.atEnd then
     return current?.toList.map currTok
   else

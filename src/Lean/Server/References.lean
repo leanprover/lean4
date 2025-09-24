@@ -252,6 +252,8 @@ def identOf (ci : ContextInfo) (i : Info) : Option (RefIdent × Bool) := do
     some (RefIdent.const (← getModuleContainingDecl? ci.env fi.projName).toString fi.projName.toString, false)
   | Info.ofOptionInfo oi =>
     some (RefIdent.const (← getModuleContainingDecl? ci.env oi.declName).toString oi.declName.toString, false)
+  | Info.ofDocElabInfo dei =>
+    some (RefIdent.const (← getModuleContainingDecl? ci.env dei.name).toString dei.name.toString, false)
   | _ => none
 
 /-- Finds all references in `trees`. -/

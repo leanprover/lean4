@@ -958,9 +958,9 @@ goto block_188;
 block_181:
 {
 lean_object* x_178; lean_object* x_179; lean_object* x_180; 
-x_178 = lean_nat_add(x_176, x_177);
+x_178 = lean_nat_add(x_175, x_177);
 lean_dec(x_177);
-lean_dec(x_176);
+lean_dec(x_175);
 if (lean_is_scalar(x_172)) {
  x_179 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -979,7 +979,7 @@ if (lean_is_scalar(x_162)) {
 lean_ctor_set(x_180, 0, x_174);
 lean_ctor_set(x_180, 1, x_164);
 lean_ctor_set(x_180, 2, x_165);
-lean_ctor_set(x_180, 3, x_175);
+lean_ctor_set(x_180, 3, x_176);
 lean_ctor_set(x_180, 4, x_179);
 return x_180;
 }
@@ -1005,8 +1005,8 @@ if (lean_obj_tag(x_167) == 0)
 lean_object* x_186; 
 x_186 = lean_ctor_get(x_167, 0);
 lean_inc(x_186);
-x_175 = x_184;
-x_176 = x_185;
+x_175 = x_185;
+x_176 = x_184;
 x_177 = x_186;
 goto block_181;
 }
@@ -1014,8 +1014,8 @@ else
 {
 lean_object* x_187; 
 x_187 = lean_unsigned_to_nat(0u);
-x_175 = x_184;
-x_176 = x_185;
+x_175 = x_185;
+x_176 = x_184;
 x_177 = x_187;
 goto block_181;
 }
@@ -5551,7 +5551,6 @@ x_34 = 1;
 x_35 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Environment_Replay_checkPostponedConstructors_spec__0___closed__1;
 x_36 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_7, x_34);
 x_37 = lean_string_append(x_35, x_36);
-lean_dec_ref(x_36);
 x_38 = lean_mk_io_user_error(x_37);
 lean_ctor_set_tag(x_21, 1);
 lean_ctor_set(x_21, 0, x_38);
@@ -5656,7 +5655,6 @@ x_51 = 1;
 x_52 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Environment_Replay_checkPostponedConstructors_spec__0___closed__1;
 x_53 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_7, x_51);
 x_54 = lean_string_append(x_52, x_53);
-lean_dec_ref(x_53);
 x_55 = lean_mk_io_user_error(x_54);
 x_56 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_56, 0, x_55);
@@ -5711,7 +5709,6 @@ x_11 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Environment_Replay_che
 x_12 = 1;
 x_13 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_7, x_12);
 x_14 = lean_string_append(x_11, x_13);
-lean_dec_ref(x_13);
 x_15 = lean_mk_io_user_error(x_14);
 x_16 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
@@ -5927,7 +5924,6 @@ x_34 = 1;
 x_35 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Environment_Replay_checkPostponedRecursors_spec__0___closed__1;
 x_36 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_7, x_34);
 x_37 = lean_string_append(x_35, x_36);
-lean_dec_ref(x_36);
 x_38 = lean_mk_io_user_error(x_37);
 lean_ctor_set_tag(x_21, 1);
 lean_ctor_set(x_21, 0, x_38);
@@ -6032,7 +6028,6 @@ x_51 = 1;
 x_52 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Environment_Replay_checkPostponedRecursors_spec__0___closed__1;
 x_53 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_7, x_51);
 x_54 = lean_string_append(x_52, x_53);
-lean_dec_ref(x_53);
 x_55 = lean_mk_io_user_error(x_54);
 x_56 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_56, 0, x_55);
@@ -6087,7 +6082,6 @@ x_11 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Environment_Replay_che
 x_12 = 1;
 x_13 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_7, x_12);
 x_14 = lean_string_append(x_11, x_13);
-lean_dec_ref(x_13);
 x_15 = lean_mk_io_user_error(x_14);
 x_16 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_16, 0, x_15);

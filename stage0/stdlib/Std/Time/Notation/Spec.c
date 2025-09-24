@@ -9921,7 +9921,6 @@ lean_inc(x_8);
 lean_dec_ref(x_7);
 x_9 = l___private_Std_Time_Notation_Spec_0__Std_Time_formatStringToFormat___closed__0;
 x_10 = lean_string_append(x_9, x_8);
-lean_dec(x_8);
 x_11 = l_Lean_Macro_throwErrorAt___redArg(x_1, x_10, x_3, x_4);
 return x_11;
 }

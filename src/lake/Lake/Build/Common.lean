@@ -12,7 +12,7 @@ public import Lake.Config.Monad
 import Lake.Util.IO
 import Lake.Util.JsonObject
 import Lake.Build.Target.Fetch
-import Lake.Build.Actions
+public import Lake.Build.Actions
 
 /-! # Common Build Tools
 This file defines general utilities that abstract common

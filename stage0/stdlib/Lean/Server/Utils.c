@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName___boxed(lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___lam__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_instInhabitedDocumentMeta_default___closed__1;
@@ -66,7 +65,6 @@ lean_object* lean_mk_io_user_error(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___Lean_Server_moduleFromDocumentUri_spec__0___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_instInhabitedDocumentMeta_default___closed__2;
 lean_object* lean_io_prim_handle_mk(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___boxed(lean_object*, lean_object*, lean_object*);
@@ -809,7 +807,7 @@ x_6 = lean_alloc_closure((void*)(l_IO_FS_Stream_withPrefix___lam__0), 5, 3);
 lean_closure_set(x_6, 0, x_5);
 lean_closure_set(x_6, 1, x_2);
 lean_closure_set(x_6, 2, x_4);
-x_7 = lean_alloc_closure((void*)(l_IO_FS_Stream_withPrefix___lam__1___boxed), 4, 2);
+x_7 = lean_alloc_closure((void*)(l_IO_FS_Stream_withPrefix___lam__1), 4, 2);
 lean_closure_set(x_7, 0, x_2);
 lean_closure_set(x_7, 1, x_5);
 lean_ctor_set(x_1, 4, x_7);
@@ -838,7 +836,7 @@ x_14 = lean_alloc_closure((void*)(l_IO_FS_Stream_withPrefix___lam__0), 5, 3);
 lean_closure_set(x_14, 0, x_12);
 lean_closure_set(x_14, 1, x_2);
 lean_closure_set(x_14, 2, x_10);
-x_15 = lean_alloc_closure((void*)(l_IO_FS_Stream_withPrefix___lam__1___boxed), 4, 2);
+x_15 = lean_alloc_closure((void*)(l_IO_FS_Stream_withPrefix___lam__1), 4, 2);
 lean_closure_set(x_15, 0, x_2);
 lean_closure_set(x_15, 1, x_12);
 x_16 = lean_alloc_ctor(0, 6, 0);
@@ -850,15 +848,6 @@ lean_ctor_set(x_16, 4, x_15);
 lean_ctor_set(x_16, 5, x_13);
 return x_16;
 }
-}
-}
-LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_IO_FS_Stream_withPrefix___lam__1(x_1, x_2, x_3, x_4);
-lean_dec_ref(x_3);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_DocumentMeta_ctorIdx(lean_object* x_1) {
@@ -990,9 +979,7 @@ lean_dec(x_11);
 lean_dec(x_8);
 x_13 = l_String_crlfToLf(x_3);
 x_14 = lean_string_append(x_10, x_13);
-lean_dec_ref(x_13);
 x_15 = lean_string_append(x_14, x_12);
-lean_dec_ref(x_12);
 x_16 = l_String_toFileMap(x_15);
 return x_16;
 }
@@ -1057,6 +1044,7 @@ lean_dec_ref(x_6);
 x_13 = lean_ctor_get(x_7, 0);
 lean_inc(x_13);
 lean_dec_ref(x_7);
+lean_inc(x_13);
 x_14 = l_IO_FS_createDirAll(x_13, x_12);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -1506,15 +1494,6 @@ x_5 = l_Lean_Name_str___override(x_2, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lean_Server_Utils_0__Lean_Server_externalNameToUri_x3f(lean_object* x_1) {
 _start:
 {
@@ -1626,7 +1605,6 @@ lean_inc(x_6);
 lean_dec_ref(x_4);
 x_7 = l_Lean_Server_documentUriFromModule_x3f___closed__0;
 x_8 = l_Lean_SearchPath_findModuleWithExt(x_5, x_7, x_1, x_6);
-lean_dec(x_1);
 if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; 
@@ -1897,7 +1875,6 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName(x_1);
-lean_dec_ref(x_1);
 x_5 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_2);
@@ -1919,7 +1896,6 @@ if (x_9 == 0)
 lean_object* x_10; lean_object* x_11; 
 lean_dec(x_6);
 x_10 = l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName(x_1);
-lean_dec_ref(x_1);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_2);
@@ -1953,7 +1929,6 @@ lean_object* x_18; lean_object* x_19;
 x_18 = lean_ctor_get(x_15, 0);
 lean_dec(x_18);
 x_19 = l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName(x_1);
-lean_dec_ref(x_1);
 lean_ctor_set(x_15, 0, x_19);
 return x_15;
 }
@@ -1964,7 +1939,6 @@ x_20 = lean_ctor_get(x_15, 1);
 lean_inc(x_20);
 lean_dec(x_15);
 x_21 = l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName(x_1);
-lean_dec_ref(x_1);
 x_22 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_22, 0, x_21);
 lean_ctor_set(x_22, 1, x_20);

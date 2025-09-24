@@ -49,7 +49,12 @@ private def hasTheoryVar (e : Expr) : GoalM Bool := do
 private def isInterpreted (e : Expr) : GoalM Bool := do
   if isInterpretedTerm e then return true
   let f := e.getAppFn
-  return f.isConstOf ``LE.le || f.isConstOf ``Dvd.dvd
+  /-
+  **Note**: `grind` normalizes terms, but some of them cannot be rewritten by `simp` because
+  the rewrite would produce a type incorrect term. Thus, we may have `LT.lt` applications in
+  the goal.
+  -/
+  return f.isConstOf ``LE.le || f.isConstOf ``Dvd.dvd || f.isConstOf ``LT.lt
 
 private def eqAssignment (a b : Expr) : GoalM Bool := do
   let some v₁ ← getAssignmentExt? a | return false

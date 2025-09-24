@@ -11,6 +11,7 @@ public import Lean.Meta.Tactic.Grind.SearchM
 import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Injection

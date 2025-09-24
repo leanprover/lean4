@@ -126,6 +126,10 @@ def hasInheritDoc (attrs : Syntax) : Bool :=
     attr[1].isOfKind ``Parser.Attr.simple &&
     attr[1][0].getId.eraseMacroScopes == `inherit_doc
 
+def hasTacticAlt (attrs : Syntax) : Bool :=
+  attrs[0][1].getSepArgs.any fun attr =>
+    attr[1].isOfKind ``Parser.Attr.tactic_alt
+
 def declModifiersPubNoDoc (mods : Syntax) : CommandElabM Bool := do
   let isPublic := if (← getEnv).header.isModule && !(← getScope).isPublic then
     mods[2][0].getKind == ``Command.public else
@@ -201,7 +205,7 @@ def checkMixfix : SimpleHandler := fun stx => do
 
 @[builtin_missing_docs_handler «syntax»]
 def checkSyntax : SimpleHandler := fun stx => do
-  if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] then
+  if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] && !hasTacticAlt stx[1] then
     if stx[5].isNone then lint stx[3] "syntax"
     else lintNamed stx[5][0][3] "syntax"
 
@@ -217,13 +221,13 @@ def checkSyntaxCat : SimpleHandler := mkSimpleHandler "syntax category"
 
 @[builtin_missing_docs_handler «macro»]
 def checkMacro : SimpleHandler := fun stx => do
-  if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] then
+  if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] && !hasTacticAlt stx[1] then
     if stx[5].isNone then lint stx[3] "macro"
     else lintNamed stx[5][0][3] "macro"
 
 @[builtin_missing_docs_handler «elab»]
 def checkElab : SimpleHandler := fun stx => do
-  if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] then
+  if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] && !hasTacticAlt stx[1] then
     if stx[5].isNone then lint stx[3] "elab"
     else lintNamed stx[5][0][3] "elab"
 

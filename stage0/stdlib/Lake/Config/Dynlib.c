@@ -69,7 +69,6 @@ lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 lean_object* l_Bool_repr___redArg(uint8_t);
 static lean_object* l_Lake_Dynlib_instCoeFilePath___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Dynlib_instToString___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Dynlib_dir_x3f___boxed(lean_object*);
 static lean_object* l_Array_Array_repr___at___Lake_instReprDynlib_repr_spec__0___closed__10;
 LEAN_EXPORT lean_object* l_Lake_Dynlib_ctorIdx(lean_object*);
 static lean_object* l_Lake_instInhabitedDynlib_default___closed__3;
@@ -815,17 +814,10 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_2);
+lean_dec_ref(x_1);
 x_3 = l_System_FilePath_parent(x_2);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Dynlib_dir_x3f___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Dynlib_dir_x3f(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Dynlib_instToJson___lam__0(lean_object* x_1) {

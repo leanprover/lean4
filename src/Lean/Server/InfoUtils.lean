@@ -186,6 +186,8 @@ def Info.stx : Info → Syntax
   | ofFieldRedeclInfo i    => i.stx
   | ofDelabTermInfo i      => i.stx
   | ofChoiceInfo i         => i.stx
+  | ofDocInfo i            => i.stx
+  | ofDocElabInfo i        => i.stx
 
 def Info.lctx : Info → LocalContext
   | .ofTermInfo i           => i.lctx
@@ -343,6 +345,10 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
   | .ofErrorNameInfo eni => do
     let some errorExplanation := getErrorExplanationRaw? (← getEnv) eni.errorName | return none
     return errorExplanation.summaryWithSeverity
+  | .ofDocInfo di =>
+    return (← findDocString? env di.stx.getKind)
+  | .ofDocElabInfo dei =>
+    return (← findDocString? env dei.name)
   | _ => pure ()
   if let some ei := i.toElabInfo? then
     return ← findDocString? env ei.stx.getKind <||> findDocString? env ei.elaborator

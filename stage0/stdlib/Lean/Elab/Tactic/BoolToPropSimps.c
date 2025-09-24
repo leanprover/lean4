@@ -13,17 +13,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_boolToPropSimps;
 static lean_object* l_initFn___closed__0____x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_;
 static lean_object* l_initFn___closed__1____x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_;
 lean_object* l_Lean_Meta_registerSimpAttr(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_initFn___closed__1____x40_Lean_Elab_Tactic_BoolToPropSimps_2099590347____hygCtx___hyg_2_;
 static lean_object* l_initFn___closed__2____x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_bool__to__prop;
 LEAN_EXPORT lean_object* l_initFn____x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_(lean_object*);
-LEAN_EXPORT lean_object* l_initFn____x40_Lean_Elab_Tactic_BoolToPropSimps_2099590347____hygCtx___hyg_2_(lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
-static lean_object* l_initFn___closed__0____x40_Lean_Elab_Tactic_BoolToPropSimps_2099590347____hygCtx___hyg_2_;
 static lean_object* _init_l_initFn___closed__0____x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_() {
 _start:
 {
@@ -59,33 +55,6 @@ x_4 = l_Lean_Meta_registerSimpAttr(x_2, x_3, x_2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_initFn___closed__0____x40_Lean_Elab_Tactic_BoolToPropSimps_2099590347____hygCtx___hyg_2_() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("boolToPropSimps", 15, 15);
-return x_1;
-}
-}
-static lean_object* _init_l_initFn___closed__1____x40_Lean_Elab_Tactic_BoolToPropSimps_2099590347____hygCtx___hyg_2_() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_initFn___closed__0____x40_Lean_Elab_Tactic_BoolToPropSimps_2099590347____hygCtx___hyg_2_;
-x_2 = l_Lean_Name_mkStr1(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_initFn____x40_Lean_Elab_Tactic_BoolToPropSimps_2099590347____hygCtx___hyg_2_(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_initFn___closed__1____x40_Lean_Elab_Tactic_BoolToPropSimps_2099590347____hygCtx___hyg_2_;
-x_3 = l_initFn___closed__2____x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_;
-x_4 = l_Lean_Meta_registerSimpAttr(x_2, x_3, x_2, x_1);
-return x_4;
-}
-}
 lean_object* initialize_Lean_Meta_Tactic_Simp_Attr(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_BoolToPropSimps(uint8_t builtin, lean_object* w) {
@@ -105,15 +74,6 @@ if (builtin) {res = l_initFn____x40_Lean_Elab_Tactic_BoolToPropSimps_428426324__
 if (lean_io_result_is_error(res)) return res;
 l_bool__to__prop = lean_io_result_get_value(res);
 lean_mark_persistent(l_bool__to__prop);
-lean_dec_ref(res);
-}l_initFn___closed__0____x40_Lean_Elab_Tactic_BoolToPropSimps_2099590347____hygCtx___hyg_2_ = _init_l_initFn___closed__0____x40_Lean_Elab_Tactic_BoolToPropSimps_2099590347____hygCtx___hyg_2_();
-lean_mark_persistent(l_initFn___closed__0____x40_Lean_Elab_Tactic_BoolToPropSimps_2099590347____hygCtx___hyg_2_);
-l_initFn___closed__1____x40_Lean_Elab_Tactic_BoolToPropSimps_2099590347____hygCtx___hyg_2_ = _init_l_initFn___closed__1____x40_Lean_Elab_Tactic_BoolToPropSimps_2099590347____hygCtx___hyg_2_();
-lean_mark_persistent(l_initFn___closed__1____x40_Lean_Elab_Tactic_BoolToPropSimps_2099590347____hygCtx___hyg_2_);
-if (builtin) {res = l_initFn____x40_Lean_Elab_Tactic_BoolToPropSimps_2099590347____hygCtx___hyg_2_(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-l_boolToPropSimps = lean_io_result_get_value(res);
-lean_mark_persistent(l_boolToPropSimps);
 lean_dec_ref(res);
 }return lean_io_result_mk_ok(lean_box(0));
 }

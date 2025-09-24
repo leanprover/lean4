@@ -12,6 +12,20 @@ info: def f : Nat :=
 #guard_msgs in
 #print f
 
+/--
+error: Type mismatch
+  rfl
+has type
+  ?m.5 = ?m.5
+but is expected to have type
+  f = 1
+
+Note: The following definitions were not unfolded because their definition is not exposed:
+  f ↦ 1
+-/
+#guard_msgs in
+example : f = 1 := rfl
+
 /-! Theorems should be exported without their bodies -/
 
 /--

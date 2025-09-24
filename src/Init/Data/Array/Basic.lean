@@ -129,19 +129,10 @@ end Array
 
 namespace List
 
-@[deprecated Array.toArray_toList (since := "2025-02-17")]
-abbrev toArray_toList := @Array.toArray_toList
-
 -- This does not need to be a simp lemma, as already after the `whnfR` the right hand side is `as`.
 theorem toList_toArray {as : List α} : as.toArray.toList = as := rfl
 
-@[deprecated toList_toArray (since := "2025-02-17")]
-abbrev _root_.Array.toList_toArray := @List.toList_toArray
-
 @[simp, grind =] theorem size_toArray {as : List α} : as.toArray.size = as.length := by simp [Array.size]
-
-@[deprecated size_toArray (since := "2025-02-17")]
-abbrev _root_.Array.size_toArray := @List.size_toArray
 
 @[simp, grind =] theorem getElem_toArray {xs : List α} {i : Nat} (h : i < xs.toArray.size) :
     xs.toArray[i] = xs[i]'(by simpa using h) := rfl
@@ -411,10 +402,6 @@ that requires a proof the array is non-empty.
 -/
 def back? (xs : Array α) : Option α :=
   xs[xs.size - 1]?
-
-@[deprecated "Use `a[i]?` instead." (since := "2025-02-12"), expose]
-def get? (xs : Array α) (i : Nat) : Option α :=
-  if h : i < xs.size then some xs[i] else none
 
 /--
 Swaps a new element with the element at the given index.
@@ -1812,7 +1799,6 @@ Examples:
 * `#["apple", "pear", "orange"].eraseIdxIfInBounds 3 = #["apple", "pear", "orange"]`
 * `#["apple", "pear", "orange"].eraseIdxIfInBounds 5 = #["apple", "pear", "orange"]`
 -/
-@[grind]
 def eraseIdxIfInBounds (xs : Array α) (i : Nat) : Array α :=
   if h : i < xs.size then xs.eraseIdx i h else xs
 

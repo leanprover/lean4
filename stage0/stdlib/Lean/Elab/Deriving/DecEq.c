@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Deriving.DecEq
-// Imports: Lean.Data.Options Lean.Meta.Transform Lean.Meta.Inductive Lean.Elab.Deriving.Basic Lean.Elab.Deriving.Util Lean.Meta.NatTable Lean.Meta.Constructions.CtorIdx Lean.Meta.Constructions.CtorElim Lean.Meta.Constructions.CasesOnSameCtor Lean.Meta.SameCtorUtils
+// Imports: Lean.Data.Options Lean.Meta.Transform Lean.Meta.Inductive Lean.Elab.Deriving.Basic Lean.Elab.Deriving.Util Lean.Meta.NatTable Lean.Meta.Constructions.CtorIdx Lean.Meta.Constructions.CasesOnSameCtor Lean.Meta.SameCtorUtils
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -11135,7 +11135,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_Deriving_DecEq_0__Lean_Elab_Deriving_DecEq_mkMatchNew___closed__2;
 x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(110u);
+x_3 = lean_unsigned_to_nat(109u);
 x_4 = l___private_Lean_Elab_Deriving_DecEq_0__Lean_Elab_Deriving_DecEq_mkMatchNew___closed__1;
 x_5 = l___private_Lean_Elab_Deriving_DecEq_0__Lean_Elab_Deriving_DecEq_mkMatchNew___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -22206,7 +22206,6 @@ lean_object* initialize_Lean_Elab_Deriving_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Deriving_Util(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_NatTable(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Constructions_CtorIdx(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Constructions_CtorElim(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Constructions_CasesOnSameCtor(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_SameCtorUtils(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -22233,9 +22232,6 @@ res = initialize_Lean_Meta_NatTable(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Constructions_CtorIdx(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Constructions_CtorElim(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Constructions_CasesOnSameCtor(builtin, lean_io_mk_world());

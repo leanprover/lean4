@@ -324,6 +324,13 @@ abbrev erase_mkArray_ne := @erase_replicate_ne
 
 end erase
 
+/-! ### eraseIdxIfInBounds -/
+
+@[grind =]
+theorem eraseIdxIfInBounds_eq {xs : Array α} {i : Nat} :
+    xs.eraseIdxIfInBounds i = if h : i < xs.size then xs.eraseIdx i else xs := by
+  simp [eraseIdxIfInBounds]
+
 /-! ### eraseIdx -/
 
 theorem eraseIdx_eq_eraseIdxIfInBounds {xs : Array α} {i : Nat} (h : i < xs.size) :

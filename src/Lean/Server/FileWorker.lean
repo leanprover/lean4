@@ -802,7 +802,7 @@ section MessageHandling
       if data.providerName != importAllUnknownIdentifiersProvider then
         return none
       return some <| ← RequestM.asTask do
-        let unknownIdentifierRanges ← waitAllUnknownIdentifierRanges st.doc
+        let unknownIdentifierRanges ← waitAllUnknownIdentifierMessageRanges st.doc
         if unknownIdentifierRanges.isEmpty then
           let p := toJson params
           return { response? := p, serialized := p.compress, isComplete := true }
@@ -826,7 +826,7 @@ section MessageHandling
         let isSourceAction := params.context.only?.any fun only =>
             only.contains "source" || only.contains "source.organizeImports"
         if isSourceAction then
-          let unknownIdentifierRanges ← waitAllUnknownIdentifierRanges doc
+          let unknownIdentifierRanges ← waitAllUnknownIdentifierMessageRanges doc
           if unknownIdentifierRanges.isEmpty then
             return r
           let .ok (codeActions : Array CodeAction) := fromJson? response
@@ -835,9 +835,14 @@ section MessageHandling
           return { r with response? := response, serialized := response.compress }
         else
           let requestedRange := doc.meta.text.lspRangeToUtf8Range params.range
-          let unknownIdentifierRanges ← waitUnknownIdentifierRanges doc requestedRange
+          let (unknownIdentifierRanges, isAnyUnknownIdentifierMessage) ← waitUnknownIdentifierRanges doc requestedRange
           if unknownIdentifierRanges.isEmpty then
             return r
+          let kind :=
+            if isAnyUnknownIdentifierMessage then
+              "quickfix"
+            else
+              "refactor"
           let .ok (codeActions : Array CodeAction) := fromJson? response
             | return r
           RequestM.checkCancelled
@@ -845,7 +850,7 @@ section MessageHandling
           -- we only do it when the user has stopped typing for a second.
           IO.sleep 1000
           RequestM.checkCancelled
-          let unknownIdentifierCodeActions ← handleUnknownIdentifierCodeAction id params requestedRange
+          let unknownIdentifierCodeActions ← handleUnknownIdentifierCodeAction id params requestedRange kind
           let response := toJson <| codeActions ++ unknownIdentifierCodeActions
           return { r with response? := response, serialized := response.compress }
     | _ =>

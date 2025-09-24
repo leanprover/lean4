@@ -6,7 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-public import all Init.Data.Iterators.Combinators.ULift
+public import Init.Data.Iterators.Combinators.ULift
+import all Init.Data.Iterators.Combinators.ULift
 public import Init.Data.Iterators.Lemmas.Combinators.Monadic.ULift
 public import Init.Data.Iterators.Lemmas.Consumers.Collect
 
@@ -52,6 +53,6 @@ theorem Iter.toArray_uLift [Iterator α Id β] {it : Iter (α := α) β}
     [LawfulIteratorCollect α Id Id] :
     it.uLift.toArray = it.toArray.map ULift.up := by
   rw [← toArray_toList, ← toArray_toList, toList_uLift]
-  simp
+  simp [-toArray_toList]
 
 end Std.Iterators

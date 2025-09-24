@@ -6,8 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-public import all Init.Data.List.Control
-public import all Init.Data.Array.Basic
+public import Init.Data.List.Control
+import all Init.Data.List.Control
+public import Init.Data.Array.Basic
+import all Init.Data.Array.Basic
 public import Init.Data.Array.Lemmas
 public import Init.Data.Array.Attach
 public import Init.Data.List.Monadic
@@ -165,7 +167,7 @@ theorem foldrM_filter [Monad m] [LawfulMonad m] {p : α → Bool} {g : α → β
     (h : ∀ a m b, f a (by simpa [w] using m) b = g a m b) :
     forIn' as b f = forIn' bs b' g := by
   cases as <;> cases bs
-  simp only [mk.injEq, mem_toArray, List.forIn'_toArray] at w h ⊢
+  simp only [mk.injEq, List.mem_toArray, List.forIn'_toArray] at w h ⊢
   exact List.forIn'_congr w hb h
 
 /--

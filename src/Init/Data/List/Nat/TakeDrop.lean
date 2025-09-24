@@ -117,9 +117,6 @@ theorem take_set_of_le {a : α} {i j : Nat} {l : List α} (h : j ≤ i) :
     next h' => rw [getElem?_set_ne (by omega)]
     · rfl
 
-@[deprecated take_set_of_le (since := "2025-02-04")]
-abbrev take_set_of_lt := @take_set_of_le
-
 @[simp, grind =] theorem take_replicate {a : α} : ∀ {i n : Nat}, take i (replicate n a) = replicate (min i n) a
   | n, 0 => by simp
   | 0, m => by simp
@@ -164,9 +161,6 @@ theorem take_eq_take_iff :
   | x :: xs, i + 1, 0 => by simp [succ_min_succ]
   | x :: xs, 0, j + 1 => by simp [succ_min_succ]
   | x :: xs, i + 1, j + 1 => by simp [succ_min_succ, take_eq_take_iff]
-
-@[deprecated take_eq_take_iff (since := "2025-02-16")]
-abbrev take_eq_take := @take_eq_take_iff
 
 @[grind =]
 theorem take_add {l : List α} {i j : Nat} : l.take (i + j) = l.take i ++ (l.drop i).take j := by
@@ -567,9 +561,10 @@ theorem getElem_zipWith {f : α → β → γ} {l : List α} {l' : List β}
       f (l[i]'(lt_length_left_of_zipWith h))
         (l'[i]'(lt_length_right_of_zipWith h)) := by
   rw [← Option.some_inj, ← getElem?_eq_getElem, getElem?_zipWith_eq_some]
+  have := lt_length_right_of_zipWith h
   exact
-    ⟨l[i]'(lt_length_left_of_zipWith h), l'[i]'(lt_length_right_of_zipWith h),
-      by rw [getElem?_eq_getElem], by rw [getElem?_eq_getElem]; exact ⟨rfl, rfl⟩⟩
+    ⟨l[i]'(lt_length_left_of_zipWith h), l'[i],
+      by rw [getElem?_eq_getElem], by rw [getElem?_eq_getElem this]; exact ⟨rfl, rfl⟩⟩
 
 theorem zipWith_eq_zipWith_take_min : ∀ {l₁ : List α} {l₂ : List β},
     zipWith f l₁ l₂ = zipWith f (l₁.take (min l₁.length l₂.length)) (l₂.take (min l₁.length l₂.length))

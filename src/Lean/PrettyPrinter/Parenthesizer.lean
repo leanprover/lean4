@@ -219,7 +219,7 @@ def visitArgs (x : ParenthesizerM Unit) : ParenthesizerM Unit := do
 -- so give a trivial implementation.
 instance : MonadQuotation ParenthesizerM := {
   getCurrMacroScope   := pure default
-  getMainModule       := pure default
+  getContext          := pure default
   withFreshMacroScope := fun x => x
 }
 
@@ -469,13 +469,25 @@ def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec lhsPrec : Nat) (p : Pa
 
 @[combinator_parenthesizer rawCh, expose] def rawCh.parenthesizer (_ch : Char) := visitToken
 
-@[combinator_parenthesizer symbolNoAntiquot, expose] def symbolNoAntiquot.parenthesizer (_sym : String) := visitToken
-@[combinator_parenthesizer unicodeSymbolNoAntiquot, expose] def unicodeSymbolNoAntiquot.parenthesizer (_sym _asciiSym : String) := visitToken
+@[combinator_parenthesizer symbolNoAntiquot, expose] def symbolNoAntiquot.parenthesizer (sym : String) := do
+  let stx ← getCur
+  if stx.isToken sym then
+    visitToken
+  else
+    trace[PrettyPrinter.parenthesize.backtrack] "unexpected syntax '{format stx}', expected symbol '{sym}'"
+    throwBacktrack
+@[combinator_parenthesizer nonReservedSymbolNoAntiquot, expose] def nonReservedSymbolNoAntiquot.parenthesizer := symbolNoAntiquot.parenthesizer
+@[combinator_parenthesizer unicodeSymbolNoAntiquot, expose] def unicodeSymbolNoAntiquot.parenthesizer (sym asciiSym : String) (_preserveForPP : Bool) := do
+  let stx ← getCur
+  if stx.isToken sym || stx.isToken asciiSym then
+    visitToken
+  else
+    trace[PrettyPrinter.parenthesize.backtrack] "unexpected syntax '{format stx}', expected symbol '{sym}' or '{asciiSym}'"
+    throwBacktrack
 
 @[combinator_parenthesizer identNoAntiquot, expose] def identNoAntiquot.parenthesizer := do checkKind identKind; visitToken
 @[combinator_parenthesizer rawIdentNoAntiquot, expose] def rawIdentNoAntiquot.parenthesizer := visitToken
 @[combinator_parenthesizer identEq, expose] def identEq.parenthesizer (_id : Name) := visitToken
-@[combinator_parenthesizer nonReservedSymbolNoAntiquot, expose] def nonReservedSymbolNoAntiquot.parenthesizer (_sym : String) (_includeIdent : Bool) := visitToken
 
 @[combinator_parenthesizer charLitNoAntiquot, expose] def charLitNoAntiquot.parenthesizer := visitToken
 @[combinator_parenthesizer strLitNoAntiquot, expose] def strLitNoAntiquot.parenthesizer := visitToken

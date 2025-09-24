@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake
-// Imports: Lake.Build Lake.Config Lake.DSL Lake.Version Lake.CLI.Actions Lake.Toml
+// Imports: Lake.Build Lake.CLI.Actions Lake.Config Lake.DSL Lake.Toml Lake.Util Lake.Version
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,11 +14,12 @@
 extern "C" {
 #endif
 lean_object* initialize_Lake_Build(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_CLI_Actions(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_DSL(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Version(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_CLI_Actions(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Toml(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Util(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Version(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -27,19 +28,22 @@ _G_initialized = true;
 res = initialize_Lake_Build(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Lake_CLI_Actions(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lake_Config(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_DSL(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Version(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_CLI_Actions(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Toml(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Util(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Version(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

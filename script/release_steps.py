@@ -377,6 +377,33 @@ def execute_release_steps(repo, version, config):
         except subprocess.CalledProcessError as e:
             print(red("Tests failed, but continuing with PR creation..."))
             print(red(f"Test error: {e}"))
+    elif repo_name == "lean-fro.org":
+        # Update lean-toolchain in examples/hero
+        print(blue("Updating examples/hero/lean-toolchain..."))
+        docs_toolchain = repo_path / "examples" / "hero" / "lean-toolchain"
+        with open(docs_toolchain, "w") as f:
+            f.write(f"leanprover/lean4:{version}\n")
+        print(green(f"Updated examples/hero/lean-toolchain to leanprover/lean4:{version}"))
+
+        print(blue("Running `lake update`..."))
+        run_command("lake update", cwd=repo_path, stream_output=True)
+        print(blue("Running `lake update` in examples/hero..."))
+        run_command("lake update", cwd=repo_path / "examples" / "hero", stream_output=True)
+    elif repo_name == "cslib":
+        print(blue("Updating lakefile.toml..."))
+        run_command(f'perl -pi -e \'s/"v4\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?"/"' + version + '"/g\' lakefile.*', cwd=repo_path)
+        
+        print(blue("Updating docs/lakefile.toml..."))
+        run_command(f'perl -pi -e \'s/"v4\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?"/"' + version + '"/g\' lakefile.*', cwd=repo_path / "docs")
+
+        # Update lean-toolchain in docs
+        print(blue("Updating docs/lean-toolchain..."))
+        docs_toolchain = repo_path / "docs" / "lean-toolchain"
+        with open(docs_toolchain, "w") as f:
+            f.write(f"leanprover/lean4:{version}\n")
+        print(green(f"Updated docs/lean-toolchain to leanprover/lean4:{version}"))
+
+        run_command("lake update", cwd=repo_path, stream_output=True)
     elif dependencies:
         run_command(f'perl -pi -e \'s/"v4\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?"/"' + version + '"/g\' lakefile.*', cwd=repo_path)
         run_command("lake update", cwd=repo_path, stream_output=True)

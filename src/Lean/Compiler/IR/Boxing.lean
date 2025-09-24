@@ -55,15 +55,15 @@ def mkBoxedVersionAux (decl : Decl) : N Decl := do
       pure (newVDecls, xs.push (.var q.x))
     else
       let x ← N.mkFresh
-      pure (newVDecls.push (FnBody.vdecl x p.ty (Expr.unbox q.x) default), xs.push (.var x))
+      pure (newVDecls.push (.vdecl x p.ty (.unbox q.x) default), xs.push (.var x))
   let r ← N.mkFresh
-  let newVDecls := newVDecls.push (FnBody.vdecl r decl.resultType (Expr.fap decl.name xs) default)
+  let newVDecls := newVDecls.push (.vdecl r decl.resultType (.fap decl.name xs) default)
   let body ← if !decl.resultType.isScalar then
-    pure <| reshape newVDecls (FnBody.ret (.var r))
+    pure <| reshape newVDecls (.ret (.var r))
   else
     let newR ← N.mkFresh
-    let newVDecls := newVDecls.push (FnBody.vdecl newR .tobject (Expr.box decl.resultType r) default)
-    pure <| reshape newVDecls (FnBody.ret (.var newR))
+    let newVDecls := newVDecls.push (.vdecl newR .tobject (.box decl.resultType r) default)
+    pure <| reshape newVDecls (.ret (.var newR))
   return Decl.fdecl (mkBoxedName decl.name) qs decl.resultType.boxed body decl.getInfo
 
 def mkBoxedVersion (decl : Decl) : Decl :=
@@ -180,7 +180,7 @@ def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
       | some v => pure v
       | none   => do
         let auxName  := ctx.f ++ ((`_boxed_const).appendIndexAfter s.nextAuxId)
-        let auxConst := Expr.fap auxName #[]
+        let auxConst := .fap auxName #[]
         let auxDecl  := Decl.fdecl auxName #[] expectedType body {}
         modify fun s => { s with
           auxDecls     := s.auxDecls.push auxDecl
@@ -197,7 +197,7 @@ def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
   else
     let y ← M.mkFresh
     let v ← mkCast x xType expected
-    FnBody.vdecl y expected v <$> k y
+    .vdecl y expected v <$> k y
 
 @[inline] def castArgIfNeeded (x : Arg) (expected : IRType) (k : Arg → M FnBody) : M FnBody :=
   match x with
@@ -220,7 +220,7 @@ def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Arr
       else
         let y ← M.mkFresh
         let v ← mkCast x xType expected
-        let b := FnBody.vdecl y expected v FnBody.nil
+        let b := .vdecl y expected v .nil
         xs' := xs'.push (.var y)
         bs := bs.push b
     i := i + 1
@@ -239,69 +239,69 @@ def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Arr
 def unboxResultIfNeeded (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody := do
   if ty.isScalar then
     let y ← M.mkFresh
-    return FnBody.vdecl y .tobject e (FnBody.vdecl x ty (Expr.unbox y) b)
+    return .vdecl y .tobject e (.vdecl x ty (.unbox y) b)
   else
-    return FnBody.vdecl x ty e b
+    return .vdecl x ty e b
 
 def castResultIfNeeded (x : VarId) (ty : IRType) (e : Expr) (eType : IRType) (b : FnBody) : M FnBody := do
   if eqvTypes ty eType then
-    return FnBody.vdecl x ty e b
+    return .vdecl x ty e b
   else
     let y ← M.mkFresh
     let boxedTy := ty.boxed
     let v ← mkCast y boxedTy ty
-    return FnBody.vdecl y boxedTy e (FnBody.vdecl x ty v b)
+    return .vdecl y boxedTy e (.vdecl x ty v b)
 
 def visitVDeclExpr (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody :=
   match e with
-  | Expr.ctor c ys =>
+  | .ctor c ys =>
     if c.isScalar && ty.isScalar then
-      return FnBody.vdecl x ty (Expr.lit (LitVal.num c.cidx)) b
+      return .vdecl x ty (.lit (.num c.cidx)) b
     else
-      boxArgsIfNeeded ys fun ys => return FnBody.vdecl x ty (Expr.ctor c ys) b
-  | Expr.reuse w c u ys =>
-    boxArgsIfNeeded ys fun ys => return FnBody.vdecl x ty (Expr.reuse w c u ys) b
-  | Expr.fap f ys => do
+      boxArgsIfNeeded ys fun ys => return .vdecl x ty (.ctor c ys) b
+  | .reuse w c u ys =>
+    boxArgsIfNeeded ys fun ys => return .vdecl x ty (.reuse w c u ys) b
+  | .fap f ys => do
     let decl ← getDecl f
     castArgsIfNeeded ys decl.params fun ys =>
-    castResultIfNeeded x ty (Expr.fap f ys) decl.resultType b
-  | Expr.pap f ys => do
+    castResultIfNeeded x ty (.fap f ys) decl.resultType b
+  | .pap f ys => do
     let env ← getEnv
     let decl ← getDecl f
     let f := if requiresBoxedVersion env decl then mkBoxedName f else f
-    boxArgsIfNeeded ys fun ys => return FnBody.vdecl x ty (Expr.pap f ys) b
-  | Expr.ap f ys =>
+    boxArgsIfNeeded ys fun ys => return .vdecl x ty (.pap f ys) b
+  | .ap f ys =>
     boxArgsIfNeeded ys fun ys =>
-    unboxResultIfNeeded x ty (Expr.ap f ys) b
+    unboxResultIfNeeded x ty (.ap f ys) b
   | _     =>
-    return FnBody.vdecl x ty e b
+    return .vdecl x ty e b
 
 partial def visitFnBody : FnBody → M FnBody
-  | FnBody.vdecl x t v b     => do
+  | .vdecl x t v b     => do
     let b ← withVDecl x t v (visitFnBody b)
     visitVDeclExpr x t v b
-  | FnBody.jdecl j xs v b    => do
+  | .jdecl j xs v b    => do
     let v ← withParams xs (visitFnBody v)
     let b ← withJDecl j xs v (visitFnBody b)
-    return FnBody.jdecl j xs v b
-  | FnBody.uset x i y b      => do
+    return .jdecl j xs v b
+  | .uset x i y b      => do
     let b ← visitFnBody b
     castVarIfNeeded y IRType.usize fun y =>
-      return FnBody.uset x i y b
-  | FnBody.sset x i o y ty b => do
+      return .uset x i y b
+  | .sset x i o y ty b => do
     let b ← visitFnBody b
     castVarIfNeeded y ty fun y =>
-      return FnBody.sset x i o y ty b
-  | FnBody.case tid x xType alts   => do
+      return .sset x i o y ty b
+  | .case tid x xType alts   => do
     let alts ← alts.mapM fun alt => alt.modifyBodyM visitFnBody
     castVarIfNeeded x xType fun x => do
-      return FnBody.case tid x xType alts
-  | FnBody.ret x             => do
+      return .case tid x xType alts
+  | .ret x             => do
     let expected ← getResultType
-    castArgIfNeeded x expected (fun x => return FnBody.ret x)
-  | FnBody.jmp j ys          => do
+    castArgIfNeeded x expected (fun x => return .ret x)
+  | .jmp j ys          => do
     let ps ← getJPParams j
-    castArgsIfNeeded ys ps fun ys => return FnBody.jmp j ys
+    castArgsIfNeeded ys ps fun ys => return .jmp j ys
   | other                    =>
     pure other
 

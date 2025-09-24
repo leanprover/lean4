@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Ring
-// Imports: Init.Grind.Ring.Basic Init.Grind.Ring.Poly Init.Grind.Ring.Field Init.Grind.Ring.Envelope Init.Grind.Ring.OfSemiring Init.Grind.Ring.ToInt
+// Imports: Init.Grind.Ring.Basic Init.Grind.Ring.Field Init.Grind.Ring.Envelope Init.Grind.Ring.CommSolver Init.Grind.Ring.CommSemiringAdapter Init.Grind.Ring.ToInt
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,10 +14,10 @@
 extern "C" {
 #endif
 lean_object* initialize_Init_Grind_Ring_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_Ring_Poly(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Ring_Field(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Ring_Envelope(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_Ring_OfSemiring(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_Ring_CommSolver(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_Ring_CommSemiringAdapter(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Ring_ToInt(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_Ring(uint8_t builtin, lean_object* w) {
@@ -27,16 +27,16 @@ _G_initialized = true;
 res = initialize_Init_Grind_Ring_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Ring_Poly(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Grind_Ring_Field(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_Ring_Envelope(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Ring_OfSemiring(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_Ring_CommSolver(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Ring_CommSemiringAdapter(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_Ring_ToInt(builtin, lean_io_mk_world());

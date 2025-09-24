@@ -4,19 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.Util
-public import Lean.Util.PtrSet
-public import Lean.Meta.Transform
-public import Lean.Meta.Basic
-public import Lean.Meta.InferType
-public import Lean.Meta.Tactic.Grind.ExprPtr
-public import Lean.Meta.Tactic.Grind.Util
 public import Lean.Meta.Tactic.Grind.Types
-
+import Init.Grind.Util
+import Lean.Util.PtrSet
+import Lean.Meta.Transform
+import Lean.Meta.Basic
+import Lean.Meta.InferType
+import Lean.Meta.Tactic.Grind.ExprPtr
+import Lean.Meta.Tactic.Grind.Util
 public section
-
 namespace Lean.Meta.Grind
 
 private abbrev M := StateRefT (Std.HashMap ExprPtr Expr) GrindM
@@ -26,7 +23,14 @@ def isMarkedSubsingletonConst (e : Expr) : Bool := Id.run do
   return declName == ``Grind.nestedProof || declName == ``Grind.nestedDecidable
 
 def isMarkedSubsingletonApp (e : Expr) : Bool :=
-  isMarkedSubsingletonConst e.getAppFn
+  /-
+  Remark: we must check `e`s arity because we may have over-applied `Grind.nestedProof` applications.
+  These over-applied applications have to be re-marked. Here is an example from test `grind_over_applied_nestedProof.lean`
+  ```
+  ‹∀ (a : Option α), x = some a → ∀ (a_2 : α), a = some a_2 → p a_2› val (join_pmap_eq_pmap_join._proof_1_2 val h_1))
+  ```
+  -/
+  isMarkedSubsingletonConst e.getAppFn && e.getAppNumArgs == 2
 
 /-- Returns `some p` if `e` is of the form `Decidable p` -/
 private def isDecidable (e : Expr) : MetaM (Option Expr) := do
@@ -44,7 +48,6 @@ partial def markNestedSubsingletons (e : Expr) : GrindM Expr := do profileitM Ex
   visit e |>.run' {}
 where
   visit (e : Expr) : M Expr := do
-    if (← inShareCommon e) then return e
     if isMarkedSubsingletonApp e then
       return e -- `e` is already marked
     -- check whether result is cached

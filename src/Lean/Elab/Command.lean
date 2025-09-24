@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Range.Polymorphic.Stream
 public import Lean.Meta.Diagnostics
 public import Lean.Elab.Binders
+public import Lean.Elab.Command.Scope
 public import Lean.Elab.SyntheticMVars
 public import Lean.Elab.SetOption
 public import Lean.Language.Basic
@@ -19,79 +20,11 @@ public section
 
 namespace Lean.Elab.Command
 
-/--
-A `Scope` records the part of the `CommandElabM` state that respects scoping,
-such as the data for `universe`, `open`, and `variable` declarations, the current namespace,
-and currently enabled options.
-The `CommandElabM` state contains a stack of scopes, and only the top `Scope`
-on the stack is read from or modified. There is always at least one `Scope` on the stack,
-even outside any `section` or `namespace`, and each new pushed `Scope`
-starts as a modified copy of the previous top scope.
--/
-structure Scope where
-  /--
-  The component of the `namespace` or `section` that this scope is associated to.
-  For example, `section a.b.c` and `namespace a.b.c` each create three scopes with headers
-  named `a`, `b`, and `c`.
-  This is used for checking the `end` command. The "base scope" has `""` as its header.
-  -/
-  header        : String
-  /--
-  The current state of all set options at this point in the scope. Note that this is the
-  full current set of options and does *not* simply contain the options set
-  while this scope has been active.
-  -/
-  opts          : Options := {}
-  /-- The current namespace. The top-level namespace is represented by `Name.anonymous`. -/
-  currNamespace : Name := Name.anonymous
-  /-- All currently `open`ed namespaces and names. -/
-  openDecls     : List OpenDecl := []
-  /-- The current list of names for universe level variables to use for new declarations. This is managed by the `universe` command. -/
-  levelNames    : List Name := []
-  /--
-  The current list of binders to use for new declarations.
-  This is managed by the `variable` command.
-  Each binder is represented in `Syntax` form, and it is re-elaborated
-  within each command that uses this information.
-
-  This is also used by commands, such as `#check`, to create an initial local context,
-  even if they do not work with binders per se.
-  -/
-  varDecls      : Array (TSyntax ``Parser.Term.bracketedBinder) := #[]
-  /--
-  Globally unique internal identifiers for the `varDecls`.
-  There is one identifier per variable introduced by the binders
-  (recall that a binder such as `(a b c : Ty)` can produce more than one variable),
-  and each identifier is the user-provided variable name with a macro scope.
-  This is used by `TermElabM` in `Lean.Elab.Term.Context` to help with processing macros
-  that capture these variables.
-  -/
-  varUIds       : Array Name := #[]
-  /-- `include`d section variable names (from `varUIds`) -/
-  includedVars  : List Name := []
-  /-- `omit`ted section variable names (from `varUIds`) -/
-  omittedVars  : List Name := []
-  /--
-  If true (default: false), all declarations that fail to compile
-  automatically receive the `noncomputable` modifier.
-  A scope with this flag set is created by `noncomputable section`.
-
-  Recall that a new scope inherits all values from its parent scope,
-  so all sections and namespaces nested within a `noncomputable` section also have this flag set.
-  -/
-  isNoncomputable : Bool := false
-  isPublic : Bool := false
-  /--
-  Attributes that should be applied to all matching declaration in the section. Inherited from
-  parent scopes.
-  -/
-  attrs : List (TSyntax ``Parser.Term.attrInstance) := []
-  deriving Inhabited
-
 structure State where
   env            : Environment
   messages       : MessageLog := {}
   scopes         : List Scope := [{ header := "" }]
+  usedQuotCtxts  : NameSet := {}
   nextMacroScope : Nat := firstFrontendMacroScope + 1
   maxRecDepth    : Nat
   ngen           : NameGenerator := {}
@@ -107,6 +40,7 @@ structure Context where
   currRecDepth   : Nat := 0
   cmdPos         : String.Pos := 0
   macroStack     : MacroStack := []
+  quotContext?   : Option Name := none
   currMacroScope : MacroScope := firstFrontendMacroScope
   ref            : Syntax := Syntax.missing
   /--
@@ -217,6 +151,18 @@ instance : MonadDeclNameGenerator CommandElabM where
   getDeclNGen := return (← get).auxDeclNGen
   setDeclNGen ngen := modify fun s => { s with auxDeclNGen := ngen }
 
+protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
+protected def getMainModule     : CommandElabM Name := do pure (← getEnv).mainModule
+
+protected def withFreshMacroScope {α} (x : CommandElabM α) : CommandElabM α := do
+  let fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }))
+  withReader (fun ctx => { ctx with currMacroScope := fresh }) x
+
+instance : MonadQuotation CommandElabM where
+  getCurrMacroScope   := Command.getCurrMacroScope
+  getContext          := do (← read).quotContext?.getDM getMainModule
+  withFreshMacroScope := Command.withFreshMacroScope
+
 private def runCore (x : CoreM α) : CommandElabM α := do
   let s ← get
   let ctx ← read
@@ -232,6 +178,7 @@ private def runCore (x : CoreM α) : CommandElabM α := do
     currNamespace      := scope.currNamespace
     openDecls          := scope.openDecls
     initHeartbeats     := heartbeats
+    quotContext        := (← MonadQuotation.getMainModule)
     currMacroScope     := ctx.currMacroScope
     options            := scope.opts
     cancelTk?          := ctx.cancelTk?
@@ -411,18 +358,6 @@ def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
       lintAct infoSt
   logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
 
-protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
-protected def getMainModule     : CommandElabM Name := do pure (← getEnv).mainModule
-
-protected def withFreshMacroScope {α} (x : CommandElabM α) : CommandElabM α := do
-  let fresh ← modifyGet (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }))
-  withReader (fun ctx => { ctx with currMacroScope := fresh }) x
-
-instance : MonadQuotation CommandElabM where
-  getCurrMacroScope   := Command.getCurrMacroScope
-  getMainModule       := Command.getMainModule
-  withFreshMacroScope := Command.withFreshMacroScope
-
 /--
 Registers a command elaborator for the given syntax node kind.
 
@@ -479,7 +414,6 @@ def withMacroExpansion (beforeStx afterStx : Syntax) (x : CommandElabM α) : Com
     withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
 instance : MonadMacroAdapter CommandElabM where
-  getCurrMacroScope := getCurrMacroScope
   getNextMacroScope := return (← get).nextMacroScope
   setNextMacroScope next := modify fun s => { s with nextMacroScope := next }
 
@@ -593,7 +527,7 @@ where go := do
           match commandElabAttribute.getEntries s.env k with
           | []      =>
             withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <|
-              throwError "elaboration function for '{k}' has not been implemented"
+              throwError "elaboration function for `{k}` has not been implemented"
           | elabFns => elabCommandUsing s stx elabFns
     | _ =>
       withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <|
@@ -612,12 +546,52 @@ builtin_initialize
   registerTraceClass `Elab.snapshotTree
 
 /--
+If `hint?` is `some hint`, establishes a new context for macro scope naming and runs `act` in it,
+otherwise runs `act` directly without changes.
+
+Context names as documented in Note `Macro Scope Representation` help with avoiding rebuilds and
+`prefer_native` lookup misses from macro scopes in declaration names and other exported information.
+This function establishes a new context with a globally unique name by combining the name of the
+current module with `hint` while also checking for previously used `hint`s in the same module.
+Thus `hint` does not need to be unique but ensuring it is usually unique helps with keeping the
+context name stable.
+
+In the current implementation, we call `withInitQuotContext` once in `elabCommandTopLevel` using the
+source input of the command as the hint. This helps with keeping macro scopes stable on changes to
+other parts of the file but not on changes to the command itself. Thus in each *declaration*
+elaborator we call `withInitQuotContext` again with the declaration name(s) as a hint so that
+changes to any other part of the declaration do not change the context name.
+-/
+def withInitQuotContext (hint? : Option UInt64) (act : CommandElabM Unit) : CommandElabM Unit := do
+  let some hint := hint?
+    | act
+  let mut idx := hint.toUInt32.toNat
+  while (← get).usedQuotCtxts.contains ((← getMainModule).num idx |>.str "_hygCtx") do
+    idx := idx + 1
+  let quotCtx := (← getMainModule).num idx |>.str "_hygCtx"
+  let nextMacroScope := (← get).nextMacroScope
+  try
+    modify fun st => { st with
+      usedQuotCtxts  := st.usedQuotCtxts.insert quotCtx
+      nextMacroScope := firstFrontendMacroScope + 1
+    }
+    withReader (fun ctx => { ctx with
+      quotContext?   := some quotCtx
+      currMacroScope := firstFrontendMacroScope
+    }) act
+  finally
+    modify ({ · with nextMacroScope })
+
+/--
 `elabCommand` wrapper that should be used for the initial invocation, not for recursive calls after
 macro expansion etc.
 -/
 def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do profileitM Exception "elaboration" (← getOptions) do
   withReader ({ · with suppressElabErrors :=
     stx.hasMissing && !showPartialSyntaxErrors.get (← getOptions) }) do
+  -- initialize quotation context using hash of input string
+  let ss? := stx.getSubstring? (withLeading := false) (withTrailing := false)
+  withInitQuotContext (ss?.map (hash ·.toString.trim)) do
   let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
   let initInfoTrees ← getResetInfoTrees
   try

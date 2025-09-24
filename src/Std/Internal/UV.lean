@@ -15,5 +15,6 @@ public import Std.Internal.UV.TCP
 public import Std.Internal.UV.UDP
 public import Std.Internal.UV.System
 public import Std.Internal.UV.DNS
+public import Std.Internal.UV.Signal
 
 @[expose] public section

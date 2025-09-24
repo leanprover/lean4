@@ -163,7 +163,7 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
        || (smartUnfolding.get options && (← getEnv).contains (mkSmartUnfoldingNameFor fName)) then
       unfoldDefinitionAny? e
     else
-      -- `We are not unfolding partial applications, and `fName` does not have smart unfolding support.
+      -- We are not unfolding partial applications, and `fName` does not have smart unfolding support.
       -- Thus, we must check whether the arity of the function >= number of arguments.
       let some cinfo := (← getEnv).find? fName | return none
       let some value := cinfo.value? | return none
@@ -715,6 +715,7 @@ where
         withExistingLocalDecls [hinfo.decl] <| withNewLemmas #[x] do
           let rb ← simpHaveTelescopeAux info fixed used b (i + 1) (xs.push x)
           let expr := mkApp (mkLambda n .default t rb.expr) v'
+          assert! !rb.exprType.hasLooseBVar 0
           let exprType := rb.exprType.lowerLooseBVars 1 1
           let exprInit := mkApp (mkLambda n .default t rb.exprInit) v
           let exprResult := mkHave n t v' rb.exprResult

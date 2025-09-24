@@ -6,9 +6,11 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro, Floris van Doorn
 module
 
 prelude
-public import all Init.Data.Nat.Bitwise.Basic
+public import Init.Data.Nat.Bitwise.Basic
+import all Init.Data.Nat.Bitwise.Basic
 public import Init.Data.Nat.MinMax
-public import all Init.Data.Nat.Log2
+public import Init.Data.Nat.Log2
+import all Init.Data.Nat.Log2
 public import Init.Data.Nat.Power2
 public import Init.Data.Nat.Mod
 
@@ -261,9 +263,6 @@ protected theorem pos_of_lt_add_left : n < k + n → 0 < k := by
 
 protected theorem add_pos_left (h : 0 < m) (n) : 0 < m + n :=
   Nat.lt_of_lt_of_le h (Nat.le_add_right ..)
-
-protected theorem add_pos_right (m) (h : 0 < n) : 0 < m + n :=
-  Nat.lt_of_lt_of_le h (Nat.le_add_left ..)
 
 protected theorem add_self_ne_one : ∀ n, n + n ≠ 1
   | n+1, h => by rw [Nat.succ_add, Nat.succ.injEq] at h; contradiction
@@ -1164,7 +1163,7 @@ protected theorem pow_le_pow_iff_right {a n m : Nat} (h : 1 < a) :
     a ^ n ≤ a ^ m ↔ n ≤ m := by
   constructor
   · apply Decidable.by_contra
-    intros w
+    intro w
     simp at w
     apply Nat.lt_irrefl (a ^ n)
     exact Nat.lt_of_le_of_lt w.1 (Nat.pow_lt_pow_of_lt h w.2)
@@ -1177,7 +1176,7 @@ protected theorem pow_lt_pow_iff_right {a n m : Nat} (h : 1 < a) :
     a ^ n < a ^ m ↔ n < m := by
   constructor
   · apply Decidable.by_contra
-    intros w
+    intro w
     simp at w
     apply Nat.lt_irrefl (a ^ n)
     exact Nat.lt_of_lt_of_le w.1 (Nat.pow_le_pow_of_le h w.2)
@@ -1313,13 +1312,13 @@ theorem pow_eq_self_iff {a b : Nat} (ha : 1 < a) : a ^ b = a ↔ b = 1 := by
 
 @[simp]
 theorem log2_zero : Nat.log2 0 = 0 := by
-  simp [Nat.log2]
+  simp [Nat.log2_def]
 
 theorem le_log2 (h : n ≠ 0) : k ≤ n.log2 ↔ 2 ^ k ≤ n := by
   match k with
   | 0 => simp [show 1 ≤ n from Nat.pos_of_ne_zero h]
   | k+1 =>
-    rw [log2]; split
+    rw [log2_def]; split
     · have n0 : 0 < n / 2 := (Nat.le_div_iff_mul_le (by decide)).2 ‹_›
       simp only [Nat.add_le_add_iff_right, le_log2 (Nat.ne_of_gt n0),
         Nat.pow_succ]
@@ -1330,6 +1329,25 @@ theorem le_log2 (h : n ≠ 0) : k ≤ n.log2 ↔ 2 ^ k ≤ n := by
 
 theorem log2_lt (h : n ≠ 0) : n.log2 < k ↔ n < 2 ^ k := by
   rw [← Nat.not_le, ← Nat.not_le, le_log2 h]
+
+theorem log2_eq_iff (h : n ≠ 0) : n.log2 = k ↔ 2 ^ k ≤ n ∧ n < 2 ^ (k + 1) := by
+  constructor
+  · intro w
+    exact ⟨(le_log2 h).mp (Nat.le_of_eq w.symm), (log2_lt h).mp (by subst w; apply lt_succ_self)⟩
+  · intro w
+    apply Nat.le_antisymm
+    · apply Nat.le_of_lt_add_one
+      exact (log2_lt h).mpr w.2
+    · exact (le_log2 h).mpr w.1
+
+theorem log2_two_mul (h : n ≠ 0) : (2 * n).log2 = n.log2 + 1 := by
+  obtain ⟨h₁, h₂⟩ := (log2_eq_iff h).mp rfl
+  rw [log2_eq_iff (Nat.mul_ne_zero (by decide) h)]
+  constructor
+  · rw [Nat.pow_succ, Nat.mul_comm]
+    exact mul_le_mul_left 2 h₁
+  · rw [Nat.pow_succ, Nat.mul_comm]
+    rwa [Nat.mul_lt_mul_right (by decide)]
 
 @[simp]
 theorem log2_two_pow : (2 ^ n).log2 = n := by

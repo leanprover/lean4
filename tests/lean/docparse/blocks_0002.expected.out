@@ -1,0 +1,12 @@
+Success! Final stack:
+  [(Lean.Doc.Syntax.para
+    "para{"
+    [(Lean.Doc.Syntax.text
+      (str "\"Newlines are preserved\""))
+     (Lean.Doc.Syntax.linebreak
+      "line!"
+      (str "\"\\n\""))
+     (Lean.Doc.Syntax.text
+      (str "\"in paragraphs.\""))]
+    "}")]
+All input consumed.

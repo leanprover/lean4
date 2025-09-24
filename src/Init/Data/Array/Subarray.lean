@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.GetElem
+public import Init.Data.Array.Basic
 import Init.Data.Array.GetLit
 public import Init.Data.Slice.Basic
 

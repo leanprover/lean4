@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Internal.Parsec.Basic
+public import Init.Data.String.Basic
 
 public section
 
@@ -22,36 +23,59 @@ instance : Input String.Iterator Char String.Pos where
   next' it := it.next'
   curr' it := it.curr'
 
+/--
+`Parser α` is a parser that consumes a `String` input using a `String.Iterator` and returns a result of type `α`.
+-/
 abbrev Parser (α : Type) : Type := Parsec String.Iterator α
 
+/--
+Run a `Parser` on a `String`, returns either the result or an error string with offset.
+-/
 protected def Parser.run (p : Parser α) (s : String) : Except String α :=
   match p s.mkIterator with
   | .success _ res => Except.ok res
-  | .error it err  => Except.error s!"offset {repr it.i.byteIdx}: {err}"
+  | .error it err => Except.error s!"offset {repr it.pos.byteIdx}: {err}"
 
-/-- Parses the given string. -/
+/--
+Parses the given string.
+-/
 def pstring (s : String) : Parser String := fun it =>
   let substr := it.extract (it.forward s.length)
   if substr = s then
     .success (it.forward s.length) substr
   else
-    .error it s!"expected: {s}"
+    .error it (.other s!"expected: {s}")
 
+/--
+Skips the given string.
+-/
 @[inline]
 def skipString (s : String) : Parser Unit := pstring s *> pure ()
 
+/--
+Parses the given char.
+-/
 @[inline]
 def pchar (c : Char) : Parser Char := attempt do
   if (← any) = c then pure c else fail s!"expected: '{c}'"
 
+/--
+Skips the given char.
+-/
 @[inline]
 def skipChar (c : Char) : Parser Unit := pchar c *> pure ()
 
+/--
+Parse an ASCII digit `0-9` as a `Char`.
+-/
 @[inline]
 def digit : Parser Char := attempt do
   let c ← any
   if '0' ≤ c ∧ c ≤ '9' then return c else fail s!"digit expected"
 
+/--
+Convert a byte representing `'0'..'9'` to a `Nat`.
+-/
 @[inline]
 private def digitToNat (b : Char) : Nat := b.toNat - '0'.toNat
 
@@ -76,11 +100,17 @@ where
     else
       (acc, it)
 
+/--
+Parse one or more ASCII digits into a `Nat`.
+-/
 @[inline]
 def digits : Parser Nat := do
   let d ← digit
   digitsCore (digitToNat d)
 
+/--
+Parse a hex digit `0-9`, `a-f`, or `A-F` as a `Char`.
+-/
 @[inline]
 def hexDigit : Parser Char := attempt do
   let c ← any
@@ -88,6 +118,9 @@ def hexDigit : Parser Char := attempt do
    ∨ ('a' ≤ c ∧ c ≤ 'f')
    ∨ ('A' ≤ c ∧ c ≤ 'F') then return c else fail s!"hex digit expected"
 
+/--
+Parse an ASCII letter `a-z` or `A-Z` as a `Char`.
+-/
 @[inline]
 def asciiLetter : Parser Char := attempt do
   let c ← any
@@ -103,14 +136,20 @@ private partial def skipWs (it : String.Iterator) : String.Iterator :=
   else
    it
 
+/--
+Skip whitespace: tabs, newlines, carriage returns, and spaces.
+-/
 @[inline]
 def ws : Parser Unit := fun it =>
   .success (skipWs it) ()
 
+/--
+Takes a fixed amount of chars from the iterator.
+-/
 def take (n : Nat) : Parser String := fun it =>
   let substr := it.extract (it.forward n)
   if substr.length != n then
-    .error it s!"expected: {n} codepoints"
+    .error it .eof
   else
     .success (it.forward n) substr
 

@@ -13,6 +13,25 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Lean_Grind_Field_ctorIdx___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Field_ctorIdx(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Field_ctorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_Field_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Grind_Field_ctorIdx(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
+}
+}
 lean_object* initialize_Init_Grind_Ring_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_Ring_Field(uint8_t builtin, lean_object* w) {

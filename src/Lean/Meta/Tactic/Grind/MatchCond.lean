@@ -4,16 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind
-public import Init.Simproc
-public import Lean.Meta.Tactic.Contradiction
-public import Lean.Meta.Tactic.Grind.ProveEq
-public import Lean.Meta.Tactic.Grind.PropagatorAttr
-
+public import Lean.Meta.Tactic.Grind.Types
+import Init.Grind
+import Init.Simproc
+import Lean.Meta.Tactic.Contradiction
+import Lean.Meta.Tactic.Grind.ProveEq
+import Lean.Meta.Tactic.Grind.PropagatorAttr
 public section
-
 namespace Lean.Meta.Grind
 /-
 Remark: the `simp` module has some support for `MatchCond`, but it is
@@ -363,7 +361,7 @@ partial def tryToProveFalse (e : Expr) : GoalM Unit := do
           | return none
         let lhs' ← go lhs
         trace[grind.debug.matchCond.proveFalse] "{lhs'} =?= {rhs}"
-        unless (← withDefault <| isDefEq lhs' rhs) do
+        unless (← isDefEqD lhs' rhs) do
           return none
         let isHEq := α?.isSome
         let some lhsEqLhs' ← if isHEq then proveHEq? lhs lhs' else proveEq? lhs lhs'

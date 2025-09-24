@@ -23,7 +23,7 @@ namespace Lean.Elab
 open WF
 open Meta
 
-def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option TerminationMeasure)) : TermElabM Unit := do
+def wfRecursion (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDefinition) (termMeasure?s : Array (Option TerminationMeasure)) : TermElabM Unit := do
   let termMeasures? := termMeasure?s.mapM id -- Either all or none, checked by `elabTerminationByHints`
   let preDefs ← preDefs.mapM fun preDef =>
     return { preDef with value := (← floatRecApp preDef.value) }
@@ -34,7 +34,7 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
     let varNamess ← preDefs.mapIdxM fun i preDef => varyingVarNames fixedParamPerms i preDef
     for varNames in varNamess, preDef in preDefs do
       if varNames.isEmpty then
-        throwError "well-founded recursion cannot be used, '{preDef.declName}' does not take any (non-fixed) arguments"
+        throwError "well-founded recursion cannot be used, `{preDef.declName}` does not take any (non-fixed) arguments"
     let argsPacker := { varNamess }
     let preDefs' ← preDefs.mapM fun preDef => do
       return { preDef with value := (← unfoldIfArgIsConstOf (preDefs.map (·.declName)) preDef.value) }
@@ -50,6 +50,7 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
 
   let wf : TerminationMeasures ← do
     if let some tms := termMeasures? then pure tms else
+    withoutExporting do  -- generating proof
     -- No termination_by here, so use GuessLex to infer one
     guessLex preDefs unaryPreDefProcessed fixedParamPerms argsPacker
 
@@ -75,8 +76,8 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
 
   trace[Elab.definition.wf] ">> {preDefNonRec.declName} :=\n{preDefNonRec.value}"
   let preDefsNonrec ← preDefsFromUnaryNonRec fixedParamPerms argsPacker preDefs preDefNonRec
-  Mutual.addPreDefsFromUnary (cacheProofs := false) preDefs preDefsNonrec preDefNonRec
-  addAndCompilePartialRec preDefs
+  Mutual.addPreDefsFromUnary (cacheProofs := false) docCtx preDefs preDefsNonrec preDefNonRec
+  addAndCompilePartialRec docCtx preDefs
   let unaryPreDef ← Mutual.cleanPreDef (cacheProofs := false) unaryPreDef
   let preDefs ← preDefs.mapM (Mutual.cleanPreDef (cacheProofs := false) ·)
   registerEqnsInfo preDefs preDefNonRec.declName fixedParamPerms argsPacker

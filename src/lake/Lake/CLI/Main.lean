@@ -3,8 +3,23 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.Load
+public import Init.System.IO
+public import Lake.Util.Exit
+public import Lake.Load.Config
+public import Lake.CLI.Error
+import Lake.Version
+import Lake.Build.Run
+import Lake.Build.Targets
+import Lake.Build.Job.Monad
+import Lake.Build.Job.Register
+import Lake.Build.Target.Fetch
+import Lake.Load.Package
+import Lake.Load.Workspace
+import Lake.Util.IO
+import Lake.Util.Git
 import Lake.Util.Error
 import Lake.Util.MainM
 import Lake.Util.Cli
@@ -25,7 +40,7 @@ namespace Lake
 
 /-! ## General options for top-level `lake` -/
 
-structure LakeOptions where
+public structure LakeOptions where
   args : List String := []
   rootDir : FilePath := "."
   configFile : FilePath := defaultConfigFile
@@ -75,7 +90,7 @@ def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
     opts.noCache |>.adaptExcept fun msg => .invalidEnv msg
 
 /-- Make a `LoadConfig` from a `LakeOptions`. -/
-def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig := do
+public def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig := do
   let some wsDir ← resolvePath? opts.rootDir
     | throw <| .missingRootDir opts.rootDir
   return {
@@ -535,7 +550,7 @@ protected def exe : CliM PUnit := do
   let ws ← loadWorkspace config
   let exe ← parseExeTargetSpec ws exeSpec
   let exeFile ← ws.runBuild exe.fetch (mkBuildConfig opts)
-  exit <| ← (env exeFile.toString args.toArray).run <| mkLakeContext ws
+  exit <| ← (Lake.env exeFile.toString args.toArray).run <| mkLakeContext ws
 
 protected def lean : CliM PUnit := do
   processOptions lakeOption
@@ -684,5 +699,5 @@ def lake : CliM PUnit := do
       else
         throw <| CliError.missingCommand
 
-def cli (args : List String) : BaseIO ExitCode :=
+public def cli (args : List String) : BaseIO ExitCode :=
   inline <| (lake).run args

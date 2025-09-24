@@ -10,6 +10,7 @@ public import Init.Data.List.Count
 public import Init.Data.List.Find
 public import Init.Data.List.MinMax
 public import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Order
 
 public section
 
@@ -103,9 +104,6 @@ theorem getElem_eq_getElem_reverse {l : List α} {i} (h : i < l.length) :
 theorem length_leftpad {n : Nat} {a : α} {l : List α} :
     (leftpad n a l).length = max n l.length := by
   simp only [leftpad, length_append, length_replicate, Nat.sub_add_eq_max]
-
-@[deprecated length_leftpad (since := "2025-02-24")]
-abbrev leftpad_length := @length_leftpad
 
 theorem length_rightpad {n : Nat} {a : α} {l : List α} :
     (rightpad n a l).length = max n l.length := by
@@ -210,12 +208,10 @@ theorem mem_eraseIdx_iff_getElem? {x : α} {l} {k} : x ∈ eraseIdx l k ↔ ∃ 
 /-! ### min? -/
 
 -- A specialization of `min?_eq_some_iff` to Nat.
+@[deprecated min?_eq_some_iff (since := "2025-08-08")]
 theorem min?_eq_some_iff' {xs : List Nat} :
-    xs.min? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, a ≤ b) :=
-  min?_eq_some_iff
-    (le_refl := Nat.le_refl)
-    (min_eq_or := fun _ _ => Nat.min_def .. ▸ by split <;> simp)
-    (le_min_iff := fun _ _ _ => Nat.le_min)
+    xs.min? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, a ≤ b) := by
+  exact min?_eq_some_iff
 
 theorem min?_get_le_of_mem {l : List Nat} {a : Nat} (h : a ∈ l) :
     l.min?.get (isSome_min?_of_mem h) ≤ a := by
@@ -237,12 +233,10 @@ theorem min?_getD_le_of_mem {l : List Nat} {a k : Nat} (h : a ∈ l) : l.min?.ge
 /-! ### max? -/
 
 -- A specialization of `max?_eq_some_iff` to Nat.
+@[deprecated max?_eq_some_iff (since := "2025-08-08")]
 theorem max?_eq_some_iff' {xs : List Nat} :
     xs.max? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, b ≤ a) :=
   max?_eq_some_iff
-    (le_refl := Nat.le_refl)
-    (max_eq_or := fun _ _ => Nat.max_def .. ▸ by split <;> simp)
-    (max_le_iff := fun _ _ _ => Nat.max_le)
 
 theorem le_max?_get_of_mem {l : List Nat} {a : Nat} (h : a ∈ l) :
     a ≤ l.max?.get (isSome_max?_of_mem h) := by

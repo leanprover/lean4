@@ -23,11 +23,11 @@ inductive Entry (α : Type) where
 structure State (σ : Type) where
   state        : σ
   activeScopes : NameSet := {}
+  delimitsLocal : Bool := true -- used for implementing `end_local_scope`.
 
 structure ScopedEntries (β : Type) where
   map : SMap Name (PArray β) := {}
   deriving Inhabited
-
 structure StateStack (α : Type) (β : Type) (σ : Type) where
   stateStack    : List (State σ) := {}
   scopedEntries : ScopedEntries β := {}
@@ -136,7 +136,7 @@ def ScopedEnvExtension.pushScope (ext : ScopedEnvExtension α β σ) (env : Envi
   ext.ext.modifyState (asyncMode := .local) env fun s =>
     match s.stateStack with
     | [] => s
-    | state :: stack => { s with stateStack := state :: state :: stack }
+    | state :: stack => { s with stateStack := { state with delimitsLocal := true } :: state :: stack }
 
 def ScopedEnvExtension.popScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
   ext.ext.modifyState (asyncMode := .local) env fun s =>
@@ -144,19 +144,37 @@ def ScopedEnvExtension.popScope (ext : ScopedEnvExtension α β σ) (env : Envir
     | _      :: state₂ :: stack => { s with stateStack := state₂ :: stack }
     | _ => s
 
+/-- Modifies `delimitsLocal` flag to `false` to turn off delimiting of local entries.
+-/
+def ScopedEnvExtension.setDelimitsLocal (ext : ScopedEnvExtension α β σ) (env : Environment)  : Environment :=
+  ext.ext.modifyState (asyncMode := .local) env fun s =>
+    match s.stateStack with
+    | [] => s
+    | state :: stack => {s with stateStack := {state with delimitsLocal := false} :: stack}
+
 def ScopedEnvExtension.addEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
   ext.ext.addEntry env (Entry.global b)
 
 def ScopedEnvExtension.addScopedEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (namespaceName : Name) (b : β) : Environment :=
   ext.ext.addEntry env (Entry.«scoped» namespaceName b)
 
+/-- The following function is used to implement `end_local_scope` command.
+
+By default, all states have `delimitsLocal` set to `true`, and the following code modifies only the top element of the stack.
+If the top element’s `delimitsLocal` is `false`, the function instead traverses down the stack until it reaches the first state where `delimitsLocal` is `true`.
+Intuitively, `delimitsLocal` of each `State` determines whether local entries are delimited. When set to false, it allows traversal through implicit scopes where local entries are not delimited.
+-/
+def stateStackModify (ext : ScopedEnvExtension α β σ) (states : List (State σ)) (b : β) : List (State σ) :=
+  match states with
+  | [] => states
+  | top :: states =>
+    let top := { top with state := ext.descr.addEntry top.state b }
+    let bot := if top.delimitsLocal then states else stateStackModify ext states b
+    top :: bot
+
 def ScopedEnvExtension.addLocalEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
   ext.ext.modifyState (asyncMode := .local) env fun s =>
-    match s.stateStack with
-    | [] => s
-    | top :: states =>
-      let top := { top with state := ext.descr.addEntry top.state b }
-      { s with stateStack := top :: states }
+    {s with stateStack := stateStackModify ext s.stateStack b}
 
 def ScopedEnvExtension.addCore (env : Environment) (ext : ScopedEnvExtension α β σ) (b : β) (kind : AttributeKind) (namespaceName : Name) : Environment :=
   match kind with
@@ -207,6 +225,12 @@ def pushScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit :
 def popScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do
     modifyEnv ext.popScope
+
+/-- Used to implement `end_local_scope` command, that disables delimiting local entries of ScopedEnvExtension in a current scope.
+-/
+def setDelimitsLocal [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit := do
+  for ext in (← scopedEnvExtensionsRef.get) do
+    modifyEnv (ext.setDelimitsLocal ·)
 
 def activateScoped [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (namespaceName : Name) : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do

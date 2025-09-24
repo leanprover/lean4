@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.SizeOfLemmas
-// Imports: Init.Data.Char.Basic Init.Meta Init.SizeOf Init.Data.Nat.Linear
+// Imports: Init.Data.Char.Basic Init.Data.Char.Basic Init.Meta Init.SizeOf Init.SizeOf Init.Data.Nat.Linear
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,7 +14,9 @@
 extern "C" {
 #endif
 lean_object* initialize_Init_Data_Char_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Char_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Meta(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_SizeOf(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_SizeOf(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -25,7 +27,13 @@ _G_initialized = true;
 res = initialize_Init_Data_Char_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_Char_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Meta(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_SizeOf(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_SizeOf(builtin, lean_io_mk_world());

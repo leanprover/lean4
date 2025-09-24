@@ -62,13 +62,17 @@ structure Context where
   simpCtx : Simp.Context
   simprocs : Simp.SimprocsArray
   jps : FVarIdMap JumpSiteInfo := {}
+  initialCtxSize : Nat
 
 structure State where
   fuel : Fuel := .unlimited
   simpState : Simp.State := {}
   /--
+  Holes of type `Invariant` that have been generated so far.
+  -/
+  invariants : Array MVarId := #[]
+  /--
   The verification conditions that have been generated so far.
-  Includes `Type`-valued goals arising from instantiation of specifications.
   -/
   vcs : Array MVarId := #[]
 
@@ -87,13 +91,18 @@ def ifOutOfFuel (x : VCGenM α) (k : VCGenM α) : VCGenM α := do
   | Fuel.limited 0 => x
   | _ => k
 
-def emitVC (subGoal : Expr) (name : Name) : VCGenM Expr := do
-  let m ← liftM <| mkFreshExprSyntheticOpaqueMVar subGoal (tag := name)
-  modify fun s => { s with vcs := s.vcs.push m.mvarId! }
-  return m
-
 def addSubGoalAsVC (goal : MVarId) : VCGenM PUnit := do
-  modify fun s => { s with vcs := s.vcs.push goal }
+  let ty ← goal.getType
+  if ty.isAppOf ``Std.Do.Invariant then
+    modify fun s => { s with invariants := s.invariants.push goal }
+  else
+    modify fun s => { s with vcs := s.vcs.push goal }
+
+def emitVC (subGoal : Expr) (name : Name) : VCGenM Expr := do
+  withFreshUserNamesSinceIdx (← read).initialCtxSize do
+    let m ← liftM <| mkFreshExprSyntheticOpaqueMVar subGoal (tag := name)
+    addSubGoalAsVC m.mvarId!
+    return m
 
 def liftSimpM (x : SimpM α) : VCGenM α := do
   let ctx ← read
@@ -172,6 +181,10 @@ partial def reduceProjBeta? (e : Expr) : MetaM (Option Expr) :=
           let e' := mkAppRev f' rargs
           go (some e') e'.getAppFn e'.getAppRevArgs
         | none    => pure lastReduction
+      | .letE x ty val body nondep =>
+        match ← go none body rargs with
+        | none => pure lastReduction
+        | some body' => pure (some (.letE x ty val body' nondep))
       | _ => pure lastReduction
 
 def mkSpecContext (optConfig : Syntax) (lemmas : Syntax) (ignoreStarArg := false) : TacticM Context := do
@@ -239,4 +252,10 @@ def mkSpecContext (optConfig : Syntax) (lemmas : Syntax) (ignoreStarArg := false
           let thm ← mkSpecTheoremFromLocal fvar
           specThms := addSpecTheoremEntry specThms thm
         catch _ => continue
-  return { config, specThms, simpCtx := res.ctx, simprocs := res.simprocs }
+  return {
+    config,
+    specThms,
+    simpCtx := res.ctx,
+    simprocs := res.simprocs
+    initialCtxSize := (← getLCtx).numIndices
+  }

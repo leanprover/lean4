@@ -84,8 +84,10 @@ return x_15;
 }
 default: 
 {
-lean_dec_ref(x_1);
-return x_2;
+lean_object* x_16; 
+lean_dec(x_1);
+x_16 = lean_box(2);
+return x_16;
 }
 }
 }

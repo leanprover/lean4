@@ -58,7 +58,7 @@ theorem pairwise_lt_range' {s n} (step := 1) (pos : 0 < step := by simp) :
   | s, n + 1, step, pos => by
     simp only [range'_succ, pairwise_cons]
     constructor
-    · intros n m
+    · intro n m
       rw [mem_range'] at m
       omega
     · exact pairwise_lt_range' (s := s + step) step pos
@@ -70,7 +70,7 @@ theorem pairwise_le_range' {s n} (step := 1) :
   | s, n + 1, step => by
     simp only [range'_succ, pairwise_cons]
     constructor
-    · intros n m
+    · intro n m
       rw [mem_range'] at m
       omega
     · exact pairwise_le_range' (s := s + step) step
@@ -90,28 +90,27 @@ theorem map_sub_range' {a s : Nat} (h : a ≤ s) (n : Nat) :
   rintro rfl
   omega
 
-theorem range'_eq_append_iff : range' s n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs = range' s k ∧ ys = range' (s + k) (n - k) := by
+theorem range'_eq_append_iff : range' s n step = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs = range' s k step ∧ ys = range' (s + k * step) (n - k) step := by
   induction n generalizing s xs ys with
   | zero => simp
   | succ n ih =>
     simp only [range'_succ]
     rw [cons_eq_append_iff]
+    have add_mul' (k n m : Nat) : (n + m) * k = m * k + n * k := by rw [Nat.add_mul]; omega
     constructor
     · rintro (⟨rfl, rfl⟩ | ⟨_, rfl, h⟩)
       · exact ⟨0, by simp [range'_succ]⟩
       · simp only [ih] at h
         obtain ⟨k, h, rfl, rfl⟩ := h
         refine ⟨k + 1, ?_⟩
-        simp_all [range'_succ]
-        omega
+        simp_all [range'_succ, Nat.add_assoc]
     · rintro ⟨k, h, rfl, rfl⟩
       cases k with
       | zero => simp [range'_succ]
       | succ k =>
-        simp only [range'_succ, reduceCtorEq, false_and, cons.injEq, true_and, ih, range'_inj, exists_eq_left', or_true, and_true, false_or]
+        simp only [range'_succ, reduceCtorEq, false_and, cons.injEq, true_and, ih, exists_eq_left', false_or]
         refine ⟨k, ?_⟩
-        simp_all
-        omega
+        simp_all [Nat.add_assoc]
 
 @[simp] theorem find?_range'_eq_some {s n : Nat} {i : Nat} {p : Nat → Bool} :
     (range' s n).find? p = some i ↔ p i ∧ i ∈ range' s n ∧ ∀ j, s ≤ j → j < i → !p j := by
@@ -178,6 +177,46 @@ theorem count_range_1' {a s n} :
     specialize h (a - s)
     omega
 
+@[simp, grind =]
+theorem sum_range' : (range' start n step).sum = n * start + n * (n - 1) * step / 2 := by
+  induction n generalizing start with
+  | zero => simp
+  | succ n ih =>
+    simp_all only [List.range'_succ, List.sum_cons, Nat.mul_add, ← Nat.add_assoc,
+      Nat.add_mul, Nat.one_mul, Nat.add_one_sub_one]
+    have : n * step + n * (n - 1) * step / 2 = (n * n * step + n * step) / 2 := by
+      apply Nat.eq_div_of_mul_eq_left (by omega)
+      rw [Nat.add_mul, Nat.div_mul_cancel]
+      · calc  n * step * 2 + n * (n - 1) * step
+          _ = n * step * 2 + n * step * (n - 1) := by simp [Nat.mul_comm, Nat.mul_assoc]
+          _ = n * step + n * step * n := by cases n <;> simp [Nat.mul_succ, Nat.add_assoc, Nat.add_comm]
+          _ = n * n * step + n * step := by simp [Nat.mul_comm, Nat.add_comm, Nat.mul_left_comm]
+      · have : 2 ∣ n ∨ 2 ∣ (n - 1) := by omega
+        apply Nat.dvd_mul_right_of_dvd
+        apply Nat.dvd_mul.mpr
+        cases this with
+        | inl h => exists 2, 1; omega
+        | inr h => exists 1, 2; omega
+    omega
+
+@[simp, grind =]
+theorem drop_range' : (List.range' start n step).drop k = List.range' (start + k * step) (n - k) step := by
+  induction k generalizing start n with
+  | zero => simp
+  | succ => cases n <;> simp [*, List.range'_succ, Nat.add_mul, ← Nat.add_assoc, Nat.add_right_comm]
+
+@[simp, grind =]
+theorem take_range'_of_length_le (h : n ≤ k) : (List.range' start n step).take k = List.range' start n step := by
+  induction n generalizing start k with
+  | zero => simp
+  | succ n ih => cases k <;> simp_all [List.range'_succ]
+
+@[simp, grind =]
+theorem take_range'_of_length_ge (h : n ≥ k) : (List.range' start n step).take k = List.range' start k step := by
+  induction k generalizing start n with
+  | zero => simp
+  | succ k ih => cases n <;> simp_all [List.range'_succ]
+
 /-! ### range -/
 
 theorem reverse_range' : ∀ {s n : Nat}, reverse (range' s n) = map (s + n - 1 - ·) (range n)
@@ -209,11 +248,10 @@ theorem pairwise_le_range {n : Nat} : Pairwise (· ≤ ·) (range n) :=
 theorem nodup_range {n : Nat} : Nodup (range n) := by
   simp +decide only [range_eq_range', nodup_range']
 
-@[simp, grind] theorem find?_range_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :
+@[simp] theorem find?_range_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :
     (range n).find? p = some i ↔ p i ∧ i ∈ range n ∧ ∀ j, j < i → !p j := by
   simp [range_eq_range']
 
-@[grind]
 theorem find?_range_eq_none {n : Nat} {p : Nat → Bool} :
     (range n).find? p = none ↔ ∀ i, i < n → !p i := by
   simp
@@ -355,9 +393,7 @@ theorem zipIdx_eq_append_iff {l : List α} {k : Nat} :
     simp only [length_range'] at h
     obtain rfl := h
     refine ⟨ws, xs, rfl, ?_⟩
-    simp only [zipIdx_eq_zip_range', length_append, true_and]
-    congr
-    omega
+    simp [zipIdx_eq_zip_range', length_append]
   · rintro ⟨l₁', l₂', rfl, rfl, rfl⟩
     simp only [zipIdx_eq_zip_range']
     refine ⟨l₁', l₂', range' k l₁'.length, range' (k + l₁'.length) l₂'.length, ?_⟩

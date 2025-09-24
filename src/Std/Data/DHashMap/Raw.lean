@@ -29,9 +29,9 @@ Lemmas about the operations on `Std.DHashMap.Raw` are available in the module
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v w
+universe u v w w'
 
-variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w} [Monad m]
+variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w'} [Monad m]
 
 namespace Std
 
@@ -435,10 +435,6 @@ define the `ForM` and `ForIn` instances for `HashMap.Raw`.
 
 end Const
 
-section Unverified
-
-/-! We currently do not provide lemmas for the functions below. -/
-
 /--
 Updates the values of the hash map by applying the given function to all mappings, keeping
 only those mappings where the function returns `some` value.
@@ -472,6 +468,10 @@ only those mappings where the function returns `some` value.
 /-- Returns an array of all keys present in the hash map in some order. -/
 @[inline] def keysArray (m : Raw α β) : Array α :=
   m.fold (fun acc k _ => acc.push k) (.emptyWithCapacity m.size)
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
 
 /-- Returns a list of all values present in the hash map in some order. -/
 @[inline] def values {β : Type v} (m : Raw α (fun _ => β)) : List β :=

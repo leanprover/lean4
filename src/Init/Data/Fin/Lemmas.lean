@@ -12,8 +12,12 @@ public import Init.Ext
 public import Init.ByCases
 public import Init.Conv
 public import Init.Omega
+public import Init.Data.Order.Factories
+import Init.Data.Order.Lemmas
 
 public section
+
+open Std
 
 namespace Fin
 
@@ -21,12 +25,12 @@ namespace Fin
 
 @[deprecated ofNat_zero (since := "2025-05-28")] abbrev ofNat'_zero := @ofNat_zero
 
-theorem mod_def (a m : Fin n) : a % m = Fin.mk (a % m) (Nat.lt_of_le_of_lt (Nat.mod_le _ _) a.2) :=
+theorem mod_def (a m : Fin n) : a % m = Fin.mk (a.val % m.val) (Nat.lt_of_le_of_lt (Nat.mod_le _ _) a.2) :=
   rfl
 
-theorem mul_def (a b : Fin n) : a * b = Fin.mk ((a * b) % n) (Nat.mod_lt _ a.pos) := rfl
+theorem mul_def (a b : Fin n) : a * b = Fin.mk ((a.val * b.val) % n) (Nat.mod_lt _ a.pos) := rfl
 
-theorem sub_def (a b : Fin n) : a - b = Fin.mk (((n - b) + a) % n) (Nat.mod_lt _ a.pos) := rfl
+theorem sub_def (a b : Fin n) : a - b = Fin.mk (((n - b.val) + a.val) % n) (Nat.mod_lt _ a.pos) := rfl
 
 theorem pos' : ∀ [Nonempty (Fin n)], 0 < n | ⟨i⟩ => i.pos
 
@@ -77,7 +81,7 @@ theorem mk_val (i : Fin n) : (⟨i, i.isLt⟩ : Fin n) = i := Fin.eta ..
 
 @[deprecated ofNat_self (since := "2025-05-28")] abbrev ofNat'_self := @ofNat_self
 
-@[simp] theorem ofNat_val_eq_self [NeZero n] (x : Fin n) : (Fin.ofNat n x) = x := by
+@[simp] theorem ofNat_val_eq_self [NeZero n] (x : Fin n) : (Fin.ofNat n x.val) = x := by
   ext
   rw [val_ofNat, Nat.mod_eq_of_lt]
   exact x.2
@@ -117,8 +121,6 @@ Non-trivial loops lead to undesirable and counterintuitive elaboration behavior.
 For example, for `x : Fin k` and `n : Nat`,
 it causes `x < n` to be elaborated as `x < ↑n` rather than `↑x < n`,
 silently introducing wraparound arithmetic.
-
-Note: as of 2025-06-03, Mathlib has such a coercion for `Fin n` anyway!
 -/
 @[expose]
 def instNatCast (n : Nat) [NeZero n] : NatCast (Fin n) where
@@ -251,7 +253,17 @@ protected theorem le_antisymm_iff {x y : Fin n} : x = y ↔ x ≤ y ∧ y ≤ x 
 protected theorem le_antisymm {x y : Fin n} (h1 : x ≤ y) (h2 : y ≤ x) : x = y :=
   Fin.le_antisymm_iff.2 ⟨h1, h2⟩
 
-@[simp, grind =] theorem val_rev (i : Fin n) : rev i = n - (i + 1) := rfl
+instance instIsLinearOrder : IsLinearOrder (Fin n) := by
+  apply IsLinearOrder.of_le
+  case le_antisymm => constructor; apply Fin.le_antisymm
+  case le_total => constructor; apply Fin.le_total
+  case le_trans => constructor; apply Fin.le_trans
+
+instance : LawfulOrderLT (Fin n) where
+  lt_iff := by
+    simp [← Fin.not_le, Decidable.imp_iff_not_or, Std.Total.total]
+
+@[simp, grind =] theorem val_rev (i : Fin n) : (rev i).val = n - (i + 1) := rfl
 
 @[simp] theorem rev_rev (i : Fin n) : rev (rev i) = i := Fin.ext <| by
   rw [val_rev, val_rev, ← Nat.sub_sub, Nat.sub_sub_self (by exact i.2), Nat.add_sub_cancel]
@@ -486,8 +498,10 @@ theorem succ_succ_ne_one (a : Fin n) : Fin.succ (Fin.succ a) ≠ 1 :=
   ext
   simp
 
-@[simp] theorem cast_trans {k : Nat} (h : n = m) (h' : m = k) {i : Fin n} :
+@[simp, grind =] theorem cast_cast {k : Nat} (h : n = m) (h' : m = k) {i : Fin n} :
     (i.cast h).cast h' = i.cast (Eq.trans h h') := rfl
+
+@[deprecated cast_cast (since := "2025-09-03")] abbrev cast_trans := @cast_cast
 
 theorem castLE_of_eq {m n : Nat} (h : m = n) {h' : m ≤ n} : castLE h' = Fin.cast h := rfl
 
@@ -517,7 +531,7 @@ theorem cast_castAdd_left {n n' m : Nat} (i : Fin n') (h : n' + m = n + m) :
     (i.castAdd m').cast h = i.castAdd m := rfl
 
 theorem castAdd_castAdd {m n p : Nat} (i : Fin m) :
-    (i.castAdd n).castAdd p = (i.castAdd (n + p)).cast (Nat.add_assoc ..).symm  := rfl
+    (i.castAdd n).castAdd p = (i.castAdd (n + p)).cast (Nat.add_assoc ..).symm := rfl
 
 /-- The cast of the successor is the successor of the cast. See `Fin.succ_cast_eq` for rewriting in
 the reverse direction. -/

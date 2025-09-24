@@ -176,6 +176,8 @@ builtin_initialize
     applicationTime := .afterCompilation
     add             := fun decl stx kind => do
       Attribute.Builtin.ensureNoArgs stx
+      if !builtin then
+        ensureAttrDeclIsMeta name decl kind
       unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
       let declType := (← getConstInfo decl).type
       unless declType.isConstOf ``IgnoreFunction do
@@ -232,7 +234,7 @@ builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
     stx.isOfKind ``Lean.Parser.Command.optDeclSig ||
     stx.isOfKind ``Lean.Parser.Command.declSig) &&
   (stack[5]? |>.any fun (stx, _) => match stx[0] with
-    | `(Lean.Parser.Command.declModifiersT| $[$_:docComment]? @[$[$attrs:attr],*] $[$vis]? $[noncomputable]?) =>
+    | `(Lean.Parser.Command.declModifiersT| $[$_:docComment]? @[$[$attrs:attr],*] $[$vis]? $[protected]? $[noncomputable]?) =>
       attrs.any (fun attr => attr.raw.isOfKind ``Parser.Attr.extern || attr matches `(attr| implemented_by $_))
     | _ => false))
 

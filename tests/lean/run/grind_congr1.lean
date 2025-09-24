@@ -1,3 +1,4 @@
+module
 set_option warningAsError false
 set_option grind.debug true
 set_option grind.debug.proofs true

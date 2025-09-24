@@ -6,7 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-public import all Init.Data.Array.Basic
+public import Init.Data.Array.Basic
+import all Init.Data.Array.Basic
 public import Init.Data.Array.Lemmas
 public import Init.Data.List.Nat.Erase
 public import Init.Data.List.Nat.Basic
@@ -90,7 +91,7 @@ theorem mem_of_mem_eraseP {xs : Array α} : a ∈ xs.eraseP p → a ∈ xs := by
   rcases xs with ⟨xs⟩
   simpa using List.mem_of_mem_eraseP
 
-@[simp, grind] theorem mem_eraseP_of_neg {xs : Array α} (pa : ¬p a) : a ∈ xs.eraseP p ↔ a ∈ xs := by
+@[simp, grind =] theorem mem_eraseP_of_neg {xs : Array α} (pa : ¬p a) : a ∈ xs.eraseP p ↔ a ∈ xs := by
   rcases xs with ⟨xs⟩
   simpa using List.mem_eraseP_of_neg pa
 
@@ -239,7 +240,7 @@ theorem mem_of_mem_erase {a b : α} {xs : Array α} (h : a ∈ xs.erase b) : a �
   rcases xs with ⟨xs⟩
   simpa using List.mem_of_mem_erase (by simpa using h)
 
-@[simp, grind] theorem mem_erase_of_ne [LawfulBEq α] {a b : α} {xs : Array α} (ab : a ≠ b) :
+@[simp, grind =] theorem mem_erase_of_ne [LawfulBEq α] {a b : α} {xs : Array α} (ab : a ≠ b) :
     a ∈ xs.erase b ↔ a ∈ xs :=
   erase_eq_eraseP b xs ▸ mem_eraseP_of_neg (mt eq_of_beq ab.symm)
 
@@ -270,7 +271,7 @@ theorem erase_append [LawfulBEq α] {a : α} {xs ys : Array α} :
     (xs ++ ys).erase a = if a ∈ xs then xs.erase a ++ ys else xs ++ ys.erase a := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
-  simp only [List.append_toArray, List.erase_toArray, List.erase_append, mem_toArray]
+  simp only [List.append_toArray, List.erase_toArray, List.erase_append, List.mem_toArray]
   split <;> simp
 
 @[grind =]
@@ -322,6 +323,13 @@ abbrev erase_mkArray_self := @erase_replicate_self
 abbrev erase_mkArray_ne := @erase_replicate_ne
 
 end erase
+
+/-! ### eraseIdxIfInBounds -/
+
+@[grind =]
+theorem eraseIdxIfInBounds_eq {xs : Array α} {i : Nat} :
+    xs.eraseIdxIfInBounds i = if h : i < xs.size then xs.eraseIdx i else xs := by
+  simp [eraseIdxIfInBounds]
 
 /-! ### eraseIdx -/
 

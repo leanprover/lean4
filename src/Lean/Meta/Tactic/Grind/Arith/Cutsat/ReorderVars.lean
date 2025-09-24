@@ -4,15 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.EqCnstr
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Inv
-
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.EqCnstr
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Inv
 public section
-
 namespace Lean.Meta.Grind.Arith.Cutsat
-
 /-! Collect variable information -/
 
 structure VarInfo where
@@ -150,6 +149,7 @@ def reorderVars : GoalM Unit := do
     varMap      := s.varMap.map fun x => old2new[x]!
     vars'       := s.vars
     varMap'     := s.varMap
+    natDef      := s.natDef.map fun x => old2new[x]!
     dvds        := s.dvds.map fun _ => none
     lowers      := s.lowers.map fun _ => {}
     uppers      := s.uppers.map fun _ => {}

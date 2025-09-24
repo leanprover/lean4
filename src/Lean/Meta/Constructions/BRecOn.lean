@@ -117,6 +117,7 @@ private def mkBelowFromRec (recName : Name) (nParams : Nat)
   modifyEnv fun env => addProtected env decl.name
 
 def mkBelow (indName : Name) : MetaM Unit := do
+  withTraceNode `Meta.mkBelow (fun _ => return m!"{indName}") do
   let .inductInfo indVal ← getConstInfo indName | return
   unless indVal.isRec do return
   if ← isPropFormerType indVal.type then return
@@ -274,6 +275,7 @@ private def mkBRecOnFromRec (recName : Name) (nParams : Nat)
   modifyEnv fun env => addProtected env decl.name
 
 def mkBRecOn (indName : Name) : MetaM Unit := do
+  withTraceNode `Meta.mkBRecOn (fun _ => return m!"{indName}") do
   let .inductInfo indVal ← getConstInfo indName | return
   unless indVal.isRec do return
   if ← isPropFormerType indVal.type then return
@@ -289,3 +291,6 @@ def mkBRecOn (indName : Name) : MetaM Unit := do
       let recName := recName.appendIndexAfter (i + 1)
       let brecOnName := brecOnName.appendIndexAfter (i + 1)
       mkBRecOnFromRec recName indVal.numParams indVal.all.toArray brecOnName
+
+builtin_initialize
+  registerTraceClass `Meta.mkBRecOn

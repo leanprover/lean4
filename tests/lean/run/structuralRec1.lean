@@ -192,7 +192,7 @@ match n, m, hn with
 | _, m, is_nat.S (is_nat.S h) => FS («reordered discriminants» _ h m)
 termination_by structural _ n => n
 
-/-- known unsupported case for types, just here for reference. -/
+/- known unsupported case for types, just here for reference. -/
 -- def «unsupported nesting» (xs : List Nat) : True :=
 --   match xs with
 --   | List.nil => True.intro

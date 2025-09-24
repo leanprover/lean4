@@ -21,7 +21,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Int_LemmasAux_0__Int_toNat_match_
 lean_object* lean_nat_abs(lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-static lean_object* l___private_Init_Data_Int_LemmasAux_0__Int_toNat_match__1_splitter___redArg___closed__0;
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_LemmasAux_0__Int_toNat_match__1_splitter___redArg___closed__0;
 static lean_object* _init_l___private_Init_Data_Int_LemmasAux_0__Int_toNat_match__1_splitter___redArg___closed__0() {
 _start:
 {
@@ -40,7 +40,7 @@ x_5 = lean_int_dec_lt(x_1, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_6 = lean_nat_abs(x_1);
 x_7 = lean_apply_1(x_2, x_6);
 return x_7;
@@ -48,7 +48,7 @@ return x_7;
 else
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-lean_dec_ref(x_2);
+lean_dec(x_2);
 x_8 = lean_nat_abs(x_1);
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_sub(x_8, x_9);

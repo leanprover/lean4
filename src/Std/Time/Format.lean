@@ -7,7 +7,8 @@ module
 
 prelude
 public import Std.Time.Notation.Spec
-public import all Std.Time.Format.Basic
+public import Std.Time.Format.Basic
+import all Std.Time.Format.Basic
 public import Std.Time.Internal.Bounded
 
 public section
@@ -129,10 +130,10 @@ in SQL databases to represent dates.
 def sqlDate : GenericFormat .any := datespec("uuuu-MM-dd")
 
 /--
-The LongDateFormat, which follows the pattern `EEEE, MMMM D, uuuu HH:mm:ss` for
+The LongDateFormat, which follows the pattern `EEEE, MMMM d, uuuu HH:mm:ss` for
 representing a full date and time with the day of the week and month name.
 -/
-def longDateFormat : GenericFormat (.only .GMT) := datespec("EEEE, MMMM D, uuuu HH:mm:ss")
+def longDateFormat : GenericFormat (.only .GMT) := datespec("EEEE, MMMM d, uuuu HH:mm:ss")
 
 /--
 The AscTime format, which follows the pattern `EEE MMM d HH:mm:ss uuuu`. This format

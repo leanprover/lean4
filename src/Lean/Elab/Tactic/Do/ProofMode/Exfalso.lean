@@ -20,7 +20,7 @@ open Lean Elab Tactic Meta
 -- set_option pp.all true in
 -- #check ⌜False⌝
 private def falseProp (u : Level) (σs : Expr) : Expr := -- ⌜False⌝ standing in for an empty conjunction of hypotheses
-  mkApp3 (mkConst ``SVal.curry [u]) (mkApp (mkConst ``ULift [u, 0]) (.sort .zero)) σs <| mkLambda `tuple .default (mkApp (mkConst ``SVal.StateTuple [u]) σs) (mkApp2 (mkConst ``ULift.up [u, 0]) (.sort .zero) (mkConst ``False))
+  SPred.mkPure u σs (mkConst ``False)
 
 @[builtin_tactic Lean.Parser.Tactic.mexfalso]
 def elabMExfalso : Tactic | _ => do

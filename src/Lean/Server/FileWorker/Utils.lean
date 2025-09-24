@@ -12,6 +12,7 @@ public import Lean.Server.Utils
 public import Lean.Server.Snapshots
 public import Lean.Server.AsyncList
 public import Lean.Server.Rpc.Basic
+import Init.Data.ByteArray.Extra
 
 public section
 

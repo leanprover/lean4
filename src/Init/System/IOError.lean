@@ -8,6 +8,7 @@ module
 
 prelude
 public import Init.Data.ToString.Basic
+import Init.Data.String.Basic
 
 public section
 

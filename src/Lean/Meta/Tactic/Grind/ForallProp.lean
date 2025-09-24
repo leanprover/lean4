@@ -4,17 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.Lemmas
 public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Internalize
-public import Lean.Meta.Tactic.Grind.Simp
-public import Lean.Meta.Tactic.Grind.EqResolution
+public import Init.Grind.Propagator
+import Init.Simproc
+import Init.Grind.Lemmas
+import Init.Grind.Norm
+import Lean.Meta.Tactic.Grind.PropagatorAttr
+import Lean.Meta.Tactic.Grind.Propagate
+import Lean.Meta.Tactic.Grind.Internalize
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.EqResolution
 import Lean.Meta.Tactic.Grind.SynthInstance
-
 public section
-
 namespace Lean.Meta.Grind
 /--
 If `parent` is a projection-application `proj_i c`,
@@ -63,9 +65,15 @@ private def isEqTrueHyp? (proof : Expr) : Option FVarId := Id.run do
 /-- Similar to `mkEMatchTheoremWithKind?`, but swallow any exceptions. -/
 private def mkEMatchTheoremWithKind'? (origin : Origin) (proof : Expr) (kind : EMatchTheoremKind) (prios : SymbolPriorities) : MetaM (Option EMatchTheorem) := do
   try
-    mkEMatchTheoremWithKind? origin #[] proof kind prios (groundPatterns := false)
+    -- **Note**: for local theorems, we want to use very general patterns, this is why we set `minIndexable := true`
+    -- The same approach is used in Z3.
+    mkEMatchTheoremWithKind? origin #[] proof kind prios (groundPatterns := false) (minIndexable := true)
   catch _ =>
     return none
+
+/-- Returns `true` if `thm?` is none or its patterns are different from the ones in `thm'` -/
+private def isNewPat (patternsFoundSoFar : Array (List Expr)) (thm' : EMatchTheorem) : Bool :=
+  patternsFoundSoFar.all fun ps => thm'.patterns != ps
 
 private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   let proof ← mkEqTrueProof e
@@ -77,13 +85,24 @@ private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   let proof := mkOfEqTrueCore e proof
   let size := (← get).ematch.newThms.size
   let gen ← getGeneration e
-  -- TODO: we should have a flag for collecting all unary patterns in a local theorem
-  if let some thm ← mkEMatchTheoremWithKind'? origin proof .leftRight (← getSymbolPriorities) then
-    activateTheorem thm gen
-  if let some thm ← mkEMatchTheoremWithKind'? origin proof .rightLeft (← getSymbolPriorities) then
-    activateTheorem thm gen
+  let mut patternsFoundSoFar := #[]
+  let symPrios ← getSymbolPriorities
+  let minPrio := eval_prio default -- We only consider symbols with default priority and above when collecting singleton patterns.
+  let thms ← mkEMatchTheoremUsingSingletonPatterns origin #[] proof minPrio symPrios
+  for thm in thms do
+    if isNewPat patternsFoundSoFar thm then
+      activateTheorem thm gen
+      patternsFoundSoFar := patternsFoundSoFar.push thm.patterns
+  if let some thm ← mkEMatchTheoremWithKind'? origin proof .leftRight symPrios then
+    if isNewPat patternsFoundSoFar thm then
+      activateTheorem thm gen
+      patternsFoundSoFar := patternsFoundSoFar.push thm.patterns
+  if let some thm ← mkEMatchTheoremWithKind'? origin proof .rightLeft symPrios then
+    if isNewPat patternsFoundSoFar thm then
+      activateTheorem thm gen
+      patternsFoundSoFar := patternsFoundSoFar.push thm.patterns
   if (← get).ematch.newThms.size == size then
-    if let some thm ← mkEMatchTheoremWithKind'? origin proof (.default false) (← getSymbolPriorities) then
+    if let some thm ← mkEMatchTheoremWithKind'? origin proof (.default false) symPrios then
       activateTheorem thm gen
   if (← get).ematch.newThms.size == size then
     reportIssue! "failed to create E-match local theorem for{indentExpr e}"
@@ -110,23 +129,22 @@ def propagateForallPropDown (e : Expr) : GoalM Unit := do
       let h := mkOfEqTrueCore e (← mkEqTrueProof e)
       let h' := mkApp h' h
       addNewRawFact h' e' (← getGeneration e) (.forallProp e)
+    if b.hasLooseBVars then
+      unless (← isProp a) do
+        /-
+        We used to waste a lot of time trying to process terms such as
+        ```
+        ∀ (h : i + 1 ≤ w), x.abs.getLsbD i = x.abs[i]
+        ```
+        as E-matching theorems. They are "dependent" implications, and should be handled
+        by `propagateForallPropUp`.
+        -/
+        addLocalEMatchTheorems e
     else
-      if b.hasLooseBVars then
-        unless (← isProp a) do
-          /-
-          We used to waste a lot of time trying to process terms such as
-          ```
-          ∀ (h : i + 1 ≤ w), x.abs.getLsbD i = x.abs[i]
-          ```
-          as E-matching theorems. They are "dependent" implications, and should be handled
-          by `propagateForallPropUp`.
-          -/
-          addLocalEMatchTheorems e
-      else
-        unless (← alreadyInternalized b) do return ()
-        if (← isEqFalse b <&&> isProp a) then
-        -- (a → b) = True → b = False → a = False
-        pushEqFalse a <| mkApp4 (mkConst ``Grind.eq_false_of_imp_eq_true) a b (← mkEqTrueProof e) (← mkEqFalseProof b)
+      unless (← alreadyInternalized b) do return ()
+      if (← isEqFalse b <&&> isProp a) then
+      -- (a → b) = True → b = False → a = False
+      pushEqFalse a <| mkApp4 (mkConst ``Grind.eq_false_of_imp_eq_true) a b (← mkEqTrueProof e) (← mkEqFalseProof b)
 
 builtin_grind_propagator propagateExistsDown ↓Exists := fun e => do
   if (← isEqFalse e) then

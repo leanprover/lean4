@@ -4,13 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Util.ForEachExpr
 public import Lean.Meta.Tactic.Grind.Types
-
+import Lean.Util.ForEachExpr
 public section
-
 namespace Lean.Meta.Grind
 /--
 A `choice` (aka backtracking) point in the search tree.

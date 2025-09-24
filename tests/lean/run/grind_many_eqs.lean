@@ -1,4 +1,5 @@
-import Lean.Meta.Tactic.Grind
+module
+meta import Lean.Meta.Tactic.Grind
 
 def f (a : Nat) := a + a + a
 def g (a : Nat) := a + a
@@ -9,7 +10,7 @@ def h (n : Nat) : Prop :=
 
 -- Prints the equivalence class containing a `f` application
 open Lean Meta Grind in
-def fallback (n : Nat) : Fallback := do
+meta def fallback (n : Nat) : Fallback := do
   let f0 ← Grind.shareCommon (mkApp (mkConst ``f) (mkNatLit 0))
   -- The `f 0` equivalence class contains `n+1` elements
   assert! (← getEqc f0).length == n + 1

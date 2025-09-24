@@ -4,17 +4,21 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.Tactic.Simp.Arith.Int
-public import Lean.Meta.Tactic.Grind.PropagatorAttr
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
-
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
+import Init.Data.Int.OfNat
+import Init.Grind.Propagator
+import Lean.Meta.Tactic.Simp.Arith.Int
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.PropagatorAttr
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
+import Lean.Meta.NatInstTesters
 public section
-
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 def DvdCnstr.norm (c : DvdCnstr) : DvdCnstr :=
@@ -107,7 +111,7 @@ def propagateIntDvd (e : Expr) : GoalM Unit := do
     let c := { d, p, h := .core e : DvdCnstr }
     c.assertCore
   else if (← isEqFalse e) then
-    pushNewFact <| mkApp4 (mkConst ``Int.Linear.of_not_dvd) a b reflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
+    pushNewFact <| mkApp4 (mkConst ``Int.Linear.of_not_dvd) a b eagerReflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
 
 def propagateNatDvd (e : Expr) : GoalM Unit := do
   let_expr Dvd.dvd _ inst d₀ a := e | return ()

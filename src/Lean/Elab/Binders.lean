@@ -14,6 +14,8 @@ public import Lean.Elab.PreDefinition.TerminationHint
 public import Lean.Elab.Match
 public import Lean.Compiler.MetaAttr
 meta import Lean.Parser.Term
+meta import Lean.Parser.Tactic
+import Lean.Linter.Basic
 
 public section
 
@@ -194,7 +196,7 @@ def addLocalVarInfo (stx : Syntax) (fvar : Expr) : TermElabM Unit :=
 private def ensureAtomicBinderName (binderView : BinderView) : TermElabM Unit :=
   let n := binderView.id.getId.eraseMacroScopes
   unless n.isAtomic do
-    throwErrorAt binderView.id "invalid binder name '{n}', it must be atomic"
+    throwErrorAt binderView.id "invalid binder name `{n}`, it must be atomic"
 
 register_builtin_option checkBinderAnnotations : Bool := {
   defValue := true
@@ -302,7 +304,11 @@ open Lean.Elab.Term.Quotation in
     -- elaborate independently from each other
     let dom ← elabType dom
     let rng ← elabType rng
-    return mkForall (← MonadQuotation.addMacroScope `a) BinderInfo.default dom rng
+    -- We use a non-variable macro scope as collisions are not an issue here (we've already
+    -- elaborated the subterm). The delaborator will eventually renumber macro scopes if the
+    -- binding is shown at all.
+    let n := addMacroScope `_internal `a reservedMacroScope
+    return mkForall n BinderInfo.default dom rng
   | _                    => throwUnsupportedSyntax
 
 /--
@@ -416,7 +422,7 @@ private def propagateExpectedType (fvar : Expr) (fvarType : Expr) (s : State) : 
     let expectedType ← whnfForall expectedType
     match expectedType with
     | .forallE _ d b _ =>
-      discard <| isDefEq fvarType d
+      discard <| isDefEq fvarType d.cleanupAnnotations
       let b := b.instantiate1 fvar
       return { s with expectedType? := some b }
     | _ =>
@@ -776,25 +782,33 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
     -/
     let type ← withSynthesize (postpone := .partial) <| elabType typeStx
     let letMsg := if config.nondep then "have" else "let"
-    registerCustomErrorIfMVar type typeStx m!"failed to infer '{letMsg}' declaration type"
-    registerLevelMVarErrorExprInfo type typeStx m!"failed to infer universe levels in '{letMsg}' declaration type"
+    registerCustomErrorIfMVar type typeStx m!"failed to infer `{letMsg}` declaration type"
+    registerLevelMVarErrorExprInfo type typeStx m!"failed to infer universe levels in `{letMsg}` declaration type"
     if config.postponeValue then
       let type ← mkForallFVars fvars type
       let val  ← mkFreshExprMVar type
       pure (type, val, binders)
     else
-      let val  ← elabTermEnsuringType valStx type
+      /-
+      Elaborate the value in a context where the binders have cleaned-up annotations
+      Note: we may want `withFreshCache` in case spurious type annotations appear in terms.
+      -/
+      let lctx' := fvars.foldl (init := ← getLCtx) fun lctx fvar =>
+        lctx.modifyLocalDecl fvar.fvarId! (fun decl => decl.setType decl.type.cleanupAnnotations)
+      let val ← withLCtx' lctx' do
+        let val ← elabTermEnsuringType valStx type
+        /-
+        By default `mkLambdaFVars` and `mkLetFVars` create binders only for let-declarations that are actually used
+        in the body. This generates counterintuitive behavior in the elaborator since users will not be notified
+        about holes such as
+        ```
+        def ex : Nat :=
+          let x := _
+          42
+        ```
+        -/
+        mkLambdaFVars fvars val (usedLetOnly := false)
       let type ← mkForallFVars fvars type
-      /- By default `mkLambdaFVars` and `mkLetFVars` create binders only for let-declarations that are actually used
-         in the body. This generates counterintuitive behavior in the elaborator since users will not be notified
-         about holes such as
-         ```
-          def ex : Nat :=
-            let x := _
-            42
-         ```
-       -/
-      let val  ← mkLambdaFVars fvars val (usedLetOnly := false)
       pure (type, val, binders)
   let kind := .ofBinderName id.getId
   trace[Elab.let.decl] "{id.getId} : {type} := {val}"
@@ -840,7 +854,7 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
           else
             mkLetFVars #[x, h'] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
   if config.postponeValue then
-    forallBoundedTelescope type binders.size fun xs type => do
+    forallBoundedTelescope type binders.size (cleanupAnnotations := true) fun xs type => do
       -- the original `fvars` from above are gone, so add back info manually
       for b in binders, x in xs do
         addLocalVarInfo b x

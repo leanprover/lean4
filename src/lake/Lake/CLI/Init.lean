@@ -3,11 +3,13 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
+module
+
 prelude
+public import Lake.Config.Env
+public import Lake.Config.Lang
 import Lake.Util.Git
-import Lake.Util.Sugar
 import Lake.Util.Version
-import Lake.Config.Lang
 import Lake.Config.Package
 import Lake.Config.Workspace
 import Lake.Load.Config
@@ -19,7 +21,7 @@ open Git System
 open Lean (Name)
 
 /-- The default module of an executable in `std` package. -/
-def defaultExeRoot : Name := `Main
+public def defaultExeRoot : Name := `Main
 
 def gitignoreContents :=
 s!"/{defaultLakeDir}
@@ -294,7 +296,7 @@ jobs:
       issues: write        # Grants permission to create or update issues
       pull-requests: write # Grants permission to create or update pull requests
     needs: check-for-updates
-    if: ${{ needs.check-for-updates.outputs.is-update-available }}
+    if: ${{ needs.check-for-updates.outputs.is-update-available == 'true' }}
     strategy: # Runs for each update discovered by the `check-for-updates` job.
       max-parallel: 1 # Ensures that the PRs/issues are created in order.
       matrix:
@@ -337,13 +339,13 @@ jobs:
 "
 
 /-- Lake package template identifier. -/
-inductive InitTemplate
+public inductive InitTemplate
 | std | exe | lib | mathLax | math
 deriving Repr, DecidableEq
 
-instance : Inhabited InitTemplate := ⟨.std⟩
+public instance : Inhabited InitTemplate := ⟨.std⟩
 
-def InitTemplate.ofString? : String → Option InitTemplate
+public def InitTemplate.ofString? : String → Option InitTemplate
 | "std" => some .std
 | "exe" => some .exe
 | "lib" => some .lib
@@ -472,7 +474,7 @@ def initPkg
       repo.quietInit
       unless upstreamBranch = "master" do
         repo.checkoutBranch upstreamBranch
-    else
+    catch _ =>
       logWarning "failed to initialize git repository"
 
   -- update `.gitignore` with additional entries for Lake
@@ -491,7 +493,7 @@ def initPkg
     try
       download mathToolchainBlobUrl toolchainFile
     catch errPos =>
-      logError "failed to download mathlib 'lean-toolchain' file; \
+      logError s!"failed to download mathlib 'lean-toolchain' file; \
         you can manually copy it from:\n  {mathToolchainUrl}"
       throw errPos
     -- Create a manifest file based on the dependencies.
@@ -513,7 +515,7 @@ def validatePkgName (pkgName : String) : LogIO PUnit := do
   if pkgName.toLower ∈ ["init", "lean", "lake", "main"] then
     error "reserved package name"
 
-def init
+public def init
   (name : String) (tmp : InitTemplate) (lang : ConfigLang)
   (env : Lake.Env) (cwd : FilePath := ".") (offline := false)
 : LoggerIO PUnit := do
@@ -530,7 +532,7 @@ def init
   IO.FS.createDirAll cwd
   initPkg cwd (stringToLegalOrSimpleName name) tmp lang env offline
 
-def new
+public def new
   (name : String) (tmp : InitTemplate) (lang : ConfigLang)
   (env : Lake.Env) (cwd : FilePath := ".") (offline := false)
 : LoggerIO PUnit := do

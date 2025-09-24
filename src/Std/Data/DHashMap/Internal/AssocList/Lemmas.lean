@@ -6,7 +6,8 @@ Authors: Markus Himmel
 module
 
 prelude
-public import all Std.Data.DHashMap.Internal.AssocList.Basic
+public import Std.Data.DHashMap.Internal.AssocList.Basic
+import all Std.Data.DHashMap.Internal.AssocList.Basic
 public import Std.Data.Internal.List.Associative
 
 public section
@@ -24,9 +25,9 @@ set_option autoImplicit false
 open Std.DHashMap.Internal
 open List (Perm perm_middle)
 
-universe w v u
+universe w v u w'
 
-variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w} [Monad m]
+variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w'} [Monad m]
 
 namespace Std.DHashMap.Internal.AssocList
 
@@ -163,7 +164,7 @@ theorem toList_filterMap {f : (a : α) → β a → Option (γ a)} {l : AssocLis
   suffices ∀ l l', Perm (filterMap.go f l l').toList
       (l.toList ++ l'.toList.filterMap fun p => (f p.1 p.2).map (⟨p.1, ·⟩)) by
     simpa using this .nil l
-  intros l l'
+  intro l l'
   induction l' generalizing l
   · simp [filterMap.go]
   next k v t ih =>
@@ -181,7 +182,7 @@ theorem toList_map {f : (a : α) → β a → γ a} {l : AssocList α β} :
   suffices ∀ l l', Perm (map.go f l l').toList
       (l.toList ++ l'.toList.map fun p => ⟨p.1, f p.1 p.2⟩) by
     simpa using this .nil l
-  intros l l'
+  intro l l'
   induction l' generalizing l
   · simp [map.go]
   next k v t ih =>
@@ -195,7 +196,7 @@ theorem toList_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
   suffices ∀ l l', Perm (filter.go f l l').toList
       (l.toList ++ l'.toList.filter fun p => f p.1 p.2) by
     simpa using this .nil l
-  intros l l'
+  intro l l'
   induction l' generalizing l
   · simp [filter.go]
   next k v t ih =>
@@ -270,5 +271,14 @@ theorem foldr_apply {l : AssocList α β} {acc : List δ} (f : (a : α) → β a
     l.foldr (fun k v acc => f k v :: acc) acc =
       (l.toList.map (fun p => f p.1 p.2)) ++ acc := by
   induction l generalizing acc <;> simp_all [AssocList.foldr, AssocList.foldrM]
+
+theorem foldl_push_apply {l : AssocList α β} {acc : Array δ} (f : (a : α) → β a → δ) :
+    l.foldl (fun acc k v => acc.push (f k v)) acc =
+      acc ++ (l.toList.toArray.map (fun p => f p.1 p.2)) := by
+  simp [foldl]
+  induction l generalizing acc with
+  | nil => simp [foldlM]
+  | cons k v tl ih =>
+    simp [foldlM, ih]
 
 end Std.DHashMap.Internal.AssocList

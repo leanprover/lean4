@@ -324,6 +324,8 @@ def locationLinksOfInfo (doc : DocumentMeta) (kind : GoToKind) (ictx : InfoWithC
         locationLinksFromCommandInfo cci
       | .ofErrorNameInfo eni =>
         locationLinksFromErrorNameInfo eni
+      | .ofDocElabInfo dei =>
+        locationLinksFromDecl dei.name
       | _ =>
         pure #[]
     if kind == .declaration || ll.isEmpty then

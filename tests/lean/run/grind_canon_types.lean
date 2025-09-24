@@ -1,10 +1,11 @@
-import Lean.Meta.Tactic.Grind
+module
+meta import Lean.Meta.Tactic.Grind
 
 def g (s : Type) := s
 def f (a : α) := a
 
 open Lean Meta Grind in
-def fallback : Fallback := do
+meta def fallback : Fallback := do
   let nodes ← filterENodes fun e => return e.self.isApp && e.self.isAppOf ``f
   trace[Meta.debug] "{nodes.toList.map (·.self)}"
   (← get).mvarId.admit

@@ -31,6 +31,9 @@ leanOptions = { experimental.module = true }
 # For example, CI will set `-DwarningAsError=true` through this
 moreLeanArgs = [${LEAN_EXTRA_OPTS_TOML}]
 
+# Uncomment to limit number of reported errors further in case of overwhelming cmdline output
+#weakLeanArgs = ["-DmaxErrors=1"]
+
 ${LEAN_EXTRA_LAKEFILE_TOML}
 
 [[lean_lib]]
@@ -59,12 +62,8 @@ globs = [
 [[lean_lib]]
 name = "Lake"
 srcDir = "lake"
-globs = [
-  # Lake API imported by configuration files
-  "Lake",
-  # API only imported by `LakeMain` and the `lake` CLI
-  "Lake.CLI",
-]
+# Build Lake and all its submodules (which may not be imported elsewhere)
+globs = ["Lake.*"]
 libName = "${LAKE_LIB_PREFIX}Lake"
 defaultFacets = ["static", "static.export"]
 

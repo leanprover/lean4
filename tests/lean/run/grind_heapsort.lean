@@ -1,3 +1,4 @@
+module
 import Lean
 /-
 Use `grind` as one of the tactics for array-element access and termination proofs.

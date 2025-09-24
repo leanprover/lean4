@@ -147,6 +147,10 @@ add_custom_target(test
   COMMAND $(MAKE) -C stage1 test
   DEPENDS stage1)
 
+add_custom_target(clean-stdlib
+  COMMAND $(MAKE) -C stage1 clean-stdlib
+  DEPENDS stage1)
+
 install(CODE "execute_process(COMMAND make -C stage1 install)")
 
 add_custom_target(check-stage3

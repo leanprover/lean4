@@ -186,6 +186,8 @@ def Info.stx : Info → Syntax
   | ofFieldRedeclInfo i    => i.stx
   | ofDelabTermInfo i      => i.stx
   | ofChoiceInfo i         => i.stx
+  | ofDocInfo i            => i.stx
+  | ofDocElabInfo i        => i.stx
 
 def Info.lctx : Info → LocalContext
   | .ofTermInfo i           => i.lctx
@@ -251,6 +253,8 @@ structure HoverableInfoPrio where
   size : Nat
   -- Prefer results for constants over variables (which overlap at declaration names)
   isVariableInfo : Bool
+  -- Prefer non-partial infos over partial infos
+  isPartialTermInfo : Bool
   deriving BEq
 
 instance : Ord HoverableInfoPrio where
@@ -266,6 +270,10 @@ instance : Ord HoverableInfoPrio where
     if i1.isVariableInfo && ! i2.isVariableInfo then
       return .lt
     if ! i1.isVariableInfo && i2.isVariableInfo then
+      return .gt
+    if i1.isPartialTermInfo && ! i2.isPartialTermInfo then
+      return .lt
+    if ! i1.isPartialTermInfo && i2.isPartialTermInfo then
       return .gt
     return .eq
 
@@ -300,6 +308,7 @@ partial def InfoTree.hoverableInfoAtM? [Monad m] (t : InfoTree) (hoverPos : Stri
       isHoverPosOnStop := r.stop == hoverPos
       size := (r.stop - r.start).byteIdx
       isVariableInfo := info matches .ofTermInfo { expr := .fvar .., .. }
+      isPartialTermInfo := info matches .ofPartialTermInfo ..
     }
     let result := { ctx, info, children }
     return some (priority, result)
@@ -336,6 +345,10 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
   | .ofErrorNameInfo eni => do
     let some errorExplanation := getErrorExplanationRaw? (← getEnv) eni.errorName | return none
     return errorExplanation.summaryWithSeverity
+  | .ofDocInfo di =>
+    return (← findDocString? env di.stx.getKind)
+  | .ofDocElabInfo dei =>
+    return (← findDocString? env dei.name)
   | _ => pure ()
   if let some ei := i.toElabInfo? then
     return ← findDocString? env ei.stx.getKind <||> findDocString? env ei.elaborator
@@ -381,11 +394,14 @@ where
         return (some { eFmt with fmt := f!"```lean\n{eFmt.fmt}\n```" }, ← fmtModule? c)
       let eFmt ← Meta.ppExpr e
       -- Try not to show too scary internals
-      let showTerm := if let .fvar _ := e then
-        if let some ldecl := (← getLCtx).findFVar? e then
-          !ldecl.userName.hasMacroScopes
-        else false
-      else isAtomicFormat eFmt
+      let showTerm :=
+        if let .fvar _ := e then
+          if let some ldecl := (← getLCtx).findFVar? e then
+            !ldecl.userName.hasMacroScopes
+          else
+            false
+        else
+          isAtomicFormat eFmt
       let fmt := if showTerm then f!"{eFmt} : {tpFmt}" else tpFmt
       return (some f!"```lean\n{fmt}\n```", none)
     | Info.ofFieldInfo fi =>

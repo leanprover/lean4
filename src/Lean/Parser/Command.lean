@@ -8,6 +8,9 @@ module
 prelude
 public import Lean.Parser.Term
 public import Lean.Parser.Do
+import Lean.DocString.Parser
+public import Lean.DocString.Formatter
+meta import Lean.Parser.Basic
 
 public section
 
@@ -48,6 +51,7 @@ match against a quotation in a command kind's elaborator). -/
 @[builtin_term_parser low] def quot := leading_parser
   "`(" >> withoutPosition (incQuotDepth (many1Unbox commandParser)) >> ")"
 
+
 /--
 `/-! <text> -/` defines a *module docstring* that can be displayed by documentation generation
 tools. The string is associated with the corresponding position in the file. It can be used
@@ -55,18 +59,19 @@ multiple times in the same file.
 -/
 @[builtin_command_parser]
 def moduleDoc := leading_parser ppDedent <|
-  "/-!" >> commentBody >> ppLine
+  "/-!" >> Doc.Parser.ifVerso versoCommentBody commentBody >> ppLine
+
 
 def namedPrio := leading_parser
   atomic (" (" >> nonReservedSymbol "priority") >> " := " >> withoutPosition priorityParser >> ")"
 def optNamedPrio := optional namedPrio
 
 def «private»        := leading_parser "private "
-def «protected»      := leading_parser "protected "
 def «public»         := leading_parser "public "
 def visibility       :=
   withAntiquot (mkAntiquot "visibility" decl_name% (isPseudoKind := true)) <|
-    «private» <|> «protected» <|> «public»
+    «private» <|> «public»
+def «protected»      := leading_parser "protected "
 def «meta»           := leading_parser "meta "
 def «noncomputable»  := leading_parser "noncomputable "
 def «unsafe»         := leading_parser "unsafe "
@@ -76,7 +81,8 @@ def «nonrec»         := leading_parser "nonrec "
 /-- `declModifiers` is the collection of modifiers on a declaration:
 * a doc comment `/-- ... -/`
 * a list of attributes `@[attr1, attr2]`
-* a visibility specifier, `private`, `protected`, or `public`
+* a visibility specifier, `private` or `public`
+* `protected`
 * `noncomputable`
 * `unsafe`
 * `partial` or `nonrec`
@@ -90,6 +96,7 @@ such as inductive constructors, structure projections, and `let rec` / `where` d
   optional docComment >>
   optional (Term.«attributes» >> if inline then skip else ppDedent ppLine) >>
   optional visibility >>
+  optional «protected» >>
   optional («meta» <|> «noncomputable») >>
   optional «unsafe» >>
   optional («partial» <|> «nonrec»)
@@ -158,8 +165,11 @@ def whereStructInst  := leading_parser
     declValSimple <|> declValEqns <|> whereStructInst
 def «abbrev»         := leading_parser
   "abbrev " >> declId >> ppIndent optDeclSig >> declVal
+def derivingClass    := leading_parser
+  optional ("@[" >> nonReservedSymbol "expose" >> "]") >> withForbidden "for" termParser
+def derivingClasses  := sepBy1 derivingClass ", "
 def optDefDeriving   :=
-  optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ")
+  optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
 def definition     := leading_parser
   "def " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> declVal >> optDefDeriving
 def «theorem»        := leading_parser
@@ -179,7 +189,6 @@ def «example»        := leading_parser
 def ctor             := leading_parser
   atomic (optional docComment >> "\n| ") >>
   ppGroup (declModifiers true >> rawIdent >> optDeclSig)
-def derivingClasses  := sepBy1 ident ", "
 def optDeriving      := leading_parser
   optional (ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
 def computedField    := leading_parser
@@ -251,13 +260,14 @@ def «structure»          := leading_parser
   («abbrev» <|> definition <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|>
    «inductive» <|> classInductive <|> «structure»)
 @[builtin_command_parser] def «deriving»     := leading_parser
-  "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover ident skip) ", "
+  "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover termParser skip) ", "
 def sectionHeader := leading_parser
   optional ("@[" >> nonReservedSymbol "expose" >> "] ") >>
   optional ("public ") >>
-  optional ("noncomputable ")
+  optional ("noncomputable ") >>
+  optional ("meta ")
 /--
-A `section`/`end` pair delimits the scope of `variable`, `include, `open`, `set_option`, and `local`
+A `section`/`end` pair delimits the scope of `variable`, `include`, `open`, `set_option`, and `local`
 commands. Sections can be nested. `section <id>` provides a label to the section that has to appear
 with the matching `end`. In either case, the `end` can be omitted, in which case the section is
 closed at the end of the file.
@@ -288,6 +298,18 @@ with `end <id>`. The `end` command is optional at the end of a file.
 -/
 @[builtin_command_parser] def «end»          := leading_parser
   "end" >> optional (ppSpace >> checkColGt >> ident)
+
+namespace InternalSyntax
+  /-- Disable delimiting of local entries in ScopedEnvExtension within the current scope.
+  This command is for internal use only. It is intended for macros that implicitly introduce new
+  scopes, such as `expandInCmd` and `expandNamespacedDeclaration`. It allows local attributes to remain
+  accessible beyond those implicit scopes, even though they would normally be hidden from the user.
+  -/
+  scoped syntax (name := end_local_scope) "end_local_scope" : command
+
+  def endLocalScopeSyntax : Command := Unhygienic.run `(end_local_scope)
+end InternalSyntax
+
 /-- Declares one or more typed variables, or modifies whether already-declared variables are
   implicit.
 
@@ -539,6 +561,12 @@ declaration signatures.
   "#dump_async_env_state"
 @[builtin_command_parser] def «init_quot»    := leading_parser
   "init_quot"
+/--
+An internal bootstrapping command that reinterprets a Markdown docstring as Verso.
+-/
+@[builtin_command_parser] def «docs_to_verso»    := leading_parser
+  "docs_to_verso " >> sepBy1 ident ", "
+
 def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit
 /--
 `set_option <id> <value>` sets the option `<id>` to `<value>`. Depending on the type of the option,
@@ -821,8 +849,9 @@ identifier names chosen in the docstring for consistency.
     "[" >> sepBy1 ident ", " >> "]"
 
 /--
-  This is an auxiliary command for generation constructor injectivity theorems for
+  This is an auxiliary command to generate constructor injectivity theorems for
   inductive types defined at `Prelude.lean`.
+  Temporarily also controls the generation of the `ctorIdx` definition.
   It is meant for bootstrapping purposes only. -/
 @[builtin_command_parser] def genInjectiveTheorems := leading_parser
   "gen_injective_theorems% " >> ident
@@ -865,6 +894,8 @@ builtin_initialize
   register_parser_alias                                                 optDeclSig
   register_parser_alias                                                 openDecl
   register_parser_alias                                                 docComment
+  register_parser_alias                                                 plainDocComment
+  register_parser_alias                                                 visibility
 
 /--
 Registers an error explanation.
@@ -881,6 +912,12 @@ used to generate visibility syntax for declarations that is independent of the p
 -/
 def visibility.ofBool (isPublic : Bool) : TSyntax ``visibility :=
   Unhygienic.run <| if isPublic then `(visibility| public) else `(visibility| private)
+
+/--
+Returns syntax for `private` if `attrKind` is `local` and `public` otherwise.
+-/
+def visibility.ofAttrKind (attrKind : TSyntax ``Term.attrKind) : TSyntax ``visibility :=
+  visibility.ofBool <| !attrKind matches `(attrKind| local)
 
 end Command
 

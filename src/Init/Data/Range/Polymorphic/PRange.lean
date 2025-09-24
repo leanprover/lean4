@@ -53,20 +53,30 @@ A range of elements of some type `α`. It is characterized by its upper and lowe
 may be inclusive, exclusive or absent.
 
 * `a...=b` is the range of elements greater than or equal to `a` and less than or equal to `b`.
-* `a<...=b` is the range of elements greater than `a` and less than or equal to `b`.
 * `a...b` or `a...<b` is the range of elements greater than or equal to `a` and less than `b`.
+* `a...*` is the range of elements greater than or equal to `a`.
+* `a<...=b` is the range of elements greater than `a` and less than or equal to `b`.
 * `a<...b` or `a<...<b` is the range of elements greater than `a` and less than `b`.
+* `a<...*` is the range of elements greater than `a`.
 * `*...=b` is the range of elements less than or equal to `b`.
 * `*...b` or `*...<b` is the range of elements less than `b`.
-* `a...*` is the range of elements greater than or equal to `a`.
-* `a<...*` is the range of elements greater than `a`.
 * `*...*` contains all elements of `α`.
+
+The recommended spelling for these ranges can be found in the `PRange.mk` constructor's docstring.
 -/
 structure _root_.Std.PRange (shape : RangeShape) (α : Type u) where
   /-- The lower bound of the range. -/
   lower : Bound shape.lower α
   /-- The upper bound of the range. -/
   upper : Bound shape.upper α
+
+/--
+Creates a new range. For more information about ranges, see `Std.PRange`.
+
+The implicit `shape` parameter specifies the shape of the explicitly given
+lower and upper bounds.
+-/
+add_decl_doc _root_.Std.PRange.mk
 
 /-- `a...*` is the range of elements greater than or equal to `a`. See also `Std.PRange`. -/
 syntax:max (term "...*") : term
@@ -125,6 +135,27 @@ macro_rules
   | `($a<...<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.open) $a $b)
   | `($a<...$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.open) $a $b)
 
+recommended_spelling "Rcc" for "a...=b" in [PRange.mk, «term_...=_»]
+recommended_spelling "Rco" for "a...b" in [PRange.mk, «term_..._», «term_...<_»]
+recommended_spelling "Rco" for "a...<b" in [«term_...<_»]
+recommended_spelling "Rci" for "a...*" in [PRange.mk, «term_...*»]
+recommended_spelling "Roc" for "a<...=b" in [PRange.mk, «term_<...=_»]
+recommended_spelling "Roo" for "a<...b" in [PRange.mk, «term_<..._», «term_<...<_»]
+recommended_spelling "Roo" for "a<...<b" in [«term_<...<_»]
+recommended_spelling "Roi" for "a<...*" in [PRange.mk, «term_<...*»]
+recommended_spelling "Ric" for "*...=b" in [PRange.mk, «term*...=_»]
+recommended_spelling "Rio" for "*...b" in [PRange.mk, «term*..._», «term*...<_»]
+recommended_spelling "Rio" for "*...<b" in [«term*...<_»]
+recommended_spelling "Rii" for "*...*" in [PRange.mk, «term*...*»]
+
+recommended_spelling "Rcx" for "PRange.mk .closed ub" in [PRange.mk]
+recommended_spelling "Rox" for "PRange.mk .open ub" in [PRange.mk]
+recommended_spelling "Rix" for "PRange.mk .unbounded ub" in [PRange.mk]
+recommended_spelling "Rxc" for "PRange.mk lb .closed" in [PRange.mk]
+recommended_spelling "Rxo" for "PRange.mk lb .open" in [PRange.mk]
+recommended_spelling "Rxi" for "PRange.mk lb .unbounded" in [PRange.mk]
+recommended_spelling "Rxx" for "PRange.mk lb ub" in [PRange.mk]
+
 /--
 This typeclass provides decidable lower bound checks of the given shape.
 
@@ -137,6 +168,8 @@ Instances are automatically provided in the following cases:
 class SupportsLowerBound (shape : BoundShape) (α : Type u) where
   IsSatisfied : Bound shape α → α → Prop
   decidableSatisfiesLowerBound : DecidableRel IsSatisfied := by infer_instance
+
+attribute [simp] SupportsLowerBound.IsSatisfied
 
 instance : SupportsLowerBound .unbounded α where
   IsSatisfied _ _ := True
@@ -153,6 +186,8 @@ Instances are automatically provided in the following cases:
 class SupportsUpperBound (shape : BoundShape) (α : Type u) where
   IsSatisfied : Bound shape α → α → Prop
   decidableSatisfiesUpperBound : DecidableRel IsSatisfied := by infer_instance
+
+attribute [simp] SupportsUpperBound.IsSatisfied
 
 instance {α} : SupportsUpperBound .unbounded α where
   IsSatisfied _ _ := True
@@ -175,9 +210,9 @@ instance {sl su α a} [SupportsLowerBound sl α] [SupportsUpperBound su α] (r :
 This typeclass ensures that ranges with the given shape of upper bounds are always finite.
 This is a prerequisite for many functions and instances, such as `PRange.toList` or `ForIn'`.
 -/
-class HasFiniteRanges (shape α) [SupportsUpperBound shape α] : Prop where
-  mem_of_satisfiesUpperBound (u : Bound shape α) :
-    ∃ enumeration : List α, (a : α) → SupportsUpperBound.IsSatisfied u a → a ∈ enumeration
+class HasFiniteRanges (shape α) [UpwardEnumerable α] [SupportsUpperBound shape α] : Prop where
+  finite (init : α) (u : Bound shape α) :
+    ∃ n, (UpwardEnumerable.succMany? n init).elim True (¬ SupportsUpperBound.IsSatisfied u ·)
 
 /--
 This typeclass will usually be used together with `UpwardEnumerable α`. It provides the starting
@@ -192,6 +227,9 @@ Instances are automatically generated in the following cases:
 class BoundedUpwardEnumerable (lowerBoundShape : BoundShape) (α : Type u) where
   init? : Bound lowerBoundShape α → Option α
 
+attribute [simp] BoundedUpwardEnumerable.init?
+export BoundedUpwardEnumerable (init?)
+
 /--
 This typeclass ensures that the lower bound predicate from `SupportsLowerBound sl α`
 can be characterized in terms of `UpwardEnumerable α` and `BoundedUpwardEnumerable sl α`.
@@ -200,11 +238,10 @@ class LawfulUpwardEnumerableLowerBound (sl α) [UpwardEnumerable α]
     [SupportsLowerBound sl α] [BoundedUpwardEnumerable sl α] where
   /--
   An element `a` satisfies the lower bound `l` if and only if it is
-  `BoundedUpwardEnumerable.init? l` or one of its transitive successors.
+  `init? l` or one of its transitive successors.
   -/
   isSatisfied_iff (a : α) (l : Bound sl α) :
-    SupportsLowerBound.IsSatisfied l a ↔
-      ∃ init, BoundedUpwardEnumerable.init? l = some init ∧ UpwardEnumerable.LE init a
+    SupportsLowerBound.IsSatisfied l a ↔ ∃ init, init? l = some init ∧ UpwardEnumerable.LE init a
 
 /--
 This typeclass ensures that if `b` is a transitive successor of `a` and `b` satisfies an upper bound

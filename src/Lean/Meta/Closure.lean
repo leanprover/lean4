@@ -60,7 +60,7 @@ In this module, we produce
 ```lean
 def aux := fun (y : Nat) => h (g y)
 ```
-Note that in this particular case, it is safe to lambda abstract the let-varible `y`.
+Note that in this particular case, it is safe to lambda abstract the let-variable `y`.
 This module uses the following approach to decide whether it is safe or not to lambda
 abstract a let-variable.
 1) We enable zetaDelta-expansion tracking in `MetaM`. That is, whenever we perform type checking

@@ -81,16 +81,18 @@ def checkLeftRec (stx : Syntax) : ToParserDescrM Bool := do
   addCategoryInfo stx cat
   let prec? ← liftMacroM <| expandOptPrecedence stx[1]
   unless ctx.leftRec do
-    throwErrorAt stx[3] "invalid occurrence of '{cat}', parser algorithm does not allow this form of left recursion"
+    throwErrorAt stx[3] "invalid occurrence of `{cat}`, parser algorithm does not allow this form of left recursion"
   markAsTrailingParser (prec?.getD 0)
   return true
 
-def elabParserName? (stx : Syntax.Ident) : TermElabM (Option Parser.ParserResolution) := do
+def elabParserName? (stx : Syntax.Ident) (checkMeta := true) : TermElabM (Option Parser.ParserResolution) := do
   match ← Parser.resolveParserName stx with
   | [n@(.category cat)] =>
     addCategoryInfo stx cat
     return n
   | [n@(.parser parser _)] =>
+    if checkMeta && getIRPhases (← getEnv) parser == .runtime then
+      throwError m!"Declaration `{.ofConstName parser}` must be marked or imported as `meta` to be used as parser"
     addTermInfo' stx (Lean.mkConst parser)
     return n
   | [n@(.alias _)] =>
@@ -98,8 +100,8 @@ def elabParserName? (stx : Syntax.Ident) : TermElabM (Option Parser.ParserResolu
   | _::_::_ => throwErrorAt stx "ambiguous parser {stx}"
   | [] => return none
 
-def elabParserName (stx : Syntax.Ident) : TermElabM Parser.ParserResolution := do
-  match ← elabParserName? stx with
+def elabParserName (stx : Syntax.Ident) (checkMeta := true) : TermElabM Parser.ParserResolution := do
+  match ← elabParserName? stx checkMeta with
   | some n => return n
   | none => throwErrorAt stx "unknown parser {stx}"
 
@@ -136,6 +138,8 @@ where
       processAtom stx
     else if kind == ``Lean.Parser.Syntax.nonReserved then
       processNonReserved stx
+    else if kind == ``Lean.Parser.Syntax.unicodeAtom then
+      processUnicode stx
     else
       let stxNew? ← liftM (liftMacroM (expandMacro? stx) : TermElabM _)
       match stxNew? with
@@ -221,7 +225,7 @@ where
     | some (.alias _) =>
       ensureNoPrec stx
       processAlias ident #[]
-    | none => throwError "unknown parser declaration/category/alias '{id}'"
+    | none => throwError "unknown parser declaration/category/alias `{id}`"
 
   processSepBy (stx : Syntax) := do
     let p ← ensureUnaryOutput <$> withNestedParser do process stx[1]
@@ -248,23 +252,30 @@ where
     !s.front.isDigit &&
     !(s.any Char.isWhitespace)
 
+  validAtom (stx : Syntax) : ToParserDescrM String := do
+    let some atom := stx.isStrLit? | throwUnsupportedSyntax
+    unless isValidAtom atom do
+      throwErrorAt stx "invalid atom"
+    return atom
+
   processAtom (stx : Syntax) := do
-    match stx[0].isStrLit? with
-    | some atom =>
-      unless isValidAtom atom do
-        throwErrorAt stx "invalid atom"
-      /- For syntax categories where initialized with `LeadingIdentBehavior` different from default (e.g., `tactic`), we automatically mark
-         the first symbol as nonReserved. -/
-      if (← read).behavior != Parser.LeadingIdentBehavior.default && (← read).first then
-        return (← `(ParserDescr.nonReservedSymbol $(quote atom) false), 1)
-      else
-        return (← `(ParserDescr.symbol $(quote atom)), 1)
-    | none => throwUnsupportedSyntax
+    let atom ← validAtom stx[0]
+    /- For syntax categories where initialized with `LeadingIdentBehavior` different from default (e.g., `tactic`), we automatically mark
+       the first symbol as nonReserved. -/
+    if (← read).behavior != Parser.LeadingIdentBehavior.default && (← read).first then
+      return (← `(ParserDescr.nonReservedSymbol $(quote atom) false), 1)
+    else
+      return (← `(ParserDescr.symbol $(quote atom)), 1)
 
   processNonReserved (stx : Syntax) := do
-    let some atom := stx[1].isStrLit? | throwUnsupportedSyntax
+    let atom ← validAtom stx[1]
     return (← `((with_annotate_term $(stx[0]) @ParserDescr.nonReservedSymbol) $(quote atom) false), 1)
 
+  processUnicode (stx : Syntax) := do
+    let atom ← validAtom stx[1]
+    let asciiAtom ← validAtom stx[3]
+    let preserveForPP := !stx[4].isNone
+    return (← `((with_annotate_term $(stx[0]) @ParserDescr.unicodeSymbol) $(quote atom) $(quote asciiAtom) $(quote preserveForPP)), 1)
 
 end Term
 
@@ -314,7 +325,7 @@ private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := d
   ```
   It generates the names `term_+_` and `term[_,]`
 -/
-partial def mkNameFromParserSyntax (catName : Name) (stx : Syntax) : MacroM Name := do
+private partial def mkNameFromParserSyntax (catName : Name) (stx : Syntax) : MacroM Name := do
   mkUnusedBaseName <| Name.mkSimple <| appendCatName <| visit stx ""
 where
   visit (stx : Syntax) (acc : String) : String :=
@@ -325,6 +336,9 @@ where
       | Syntax.node _ k args =>
         if k == ``Lean.Parser.Syntax.cat then
           acc ++ "_"
+        else if k == ``Lean.Parser.Syntax.unicodeAtom && args.size > 1 then
+          -- in `unicode(" ≥ ", " >= ")` only visit `" ≥ "`.
+          visit args[1]! acc
         else
           args.foldl (init := acc) fun acc arg => visit arg acc
       | Syntax.ident ..    => acc
@@ -358,7 +372,7 @@ private partial def isAtomLikeSyntax (stx : Syntax) : Bool :=
 def resolveSyntaxKind (k : Name) : CommandElabM Name := do
   checkSyntaxNodeKindAtNamespaces k (← getCurrNamespace)
   <|>
-  throwError "invalid syntax node kind '{k}'"
+  throwError "invalid syntax node kind `{k}`"
 
 def isLocalAttrKind (attrKind : Syntax) : Bool :=
   match attrKind with
@@ -368,19 +382,20 @@ def isLocalAttrKind (attrKind : Syntax) : Bool :=
 /--
 Add macro scope to `name` if it does not already have them, and `attrKind` is `local`.
 -/
-def addMacroScopeIfLocal [MonadQuotation m] [Monad m] (name : Name) (attrKind : Syntax) : m Name := do
+private def addMacroScopeIfLocal [MonadQuotation m] [Monad m] (name : Name) (attrKind : Syntax) : m Name := do
   if isLocalAttrKind attrKind && !name.hasMacroScopes then
     MonadQuotation.addMacroScope name
   else
     return name
 
-@[builtin_command_elab «syntax»] def elabSyntax : CommandElab := fun stx => do
+/-- Elaborates the given `syntax` command and returns the new node kind. -/
+def elabSyntax (stx : Syntax) : CommandElabM Name := do
   let `($[$doc?:docComment]? $[ @[ $attrInstances:attrInstance,* ] ]? $attrKind:attrKind
       syntax%$tk $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $[$ps:stx]* : $catStx) := stx
     | throwUnsupportedSyntax
   let cat := catStx.getId.eraseMacroScopes
   unless (Parser.isParserCategory (← getEnv) cat) do
-    throwErrorAt catStx "unknown category '{cat}'"
+    throwErrorAt catStx "unknown category `{cat}`"
   liftTermElabM <| Term.addCategoryInfo catStx cat
   let syntaxParser := mkNullNode ps
   -- If the user did not provide an explicit precedence, we assign `maxPrec` to atom-like syntax and `leadPrec` otherwise.
@@ -390,31 +405,49 @@ def addMacroScopeIfLocal [MonadQuotation m] [Monad m] (name : Name) (attrKind : 
     | none      => pure precDefault
   let name ← match name? with
     | some name => pure name.getId
-    | none => addMacroScopeIfLocal (← liftMacroM <| mkNameFromParserSyntax cat syntaxParser) attrKind
+    | none =>
+      let base ← liftMacroM <| mkNameFromParserSyntax cat syntaxParser
+      let mut name := base
+      let mut i := 1
+      -- Avoid name conflicts, for which we have to check both public and private name
+      while (←
+        let fullName := (← getCurrNamespace) ++ name
+        hasConst fullName <||>
+          (withoutExporting <| hasConst (mkPrivateName (← getEnv) fullName))) do
+        name := base.appendIndexAfter i
+        i := i + 1
+      pure name
   let prio ← liftMacroM <| evalOptPrio prio?
   let idRef := (name?.map (·.raw)).getD tk
-  let stxNodeKind := (← getCurrNamespace) ++ name
+  let mut stxNodeKind := (← getCurrNamespace) ++ name
+  if attrKind matches `(attrKind| local) then
+    stxNodeKind := mkPrivateName (← getEnv) stxNodeKind
   let catParserId := mkIdentFrom idRef (cat.appendAfter "_parser")
   let (val, lhsPrec?) ← runTermElabM fun _ => Term.toParserDescr syntaxParser cat
   let declName := name?.getD (mkIdentFrom idRef name (canonical := true))
   let attrInstance ← `(attrInstance| $attrKind:attrKind $catParserId:ident $(quote prio):num)
   let attrInstances := attrInstances.getD { elemsAndSeps := #[] }
   let attrInstances := attrInstances.push attrInstance
+  let vis := Parser.Command.visibility.ofAttrKind attrKind
   let d ← if let some lhsPrec := lhsPrec? then
-    `($[$doc?:docComment]? @[$attrInstances,*] meta def $declName:ident : Lean.TrailingParserDescr :=
+    `($[$doc?:docComment]? @[$attrInstances,*] $vis:visibility meta def $declName:ident : Lean.TrailingParserDescr :=
         ParserDescr.trailingNode $(quote stxNodeKind) $(quote prec) $(quote lhsPrec) $val)
   else
-    `($[$doc?:docComment]? @[$attrInstances,*] meta def $declName:ident : Lean.ParserDescr :=
+    `($[$doc?:docComment]? @[$attrInstances,*] $vis:visibility meta def $declName:ident : Lean.ParserDescr :=
         ParserDescr.node $(quote stxNodeKind) $(quote prec) $val)
   trace `Elab fun _ => d
   withMacroExpansion stx d <| elabCommand d
+  return stxNodeKind
+
+@[builtin_command_elab «syntax»] private def elabSyntaxAux : CommandElab := fun stx =>
+  discard <| elabSyntax stx
 
 @[builtin_command_elab «syntaxAbbrev»] def elabSyntaxAbbrev : CommandElab := fun stx => do
-  let `($[$doc?:docComment]? syntax $declName:ident := $[$ps:stx]*) ← pure stx | throwUnsupportedSyntax
+  let `($[$doc?:docComment]? $[$vis?:visibility]? syntax $declName:ident := $[$ps:stx]*) ← pure stx | throwUnsupportedSyntax
   -- TODO: nonatomic names
   let (val, _) ← runTermElabM fun _ => Term.toParserDescr (mkNullNode ps) Name.anonymous
   let stxNodeKind := (← getCurrNamespace) ++ declName.getId
-  let stx' ← `($[$doc?:docComment]? meta def $declName:ident : Lean.ParserDescr := ParserDescr.nodeWithAntiquot $(quote (toString declName.getId)) $(quote stxNodeKind) $val)
+  let stx' ← `($[$doc?:docComment]? $[$vis?:visibility]? meta def $declName:ident : Lean.ParserDescr := ParserDescr.nodeWithAntiquot $(quote (toString declName.getId)) $(quote stxNodeKind) $val)
   withMacroExpansion stx stx' <| elabCommand stx'
 
 def checkRuleKind (given expected : SyntaxNodeKind) : Bool :=

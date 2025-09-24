@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.ProjFns
+public import Lean.Meta.AppBuilder
 public import Lean.Meta.CtorRecognizer
 public import Lean.Compiler.BorrowedAnnotation
 public import Lean.Compiler.CSimpAttr
@@ -555,14 +556,40 @@ where
     etaIfUnderApplied e casesInfo.arity do
       let args := e.getAppArgs
       let mut resultType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN e.getAppFn args[*...casesInfo.arity]))
+      let typeName := casesInfo.declName.getPrefix
+      let .inductInfo indVal ← getConstInfo typeName | unreachable!
       if casesInfo.numAlts == 0 then
         /- `casesOn` of an empty type. -/
         mkUnreachable resultType
+      else if ← Meta.MetaM.run' <| Meta.isInductivePredicateVal indVal then
+        assert! casesInfo.numAlts == 1
+        let numParams := indVal.numParams
+        let numIndices := indVal.numIndices
+        let .ctorInfo ctorVal ← getConstInfo indVal.ctors[0]! | unreachable!
+        let numCtorFields := casesInfo.altNumParams[0]!
+        let fieldArgs : Array Expr ←
+          Meta.MetaM.run' <| Meta.forallTelescope ctorVal.type fun params indApp => do
+            let ⟨indAppF, indAppArgs⟩ := indApp.getAppFnArgs
+            assert! indAppF == typeName
+            -- TODO: We only use `toArray` so that we get access to `findIdx?`. Remove
+            -- this when that changes.
+            let indexArgs := indAppArgs[numParams...*].toArray
+
+            let mut fieldArgs := .emptyWithCapacity numCtorFields
+            for i in *...numCtorFields do
+              let p := params[numParams + i]!
+              let fieldArg ← if let some indexIdx := indexArgs.findIdx? (· == p) then
+                pure args[numParams + 1 + indexIdx]!
+              else
+                pure <| mkLcProof (← p.fvarId!.getType)
+              fieldArgs := fieldArgs.push fieldArg
+            return fieldArgs
+        let f := args[casesInfo.altsRange.lower]!
+        let result ← visit (mkAppN f fieldArgs)
+        mkOverApplication result args casesInfo.arity
       else
         let mut alts := #[]
-        let typeName := casesInfo.declName.getPrefix
         let discr ← visitAppArg args[casesInfo.discrPos]!
-        let .inductInfo indVal ← getConstInfo typeName | unreachable!
         let discrFVarId ← match discr with
           | .fvar discrFVarId => pure discrFVarId
           | .erased | .type .. => mkAuxLetDecl .erased
@@ -642,21 +669,25 @@ where
       let args := e.getAppArgs
       let lhs ← liftMetaM do Meta.whnf args[inductVal.numParams + inductVal.numIndices + 1]!
       let rhs ← liftMetaM do Meta.whnf args[inductVal.numParams + inductVal.numIndices + 2]!
-      let lhs := lhs.toCtorIfLit
-      let rhs := rhs.toCtorIfLit
+      let lhs ← liftMetaM lhs.toCtorIfLit
+      let rhs ← liftMetaM rhs.toCtorIfLit
       match (← liftMetaM <| Meta.isConstructorApp? lhs), (← liftMetaM <| Meta.isConstructorApp? rhs) with
       | some lhsCtorVal, some rhsCtorVal =>
         if lhsCtorVal.name == rhsCtorVal.name then
           etaIfUnderApplied e (arity+1) do
             let major := args[arity]!
-            let major ← expandNoConfusionMajor major lhsCtorVal.numFields
+            let numNonPropFields ← liftMetaM <| Meta.forallTelescope lhsCtorVal.type fun params _ =>
+              params[lhsCtorVal.numParams...*].foldlM (init := 0) fun n param => do
+                let type ← param.fvarId!.getType
+                return if !(← Meta.isProp type) then n + 1 else n
+            let major ← expandNoConfusionMajor major numNonPropFields
             let major := mkAppN major args[(arity+1)...*]
             visit major
         else
           let type ← toLCNFType (← liftMetaM <| Meta.inferType e)
           mkUnreachable type
       | _, _ =>
-        throwError "code generator failed, unsupported occurrence of `{declName}`"
+        throwError "code generator failed, unsupported occurrence of `{.ofConstName declName}`"
 
   expandNoConfusionMajor (major : Expr) (numFields : Nat) : M Expr := do
     match numFields with
@@ -757,9 +788,14 @@ where
     visit e
 
   visitProj (s : Name) (i : Nat) (e : Expr) : M Arg := do
-    match (← visit e) with
-    | .erased | .type .. => return .erased
-    | .fvar fvarId => letValueToArg <| .proj s i fvarId
+    if isRuntimeBuiltinType s then
+      let structInfo := getStructureInfo (← getEnv) s
+      let projExpr ← liftMetaM <| Meta.mkProjection e structInfo.fieldNames[i]!
+      visitApp projExpr
+    else
+      match (← visit e) with
+      | .erased | .type .. => return .erased
+      | .fvar fvarId => letValueToArg <| .proj s i fvarId
 
   visitLet (e : Expr) (xs : Array Expr) : M Arg := do
     match e with

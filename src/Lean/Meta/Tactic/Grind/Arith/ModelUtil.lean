@@ -4,15 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Std.Internal.Rat
 public import Lean.Meta.Tactic.Grind.Types
-
+public import Init.Data.Rat.Basic
+import Lean.Meta.Tactic.Grind.Arith.Util
+import Init.Grind.Module.Envelope
 public section
 
 namespace Lean.Meta.Grind.Arith
-open Std.Internal
+
 /-!
 Helper functions for constructing counterexamples in the `linarith` and `cutsat` modules
 -/
@@ -57,10 +57,10 @@ where
 Returns `true` if `e` should be treated as an interpreted value by the arithmetic modules.
 -/
 def isInterpretedTerm (e : Expr) : Bool :=
-  isNatNum e || isIntNum e || e.isAppOf ``HAdd.hAdd || e.isAppOf ``HMul.hMul || e.isAppOf ``HSub.hSub
+  isNatNum e || isIntNum e || e.isAppOf ``HAdd.hAdd || e.isAppOf ``HMul.hMul || e.isAppOf ``HSub.hSub || e.isAppOf ``HSMul.hSMul
   || e.isAppOf ``Neg.neg || e.isAppOf ``HDiv.hDiv || e.isAppOf ``HMod.hMod || e.isAppOf ``One.one || e.isAppOf ``Zero.zero
   || e.isAppOf ``NatCast.natCast || e.isIte || e.isDIte || e.isAppOf ``OfNat.ofNat || e.isAppOf ``Grind.ToInt.toInt
-  || e matches .lit (.natVal _)
+  || e.isAppOf ``Grind.IntModule.OfNatModule.toQ || e matches .lit (.natVal _)
 
 /--
 Adds the assignments `e' := v` to `a` for each `e'` in the equivalence class os `e`.

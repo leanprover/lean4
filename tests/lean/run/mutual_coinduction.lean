@@ -24,12 +24,7 @@ namespace MutualCoinduction
   -/
   #guard_msgs in
   #check MutualCoinduction.g.coinduct
-  /--
-    info: MutualCoinduction.g.mutual_induct (pred_1 pred_2 : Prop) (hyp_1 : pred_1 → pred_2) (hyp_2 : pred_2 → pred_1) :
-  (pred_1 → f) ∧ (pred_2 → g)
-  -/
-  #guard_msgs in
-  #check MutualCoinduction.g.mutual_induct
+
 end MutualCoinduction
 
 namespace MutualInduction
@@ -58,12 +53,6 @@ namespace MutualInduction
   -/
   #guard_msgs in
   #check MutualInduction.g.induct
-  /--
-    info: MutualInduction.g.mutual_induct (pred_1 pred_2 : Prop) (hyp_1 : pred_2 → pred_1) (hyp_2 : pred_1 → pred_2) :
-  (f → pred_1) ∧ (g → pred_2)
-  -/
-  #guard_msgs in
-  #check MutualInduction.g.mutual_induct
 end MutualInduction
 
 namespace MixedInductionCoinduction
@@ -95,12 +84,6 @@ namespace MixedInductionCoinduction
   -/
   #guard_msgs in
   #check g.coinduct
-    /--
-    info: MixedInductionCoinduction.g.mutual_induct (pred_1 pred_2 : Prop) (hyp_1 : (pred_2 → pred_1) → pred_1)
-  (hyp_2 : pred_2 → pred_1 → pred_2) : (f → pred_1) ∧ (pred_2 → g)
-  -/
-  #guard_msgs in
-  #check g.mutual_induct
 end MixedInductionCoinduction
 
 namespace DifferentPredicateTypes
@@ -115,34 +98,25 @@ namespace DifferentPredicateTypes
   end
 
   /--
-    info: DifferentPredicateTypes.f.coinduct (pred_1 : Nat → Prop) (pred_2 : Nat → Nat → Prop)
-  (hyp_1 : ∀ (x : Nat), pred_1 x → pred_2 (x + 1) (x + 2))
-  (hyp_2 : ∀ (x x_1 : Nat), pred_2 x x_1 → pred_1 (x + 2) ∨ pred_2 (x_1 + 1) x_1) (x✝ : Nat) : pred_1 x✝ → f x✝
-  -/
-  #guard_msgs in
+info: DifferentPredicateTypes.f.coinduct (pred_1 : Nat → Prop) (pred_2 : Nat → Nat → Prop)
+  (hyp_1 : ∀ (n : Nat), pred_1 n → pred_2 (n + 1) (n + 2))
+  (hyp_2 : ∀ (n m : Nat), pred_2 n m → pred_1 (n + 2) ∨ pred_2 (m + 1) m) (n : Nat) : pred_1 n → f n
+-/
+#guard_msgs in
   #check f.coinduct
   /--
-    info: DifferentPredicateTypes.f.mutual_induct (pred_1 : Nat → Prop) (pred_2 : Nat → Nat → Prop)
-  (hyp_1 : ∀ (x : Nat), pred_1 x → pred_2 (x + 1) (x + 2))
-  (hyp_2 : ∀ (x x_1 : Nat), pred_2 x x_1 → pred_1 (x + 2) ∨ pred_2 (x_1 + 1) x_1) :
-  (∀ (x : Nat), pred_1 x → f x) ∧ ∀ (x x_1 : Nat), pred_2 x x_1 → g x x_1
-  -/
-  #guard_msgs in
+info: DifferentPredicateTypes.f.mutual_induct (pred_1 : Nat → Prop) (pred_2 : Nat → Nat → Prop)
+  (hyp_1 : ∀ (n : Nat), pred_1 n → pred_2 (n + 1) (n + 2))
+  (hyp_2 : ∀ (n m : Nat), pred_2 n m → pred_1 (n + 2) ∨ pred_2 (m + 1) m) :
+  (∀ (n : Nat), pred_1 n → f n) ∧ ∀ (n m : Nat), pred_2 n m → g n m
+-/
+#guard_msgs in
   #check f.mutual_induct
   /--
-    info: DifferentPredicateTypes.g.coinduct (pred_1 : Nat → Prop) (pred_2 : Nat → Nat → Prop)
-  (hyp_1 : ∀ (x : Nat), pred_1 x → pred_2 (x + 1) (x + 2))
-  (hyp_2 : ∀ (x x_1 : Nat), pred_2 x x_1 → pred_1 (x + 2) ∨ pred_2 (x_1 + 1) x_1) (x✝ x✝¹ : Nat) :
-  pred_2 x✝ x✝¹ → g x✝ x✝¹
-  -/
-  #guard_msgs in
+info: DifferentPredicateTypes.g.coinduct (pred_1 : Nat → Prop) (pred_2 : Nat → Nat → Prop)
+  (hyp_1 : ∀ (n : Nat), pred_1 n → pred_2 (n + 1) (n + 2))
+  (hyp_2 : ∀ (n m : Nat), pred_2 n m → pred_1 (n + 2) ∨ pred_2 (m + 1) m) (n m : Nat) : pred_2 n m → g n m
+-/
+#guard_msgs in
   #check g.coinduct
-    /--
-    info: DifferentPredicateTypes.g.mutual_induct (pred_1 : Nat → Prop) (pred_2 : Nat → Nat → Prop)
-  (hyp_1 : ∀ (x : Nat), pred_1 x → pred_2 (x + 1) (x + 2))
-  (hyp_2 : ∀ (x x_1 : Nat), pred_2 x x_1 → pred_1 (x + 2) ∨ pred_2 (x_1 + 1) x_1) :
-  (∀ (x : Nat), pred_1 x → f x) ∧ ∀ (x x_1 : Nat), pred_2 x x_1 → g x x_1
-  -/
-  #guard_msgs in
-  #check g.mutual_induct
 end DifferentPredicateTypes

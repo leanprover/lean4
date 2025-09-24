@@ -89,7 +89,7 @@ theorem mem_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {a b : α} (hab :
 theorem contains_emptyWithCapacity {a : α} {c} : (emptyWithCapacity c : Raw α β).contains a = false :=
   DHashMap.Raw.contains_emptyWithCapacity
 
-@[simp, grind] theorem not_mem_emptyWithCapacity {a : α} {c} : ¬a ∈ (emptyWithCapacity c : Raw α β) :=
+@[simp, grind ←] theorem not_mem_emptyWithCapacity {a : α} {c} : ¬a ∈ (emptyWithCapacity c : Raw α β) :=
   DHashMap.Raw.not_mem_emptyWithCapacity
 
 @[simp, grind =] theorem contains_empty {a : α} : (∅ : Raw α β).contains a = false :=
@@ -297,6 +297,10 @@ theorem mem_iff_isSome_getElem? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a 
 theorem isSome_getElem?_iff_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     (m[a]?).isSome ↔ a ∈ m :=
   (mem_iff_isSome_getElem? h).symm
+
+theorem getElem?_eq_some_iff [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β} :
+    m[k]? = some v ↔ ∃ h : k ∈ m, m[k] = v :=
+  DHashMap.Raw.Const.get?_eq_some_iff h.out
 
 theorem getElem?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     m.contains a = false → m[a]? = none :=
@@ -563,10 +567,13 @@ theorem isSome_getKey?_iff_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) {a :
     (m.getKey? a).isSome ↔ a ∈ m :=
   (mem_iff_isSome_getKey? h).symm
 
-theorem mem_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
-    {a a' : α} (h : m.WF) :
+theorem mem_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] {a a' : α} (h : m.WF) :
     m.getKey? a = some a' → a' ∈ m :=
   DHashMap.Raw.mem_of_getKey?_eq_some h.out
+
+theorem getKey?_eq_some_iff [EquivBEq α] [LawfulHashable α] {k k' : α} (h : m.WF) :
+    m.getKey? k = some k' ↔ ∃ h : k ∈ m, m.getKey k h = k' :=
+  DHashMap.Raw.getKey?_eq_some_iff h.out
 
 @[simp, grind =]
 theorem getKey_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {h'} :
@@ -874,13 +881,52 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.keys.Pairwise (fun a b => (a == b) = false) :=
   DHashMap.Raw.distinct_keys h.out
 
+theorem nodup_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.keys.Nodup :=
+  (m.distinct_keys h).imp ne_of_beq_false
+
+@[simp]
+theorem toArray_keys (h : m.WF) :
+    m.keys.toArray = m.keysArray :=
+  DHashMap.Raw.toArray_keys h.out
+
+@[simp]
+theorem toList_keysArray (h : m.WF) :
+    m.keysArray.toList = m.keys :=
+  DHashMap.Raw.toList_keysArray h.out
+
+@[simp]
+theorem size_keysArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.keysArray.size = m.size :=
+  DHashMap.Raw.size_keysArray h.out
+
+@[simp]
+theorem isEmpty_keysArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.keysArray.isEmpty = m.isEmpty :=
+  DHashMap.Raw.isEmpty_keysArray h.out
+
+@[simp]
+theorem contains_keysArray [EquivBEq α] [LawfulHashable α]
+    {k : α} (h : m.WF) :
+    m.keysArray.contains k = m.contains k :=
+  DHashMap.Raw.contains_keysArray h.out
+
+@[simp]
+theorem mem_keysArray [LawfulBEq α] {k : α} (h : m.WF) :
+    k ∈ m.keysArray ↔ k ∈ m :=
+  DHashMap.Raw.mem_keysArray h.out
+
+theorem forall_mem_keysArray_iff_forall_mem_getKey [EquivBEq α] [LawfulHashable α]
+    {p : α → Prop} (h : m.WF) :
+    (∀ k ∈ m.keysArray, p k) ↔ ∀ (k : α) (h : k ∈ m), p (m.getKey k h) :=
+  DHashMap.Raw.forall_mem_keysArray_iff_forall_mem_getKey h.out
+
+theorem contains_of_mem_keysArray [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α}
+    (h' : k ∈ m.keysArray) : m.contains k :=
+  DHashMap.Raw.contains_of_mem_keysArray h.out h'
+
 @[simp, grind _=_]
 theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
-    m.toList.map Prod.fst = m.keys :=
-  DHashMap.Raw.Const.map_fst_toList_eq_keys h.out
-
-@[deprecated map_fst_toList_eq_keys (since := "2025-02-28")]
-theorem map_prod_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.toList.map Prod.fst = m.keys :=
   DHashMap.Raw.Const.map_fst_toList_eq_keys h.out
 
@@ -937,9 +983,60 @@ theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.toList.Pairwise (fun a b => (a.1 == b.1) = false) :=
   DHashMap.Raw.Const.distinct_keys_toList h.out
 
+@[simp]
+theorem toArray_toList (h : m.WF) :
+    m.toList.toArray = m.toArray :=
+  DHashMap.Raw.Const.toArray_toList h.out
+
+@[simp]
+theorem toList_toArray (h : m.WF) :
+    m.toArray.toList = m.toList :=
+  DHashMap.Raw.Const.toList_toArray h.out
+
+@[simp]
+theorem map_fst_toArray_eq_keysArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.toArray.map Prod.fst = m.keysArray :=
+  DHashMap.Raw.Const.map_fst_toArray_eq_keysArray h.out
+
+@[simp]
+theorem size_toArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.toArray.size = m.size :=
+  DHashMap.Raw.Const.size_toArray h.out
+
+@[simp]
+theorem isEmpty_toArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.toArray.isEmpty = m.isEmpty :=
+  DHashMap.Raw.Const.isEmpty_toArray h.out
+
+theorem mem_toArray_iff_getElem?_eq_some [LawfulBEq α]
+    {k : α} {v : β} (h : m.WF) :
+    (k, v) ∈ m.toArray ↔ m[k]? = some v :=
+  DHashMap.Raw.Const.mem_toArray_iff_get?_eq_some h.out
+
+theorem get?_eq_some_iff_exists_beq_and_mem_toArray [EquivBEq α] [LawfulHashable α]
+    {k : α} {v : β} (h : m.WF) :
+    get? m k = some v ↔ ∃ (k' : α), k == k' ∧ (k', v) ∈ m.toArray :=
+  DHashMap.Raw.Const.get?_eq_some_iff_exists_beq_and_mem_toArray h.out
+
+theorem find?_toArray_eq_some_iff_getKey?_eq_some_and_getElem?_eq_some
+    [EquivBEq α] [LawfulHashable α] (h : m.WF) {k k' : α} {v : β} :
+    m.toArray.find? (fun a => a.1 == k) = some ⟨k', v⟩ ↔
+      m.getKey? k = some k' ∧ m[k]? = some v :=
+  DHashMap.Raw.Const.find?_toArray_eq_some_iff_getKey?_eq_some_and_get?_eq_some h.out
+
+theorem find?_toArray_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    {k : α} (h : m.WF) :
+    m.toArray.find? (·.1 == k) = none ↔ m.contains k = false :=
+  DHashMap.Raw.Const.find?_toArray_eq_none_iff_contains_eq_false h.out
+
+theorem mem_toArray_iff_getKey?_eq_some_and_getElem?_eq_some [EquivBEq α] [LawfulHashable α]
+    (h : m.WF) {k: α} {v : β} :
+    (k, v) ∈ m.toArray ↔ m.getKey? k = some k ∧ m[k]? = some v := by
+  simp [← toArray_toList, h, mem_toList_iff_getKey?_eq_some_and_getElem?_eq_some]
+
 section monadic
 
-variable {m : Raw α β} {δ : Type w} {m' : Type w → Type w}
+variable {m : Raw α β} {δ : Type w} {m' : Type w → Type w'}
 
 theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
     {f : δ → (a : α) → β → m' δ} {init : δ} :
@@ -987,6 +1084,42 @@ theorem forIn_eq_forIn_keys [Monad m'] [LawfulMonad m'] (h : m.WF)
     {f : α → δ → m' (ForInStep δ)} {init : δ} :
     ForIn.forIn m init (fun a d => f a.1 d) = ForIn.forIn m.keys init f :=
   DHashMap.Raw.forIn_eq_forIn_keys h.out
+
+theorem foldM_eq_foldlM_keysArray [Monad m'] [LawfulMonad m']
+    {f : δ → α → m' δ} {init : δ} (h : m.WF) :
+    m.foldM (fun d a _ => f d a) init = m.keysArray.foldlM f init :=
+  DHashMap.Raw.foldM_eq_foldlM_keysArray h.out
+
+theorem fold_eq_foldl_keysArray {f : δ → α → δ} {init : δ} (h : m.WF) :
+    m.fold (fun d a _ => f d a) init = m.keysArray.foldl f init :=
+  DHashMap.Raw.fold_eq_foldl_keysArray h.out
+
+theorem forM_eq_forM_keysArray [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} (h : m.WF) :
+    m.forM (fun a _ => f a) = m.keysArray.forM f :=
+  DHashMap.Raw.forM_eq_forM_keysArray h.out
+
+theorem forIn_eq_forIn_keysArray [Monad m'] [LawfulMonad m']
+    {f : α → δ → m' (ForInStep δ)} {init : δ} (h : m.WF) :
+    m.forIn (fun a _ d => f a d) init = ForIn.forIn m.keysArray init f :=
+  DHashMap.Raw.forIn_eq_forIn_keysArray h.out
+
+theorem foldM_eq_foldlM_toArray [Monad m'] [LawfulMonad m']
+    {f : δ → α → β → m' δ} {init : δ} (h : m.WF) :
+    m.foldM f init = m.toArray.foldlM (fun a b => f a b.1 b.2) init :=
+  DHashMap.Raw.Const.foldM_eq_foldlM_toArray h.out
+
+theorem fold_eq_foldl_toArray {f : δ → α → β → δ} {init : δ} (h : m.WF) :
+    m.fold f init = m.toArray.foldl (fun a b => f a b.1 b.2) init :=
+  DHashMap.Raw.Const.fold_eq_foldl_toArray h.out
+
+theorem forM_eq_forM_toArray [Monad m'] [LawfulMonad m'] {f : α → β → m' PUnit} (h : m.WF) :
+    m.forM f = m.toArray.forM (fun a => f a.1 a.2) :=
+  DHashMap.Raw.Const.forM_eq_forM_toArray h.out
+
+theorem forIn_eq_forIn_toArray [Monad m'] [LawfulMonad m']
+    {f : α → β → δ → m' (ForInStep δ)} {init : δ} (h : m.WF) :
+    m.forIn f init = ForIn.forIn m.toArray init (fun a b => f a.1 a.2 b) :=
+  DHashMap.Raw.Const.forIn_eq_forIn_toArray h.out
 
 end monadic
 
@@ -1734,23 +1867,9 @@ theorem getElem?_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option
         m[k']? :=
   DHashMap.Raw.Const.get?_alter h.out
 
-@[deprecated getElem?_alter (since := "2025-02-09")]
-theorem get?_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β → Option β} (h : m.WF) :
-    get? (alter m k f) k' =
-      if k == k' then
-        f (get? m k)
-      else
-        get? m k' :=
-  DHashMap.Raw.Const.get?_alter h.out
-
 @[simp]
 theorem getElem?_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β}
     (h : m.WF) : (alter m k f)[k]? = f m[k]? :=
-  DHashMap.Raw.Const.get?_alter_self h.out
-
-@[deprecated get?_alter_self (since := "2025-02-09")]
-theorem get?_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β}
-    (h : m.WF) : get? (alter m k f) k = f (get? m k) :=
   DHashMap.Raw.Const.get?_alter_self h.out
 
 @[grind =]
@@ -1765,31 +1884,12 @@ theorem getElem_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option 
         m[k']'h' :=
   DHashMap.Raw.Const.get_alter h.out (hc := hc)
 
-@[deprecated getElem_alter (since := "2025-02-09")]
-theorem get_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β → Option β}
-    (h : m.WF) {hc : k' ∈ alter m k f} :
-    get (alter m k f) k' hc =
-      if heq : k == k' then
-        haveI h' : (f (get? m k)).isSome := mem_alter_of_beq h heq |>.mp hc
-        f (get? m k) |>.get h'
-      else
-        haveI h' : k' ∈ m := mem_alter_of_beq_eq_false h (Bool.not_eq_true _ ▸ heq) |>.mp hc
-        get m k' h' :=
-  DHashMap.Raw.Const.get_alter h.out
-
 @[simp]
 theorem getElem_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β}
     (h : m.WF) {hc : k ∈ alter m k f} :
     haveI h' : (f m[k]?).isSome := mem_alter_self h |>.mp hc
     (alter m k f)[k] = (f m[k]?).get h' :=
   DHashMap.Raw.Const.get_alter_self h.out (hc := hc)
-
-@[deprecated getElem_alter_self (since := "2025-02-09")]
-theorem get_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β}
-    (h : m.WF) {hc : k ∈ alter m k f} :
-    haveI h' : (f (get? m k)).isSome := mem_alter_self h |>.mp hc
-    get (alter m k f) k hc = (f (get? m k)).get h' :=
-  DHashMap.Raw.Const.get_alter_self h.out
 
 @[grind =]
 theorem getElem!_alter [EquivBEq α] [LawfulHashable α] {k k' : α} [Inhabited β]
@@ -1800,23 +1900,9 @@ theorem getElem!_alter [EquivBEq α] [LawfulHashable α] {k k' : α} [Inhabited 
         m[k']! :=
   DHashMap.Raw.Const.get!_alter h.out
 
-@[deprecated getElem!_alter (since := "2025-02-09")]
-theorem get!_alter [EquivBEq α] [LawfulHashable α] {k k' : α} [Inhabited β]
-    {f : Option β → Option β} (h : m.WF) : get! (alter m k f) k' =
-      if k == k' then
-        f (get? m k) |>.get!
-      else
-        get! m k' :=
-  DHashMap.Raw.Const.get!_alter h.out
-
 @[simp]
 theorem getElem!_alter_self [EquivBEq α] [LawfulHashable α] {k : α} [Inhabited β]
     {f : Option β → Option β} (h : m.WF) : (alter m k f)[k]! = (f m[k]?).get! :=
-  DHashMap.Raw.Const.get!_alter_self h.out
-
-@[deprecated getElem!_alter_self (since := "2025-02-09")]
-theorem get!_alter_self [EquivBEq α] [LawfulHashable α] {k : α} [Inhabited β]
-    {f : Option β → Option β} (h : m.WF) : get! (alter m k f) k = (f (get? m k)).get! :=
   DHashMap.Raw.Const.get!_alter_self h.out
 
 @[grind =]
@@ -2324,7 +2410,7 @@ theorem getElem?_filterMap [EquivBEq α] [LawfulHashable α]
 
 /-- Simpler variant of `getElem?_filterMap` when `LawfulBEq` is available. -/
 @[grind =]
-theorem getElem?_filterMap' [LawfulBEq α] [LawfulHashable α]
+theorem getElem?_filterMap' [LawfulBEq α]
     {f : α → β → Option γ} {k : α} (h : m.WF) :
     (m.filterMap f)[k]? = m[k]?.bind fun x => f k x := by
   simp [getElem?_filterMap, h]
@@ -2353,7 +2439,7 @@ theorem getElem_filterMap [EquivBEq α] [LawfulHashable α]
 
 /-- Simpler variant of `getElem_filterMap` when `LawfulBEq` is available. -/
 @[grind =]
-theorem getElem_filterMap' [LawfulBEq α] [LawfulHashable α]
+theorem getElem_filterMap' [LawfulBEq α]
     {f : α → β → Option γ} {k : α} {g} (h : m.WF) :
     (m.filterMap f)[k]'g =
       (f k (m[k]'(mem_of_mem_filterMap h g))).get (by simpa [h] using isSome_apply_of_mem_filterMap h g) := by
@@ -2369,7 +2455,7 @@ theorem getElem!_filterMap [EquivBEq α] [LawfulHashable α] [Inhabited γ]
 
 /-- Simpler variant of `getElem!_filterMap` when `LawfulBEq` is available. -/
 @[grind =]
-theorem getElem!_filterMap' [LawfulBEq α] [LawfulHashable α] [Inhabited γ]
+theorem getElem!_filterMap' [LawfulBEq α] [Inhabited γ]
     {f : α → β → Option γ} {k : α} (h : m.WF) :
     (m.filterMap f)[k]! = (m[k]?.bind (f k)).get! := by
   simp [getElem!_filterMap, h]
@@ -2389,7 +2475,7 @@ theorem getD_filterMap [EquivBEq α] [LawfulHashable α]
 
 /-- Simpler variant of `getD_filterMap` when `LawfulBEq` is available. -/
 @[grind =]
-theorem getD_filterMap' [LawfulBEq α] [LawfulHashable α]
+theorem getD_filterMap' [LawfulBEq α]
     {f : α → β → Option γ} {k : α} {fallback : γ} (h : m.WF) :
     getD (m.filterMap f) k fallback = (m[k]?.bind (f k)).getD fallback := by
   simp [getD_filterMap, h]
@@ -2503,7 +2589,7 @@ theorem getElem?_filter [EquivBEq α] [LawfulHashable α]
 
 /-- Simpler variant of `getElem?_filter` when `LawfulBEq` is available. -/
 @[grind =]
-theorem getElem?_filter' [LawfulBEq α] [LawfulHashable α]
+theorem getElem?_filter' [LawfulBEq α]
     {f : α → β → Bool} {k : α} (h : m.WF) :
     (m.filter f)[k]? = m[k]?.filter (f k) := by
   simp [getElem?_filter, h]
@@ -2529,7 +2615,7 @@ theorem getElem!_filter [EquivBEq α] [LawfulHashable α] [Inhabited β]
 
 /-- Simpler variant of `getElem!_filter` when `LawfulBEq` is available. -/
 @[grind =]
-theorem getElem!_filter' [LawfulBEq α] [LawfulHashable α] [Inhabited β]
+theorem getElem!_filter' [LawfulBEq α] [Inhabited β]
     {f : α → β → Bool} {k : α} (h : m.WF) :
     (m.filter f)[k]! = (m[k]?.filter (f k)).get! := by
   simp [getElem!_filter, h]
@@ -2548,7 +2634,7 @@ theorem getD_filter [EquivBEq α] [LawfulHashable α]
 
 /-- Simpler variant of `getD_filter` when `LawfulBEq` is available. -/
 @[grind =]
-theorem getD_filter' [LawfulBEq α] [LawfulHashable α]
+theorem getD_filter' [LawfulBEq α]
     {f : α → β → Bool} {k : α} {fallback : β} (h : m.WF) :
     getD (m.filter f) k fallback = (m[k]?.filter (f k)).getD fallback := by
   simp [getD_filter, h]
@@ -2692,7 +2778,7 @@ theorem getKeyD_map [EquivBEq α] [LawfulHashable α]
   DHashMap.Raw.getKeyD_map h.out
 
 @[simp, grind =]
-theorem getElem?_map [LawfulBEq α] [LawfulHashable α]
+theorem getElem?_map [LawfulBEq α]
     {f : α → β → γ} {k : α} (h : m.WF) :
     (m.map f)[k]? = m[k]?.map (f k) :=
   DHashMap.Raw.Const.get?_map h.out
@@ -2711,7 +2797,7 @@ theorem getElem?_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
   DHashMap.Raw.Const.get?_map_of_getKey?_eq_some h.out h'
 
 @[simp, grind =]
-theorem getElem_map [LawfulBEq α] [LawfulHashable α]
+theorem getElem_map [LawfulBEq α]
     {f : α → β → γ} {k : α} {h'} (h : m.WF) :
     (m.map f)[k]' h' =
       (f k (m[k]' (mem_of_mem_map h h'))) :=
@@ -2727,7 +2813,7 @@ theorem getElem_map' [EquivBEq α] [LawfulHashable α]
   DHashMap.Raw.Const.get_map' h.out (h':= h')
 
 @[grind =]
-theorem getElem!_map [LawfulBEq α] [LawfulHashable α] [Inhabited γ]
+theorem getElem!_map [LawfulBEq α] [Inhabited γ]
     {f : α → β → γ} {k : α} (h : m.WF) :
     (m.map f)[k]! =
       (m[k]?.map (f k)).get! :=
@@ -2747,7 +2833,7 @@ theorem getElem!_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhab
   DHashMap.Raw.Const.get!_map_of_getKey?_eq_some h.out h'
 
 @[grind =]
-theorem getD_map [LawfulBEq α] [LawfulHashable α]
+theorem getD_map [LawfulBEq α]
     {f : α → β → γ} {k : α} {fallback : γ} (h : m.WF) :
     (m.map f).getD k fallback =
       (m[k]?.map (f k)).getD fallback :=

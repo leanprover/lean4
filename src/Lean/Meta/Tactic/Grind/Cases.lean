@@ -4,12 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Cases
-
 public section
-
 namespace Lean.Meta.Grind
 
 /-- Types that `grind` will case-split on. -/
@@ -89,9 +86,9 @@ def isCasesAttrPredicateCandidate? (declName : Name) (eager : Bool) : MetaM (Opt
 def validateCasesAttr (declName : Name) (eager : Bool) : CoreM Unit := do
   unless (← isCasesAttrCandidate declName eager) do
     if eager then
-      throwError "invalid `[grind cases eager]`, `{declName}` is not a non-recursive inductive datatype or an alias for one"
+      throwError "invalid `[grind cases eager]`, `{.ofConstName declName}` is not a non-recursive inductive datatype or an alias for one"
     else
-      throwError "invalid `[grind cases]`, `{declName}` is not an inductive datatype or an alias for one"
+      throwError "invalid `[grind cases]`, `{.ofConstName declName}` is not an inductive datatype or an alias for one"
 
 def addCasesAttr (declName : Name) (eager : Bool) (attrKind : AttributeKind) : CoreM Unit := do
   validateCasesAttr declName eager
@@ -101,11 +98,11 @@ def CasesTypes.eraseDecl (s : CasesTypes) (declName : Name) : CoreM CasesTypes :
   if s.contains declName then
     return s.erase declName
   else
-    throwError "`{declName}` is not marked with the `[grind]` attribute"
+    throwError "`{.ofConstName declName}` is not marked with the `[grind]` attribute"
 
 def ensureNotBuiltinCases (declName : Name) : CoreM Unit := do
   if isBuiltinEagerCases declName then
-    throwError "`{declName}` is marked as a built-in case-split for `grind` and cannot be erased"
+    throwError "`{.ofConstName declName}` is marked as a built-in case-split for `grind` and cannot be erased"
 
 def eraseCasesAttr (declName : Name) : CoreM Unit := do
   ensureNotBuiltinCases declName

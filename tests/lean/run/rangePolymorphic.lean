@@ -1,4 +1,3 @@
-import Init.Data.Range.Polymorphic
 import Std.Data.Iterators
 
 open Std.Iterators
@@ -57,6 +56,27 @@ def h (n : Nat) : IO Unit := do
   for i in *...n, j in 2...* do
     IO.println s!"i={i}, j={j}"
 
+example (xs : Vector Nat 16) : Id Unit := do
+  let mut x := 0
+  for _h : i in *...<(12 : Nat) do
+    x := x + xs[i]
+
+example (xs : List Nat) (h : xs.length = 16) : Id Unit := do
+  let mut x := 0
+  for _h : i in *...<(12 : Nat) do
+    x := x + xs[i]
+
+example (xs : Array Nat) : Id Unit := do
+  let mut x := 0
+  for _h : i in *...<(xs.size - 5 : Nat) do
+    x := x + xs[i]
+
+example (xs : Array Nat) : Id Unit := do
+  let mut x := 0
+  for _h : i in *...=xs.size do
+    for _h' : i' in *...<i do
+      x := x + xs[i']
+
 /--
 info: i=0, j=2
 i=1, j=3
@@ -66,3 +86,39 @@ i=4, j=6
 -/
 #guard_msgs in
 #eval h 5
+
+section Int
+
+example : ((-2)...3).toList = [-2, -1, 0, 1, 2] := by native_decide
+example : ((-2)...=3).toList = [-2, -1, 0, 1, 2, 3] := by native_decide
+
+end Int
+
+section UInt
+
+example : ((1 : UInt8)...3).toList = [1, 2] := by native_decide
+example : ((-1 : UInt8)...3).toList = [] := by native_decide -- 255 ≤ x < 3 is impossible
+example : ((1 : UInt8)...=3).toList = [1, 2, 3] := by native_decide
+example : ((250 : UInt8)...-1).toList = [250, 251, 252, 253, 254] := by native_decide
+
+example : ((1 : UInt16)...3).toList = [1, 2] := by native_decide
+example : ((-1 : UInt16)...3).toList = [] := by native_decide
+example : ((1 : UInt16)...=3).toList = [1, 2, 3] := by native_decide
+example : ((-4 : UInt16)...-1).toList = [-4, -3, -2] := by native_decide
+
+example : ((1 : UInt32)...3).toList = [1, 2] := by native_decide
+example : ((-1 : UInt32)...3).toList = [] := by native_decide
+example : ((1 : UInt32)...=3).toList = [1, 2, 3] := by native_decide
+example : ((-4 : UInt32)...-1).toList = [-4, -3, -2] := by native_decide
+
+example : ((1 : UInt64)...3).toList = [1, 2] := by native_decide
+example : ((-1 : UInt64)...3).toList = [] := by native_decide
+example : ((1 : UInt64)...=3).toList = [1, 2, 3] := by native_decide
+example : ((-4 : UInt64)...-1).toList = [-4, -3, -2] := by native_decide
+
+example : ((1 : USize)...3).toList = [1, 2] := by native_decide
+example : ((-1 : USize)...3).toList = [] := by native_decide
+example : ((1 : USize)...=3).toList = [1, 2, 3] := by native_decide
+example : ((-4 : USize)...-1).toList = [-4, -3, -2] := by native_decide
+
+end UInt

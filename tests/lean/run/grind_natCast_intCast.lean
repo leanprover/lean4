@@ -1,3 +1,4 @@
+module
 open Lean Grind
 
 attribute [local instance] Semiring.natCast Ring.intCast

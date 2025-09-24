@@ -4,11 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.ToInt
 public import Lean.Meta.Tactic.Grind.Arith.Util
-
+import Init.Grind.ToInt
 public section
 
 namespace Lean.Meta.Grind.Arith.Cutsat
@@ -49,13 +47,63 @@ structure ToIntThms where
   c_wr? : Option Expr := none
   deriving Inhabited
 
+structure SymbolicBound where
+  val : Expr
+  -- cached int value if `val` is a numeric
+  ival? : Option Int
+  deriving Inhabited
+
+def SymbolicBound.isNumeral (b : SymbolicBound) : Bool :=
+  b.ival?.isSome
+
+/-- Similar to `IntInterval`, but with symbolic bounds. -/
+inductive SymbolicIntInterval : Type where
+  | co (lo hi : SymbolicBound)
+  | ci (lo : SymbolicBound)
+  | io (hi : SymbolicBound)
+  | ii
+  deriving Inhabited
+
+def SymbolicIntInterval.isFinite (i : SymbolicIntInterval) : Bool :=
+  match i with
+  | .co _ _ => true
+  | .ci _ | .io _ | .ii => false
+
+def SymbolicIntInterval.lo? (i : SymbolicIntInterval) : Option SymbolicBound :=
+  match i with
+  | .co lo _ | .ci lo => some lo
+  | .io _ | .ii => none
+
+def SymbolicIntInterval.hi? (i : SymbolicIntInterval) : Option SymbolicBound :=
+  match i with
+  | .co _ hi | .io hi => some hi
+  | .ci _ | .ii => none
+
+def SymbolicIntInterval.wrap (i : SymbolicIntInterval) (x : Expr) : MetaM Expr := do
+  match i with
+  | .co lo hi =>
+    if let some lo' := lo.ival? then
+      if let some hi' := hi.ival? then
+        if let some x ← getIntValue? x then
+          return mkIntLit ((x - lo') % (hi' - lo') + lo')
+        else if lo' == 0 then
+          return mkIntMod x hi.val
+        else
+          return mkIntAdd (mkIntMod (mkIntSub x (mkIntLit lo')) (mkIntLit (hi' - lo'))) (mkIntLit lo')
+      if lo' == 0 then
+        return mkIntMod x hi.val
+    return mkIntAdd (mkIntMod (mkIntSub x lo.val) (mkIntSub hi.val lo.val)) lo.val
+  | .ci _ => throwError "`grind` internal error, `.ci` interval support has not been implemented yet"
+  | .io _ => throwError "`grind` internal error, `.io` interval support has not been implemented yet"
+  | .ii => return x
+
 structure ToIntInfo where
   id        : Nat
   type      : Expr
   u         : Level
   toIntInst : Expr
   rangeExpr : Expr
-  range     : IntInterval
+  range     : SymbolicIntInterval
   toInt     : Expr
   wrap      : Expr
   -- theorem `of_eq_wrap_co_0` if `range == .co 0 hi`

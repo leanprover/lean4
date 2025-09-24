@@ -29,7 +29,7 @@ See the module `Std.Data.HashMap.Raw` for a variant of this type which is safe t
 nested inductive types.
 -/
 
-universe u v w
+universe u v w w'
 
 variable {α : Type u} {β : Type v} {_ : BEq α} {_ : Hashable α}
 
@@ -205,7 +205,7 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
     List (α × β) :=
   DHashMap.Const.toList m.inner
 
-@[inline, inherit_doc DHashMap.foldM] def foldM {m : Type w → Type w}
+@[inline, inherit_doc DHashMap.foldM] def foldM {m : Type w → Type w'}
     [Monad m] {γ : Type w} (f : γ → α → β → m γ) (init : γ) (b : HashMap α β) : m γ :=
   b.inner.foldM f init
 
@@ -213,18 +213,18 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
     (f : γ → α → β → γ) (init : γ) (b : HashMap α β) : γ :=
   b.inner.fold f init
 
-@[inline, inherit_doc DHashMap.forM] def forM {m : Type w → Type w} [Monad m]
+@[inline, inherit_doc DHashMap.forM] def forM {m : Type w → Type w'} [Monad m]
     (f : (a : α) → β → m PUnit) (b : HashMap α β) : m PUnit :=
   b.inner.forM f
 
-@[inline, inherit_doc DHashMap.forIn] def forIn {m : Type w → Type w} [Monad m]
+@[inline, inherit_doc DHashMap.forIn] def forIn {m : Type w → Type w'} [Monad m]
     {γ : Type w} (f : (a : α) → β → γ → m (ForInStep γ)) (init : γ) (b : HashMap α β) : m γ :=
   b.inner.forIn f init
 
-instance [BEq α] [Hashable α] {m : Type w → Type w} : ForM m (HashMap α β) (α × β) where
+instance [BEq α] [Hashable α] {m : Type w → Type w'} : ForM m (HashMap α β) (α × β) where
   forM m f := m.forM (fun a b => f (a, b))
 
-instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β) (α × β) where
+instance [BEq α] [Hashable α] {m : Type w → Type w'} : ForIn m (HashMap α β) (α × β) where
   forIn m init f := m.forIn (fun a b acc => f (a, b) acc) init
 
 @[inline, inherit_doc DHashMap.filter] def filter (f : α → β → Bool)
@@ -247,6 +247,13 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
     {ρ : Type w} [ForIn Id ρ α] (m : HashMap α Unit) (l : ρ) : HashMap α Unit :=
   ⟨DHashMap.Const.insertManyIfNewUnit m.inner l⟩
 
+@[inline, inherit_doc DHashMap.Const.toArray] def toArray (m : HashMap α β) :
+    Array (α × β) :=
+  DHashMap.Const.toArray m.inner
+
+@[inline, inherit_doc DHashMap.keysArray] def keysArray (m : HashMap α β) :
+    Array α :=
+  m.inner.keysArray
 
 section Unverified
 
@@ -256,14 +263,6 @@ section Unverified
     (m : HashMap α β) : HashMap α β × HashMap α β :=
   let ⟨l, r⟩ := m.inner.partition f
   ⟨⟨l⟩, ⟨r⟩⟩
-
-@[inline, inherit_doc DHashMap.Const.toArray] def toArray (m : HashMap α β) :
-    Array (α × β) :=
-  DHashMap.Const.toArray m.inner
-
-@[inline, inherit_doc DHashMap.keysArray] def keysArray (m : HashMap α β) :
-    Array α :=
-  m.inner.keysArray
 
 @[inline, inherit_doc DHashMap.values] def values (m : HashMap α β) : List β :=
   m.inner.values

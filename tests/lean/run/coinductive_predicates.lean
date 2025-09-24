@@ -12,7 +12,7 @@ def infseq_fixpoint {α} (R : α → α → Prop) (x : α) :
 
 /--
 info: infseq.coinduct.{u_1} {α : Sort u_1} (R : α → α → Prop) (pred : α → Prop)
-  (hyp : ∀ (x : α), pred x → ∃ y, R x y ∧ pred y) (x✝ : α) : pred x✝ → infseq R x✝
+  (hyp : ∀ (a : α), pred a → ∃ y, R a y ∧ pred y) (a✝ : α) : pred a✝ → infseq R a✝
 -/
 #guard_msgs in #check infseq.coinduct
 
@@ -41,7 +41,7 @@ inductive_fixpoint
 
 /--
 info: star_ind.induct.{u_1} {α : Sort u_1} (tr : α → α → Prop) (q₂ : α) (pred : α → Prop)
-  (hyp : ∀ (x : α), (∃ z, x = q₂ ∨ tr x z ∧ pred z) → pred x) (x✝ : α) : (fun q₁ => star_ind tr q₁ q₂) x✝ → pred x✝
+  (hyp : ∀ (q₁ : α), (∃ z, q₁ = q₂ ∨ tr q₁ z ∧ pred z) → pred q₁) (q₁ : α) : (fun q₁ => star_ind tr q₁ q₂) q₁ → pred q₁
 -/
 #guard_msgs in #check star_ind.induct
 
@@ -62,13 +62,13 @@ theorem star_implies_star' (R : α → α → Prop) : ∀ a b : α, star R a b �
 
 -- More elaborate example from Xavier Leroy's compiler verification course
 theorem star_one (R : α → α → Prop)  : ∀ a b : α, R a b → star R a b := by
-  intros a b Rab
+  intro a b Rab
   apply star.star_step
   exact Rab
   apply star.star_refl
 
 theorem star_trans {α} (R : α → α → Prop) : ∀ (a b : α), star R a b → ∀ c : α, star R b c → star R a c := by
-  intros a b sab
+  intro a b sab
   intro c
   intro sbc
   induction sab
@@ -172,10 +172,10 @@ coinductive_fixpoint
 /--
 info: language_equivalent.coinduct {Q A : Type} (automaton : DFA Q A) (pred : Q → Q → Prop)
   (hyp :
-    ∀ (x x_1 : Q),
-      pred x x_1 →
-        (automaton x).fst = (automaton x_1).fst ∧ ∀ (a : A), pred ((automaton x).snd a) ((automaton x_1).snd a))
-  (x✝ x✝¹ : Q) : pred x✝ x✝¹ → language_equivalent automaton x✝ x✝¹
+    ∀ (q₁ q₂ : Q),
+      pred q₁ q₂ →
+        (automaton q₁).fst = (automaton q₂).fst ∧ ∀ (a : A), pred ((automaton q₁).snd a) ((automaton q₂).snd a))
+  (q₁ q₂ : Q) : pred q₁ q₂ → language_equivalent automaton q₁ q₂
 -/
 #guard_msgs in
 #check language_equivalent.coinduct

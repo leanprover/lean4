@@ -4,33 +4,30 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.Tactic.Grind.PropagatorAttr
-public import Lean.Meta.Tactic.Grind.Arith.Offset
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
-public import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
-public import Lean.Meta.Tactic.Grind.Arith.Linear.Search
-
+public import Lean.Meta.Tactic.Grind.Types
+import Init.Grind.Propagator
+import Lean.Meta.Tactic.Grind.PropagatorAttr
+import Lean.Meta.Tactic.Grind.Arith.Offset.Types
+import Lean.Meta.Tactic.Grind.Arith.Offset.Main
+import Lean.Meta.Tactic.Grind.Arith.Offset.Proof
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search
+import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
+import Lean.Meta.Tactic.Grind.Arith.Linear.Search
 public section
-
 namespace Lean.Meta.Grind.Arith
 
-namespace Offset
-def isCnstr? (e : Expr) : GoalM (Option (Cnstr NodeId)) :=
-  return (← get).arith.offset.cnstrs.find? { expr := e }
+private def Offset.isCnstr? (e : Expr) : GoalM (Option (Cnstr NodeId)) :=
+  return (← get').cnstrs.find? { expr := e }
 
-def assertTrue (c : Cnstr NodeId) (p : Expr) : GoalM Unit := do
+private def Offset.assertTrue (c : Cnstr NodeId) (p : Expr) : GoalM Unit := do
   addEdge c.u c.v c.k (← mkOfEqTrue p)
 
-def assertFalse (c : Cnstr NodeId) (p : Expr) : GoalM Unit := do
+private def Offset.assertFalse (c : Cnstr NodeId) (p : Expr) : GoalM Unit := do
   let p := mkOfNegEqFalse (← get').nodes c p
   let c := c.neg
   addEdge c.u c.v c.k p
-
-end Offset
 
 builtin_grind_propagator propagateLE ↓LE.le := fun e => do
   if (← isEqTrue e) then
@@ -51,15 +48,5 @@ builtin_grind_propagator propagateLT ↓LT.lt := fun e => do
   else if (← isEqFalse e) then
     Linear.propagateIneq e (eqTrue := false)
     Cutsat.propagateLt e (eqTrue := false)
-
-def check : GoalM Bool := do
-  let c₁ ← Cutsat.check
-  let c₂ ← CommRing.check
-  let c₃ ← Linear.check
-  if c₁ || c₂ || c₃ then
-    processNewFacts
-    return true
-  else
-    return false
 
 end Lean.Meta.Grind.Arith

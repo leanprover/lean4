@@ -1,3 +1,4 @@
+module
 example (a b c : Nat) : a = 0 → b = 0 → c ≥ a + b := by
   grind
 

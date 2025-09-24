@@ -1,3 +1,4 @@
+module
 inductive Even : Nat → Prop
   | zero : Even 0
   | plus_two {n} : Even n → Even (n + 2)
@@ -68,6 +69,6 @@ attribute [grind] fax
 example : f (f (f x)) = f x := by
   grind
 
-/-- error: invalid E-matching theorem `Nat.succ`, type is not a proposition -/
+/-- error: invalid `grind` theorem, failed to find an usable pattern using different modifiers -/
 #guard_msgs in
 attribute [grind] Nat.succ

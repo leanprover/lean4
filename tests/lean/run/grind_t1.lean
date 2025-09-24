@@ -1,3 +1,4 @@
+module
 example (a b : List Nat) : a = [] → b = [2] → a = b → False := by
   grind
 
@@ -375,7 +376,8 @@ h_1 : b = true
   [eqc] True propositions
     [prop] b = true
   [eqc] Equivalence classes
-    [eqc] {a, 10, if b = true then 10 else 20}
+    [eqc] {a, 10}
+      [eqc] {if b = true then 10 else 20}
     [eqc] {b, true}
   [cutsat] Assignment satisfying linear constraints
     [assign] a := 10

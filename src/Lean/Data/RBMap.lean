@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Ord
+public import Init.Data.Ord.Basic
 public import Init.Data.Nat.Linear
 
 public section
@@ -231,7 +231,7 @@ inductive WellFormed (cmp : α → α → Ordering) : RBNode α β → Prop wher
 
 section Map
 
-@[specialize] def mapM {α : Type v} {β γ : α → Type v} {M : Type v → Type v} [Applicative M]
+@[specialize] def mapM {α : Type v} {β γ : α → Type v} {M : Type v → Type w} [Applicative M]
   (f : (a : α) → β a → M (γ a))
   : RBNode α β → M (RBNode α γ)
   | leaf => pure leaf

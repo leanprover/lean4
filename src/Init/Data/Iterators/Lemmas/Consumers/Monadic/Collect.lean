@@ -8,7 +8,8 @@ module
 prelude
 public import Init.Data.Array.Lemmas
 public import Init.Data.Iterators.Lemmas.Monadic.Basic
-public import all Init.Data.Iterators.Consumers.Monadic.Collect
+public import Init.Data.Iterators.Consumers.Monadic.Collect
+import all Init.Data.Iterators.Consumers.Monadic.Collect
 
 public section
 
@@ -66,15 +67,17 @@ theorem IterM.toArray_eq_match_step [Monad m] [LawfulMonad m] [Iterator α m β]
   rw [IterM.DefaultConsumers.toArrayMapped_eq_match_step]
   simp [bind_pure_comp, pure_bind]
 
+@[simp]
 theorem IterM.toList_toArray [Monad m] [Iterator α m β] [Finite α m] [IteratorCollect α m m]
     {it : IterM (α := α) m β} :
     Array.toList <$> it.toArray = it.toList := by
   simp [IterM.toList]
 
+@[simp]
 theorem IterM.toArray_toList [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
     [IteratorCollect α m m] {it : IterM (α := α) m β} :
     List.toArray <$> it.toList = it.toArray := by
-  simp [IterM.toList]
+  simp [IterM.toList, -toList_toArray]
 
 theorem IterM.toList_eq_match_step [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
     [IteratorCollect α m m] [LawfulIteratorCollect α m m] {it : IterM (α := α) m β} :
@@ -152,6 +155,6 @@ theorem LawfulIteratorCollect.toList_eq {α β : Type w} {m : Type w → Type w'
     [hl : LawfulIteratorCollect α m m]
     {it : IterM (α := α) m β} :
     it.toList = (letI : IteratorCollect α m m := .defaultImplementation; it.toList) := by
-  simp [IterM.toList, toArray_eq]
+  simp [IterM.toList, toArray_eq, -IterM.toList_toArray]
 
 end Std.Iterators

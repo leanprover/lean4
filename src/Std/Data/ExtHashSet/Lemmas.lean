@@ -209,6 +209,14 @@ theorem isSome_get?_iff_mem [EquivBEq α] [LawfulHashable α] {a : α} :
     (m.get? a).isSome ↔ a ∈ m :=
   mem_iff_isSome_get?.symm
 
+theorem get?_eq_some_iff [EquivBEq α] [LawfulHashable α] {k k' : α} :
+    m.get? k = some k' ↔ ∃ h : k ∈ m, m.get k h = k' :=
+  ExtHashMap.getKey?_eq_some_iff
+
+theorem mem_of_get?_eq_some [EquivBEq α] [LawfulHashable α] {k k' : α}
+    (h : m.get? k = some k') : k' ∈ m :=
+  ExtHashMap.mem_of_getKey?_eq_some h
+
 theorem get?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = false → m.get? a = none :=
   ExtHashMap.getKey?_eq_none_of_contains_eq_false
@@ -331,7 +339,7 @@ theorem getD_empty [EquivBEq α] [LawfulHashable α] {a fallback : α} :
     (∅ : ExtHashSet α).getD a fallback = fallback :=
   ExtHashMap.getKeyD_empty
 
-@[grind] theorem getD_insert [EquivBEq α] [LawfulHashable α] {k a fallback : α} :
+@[grind =] theorem getD_insert [EquivBEq α] [LawfulHashable α] {k a fallback : α} :
     (m.insert k).getD a fallback = if k == a ∧ ¬k ∈ m then k else m.getD a fallback :=
   ExtHashMap.getKeyD_insertIfNew
 

@@ -158,7 +158,7 @@ def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
   match env.getModuleIdxFor? declName with
   | some modIdx =>
     -- `meta import/import all` and server `#eval`
-    -- This case is important even for codegen because it needs to see IR via `import all` (beause
+    -- This case is important even for codegen because it needs to see IR via `import all` (because
     -- it can also see the LCNF)
     findAtSorted? (declMapExt.getModuleIREntries env modIdx) declName <|>
     -- (closure of) `meta def`; will report `.extern`s for other `def`s so needs to come second
@@ -172,7 +172,7 @@ def containsDecl (n : Name) : CompilerM Bool :=
   return (← findDecl n).isSome
 
 def getDecl (n : Name) : CompilerM Decl := do
-  let (some decl) ← findDecl n | throwError s!"unknown declaration '{n}'"
+  let (some decl) ← findDecl n | throwError s!"unknown declaration `{n}`"
   return decl
 
 def findLocalDecl (n : Name) : CompilerM (Option Decl) :=
@@ -203,7 +203,7 @@ def containsDecl' (n : Name) (decls : Array Decl) : CompilerM Bool := do
     containsDecl n
 
 def getDecl' (n : Name) (decls : Array Decl) : CompilerM Decl := do
-  let (some decl) ← findDecl' n decls | throwError s!"unknown declaration '{n}'"
+  let (some decl) ← findDecl' n decls | throwError s!"unknown declaration `{n}`"
   return decl
 
 @[export lean_decl_get_sorry_dep]
@@ -214,9 +214,9 @@ def getSorryDep (env : Environment) (declName : Name) : Option Name :=
 
 /-- Returns additional names that compiler env exts may want to call `getModuleIdxFor?` on. -/
 @[export lean_get_ir_extra_const_names]
-private def getIRExtraConstNames (env : Environment) (level : OLeanLevel) : Array Name :=
+private def getIRExtraConstNames (env : Environment) (level : OLeanLevel) (includeDecls := false) : Array Name :=
   declMapExt.getEntries env |>.toArray.map (·.name)
-    |>.filter fun n => !env.contains n &&
+    |>.filter fun n => (includeDecls || !env.contains n) &&
       (level == .private || Compiler.LCNF.isDeclPublic env n || isDeclMeta env n)
 
 end IR

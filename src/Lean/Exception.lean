@@ -125,7 +125,15 @@ def mkUnknownIdentifierMessage [Monad m] [MonadEnv m] [MonadError m] (msg : Mess
   if !declHint.isAnonymous && env.isExporting && (env.setExporting false).contains declHint then
     let c := .withContext {
       env := env.setExporting false, opts := {}, mctx := {}, lctx := {} } <| .ofConstName declHint
-    msg := msg ++ .note m!"A private declaration `{c}` exists but is not accessible in the current context."
+    msg := match env.getModuleIdxFor? declHint with
+      | none     =>
+        msg ++ .note m!"A private declaration `{c}` (from the current module) exists but would need to be public to access here."
+      | some idx =>
+        let mod := env.header.moduleNames[idx]!
+        if isPrivateName declHint then
+          msg ++ .note m!"A private declaration `{c}` (from `{mod}`) exists but would need to be public to access here."
+        else
+          msg ++ .note m!"A public declaration `{c}` exists but is imported privately; consider adding `public import {mod}`."
   return MessageData.tagged unknownIdentifierMessageTag msg
 
 /--
@@ -142,7 +150,7 @@ Throw an unknown constant error message.
 The end position of the range of `ref` should point at the unknown identifier.
 See also `mkUnknownIdentifierMessage`.
 -/
-def throwUnknownConstantAt [Monad m] [MonadEnv m] [MonadError m] (ref : Syntax) (constName : Name) : m α := do
+def throwUnknownConstantAt [Monad m] [MonadEnv m] [MonadError m] (ref : Syntax) (constName : Name) : m α :=
   throwUnknownIdentifierAt (declHint := constName) ref m!"Unknown constant `{.ofConstName constName}`"
 
 /--

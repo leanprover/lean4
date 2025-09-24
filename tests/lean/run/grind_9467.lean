@@ -1,3 +1,4 @@
+module
 example (x y : Nat) : (x : Int) - (y : Int) = 0 → x = y := by
   grind
 

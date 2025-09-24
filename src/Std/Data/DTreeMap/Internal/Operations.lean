@@ -9,7 +9,6 @@ prelude
 public import Init.Data.Nat.Compare
 public import Std.Data.DTreeMap.Internal.Balancing
 public import Std.Data.DTreeMap.Internal.Queries
-public import Std.Classes.Ord.Basic
 
 @[expose] public section
 
@@ -692,7 +691,7 @@ def map [Ord α] (f : (a : α) → β a → γ a) (t : Impl α β) : Impl α γ 
 Monadic version of `map`.
 -/
 @[specialize]
-def mapM {α : Type v} {β γ : α → Type v} {M : Type v → Type v} [Applicative M]
+def mapM {α : Type v} {β γ : α → Type v} {M : Type v → Type w} [Applicative M]
     (f : (a : α) → β a → M (γ a)) : Impl α β → M (Impl α γ)
   | leaf => pure leaf
   | inner sz k v l r => pure (.inner sz k) <*> f k v <*> l.mapM f <*> r.mapM f

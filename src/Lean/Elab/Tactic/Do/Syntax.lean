@@ -10,6 +10,7 @@ public import Init.NotationExtra
 public import Lean.Elab.BuiltinNotation
 public import Std.Do.PostCond
 public import Std.Do.Triple.Basic
+import Std.Do.SPred.Notation.Basic
 
 public section
 
@@ -18,13 +19,22 @@ namespace Std.Do
 open Lean Parser Meta Elab Term PrettyPrinter Delaborator
 
 open Std.Do in
-@[builtin_delab app.Std.Do.PostCond.total]
-private def unexpandPostCondTotal : Delab := do
+@[builtin_delab PostCond.noThrow]
+private def unexpandPostCondNoThrow : Delab := do
   match ← SubExpr.withAppArg <| delab with
   | `(fun $xs:term* => $e) =>
     let t ← `(⇓ $xs* => $(← SPred.Notation.unpack e))
     return ⟨t.raw⟩
-  | t => `($(mkIdent ``PostCond.total):term $t)
+  | t => `($(mkIdent ``PostCond.noThrow):term $t)
+
+open Std.Do in
+@[builtin_delab PostCond.mayThrow]
+private def unexpandPostCondMayThrow : Delab := do
+  match ← SubExpr.withAppArg <| delab with
+  | `(fun $xs:term* => $e) =>
+    let t ← `(⇓? $xs* => $(← SPred.Notation.unpack e))
+    return ⟨t.raw⟩
+  | t => `($(mkIdent ``PostCond.mayThrow):term $t)
 
 @[inherit_doc Triple, builtin_doc, builtin_term_elab triple]
 private def elabTriple : TermElab

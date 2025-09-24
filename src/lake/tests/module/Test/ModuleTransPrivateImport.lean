@@ -1,3 +1,0 @@
-module
-
-import Test.ModulePrivateImport

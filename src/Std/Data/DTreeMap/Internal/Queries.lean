@@ -10,7 +10,6 @@ public import Init.Data.Nat.Compare
 public import Std.Data.DTreeMap.Internal.Def
 public import Std.Data.DTreeMap.Internal.Balanced
 public import Std.Data.DTreeMap.Internal.Ordered
-public import Std.Classes.Ord.Basic
 
 @[expose] public section
 
@@ -23,9 +22,9 @@ This file contains the basic definition implementing the functionality of the si
 set_option autoImplicit false
 set_option linter.all true
 
-universe u v w
+universe u v w w'
 
-variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w}
+variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w'}
 
 namespace Std.DTreeMap.Internal.Impl
 local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ

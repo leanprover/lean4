@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.GrindInstances.Ring.UInt
-// Imports: Init.Grind.Ring.Basic Init.GrindInstances.ToInt Init.Data.UInt.Basic Init.Data.UInt.Lemmas
+// Imports: Init.Grind.Ring.Basic Init.GrindInstances.ToInt Init.GrindInstances.ToInt Init.Data.UInt.Basic Init.Data.UInt.Basic Init.Data.UInt.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -83,7 +83,6 @@ lean_object* l_UInt32_pow___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_instCommRingUInt32___closed__5;
 static lean_object* l_Lean_Grind_instCommRingUInt32___closed__1;
 LEAN_EXPORT lean_object* l_USize_natCast___lam__0___boxed(lean_object*);
-lean_object* l_instHAdd___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_instCommRingUInt64___closed__6;
 static lean_object* l_Lean_Grind_instCommRingUInt32___closed__0;
 uint8_t lean_uint8_mul(uint8_t, uint8_t);
@@ -107,6 +106,7 @@ lean_object* l_UInt16_sub___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_instCommRingUInt8___closed__0;
 LEAN_EXPORT lean_object* l_UInt8_natCast;
 static lean_object* l_Lean_Grind_instCommRingUSize___closed__6;
+lean_object* l_instHPow___redArg(lean_object*);
 static lean_object* l_Lean_Grind_instCommRingUInt64___closed__2;
 static lean_object* l_Lean_Grind_instCommRingUInt8___closed__2;
 static lean_object* l_Lean_Grind_instCommRingUSize___closed__0;
@@ -474,8 +474,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Grind_instCommRingUInt8___closed__3;
-x_2 = lean_alloc_closure((void*)(l_instHAdd___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_instHPow___redArg(x_1);
 return x_2;
 }
 }
@@ -618,8 +617,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Grind_instCommRingUInt16___closed__3;
-x_2 = lean_alloc_closure((void*)(l_instHAdd___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_instHPow___redArg(x_1);
 return x_2;
 }
 }
@@ -762,8 +760,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Grind_instCommRingUInt32___closed__3;
-x_2 = lean_alloc_closure((void*)(l_instHAdd___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_instHPow___redArg(x_1);
 return x_2;
 }
 }
@@ -908,8 +905,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Grind_instCommRingUInt64___closed__3;
-x_2 = lean_alloc_closure((void*)(l_instHAdd___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_instHPow___redArg(x_1);
 return x_2;
 }
 }
@@ -1054,8 +1050,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Grind_instCommRingUSize___closed__3;
-x_2 = lean_alloc_closure((void*)(l_instHAdd___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_instHPow___redArg(x_1);
 return x_2;
 }
 }
@@ -1147,6 +1142,8 @@ return x_5;
 }
 lean_object* initialize_Init_Grind_Ring_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -1158,6 +1155,12 @@ res = initialize_Init_Grind_Ring_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_GrindInstances_ToInt(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_GrindInstances_ToInt(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_UInt_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_UInt_Basic(builtin, lean_io_mk_world());

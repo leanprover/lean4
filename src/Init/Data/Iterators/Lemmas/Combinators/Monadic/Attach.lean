@@ -6,7 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-public import all Init.Data.Iterators.Combinators.Monadic.Attach
+public import Init.Data.Iterators.Combinators.Monadic.Attach
+import all Init.Data.Iterators.Combinators.Monadic.Attach
 public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 
 public section
@@ -56,6 +57,6 @@ theorem IterM.map_unattach_toArray_attachWith [Iterator α m β] [Monad m] [Mona
     [LawfulMonad m] [LawfulIteratorCollect α m m] :
     (·.map Subtype.val) <$> (it.attachWith P hP).toArray = it.toArray := by
   rw [← toArray_toList, ← toArray_toList, ← map_unattach_toList_attachWith (it := it) (hP := hP)]
-  simp [-map_unattach_toList_attachWith]
+  simp [-map_unattach_toList_attachWith, -IterM.toArray_toList]
 
 end Std.Iterators

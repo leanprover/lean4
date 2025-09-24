@@ -8,8 +8,12 @@ module
 prelude
 public import Init.Data.Int.Lemmas
 public import Init.ByCases
+public import Init.Data.Order.Factories
+import Init.Data.Order.Lemmas
 
 public section
+
+open Std
 
 /-!
 # Results about the order properties of the integers, and the integers as an ordered ring.
@@ -697,9 +701,12 @@ theorem toNat_sub_toNat_neg : ∀ n : Int, ↑n.toNat - ↑(-n).toNat = n
   | (_+1:Nat) => Nat.add_zero _
   | -[_+1] => Nat.zero_add _
 
-@[simp] theorem toNat_neg_nat : ∀ n : Nat, (-(n : Int)).toNat = 0
+@[simp] theorem toNat_neg_natCast : ∀ n : Nat, (-(n : Int)).toNat = 0
   | 0 => rfl
   | _+1 => rfl
+
+@[deprecated toNat_neg_natCast (since := "2025-08-29")]
+theorem toNat_neg_nat : ∀ n : Nat, (-(n : Int)).toNat = 0 := toNat_neg_natCast
 
 /-! ### toNat? -/
 
@@ -1340,8 +1347,6 @@ theorem neg_of_sign_eq_neg_one : ∀ {a : Int}, sign a = -1 → a < 0
   | 0 => Int.mul_zero _
   | -[_+1] => Int.mul_neg_one _
 
-@[deprecated mul_sign_self (since := "2025-02-24")] abbrev mul_sign := @mul_sign_self
-
 @[simp] theorem sign_mul_self (i : Int) : sign i * i = natAbs i := by
   rw [Int.mul_comm, mul_sign_self]
 
@@ -1414,5 +1419,15 @@ theorem natAbs_eq_iff_mul_eq_zero : natAbs a = n ↔ (a - n) * (a + n) = 0 := by
 
 @[deprecated natAbs_eq_iff_mul_eq_zero (since := "2025-03-11")]
 abbrev eq_natAbs_iff_mul_eq_zero := @natAbs_eq_iff_mul_eq_zero
+
+instance instIsLinearOrder : IsLinearOrder Int := by
+  apply IsLinearOrder.of_le
+  case le_antisymm => constructor; apply Int.le_antisymm
+  case le_total => constructor; apply Int.le_total
+  case le_trans => constructor; apply Int.le_trans
+
+instance : LawfulOrderLT Int where
+  lt_iff := by
+    simp [← Int.not_le, Decidable.imp_iff_not_or, Std.Total.total]
 
 end Int

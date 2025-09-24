@@ -42,7 +42,7 @@ def isAutoBoundImplicitLocalException? (ex : Exception) : Option Name :=
   | _ => none
 
 def throwAlreadyDeclaredUniverseLevel [Monad m] [MonadError m] (u : Name) : m α :=
-  throwError "a universe level named '{u}' has already been declared"
+  throwError "a universe level named `{u}` has already been declared"
 
 -- Throw exception to abort elaboration of the current command without producing any error message
 def throwAbortCommand {α m} [MonadExcept Exception m] : m α :=

@@ -140,13 +140,13 @@ private def mkFormat (e : Expr) : MetaM Expr := do
     if eval.derive.repr.get (← getOptions) then
       if let .const name _ := (← whnf (← inferType e)).getAppFn then
         try
-          trace[Elab.eval] "Attempting to derive a 'Repr' instance for '{.ofConstName name}'"
+          trace[Elab.eval] "Attempting to derive a `Repr` instance for `{.ofConstName name}`"
           liftCommandElabM do applyDerivingHandlers ``Repr #[name]
           resetSynthInstanceCache
           return ← mkRepr e
         catch ex =>
-          trace[Elab.eval] "Failed to use derived 'Repr' instance. Exception: {ex.toMessageData}"
-    throwError m!"could not synthesize a 'Repr' or 'ToString' instance for type{indentExpr (← inferType e)}"
+          trace[Elab.eval] "Failed to use derived `Repr` instance. Exception: {ex.toMessageData}"
+    throwError m!"could not synthesize a `Repr` or `ToString` instance for type{indentExpr (← inferType e)}"
 
 /--
 Returns a representation of `e` using `MessageData`, or else fails.
@@ -155,7 +155,7 @@ Tries `mkFormat` if a `ToExpr` instance can't be synthesized.
 private def mkMessageData (e : Expr) : MetaM Expr := do
   (do guard <| eval.pp.get (← getOptions); mkAppM ``MessageData.ofExpr #[← mkToExpr e])
   <|> (return mkApp (mkConst ``MessageData.ofFormat) (← mkFormat e))
-  <|> do throwError m!"could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type{indentExpr (← inferType e)}"
+  <|> do throwError m!"could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type{indentExpr (← inferType e)}"
 
 private structure EvalAction where
   eval : CommandElabM MessageData
@@ -178,13 +178,13 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
       let eType := e.appFn!.appArg!
       if ← isDefEq eType (mkConst ``Unit) then
         addAndCompileExprForEval declName e (allowSorry := bang)
-        let mf : m Unit ← evalConst (m Unit) declName
+        let mf : m Unit ← evalConst (m Unit) declName (checkMeta := !Elab.inServer.get (← getOptions))
         return some { eval := do MonadEvalT.monadEval mf; pure "", printVal := none }
       else
         let rf ← withLocalDeclD `x eType fun x => do mkLambdaFVars #[x] (← mkT x)
         let r ← mkAppM ``Functor.map #[rf, e]
         addAndCompileExprForEval declName r (allowSorry := bang)
-        let mf : m t ← evalConst (m t) declName
+        let mf : m t ← evalConst (m t) declName (checkMeta := !Elab.inServer.get (← getOptions))
         return some { eval := toMessageData <$> MonadEvalT.monadEval mf, printVal := some eType }
     if let some act ← mkMAct? ``CommandElabM CommandElabM e
                     -- Fallbacks in case we are in the Lean package but don't have `CommandElabM` yet
@@ -205,9 +205,9 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
           discard <| withLocalDeclD `x ty fun x => mkT x
         catch _ =>
           throw ex
-        throwError m!"unable to synthesize '{.ofConstName ``MonadEval}' instance \
+        throwError m!"unable to synthesize `{.ofConstName ``MonadEval}` instance \
           to adapt{indentExpr (← inferType e)}\n\
-          to '{.ofConstName ``IO}' or '{.ofConstName ``CommandElabM}'."
+          to `{.ofConstName ``IO}` or `{.ofConstName ``CommandElabM}`."
       addAndCompileExprForEval declName r (allowSorry := bang)
       -- `evalConst` may emit IO, but this is collected by `withIsolatedStreams` below.
       let r ← toMessageData <$> evalConst t declName (checkMeta := !Elab.inServer.get (← getOptions))
@@ -217,15 +217,16 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
       -- Generate an action without executing it. We use `withoutModifyingEnv` to ensure
       -- we don't pollute the environment with auxiliary declarations.
       let act : EvalAction ← liftTermElabM do Term.withDeclName declName do withoutModifyingEnv do
-        let e ← elabTermForEval term expectedType?
-        -- If there is an elaboration error, don't evaluate!
-        if e.hasSyntheticSorry then throwAbortTerm
-        -- We want `#eval` to work even in the core library, so if `ofFormat` isn't available,
-        -- we fall back on a `Format`-based approach.
-        if (← getEnv).contains ``Lean.MessageData.ofFormat then
-          mkAct id (mkMessageData ·) e
-        else
-          mkAct Lean.MessageData.ofFormat (mkFormat ·) e
+        withSaveInfoContext do -- save the environment post-elaboration (for matchers, let rec, etc.)
+          let e ← elabTermForEval term expectedType?
+          -- If there is an elaboration error, don't evaluate!
+          if e.hasSyntheticSorry then throwAbortTerm
+          -- We want `#eval` to work even in the core library, so if `ofFormat` isn't available,
+          -- we fall back on a `Format`-based approach.
+          if (← getEnv).contains ``Lean.MessageData.ofFormat then
+            mkAct id (mkMessageData ·) e
+          else
+            mkAct Lean.MessageData.ofFormat (mkFormat ·) e
       let res ← act.eval
       return Sum.inr (res, act.printVal)
     catch ex =>

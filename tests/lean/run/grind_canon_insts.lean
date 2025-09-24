@@ -1,5 +1,6 @@
-import Lean.Meta.Tactic.Grind
-
+module
+public meta import Lean.Meta.Tactic.Grind
+public section
 set_option grind.debug true
 
 class Semigroup (α : Type u) extends Mul α where
@@ -45,7 +46,7 @@ theorem left_comm [CommMonoid α] (a b c : α) : a * (b * c) = b * (a * c) := by
   rw [← Semigroup.mul_assoc, CommMonoid.mul_comm a b, Semigroup.mul_assoc]
 
 open Lean Meta Elab Tactic Grind in
-def fallback : Fallback := do
+meta def fallback : Fallback := do
   let nodes ← filterENodes fun e => return e.self.isApp && e.self.isAppOf ``HMul.hMul
   trace[Meta.debug] "{nodes.map (·.self) |>.qsort Expr.lt}"
   (← get).mvarId.admit

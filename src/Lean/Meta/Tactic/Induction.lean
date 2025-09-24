@@ -83,6 +83,7 @@ private partial def finalize
         match recursorType with
         | Expr.forallE n d _ c =>
           let d := d.headBeta
+          let tag' := if numMinors == 1 then tag else tag ++ n
           -- Remark is givenNames is not empty, then user provided explicit alternatives for each minor premise
           if c.isInstImplicit && givenNames.isEmpty then
             match (← synthInstance? d) with
@@ -92,7 +93,7 @@ private partial def finalize
               loop (pos+1) (minorIdx+1) recursor recursorType consumedMajor subgoals
             | none => do
               -- Add newSubgoal if type class resolution failed
-              let mvar ← mkFreshExprSyntheticOpaqueMVar d (tag ++ n)
+              let mvar ← mkFreshExprSyntheticOpaqueMVar d tag'
               let recursor := mkApp recursor mvar
               let recursorType ← getTypeBody mvarId recursorType mvar
               loop (pos+1) (minorIdx+1) recursor recursorType consumedMajor (subgoals.push { mvarId := mvar.mvarId! })
@@ -102,7 +103,7 @@ private partial def finalize
             let nparams := arity - initialArity -- number of fields due to minor premise
             let nextra  := reverted.size - indices.size - 1 -- extra dependencies that have been reverted
             let minorGivenNames := if h : minorIdx < givenNames.size then givenNames[minorIdx] else {}
-            let mvar ← mkFreshExprSyntheticOpaqueMVar d (tag ++ n)
+            let mvar ← mkFreshExprSyntheticOpaqueMVar d tag'
             let recursor := mkApp recursor mvar
             let recursorType ← getTypeBody mvarId recursorType mvar
             -- Try to clear major premise from new goal

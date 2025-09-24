@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Module
-// Imports: Init.Grind.Module.Basic Init.Grind.Module.Envelope
+// Imports: Init.Grind.Module.Basic Init.Grind.Module.Envelope Init.Grind.Module.OfNatModule Init.Grind.Module.NatModuleNorm
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,6 +15,8 @@ extern "C" {
 #endif
 lean_object* initialize_Init_Grind_Module_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Module_Envelope(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_Module_OfNatModule(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_Module_NatModuleNorm(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_Module(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -24,6 +26,12 @@ res = initialize_Init_Grind_Module_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_Module_Envelope(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Module_OfNatModule(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Module_NatModuleNorm(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

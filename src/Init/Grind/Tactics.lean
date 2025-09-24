@@ -4,11 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Attr
 public import Init.Core
-
 public section
 
 namespace Lean.Grind
@@ -98,14 +96,17 @@ structure Config where
   zeta := true
   /--
   When `true` (default: `true`), uses procedure for handling equalities over commutative rings.
+  This solver also support commutative semirings, fields, and normalizer non-commutative rings and
+  semirings.
   -/
   ring := true
-  ringSteps := 10000
   /--
-  When `true` (default: `false`), the commutative ring procedure in `grind` constructs stepwise
-  proof terms, instead of a single-step Nullstellensatz certificate
+  Maximum number of steps performed by the `ring` solver.
+  A step is counted whenever one polynomial is used to simplify another.
+  For example, given `x^2 + 1` and `x^2 * y^3 + x * y`, the first can be
+  used to simplify the second to `-1 * y^3 + x * y`.
   -/
-  ringNull := false
+  ringSteps := 10000
   /--
   When `true` (default: `true`), uses procedure for handling linear arithmetic for `IntModule`, and
   `CommRing`.
@@ -116,6 +117,17 @@ structure Config where
   -/
   cutsat := true
   /--
+  When `true` (default: `true`), uses procedure for handling associative (and commutative) operators.
+  -/
+  ac := true
+  /--
+  Maximum number of steps performed by the `ac` solver.
+  A step is counted whenever one AC equation is used to simplify another.
+  For example, given `ma x z = w` and `max x (max y z) = x`, the first can be
+  used to simplify the second to `max w y = x`.
+  -/
+  acSteps := 1000
+  /--
   Maximum exponent eagerly evaluated while computing bounds for `ToInt` and
   the characteristic of a ring.
   -/
@@ -124,7 +136,61 @@ structure Config where
   When `true` (default: `true`), automatically creates an auxiliary theorem to store the proof.
   -/
   abstractProof := true
+  /--
+  When `true` (default: `true`), enables the procedure for handling injective functions.
+  In this mode, `grind` takes into account theorems such as:
+  ```
+  @[grind inj] theorem double_inj : Function.Injective double
+  ```
+  -/
+  inj := true
   deriving Inhabited, BEq
+
+/--
+A minimal configuration, with ematching and splitting disabled, and all solver modules turned off.
+`grind` will not do anything in this configuration,
+which can be used a starting point for minimal configurations.
+-/
+-- This is a `structure` rather than `def` so we can use `declare_config_elab`.
+structure NoopConfig extends Config where
+  -- Disable splitting
+  splits := 0
+  -- We don't override the various `splitMatch` / `splitIte` settings separately.
+
+  -- Disable e-matching
+  ematch := 0
+  -- We don't override `matchEqs` separately.
+
+  -- Disable extensionality
+  ext       := false
+  extAll    := false
+  etaStruct := false
+  funext    := false
+
+  -- Disable all solver modules
+  ring      := false
+  linarith  := false
+  cutsat    := false
+  ac        := false
+
+/--
+A `grind` configuration that only uses `cutsat` and splitting.
+
+Note: `cutsat` benefits from some amount of instantiation, e.g. `Nat.max_def`.
+We don't currently have a mechanism to enable only a small set of lemmas.
+-/
+-- This is a `structure` rather than `def` so we can use `declare_config_elab`.
+structure CutsatConfig extends NoopConfig where
+  cutsat := true
+  -- Allow the default number of splits.
+  splits := ({} : Config).splits
+
+/--
+A `grind` configuration that only uses `ring`.
+-/
+-- This is a `structure` rather than `def` so we can use `declare_config_elab`.
+structure GrobnerConfig extends NoopConfig where
+  ring := true
 
 end Lean.Grind
 
@@ -134,9 +200,14 @@ namespace Lean.Parser.Tactic
 `grind` tactic and related tactics.
 -/
 
-syntax grindErase := "-" ident
-syntax grindLemma := ppGroup((Attr.grindMod ppSpace)? ident)
-syntax grindParam := grindErase <|> grindLemma
+syntax grindErase    := "-" ident
+syntax grindLemma    := ppGroup((Attr.grindMod ppSpace)? ident)
+/--
+The `!` modifier instructs `grind` to consider only minimal indexable subexpressions
+when selecting patterns.
+-/
+syntax grindLemmaMin := ppGroup("!" (Attr.grindMod ppSpace)? ident)
+syntax grindParam    := grindErase <|> grindLemma <|> grindLemmaMin
 
 /--
 `grind` is a tactic inspired by modern SMT solvers. **Picture a virtual whiteboard**:
@@ -420,6 +491,23 @@ syntax (name := grindTrace)
   (" [" withoutPosition(grindParam,*) "]")?
   (&" on_failure " term)? : tactic
 
+/--
+`cutsat` solves linear integer arithmetic goals.
+
+It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `cutsat` solver.
+Please use `grind` instead if you need additional capabilities.
+-/
+syntax (name := cutsat) "cutsat" optConfig : tactic
+
+/--
+`grobner` solves goals that can be phrased as polynomial equations (with further polynomial equations as hypotheses)
+over commutative (semi)rings, using the Grobner basis algorithm.
+
+It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `grobner` solver.
+Please use `grind` instead if you need additional capabilities.
+-/
+syntax (name := grobner) "grobner" optConfig : tactic
+
 /-!
 Sets symbol priorities for the E-matching pattern inference procedure used in `grind`
 -/
@@ -433,7 +521,7 @@ are only internalized after `grind` decided whether the condition is
 -/
 
 -- The following symbols are only used as the root pattern symbol if there isn't another option
-attribute [grind symbol low] HAdd.hAdd HSub.hSub HMul.hMul Dvd.dvd HDiv.hDiv HMod.hMod
+attribute [grind symbol low] HAdd.hAdd HSub.hSub HMul.hMul HSMul.hSMul Dvd.dvd HDiv.hDiv HMod.hMod
 
 -- TODO: improve pattern inference heuristics and reduce priority for LT.lt and LE.le
 -- attribute [grind symbol low] LT.lt LE.le

@@ -11,7 +11,7 @@ public import Init.System.Promise
 public import Init.Data.SInt
 public import Std.Net
 
-@[expose] public section
+public section
 
 namespace Std
 namespace Internal
@@ -47,7 +47,7 @@ opaque connect (socket : @& Socket) (addr : @& SocketAddress) : IO (IO.Promise (
 Sends data through a TCP socket.
 -/
 @[extern "lean_uv_tcp_send"]
-opaque send (socket : @& Socket) (data : ByteArray) : IO (IO.Promise (Except IO.Error Unit))
+opaque send (socket : @& Socket) (data : Array ByteArray) : IO (IO.Promise (Except IO.Error Unit))
 
 /--
 Receives data from a TCP socket with a maximum size of size bytes. The promise resolves when data is

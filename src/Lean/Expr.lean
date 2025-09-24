@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Hashable
-public import Init.Data.Int
+public import Init.Data.Int.Basic
 public import Lean.Data.KVMap
 public import Lean.Data.SMap
 public import Lean.Level
@@ -70,7 +70,7 @@ def bar ⦃x : Nat⦄ : Nat := x
 #check bar -- bar : ⦃x : Nat⦄ → Nat
 ```
 
-See also [the Lean manual](https://lean-lang.org/lean4/doc/expressions.html#implicit-arguments).
+See also [the Lean Language Reference](https://lean-lang.org/doc/reference/latest/Terms/Functions/#implicit-functions).
 -/
 inductive BinderInfo where
   /-- Default binder annotation, e.g. `(x : α)` -/
@@ -1346,7 +1346,7 @@ def inferImplicit (e : Expr) (numParams : Nat) (considerRange : Bool) : Expr :=
   | e, _ => e
 
 /--
-Uses `newBinderInfos` to update the binder infos of the first `numParams` foralls.
+Uses `binderInfos?` to update the binder infos of the corresponding forall expressions.
 -/
 def updateForallBinderInfos (e : Expr) (binderInfos? : List (Option BinderInfo)) : Expr :=
   match e, binderInfos? with
@@ -1354,6 +1354,21 @@ def updateForallBinderInfos (e : Expr) (binderInfos? : List (Option BinderInfo))
     let b  := updateForallBinderInfos b binderInfos?
     let bi := newBi?.getD bi
     Expr.forallE n d b bi
+  | e, _ => e
+
+/--
+Uses `binderNames?` to update the binder names of the corresponding lambda and forall expressions.
+-/
+def updateBinderNames (e : Expr) (binderNames? : List (Option Name)) : Expr :=
+  match e, binderNames? with
+  | Expr.forallE n d b bi, newN? :: binderNames? =>
+    let b := updateBinderNames b binderNames?
+    let n := newN?.getD n
+    Expr.forallE n d b bi
+  | Expr.lam n d b bi, newN? :: binderNames? =>
+    let b := updateBinderNames b binderNames?
+    let n := newN?.getD n
+    Expr.lam n d b bi
   | e, _ => e
 
 /--
@@ -1440,7 +1455,9 @@ opaque instantiateRevRange (e : @& Expr) (beginIdx endIdx : @& Nat) (subst : @& 
 with `xs` ordered from outermost to innermost de Bruijn index.
 
 For example, `e := f x y` with `xs := #[x, y]` goes to `f #1 #0`,
-whereas `e := f x y` with `xs := #[y, x]` goes to `f #0 #1`. -/
+whereas `e := f x y` with `xs := #[y, x]` goes to `f #0 #1`.
+
+Careful, this function does not instantiate assigned meta variables. -/
 @[extern "lean_expr_abstract"]
 opaque abstract (e : @& Expr) (xs : @& Array Expr) : Expr
 
@@ -2380,5 +2397,14 @@ def mkIntLit (n : Int) : Expr :=
 
 def reflBoolTrue : Expr :=
   mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.true)
+
+def reflBoolFalse : Expr :=
+  mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.false)
+
+def eagerReflBoolTrue : Expr :=
+  mkApp2 (mkConst ``eagerReduce [0]) (mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) (mkConst ``Bool.true) (mkConst ``Bool.true)) reflBoolTrue
+
+def eagerReflBoolFalse : Expr :=
+  mkApp2 (mkConst ``eagerReduce [0]) (mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) (mkConst ``Bool.false) (mkConst ``Bool.false)) reflBoolFalse
 
 end Lean

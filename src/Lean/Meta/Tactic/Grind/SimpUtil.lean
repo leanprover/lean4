@@ -4,19 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Simp.Simproc
-public import Lean.Meta.Tactic.Grind.Simp
-public import Lean.Meta.Tactic.Grind.MatchDiscrOnly
-public import Lean.Meta.Tactic.Grind.MatchCond
-public import Lean.Meta.Tactic.Grind.ForallProp
-public import Lean.Meta.Tactic.Grind.Arith.Simproc
-public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.List
-public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Core
-
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.MatchDiscrOnly
+import Lean.Meta.Tactic.Grind.MatchCond
+import Lean.Meta.Tactic.Grind.ForallProp
+import Lean.Meta.Tactic.Grind.Arith.Simproc
+import Lean.Meta.Tactic.Simp.BuiltinSimprocs.List
+import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Core
+import Lean.Meta.Tactic.Grind.Util
+import Init.Grind.Norm
 public section
-
 namespace Lean.Meta.Grind
 
 builtin_initialize normExt : SimpExtension ← mkSimpExt
@@ -187,9 +186,13 @@ protected def getSimpContext (config : Grind.Config) : MetaM Simp.Context := do
   thms ← addDeclToUnfold thms ``Ne
   Simp.mkContext
     (config :=
-      { arith := true, zeta := config.zeta,
-        zetaDelta := config.zetaDelta,
-        catchRuntime := false,
+      { arith := true
+        zeta := config.zeta
+        zetaDelta := config.zetaDelta
+        -- Use `OfNat.ofNat` and `Neg.neg` for representing bitvec literals
+        bitVecOfNat := false
+        catchRuntime := false
+        warnExponents := false
         -- `implicitDefEqProofs := true` a recurrent source of performance problems in the kernel
         implicitDefEqProofs := false })
     (simpTheorems := #[thms])

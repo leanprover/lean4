@@ -4,18 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Simproc
-public import Init.Grind.Tactics
-public import Lean.Meta.AbstractNestedProofs
+public import Lean.Meta.Basic
 public import Lean.Meta.Transform
-public import Lean.Meta.Tactic.Util
-public import Lean.Meta.Tactic.Clear
 public import Lean.Meta.Tactic.Simp.Simproc
-
+import Init.Simproc
+import Init.Grind.Tactics
+import Lean.Meta.AbstractNestedProofs
+import Lean.Meta.Tactic.Util
+import Lean.Meta.Tactic.Clear
 public section
-
 namespace Lean.Meta.Grind
 /--
 Throws an exception if target of the given goal contains metavariables.
@@ -83,7 +81,7 @@ Unfolds all `reducible` declarations occurring in `e`.
 -/
 def unfoldReducible (e : Expr) : MetaM Expr := do
   if !(← isUnfoldReducibleTarget e) then return e
-  Core.transform e (pre := unfoldReducibleStep)
+  Meta.transform e (pre := unfoldReducibleStep)
 
 /--
 Unfolds all `reducible` declarations occurring in the goal's target.
@@ -182,10 +180,18 @@ def foldProjs (e : Expr) : MetaM Expr := do
       return .done e
   Meta.transform e (post := post)
 
+/-- Quick filter for checking whether we can skip `normalizeLevels`. -/
+private def levelsAlreadyNormalized (e : Expr) : Bool :=
+  Option.isNone <| e.find? fun
+    | .const _ us => us.any (! ·.isAlreadyNormalizedCheap)
+    | .sort u => !u.isAlreadyNormalizedCheap
+    | _ => false
+
 /--
 Normalizes universe levels in constants and sorts.
 -/
 def normalizeLevels (e : Expr) : CoreM Expr := do
+  if levelsAlreadyNormalized e then return e
   let pre (e : Expr) := do
     match e with
     | .sort u => return .done <| e.updateSort! u.normalize

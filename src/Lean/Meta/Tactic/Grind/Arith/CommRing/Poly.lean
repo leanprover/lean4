@@ -4,10 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.Ring.Poly
-
+public import Init.Grind.Ring.CommSolver
 public section
 namespace Lean.Grind.CommRing
 
@@ -31,11 +29,13 @@ def Mon.lcm : Mon → Mon → Mon
     | .lt => .mult pw₁ (lcm m₁ (.mult pw₂ m₂))
     | .gt => .mult pw₂ (lcm (.mult pw₁ m₁) m₂)
 
+-- Remark: we expose `Mon.divides` and `Mon.div` because we use then to write tests using `rfl`
+
 /--
 `divides m₁ m₂` returns `true` if monomial `m₁` divides `m₂`
 Example: `x^2.z` divides `w.x^3.y^2.z`
 -/
-def Mon.divides : Mon → Mon → Bool
+@[expose] def Mon.divides : Mon → Mon → Bool
   | .unit, _ => true
   | _, .unit => false
   | .mult pw₁ m₁, .mult pw₂ m₂ =>
@@ -49,7 +49,7 @@ Given `m₁` and `m₂` such that `m₂.divides m₁`, then
 `m₁.div m₂` returns the result.
 Example `w.x^3.y^2.z` div `x^2.z` returns `w.x.y^2`
 -/
-def Mon.div : Mon → Mon → Mon
+@[expose] def Mon.div : Mon → Mon → Mon
   | m₁, .unit => m₁
   | .unit, _  => .unit -- reachable only if pre-condition does not hold
   | .mult pw₁ m₁, .mult pw₂ m₂ =>

@@ -54,6 +54,7 @@ where fillCache : CoreM IRType := do
     -- `Int` is specified as an inductive type with two constructors that have relevant arguments,
     -- but it has the same runtime representation as `Nat` and thus needs to be special-cased here.
     | ``Int => return .tobject
+    | ``lcRealWorld => return .tagged
     | _ =>
       let env ← Lean.getEnv
       let some (.inductInfo inductiveVal) := env.find? name | return .tobject
@@ -63,7 +64,7 @@ where fillCache : CoreM IRType := do
       for ctorName in ctorNames do
         let some (.ctorInfo ctorInfo) := env.find? ctorName | unreachable!
         let hasRelevantField ← Meta.MetaM.run' <|
-                               Meta.forallTelescopeReducing ctorInfo.type fun params _ => do
+                               Meta.forallTelescope ctorInfo.type fun params _ => do
           for field in params[ctorInfo.numParams...*] do
             let fieldType ← field.fvarId!.getType
             let lcnfFieldType ← LCNF.toLCNFType fieldType
@@ -79,6 +80,12 @@ where fillCache : CoreM IRType := do
       else
         return .tobject
 
+private def isAnyProducingType (type : Lean.Expr) : Bool :=
+  match type with
+  | .const ``lcAny _ => true
+  | .forallE _ _ b _ => isAnyProducingType b
+  | _ => false
+
 def toIRType (type : Lean.Expr) : CoreM IRType := do
   match type with
   | .const name _ => nameToIRType name
@@ -86,7 +93,15 @@ def toIRType (type : Lean.Expr) : CoreM IRType := do
     -- All mono types are in headBeta form.
     let .const name _ := type.getAppFn | unreachable!
     nameToIRType name
-  | .forallE .. => return .object
+  | .forallE _ _ b _ =>
+    -- Type formers are erased, but can be used polymorphically as
+    -- an arrow type producing `lcAny`. The runtime representation of
+    -- erased values is a tagged scalar, so this means that any such
+    -- polymorphic type must be represented as `.tobject`.
+    if isAnyProducingType b then
+      return .tobject
+    else
+      return .object
   | .mdata _ b => toIRType b
   | _ => unreachable!
 

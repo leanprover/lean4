@@ -94,7 +94,7 @@ structure Config where
   -/
   decide            : Bool := false
   /--
-  When `true` (default: `false`), unfolds definitions.
+  When `true` (default: `false`), unfolds applications of functions defined by pattern matching, when one of the patterns applies.
   This can be enabled using the `simp!` syntax.
   -/
   autoUnfold        : Bool := false
@@ -208,7 +208,7 @@ structure Config where
   /--  When `true` (default: `false`), simplifies simple arithmetic expressions. -/
   arith             : Bool := false
   /--
-  When `true` (default: `false`), unfolds definitions.
+  When `true` (default: `false`), unfolds applications of functions defined by pattern matching, when one of the patterns applies.
   This can be enabled using the `simp!` syntax.
   -/
   autoUnfold        : Bool := false
@@ -274,13 +274,22 @@ structure Config where
   -/
   letToHave : Bool := true
   /--
-  When `true` (default : `true`), `simp` tries to realize constant `f.congr_simp`
+  When `true` (default: `true`), `simp` tries to realize constant `f.congr_simp`
   when constructing an auxiliary congruence proof for `f`.
   This option exists because the termination prover uses `simp` and `withoutModifyingEnv`
   while constructing the termination proof. Thus, any constant realized by `simp`
   is deleted.
   -/
   congrConsts : Bool := true
+  /--
+  When `true` (default: `true`), the bitvector simprocs use `BitVec.ofNat` for representing
+  bitvector literals.
+  -/
+  bitVecOfNat : Bool := true
+  /--
+  When `true` (default: `true`), the `^` simprocs generate an warning it the exponents are too big.
+  -/
+  warnExponents : Bool := true
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`

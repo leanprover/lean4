@@ -25,7 +25,7 @@ nested inductive types.
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v
+universe u v w
 
 variable {α : Type u} {_ : BEq α} {_ : Hashable α}
 
@@ -190,7 +190,7 @@ in the collection will be present in the returned hash set.
 Monadically computes a value by folding the given function over the elements in the hash set in some
 order.
 -/
-@[inline] def foldM {m : Type v → Type v} [Monad m] {β : Type v}
+@[inline] def foldM {m : Type v → Type w} [Monad m] {β : Type v}
     (f : β → α → m β) (init : β) (b : HashSet α) : m β :=
   b.inner.foldM (fun b a _ => f b a) init
 
@@ -200,19 +200,19 @@ order.
   m.inner.fold (fun b a _ => f b a) init
 
 /-- Carries out a monadic action on each element in the hash set in some order. -/
-@[inline] def forM {m : Type v → Type v} [Monad m] (f : α → m PUnit)
+@[inline] def forM {m : Type v → Type w} [Monad m] (f : α → m PUnit)
     (b : HashSet α) : m PUnit :=
   b.inner.forM (fun a _ => f a)
 
 /-- Support for the `for` loop construct in `do` blocks. -/
-@[inline] def forIn {m : Type v → Type v} [Monad m] {β : Type v}
+@[inline] def forIn {m : Type v → Type w} [Monad m] {β : Type v}
     (f : α → β → m (ForInStep β)) (init : β) (b : HashSet α) : m β :=
   b.inner.forIn (fun a _ acc => f a acc) init
 
-instance [BEq α] [Hashable α] {m : Type v → Type v} : ForM m (HashSet α) α where
+instance [BEq α] [Hashable α] {m : Type v → Type w} : ForM m (HashSet α) α where
   forM m f := m.forM f
 
-instance [BEq α] [Hashable α] {m : Type v → Type v} : ForIn m (HashSet α) α where
+instance [BEq α] [Hashable α] {m : Type v → Type w} : ForIn m (HashSet α) α where
   forIn m init f := m.forIn f init
 
 /-- Removes all elements from the hash set for which the given function returns `false`. -/
@@ -230,6 +230,10 @@ appearance.
 @[inline] def insertMany {ρ : Type v} [ForIn Id ρ α] (m : HashSet α) (l : ρ) :
     HashSet α :=
   ⟨m.inner.insertManyIfNewUnit l⟩
+
+/-- Transforms the hash set into an array of elements in some order. -/
+@[inline] def toArray (m : HashSet α) : Array α :=
+  m.inner.keysArray
 
 section Unverified
 
@@ -251,11 +255,6 @@ section Unverified
   for a in m do
     if p a then return true
   return false
-
-
-/-- Transforms the hash set into an array of elements in some order. -/
-@[inline] def toArray (m : HashSet α) : Array α :=
-  m.inner.keysArray
 
 /--
 Creates a hash set from an array of elements. Note that unlike repeatedly calling `insert`, if the

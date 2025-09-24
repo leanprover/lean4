@@ -93,7 +93,7 @@ You can use `TSyntax.getId` to extract the name from the resulting syntax object
   withAntiquot (mkAntiquot "ident" identKind) rawIdentNoAntiquot
 
 /--
-The parser `hygieneInfo` parses no text, but creates a `hygineInfoKind` node
+The parser `hygieneInfo` parses no text, but creates a `hygieneInfoKind` node
 containing an anonymous identifier as if it were parsed at the current position.
 This identifier is modified by syntax quotations to add macro scopes like a regular identifier.
 
@@ -306,6 +306,10 @@ attribute [run_builtin_parser_attribute_hooks]
   ppHardSpace ppSpace ppLine ppGroup ppRealGroup ppRealFill ppIndent ppDedent
   ppAllowUngrouped ppDedentIfGrouped ppHardLineUnlessUngrouped
 
+-- workaround: we want `ppSpace` below to refer to the built-in parser alias, not the def above that
+-- would require `meta` access
+end Parser
+
 syntax "register_parser_alias " group("(" &"kind" " := " term ") ")? (str ppSpace)? ident (ppSpace colGt term)? : term
 macro_rules
   | `(register_parser_alias $[(kind := $kind?)]? $(aliasName?)? $declName $(info?)?) => do
@@ -317,6 +321,8 @@ macro_rules
     `(do Parser.registerAlias $aliasName ``$declName $declName $(info?.getD (Unhygienic.run `({}))) (kind? := some $(kind?.getD (quote fullDeclName)))
          PrettyPrinter.Formatter.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `formatter))
          PrettyPrinter.Parenthesizer.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `parenthesizer)))
+
+open Parser
 
 builtin_initialize
   register_parser_alias patternIgnore { autoGroupArgs := false }
@@ -333,7 +339,5 @@ builtin_initialize
   register_parser_alias ppDedentIfGrouped { stackSz? := none }
   register_parser_alias ppAllowUngrouped { stackSz? := some 0 }
   register_parser_alias ppHardLineUnlessUngrouped { stackSz? := some 0 }
-
-end Parser
 
 end Lean

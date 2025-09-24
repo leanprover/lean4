@@ -7,8 +7,10 @@ module
 
 prelude
 public import Init.Data.Array.Lemmas
-public import all Init.Data.Array.Basic
-public import all Init.Data.Array.OfFn
+public import Init.Data.Array.Basic
+import all Init.Data.Array.Basic
+public import Init.Data.Array.OfFn
+import all Init.Data.Array.OfFn
 public import Init.Data.Array.MapIdx
 public import Init.Data.Array.Zip
 public import Init.Data.List.Nat.Range
@@ -114,7 +116,7 @@ theorem range'_eq_append_iff : range' s n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs =
 @[simp] theorem find?_range'_eq_some {s n : Nat} {i : Nat} {p : Nat → Bool} :
     (range' s n).find? p = some i ↔ p i ∧ i ∈ range' s n ∧ ∀ j, s ≤ j → j < i → !p j := by
   rw [← List.toArray_range']
-  simp only [List.find?_toArray, mem_toArray]
+  simp only [List.find?_toArray, List.mem_toArray]
   simp [List.find?_range'_eq_some]
 
 @[simp] theorem find?_range'_eq_none {s n : Nat} {p : Nat → Bool} :

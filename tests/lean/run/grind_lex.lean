@@ -1,3 +1,4 @@
+module
 -- From Mathlib.Data.List.Defs
 -- These needed `attribute [grind =] Prod.lex_def`
 

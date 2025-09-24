@@ -9,7 +9,8 @@ module
 prelude
 public import Init.Data.Bool
 public import Init.Data.Int.Pow
-public import all Init.Data.Nat.Bitwise.Basic
+public import Init.Data.Nat.Bitwise.Basic
+import all Init.Data.Nat.Bitwise.Basic
 public import Init.Data.Nat.Lemmas
 public import Init.Data.Nat.Simproc
 public import Init.TacticsExtra
@@ -583,22 +584,20 @@ protected theorem or_assoc (x y z : Nat) : (x ||| y) ||| z = x ||| (y ||| z) := 
    apply Nat.eq_of_testBit_eq
    simp [Bool.or_assoc]
 
-@[grind _=_]
+@[grind =]
 theorem and_or_distrib_left (x y z : Nat) : x &&& (y ||| z) = (x &&& y) ||| (x &&& z) := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.and_or_distrib_left]
 
-@[grind _=_]
+@[grind =]
 theorem and_distrib_right (x y z : Nat) : (x ||| y) &&& z = (x &&& z) ||| (y &&& z) := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.and_or_distrib_right]
 
-@[grind _=_]
 theorem or_and_distrib_left (x y z : Nat) : x ||| (y &&& z) = (x ||| y) &&& (x ||| z) := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.or_and_distrib_left]
 
-@[grind _=_]
 theorem or_and_distrib_right (x y z : Nat) : (x &&& y) ||| z = (x ||| z) &&& (y ||| z) := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.or_and_distrib_right]
@@ -674,12 +673,12 @@ instance : Std.LawfulCommIdentity (α := Nat) (· ^^^ ·) 0 where
 theorem xor_lt_two_pow {x y n : Nat} (left : x < 2^n) (right : y < 2^n) : x ^^^ y < 2^n :=
   bitwise_lt_two_pow left right
 
-@[grind _=_]
+@[grind =]
 theorem and_xor_distrib_right {a b c : Nat} : (a ^^^ b) &&& c = (a &&& c) ^^^ (b &&& c) := by
   apply Nat.eq_of_testBit_eq
   simp [Bool.and_xor_distrib_right]
 
-@[grind _=_]
+@[grind =]
 theorem and_xor_distrib_left {a b c : Nat} : a &&& (b ^^^ c) = (a &&& b) ^^^ (a &&& c) := by
   apply Nat.eq_of_testBit_eq
   simp [Bool.and_xor_distrib_left]
@@ -845,6 +844,12 @@ theorem shiftLeft_add_eq_or_of_lt {b : Nat} (b_lt : b < 2^i) (a : Nat) :
     a <<< i + b = a <<< i ||| b := by
   rw [shiftLeft_eq, Nat.mul_comm]
   rw [two_pow_add_eq_or_of_lt b_lt]
+
+@[simp]
+theorem shiftLeft_eq_zero_iff {a n : Nat} : a <<< n = 0 ↔ a = 0 := by
+  simp [shiftLeft_eq, mul_eq_zero]
+
+instance {a n : Nat} [NeZero a] : NeZero (a <<< n) := ⟨mt shiftLeft_eq_zero_iff.mp (NeZero.ne _)⟩
 
 /-! ### le -/
 

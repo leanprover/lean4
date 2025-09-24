@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Nat.Basic
-public import Init.Data.String.Basic
+public import Init.Data.String.Bootstrap
 
 public section
 

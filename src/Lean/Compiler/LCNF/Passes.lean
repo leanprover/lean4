@@ -69,7 +69,7 @@ end Pass
 open Pass
 
 def builtinPassManager : PassManager := {
-  passes := #[
+  basePasses := #[
     init,
     pullInstances,
     cse (shouldElimFunDecls := false),
@@ -85,6 +85,9 @@ def builtinPassManager : PassManager := {
     -/
     simp { etaPoly := true, inlinePartial := true, implementedBy := true } (occurrence := 1),
     eagerLambdaLifting,
+    -- Should be as early as possible but after `eagerLambdaLifting` to make sure instances are
+    -- checked without nested functions whose bodies specialization does not require access to.
+    checkTemplateVisibility,
     specialize,
     simp (occurrence := 2),
     cse (shouldElimFunDecls := false) (occurrence := 1),
@@ -93,6 +96,8 @@ def builtinPassManager : PassManager := {
     -- pass must be run for each phase; see `base/monoTransparentDeclsExt`
     inferVisibility (phase := .base),
     toMono,
+  ]
+  monoPasses := #[
     simp (occurrence := 3) (phase := .mono),
     reduceJpArity (phase := .mono),
     structProjCases,
@@ -147,6 +152,7 @@ builtin_initialize
     add   := fun declName stx kind => do
       Attribute.Builtin.ensureNoArgs stx
       unless kind == AttributeKind.global do throwAttrMustBeGlobal `cpass kind
+      ensureAttrDeclIsMeta `cpass declName kind
       discard <| addPass declName
     applicationTime := .afterCompilation
   }

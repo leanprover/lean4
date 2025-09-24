@@ -4,12 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
-
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 public section
-
 namespace Lean.Meta.Grind.Arith.Cutsat
 /--
 In principle, we only need to support two kinds of case split.

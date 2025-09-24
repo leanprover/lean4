@@ -108,20 +108,35 @@ def run (declNames : Array Name) : CompilerM (Array IR.Decl) := withAtLeastMaxRe
       if let some info ← getDeclInfo? declName then
         if !(isValidMainType info.type) then
           throwError "`main` function must have type `(List String →)? IO (UInt32 | Unit | PUnit)`"
-  let mut decls ← declNames.mapM toDecl
-  decls := markRecDecls decls
+  let decls ← declNames.mapM toDecl
+  -- Check meta accesses now before optimizations may obscure references. This check should stay in
+  -- `lean` if some compilation is moved out.
+  for decl in decls do
+    checkMeta decl
+  let decls := markRecDecls decls
   let manager ← getPassManager
   let isCheckEnabled := compiler.check.get (← getOptions)
-  for pass in manager.passes do
-    decls ← withTraceNode `Compiler (fun _ => return m!"compiler phase: {pass.phase}, pass: {pass.name}") do
-      withPhase pass.phase <| pass.run decls
-    withPhase pass.phaseOut <| checkpoint pass.name decls (isCheckEnabled || pass.shouldAlwaysRunCheck)
+  let decls ← profileitM Exception "compilation (LCNF base)" (← getOptions) do
+    let mut decls := decls
+    for pass in manager.basePasses do
+      decls ← withTraceNode `Compiler (fun _ => return m!"compiler phase: {pass.phase}, pass: {pass.name}") do
+        withPhase pass.phase <| pass.run decls
+      withPhase pass.phaseOut <| checkpoint pass.name decls (isCheckEnabled || pass.shouldAlwaysRunCheck)
+    return decls
+  let decls ← profileitM Exception "compilation (LCNF mono)" (← getOptions) do
+    let mut decls := decls
+    for pass in manager.monoPasses do
+      decls ← withTraceNode `Compiler (fun _ => return m!"compiler phase: {pass.phase}, pass: {pass.name}") do
+        withPhase pass.phase <| pass.run decls
+      withPhase pass.phaseOut <| checkpoint pass.name decls (isCheckEnabled || pass.shouldAlwaysRunCheck)
+    return decls
   if (← Lean.isTracingEnabledFor `Compiler.result) then
     for decl in decls do
       let decl ← normalizeFVarIds decl
       Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl' decl}"
-  let irDecls ← IR.toIR decls
-  IR.compile irDecls
+  profileitM Exception "compilation (IR)" (← getOptions) do
+    let irDecls ← IR.toIR decls
+    IR.compile irDecls
 
 end PassManager
 
@@ -134,9 +149,8 @@ def showDecl (phase : Phase) (declName : Name) : CoreM Format := do
 
 @[export lean_lcnf_compile_decls]
 def main (declNames : Array Name) : CoreM Unit := do
-  profileitM Exception "compilation" (← getOptions) do
-    withTraceNode `Compiler (fun _ => return m!"compiling: {declNames}") do
-      CompilerM.run <| discard <| PassManager.run declNames
+  withTraceNode `Compiler (fun _ => return m!"compiling: {declNames}") do
+    CompilerM.run <| discard <| PassManager.run declNames
 
 builtin_initialize
   registerTraceClass `Compiler.init (inherited := true)

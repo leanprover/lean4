@@ -17,6 +17,7 @@ static lean_object* l_Lean_Compiler_getDeclNamesForCodeGen___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Compiler_isEagerLambdaLiftingName___boxed(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Compiler_getDeclNamesForCodeGen_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_isEagerLambdaLiftingName___closed__0;
 static lean_object* l_Lean_Compiler_checkIsDefinition___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Compiler_mkEagerLambdaLiftingName(lean_object*, lean_object*);
@@ -33,6 +34,7 @@ static lean_object* l_Lean_Compiler_checkIsDefinition___closed__2;
 uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_checkIsDefinition(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_mkUnsafeRecName(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Compiler_getDeclNamesForCodeGen_spec__0(size_t, size_t, lean_object*);
 lean_object* lean_array_mk(lean_object*);
 lean_object* l_Lean_Environment_findAsync_x3f(lean_object*, lean_object*, uint8_t);
 size_t lean_usize_add(size_t, size_t);
@@ -45,9 +47,7 @@ static lean_object* l_Lean_Compiler_mkEagerLambdaLiftingName___closed__0;
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT uint8_t l_Lean_Compiler_isEagerLambdaLiftingName(lean_object*);
 static lean_object* l_Lean_Compiler_checkIsDefinition___closed__3;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Compiler_getDeclNamesForCodeGen_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Compiler_getDeclNamesForCodeGen_spec__0(size_t, size_t, lean_object*);
 static lean_object* _init_l_Lean_Compiler_mkEagerLambdaLiftingName___closed__0() {
 _start:
 {
@@ -63,7 +63,6 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6;
 x_3 = l_Lean_Compiler_mkEagerLambdaLiftingName___closed__0;
 x_4 = l_Nat_reprFast(x_2);
 x_5 = lean_string_append(x_3, x_4);
-lean_dec_ref(x_4);
 x_6 = l_Lean_Name_str___override(x_1, x_5);
 return x_6;
 }
@@ -123,7 +122,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Compiler_getDeclNamesForCodeGen_spec__0(size_t x_1, size_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Compiler_getDeclNamesForCodeGen_spec__0(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -232,7 +231,7 @@ lean_dec_ref(x_1);
 x_18 = lean_array_mk(x_17);
 x_19 = lean_array_size(x_18);
 x_20 = 0;
-x_21 = l_Array_mapMUnsafe_map___at___Lean_Compiler_getDeclNamesForCodeGen_spec__0(x_19, x_20, x_18);
+x_21 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Compiler_getDeclNamesForCodeGen_spec__0(x_19, x_20, x_18);
 return x_21;
 }
 default: 
@@ -245,7 +244,7 @@ return x_22;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Compiler_getDeclNamesForCodeGen_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Compiler_getDeclNamesForCodeGen_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 size_t x_4; size_t x_5; lean_object* x_6; 
@@ -253,7 +252,7 @@ x_4 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_6 = l_Array_mapMUnsafe_map___at___Lean_Compiler_getDeclNamesForCodeGen_spec__0(x_4, x_5, x_3);
+x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Compiler_getDeclNamesForCodeGen_spec__0(x_4, x_5, x_3);
 return x_6;
 }
 }
@@ -313,7 +312,6 @@ x_7 = l_Lean_Compiler_checkIsDefinition___closed__1;
 x_8 = 1;
 x_9 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_2, x_8);
 x_10 = lean_string_append(x_7, x_9);
-lean_dec_ref(x_9);
 x_11 = l_Lean_Compiler_checkIsDefinition___closed__2;
 x_12 = lean_string_append(x_10, x_11);
 x_13 = lean_alloc_ctor(0, 1, 0);
@@ -350,7 +348,6 @@ x_17 = l_Lean_Compiler_checkIsDefinition___closed__3;
 x_18 = 1;
 x_19 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_2, x_18);
 x_20 = lean_string_append(x_17, x_19);
-lean_dec_ref(x_19);
 x_21 = l_Lean_Compiler_checkIsDefinition___closed__4;
 x_22 = lean_string_append(x_20, x_21);
 lean_ctor_set_tag(x_6, 0);
@@ -385,7 +382,6 @@ x_25 = l_Lean_Compiler_checkIsDefinition___closed__3;
 x_26 = 1;
 x_27 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_2, x_26);
 x_28 = lean_string_append(x_25, x_27);
-lean_dec_ref(x_27);
 x_29 = l_Lean_Compiler_checkIsDefinition___closed__4;
 x_30 = lean_string_append(x_28, x_29);
 x_31 = lean_alloc_ctor(0, 1, 0);

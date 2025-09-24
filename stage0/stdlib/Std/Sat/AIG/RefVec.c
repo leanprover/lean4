@@ -27,6 +27,8 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_cast___redArg___boxed(lean_object*
 static lean_object* l_Std_Sat_AIG_RefVec_empty___closed__0;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_cast_x27___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_empty___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_BinaryRefVec_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Bool_toNat(uint8_t);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_cast___redArg(lean_object*);
@@ -52,7 +54,6 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_append___boxed(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_getD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_getD___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_emptyWithCapacity(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_countKnown_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_get___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_countKnown___redArg(lean_object*, lean_object*, lean_object*);
@@ -69,6 +70,7 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_cast_x27(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_cast(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_BinaryRefVec_cast(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_emptyWithCapacity___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_BinaryRefVec_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_RefVec_0__Std_Sat_AIG_RefVec_countKnown_go_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_RefVec_0__Std_Sat_AIG_BinaryRefVec_cast_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -221,11 +223,10 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_get___redArg(lean_object* x_1, lea
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_3 = lean_array_fget(x_1, x_2);
+x_3 = lean_array_fget_borrowed(x_1, x_2);
 x_4 = lean_unsigned_to_nat(1u);
 x_5 = lean_nat_shiftr(x_3, x_4);
 x_6 = lean_nat_land(x_4, x_3);
-lean_dec(x_3);
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_nat_dec_eq(x_6, x_7);
 lean_dec(x_6);
@@ -253,11 +254,10 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_get(lean_object* x_1, lean_object*
 _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
-x_9 = lean_array_fget(x_6, x_7);
+x_9 = lean_array_fget_borrowed(x_6, x_7);
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_shiftr(x_9, x_10);
 x_12 = lean_nat_land(x_10, x_9);
-lean_dec(x_9);
 x_13 = lean_unsigned_to_nat(0u);
 x_14 = lean_nat_dec_eq(x_12, x_13);
 lean_dec(x_12);
@@ -439,11 +439,10 @@ return x_4;
 else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_6 = lean_array_fget(x_2, x_3);
+x_6 = lean_array_fget_borrowed(x_2, x_3);
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_shiftr(x_6, x_7);
 x_9 = lean_nat_land(x_7, x_6);
-lean_dec(x_6);
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = lean_nat_dec_eq(x_9, x_10);
 lean_dec(x_9);
@@ -480,11 +479,10 @@ return x_8;
 else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
-x_10 = lean_array_fget(x_6, x_7);
+x_10 = lean_array_fget_borrowed(x_6, x_7);
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = lean_nat_shiftr(x_10, x_11);
 x_13 = lean_nat_land(x_11, x_10);
-lean_dec(x_10);
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_nat_dec_eq(x_13, x_14);
 lean_dec(x_13);
@@ -549,11 +547,10 @@ else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = lean_ctor_get(x_2, 0);
-x_8 = lean_array_fget(x_3, x_4);
+x_8 = lean_array_fget_borrowed(x_3, x_4);
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_shiftr(x_8, x_9);
-lean_dec(x_8);
-x_11 = lean_array_fget(x_7, x_10);
+x_11 = lean_array_fget_borrowed(x_7, x_10);
 lean_dec(x_10);
 if (lean_obj_tag(x_11) == 0)
 {
@@ -569,7 +566,6 @@ goto _start;
 else
 {
 lean_object* x_15; 
-lean_dec(x_11);
 x_15 = lean_nat_add(x_4, x_9);
 lean_dec(x_4);
 x_4 = x_15;
@@ -615,7 +611,7 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_dec_ref(x_3);
+lean_dec(x_3);
 lean_inc(x_2);
 return x_2;
 }
@@ -689,6 +685,27 @@ x_7 = l_Std_Sat_AIG_RefVec_countKnown(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_BinaryRefVec_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = lean_unsigned_to_nat(0u);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_BinaryRefVec_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Std_Sat_AIG_BinaryRefVec_ctorIdx(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec_ref(x_6);
+lean_dec(x_5);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 return x_7;

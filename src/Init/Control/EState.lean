@@ -19,8 +19,8 @@ variable {ε σ α : Type u}
 
 instance [ToString ε] [ToString α] : ToString (Result ε σ α) where
   toString
-    | Result.ok a _    => "ok: " ++ toString a
-    | Result.error e _ => "error: " ++ toString e
+    | Result.ok a _    => String.Internal.append "ok: " (toString a)
+    | Result.error e _ => String.Internal.append "error: " (toString e)
 
 instance [Repr ε] [Repr α] : Repr (Result ε σ α) where
   reprPrec

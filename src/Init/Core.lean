@@ -30,6 +30,29 @@ theorem id_def {α : Sort u} (a : α) : id a = a := rfl
 attribute [grind] id
 
 /--
+A helper gadget for instructing the kernel to eagerly reduce terms.
+
+When the gadget wraps the argument of an application, then when checking that
+the expected and inferred type of the argument match, the kernel will evaluate terms more eagerly.
+It is often used to wrap `Eq.refl true` proof terms as `eagerReduce (Eq.refl true)`
+when using proof by reflection.
+As an example, consider the theorem:
+```
+theorem eq_norm (ctx : Context) (p₁ p₂ : Poly) (h : (p₁.norm == p₂) = true) :
+  p₁.denote ctx = 0 → p₂.denote ctx = 0
+```
+The argument `h : (p₁.norm == p₂) = true` is a candidate for `eagerReduce`.
+When applying this theorem, we would write:
+
+```
+eq_norm ctx p q (eagerReduce (Eq.refl true)) h
+```
+to instruct the kernel to use eager reduction when establishing that `(p.norm == q) = true` is
+definitionally equal to `true = true`.
+-/
+@[expose] def eagerReduce {α : Sort u} (a : α) : α := a
+
+/--
 `flip f a b` is `f b a`. It is useful for "point-free" programming,
 since it can sometimes be used to avoid introducing variables.
 For example, `(·<·)` is the less-than relation,
@@ -1557,6 +1580,7 @@ instance {p q : Prop} [d : Decidable (p ↔ q)] : Decidable (p = q) :=
 
 gen_injective_theorems% Array
 gen_injective_theorems% BitVec
+gen_injective_theorems% ByteArray
 gen_injective_theorems% Char
 gen_injective_theorems% DoResultBC
 gen_injective_theorems% DoResultPR
@@ -2499,11 +2523,16 @@ class Antisymm (r : α → α → Prop) : Prop where
   /-- An antisymmetric relation `r` satisfies `r a b → r b a → a = b`. -/
   antisymm (a b : α) : r a b → r b a → a = b
 
-/-- `Asymm X r` means that the binary relation `r` on `X` is asymmetric, that is,
+/-- `Asymm r` means that the binary relation `r` is asymmetric, that is,
 `r a b → ¬ r b a`. -/
 class Asymm (r : α → α → Prop) : Prop where
   /-- An asymmetric relation satisfies `r a b → ¬ r b a`. -/
   asymm : ∀ a b, r a b → ¬r b a
+
+/-- `Symm r` means that the binary relation `r` is symmetric, that is, `r a b → r b a`.  -/
+class Symm (r : α → α → Prop) : Prop where
+  /-- A symmetric relation satisfies `r a b → r b a`. -/
+  symm : ∀ a b, r a b → r b a
 
 /-- `Total X r` means that the binary relation `r` on `X` is total, that is, that for any
 `x y : X` we have `r x y` or `r y x`. -/
@@ -2518,7 +2547,3 @@ class Irrefl (r : α → α → Prop) : Prop where
   irrefl : ∀ a, ¬r a a
 
 end Std
-
-/-- Deprecated alias for `XorOp`. -/
-@[deprecated XorOp (since := "2025-07-30")]
-abbrev Xor := XorOp

@@ -7,6 +7,8 @@ module
 
 prelude
 public import Lean.Meta.Tactic.FunInd
+public import Lean.Meta.Match.MatcherApp.Transform
+import Lean.Meta.Tactic.Simp.Rewrite
 
 public section
 
@@ -41,8 +43,8 @@ A list of pairs `(numParams, alt)` per match alternative, where `numParams` is t
 number of parameters of the alternative and `alt` is the alternative.
 -/
 def altInfos (info : SplitInfo) : Array (Nat × Expr) := match info with
-  | ite e => #[(0, e.getArg! 3), (1, e.getArg! 4)]
-  | dite e => #[(0, e.getArg! 3), (1, e.getArg! 4)]
+  | ite e => #[(0, e.getArg! 3), (0, e.getArg! 4)]
+  | dite e => #[(1, e.getArg! 3), (1, e.getArg! 4)]
   | matcher matcherApp => matcherApp.altNumParams.mapIdx fun idx numParams =>
       (numParams, matcherApp.alts[idx]!)
 
@@ -98,7 +100,7 @@ def rwIfOrMatcher (idx : Nat) (e : Expr) : MetaM Simp.Result := do
     let c := e.getArg! 1
     let c := if idx = 0 then c else mkNot c
     let .some fv ← findLocalDeclWithType? c
-      | throwError "Failed to proof for if condition {c}"
+      | throwError "Failed to find proof for if condition {c}"
     FunInd.rwIfWith (mkFVar fv) e
   else
     FunInd.rwMatcher idx e

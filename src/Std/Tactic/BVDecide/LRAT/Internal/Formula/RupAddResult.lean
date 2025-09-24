@@ -175,7 +175,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
           refine ⟨⟨j.1, j_lt_updatedUnits_size⟩, mostRecentUnitIdx, i_gt_zero, ?_⟩
           simp only [insertUnit, h5, ite_false, reduceCtorEq]
           constructor
-          · rw [Array.getElem_push_lt, h1]
+          · rw [Array.getElem_push_lt j.2, h1]
           · constructor
             · simp +zetaDelta [i_eq_l, ← hl]
               rfl
@@ -215,7 +215,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
           · simp +zetaDelta [i_eq_l, ← hl]
             rfl
           · constructor
-            · rw [Array.getElem_push_lt, h1]
+            · rw [Array.getElem_push_lt j.2, h1]
             · constructor
               · simp only [i_eq_l]
                 rw [Array.getElem_modify_self]
@@ -258,7 +258,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
         refine ⟨⟨j.1, j_lt_updatedUnits_size⟩, b,i_gt_zero, ?_⟩
         simp only [insertUnit, h5, ite_false, reduceCtorEq]
         constructor
-        · rw [Array.getElem_push_lt, h1]
+        · rw [Array.getElem_push_lt j.2, h1]
         · constructor
           · grind
           · constructor
@@ -948,7 +948,7 @@ theorem nodup_derivedLits {n : Nat} (f : DefaultFormula n)
     next k_ne_i =>
       have i_ne_k : ⟨i.1, i_in_bounds⟩ ≠ k := by intro i_eq_k; simp only [← i_eq_k, not_true] at k_ne_i
       specialize h3 ⟨i.1, i_in_bounds⟩ i_ne_k
-      grind [Fin.getElem_fin]
+      grind
   · by_cases li.2 = true
     next li_eq_true =>
       have i_ne_k2 : ⟨i.1, i_in_bounds⟩ ≠ k2 := by

@@ -1,3 +1,4 @@
+module
 reset_grind_attrs%
 attribute [grind] Vector.getElem_swap_of_ne
 

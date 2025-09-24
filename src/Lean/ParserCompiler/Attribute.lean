@@ -51,7 +51,7 @@ def setDeclFor (attr : CombinatorAttribute) (env : Environment) (parserDecl : Na
 unsafe def runDeclFor {α} (attr : CombinatorAttribute) (parserDecl : Name) : CoreM α := do
   match attr.getDeclFor? (← getEnv) parserDecl with
   | some d => evalConst α d
-  | _      => throwError "no declaration of attribute [{attr.impl.name}] found for '{parserDecl}'"
+  | _      => throwError "no declaration of attribute [{attr.impl.name}] found for `{parserDecl}`"
 
 end CombinatorAttribute
 

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.NotationExtra
+public meta import Init.Data.ToString.Name
 
 public section
 
@@ -130,7 +131,7 @@ macro_rules
     `($[$doc?:docComment]? def $n:ident : $(mkIdent simprocType) := $body
       builtin_simproc_pattern% $pattern => $n)
 
-private def mkAttributeCmds
+private meta def mkAttributeCmds
     (kind : TSyntax `Lean.Parser.Term.attrKind)
     (pre? : Option (TSyntax [`Lean.Parser.Tactic.simpPre, `Lean.Parser.Tactic.simpPost]))
     (ids? : Option (Syntax.TSepArray `ident ","))

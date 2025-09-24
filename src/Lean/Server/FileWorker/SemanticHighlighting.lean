@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Server.Requests
+import Lean.DocString.Syntax
 
 public section
 
@@ -23,9 +24,13 @@ def noHighlightKinds : Array SyntaxNodeKind := #[
   ``Lean.Parser.Term.type,
   ``Lean.Parser.Term.prop,
   -- not really keywords
-  `antiquotName,
+  `antiquotName]
+
+def docKinds : Array SyntaxNodeKind := #[
+  ``Lean.Parser.Command.plainDocComment,
   ``Lean.Parser.Command.docComment,
-  ``Lean.Parser.Command.moduleDoc]
+  ``Lean.Parser.Command.moduleDoc
+]
 
 -- TODO: make extensible, or don't
 /-- Keywords for which a specific semantic token is provided. -/
@@ -93,6 +98,131 @@ def computeDeltaLspSemanticTokens (tokens : Array AbsoluteLspSemanticToken) : Se
     lastPos := pos
   return { data }
 
+open Lean.Doc.Syntax in
+def isVersoKind (k : SyntaxNodeKind) : Bool :=
+  (`Lean.Doc.Syntax).isPrefixOf k
+
+
+open Lean.Doc.Syntax in
+private partial def collectVersoTokens
+    (stx : Syntax) (getTokens : (stx : Syntax) → Array LeanSemanticToken) :
+    Array LeanSemanticToken :=
+  go stx |>.run #[] |>.2
+where
+  tok (tk : Syntax) (k : SemanticTokenType) : StateM (Array LeanSemanticToken) Unit :=
+    modify (·.push ⟨tk, k⟩)
+
+  go (stx : Syntax) : StateM (Array LeanSemanticToken) Unit := do
+  match stx with
+  | `(arg_val| $x:ident )
+  | `(arg_val| $x:str )
+  | `(arg_val| $x:num ) =>
+    tok x .parameter
+  | `(named| (%$tk1 $x:ident :=%$tk2 $v:arg_val )%$tk3) =>
+    tok tk1 .keyword
+    tok x .property
+    tok tk2 .keyword
+    go v
+    tok tk3 .keyword
+  | `(named_no_paren| $x:ident :=%$tk $v:arg_val ) =>
+    tok x .property
+    tok tk .keyword
+    go v
+  | `(flag_on| +%$tk$x)  | `(flag_off| -%$tk$x) =>
+    tok tk .keyword
+    tok x .property
+  | `(link_target| [%$tk1 $s ]%$tk2) =>
+    tok tk1 .keyword
+    tok s .string
+    tok tk2 .keyword
+  | `(link_target| (%$tk1 $s )%$tk2) =>
+    tok tk1 .keyword
+    tok s .property
+    tok tk2 .keyword
+  | `(inline|$_:str) | `(inline|line! $_) => pure () -- No tokens for plain text or line breaks
+  | `(inline| *[%$tk1 $inls* ]%$tk2) | `(inline|_[%$tk1 $inls* ]%$tk2) =>
+    tok tk1 .keyword
+    inls.forM go
+    tok tk2 .keyword
+  | `(inline| link[%$tk1 $inls* ]%$tk2 $ref) =>
+    tok tk1 .keyword
+    inls.forM go
+    tok tk2 .keyword
+    go ref
+  | `(inline| image(%$tk1 $s )%$tk2 $ref) =>
+    tok tk1 .keyword
+    tok s .string
+    tok tk2 .keyword
+    go ref
+  | `(inline| footnote(%$tk1 $s )%$tk2) =>
+    tok tk1 .keyword
+    tok s .property
+    tok tk2 .keyword
+  | `(inline| code(%$tk1 $s )%$tk2) =>
+    tok tk1 .keyword
+    tok s .string
+    tok tk2 .keyword
+  | `(inline| role{%$tk1 $x $args* }%$tk2 [%$tk3 $inls* ]%$tk4) =>
+    tok tk1 .keyword
+    tok x .function
+    args.forM go
+    tok tk2 .keyword
+    tok tk3 .keyword
+    inls.forM go
+    tok tk4 .keyword
+  | `(inline| \math%$tk1 code(%$tk2 $s )%$tk3)
+  | `(inline| \displaymath%$tk1 code(%$tk2 $s )%$tk3) =>
+    tok tk1 .keyword
+    tok s .string
+    tok tk2 .keyword
+    tok tk3 .keyword
+  | `(list_item| *%$tk $inls*) =>
+    tok tk .keyword
+    inls.forM go
+  | `(desc| :%$tk $inls* => $blks*) =>
+    tok tk .keyword
+    inls.forM go
+    blks.forM go
+  | `(block|para[$inl*]) => inl.forM go
+  | `(block| ```%$tk1 $x $args* | $s ```%$tk2)=>
+    tok tk1 .keyword
+    tok x .function
+    args.forM go
+    tok s .string
+    tok tk2 .keyword
+  | `(block| :::%$tk1 $x $args* { $blks* }%$tk2)=>
+    tok tk1 .keyword
+    tok x .function
+    args.forM go
+    blks.forM go
+    tok tk2 .keyword
+  | `(block| command{%$tk1 $x $args*}%$tk2)=>
+    tok tk1 .keyword
+    tok x .function
+    args.forM go
+    tok tk2 .keyword
+  | `(block| %%%%$tk1 $vals* %%%%$tk2)=>
+    tok tk1 .keyword
+    modify (· ++ getTokens (mkNullNode vals))
+    tok tk2 .keyword
+  | `(block| [%$tk1 $s ]:%$tk2 $url) =>
+    tok tk1 .keyword
+    tok s .property
+    tok tk2 .keyword
+    tok url .string
+  | `(block| [^%$tk1 $s ]:%$tk2 $inls*) =>
+    tok tk1 .keyword
+    tok s .property
+    tok tk2 .keyword
+    inls.forM go
+  | `(block| header(%$tk $_ ){ $inls* })=>
+    tok tk .keyword
+    inls.forM go
+  | `(block|ul{$items*}) | `(block|ol($_){$items*}) | `(block|dl{$items*}) =>
+    items.forM go
+  | _ =>
+    pure ()
+
 /--
 Collects all semantic tokens that can be deduced purely from `Syntax`
 without elaboration information.
@@ -107,6 +237,12 @@ partial def collectSyntaxBasedSemanticTokens : (stx : Syntax) → Array LeanSema
   | stx => Id.run do
     if noHighlightKinds.contains stx.getKind then
       return #[]
+    if docKinds.contains stx.getKind then
+      -- Docs are only highlighted in Verso format, in which case `stx[1]` is a node.
+      if stx[1].isAtom then
+        return #[]
+      else
+        return collectVersoTokens stx[1] collectSyntaxBasedSemanticTokens
     let mut tokens :=
       if stx.isOfKind choiceKind then
         collectSyntaxBasedSemanticTokens stx[0]
@@ -120,10 +256,12 @@ partial def collectSyntaxBasedSemanticTokens : (stx : Syntax) → Array LeanSema
       return tokens
     return tokens.push ⟨stx, keywordSemanticTokenMap.getD val .keyword⟩
 
+
+open Lean.Doc.Syntax in
 /-- Collects all semantic tokens from the given `Elab.InfoTree`. -/
 def collectInfoBasedSemanticTokens (i : Elab.InfoTree) : Array LeanSemanticToken :=
-  List.toArray <| i.deepestNodes fun _ i _ => do
-    let .ofTermInfo ti := i
+  List.toArray <| i.deepestNodes fun _ info _ => do
+    let .ofTermInfo ti := info
       | none
     let .original .. := ti.stx.getHeadInfo
       | none

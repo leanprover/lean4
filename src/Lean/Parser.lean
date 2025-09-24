@@ -34,6 +34,7 @@ builtin_initialize
   register_parser_alias (kind := nameLitKind) "name" nameLit
   register_parser_alias (kind := scientificLitKind) "scientific" scientificLit
   register_parser_alias (kind := identKind) ident
+  register_parser_alias (kind := identKind) rawIdent
   register_parser_alias (kind := hygieneInfoKind) hygieneInfo
   register_parser_alias "colGt" checkColGt { stackSz? := some 0 }
   register_parser_alias "colGe" checkColGe { stackSz? := some 0 }
@@ -91,6 +92,7 @@ unsafe def interpretParserDescr : ParserDescr → CoreM Parenthesizer
   | ParserDescr.trailingNode k prec lhsPrec d       => return trailingNode.parenthesizer k prec lhsPrec (← interpretParserDescr d)
   | ParserDescr.symbol tk                           => return symbol.parenthesizer tk
   | ParserDescr.nonReservedSymbol tk includeIdent   => return nonReservedSymbol.parenthesizer tk includeIdent
+  | ParserDescr.unicodeSymbol tk asciiTk preserve   => return unicodeSymbol.parenthesizer tk asciiTk preserve
   | ParserDescr.parser constName                    => combinatorParenthesizerAttribute.runDeclFor constName
   | ParserDescr.cat catName prec                    => return categoryParser.parenthesizer catName prec
 
@@ -123,6 +125,7 @@ unsafe def interpretParserDescr : ParserDescr → CoreM Formatter
   | ParserDescr.trailingNode k prec lhsPrec d       => return trailingNode.formatter k prec lhsPrec (← interpretParserDescr d)
   | ParserDescr.symbol tk                           => return symbol.formatter tk
   | ParserDescr.nonReservedSymbol tk _              => return nonReservedSymbol.formatter tk
+  | ParserDescr.unicodeSymbol tk asciiTk preserve   => return unicodeSymbol.formatter tk asciiTk preserve
   | ParserDescr.parser constName                    => combinatorFormatterAttribute.runDeclFor constName
   | ParserDescr.cat catName _                       => return categoryParser.formatter catName
 

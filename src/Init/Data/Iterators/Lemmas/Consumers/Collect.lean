@@ -8,8 +8,10 @@ module
 prelude
 public import Init.Data.Iterators.Lemmas.Basic
 public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
-public import all Init.Data.Iterators.Consumers.Access
-public import all Init.Data.Iterators.Consumers.Collect
+public import Init.Data.Iterators.Consumers.Access
+import all Init.Data.Iterators.Consumers.Access
+public import Init.Data.Iterators.Consumers.Collect
+import all Init.Data.Iterators.Consumers.Collect
 
 public section
 
@@ -42,11 +44,13 @@ theorem IterM.toListRev_toIter {α β} [Iterator α Id β] [Finite α Id]
     it.toIter.toListRev = it.toListRev.run :=
   (rfl)
 
+@[simp]
 theorem Iter.toList_toArray {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id]
     [LawfulIteratorCollect α Id Id] {it : Iter (α := α) β} :
     it.toArray.toList = it.toList := by
   simp [toArray_eq_toArray_toIterM, toList_eq_toList_toIterM, ← IterM.toList_toArray]
 
+@[simp]
 theorem Iter.toArray_toList {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id]
     [LawfulIteratorCollect α Id Id] {it : Iter (α := α) β} :
     it.toList.toArray = it.toArray := by

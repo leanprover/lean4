@@ -4,20 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind
-public import Lean.Meta.Tactic.Grind.Proof
-public import Lean.Meta.Tactic.Grind.PropagatorAttr
-public import Lean.Meta.Tactic.Grind.Simp
-public import Lean.Meta.Tactic.Grind.Ext
-public import Lean.Meta.Tactic.Grind.Internalize
+public import Lean.Meta.Tactic.Grind.Types
+import Init.Grind
+import Lean.Meta.Tactic.Grind.Proof
+import Lean.Meta.Tactic.Grind.PropagatorAttr
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Ext
 import Lean.Meta.Tactic.Grind.Diseq
-
 public section
-
 namespace Lean.Meta.Grind
-
 /--
 Propagates equalities for a conjunction `a ∧ b` based on the truth values
 of its components `a` and `b`. This function checks the truth value of `a` and `b`,
@@ -183,9 +179,7 @@ builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
     let_expr Eq α lhs rhs := e | return ()
     if α.isConstOf ``Bool then
       propagateBoolDiseq e lhs rhs
-    propagateCutsatDiseq lhs rhs
-    propagateCommRingDiseq lhs rhs
-    propagateLinarithDiseq lhs rhs
+    Solvers.propagateDiseqs lhs rhs
     let thms ← getExtTheorems α
     if !thms.isEmpty then
       /-

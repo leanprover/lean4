@@ -52,9 +52,9 @@ def getEnumToBitVecFor (declName : Name) : MetaM Name := do
   let enumToBitVecName := Name.str declName enumToBitVecSuffix
   realizeConst declName enumToBitVecName do
     let env ← getEnv
-    let .inductInfo inductiveInfo ← getConstInfo declName | throwError m!"{declName} is not an inductive."
+    let .inductInfo inductiveInfo ← getConstInfo declName | throwError m!"{.ofConstName declName} is not an inductive."
     if !(← isEnumType declName) then
-      throwError m!"{declName} is not an enum inductive."
+      throwError m!"{.ofConstName declName} is not an enum inductive."
     let domainSize := inductiveInfo.ctors.length
     let bvSize := getBitVecSize domainSize
     let bvType := mkApp (mkConst ``BitVec) (toExpr bvSize)
@@ -348,7 +348,7 @@ def getMatchEqCondFor (declName : Name) : MetaM Name := do
   if let some kind ← isSupportedMatch declName then
     return (← getMatchEqCondForAux declName kind)
   else
-    throwError m!"{matchEqCondSuffix} lemma could not be established for {declName}"
+    throwError m!"{matchEqCondSuffix} lemma could not be established for {.ofConstName declName}"
 
 builtin_initialize
   registerReservedNamePredicate fun env name => Id.run do

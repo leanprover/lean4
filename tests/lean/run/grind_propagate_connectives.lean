@@ -1,9 +1,10 @@
-import Lean.Meta.Tactic.Grind
+module
+meta import Lean.Meta.Tactic.Grind
 
 set_option trace.Meta.debug true
 
 open Lean Meta Grind in
-def fallback : Fallback := do
+private meta def fallback : Fallback := do
   let trueExprs := (← filterENodes fun e => return e.self.isFVar && (← isEqTrue e.self)).toList.map (·.self)
   let falseExprs := (← filterENodes fun e => return e.self.isFVar && (← isEqFalse e.self)).toList.map (·.self)
   trace[Meta.debug] "true:  {trueExprs}"

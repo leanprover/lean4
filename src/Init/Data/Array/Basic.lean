@@ -10,11 +10,11 @@ public import Init.WFTactics
 public import Init.Data.Nat.Basic
 public import Init.Data.Fin.Basic
 public import Init.Data.UInt.BasicAux
-public import Init.Data.Repr
-public import Init.Data.ToString.Basic
 public import Init.GetElem
-public import all Init.Data.List.ToArrayImpl
-public import all Init.Data.Array.Set
+public import Init.Data.List.ToArrayImpl
+import all Init.Data.List.ToArrayImpl
+public import Init.Data.Array.Set
+import all Init.Data.Array.Set
 
 public section
 
@@ -40,11 +40,11 @@ namespace Array
 
 /-! ### Preliminary theorems -/
 
-@[simp, grind] theorem size_set {xs : Array α} {i : Nat} {v : α} (h : i < xs.size) :
+@[simp, grind =] theorem size_set {xs : Array α} {i : Nat} {v : α} (h : i < xs.size) :
     (set xs i v h).size = xs.size :=
   List.length_set ..
 
-@[simp, grind] theorem size_push {xs : Array α} (v : α) : (push xs v).size = xs.size + 1 :=
+@[simp, grind =] theorem size_push {xs : Array α} (v : α) : (push xs v).size = xs.size + 1 :=
   List.length_concat ..
 
 theorem ext {xs ys : Array α}
@@ -108,12 +108,18 @@ instance : Membership α (Array α) where
 theorem mem_def {a : α} {as : Array α} : a ∈ as ↔ a ∈ as.toList :=
   ⟨fun | .mk h => h, Array.Mem.mk⟩
 
-@[simp, grind =] theorem mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l := by
+@[simp, grind =] theorem _root_.List.mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l := by
   simp [mem_def]
 
-@[simp, grind] theorem getElem_mem {xs : Array α} {i : Nat} (h : i < xs.size) : xs[i] ∈ xs := by
+@[deprecated List.mem_toArray (since := "2025-09-04")]
+theorem mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l :=
+  List.mem_toArray
+
+@[simp] theorem getElem_mem {xs : Array α} {i : Nat} (h : i < xs.size) : xs[i] ∈ xs := by
   rw [Array.mem_def, ← getElem_toList]
   apply List.getElem_mem
+
+grind_pattern getElem_mem => xs[i] ∈ xs
 
 @[simp, grind =] theorem emptyWithCapacity_eq {α n} : @emptyWithCapacity α n = #[] := rfl
 
@@ -123,19 +129,10 @@ end Array
 
 namespace List
 
-@[deprecated Array.toArray_toList (since := "2025-02-17")]
-abbrev toArray_toList := @Array.toArray_toList
-
 -- This does not need to be a simp lemma, as already after the `whnfR` the right hand side is `as`.
 theorem toList_toArray {as : List α} : as.toArray.toList = as := rfl
 
-@[deprecated toList_toArray (since := "2025-02-17")]
-abbrev _root_.Array.toList_toArray := @List.toList_toArray
-
-@[simp, grind] theorem size_toArray {as : List α} : as.toArray.size = as.length := by simp [Array.size]
-
-@[deprecated size_toArray (since := "2025-02-17")]
-abbrev _root_.Array.size_toArray := @List.size_toArray
+@[simp, grind =] theorem size_toArray {as : List α} : as.toArray.size = as.length := by simp [Array.size]
 
 @[simp, grind =] theorem getElem_toArray {xs : List α} {i : Nat} (h : i < xs.toArray.size) :
     xs.toArray[i] = xs[i]'(by simpa using h) := rfl
@@ -162,8 +159,8 @@ This is a low-level version of `Array.size` that directly queries the runtime sy
 representation of arrays. While this is not provable, `Array.usize` always returns the exact size of
 the array since the implementation only supports arrays of size less than `USize.size`.
 -/
-@[extern "lean_array_size", simp]
-def usize (a : @& Array α) : USize := a.size.toUSize
+@[extern "lean_array_size", simp, expose]
+def usize (xs : @& Array α) : USize := xs.size.toUSize
 
 /--
 Low-level indexing operator which is as fast as a C array read.
@@ -171,8 +168,8 @@ Low-level indexing operator which is as fast as a C array read.
 This avoids overhead due to unboxing a `Nat` used as an index.
 -/
 @[extern "lean_array_uget", simp, expose]
-def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
-  a[i.toNat]
+def uget (xs : @& Array α) (i : USize) (h : i.toNat < xs.size) : α :=
+  xs[i.toNat]
 
 /--
 Low-level modification operator which is as fast as a C array write. The modification is performed
@@ -197,7 +194,7 @@ Examples:
 def pop (xs : Array α) : Array α where
   toList := xs.toList.dropLast
 
-@[simp, grind] theorem size_pop {xs : Array α} : xs.pop.size = xs.size - 1 := by
+@[simp, grind =] theorem size_pop {xs : Array α} : xs.pop.size = xs.size - 1 := by
   match xs with
   | ⟨[]⟩ => rfl
   | ⟨a::as⟩ => simp [pop, Nat.succ_sub_succ_eq_sub, size]
@@ -406,10 +403,6 @@ that requires a proof the array is non-empty.
 def back? (xs : Array α) : Option α :=
   xs[xs.size - 1]?
 
-@[deprecated "Use `a[i]?` instead." (since := "2025-02-12"), expose]
-def get? (xs : Array α) (i : Nat) : Option α :=
-  if h : i < xs.size then some xs[i] else none
-
 /--
 Swaps a new element with the element at the given index.
 
@@ -441,7 +434,7 @@ def swapAt! (xs : Array α) (i : Nat) (v : α) : α × Array α :=
     swapAt xs i v
   else
     have : Inhabited (α × Array α) := ⟨(v, xs)⟩
-    panic! ("index " ++ toString i ++ " out of bounds")
+    panic! String.Internal.append (String.Internal.append "index " (toString i)) " out of bounds"
 
 /--
 Returns the first `n` elements of an array. The resulting array is produced by repeatedly calling
@@ -1806,7 +1799,6 @@ Examples:
 * `#["apple", "pear", "orange"].eraseIdxIfInBounds 3 = #["apple", "pear", "orange"]`
 * `#["apple", "pear", "orange"].eraseIdxIfInBounds 5 = #["apple", "pear", "orange"]`
 -/
-@[grind]
 def eraseIdxIfInBounds (xs : Array α) (i : Nat) : Array α :=
   if h : i < xs.size then xs.eraseIdx i h else xs
 
@@ -2167,7 +2159,7 @@ instance {α : Type u} [Repr α] : Repr (Array α) where
   reprPrec xs _ := Array.repr xs
 
 instance [ToString α] : ToString (Array α) where
-  toString xs := "#" ++ toString xs.toList
+  toString xs := String.Internal.append "#" (toString xs.toList)
 
 end Array
 

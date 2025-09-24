@@ -1,5 +1,5 @@
 g1.{u} {α : Type u} (a : α) : α
-autoBoundImplicits2.lean:30:17-30:18: error: unknown universe level 'u'
-autoBoundImplicits2.lean:33:17-33:18: error: unknown universe level 'β'
+autoBoundImplicits2.lean:30:17-30:18: error: unknown universe level `u`
+autoBoundImplicits2.lean:33:17-33:18: error: unknown universe level `β`
 def h1.{u} : {m : Type u → Type u} → {α : Type u} → m α → m α :=
 fun {m} {α} a => a

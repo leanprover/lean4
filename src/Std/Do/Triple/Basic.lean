@@ -17,7 +17,7 @@ meta import Std.Do.SPred.Notation
 Hoare triples form the basis for compositional functional correctness proofs about monadic programs.
 
 As usual, `Triple x P Q` holds iff the precondition `P` entails the weakest precondition
-`wp⟦x⟧.apply Q` of `x : m α` for the postcondition `Q`.
+`wp⟦x⟧ Q` of `x : m α` for the postcondition `Q`.
 It is thus defined in terms of an instance `WP m ps`.
 -/
 
@@ -60,14 +60,24 @@ theorem bind [Monad m] [WPMonad m ps] {α β : Type u} {P : Assertion ps} {Q : �
   apply SPred.entails.trans hx
   simp only [WP.bind]
   apply (wp x).mono _ _
-  simp only [PostCond.entails, Assertion, FailConds.entails.refl, and_true]
+  simp only [PostCond.entails, Assertion, ExceptConds.entails.refl, and_true]
   exact hf
 
+/--
+Conjunction for two Hoare triple specifications of a program `x`.
+This theorem is useful for decomposing proofs, because unrelated facts about `x` can be proven
+separately and then combined with this theorem.
+-/
 theorem and [WP m ps] (x : m α) (h₁ : Triple x P₁ Q₁) (h₂ : Triple x P₂ Q₂) : Triple x spred(P₁ ∧ P₂) (Q₁ ∧ₚ Q₂) :=
   (SPred.and_mono h₁ h₂).trans ((wp x).conjunctive Q₁ Q₂).mpr
 
-theorem rewrite_program [WP m ps] {prog₁ prog₂ : m α}
-  (heq : prog₁ = prog₂) (hprf : Triple prog₂ P Q) :
-  Triple prog₁ P Q := heq ▸ hprf
+/--
+Modus ponens for two Hoare triple specifications of a program `x`.
+This theorem is useful for separating proofs. If `h₁ : Triple x P₁ Q₁` proves a basic property about
+`x` and `h₂ : Triple x P₂ (Q₁ →ₚ Q₂)` is an advanced proof for `Q₂` that builds on the basic proof
+for `Q₁`, then `mp x h₁ h₂` is a proof for `Q₂` about `x`.
+-/
+theorem mp [WP m ps] (x : m α) (h₁ : Triple x P₁ Q₁) (h₂ : Triple x P₂ (Q₁ →ₚ Q₂)) : Triple x spred(P₁ ∧ P₂) (Q₁ ∧ₚ Q₂) :=
+  SPred.and_mono h₁ h₂ |>.trans ((wp x).conjunctive Q₁ (Q₁ →ₚ Q₂)).mpr |>.trans ((wp x).mono _ _ PostCond.and_imp)
 
 end Triple

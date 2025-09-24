@@ -23,7 +23,7 @@ private structure RpcProcedure where
 /- We store the builtin RPC handlers in a Ref and users' handlers in an extension. This ensures
 that users don't need to import core Lean modules to make builtin handlers work, but also that
 they *can* easily create custom handlers and use them in the same file. -/
-builtin_initialize builtinRpcProcedures : IO.Ref (PHashMap Name RpcProcedure) ←
+private builtin_initialize builtinRpcProcedures : IO.Ref (PHashMap Name RpcProcedure) ←
   IO.mkRef {}
 builtin_initialize userRpcProcedures : MapDeclarationExtension Name ←
   mkMapDeclarationExtension
@@ -33,8 +33,12 @@ private unsafe def evalRpcProcedureUnsafe (env : Environment) (opts : Options) (
   env.evalConstCheck RpcProcedure opts ``RpcProcedure procName
 
 @[implemented_by evalRpcProcedureUnsafe]
-opaque evalRpcProcedure (env : Environment) (opts : Options) (procName : Name) :
+private opaque evalRpcProcedure (env : Environment) (opts : Options) (procName : Name) :
     Except String RpcProcedure
+
+/-- Checks whether a builtin RPC procedure exists with the given name. -/
+def existsBuiltinRpcProcedure (method : Name) : IO Bool := do
+  return (← builtinRpcProcedures.get).contains method
 
 open RequestM in
 def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) := do
@@ -71,7 +75,7 @@ def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) := do
 builtin_initialize
   registerLspRequestHandler "$/lean/rpc/call" Lsp.RpcCallParams Json handleRpcCall
 
-def wrapRpcProcedure (method : Name) paramType respType
+private def wrapRpcProcedure (method : Name) paramType respType
     [RpcEncodable paramType] [RpcEncodable respType]
     (handler : paramType → RequestM (RequestTask respType)) : RpcProcedure where
   wrapper seshId j := do
@@ -140,7 +144,8 @@ builtin_initialize registerBuiltinAttribute {
     The function must have type `α → RequestM (RequestTask β)` with
     `[RpcEncodable α]` and `[RpcEncodable β]`."
   applicationTime := AttributeApplicationTime.afterCompilation
-  add := fun decl _ _ =>
+  add := fun decl _ attrKind => do
+    ensureAttrDeclIsMeta `server_rpc_method decl attrKind
     registerRpcProcedure decl
 }
 

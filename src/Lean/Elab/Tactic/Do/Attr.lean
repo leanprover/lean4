@@ -147,8 +147,7 @@ partial def computeMVarBetaPotentialForSPred (xs : Array Expr) (σs : Expr) (e :
     let s ← mkFreshExprMVar σ
     e := e.beta #[s]
     let (r, _) ← simp e ctx
-      -- In practice we only need to reduce `fun s => ...`, `SVal.curry` and functions that operate
-      -- on the state tuple bound by `SVal.curry`.
+      -- In practice we only need to reduce `fun s => ...` and `SPred.pure`.
       -- We could write a custom function should `simp` become a bottleneck.
     e := r.expr
     let count ← countBVarDependentMVars xs e

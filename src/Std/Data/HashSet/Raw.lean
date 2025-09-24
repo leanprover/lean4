@@ -27,7 +27,7 @@ Lemmas about the operations on `Std.HashSet.Raw` are available in the module
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v
+universe u v w
 
 variable {α : Type u}
 
@@ -193,7 +193,7 @@ in the collection will be present in the returned hash set.
 Monadically computes a value by folding the given function over the elements in the hash set in some
 order.
 -/
-@[inline] def foldM {m : Type v → Type v} [Monad m] {β : Type v} (f : β → α → m β) (init : β)
+@[inline] def foldM {m : Type v → Type w} [Monad m] {β : Type v} (f : β → α → m β) (init : β)
     (b : Raw α) : m β :=
   b.inner.foldM (fun b a _ => f b a) init
 
@@ -202,27 +202,31 @@ order.
   m.inner.fold (fun b a _ => f b a) init
 
 /-- Carries out a monadic action on each element in the hash set in some order. -/
-@[inline] def forM {m : Type v → Type v} [Monad m] (f : α → m PUnit) (b : Raw α) : m PUnit :=
+@[inline] def forM {m : Type v → Type w} [Monad m] (f : α → m PUnit) (b : Raw α) : m PUnit :=
   b.inner.forM (fun a _ => f a)
 
 /-- Support for the `for` loop construct in `do` blocks. -/
-@[inline] def forIn {m : Type v → Type v} [Monad m] {β : Type v} (f : α → β → m (ForInStep β))
+@[inline] def forIn {m : Type v → Type w} [Monad m] {β : Type v} (f : α → β → m (ForInStep β))
     (init : β) (b : Raw α) : m β :=
   b.inner.forIn (fun a _ acc => f a acc) init
 
-instance {m : Type v → Type v} : ForM m (Raw α) α where
+instance {m : Type v → Type w} : ForM m (Raw α) α where
   forM m f := m.forM f
 
-instance {m : Type v → Type v} : ForIn m (Raw α) α where
+instance {m : Type v → Type w} : ForIn m (Raw α) α where
   forIn m init f := m.forIn f init
-
-section Unverified
-
-/-! We currently do not provide lemmas for the functions below. -/
 
 /-- Removes all elements from the hash set for which the given function returns `false`. -/
 @[inline] def filter [BEq α] [Hashable α] (f : α → Bool) (m : Raw α) : Raw α :=
   ⟨m.inner.filter fun a _ => f a⟩
+
+/-- Transforms the hash set into an array of elements in some order. -/
+@[inline] def toArray (m : Raw α) : Array α :=
+  m.inner.keysArray
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
 
 /-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
 @[inline] def all (m : Raw α) (p : α → Bool) : Bool := Id.run do
@@ -235,11 +239,6 @@ section Unverified
   for a in m do
     if p a then return true
   return false
-
-
-/-- Transforms the hash set into an array of elements in some order. -/
-@[inline] def toArray (m : Raw α) : Array α :=
-  m.inner.keysArray
 
 /--
 Inserts multiple mappings into the hash set by iterating over the given collection and calling

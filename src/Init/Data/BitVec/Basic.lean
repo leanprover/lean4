@@ -9,7 +9,7 @@ prelude
 public import Init.Data.Fin.Basic
 public import Init.Data.Nat.Bitwise.Lemmas
 public import Init.Data.Nat.Power2
-public import Init.Data.Int.Bitwise
+public import Init.Data.Int.Bitwise.Basic
 public import Init.Data.BitVec.BasicAux
 
 @[expose] public section
@@ -28,10 +28,6 @@ of SMT-LIB v2.
 set_option linter.missingDocs true
 
 namespace BitVec
-
-@[inline, deprecated BitVec.ofNatLT (since := "2025-02-13"), inherit_doc BitVec.ofNatLT]
-protected def ofNatLt {n : Nat} (i : Nat) (p : i < 2 ^ n) : BitVec n :=
-  BitVec.ofNatLT i p
 
 section Nat
 
@@ -206,10 +202,13 @@ Converts a bitvector into a fixed-width hexadecimal number with enough digits to
 
 If `n` is `0`, then one digit is returned. Otherwise, `⌊(n + 3) / 4⌋` digits are returned.
 -/
+-- If we ever want to prove something about this, we can avoid having to use the opaque
+-- `Internal` string functions by moving this definition out to a separate file that can live
+-- downstream of `Init.Data.String.Basic`.
 protected def toHex {n : Nat} (x : BitVec n) : String :=
   let s := (Nat.toDigits 16 x.toNat).asString
-  let t := (List.replicate ((n+3) / 4 - s.length) '0').asString
-  t ++ s
+  let t := (List.replicate ((n+3) / 4 - String.Internal.length s) '0').asString
+  String.Internal.append t s
 
 /-- `BitVec` representation. -/
 protected def BitVec.repr (a : BitVec n) : Std.Format :=
@@ -870,5 +869,8 @@ def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
 
 /-- Count the number of leading zeros. -/
 def clz (x : BitVec w) : BitVec w := clzAuxRec x (w - 1)
+
+/-- Count the number of trailing zeros. -/
+def ctz (x : BitVec w) : BitVec w := (x.reverse).clz
 
 end BitVec

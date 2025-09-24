@@ -27,7 +27,7 @@ Lemmas about the operations on `Std.HashMap.Raw` are available in the module
 `Std.Data.HashMap.RawLemmas`.
 -/
 
-universe u v w
+universe u v w w'
 
 variable {α : Type u} {β : Type v}
 
@@ -206,7 +206,7 @@ instance [BEq α] [Hashable α] : GetElem? (Raw α β) α β (fun m a => a ∈ m
 @[inline, inherit_doc DHashMap.Raw.Const.toList] def toList (m : Raw α β) : List (α × β) :=
   DHashMap.Raw.Const.toList m.inner
 
-@[inline, inherit_doc DHashMap.Raw.foldM] def foldM {m : Type w → Type w} [Monad m] {γ : Type w}
+@[inline, inherit_doc DHashMap.Raw.foldM] def foldM {m : Type w → Type w'} [Monad m] {γ : Type w}
     (f : γ → α → β → m γ) (init : γ) (b : Raw α β) : m γ :=
   b.inner.foldM f init
 
@@ -214,23 +214,21 @@ instance [BEq α] [Hashable α] : GetElem? (Raw α β) α β (fun m a => a ∈ m
     (b : Raw α β) : γ :=
   b.inner.fold f init
 
-@[inline, inherit_doc DHashMap.Raw.forM] def forM {m : Type w → Type w} [Monad m]
+@[inline, inherit_doc DHashMap.Raw.forM] def forM {m : Type w → Type w'} [Monad m]
     (f : (a : α) → β → m PUnit) (b : Raw α β) : m PUnit :=
   b.inner.forM f
 
-@[inline, inherit_doc DHashMap.Raw.forIn] def forIn {m : Type w → Type w} [Monad m] {γ : Type w}
+@[inline, inherit_doc DHashMap.Raw.forIn] def forIn {m : Type w → Type w'} [Monad m] {γ : Type w}
     (f : (a : α) → β → γ → m (ForInStep γ)) (init : γ) (b : Raw α β) : m γ :=
   b.inner.forIn f init
 
-instance {m : Type w → Type w} : ForM m (Raw α β) (α × β) where
+instance {m : Type w → Type w'} : ForM m (Raw α β) (α × β) where
   forM m f := m.forM (fun a b => f (a, b))
 
-instance {m : Type w → Type w} : ForIn m (Raw α β) (α × β) where
+instance {m : Type w → Type w'} : ForIn m (Raw α β) (α × β) where
   forIn m init f := m.forIn (fun a b acc => f (a, b) acc) init
 
 section Unverified
-
-/-! We currently do not provide lemmas for the functions below. -/
 
 @[inline, inherit_doc DHashMap.Raw.filterMap] def filterMap {γ : Type w} (f : α → β → Option γ)
     (m : Raw α β) : Raw α γ :=
@@ -248,6 +246,8 @@ section Unverified
 
 @[inline, inherit_doc DHashMap.Raw.keysArray] def keysArray (m : Raw α β) : Array α :=
   m.inner.keysArray
+
+/-! We currently do not provide lemmas for the functions below. -/
 
 @[inline, inherit_doc DHashMap.Raw.values] def values (m : Raw α β) : List β :=
 m.inner.values

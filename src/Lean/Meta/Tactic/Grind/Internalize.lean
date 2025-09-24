@@ -4,24 +4,25 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.Util
-public import Init.Grind.Lemmas
-public import Lean.Meta.LitValues
-public import Lean.Meta.Match.MatcherInfo
-public import Lean.Meta.Match.MatchEqsExt
-public import Lean.Meta.Match.MatchEqs
 public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Util
-public import Lean.Meta.Tactic.Grind.Canon
-public import Lean.Meta.Tactic.Grind.Beta
-public import Lean.Meta.Tactic.Grind.MatchCond
-public import Lean.Meta.Tactic.Grind.Arith.Internalize
-
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
+import Init.Grind.Util
+import Init.Grind.Lemmas
+import Lean.Meta.LitValues
+import Lean.Meta.Match.MatcherInfo
+import Lean.Meta.Match.MatchEqsExt
+import Lean.Meta.Match.MatchEqs
+import Lean.Util.CollectLevelParams
+import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Tactic.Grind.Beta
+import Lean.Meta.Tactic.Grind.MatchCond
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
+import Lean.Meta.Tactic.Grind.PropagateInj
 public section
-
 namespace Lean.Meta.Grind
+
 /-- Adds `e` to congruence table. -/
 def addCongrTable (e : Expr) : GoalM Unit := do
   if let some { e := e' } := (← get).congrTable.find? { e } then
@@ -151,7 +152,7 @@ private def mkENode' (e : Expr) (generation : Nat) : GoalM Unit :=
   mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
 
 /-- Internalizes the nested ground terms in the given pattern. -/
-private partial def internalizePattern (pattern : Expr) (generation : Nat) : GoalM Expr := do
+private partial def internalizePattern (pattern : Expr) (generation : Nat) (origin : Origin) : GoalM Expr := do
   -- Recall that it is important to ensure patterns are maximally shared since
   -- we assume that in functions such as `getAppsOf` in `EMatch.lean`
   go (← shareCommon pattern)
@@ -161,7 +162,21 @@ where
       return pattern
     else if let some e := groundPattern? pattern then
       let e ← preprocessLight e
-      internalize e generation none
+      let e ← if e.hasLevelParam && origin matches .decl _ then
+        /-
+        If `e` has universe parameters and it is **not** local. That is,
+        it contains the universe parameters of some global theorem.
+        Then, we convert `e`'s universe parameters into universe meta-variables.
+        Remark: it is pointless to internalize the result because it contains these helper meta-variables.
+        Remark: universe polymorphic ground patterns are not common, but they do occur in the
+        core library.
+        -/
+        let ps := collectLevelParams {} e |>.params
+        let us ← ps.mapM fun _ => mkFreshLevelMVar
+        pure <| e.instantiateLevelParamsArray ps us
+      else
+        internalize e generation none
+        pure e
       return mkGroundPattern e
     else pattern.withApp fun f args => do
       return mkAppN f (← args.mapM go)
@@ -203,8 +218,8 @@ def activateTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM Unit := do
   -- Recall that we use the proof as part of the key for a set of instances found so far.
   -- We don't want to use structural equality when comparing keys.
   let proof ← shareCommon thm.proof
-  let thm := { thm with proof, patterns := (← thm.patterns.mapM (internalizePattern · generation)) }
-  trace_goal[grind.ematch] "activated `{thm.origin.key}`, {thm.patterns.map ppPattern}"
+  let thm := { thm with proof, patterns := (← thm.patterns.mapM (internalizePattern · generation thm.origin)) }
+  trace_goal[grind.ematch] "activated `{thm.origin.pp}`, {thm.patterns.map ppPattern}"
   modify fun s => { s with ematch.newThms := s.ematch.newThms.push thm }
 
 /--
@@ -222,22 +237,65 @@ private def addMatchEqns (f : Expr) (generation : Nat) : GoalM Unit := do
     -- We disable pattern normalization to prevent the `match`-expression to be reduced.
     activateTheorem (← mkEMatchEqTheorem eqn (normalizePattern := false)) generation
 
-private def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Unit := do
-  if let some (thms, thmMap) := (← get).ematch.thmMap.retrieve? fName then
-    modify fun s => { s with ematch.thmMap := thmMap }
-    let appMap := (← get).appMap
+@[specialize]
+private def activateTheoremsCore [TheoremLike α] (declName : Name)
+    (getThms : GoalM (Theorems α))
+    (setThms : Theorems α → GoalM Unit)
+    (reinsertThm : α → GoalM Unit)
+    (activateThm : α → GoalM Unit) : GoalM Unit := do
+  if let some (thms, s) := (← getThms).retrieve? declName then
+    setThms s
     for thm in thms do
-      trace_goal[grind.debug.ematch.activate] "`{fName}` => `{thm.origin.key}`"
-      unless (← get).ematch.thmMap.isErased thm.origin do
-        let symbols := thm.symbols.filter fun sym => !appMap.contains sym
-        let thm := { thm with symbols }
+      let origin := TheoremLike.getOrigin thm
+      trace_goal[grind.debug.theorem.activate] "`{declName}` => `{origin.key}`"
+      unless s.isErased origin do
+        let appMap  := (← get).appMap
+        let symbols := TheoremLike.getSymbols thm
+        let symbols := symbols.filter fun sym => !appMap.contains sym
+        let thm     := TheoremLike.setSymbols thm symbols
         match symbols with
         | [] =>
-          trace_goal[grind.debug.ematch.activate] "`{thm.origin.key}`"
-          activateTheorem thm generation
+          trace_goal[grind.debug.theorem.activate] "`{origin.key}`"
+          activateThm thm
         | _ =>
-          trace_goal[grind.debug.ematch.activate] "reinsert `{thm.origin.key}`"
-          modify fun s => { s with ematch.thmMap := s.ematch.thmMap.insert thm }
+          trace_goal[grind.debug.theorem.activate] "reinsert `{origin.key}`"
+          reinsertThm thm
+
+private def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Unit := do
+  activateTheoremsCore fName (return (← get).ematch.thmMap)
+    (fun thmMap => modify fun s => { s with ematch.thmMap := thmMap })
+    (fun thm => modify fun s => { s with ematch.thmMap := s.ematch.thmMap.insert thm })
+    (fun thm => activateTheorem thm generation)
+
+private def mkEMatchTheoremWithKind'? (origin : Origin) (levelParams : Array Name) (proof : Expr) (kind : EMatchTheoremKind)
+    (symPrios : SymbolPriorities) : MetaM (Option EMatchTheorem) := do
+  try
+    mkEMatchTheoremWithKind? origin levelParams proof kind symPrios (minIndexable := true)
+  catch _ =>
+    return none
+
+private def activateInjectiveTheorem (injThm : InjectiveTheorem) (generation : Nat) : GoalM Unit := do
+  let type ← inferType injThm.proof
+  if type.isForall then
+    let symPrios ← getSymbolPriorities
+    let thm? ← mkEMatchTheoremWithKind'? injThm.origin injThm.levelParams injThm.proof .fwd symPrios
+      <||>
+      mkEMatchTheoremWithKind'? injThm.origin injThm.levelParams injThm.proof (.default false) symPrios
+    let some thm := thm? | reportIssue! "failed to assert injectivity theorem `{injThm.origin.pp}`"
+    activateTheorem thm generation
+  else
+    addNewRawFact injThm.proof type generation (.inj injThm.origin)
+
+private def activateInjectiveTheorems (declName : Name) (generation : Nat) : GoalM Unit := do
+  if (← getConfig).inj then
+    activateTheoremsCore declName (return (← get).inj.thms)
+      (fun thms => modify fun s => { s with inj.thms := thms })
+      (fun thm => modify fun s => { s with inj.thms := s.inj.thms.insert thm })
+      (fun thm => activateInjectiveTheorem thm generation)
+
+private def activateTheorems (declName : Name) (generation : Nat) : GoalM Unit := do
+  activateTheoremPatterns declName generation
+  activateInjectiveTheorems declName generation
 
 /--
 If type of `a` is a structure and is tagged with `[grind ext]` attribute,
@@ -316,7 +374,7 @@ where
     trace_goal[grind.debug.ext] "{f}, {i}, {arg}"
     let others := (← get).split.argsAt.find? (f, i) |>.getD []
     for other in others do
-      if (← withDefault <| isDefEq type other.type) then
+      if (← isDefEqD type other.type) then
         let eq := mkApp3 (mkConst ``Eq [← getLevel type]) type arg other.arg
         let eq ← shareCommon eq
         internalize eq generation
@@ -358,16 +416,22 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
     Later, if we try to internalize `f 1`, the arithmetic module must create a node for `1`.
     Otherwise, it will not be able to propagate that `a + 1 = 1` when `a = 0`
     -/
-    Arith.internalize e parent?
+    Solvers.internalize e parent?
   else
     go
     propagateEtaStruct e generation
 where
   go : GoalM Unit := do
-    trace_goal[grind.internalize] "{e}"
+    trace_goal[grind.internalize] "[{generation}] {e}"
     match e with
     | .bvar .. => unreachable!
-    | .sort .. => return ()
+    | .sort .. =>
+      /-
+      **Note**: It may seem wasteful to create ENodes for sorts, but it is useful for the E-matching module.
+      The E-matching module assumes that the arguments of an internalized application have also been internalized,
+      unless they are `grind` gadgets.
+      -/
+      mkENode' e generation
     | .fvar .. =>
       mkENode' e generation
       checkAndAddSplitCandidate e
@@ -392,7 +456,7 @@ where
       mkENode e generation
     | .const declName _ =>
       mkENode e generation
-      activateTheoremPatterns declName generation
+      activateTheorems declName generation
     | .mvar .. =>
       if (← reportMVarInternalization) then
         reportIssue! "unexpected metavariable during internalization{indentExpr e}\n`grind` is not supposed to be used in goals containing metavariables."
@@ -407,7 +471,7 @@ where
       if (← isLitValue e) then
         -- We do not want to internalize the components of a literal value.
         mkENode e generation
-        Arith.internalize e parent?
+        Solvers.internalize e parent?
       else if e.isAppOfArity ``Grind.MatchCond 1 then
         internalizeMatchCond e generation
       else e.withApp fun f args => do
@@ -435,7 +499,7 @@ where
           registerParent e c
         else
           if let .const fName _ := f then
-            activateTheoremPatterns fName generation
+            activateTheorems fName generation
           else
             internalizeImpl f generation e
           registerParent e f
@@ -444,8 +508,9 @@ where
             internalize arg generation e
             registerParent e arg
         addCongrTable e
-        Arith.internalize e parent?
+        Solvers.internalize e parent?
         propagateUp e
         propagateBetaForNewApp e
+        mkInjEq e
 
 end Lean.Meta.Grind

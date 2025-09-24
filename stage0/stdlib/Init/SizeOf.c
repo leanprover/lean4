@@ -18,11 +18,30 @@ static lean_object* l_instSizeOfDefault___closed__0;
 LEAN_EXPORT lean_object* l_default_sizeOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSizeOfDefault(lean_object*);
 LEAN_EXPORT lean_object* l_instSizeOfForallUnit___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_SizeOf_ctorIdx___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_SizeOf_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_default_sizeOf___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSizeOfNat;
 LEAN_EXPORT lean_object* l_instSizeOfNat___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instSizeOfForallUnit(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSizeOfForallUnit___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_SizeOf_ctorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_SizeOf_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_SizeOf_ctorIdx(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_default_sizeOf(lean_object* x_1, lean_object* x_2) {
 _start:
 {

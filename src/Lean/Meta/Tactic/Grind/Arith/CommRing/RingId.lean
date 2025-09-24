@@ -4,17 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.Ring.Field
-public import Init.Grind.Ring.Envelope
-public import Lean.Meta.Tactic.Grind.Simp
-public import Lean.Meta.Tactic.Grind.SynthInstance
-public import Lean.Meta.Tactic.Grind.Arith.Insts
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
-
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
+import Init.Grind.Ring.Field
+import Init.Grind.Ring.Envelope
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.SynthInstance
+import Lean.Meta.Tactic.Grind.Arith.Insts
 public section
-
 namespace Lean.Meta.Grind.Arith.CommRing
 
 /--
@@ -25,7 +22,7 @@ This function will also perform sanity-checks
 
 It also caches the functions representing `+`, `*`, `-`, `^`, and `intCast`.
 -/
-def getRingId? (type : Expr) : GoalM (Option Nat) := do
+def getCommRingId? (type : Expr) : GoalM (Option Nat) := do
   if let some id? := (← get').typeIdOf.find? { expr := type } then
     return id?
   else
@@ -47,17 +44,43 @@ where
     let fieldInst? ← synthInstance? <| mkApp (mkConst ``Grind.Field [u]) type
     let semiringId? := none
     let id := (← get').rings.size
-    let ring : Ring := {
+    let ring : CommRing := {
       id, semiringId?, type, u, semiringInst, ringInst, commSemiringInst,
       commRingInst, charInst?, noZeroDivInst?, fieldInst?,
     }
     modify' fun s => { s with rings := s.rings.push ring }
     return some id
 
-private def setSemiringId (ringId : Nat) (semiringId : Nat) : GoalM Unit := do
-  RingM.run ringId do modifyRing fun s => { s with semiringId? := some semiringId }
+/--
+Returns the ring id for the given type if there is a `Ring` instance for it.
+This function is invoked only when `getCommRingId?` returns `none`.
+-/
+def getNonCommRingId? (type : Expr) : GoalM (Option Nat) := do
+  if let some id? := (← get').nctypeIdOf.find? { expr := type } then
+    return id?
+  else
+    let id? ← go?
+    modify' fun s => { s with nctypeIdOf := s.nctypeIdOf.insert { expr := type } id? }
+    return id?
+where
+  go? : GoalM (Option Nat) := do
+    let u ← getDecLevel type
+    let ring := mkApp (mkConst ``Grind.Ring [u]) type
+    let some ringInst ← synthInstance? ring | return none
+    let semiringInst := mkApp2 (mkConst ``Grind.Ring.toSemiring [u]) type ringInst
+    trace_goal[grind.ring] "new ring: {type}"
+    let charInst? ← getIsCharInst? u type semiringInst
+    let id := (← get').ncRings.size
+    let ring : Ring := {
+      id, type, u, semiringInst, ringInst, charInst?
+    }
+    modify' fun s => { s with ncRings := s.ncRings.push ring }
+    return some id
 
-def getSemiringId? (type : Expr) : GoalM (Option Nat) := do
+private def setCommSemiringId (ringId : Nat) (semiringId : Nat) : GoalM Unit := do
+  RingM.run ringId do modifyCommRing fun s => { s with semiringId? := some semiringId }
+
+def getCommSemiringId? (type : Expr) : GoalM (Option Nat) := do
   if let some id? := (← get').stypeIdOf.find? { expr := type } then
     return id?
   else
@@ -71,14 +94,31 @@ where
     let some commSemiringInst ← synthInstance? commSemiring | return none
     let semiringInst := mkApp2 (mkConst ``Grind.CommSemiring.toSemiring [u]) type commSemiringInst
     let q ← shareCommon (← canon (mkApp2 (mkConst ``Grind.Ring.OfSemiring.Q [u]) type semiringInst))
-    let some ringId ← getRingId? q
+    let some ringId ← getCommRingId? q
       | throwError "`grind` unexpected failure, failure to initialize ring{indentExpr q}"
     let id := (← get').semirings.size
-    let semiring : Semiring := {
+    let semiring : CommSemiring := {
       id, type, ringId, u, semiringInst, commSemiringInst
     }
     modify' fun s => { s with semirings := s.semirings.push semiring }
-    setSemiringId ringId id
+    setCommSemiringId ringId id
+    return some id
+
+def getNonCommSemiringId? (type : Expr) : GoalM (Option Nat) := do
+  if let some id? := (← get').ncstypeIdOf.find? { expr := type } then
+    return id?
+  else
+    let id? ← go?
+    modify' fun s => { s with ncstypeIdOf := s.ncstypeIdOf.insert { expr := type } id? }
+    return id?
+where
+  go? : GoalM (Option Nat) := do
+    let u ← getDecLevel type
+    let semiring := mkApp (mkConst ``Grind.Semiring [u]) type
+    let some semiringInst ← synthInstance? semiring | return none
+    let id := (← get').ncSemirings.size
+    let semiring : Semiring := { id, type, u, semiringInst }
+    modify' fun s => { s with ncSemirings := s.ncSemirings.push semiring }
     return some id
 
 end Lean.Meta.Grind.Arith.CommRing

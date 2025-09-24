@@ -7,10 +7,13 @@ module
 
 prelude
 public import Init.Grind.Ring.Basic
-public import all Init.Grind.ToInt
+public import Init.Grind.ToInt
+import all Init.Grind.ToInt
 public import Init.GrindInstances.ToInt
-public import all Init.Data.BitVec.Basic
-public import all Init.Data.SInt.Basic
+public import Init.Data.BitVec.Basic
+import all Init.Data.BitVec.Basic
+public import Init.Data.SInt.Basic
+import all Init.Data.SInt.Basic
 public import Init.Data.SInt.Lemmas
 
 public section
@@ -53,7 +56,9 @@ instance : CommRing Int8 where
   pow_succ := Int8.pow_succ
   ofNat_succ x := Int8.ofNat_add x 1
   intCast_neg := Int8.ofInt_neg
-  neg_zsmul i x := by simp [Int8.intCast_neg, Int8.neg_mul]
+  neg_zsmul i x := by
+    change (-i : Int) * x = - (i * x)
+    simp [Int8.intCast_neg, Int8.neg_mul]
   zsmul_natCast_eq_nsmul n a := congrArg (· * a) (Int8.intCast_ofNat _)
 
 instance : IsCharP Int8 (2 ^ 8) := IsCharP.mk' _ _
@@ -106,7 +111,9 @@ instance : CommRing Int16 where
   pow_succ := Int16.pow_succ
   ofNat_succ x := Int16.ofNat_add x 1
   intCast_neg := Int16.ofInt_neg
-  neg_zsmul i x := by simp [Int16.intCast_neg, Int16.neg_mul]
+  neg_zsmul i x := by
+    change (-i : Int) * x = - (i * x)
+    simp [Int16.intCast_neg, Int16.neg_mul]
   zsmul_natCast_eq_nsmul n a := congrArg (· * a) (Int16.intCast_ofNat _)
 
 instance : IsCharP Int16 (2 ^ 16) := IsCharP.mk' _ _
@@ -159,7 +166,9 @@ instance : CommRing Int32 where
   pow_succ := Int32.pow_succ
   ofNat_succ x := Int32.ofNat_add x 1
   intCast_neg := Int32.ofInt_neg
-  neg_zsmul i x := by simp [Int32.intCast_neg, Int32.neg_mul]
+  neg_zsmul i x := by
+    change (-i : Int) * x = - (i * x)
+    simp [Int32.intCast_neg, Int32.neg_mul]
   zsmul_natCast_eq_nsmul n a := congrArg (· * a) (Int32.intCast_ofNat _)
 
 instance : IsCharP Int32 (2 ^ 32) := IsCharP.mk' _ _
@@ -212,7 +221,9 @@ instance : CommRing Int64 where
   pow_succ := Int64.pow_succ
   ofNat_succ x := Int64.ofNat_add x 1
   intCast_neg := Int64.ofInt_neg
-  neg_zsmul i x := by simp [Int64.intCast_neg, Int64.neg_mul]
+  neg_zsmul i x := by
+    change (-i : Int) * x = - (i * x)
+    simp [Int64.intCast_neg, Int64.neg_mul]
   zsmul_natCast_eq_nsmul n a := congrArg (· * a) (Int64.intCast_ofNat _)
 
 instance : IsCharP Int64 (2 ^ 64) := IsCharP.mk' _ _
@@ -265,7 +276,9 @@ instance : CommRing ISize where
   pow_succ := ISize.pow_succ
   ofNat_succ x := ISize.ofNat_add x 1
   intCast_neg := ISize.ofInt_neg
-  neg_zsmul i x := by simp [ISize.intCast_neg, ISize.neg_mul]
+  neg_zsmul i x := by
+    change (-i : Int) * x = - (i * x)
+    simp [ISize.intCast_neg, ISize.neg_mul]
   zsmul_natCast_eq_nsmul n a := congrArg (· * a) (ISize.intCast_ofNat _)
 
 open System.Platform (numBits)

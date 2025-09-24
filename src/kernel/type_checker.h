@@ -166,6 +166,8 @@ public:
         return whnf_core(e, true, true);
     }
     optional<expr> unfold_definition(expr const & e);
+
+    optional<recursor_val> def_to_recursor(definition_val const & d);
 };
 
 void initialize_type_checker();

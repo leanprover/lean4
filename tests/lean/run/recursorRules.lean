@@ -19,8 +19,10 @@ inductive Vec (α : Type) : N → Type
 
 def foo := Vec.cons N.zero (Vec.cons N.zero Vec.nil)
 
-noncomputable def Vec.id {α : Type} {n : N} (v : Vec α n) : Vec α n :=
-  Vec.rec (motive := fun n _ => Vec α n) Vec.nil (fun x _xs ih => Vec.cons x ih) v
+noncomputable def Vec.id {α : Type} : {n : N} → (v : Vec α n) → Vec α n :=
+  @Vec.rec _ (motive := fun n _ => Vec α n) Vec.nil (fun x _xs ih => Vec.cons x ih)
+
+#print Vec.id
 
 theorem test : Eq (Vec.id foo) foo := Eq.refl
 
@@ -70,6 +72,8 @@ noncomputable def Nested.id {α : Type} : Nested α → Nested α :=
     (branch := fun _xs ih => .branch ih)
     (nil := .nil)
     (cons := fun _x _xs ih1 ih2 => .cons ih1 ih2)
+
+#print Nested.id
 
 def nested_foo : Nested N :=
   .branch (Vec.pair (.leaf N.zero) (.leaf N.zero))

@@ -105,7 +105,7 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     /* apply parameters, motives, recursor application and minor premises from recursor application. */
     rhs      = mk_app(rhs, rec_val.get_nparams() + rec_val.get_nmotives(), rec_args.data());
     expr rec_app = get_app_fn_n(e, rec_args.size() - (rec_val.get_nparams() + rec_val.get_nmotives() + rec_val.get_nminors()));
-    if (rec_val.get_nmotives() == 1) {
+    if (length(rec_val.get_recs()) == 1) {
         rhs      = mk_app(rhs, rec_app);
     } else {
         for (name rec_name : rec_val.get_recs()) {

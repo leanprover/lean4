@@ -1152,6 +1152,52 @@ expr type_checker::eta_expand(expr const & e) {
     return m_lctx.mk_lambda(fvars, r);
 }
 
+optional<recursor_val> type_checker::def_to_recursor(definition_val const & v) {
+    buffer<expr> xs;
+    expr body = v.get_value();
+    while (is_lambda(body)) {
+        expr x = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(body), consume_type_annotations(binding_domain(body)), binding_info(body));
+        xs.push_back(x);
+        body = instantiate(binding_body(body), x);
+    }
+    buffer<expr> args;
+    expr fn = get_app_args(body, args);
+    if (!is_constant(fn)) return optional<recursor_val>();
+    optional<constant_info> ctor_info = m_st->m_env.find(const_name(fn));
+    if (!ctor_info || !ctor_info->is_recursor()) return optional<recursor_val>();
+    recursor_val const & rec = ctor_info->to_recursor_val();
+    if (args.size() != rec.get_nparams() + rec.get_nmotives() + rec.get_nminors()) return optional<recursor_val>();
+    // we have a primitive recursive definition
+
+    if (length(rec.get_recs()) != 1) return optional<recursor_val>();
+    names recs(const_name(fn));
+
+    recursor_rules rules = map(rec.get_rules(), [&](recursor_rule const & rule) {
+        expr rhs = rule.get_rhs();
+        rhs = instantiate_lparams(rhs, rec.to_constant_val().get_lparams(), const_levels(fn));
+        rhs = mk_app(rhs, rec.get_nparams() + rec.get_nmotives(), args.data());
+        rhs = head_beta_reduce(rhs);
+        expr r = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(rhs), consume_type_annotations(binding_domain(rhs)), binding_info(rhs));
+        rhs = mk_app(rhs, r);
+        rhs = mk_app(rhs, rec.get_nminors(), args.data() + rec.get_nparams() + rec.get_nmotives());
+        rhs = head_beta_reduce(rhs);
+        rhs = m_lctx.mk_lambda(r, rhs);
+        rhs = m_lctx.mk_lambda(xs, rhs);
+        return recursor_rule(rule.get_cnstr(), rule.get_nfields(), rhs);
+    });
+
+    std::cerr << "kernel: primitive recursion detected at '" << v.get_name() << "'\n";
+    recursor_val new_rec = recursor_val(
+         v.get_name(),
+         v.to_constant_val().get_lparams(),
+         v.to_constant_val().get_type(),
+         rec.get_all(),
+         recs,
+         xs.size(), rec.get_nindices(), 0 /* motives */,
+         0 /* minors */, rules, rec.is_k(), rec.is_unsafe());
+    return some<recursor_val>(new_rec);
+}
+
 type_checker::type_checker(environment const & env, local_ctx const & lctx, diagnostics * diag, definition_safety ds):
     m_st_owner(true), m_st(new state(env)), m_diag(diag),
     m_lctx(lctx), m_definition_safety(ds), m_lparams(nullptr) {

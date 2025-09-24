@@ -185,7 +185,14 @@ environment environment::add_definition(declaration const & d, bool check) const
             if (!checker.is_def_eq(val_type, v.get_type()))
                 throw definition_type_mismatch_exception(*this, d, val_type);
         }
-        return diag.update(add(constant_info(d)));
+        // turn primitive recursive defs into “recursors”
+        type_checker checker(*this, diag.get());
+        optional<recursor_val> rec = checker.def_to_recursor(v);
+        if (rec) {
+            return diag.update(add(constant_info(*rec)));
+        } else {
+            return diag.update(add(constant_info(d)));
+        }
     }
 }
 

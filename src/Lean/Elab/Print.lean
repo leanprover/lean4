@@ -200,7 +200,7 @@ private partial def printStructure (id : Name) (levelParams : List Name) (numPar
 
 private def printIdCore (sigOnly : Bool) (id : Name) : CommandElabM Unit := do
   let env ← getEnv
-  match env.find? id with
+  match env.toKernelEnv.find? id with
   | ConstantInfo.axiomInfo { levelParams := us, type := t, isUnsafe := u, .. } =>
     match getOriginalConstKind? env id with
     | some .defn => printDefLike sigOnly "def" id us t none (if u then .unsafe else .safe)

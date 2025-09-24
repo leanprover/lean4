@@ -10,6 +10,7 @@ prelude
 public import Lean.Data.Lsp
 public import Lean.Widget
 import Lean.Server.FileWorker.WidgetRequests
+public import Lean.Server.GoTo
 
 public section
 open Lean
@@ -28,6 +29,7 @@ namespace Client
 /- Client-side types for showing interactive goals. -/
 
 structure SubexprInfo where
+  info : RpcRef
   subexprPos : String
   diffStatus? : Option String
   deriving FromJson, ToJson
@@ -77,6 +79,25 @@ inductive MsgEmbed where
   deriving FromJson, ToJson
 
 abbrev InteractiveDiagnostic := Lsp.DiagnosticWith (Widget.TaggedText MsgEmbed)
+
+def normalizeInteractiveDiagnostics (diags : Array InteractiveDiagnostic) :
+    Array InteractiveDiagnostic :=
+  -- Sort diagnostics by range and message to erase non-determinism in the order of diagnostics
+  -- induced by parallelism. This isn't complete, but it will hopefully be plenty for all tests.
+  let sorted := diags.toList.mergeSort fun d1 d2 =>
+    compare d1.fullRange d2.fullRange |>.then (compare d1.message.stripTags d2.message.stripTags) |>.isLE
+  sorted.toArray
+
+structure InfoPopup where
+  type : Option (Widget.TaggedText SubexprInfo)
+  exprExplicit : Option (Widget.TaggedText SubexprInfo)
+  doc : Option String
+  deriving FromJson, ToJson
+
+structure GetGoToLocationParams where
+  kind : GoToKind
+  info : RpcRef
+  deriving FromJson, ToJson
 end Client
 
 /-! Test-only instances -/
@@ -283,8 +304,10 @@ partial def main (args : List String) : IO Unit := do
             Ipc.writeRequest ⟨requestNo, "$/lean/rpc/call", ps⟩
             let response ← Ipc.readResponseAs requestNo (Array Client.InteractiveDiagnostic)
             requestNo := requestNo + 1
-            printOutputLn (toJson response.result)
+            printOutputLn (toJson (Client.normalizeInteractiveDiagnostics response.result))
           | "goals" =>
+            let withPopups := params == "withPopups"
+            let withGoToLoc := params == "withGoToLoc"
             if rpcSessionId.isNone then
               Ipc.writeRequest ⟨requestNo, "$/lean/rpc/connect",  RpcConnectParams.mk uri⟩
               let r ← Ipc.readResponseAs requestNo RpcConnected
@@ -305,6 +328,52 @@ partial def main (args : List String) : IO Unit := do
             let response ← Ipc.readResponseAs requestNo Client.InteractiveGoals
             requestNo := requestNo + 1
             printOutputLn (toJson response.result)
+            if withPopups then
+              let interactiveTerms := response.result.goals.flatMap fun goal =>
+                goal.hyps.map (fun h => (" ".intercalate h.names.toList, h.type)) |>.push ("goal", goal.type)
+              for (termName, interactiveTerm) in interactiveTerms do
+                IO.eprintln s!"Popups for type of {termName}:"
+                let (_, requestNo') ← StateT.run (s := requestNo) do
+                  interactiveTerm.forM fun i subtree => do
+                    IO.eprintln s!"Popup for {subtree.stripTags}:"
+                    let requestNo : Nat ← get
+                    let ps : RpcCallParams := {
+                      params := toJson i.info
+                      textDocument := { uri }
+                      position := pos,
+                      sessionId := rpcSessionId.get!,
+                      method := `Lean.Widget.InteractiveDiagnostics.infoToInteractive
+                    }
+                    Ipc.writeRequest ⟨requestNo, "$/lean/rpc/call", ps⟩
+                    let response ← Ipc.readResponseAs requestNo Client.InfoPopup
+                    set <| requestNo + 1
+                    printOutputLn (toJson response.result)
+                requestNo := requestNo'
+            if withGoToLoc then
+              let interactiveTerms := response.result.goals.flatMap fun goal =>
+                goal.hyps.map (fun h => (" ".intercalate h.names.toList, h.type)) |>.push ("goal", goal.type)
+              for (termName, interactiveTerm) in interactiveTerms do
+                IO.eprintln s!"GoToLoc responses for type of {termName}:"
+                let (_, requestNo') ← StateT.run (s := requestNo) do
+                  interactiveTerm.forM fun i subtree => do
+                    IO.eprintln s!"GoToLoc response for {subtree.stripTags}:"
+                    let requestNo : Nat ← get
+                    let params : Client.GetGoToLocationParams := {
+                      kind := .definition
+                      info := i.info
+                    }
+                    let ps : RpcCallParams := {
+                      params := toJson params
+                      textDocument := { uri }
+                      position := pos,
+                      sessionId := rpcSessionId.get!,
+                      method := `Lean.Widget.getGoToLocation
+                    }
+                    Ipc.writeRequest ⟨requestNo, "$/lean/rpc/call", ps⟩
+                    let response ← Ipc.readResponseAs requestNo (Array Lsp.LocationLink)
+                    set <| requestNo + 1
+                    printOutputLn (toJson response.result)
+                requestNo := requestNo'
           | "termGoal" =>
             if rpcSessionId.isNone then
               Ipc.writeRequest ⟨requestNo, "$/lean/rpc/connect",  RpcConnectParams.mk uri⟩

@@ -1,0 +1,49 @@
+{"goals":
+ [{"type":
+   {"tag": [{"subexprPos": "/", "info": {"p": "4"}}, {"text": "MyTrue"}]},
+   "isRemoved": true,
+   "hyps":
+   [{"type":
+     {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "MyNat"}]},
+     "names": ["x"]},
+    {"type":
+     {"tag":
+      [{"subexprPos": "/", "info": {"p": "1"}},
+       {"append":
+        [{"text": "MyEq "},
+         {"tag": [{"subexprPos": "/0/1", "info": {"p": "2"}}, {"text": "x"}]},
+         {"text": " "},
+         {"tag": [{"subexprPos": "/1", "info": {"p": "3"}}, {"text": "x"}]}]}]},
+     "names": ["h"]}]}]}
+Popups for type of x:
+Popup for MyNat:
+{"type": {"tag": [{"subexprPos": "/", "info": {"p": "6"}}, {"text": "Type"}]},
+ "exprExplicit": {"text": "MyNat"},
+ "doc": "MyNat doc "}
+Popups for type of h:
+Popup for MyEq x x:
+{"type": {"tag": [{"subexprPos": "/", "info": {"p": "7"}}, {"text": "Prop"}]},
+ "exprExplicit":
+ {"append":
+  [{"text": "@"},
+   {"tag": [{"subexprPos": "/0/0/0", "info": {"p": "8"}}, {"text": "MyEq"}]},
+   {"text": " "},
+   {"tag": [{"subexprPos": "/0/0/1", "info": {"p": "9"}}, {"text": "MyNat"}]},
+   {"text": " "},
+   {"tag": [{"subexprPos": "/0/1", "info": {"p": "10"}}, {"text": "x"}]},
+   {"text": " "},
+   {"tag": [{"subexprPos": "/1", "info": {"p": "11"}}, {"text": "x"}]}]},
+ "doc": null}
+Popup for x:
+{"type": {"tag": [{"subexprPos": "/", "info": {"p": "12"}}, {"text": "MyNat"}]},
+ "exprExplicit": {"text": "x"},
+ "doc": null}
+Popup for x:
+{"type": {"tag": [{"subexprPos": "/", "info": {"p": "13"}}, {"text": "MyNat"}]},
+ "exprExplicit": {"text": "x"},
+ "doc": null}
+Popups for type of goal:
+Popup for MyTrue:
+{"type": {"tag": [{"subexprPos": "/", "info": {"p": "14"}}, {"text": "Prop"}]},
+ "exprExplicit": {"text": "MyTrue"},
+ "doc": "MyTrue doc "}

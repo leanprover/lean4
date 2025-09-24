@@ -323,6 +323,16 @@ partial def main (args : List String) : IO Unit := do
             let (moduleHierarchy?, moduleHierarchyRequestNo) ← Ipc.expandModuleHierarchyImports requestNo uri
             printOutputLn (toJson moduleHierarchy?)
             requestNo := moduleHierarchyRequestNo
+          | "inlayHints" =>
+            let p : InlayHintParams := {
+              textDocument := { uri }
+              range := { start := ⟨0, 0⟩, «end» := pos }
+            }
+            printOutputLn (toJson p)
+            Ipc.writeRequest ⟨requestNo, "textDocument/inlayHint", p⟩
+            let r ← Ipc.readResponseAs requestNo (Option (Array InlayHint))
+            printOutputLn (toJson r.result)
+            requestNo := requestNo + 1
           | _ =>
             let Except.ok params ← pure <| Json.parse params
               | throw <| IO.userError s!"failed to parse {params}"

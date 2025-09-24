@@ -8,6 +8,8 @@ module
 prelude
 public import Init.Data.Range.Polymorphic.PRange
 
+set_option doc.verso true
+
 public section
 
 namespace Std
@@ -18,18 +20,21 @@ namespace Rxc
 variable {α : Type u} {lo hi : α} {a : α}
 
 /--
-This typeclass provides support for the `size` function of ranges with closed upper bound
-(`Rcc`, `Rco` and `Rci`).
+This typeclass provides support for the size function for ranges with closed lower bound
+({name (scope := "Init.Data.Range.Polymorphic")}`Rcc.size`,
+{name (scope := "Init.Data.Range.Polymorphic")}`Rco.size` and
+{name (scope := "Init.Data.Range.Polymorphic")}`Rci.size`).
 
-The returned size should be equal to the number of elements returned by `toList`. This condition
-is captured by the typeclass `LawfulRangeSize`.
+The returned size should be equal to the number of elements returned by {lit}`toList`. This
+condition is captured by the typeclass
+{name (scope := "Init.Data.Range.Polymorphic")}`LawfulRangeSize`.
 -/
 class HasSize (α : Type u) where
-  /-- Returns the number of elements starting from `lo` that satisfy the given upper bound. -/
+  /-- Returns the number of elements starting from {name}`lo` that satisfy the given upper bound. -/
   size (lo hi : α) : Nat
 
 /--
-This typeclass ensures that a `RangeSize` instance returns the correct size for all ranges.
+This typeclass ensures that a {name}`HasSize` instance returns the correct size for all ranges.
 -/
 class LawfulHasSize (α : Type u) [LE α] [UpwardEnumerable α] [HasSize α] where
   /-- If the smallest value in the range is beyond the upper bound, the size is zero. -/
@@ -88,17 +93,21 @@ namespace Rxo
 variable {α : Type u} {lo hi : α} {a : α}
 
 /--
-This typeclass provides support for the `PRange.size` function.
+This typeclass provides support for the size function for ranges with open lower bound
+({name (scope := "Init.Data.Range.Polymorphic")}`Roc.size`,
+{name (scope := "Init.Data.Range.Polymorphic")}`Roo.size` and
+{name (scope := "Init.Data.Range.Polymorphic")}`Roi.size`).
 
-The returned size should be equal to the number of elements returned by `toList`. This condition
-is captured by the typeclass `LawfulRangeSize`.
+The returned size should be equal to the number of elements returned by {lit}`toList`. This
+condition is captured by the typeclass
+{name (scope := "Init.Data.Range.Polymorphic")}`LawfulRangeSize`.
 -/
 class HasSize (α : Type u) where
-  /-- Returns the number of elements starting from `lo` that satisfy the given upper bound. -/
+  /-- Returns the number of elements starting from {name}`lo` that satisfy the given upper bound. -/
   size (lo hi : α) : Nat
 
 /--
-This typeclass ensures that a `RangeSize` instance returns the correct size for all ranges.
+This typeclass ensures that a {name}`HasSize` instance returns the correct size for all ranges.
 -/
 class LawfulHasSize (α : Type u) [LT α] [UpwardEnumerable α] [HasSize α] where
   /-- If the smallest value in the range is beyond the upper bound, the size is zero. -/
@@ -157,17 +166,21 @@ namespace Rxi
 variable {α : Type u} {lo : α} {a : α}
 
 /--
-This typeclass provides support for the `PRange.size` function.
+This typeclass provides support for the size function for ranges with closed lower bound
+({name (scope := "Init.Data.Range.Polymorphic")}`Ric.size`,
+{name (scope := "Init.Data.Range.Polymorphic")}`Rio.size` and
+{name (scope := "Init.Data.Range.Polymorphic")}`Rii.size`).
 
-The returned size should be equal to the number of elements returned by `toList`. This condition
-is captured by the typeclass `LawfulRangeSize`.
+The returned size should be equal to the number of elements returned by {lit}`toList`. This
+condition is captured by the typeclass
+{name (scope := "Init.Data.Range.Polymorphic")}`LawfulRangeSize`.
 -/
 class HasSize (α : Type u) where
-  /-- Returns the number of elements starting from `lo` that satisfy the given upper bound. -/
+  /-- Returns the number of elements starting from {name}`lo` that satisfy the given upper bound. -/
   size (lo : α) : Nat
 
 /--
-This typeclass ensures that a `RangeSize` instance returns the correct size for all ranges.
+This typeclass ensures that a {name}`HasSize` instance returns the correct size for all ranges.
 -/
 class LawfulHasSize (α : Type u) [UpwardEnumerable α] [HasSize α] where
   /--
@@ -202,9 +215,8 @@ variable {α : Type u} {r : Rcc α} {lo hi a : α}
 /--
 Checks whether the range contains any value.
 
-This function returns a meaningful value for all range types defined by the standard library
-and for all range types that satisfy the properties encoded in the `LawfulUpwardEnumerable`,
-`LawfulUpwardEnumerableLowerBound` and `LawfulUpwardEnumerableUpperBound` typeclasses.
+This function returns a meaningful value given {name}`LawfulUpwardEnumerable` and
+{name}`LawfulUpwardEnumerableLE` instances.
 -/
 @[inline]
 def isEmpty [LE α] [DecidableLE α] [UpwardEnumerable α]
@@ -230,9 +242,8 @@ variable {α : Type u} {r : Rco α} {lo hi a : α}
 /--
 Checks whether the range contains any value.
 
-This function returns a meaningful value for all range types defined by the standard library
-and for all range types that satisfy the properties encoded in the `LawfulUpwardEnumerable`,
-`LawfulUpwardEnumerableLowerBound` and `LawfulUpwardEnumerableUpperBound` typeclasses.
+This function returns a meaningful value given {name}`LawfulUpwardEnumerable` and
+{name}`LawfulUpwardEnumerableLT` instances.
 -/
 @[inline]
 def isEmpty [LT α] [DecidableLT α] [UpwardEnumerable α] (r : Rco α) : Bool :=
@@ -260,10 +271,9 @@ variable {α : Type u} {r : Rci α} {lo a : α}
 
 /--
 Checks whether the range contains any value.
-
-This function returns a meaningful value for all range types defined by the standard library
-and for all range types that satisfy the properties encoded in the `LawfulUpwardEnumerable`,
-`LawfulUpwardEnumerableLowerBound` and `LawfulUpwardEnumerableUpperBound` typeclasses.
+This function exists for completeness and always returns false:
+The closed lower bound is contained in the range, so
+left-closed right-unbounded ranges are never empty.
 -/
 @[inline]
 def isEmpty [UpwardEnumerable α] (_ : Rci α) : Bool :=
@@ -285,9 +295,8 @@ variable {α : Type u} {r : Roc α} {lo hi a : α}
 /--
 Checks whether the range contains any value.
 
-This function returns a meaningful value for all range types defined by the standard library
-and for all range types that satisfy the properties encoded in the `LawfulUpwardEnumerable`,
-`LawfulUpwardEnumerableLowerBound` and `LawfulUpwardEnumerableUpperBound` typeclasses.
+This function returns a meaningful value given {name}`LawfulUpwardEnumerable` and
+{name}`LawfulUpwardEnumerableLT` instances.
 -/
 @[inline]
 def isEmpty [LT α] [DecidableLT α] [UpwardEnumerable α]
@@ -313,9 +322,8 @@ variable {α : Type u} {r : Roo α} {lo hi a : α}
 /--
 Checks whether the range contains any value.
 
-This function returns a meaningful value for all range types defined by the standard library
-and for all range types that satisfy the properties encoded in the `LawfulUpwardEnumerable`,
-`LawfulUpwardEnumerableLowerBound` and `LawfulUpwardEnumerableUpperBound` typeclasses.
+This function returns a meaningful value given {name}`LawfulUpwardEnumerable` and
+{name}`LawfulUpwardEnumerableLT` instances.
 -/
 @[inline]
 def isEmpty [LT α] [DecidableLT α] [UpwardEnumerable α] (r : Roo α) : Bool :=
@@ -344,12 +352,10 @@ variable {α : Type u} {r : Roi α} {lo a : α}
 /--
 Checks whether the range contains any value.
 
-This function returns a meaningful value for all range types defined by the standard library
-and for all range types that satisfy the properties encoded in the `LawfulUpwardEnumerable`,
-`LawfulUpwardEnumerableLowerBound` and `LawfulUpwardEnumerableUpperBound` typeclasses.
+This function returns a meaningful value given a {name}`LawfulUpwardEnumerable` instance.
 -/
 @[inline]
-def isEmpty [LT α] [DecidableLT α] [UpwardEnumerable α] (r : Roi α) : Bool :=
+def isEmpty [UpwardEnumerable α] (r : Roi α) : Bool :=
   UpwardEnumerable.succ? r.lower |>.isNone
 
 theorem mem_iff [LT α] :
@@ -367,10 +373,9 @@ variable {α : Type u} {r : Ric α} {hi a : α}
 
 /--
 Checks whether the range contains any value.
-
-This function returns a meaningful value for all range types defined by the standard library
-and for all range types that satisfy the properties encoded in the `LawfulUpwardEnumerable`,
-`LawfulUpwardEnumerableLowerBound` and `LawfulUpwardEnumerableUpperBound` typeclasses.
+This function exists for completeness and always returns false:
+The closed upper bound is contained in the range, so
+left-unbounded right-closed ranges are never empty.
 -/
 @[inline]
 def isEmpty [UpwardEnumerable α] (_ : Ric α) : Bool :=
@@ -391,9 +396,8 @@ variable {α : Type u} {r : Rio α} {hi a : α}
 /--
 Checks whether the range contains any value.
 
-This function returns a meaningful value for all range types defined by the standard library
-and for all range types that satisfy the properties encoded in the `LawfulUpwardEnumerable`,
-`LawfulUpwardEnumerableLowerBound` and `LawfulUpwardEnumerableUpperBound` typeclasses.
+This function returns a meaningful value given {name}`LawfulUpwardEnumerable`,
+{name}`LawfulUpwardEnumerableLT` and {name}`LawfulUpwardEnumerableLeast?` instances.
 -/
 @[inline]
 def isEmpty [LT α] [DecidableLT α] [UpwardEnumerable α] [Least? α] (r : Rio α) : Bool :=
@@ -418,9 +422,8 @@ variable {α : Type u} {r : Rii α} {a : α}
 /--
 Checks whether the range contains any value.
 
-This function returns a meaningful value for all range types defined by the standard library
-and for all range types that satisfy the properties encoded in the `LawfulUpwardEnumerable`,
-`LawfulUpwardEnumerableLowerBound` and `LawfulUpwardEnumerableUpperBound` typeclasses.
+This function returns a meaningful value given {name}`LawfulUpwardEnumerable` and
+{name}`LawfulUpwardEnumerableLeast?` instances.
 -/
 @[inline]
 def isEmpty [Least? α] (_ : Rii α) : Bool :=

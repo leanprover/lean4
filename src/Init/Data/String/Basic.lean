@@ -2343,7 +2343,8 @@ Examples:
 * `"red green blue".extract ⟨3⟩ ⟨0⟩ = ""`
 * `"red green blue".extract ⟨0⟩ ⟨100⟩ = "red green blue"`
 * `"red green blue".extract ⟨4⟩ ⟨100⟩ = "green blue"`
-* `"L∃∀N".extract ⟨2⟩ ⟨100⟩ = "green blue"`
+* `"L∃∀N".extract ⟨1⟩ ⟨2⟩ = "∃∀N"`
+* `"L∃∀N".extract ⟨2⟩ ⟨100⟩ = ""`
 -/
 @[extern "lean_string_utf8_extract", expose]
 def extract : (@& String) → (@& Pos) → (@& Pos) → String
@@ -3411,12 +3412,22 @@ def toNat? (s : Substring) : Option Nat :=
     none
 
 /--
+Given a `Substring`, returns another one which has valid endpoints
+and represents the same substring according to `Substring.toString`.
+(Note, the substring may still be inverted, i.e. beginning greater than end.)
+-/
+def repair : Substring → Substring
+  | ⟨s, b, e⟩ => ⟨s, if b.isValid s then b else s.endPos, if e.isValid s then e else s.endPos⟩
+
+/--
 Checks whether two substrings represent equal strings. Usually accessed via the `==` operator.
 
 Two substrings do not need to have the same underlying string or the same start and end positions;
 instead, they are equal if they contain the same sequence of characters.
 -/
 def beq (ss1 ss2 : Substring) : Bool :=
+  let ss1 := ss1.repair
+  let ss2 := ss2.repair
   ss1.bsize == ss2.bsize && ss1.str.substrEq ss1.startPos ss2.str ss2.startPos ss1.bsize
 
 @[export lean_substring_beq]

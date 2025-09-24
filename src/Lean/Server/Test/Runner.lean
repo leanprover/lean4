@@ -9,6 +9,7 @@ module
 prelude
 public import Lean.Data.Lsp
 public import Lean.Widget
+import Lean.Server.FileWorker.WidgetRequests
 
 public section
 open Lean
@@ -29,33 +30,53 @@ namespace Client
 structure SubexprInfo where
   subexprPos : String
   diffStatus? : Option String
-  deriving FromJson, Repr
+  deriving FromJson, ToJson
 
 structure Hyp where
   type : Widget.TaggedText SubexprInfo
   names : Array String
   isInserted?: Option Bool
   isRemoved?: Option Bool
-  deriving FromJson, Repr
+  deriving FromJson, ToJson
 
 structure InteractiveGoalCore where
   hyps : Array Hyp
   type : Widget.TaggedText SubexprInfo
-  deriving FromJson, Repr
+  deriving FromJson, ToJson
 
 structure InteractiveGoal extends InteractiveGoalCore where
   isInserted?: Option Bool := none
   isRemoved?: Option Bool := none
-  deriving FromJson, Repr
+  deriving FromJson, ToJson
 
 structure InteractiveGoals where
   goals : Array InteractiveGoal
-  deriving FromJson, Repr
+  deriving FromJson, ToJson
 
 structure InteractiveTermGoal extends InteractiveGoalCore where
   range : Lsp.Range
-  deriving FromJson, Repr
+  deriving FromJson, ToJson
 
+structure WidgetInstance where
+  id : Name
+  javascriptHash : UInt64
+  props : Json
+  deriving FromJson, ToJson
+
+inductive StrictOrLazy (α β : Type) : Type
+  | strict : α → StrictOrLazy α β
+  | lazy : β → StrictOrLazy α β
+  deriving FromJson, ToJson
+
+inductive MsgEmbed where
+  | expr : Widget.TaggedText SubexprInfo → MsgEmbed
+  | goal : InteractiveGoal → MsgEmbed
+  | widget (wi : WidgetInstance) (alt : Widget.TaggedText MsgEmbed)
+  | trace (indent : Nat) (cls : Name) (msg : Widget.TaggedText MsgEmbed) (collapsed : Bool)
+    (children : StrictOrLazy (Array (Widget.TaggedText MsgEmbed)) Json)
+  deriving FromJson, ToJson
+
+abbrev InteractiveDiagnostic := Lsp.DiagnosticWith (Widget.TaggedText MsgEmbed)
 end Client
 
 /-! Test-only instances -/
@@ -121,6 +142,10 @@ partial def main (args : List String) : IO Unit := do
   let uri := s!"file:///{args.head!}"
   -- We want `dbg_trace` tactics to write directly to stderr instead of being caught in reuse
   Ipc.runWith (←IO.appPath) #["--server", "-DstderrAsMessages=false"] do
+    let initializationOptions? := some {
+      editDelay? := none
+      hasWidgets? := some true
+    }
     let capabilities := {
       textDocument? := some {
         completion? := some {
@@ -133,7 +158,7 @@ partial def main (args : List String) : IO Unit := do
         silentDiagnosticSupport? := some true
       }
     }
-    Ipc.writeRequest ⟨0, "initialize", { capabilities : InitializeParams }⟩
+    Ipc.writeRequest ⟨0, "initialize", { initializationOptions?, capabilities : InitializeParams }⟩
     let _ ← Ipc.readResponseAs 0 InitializeResult
     Ipc.writeNotification ⟨"initialized", InitializedParams.mk⟩
 
@@ -239,6 +264,26 @@ partial def main (args : List String) : IO Unit := do
               let r ← Ipc.readResponseAs requestNo CodeAction
               printOutputLn (toJson r.result)
               requestNo := requestNo + 1
+          | "interactiveDiagnostics" =>
+            if rpcSessionId.isNone then
+              Ipc.writeRequest ⟨requestNo, "$/lean/rpc/connect",  RpcConnectParams.mk uri⟩
+              let r ← Ipc.readResponseAs requestNo RpcConnected
+              rpcSessionId := some r.result.sessionId
+              requestNo := requestNo + 1
+            let params : Widget.GetInteractiveDiagnosticsParams := {
+              lineRange? := some ⟨0, pos.line + 1⟩
+            }
+            let ps : RpcCallParams := {
+              params := toJson params
+              textDocument := { uri }
+              position := pos,
+              sessionId := rpcSessionId.get!,
+              method := `Lean.Widget.getInteractiveDiagnostics
+            }
+            Ipc.writeRequest ⟨requestNo, "$/lean/rpc/call", ps⟩
+            let response ← Ipc.readResponseAs requestNo (Array Client.InteractiveDiagnostic)
+            requestNo := requestNo + 1
+            printOutputLn (toJson response.result)
           | "goals" =>
             if rpcSessionId.isNone then
               Ipc.writeRequest ⟨requestNo, "$/lean/rpc/connect",  RpcConnectParams.mk uri⟩
@@ -259,8 +304,7 @@ partial def main (args : List String) : IO Unit := do
             Ipc.writeRequest ⟨requestNo, "$/lean/rpc/call", ps⟩
             let response ← Ipc.readResponseAs requestNo Client.InteractiveGoals
             requestNo := requestNo + 1
-            IO.eprintln (repr response.result)
-            IO.eprintln ""
+            printOutputLn (toJson response.result)
           | "termGoal" =>
             if rpcSessionId.isNone then
               Ipc.writeRequest ⟨requestNo, "$/lean/rpc/connect",  RpcConnectParams.mk uri⟩
@@ -281,8 +325,7 @@ partial def main (args : List String) : IO Unit := do
             Ipc.writeRequest ⟨requestNo, "$/lean/rpc/call", ps⟩
             let response ← Ipc.readResponseAs requestNo Client.InteractiveTermGoal
             requestNo := requestNo + 1
-            IO.eprintln (repr response.result)
-            IO.eprintln ""
+            printOutputLn (toJson response.result)
           | "widgets" =>
             if rpcSessionId.isNone then
               Ipc.writeRequest ⟨requestNo, "$/lean/rpc/connect",  RpcConnectParams.mk uri⟩

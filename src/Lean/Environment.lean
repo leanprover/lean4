@@ -2670,6 +2670,14 @@ def mkDefinitionValInferringUnsafe [Monad m] [MonadEnv m] (name : Name) (levelPa
   let safety := if env.hasUnsafe type || env.hasUnsafe value then DefinitionSafety.unsafe else DefinitionSafety.safe
   return { name, levelParams, type, value, hints, safety }
 
+/-- Constructs a declaration from a theorem, resorting to an unsafe def if needed -/
+def mkThmOrUnsafeDef [Monad m] [MonadEnv m] (thm : TheoremVal) : m Declaration := do
+  let env ← getEnv
+  if env.hasUnsafe thm.type || env.hasUnsafe thm.value then
+    return .defnDecl { thm with safety := DefinitionSafety.unsafe, hints := .opaque }
+  else
+    return .thmDecl thm
+
 def getMaxHeight (env : Environment) (e : Expr) : UInt32 :=
   e.foldConsts 0 fun constName max =>
     match env.findAsync? constName with

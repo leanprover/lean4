@@ -57,20 +57,21 @@ partial def markDeclPublicRec (phase : Phase) (decl : Decl) : CompilerM Unit := 
             markDeclPublicRec phase refDecl
 
 /-- Checks whether references in the given declaration adhere to phase distinction. -/
-partial def checkMeta (isMeta : Bool) (origDecl : Decl) : CompilerM Unit := do
+partial def checkMeta (origDecl : Decl) : CompilerM Unit := do
   if !(← getEnv).header.isModule then
     return
+  let isMeta := isMeta (← getEnv) origDecl.name
   -- If the meta decl is public, we want to ensure it can only refer to public meta imports so that
   -- references to private imports cannot escape the current module. In particular, we check that
   -- decls with relevant global attrs are public (`Lean.ensureAttrDeclIsMeta`).
   let isPublic := !isPrivateName origDecl.name
-  go isPublic origDecl |>.run' {}
-where go (isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit := do
+  go isMeta isPublic origDecl |>.run' {}
+where go (isMeta isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit := do
   decl.value.forCodeM fun code =>
     for ref in collectUsedDecls code do
       if (← get).contains ref then
         continue
-      modify (·.insert decl.name)
+      modify (·.insert ref)
       if isMeta && isPublic then
         if let some modIdx := (← getEnv).getModuleIdxFor? ref then
           if (← getEnv).header.modules[modIdx]?.any (!·.isExported) then
@@ -85,7 +86,7 @@ where go (isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit := do
         -- *their* references in this case. We also need to do this for non-auxiliary defs in case a
         -- public meta def tries to use a private meta import via a local private meta def :/ .
         if let some refDecl ← getLocalDecl? ref then
-          go isPublic refDecl
+          go isMeta isPublic refDecl
 
 /--
 Checks meta availability just before `evalConst`. This is a "last line of defense" as accesses
@@ -104,12 +105,47 @@ where go (decl : Decl) : StateT NameSet (Except String) Unit :=
     for ref in collectUsedDecls code do
       if (← get).contains ref then
         continue
-      modify (·.insert decl.name)
+      modify (·.insert ref)
       if let some localDecl := baseExt.getState env |>.find? ref then
         go localDecl
       else
         if getIRPhases env ref == .runtime then
           throw s!"Cannot evaluate constant `{declName}` as it uses `{ref}` which is neither marked nor imported as `meta`"
+
+/--
+Checks that imports necessary for inlining/specialization are public as otherwise we may run into
+unknown declarations at the point of inlining/specializing. This is a limitation that we want to
+lift in the future by moving main compilation into a different process that can use a different
+import/incremental system.
+-/
+partial def checkTemplateVisibility : Pass where
+  occurrence := 0
+  phase := .base
+  name := `checkTemplateVisibility
+  run decls := do
+    if (← getEnv).header.isModule then
+      for decl in decls do
+        -- A private template-like decl cannot directly be used by a different module. If it could be used
+        -- indirectly via a public template-like, we do a recursive check when checking the latter.
+        if !isPrivateName decl.name && (← decl.isTemplateLike) then
+          let isMeta := isMeta (← getEnv) decl.name
+          go isMeta decl decl |>.run' {}
+    return decls
+where go (isMeta : Bool) (origDecl decl : Decl) : StateT NameSet CompilerM Unit := do
+  decl.value.forCodeM fun code =>
+    for ref in collectUsedDecls code do
+      if (← get).contains ref then
+        continue
+      modify (·.insert decl.name)
+      if let some localDecl := baseExt.getState (← getEnv) |>.find? ref then
+        -- check transitively through local decls
+        if isPrivateName localDecl.name && (← localDecl.isTemplateLike) then
+          go isMeta origDecl localDecl
+      else if let some modIdx := (← getEnv).getModuleIdxFor? ref then
+        if (← getEnv).header.modules[modIdx]?.any (!·.isExported) then
+          throwError "Cannot compile inline/specializing declaration `{.ofConstName origDecl.name}` as \
+            it uses `{.ofConstName ref}` of module `{(← getEnv).header.moduleNames[modIdx]!}` \
+            which must be imported publicly. This limitation may be lifted in the future."
 
 def inferVisibility (phase : Phase) : Pass where
   occurrence := 0

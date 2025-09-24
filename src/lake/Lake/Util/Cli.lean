@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Control.State
 import Init.Data.Array.Basic
-import Init.Data.String.Basic
+public import Init.Data.String.Basic
 
 namespace Lake
 

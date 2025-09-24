@@ -85,6 +85,9 @@ def builtinPassManager : PassManager := {
     -/
     simp { etaPoly := true, inlinePartial := true, implementedBy := true } (occurrence := 1),
     eagerLambdaLifting,
+    -- Should be as early as possible but after `eagerLambdaLifting` to make sure instances are
+    -- checked without nested functions whose bodies specialization does not require access to.
+    checkTemplateVisibility,
     specialize,
     simp (occurrence := 2),
     cse (shouldElimFunDecls := false) (occurrence := 1),

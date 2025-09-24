@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Lean_FileMap_lspRangeOfStx_x3f(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_FileMap_lspRangeToUtf8Range(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_utf8RangeToLspRange(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
@@ -37,6 +38,7 @@ lean_object* l_Array_back_x21___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Utf16_0__Lean_FileMap_lineStartPos___boxed(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_FileMap_lspRangeOfStx_x3f___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosToUtf16PosFromAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_DeclarationRange_ofFilePositions(lean_object*, lean_object*, lean_object*);
@@ -54,6 +56,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosT
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_getRange_x3f(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_FileMap_utf8PosToLspPos___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_utf16PosToCodepointPosFrom___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_csize16(uint32_t);
@@ -527,6 +530,54 @@ lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
 return x_12;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_FileMap_lspRangeOfStx_x3f(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Syntax_getRange_x3f(x_2, x_3);
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; 
+lean_dec_ref(x_1);
+x_5 = lean_box(0);
+return x_5;
+}
+else
+{
+uint8_t x_6; 
+x_6 = !lean_is_exclusive(x_4);
+if (x_6 == 0)
+{
+lean_object* x_7; lean_object* x_8; 
+x_7 = lean_ctor_get(x_4, 0);
+x_8 = l_Lean_FileMap_utf8RangeToLspRange(x_1, x_7);
+lean_ctor_set(x_4, 0, x_8);
+return x_4;
+}
+else
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_9 = lean_ctor_get(x_4, 0);
+lean_inc(x_9);
+lean_dec(x_4);
+x_10 = l_Lean_FileMap_utf8RangeToLspRange(x_1, x_9);
+x_11 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_11, 0, x_10);
+return x_11;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_FileMap_lspRangeOfStx_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_3);
+x_5 = l_Lean_FileMap_lspRangeOfStx_x3f(x_1, x_2, x_4);
+lean_dec(x_2);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_FileMap_lspRangeToUtf8Range(lean_object* x_1, lean_object* x_2) {

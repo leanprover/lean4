@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Meta
-import Init.Data.String.Extra
+public import Init.Data.String.Extra
 
 /-!
 Here we give the. implementation of `Name.toString`. There is also a private implementation in

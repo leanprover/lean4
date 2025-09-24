@@ -9,7 +9,7 @@ prelude
 public import Init.System.IO
 public import Init.Data.ToString
 public import Lake.Util.Log
-import Lake.Util.Proc
+public import Lake.Util.Proc
 
 open System
 namespace Lake

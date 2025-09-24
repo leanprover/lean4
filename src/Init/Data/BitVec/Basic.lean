@@ -29,10 +29,6 @@ set_option linter.missingDocs true
 
 namespace BitVec
 
-@[inline, deprecated BitVec.ofNatLT (since := "2025-02-13"), inherit_doc BitVec.ofNatLT]
-protected def ofNatLt {n : Nat} (i : Nat) (p : i < 2 ^ n) : BitVec n :=
-  BitVec.ofNatLT i p
-
 section Nat
 
 /--

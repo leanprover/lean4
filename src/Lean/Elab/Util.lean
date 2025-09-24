@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Lean.Parser.Extension
+public import Lean.Parser.Extension
 meta import Lean.Parser.Command
 public import Lean.KeyedDeclsAttribute
 public import Lean.Elab.Exception

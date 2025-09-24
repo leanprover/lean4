@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.EqResolution
-// Imports: Lean.Meta.AppBuilder Lean.Meta.MatchUtil Lean.Util.ForEachExpr
+// Imports: Lean.Meta.Basic Lean.Meta.AppBuilder Lean.Meta.MatchUtil Lean.Util.ForEachExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -7058,6 +7058,7 @@ x_14 = l_Lean_Meta_withLocalDecl___at___Lean_Meta_withLocalDeclD___at___Lean_Met
 return x_14;
 }
 }
+lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_MatchUtil(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_ForEachExpr(uint8_t builtin, lean_object*);
@@ -7066,6 +7067,9 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_EqResolution(uint8_t 
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Lean_Meta_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Meta_AppBuilder(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -160,7 +160,7 @@ Examples:
  * `"" ++ "" = ""`
 -/
 @[extern "lean_string_append", expose]
-def String.append (s t : String) : String where
+def String.append (s : String) (t : @& String) : String where
   bytes := s.bytes ++ t.bytes
   isValidUtf8 := s.isValidUtf8.append t.isValidUtf8
 
@@ -221,7 +221,7 @@ Examples:
 * `"L∃∀N".length = 4`
 -/
 @[extern "lean_string_length"]
-def String.length (b : String) : Nat :=
+def String.length (b : @& String) : Nat :=
   b.data.length
 
 @[simp]

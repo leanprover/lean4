@@ -250,7 +250,12 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
       else
         let rhs := rule.rhs.instantiateLevelParams recVal.levelParams recLvls
         -- Apply parameters, motives and minor premises from recursor application.
-        let rhs := mkAppRange rhs 0 (recVal.numParams+recVal.numMotives+recVal.numMinors) recArgs
+        let rhs := mkAppRange rhs 0 (recVal.numParams+recVal.numMotives) recArgs
+        let recApps := recVal.recs.toArray.map fun recName =>
+          let recApp := mkConst recName recLvls -- TODO: Do not reconstruct
+          mkAppRange recApp 0 (recVal.numParams+recVal.numMotives+recVal.numMinors) recArgs
+        let rhs := mkAppN rhs recApps
+        let rhs := mkAppRange rhs (recVal.numParams+recVal.numMotives) (recVal.numParams+recVal.numMotives+recVal.numMinors) recArgs
         /- The number of parameters in the constructor is not necessarily
            equal to the number of parameters in the recursor when we have
            nested inductive types. -/

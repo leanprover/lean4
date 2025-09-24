@@ -301,6 +301,8 @@ expr const & get_app_args_at_most(expr const & e, unsigned num, buffer<expr> & a
 expr const & get_app_rev_args(expr const & e, buffer<expr> & args);
 /** \brief Given \c e of the form <tt>(...(f a_1) ... a_n)</tt>, return \c f. If \c e is not an application, then return \c e. */
 expr const & get_app_fn(expr const & e);
+/** \brief Given \c e of the form <tt>(...(f a_1) ... a_n)</tt>, return \c f. */
+expr const & get_app_fn_n(expr const & e, unsigned n);
 /** \brief Given \c e of the form <tt>(...(f a_1) ... a_n)</tt>, return \c n. If \c e is not an application, then return 0. */
 unsigned get_app_num_args(expr const & e);
 

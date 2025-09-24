@@ -703,6 +703,19 @@ public:
     recursor_rules mk_rec_rules(unsigned d_idx, buffer<expr> const & Cs, buffer<expr> const & minors, unsigned & minor_idx) {
         inductive_type const & d = m_ind_types[d_idx];
         levels lvls = get_rec_levels();
+
+        buffer<expr> recs;
+        for (unsigned i = 0; i < m_ind_types.size(); i++) {
+            rec_info const & info = m_rec_infos[i];
+            expr C_app            = mk_app(mk_app(Cs[i], info.m_indices), info.m_major);
+            expr rec_ty           = mk_pi (info.m_indices, mk_pi(info.m_major, C_app));
+            name rec_name("rec");
+            if (m_ind_types.size() > 1)
+                rec_name = name(rec_name).append_after(i+1);
+            expr rec = mk_local_decl(rec_name, rec_ty);
+            recs.push_back(rec);
+        }
+
         buffer<recursor_rule> rules;
         for (constructor const & cnstr : d.get_cnstrs()) {
             buffer<expr> b_u;
@@ -733,13 +746,11 @@ public:
                 }
                 buffer<expr> it_indices;
                 unsigned it_idx = get_I_indices(u_i_ty, it_indices);
-                name rec_name   = mk_rec_name(m_ind_types[it_idx].get_name());
-                expr rec_app    = mk_constant(rec_name, lvls);
-                rec_app         = mk_app(mk_app(mk_app(mk_app(mk_app(rec_app, m_params), Cs), minors), it_indices), mk_app(u_i, xs));
+                expr rec_app    = mk_app(mk_app(recs[it_idx],it_indices), mk_app(u_i, xs));
                 v.push_back(mk_lambda(xs, rec_app));
             }
             expr e_app    = mk_app(mk_app(minors[minor_idx], b_u), v);
-            expr comp_rhs = mk_lambda(m_params, mk_lambda(Cs, mk_lambda(minors, mk_lambda(b_u, e_app))));
+            expr comp_rhs = mk_lambda(m_params, mk_lambda(Cs, mk_lambda(recs, mk_lambda(minors, mk_lambda(b_u, e_app)))));
             rules.push_back(recursor_rule(constructor_name(cnstr), b_u.size(), comp_rhs));
             minor_idx++;
         }
@@ -753,6 +764,7 @@ public:
         unsigned nminors   = minors.size();
         unsigned nmotives  = Cs.size();
         names all          = get_all_inductive_names();
+        names recs         = map(all, [](name const & n) { return mk_rec_name(n); });
         unsigned minor_idx = 0;
         for (unsigned d_idx = 0; d_idx < m_ind_types.size(); d_idx++) {
             rec_info const & info = m_rec_infos[d_idx];
@@ -766,7 +778,7 @@ public:
             recursor_rules rules  = mk_rec_rules(d_idx, Cs, minors, minor_idx);
             name rec_name         = mk_rec_name(m_ind_types[d_idx].get_name());
             names rec_lparams     = get_rec_lparams();
-            m_env.add_core(constant_info(recursor_val(rec_name, rec_lparams, rec_ty, all,
+            m_env.add_core(constant_info(recursor_val(rec_name, rec_lparams, rec_ty, all, recs,
                                                       m_nparams, m_nindices[d_idx], nmotives, nminors,
                                                       rules, m_K_target, m_is_unsafe)));
         }
@@ -822,7 +834,7 @@ struct elim_nested_inductive_result {
         return cnstr_name.replace_prefix(p->second, const_name(I));
     }
 
-    expr restore_nested(expr e, environment const & aux_env, name_map<name> const & aux_rec_name_map = name_map<name>()) {
+    expr restore_nested(expr e, environment const & aux_env) {
         local_ctx lctx;
         buffer<expr> As;
         bool pi = is_pi(e);
@@ -832,11 +844,6 @@ struct elim_nested_inductive_result {
             e = instantiate(binding_body(e), As.back());
         }
         e = replace(e, [&](expr const & t, unsigned) {
-                if (is_constant(t)) {
-                    if (name const * rec_name = aux_rec_name_map.find(const_name(t))) {
-                        return some_expr(mk_constant(*rec_name, const_levels(t)));
-                    }
-                }
                 expr const & fn = get_app_fn(t);
                 if (is_constant(fn)) {
                     if (expr const * nested = m_aux2nested.find(const_name(fn))) {
@@ -1130,11 +1137,17 @@ environment environment::add_inductive(declaration const & d) const {
             if (name const * new_name = aux_rec_name_map.find(rec_name))
                 new_rec_name = *new_name;
             constant_info rec_info = aux_env.get(rec_name);
-            expr new_rec_type      = res.restore_nested(rec_info.get_type(), aux_env, aux_rec_name_map);
+            expr new_rec_type      = res.restore_nested(rec_info.get_type(), aux_env);
             recursor_val rec_val   = rec_info.to_recursor_val();
             buffer<recursor_rule> new_rules;
+            names all_new_rec_names = map(rec_val.get_recs(), [&](name const & rec_name) {
+                    if (name const * new_name = aux_rec_name_map.find(rec_name))
+                        return *new_name;
+                    else
+                        return rec_name;
+            });
             for (recursor_rule const & rule : rec_val.get_rules()) {
-                expr new_rhs        = res.restore_nested(rule.get_rhs(), aux_env, aux_rec_name_map);
+                expr new_rhs        = res.restore_nested(rule.get_rhs(), aux_env);
                 name cnstr_name     = rule.get_cnstr();
                 name new_cnstr_name = cnstr_name;
                 if (new_rec_name != rec_name) {
@@ -1145,7 +1158,8 @@ environment environment::add_inductive(declaration const & d) const {
             }
             new_env.check_name(new_rec_name);
             new_env.add_core(constant_info(recursor_val(new_rec_name, rec_info.get_lparams(), new_rec_type,
-                                                        all_ind_names, rec_val.get_nparams(), rec_val.get_nindices(), rec_val.get_nmotives(),
+                                                        all_ind_names, all_new_rec_names,
+                                                        rec_val.get_nparams(), rec_val.get_nindices(), rec_val.get_nmotives(),
                                                         rec_val.get_nminors(), recursor_rules(new_rules),
                                                         rec_val.is_k(), rec_val.is_unsafe())));
         };

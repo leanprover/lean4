@@ -98,6 +98,8 @@ private def printInduct (id : Name) (levelParams : List Name) (numParams : Nat) 
 
 private def printRecursor (recInfo : RecursorVal) : CommandElabM Unit := do
   let mut m ← mkHeader "recursor" recInfo.name recInfo.levelParams recInfo.type (if recInfo.isUnsafe then .unsafe else .safe)
+  if recInfo.recs.length > 1 then
+    m := m ++ Format.line ++ m!"mutual with: {recInfo.recs}"
   m := m ++ Format.line ++ m!"number of parameters: {recInfo.numParams}"
   m := m ++ Format.line ++ m!"number of indices: {recInfo.numIndices}"
   m := m ++ Format.line ++ m!"number of motives: {recInfo.numMotives}"

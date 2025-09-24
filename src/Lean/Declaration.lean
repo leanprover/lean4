@@ -349,6 +349,8 @@ structure RecursorRule where
 structure RecursorVal extends ConstantVal where
   /-- List of all inductive datatypes in the mutual declaration that generated this recursor -/
   all : List Name
+  /-- List of all recursors mutually recursive with this one. Can be more than `all` with nested recursion -/
+  recs : List Name
   /-- Number of parameters -/
   numParams : Nat
   /-- Number of indices -/
@@ -373,9 +375,9 @@ structure RecursorVal extends ConstantVal where
   deriving Inhabited, BEq
 
 @[export lean_mk_recursor_val]
-def mkRecursorValEx (name : Name) (levelParams : List Name) (type : Expr) (all : List Name) (numParams numIndices numMotives numMinors : Nat)
+def mkRecursorValEx (name : Name) (levelParams : List Name) (type : Expr) (all : List Name) (recs : List Name) (numParams numIndices numMotives numMinors : Nat)
     (rules : List RecursorRule) (k isUnsafe : Bool) : RecursorVal := {
-  name, levelParams, type, all, numParams, numIndices,
+  name, levelParams, type, all, recs, numParams, numIndices,
   numMotives, numMinors, rules, k, isUnsafe
 }
 

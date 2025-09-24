@@ -102,8 +102,19 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     if (rule->get_nfields() > major_args.size()) return none_expr();
     if (length(const_levels(rec_fn)) != length(rec_info->get_lparams())) return none_expr();
     expr rhs = instantiate_lparams(rule->get_rhs(), rec_info->get_lparams(), const_levels(rec_fn));
-    /* apply parameters, motives and minor premises from recursor application. */
-    rhs      = mk_app(rhs, rec_val.get_nparams() + rec_val.get_nmotives() + rec_val.get_nminors(), rec_args.data());
+    /* apply parameters, motives, recursor application and minor premises from recursor application. */
+    rhs      = mk_app(rhs, rec_val.get_nparams() + rec_val.get_nmotives(), rec_args.data());
+    expr rec_app = get_app_fn_n(e, rec_args.size() - (rec_val.get_nparams() + rec_val.get_nmotives() + rec_val.get_nminors()));
+    if (rec_val.get_nmotives() == 1) {
+        rhs      = mk_app(rhs, rec_app);
+    } else {
+        for (name rec_name : rec_val.get_recs()) {
+            expr rec_app2 = mk_const(rec_name, const_levels(rec_fn));
+            rec_app2 = mk_app(rec_app2, rec_val.get_nparams() + rec_val.get_nmotives() + rec_val.get_nminors(), rec_args.data());
+            rhs = mk_app(rhs, rec_app2);
+        }
+    }
+    rhs      = mk_app(rhs, rec_val.get_nminors(), rec_args.data() + rec_val.get_nparams() + rec_val.get_nmotives());
     /* The number of parameters in the constructor is not necessarily
        equal to the number of parameters in the recursor when we have
        nested inductive types. */

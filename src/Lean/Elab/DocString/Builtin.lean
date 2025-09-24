@@ -976,8 +976,14 @@ def suggestAttr (code : StrLit) : DocM (Array CodeSuggestion) := do
   catch
     | _ => pure ()
   try
-    discard <| parseStrLit attrParser.fn code
-    return #[.mk ``attr none none]
+    let stx ← parseStrLit attrParser.fn code
+    if stx.getKind == ``Lean.Parser.Attr.simple then
+      let attrName := stx[0].getId.eraseMacroScopes
+      if isAttribute (← getEnv) attrName then
+        return #[.mk ``attr none none]
+      else return #[]
+    else
+      return #[.mk ``attr none none]
   catch
     | _ => pure ()
   return #[]

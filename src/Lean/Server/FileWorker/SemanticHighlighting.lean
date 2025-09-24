@@ -260,7 +260,7 @@ partial def collectSyntaxBasedSemanticTokens : (stx : Syntax) → Array LeanSema
 open Lean.Doc.Syntax in
 /-- Collects all semantic tokens from the given `Elab.InfoTree`. -/
 def collectInfoBasedSemanticTokens (i : Elab.InfoTree) : Array LeanSemanticToken :=
-  Array.flatten <| List.toArray <| i.deepestNodes fun _ info _ => do
+  List.toArray <| i.deepestNodes fun _ info _ => do
     let .ofTermInfo ti := info
       | none
     let .original .. := ti.stx.getHeadInfo
@@ -271,11 +271,11 @@ def collectInfoBasedSemanticTokens (i : Elab.InfoTree) : Array LeanSemanticToken
           -- Recall that `isAuxDecl` is an auxiliary declaration used to elaborate a recursive definition.
           if localDecl.isAuxDecl then
             if ti.isBinder then
-              return #[⟨ti.stx, SemanticTokenType.function⟩]
+              return ⟨ti.stx, SemanticTokenType.function⟩
           else if ! localDecl.isImplementationDetail then
-            return #[⟨ti.stx, SemanticTokenType.variable⟩]
+            return ⟨ti.stx, SemanticTokenType.variable⟩
     if ti.stx.getKind == Parser.Term.identProjKind then
-      return #[⟨ti.stx, SemanticTokenType.property⟩]
+      return ⟨ti.stx, SemanticTokenType.property⟩
     none
 
 def computeSemanticTokens  (doc : EditableDocument) (beginPos : String.Pos)

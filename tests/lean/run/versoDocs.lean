@@ -9,11 +9,6 @@ This test checks that the basic features of Verso docstrings work.
 open Lean Doc Elab Term
 
 
-
-
-
-
-
 @[doc_code_block]
 def c (s : StrLit) : DocM (Block ElabInline ElabBlock) := pure (Block.code (s.getString.toList.reverse |> String.mk))
 
@@ -364,6 +359,54 @@ def yetMore := ()
 def yetMore' := ()
 
 #check yetMore'
+
+-- Test that only actual attributes lead to suggestions
+/--
+warning: Code element could be more specific.
+
+Hint: Insert a role to document it:
+  • {̲a̲t̲t̲r̲}̲`instance`
+  • {̲k̲w̲ ̲(̲o̲f̲ ̲:̲=̲ ̲L̲e̲a̲n̲.̲P̲a̲r̲s̲e̲r̲.̲A̲t̲t̲r̲.̲i̲n̲s̲t̲a̲n̲c̲e̲)̲}̲`instance` (in `attr`)
+  • {̲s̲y̲n̲t̲a̲x̲ ̲a̲t̲t̲r̲}̲`instance`
+---
+warning: Code element could be more specific.
+
+Hint: Insert a role to document it:
+  • {̲a̲t̲t̲r̲}̲`term_elab`
+  • {̲g̲i̲v̲e̲n̲}̲`term_elab`
+  • {̲l̲e̲a̲n̲}̲`term_elab`
+  • {̲s̲y̲n̲t̲a̲x̲ ̲a̲t̲t̲r̲}̲`term_elab`
+  • {̲s̲y̲n̲t̲a̲x̲ ̲d̲o̲E̲l̲e̲m̲}̲`term_elab`
+  • {̲s̲y̲n̲t̲a̲x̲ ̲m̲c̲a̲s̲e̲s̲P̲a̲t̲}̲`term_elab`
+  • {̲s̲y̲n̲t̲a̲x̲ ̲m̲i̲n̲t̲r̲o̲P̲a̲t̲}̲`term_elab`
+  • {̲s̲y̲n̲t̲a̲x̲ ̲m̲r̲e̲f̲i̲n̲e̲P̲a̲t̲}̲`term_elab`
+  • {̲s̲y̲n̲t̲a̲x̲ ̲m̲r̲e̲v̲e̲r̲t̲P̲a̲t̲}̲`term_elab`
+  • {̲s̲y̲n̲t̲a̲x̲ ̲r̲c̲a̲s̲e̲s̲P̲a̲t̲}̲`term_elab`
+  • {̲s̲y̲n̲t̲a̲x̲ ̲r̲i̲n̲t̲r̲o̲P̲a̲t̲}̲`term_elab`
+  • {̲s̲y̲n̲t̲a̲x̲ ̲s̲t̲x̲}̲`term_elab`
+---
+warning: Code element could be more specific.
+
+Hint: Insert a role to document it:
+  • {̲g̲i̲v̲e̲n̲}̲`instantiation`
+  • {̲l̲e̲a̲n̲}̲`instantiation`
+  • {̲s̲y̲n̲t̲a̲x̲ ̲a̲t̲t̲r̲}̲`instantiation`
+  • {̲s̲y̲n̲t̲a̲x̲ ̲d̲o̲E̲l̲e̲m̲}̲`instantiation`
+  • {̲s̲y̲n̲t̲a̲x̲ ̲m̲c̲a̲s̲e̲s̲P̲a̲t̲}̲`instantiation`
+  • {̲s̲y̲n̲t̲a̲x̲ ̲m̲i̲n̲t̲r̲o̲P̲a̲t̲}̲`instantiation`
+  • {̲s̲y̲n̲t̲a̲x̲ ̲m̲r̲e̲f̲i̲n̲e̲P̲a̲t̲}̲`instantiation`
+  • {̲s̲y̲n̲t̲a̲x̲ ̲m̲r̲e̲v̲e̲r̲t̲P̲a̲t̲}̲`instantiation`
+  • {̲s̲y̲n̲t̲a̲x̲ ̲r̲c̲a̲s̲e̲s̲P̲a̲t̲}̲`instantiation`
+  • {̲s̲y̲n̲t̲a̲x̲ ̲r̲i̲n̲t̲r̲o̲P̲a̲t̲}̲`instantiation`
+  • {̲s̲y̲n̲t̲a̲x̲ ̲s̲t̲x̲}̲`instantiation`
+-/
+#guard_msgs in
+/--
+This one has its own parser: `instance`
+This one is an identifier: `term_elab`
+This is not an attribute: `instantiation`
+-/
+def attrSuggestionTest := ()
 
 /-
 TODO test:

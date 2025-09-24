@@ -66,65 +66,65 @@ end Attr
 
 namespace Tactic
 
-@[inherit_doc Lean.Parser.Tactic.massumptionMacro]
+@[tactic_alt Lean.Parser.Tactic.massumptionMacro]
 syntax (name := massumption) "massumption" : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mclearMacro]
+@[tactic_alt Lean.Parser.Tactic.mclearMacro]
 syntax (name := mclear) "mclear" colGt ident : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mconstructorMacro]
+@[tactic_alt Lean.Parser.Tactic.mconstructorMacro]
 syntax (name := mconstructor) "mconstructor" : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mexactMacro]
+@[tactic_alt Lean.Parser.Tactic.mexactMacro]
 syntax (name := mexact) "mexact" colGt term : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mexfalsoMacro]
+@[tactic_alt Lean.Parser.Tactic.mexfalsoMacro]
 syntax (name := mexfalso) "mexfalso" : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mexistsMacro]
+@[tactic_alt Lean.Parser.Tactic.mexistsMacro]
 syntax (name := mexists) "mexists" term,+ : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mframeMacro]
+@[tactic_alt Lean.Parser.Tactic.mframeMacro]
 syntax (name := mframe) "mframe" : tactic
 
 /-- Duplicate a stateful `Std.Do.SPred` hypothesis. -/
 syntax (name := mdup) "mdup" ident " => " ident : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mhaveMacro]
+@[tactic_alt Lean.Parser.Tactic.mhaveMacro]
 syntax (name := mhave) "mhave" ident optional(":" term) " := " term : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mreplaceMacro]
+@[tactic_alt Lean.Parser.Tactic.mreplaceMacro]
 syntax (name := mreplace) "mreplace" ident optional(":" term) " := " term : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mrightMacro]
+@[tactic_alt Lean.Parser.Tactic.mrightMacro]
 syntax (name := mright) "mright" : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mleftMacro]
+@[tactic_alt Lean.Parser.Tactic.mleftMacro]
 syntax (name := mleft) "mleft" : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mpureMacro]
+@[tactic_alt Lean.Parser.Tactic.mpureMacro]
 syntax (name := mpure) "mpure" colGt ident : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mpureIntroMacro]
+@[tactic_alt Lean.Parser.Tactic.mpureIntroMacro]
 macro (name := mpureIntro) "mpure_intro" : tactic =>
   `(tactic| apply $(mkIdent ``Std.Do.SPred.Tactic.Pure.intro))
 
-@[inherit_doc Lean.Parser.Tactic.mrenameIMacro]
+@[tactic_alt Lean.Parser.Tactic.mrenameIMacro]
 syntax (name := mrenameI) "mrename_i" (ppSpace colGt binderIdent)+ : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mspecializeMacro]
+@[tactic_alt Lean.Parser.Tactic.mspecializeMacro]
 syntax (name := mspecialize) "mspecialize" ident (colGt term:max)* : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mspecializePureMacro]
+@[tactic_alt Lean.Parser.Tactic.mspecializePureMacro]
 syntax (name := mspecializePure) "mspecialize_pure" term (colGt term:max)* " => " ident : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mstartMacro]
+@[tactic_alt Lean.Parser.Tactic.mstartMacro]
 syntax (name := mstart) "mstart" : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mstopMacro]
+@[tactic_alt Lean.Parser.Tactic.mstopMacro]
 syntax (name := mstop) "mstop" : tactic
 
-@[inherit_doc Lean.Parser.Tactic.mleaveMacro]
+@[tactic_alt Lean.Parser.Tactic.mleaveMacro]
 macro (name := mleave) "mleave" : tactic =>
   `(tactic| (try simp only [
               $(mkIdent ``Std.Do.SPred.down_pure):term,
@@ -212,7 +212,7 @@ where
     | args   => args.mapM go |>.map (.alts ·.toList)
   | _ => none
 
-@[inherit_doc Lean.Parser.Tactic.mcasesMacro]
+@[tactic_alt Lean.Parser.Tactic.mcasesMacro]
 syntax (name := mcases) "mcases" ident " with " mcasesPat : tactic
 
 declare_syntax_cat mrefinePat
@@ -249,14 +249,14 @@ where
   | `(mrefinePat| ($pat)) => go pat
   | _ => none
 
-@[inherit_doc Lean.Parser.Tactic.mrefineMacro]
+@[tactic_alt Lean.Parser.Tactic.mrefineMacro]
 syntax (name := mrefine) "mrefine" mrefinePat : tactic
 
 declare_syntax_cat mintroPat
 syntax mcasesPat : mintroPat
 syntax "∀" binderIdent : mintroPat
 
-@[inherit_doc Lean.Parser.Tactic.mintroMacro]
+@[tactic_alt Lean.Parser.Tactic.mintroMacro]
 syntax (name := mintro) "mintro" (ppSpace colGt mintroPat)+ : tactic
 
 macro_rules
@@ -273,7 +273,7 @@ declare_syntax_cat mrevertPat
 syntax ident : mrevertPat
 syntax "∀" optional(num) : mrevertPat
 
-@[inherit_doc Lean.Parser.Tactic.mrevertMacro]
+@[tactic_alt Lean.Parser.Tactic.mrevertMacro]
 syntax (name := mrevert) "mrevert" (ppSpace colGt mrevertPat)+ : tactic
 
 macro_rules
@@ -302,7 +302,7 @@ all_goals
 macro (name := mspecNoSimp) "mspec_no_simp" spec:(ppSpace colGt term)? : tactic =>
   `(tactic| ((try with_reducible mspec_no_bind $(mkIdent ``Std.Do.Spec.bind)) <;> mspec_no_bind $[$spec]?))
 
-@[inherit_doc Lean.Parser.Tactic.mspecMacro]
+@[tactic_alt Lean.Parser.Tactic.mspecMacro]
 macro (name := mspec) "mspec" spec:(ppSpace colGt term)? : tactic =>
   `(tactic| (mspec_no_simp $[$spec]?
              all_goals ((try simp only [
@@ -355,7 +355,7 @@ then a list of alternatives.
 -/
 syntax vcAlts := "with " (ppSpace colGt tactic)? withPosition((colGe vcAlt)*)
 
-@[inherit_doc Lean.Parser.Tactic.mvcgenMacro]
+@[tactic_alt Lean.Parser.Tactic.mvcgenMacro]
 syntax (name := mvcgen) "mvcgen" optConfig
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")?
   (invariantAlts)? (vcAlts)? : tactic

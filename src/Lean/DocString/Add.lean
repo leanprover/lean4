@@ -14,7 +14,7 @@ import Lean.Elab.DocString
 import Lean.DocString.Extension
 import Lean.DocString.Links
 import Lean.Parser.Types
-import Lean.DocString.Parser
+public import Lean.DocString.Parser
 import Lean.ResolveName
 public import Lean.Elab.Term.TermElabM
 import Std.Data.HashMap
@@ -159,7 +159,7 @@ def versoDocStringFromString
   }
   let s := mkParserState docComment
   -- TODO parse one block at a time for error recovery purposes
-  let s := (Doc.Parser.document).run ictx pmctx (getTokenTable env) s
+  let s := Doc.Parser.document.run ictx pmctx (getTokenTable env) s
 
   if !s.allErrors.isEmpty then
     for (pos, _, err) in s.allErrors do

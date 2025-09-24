@@ -11,7 +11,7 @@ public import Lake.Util.Version
 public import Lake.Config.Defaults
 import Lake.Util.Name
 import Lake.Util.Error
-import Lake.Util.FilePath
+public import Lake.Util.FilePath
 import Lake.Util.JsonObject
 
 open System Lean

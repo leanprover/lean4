@@ -103,7 +103,7 @@ The parameters are:
 -/
 def addSuggestion (ref : Syntax) (s : Suggestion) (origSpan? : Option Syntax := none)
     (header : String := "Try this:") (codeActionPrefix? : Option String := none)
-    (diffGranularity : Hint.DiffGranularity := .none) : MetaM Unit := do
+    (diffGranularity : Hint.DiffGranularity := .none) : CoreM Unit := do
   let hintSuggestion := {
     span? := origSpan?
     diffGranularity
@@ -146,7 +146,7 @@ def addSuggestions (ref : Syntax) (suggestions : Array Suggestion)
     (origSpan? : Option Syntax := none) (header : String := "Try these:")
     (style? : Option SuggestionStyle := none)
     (codeActionPrefix? : Option String := none)
-    (diffGranularity : Hint.DiffGranularity := .none) : MetaM Unit := do
+    (diffGranularity : Hint.DiffGranularity := .none) : CoreM Unit := do
   if suggestions.isEmpty then throwErrorAt ref "No suggestions available"
   let hintSuggestions := suggestions.map fun s => {
     span? := origSpan?

@@ -208,6 +208,14 @@ expr head_beta_reduce(expr const & t) {
     }
 }
 
+expr head_beta_reduce_under_lambda(expr const & t) {
+    if (is_lambda(t)) {
+        return update_binding(t, binding_domain(t), head_beta_reduce_under_lambda(binding_body(t)));
+    } else {
+        return head_beta_reduce(t);
+    }
+}
+
 expr cheap_beta_reduce(expr const & e) {
     if (!is_app(e)) return e;
     expr fn = get_app_fn(e);

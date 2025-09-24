@@ -190,8 +190,12 @@ theorem Spec.read_ReaderT [Monad m] [WPMonad m psm] :
   Triple (MonadReaderOf.read : ReaderT ρ m ρ) (spred(fun r => Q.1 r r)) spred(Q) := by simp [Triple]
 
 @[spec]
-theorem Spec.withReader_ReaderT [Monad m] [WPMonad m psm] :
+theorem Spec.withReader_ReaderT [WP m psm] :
   Triple (MonadWithReaderOf.withReader f x : ReaderT ρ m α) (spred(fun r => wp⟦x⟧ (fun a _ => Q.1 a r, Q.2) (f r))) spred(Q) := by simp [Triple]
+
+@[spec]
+theorem Spec.adapt_ReaderT [WP m ps] (f : ρ → ρ') :
+  Triple (ReaderT.adapt f x : ReaderT ρ m α) spred(fun r => wp⟦x⟧ (fun a _ => Q.1 a r, Q.2) (f r)) spred(Q) := by simp [Triple]
 
 /-! # `StateT` -/
 
@@ -229,6 +233,15 @@ theorem Spec.tryCatch_ExceptT [Monad m] [WPMonad m ps] (Q : PostCond α (.except
     Triple (MonadExceptOf.tryCatch x h : ExceptT ε m α) (spred(wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2))) spred(Q) := by
   simp [Triple]
 
+@[spec]
+theorem Spec.orElse_ExceptT [Monad m] [WPMonad m ps] (Q : PostCond α (.except ε ps)) :
+    Triple (OrElse.orElse x h : ExceptT ε m α) (spred(wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2))) spred(Q) := by
+  simp [Triple]
+
+@[spec]
+theorem Spec.adapt_ExceptT [Monad m] [WPMonad m ps] (f : ε → ε') (Q : PostCond α (.except ε' ps)) :
+  Triple (ps := .except ε' ps) (ExceptT.adapt f x : ExceptT ε' m α) (wp⟦x⟧ (Q.1, fun e => Q.2.1 (f e), Q.2.2)) Q := by simp [Triple]
+
 /-! # `Except` -/
 
 @[spec]
@@ -238,6 +251,11 @@ theorem Spec.throw_Except [Monad m] [WPMonad m ps] :
 @[spec]
 theorem Spec.tryCatch_Except (Q : PostCond α (.except ε .pure)) :
     Triple (MonadExceptOf.tryCatch x h : Except ε α) (spred(wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2))) spred(Q) := by
+  simp [Triple]
+
+@[spec]
+theorem Spec.orElse_Except (Q : PostCond α (.except ε .pure)) :
+    Triple (OrElse.orElse x h : Except ε α) (spred(wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2))) spred(Q) := by
   simp [Triple]
 
 /-! # `EStateM` -/
@@ -264,9 +282,19 @@ theorem Spec.tryCatch_EStateM (Q : PostCond α (.except ε (.arg σ .pure))) :
   Triple (MonadExceptOf.tryCatch x h : EStateM ε σ α) (spred(fun s => wp⟦x⟧ (Q.1, fun e s' => wp⟦h e⟧ Q (restore s' (save s)), Q.2.2) s)) spred(Q) := by
   simp [Triple]
 
+open EStateM.Backtrackable in
+@[spec]
+theorem Spec.orElse_EStateM (Q : PostCond α (.except ε (.arg σ .pure))) :
+  Triple (OrElse.orElse x h : EStateM ε σ α) (spred(fun s => wp⟦x⟧ (Q.1, fun _ s' => wp⟦h ()⟧ Q (restore s' (save s)), Q.2.2) s)) spred(Q) := by
+  simp [Triple]
+
+@[spec]
+theorem Spec.adaptExcept_EStateM (f : ε → ε') (Q : PostCond α (.except ε' (.arg σ .pure))) :
+  Triple (ps := .except ε' (.arg σ .pure)) (EStateM.adaptExcept f x : EStateM ε' σ α) (wp⟦x⟧ (Q.1, fun e => Q.2.1 (f e), Q.2.2)) Q := by simp [Triple]
+
 /-! # Lifting `MonadStateOf` -/
 
-attribute [spec] modify modifyThe getThe
+attribute [spec] modify modifyThe getThe getModify modifyGetThe
   instMonadStateOfMonadStateOf instMonadStateOfOfMonadLift
 
 /-! # Lifting `MonadReaderOf` -/
@@ -327,6 +355,8 @@ theorem Spec.tryCatch_ExceptT_lift [WP m ps] [Monad m] [MonadExceptOf ε m] (Q :
   simp
   intro x
   split <;> rfl
+
+/-! # Lifting `OrElse` -/
 
 /-! # `ForIn` -/
 

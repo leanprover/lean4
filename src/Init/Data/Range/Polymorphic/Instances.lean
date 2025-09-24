@@ -51,15 +51,15 @@ instance [LE α] [Total (α := α) (· ≤ ·)] [UpwardEnumerable α] [LawfulUpw
       cases n
       · simpa [succMany?_zero] using hn
       · exfalso
-        rw [succMany?_succ?_eq_succ?_bind_succMany?, hab,
-          ← succMany?_succ?_eq_succ?_bind_succMany?] at hn
+        rw [succMany?_add_one_eq_succ?_bind_succMany?, hab,
+          ← succMany?_add_one_eq_succ?_bind_succMany?] at hn
         exact UpwardEnumerable.lt_irrefl ⟨_, hn⟩
     · obtain ⟨n, hn⟩ := h
       cases n
       · simpa [succMany?_zero] using hn.symm
       · exfalso
-        rw [succMany?_succ?_eq_succ?_bind_succMany?, hab.symm,
-          ← succMany?_succ?_eq_succ?_bind_succMany?] at hn
+        rw [succMany?_add_one_eq_succ?_bind_succMany?, hab.symm,
+          ← succMany?_add_one_eq_succ?_bind_succMany?] at hn
         exact UpwardEnumerable.lt_irrefl ⟨_, hn⟩
 
 namespace Rxc
@@ -76,7 +76,7 @@ instance instIsAlwaysFiniteOfLawfulHasSize [LE α] [UpwardEnumerable α]
       simp [succMany?_zero, hn]
     | succ =>
       rename_i n ih
-      rw [succMany?_succ?_eq_succ?_bind_succMany?]
+      rw [succMany?_add_one_eq_succ?_bind_succMany?]
       match hs : succ? lo with
       | none => simp
       | some a =>
@@ -120,7 +120,7 @@ instance LawfulHasSize.of_closed [UpwardEnumerable α] [LE α] [DecidableLE α]
     exfalso
     simp only [UpwardEnumerable.lt_iff] at h
     obtain ⟨n, hn⟩ := h
-    simp [succMany?_succ?_eq_succ?_bind_succMany?, h'] at hn
+    simp [succMany?_add_one_eq_succ?_bind_succMany?, h'] at hn
   size_eq_succ_of_succ?_eq_some bound a a' h h' := by
     simp only [HasSize.size, Nat.pred_eq_succ_iff]
     rw [Rxc.LawfulHasSize.size_eq_succ_of_succ?_eq_some (h := le_of_lt h) (h' := h')]
@@ -130,7 +130,7 @@ instance LawfulHasSize.of_closed [UpwardEnumerable α] [LE α] [DecidableLE α]
       rw [UpwardEnumerable.le_iff]
       rw [UpwardEnumerable.lt_iff] at h
       refine ⟨h.choose, ?_⟩
-      simpa [succMany?_succ?_eq_succ?_bind_succMany?, h'] using h.choose_spec
+      simpa [succMany?_add_one_eq_succ?_bind_succMany?, h'] using h.choose_spec
 
 /--
 Creates a {lean}`HasSize α` from a {lean}`HasSize α` instance. If the latter is lawful
@@ -151,7 +151,7 @@ instance instIsAlwaysFiniteOfLawfulHasSize [LT α] [UpwardEnumerable α]
       simp [succMany?_zero, hn]
     | succ =>
       rename_i n ih
-      rw [succMany?_succ?_eq_succ?_bind_succMany?]
+      rw [succMany?_add_one_eq_succ?_bind_succMany?]
       match hs : succ? lo with
       | none => simp
       | some a =>
@@ -176,7 +176,7 @@ instance instIsAlwaysFiniteOfLawfulHasSize [LT α] [UpwardEnumerable α]
       simp [Nat.ne_of_gt size_pos] at hn
     | succ =>
       rename_i n ih
-      rw [succMany?_succ?_eq_succ?_bind_succMany?]
+      rw [succMany?_add_one_eq_succ?_bind_succMany?]
       match hs : succ? lo with
       | none => simp
       | some a =>

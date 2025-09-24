@@ -77,7 +77,7 @@ theorem ByteArray.isValidUtf8_utf8Encode_singleton_append_iff {b : ByteArray} {c
       ByteArray.append_right_inj] at hl
     exact hl ▸ isValidUtf8_utf8Encode
 
-@[expose]
+@[inline, expose]
 def ByteArray.utf8Decode? (b : ByteArray) : Option (Array Char) :=
   go (b.size + 1) 0 #[] (by simp) (by simp)
 where

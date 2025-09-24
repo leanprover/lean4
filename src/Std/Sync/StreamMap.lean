@@ -42,106 +42,106 @@ instance [AsyncStream t α] : CoeDep t x (AnyAsyncStream α) where
 A map container that associates string keys with async streams.
 Provides operations for adding, removing, and selecting from multiple streams.
 -/
-structure StreamMap (α : Type) where
+structure StreamMap (α : Type) (β : Type) where
   private mk ::
-  private streams : Array (String × Selector α × IO Unit)
+  private streams : Array (α × Selector β × IO Unit)
 
 namespace StreamMap
 
 /--
 Create an empty StreamMap
 -/
-def empty {α} : StreamMap α :=
+def empty {α} : StreamMap α β :=
   { streams := #[] }
 
 /--
 Register a new async stream with the given name
 -/
-def register [AsyncStream t α] (sm : StreamMap α) (name : String) (reader : t) : StreamMap α :=
+def register [BEq α] [AsyncStream t β] (sm : StreamMap α β) (name : α) (reader : t) : StreamMap α β :=
   let newSelector := AsyncStream.next reader
   let filteredStreams := sm.streams.filter (fun (n, _) => n != name)
-  { sm with streams := filteredStreams.push (name, newSelector, AsyncStream.stop reader) }
+  { sm with streams := filteredStreams.push (name, newSelector,  AsyncStream.stop reader) }
 
 /--
 Create a StreamMap from an array of named streams
 -/
-def ofArray {α} (streams : Array (String × AnyAsyncStream α)) : StreamMap α :=
+def ofArray [BEq α] (streams : Array (α × AnyAsyncStream β)) : StreamMap α β :=
   let arrayOfSelectors := streams.map (fun (name, sel) => (name, sel.getSelector))
   { streams := arrayOfSelectors }
 
 /--
 Get a combined selector that returns the stream name and value
 -/
-def selector (stream : StreamMap α) : Async (Selector (String × α)) :=
+def selector (stream : StreamMap α β) : Async (Selector (α × β)) :=
   let selectables := stream.streams.map fun (name, selector) => Selectable.case selector.fst (fun x => pure (name, x))
   Selectable.combine selectables
 
 /--
 Wait for the first value inside of the stream map.
 -/
-def recv (stream : StreamMap α) : Async (String × α) :=
+def recv (stream : StreamMap α β) : Async (α × β) :=
   let selectables := stream.streams.map fun (name, selector) => Selectable.case selector.fst (fun x => pure (name, x))
   Selectable.one selectables
 
 /--
 Wait for the first value inside of the stream map.
 -/
-def tryRecv (stream : StreamMap α) : Async (Option (String × α)) :=
+def tryRecv (stream : StreamMap α β) : Async (Option (α × β)) :=
   let selectables := stream.streams.map fun (name, selector) => Selectable.case selector.fst (fun x => pure (name, x))
   Selectable.tryOne selectables
 
 /--
 Remove a stream by name
 -/
-def unregister (sm : StreamMap α) (name : String) : StreamMap α :=
+def unregister [BEq α] (sm : StreamMap α β) (name : α) : StreamMap α β :=
   { sm with streams := sm.streams.filter (fun (n, _) => n != name) }
 
 /--
 Check if a stream with the given name exists
 -/
-def contains (sm : StreamMap α) (name : String) : Bool :=
+def contains [BEq α] (sm : StreamMap α β) (name : α) : Bool :=
   sm.streams.any (fun (n, _) => n == name)
 
 /--
 Get the number of registered streams
 -/
-def size (sm : StreamMap α) : Nat :=
+def size (sm : StreamMap α β) : Nat :=
   sm.streams.size
 
 /--
 Check if the StreamMap is empty
 -/
-def isEmpty (sm : StreamMap α) : Bool :=
+def isEmpty (sm : StreamMap α β) : Bool :=
   sm.streams.isEmpty
 
 /--
 Get all registered stream names
 -/
-def keys (sm : StreamMap α) : Array String :=
+def keys (sm : StreamMap α β) : Array α :=
   sm.streams.map (·.1)
 
 /--
 Get a specific stream selector by name
 -/
-def get? (sm : StreamMap α) (name : String) : Option (Selector α) :=
+def get? [BEq α] (sm : StreamMap α β) (name : α) : Option (Selector β) :=
   sm.streams.find? (fun (n, _) => n == name) |>.map (·.2.1)
 
 /--
 Filter streams based on their names
 -/
-def filterByName (sm : StreamMap α) (pred : String → Bool) : StreamMap α :=
+def filterByName (sm : StreamMap α β) (pred : α → Bool) : StreamMap α β :=
   { streams := sm.streams.filter (fun (name, _) => pred name) }
 
 /--
 Convert to array of name-selector pairs
 -/
-def toArray (sm : StreamMap α) : Array (String × Selector α) :=
+def toArray (sm : StreamMap α β) : Array (α × Selector β) :=
   sm.streams.map (fun (n, s, _) => (n, s))
 
 /--
 Cleanup function
 -/
-def close (sm : StreamMap α) : IO Unit :=
+def close (sm : StreamMap α β) : IO Unit :=
   sm.streams.forM (fun (_, _, cleanup) => cleanup)
 
 end StreamMap

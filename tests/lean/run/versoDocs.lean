@@ -368,37 +368,26 @@ Hint: Insert a role to document it:
   • {̲a̲t̲t̲r̲}̲`instance`
   • {̲k̲w̲ ̲(̲o̲f̲ ̲:̲=̲ ̲L̲e̲a̲n̲.̲P̲a̲r̲s̲e̲r̲.̲A̲t̲t̲r̲.̲i̲n̲s̲t̲a̲n̲c̲e̲)̲}̲`instance` (in `attr`)
   • {̲s̲y̲n̲t̲a̲x̲ ̲a̲t̲t̲r̲}̲`instance`
+  • Use the `lit` role:
+    {̲l̲i̲t̲}̲`instance`
+    to mark the code as literal text and disable suggestions
 ---
 warning: Code element could be more specific.
 
 Hint: Insert a role to document it:
   • {̲a̲t̲t̲r̲}̲`term_elab`
   • {̲g̲i̲v̲e̲n̲}̲`term_elab`
-  • {̲l̲e̲a̲n̲}̲`term_elab`
-  • {̲s̲y̲n̲t̲a̲x̲ ̲a̲t̲t̲r̲}̲`term_elab`
-  • {̲s̲y̲n̲t̲a̲x̲ ̲d̲o̲E̲l̲e̲m̲}̲`term_elab`
-  • {̲s̲y̲n̲t̲a̲x̲ ̲m̲c̲a̲s̲e̲s̲P̲a̲t̲}̲`term_elab`
-  • {̲s̲y̲n̲t̲a̲x̲ ̲m̲i̲n̲t̲r̲o̲P̲a̲t̲}̲`term_elab`
-  • {̲s̲y̲n̲t̲a̲x̲ ̲m̲r̲e̲f̲i̲n̲e̲P̲a̲t̲}̲`term_elab`
-  • {̲s̲y̲n̲t̲a̲x̲ ̲m̲r̲e̲v̲e̲r̲t̲P̲a̲t̲}̲`term_elab`
-  • {̲s̲y̲n̲t̲a̲x̲ ̲r̲c̲a̲s̲e̲s̲P̲a̲t̲}̲`term_elab`
-  • {̲s̲y̲n̲t̲a̲x̲ ̲r̲i̲n̲t̲r̲o̲P̲a̲t̲}̲`term_elab`
-  • {̲s̲y̲n̲t̲a̲x̲ ̲s̲t̲x̲}̲`term_elab`
+  • Use the `lit` role:
+    {̲l̲i̲t̲}̲`term_elab`
+    to mark the code as literal text and disable suggestions
 ---
 warning: Code element could be more specific.
 
 Hint: Insert a role to document it:
   • {̲g̲i̲v̲e̲n̲}̲`instantiation`
-  • {̲l̲e̲a̲n̲}̲`instantiation`
-  • {̲s̲y̲n̲t̲a̲x̲ ̲a̲t̲t̲r̲}̲`instantiation`
-  • {̲s̲y̲n̲t̲a̲x̲ ̲d̲o̲E̲l̲e̲m̲}̲`instantiation`
-  • {̲s̲y̲n̲t̲a̲x̲ ̲m̲c̲a̲s̲e̲s̲P̲a̲t̲}̲`instantiation`
-  • {̲s̲y̲n̲t̲a̲x̲ ̲m̲i̲n̲t̲r̲o̲P̲a̲t̲}̲`instantiation`
-  • {̲s̲y̲n̲t̲a̲x̲ ̲m̲r̲e̲f̲i̲n̲e̲P̲a̲t̲}̲`instantiation`
-  • {̲s̲y̲n̲t̲a̲x̲ ̲m̲r̲e̲v̲e̲r̲t̲P̲a̲t̲}̲`instantiation`
-  • {̲s̲y̲n̲t̲a̲x̲ ̲r̲c̲a̲s̲e̲s̲P̲a̲t̲}̲`instantiation`
-  • {̲s̲y̲n̲t̲a̲x̲ ̲r̲i̲n̲t̲r̲o̲P̲a̲t̲}̲`instantiation`
-  • {̲s̲y̲n̲t̲a̲x̲ ̲s̲t̲x̲}̲`instantiation`
+  • Use the `lit` role:
+    {̲l̲i̲t̲}̲`instantiation`
+    to mark the code as literal text and disable suggestions
 -/
 #guard_msgs in
 /--
@@ -407,6 +396,59 @@ This one is an identifier: `term_elab`
 This is not an attribute: `instantiation`
 -/
 def attrSuggestionTest := ()
+
+/--
+error: Module is not transitively imported by the current module.
+
+Hint: Either disable the existence check or use an imported module:
+  {module ̲-̲c̲h̲e̲c̲k̲e̲d̲}`NonExistent`
+---
+error: Module is not transitively imported by the current module.
+
+Hint: Either disable the existence check or use an imported module:
+  • {module ̲-̲c̲h̲e̲c̲k̲e̲d̲}`Laen.Data.Jsn`
+  • {module}`L̵a̵e̵n̵.̵D̵a̵t̵a̵.̵J̵s̵n̵L̲e̲a̲n̲.̲D̲a̲t̲a̲.̲J̲s̲o̲n̲`
+---
+error: Module is not transitively imported by the current module.
+
+Hint: Either disable the existence check or use an imported module:
+  • {module ̲-̲c̲h̲e̲c̲k̲e̲d̲}`Lean.Data.jso`
+  • {module}`L̵e̵a̵n̵.̵D̵a̵t̵a̵.̵j̵s̵o̵L̲e̲a̲n̲.̲D̲a̲t̲a̲.̲J̲s̲o̲n̲`
+  • {module}`L̵e̵a̵n̵.̵D̵a̵t̵a̵.̵j̵s̵o̵L̲e̲a̲n̲.̲D̲a̲t̲a̲.̲L̲s̲p̲`
+-/
+#guard_msgs in
+/--
+Error, no suggestions:
+{module}`NonExistent`
+
+Error, one suggestions:
+{module}`Laen.Data.Jsn`
+
+No error:
+{module -checked}`NonExistent`
+
+Error, two suggestions:
+{module}`Lean.Data.jso`
+
+No error:
+{module}`Lean.Data.Json`
+-/
+def talksAboutModules := ()
+
+/--
+warning: Code element could be more specific.
+
+Hint: Insert a role to document it:
+  • {̲m̲o̲d̲u̲l̲e̲}̲`Lean.Data.Json.Basic`
+  • Use the `lit` role:
+    {̲l̲i̲t̲}̲`Lean.Data.Json.Basic`
+    to mark the code as literal text and disable suggestions
+-/
+#guard_msgs in
+/--
+`Lean.Data.Json.Basic`
+-/
+def moduleSuggestionTest := ()
 
 /-
 TODO test:

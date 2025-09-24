@@ -101,8 +101,7 @@ def isCancelled (x : CancellationToken) : BaseIO Bool := do
     return st.cancelled
 
 /--
-Wait for cancellation. Returns a task that completes with `true` when cancelled,
-or `false` if unregistered normally. If already cancelled, immediately returns `true`.
+Wait for cancellation. Returns a task that completes when cancelled,
 -/
 def wait (x : CancellationToken) : IO (AsyncTask Unit) :=
   x.state.atomically do

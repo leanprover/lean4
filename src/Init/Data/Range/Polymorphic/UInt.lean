@@ -87,6 +87,23 @@ instance : Rxo.HasSize UInt8 := .ofClosed
 instance : Rxo.LawfulHasSize UInt8 := inferInstance
 instance : Rxo.IsAlwaysFinite UInt8 := inferInstance
 
+instance : Rxi.HasSize UInt8 where
+  size lo := 2 ^ 8 - lo.toNat
+
+theorem rxiHasSize_eq_toBitVec :
+    Rxi.HasSize.size (UInt8.ofBitVec lo) = Rxi.HasSize.size lo := by
+  simp [Rxi.HasSize.size]
+
+instance : Rxi.LawfulHasSize UInt8 where
+  size_eq_one_of_succ?_eq_none lo := by
+    cases lo
+    simpa [rxiHasSize_eq_toBitVec, succ?_ofBitVec] using
+      Rxi.LawfulHasSize.size_eq_one_of_succ?_eq_none (α := BitVec 8) _
+  size_eq_succ_of_succ?_eq_some lo lo' := by
+    cases lo; cases lo'
+    simpa [rxiHasSize_eq_toBitVec, succ?_ofBitVec] using
+      Rxi.LawfulHasSize.size_eq_succ_of_succ?_eq_some (α := BitVec 8) _ _
+
 end UInt8
 
 namespace UInt16
@@ -159,6 +176,23 @@ instance : Rxc.IsAlwaysFinite UInt16 := inferInstance
 instance : Rxo.HasSize UInt16 := .ofClosed
 instance : Rxo.LawfulHasSize UInt16 := inferInstance
 instance : Rxo.IsAlwaysFinite UInt16 := inferInstance
+
+instance : Rxi.HasSize UInt16 where
+  size lo := 2 ^ 16 - lo.toNat
+
+theorem rxiHasSize_eq_toBitVec :
+    Rxi.HasSize.size (UInt16.ofBitVec lo) = Rxi.HasSize.size lo := by
+  simp [Rxi.HasSize.size]
+
+instance : Rxi.LawfulHasSize UInt16 where
+  size_eq_one_of_succ?_eq_none lo := by
+    cases lo
+    simpa [rxiHasSize_eq_toBitVec, succ?_ofBitVec] using
+      Rxi.LawfulHasSize.size_eq_one_of_succ?_eq_none (α := BitVec 16) _
+  size_eq_succ_of_succ?_eq_some lo lo' := by
+    cases lo; cases lo'
+    simpa [rxiHasSize_eq_toBitVec, succ?_ofBitVec] using
+      Rxi.LawfulHasSize.size_eq_succ_of_succ?_eq_some (α := BitVec 16) _ _
 
 end UInt16
 
@@ -233,6 +267,23 @@ instance : Rxo.HasSize UInt32 := .ofClosed
 instance : Rxo.LawfulHasSize UInt32 := inferInstance
 instance : Rxo.IsAlwaysFinite UInt32 := inferInstance
 
+instance : Rxi.HasSize UInt32 where
+  size lo := 2 ^ 32 - lo.toNat
+
+theorem rxiHasSize_eq_toBitVec :
+    Rxi.HasSize.size (UInt32.ofBitVec lo) = Rxi.HasSize.size lo := by
+  simp [Rxi.HasSize.size]
+
+instance : Rxi.LawfulHasSize UInt32 where
+  size_eq_one_of_succ?_eq_none lo := by
+    cases lo
+    simpa [rxiHasSize_eq_toBitVec, succ?_ofBitVec] using
+      Rxi.LawfulHasSize.size_eq_one_of_succ?_eq_none (α := BitVec 32) _
+  size_eq_succ_of_succ?_eq_some lo lo' := by
+    cases lo; cases lo'
+    simpa [rxiHasSize_eq_toBitVec, succ?_ofBitVec] using
+      Rxi.LawfulHasSize.size_eq_succ_of_succ?_eq_some (α := BitVec 32) _ _
+
 end UInt32
 
 namespace UInt64
@@ -306,6 +357,23 @@ instance : Rxo.HasSize UInt64 := .ofClosed
 instance : Rxo.LawfulHasSize UInt64 := inferInstance
 instance : Rxo.IsAlwaysFinite UInt64 := inferInstance
 
+instance : Rxi.HasSize UInt64 where
+  size lo := 2 ^ 64 - lo.toNat
+
+theorem rxiHasSize_eq_toBitVec :
+    Rxi.HasSize.size (UInt64.ofBitVec lo) = Rxi.HasSize.size lo := by
+  simp [Rxi.HasSize.size]
+
+instance : Rxi.LawfulHasSize UInt64 where
+  size_eq_one_of_succ?_eq_none lo := by
+    cases lo
+    simpa [rxiHasSize_eq_toBitVec, succ?_ofBitVec] using
+      Rxi.LawfulHasSize.size_eq_one_of_succ?_eq_none (α := BitVec 64) _
+  size_eq_succ_of_succ?_eq_some lo lo' := by
+    cases lo; cases lo'
+    simpa [rxiHasSize_eq_toBitVec, succ?_ofBitVec] using
+      Rxi.LawfulHasSize.size_eq_succ_of_succ?_eq_some (α := BitVec 64) _ _
+
 end UInt64
 
 namespace USize
@@ -378,5 +446,22 @@ instance : Rxc.IsAlwaysFinite USize := inferInstance
 instance : Rxo.HasSize USize := .ofClosed
 instance : Rxo.LawfulHasSize USize := inferInstance
 instance : Rxo.IsAlwaysFinite USize := inferInstance
+
+instance : Rxi.HasSize USize where
+  size lo := 2 ^ System.Platform.numBits - lo.toNat
+
+theorem rxiHasSize_eq_toBitVec :
+    Rxi.HasSize.size (USize.ofBitVec lo) = Rxi.HasSize.size lo := by
+  simp [Rxi.HasSize.size]
+
+instance : Rxi.LawfulHasSize USize where
+  size_eq_one_of_succ?_eq_none lo := by
+    cases lo
+    simpa [rxiHasSize_eq_toBitVec, succ?_ofBitVec] using
+      Rxi.LawfulHasSize.size_eq_one_of_succ?_eq_none (α := BitVec System.Platform.numBits) _
+  size_eq_succ_of_succ?_eq_some lo lo' := by
+    cases lo; cases lo'
+    simpa [rxiHasSize_eq_toBitVec, succ?_ofBitVec] using
+      Rxi.LawfulHasSize.size_eq_succ_of_succ?_eq_some (α := BitVec System.Platform.numBits) _ _
 
 end USize

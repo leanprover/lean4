@@ -23,6 +23,37 @@ instance : UpwardEnumerable (BitVec n) where
   succ? i := if i + 1 = 0 then none else some (i + 1)
   succMany? m i := if h : i.toNat + m < 2 ^ n then some (.ofNatLT _ h) else none
 
+theorem succ?_eq_none {x : BitVec n} :
+    UpwardEnumerable.succ? x = none ↔ x.toNat = 2 ^ n - 1 := by
+  simp [succ?, ← BitVec.toNat_inj]
+  apply Iff.intro
+  · refine fun h => Classical.not_not.mp fun _ => ?_
+    simp [Nat.mod_eq_of_lt (a := x.toNat + 1) (b := 2 ^ n) (by omega)] at h
+  · have := Nat.two_pow_pos n
+    simp +contextual [show 2 ^ n - 1 + 1 = 2 ^ n by omega]
+
+theorem succ?_eq_some {x y : BitVec n} :
+    succ? x = some y ↔ x.toNat < 2 ^ n - 1 ∧ y.toNat = x.toNat + 1 := by
+  match h : succ? x with
+  | none => simp_all [succ?_eq_none]
+  | some y' =>
+    simp only [Option.some.injEq]
+    apply Iff.intro
+    · rintro rfl
+      have : ¬ succ? x = none := fun _ => by simp_all
+      simp only [succ?_eq_none] at this
+      simp only [succ?, ofNat_eq_ofNat, Option.ite_none_left_eq_some, Option.some.injEq] at h
+      apply And.intro
+      · omega
+      · simp only [← toNat_inj, toNat_add, toNat_ofNat, Nat.add_mod_mod, Nat.zero_mod] at h
+        rw [Nat.mod_eq_of_lt (by omega)] at h
+        exact h.2.symm
+    · simp only [succ?, ofNat_eq_ofNat, ← toNat_inj, toNat_add, toNat_ofNat, Nat.add_mod_mod,
+        Nat.zero_mod, Option.ite_none_left_eq_some, Option.some.injEq] at h
+      intro h'
+      rw [Nat.mod_eq_of_lt (by omega)] at h
+      simp [← BitVec.toNat_inj, *]
+
 instance : LawfulUpwardEnumerable (BitVec n) where
   ne_of_lt := by
     simp +contextual [UpwardEnumerable.LT, ← BitVec.toNat_inj, succMany?] at ⊢
@@ -57,23 +88,14 @@ instance : Rxc.HasSize (BitVec n) where
 
 instance : Rxc.LawfulHasSize (BitVec n) where
   size_eq_zero_of_not_le bound x := by
-    simp [BitVec.not_le, Rxc.HasSize.size, BitVec.lt_def]
+    simp only [BitVec.not_le, Rxc.HasSize.size, BitVec.lt_def]
     omega
   size_eq_one_of_succ?_eq_none lo hi := by
     have := BitVec.toNat_lt_twoPow_of_le (Nat.le_refl _) (x := hi)
-    have (h : (lo.toNat + 1) % 2 ^ n = 0) : lo.toNat = 2 ^ n - 1 := by
-      apply Classical.not_not.mp
-      intro _
-      simp [Nat.mod_eq_of_lt (a := lo.toNat + 1) (b := 2 ^ n) (by omega)] at h
-    simp [Rxc.HasSize.size, BitVec.le_def, ← BitVec.toNat_inj, succ?]
+    simp only [succ?_eq_none, Rxc.HasSize.size, BitVec.le_def]
     omega
   size_eq_succ_of_succ?_eq_some lo hi x := by
-    have (h : ¬ (lo.toNat + 1) % 2 ^ n = 0) : ¬ (lo.toNat + 1 ≥ 2 ^ n) := by
-      intro _
-      have : lo.toNat + 1 = 2 ^ n := by omega
-      simp_all
-    simp_all +contextual [Rxc.HasSize.size, BitVec.le_def, ← BitVec.toNat_inj,
-      Nat.mod_eq_of_lt (a := lo.toNat + 1) (b := 2 ^ n), succ?]
+    simp only [succ?_eq_some, Rxc.HasSize.size, BitVec.le_def]
     omega
 
 instance : Rxc.IsAlwaysFinite (BitVec n) := inferInstance
@@ -82,6 +104,17 @@ instance : Rxo.HasSize (BitVec n) := .ofClosed
 instance : Rxo.LawfulHasSize (BitVec n) := inferInstance
 instance : Rxo.IsAlwaysFinite (BitVec n) := inferInstance
 
--- TODO: Rxi.LawfulHasSize
+instance : Rxi.HasSize (BitVec n) where
+  size lo := 2 ^ n - lo.toNat
+
+instance : Rxi.LawfulHasSize (BitVec n) where
+  size_eq_one_of_succ?_eq_none x := by
+    simp only [succ?_eq_none, Rxi.HasSize.size]
+    omega
+  size_eq_succ_of_succ?_eq_some lo lo' := by
+    simp only [succ?_eq_some, Rxi.HasSize.size]
+    omega
+
+instance : Rxi.IsAlwaysFinite (BitVec n) := inferInstance
 
 end BitVec

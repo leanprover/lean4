@@ -24,7 +24,7 @@ public def zpad (n : Nat) (len : Nat) : String :=
 /-- Returns whether a string is composed of only hexadecimal digits. -/
 public def isHex (s : String) : Bool :=
   s.utf8ByteSize.all fun i h =>
-    let c := s.getUtf8Byte i h
+    let c := s.getUtf8Byte ⟨i⟩ h
     if c ≤ 57 then -- '9'
       48 ≤ c -- '0'
     else if c ≤ 102 then -- 'f'

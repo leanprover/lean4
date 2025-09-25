@@ -1792,6 +1792,12 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
       -- some elements leaves the order of remaining dependent on those filtered elements, which
       -- would make `.olean` output dependent on `.olean.private`, so we re-sort them here.
       |>.qsort (lt := fun c₁ c₂ => c₁.name.quickCmp c₂.name == .lt)
+  let pkenv := env.setExporting false |>.toKernelEnv
+  let constants := constants.map fun c =>
+    if c.isDefinition then
+      pkenv.find? c.name |>.getD c
+    else
+      c
   let constNames := constants.map (·.name)
   return { env.header with
     extraConstNames := getIRExtraConstNames env level

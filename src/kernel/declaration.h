@@ -351,6 +351,7 @@ typedef list_ref<recursor_rule> recursor_rules;
 /*
 structure RecursorVal extends ConstantVal where
   all : List Name  -- List of all inductive datatypes in the mutual declaration that generated this recursor
+  recs : List Name -- Recursors mutually recursive with this one
   numParams : Nat
   numIndices : Nat
   numMotives : Nat
@@ -362,7 +363,7 @@ structure RecursorVal extends ConstantVal where
 class recursor_val : public object_ref {
 public:
     recursor_val(name const & n, names const & lparams, expr const & type,
-                 names const & all, unsigned nparams, unsigned nindices, unsigned nmotives,
+                 names const & all, names const & recs, unsigned nparams, unsigned nindices, unsigned nmotives,
                  unsigned nminors, recursor_rules const & rules, bool k, bool is_unsafe);
     recursor_val(recursor_val const & other):object_ref(other) {}
     recursor_val(recursor_val && other):object_ref(std::move(other)) {}
@@ -372,12 +373,13 @@ public:
     name const & get_name() const { return to_constant_val().get_name(); }
     name const & get_major_induct() const;
     names const & get_all() const { return static_cast<names const &>(cnstr_get_ref(*this, 1)); }
-    unsigned get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
-    unsigned get_nindices() const { return static_cast<nat const &>(cnstr_get_ref(*this, 3)).get_small_value(); }
-    unsigned get_nmotives() const { return static_cast<nat const &>(cnstr_get_ref(*this, 4)).get_small_value(); }
-    unsigned get_nminors() const { return static_cast<nat const &>(cnstr_get_ref(*this, 5)).get_small_value(); }
+    names const & get_recs() const { return static_cast<names const &>(cnstr_get_ref(*this, 2)); }
+    unsigned get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 3)).get_small_value(); }
+    unsigned get_nindices() const { return static_cast<nat const &>(cnstr_get_ref(*this, 4)).get_small_value(); }
+    unsigned get_nmotives() const { return static_cast<nat const &>(cnstr_get_ref(*this, 5)).get_small_value(); }
+    unsigned get_nminors() const { return static_cast<nat const &>(cnstr_get_ref(*this, 6)).get_small_value(); }
     unsigned get_major_idx() const { return get_nparams() + get_nmotives() + get_nminors() + get_nindices(); }
-    recursor_rules const & get_rules() const { return static_cast<recursor_rules const &>(cnstr_get_ref(*this, 6)); }
+    recursor_rules const & get_rules() const { return static_cast<recursor_rules const &>(cnstr_get_ref(*this, 7)); }
     bool is_k() const;
     bool is_unsafe() const;
 };

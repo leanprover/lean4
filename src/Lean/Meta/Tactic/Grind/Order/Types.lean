@@ -10,8 +10,16 @@ public import Init.Data.Rat.Basic
 public section
 namespace Lean.Meta.Grind.Order
 
+/-!
+Solver for preorders, partial orders, linear orders, and support for offsets.
+-/
+
 abbrev NodeId := Nat
-abbrev Weight := Rat
+/--
+**Note**: We use `Int` to represent weights, but solver supports `Unit` (encoded as `0`),
+`Nat`, and `Int`. During proof construction we perform the necessary conversions.
+-/
+abbrev Weight := Int
 
 /--
 A constraint of the form `u + k₁ ≤ v + k₂` (`u + k₁ < v + k₂` if `strict := true`)

@@ -44,11 +44,11 @@ def close (body : Body) : Async Unit :=
 instance : Coe String Body where
   coe := .bytes ∘ String.toUTF8
 
+instance : Coe ByteArray Body where
+  coe := .bytes
+
 instance : Coe Body.ByteStream Body where
   coe := .stream
-
-instance : Coe Body Body where
-  coe := id
 
 @[inline]
 protected partial def forIn

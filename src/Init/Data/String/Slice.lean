@@ -701,160 +701,6 @@ where
     simp at h ⊢
     omega
 
-structure CharIterator where
-  s : Slice
-  currPos : s.Pos
-deriving Inhabited
-
-set_option doc.verso false
-/--
-Creates and iterator over all characters (Unicode code points) in {name}`s`.
-
-Examples:
- * {lean}`"abc".toSlice.chars.toList = ['a', 'b', 'c']`
- * {lean}`"ab∀c".toSlice.chars.toList = ['a', 'b', '∀', 'c']`
--/
-def chars (s : Slice) : Std.Iter (α := CharIterator) Char :=
-  { internalState := { s, currPos := s.startPos }}
-
-set_option doc.verso true
-
-namespace CharIterator
-
-instance [Pure m] : Std.Iterators.Iterator CharIterator m Char where
-  IsPlausibleStep it
-    | .yield it' out =>
-      ∃ h1 : it.internalState.s = it'.internalState.s,
-      ∃ h2 : it.internalState.currPos ≠ it.internalState.s.endPos,
-        it'.internalState.currPos = h1 ▸ (it.internalState.currPos.next h2) ∧
-        it.internalState.currPos.get h2 = out
-    | .skip _ => False
-    | .done => it.internalState.currPos = it.internalState.s.endPos
-  step := fun ⟨s, currPos⟩ =>
-    if h : currPos = s.endPos then
-      pure ⟨.done, by simp [h]⟩
-    else
-      pure ⟨.yield ⟨s, currPos.next h⟩ (currPos.get h), by simp [h]⟩
-
-private def finitenessRelation [Pure m] : Std.Iterators.FinitenessRelation CharIterator m where
-  rel := InvImage WellFoundedRelation.rel
-      (fun it => it.internalState.s.utf8ByteSize.byteIdx - it.internalState.currPos.offset.byteIdx)
-  wf := InvImage.wf _ WellFoundedRelation.wf
-  subrelation {it it'} h := by
-    simp_wf
-    obtain ⟨step, h, h'⟩ := h
-    cases step
-    · cases h
-      obtain ⟨h1, h2, h3, _⟩ := h'
-      have h4 := Char.utf8Size_pos (it.internalState.currPos.get h2)
-      have h5 := it.internalState.currPos.isValidForSlice.le_utf8ByteSize
-      rw [h3]
-      clear h3
-      generalize it'.internalState.s = s at *
-      cases h1
-      simp [Pos.ext_iff, String.Pos.ext_iff, Pos.le_iff] at h2 h4 h5 ⊢
-      omega
-    · cases h'
-    · cases h
-
-@[no_expose]
-instance [Pure m] : Std.Iterators.Finite CharIterator m :=
-  .of_finitenessRelation finitenessRelation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect CharIterator m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial CharIterator m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop CharIterator m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial CharIterator m n :=
-  .defaultImplementation
-
-docs_to_verso chars
-
-end CharIterator
-
-structure RevCharIterator where
-  s : Slice
-  currPos : s.Pos
-deriving Inhabited
-
-set_option doc.verso false
-/--
-Creates and iterator over all characters (Unicode code points) in {name}`s`, starting from the end
-of the slice and iterating towards the start.
-
-Example:
- * {lean}`"abc".toSlice.revChars.toList = ['c', 'b', 'a']`
- * {lean}`"ab∀c".toSlice.revChars.toList = ['c', '∀', 'b', 'a']`
--/
-def revChars (s : Slice) : Std.Iter (α := RevCharIterator) Char :=
-  { internalState := { s, currPos := s.endPos }}
-
-set_option doc.verso true
-
-namespace RevCharIterator
-
-instance [Pure m] : Std.Iterators.Iterator RevCharIterator m Char where
-  IsPlausibleStep it
-    | .yield it' out =>
-      ∃ h1 : it.internalState.s = it'.internalState.s,
-      ∃ h2 : it.internalState.currPos ≠ it.internalState.s.startPos,
-        it'.internalState.currPos = h1 ▸ (it.internalState.currPos.prev h2) ∧
-        (it.internalState.currPos.prev h2).get Pos.prev_ne_endPos = out
-    | .skip _ => False
-    | .done => it.internalState.currPos = it.internalState.s.startPos
-  step := fun ⟨s, currPos⟩ =>
-    if h : currPos = s.startPos then
-      pure ⟨.done, by simp [h]⟩
-    else
-      let nextPos := currPos.prev h
-      pure ⟨.yield ⟨s, nextPos⟩ (nextPos.get Pos.prev_ne_endPos), by simp [h, nextPos]⟩
-
-private def finitenessRelation [Pure m] :
-    Std.Iterators.FinitenessRelation RevCharIterator m where
-  rel := InvImage WellFoundedRelation.rel
-      (fun it => it.internalState.currPos.offset.byteIdx)
-  wf := InvImage.wf _ WellFoundedRelation.wf
-  subrelation {it it'} h := by
-    simp_wf
-    obtain ⟨step, h, h'⟩ := h
-    cases step
-    · cases h
-      obtain ⟨h1, h2, h3, _⟩ := h'
-      rw [h3]
-      clear h3
-      generalize it'.internalState.s = s at *
-      cases h1
-      have h4 := Pos.offset_prev_lt_offset (h := h2)
-      simp
-      omega
-    · cases h'
-    · cases h
-
-@[no_expose]
-instance [Pure m] : Std.Iterators.Finite RevCharIterator m :=
-  .of_finitenessRelation finitenessRelation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect RevCharIterator m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial RevCharIterator m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop RevCharIterator m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial RevCharIterator m n :=
-  .defaultImplementation
-
-docs_to_verso revChars
-
-end RevCharIterator
-
 structure PosIterator (s : Slice) where
   currPos : s.Pos
 deriving Inhabited
@@ -928,6 +774,16 @@ instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (PosIterator s)
 docs_to_verso positions
 
 end PosIterator
+
+/--
+Creates and iterator over all characters (Unicode code points) in {name}`s`.
+
+Examples:
+ * {lean}`"abc".toSlice.chars.toList = ['a', 'b', 'c']`
+ * {lean}`"ab∀c".toSlice.chars.toList = ['a', 'b', '∀', 'c']`
+-/
+def chars (s : Slice) :=
+  Std.Iterators.Iter.map (fun ⟨pos, h⟩ => pos.get h) (positions s)
 
 structure RevPosIterator (s : Slice) where
   currPos : s.Pos
@@ -1004,6 +860,17 @@ instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (RevPosIterator
 docs_to_verso revPositions
 
 end RevPosIterator
+
+/--
+Creates and iterator over all characters (Unicode code points) in {name}`s`, starting from the end
+of the slice and iterating towards the start.
+
+Example:
+ * {lean}`"abc".toSlice.revChars.toList = ['c', 'b', 'a']`
+ * {lean}`"ab∀c".toSlice.revChars.toList = ['c', '∀', 'b', 'a']`
+-/
+def revChars (s : Slice) :=
+  Std.Iterators.Iter.map (fun ⟨pos, h⟩ => pos.get h) (revPositions s)
 
 structure ByteIterator where
   s : Slice

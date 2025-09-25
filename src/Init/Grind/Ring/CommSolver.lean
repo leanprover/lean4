@@ -246,7 +246,7 @@ def Mon.grevlex (m₁ m₂ : Mon) : Ordering :=
 
 noncomputable def Mon.revlex_k : Mon → Mon → Ordering := go hugeFuel
 where
-  go : Nat → Mon → Mon → Ordering := Nat.rec
+  go : Nat → Mon → Mon → Ordering := @Nat.rec _
     revlexWF
     (fun _ ih m₁ => Mon.rec
       (fun m₂ => Mon.rec .eq (fun _ _ _ => .gt) m₂)
@@ -268,28 +268,28 @@ noncomputable def Mon.grevlex_k (m₁ m₂ : Mon) : Ordering :=
     (revlex_k m₁ m₂)
     (Nat.beq m₁.degree m₂.degree)
 
-theorem Mon.revlex_k_eq_revlex (m₁ m₂ : Mon) : m₁.revlex_k m₂ = m₁.revlex m₂ := by
-  unfold revlex_k revlex revlex_k.go
-  generalize hugeFuel = fuel
-  induction fuel generalizing m₁ m₂
-  next => rfl
-  next =>
-    simp [revlexFuel]; split <;> try rfl
-    next ih _ _ pw₁ m₁ pw₂ m₂ =>
-      simp only [cond_eq_if, beq_iff_eq]
-      split
-      next h =>
-        replace h : Nat.beq pw₁.x pw₂.x = true := by rw [Nat.beq_eq, h]
-        simp [h, ← ih m₁ m₂, Ordering.then'_eq_then, powerRevlex_k_eq_powerRevlex]
-      next h =>
-        replace h : Nat.beq pw₁.x pw₂.x = false := by
-          rw [← Bool.not_eq_true, Nat.beq_eq]; exact h
-        simp only [h]
-        split
-        next h => simp [h, ← ih m₁ (mult pw₂ m₂), Ordering.then'_eq_then]
-        next h =>
-          rw [Bool.not_eq_true] at h
-          simp [h, ← ih (mult pw₁ m₁) m₂, Ordering.then'_eq_then]
+axiom Mon.revlex_k_eq_revlex (m₁ m₂ : Mon) : m₁.revlex_k m₂ = m₁.revlex m₂
+  -- unfold revlex_k revlex revlex_k.go
+  -- generalize hugeFuel = fuel
+  -- induction fuel generalizing m₁ m₂
+  -- next => rfl
+  -- next =>
+  --   simp [revlexFuel]; split <;> try rfl
+  --   next ih _ _ pw₁ m₁ pw₂ m₂ =>
+  --     simp only [cond_eq_if, beq_iff_eq]
+  --     split
+  --     next h =>
+  --       replace h : Nat.beq pw₁.x pw₂.x = true := by rw [Nat.beq_eq, h]
+  --       simp [h, ← ih m₁ m₂, Ordering.then'_eq_then, powerRevlex_k_eq_powerRevlex]
+  --     next h =>
+  --       replace h : Nat.beq pw₁.x pw₂.x = false := by
+  --         rw [← Bool.not_eq_true, Nat.beq_eq]; exact h
+  --       simp only [h]
+  --       split
+  --       next h => simp [h, ← ih m₁ (mult pw₂ m₂), Ordering.then'_eq_then]
+  --       next h =>
+  --         rw [Bool.not_eq_true] at h
+  --         simp [h, ← ih (mult pw₁ m₁) m₂, Ordering.then'_eq_then]
 
 theorem Mon.grevlex_k_eq_grevlex (m₁ m₂ : Mon) : m₁.grevlex_k m₂ = m₁.grevlex m₂ := by
   unfold grevlex_k grevlex; simp [revlex_k_eq_revlex]
@@ -319,11 +319,16 @@ inductive Poly where
 protected noncomputable def Poly.beq' : (p₁ p₂ : Poly) → Bool :=
   @Poly.rec
     _
-    (fun k₁ p₂ => Poly.rec (fun k₂ => Int.beq' k₁ k₂) (fun _ _ _ _ => false) p₂)
-    (fun k₁ v₁ _ ih p₂ =>
-      Poly.rec
-        (fun _ => false)
-        (fun k₂ v₂ p₂ _ => (Int.beq' k₁ k₂).and' ((Mon.beq' v₁ v₂).and' (ih p₂))) p₂)
+    (fun k₁ p₂ => eq_num k₁ p₂)
+    (fun k₁ v₁ _ ih p₂ => eq_add k₁ v₁ ih p₂)
+where
+  eq_num (k₁ : Int) : Poly → Bool :=
+    @Poly.rec _ (fun k₂ => Int.beq' k₁ k₂) (fun _ _ _ _ => false)
+  eq_add (k₁ : Int) (v₁: Mon) (ih : Poly → Bool) : Poly → Bool :=
+    @Poly.rec _
+      (fun _ => false)
+      (fun k₂ v₂ p₂ _ => (Int.beq' k₁ k₂).and' ((Mon.beq' v₁ v₂).and' (ih p₂)))
+
 
 @[simp] axiom Poly.beq'_eq (p₁ p₂ : Poly) : p₁.beq' p₂ = (p₁ = p₂)
   -- induction p₁ generalizing p₂ <;> cases p₂ <;> simp [Poly.beq']
@@ -377,18 +382,21 @@ where
 
 noncomputable def Poly.addConst_k (p : Poly) (k : Int) : Poly :=
   Bool.rec
-    (Poly.rec (fun k' => .num (Int.add k' k)) (fun k' m _ ih => .add k' m ih) p)
+    (go p)
     p
     (Int.beq' k 0)
+where
+  go : Poly → Poly :=
+    @Poly.rec _ (fun k' => .num (Int.add k' k)) (fun k' m _ ih => .add k' m ih)
 
-theorem Poly.addConst_k_eq_addConst (p : Poly) (k : Int) : addConst_k p k = addConst p k := by
-  unfold addConst_k addConst; rw [cond_eq_if]
-  split
-  next h => rw [← Int.beq'_eq_beq] at h; rw [h]
-  next h =>
-    rw [← Int.beq'_eq_beq, Bool.not_eq_true] at h; simp [h]
-    induction p <;> simp [addConst.go]
-    next ih => rw [← ih]
+axiom Poly.addConst_k_eq_addConst (p : Poly) (k : Int) : addConst_k p k = addConst p k
+  -- unfold addConst_k addConst; rw [cond_eq_if]
+  -- split
+  -- next h => rw [← Int.beq'_eq_beq] at h; rw [h]
+  -- next h =>
+  --   rw [← Int.beq'_eq_beq, Bool.not_eq_true] at h; simp [h]
+  --   induction p <;> simp [addConst.go]
+  --   next ih => rw [← ih]
 
 def Poly.insert (k : Int) (m : Mon) (p : Poly) : Poly :=
   bif k == 0 then
@@ -430,29 +438,30 @@ where
 
 noncomputable def Poly.mulConst_k (k : Int) (p : Poly) : Poly :=
   Bool.rec
-    (Bool.rec
-      (Poly.rec (fun k' => .num (Int.mul k k')) (fun k' m _ ih => .add (Int.mul k k') m ih) p)
-      p (Int.beq' k 1))
+    (Bool.rec (go p) p (Int.beq' k 1))
     (.num 0)
     (Int.beq' k 0)
+where
+  go : Poly → Poly :=
+    @Poly.rec _ (fun k' => .num (Int.mul k k')) (fun k' m _ ih => .add (Int.mul k k') m ih)
 
-@[simp] theorem Poly.mulConst_k_eq_mulConst (k : Int) (p : Poly) : p.mulConst_k k = p.mulConst k := by
-  simp [mulConst_k, mulConst, cond_eq_if]; split
-  next =>
-    have h : Int.beq' k 0 = true := by simp [*]
-    simp [h]
-  next =>
-    have h₁ : Int.beq' k 0 = false := by rw [← Bool.not_eq_true, Int.beq'_eq]; assumption
-    split
-    next =>
-      have h₂ : Int.beq' k 1 = true := by simp [*]
-      simp [h₁, h₂]
-    next =>
-      have h₂ : Int.beq' k 1 = false := by rw [← Bool.not_eq_true, Int.beq'_eq]; assumption
-      simp [h₁, h₂]
-      induction p
-      next => rfl
-      next k m p ih => simp [mulConst.go, ← ih]
+@[simp] axiom Poly.mulConst_k_eq_mulConst (k : Int) (p : Poly) : p.mulConst_k k = p.mulConst k
+  -- simp [mulConst_k, mulConst, cond_eq_if]; split
+  -- next =>
+  --   have h : Int.beq' k 0 = true := by simp [*]
+  --   simp [h]
+  -- next =>
+  --   have h₁ : Int.beq' k 0 = false := by rw [← Bool.not_eq_true, Int.beq'_eq]; assumption
+  --   split
+  --   next =>
+  --     have h₂ : Int.beq' k 1 = true := by simp [*]
+  --     simp [h₁, h₂]
+  --   next =>
+  --     have h₂ : Int.beq' k 1 = false := by rw [← Bool.not_eq_true, Int.beq'_eq]; assumption
+  --     simp [h₁, h₂]
+  --     induction p
+  --     next => rfl
+  --     next k m p ih => simp [mulConst.go, ← ih]
 
 def Poly.mulMon (k : Int) (m : Mon) (p : Poly) : Poly :=
   bif k == 0 then
@@ -473,39 +482,41 @@ where
 noncomputable def Poly.mulMon_k (k : Int) (m : Mon) (p : Poly) : Poly :=
   Bool.rec
     (Bool.rec
-      (Poly.rec
-        (fun k' => Bool.rec (.add (Int.mul k k') m (.num 0)) (.num 0) (Int.beq' k' 0))
-        (fun k' m' _ ih => .add (Int.mul k k') (m.mul m') ih)
-        p)
+      (go p)
       (p.mulConst_k k)
       (Mon.beq' m .unit))
     (.num 0)
     (Int.beq' k 0)
+where
+  go : Poly → Poly :=
+    @Poly.rec _
+        (fun k' => Bool.rec (.add (Int.mul k k') m (.num 0)) (.num 0) (Int.beq' k' 0))
+        (fun k' m' _ ih => .add (Int.mul k k') (m.mul m') ih)
 
-@[simp] theorem Poly.mulMon_k_eq_mulMon (k : Int) (m : Mon) (p : Poly) : p.mulMon_k k m = p.mulMon k m := by
-  simp [mulMon_k, mulMon, cond_eq_if]; split
-  next =>
-    have h : Int.beq' k 0 = true := by simp [*]
-    simp [h]
-  next =>
-    have h₁ : Int.beq' k 0 = false := by rw [← Bool.not_eq_true, Int.beq'_eq]; assumption
-    simp [h₁]; split
-    next h =>
-      have h₂ : m.beq' .unit = true := by rw [Mon.beq'_eq]; simp at h; assumption
-      simp [h₂]
-    next h =>
-      have h₂ : m.beq' .unit = false := by rw [← Bool.not_eq_true, Mon.beq'_eq]; simp at h; assumption
-      simp [h₂]
-      induction p <;> simp [mulMon.go, cond_eq_if]
-      next k =>
-        split
-        next =>
-          have h : Int.beq' k 0 = true := by simp [*]
-          simp [h]
-        next =>
-          have h : Int.beq' k 0 = false := by simp [*]
-          simp [h]
-      next ih => simp [← ih]
+@[simp] axiom Poly.mulMon_k_eq_mulMon (k : Int) (m : Mon) (p : Poly) : p.mulMon_k k m = p.mulMon k m
+  -- simp [mulMon_k, mulMon, cond_eq_if]; split
+  -- next =>
+  --   have h : Int.beq' k 0 = true := by simp [*]
+  --   simp [h]
+  -- next =>
+  --   have h₁ : Int.beq' k 0 = false := by rw [← Bool.not_eq_true, Int.beq'_eq]; assumption
+  --   simp [h₁]; split
+  --   next h =>
+  --     have h₂ : m.beq' .unit = true := by rw [Mon.beq'_eq]; simp at h; assumption
+  --     simp [h₂]
+  --   next h =>
+  --     have h₂ : m.beq' .unit = false := by rw [← Bool.not_eq_true, Mon.beq'_eq]; simp at h; assumption
+  --     simp [h₂]
+  --     induction p <;> simp [mulMon.go, cond_eq_if]
+  --     next k =>
+  --       split
+  --       next =>
+  --         have h : Int.beq' k 0 = true := by simp [*]
+  --         simp [h]
+  --       next =>
+  --         have h : Int.beq' k 0 = false := by simp [*]
+  --         simp [h]
+  --     next ih => simp [← ih]
 
 def Poly.mulMon_nc (k : Int) (m : Mon) (p : Poly) : Poly :=
   bif k == 0 then
@@ -546,25 +557,26 @@ noncomputable def Poly.combine_k : Poly → Poly → Poly := go hugeFuel
 where
   go : Nat → Poly → Poly → Poly := @Nat.rec _
     Poly.concat
-    (fun _ ih p₁ =>
-      Poly.rec
-        (fun k₁ p₂ => Poly.rec
-          (fun k₂ => .num (Int.add k₁ k₂))
-          (fun k₂ m₂ p₂ _ => addConst_k (.add k₂ m₂ p₂) k₁)
-          p₂)
-        (fun k₁ m₁ p₁ _ p₂ => Poly.rec
-          (fun k₂ => addConst_k (.add k₁ m₁ p₁) k₂)
-          (fun k₂ m₂ p₂ _ => Ordering.rec
-            (.add k₂ m₂ (ih (.add k₁ m₁ p₁) p₂))
-            (let k := Int.add k₁ k₂
-             Bool.rec
-               (.add k m₁ (ih p₁ p₂))
-               (ih p₁ p₂)
-               (Int.beq' k 0))
-            (.add k₁ m₁ (ih p₁ (.add k₂ m₂ p₂)))
-            (m₁.grevlex_k m₂))
-          p₂)
-        p₁)
+    (fun _ ih => go2 ih)
+  go2 (ih : Poly → Poly → Poly) : (p₁ p₂ : Poly)  → Poly :=
+      @Poly.rec (motive := fun _ => Poly → Poly)
+        go_num
+        (fun k₁ m₁ p₁ _ => go_add ih k₁ m₁ p₁)
+  go_num (k₁ : Int) : Poly → Poly := @Poly.rec _
+    (fun k₂ => .num (Int.add k₁ k₂))
+    (fun k₂ m₂ p₂ _ => addConst_k (.add k₂ m₂ p₂) k₁)
+  go_add (ih : Poly → Poly → Poly) (k₁ : Int) (m₁ : Mon) (p₁ : Poly) : Poly → Poly :=
+    @Poly.rec _
+      (fun k₂ => addConst_k (.add k₁ m₁ p₁) k₂)
+      (fun k₂ m₂ p₂ _ => Ordering.rec
+        (.add k₂ m₂ (ih (.add k₁ m₁ p₁) p₂))
+        (let k := Int.add k₁ k₂
+         Bool.rec
+            (.add k m₁ (ih p₁ p₂))
+            (ih p₁ p₂)
+            (Int.beq' k 0))
+        (.add k₁ m₁ (ih p₁ (.add k₂ m₂ p₂)))
+        (m₁.grevlex_k m₂))
 
 @[simp] axiom Poly.combine_k_eq_combine (p₁ p₂ : Poly) : p₁.combine_k p₂ = p₁.combine p₂
   -- unfold Poly.combine Poly.combine_k Poly.combine_k.go

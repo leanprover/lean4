@@ -1,24 +1,29 @@
-{"title": "hello world",
- "kind": "quickfix",
- "edit":
- {"documentChanges":
-  [{"textDocument": {"version": 1, "uri": "file:///codeaction.lean"},
-    "edits":
-    [{"range":
-      {"start": {"line": 30, "character": 4},
-       "end": {"line": 30, "character": 4}},
-      "newText": "hello!!!"}]}]}}
-{"title": "a long-running action",
- "kind": "refactor",
- "data":
- {"providerResultIndex": 1,
-  "providerName": "helloProvider",
-  "params":
-  {"textDocument": {"uri": "file:///codeaction.lean"},
-   "range":
-   {"start": {"line": 30, "character": 4}, "end": {"line": 30, "character": 4}},
-   "context": {"diagnostics": []}}}}
-resolve: a long-running action
+{"textDocument": {"uri": "file:///codeaction.lean"},
+ "range":
+ {"start": {"line": 30, "character": 4}, "end": {"line": 30, "character": 4}},
+ "context": {"diagnostics": []}}
+[{"title": "hello world",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///codeaction.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 30, "character": 4},
+        "end": {"line": 30, "character": 4}},
+       "newText": "hello!!!"}]}]}},
+ {"title": "a long-running action",
+  "kind": "refactor",
+  "data":
+  {"providerResultIndex": 1,
+   "providerName": "helloProvider",
+   "params":
+   {"textDocument": {"uri": "file:///codeaction.lean"},
+    "range":
+    {"start": {"line": 30, "character": 4},
+     "end": {"line": 30, "character": 4}},
+    "context": {"diagnostics": []}}}}]
+Resolution of a long-running action:
 {"title": "a long-running action",
  "kind": "refactor",
  "edit":

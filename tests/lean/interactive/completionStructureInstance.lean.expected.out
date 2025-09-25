@@ -18,22 +18,22 @@
    "detail": "field",
    "data": ["«external:file:///completionStructureInstance.lean»", 10, 17, 0]}],
  "isIncomplete": true}
-resolve: foo
+Resolution of foo:
 {"label": "foo",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 10, 17, 0]}
-resolve: bar
+Resolution of bar:
 {"label": "bar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 10, 17, 0]}
-resolve: foobar
+Resolution of foobar:
 {"label": "foobar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 10, 17, 0]}
-resolve: barfoo
+Resolution of barfoo:
 {"label": "barfoo",
  "kind": 5,
  "detail": "field",
@@ -58,22 +58,22 @@ resolve: barfoo
    "detail": "field",
    "data": ["«external:file:///completionStructureInstance.lean»", 13, 18, 0]}],
  "isIncomplete": true}
-resolve: foo
+Resolution of foo:
 {"label": "foo",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 13, 18, 0]}
-resolve: bar
+Resolution of bar:
 {"label": "bar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 13, 18, 0]}
-resolve: foobar
+Resolution of foobar:
 {"label": "foobar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 13, 18, 0]}
-resolve: barfoo
+Resolution of barfoo:
 {"label": "barfoo",
  "kind": 5,
  "detail": "field",
@@ -98,22 +98,22 @@ resolve: barfoo
    "detail": "field",
    "data": ["«external:file:///completionStructureInstance.lean»", 17, 2, 0]}],
  "isIncomplete": true}
-resolve: foo
+Resolution of foo:
 {"label": "foo",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 17, 2, 0]}
-resolve: bar
+Resolution of bar:
 {"label": "bar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 17, 2, 0]}
-resolve: foobar
+Resolution of foobar:
 {"label": "foobar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 17, 2, 0]}
-resolve: barfoo
+Resolution of barfoo:
 {"label": "barfoo",
  "kind": 5,
  "detail": "field",
@@ -134,17 +134,17 @@ resolve: barfoo
    "detail": "field",
    "data": ["«external:file:///completionStructureInstance.lean»", 21, 3, 0]}],
  "isIncomplete": false}
-resolve: foo
+Resolution of foo:
 {"label": "foo",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 21, 3, 0]}
-resolve: foobar
+Resolution of foobar:
 {"label": "foobar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 21, 3, 0]}
-resolve: barfoo
+Resolution of barfoo:
 {"label": "barfoo",
  "kind": 5,
  "detail": "field",
@@ -165,17 +165,17 @@ resolve: barfoo
    "detail": "field",
    "data": ["«external:file:///completionStructureInstance.lean»", 25, 5, 0]}],
  "isIncomplete": false}
-resolve: foo
+Resolution of foo:
 {"label": "foo",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 25, 5, 0]}
-resolve: foobar
+Resolution of foobar:
 {"label": "foobar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 25, 5, 0]}
-resolve: barfoo
+Resolution of barfoo:
 {"label": "barfoo",
  "kind": 5,
  "detail": "field",
@@ -206,22 +206,22 @@ resolve: barfoo
    "detail": "field",
    "data": ["«external:file:///completionStructureInstance.lean»", 39, 2, 0]}],
  "isIncomplete": true}
-resolve: foo
+Resolution of foo:
 {"label": "foo",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 39, 2, 0]}
-resolve: bar
+Resolution of bar:
 {"label": "bar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 39, 2, 0]}
-resolve: foobar
+Resolution of foobar:
 {"label": "foobar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 39, 2, 0]}
-resolve: barfoo
+Resolution of barfoo:
 {"label": "barfoo",
  "kind": 5,
  "detail": "field",
@@ -246,22 +246,22 @@ resolve: barfoo
    "detail": "field",
    "data": ["«external:file:///completionStructureInstance.lean»", 43, 12, 0]}],
  "isIncomplete": true}
-resolve: foo
+Resolution of foo:
 {"label": "foo",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 43, 12, 0]}
-resolve: bar
+Resolution of bar:
 {"label": "bar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 43, 12, 0]}
-resolve: foobar
+Resolution of foobar:
 {"label": "foobar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 43, 12, 0]}
-resolve: barfoo
+Resolution of barfoo:
 {"label": "barfoo",
  "kind": 5,
  "detail": "field",
@@ -286,22 +286,22 @@ resolve: barfoo
    "detail": "field",
    "data": ["«external:file:///completionStructureInstance.lean»", 46, 17, 0]}],
  "isIncomplete": true}
-resolve: foo
+Resolution of foo:
 {"label": "foo",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 46, 17, 0]}
-resolve: bar
+Resolution of bar:
 {"label": "bar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 46, 17, 0]}
-resolve: foobar
+Resolution of foobar:
 {"label": "foobar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 46, 17, 0]}
-resolve: barfoo
+Resolution of barfoo:
 {"label": "barfoo",
  "kind": 5,
  "detail": "field",
@@ -326,22 +326,22 @@ resolve: barfoo
    "detail": "field",
    "data": ["«external:file:///completionStructureInstance.lean»", 50, 2, 0]}],
  "isIncomplete": true}
-resolve: foo
+Resolution of foo:
 {"label": "foo",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 50, 2, 0]}
-resolve: bar
+Resolution of bar:
 {"label": "bar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 50, 2, 0]}
-resolve: foobar
+Resolution of foobar:
 {"label": "foobar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 50, 2, 0]}
-resolve: barfoo
+Resolution of barfoo:
 {"label": "barfoo",
  "kind": 5,
  "detail": "field",
@@ -362,17 +362,17 @@ resolve: barfoo
    "detail": "field",
    "data": ["«external:file:///completionStructureInstance.lean»", 55, 3, 1]}],
  "isIncomplete": false}
-resolve: foo
+Resolution of foo:
 {"label": "foo",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 55, 3, 1]}
-resolve: foobar
+Resolution of foobar:
 {"label": "foobar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 55, 3, 1]}
-resolve: barfoo
+Resolution of barfoo:
 {"label": "barfoo",
  "kind": 5,
  "detail": "field",
@@ -393,17 +393,17 @@ resolve: barfoo
    "detail": "field",
    "data": ["«external:file:///completionStructureInstance.lean»", 60, 5, 1]}],
  "isIncomplete": false}
-resolve: foo
+Resolution of foo:
 {"label": "foo",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 60, 5, 1]}
-resolve: foobar
+Resolution of foobar:
 {"label": "foobar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 60, 5, 1]}
-resolve: barfoo
+Resolution of barfoo:
 {"label": "barfoo",
  "kind": 5,
  "detail": "field",
@@ -431,22 +431,22 @@ resolve: barfoo
    "detail": "field",
    "data": ["«external:file:///completionStructureInstance.lean»", 72, 2, 0]}],
  "isIncomplete": true}
-resolve: foo
+Resolution of foo:
 {"label": "foo",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 72, 2, 0]}
-resolve: bar
+Resolution of bar:
 {"label": "bar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 72, 2, 0]}
-resolve: foobar
+Resolution of foobar:
 {"label": "foobar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 72, 2, 0]}
-resolve: barfoo
+Resolution of barfoo:
 {"label": "barfoo",
  "kind": 5,
  "detail": "field",
@@ -471,22 +471,22 @@ resolve: barfoo
    "detail": "field",
    "data": ["«external:file:///completionStructureInstance.lean»", 78, 4, 0]}],
  "isIncomplete": true}
-resolve: foo
+Resolution of foo:
 {"label": "foo",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 78, 4, 0]}
-resolve: bar
+Resolution of bar:
 {"label": "bar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 78, 4, 0]}
-resolve: foobar
+Resolution of foobar:
 {"label": "foobar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 78, 4, 0]}
-resolve: barfoo
+Resolution of barfoo:
 {"label": "barfoo",
  "kind": 5,
  "detail": "field",
@@ -511,22 +511,22 @@ resolve: barfoo
    "detail": "field",
    "data": ["«external:file:///completionStructureInstance.lean»", 82, 27, 0]}],
  "isIncomplete": true}
-resolve: foo
+Resolution of foo:
 {"label": "foo",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 82, 27, 0]}
-resolve: bar
+Resolution of bar:
 {"label": "bar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 82, 27, 0]}
-resolve: foobar
+Resolution of foobar:
 {"label": "foobar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 82, 27, 0]}
-resolve: barfoo
+Resolution of barfoo:
 {"label": "barfoo",
  "kind": 5,
  "detail": "field",
@@ -551,22 +551,22 @@ resolve: barfoo
    "detail": "field",
    "data": ["«external:file:///completionStructureInstance.lean»", 85, 32, 0]}],
  "isIncomplete": true}
-resolve: foo
+Resolution of foo:
 {"label": "foo",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 85, 32, 0]}
-resolve: bar
+Resolution of bar:
 {"label": "bar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 85, 32, 0]}
-resolve: foobar
+Resolution of foobar:
 {"label": "foobar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 85, 32, 0]}
-resolve: barfoo
+Resolution of barfoo:
 {"label": "barfoo",
  "kind": 5,
  "detail": "field",
@@ -591,22 +591,22 @@ resolve: barfoo
    "detail": "field",
    "data": ["«external:file:///completionStructureInstance.lean»", 88, 32, 0]}],
  "isIncomplete": true}
-resolve: foo
+Resolution of foo:
 {"label": "foo",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 88, 32, 0]}
-resolve: bar
+Resolution of bar:
 {"label": "bar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 88, 32, 0]}
-resolve: foobar
+Resolution of foobar:
 {"label": "foobar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 88, 32, 0]}
-resolve: barfoo
+Resolution of barfoo:
 {"label": "barfoo",
  "kind": 5,
  "detail": "field",
@@ -627,17 +627,17 @@ resolve: barfoo
    "detail": "field",
    "data": ["«external:file:///completionStructureInstance.lean»", 91, 33, 0]}],
  "isIncomplete": false}
-resolve: foo
+Resolution of foo:
 {"label": "foo",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 91, 33, 0]}
-resolve: foobar
+Resolution of foobar:
 {"label": "foobar",
  "kind": 5,
  "detail": "field",
  "data": ["«external:file:///completionStructureInstance.lean»", 91, 33, 0]}
-resolve: barfoo
+Resolution of barfoo:
 {"label": "barfoo",
  "kind": 5,
  "detail": "field",
@@ -654,7 +654,7 @@ resolve: barfoo
     0,
     "caLongUniqueIdentifier"]}],
  "isIncomplete": false}
-resolve: aLongUniqueIdentifier
+Resolution of aLongUniqueIdentifier:
 {"label": "aLongUniqueIdentifier",
  "kind": 21,
  "detail": "Nat",

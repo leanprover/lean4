@@ -1,3 +1,5 @@
+{"textDocument": {"uri": "file:///Diff.lean"},
+ "position": {"line": 2, "character": 4}}
 {"goals":
  [{"type":
    {"tag":
@@ -20,6 +22,8 @@
      {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "Nat"}]},
      "names": ["x"],
      "isInserted": true}]}]}
+{"textDocument": {"uri": "file:///Diff.lean"},
+ "position": {"line": 4, "character": 2}}
 {"goals":
  [{"type":
    {"tag":
@@ -41,6 +45,8 @@
    [{"type":
      {"tag": [{"subexprPos": "/", "info": {"p": "7"}}, {"text": "Nat"}]},
      "names": ["x"]}]}]}
+{"textDocument": {"uri": "file:///Diff.lean"},
+ "position": {"line": 9, "character": 2}}
 {"goals":
  [{"type":
    {"tag":
@@ -74,6 +80,8 @@
              {"text": "True"}]}]}]}]}]},
    "isInserted": false,
    "hyps": []}]}
+{"textDocument": {"uri": "file:///Diff.lean"},
+ "position": {"line": 15, "character": 5}}
 {"goals":
  [{"type":
    {"tag": [{"subexprPos": "/", "info": {"p": "34"}}, {"text": "True"}]},
@@ -115,6 +123,8 @@
          {"tag":
           [{"subexprPos": "/1", "info": {"p": "33"}}, {"text": "x"}]}]}]},
      "names": ["h"]}]}]}
+{"textDocument": {"uri": "file:///Diff.lean"},
+ "position": {"line": 20, "character": 9}}
 {"goals":
  [{"type":
    {"tag": [{"subexprPos": "/", "info": {"p": "47"}}, {"text": "True"}]},
@@ -156,6 +166,8 @@
          {"tag":
           [{"subexprPos": "/1", "info": {"p": "46"}}, {"text": "x"}]}]}]},
      "names": ["h"]}]}]}
+{"textDocument": {"uri": "file:///Diff.lean"},
+ "position": {"line": 25, "character": 2}}
 {"goals":
  [{"type":
    {"tag":
@@ -167,6 +179,8 @@
         [{"subexprPos": "/1", "info": {"p": "51"}}, {"text": "True"}]}]}]},
    "isInserted": false,
    "hyps": []}]}
+{"textDocument": {"uri": "file:///Diff.lean"},
+ "position": {"line": 27, "character": 2}}
 {"goals":
  [{"type":
    {"tag": [{"subexprPos": "/", "info": {"p": "53"}}, {"text": "True"}]},
@@ -175,11 +189,15 @@
   {"type":
    {"tag": [{"subexprPos": "/", "info": {"p": "55"}}, {"text": "True"}]},
    "hyps": []}]}
+{"textDocument": {"uri": "file:///Diff.lean"},
+ "position": {"line": 29, "character": 2}}
 {"goals":
  [{"type":
    {"tag": [{"subexprPos": "/", "info": {"p": "57"}}, {"text": "True"}]},
    "isRemoved": true,
    "hyps": []}]}
+{"textDocument": {"uri": "file:///Diff.lean"},
+ "position": {"line": 33, "character": 6}}
 {"goals":
  [{"type":
    {"tag":

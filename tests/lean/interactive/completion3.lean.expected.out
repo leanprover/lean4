@@ -11,17 +11,17 @@
    "kind": 5,
    "data": ["«external:file:///completion3.lean»", 7, 9, 1, "cS.y"]}],
  "isIncomplete": false}
-resolve: x
+Resolution of x:
 {"label": "x",
  "kind": 5,
  "detail": "S → Nat",
  "data": ["«external:file:///completion3.lean»", 7, 9, 1, "cS.x"]}
-resolve: b
+Resolution of b:
 {"label": "b",
  "kind": 5,
  "detail": "S → Bool",
  "data": ["«external:file:///completion3.lean»", 7, 9, 1, "cS.b"]}
-resolve: y
+Resolution of y:
 {"label": "y",
  "kind": 5,
  "detail": "S → String",
@@ -39,17 +39,17 @@ resolve: y
    "kind": 5,
    "data": ["«external:file:///completion3.lean»", 12, 5, 1, "cS.y"]}],
  "isIncomplete": false}
-resolve: x
+Resolution of x:
 {"label": "x",
  "kind": 5,
  "detail": "S → Nat",
  "data": ["«external:file:///completion3.lean»", 12, 5, 1, "cS.x"]}
-resolve: b
+Resolution of b:
 {"label": "b",
  "kind": 5,
  "detail": "S → Bool",
  "data": ["«external:file:///completion3.lean»", 12, 5, 1, "cS.b"]}
-resolve: y
+Resolution of y:
 {"label": "y",
  "kind": 5,
  "detail": "S → String",
@@ -67,17 +67,17 @@ resolve: y
    "kind": 5,
    "data": ["«external:file:///completion3.lean»", 16, 5, 1, "cS.y"]}],
  "isIncomplete": false}
-resolve: x
+Resolution of x:
 {"label": "x",
  "kind": 5,
  "detail": "S → Nat",
  "data": ["«external:file:///completion3.lean»", 16, 5, 1, "cS.x"]}
-resolve: b
+Resolution of b:
 {"label": "b",
  "kind": 5,
  "detail": "S → Bool",
  "data": ["«external:file:///completion3.lean»", 16, 5, 1, "cS.b"]}
-resolve: y
+Resolution of y:
 {"label": "y",
  "kind": 5,
  "detail": "S → String",
@@ -95,17 +95,17 @@ resolve: y
    "kind": 5,
    "data": ["«external:file:///completion3.lean»", 20, 5, 1, "cS.y"]}],
  "isIncomplete": false}
-resolve: x
+Resolution of x:
 {"label": "x",
  "kind": 5,
  "detail": "S → Nat",
  "data": ["«external:file:///completion3.lean»", 20, 5, 1, "cS.x"]}
-resolve: b
+Resolution of b:
 {"label": "b",
  "kind": 5,
  "detail": "S → Bool",
  "data": ["«external:file:///completion3.lean»", 20, 5, 1, "cS.b"]}
-resolve: y
+Resolution of y:
 {"label": "y",
  "kind": 5,
  "detail": "S → String",

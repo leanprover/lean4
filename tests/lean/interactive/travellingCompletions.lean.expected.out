@@ -10,7 +10,7 @@
     0,
     "cFoo.aaaaaaaa"]}],
  "isIncomplete": false}
-resolve: aaaaaaaa
+Resolution of aaaaaaaa:
 {"label": "aaaaaaaa",
  "kind": 21,
  "detail": "Nat",
@@ -28,7 +28,7 @@ resolve: aaaaaaaa
     2,
     "cBar.foobar"]}],
  "isIncomplete": false}
-resolve: foobar
+Resolution of foobar:
 {"label": "foobar",
  "kind": 5,
  "detail": "Bar → Nat",
@@ -46,7 +46,7 @@ resolve: foobar
     2,
     "cBar.foobar"]}],
  "isIncomplete": false}
-resolve: foobar
+Resolution of foobar:
 {"label": "foobar",
  "kind": 5,
  "detail": "Bar → Nat",
@@ -72,7 +72,7 @@ resolve: foobar
     1,
     "cProd.continuousAdd"]}],
  "isIncomplete": false}
-resolve: continuousSMul
+Resolution of continuousSMul:
 {"label": "continuousSMul",
  "kind": 23,
  "detail": "ContinuousSMul M (X × Y)",
@@ -82,7 +82,7 @@ resolve: continuousSMul
   45,
   1,
   "cProd.continuousSMul"]}
-resolve: continuousAdd
+Resolution of continuousAdd:
 {"label": "continuousAdd",
  "kind": 23,
  "detail": "ContinuousAdd (X × Y)",
@@ -104,7 +104,7 @@ resolve: continuousAdd
     1,
     "cTrue.intro"]}],
  "isIncomplete": false}
-resolve: intro
+Resolution of intro:
 {"label": "intro",
  "kind": 4,
  "documentation":

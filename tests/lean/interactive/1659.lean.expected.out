@@ -18,7 +18,7 @@
     0,
     "cLean.Elab.Tactic.elabTermEnsuringType"]}],
  "isIncomplete": false}
-resolve: Lean.Elab.Term.elabTermEnsuringType
+Resolution of Lean.Elab.Term.elabTermEnsuringType:
 {"label": "Lean.Elab.Term.elabTermEnsuringType",
  "kind": 21,
  "detail": "Type",
@@ -28,7 +28,7 @@ resolve: Lean.Elab.Term.elabTermEnsuringType
   23,
   0,
   "cLean.Elab.Term.elabTermEnsuringType"]}
-resolve: Lean.Elab.Tactic.elabTermEnsuringType
+Resolution of Lean.Elab.Tactic.elabTermEnsuringType:
 {"label": "Lean.Elab.Tactic.elabTermEnsuringType",
  "kind": 21,
  "detail": "Type",
@@ -58,7 +58,7 @@ resolve: Lean.Elab.Tactic.elabTermEnsuringType
     0,
     "cLean.Elab.Tactic.elabTermEnsuringType"]}],
  "isIncomplete": false}
-resolve: Term.elabTermEnsuringType
+Resolution of Term.elabTermEnsuringType:
 {"label": "Term.elabTermEnsuringType",
  "kind": 21,
  "detail": "Type",
@@ -68,7 +68,7 @@ resolve: Term.elabTermEnsuringType
   23,
   0,
   "cLean.Elab.Term.elabTermEnsuringType"]}
-resolve: Tactic.elabTermEnsuringType
+Resolution of Tactic.elabTermEnsuringType:
 {"label": "Tactic.elabTermEnsuringType",
  "kind": 21,
  "detail": "Type",
@@ -98,7 +98,7 @@ resolve: Tactic.elabTermEnsuringType
     0,
     "cLean.Elab.Tactic.elabTermEnsuringType"]}],
  "isIncomplete": false}
-resolve: elabTermEnsuringType
+Resolution of elabTermEnsuringType:
 {"label": "elabTermEnsuringType",
  "kind": 21,
  "detail": "Type",
@@ -108,7 +108,7 @@ resolve: elabTermEnsuringType
   23,
   0,
   "cLean.Elab.Term.elabTermEnsuringType"]}
-resolve: Lean.Elab.Tactic.elabTermEnsuringType
+Resolution of Lean.Elab.Tactic.elabTermEnsuringType:
 {"label": "Lean.Elab.Tactic.elabTermEnsuringType",
  "kind": 21,
  "detail": "Type",
@@ -142,7 +142,7 @@ resolve: Lean.Elab.Tactic.elabTermEnsuringType
     0,
     "cLean.Elab.Tactic.elabTermEnsuringType"]}],
  "isIncomplete": false}
-resolve: Lean.Elab.Term.elabTermEnsuringType
+Resolution of Lean.Elab.Term.elabTermEnsuringType:
 {"label": "Lean.Elab.Term.elabTermEnsuringType",
  "kind": 21,
  "detail": "Type",
@@ -152,12 +152,12 @@ resolve: Lean.Elab.Term.elabTermEnsuringType
   23,
   0,
   "cLean.Elab.Term.elabTermEnsuringType"]}
-resolve: elabTermEnsuringType
+Resolution of elabTermEnsuringType:
 {"label": "elabTermEnsuringType",
  "kind": 21,
  "detail": "Type",
  "data": ["«external:file:///1659.lean»", 27, 23, 0, "celabTermEnsuringType"]}
-resolve: Lean.Elab.Tactic.elabTermEnsuringType
+Resolution of Lean.Elab.Tactic.elabTermEnsuringType:
 {"label": "Lean.Elab.Tactic.elabTermEnsuringType",
  "kind": 21,
  "detail": "Type",
@@ -199,7 +199,7 @@ resolve: Lean.Elab.Tactic.elabTermEnsuringType
     0,
     "cLean.Elab.Tactic.elabTermEnsuringType"]}],
  "isIncomplete": false}
-resolve: Lean.Elab.Term.elabTermEnsuringType
+Resolution of Lean.Elab.Term.elabTermEnsuringType:
 {"label": "Lean.Elab.Term.elabTermEnsuringType",
  "kind": 21,
  "detail": "Type",
@@ -209,18 +209,18 @@ resolve: Lean.Elab.Term.elabTermEnsuringType
   23,
   0,
   "cLean.Elab.Term.elabTermEnsuringType"]}
-resolve: Lean.Elab.elabTermEnsuringType
+Resolution of Lean.Elab.elabTermEnsuringType:
 {"label": "Lean.Elab.elabTermEnsuringType",
  "kind": 21,
  "detail": "Type",
  "data":
  ["«external:file:///1659.lean»", 33, 23, 0, "cLean.Elab.elabTermEnsuringType"]}
-resolve: elabTermEnsuringType
+Resolution of elabTermEnsuringType:
 {"label": "elabTermEnsuringType",
  "kind": 21,
  "detail": "Type",
  "data": ["«external:file:///1659.lean»", 33, 23, 0, "celabTermEnsuringType"]}
-resolve: Lean.Elab.Tactic.elabTermEnsuringType
+Resolution of Lean.Elab.Tactic.elabTermEnsuringType:
 {"label": "Lean.Elab.Tactic.elabTermEnsuringType",
  "kind": 21,
  "detail": "Type",

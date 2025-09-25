@@ -10,7 +10,7 @@
     0,
     "cFoo.mk"]}],
  "isIncomplete": false}
-resolve: mk
+Resolution of mk:
 {"label": "mk",
  "kind": 4,
  "detail": "Nat → Foo",

@@ -30,6 +30,7 @@
    "message": "Nat : Type",
    "fullRange":
    {"start": {"line": 6, "character": 0}, "end": {"line": 6, "character": 6}}}]}
+{"lineRange": {"start": 0, "end": 8}}
 [{"source": "Lean 4",
   "severity": 2,
   "range":

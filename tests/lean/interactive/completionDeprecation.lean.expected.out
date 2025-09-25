@@ -72,7 +72,7 @@
     0,
     "cSomeStructure.foo2"]}],
  "isIncomplete": false}
-resolve: foo4
+Resolution of foo4:
 {"tags": [1],
  "label": "foo4",
  "kind": 3,
@@ -87,7 +87,7 @@ resolve: foo4
   28,
   0,
   "cSomeStructure.foo4"]}
-resolve: foo8
+Resolution of foo8:
 {"tags": [1],
  "label": "foo8",
  "kind": 3,
@@ -102,7 +102,7 @@ resolve: foo8
   28,
   0,
   "cSomeStructure.foo8"]}
-resolve: foo5
+Resolution of foo5:
 {"tags": [1],
  "label": "foo5",
  "kind": 3,
@@ -117,7 +117,7 @@ resolve: foo5
   28,
   0,
   "cSomeStructure.foo5"]}
-resolve: foo7
+Resolution of foo7:
 {"tags": [1],
  "label": "foo7",
  "kind": 3,
@@ -132,7 +132,7 @@ resolve: foo7
   28,
   0,
   "cSomeStructure.foo7"]}
-resolve: foo1
+Resolution of foo1:
 {"label": "foo1",
  "kind": 3,
  "detail": "SomeStructure → Nat",
@@ -142,7 +142,7 @@ resolve: foo1
   28,
   0,
   "cSomeStructure.foo1"]}
-resolve: foo6
+Resolution of foo6:
 {"tags": [1],
  "label": "foo6",
  "kind": 3,
@@ -157,7 +157,7 @@ resolve: foo6
   28,
   0,
   "cSomeStructure.foo6"]}
-resolve: foo3
+Resolution of foo3:
 {"tags": [1],
  "label": "foo3",
  "kind": 3,
@@ -170,7 +170,7 @@ resolve: foo3
   28,
   0,
   "cSomeStructure.foo3"]}
-resolve: foo2
+Resolution of foo2:
 {"label": "foo2",
  "kind": 3,
  "documentation": {"value": "A docstring. ", "kind": "markdown"},

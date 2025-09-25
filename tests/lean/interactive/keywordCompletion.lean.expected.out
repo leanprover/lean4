@@ -25,32 +25,32 @@
    "detail": "keyword",
    "data": ["«external:file:///keywordCompletion.lean»", 4, 10, 0]}],
  "isIncomplete": false}
-resolve: bin
+Resolution of bin:
 {"label": "bin",
  "kind": 21,
  "detail": "Type 1",
  "data": ["«external:file:///keywordCompletion.lean»", 4, 10, 0, "cbin"]}
-resolve: binop_lazy%
+Resolution of binop_lazy%:
 {"label": "binop_lazy%",
  "kind": 14,
  "detail": "keyword",
  "data": ["«external:file:///keywordCompletion.lean»", 4, 10, 0]}
-resolve: binop%
+Resolution of binop%:
 {"label": "binop%",
  "kind": 14,
  "detail": "keyword",
  "data": ["«external:file:///keywordCompletion.lean»", 4, 10, 0]}
-resolve: binrel_no_prop%
+Resolution of binrel_no_prop%:
 {"label": "binrel_no_prop%",
  "kind": 14,
  "detail": "keyword",
  "data": ["«external:file:///keywordCompletion.lean»", 4, 10, 0]}
-resolve: binrel%
+Resolution of binrel%:
 {"label": "binrel%",
  "kind": 14,
  "detail": "keyword",
  "data": ["«external:file:///keywordCompletion.lean»", 4, 10, 0]}
-resolve: binder_predicate
+Resolution of binder_predicate:
 {"label": "binder_predicate",
  "kind": 14,
  "detail": "keyword",
@@ -63,7 +63,7 @@ resolve: binder_predicate
    "detail": "keyword",
    "data": ["«external:file:///keywordCompletion.lean»", 4, 13, 0]}],
  "isIncomplete": false}
-resolve: binop_lazy%
+Resolution of binop_lazy%:
 {"label": "binop_lazy%",
  "kind": 14,
  "detail": "keyword",

@@ -41,7 +41,7 @@
    "kind": 3,
    "data": ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.getId"]}],
  "isIncomplete": false}
-resolve: getScientific
+Resolution of getScientific:
 {"label": "getScientific",
  "kind": 3,
  "documentation":
@@ -51,7 +51,7 @@ resolve: getScientific
  "detail": "Lean.ScientificLit → Nat × Bool × Nat",
  "data":
  ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.getScientific"]}
-resolve: getString
+Resolution of getString:
 {"label": "getString",
  "kind": 3,
  "documentation":
@@ -60,7 +60,7 @@ resolve: getString
   "kind": "markdown"},
  "detail": "Lean.StrLit → String",
  "data": ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.getString"]}
-resolve: getNat
+Resolution of getNat:
 {"label": "getNat",
  "kind": 3,
  "documentation":
@@ -69,7 +69,7 @@ resolve: getNat
   "kind": "markdown"},
  "detail": "Lean.NumLit → Nat",
  "data": ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.getNat"]}
-resolve: getName
+Resolution of getName:
 {"label": "getName",
  "kind": 3,
  "documentation":
@@ -78,7 +78,7 @@ resolve: getName
   "kind": "markdown"},
  "detail": "Lean.NameLit → Lean.Name",
  "data": ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.getName"]}
-resolve: getChar
+Resolution of getChar:
 {"label": "getChar",
  "kind": 3,
  "documentation":
@@ -87,20 +87,20 @@ resolve: getChar
   "kind": "markdown"},
  "detail": "Lean.CharLit → Char",
  "data": ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.getChar"]}
-resolve: raw
+Resolution of raw:
 {"label": "raw",
  "kind": 5,
  "documentation":
  {"value": "The underlying `Syntax` value. ", "kind": "markdown"},
  "detail": "Lean.TSyntax ks → Lean.Syntax",
  "data": ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.raw"]}
-resolve: getDocString
+Resolution of getDocString:
 {"label": "getDocString",
  "kind": 3,
  "detail": "Lean.TSyntax `Lean.Parser.Command.docComment → String",
  "data":
  ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.getDocString"]}
-resolve: expandInterpolatedStr
+Resolution of expandInterpolatedStr:
 {"label": "expandInterpolatedStr",
  "kind": 3,
  "documentation":
@@ -115,7 +115,7 @@ resolve: expandInterpolatedStr
   51,
   1,
   "cLean.TSyntax.expandInterpolatedStr"]}
-resolve: getHygieneInfo
+Resolution of getHygieneInfo:
 {"label": "getHygieneInfo",
  "kind": 3,
  "documentation":
@@ -123,7 +123,7 @@ resolve: getHygieneInfo
  "detail": "Lean.HygieneInfo → Lean.Name",
  "data":
  ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.getHygieneInfo"]}
-resolve: getId
+Resolution of getId:
 {"label": "getId",
  "kind": 3,
  "documentation":
@@ -175,7 +175,7 @@ resolve: getId
    "kind": 3,
    "data": ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.getId"]}],
  "isIncomplete": false}
-resolve: getScientific
+Resolution of getScientific:
 {"label": "getScientific",
  "kind": 3,
  "documentation":
@@ -185,7 +185,7 @@ resolve: getScientific
  "detail": "Lean.ScientificLit → Nat × Bool × Nat",
  "data":
  ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.getScientific"]}
-resolve: getString
+Resolution of getString:
 {"label": "getString",
  "kind": 3,
  "documentation":
@@ -194,7 +194,7 @@ resolve: getString
   "kind": "markdown"},
  "detail": "Lean.StrLit → String",
  "data": ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.getString"]}
-resolve: getNat
+Resolution of getNat:
 {"label": "getNat",
  "kind": 3,
  "documentation":
@@ -203,7 +203,7 @@ resolve: getNat
   "kind": "markdown"},
  "detail": "Lean.NumLit → Nat",
  "data": ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.getNat"]}
-resolve: getName
+Resolution of getName:
 {"label": "getName",
  "kind": 3,
  "documentation":
@@ -212,7 +212,7 @@ resolve: getName
   "kind": "markdown"},
  "detail": "Lean.NameLit → Lean.Name",
  "data": ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.getName"]}
-resolve: getChar
+Resolution of getChar:
 {"label": "getChar",
  "kind": 3,
  "documentation":
@@ -221,20 +221,20 @@ resolve: getChar
   "kind": "markdown"},
  "detail": "Lean.CharLit → Char",
  "data": ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.getChar"]}
-resolve: raw
+Resolution of raw:
 {"label": "raw",
  "kind": 5,
  "documentation":
  {"value": "The underlying `Syntax` value. ", "kind": "markdown"},
  "detail": "Lean.TSyntax ks → Lean.Syntax",
  "data": ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.raw"]}
-resolve: getDocString
+Resolution of getDocString:
 {"label": "getDocString",
  "kind": 3,
  "detail": "Lean.TSyntax `Lean.Parser.Command.docComment → String",
  "data":
  ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.getDocString"]}
-resolve: expandInterpolatedStr
+Resolution of expandInterpolatedStr:
 {"label": "expandInterpolatedStr",
  "kind": 3,
  "documentation":
@@ -249,7 +249,7 @@ resolve: expandInterpolatedStr
   53,
   1,
   "cLean.TSyntax.expandInterpolatedStr"]}
-resolve: getHygieneInfo
+Resolution of getHygieneInfo:
 {"label": "getHygieneInfo",
  "kind": 3,
  "documentation":
@@ -257,7 +257,7 @@ resolve: getHygieneInfo
  "detail": "Lean.HygieneInfo → Lean.Name",
  "data":
  ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.getHygieneInfo"]}
-resolve: getId
+Resolution of getId:
 {"label": "getId",
  "kind": 3,
  "documentation":

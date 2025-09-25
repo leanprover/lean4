@@ -5,7 +5,7 @@
    "kind": 5,
    "data": ["«external:file:///completion.lean»", 3, 22, 1, "cFoo.foo"]}],
  "isIncomplete": false}
-resolve: foo
+Resolution of foo:
 {"label": "foo",
  "kind": 5,
  "detail": "Foo → Nat",
@@ -17,7 +17,7 @@ resolve: foo
    "kind": 5,
    "data": ["«external:file:///completion.lean»", 5, 23, 1, "cFoo.foo"]}],
  "isIncomplete": false}
-resolve: foo
+Resolution of foo:
 {"label": "foo",
  "kind": 5,
  "detail": "Foo → Nat",
@@ -29,7 +29,7 @@ resolve: foo
    "kind": 5,
    "data": ["«external:file:///completion.lean»", 7, 28, 0, "cFoo.foo"]}],
  "isIncomplete": false}
-resolve: foo
+Resolution of foo:
 {"label": "foo",
  "kind": 5,
  "detail": "Foo → Nat",
@@ -41,7 +41,7 @@ resolve: foo
    "kind": 5,
    "data": ["«external:file:///completion.lean»", 9, 29, 0, "cFoo.foo"]}],
  "isIncomplete": false}
-resolve: foo
+Resolution of foo:
 {"label": "foo",
  "kind": 5,
  "detail": "Foo → Nat",

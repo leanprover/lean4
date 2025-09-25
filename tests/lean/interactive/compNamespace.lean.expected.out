@@ -6,7 +6,7 @@
    "detail": "namespace",
    "data": ["«external:file:///compNamespace.lean»", 5, 14, 0]}],
  "isIncomplete": false}
-resolve: LongNamespaceExample
+Resolution of LongNamespaceExample:
 {"label": "LongNamespaceExample",
  "kind": 9,
  "detail": "namespace",
@@ -19,7 +19,7 @@ resolve: LongNamespaceExample
    "detail": "namespace",
    "data": ["«external:file:///compNamespace.lean»", 9, 14, 0]}],
  "isIncomplete": false}
-resolve: LongNamespaceExample
+Resolution of LongNamespaceExample:
 {"label": "LongNamespaceExample",
  "kind": 9,
  "detail": "namespace",
@@ -32,7 +32,7 @@ resolve: LongNamespaceExample
    "detail": "namespace",
    "data": ["«external:file:///compNamespace.lean»", 13, 11, 0]}],
  "isIncomplete": false}
-resolve: LongNamespaceExample
+Resolution of LongNamespaceExample:
 {"label": "LongNamespaceExample",
  "kind": 9,
  "detail": "namespace",
@@ -45,7 +45,7 @@ resolve: LongNamespaceExample
    "detail": "namespace",
    "data": ["«external:file:///compNamespace.lean»", 16, 16, 0]}],
  "isIncomplete": false}
-resolve: LongNamespaceExample
+Resolution of LongNamespaceExample:
 {"label": "LongNamespaceExample",
  "kind": 9,
  "detail": "namespace",
@@ -58,7 +58,7 @@ resolve: LongNamespaceExample
    "detail": "namespace",
    "data": ["«external:file:///compNamespace.lean»", 20, 14, 0]}],
  "isIncomplete": false}
-resolve: LongNamespaceExample
+Resolution of LongNamespaceExample:
 {"label": "LongNamespaceExample",
  "kind": 9,
  "detail": "namespace",

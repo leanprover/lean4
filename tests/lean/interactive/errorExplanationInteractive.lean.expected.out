@@ -41,7 +41,7 @@
    "detail": "error name",
    "data": ["«external:file:///errorExplanationInteractive.lean»", 28, 30, 0]}],
  "isIncomplete": false}
-resolve: testPkg.foo2
+Resolution of testPkg.foo2:
 {"textEdit":
  {"replace":
   {"start": {"line": 28, "character": 23},
@@ -55,7 +55,7 @@ resolve: testPkg.foo2
  "documentation": {"value": "(error) Error 2", "kind": "markdown"},
  "detail": "error name",
  "data": ["«external:file:///errorExplanationInteractive.lean»", 28, 30, 0]}
-resolve: testPkg.bar
+Resolution of testPkg.bar:
 {"textEdit":
  {"replace":
   {"start": {"line": 28, "character": 23},
@@ -69,7 +69,7 @@ resolve: testPkg.bar
  "documentation": {"value": "(error) Error 0", "kind": "markdown"},
  "detail": "error name",
  "data": ["«external:file:///errorExplanationInteractive.lean»", 28, 30, 0]}
-resolve: testPkg.foo1
+Resolution of testPkg.foo1:
 {"textEdit":
  {"replace":
   {"start": {"line": 28, "character": 23},
@@ -126,7 +126,7 @@ resolve: testPkg.foo1
    "detail": "error name",
    "data": ["«external:file:///errorExplanationInteractive.lean»", 30, 31, 0]}],
  "isIncomplete": false}
-resolve: testPkg.foo2
+Resolution of testPkg.foo2:
 {"textEdit":
  {"replace":
   {"start": {"line": 30, "character": 23},
@@ -140,7 +140,7 @@ resolve: testPkg.foo2
  "documentation": {"value": "(error) Error 2", "kind": "markdown"},
  "detail": "error name",
  "data": ["«external:file:///errorExplanationInteractive.lean»", 30, 31, 0]}
-resolve: testPkg.bar
+Resolution of testPkg.bar:
 {"textEdit":
  {"replace":
   {"start": {"line": 30, "character": 23},
@@ -154,7 +154,7 @@ resolve: testPkg.bar
  "documentation": {"value": "(error) Error 0", "kind": "markdown"},
  "detail": "error name",
  "data": ["«external:file:///errorExplanationInteractive.lean»", 30, 31, 0]}
-resolve: testPkg.foo1
+Resolution of testPkg.foo1:
 {"textEdit":
  {"replace":
   {"start": {"line": 30, "character": 23},
@@ -198,7 +198,7 @@ resolve: testPkg.foo1
    "detail": "error name",
    "data": ["«external:file:///errorExplanationInteractive.lean»", 32, 32, 0]}],
  "isIncomplete": false}
-resolve: testPkg.foo2
+Resolution of testPkg.foo2:
 {"textEdit":
  {"replace":
   {"start": {"line": 32, "character": 23},
@@ -212,7 +212,7 @@ resolve: testPkg.foo2
  "documentation": {"value": "(error) Error 2", "kind": "markdown"},
  "detail": "error name",
  "data": ["«external:file:///errorExplanationInteractive.lean»", 32, 32, 0]}
-resolve: testPkg.foo1
+Resolution of testPkg.foo1:
 {"textEdit":
  {"replace":
   {"start": {"line": 32, "character": 23},
@@ -256,7 +256,7 @@ resolve: testPkg.foo1
    "detail": "error name",
    "data": ["«external:file:///errorExplanationInteractive.lean»", 34, 32, 0]}],
  "isIncomplete": false}
-resolve: testPkg.foo2
+Resolution of testPkg.foo2:
 {"textEdit":
  {"replace":
   {"start": {"line": 34, "character": 23},
@@ -270,7 +270,7 @@ resolve: testPkg.foo2
  "documentation": {"value": "(error) Error 2", "kind": "markdown"},
  "detail": "error name",
  "data": ["«external:file:///errorExplanationInteractive.lean»", 34, 32, 0]}
-resolve: testPkg.foo1
+Resolution of testPkg.foo1:
 {"textEdit":
  {"replace":
   {"start": {"line": 34, "character": 23},

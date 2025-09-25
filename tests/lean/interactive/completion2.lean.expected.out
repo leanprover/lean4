@@ -14,22 +14,22 @@
    "kind": 23,
    "data": ["«external:file:///completion2.lean»", 19, 10, 0, "cFoo.Bla.ax1"]}],
  "isIncomplete": false}
-resolve: ex2
+Resolution of ex2:
 {"label": "ex2",
  "kind": 23,
  "detail": "a ≤ b → a + 2 ≤ b + 2",
  "data": ["«external:file:///completion2.lean»", 19, 10, 0, "cFoo.Bla.ex2"]}
-resolve: ex3
+Resolution of ex3:
 {"label": "ex3",
  "kind": 23,
  "detail": "a ≤ b → c ≤ d → a + c ≤ b + d",
  "data": ["«external:file:///completion2.lean»", 19, 10, 0, "cFoo.Bla.ex3"]}
-resolve: ex1
+Resolution of ex1:
 {"label": "ex1",
  "kind": 23,
  "detail": "a ≤ b → a + a ≤ b + b",
  "data": ["«external:file:///completion2.lean»", 19, 10, 0, "cFoo.Bla.ex1"]}
-resolve: ax1
+Resolution of ax1:
 {"label": "ax1",
  "kind": 23,
  "detail": "a ≤ b → a - a ≤ b - b",
@@ -50,22 +50,22 @@ resolve: ax1
    "kind": 23,
    "data": ["«external:file:///completion2.lean»", 25, 6, 0, "cFoo.Bla.ax1"]}],
  "isIncomplete": false}
-resolve: ex2
+Resolution of ex2:
 {"label": "ex2",
  "kind": 23,
  "detail": "a ≤ b → a + 2 ≤ b + 2",
  "data": ["«external:file:///completion2.lean»", 25, 6, 0, "cFoo.Bla.ex2"]}
-resolve: ex3
+Resolution of ex3:
 {"label": "ex3",
  "kind": 23,
  "detail": "a ≤ b → c ≤ d → a + c ≤ b + d",
  "data": ["«external:file:///completion2.lean»", 25, 6, 0, "cFoo.Bla.ex3"]}
-resolve: ex1
+Resolution of ex1:
 {"label": "ex1",
  "kind": 23,
  "detail": "a ≤ b → a + a ≤ b + b",
  "data": ["«external:file:///completion2.lean»", 25, 6, 0, "cFoo.Bla.ex1"]}
-resolve: ax1
+Resolution of ax1:
 {"label": "ax1",
  "kind": 23,
  "detail": "a ≤ b → a - a ≤ b - b",
@@ -86,22 +86,22 @@ resolve: ax1
    "kind": 23,
    "data": ["«external:file:///completion2.lean»", 30, 21, 0, "cFoo.Bla.ax1"]}],
  "isIncomplete": false}
-resolve: ex2
+Resolution of ex2:
 {"label": "ex2",
  "kind": 23,
  "detail": "a ≤ b → a + 2 ≤ b + 2",
  "data": ["«external:file:///completion2.lean»", 30, 21, 0, "cFoo.Bla.ex2"]}
-resolve: ex3
+Resolution of ex3:
 {"label": "ex3",
  "kind": 23,
  "detail": "a ≤ b → c ≤ d → a + c ≤ b + d",
  "data": ["«external:file:///completion2.lean»", 30, 21, 0, "cFoo.Bla.ex3"]}
-resolve: ex1
+Resolution of ex1:
 {"label": "ex1",
  "kind": 23,
  "detail": "a ≤ b → a + a ≤ b + b",
  "data": ["«external:file:///completion2.lean»", 30, 21, 0, "cFoo.Bla.ex1"]}
-resolve: ax1
+Resolution of ax1:
 {"label": "ax1",
  "kind": 23,
  "detail": "a ≤ b → a - a ≤ b - b",
@@ -119,17 +119,17 @@ resolve: ax1
    "kind": 23,
    "data": ["«external:file:///completion2.lean»", 37, 22, 0, "cFoo.Bla.ex1"]}],
  "isIncomplete": false}
-resolve: ex2
+Resolution of ex2:
 {"label": "ex2",
  "kind": 23,
  "detail": "a ≤ b → a + 2 ≤ b + 2",
  "data": ["«external:file:///completion2.lean»", 37, 22, 0, "cFoo.Bla.ex2"]}
-resolve: ex3
+Resolution of ex3:
 {"label": "ex3",
  "kind": 23,
  "detail": "a ≤ b → c ≤ d → a + c ≤ b + d",
  "data": ["«external:file:///completion2.lean»", 37, 22, 0, "cFoo.Bla.ex3"]}
-resolve: ex1
+Resolution of ex1:
 {"label": "ex1",
  "kind": 23,
  "detail": "a ≤ b → a + a ≤ b + b",

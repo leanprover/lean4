@@ -8,12 +8,12 @@
    "kind": 4,
    "data": ["«external:file:///dotIdCompletion.lean»", 4, 5, 0, "cBoo.truth"]}],
  "isIncomplete": false}
-resolve: true
+Resolution of true:
 {"label": "true",
  "kind": 4,
  "detail": "Boo",
  "data": ["«external:file:///dotIdCompletion.lean»", 4, 5, 0, "cBoo.true"]}
-resolve: truth
+Resolution of truth:
 {"label": "truth",
  "kind": 4,
  "detail": "Boo",

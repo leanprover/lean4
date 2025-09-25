@@ -17,27 +17,27 @@
    "kind": 5,
    "data": ["«external:file:///completion6.lean»", 12, 15, 1, "cC.f2"]}],
  "isIncomplete": false}
-resolve: f1
+Resolution of f1:
 {"label": "f1",
  "kind": 5,
  "detail": "C → Nat",
  "data": ["«external:file:///completion6.lean»", 12, 15, 1, "cC.f1"]}
-resolve: f3
+Resolution of f3:
 {"label": "f3",
  "kind": 5,
  "detail": "D → Bool",
  "data": ["«external:file:///completion6.lean»", 12, 15, 1, "cD.f3"]}
-resolve: toC
+Resolution of toC:
 {"label": "toC",
  "kind": 5,
  "detail": "D → C",
  "data": ["«external:file:///completion6.lean»", 12, 15, 1, "cD.toC"]}
-resolve: b1
+Resolution of b1:
 {"label": "b1",
  "kind": 5,
  "detail": "C → String",
  "data": ["«external:file:///completion6.lean»", 12, 15, 1, "cC.b1"]}
-resolve: f2
+Resolution of f2:
 {"label": "f2",
  "kind": 5,
  "detail": "C → Bool",
@@ -64,32 +64,32 @@ resolve: f2
    "kind": 5,
    "data": ["«external:file:///completion6.lean»", 21, 4, 1, "cC.f2"]}],
  "isIncomplete": false}
-resolve: f1
+Resolution of f1:
 {"label": "f1",
  "kind": 5,
  "detail": "C → Nat",
  "data": ["«external:file:///completion6.lean»", 21, 4, 1, "cC.f1"]}
-resolve: f3
+Resolution of f3:
 {"label": "f3",
  "kind": 5,
  "detail": "D → Bool",
  "data": ["«external:file:///completion6.lean»", 21, 4, 1, "cD.f3"]}
-resolve: toC
+Resolution of toC:
 {"label": "toC",
  "kind": 5,
  "detail": "D → C",
  "data": ["«external:file:///completion6.lean»", 21, 4, 1, "cD.toC"]}
-resolve: b1
+Resolution of b1:
 {"label": "b1",
  "kind": 5,
  "detail": "C → String",
  "data": ["«external:file:///completion6.lean»", 21, 4, 1, "cC.b1"]}
-resolve: doubleF1
+Resolution of doubleF1:
 {"label": "doubleF1",
  "kind": 3,
  "detail": "E → Nat",
  "data": ["«external:file:///completion6.lean»", 21, 4, 1, "cE.doubleF1"]}
-resolve: f2
+Resolution of f2:
 {"label": "f2",
  "kind": 5,
  "detail": "C → Bool",

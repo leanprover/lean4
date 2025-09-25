@@ -1,3 +1,5 @@
+{"textDocument": {"uri": "file:///interactiveGoalPopups.lean"},
+ "position": {"line": 14, "character": 2}}
 {"goals":
  [{"type":
    {"tag": [{"subexprPos": "/", "info": {"p": "4"}}, {"text": "MyTrue"}]},
@@ -17,11 +19,13 @@
      "names": ["h"]}]}]}
 Popups for type of x:
 Popup for MyNat:
+{"p": "0"}
 {"type": {"tag": [{"subexprPos": "/", "info": {"p": "6"}}, {"text": "Type"}]},
  "exprExplicit": {"text": "MyNat"},
  "doc": "MyNat doc "}
 Popups for type of h:
 Popup for MyEq x x:
+{"p": "1"}
 {"type": {"tag": [{"subexprPos": "/", "info": {"p": "7"}}, {"text": "Prop"}]},
  "exprExplicit":
  {"append":
@@ -35,15 +39,18 @@ Popup for MyEq x x:
    {"tag": [{"subexprPos": "/1", "info": {"p": "11"}}, {"text": "x"}]}]},
  "doc": null}
 Popup for x:
+{"p": "2"}
 {"type": {"tag": [{"subexprPos": "/", "info": {"p": "12"}}, {"text": "MyNat"}]},
  "exprExplicit": {"text": "x"},
  "doc": null}
 Popup for x:
+{"p": "3"}
 {"type": {"tag": [{"subexprPos": "/", "info": {"p": "13"}}, {"text": "MyNat"}]},
  "exprExplicit": {"text": "x"},
  "doc": null}
 Popups for type of goal:
 Popup for MyTrue:
+{"p": "4"}
 {"type": {"tag": [{"subexprPos": "/", "info": {"p": "14"}}, {"text": "Prop"}]},
  "exprExplicit": {"text": "MyTrue"},
  "doc": "MyTrue doc "}

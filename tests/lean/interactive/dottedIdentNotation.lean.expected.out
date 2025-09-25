@@ -6,7 +6,7 @@
    "data":
    ["«external:file:///dottedIdentNotation.lean»", 11, 22, 0, "cMyNat.zero"]}],
  "isIncomplete": false}
-resolve: zero
+Resolution of zero:
 {"label": "zero",
  "kind": 4,
  "detail": "MyNat",
@@ -20,7 +20,7 @@ resolve: zero
    "data":
    ["«external:file:///dottedIdentNotation.lean»", 14, 30, 0, "cMyNat.succ"]}],
  "isIncomplete": false}
-resolve: succ
+Resolution of succ:
 {"label": "succ",
  "kind": 4,
  "detail": "MyNat → MyNat",
@@ -34,7 +34,7 @@ resolve: succ
    "data":
    ["«external:file:///dottedIdentNotation.lean»", 23, 23, 0, "cMyNat.zero"]}],
  "isIncomplete": false}
-resolve: zero
+Resolution of zero:
 {"label": "zero",
  "kind": 4,
  "detail": "MyNat",
@@ -48,7 +48,7 @@ resolve: zero
    "data":
    ["«external:file:///dottedIdentNotation.lean»", 26, 32, 0, "cMyNat.succ"]}],
  "isIncomplete": false}
-resolve: succ
+Resolution of succ:
 {"label": "succ",
  "kind": 4,
  "detail": "MyNat → MyNat",
@@ -62,7 +62,7 @@ resolve: succ
    "data":
    ["«external:file:///dottedIdentNotation.lean»", 33, 31, 0, "cMyNat.zero"]}],
  "isIncomplete": false}
-resolve: zero
+Resolution of zero:
 {"label": "zero",
  "kind": 4,
  "detail": "MyNat",
@@ -79,7 +79,7 @@ resolve: zero
    "data":
    ["«external:file:///dottedIdentNotation.lean»", 51, 24, 0, "cMyNat.zero"]}],
  "isIncomplete": false}
-resolve: zero
+Resolution of zero:
 {"label": "zero",
  "kind": 4,
  "detail": "MyNat",
@@ -93,7 +93,7 @@ resolve: zero
    "data":
    ["«external:file:///dottedIdentNotation.lean»", 64, 32, 0, "cMyNat.succ"]}],
  "isIncomplete": false}
-resolve: succ
+Resolution of succ:
 {"label": "succ",
  "kind": 4,
  "detail": "MyNat → MyNat",

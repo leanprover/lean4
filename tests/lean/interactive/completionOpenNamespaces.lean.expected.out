@@ -10,7 +10,7 @@
     0,
     "cA.B1.verySpecificDefinitionNameOfCompletionOpenNamespaces"]}],
  "isIncomplete": false}
-resolve: verySpecificDefinitionNameOfCompletionOpenNamespaces
+Resolution of verySpecificDefinitionNameOfCompletionOpenNamespaces:
 {"label": "verySpecificDefinitionNameOfCompletionOpenNamespaces",
  "kind": 21,
  "detail": "Nat",

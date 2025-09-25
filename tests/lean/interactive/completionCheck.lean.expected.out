@@ -18,7 +18,7 @@
     0,
     "cAVerySpecificStructureName"]}],
  "isIncomplete": false}
-resolve: AVerySpecificStructureName2
+Resolution of AVerySpecificStructureName2:
 {"label": "AVerySpecificStructureName2",
  "kind": 22,
  "detail": "Type",
@@ -28,7 +28,7 @@ resolve: AVerySpecificStructureName2
   33,
   0,
   "cAVerySpecificStructureName2"]}
-resolve: AVerySpecificStructureName
+Resolution of AVerySpecificStructureName:
 {"label": "AVerySpecificStructureName",
  "kind": 22,
  "detail": "Type",

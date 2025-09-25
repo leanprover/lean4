@@ -59,6 +59,8 @@ t 2
    {"start": {"line": 3, "character": 9},
     "end": {"line": 3, "character": 16}}}]}
 s
+{"textDocument": {"uri": "file:///incrementalTactic.lean"},
+ "position": {"line": 5, "character": 2}}
 {"goals":
  [{"type": {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "True"}]},
    "hyps": []}]}

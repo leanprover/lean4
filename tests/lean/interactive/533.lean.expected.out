@@ -8,12 +8,12 @@
    "kind": 6,
    "data": ["«external:file:///533.lean»", 4, 10, 0, "f_uniq.7"]}],
  "isIncomplete": false}
-resolve: Foo
+Resolution of Foo:
 {"label": "Foo",
  "kind": 6,
  "detail": "Sort ?u",
  "data": ["«external:file:///533.lean»", 4, 10, 0, "f_uniq.3"]}
-resolve: F
+Resolution of F:
 {"label": "F",
  "kind": 6,
  "detail": "Sort ?u",

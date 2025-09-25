@@ -38,13 +38,13 @@
     0,
     "cDirection.right"]}],
  "isIncomplete": true}
-resolve: up
+Resolution of up:
 {"label": "up",
  "kind": 4,
  "detail": "Direction",
  "data":
  ["«external:file:///completionFallback.lean»", 14, 14, 0, "cDirection.up"]}
-resolve: noConfusionType
+Resolution of noConfusionType:
 {"label": "noConfusionType",
  "kind": 3,
  "detail": "Sort v✝ → Direction → Direction → Sort v✝",
@@ -54,19 +54,19 @@ resolve: noConfusionType
   14,
   0,
   "cDirection.noConfusionType"]}
-resolve: left
+Resolution of left:
 {"label": "left",
  "kind": 4,
  "detail": "Direction",
  "data":
  ["«external:file:///completionFallback.lean»", 14, 14, 0, "cDirection.left"]}
-resolve: down
+Resolution of down:
 {"label": "down",
  "kind": 4,
  "detail": "Direction",
  "data":
  ["«external:file:///completionFallback.lean»", 14, 14, 0, "cDirection.down"]}
-resolve: right
+Resolution of right:
 {"label": "right",
  "kind": 4,
  "detail": "Direction",
@@ -88,19 +88,19 @@ resolve: right
    "data":
    ["«external:file:///completionFallback.lean»", 28, 30, 0, "cCustomAnd.hb"]}],
  "isIncomplete": false}
-resolve: mk
+Resolution of mk:
 {"label": "mk",
  "kind": 4,
  "detail": "a → b → CustomAnd a b",
  "data":
  ["«external:file:///completionFallback.lean»", 28, 30, 0, "cCustomAnd.mk"]}
-resolve: ha
+Resolution of ha:
 {"label": "ha",
  "kind": 23,
  "detail": "CustomAnd a b → a",
  "data":
  ["«external:file:///completionFallback.lean»", 28, 30, 0, "cCustomAnd.ha"]}
-resolve: hb
+Resolution of hb:
 {"label": "hb",
  "kind": 23,
  "detail": "CustomAnd a b → b",

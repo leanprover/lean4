@@ -11,17 +11,17 @@
    "kind": 3,
    "data": ["«external:file:///inWordCompletion.lean»", 6, 11, 0, "cgfxabc"]}],
  "isIncomplete": false}
-resolve: gfxadc
+Resolution of gfxadc:
 {"label": "gfxadc",
  "kind": 3,
  "detail": "Nat → Nat",
  "data": ["«external:file:///inWordCompletion.lean»", 6, 11, 0, "cgfxadc"]}
-resolve: gfxacc
+Resolution of gfxacc:
 {"label": "gfxacc",
  "kind": 3,
  "detail": "Nat → Nat",
  "data": ["«external:file:///inWordCompletion.lean»", 6, 11, 0, "cgfxacc"]}
-resolve: gfxabc
+Resolution of gfxabc:
 {"label": "gfxabc",
  "kind": 3,
  "detail": "Nat → Nat",
@@ -42,17 +42,17 @@ resolve: gfxabc
    "data":
    ["«external:file:///inWordCompletion.lean»", 14, 15, 0, "cBoo.gfxacc"]}],
  "isIncomplete": false}
-resolve: gfxabc
+Resolution of gfxabc:
 {"label": "gfxabc",
  "kind": 3,
  "detail": "Nat → Nat",
  "data": ["«external:file:///inWordCompletion.lean»", 14, 15, 0, "cBoo.gfxabc"]}
-resolve: gfxadc
+Resolution of gfxadc:
 {"label": "gfxadc",
  "kind": 3,
  "detail": "Nat → Nat",
  "data": ["«external:file:///inWordCompletion.lean»", 14, 15, 0, "cBoo.gfxadc"]}
-resolve: gfxacc
+Resolution of gfxacc:
 {"label": "gfxacc",
  "kind": 3,
  "detail": "Nat → Nat",

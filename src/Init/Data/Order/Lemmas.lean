@@ -84,6 +84,10 @@ end LE
 
 section LT
 
+public theorem lt_trans {α : Type u} [LT α] [Trans (α := α) (· < ·) (· < ·) (· < ·)] {a b c : α}
+    (hab : a < b) (hbc : b < c) : a < c :=
+  Trans.trans hab hbc
+
 public theorem lt_iff_le_and_not_ge {α : Type u} [LT α] [LE α] [LawfulOrderLT α] {a b : α} :
     a < b ↔ a ≤ b ∧ ¬ b ≤ a :=
   LawfulOrderLT.lt_iff a b

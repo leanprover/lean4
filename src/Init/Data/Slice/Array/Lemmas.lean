@@ -26,12 +26,12 @@ open Std.Iterators Std.PRange
 
 namespace Std.Slice.Array
 
-private theorem internalIter_eq {α : Type u} {s : Subarray α} :
-    Internal.iter s = (PRange.Internal.iter (s.start...<s.stop)
+private theorem internalIter_Rco_eq {α : Type u} {s : Subarray α} :
+    Internal.iter s = (Rco.Internal.iter (s.start...<s.stop)
       |>.attachWith (· < s.array.size)
         (fun out h => h
-            |> PRange.Internal.isPlausibleIndirectOutput_iter_iff.mp
-            |> PRange.lt_upper_of_mem
+            |> Rco.Internal.isPlausibleIndirectOutput_iter_iff.mp
+            |> Rco.lt_upper_of_mem
             |> (Nat.lt_of_lt_of_le · s.stop_le_array_size))
       |>.uLift
       |>.map fun | .up i => s.array[i.1]) := by
@@ -42,11 +42,11 @@ private theorem toList_internalIter {α : Type u} {s : Subarray α} :
       ((s.start...s.stop).toList
         |>.attachWith (· < s.array.size)
           (fun out h => h
-              |> PRange.mem_toList_iff_mem.mp
-              |> PRange.lt_upper_of_mem
+              |> Rco.mem_toList_iff_mem.mp
+              |> Rco.lt_upper_of_mem
               |> (Nat.lt_of_lt_of_le · s.stop_le_array_size))
         |>.map fun i => s.array[i.1]) := by
-  rw [internalIter_eq, Iter.toList_map, Iter.toList_uLift, Iter.toList_attachWith]
-  simp [PRange.toList]
+  rw [internalIter_Rco_eq, Iter.toList_map, Iter.toList_uLift, Iter.toList_attachWith]
+  simp [Rco.toList]
 
 end Std.Slice.Array

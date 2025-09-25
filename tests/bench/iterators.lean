@@ -56,24 +56,24 @@ def numDivisors (n : Nat) := (1...=n).iter
 
 def isPrime (n : Nat) := numDivisors n == 2
 
-def primes (n : Nat) := (*...* : Std.PRange _ Nat).iter.take n
+def primes (n : Nat) := (*...* : Std.Rii Nat).iter.take n
   |>.filter isPrime
   |>.toList
 
 end Primes
 
 def printEveryNth (xs : List Nat) (n : Nat) : IO Unit := do
-  for x in xs, i in (*...* : Std.PRange _ Nat) do
+  for x in xs, i in (*...* : Std.Rii Nat) do
     if i % n = 0 then
       IO.println s!"xs[{i}] = {x}"
 
 def printEveryNthSliceBased (xs : Array Nat) (n : Nat) : IO Unit := do
-  for x in xs[*...*], i in (*...* : Std.PRange _ Nat) do
+  for x in xs[*...*], i in (*...* : Std.Rii Nat) do
     if i % n = 0 then
       IO.println s!"xs[{i}] = {x}"
 
 def longChainOfCombinators (xs : Array Nat) : Nat :=
-  xs.iter.zip (2...* : Std.PRange _ Nat).iter
+  xs.iter.zip (2...*).iter
     |>.filter (fun | (_, i) => i % 2 = 0)
     |>.attachWith (fun _ => True) (fun _ _ => .intro)
     |>.map (fun x => x.1.2)

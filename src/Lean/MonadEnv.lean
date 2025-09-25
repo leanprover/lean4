@@ -35,7 +35,13 @@ def isInductive [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
   return isInductiveCore (← getEnv) declName
 
 def isRecCore (env : Environment) (declName : Name) : Bool :=
-  env.findAsync? declName matches some { kind := .recursor, .. }
+  if let some { kind := .recursor, constInfo := constantInfo, .. } := env.findAsync? declName then
+    if let ConstantInfo.recInfo recVal := constantInfo.get then
+      recVal.numMotives > 0
+    else
+      false
+  else
+    false
 
 def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
   return isRecCore (← getEnv) declName

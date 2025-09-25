@@ -107,9 +107,12 @@ structure Struct where
   isLinearPreInst?   : Option Expr
   /-- `LawfulOrderLT` instance if available -/
   lawfulOrderLTInst? : Option Expr
+  /-- `id` of the `CommRing` (or `Ring`) structure in the `grind ring` module if available. -/
+  ringId?            : Option Nat
+  /-- `true` if `ringId?` is the Id of a commutative ring -/
+  isCommRing         : Bool
   leFn               : Expr
   ltFn?              : Option Expr
-  -- TODO: offset instances
   /-- Mapping from `NodeId` to the `Expr` represented by the node. -/
   nodes              : PArray Expr := {}
   /-- Mapping from `Expr` to a node representing it. -/

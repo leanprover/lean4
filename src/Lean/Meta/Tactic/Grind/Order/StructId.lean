@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Order.Types
 import Lean.Meta.Tactic.Grind.OrderInsts
+import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 public section
 namespace Lean.Meta.Grind.Order
 
@@ -45,10 +46,16 @@ where
         pure (inst?, some ltFn)
     else
       pure (none, none)
+    let (ringId?, isCommRing) ← if let some ringId ← Arith.CommRing.getCommRingId? type then
+      pure (some ringId, true)
+    else if let some ringId ← Arith.CommRing.getNonCommRingId? type then
+      pure (some ringId, false)
+    else
+      pure (none, false)
     let id := (← get').structs.size
     let struct := {
       id,  type, u, leInst, isPreorderInst, ltInst?, leFn, isPartialInst?
-      isLinearPreInst?, ltFn?, lawfulOrderLTInst?
+      isLinearPreInst?, ltFn?, lawfulOrderLTInst?, ringId?, isCommRing
      }
     modify' fun s => { s with structs := s.structs.push struct }
     return some id

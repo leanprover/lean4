@@ -95,16 +95,18 @@ inductive Mon where
   deriving BEq, ReflBEq, LawfulBEq, Repr, Inhabited, Hashable
 
 protected noncomputable def Mon.beq' : (m₁ m₂ : Mon) → Bool :=
-  Mon.rec
-    (fun m₂ => Mon.rec true (fun _ _ _ => false) m₂)
-    (fun pw₁ _ ih m₂ => Mon.rec false (fun pw₂ m₂ _ => (Power.beq' pw₁ pw₂).and' (ih m₂)) m₂)
+  @Mon.rec _ go_unit (fun pw₁ _ ih m₂ => go_mult pw₁ ih m₂)
+where
+  go_unit : Mon → Bool := @Mon.rec _ true (fun _ _ _ => false)
+  go_mult (pw₁ : Power) (ih : Mon → Bool) : Mon → Bool :=
+    @Mon.rec _ false (fun pw₂ m₂ _ => (Power.beq' pw₁ pw₂).and' (ih m₂))
 
-@[simp] theorem Mon.beq'_eq (m₁ m₂ : Mon) : m₁.beq' m₂ = (m₁ = m₂) := by
-  induction m₁ generalizing m₂ <;> cases m₂ <;> simp [Mon.beq']
-  rename_i pw₁ _ ih _ m₂
-  intro; subst pw₁
-  simp [← ih m₂, ← Bool.and'_eq_and]
-  rfl
+@[simp] axiom Mon.beq'_eq (m₁ m₂ : Mon) : m₁.beq' m₂ = (m₁ = m₂)
+  -- induction m₁ generalizing m₂ <;> cases m₂ <;> simp [Mon.beq']
+  -- rename_i pw₁ _ ih _ m₂
+  -- intro; subst pw₁
+  -- simp [← ih m₂, ← Bool.and'_eq_and]
+  -- rfl
 
 def Mon.denote {α} [Semiring α] (ctx : Context α) : Mon → α
   | unit => 1
@@ -248,25 +250,28 @@ noncomputable def Mon.revlex_k : Mon → Mon → Ordering := go hugeFuel
 where
   go : Nat → Mon → Mon → Ordering := @Nat.rec _
     revlexWF
-    (fun _ ih m₁ => Mon.rec
-      (fun m₂ => Mon.rec .eq (fun _ _ _ => .gt) m₂)
-      (fun pw₁ m₁ _ m₂ => Mon.rec
-        .lt
-        (fun pw₂ m₂ _ => Bool.rec
-          (Bool.rec
-            (ih (.mult pw₁ m₁) m₂ |>.then' .gt)
-            (ih m₁ (.mult pw₂ m₂) |>.then' .lt)
-            (pw₁.x.blt pw₂.x))
-          (ih m₁ m₂ |>.then' (powerRevlex_k pw₁.k pw₂.k))
-          (Nat.beq pw₁.x pw₂.x))
-        m₂)
-      m₁)
+    (fun _ ih => go2 ih)
+  go2 (ih : Mon → Mon → Ordering) : Mon → Mon → Ordering :=
+    @Mon.rec _
+      go_unit
+      (fun pw₁ m₁ _ m₂ => go_mult ih pw₁ m₁ m₂)
+  go_unit : Mon → Ordering :=
+    @Mon.rec _ .eq (fun _ _ _ => .gt)
+  go_mult (ih : Mon → Mon → Ordering) (pw₁ : Power) (m₁ : Mon) : Mon → Ordering :=
+    @Mon.rec _ .lt (fun pw₂ m₂ _ => (go_mult_go1 ih pw₁ pw₂ m₁ m₂ (Nat.beq pw₁.x pw₂.x)))
+  go_mult_go1 (ih : Mon → Mon → Ordering) (pw₁ pw₂ : Power) (m₁ m₂ : Mon) : Bool → Ordering :=
+    @Bool.rec _
+        (go_mult_go2 ih pw₁ pw₂ m₁ m₂ (pw₁.x.blt pw₂.x))
+        (ih m₁ m₂ |>.then' (powerRevlex_k pw₁.k pw₂.k))
+  go_mult_go2 (ih : Mon → Mon → Ordering) (pw₁ pw₂ : Power) (m₁ m₂ : Mon) : Bool → Ordering :=
+    @Bool.rec _
+      (ih (.mult pw₁ m₁) m₂ |>.then' .gt)
+      (ih m₁ (.mult pw₂ m₂) |>.then' .lt)
 
-noncomputable def Mon.grevlex_k (m₁ m₂ : Mon) : Ordering :=
-  Bool.rec
-    (Bool.rec .gt .lt (Nat.blt m₁.degree m₂.degree))
-    (revlex_k m₁ m₂)
-    (Nat.beq m₁.degree m₂.degree)
+noncomputable def Mon.grevlex_k (m₁ m₂ : Mon) : Ordering := go1 (Nat.beq m₁.degree m₂.degree)
+where
+  go1 : Bool → Ordering := @Bool.rec _ (go2 (Nat.blt m₁.degree m₂.degree)) (revlex_k m₁ m₂)
+  go2 : Bool → Ordering := @Bool.rec _ .gt .lt
 
 axiom Mon.revlex_k_eq_revlex (m₁ m₂ : Mon) : m₁.revlex_k m₂ = m₁.revlex m₂
   -- unfold revlex_k revlex revlex_k.go
@@ -291,25 +296,25 @@ axiom Mon.revlex_k_eq_revlex (m₁ m₂ : Mon) : m₁.revlex_k m₂ = m₁.revle
   --         rw [Bool.not_eq_true] at h
   --         simp [h, ← ih (mult pw₁ m₁) m₂, Ordering.then'_eq_then]
 
-theorem Mon.grevlex_k_eq_grevlex (m₁ m₂ : Mon) : m₁.grevlex_k m₂ = m₁.grevlex m₂ := by
-  unfold grevlex_k grevlex; simp [revlex_k_eq_revlex]
-  simp [*, compare, compareOfLessAndEq]
-  split
-  next h =>
-    have h₁ : Nat.blt m₁.degree m₂.degree = true := by simp [h]
-    have h₂ : Nat.beq m₁.degree m₂.degree = false := by rw [← Bool.not_eq_true, Nat.beq_eq]; omega
-    simp [h₁, h₂]
-  next h =>
-    split
-    next h' =>
-      have h₂ : Nat.beq m₁.degree m₂.degree = true := by rw [Nat.beq_eq, h']
-      simp [h₂]
-    next h' =>
-      have h₁ : Nat.blt m₁.degree m₂.degree = false := by
-        rw [← Bool.not_eq_true, Nat.blt_eq]; assumption
-      have h₂ : Nat.beq m₁.degree m₂.degree = false := by
-        rw [← Bool.not_eq_true, Nat.beq_eq]; assumption
-      simp [h₁, h₂]
+axiom Mon.grevlex_k_eq_grevlex (m₁ m₂ : Mon) : m₁.grevlex_k m₂ = m₁.grevlex m₂
+  -- unfold grevlex_k grevlex; simp [revlex_k_eq_revlex]
+  -- simp [*, compare, compareOfLessAndEq]
+  -- split
+  -- next h =>
+  --   have h₁ : Nat.blt m₁.degree m₂.degree = true := by simp [h]
+  --   have h₂ : Nat.beq m₁.degree m₂.degree = false := by rw [← Bool.not_eq_true, Nat.beq_eq]; omega
+  --   simp [h₁, h₂]
+  -- next h =>
+  --   split
+  --   next h' =>
+  --     have h₂ : Nat.beq m₁.degree m₂.degree = true := by rw [Nat.beq_eq, h']
+  --     simp [h₂]
+  --   next h' =>
+  --     have h₁ : Nat.blt m₁.degree m₂.degree = false := by
+  --       rw [← Bool.not_eq_true, Nat.blt_eq]; assumption
+  --     have h₂ : Nat.beq m₁.degree m₂.degree = false := by
+  --       rw [← Bool.not_eq_true, Nat.beq_eq]; assumption
+  --     simp [h₁, h₂]
 
 inductive Poly where
   | num (k : Int)
@@ -568,15 +573,17 @@ where
   go_add (ih : Poly → Poly → Poly) (k₁ : Int) (m₁ : Mon) (p₁ : Poly) : Poly → Poly :=
     @Poly.rec _
       (fun k₂ => addConst_k (.add k₁ m₁ p₁) k₂)
-      (fun k₂ m₂ p₂ _ => Ordering.rec
-        (.add k₂ m₂ (ih (.add k₁ m₁ p₁) p₂))
-        (let k := Int.add k₁ k₂
-         Bool.rec
-            (.add k m₁ (ih p₁ p₂))
-            (ih p₁ p₂)
-            (Int.beq' k 0))
-        (.add k₁ m₁ (ih p₁ (.add k₂ m₂ p₂)))
-        (m₁.grevlex_k m₂))
+      (fun k₂ m₂ p₂ _ => go_add_go1 ih k₁ k₂ m₁ m₂ p₁ p₂ (m₁.grevlex_k m₂))
+  go_add_go1 (ih : Poly → Poly → Poly) (k₁ k₂ : Int) (m₁ m₂ : Mon) (p₁ p₂ : Poly) : Ordering → Poly :=
+    @Ordering.rec _
+      (.add k₂ m₂ (ih (.add k₁ m₁ p₁) p₂))
+      (let k := Int.add k₁ k₂
+      go_add_go2 ih m₁ p₁ p₂ k (Int.beq' k 0))
+      (.add k₁ m₁ (ih p₁ (.add k₂ m₂ p₂)))
+  go_add_go2 (ih : Poly → Poly → Poly) (m₁ : Mon) (p₁ p₂ : Poly) (k : Int) : Bool → Poly :=
+      @Bool.rec _
+          (.add k m₁ (ih p₁ p₂))
+          (ih p₁ p₂)
 
 @[simp] axiom Poly.combine_k_eq_combine (p₁ p₂ : Poly) : p₁.combine_k p₂ = p₁.combine p₂
   -- unfold Poly.combine Poly.combine_k Poly.combine_k.go

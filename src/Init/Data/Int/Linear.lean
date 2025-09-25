@@ -671,7 +671,7 @@ def Poly.isValidEq (p : Poly) : Bool :=
   | _ => false
 
 @[expose] noncomputable def Poly.isUnsatEq_k (p : Poly) : Bool :=
-  Poly.rec (fun k => Bool.not' (Int.beq' k 0)) (fun _ _ _ _ => false) p
+  Poly.rec (fun k => @Bool.not' (Int.beq' k 0)) (fun _ _ _ _ => false) p
 
 theorem eq_eq_false (ctx : Context) (lhs rhs : Expr) : (lhs.sub rhs).norm.isUnsatEq_k → (lhs.denote ctx = rhs.denote ctx) = False := by
   simp [Poly.isUnsatEq_k]; generalize h : (lhs.sub rhs).norm = p

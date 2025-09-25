@@ -418,6 +418,12 @@ def processReferences : RunnerM Unit := do
   }
   logResponse "textDocument/references" p
 
+def processSymbols : RunnerM Unit := do
+  let p : WorkspaceSymbolParams := {
+    query := (← get).params
+  }
+  logResponse "workspace/symbol" p
+
 def processModuleHierarchyImports : RunnerM Unit := do
   let s ← get
   let (moduleHierarchy?, moduleHierarchyRequestNo) ← Ipc.expandModuleHierarchyImports s.requestNo s.uri
@@ -468,6 +474,7 @@ def processDirective (ws directive : String) (directiveTargetLineNo : Nat) : Run
   | "incomingCallHierarchy" => processIncomingCallHierarchy
   | "outgoingCallHierarchy" => processOutgoingCallHierarchy
   | "references" => processReferences
+  | "symbols" => processSymbols
   | "moduleHierarchyImports" => processModuleHierarchyImports
   | "inlayHints" => processInlayHints
   | _ => processGenericRequest

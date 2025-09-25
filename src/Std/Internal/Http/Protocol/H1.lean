@@ -65,7 +65,7 @@ structure Config where
   /--
   The server name
   -/
-  serverName : Option String := some "LeanHTTP/1.1"
+  serverName : Option HeaderValue := some (.new "LeanHTTP/1.1")
 
 /--
 Specific HTTP processing errors with detailed information.
@@ -279,7 +279,7 @@ def setRequest (request : Request.Head) (reader : Reader) : Reader :=
   { reader with request }
 
 @[inline]
-def addHeader (name : String) (value : String) (reader : Reader) : Reader :=
+def addHeader (name : String) (value : HeaderValue) (reader : Reader) : Reader :=
   { reader with request := { reader.request with headers := reader.request.headers.insert name value } }
 
 end Reader
@@ -616,9 +616,9 @@ private def resetForNextRequest (machine : Machine) : Machine :=
 -- Validation of request
 
 private def determineKeepAlive (machine : Machine) : Bool :=
-  let connectionHeader := machine.reader.request.headers.get? "Connection" |>.getD (HashSet.ofList ["keep-alive"])
-  let explicitClose := connectionHeader.contains "close"
-  let explicitKeepAlive := connectionHeader.contains "keep-alive"
+  let connectionHeader := machine.reader.request.headers.getLast? "Connection" |>.getD (.new "keep-alive")
+  let explicitClose := connectionHeader.is "close"
+  let explicitKeepAlive := connectionHeader.is "keep-alive"
 
   if explicitClose then false
   else if explicitKeepAlive then true
@@ -635,18 +635,15 @@ def getRequestSize (req : Request.Head) : Option Body.Length := do
   if req.method == .head ∨ req.method == .connect then
     return .fixed 0
 
-  match (req.headers.getSingle? "Content-Length", req.headers.get? "Transfer-Encoding") with
-  | (some cl, none) => do
-    let num ← cl.toNat?
+  match (req.headers.get? "Content-Length", req.headers.hasEntry "Transfer-Encoding" "chunked") with
+  | (some cl, false) => do
+    let num ← cl.value.toNat?
     some (.fixed num)
-  | (none, some hs) =>
-    if hs.contains "chunked" then
-      some .chunked
-    else
-      some (.fixed 0)
-  | (none, none) =>
+  | (none, false) =>
     some (.fixed 0)
-  | (some _, some _) =>
+  | (none, true) =>
+    some .chunked
+  | (some _, true) =>
     some .chunked
 
 private def processHeaders (machine : Machine) : Machine :=
@@ -675,10 +672,15 @@ def setHeaders (response : Response.Head) (machine : Machine) : Machine :=
     else
       response.headers
 
-  let headers := if let some date := machine.instant then headers.insert "Date" (date.format "EEE, dd MMM yyyy HH:mm:ss 'GMT'")  else  headers
+  let headers :=
+    if let some date := machine.instant then
+      let date := date.format "EEE, dd MMM yyyy HH:mm:ss 'GMT'"
+      headers.insert "Date" (.ofString! date)
+    else
+      headers
 
   let headers := if ¬machine.keepAlive ∨ shouldBreakConnection response.status then
-    headers.insert "Connection" "close"
+    headers.insert "Connection" (.new "close")
   else
     headers
 
@@ -686,8 +688,8 @@ def setHeaders (response : Response.Head) (machine : Machine) : Machine :=
 
   let response := match size with
     | .fixed 0 => response
-    | .fixed n => { response with headers := response.headers.insert "Content-Length" (toString n) }
-    | .chunked => { response with headers := response.headers.insert "Transfer-Encoding" "chunked" }
+    | .fixed n => { response with headers := response.headers.insert "Content-Length" (.ofString! <| toString n) }
+    | .chunked => { response with headers := response.headers.insert "Transfer-Encoding" (.new "chunked") }
 
   let state := match size with
     | .fixed _ => Machine.Writer.State.writingFixedData
@@ -758,9 +760,9 @@ def sendResponse (machine : Machine) (response : Response.Head) : Machine :=
   match machine.writer.state with
   | .waitingHeaders =>
     let machine := machine.modifyWriter ({ · with response, state := .waitingForFlush })
-    let conn := response.headers.getD "Connection"
+    let conn := response.headers.getLast? "Connection" |>.getD (.new "Keep-Alive")
 
-    if conn.contains "close" then
+    if conn.is "close" then
       machine
       |>.closeConnection
       |>.setReaderState .complete
@@ -799,10 +801,13 @@ partial def processRead (machine : Machine) : Machine :=
     else
       if let some result := result then
         if let some (name, value) := result then
-          machine
-          |>.modifyReader (.addHeader name value)
-          |>.setReaderState (.needHeader (headerCount + 1))
-          |>.processRead
+          if let some headerValue := HeaderValue.ofString? value then
+            machine
+            |>.modifyReader (.addHeader name headerValue)
+            |>.setReaderState (.needHeader (headerCount + 1))
+            |>.processRead
+          else
+            machine.setFailure .badRequest .badRequest
         else
           processHeaders machine
       else

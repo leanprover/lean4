@@ -63,7 +63,10 @@ s
  "position": {"line": 5, "character": 2}}
 {"goals":
  [{"type": {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "True"}]},
-   "hyps": []}]}
+   "mvarId": "[anonymous]",
+   "hyps": [],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "1"}}]}
 {"version": 1,
  "uri": "file:///incrementalTactic.lean",
  "diagnostics":

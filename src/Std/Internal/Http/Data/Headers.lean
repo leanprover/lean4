@@ -198,10 +198,22 @@ def insert (headers : Headers) (name : String) (value : HeaderValue) : Headers :
     { data := headers.data.insert key (name, #[value]) }
 
 /--
+Inserts a new key with an array of values.
+-/
+@[inline]
+def insertMany (headers : Headers) (name : String) (value : Array HeaderValue) : Headers :=
+  let key := name.toLower
+
+  if let some (_, headerValue) := headers.data.get? key then
+    { data := headers.data.insert key (name, headerValue ++ value) }
+  else
+    { data := headers.data.insert key (name, value) }
+
+/--
 Creates empty headers.
 -/
 def empty : Headers :=
-  { data := HashMap.emptyWithCapacity }
+  { data := ∅ }
 
 /--
 Creates headers from a list of key-value pairs.
@@ -241,7 +253,7 @@ def isEmpty (headers : Headers) : Bool :=
 Merges two headers, with the second taking precedence for duplicate keys.
 -/
 def merge (headers1 headers2 : Headers) : Headers :=
-  { data := headers2.data.fold (fun acc k v => acc.insert k.toLower v) headers1.data }
+  headers2.data.fold (fun acc k (_, v) => acc.insertMany k v) headers1
 
 instance : ToString Headers where
   toString headers :=

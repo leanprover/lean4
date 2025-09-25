@@ -75,7 +75,7 @@ inductive MsgEmbed where
   | goal : InteractiveGoal → MsgEmbed
   | widget (wi : WidgetInstance) (alt : Widget.TaggedText MsgEmbed)
   | trace (indent : Nat) (cls : Name) (msg : Widget.TaggedText MsgEmbed) (collapsed : Bool)
-    (children : StrictOrLazy (Array (Widget.TaggedText MsgEmbed)) Json)
+    (children : StrictOrLazy (Array (Widget.TaggedText MsgEmbed)) Lsp.RpcRef)
   deriving FromJson, ToJson
 
 abbrev InteractiveDiagnostic := Lsp.DiagnosticWith (Widget.TaggedText MsgEmbed)
@@ -98,6 +98,7 @@ structure GetGoToLocationParams where
   kind : GoToKind
   info : RpcRef
   deriving FromJson, ToJson
+
 end Client
 
 /-! Test-only instances -/
@@ -262,6 +263,21 @@ def skipLineWithoutDirective : RunnerM Unit := modify fun s => { s with
   lineNo := s.lineNo + 1
 }
 
+partial def expandTraces (msg : Client.MsgEmbed) : RunnerM Client.MsgEmbed := do
+  match msg with
+  | .trace indent cls msg _ children =>
+    let children ←
+      match children with
+      | .lazy childrenRef =>
+        rpcRequest `Lean.Widget.lazyTraceChildrenToInteractive childrenRef (Array (Widget.TaggedText Client.MsgEmbed))
+      | .strict children =>
+        pure children
+    let children ← children.mapM fun child =>
+      child.mapM expandTraces
+    return .trace indent cls msg false (.strict children)
+  | _ =>
+    return msg
+
 def processEdit : RunnerM Unit := do
   let s ← get
   if ! s.synced then
@@ -334,14 +350,21 @@ def processCodeAction : RunnerM Unit := do
     logResponse "codeAction/resolve" x (logParam := false)
 
 def processInteractiveDiagnostics : RunnerM Unit := do
+  let isExpandTraces := (← get).params == "expandTraces"
   let params : Widget.GetInteractiveDiagnosticsParams := {
     lineRange? := some ⟨0, (← get).pos.line + 1⟩
   }
   printOutputLn (toJson params)
   let r ← rpcRequest `Lean.Widget.getInteractiveDiagnostics params (Array Client.InteractiveDiagnostic)
   let r := Client.normalizeInteractiveDiagnostics r
+  if ! isExpandTraces then
+    printOutputLn (toJson r)
+    return
+  let r ← r.mapM fun diag => do
+    return { diag with
+      message := ← diag.message.mapM expandTraces
+    }
   printOutputLn (toJson r)
-
 
 def processGoals : RunnerM Unit := do
   let withPopups := (← get).params == "withPopups"

@@ -15,7 +15,7 @@ import Lake.DSL.Extensions
 import Lake.DSL.Attributes
 import Lake.Load.Config
 import Lake.Build.Trace
-import Lake.Util.Log
+import Lake.Util.JsonObject
 
 /-! # Lean Configuration Elaborator
 
@@ -261,17 +261,28 @@ public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
     else
       h.lock (exclusive := false)
       let contents ← h.readToEnd
-      let .ok (trace : ConfigTrace) := Json.parse contents >>= fromJson?
-        | error "compiled configuration is invalid; run with '-R' to reconfigure"
-      let upToDate :=
-        (← olean.pathExists) ∧ trace.name = cfg.pkgName ∧ trace.configHash = configHash ∧
-        trace.platform = System.Platform.target ∧ trace.leanHash = cfg.lakeEnv.leanGithash
-      if upToDate then
-        let env ← importConfigFileCore olean cfg.leanOpts
-        h.unlock
-        return env
-      else
-        elabConfig (← acquireTrace h) trace.options
+      let errMsg := "compiled configuration is invalid; run with '-R' to reconfigure"
+      match Json.parse contents with
+      | .ok json =>
+        match fromJson? json with
+        | .ok (trace : ConfigTrace) =>
+          let upToDate :=
+            (← olean.pathExists) ∧ trace.name = cfg.pkgName ∧ trace.configHash = configHash ∧
+            trace.platform = System.Platform.target ∧ trace.leanHash = cfg.lakeEnv.leanGithash
+          if upToDate then
+            let env ← importConfigFileCore olean cfg.leanOpts
+            h.unlock
+            return env
+          else
+            elabConfig (← acquireTrace h) trace.options
+        | .error _ => -- trace has unexpected format, try to just read the one necessary field
+          match JsonObject.fromJson? json >>= (·.get "options") with
+          | .ok (opts : NameMap String) =>
+            elabConfig (← acquireTrace h) opts
+          | .error _ =>
+            error errMsg
+      | .error _ =>
+        error errMsg
   if (← traceFile.pathExists) then
     validateTrace <| ← IO.FS.Handle.mk traceFile .read
   else

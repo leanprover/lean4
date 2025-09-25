@@ -353,8 +353,6 @@ static inline lean_object * lean_alloc_small_object(unsigned sz) {
 #else
     lean_inc_heartbeat();
 #ifdef LEAN_MIMALLOC
-    // HACK: emulate behavior of small allocator to avoid `leangz` breakage for now
-    sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
     void * mem = mi_malloc_small(sz);
     if (mem == 0) lean_internal_panic_out_of_memory();
     lean_object * o = (lean_object*)mem;
@@ -390,12 +388,7 @@ static inline lean_object * lean_alloc_ctor_memory(unsigned sz) {
     }
     return r;
 #elif defined(LEAN_MIMALLOC)
-    unsigned sz1 = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
     lean_object* r = lean_alloc_small_object(sz);
-    if (sz1 > sz) {
-        size_t * end = (size_t*)(((char*)r) + sz1);
-        end[-1] = 0;
-    }
     return r;
 #else
     return lean_alloc_small_object(sz);

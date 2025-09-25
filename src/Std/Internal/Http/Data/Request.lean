@@ -86,7 +86,7 @@ instance : ToString Head where
 Determines if a request method typically doesn't allow a request body
 -/
 @[inline]
-def isInformational (request : Head) : Prop :=
+def isInformational (request : Head) : Bool :=
   ¬request.method.allowsRequestBody
 
 /--
@@ -166,15 +166,6 @@ def html (builder : Builder) (body : String) : Request Body :=
   builder
     |>.header "Content-Type" (.new "text/html; charset=utf-8")
     |>.body (body.toUTF8 |> Body.bytes)
-
-/--
-Builds and returns the final HTTP Request with form-encoded data
--/
-def form (builder : Builder) (formData : List (String × String)) : Request Body :=
-  let encoded := formData.map (fun (k, v) => k ++ "=" ++ v) |>.foldl (· ++ "&" ++ ·) ""
-  builder
-    |>.header "Content-Type" (.new "application/x-www-form-urlencoded")
-    |>.body (encoded.toUTF8 |> Body.bytes)
 
 end Builder
 

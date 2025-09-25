@@ -19,7 +19,7 @@ open Std.Internal.Async.IO
 open Std.Internal.IO.Async
 
 /-!
-This module provides `StreamMap`, a container that maps string keys to async streams.
+This module provides `StreamMap`, a container that maps keys to async streams.
 It allows for dynamic management of multiple named streams with async operations.
 -/
 
@@ -39,8 +39,8 @@ instance [AsyncStream t α] : CoeDep t x (AnyAsyncStream α) where
   coe := AnyAsyncStream.mk x
 
 /--
-A map container that associates string keys with async streams.
-Provides operations for adding, removing, and selecting from multiple streams.
+A container that maps keys to async streams, enabling dynamic stream management
+and unified selection operations across multiple named data sources.
 -/
 structure StreamMap (α : Type) (β : Type) where
   private mk ::

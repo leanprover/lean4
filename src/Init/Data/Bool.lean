@@ -698,10 +698,8 @@ but may be used locally.
 
 /-! ### Proof by reflection support  -/
 
-@[expose] protected noncomputable def Bool.and' (a b : Bool) : Bool :=
-  go a
-where
-  go : Bool → Bool := @Bool.rec _ false b
+@[expose] protected noncomputable def Bool.and' : (a b : Bool) → Bool :=
+  @Bool.rec _ (fun _ => false) (fun b => b)
 
 @[expose] protected noncomputable def Bool.or' (a b : Bool) : Bool :=
   go a

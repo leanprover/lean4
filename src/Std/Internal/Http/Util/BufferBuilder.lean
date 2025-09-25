@@ -50,7 +50,10 @@ Turn the combined structure into a single contiguous ByteArray.
 -/
 @[inline]
 def toByteArray (c : BufferBuilder) : ByteArray :=
-  c.data.foldl (· ++ ·) (.emptyWithCapacity c.size)
+  if h : 1 = c.data.size then
+    c.data[0]'(Nat.lt_of_le_of_lt (Nat.le_refl 0) ( Nat.le_of_eq h))
+  else
+    c.data.foldl (· ++ ·) (.emptyWithCapacity c.size)
 
 /--
 Build from a ByteArray directly.

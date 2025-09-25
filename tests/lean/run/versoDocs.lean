@@ -285,6 +285,34 @@ Examples:
 def somethingElse := ()
 
 /--
+error: Unknown attribute `int`
+
+Hint: Use a known attribute:
+  • ini̲t
+  • i̵n̵e̲x̲t
+---
+error: Unknown attribute `samp`
+
+Hint: Use a known attribute:
+  • s̵a̵m̵p̵s̲i̲m̲p̲
+  • s̵a̵m̵p̵s̲y̲m̲m̲
+  • s̵a̵m̵p̵c̲s̲i̲m̲p̲
+---
+error: Unknown attribute `inlone`
+
+Hint: Use a known attribute:
+  • i̵n̵l̵o̵n̵e̵i̲n̲l̲i̲n̲e̲
+  • inl̵o̵n̵e̵i̲t̲
+-/
+#guard_msgs in
+/--
+Suggestions are as well.
+ * {attr}`int`
+ * {attr}`@[samp, inlone]`
+-/
+def otherAttr := ()
+
+/--
 Options control Lean.
 Examples:
  * Use the {option}`pp.all` to control showing all the details
@@ -449,6 +477,33 @@ Hint: Insert a role to document it:
 `Lean.Data.Json.Basic`
 -/
 def moduleSuggestionTest := ()
+
+/-!
+These are tests for the current workarounds for intra-module forward references.
+-/
+
+-- Saves the docs as text, then causes them to be elaborated later:
+set_option doc.verso false
+/--
+Less than {name}`seven`.
+-/
+def five : Nat := 5
+set_option doc.verso true
+
+-- For this one, the docs are just added later.
+def four : Nat := 4
+
+/--
+More than {name}`five`.
+-/
+def seven : Nat := 7
+
+docs_to_verso five
+
+/--
+Less than {name}`seven`.
+-/
+add_decl_doc four
 
 /-
 TODO test:

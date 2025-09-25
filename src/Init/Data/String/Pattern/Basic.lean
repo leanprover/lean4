@@ -38,7 +38,7 @@ inductive SearchStep (s : Slice) where
   The subslice starting at {name}`startPos` and ending at {name}`endPos` did not match the pattern.
   -/
   | matched (startPos endPos : s.Pos)
-  deriving Inhabited
+deriving Inhabited
 
 /--
 Provides a conversion from a pattern to an iterator of {name}`SearchStep` searching for matches of
@@ -75,8 +75,9 @@ class ForwardPattern (ρ : Type) where
 namespace Internal
 
 @[extern "lean_slice_memcmp"]
-def memcmp (lhs rhs : Slice) (lstart : String.Pos) (rstart : String.Pos) (len : String.Pos)
-    (h1 : lstart + len ≤ lhs.utf8ByteSize) (h2 : rstart + len ≤ rhs.utf8ByteSize) : Bool :=
+def memcmp (lhs rhs : @& Slice) (lstart : @& String.Pos) (rstart : @& String.Pos)
+    (len : @& String.Pos) (h1 : lstart + len ≤ lhs.utf8ByteSize)
+    (h2 : rstart + len ≤ rhs.utf8ByteSize) : Bool :=
   go 0
 where
   go (curr : String.Pos) : Bool :=

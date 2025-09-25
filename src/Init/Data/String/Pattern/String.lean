@@ -25,7 +25,7 @@ inductive ForwardSliceSearcher (s : Slice) where
   | empty (pos : s.Pos)
   | proper (needle : Slice) (table : Array String.Pos) (stackPos : String.Pos) (needlePos : String.Pos)
   | atEnd
-  deriving Inhabited
+deriving Inhabited
 
 namespace ForwardSliceSearcher
 
@@ -256,7 +256,6 @@ def endsWith (s : Slice) (pat : Slice) : Bool :=
 @[inline]
 def dropSuffix? (s : Slice) (pat : Slice) : Option Slice :=
   if endsWith s pat then
-    -- SAFETY: Same as dropPrefix?
     some <| s.replaceEnd <| s.pos! <| s.endPos.offset - pat.utf8ByteSize
   else
     none

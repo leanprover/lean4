@@ -69,7 +69,7 @@ instance : BEq Slice where
   beq := beq
 
 @[extern "lean_slice_hash"]
-opaque hash (s : Slice) : UInt64
+opaque hash (s : @& Slice) : UInt64
 
 instance : Hashable Slice where
   hash := hash
@@ -78,8 +78,8 @@ instance : LT Slice where
   lt x y := x.copy < y.copy
 
 @[extern "lean_slice_dec_lt"]
-instance : DecidableLT Slice :=
-  fun x y => inferInstanceAs (Decidable (x.copy < y.copy))
+instance (x y : @& Slice) : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.copy < y.copy))
 
 instance : Ord Slice where
   compare x y := compareOfLessAndBEq x y
@@ -116,7 +116,7 @@ def startsWith [ForwardPattern ρ] (s : Slice) (pat : ρ) : Bool :=
 inductive SplitIterator (ρ : Type) [ToForwardSearcher ρ σ] where
   | operating (s : Slice) (currPos : s.Pos) (searcher : Std.Iter (α := σ s) (SearchStep s))
   | atEnd
-  deriving Inhabited
+deriving Inhabited
 
 namespace SplitIterator
 
@@ -165,6 +165,8 @@ Examples:
  * {lean}`("coffee tea water".toSlice.split Char.isWhitespace).allowNontermination.toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]`
  * {lean}`("coffee tea water".toSlice.split ' ').allowNontermination.toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]`
  * {lean}`("coffee tea water".toSlice.split " tea ").allowNontermination.toList == ["coffee".toSlice, "water".toSlice]`
+ * {lean}`("ababababa".toSlice.split "aba").allowNontermination.toList == ["coffee".toSlice, "water".toSlice]`
+ * {lean}`("baaab".toSlice.split "aa").allowNontermination.toList == ["b".toSlice, "ab".toSlice]`
 -/
 @[specialize pat]
 def split [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) : Std.Iter (α := SplitIterator ρ) Slice :=
@@ -173,7 +175,7 @@ def split [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) : Std.Iter (α := Spl
 inductive SplitInclusiveIterator (ρ : Type) [ToForwardSearcher ρ σ] where
   | operating (s : Slice) (currPos : s.Pos) (searcher : Std.Iter (α := σ s) (SearchStep s))
   | atEnd
-  deriving Inhabited
+deriving Inhabited
 
 namespace SplitInclusiveIterator
 
@@ -227,6 +229,7 @@ Examples:
  * {lean}`("coffee tea water".toSlice.splitInclusive Char.isWhitespace).allowNontermination.toList == ["coffee ".toSlice, "tea ".toSlice, "water".toSlice]`
  * {lean}`("coffee tea water".toSlice.splitInclusive ' ').allowNontermination.toList == ["coffee ".toSlice, "tea ".toSlice, "water".toSlice]`
  * {lean}`("coffee tea water".toSlice.splitInclusive " tea ").allowNontermination.toList == ["coffee tea ".toSlice, "water".toSlice]`
+ * {lean}`("baaab".toSlice.splitInclusive "aa").allowNontermination.toList == ["baa".toSlice, "ab".toSlice]`
 -/
 @[specialize pat]
 def splitInclusive [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) :
@@ -446,7 +449,7 @@ def endsWith [BackwardPattern ρ] (s : Slice) (pat : ρ) : Bool :=
 inductive RevSplitIterator (ρ : Type) [ToBackwardSearcher ρ σ] where
   | operating (s : Slice) (currPos : s.Pos) (searcher : Std.Iter (α := σ s) (SearchStep s))
   | atEnd
-  deriving Inhabited
+deriving Inhabited
 
 namespace RevSplitIterator
 
@@ -701,7 +704,7 @@ where
 structure CharIterator where
   s : Slice
   currPos : s.Pos
-  deriving Inhabited
+deriving Inhabited
 
 set_option doc.verso false
 /--
@@ -777,7 +780,7 @@ end CharIterator
 structure RevCharIterator where
   s : Slice
   currPos : s.Pos
-  deriving Inhabited
+deriving Inhabited
 
 set_option doc.verso false
 /--
@@ -854,26 +857,27 @@ end RevCharIterator
 
 structure PosIterator (s : Slice) where
   currPos : s.Pos
-  deriving Inhabited
+deriving Inhabited
 
 set_option doc.verso false
 /--
 Creates and iterator over all valid positions within {name}`s`.
 
 Examples
- * {lean}`("abc".toSlice.positions.map (·.get!) |>.toList) = ['a', 'b', 'c']`
- * {lean}`("abc".toSlice.positions.map (·.offset.byteIdx) |>.toList) = [0, 1, 2]`
- * {lean}`("ab∀c".toSlice.positions.map (·.get!) |>.toList) = ['a', 'b', '∀', 'c']`
- * {lean}`("ab∀c".toSlice.positions.map (·.offset.byteIdx) |>.toList) = [0, 1, 2, 5]`
+ * {lean}`("abc".toSlice.positions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['a', 'b', 'c']`
+ * {lean}`("abc".toSlice.positions.map (·.val.offset.byteIdx) |>.toList) = [0, 1, 2]`
+ * {lean}`("ab∀c".toSlice.positions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['a', 'b', '∀', 'c']`
+ * {lean}`("ab∀c".toSlice.positions.map (·.val.offset.byteIdx) |>.toList) = [0, 1, 2, 5]`
 -/
-def positions (s : Slice) : Std.Iter (α := PosIterator s) s.Pos :=
+def positions (s : Slice) : Std.Iter (α := PosIterator s) { p : s.Pos // p ≠ s.endPos } :=
   { internalState := { currPos := s.startPos }}
 
 set_option doc.verso true
 
 namespace PosIterator
 
-instance [Pure m] : Std.Iterators.Iterator (PosIterator s) m s.Pos where
+instance [Pure m] :
+    Std.Iterators.Iterator (PosIterator s) m { p : s.Pos // p ≠ s.endPos } where
   IsPlausibleStep it
     | .yield it' out =>
       ∃ h : it.internalState.currPos ≠ s.endPos,
@@ -885,7 +889,7 @@ instance [Pure m] : Std.Iterators.Iterator (PosIterator s) m s.Pos where
     if h : currPos = s.endPos then
       pure ⟨.done, by simp [h]⟩
     else
-      pure ⟨.yield ⟨⟨currPos.next h⟩⟩ currPos, by simp [h]⟩
+      pure ⟨.yield ⟨⟨currPos.next h⟩⟩ ⟨currPos, h⟩, by simp [h]⟩
 
 private def finitenessRelation [Pure m] :
     Std.Iterators.FinitenessRelation (PosIterator s) m where
@@ -927,7 +931,7 @@ end PosIterator
 
 structure RevPosIterator (s : Slice) where
   currPos : s.Pos
-  deriving Inhabited
+deriving Inhabited
 
 set_option doc.verso false
 /--
@@ -935,19 +939,20 @@ Creates and iterator over all valid positions within {name}`s`, starting from th
 position and iterating towards the first one.
 
 Examples
- * {lean}`("abc".toSlice.revPositions.map (·.get!) |>.toList) = ['c', 'b', 'a']`
- * {lean}`("abc".toSlice.revPositions.map (·.offset.byteIdx) |>.toList) = [2, 1, 0]`
- * {lean}`("ab∀c".toSlice.revPositions.map (·.get!) |>.toList) = ['c', '∀', 'b', 'a']`
- * {lean}`("ab∀c".toSlice.revPositions.map (·.offset.byteIdx) |>.toList) = [5, 2, 1, 0]`
+ * {lean}`("abc".toSlice.revPositions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['c', 'b', 'a']`
+ * {lean}`("abc".toSlice.revPositions.map (·.val.offset.byteIdx) |>.toList) = [2, 1, 0]`
+ * {lean}`("ab∀c".toSlice.revPositions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['c', '∀', 'b', 'a']`
+ * {lean}`("ab∀c".toSlice.revPositions.map (·.val.offset.byteIdx) |>.toList) = [5, 2, 1, 0]`
 -/
-def revPositions (s : Slice) : Std.Iter (α := RevPosIterator s) s.Pos :=
+def revPositions (s : Slice) : Std.Iter (α := RevPosIterator s) { p : s.Pos // p ≠ s.endPos } :=
   { internalState := { currPos := s.endPos }}
 
 set_option doc.verso true
 
 namespace RevPosIterator
 
-instance [Pure m] : Std.Iterators.Iterator (RevPosIterator s) m s.Pos where
+instance [Pure m] :
+    Std.Iterators.Iterator (RevPosIterator s) m { p : s.Pos // p ≠ s.endPos } where
   IsPlausibleStep it
     | .yield it' out =>
       ∃ h : it.internalState.currPos ≠ s.startPos,
@@ -960,7 +965,7 @@ instance [Pure m] : Std.Iterators.Iterator (RevPosIterator s) m s.Pos where
       pure ⟨.done, by simp [h]⟩
     else
       let prevPos := currPos.prev h
-      pure ⟨.yield ⟨⟨prevPos⟩⟩ prevPos, by simp [h, prevPos]⟩
+      pure ⟨.yield ⟨⟨prevPos⟩⟩ ⟨prevPos, Pos.prev_ne_endPos⟩, by simp [h, prevPos]⟩
 
 private def finitenessRelation [Pure m] :
     Std.Iterators.FinitenessRelation (RevPosIterator s) m where
@@ -1003,7 +1008,7 @@ end RevPosIterator
 structure ByteIterator where
   s : Slice
   offset : String.Pos
-  deriving Inhabited
+deriving Inhabited
 
 set_option doc.verso false
 /--
@@ -1193,21 +1198,7 @@ Examples:
 -/
 @[inline]
 def foldl {α : Type u} (f : α → Char → α) (init : α) (s : Slice) : α :=
-  go init f s s.startPos
-where
-  @[specialize]
-  go (acc : α) (f : α → Char → α) (s : Slice) (curr : s.Pos) : α :=
-    if h : curr = s.endPos then
-      acc
-    else
-      let c := curr.get h
-      go (f acc c) f s (curr.next h)
-  termination_by s.endPos.offset.byteIdx - curr.offset.byteIdx
-  decreasing_by
-    have := Char.utf8Size_pos (curr.get h)
-    have h2 := curr.isValidForSlice.le_utf8ByteSize
-    simp [Pos.ext_iff, String.Pos.ext_iff, String.Pos.le_iff] at h h2 ⊢
-    omega
+  Std.Iterators.Iter.fold f init (chars s)
 
 /--
 Folds a function over a slice from the end, accumulating a value starting with {name}`init`. The
@@ -1220,18 +1211,7 @@ Examples:
 -/
 @[inline]
 def foldr {α : Type u} (f : Char → α → α) (init : α) (s : Slice) : α :=
-  go init f s s.endPos
-where
-  @[specialize]
-  go (acc : α) (f : Char → α → α) (s : Slice) (curr : s.Pos) : α :=
-    if h : curr = s.startPos then
-      acc
-    else
-      let nextPos := curr.prev h
-      let c := nextPos.get Pos.prev_ne_endPos
-      go (f c acc) f s nextPos
-  termination_by curr.offset.byteIdx
-  decreasing_by exact Pos.offset_prev_lt_offset
+  Std.Iterators.Iter.fold (flip f) init (revChars s)
 
 /--
 Checks whether the slice can be interpreted as the decimal representation of a natural number.

@@ -24,7 +24,7 @@ namespace String.Slice.Pattern
 structure ForwardCharPredSearcher (s : Slice) where
   currPos : s.Pos
   needle : Char → Bool
-  deriving Inhabited
+deriving Inhabited
 
 namespace ForwardCharPredSearcher
 
@@ -94,7 +94,7 @@ end ForwardCharPredSearcher
 structure BackwardCharPredSearcher (s : Slice) where
   currPos : s.Pos
   needle : Char → Bool
-  deriving Inhabited
+deriving Inhabited
 
 namespace BackwardCharPredSearcher
 

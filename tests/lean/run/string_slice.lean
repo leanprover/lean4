@@ -22,11 +22,13 @@ Tests for `String.Slice` functions
 #guard ("coffee tea water".toSlice.split Char.isWhitespace).allowNontermination.toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]
 #guard ("coffee tea water".toSlice.split ' ').allowNontermination.toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]
 #guard ("coffee tea water".toSlice.split " tea ").allowNontermination.toList == ["coffee".toSlice, "water".toSlice]
+#guard ("baaab".toSlice.split "aa").allowNontermination.toList == ["b".toSlice, "ab".toSlice]
 
 #guard ("coffee tea water".toSlice.splitInclusive Char.isWhitespace).allowNontermination.toList == ["coffee ".toSlice, "tea ".toSlice, "water".toSlice]
 #guard ("coffee tea water".toSlice.splitInclusive ' ').allowNontermination.toList == ["coffee ".toSlice, "tea ".toSlice, "water".toSlice]
 #guard ("coffee tea water".toSlice.splitInclusive " tea ").allowNontermination.toList == ["coffee tea ".toSlice, "water".toSlice]
 #guard ("a".toSlice.splitInclusive (fun (_ : Char) => true)).allowNontermination.toList == ["a".toSlice]
+#guard ("baaab".toSlice.splitInclusive "aa").allowNontermination.toList == ["baa".toSlice, "ab".toSlice]
 
 #guard "red green blue".toSlice.drop 4 == "green blue".toSlice
 #guard "red green blue".toSlice.drop 10 == "blue".toSlice
@@ -140,15 +142,15 @@ Tests for `String.Slice` functions
 #guard "abc".toSlice.revChars.toList = ['c', 'b', 'a']
 #guard "ab∀c".toSlice.revChars.toList = ['c', '∀', 'b', 'a']
 
-#guard ("abc".toSlice.positions.map (·.get!) |>.toList) = ['a', 'b', 'c']
-#guard ("abc".toSlice.positions.map (·.offset.byteIdx) |>.toList) = [0, 1, 2]
-#guard ("ab∀c".toSlice.positions.map (·.get!) |>.toList) = ['a', 'b', '∀', 'c']
-#guard ("ab∀c".toSlice.positions.map (·.offset.byteIdx) |>.toList) = [0, 1, 2, 5]
+#guard ("abc".toSlice.positions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['a', 'b', 'c']
+#guard ("abc".toSlice.positions.map (·.val.offset.byteIdx) |>.toList) = [0, 1, 2]
+#guard ("ab∀c".toSlice.positions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['a', 'b', '∀', 'c']
+#guard ("ab∀c".toSlice.positions.map (·.val.offset.byteIdx) |>.toList) = [0, 1, 2, 5]
 
-#guard ("abc".toSlice.revPositions.map (·.get!) |>.toList) = ['c', 'b', 'a']
-#guard ("abc".toSlice.revPositions.map (·.offset.byteIdx) |>.toList) = [2, 1, 0]
-#guard ("ab∀c".toSlice.revPositions.map (·.get!) |>.toList) = ['c', '∀', 'b', 'a']
-#guard ("ab∀c".toSlice.revPositions.map (·.offset.byteIdx) |>.toList) = [5, 2, 1, 0]
+#guard ("abc".toSlice.revPositions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['c', 'b', 'a']
+#guard ("abc".toSlice.revPositions.map (·.val.offset.byteIdx) |>.toList) = [2, 1, 0]
+#guard ("ab∀c".toSlice.revPositions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['c', '∀', 'b', 'a']
+#guard ("ab∀c".toSlice.revPositions.map (·.val.offset.byteIdx) |>.toList) = [5, 2, 1, 0]
 
 #guard "abc".toSlice.bytes.toList = [97, 98, 99]
 #guard "ab∀c".toSlice.bytes.toList = [97, 98, 226, 136, 128, 99]

@@ -23,7 +23,7 @@ namespace String.Slice.Pattern
 structure ForwardCharSearcher (s : Slice) where
   currPos : s.Pos
   needle : Char
-  deriving Inhabited
+deriving Inhabited
 
 namespace ForwardCharSearcher
 
@@ -92,7 +92,7 @@ end ForwardCharSearcher
 structure BackwardCharSearcher (s : Slice) where
   currPos : s.Pos
   needle : Char
-  deriving Inhabited
+deriving Inhabited
 
 namespace BackwardCharSearcher
 

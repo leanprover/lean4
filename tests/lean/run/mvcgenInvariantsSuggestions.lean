@@ -14,8 +14,8 @@ def mySum (l : List Nat) : Nat := Id.run do
 
 /--
 info: Try this:
-  invariants
-    · ⇓⟨xs, acc⟩ => _
+  [apply] invariants
+  · ⇓⟨xs, acc⟩ => _
 -/
 #guard_msgs (info) in
 theorem mySum_suggest_invariant (l : List Nat) : mySum l = l.sum := by
@@ -34,8 +34,8 @@ def nodup (l : List Int) : Bool := Id.run do
 
 /--
 info: Try this:
-  invariants
-    · Invariant.withEarlyReturn (onReturn := fun r acc => _) (onContinue := fun xs acc => _)
+  [apply] invariants
+  · Invariant.withEarlyReturn (onReturn := fun r acc => _) (onContinue := fun xs acc => _)
 -/
 #guard_msgs (info) in
 theorem nodup_suggest_invariant (l : List Int) : nodup l ↔ l.Nodup := by
@@ -59,9 +59,9 @@ def nodup_twice (l : List Int) : Bool := Id.run do
 
 /--
 info: Try this:
-  invariants
-    · Invariant.withEarlyReturn (onReturn := fun r acc => _) (onContinue := fun xs acc => _)
-    · Invariant.withEarlyReturn (onReturn := fun r acc => _) (onContinue := fun xs acc => _)
+  [apply] invariants
+  · Invariant.withEarlyReturn (onReturn := fun r acc => _) (onContinue := fun xs acc => _)
+  · Invariant.withEarlyReturn (onReturn := fun r acc => _) (onContinue := fun xs acc => _)
 -/
 #guard_msgs (info) in
 theorem nodup_twice_suggest_invariant (l : List Int) : nodup_twice l ↔ l.Nodup := by
@@ -91,8 +91,8 @@ def mkFreshN (n : Nat) : AppM (List Nat) := do
 
 /--
 info: Try this:
-  invariants
-    · ⇓⟨xs, acc⟩ => _
+  [apply] invariants
+  · ⇓⟨xs, acc⟩ => _
 -/
 #guard_msgs (info) in
 theorem mkFreshN_suggest_invariant (n : Nat) : ⦃⌜True⌝⦄ mkFreshN n ⦃⇓ r => ⌜r.Nodup⌝⦄ := by
@@ -109,8 +109,8 @@ def mkFreshN_early_return (n : Nat) : AppM (List Nat) := do
 
 /--
 info: Try this:
-  invariants
-    · Invariant.withEarlyReturn (onReturn := fun r acc => _) (onContinue := fun xs acc => _)
+  [apply] invariants
+  · Invariant.withEarlyReturn (onReturn := fun r acc => _) (onContinue := fun xs acc => _)
 -/
 #guard_msgs (info) in
 theorem mkFreshN_early_return_suggest_invariant (n : Nat) : ⦃⌜True⌝⦄ mkFreshN_early_return n ⦃⇓ r => ⌜r.Nodup⌝⦄ := by
@@ -124,8 +124,8 @@ def earlyReturnWithoutLetMut (l : List Int) : Bool := Id.run do
 
 /--
 info: Try this:
-  invariants
-    · Invariant.withEarlyReturn (onReturn := fun r acc => _) (onContinue := fun xs acc => _)
+  [apply] invariants
+  · Invariant.withEarlyReturn (onReturn := fun r acc => _) (onContinue := fun xs acc => _)
 -/
 #guard_msgs (info) in
 theorem earlyReturnWithoutLetMut_suggest_invariant (l : List Int) : earlyReturnWithoutLetMut l := by
@@ -146,8 +146,8 @@ def notQuiteEarlyReturn (l : List Nat) : Option Nat := Id.run do
 
 /--
 info: Try this:
-  invariants
-    · ⇓⟨xs, acc⟩ => _
+  [apply] invariants
+  · ⇓⟨xs, acc⟩ => _
 -/
 #guard_msgs (info) in
 theorem notQuiteEarlyReturn_suggest_invariant (l : List Nat) : notQuiteEarlyReturn l = l.getLast? := by
@@ -169,8 +169,8 @@ def polyMonad [Monad m] (l : List Nat) : m (Option Nat) := do
 
 /--
 info: Try this:
-  invariants
-    · ⇓⟨xs, acc⟩ => _
+  [apply] invariants
+  · ⇓⟨xs, acc⟩ => _
 -/
 #guard_msgs (info) in
 theorem polyMonad_suggest_invariant [Monad m] [WPMonad m ps] (l : List Nat) : ⦃⌜True⌝⦄ @polyMonad m _ l ⦃⇓ r => ⌜True⌝⦄ := by

@@ -21,7 +21,7 @@ attribute [grind =] List.getElem?_cons_zero in
 
 /--
 info: Try this:
-  grind only [= List.getElem?_eq_none, = List.getElem?_replicate, = List.getElem?_eq_getElem]
+  [apply] grind only [= List.getElem?_eq_none, = List.getElem?_replicate, = List.getElem?_eq_getElem]
 -/
 #guard_msgs (info) in
 theorem getElem?_replicate' : (List.replicate n a)[m]? = if m < n then some a else none := by
@@ -29,7 +29,7 @@ theorem getElem?_replicate' : (List.replicate n a)[m]? = if m < n then some a el
 
 /--
 info: Try this:
-  grind only [= List.length_cons]
+  [apply] grind only [= List.length_cons]
 -/
 #guard_msgs (info) in
 example : 0 < (x :: t).length := by
@@ -38,9 +38,9 @@ example : 0 < (x :: t).length := by
 attribute [grind ext] List.ext_getElem?
 /--
 info: Try this:
-  grind only [= List.getElem?_eq_some_iff, = List.length_replicate, = List.getElem?_eq_none,
-      = List.getElem_replicate, = Option.map_some, = Option.map_none, = List.getElem?_replicate,
-      = List.getElem?_eq_getElem, = List.getElem?_map]
+  [apply] grind only [= List.getElem?_eq_some_iff, = List.length_replicate, = List.getElem?_eq_none,
+    = List.getElem_replicate, = Option.map_some, = Option.map_none, = List.getElem?_replicate,
+    = List.getElem?_eq_getElem, = List.getElem?_map]
 -/
 #guard_msgs (info) in
 theorem map_replicate' : (List.replicate n a).map f = List.replicate n (f a) := by
@@ -48,7 +48,7 @@ theorem map_replicate' : (List.replicate n a).map f = List.replicate n (f a) := 
 
 /--
 info: Try this:
-  grind only [= List.getLast?_eq_some_iff, ← List.mem_concat_self]
+  [apply] grind only [= List.getLast?_eq_some_iff, ← List.mem_concat_self]
 -/
 #guard_msgs (info) in
 theorem mem_of_getLast?_eq_some' {xs : List α} {a : α} (h : xs.getLast? = some a) : a ∈ xs := by
@@ -60,7 +60,7 @@ theorem mem_of_getLast?_eq_some' {xs : List α} {a : α} (h : xs.getLast? = some
 
 /--
 info: Try this:
-  grind only
+  [apply] grind only
 -/
 #guard_msgs (info) in
 example : x = 0 → f x = 1 := by
@@ -71,7 +71,7 @@ attribute [grind] f
 
 /--
 info: Try this:
-  grind only [f]
+  [apply] grind only [f]
 -/
 #guard_msgs (info) in
 example : x = 0 → f x = 1 := by
@@ -85,7 +85,7 @@ grind_pattern gthm => g (g x)
 
 /--
 info: Try this:
-  grind only [usr gthm]
+  [apply] grind only [usr gthm]
 -/
 #guard_msgs (info) in
 example : g (g (g x)) = g x := by

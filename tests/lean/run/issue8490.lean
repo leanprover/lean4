@@ -14,7 +14,7 @@ inductive_fixpoint
 
 /--
 info: Try this:
-  simp_all only [asimp_const, reduceCtorEq]
+  [apply] simp_all only [asimp_const, reduceCtorEq]
 -/
 #guard_msgs in
 example (x y : Aexp) (k : Int) (h : asimp_const (.val k) = x.plus y) : optimal' x := by

@@ -42,6 +42,10 @@ private theorem toInt8Mono_add_one {a : UInt8} :
     a.toInt8Mono + 1 = (a + 1).toInt8Mono := by
   sorry
 
+private theorem toInt8Mono_add {a : UInt8} {k : Nat}
+    (h : a.toInt8Mono.toInt + ↑k ≤ Int8.maxValue.toInt) :
+    (a + (UInt8.ofNat k)).toInt8Mono = a.toInt8Mono + (Int8.ofInt ↑k) := by
+  sorry
 
 namespace Int8
 
@@ -56,23 +60,39 @@ private theorem succ?_toInt8Mono {x : UInt8} :
   simp [succ?]
   split <;> rename_i h
   · rw [if_pos]
-    · simp
+    · simp [-Int8.reduceToInt]
     · simp [UInt8.toInt8Mono, ← UInt8.toNat_inj, ← Int8.toInt_inj, ← Int.ofNat_inj,
         Int.natCast_emod, Int.emod_eq_iff, Int.bmod_eq_iff] at h ⊢
       omega
   · simp only [← toInt8Mono_add_one]
     rw [if_neg]
     · simp
-    · --simp [← Int8.toInt_inj, toInt_toInt8Mono, ← UInt8.toNat_inj, ← Int.ofNat_inj] at h ⊢
-      sorry --omega
+    · simp [← Int8.toInt_inj, toInt_toInt8Mono, ← UInt8.toNat_inj, ← Int.ofNat_inj] at h ⊢
+      omega
 
+private theorem UInt8.toNat_add_lt {k : Nat} {x : UInt8} :
+    x.toNat + k < UInt8.size ↔ x.toInt8Mono.toInt + ↑k ≤ Int8.maxValue.toInt := by
+  simp [UInt8.toInt8Mono]
+  rw [Int.bmod_eq_of_le]
+  · simp only [UInt8.size, Int.reduceNeg, maxValue, Int8.reduceToInt]
+    omega
+  · simp only [Int.cast_ofNat_Int, Int.reduceDiv, Int.reduceNeg]
+    omega
+  · simp only [Int.reduceNeg, Int.cast_ofNat_Int, Int.reduceAdd, Int.reduceDiv]
+    have := UInt8.toNat_lt x
+    omega
 
-theorem succMany?_ofBitVec {k : Nat} {x : BitVec 8} :
-    UpwardEnumerable.succMany? k (Int8.ofBitVec x) = Int8.ofBitVec <$> UpwardEnumerable.succMany? k x := by
-  simp [succMany?]
+private theorem succMany?_toInt8Mono {k : Nat} {x : UInt8} :
+    UpwardEnumerable.succMany? k x.toInt8Mono = UInt8.toInt8Mono <$> UpwardEnumerable.succMany? k x := by
+  simp [succMany?, UInt8.toNat_add_lt]
+  split
+  · rw [ofIntLE_add, toInt8Mono_add]
+    · simp
+    · simp [UInt8.toInt8Mono]
+  · rfl
 
-theorem upwardEnumerableLE_ofBitVec {x y : BitVec 8} :
-    UpwardEnumerable.LE (Int8.ofBitVec x) (Int8.ofBitVec y) ↔ UpwardEnumerable.LE x y := by
+private theorem upwardEnumerableLE_toInt8Mono {x y : UInt8} :
+    UpwardEnumerable.LE x.toInt8Mono y.toInt8Mono ↔ UpwardEnumerable.LE x y := by
   simp [UpwardEnumerable.LE, succMany?_ofBitVec]
 
 theorem upwardEnumerableLT_ofBitVec {x y : BitVec 8} :

@@ -89,7 +89,7 @@ abbrev Int8.size : Nat := 256
 /--
 Obtain the `BitVec` that contains the 2's complement representation of the `Int8`.
 -/
-@[inline] def Int8.toBitVec (x : Int8) : BitVec 8 := x.toUInt8.toBitVec
+@[inline, expose] def Int8.toBitVec (x : Int8) : BitVec 8 := x.toUInt8.toBitVec --
 
 theorem Int8.toBitVec.inj : {x y : Int8} → x.toBitVec = y.toBitVec → x = y
   | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
@@ -108,7 +108,7 @@ Examples:
  * `Int8.ofInt (-129) = 127`
  * `Int8.ofInt (128) = -128`
 -/
-@[extern "lean_int8_of_int"]
+@[extern "lean_int8_of_int", expose] --
 def Int8.ofInt (i : @& Int) : Int8 := ⟨⟨BitVec.ofInt 8 i⟩⟩
 /--
 Converts a natural number to an 8-bit signed integer, wrapping around on overflow.
@@ -121,7 +121,7 @@ Examples:
  * `Int8.ofNat 128 = -128`
  * `Int8.ofNat 255 = -1`
 -/
-@[extern "lean_int8_of_nat"]
+@[extern "lean_int8_of_nat", expose]
 def Int8.ofNat (n : @& Nat) : Int8 := ⟨⟨BitVec.ofNat 8 n⟩⟩
 /--
 Converts an arbitrary-precision integer to an 8-bit integer, wrapping on overflow or underflow.
@@ -150,7 +150,7 @@ Converts an 8-bit signed integer to an arbitrary-precision integer that denotes 
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int8_to_int"]
+@[extern "lean_int8_to_int", expose] --
 def Int8.toInt (i : Int8) : Int := i.toBitVec.toInt
 /--
 Converts an 8-bit signed integer to a natural number, mapping all negative numbers to `0`.
@@ -166,7 +166,7 @@ Negates 8-bit signed integers. Usually accessed via the `-` prefix operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int8_neg"]
+@[extern "lean_int8_neg", expose] --
 def Int8.neg (i : Int8) : Int8 := ⟨⟨-i.toBitVec⟩⟩
 
 instance : ToString Int8 where

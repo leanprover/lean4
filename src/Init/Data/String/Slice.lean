@@ -782,6 +782,7 @@ Examples:
  * {lean}`"abc".toSlice.chars.toList = ['a', 'b', 'c']`
  * {lean}`"ab∀c".toSlice.chars.toList = ['a', 'b', '∀', 'c']`
 -/
+@[expose, inline]
 def chars (s : Slice) :=
   Std.Iterators.Iter.map (fun ⟨pos, h⟩ => pos.get h) (positions s)
 
@@ -869,6 +870,7 @@ Example:
  * {lean}`"abc".toSlice.revChars.toList = ['c', 'b', 'a']`
  * {lean}`"ab∀c".toSlice.revChars.toList = ['c', '∀', 'b', 'a']`
 -/
+@[expose, inline]
 def revChars (s : Slice) :=
   Std.Iterators.Iter.map (fun ⟨pos, h⟩ => pos.get h) (revPositions s)
 

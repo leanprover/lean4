@@ -174,6 +174,7 @@ Examples:
  * `Nat.digitChar 16 = '*'`
  * `Nat.digitChar 85 = '*'`
 -/
+@[deprecated "This will be made `private` in future." (since := "2025-09-25")]
 def digitChar (n : Nat) : Char :=
   if n = 0 then '0' else
   if n = 1 then '1' else
@@ -193,6 +194,8 @@ def digitChar (n : Nat) : Char :=
   if n = 0xf then 'f' else
   '*'
 
+set_option linter.deprecated false in
+@[deprecated "This will be made `private` in future." (since := "2025-09-25")]
 def toDigitsCore (base : Nat) : Nat → Nat → List Char → List Char
   | 0,      _, ds => ds
   | fuel+1, n, ds =>
@@ -201,6 +204,7 @@ def toDigitsCore (base : Nat) : Nat → Nat → List Char → List Char
     if n' = 0 then d::ds
     else toDigitsCore base fuel n' (d::ds)
 
+set_option linter.deprecated false in
 /--
 Returns the decimal representation of a natural number as a list of digit characters in the given
 base. If the base is greater than `16` then `'*'` is returned for digits greater than `0xf`.
@@ -211,9 +215,11 @@ Examples:
 * `Nat.toDigits 16 0xcafe = ['c', 'a', 'f', 'e']`
 * `Nat.toDigits 80 200 = ['2', '*']`
 -/
+@[deprecated "This will be made `private` in future." (since := "2025-09-25")]
 def toDigits (base : Nat) (n : Nat) : List Char :=
   toDigitsCore base (n+1) n []
 
+set_option linter.deprecated false in
 /--
 Converts a word-sized unsigned integer into a decimal string.
 
@@ -232,11 +238,13 @@ protected def _root_.USize.repr (n : @& USize) : String :=
 private def reprArray : Array String := Id.run do
   List.range 128 |>.map (·.toUSize.repr) |> Array.mk
 
+set_option linter.deprecated false in
 def reprFast (n : Nat) : String :=
   if h : n < Nat.reprArray.size then Nat.reprArray.getInternal n h else
   if h : n < USize.size then (USize.ofNatLT n h).repr
   else (toDigits 10 n).asString
 
+set_option linter.deprecated false in
 /--
 Converts a natural number to its decimal string representation.
 -/
@@ -253,6 +261,7 @@ Examples:
 * `Nat.superDigitChar 7 = '⁷'`
 * `Nat.superDigitChar 10 = '*'`
 -/
+@[deprecated "This will be removed." (since := "2025-09-25")]
 def superDigitChar (n : Nat) : Char :=
   if n = 0 then '⁰' else
   if n = 1 then '¹' else
@@ -266,6 +275,8 @@ def superDigitChar (n : Nat) : Char :=
   if n = 9 then '⁹' else
   '*'
 
+set_option linter.deprecated false in
+@[deprecated "This will be removed." (since := "2025-09-25")]
 partial def toSuperDigitsAux : Nat → List Char → List Char
   | n, ds =>
     let d  := superDigitChar <| n % 10;
@@ -273,6 +284,7 @@ partial def toSuperDigitsAux : Nat → List Char → List Char
     if n' = 0 then d::ds
     else toSuperDigitsAux n' (d::ds)
 
+set_option linter.deprecated false in
 /--
 Converts a natural number to the list of Unicode superscript digit characters that corresponds to
 its decimal representation.
@@ -281,9 +293,11 @@ Examples:
  * `Nat.toSuperDigits 0 = ['⁰']`
  * `Nat.toSuperDigits 35 = ['³', '⁵']`
 -/
+@[deprecated "This will be removed." (since := "2025-09-25")]
 def toSuperDigits (n : Nat) : List Char :=
   toSuperDigitsAux n []
 
+set_option linter.deprecated false in
 /--
 Converts a natural number to a string that contains the its decimal representation as Unicode
 superscript digit characters.
@@ -292,9 +306,11 @@ Examples:
  * `Nat.toSuperscriptString 0 = "⁰"`
  * `Nat.toSuperscriptString 35 = "³⁵"`
 -/
+@[deprecated "This will be removed." (since := "2025-09-25")]
 def toSuperscriptString (n : Nat) : String :=
   (toSuperDigits n).asString
 
+set_option linter.deprecated false in
 /--
 Converts a natural number less than `10` to the corresponding Unicode subscript digit character.
 Returns `'*'` for other numbers.
@@ -304,7 +320,8 @@ Examples:
 * `Nat.subDigitChar 7 = '₇'`
 * `Nat.subDigitChar 10 = '*'`
 -/
-def subDigitChar (n : Nat) : Char :=
+@[deprecated "This will be removed." (since := "2025-09-25")]
+private def subDigitChar (n : Nat) : Char :=
   if n = 0 then '₀' else
   if n = 1 then '₁' else
   if n = 2 then '₂' else
@@ -317,13 +334,16 @@ def subDigitChar (n : Nat) : Char :=
   if n = 9 then '₉' else
   '*'
 
-partial def toSubDigitsAux : Nat → List Char → List Char
+set_option linter.deprecated false in
+@[deprecated "This will be removed." (since := "2025-09-25")]
+private partial def toSubDigitsAux : Nat → List Char → List Char
   | n, ds =>
     let d  := subDigitChar <| n % 10;
     let n' := n / 10;
     if n' = 0 then d::ds
     else toSubDigitsAux n' (d::ds)
 
+set_option linter.deprecated false in
 /--
 Converts a natural number to the list of Unicode subscript digit characters that corresponds to
 its decimal representation.
@@ -332,9 +352,11 @@ Examples:
  * `Nat.toSubDigits 0 = ['₀']`
  * `Nat.toSubDigits 35 = ['₃', '₅']`
 -/
+@[deprecated "This will be removed." (since := "2025-09-25")]
 def toSubDigits (n : Nat) : List Char :=
   toSubDigitsAux n []
 
+set_option linter.deprecated false in
 /--
 Converts a natural number to a string that contains the its decimal representation as Unicode
 subscript digit characters.
@@ -343,6 +365,7 @@ Examples:
  * `Nat.toSubscriptString 0 = "₀"`
  * `Nat.toSubscriptString 35 = "₃₅"`
 -/
+@[deprecated "This will be removed." (since := "2025-09-25")]
 def toSubscriptString (n : Nat) : String :=
   (toSubDigits n).asString
 
@@ -361,9 +384,12 @@ protected def Int.repr : Int → String
 instance : Repr Int where
   reprPrec i prec := if i < 0 then Repr.addAppParen i.repr prec else i.repr
 
+set_option linter.deprecated false in
+@[deprecated "This will be made `private` in future." (since := "2025-09-25")]
 def hexDigitRepr (n : Nat) : String :=
   String.singleton <| Nat.digitChar n
 
+set_option linter.deprecated false in
 def Char.quoteCore (c : Char) (inString : Bool := false) : String :=
   if       c = '\n' then "\\n"
   else if  c = '\t' then "\\t"

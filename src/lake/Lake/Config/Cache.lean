@@ -377,10 +377,11 @@ public def uploadArtifacts
 /-- The MIME type of Lake/Reservoir input-to-output mappings for a Git revision. -/
 public def mapContentType : String := "application/vnd.reservoir.outputs+json-lines"
 
-public def revisionUrl (rev : String) (scope : String) (service : CacheService) :=
+
+public def revisionUrl (rev : String) (scope : String) (service : CacheService) : String :=
   let scope := "/".intercalate <| scope.split (· == '/') |>.map uriEncode
  if let some apiEndpoint := service.apiEndpoint? then
-    s!"{apiEndpoint}/packages/{scope}/revisions/{rev}/outputs.jsonl"
+    s!"{apiEndpoint}/packages/{scope}/build-outputs?rev={rev}"
   else
     s!"{service.revisionEndpoint}/{scope}/{rev}.jsonl"
 

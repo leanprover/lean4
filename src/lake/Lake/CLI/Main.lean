@@ -406,7 +406,8 @@ where
       let map? ← revs.findSomeM? fun rev =>
         service.downloadRevisionOutputs? rev cache remoteScope
       let some map := map?
-        | let revisions := if n = 0 then "for any revision" else s!"in {n} revisions from HEAD"
+        | let revisions :=
+            if n = 0 || revs.size < n then "for any revision" else s!"in {n} revisions from HEAD"
           error s!"{remoteScope}: no outputs found {revisions}"
       return map
 

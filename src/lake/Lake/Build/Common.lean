@@ -167,32 +167,11 @@ Logs if the read failed or the contents where invalid.
 public def readTraceFile (path : FilePath) : LogIO SavedTrace := do
   match (← IO.FS.readFile path |>.toBaseIO) with
   | .ok contents =>
-    match Json.parse contents with
-    | .ok json =>
-      match json with
-      | .num n =>
-        match Hash.ofJsonNumber? n with
-        | .ok hash =>
-          return .ok (.ofStub hash)
-        | .error reason =>
-          logWarning s!"{path}: invalid hash trace: {reason}"
-          return .invalid
-      | .obj (o : JsonObject) =>
-        match BuildMetadata.fromJsonObject? o with
-        | .ok data =>
-          return .ok data
-        | .error e =>
-          if let some (.str ver) := o.getJson? "schemaVersion" then
-            if ver == BuildMetadata.schemaVersion then
-              logWarning s!"{path}: invalid trace: {e}"
-              return .invalid
-          logVerbose s!"{path}: unknown trace format: {e}"
-          return .invalid
-      | _ =>
-        logWarning s!"{path}: invalid trace: expected JSON number or object"
-        return .invalid
+    match Json.parse contents >>= BuildMetadata.fromJson? with
+    | .ok data =>
+      return .ok data
     | .error e =>
-      logWarning s!"{path}: invalid trace: {e}"
+      logWarning s!"{path}: {e}"
       return .invalid
   | .error (.noFileOrDirectory ..) =>
     return .missing

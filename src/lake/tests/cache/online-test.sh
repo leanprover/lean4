@@ -107,13 +107,13 @@ with_upload_endpoints test_run -d .lake/packages/Cli \
 test_cmd rm -rf .lake/packages/Cli/.lake/build "$LAKE_CACHE_DIR"
 test_fails -f reservoir.toml build @Cli --no-build
 test_err "failed to download artifacts for some dependencies" \
-  -f reservoir2.toml cache get
-test_run -f reservoir.toml cache get
+  -f reservoir2.toml cache get --max-revs=1
+test_run -f reservoir.toml cache get --max-revs=1
 test_run -f reservoir.toml build @Cli --no-build
 
 # Test Reservoir with `--scope`/`--repo` uses GitHub scope
 test_cmd rm -rf .lake/cache
-test_run -d .lake/packages/Cli cache get --repo=leanprover/lean4-cli
+test_run -d .lake/packages/Cli cache get --repo=leanprover/lean4-cli --max-revs=1
 test_run -d .lake/packages/Cli build --no-build
 
 # Cleanup

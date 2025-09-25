@@ -11,6 +11,8 @@ import Init.Grind.Ring
 @[expose] public section
 namespace Lean.Grind.Order
 
+/- **TODO**: remove this file to `Offset.lean` after we remove the old offset module that supports only `Nat`. -/
+
 /-- A `Weight` is just an linear ordered additive commutative group. -/
 class Weight (ω : Type v) extends Add ω, LE ω, LT ω, BEq ω, LawfulBEq ω where
   [decLe : DecidableLE ω]
@@ -117,6 +119,10 @@ private theorem add_lt_add' {α ω} [Weight ω] [Offset α ω]
 
 /-!
 Helper theorems for asserting equalities, negations
+
+**Note**: for negations if the order is not a linear preorder, the solver just
+saves the negated inequality, and tries to derive contradiction if the inequality is implied
+by other constraints.
 -/
 theorem le_of_eq {α} [LE α] [Std.IsPreorder α]
     (a b : α) : a = b → a ≤ b := by
@@ -145,6 +151,13 @@ theorem le_of_not_lt {α} [LE α] [LT α] [Std.IsLinearPreorder α] [Std.LawfulO
     have := Std.IsLinearPreorder.le_total a b
     cases this; contradiction; assumption
   next => assumption
+
+-- **Note**: We hard coded the `Nat` and `Int` cases for `lt` => `le`. If users want support for other types, we can add a type class.
+theorem Int.lt (x y k₁ k₂ : Int) : offset x k₁ < offset y k₂ → offset x (k₁+1) ≤ offset y k₂ := by
+  simp [offset]; omega
+
+theorem Nat.lt (x y k₁ k₂ : Nat) : offset x k₁ < offset y k₂ → offset x (k₁+1) ≤ offset y k₂ := by
+  simp [offset]; omega
 
 /-!
 Transitivity theorems
@@ -224,11 +237,11 @@ theorem lt_unsat {α ω} [Weight ω] [Offset α ω]
 
 -- **Note**: We use `cutsat` normalizer to "rewrite" `Int` inequalities before converting into offsets.
 
-theorem Int.le (x y k : Int) : x + -1*y + k ≤ 0 ↔ offset x k ≤ offset y (0:Int) := by
-  simp [offset]; omega
+theorem Int.le (x y k : Int) : x + k ≤ y ↔ offset x k ≤ offset y (0:Int) := by
+  simp [offset]
 
-theorem Int.eq (x y k : Int) : x + -1*y + k = 0 ↔ offset x k = offset y (0:Int) := by
-  simp [offset]; omega
+theorem Int.eq (x y k : Int) : x + k = y ↔ offset x k = offset y (0:Int) := by
+  simp [offset]
 
 /-!
 `Nat` internalization theorems
@@ -266,45 +279,19 @@ Ring internalization theorems
 -/
 section
 
-private theorem eq_move {α} [Ring α] (x y : α) : x + -1*y = 0 ↔ x = y := by
-  constructor
-  next =>
-    intro h
-    replace h := congrArg (· + y) h; simp at h
-    rw [Semiring.add_assoc, ← Ring.neg_eq_neg_one_mul, Ring.neg_add_cancel,
-        Semiring.add_zero, Semiring.add_comm, Semiring.add_zero] at h
-    assumption
-  next => intro h; subst x; rw [← Ring.neg_eq_neg_one_mul, Semiring.add_comm, Ring.neg_add_cancel]
-
 variable {α} [Ring α] [instLe : LE α] [LT α] [instOrdLt : Std.LawfulOrderLT α] [Std.IsPreorder α] [OrderedRing α]
 attribute [local instance] Ring.intCast Semiring.natCast
 
 -- **Note**: We use `ring` normalizer to "rewrite" ring inequalities before converting into offsets.
 
-omit instOrdLt in
-private theorem le_move (x y : α) : x + -1*y ≤ 0 ↔ x ≤ y := by
-  rw [← OrderedAdd.neg_nonneg_iff];
-  rw [Semiring.add_comm, Ring.neg_eq_neg_one_mul, Semiring.left_distrib]
-  simp [← Ring.neg_eq_neg_one_mul, AddCommGroup.neg_neg]
-  rw [← Ring.sub_eq_add_neg, OrderedAdd.sub_nonneg_iff]
-
-private theorem lt_move (x y : α) : x + -1*y < 0 ↔ x < y := by
-  rw [← OrderedAdd.neg_pos_iff];
-  rw [Semiring.add_comm, Ring.neg_eq_neg_one_mul, Semiring.left_distrib]
-  simp [← Ring.neg_eq_neg_one_mul, AddCommGroup.neg_neg]
-  rw [← Ring.sub_eq_add_neg, OrderedAdd.sub_pos_iff]
-
-theorem Ring.le (x y : α) (k : Int) : x + -1*y + k ≤ 0 ↔ offset x k ≤ offset y (0:Int) := by
+theorem Ring.le (x y : α) (k : Int) : x + k ≤ y ↔ offset x k ≤ offset y (0:Int) := by
   simp [offset, Ring.intCast_zero, Semiring.add_zero]
-  rw [Semiring.add_assoc, Semiring.add_comm (-1*y), ← Semiring.add_assoc, le_move]
 
-theorem Ring.lt (x y : α) (k : Int) : x + -1*y + k < 0 ↔ offset x k < offset y (0:Int) := by
+theorem Ring.lt (x y : α) (k : Int) : x + k < y ↔ offset x k < offset y (0:Int) := by
   simp [offset, Ring.intCast_zero, Semiring.add_zero]
-  rw [Semiring.add_assoc, Semiring.add_comm (-1*y), ← Semiring.add_assoc, lt_move]
 
-theorem Ring.eq (x y : α) (k : Int) : x + -1*y + k = 0 ↔ offset x k = offset y (0:Int) := by
+theorem Ring.eq (x y : α) (k : Int) : x + k = y ↔ offset x k = offset y (0:Int) := by
   simp [offset, Ring.intCast_zero, Semiring.add_zero]
-  rw [Semiring.add_assoc, Semiring.add_comm (-1*y), ← Semiring.add_assoc, eq_move]
 
 end
 

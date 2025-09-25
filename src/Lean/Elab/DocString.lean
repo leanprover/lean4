@@ -240,7 +240,7 @@ where
       | .forallE y ty body bi =>
         let fv ← mkFreshFVarId
         if let some c := ← Meta.withLCtx lctx localInstances (Meta.isClass? ty) then
-          localInstances := localInstances.push {className := c, fvar := .fvar fv}
+          localInstances ← localInstances.addInstance c (.fvar fv) fv
 
         if let some (some x') := x then
           if x'.getId == y then

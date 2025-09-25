@@ -89,7 +89,7 @@ def fromString? : String → Option Method
 /--
 Request methods are considered safe if their defined semantics are essentially read-only.
 
-* Reference: https://httpwg.org/specs/rfc9110.html#metho  d.properties
+* Reference: https://httpwg.org/specs/rfc9110.html#method.properties
 -/
 def isSafe : Method → Prop
   | .get | .head | .options | .trace => True
@@ -112,7 +112,7 @@ request bodies.
 
 * Reference: https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods
 -/
-def allowsRequestBody : Method → Prop
+def allowsRequestBody : Method → Bool
   | .get | .head => False
   | _ => True
 

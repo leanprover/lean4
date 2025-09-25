@@ -377,6 +377,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
           mkForallFVars #[x] body'
 
     | .letE n t v b nondep =>
+      trace[Meta.FunInd] "Let-binding {n} with (nondep := {nondep})"
       let t' ← foldAndCollect oldIH newIH isRecCall t
       let v' ← foldAndCollect oldIH newIH isRecCall v
       withLetDecl n t' v' (nondep := nondep) fun x => do
@@ -520,7 +521,7 @@ def buildInductionCase (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr)
 Like `mkLambdaFVars (usedOnly := true)`, but
 
  * silently skips expression in `xs` that are not `.isFVar`
- * also skips let-bound variabls
+ * also skips let-bound variables
  * returns a mask (same size as `xs`) indicating which variables have been abstracted
    (`true` means was abstracted).
 
@@ -631,11 +632,17 @@ public def rwIfWith (hc : Expr) (e : Expr) : MetaM Simp.Result := do
     return { expr := e }
 
 def rwLetWith (h : Expr) (e : Expr) : MetaM Simp.Result := do
-  if e.isLet then
-    if (← isDefEq e.letValue! h) then
-      return { expr := e.letBody!.instantiate1 h }
-  trace[Meta.FunInd] "rwLetWith failed:{inlineExpr e}not a let expression or `{h}` is not definitionally equal to `{e.letValue!}`"
-  return { expr := e }
+  match e with
+  | .letE _ t v b nondep =>
+    unless (← isDefEq t (← inferType h)) do
+      trace[Meta.FunInd] "rwLetWith failed:The type of{inlineExpr h}is not definitionally equal to `{t}`"
+    unless nondep do
+      unless (← isDefEq v h) do
+        trace[Meta.FunInd] "rwLetWith failed:{inlineExpr h}is not definitionally equal to{inlineExpr v}"
+    return { expr := b.instantiate1 h }
+  | _ =>
+    trace[Meta.FunInd] "rwLetWith failed:{inlineExpr e}not a let expression"
+    return { expr := e }
 
 def rwMData (e : Expr) : MetaM Simp.Result := do
   return { expr := e.consumeMData }
@@ -735,7 +742,7 @@ as `MVars` as it goes.
 partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
     (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (e : Expr) : M2 Expr := do
   withTraceNode `Meta.FunInd
-    (pure m!"{exceptEmoji ·} buildInductionBody: {oldIH.name} → {newIH.name}\ngoal: {goal}:{indentExpr e}") do
+    (pure m!"{exceptEmoji ·} buildInductionBody: {oldIH.name} → {newIH.name}\ngoal:{indentExpr goal}\nexpr:{indentExpr e}") do
 
   -- if-then-else cause case split:
   match_expr e with
@@ -863,13 +870,14 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
       buildInductionBody toErase toClear goal' oldIH newIH isRecCall e.mdataExpr!
     return e.updateMData! b
 
-  if let .letE n t v b _ := e then
+  if let .letE n t v b nondep := e then
+    trace[Meta.FunInd] "Let-binding {n} with (nondep := {nondep})"
     let t' ← foldAndCollect oldIH newIH isRecCall t
     let v' ← foldAndCollect oldIH newIH isRecCall v
-    return ← withLetDecl n t' v' fun x => M2.branch do
+    return ← withLetDecl n t' v' (nondep := nondep) fun x => M2.branch do
       let b' ← withRewrittenMotiveArg goal (rwLetWith x) fun goal' =>
         buildInductionBody toErase toClear goal' oldIH newIH isRecCall (b.instantiate1 x)
-      mkLetFVars #[x] b'
+      mkLetFVars (generalizeNondepLet := false) #[x] b'
 
   -- Special case for traversing the PProd’ed bodies in our encoding of structural mutual recursion
   if let .lam n t b bi := e then
@@ -903,19 +911,25 @@ do not handle delayed assignments correctly.
 -/
 def abstractIndependentMVars (mvars : Array MVarId) (index : Nat) (e : Expr) : MetaM Expr := do
   trace[Meta.FunInd] "abstractIndependentMVars, to revert after {index}, original mvars: {mvars}"
-  let mvars ← mvars.mapM fun mvar => do
-    let mvar ← cleanupAfter mvar index
-    mvar.withContext do
-      let fvarIds := (← getLCtx).foldl (init := #[]) (start := index+1) fun fvarIds decl => fvarIds.push decl.fvarId
-      let (_, mvar) ← mvar.revert fvarIds
-      pure mvar
-  trace[Meta.FunInd] "abstractIndependentMVars, reverted mvars: {mvars}"
+  let mvars ← mvars.mapM (cleanupAfter · index)
   let names := Array.ofFn (n := mvars.size) fun ⟨i,_⟩ => .mkSimple s!"case{i+1}"
-  let types ← mvars.mapM MVarId.getType
+  let types ← mvars.mapM fun mvar => do
+    mvar.withContext do
+      let goal ← mvar.getType
+      let xs := (← getLCtx).foldl (init := #[]) (start := index+1) fun fvarIds decl =>
+        fvarIds.push (mkFVar decl.fvarId)
+      mkForallFVars (generalizeNondepLet := true) xs goal
+  trace[Meta.FunInd] "abstractIndependentMVars, reverted types: {types}"
   Meta.withLocalDeclsDND (names.zip types) fun xs => do
-      for mvar in mvars, x in xs do
-        mvar.assign x
-      mkLambdaFVars xs (← instantiateMVars e)
+    for mvar in mvars, x in xs do
+      mvar.withContext do
+        let e := (← getLCtx).foldl (init := x) (start := index+1) fun e decl =>
+          if decl.isLet (allowNondep := false) then
+            e
+          else
+            .app e (mkFVar decl.fvarId)
+        mvar.assign e
+    mkLambdaFVars xs (← instantiateMVars e)
 
 /--
 Given a unary definition `foo` defined via `WellFounded.fixF`, derive a suitable induction principle

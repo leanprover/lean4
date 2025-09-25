@@ -21,6 +21,7 @@ import Lean.Meta.Reduce
 import Lean.Elab.Tactic.Doc
 import Lean.Data.EditDistance
 public import Lean.Elab.DocString.Builtin.Keywords
+import Lean.Server.InfoUtils
 
 
 namespace Lean.Doc
@@ -55,6 +56,7 @@ structure Data.Local where
   type : Expr
 deriving TypeName
 
+
 /-- The code represents a tactic. -/
 structure Data.Tactic where
   /-- The name of the tactic's syntax kind. -/
@@ -79,16 +81,12 @@ structure Data.Attribute where
   stx : Syntax
 deriving TypeName
 
-/-- The code represents syntax to set an option. -/
-structure Data.SetOption where
-  /-- The `set_option ...` syntax. -/
-  stx : Syntax
-deriving TypeName
-
 /-- The code represents an option. -/
 structure Data.Option where
   /-- The option's name. -/
   name : Name
+  /-- The option's declaration name. -/
+  declName : Name
 deriving TypeName
 
 
@@ -138,7 +136,8 @@ meta def checkNameExists : PostponedCheckHandler := fun _ info => do
 Displays a name, without attempting to elaborate implicit arguments.
 -/
 @[builtin_doc_role]
-def name (full : Option Ident := none) (scope : DocScope := .local) (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def name (full : Option Ident := none) (scope : DocScope := .local)
+    (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   let x := s.getString.toName
   let n := mkIdentFrom' s x
@@ -364,8 +363,12 @@ def attr (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
 
     try
       let stx ← parseStrLit attributes.fn s
-      let `(attributes|@[$_attrs,*]) := stx
+      let `(attributes|@[$attrs,*]) := stx
         | throwError "Not `@[attribute]` syntax"
+      for a in (attrs : Array Syntax) do
+        -- here `a` is of kind `attrInstance`, which is `("scoped" <|> "local")? attr`
+        validateAttr a[1]
+
       return .other {name := ``Data.Attributes, val := .mk <| Data.Attributes.mk stx} #[
         .code s.getString
       ]
@@ -374,20 +377,7 @@ def attr (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
 
     try
       let stx ← parseStrLit attrParser.fn s
-      if stx.getKind == ``Lean.Parser.Attr.simple then
-        let attrName := stx[0].getId.eraseMacroScopes
-        unless isAttribute (← getEnv) attrName do
-          let nameStr := attrName.toString
-          let threshold := max 2 (nameStr.length / 3)
-          let attrs := getAttributeNames (← getEnv) |>.toArray |>.filterMap fun x =>
-            let x := x.toString
-            levenshtein x nameStr threshold |>.map (x, ·)
-          let attrs := attrs.qsort (fun (_, i) (_, j) => i < j) |>.map (·.1)
-          let hint ←
-            if attrs.isEmpty then pure m!""
-            else m!"Use a known attribute:".hint attrs (ref? := s)
-          logErrorAt stx m!"Unknown attribute `{attrName}`{hint}"
-
+      validateAttr stx
       return .other {name := ``Data.Attribute, val := .mk <| Data.Attribute.mk stx} #[
         .code s.getString
       ]
@@ -395,6 +385,21 @@ def attr (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
       | e => exns := exns.push e
 
     throwOrNest m!"Couldn't parse attributes" exns
+where
+  validateAttr (stx : Syntax) : DocM Unit := do
+    if stx.getKind == ``Lean.Parser.Attr.simple then
+      let attrName := stx[0].getId.eraseMacroScopes
+      unless isAttribute (← getEnv) attrName do
+        let nameStr := attrName.toString
+        let threshold := max 2 (nameStr.length / 3)
+        let attrs := getAttributeNames (← getEnv) |>.toArray |>.filterMap fun x =>
+          let x := x.toString
+          levenshtein x nameStr threshold |>.map (x, ·)
+        let attrs := attrs.qsort (fun (_, i) (_, j) => i < j) |>.map (·.1)
+        let hint ←
+          if attrs.isEmpty then pure m!""
+          else m!"Use a known attribute:".hint attrs (ref? := stx)
+        logErrorAt stx m!"Unknown attribute `{attrName}`{hint}"
 
 private def optionNameAndVal (stx : Syntax) : DocM (Ident × DataValue) := do
   let id := stx[1]
@@ -408,71 +413,6 @@ private def optionNameAndVal (stx : Syntax) : DocM (Ident × DataValue) := do
     else throwErrorAt val m!"Invalid option value. Expected a string, a number, `true`, or `false`,\
       but got {val}."
   return (⟨id⟩, val)
-
-open Lean.Parser.Command («set_option») in
-/--
-A reference to an option.
-
-In `` {option}`O` ``, `O` can be either:
- * The name of an option (e.g. `pp.all`)
- * Syntax to set an option to a particular value (e.g. `set_option pp.all true`)
--/
-@[builtin_doc_role]
-def option (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
-  let s ← onlyCode xs
-  withRef s do
-    let spec : Syntax ⊕ Syntax ←
-      try
-        let stx ← parseStrLit «set_option».fn s
-        pure (Sum.inl stx)
-      catch
-      | e1 =>
-        try
-          -- Here it's important to get the partial syntax in order to add completion info,
-          -- but then abort processing.
-          let (stx, err) ← parseStrLit' (nodeFn nullKind identWithPartialTrailingDot.fn) s
-          addCompletionInfo <| CompletionInfo.option stx[0]
-          if err then throw e1 else pure (Sum.inr stx[0])
-        catch
-        | e2 =>
-          throwOrNest m!"Expected an option name or a valid `set_option`" #[e1, e2]
-    match spec with
-    | .inl stx =>
-      let (id, val) ← optionNameAndVal stx
-      -- For completion purposes, we discard `val` and any later arguments. We include the first
-      -- argument (the keyword) for position information in case `id` is `missing`.
-      addCompletionInfo <| CompletionInfo.option (stx.setArgs (stx.getArgs[*...3]))
-      let optionName := id.getId.eraseMacroScopes
-      try
-        let decl ← getOptionDecl optionName
-        pushInfoLeaf <| .ofOptionInfo { stx := id, optionName, declName := decl.declName }
-        validateOptionValue optionName decl val
-
-        return .other {name := ``Data.SetOption, val := .mk <| Data.SetOption.mk stx} #[
-          .code s.getString
-        ]
-      catch
-        | e =>
-          let ref := e.getRef
-          let ref ← if ref.isMissing then getRef else pure ref
-          logErrorAt ref e.toMessageData
-          return .code s.getString
-    | .inr stx =>
-      let optionName := stx.getId.eraseMacroScopes
-      try
-        let decl ← getOptionDecl optionName
-        pushInfoLeaf <| .ofOptionInfo { stx, optionName, declName := decl.declName }
-
-        return .other {name := ``Data.Option, val := .mk <| Data.Option.mk optionName} #[
-          .code s.getString
-        ]
-      catch
-        | e =>
-          let ref := e.getRef
-          let ref ← if ref.isMissing then getRef else pure ref
-          logErrorAt ref e.toMessageData
-          return .code s.getString
-
 
 private def validateCat (x : Ident) : DocM Bool := do
   let c := x.getId
@@ -778,31 +718,6 @@ where
       (x, s, d.getD target.length)
     withDistance.qsort (fun (_, _, d1) (_, _, d2) => d1 < d2) |>.map fun (x, s, _) => (x, s)
 
-private def leanTermContents : ParserFn :=
-  whitespace >>
-  (node nullKind (termParser >> optional (symbol ":" >> termParser))).fn
-
-/--
-Treats the provided term as Lean syntax in the documentation's scope.
--/
-@[builtin_doc_role lean]
-def leanRole (type : Option StrLit := none) (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
-  let s ← onlyCode xs
-  let stx ← parseStrLit leanTermContents s
-  let ty? ←
-    withoutErrToSorry <| do
-    if stx[1][1].isMissing then -- no colon
-      if let some tyStr := type then
-        let stx ← parseQuotedStrLit (whitespace >> termParser.fn) tyStr
-        some <$> elabType stx
-      else pure none
-    else -- type after colon
-      if let some t := type then
-        logErrorAt t m!"Ignoring `{s.getString}` in favor of type provided after colon"
-      some <$> elabType stx[1][1]
-  withoutErrToSorry <| discard <| elabTerm stx[0] ty?
-  pure (.code s.getString)
-
 /--
 Indicates that a code element is intended as just a literal string, with no further meaning.
 
@@ -814,19 +729,293 @@ def lit (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   pure (.code s.getString)
 
 /--
+Semantic highlighting included on syntax from elaborated terms in documentation.
+-/
+inductive DocHighlight where
+  /-- The text represents the indicated constant. -/
+  | const (name : Name) (signature : Format)
+  /--
+  The text represents the indicated local variable.
+
+  The `fvarId` is not connected to a local context, but it can be useful for tracking bindings
+  across elaborated fragments of syntax.
+  -/
+  | var (userName : Name) (fvarId : FVarId) (type : Format)
+  /--
+  The text represents the name of a field. `name` and `signature` refer to the projection function.
+  -/
+  | field (name : Name) (signature : Format)
+  /--
+  The text represents the name of a compiler option.
+  -/
+  | option (name declName : Name)
+  /--
+  The text is an atom, such as `if` or `def`.
+  -/
+  | keyword
+  /--
+  The text is an atom that represents a literal, such as a string literal.
+
+  `isLitKind` returns `true` for `kind`.
+  -/
+  | literal (kind : SyntaxNodeKind) (type? : Option Format)
+
+/--
+A code snippet contained within a docstring. Code snippets consist of a series of strings, which are
+optionally associated with highlighting information.
+-/
+structure DocCode where
+  /--
+  The highlighted strings.
+  -/
+  code : Array (String × Option DocHighlight) := #[]
+
+/--
+Adds the provided string `str`, with optional highlighting `hl?`, to the end of the code.
+-/
+def DocCode.push (code : DocCode) (str : String) (hl? : Option DocHighlight := none) : DocCode :=
+  { code with code := code.code.push (str, hl?) }
+
+instance : HAppend DocCode String DocCode where
+  hAppend
+    | ⟨c⟩, s => ⟨c.push (s, none)⟩
+
+instance : Append DocCode where
+  append
+    | ⟨c1⟩, ⟨c2⟩ => ⟨c1 ++ c2⟩
+
+/--
+The code represents an elaborated Lean term.
+-/
+structure Data.LeanTerm where
+  /--
+  The highlighted code to be displayed.
+  -/
+  term : DocCode := {}
+deriving TypeName
+
+/-- The code represents syntax to set an option. -/
+structure Data.SetOption where
+  /-- The `set_option ...` syntax. -/
+  term : DocCode := {}
+deriving TypeName
+
+private partial def highlightSyntax
+    [Monad m] [MonadLiftT IO m]
+    (tree : InfoTree) (stx : Syntax) : m DocCode := do
+  (go stx).run {} <&> (·.2)
+where
+  go (stx : Syntax) : StateT DocCode m Unit := do
+    match stx with
+    | .node info kind args =>
+      emitLeading info
+      if isLitKind kind then
+        match args with
+        | #[.atom info' str] =>
+          emitLeading info'
+          let ty? ← typeFromInfo <| tree.deepestNodes fun ci i _ =>
+            if i.stx == stx then some (ci, i) else none
+          emit str (some <| .literal kind ty?)
+          emitTrailing info'
+          emitTrailing info
+          return
+        | _ => pure ()
+      args.forM go
+      emitTrailing info
+    | .ident info _x str _pre =>
+      -- TODO: find projections in the info tree as well as syntactically (see comment on
+      -- `identProjKind`)
+      let docInfo? ← toDocInfo <| tree.deepestNodes fun ci i _ =>
+        if i.stx == stx then some (ci, i) else none
+      emitLeading info
+      emit str.toString docInfo?
+      emitTrailing info
+    | .atom info str =>
+      emitLeading info
+      emit str (some .keyword)
+      emitTrailing info
+    | .missing => return
+
+  emit (code : String) (info? : Option DocHighlight := none) : StateT DocCode m Unit :=
+    modify (fun st => st.push code info?)
+
+  emitLeading : SourceInfo → StateT DocCode m Unit
+  | .original leading .. => emit leading.toString
+  | _ => pure ()
+
+  emitTrailing : SourceInfo → StateT DocCode m Unit
+  | .original _ _ trailing .. => emit trailing.toString
+  | _ => pure ()
+
+  typeFromInfo (infos : List (ContextInfo × Info)) : m (Option Format) := do
+    for (ci, i) in infos do
+      if let some ty ← ci.runMetaM i.lctx do
+        (← i.type?).mapM (PrettyPrinter.ppExpr)
+      then return some ty
+    return none
+
+  toDocInfo (infos : List (ContextInfo × Info)) : m (Option DocHighlight) := do
+    let mut best := none
+    for (ci, i) in infos do
+      match i with
+      | .ofTermInfo ti =>
+        if let some (.var ..) := best then
+          if let .const n _ := ti.expr then
+            let sig ← ci.runMetaM ti.lctx <| PrettyPrinter.ppSignature n
+            best := some <| .const n sig.fmt
+        else if best.isNone then
+          match ti.expr with
+          | .const n .. =>
+            let sig ← ci.runMetaM ti.lctx <| PrettyPrinter.ppSignature n
+            best := some <| .const n sig.fmt
+          | .fvar fvid =>
+            let docInfo? ← ci.runMetaM ti.lctx do
+              if let some ldecl := (← getLCtx).find? fvid then
+                let type ← PrettyPrinter.ppExpr ldecl.type
+                pure <| some <| .var ldecl.userName fvid type
+              else pure none
+            if let some docInfo := docInfo? then
+              best := some docInfo
+          | _ => continue
+      | .ofFieldInfo fi =>
+        let docInfo ← ci.runMetaM fi.lctx do
+          let sig ← PrettyPrinter.ppSignature fi.projName
+          pure <| .field fi.projName sig.fmt
+        best := some docInfo
+      | .ofOptionInfo oi =>
+        best := some <| .option oi.optionName oi.declName
+      | _ => continue
+    return best
+
+private def leanTermContents : ParserFn :=
+  whitespace >>
+  (node nullKind (termParser >> optional (symbol ":" >> termParser))).fn
+
+/--
+Treats the provided term as Lean syntax in the documentation's scope.
+-/
+@[builtin_doc_role lean]
+def leanRole (type : Option StrLit := none) (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+  let s ← onlyCode xs
+  let stx ← parseStrLit leanTermContents s
+  withSaveInfoContext do
+    let ty? ←
+      withoutErrToSorry <| do
+      if stx[1][1].isMissing then -- no colon
+        if let some tyStr := type then
+          let stx ← parseQuotedStrLit (whitespace >> termParser.fn) tyStr
+          some <$> elabType stx
+        else pure none
+      else -- type after colon
+        if let some t := type then
+          logErrorAt t m!"Ignoring `{s.getString}` in favor of type provided after colon"
+        some <$> elabType stx[1][1]
+    withoutErrToSorry <| discard <| elabTerm stx[0] ty?
+  let trees := (← getInfoTrees)
+  if h : trees.size > 0 then
+    let tree := trees[trees.size - 1]
+    let tm := Data.LeanTerm.mk (← highlightSyntax tree stx)
+    return .other {name := ``Data.LeanTerm, val := .mk tm} #[.code s.getString]
+  else
+    -- No info
+    return .code s.getString
+
+/--
 Treats the provided term as Lean syntax in the documentation's scope.
 -/
 @[builtin_doc_code_block]
 def leanTerm (code : StrLit) : DocM (Block ElabInline ElabBlock) := do
   let stx ← parseStrLit leanTermContents code
-  let ty? ←
-    withoutErrToSorry <|
-    if stx[1][1].isMissing then -- no colon
-      pure none
-    else -- type after colon
-      some <$> elabType stx[1][1]
-  withoutErrToSorry <| discard <| elabTerm stx[0] ty?
-  pure (.code code.getString)
+  withSaveInfoContext do
+    let ty? ←
+      withoutErrToSorry <|
+      if stx[1][1].isMissing then -- no colon
+        pure none
+      else -- type after colon
+        some <$> elabType stx[1][1]
+    withoutErrToSorry <| discard <| elabTerm stx[0] ty?
+  -- The last info tree is the one we want
+  let trees := (← getInfoTrees)
+  if h : trees.size > 0 then
+    let tree := trees[trees.size - 1]
+    let tm := Data.LeanTerm.mk (← highlightSyntax tree stx)
+    return .other {name := ``Data.LeanTerm, val := .mk tm} #[.code code.getString]
+  else
+    -- No info
+    return .code code.getString
+
+
+open Lean.Parser.Command («set_option») in
+/--
+A reference to an option.
+
+In `` {option}`O` ``, `O` can be either:
+ * The name of an option (e.g. `pp.all`)
+ * Syntax to set an option to a particular value (e.g. `set_option pp.all true`)
+-/
+@[builtin_doc_role]
+def option (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+  let s ← onlyCode xs
+  withRef s do
+    let spec : Syntax ⊕ Syntax ←
+      try
+        let stx ← parseStrLit «set_option».fn s
+        pure (Sum.inl stx)
+      catch
+      | e1 =>
+        try
+          -- Here it's important to get the partial syntax in order to add completion info,
+          -- but then abort processing.
+          let (stx, err) ← parseStrLit' (nodeFn nullKind identWithPartialTrailingDot.fn) s
+          addCompletionInfo <| CompletionInfo.option stx[0]
+          if err then throw e1 else pure (Sum.inr stx[0])
+        catch
+        | e2 =>
+          throwOrNest m!"Expected an option name or a valid `set_option`" #[e1, e2]
+    match spec with
+    | .inl stx =>
+      let (id, val) ← optionNameAndVal stx
+      -- For completion purposes, we discard `val` and any later arguments. We include the first
+      -- argument (the keyword) for position information in case `id` is `missing`.
+      addCompletionInfo <| CompletionInfo.option (stx.setArgs (stx.getArgs[*...3]))
+      let optionName := id.getId.eraseMacroScopes
+      try
+        let decl ← getOptionDecl optionName
+        pushInfoLeaf <| .ofOptionInfo { stx := id, optionName, declName := decl.declName }
+        validateOptionValue optionName decl val
+        let code := #[
+          ("set_option", some .keyword), (" ", none),
+          (toString stx[1][0].getId, some <| .option optionName decl.declName), (" ", none),
+          (toString stx[2].getAtomVal, some <| .literal stx[2].getKind none)
+        ]
+        return .other {name := ``Data.SetOption, val := .mk <| Data.SetOption.mk ⟨code⟩} #[
+          .code s.getString
+        ]
+      catch
+        | e =>
+          let ref := e.getRef
+          let ref ← if ref.isMissing then getRef else pure ref
+          logErrorAt ref e.toMessageData
+          return .code s.getString
+    | .inr stx =>
+      let optionName := stx.getId.eraseMacroScopes
+      try
+        let decl ← getOptionDecl optionName
+        pushInfoLeaf <| .ofOptionInfo { stx, optionName, declName := decl.declName }
+
+        return .other {
+          name := ``Data.Option,
+          val := .mk <| Data.Option.mk optionName decl.declName
+        } #[
+          .code s.getString
+        ]
+      catch
+        | e =>
+          let ref := e.getRef
+          let ref ← if ref.isMissing then getRef else pure ref
+          logErrorAt ref e.toMessageData
+          return .code s.getString
+
 
 private def assertContents : ParserFn :=
   whitespace >>

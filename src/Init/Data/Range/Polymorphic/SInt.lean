@@ -43,8 +43,8 @@ private theorem toInt8Mono_add_one {a : UInt8} :
   sorry
 
 private theorem toInt8Mono_add {a : UInt8} {k : Nat}
-    (h : a.toInt8Mono.toInt + ↑k ≤ Int8.maxValue.toInt) :
-    (a + (UInt8.ofNat k)).toInt8Mono = a.toInt8Mono + (Int8.ofInt ↑k) := by
+    (h : a.toInt8Mono.toInt + ↑k ≤ Int8.maxValue.toInt) {h'} :
+    (a + (UInt8.ofNatLT k h')).toInt8Mono = a.toInt8Mono + (Int8.ofInt ↑k) := by
   sorry
 
 namespace Int8

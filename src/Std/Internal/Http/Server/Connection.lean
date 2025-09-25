@@ -166,10 +166,12 @@ private def handle
               else
                 machine := machine.closeWriter
             else
-              match ← stream.tryRecv with
-              | some (some res) => machine := machine.writeUserData res
-              | some none => pure ()
-              | none => machine := machine.closeWriter
+              if (← stream.isClosed) ∧ (← stream.isClosed) then
+                pure ()
+              else
+                match ← stream.tryRecv with
+                | some res => machine := machine.writeUserData res
+                | none => machine := machine.closeWriter
 
         if ← errored.isResolved then
           let _ ← await errored.result!

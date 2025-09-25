@@ -2125,15 +2125,39 @@ and theorems are (mostly) opaque in Lean. For `Acc.rec`, we may unfold theorems
 during type-checking, but we are assuming this is not an issue in practice,
 and we are planning to address this issue in the future.
 -/
-private def subsumesInfo (cinfo₁ cinfo₂ : ConstantInfo) : Bool :=
+private def subsumesInfo (constMap : Std.HashMap Name ConstantInfo) (cinfo₁ cinfo₂ : ConstantInfo) : Bool :=
   cinfo₁.name == cinfo₂.name &&
     cinfo₁.type == cinfo₂.type &&
     cinfo₁.levelParams == cinfo₂.levelParams &&
     match cinfo₁, cinfo₂ with
     | .thmInfo tval₁, .thmInfo tval₂ => tval₁.all == tval₂.all
     | .thmInfo tval₁, .axiomInfo aval₂ => tval₁.all == [aval₂.name] && !aval₂.isUnsafe
-    | .axiomInfo aval₁, .axiomInfo aval₂ => aval₁.isUnsafe == aval₂.isUnsafe
+    | .axiomInfo aval₁, .axiomInfo aval₂ =>
+      -- In this case, we cannot a priori assume that both axioms came from theorems and thus their
+      -- former bodies are irrelevant - they could be both from definitions with different bodies
+      -- that were used to derive statements that would be contradictory if the axioms were merged.
+      -- Thus we do a rough, pure approximation of `Lean.Meta.isProp` that is sufficient for the
+      -- restricted types we use for realizable theorems and ensures the former bodies of the two
+      -- axioms must be irrelevant after all.
+      aval₁.isUnsafe == aval₂.isUnsafe && isPropCheap aval₁.type
     | _, _ => false
+where
+  /--
+  Check if `ty = ∀ ..., p xs...` and `p : ∀ args..., Prop` where `xs` and `args` are of the same
+  length.
+  -/
+  isPropCheap (ty : Expr) : Bool := Id.run do
+    let mut ty := ty
+    while ty.isForall do
+      let .forallE (body := body) .. := ty | return false
+      ty := body
+    let .const n .. := ty.getAppFn | return false
+    let some decl := constMap[n]? | return false
+    let mut p := decl.type
+    for _ in 0...ty.getAppNumArgs do
+      let .forallE (body := body) .. := p | return false
+      p := body
+    p.isProp
 
 /--
 Constructs environment from `importModulesCore` results.
@@ -2172,9 +2196,9 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
         privateConstantMap := constantMap'
         if let some cinfoPrev := cinfoPrev? then
           -- Recall that the map has not been modified when `cinfoPrev? = some _`.
-          if subsumesInfo cinfo cinfoPrev then
+          if subsumesInfo privateConstantMap cinfo cinfoPrev then
             privateConstantMap := privateConstantMap.insert cname cinfo
-          else if !subsumesInfo cinfoPrev cinfo then
+          else if !subsumesInfo privateConstantMap cinfoPrev cinfo then
             throwAlreadyImported s const2ModIdx modIdx cname
       const2ModIdx := const2ModIdx.insertIfNew cname modIdx
     if let some data := irData[modIdx]? then
@@ -2189,7 +2213,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
         | (cinfoPrev?, constantMap') =>
           publicConstantMap := constantMap'
           if let some cinfoPrev := cinfoPrev? then
-            if subsumesInfo cinfo cinfoPrev then
+            if subsumesInfo publicConstantMap cinfo cinfoPrev then
               publicConstantMap := publicConstantMap.insert cname cinfo
             -- no need to check for duplicates again, `privateConstMap` should be a superset
 

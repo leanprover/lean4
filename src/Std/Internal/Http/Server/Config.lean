@@ -56,7 +56,7 @@ structure Config where
   /--
   The server name.
   -/
-  serverName : Option String := some "LeanHTTP/1.1"
+  serverName : Option HeaderValue := some (.new "LeanHTTP/1.1")
 
 namespace Config
 

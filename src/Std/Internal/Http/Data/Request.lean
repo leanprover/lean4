@@ -128,7 +128,7 @@ def uri! (builder : Builder) (uri : String) : Builder :=
 /--
 Adds a single header to the request being built
 -/
-def header (builder : Builder) (key : String) (value : String) : Builder :=
+def header (builder : Builder) (key : String) (value : HeaderValue) : Builder :=
   { builder with head := { builder.head with headers := builder.head.headers.insert key value } }
 
 /--
@@ -148,7 +148,7 @@ Builds and returns the final HTTP Request with the specified body as binary data
 -/
 def binary (builder : Builder) (bytes : ByteArray) : Request Body :=
   builder
-    |>.header "Content-Type" "application/octet-stream"
+    |>.header "Content-Type" (.new "application/octet-stream")
     |>.body (Body.bytes bytes)
 
 /--
@@ -156,7 +156,7 @@ Builds and returns the final HTTP Request with the specified body as plain text
 -/
 def text (builder : Builder) (body : String) : Request Body :=
   builder
-    |>.header "Content-Type" "text/plain; charset=utf-8"
+    |>.header "Content-Type" (.new "text/plain; charset=utf-8")
     |>.body (body.toUTF8 |> Body.bytes)
 
 /--
@@ -164,7 +164,7 @@ Builds and returns the final HTTP Request with the specified body as HTML
 -/
 def html (builder : Builder) (body : String) : Request Body :=
   builder
-    |>.header "Content-Type" "text/html; charset=utf-8"
+    |>.header "Content-Type" (.new "text/html; charset=utf-8")
     |>.body (body.toUTF8 |> Body.bytes)
 
 /--
@@ -173,7 +173,7 @@ Builds and returns the final HTTP Request with form-encoded data
 def form (builder : Builder) (formData : List (String × String)) : Request Body :=
   let encoded := formData.map (fun (k, v) => k ++ "=" ++ v) |>.foldl (· ++ "&" ++ ·) ""
   builder
-    |>.header "Content-Type" "application/x-www-form-urlencoded"
+    |>.header "Content-Type" (.new "application/x-www-form-urlencoded")
     |>.body (encoded.toUTF8 |> Body.bytes)
 
 end Builder

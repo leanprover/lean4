@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Data.HashMap
+public import Std.Data.HashMap
 public import Std.Data.HashSet
 public import Std.Internal.Http.Encode
 
@@ -20,6 +21,114 @@ set_option linter.all true
 open Std
 
 /--
+Checks if a character is valid for use in an HTTP header value.
+Valid characters include:
+- Characters with values > 0x7F (extended ASCII)
+- Tab character (0x09)
+- Space character (0x20)
+- Printable ASCII characters (0x21 to 0x7E)
+-/
+@[expose]
+def isValidHeaderCharNode (c : Char) : Bool :=
+  (0x21 ≤  c.val ∧  c.val ≤ 0x7E) ∨ c.val = 0x09 ∨ c.val = 0x20
+
+/--
+Proposition that asserts all characters in a string are valid for HTTP header values.
+-/
+@[expose]
+abbrev isValidHeaderValue (s : String) : Prop :=
+  s.data.all isValidHeaderCharNode
+
+/--
+A validated HTTP header value that ensures all characters conform to HTTP standards.
+-/
+structure HeaderValue where
+
+  /--
+  The string data
+  -/
+  value : String
+
+  /--
+  The proof that it's a valid header value
+  -/
+  validHeaderValue : isValidHeaderValue value
+deriving BEq, Hashable, Repr
+
+namespace HeaderValue
+
+instance : Inhabited HeaderValue where default := ⟨"", by decide⟩
+
+/--
+Creates a new `HeaderValue` from a string with an optional proof of validity.
+If no proof is provided, it attempts to prove validity automatically.
+-/
+@[expose]
+def new (s : String) (h : s.data.all isValidHeaderCharNode := by decide) : HeaderValue :=
+  ⟨s, h⟩
+
+/--
+Attempts to create a `HeaderValue` from a `String`, returning `none` if the string
+contains invalid characters for HTTP header values.
+-/
+@[expose]
+def ofString? (s : String) : Option HeaderValue :=
+  if h : s.data.all isValidHeaderCharNode then
+    some ⟨s, h⟩
+  else
+    none
+
+/--
+Creates a `HeaderValue` from a string, panicking with an error message if the
+string contains invalid characters for HTTP header values.
+-/
+@[expose]
+def ofString! (s : String) : HeaderValue :=
+  if h : s.data.all isValidHeaderCharNode then
+    ⟨s, h⟩
+  else
+    panic! s!"invalid header value: {s.quote}"
+
+/--
+Performs a case-insensitive comparison between a `HeaderValue` and a `String`.
+Returns `true` if they match.
+-/
+@[expose]
+def is (s : HeaderValue) (h : String) : Bool :=
+  s.value.toLower == h.toLower
+
+/--
+Concatenates two `HeaderValue` instances, preserving the validity guarantee.
+-/
+def append (l : HeaderValue) (r : HeaderValue) : HeaderValue := by
+  refine ⟨l.value ++ r.value, ?_⟩
+  unfold isValidHeaderValue
+  rw [String.data_append]
+  rw [List.all_append]
+  rw [Bool.and_eq_true]
+  constructor
+  · exact l.validHeaderValue
+  · exact r.validHeaderValue
+
+instance : HAppend HeaderValue HeaderValue HeaderValue where
+  hAppend := HeaderValue.append
+
+/--
+Joins an array of `HeaderValue` instances with comma-space separation.
+Returns a single `HeaderValue` containing all values joined together.
+If the array is empty, returns an empty `HeaderValue`.
+-/
+def joinCommaSep (x : Array HeaderValue) : HeaderValue :=
+  if h : 0 < x.size then
+    let first := x[0]'h
+    let rest := x[1...*]
+    rest.foldl (· ++ HeaderValue.new ", " ++ ·) first
+  else
+    .new ""
+
+end HeaderValue
+
+/--
 A structure for managing HTTP headers as key-value pairs.
 -/
 structure Headers where
@@ -27,58 +136,66 @@ structure Headers where
   /--
   The internal hashmap that stores all the data.
   -/
-  data : HashMap String (String × HashSet String)
+  data : HashMap String (String × (Array HeaderValue))
 
 deriving Repr, Inhabited
 
 namespace Headers
 
 /--
-Splits a header value on commas, trims whitespace, puts into a HashSet.
--/
-def splitValues (value : String) : HashSet String :=
-  HashSet.ofList <| value.splitOn "," |>.map String.trim
-
-/--
-Tries to retrieve the header values for the given key, as a HashSet.
+Tries to retrieve the `HeaderValue` for the given key.
 Returns `none` if the header is absent.
 -/
 @[inline]
-def getSingle? (headers : Headers) (name : String) : Option String :=
-  headers.data.get? name.toLower |>.map (List.head! ∘ HashSet.toList ∘ Prod.snd)
+def get? (headers : Headers) (name : String) : Option HeaderValue :=
+  headers.data.get? name.toLower
+  |>.map (.joinCommaSep ∘ Prod.snd)
 
 /--
-Tries to retrieve the header values for the given key, as a HashSet.
+Tries to check if the entry is present in the `Headers`
+-/
+@[inline]
+def hasEntry (headers : Headers) (name : String) (value : String) : Bool :=
+  headers.data.get? name.toLower
+  |>.map Prod.snd
+  |>.bind (·.find? (·.is value))
+  |>.isSome
+
+/--
+Tries to retrieve the last header value for the given key.
 Returns `none` if the header is absent.
 -/
 @[inline]
-def get? (headers : Headers) (name : String) : Option (HashSet String) :=
-  headers.data.get? name.toLower |>.map Prod.snd
+def getLast? (headers : Headers) (name : String) : Option HeaderValue :=
+  headers.data.get? name.toLower
+  |>.bind (fun x => let arr := Prod.snd x; arr[arr.size - 1]?)
+
 
 /--
 Like `get?`, but returns an empty HashSet if absent.
 -/
 @[inline]
-def getD (headers : Headers) (name : String) : HashSet String :=
-  headers.get? name |>.getD ∅
+def getD (headers : Headers) (name : String) (d : HeaderValue) : HeaderValue :=
+  headers.get? name |>.getD d
 
 /--
 Like `get?`, but panics if absent.
 -/
 @[inline]
-def get! (headers : Headers) (name : String) : HashSet String :=
-  headers.data.get! name.toLower |> Prod.snd
+def get! (headers : Headers) (name : String) : HeaderValue :=
+  headers.get? name |>.get!
 
 /--
 Inserts a new key-value pair into the headers.
 -/
 @[inline]
-def insert (headers : Headers) (name : String) (value : String) : Headers :=
+def insert (headers : Headers) (name : String) (value : HeaderValue) : Headers :=
   let key := name.toLower
-  let data := headers.data.get? key
-  let words := splitValues value
-  let hm := if let some (name, hm) := data then (name, hm.insertMany words) else (name, words)
-  { data := headers.data.insert key hm }
+
+  if let some (_, headerValue) := headers.data.get? key then
+    { data := headers.data.insert key (name, headerValue.push value) }
+  else
+    { data := headers.data.insert key (name, #[value]) }
 
 /--
 Creates empty headers.
@@ -89,8 +206,8 @@ def empty : Headers :=
 /--
 Creates headers from a list of key-value pairs.
 -/
-def fromList (pairs : List (String × String)) : Headers :=
-  { data := HashMap.ofList (pairs.map (fun (k, v) => (k.toLower, (k, splitValues v)))) }
+def ofList (pairs : List (String × HeaderValue)) : Headers :=
+  { data := HashMap.ofList (pairs.map (fun (k, v) => (k.toLower, (k, #[v])))) }
 
 /--
 Checks if a header with the given name exists.
@@ -128,7 +245,7 @@ def merge (headers1 headers2 : Headers) : Headers :=
 
 instance : ToString Headers where
   toString headers :=
-    let pairs := headers.data.toList.map (fun (_, (k, vs)) => s!"{k}: {String.intercalate ", " vs.toList}")
+    let pairs := headers.data.toList.map (fun (_, (k, vs)) => s!"{k}: {HeaderValue.joinCommaSep vs |>.value}")
     String.intercalate "\r\n" pairs
 
 instance : Encode .v11 Headers where

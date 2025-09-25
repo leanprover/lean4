@@ -107,7 +107,7 @@ def version (builder : Builder) (version : Version) : Builder :=
 /--
 Adds a single header to the response being built
 -/
-def header (builder : Builder) (key : String) (value : String) : Builder :=
+def header (builder : Builder) (key : String) (value : HeaderValue) : Builder :=
   { builder with head := { builder.head with headers := builder.head.headers.insert key value } }
 
 /--
@@ -127,7 +127,7 @@ Builds and returns the final HTTP Response with the specified body as binary dat
 -/
 def binary (builder : Builder) (bytes : ByteArray) : Response Body :=
   builder
-    |>.header "Content-Type" "application/octet-stream"
+    |>.header "Content-Type" (.new "application/octet-stream")
     |>.body (Body.bytes bytes)
 
 /--
@@ -135,7 +135,7 @@ Builds and returns the final HTTP Response with the specified body as plain text
 -/
 def text (builder : Builder) (body : String) : Response Body :=
   builder
-    |>.header "Content-Type" "text/plain; charset=utf-8"
+    |>.header "Content-Type" (.new "text/plain; charset=utf-8")
     |>.body (body.toUTF8 |> Body.bytes)
 
 /--
@@ -143,7 +143,7 @@ Builds and returns the final HTTP Response with the specified body as HTML.
 -/
 def html (builder : Builder) (body : String) : Response Body :=
   builder
-    |>.header "Content-Type" "text/html; charset=utf-8"
+    |>.header "Content-Type" (.new "text/html; charset=utf-8")
     |>.body (body.toUTF8 |> Body.bytes)
 
 end Builder

@@ -17,23 +17,21 @@ Solver for preorders, partial orders, linear orders, and support for offsets.
 abbrev NodeId := Nat
 /--
 **Note**: We use `Int` to represent weights, but solver supports `Unit` (encoded as `0`),
-`Nat`, and `Int`. During proof construction we perform the necessary conversions.
+and `Int`. During proof construction we perform the necessary conversions.
 -/
 abbrev Weight := Int
 
 /--
-A constraint of the form `u + k₁ ≤ v + k₂` (`u + k₁ < v + k₂` if `strict := true`)
-Remark: If the order does not support offsets, then `k₁` and `k₂` are zero.
-`h? := some h` if the Lean expression is not definitionally equal to the constraint,
-but provably equal with proof `h`.
+A constraint of the form `u ≤ v + k` (`u < v + k` if `strict := true`)
+Remark: If the order does not support offsets, then `k` is zero.
+`h` is proof that the associated Lean expression is equal to the constraint.
 -/
 structure Cnstr where
   u      : NodeId
   v      : NodeId
   strict : Bool   := false
-  k₁     : Weight := 0
-  k₂     : Weight := 0
-  h?     : Option Expr := none
+  k      : Weight := 0
+  h      : Expr
   deriving Inhabited
 
 structure WeightS where
@@ -71,8 +69,7 @@ instance : DecidableLT WeightS :=
 structure ProofInfo where
   w      : NodeId
   strict : Bool := false
-  k₁     : Rat := 0
-  k₂     : Rat := 0
+  k      : Rat := 0
   proof  : Expr
   deriving Inhabited
 

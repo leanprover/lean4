@@ -16,7 +16,11 @@ info: B.foo "hello" : String × String
 ---
 trace: [Meta.synthInstance] ❌️ Add String
   [Meta.synthInstance] new goal Add String
-    [Meta.synthInstance.instances] #[@Lean.Grind.AddCommMonoid.toAdd, @Lean.Grind.Semiring.toAdd]
+    [Meta.synthInstance.instances] #[@Lean.Grind.AddCommMonoid.toAdd, @Lean.Grind.Semiring.toAdd, @Lean.Grind.Order.Weight.toAdd]
+  [Meta.synthInstance] ✅️ apply @Lean.Grind.Order.Weight.toAdd to Add String
+    [Meta.synthInstance.tryResolve] ✅️ Add String ≟ Add String
+    [Meta.synthInstance] no instances for Lean.Grind.Order.Weight String
+      [Meta.synthInstance.instances] #[]
   [Meta.synthInstance] ✅️ apply @Lean.Grind.Semiring.toAdd to Add String
     [Meta.synthInstance.tryResolve] ✅️ Add String ≟ Add String
     [Meta.synthInstance] new goal Lean.Grind.Semiring String

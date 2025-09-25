@@ -28,8 +28,8 @@ class Offset (α : Type u) (ω : Type v) [Weight ω] extends LE α, LT α, Std.I
   weight_le   : ∀ (a : α) (k₁ k₂ : ω), offset a k₁ ≤ offset a k₂ → k₁ ≤ k₂
   weight_lt   : ∀ (a : α) (k₁ k₂ : ω), offset a k₁ < offset a k₂ → k₁ < k₂
 
-instance : Weight Nat where
-instance : Weight Int where
+local instance : Weight Nat where
+local instance : Weight Int where
 
 def Unit.weight : Weight Unit where
   add := fun _ _ => ()
@@ -39,7 +39,7 @@ def Unit.weight : Weight Unit where
   decLt := fun _ _ => inferInstanceAs (Decidable False)
 
 attribute [local instance] Ring.intCast Semiring.natCast in
-instance {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Ring α] [Std.IsPreorder α] [OrderedRing α] : Offset α Int where
+local instance {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Ring α] [Std.IsPreorder α] [OrderedRing α] : Offset α Int where
   offset a k    := a + k
   offset_add    := by intros; rw [Ring.intCast_add, Semiring.add_assoc]
   offset_le     := by intros; rw [← OrderedAdd.add_le_left_iff]
@@ -50,14 +50,14 @@ instance {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Ring α] [Std.IsPreorder �
     intro _ _ _ h; replace h := OrderedAdd.add_lt_right_iff _ |>.mpr h
     exact OrderedRing.lt_of_intCast_lt_intCast _ _ h
 
-instance : Offset Int Int where
+local instance : Offset Int Int where
   offset a k    := a + k
   offset_add    := by omega
   offset_le     := by simp
   weight_le     := by simp
   weight_lt     := by simp
 
-instance : Offset Nat Nat where
+local instance : Offset Nat Nat where
   offset a k    := a + k
   offset_add    := by omega
   offset_le     := by simp

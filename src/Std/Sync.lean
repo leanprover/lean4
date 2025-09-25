@@ -15,5 +15,6 @@ public import Std.Sync.SharedMutex
 public import Std.Sync.Notify
 public import Std.Sync.Broadcast
 public import Std.Sync.StreamMap
+public import Std.Sync.CancellationToken
 
 @[expose] public section

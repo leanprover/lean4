@@ -37,27 +37,57 @@ structure SubexprInfo where
 structure Hyp where
   type : Widget.TaggedText SubexprInfo
   names : Array String
-  isInserted?: Option Bool
-  isRemoved?: Option Bool
+  fvarIds : Array FVarId
+  val? : Option (Widget.TaggedText SubexprInfo)
+  isInstance? : Option Bool := none
+  isType? : Option Bool := none
+  isInserted? : Option Bool
+  isRemoved? : Option Bool
   deriving FromJson, ToJson
+
+def Hyp.normalize (h : Hyp) : Hyp := { h with
+  fvarIds := #[]
+}
 
 structure InteractiveGoalCore where
   hyps : Array Hyp
   type : Widget.TaggedText SubexprInfo
+  ctx  : Lsp.RpcRef
   deriving FromJson, ToJson
 
+def InteractiveGoalCore.normalize (g : InteractiveGoalCore) : InteractiveGoalCore := { g with
+  hyps := g.hyps.map (·.normalize)
+}
+
 structure InteractiveGoal extends InteractiveGoalCore where
+  userName? : Option String
+  goalPrefix : String
+  mvarId : MVarId
   isInserted?: Option Bool := none
   isRemoved?: Option Bool := none
   deriving FromJson, ToJson
+
+def InteractiveGoal.normalize (goal : InteractiveGoal) : InteractiveGoal := { goal with
+  mvarId := { name := .anonymous }
+  toInteractiveGoalCore := goal.toInteractiveGoalCore.normalize
+}
 
 structure InteractiveGoals where
   goals : Array InteractiveGoal
   deriving FromJson, ToJson
 
+def InteractiveGoals.normalize (gs : InteractiveGoals) : InteractiveGoals := {
+  goals := gs.goals.map (·.normalize)
+}
+
 structure InteractiveTermGoal extends InteractiveGoalCore where
   range : Lsp.Range
+  term : Lsp.RpcRef
   deriving FromJson, ToJson
+
+def InteractiveTermGoal.normalize (g : InteractiveTermGoal) : InteractiveTermGoal := { g with
+  toInteractiveGoalCore := g.toInteractiveGoalCore.normalize
+}
 
 structure WidgetInstance where
   id : Name
@@ -78,13 +108,29 @@ inductive MsgEmbed where
     (children : StrictOrLazy (Array (Widget.TaggedText MsgEmbed)) Lsp.RpcRef)
   deriving FromJson, ToJson
 
+partial def MsgEmbed.normalize : MsgEmbed → MsgEmbed
+  | .expr e => .expr e
+  | .goal g => .goal g.normalize
+  | .widget wi alt => .widget wi <| alt.map (·.normalize)
+  | .trace ident cls msg collapsed children =>
+    let msg := msg.map (·.normalize)
+    let children :=
+      match children with
+      | .lazy childrenRef => .lazy childrenRef
+      | .strict children => .strict <| children.map fun child => child.map (·.normalize)
+    .trace ident cls msg collapsed children
+
 abbrev InteractiveDiagnostic := Lsp.DiagnosticWith (Widget.TaggedText MsgEmbed)
+
+def InteractiveDiagnostic.normalize (d : InteractiveDiagnostic) : InteractiveDiagnostic := { d with
+  message := d.message.map (·.normalize)
+}
 
 def normalizeInteractiveDiagnostics (diags : Array InteractiveDiagnostic) :
     Array InteractiveDiagnostic :=
   -- Sort diagnostics by range and message to erase non-determinism in the order of diagnostics
   -- induced by parallelism. This isn't complete, but it will hopefully be plenty for all tests.
-  let sorted := diags.toList.mergeSort fun d1 d2 =>
+  let sorted := diags.map (·.normalize) |>.toList.mergeSort fun d1 d2 =>
     compare d1.fullRange d2.fullRange |>.then (compare d1.message.stripTags d2.message.stripTags) |>.isLE
   sorted.toArray
 
@@ -98,6 +144,40 @@ structure GetGoToLocationParams where
   kind : GoToKind
   info : RpcRef
   deriving FromJson, ToJson
+
+structure HighlightMatchesParams where
+  query : String
+  msg : Widget.TaggedText MsgEmbed
+  deriving FromJson, ToJson
+
+inductive HighlightedSubexprInfo where
+  | subexpr (info : SubexprInfo)
+  | highlighted
+  deriving FromJson, ToJson
+
+inductive HighlightedMsgEmbed where
+  | expr : Widget.TaggedText HighlightedSubexprInfo → HighlightedMsgEmbed
+  | goal : Client.InteractiveGoal → HighlightedMsgEmbed
+  | widget (wi : Client.WidgetInstance) (alt : Widget.TaggedText HighlightedMsgEmbed)
+  | trace (indent : Nat) (cls : Name) (msg : Widget.TaggedText HighlightedMsgEmbed) (collapsed : Bool)
+      (children : StrictOrLazy
+        (Array (Widget.TaggedText HighlightedMsgEmbed))
+        Lsp.RpcRef)
+  | highlighted
+  deriving FromJson, ToJson
+
+partial def HighlightedMsgEmbed.normalize : HighlightedMsgEmbed → HighlightedMsgEmbed
+  | .expr e => .expr e
+  | .goal g => .goal g.normalize
+  | .widget wi alt => .widget wi <| alt.map (·.normalize)
+  | .trace ident cls msg collapsed children =>
+    let msg := msg.map (·.normalize)
+    let children :=
+      match children with
+      | .lazy childrenRef => .lazy childrenRef
+      | .strict children => .strict <| children.map fun child => child.map (·.normalize)
+    .trace ident cls msg collapsed children
+  | .highlighted => .highlighted
 
 end Client
 
@@ -235,16 +315,16 @@ def rpcRequest (method : Name) [ToJson α] (p : α) (β : Type) [FromJson β] : 
   request "$/lean/rpc/call" callParams β
 
 def rpcRequestWithLoggedResponse (method : Name) [ToJson α] (p : α)
-    (β : Type) [FromJson β] [ToJson β] (logParam := true) : RunnerM β := do
+    (β : Type) [FromJson β] [ToJson β] (logParam := true) (normalize : β → β := id) : RunnerM β := do
   if logParam then
     printOutputLn (toJson p)
   let r ← rpcRequest method p β
-  printOutputLn (toJson r)
+  printOutputLn (toJson (normalize r))
   return r
 
 def logRpcResponse (method : Name) [ToJson α] (p : α)
-  (β : Type := Json) [FromJson β] [ToJson β] (logParam := true) : RunnerM Unit := do
-  discard <| rpcRequestWithLoggedResponse method p β logParam
+  (β : Type := Json) [FromJson β] [ToJson β] (logParam := true) (normalize : β → β := id) : RunnerM Unit := do
+  discard <| rpcRequestWithLoggedResponse method p β logParam normalize
 
 def reset : RunnerM Unit := modify fun s => { s with
   synced := true
@@ -351,20 +431,32 @@ def processCodeAction : RunnerM Unit := do
 
 def processInteractiveDiagnostics : RunnerM Unit := do
   let isExpandTraces := (← get).params == "expandTraces"
+  let highlightMatchesQuery? := (← get).params.dropPrefix? "highlightMatches:"
   let params : Widget.GetInteractiveDiagnosticsParams := {
     lineRange? := some ⟨0, (← get).pos.line + 1⟩
   }
   printOutputLn (toJson params)
   let r ← rpcRequest `Lean.Widget.getInteractiveDiagnostics params (Array Client.InteractiveDiagnostic)
   let r := Client.normalizeInteractiveDiagnostics r
-  if ! isExpandTraces then
+  if isExpandTraces then
+    let r ← r.mapM fun diag => do
+      return { diag with
+        message := ← diag.message.mapM expandTraces
+      }
+    let r := r.map (fun d => { d with message := d.message.map Client.MsgEmbed.normalize })
     printOutputLn (toJson r)
-    return
-  let r ← r.mapM fun diag => do
-    return { diag with
-      message := ← diag.message.mapM expandTraces
-    }
-  printOutputLn (toJson r)
+  else if let some highlightMatchesQuery := highlightMatchesQuery? then
+    for diag in r do
+      let params := {
+        query := highlightMatchesQuery.toString
+        msg := diag.message
+        : Client.HighlightMatchesParams
+      }
+      logRpcResponse `Lean.Widget.highlightMatches params (β := Widget.TaggedText Client.HighlightedMsgEmbed)
+        (normalize := fun msg => msg.map (·.normalize))
+  else
+    printOutputLn (toJson (r.map (·.normalize)))
+
 
 def processGoals : RunnerM Unit := do
   let withPopups := (← get).params == "withPopups"
@@ -374,6 +466,7 @@ def processGoals : RunnerM Unit := do
     position := (← get).pos,
   }
   let r ← rpcRequestWithLoggedResponse `Lean.Widget.getInteractiveGoals params Client.InteractiveGoals
+    (normalize := Client.InteractiveGoals.normalize)
   if withPopups then
     let interactiveTerms := r.goals.flatMap fun goal =>
       goal.hyps.map (fun h => (" ".intercalate h.names.toList, h.type)) |>.push ("goal", goal.type)
@@ -401,6 +494,7 @@ def processTermGoal : RunnerM Unit := do
     position := (← get).pos,
   }
   logRpcResponse `Lean.Widget.getInteractiveTermGoal params (β := Option Client.InteractiveTermGoal)
+    (normalize := fun g? => g?.map (·.normalize))
 
 def processWidgets : RunnerM Unit := do
   let r ← rpcRequest `Lean.Widget.getWidgets (← get).pos Lean.Widget.GetWidgetsResponse

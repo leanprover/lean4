@@ -16,12 +16,16 @@
        {"text": " → "},
        {"tag":
         [{"subexprPos": "/1", "info": {"p": "5"}}, {"text": "True"}]}]}]},
+   "mvarId": "[anonymous]",
    "isInserted": false,
    "hyps":
    [{"type":
      {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "Nat"}]},
      "names": ["x"],
-     "isInserted": true}]}]}
+     "isInserted": true,
+     "fvarIds": []}],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "6"}}]}
 {"textDocument": {"uri": "file:///Diff.lean"},
  "position": {"line": 4, "character": 2}}
 {"goals":
@@ -40,11 +44,15 @@
        {"text": " → "},
        {"tag":
         [{"subexprPos": "/1", "info": {"p": "12"}}, {"text": "True"}]}]}]},
+   "mvarId": "[anonymous]",
    "isInserted": false,
    "hyps":
    [{"type":
      {"tag": [{"subexprPos": "/", "info": {"p": "7"}}, {"text": "Nat"}]},
-     "names": ["x"]}]}]}
+     "names": ["x"],
+     "fvarIds": []}],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "13"}}]}
 {"textDocument": {"uri": "file:///Diff.lean"},
  "position": {"line": 9, "character": 2}}
 {"goals":
@@ -78,21 +86,28 @@
            {"tag":
             [{"subexprPos": "/1/1", "info": {"p": "21"}},
              {"text": "True"}]}]}]}]}]},
+   "mvarId": "[anonymous]",
    "isInserted": false,
-   "hyps": []}]}
+   "hyps": [],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "22"}}]}
 {"textDocument": {"uri": "file:///Diff.lean"},
  "position": {"line": 15, "character": 5}}
 {"goals":
  [{"type":
    {"tag": [{"subexprPos": "/", "info": {"p": "34"}}, {"text": "True"}]},
+   "mvarId": "[anonymous]",
    "isInserted": false,
    "hyps":
    [{"type":
      {"tag": [{"subexprPos": "/", "info": {"p": "23"}}, {"text": "Sort u_1"}]},
-     "names": ["α"]},
+     "names": ["α"],
+     "isType": true,
+     "fvarIds": []},
     {"type":
      {"tag": [{"subexprPos": "/", "info": {"p": "24"}}, {"text": "Nat"}]},
-     "names": ["x", "y"]},
+     "names": ["x", "y"],
+     "fvarIds": []},
     {"type":
      {"tag":
       [{"subexprPos": "/", "info": {"p": "25"}},
@@ -113,7 +128,8 @@
                 "info": {"p": "30"},
                 "diffStatus": "willChange"},
                {"text": "y"}]}]}]}]}]},
-     "names": ["f"]},
+     "names": ["f"],
+     "fvarIds": []},
     {"type":
      {"tag":
       [{"subexprPos": "/", "info": {"p": "31"}},
@@ -122,20 +138,27 @@
          {"text": " = "},
          {"tag":
           [{"subexprPos": "/1", "info": {"p": "33"}}, {"text": "x"}]}]}]},
-     "names": ["h"]}]}]}
+     "names": ["h"],
+     "fvarIds": []}],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "35"}}]}
 {"textDocument": {"uri": "file:///Diff.lean"},
  "position": {"line": 20, "character": 9}}
 {"goals":
  [{"type":
    {"tag": [{"subexprPos": "/", "info": {"p": "47"}}, {"text": "True"}]},
+   "mvarId": "[anonymous]",
    "isInserted": false,
    "hyps":
    [{"type":
      {"tag": [{"subexprPos": "/", "info": {"p": "36"}}, {"text": "Sort u_1"}]},
-     "names": ["α"]},
+     "names": ["α"],
+     "isType": true,
+     "fvarIds": []},
     {"type":
      {"tag": [{"subexprPos": "/", "info": {"p": "37"}}, {"text": "Nat"}]},
-     "names": ["x", "y"]},
+     "names": ["x", "y"],
+     "fvarIds": []},
     {"type":
      {"tag":
       [{"subexprPos": "/", "info": {"p": "38"}},
@@ -156,7 +179,8 @@
                 "info": {"p": "43"},
                 "diffStatus": "wasChanged"},
                {"text": "x"}]}]}]}]}]},
-     "names": ["f"]},
+     "names": ["f"],
+     "fvarIds": []},
     {"type":
      {"tag":
       [{"subexprPos": "/", "info": {"p": "44"}},
@@ -165,7 +189,10 @@
          {"text": " = "},
          {"tag":
           [{"subexprPos": "/1", "info": {"p": "46"}}, {"text": "x"}]}]}]},
-     "names": ["h"]}]}]}
+     "names": ["h"],
+     "fvarIds": []}],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "48"}}]}
 {"textDocument": {"uri": "file:///Diff.lean"},
  "position": {"line": 25, "character": 2}}
 {"goals":
@@ -177,25 +204,40 @@
        {"text": " ∧ "},
        {"tag":
         [{"subexprPos": "/1", "info": {"p": "51"}}, {"text": "True"}]}]}]},
+   "mvarId": "[anonymous]",
    "isInserted": false,
-   "hyps": []}]}
+   "hyps": [],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "52"}}]}
 {"textDocument": {"uri": "file:///Diff.lean"},
  "position": {"line": 27, "character": 2}}
 {"goals":
- [{"type":
+ [{"userName": "left",
+   "type":
    {"tag": [{"subexprPos": "/", "info": {"p": "53"}}, {"text": "True"}]},
+   "mvarId": "[anonymous]",
    "isRemoved": true,
-   "hyps": []},
-  {"type":
+   "hyps": [],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "54"}},
+  {"userName": "right",
+   "type":
    {"tag": [{"subexprPos": "/", "info": {"p": "55"}}, {"text": "True"}]},
-   "hyps": []}]}
+   "mvarId": "[anonymous]",
+   "hyps": [],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "56"}}]}
 {"textDocument": {"uri": "file:///Diff.lean"},
  "position": {"line": 29, "character": 2}}
 {"goals":
- [{"type":
+ [{"userName": "right",
+   "type":
    {"tag": [{"subexprPos": "/", "info": {"p": "57"}}, {"text": "True"}]},
+   "mvarId": "[anonymous]",
    "isRemoved": true,
-   "hyps": []}]}
+   "hyps": [],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "58"}}]}
 {"textDocument": {"uri": "file:///Diff.lean"},
  "position": {"line": 33, "character": 6}}
 {"goals":
@@ -227,11 +269,13 @@
            {"tag":
             [{"subexprPos": "/1/1", "info": {"p": "69"}},
              {"text": "y"}]}]}]}]}]},
+   "mvarId": "[anonymous]",
    "isInserted": false,
    "hyps":
    [{"type":
      {"tag": [{"subexprPos": "/", "info": {"p": "59"}}, {"text": "Nat"}]},
-     "names": ["x", "y", "z"]},
+     "names": ["x", "y", "z"],
+     "fvarIds": []},
     {"type":
      {"tag":
       [{"subexprPos": "/", "info": {"p": "60"}},
@@ -240,4 +284,7 @@
          {"text": " = "},
          {"tag":
           [{"subexprPos": "/1", "info": {"p": "62"}}, {"text": "x"}]}]}]},
-     "names": ["h"]}]}]}
+     "names": ["h"],
+     "fvarIds": []}],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "70"}}]}

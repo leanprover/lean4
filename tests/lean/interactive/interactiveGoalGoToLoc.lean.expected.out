@@ -3,11 +3,13 @@
 {"goals":
  [{"type":
    {"tag": [{"subexprPos": "/", "info": {"p": "4"}}, {"text": "MyTrue"}]},
+   "mvarId": "[anonymous]",
    "isRemoved": true,
    "hyps":
    [{"type":
      {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "MyNat"}]},
-     "names": ["x"]},
+     "names": ["x"],
+     "fvarIds": []},
     {"type":
      {"tag":
       [{"subexprPos": "/", "info": {"p": "1"}},
@@ -16,7 +18,10 @@
          {"tag": [{"subexprPos": "/0/1", "info": {"p": "2"}}, {"text": "x"}]},
          {"text": " "},
          {"tag": [{"subexprPos": "/1", "info": {"p": "3"}}, {"text": "x"}]}]}]},
-     "names": ["h"]}]}]}
+     "names": ["h"],
+     "fvarIds": []}],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "5"}}]}
 GoToLoc responses for type of x:
 GoToLoc response for MyNat:
 {"kind": "definition", "info": {"p": "0"}}

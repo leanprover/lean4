@@ -57,7 +57,7 @@ protected partial def forIn
   Async β := do
     let rec @[specialize] loop (stream : ByteStream) (acc : β) : Async β := do
       if let some data ← stream.recv then
-        match ← step data.toByteArray acc with
+        match ← step data acc with
         | .done res => pure res
         | .yield res => loop stream res
       else

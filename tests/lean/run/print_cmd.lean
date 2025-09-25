@@ -46,8 +46,29 @@ Nat.succ : Nat → Nat
 /--
 info: recursor Nat.rec.{u} : {motive : Nat → Sort u} →
   motive Nat.zero → ((n : Nat) → motive n → motive n.succ) → (t : Nat) → motive t
+number of parameters: 0
+number of indices: 0
+number of motives: 1
+number of minors: 2
+rules:
+for Nat.zero (0 fields): fun motive rec zero succ => zero
+for Nat.succ (1 fields): fun motive rec zero succ n => succ n (rec n)
 -/
 #guard_msgs in #print Nat.rec
+/--
+info: recursor Acc.rec.{u_1, u} : {α : Sort u} →
+  {r : α → α → Prop} →
+    {motive : (a : α) → Acc r a → Sort u_1} →
+      ((x : α) → (h : ∀ (y : α), r y x → Acc r y) → ((y : α) → (a : r y x) → motive y ⋯) → motive x ⋯) →
+        {a : α} → (t : Acc r a) → motive a t
+number of parameters: 2
+number of indices: 1
+number of motives: 1
+number of minors: 1
+rules:
+for Acc.intro (2 fields): fun {α} r motive rec intro x h => intro x h fun y a => rec y ⋯
+-/
+#guard_msgs in #print Acc.rec
 /--
 info: @[reducible] def Nat.casesOn.{u} : {motive : Nat → Sort u} →
   (t : Nat) → motive Nat.zero → ((n : Nat) → motive n.succ) → motive t :=

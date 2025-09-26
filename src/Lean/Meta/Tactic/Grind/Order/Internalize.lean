@@ -18,9 +18,21 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.Internalize
 import Lean.Meta.Tactic.Grind.Order.StructId
 namespace Lean.Meta.Grind.Order
 
+open Arith CommRing
+
 def getType? (e : Expr) : Option Expr :=
   match_expr e with
-  | Eq α _ _ => some α
+  | Eq α lhs rhs =>
+    /-
+    **Note**: We only try internalize equalities if `lhs` or `rhs` arithmetic terms that may
+    need to be internalized. If they are not, normalization is not needed. Moreover, this is
+    an optimization for avoiding trying to infer order instances for "hopeless" types such as
+    `Bool`.
+    -/
+    if isArithTerm lhs || isArithTerm rhs then
+      some α
+    else
+      none
   | LE.le α _ _ _ => some α
   | LT.lt α _ _ _ => some α
   | HAdd.hAdd α _ _ _ _ _ => some α
@@ -33,8 +45,6 @@ def isForbiddenParent (parent? : Option Expr) : Bool :=
     getType? parent |>.isSome
   else
     false
-
-open Arith CommRing
 
 def split (p : Poly) : Poly × Poly × Int :=
   match p with

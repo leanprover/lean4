@@ -41,6 +41,7 @@ where
     let some u ← getDecLevel? type | return none
     let some leInst ← getInst? ``LE u type | return none
     let some isPreorderInst ← mkIsPreorderInst? u type (some leInst) | return none
+    -- **TODO** compute `isPartialInst?` and `isLinearPreInst?` on demand
     let isPartialInst? ← mkIsPartialOrderInst? u type (some leInst)
     let isLinearPreInst? ← mkIsLinearPreorderInst? u type (some leInst)
     let ltInst? ← getInst? ``LT u type

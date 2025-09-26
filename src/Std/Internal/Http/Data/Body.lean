@@ -19,7 +19,8 @@ namespace Http
 set_option linter.all true
 
 /--
-Inductive type for HTTP body content
+Type that represents the body of a request or response with streams of bytearrays or bytearrays of fixed
+size.
 -/
 inductive Body where
   /--

@@ -240,7 +240,6 @@ deriving BEq, Repr
 Manages the reading state of the machine.
 -/
 structure Reader where
-
   /--
   The current state of the machine.
   -/
@@ -288,7 +287,6 @@ end Reader
 Manages the writing state of the machine.
 -/
 structure Writer where
-
   /--
   This is all the data that the user is sending that is being accumulated.
   -/
@@ -459,7 +457,6 @@ end Machine
 The state machine that receives some input bytes and outputs bytes for the HTTP 1.1 protocol.
 -/
 structure Machine where
-
   /--
   The state of the reader.
   -/

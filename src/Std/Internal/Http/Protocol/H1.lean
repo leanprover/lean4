@@ -897,7 +897,7 @@ def shouldFlush (machine : Machine) : Bool :=
 Get the current output data and clear the buffer
 -/
 @[inline]
-def takeOutput (machine : Machine) (highMark := 0): Option (Machine × BufferBuilder) :=
+def takeOutput (machine : Machine) (highMark := 0) : Option (Machine × BufferBuilder) :=
   if machine.writer.outputData.size ≥ highMark ∨
     machine.writer.state == .complete
   then

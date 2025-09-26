@@ -292,6 +292,24 @@ theorem fib_correct {n} : (fib_impl n).run = fib_spec n := by
 
 end fib
 
+section regressions
+
+def mySum (l : Array Nat) : Nat := Id.run do
+  let mut out := 0
+  for i in l do
+    out := out + i
+  return out
+
+theorem mySum_correct (l : Array Nat) : mySum l = l.sum := by
+  generalize h : mySum l = x
+  apply Id.of_wp_run_eq h
+  -- This tests that `mspec` properly replaces the main goal.
+  -- Previously, we would get `No goals to be solved` here.
+  mspec
+  all_goals admit
+
+end regressions
+
 section WeNeedAProofMode
 
 abbrev M := StateT Nat (StateT Char (StateT Bool (StateT String Id)))

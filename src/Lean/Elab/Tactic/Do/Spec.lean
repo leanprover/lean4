@@ -214,9 +214,9 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name
 @[builtin_tactic Lean.Parser.Tactic.mspecNoBind]
 def elabMSpecNoBind : Tactic
   | `(tactic| mspec_no_bind $[$spec]?) => do
-    let (mvar, goal) ← mStartMVar (← getMainGoal)
+    let (mvar, goal) ← mStartMainGoal
     mvar.withContext do
-    let (prf, goals) ← collectFreshMVars <| mSpec goal (elabSpec spec) (← getMainTag)
+    let (prf, goals) ← collectFreshMVars <| mSpec goal (elabSpec spec) (← mvar.getTag)
     mvar.assign prf
     replaceMainGoal goals.toList
   | _ => throwUnsupportedSyntax

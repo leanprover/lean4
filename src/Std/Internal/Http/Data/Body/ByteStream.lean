@@ -52,7 +52,7 @@ structure ByteStream where
 namespace ByteStream
 
 /--
-Creates a new ByteStream with the specified initial capacity and buffer limit.
+Creates a new ByteStream with a specified initial capacity.
 -/
 def emptyWithCapacity (maxBufferSize : Nat := 8 * 1024 * 1024) : Async ByteStream := do
   let state ← Std.Mutex.new { maxBufferSize := maxBufferSize }

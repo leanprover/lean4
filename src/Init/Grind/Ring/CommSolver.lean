@@ -1797,4 +1797,17 @@ theorem eq_norm_expr_nc {α} [Ring α] (ctx : Context α) (lhs rhs : Expr) (lhs'
   replace h : lhs.denote ctx - rhs.denote ctx = lhs'.denote ctx - rhs'.denote ctx := h
   rw [← AddCommGroup.sub_eq_zero_iff, h, AddCommGroup.sub_eq_zero_iff]
 
+/-!
+Helper theorems for quick normalization
+-/
+
+theorem le_norm0 {α} [Ring α] [LE α] (lhs rhs : α) : (lhs ≤ rhs) = (lhs ≤ rhs + Int.cast (R := α) 0) := by
+  rw [Ring.intCast_zero, Semiring.add_zero]
+
+theorem lt_norm0 {α} [Ring α] [LT α] (lhs rhs : α) : (lhs < rhs) = (lhs < rhs + Int.cast (R := α) 0) := by
+  rw [Ring.intCast_zero, Semiring.add_zero]
+
+theorem eq_norm0 {α} [Ring α] (lhs rhs : α) : (lhs = rhs) = (lhs = rhs + Int.cast (R := α) 0) := by
+  rw [Ring.intCast_zero, Semiring.add_zero]
+
 end Lean.Grind.CommRing

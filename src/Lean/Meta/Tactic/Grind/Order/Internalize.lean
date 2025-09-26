@@ -13,6 +13,7 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Internalize
 import Lean.Meta.Tactic.Grind.Order.StructId
 namespace Lean.Meta.Grind.Order
 
@@ -44,6 +45,8 @@ def split (p : Poly) : Poly × Poly × Int :=
     else
       (.add k m lhs, rhs, c)
 
+def propEq := mkApp (mkConst ``Eq [1]) (mkSort 0)
+
 /--
 Given a proof `h` that `e ↔ rel lhs rhs`, add expected proposition hint around `h`.
 The relation `rel` is inferred from `kind`.
@@ -54,10 +57,27 @@ def mkExpectedHint (s : Struct) (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) (
     | .lt => s.ltFn?.get!
     | .eq => mkApp (mkConst ``Eq [mkLevelSucc s.u]) s.type
   let e' := mkApp2 rel lhs rhs
-  let prop := mkIff e e'
+  let prop :=  mkApp2 propEq e e'
   mkExpectedPropHint h prop
 
+def mkLeNorm0 (s : Struct) (ringInst : Expr) (lhs rhs : Expr) : Expr :=
+  mkApp5 (mkConst ``Grind.CommRing.le_norm0 [s.u]) s.type ringInst s.leInst lhs rhs
+
+def mkLtNorm0 (s : Struct) (ringInst : Expr) (lhs rhs : Expr) : Expr :=
+  mkApp5 (mkConst ``Grind.CommRing.lt_norm0 [s.u]) s.type ringInst s.ltInst?.get! lhs rhs
+
+def mkEqNorm0 (s : Struct) (ringInst : Expr) (lhs rhs : Expr) : Expr :=
+  mkApp4 (mkConst ``Grind.CommRing.eq_norm0 [s.u]) s.type ringInst lhs rhs
+
+def mkCnstrNorm0 (s : Struct) (ringInst : Expr) (kind : CnstrKind) (lhs rhs : Expr) : Expr :=
+  match kind with
+  | .le => mkLeNorm0 s ringInst lhs rhs
+  | .lt => mkLtNorm0 s ringInst lhs rhs
+  | .eq => mkEqNorm0 s ringInst lhs rhs
+
 def mkCommRingCnstr? (e : Expr) (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : RingM (Option (Cnstr Expr)) := do
+  if !isArithTerm lhs && !isArithTerm rhs then
+    return some { u := lhs, v := rhs, k := 0, kind, h? := some (mkCnstrNorm0 s (← getRing).ringInst kind lhs rhs)  }
   let some lhs ← reify? lhs (skipVar := false) | return none
   let some rhs ← reify? rhs (skipVar := false) | return none
   let p := lhs.sub rhs |>.toPoly
@@ -77,6 +97,8 @@ def mkCommRingCnstr? (e : Expr) (s : Struct) (kind : CnstrKind) (lhs rhs : Expr)
   }
 
 def mkNonCommRingCnstr? (e : Expr) (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : NonCommRingM (Option (Cnstr Expr)) := do
+  if !isArithTerm lhs && !isArithTerm rhs then
+    return some { u := lhs, v := rhs, k := 0, kind, h? := some (mkCnstrNorm0 s (← getRing).ringInst kind lhs rhs)  }
   let some lhs ← ncreify? lhs (skipVar := false) | return none
   let some rhs ← ncreify? rhs (skipVar := false) | return none
   let p := lhs.sub rhs |>.toPoly_nc

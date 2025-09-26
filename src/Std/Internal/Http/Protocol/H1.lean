@@ -58,14 +58,14 @@ structure Config where
   highMark : Nat := 4096
 
   /--
-  Default buffer size for the connection
-  -/
-  defaultPayloadBytes : Nat := 8192
-
-  /--
   The server name
   -/
   serverName : Option HeaderValue := some (.new "LeanHTTP/1.1")
+
+  /--
+  Default buffer size for the connection
+  -/
+  defaultPayloadBytes : Nat := 8192
 
 /--
 Specific HTTP processing errors with detailed information.
@@ -305,12 +305,6 @@ structure Writer where
   outputData : BufferBuilder := .empty
 
   /--
-  This is the size that we need to know or not before sending to the output data. If it's fixed then
-  it puts Content-Length instead o Transfer-Encoding chunked
-  -/
-  isChunked : Bool := false
-
-  /--
   The state of the writer machine. It carries if the reader had already read the headers, the size
   of the output, if it's chunked or not.
   -/
@@ -335,7 +329,7 @@ structure Writer where
 namespace Writer
 
 /--
-Rests and closes the connection
+Resets and closes the connection
 -/
 def resetAndClose (writer : Writer) : Writer :=
   match writer.state with
@@ -356,7 +350,7 @@ Set a known size for the response body, enabling streaming with Content-Length
 -/
 @[inline]
 def setKnownSize (size : Nat) (writer : Writer) : Writer :=
-  { writer with knownSize := some size, isChunked := false }
+  { writer with knownSize := some size }
 
 /--
 Determine the body size based on writer state and closure
@@ -364,8 +358,6 @@ Determine the body size based on writer state and closure
 private def determineBodySize (writer : Writer) : Body.Length :=
   if let some size := writer.knownSize then
     .fixed size
-  else if writer.isChunked then
-    .chunked
   else if writer.closed then
     .fixed writer.userData.size
   else
@@ -600,7 +592,6 @@ private def resetForNextRequest (machine : Machine) : Machine :=
         userData := .empty,
         chunkExt := .empty,
         outputData := machine.writer.outputData,
-        isChunked := false,
         state := .waitingHeaders,
         closed := false,
         knownSize := none,
@@ -786,10 +777,14 @@ partial def processRead (machine : Machine) : Machine :=
     let (machine, result) := parseWith machine parseRequestLine (limit := some 8192)
 
     if let some head := result then
-      machine
-      |>.modifyReader (.setRequest head)
-      |>.setReaderState (.needHeader 0)
-      |>.processRead
+      if head.version != .v11 then
+        machine
+        |>.setFailure .unsupportedVersion .badRequest
+      else
+        machine
+        |>.modifyReader (.setRequest head)
+        |>.setReaderState (.needHeader 0)
+        |>.processRead
     else
       machine
 

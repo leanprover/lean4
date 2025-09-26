@@ -1,0 +1,6 @@
+name = "test"
+
+[[require]]
+name = "lean-finmap"
+scope = "kim-em"
+version = "0.1.0"

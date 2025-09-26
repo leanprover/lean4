@@ -9,7 +9,7 @@ prelude
 public import Std.Internal.Async.TCP
 public import Std.Internal.Http.Protocol.H1
 public import Std.Internal.Http.Server.Config
-public import Std.Internal.Http.Server.Client
+public import Std.Internal.Http.Server.ClientConnection
 
 public section
 
@@ -48,15 +48,15 @@ private inductive Recv
   | timeout
 
 private def receiveWithTimeout
-  [Client α] (socket : α) (expect : UInt64)
+  [ClientConnection α] (socket : α) (expect : UInt64)
   (timeoutMs : Millisecond.Offset) :
   Async Recv := do
     Selectable.one #[
-      .case (← Client.recvSelector socket expect) (fun x => pure <| .bytes x),
+      .case (← ClientConnection.recvSelector socket expect) (fun x => pure <| .bytes x),
       .case (← (← Sleep.mk timeoutMs).selector) (fun _ => pure <| .timeout)]
 
 private def processNeedMoreData
-  [Client α] (machine : Protocol.H1.Machine) (socket : α) (expect : Option Nat) :
+  [ClientConnection α] (machine : Protocol.H1.Machine) (socket : α) (expect : Option Nat) :
   Async (Except Protocol.H1.Machine.Error (Option ByteArray)) := do
     try
       let expect := expect.getD machine.config.defaultPayloadBytes
@@ -71,7 +71,7 @@ private def processNeedMoreData
       pure (.error Protocol.H1.Machine.Error.timeout)
 
 private def handle
-  [Client α]
+  [ClientConnection α]
   (connection : Connection α)
   (handler : Request Body → Async (Response Body))
   (onFailure : Error → Async Unit)
@@ -181,7 +181,7 @@ private def handle
           machine := newMachine
 
           if data.size > 0 then
-            Client.sendAll socket data.data
+            ClientConnection.sendAll socket data.data
 
     catch err =>
       onFailure err
@@ -191,7 +191,7 @@ end Connection
 Serve conection
 -/
 def serveConnection
-  [Client t]
+  [ClientConnection t]
   (client : t)
   (onRequest : Request Body → Async (Response Body))
   (onFailure : Error → Async Unit := fun _ => pure ())

@@ -48,10 +48,13 @@ def mStartMVar (mvar : MVarId) : MetaM (MVarId × MGoal) := mvar.withContext do
   else
     return (mvar, result.goal)
 
-@[builtin_tactic Lean.Parser.Tactic.mstart]
-def elabMStart : Tactic | _ => do
-  let (mvar, _) ← mStartMVar (← getMainGoal)
+def mStartMainGoal : TacticM (MVarId × MGoal) := do
+  let (mvar, goal) ← mStartMVar (← getMainGoal)
   replaceMainGoal [mvar]
+  return (mvar, goal)
+
+@[builtin_tactic Lean.Parser.Tactic.mstart]
+def elabMStart : Tactic | _ => discard mStartMainGoal
 
 @[builtin_tactic Lean.Parser.Tactic.mstop]
 def elabMStop : Tactic | _ => do

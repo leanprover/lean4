@@ -47,7 +47,8 @@ def isObsChar (c : UInt8) : Bool :=
 
 @[inline]
 def isFieldVChar (c : UInt8) : Bool :=
-  isVChar c ∨ isObsChar c
+  isVChar c ∨ isObsChar c ∨ c = ' '.toUInt8 ∨ c = '\t'.toUInt8
+
 
 -- HTAB / SP / %x21 / %x23-5B / %x5D-7E / obs-text
 @[inline]
@@ -62,7 +63,7 @@ def isQdText (c : UInt8) : Bool :=
 -- Parser blocks
 
 def manyItems {α : Type} (parser : Parser (Option α)) (maxCount : Nat) : Parser (Array α) := do
-  let items ← many (parser.bind (fun item => match item with
+  let items ← many (attempt <| parser.bind (fun item => match item with
     | some x => return x
     | none => fail "end of items"))
   if items.size > maxCount then

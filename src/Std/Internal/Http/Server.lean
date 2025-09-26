@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.Internal.Http.Server.Connection
-public import Std.Internal.Http.Server.Client
+public import Std.Internal.Http.Server.ClientConnection
 
 public section
 

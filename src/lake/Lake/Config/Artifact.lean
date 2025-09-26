@@ -8,20 +8,75 @@ module
 prelude
 public import Lake.Build.Trace
 
-open System
+open System Lean
 
 namespace Lake
 
-/-- A file with a known content hash. -/
-public structure Artifact where
-  /-- The path to the artifact on the file system. -/
-  path : FilePath
-  /-- The name of the artifact. This is used, for example, as a caption in traces. -/
-  name := path.toString
-  /-- The modification time of the artifact (or `0` if unknown). -/
-  mtime : MTime
-  /-- The content hash of the artifact. -/
+/-- Returns the relative file path used for an artifact in the Lake cache (i.e., `{hash}.{ext}`). -/
+@[inline] public def artifactPath (contentHash : Hash) (ext := "art") : FilePath :=
+  if ext.isEmpty then contentHash.toString else s!"{contentHash}.{ext}"
+
+/-- The information needed to identify a single artifact within the Lake cache. -/
+public structure ArtifactDescr where
+  /-- The artifact's content hash. -/
   hash : Hash
+  /-- The artifact's file extension. -/
+  ext : String := "art"
+  deriving Inhabited, Repr
+
+/--
+A content-hashed artifact that should have the file extension `ext`.
+
+Many applications care about the extension of a file (e.g., use it determine
+what kind of operation to perform), so the content hash alone may not be sufficient to
+produce a useable artifact for consumers.
+-/
+@[inline] public def artifactWithExt (contentHash : Hash) (ext := "art") : ArtifactDescr :=
+  {hash := contentHash, ext}
+
+-- discourage direct use of the constructor
+attribute [deprecated artifactWithExt (since := "2025-08-30")] ArtifactDescr.mk
+
+namespace ArtifactDescr
+
+/-- Returns the relative file path used for the output's artifact in the Lake cache (c.f. `artifactPath`). -/
+@[inline] public def toFilePath (self : ArtifactDescr) : FilePath :=
+  artifactPath self.hash self.ext
+
+public instance : ToString ArtifactDescr := ⟨(·.toFilePath.toString)⟩
+public instance : ToJson ArtifactDescr := ⟨(toJson ·.toFilePath)⟩
+
+/-- Parse an output's relative file path into an `ArtifactDescr`. -/
+public def ofFilePath? (path : FilePath) : Except String ArtifactDescr := do
+  let s := path.toString
+  let pos := s.posOf '.'
+  if h : s.atEnd pos then
+    let some hash := Hash.ofString? s
+      | throw "expected artifact file name to be a content hash"
+    return {hash, ext := ""}
+  else
+    let some hash := Hash.ofString? <| s.extract 0 pos
+      | throw "expected artifact file name to be a content hash"
+    let ext := s.extract (s.next' pos h) s.endPos
+    return {hash, ext}
+
+public protected def fromJson? (data : Json) : Except String ArtifactDescr := do
+  match fromJson? data with
+  | .ok (out : String) => ofFilePath? out
+  | .error e => throw s!"artifact in unexpected JSON format: {e}"
+
+public instance : FromJson ArtifactDescr := ⟨ArtifactDescr.fromJson?⟩
+
+end ArtifactDescr
+
+/-- A file with a known content hash. -/
+public structure Artifact extends descr : ArtifactDescr where
+  /-- The preferred path to the artifact on the file system. -/
+  path : FilePath
+  /-- The artifact's. This is used, for example, as a caption in traces. -/
+  name := path.toString
+  /-- The artifact's modification time (or `0` if unknown). -/
+  mtime : MTime
   deriving Inhabited, Repr
 
 namespace Artifact

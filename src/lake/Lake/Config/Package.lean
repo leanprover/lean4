@@ -73,10 +73,15 @@ public structure Package where
   /-- The driver used for `lake lint` when this package is the workspace root. -/
   lintDriver : String := config.lintDriver
   /--
-  Input-to-content map for hashes of package artifacts.
+  Input-to-output(s) map for hashes of package artifacts.
   If `none`, the artifact cache is disabled for the package.
   -/
-  cacheRef? : Option CacheRef := none
+  inputsRef? : Option CacheRef := none
+  /--
+  Input-to-output(s) map for hashes of package artifacts.
+  If `none`, the artifact cache is disabled for the package.
+  -/
+  outputsRef? : Option CacheRef := none
 
 deriving Inhabited
 
@@ -339,10 +344,9 @@ public def nativeLibDir (self : Package) : FilePath :=
 @[inline] public def enableArtifactCache? (self : Package) : Option Bool :=
   self.config.enableArtifactCache?
 
-/-- The file where the package's input-to-content mapping is stored in the Lake cache. -/
-public def inputsFileIn (cache : Cache) (self : Package) : FilePath :=
-  let pkgName := self.name.toString (escape := false)
-  cache.inputsFile pkgName
+/-- The directory within the Lake cache were package-scoped files are stored. -/
+public def cacheScope (self : Package) :=
+  self.name.toString (escape := false)
 
 /-- Try to find a target configuration in the package with the given name. -/
 public def findTargetDecl? (name : Name) (self : Package) : Option (NConfigDecl self.name name) :=

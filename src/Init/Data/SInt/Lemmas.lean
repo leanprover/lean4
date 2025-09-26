@@ -36,6 +36,12 @@ macro "declare_int_theorems" typeName:ident _bits:term:arg : command => do
 
   theorem toBitVec_inj {a b : $typeName} : a.toBitVec = b.toBitVec ↔ a = b :=
     ⟨toBitVec.inj, (· ▸ rfl)⟩
+  theorem ofBitVec_inj {a b : BitVec $_bits} : ofBitVec a = ofBitVec b ↔ a = b := by
+    apply Iff.intro <;> (rintro h; cases h; rfl)
+  theorem eq_iff_ofBitVec_eq {a b : BitVec $_bits} : a = b ↔ ofBitVec a = ofBitVec b :=
+    ofBitVec_inj.symm
+  theorem ne_iff_ofBitVec_ne {a b : BitVec $_bits} : a ≠ b ↔ ofBitVec a ≠ ofBitVec b := by
+    simp [ofBitVec_inj]
   @[int_toBitVec] theorem eq_iff_toBitVec_eq {a b : $typeName} : a = b ↔ a.toBitVec = b.toBitVec :=
     toBitVec_inj.symm
   @[int_toBitVec] theorem ne_iff_toBitVec_ne {a b : $typeName} : a ≠ b ↔ a.toBitVec ≠ b.toBitVec :=

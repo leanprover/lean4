@@ -23,6 +23,8 @@ open Std Internal IO Async
 
 set_option linter.all true
 
+set_option linter.all true
+
 /--
 Type that represents the body of a request or response with streams of bytearrays or bytearrays of fixed
 size.

@@ -72,6 +72,37 @@ the internet.
 `Std.Http.Server.Connection` is a structure that stores both a `Transport` and a `Machine`
 the machine right now is only a `Protocol.H1.Machine` that implements a State Machine for parsing request and responses for HTTP/1.1
 
+If you want to customize how your server handles sockets, you can use `Std.Http.Server.serveConnection`,
+which is a simple function to bind a handler to a `ClientConnection`.
+
+# Low-Level Protocol Implementation
+
+This library provides a low-level foundation that allows you to implement your own IO layer on top
+of it. The core protocol parsing and generation logic is available in `Std.Internal.Http.Protocol`,
+which provides pure functions for HTTP message parsing and serialization. This design allows you to
+integrate the HTTP protocol handling with any IO system or networking library of your choice, while
+reusing the robust protocol implementation.
+
+# Minimal Example
+
+```lean
+import Std.Internal.Http
+import Std.Internal.Async
+
+open Std.Internal.IO.Async
+open Std Http
+
+def handler (req : Request Body) : Async (Response Body) := do
+  let some data ← req.body.collectString
+    | return Response.badRequest "expected a utf8 body"
+
+  return Response.ok ("hi, " ++ data)
+
+def mainAsync : Async Unit := do
+  Server.serve (.v4 (.mk (.ofParts 0 0 0 0) 8080)) handler
+
+def main := mainAsync.block
+```
 -/
 
 namespace Std.Http

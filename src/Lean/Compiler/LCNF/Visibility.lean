@@ -9,6 +9,7 @@ prelude
 public import Lean.Compiler.LCNF.PhaseExt
 public import Lean.Compiler.MetaAttr
 public import Lean.Compiler.ImplementedByAttr
+import Lean.Compiler.Options
 
 public section
 
@@ -58,7 +59,7 @@ partial def markDeclPublicRec (phase : Phase) (decl : Decl) : CompilerM Unit := 
 
 /-- Checks whether references in the given declaration adhere to phase distinction. -/
 partial def checkMeta (origDecl : Decl) : CompilerM Unit := do
-  if !(← getEnv).header.isModule then
+  if !(← getEnv).header.isModule || !compiler.checkMeta.get (← getOptions) then
     return
   let irPhases := getIRPhases (← getEnv) origDecl.name
   if irPhases == .all then

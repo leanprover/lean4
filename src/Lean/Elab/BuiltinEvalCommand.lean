@@ -9,6 +9,7 @@ prelude
 public import Lean.Util.CollectAxioms
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.MutualDef
+import Lean.Compiler.Options
 
 public section
 
@@ -91,7 +92,10 @@ private def addAndCompileExprForEval (declName : Name) (value : Expr) (allowSorr
   let defView := mkDefViewOfDef { isUnsafe := true, visibility := .public }
     (← `(Parser.Command.definition|
           def $(mkIdent <| `_root_ ++ declName) := $(← Term.exprToSyntax value)))
-  Term.elabMutualDef #[] { header := "" } #[defView]
+  -- Allow access to both `meta` and non-`meta` declarations as the compilation result does not
+  -- escape the current module.
+  withOptions (Compiler.compiler.checkMeta.set · false) do
+    Term.elabMutualDef #[] { header := "" } #[defView]
   unless allowSorry do
     let axioms ← collectAxioms declName
     if axioms.contains ``sorryAx then

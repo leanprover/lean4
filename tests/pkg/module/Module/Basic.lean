@@ -419,6 +419,14 @@ inst✝
 
 public meta def pubMeta := 1
 
+/-! `#eval` should accept `meta` and non-`meta`. -/
+
+meta def fmeta := 1
+
+/-- info: 2 -/
+#guard_msgs in
+#eval f + fmeta
+
 /-! Prop `instance`s should have direct access to the private scope. -/
 
 public class PropClass : Prop where

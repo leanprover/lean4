@@ -26,7 +26,6 @@ open Lean
 The main parts of a response.
 -/
 structure Response.Head where
-
   /--
   The HTTP status code and reason phrase, indicating the result of the request.
   For example, `.ok` corresponds to `200 OK`.
@@ -49,7 +48,6 @@ deriving Inhabited, Repr
 HTTP response structure parameterized by body type
 -/
 structure Response (t : Type) where
-
   /--
   The information of the status-line of the request.
   -/
@@ -62,10 +60,9 @@ structure Response (t : Type) where
 deriving Inhabited
 
 /--
-Builds a HTTP Response
+Builds a HTTP Response.
 -/
 structure Response.Builder where
-
   /--
   The information of the status-line of the request.
   -/

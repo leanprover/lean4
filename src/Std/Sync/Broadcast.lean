@@ -33,7 +33,6 @@ This module is heavily inspired by `Std.Sync.Channel` as well as
 Errors that may be thrown while interacting with the broadcast channel API.
 -/
 inductive Broadcast.Error where
-
   /--
   Tried to send to a closed broadcast channel.
   -/
@@ -80,7 +79,6 @@ private structure Slot (α : Type) where
 deriving Inhabited, Repr
 
 private structure Bounded.State (α : Type) where
-
   /--
   Queue of producers blocked waiting for buffer space to become available.
   -/
@@ -94,7 +92,7 @@ private structure Bounded.State (α : Type) where
   /--
   Maximum number of messages that can be buffered before producers block.
   -/
-  capacity : { x : Nat // x > 0 }
+  capacity : { x : Nat // 0 < x }
 
   /--
   Current number of messages stored in the circular buffer.
@@ -212,10 +210,10 @@ Dequeues an element from the front of the circular buffer.
 Returns none if the buffer is empty.
 -/
 private def dequeue (st: State α) : State α :=
-    let size := st.size - 1
-    let read : Fin st.capacity := @Fin.ofNat _ ⟨Nat.ne_zero_iff_zero_lt.mpr st.capacity.property⟩ (st.read + 1)
+  let size := st.size - 1
+  let read : Fin st.capacity := @Fin.ofNat _ ⟨Nat.ne_zero_iff_zero_lt.mpr st.capacity.property⟩ (st.read + 1)
 
-    { st with read, size }
+  { st with read, size }
 
 /--
 Peeks at the element at the front of the buffer without removing it.
@@ -224,32 +222,32 @@ Returns none if the buffer is empty.
 private def getSlot
   [Monad m] [MonadLiftT (ST IO.RealWorld) m] (place : Nat) :
   AtomicT (Bounded.State α) m (IO.Ref (Slot α)) := do
-    let mut st ← get
+    let st ← get
     let idx := (@Fin.ofNat st.capacity ⟨Nat.ne_zero_of_lt st.capacity.property⟩ place)
     return st.buffer.get idx
 
 /--
 Subscribes a new `Receiver` in the `Bounded` channel.
 -/
-private def trySend' (v : α) : AtomicT (Bounded.State α) BaseIO Bool := do
+private def trySend' (v : α) : AtomicT (Bounded.State α) BaseIO (Option Nat) := do
   if ← isFull then
-    return false
+    return none
   else
-    let mut st ← enqueue v (← get)
-    let mut waiters := st.waiters
+    let st ← enqueue v (← get)
+    let waiters := st.waiters
     set ({ st with waiters := ∅ })
 
     for consumer in waiters.toArray do
       discard <| consumer.resolve true
 
-    return true
+    return some st.receivers.size
 
-private def trySend (ch : Bounded α) (v : α) : BaseIO Bool := do
+private def trySend (ch : Bounded α) (v : α) : BaseIO (Option Nat) := do
   ch.state.atomically do
     if (← get).closed then
-      return false
+      return none
     else if (← get).receivers.isEmpty then
-      return false
+      return (some 0)
     else
       trySend' v
 
@@ -259,8 +257,8 @@ private partial def send (ch : Bounded α) (v : α) : BaseIO (Task (Except Broad
       return .pure <| .error .closed
     else if (← get).receivers.isEmpty then
       return .pure <| .ok 0
-    else if ← trySend' v then
-      return .pure <| .ok (← get).receivers.size
+    else if let some receivers ← trySend' v then
+      return .pure <| .ok receivers
     else
       let promise ← IO.Promise.new
       modify fun st => { st with producers := st.producers.enqueue promise }
@@ -292,7 +290,8 @@ namespace Receiver
 
 private def getSlotValue
   [Monad m] [MonadLiftT (ST IO.RealWorld) m]
-  (slot : IO.Ref (Slot α)) (next : Nat) : AtomicT (Bounded.State α) m (Option α × Bool) :=
+  (slot : IO.Ref (Slot α)) (next : Nat) :
+  AtomicT (Bounded.State α) m (Option α × Bool) :=
     slot.modifyGet fun slot =>
       if next != slot.pos then
         ((none, false), slot)
@@ -302,8 +301,8 @@ private def getSlotValue
         ((slot.value, false), { slot with remaining := slot.remaining - 1 })
 
 private def getValueByPosition
-  [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m]
-  (next : Nat) : AtomicT (Bounded.State α) m (Option α) := do
+  [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m] (next : Nat) :
+  AtomicT (Bounded.State α) m (Option α) := do
     let mut st ← get
 
     if ← isEmpty then
@@ -351,11 +350,12 @@ private def unsubscribe (bd : Bounded.Receiver α) : IO Unit := do
   match id with
   | .error res => throw (.userError (toString res))
   | .ok _ => pure ()
+
 private def tryRecv'
   [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m]
   (receiverId : Nat) : AtomicT (Bounded.State α) m (Option α) := do
     let st ← get
-    let next := st.receivers.get! receiverId
+    let next := st.receivers[receiverId]!
 
     if let some val ← getValueByPosition next then
       modify ({ · with receivers := st.receivers.modify receiverId (· + 1) })
@@ -496,7 +496,7 @@ Try to send a value to the broadcast channel, if this can be completed right awa
 `true`, otherwise don't send the value and return `false`.
 -/
 @[inline]
-def trySend (ch : Broadcast α) (v : α) : BaseIO Bool :=
+def trySend (ch : Broadcast α) (v : α) : BaseIO (Option Nat) :=
   ch.inner.trySend v
 
 /--
@@ -620,7 +620,7 @@ def new (capacity : Nat := 16) (h : capacity > 0 := by decide) : BaseIO (Sync α
   Broadcast.new capacity h
 
 @[inherit_doc Broadcast.trySend, inline]
-def trySend (ch : Sync α) (v : α) : BaseIO Bool :=
+def trySend (ch : Sync α) (v : α) : BaseIO (Option Nat) :=
   Broadcast.trySend ch v
 
 /--

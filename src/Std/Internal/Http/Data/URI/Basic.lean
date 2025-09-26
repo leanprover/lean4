@@ -25,17 +25,7 @@ abbrev Scheme := String
 /--
 User information component containing username and password.
 -/
-structure UserInfo where
-  /--
-  Optional username to include in the authority portion of a URI.
-  -/
-  user : Option String
-
-  /--
-  Optional password associated with the username, rarely used in modern practice.
-  -/
-  pass : Option String
-deriving Inhabited, Repr
+abbrev UserInfo := String
 
 /--
 Host component of a URI, supporting domain names and IP addresses.
@@ -125,7 +115,7 @@ end URI
 Complete URI structure following RFC 3986.
 -/
 structure URI where
-  scheme : Option URI.Scheme
+  scheme : URI.Scheme
   authority : Option URI.Authority
   path : URI.Path
   query : Option URI.Query
@@ -136,7 +126,7 @@ deriving Inhabited, Repr
 HTTP request target forms as defined in RFC 7230 Section 5.3.
 -/
 inductive RequestTarget where
-  | originForm (path : URI.Path) (query : Option URI.Query)
+  | originForm (path : URI.Path) (query : Option URI.Query) (query : Option String)
   | absoluteForm (uri : URI)
   | authorityForm (authority : URI.Authority)
   | asteriskForm
@@ -145,12 +135,12 @@ deriving Inhabited, Repr
 namespace RequestTarget
 
 def path? : RequestTarget → Option URI.Path
-  | .originForm p _ => some p
+  | .originForm p _ _ => some p
   | .absoluteForm u => some u.path
   | _ => none
 
 def query? : RequestTarget → Option URI.Query
-  | .originForm _ q => q
+  | .originForm _ q _ => q
   | .absoluteForm u => u.query
   | _ => none
 
@@ -184,16 +174,6 @@ def percentEncode (s : String) : ByteArray :=
   s.toUTF8.foldl (init := ByteArray.emptyWithCapacity s.utf8ByteSize) fun acc c =>
     if isUnreserved c then  acc.push c else acc.append (byteToHex c)
 
-instance : ToString URI.UserInfo where
-  toString
-    | ⟨some u, some p⟩ =>
-        let encodedU := String.fromUTF8! (percentEncode u)
-        let encodedP := String.fromUTF8! (percentEncode p)
-        s!"{encodedU}:{encodedP}"
-    | ⟨some u, none⟩   => String.fromUTF8! (percentEncode u)
-    | ⟨none, some p⟩   => s!":{String.fromUTF8! (percentEncode p)}"
-    | ⟨none, none⟩     => ""
-
 instance : ToString URI.Host where
   toString
     | .name n => String.fromUTF8! (percentEncode n)
@@ -204,7 +184,7 @@ instance : ToString URI.Authority where
   toString auth :=
     let userPart := match auth.userInfo with
       | none => ""
-      | some ui => s!"{ui}@"
+      | some ui => s!"{percentEncode ui}@"
     let hostPart := toString auth.host
     let portPart := match auth.port with
       | none => ""
@@ -239,9 +219,7 @@ instance : ToString URI.Query where
 
 instance : ToString URI where
   toString uri :=
-    let schemePart := match uri.scheme with
-      | none => ""
-      | some s => s!"{String.fromUTF8! (percentEncode s)}:"
+    let schemePart :=  String.fromUTF8! (percentEncode uri.scheme)
     let authorityPart := match uri.authority with
       | none => ""
       | some auth => s!"//{toString auth}"
@@ -254,10 +232,11 @@ instance : ToString URI where
 
 instance : ToString RequestTarget where
   toString
-    | .originForm path query =>
+    | .originForm path query frag =>
         let pathStr := toString path
         let queryStr := query.map toString |>.getD ""
-        s!"{pathStr}{queryStr}"
+        let frag := frag.map ("#" ++ ·) |>.getD ""
+        s!"{pathStr}{queryStr}{frag}"
     | .absoluteForm uri => toString uri
     | .authorityForm auth => toString auth
     | .asteriskForm => "*"

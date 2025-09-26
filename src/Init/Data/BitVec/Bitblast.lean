@@ -2498,6 +2498,11 @@ theorem extractLsb'_extractAndExtendPopulate_eq (x : BitVec w) (i : Nat) :
       · omega
     · omega
 
+theorem extractLsb'_extractAndExtendPopulate_zero_eq (x : BitVec w) :
+    (extractAndExtendPopulate x).extractLsb' 0 w = BitVec.zeroExtend w (BitVec.extractLsb' 0 1 x) := by
+  rw [show 0 = 0 * w by omega, extractLsb'_extractAndExtendPopulate_eq (i := 0)]
+  simp
+
 /-- Recursively add `len`-long portions of the bitvector -/
 def foldAdd (x : BitVec (validNodes * w)) (validNodes currNode : Nat) (r : BitVec w) : BitVec w :=
   if _ : currNode < validNodes then
@@ -2662,15 +2667,22 @@ def scatter (xs : BitVec (n * w)) : List (BitVec w) :=
 
 @[simp]
 theorem scatter_of_one (xs : BitVec (1 * w)) :
-    xs.scatter = [xs.cast (by omega)] := by
+    xs.scatter = [BitVec.cast (by omega) xs] := by
   simp [scatter]
-  exists 0
-  and_intros
-  · rfl
-  · simp only [Nat.zero_mul]
-    ext k hk
-    simp only [getElem_extractLsb', Nat.zero_add, getElem_cast]
-    rw [getLsbD_eq_getElem (by omega)]
+  ext j hj
+  simp only [getElem_extractLsb', Nat.zero_add, getElem_cast]
+  rw [getLsbD_eq_getElem]
+
+@[simp]
+theorem scatter_of_zero (xs : BitVec (0 * w)) :
+    xs.scatter = [ ] := by
+  simp [scatter]
+
+@[simp]
+theorem scatter_of_len_zero (xs : BitVec (k * w)) (hk : k = 0) :
+    xs.scatter = [ ] := by
+  simp [scatter, hk]
+
 
 theorem scatter_eq_of_eq_one (xs : BitVec (v * w)) (hv : v = 1) :
     xs.scatter = [xs.cast (by rw [hv]; omega)] := by
@@ -2697,13 +2709,6 @@ theorem append_extractLsb'_self (x : BitVec (w + 1)) :
   by_cases hklt : k = 0
   · simp [hklt]
   · simp [hklt, show 1 + (k - 1) = k by omega, getLsbD_eq_getElem (by omega)]
-
-
-theorem extractAndExtendPopulate_append (x : BitVec (w + 1)):
-    (extractLsb' 1 w x ++ extractLsb' 0 1 x).extractAndExtendPopulate =
-    (x).extractAndExtendPopulate := by
-  rw [append_extractLsb'_self (x := x)]
-  simp [extractLsb'_append_eq_ite]
 
 axiom proof_strategy {p: Prop} : p
 
@@ -2862,8 +2867,6 @@ theorem popCountAuxRec_eq_popCountAuxRec_of_lt
       omega
     · omega
 
-
-
 theorem popCountAuxRec_add {x : BitVec w1} (y : BitVec w2) {r : BitVec v} (n1 n2 : Nat)
     (hxy : ∀ (i : Nat), x.getLsbD (n1 + i) = y.getLsbD (n2 + i)) :
       x.popCountAuxRec r n1 = y.popCountAuxRec r n2 := by
@@ -2896,8 +2899,49 @@ theorem popCountAuxRec_add {x : BitVec w1} (y : BitVec w2) {r : BitVec v} (n1 n2
         · exact h1
         · omega
       · omega
-  ·
-    sorry
+  · case succ n1' ihn1 =>
+    induction h2 : (w2 - n2) generalizing w1 w2 n1 n2
+    · case zero =>
+      rw [popCountAuxRec_succ]
+      · have : zeroExtend v (extractLsb' n1 1 x) = 0 := by
+          ext i hi
+          simp
+          intros hi'
+          specialize hxy i
+          rw [hxy]
+          refine getLsbD_of_ge y (n2 + i) (by omega)
+        simp [this]
+        apply ihn1
+        · intros i
+          have hx := getLsbD_of_ge y (n2 + 1 + i) (by omega)
+          have hx' := getLsbD_of_ge y (n2 + i) (by omega)
+          specialize hxy (1 + i)
+          simp [← Nat.add_assoc] at hxy
+          simp [hxy]
+          simp [hx] at hxy
+          simp [hx', hx]
+        · omega
+      · omega
+    · case _ n2' ihn2 =>
+      rw [popCountAuxRec_succ]
+      · rw [popCountAuxRec_succ (x := y)]
+        · congr 1
+          · ext k hk
+            simp
+            by_cases hk0 : k = 0
+            · simp [hk0]
+              specialize hxy 0
+              simp at hxy
+              exact hxy
+            · simp [hk0]
+          · apply ihn1
+            · intro j
+              specialize hxy (1 + j)
+              repeat rw [← Nat.add_assoc] at hxy
+              exact hxy
+            · omega
+        · omega
+      · omega
 
 theorem popCountAuxRec_eq_popCountAuxRec_extractLsb' (x : BitVec w) (r : BitVec v) :
     x.popCountAuxRec r n = (x.extractLsb' n (w - n)).popCountAuxRec r 0 := by
@@ -2929,14 +2973,120 @@ theorem eq_append_one (x : BitVec (w + 1)) :
   · simp [show 1 + (k - 1) = k by omega]
     rw [getLsbD_eq_getElem]
 
-/--
- setWidth (w' + 1) (extractLsb' 0 1 x) + setWidth (w' + 1) (extractLsb' 1 w' x).popCount =
-  (extractLsb' 1 w' x ++ extractLsb' 0 1 x).extractAndExtendPopulate.sumPackedVec
+theorem eq_append (x : BitVec ((k + 1) * w)) :
+    x = ((extractLsb' w (k * w) x) ++ (extractLsb' 0 w x) ).cast (by simp [Nat.add_mul]) := by
+  ext j hj
+  simp
+  rw [getElem_append]
+  split
+  · case _ h =>
+    simp
+    rw [getLsbD_eq_getElem]
+  · case _ h =>
+    simp [show w + (j - w) = j by omega]
+    rw [getLsbD_eq_getElem]
 
-  need lemma to push extractandextend populate inside the appned afer whichb sumpackedvec simp lemmas should just rewrite, we finish the goal by usign ih
+theorem append_scatter_eq_scatter_append {x : BitVec (k  * w)} {y : BitVec (l * w)} :
+    ((x ++ y).cast (m := (k + l) * w) (by rw [Nat.add_mul])).scatter =
+    (x.scatter ++ y.scatter) := by
+ sorry
 
 
-the popcount equals the result of summing the packed vector. -/
+@[simp]
+theorem scatter_of_add_one (xs : BitVec ((k + 1) * w)) :
+    xs.scatter = (xs.extractLsb' 0 (k * w)).scatter ++ [(xs.extractLsb' (k * w) w)] := by
+  induction k
+  · case zero =>
+    simp
+    ext j hj
+    simp
+    rw [getLsbD_eq_getElem]
+  · case _ k' ihk' =>
+    conv =>
+      lhs
+      rw [eq_append (x := xs)]
+
+    sorry
+
+
+theorem scatter_of_len_zero' (xs : BitVec (k * w)) (hw : w = 0) :
+    xs.scatter = List.replicate k 0#w := by
+  induction k
+  · simp
+  · case succ k ihk =>
+    simp
+
+    sorry
+
+
+theorem sumVecs_scatter_of_zero (x : BitVec ((0 + 1) * w)):
+    sumVecs (BitVec.cast hcast (extractLsb' w (0 * w) x ++ extractLsb' 0 w x)).scatter =
+    extractLsb' 0 w x + extractLsb' 0 w (extractLsb' w (1 * w) x) := by
+  rcases w with _|w
+  · simp
+    rw [scatter_of_len_zero (w := 0)]
+    sorry
+    ·
+      sorry
+  · have hsub :  0 * (w + 1) = 0 := by omega
+    rw [hsub] at *
+    rename_i w' hcast' x'
+    have := extractLsb'_zero_of_le (x := x') (w := (0 + 1) * (w + 1)) (len := (1 * (w + 1))) (n := w + 1) (by omega)
+    rw [this]
+    simp
+    have := extractLsb'_zero_of_le (x := x') (w := (0 + 1) * (w + 1)) (len := (0 * (w + 1))) (n := w + 1) (by omega)
+    rw [this]
+    have : 0#(0 * (w + 1)) ++ extractLsb' 0 (w + 1) x' = (extractLsb' 0 (w + 1) x').cast (by omega) := by sorry
+    rw [this]
+    simp
+    rw [scatter_eq_of_eq_one]
+    · sorry
+    · simp at hcast
+      rcases w with _|w
+      · sorry
+      sorry
+
+theorem sumVecs_eq_add_scatter (x : BitVec ((k + 1) * w)) :
+    let heq : k * w + w = (k + 1) * w := by simp [Nat.add_comm, Nat.add_mul]
+    sumVecs ((extractLsb' w (k * w) x ++ extractLsb' 0 w x).cast hcast).scatter =
+    extractLsb' 0 w x + sumVecs (extractLsb' w ((k + 1) * w) x).scatter := by
+  simp
+  induction k generalizing w
+  · case zero k' =>
+    simp
+    rw [sumVecs_scatter_of_zero]
+  ·
+    sorry
+
+
+
+theorem sumPackedVec_eq_add_tail {x : BitVec ((k + 1) * w)} :
+    x.sumPackedVec = (x.extractLsb' 0 w) + (x.extractLsb' w ((k + 1)* w)).sumPackedVec := by
+  conv =>
+    lhs
+    rw [eq_append (x := x)]
+  unfold sumPackedVec
+  rw [sumVecs_eq_add_scatter]
+
+theorem sumpackedVec_of_extractAndExtendPopulate_tail_eq (x : BitVec (w' + 1)) :
+ setWidth (w' + 1) (extractLsb' 1 w' x).extractAndExtendPopulate.sumPackedVec =
+  (extractLsb' (w' + 1) ((w' + 1) * (w' + 1)) x.extractAndExtendPopulate).sumPackedVec := by sorry
+
+theorem extractAndExtendPopulate_sumPackedVec_eq_add (x : BitVec (w' + 1)):
+  setWidth (w' + 1) (extractLsb' 0 1 x) + setWidth (w' + 1) (extractLsb' 1 w' x).extractAndExtendPopulate.sumPackedVec =
+  x.extractAndExtendPopulate.sumPackedVec := by
+  conv =>
+    rhs
+    rw [sumPackedVec_eq_add_tail (x := x.extractAndExtendPopulate)]
+    rw [extractLsb'_extractAndExtendPopulate_zero_eq]
+  simp
+  -- the width taken by extractandextendpopulate should not be w*w, should be w * v where v remains constant
+  rw [sumpackedVec_of_extractAndExtendPopulate_tail_eq]
+
+--  setWidth (w' + 1) (extractLsb' 0 1 x) + setWidth (w' + 1) (extractLsb' 1 w' x).popCount =
+--   (extractLsb' 1 w' x ++ extractLsb' 0 1 x).extractAndExtendPopulate.sumPackedVec
+-- need lemma to push extractandextend populate inside the appned afer whichb sumpackedvec simp lemmas should just rewrite, we finish the goal by usign ih
+-- the popcount equals the result of summing the packed vector.
 theorem popCount_eq_sumPackedVec (x : BitVec w) :
   x.popCount = sumPackedVec (extractAndExtendPopulate x) := by
   induction w
@@ -2944,13 +3094,8 @@ theorem popCount_eq_sumPackedVec (x : BitVec w) :
   · case succ w' ihw' =>
     rw [popCount_append]
     simp
-    conv =>
-      rhs
-      rw [eq_append_one (x := x)]
-
-
-
-    sorry
+    rw [ihw']
+    apply extractAndExtendPopulate_sumPackedVec_eq_add
 
 /-- one round of 'addVec' does not change the sum of the bitvector. -/
 @[simp]
@@ -2960,6 +3105,7 @@ theorem sumPackedVec_addVec_eq_sumPackedVec (x : BitVec (n * w)) (hw : 1 < w) (h
   case ind n ihn =>
   simp [addVec]
   let ⟨res, proof⟩ := addVecAux 0 n hw x 0#(0 * w) (by omega) hval (by omega) (by omega)
+
   exact proof_strategy
 
 theorem eq_append_concat (x : BitVec ((val + 1) * w)) :
@@ -3004,7 +3150,6 @@ def parPrefixSum
     ⟨BitVec.cast hcast parSum, by rw
       [sumPackedVec_eq_of_eq_one (hv := by omega)]⟩
 
-
 theorem parPrefixSum_eq
     (validNodes : Nat) (parSum : BitVec (validNodes * w))
     (hin : 0 < w) (hval : validNodes ≤ w) (hval' : 0 < validNodes) :
@@ -3037,17 +3182,17 @@ def popCountParSum {x : BitVec w} : BitVec w :=
 
 theorem popCount_eq_popCountParSum {x : BitVec w} :
     x.popCount = x.popCountParSum := by
-  sorry
-  --   ext k hk
-  --   by_cases hk' : 0 < k <;> by_cases hx0 : x[0]
-  --   · omega
-  --   · omega
-  --   · simp [hx0, show k = 0 by omega]
-  --   · simp [hx0, show k = 0 by omega]
-  -- · let res := extractAndExtendPopulateAux 0 x 0#0 (by omega) (by omega)
-  --   rw [BitVec.popCount_eq_parPrefixSum]
-  --   · simp [popCountParSum]
-  --   · omega
-
+  unfold popCountParSum
+  simp [parPrefixSum_eq]
+  split
+  · case _ hlt =>
+    apply popCount_eq_sumPackedVec
+  · case _ heq =>
+    have hw : w = 0 ∨ w = 1 := by omega
+    rcases hw with hw|hw
+    · subst hw
+      simp
+    · subst hw
+      simp [popCount]
 
 end BitVec

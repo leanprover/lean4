@@ -551,6 +551,8 @@ macro_rules
 /--
 Haskell-like pipe operator `|>`. `x |> f` means the same as `f x`,
 and it chains such that `x |> f |> g` is interpreted as `g (f x)`.
+
+Compare to `x |>.f`, without a space, a shorthand for (x).f`.
 -/
 syntax:min term " |> " term:min1 : term
 

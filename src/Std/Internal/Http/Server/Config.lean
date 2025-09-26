@@ -70,6 +70,5 @@ def toH1Config (config : Config) : Protocol.H1.Machine.Config :=
     timeoutMilliseconds := config.timeoutMilliseconds
     enableKeepAlive := config.enableKeepAlive
     highMark := config.highMark
-    defaultPayloadBytes := config.defaultPayloadBytes
     serverName := config.serverName
   }

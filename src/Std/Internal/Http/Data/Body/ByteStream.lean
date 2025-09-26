@@ -189,13 +189,11 @@ def close (stream : ByteStream) : Async Unit := do
     if ¬ state.closed then
       modify fun s => { s with closed := true }
 
-      -- Wake up all waiting consumers
       for consumer in state.waiting.toArray do
         discard <| consumer.resolve false
 
       modify fun s => { s with waiting := .empty }
 
-      -- Wake up all backpressure waiters to unblock them
       for promise in state.backpressureWaiting.toArray do
         discard <| promise.resolve ()
 
@@ -210,7 +208,7 @@ def isClosed (stream : ByteStream) : Async Bool := do
     return state.closed
 
 /--
-Checks if the stream is closed.
+Checks if the stream is empty.
 -/
 def isEmpty (stream : ByteStream) : Async Bool := do
   stream.state.atomically do
@@ -225,7 +223,7 @@ private def recvReady' : AtomicT State IO Bool := do
   return ¬ state.buffer.isEmpty ∨ state.closed
 
 /--
-Creates a `Selector` that resolves once the ByteStream has data available and provides that data.
+Creates a `Selector` that resolves once the `ByteStream` has data available and provides that data.
 -/
 partial def recvSelector (stream : ByteStream) : Selector (Option ByteArray) where
   tryFn := do

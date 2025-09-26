@@ -28856,6 +28856,7 @@ x_18 = lean_unsigned_to_nat(1u);
 x_19 = lean_nat_add(x_1, x_18);
 x_20 = l_Nat_reprFast(x_19);
 x_21 = lean_string_append(x_17, x_20);
+lean_dec_ref(x_20);
 lean_inc(x_2);
 x_22 = l_Lean_Meta_mkEqLikeNameFor(x_16, x_2, x_21);
 x_23 = lean_box(x_3);

@@ -3607,7 +3607,7 @@ LEAN_EXPORT lean_object* l___private_Lake_CLI_Build_0__Lake_resolveDefaultPackag
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_3 = lean_ctor_get(x_2, 12);
+x_3 = lean_ctor_get(x_2, 13);
 lean_inc_ref(x_3);
 x_4 = l___private_Lake_CLI_Build_0__Lake_resolveDefaultPackageTarget___closed__0;
 x_5 = lean_unsigned_to_nat(0u);

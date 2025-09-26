@@ -3421,6 +3421,7 @@ lean_dec_ref(x_9);
 x_13 = l_Lean_PrettyPrinter_Delaborator_delabBVar___closed__0;
 x_14 = l_Nat_reprFast(x_12);
 x_15 = lean_string_append(x_13, x_14);
+lean_dec_ref(x_14);
 x_16 = lean_box(0);
 x_17 = l_Lean_Name_str___override(x_16, x_15);
 x_18 = lean_mk_syntax_ident(x_17);
@@ -3439,6 +3440,7 @@ lean_dec_ref(x_9);
 x_21 = l_Lean_PrettyPrinter_Delaborator_delabBVar___closed__0;
 x_22 = l_Nat_reprFast(x_20);
 x_23 = lean_string_append(x_21, x_22);
+lean_dec_ref(x_22);
 x_24 = lean_box(0);
 x_25 = l_Lean_Name_str___override(x_24, x_23);
 x_26 = lean_mk_syntax_ident(x_25);
@@ -47364,7 +47366,6 @@ goto block_38;
 else
 {
 lean_object* x_39; uint8_t x_40; 
-lean_inc_ref(x_20);
 x_39 = lean_string_length(x_20);
 x_40 = lean_nat_dec_eq(x_1, x_39);
 lean_dec(x_39);
@@ -47378,6 +47379,7 @@ lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean
 lean_dec(x_1);
 x_41 = l_Lean_PrettyPrinter_Delaborator_delabOfScientific___lam__0___closed__1;
 x_42 = lean_string_append(x_41, x_20);
+lean_dec_ref(x_20);
 x_43 = lean_box(2);
 x_44 = l_Lean_Syntax_mkScientificLit(x_42, x_43);
 x_45 = lean_alloc_ctor(0, 2, 0);
@@ -47390,8 +47392,10 @@ block_19:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_13 = lean_string_append(x_11, x_12);
+lean_dec_ref(x_12);
 x_14 = l_Nat_reprFast(x_1);
 x_15 = lean_string_append(x_13, x_14);
+lean_dec_ref(x_14);
 x_16 = lean_box(2);
 x_17 = l_Lean_Syntax_mkScientificLit(x_15, x_16);
 x_18 = lean_alloc_ctor(0, 2, 0);
@@ -47430,7 +47434,6 @@ goto block_25;
 else
 {
 lean_object* x_26; uint8_t x_27; 
-lean_inc_ref(x_20);
 x_26 = lean_string_length(x_20);
 x_27 = lean_nat_dec_lt(x_1, x_26);
 if (x_27 == 0)
@@ -47452,6 +47455,7 @@ lean_dec_ref(x_20);
 x_32 = l_Lean_PrettyPrinter_Delaborator_delabAppExplicitCore___closed__0;
 x_33 = lean_string_append(x_30, x_32);
 x_34 = lean_string_append(x_33, x_31);
+lean_dec_ref(x_31);
 x_35 = lean_box(2);
 x_36 = l_Lean_Syntax_mkScientificLit(x_34, x_35);
 x_37 = lean_alloc_ctor(0, 2, 0);
@@ -58160,6 +58164,7 @@ x_16 = l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lea
 x_17 = 1;
 x_18 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_14, x_17);
 x_19 = lean_string_append(x_16, x_18);
+lean_dec_ref(x_18);
 x_20 = lean_box(2);
 x_21 = l_Lean_Syntax_mkNameLit(x_19, x_20);
 x_22 = l___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_delabLamAux___lam__2___closed__0;
@@ -58198,6 +58203,7 @@ x_31 = l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lea
 x_32 = 1;
 x_33 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_29, x_32);
 x_34 = lean_string_append(x_31, x_33);
+lean_dec_ref(x_33);
 x_35 = lean_box(2);
 x_36 = l_Lean_Syntax_mkNameLit(x_34, x_35);
 x_37 = l___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_delabLamAux___lam__2___closed__0;
@@ -58834,16 +58840,19 @@ x_56 = lean_string_append(x_54, x_55);
 lean_inc(x_52);
 x_57 = l_Nat_reprFast(x_52);
 x_58 = lean_string_append(x_56, x_57);
+lean_dec_ref(x_57);
 x_59 = lean_string_append(x_58, x_55);
 lean_inc(x_53);
 x_60 = l_Nat_reprFast(x_53);
 x_61 = lean_string_append(x_59, x_60);
+lean_dec_ref(x_60);
 x_62 = lean_box(0);
 x_63 = l_Lean_Name_str___override(x_62, x_61);
 x_64 = l_Lean_PrettyPrinter_Delaborator_delabNameMkStr___lam__0___closed__1;
 x_65 = l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Meta_instantiateStructDefaultValueFn_x3f___at_____private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_collectStructFields_spec__2_spec__2_spec__2_spec__2___redArg___closed__2;
 x_66 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_63, x_47);
 x_67 = lean_string_append(x_65, x_66);
+lean_dec_ref(x_66);
 x_68 = lean_box(2);
 x_69 = l_Lean_Syntax_mkNameLit(x_67, x_68);
 x_70 = l___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_delabLamAux___lam__2___closed__0;

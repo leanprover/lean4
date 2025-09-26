@@ -48,7 +48,7 @@ LEAN_EXPORT lean_object* l_Lake_LoadConfig_lakeDir(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = lean_ctor_get(x_1, 4);
+x_2 = lean_ctor_get(x_1, 5);
 lean_inc_ref(x_2);
 lean_dec_ref(x_1);
 x_3 = l_Lake_LoadConfig_lakeDir___closed__0;

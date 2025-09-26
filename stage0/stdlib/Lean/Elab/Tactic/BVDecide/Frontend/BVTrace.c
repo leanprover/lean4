@@ -806,12 +806,15 @@ x_28 = lean_string_append(x_13, x_27);
 x_29 = 1;
 x_30 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_20, x_29);
 x_31 = lean_string_append(x_28, x_30);
+lean_dec_ref(x_30);
 x_32 = lean_string_append(x_31, x_27);
 x_33 = l_Nat_reprFast(x_25);
 x_34 = lean_string_append(x_32, x_33);
+lean_dec_ref(x_33);
 x_35 = lean_string_append(x_34, x_27);
 x_36 = l_Nat_reprFast(x_26);
 x_37 = lean_string_append(x_35, x_36);
+lean_dec_ref(x_36);
 x_38 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_getLratFileName___closed__5;
 x_39 = lean_string_append(x_37, x_38);
 lean_ctor_set(x_21, 0, x_39);
@@ -837,12 +840,15 @@ x_46 = lean_string_append(x_13, x_45);
 x_47 = 1;
 x_48 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_20, x_47);
 x_49 = lean_string_append(x_46, x_48);
+lean_dec_ref(x_48);
 x_50 = lean_string_append(x_49, x_45);
 x_51 = l_Nat_reprFast(x_43);
 x_52 = lean_string_append(x_50, x_51);
+lean_dec_ref(x_51);
 x_53 = lean_string_append(x_52, x_45);
 x_54 = l_Nat_reprFast(x_44);
 x_55 = lean_string_append(x_53, x_54);
+lean_dec_ref(x_54);
 x_56 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_getLratFileName___closed__5;
 x_57 = lean_string_append(x_55, x_56);
 x_58 = lean_alloc_ctor(0, 2, 0);
@@ -1378,9 +1384,7 @@ uint8_t x_26; uint8_t x_27; lean_object* x_28;
 x_26 = lean_ctor_get_uint8(x_20, sizeof(void*)*2 + 1);
 x_27 = 0;
 lean_ctor_set_uint8(x_20, sizeof(void*)*2, x_27);
-lean_inc_ref(x_8);
 lean_inc_ref(x_4);
-lean_inc(x_23);
 x_28 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVCheck_mkContext(x_23, x_20, x_4, x_5, x_6, x_7, x_8, x_9, x_24);
 if (lean_obj_tag(x_28) == 0)
 {
@@ -1499,7 +1503,6 @@ goto block_59;
 else
 {
 lean_object* x_82; 
-lean_inc_ref(x_8);
 x_82 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVCheck_getSrcDir(x_4, x_5, x_6, x_7, x_8, x_9, x_37);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -1512,7 +1515,6 @@ lean_inc(x_83);
 x_84 = lean_ctor_get(x_82, 1);
 lean_inc(x_84);
 lean_dec_ref(x_82);
-lean_inc(x_23);
 x_85 = l_System_FilePath_join(x_83, x_23);
 x_86 = l_Std_Tactic_BVDecide_LRAT_loadLRATProof(x_85, x_84);
 if (lean_obj_tag(x_86) == 0)
@@ -1754,7 +1756,6 @@ goto block_59;
 else
 {
 lean_object* x_140; 
-lean_inc_ref(x_8);
 x_140 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVCheck_getSrcDir(x_4, x_5, x_6, x_7, x_8, x_9, x_37);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -1767,7 +1768,6 @@ lean_inc(x_141);
 x_142 = lean_ctor_get(x_140, 1);
 lean_inc(x_142);
 lean_dec_ref(x_140);
-lean_inc(x_23);
 x_143 = l_System_FilePath_join(x_141, x_23);
 x_144 = l_Std_Tactic_BVDecide_LRAT_loadLRATProof(x_143, x_142);
 if (lean_obj_tag(x_144) == 0)
@@ -2122,9 +2122,7 @@ lean_ctor_set_uint8(x_208, sizeof(void*)*2 + 6, x_202);
 lean_ctor_set_uint8(x_208, sizeof(void*)*2 + 7, x_203);
 lean_ctor_set_uint8(x_208, sizeof(void*)*2 + 8, x_204);
 lean_ctor_set_uint8(x_208, sizeof(void*)*2 + 9, x_206);
-lean_inc_ref(x_8);
 lean_inc_ref(x_4);
-lean_inc(x_23);
 x_209 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVCheck_mkContext(x_23, x_208, x_4, x_5, x_6, x_7, x_8, x_9, x_24);
 if (lean_obj_tag(x_209) == 0)
 {
@@ -2244,7 +2242,6 @@ goto block_240;
 else
 {
 lean_object* x_262; 
-lean_inc_ref(x_8);
 x_262 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVCheck_getSrcDir(x_4, x_5, x_6, x_7, x_8, x_9, x_218);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -2257,7 +2254,6 @@ lean_inc(x_263);
 x_264 = lean_ctor_get(x_262, 1);
 lean_inc(x_264);
 lean_dec_ref(x_262);
-lean_inc(x_23);
 x_265 = l_System_FilePath_join(x_263, x_23);
 x_266 = l_Std_Tactic_BVDecide_LRAT_loadLRATProof(x_265, x_264);
 if (lean_obj_tag(x_266) == 0)

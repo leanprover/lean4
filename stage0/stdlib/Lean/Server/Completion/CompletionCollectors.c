@@ -345,6 +345,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_CompletionCollectors
 lean_object* l_Lean_ErrorExplanation_summaryWithSeverity(lean_object*);
 static lean_object* l_Lean_Server_Completion_errorNameCompletion___lam__0___closed__4;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_SMap_forM___at_____private_Lean_Server_Completion_CompletionCollectors_0__Lean_Server_Completion_completeNamespaces_spec__0_spec__6(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_Completion_errorNameCompletion___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_CompletionCollectors_0__Lean_Server_Completion_addNamespaceCompletionItem___redArg___closed__0;
 lean_object* l_Lean_Name_getString_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Completion_dotCompletion___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2750,7 +2751,6 @@ block_21:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_10 = lean_nat_add(x_8, x_9);
-lean_inc_ref(x_6);
 x_11 = lean_string_length(x_6);
 x_12 = lean_nat_add(x_10, x_11);
 lean_dec(x_11);
@@ -15182,9 +15182,11 @@ block_27:
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 x_15 = lean_data_value_to_string(x_14);
 x_16 = lean_string_append(x_13, x_15);
+lean_dec_ref(x_15);
 x_17 = l_Lean_Server_Completion_optionCompletion___lam__0___closed__1;
 x_18 = lean_string_append(x_16, x_17);
 x_19 = lean_string_append(x_18, x_9);
+lean_dec_ref(x_9);
 x_20 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_20, 0, x_19);
 x_21 = lean_box(0);
@@ -15788,7 +15790,6 @@ _start:
 lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_7 = lean_ctor_get(x_5, 1);
 x_8 = lean_ctor_get(x_7, 2);
-lean_inc(x_8);
 x_9 = 1;
 x_10 = l_Lean_Name_toString(x_4, x_9);
 x_11 = l_Lean_Server_Completion_errorNameCompletion___lam__0___closed__1;
@@ -15827,7 +15828,6 @@ return x_21;
 else
 {
 lean_object* x_22; lean_object* x_23; 
-lean_dec_ref(x_8);
 x_22 = l_Lean_Server_Completion_errorNameCompletion___lam__0___closed__4;
 x_23 = lean_alloc_ctor(0, 8, 0);
 lean_ctor_set(x_23, 0, x_10);
@@ -15886,7 +15886,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_Completion_errorNameCompletion(lean_objec
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = lean_alloc_closure((void*)(l_Lean_Server_Completion_errorNameCompletion___lam__0), 6, 3);
+x_8 = lean_alloc_closure((void*)(l_Lean_Server_Completion_errorNameCompletion___lam__0___boxed), 6, 3);
 lean_closure_set(x_8, 0, x_3);
 lean_closure_set(x_8, 1, x_1);
 lean_closure_set(x_8, 2, x_2);
@@ -15927,6 +15927,15 @@ lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_Completion_errorNameCompletion___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_Server_Completion_errorNameCompletion___lam__0(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec_ref(x_5);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_Completion_errorNameCompletion___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {

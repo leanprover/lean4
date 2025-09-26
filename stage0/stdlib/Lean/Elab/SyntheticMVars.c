@@ -25865,6 +25865,7 @@ x_57 = l_Lean_Elab_Term_withoutTacticIncrementality___at___Lean_Elab_Term_runTac
 x_58 = lean_unsigned_to_nat(0u);
 x_59 = lean_format_pretty(x_56, x_57, x_58, x_58);
 x_60 = lean_string_append(x_54, x_59);
+lean_dec_ref(x_59);
 x_61 = lean_dbg_trace(x_60, x_53);
 x_62 = lean_unbox(x_61);
 x_36 = x_62;
@@ -27080,6 +27081,7 @@ x_34 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____pri
 x_35 = 1;
 x_36 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_24, x_35);
 x_37 = lean_string_append(x_34, x_36);
+lean_dec_ref(x_36);
 x_38 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at___Lean_LocalContext_foldlM___at___Lean_instantiateLCtxMVars___at___Lean_instantiateMVarDeclMVars___at___Lean_Elab_Term_runTactic_spec__10_spec__10_spec__12_spec__12_spec__12_spec__12_spec__13___closed__3;
 x_39 = lean_string_append(x_37, x_38);
 x_40 = l_mkPanicMessageWithDecl(x_30, x_31, x_32, x_33, x_39);

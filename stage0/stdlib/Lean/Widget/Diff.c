@@ -1069,11 +1069,13 @@ x_3 = lean_ctor_get(x_1, 1);
 x_4 = l___private_Lean_Widget_Diff_0__Lean_Widget_instToStringExprDiff___lam__0___closed__0;
 x_5 = l_Lean_SubExpr_Pos_toString(x_2);
 x_6 = lean_string_append(x_4, x_5);
+lean_dec_ref(x_5);
 x_7 = l___private_Lean_Widget_Diff_0__Lean_Widget_instToStringExprDiff___lam__0___closed__1;
 x_8 = lean_string_append(x_6, x_7);
 x_9 = lean_unbox(x_3);
 x_10 = l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_toString(x_9);
 x_11 = lean_string_append(x_8, x_10);
+lean_dec_ref(x_10);
 x_12 = l___private_Lean_Widget_Diff_0__Lean_Widget_instToStringExprDiff___lam__0___closed__2;
 x_13 = lean_string_append(x_11, x_12);
 return x_13;
@@ -1233,11 +1235,13 @@ x_7 = lean_apply_1(x_1, x_4);
 lean_inc_ref(x_2);
 x_8 = l_List_toString___redArg(x_2, x_7);
 x_9 = lean_string_append(x_6, x_8);
+lean_dec_ref(x_8);
 x_10 = l___private_Lean_Widget_Diff_0__Lean_Widget_instToStringExprDiff___lam__3___closed__1;
 x_11 = lean_string_append(x_9, x_10);
 x_12 = lean_apply_1(x_1, x_5);
 x_13 = l_List_toString___redArg(x_2, x_12);
 x_14 = lean_string_append(x_11, x_13);
+lean_dec_ref(x_13);
 return x_14;
 }
 }

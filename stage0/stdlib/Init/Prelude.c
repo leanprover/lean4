@@ -249,6 +249,7 @@ LEAN_EXPORT lean_object* l_List_map___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_length___redArg(lean_object*);
 static lean_object* l_Lean_strLitKind___closed__0;
 LEAN_EXPORT lean_object* l_HAnd_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_ofByteArray___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__2;
 LEAN_EXPORT lean_object* l_MonadFunctorT_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_instMonadExceptOf___redArg(lean_object*);
@@ -1141,6 +1142,7 @@ LEAN_EXPORT lean_object* l_List_length(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_instInhabitedMethods_default___lam__4(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_setKind(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableNot___boxed(lean_object*, lean_object*);
+lean_object* lean_string_from_utf8_unchecked(lean_object*);
 static lean_object* l_EStateM_instMonad___closed__2;
 LEAN_EXPORT lean_object* l_instDecidableEqNat___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_ctorIdx(lean_object*, lean_object*);
@@ -7077,6 +7079,14 @@ _start:
 lean_object* x_2; 
 x_2 = lean_string_to_utf8(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_String_ofByteArray___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_string_from_utf8_unchecked(x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_String_decEq___boxed(lean_object* x_1, lean_object* x_2) {

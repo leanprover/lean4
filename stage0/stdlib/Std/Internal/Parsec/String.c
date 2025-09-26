@@ -26,7 +26,9 @@ uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 static lean_object* l_Std_Internal_Parsec_String_hexDigit___closed__1;
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_skipString___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharPos;
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_pstring___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__4(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_Parser_run___redArg(lean_object*, lean_object*);
@@ -313,6 +315,7 @@ lean_ctor_set(x_13, 0, x_12);
 x_14 = l_Std_Internal_Parsec_String_Parser_run___redArg___closed__1;
 x_15 = lean_format_pretty(x_13, x_14, x_3, x_3);
 x_16 = lean_string_append(x_11, x_15);
+lean_dec_ref(x_15);
 x_17 = l_Std_Internal_Parsec_String_Parser_run___redArg___closed__2;
 x_18 = lean_string_append(x_16, x_17);
 if (lean_obj_tag(x_9) == 0)
@@ -335,6 +338,7 @@ block_22:
 {
 lean_object* x_20; lean_object* x_21; 
 x_20 = lean_string_append(x_18, x_19);
+lean_dec_ref(x_19);
 x_21 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_21, 0, x_20);
 return x_21;
@@ -372,7 +376,6 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_18; lean_object* x_19; uint8_t x_20; uint8_t x_24; uint8_t x_25; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_1);
 x_5 = lean_string_length(x_1);
 lean_inc_ref(x_2);
 x_6 = l_String_Iterator_forward(x_2, x_5);
@@ -416,7 +419,6 @@ return x_12;
 else
 {
 uint8_t x_13; 
-lean_dec_ref(x_1);
 x_13 = !lean_is_exclusive(x_2);
 if (x_13 == 0)
 {
@@ -459,6 +461,15 @@ x_7 = x_22;
 goto block_17;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_pstring___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Internal_Parsec_String_pstring(x_1, x_2);
+lean_dec_ref(x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_skipString(lean_object* x_1, lean_object* x_2) {
@@ -516,6 +527,15 @@ return x_13;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_skipString___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Internal_Parsec_String_skipString(x_1, x_2);
+lean_dec_ref(x_1);
+return x_3;
+}
+}
 static lean_object* _init_l_Std_Internal_Parsec_String_pchar___closed__0() {
 _start:
 {
@@ -562,6 +582,7 @@ x_11 = l_Std_Internal_Parsec_String_pchar___closed__0;
 x_12 = l_Std_Internal_Parsec_String_pstring___closed__1;
 x_13 = lean_string_push(x_12, x_1);
 x_14 = lean_string_append(x_11, x_13);
+lean_dec_ref(x_13);
 x_15 = l_Std_Internal_Parsec_String_pchar___closed__1;
 x_16 = lean_string_append(x_14, x_15);
 x_17 = lean_alloc_ctor(1, 1, 0);
@@ -652,6 +673,7 @@ x_11 = l_Std_Internal_Parsec_String_pchar___closed__0;
 x_12 = l_Std_Internal_Parsec_String_pstring___closed__1;
 x_13 = lean_string_push(x_12, x_1);
 x_14 = lean_string_append(x_11, x_13);
+lean_dec_ref(x_13);
 x_15 = l_Std_Internal_Parsec_String_pchar___closed__1;
 x_16 = lean_string_append(x_14, x_15);
 x_17 = lean_alloc_ctor(1, 1, 0);
@@ -1470,7 +1492,6 @@ goto block_21;
 block_15:
 {
 lean_object* x_7; uint8_t x_8; 
-lean_inc_ref(x_6);
 x_7 = lean_string_length(x_6);
 x_8 = lean_nat_dec_eq(x_7, x_1);
 lean_dec(x_1);

@@ -37,6 +37,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_FFI_getLinkerFlags_x27(uint8_t);
 lean_object* l_String_splitOnAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Compiler_FFI_getInternalCFlags_spec__0___closed__0;
 static lean_object* l_Lean_Compiler_FFI_getInternalLinkerFlags___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Compiler_FFI_getInternalLinkerFlags___boxed(lean_object*);
 static size_t l_Lean_Compiler_FFI_getInternalLinkerFlags___closed__2;
 static lean_object* l_Lean_Compiler_FFI_getCFlags___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_FFI_0__Lean_Compiler_FFI_getLeancInternalFlags___boxed(lean_object*);
@@ -65,6 +66,7 @@ lean_object* lean_array_mk(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_FFI_getInternalCFlags___boxed(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_FFI_getLinkerFlags_x27___boxed(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -308,7 +310,6 @@ uint8_t x_5;
 x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
-lean_dec_ref(x_1);
 return x_4;
 }
 else
@@ -318,7 +319,6 @@ x_6 = lean_array_uget(x_4, x_3);
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_4, x_3, x_7);
 x_9 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Compiler_FFI_getInternalCFlags_spec__0___closed__0;
-lean_inc_ref(x_1);
 x_10 = l_String_replace(x_6, x_9, x_1);
 lean_dec(x_6);
 x_11 = 1;
@@ -377,7 +377,17 @@ lean_dec(x_2);
 x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_7 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Compiler_FFI_getInternalCFlags_spec__0(x_1, x_5, x_6, x_4);
+lean_dec_ref(x_1);
 return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Compiler_FFI_getInternalCFlags___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Compiler_FFI_getInternalCFlags(x_1);
+lean_dec_ref(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_FFI_0__Lean_Compiler_FFI_getBuiltinLinkerFlags___boxed(lean_object* x_1) {
@@ -511,6 +521,15 @@ x_3 = l_Lean_Compiler_FFI_getInternalLinkerFlags___closed__2;
 x_4 = 0;
 x_5 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Compiler_FFI_getInternalCFlags_spec__0(x_1, x_3, x_4, x_2);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Compiler_FFI_getInternalLinkerFlags___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Compiler_FFI_getInternalLinkerFlags(x_1);
+lean_dec_ref(x_1);
+return x_2;
 }
 }
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);

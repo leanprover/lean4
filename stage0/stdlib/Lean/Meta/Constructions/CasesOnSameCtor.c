@@ -2328,6 +2328,7 @@ x_47 = l_Array_mapFinIdxM_map___at___Lean_mkCasesOnSameCtorHet_spec__15___redArg
 x_48 = lean_nat_add(x_12, x_13);
 x_49 = l_Nat_reprFast(x_48);
 x_50 = lean_string_append(x_47, x_49);
+lean_dec_ref(x_49);
 x_51 = lean_box(0);
 x_52 = l_Lean_Name_str___override(x_51, x_50);
 x_40 = x_52;
@@ -9092,6 +9093,7 @@ x_42 = lean_nat_add(x_1, x_8);
 lean_dec(x_1);
 x_43 = l_Nat_reprFast(x_42);
 x_44 = lean_string_append(x_41, x_43);
+lean_dec_ref(x_43);
 x_45 = lean_box(0);
 x_46 = l_Lean_Name_str___override(x_45, x_44);
 x_34 = x_46;

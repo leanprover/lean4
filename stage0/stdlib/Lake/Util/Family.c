@@ -1231,6 +1231,7 @@ lean_dec_ref(x_129);
 x_132 = l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___closed__36;
 x_133 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_128, x_5);
 x_134 = lean_string_append(x_132, x_133);
+lean_dec_ref(x_133);
 x_135 = l_Lake___aux__Lake__Util__Family______macroRules__Lake__familyDef__1___closed__37;
 x_136 = lean_string_append(x_134, x_135);
 x_137 = l_Lean_Macro_throwErrorAt___redArg(x_13, x_136, x_2, x_131);

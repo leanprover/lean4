@@ -588,7 +588,6 @@ if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_41; lean_object* x_42; 
 x_41 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_tryThisProvider_spec__1___redArg___closed__3;
-lean_inc(x_9);
 x_42 = lean_string_append(x_41, x_9);
 x_33 = x_42;
 goto block_40;
@@ -597,7 +596,6 @@ else
 {
 lean_object* x_43; lean_object* x_44; 
 x_43 = lean_ctor_get(x_4, 0);
-lean_inc(x_9);
 lean_inc(x_43);
 x_44 = lean_string_append(x_43, x_9);
 x_33 = x_44;
@@ -5142,6 +5140,7 @@ x_25 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____
 x_26 = lean_unsigned_to_nat(0u);
 x_27 = lean_format_pretty(x_16, x_25, x_26, x_26);
 x_28 = lean_string_append(x_4, x_27);
+lean_dec_ref(x_27);
 x_29 = 1;
 x_30 = lean_usize_add(x_3, x_29);
 x_3 = x_30;
@@ -5209,6 +5208,7 @@ x_44 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____
 x_45 = lean_unsigned_to_nat(0u);
 x_46 = lean_format_pretty(x_43, x_44, x_45, x_45);
 x_47 = lean_string_append(x_4, x_46);
+lean_dec_ref(x_46);
 x_48 = 1;
 x_49 = lean_usize_add(x_3, x_48);
 x_3 = x_49;
@@ -5345,6 +5345,7 @@ x_29 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____
 x_30 = lean_unsigned_to_nat(0u);
 x_31 = lean_format_pretty(x_20, x_29, x_30, x_30);
 x_32 = lean_string_append(x_4, x_31);
+lean_dec_ref(x_31);
 x_33 = 1;
 x_34 = lean_usize_add(x_3, x_33);
 x_35 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_addExactSuggestionCore_spec__0_spec__0___redArg(x_1, x_2, x_34, x_32, x_9, x_10, x_11, x_12, x_27);
@@ -5410,6 +5411,7 @@ x_48 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____
 x_49 = lean_unsigned_to_nat(0u);
 x_50 = lean_format_pretty(x_47, x_48, x_49, x_49);
 x_51 = lean_string_append(x_4, x_50);
+lean_dec_ref(x_50);
 x_52 = 1;
 x_53 = lean_usize_add(x_3, x_52);
 x_54 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_addExactSuggestionCore_spec__0_spec__0___redArg(x_1, x_2, x_53, x_51, x_9, x_10, x_11, x_12, x_45);
@@ -11295,6 +11297,7 @@ x_39 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____
 x_40 = lean_unsigned_to_nat(0u);
 x_41 = lean_format_pretty(x_37, x_39, x_40, x_40);
 x_42 = lean_string_append(x_29, x_41);
+lean_dec_ref(x_41);
 lean_ctor_set(x_32, 1, x_42);
 x_10 = x_26;
 x_11 = x_18;
@@ -11350,6 +11353,7 @@ x_52 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____
 x_53 = lean_unsigned_to_nat(0u);
 x_54 = lean_format_pretty(x_50, x_52, x_53, x_53);
 x_55 = lean_string_append(x_29, x_54);
+lean_dec_ref(x_54);
 x_56 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_56, 0, x_47);
 lean_ctor_set(x_56, 1, x_55);
@@ -11432,6 +11436,7 @@ x_75 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____
 x_76 = lean_unsigned_to_nat(0u);
 x_77 = lean_format_pretty(x_73, x_75, x_76, x_76);
 x_78 = lean_string_append(x_64, x_77);
+lean_dec_ref(x_77);
 if (lean_is_scalar(x_71)) {
  x_79 = lean_alloc_ctor(0, 2, 0);
 } else {

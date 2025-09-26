@@ -2599,7 +2599,6 @@ if (lean_obj_tag(x_128) == 0)
 {
 lean_object* x_135; lean_object* x_136; 
 x_135 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__52;
-lean_inc_ref(x_130);
 x_136 = lean_string_append(x_135, x_130);
 x_98 = x_128;
 x_99 = x_133;

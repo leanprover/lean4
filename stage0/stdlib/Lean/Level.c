@@ -684,6 +684,7 @@ x_34 = l_Lean_Level_Data_hash(x_1);
 x_35 = lean_uint64_to_nat(x_34);
 x_36 = l_Nat_reprFast(x_35);
 x_37 = lean_string_append(x_33, x_36);
+lean_dec_ref(x_36);
 x_38 = l_Lean_Level_Data_depth(x_1);
 x_39 = 0;
 x_40 = lean_uint32_dec_eq(x_38, x_39);
@@ -695,6 +696,7 @@ x_42 = lean_string_append(x_37, x_41);
 x_43 = lean_uint32_to_nat(x_38);
 x_44 = l_Nat_reprFast(x_43);
 x_45 = lean_string_append(x_42, x_44);
+lean_dec_ref(x_44);
 x_46 = l_Lean_instReprData___lam__0___closed__0;
 x_47 = lean_string_append(x_45, x_46);
 x_26 = x_47;
@@ -717,6 +719,7 @@ block_12:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_9 = lean_string_append(x_7, x_8);
+lean_dec_ref(x_8);
 x_10 = l_Lean_instReprData___lam__0___closed__0;
 x_11 = lean_string_append(x_9, x_10);
 x_3 = x_11;
@@ -758,6 +761,7 @@ block_25:
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_22 = lean_string_append(x_20, x_21);
+lean_dec_ref(x_21);
 x_23 = l_Lean_instReprData___lam__0___closed__0;
 x_24 = lean_string_append(x_22, x_23);
 x_13 = x_24;

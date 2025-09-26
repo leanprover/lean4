@@ -82,8 +82,8 @@ LEAN_EXPORT uint8_t l_Lake_BuildConfig_showProgress(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; uint8_t x_3; 
-x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*1 + 2);
-x_3 = lean_ctor_get_uint8(x_1, sizeof(void*)*1 + 3);
+x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*2 + 2);
+x_3 = lean_ctor_get_uint8(x_1, sizeof(void*)*2 + 3);
 if (x_2 == 0)
 {
 goto block_8;
@@ -298,7 +298,7 @@ LEAN_EXPORT uint8_t l_Lake_getIsOldMode___redArg___lam__0(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*1);
+x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*2);
 return x_2;
 }
 }
@@ -354,7 +354,7 @@ LEAN_EXPORT uint8_t l_Lake_getTrustHash___redArg___lam__0(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*1 + 1);
+x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*2 + 1);
 return x_2;
 }
 }
@@ -402,7 +402,7 @@ LEAN_EXPORT uint8_t l_Lake_getNoBuild___redArg___lam__0(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*1 + 2);
+x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*2 + 2);
 return x_2;
 }
 }
@@ -450,7 +450,7 @@ LEAN_EXPORT uint8_t l_Lake_getVerbosity___redArg___lam__0(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*1 + 3);
+x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*2 + 3);
 return x_2;
 }
 }

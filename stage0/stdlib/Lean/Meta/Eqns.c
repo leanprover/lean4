@@ -1516,7 +1516,7 @@ _start:
 {
 lean_object* x_7; uint8_t x_8; 
 x_7 = l_Lean_Environment_header(x_1);
-x_8 = lean_ctor_get_uint8(x_7, sizeof(void*)*5 + 4);
+x_8 = lean_ctor_get_uint8(x_7, sizeof(void*)*6 + 4);
 lean_dec_ref(x_7);
 if (x_8 == 0)
 {
@@ -4794,6 +4794,7 @@ lean_dec(x_3);
 lean_inc(x_8);
 x_9 = l_Nat_reprFast(x_8);
 x_10 = lean_string_append(x_6, x_9);
+lean_dec_ref(x_9);
 lean_inc(x_1);
 lean_inc_ref(x_2);
 x_11 = l_Lean_Meta_mkEqLikeNameFor(x_2, x_1, x_10);

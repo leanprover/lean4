@@ -9709,6 +9709,7 @@ x_21 = lean_nat_add(x_20, x_16);
 lean_dec(x_20);
 x_22 = l_Nat_reprFast(x_21);
 x_23 = lean_string_append(x_19, x_22);
+lean_dec_ref(x_22);
 x_24 = lean_box(0);
 x_25 = l_Lean_Name_str___override(x_24, x_23);
 x_26 = l_Lean_Meta_withLocalDeclD___at___Lean_Meta_ArgsPacker_Unary_uncurryType_spec__1___redArg(x_25, x_12, x_14, x_6, x_7, x_8, x_9, x_10);

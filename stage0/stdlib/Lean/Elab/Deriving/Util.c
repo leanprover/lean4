@@ -6403,6 +6403,7 @@ x_13 = lean_string_append(x_1, x_12);
 x_14 = lean_nat_add(x_6, x_2);
 x_15 = l_Nat_reprFast(x_14);
 x_16 = lean_string_append(x_13, x_15);
+lean_dec_ref(x_15);
 x_17 = lean_box(0);
 x_18 = l_Lean_Name_str___override(x_17, x_16);
 lean_inc(x_3);

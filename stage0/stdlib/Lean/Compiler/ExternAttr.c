@@ -74,6 +74,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at_____pri
 LEAN_EXPORT lean_object* l_Lean_getExternEntryForAux___lam__0___boxed(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at___Lean_mkSimpleFnCall_spec__0___boxed(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 lean_object* l_List_find_x3f___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ExternEntry_adhoc_elim___redArg(lean_object*, lean_object*);
@@ -1797,6 +1798,7 @@ lean_dec(x_23);
 x_25 = l_Lean_expandExternPatternAux___closed__0;
 x_26 = l_List_getD___redArg(x_1, x_24, x_25);
 x_27 = lean_string_append(x_4, x_26);
+lean_dec_ref(x_26);
 x_2 = x_14;
 x_3 = x_22;
 x_4 = x_27;
@@ -1869,6 +1871,7 @@ lean_dec(x_48);
 x_50 = l_Lean_expandExternPatternAux___closed__0;
 x_51 = l_List_getD___redArg(x_1, x_49, x_50);
 x_52 = lean_string_append(x_4, x_51);
+lean_dec_ref(x_51);
 x_2 = x_38;
 x_3 = x_47;
 x_4 = x_52;
@@ -1915,7 +1918,6 @@ LEAN_EXPORT lean_object* l_Lean_expandExternPattern(lean_object* x_1, lean_objec
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-lean_inc_ref(x_1);
 x_3 = lean_string_length(x_1);
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_alloc_ctor(0, 2, 0);
@@ -1946,10 +1948,7 @@ else
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
-lean_inc(x_4);
-lean_dec_ref(x_2);
 x_5 = lean_string_append(x_1, x_3);
 x_1 = x_5;
 x_2 = x_4;
@@ -1991,10 +1990,21 @@ x_5 = l_Lean_expandExternPatternAux___closed__0;
 x_6 = l_Lean_mkSimpleFnCall___closed__1;
 x_7 = l_List_intersperseTR___redArg(x_6, x_2);
 x_8 = l_List_foldl___at___Lean_mkSimpleFnCall_spec__0(x_5, x_7);
+lean_dec(x_7);
 x_9 = lean_string_append(x_4, x_8);
+lean_dec_ref(x_8);
 x_10 = l_Lean_mkSimpleFnCall___closed__2;
 x_11 = lean_string_append(x_9, x_10);
 return x_11;
+}
+}
+LEAN_EXPORT lean_object* l_List_foldl___at___Lean_mkSimpleFnCall_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_List_foldl___at___Lean_mkSimpleFnCall_spec__0(x_1, x_2);
+lean_dec(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_ExternEntry_backend(lean_object* x_1) {

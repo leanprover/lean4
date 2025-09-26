@@ -28,10 +28,12 @@ LEAN_EXPORT lean_object* l___private_Lake_CLI_Help_0__Lake_helpScriptCli;
 static lean_object* l___private_Lake_CLI_Help_0__Lake_helpNew___closed__0;
 static lean_object* l___private_Lake_CLI_Help_0__Lake_helpTest___closed__0;
 static lean_object* l_Lake_help___closed__17;
+static lean_object* l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0;
 static lean_object* l___private_Lake_CLI_Help_0__Lake_helpCheckLint___closed__0;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Help_0__Lake_helpCheckBuild;
 static lean_object* l_Lake_usage___closed__0;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Help_0__Lake_helpClean;
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheCli;
 static lean_object* l_Lake_help___closed__16;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Help_0__Lake_helpClean___closed__0;
@@ -42,6 +44,7 @@ static lean_object* l_Lake_helpScript___closed__1;
 static lean_object* l___private_Lake_CLI_Help_0__Lake_helpScriptCli___closed__0;
 static lean_object* l___private_Lake_CLI_Help_0__Lake_helpQuery___closed__0;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Help_0__Lake_helpScriptRun;
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Help_0__Lake_helpCachePut;
 static lean_object* l_Lake_help___closed__13;
 LEAN_EXPORT lean_object* l_Lake_usage;
 LEAN_EXPORT lean_object* l_Lake_help___boxed(lean_object*);
@@ -59,6 +62,7 @@ static lean_object* l___private_Lake_CLI_Help_0__Lake_helpCheckBuild___closed__0
 static lean_object* l_Lake_help___closed__10;
 static lean_object* l___private_Lake_CLI_Help_0__Lake_helpPack___closed__0;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Help_0__Lake_helpPack;
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheGet;
 static lean_object* l_Lake_help___closed__21;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Help_0__Lake_helpServe;
 static lean_object* l___private_Lake_CLI_Help_0__Lake_helpUpload___closed__0;
@@ -66,12 +70,17 @@ static lean_object* l___private_Lake_CLI_Help_0__Lake_newInitHelp___closed__0;
 static lean_object* l_Lake_help___closed__9;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Help_0__Lake_helpLean;
 static lean_object* l_Lake_help___closed__7;
+LEAN_EXPORT lean_object* l_Lake_helpCache___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Help_0__Lake_helpScriptList;
+static lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0;
 static lean_object* l_Lake_help___closed__12;
 static lean_object* l___private_Lake_CLI_Help_0__Lake_helpCheckTest___closed__0;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Help_0__Lake_helpNew;
+static lean_object* l_Lake_helpCache___closed__1;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Help_0__Lake_helpScriptDoc;
 static lean_object* l___private_Lake_CLI_Help_0__Lake_helpUpdate___closed__0;
+LEAN_EXPORT lean_object* l_Lake_helpCache(lean_object*);
+static lean_object* l_Lake_helpCache___closed__0;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Help_0__Lake_helpUpdate;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Help_0__Lake_helpLint;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Help_0__Lake_helpExe;
@@ -80,6 +89,7 @@ LEAN_EXPORT lean_object* l_Lake_helpScript___boxed(lean_object*);
 static lean_object* l___private_Lake_CLI_Help_0__Lake_helpScriptList___closed__0;
 static lean_object* l_Lake_helpScript___closed__2;
 static lean_object* l_Lake_help___closed__5;
+static lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0;
 static lean_object* l___private_Lake_CLI_Help_0__Lake_helpInit___closed__0;
 static lean_object* l___private_Lake_CLI_Help_0__Lake_helpTranslateConfig___closed__0;
 static lean_object* l_Lake_usage___closed__2;
@@ -110,7 +120,7 @@ static lean_object* _init_l_Lake_usage___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("\n\nUSAGE:\n  lake [OPTIONS] <COMMAND>\n\nCOMMANDS:\n  new <name> <temp>     create a Lean package in a new directory\n  init <name> <temp>    create a Lean package in the current directory\n  build <targets>...    build targets\n  query <targets>...    build targets and output results\n  exe <exe> <args>...   build an exe and run it in Lake's environment\n  check-build           check if any default build targets are configured\n  test                  test the package using the configured test driver\n  check-test            check if there is a properly configured test driver\n  lint                  lint the package using the configured lint driver\n  check-lint            check if there is a properly configured lint driver\n  clean                 remove build outputs\n  env <cmd> <args>...   execute a command in Lake's environment\n  lean <file>           elaborate a Lean file in Lake's context\n  update                update dependencies and save them to the manifest\n  pack                  pack build artifacts into an archive for distribution\n  unpack                unpack build artifacts from an distributed archive\n  upload <tag>          upload build artifacts to a GitHub release\n  script                manage and run workspace scripts\n  scripts               shorthand for `lake script list`\n  run <script>          shorthand for `lake script run`\n  translate-config      change language of the package configuration\n  serve                 start the Lean language server\n\nBASIC OPTIONS:\n  --version             print version and exit\n  --help, -h            print help of the program or a command and exit\n  --dir, -d=file        use the package configuration in a specific directory\n  --file, -f=file       use a specific file for the package configuration\n  -K key[=value]        set the configuration file option named key\n  --old                 only rebuild modified modules (ignore transitive deps)\n  --rehash, -H          hash all files for traces (do not trust `.hash` files)\n  --update              update dependencies on load (e.g., before a build)\n  --packages=file       JSON file of package entries that override the manifest\n  --reconfigure, -R     elaborate configuration files instead of using OLeans\n  --keep-toolchain      do not update toolchain on workspace update\n  --no-build            exit immediately if a build target is not up-to-date\n  --no-cache            build packages locally; do not download build caches\n  --try-cache           attempt to download build caches for supported packages\n  --json, -J            output JSON-formatted results (in `lake query`)\n  --text                output results as plain text (in `lake query`)\n\nOUTPUT OPTIONS:\n  --quiet, -q           hide informational logs and the progress indicator\n  --verbose, -v         show trace logs (command invocations) and built targets\n  --ansi, --no-ansi     toggle the use of ANSI escape codes to prettify output\n  --log-level=lv        minimum log level to output on success\n                        (levels: trace, info, warning, error)\n  --fail-level=lv       minimum log level to fail a build (default: error)\n  --iofail              fail build if any I/O or other info is logged\n                        (same as --fail-level=info)\n  --wfail               fail build if warnings are logged\n                        (same as --fail-level=warning)\n\n\nSee `lake help <command>` for more information on a specific command.", 3431, 3431);
+x_1 = lean_mk_string_unchecked("\n\nUSAGE:\n  lake [OPTIONS] <COMMAND>\n\nCOMMANDS:\n  new <name> <temp>     create a Lean package in a new directory\n  init <name> <temp>    create a Lean package in the current directory\n  build <targets>...    build targets\n  query <targets>...    build targets and output results\n  exe <exe> <args>...   build an exe and run it in Lake's environment\n  check-build           check if any default build targets are configured\n  test                  test the package using the configured test driver\n  check-test            check if there is a properly configured test driver\n  lint                  lint the package using the configured lint driver\n  check-lint            check if there is a properly configured lint driver\n  clean                 remove build outputs\n  env <cmd> <args>...   execute a command in Lake's environment\n  lean <file>           elaborate a Lean file in Lake's context\n  update                update dependencies and save them to the manifest\n  pack                  pack build artifacts into an archive for distribution\n  unpack                unpack build artifacts from an distributed archive\n  upload <tag>          upload build artifacts to a GitHub release\n  cache                 manage the Lake cache\n  script                manage and run workspace scripts\n  scripts               shorthand for `lake script list`\n  run <script>          shorthand for `lake script run`\n  translate-config      change language of the package configuration\n  serve                 start the Lean language server\n\nBASIC OPTIONS:\n  --version             print version and exit\n  --help, -h            print help of the program or a command and exit\n  --dir, -d=file        use the package configuration in a specific directory\n  --file, -f=file       use a specific file for the package configuration\n  -K key[=value]        set the configuration file option named key\n  --old                 only rebuild modified modules (ignore transitive deps)\n  --rehash, -H          hash all files for traces (do not trust `.hash` files)\n  --update              update dependencies on load (e.g., before a build)\n  --packages=file       JSON file of package entries that override the manifest\n  --reconfigure, -R     elaborate configuration files instead of using OLeans\n  --keep-toolchain      do not update toolchain on workspace update\n  --no-build            exit immediately if a build target is not up-to-date\n  --no-cache            build packages locally; do not download build caches\n  --try-cache           attempt to download build caches for supported packages\n  --json, -J            output JSON-formatted results (in `lake query`)\n  --text                output results as plain text (in `lake query`)\n\nOUTPUT OPTIONS:\n  --quiet, -q           hide informational logs and the progress indicator\n  --verbose, -v         show trace logs (command invocations) and built targets\n  --ansi, --no-ansi     toggle the use of ANSI escape codes to prettify output\n  --log-level=lv        minimum log level to output on success\n                        (levels: trace, info, warning, error)\n  --fail-level=lv       minimum log level to fail a build (default: error)\n  --iofail              fail build if any I/O or other info is logged\n                        (same as --fail-level=info)\n  --wfail               fail build if warnings are logged\n                        (same as --fail-level=warning)\n\n\nSee `lake help <command>` for more information on a specific command.", 3477, 3477);
 return x_1;
 }
 }
@@ -184,7 +194,7 @@ static lean_object* _init_l___private_Lake_CLI_Help_0__Lake_helpBuild___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Build targets\n\nUSAGE:\n  lake build [<targets>...]\n\nA target is specified with a string of the form:\n\n  [@[<package>]/][<target>|[+]<module>][:<facet>]\n\nYou can also use the source path of a module as a target. For example,\n\n  lake build Foo/Bar.lean:o\n\nwill build the Lean module (within the workspace) whose source file is\n`Foo/Bar.lean` and compile the generated C file into a native object file.\n\nThe `@` and `+` markers can be used to disambiguate packages and modules\nfrom file paths or other kinds of targets (e.g., executables or libraries).\n\nLIBRARY FACETS:         build the library's ...\n  leanArts (default)    Lean artifacts (*.olean, *.ilean, *.c files)\n  static                static artifact (*.a file)\n  shared                shared artifact (*.so, *.dll, or *.dylib file)\n\nMODULE FACETS:          build the module's ...\n  deps                  dependencies (e.g., imports, shared libraries, etc.)\n  leanArts (default)    Lean artifacts (*.olean, *.ilean, *.c files)\n  olean                 OLean (binary blob of Lean data for importers)\n  ilean                 ILean (binary blob of metadata for the Lean LSP server)\n  c                     compiled C file\n  bc                    compiled LLVM bitcode file\n  c.o                   compiled object file (of its C file)\n  bc.o                  compiled object file (of its LLVM bitcode file)\n  o                     compiled object file (of its configured backend)\n  dynlib                shared library (e.g., for `--load-dynlib`)\n\nTARGET EXAMPLES:        build the ...\n  a                     default facet(s) of target `a`\n  @a                    default target(s) of package `a`\n  +A                    default facet(s) of module `A`\n  @/a                   default facet(s) of target `a` of the root package\n  @a/b                  default facet(s) of target `b` of package `a`\n  @a/+A:c               C file of module `A` of package `a`\n  :foo                  facet `foo` of the root package\n\nA bare `lake build` command will build the default target(s) of the root package.\nPackage dependencies are not updated during a build.", 2100, 2100);
+x_1 = lean_mk_string_unchecked("Build targets\n\nUSAGE:\n  lake build [<targets>...] [-o <mappings>]\n\nA target is specified with a string of the form:\n\n  [@[<package>]/][<target>|[+]<module>][:<facet>]\n\nYou can also use the source path of a module as a target. For example,\n\n  lake build Foo/Bar.lean:o\n\nwill build the Lean module (within the workspace) whose source file is\n`Foo/Bar.lean` and compile the generated C file into a native object file.\n\nThe `@` and `+` markers can be used to disambiguate packages and modules\nfrom file paths or other kinds of targets (e.g., executables or libraries).\n\nLIBRARY FACETS:         build the library's ...\n  leanArts (default)    Lean artifacts (*.olean, *.ilean, *.c files)\n  static                static artifact (*.a file)\n  shared                shared artifact (*.so, *.dll, or *.dylib file)\n\nMODULE FACETS:          build the module's ...\n  deps                  dependencies (e.g., imports, shared libraries, etc.)\n  leanArts (default)    Lean artifacts (*.olean, *.ilean, *.c files)\n  olean                 OLean (binary blob of Lean data for importers)\n  ilean                 ILean (binary blob of metadata for the Lean LSP server)\n  c                     compiled C file\n  bc                    compiled LLVM bitcode file\n  c.o                   compiled object file (of its C file)\n  bc.o                  compiled object file (of its LLVM bitcode file)\n  o                     compiled object file (of its configured backend)\n  dynlib                shared library (e.g., for `--load-dynlib`)\n\nTARGET EXAMPLES:        build the ...\n  a                     default facet(s) of target `a`\n  @a                    default target(s) of package `a`\n  +A                    default facet(s) of module `A`\n  @/a                   default facet(s) of target `a` of the root package\n  @a/b                  default facet(s) of target `b` of package `a`\n  @a/+A:c               C file of module `A` of package `a`\n  :foo                  facet `foo` of the root package\n\nA bare `lake build` command will build the default target(s) of the root\npackage. Package dependencies are not updated during a build.\n\nWith the Lake cache enabled, the `-o` option will cause Lake to track the\ninput-to-outputs mappings of targets in the root package touched during the\nbuild and write them to the specified file at the end of the build. These\nmappings can then be used to upload build artifacts to a remote cache with\n`lake cache put`.", 2434, 2434);
 return x_1;
 }
 }
@@ -372,11 +382,59 @@ x_1 = l___private_Lake_CLI_Help_0__Lake_helpClean___closed__0;
 return x_1;
 }
 }
+static lean_object* _init_l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Manage the Lake cache\n\nUSAGE:\n  lake cache <COMMAND>\n\nCOMMANDS:\n  get [<mappings>]      download artifacts into the Lake cache\n  put <mappings>        upload artifacts to a remote cache\n\nSee `lake cache help <command>` for more information on a specific command.", 262, 262);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lake_CLI_Help_0__Lake_helpCacheCli() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0;
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Download artifacts from a remote service into the Lake cache\n\nUSAGE:\n  lake cache get [<mappings>] [--scope=<remote-scope>] [--max-revs=<n>]\n\nDownloads artifacts for packages in the workspace from a remote cache service.\nThe cache service used can be configured via the environment variables:\n\n  LAKE_CACHE_ARTIFACT_ENDPOINT  base URL for artifact downloads\n  LAKE_CACHE_REVISION_ENDPOINT  base URL for the mapping download\n\nIf neither of these are set, Lake will use Reservoir instead.\n\nIf an input-to-outputs mappings file or a scope is provided, Lake will\ndownload artifacts for the root package. Otherwise, it will download artifacts\nfor each package in the root's dependency tree in order (using Reservoir).\nNon-Reservoir dependencies will be skipped.\n\nTo determine the artifacts to download, Lake uses the package's Git revision\n(commit hash) to lookup its input-to-outputs mappings on the cache service.\nLake will download the artifacts for the most recent commit with available\nmappings. It will backtrack up to `--max-revs`, which defaults to 100.\nIf set to 0, Lake will search the repository's whole history.\n\nWhile downloading, Lake will continue on when a download for an artifact\nfails or if the download process for a whole package fails. However, it will\nreport this and exit with a nonzero status code in such cases.", 1332, 1332);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lake_CLI_Help_0__Lake_helpCacheGet() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0;
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Upload artifacts from the Lake cache to a remote service\n\nUSAGE:\n  lake cache put <mappings> --scope=<remote-scope>\n\nUploads the input-to-outputs mappings contained in the specified file along\nwith the corresponding output artifacts to a remote cache. The cache service\nused is configured via the environment variables:\n\n  LAKE_CACHE_KEY                authentication key for requests\n  LAKE_CACHE_ARTIFACT_ENDPOINT  base URL for artifact uploads\n  LAKE_CACHE_REVISION_ENDPOINT  base URL for the mapping upload\n\nFiles are uploaded using the AWS Signature Version 4 authentication protocol\nvia `curl`. Thus, the service should generally be an S3-compatible bucket.\n\nArtifacts are uploaded to the artifact endpoint under the prefix `scope`\nwith a file name corresponding to their Lake content hash. The mappings file\nis uploaded  to the revision endpoint under the prefix `scope` with a file name\ncorresponding to the package's current Git revision. As such, the command will\nfail if the the work tree currently has changes.", 1022, 1022);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lake_CLI_Help_0__Lake_helpCachePut() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0;
+return x_1;
+}
+}
 static lean_object* _init_l___private_Lake_CLI_Help_0__Lake_helpScriptCli___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Manage Lake scripts\n\nUSAGE:\n  lake script <COMMAND>\n\nCOMMANDS:\n  list                  list available scripts\n  run <script>          run a script\n  doc <script>          print the docstring of a given script\n\nSee `lake help <command>` for more information on a specific command.", 279, 279);
+x_1 = lean_mk_string_unchecked("Manage Lake scripts\n\nUSAGE:\n  lake script <COMMAND>\n\nCOMMANDS:\n  list                  list available scripts\n  run <script>          run a script\n  doc <script>          print the docstring of a given script\n\nSee `lake script help <command>` for more information on a specific command.", 286, 286);
 return x_1;
 }
 }
@@ -589,6 +647,63 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_helpScript(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lake_helpCache___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("get", 3, 3);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_helpCache___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("put", 3, 3);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_helpCache(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; uint8_t x_3; 
+x_2 = l_Lake_helpCache___closed__0;
+x_3 = lean_string_dec_eq(x_1, x_2);
+if (x_3 == 0)
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = l_Lake_helpCache___closed__1;
+x_5 = lean_string_dec_eq(x_1, x_4);
+if (x_5 == 0)
+{
+lean_object* x_6; 
+x_6 = l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0;
+return x_6;
+}
+else
+{
+lean_object* x_7; 
+x_7 = l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0;
+return x_7;
+}
+}
+else
+{
+lean_object* x_8; 
+x_8 = l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0;
+return x_8;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lake_helpCache___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lake_helpCache(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -1167,6 +1282,18 @@ l___private_Lake_CLI_Help_0__Lake_helpClean___closed__0 = _init_l___private_Lake
 lean_mark_persistent(l___private_Lake_CLI_Help_0__Lake_helpClean___closed__0);
 l___private_Lake_CLI_Help_0__Lake_helpClean = _init_l___private_Lake_CLI_Help_0__Lake_helpClean();
 lean_mark_persistent(l___private_Lake_CLI_Help_0__Lake_helpClean);
+l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0 = _init_l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0();
+lean_mark_persistent(l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0);
+l___private_Lake_CLI_Help_0__Lake_helpCacheCli = _init_l___private_Lake_CLI_Help_0__Lake_helpCacheCli();
+lean_mark_persistent(l___private_Lake_CLI_Help_0__Lake_helpCacheCli);
+l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0 = _init_l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0();
+lean_mark_persistent(l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0);
+l___private_Lake_CLI_Help_0__Lake_helpCacheGet = _init_l___private_Lake_CLI_Help_0__Lake_helpCacheGet();
+lean_mark_persistent(l___private_Lake_CLI_Help_0__Lake_helpCacheGet);
+l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0 = _init_l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0();
+lean_mark_persistent(l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0);
+l___private_Lake_CLI_Help_0__Lake_helpCachePut = _init_l___private_Lake_CLI_Help_0__Lake_helpCachePut();
+lean_mark_persistent(l___private_Lake_CLI_Help_0__Lake_helpCachePut);
 l___private_Lake_CLI_Help_0__Lake_helpScriptCli___closed__0 = _init_l___private_Lake_CLI_Help_0__Lake_helpScriptCli___closed__0();
 lean_mark_persistent(l___private_Lake_CLI_Help_0__Lake_helpScriptCli___closed__0);
 l___private_Lake_CLI_Help_0__Lake_helpScriptCli = _init_l___private_Lake_CLI_Help_0__Lake_helpScriptCli();
@@ -1209,6 +1336,10 @@ l_Lake_helpScript___closed__1 = _init_l_Lake_helpScript___closed__1();
 lean_mark_persistent(l_Lake_helpScript___closed__1);
 l_Lake_helpScript___closed__2 = _init_l_Lake_helpScript___closed__2();
 lean_mark_persistent(l_Lake_helpScript___closed__2);
+l_Lake_helpCache___closed__0 = _init_l_Lake_helpCache___closed__0();
+lean_mark_persistent(l_Lake_helpCache___closed__0);
+l_Lake_helpCache___closed__1 = _init_l_Lake_helpCache___closed__1();
+lean_mark_persistent(l_Lake_helpCache___closed__1);
 l_Lake_help___closed__0 = _init_l_Lake_help___closed__0();
 lean_mark_persistent(l_Lake_help___closed__0);
 l_Lake_help___closed__1 = _init_l_Lake_help___closed__1();

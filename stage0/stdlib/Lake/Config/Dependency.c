@@ -734,6 +734,7 @@ x_5 = lean_string_append(x_3, x_4);
 x_6 = 1;
 x_7 = l_Lean_Name_toString(x_2, x_6);
 x_8 = lean_string_append(x_5, x_7);
+lean_dec_ref(x_7);
 return x_8;
 }
 }

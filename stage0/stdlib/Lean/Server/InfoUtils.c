@@ -6234,6 +6234,7 @@ if (x_267 == 0)
 lean_object* x_268; lean_object* x_269; 
 x_268 = lean_ctor_get(x_265, 0);
 x_269 = l_Lean_ErrorExplanation_summaryWithSeverity(x_268);
+lean_dec(x_268);
 lean_ctor_set(x_265, 0, x_269);
 lean_ctor_set(x_260, 0, x_265);
 return x_260;
@@ -6245,6 +6246,7 @@ x_270 = lean_ctor_get(x_265, 0);
 lean_inc(x_270);
 lean_dec(x_265);
 x_271 = l_Lean_ErrorExplanation_summaryWithSeverity(x_270);
+lean_dec(x_270);
 x_272 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_272, 0, x_271);
 lean_ctor_set(x_260, 0, x_272);
@@ -6290,6 +6292,7 @@ if (lean_is_exclusive(x_277)) {
  x_281 = lean_box(0);
 }
 x_282 = l_Lean_ErrorExplanation_summaryWithSeverity(x_280);
+lean_dec(x_280);
 if (lean_is_scalar(x_281)) {
  x_283 = lean_alloc_ctor(1, 1, 0);
 } else {

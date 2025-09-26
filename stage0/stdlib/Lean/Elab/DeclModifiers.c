@@ -1634,7 +1634,7 @@ if (x_7 == 0)
 {
 lean_object* x_10; uint8_t x_11; 
 x_10 = l_Lean_Environment_header(x_1);
-x_11 = lean_ctor_get_uint8(x_10, sizeof(void*)*5 + 4);
+x_11 = lean_ctor_get_uint8(x_10, sizeof(void*)*6 + 4);
 lean_dec_ref(x_10);
 if (x_11 == 0)
 {

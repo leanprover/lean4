@@ -2613,6 +2613,7 @@ lean_object* x_89; lean_object* x_90; lean_object* x_91;
 x_89 = l___private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal_delabHypotheses___closed__4;
 x_90 = l_Nat_toSuperscriptString(x_84);
 x_91 = lean_string_append(x_89, x_90);
+lean_dec_ref(x_90);
 x_80 = x_86;
 x_81 = x_91;
 goto block_83;

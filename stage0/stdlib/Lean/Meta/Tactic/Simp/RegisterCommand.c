@@ -1699,7 +1699,6 @@ x_230 = l_Lean_Name_append(x_218, x_228);
 x_231 = l_Lean_mkIdentFrom(x_227, x_230, x_214);
 lean_dec(x_227);
 x_232 = l_Lean_Meta_Simp___aux__Lean__Meta__Tactic__Simp__RegisterCommand______macroRules__Lean__Meta__Simp____root____Lean__Parser__Command__registerSimpAttr__1___closed__112;
-lean_inc_ref(x_229);
 x_233 = lean_string_append(x_232, x_229);
 x_234 = l_Lean_Syntax_mkStrLit(x_233, x_224);
 x_235 = l_Lean_SourceInfo_fromRef(x_222, x_214);
@@ -1776,7 +1775,6 @@ if (lean_obj_tag(x_245) == 0)
 {
 lean_object* x_252; lean_object* x_253; 
 x_252 = l_Lean_Meta_Simp___aux__Lean__Meta__Tactic__Simp__RegisterCommand______macroRules__Lean__Meta__Simp____root____Lean__Parser__Command__registerSimpAttr__1___closed__123;
-lean_inc_ref(x_247);
 x_253 = lean_string_append(x_252, x_247);
 x_213 = x_251;
 x_214 = x_250;

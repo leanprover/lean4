@@ -17423,6 +17423,7 @@ x_57 = l_Lean_Elab_Term_withoutTacticIncrementality___at_____private_Lean_Elab_T
 x_58 = lean_unsigned_to_nat(0u);
 x_59 = lean_format_pretty(x_56, x_57, x_58, x_58);
 x_60 = lean_string_append(x_54, x_59);
+lean_dec_ref(x_59);
 x_61 = lean_dbg_trace(x_60, x_53);
 x_62 = lean_unbox(x_61);
 x_36 = x_62;

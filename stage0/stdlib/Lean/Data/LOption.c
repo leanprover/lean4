@@ -364,6 +364,7 @@ lean_dec_ref(x_2);
 x_5 = l_Lean_instToStringLOption___redArg___lam__0___closed__1;
 x_6 = lean_apply_1(x_1, x_4);
 x_7 = lean_string_append(x_5, x_6);
+lean_dec_ref(x_6);
 x_8 = l_Lean_instToStringLOption___redArg___lam__0___closed__2;
 x_9 = lean_string_append(x_7, x_8);
 return x_9;

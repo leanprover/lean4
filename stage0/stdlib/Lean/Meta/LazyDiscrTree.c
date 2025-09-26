@@ -17480,7 +17480,7 @@ else
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_12 = l_Lean_Environment_header(x_2);
-x_13 = lean_ctor_get(x_12, 4);
+x_13 = lean_ctor_get(x_12, 5);
 lean_inc_ref(x_13);
 x_14 = lean_box(0);
 x_15 = l_Lean_EnvironmentHeader_moduleNames(x_12);
@@ -18300,7 +18300,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
 x_13 = l_Lean_Environment_header(x_4);
-x_14 = lean_ctor_get(x_13, 4);
+x_14 = lean_ctor_get(x_13, 5);
 lean_inc_ref(x_14);
 lean_dec_ref(x_13);
 x_15 = lean_array_get_size(x_14);
@@ -18686,7 +18686,7 @@ _start:
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_11 = l_Lean_Environment_header(x_8);
 x_12 = lean_ctor_get(x_1, 0);
-x_13 = lean_ctor_get(x_11, 4);
+x_13 = lean_ctor_get(x_11, 5);
 lean_inc_ref(x_13);
 lean_dec_ref(x_11);
 x_14 = lean_ctor_get(x_1, 1);
@@ -19589,7 +19589,7 @@ _start:
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 x_12 = l_Lean_Environment_header(x_2);
-x_13 = lean_ctor_get(x_12, 4);
+x_13 = lean_ctor_get(x_12, 5);
 lean_inc_ref(x_13);
 lean_dec_ref(x_12);
 x_14 = lean_array_get_size(x_13);
@@ -20049,7 +20049,7 @@ _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_11 = l_Lean_Environment_header(x_3);
-x_12 = lean_ctor_get(x_11, 4);
+x_12 = lean_ctor_get(x_11, 5);
 lean_inc_ref(x_12);
 lean_dec_ref(x_11);
 x_13 = lean_array_get_size(x_12);

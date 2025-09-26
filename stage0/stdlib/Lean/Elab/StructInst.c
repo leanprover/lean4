@@ -45508,6 +45508,7 @@ x_9 = lean_array_uset(x_4, x_3, x_8);
 x_10 = l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at_____private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_mkCtorHeader_spec__0_spec__0_spec__0___redArg___closed__2;
 x_11 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_7, x_1);
 x_12 = lean_string_append(x_10, x_11);
+lean_dec_ref(x_11);
 x_13 = lean_string_append(x_12, x_10);
 x_14 = 1;
 x_15 = lean_usize_add(x_3, x_14);
@@ -61345,6 +61346,7 @@ x_105 = l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_processFie
 x_106 = l_Lean_Name_getString_x21(x_102);
 lean_dec(x_102);
 x_107 = lean_string_append(x_105, x_106);
+lean_dec_ref(x_106);
 x_13 = x_85;
 x_14 = x_86;
 x_15 = x_95;
@@ -71474,6 +71476,7 @@ x_72 = l_Lean_replaceRef(x_64, x_67);
 lean_dec(x_67);
 lean_ctor_set(x_8, 5, x_72);
 x_73 = l_Lean_isInaccessiblePrivateName(x_68, x_71);
+lean_dec(x_71);
 lean_dec_ref(x_68);
 if (x_73 == 0)
 {
@@ -71817,6 +71820,7 @@ lean_ctor_set(x_162, 13, x_156);
 lean_ctor_set_uint8(x_162, sizeof(void*)*14, x_153);
 lean_ctor_set_uint8(x_162, sizeof(void*)*14 + 1, x_155);
 x_163 = l_Lean_isInaccessiblePrivateName(x_157, x_160);
+lean_dec(x_160);
 lean_dec_ref(x_157);
 if (x_163 == 0)
 {
@@ -72164,6 +72168,7 @@ lean_ctor_set(x_243, 13, x_236);
 lean_ctor_set_uint8(x_243, sizeof(void*)*14, x_233);
 lean_ctor_set_uint8(x_243, sizeof(void*)*14 + 1, x_235);
 x_244 = l_Lean_isInaccessiblePrivateName(x_238, x_241);
+lean_dec(x_241);
 lean_dec_ref(x_238);
 if (x_244 == 0)
 {

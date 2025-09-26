@@ -7510,7 +7510,7 @@ return x_3;
 }
 else
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; double x_11; size_t x_12; size_t x_13; lean_object* x_14; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; double x_12; size_t x_13; size_t x_14; lean_object* x_15; 
 x_5 = lean_array_uget(x_3, x_2);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
@@ -7519,16 +7519,18 @@ lean_inc(x_7);
 lean_dec(x_5);
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_array_uset(x_3, x_2, x_8);
-x_10 = lean_alloc_ctor(0, 1, 8);
-lean_ctor_set(x_10, 0, x_6);
-x_11 = lean_unbox_float(x_7);
+x_10 = lean_box(0);
+x_11 = lean_alloc_ctor(0, 2, 8);
+lean_ctor_set(x_11, 0, x_6);
+lean_ctor_set(x_11, 1, x_10);
+x_12 = lean_unbox_float(x_7);
 lean_dec(x_7);
-lean_ctor_set_float(x_10, sizeof(void*)*1, x_11);
-x_12 = 1;
-x_13 = lean_usize_add(x_2, x_12);
-x_14 = lean_array_uset(x_9, x_2, x_10);
-x_2 = x_13;
-x_3 = x_14;
+lean_ctor_set_float(x_11, sizeof(void*)*2, x_12);
+x_13 = 1;
+x_14 = lean_usize_add(x_2, x_13);
+x_15 = lean_array_uset(x_9, x_2, x_11);
+x_2 = x_14;
+x_3 = x_15;
 goto _start;
 }
 }

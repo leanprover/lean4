@@ -40,9 +40,6 @@ h_1 : (b && a) = false
       [_] commutative
       [_] idempotent
       [_] identity: `true`
-[grind] Issues
-  [issue] type has `LE`, but is not a preorder, failed to synthesize
-        Std.IsPreorder Bool
 -/
 #guard_msgs (error) in
 theorem ex (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
@@ -195,8 +192,6 @@ trace: [grind.issues] found congruence between
     and
       f a
     but functions have different types
-[grind.issues] type has `LE`, but is not a preorder, failed to synthesize
-      Std.IsPreorder Bool
 -/
 #guard_msgs (trace) in
 set_option trace.grind.issues true in
@@ -232,8 +227,6 @@ h_2 : ¬f a = g b
       and
         f a
       but functions have different types
-  [issue] type has `LE`, but is not a preorder, failed to synthesize
-        Std.IsPreorder Bool
 -/
 #guard_msgs (error) in
 example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : f ≍ g → a ≍ b → f a = g b := by

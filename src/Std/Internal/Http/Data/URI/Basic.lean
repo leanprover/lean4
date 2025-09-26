@@ -114,7 +114,10 @@ deriving Inhabited, Repr
 /--
 Query string represented as an array of key–value pairs.
 -/
-abbrev Query := Array (String × Option String)
+@[expose]
+def Query := Array (String × Option String)
+
+instance : Repr Query := inferInstanceAs (Repr (Array (String × Option String)))
 
 end URI
 

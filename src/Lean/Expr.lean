@@ -1267,7 +1267,7 @@ def getRevArg!' : Expr → Nat → Expr
   getRevArg! e (n - i - 1)
 
 /-- Similar to `getArg!`, but skips mdata -/
-@[inline] def getArg!' (e : Expr) (i : Nat) (n := e.getAppNumArgs) : Expr :=
+@[inline] def getArg!' (e : Expr) (i : Nat) (n := e.getAppNumArgs') : Expr :=
   getRevArg!' e (n - i - 1)
 
 /-- Given `f a₀ a₁ ... aₙ`, returns the `i`th argument or returns `v₀` if out of bounds. -/

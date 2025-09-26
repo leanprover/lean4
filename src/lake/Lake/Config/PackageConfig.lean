@@ -295,6 +295,14 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   -/
   enableArtifactCache?, enableArtifactCache : Option Bool := none
   /--
+  Whether, when the local artifact cache is enabled, Lake should copy all cached
+  artifacts into the build directory. This ensures the build results are available
+  to external consumers who expect them in the build directory.
+
+  Defaults to `false`.
+  -/
+  restoreAllArtifacts : Bool := false
+  /--
   Whether native libraries (of this package) should be prefixed with `lib` on Windows.
 
   Unlike Unix, Windows does not require native libraries to start with `lib` and,

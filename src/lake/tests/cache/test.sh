@@ -55,7 +55,8 @@ test_exp "$cache_art" != "$local_art"
 test_cmd cmp -s "$cache_art" "$local_art"
 
 # Verify supported artifacts end up in the cache directory
-test_run build test:exe Test:static Test:shared +Test:o.export +Test:o.noexport
+test_run build \
+  test:exe Test:static Test:shared +Test:o.export +Test:o.noexport +Module
 test_cached() {
   target="$1"; shift
   art="$($LAKE query $target)"
@@ -71,7 +72,6 @@ test_cached +Test:dynlib !
 test_cached +Test:olean
 test_cached +Test:ilean !
 test_cached +Test:c
-test_run build +Module
 test_cached +Module:olean
 test_cached +Module:olean.server
 test_cached +Module:olean.private
@@ -133,6 +133,25 @@ test_exp -f .lake/outputs.jsonl
 test_cmd_eq 3 wc -l < .lake/outputs.jsonl
 test_run build Test:static -o .lake/outputs.jsonl
 test_cmd_eq 6 wc -l < .lake/outputs.jsonl
+
+# Verify all artifacts end up in the cache directory with `restoreAllArtifacts`
+test_cmd cp -r "$CACHE_DIR" .lake/cache-backup
+test_cmd rm -rf "$CACHE_DIR"
+test_run build -R -KrestoreAll=true \
+  test:exe Test:static Test:shared +Test:o.export +Test:o.noexport +Module
+test_cached test:exe !
+test_cached Test:static !
+test_cached Test:shared !
+test_cached +Test:o.export !
+test_cached +Test:o.noexport !
+test_cached +Test:dynlib !
+test_cached +Test:olean !
+test_cached +Test:ilean !
+test_cached +Test:c !
+test_cached +Module:olean !
+test_cached +Module:olean.server !
+test_cached +Module:olean.private !
+test_cached +Module:ir !
 
 # Cleanup
 rm -f produced.out Ignored.lean

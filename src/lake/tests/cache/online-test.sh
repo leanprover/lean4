@@ -10,11 +10,17 @@ if [ -z "${LAKE_CACHE_KEY:-}" ]; then
   echo "Must be run with LAKE_CACHE_KEY set"
   exit 1
 fi
+if [ -z "${TEST_ENDPOINT:-}" ]; then
+  echo "Must be run with TEST_ENDPOINT set"
+  exit 1
+fi
 TEST_ARTIFACT_ENDPOINT="${TEST_ARTIFACT_ENDPOINT:-$TEST_ENDPOINT/a0}"
 TEST_REVISION_ENDPOINT="${TEST_REVISION_ENDPOINT:-$TEST_ENDPOINT/r0}"
 TEST_CDN_ENDPOINT="${TEST_CDN_ENDPOINT:-https://reservoir.lean-cache.cloud}"
 TEST_CDN_ARTIFACT_ENDPOINT="${TEST_CDN_ARTIFACT_ENDPOINT:-$TEST_CDN_ENDPOINT/a0}"
 TEST_CDN_REVISION_ENDPOINT="${TEST_CDN_REVISION_ENDPOINT:-$TEST_CDN_ENDPOINT/r0}"
+TEST_RESERVOIR_URL="${TEST_RESERVOIR_URL:-https://reservoir.lean-lang.org}"
+export RESERVOIR_API_URL="$TEST_RESERVOIR_URL/api/v0"
 
 with_upload_endpoints() {
   LAKE_CACHE_ARTIFACT_ENDPOINT="$TEST_ARTIFACT_ENDPOINT" \
@@ -63,10 +69,13 @@ test_err "outputs not found for revision" cache get --scope='!/bogus' --rev=$REV
 test_run -f  non-reservoir.toml update
 test_out 'hello: skipping non-Reservoir dependency' -f non-reservoir.toml cache get
 
-# Test cache put/get with a custom endpoint
+# Build artifacts
 test_run build +Test -o .lake/outputs.jsonl
 test_exp -f .lake/outputs.jsonl
 test_cmd_eq 3 wc -l < .lake/outputs.jsonl
+test_cmd cp -r .lake/cache .lake/cache-backup
+
+# Test cache put/get with a custom endpoint
 with_upload_endpoints test_run cache put .lake/outputs.jsonl --scope='!/test'
 test_cmd rm -rf .lake/build "$LAKE_CACHE_DIR"
 with_cdn_endpoints test_err 'failed to download some artifacts' \

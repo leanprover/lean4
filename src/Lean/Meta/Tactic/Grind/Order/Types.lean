@@ -21,17 +21,22 @@ and `Int`. During proof construction we perform the necessary conversions.
 -/
 abbrev Weight := Int
 
+inductive CnstrKind where
+  | le | lt | eq
+  deriving Inhabited
+
 /--
 A constraint of the form `u ≤ v + k` (`u < v + k` if `strict := true`)
 Remark: If the order does not support offsets, then `k` is zero.
-`h` is proof that the associated Lean expression is equal to the constraint.
+`h? := some h` if the Lean expression is not definitionally equal to the constraint,
+but provably equal with proof `h`.
 -/
-structure Cnstr where
-  u      : NodeId
-  v      : NodeId
-  strict : Bool   := false
+structure Cnstr (α : Type) where
+  kind   : CnstrKind
+  u      : α
+  v      : α
   k      : Weight := 0
-  h      : Expr
+  h?     : Option Expr := none
   deriving Inhabited
 
 structure WeightS where
@@ -69,7 +74,7 @@ instance : DecidableLT WeightS :=
 structure ProofInfo where
   w      : NodeId
   strict : Bool := false
-  k      : Rat := 0
+  k      : Int := 0
   proof  : Expr
   deriving Inhabited
 
@@ -111,6 +116,8 @@ structure Struct where
   ringId?            : Option Nat
   /-- `true` if `ringId?` is the Id of a commutative ring -/
   isCommRing         : Bool
+  /-- `OrderedRing` instance if available -/
+  orderedRingInst?   : Option Expr
   leFn               : Expr
   ltFn?              : Option Expr
   /-- Mapping from `NodeId` to the `Expr` represented by the node. -/
@@ -118,12 +125,12 @@ structure Struct where
   /-- Mapping from `Expr` to a node representing it. -/
   nodeMap            : PHashMap ExprPtr NodeId := {}
   /-- Mapping from `Expr` representing inequalities to constraints. -/
-  cnstrs             : PHashMap ExprPtr Cnstr := {}
+  cnstrs             : PHashMap ExprPtr (Cnstr NodeId) := {}
   /--
   Mapping from pairs `(u, v)` to a list of constraints on `u` and `v`.
   We use this mapping to implement exhaustive constraint propagation.
   -/
-  cnstrsOf           : PHashMap (NodeId × NodeId) (List (NodeId × Expr)) := {}
+  cnstrsOf           : PHashMap (NodeId × NodeId) (List (Cnstr NodeId × Expr)) := {}
   /--
   For each node with id `u`, `sources[u]` contains
   pairs `(v, k)` s.t. there is a path from `v` to `u` with weight `k`.
@@ -142,7 +149,7 @@ structure Struct where
   -/
   proofs             : PArray (AssocList NodeId ProofInfo) := {}
   /-- Truth values and equalities to propagate to core. -/
-  propagate : List ToPropagate := []
+  propagate          : List ToPropagate := []
   deriving Inhabited
 
 /-- State for all order types detected by `grind`. -/

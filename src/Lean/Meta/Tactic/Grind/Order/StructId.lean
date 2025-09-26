@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Order.Types
 import Lean.Meta.Tactic.Grind.OrderInsts
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
+import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM
 public section
 namespace Lean.Meta.Grind.Order
 
@@ -19,6 +20,13 @@ private def internalizeFn (fn : Expr) : GoalM Expr := do
 
 private def getInst? (declName : Name) (u : Level) (type : Expr) : GoalM (Option Expr) := do
   synthInstance? <| mkApp (mkConst declName [u]) type
+
+open Arith CommRing
+
+private def mkOrderedRingInst? (u : Level) (α : Expr) (semiringInst : Expr)
+    (leInst ltInst isPreorderInst : Expr) : GoalM (Option Expr) := do
+  let e := mkApp5 (mkConst ``Grind.OrderedRing [u]) α semiringInst leInst ltInst isPreorderInst
+  synthInstance? e
 
 def getStructId? (type : Expr) : GoalM (Option Nat) := do
   unless (← getConfig).order do return none
@@ -46,15 +54,23 @@ where
         pure (inst?, some ltFn)
     else
       pure (none, none)
-    let (ringId?, isCommRing) ← if let some ringId ← Arith.CommRing.getCommRingId? type then
-      pure (some ringId, true)
-    else if let some ringId ← Arith.CommRing.getNonCommRingId? type then
-      pure (some ringId, false)
+    let (ringId?, orderedRingInst?, isCommRing) ← if lawfulOrderLTInst?.isNone then
+      pure (none, none, false)
+    else if let some ringId ← getCommRingId? type then
+      let semiringInst ← RingM.run ringId do return (← getRing).semiringInst
+      let some ordRingInst ← mkOrderedRingInst? u type semiringInst leInst ltInst?.get! isPreorderInst
+        | pure (none, none, true)
+      pure (some ringId, some ordRingInst, true)
+    else if let some ringId ← getNonCommRingId? type then
+      let semiringInst ← NonCommRingM.run ringId do return (← getRing).semiringInst
+      let some ordRingInst ← mkOrderedRingInst? u type semiringInst leInst ltInst?.get! isPreorderInst
+        | pure (none, none, true)
+      pure (some ringId, some ordRingInst, false)
     else
-      pure (none, false)
+      pure (none, none, false)
     let id := (← get').structs.size
     let struct := {
-      id,  type, u, leInst, isPreorderInst, ltInst?, leFn, isPartialInst?
+      id,  type, u, leInst, isPreorderInst, ltInst?, leFn, isPartialInst?, orderedRingInst?
       isLinearPreInst?, ltFn?, lawfulOrderLTInst?, ringId?, isCommRing
      }
     modify' fun s => { s with structs := s.structs.push struct }

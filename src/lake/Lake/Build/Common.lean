@@ -562,7 +562,7 @@ public def buildArtifactUnlessUpToDate
       else
         return some art
     if (← pkg.isArtifactCacheEnabled) then
-      if let some art ← fetchArt? restore then
+      if let some art ← fetchArt? (restore || pkg.restoreAllArtifacts) then
         setTrace art.trace
         if let some outputsRef := pkg.outputsRef? then
           outputsRef.insert inputHash art.hash

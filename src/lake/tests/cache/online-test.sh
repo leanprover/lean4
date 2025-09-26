@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+gi#!/usr/bin/env bash
 source ../common.sh
 
 ./clean.sh

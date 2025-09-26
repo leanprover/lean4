@@ -710,7 +710,7 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
         return none
     let arts ← id do
       if (← mod.pkg.isArtifactCacheEnabled) then
-        if let some arts ← fetchArtsFromCache? false then
+        if let some arts ← fetchArtsFromCache? mod.pkg.restoreAllArtifacts then
           return arts
         else
           unless (← savedTrace.replayIfUpToDate (oldTrace := srcTrace.mtime) mod depTrace) do

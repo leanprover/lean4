@@ -344,6 +344,10 @@ public def nativeLibDir (self : Package) : FilePath :=
 @[inline] public def enableArtifactCache? (self : Package) : Option Bool :=
   self.config.enableArtifactCache?
 
+/-- The package's `restoreAllArtifacts` configuration. -/
+@[inline] public def restoreAllArtifacts (self : Package) : Bool :=
+  self.config.restoreAllArtifacts
+
 /-- The directory within the Lake cache were package-scoped files are stored. -/
 public def cacheScope (self : Package) :=
   self.name.toString (escape := false)

@@ -1746,15 +1746,15 @@ Helper theorems for normalizing ring constraints in the `grind order` module.
 noncomputable def norm_cnstr_cert (lhs rhs lhs' rhs' : Expr) : Bool :=
   (rhs.sub lhs).toPoly_k.beq' (rhs'.sub lhs').toPoly_k
 
-theorem le_norm_iff {α} [CommRing α] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
-    : norm_cnstr_cert lhs rhs lhs' rhs' → (lhs.denote ctx ≤ rhs.denote ctx ↔ lhs'.denote ctx ≤ rhs'.denote ctx) := by
+theorem le_norm_expr {α} [CommRing α] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
+    : norm_cnstr_cert lhs rhs lhs' rhs' → (lhs.denote ctx ≤ rhs.denote ctx) = (lhs'.denote ctx ≤ rhs'.denote ctx) := by
   simp [norm_cnstr_cert]; intro h
   replace h := congrArg (Poly.denote ctx) h; simp [Expr.denote_toPoly] at h
   replace h : rhs.denote ctx - lhs.denote ctx = rhs'.denote ctx - lhs'.denote ctx := h
   rw [← OrderedAdd.sub_nonneg_iff, h, OrderedAdd.sub_nonneg_iff]
 
-theorem lt_norm_iff {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
-    : norm_cnstr_cert lhs rhs lhs' rhs' → (lhs.denote ctx < rhs.denote ctx ↔ lhs'.denote ctx < rhs'.denote ctx) := by
+theorem lt_norm_expr {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
+    : norm_cnstr_cert lhs rhs lhs' rhs' → (lhs.denote ctx < rhs.denote ctx) = (lhs'.denote ctx < rhs'.denote ctx) := by
   simp [norm_cnstr_cert]; intro h
   replace h := congrArg (Poly.denote ctx) h; simp [Expr.denote_toPoly] at h
   replace h : rhs.denote ctx - lhs.denote ctx = rhs'.denote ctx - lhs'.denote ctx := h
@@ -1763,8 +1763,8 @@ theorem lt_norm_iff {α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPre
 noncomputable def norm_eq_cert (lhs rhs lhs' rhs' : Expr) : Bool :=
   (lhs.sub rhs).toPoly_k.beq' (lhs'.sub rhs').toPoly_k
 
-theorem eq_norm_iff {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
-    : norm_eq_cert lhs rhs lhs' rhs' → (lhs.denote ctx = rhs.denote ctx ↔ lhs'.denote ctx = rhs'.denote ctx) := by
+theorem eq_norm_expr {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
+    : norm_eq_cert lhs rhs lhs' rhs' → (lhs.denote ctx = rhs.denote ctx) = (lhs'.denote ctx = rhs'.denote ctx) := by
   simp [norm_eq_cert]; intro h
   replace h := congrArg (Poly.denote ctx) h; simp [Expr.denote_toPoly] at h
   replace h : lhs.denote ctx - rhs.denote ctx = lhs'.denote ctx - rhs'.denote ctx := h
@@ -1773,15 +1773,15 @@ theorem eq_norm_iff {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (lhs'
 noncomputable def norm_cnstr_nc_cert (lhs rhs lhs' rhs' : Expr) : Bool :=
   (rhs.sub lhs).toPoly_nc.beq' (rhs'.sub lhs').toPoly_nc
 
-theorem le_norm_nc_iff {α} [Ring α] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
-    : norm_cnstr_nc_cert lhs rhs lhs' rhs' → (lhs.denote ctx ≤ rhs.denote ctx ↔ lhs'.denote ctx ≤ rhs'.denote ctx) := by
+theorem le_norm_expr_nc {α} [Ring α] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
+    : norm_cnstr_nc_cert lhs rhs lhs' rhs' → (lhs.denote ctx ≤ rhs.denote ctx) = (lhs'.denote ctx ≤ rhs'.denote ctx) := by
   simp [norm_cnstr_nc_cert]; intro h
   replace h := congrArg (Poly.denote ctx) h; simp [Expr.denote_toPoly_nc] at h
   replace h : rhs.denote ctx - lhs.denote ctx = rhs'.denote ctx - lhs'.denote ctx := h
   rw [← OrderedAdd.sub_nonneg_iff, h, OrderedAdd.sub_nonneg_iff]
 
-theorem lt_norm_nc_iff {α} [Ring α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
-    : norm_cnstr_nc_cert lhs rhs lhs' rhs' → (lhs.denote ctx < rhs.denote ctx ↔ lhs'.denote ctx < rhs'.denote ctx) := by
+theorem lt_norm_expr_nc {α} [Ring α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
+    : norm_cnstr_nc_cert lhs rhs lhs' rhs' → (lhs.denote ctx < rhs.denote ctx) = (lhs'.denote ctx < rhs'.denote ctx) := by
   simp [norm_cnstr_nc_cert]; intro h
   replace h := congrArg (Poly.denote ctx) h; simp [Expr.denote_toPoly_nc] at h
   replace h : rhs.denote ctx - lhs.denote ctx = rhs'.denote ctx - lhs'.denote ctx := h
@@ -1790,8 +1790,8 @@ theorem lt_norm_nc_iff {α} [Ring α] [LE α] [LT α] [LawfulOrderLT α] [IsPreo
 noncomputable def norm_eq_nc_cert (lhs rhs lhs' rhs' : Expr) : Bool :=
   (lhs.sub rhs).toPoly_nc.beq' (lhs'.sub rhs').toPoly_nc
 
-theorem eq_norm_nc_iff {α} [Ring α] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
-    : norm_eq_nc_cert lhs rhs lhs' rhs' → (lhs.denote ctx = rhs.denote ctx ↔ lhs'.denote ctx = rhs'.denote ctx) := by
+theorem eq_norm_expr_nc {α} [Ring α] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
+    : norm_eq_nc_cert lhs rhs lhs' rhs' → (lhs.denote ctx = rhs.denote ctx) = (lhs'.denote ctx = rhs'.denote ctx) := by
   simp [norm_eq_nc_cert]; intro h
   replace h := congrArg (Poly.denote ctx) h; simp [Expr.denote_toPoly_nc] at h
   replace h : lhs.denote ctx - rhs.denote ctx = lhs'.denote ctx - rhs'.denote ctx := h

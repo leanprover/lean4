@@ -359,16 +359,3 @@ syntax vcAlts := "with " (ppSpace colGt tactic)? withPosition((colGe vcAlt)*)
 syntax (name := mvcgen) "mvcgen" optConfig
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")?
   (invariantAlts)? (vcAlts)? : tactic
-
-/--
-Like `mvcgen`, but does not attempt to prove trivial VCs via `mpure_intro; trivial`.
--/
-syntax (name := mvcgenNoTrivial) "mvcgen_no_trivial" optConfig
-  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")? : tactic
-
-/--
-Like `mvcgen_no_trivial`, but `mvcgen_step 42` will only do 42 steps of the VC generation procedure.
-This is helpful for bisecting bugs in `mvcgen` and tracing its execution.
--/
-syntax (name := mvcgenStep) "mvcgen_step" optConfig
- (num)? (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")? : tactic

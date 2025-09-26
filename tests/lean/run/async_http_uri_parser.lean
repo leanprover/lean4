@@ -5,7 +5,6 @@ open Std.Http.Protocol
 def runParser (parser : Std.Internal.Parsec.ByteArray.Parser α) (s : String) : IO α :=
   IO.ofExcept (parser.run s.toUTF8)
 
--- Basic forms test (existing)
 /--
 info: Std.Http.RequestTarget.originForm { segments := #["path", "with", "encoded space"], absolute := true } none none
 -/
@@ -36,11 +35,11 @@ info: Std.Http.RequestTarget.absoluteForm
     authority := some { userInfo := none, host := Std.Http.URI.Host.name "ata", port := none },
     path := { segments := #["b"], absolute := true },
     query := some #[("ata", some "be")],
-    fragment := some "lol" }
+    fragment := some "lol🔥" }
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "https://ata/b?ata=be#lol"
+  let result ← runParser Std.Http.Parser.parseRequestTarget "https://ata/b?ata=be#lol%F0%9F%94%A5"
   IO.println (repr result)
 /--
 info: Std.Http.RequestTarget.originForm

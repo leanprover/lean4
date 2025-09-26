@@ -64,25 +64,27 @@ Creates a new ByteStream with default capacity.
 def empty : Async ByteStream :=
   emptyWithCapacity
 
-private def tryRecvFromBuffer' [MonadState State (AtomicT State m)] [MonadLiftT BaseIO m] [Monad m] : AtomicT State m (Option Util.BufferBuilder) := do
-  let state ← get
+private def tryRecvFromBuffer'
+  [MonadState State (AtomicT State m)] [MonadLiftT BaseIO m] [Monad m] :
+  AtomicT State m (Option Util.BufferBuilder) := do
+    let state ← get
 
-  if state.buffer.isEmpty then
-    if state.closed then
-      return none
+    if state.buffer.isEmpty then
+      if state.closed then
+        return none
+      else
+        return some .empty
     else
-      return some .empty
-  else
-    modify fun s => { s with buffer := .empty }
+      modify fun s => { s with buffer := .empty }
 
-    if let some (promise, rest) := state.backpressureWaiting.dequeue? then
-      discard <| promise.resolve ()
-      modify fun s => { s with backpressureWaiting := rest }
+      if let some (promise, rest) := state.backpressureWaiting.dequeue? then
+        discard <| promise.resolve ()
+        modify fun s => { s with backpressureWaiting := rest }
 
-    return some state.buffer
+      return some state.buffer
 
-private def tryRecv' (stream : ByteStream) : Async (Option Util.BufferBuilder) := do
-  stream.state.atomically tryRecvFromBuffer'
+  private def tryRecv' (stream : ByteStream) : Async (Option Util.BufferBuilder) := do
+    stream.state.atomically tryRecvFromBuffer'
 
 /--
 Tries to receive all the current available data, it returns `some` when the channel is not closed

@@ -299,10 +299,10 @@ where
       requestNo := childRequestNo
     return ({ item, children := childHierarchies }, requestNo)
 
-def runWith (lean : System.FilePath) (args : Array String := #[]) (test : IpcM α) : IO α := do
+def runWith (lean : String) (args : Array String := #[]) (test : IpcM α) : IO α := do
   let proc ← Process.spawn {
     toStdioConfig := ipcStdioConfig
-    cmd := lean.toString
+    cmd := lean
     args := args }
   ReaderT.run test proc
 

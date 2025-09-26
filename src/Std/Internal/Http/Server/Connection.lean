@@ -188,7 +188,28 @@ private def handle
 end Connection
 
 /--
-Serve conection
+This is the entry point of the library. It is used to receive and send requests using an `Async`
+handler for a single connection. It can be used with a `TCP.Socket` or any other type that implements
+`ClientConnection` to create a simple HTTP server capable of handling multiple connections concurrently.
+
+# Example
+
+```lean
+-- Create a TCP socket server instance
+let server ← Socket.Server.mk
+server.bind addr
+server.listen backlog
+
+-- Enter an infinite loop to handle incoming client connections
+while true do
+  -- Accept a new client connection.
+  let client ← server.accept
+
+  -- Handle the client connection concurrently in the background `serveConnection` will process requests
+  -- and handle failures using the provided callbacks and config
+  background (serveConnection client onRequest onFailure config)
+```
+
 -/
 def serveConnection
   [ClientConnection t]

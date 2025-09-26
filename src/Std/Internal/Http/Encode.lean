@@ -23,7 +23,6 @@ Serializes a type `t` to a `Buffer` containing its canonical HTTP representation
 for protocol version `v`.
 -/
 class Encode (v : Version) (t : Type) where
-
   /--
   Encodes a type `t` to a `Buffer`.
   -/

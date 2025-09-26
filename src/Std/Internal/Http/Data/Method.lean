@@ -22,7 +22,6 @@ A method is a verb that describes the action to be performed.
 * Reference: https://httpwg.org/specs/rfc9110.html#methods
 -/
 inductive Method where
-
   /--
   Retrieve a resource.
   -/

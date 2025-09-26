@@ -22,7 +22,6 @@ HTTP request. In this implementation we do not treat status code as extensible.
 * Reference: https://httpwg.org/specs/rfc9110.html#status.codes
  -/
 inductive Status where
-
   /--
   100 Continue
   -/

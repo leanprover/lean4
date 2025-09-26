@@ -66,7 +66,6 @@ deriving Inhabited
 Builds a HTTP Request
 -/
 structure Request.Builder where
-
   /--
   The head of the request
   -/

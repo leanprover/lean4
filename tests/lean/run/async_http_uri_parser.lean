@@ -14,6 +14,14 @@ info: Std.Http.RequestTarget.originForm { segments := #["path", "with", "encoded
   IO.println (repr result)
 
 /--
+info: Std.Http.RequestTarget.originForm { segments := #["path", "with", "encoded space", ""], absolute := true } none none
+-/
+#guard_msgs in
+#eval show IO _ from do
+  let result ← runParser Std.Http.Parser.parseRequestTarget "/path/with/encoded%20space/"
+  IO.println (repr result)
+
+/--
 error: offset 0: invalid request target
 -/
 #guard_msgs in
@@ -116,7 +124,7 @@ info: Std.Http.RequestTarget.originForm
   IO.println (repr result)
 
 /--
-info: Std.Http.RequestTarget.originForm { segments := #[], absolute := true } none none
+info: Std.Http.RequestTarget.originForm { segments := #[""], absolute := true } none none
 -/
 #guard_msgs in
 #eval show IO _ from do

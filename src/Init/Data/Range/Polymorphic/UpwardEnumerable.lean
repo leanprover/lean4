@@ -51,7 +51,7 @@ successor of `a`.
 protected def UpwardEnumerable.LE {α : Type u} [UpwardEnumerable α] (a b : α) : Prop :=
   ∃ n, succMany? n a = some b
 
-protected theorem UpwardEnumerable.le_iff_exists {α : Type u} [UpwardEnumerable α] {a b : α} :
+protected theorem UpwardEnumerable.le_iff_exists {α : Type u} {_ : UpwardEnumerable α} {a b : α} :
     UpwardEnumerable.LE a b ↔ ∃ n, succMany? n a = some b :=
   Iff.rfl
 

@@ -8,8 +8,8 @@ module
 prelude
 public import Lake.Util.Log
 public import Lake.Util.JsonObject
-public import Lake.Config.Env
 public import Lake.Util.Version
+public import Lake.Config.Env
 import Lake.Util.Proc
 import all Init.Data.String.Extra
 

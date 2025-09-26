@@ -10,6 +10,9 @@ bootstrap = true
 
 defaultTargets = ["Init", "Std", "Lean", "Lake", "LakeMain", "Leanc"]
 
+# Ensure that Lake and CMake agree on the build type (e.g., `Release`, `Debug`)
+buildType = "${CMAKE_BUILD_TYPE}"
+
 # The root of all the compiler output directories
 buildDir = "${CMAKE_BINARY_DIR}"
 

@@ -137,7 +137,7 @@ info: #[(X-Checksum, abc123), (X-Timestamp, 2023-01-01T12:00:00Z)]
 
 -- Request line parsing tests (refactored to use runParser)
 /--
-info: Std.Http.Method.get / Std.Http.RequestTarget.originForm { segments := #["ata", ""], absolute := true } none / Std.Http.Version.v11
+info: Std.Http.Method.get / Std.Http.RequestTarget.originForm { segments := #["ata", ""], absolute := true } none none / Std.Http.Version.v11
 -/
 #guard_msgs in
 #eval show IO _ from do
@@ -145,7 +145,7 @@ info: Std.Http.Method.get / Std.Http.RequestTarget.originForm { segments := #["a
   IO.println s!"{repr result.method} / {repr result.uri} / {repr result.version}"
 
 /--
-info: Std.Http.Method.post / Std.Http.RequestTarget.originForm { segments := #["api", "v1", "users"], absolute := true } none / Std.Http.Version.v11
+info: Std.Http.Method.post / Std.Http.RequestTarget.originForm { segments := #["api", "v1", "users"], absolute := true } none none / Std.Http.Version.v11
 -/
 #guard_msgs in
 #eval show IO _ from do
@@ -155,7 +155,8 @@ info: Std.Http.Method.post / Std.Http.RequestTarget.originForm { segments := #["
 /--
 info: Std.Http.Method.put / Std.Http.RequestTarget.originForm
   { segments := #["data"], absolute := true }
-  (some #[("param1", some "value1"), ("param2", some "value2")]) / Std.Http.Version.v11
+  (some #[("param1", some "value1"), ("param2", some "value2")])
+  none / Std.Http.Version.v11
 -/
 #guard_msgs in
 #eval show IO _ from do
@@ -163,7 +164,7 @@ info: Std.Http.Method.put / Std.Http.RequestTarget.originForm
   IO.println s!"{repr result.method} / {repr result.uri} / {repr result.version}"
 
 /--
-info: Std.Http.Method.delete / Std.Http.RequestTarget.originForm { segments := #["items", "123"], absolute := true } none / Std.Http.Version.v11
+info: Std.Http.Method.delete / Std.Http.RequestTarget.originForm { segments := #["items", "123"], absolute := true } none none / Std.Http.Version.v11
 -/
 #guard_msgs in
 #eval show IO _ from do
@@ -171,7 +172,7 @@ info: Std.Http.Method.delete / Std.Http.RequestTarget.originForm { segments := #
   IO.println s!"{repr result.method} / {repr result.uri} / {repr result.version}"
 
 /--
-info: Std.Http.Method.head / Std.Http.RequestTarget.originForm { segments := #[], absolute := true } none / Std.Http.Version.v11
+info: Std.Http.Method.head / Std.Http.RequestTarget.originForm { segments := #[""], absolute := true } none none / Std.Http.Version.v11
 -/
 #guard_msgs in
 #eval show IO _ from do

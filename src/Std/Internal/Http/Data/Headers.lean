@@ -43,7 +43,6 @@ abbrev isValidHeaderValue (s : String) : Prop :=
 A validated HTTP header value that ensures all characters conform to HTTP standards.
 -/
 structure HeaderValue where
-
   /--
   The string data
   -/
@@ -132,7 +131,6 @@ end HeaderValue
 A structure for managing HTTP headers as key-value pairs.
 -/
 structure Headers where
-
   /--
   The internal hashmap that stores all the data.
   -/

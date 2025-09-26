@@ -73,9 +73,8 @@ on the network.
 * Reference: https://www.rfc-editor.org/rfc/rfc3986.html#section-3.2
 -/
 structure Authority where
-
   /--
-  Optional user information (username and optional password).
+  Optional user information like user and password.
   -/
   userInfo: Option UserInfo := none
 

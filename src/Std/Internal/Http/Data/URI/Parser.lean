@@ -248,11 +248,10 @@ private def parsePath (forceAbsolute : Bool) : Parser URI.Path := do
   while true do
     let segmentBytes ← parseSegment
 
-    if segmentBytes.size > 0 then
-      let .ok segmentStr := percentDecode segmentBytes.toByteArray
-        | fail "invalid percent encoding in path segment"
+    let .ok segmentStr := percentDecode segmentBytes.toByteArray
+      | fail "invalid percent encoding in path segment"
 
-      segments := segments.push segmentStr
+    segments := segments.push segmentStr
 
     if (← peek?).any (· == '/'.toUInt8) then
       skip

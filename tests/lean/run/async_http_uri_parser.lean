@@ -325,3 +325,11 @@ info: Std.Http.RequestTarget.authorityForm
 #eval show IO _ from do
   let result ← runParser Std.Http.Parser.parseRequestTarget "localhost:65535"
   IO.println (repr result)
+
+/--
+info: Std.Http.RequestTarget.originForm { segments := #[""], absolute := true } none none
+-/
+#guard_msgs in
+#eval show IO _ from do
+  let result ← runParser Std.Http.Parser.parseRequestTarget "/"
+  IO.println (repr result)

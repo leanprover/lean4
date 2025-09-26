@@ -366,11 +366,7 @@ private def tryRecv'
       return none
 
 private def tryRecv (ch : Bounded.Receiver α) : BaseIO (Option α) :=
-  ch.state.atomically do
-    if ¬(← get).receivers.contains ch.id then
-      return none
-
-    tryRecv' ch.id
+  ch.state.atomically (tryRecv' ch.id)
 
 private partial def recv (ch : Bounded.Receiver α) : BaseIO (Task (Option α)) := do
   ch.state.atomically do

@@ -160,8 +160,14 @@ structure State where
   Mapping from types to its "structure id". We cache failures using `none`.
   `typeIdOf[type]` is `some id`, then `id < structs.size`. -/
   typeIdOf : PHashMap ExprPtr (Option Nat) := {}
-  /- Mapping from expressions/terms to their structure ids. -/
+  /-- Mapping from expressions/terms to their structure ids. -/
   exprToStructId : PHashMap ExprPtr Nat := {}
+  /--
+  Mapping from terms/constraints that have been mapped into `Ring`s before being internalized.
+  Example: given `x y : Nat`, `x ≤ y + 1` is mapped to `Int.ofNat x ≤ Int.ofNat y + 1`, and proof
+  of equivalence.
+  -/
+  cnstrsMap : PHashMap ExprPtr (Expr × Expr) := {}
   deriving Inhabited
 
 builtin_initialize orderExt : SolverExtension State ← registerSolverExtension (return {})

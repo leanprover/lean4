@@ -101,6 +101,8 @@ def isArithTerm (e : Expr) : Bool :=
   | HSMul.hSMul _ _ _ _ _ _ => true
   | Neg.neg _ _ _ => true
   | OfNat.ofNat _ _ _ => true
+  | NatCast.natCast _ _ _ => true
+  | IntCast.intCast _ _ _ => true
   | _ => false
 
 /-- Quote `e` using `「` and `」` if `e` is an arithmetic term that is being treated as a variable. -/

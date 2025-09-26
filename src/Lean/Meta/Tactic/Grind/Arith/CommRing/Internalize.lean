@@ -34,9 +34,6 @@ private def getType? (e : Expr) : Option Expr :=
   | IntCast.intCast α _ _ => some α
   | _ => none
 
-def isArithTerm (e : Expr) : Bool :=
-  getType? e |>.isSome
-
 private def isForbiddenParent (parent? : Option Expr) : Bool :=
   if let some parent := parent? then
     if getType? parent |>.isSome then

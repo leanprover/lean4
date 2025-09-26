@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Order.OrderM
+import Init.Data.Int.OfNat
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
@@ -14,7 +15,7 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Internalize
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 import Lean.Meta.Tactic.Grind.Order.StructId
 namespace Lean.Meta.Grind.Order
 
@@ -144,13 +145,48 @@ def internalizeCnstr (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) : OrderM Uni
   trace[grind.order.internalize] "{cnstr.u}, {cnstr.v}, {cnstr.k}"
   if grind.debug.get (← getOptions) then
     if let some h := cnstr.h? then check h
+  -- **TODO**: update data-structures
 
 def hasLt : OrderM Bool :=
   return (← getStruct).ltFn?.isSome
 
+open Arith.Cutsat in
+def adaptNat (e : Expr) : GoalM Expr := do
+  let (eNew, h) ← match_expr e with
+    | LE.le _ _ lhs rhs =>
+      let (lhs', h₁) ← natToInt lhs
+      let (rhs', h₂) ← natToInt rhs
+      let eNew := mkIntLE lhs' rhs'
+      let h := mkApp6 (mkConst ``Nat.ToInt.le_eq) lhs rhs lhs' rhs' h₁ h₂
+      pure (eNew, h)
+    | LT.lt _ _ lhs rhs =>
+      let (lhs', h₁) ← natToInt lhs
+      let (rhs', h₂) ← natToInt rhs
+      let eNew := mkIntLT lhs' rhs'
+      let h := mkApp6 (mkConst ``Nat.ToInt.lt_eq) lhs rhs lhs' rhs' h₁ h₂
+      pure (eNew, h)
+    | Eq _ lhs rhs =>
+      let (lhs', h₁) ← natToInt lhs
+      let (rhs', h₂) ← natToInt rhs
+      let eNew := mkIntEq lhs' rhs'
+      let h := mkApp6 (mkConst ``Nat.ToInt.eq_eq) lhs rhs lhs' rhs' h₁ h₂
+      pure (eNew, h)
+    | _ => return e
+  modify' fun s => { s with cnstrsMap := s.cnstrsMap.insert { expr := e } (eNew, h) }
+  return eNew
+
+def adapt (α : Expr) (e : Expr) : GoalM (Expr × Expr) := do
+  -- **Note**: We currently only adapt `Nat` expressions
+  if α == Nat.mkType then
+    let eNew ← adaptNat e
+    return ((← getIntExpr), eNew)
+  else
+    return (α, e)
+
 public def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).order do return ()
   let some α := getType? e | return ()
+  let (α, e) ← adapt α e
   if isForbiddenParent parent? then return ()
   let some structId ← getStructId? α | return ()
   OrderM.run structId do

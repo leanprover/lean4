@@ -547,6 +547,12 @@ def processModuleHierarchyImports : RunnerM Unit := do
   printOutputLn (toJson moduleHierarchy?)
   set <| { s with requestNo := moduleHierarchyRequestNo }
 
+def processModuleHierarchyImportedBy : RunnerM Unit := do
+  let s ← get
+  let (moduleHierarchy?, moduleHierarchyRequestNo) ← Ipc.expandModuleHierarchyImportedBy s.requestNo s.uri
+  printOutputLn (toJson moduleHierarchy?)
+  set <| { s with requestNo := moduleHierarchyRequestNo }
+
 def processInlayHints : RunnerM Unit := do
   let p : InlayHintParams := {
     textDocument := { uri := (← get).uri }
@@ -593,6 +599,7 @@ def processDirective (ws directive : String) (directiveTargetLineNo : Nat) : Run
   | "references" => processReferences
   | "symbols" => processSymbols
   | "moduleHierarchyImports" => processModuleHierarchyImports
+  | "moduleHierarchyImportedBy" => processModuleHierarchyImportedBy
   | "inlayHints" => processInlayHints
   | _ => processGenericRequest
 

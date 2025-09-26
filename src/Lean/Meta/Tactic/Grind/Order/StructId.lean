@@ -38,7 +38,7 @@ def getStructId? (type : Expr) : GoalM (Option Nat) := do
     return id?
 where
   go? : GoalM (Option Nat) := do
-    let u ← getDecLevel type
+    let some u ← getDecLevel? type | return none
     let some leInst ← getInst? ``LE u type | return none
     let some isPreorderInst ← mkIsPreorderInst? u type (some leInst) | return none
     let isPartialInst? ← mkIsPartialOrderInst? u type (some leInst)

@@ -49,20 +49,23 @@ void handle_timer_event(uv_timer_t* handle) {
     // handle_timer_event may only be called while the timer is running, this means the promise must
     // not be NULL.
     lean_assert(timer->m_state == TIMER_STATE_RUNNING);
-    lean_assert(timer->m_promise != NULL);
 
-    if (timer->m_repeating) {
-        if (!timer_promise_is_finished(timer)) {
+   if (timer->m_repeating) {
+        // For repeating timers, only resolve if promise exists and is not finished
+        if (timer->m_promise != NULL && !timer_promise_is_finished(timer)) {
             lean_object* res = lean_io_promise_resolve(lean_box(0), timer->m_promise, lean_io_mk_world());
             lean_dec(res);
         }
     } else {
-        lean_assert(!timer_promise_is_finished(timer));
+        // For non-repeating timers, resolve if promise exists
+        if (timer->m_promise != NULL) {
+            lean_assert(!timer_promise_is_finished(timer));
+            lean_object* res = lean_io_promise_resolve(lean_box(0), timer->m_promise, lean_io_mk_world());
+            lean_dec(res);
+        }
+
         uv_timer_stop(timer->m_uv_timer);
         timer->m_state = TIMER_STATE_FINISHED;
-
-        lean_object* res = lean_io_promise_resolve(lean_box(0), timer->m_promise, lean_io_mk_world());
-        lean_dec(res);
 
         // The loop does not need to keep the timer alive anymore.
         lean_dec(obj);
@@ -100,6 +103,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t r
 
 /* Std.Internal.UV.Timer.next (timer : @& Timer) : IO (IO.Promise Unit) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj, obj_arg /* w */ ) {
+    printf("called cancel\n");
     lean_uv_timer_object * timer = lean_to_uv_timer(obj);
 
     auto create_promise = []() {
@@ -113,6 +117,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj, obj_arg /*
 
     auto setup_timer = [create_promise, obj, timer]() {
         lean_assert(timer->m_promise == NULL);
+
         timer->m_promise = create_promise();
         timer->m_state = TIMER_STATE_RUNNING;
 
@@ -147,11 +152,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj, obj_arg /*
                 }
             case TIMER_STATE_RUNNING:
                 {
-                    lean_assert(timer->m_promise != NULL);
-                    // 2 indicates finished
-                    if (timer_promise_is_finished(timer)) {
-                        lean_dec(timer->m_promise);
+                    if (timer->m_promise == NULL || timer_promise_is_finished(timer)) {
+                        if (timer->m_promise != NULL) {
+                            lean_dec(timer->m_promise);
+                        }
                         timer->m_promise = create_promise();
+
                         lean_inc(timer->m_promise);
                         return lean_io_result_mk_ok(timer->m_promise);
                     } else {
@@ -161,9 +167,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj, obj_arg /*
                 }
             case TIMER_STATE_FINISHED:
                 {
-                    lean_assert(timer->m_promise != NULL);
-                    lean_inc(timer->m_promise);
-                    return lean_io_result_mk_ok(timer->m_promise);
+                    if (timer->m_promise != NULL) {
+                        lean_inc(timer->m_promise);
+                        return lean_io_result_mk_ok(timer->m_promise);
+                    } else {
+                        lean_object* finished_promise = create_promise();
+                        lean_object* res = lean_io_promise_resolve(lean_box(0), finished_promise, lean_io_mk_world());
+                        lean_dec(res);
+                        return lean_io_result_mk_ok(finished_promise);
+                    }
                 }
         }
     } else {
@@ -183,8 +195,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_reset(b_obj_arg obj, obj_arg /
     lean_uv_timer_object * timer = lean_to_uv_timer(obj);
 
     if (timer->m_state == TIMER_STATE_RUNNING) {
-        lean_assert(timer->m_promise != NULL);
-
         event_loop_lock(&global_ev);
 
         uv_timer_stop(timer->m_uv_timer);
@@ -213,13 +223,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg obj, obj_arg /*
     lean_uv_timer_object * timer = lean_to_uv_timer(obj);
 
     if (timer->m_state == TIMER_STATE_RUNNING) {
-        lean_assert(timer->m_promise != NULL);
-
         event_loop_lock(&global_ev);
-
         uv_timer_stop(timer->m_uv_timer);
-
         event_loop_unlock(&global_ev);
+
+        lean_dec(timer->m_promise);
+        timer->m_promise = NULL;
 
         timer->m_state = TIMER_STATE_FINISHED;
 
@@ -230,6 +239,34 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg obj, obj_arg /*
     } else {
         return lean_io_result_mk_ok(lean_box(0));
     }
+}
+
+/* Std.Internal.UV.Timer.cancel (timer : @& Timer) : IO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_cancel(b_obj_arg obj, obj_arg /* w */) {
+    lean_uv_timer_object * timer = lean_to_uv_timer(obj);
+
+    if (timer->m_state == TIMER_STATE_RUNNING && timer->m_promise != NULL) {
+        if (timer->m_repeating) {
+            event_loop_lock(&global_ev);
+            lean_dec(timer->m_promise);
+            timer->m_promise = NULL;
+            event_loop_unlock(&global_ev);
+        } else {
+            event_loop_lock(&global_ev);
+            uv_timer_stop(timer->m_uv_timer);
+
+            lean_dec(timer->m_promise);
+            timer->m_promise = NULL;
+            timer->m_state = TIMER_STATE_FINISHED;
+
+            event_loop_unlock(&global_ev);
+
+            lean_dec(obj);
+
+        }
+    }
+
+    return lean_io_result_mk_ok(lean_box(0));
 }
 
 #else

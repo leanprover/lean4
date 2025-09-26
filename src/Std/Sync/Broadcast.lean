@@ -355,7 +355,9 @@ private def tryRecv'
   [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m]
   (receiverId : Nat) : AtomicT (Bounded.State α) m (Option α) := do
     let st ← get
-    let next := st.receivers[receiverId]!
+
+    let some next := st.receivers[receiverId]?
+      | return none
 
     if let some val ← getValueByPosition next then
       modify ({ · with receivers := st.receivers.modify receiverId (· + 1) })
@@ -365,7 +367,7 @@ private def tryRecv'
 
 private def tryRecv (ch : Bounded.Receiver α) : BaseIO (Option α) :=
   ch.state.atomically do
-    if (← get).closed ∨ ¬(← get).receivers.contains ch.id then
+    if ¬(← get).receivers.contains ch.id then
       return none
 
     tryRecv' ch.id
@@ -398,7 +400,9 @@ private def recvReady'
   [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT IO m] [MonadLiftT BaseIO m]
   (receiverId : Nat) : AtomicT (State α) m Bool := do
     let st ← get
-    let next := st.receivers.get! receiverId
+
+    let some next := st.receivers.get? receiverId
+      | return false
 
     if st.size = 0 then
       return false
@@ -538,6 +542,7 @@ def tryRecv (ch : Broadcast.Receiver α) : BaseIO (Option α) :=
 Receive a value from the broadcast receiver, returning a task that will resolve with
 the next available message. This will block until a message is available.
 -/
+@[inline]
 def recv [Inhabited α] (ch : Broadcast.Receiver α) : BaseIO (Task (Option α)) := do
   Std.Bounded.Receiver.recv ch.inner
 
@@ -546,24 +551,9 @@ open Internal.IO.Async in
 /--
 Creates a `Selector` that resolves once the broadcast channel `ch` has data available and provides that that data.
 -/
-def recvSelector [Inhabited α] (ch : Broadcast.Receiver α) : Selector α :=
-  let sel := Bounded.Receiver.recvSelector ch.inner
-  {
-    tryFn := ch.tryRecv
-    registerFn waiter := do
-      let original := waiter.promise
-      let intermediate ← IO.Promise.new
-      let waiter := waiter.withPromise intermediate
-      sel.registerFn waiter
-      IO.chainTask (sync := true) intermediate.result?
-        fun
-          | none => return ()
-          | some res =>
-            -- `res` can only be `.err` or `.ok some` as we are in a non closeable channel.
-            original.resolve (res.map Option.get!)
-
-    unregisterFn := sel.unregisterFn
-  }
+@[inline]
+def recvSelector [Inhabited α] (ch : Broadcast.Receiver α) : Selector (Option α) :=
+  Bounded.Receiver.recvSelector ch.inner
 
 /--
 Unsubscribes a `Receiver` from the `Broadcast` channel.
@@ -581,7 +571,7 @@ partial def forAsync (f : α → BaseIO Unit) (ch : Broadcast.Receiver α)
   (prio : Task.Priority := .default) : BaseIO (Task Unit) := do
     ch.inner.forAsync f prio
 
-instance [Inhabited α] : AsyncStream (Broadcast.Receiver α) α where
+instance [Inhabited α] : AsyncStream (Broadcast.Receiver α) (Option α) where
   next channel := channel.recvSelector
   stop channel := channel.unsubscribe
 

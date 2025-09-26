@@ -69,7 +69,7 @@ def testUnsubscribeUnblock : Async Unit := do
 
   -- Add 4 messages, so it reaches the limit.
   for i in [0:4] do
-    assert! (← channel.trySend i)
+    assert! (← channel.trySend i).isSome
 
   -- Mark subs1 messages as read
   for i in [0:10] do
@@ -82,9 +82,9 @@ def testUnsubscribeUnblock : Async Unit := do
   assert! (← subs2.tryRecv).isSome
   assert! (← subs2.tryRecv).isSome
 
-  assert! (← channel.trySend 5)
-  assert! (← channel.trySend 5)
-  assert! not (← channel.trySend 6)
+  assert! (← channel.trySend 5).isSome
+  assert! (← channel.trySend 5).isSome
+  assert! not (← channel.trySend 6).isSome
 
   -- It unsubscribe and mark all subs2 messages as read.
   subs2.unsubscribe
@@ -93,7 +93,7 @@ def testUnsubscribeUnblock : Async Unit := do
   let subs3 ← channel.subscribe
 
   -- Send one more message that the new subscriber should receive
-  assert! (← channel.trySend 8)
+  assert! (← channel.trySend 8).isSome
 
   -- subs1 should be able to receive the messages sent after it last read:
   -- the two 5's and the 8
@@ -149,7 +149,7 @@ def fullBuffer : Async Unit := do
   let subs1 ← channel.subscribe
 
   for i in [0:5] do
-    if not (← channel.trySend i) then
+    if not (← channel.trySend i).isSome then
       assert! i == 4
 
 #eval fullBuffer.block
@@ -157,7 +157,7 @@ def fullBuffer : Async Unit := do
 def noSubscribers : Async Unit := do
   let channel ← Std.Broadcast.new (capacity := 4)
 
-  assert! not (← channel.trySend 0)
+  assert! (← channel.trySend 0) == some 0
 
 #eval noSubscribers.block
 
@@ -191,16 +191,16 @@ def testMixedSendOperations : Async Unit := do
   let subs ← channel.subscribe
 
   -- Use trySend
-  assert! (← channel.trySend 1)
+  assert! (← channel.trySend 1).isSome
 
   -- Use regular send
   discard <| await (← channel.send 2)
 
   -- Use trySend again
-  assert! (← channel.trySend 3)
+  assert! (← channel.trySend 3).isSome
 
   -- Buffer should be full now
-  assert! not (← channel.trySend 4)
+  assert! not (← channel.trySend 4).isSome
 
   -- Verify all messages received correctly
   let msgs ← [1, 2, 3].mapM (fun _ => subs.recv >>= fun r => await r)
@@ -220,3 +220,20 @@ def testRecvOnClosedEmpty : Async Unit := do
   assert! result.isNone
 
 #eval testRecvOnClosedEmpty.block
+
+-- Test recv block
+def testRecvOnEmpty : Async Unit := do
+  let channel ← Std.Broadcast.new (capacity := 4) (α := Nat)
+  let subs ← channel.subscribe
+
+  let recv ← subs.recv
+
+  assert! (← IO.getTaskState recv) == IO.TaskState.waiting
+
+  let result ← await (← channel.send 3)
+
+  assert! (← IO.getTaskState recv) == IO.TaskState.finished
+
+  assert! recv.get == some 3
+
+#eval testRecvOnEmpty.block

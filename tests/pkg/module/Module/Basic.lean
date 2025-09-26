@@ -408,6 +408,8 @@ inst✝
 #guard_msgs in
 #print instTypeNameFoo
 
+public meta def pubMeta := 1
+
 /-! Prop `instance`s should have direct access to the private scope. -/
 
 public class PropClass : Prop where

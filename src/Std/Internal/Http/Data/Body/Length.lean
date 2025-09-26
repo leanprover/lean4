@@ -21,6 +21,8 @@ namespace Std.Http.Body
 
 set_option linter.all true
 
+set_option linter.all true
+
 /--
 Size of the body of a response or request.
 -/

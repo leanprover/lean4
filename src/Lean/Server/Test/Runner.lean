@@ -612,9 +612,17 @@ def processLine (line : String) : RunnerM Unit := do
 
 
 partial def main (args : List String) : IO Unit := do
-  let uri := s!"file:///{args.head!}"
+  let args := args.toArray
+  let isProject := args[0]?.any (· == "-p")
+  let (ipcCmd, ipcArgs) :=
+    if isProject then
+      ("lake", #["serve", "--", "-DstderrAsMessages=false"])
+    else
+      ("lean", #["--server", "-DstderrAsMessages=false"])
+  let path := if args.size == 1 then args[0]! else args[1]!
+  let uri := s!"file:///{path}"
   -- We want `dbg_trace` tactics to write directly to stderr instead of being caught in reuse
-  Ipc.runWith (←IO.appPath) #["--server", "-DstderrAsMessages=false"] do
+  Ipc.runWith ipcCmd ipcArgs do
     let initializationOptions? := some {
       editDelay? := none
       hasWidgets? := some true
@@ -635,7 +643,7 @@ partial def main (args : List String) : IO Unit := do
     let _ ← Ipc.readResponseAs 0 InitializeResult
     Ipc.writeNotification ⟨"initialized", InitializedParams.mk⟩
 
-    let text ← IO.FS.readFile args.head!
+    let text ← IO.FS.readFile path
     let init : RunnerState := {
       uri
       synced := true

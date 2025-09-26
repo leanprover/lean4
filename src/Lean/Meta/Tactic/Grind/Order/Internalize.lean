@@ -9,6 +9,7 @@ public import Lean.Meta.Tactic.Grind.Order.OrderM
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
+import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
@@ -80,7 +81,7 @@ def mkCommRingCnstr? (e : Expr) (s : Struct) (kind : CnstrKind) (lhs rhs : Expr)
     return some { u := lhs, v := rhs, k := 0, kind, h? := some (mkCnstrNorm0 s (← getRing).ringInst kind lhs rhs)  }
   let some lhs ← reify? lhs (skipVar := false) | return none
   let some rhs ← reify? rhs (skipVar := false) | return none
-  let p := lhs.sub rhs |>.toPoly
+  let p ← lhs.sub rhs |>.toPolyM
   let (lhs', rhs', k) := split p
   let lhs' := lhs'.toExpr
   let rhs' := rhs'.toExpr
@@ -101,6 +102,7 @@ def mkNonCommRingCnstr? (e : Expr) (s : Struct) (kind : CnstrKind) (lhs rhs : Ex
     return some { u := lhs, v := rhs, k := 0, kind, h? := some (mkCnstrNorm0 s (← getRing).ringInst kind lhs rhs)  }
   let some lhs ← ncreify? lhs (skipVar := false) | return none
   let some rhs ← ncreify? rhs (skipVar := false) | return none
+  -- **TODO**: We need a `toPolyM_nc` similar `toPolyM`
   let p := lhs.sub rhs |>.toPoly_nc
   let (lhs', rhs', k) := split p
   let lhs' := lhs'.toExpr

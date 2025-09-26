@@ -49,7 +49,6 @@ instance : LawfulUpwardEnumerableLE (BitVec n) where
     · rintro ⟨n, hn, rfl⟩
       simp [BitVec.ofNatLT]
 
-instance : LawfulOrderLT (BitVec n) := inferInstance
 instance : LawfulUpwardEnumerableLT (BitVec n) := inferInstance
 instance : LawfulUpwardEnumerableLT (BitVec n) := inferInstance
 instance : LawfulUpwardEnumerableLowerBound .closed (BitVec n) := inferInstance

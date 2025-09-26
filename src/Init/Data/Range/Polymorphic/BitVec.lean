@@ -119,6 +119,7 @@ instance : Rxi.IsAlwaysFinite (BitVec n) := inferInstance
 
 namespace Signed
 
+@[expose]
 def rotate (x : BitVec n) : BitVec n := x + ↑(2 ^ (n - 1) : Nat)
 
 theorem rotate_rotate {x : BitVec n} :
@@ -227,19 +228,19 @@ theorem toInt_eq_ofNat_toNat_rotate_sub {x : BitVec n} (h : n > 0) :
 scoped instance instLE : LE (BitVec n) where
   le x y := x.sle y
 
-instance : DecidableLE (BitVec n) := fun x y => inferInstanceAs (Decidable <| x.sle y)
+scoped instance : DecidableLE (BitVec n) := fun x y => inferInstanceAs (Decidable <| x.sle y)
 
 scoped instance instLT : LT (BitVec n) where
   lt x y := x.slt y
 
-instance : DecidableLT (BitVec n) := fun x y => inferInstanceAs (Decidable <| x.slt y)
+scoped instance : DecidableLT (BitVec n) := fun x y => inferInstanceAs (Decidable <| x.slt y)
 
-instance : LawfulOrderLT (BitVec n) where
+scoped instance : LawfulOrderLT (BitVec n) where
   lt_iff x y := by
     simp only [LE.le, LT.lt]
     simpa [BitVec.slt_iff_toInt_lt, BitVec.sle_iff_toInt_le] using Int.le_of_lt
 
-instance : IsPartialOrder (BitVec n) where
+scoped instance : IsPartialOrder (BitVec n) where
   le_refl x := by simp only [LE.le]; simp [BitVec.sle_iff_toInt_le]
   le_trans := by
     simp only [LE.le]
@@ -248,7 +249,7 @@ instance : IsPartialOrder (BitVec n) where
     simp only [LE.le, ← BitVec.toInt_inj]
     simpa [BitVec.sle_iff_toInt_le] using fun _ _ => Int.le_antisymm
 
-instance : LawfulUpwardEnumerableLE (BitVec n) where
+scoped instance : LawfulUpwardEnumerableLE (BitVec n) where
   le_iff x y := by
     rw [← rotate_rotate (x := x), ← rotate_rotate (x := y)]
     generalize (rotate x) = x
@@ -260,7 +261,7 @@ instance : LawfulUpwardEnumerableLE (BitVec n) where
     simp [UpwardEnumerable.le_iff, rotate_rotate, UpwardEnumerable.le_iff_exists,
       succMany?_rotate, rotate_inj]
 
-instance :
+scoped instance :
     LawfulUpwardEnumerable (BitVec n) where
   ne_of_lt x y h := by
     rw [← rotate_rotate (x := x), ← rotate_rotate (x := y)] at h ⊢
@@ -285,15 +286,15 @@ instance :
     letI : UpwardEnumerable (BitVec n) := BitVec.instUpwardEnumerable
     simp [succMany?_rotate, succMany?_add_one, Option.bind_map, Function.comp_def, succ?_rotate]
 
-instance : LawfulUpwardEnumerableLT (BitVec n) := inferInstance
-instance : LawfulUpwardEnumerableLT (BitVec n) := inferInstance
+scoped instance : LawfulUpwardEnumerableLT (BitVec n) := inferInstance
+scoped instance : LawfulUpwardEnumerableLT (BitVec n) := inferInstance
 
-instance : Rxc.HasSize (BitVec n) where
+scoped instance : Rxc.HasSize (BitVec n) where
   size lo hi :=
     haveI := BitVec.instHasSize (n := n)
     Rxc.HasSize.size (rotate lo) (rotate hi)
 
-instance : Rxc.LawfulHasSize (BitVec n) where
+scoped instance : Rxc.LawfulHasSize (BitVec n) where
   size_eq_zero_of_not_le bound x := by
     simp only [LE.le]
     match n with
@@ -326,16 +327,16 @@ instance : Rxc.LawfulHasSize (BitVec n) where
       simp only [rotate_rotate]
       omega
 
-instance : Rxc.IsAlwaysFinite (BitVec n) := inferInstance
+scoped instance : Rxc.IsAlwaysFinite (BitVec n) := inferInstance
 
-instance : Rxo.HasSize (BitVec n) := .ofClosed
-instance : Rxo.LawfulHasSize (BitVec n) := .of_closed
-instance : Rxo.IsAlwaysFinite (BitVec n) := inferInstance
+scoped instance : Rxo.HasSize (BitVec n) := .ofClosed
+scoped instance : Rxo.LawfulHasSize (BitVec n) := .of_closed
+scoped instance : Rxo.IsAlwaysFinite (BitVec n) := inferInstance
 
-instance : Rxi.HasSize (BitVec n) where
+scoped instance : Rxi.HasSize (BitVec n) where
   size lo := 2 ^ n - (rotate lo).toNat
 
-instance : Rxi.LawfulHasSize (BitVec n) where
+scoped instance : Rxi.LawfulHasSize (BitVec n) where
   size_eq_one_of_succ?_eq_none x := by
     rw [← rotate_rotate (x := x)]
     generalize rotate x = x
@@ -351,7 +352,7 @@ instance : Rxi.LawfulHasSize (BitVec n) where
     letI := BitVec.instHasSize_2 (n := n)
     exact Rxi.size_eq_succ_of_succ?_eq_some lo lo'
 
-instance : Rxi.IsAlwaysFinite (BitVec n) := inferInstance
+scoped instance : Rxi.IsAlwaysFinite (BitVec n) := inferInstance
 
 end Signed
 

@@ -108,7 +108,7 @@ Examples:
  * `Int8.ofInt (-129) = 127`
  * `Int8.ofInt (128) = -128`
 -/
-@[extern "lean_int8_of_int", expose] --
+@[extern "lean_int8_of_int", expose]
 def Int8.ofInt (i : @& Int) : Int8 := ⟨⟨BitVec.ofInt 8 i⟩⟩
 /--
 Converts a natural number to an 8-bit signed integer, wrapping around on overflow.
@@ -150,15 +150,14 @@ Converts an 8-bit signed integer to an arbitrary-precision integer that denotes 
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int8_to_int", expose] --
+@[extern "lean_int8_to_int", expose]
 def Int8.toInt (i : Int8) : Int := i.toBitVec.toInt
 /--
 Converts an 8-bit signed integer to a natural number, mapping all negative numbers to `0`.
 
 Use `Int8.toBitVec` to obtain the two's complement representation.
 -/
-@[inline] def Int8.toNatClampNeg (i : Int8) : Nat := i.toInt.toNat
-
+@[inline, expose] def Int8.toNatClampNeg (i : Int8) : Nat := i.toInt.toNat
 /-- Obtains the `Int8` whose 2's complement representation is the given `BitVec 8`. -/
 @[inline] def Int8.ofBitVec (b : BitVec 8) : Int8 := ⟨⟨b⟩⟩
 /--
@@ -166,7 +165,7 @@ Negates 8-bit signed integers. Usually accessed via the `-` prefix operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int8_neg", expose] --
+@[extern "lean_int8_neg", expose]
 def Int8.neg (i : Int8) : Int8 := ⟨⟨-i.toBitVec⟩⟩
 
 instance : ToString Int8 where
@@ -205,7 +204,7 @@ operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int8_add"]
+@[extern "lean_int8_add", expose]
 protected def Int8.add (a b : Int8) : Int8 := ⟨⟨a.toBitVec + b.toBitVec⟩⟩
 /--
 Subtracts one 8-bit signed integer from another, wrapping around on over- or underflow. Usually
@@ -213,7 +212,7 @@ accessed via the `-` operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int8_sub"]
+@[extern "lean_int8_sub", expose]
 protected def Int8.sub (a b : Int8) : Int8 := ⟨⟨a.toBitVec - b.toBitVec⟩⟩
 /--
 Multiplies two 8-bit signed integers, wrapping around on over- or underflow.  Usually accessed via
@@ -221,7 +220,7 @@ the `*` operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int8_mul"]
+@[extern "lean_int8_mul", expose]
 protected def Int8.mul (a b : Int8) : Int8 := ⟨⟨a.toBitVec * b.toBitVec⟩⟩
 /--
 Truncating division for 8-bit signed integers, rounding towards zero. Usually accessed via the `/`
@@ -238,7 +237,7 @@ Examples:
 * `Int8.div (-10) 3 = (-3)`
 * `Int8.div 10 0 = 0`
 -/
-@[extern "lean_int8_div"]
+@[extern "lean_int8_div", expose]
 protected def Int8.div (a b : Int8) : Int8 := ⟨⟨BitVec.sdiv a.toBitVec b.toBitVec⟩⟩
 /--
 The power operation, raising an 8-bit signed integer to a natural number power,

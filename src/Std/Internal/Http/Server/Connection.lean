@@ -53,7 +53,7 @@ private def receiveWithTimeout
   Async Recv := do
     Selectable.one #[
       .case (← ClientConnection.recvSelector socket expect) (fun x => pure <| .bytes x),
-      .case (← (← Sleep.mk timeoutMs).selector) (fun _ => pure <| .timeout)]
+      .case (← Selector.sleep timeoutMs) (fun _ => pure <| .timeout)]
 
 private def processNeedMoreData
   [ClientConnection α] (machine : Protocol.H1.Machine) (socket : α) (expect : Option Nat) :

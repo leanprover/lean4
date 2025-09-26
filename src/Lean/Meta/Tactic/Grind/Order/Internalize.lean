@@ -132,7 +132,8 @@ def mkCnstr? (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) : OrderM (Option (Cn
 def internalizeCnstr (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) : OrderM Unit := do
   let some cnstr ← mkCnstr? e kind lhs rhs | return ()
   trace[grind.order.internalize] "{cnstr.u}, {cnstr.v}, {cnstr.k}"
-  if let some h := cnstr.h? then check h
+  if grind.debug.get (← getOptions) then
+    if let some h := cnstr.h? then check h
 
 def hasLt : OrderM Bool :=
   return (← getStruct).ltFn?.isSome

@@ -407,3 +407,34 @@ inst✝
 -/
 #guard_msgs in
 #print instTypeNameFoo
+
+/-! Prop `instance`s should have direct access to the private scope. -/
+
+public class PropClass : Prop where
+  proof : True
+
+theorem privTrue : True := trivial
+public instance : PropClass := ⟨privTrue⟩
+
+/-! Meta defs should only be exposed explicitly. -/
+
+@[expose] section
+public meta def msec := 1
+@[expose] public meta def msecexp := 1
+end
+
+/--
+info: meta def msec : Nat :=
+<not imported>
+-/
+#guard_msgs in
+#with_exporting
+#print msec
+
+/--
+info: @[expose] meta def msecexp : Nat :=
+1
+-/
+#guard_msgs in
+#with_exporting
+#print msecexp

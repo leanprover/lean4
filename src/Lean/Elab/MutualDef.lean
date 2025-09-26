@@ -1291,13 +1291,27 @@ where
               logWarningAt attr.stx m!"Redundant `[expose]` attribute, it is meaningful on public \
                 definitions only"
 
+    -- Switch to private scope if...
     withoutExporting (when :=
-      headers.all (fun header =>
-        header.modifiers.isMeta && !header.modifiers.attrs.any (·.name == `expose) ||
-        header.modifiers.attrs.any (·.name == `no_expose) ||
-        (!(header.kind == .def && sc.attrs.any (· matches `(attrInstance| expose))) &&
-         !header.modifiers.attrs.any (·.name == `expose) &&
-         !header.kind matches .abbrev | .instance))) do
+      (← headers.allM (fun header => do
+        -- ... there is a `@[no_expose]` attribute
+        if header.modifiers.attrs.any (·.name == `no_expose) then
+          return true
+        -- ... or NONE of the following:
+        -- ... this is a non-`meta` `def` inside a `@[expose] section`
+        if header.kind == .def && !header.modifiers.isMeta && sc.attrs.any (· matches `(attrInstance| expose)) then
+          return false
+        -- ... there is an `@[expose]` attribute directly on the def (of any kind or phase)
+        if header.modifiers.attrs.any (·.name == `expose) then
+          return false
+        -- ... this is an `abbrev`
+        if header.kind == .abbrev then
+          return false
+        -- ... this is a data instance
+        if header.kind == .instance then
+          if !(← isProp header.type) then
+            return false
+        return true))) do
     let headers := headers.map fun header =>
       { header with modifiers.attrs := header.modifiers.attrs.filter (!·.name ∈ [`expose, `no_expose]) }
     let values ← try

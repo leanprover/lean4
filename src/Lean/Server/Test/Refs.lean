@@ -9,6 +9,8 @@ module
 prelude
 import Init.Prelude
 
+public def LeanServerTestRefsTest0 := Nat
+
 namespace Lean.Server.Test.Refs
 
 public def Test1 := Nat

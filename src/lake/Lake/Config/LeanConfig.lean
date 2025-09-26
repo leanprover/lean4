@@ -118,7 +118,7 @@ public def leancArgs : BuildType → Array String
 | release => #["-O3", "-DNDEBUG"]
 
 public def ofString? (s : String) : Option BuildType :=
-  match s with
+  match s.decapitalize with
   | "debug" => some .debug
   | "relWithDebInfo" => some .relWithDebInfo
   | "minSizeRel" => some .minSizeRel

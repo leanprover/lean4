@@ -189,6 +189,8 @@ private def runCore (x : CoreM α) : CommandElabM α := do
     auxDeclNGen := s.auxDeclNGen
     nextMacroScope := s.nextMacroScope
     infoState.enabled := s.infoState.enabled
+    -- accumulate lazy assignments from all `CoreM` lifts
+    infoState.lazyAssignment := s.infoState.lazyAssignment
     traceState := s.traceState
     snapshotTasks := s.snapshotTasks
   }

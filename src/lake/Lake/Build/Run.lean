@@ -275,7 +275,8 @@ public def Workspace.runFetchM
   let isNoBuild := cfg.noBuild
   if failures.isEmpty then
     let some a ← job.wait?
-      | error "uncaught top-level build failure (this is likely a bug in Lake)"
+      | print! out "Uncaught top-level build failure (this is likely a bug in Lake).\n"
+        error "build failed"
     if showProgress && showSuccess then
       let jobs := if numJobs == 1 then "1 job" else s!"{numJobs} jobs"
       if isNoBuild then

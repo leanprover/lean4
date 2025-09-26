@@ -2217,6 +2217,15 @@ mvcgen [...] invariants
 · I2
 with grind
 ```
+When `I1` and `I2` need to refer to inaccessibles (`mvcgen` will introduce a lot of them for program
+variables), you can use case label syntax:
+```
+mvcgen [...] invariants
+| inv1 _ acc _ => I1 acc
+| _ => I2
+with grind
+```
+This is more convenient than the equivalent `· by rename_i _ acc _; exact I1 acc`.
 
 ### Invariant suggestions
 

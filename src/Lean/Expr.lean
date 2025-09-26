@@ -2376,6 +2376,13 @@ private def intLEPred : Expr :=
 def mkIntLE (a b : Expr) : Expr :=
   mkApp2 intLEPred a b
 
+private def intLTPred : Expr :=
+  mkApp2 (mkConst ``LT.lt [0]) Int.mkType Int.mkInstLT
+
+/-- Given `a b : Int`, returns `a < b` -/
+def mkIntLT (a b : Expr) : Expr :=
+  mkApp2 intLTPred a b
+
 private def intEqPred : Expr :=
   mkApp (mkConst ``Eq [1]) Int.mkType
 

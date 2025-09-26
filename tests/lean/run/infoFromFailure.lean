@@ -16,11 +16,7 @@ info: B.foo "hello" : String × String
 ---
 trace: [Meta.synthInstance] ❌️ Add String
   [Meta.synthInstance] new goal Add String
-    [Meta.synthInstance.instances] #[@Lean.Grind.AddCommMonoid.toAdd, @Lean.Grind.Semiring.toAdd, @Lean.Grind.Order.Weight.toAdd]
-  [Meta.synthInstance] ✅️ apply @Lean.Grind.Order.Weight.toAdd to Add String
-    [Meta.synthInstance.tryResolve] ✅️ Add String ≟ Add String
-    [Meta.synthInstance] no instances for Lean.Grind.Order.Weight String
-      [Meta.synthInstance.instances] #[]
+    [Meta.synthInstance.instances] #[@Lean.Grind.AddCommMonoid.toAdd, @Lean.Grind.Semiring.toAdd]
   [Meta.synthInstance] ✅️ apply @Lean.Grind.Semiring.toAdd to Add String
     [Meta.synthInstance.tryResolve] ✅️ Add String ≟ Add String
     [Meta.synthInstance] new goal Lean.Grind.Semiring String
@@ -77,11 +73,7 @@ trace: [Meta.synthInstance] ❌️ Add String
 /--
 trace: [Meta.synthInstance] ❌️ Add Bool
   [Meta.synthInstance] new goal Add Bool
-    [Meta.synthInstance.instances] #[@Lean.Grind.AddCommMonoid.toAdd, @Lean.Grind.Semiring.toAdd, @Lean.Grind.Order.Weight.toAdd]
-  [Meta.synthInstance] ✅️ apply @Lean.Grind.Order.Weight.toAdd to Add Bool
-    [Meta.synthInstance.tryResolve] ✅️ Add Bool ≟ Add Bool
-    [Meta.synthInstance] no instances for Lean.Grind.Order.Weight Bool
-      [Meta.synthInstance.instances] #[]
+    [Meta.synthInstance.instances] #[@Lean.Grind.AddCommMonoid.toAdd, @Lean.Grind.Semiring.toAdd]
   [Meta.synthInstance] ✅️ apply @Lean.Grind.Semiring.toAdd to Add Bool
     [Meta.synthInstance.tryResolve] ✅️ Add Bool ≟ Add Bool
     [Meta.synthInstance] new goal Lean.Grind.Semiring Bool

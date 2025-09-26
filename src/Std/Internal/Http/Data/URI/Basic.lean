@@ -13,9 +13,10 @@ public section
 
 namespace Std
 namespace Http
-namespace URI
 
 set_option linter.all true
+
+namespace URI
 
 /--
 URI scheme (e.g., "http", "https", "ftp").
@@ -23,7 +24,7 @@ URI scheme (e.g., "http", "https", "ftp").
 abbrev Scheme := String
 
 /--
-User information component containing username and password.
+User information component that usually contains the username and password.
 -/
 abbrev UserInfo := String
 
@@ -51,7 +52,10 @@ instance : Repr Host where
   reprPrec x prec :=
     let nestPrec := (if prec ≥ 1024 then 1 else 2)
     let name := "Std.Http.URI.Host"
-    let repr (ctr : String) a := Repr.addAppParen (Format.nest nestPrec (.text s!"{name}.{ctr}" ++ .line ++ a)).group prec
+
+    let repr (ctr : String) a :=
+      Repr.addAppParen (Format.nest nestPrec (.text s!"{name}.{ctr}" ++ .line ++ a)).group prec
+
     match x with
     | Host.name a => repr "name" (reprArg a)
     | Host.ipv4 a => repr "ipv4" (toString a)
@@ -107,7 +111,8 @@ Query string represented as an array of key–value pairs.
 @[expose]
 def Query := Array (String × Option String)
 
-instance : Repr Query := inferInstanceAs (Repr (Array (String × Option String)))
+instance : Repr Query :=
+  inferInstanceAs (Repr (Array (String × Option String)))
 
 end URI
 
@@ -115,10 +120,29 @@ end URI
 Complete URI structure following RFC 3986.
 -/
 structure URI where
+  /--
+  The scheme of the URI (e.g., "http", "https", "ftp").
+  -/
   scheme : URI.Scheme
+
+  /--
+  Optional authority component containing user info, host, and port.
+  -/
   authority : Option URI.Authority
+
+  /--
+  Path component of the URI, representing the hierarchical location.
+  -/
   path : URI.Path
+
+  /--
+  Optional query string of the URI represented as key–value pairs.
+  -/
   query : Option URI.Query
+
+  /--
+  Optional fragment identifier of the URI (the part after `#`).
+  -/
   fragment : Option String
 deriving Inhabited, Repr
 
@@ -126,29 +150,57 @@ deriving Inhabited, Repr
 HTTP request target forms as defined in RFC 7230 Section 5.3.
 -/
 inductive RequestTarget where
-  | originForm (path : URI.Path) (query : Option URI.Query) (query : Option String)
+  /--
+  Request target using an origin-form (most common form for HTTP requests),
+  consisting of a path, an optional query string, and an optional fragment.
+  -/
+  | originForm (path : URI.Path) (query : Option URI.Query) (fragment : Option String)
+
+  /--
+  Request target using an absolute-form URI.
+  -/
   | absoluteForm (uri : URI)
+
+  /--
+  Request target using the authority-form, typically for CONNECT requests.
+  -/
   | authorityForm (authority : URI.Authority)
+
+  /--
+  Asterisk-form request target, typically used with OPTIONS requests.
+  -/
   | asteriskForm
 deriving Inhabited, Repr
 
 namespace RequestTarget
 
+/--
+Returns the path component of a `RequestTarget`, if available.
+-/
 def path? : RequestTarget → Option URI.Path
   | .originForm p _ _ => some p
   | .absoluteForm u => some u.path
   | _ => none
 
+/--
+Returns the query component of a `RequestTarget`, if available.
+-/
 def query? : RequestTarget → Option URI.Query
   | .originForm _ q _ => q
   | .absoluteForm u => u.query
   | _ => none
 
+/--
+Returns the authority component of a `RequestTarget`, if available.
+-/
 def authority? : RequestTarget → Option URI.Authority
   | .authorityForm a => some a
   | .absoluteForm u => u.authority
   | _ => none
 
+/--
+Returns the full URI if the `RequestTarget` is in absolute form, otherwise `none`.
+-/
 def uri? : RequestTarget → Option URI
   | .absoluteForm u => some u
   | _ => none
@@ -157,26 +209,29 @@ end RequestTarget
 
 -- ToString implementations
 
-def isUnreserved (c : UInt8) : Bool :=
+private def isUnreserved (c : UInt8) : Bool :=
   (c ≥ '0'.toUInt8 && c ≤ '9'.toUInt8) || (c ≥ 'a'.toUInt8 && c ≤ 'z'.toUInt8) || (c ≥ 'A'.toUInt8 && c ≤ 'Z'.toUInt8)
   || c = '-'.toUInt8 || c = '.'.toUInt8 || c = '_'.toUInt8 || c = '~'.toUInt8
 
-def hexDigit (n : UInt8) : UInt8 :=
+private def hexDigit (n : UInt8) : UInt8 :=
   if n < 10 then (n + '0'.toUInt8)
   else (n - 10 + 'A'.toUInt8)
 
-def byteToHex (b : UInt8) : ByteArray :=
+private def byteToHex (b : UInt8) : ByteArray :=
   let hi := hexDigit (b >>> 4)
   let lo := hexDigit (b &&& 0xF)
   ByteArray.mk #['%'.toUInt8, hi, lo]
 
-def percentEncode (s : String) : ByteArray :=
+/--
+Encodes a string as a URI component by percent-encoding all characters
+--/
+def encodeURIComponent (s : String) : ByteArray :=
   s.toUTF8.foldl (init := ByteArray.emptyWithCapacity s.utf8ByteSize) fun acc c =>
     if isUnreserved c then  acc.push c else acc.append (byteToHex c)
 
 instance : ToString URI.Host where
   toString
-    | .name n => String.fromUTF8! (percentEncode n)
+    | .name n => String.fromUTF8! (encodeURIComponent n)
     | .ipv4 addr => toString addr
     | .ipv6 addr => s!"[{toString addr}]"
 
@@ -184,7 +239,7 @@ instance : ToString URI.Authority where
   toString auth :=
     let userPart := match auth.userInfo with
       | none => ""
-      | some ui => s!"{percentEncode ui}@"
+      | some ui => s!"{encodeURIComponent ui}@"
     let hostPart := toString auth.host
     let portPart := match auth.port with
       | none => ""
@@ -194,16 +249,19 @@ instance : ToString URI.Authority where
 instance : ToString URI.Path where
   toString
     | ⟨segs, abs⟩ =>
-      let encodedSegs := segs.toList.map (fun seg => String.fromUTF8! (percentEncode seg))
+      let encodedSegs := segs.toList.map (fun seg => String.fromUTF8! (encodeURIComponent seg))
       let core := String.intercalate "/" encodedSegs
       if abs then s!"/{core}" else core
 
+/--
+?
+-/
 def encodeQueryParam (key : String) (value : Option String) : String :=
-  let encodedKey := String.fromUTF8! (percentEncode key)
+  let encodedKey := String.fromUTF8! (encodeURIComponent key)
   match value with
   | none => encodedKey
   | some v =>
-      let encodedValue := String.fromUTF8! (percentEncode v)
+      let encodedValue := String.fromUTF8! (encodeURIComponent v)
       s!"{encodedKey}={encodedValue}"
 
 instance : ToString URI.Query where
@@ -213,13 +271,13 @@ instance : ToString URI.Query where
         match key with
         | "" => match value with
           | none => ""
-          | some v => s!"={String.fromUTF8! (percentEncode v)}"
+          | some v => s!"={String.fromUTF8! (encodeURIComponent v)}"
         | k => encodeQueryParam k value
       "?" ++ String.intercalate "&" encodedParams
 
 instance : ToString URI where
   toString uri :=
-    let schemePart :=  String.fromUTF8! (percentEncode uri.scheme)
+    let schemePart :=  String.fromUTF8! (encodeURIComponent uri.scheme)
     let authorityPart := match uri.authority with
       | none => ""
       | some auth => s!"//{toString auth}"
@@ -227,7 +285,7 @@ instance : ToString URI where
     let queryPart := uri.query.map toString |>.getD ""
     let fragmentPart := match uri.fragment with
       | none => ""
-      | some f => s!"#{String.fromUTF8! (percentEncode f)}"
+      | some f => s!"#{String.fromUTF8! (encodeURIComponent f)}"
     s!"{schemePart}{authorityPart}{pathPart}{queryPart}{fragmentPart}"
 
 instance : ToString RequestTarget where

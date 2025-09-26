@@ -14,11 +14,21 @@ namespace Std
 namespace Http
 namespace Body
 
+set_option linter.all true
+
 /--
 Size of the body of a response or request.
 -/
 inductive Length
+  /--
+  Indicates that the HTTP message body uses **chunked transfer encoding**.
+  -/
   | chunked
+
+  /--
+  Indicates that the HTTP message body has a **fixed, known length**, as specified
+  by the `Content-Length` header.
+  -/
   | fixed (n : Nat)
 deriving Repr, BEq
 

@@ -135,7 +135,7 @@ meta def checkNameExists : PostponedCheckHandler := fun _ info => do
 
 private def getQualified (x : Name) : DocM (Array Name) := do
   let names := (← getEnv).constants.toList
-  let names := names.filterMap fun (y, _) => if x.isSuffixOf y then some y else none
+  let names := names.filterMap fun (y, _) => if !isPrivateName y && x.isSuffixOf y then some y else none
   names.toArray.mapM fun y => do
     let y ← unresolveNameGlobalAvoidingLocals y
     pure y
@@ -187,7 +187,7 @@ def name (full : Option Ident := none) (scope : DocScope := .local)
               let ss ← getQualified n.raw.getId
               let h ←
                 if ss.isEmpty then pure m!""
-                else m!"Insert a fully-qualified name".hint (ref? := some tok) <|
+                else m!"Insert a fully-qualified name:".hint (ref? := some tok) <|
                   ss.map fun x => { suggestion := s!" (full := {x})" ++ "}", previewSpan? := ref}
               logErrorAt s m!"{err.toMessageData}{h}"
             else logErrorAt s m!"{err.toMessageData}"

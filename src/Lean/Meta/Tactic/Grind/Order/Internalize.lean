@@ -234,7 +234,10 @@ def adaptNat (e : Expr) : GoalM Expr := do
       let h := mkApp6 (mkConst ``Nat.ToInt.eq_eq) lhs rhs lhs' rhs' h₁ h₂
       pure (eNew, h)
     | _ => return e
-  modify' fun s => { s with cnstrsMap := s.cnstrsMap.insert { expr := e } (eNew, h) }
+  modify' fun s => { s with
+    cnstrsMap    := s.cnstrsMap.insert { expr := e } (eNew, h)
+    cnstrsMapInv := s.cnstrsMapInv.insert { expr := eNew } (e, h)
+  }
   return eNew
 
 def adapt (α : Expr) (e : Expr) : GoalM (Expr × Expr) := do

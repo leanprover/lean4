@@ -25,7 +25,7 @@ def Cnstr.pp (c : Cnstr NodeId) : OrderM MessageData := do
 def Weight.compare (a b : Weight) : Ordering :=
   if a.k < b.k then
     .lt
-  else if b.k > a.k then
+  else if a.k > b.k then
     .gt
   else if a.strict == b.strict then
     .eq

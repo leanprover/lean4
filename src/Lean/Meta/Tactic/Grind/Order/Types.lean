@@ -31,6 +31,8 @@ structure Cnstr (α : Type) where
   u      : α
   v      : α
   k      : Int := 0
+  /-- Denotation of this constraint as an expression. -/
+  e      : Expr
   h?     : Option Expr := none
   deriving Inhabited
 
@@ -101,11 +103,6 @@ structure Struct where
   We use this mapping to implement exhaustive constraint propagation.
   -/
   cnstrsOf           : PHashMap (NodeId × NodeId) (List (Cnstr NodeId × Expr)) := {}
-  /--
-  Stores constraints that have been asserted to `False`, but order is not a linear
-  preorder.
-  -/
-  negated            : PHashMap (NodeId × NodeId) (List (Cnstr NodeId × Expr)) := {}
   /--
   For each node with id `u`, `sources[u]` contains
   pairs `(v, k)` s.t. there is a path from `v` to `u` with weight `k`.

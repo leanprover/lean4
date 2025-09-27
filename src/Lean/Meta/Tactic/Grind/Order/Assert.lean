@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Order.OrderM
 import Init.Grind.Propagator
+import Init.Grind.Order
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Order.Util
 import Lean.Meta.Tactic.Grind.Order.Proof
@@ -63,17 +64,18 @@ def isShorter (u v : NodeId) (k : Weight) : OrderM Bool := do
     return true
 
 /-- Adds `p` to the list of things to be propagated. -/
-def pushToPropagate (p : ToPropagate) : OrderM Unit :=
+def pushToPropagate (p : ToPropagate) : OrderM Unit := do
+  trace[grind.debug.order.propagate] "{← p.pp}"
   modifyStruct fun s => { s with propagate := p :: s.propagate }
 
-def propagateEqTrue (e : Expr) (u v : NodeId) (k k' : Weight) : OrderM Unit := do
+public def propagateEqTrue (e : Expr) (u v : NodeId) (k k' : Weight) : OrderM Unit := do
   let kuv ← mkProofForPath u v
   let u ← getExpr u
   let v ← getExpr v
   let h ← mkPropagateEqTrueProof u v k kuv k'
   pushEqTrue e h
 
-def propagateEqFalse (e : Expr) (u v : NodeId) (k k' : Weight) : OrderM Unit := do
+public def propagateEqFalse (e : Expr) (u v : NodeId) (k k' : Weight) : OrderM Unit := do
   let kuv ← mkProofForPath u v
   let u ← getExpr u
   let v ← getExpr v
@@ -81,7 +83,7 @@ def propagateEqFalse (e : Expr) (u v : NodeId) (k k' : Weight) : OrderM Unit := 
   pushEqFalse e h
 
 /-- Propagates all pending constraints and equalities and resets to "to do" list. -/
-private def propagatePending : OrderM Unit := do
+def propagatePending : OrderM Unit := do
   let todo := (← getStruct).propagate
   modifyStruct fun s => { s with propagate := [] }
   for p in todo do
@@ -97,19 +99,15 @@ private def propagatePending : OrderM Unit := do
         let h ← mkEqProofOfLeOfLe ue ve huv hvu
         pushEq ue ve h
 
-def Cnstr.getWeight? (c : Cnstr α) : Option Weight :=
-  match c.kind with
-  | .le => some { k := c.k }
-  | .lt => some { k := c.k, strict := true }
-  | .eq => none
-
 /--
 Given `e` represented by constraint `c` (from `u` to `v`).
 Checks whether `e = True` can be propagated using the path `u --(k)--> v`.
 If it can, adds a new entry to propagation list.
 -/
 def checkEqTrue (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : OrderM Bool := do
+  if (← isEqTrue e) then return true
   let some k' := c.getWeight? | return false
+  trace[grind.debug.order.check_eq_true] "{← getExpr u}, {← getExpr v}, {k}, {k'}, {← c.pp}"
   if k ≤ k' then
     pushToPropagate <| .eqTrue e u v k k'
     return true
@@ -122,7 +120,9 @@ Checks whether `e = False` can be propagated using the path `u --(k)--> v`.
 If it can, adds a new entry to propagation list.
 -/
 def checkEqFalse (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : OrderM Bool := do
+  if (← isEqFalse e) then return true
   let some k' := c.getWeight? | return false
+  trace[grind.debug.order.check_eq_false] "{← getExpr u}, {← getExpr v}, {k}, {k'} {← c.pp}"
   if (k + k').isNeg  then
     pushToPropagate <| .eqFalse e u v k k'
     return true
@@ -139,10 +139,7 @@ associated with `(u, v)` IF
 @[inline] def updateCnstrsOf (u v : NodeId) (f : Cnstr NodeId → Expr → OrderM Bool) : OrderM Unit := do
   if let some cs := (← getStruct).cnstrsOf.find? (u, v) then
     let cs' ← cs.filterM fun (c, e) => do
-      if (← isEqTrue e <||> isEqFalse e) then
-        return false -- constraint was already assigned
-      else
-        return !(← f c e)
+      return !(← f c e)
     modifyStruct fun s => { s with cnstrsOf := s.cnstrsOf.insert (u, v) cs' }
 
 /-- Equality propagation. -/
@@ -179,6 +176,7 @@ node pairs.
 -/
 def addEdge (u : NodeId) (v : NodeId) (k : Weight) (h : Expr) : OrderM Unit := do
   if (← isInconsistent) then return ()
+  trace[grind.debug.order.add_edge] "{← getExpr u}, {← getExpr v}, {k}"
   if let some k' ← getDist? v u then
     if (k + k').isNeg then
       setUnsat u v k h k'
@@ -201,22 +199,32 @@ where
         /- Check whether new path: `i -(k₁)-> u -(k)-> v -(k₂) -> j` is shorter -/
         updateIfShorter i j (k₁+k+k₂) v
 
-def assertTrue (c : Cnstr NodeId) (p : Expr) : OrderM Unit := do
-  trace[grind.order.assert] "{p} = True: {← c.pp}"
+def assertIneqTrue (c : Cnstr NodeId) (e : Expr) : OrderM Unit := do
+  trace[grind.order.assert] "{← c.pp}"
+  let he ← mkEqTrueProof e
+  let h ←  if let some h := c.h? then
+    pure <| mkApp4 (mkConst ``Grind.Order.eq_mp) e c.e h (mkOfEqTrueCore e he)
+  else
+    pure <| mkOfEqTrueCore e he
+  let k : Weight := { k := c.k, strict := c.kind matches .lt }
+  addEdge c.u c.v k h
 
-def assertFalse (c : Cnstr NodeId) (p : Expr) : OrderM Unit := do
-  trace[grind.order.assert] "{p} = False: {← c.pp}"
+def assertIneqFalse (c : Cnstr NodeId) (_e : Expr) : OrderM Unit := do
+  trace[grind.order.assert] "¬ {← c.pp}"
 
 def getStructIdOf? (e : Expr) : GoalM (Option Nat) := do
   return (← get').exprToStructId.find? { expr := e }
 
-builtin_grind_propagator propagateLE ↓LE.le := fun e => do
+def propagateIneq (e : Expr) : GoalM Unit := do
   let some structId ← getStructIdOf? e | return ()
   OrderM.run structId do
   let some c ← getCnstr? e | return ()
   if (← isEqTrue e) then
-    assertTrue c e
+    assertIneqTrue c e
   else if (← isEqFalse e) then
-    assertFalse c e
+    assertIneqFalse c e
+
+builtin_grind_propagator propagateLE ↓LE.le := propagateIneq
+builtin_grind_propagator propagateLT ↓LT.lt := propagateIneq
 
 end Lean.Meta.Grind.Order

@@ -67,4 +67,19 @@ def Weight.isNeg (a : Weight) : Bool :=
 def Weight.isZero (a : Weight) : Bool :=
   a.k == 0 && !a.strict
 
+instance : ToString Weight where
+  toString a := if a.strict then s!"{a.k}-ε" else s!"{a.k}"
+
+def ToPropagate.pp (todo : ToPropagate) : OrderM MessageData := do
+  match todo with
+  | .eqTrue e u v k k' => return m!"eqTrue: {e}, {← getExpr u}, {← getExpr v}, {k}, {k'}"
+  | .eqFalse e u v k k' => return m!"eqFalse: {e}, {← getExpr u}, {← getExpr v}, {k}, {k'}"
+  | .eq u v => return m!"eq: {← getExpr u}, {← getExpr v}"
+
+def Cnstr.getWeight? (c : Cnstr α) : Option Weight :=
+  match c.kind with
+  | .le => some { k := c.k }
+  | .lt => some { k := c.k, strict := true }
+  | .eq => none
+
 end Lean.Meta.Grind.Order

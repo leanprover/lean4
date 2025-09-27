@@ -196,6 +196,20 @@ theorem le_eq_false_of_lt {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPre
   have := Preorder.lt_irrefl a
   contradiction
 
+theorem lt_eq_false_of_lt {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α]
+    (a b : α) : a < b → (b < a) = False := by
+  simp; intro h₁ h₂
+  have := lt_trans h₁ h₂
+  have := Preorder.lt_irrefl a
+  contradiction
+
+theorem lt_eq_false_of_le {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α]
+    (a b : α) : a ≤ b → (b < a) = False := by
+  simp; intro h₁ h₂
+  have := le_lt_trans h₁ h₂
+  have := Preorder.lt_irrefl a
+  contradiction
+
 theorem le_eq_false_of_le_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
     (a b : α) (k₁ k₂ : Int) : (k₂ + k₁).blt' 0 → a ≤ b + k₁ → (b ≤ a + k₂) = False := by
   intro h₁; simp; intro h₂ h₃

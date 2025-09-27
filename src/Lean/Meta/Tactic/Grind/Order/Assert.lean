@@ -25,23 +25,108 @@ where
       let p' ← getProof u p.w
       go (← mkTrans p' p v)
 
+/--
+Given a new edge edge `u --(kuv)--> v` justified by proof `huv` s.t.
+it creates a negative cycle with the existing path `v --{kvu}-->* u`, i.e., `kuv + kvu < 0`,
+this function closes the current goal by constructing a proof of `False`.
+-/
+def setUnsat (u v : NodeId) (kuv : Weight) (huv : Expr) (kvu : Weight) : OrderM Unit := do
+  let hvu ← mkProofForPath v u
+  let u ← getExpr u
+  let v ← getExpr v
+  let h ← mkUnsatProof u v kuv huv kvu hvu
+  closeGoal h
+
+/-- Sets the new shortest distance `k` between nodes `u` and `v`. -/
+def setDist (u v : NodeId) (k : Weight) : OrderM Unit := do
+  modifyStruct fun s => { s with
+    targets := s.targets.modify u fun es => es.insert v k
+    sources := s.sources.modify v fun es => es.insert u k
+  }
+
+def setProof (u v : NodeId) (p : ProofInfo) : OrderM Unit := do
+  modifyStruct fun s => { s with
+    proofs := s.proofs.modify u fun es => es.insert v p
+  }
+
+@[inline] def forEachSourceOf (u : NodeId) (f : NodeId → Weight → OrderM Unit) : OrderM Unit := do
+  (← getStruct).sources[u]!.forM f
+
+@[inline] def forEachTargetOf (u : NodeId) (f : NodeId → Weight → OrderM Unit) : OrderM Unit := do
+  (← getStruct).targets[u]!.forM f
+
+/-- Returns `true` if `k` is smaller than the shortest distance between `u` and `v` -/
+def isShorter (u v : NodeId) (k : Weight) : OrderM Bool := do
+  if let some k' ← getDist? u v then
+    return k < k'
+  else
+    return true
+
 /-- Adds `p` to the list of things to be propagated. -/
 def pushToPropagate (p : ToPropagate) : OrderM Unit :=
   modifyStruct fun s => { s with propagate := p :: s.propagate }
 
-/-
-def propagateEqTrue (e : Expr) (u v : NodeId) (k k' : Int) : OrderM Unit := do
+def propagateEqTrue (e : Expr) (u v : NodeId) (k k' : Weight) : OrderM Unit := do
   let kuv ← mkProofForPath u v
   let u ← getExpr u
   let v ← getExpr v
-  pushEqTrue e <| mkPropagateEqTrueProof u v k kuv k'
+  let h ← mkPropagateEqTrueProof u v k kuv k'
+  pushEqTrue e h
 
-private def propagateEqFalse (e : Expr) (u v : NodeId) (k k' : Int) : OrderM Unit := do
+def propagateEqFalse (e : Expr) (u v : NodeId) (k k' : Weight) : OrderM Unit := do
   let kuv ← mkProofForPath u v
   let u ← getExpr u
   let v ← getExpr v
-  pushEqFalse e <| mkPropagateEqFalseProof u v k kuv k'
+  let h ← mkPropagateEqFalseProof u v k kuv k'
+  pushEqFalse e h
+
+/-- Propagates all pending constraints and equalities and resets to "to do" list. -/
+private def propagatePending : OrderM Unit := do
+  let todo := (← getStruct).propagate
+  modifyStruct fun s => { s with propagate := [] }
+  for p in todo do
+    match p with
+    | .eqTrue e u v k k' => propagateEqTrue e u v k k'
+    | .eqFalse e u v k k' => propagateEqFalse e u v k k'
+    | .eq u v =>
+      let ue ← getExpr u
+      let ve ← getExpr v
+      unless (← isEqv ue ve) do
+        let huv ← mkProofForPath u v
+        let hvu ← mkProofForPath v u
+        let h ← mkEqProofOfLeOfLe ue ve huv hvu
+        pushEq ue ve h
+
+def Cnstr.getWeight? (c : Cnstr α) : Option Weight :=
+  match c.kind with
+  | .le => some { k := c.k }
+  | .lt => some { k := c.k, strict := true }
+  | .eq => none
+
+/--
+Given `e` represented by constraint `c` (from `u` to `v`).
+Checks whether `e = True` can be propagated using the path `u --(k)--> v`.
+If it can, adds a new entry to propagation list.
 -/
+def checkEqTrue (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : OrderM Bool := do
+  let some k' := c.getWeight? | return false
+  if k ≤ k' then
+    pushToPropagate <| .eqTrue e u v k k'
+    return true
+  else
+    return false
+
+/--
+Given `e` represented by constraint `c` (from `v` to `u`).
+Checks whether `e = False` can be propagated using the path `u --(k)--> v`.
+If it can, adds a new entry to propagation list.
+-/
+def checkEqFalse (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : OrderM Bool := do
+  let some k' := c.getWeight? | return false
+  if (k + k').isNeg  then
+    pushToPropagate <| .eqFalse e u v k k'
+    return true
+  return false
 
 /--
 Auxiliary function for implementing theory propagation.
@@ -51,8 +136,7 @@ associated with `(u, v)` IF
 - `e` is already assigned, or
 - `f c e` returns true
 -/
-@[inline]
-private def updateCnstrsOf (u v : NodeId) (f : Cnstr NodeId → Expr → OrderM Bool) : OrderM Unit := do
+@[inline] def updateCnstrsOf (u v : NodeId) (f : Cnstr NodeId → Expr → OrderM Bool) : OrderM Unit := do
   if let some cs := (← getStruct).cnstrsOf.find? (u, v) then
     let cs' ← cs.filterM fun (c, e) => do
       if (← isEqTrue e <||> isEqFalse e) then
@@ -60,6 +144,62 @@ private def updateCnstrsOf (u v : NodeId) (f : Cnstr NodeId → Expr → OrderM 
       else
         return !(← f c e)
     modifyStruct fun s => { s with cnstrsOf := s.cnstrsOf.insert (u, v) cs' }
+
+/-- Equality propagation. -/
+def checkEq (u v : NodeId) (k : Weight) : OrderM Unit := do
+  if !k.isZero then return ()
+  let some k' ← getDist? v u | return ()
+  if !k'.isZero then return ()
+  let ue ← getExpr u
+  let ve ← getExpr v
+  if (← alreadyInternalized ue <&&> alreadyInternalized ve) then
+    if (← isEqv ue ve) then return ()
+    pushToPropagate <| .eq u v
+
+/-- Finds constrains and equalities to be propagated. -/
+def checkToPropagate (u v : NodeId) (k : Weight) : OrderM Unit := do
+  updateCnstrsOf u v fun c e => return !(← checkEqTrue u v k c e)
+  updateCnstrsOf v u fun c e => return !(← checkEqFalse u v k c e)
+  checkEq u v k
+
+/--
+If `isShorter u v k`, updates the shortest distance between `u` and `v`.
+`w` is a node in the path from `u` to `v` such that `(← getProof? w v)` is `some`
+-/
+def updateIfShorter (u v : NodeId) (k : Weight) (w : NodeId) : OrderM Unit := do
+  if (← isShorter u v k) then
+    setDist u v k
+    setProof u v (← getProof w v)
+    checkToPropagate u v k
+
+/--
+Adds an edge `u --(k) --> v` justified by the proof term `p`, and then
+if no negative cycle was created, updates the shortest distance of affected
+node pairs.
+-/
+def addEdge (u : NodeId) (v : NodeId) (k : Weight) (h : Expr) : OrderM Unit := do
+  if (← isInconsistent) then return ()
+  if let some k' ← getDist? v u then
+    if (k + k').isNeg then
+      setUnsat u v k h k'
+      return ()
+  if (← isShorter u v k) then
+    setDist u v k
+    setProof u v { w := u, k, proof := h }
+    checkToPropagate u v k
+    update
+    propagatePending
+where
+  update : OrderM Unit := do
+    forEachTargetOf v fun j k₂ => do
+      /- Check whether new path: `u -(k)-> v -(k₂)-> j` is shorter -/
+      updateIfShorter u j (k+k₂) v
+    forEachSourceOf u fun i k₁ => do
+      /- Check whether new path: `i -(k₁)-> u -(k)-> v` is shorter -/
+      updateIfShorter i v (k₁+k) u
+      forEachTargetOf v fun j k₂ => do
+        /- Check whether new path: `i -(k₁)-> u -(k)-> v -(k₂) -> j` is shorter -/
+        updateIfShorter i j (k₁+k+k₂) v
 
 def assertTrue (c : Cnstr NodeId) (p : Expr) : OrderM Unit := do
   trace[grind.order.assert] "{p} = True: {← c.pp}"

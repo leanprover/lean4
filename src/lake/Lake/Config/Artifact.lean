@@ -40,11 +40,11 @@ attribute [deprecated artifactWithExt (since := "2025-08-30")] ArtifactDescr.mk
 namespace ArtifactDescr
 
 /-- Returns the relative file path used for the output's artifact in the Lake cache (c.f. `artifactPath`). -/
-@[inline] public def toFilePath (self : ArtifactDescr) : FilePath :=
+@[inline] public def relPath (self : ArtifactDescr) : FilePath :=
   artifactPath self.hash self.ext
 
-public instance : ToString ArtifactDescr := ⟨(·.toFilePath.toString)⟩
-public instance : ToJson ArtifactDescr := ⟨(toJson ·.toFilePath)⟩
+public instance : ToString ArtifactDescr := ⟨(·.relPath.toString)⟩
+public instance : ToJson ArtifactDescr := ⟨(toJson ·.relPath)⟩
 
 /-- Parse an output's relative file path into an `ArtifactDescr`. -/
 public def ofFilePath? (path : FilePath) : Except String ArtifactDescr := do

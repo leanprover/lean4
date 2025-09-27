@@ -153,5 +153,19 @@ test_cached +Module:olean.server !
 test_cached +Module:olean.private !
 test_cached +Module:ir !
 
+# Verify that invalid outputs do not break Lake
+if command -v jq > /dev/null; then # skip if no jq found
+  libPath=$($LAKE query Test:static)
+  test_cmd rm -f $libPath
+  inputHash=$(jq -r '.depHash' $libPath.trace)
+  echo $inputHash
+  echo bogus > "$CACHE_DIR/outputs/test/$inputHash.json"
+  test_out 'invalid JSON' build Test:static
+  test_cmd rm -f $libPath
+  echo '"bogus"' > "$CACHE_DIR/outputs/test/$inputHash.json"
+  test_out 'some output(s) have issues' build Test:static
+  test_exp -f $libPath
+fi
+
 # Cleanup
 rm -f produced.out Ignored.lean

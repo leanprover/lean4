@@ -165,6 +165,22 @@ def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
     findAtSorted? (declMapExt.getModuleEntries env modIdx) declName
   | none => declMapExt.getState env |>.find? declName
 
+/-- Like ``findEnvDecl env (declName ++ `_boxed)`` but with optimized negative lookup. -/
+@[export lean_ir_find_env_decl_boxed]
+private def findEnvDeclBoxed (env : Environment) (declName : Name) : Option Decl :=
+  let boxed := declName ++ `_boxed
+  -- Important: get module index of base name, not boxed version. Usually the interpreter never
+  -- does negative lookups except in the case of `call_boxed` which must check whether a boxed
+  -- version exists. If `declName` exists as an imported declaration but `declName'` doesn't, the
+  -- latter's module index would be `none` and we may do an expensive blocking wait on the
+  -- environment extension state even if in this situation we definitely know that `declName'` is
+  -- not a local declaration.
+  match env.getModuleIdxFor? declName with
+  | some modIdx =>
+    findAtSorted? (declMapExt.getModuleIREntries env modIdx) boxed <|>
+    findAtSorted? (declMapExt.getModuleEntries env modIdx) boxed
+  | none => declMapExt.getState env |>.find? boxed
+
 def findDecl (n : Name) : CompilerM (Option Decl) :=
   return findEnvDecl (← getEnv) n
 

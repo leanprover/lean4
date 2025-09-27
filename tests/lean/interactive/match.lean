@@ -5,11 +5,11 @@ structure S where
 
 def f (s : S) : Nat := by
   refine s.
-         --^ textDocument/completion
+         --^ completion
 
 def g (s : S) : Nat := by
   match s.
-        --^ textDocument/completion
+        --^ completion
 
 theorem ex (x : Nat) : 0 + x = x := by
   match x with

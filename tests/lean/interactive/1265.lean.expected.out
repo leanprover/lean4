@@ -41,6 +41,97 @@
    "kind": 3,
    "data": ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.getId"]}],
  "isIncomplete": false}
+Resolution of getScientific:
+{"label": "getScientific",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "Extracts the components of a scientific numeric literal.\n\nReturns a triple `(n, sign, e) : Nat × Bool × Nat`; the number's value is given by:\n\n```\nif sign then n * 10 ^ (-e) else n * 10 ^ e\n```\n\nReturns `(0, false, 0)` if the syntax is malformed.\n",
+  "kind": "markdown"},
+ "detail": "Lean.ScientificLit → Nat × Bool × Nat",
+ "data":
+ ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.getScientific"]}
+Resolution of getString:
+{"label": "getString",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "Decodes a string literal, removing quotation marks and unescaping escaped characters.\n\nReturns `\"\"` if the syntax is malformed.\n",
+  "kind": "markdown"},
+ "detail": "Lean.StrLit → String",
+ "data": ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.getString"]}
+Resolution of getNat:
+{"label": "getNat",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "Interprets a numeric literal as a natural number.\n\nReturns `0` if the syntax is malformed.\n",
+  "kind": "markdown"},
+ "detail": "Lean.NumLit → Nat",
+ "data": ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.getNat"]}
+Resolution of getName:
+{"label": "getName",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "Decodes a quoted name literal, returning the name.\n\nReturns `Lean.Name.anonymous` if the syntax is malformed.\n",
+  "kind": "markdown"},
+ "detail": "Lean.NameLit → Lean.Name",
+ "data": ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.getName"]}
+Resolution of getChar:
+{"label": "getChar",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "Decodes a character literal.\n\nReturns `(default : Char)` if the syntax is malformed.\n",
+  "kind": "markdown"},
+ "detail": "Lean.CharLit → Char",
+ "data": ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.getChar"]}
+Resolution of raw:
+{"label": "raw",
+ "kind": 5,
+ "documentation":
+ {"value": "The underlying `Syntax` value. ", "kind": "markdown"},
+ "detail": "Lean.TSyntax ks → Lean.Syntax",
+ "data": ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.raw"]}
+Resolution of getDocString:
+{"label": "getDocString",
+ "kind": 3,
+ "detail": "Lean.TSyntax `Lean.Parser.Command.docComment → String",
+ "data":
+ ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.getDocString"]}
+Resolution of expandInterpolatedStr:
+{"label": "expandInterpolatedStr",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "Expand `interpStr` into a term of type `type` (which supports ` ++ `),\ncalling `ofInterpFn` on terms within `{}`,\nand `ofLitFn` on the literals between the interpolations. ",
+  "kind": "markdown"},
+ "detail":
+ "Lean.TSyntax Lean.interpolatedStrKind →\n  Lean.Term → (ofInterpFn : Lean.Term) → optParam Lean.Term ofInterpFn → Lean.MacroM Lean.Term",
+ "data":
+ ["«external:file:///1265.lean»",
+  0,
+  51,
+  1,
+  "cLean.TSyntax.expandInterpolatedStr"]}
+Resolution of getHygieneInfo:
+{"label": "getHygieneInfo",
+ "kind": 3,
+ "documentation":
+ {"value": "Decodes macro hygiene information.\n", "kind": "markdown"},
+ "detail": "Lean.HygieneInfo → Lean.Name",
+ "data":
+ ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.getHygieneInfo"]}
+Resolution of getId:
+{"label": "getId",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "Extracts the parsed name from the syntax of an identifier.\n\nReturns `Name.anonymous` if the syntax is malformed.\n",
+  "kind": "markdown"},
+ "detail": "Lean.Ident → Lean.Name",
+ "data": ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.getId"]}
 {"textDocument": {"uri": "file:///1265.lean"},
  "position": {"line": 2, "character": 53}}
 {"items":
@@ -84,3 +175,94 @@
    "kind": 3,
    "data": ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.getId"]}],
  "isIncomplete": false}
+Resolution of getScientific:
+{"label": "getScientific",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "Extracts the components of a scientific numeric literal.\n\nReturns a triple `(n, sign, e) : Nat × Bool × Nat`; the number's value is given by:\n\n```\nif sign then n * 10 ^ (-e) else n * 10 ^ e\n```\n\nReturns `(0, false, 0)` if the syntax is malformed.\n",
+  "kind": "markdown"},
+ "detail": "Lean.ScientificLit → Nat × Bool × Nat",
+ "data":
+ ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.getScientific"]}
+Resolution of getString:
+{"label": "getString",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "Decodes a string literal, removing quotation marks and unescaping escaped characters.\n\nReturns `\"\"` if the syntax is malformed.\n",
+  "kind": "markdown"},
+ "detail": "Lean.StrLit → String",
+ "data": ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.getString"]}
+Resolution of getNat:
+{"label": "getNat",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "Interprets a numeric literal as a natural number.\n\nReturns `0` if the syntax is malformed.\n",
+  "kind": "markdown"},
+ "detail": "Lean.NumLit → Nat",
+ "data": ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.getNat"]}
+Resolution of getName:
+{"label": "getName",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "Decodes a quoted name literal, returning the name.\n\nReturns `Lean.Name.anonymous` if the syntax is malformed.\n",
+  "kind": "markdown"},
+ "detail": "Lean.NameLit → Lean.Name",
+ "data": ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.getName"]}
+Resolution of getChar:
+{"label": "getChar",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "Decodes a character literal.\n\nReturns `(default : Char)` if the syntax is malformed.\n",
+  "kind": "markdown"},
+ "detail": "Lean.CharLit → Char",
+ "data": ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.getChar"]}
+Resolution of raw:
+{"label": "raw",
+ "kind": 5,
+ "documentation":
+ {"value": "The underlying `Syntax` value. ", "kind": "markdown"},
+ "detail": "Lean.TSyntax ks → Lean.Syntax",
+ "data": ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.raw"]}
+Resolution of getDocString:
+{"label": "getDocString",
+ "kind": 3,
+ "detail": "Lean.TSyntax `Lean.Parser.Command.docComment → String",
+ "data":
+ ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.getDocString"]}
+Resolution of expandInterpolatedStr:
+{"label": "expandInterpolatedStr",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "Expand `interpStr` into a term of type `type` (which supports ` ++ `),\ncalling `ofInterpFn` on terms within `{}`,\nand `ofLitFn` on the literals between the interpolations. ",
+  "kind": "markdown"},
+ "detail":
+ "Lean.TSyntax Lean.interpolatedStrKind →\n  Lean.Term → (ofInterpFn : Lean.Term) → optParam Lean.Term ofInterpFn → Lean.MacroM Lean.Term",
+ "data":
+ ["«external:file:///1265.lean»",
+  2,
+  53,
+  1,
+  "cLean.TSyntax.expandInterpolatedStr"]}
+Resolution of getHygieneInfo:
+{"label": "getHygieneInfo",
+ "kind": 3,
+ "documentation":
+ {"value": "Decodes macro hygiene information.\n", "kind": "markdown"},
+ "detail": "Lean.HygieneInfo → Lean.Name",
+ "data":
+ ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.getHygieneInfo"]}
+Resolution of getId:
+{"label": "getId",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "Extracts the parsed name from the syntax of an identifier.\n\nReturns `Name.anonymous` if the syntax is malformed.\n",
+  "kind": "markdown"},
+ "detail": "Lean.Ident → Lean.Name",
+ "data": ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.getId"]}

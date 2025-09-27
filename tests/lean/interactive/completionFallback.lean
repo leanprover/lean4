@@ -13,7 +13,7 @@ deriving Repr
 def angle (d: Direction) :=
   match d with
   | Direction. => 90
-            --^ textDocument/completion
+            --^ completion
   | Direction.right => 0
   | Direction.down => 270
   | Direction.left => 180
@@ -27,5 +27,5 @@ example : p ∨ (q ∧ r) → CustomAnd (p ∨ q) (p ∨ r) := by
   intro h
   cases h with
   | inl hp => apply CustomAnd. (Or.intro_left q hp) (Or.intro_left r hp)
-                            --^ textDocument/completion
+                            --^ completion
   | inr hqr => apply CustomAnd.mk (Or.intro_right p hqr.left) (Or.intro_right p hqr.right)

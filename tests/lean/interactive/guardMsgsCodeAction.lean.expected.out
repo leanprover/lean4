@@ -1,0 +1,27 @@
+{"textDocument": {"uri": "file:///guardMsgsCodeAction.lean"},
+ "range":
+ {"start": {"line": 0, "character": 2}, "end": {"line": 0, "character": 2}},
+ "context": {"diagnostics": []}}
+[{"title": "Update #guard_msgs with generated message",
+  "kind": "quickfix",
+  "isPreferred": true,
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "Lean.CodeAction.cmdCodeActionProvider",
+   "params":
+   {"textDocument": {"uri": "file:///guardMsgsCodeAction.lean"},
+    "range":
+    {"start": {"line": 0, "character": 2}, "end": {"line": 0, "character": 2}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Update #guard_msgs with generated message:
+{"title": "Update #guard_msgs with generated message",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///guardMsgsCodeAction.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 0, "character": 0},
+       "end": {"line": 0, "character": 0}},
+      "newText": "/-- info: 0 -/\n"}]}]}}

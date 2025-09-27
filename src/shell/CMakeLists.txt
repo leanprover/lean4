@@ -180,6 +180,17 @@ FOREACH(T ${LEANTESTS})
   endif()
 ENDFOREACH(T)
 
+# LEAN INTERACTIVE PROJECT SERVER TESTS
+file(GLOB_RECURSE LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/interactive/projects/*Test.lean")
+FOREACH(T ${LEANTESTS})
+  if(NOT T MATCHES "\\.#")
+    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+    add_test(NAME "leaninteractiveprojecttest_${T_NAME}"
+             WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/interactive/projects"
+             COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T}")
+  endif()
+ENDFOREACH(T)
+
 # LEAN DOCSTRING PARSER TESTS
 file(GLOB_RECURSE LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/docparse/*_[0-9][0-9][0-9][0-9]")
 FOREACH(T ${LEANTESTS})

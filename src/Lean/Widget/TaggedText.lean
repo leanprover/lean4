@@ -55,6 +55,14 @@ partial def mapM : TaggedText α → m (TaggedText β)
   | append as => return append (← as.mapM mapM)
   | tag t a => return tag (← f t) (← mapM a)
 
+variable [Monad m] (f : α → TaggedText α → m Unit) in
+partial def forM : TaggedText α → m Unit
+  | text _ => return
+  | append as => as.forM forM
+  | tag t a => do
+    f t a
+    forM a
+
 variable (f : α → TaggedText α → TaggedText β) in
 partial def rewrite : TaggedText α → TaggedText β
   | text s => text s

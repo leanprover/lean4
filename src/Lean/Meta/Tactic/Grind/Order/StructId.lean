@@ -55,23 +55,25 @@ where
         pure (inst?, some ltFn)
     else
       pure (none, none)
-    let (ringId?, orderedRingInst?, isCommRing) ← if lawfulOrderLTInst?.isNone then
-      pure (none, none, false)
+    let (ringId?, ringInst?, orderedRingInst?, isCommRing) ← if lawfulOrderLTInst?.isNone then
+      pure (none, none, none, false)
     else if let some ringId ← getCommRingId? type then
+      let ringInst ← RingM.run ringId do return (← getRing).ringInst
       let semiringInst ← RingM.run ringId do return (← getRing).semiringInst
       let some ordRingInst ← mkOrderedRingInst? u type semiringInst leInst ltInst?.get! isPreorderInst
-        | pure (none, none, true)
-      pure (some ringId, some ordRingInst, true)
+        | pure (none, none, none, true)
+      pure (some ringId, some ringInst, some ordRingInst, true)
     else if let some ringId ← getNonCommRingId? type then
       let semiringInst ← NonCommRingM.run ringId do return (← getRing).semiringInst
+      let ringInst ← NonCommRingM.run ringId do return (← getRing).ringInst
       let some ordRingInst ← mkOrderedRingInst? u type semiringInst leInst ltInst?.get! isPreorderInst
-        | pure (none, none, true)
-      pure (some ringId, some ordRingInst, false)
+        | pure (none, none, none, true)
+      pure (some ringId, some ringInst, some ordRingInst, false)
     else
-      pure (none, none, false)
+      pure (none, none, none, false)
     let id := (← get').structs.size
     let struct := {
-      id,  type, u, leInst, isPreorderInst, ltInst?, leFn, isPartialInst?, orderedRingInst?
+      id,  type, u, leInst, isPreorderInst, ltInst?, leFn, isPartialInst?, ringInst?, orderedRingInst?
       isLinearPreInst?, ltFn?, lawfulOrderLTInst?, ringId?, isCommRing
      }
     modify' fun s => { s with structs := s.structs.push struct }

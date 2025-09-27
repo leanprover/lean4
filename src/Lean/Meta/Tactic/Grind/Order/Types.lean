@@ -15,11 +15,6 @@ Solver for preorders, partial orders, linear orders, and support for offsets.
 -/
 
 abbrev NodeId := Nat
-/--
-**Note**: We use `Int` to represent weights, but solver supports `Unit` (encoded as `0`),
-and `Int`. During proof construction we perform the necessary conversions.
--/
-abbrev Weight := Int
 
 inductive CnstrKind where
   | le | lt | eq
@@ -35,18 +30,19 @@ structure Cnstr (α : Type) where
   kind   : CnstrKind
   u      : α
   v      : α
-  k      : Weight := 0
+  k      : Int := 0
   h?     : Option Expr := none
   deriving Inhabited
 
-structure WeightS where
-  w : Rat
+structure Weight where
+  k : Int := 0
   strict := false
+  deriving Inhabited
 
-def WeightS.compare (a b : WeightS) : Ordering :=
-  if a.w < b.w then
+def Weight.compare (a b : Weight) : Ordering :=
+  if a.k < b.k then
     .lt
-  else if b.w > a.w then
+  else if b.k > a.k then
     .gt
   else if a.strict == b.strict then
     .eq
@@ -55,26 +51,25 @@ def WeightS.compare (a b : WeightS) : Ordering :=
   else
     .gt
 
-instance : Ord WeightS where
-  compare := WeightS.compare
+instance : Ord Weight where
+  compare := Weight.compare
 
-instance : LE WeightS where
+instance : LE Weight where
   le a b := compare a b ≠ .gt
 
-instance : LT WeightS where
+instance : LT Weight where
   lt a b := compare a b = .lt
 
-instance : DecidableLE WeightS :=
+instance : DecidableLE Weight :=
   fun a b => inferInstanceAs (Decidable (compare a b ≠ .gt))
 
-instance : DecidableLT WeightS :=
+instance : DecidableLT Weight :=
   fun a b => inferInstanceAs (Decidable (compare a b = .lt))
 
 /-- Auxiliary structure used for proof extraction.  -/
 structure ProofInfo where
   w      : NodeId
-  strict : Bool := false
-  k      : Int := 0
+  k      : Weight
   proof  : Expr
   deriving Inhabited
 
@@ -116,6 +111,8 @@ structure Struct where
   ringId?            : Option Nat
   /-- `true` if `ringId?` is the Id of a commutative ring -/
   isCommRing         : Bool
+  /-- `Ring` instance if available -/
+  ringInst?          : Option Expr
   /-- `OrderedRing` instance if available -/
   orderedRingInst?   : Option Expr
   leFn               : Expr
@@ -132,15 +129,20 @@ structure Struct where
   -/
   cnstrsOf           : PHashMap (NodeId × NodeId) (List (Cnstr NodeId × Expr)) := {}
   /--
+  Stores constraints that have been asserted to `False`, but order is not a linear
+  preorder.
+  -/
+  negated            : PHashMap (NodeId × NodeId) (List (Cnstr NodeId × Expr)) := {}
+  /--
   For each node with id `u`, `sources[u]` contains
   pairs `(v, k)` s.t. there is a path from `v` to `u` with weight `k`.
   -/
-  sources            : PArray (AssocList NodeId WeightS) := {}
+  sources            : PArray (AssocList NodeId Weight) := {}
   /--
   For each node with id `u`, `targets[u]` contains
   pairs `(v, k)` s.t. there is a path from `u` to `v` with weight `k`.
   -/
-  targets            : PArray (AssocList NodeId WeightS) := {}
+  targets            : PArray (AssocList NodeId Weight) := {}
   /--
   Proof reconstruction information. For each node with id `u`, `proofs[u]` contains
   pairs `(v, { w, proof })` s.t. there is a path from `u` to `v`, and

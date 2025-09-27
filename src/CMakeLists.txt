@@ -855,6 +855,12 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(LAKE_LIB_PREFIX "lib")
 endif()
 
+if(${CMAKE_BUILD_TYPE} MATCHES "Debug|Release|RelWithDebInfo|MinSizeRel")
+  set(CMAKE_BUILD_TYPE_TOML "${CMAKE_BUILD_TYPE}")
+else()
+  set(CMAKE_BUILD_TYPE_TOML "Release")
+endif()
+
 if(USE_LAKE)
   configure_file(${LEAN_SOURCE_DIR}/lakefile.toml.in ${CMAKE_BINARY_DIR}/lakefile.toml)
   # copy for editing

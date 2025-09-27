@@ -149,6 +149,11 @@ structure Config where
   at least `Std.IsPreorder`
   -/
   order := true
+  /--
+  When `true` (default: `true`), enables the legacy module `offset`. This module will be deleted in
+  the future.
+  -/
+  offset := true
   deriving Inhabited, BEq
 
 /--

@@ -22,6 +22,7 @@ import Lean.Elab.Tactic.Doc
 import Lean.Data.EditDistance
 public import Lean.Elab.DocString.Builtin.Keywords
 import Lean.Server.InfoUtils
+import Lean.Meta.Hint
 
 
 namespace Lean.Doc
@@ -132,6 +133,15 @@ meta def checkNameExists : PostponedCheckHandler := fun _ info => do
     | throwError "Expected `{.ofConstName ``PostponedName}`, got `{.ofConstName info.typeName}`"
   discard <| realizeGlobalConstNoOverload (mkIdent name)
 
+private def getQualified (x : Name) : DocM (Array Name) := do
+  let names := (← getEnv).constants.toList
+  let names := names.filterMap fun (y, _) => if x.isSuffixOf y then some y else none
+  names.toArray.mapM fun y => do
+    let y ← unresolveNameGlobalAvoidingLocals y
+    pure y
+
+open Lean.Doc
+
 /--
 Displays a name, without attempting to elaborate implicit arguments.
 -/
@@ -168,7 +178,20 @@ def name (full : Option Ident := none) (scope : DocScope := .local)
         addConstInfo n x
         pure x
       else
-        realizeGlobalConstNoOverloadWithInfo n
+        try
+          realizeGlobalConstNoOverloadWithInfo n
+        catch
+          | err => do
+            let ref ← getRef
+            if let `(inline|role{$_x $_args*}%$tok[$_*]) := ref then
+              let ss ← getQualified n.raw.getId
+              let h ←
+                if ss.isEmpty then pure m!""
+                else m!"Insert a fully-qualified name".hint (ref? := some tok) <|
+                  ss.map fun x => { suggestion := s!" (full := {x})" ++ "}", previewSpan? := ref}
+              logErrorAt s m!"{err.toMessageData}{h}"
+            else logErrorAt s m!"{err.toMessageData}"
+            return .code s!"{n.raw.getId}"
     return .other (.mk ``Data.Const (.mk (Data.Const.mk x))) #[.code s.getString]
   | .import xs =>
     let name :=

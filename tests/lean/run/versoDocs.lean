@@ -313,6 +313,18 @@ Suggestions are as well.
 def otherAttr := ()
 
 /--
+error: Unknown constant `Constraint.add`
+
+Hint: Insert a fully-qualified name
+  {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲O̲m̲e̲g̲a̲.̲C̲o̲n̲s̲t̲r̲a̲i̲n̲t̲.̲a̲d̲d̲)̲}`Constraint.add`
+-/
+#guard_msgs in
+/--
+{name}`Constraint.add`
+-/
+def nameErrSuggestions := ()
+
+/--
 Options control Lean.
 Examples:
  * Use the {option}`pp.all` to control showing all the details

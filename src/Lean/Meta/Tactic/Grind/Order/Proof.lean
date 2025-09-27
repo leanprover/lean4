@@ -17,6 +17,13 @@ def mkLePreorderPrefix (declName : Name) : OrderM Expr := do
   return mkApp3 (mkConst declName [s.u]) s.type s.leInst s.isPreorderInst
 
 /--
+Returns `declName α leInst isPartialInst`
+-/
+def mkLePartialPrefix (declName : Name) : OrderM Expr := do
+  let s ← getStruct
+  return mkApp3 (mkConst declName [s.u]) s.type s.leInst s.isPartialInst?.get!
+
+/--
 Returns `declName α leInst ltInst lawfulOrderLtInst`
 -/
 def mkLeLtPrefix (declName : Name) : OrderM Expr := do
@@ -127,8 +134,13 @@ public def mkPropagateEqTrueProof (u v : Expr) (k : Weight) (huv : Expr) (k' : W
 /--
 `u < v → (v ≤ u) = False
 -/
-def mkPropagateEqFalseProofCore (u v : Expr) (huv : Expr) : OrderM Expr := do
-  let h ← mkLeLtPreorderPrefix ``Grind.Order.le_eq_false_of_lt
+def mkPropagateEqFalseProofCore (u v : Expr) (k : Weight) (huv : Expr) (k' : Weight) : OrderM Expr := do
+  let declName := match k'.strict, k.strict with
+    | false, false => unreachable!
+    | false, true  => ``Grind.Order.le_eq_false_of_lt
+    | true,  false => ``Grind.Order.lt_eq_false_of_le
+    | true,  true  => ``Grind.Order.lt_eq_false_of_lt
+  let h ← mkLeLtPreorderPrefix declName
   return mkApp3 h u v huv
 
 def mkPropagateEqFalseProofOffset (u v : Expr) (k : Weight) (huv : Expr) (k' : Weight) : OrderM Expr := do
@@ -148,7 +160,7 @@ public def mkPropagateEqFalseProof (u v : Expr) (k : Weight) (huv : Expr) (k' : 
   if (← isRing) then
     mkPropagateEqFalseProofOffset u v k huv k'
   else
-    mkPropagateEqFalseProofCore u v huv
+    mkPropagateEqFalseProofCore u v k huv k'
 
 def mkUnsatProofCore (u v : Expr) (k₁ : Weight) (h₁ : Expr) (k₂ : Weight) (h₂ : Expr) : OrderM Expr := do
   let h ← mkTransCoreProof u v u k₁.strict k₂.strict h₁ h₂
@@ -170,10 +182,14 @@ Returns a proof of `False` using a negative cycle composed of
 - `u --(k₁)--> v` with proof `h₁`
 - `v --(k₂)--> u` with proof `h₂`
 -/
-def mkUnsatProof (u v : Expr) (k₁ : Weight) (h₁ : Expr) (k₂ : Weight) (h₂ : Expr) : OrderM Expr := do
+public def mkUnsatProof (u v : Expr) (k₁ : Weight) (h₁ : Expr) (k₂ : Weight) (h₂ : Expr) : OrderM Expr := do
   if (← isRing) then
     mkUnsatProofOffset u v k₁ h₁ k₂ h₂
   else
     mkUnsatProofCore u v k₁ h₁ k₂ h₂
+
+public def mkEqProofOfLeOfLe (u v : Expr) (h₁ : Expr) (h₂ : Expr) : OrderM Expr := do
+  let h ← mkLePartialPrefix ``Grind.Order.eq_of_le_of_le
+  return mkApp4 h u v h₁ h₂
 
 end Lean.Meta.Grind.Order

@@ -39,33 +39,6 @@ structure Weight where
   strict := false
   deriving Inhabited
 
-def Weight.compare (a b : Weight) : Ordering :=
-  if a.k < b.k then
-    .lt
-  else if b.k > a.k then
-    .gt
-  else if a.strict == b.strict then
-    .eq
-  else if !a.strict && b.strict then
-    .lt
-  else
-    .gt
-
-instance : Ord Weight where
-  compare := Weight.compare
-
-instance : LE Weight where
-  le a b := compare a b ≠ .gt
-
-instance : LT Weight where
-  lt a b := compare a b = .lt
-
-instance : DecidableLE Weight :=
-  fun a b => inferInstanceAs (Decidable (compare a b ≠ .gt))
-
-instance : DecidableLT Weight :=
-  fun a b => inferInstanceAs (Decidable (compare a b = .lt))
-
 /-- Auxiliary structure used for proof extraction.  -/
 structure ProofInfo where
   w      : NodeId
@@ -82,8 +55,8 @@ Thus, we store the information to be propagated into a list.
 See field `propagate` in `State`.
 -/
 inductive ToPropagate where
-  | eqTrue (e : Expr) (u v : NodeId) (k k' : Int)
-  | eqFalse (e : Expr) (u v : NodeId) (k k' : Int)
+  | eqTrue (e : Expr) (u v : NodeId) (k k' : Weight)
+  | eqFalse (e : Expr) (u v : NodeId) (k k' : Weight)
   | eq (u v : NodeId)
   deriving Inhabited
 

@@ -57,4 +57,7 @@ def getCnstr? (e : Expr) : OrderM (Option (Cnstr NodeId)) :=
 def isRing : OrderM Bool :=
   return (← getStruct).ringId?.isSome
 
+def isPartialOrder : OrderM Bool :=
+  return (← getStruct).isPartialInst?.isSome
+
 end Lean.Meta.Grind.Order

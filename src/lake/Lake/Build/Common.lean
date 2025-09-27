@@ -430,7 +430,7 @@ public def Cache.saveArtifact
     let normalized := contents.crlfToLf
     let hash := Hash.ofString normalized
     let descr := artifactWithExt hash ext
-    let path := cache.artifactDir / descr.toFilePath
+    let path := cache.artifactDir / descr.relPath
     createParentDirs path
     IO.FS.writeFile path normalized
     writeFileHash file hash
@@ -440,7 +440,7 @@ public def Cache.saveArtifact
     let contents ← IO.FS.readBinFile file
     let hash := Hash.ofByteArray contents
     let descr := artifactWithExt hash ext
-    let path := cache.artifactDir / descr.toFilePath
+    let path := cache.artifactDir / descr.relPath
     createParentDirs path
     IO.FS.writeBinFile path contents
     if exe then
@@ -458,7 +458,8 @@ public def cacheArtifact
 
 /-- **For internal use only.** -/
 public class ResolveOutputs (m : Type v → Type w) (α : Type v) where
-  resolveOutputs? (outputs : Json) : m (Option α)
+  /-- **For internal use only.** -/
+  resolveOutputs? (outputs : Json) : m (Except String α)
 
 open ResolveOutputs in
 /--
@@ -474,45 +475,34 @@ in either the saved trace file or in the cached input-to-content mapping.
 : JobM (Option α) := do
   let updateCache ← pkg.isArtifactCacheEnabled
   if let some out ← cache.readOutputs? pkg.cacheScope inputHash then
-    if let some arts ← resolveOutputs? out then
+    match (← resolveOutputs? out) with
+    | .ok arts =>
       savedTrace.replayOrFetch traceFile inputHash out
       return some arts
-    else
+    | .error e =>
       logWarning s!"\
         input '{inputHash.toString.take 7}' found in package artifact cache, \
-        but some output(s) were not"
+        but some output(s) have issues: {e}"
   if let .ok data := savedTrace then
     if data.depHash == inputHash then
       if let some out := data.outputs? then
-        if let some arts ← resolveOutputs? out then
+        if let .ok arts ← resolveOutputs? out then
           if updateCache then
             cache.writeOutputs pkg.cacheScope inputHash out
           savedTrace.replayOrFetch traceFile inputHash out
           return some arts
   return none
 
-@[inline] def resolveArtifactsCore?
-  [FromJson α] [MonadWorkspace m] [MonadLiftT BaseIO m] [MonadError m] [Monad m]
-  (f : α → m (Option β)) (out : Json)
-: m (Option β) := do
-  match fromJson? out with
-  | .ok (a : α) => f a
-  | .error e => error e
-
-@[inline] def resolveArtifact
-  [MonadWorkspace m] [MonadLiftT BaseIO m] [MonadError m] [Monad m] (output : Json)
-: m (Option Artifact) := resolveArtifactsCore? (do (← getLakeCache).getArtifact? ·) output
-
-@[inline] def resolveOutput?
-  [MonadWorkspace m] [MonadLiftT BaseIO m] [MonadError m] [Monad m] (output : Json)
-: m (Option Artifact) := do
+@[inline] def resolveArtifactOutput?
+  [MonadWorkspace m] [MonadLiftT BaseIO m] [Monad m] (output : Json)
+: m (Except String Artifact) := do
   match fromJson? output with
-  | .ok descr => getArtifact? descr
-  | .error e => error s!"unexpected output: {e}"
+  | .ok descr => (← getLakeCache).getArtifact descr |>.toBaseIO
+  | .error e => return .error s!"ill-formed artifact output `{output}`: {e}"
 
 instance
-  [MonadWorkspace m] [MonadLiftT BaseIO m] [MonadError m] [Monad m]
-: ResolveOutputs m Artifact := ⟨resolveOutput?⟩
+  [MonadWorkspace m] [MonadLiftT BaseIO m] [Monad m]
+: ResolveOutputs m Artifact := ⟨resolveArtifactOutput?⟩
 
 /--
 Construct an artifact from a path outside the Lake artifact cache.

@@ -215,7 +215,7 @@ namespace Cache
 
 /-- Returns the artifact in the Lake cache corresponding the given artifact description. -/
 public def getArtifact? (cache : Cache) (descr : ArtifactDescr) : BaseIO (Option Artifact) := do
-  let path := cache.artifactDir / descr.toFilePath
+  let path := cache.artifactDir / descr.relPath
   if let .ok mtime ← getMTime path |>.toBaseIO then
     return some {descr, path, mtime}
   else if (← path.pathExists) then
@@ -223,12 +223,22 @@ public def getArtifact? (cache : Cache) (descr : ArtifactDescr) : BaseIO (Option
   else
     return none
 
+/-- Returns the artifact in the Lake cache corresponding the given artifact description. Errors if missing. -/
+public def getArtifact (cache : Cache) (descr : ArtifactDescr) : EIO String Artifact := do
+  let path := cache.artifactDir / descr.relPath
+  if let .ok mtime ← getMTime path |>.toBaseIO then
+    return {descr, path, mtime}
+  else if (← path.pathExists) then
+    return {descr, path, mtime := 0}
+  else
+    error s!"artifact not found in cache: {path}"
+
 /-- Returns path to the artifact for each output. Errors if any are missing. -/
 public def getArtifactPaths
   (cache : Cache) (descrs : Array ArtifactDescr)
 : LogIO (Vector FilePath descrs.size) := throwIfLogs do
   (Vector.mk descrs rfl).mapM fun out => do
-    let art := cache.artifactDir / out.toFilePath
+    let art := cache.artifactDir / out.relPath
     unless (← art.pathExists) do
       logError s!"artifact not found in cache: {art}"
     return art
@@ -325,7 +335,7 @@ public def downloadArtifact
   (service : CacheService) (force := false)
 : LoggerIO Unit := do
   let url := service.artifactUrl descr.hash scope
-  let path := cache.artifactDir / descr.toFilePath
+  let path := cache.artifactDir / descr.relPath
   if (← path.pathExists) && !force then
     return
   logInfo s!"\

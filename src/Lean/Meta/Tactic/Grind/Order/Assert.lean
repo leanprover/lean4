@@ -68,18 +68,22 @@ def pushToPropagate (p : ToPropagate) : OrderM Unit := do
   trace[grind.debug.order.propagate] "{← p.pp}"
   modifyStruct fun s => { s with propagate := p :: s.propagate }
 
-public def propagateEqTrue (e : Expr) (u v : NodeId) (k k' : Weight) : OrderM Unit := do
+public def propagateEqTrue (c : Cnstr NodeId) (e : Expr) (u v : NodeId) (k k' : Weight) : OrderM Unit := do
   let kuv ← mkProofForPath u v
   let u ← getExpr u
   let v ← getExpr v
-  let h ← mkPropagateEqTrueProof u v k kuv k'
+  let mut h ← mkPropagateEqTrueProof u v k kuv k'
+  if let some he := c.h? then
+    h := mkApp4 (mkConst ``Grind.Order.eq_trans_true) e c.e he h
   pushEqTrue e h
 
-public def propagateEqFalse (e : Expr) (u v : NodeId) (k k' : Weight) : OrderM Unit := do
+public def propagateEqFalse (c : Cnstr NodeId) (e : Expr) (u v : NodeId) (k k' : Weight) : OrderM Unit := do
   let kuv ← mkProofForPath u v
   let u ← getExpr u
   let v ← getExpr v
-  let h ← mkPropagateEqFalseProof u v k kuv k'
+  let mut h ← mkPropagateEqFalseProof u v k kuv k'
+  if let some he := c.h? then
+    h := mkApp4 (mkConst ``Grind.Order.eq_trans_false) e c.e he h
   pushEqFalse e h
 
 /-- Propagates all pending constraints and equalities and resets to "to do" list. -/
@@ -88,8 +92,8 @@ def propagatePending : OrderM Unit := do
   modifyStruct fun s => { s with propagate := [] }
   for p in todo do
     match p with
-    | .eqTrue e u v k k' => propagateEqTrue e u v k k'
-    | .eqFalse e u v k k' => propagateEqFalse e u v k k'
+    | .eqTrue c e u v k k' => propagateEqTrue c e u v k k'
+    | .eqFalse c e u v k k' => propagateEqFalse c e u v k k'
     | .eq u v =>
       let ue ← getExpr u
       let ve ← getExpr v
@@ -109,7 +113,7 @@ def checkEqTrue (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : Orde
   let some k' := c.getWeight? | return false
   trace[grind.debug.order.check_eq_true] "{← getExpr u}, {← getExpr v}, {k}, {k'}, {← c.pp}"
   if k ≤ k' then
-    pushToPropagate <| .eqTrue e u v k k'
+    pushToPropagate <| .eqTrue c e u v k k'
     return true
   else
     return false
@@ -124,7 +128,7 @@ def checkEqFalse (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : Ord
   let some k' := c.getWeight? | return false
   trace[grind.debug.order.check_eq_false] "{← getExpr u}, {← getExpr v}, {k}, {k'} {← c.pp}"
   if (k + k').isNeg  then
-    pushToPropagate <| .eqFalse e u v k k'
+    pushToPropagate <| .eqFalse c e u v k k'
     return true
   return false
 

@@ -16,6 +16,12 @@ Helper theorems to assert constraints
 theorem eq_mp {p q : Prop} (h₁ : p = q) (h₂ : p) : q := by
   subst p; simp [*]
 
+theorem eq_trans_true {p q : Prop} (h₁ : p = q) (h₂ : q = True) : p = True := by
+  subst p; simp [*]
+
+theorem eq_trans_false {p q : Prop} (h₁ : p = q) (h₂ : q = False) : p = False := by
+  subst p; simp [*]
+
 theorem le_of_eq {α} [LE α] [Std.IsPreorder α]
     (a b : α) : a = b → a ≤ b := by
   intro h; subst a; apply Std.IsPreorder.le_refl

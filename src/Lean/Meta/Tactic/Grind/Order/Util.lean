@@ -72,8 +72,8 @@ instance : ToString Weight where
 
 def ToPropagate.pp (todo : ToPropagate) : OrderM MessageData := do
   match todo with
-  | .eqTrue e u v k k' => return m!"eqTrue: {e}, {← getExpr u}, {← getExpr v}, {k}, {k'}"
-  | .eqFalse e u v k k' => return m!"eqFalse: {e}, {← getExpr u}, {← getExpr v}, {k}, {k'}"
+  | .eqTrue _ e u v k k' => return m!"eqTrue: {e}, {← getExpr u}, {← getExpr v}, {k}, {k'}"
+  | .eqFalse _ e u v k k' => return m!"eqFalse: {e}, {← getExpr u}, {← getExpr v}, {k}, {k'}"
   | .eq u v => return m!"eq: {← getExpr u}, {← getExpr v}"
 
 def Cnstr.getWeight? (c : Cnstr α) : Option Weight :=

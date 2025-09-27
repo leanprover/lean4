@@ -195,11 +195,11 @@ def internalizeCnstr (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) : OrderM Uni
   if let some k' := c.getWeight? then
     if let some k ← getDist? u v then
       if k ≤ k' then
-        propagateEqTrue e u v k k'
+        propagateEqTrue c e u v k k'
         return ()
     if let some k ← getDist? v u then
       if (k + k').isNeg then
-        propagateEqFalse e v u k k'
+        propagateEqFalse c e v u k k'
         return ()
   setStructId e
   modifyStruct fun s => { s with

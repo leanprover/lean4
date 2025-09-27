@@ -57,8 +57,8 @@ Thus, we store the information to be propagated into a list.
 See field `propagate` in `State`.
 -/
 inductive ToPropagate where
-  | eqTrue (e : Expr) (u v : NodeId) (k k' : Weight)
-  | eqFalse (e : Expr) (u v : NodeId) (k k' : Weight)
+  | eqTrue (c : Cnstr NodeId) (e : Expr) (u v : NodeId) (k k' : Weight)
+  | eqFalse (c : Cnstr NodeId) (e : Expr) (u v : NodeId) (k k' : Weight)
   | eq (u v : NodeId)
   deriving Inhabited
 

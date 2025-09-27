@@ -675,6 +675,8 @@ open Lean Elab Tactic Parser.Tactic
 
 /-- The `omega` tactic, for resolving integer and natural linear arithmetic problems. -/
 def omegaTactic (cfg : OmegaConfig) : TacticM Unit := do
+  -- Conservatively expect all of `Init.Omega` to be imported.
+  recordExtraModUse (isMeta := false) `Init.Omega
   liftMetaFinishingTactic fun g => do
     if debug.terminalTacticsAsSorry.get (← getOptions) then
       g.admit

@@ -10,6 +10,7 @@ public import Lean.Elab.Command
 public import Lean.Parser.Syntax
 public import Lean.Elab.Util
 public meta import Lean.Parser.Syntax
+import Lean.ExtraModUses
 
 public section
 
@@ -394,7 +395,10 @@ def elabSyntax (stx : Syntax) : CommandElabM Name := do
       syntax%$tk $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $[$ps:stx]* : $catStx) := stx
     | throwUnsupportedSyntax
   let cat := catStx.getId.eraseMacroScopes
-  unless (Parser.isParserCategory (← getEnv) cat) do
+  if let some cat := Parser.getParserCategory? (← getEnv) cat then
+    -- The category must be imported but is not directly referenced afterwards.
+    recordExtraModUseFromDecl (isMeta := true) cat.declName
+  else
     throwErrorAt catStx "unknown category `{cat}`"
   liftTermElabM <| Term.addCategoryInfo catStx cat
   let syntaxParser := mkNullNode ps

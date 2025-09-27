@@ -9,6 +9,8 @@ public import Lean.Meta.Tactic.Grind.EMatchTheorem
 public import Lean.Meta.Tactic.Grind.Injective
 public import Lean.Meta.Tactic.Grind.Cases
 public import Lean.Meta.Tactic.Grind.ExtAttr
+import Lean.ExtraModUses
+
 public section
 namespace Lean.Meta.Grind
 
@@ -97,6 +99,7 @@ private def registerGrindAttr (minIndexable : Bool) (showInfo : Bool) : IO Unit 
       `grind` will add an instance of this theorem to the local context whenever it encounters the pattern `foo (foo x)`."
     applicationTime := .afterCompilation
     add := fun declName stx attrKind => MetaM.run' do
+      recordExtraModUseFromDecl (isMeta := false) declName
       match (← getAttrKindFromOpt stx) with
       | .ematch .user => throwInvalidUsrModifier
       | .ematch k => addEMatchAttr declName attrKind k (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)

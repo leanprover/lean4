@@ -9,6 +9,7 @@ prelude
 public import Lean.Compiler.LCNF.PhaseExt
 public import Lean.Compiler.MetaAttr
 public import Lean.Compiler.ImplementedByAttr
+import Lean.ExtraModUses
 import Lean.Compiler.Options
 
 public section
@@ -172,6 +173,9 @@ where go (origDecl decl : Decl) : StateT NameSet CompilerM Unit := do
           throwError "Cannot compile inline/specializing declaration `{.ofConstName origDecl.name}` as \
             it uses `{.ofConstName ref}` of module `{(← getEnv).header.moduleNames[modIdx]!}` \
             which must be imported publicly. This limitation may be lifted in the future."
+        else
+          -- record as public meta use
+          withExporting <| recordExtraModUseFromDecl (isMeta := getIRPhases (← getEnv) ref == .comptime) ref
 
 def inferVisibility (phase : Phase) : Pass where
   occurrence := 0

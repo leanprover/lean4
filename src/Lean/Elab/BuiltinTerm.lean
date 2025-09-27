@@ -12,6 +12,7 @@ public import Lean.Elab.Open
 public import Lean.Elab.SetOption
 public import Lean.Elab.Eval
 meta import Lean.Parser.Command
+import Lean.ExtraModUses
 
 public section
 
@@ -237,9 +238,11 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   | some val => pure $ toExpr val
   | none     => throwIllFormedSyntax
 
-@[builtin_term_elab doubleQuotedName] def elabDoubleQuotedName : TermElab := fun stx _ =>
+@[builtin_term_elab doubleQuotedName] def elabDoubleQuotedName : TermElab := fun stx _ => do
   -- Always allow quoting private names.
-  return toExpr (← withoutExporting <| realizeGlobalConstNoOverloadWithInfo stx[2])
+  let n ← withoutExporting <| realizeGlobalConstNoOverloadWithInfo stx[2]
+  recordExtraModUseFromDecl (isMeta := false) n
+  return toExpr n
 
 @[builtin_term_elab declName] def elabDeclName : TermElab := adaptExpander fun _ => do
   let some declName ← getDeclName?

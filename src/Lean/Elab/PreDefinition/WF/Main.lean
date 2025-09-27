@@ -16,6 +16,7 @@ public import Lean.Elab.PreDefinition.WF.Fix
 public import Lean.Elab.PreDefinition.WF.Unfold
 public import Lean.Elab.PreDefinition.WF.Preprocess
 public import Lean.Elab.PreDefinition.WF.GuessLex
+import Lean.ExtraModUses
 
 public section
 
@@ -72,6 +73,8 @@ def wfRecursion (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDe
         eraseRecAppSyntaxExpr value
       /- `mkFix` invokes `decreasing_tactic` which may add auxiliary theorems to the environment. -/
       let value ← unfoldDeclsFrom envNew value
+      -- Make sure we remember invoked tactics
+      modifyEnv (copyExtraModUses envNew)
       return { unaryPreDefProcessed with value }
 
   trace[Elab.definition.wf] ">> {preDefNonRec.declName} :=\n{preDefNonRec.value}"

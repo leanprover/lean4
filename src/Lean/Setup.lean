@@ -34,7 +34,9 @@ structure Import where
 
 instance : Coe Name Import := ⟨({module := ·})⟩
 
-instance : ToString Import := ⟨fun imp => toString imp.module⟩
+instance : ToString Import := ⟨fun imp =>
+  s!"{if imp.isExported then "public " else ""}{if imp.isMeta then "meta " else ""}import \
+    {if imp.importAll then "all " else ""}{imp.module}"⟩
 
 /-- Abstract structure of a module's header. -/
 structure ModuleHeader where

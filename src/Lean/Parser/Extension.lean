@@ -351,8 +351,11 @@ builtin_initialize parserExtension : ParserExtension ←
     ofOLeanEntry    := ParserExtension.OLeanEntry.toEntry
   }
 
+def getParserCategory? (env : Environment) (catName : Name) : Option ParserCategory :=
+  (parserExtension.getState env).categories.find? catName
+
 def isParserCategory (env : Environment) (catName : Name) : Bool :=
-  (parserExtension.getState env).categories.contains catName
+  getParserCategory? env catName |>.isSome
 
 def addParserCategory (env : Environment) (catName declName : Name) (behavior : LeadingIdentBehavior) : Except String Environment := do
   if isParserCategory env catName then

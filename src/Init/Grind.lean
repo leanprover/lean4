@@ -24,3 +24,4 @@ public import Init.Grind.Attr
 public import Init.Data.Int.OfNat -- This may not have otherwise been imported, breaking `grind` proofs.
 public import Init.Grind.AC
 public import Init.Grind.Injective
+public import Init.Grind.Order

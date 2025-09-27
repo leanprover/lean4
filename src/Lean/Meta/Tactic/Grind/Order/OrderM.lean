@@ -54,4 +54,7 @@ def getProof (u v : NodeId) : OrderM ProofInfo := do
 def getCnstr? (e : Expr) : OrderM (Option (Cnstr NodeId)) :=
   return (← getStruct).cnstrs.find? { expr := e }
 
+def isRing : OrderM Bool :=
+  return (← getStruct).ringId?.isSome
+
 end Lean.Meta.Grind.Order

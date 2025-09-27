@@ -143,6 +143,11 @@ private theorem add_lt_add_of_lt_of_le {α} [LE α] [LT α] [Std.LawfulOrderLT �
 
 /-! Theorems for propagating constraints to `True` -/
 
+theorem le_eq_true_of_lt {α} [LE α] [LT α] [Std.LawfulOrderLT α]
+    (a b : α) : a < b → (a ≤ b) = True := by
+  simp; intro h
+  exact Std.le_of_lt h
+
 theorem le_eq_true_of_le_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
     (a b : α) (k₁ k₂ : Int) : k₁.ble' k₂ → a ≤ b + k₁ → (a ≤ b + k₂) = True := by
   simp; intro h₁ h₂
@@ -183,6 +188,13 @@ theorem lt_eq_true_of_le_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPr
   assumption
 
 /-! Theorems for propagating constraints to `False` -/
+
+theorem le_eq_false_of_lt {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α]
+    (a b : α) : a < b → (b ≤ a) = False := by
+  simp; intro h₁ h₂
+  have := lt_le_trans h₁ h₂
+  have := Preorder.lt_irrefl a
+  contradiction
 
 theorem le_eq_false_of_le_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
     (a b : α) (k₁ k₂ : Int) : (k₂ + k₁).blt' 0 → a ≤ b + k₁ → (b ≤ a + k₂) = False := by

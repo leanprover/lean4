@@ -51,7 +51,7 @@ def mkTransCore (p₁ : ProofInfo) (p₂ : ProofInfo) (v : NodeId) : OrderM Proo
   return { w := p₁.w, k.strict := s₁ || s₂, proof := h }
 
 /--
-Assume `pi₁` is `{ w := u, k := k₁, proof := p₁ }` and `pi₂` is `{ w := w, k := k₂, proof := p₂ }`
+Assume `p₁` is `{ w := u, k := k₁, proof := p₁ }` and `p₂` is `{ w := w, k := k₂, proof := p₂ }`
 `p₁` is the proof for edge `u -(k₁)→ w` and `p₂` the proof for edge `w -(k₂)-> v`.
 Then, this function returns a proof for edge `u -(k₁+k₂) -> v`.
 
@@ -72,7 +72,7 @@ def mkTransOffset (p₁ : ProofInfo) (p₂ : ProofInfo) (v : NodeId) : OrderM Pr
   return { w := p₁.w, k.k := k, k.strict := s₁ || s₂, proof := h }
 
 /--
-Assume `pi₁` is `{ w := u, k := k₁, proof := p₁ }` and `pi₂` is `{ w := w, k := k₂, proof := p₂ }`
+Assume `p₁` is `{ w := u, k := k₁, proof := p₁ }` and `p₂` is `{ w := w, k := k₂, proof := p₂ }`
 `p₁` is the proof for edge `u -(k₁)→ w` and `p₂` the proof for edge `w -(k₂)-> v`.
 Then, this function returns a proof for edge `u -(k₁+k₂) -> v`.
 

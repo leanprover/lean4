@@ -140,12 +140,60 @@ def mkCnstr? (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) : OrderM (Option (Cn
   else
     return some { kind, u := lhs, v := rhs }
 
+def setStructId (e : Expr) : OrderM Unit := do
+  let structId ← getStructId
+  modify' fun s => { s with
+    exprToStructId := s.exprToStructId.insert { expr := e } structId
+  }
+
+def mkNode (e : Expr) : OrderM NodeId := do
+  if let some nodeId := (← getStruct).nodeMap.find? { expr := e } then
+    return nodeId
+  let nodeId : NodeId := (← getStruct).nodes.size
+  trace[grind.order.internalize.term] "{e} ↦ #{nodeId}"
+  modifyStruct fun s => { s with
+    nodes   := s.nodes.push e
+    nodeMap := s.nodeMap.insert { expr := e } nodeId
+    sources := s.sources.push {}
+    targets := s.targets.push {}
+    proofs  := s.proofs.push {}
+  }
+  setStructId e
+  /-
+  **Note**: not all node expressions have been internalized because this solver
+  creates auxiliary terms.
+  -/
+  if (← alreadyInternalized e) then
+    orderExt.markTerm e
+  return nodeId
+
 def internalizeCnstr (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) : OrderM Unit := do
-  let some cnstr ← mkCnstr? e kind lhs rhs | return ()
-  trace[grind.order.internalize] "{cnstr.u}, {cnstr.v}, {cnstr.k}"
+  let some c ← mkCnstr? e kind lhs rhs | return ()
+  trace[grind.order.internalize] "{c.u}, {c.v}, {c.k}"
   if grind.debug.get (← getOptions) then
-    if let some h := cnstr.h? then check h
-  -- **TODO**: update data-structures
+    if let some h := c.h? then check h
+  let u ← mkNode c.u
+  let v ← mkNode c.v
+  let c := { c with u, v }
+/-
+  -- **TODO**: propagate
+  if let some k ← getDist? u v then
+    if k ≤ c.k then
+      propagateEqTrue e u v k c.k
+      return ()
+  if let some k ← getDist? v u then
+    if k + c.k < 0 then
+      propagateEqFalse e v u k c.k
+      return ()
+  trace[grind.offset.internalize] "{e} ↦ {c}"
+-/
+  setStructId e
+  modifyStruct fun s => { s with
+    cnstrs   := s.cnstrs.insert { expr := e } c
+    cnstrsOf :=
+      let cs := if let some cs := s.cnstrsOf.find? (u, v) then (c, e) :: cs else [(c, e)]
+      s.cnstrsOf.insert (u, v) cs
+  }
 
 def hasLt : OrderM Bool :=
   return (← getStruct).ltFn?.isSome
@@ -183,19 +231,23 @@ def adapt (α : Expr) (e : Expr) : GoalM (Expr × Expr) := do
   else
     return (α, e)
 
+def alreadyInternalized (e : Expr) : OrderM Bool := do
+  let s ← getStruct
+  return s.cnstrs.contains { expr := e } || s.nodeMap.contains { expr := e }
+
 public def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).order do return ()
   let some α := getType? e | return ()
   let (α, e) ← adapt α e
   if isForbiddenParent parent? then return ()
-  let some structId ← getStructId? α | return ()
-  OrderM.run structId do
-  match_expr e with
-  | LE.le _ _ lhs rhs => internalizeCnstr e .le lhs rhs
-  | LT.lt _ _ lhs rhs => if (← hasLt) then internalizeCnstr e .lt lhs rhs
-  | Eq _ lhs rhs => internalizeCnstr e .eq lhs rhs
-  | _ =>
-    -- TODO
-    return ()
+  if let some structId ← getStructId? α then OrderM.run structId do
+    if (← alreadyInternalized e) then return ()
+    match_expr e with
+    | LE.le _ _ lhs rhs => internalizeCnstr e .le lhs rhs
+    | LT.lt _ _ lhs rhs => if (← hasLt) then internalizeCnstr e .lt lhs rhs
+    | Eq _ lhs rhs => internalizeCnstr e .eq lhs rhs
+    | _ =>
+      -- TODO
+      return ()
 
 end Lean.Meta.Grind.Order

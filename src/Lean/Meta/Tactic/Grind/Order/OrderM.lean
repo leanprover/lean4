@@ -32,4 +32,26 @@ def modifyStruct (f : Struct → Struct) : OrderM Unit := do
   let structId ← getStructId
   modify' fun s => { s with structs := s.structs.modify structId f }
 
+def getExpr (u : NodeId) : OrderM Expr := do
+  return (← getStruct).nodes[u]!
+
+def getDist? (u v : NodeId) : OrderM (Option Weight) := do
+  return (← getStruct).targets[u]!.find? v
+
+def getProof? (u v : NodeId) : OrderM (Option ProofInfo) := do
+  return (← getStruct).proofs[u]!.find? v
+
+def getNodeId (e : Expr) : OrderM NodeId := do
+  let some nodeId := (← getStruct).nodeMap.find? { expr := e }
+    | throwError "internal `grind` error, term has not been internalized by order module{indentExpr e}"
+  return nodeId
+
+def getProof (u v : NodeId) : OrderM ProofInfo := do
+  let some p ← getProof? u v
+    | throwError "internal `grind` error, failed to construct proof for{indentExpr (← getExpr u)}\nand{indentExpr (← getExpr v)}"
+  return p
+
+def getCnstr? (e : Expr) : OrderM (Option (Cnstr NodeId)) :=
+  return (← getStruct).cnstrs.find? { expr := e }
+
 end Lean.Meta.Grind.Order

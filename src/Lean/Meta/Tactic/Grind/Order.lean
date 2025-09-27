@@ -9,10 +9,14 @@ public import Lean.Meta.Tactic.Grind.Order.Types
 public import Lean.Meta.Tactic.Grind.Order.Internalize
 public import Lean.Meta.Tactic.Grind.Order.StructId
 public import Lean.Meta.Tactic.Grind.Order.OrderM
+public import Lean.Meta.Tactic.Grind.Order.Assert
+public import Lean.Meta.Tactic.Grind.Order.Util
 public section
 namespace Lean.Meta.Grind.Order
 builtin_initialize registerTraceClass `grind.order
+builtin_initialize registerTraceClass `grind.order.assert
 builtin_initialize registerTraceClass `grind.order.internalize
+builtin_initialize registerTraceClass `grind.order.internalize.term
 
 builtin_initialize
   orderExt.setMethods

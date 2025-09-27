@@ -69,10 +69,10 @@ jobs:
           build/stage1/**/*.ir
           build/stage1/**/*.c
           build/stage1/**/*.c.o*
-        key: Linux Lake-build-v3-${{ github.sha }}
+        key: Linux Lake-build-v4-${{ github.sha }}
         # fall back to (latest) previous cache
         restore-keys: |
-          Linux Lake-build-v3
+          Linux Lake-build-v4
     - if: env.should_update_stage0 == 'yes'
       # sync options with `Linux Lake` to ensure cache reuse
       run: |

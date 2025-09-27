@@ -545,30 +545,32 @@ public def Module.cacheOutputHashes (mod : Module) : IO PUnit := do
   if Lean.Internal.hasLLVMBackend () then
     cacheFileHash mod.bcFile
 
-private def ModuleOutputDescrs.getArtifactsFrom?
+def ModuleOutputDescrs.getArtifactsFrom
   (cache : Cache) (descrs : ModuleOutputDescrs)
-: BaseIO (Option ModuleOutputArtifacts) := OptionT.run do
-  let mut arts : ModuleOutputArtifacts := {
-    olean := ← cache.getArtifact? descrs.olean
-    ilean := ← cache.getArtifact? descrs.ilean
-    c :=← cache.getArtifact? descrs.c
+: EIO String ModuleOutputArtifacts := do
+  let arts : ModuleOutputArtifacts := {
+    olean := ← cache.getArtifact descrs.olean
+    oleanServer? := ← descrs.oleanServer?.mapM cache.getArtifact
+    oleanPrivate? := ← descrs.oleanPrivate?.mapM cache.getArtifact
+    ir? := ← descrs.ir?.mapM cache.getArtifact
+    ilean := ← cache.getArtifact descrs.ilean
+    c :=← cache.getArtifact descrs.c
+    bc? := none
   }
-  if let some hash := descrs.oleanServer? then
-    arts := {arts with oleanServer? := some (← cache.getArtifact? hash)}
-  if let some hash := descrs.oleanPrivate? then
-    arts := {arts with oleanPrivate? := some (← cache.getArtifact? hash)}
-  if let some hash := descrs.ir? then
-    arts := {arts with ir? := some (← cache.getArtifact? hash)}
   if Lean.Internal.hasLLVMBackend () then
-    arts := {arts with bc? := some (← cache.getArtifact? (← descrs.bc?))}
-  return arts
+    let some descr := descrs.bc?
+      | error "LLVM backend enabled but module outputs lack bitcode"
+    return {arts with bc? := some (← cache.getArtifact descr)}
+  else
+    return arts
 
 @[inline] def resolveModuleOutputs?
    [MonadWorkspace m] [MonadLiftT BaseIO m] [MonadError m] [Monad m]  (outputs : Json)
-: m (Option ModuleOutputArtifacts) := do
+: m (Except String ModuleOutputArtifacts) := do
   match fromJson? outputs with
-  | .ok (descrs : ModuleOutputDescrs) => descrs.getArtifactsFrom? (← getLakeCache)
-  | .error e => error e
+  | .ok (descrs : ModuleOutputDescrs) =>
+    descrs.getArtifactsFrom (← getLakeCache) |>.toBaseIO
+  | .error e => return .error s!"ill-formed module outputs: {e}"
 
 instance
   [MonadWorkspace m] [MonadLiftT BaseIO m] [MonadError m] [Monad m]

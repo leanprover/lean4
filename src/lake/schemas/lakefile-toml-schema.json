@@ -22,10 +22,10 @@
                 "buildType": {
                     "type": "string",
                     "enum": [
-                        "debug",
-                        "relWithDebInfo",
-                        "minSizeRel",
-                        "release"
+                        "debug", "Debug",
+                        "relWithDebInfo", "RelWithDebInfo",
+                        "minSizeRel", "MinSizeRel",
+                        "release", "Release"
                     ],
                     "default": "release",
                     "description": "The mode in which the modules should be built."
@@ -454,6 +454,10 @@
                 "enableArtifactCache": {
                     "type": "boolean",
                     "description": "Whether to enables Lake's local, offline artifact cache for the package.\n\nArtifacts (i.e., build products) of packages will be shared across local copies by storing them in a cache associated with the Lean toolchain.\nThis can significantly reduce initial build times and disk space usage when working with multiple copies of large projects or large dependencies.\n\nAs a caveat, build targets which support the artifact cache will not be stored in their usual location within the build directory. Thus, projects with custom build scripts that rely on specific location of artifacts may wish to disable this feature.\n\nIf not set, the cache will be disabled by default unless the `LAKE_ARTIFACT_CACHE` environment variable is set to true."
+                },
+                "restoreAllArtifacts": {
+                    "type": "boolean",
+                    "description": "Whether, when the local artifact cache is enabled, Lake should copy all cached artifacts into the build directory. This ensures the build results are available to external consumers who expect them in the build directory."
                 },
                 "srcDir": {
                     "type": "string",

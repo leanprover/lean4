@@ -13,6 +13,14 @@ namespace Lean.Grind.Order
 /-!
 Helper theorems to assert constraints
 -/
+theorem eq_mp {p q : Prop} (h₁ : p = q) (h₂ : p) : q := by
+  subst p; simp [*]
+
+theorem eq_trans_true {p q : Prop} (h₁ : p = q) (h₂ : q = True) : p = True := by
+  subst p; simp [*]
+
+theorem eq_trans_false {p q : Prop} (h₁ : p = q) (h₂ : q = False) : p = False := by
+  subst p; simp [*]
 
 theorem le_of_eq {α} [LE α] [Std.IsPreorder α]
     (a b : α) : a = b → a ≤ b := by
@@ -24,14 +32,14 @@ theorem le_of_not_le {α} [LE α] [Std.IsLinearPreorder α]
   have := Std.IsLinearPreorder.le_total a b
   cases this; contradiction; assumption
 
-theorem lt_of_not_le {α} [LE α] [LT α] [Std.IsLinearPreorder α] [Std.LawfulOrderLT α]
+theorem lt_of_not_le {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsLinearPreorder α]
     (a b : α) : ¬ a ≤ b → b < a := by
   intro h
   rw [Std.LawfulOrderLT.lt_iff]
   have := Std.IsLinearPreorder.le_total a b
   cases this; contradiction; simp [*]
 
-theorem le_of_not_lt {α} [LE α] [LT α] [Std.IsLinearPreorder α] [Std.LawfulOrderLT α]
+theorem le_of_not_lt {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsLinearPreorder α]
     (a b : α) : ¬ a < b → b ≤ a := by
   rw [Std.LawfulOrderLT.lt_iff]
   open Classical in
@@ -42,7 +50,7 @@ theorem le_of_not_lt {α} [LE α] [LT α] [Std.IsLinearPreorder α] [Std.LawfulO
     cases this; contradiction; assumption
   next => assumption
 
-theorem int_lt (x y k : Int) : x < y + k → x ≤ y + (k-1) := by
+theorem int_lt {x y k : Int} : x < y + k → x ≤ y + (k-1) := by
   omega
 
 /-!
@@ -78,28 +86,28 @@ Transitivity with offsets
 attribute [local instance] Ring.intCast
 
 theorem le_trans_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
-    (a b c : α) (k₁ k₂ k : Int) (h₁ : a ≤ b + k₁) (h₂ : b ≤ c + k₂) : k == k₂ + k₁ → a ≤ c + k := by
+    {a b c : α} {k₁ k₂ : Int} (k : Int) (h₁ : a ≤ b + k₁) (h₂ : b ≤ c + k₂) : k == k₂ + k₁ → a ≤ c + k := by
   intro h; simp at h; subst k
   replace h₂ := OrderedAdd.add_le_left_iff (M := α) k₁ |>.mp h₂
   have := le_trans h₁ h₂
   simp [Ring.intCast_add, ← Semiring.add_assoc, this]
 
 theorem lt_trans_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
-    (a b c : α) (k₁ k₂ k : Int) (h₁ : a < b + k₁) (h₂ : b < c + k₂) : k == k₂ + k₁ → a < c + k := by
+    {a b c : α} {k₁ k₂ : Int} (k : Int) (h₁ : a < b + k₁) (h₂ : b < c + k₂) : k == k₂ + k₁ → a < c + k := by
   intro h; simp at h; subst k
   replace h₂ := OrderedAdd.add_lt_left_iff (M := α) k₁ |>.mp h₂
   have := lt_trans h₁ h₂
   simp [Ring.intCast_add, ← Semiring.add_assoc, this]
 
 theorem le_lt_trans_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
-    (a b c : α) (k₁ k₂ k : Int) (h₁ : a ≤ b + k₁) (h₂ : b < c + k₂) : k == k₂ + k₁ → a < c + k := by
+    {a b c : α} {k₁ k₂ : Int} (k : Int) (h₁ : a ≤ b + k₁) (h₂ : b < c + k₂) : k == k₂ + k₁ → a < c + k := by
   intro h; simp at h; subst k
   replace h₂ := OrderedAdd.add_lt_left_iff (M := α) k₁ |>.mp h₂
   have := le_lt_trans h₁ h₂
   simp [Ring.intCast_add, ← Semiring.add_assoc, this]
 
 theorem lt_le_trans_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
-    (a b c : α) (k₁ k₂ k : Int) (h₁ : a < b + k₁) (h₂ : b ≤ c + k₂) : k == k₂ + k₁ → a < c + k := by
+    {a b c : α} {k₁ k₂ : Int} (k : Int) (h₁ : a < b + k₁) (h₂ : b ≤ c + k₂) : k == k₂ + k₁ → a < c + k := by
   intro h; simp at h; subst k
   replace h₂ := OrderedAdd.add_le_left_iff (M := α) k₁ |>.mp h₂
   have := lt_le_trans h₁ h₂
@@ -110,7 +118,7 @@ Unsat detection
 -/
 
 theorem le_unsat_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
-    (a : α) (k : Int) : k.blt' 0 → a ≤ a + k → False := by
+    {a : α} {k : Int} : k.blt' 0 → a ≤ a + k → False := by
   simp; intro h₁ h₂
   replace h₂ := OrderedAdd.add_le_left_iff (-a) |>.mp h₂
   rw [AddCommGroup.add_neg_cancel, Semiring.add_assoc, Semiring.add_comm _ (-a)] at h₂
@@ -120,7 +128,7 @@ theorem le_unsat_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder �
   omega
 
 theorem lt_unsat_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
-    (a : α) (k : Int) : k.ble' 0 → a < a + k → False := by
+    {a : α} {k : Int} : k.ble' 0 → a < a + k → False := by
   simp; intro h₁ h₂
   replace h₂ := OrderedAdd.add_lt_left_iff (-a) |>.mp h₂
   rw [AddCommGroup.add_neg_cancel, Semiring.add_assoc, Semiring.add_comm _ (-a)] at h₂
@@ -144,12 +152,12 @@ private theorem add_lt_add_of_lt_of_le {α} [LE α] [LT α] [Std.LawfulOrderLT �
 /-! Theorems for propagating constraints to `True` -/
 
 theorem le_eq_true_of_lt {α} [LE α] [LT α] [Std.LawfulOrderLT α]
-    (a b : α) : a < b → (a ≤ b) = True := by
+    {a b : α} : a < b → (a ≤ b) = True := by
   simp; intro h
   exact Std.le_of_lt h
 
 theorem le_eq_true_of_le_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
-    (a b : α) (k₁ k₂ : Int) : k₁.ble' k₂ → a ≤ b + k₁ → (a ≤ b + k₂) = True := by
+    {a b : α} {k₁ k₂ : Int} : k₁.ble' k₂ → a ≤ b + k₁ → (a ≤ b + k₂) = True := by
   simp; intro h₁ h₂
   replace h₁ : 0 ≤ k₂ - k₁ := by omega
   replace h₁ := OrderedRing.nonneg_intCast_of_nonneg (R := α) _ h₁
@@ -160,13 +168,13 @@ theorem le_eq_true_of_le_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPr
   assumption
 
 theorem le_eq_true_of_lt_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
-    (a b : α) (k₁ k₂ : Int) : k₁.ble' k₂ → a < b + k₁ → (a ≤ b + k₂) = True := by
+    {a b : α} {k₁ k₂ : Int} : k₁.ble' k₂ → a < b + k₁ → (a ≤ b + k₂) = True := by
   intro h₁ h₂
   replace h₂ := Std.le_of_lt h₂
   apply le_eq_true_of_le_k <;> assumption
 
 theorem lt_eq_true_of_lt_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
-    (a b : α) (k₁ k₂ : Int) : k₁.ble' k₂ → a < b + k₁ → (a < b + k₂) = True := by
+    {a b : α} {k₁ k₂ : Int} : k₁.ble' k₂ → a < b + k₁ → (a < b + k₂) = True := by
   simp; intro h₁ h₂
   replace h₁ : 0 ≤ k₂ - k₁ := by omega
   replace h₁ := OrderedRing.nonneg_intCast_of_nonneg (R := α) _ h₁
@@ -177,7 +185,7 @@ theorem lt_eq_true_of_lt_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPr
   assumption
 
 theorem lt_eq_true_of_le_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
-    (a b : α) (k₁ k₂ : Int) : k₁.blt' k₂ → a ≤ b + k₁ → (a < b + k₂) = True := by
+    {a b : α} {k₁ k₂ : Int} : k₁.blt' k₂ → a ≤ b + k₁ → (a < b + k₂) = True := by
   simp; intro h₁ h₂
   replace h₁ : 0 < k₂ - k₁ := by omega
   replace h₁ := OrderedRing.pos_intCast_of_pos (R := α) _ h₁
@@ -190,52 +198,52 @@ theorem lt_eq_true_of_le_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPr
 /-! Theorems for propagating constraints to `False` -/
 
 theorem le_eq_false_of_lt {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α]
-    (a b : α) : a < b → (b ≤ a) = False := by
+    {a b : α} : a < b → (b ≤ a) = False := by
   simp; intro h₁ h₂
   have := lt_le_trans h₁ h₂
   have := Preorder.lt_irrefl a
   contradiction
 
 theorem lt_eq_false_of_lt {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α]
-    (a b : α) : a < b → (b < a) = False := by
+    {a b : α} : a < b → (b < a) = False := by
   simp; intro h₁ h₂
   have := lt_trans h₁ h₂
   have := Preorder.lt_irrefl a
   contradiction
 
 theorem lt_eq_false_of_le {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α]
-    (a b : α) : a ≤ b → (b < a) = False := by
+    {a b : α} : a ≤ b → (b < a) = False := by
   simp; intro h₁ h₂
   have := le_lt_trans h₁ h₂
   have := Preorder.lt_irrefl a
   contradiction
 
 theorem le_eq_false_of_le_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
-    (a b : α) (k₁ k₂ : Int) : (k₂ + k₁).blt' 0 → a ≤ b + k₁ → (b ≤ a + k₂) = False := by
+    {a b : α} {k₁ k₂ : Int} : (k₂ + k₁).blt' 0 → a ≤ b + k₁ → (b ≤ a + k₂) = False := by
   intro h₁; simp; intro h₂ h₃
-  have h := le_trans_k _ _ _ _ _ (k₂ + k₁) h₂ h₃
+  have h := le_trans_k (k₂ + k₁) h₂ h₃
   simp at h
-  apply le_unsat_k _ _ h₁ h
+  apply le_unsat_k h₁ h
 
 theorem lt_eq_false_of_le_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
     (a b : α) (k₁ k₂ : Int) : (k₂ + k₁).ble' 0 → a ≤ b + k₁ → (b < a + k₂) = False := by
   intro h₁; simp; intro h₂ h₃
-  have h := le_lt_trans_k _ _ _ _ _ (k₂ + k₁) h₂ h₃
+  have h := le_lt_trans_k (k₂ + k₁) h₂ h₃
   simp at h
-  apply lt_unsat_k _ _ h₁ h
+  apply lt_unsat_k h₁ h
 
 theorem lt_eq_false_of_lt_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
     (a b : α) (k₁ k₂ : Int) : (k₂ + k₁).ble' 0 → a < b + k₁ → (b < a + k₂) = False := by
   intro h₁; simp; intro h₂ h₃
-  have h := lt_trans_k _ _ _ _ _ (k₂ + k₁) h₂ h₃
+  have h := lt_trans_k (k₂ + k₁) h₂ h₃
   simp at h
-  apply lt_unsat_k _ _ h₁ h
+  apply lt_unsat_k h₁ h
 
 theorem le_eq_false_of_lt_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
     (a b : α) (k₁ k₂ : Int) : (k₂ + k₁).ble' 0 → a < b + k₁ → (b ≤ a + k₂) = False := by
   intro h₁; simp; intro h₂ h₃
-  have h := lt_le_trans_k _ _ _ _ _ (k₂ + k₁) h₂ h₃
+  have h := lt_le_trans_k (k₂ + k₁) h₂ h₃
   simp at h
-  apply lt_unsat_k _ _ h₁ h
+  apply lt_unsat_k h₁ h
 
 end Lean.Grind.Order

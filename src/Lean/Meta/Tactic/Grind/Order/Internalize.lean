@@ -17,6 +17,8 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 import Lean.Meta.Tactic.Grind.Order.StructId
+import Lean.Meta.Tactic.Grind.Order.Util
+import Lean.Meta.Tactic.Grind.Order.Assert
 namespace Lean.Meta.Grind.Order
 
 open Arith CommRing
@@ -60,17 +62,18 @@ def split (p : Poly) : Poly × Poly × Int :=
 def propEq := mkApp (mkConst ``Eq [1]) (mkSort 0)
 
 /--
-Given a proof `h` that `e ↔ rel lhs rhs`, add expected proposition hint around `h`.
-The relation `rel` is inferred from `kind`.
+Given a proof `h` that `e = rel lhs rhs`, returns `(e', h')` where
+`e'` is `rel lhs rhs`, and `h'` is `h` with the expected proposition hint around it.
 -/
-def mkExpectedHint (s : Struct) (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) (h : Expr) : Expr :=
+def mkExpectedHint (s : Struct) (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) (h : Expr) : Expr × Expr :=
   let rel := match kind with
     | .le => s.leFn
     | .lt => s.ltFn?.get!
     | .eq => mkApp (mkConst ``Eq [mkLevelSucc s.u]) s.type
   let e' := mkApp2 rel lhs rhs
   let prop :=  mkApp2 propEq e e'
-  mkExpectedPropHint h prop
+  let h' := mkExpectedPropHint h prop
+  (e', h')
 
 def mkLeNorm0 (s : Struct) (ringInst : Expr) (lhs rhs : Expr) : Expr :=
   mkApp5 (mkConst ``Grind.CommRing.le_norm0 [s.u]) s.type ringInst s.leInst lhs rhs
@@ -87,9 +90,22 @@ def mkCnstrNorm0 (s : Struct) (ringInst : Expr) (kind : CnstrKind) (lhs rhs : Ex
   | .lt => mkLtNorm0 s ringInst lhs rhs
   | .eq => mkEqNorm0 s ringInst lhs rhs
 
+/--
+Returns `rel lhs (rhs + 0)`
+-/
+def mkDenote0 [MonadLiftT MetaM m] [MonadError m] [Monad m] [MonadCanon m] [MonadRing m]
+    (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : m Expr := do
+  let rel := match kind with
+    | .le => s.leFn
+    | .lt => s.ltFn?.get!
+    | .eq => mkApp (mkConst ``Eq [mkLevelSucc s.u]) s.type
+  let rhs' := mkApp2 (← getAddFn) rhs (mkApp (← getIntCastFn) (mkIntLit 0))
+  return mkApp2 rel lhs rhs'
+
 def mkCommRingCnstr? (e : Expr) (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : RingM (Option (Cnstr Expr)) := do
   if !isArithTerm lhs && !isArithTerm rhs then
-    return some { u := lhs, v := rhs, k := 0, kind, h? := some (mkCnstrNorm0 s (← getRing).ringInst kind lhs rhs)  }
+    let e ← mkDenote0 s kind lhs rhs
+    return some { u := lhs, v := rhs, k := 0, e, kind, h? := some (mkCnstrNorm0 s (← getRing).ringInst kind lhs rhs)  }
   let some lhs ← reify? lhs (skipVar := false) | return none
   let some rhs ← reify? rhs (skipVar := false) | return none
   let p ← lhs.sub rhs |>.toPolyM
@@ -103,14 +119,15 @@ def mkCommRingCnstr? (e : Expr) (s : Struct) (kind : CnstrKind) (lhs rhs : Expr)
     | .le => mkLeIffProof s.leInst s.ltInst?.get! s.isPreorderInst s.orderedRingInst?.get! lhs rhs lhs' rhs'
     | .lt => mkLtIffProof s.leInst s.ltInst?.get! s.lawfulOrderLTInst?.get! s.isPreorderInst s.orderedRingInst?.get! lhs rhs lhs' rhs'
     | .eq => mkEqIffProof lhs rhs lhs' rhs'
-  let h := mkExpectedHint s e kind u (← rhs'.denoteExpr) h
+  let (e', h') := mkExpectedHint s e kind u (← rhs'.denoteExpr) h
   return some {
-    kind, u, v, k, h? := some h
+    kind, u, v, k, e := e', h? := some h'
   }
 
 def mkNonCommRingCnstr? (e : Expr) (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : NonCommRingM (Option (Cnstr Expr)) := do
   if !isArithTerm lhs && !isArithTerm rhs then
-    return some { u := lhs, v := rhs, k := 0, kind, h? := some (mkCnstrNorm0 s (← getRing).ringInst kind lhs rhs)  }
+    let e ← mkDenote0 s kind lhs rhs
+    return some { u := lhs, v := rhs, k := 0, e, kind, h? := some (mkCnstrNorm0 s (← getRing).ringInst kind lhs rhs)  }
   let some lhs ← ncreify? lhs (skipVar := false) | return none
   let some rhs ← ncreify? rhs (skipVar := false) | return none
   -- **TODO**: We need a `toPolyM_nc` similar `toPolyM`
@@ -125,9 +142,9 @@ def mkNonCommRingCnstr? (e : Expr) (s : Struct) (kind : CnstrKind) (lhs rhs : Ex
     | .le => mkNonCommLeIffProof s.leInst s.ltInst?.get! s.isPreorderInst s.orderedRingInst?.get! lhs rhs lhs' rhs'
     | .lt => mkNonCommLtIffProof s.leInst s.ltInst?.get! s.lawfulOrderLTInst?.get! s.isPreorderInst s.orderedRingInst?.get! lhs rhs lhs' rhs'
     | .eq => mkNonCommEqIffProof lhs rhs lhs' rhs'
-  let h := mkExpectedHint s e kind u (← rhs'.denoteExpr) h
+  let (e', h') := mkExpectedHint s e kind u (← rhs'.denoteExpr) h
   return some {
-    kind, u, v, k, h? := some h
+    kind, u, v, k, e := e', h? := some h'
   }
 
 def mkCnstr? (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) : OrderM (Option (Cnstr Expr)) := do
@@ -138,7 +155,7 @@ def mkCnstr? (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) : OrderM (Option (Cn
     else
       NonCommRingM.run ringId <| mkNonCommRingCnstr? e s kind lhs rhs
   else
-    return some { kind, u := lhs, v := rhs }
+    return some { kind, u := lhs, v := rhs, e }
 
 def setStructId (e : Expr) : OrderM Unit := do
   let structId ← getStructId
@@ -175,18 +192,15 @@ def internalizeCnstr (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) : OrderM Uni
   let u ← mkNode c.u
   let v ← mkNode c.v
   let c := { c with u, v }
-/-
-  -- **TODO**: propagate
-  if let some k ← getDist? u v then
-    if k ≤ c.k then
-      propagateEqTrue e u v k c.k
-      return ()
-  if let some k ← getDist? v u then
-    if k + c.k < 0 then
-      propagateEqFalse e v u k c.k
-      return ()
-  trace[grind.offset.internalize] "{e} ↦ {c}"
--/
+  if let some k' := c.getWeight? then
+    if let some k ← getDist? u v then
+      if k ≤ k' then
+        propagateEqTrue c e u v k k'
+        return ()
+    if let some k ← getDist? v u then
+      if (k + k').isNeg then
+        propagateEqFalse c e v u k k'
+        return ()
   setStructId e
   modifyStruct fun s => { s with
     cnstrs   := s.cnstrs.insert { expr := e } c
@@ -220,7 +234,10 @@ def adaptNat (e : Expr) : GoalM Expr := do
       let h := mkApp6 (mkConst ``Nat.ToInt.eq_eq) lhs rhs lhs' rhs' h₁ h₂
       pure (eNew, h)
     | _ => return e
-  modify' fun s => { s with cnstrsMap := s.cnstrsMap.insert { expr := e } (eNew, h) }
+  modify' fun s => { s with
+    cnstrsMap    := s.cnstrsMap.insert { expr := e } (eNew, h)
+    cnstrsMapInv := s.cnstrsMapInv.insert { expr := eNew } (e, h)
+  }
   return eNew
 
 def adapt (α : Expr) (e : Expr) : GoalM (Expr × Expr) := do

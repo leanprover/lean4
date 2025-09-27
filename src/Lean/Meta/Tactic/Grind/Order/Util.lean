@@ -25,7 +25,7 @@ def Cnstr.pp (c : Cnstr NodeId) : OrderM MessageData := do
 def Weight.compare (a b : Weight) : Ordering :=
   if a.k < b.k then
     .lt
-  else if b.k > a.k then
+  else if a.k > b.k then
     .gt
   else if a.strict == b.strict then
     .eq
@@ -66,5 +66,20 @@ def Weight.isNeg (a : Weight) : Bool :=
 
 def Weight.isZero (a : Weight) : Bool :=
   a.k == 0 && !a.strict
+
+instance : ToString Weight where
+  toString a := if a.strict then s!"{a.k}-ε" else s!"{a.k}"
+
+def ToPropagate.pp (todo : ToPropagate) : OrderM MessageData := do
+  match todo with
+  | .eqTrue _ e u v k k' => return m!"eqTrue: {e}, {← getExpr u}, {← getExpr v}, {k}, {k'}"
+  | .eqFalse _ e u v k k' => return m!"eqFalse: {e}, {← getExpr u}, {← getExpr v}, {k}, {k'}"
+  | .eq u v => return m!"eq: {← getExpr u}, {← getExpr v}"
+
+def Cnstr.getWeight? (c : Cnstr α) : Option Weight :=
+  match c.kind with
+  | .le => some { k := c.k }
+  | .lt => some { k := c.k, strict := true }
+  | .eq => none
 
 end Lean.Meta.Grind.Order

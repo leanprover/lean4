@@ -18,6 +18,12 @@ builtin_initialize registerTraceClass `grind.order.assert
 builtin_initialize registerTraceClass `grind.order.internalize
 builtin_initialize registerTraceClass `grind.order.internalize.term
 
+builtin_initialize registerTraceClass `grind.debug.order
+builtin_initialize registerTraceClass `grind.debug.order.add_edge (inherited := true)
+builtin_initialize registerTraceClass `grind.debug.order.propagate (inherited := true)
+builtin_initialize registerTraceClass `grind.debug.order.check_eq_true (inherited := true)
+builtin_initialize registerTraceClass `grind.debug.order.check_eq_false (inherited := true)
+
 builtin_initialize
   orderExt.setMethods
     (internalize := Order.internalize)

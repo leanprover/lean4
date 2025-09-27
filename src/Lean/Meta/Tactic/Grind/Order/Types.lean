@@ -31,6 +31,8 @@ structure Cnstr (α : Type) where
   u      : α
   v      : α
   k      : Int := 0
+  /-- Denotation of this constraint as an expression. -/
+  e      : Expr
   h?     : Option Expr := none
   deriving Inhabited
 
@@ -55,8 +57,8 @@ Thus, we store the information to be propagated into a list.
 See field `propagate` in `State`.
 -/
 inductive ToPropagate where
-  | eqTrue (e : Expr) (u v : NodeId) (k k' : Weight)
-  | eqFalse (e : Expr) (u v : NodeId) (k k' : Weight)
+  | eqTrue (c : Cnstr NodeId) (e : Expr) (u v : NodeId) (k k' : Weight)
+  | eqFalse (c : Cnstr NodeId) (e : Expr) (u v : NodeId) (k k' : Weight)
   | eq (u v : NodeId)
   deriving Inhabited
 
@@ -102,11 +104,6 @@ structure Struct where
   -/
   cnstrsOf           : PHashMap (NodeId × NodeId) (List (Cnstr NodeId × Expr)) := {}
   /--
-  Stores constraints that have been asserted to `False`, but order is not a linear
-  preorder.
-  -/
-  negated            : PHashMap (NodeId × NodeId) (List (Cnstr NodeId × Expr)) := {}
-  /--
   For each node with id `u`, `sources[u]` contains
   pairs `(v, k)` s.t. there is a path from `v` to `u` with weight `k`.
   -/
@@ -142,7 +139,9 @@ structure State where
   Example: given `x y : Nat`, `x ≤ y + 1` is mapped to `Int.ofNat x ≤ Int.ofNat y + 1`, and proof
   of equivalence.
   -/
-  cnstrsMap : PHashMap ExprPtr (Expr × Expr) := {}
+  cnstrsMap    : PHashMap ExprPtr (Expr × Expr) := {}
+  /-- `cnstrsMap` inverse -/
+  cnstrsMapInv : PHashMap ExprPtr (Expr × Expr) := {}
   deriving Inhabited
 
 builtin_initialize orderExt : SolverExtension State ← registerSolverExtension (return {})

@@ -118,7 +118,7 @@ If it can, adds a new entry to propagation list.
 -/
 def checkEqTrue (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : OrderM Bool := do
   if (← alreadyInternalized e <&&> isEqTrue e) then return true
-  let some k' := c.getWeight? | return false
+  let k' := c.getWeight
   trace[grind.debug.order.check_eq_true] "{← getExpr u}, {← getExpr v}, {k}, {k'}, {← c.pp}"
   if k ≤ k' then
     pushToPropagate <| .eqTrue c e u v k k'
@@ -133,7 +133,7 @@ If it can, adds a new entry to propagation list.
 -/
 def checkEqFalse (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : OrderM Bool := do
   if (← alreadyInternalized e <&&> isEqFalse e) then return true
-  let some k' := c.getWeight? | return false
+  let k' := c.getWeight
   trace[grind.debug.order.check_eq_false] "{← getExpr u}, {← getExpr v}, {k}, {k'} {← c.pp}"
   if (k + k').isNeg  then
     pushToPropagate <| .eqFalse c e u v k k'
@@ -287,5 +287,26 @@ where
 
 builtin_grind_propagator propagateLE ↓LE.le := propagateIneq
 builtin_grind_propagator propagateLT ↓LT.lt := propagateIneq
+
+public def processNewEq (a b : Expr) : GoalM Unit := do
+  unless isSameExpr a b do
+    let some id₁ ← getStructIdOf? a | return ()
+    let some id₂ ← getStructIdOf? b | return ()
+    unless id₁ == id₂ do return ()
+    OrderM.run id₁ do
+      trace[grind.order.assert] "{a} = {b}"
+      let u ← getNodeId a
+      let v ← getNodeId b
+      let h ← mkEqProof a b
+      if (← isRing) then
+        let h₁ := mkApp3 (← mkOrdRingPrefix ``Grind.Order.le_of_eq_1_k) a b h
+        let h₂ := mkApp3 (← mkOrdRingPrefix ``Grind.Order.le_of_eq_2_k) a b h
+        addEdge u v {} h₁
+        addEdge v u {} h₂
+      else
+        let h₁ := mkApp3 (← mkLePreorderPrefix ``Grind.Order.le_of_eq_1) a b h
+        let h₂ := mkApp3 (← mkLePreorderPrefix ``Grind.Order.le_of_eq_2) a b h
+        addEdge u v {} h₁
+        addEdge v u {} h₂
 
 end Lean.Meta.Grind.Order

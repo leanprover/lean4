@@ -33,8 +33,26 @@ theorem eq_trans_true' {p q : Prop} (h₁ : p = q) (h₂ : p = True) : q = True 
 theorem eq_trans_false' {p q : Prop} (h₁ : p = q) (h₂ : p = False) : q = False := by
   subst p; simp [*]
 
-theorem le_of_eq {α} [LE α] [Std.IsPreorder α]
+theorem le_of_eq_1 {α} [LE α] [Std.IsPreorder α]
     {a b : α} : a = b → a ≤ b := by
+  intro h; subst a; apply Std.IsPreorder.le_refl
+
+theorem le_of_eq_2 {α} [LE α] [Std.IsPreorder α]
+    {a b : α} : a = b → b ≤ a := by
+  intro h; subst a; apply Std.IsPreorder.le_refl
+
+/-
+**Note**: `le_of_eq_1_k` and `le_of_eq_2_k` contain unnecessary instances, but the extra arguments
+simplify the proof generation in `grind order` (fewer cases).
+-/
+theorem le_of_eq_1_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
+    {a b : α} : a = b → a ≤ b + Int.cast (R := α) 0 := by
+  rw [Ring.intCast_zero, Semiring.add_zero]
+  intro h; subst a; apply Std.IsPreorder.le_refl
+
+theorem le_of_eq_2_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
+    {a b : α} : a = b → b ≤ a + Int.cast (R := α) 0 := by
+  rw [Ring.intCast_zero, Semiring.add_zero]
   intro h; subst a; apply Std.IsPreorder.le_refl
 
 theorem le_of_not_le {α} [LE α] [Std.IsLinearPreorder α]

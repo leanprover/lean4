@@ -27,5 +27,6 @@ builtin_initialize registerTraceClass `grind.debug.order.check_eq_false (inherit
 builtin_initialize
   orderExt.setMethods
     (internalize := Order.internalize)
+    (newEq       := Order.processNewEq)
 
 end Lean.Meta.Grind.Order

@@ -66,4 +66,7 @@ def isLinearPreorder : OrderM Bool :=
 def hasLt : OrderM Bool :=
   return (← getStruct).lawfulOrderLTInst?.isSome
 
+def isInt : OrderM Bool :=
+  return isSameExpr (← getStruct).type (← getIntExpr)
+
 end Lean.Meta.Grind.Order

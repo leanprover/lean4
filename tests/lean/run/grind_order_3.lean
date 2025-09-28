@@ -15,3 +15,6 @@ example [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsLinearPreorder α] [CommRi
 example [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsLinearPreorder α] [CommRing α] [OrderedRing α]
     (a b c d : α) : a - b ≤ 5 → ¬ (c < b) → ¬ (d ≤ c + 2) → d ≤ a - 8 → False := by
   grind -linarith (splits := 0)
+
+example (p : Prop) (a b c : Int) : (p ↔ b ≤ a) → (p ↔ c ≤ b) → ¬ p → c ≤ a + 1 → False := by
+  grind -linarith -cutsat (splits := 0)

@@ -40,3 +40,11 @@ example [LE α] [Std.IsPreorder α]
 example [LE α] [Std.IsPartialOrder α]
     (a b c : α) : a ≤ b → b ≤ c → c ≤ a → a = c := by
   grind -linarith -verbose
+
+example [LE α] [Std.IsLinearPreorder α]
+    (a b c d e : α) : a ≤ b → b = c → d = c → d ≤ e → a ≤ e := by
+  grind -linarith (splits := 0)
+
+example [LE α] [Std.IsLinearPreorder α]
+    (a b c d e : α) : a ≥ b → d = c → c = b → d ≥ e → a ≥ e := by
+  grind -linarith (splits := 0)

@@ -33,8 +33,12 @@ theorem eq_trans_true' {p q : Prop} (h₁ : p = q) (h₂ : p = True) : q = True 
 theorem eq_trans_false' {p q : Prop} (h₁ : p = q) (h₂ : p = False) : q = False := by
   subst p; simp [*]
 
-theorem le_of_eq {α} [LE α] [Std.IsPreorder α]
+theorem le_of_eq_1 {α} [LE α] [Std.IsPreorder α]
     {a b : α} : a = b → a ≤ b := by
+  intro h; subst a; apply Std.IsPreorder.le_refl
+
+theorem le_of_eq_2 {α} [LE α] [Std.IsPreorder α]
+    {a b : α} : a = b → b ≤ a := by
   intro h; subst a; apply Std.IsPreorder.le_refl
 
 theorem le_of_not_le {α} [LE α] [Std.IsLinearPreorder α]

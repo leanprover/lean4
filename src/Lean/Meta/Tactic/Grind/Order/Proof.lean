@@ -12,7 +12,7 @@ namespace Lean.Meta.Grind.Order
 /--
 Returns `declName α leInst isPreorderInst`
 -/
-def mkLePreorderPrefix (declName : Name) : OrderM Expr := do
+public def mkLePreorderPrefix (declName : Name) : OrderM Expr := do
   let s ← getStruct
   return mkApp3 (mkConst declName [s.u]) s.type s.leInst s.isPreorderInst
 

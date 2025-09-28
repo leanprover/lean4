@@ -288,4 +288,22 @@ where
 builtin_grind_propagator propagateLE ↓LE.le := propagateIneq
 builtin_grind_propagator propagateLT ↓LT.lt := propagateIneq
 
+public def processNewEq (a b : Expr) : GoalM Unit := do
+  unless isSameExpr a b do
+    let some id₁ ← getStructIdOf? a | return ()
+    let some id₂ ← getStructIdOf? b | return ()
+    unless id₁ == id₂ do return ()
+    OrderM.run id₁ do
+      trace[grind.order.assert] "{a} = {b}"
+      let u ← getNodeId a
+      let v ← getNodeId b
+      let h ← mkEqProof a b
+      let h₁ := mkApp3 (← mkLePreorderPrefix ``Grind.Order.le_of_eq_1) a b h
+      let h₂ := mkApp3 (← mkLePreorderPrefix ``Grind.Order.le_of_eq_2) a b h
+      if (← isRing) then
+        return ()
+      else
+        addEdge u v {} h₁
+        addEdge v u {} h₂
+
 end Lean.Meta.Grind.Order

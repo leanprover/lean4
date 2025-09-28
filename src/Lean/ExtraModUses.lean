@@ -92,8 +92,8 @@ public def isExtraRevModUse (env : Environment) (modIdx : ModuleIdx) : Bool :=
 
 /-- Records this module to be preserved as an import by `shake`. -/
 public def recordExtraRevUseOfCurrentModule : m Unit := do
-  if isExtraRevModUseExt.getEntries (← getEnv) |>.isEmpty then
-    modifyEnv fun env => isExtraRevModUseExt.addEntry env ()
+  if isExtraRevModUseExt.getEntries (asyncMode := .local) (← getEnv) |>.isEmpty then
+    modifyEnv (isExtraRevModUseExt.addEntry · ())
 
 builtin_initialize
   registerTraceClass `extraModUses

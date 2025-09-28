@@ -54,7 +54,7 @@ public def mkLeLinearPrefix (declName : Name) : OrderM Expr := do
 /--
 Returns `declName α leInst ltInst lawfulOrderLtInst isPreorderInst ringInst ordRingInst`
 -/
-def mkOrdRingPrefix (declName : Name) : OrderM Expr := do
+public def mkOrdRingPrefix (declName : Name) : OrderM Expr := do
   let s ← getStruct
   let h ← mkLeLtPreorderPrefix declName
   return mkApp2 h s.ringInst?.get! s.orderedRingInst?.get!

@@ -48,3 +48,11 @@ example [LE α] [Std.IsLinearPreorder α]
 example [LE α] [Std.IsLinearPreorder α]
     (a b c d e : α) : a ≥ b → d = c → c = b → d ≥ e → a ≥ e := by
   grind -linarith (splits := 0)
+
+example [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsLinearPreorder α] [CommRing α] [OrderedRing α]
+    (a b c d e : α) : a ≥ b → d = c → c = b → d ≥ e → a ≥ e := by
+  grind -linarith (splits := 0)
+
+example [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsLinearPreorder α] [CommRing α] [OrderedRing α]
+    (a b c d e : α) : a + 2 ≥ b → d = c → c = b → d + 1 ≥ e → a + 3 ≥ e := by
+  grind -linarith (splits := 0)

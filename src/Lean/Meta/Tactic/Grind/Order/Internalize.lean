@@ -261,7 +261,7 @@ public def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     | LT.lt _ _ lhs rhs => if (← hasLt) then internalizeCnstr e .lt lhs rhs
     | Eq _ lhs rhs => internalizeCnstr e .eq lhs rhs
     | _ =>
-      -- TODO
+      -- **Note**: We currently do not internalize offset terms nested in other terms.
       return ()
 
 end Lean.Meta.Grind.Order

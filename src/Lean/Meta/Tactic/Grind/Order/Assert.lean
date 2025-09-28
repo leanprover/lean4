@@ -298,11 +298,14 @@ public def processNewEq (a b : Expr) : GoalM Unit := do
       let u ← getNodeId a
       let v ← getNodeId b
       let h ← mkEqProof a b
-      let h₁ := mkApp3 (← mkLePreorderPrefix ``Grind.Order.le_of_eq_1) a b h
-      let h₂ := mkApp3 (← mkLePreorderPrefix ``Grind.Order.le_of_eq_2) a b h
       if (← isRing) then
-        return ()
+        let h₁ := mkApp3 (← mkOrdRingPrefix ``Grind.Order.le_of_eq_1_k) a b h
+        let h₂ := mkApp3 (← mkOrdRingPrefix ``Grind.Order.le_of_eq_2_k) a b h
+        addEdge u v {} h₁
+        addEdge v u {} h₂
       else
+        let h₁ := mkApp3 (← mkLePreorderPrefix ``Grind.Order.le_of_eq_1) a b h
+        let h₂ := mkApp3 (← mkLePreorderPrefix ``Grind.Order.le_of_eq_2) a b h
         addEdge u v {} h₁
         addEdge v u {} h₂
 

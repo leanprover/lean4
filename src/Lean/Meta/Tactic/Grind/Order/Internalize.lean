@@ -69,7 +69,6 @@ def mkExpectedHint (s : Struct) (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) (
   let rel := match kind with
     | .le => s.leFn
     | .lt => s.ltFn?.get!
-    | .eq => mkApp (mkConst ``Eq [mkLevelSucc s.u]) s.type
   let e' := mkApp2 rel lhs rhs
   let prop :=  mkApp2 propEq e e'
   let h' := mkExpectedPropHint h prop
@@ -88,7 +87,6 @@ def mkCnstrNorm0 (s : Struct) (ringInst : Expr) (kind : CnstrKind) (lhs rhs : Ex
   match kind with
   | .le => mkLeNorm0 s ringInst lhs rhs
   | .lt => mkLtNorm0 s ringInst lhs rhs
-  | .eq => mkEqNorm0 s ringInst lhs rhs
 
 /--
 Returns `rel lhs (rhs + 0)`
@@ -98,7 +96,6 @@ def mkDenote0 [MonadLiftT MetaM m] [MonadError m] [Monad m] [MonadCanon m] [Mona
   let rel := match kind with
     | .le => s.leFn
     | .lt => s.ltFn?.get!
-    | .eq => mkApp (mkConst ``Eq [mkLevelSucc s.u]) s.type
   let rhs' := mkApp2 (← getAddFn) rhs (mkApp (← getIntCastFn) (mkIntLit 0))
   return mkApp2 rel lhs rhs'
 
@@ -118,7 +115,6 @@ def mkCommRingCnstr? (e : Expr) (s : Struct) (kind : CnstrKind) (lhs rhs : Expr)
   let h ← match kind with
     | .le => mkLeIffProof s.leInst s.ltInst?.get! s.isPreorderInst s.orderedRingInst?.get! lhs rhs lhs' rhs'
     | .lt => mkLtIffProof s.leInst s.ltInst?.get! s.lawfulOrderLTInst?.get! s.isPreorderInst s.orderedRingInst?.get! lhs rhs lhs' rhs'
-    | .eq => mkEqIffProof lhs rhs lhs' rhs'
   let (e', h') := mkExpectedHint s e kind u (← rhs'.denoteExpr) h
   return some {
     kind, u, v, k, e := e', h? := some h'
@@ -141,7 +137,6 @@ def mkNonCommRingCnstr? (e : Expr) (s : Struct) (kind : CnstrKind) (lhs rhs : Ex
   let h ← match kind with
     | .le => mkNonCommLeIffProof s.leInst s.ltInst?.get! s.isPreorderInst s.orderedRingInst?.get! lhs rhs lhs' rhs'
     | .lt => mkNonCommLtIffProof s.leInst s.ltInst?.get! s.lawfulOrderLTInst?.get! s.isPreorderInst s.orderedRingInst?.get! lhs rhs lhs' rhs'
-    | .eq => mkNonCommEqIffProof lhs rhs lhs' rhs'
   let (e', h') := mkExpectedHint s e kind u (← rhs'.denoteExpr) h
   return some {
     kind, u, v, k, e := e', h? := some h'
@@ -192,15 +187,15 @@ def internalizeCnstr (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) : OrderM Uni
   let u ← mkNode c.u
   let v ← mkNode c.v
   let c := { c with u, v }
-  if let some k' := c.getWeight? then
-    if let some k ← getDist? u v then
-      if k ≤ k' then
-        propagateEqTrue c e u v k k'
-        return ()
-    if let some k ← getDist? v u then
-      if (k + k').isNeg then
-        propagateEqFalse c e v u k k'
-        return ()
+  let k' := c.getWeight
+  if let some k ← getDist? u v then
+    if k ≤ k' then
+      propagateEqTrue c e u v k k'
+      return ()
+  if let some k ← getDist? v u then
+    if (k + k').isNeg then
+      propagateEqFalse c e v u k k'
+      return ()
   setStructId e
   modifyStruct fun s => { s with
     cnstrs   := s.cnstrs.insert { expr := e } c
@@ -223,12 +218,6 @@ def adaptNat (e : Expr) : GoalM Expr := do
       let (rhs', h₂) ← natToInt rhs
       let eNew := mkIntLT lhs' rhs'
       let h := mkApp6 (mkConst ``Nat.ToInt.lt_eq) lhs rhs lhs' rhs' h₁ h₂
-      pure (eNew, h)
-    | Eq _ lhs rhs =>
-      let (lhs', h₁) ← natToInt lhs
-      let (rhs', h₂) ← natToInt rhs
-      let eNew := mkIntEq lhs' rhs'
-      let h := mkApp6 (mkConst ``Nat.ToInt.eq_eq) lhs rhs lhs' rhs' h₁ h₂
       pure (eNew, h)
     | _ => return e
   modify' fun s => { s with
@@ -259,7 +248,6 @@ public def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     match_expr e with
     | LE.le _ _ lhs rhs => internalizeCnstr e .le lhs rhs
     | LT.lt _ _ lhs rhs => if (← hasLt) then internalizeCnstr e .lt lhs rhs
-    | Eq _ lhs rhs => internalizeCnstr e .eq lhs rhs
     | _ =>
       -- **Note**: We currently do not internalize offset terms nested in other terms.
       return ()

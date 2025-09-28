@@ -118,7 +118,7 @@ If it can, adds a new entry to propagation list.
 -/
 def checkEqTrue (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : OrderM Bool := do
   if (← alreadyInternalized e <&&> isEqTrue e) then return true
-  let some k' := c.getWeight? | return false
+  let k' := c.getWeight
   trace[grind.debug.order.check_eq_true] "{← getExpr u}, {← getExpr v}, {k}, {k'}, {← c.pp}"
   if k ≤ k' then
     pushToPropagate <| .eqTrue c e u v k k'
@@ -133,7 +133,7 @@ If it can, adds a new entry to propagation list.
 -/
 def checkEqFalse (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : OrderM Bool := do
   if (← alreadyInternalized e <&&> isEqFalse e) then return true
-  let some k' := c.getWeight? | return false
+  let k' := c.getWeight
   trace[grind.debug.order.check_eq_false] "{← getExpr u}, {← getExpr v}, {k}, {k'} {← c.pp}"
   if (k + k').isNeg  then
     pushToPropagate <| .eqFalse c e u v k k'

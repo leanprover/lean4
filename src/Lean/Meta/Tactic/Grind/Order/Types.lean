@@ -17,7 +17,7 @@ Solver for preorders, partial orders, linear orders, and support for offsets.
 abbrev NodeId := Nat
 
 inductive CnstrKind where
-  | le | lt | eq
+  | le | lt
   deriving Inhabited
 
 /--

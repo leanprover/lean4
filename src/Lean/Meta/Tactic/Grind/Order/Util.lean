@@ -16,7 +16,6 @@ def Cnstr.pp (c : Cnstr NodeId) : OrderM MessageData := do
   let op := match c.kind with
     | .le => "≤"
     | .lt => "<"
-    | .eq => "="
   if c.k != 0 then
     return m!"{Arith.quoteIfArithTerm u} {op} {Arith.quoteIfArithTerm v} + {c.k}"
   else
@@ -76,10 +75,9 @@ def ToPropagate.pp (todo : ToPropagate) : OrderM MessageData := do
   | .eqFalse _ e u v k k' => return m!"eqFalse: {e}, {← getExpr u}, {← getExpr v}, {k}, {k'}"
   | .eq u v => return m!"eq: {← getExpr u}, {← getExpr v}"
 
-def Cnstr.getWeight? (c : Cnstr α) : Option Weight :=
+def Cnstr.getWeight (c : Cnstr α) : Weight :=
   match c.kind with
-  | .le => some { k := c.k }
-  | .lt => some { k := c.k, strict := true }
-  | .eq => none
+  | .le => { k := c.k }
+  | .lt => { k := c.k, strict := true }
 
 end Lean.Meta.Grind.Order

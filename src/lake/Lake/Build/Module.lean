@@ -617,9 +617,9 @@ private def Module.restoreAllArtifacts (mod : Module) (cached : ModuleOutputArti
     oleanServer? := ← restoreSome mod.oleanServerFile cached.oleanServer?
     oleanPrivate? := ← restoreSome mod.oleanPrivateFile cached.oleanPrivate?
     ilean := ← restoreModuleArtifact mod.ileanFile cached.ilean
-    ir? := ← restoreSome mod.oleanFile cached.ir?
+    ir? := ← restoreSome mod.irFile cached.ir?
     c := ← restoreModuleArtifact mod.cFile cached.c
-    bc? := ← restoreSome mod.oleanFile cached.bc?
+    bc? := ← restoreSome mod.bcFile cached.bc?
   }
 where
   @[inline] restoreSome file art? :=

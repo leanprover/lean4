@@ -136,22 +136,31 @@ test_cmd_eq 6 wc -l < .lake/outputs.jsonl
 
 # Verify all artifacts end up in the cache directory with `restoreAllArtifacts`
 test_cmd cp -r "$CACHE_DIR" .lake/cache-backup
-test_cmd rm -rf "$CACHE_DIR"
+test_cmd rm -rf "$CACHE_DIR" .lake/build
 test_run build -R -KrestoreAll=true \
   test:exe Test:static Test:shared +Test:o.export +Test:o.noexport +Module
-test_cached test:exe !
-test_cached Test:static !
-test_cached Test:shared !
-test_cached +Test:o.export !
-test_cached +Test:o.noexport !
-test_cached +Test:dynlib !
-test_cached +Test:olean !
-test_cached +Test:ilean !
-test_cached +Test:c !
-test_cached +Module:olean !
-test_cached +Module:olean.server !
-test_cached +Module:olean.private !
-test_cached +Module:ir !
+test_restored() {
+  target="$1"; shift
+  art="$($LAKE query $target)"
+  echo "! artifact cached: $target -> $art"
+  test ! "$(norm_dirname "$art")" = "$CACHE_DIR/artifacts"
+  if [ -n "${1:-}" ]; then
+    test "$(basename "$art")" = "$1"
+  fi
+}
+test_restored test:exe
+test_restored Test:static
+test_restored Test:shared
+test_restored +Test:o.export Test.c.o.export
+test_restored +Test:o.noexport Test.c.o.noexport
+test_restored +Test:dynlib
+test_restored +Test:olean Test.olean
+test_restored +Test:ilean Test.ilean
+test_restored +Test:c Test.c
+test_restored +Module:olean Module.olean
+test_restored +Module:olean.server Module.olean.server
+test_restored +Module:olean.private Module.olean.private
+test_restored +Module:ir Module.ir
 
 # Verify that invalid outputs do not break Lake
 if command -v jq > /dev/null; then # skip if no jq found

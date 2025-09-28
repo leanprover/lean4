@@ -45,11 +45,26 @@ public def mkLeLtLinearPrefix (declName : Name) : OrderM Expr := do
   return mkApp (← mkLeLtPrefix declName) s.isLinearPreInst?.get!
 
 /--
+Returns `declName α leInst isLinearPreorderInst`
+-/
+public def mkLeLinearPrefix (declName : Name) : OrderM Expr := do
+  let s ← getStruct
+  return mkApp3 (mkConst declName [s.u]) s.type s.leInst s.isLinearPreInst?.get!
+
+/--
 Returns `declName α leInst ltInst lawfulOrderLtInst isPreorderInst ringInst ordRingInst`
 -/
 def mkOrdRingPrefix (declName : Name) : OrderM Expr := do
   let s ← getStruct
   let h ← mkLeLtPreorderPrefix declName
+  return mkApp2 h s.ringInst?.get! s.orderedRingInst?.get!
+
+/--
+Returns `declName α leInst ltInst lawfulOrderLtInst isLinearPreorderInst ringInst ordRingInst`
+-/
+public def mkLinearOrdRingPrefix (declName : Name) : OrderM Expr := do
+  let s ← getStruct
+  let h ← mkLeLtLinearPrefix declName
   return mkApp2 h s.ringInst?.get! s.orderedRingInst?.get!
 
 def mkTransCoreProof (u v w : Expr) (strict₁ strict₂ : Bool) (h₁ h₂ : Expr) : OrderM Expr := do

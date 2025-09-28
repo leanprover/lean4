@@ -226,8 +226,39 @@ def assertIneqTrue (c : Cnstr NodeId) (e : Expr) (he : Expr) : OrderM Unit := do
 /--
 Asserts constraint `c` associated with `e` where `he : e = False`.
 -/
-def assertIneqFalse (c : Cnstr NodeId) (_e : Expr) (_he : Expr) : OrderM Unit := do
+def assertIneqFalse (c : Cnstr NodeId) (e : Expr) (he : Expr) : OrderM Unit := do
+  unless (← isLinearPreorder) do return ()
   trace[grind.order.assert] "¬ {← c.pp}"
+  let h ←  if let some h := c.h? then
+    pure <| mkApp4 (mkConst ``Grind.Order.eq_mp_not) e c.e h (mkOfEqFalseCore e he)
+  else
+    pure <| mkOfEqFalseCore e he
+  if (← isRing) then
+    let declName := if c.kind matches .lt then
+      ``Grind.Order.le_of_not_lt_k
+    else
+      ``Grind.Order.lt_of_not_le_k
+    let h' ← mkLinearOrdRingPrefix declName
+    let mut k' := -c.k
+    let mut h := mkApp6 h' (← getExpr c.u) (← getExpr c.v) (toExpr c.k) (toExpr k') eagerReflBoolTrue h
+    let mut strict := c.kind matches .le
+    if (← isInt) && strict then
+      h := mkApp6 (mkConst ``Grind.Order.int_lt) (← getExpr c.v) (← getExpr c.u) (toExpr k') (toExpr (k'-1)) eagerReflBoolTrue h
+      k'     := k' - 1
+      strict := !strict
+    addEdge c.v c.u { k := k', strict } h
+  else if c.kind matches .lt then
+    let h' ← mkLeLtLinearPrefix ``Grind.Order.le_of_not_lt
+    let h := mkApp3 h' (← getExpr c.u) (← getExpr c.v) h
+    addEdge c.v c.u { strict := false } h
+  else if (← hasLt) then
+    let h' ← mkLeLtLinearPrefix ``Grind.Order.lt_of_not_le
+    let h := mkApp3 h' (← getExpr c.u) (← getExpr c.v) h
+    addEdge c.v c.u { strict := true } h
+  else
+    let h' ← mkLeLinearPrefix ``Grind.Order.le_of_not_le
+    let h := mkApp3 h' (← getExpr c.u) (← getExpr c.v) h
+    addEdge c.v c.u { strict := false } h
 
 def getStructIdOf? (e : Expr) : GoalM (Option Nat) := do
   return (← get').exprToStructId.find? { expr := e }

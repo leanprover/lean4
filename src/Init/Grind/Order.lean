@@ -10,10 +10,15 @@ import Init.Grind.Ring
 public section
 namespace Lean.Grind.Order
 
+attribute [local instance] Ring.intCast
+
 /-!
 Helper theorems to assert constraints
 -/
 theorem eq_mp {p q : Prop} (h₁ : p = q) (h₂ : p) : q := by
+  subst p; simp [*]
+
+theorem eq_mp_not {p q : Prop} (h₁ : p = q) (h₂ : ¬ p) : ¬ q := by
   subst p; simp [*]
 
 theorem eq_trans_true {p q : Prop} (h₁ : p = q) (h₂ : q = True) : p = True := by
@@ -29,24 +34,24 @@ theorem eq_trans_false' {p q : Prop} (h₁ : p = q) (h₂ : p = False) : q = Fal
   subst p; simp [*]
 
 theorem le_of_eq {α} [LE α] [Std.IsPreorder α]
-    (a b : α) : a = b → a ≤ b := by
+    {a b : α} : a = b → a ≤ b := by
   intro h; subst a; apply Std.IsPreorder.le_refl
 
 theorem le_of_not_le {α} [LE α] [Std.IsLinearPreorder α]
-    (a b : α) : ¬ a ≤ b → b ≤ a := by
+    {a b : α} : ¬ a ≤ b → b ≤ a := by
   intro h
   have := Std.IsLinearPreorder.le_total a b
   cases this; contradiction; assumption
 
 theorem lt_of_not_le {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsLinearPreorder α]
-    (a b : α) : ¬ a ≤ b → b < a := by
+    {a b : α} : ¬ a ≤ b → b < a := by
   intro h
   rw [Std.LawfulOrderLT.lt_iff]
   have := Std.IsLinearPreorder.le_total a b
   cases this; contradiction; simp [*]
 
 theorem le_of_not_lt {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsLinearPreorder α]
-    (a b : α) : ¬ a < b → b ≤ a := by
+    {a b : α} : ¬ a < b → b ≤ a := by
   rw [Std.LawfulOrderLT.lt_iff]
   open Classical in
   rw [Classical.not_and_iff_not_or_not, Classical.not_not]
@@ -56,8 +61,26 @@ theorem le_of_not_lt {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsLinearPr
     cases this; contradiction; assumption
   next => assumption
 
-theorem int_lt {x y k : Int} : x < y + k → x ≤ y + (k-1) := by
-  omega
+theorem le_of_not_lt_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsLinearPreorder α] [Ring α] [OrderedRing α]
+    {a b : α} {k k' : Int} : k'.beq' (-k) → ¬ a < b + k → b ≤ a + k'  := by
+  simp; intro _ h; subst k'
+  replace h := le_of_not_lt h
+  replace h := OrderedAdd.add_le_left h (-k)
+  rw [Semiring.add_assoc, AddCommGroup.add_neg_cancel, Semiring.add_zero] at h
+  rw [Ring.intCast_neg]
+  assumption
+
+theorem lt_of_not_le_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsLinearPreorder α] [Ring α] [OrderedRing α]
+    {a b : α} {k k' : Int} : k'.beq' (-k) → ¬ a ≤ b + k → b < a + k'  := by
+  simp; intro _ h; subst k'
+  replace h := lt_of_not_le h
+  replace h := OrderedAdd.add_lt_left h (-k)
+  rw [Semiring.add_assoc, AddCommGroup.add_neg_cancel, Semiring.add_zero] at h
+  rw [Ring.intCast_neg]
+  assumption
+
+theorem int_lt {x y k k' : Int} : k'.beq' (k-1) → x < y + k → x ≤ y + k' := by
+  simp; intro; subst k'; omega
 
 /-!
 Helper theorem for equality propagation
@@ -88,8 +111,6 @@ theorem lt_unsat {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α]
 /-!
 Transitivity with offsets
 -/
-
-attribute [local instance] Ring.intCast
 
 theorem le_trans_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
     {a b c : α} {k₁ k₂ : Int} (k : Int) (h₁ : a ≤ b + k₁) (h₂ : b ≤ c + k₂) : k == k₂ + k₁ → a ≤ c + k := by

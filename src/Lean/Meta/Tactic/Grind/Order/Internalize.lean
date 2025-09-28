@@ -209,9 +209,6 @@ def internalizeCnstr (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) : OrderM Uni
       s.cnstrsOf.insert (u, v) cs
   }
 
-def hasLt : OrderM Bool :=
-  return (← getStruct).ltFn?.isSome
-
 open Arith.Cutsat in
 def adaptNat (e : Expr) : GoalM Expr := do
   let (eNew, h) ← match_expr e with

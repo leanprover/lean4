@@ -332,6 +332,7 @@ private def alreadyInternalized (e : Expr) : GoalM Bool := do
   return s.cnstrs.contains { expr := e } || s.nodeMap.contains { expr := e }
 
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
+  unless (← getConfig).offset do return ()
   if (← alreadyInternalized e) then
     return ()
   let z ← getNatZeroExpr

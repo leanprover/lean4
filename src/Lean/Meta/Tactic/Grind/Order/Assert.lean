@@ -211,9 +211,11 @@ where
         /- Check whether new path: `i -(k₁)-> u -(k)-> v -(k₂) -> j` is shorter -/
         updateIfShorter i j (k₁+k+k₂) v
 
-def assertIneqTrue (c : Cnstr NodeId) (e : Expr) : OrderM Unit := do
+/--
+Asserts constraint `c` associated with `e` where `he : e = True`.
+-/
+def assertIneqTrue (c : Cnstr NodeId) (e : Expr) (he : Expr) : OrderM Unit := do
   trace[grind.order.assert] "{← c.pp}"
-  let he ← mkEqTrueProof e
   let h ←  if let some h := c.h? then
     pure <| mkApp4 (mkConst ``Grind.Order.eq_mp) e c.e h (mkOfEqTrueCore e he)
   else
@@ -221,20 +223,35 @@ def assertIneqTrue (c : Cnstr NodeId) (e : Expr) : OrderM Unit := do
   let k : Weight := { k := c.k, strict := c.kind matches .lt }
   addEdge c.u c.v k h
 
-def assertIneqFalse (c : Cnstr NodeId) (_e : Expr) : OrderM Unit := do
+/--
+Asserts constraint `c` associated with `e` where `he : e = False`.
+-/
+def assertIneqFalse (c : Cnstr NodeId) (_e : Expr) (_he : Expr) : OrderM Unit := do
   trace[grind.order.assert] "¬ {← c.pp}"
 
 def getStructIdOf? (e : Expr) : GoalM (Option Nat) := do
   return (← get').exprToStructId.find? { expr := e }
 
 def propagateIneq (e : Expr) : GoalM Unit := do
-  let some structId ← getStructIdOf? e | return ()
-  OrderM.run structId do
-  let some c ← getCnstr? e | return ()
-  if (← isEqTrue e) then
-    assertIneqTrue c e
-  else if (← isEqFalse e) then
-    assertIneqFalse c e
+  if let some (e', he) := (← get').cnstrsMap.find? { expr := e } then
+    go e' (some he)
+  else
+    go e none
+where
+  go (e' : Expr) (he? : Option Expr) : GoalM Unit := do
+    let some structId ← getStructIdOf? e' | return ()
+    OrderM.run structId do
+    let some c ← getCnstr? e' | return ()
+    if (← isEqTrue e) then
+      let mut h ← mkEqTrueProof e
+      if let some he := he? then
+        h := mkApp4 (mkConst ``Grind.Order.eq_trans_true') e e' he h
+      assertIneqTrue c e' h
+    else if (← isEqFalse e) then
+      let mut h ← mkEqFalseProof e
+      if let some he := he? then
+        h := mkApp4 (mkConst ``Grind.Order.eq_trans_false') e e' he h
+      assertIneqFalse c e' h
 
 builtin_grind_propagator propagateLE ↓LE.le := propagateIneq
 builtin_grind_propagator propagateLT ↓LT.lt := propagateIneq

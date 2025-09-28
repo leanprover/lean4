@@ -6,3 +6,4 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Elab.Tactic.Grind.Main
+public import Lean.Elab.Tactic.Grind.Basic

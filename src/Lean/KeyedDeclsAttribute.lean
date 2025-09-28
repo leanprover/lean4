@@ -56,6 +56,7 @@ structure OLeanEntry where
   deriving Inhabited
 
 structure AttributeEntry (γ : Type) extends OLeanEntry where
+  isBuiltin : Bool
   /-- Recall that we cannot store `γ` into .olean files because it is a closure.
      Given `OLeanEntry.declName`, we convert it into a `γ` by using the unsafe function `evalConstCheck`. -/
   value : γ
@@ -96,7 +97,7 @@ def ExtensionState.insert (s : ExtensionState γ) (v : AttributeEntry γ) :  Ext
 }
 
 def addBuiltin (attr : KeyedDeclsAttribute γ) (key : Key) (declName : Name) (value : γ) : IO Unit :=
-  attr.tableRef.modify fun m => m.insert { key, declName, value }
+  attr.tableRef.modify fun m => m.insert { key, declName, value, isBuiltin := true }
 
 def mkStateOfTable (table : Table γ) : ExtensionState γ := {
   table
@@ -116,7 +117,7 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name := by exact de
     ofOLeanEntry := fun _ entry => do
       let ctx ← read
       match ctx.env.evalConstCheck γ ctx.opts df.valueTypeName entry.declName with
-      | Except.ok f     => return { toOLeanEntry := entry, value := f }
+      | Except.ok f     => return { toOLeanEntry := entry, value := f, isBuiltin := false }
       | Except.error ex => throw (IO.userError ex)
     addEntry     := fun s e => s.insert e
     toOLeanEntry := (·.toOLeanEntry)
@@ -157,7 +158,7 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name := by exact de
       match IR.getSorryDep (← getEnv) declName with
       | none =>
         let val ← evalConstCheck γ df.valueTypeName declName
-        ext.add { key := key, declName := declName, value := val } attrKind
+        ext.add { key := key, declName := declName, value := val, isBuiltin := true } attrKind
         df.onAdded false declName key
       | _ =>
         -- If the declaration contains `sorry`, we skip `evalConstCheck` to avoid unnecessary bizarre error message

@@ -5668,6 +5668,8 @@ structure State where
   /-- The list of trace messages that have been produced, each with a trace
   class and a message. -/
   traceMsgs  : List (Prod Name String) := List.nil
+  /-- Declaration names of expanded macros, for use with `shake`. -/
+  private expandedMacroDecls : List Name := List.nil
   deriving Inhabited
 
 end Macro

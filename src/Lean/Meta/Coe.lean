@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Transform
 public import Lean.Meta.SynthInstance
 public import Lean.Meta.AppBuilder
+import Lean.ExtraModUses
 
 public section
 
@@ -40,6 +41,11 @@ partial def expandCoe (e : Expr) : MetaM Expr :=
       if f.isConst then
         let declName := f.constName!
         if isCoeDecl (← getEnv) declName then
+          for arg in e.getAppArgs do
+            -- The following should record at least the top-level instance as a dependency, which
+            -- appears to be good enough for now.
+            if let .const n .. := arg then
+              recordExtraModUseFromDecl (isMeta := false) n
           if let some e ← unfoldDefinition? e then
             return .visit e.headBeta
       return .continue

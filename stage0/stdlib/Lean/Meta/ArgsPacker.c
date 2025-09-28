@@ -6434,7 +6434,7 @@ lean_inc_ref(x_2);
 x_9 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Meta_ArgsPacker_Mutual_uncurryType_spec__0(x_7, x_8, x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_9) == 0)
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; size_t x_15; lean_object* x_16; lean_object* x_24; lean_object* x_41; uint8_t x_42; 
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; size_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_24; lean_object* x_41; uint8_t x_42; 
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 1);
@@ -6508,7 +6508,7 @@ return x_51;
 block_23:
 {
 lean_object* x_17; lean_object* x_18; 
-x_17 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Meta_ArgsPacker_Mutual_uncurryType_spec__1(x_15, x_8, x_10);
+x_17 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Meta_ArgsPacker_Mutual_uncurryType_spec__1(x_14, x_8, x_10);
 lean_inc(x_5);
 lean_inc_ref(x_4);
 x_18 = l_Lean_Meta_ArgsPacker_Mutual_packType(x_17, x_2, x_3, x_4, x_5, x_16);
@@ -6520,14 +6520,14 @@ lean_inc(x_19);
 x_20 = lean_ctor_get(x_18, 1);
 lean_inc(x_20);
 lean_dec_ref(x_18);
-x_21 = lean_array_get(x_12, x_14, x_13);
-lean_dec_ref(x_14);
+x_21 = lean_array_get(x_12, x_15, x_13);
+lean_dec_ref(x_15);
 x_22 = l_Lean_mkArrow(x_19, x_21, x_4, x_5, x_20);
 return x_22;
 }
 else
 {
-lean_dec_ref(x_14);
+lean_dec_ref(x_15);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 return x_18;
@@ -6547,8 +6547,8 @@ if (x_29 == 0)
 {
 lean_dec(x_28);
 lean_dec_ref(x_27);
-x_14 = x_26;
-x_15 = x_25;
+x_14 = x_25;
+x_15 = x_26;
 x_16 = x_24;
 goto block_23;
 }
@@ -6560,8 +6560,8 @@ if (x_30 == 0)
 {
 lean_dec(x_28);
 lean_dec_ref(x_27);
-x_14 = x_26;
-x_15 = x_25;
+x_14 = x_25;
+x_15 = x_26;
 x_16 = x_24;
 goto block_23;
 }
@@ -6584,8 +6584,8 @@ lean_object* x_35;
 x_35 = lean_ctor_get(x_34, 1);
 lean_inc(x_35);
 lean_dec_ref(x_34);
-x_14 = x_26;
-x_15 = x_25;
+x_14 = x_25;
+x_15 = x_26;
 x_16 = x_35;
 goto block_23;
 }

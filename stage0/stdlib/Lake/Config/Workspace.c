@@ -4061,7 +4061,7 @@ block_31:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
 x_11 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_11, 0, x_7);
+lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set(x_11, 1, x_10);
 x_12 = l_Lake_Workspace_augmentedEnvVars___closed__0;
 x_13 = l_Lake_Workspace_augmentedPath(x_1);
@@ -4072,9 +4072,9 @@ x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_12);
 lean_ctor_set(x_16, 1, x_15);
 x_17 = l_Lake_Workspace_augmentedEnvVars___closed__1;
-x_18 = lean_array_push(x_17, x_9);
+x_18 = lean_array_push(x_17, x_8);
 x_19 = lean_array_push(x_18, x_6);
-x_20 = lean_array_push(x_19, x_8);
+x_20 = lean_array_push(x_19, x_7);
 x_21 = lean_array_push(x_20, x_11);
 x_22 = lean_array_push(x_21, x_16);
 x_23 = l_Array_append___redArg(x_5, x_22);
@@ -4134,9 +4134,9 @@ x_49 = l_Lake_Env_leanGithash(x_2);
 x_50 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_50, 0, x_49);
 x_6 = x_42;
-x_7 = x_48;
-x_8 = x_47;
-x_9 = x_37;
+x_7 = x_47;
+x_8 = x_37;
+x_9 = x_48;
 x_10 = x_50;
 goto block_31;
 }
@@ -4145,9 +4145,9 @@ else
 lean_object* x_51; 
 x_51 = lean_box(0);
 x_6 = x_42;
-x_7 = x_48;
-x_8 = x_47;
-x_9 = x_37;
+x_7 = x_47;
+x_8 = x_37;
+x_9 = x_48;
 x_10 = x_51;
 goto block_31;
 }

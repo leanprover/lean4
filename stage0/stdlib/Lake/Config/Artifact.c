@@ -16,6 +16,7 @@ extern "C" {
 static lean_object* l_Lake_ArtifactDescr_fromJson_x3f___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedArtifact;
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_relPath(lean_object*);
 extern lean_object* l_System_instInhabitedFilePath_default;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_instReprArtifactDescr_repr___redArg___closed__4;
@@ -49,7 +50,6 @@ static lean_object* l_Lake_instReprArtifactDescr_repr___redArg___closed__10;
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Lake_instInhabitedArtifact_default___closed__2;
 static lean_object* l_Lake_instReprArtifactDescr_repr___redArg___closed__7;
-LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_toFilePath(lean_object*);
 lean_object* l_Lake_instReprHash_repr___redArg(uint64_t);
 LEAN_EXPORT lean_object* l_Lake_Artifact_trace___boxed(lean_object*);
 static lean_object* l_Lake_instReprArtifactDescr_repr___redArg___closed__15;
@@ -82,9 +82,9 @@ static lean_object* l_Lake_instReprArtifactDescr_repr___redArg___closed__0;
 static lean_object* l_Lake_instReprArtifactDescr_repr___redArg___closed__6;
 LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_instToJson;
-LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_toFilePath___boxed(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 extern uint64_t l_Lake_Hash_nil;
+LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_relPath___boxed(lean_object*);
 static lean_object* l_Lake_instReprArtifactDescr_repr___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Artifact_trace(lean_object*);
@@ -517,7 +517,7 @@ x_4 = l_Lake_artifactWithExt(x_3, x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_toFilePath(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_relPath(lean_object* x_1) {
 _start:
 {
 uint64_t x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
@@ -544,11 +544,11 @@ return x_11;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_toFilePath___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_relPath___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lake_ArtifactDescr_toFilePath(x_1);
+x_2 = l_Lake_ArtifactDescr_relPath(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

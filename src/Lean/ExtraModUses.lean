@@ -44,7 +44,7 @@ public def getExtraModUses (env : Environment) (modIdx : ModuleIdx) : Array Extr
 /-- Copies additional recorded import dependencies from one environment to another. -/
 public def copyExtraModUses (src dest : Environment) : Environment := Id.run do
   let mut env := dest
-  for entry in extraModUses.getEntries src do
+  for entry in extraModUses.getEntries (asyncMode := .local) src do
     if !(extraModUses.getState (asyncMode := .local) env).contains entry then
       env := extraModUses.addEntry env entry
   env

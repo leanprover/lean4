@@ -18,3 +18,25 @@ example [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsLinearPreorder α] [CommRi
 
 example (p : Prop) (a b c : Int) : (p ↔ b ≤ a) → (p ↔ c ≤ b) → ¬ p → c ≤ a + 1 → False := by
   grind -linarith -cutsat (splits := 0)
+
+/--
+error: `grind` failed
+case grind
+α : Type u_1
+inst : LE α
+inst_1 : Std.IsPreorder α
+a b c : α
+h : a ≤ b
+h_1 : b ≤ c
+h_2 : c ≤ a
+h_3 : ¬a = c
+⊢ False
+-/
+#guard_msgs in
+example [LE α] [Std.IsPreorder α]
+    (a b c : α) : a ≤ b → b ≤ c → c ≤ a → a = c := by
+  grind -linarith -verbose
+
+example [LE α] [Std.IsPartialOrder α]
+    (a b c : α) : a ≤ b → b ≤ c → c ≤ a → a = c := by
+  grind -linarith -verbose

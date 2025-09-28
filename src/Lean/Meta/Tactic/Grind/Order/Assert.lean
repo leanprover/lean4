@@ -156,6 +156,7 @@ associated with `(u, v)` IF
 
 /-- Equality propagation. -/
 def checkEq (u v : NodeId) (k : Weight) : OrderM Unit := do
+  if (← isPartialOrder) then
   if !k.isZero then return ()
   let some k' ← getDist? v u | return ()
   if !k'.isZero then return ()

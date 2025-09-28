@@ -25,3 +25,4 @@ public import Init.Data.Int.OfNat -- This may not have otherwise been imported, 
 public import Init.Grind.AC
 public import Init.Grind.Injective
 public import Init.Grind.Order
+public import Init.Grind.Interactive

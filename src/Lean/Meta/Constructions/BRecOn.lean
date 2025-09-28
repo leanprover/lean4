@@ -6,14 +6,16 @@ Authors: Leonardo de Moura, Joachim Breitner
 module
 
 prelude
-public import Init.Data.Range.Polymorphic.Stream
-public import Lean.Meta.InferType
-public import Lean.AuxRecursor
-public import Lean.AddDecl
-public import Lean.Meta.CompletionName
-public import Lean.Meta.PProdN
-
-public section
+public import Lean.Meta.Basic
+import Init.Data.Range.Polymorphic.Stream
+import Lean.Meta.InferType
+import Lean.AuxRecursor
+import Lean.AddDecl
+import Lean.Meta.CompletionName
+import Lean.Meta.PProdN
+import Lean.Meta.AppBuilder
+import Lean.Meta.Tactic.Cases
+import Lean.Meta.Tactic.Refl
 
 namespace Lean
 open Meta
@@ -116,7 +118,7 @@ private def mkBelowFromRec (recName : Name) (nParams : Nat)
   modifyEnv fun env => markAuxRecursor env decl.name
   modifyEnv fun env => addProtected env decl.name
 
-def mkBelow (indName : Name) : MetaM Unit := do
+public def mkBelow (indName : Name) : MetaM Unit := do
   withTraceNode `Meta.mkBelow (fun _ => return m!"{indName}") do
   let .inductInfo indVal ← getConstInfo indName | return
   unless indVal.isRec do return
@@ -192,13 +194,15 @@ fun {α} {motive} t (F_1 : (t : List α) → List.below t → motive t) => (
 -/
 private def mkBRecOnFromRec (recName : Name) (nParams : Nat)
     (all : Array Name) (brecOnName : Name) : MetaM Unit := do
+  let brecOnGoName := brecOnName.str "go"
+  let brecOnEqName := brecOnName.str "eq"
   let .recInfo recVal ← getConstInfo recName | return
   let lvl::lvls := recVal.levelParams.map (Level.param ·)
     | throwError "recursor {recName} has no levelParams"
   -- universe parameter names of brecOn
   let blps := recVal.levelParams
 
-  let decl ← forallTelescope recVal.type fun refArgs refBody => do
+  forallTelescope recVal.type fun refArgs refBody => do
     assert! refArgs.size > nParams + recVal.numMotives + recVal.numMinors
     let params  : Array Expr := refArgs[*...nParams]
     let motives : Array Expr := refArgs[nParams...(nParams + recVal.numMotives)]
@@ -240,9 +244,9 @@ private def mkBRecOnFromRec (recName : Name) (nParams : Nat)
       let fName := .mkSimple s!"F_{i + 1}"
       fDecls := fDecls.push (fName, fun _ => pure fType)
     withLocalDeclsD fDecls fun fs => do
-      let mut val := .const recName (rlvl :: lvls)
+      let mut go_val := .const recName (rlvl :: lvls)
       -- add parameters
-      val := mkAppN val params
+      go_val := mkAppN go_val params
       -- add type formers
       for motive in motives, below in belows do
         -- example: (motive := fun t => PProd (motive t) (@List.below α motive t))
@@ -251,30 +255,64 @@ private def mkBRecOnFromRec (recName : Name) (nParams : Nat)
           let belowType := mkAppN below targs
           let arg ← mkPProd cType belowType
           mkLambdaFVars targs arg
-        val := .app val arg
+        go_val := .app go_val arg
       -- add minor premises
       for minor in minors do
         let arg ← buildBRecOnMinorPremise rlvl motives belows fs (← inferType minor)
-        val := .app val arg
+        go_val := .app go_val arg
       -- add indices and major premise
-      val := mkAppN val indices
-      val := mkApp val major
-      -- project out first component
-      val ← mkPProdFstM val
+      go_val := mkAppN go_val indices
+      go_val := mkApp go_val major
 
       -- All parameters of `.rec` besides the `minors` become parameters of `.bRecOn`, and the `fs`
       let below_params := params ++ motives ++ indices ++ #[major] ++ fs
-      let type ← mkForallFVars below_params (mkAppN motives[idx]! (indices ++ #[major]))
-      val ← mkLambdaFVars below_params val
+      let motive_app := mkAppN motives[idx]! (indices.push major)
+      let below_app := mkAppN belows[idx]! (indices.push major)
+      let type ← mkForallFVars below_params (← mkPProd motive_app below_app)
+      go_val ← mkLambdaFVars below_params go_val
 
-      mkDefinitionValInferringUnsafe brecOnName blps type val .abbrev
+      let go_decl ← mkDefinitionValInferringUnsafe brecOnGoName blps type go_val .abbrev
 
-  addDecl (.defnDecl decl)
-  setReducibleAttribute decl.name
-  modifyEnv fun env => markAuxRecursor env decl.name
-  modifyEnv fun env => addProtected env decl.name
+      addDecl (.defnDecl go_decl)
+      setReducibleAttribute go_decl.name -- todo: maybe better irreducible? does it matter?
+      modifyEnv fun env => addProtected env go_decl.name
 
-def mkBRecOn (indName : Name) : MetaM Unit := do
+      -- project out first component
+      let brecOnGoApp := mkAppN (.const brecOnGoName blvls) below_params
+      let val ← mkPProdFstM brecOnGoApp
+      let val ← mkLambdaFVars below_params val
+      let type ← mkForallFVars below_params motive_app
+      let decl ← mkDefinitionValInferringUnsafe brecOnName blps type val .abbrev
+
+      addDecl (.defnDecl decl)
+      setReducibleAttribute decl.name
+      modifyEnv fun env => markAuxRecursor env decl.name
+      modifyEnv fun env => addProtected env decl.name
+
+      let lhs := mkAppN (.const decl.name blvls) below_params
+      let rhs := fs[idx]!
+      let rhs := mkAppN rhs (indices.push major)
+      let rhs := mkApp rhs (← mkPProdSndM brecOnGoApp)
+      let thm_type ← mkEq lhs rhs
+      let thm_val ← mkFreshExprSyntheticOpaqueMVar thm_type
+      let mvar := thm_val.mvarId!
+      let cases ← mvar.cases major.fvarId!
+      for case in cases do
+        case.mvarId.refl
+      let thm_val ← instantiateMVars thm_val
+      let thm_type ← mkForallFVars below_params thm_type
+      let thm_val ← mkLambdaFVars below_params thm_val
+      let thm_decl := .thmDecl {
+      -- let thm_decl ← mkThmOrUnsafeDef {
+        name := brecOnEqName
+        levelParams := blps
+        type := thm_type
+        value := thm_val
+      }
+      addDecl thm_decl
+      modifyEnv fun env => addProtected env brecOnEqName
+
+public def mkBRecOn (indName : Name) : MetaM Unit := do
   withTraceNode `Meta.mkBRecOn (fun _ => return m!"{indName}") do
   let .inductInfo indVal ← getConstInfo indName | return
   unless indVal.isRec do return

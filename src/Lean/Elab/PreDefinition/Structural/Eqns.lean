@@ -16,6 +16,7 @@ import Lean.Meta.Tactic.Apply
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Meta.Match.MatchEqs
+import Lean.Meta.Tactic.Rewrite
 
 namespace Lean.Elab
 open Meta
@@ -31,13 +32,14 @@ public structure EqnInfo extends EqnInfoCore where
 
 private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
   withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} proving:{indentExpr type}") do
-    withNewMCtxDepth do
-      let main ← mkFreshExprSyntheticOpaqueMVar type
-      let (_, mvarId) ← main.mvarId!.intros
-      unless (← tryURefl mvarId) do -- catch easy cases
-        go1 mvarId
-      instantiateMVars main
-where
+    prependError m!"failed to generate equational theorem for `{.ofConstName declName}`" do
+      withNewMCtxDepth do
+        let main ← mkFreshExprSyntheticOpaqueMVar type
+        let (_, mvarId) ← main.mvarId!.intros
+        unless (← tryURefl mvarId) do -- catch easy cases
+          go1 mvarId
+        instantiateMVars main
+  where
   /--
   Step 1: Split the function body into its cases, but keeping the LHS intact, because the
   `.below`-added `match` statements and the `.rec` can quickly confuse `split`.
@@ -76,10 +78,39 @@ where
   /-- Step 2: Unfold the lhs to expose the recursor. -/
   go2 (mvarId : MVarId) : MetaM Unit := do
     withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} go2:\n{MessageData.ofGoal mvarId}") do
-    if let some mvarId ← whnfReducibleLHS? mvarId then
-      go2 mvarId
-    else
-      go3 mvarId
+    let mvarId' ← mvarId.withContext do
+      -- This should now be headed by `.brecOn`
+      let goal ← mvarId.getType
+      let some (α, lhs, rhs) := goal.eq? | throwError "goal not an equality\n{MessageData.ofGoal mvarId}"
+      let brecOn := lhs.getAppFn
+      unless brecOn.isConst do
+        throwError "goal not headed by `.brecOn`\n{MessageData.ofGoal mvarId}"
+      let brecOnName := brecOn.constName!
+      unless Name.isSuffixOf `brecOn brecOnName do
+        throwError "goal not headed by `.brecOn`\n{MessageData.ofGoal mvarId}"
+      let brecOnThmName := brecOnName.str "eq"
+      unless (← hasConst brecOnThmName) do
+        throwError "no theorem `{brecOnThmName}`\n{MessageData.ofGoal mvarId}"
+      -- We don't just `← inferType eqThmApp` as that beta-reduces more than we want
+      let eqThmType ← inferType (mkConst brecOnThmName brecOn.constLevels!)
+      let eqThmArity ← forallTelescope eqThmType fun xs _ => return xs.size
+      let mut eqThmApp := mkAppN (mkConst brecOnThmName brecOn.constLevels!) lhs.getAppArgs[:eqThmArity]
+      let eqThmType ← instantiateForall eqThmType eqThmApp.getAppArgs[:eqThmArity]
+      let some (_, _, rwRhs) := eqThmType.eq? | throwError "theorem `{brecOnThmName}` is not an equality\n{MessageData.ofGoal mvarId}"
+      let recArg := rwRhs.getAppArgs.back!
+      trace[Elab.definition.structural.eqns] "abstracting{inlineExpr recArg} from{indentExpr rwRhs}"
+      let mvarId2 ← mvarId.define `r (← inferType recArg) recArg
+      let (r, mvarId3) ← mvarId2.intro1P
+      let mut rwRhs := mkApp rwRhs.appFn! (mkFVar r)
+      for extraArg in lhs.getAppArgs[eqThmArity:] do
+        rwRhs := mkApp rwRhs extraArg
+        eqThmApp ← mkCongrFun eqThmApp extraArg
+      let eqThmAppTrans := mkApp5 (mkConst ``Eq.trans goal.getAppFn.constLevels!) α lhs rwRhs rhs eqThmApp
+      let [mvarId4] ← mvarId3.applyN eqThmAppTrans 1 |
+        throwError "rewriting with{inlineExpr eqThmAppTrans} failed\n{MessageData.ofGoal mvarId}"
+      pure mvarId4
+    go3 mvarId'
+
   /-- Step 3: Simplify the match and if statements on the left hand side, until we have rfl. -/
   go3 (mvarId : MVarId) : MetaM Unit := do
       withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} go3:\n{MessageData.ofGoal mvarId}") do
@@ -108,7 +139,7 @@ where
             trace[Elab.definition.structural.eqns] "casesOnStuckLHS? succeeded"
             mvarIds.forM go3
           else
-            throwError "failed to generate equational theorem for `{.ofConstName declName}`\n{MessageData.ofGoal mvarId}"
+            throwError "no progress at goal\n{MessageData.ofGoal mvarId}"
 
 def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
   withOptions (tactic.hygienic.set · false) do
@@ -165,11 +196,10 @@ where
     lambdaTelescope info.value fun xs body => do
       let us := info.levelParams.map mkLevelParam
       let type ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
-      let goal ← mkFreshExprSyntheticOpaqueMVar type
-      mkUnfoldProof declName goal.mvarId!
+      let value ← mkProof declName type
       let type ← mkForallFVars xs type
       let type ← letToHave type
-      let value ← mkLambdaFVars xs (← instantiateMVars goal)
+      let value ← mkLambdaFVars xs value
       addDecl <| Declaration.thmDecl {
         name, type, value
         levelParams := info.levelParams

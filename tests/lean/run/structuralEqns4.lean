@@ -26,3 +26,19 @@ info: theorem g.eq_def : ∀ (i : Nat) (j : N),
       | j.succ => g i j
 -/
 #guard_msgs(pass trace, all) in #print sig g.eq_def
+
+
+def N.beq : (m n : N) → Bool
+| .zero, .zero => true
+| .succ m, .succ n => N.beq m n
+| _, _ => false
+
+/--
+info: theorem N.beq.eq_def : ∀ (x x_1 : N),
+  x.beq x_1 =
+    match x, x_1 with
+    | N.zero, N.zero => true
+    | m.succ, n.succ => m.beq n
+    | x, x_2 => false
+-/
+#guard_msgs(pass trace, all) in #print sig N.beq.eq_def

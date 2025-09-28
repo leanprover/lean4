@@ -60,4 +60,10 @@ def isRing : OrderM Bool :=
 def isPartialOrder : OrderM Bool :=
   return (← getStruct).isPartialInst?.isSome
 
+def isLinearPreorder : OrderM Bool :=
+  return (← getStruct).isLinearPreInst?.isSome
+
+def hasLt : OrderM Bool :=
+  return (← getStruct).lawfulOrderLTInst?.isSome
+
 end Lean.Meta.Grind.Order

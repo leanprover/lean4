@@ -241,7 +241,7 @@ def assertIneqFalse (c : Cnstr NodeId) (e : Expr) (he : Expr) : OrderM Unit := d
     let h' ← mkLinearOrdRingPrefix declName
     let k' := -c.k
     let h  := mkApp6 h' (← getExpr c.u) (← getExpr c.v) (toExpr c.k) (toExpr k') eagerReflBoolTrue h
-    addEdge c.v c.u { k := k', strict := true } h
+    addEdge c.v c.u { k := k', strict := c.kind matches .le } h
   else if c.kind matches .lt then
     let h' ← mkLeLtLinearPrefix ``Grind.Order.le_of_not_lt
     let h := mkApp3 h' (← getExpr c.u) (← getExpr c.v) h

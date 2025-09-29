@@ -103,7 +103,7 @@ open Command in
 | `(registerErrorExplanationStx| $docStx:docComment register_error_explanation%$cmd $id:ident $t:term) => withRef cmd do
   unless (← getEnv).contains ``ErrorExplanation.Metadata do
     throwError "To use this command, add `import Lean.ErrorExplanation` to the header of this file"
-  recordExtraModUseFromDecl ``ErrorExplanation.Metadata (isMeta := false)
+  withoutExporting <| recordExtraModUseFromDecl ``ErrorExplanation.Metadata (isMeta := true)
   let tp := mkConst ``ErrorExplanation.Metadata
   let metadata ← runTermElabM <| fun _ => unsafe do
     let e ← elabTermEnsuringType t tp

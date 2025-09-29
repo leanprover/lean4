@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Order.Ord
+import Init.RCases
 
 @[expose] public section
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Main
-// Imports: Lean.Meta.Tactic.Grind.Types Lean.Meta.Tactic.Grind.PropagatorAttr Lean.Meta.Tactic.Grind.Arith.Offset.Types Lean.Meta.Tactic.Grind.Arith.Offset.Main Lean.Meta.Tactic.Grind.Arith.Offset.Proof Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr Lean.Meta.Tactic.Grind.Arith.Cutsat.Search Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr Lean.Meta.Tactic.Grind.Arith.Linear.Search
+// Imports: Lean.Meta.Tactic.Grind.Types Init.Grind.Propagator Lean.Meta.Tactic.Grind.PropagatorAttr Lean.Meta.Tactic.Grind.Arith.Offset.Types Lean.Meta.Tactic.Grind.Arith.Offset.Main Lean.Meta.Tactic.Grind.Arith.Offset.Proof Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr Lean.Meta.Tactic.Grind.Arith.Cutsat.Search Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr Lean.Meta.Tactic.Grind.Arith.Linear.Search
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1419,6 +1419,7 @@ return x_4;
 }
 }
 lean_object* initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_Propagator(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_PropagatorAttr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Offset_Types(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Offset_Main(uint8_t builtin, lean_object*);
@@ -1433,6 +1434,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Meta_Tactic_Grind_Types(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Propagator(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_PropagatorAttr(builtin, lean_io_mk_world());

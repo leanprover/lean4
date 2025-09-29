@@ -112,22 +112,28 @@ namespace MaterializedDep
 
 end MaterializedDep
 
-def pkgNotIndexed (scope name : String) (rev? : Option String := none) : String :=
-  let (leanRev, tomlRev) :=
-    if let some rev := rev? then
-      (s!" @ {repr rev}", s! "\n    rev = {repr rev}")
-    else ("", "")
+inductive InputVer
+| none
+| git (rev : String)
+| std (ver : StdVer)
+
+def pkgNotIndexed (scope name : String) (ver : InputVer) : String :=
+  let (leanVer, tomlVer) :=
+    match ver with
+    | .none => ("", "")
+    | .git rev => (s!" @ git {repr rev}", s!"\n    rev = {repr rev}")
+    | .std ver => (s!" @ {repr ver.toString}", s!"\n    version = {repr ver.toString}")
 s!"{scope}/{name}: package not found on Reservoir.
 
   If the package is on GitHub, you can add a Git source. For example:
 
     require ...
-      from git \"https://github.com/{scope}/{name}\"{leanRev}
+      from git \"https://github.com/{scope}/{name}\"{leanVer}
 
   or, if using TOML:
 
     [[require]]
-    git = \"https://github.com/{scope}/{name}\"{tomlRev}
+    git = \"https://github.com/{scope}/{name}\"{tomlVer}
     ...
 "
 
@@ -152,24 +158,42 @@ public def Dependency.materialize
     if dep.scope.isEmpty then
       error s!"{dep.name}: ill-formed dependency: \
         dependency is missing a source and is missing a scope for Reservoir"
-    let verRev? ← dep.version?.mapM fun ver =>
-      if ver.startsWith "git#" then
-        return ver.drop 4
+    let ver : InputVer ← id do
+      let some ver := dep.version?
+        | return .none
+      if let some ver := ver.dropPrefix? "git#" then
+        return .git ver.toString
+      else if let .ok ver := StdVer.parse ver then
+        return .std ver
       else
-        error s!"{dep.name}: unsupported dependency version format '{ver}' (should be \"git#<rev>\")"
+        error s!"{dep.name}: unsupported dependency version format '{ver}'"
     let depName := dep.name.toString (escape := false)
     let pkg ←
       match (← Reservoir.fetchPkg? lakeEnv dep.scope depName |>.toLogT) with
       | .ok (some pkg) => pure pkg
-      | .ok none => error <| pkgNotIndexed dep.scope depName verRev?
+      | .ok none => error <| pkgNotIndexed dep.scope depName ver
       | .error .. =>
           error s!"{dep.scope}/{depName}: could not materialize package: \
             this may be a transient error or a bug in Lake or Reservoir"
     let relPkgDir := relPkgsDir / pkg.name
     match pkg.gitSrc? with
     | some (.git _ url githubUrl? defaultBranch? subDir?) =>
-      materializeGit pkg.fullName relPkgDir url
-        (githubUrl?.getD "") (verRev? <|> defaultBranch?) subDir?
+      let rev? ←
+        match ver with
+        | .none => defaultBranch?
+        | .git rev => some rev
+        | .std ver =>
+            match (← Reservoir.fetchPkgVersions lakeEnv dep.scope depName |>.toLogT) with
+          | .ok vers =>
+              if let some ver := vers.find? (·.version == ver) then
+                logInfo s!"{dep.scope}/{depName}: using version `{ver.version}` at revision `{ver.revision}`"
+                pure ver.revision
+              else
+                error s!"{dep.scope}/{depName}: version `{ver}` not found on Reservoir"
+          | .error .. =>
+              error s!"{dep.scope}/{depName}: could not fetch package versions: \
+                this may be a transient error or a bug in Lake or Reservoir"
+      materializeGit pkg.fullName relPkgDir url (githubUrl?.getD "") rev? subDir?
     | _ => error s!"{pkg.fullName}: Git source not found on Reservoir"
 where
   materializeGit name relPkgDir gitUrl remoteUrl inputRev? subDir? : LoggerIO MaterializedDep := do

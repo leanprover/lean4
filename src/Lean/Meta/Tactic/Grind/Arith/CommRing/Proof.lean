@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.SemiringM
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommSemiringM
 import Init.Grind.Ring.CommSemiringAdapter
 import Lean.Data.RArray
 import Lean.Meta.Tactic.Grind.Diseq
@@ -31,7 +32,7 @@ private def toContextExpr [Monad m] [MonadLiftT MetaM m] [MonadCanon m] [MonadRi
   else
     RArray.toExpr ring.type id (RArray.leaf (mkApp (← getNatCastFn) (toExpr 0)))
 
-private def toSContextExpr' (vars : Array Expr) : SemiringM Expr := do
+private def toSContextExpr' [Monad m] [MonadLiftT MetaM m] [MonadCanon m] [MonadSemiring m] (vars : Array Expr) : m Expr := do
   let semiring ← getSemiring
   if h : 0 < vars.size then
     RArray.toExpr semiring.type id (RArray.ofFn (vars[·]) h)
@@ -132,8 +133,8 @@ private def getSemiringIdOf : RingM Nat := do
   let some semiringId := (← getCommRing).semiringId? | throwError "`grind` internal error, semiring is not available"
   return semiringId
 
-private def getSemiringOf : RingM Semiring := do
-  SemiringM.run (← getSemiringIdOf) do getSemiring
+private def getSemiringOf : RingM CommSemiring := do
+  SemiringM.run (← getSemiringIdOf) do getCommSemiring
 
 private def mkSemiringPrefix (declName : Name) : ProofM Expr := do
   let sctx ← getSContext
@@ -263,7 +264,7 @@ private def mkSemiringContext (h : Expr) : ProofM Expr := do
   let vars'        := usedVars.toArray
   let varRename    := mkVarRename vars'
   let vars         := vars'.map fun x => semiring.vars[x]!
-  let h := mkLetOfMap (← get).sexprDecls h `s (mkConst ``Grind.Ring.OfSemiring.Expr) fun s => toExpr <| s.renameVars varRename
+  let h := mkLetOfMap (← get).sexprDecls h `s (mkConst ``Grind.CommRing.Expr) fun s => toExpr <| s.renameVars varRename
   let h := h.abstract #[sctx]
   if h.hasLooseBVars then
     let ctxType := mkApp (mkConst ``RArray [semiring.u]) semiring.type
@@ -322,7 +323,7 @@ Given `a` and `b`, such that `a ≠ b` in the core and `sa` and `sb` their reifi
 terms s.t. `sa.toPoly == sb.toPoly`, close the goal.
 -/
 def setSemiringDiseqUnsat (a b : Expr) (sa sb : SemiringExpr) : SemiringM Unit := do
-  let semiring ← getSemiring
+  let semiring ← getCommSemiring
   let hne ← mkDiseqProof a b
   let usedVars     := sa.collectVars >> sb.collectVars <| {}
   let vars'        := usedVars.toArray
@@ -332,7 +333,7 @@ def setSemiringDiseqUnsat (a b : Expr) (sa sb : SemiringExpr) : SemiringM Unit :
   let sa           := sa.renameVars varRename
   let sb           := sb.renameVars varRename
   let ctx          ← toSContextExpr' vars
-  let h := mkApp3 (mkConst ``Grind.Ring.OfSemiring.eq_normS [semiring.u]) semiring.type semiring.commSemiringInst ctx
+  let h := mkApp3 (mkConst ``Grind.CommRing.eq_normS [semiring.u]) semiring.type semiring.commSemiringInst ctx
   let h := mkApp3 h (toExpr sa) (toExpr sb) eagerReflBoolTrue
   closeGoal (mkApp hne h)
 
@@ -357,5 +358,84 @@ def setNonCommRingDiseqUnsat (a b : Expr) (ra rb : RingExpr) : NonCommRingM Unit
     mkApp3 (mkConst ``Grind.CommRing.Expr.eq_of_toPoly_nc_eq [ring.u]) ring.type ring.ringInst ctx
   let h := mkApp3 h (toExpr ra) (toExpr rb) eagerReflBoolTrue
   closeGoal (mkApp hne h)
+
+/--
+Given `a` and `b`, such that `a ≠ b` in the core and `sa` and `sb` their reified semiring
+terms s.t. `sa.toPolyS_nc == sb.toPolyS_nc`, close the goal.
+-/
+def setNonCommSemiringDiseqUnsat (a b : Expr) (sa sb : SemiringExpr) : NonCommSemiringM Unit := do
+  let semiring ← getSemiring
+  let hne ← mkDiseqProof a b
+  let usedVars     := sa.collectVars >> sb.collectVars <| {}
+  let vars'        := usedVars.toArray
+  let varRename    := mkVarRename vars'
+  let vars         := semiring.vars
+  let vars         := vars'.map fun x => vars[x]!
+  let sa           := sa.renameVars varRename
+  let sb           := sb.renameVars varRename
+  let ctx          ← toSContextExpr' vars
+  let h := mkApp3 (mkConst ``Grind.CommRing.eq_normS_nc [semiring.u]) semiring.type semiring.semiringInst ctx
+  let h := mkApp3 h (toExpr sa) (toExpr sb) eagerReflBoolTrue
+  closeGoal (mkApp hne h)
+
+private structure NormResult where
+  lhs  : RingExpr
+  rhs  : RingExpr
+  lhs' : RingExpr
+  rhs' : RingExpr
+  vars : Array Expr
+
+private def norm (vars : PArray Expr) (lhs rhs lhs' rhs' : RingExpr) : NormResult :=
+  let usedVars     := lhs.collectVars >> lhs.collectVars >> lhs'.collectVars >> rhs'.collectVars <| {}
+  let vars'        := usedVars.toArray
+  let varRename    := mkVarRename vars'
+  let vars         := vars'.map fun x => vars[x]!
+  let lhs          := lhs.renameVars varRename
+  let rhs          := rhs.renameVars varRename
+  let lhs'         := lhs'.renameVars varRename
+  let rhs'         := rhs'.renameVars varRename
+  { lhs, rhs, lhs', rhs', vars }
+
+def mkLeIffProof (leInst ltInst isPreorderInst orderedRingInst : Expr) (lhs rhs lhs' rhs' : RingExpr) : RingM Expr := do
+  let ring ← getCommRing
+  let { lhs, rhs, lhs', rhs', vars } := norm ring.vars lhs rhs lhs' rhs'
+  let ctx ← toContextExpr vars
+  let h := mkApp6 (mkConst ``Grind.CommRing.le_norm_expr [ring.u]) ring.type ring.commRingInst leInst ltInst isPreorderInst orderedRingInst
+  return mkApp6 h ctx (toExpr lhs) (toExpr rhs) (toExpr lhs') (toExpr rhs') eagerReflBoolTrue
+
+def mkLtIffProof (leInst ltInst lawfulOrdLtInst isPreorderInst orderedRingInst : Expr) (lhs rhs lhs' rhs' : RingExpr) : RingM Expr := do
+  let ring ← getCommRing
+  let { lhs, rhs, lhs', rhs', vars } := norm ring.vars lhs rhs lhs' rhs'
+  let ctx ← toContextExpr vars
+  let h := mkApp7 (mkConst ``Grind.CommRing.lt_norm_expr [ring.u]) ring.type ring.commRingInst leInst ltInst lawfulOrdLtInst isPreorderInst orderedRingInst
+  return mkApp6 h ctx (toExpr lhs) (toExpr rhs) (toExpr lhs') (toExpr rhs') eagerReflBoolTrue
+
+def mkEqIffProof (lhs rhs lhs' rhs' : RingExpr) : RingM Expr := do
+  let ring ← getCommRing
+  let { lhs, rhs, lhs', rhs', vars } := norm ring.vars lhs rhs lhs' rhs'
+  let ctx ← toContextExpr vars
+  let h := mkApp2 (mkConst ``Grind.CommRing.eq_norm_expr [ring.u]) ring.type ring.commRingInst
+  return mkApp6 h ctx (toExpr lhs) (toExpr rhs) (toExpr lhs') (toExpr rhs') eagerReflBoolTrue
+
+def mkNonCommLeIffProof (leInst ltInst isPreorderInst orderedRingInst : Expr) (lhs rhs lhs' rhs' : RingExpr) : NonCommRingM Expr := do
+  let ring ← getRing
+  let { lhs, rhs, lhs', rhs', vars } := norm ring.vars lhs rhs lhs' rhs'
+  let ctx ← toContextExpr vars
+  let h := mkApp6 (mkConst ``Grind.CommRing.le_norm_expr_nc [ring.u]) ring.type ring.ringInst leInst ltInst isPreorderInst orderedRingInst
+  return mkApp6 h ctx (toExpr lhs) (toExpr rhs) (toExpr lhs') (toExpr rhs') eagerReflBoolTrue
+
+def mkNonCommLtIffProof (leInst ltInst lawfulOrdLtInst isPreorderInst orderedRingInst : Expr) (lhs rhs lhs' rhs' : RingExpr) : NonCommRingM Expr := do
+  let ring ← getRing
+  let { lhs, rhs, lhs', rhs', vars } := norm ring.vars lhs rhs lhs' rhs'
+  let ctx ← toContextExpr vars
+  let h := mkApp7 (mkConst ``Grind.CommRing.lt_norm_expr_nc [ring.u]) ring.type ring.ringInst leInst ltInst lawfulOrdLtInst isPreorderInst orderedRingInst
+  return mkApp6 h ctx (toExpr lhs) (toExpr rhs) (toExpr lhs') (toExpr rhs') eagerReflBoolTrue
+
+def mkNonCommEqIffProof (lhs rhs lhs' rhs' : RingExpr) : NonCommRingM Expr := do
+  let ring ← getRing
+  let { lhs, rhs, lhs', rhs', vars } := norm ring.vars lhs rhs lhs' rhs'
+  let ctx ← toContextExpr vars
+  let h := mkApp2 (mkConst ``Grind.CommRing.eq_norm_expr_nc [ring.u]) ring.type ring.ringInst
+  return mkApp6 h ctx (toExpr lhs) (toExpr rhs) (toExpr lhs') (toExpr rhs') eagerReflBoolTrue
 
 end Lean.Meta.Grind.Arith.CommRing

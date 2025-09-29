@@ -8,8 +8,10 @@ prelude
 public import Lean.Meta.Tactic.Util
 public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind.Lemmas
+import Lean.PrettyPrinter
 import Lean.Meta.Tactic.ExposeNames
 import Lean.Meta.Tactic.Simp.Diagnostics
+import Lean.Meta.Tactic.Simp.Rewrite
 import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.RevertAll
 import Lean.Meta.Tactic.Grind.PropagatorAttr
@@ -20,6 +22,7 @@ import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.Solve
+import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.SimpUtil
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.LawfulEqCmp
@@ -31,6 +34,7 @@ namespace Lean.Meta.Grind
 structure Params where
   config     : Grind.Config
   ematch     : EMatchTheorems := default
+  inj        : InjectiveTheorems := default
   symPrios   : SymbolPriorities := {}
   casesTypes : CasesTypes := {}
   extra      : PArray EMatchTheorem := {}
@@ -49,18 +53,18 @@ def mkMethods (fallback : Fallback) : CoreM Methods := do
   return {
     fallback
     propagateUp := fun e => do
-     propagateForallPropUp e
-     propagateReflCmp e
-     let .const declName _ := e.getAppFn | return ()
-     propagateProjEq e
-     if let some prop := builtinPropagators.up[declName]? then
-       prop e
+      propagateForallPropUp e
+      propagateReflCmp e
+      let .const declName _ := e.getAppFn | return ()
+      propagateProjEq e
+      if let some props := builtinPropagators.up[declName]? then
+       props.forM fun prop => prop e
     propagateDown := fun e => do
-     propagateForallPropDown e
-     propagateLawfulEqCmp e
-     let .const declName _ := e.getAppFn | return ()
-     if let some prop := builtinPropagators.down[declName]? then
-       prop e
+      propagateForallPropDown e
+      propagateLawfulEqCmp e
+      let .const declName _ := e.getAppFn | return ()
+      if let some props := builtinPropagators.down[declName]? then
+       props.forM fun prop => prop e
   }
 
 -- A `simp` discharger that does not use assumptions.
@@ -110,7 +114,7 @@ private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
   let casesTypes := params.casesTypes
   let clean ← mkCleanState mvarId params
   let sstates ← Solvers.mkInitialStates
-  GoalM.run' { mvarId, ematch.thmMap := thmMap, split.casesTypes := casesTypes, clean, sstates } do
+  GoalM.run' { mvarId, ematch.thmMap := thmMap, inj.thms := params.inj, split.casesTypes := casesTypes, clean, sstates } do
     mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
     mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
     mkENodeCore btrueExpr (interpreted := false) (ctor := true) (generation := 0)

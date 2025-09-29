@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.CtorRecognizer
-public import Lean.Meta.Tactic.Util
-public import Lean.Meta.Tactic.Clear
+public import Lean.Meta.Basic
+import Lean.Meta.CtorRecognizer
+import Lean.Meta.Tactic.Util
+import Lean.Meta.Tactic.Clear
 import Lean.Meta.AppBuilder
 
 public section

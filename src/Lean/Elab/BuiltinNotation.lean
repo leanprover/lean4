@@ -70,15 +70,22 @@ open Meta
                 if (← getFVarLocalDecl xs[i]).binderInfo.isExplicit then
                   n := n + 1
               return n
-            let args := args.getElems
+            let mut args := args.getElems
             if args.size < numExplicitFields then
               let fieldsStr := if numExplicitFields == 1 then "fields" else "field"
               let providedStr :=
                 if args.size == 0 then "none were"
                 else if args.size == 1 then "only 1 was"
                 else s!"only {args.size} were"
-              throwError "Insufficient number of fields for `⟨...⟩` constructor: Constructor \
+              let errMsg := m!"Insufficient number of fields for `⟨...⟩` constructor: Constructor \
                 `{ctor}` has {numExplicitFields} explicit {fieldsStr}, but {providedStr} provided"
+              if (← read).errToSorry then
+                logError errMsg
+              else
+                throwError errMsg
+              for _ in args.size...numExplicitFields do
+                let s ← mkLabeledSorry (← mkFreshTypeMVar) (synthetic := true) (unique := false)
+                args := args.push <| ← exprToSyntax s
             let newStx ← if args.size == numExplicitFields then
               `($(mkCIdentFrom stx ctor (canonical := true)) $(args)*)
             else if numExplicitFields == 0 then

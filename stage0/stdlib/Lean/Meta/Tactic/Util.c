@@ -6483,8 +6483,8 @@ lean_dec_ref(x_38);
 x_43 = l_Lean_LocalDecl_hasValue(x_22, x_29);
 if (x_43 == 0)
 {
-x_23 = x_32;
-x_24 = x_42;
+x_23 = x_42;
+x_24 = x_32;
 goto block_28;
 }
 else
@@ -6498,8 +6498,8 @@ goto block_17;
 }
 else
 {
-x_23 = x_32;
-x_24 = x_42;
+x_23 = x_42;
+x_24 = x_32;
 goto block_28;
 }
 }
@@ -6549,9 +6549,9 @@ lean_object* x_25; lean_object* x_26; lean_object* x_27;
 x_25 = l_Lean_LocalDecl_fvarId(x_22);
 lean_dec(x_22);
 x_26 = lean_box(0);
-x_27 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_MVarId_getNondepPropHyps_spec__13___redArg(x_23, x_25, x_26);
+x_27 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_MVarId_getNondepPropHyps_spec__13___redArg(x_24, x_25, x_26);
 x_11 = x_27;
-x_12 = x_24;
+x_12 = x_23;
 goto block_17;
 }
 }
@@ -6777,8 +6777,8 @@ lean_dec_ref(x_40);
 x_45 = l_Lean_LocalDecl_hasValue(x_24, x_31);
 if (x_45 == 0)
 {
-x_25 = x_44;
-x_26 = x_34;
+x_25 = x_34;
+x_26 = x_44;
 goto block_30;
 }
 else
@@ -6792,8 +6792,8 @@ goto block_19;
 }
 else
 {
-x_25 = x_44;
-x_26 = x_34;
+x_25 = x_34;
+x_26 = x_44;
 goto block_30;
 }
 }
@@ -6843,9 +6843,9 @@ lean_object* x_27; lean_object* x_28; lean_object* x_29;
 x_27 = l_Lean_LocalDecl_fvarId(x_24);
 lean_dec(x_24);
 x_28 = lean_box(0);
-x_29 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_MVarId_getNondepPropHyps_spec__13___redArg(x_26, x_27, x_28);
+x_29 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_MVarId_getNondepPropHyps_spec__13___redArg(x_25, x_27, x_28);
 x_13 = x_29;
-x_14 = x_25;
+x_14 = x_26;
 goto block_19;
 }
 }

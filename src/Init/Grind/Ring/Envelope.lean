@@ -277,6 +277,9 @@ attribute [-simp] Q.mk
 
 /-! Embedding theorems -/
 
+theorem toQ_zero : toQ (0 : α) = (0 : Q α) := by
+  simp; apply Quot.sound; simp
+
 theorem toQ_add (a b : α) : toQ (a + b) = toQ a + toQ b := by
   simp
 

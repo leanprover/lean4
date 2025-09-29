@@ -1,5 +1,7 @@
 module
 
+meta import Init.Dynamic
+
 public axiom testSorry : α
 
 /-! Module docstring -/
@@ -33,6 +35,21 @@ info: @[reducible, expose] def fabbrev : Nat :=
 -/
 #guard_msgs in
 #print fabbrev
+
+/-- A non-exposed function type. -/
+public def Fun := Nat → Nat
+
+/-! The compiler should check it has sufficient information about types available. -/
+
+/--
+error: Compilation failed, locally inferred compilation type
+  (Nat → Nat) → Nat → Nat
+differs from type
+  (Nat → Nat) → lcAny
+that would be inferred in other modules. This usually means that a type `def` involved with the mentioned declarations needs to be `@[expose]`d. This is a current compiler limitation for `module`s that may be lifted in the future.
+-/
+#guard_msgs in
+public def Fun.mk (f : Nat → Nat) : Fun := f
 
 #guard_msgs(drop warning) in
 /-- A theorem. -/
@@ -79,6 +96,9 @@ has type
   Vector Unit 1
 but is expected to have type
   Vector Unit f
+
+Note: The following definitions were not unfolded because their definition is not exposed:
+  f ↦ 1
 -/
 #guard_msgs in
 public theorem v (x : Vector Unit f) (y : Vector Unit 1) : x = y := testSorry
@@ -292,6 +312,15 @@ constructor:
 #with_exporting
 #check { x := 1 : StructWithPrivateField }
 
+#check (⟨1⟩ : StructWithPrivateField)
+
+/--
+error: Invalid `⟨...⟩` notation: Constructor for `StructWithPrivateField` is marked as private
+-/
+#guard_msgs in
+#with_exporting
+#check (⟨1⟩ : StructWithPrivateField)
+
 #check StructWithPrivateField.x
 
 /-- error: Unknown constant `StructWithPrivateField.x` -/
@@ -364,15 +393,67 @@ constructor:
 section
 set_option pp.oneline true
 /--
-info: private def OptParamStruct.pauto._autoParam : Lean.Syntax :=
+info: private meta def OptParamStruct.pauto._autoParam : Lean.Syntax :=
 Lean.Syntax.node Lean.SourceInfo.none `Lean.Parser.Tactic.tacticSeq [...]
 -/
 #guard_msgs in
 #print OptParamStruct.pauto._autoParam
 /--
-info: @[expose] def OptParamStruct.auto._autoParam : Lean.Syntax :=
+info: @[expose] meta def OptParamStruct.auto._autoParam : Lean.Syntax :=
 Lean.Syntax.node Lean.SourceInfo.none `Lean.Parser.Tactic.tacticSeq [...]
 -/
 #guard_msgs in
 #print OptParamStruct.auto._autoParam
 end
+
+/-! `deriving` should derive `meta` defs on `meta` structures. -/
+meta structure Foo where
+deriving TypeName
+
+/--
+info: private meta def instTypeNameFoo : TypeName Foo :=
+inst✝
+-/
+#guard_msgs in
+#print instTypeNameFoo
+
+public meta def pubMeta := 1
+
+/-! `#eval` should accept `meta` and non-`meta`. -/
+
+meta def fmeta := 1
+
+/-- info: 2 -/
+#guard_msgs in
+#eval f + fmeta
+
+/-! Prop `instance`s should have direct access to the private scope. -/
+
+public class PropClass : Prop where
+  proof : True
+
+theorem privTrue : True := trivial
+public instance : PropClass := ⟨privTrue⟩
+
+/-! Meta defs should only be exposed explicitly. -/
+
+@[expose] section
+public meta def msec := 1
+@[expose] public meta def msecexp := 1
+end
+
+/--
+info: meta def msec : Nat :=
+<not imported>
+-/
+#guard_msgs in
+#with_exporting
+#print msec
+
+/--
+info: @[expose] meta def msecexp : Nat :=
+1
+-/
+#guard_msgs in
+#with_exporting
+#print msecexp

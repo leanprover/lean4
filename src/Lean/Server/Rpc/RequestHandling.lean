@@ -36,6 +36,10 @@ private unsafe def evalRpcProcedureUnsafe (env : Environment) (opts : Options) (
 private opaque evalRpcProcedure (env : Environment) (opts : Options) (procName : Name) :
     Except String RpcProcedure
 
+/-- Checks whether a builtin RPC procedure exists with the given name. -/
+def existsBuiltinRpcProcedure (method : Name) : IO Bool := do
+  return (← builtinRpcProcedures.get).contains method
+
 open RequestM in
 def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) := do
   -- The imports are finished at this point, because the handleRequest function
@@ -140,7 +144,8 @@ builtin_initialize registerBuiltinAttribute {
     The function must have type `α → RequestM (RequestTask β)` with
     `[RpcEncodable α]` and `[RpcEncodable β]`."
   applicationTime := AttributeApplicationTime.afterCompilation
-  add := fun decl _ _ =>
+  add := fun decl _ attrKind => do
+    ensureAttrDeclIsMeta `server_rpc_method decl attrKind
     registerRpcProcedure decl
 }
 

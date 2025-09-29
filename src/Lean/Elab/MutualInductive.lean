@@ -1167,6 +1167,8 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
           mkInjectiveTheorems e.view.declName
     for e in elabs do
       enableRealizationsForConst e.view.declName
+      for ctor in e.view.ctors do
+        enableRealizationsForConst ctor.declName
     return res
 
 private def elabFlatInductiveViews (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM Unit := do
@@ -1344,6 +1346,8 @@ def elabMutualInductive (elems : Array Syntax) : CommandElabM Unit := do
   let inductives ← elems.mapM fun stx => do
     let modifiers ← elabModifiers ⟨stx[0]⟩
     pure (modifiers, stx[1])
+  if inductives.any (·.1.isMeta) && inductives.any (!·.1.isMeta) then
+    throwError "A mix of `meta` and non-`meta` declarations in the same `mutual` block is not supported"
   elabInductives inductives
 
 end Lean.Elab.Command

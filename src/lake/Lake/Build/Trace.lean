@@ -8,6 +8,8 @@ module
 prelude
 public import Init.System.IO
 public import Lean.Data.Json
+import Init.Data.Nat.Fold
+import Lake.Util.String
 import Lake.Util.IO
 
 /-! # Lake Traces
@@ -101,19 +103,52 @@ namespace Hash
 
 public instance : Hashable Hash := ⟨Hash.val⟩
 
-@[inline] public def ofNat (n : Nat) :=
-  mk n.toUInt64
-
-public def ofString? (s : String) : Option Hash :=
-  (inline s.toNat?).map ofNat
-
-public def load? (hashFile : FilePath) : BaseIO (Option Hash) :=
-  ofString? <$> IO.FS.readFile hashFile |>.catchExceptions fun _ => pure none
-
 public def nil : Hash :=
   mk <| 1723 -- same as Name.anonymous
 
 public instance : NilTrace Hash := ⟨nil⟩
+
+@[inline] public def ofNat (n : Nat) :=
+  mk n.toUInt64
+
+/-- Parse a hash from a JSON number. -/
+public def ofJsonNumber? (n : JsonNumber) : Except String Hash :=
+  if n.exponent = 0 && 0 ≤ n.mantissa then
+    if h : n.mantissa.toNat < UInt64.size then
+      return ⟨.ofNatLT n.mantissa.toNat h⟩
+    else
+      throw "number too big"
+  else
+    throw "number is not a natural"
+
+/-- Parse a hash from a string of hexadecimal digits. Does no validation. -/
+public def ofHex (s : String) : Hash :=
+  mk <| s.utf8ByteSize.fold (init := 0) fun i h n =>
+    let c := s.getUtf8Byte ⟨i⟩ h
+    if c ≤ 57 then n*16 + (c - 48).toUInt64
+    else if 97 ≤ c then n*16 + (c - 87).toUInt64 -- c - 'a' + 10 = (c - 87)
+    else n*16 + (c - 55).toUInt64 -- c - 'A' + 10 = (c - 55)
+
+-- sanity check
+example : ofHex "0123456789" = ⟨0x0123456789⟩ ∧
+  ofHex "abcdeF" = ⟨0xabcdef⟩ ∧ ofHex "ABCDEF" = ⟨0xABCDEF⟩ := by native_decide
+
+/-- Parse a hash from a 16-digit string of hexadecimal digits. -/
+public def ofHex? (s : String) : Option Hash :=
+  if s.utf8ByteSize = 16 && isHex s then ofHex s else none
+
+/-- Returns the hash as 16-digit lowercase hex string. -/
+public def hex (self : Hash) : String :=
+  lpad (Nat.toDigits 16 self.val.toNat).asString '0' 16
+
+public def ofDecimal? (s : String) : Option Hash :=
+  (inline s.toNat?).map ofNat
+
+@[inline] public def ofString? (s : String) : Option Hash :=
+  ofHex? s
+
+public def load? (hashFile : FilePath) : BaseIO (Option Hash) :=
+  ofString? <$> IO.FS.readFile hashFile |>.catchExceptions fun _ => pure none
 
 @[inline] public def mix (h1 h2 : Hash) : Hash :=
   mk <| mixHash h1.val h2.val
@@ -121,7 +156,7 @@ public instance : NilTrace Hash := ⟨nil⟩
 public instance : MixTrace Hash := ⟨mix⟩
 
 @[inline] public protected def toString (self : Hash) : String :=
-  toString self.val
+  self.hex
 
 public instance : ToString Hash := ⟨Hash.toString⟩
 
@@ -139,12 +174,20 @@ public instance : ToString Hash := ⟨Hash.toString⟩
   mk (hash b)
 
 @[inline] public protected def toJson (self : Hash) : Json :=
-  toJson self.val
+  toJson self.hex
 
 public instance : ToJson Hash := ⟨Hash.toJson⟩
 
-@[inline] public protected def fromJson? (json : Json) : Except String Hash :=
-  (⟨·⟩) <$> fromJson? json
+public protected def fromJson? (json : Json) : Except String Hash := do
+  match json with
+  | .str s =>
+    unless isHex s do
+      throw "invalid hash: expected hexadecimal string"
+    unless s.utf8ByteSize = 16 do
+      throw "invalid hash: expected hexadecimal string of length 16"
+    return ofHex s
+  | .num n => ofJsonNumber? n |>.mapError (s!"invalid hash: {·}")
+  | _ => throw "invalid hash: expected string or number"
 
 public instance : FromJson Hash := ⟨Hash.fromJson?⟩
 

@@ -13,6 +13,8 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.Internalize
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.SemiringM
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommSemiringM
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
@@ -21,6 +23,9 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Inv
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadCanon
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadSemiring
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 builtin_initialize registerTraceClass `grind.ring

@@ -21,7 +21,7 @@ partial def mRenameI [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m] (goa
 @[builtin_tactic Lean.Parser.Tactic.mrenameI]
 def elabMRenameI : Tactic
   | `(tactic| mrename_i $idents:binderIdent*) => do
-    let (mvar, goal) ← mStartMVar (← getMainGoal)
+    let (mvar, goal) ← mStartMainGoal
     mvar.withContext do
     let goals ← IO.mkRef []
     mvar.assign (← Prod.snd <$> mRenameI goal idents fun newGoal => do

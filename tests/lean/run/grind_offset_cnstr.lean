@@ -1,6 +1,6 @@
 module
 set_option grind.debug true
-
+set_option warn.sorry false
 /--
 trace: [grind.offset.internalize.term] a1 ↦ #0
 [grind.offset.internalize.term] a2 ↦ #1
@@ -274,7 +274,7 @@ trace: [grind.debug.proof] intro_with_eq (p ↔ a2 ≤ a1) (p = (a2 ≤ a1)) (¬
 open Lean Grind in
 set_option trace.grind.debug.proof true in
 theorem ex1 (p : Prop) (a1 a2 a3 : Nat) : (p ↔ a2 ≤ a1) → ¬p → a2 + 3 ≤ a3 → (p ↔ a4 ≤ a3 + 2) → a1 ≤ a4 := by
-  grind
+  grind -order
 
 /-! Propagate `cnstr = False` tests -/
 

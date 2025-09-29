@@ -28,12 +28,16 @@ variable {m : Type u → Type v} {ps : PostShape.{u}}
 -/
 class WPMonad (m : Type u → Type v) (ps : outParam PostShape.{u}) [Monad m]
   extends LawfulMonad m, WP m ps where
+  /-- `WP.wp` preserves `pure`. -/
   wp_pure : ∀ {α} (a : α), wp (pure a) = pure a
+  /-- `WP.wp` preserves `bind`. -/
   wp_bind : ∀ {α β} (x : m α) (f : α → m β), wp (do let a ← x; f a) = do let a ← wp x; wp (f a)
 
+/-- `WP.wp` preserves `map`. -/
 theorem WPMonad.wp_map [Monad m] [WPMonad m ps] (f : α → β) (x : m α) :
   wp (f <$> x) = f <$> wp x := by simp [← bind_pure_comp, wp_pure, wp_bind]
 
+/-- `WP.wp` preserves `seq`. -/
 theorem WPMonad.wp_seq [Monad m] [WPMonad m ps] (f : m (α → β)) (x : m α) :
   wp (f <*> x) = wp f <*> wp x := by simp [← bind_map, wp_map, wp_bind]
 

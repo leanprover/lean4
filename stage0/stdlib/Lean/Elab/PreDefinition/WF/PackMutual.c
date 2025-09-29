@@ -744,11 +744,11 @@ lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22;
 x_19 = l_Array_toSubarray___redArg(x_14, x_17, x_18);
 x_20 = l_Array_ofSubarray___redArg(x_19);
 lean_dec_ref(x_19);
-x_21 = l_Lean_mkAppN(x_16, x_20);
+x_21 = l_Lean_mkAppN(x_15, x_20);
 lean_dec_ref(x_20);
 x_22 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_22, 0, x_21);
-lean_ctor_set(x_22, 1, x_15);
+lean_ctor_set(x_22, 1, x_16);
 return x_22;
 }
 block_34:
@@ -772,8 +772,8 @@ x_32 = lean_array_get_size(x_14);
 x_33 = lean_nat_dec_le(x_1, x_31);
 if (x_33 == 0)
 {
-x_15 = x_30;
-x_16 = x_29;
+x_15 = x_29;
+x_16 = x_30;
 x_17 = x_1;
 x_18 = x_32;
 goto block_23;
@@ -781,8 +781,8 @@ goto block_23;
 else
 {
 lean_dec(x_1);
-x_15 = x_30;
-x_16 = x_29;
+x_15 = x_29;
+x_16 = x_30;
 x_17 = x_31;
 x_18 = x_32;
 goto block_23;

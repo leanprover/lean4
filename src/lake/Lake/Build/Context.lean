@@ -14,7 +14,7 @@ open System
 namespace Lake
 
 /-- Configuration options for a Lake build. -/
-public structure BuildConfig where
+public structure BuildConfig extends LogConfig where
   /-- Use modification times for trace checking. -/
   oldMode : Bool := false
   /-- Whether to trust `.hash` files. -/
@@ -23,25 +23,10 @@ public structure BuildConfig where
   noBuild : Bool := false
   /-- Verbosity level (`-q`, `-v`, or neither). -/
   verbosity : Verbosity := .normal
-  /--
-  Fail the top-level build if entries of at least this level have been logged.
-
-  Unlike some build systems, this does **NOT** convert such log entries to
-  errors, and it does not abort jobs when warnings are logged (i.e.,
-  dependent jobs will still continue unimpeded).
-  -/
-  failLv : LogLevel := .error
-  /-- The minimum log level for an log entry to be reported. -/
-  outLv : LogLevel := verbosity.minLogLv
-  /--
-  The stream to which Lake reports build progress.
-  By default, Lake uses `stderr`.
-  -/
-  out : OutStream := .stderr
-  /-- Whether to use ANSI escape codes in build output. -/
-  ansiMode : AnsiMode := .auto
   /-- Whether to print a message when the build finishes successfully (if not quiet). -/
   showSuccess : Bool := false
+  /-- File to save input-to-output mappings from the build of the worksoace's root -/
+  outputsFile? : Option FilePath := none
 
 /--
 Whether the build should show progress information.

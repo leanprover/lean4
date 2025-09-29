@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Eval
 public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.SyntheticMVars
+public import Lean.ExtraModUses
 import Lean.Linter.MissingDocs
 meta import Lean.Parser.Tactic
 
@@ -126,7 +127,7 @@ section
 -- parser.
 set_option internal.parseQuotWithCurrentStage false
 
-private def mkConfigElaborator
+private meta def mkConfigElaborator
     (doc? : Option (TSyntax ``Parser.Command.docComment)) (elabName type monadName : Ident)
     (adapt recover : Term) : MacroM (TSyntax `command) := do
   let empty ← withRef type `({ : $type})
@@ -142,6 +143,7 @@ private def mkConfigElaborator
           return $empty
         unless (← getEnv).contains ``$type do
           throwError m!"Error evaluating configuration: Environment does not yet contain type {``$type}"
+        recordExtraModUseFromDecl (isMeta := true) ``$type
         let c ← elabConfig recover ``$type items
         if c.hasSyntheticSorry then
           -- An error is already logged, return the default.

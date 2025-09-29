@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.TestExtern
-// Imports: Lean.Elab.Command Lean.Meta.Tactic.Unfold Lean.Meta.Eval Lean.Compiler.ImplementedByAttr Lean.Elab.Command
+// Imports: Lean.Meta.Tactic.Unfold Lean.Meta.Eval Lean.Compiler.ImplementedByAttr Lean.Elab.Command
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -60,7 +60,7 @@ uint8_t l_Lean_isExtern(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_pp_macroStack;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___elabTestExtern_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_evalExpr___redArg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_evalExpr___redArg(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at___elabTestExtern_spec__1_spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___Lean_Elab_addMacroStack___at___Lean_throwError___at___elabTestExtern_spec__1_spec__2_spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
@@ -1076,7 +1076,7 @@ lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);
 lean_inc_ref(x_6);
-x_34 = l_Lean_Meta_evalExpr___redArg(x_32, x_31, x_33, x_6, x_7, x_8, x_9, x_29);
+x_34 = l_Lean_Meta_evalExpr___redArg(x_32, x_31, x_33, x_3, x_6, x_7, x_8, x_9, x_29);
 if (lean_obj_tag(x_34) == 0)
 {
 lean_object* x_35; uint8_t x_36; 
@@ -1490,7 +1490,6 @@ lean_dec(x_3);
 return x_5;
 }
 }
-lean_object* initialize_Lean_Elab_Command(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Unfold(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Eval(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_ImplementedByAttr(uint8_t builtin, lean_object*);
@@ -1500,9 +1499,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Util_TestExtern(uint8_t builtin, lean_o
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_Command(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Unfold(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

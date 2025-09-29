@@ -26,6 +26,8 @@ public structure LoadConfig where
   lakeArgs? : Option (Array String) := none
   /-- The absolute path to the root directory of the Lake workspace. -/
   wsDir : FilePath
+  /-- The assigned name of the package. If `Name.anonymous`, the package's own name will be used. -/
+  pkgName : Name := .anonymous
   /-- The loaded package's directory (relative to the workspace directory). -/
   relPkgDir : FilePath := "."
   /-- The absolute path to the loaded package's directory. -/

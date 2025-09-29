@@ -9460,8 +9460,8 @@ x_23 = lean_ctor_get(x_3, 1);
 lean_inc(x_23);
 lean_dec_ref(x_3);
 x_24 = lean_unsigned_to_nat(0u);
-x_4 = x_24;
-x_5 = x_22;
+x_4 = x_22;
+x_5 = x_24;
 x_6 = x_23;
 goto block_9;
 }
@@ -9477,17 +9477,17 @@ x_26 = lean_unsigned_to_nat(0u);
 x_27 = lean_ctor_get(x_3, 1);
 lean_inc(x_27);
 lean_dec_ref(x_3);
-x_4 = x_26;
-x_5 = x_25;
+x_4 = x_25;
+x_5 = x_26;
 x_6 = x_27;
 goto block_9;
 }
 block_9:
 {
 lean_object* x_7; lean_object* x_8; 
-x_7 = l_Lake_JobState_merge(x_5, x_6);
+x_7 = l_Lake_JobState_merge(x_4, x_6);
 x_8 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_8, 0, x_4);
+lean_ctor_set(x_8, 0, x_5);
 lean_ctor_set(x_8, 1, x_7);
 return x_8;
 }

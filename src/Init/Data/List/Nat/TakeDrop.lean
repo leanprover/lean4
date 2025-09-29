@@ -117,9 +117,6 @@ theorem take_set_of_le {a : α} {i j : Nat} {l : List α} (h : j ≤ i) :
     next h' => rw [getElem?_set_ne (by omega)]
     · rfl
 
-@[deprecated take_set_of_le (since := "2025-02-04")]
-abbrev take_set_of_lt := @take_set_of_le
-
 @[simp, grind =] theorem take_replicate {a : α} : ∀ {i n : Nat}, take i (replicate n a) = replicate (min i n) a
   | n, 0 => by simp
   | 0, m => by simp
@@ -165,8 +162,8 @@ theorem take_eq_take_iff :
   | x :: xs, 0, j + 1 => by simp [succ_min_succ]
   | x :: xs, i + 1, j + 1 => by simp [succ_min_succ, take_eq_take_iff]
 
-@[deprecated take_eq_take_iff (since := "2025-02-16")]
-abbrev take_eq_take := @take_eq_take_iff
+theorem take_eq_take_min {l : List α} {i : Nat} : l.take i = l.take (min i l.length) := by
+  simp
 
 @[grind =]
 theorem take_add {l : List α} {i j : Nat} : l.take (i + j) = l.take i ++ (l.drop i).take j := by

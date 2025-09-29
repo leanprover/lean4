@@ -24,6 +24,9 @@ has type
   Vector Unit 1
 but is expected to have type
   Vector Unit f
+
+Note: The following definitions were not unfolded because their definition is not exposed:
+  f ↦ 1
 -/
 #guard_msgs in
 public theorem v (x : Vector Unit f) (y : Vector Unit 1) : x = y := sorry
@@ -141,3 +144,19 @@ Note: A private declaration `priv✝` (from `Module.Basic`) exists but would nee
 -/
 #guard_msgs in
 @[expose] public def pub' := priv
+
+#check { x := 1 : StructWithPrivateField }
+
+/-- error: invalid {...} notation, constructor for `StructWithPrivateField` is marked as private -/
+#guard_msgs in
+#with_exporting
+#check { x := 1 : StructWithPrivateField }
+
+#check (⟨1⟩ : StructWithPrivateField)
+
+/--
+error: Invalid `⟨...⟩` notation: Constructor for `StructWithPrivateField` is marked as private
+-/
+#guard_msgs in
+#with_exporting
+#check (⟨1⟩ : StructWithPrivateField)

@@ -3,11 +3,11 @@ funind_errors.lean:22:7-22:23: error(lean.unknownIdentifier): Unknown constant `
 takeWhile.foo.induct.{u_1} {α : Type u_1} (p : α → Bool) (as : Array α) (motive : Nat → Array α → Prop)
   (case1 :
     ∀ (i : Nat) (r : Array α) (h : i < as.size),
-      have a := as.get i h;
+      have a := as[i];
       p a = true → motive (i + 1) (r.push a) → motive i r)
   (case2 :
     ∀ (i : Nat) (r : Array α) (h : i < as.size),
-      have a := as.get i h;
+      have a := as[i];
       ¬p a = true → motive i r)
   (case3 : ∀ (i : Nat) (r : Array α), ¬i < as.size → motive i r) (i : Nat) (r : Array α) : motive i r
 funind_errors.lean:38:7-38:20: error(lean.unknownIdentifier): Unknown constant `idEven.induct`

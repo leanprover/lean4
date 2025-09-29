@@ -1217,16 +1217,16 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_o
 x_8 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
 x_9 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_9, 0, x_3);
+lean_ctor_set(x_9, 0, x_6);
 lean_ctor_set(x_9, 1, x_8);
 x_10 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
-lean_ctor_set(x_10, 1, x_6);
+lean_ctor_set(x_10, 1, x_3);
 x_11 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_11, 0, x_5);
+lean_ctor_set(x_11, 0, x_4);
 lean_ctor_set(x_11, 1, x_10);
 x_12 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_12, 0, x_4);
+lean_ctor_set(x_12, 0, x_5);
 lean_ctor_set(x_12, 1, x_11);
 x_13 = l_Lean_Json_mkObj(x_12);
 return x_13;
@@ -1279,10 +1279,10 @@ if (x_2 == 0)
 {
 lean_object* x_49; 
 x_49 = l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__8;
-x_3 = x_48;
-x_4 = x_17;
-x_5 = x_47;
-x_6 = x_44;
+x_3 = x_44;
+x_4 = x_47;
+x_5 = x_17;
+x_6 = x_48;
 x_7 = x_49;
 goto block_14;
 }
@@ -1295,10 +1295,10 @@ x_52 = lean_string_append(x_50, x_51);
 lean_dec_ref(x_51);
 x_53 = l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__10;
 x_54 = lean_string_append(x_52, x_53);
-x_3 = x_48;
-x_4 = x_17;
-x_5 = x_47;
-x_6 = x_44;
+x_3 = x_44;
+x_4 = x_47;
+x_5 = x_17;
+x_6 = x_48;
 x_7 = x_54;
 goto block_14;
 }
@@ -2041,7 +2041,7 @@ x_19 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_19, 0, x_13);
 lean_ctor_set(x_19, 1, x_18);
 x_20 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_20, 0, x_17);
+lean_ctor_set(x_20, 0, x_16);
 lean_ctor_set(x_20, 1, x_19);
 if (lean_is_scalar(x_15)) {
  x_21 = lean_alloc_ctor(0, 2, 0);
@@ -2049,7 +2049,7 @@ if (lean_is_scalar(x_15)) {
  x_21 = x_15;
 }
 lean_ctor_set(x_21, 0, x_20);
-lean_ctor_set(x_21, 1, x_16);
+lean_ctor_set(x_21, 1, x_17);
 return x_21;
 }
 block_33:
@@ -2060,8 +2060,8 @@ if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_26; 
 x_26 = lean_box(0);
-x_16 = x_24;
-x_17 = x_25;
+x_16 = x_25;
+x_17 = x_24;
 x_18 = x_26;
 goto block_22;
 }
@@ -2076,8 +2076,8 @@ x_28 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
 x_29 = lean_apply_1(x_28, x_13);
 lean_ctor_set(x_11, 0, x_29);
-x_16 = x_24;
-x_17 = x_25;
+x_16 = x_25;
+x_17 = x_24;
 x_18 = x_11;
 goto block_22;
 }
@@ -2091,8 +2091,8 @@ lean_inc(x_13);
 x_31 = lean_apply_1(x_30, x_13);
 x_32 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_32, 0, x_31);
-x_16 = x_24;
-x_17 = x_25;
+x_16 = x_25;
+x_17 = x_24;
 x_18 = x_32;
 goto block_22;
 }

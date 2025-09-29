@@ -138,10 +138,8 @@ LEAN_EXPORT lean_object* l_LLVM_i32Type___boxed(lean_object*, lean_object*);
 lean_object* lean_llvm_add_global(size_t, size_t, lean_object*, size_t, lean_object*);
 lean_object* lean_llvm_verify_module(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_CodegenFileType_ctorIdx(uint64_t);
-uint64_t lean_uint64_add(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_LLVM_isDeclaration___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_getNextGlobal___boxed(lean_object*, lean_object*, lean_object*);
-static uint64_t l_LLVM_IntPredicate_UGT___closed__0;
 lean_object* lean_llvm_build_gep2(size_t, size_t, size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* llvm_count_params(size_t, size_t, lean_object*);
 LEAN_EXPORT uint64_t l_LLVM_Linkage_linkOnceAny;
@@ -233,7 +231,6 @@ LEAN_EXPORT lean_object* l_LLVM_i8PtrType___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_opaquePointerTypeInContext___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_doubleTypeInContext___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_LLVM_Linkage_externalWeak;
-static uint64_t l_LLVM_IntPredicate_NE___closed__0;
 LEAN_EXPORT lean_object* l_LLVM_buildSwitch___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_typeOf___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_getParam___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -339,39 +336,19 @@ x_1 = 32;
 return x_1;
 }
 }
-static uint64_t _init_l_LLVM_IntPredicate_NE___closed__0() {
-_start:
-{
-uint64_t x_1; uint64_t x_2; uint64_t x_3; 
-x_1 = 1;
-x_2 = 32;
-x_3 = lean_uint64_add(x_2, x_1);
-return x_3;
-}
-}
 static uint64_t _init_l_LLVM_IntPredicate_NE() {
 _start:
 {
 uint64_t x_1; 
-x_1 = l_LLVM_IntPredicate_NE___closed__0;
+x_1 = 33;
 return x_1;
-}
-}
-static uint64_t _init_l_LLVM_IntPredicate_UGT___closed__0() {
-_start:
-{
-uint64_t x_1; uint64_t x_2; uint64_t x_3; 
-x_1 = 1;
-x_2 = l_LLVM_IntPredicate_NE;
-x_3 = lean_uint64_add(x_2, x_1);
-return x_3;
 }
 }
 static uint64_t _init_l_LLVM_IntPredicate_UGT() {
 _start:
 {
 uint64_t x_1; 
-x_1 = l_LLVM_IntPredicate_UGT___closed__0;
+x_1 = 34;
 return x_1;
 }
 }
@@ -2337,9 +2314,7 @@ lean_dec_ref(res);
 l_LLVM_CodegenFileType_AssemblyFile = _init_l_LLVM_CodegenFileType_AssemblyFile();
 l_LLVM_CodegenFileType_ObjectFile = _init_l_LLVM_CodegenFileType_ObjectFile();
 l_LLVM_IntPredicate_EQ = _init_l_LLVM_IntPredicate_EQ();
-l_LLVM_IntPredicate_NE___closed__0 = _init_l_LLVM_IntPredicate_NE___closed__0();
 l_LLVM_IntPredicate_NE = _init_l_LLVM_IntPredicate_NE();
-l_LLVM_IntPredicate_UGT___closed__0 = _init_l_LLVM_IntPredicate_UGT___closed__0();
 l_LLVM_IntPredicate_UGT = _init_l_LLVM_IntPredicate_UGT();
 l_LLVM_AttributeIndex_AttributeReturnIndex = _init_l_LLVM_AttributeIndex_AttributeReturnIndex();
 l_LLVM_AttributeIndex_AttributeFunctionIndex = _init_l_LLVM_AttributeIndex_AttributeFunctionIndex();

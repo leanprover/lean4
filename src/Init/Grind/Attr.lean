@@ -98,30 +98,44 @@ syntax grindEqBwd  := patternIgnore(atomic("←" "=") <|> atomic("<-" "="))
 The `←` modifier instructs `grind` to select a multi-pattern from the conclusion of theorem.
 In other words, `grind` will use the theorem for backwards reasoning.
 This may fail if not all of the arguments to the theorem appear in the conclusion.
+Each time it encounters a subexpression which covers an argument which was not
+previously covered, it adds that subexpression as a pattern, until all arguments have been covered.
+If `grind!` is used, then only minimal indexable subexpressions are considered.
 -/
 syntax grindBwd    := patternIgnore("←" <|> "<-") (grindGen)?
 /--
 The `→` modifier instructs `grind` to select a multi-pattern from the hypotheses of the theorem.
 In other words, `grind` will use the theorem for forwards reasoning.
 To generate a pattern, it traverses the hypotheses of the theorem from left to right.
-Each time it encounters a minimal indexable subexpression which covers an argument which was not
+Each time it encounters a subexpression which covers an argument which was not
 previously covered, it adds that subexpression as a pattern, until all arguments have been covered.
+If `grind!` is used, then only minimal indexable subexpressions are considered.
 -/
 syntax grindFwd    := patternIgnore("→" <|> "->")
 /--
 The `⇐` modifier instructs `grind` to select a multi-pattern by traversing the conclusion, and then
 all the hypotheses from right to left.
-Each time it encounters a minimal indexable subexpression which covers an argument which was not
+Each time it encounters a subexpression which covers an argument which was not
 previously covered, it adds that subexpression as a pattern, until all arguments have been covered.
+If `grind!` is used, then only minimal indexable subexpressions are considered.
 -/
 syntax grindRL     := patternIgnore("⇐" <|> "<=")
 /--
 The `⇒` modifier instructs `grind` to select a multi-pattern by traversing all the hypotheses from
 left to right, followed by the conclusion.
-Each time it encounters a minimal indexable subexpression which covers an argument which was not
+Each time it encounters a subexpression which covers an argument which was not
 previously covered, it adds that subexpression as a pattern, until all arguments have been covered.
+If `grind!` is used, then only minimal indexable subexpressions are considered.
 -/
 syntax grindLR     := patternIgnore("⇒" <|> "=>")
+/--
+The `.` modifier instructs `grind` to select a multi-pattern by traversing the conclusion of the
+theorem, and then the hypotheses from eft to right. We say this is the default modifier.
+Each time it encounters a subexpression which covers an argument which was not
+previously covered, it adds that subexpression as a pattern, until all arguments have been covered.
+If `grind!` is used, then only minimal indexable subexpressions are considered.
+-/
+syntax grindDef    := patternIgnore("." <|> "·") (grindGen)?
 /--
 The `usr` modifier indicates that this theorem was applied using a
 **user-defined instantiation pattern**. Such patterns are declared with
@@ -168,6 +182,12 @@ available extensionality theorems whose matches the type of `a` and `b`.
 -/
 syntax grindExt    := &"ext"
 /--
+The `inj` modifier marks injectivity theorems for use by `grind`.
+The conclusion of the theorem must be of the form `Function.Injective f`
+where the term `f` contains at least one constant symbol.
+-/
+syntax grindInj    := &"inj"
+/--
 `symbol <prio>` sets the priority of a constant for `grind`’s pattern-selection
 procedure. `grind` prefers patterns that contain higher-priority symbols.
 Example:
@@ -193,8 +213,49 @@ syntax grindSym    := &"symbol" ppSpace prio
 syntax grindMod :=
     grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd
     <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager
-    <|> grindCases <|> grindIntro <|> grindExt <|> grindGen <|> grindSym
+    <|> grindCases <|> grindIntro <|> grindExt <|> grindGen <|> grindSym <|> grindInj
+    <|> grindDef
+
+/--
+Marks a theorem or definition for use by the `grind` tactic.
+
+An optional modifier (e.g. `=`, `→`, `←`, `cases`, `intro`, `ext`, `inj`, etc.)
+controls how `grind` uses the declaration:
+* whether it is applied forwards, backwards, or both,
+* whether equalities are used on the left, right, or both sides,
+* whether case-splits, constructors, extensionality, or injectivity are applied,
+* or whether custom instantiation patterns are used.
+
+See the individual modifier docstrings for details.
+-/
 syntax (name := grind) "grind" (ppSpace grindMod)? : attr
+/--
+Like `@[grind]`, but enforces the **minimal indexable subexpression condition**:
+when several subterms cover the same free variables, `grind!` chooses the smallest one.
+
+This influences E-matching pattern selection.
+
+### Example
+```lean
+theorem fg_eq (h : x > 0) : f (g x) = x
+
+@[grind <-] theorem fg_eq (h : x > 0) : f (g x) = x
+-- Pattern selected: `f (g x)`
+
+-- With minimal subexpression:
+@[grind! <-] theorem fg_eq (h : x > 0) : f (g x) = x
+-- Pattern selected: `g x`
+-/
+syntax (name := grind!) "grind!" (ppSpace grindMod)? : attr
+/--
+Like `@[grind]`, but also prints the pattern(s) selected by `grind`
+as info messages. Useful for debugging annotations and modifiers.
+-/
 syntax (name := grind?) "grind?" (ppSpace grindMod)? : attr
+/--
+Like `@[grind!]`, but also prints the pattern(s) selected by `grind`
+as info messages. Combines minimal subexpression selection with debugging output.
+-/
+syntax (name := grind!?) "grind!?" (ppSpace grindMod)? : attr
 end Attr
 end Lean.Parser

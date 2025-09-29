@@ -219,8 +219,11 @@ def isDefLike (stx : Syntax) : Bool :=
   declKind == ``Parser.Command.instance ||
   declKind == ``Parser.Command.example
 
-def mkDefView (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView :=
+def mkDefView (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
   let declKind := stx.getKind
+  let modifiers := if modifiers.computeKind == .regular && (← getScope).isMeta then
+    { modifiers with computeKind := .meta }
+  else modifiers
   if declKind == ``Parser.Command.«abbrev» then
     return mkDefViewOfAbbrev modifiers stx
   else if declKind == ``Parser.Command.definition then

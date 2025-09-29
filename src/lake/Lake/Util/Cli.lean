@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Control.State
 import Init.Data.Array.Basic
-import Init.Data.String.Basic
+public import Init.Data.String.Basic
 
 namespace Lake
 
@@ -18,6 +18,7 @@ Defines the abstract CLI interface for Lake.
 
 /-! # Types -/
 
+@[expose]  -- for codegen
 public def ArgList := List String
 
 @[inline] public def ArgList.mk (args : List String) : ArgList :=

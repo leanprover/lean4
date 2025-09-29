@@ -11,7 +11,7 @@ public import Lake.Config.Workspace
 import Lake.Config.Monad
 import Lake.Build.Infos
 import Lake.Build.Job.Monad
-import Lake.Build.Job.Register
+public import Lake.Build.Job.Register
 import Lake.Util.IO
 
 open System Lean

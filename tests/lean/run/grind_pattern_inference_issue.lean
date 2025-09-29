@@ -18,7 +18,7 @@ def Vector.toList (xs : Vector α n) : List α :=
 
 /-- info: length_toList: [@toList #2 #1 #0] -/
 #guard_msgs (info) in
-@[grind?] theorem Vector.length_toList (xs : Vector α n) : xs.toList.length = n := by sorry
+@[grind!? ←] theorem Vector.length_toList (xs : Vector α n) : xs.toList.length = n := by sorry
 
 def wrapper (f : Nat → Nat → List α → List α) (h : ∀ n m xs, xs.length = n → (f n m xs).length = m) :
     (n m : Nat) → Vector α n → Vector α m :=
@@ -32,4 +32,4 @@ new:
 -/
 #guard_msgs in
 set_option backward.grind.checkInferPatternDiscrepancy true in
-@[grind] theorem Vector.length_toList' (xs : Vector α n) : xs.toList.length = n := by sorry
+@[grind! ←] theorem Vector.length_toList' (xs : Vector α n) : xs.toList.length = n := by sorry

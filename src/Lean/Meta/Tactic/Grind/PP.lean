@@ -5,15 +5,18 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Grind.Util
-public import Init.Grind.PP
 public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Arith.Model
-public import Lean.Meta.Tactic.Grind.Arith.Offset.Types
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
-public import Lean.Meta.Tactic.Grind.Arith.Linear.PP
-public import Lean.Meta.Tactic.Grind.AC.PP
+import Init.Grind.Util
+import Init.Grind.Injective
+import Init.Grind.PP
+import Lean.Meta.Tactic.Grind.Arith.Model
+import Lean.Meta.Tactic.Grind.Arith.Offset.Types
+import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
+import Lean.Meta.Tactic.Grind.Arith.Linear.PP
+import Lean.Meta.Tactic.Grind.AC.PP
+import Lean.Meta.Tactic.Grind.CastLike
 import Lean.PrettyPrinter
+import Lean.Meta.CtorRecognizer
 public section
 
 namespace Lean.Meta.Grind
@@ -88,9 +91,72 @@ def ppExprArray (cls : Name) (header : String) (es : Array Expr) (clsElem : Name
   let es := es.map (toTraceElem · clsElem)
   .trace { cls } header es
 
+section EqcFilter
+/-!
+Functions for deciding whether an expression is a support application or not
+when displaying equivalence classes.
+This is hard-coded for now. We will probably make it extensible in the future.
+-/
+private def isGadget (declName : Name) : Bool :=
+  declName == ``Grind.nestedDecidable || declName == ``Grind.leftInv
+
+private def isBuiltin (declName : Name) : Bool :=
+  declName == ``ite || declName == ``dite || declName == ``cast
+
+/-- Result for helper function `isArithOfCastLike` -/
+private inductive Result where
+  | num | cast | no
+  deriving Inhabited
+
+@[macro_inline] private def Result.and : Result → Result → Result
+  | .no,   _ | _, .no   => .no
+  | .cast, _ | _, .cast => .cast
+  | .num, .num => .num
+
+/--
+Returns `true` if `e` is an expression constructed using numerals,
+`grind` cast-like operations, and arithmetic terms. Moreover, the
+expression contains at least one cast-like application.
+This kind of term is constructed by `grind` satellite solvers.
+-/
+private partial def isArithOfCastLike (e : Expr) : Bool :=
+  go e matches .cast
+where
+  go (e : Expr) : Result :=
+    match_expr e with
+    | HAdd.hAdd _ _ _ _ a b => go a |>.and (go b)
+    | HSub.hSub _ _ _ _ a b => go a |>.and (go b)
+    | HMul.hMul _ _ _ _ a b => go a |>.and (go b)
+    | HDiv.hDiv _ _ _ _ a b => go a |>.and (go b)
+    | HMod.hMod _ _ _ _ a b => go a |>.and (go b)
+    | HPow.hPow _ _ _ _ a _ => go a
+    | Neg.neg _ _ a         => go a
+    | OfNat.ofNat _ _ _     => .num
+    | _ => if isCastLikeApp e then .cast else .no
+
+/--
+Returns `true` if `e` is a support-like application.
+Recall that equivalence classes that contain only support applications are displayed in the "others" category.
+-/
+private def isSupportApp (e : Expr) : MetaM Bool := do
+  if isArithOfCastLike e then return true
+  let .const declName _ := e.getAppFn | return false
+  -- Check whether `e` is the projection of a constructor
+  if let some info ← getProjectionFnInfo? declName then
+    if e.getAppNumArgs == info.numParams + 1 then
+      if (← isConstructorApp e.appArg!) then
+        return true
+  return isCastLikeDeclName declName || isGadget declName || isBuiltin declName || isMatcherCore (← getEnv) declName
+
+end EqcFilter
+
+private def ppEqc (eqc : List Expr) (children : Array MessageData := #[]) : MessageData :=
+  .trace { cls := `eqc } (.group ("{" ++ (MessageData.joinSep (eqc.map toMessageData) ("," ++ Format.line)) ++  "}")) children
+
 private def ppEqcs : M Unit := do
    let mut trueEqc?  : Option MessageData := none
    let mut falseEqc? : Option MessageData := none
+   let mut regularEqcs : Array MessageData := #[]
    let mut otherEqcs : Array MessageData := #[]
    let goal ← read
    for eqc in goal.getEqcs (sort := true) do
@@ -105,11 +171,22 @@ private def ppEqcs : M Unit := do
      else if let e :: _ :: _ := eqc then
        -- We may want to add a flag to pretty print equivalence classes of nested proofs
        unless (← isProof e) do
-         otherEqcs := otherEqcs.push <| .trace { cls := `eqc } (.group ("{" ++ (MessageData.joinSep (eqc.map toMessageData) ("," ++ Format.line)) ++  "}")) #[]
+         let mainEqc ← eqc.filterM fun e => return !(← isSupportApp e)
+         if mainEqc.length <= 1 then
+           otherEqcs := otherEqcs.push <| ppEqc eqc
+         else
+           let supportEqc ← eqc.filterM fun e => isSupportApp e
+           if supportEqc.isEmpty then
+             regularEqcs := regularEqcs.push <| ppEqc mainEqc
+           else
+             regularEqcs := regularEqcs.push <| ppEqc mainEqc #[ppEqc supportEqc]
+
+   unless otherEqcs.isEmpty do
+     regularEqcs := regularEqcs.push <| .trace { cls := `eqc } "others" otherEqcs
    if let some trueEqc := trueEqc? then pushMsg trueEqc
    if let some falseEqc := falseEqc? then pushMsg falseEqc
-   unless otherEqcs.isEmpty do
-     pushMsg <| .trace { cls := `eqc } "Equivalence classes" otherEqcs
+   unless regularEqcs.isEmpty do
+     pushMsg <| .trace { cls := `eqc } "Equivalence classes" regularEqcs
 
 private def ppEMatchTheorem (thm : EMatchTheorem) : MetaM MessageData := do
   let m := m!"{thm.origin.pp}: {thm.patterns.map ppPattern}"

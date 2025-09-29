@@ -181,6 +181,89 @@ theorem Spec.monadMap_trans [WP o ps] [MonadFunctor n o] [MonadFunctorT m n] :
 theorem Spec.monadMap_refl [WP m ps] :
   Triple (MonadFunctorT.monadMap f x : m α) (spred(wp⟦f x : m α⟧ Q)) spred(Q) := by simp [Triple]
 
+/-! # `MonadControl` -/
+
+@[spec]
+theorem Spec.liftWith_StateT [Monad m] [WPMonad m ps]
+  (f : (∀{β}, StateT σ m β → m (β × σ)) → m α) :
+    Triple
+      (MonadControl.liftWith (m:=m) f)
+      (fun s => wp⟦f (fun x => x.run s)⟧ (fun a => Q.1 a s, Q.2))
+      Q := by simp [Triple]
+
+@[spec]
+theorem Spec.liftWith_ReaderT [Monad m] [WPMonad m ps]
+  (f : (∀{β}, ReaderT ρ m β → m β) → m α) :
+    Triple
+      (MonadControl.liftWith (m:=m) f)
+      (fun s => wp⟦f (fun x => x.run s)⟧ (fun a => Q.1 a s, Q.2))
+      Q := by simp [Triple]
+
+@[spec]
+theorem Spec.liftWith_ExceptT [Monad m] [WPMonad m ps]
+  (f : (∀{β}, ExceptT ε m β → m (Except ε β)) → m α) :
+    Triple (ps := .except ε ps)
+      (MonadControl.liftWith (m:=m) f)
+      (wp⟦f (fun x => x.run)⟧ (Q.1, Q.2.2))
+      Q := by simp [Triple]
+
+@[spec]
+theorem Spec.restoreM_StateT [Monad m] [WPMonad m ps] (x : m (α × σ)) :
+    Triple
+      (MonadControl.restoreM x : StateT σ m α)
+      (fun _ => wp⟦x⟧ (fun (a, s) => Q.1 a s, Q.2))
+      Q := by simp [Triple]
+
+@[spec]
+theorem Spec.restoreM_ReaderT [Monad m] [WPMonad m ps] (x : m α) :
+    Triple (m := ReaderT ρ m)
+      (MonadControl.restoreM (m:=m) x)
+      (fun s => wp⟦x⟧ (fun a => Q.1 a s, Q.2))
+      Q := by simp [Triple]
+
+@[spec]
+theorem Spec.restoreM_ExceptT [Monad m] [WPMonad m ps] (x : m (Except ε α)) :
+    Triple (ps := .except ε ps)
+      (MonadControl.restoreM x : ExceptT ε m α)
+      (wp⟦x⟧ (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2))
+      Q := by simp [Triple]; rfl
+
+/-! # `MonadControlT` -/
+
+@[spec]
+theorem Spec.liftWith_trans [WP o ps] [MonadControl n o] [MonadControlT m n]
+  (f : (∀{β}, o β → m (stM m o β)) → m α) :
+    Triple (m:=o)
+      (MonadControlT.liftWith (m:=m) f)
+      (wp⟦MonadControl.liftWith (m:=n) fun x₂ => MonadControlT.liftWith fun x₁ => f (x₁ ∘ x₂) : o α⟧ Q)
+      Q := .rfl
+
+@[spec]
+theorem Spec.liftWith_refl [WP m ps] [Pure m]
+  (f : (∀{β}, m β → m β) → m α) :
+    Triple (m:=m)
+      (MonadControlT.liftWith (m:=m) f)
+      (wp⟦f (fun x => x) : m α⟧ Q)
+      Q := .rfl
+
+@[spec]
+theorem Spec.restoreM_trans [WP o ps] [MonadControl n o] [MonadControlT m n]
+  (x : stM m o α) :
+    Triple (m:=o)
+      (MonadControlT.restoreM (m:=m) x)
+      (wp⟦MonadControl.restoreM (m:=n) (MonadControlT.restoreM (m:=m) x) : o α⟧ Q)
+      Q := .rfl
+
+@[spec]
+theorem Spec.restoreM_refl [WP m ps] [Pure m]
+  (x : stM m m α) :
+    Triple (m:=m)
+      (MonadControlT.restoreM (m:=m) x)
+      (wp⟦Pure.pure x : m α⟧ Q)
+      Q := .rfl
+
+attribute [spec] controlAt control
+
 /-! # `ReaderT` -/
 
 attribute [spec] ReaderT.run
@@ -190,8 +273,12 @@ theorem Spec.read_ReaderT [Monad m] [WPMonad m psm] :
   Triple (MonadReaderOf.read : ReaderT ρ m ρ) (spred(fun r => Q.1 r r)) spred(Q) := by simp [Triple]
 
 @[spec]
-theorem Spec.withReader_ReaderT [Monad m] [WPMonad m psm] :
+theorem Spec.withReader_ReaderT [WP m psm] :
   Triple (MonadWithReaderOf.withReader f x : ReaderT ρ m α) (spred(fun r => wp⟦x⟧ (fun a _ => Q.1 a r, Q.2) (f r))) spred(Q) := by simp [Triple]
+
+@[spec]
+theorem Spec.adapt_ReaderT [WP m ps] (f : ρ → ρ') :
+  Triple (ReaderT.adapt f x : ReaderT ρ m α) spred(fun r => wp⟦x⟧ (fun a _ => Q.1 a r, Q.2) (f r)) spred(Q) := by simp [Triple]
 
 /-! # `StateT` -/
 
@@ -229,6 +316,15 @@ theorem Spec.tryCatch_ExceptT [Monad m] [WPMonad m ps] (Q : PostCond α (.except
     Triple (MonadExceptOf.tryCatch x h : ExceptT ε m α) (spred(wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2))) spred(Q) := by
   simp [Triple]
 
+@[spec]
+theorem Spec.orElse_ExceptT [Monad m] [WPMonad m ps] (Q : PostCond α (.except ε ps)) :
+    Triple (OrElse.orElse x h : ExceptT ε m α) (spred(wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2))) spred(Q) := by
+  simp [Triple]
+
+@[spec]
+theorem Spec.adapt_ExceptT [Monad m] [WPMonad m ps] (f : ε → ε') (Q : PostCond α (.except ε' ps)) :
+  Triple (ps := .except ε' ps) (ExceptT.adapt f x : ExceptT ε' m α) (wp⟦x⟧ (Q.1, fun e => Q.2.1 (f e), Q.2.2)) Q := by simp [Triple]
+
 /-! # `Except` -/
 
 @[spec]
@@ -238,6 +334,11 @@ theorem Spec.throw_Except [Monad m] [WPMonad m ps] :
 @[spec]
 theorem Spec.tryCatch_Except (Q : PostCond α (.except ε .pure)) :
     Triple (MonadExceptOf.tryCatch x h : Except ε α) (spred(wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2))) spred(Q) := by
+  simp [Triple]
+
+@[spec]
+theorem Spec.orElse_Except (Q : PostCond α (.except ε .pure)) :
+    Triple (OrElse.orElse x h : Except ε α) (spred(wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2))) spred(Q) := by
   simp [Triple]
 
 /-! # `EStateM` -/
@@ -264,9 +365,19 @@ theorem Spec.tryCatch_EStateM (Q : PostCond α (.except ε (.arg σ .pure))) :
   Triple (MonadExceptOf.tryCatch x h : EStateM ε σ α) (spred(fun s => wp⟦x⟧ (Q.1, fun e s' => wp⟦h e⟧ Q (restore s' (save s)), Q.2.2) s)) spred(Q) := by
   simp [Triple]
 
+open EStateM.Backtrackable in
+@[spec]
+theorem Spec.orElse_EStateM (Q : PostCond α (.except ε (.arg σ .pure))) :
+  Triple (OrElse.orElse x h : EStateM ε σ α) (spred(fun s => wp⟦x⟧ (Q.1, fun _ s' => wp⟦h ()⟧ Q (restore s' (save s)), Q.2.2) s)) spred(Q) := by
+  simp [Triple]
+
+@[spec]
+theorem Spec.adaptExcept_EStateM (f : ε → ε') (Q : PostCond α (.except ε' (.arg σ .pure))) :
+  Triple (ps := .except ε' (.arg σ .pure)) (EStateM.adaptExcept f x : EStateM ε' σ α) (wp⟦x⟧ (Q.1, fun e => Q.2.1 (f e), Q.2.2)) Q := by simp [Triple]
+
 /-! # Lifting `MonadStateOf` -/
 
-attribute [spec] modify modifyThe getThe
+attribute [spec] modify modifyThe getThe getModify modifyGetThe
   instMonadStateOfMonadStateOf instMonadStateOfOfMonadLift
 
 /-! # Lifting `MonadReaderOf` -/
@@ -328,6 +439,8 @@ theorem Spec.tryCatch_ExceptT_lift [WP m ps] [Monad m] [MonadExceptOf ε m] (Q :
   intro x
   split <;> rfl
 
+/-! # Lifting `OrElse` -/
+
 /-! # `ForIn` -/
 
 /--
@@ -340,8 +453,8 @@ A loop invariant is a `PostCond` that takes as parameters
   `let mut` variables and early return.
 
 The loop specification lemmas will use this in the following way:
-Before entering the loop, the zipper's prefix is empty and the suffix is `xs`.
-After leaving the loop, the zipper's suffix is empty and the prefix is `xs`.
+Before entering the loop, the cursor's prefix is empty and the suffix is `xs`.
+After leaving the loop, the cursor's prefix is `xs` and the suffix is empty.
 During the induction step, the invariant holds for a suffix with head element `x`.
 After running the loop body, the invariant then holds after shifting `x` to the prefix.
 -/

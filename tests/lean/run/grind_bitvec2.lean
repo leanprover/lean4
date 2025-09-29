@@ -41,10 +41,6 @@ theorem some_eq_getElem?_iff {l : BitVec w} :
 theorem getElem_of_getElem? {l : BitVec w} :
     l[n]? = some a → ∃ h : n < w, l[n] = a := by grind
 
-set_option linter.missingDocs false in
-@[deprecated getElem?_eq_some_iff (since := "2025-02-17")]
-abbrev getElem?_eq_some := @_root_.getElem?_eq_some_iff
-
 theorem getElem?_eq_none_iff {l : BitVec w} : l[n]? = none ↔ w ≤ n := by grind
 
 theorem none_eq_getElem?_iff {l : BitVec w} : none = l[n]? ↔ w ≤ n := by grind
@@ -248,23 +244,12 @@ theorem ofNat_one (n : Nat) : BitVec.ofNat 1 n = BitVec.ofBool (n % 2 = 1) :=  b
 theorem ofBool_eq_iff_eq : ∀ {b b' : Bool}, BitVec.ofBool b = BitVec.ofBool b' ↔ b = b' := by
   decide
 
-@[deprecated toNat_ofNatLT (since := "2025-02-13")]
-theorem toNat_ofNatLt (x : Nat) (p : x < 2^w) : (x#'p).toNat = x := rfl
-
 theorem getLsbD_ofNatLT {n : Nat} (x : Nat) (lt : x < 2^n) (i : Nat) :
     getLsbD (x#'lt) i = x.testBit i := by
   simp [getLsbD, BitVec.ofNatLT]
 
-@[deprecated getLsbD_ofNatLT (since := "2025-02-13")]
-theorem getLsbD_ofNatLt {n : Nat} (x : Nat) (lt : x < 2^n) (i : Nat) :
-  getLsbD (x#'lt) i = x.testBit i := getLsbD_ofNatLT x lt i
-
 theorem getMsbD_ofNatLT {n x i : Nat} (h : x < 2^n) :
     getMsbD (x#'h) i = (decide (i < n) && x.testBit (n - 1 - i)) := by grind
-
-@[deprecated getMsbD_ofNatLT (since := "2025-02-13")]
-theorem getMsbD_ofNatLt {n x i : Nat} (h : x < 2^n) :
-    getMsbD (x#'h) i = (decide (i < n) && x.testBit (n - 1 - i)) := getMsbD_ofNatLT h
 
 theorem ofNatLT_eq_ofNat {w : Nat} {n : Nat} (hn) : BitVec.ofNatLT n hn = BitVec.ofNat w n :=
   eq_of_toNat_eq (by simp [Nat.mod_eq_of_lt hn])
@@ -337,7 +322,7 @@ theorem sub_sub_toNat_cancel {x : BitVec w} :
 theorem sub_add_bmod_cancel {x y : BitVec w} :
     ((((2 ^ w : Nat) - y.toNat) : Int) + x.toNat).bmod (2 ^ w) =
       ((x.toNat : Int) - y.toNat).bmod (2 ^ w) := by
-  grind [Int.add_bmod_right] -- TODO: teach `grind` about Int.bmod
+  grind [=_ Int.add_bmod_right] -- TODO: teach `grind` about Int.bmod
 
 private theorem lt_two_pow_of_le {x m n : Nat} (lt : x < 2 ^ m) (le : m ≤ n) : x < 2 ^ n :=
   Nat.lt_of_lt_of_le lt (Nat.pow_le_pow_right (by trivial : 0 < 2) le)

@@ -13,16 +13,24 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+static lean_object* l_Lean_Compiler_initFn___closed__5____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_;
+static lean_object* l_Lean_Compiler_initFn___closed__2____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_;
 static lean_object* l_Lean_Compiler_initFn___closed__5____x40_Lean_Compiler_Options_1537036116____hygCtx___hyg_4_;
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_Compiler_initFn____x40_Lean_Compiler_Options_1537036116____hygCtx___hyg_4__spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn___closed__4____x40_Lean_Compiler_Options_1537036116____hygCtx___hyg_4_;
+static lean_object* l_Lean_Compiler_initFn___closed__1____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_;
+static lean_object* l_Lean_Compiler_initFn___closed__3____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_;
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options_1537036116____hygCtx___hyg_4_(lean_object*);
 static lean_object* l_Lean_Compiler_initFn___closed__1____x40_Lean_Compiler_Options_1537036116____hygCtx___hyg_4_;
+static lean_object* l_Lean_Compiler_initFn___closed__4____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_;
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_compiler_checkMeta;
 static lean_object* l_Lean_Compiler_initFn___closed__3____x40_Lean_Compiler_Options_1537036116____hygCtx___hyg_4_;
 LEAN_EXPORT lean_object* l_Lean_Compiler_compiler_check;
 static lean_object* l_Lean_Compiler_initFn___closed__6____x40_Lean_Compiler_Options_1537036116____hygCtx___hyg_4_;
+static lean_object* l_Lean_Compiler_initFn___closed__0____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_;
 static lean_object* l_Lean_Compiler_initFn___closed__2____x40_Lean_Compiler_Options_1537036116____hygCtx___hyg_4_;
+LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_(lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_Compiler_initFn____x40_Lean_Compiler_Options_1537036116____hygCtx___hyg_4__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -201,6 +209,78 @@ lean_dec_ref(x_2);
 return x_5;
 }
 }
+static lean_object* _init_l_Lean_Compiler_initFn___closed__0____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("checkMeta", 9, 9);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_initFn___closed__1____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_initFn___closed__0____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_;
+x_2 = l_Lean_Compiler_initFn___closed__0____x40_Lean_Compiler_Options_1537036116____hygCtx___hyg_4_;
+x_3 = l_Lean_Name_mkStr2(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_initFn___closed__2____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("", 0, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_initFn___closed__3____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Check that `meta` declarations only refer to other `meta` declarations and ditto for non-`meta` declarations. Disabling this option may lead to delayed compiler errors and is\n    intended only for debugging purposes.", 216, 216);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_initFn___closed__4____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Lean_Compiler_initFn___closed__3____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_;
+x_2 = l_Lean_Compiler_initFn___closed__2____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_;
+x_3 = 1;
+x_4 = lean_box(x_3);
+x_5 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_5, 0, x_4);
+lean_ctor_set(x_5, 1, x_2);
+lean_ctor_set(x_5, 2, x_1);
+return x_5;
+}
+}
+static lean_object* _init_l_Lean_Compiler_initFn___closed__5____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Lean_Compiler_initFn___closed__0____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_;
+x_2 = l_Lean_Compiler_initFn___closed__0____x40_Lean_Compiler_Options_1537036116____hygCtx___hyg_4_;
+x_3 = l_Lean_Compiler_initFn___closed__6____x40_Lean_Compiler_Options_1537036116____hygCtx___hyg_4_;
+x_4 = l_Lean_Compiler_initFn___closed__5____x40_Lean_Compiler_Options_1537036116____hygCtx___hyg_4_;
+x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_2 = l_Lean_Compiler_initFn___closed__1____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_;
+x_3 = l_Lean_Compiler_initFn___closed__4____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_;
+x_4 = l_Lean_Compiler_initFn___closed__5____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_;
+x_5 = l_Lean_Option_register___at___Lean_Compiler_initFn____x40_Lean_Compiler_Options_1537036116____hygCtx___hyg_4__spec__0(x_2, x_3, x_4, x_1);
+return x_5;
+}
+}
 lean_object* initialize_Lean_Util_Trace(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Options(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -234,6 +314,23 @@ if (builtin) {res = l_Lean_Compiler_initFn____x40_Lean_Compiler_Options_15370361
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Compiler_compiler_check = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Compiler_compiler_check);
+lean_dec_ref(res);
+}l_Lean_Compiler_initFn___closed__0____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_ = _init_l_Lean_Compiler_initFn___closed__0____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_();
+lean_mark_persistent(l_Lean_Compiler_initFn___closed__0____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_);
+l_Lean_Compiler_initFn___closed__1____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_ = _init_l_Lean_Compiler_initFn___closed__1____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_();
+lean_mark_persistent(l_Lean_Compiler_initFn___closed__1____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_);
+l_Lean_Compiler_initFn___closed__2____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_ = _init_l_Lean_Compiler_initFn___closed__2____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_();
+lean_mark_persistent(l_Lean_Compiler_initFn___closed__2____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_);
+l_Lean_Compiler_initFn___closed__3____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_ = _init_l_Lean_Compiler_initFn___closed__3____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_();
+lean_mark_persistent(l_Lean_Compiler_initFn___closed__3____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_);
+l_Lean_Compiler_initFn___closed__4____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_ = _init_l_Lean_Compiler_initFn___closed__4____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_();
+lean_mark_persistent(l_Lean_Compiler_initFn___closed__4____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_);
+l_Lean_Compiler_initFn___closed__5____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_ = _init_l_Lean_Compiler_initFn___closed__5____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_();
+lean_mark_persistent(l_Lean_Compiler_initFn___closed__5____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_);
+if (builtin) {res = l_Lean_Compiler_initFn____x40_Lean_Compiler_Options_3249429079____hygCtx___hyg_4_(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Compiler_compiler_checkMeta = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Compiler_compiler_checkMeta);
 lean_dec_ref(res);
 }return lean_io_result_mk_ok(lean_box(0));
 }

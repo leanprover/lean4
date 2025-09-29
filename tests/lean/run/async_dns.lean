@@ -12,47 +12,27 @@ def assertBEq [BEq α] [ToString α] (actual expected : α) : IO Unit := do
     throw <| IO.userError <|
       s!"expected '{expected}', got '{actual}'"
 
-def baseSelector (asyncWaiter : AsyncTask α) : Selector α :=
- {
-    tryFn := do
-      if ← IO.hasFinished asyncWaiter then
-        let result ← IO.ofExcept asyncWaiter.get
-        return some result
-      else
-        return none
-    registerFn waiter := do
-      discard <| AsyncTask.mapIO (x := asyncWaiter) fun data => do
-        let lose := return ()
-        let win promise := promise.resolve (.ok data)
-        waiter.race lose win
-    unregisterFn := pure ()
-  }
+def timeout [Inhabited α] (a : Async α) (time : Std.Time.Millisecond.Offset) : Async α := do
+  let result ← Async.race (a.map Except.ok) (sleep time |>.map Except.error)
 
-def race (a : AsyncTask α) (b : AsyncTask β) (map : Except α β → AsyncTask γ) : IO (AsyncTask γ) := do
-  Selectable.one #[
-    .case (baseSelector a) fun a => return map (.error a),
-    .case (baseSelector b) fun b => return map (.ok b),
-  ]
-
-def timeout (a : AsyncTask α) (time : Std.Time.Millisecond.Offset) : IO (AsyncTask α) := do
-  race (← sleep time) a fun
-    | .ok res => Task.pure (.ok res)
-    | .error _ => Task.pure (.error (IO.userError "Timeout."))
+  match result with
+  | .ok res => pure res
+  | .error _ => throw (.userError "timeout")
 
 def runDNS : Async Unit := do
-  let infos ← await <| (← timeout (← DNS.getAddrInfo "google.com" "http") 10000)
+  let infos ← timeout (DNS.getAddrInfo "google.com" "http") 1000
 
   unless infos.size > 0 do
     (throw <| IO.userError <| "No DNS results for google.com" : IO _)
 
 def runDNSNoAscii : Async Unit := do
-  let infos ← await <| (← timeout (← DNS.getAddrInfo "google.com▸" "http") 10000)
+  let infos ← timeout (DNS.getAddrInfo "google.com▸" "http") 10000
 
   unless infos.size > 0 do
     (throw <| IO.userError <| "No DNS results for google.com" : IO _)
 
 def runReverseDNS : Async Unit := do
-  let result ← await (← DNS.getNameInfo (.v4 ⟨.ofParts 8 8 8 8, 53⟩))
+  let result ← DNS.getNameInfo (.v4 ⟨.ofParts 8 8 8 8, 53⟩)
   assertBEq result.service "domain"
   assertBEq result.host "dns.google"
 

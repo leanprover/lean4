@@ -91,6 +91,8 @@ builtin_initialize
       "Use to decorate methods for suggesting code actions. This is a low-level interface for making code actions."
     applicationTime := .afterCompilation
     add             := fun decl stx kind => do
+      if !builtin then
+        ensureAttrDeclIsMeta `name decl kind
       Attribute.Builtin.ensureNoArgs stx
       unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
       let declType := (← getConstInfo decl).type

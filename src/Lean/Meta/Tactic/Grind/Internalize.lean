@@ -5,9 +5,10 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Grind.Util
-public import Init.Grind.Lemmas
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
+public import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
+import Init.Grind.Util
+import Init.Grind.Lemmas
 import Lean.Meta.LitValues
 import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.MatchEqsExt
@@ -18,6 +19,7 @@ import Lean.Meta.Tactic.Grind.Beta
 import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
+import Lean.Meta.Tactic.Grind.PropagateInj
 public section
 namespace Lean.Meta.Grind
 
@@ -235,22 +237,65 @@ private def addMatchEqns (f : Expr) (generation : Nat) : GoalM Unit := do
     -- We disable pattern normalization to prevent the `match`-expression to be reduced.
     activateTheorem (← mkEMatchEqTheorem eqn (normalizePattern := false)) generation
 
-private def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Unit := do
-  if let some (thms, thmMap) := (← get).ematch.thmMap.retrieve? fName then
-    modify fun s => { s with ematch.thmMap := thmMap }
+@[specialize]
+private def activateTheoremsCore [TheoremLike α] (declName : Name)
+    (getThms : GoalM (Theorems α))
+    (setThms : Theorems α → GoalM Unit)
+    (reinsertThm : α → GoalM Unit)
+    (activateThm : α → GoalM Unit) : GoalM Unit := do
+  if let some (thms, s) := (← getThms).retrieve? declName then
+    setThms s
     for thm in thms do
-      trace_goal[grind.debug.ematch.activate] "`{fName}` => `{thm.origin.key}`"
-      unless (← get).ematch.thmMap.isErased thm.origin do
-        let appMap := (← get).appMap
-        let symbols := thm.symbols.filter fun sym => !appMap.contains sym
-        let thm := { thm with symbols }
+      let origin := TheoremLike.getOrigin thm
+      trace_goal[grind.debug.theorem.activate] "`{declName}` => `{origin.key}`"
+      unless s.isErased origin do
+        let appMap  := (← get).appMap
+        let symbols := TheoremLike.getSymbols thm
+        let symbols := symbols.filter fun sym => !appMap.contains sym
+        let thm     := TheoremLike.setSymbols thm symbols
         match symbols with
         | [] =>
-          trace_goal[grind.debug.ematch.activate] "`{thm.origin.key}`"
-          activateTheorem thm generation
+          trace_goal[grind.debug.theorem.activate] "`{origin.key}`"
+          activateThm thm
         | _ =>
-          trace_goal[grind.debug.ematch.activate] "reinsert `{thm.origin.key}`"
-          modify fun s => { s with ematch.thmMap := s.ematch.thmMap.insert thm }
+          trace_goal[grind.debug.theorem.activate] "reinsert `{origin.key}`"
+          reinsertThm thm
+
+private def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Unit := do
+  activateTheoremsCore fName (return (← get).ematch.thmMap)
+    (fun thmMap => modify fun s => { s with ematch.thmMap := thmMap })
+    (fun thm => modify fun s => { s with ematch.thmMap := s.ematch.thmMap.insert thm })
+    (fun thm => activateTheorem thm generation)
+
+private def mkEMatchTheoremWithKind'? (origin : Origin) (levelParams : Array Name) (proof : Expr) (kind : EMatchTheoremKind)
+    (symPrios : SymbolPriorities) : MetaM (Option EMatchTheorem) := do
+  try
+    mkEMatchTheoremWithKind? origin levelParams proof kind symPrios (minIndexable := true)
+  catch _ =>
+    return none
+
+private def activateInjectiveTheorem (injThm : InjectiveTheorem) (generation : Nat) : GoalM Unit := do
+  let type ← inferType injThm.proof
+  if type.isForall then
+    let symPrios ← getSymbolPriorities
+    let thm? ← mkEMatchTheoremWithKind'? injThm.origin injThm.levelParams injThm.proof .fwd symPrios
+      <||>
+      mkEMatchTheoremWithKind'? injThm.origin injThm.levelParams injThm.proof (.default false) symPrios
+    let some thm := thm? | reportIssue! "failed to assert injectivity theorem `{injThm.origin.pp}`"
+    activateTheorem thm generation
+  else
+    addNewRawFact injThm.proof type generation (.inj injThm.origin)
+
+private def activateInjectiveTheorems (declName : Name) (generation : Nat) : GoalM Unit := do
+  if (← getConfig).inj then
+    activateTheoremsCore declName (return (← get).inj.thms)
+      (fun thms => modify fun s => { s with inj.thms := thms })
+      (fun thm => modify fun s => { s with inj.thms := s.inj.thms.insert thm })
+      (fun thm => activateInjectiveTheorem thm generation)
+
+private def activateTheorems (declName : Name) (generation : Nat) : GoalM Unit := do
+  activateTheoremPatterns declName generation
+  activateInjectiveTheorems declName generation
 
 /--
 If type of `a` is a structure and is tagged with `[grind ext]` attribute,
@@ -380,7 +425,13 @@ where
     trace_goal[grind.internalize] "[{generation}] {e}"
     match e with
     | .bvar .. => unreachable!
-    | .sort .. => return ()
+    | .sort .. =>
+      /-
+      **Note**: It may seem wasteful to create ENodes for sorts, but it is useful for the E-matching module.
+      The E-matching module assumes that the arguments of an internalized application have also been internalized,
+      unless they are `grind` gadgets.
+      -/
+      mkENode' e generation
     | .fvar .. =>
       mkENode' e generation
       checkAndAddSplitCandidate e
@@ -405,7 +456,7 @@ where
       mkENode e generation
     | .const declName _ =>
       mkENode e generation
-      activateTheoremPatterns declName generation
+      activateTheorems declName generation
     | .mvar .. =>
       if (← reportMVarInternalization) then
         reportIssue! "unexpected metavariable during internalization{indentExpr e}\n`grind` is not supposed to be used in goals containing metavariables."
@@ -448,7 +499,7 @@ where
           registerParent e c
         else
           if let .const fName _ := f then
-            activateTheoremPatterns fName generation
+            activateTheorems fName generation
           else
             internalizeImpl f generation e
           registerParent e f
@@ -460,5 +511,6 @@ where
         Solvers.internalize e parent?
         propagateUp e
         propagateBetaForNewApp e
+        mkInjEq e
 
 end Lean.Meta.Grind

@@ -10,7 +10,7 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
-set(LEAN_VERSION_MINOR 24)
+set(LEAN_VERSION_MINOR 25)
 set(LEAN_VERSION_PATCH 0)
 set(LEAN_VERSION_IS_RELEASE 0)  # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
@@ -853,6 +853,12 @@ toml_escape("${LINK_OPTS_TOML}" LINK_OPTS_TOML)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(LAKE_LIB_PREFIX "lib")
+endif()
+
+if(${CMAKE_BUILD_TYPE} MATCHES "Debug|Release|RelWithDebInfo|MinSizeRel")
+  set(CMAKE_BUILD_TYPE_TOML "${CMAKE_BUILD_TYPE}")
+else()
+  set(CMAKE_BUILD_TYPE_TOML "Release")
 endif()
 
 if(USE_LAKE)

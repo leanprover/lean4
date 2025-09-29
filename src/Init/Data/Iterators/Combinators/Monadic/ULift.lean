@@ -19,6 +19,7 @@ universe v u v' u'
 section ULiftT
 
 /-- `ULiftT.{v, u}` shrinks a monad on `Type max u v` to a monad on `Type u`. -/
+@[expose]  -- for codegen
 def ULiftT (n : Type max u v → Type v') (α : Type u) := n (ULift.{v} α)
 
 /-- Returns the underlying `n`-monadic representation of a `ULiftT n α` value. -/

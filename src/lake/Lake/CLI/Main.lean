@@ -64,9 +64,20 @@ public structure LakeOptions where
   ansiMode : AnsiMode := .auto
   outFormat : OutFormat := .text
   offline : Bool := false
+  outputsFile? : Option FilePath := none
+  forceDownload : Bool := false
+  scope? : Option String := none
+  rev? : Option String := none
+  maxRevs : Nat := 100
 
 def LakeOptions.outLv (opts : LakeOptions) : LogLevel :=
   opts.outLv?.getD opts.verbosity.minLogLv
+
+@[inline] def LakeOptions.toLogConfig (opts : LakeOptions) : LogConfig where
+  failLv := opts.failLv
+  outLv := opts.outLv
+  ansiMode := opts.ansiMode
+  out := .stderr
 
 /-- Get the Lean installation. Error if missing. -/
 def LakeOptions.getLeanInstall (opts : LakeOptions) : Except CliError LeanInstall :=
@@ -117,6 +128,7 @@ def LakeOptions.mkBuildConfig
   failLv := opts.failLv
   outLv := opts.outLv
   ansiMode := opts.ansiMode
+  outputsFile? := opts.outputsFile?
   out; showSuccess
 
 export LakeOptions (mkLoadConfig mkBuildConfig)
@@ -133,15 +145,13 @@ def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
   let main := main.run >>= fun | .ok a => pure a | .error e => error e.toString
   main.run
 
-@[inline] def CliStateM.runLogIO (x : LogIO α) : CliStateM α := do
-  let opts ← get
-  MainM.runLogIO x opts.outLv opts.ansiMode
+def CliStateM.runLogIO (x : LogIO α) : CliStateM α := do
+  MainM.runLogIO x (← get).toLogConfig
 
 instance (priority := low) : MonadLift LogIO CliStateM := ⟨CliStateM.runLogIO⟩
 
-@[inline] def CliStateM.runLoggerIO (x : LoggerIO α) : CliStateM α := do
-  let opts ← get
-  MainM.runLoggerIO x opts.outLv opts.ansiMode
+def CliStateM.runLoggerIO (x : LoggerIO α) : CliStateM α := do
+  MainM.runLoggerIO x (← get).toLogConfig
 
 instance (priority := low) : MonadLift LoggerIO CliStateM := ⟨CliStateM.runLoggerIO⟩
 
@@ -190,6 +200,7 @@ def lakeShortOption : (opt : Char) → CliM PUnit
 | 'v' => modifyThe LakeOptions ({· with verbosity := .verbose})
 | 'd' => do let rootDir ← takeOptArg "-d" "path"; modifyThe LakeOptions ({· with rootDir})
 | 'f' => do let configFile ← takeOptArg "-f" "path"; modifyThe LakeOptions ({· with configFile})
+| 'o' => do let outputsFile? ← takeOptArg "-o" "path"; modifyThe LakeOptions ({· with outputsFile?})
 | 'K' => do setConfigOpt <| ← takeOptArg "-K" "key-value pair"
 | 'U' => do
   logWarning "the '-U' shorthand for '--update' is deprecated"
@@ -216,6 +227,20 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--offline"     => modifyThe LakeOptions ({· with offline := true})
 | "--wfail"       => modifyThe LakeOptions ({· with failLv := .warning})
 | "--iofail"      => modifyThe LakeOptions ({· with failLv := .info})
+| "--force-download" => modifyThe LakeOptions ({· with forceDownload := true})
+| "--scope" => do
+  let scope ← takeOptArg "--scope" "cache scope"
+  modifyThe LakeOptions ({· with scope? := some scope})
+| "--repo" => do
+  let repo ← takeOptArg "--repo" "repository"
+  modifyThe LakeOptions ({· with scope? := some repo})
+| "--rev" => do
+  let rev ← takeOptArg "--rev" "Git revision"
+  modifyThe LakeOptions ({· with rev? := some rev})
+| "--max-revs" => do
+  let some n ← (·.toNat?) <$> takeOptArg "--max-revs" "number of revisions"
+    | error "argument to `--max-revs` should be a natural number"
+  modifyThe LakeOptions ({· with maxRevs := n})
 | "--log-level"   => do
   let outLv ← takeOptArg' "--log-level" "log level" LogLevel.ofString?
   modifyThe LakeOptions ({· with outLv? := outLv})
@@ -302,6 +327,158 @@ def parseTemplateLangSpec (spec : String) : Except CliError (InitTemplate × Con
 /-! ## Commands -/
 
 namespace lake
+
+/-! ### `lake cache` CLI -/
+
+namespace cache
+
+protected def get : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let mappings? ← takeArg?
+  noArgsRem  do
+  let cfg ← mkLoadConfig opts
+  let ws ← loadWorkspace cfg
+  let cache := ws.lakeCache
+  if let some file := mappings? then
+    let some remoteScope := opts.scope?
+      | error "to use `cache get` with a mappings file, `--scope` must be set"
+    let service : CacheService :=
+      if let some artifactEndpoint := ws.lakeEnv.cacheArtifactEndpoint? then
+        {artifactEndpoint}
+      else
+        {apiEndpoint? := some ws.lakeEnv.reservoirApiUrl}
+    let map ← CacheMap.load file
+    service.downloadOutputArtifacts map cache remoteScope ws.root.cacheScope opts.forceDownload
+  else
+    let service : CacheService ← id do
+      match ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
+      | some artifactEndpoint, some revisionEndpoint =>
+        return {artifactEndpoint, revisionEndpoint}
+      | none, none =>
+        return {apiEndpoint? := some ws.lakeEnv.reservoirApiUrl}
+      | some artifactEndpoint, none =>
+        error (invalidEndpointConfig artifactEndpoint "")
+      | none, some revisionEndpoint =>
+        error (invalidEndpointConfig "" revisionEndpoint)
+    if let some remoteScope := opts.scope? then
+      let service := if service.apiEndpoint?.isNone then service else {
+        artifactEndpoint := s!"{ws.lakeEnv.reservoirApiUrl}/artifacts"
+        revisionEndpoint := s!"{ws.lakeEnv.reservoirApiUrl}/outputs"
+      }
+      let map ← getOutputs cache service ws.root remoteScope opts
+      service.downloadOutputArtifacts map cache remoteScope ws.root.cacheScope opts.forceDownload
+    else if service.apiEndpoint?.isSome then -- Reservoir
+      -- TODO: Parallelize?
+      let ok ← ws.packages.foldlM (start := 1) (init := true) (m := LoggerIO) fun ok pkg => do
+        try
+          if pkg.scope.isEmpty then
+            logInfo s!"{pkg.name}: skipping non-Reservoir dependency`"
+          else
+            let remoteScope := s!"{pkg.scope}/{pkg.name.toString (escape := false)}"
+            let map ← getOutputs cache service pkg remoteScope opts
+            service.downloadOutputArtifacts map cache remoteScope pkg.cacheScope opts.forceDownload
+          return ok
+        catch _ =>
+          return false
+      unless ok do
+        error "failed to download artifacts for some dependencies"
+    else
+      error "to use `cache get` with a custom endpoint, the `--scope` option must be set"
+where
+  invalidEndpointConfig artifactEndpoint revisionEndpoint :=
+    s!"invalid endpoint configuration:\
+    \n  LAKE_CACHE_ARTIFACT_ENDPOINT={artifactEndpoint}\
+    \n  LAKE_CACHE_REVISION_ENDPOINT={revisionEndpoint}\n\
+    To use `cache get` with a custom endpoint, both environment variables \
+    must be set to non-empty strings. To use Reservoir, neither should be set."
+  getOutputs cache service pkg remoteScope opts : LoggerIO CacheMap := do
+    let repo := GitRepo.mk pkg.dir
+    if let some rev := opts.rev? then
+      let rev ← repo.resolveRevision rev
+      let some map ← service.downloadRevisionOutputs? rev cache remoteScope
+        | error s!"{remoteScope}: outputs not found for revision {rev}"
+      return map
+    else
+      if (← repo.hasDiff) then
+        logWarning s!"{pkg.name}: package has changes; \
+          only artifacts for committed code will be downloaded"
+        if .warning ≤ opts.failLv then
+          failure
+      let n := opts.maxRevs
+      let revs ← repo.getHeadRevisions n
+      let map? ← revs.findSomeM? fun rev =>
+        service.downloadRevisionOutputs? rev cache remoteScope
+      let some map := map?
+        | let revisions :=
+            if n = 0 || revs.size < n then "for any revision" else s!"in {n} revisions from HEAD"
+          error s!"{remoteScope}: no outputs found {revisions}"
+      return map
+
+protected def put : CliM PUnit := do
+  processOptions lakeOption
+  let file ← takeArg "mappings"
+  let opts ← getThe LakeOptions
+  let some scope := opts.scope?
+    | error "the `--scope` option must be set for `cache put`"
+  noArgsRem do
+  let cfg ← mkLoadConfig opts
+  let ws ← loadWorkspace cfg
+  let service : CacheService ← id do
+    match ws.lakeEnv.cacheKey?, ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
+    | some key, some artifactEndpoint, some revisionEndpoint =>
+      return {key, artifactEndpoint, revisionEndpoint}
+    | key?, artifactEndpoint?, revisionEndpoint? =>
+      error (invalidEndpointConfig key? artifactEndpoint? revisionEndpoint?)
+  let pkg := ws.root
+  let repo := GitRepo.mk pkg.dir
+  if (← repo.hasDiff) then
+    logWarning s!"{pkg.name}: package has changes; \
+      artifacts will be uploaded for the most recent commit"
+    if .warning ≤ opts.failLv then
+      exit 1
+  let rev ← repo.getHeadRevision
+  let map ← CacheMap.load file
+  let descrs ← map.collectOutputDescrs
+  let paths ← ws.lakeCache.getArtifactPaths descrs
+  service.uploadArtifacts ⟨descrs, rfl⟩ paths scope
+  -- Mappings are uploaded after artifacts to allow downloads to assume that
+  -- if the mappings exist, the artifacts should also exist
+  service.uploadRevisionOutputs rev file scope
+where
+  invalidEndpointConfig key? artifactEndpoint? revisionEndpoint? :=
+    s!"invalid endpoint configuration:\
+    \n  LAKE_CACHE_KEY is {if key?.isNone then "unset" else "set"}\
+    \n  LAKE_CACHE_ARTIFACT_ENDPOINT={artifactEndpoint?.getD ""}\
+    \n  LAKE_CACHE_REVISION_ENDPOINT={revisionEndpoint?.getD ""}\n\
+    To use `cache put`, these environment variables must be set to non-empty strings."
+
+protected def add : CliM PUnit := do
+  processOptions lakeOption
+  let file ← takeArg "mappings"
+  let pkg? ← takeArg?
+  let opts ← getThe LakeOptions
+  noArgsRem do
+  let cfg ← mkLoadConfig opts
+  let ws ← loadWorkspace cfg
+  let pkg ← match pkg? with
+    | some pkg => parsePackageSpec ws pkg
+    | _ => pure ws.root
+  let scope := pkg.cacheScope
+  let map ← CacheMap.load file
+  ws.lakeCache.writeMap scope map
+
+protected def help : CliM PUnit := do
+  IO.println <| helpCache <| ← takeArgD ""
+
+end cache
+
+def cacheCli : (cmd : String) → CliM PUnit
+| "add"   => cache.add
+| "get"   => cache.get
+| "put"   => cache.put
+| "help"  => cache.help
+| cmd     => throw <| CliError.unknownCommand cmd
 
 /-! ### `lake script` CLI -/
 
@@ -455,6 +632,16 @@ protected def upload : CliM PUnit := do
   let ws ← loadWorkspace (← mkLoadConfig (← getThe LakeOptions))
   ws.root.uploadRelease tag
 
+protected def cache : CliM PUnit := do
+  if let some cmd ← takeArg? then
+    processLeadingOptions lakeOption -- between `lake cache <cmd>` and args
+    if (← getWantsHelp) then
+      IO.println <| helpCache cmd
+    else
+      cacheCli cmd
+  else
+    throw <| CliError.missingCommand
+
 protected def setupFile : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
@@ -468,7 +655,7 @@ protected def setupFile : CliM PUnit := do
     match Json.parse header >>= fromJson? with
     | .ok header => pure header
     | .error e => error s!"failed to parse header JSON: {e}"
-  setupFile loadConfig filePath header buildConfig
+  exit <| ← setupFile loadConfig filePath header buildConfig
 
 protected def test : CliM PUnit := do
   processOptions lakeOption
@@ -657,6 +844,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "pack"                => lake.pack
 | "unpack"              => lake.unpack
 | "upload"              => lake.upload
+| "cache"               => lake.cache
 | "setup-file"          => lake.setupFile
 | "test"                => lake.test
 | "check-test"          => lake.checkTest

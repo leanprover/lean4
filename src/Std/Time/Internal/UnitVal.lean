@@ -14,7 +14,6 @@ public import Init.Data.Rat.Basic
 namespace Std
 namespace Time
 namespace Internal
-open Std.Internal
 open Lean
 
 set_option linter.all true

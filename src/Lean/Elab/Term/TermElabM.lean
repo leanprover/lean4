@@ -203,35 +203,6 @@ structure State where
   goals : List MVarId
   deriving Inhabited
 
-/--
-  Snapshots are used to implement the `save` tactic.
-  This tactic caches the state of the system, and allows us to "replay"
-  expensive proofs efficiently. This is only relevant implementing the
-  LSP server.
--/
-structure Snapshot where
-  core   : Core.State
-  «meta» : Meta.State
-  term   : Term.State
-  tactic : Tactic.State
-  stx    : Syntax
-
-/--
-  Key for the cache used to implement the `save` tactic.
--/
-structure CacheKey where
-  mvarId : MVarId -- TODO: should include all goals
-  pos    : String.Pos
-  deriving BEq, Hashable, Inhabited
-
-/--
-  Cache for the `save` tactic.
--/
-structure Cache where
-   pre  : PHashMap CacheKey Snapshot := {}
-   post : PHashMap CacheKey Snapshot := {}
-   deriving Inhabited
-
 section Snapshot
 open Language
 
@@ -633,6 +604,9 @@ def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := return (← getMCtx
 
 instance : MonadParentDecl TermElabM where
   getParentDeclName? := getDeclName?
+
+instance : MonadAutoImplicits TermElabM where
+  getAutoImplicits := return (← read).autoBoundImplicits.toArray
 
 /--
 Executes `x` in the context of the given declaration name. Ensures that the info tree is set up
@@ -1786,7 +1760,7 @@ partial def withAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
       let rec loop (s : SavedState) : TermElabM α := withIncRecDepth do
         checkSystem "auto-implicit"
         try
-          k
+          withSaveAutoImplicitInfoContext k
         catch
           | ex => match isAutoBoundImplicitLocalException? ex with
             | some n =>

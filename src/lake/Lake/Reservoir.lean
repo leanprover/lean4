@@ -8,9 +8,11 @@ module
 prelude
 public import Lake.Util.Log
 public import Lake.Util.JsonObject
+public import Lake.Util.Version
 public import Lake.Config.Env
+public import Lake.Util.Reservoir
 import Lake.Util.Proc
-import all Init.Data.String.Extra
+import Lake.Util.Url
 
 /-! # Package Registries
 
@@ -102,86 +104,6 @@ public instance : FromJson RegistryPkg := ⟨RegistryPkg.fromJson?⟩
 
 end RegistryPkg
 
-public def hexEncodeByte (b : UInt8) : Char :=
-  if b = 0 then '0' else
-  if b = 1 then '1' else
-  if b = 2 then '2' else
-  if b = 3 then '3' else
-  if b = 4 then '4' else
-  if b = 5 then '5' else
-  if b = 6 then '6' else
-  if b = 7 then '7' else
-  if b = 8 then '8' else
-  if b = 9 then '9' else
-  if b = 0xa then 'A' else
-  if b = 0xb then 'B' else
-  if b = 0xc then 'C' else
-  if b = 0xd then 'D' else
-  if b = 0xe then 'E' else
-  if b = 0xf then 'F' else
-  '*'
-
-/-- Encode a byte as a URI escape code (e.g., `%20`). -/
-public def uriEscapeByte (b : UInt8) (s := "") : String :=
-  s.push '%' |>.push (hexEncodeByte <| b >>> 4) |>.push (hexEncodeByte <| b &&& 0xF)
-
-/-- Folds a monadic function over the UTF-8 bytes of `Char` from most significant to least significant. -/
-@[specialize] public def foldlUtf8M [Monad m] (c : Char) (f : σ → UInt8 → m σ) (init : σ) : m σ := do
-  let s := init
-  let v := c.val
-  if v ≤ 0x7f then
-    f s v.toUInt8
-  else if v ≤ 0x7ff then
-    let s ← f s <| (v >>>  6).toUInt8 &&& 0x1f ||| 0xc0
-    let s ← f s <| v.toUInt8 &&& 0x3f ||| 0x80
-    return s
-  else if v ≤ 0xffff then
-    let s ← f s <| (v >>> 12).toUInt8 &&& 0x0f ||| 0xe0
-    let s ← f s <| (v >>>  6).toUInt8 &&& 0x3f ||| 0x80
-    let s ← f s <| v.toUInt8 &&& 0x3f ||| 0x80
-    return s
-  else
-    let s ← f s <| (v >>> 18).toUInt8 &&& 0x07 ||| 0xf0
-    let s ← f s <| (v >>> 12).toUInt8 &&& 0x3f ||| 0x80
-    let s ← f s <| (v >>>  6).toUInt8 &&& 0x3f ||| 0x80
-    let s ← f s <| v.toUInt8 &&& 0x3f ||| 0x80
-    return s
-
-public abbrev foldlUtf8 (c : Char) (f : σ → UInt8 → σ) (init : σ) : σ :=
-  Id.run <| foldlUtf8M c (pure <| f · ·) init
-
-example : foldlUtf8 c (fun l b => b::l) List.nil = (String.utf8EncodeChar c).reverse := by
-  simp only [foldlUtf8, foldlUtf8M, String.utf8EncodeChar_eq_utf8EncodeCharFast, String.utf8EncodeCharFast]
-  if h1 : c.val ≤ 0x7f then simp [h1]
-  else if h2 : c.val ≤ 0x7ff then simp [h1, h2]
-  else if h3 : c.val ≤ 0xffff then simp [h1, h2, h3]
-  else simp [h1, h2, h3]
-
-/-- Encode a character as a sequence of URI escape codes representing its UTF8 encoding. -/
-public def uriEscapeChar (c : Char) (s := "") : String :=
-  foldlUtf8 c (init := s) fun s b => uriEscapeByte b s
-
-/-- A URI unreserved mark as specified in [RFC2396](https://datatracker.ietf.org/doc/html/rfc2396#section-2.3). -/
-public def isUriUnreservedMark (c : Char)  : Bool :=
-  c matches '-' | '_' | '.' | '!' | '~' | '*' | '\'' | '(' | ')'
-
-/-- Encodes anything but a URI unreserved character as a URI escape sequences. -/
-public def uriEncodeChar (c : Char) (s := "") : String :=
-  if c.isAlphanum || isUriUnreservedMark c then
-    s.push c
-  else
-    uriEscapeChar c s
-
-/-- Encodes a string as an ASCII URI component, escaping special characters (and unicode). -/
-public def uriEncode (s : String) : String :=
-  s.foldl (init := "") fun s c => uriEncodeChar c s
-
-/-- Perform a HTTP `GET` request of a URL (using `curl`) and return the body. -/
-public def getUrl (url : String) (headers : Array String := #[]) : LogIO String := do
-  let args := #["-s", "-L", "--retry", "3"] -- intermittent network errors can occur
-  let args := headers.foldl (init := args) (· ++ #["-H", ·])
-  captureProc {cmd := "curl", args := args.push url}
-
 /-- A Reservoir API response object. -/
 public inductive ReservoirResp (α : Type u)
 | data (a : α)
@@ -193,6 +115,8 @@ public protected def ReservoirResp.fromJson? [FromJson α] (val : Json) : Except
     let status ← err.get "status"
     let message ← err.get "message"
     return .error status message
+  else if let some (val : Json) ← obj.get? "data" then
+    .data <$> fromJson? val
   else
     .data <$> fromJson? val
 
@@ -200,11 +124,6 @@ public instance [FromJson α] : FromJson (ReservoirResp α) := ⟨ReservoirResp.
 
 public def Reservoir.pkgApiUrl (lakeEnv : Lake.Env) (owner pkg : String) :=
    s!"{lakeEnv.reservoirApiUrl}/packages/{uriEncode owner}/{uriEncode pkg}"
-
-public def Reservoir.lakeHeaders := #[
-  "X-Reservoir-Api-Version:1.0.0",
-  "X-Lake-Registry-Api-Version:0.1.0"
-]
 
 public def Reservoir.fetchPkg? (lakeEnv : Lake.Env) (owner pkg : String) : LogIO (Option RegistryPkg) := do
   let url := Reservoir.pkgApiUrl lakeEnv owner pkg
@@ -214,7 +133,7 @@ public def Reservoir.fetchPkg? (lakeEnv : Lake.Env) (owner pkg : String) : LogIO
     catch e =>
       logError s!"{owner}/{pkg}: Reservoir lookup failed"
       throw e
-  match Json.parse out >>= fromJson? with
+  match Json.parse out with
   | .ok json =>
     match fromJson? json with
     | .ok (resp : ReservoirResp RegistryPkg) =>
@@ -226,6 +145,58 @@ public def Reservoir.fetchPkg? (lakeEnv : Lake.Env) (owner pkg : String) : LogIO
           return none
         else
           error s!"{owner}/{pkg}: Reservoir lookup failed: {msg}"
+    | .error e =>
+      errorWithLog do
+      logError s!"{owner}/{pkg}: Reservoir lookup failed; server returned unsupported JSON: {e}"
+      logVerbose s!"{owner}/{pkg}: Reservoir responded with:\n{out.trim}"
+      failure
+  | .error e =>
+    errorWithLog do
+    logError s!"{owner}/{pkg}: Reservoir lookup failed; server returned invalid JSON: {e}"
+    logVerbose s!"{owner}/{pkg}: Reservoir responded with:\n{out.trim}"
+    failure
+
+/--
+Version metadata from a Lake registry (e.g., Reservoir).
+Only contains the subset of fields useful to Lake.
+-/
+public structure RegistryVer where
+  version : StdVer
+  revision : String
+
+public protected def RegistryVer.fromJson? (val : Json) : Except String RegistryVer := do
+  try
+    let obj ← JsonObject.fromJson? val
+    let version ← obj.get "version"
+    let revision ← obj.get "revision"
+    return {version, revision}
+  catch e =>
+    throw s!"invalid registry version: {e}"
+
+public instance : FromJson RegistryVer := ⟨RegistryVer.fromJson?⟩
+
+public def Reservoir.pkgVersionsApiUrl (lakeEnv : Lake.Env) (owner pkg : String) :=
+   s!"{lakeEnv.reservoirApiUrl}/packages/{uriEncode owner}/{uriEncode pkg}/versions"
+
+public def Reservoir.fetchPkgVersions
+  (lakeEnv : Lake.Env) (owner pkg : String)
+: LogIO (Array RegistryVer) := do
+  let url := Reservoir.pkgVersionsApiUrl lakeEnv owner pkg
+  let out ←
+    try
+      getUrl url Reservoir.lakeHeaders
+    catch e =>
+      logError s!"{owner}/{pkg}: Reservoir lookup failed"
+      throw e
+  match Json.parse out with
+  | .ok json =>
+    match fromJson? json with
+    | .ok (resp : ReservoirResp (Array RegistryVer)) =>
+      match resp with
+      | .data vers =>
+        return vers
+      | .error status msg =>
+        error s!"{owner}/{pkg}: Reservoir lookup failed (code: {status}): {msg}"
     | .error e =>
       errorWithLog do
       logError s!"{owner}/{pkg}: Reservoir lookup failed; server returned unsupported JSON: {e}"

@@ -66,7 +66,13 @@ example [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [Ordere
 
 -- Test misconfigured instances
 /--
-trace: [grind.issues] type has `LE` and `LT`, but the `LT` instance is not lawful, failed to synthesize
+trace: [grind.issues] type has `LE`, but is not a partial order, failed to synthesize
+      IsPartialOrder α
+[grind.issues] type has `LE`, but is not a linear preorder, failed to synthesize
+      IsLinearPreorder α
+[grind.issues] type has `LE` and `LT`, but the `LT` instance is not lawful, failed to synthesize
+      LawfulOrderLT α
+[grind.issues] type has `LE` and `LT`, but the `LT` instance is not lawful, failed to synthesize
       LawfulOrderLT α
 [grind.issues] type has `LE`, but is not a partial order, failed to synthesize
       IsPartialOrder α

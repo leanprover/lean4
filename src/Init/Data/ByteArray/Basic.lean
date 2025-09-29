@@ -11,15 +11,10 @@ public import Init.Data.UInt.Basic
 public import Init.Data.UInt.BasicAux
 import all Init.Data.UInt.BasicAux
 public import Init.Data.Option.Basic
+public import Init.Data.Array.Extract
 
 @[expose] public section
 universe u
-
-structure ByteArray where
-  data : Array UInt8
-
-attribute [extern "lean_byte_array_mk"] ByteArray.mk
-attribute [extern "lean_byte_array_data"] ByteArray.data
 
 namespace ByteArray
 
@@ -30,28 +25,14 @@ attribute [ext] ByteArray
 instance : DecidableEq ByteArray :=
   fun _ _ => decidable_of_decidable_of_iff ByteArray.ext_iff.symm
 
-@[extern "lean_mk_empty_byte_array"]
-def emptyWithCapacity (c : @& Nat) : ByteArray :=
-  { data := #[] }
-
 @[deprecated emptyWithCapacity (since := "2025-03-12")]
 abbrev mkEmpty := emptyWithCapacity
-
-def empty : ByteArray := emptyWithCapacity 0
 
 instance : Inhabited ByteArray where
   default := empty
 
 instance : EmptyCollection ByteArray where
   emptyCollection := ByteArray.empty
-
-@[extern "lean_byte_array_push"]
-def push : ByteArray → UInt8 → ByteArray
-  | ⟨bs⟩, b => ⟨bs.push b⟩
-
-@[extern "lean_byte_array_size"]
-def size : (@& ByteArray) → Nat
-  | ⟨bs⟩ => bs.size
 
 @[extern "lean_sarray_size", simp]
 def usize (a : @& ByteArray) : USize :=
@@ -106,11 +87,32 @@ def copySlice (src : @& ByteArray) (srcOff : Nat) (dest : ByteArray) (destOff le
 def extract (a : ByteArray) (b e : Nat) : ByteArray :=
   a.copySlice b empty 0 (e - b)
 
-protected def append (a : ByteArray) (b : ByteArray) : ByteArray :=
+@[inline]
+protected def fastAppend (a : ByteArray) (b : ByteArray) : ByteArray :=
   -- we assume that `append`s may be repeated, so use asymptotic growing; use `copySlice` directly to customize
   b.copySlice 0 a a.size b.size false
 
-instance : Append ByteArray := ⟨ByteArray.append⟩
+@[simp]
+theorem size_data {a : ByteArray} :
+  a.data.size = a.size := rfl
+
+@[csimp]
+theorem append_eq_fastAppend : @ByteArray.append = @ByteArray.fastAppend := by
+  funext a b
+  ext1
+  apply Array.ext'
+  simp [ByteArray.fastAppend, copySlice, ← size_data, - Array.append_assoc]
+
+-- Needs to come after the `csimp` lemma
+instance : Append ByteArray where
+  append := ByteArray.append
+
+@[simp]
+theorem append_eq {a b : ByteArray} : a.append b = a ++ b := rfl
+
+@[simp]
+theorem fastAppend_eq {a b : ByteArray} : a.fastAppend b = a ++ b := by
+  simp [← append_eq_fastAppend]
 
 def toList (bs : ByteArray) : List UInt8 :=
   let rec loop (i : Nat) (r : List UInt8) :=
@@ -349,14 +351,5 @@ def prevn : Iterator → Nat → Iterator
 
 end Iterator
 end ByteArray
-
-/--
-Converts a list of bytes into a `ByteArray`.
--/
-def List.toByteArray (bs : List UInt8) : ByteArray :=
-  let rec loop
-    | [],    r => r
-    | b::bs, r => loop bs (r.push b)
-  loop bs ByteArray.empty
 
 instance : ToString ByteArray := ⟨fun bs => bs.toList.toString⟩

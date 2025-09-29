@@ -111,11 +111,9 @@ private partial def resolvePrivateName (env : Environment) (declName : Name) : O
   if containsDeclOrReserved env (mkPrivateName env declName) then
     return mkPrivateName env declName
   -- Under the module system, we assume there are at most a few `import all`s and we can just test
-  -- them on by one.
+  -- them one by one.
   guard <| env.header.isModule
-  -- As `all` is not transitive, we only have to check the direct imports.
-  env.header.imports.findSome? fun i => do
-    guard i.importAll
+  env.header.importAllModules.findSome? fun i => do
     let n := mkPrivateNameCore i.module declName
     guard <| containsDeclOrReserved env n
     return n

@@ -296,7 +296,7 @@ jobs:
       issues: write        # Grants permission to create or update issues
       pull-requests: write # Grants permission to create or update pull requests
     needs: check-for-updates
-    if: ${{ needs.check-for-updates.outputs.is-update-available }}
+    if: ${{ needs.check-for-updates.outputs.is-update-available == 'true' }}
     strategy: # Runs for each update discovered by the `check-for-updates` job.
       max-parallel: 1 # Ensures that the PRs/issues are created in order.
       matrix:

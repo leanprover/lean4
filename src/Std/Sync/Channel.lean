@@ -10,8 +10,12 @@ public import Init.System.Promise
 public import Init.Data.Queue
 public import Std.Sync.Mutex
 public import Std.Internal.Async.Select
+public import Std.Internal.Async.IO
 
 public section
+
+open Std.Internal.Async.IO
+open Std.Internal.IO.Async
 
 /-!
 This module contains the implementation of `Std.Channel`. `Std.Channel` is a multi-producer
@@ -24,7 +28,6 @@ for cleaner code.
 -/
 
 namespace Std
-
 namespace CloseableChannel
 
 /--
@@ -566,7 +569,7 @@ private partial def recvSelector (ch : Bounded α) : Selector (Option α) where
       else
         return none
 
-  registerFn := registerAux ch
+  registerFn x := registerAux ch x
 
   unregisterFn := do
     ch.state.atomically do
@@ -597,8 +600,7 @@ where
         let promise ← IO.Promise.new
         modify fun st => { st with consumers := st.consumers.enqueue ⟨promise, some waiter⟩ }
 
-        IO.chainTask promise.result? fun res? => do
-          match res? with
+        IO.chainTask promise.result? fun
           | none => return ()
           | some res =>
             if res then
@@ -613,10 +615,10 @@ end Bounded
 /--
 This type represents all flavors of channels that we have available.
 -/
-private inductive Flavors (α : Type) where
-  | unbounded (ch : Unbounded α)
-  | zero (ch : Zero α)
-  | bounded (ch : Bounded α)
+inductive Flavors (α : Type) where
+  | private unbounded (ch : Unbounded α)
+  | private zero (ch : Zero α)
+  | private bounded (ch : Bounded α)
 deriving Nonempty
 
 end CloseableChannel
@@ -629,6 +631,7 @@ Additionally `Std.CloseableChannel` can be closed if necessary, unlike `Std.Chan
 This introduces a need for error handling in some cases, thus it is usually easier to use
 `Std.Channel` if applicable.
 -/
+@[expose] -- for codegen
 def CloseableChannel (α : Type) : Type := CloseableChannel.Flavors α
 
 /--
@@ -640,6 +643,7 @@ Additionally `Std.CloseableChannel.Sync` can be closed if necessary, unlike `Std
 This introduces the need to handle errors in some cases, thus it is usually easier to use
 `Std.Channel` if applicable.
 -/
+@[expose] -- for codegen
 def CloseableChannel.Sync (α : Type) : Type := CloseableChannel α
 
 instance : Nonempty (CloseableChannel α) :=
@@ -752,6 +756,17 @@ partial def forAsync (f : α → BaseIO Unit) (ch : CloseableChannel α)
     | none => return .pure ()
     | some v => do f v; ch.forAsync f prio
 
+instance [Inhabited α] : AsyncStream (CloseableChannel α) (Option α) where
+  next channel := channel.recvSelector
+
+instance [Inhabited α] : AsyncRead (CloseableChannel α) (Option α) where
+  read receiver := Internal.IO.Async.Async.ofIOTask receiver.recv
+
+instance [Inhabited α] : AsyncWrite (CloseableChannel α) α where
+  write receiver x := do
+    let task ← receiver.send x
+    Async.ofAsyncTask <| task.map (Except.mapError (IO.userError ∘ toString))
+
 /--
 This function is a no-op and just a convenient way to expose the synchronous API of the channel.
 -/
@@ -803,7 +818,6 @@ instance [MonadLiftT BaseIO m] : ForIn m (Sync α) α where
   forIn ch b f := private ch.forIn f b
 
 end Sync
-
 end CloseableChannel
 
 /--
@@ -891,6 +905,17 @@ def recvSelector [Inhabited α] (ch : Channel α) : Selector α :=
 partial def forAsync [Inhabited α] (f : α → BaseIO Unit) (ch : Channel α)
     (prio : Task.Priority := .default) : BaseIO (Task Unit) := do
   BaseIO.bindTask (prio := prio) (← ch.recv) fun v => do f v; ch.forAsync f prio
+
+instance [Inhabited α] : AsyncStream (Channel α) α where
+  next channel := channel.recvSelector
+
+instance [Inhabited α] : AsyncRead (Channel α) α where
+  read receiver := Internal.IO.Async.Async.ofIOTask receiver.recv
+
+instance [Inhabited α] : AsyncWrite (Channel α) α where
+  write receiver x := do
+    let task ← receiver.send x
+    Async.ofTask task
 
 @[inherit_doc CloseableChannel.sync, inline]
 def sync (ch : Channel α) : Channel.Sync α := ch

@@ -17,7 +17,6 @@ LEAN_EXPORT lean_object* l_Prod_repr(lean_object*, lean_object*, lean_object*, l
 static lean_object* l_Sum_repr___redArg___closed__2;
 lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_reprStr___redArg(lean_object*, lean_object*);
-lean_object* l_List_asString(lean_object*);
 static lean_object* l_Bool_repr___redArg___closed__2;
 static lean_object* l_List_repr___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Nat_toDigitsCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -130,6 +129,7 @@ LEAN_EXPORT lean_object* l_instReprUInt64;
 static lean_object* l_Decidable_repr___redArg___closed__0;
 static lean_object* l___private_Init_Data_Repr_0__Nat_reprArray___closed__0;
 LEAN_EXPORT lean_object* l_Repr_ctorIdx(lean_object*, lean_object*);
+lean_object* lean_string_mk(lean_object*);
 static lean_object* l_String_quote___closed__1;
 LEAN_EXPORT lean_object* l_Nat_toDigitsCore(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_uint64_to_nat(uint64_t);
@@ -2066,7 +2066,7 @@ if (x_6 == 0)
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_7 = lean_unsigned_to_nat(10u);
 x_8 = l_Nat_toDigits(x_7, x_1);
-x_9 = l_List_asString(x_8);
+x_9 = lean_string_mk(x_8);
 return x_9;
 }
 else
@@ -2274,7 +2274,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Nat_toSuperDigits(x_1);
-x_3 = l_List_asString(x_2);
+x_3 = lean_string_mk(x_2);
 return x_3;
 }
 }
@@ -2465,7 +2465,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Nat_toSubDigits(x_1);
-x_3 = l_List_asString(x_2);
+x_3 = lean_string_mk(x_2);
 return x_3;
 }
 }

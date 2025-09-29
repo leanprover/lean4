@@ -94,6 +94,10 @@ def utf8PosToLspPos (text : FileMap) (pos : String.Pos) : Lsp.Position :=
 def utf8RangeToLspRange (text : FileMap) (range : String.Range) : Lsp.Range :=
   { start := text.utf8PosToLspPos range.start, «end» := text.utf8PosToLspPos range.stop }
 
+/-- Gets the LSP range of syntax `stx`. -/
+def lspRangeOfStx? (text : FileMap) (stx : Syntax) (canonicalOnly := false) : Option Lsp.Range :=
+  text.utf8RangeToLspRange <$> stx.getRange? canonicalOnly
+
 def lspRangeToUtf8Range (text : FileMap) (range : Lsp.Range) : String.Range :=
   { start := text.lspPosToUtf8Pos range.start, stop := text.lspPosToUtf8Pos range.end }
 

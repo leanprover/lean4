@@ -109,8 +109,6 @@ structure Struct where
   isPreorderInst?    : Option Expr
   /-- `OrderedAdd` instance with `IsPreorder` if available -/
   orderedAddInst?    : Option Expr
-  /-- `IsPartialOrder` instance if available -/
-  isPartialInst?     : Option Expr
   /-- `IsLinearOrder` instance if available -/
   isLinearInst?      : Option Expr
   /-- `NoNatZeroDivisors` -/

@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Prelude
 public import Init.Data.Array.QSort
 public import Std.Data.HashSet
 public section

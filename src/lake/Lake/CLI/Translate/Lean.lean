@@ -277,13 +277,15 @@ def Dependency.mkRequire (cfg : Dependency) : RequireDecl := Unhygienic.run do
 
 /-! ## Package & Target Configuration Encoders -/
 
-private def genMkDeclFields
+private meta def genMkDeclFields
   (cmds : Array Command)
-  (tyName : Name) [info : ConfigInfo tyName] (takesName : Bool)
+  (tyName : Name) [info : ConfigInfo tyName]
   (exclude : Array Name := #[])
 : MacroM (Array Command) := do
   let val ← `(fs)
-  let ty := if takesName then Syntax.mkCApp tyName #[mkIdent `n] else mkCIdent tyName
+  let tyArgs := info.arity.fold (init := Array.emptyWithCapacity info.arity) fun i _ as =>
+    as.push (mkIdent <| .mkSimple s!"x_{i+1}")
+  let ty := Syntax.mkCApp tyName tyArgs
   let val ← info.fields.foldlM (init := val) fun val {name, canonical, ..} => do
     if !canonical || exclude.contains name then
       return val
@@ -298,21 +300,21 @@ private def genMkDeclFields
 local macro "gen_lean_encoders%" : command => do
   let cmds := #[]
   -- Targets
-  let cmds ← genMkDeclFields cmds ``LeanConfig false
-  let cmds ← genMkDeclFields cmds ``LeanLibConfig true
+  let cmds ← genMkDeclFields cmds ``LeanConfig
+  let cmds ← genMkDeclFields cmds ``LeanLibConfig
     (exclude := #[`nativeFacets])
-  let cmds ← genMkDeclFields cmds ``LeanExeConfig true
+  let cmds ← genMkDeclFields cmds ``LeanExeConfig
     (exclude := #[`nativeFacets])
-  let cmds ← genMkDeclFields cmds ``InputFileConfig true
-  let cmds ← genMkDeclFields cmds ``InputDirConfig true
+  let cmds ← genMkDeclFields cmds ``InputFileConfig
+  let cmds ← genMkDeclFields cmds ``InputDirConfig
   -- Package
-  let cmds ← genMkDeclFields cmds ``WorkspaceConfig false
-  let cmds ← genMkDeclFields cmds ``PackageConfig true
+  let cmds ← genMkDeclFields cmds ``WorkspaceConfig
+  let cmds ← genMkDeclFields cmds ``PackageConfig
   return ⟨mkNullNode cmds⟩
 
 gen_lean_encoders%
 
-def PackageConfig.mkCommand (cfg : PackageConfig n) : PackageCommand := Unhygienic.run do
+def PackageConfig.mkCommand (cfg : PackageConfig p n) : PackageCommand := Unhygienic.run do
   let declVal? := mkDeclValWhere? (mkDeclFields cfg)
   `(packageCommand|package $(mkIdent n):ident $[$declVal?]?)
 
@@ -355,7 +357,7 @@ protected def InputDirConfig.mkCommand
 
 /-- Create a Lean module that encodes the declarative configuration of the package. -/
 public def Package.mkLeanConfig (pkg : Package) : TSyntax ``module := Unhygienic.run do
-  let pkgConfig : PackageConfig pkg.name :=
+  let pkgConfig : PackageConfig pkg.name pkg.origName :=
     {pkg.config with testDriver := pkg.testDriver, lintDriver := pkg.lintDriver}
   let defaultTargets := pkg.defaultTargets.foldl NameSet.insert NameSet.empty
   `(module|

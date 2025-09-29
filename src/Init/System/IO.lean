@@ -1513,6 +1513,15 @@ indicate failure.
 -/
 @[extern "lean_io_exit"] opaque exit : UInt8 → IO α
 
+/--
+Terminates the current process with the provided exit code. `0` indicates success, all other values
+indicate failure.
+
+Calling this function is equivalent to calling
+[`std::_Exit`](https://en.cppreference.com/w/cpp/utility/program/_Exit.html).
+-/
+@[extern "lean_io_force_exit"] opaque forceExit : UInt8 → IO α
+
 end Process
 
 /-- Returns the thread ID of the calling thread. -/

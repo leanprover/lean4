@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Util
 public import Lean.Elab.Term
+import Lean.ExtraModUses
 
 public section
 
@@ -235,6 +236,7 @@ where
           withReader ({ · with elaborator := m.declName }) do
             withTacticInfoContext stx do
               let stx' ← adaptMacro m.value stx
+              recordExtraModUseFromDecl (isMeta := true) m.declName
               -- Support incrementality; see also Note [Incremental Macros]
               if evalFns.isEmpty && ms.isEmpty then  -- Only try incrementality in one branch
                 if let some snap := (← readThe Term.Context).tacSnap? then

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Log2
-// Imports: Init.Data.Nat.Linear
+// Imports: public import Init.Data.Nat.Linear
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Ord.Vector
-// Imports: Init.Data.Order.Ord Init.Data.Vector.Lemmas
+// Imports: public import Init.Data.Order.Ord public import Init.Data.Vector.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

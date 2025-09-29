@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DTreeMap.Internal.Ordered
-// Imports: Std.Data.DTreeMap.Internal.Def Std.Data.Internal.Cut
+// Imports: public import Std.Data.DTreeMap.Internal.Def public import Std.Data.Internal.Cut
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

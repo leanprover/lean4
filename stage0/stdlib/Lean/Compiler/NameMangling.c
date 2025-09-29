@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.NameMangling
-// Imports: Lean.Data.Name
+// Imports: public import Lean.Data.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

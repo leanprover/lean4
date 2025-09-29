@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Async.DNS
-// Imports: Std.Time Std.Internal.UV Std.Internal.Async.Basic Std.Net.Addr
+// Imports: public import Std.Time public import Std.Internal.UV public import Std.Internal.Async.Basic public import Std.Net.Addr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

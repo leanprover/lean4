@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Core
-// Imports: Init.Prelude Init.SizeOf
+// Imports: public meta import Init.Prelude public import Init.SizeOf
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

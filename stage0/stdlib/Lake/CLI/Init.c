@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.CLI.Init
-// Imports: Lake.Config.Env Lake.Config.Lang Lake.Util.Git Lake.Util.Version Lake.Config.Package Lake.Config.Workspace Lake.Load.Config Lake.Load.Workspace Lake.Build.Actions
+// Imports: public import Lake.Config.Env public import Lake.Config.Lang import Lake.Util.Git import Lake.Util.Version import Lake.Config.Package import Lake.Config.Workspace import Lake.Load.Config import Lake.Load.Workspace import Lake.Build.Actions
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

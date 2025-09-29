@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector
-// Imports: Init.Data.Vector.Basic Init.Data.Vector.Lemmas Init.Data.Vector.Lex Init.Data.Vector.MapIdx Init.Data.Vector.Count Init.Data.Vector.DecidableEq Init.Data.Vector.Zip Init.Data.Vector.OfFn Init.Data.Vector.Range Init.Data.Vector.Erase Init.Data.Vector.Monadic Init.Data.Vector.InsertIdx Init.Data.Vector.FinRange Init.Data.Vector.Extract Init.Data.Vector.Perm Init.Data.Vector.Find Init.Data.Vector.Algebra
+// Imports: public import Init.Data.Vector.Basic public import Init.Data.Vector.Lemmas public import Init.Data.Vector.Lex public import Init.Data.Vector.MapIdx public import Init.Data.Vector.Count public import Init.Data.Vector.DecidableEq public import Init.Data.Vector.Zip public import Init.Data.Vector.OfFn public import Init.Data.Vector.Range public import Init.Data.Vector.Erase public import Init.Data.Vector.Monadic public import Init.Data.Vector.InsertIdx public import Init.Data.Vector.FinRange public import Init.Data.Vector.Extract public import Init.Data.Vector.Perm public import Init.Data.Vector.Find public import Init.Data.Vector.Algebra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

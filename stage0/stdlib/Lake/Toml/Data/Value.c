@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Toml.Data.Value
-// Imports: Init.Data.Float Lake.Toml.Data.Dict Lake.Toml.Data.DateTime Lake.Util.String
+// Imports: public import Init.Data.Float public import Lake.Toml.Data.Dict public import Lake.Toml.Data.DateTime import Lake.Util.String
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

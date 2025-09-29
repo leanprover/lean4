@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Level
-// Imports: Lean.Log Lean.Parser.Level Lean.Elab.Exception Lean.Elab.AutoBound
+// Imports: public import Lean.Log public import Lean.Parser.Level public import Lean.Elab.Exception public import Lean.Elab.AutoBound
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Time.Unit.Millisecond
-// Imports: Std.Time.Internal Std.Time.Time.Unit.Nanosecond
+// Imports: public import Std.Time.Internal public import Std.Time.Time.Unit.Nanosecond
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

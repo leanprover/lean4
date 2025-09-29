@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.PostconditionMonad
-// Imports: Init.Control.Lawful.Basic Init.Data.Subtype.Basic Init.PropLemmas
+// Imports: public import Init.Control.Lawful.Basic public import Init.Data.Subtype.Basic public import Init.PropLemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Quotation.Precheck
-// Imports: Lean.KeyedDeclsAttribute Lean.Parser.Command Lean.Elab.Term Lean.Elab.Quotation.Util
+// Imports: public import Lean.KeyedDeclsAttribute public import Lean.Parser.Command public import Lean.Elab.Term public import Lean.Elab.Quotation.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

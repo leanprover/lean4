@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Targets
-// Imports: Lake.Config.Monad Lake.Config.InputFile Lake.Build.Infos
+// Imports: public import Lake.Config.Monad public import Lake.Config.InputFile import Lake.Build.Infos
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

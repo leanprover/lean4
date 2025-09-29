@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
-// Imports: Lean.Meta.Tactic.Grind.Types Init.Grind.Util Lean.Util.PtrSet Lean.Meta.Transform Lean.Meta.Basic Lean.Meta.InferType Lean.Meta.Tactic.Grind.ExprPtr Lean.Meta.Tactic.Grind.Util
+// Imports: public import Lean.Meta.Tactic.Grind.Types import Init.Grind.Util import Lean.Util.PtrSet import Lean.Meta.Transform import Lean.Meta.Basic import Lean.Meta.InferType import Lean.Meta.Tactic.Grind.ExprPtr import Lean.Meta.Tactic.Grind.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

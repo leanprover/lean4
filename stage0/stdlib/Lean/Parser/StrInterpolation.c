@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Parser.StrInterpolation
-// Imports: Lean.Parser.Basic
+// Imports: public import Lean.Parser.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

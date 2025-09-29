@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.NeverExtractAttr
-// Imports: Lean.Environment Lean.Attributes
+// Imports: public import Lean.Environment public import Lean.Attributes
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

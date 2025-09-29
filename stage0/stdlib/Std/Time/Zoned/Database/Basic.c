@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Zoned.Database.Basic
-// Imports: Std.Time.Zoned.ZoneRules Std.Time.Zoned.Database.TzIf
+// Imports: public import Std.Time.Zoned.ZoneRules public import Std.Time.Zoned.Database.TzIf
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

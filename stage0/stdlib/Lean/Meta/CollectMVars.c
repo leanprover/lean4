@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.CollectMVars
-// Imports: Lean.Util.CollectMVars Lean.Meta.Basic
+// Imports: public import Lean.Util.CollectMVars public import Lean.Meta.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

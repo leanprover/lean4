@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.InferType
-// Imports: Lean.Compiler.LCNF.CompilerM Lean.Compiler.LCNF.Types Lean.Compiler.LCNF.PhaseExt Lean.Compiler.LCNF.OtherDecl
+// Imports: public import Lean.Compiler.LCNF.CompilerM public import Lean.Compiler.LCNF.Types public import Lean.Compiler.LCNF.PhaseExt public import Lean.Compiler.LCNF.OtherDecl
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

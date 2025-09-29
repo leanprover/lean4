@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Proc
-// Imports: Lake.Util.Log
+// Imports: public import Lake.Util.Log
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

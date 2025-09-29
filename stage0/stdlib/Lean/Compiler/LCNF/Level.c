@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.Level
-// Imports: Lean.Util.CollectLevelParams Lean.Compiler.LCNF.Basic
+// Imports: public import Lean.Util.CollectLevelParams public import Lean.Compiler.LCNF.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.LawfulBEqTactics
-// Imports: Init.Prelude Init.Notation Init.Tactics Init.Core Init.Data.Bool Init.ByCases
+// Imports: public import Init.Prelude public import Init.Notation public import Init.Tactics public import Init.Core import Init.Data.Bool import Init.ByCases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

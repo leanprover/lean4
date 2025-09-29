@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Lemmas
-// Imports: Init.Core Init.SimpLemmas Init.Classical Init.ByCases Init.Grind.Util
+// Imports: public import Init.Core public import Init.SimpLemmas public import Init.Classical public import Init.ByCases public import Init.Grind.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

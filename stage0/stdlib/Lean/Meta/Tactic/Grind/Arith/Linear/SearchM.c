@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Linear.SearchM
-// Imports: Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
+// Imports: public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

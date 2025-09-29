@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.Simp.JpCases
-// Imports: Lean.Compiler.LCNF.DependsOn Lean.Compiler.LCNF.InferType Lean.Compiler.LCNF.Internalize Lean.Compiler.LCNF.Simp.Basic Lean.Compiler.LCNF.Simp.DiscrM
+// Imports: public import Lean.Compiler.LCNF.DependsOn public import Lean.Compiler.LCNF.InferType public import Lean.Compiler.LCNF.Internalize public import Lean.Compiler.LCNF.Simp.Basic public import Lean.Compiler.LCNF.Simp.DiscrM
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.StoreInsts
-// Imports: Init.Data.Order Lean.Data.NameMap.Basic Lake.Util.RBArray Lake.Util.Family Lake.Util.Store
+// Imports: public import Init.Data.Order public import Lean.Data.NameMap.Basic public import Lake.Util.RBArray public import Lake.Util.Family public import Lake.Util.Store
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

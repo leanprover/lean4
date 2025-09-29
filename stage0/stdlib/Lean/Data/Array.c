@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Array
-// Imports: Init.Prelude Init.Data.Stream Init.Data.Range.Polymorphic.Nat Init.Data.Range.Polymorphic.Iterators
+// Imports: public import Init.Prelude import Init.Data.Stream public import Init.Data.Range.Polymorphic.Nat public import Init.Data.Range.Polymorphic.Iterators
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

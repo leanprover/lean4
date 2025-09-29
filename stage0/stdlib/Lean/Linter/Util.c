@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Linter.Util
-// Imports: Lean.Data.Options Lean.Server.InfoUtils Lean.Linter.Basic
+// Imports: public import Lean.Data.Options public import Lean.Server.InfoUtils public import Lean.Linter.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

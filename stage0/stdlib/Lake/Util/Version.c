@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Version
-// Imports: Lean.Data.Json Lake.Util.Date
+// Imports: public import Lean.Data.Json public import Lake.Util.Date
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

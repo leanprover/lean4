@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Option.Array
-// Imports: Init.Data.Array.Lemmas Init.Data.Option.List Init.Data.Option.Instances Init.Data.Option.Instances
+// Imports: public import Init.Data.Array.Lemmas public import Init.Data.Option.List public import Init.Data.Option.Instances import all Init.Data.Option.Instances
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

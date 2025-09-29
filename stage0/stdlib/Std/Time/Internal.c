@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Internal
-// Imports: Std.Time.Internal.Bounded Std.Time.Internal.UnitVal
+// Imports: public import Std.Time.Internal.Bounded public import Std.Time.Internal.UnitVal
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

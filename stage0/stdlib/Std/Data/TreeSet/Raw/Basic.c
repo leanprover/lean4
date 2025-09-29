@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.TreeSet.Raw.Basic
-// Imports: Std.Data.TreeMap.Raw.Basic Std.Data.TreeSet.Basic
+// Imports: public import Std.Data.TreeMap.Raw.Basic public import Std.Data.TreeSet.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

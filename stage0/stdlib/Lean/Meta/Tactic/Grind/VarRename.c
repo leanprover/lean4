@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.VarRename
-// Imports: Init.Data.Array.QSort Std.Data.HashSet
+// Imports: public import Init.Data.Array.QSort public import Std.Data.HashSet
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

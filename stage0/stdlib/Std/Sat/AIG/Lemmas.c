@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sat.AIG.Lemmas
-// Imports: Std.Sat.AIG.Basic Std.Sat.AIG.LawfulOperator
+// Imports: public import Std.Sat.AIG.Basic public import Std.Sat.AIG.LawfulOperator
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

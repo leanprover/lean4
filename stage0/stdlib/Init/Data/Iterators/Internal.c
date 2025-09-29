@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.Internal
-// Imports: Init.Data.Iterators.Internal.LawfulMonadLiftFunction Init.Data.Iterators.Internal.Termination
+// Imports: public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction public import Init.Data.Iterators.Internal.Termination
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

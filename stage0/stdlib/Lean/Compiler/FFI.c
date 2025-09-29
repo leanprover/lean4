@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.FFI
-// Imports: Init.Data.Array.Basic Init.System.FilePath Init.Data.String.Basic
+// Imports: public import Init.Data.Array.Basic public import Init.System.FilePath import Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

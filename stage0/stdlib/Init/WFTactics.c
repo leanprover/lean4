@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.WFTactics
-// Imports: Init.SizeOf Init.MetaTypes Init.WF
+// Imports: public import Init.SizeOf public import Init.MetaTypes public import Init.WF
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

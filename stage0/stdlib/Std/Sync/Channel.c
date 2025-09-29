@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sync.Channel
-// Imports: Init.System.Promise Init.Data.Queue Std.Sync.Mutex Std.Internal.Async.Select Std.Internal.Async.IO
+// Imports: public import Init.System.Promise public import Init.Data.Queue public import Std.Sync.Mutex public import Std.Internal.Async.Select public import Std.Internal.Async.IO
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.MonadCache
-// Imports: Init.Control.StateRef Std.Data.HashMap.Basic
+// Imports: public import Init.Control.StateRef public import Std.Data.HashMap.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

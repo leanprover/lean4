@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.PushProj
-// Imports: Lean.Compiler.IR.Basic Lean.Compiler.IR.FreeVars Lean.Compiler.IR.NormIds
+// Imports: public import Lean.Compiler.IR.Basic public import Lean.Compiler.IR.FreeVars public import Lean.Compiler.IR.NormIds
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

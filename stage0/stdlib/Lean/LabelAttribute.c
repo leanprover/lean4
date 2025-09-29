@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.LabelAttribute
-// Imports: Lean.ScopedEnvExtension Lean.DocString Init.Data.String.Extra Init.Data.ToString.Name
+// Imports: public import Lean.ScopedEnvExtension public import Lean.DocString public meta import Init.Data.String.Extra meta import Init.Data.ToString.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

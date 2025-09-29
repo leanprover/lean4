@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.DSL.Key
-// Imports: Lake.Build.Key Lake.DSL.Syntax Lake.Util.Name
+// Imports: import Lake.Build.Key import Lake.DSL.Syntax import Lake.Util.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1696,20 +1696,20 @@ goto block_128;
 block_106:
 {
 uint8_t x_55; 
-x_55 = !lean_is_exclusive(x_51);
+x_55 = !lean_is_exclusive(x_50);
 if (x_55 == 0)
 {
 lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; 
-x_56 = lean_ctor_get(x_51, 1);
-x_57 = lean_ctor_get(x_51, 2);
-x_58 = lean_ctor_get(x_51, 5);
+x_56 = lean_ctor_get(x_50, 1);
+x_57 = lean_ctor_get(x_50, 2);
+x_58 = lean_ctor_get(x_50, 5);
 x_59 = l_Lean_replaceRef(x_49, x_58);
 lean_dec(x_58);
 lean_dec(x_49);
 lean_inc(x_59);
 lean_inc(x_57);
 lean_inc(x_56);
-lean_ctor_set(x_51, 5, x_59);
+lean_ctor_set(x_50, 5, x_59);
 if (lean_obj_tag(x_52) == 0)
 {
 uint8_t x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; 
@@ -1731,10 +1731,10 @@ x_68 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____pri
 lean_inc(x_61);
 x_69 = l_Lean_Syntax_node1(x_61, x_68, x_54);
 x_70 = l_Lean_Syntax_node2(x_61, x_62, x_67, x_69);
-x_5 = x_53;
+x_5 = x_51;
 x_6 = x_70;
-x_7 = x_51;
-x_8 = x_50;
+x_7 = x_50;
+x_8 = x_53;
 goto block_43;
 }
 else
@@ -1746,8 +1746,8 @@ lean_dec(x_56);
 x_71 = lean_ctor_get(x_52, 0);
 lean_inc(x_71);
 lean_dec_ref(x_52);
-lean_inc_ref(x_51);
-x_72 = l___private_Lake_DSL_Key_0__Lake_DSL_expandPackageTargetLit(x_54, x_71, x_51, x_50);
+lean_inc_ref(x_50);
+x_72 = l___private_Lake_DSL_Key_0__Lake_DSL_expandPackageTargetLit(x_54, x_71, x_50, x_53);
 if (lean_obj_tag(x_72) == 0)
 {
 lean_object* x_73; lean_object* x_74; 
@@ -1756,17 +1756,17 @@ lean_inc(x_73);
 x_74 = lean_ctor_get(x_72, 1);
 lean_inc(x_74);
 lean_dec_ref(x_72);
-x_5 = x_53;
+x_5 = x_51;
 x_6 = x_73;
-x_7 = x_51;
+x_7 = x_50;
 x_8 = x_74;
 goto block_43;
 }
 else
 {
 uint8_t x_75; 
+lean_dec_ref(x_50);
 lean_dec_ref(x_51);
-lean_dec_ref(x_53);
 x_75 = !lean_is_exclusive(x_72);
 if (x_75 == 0)
 {
@@ -1791,19 +1791,19 @@ return x_78;
 else
 {
 lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; 
-x_79 = lean_ctor_get(x_51, 0);
-x_80 = lean_ctor_get(x_51, 1);
-x_81 = lean_ctor_get(x_51, 2);
-x_82 = lean_ctor_get(x_51, 3);
-x_83 = lean_ctor_get(x_51, 4);
-x_84 = lean_ctor_get(x_51, 5);
+x_79 = lean_ctor_get(x_50, 0);
+x_80 = lean_ctor_get(x_50, 1);
+x_81 = lean_ctor_get(x_50, 2);
+x_82 = lean_ctor_get(x_50, 3);
+x_83 = lean_ctor_get(x_50, 4);
+x_84 = lean_ctor_get(x_50, 5);
 lean_inc(x_84);
 lean_inc(x_83);
 lean_inc(x_82);
 lean_inc(x_81);
 lean_inc(x_80);
 lean_inc(x_79);
-lean_dec(x_51);
+lean_dec(x_50);
 x_85 = l_Lean_replaceRef(x_49, x_84);
 lean_dec(x_84);
 lean_dec(x_49);
@@ -1838,10 +1838,10 @@ x_95 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____pri
 lean_inc(x_88);
 x_96 = l_Lean_Syntax_node1(x_88, x_95, x_54);
 x_97 = l_Lean_Syntax_node2(x_88, x_89, x_94, x_96);
-x_5 = x_53;
+x_5 = x_51;
 x_6 = x_97;
 x_7 = x_86;
-x_8 = x_50;
+x_8 = x_53;
 goto block_43;
 }
 else
@@ -1854,7 +1854,7 @@ x_98 = lean_ctor_get(x_52, 0);
 lean_inc(x_98);
 lean_dec_ref(x_52);
 lean_inc_ref(x_86);
-x_99 = l___private_Lake_DSL_Key_0__Lake_DSL_expandPackageTargetLit(x_54, x_98, x_86, x_50);
+x_99 = l___private_Lake_DSL_Key_0__Lake_DSL_expandPackageTargetLit(x_54, x_98, x_86, x_53);
 if (lean_obj_tag(x_99) == 0)
 {
 lean_object* x_100; lean_object* x_101; 
@@ -1863,7 +1863,7 @@ lean_inc(x_100);
 x_101 = lean_ctor_get(x_99, 1);
 lean_inc(x_101);
 lean_dec_ref(x_99);
-x_5 = x_53;
+x_5 = x_51;
 x_6 = x_100;
 x_7 = x_86;
 x_8 = x_101;
@@ -1873,7 +1873,7 @@ else
 {
 lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; 
 lean_dec_ref(x_86);
-lean_dec_ref(x_53);
+lean_dec_ref(x_51);
 x_102 = lean_ctor_get(x_99, 0);
 lean_inc(x_102);
 x_103 = lean_ctor_get(x_99, 1);
@@ -1934,10 +1934,10 @@ x_121 = lean_box(0);
 x_122 = 0;
 lean_inc(x_49);
 x_123 = l_Lake_Name_quoteFrom(x_49, x_121, x_122);
-x_50 = x_111;
-x_51 = x_110;
+x_50 = x_110;
+x_51 = x_119;
 x_52 = x_109;
-x_53 = x_119;
+x_53 = x_111;
 x_54 = x_123;
 goto block_106;
 }
@@ -1950,10 +1950,10 @@ lean_dec_ref(x_120);
 x_125 = l_Lean_TSyntax_getId(x_124);
 x_126 = 0;
 x_127 = l_Lake_Name_quoteFrom(x_124, x_125, x_126);
-x_50 = x_111;
-x_51 = x_110;
+x_50 = x_110;
+x_51 = x_119;
 x_52 = x_109;
-x_53 = x_119;
+x_53 = x_111;
 x_54 = x_127;
 goto block_106;
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Constructions
-// Imports: Lean.Meta.Constructions.CasesOn Lean.Meta.Constructions.NoConfusion Lean.Meta.Constructions.RecOn Lean.Meta.Constructions.BRecOn Lean.Meta.Constructions.CasesOnSameCtor
+// Imports: public import Lean.Meta.Constructions.CasesOn public import Lean.Meta.Constructions.NoConfusion public import Lean.Meta.Constructions.RecOn public import Lean.Meta.Constructions.BRecOn public import Lean.Meta.Constructions.CasesOnSameCtor
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

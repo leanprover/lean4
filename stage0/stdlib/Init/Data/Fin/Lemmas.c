@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Fin.Lemmas
-// Imports: Init.Data.Nat.Lemmas Init.Data.Int.DivMod.Lemmas Init.Ext Init.ByCases Init.Conv Init.Omega Init.Data.Order.Factories Init.Data.Order.Lemmas
+// Imports: public import Init.Data.Nat.Lemmas public import Init.Data.Int.DivMod.Lemmas public import Init.Ext public import Init.ByCases public import Init.Conv public import Init.Omega public import Init.Data.Order.Factories import Init.Data.Order.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

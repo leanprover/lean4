@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Order.PackageFactories
-// Imports: Init.Data.Order.FactoriesExtra Init.Data.Order.LemmasExtra
+// Imports: public import Init.Data.Order.FactoriesExtra public import Init.Data.Order.LemmasExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

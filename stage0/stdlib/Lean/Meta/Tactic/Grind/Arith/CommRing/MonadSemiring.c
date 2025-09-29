@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.CommRing.MonadSemiring
-// Imports: Lean.Meta.Tactic.Grind.Arith.CommRing.MonadCanon
+// Imports: public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadCanon
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

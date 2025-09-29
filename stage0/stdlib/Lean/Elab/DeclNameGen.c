@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.DeclNameGen
-// Imports: Lean.Elab.Command
+// Imports: public import Lean.Elab.Command
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -7799,18 +7799,18 @@ uint8_t x_42;
 x_42 = lean_nat_dec_lt(x_8, x_40);
 if (x_42 == 0)
 {
+lean_dec_ref(x_41);
 lean_dec(x_40);
-lean_dec_ref(x_39);
-x_35 = x_41;
+x_35 = x_39;
 goto block_38;
 }
 else
 {
 if (x_42 == 0)
 {
+lean_dec_ref(x_41);
 lean_dec(x_40);
-lean_dec_ref(x_39);
-x_35 = x_41;
+x_35 = x_39;
 goto block_38;
 }
 else
@@ -7820,17 +7820,17 @@ x_43 = 0;
 x_44 = lean_usize_of_nat(x_40);
 lean_dec(x_40);
 lean_inc(x_34);
-x_45 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__10(x_34, x_39, x_43, x_44);
-lean_dec_ref(x_39);
+x_45 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__10(x_34, x_41, x_43, x_44);
+lean_dec_ref(x_41);
 if (x_45 == 0)
 {
-x_35 = x_41;
+x_35 = x_39;
 goto block_38;
 }
 else
 {
 lean_dec(x_34);
-x_25 = x_41;
+x_25 = x_39;
 x_26 = x_33;
 goto block_32;
 }
@@ -7858,18 +7858,18 @@ x_52 = lean_array_get_size(x_50);
 x_53 = lean_nat_dec_lt(x_8, x_52);
 if (x_53 == 0)
 {
-x_39 = x_50;
+x_39 = x_51;
 x_40 = x_52;
-x_41 = x_51;
+x_41 = x_50;
 goto block_46;
 }
 else
 {
 if (x_53 == 0)
 {
-x_39 = x_50;
+x_39 = x_51;
 x_40 = x_52;
-x_41 = x_51;
+x_41 = x_50;
 goto block_46;
 }
 else
@@ -7880,9 +7880,9 @@ x_55 = lean_usize_of_nat(x_52);
 x_56 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__11(x_50, x_54, x_55);
 if (x_56 == 0)
 {
-x_39 = x_50;
+x_39 = x_51;
 x_40 = x_52;
-x_41 = x_51;
+x_41 = x_50;
 goto block_46;
 }
 else

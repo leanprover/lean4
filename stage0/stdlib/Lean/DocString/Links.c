@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.DocString.Links
-// Imports: Lean.Syntax
+// Imports: public import Lean.Syntax
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1732,8 +1732,8 @@ else
 if (lean_obj_tag(x_32) == 0)
 {
 lean_dec_ref(x_35);
-x_15 = x_32;
-x_16 = x_33;
+x_15 = x_33;
+x_16 = x_32;
 goto block_24;
 }
 else
@@ -1829,8 +1829,8 @@ return x_72;
 else
 {
 lean_dec_ref(x_35);
-x_15 = x_32;
-x_16 = x_33;
+x_15 = x_33;
+x_16 = x_32;
 goto block_24;
 }
 }
@@ -1859,12 +1859,12 @@ block_24:
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_17 = l___private_Lean_DocString_Links_0__Lean_rw___closed__0;
-x_18 = lean_string_append(x_17, x_16);
-lean_dec_ref(x_16);
+x_18 = lean_string_append(x_17, x_15);
+lean_dec_ref(x_15);
 x_19 = l___private_Lean_DocString_Links_0__Lean_rw___closed__1;
 x_20 = lean_string_append(x_18, x_19);
-x_21 = l_List_toString___at_____private_Lean_DocString_Links_0__Lean_rw_spec__0(x_15);
-lean_dec(x_15);
+x_21 = l_List_toString___at_____private_Lean_DocString_Links_0__Lean_rw_spec__0(x_16);
+lean_dec(x_16);
 x_22 = lean_string_append(x_20, x_21);
 lean_dec_ref(x_21);
 x_23 = lean_alloc_ctor(0, 1, 0);
@@ -2459,15 +2459,15 @@ block_62:
 if (x_59 == 0)
 {
 lean_object* x_60; 
-x_60 = lean_string_utf8_extract(x_56, x_57, x_58);
-lean_dec(x_58);
+x_60 = lean_string_utf8_extract(x_57, x_58, x_56);
+lean_dec(x_56);
 x_27 = x_60;
 goto block_55;
 }
 else
 {
 lean_object* x_61; 
-lean_dec(x_58);
+lean_dec(x_56);
 x_61 = l___private_Lean_DocString_Links_0__Lean_rw___closed__6;
 x_27 = x_61;
 goto block_55;
@@ -2485,17 +2485,17 @@ if (x_67 == 0)
 {
 uint8_t x_68; 
 x_68 = lean_nat_dec_lt(x_65, x_64);
-x_56 = x_63;
-x_57 = x_64;
-x_58 = x_65;
+x_56 = x_65;
+x_57 = x_63;
+x_58 = x_64;
 x_59 = x_68;
 goto block_62;
 }
 else
 {
-x_56 = x_63;
-x_57 = x_64;
-x_58 = x_65;
+x_56 = x_65;
+x_57 = x_63;
+x_58 = x_64;
 x_59 = x_67;
 goto block_62;
 }
@@ -2673,15 +2673,15 @@ block_113:
 if (x_110 == 0)
 {
 lean_object* x_111; 
-x_111 = lean_string_utf8_extract(x_107, x_108, x_109);
-lean_dec(x_109);
+x_111 = lean_string_utf8_extract(x_108, x_109, x_107);
+lean_dec(x_107);
 x_81 = x_111;
 goto block_106;
 }
 else
 {
 lean_object* x_112; 
-lean_dec(x_109);
+lean_dec(x_107);
 x_112 = l___private_Lean_DocString_Links_0__Lean_rw___closed__6;
 x_81 = x_112;
 goto block_106;
@@ -2699,17 +2699,17 @@ if (x_118 == 0)
 {
 uint8_t x_119; 
 x_119 = lean_nat_dec_lt(x_116, x_115);
-x_107 = x_114;
-x_108 = x_115;
-x_109 = x_116;
+x_107 = x_116;
+x_108 = x_114;
+x_109 = x_115;
 x_110 = x_119;
 goto block_113;
 }
 else
 {
-x_107 = x_114;
-x_108 = x_115;
-x_109 = x_116;
+x_107 = x_116;
+x_108 = x_114;
+x_109 = x_115;
 x_110 = x_118;
 goto block_113;
 }

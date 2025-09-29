@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.DSL.Extensions
-// Imports: Lean.Environment
+// Imports: public import Lean.Environment
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Simproc
-// Imports: Init.Grind.Ring.Basic Init.Simproc Lean.Meta.Tactic.Simp.Simproc Lean.Meta.Tactic.Grind.SynthInstance Init.Grind.Ring.Field
+// Imports: public import Init.Grind.Ring.Basic public import Init.Simproc public import Lean.Meta.Tactic.Simp.Simproc public import Lean.Meta.Tactic.Grind.SynthInstance import Init.Grind.Ring.Field
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

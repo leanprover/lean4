@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Constructions.RecOn
-// Imports: Lean.Meta.InferType Lean.AuxRecursor Lean.AddDecl Lean.Meta.CompletionName
+// Imports: public import Lean.Meta.InferType public import Lean.AuxRecursor public import Lean.AddDecl public import Lean.Meta.CompletionName
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1923,12 +1923,12 @@ return x_56;
 block_65:
 {
 uint8_t x_64; 
-x_64 = lean_nat_dec_le(x_59, x_58);
+x_64 = lean_nat_dec_le(x_61, x_58);
 if (x_64 == 0)
 {
-lean_dec(x_59);
-x_17 = x_60;
-x_18 = x_61;
+lean_dec(x_61);
+x_17 = x_59;
+x_18 = x_60;
 x_19 = x_62;
 x_20 = x_63;
 x_21 = x_58;
@@ -1937,11 +1937,11 @@ goto block_57;
 else
 {
 lean_dec(x_58);
-x_17 = x_60;
-x_18 = x_61;
+x_17 = x_59;
+x_18 = x_60;
 x_19 = x_62;
 x_20 = x_63;
-x_21 = x_59;
+x_21 = x_61;
 goto block_57;
 }
 }
@@ -1981,9 +1981,9 @@ x_89 = l_Array_toSubarray___redArg(x_87, x_81, x_88);
 x_90 = lean_nat_dec_le(x_69, x_81);
 if (x_90 == 0)
 {
-x_59 = x_70;
-x_60 = x_82;
-x_61 = x_89;
+x_59 = x_82;
+x_60 = x_89;
+x_61 = x_70;
 x_62 = x_81;
 x_63 = x_69;
 goto block_65;
@@ -1991,9 +1991,9 @@ goto block_65;
 else
 {
 lean_dec(x_69);
-x_59 = x_70;
-x_60 = x_82;
-x_61 = x_89;
+x_59 = x_82;
+x_60 = x_89;
+x_61 = x_70;
 x_62 = x_81;
 x_63 = x_81;
 goto block_65;

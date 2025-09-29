@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Ring.CommSolver
-// Imports: Init.Data.Nat.Lemmas Init.Data.Int.LemmasAux Init.Data.Hashable Init.Data.Ord.Basic Init.Data.RArray Init.Grind.Ring.Basic Init.Grind.Ring.Field Init.Grind.Ordered.Ring Init.GrindInstances.Ring.Int Init.Data.Ord.Basic Init.LawfulBEqTactics
+// Imports: public import Init.Data.Nat.Lemmas public import Init.Data.Int.LemmasAux public import Init.Data.Hashable public import Init.Data.Ord.Basic public import Init.Data.RArray public import Init.Grind.Ring.Basic public import Init.Grind.Ring.Field public import Init.Grind.Ordered.Ring public import Init.GrindInstances.Ring.Int import all Init.Data.Ord.Basic import Init.LawfulBEqTactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5035,23 +5035,23 @@ lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean
 x_37 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_37, 0, x_33);
 lean_ctor_set(x_37, 1, x_36);
-lean_inc(x_34);
+lean_inc(x_35);
 x_38 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_38, 0, x_37);
-lean_ctor_set(x_38, 1, x_34);
+lean_ctor_set(x_38, 1, x_35);
 x_39 = l_Lean_Grind_CommRing_instReprMon_repr(x_30, x_32);
 x_40 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_40, 0, x_38);
 lean_ctor_set(x_40, 1, x_39);
 x_41 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_41, 0, x_40);
-lean_ctor_set(x_41, 1, x_34);
+lean_ctor_set(x_41, 1, x_35);
 x_42 = l_Lean_Grind_CommRing_instReprPoly_repr(x_31, x_32);
 x_43 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_43, 0, x_41);
 lean_ctor_set(x_43, 1, x_42);
 x_44 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_44, 0, x_35);
+lean_ctor_set(x_44, 0, x_34);
 lean_ctor_set(x_44, 1, x_43);
 x_45 = 0;
 x_46 = lean_alloc_ctor(6, 1, 1);
@@ -5075,8 +5075,8 @@ lean_dec(x_29);
 x_55 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_55, 0, x_54);
 x_33 = x_51;
-x_34 = x_50;
-x_35 = x_49;
+x_34 = x_49;
+x_35 = x_50;
 x_36 = x_55;
 goto block_48;
 }
@@ -5089,8 +5089,8 @@ x_57 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_57, 0, x_56);
 x_58 = l_Repr_addAppParen(x_57, x_32);
 x_33 = x_51;
-x_34 = x_50;
-x_35 = x_49;
+x_34 = x_49;
+x_35 = x_50;
 x_36 = x_58;
 goto block_48;
 }

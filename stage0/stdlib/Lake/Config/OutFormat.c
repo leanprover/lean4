@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.OutFormat
-// Imports: Lean.Setup
+// Imports: public import Lean.Setup
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

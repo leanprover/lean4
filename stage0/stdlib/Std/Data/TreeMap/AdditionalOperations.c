@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.TreeMap.AdditionalOperations
-// Imports: Std.Data.TreeMap.Basic Std.Data.TreeMap.Raw.Basic Std.Data.DTreeMap.AdditionalOperations
+// Imports: public import Std.Data.TreeMap.Basic public import Std.Data.TreeMap.Raw.Basic public import Std.Data.DTreeMap.AdditionalOperations
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

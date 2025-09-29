@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Lsp.Communication
-// Imports: Init.System.IO Lean.Data.JsonRpc
+// Imports: public import Init.System.IO public import Lean.Data.JsonRpc
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

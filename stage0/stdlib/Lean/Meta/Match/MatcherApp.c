@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Match.MatcherApp
-// Imports: Lean.Meta.Match.MatcherApp.Basic Lean.Meta.Match.MatcherApp.Transform
+// Imports: public import Lean.Meta.Match.MatcherApp.Basic public import Lean.Meta.Match.MatcherApp.Transform
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

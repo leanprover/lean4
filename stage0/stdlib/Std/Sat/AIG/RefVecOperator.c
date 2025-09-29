@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sat.AIG.RefVecOperator
-// Imports: Std.Sat.AIG.RefVecOperator.Map Std.Sat.AIG.RefVecOperator.Zip Std.Sat.AIG.RefVecOperator.Fold
+// Imports: public import Std.Sat.AIG.RefVecOperator.Map public import Std.Sat.AIG.RefVecOperator.Zip public import Std.Sat.AIG.RefVecOperator.Fold
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

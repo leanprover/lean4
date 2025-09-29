@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Simp
-// Imports: Lean.Meta.Tactic.Simp.SimpTheorems Lean.Meta.Tactic.Simp.SimpCongrTheorems Lean.Meta.Tactic.Simp.Types Lean.Meta.Tactic.Simp.Main Lean.Meta.Tactic.Simp.Rewrite Lean.Meta.Tactic.Simp.SimpAll Lean.Meta.Tactic.Simp.Simproc Lean.Meta.Tactic.Simp.BuiltinSimprocs Lean.Meta.Tactic.Simp.RegisterCommand Lean.Meta.Tactic.Simp.Attr Lean.Meta.Tactic.Simp.Diagnostics Lean.Meta.Tactic.Simp.Arith
+// Imports: public import Lean.Meta.Tactic.Simp.SimpTheorems public import Lean.Meta.Tactic.Simp.SimpCongrTheorems public import Lean.Meta.Tactic.Simp.Types public import Lean.Meta.Tactic.Simp.Main public import Lean.Meta.Tactic.Simp.Rewrite public import Lean.Meta.Tactic.Simp.SimpAll public import Lean.Meta.Tactic.Simp.Simproc public import Lean.Meta.Tactic.Simp.BuiltinSimprocs public import Lean.Meta.Tactic.Simp.RegisterCommand public import Lean.Meta.Tactic.Simp.Attr public import Lean.Meta.Tactic.Simp.Diagnostics public import Lean.Meta.Tactic.Simp.Arith
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

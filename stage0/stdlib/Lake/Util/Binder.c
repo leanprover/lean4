@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Binder
-// Imports: Lean.Parser.Term Lean.Parser.Term
+// Imports: public import Lean.Parser.Term meta import Lean.Parser.Term
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

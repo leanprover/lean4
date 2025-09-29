@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.OfScientific
-// Imports: Init.Meta Init.Data.Float Init.Data.Float32 Init.Data.Nat.Log2
+// Imports: public import Init.Meta public import Init.Data.Float public import Init.Data.Float32 public import Init.Data.Nat.Log2
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

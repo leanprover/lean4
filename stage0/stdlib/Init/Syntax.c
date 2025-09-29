@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Syntax
-// Imports: Init.Data.Array.Set
+// Imports: public import Init.Data.Array.Set
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

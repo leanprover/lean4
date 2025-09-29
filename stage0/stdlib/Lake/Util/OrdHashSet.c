@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.OrdHashSet
-// Imports: Std.Data.HashSet.Basic
+// Imports: public import Std.Data.HashSet.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

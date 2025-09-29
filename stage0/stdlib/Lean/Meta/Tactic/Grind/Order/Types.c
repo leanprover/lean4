@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Order.Types
-// Imports: Lean.Meta.Tactic.Grind.Types Init.Data.Rat.Basic
+// Imports: public import Lean.Meta.Tactic.Grind.Types public import Init.Data.Rat.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

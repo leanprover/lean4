@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.BitVec.Bitblast
-// Imports: Init.Data.Nat.Bitwise.Basic Init.Data.Nat.Bitwise.Basic Init.Data.Nat.Mod Init.Data.Int.DivMod Init.Data.Int.DivMod Init.Data.Int.LemmasAux Init.Data.BitVec.Basic Init.Data.BitVec.Basic Init.Data.BitVec.Decidable Init.Data.BitVec.Lemmas Init.Data.BitVec.Folds
+// Imports: public import Init.Data.Nat.Bitwise.Basic import all Init.Data.Nat.Bitwise.Basic public import Init.Data.Nat.Mod public import Init.Data.Int.DivMod import all Init.Data.Int.DivMod public import Init.Data.Int.LemmasAux public import Init.Data.BitVec.Basic import all Init.Data.BitVec.Basic public import Init.Data.BitVec.Decidable public import Init.Data.BitVec.Lemmas public import Init.Data.BitVec.Folds
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

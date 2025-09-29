@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Lemmas
-// Imports: Init.Data.Nat.Bitwise.Basic Init.Data.Nat.Bitwise.Basic Init.Data.Nat.MinMax Init.Data.Nat.Log2 Init.Data.Nat.Log2 Init.Data.Nat.Power2 Init.Data.Nat.Mod
+// Imports: public import Init.Data.Nat.Bitwise.Basic import all Init.Data.Nat.Bitwise.Basic public import Init.Data.Nat.MinMax public import Init.Data.Nat.Log2 import all Init.Data.Nat.Log2 public import Init.Data.Nat.Power2 public import Init.Data.Nat.Mod
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

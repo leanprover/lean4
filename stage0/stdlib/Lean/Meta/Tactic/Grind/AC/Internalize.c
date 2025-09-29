@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.AC.Internalize
-// Imports: Lean.Meta.Tactic.Grind.Types Lean.Meta.Tactic.Grind.AC.Util Lean.Meta.Tactic.Grind.AC.DenoteExpr
+// Imports: public import Lean.Meta.Tactic.Grind.Types public import Lean.Meta.Tactic.Grind.AC.Util import Lean.Meta.Tactic.Grind.AC.DenoteExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

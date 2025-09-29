@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DHashMap
-// Imports: Std.Data.DHashMap.Basic Std.Data.DHashMap.Lemmas Std.Data.DHashMap.AdditionalOperations
+// Imports: public import Std.Data.DHashMap.Basic public import Std.Data.DHashMap.Lemmas public import Std.Data.DHashMap.AdditionalOperations
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

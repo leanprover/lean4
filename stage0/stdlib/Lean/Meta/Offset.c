@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Offset
-// Imports: Init.Control.Option Lean.Data.LBool Lean.Meta.Basic Lean.Meta.NatInstTesters Lean.Util.SafeExponentiation
+// Imports: public import Init.Control.Option public import Lean.Data.LBool public import Lean.Meta.Basic import Lean.Meta.NatInstTesters import Lean.Util.SafeExponentiation
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

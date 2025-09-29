@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Widget.TaggedText
-// Imports: Lean.Data.Json.FromToJson.Basic Lean.Server.Rpc.Basic
+// Imports: public import Lean.Data.Json.FromToJson.Basic public import Lean.Server.Rpc.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

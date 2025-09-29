@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Do.Triple
-// Imports: Std.Do.Triple.Basic Std.Do.Triple.SpecLemmas
+// Imports: public import Std.Do.Triple.Basic public import Std.Do.Triple.SpecLemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

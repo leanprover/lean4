@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Artifact
-// Imports: Lake.Build.Trace
+// Imports: public import Lake.Build.Trace
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

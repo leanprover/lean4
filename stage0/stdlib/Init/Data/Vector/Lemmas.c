@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector.Lemmas
-// Imports: Init.Data.Array.Basic Init.Data.Array.Basic Init.Data.Vector.Basic Init.Data.Vector.Basic Init.Data.Array.Attach Init.Data.Array.Find
+// Imports: public import Init.Data.Array.Basic import all Init.Data.Array.Basic public import Init.Data.Vector.Basic import all Init.Data.Vector.Basic public import Init.Data.Array.Attach public import Init.Data.Array.Find
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

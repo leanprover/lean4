@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.UInt.Bitwise
-// Imports: Init.Data.BitVec.Basic Init.Data.BitVec.Basic Init.Data.UInt.Basic Init.Data.UInt.Basic Init.Data.UInt.Lemmas Init.Data.Fin.Bitwise
+// Imports: public import Init.Data.BitVec.Basic import all Init.Data.BitVec.Basic public import Init.Data.UInt.Basic import all Init.Data.UInt.Basic public import Init.Data.UInt.Lemmas public import Init.Data.Fin.Bitwise
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

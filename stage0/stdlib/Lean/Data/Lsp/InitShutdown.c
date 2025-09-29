@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Lsp.InitShutdown
-// Imports: Lean.Data.Lsp.Capabilities Lean.Data.Lsp.Workspace
+// Imports: public import Lean.Data.Lsp.Capabilities public import Lean.Data.Lsp.Workspace
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

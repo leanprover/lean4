@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Match.MatchPatternAttr
-// Imports: Lean.Attributes
+// Imports: public import Lean.Attributes
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

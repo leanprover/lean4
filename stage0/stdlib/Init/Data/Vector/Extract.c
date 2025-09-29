@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector.Extract
-// Imports: Init.Data.Vector.Lemmas Init.Data.Array.Extract
+// Imports: public import Init.Data.Vector.Lemmas public import Init.Data.Array.Extract
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

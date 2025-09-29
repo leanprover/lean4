@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Omega.Int
-// Imports: Init.Data.Int.DivMod.Bootstrap Init.Data.Int.Order
+// Imports: public import Init.Data.Int.DivMod.Bootstrap public import Init.Data.Int.Order
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

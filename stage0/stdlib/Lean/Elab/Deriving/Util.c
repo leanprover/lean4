@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Deriving.Util
-// Imports: Lean.Elab.Term Lean.Elab.Command Lean.Parser.Command Lean.Elab.DeclNameGen
+// Imports: public import Lean.Elab.Term public import Lean.Elab.Command meta import Lean.Parser.Command import Lean.Elab.DeclNameGen
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -8134,8 +8134,8 @@ x_32 = lean_ctor_get(x_31, 1);
 lean_inc(x_32);
 x_33 = lean_ctor_get(x_31, 2);
 lean_inc(x_33);
-x_34 = lean_ctor_get(x_28, 1);
-x_35 = lean_ctor_get(x_28, 2);
+x_34 = lean_ctor_get(x_26, 1);
+x_35 = lean_ctor_get(x_26, 2);
 x_36 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_36, 0, x_32);
 x_37 = lean_alloc_ctor(0, 2, 0);
@@ -8152,8 +8152,8 @@ lean_inc(x_35);
 x_42 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_42, 0, x_41);
 lean_ctor_set(x_42, 1, x_35);
-x_43 = l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___Lean_Elab_Deriving_mkLocalInstanceLetDecls_spec__0___redArg(x_28, x_42, x_39);
-lean_dec_ref(x_28);
+x_43 = l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___Lean_Elab_Deriving_mkLocalInstanceLetDecls_spec__0___redArg(x_26, x_42, x_39);
+lean_dec_ref(x_26);
 x_44 = l_Array_append___redArg(x_40, x_43);
 lean_dec_ref(x_43);
 x_45 = lean_array_get_size(x_44);
@@ -8226,8 +8226,8 @@ x_81 = lean_mk_syntax_ident(x_58);
 lean_inc(x_62);
 x_82 = l_Lean_Syntax_node1(x_62, x_80, x_81);
 x_83 = l_Lean_Elab_Deriving_mkInductiveApp___redArg___closed__10;
-x_84 = l_Array_append___redArg(x_83, x_26);
-lean_dec_ref(x_26);
+x_84 = l_Array_append___redArg(x_83, x_28);
+lean_dec_ref(x_28);
 lean_inc(x_62);
 x_85 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_85, 0, x_62);
@@ -8323,8 +8323,8 @@ x_121 = lean_mk_syntax_ident(x_58);
 lean_inc(x_102);
 x_122 = l_Lean_Syntax_node1(x_102, x_120, x_121);
 x_123 = l_Lean_Elab_Deriving_mkInductiveApp___redArg___closed__10;
-x_124 = l_Array_append___redArg(x_123, x_26);
-lean_dec_ref(x_26);
+x_124 = l_Array_append___redArg(x_123, x_28);
+lean_dec_ref(x_28);
 lean_inc(x_102);
 x_125 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_125, 0, x_102);
@@ -8390,7 +8390,7 @@ lean_free_object(x_52);
 lean_dec(x_54);
 lean_free_object(x_48);
 lean_dec(x_50);
-lean_dec_ref(x_26);
+lean_dec_ref(x_28);
 lean_dec(x_16);
 lean_dec_ref(x_15);
 lean_dec(x_14);
@@ -8488,8 +8488,8 @@ x_175 = lean_mk_syntax_ident(x_151);
 lean_inc(x_154);
 x_176 = l_Lean_Syntax_node1(x_154, x_174, x_175);
 x_177 = l_Lean_Elab_Deriving_mkInductiveApp___redArg___closed__10;
-x_178 = l_Array_append___redArg(x_177, x_26);
-lean_dec_ref(x_26);
+x_178 = l_Array_append___redArg(x_177, x_28);
+lean_dec_ref(x_28);
 lean_inc(x_154);
 x_179 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_179, 0, x_154);
@@ -8558,7 +8558,7 @@ lean_object* x_197; lean_object* x_198; lean_object* x_199; lean_object* x_200;
 lean_dec(x_147);
 lean_free_object(x_48);
 lean_dec(x_50);
-lean_dec_ref(x_26);
+lean_dec_ref(x_28);
 lean_dec(x_16);
 lean_dec_ref(x_15);
 lean_dec(x_14);
@@ -8677,8 +8677,8 @@ x_234 = lean_mk_syntax_ident(x_209);
 lean_inc(x_212);
 x_235 = l_Lean_Syntax_node1(x_212, x_233, x_234);
 x_236 = l_Lean_Elab_Deriving_mkInductiveApp___redArg___closed__10;
-x_237 = l_Array_append___redArg(x_236, x_26);
-lean_dec_ref(x_26);
+x_237 = l_Array_append___redArg(x_236, x_28);
+lean_dec_ref(x_28);
 lean_inc(x_212);
 x_238 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_238, 0, x_212);
@@ -8747,7 +8747,7 @@ lean_object* x_256; lean_object* x_257; lean_object* x_258; lean_object* x_259;
 lean_dec(x_206);
 lean_dec(x_204);
 lean_dec(x_201);
-lean_dec_ref(x_26);
+lean_dec_ref(x_28);
 lean_dec(x_16);
 lean_dec_ref(x_15);
 lean_dec(x_14);
@@ -8798,9 +8798,9 @@ x_269 = lean_array_get_size(x_4);
 x_270 = lean_nat_dec_le(x_23, x_269);
 if (x_270 == 0)
 {
-x_26 = x_266;
+x_26 = x_263;
 x_27 = x_267;
-x_28 = x_263;
+x_28 = x_266;
 x_29 = x_268;
 x_30 = x_269;
 goto block_260;
@@ -8809,9 +8809,9 @@ else
 {
 lean_dec(x_269);
 lean_inc(x_23);
-x_26 = x_266;
+x_26 = x_263;
 x_27 = x_267;
-x_28 = x_263;
+x_28 = x_266;
 x_29 = x_268;
 x_30 = x_23;
 goto block_260;

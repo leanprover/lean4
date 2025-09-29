@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sat.AIG.CachedGatesLemmas
-// Imports: Std.Sat.AIG.CachedGates Std.Sat.AIG.LawfulOperator
+// Imports: public import Std.Sat.AIG.CachedGates public import Std.Sat.AIG.LawfulOperator
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

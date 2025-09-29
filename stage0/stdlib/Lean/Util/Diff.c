@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.Diff
-// Imports: Init.Data.Array.Subarray.Split Init.Data.Slice.Array.Iterator Init.Data.Range Std.Data.HashMap.Basic Init.Omega Init.Data.Iterators.Combinators.ULift
+// Imports: public import Init.Data.Array.Subarray.Split public import Init.Data.Slice.Array.Iterator public import Init.Data.Range public import Std.Data.HashMap.Basic public import Init.Omega import Init.Data.Iterators.Combinators.ULift
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

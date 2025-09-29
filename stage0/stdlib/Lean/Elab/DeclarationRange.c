@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.DeclarationRange
-// Imports: Lean.Log Lean.Parser.Command Lean.DeclarationRange Lean.Data.Lsp.Utf16
+// Imports: public import Lean.Log public import Lean.Parser.Command public import Lean.DeclarationRange public import Lean.Data.Lsp.Utf16
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

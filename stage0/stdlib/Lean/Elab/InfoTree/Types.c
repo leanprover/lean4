@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.InfoTree.Types
-// Imports: Lean.Data.DeclarationRange Lean.Data.OpenDecl Lean.MetavarContext Lean.Environment Lean.Data.Json.Basic Lean.Server.Rpc.Basic Lean.Widget.Types
+// Imports: public import Lean.Data.DeclarationRange public import Lean.Data.OpenDecl public import Lean.MetavarContext public import Lean.Environment public import Lean.Data.Json.Basic public import Lean.Server.Rpc.Basic public import Lean.Widget.Types
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

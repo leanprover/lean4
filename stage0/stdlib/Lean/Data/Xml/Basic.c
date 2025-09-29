@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Xml.Basic
-// Imports: Init.Data.ToString.Macro Std.Data.TreeMap.Basic
+// Imports: public import Init.Data.ToString.Macro public import Std.Data.TreeMap.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.GetLsbD
-// Imports: Std.Sat.AIG.CachedGatesLemmas Std.Sat.AIG.RefVec
+// Imports: public import Std.Sat.AIG.CachedGatesLemmas public import Std.Sat.AIG.RefVec
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

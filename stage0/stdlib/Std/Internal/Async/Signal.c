@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Async.Signal
-// Imports: Std.Time Std.Internal.UV.Signal Std.Internal.Async.Select
+// Imports: public import Std.Time public import Std.Internal.UV.Signal public import Std.Internal.Async.Select
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

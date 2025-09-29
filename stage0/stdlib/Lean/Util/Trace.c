@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.Trace
-// Imports: Lean.Elab.Exception Lean.Log
+// Imports: public import Lean.Elab.Exception public import Lean.Log
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

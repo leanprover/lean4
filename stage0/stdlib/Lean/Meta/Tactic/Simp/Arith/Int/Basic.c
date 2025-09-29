@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Simp.Arith.Int.Basic
-// Imports: Init.Data.Int.Linear Lean.Util.SortExprs Lean.Meta.Check Lean.Meta.Offset Lean.Meta.IntInstTesters Lean.Meta.AppBuilder Lean.Meta.KExprMap Lean.Data.RArray
+// Imports: public import Init.Data.Int.Linear public import Lean.Util.SortExprs public import Lean.Meta.Check public import Lean.Meta.Offset public import Lean.Meta.IntInstTesters public import Lean.Meta.AppBuilder public import Lean.Meta.KExprMap public import Lean.Data.RArray
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

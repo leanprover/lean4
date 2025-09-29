@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.FileWorker.SignatureHelp
-// Imports: Lean.Server.InfoUtils Lean.Data.Lsp Init.Data.List.Sort.Basic Lean.PrettyPrinter.Delaborator Lean.Parser.Term
+// Imports: public import Lean.Server.InfoUtils public import Lean.Data.Lsp public import Init.Data.List.Sort.Basic import Lean.PrettyPrinter.Delaborator meta import Lean.Parser.Term
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2094,15 +2094,15 @@ lean_dec(x_107);
 lean_dec(x_105);
 if (x_108 == 0)
 {
-x_92 = x_103;
-x_93 = x_102;
+x_92 = x_102;
+x_93 = x_103;
 x_94 = x_97;
 goto block_96;
 }
 else
 {
-x_92 = x_103;
-x_93 = x_102;
+x_92 = x_102;
+x_93 = x_103;
 x_94 = x_101;
 goto block_96;
 }
@@ -2481,9 +2481,9 @@ goto block_10;
 }
 block_96:
 {
-if (x_93 == 0)
-{
 if (x_92 == 0)
+{
+if (x_93 == 0)
 {
 if (x_94 == 0)
 {
@@ -3150,9 +3150,9 @@ block_49:
 lean_object* x_29; lean_object* x_30; size_t x_31; lean_object* x_32; 
 x_29 = lean_box(0);
 x_30 = l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___closed__1;
-x_31 = lean_array_size(x_27);
-x_32 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1(x_4, x_30, x_25, x_28, x_7, x_27, x_31, x_19, x_30, x_26);
-lean_dec_ref(x_27);
+x_31 = lean_array_size(x_26);
+x_32 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1(x_4, x_30, x_25, x_28, x_7, x_26, x_31, x_19, x_30, x_27);
+lean_dec_ref(x_26);
 if (lean_obj_tag(x_32) == 0)
 {
 lean_object* x_33; lean_object* x_34; 
@@ -3250,8 +3250,8 @@ x_56 = lean_nat_dec_lt(x_23, x_55);
 if (x_56 == 0)
 {
 lean_dec(x_55);
-x_26 = x_51;
-x_27 = x_54;
+x_26 = x_54;
+x_27 = x_51;
 x_28 = x_7;
 goto block_49;
 }
@@ -3260,8 +3260,8 @@ else
 if (x_56 == 0)
 {
 lean_dec(x_55);
-x_26 = x_51;
-x_27 = x_54;
+x_26 = x_54;
+x_27 = x_51;
 x_28 = x_7;
 goto block_49;
 }
@@ -3271,8 +3271,8 @@ size_t x_57; uint8_t x_58;
 x_57 = lean_usize_of_nat(x_55);
 lean_dec(x_55);
 x_58 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__2(x_54, x_19, x_57);
-x_26 = x_51;
-x_27 = x_54;
+x_26 = x_54;
+x_27 = x_51;
 x_28 = x_58;
 goto block_49;
 }

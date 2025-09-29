@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Order.Proof
-// Imports: Lean.Meta.Tactic.Grind.Order.OrderM Lean.Meta.Tactic.Grind.Arith.CommRing.RingM Init.Grind.Order
+// Imports: public import Lean.Meta.Tactic.Grind.Order.OrderM public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM import Init.Grind.Order
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2808,10 +2808,10 @@ block_23:
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_20 = l___private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkTransOffsetProof___closed__0;
-x_21 = l_Lean_mkApp6(x_18, x_1, x_2, x_17, x_19, x_20, x_4);
+x_21 = l_Lean_mkApp6(x_18, x_1, x_2, x_16, x_19, x_20, x_4);
 x_22 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_22, 0, x_21);
-lean_ctor_set(x_22, 1, x_16);
+lean_ctor_set(x_22, 1, x_17);
 return x_22;
 }
 block_40:
@@ -2830,8 +2830,8 @@ x_35 = l_Int_toNat(x_34);
 lean_dec(x_34);
 x_36 = l_Lean_instToExprInt_mkNat(x_35);
 x_37 = l_Lean_mkApp3(x_31, x_32, x_33, x_36);
-x_16 = x_26;
-x_17 = x_28;
+x_16 = x_28;
+x_17 = x_26;
 x_18 = x_27;
 x_19 = x_37;
 goto block_23;
@@ -2841,8 +2841,8 @@ else
 lean_object* x_38; lean_object* x_39; 
 x_38 = l_Int_toNat(x_24);
 x_39 = l_Lean_instToExprInt_mkNat(x_38);
-x_16 = x_26;
-x_17 = x_28;
+x_16 = x_28;
+x_17 = x_26;
 x_18 = x_27;
 x_19 = x_39;
 goto block_23;
@@ -3770,14 +3770,14 @@ block_27:
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 x_24 = l___private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkTransOffsetProof___closed__0;
-x_25 = l_Lean_mkApp4(x_21, x_1, x_23, x_24, x_18);
+x_25 = l_Lean_mkApp4(x_22, x_1, x_23, x_24, x_18);
 if (lean_is_scalar(x_20)) {
  x_26 = lean_alloc_ctor(0, 2, 0);
 } else {
  x_26 = x_20;
 }
 lean_ctor_set(x_26, 0, x_25);
-lean_ctor_set(x_26, 1, x_22);
+lean_ctor_set(x_26, 1, x_21);
 return x_26;
 }
 block_47:
@@ -3808,8 +3808,8 @@ x_42 = l_Int_toNat(x_41);
 lean_dec(x_41);
 x_43 = l_Lean_instToExprInt_mkNat(x_42);
 x_44 = l_Lean_mkApp3(x_38, x_39, x_40, x_43);
-x_21 = x_32;
-x_22 = x_33;
+x_21 = x_33;
+x_22 = x_32;
 x_23 = x_44;
 goto block_27;
 }
@@ -3819,8 +3819,8 @@ lean_object* x_45; lean_object* x_46;
 x_45 = l_Int_toNat(x_35);
 lean_dec(x_35);
 x_46 = l_Lean_instToExprInt_mkNat(x_45);
-x_21 = x_32;
-x_22 = x_33;
+x_21 = x_33;
+x_22 = x_32;
 x_23 = x_46;
 goto block_27;
 }

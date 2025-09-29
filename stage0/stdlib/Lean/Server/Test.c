@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Test
-// Imports: Lean.Server.Test.Cancel Lean.Server.Test.Runner
+// Imports: public import Lean.Server.Test.Cancel public import Lean.Server.Test.Runner
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

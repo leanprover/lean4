@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.AssocList
-// Imports: Init.Control.Id Init.Data.List.Impl
+// Imports: public import Init.Control.Id public import Init.Data.List.Impl
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

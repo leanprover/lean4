@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Ext
-// Imports: Init.Data.Array.InsertionSort Lean.Meta.DiscrTree
+// Imports: public import Init.Data.Array.InsertionSort public import Lean.Meta.DiscrTree
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

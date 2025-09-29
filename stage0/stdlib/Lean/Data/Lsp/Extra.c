@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Lsp.Extra
-// Imports: Lean.Data.Lsp.Basic Lean.Data.Lsp.TextSync Lean.Server.Rpc.Basic
+// Imports: public import Lean.Data.Lsp.Basic public import Lean.Data.Lsp.TextSync public import Lean.Server.Rpc.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

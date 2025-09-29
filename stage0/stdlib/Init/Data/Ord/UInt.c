@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Ord.UInt
-// Imports: Init.Data.Order.Ord Init.Data.UInt.Lemmas
+// Imports: public import Init.Data.Order.Ord public import Init.Data.UInt.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

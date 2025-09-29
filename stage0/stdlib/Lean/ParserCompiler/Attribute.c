@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.ParserCompiler.Attribute
-// Imports: Lean.Attributes Lean.Compiler.InitAttr Lean.ToExpr
+// Imports: public import Lean.Attributes public import Lean.Compiler.InitAttr public import Lean.ToExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

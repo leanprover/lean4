@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Internal.Cut
-// Imports: Init.Data.Order.Ord
+// Imports: public import Init.Data.Order.Ord
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

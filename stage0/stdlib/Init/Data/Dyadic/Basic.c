@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Dyadic.Basic
-// Imports: Init.Data.Rat.Lemmas Init.Data.Int.Bitwise.Lemmas Init.Data.Int.DivMod.Lemmas
+// Imports: public import Init.Data.Rat.Lemmas import Init.Data.Int.Bitwise.Lemmas import Init.Data.Int.DivMod.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

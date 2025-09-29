@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.Compare
-// Imports: Init.Data.Ord.Basic Init.Data.Ord.Basic Init.Data.Int.Order
+// Imports: public import Init.Data.Ord.Basic import all Init.Data.Ord.Basic public import Init.Data.Int.Order
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

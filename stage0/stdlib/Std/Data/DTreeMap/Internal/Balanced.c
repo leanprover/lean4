@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DTreeMap.Internal.Balanced
-// Imports: Init.Data.AC Std.Data.DTreeMap.Internal.Def
+// Imports: public import Init.Data.AC public import Std.Data.DTreeMap.Internal.Def
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

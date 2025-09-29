@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.ParserCompiler
-// Imports: Lean.Meta.ReduceEval Lean.Meta.WHNF Lean.KeyedDeclsAttribute Lean.ParserCompiler.Attribute Lean.Parser.Extension
+// Imports: public import Lean.Meta.ReduceEval public import Lean.Meta.WHNF public import Lean.KeyedDeclsAttribute public import Lean.ParserCompiler.Attribute public import Lean.Parser.Extension
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3411,26 +3411,26 @@ lean_ctor_set(x_70, 0, x_65);
 lean_ctor_set(x_70, 1, x_59);
 lean_ctor_set(x_70, 2, x_69);
 x_71 = 0;
-lean_inc(x_57);
-lean_inc_ref(x_55);
+lean_inc(x_55);
+lean_inc_ref(x_53);
 lean_inc(x_51);
-x_72 = l_Lean_Attribute_add(x_51, x_58, x_70, x_71, x_55, x_57, x_56);
+x_72 = l_Lean_Attribute_add(x_51, x_58, x_70, x_71, x_53, x_55, x_52);
 if (lean_obj_tag(x_72) == 0)
 {
 lean_object* x_73; lean_object* x_74; 
 x_73 = lean_ctor_get(x_72, 1);
 lean_inc(x_73);
 lean_dec_ref(x_72);
-x_74 = l_Lean_ParserCompiler_compileParserExpr___redArg___lam__1(x_11, x_38, x_1, x_2, x_3, x_51, x_53, x_52, x_55, x_57, x_73);
+x_74 = l_Lean_ParserCompiler_compileParserExpr___redArg___lam__1(x_11, x_38, x_1, x_2, x_3, x_51, x_56, x_57, x_53, x_55, x_73);
 return x_74;
 }
 else
 {
 uint8_t x_75; 
 lean_dec(x_57);
-lean_dec_ref(x_55);
+lean_dec_ref(x_56);
+lean_dec(x_55);
 lean_dec_ref(x_53);
-lean_dec(x_52);
 lean_dec(x_51);
 lean_dec(x_11);
 lean_dec_ref(x_1);
@@ -3554,12 +3554,12 @@ lean_inc(x_116);
 lean_dec_ref(x_111);
 x_117 = lean_ctor_get(x_114, 1);
 lean_inc(x_117);
-x_52 = x_83;
-x_53 = x_82;
+x_52 = x_115;
+x_53 = x_84;
 x_54 = x_116;
-x_55 = x_84;
-x_56 = x_115;
-x_57 = x_85;
+x_55 = x_85;
+x_56 = x_82;
+x_57 = x_83;
 x_58 = x_117;
 goto block_79;
 }
@@ -3575,12 +3575,12 @@ lean_inc(x_120);
 lean_dec_ref(x_111);
 x_121 = lean_ctor_get(x_118, 0);
 lean_inc(x_121);
-x_52 = x_83;
-x_53 = x_82;
+x_52 = x_119;
+x_53 = x_84;
 x_54 = x_120;
-x_55 = x_84;
-x_56 = x_119;
-x_57 = x_85;
+x_55 = x_85;
+x_56 = x_82;
+x_57 = x_83;
 x_58 = x_121;
 goto block_79;
 }
@@ -3687,12 +3687,12 @@ lean_inc(x_143);
 lean_dec_ref(x_138);
 x_144 = lean_ctor_get(x_141, 1);
 lean_inc(x_144);
-x_52 = x_83;
-x_53 = x_82;
+x_52 = x_142;
+x_53 = x_84;
 x_54 = x_143;
-x_55 = x_84;
-x_56 = x_142;
-x_57 = x_85;
+x_55 = x_85;
+x_56 = x_82;
+x_57 = x_83;
 x_58 = x_144;
 goto block_79;
 }
@@ -3708,12 +3708,12 @@ lean_inc(x_147);
 lean_dec_ref(x_138);
 x_148 = lean_ctor_get(x_145, 0);
 lean_inc(x_148);
-x_52 = x_83;
-x_53 = x_82;
+x_52 = x_146;
+x_53 = x_84;
 x_54 = x_147;
-x_55 = x_84;
-x_56 = x_146;
-x_57 = x_85;
+x_55 = x_85;
+x_56 = x_82;
+x_57 = x_83;
 x_58 = x_148;
 goto block_79;
 }
@@ -3878,12 +3878,12 @@ lean_inc(x_187);
 lean_dec_ref(x_182);
 x_188 = lean_ctor_get(x_185, 1);
 lean_inc(x_188);
-x_52 = x_83;
-x_53 = x_82;
+x_52 = x_186;
+x_53 = x_84;
 x_54 = x_187;
-x_55 = x_84;
-x_56 = x_186;
-x_57 = x_85;
+x_55 = x_85;
+x_56 = x_82;
+x_57 = x_83;
 x_58 = x_188;
 goto block_79;
 }
@@ -3899,12 +3899,12 @@ lean_inc(x_191);
 lean_dec_ref(x_182);
 x_192 = lean_ctor_get(x_189, 0);
 lean_inc(x_192);
-x_52 = x_83;
-x_53 = x_82;
+x_52 = x_190;
+x_53 = x_84;
 x_54 = x_191;
-x_55 = x_84;
-x_56 = x_190;
-x_57 = x_85;
+x_55 = x_85;
+x_56 = x_82;
+x_57 = x_83;
 x_58 = x_192;
 goto block_79;
 }
@@ -6345,16 +6345,16 @@ block_38:
 if (x_35 == 0)
 {
 lean_object* x_36; lean_object* x_37; 
-lean_dec_ref(x_33);
+lean_dec_ref(x_34);
 x_36 = l_Lean_ParserCompiler_registerParserCompiler___redArg___lam__0___closed__11;
-x_37 = l_Lean_evalConstCheck___at___Lean_ParserCompiler_registerParserCompiler_spec__8___redArg(x_36, x_3, x_5, x_6, x_34);
+x_37 = l_Lean_evalConstCheck___at___Lean_ParserCompiler_registerParserCompiler_spec__8___redArg(x_36, x_3, x_5, x_6, x_33);
 x_8 = x_37;
 goto block_28;
 }
 else
 {
 lean_dec(x_3);
-x_8 = x_33;
+x_8 = x_34;
 goto block_28;
 }
 }
@@ -6498,16 +6498,16 @@ if (x_74 == 0)
 uint8_t x_75; 
 x_75 = l_Lean_Exception_isRuntime(x_72);
 lean_dec(x_72);
-x_33 = x_71;
-x_34 = x_73;
+x_33 = x_73;
+x_34 = x_71;
 x_35 = x_75;
 goto block_38;
 }
 else
 {
 lean_dec(x_72);
-x_33 = x_71;
-x_34 = x_73;
+x_33 = x_73;
+x_34 = x_71;
 x_35 = x_74;
 goto block_38;
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.BaseTypes
-// Imports: Lean.Compiler.LCNF.CompilerM Lean.Compiler.LCNF.Types
+// Imports: public import Lean.Compiler.LCNF.CompilerM public import Lean.Compiler.LCNF.Types
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

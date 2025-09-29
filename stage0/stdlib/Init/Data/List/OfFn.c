@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.OfFn
-// Imports: Init.Data.List.Basic Init.Data.Fin.Fold
+// Imports: public import Init.Data.List.Basic public import Init.Data.Fin.Fold
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

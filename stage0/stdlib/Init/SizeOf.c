@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.SizeOf
-// Imports: Init.Tactics
+// Imports: public import Init.Tactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

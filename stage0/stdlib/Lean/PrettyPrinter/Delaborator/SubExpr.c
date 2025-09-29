@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.PrettyPrinter.Delaborator.SubExpr
-// Imports: Lean.Meta.Basic Lean.SubExpr
+// Imports: public import Lean.Meta.Basic public import Lean.SubExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sat.AIG.CachedLemmas
-// Imports: Std.Sat.AIG.Cached
+// Imports: public import Std.Sat.AIG.Cached
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

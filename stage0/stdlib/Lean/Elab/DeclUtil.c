@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.DeclUtil
-// Imports: Lean.Meta.Basic Lean.Meta.Check Lean.Parser.Command Lean.Parser.Command
+// Imports: public import Lean.Meta.Basic public import Lean.Meta.Check public import Lean.Parser.Command meta import Lean.Parser.Command
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -795,11 +795,11 @@ x_96 = l_Lean_Meta_forallTelescopeCompatibleAux___redArg___closed__12;
 x_97 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_97, 0, x_95);
 lean_ctor_set(x_97, 1, x_96);
-x_98 = l_Lean_throwError___at___Lean_Meta_forallTelescopeCompatibleAux_spec__0___redArg(x_97, x_84, x_85, x_83, x_82, x_86);
-lean_dec(x_82);
-lean_dec_ref(x_83);
-lean_dec(x_85);
-lean_dec_ref(x_84);
+x_98 = l_Lean_throwError___at___Lean_Meta_forallTelescopeCompatibleAux_spec__0___redArg(x_97, x_82, x_84, x_86, x_83, x_85);
+lean_dec(x_83);
+lean_dec_ref(x_86);
+lean_dec(x_84);
+lean_dec_ref(x_82);
 x_99 = !lean_is_exclusive(x_98);
 if (x_99 == 0)
 {
@@ -827,8 +827,8 @@ lean_dec_ref(x_37);
 lean_dec_ref(x_32);
 lean_dec_ref(x_28);
 x_82 = x_104;
-x_83 = x_105;
-x_84 = x_106;
+x_83 = x_106;
+x_84 = x_105;
 x_85 = x_107;
 x_86 = x_108;
 goto block_103;
@@ -836,11 +836,11 @@ goto block_103;
 else
 {
 lean_dec(x_31);
-x_46 = x_106;
-x_47 = x_107;
-x_48 = x_105;
-x_49 = x_104;
-x_50 = x_108;
+x_46 = x_104;
+x_47 = x_105;
+x_48 = x_108;
+x_49 = x_106;
+x_50 = x_107;
 goto block_81;
 }
 }
@@ -852,8 +852,8 @@ lean_dec_ref(x_37);
 lean_dec_ref(x_32);
 lean_dec_ref(x_28);
 x_82 = x_111;
-x_83 = x_112;
-x_84 = x_113;
+x_83 = x_113;
+x_84 = x_112;
 x_85 = x_114;
 x_86 = x_115;
 goto block_103;
@@ -881,11 +881,11 @@ uint8_t x_125;
 x_125 = l_Lean_BinderInfo_isInstImplicit(x_30);
 if (x_125 == 0)
 {
-x_111 = x_122;
-x_112 = x_121;
-x_113 = x_119;
-x_114 = x_120;
-x_115 = x_123;
+x_111 = x_119;
+x_112 = x_120;
+x_113 = x_122;
+x_114 = x_123;
+x_115 = x_121;
 x_116 = x_125;
 goto block_118;
 }
@@ -893,22 +893,22 @@ else
 {
 uint8_t x_126; 
 x_126 = l_Lean_Name_hasMacroScopes(x_27);
-x_111 = x_122;
-x_112 = x_121;
-x_113 = x_119;
-x_114 = x_120;
-x_115 = x_123;
+x_111 = x_119;
+x_112 = x_120;
+x_113 = x_122;
+x_114 = x_123;
+x_115 = x_121;
 x_116 = x_126;
 goto block_118;
 }
 }
 else
 {
-x_104 = x_122;
-x_105 = x_121;
-x_106 = x_119;
-x_107 = x_120;
-x_108 = x_123;
+x_104 = x_119;
+x_105 = x_120;
+x_106 = x_122;
+x_107 = x_123;
+x_108 = x_121;
 x_109 = x_124;
 goto block_110;
 }

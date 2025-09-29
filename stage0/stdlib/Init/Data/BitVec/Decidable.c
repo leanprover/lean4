@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.BitVec.Decidable
-// Imports: Init.Data.BitVec.Bootstrap
+// Imports: public import Init.Data.BitVec.Bootstrap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

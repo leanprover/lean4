@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.PartialFixpoint.Induction
-// Imports: Lean.Meta.Basic Lean.Meta.Match.MatcherApp.Transform Lean.Meta.Check Lean.Meta.Tactic.Subst Lean.Meta.Injective Lean.Meta.ArgsPacker Lean.Meta.PProdN Lean.Meta.Tactic.Apply Lean.Elab.PreDefinition.PartialFixpoint.Eqns Lean.Elab.Command Lean.Meta.Tactic.ElimInfo Init.Internal.Order.Basic
+// Imports: import Lean.Meta.Basic import Lean.Meta.Match.MatcherApp.Transform import Lean.Meta.Check import Lean.Meta.Tactic.Subst import Lean.Meta.Injective import Lean.Meta.ArgsPacker import Lean.Meta.PProdN import Lean.Meta.Tactic.Apply import Lean.Elab.PreDefinition.PartialFixpoint.Eqns import Lean.Elab.Command import Lean.Meta.Tactic.ElimInfo import Init.Internal.Order.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

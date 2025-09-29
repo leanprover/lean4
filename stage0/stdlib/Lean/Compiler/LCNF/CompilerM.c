@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.CompilerM
-// Imports: Lean.CoreM Lean.Compiler.LCNF.Basic Lean.Compiler.LCNF.LCtx Lean.Compiler.LCNF.ConfigOptions
+// Imports: public import Lean.CoreM public import Lean.Compiler.LCNF.Basic public import Lean.Compiler.LCNF.LCtx public import Lean.Compiler.LCNF.ConfigOptions
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

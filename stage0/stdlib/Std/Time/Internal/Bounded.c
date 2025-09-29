@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Internal.Bounded
-// Imports: Init.Omega Init.Data.Int.DivMod.Lemmas Init.Data.Order.Ord
+// Imports: public import Init.Omega public import Init.Data.Int.DivMod.Lemmas public import Init.Data.Order.Ord
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

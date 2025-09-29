@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.TacticsExtra
-// Imports: Init.Tactics Init.NotationExtra
+// Imports: public import Init.Tactics public import Init.NotationExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

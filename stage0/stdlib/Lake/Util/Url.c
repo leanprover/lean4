@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Url
-// Imports: Lake.Util.Log Init.Data.String.Extra Lake.Util.JsonObject Lake.Util.Proc
+// Imports: public import Lake.Util.Log import all Init.Data.String.Extra import Lake.Util.JsonObject import Lake.Util.Proc
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

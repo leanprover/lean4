@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.MatchUtil
-// Imports: Lean.Util.Recognizers Lean.Meta.Basic Lean.Meta.CtorRecognizer
+// Imports: public import Lean.Util.Recognizers public import Lean.Meta.Basic public import Lean.Meta.CtorRecognizer
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

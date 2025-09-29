@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.NameTrie
-// Imports: Lean.Data.PrefixTree
+// Imports: public import Lean.Data.PrefixTree
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

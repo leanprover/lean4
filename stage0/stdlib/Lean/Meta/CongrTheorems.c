@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.CongrTheorems
-// Imports: Lean.AddDecl Lean.Class Lean.ReservedNameAction Lean.ResolveName Lean.Meta.Basic Lean.Meta.AppBuilder Lean.Meta.Tactic.Subst Lean.Meta.Tactic.Intro Lean.Meta.Tactic.Assert
+// Imports: public import Lean.AddDecl public import Lean.Class public import Lean.ReservedNameAction public import Lean.ResolveName public import Lean.Meta.Basic import Lean.Meta.AppBuilder import Lean.Meta.Tactic.Subst import Lean.Meta.Tactic.Intro import Lean.Meta.Tactic.Assert
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -10895,19 +10895,19 @@ block_16:
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
-lean_dec_ref(x_11);
+lean_dec_ref(x_10);
 x_13 = lean_box(0);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_10);
+lean_ctor_set(x_14, 1, x_11);
 return x_14;
 }
 else
 {
 lean_object* x_15; 
 x_15 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_15, 0, x_11);
-lean_ctor_set(x_15, 1, x_10);
+lean_ctor_set(x_15, 0, x_10);
+lean_ctor_set(x_15, 1, x_11);
 return x_15;
 }
 }
@@ -10919,15 +10919,15 @@ if (x_19 == 0)
 {
 uint8_t x_20; 
 x_20 = l_Lean_Exception_isRuntime(x_17);
-x_10 = x_18;
-x_11 = x_17;
+x_10 = x_17;
+x_11 = x_18;
 x_12 = x_20;
 goto block_16;
 }
 else
 {
-x_10 = x_18;
-x_11 = x_17;
+x_10 = x_17;
+x_11 = x_18;
 x_12 = x_19;
 goto block_16;
 }
@@ -13860,7 +13860,7 @@ block_130:
 if (x_126 == 0)
 {
 lean_object* x_127; lean_object* x_128; 
-lean_dec_ref(x_125);
+lean_dec_ref(x_124);
 x_127 = lean_box(x_123);
 if (lean_is_scalar(x_122)) {
  x_128 = lean_alloc_ctor(0, 2, 0);
@@ -13868,7 +13868,7 @@ if (lean_is_scalar(x_122)) {
  x_128 = x_122;
 }
 lean_ctor_set(x_128, 0, x_127);
-lean_ctor_set(x_128, 1, x_124);
+lean_ctor_set(x_128, 1, x_125);
 return x_128;
 }
 else
@@ -13880,8 +13880,8 @@ if (lean_is_scalar(x_122)) {
  x_129 = x_122;
  lean_ctor_set_tag(x_129, 1);
 }
-lean_ctor_set(x_129, 0, x_125);
-lean_ctor_set(x_129, 1, x_124);
+lean_ctor_set(x_129, 0, x_124);
+lean_ctor_set(x_129, 1, x_125);
 return x_129;
 }
 }
@@ -13893,15 +13893,15 @@ if (x_133 == 0)
 {
 uint8_t x_134; 
 x_134 = l_Lean_Exception_isRuntime(x_131);
-x_124 = x_132;
-x_125 = x_131;
+x_124 = x_131;
+x_125 = x_132;
 x_126 = x_134;
 goto block_130;
 }
 else
 {
-x_124 = x_132;
-x_125 = x_131;
+x_124 = x_131;
+x_125 = x_132;
 x_126 = x_133;
 goto block_130;
 }
@@ -14453,19 +14453,19 @@ block_15:
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
-lean_dec_ref(x_10);
+lean_dec_ref(x_9);
 x_12 = lean_box(0);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
-lean_ctor_set(x_13, 1, x_9);
+lean_ctor_set(x_13, 1, x_10);
 return x_13;
 }
 else
 {
 lean_object* x_14; 
 x_14 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_14, 0, x_10);
-lean_ctor_set(x_14, 1, x_9);
+lean_ctor_set(x_14, 0, x_9);
+lean_ctor_set(x_14, 1, x_10);
 return x_14;
 }
 }
@@ -14477,15 +14477,15 @@ if (x_18 == 0)
 {
 uint8_t x_19; 
 x_19 = l_Lean_Exception_isRuntime(x_16);
-x_9 = x_17;
-x_10 = x_16;
+x_9 = x_16;
+x_10 = x_17;
 x_11 = x_19;
 goto block_15;
 }
 else
 {
-x_9 = x_17;
-x_10 = x_16;
+x_9 = x_16;
+x_10 = x_17;
 x_11 = x_18;
 goto block_15;
 }

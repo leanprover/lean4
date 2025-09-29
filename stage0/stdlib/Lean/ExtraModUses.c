@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.ExtraModUses
-// Imports: Lean.CoreM Lean.Compiler.MetaAttr
+// Imports: public import Lean.CoreM public import Lean.Compiler.MetaAttr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

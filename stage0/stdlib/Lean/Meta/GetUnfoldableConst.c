@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.GetUnfoldableConst
-// Imports: Lean.Meta.GlobalInstances
+// Imports: public import Lean.Meta.GlobalInstances
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

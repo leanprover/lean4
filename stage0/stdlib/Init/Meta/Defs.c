@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Meta.Defs
-// Imports: Init.Prelude Init.Prelude Init.MetaTypes Init.Syntax Init.Data.Array.GetLit Init.Data.Option.BasicAux Init.Data.Array.Basic Init.Syntax
+// Imports: public import Init.Prelude import all Init.Prelude public import Init.MetaTypes public import Init.Syntax public import Init.Data.Array.GetLit public import Init.Data.Option.BasicAux public meta import Init.Data.Array.Basic public meta import Init.Syntax
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

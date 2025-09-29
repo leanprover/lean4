@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Cycle
-// Imports: Init.Control.Except Init.Data.ToString Init.Data.String.Basic
+// Imports: public import Init.Control.Except public import Init.Data.ToString import Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

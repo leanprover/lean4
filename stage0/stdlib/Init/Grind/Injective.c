@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Injective
-// Imports: Init.Data.Function Init.Classical
+// Imports: public import Init.Data.Function public import Init.Classical
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

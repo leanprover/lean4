@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.BoolToPropSimps
-// Imports: Lean.Meta.Tactic.Simp.Attr
+// Imports: public import Lean.Meta.Tactic.Simp.Attr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DHashMap.Internal.HashesTo
-// Imports: Init.Data.Hashable Std.Data.Internal.List.Associative Std.Data.DHashMap.Internal.Defs
+// Imports: public import Init.Data.Hashable public import Std.Data.Internal.List.Associative public import Std.Data.DHashMap.Internal.Defs
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

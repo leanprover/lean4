@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.FVarSubst
-// Imports: Lean.Data.AssocList Lean.Expr Lean.LocalContext Lean.Util.ReplaceExpr
+// Imports: public import Lean.Data.AssocList public import Lean.Expr public import Lean.LocalContext public import Lean.Util.ReplaceExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

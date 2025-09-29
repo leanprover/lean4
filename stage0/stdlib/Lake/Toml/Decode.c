@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Toml.Decode
-// Imports: Init.System.FilePath Lake.Toml.Data
+// Imports: public import Init.System.FilePath public import Lake.Toml.Data
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

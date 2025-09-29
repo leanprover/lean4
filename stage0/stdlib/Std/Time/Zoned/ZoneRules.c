@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Zoned.ZoneRules
-// Imports: Std.Time.DateTime Std.Time.Zoned.TimeZone
+// Imports: public import Std.Time.DateTime public import Std.Time.Zoned.TimeZone
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

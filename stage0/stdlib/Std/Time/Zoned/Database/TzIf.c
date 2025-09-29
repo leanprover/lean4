@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Zoned.Database.TzIf
-// Imports: Init.Data.Range.Polymorphic.Nat Init.Data.Range.Polymorphic.Iterators Std.Internal.Parsec Std.Internal.Parsec.ByteArray Init.Data.ByteArray.Extra
+// Imports: public import Init.Data.Range.Polymorphic.Nat public import Init.Data.Range.Polymorphic.Iterators public import Std.Internal.Parsec public import Std.Internal.Parsec.ByteArray import Init.Data.ByteArray.Extra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.CompilerM
-// Imports: Lean.CoreM Lean.Environment Lean.Compiler.IR.Basic Lean.Compiler.IR.Format Lean.Compiler.MetaAttr Lean.Compiler.ExportAttr Lean.Compiler.LCNF.PhaseExt
+// Imports: public import Lean.CoreM public import Lean.Environment public import Lean.Compiler.IR.Basic public import Lean.Compiler.IR.Format public import Lean.Compiler.MetaAttr public import Lean.Compiler.ExportAttr public import Lean.Compiler.LCNF.PhaseExt
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

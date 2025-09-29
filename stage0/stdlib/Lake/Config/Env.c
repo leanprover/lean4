@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Env
-// Imports: Lake.Config.Cache Lake.Config.InstallPath
+// Imports: public import Lake.Config.Cache public import Lake.Config.InstallPath
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

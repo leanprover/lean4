@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Option.Monadic
-// Imports: Init.Data.Option.Instances Init.Data.Option.Instances Init.Data.Option.Attach Init.Control.Lawful.Basic
+// Imports: public import Init.Data.Option.Instances import all Init.Data.Option.Instances public import Init.Data.Option.Attach public import Init.Control.Lawful.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

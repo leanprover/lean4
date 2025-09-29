@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.SInt
-// Imports: Init.Data.SInt.Basic Init.Data.SInt.Float Init.Data.SInt.Float32 Init.Data.SInt.Lemmas Init.Data.SInt.Bitwise
+// Imports: public import Init.Data.SInt.Basic public import Init.Data.SInt.Float public import Init.Data.SInt.Float32 public import Init.Data.SInt.Lemmas public import Init.Data.SInt.Bitwise
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

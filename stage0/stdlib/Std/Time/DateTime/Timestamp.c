@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.DateTime.Timestamp
-// Imports: Std.Time.Internal Init.System.IO Std.Time.Time Std.Time.Date Std.Time.Duration
+// Imports: public import Std.Time.Internal public import Init.System.IO public import Std.Time.Time public import Std.Time.Date public import Std.Time.Duration
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Omega.MinNatAbs
-// Imports: Init.BinderPredicates Init.Data.Int.Order Init.Data.List.MinMax Init.Data.Nat.Order Init.Data.Option.Lemmas
+// Imports: public import Init.BinderPredicates public import Init.Data.Int.Order public import Init.Data.List.MinMax public import Init.Data.Nat.Order public import Init.Data.Option.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

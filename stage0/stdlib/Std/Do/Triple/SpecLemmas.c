@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Do.Triple.SpecLemmas
-// Imports: Std.Do.Triple.Basic Std.Do.WP Init.Data.Range.Polymorphic
+// Imports: public import Std.Do.Triple.Basic public import Std.Do.WP import Init.Data.Range.Polymorphic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

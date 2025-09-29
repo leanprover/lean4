@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Attr
-// Imports: Lean.Meta.Tactic.Grind.EMatchTheorem Lean.Meta.Tactic.Grind.Injective Lean.Meta.Tactic.Grind.Cases Lean.Meta.Tactic.Grind.ExtAttr Lean.ExtraModUses
+// Imports: public import Lean.Meta.Tactic.Grind.EMatchTheorem public import Lean.Meta.Tactic.Grind.Injective public import Lean.Meta.Tactic.Grind.Cases public import Lean.Meta.Tactic.Grind.ExtAttr import Lean.ExtraModUses
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

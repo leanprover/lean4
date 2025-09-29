@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Fin.Fold
-// Imports: Init.Data.Nat.Linear Init.Control.Lawful.Basic Init.Data.Fin.Lemmas
+// Imports: public import Init.Data.Nat.Linear public import Init.Control.Lawful.Basic public import Init.Data.Fin.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

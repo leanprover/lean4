@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.DocString.Markdown
-// Imports: Init.Data.Repr Init.Data.Ord Lean.DocString.Types
+// Imports: import Init.Data.Repr import Init.Data.Ord public import Lean.DocString.Types
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

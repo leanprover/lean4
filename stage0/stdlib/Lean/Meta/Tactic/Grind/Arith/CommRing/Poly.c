@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
-// Imports: Init.Grind.Ring.CommSolver
+// Imports: public import Init.Grind.Ring.CommSolver
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

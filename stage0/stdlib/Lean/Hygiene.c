@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Hygiene
-// Imports: Lean.Data.Name Lean.Data.Options Lean.Data.Format
+// Imports: public import Lean.Data.Name public import Lean.Data.Options public import Lean.Data.Format
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

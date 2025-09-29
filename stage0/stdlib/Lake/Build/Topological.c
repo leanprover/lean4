@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Topological
-// Imports: Lake.Util.Cycle Lake.Util.Store Lake.Util.EquipT
+// Imports: public import Lake.Util.Cycle public import Lake.Util.Store public import Lake.Util.EquipT
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

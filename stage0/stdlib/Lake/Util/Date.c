@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Date
-// Imports: Init.Data.Ord.Basic Lake.Util.String
+// Imports: public import Init.Data.Ord.Basic import Lake.Util.String
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

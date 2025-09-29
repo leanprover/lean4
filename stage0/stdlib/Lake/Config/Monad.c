@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Monad
-// Imports: Lake.Config.Workspace
+// Imports: public import Lake.Config.Workspace
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

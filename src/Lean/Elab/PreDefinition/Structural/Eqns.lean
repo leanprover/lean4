@@ -41,7 +41,7 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
       instantiateMVars main
 where
   goUnfold (mvarId : MVarId) : MetaM Unit := do
-    withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} go2:\n{MessageData.ofGoal mvarId}") do
+    withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} goUnfold:\n{MessageData.ofGoal mvarId}") do
     let mvarId' ← mvarId.withContext do
       -- This should now be headed by `.brecOn`
       let goal ← mvarId.getType

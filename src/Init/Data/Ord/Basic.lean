@@ -6,7 +6,6 @@ Authors: Dany Fabian, Sebastian Ullrich
 module
 
 prelude
-public import Init.Data.String.Basic
 public import Init.Data.Array.Basic
 public import Init.Data.SInt.Basic
 public import Init.Data.Vector.Basic
@@ -480,9 +479,6 @@ instance : Ord Bool where
   | false, true => Ordering.lt
   | true, false => Ordering.gt
   | _, _ => Ordering.eq
-
-instance : Ord String where
-  compare x y := compareOfLessAndEq x y
 
 instance (n : Nat) : Ord (Fin n) where
   compare x y := compare x.val y.val

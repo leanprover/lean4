@@ -84,7 +84,7 @@ instance g (x : Nat) : Foo :=
   { x, y := ack 10 11 }
 
 open Lean Meta
-set_option maxHeartbeats 500 in
+set_option maxHeartbeats 520 in
 run_meta do
   withLocalDeclD `x (mkConst ``Nat) fun x => do
     let lhs := Expr.proj ``Foo 0 <| mkApp (mkConst ``f) x

@@ -51,7 +51,7 @@ where fillCache : CoreM IRType := do
     -- `Int` is specified as an inductive type with two constructors that have relevant arguments,
     -- but it has the same runtime representation as `Nat` and thus needs to be special-cased here.
     | ``Int => return .tobject
-    | ``lcRealWorld => return .tagged
+    | ``lcVoid => return .tagged
     | _ =>
       let env ← Lean.getEnv
       let some (.inductInfo inductiveVal) := env.find? name | return .tobject

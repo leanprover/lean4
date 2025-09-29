@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.Data.Ord.Basic
+import Init.Data.String.Basic
+import Init.Data.Ord.String
 
 public section
 namespace Lean

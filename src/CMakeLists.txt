@@ -797,6 +797,9 @@ install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/" DESTINATION lib
 
 # symlink source into expected installation location for go-to-definition, if file system allows it
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src)
+# get rid of all files in `src/lean` that may have been loaded from the cache
+# (at the time of writing this, this is the case for some lake test .c files)
+file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/src/lean)
 if(${STAGE} EQUAL 0)
   file(CREATE_LINK ${CMAKE_SOURCE_DIR}/../../src ${CMAKE_BINARY_DIR}/src/lean RESULT _IGNORE_RES SYMBOLIC)
 else()

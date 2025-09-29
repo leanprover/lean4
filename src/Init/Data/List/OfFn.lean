@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Fin.Fold
-import Init.Data.List.Lemmas
+public import Init.Data.List.Lemmas
 
 public section
 

@@ -39,7 +39,7 @@ private theorem getElem?_zipWithAll {f : Option α → Option β → γ} {i : Na
 private theorem map_id (l : List α) : map (id : α → α) l = l := by
   induction l <;> simp_all
 
-[simp] private theorem map_id' (l : List α) : map (fun (a : α) => a) l = l := map_id l
+private theorem map_id' (l : List α) : map (fun (a : α) => a) l = l := map_id l
 
 private theorem getElem?_zipWith {f : α → β → γ} {i : Nat} :
     (zipWith f as bs)[i]? = match as[i]?, bs[i]? with
@@ -52,9 +52,9 @@ private theorem getElem?_zipWith {f : α → β → γ} {i : Nat} :
     | nil => simp
     | cons b bs => cases i <;> simp_all [getElem?_cons_succ]
 
-@[simp] private theorem mem_cons_self {a : α} {l : List α} : a ∈ a :: l := .head ..
+private theorem mem_cons_self {a : α} {l : List α} : a ∈ a :: l := .head ..
 
-@[simp] private theorem mem_cons_of_mem (y : α) {a : α} {l : List α} : a ∈ l → a ∈ y :: l := .tail _
+private theorem mem_cons_of_mem (y : α) {a : α} {l : List α} : a ∈ l → a ∈ y :: l := .tail _
 
 private theorem length_map {as : List α} (f : α → β) : (as.map f).length = as.length := by
   induction as with
@@ -314,7 +314,7 @@ theorem dot_of_left_zero (w : ∀ x, x ∈ xs → x = 0) : dot xs ys = 0 := by
     cases ys with
     | nil => simp
     | cons y ys =>
-      rw [dot_cons₂, w x (by simp), ih]
+      rw [dot_cons₂, w x (by simp [List.mem_cons_self]), ih]
       · simp
       · intro x m
         apply w
@@ -363,7 +363,7 @@ theorem dvd_gcd (xs : IntList) (c : Nat) (w : ∀ {a : Int}, a ∈ xs → (c : I
     simp
     apply Nat.dvd_gcd
     · apply w
-      simp
+      simp [List.mem_cons_self]
     · apply ih
       intro b m
       apply w

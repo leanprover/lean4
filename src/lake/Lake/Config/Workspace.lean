@@ -25,6 +25,10 @@ public structure Workspace : Type where
   root : Package
   /-- The detected `Lake.Env` of the workspace. -/
   lakeEnv : Lake.Env
+  /-- The Lake cache. -/
+  lakeCache : Cache :=
+    if root.bootstrap then lakeEnv.lakeSystemCache?.getD ⟨root.lakeDir / "cache"⟩
+    else lakeEnv.lakeCache?.getD ⟨root.lakeDir / "cache"⟩
   /--
   The CLI arguments Lake was run with.
   Used by `lake update` to perform a restart of Lake on a toolchain update.
@@ -68,10 +72,6 @@ namespace Workspace
 /-- The full path to the workspace's Lake directory (e.g., `.lake`). -/
 @[inline] public def lakeDir (self : Workspace) : FilePath :=
   self.root.lakeDir
-
-/-- The Lake cache. -/
-@[inline] public def lakeCache (ws : Workspace) : Cache :=
-  ws.lakeEnv.lakeCache?.getD ⟨ws.lakeDir⟩
 
 /-- Whether the Lake artifact cache should be enabled by default for packages in the workspace. -/
 @[inline] public def enableArtifactCache (ws : Workspace) : Bool :=

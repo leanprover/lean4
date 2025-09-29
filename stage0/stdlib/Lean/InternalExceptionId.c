@@ -304,6 +304,7 @@ lean_dec(x_6);
 x_20 = l_Lean_registerInternalExceptionId___closed__1;
 x_21 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_8);
 x_22 = lean_string_append(x_20, x_21);
+lean_dec_ref(x_21);
 x_23 = l_Lean_registerInternalExceptionId___closed__2;
 x_24 = lean_string_append(x_22, x_23);
 x_25 = lean_mk_io_user_error(x_24);
@@ -360,6 +361,7 @@ lean_dec(x_26);
 x_38 = l_Lean_registerInternalExceptionId___closed__1;
 x_39 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_28);
 x_40 = lean_string_append(x_38, x_39);
+lean_dec_ref(x_39);
 x_41 = l_Lean_registerInternalExceptionId___closed__2;
 x_42 = lean_string_append(x_40, x_41);
 x_43 = lean_mk_io_user_error(x_42);
@@ -412,6 +414,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_2 = l_Lean_InternalExceptionId_toString___closed__0;
 x_3 = l_Nat_reprFast(x_1);
 x_4 = lean_string_append(x_2, x_3);
+lean_dec_ref(x_3);
 return x_4;
 }
 }

@@ -1235,6 +1235,7 @@ lean_ctor_set(x_3, 0, x_29);
 x_31 = l_Std_DHashMap_Internal_AssocList_foldlM___at___Lean_IR_Borrow_ParamMap_fmt_spec__0___closed__4;
 x_32 = l_Nat_reprFast(x_26);
 x_33 = lean_string_append(x_31, x_32);
+lean_dec_ref(x_32);
 x_34 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_34, 0, x_33);
 x_35 = lean_alloc_ctor(5, 2, 0);
@@ -1262,6 +1263,7 @@ lean_ctor_set(x_42, 1, x_41);
 x_43 = l_Std_DHashMap_Internal_AssocList_foldlM___at___Lean_IR_Borrow_ParamMap_fmt_spec__0___closed__4;
 x_44 = l_Nat_reprFast(x_37);
 x_45 = lean_string_append(x_43, x_44);
+lean_dec_ref(x_44);
 x_46 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_46, 0, x_45);
 x_47 = lean_alloc_ctor(5, 2, 0);
@@ -5534,9 +5536,9 @@ goto block_152;
 block_144:
 {
 lean_object* x_141; lean_object* x_142; lean_object* x_143; 
-x_141 = lean_nat_add(x_138, x_140);
+x_141 = lean_nat_add(x_139, x_140);
 lean_dec(x_140);
-lean_dec(x_138);
+lean_dec(x_139);
 if (lean_is_scalar(x_135)) {
  x_142 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -5555,7 +5557,7 @@ if (lean_is_scalar(x_125)) {
 lean_ctor_set(x_143, 0, x_137);
 lean_ctor_set(x_143, 1, x_128);
 lean_ctor_set(x_143, 2, x_129);
-lean_ctor_set(x_143, 3, x_139);
+lean_ctor_set(x_143, 3, x_138);
 lean_ctor_set(x_143, 4, x_142);
 return x_143;
 }
@@ -5581,8 +5583,8 @@ if (lean_obj_tag(x_131) == 0)
 lean_object* x_150; 
 x_150 = lean_ctor_get(x_131, 0);
 lean_inc(x_150);
-x_138 = x_149;
-x_139 = x_148;
+x_138 = x_148;
+x_139 = x_149;
 x_140 = x_150;
 goto block_144;
 }
@@ -5590,8 +5592,8 @@ else
 {
 lean_object* x_151; 
 x_151 = lean_unsigned_to_nat(0u);
-x_138 = x_149;
-x_139 = x_148;
+x_138 = x_148;
+x_139 = x_149;
 x_140 = x_151;
 goto block_144;
 }

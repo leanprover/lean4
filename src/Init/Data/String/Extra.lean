@@ -142,15 +142,6 @@ def toUTF8 (a : @& String) : ByteArray :=
 @[simp] theorem size_toUTF8 (s : String) : s.toUTF8.size = s.utf8ByteSize := by
   rfl
 
-/--
-Accesses the indicated byte in the UTF-8 encoding of a string.
-
-At runtime, this function is implemented by efficient, constant-time code.
--/
-@[extern "lean_string_get_byte_fast"]
-def getUtf8Byte (s : @& String) (n : Nat) (h : n < s.utf8ByteSize) : UInt8 :=
-  (toUTF8 s)[n]'(size_toUTF8 _ ▸ h)
-
 theorem Iterator.sizeOf_next_lt_of_hasNext (i : String.Iterator) (h : i.hasNext) : sizeOf i.next < sizeOf i := by
   cases i; rename_i s pos; simp [Iterator.next, Iterator.sizeOf_eq]; simp [Iterator.hasNext] at h
   exact Nat.sub_lt_sub_left h (String.lt_next s pos)

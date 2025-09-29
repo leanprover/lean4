@@ -3498,7 +3498,6 @@ case 2:
 lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 x_29 = lean_ctor_get(x_25, 1);
 x_30 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage___closed__0;
-lean_inc_ref(x_29);
 x_31 = lean_string_append(x_30, x_29);
 x_32 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage___closed__1;
 x_33 = lean_string_append(x_31, x_32);
@@ -3995,11 +3994,11 @@ lean_inc(x_49);
 lean_dec_ref(x_44);
 x_50 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Parser_parseHeader_spec__2___redArg___closed__6;
 x_51 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_42, x_43);
-lean_inc_ref(x_51);
 x_52 = lean_string_append(x_50, x_51);
 x_53 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Parser_parseHeader_spec__2___redArg___closed__7;
 x_54 = lean_string_append(x_52, x_53);
 x_55 = lean_string_append(x_54, x_51);
+lean_dec_ref(x_51);
 x_56 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Parser_parseHeader_spec__2___redArg___closed__8;
 x_57 = lean_string_append(x_55, x_56);
 lean_ctor_set_tag(x_46, 3);
@@ -4033,11 +4032,11 @@ lean_inc(x_61);
 lean_dec_ref(x_44);
 x_62 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Parser_parseHeader_spec__2___redArg___closed__6;
 x_63 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_42, x_43);
-lean_inc_ref(x_63);
 x_64 = lean_string_append(x_62, x_63);
 x_65 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Parser_parseHeader_spec__2___redArg___closed__7;
 x_66 = lean_string_append(x_64, x_65);
 x_67 = lean_string_append(x_66, x_63);
+lean_dec_ref(x_63);
 x_68 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Parser_parseHeader_spec__2___redArg___closed__8;
 x_69 = lean_string_append(x_67, x_68);
 x_70 = lean_alloc_ctor(3, 1, 0);
@@ -6487,7 +6486,6 @@ LEAN_EXPORT lean_object* l_Lean_Parser_testParseFile(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_4; 
-lean_inc_ref(x_2);
 x_4 = l_IO_FS_readFile(x_2, x_3);
 if (lean_obj_tag(x_4) == 0)
 {

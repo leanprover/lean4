@@ -7523,7 +7523,7 @@ x_29 = l_Array_ofSubarray___redArg(x_21);
 lean_dec_ref(x_21);
 lean_inc_ref(x_29);
 x_30 = lean_alloc_closure((void*)(l_Lean_Meta_mkSizeOfFn___lam__5___boxed), 18, 12);
-lean_closure_set(x_30, 0, x_20);
+lean_closure_set(x_30, 0, x_19);
 lean_closure_set(x_30, 1, x_18);
 lean_closure_set(x_30, 2, x_27);
 lean_closure_set(x_30, 3, x_4);
@@ -7533,7 +7533,7 @@ lean_closure_set(x_30, 6, x_26);
 lean_closure_set(x_30, 7, x_28);
 lean_closure_set(x_30, 8, x_5);
 lean_closure_set(x_30, 9, x_6);
-lean_closure_set(x_30, 10, x_19);
+lean_closure_set(x_30, 10, x_20);
 lean_closure_set(x_30, 11, x_7);
 x_31 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances___redArg(x_29, x_30, x_13, x_14, x_15, x_16, x_17);
 return x_31;
@@ -7575,8 +7575,8 @@ x_49 = lean_array_get_size(x_11);
 x_50 = lean_nat_dec_le(x_46, x_48);
 if (x_50 == 0)
 {
-x_33 = x_45;
-x_34 = x_41;
+x_33 = x_41;
+x_34 = x_45;
 x_35 = x_42;
 x_36 = x_49;
 x_37 = x_47;
@@ -7586,8 +7586,8 @@ goto block_40;
 else
 {
 lean_dec(x_46);
-x_33 = x_45;
-x_34 = x_41;
+x_33 = x_41;
+x_34 = x_45;
 x_35 = x_42;
 x_36 = x_49;
 x_37 = x_47;

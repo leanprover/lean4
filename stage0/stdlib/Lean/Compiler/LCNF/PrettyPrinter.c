@@ -1172,11 +1172,12 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Compiler_LCNF_PP_ppExpr___redArg___closed__1;
-x_2 = lean_alloc_ctor(0, 4, 0);
+x_2 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
 lean_ctor_set(x_2, 2, x_1);
 lean_ctor_set(x_2, 3, x_1);
+lean_ctor_set(x_2, 4, x_1);
 return x_2;
 }
 }
@@ -2260,6 +2261,7 @@ lean_dec_ref(x_2);
 x_13 = 1;
 x_14 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_6, x_13);
 x_15 = lean_string_append(x_9, x_14);
+lean_dec_ref(x_14);
 x_16 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_16, 0, x_15);
 x_17 = lean_alloc_ctor(0, 2, 0);

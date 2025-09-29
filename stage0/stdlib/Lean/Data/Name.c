@@ -1075,7 +1075,6 @@ x_5 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_3);
 lean_ctor_set(x_5, 2, x_4);
-lean_inc_ref(x_2);
 x_6 = lean_string_length(x_2);
 x_7 = l_Substring_nextn(x_5, x_6, x_3);
 lean_dec_ref(x_5);

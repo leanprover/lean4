@@ -278,7 +278,6 @@ static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean
 lean_object* l_Lean_MessageData_nestD(lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_Diff_Histogram_addLeft___at___Lean_Diff_lcs___at___Lean_Diff_diff___at_____private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDiff_mkWhitespaceDiff_spec__1_spec__1_spec__5_spec__7_spec__7(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Diff_lcs___at___Lean_Diff_diff___at_____private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDiff_mkWhitespaceDiff_spec__1_spec__1_spec__15___redArg(lean_object*, lean_object*);
-lean_object* l_String_toList(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Hint_mkSuggestionsMessage___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDiff_joinEdits_spec__0___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Diff_lcs___at___Lean_Diff_diff___at_____private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDiff_wordDiff_spec__2_spec__2_spec__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1031,6 +1030,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = lean_string_append(x_4, x_6);
+lean_dec_ref(x_6);
 x_8 = 1;
 x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;
@@ -10847,7 +10847,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDi
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_String_toList(x_1);
+x_2 = lean_string_data(x_1);
 x_3 = lean_array_mk(x_2);
 return x_3;
 }
@@ -10947,9 +10947,7 @@ case 0:
 {
 uint32_t x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_45; lean_object* x_46; lean_object* x_47; uint8_t x_54; 
 x_26 = 65;
-lean_inc_ref(x_1);
 x_45 = lean_string_length(x_1);
-lean_inc_ref(x_2);
 x_46 = lean_string_length(x_2);
 x_54 = lean_nat_dec_le(x_45, x_46);
 if (x_54 == 0)
@@ -11495,6 +11493,7 @@ x_7 = lean_ctor_get(x_6, 1);
 lean_inc(x_7);
 lean_dec_ref(x_6);
 x_8 = lean_string_append(x_4, x_7);
+lean_dec(x_7);
 x_9 = 1;
 x_10 = lean_usize_add(x_2, x_9);
 x_2 = x_10;

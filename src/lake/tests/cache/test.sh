@@ -5,62 +5,61 @@ source ../common.sh
 
 # Test the functionality of the Lake artifact cache
 
+# Store Lake cache in a local directory
 TEST_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 CACHE_DIR="$TEST_DIR/.lake/cache"
+export LAKE_CACHE_DIR="$CACHE_DIR"
 
 # Verify packages without `enableArtifactCache` do not use the cache by default
-LAKE_CACHE_DIR="$CACHE_DIR" test_run build -f unset.toml Test:static
+test_run build -f unset.toml Test:static
 test_exp ! -d "$CACHE_DIR"
 # Verify they also do not if `LAKE_ARTIFACT_CACHE` is set to `false`
-LAKE_CACHE_DIR="$CACHE_DIR" LAKE_ARTIFACT_CACHE=false \
-  test_run build -f unset.toml Test:static
+LAKE_ARTIFACT_CACHE=false test_run build -f unset.toml Test:static
 test_exp ! -d "$CACHE_DIR"
 # Verify packages with `enableArtifactCache` set to `false``
 # also do not if `LAKE_ARTIFACT_CACHE` is set to `true`
-LAKE_CACHE_DIR="$CACHE_DIR" LAKE_ARTIFACT_CACHE=true \
-  test_run build -f disabled.toml Test:static
+LAKE_ARTIFACT_CACHE=true test_run build -f disabled.toml Test:static
 test_exp ! -d "$CACHE_DIR"
 # Verify that packages without `enableArtifactCache` and
 # `LAKE_ARTIFACT_CACHE` is set to `true` do use the cache
-LAKE_CACHE_DIR="$CACHE_DIR" LAKE_ARTIFACT_CACHE=true \
-  test_run build -f unset.toml Test:static
+LAKE_ARTIFACT_CACHE=true test_run build -f unset.toml Test:static
 test_exp -d "$CACHE_DIR"
 ./clean.sh
 
 # Ensure a build runs properly with some artifacts cached
-LAKE_CACHE_DIR="$CACHE_DIR" test_run build Test:static
-LAKE_CACHE_DIR="$CACHE_DIR" test_run build Test:static --no-build --wfail
+test_run build Test:static
+test_run build Test:static --no-build --wfail
 
 # Test replay of a cached build
-LAKE_CACHE_DIR="$CACHE_DIR" test_out 'Replayed Test:c.o' build +Test:o -v
+test_out 'Replayed Test:c.o' build +Test:o -v
 
 # Verify that a rebuild with the cache disabled is a no-op
 touch .lake/build/ir/Test.c # avoid mod time fallback if trace is missing
-LAKE_CACHE_DIR= test_run build +Test:o --no-build --wfail
-LAKE_CACHE_DIR= test_run build Test:static --no-build --wfail
+test_run -f disabled.toml build +Test:o --no-build --wfail
+test_run -f disabled.toml build Test:static --no-build --wfail
 
 # Verify the cache directory structure was created
 test_exp -d "$CACHE_DIR"
-test_exp -d "$CACHE_DIR/inputs"
-test_exp -s "$CACHE_DIR/inputs/test.jsonl"
+test_exp -d "$CACHE_DIR/outputs"
 test_exp -d "$CACHE_DIR/artifacts"
 
-# Copy the basic inputs for later
-cp "$CACHE_DIR/inputs/test.jsonl" .lake/backup-inputs.json
+# Copy the basic mappings for later
+test_cmd cp -r "$CACHE_DIR/outputs" .lake/backup-outputs
 
 # Checked that the cached artifact is in the expected location
 # and equivalent to the standard artifact
-local_art="$(LAKE_CACHE_DIR= $LAKE query +Test:o)"
-cache_art="$(LAKE_CACHE_DIR="$CACHE_DIR" $LAKE query +Test:o)"
+local_art="$($LAKE -f disabled.toml query +Test:o)"
+cache_art="$($LAKE query +Test:o)"
 test_exp "$(norm_dirname "$cache_art")" = "$CACHE_DIR/artifacts"
 test_exp "$cache_art" != "$local_art"
 test_cmd cmp -s "$cache_art" "$local_art"
 
 # Verify supported artifacts end up in the cache directory
-LAKE_CACHE_DIR="$CACHE_DIR" test_run build test:exe Test:static Test:shared +Test:o.export +Test:o.noexport
+test_run build \
+  test:exe Test:static Test:shared +Test:o.export +Test:o.noexport +Module
 test_cached() {
   target="$1"; shift
-  art="$(LAKE_CACHE_DIR="$CACHE_DIR" $LAKE query $target)"
+  art="$($LAKE query $target)"
   echo "${1:-?} artifact cached: $target -> $art"
   test ${1:-} "$(norm_dirname "$art")" = "$CACHE_DIR/artifacts"
 }
@@ -73,7 +72,6 @@ test_cached +Test:dynlib !
 test_cached +Test:olean
 test_cached +Test:ilean !
 test_cached +Test:c
-LAKE_CACHE_DIR="$CACHE_DIR" test_run build +Module
 test_cached +Module:olean
 test_cached +Module:olean.server
 test_cached +Module:olean.private
@@ -83,52 +81,100 @@ test_cached +Module:ir
 check_diff /dev/null <(ls -1 "$CACHE_DIR/*.hash" 2>/dev/null)
 
 # Verify that the executable has the right permissions to be run
-LAKE_CACHE_DIR="$CACHE_DIR" test_run exe test
+test_run exe test
 
 # Verify that fetching from the cache creates a trace file that does not replay
 touch Ignored.lean
-LAKE_CACHE_DIR="$CACHE_DIR" test_out "Fetched Ignored" -v build +Ignored
+test_out "Fetched Ignored" -v build +Ignored
 test_exp -f .lake/build/lib/lean/Ignored.trace
-LAKE_CACHE_DIR="$CACHE_DIR" test_out "Fetched Ignored" -v build +Ignored
+test_out "Fetched Ignored" -v build +Ignored
 
 # Verify that modifications invalidate the cache
 echo "def foo := ()" > Ignored.lean
-LAKE_CACHE_DIR="$CACHE_DIR" test_out "Built Ignored" -v build +Ignored
+test_out "Built Ignored" -v build +Ignored
 
 # Verify module ileans are restored from the cache
-LAKE_CACHE_DIR="$CACHE_DIR" test_run build +Test --no-build
+test_run build +Test --no-build
 test_cmd rm .lake/build/lib/lean/Test.ilean
-LAKE_CACHE_DIR="$CACHE_DIR" test_out "restored artifact from cache" -v build +Test --no-build
+test_out "restored artifact from cache" -v build +Test --no-build
 test_exp -f .lake/build/lib/lean/Test.ilean
 
 # Verify that things work properly if the cached artifact is removed
 test_cmd rm "$cache_art"
-LAKE_CACHE_DIR="$CACHE_DIR" test_out "⚠ [4/4] Replayed Test:c.o" build +Test:o -v --no-build
+test_out "⚠ [4/4] Replayed Test:c.o" build +Test:o -v --no-build
 test_exp -f "$cache_art" # artifact should be re-cached
-test_cmd rm "$CACHE_DIR/inputs/test.jsonl"
-LAKE_CACHE_DIR="$CACHE_DIR" test_out "Replayed Test:c.o" build +Test:o -v --no-build
+test_cmd rm -r "$CACHE_DIR/outputs"
+test_out "Replayed Test:c.o" build +Test:o -v --no-build
 test_exp -f "$cache_art" # artifact should be re-cached
 
-# Verify that the upstream input graph is restored
-LAKE_CACHE_DIR="$CACHE_DIR" test_out "Replayed Test:c.o" build Test:static -v --no-build
-# Input order is not deterministic due to parallelism, so sorting is necessary
-check_diff <(sort .lake/backup-inputs.json) <(sort "$CACHE_DIR/inputs/test.jsonl")
+# Verify that upstream cache mappings are restored
+test_out "Replayed Test:c.o" build Test:static -v --no-build
+check_diff <(ls .lake/backup-outputs) <(ls "$CACHE_DIR/outputs")
 
 # Verify that things work properly if the local artifact is removed
 test_cmd rm "$local_art"
-LAKE_CACHE_DIR="$CACHE_DIR" test_out "Replayed Test:c.o" build +Test:o -v --no-build
+test_out "Replayed Test:c.o" build +Test:o -v --no-build
 test_cmd rm "$local_art.trace"
-LAKE_CACHE_DIR="$CACHE_DIR" test_out "Fetched Test:c.o" build +Test:o -v --no-build
+test_out "Fetched Test:c.o" build +Test:o -v --no-build
 
 # Verify that if the input cache is missing,
 # the cached artifact is still used via the output hash in the trace
-test_cmd rm "$CACHE_DIR/inputs/test.jsonl" .lake/build/ir/Test.c
-LAKE_CACHE_DIR="$CACHE_DIR" test_run -v build +Test:c --no-build
+test_cmd rm -r "$CACHE_DIR/outputs" .lake/build/ir/Test.c
+test_run -v build +Test:c --no-build
 
 # Verify that the olean does need to be present in the build directory
 test_cmd rm .lake/build/lib/lean/Test.olean .lake/build/lib/lean/Test/Imported.olean
-LAKE_CACHE_DIR="$CACHE_DIR" test_run -v build +Test.Imported --no-build --wfail
-LAKE_CACHE_DIR="$CACHE_DIR" test_run -v build +Test
+test_run -v build +Test.Imported --no-build --wfail
+test_run -v build +Test
+
+# Test producing an output mappings file
+test_run build Test -o .lake/outputs.jsonl
+test_exp -f .lake/outputs.jsonl
+test_cmd_eq 3 wc -l < .lake/outputs.jsonl
+test_run build Test:static -o .lake/outputs.jsonl
+test_cmd_eq 6 wc -l < .lake/outputs.jsonl
+
+# Verify all artifacts end up in the cache directory with `restoreAllArtifacts`
+test_cmd cp -r "$CACHE_DIR" .lake/cache-backup
+test_cmd rm -rf "$CACHE_DIR" .lake/build
+test_run build -R -KrestoreAll=true \
+  test:exe Test:static Test:shared +Test:o.export +Test:o.noexport +Module
+test_restored() {
+  target="$1"; shift
+  art="$($LAKE query $target)"
+  echo "! artifact cached: $target -> $art"
+  test ! "$(norm_dirname "$art")" = "$CACHE_DIR/artifacts"
+  if [ -n "${1:-}" ]; then
+    test "$(basename "$art")" = "$1"
+  fi
+}
+test_restored test:exe
+test_restored Test:static
+test_restored Test:shared
+test_restored +Test:o.export Test.c.o.export
+test_restored +Test:o.noexport Test.c.o.noexport
+test_restored +Test:dynlib
+test_restored +Test:olean Test.olean
+test_restored +Test:ilean Test.ilean
+test_restored +Test:c Test.c
+test_restored +Module:olean Module.olean
+test_restored +Module:olean.server Module.olean.server
+test_restored +Module:olean.private Module.olean.private
+test_restored +Module:ir Module.ir
+
+# Verify that invalid outputs do not break Lake
+if command -v jq > /dev/null; then # skip if no jq found
+  libPath=$($LAKE query Test:static)
+  test_cmd rm -f $libPath
+  inputHash=$(jq -r '.depHash' $libPath.trace)
+  echo $inputHash
+  echo bogus > "$CACHE_DIR/outputs/test/$inputHash.json"
+  test_out 'invalid JSON' build Test:static
+  test_cmd rm -f $libPath
+  echo '"bogus"' > "$CACHE_DIR/outputs/test/$inputHash.json"
+  test_out 'some output(s) have issues' build Test:static
+  test_exp -f $libPath
+fi
 
 # Cleanup
 rm -f produced.out Ignored.lean

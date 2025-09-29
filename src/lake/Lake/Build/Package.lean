@@ -11,6 +11,7 @@ public import Lake.Config.FacetConfig
 public import Lake.Build.Job.Monad
 public import Lake.Build.Infos
 import Lake.Util.Git
+import Lake.Util.Url
 import Lake.Util.Proc
 import Lake.Build.Actions
 import Lake.Build.Common

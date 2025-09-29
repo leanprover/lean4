@@ -9,6 +9,8 @@ prelude
 public import Lean.Compiler.LCNF.PhaseExt
 public import Lean.Compiler.MetaAttr
 public import Lean.Compiler.ImplementedByAttr
+import Lean.ExtraModUses
+import Lean.Compiler.Options
 
 public section
 
@@ -58,35 +60,60 @@ partial def markDeclPublicRec (phase : Phase) (decl : Decl) : CompilerM Unit := 
 
 /-- Checks whether references in the given declaration adhere to phase distinction. -/
 partial def checkMeta (origDecl : Decl) : CompilerM Unit := do
-  if !(← getEnv).header.isModule then
+  if !(← getEnv).header.isModule || !compiler.checkMeta.get (← getOptions) then
     return
-  let isMeta := isMeta (← getEnv) origDecl.name
+  let irPhases := getIRPhases (← getEnv) origDecl.name
+  if irPhases == .all then
+    return
   -- If the meta decl is public, we want to ensure it can only refer to public meta imports so that
   -- references to private imports cannot escape the current module. In particular, we check that
   -- decls with relevant global attrs are public (`Lean.ensureAttrDeclIsMeta`).
   let isPublic := !isPrivateName origDecl.name
-  go isMeta isPublic origDecl |>.run' {}
+  go (irPhases == .comptime) isPublic origDecl |>.run' {}
 where go (isMeta isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit := do
   decl.value.forCodeM fun code =>
     for ref in collectUsedDecls code do
       if (← get).contains ref then
         continue
       modify (·.insert ref)
+      let env ← getEnv
       if isMeta && isPublic then
-        if let some modIdx := (← getEnv).getModuleIdxFor? ref then
-          if (← getEnv).header.modules[modIdx]?.any (!·.isExported) then
-            throwError "Invalid `meta` definition `{.ofConstName origDecl.name}`, `{.ofConstName ref}` not publicly marked or imported as `meta`"
-      match getIRPhases (← getEnv) ref, isMeta with
+        if let some modIdx := env.getModuleIdxFor? ref then
+          if Lean.isMeta env ref then
+            if env.header.modules[modIdx]?.any (!·.isExported) then
+              throwError "Invalid public `meta` definition `{.ofConstName origDecl.name}`, \
+                `{.ofConstName ref}` is not accessible here; consider adding \
+                `public import {env.header.moduleNames[modIdx]!}`"
+          else
+            -- TODO: does not account for `public import` + `meta import`, which is not the same
+            if env.header.modules[modIdx]?.any (!·.isExported) then
+              throwError "Invalid public `meta` definition `{.ofConstName origDecl.name}`, \
+                `{.ofConstName ref}` is not accessible here; consider adding \
+                `public meta import {env.header.moduleNames[modIdx]!}`"
+      match getIRPhases env ref, isMeta with
       | .runtime, true =>
-        throwError "Invalid `meta` definition `{.ofConstName origDecl.name}`, may not access declaration `{.ofConstName ref}` not marked or imported as `meta`"
+        if let some modIdx := env.getModuleIdxFor? ref then
+          throwError "Invalid `meta` definition `{.ofConstName origDecl.name}`, \
+            `{.ofConstName ref}` is not accessible here; consider adding \
+            `meta import {env.header.moduleNames[modIdx]!}`"
+        else
+          throwError "Invalid `meta` definition `{.ofConstName origDecl.name}`, \
+            `{.ofConstName ref}` not marked `meta`"
       | .comptime, false =>
-        throwError "Invalid definition `{.ofConstName origDecl.name}`, may not access declaration `{.ofConstName ref}` marked or imported as `meta`"
-      | _, _ =>
+        if let some modIdx := env.getModuleIdxFor? ref then
+          if !Lean.isMeta env ref then
+            throwError "Invalid definition `{.ofConstName origDecl.name}`, may not access \
+              declaration `{.ofConstName ref}` imported as `meta`; consider adding \
+              `import {env.header.moduleNames[modIdx]!}`"
+        throwError "Invalid definition `{.ofConstName origDecl.name}`, may not access \
+          declaration `{.ofConstName ref}` marked as `meta`"
+      | irPhases, _ =>
         -- We allow auxiliary defs to be used in either phase but we need to recursively check
         -- *their* references in this case. We also need to do this for non-auxiliary defs in case a
         -- public meta def tries to use a private meta import via a local private meta def :/ .
-        if let some refDecl ← getLocalDecl? ref then
-          go isMeta isPublic refDecl
+        if irPhases == .all || isPublic && isPrivateName ref then
+          if let some refDecl ← getLocalDecl? ref then
+            go isMeta isPublic refDecl
 
 /--
 Checks meta availability just before `evalConst`. This is a "last line of defense" as accesses
@@ -129,9 +156,9 @@ partial def checkTemplateVisibility : Pass where
         -- indirectly via a public template-like, we do a recursive check when checking the latter.
         if !isPrivateName decl.name && (← decl.isTemplateLike) then
           let isMeta := isMeta (← getEnv) decl.name
-          go isMeta decl decl |>.run' {}
+          go decl decl |>.run' {}
     return decls
-where go (isMeta : Bool) (origDecl decl : Decl) : StateT NameSet CompilerM Unit := do
+where go (origDecl decl : Decl) : StateT NameSet CompilerM Unit := do
   decl.value.forCodeM fun code =>
     for ref in collectUsedDecls code do
       if (← get).contains ref then
@@ -140,12 +167,15 @@ where go (isMeta : Bool) (origDecl decl : Decl) : StateT NameSet CompilerM Unit 
       if let some localDecl := baseExt.getState (← getEnv) |>.find? ref then
         -- check transitively through local decls
         if isPrivateName localDecl.name && (← localDecl.isTemplateLike) then
-          go isMeta origDecl localDecl
+          go origDecl localDecl
       else if let some modIdx := (← getEnv).getModuleIdxFor? ref then
         if (← getEnv).header.modules[modIdx]?.any (!·.isExported) then
           throwError "Cannot compile inline/specializing declaration `{.ofConstName origDecl.name}` as \
             it uses `{.ofConstName ref}` of module `{(← getEnv).header.moduleNames[modIdx]!}` \
             which must be imported publicly. This limitation may be lifted in the future."
+        else
+          -- record as public meta use
+          withExporting <| recordExtraModUseFromDecl (isMeta := getIRPhases (← getEnv) ref == .comptime) ref
 
 def inferVisibility (phase : Phase) : Pass where
   occurrence := 0

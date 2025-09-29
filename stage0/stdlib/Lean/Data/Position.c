@@ -84,6 +84,7 @@ LEAN_EXPORT lean_object* l_Lean_instReprPosition_repr___redArg(lean_object*);
 static lean_object* l_Lean_instReprPosition_repr___redArg___closed__8;
 LEAN_EXPORT lean_object* l_Lean_FileMap_ofString(lean_object*);
 lean_object* lean_array_to_list(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_instFromJsonPosition_fromJson_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_instDecidableEqPosition_decEq(lean_object*, lean_object*);
 lean_object* l_Array_back_x3f___redArg(lean_object*);
 static lean_object* l_Lean_Position_instToFormat___lam__0___closed__3;
@@ -903,6 +904,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7;
 x_5 = lean_ctor_get(x_3, 0);
 x_6 = l_Lean_instFromJsonPosition_fromJson___closed__10;
 x_7 = lean_string_append(x_6, x_5);
+lean_dec(x_5);
 lean_ctor_set(x_3, 0, x_7);
 return x_3;
 }
@@ -914,6 +916,7 @@ lean_inc(x_8);
 lean_dec(x_3);
 x_9 = l_Lean_instFromJsonPosition_fromJson___closed__10;
 x_10 = lean_string_append(x_9, x_8);
+lean_dec(x_8);
 x_11 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
 return x_11;
@@ -961,6 +964,7 @@ lean_object* x_19; lean_object* x_20; lean_object* x_21;
 x_19 = lean_ctor_get(x_17, 0);
 x_20 = l_Lean_instFromJsonPosition_fromJson___closed__14;
 x_21 = lean_string_append(x_20, x_19);
+lean_dec(x_19);
 lean_ctor_set(x_17, 0, x_21);
 return x_17;
 }
@@ -972,6 +976,7 @@ lean_inc(x_22);
 lean_dec(x_17);
 x_23 = l_Lean_instFromJsonPosition_fromJson___closed__14;
 x_24 = lean_string_append(x_23, x_22);
+lean_dec(x_22);
 x_25 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_25, 0, x_24);
 return x_25;
@@ -1031,6 +1036,15 @@ return x_34;
 }
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_instFromJsonPosition_fromJson_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Json_getObjValAs_x3f___at___Lean_instFromJsonPosition_fromJson_spec__0(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_instFromJsonPosition___closed__0() {
@@ -1289,10 +1303,12 @@ lean_dec_ref(x_1);
 x_4 = l_Lean_Position_instToFormat___lam__0___closed__0;
 x_5 = l_Nat_reprFast(x_2);
 x_6 = lean_string_append(x_4, x_5);
+lean_dec_ref(x_5);
 x_7 = l_Lean_Position_instToFormat___lam__0___closed__2;
 x_8 = lean_string_append(x_6, x_7);
 x_9 = l_Nat_reprFast(x_3);
 x_10 = lean_string_append(x_8, x_9);
+lean_dec_ref(x_9);
 x_11 = l_Lean_Position_instToFormat___lam__0___closed__4;
 x_12 = lean_string_append(x_10, x_11);
 return x_12;

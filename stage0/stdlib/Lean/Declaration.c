@@ -6019,6 +6019,7 @@ x_16 = l_Lean_ConstantInfo_name(x_1);
 x_17 = 1;
 x_18 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_16, x_17);
 x_19 = lean_string_append(x_15, x_18);
+lean_dec_ref(x_18);
 x_20 = l_Lean_ConstantInfo_value_x21___closed__4;
 x_21 = lean_string_append(x_19, x_20);
 x_22 = l_mkPanicMessageWithDecl(x_11, x_12, x_13, x_14, x_21);

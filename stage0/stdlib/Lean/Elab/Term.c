@@ -2136,6 +2136,7 @@ x_17 = lean_alloc_closure((void*)(l___private_Lean_Elab_Term_0__Lean_Elab_initFn
 lean_closure_set(x_17, 0, x_15);
 x_18 = l___private_Lean_Elab_Term_0__Lean_Elab_initFn___closed__7____x40_Lean_Elab_Term_2114473129____hygCtx___hyg_2_;
 x_19 = lean_string_append(x_18, x_9);
+lean_dec_ref(x_9);
 x_20 = 1;
 lean_ctor_set(x_5, 2, x_19);
 lean_ctor_set(x_5, 1, x_15);
@@ -2164,6 +2165,7 @@ x_28 = lean_alloc_closure((void*)(l___private_Lean_Elab_Term_0__Lean_Elab_initFn
 lean_closure_set(x_28, 0, x_26);
 x_29 = l___private_Lean_Elab_Term_0__Lean_Elab_initFn___closed__7____x40_Lean_Elab_Term_2114473129____hygCtx___hyg_2_;
 x_30 = lean_string_append(x_29, x_22);
+lean_dec_ref(x_22);
 x_31 = 1;
 x_32 = lean_alloc_ctor(0, 3, 1);
 lean_ctor_set(x_32, 0, x_25);
@@ -2206,6 +2208,7 @@ x_42 = lean_alloc_closure((void*)(l___private_Lean_Elab_Term_0__Lean_Elab_initFn
 lean_closure_set(x_42, 0, x_40);
 x_43 = l___private_Lean_Elab_Term_0__Lean_Elab_initFn___closed__7____x40_Lean_Elab_Term_2114473129____hygCtx___hyg_2_;
 x_44 = lean_string_append(x_43, x_35);
+lean_dec_ref(x_35);
 x_45 = 1;
 if (lean_is_scalar(x_36)) {
  x_46 = lean_alloc_ctor(0, 3, 1);

@@ -2884,7 +2884,7 @@ if (lean_is_scalar(x_17)) {
 } else {
  x_28 = x_17;
 }
-lean_ctor_set(x_28, 0, x_18);
+lean_ctor_set(x_28, 0, x_19);
 lean_ctor_set(x_28, 1, x_22);
 x_29 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_29, 0, x_27);
@@ -2895,7 +2895,7 @@ if (lean_is_scalar(x_14)) {
  x_30 = x_14;
 }
 lean_ctor_set(x_30, 0, x_29);
-lean_ctor_set(x_30, 1, x_19);
+lean_ctor_set(x_30, 1, x_18);
 return x_30;
 }
 block_44:
@@ -2916,8 +2916,8 @@ x_41 = l_Lean_Elab_Tactic_Do_FVarUses_add(x_40, x_33);
 lean_dec_ref(x_40);
 x_42 = lean_unbox(x_37);
 lean_dec(x_37);
-x_18 = x_32;
-x_19 = x_34;
+x_18 = x_34;
+x_19 = x_32;
 x_20 = x_42;
 x_21 = x_41;
 goto block_31;
@@ -2929,8 +2929,8 @@ lean_dec_ref(x_33);
 lean_dec(x_16);
 x_43 = lean_unbox(x_37);
 lean_dec(x_37);
-x_18 = x_32;
-x_19 = x_34;
+x_18 = x_34;
+x_19 = x_32;
 x_20 = x_43;
 x_21 = x_4;
 goto block_31;

@@ -6049,7 +6049,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__0___closed__2;
 x_2 = lean_unsigned_to_nat(11u);
-x_3 = lean_unsigned_to_nat(384u);
+x_3 = lean_unsigned_to_nat(382u);
 x_4 = l_Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__0___closed__1;
 x_5 = l_Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__0___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -6135,6 +6135,7 @@ x_17 = l_Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__
 x_18 = lean_unsigned_to_nat(0u);
 x_19 = lean_format_pretty(x_16, x_17, x_18, x_18);
 x_20 = lean_string_append(x_13, x_19);
+lean_dec_ref(x_19);
 x_21 = l_Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__0___closed__6;
 x_22 = lean_string_append(x_20, x_21);
 x_23 = lean_box(0);
@@ -6142,6 +6143,7 @@ x_24 = l_List_mapTR_loop___at___Lean_ensureNoOverload___at___Lean_realizeGlobalC
 x_25 = l_List_toString___at___Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__0_spec__1(x_24);
 lean_dec(x_24);
 x_26 = lean_string_append(x_22, x_25);
+lean_dec_ref(x_25);
 x_27 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_27, 0, x_26);
 x_28 = l_Lean_MessageData_ofFormat(x_27);

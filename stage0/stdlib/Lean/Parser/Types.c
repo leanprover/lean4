@@ -2348,6 +2348,7 @@ lean_dec_ref(x_3);
 x_8 = l___private_Lean_Parser_Types_0__Lean_Parser_Error_expectedToString___closed__0;
 x_9 = lean_string_append(x_6, x_8);
 x_10 = lean_string_append(x_9, x_7);
+lean_dec(x_7);
 return x_10;
 }
 else
@@ -2360,6 +2361,7 @@ x_12 = l___private_Lean_Parser_Types_0__Lean_Parser_Error_expectedToString___clo
 x_13 = lean_string_append(x_11, x_12);
 x_14 = l___private_Lean_Parser_Types_0__Lean_Parser_Error_expectedToString(x_3);
 x_15 = lean_string_append(x_13, x_14);
+lean_dec_ref(x_14);
 return x_15;
 }
 }
@@ -2502,21 +2504,22 @@ x_12 = l_List_eraseReps___at___Lean_Parser_Error_toString_spec__0(x_11);
 x_13 = l_Lean_Parser_Error_toString___closed__1;
 x_14 = l___private_Lean_Parser_Types_0__Lean_Parser_Error_expectedToString(x_12);
 x_15 = lean_string_append(x_13, x_14);
+lean_dec_ref(x_14);
 x_16 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_8);
-x_2 = x_9;
+lean_ctor_set(x_16, 1, x_9);
+x_2 = x_8;
 x_3 = x_16;
 goto block_7;
 }
 block_25:
 {
 lean_object* x_24; 
-lean_dec(x_20);
-x_24 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Parser_Error_toString_spec__1___redArg(x_22, x_21, x_23);
+lean_dec(x_21);
+x_24 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Parser_Error_toString_spec__1___redArg(x_19, x_22, x_23);
 lean_dec(x_23);
 x_8 = x_18;
-x_9 = x_19;
+x_9 = x_20;
 x_10 = x_24;
 goto block_17;
 }
@@ -2531,8 +2534,8 @@ lean_inc(x_31);
 x_18 = x_26;
 x_19 = x_27;
 x_20 = x_28;
-x_21 = x_31;
-x_22 = x_29;
+x_21 = x_29;
+x_22 = x_31;
 x_23 = x_31;
 goto block_25;
 }
@@ -2541,8 +2544,8 @@ else
 x_18 = x_26;
 x_19 = x_27;
 x_20 = x_28;
-x_21 = x_31;
-x_22 = x_29;
+x_21 = x_29;
+x_22 = x_31;
 x_23 = x_30;
 goto block_25;
 }
@@ -2568,20 +2571,20 @@ x_45 = lean_nat_dec_le(x_41, x_44);
 if (x_45 == 0)
 {
 lean_inc(x_44);
-x_26 = x_37;
-x_27 = x_36;
-x_28 = x_40;
-x_29 = x_39;
+x_26 = x_36;
+x_27 = x_39;
+x_28 = x_37;
+x_29 = x_40;
 x_30 = x_44;
 x_31 = x_44;
 goto block_33;
 }
 else
 {
-x_26 = x_37;
-x_27 = x_36;
-x_28 = x_40;
-x_29 = x_39;
+x_26 = x_36;
+x_27 = x_39;
+x_28 = x_37;
+x_29 = x_40;
 x_30 = x_44;
 x_31 = x_41;
 goto block_33;
@@ -2590,8 +2593,8 @@ goto block_33;
 else
 {
 lean_dec(x_40);
-x_8 = x_37;
-x_9 = x_36;
+x_8 = x_36;
+x_9 = x_37;
 x_10 = x_39;
 goto block_17;
 }
@@ -4688,7 +4691,9 @@ x_16 = l_Lean_Parser_Error_toString(x_11);
 x_17 = lean_box(0);
 lean_inc_ref(x_13);
 x_18 = l_Lean_mkErrorStringWithPos(x_13, x_15, x_16, x_17, x_17, x_17);
+lean_dec_ref(x_16);
 x_19 = lean_string_append(x_12, x_18);
+lean_dec_ref(x_18);
 x_20 = 1;
 x_21 = lean_usize_add(x_5, x_20);
 x_5 = x_21;
@@ -5289,6 +5294,7 @@ x_6 = lean_ctor_get(x_1, 0);
 x_7 = l_Lean_Parser_FirstTokens_toStr___closed__2;
 x_8 = l_List_toString___at___Lean_Parser_FirstTokens_toStr_spec__0(x_6);
 x_9 = lean_string_append(x_7, x_8);
+lean_dec_ref(x_8);
 return x_9;
 }
 }

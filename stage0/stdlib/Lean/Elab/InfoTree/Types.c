@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_MonadAutoImplicits_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Info_ofOptionInfo_elim___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedInfoTree_default___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_PartialContextInfo_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -80,6 +81,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_MonadInfoTree_ctorIdx(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lean_Elab_FieldRedeclInfo_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedInfoTree;
 LEAN_EXPORT lean_object* l_Lean_Elab_Info_ofErrorNameInfo_elim(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_MonadAutoImplicits_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_PartialContextInfo_ctorElim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_FVarAliasInfo_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_DocElabKind_command_elim___redArg___boxed(lean_object*);
@@ -125,6 +127,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Info_ofCustomInfo_elim(lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Lean_Elab_FVarAliasInfo_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Info_ofUserWidgetInfo_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_CompletionInfo_option_elim(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_PartialContextInfo_autoImplicitCtx_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instReprDocElabKind_repr(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_ContextInfo_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedPartialTermInfo_default;
@@ -224,6 +227,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Info_ctorElim___boxed(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedElabInfo_default;
 LEAN_EXPORT lean_object* l_Lean_Elab_CompletionInfo_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_DocInfo_ctorIdx(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_PartialContextInfo_autoImplicitCtx_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_DocElabKind_directive_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_instReprDocElabKind_repr___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_DocElabKind_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
@@ -274,17 +278,25 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_PartialContextInfo_ctorIdx(lean_object* x_1) {
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
+switch (lean_obj_tag(x_1)) {
+case 0:
 {
 lean_object* x_2; 
 x_2 = lean_unsigned_to_nat(0u);
 return x_2;
 }
-else
+case 1:
 {
 lean_object* x_3; 
 x_3 = lean_unsigned_to_nat(1u);
 return x_3;
+}
+default: 
+{
+lean_object* x_4; 
+x_4 = lean_unsigned_to_nat(2u);
+return x_4;
+}
 }
 }
 }
@@ -300,11 +312,11 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_PartialContextInfo_ctorElim___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
+if (lean_obj_tag(x_1) == 1)
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 lean_dec_ref(x_1);
 x_4 = lean_apply_1(x_2, x_3);
 return x_4;
@@ -313,7 +325,7 @@ else
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 lean_dec_ref(x_1);
 x_6 = lean_apply_1(x_2, x_5);
 return x_6;
@@ -362,6 +374,22 @@ return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_PartialContextInfo_parentDeclCtx_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Elab_PartialContextInfo_ctorElim___redArg(x_2, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_PartialContextInfo_autoImplicitCtx_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Elab_PartialContextInfo_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_PartialContextInfo_autoImplicitCtx_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
@@ -2600,6 +2628,23 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Elab_MonadParentDecl_ctorIdx(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_MonadAutoImplicits_ctorIdx(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_MonadAutoImplicits_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Elab_MonadAutoImplicits_ctorIdx(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }

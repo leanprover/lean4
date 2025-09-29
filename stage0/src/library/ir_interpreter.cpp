@@ -186,11 +186,15 @@ option_ref<decl> find_ir_decl(elab_environment const & env, name const & n) {
     return option_ref<decl>(lean_ir_find_env_decl(env.to_obj_arg(), n.to_obj_arg()));
 }
 
+extern "C" object * lean_ir_find_env_decl_boxed(object * env, object * n);
+option_ref<decl> find_ir_decl_boxed(elab_environment const & env, name const & n) {
+    return option_ref<decl>(lean_ir_find_env_decl_boxed(env.to_obj_arg(), n.to_obj_arg()));
+}
+
 extern "C" double lean_float_of_nat(lean_obj_arg a);
 extern "C" float lean_float32_of_nat(lean_obj_arg a);
 
 static string_ref * g_mangle_prefix = nullptr;
-static string_ref * g_boxed_suffix = nullptr;
 static string_ref * g_boxed_mangled_suffix = nullptr;
 static name * g_interpreter_prefer_native = nullptr;
 
@@ -1047,7 +1051,7 @@ public:
             } else {
                 // `lookup_symbol` does not prefer the boxed version for interpreted functions, so check manually.
                 decl d = e.m_decl;
-                if (option_ref<decl> d_boxed = find_ir_decl(m_env, fn + *g_boxed_suffix)) {
+                if (option_ref<decl> d_boxed = find_ir_decl_boxed(m_env, fn)) {
                     d = *d_boxed.get();
                 }
                 r = mk_stub_closure(d, 0, nullptr);
@@ -1185,8 +1189,6 @@ extern "C" LEAN_EXPORT object * lean_run_init(object * env, object * opts, objec
 void initialize_ir_interpreter() {
     ir::g_mangle_prefix = new string_ref("l_");
     mark_persistent(ir::g_mangle_prefix->raw());
-    ir::g_boxed_suffix = new string_ref("_boxed");
-    mark_persistent(ir::g_boxed_suffix->raw());
     ir::g_boxed_mangled_suffix = new string_ref("___boxed");
     mark_persistent(ir::g_boxed_mangled_suffix->raw());
     ir::g_interpreter_prefer_native = new name({"interpreter", "prefer_native"});
@@ -1207,7 +1209,6 @@ void finalize_ir_interpreter() {
     delete ir::g_init_globals;
     delete ir::g_interpreter_prefer_native;
     delete ir::g_boxed_mangled_suffix;
-    delete ir::g_boxed_suffix;
     delete ir::g_mangle_prefix;
 }
 }

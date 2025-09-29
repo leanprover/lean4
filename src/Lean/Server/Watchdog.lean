@@ -1737,9 +1737,9 @@ def watchdogMain (args : List String) : IO UInt32 := do
   let e ← IO.getStderr
   try
     initAndRunWatchdog args i o e
-    IO.Process.exit 0 -- Terminate all tasks of this process
+    IO.Process.forceExit 0 -- Terminate all tasks of this process
   catch err =>
     e.putStrLn s!"Watchdog error: {err}"
-    IO.Process.exit 1 -- Terminate all tasks of this process
+    IO.Process.forceExit 1 -- Terminate all tasks of this process
 
 end Lean.Server.Watchdog

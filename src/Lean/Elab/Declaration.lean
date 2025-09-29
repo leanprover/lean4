@@ -145,6 +145,7 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
         Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
         withSaveInfoContext do  -- save new env with docstring and decl
           Term.addTermInfo' declId (← mkConstWithLevelParams declName) (isBinder := true)
+        enableRealizationsForConst declName
 open Lean.Parser.Command.InternalSyntax in
 /--
 Macro that expands a declaration with a complex name into an explicit `namespace` block.
@@ -332,6 +333,11 @@ def elabMutual : CommandElab := fun stx => do
     Term.applyAttributes declName attrs
     for attrName in toErase do
       Attribute.erase declName attrName
+    if (← getEnv).isImportedConst declName && attrs.any (·.kind == .global) then
+      -- If an imported declaration is marked with a global attribute, there is no good way to track
+      -- its use generally and so Shake should conservatively preserve imports of the current
+      -- module.
+      recordExtraRevUseOfCurrentModule
 
 @[builtin_command_elab Lean.Parser.Command.«initialize»] def elabInitialize : CommandElab
   | stx@`($declModifiers:declModifiers $kw:initializeKeyword $[$id? : $type? ←]? $doSeq) => do

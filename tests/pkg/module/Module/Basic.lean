@@ -312,6 +312,15 @@ constructor:
 #with_exporting
 #check { x := 1 : StructWithPrivateField }
 
+#check (⟨1⟩ : StructWithPrivateField)
+
+/--
+error: Invalid `⟨...⟩` notation: Constructor for `StructWithPrivateField` is marked as private
+-/
+#guard_msgs in
+#with_exporting
+#check (⟨1⟩ : StructWithPrivateField)
+
 #check StructWithPrivateField.x
 
 /-- error: Unknown constant `StructWithPrivateField.x` -/
@@ -407,3 +416,44 @@ inst✝
 -/
 #guard_msgs in
 #print instTypeNameFoo
+
+public meta def pubMeta := 1
+
+/-! `#eval` should accept `meta` and non-`meta`. -/
+
+meta def fmeta := 1
+
+/-- info: 2 -/
+#guard_msgs in
+#eval f + fmeta
+
+/-! Prop `instance`s should have direct access to the private scope. -/
+
+public class PropClass : Prop where
+  proof : True
+
+theorem privTrue : True := trivial
+public instance : PropClass := ⟨privTrue⟩
+
+/-! Meta defs should only be exposed explicitly. -/
+
+@[expose] section
+public meta def msec := 1
+@[expose] public meta def msecexp := 1
+end
+
+/--
+info: meta def msec : Nat :=
+<not imported>
+-/
+#guard_msgs in
+#with_exporting
+#print msec
+
+/--
+info: @[expose] meta def msecexp : Nat :=
+1
+-/
+#guard_msgs in
+#with_exporting
+#print msecexp

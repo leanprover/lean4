@@ -1849,6 +1849,7 @@ _start:
 lean_object* x_4; 
 x_4 = l_Lean_ParseImports_keyword___lam__0(x_1, x_2, x_3);
 lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 return x_4;
 }
 }
@@ -5640,12 +5641,15 @@ x_20 = l_Lean_parseImports_x27___closed__2;
 x_21 = lean_string_append(x_2, x_20);
 x_22 = l_Nat_reprFast(x_18);
 x_23 = lean_string_append(x_21, x_22);
+lean_dec_ref(x_22);
 x_24 = lean_string_append(x_23, x_20);
 x_25 = l_Nat_reprFast(x_19);
 x_26 = lean_string_append(x_24, x_25);
+lean_dec_ref(x_25);
 x_27 = l_Lean_parseImports_x27___closed__3;
 x_28 = lean_string_append(x_26, x_27);
 x_29 = lean_string_append(x_28, x_14);
+lean_dec(x_14);
 lean_ctor_set_tag(x_7, 18);
 lean_ctor_set(x_7, 0, x_29);
 lean_ctor_set_tag(x_16, 1);
@@ -5665,12 +5669,15 @@ x_32 = l_Lean_parseImports_x27___closed__2;
 x_33 = lean_string_append(x_2, x_32);
 x_34 = l_Nat_reprFast(x_30);
 x_35 = lean_string_append(x_33, x_34);
+lean_dec_ref(x_34);
 x_36 = lean_string_append(x_35, x_32);
 x_37 = l_Nat_reprFast(x_31);
 x_38 = lean_string_append(x_36, x_37);
+lean_dec_ref(x_37);
 x_39 = l_Lean_parseImports_x27___closed__3;
 x_40 = lean_string_append(x_38, x_39);
 x_41 = lean_string_append(x_40, x_14);
+lean_dec(x_14);
 lean_ctor_set_tag(x_7, 18);
 lean_ctor_set(x_7, 0, x_41);
 x_42 = lean_alloc_ctor(1, 2, 0);
@@ -5704,12 +5711,15 @@ x_49 = l_Lean_parseImports_x27___closed__2;
 x_50 = lean_string_append(x_2, x_49);
 x_51 = l_Nat_reprFast(x_46);
 x_52 = lean_string_append(x_50, x_51);
+lean_dec_ref(x_51);
 x_53 = lean_string_append(x_52, x_49);
 x_54 = l_Nat_reprFast(x_47);
 x_55 = lean_string_append(x_53, x_54);
+lean_dec_ref(x_54);
 x_56 = l_Lean_parseImports_x27___closed__3;
 x_57 = lean_string_append(x_55, x_56);
 x_58 = lean_string_append(x_57, x_43);
+lean_dec(x_43);
 x_59 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_59, 0, x_58);
 if (lean_is_scalar(x_48)) {
@@ -6097,7 +6107,6 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_array_uget(x_3, x_2);
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_array_uset(x_3, x_2, x_8);
-lean_inc(x_7);
 x_25 = l_IO_FS_readFile(x_7, x_4);
 if (lean_obj_tag(x_25) == 0)
 {

@@ -10,8 +10,16 @@ bootstrap = true
 
 defaultTargets = ["Init", "Std", "Lean", "Lake", "LakeMain", "Leanc"]
 
+# Have Lake use CMake's build type (e.g., `Release`, `Debug`) where possible
+buildType = "${CMAKE_BUILD_TYPE_TOML}"
+
 # The root of all the compiler output directories
 buildDir = "${CMAKE_BINARY_DIR}"
+
+# Ensure build artifacts end up in the build directory even when the Lake
+# local artifact cache is enabled. This is necessary because subsequent stages
+# will expect the previous stage's artifacts to be in the build directory.
+restoreAllArtifacts = true
 
 # The directory of Lean source files (i.e., `src`)
 srcDir = "${LEAN_SOURCE_DIR}"

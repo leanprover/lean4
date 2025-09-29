@@ -8569,9 +8569,9 @@ x_31 = lean_box(x_2);
 x_32 = lean_box(x_20);
 lean_inc_ref(x_29);
 x_33 = lean_alloc_closure((void*)(l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_generalizeMatchDiscrs_mkNewTarget_spec__16___redArg___lam__0___boxed), 13, 6);
-lean_closure_set(x_33, 0, x_19);
+lean_closure_set(x_33, 0, x_18);
 lean_closure_set(x_33, 1, x_29);
-lean_closure_set(x_33, 2, x_18);
+lean_closure_set(x_33, 2, x_19);
 lean_closure_set(x_33, 3, x_30);
 lean_closure_set(x_33, 4, x_31);
 lean_closure_set(x_33, 5, x_32);
@@ -8630,13 +8630,13 @@ x_62 = lean_array_get_size(x_11);
 x_63 = lean_nat_dec_le(x_55, x_60);
 if (x_63 == 0)
 {
-x_36 = x_59;
-x_37 = x_49;
+x_36 = x_48;
+x_37 = x_59;
 x_38 = x_50;
 x_39 = x_51;
 x_40 = x_52;
 x_41 = x_53;
-x_42 = x_48;
+x_42 = x_49;
 x_43 = x_56;
 x_44 = x_62;
 x_45 = x_55;
@@ -8645,13 +8645,13 @@ goto block_47;
 else
 {
 lean_dec(x_55);
-x_36 = x_59;
-x_37 = x_49;
+x_36 = x_48;
+x_37 = x_59;
 x_38 = x_50;
 x_39 = x_51;
 x_40 = x_52;
 x_41 = x_53;
-x_42 = x_48;
+x_42 = x_49;
 x_43 = x_56;
 x_44 = x_62;
 x_45 = x_60;
@@ -8668,7 +8668,7 @@ lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 x_64 = l_Array_ofSubarray___redArg(x_59);
 lean_dec_ref(x_59);
-x_65 = l_Lean_Meta_mkLambdaFVars(x_64, x_49, x_1, x_2, x_1, x_2, x_54, x_52, x_51, x_56, x_53, x_48);
+x_65 = l_Lean_Meta_mkLambdaFVars(x_64, x_48, x_1, x_2, x_1, x_2, x_54, x_52, x_51, x_56, x_53, x_49);
 lean_dec(x_53);
 lean_dec_ref(x_56);
 lean_dec(x_51);
@@ -8701,8 +8701,8 @@ x_83 = lean_array_get_size(x_11);
 x_84 = lean_nat_dec_le(x_81, x_83);
 if (x_84 == 0)
 {
-x_48 = x_80;
-x_49 = x_79;
+x_48 = x_79;
+x_49 = x_80;
 x_50 = x_77;
 x_51 = x_67;
 x_52 = x_69;
@@ -8718,8 +8718,8 @@ else
 {
 lean_dec(x_83);
 lean_inc(x_81);
-x_48 = x_80;
-x_49 = x_79;
+x_48 = x_79;
+x_49 = x_80;
 x_50 = x_77;
 x_51 = x_67;
 x_52 = x_69;

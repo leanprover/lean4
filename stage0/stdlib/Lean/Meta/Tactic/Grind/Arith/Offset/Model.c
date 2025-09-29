@@ -1937,19 +1937,19 @@ goto block_30;
 block_42:
 {
 uint8_t x_41; 
-x_41 = l_Lean_Option_get___at___Lean_Meta_Grind_Arith_Offset_mkModel_spec__0(x_37, x_1);
-lean_dec(x_37);
+x_41 = l_Lean_Option_get___at___Lean_Meta_Grind_Arith_Offset_mkModel_spec__0(x_38, x_1);
+lean_dec(x_38);
 if (x_41 == 0)
 {
 lean_dec_ref(x_39);
-lean_dec(x_38);
+lean_dec(x_37);
 x_21 = x_13;
 x_22 = x_40;
 goto block_30;
 }
 else
 {
-x_31 = x_38;
+x_31 = x_37;
 x_32 = x_39;
 x_33 = x_40;
 goto block_36;
@@ -2001,8 +2001,8 @@ goto block_36;
 else
 {
 lean_inc(x_49);
-x_37 = x_49;
-x_38 = x_43;
+x_37 = x_43;
+x_38 = x_49;
 x_39 = x_44;
 x_40 = x_48;
 goto block_42;
@@ -2012,8 +2012,8 @@ else
 {
 lean_dec_ref(x_50);
 lean_inc(x_49);
-x_37 = x_49;
-x_38 = x_43;
+x_37 = x_43;
+x_38 = x_49;
 x_39 = x_44;
 x_40 = x_48;
 goto block_42;
@@ -2027,8 +2027,8 @@ lean_inc(x_54);
 lean_dec_ref(x_45);
 x_55 = lean_ctor_get(x_17, 2);
 lean_inc(x_55);
-x_37 = x_55;
-x_38 = x_43;
+x_37 = x_43;
+x_38 = x_55;
 x_39 = x_44;
 x_40 = x_54;
 goto block_42;

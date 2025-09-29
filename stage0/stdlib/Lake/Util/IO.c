@@ -26,6 +26,7 @@ LEAN_EXPORT lean_object* l_Lake_removeFileIfExists(lean_object*, lean_object*);
 lean_object* l_System_FilePath_parent(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_copyFile(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_resolvePath_x3f(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_createParentDirs___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_io_realpath(lean_object*, lean_object*);
 lean_object* l_IO_FS_readBinFile(lean_object*, lean_object*);
@@ -52,8 +53,18 @@ x_6 = lean_ctor_get(x_3, 0);
 lean_inc(x_6);
 lean_dec_ref(x_3);
 x_7 = l_IO_FS_createDirAll(x_6, x_2);
+lean_dec(x_6);
 return x_7;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lake_createParentDirs___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lake_createParentDirs(x_1, x_2);
+lean_dec_ref(x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_removeFileIfExists(lean_object* x_1, lean_object* x_2) {

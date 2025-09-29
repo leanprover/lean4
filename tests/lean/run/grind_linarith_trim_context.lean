@@ -30,4 +30,4 @@ open Std Lean Grind Linarith in
 set_option trace.grind.debug.proof true in -- Context should contain only `f 2` and `One`
 example [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedRing α] (f : Nat → α) :
     f 1 <= 0 → f 2 <= 0 → f 3 <= 0 → f 4 <= 0 → f 5 <= 0 → f 6 <= 0 → f 7 <= 0 → f 8 <= 0 → -1 * f 2 + 1 <= 0 → False := by
-  grind
+  grind -order

@@ -133,6 +133,71 @@ theorem lt_of_intCast_lt_intCast (a b : Int) : (a : R) < (b : R) → a < b := by
     replace h := lt_of_natCast_lt_natCast _ _ h
     omega
 
+theorem natCast_le_natCast_of_le (a b : Nat) : a ≤ b → (a : R) ≤ (b : R) := by
+  induction a generalizing b <;> cases b <;> simp
+  next => simp [Semiring.natCast_zero, Std.IsPreorder.le_refl]
+  next n =>
+    have := ofNat_nonneg (R := R) n
+    simp [Semiring.ofNat_eq_natCast] at this
+    rw [Semiring.natCast_zero] at this
+    simp [Semiring.natCast_zero, Semiring.natCast_add, Semiring.natCast_one]
+    replace this := OrderedAdd.add_le_left_iff 1 |>.mp this
+    rw [Semiring.add_comm, Semiring.add_zero] at this
+    replace this := Std.lt_of_lt_of_le zero_lt_one this
+    exact Std.le_of_lt this
+  next n ih m =>
+    intro h
+    replace ih := ih _ h
+    simp [Semiring.natCast_add, Semiring.natCast_one]
+    exact OrderedAdd.add_le_left_iff _ |>.mp ih
+
+theorem natCast_lt_natCast_of_lt (a b : Nat) : a < b → (a : R) < (b : R) := by
+  induction a generalizing b <;> cases b <;> simp
+  next n =>
+    have := ofNat_nonneg (R := R) n
+    simp [Semiring.ofNat_eq_natCast] at this
+    rw [Semiring.natCast_zero] at this
+    simp [Semiring.natCast_zero, Semiring.natCast_add, Semiring.natCast_one]
+    replace this := OrderedAdd.add_le_left_iff 1 |>.mp this
+    rw [Semiring.add_comm, Semiring.add_zero] at this
+    exact Std.lt_of_lt_of_le zero_lt_one this
+  next n ih m =>
+    intro h
+    replace ih := ih _ h
+    simp [Semiring.natCast_add, Semiring.natCast_one]
+    exact OrderedAdd.add_lt_left_iff _ |>.mp ih
+
+theorem pos_natCast_of_pos (a : Nat) : 0 < a → 0 < (a : R) := by
+  induction a
+  next => simp
+  next n ih =>
+    simp; cases n
+    next => simp +arith; rw [Semiring.natCast_one]; apply zero_lt_one
+    next =>
+      simp at ih
+      replace ih := OrderedAdd.add_lt_add ih zero_lt_one
+      rw [Semiring.add_zero, ← Semiring.natCast_one, ← Semiring.natCast_add] at ih
+      assumption
+
+theorem pos_intCast_of_pos (a : Int) : 0 < a → 0 < (a : R) := by
+  cases a
+  next n =>
+    intro h
+    replace h : 0 < n := by cases n; simp at h; simp
+    replace h := pos_natCast_of_pos (R := R) _ h
+    rw [Int.ofNat_eq_natCast, Ring.intCast_natCast]
+    assumption
+  next => omega
+
+theorem nonneg_intCast_of_nonneg (a : Int) : 0 ≤ a → 0 ≤ (a : R) := by
+  cases a
+  next n =>
+    intro; rw [Int.ofNat_eq_natCast, Ring.intCast_natCast]
+    have := ofNat_nonneg (R := R) n
+    rw [Semiring.ofNat_eq_natCast] at this
+    assumption
+  next => omega
+
 instance [Ring R] [LE R] [LT R] [LawfulOrderLT R] [IsPreorder R] [OrderedRing R] :
     IsCharP R 0 := IsCharP.mk' _ _ <| by
   intro x

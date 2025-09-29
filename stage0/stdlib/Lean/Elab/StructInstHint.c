@@ -1275,6 +1275,7 @@ x_18 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_12, x_9
 x_19 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3_spec__3___closed__0;
 x_20 = lean_string_append(x_18, x_19);
 x_21 = lean_string_append(x_20, x_16);
+lean_dec_ref(x_16);
 x_22 = 1;
 x_23 = lean_usize_add(x_2, x_22);
 x_24 = lean_array_uset(x_15, x_2, x_21);
@@ -1651,6 +1652,7 @@ x_18 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_12, x_9
 x_19 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3_spec__3___closed__0;
 x_20 = lean_string_append(x_18, x_19);
 x_21 = lean_string_append(x_20, x_16);
+lean_dec_ref(x_16);
 x_22 = 1;
 x_23 = lean_usize_add(x_2, x_22);
 x_24 = lean_array_uset(x_15, x_2, x_21);

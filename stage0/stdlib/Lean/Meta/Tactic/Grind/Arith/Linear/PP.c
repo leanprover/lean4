@@ -294,6 +294,7 @@ x_33 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Le
 x_34 = lean_string_append(x_32, x_33);
 x_35 = l_Nat_reprFast(x_15);
 x_36 = lean_string_append(x_34, x_35);
+lean_dec_ref(x_35);
 x_22 = x_36;
 goto block_31;
 }
@@ -418,6 +419,7 @@ x_80 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Le
 x_81 = lean_string_append(x_79, x_80);
 x_82 = l_Nat_reprFast(x_61);
 x_83 = lean_string_append(x_81, x_82);
+lean_dec_ref(x_82);
 x_69 = x_83;
 goto block_78;
 }

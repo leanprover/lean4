@@ -18,7 +18,9 @@ test_run build --no-build
 # Tests that Lake accepts pure numerical traces
 if command -v jq > /dev/null; then # skip if no jq found
   jq -r '.depHash' .lake/build/lib/lean/Foo.trace > .lake/build/lib/lean/Foo.trace.hash
-  test_cmd mv .lake/build/lib/lean/Foo.trace.hash .lake/build/lib/lean/Foo.trace
+  test_cmd cat .lake/build/lib/lean/Foo.trace.hash
+  perl -le "print hex('$(cat .lake/build/lib/lean/Foo.trace.hash)')" > .lake/build/lib/lean/Foo.trace
+  test_cmd cat .lake/build/lib/lean/Foo.trace
   test_run build --no-build
 fi
 

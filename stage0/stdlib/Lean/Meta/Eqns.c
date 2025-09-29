@@ -1516,7 +1516,7 @@ _start:
 {
 lean_object* x_7; uint8_t x_8; 
 x_7 = l_Lean_Environment_header(x_1);
-x_8 = lean_ctor_get_uint8(x_7, sizeof(void*)*5 + 4);
+x_8 = lean_ctor_get_uint8(x_7, sizeof(void*)*6 + 4);
 lean_dec_ref(x_7);
 if (x_8 == 0)
 {
@@ -4794,6 +4794,7 @@ lean_dec(x_3);
 lean_inc(x_8);
 x_9 = l_Nat_reprFast(x_8);
 x_10 = lean_string_append(x_6, x_9);
+lean_dec_ref(x_9);
 lean_inc(x_1);
 lean_inc_ref(x_2);
 x_11 = l_Lean_Meta_mkEqLikeNameFor(x_2, x_1, x_10);
@@ -10743,11 +10744,12 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_throwReservedNameNotAvailable___at___Lean_ensureReservedNameAvailable___at___Lean_Meta_ensureEqnReservedNamesAvailable_spec__0_spec__0_spec__0_spec__0___closed__1;
-x_2 = lean_alloc_ctor(0, 4, 0);
+x_2 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
 lean_ctor_set(x_2, 2, x_1);
 lean_ctor_set(x_2, 3, x_1);
+lean_ctor_set(x_2, 4, x_1);
 return x_2;
 }
 }

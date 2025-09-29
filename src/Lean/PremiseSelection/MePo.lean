@@ -89,6 +89,6 @@ public def mepoSelector (useRarity : Bool) (p : Float := 0.6) (c : Float := 2.4)
   let suggestions := suggestions
     |>.map (fun (n, s) => { name := n, score := s })
     |>.reverse  -- we favor constants that appear at the end of `env.constants`
-  match config.maxSuggestions with
+  match config.maxSuggestions? with
   | none => return suggestions
   | some k => return suggestions.take k

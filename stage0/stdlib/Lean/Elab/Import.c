@@ -2015,6 +2015,7 @@ x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_dec_ref(x_9);
 x_11 = l_Lean_findOLean(x_10, x_6);
+lean_dec(x_10);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -2182,6 +2183,7 @@ lean_inc(x_11);
 lean_dec_ref(x_10);
 lean_inc(x_1);
 x_12 = l_Lean_findLean(x_1, x_11, x_7);
+lean_dec(x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 

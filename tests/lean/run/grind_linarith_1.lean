@@ -66,12 +66,18 @@ example [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [Ordere
 
 -- Test misconfigured instances
 /--
-trace: [grind.issues] type has `LE` and `LT`, but the `LT` instance is not lawful, failed to synthesize
+trace: [grind.issues] type has `LE`, but is not a partial order, failed to synthesize
+      IsPartialOrder α
+[grind.issues] type has `LE`, but is not a linear preorder, failed to synthesize
+      IsLinearPreorder α
+[grind.issues] type has `LE` and `LT`, but the `LT` instance is not lawful, failed to synthesize
       LawfulOrderLT α
-    the `linarith` module will not process strict inequalities in this type
+[grind.issues] type has `LE` and `LT`, but the `LT` instance is not lawful, failed to synthesize
+      LawfulOrderLT α
+[grind.issues] type has `LE`, but is not a partial order, failed to synthesize
+      IsPartialOrder α
 [grind.issues] type has `LE`, but is not a linear order, failed to synthesize
       IsLinearOrder α
-    the `linarith` module will not process disequalities in this type (or equality goals)
 [grind.issues] type has a `Preorder` and is a `Semiring`, but is not an ordered ring, failed to synthesize
       OrderedRing α
 -/

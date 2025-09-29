@@ -191,7 +191,7 @@ private theorem blah3 {σs} {P Q H T : SPred σs}
 def elabMCases : Tactic
   | `(tactic| mcases $hyp:ident with $pat:mcasesPat) => do
     let pat ← liftMacroM <| MCasesPat.parse pat
-    let (mvar, goal) ← mStartMVar (← getMainGoal)
+    let (mvar, goal) ← mStartMainGoal
     mvar.withContext do
 
     let focus ← goal.focusHypWithInfo hyp

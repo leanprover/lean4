@@ -302,8 +302,7 @@ private def mkBRecOnFromRec (recName : Name) (nParams : Nat)
       let thm_val ← instantiateMVars thm_val
       let thm_type ← mkForallFVars below_params thm_type
       let thm_val ← mkLambdaFVars below_params thm_val
-      let thm_decl := .thmDecl {
-      -- let thm_decl ← mkThmOrUnsafeDef {
+      let thm_decl ← mkThmOrUnsafeDef {
         name := brecOnEqName
         levelParams := blps
         type := thm_type

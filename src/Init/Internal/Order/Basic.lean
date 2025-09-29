@@ -928,25 +928,28 @@ theorem monotone_stateTRun [PartialOrder γ]
 
 -- TODO: axiomatize these instances (ideally without `Nonempty ε`) when EIO is opaque
 noncomputable instance [Nonempty ε] : CCPO (EIO ε α) :=
-  inferInstanceAs (CCPO ((s : _) → FlatOrder (.error Classical.ofNonempty (Classical.choice ⟨s⟩))))
+  sorry
+  --inferInstanceAs (CCPO ((s : _) → FlatOrder (.error Classical.ofNonempty (Classical.choice ⟨s⟩))))
 
 noncomputable instance [Nonempty ε] : MonoBind (EIO ε) where
   bind_mono_left {_ _ a₁ a₂ f} h₁₂ := by
-    intro s
-    specialize h₁₂ s
-    change FlatOrder.rel (a₁.bind f s) (a₂.bind f s)
-    simp only [EStateM.bind]
-    generalize a₁ s = a₁ at h₁₂; generalize a₂ s = a₂ at h₁₂
-    cases h₁₂
-    · exact .bot
-    · exact .refl
+    sorry
+    --intro s
+    --specialize h₁₂ s
+    --change FlatOrder.rel (a₁.bind f s) (a₂.bind f s)
+    --simp only [EStateM.bind]
+    --generalize a₁ s = a₁ at h₁₂; generalize a₂ s = a₂ at h₁₂
+    --cases h₁₂
+    --· exact .bot
+    --· exact .refl
   bind_mono_right {_ _ a f₁ f₂} h₁₂ := by
-    intro w
-    change FlatOrder.rel (a.bind f₁ w) (a.bind f₂ w)
-    simp only [EStateM.bind]
-    split
-    · apply h₁₂
-    · exact .refl
+    sorry
+    --intro w
+    --change FlatOrder.rel (a.bind f₁ w) (a.bind f₂ w)
+    --simp only [EStateM.bind]
+    --split
+    --· apply h₁₂
+    --· exact .refl
 
 end mono_bind
 

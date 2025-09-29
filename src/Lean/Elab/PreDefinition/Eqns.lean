@@ -288,7 +288,7 @@ public def deltaLHS (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let some lhs ← delta? lhs | throwTacticEx `deltaLHS mvarId "failed to delta reduce lhs"
   mvarId.replaceTargetDefEq (← mkEq lhs rhs)
 
-def deltaRHS? (mvarId : MVarId) (declName : Name) : MetaM (Option MVarId) := mvarId.withContext do
+public def deltaRHS? (mvarId : MVarId) (declName : Name) : MetaM (Option MVarId) := mvarId.withContext do
   let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | return none
   let some rhs ← delta? rhs.consumeMData (· == declName) | return none

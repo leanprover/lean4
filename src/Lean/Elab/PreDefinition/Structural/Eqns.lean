@@ -33,50 +33,14 @@ public structure EqnInfo extends EqnInfoCore where
 private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
   withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} proving:{indentExpr type}") do
     prependError m!"failed to generate equational theorem for `{.ofConstName declName}`" do
-      withNewMCtxDepth do
-        let main ← mkFreshExprSyntheticOpaqueMVar type
-        let (_, mvarId) ← main.mvarId!.intros
-        unless (← tryURefl mvarId) do -- catch easy cases
-          go1 mvarId
-        instantiateMVars main
-  where
-  /--
-  Step 1: Split the function body into its cases, but keeping the LHS intact, because the
-  `.below`-added `match` statements and the `.rec` can quickly confuse `split`.
-  -/
-  go1 (mvarId : MVarId) : MetaM Unit := do
-    withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} go1:\n{MessageData.ofGoal mvarId}") do
-      if (← tryURefl mvarId) then
-        trace[Elab.definition.structural.eqns] "tryURefl succeeded"
-        return ()
-      else if (← tryContradiction mvarId) then
-        trace[Elab.definition.structural.eqns] "tryContadiction succeeded"
-        return ()
-      else if let some mvarId ← simpMatch? mvarId then
-        trace[Elab.definition.structural.eqns] "simpMatch? succeeded"
-        go1 mvarId
-      else if let some mvarId ← simpIf? mvarId (useNewSemantics := true) then
-        trace[Elab.definition.structural.eqns] "simpIf? succeeded"
-        go1 mvarId
-      else
-        let ctx ← Simp.mkContext
-        match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
-        | TacticResultCNM.closed =>
-          trace[Elab.definition.structural.eqns] "simpTargetStar closed the goal"
-        | TacticResultCNM.modified mvarId =>
-          trace[Elab.definition.structural.eqns] "simpTargetStar modified the goal"
-          go1 mvarId
-        | TacticResultCNM.noChange =>
-          if let some mvarIds ← casesOnStuckLHS? mvarId then
-            trace[Elab.definition.structural.eqns] "casesOnStuckLHS? succeeded"
-            mvarIds.forM go1
-          else if let some mvarIds ← splitTarget? mvarId (useNewSemantics := true) then
-            trace[Elab.definition.structural.eqns] "splitTarget? succeeded"
-            mvarIds.forM go1
-          else
-            go2 (← deltaLHS mvarId)
-  /-- Step 2: Unfold the lhs to expose the recursor. -/
-  go2 (mvarId : MVarId) : MetaM Unit := do
+    withNewMCtxDepth do
+      let main ← mkFreshExprSyntheticOpaqueMVar type
+      let (_, mvarId) ← main.mvarId!.intros
+      unless (← tryURefl mvarId) do -- catch easy cases
+        goUnfold (← deltaLHS mvarId)
+      instantiateMVars main
+where
+  goUnfold (mvarId : MVarId) : MetaM Unit := do
     withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} go2:\n{MessageData.ofGoal mvarId}") do
     let mvarId' ← mvarId.withContext do
       -- This should now be headed by `.brecOn`
@@ -109,23 +73,25 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
       let [mvarId4] ← mvarId3.applyN eqThmAppTrans 1 |
         throwError "rewriting with{inlineExpr eqThmAppTrans} failed\n{MessageData.ofGoal mvarId}"
       pure mvarId4
-    go3 mvarId'
+    go mvarId'
 
-  /-- Step 3: Simplify the match and if statements on the left hand side, until we have rfl. -/
-  go3 (mvarId : MVarId) : MetaM Unit := do
-      withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} go3:\n{MessageData.ofGoal mvarId}") do
+  go (mvarId : MVarId) : MetaM Unit := do
+    withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} step:\n{MessageData.ofGoal mvarId}") do
       if (← tryURefl mvarId) then
         trace[Elab.definition.structural.eqns] "tryURefl succeeded"
         return ()
       else if (← tryContradiction mvarId) then
         trace[Elab.definition.structural.eqns] "tryContadiction succeeded"
         return ()
+      else if let some mvarId ← whnfReducibleLHS? mvarId then
+        trace[Elab.definition.structural.eqns] "whnfReducibleLHS succeeded"
+        go mvarId
       else if let some mvarId ← simpMatch? mvarId then
         trace[Elab.definition.structural.eqns] "simpMatch? succeeded"
-        go3 mvarId
+        go mvarId
       else if let some mvarId ← simpIf? mvarId (useNewSemantics := true) then
         trace[Elab.definition.structural.eqns] "simpIf? succeeded"
-        go3 mvarId
+        go mvarId
       else
         let ctx ← Simp.mkContext
         match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
@@ -133,11 +99,17 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
           trace[Elab.definition.structural.eqns] "simpTargetStar closed the goal"
         | TacticResultCNM.modified mvarId =>
           trace[Elab.definition.structural.eqns] "simpTargetStar modified the goal"
-          go3 mvarId
+          go mvarId
         | TacticResultCNM.noChange =>
-          if let some mvarIds ← casesOnStuckLHS? mvarId then
+          if let some mvarId ← deltaRHS? mvarId declName then
+            trace[Elab.definition.structural.eqns] "deltaRHS? succeeded"
+            go mvarId
+          else if let some mvarIds ← casesOnStuckLHS? mvarId then
             trace[Elab.definition.structural.eqns] "casesOnStuckLHS? succeeded"
-            mvarIds.forM go3
+            mvarIds.forM go
+          else if let some mvarIds ← splitTarget? mvarId (useNewSemantics := true) then
+            trace[Elab.definition.structural.eqns] "splitTarget? succeeded"
+            mvarIds.forM go
           else
             throwError "no progress at goal\n{MessageData.ofGoal mvarId}"
 

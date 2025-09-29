@@ -128,7 +128,7 @@ void set_max_memory(size_t max) {
 
 extern "C" LEAN_EXPORT lean_obj_res lean_internal_set_max_memory(size_t max) {
     set_max_memory(max);
-    return lean_io_result_mk_ok(lean_box(0));
+    return lean_mk_baseio_out(lean_box(0));
 }
 
 void set_max_memory_megabyte(unsigned max) {

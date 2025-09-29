@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich, Mac Malone
+Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich, Mac Malone, Henrik Böving
 -/
 module
 
@@ -28,6 +28,48 @@ reordered.
 instance IO.RealWorld.instNonempty : Nonempty IO.RealWorld :=
   by exact IO.RealWorld.nonemptyType.property
 
+structure BaseIO.Out (α : Type) where
+  val : α
+  state : IO.RealWorld
+
+/--
+An `IO` monad that cannot throw exceptions.
+-/
+@[expose] def BaseIO (α : Type) := IO.RealWorld → BaseIO.Out α
+
+namespace BaseIO
+
+@[always_inline, inline]
+def pure (x : α) : BaseIO α := fun s => .mk x s
+
+@[always_inline, inline]
+def bind (x : BaseIO α) (f : α → BaseIO β) : BaseIO β :=
+  fun s =>
+    match x s with
+    | .mk x s => f x s
+
+end BaseIO
+
+instance : Monad BaseIO where
+  pure := BaseIO.pure
+  bind := BaseIO.bind
+
+@[always_inline]
+instance : MonadFinally BaseIO where
+  tryFinally' x f := fun s =>
+    match x s with
+    | .mk x s =>
+      match f (some x) s with
+      | .mk y s => .mk (x, y) s
+
+@[always_inline, inline]
+def BaseIO.map (f : α → β) (x : BaseIO α) : BaseIO β :=
+  f <$> x
+
+inductive EIO.Out (ε : Type) (α : Type) where
+  | ok : α → IO.RealWorld → EIO.Out ε α
+  | error : ε → IO.RealWorld → EIO.Out ε α
+
 /--
 A monad that can have side effects on the external world or throw exceptions of type `ε`.
 
@@ -41,21 +83,7 @@ A monad that can have side effects on the external world or throw exceptions of 
    def getWorld : IO (IO.RealWorld) := get
    ```
 -/
-@[expose] def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
-
-instance : Monad (EIO ε) := inferInstanceAs (Monad (EStateM ε IO.RealWorld))
-instance : MonadFinally (EIO ε) := inferInstanceAs (MonadFinally (EStateM ε IO.RealWorld))
-instance : MonadExceptOf ε (EIO ε) := inferInstanceAs (MonadExceptOf ε (EStateM ε IO.RealWorld))
-instance : OrElse (EIO ε α) := ⟨MonadExcept.orElse⟩
-instance [Inhabited ε] : Inhabited (EIO ε α) := inferInstanceAs (Inhabited (EStateM ε IO.RealWorld α))
-
-/--
-An `IO` monad that cannot throw exceptions.
--/
-@[expose] def BaseIO := EIO Empty
-
-instance : Monad BaseIO := inferInstanceAs (Monad (EIO Empty))
-instance : MonadFinally BaseIO := inferInstanceAs (MonadFinally (EIO Empty))
+@[expose] def EIO (ε : Type) (α : Type) : Type := IO.RealWorld → EIO.Out ε α
 
 /--
 Runs a `BaseIO` action, which cannot throw an exception, in any other `EIO` monad.
@@ -66,7 +94,7 @@ lifting](lean-manual://section/lifting-monads) rather being than called explicit
 @[always_inline, inline]
 def BaseIO.toEIO (act : BaseIO α) : EIO ε α :=
   fun s => match act s with
-  | EStateM.Result.ok a s => EStateM.Result.ok a s
+  | .mk a s => .ok a s
 
 instance : MonadLift BaseIO (EIO ε) := ⟨BaseIO.toEIO⟩
 
@@ -77,8 +105,8 @@ action that returns an `Except` value.
 @[always_inline, inline]
 def EIO.toBaseIO (act : EIO ε α) : BaseIO (Except ε α) :=
   fun s => match act s with
-  | EStateM.Result.ok a s     => EStateM.Result.ok (Except.ok a) s
-  | EStateM.Result.error ex s => EStateM.Result.ok (Except.error ex) s
+  | .ok a s     => .mk (.ok a) s
+  | .error ex s => .mk (.error ex) s
 
 /--
 Handles any exception that might be thrown by an `EIO ε` action, transforming it into an
@@ -87,8 +115,53 @@ exception-free `BaseIO` action.
 @[always_inline, inline]
 def EIO.catchExceptions (act : EIO ε α) (h : ε → BaseIO α) : BaseIO α :=
   fun s => match act s with
-  | EStateM.Result.ok a s     => EStateM.Result.ok a s
-  | EStateM.Result.error ex s => h ex s
+  | .ok a s     => .mk a s
+  | .error ex s => h ex s
+
+@[always_inline, inline]
+protected def EIO.pure (a : α) : EIO ε α := fun s => .ok a s
+
+@[always_inline, inline]
+protected def EIO.bind (x : EIO ε α) (f : α → EIO ε β) : EIO ε β :=
+  fun s => match x s with
+  | .ok a s    => f a s
+  | .error e s => .error e s
+
+@[always_inline, inline]
+protected def EIO.throw (e : ε) : EIO ε α := fun s => .error e s
+
+@[always_inline, inline]
+protected def EIO.tryCatch (x : EIO ε α) (handle : ε → EIO ε α) : EIO ε α :=
+  fun s => match x s with
+  | .ok a s => .ok a s
+  | .error e s => handle e s
+
+instance : Monad (EIO ε) where
+  bind := EIO.bind
+  pure := EIO.pure
+
+@[always_inline]
+instance : MonadFinally (EIO ε) where
+  tryFinally' x f := fun s =>
+    let r := x s
+    match r with
+    | .ok x s =>
+      match f (some x) s with
+      | .ok y s => .ok (x, y) s
+      | .error e s => .error e s
+    | .error e s =>
+      match f none s with
+      | .ok _ s => .error e s
+      | .error e s => .error e s
+
+instance : MonadExceptOf ε (EIO ε) where
+  throw := EIO.throw
+  tryCatch := EIO.tryCatch
+
+instance : OrElse (EIO ε α) := ⟨MonadExcept.orElse⟩
+
+instance [Inhabited ε] : Inhabited (EIO ε α) where
+  default := fun w => .error default w
 
 /--
 Converts an `Except ε` action into an `EIO ε` action.
@@ -100,6 +173,15 @@ def EIO.ofExcept (e : Except ε α) : EIO ε α :=
   match e with
   | Except.ok a    => pure a
   | Except.error e => throw e
+
+@[always_inline, inline]
+def EIO.adapt (f : ε → ε') (m : EIO ε α) : EIO ε' α :=
+  fun s => match m s with
+  | .ok a s => .ok a s
+  | .error e s => .error (f e) s
+
+@[deprecated EIO.adapt (since := "2025-09-29"), always_inline, inline]
+def EIO.adaptExcept (f : ε → ε') (m : EIO ε α) : EIO ε' α := EIO.adapt f m
 
 open IO (Error) in
 /--
@@ -121,7 +203,7 @@ Converts an `EIO ε` action into an `IO` action by translating any exceptions th
 `IO.Error`s using `f`.
 -/
 @[inline] def EIO.toIO (f : ε → IO.Error) (act : EIO ε α) : IO α :=
-  act.adaptExcept f
+  act.adapt f
 
 /--
 Converts an `EIO ε` action that might throw an exception of type `ε` into an exception-free `IO`
@@ -134,7 +216,7 @@ action that returns an `Except` value.
 Runs an `IO` action in some other `EIO` monad, using `f` to translate `IO` exceptions.
 -/
 @[inline] def IO.toEIO (f : IO.Error → ε) (act : IO α) : EIO ε α :=
-  act.adaptExcept f
+  act.adapt f
 
 /- After we inline `EState.run'`, the closed term `((), ())` is generated, where the second `()`
    represents the "initial world". We don't want to cache this closed term. So, we disable
@@ -154,8 +236,8 @@ duplicate, or delete calls to this function. The side effect may even be hoisted
 causing the side effect to occur at initialization time, even if it would otherwise never be called.
 -/
 @[noinline] unsafe def unsafeBaseIO (fn : BaseIO α) : α :=
-  match fn.run (unsafeCast Unit.unit) with
-  | EStateM.Result.ok a _ => a
+  match fn (unsafeCast Unit.unit) with
+  | .mk a _ => a
 
 /--
 Executes arbitrary side effects in a pure context, with exceptions indicated via `Except`. This a
@@ -400,7 +482,7 @@ Pauses execution for the specified number of milliseconds.
 -/
 def sleep (ms : UInt32) : BaseIO Unit :=
   -- TODO: add a proper primitive for IO.sleep
-  fun s => dbgSleep ms fun _ => EStateM.Result.ok () s
+  fun s => dbgSleep ms fun _ => .mk () s
 
 /--
 Runs `act` in a separate `Task`, with priority `prio`. Because `IO` actions may throw an exception
@@ -1597,7 +1679,10 @@ the `IO` monad.
 -/
 abbrev Ref (α : Type) := ST.Ref IO.RealWorld α
 
-instance : MonadLift (ST IO.RealWorld) BaseIO := ⟨id⟩
+instance : MonadLift (ST IO.RealWorld) BaseIO where
+  monadLift mx := fun s =>
+    match mx s with
+    | .ok s a => .mk s a
 
 /--
 Creates a new mutable reference cell that contains `a`.

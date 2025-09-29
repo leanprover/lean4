@@ -258,7 +258,7 @@ open FileWorker
 open Snapshots
 
 def runInIO (x : RequestM α) (ctx : RequestContext) : IO α := do
-  x.run ctx |>.adaptExcept (IO.userError ·.message)
+  x.run ctx |>.adapt (IO.userError ·.message)
 
 def readDoc [Monad m] [MonadReaderOf RequestContext m] : m EditableDocument := do
   let rc ← readThe RequestContext

@@ -9,27 +9,27 @@ open Lean Parser.Module
 
 def main (args : List String) : IO Unit := do
   initSearchPath (← findSysroot)
-  let mods := args.toArray.map (·.toName)
-
-  -- Determine default module(s) to run modulize on
-  let defaultTargetModules : Array Name ← try
-    let (elanInstall?, leanInstall?, lakeInstall?) ← Lake.findInstall?
-    let config ← Lake.MonadError.runEIO <| Lake.mkLoadConfig { elanInstall?, leanInstall?, lakeInstall? }
-    let some workspace ← Lake.loadWorkspace config |>.toBaseIO
-      | throw <| IO.userError "failed to load Lake workspace"
-    let defaultTargetModules := workspace.root.defaultTargets.flatMap fun target =>
-      if let some lib := workspace.root.findLeanLib? target then
-        lib.roots
-      else if let some exe := workspace.root.findLeanExe? target then
-        #[exe.config.root]
-      else
-        #[]
-    pure defaultTargetModules
-  catch _ =>
-    pure #[]
-
   -- the list of root modules
-  let mods := if mods.isEmpty then defaultTargetModules else mods
+  let mut mods := args.toArray.map (·.toName)
+
+  if mods.isEmpty then
+    -- Determine default module(s) to run modulize on
+    mods ← try
+      let (elanInstall?, leanInstall?, lakeInstall?) ← Lake.findInstall?
+      let config ← Lake.MonadError.runEIO <| Lake.mkLoadConfig { elanInstall?, leanInstall?, lakeInstall? }
+      let some workspace ← Lake.loadWorkspace config |>.toBaseIO
+        | throw <| IO.userError "failed to load Lake workspace"
+      let defaultTargetModules := workspace.root.defaultTargets.flatMap fun target =>
+        if let some lib := workspace.root.findLeanLib? target then
+          lib.roots
+        else if let some exe := workspace.root.findLeanExe? target then
+          #[exe.config.root]
+        else
+          #[]
+      pure defaultTargetModules
+    catch _ =>
+      pure #[]
+
   -- Only submodules of `pkg` will be edited or have info reported on them
   let pkg := mods[0]!.components.head!
 

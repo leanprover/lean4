@@ -141,7 +141,10 @@ unsafe axiom lcErased : Type
 /-- Marker for type dependency that has been erased by the code generator. -/
 unsafe axiom lcAny : Type
 
-/-- Internal representation of `IO.RealWorld` in the compiler. -/
+/-- Internal representation of `Void` in the compiler. -/
+unsafe axiom lcVoid : Type
+
+/-- TODO: remove after update-stage0 -/
 unsafe axiom lcRealWorld : Type
 
 /--

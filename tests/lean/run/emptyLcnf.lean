@@ -12,13 +12,13 @@ trace: [Compiler.result] size: 0
       ⊥
 ---
 trace: [Compiler.result] size: 5
-    def _eval._lam_0 _x.1 _x.2 _y.3 _y.4 _y.5 _y.6 _y.7 _y.8 _y.9 : EStateM.Result Lean.Exception lcRealWorld PUnit :=
+    def _eval._lam_0 _x.1 _x.2 _y.3 _y.4 _y.5 _y.6 _y.7 _y.8 _y.9 : EST.Out Lean.Exception lcRealWorld PUnit :=
       let _x.10 := Lean.Compiler.compile _x.1 _y.7 _y.8 _y.9;
-      cases _x.10 : EStateM.Result Lean.Exception lcRealWorld PUnit
-      | EStateM.Result.ok a.11 a.12 =>
-        let _x.13 := EStateM.Result.ok ◾ ◾ ◾ _x.2 a.12;
+      cases _x.10 : EST.Out Lean.Exception lcRealWorld PUnit
+      | EST.Out.ok a.11 a.12 =>
+        let _x.13 := @EST.Out.ok ◾ ◾ ◾ _x.2 a.12;
         return _x.13
-      | EStateM.Result.error a.14 a.15 =>
+      | EST.Out.error a.14 a.15 =>
         return _x.10
 [Compiler.result] size: 1
     def _eval._closed_0 : String :=
@@ -41,7 +41,7 @@ trace: [Compiler.result] size: 5
       let _x.3 := Array.push ◾ _x.2 _x.1;
       return _x.3
 [Compiler.result] size: 8
-    def _eval a.1 a.2 a.3 : EStateM.Result Lean.Exception lcRealWorld PUnit :=
+    def _eval a.1 a.2 _y.3 : EST.Out Lean.Exception lcRealWorld PUnit :=
       let _x.4 := _eval._closed_0;
       let _x.5 := _eval._closed_1;
       let _x.6 := 1;
@@ -49,7 +49,7 @@ trace: [Compiler.result] size: 5
       let _x.8 := _eval._closed_3;
       let _x.9 := PUnit.unit;
       let _f.10 := _eval._lam_0 _x.8 _x.9;
-      let _x.11 := Lean.Elab.Command.liftTermElabM._redArg _f.10 a.1 a.2 a.3;
+      let _x.11 := Lean.Elab.Command.liftTermElabM._redArg _f.10 a.1 a.2 _y.3;
       return _x.11
 -/
 #guard_msgs in

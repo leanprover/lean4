@@ -599,7 +599,6 @@ macro expansion etc.
 def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do profileitM Exception "elaboration" (← getOptions) do
   withReader ({ · with suppressElabErrors :=
     stx.hasMissing && !showPartialSyntaxErrors.get (← getOptions) }) do
-  recordUsedSyntaxKinds stx
   -- initialize quotation context using hash of input string
   let ss? := stx.getSubstring? (withLeading := false) (withTrailing := false)
   withInitQuotContext (ss?.map (hash ·.toString.trim)) do
@@ -612,6 +611,7 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
       -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
       elabCommand stx
     finally
+      recordUsedSyntaxKinds stx
       -- Make sure `snap?` is definitely resolved; we do not use it for reporting as `#guard_msgs` may
       -- be the caller of this function and add new messages and info trees
       if let some snap := (← read).snap? then

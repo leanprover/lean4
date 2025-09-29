@@ -6,9 +6,14 @@ Author: Leonardo de Moura
 module
 
 prelude
+public import Init.Data.ByteArray.Basic
 import all Init.Data.ByteArray.Basic
+public import Init.Data.String.Basic
 import all Init.Data.String.Basic
 import Init.Data.UInt.Lemmas
+import Init.Data.UInt.Bitwise
+
+public section
 
 namespace String
 
@@ -99,8 +104,7 @@ where
 
 /--
 Decodes an array of bytes that encode a string as [UTF-8](https://en.wikipedia.org/wiki/UTF-8) into
-the corresponding string. Invalid UTF-8 characters in the byte array result in `(default : Char)`,
-or `'A'`, in the string.
+the corresponding string.
 -/
 @[extern "lean_string_from_utf8_unchecked"]
 def fromUTF8 (a : @& ByteArray) (h : validateUTF8 a) : String :=
@@ -129,50 +133,14 @@ the corresponding string, or panics if the array is not a valid UTF-8 encoding o
   if h : validateUTF8 a then fromUTF8 a h else panic! "invalid UTF-8 string"
 
 /--
-Returns the sequence of bytes in a character's UTF-8 encoding.
--/
-def utf8EncodeChar (c : Char) : List UInt8 :=
-  let v := c.val
-  if v ≤ 0x7f then
-    [v.toUInt8]
-  else if v ≤ 0x7ff then
-    [(v >>>  6).toUInt8 &&& 0x1f ||| 0xc0,
-              v.toUInt8 &&& 0x3f ||| 0x80]
-  else if v ≤ 0xffff then
-    [(v >>> 12).toUInt8 &&& 0x0f ||| 0xe0,
-     (v >>>  6).toUInt8 &&& 0x3f ||| 0x80,
-              v.toUInt8 &&& 0x3f ||| 0x80]
-  else
-    [(v >>> 18).toUInt8 &&& 0x07 ||| 0xf0,
-     (v >>> 12).toUInt8 &&& 0x3f ||| 0x80,
-     (v >>>  6).toUInt8 &&& 0x3f ||| 0x80,
-              v.toUInt8 &&& 0x3f ||| 0x80]
-
-@[simp] theorem length_utf8EncodeChar (c : Char) : (utf8EncodeChar c).length = c.utf8Size := by
-  simp [Char.utf8Size, utf8EncodeChar]
-  cases Decidable.em (c.val ≤ 0x7f) <;> simp [*]
-  cases Decidable.em (c.val ≤ 0x7ff) <;> simp [*]
-  cases Decidable.em (c.val ≤ 0xffff) <;> simp [*]
-
-/--
 Encodes a string in UTF-8 as an array of bytes.
 -/
 @[extern "lean_string_to_utf8"]
 def toUTF8 (a : @& String) : ByteArray :=
-  ⟨⟨a.data.flatMap utf8EncodeChar⟩⟩
+  a.bytes
 
 @[simp] theorem size_toUTF8 (s : String) : s.toUTF8.size = s.utf8ByteSize := by
-  simp [toUTF8, ByteArray.size, Array.size, utf8ByteSize, List.flatMap]
-  induction s.data <;> simp [List.map, List.flatten, utf8ByteSize.go, Nat.add_comm, *]
-
-/--
-Accesses the indicated byte in the UTF-8 encoding of a string.
-
-At runtime, this function is implemented by efficient, constant-time code.
--/
-@[extern "lean_string_get_byte_fast"]
-def getUtf8Byte (s : @& String) (n : Nat) (h : n < s.utf8ByteSize) : UInt8 :=
-  (toUTF8 s)[n]'(size_toUTF8 _ ▸ h)
+  rfl
 
 theorem Iterator.sizeOf_next_lt_of_hasNext (i : String.Iterator) (h : i.hasNext) : sizeOf i.next < sizeOf i := by
   cases i; rename_i s pos; simp [Iterator.next, Iterator.sizeOf_eq]; simp [Iterator.hasNext] at h
@@ -295,11 +263,11 @@ where
   termination_by text.utf8ByteSize - pos.byteIdx
   decreasing_by
     decreasing_with
-      show text.utf8ByteSize - (text.next (text.next pos)).byteIdx < text.utf8ByteSize - pos.byteIdx
+      change text.utf8ByteSize - (text.next (text.next pos)).byteIdx < text.utf8ByteSize - pos.byteIdx
       have k := Nat.gt_of_not_le <| mt decide_eq_true h
       exact Nat.sub_lt_sub_left k (Nat.lt_trans (String.lt_next text pos) (String.lt_next _ _))
     decreasing_with
-      show text.utf8ByteSize - (text.next pos).byteIdx < text.utf8ByteSize - pos.byteIdx
+      change text.utf8ByteSize - (text.next pos).byteIdx < text.utf8ByteSize - pos.byteIdx
       have k := Nat.gt_of_not_le <| mt decide_eq_true h
       exact Nat.sub_lt_sub_left k (String.lt_next _ _)
 

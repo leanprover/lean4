@@ -3,10 +3,15 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Parser.Basic
-import Lean.ScopedEnvExtension
+public import Lean.Parser.Basic
+public import Lean.ScopedEnvExtension
+import Lean.PrivateName
 import Lean.BuiltinDocAttr
+
+public section
 
 /-! Extensible parsing via attributes -/
 
@@ -33,7 +38,7 @@ builtin_initialize
 builtin_initialize builtinParserCategoriesRef : IO.Ref ParserCategories ← IO.mkRef {}
 
 private def throwParserCategoryAlreadyDefined {α} (catName : Name) : ExceptT String Id α :=
-  throw s!"parser category '{catName}' has already been defined"
+  throw s!"parser category `{catName}` has already been defined"
 
 private def addParserCategoryCore (categories : ParserCategories) (catName : Name) (initial : ParserCategory) : Except String ParserCategories :=
   if categories.contains catName then
@@ -94,7 +99,7 @@ private def addTokenConfig (tokens : TokenTable) (tk : Token) : Except String To
     | some _ => pure tokens
 
 def throwUnknownParserCategory {α} (catName : Name) : ExceptT String Id α :=
-  throw s!"unknown parser category '{catName}'"
+  throw s!"unknown parser category `{catName}`"
 
 abbrev getCategory (categories : ParserCategories) (catName : Name) : Option ParserCategory :=
   categories.find? catName
@@ -149,7 +154,7 @@ private def updateBuiltinTokens (info : ParserInfo) (declName : Name) : IO Unit 
   let tokenTable ← builtinTokenTable.swap {}
   match addParserTokens tokenTable info with
   | Except.ok tokenTable => builtinTokenTable.set tokenTable
-  | Except.error msg     => throw (IO.userError s!"invalid builtin parser '{declName}', {msg}")
+  | Except.error msg     => throw (IO.userError s!"invalid builtin parser `{privateToUserName declName}`, {msg}")
 
 def ParserExtension.addEntryImpl (s : State) (e : Entry) : State :=
   match e with
@@ -179,7 +184,7 @@ abbrev AliasTable (α) := NameMap (AliasValue α)
 def registerAliasCore {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) (value : AliasValue α) : IO Unit := do
   unless (← initializing) do throw ↑"aliases can only be registered during initialization"
   if (← mapRef.get).contains aliasName then
-    throw ↑s!"alias '{aliasName}' has already been declared"
+    throw ↑s!"alias `{aliasName}` has already been declared"
   mapRef.modify (·.insert aliasName value)
 
 def getAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : IO (Option (AliasValue α)) := do
@@ -188,21 +193,21 @@ def getAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : IO (Opt
 def getConstAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : IO α := do
   match (← getAlias mapRef aliasName) with
   | some (AliasValue.const v)  => pure v
-  | some (AliasValue.unary _)  => throw ↑s!"parser '{aliasName}' is not a constant, it takes one argument"
-  | some (AliasValue.binary _) => throw ↑s!"parser '{aliasName}' is not a constant, it takes two arguments"
-  | none   => throw ↑s!"parser '{aliasName}' was not found"
+  | some (AliasValue.unary _)  => throw ↑s!"parser `{aliasName}` is not a constant, it takes one argument"
+  | some (AliasValue.binary _) => throw ↑s!"parser `{aliasName}` is not a constant, it takes two arguments"
+  | none   => throw ↑s!"parser `{aliasName}` was not found"
 
 def getUnaryAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : IO (α → α) := do
   match (← getAlias mapRef aliasName) with
   | some (AliasValue.unary v) => pure v
-  | some _ => throw ↑s!"parser '{aliasName}' does not take one argument"
-  | none   => throw ↑s!"parser '{aliasName}' was not found"
+  | some _ => throw ↑s!"parser `{aliasName}` does not take one argument"
+  | none   => throw ↑s!"parser `{aliasName}` was not found"
 
 def getBinaryAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : IO (α → α → α) := do
   match (← getAlias mapRef aliasName) with
   | some (AliasValue.binary v) => pure v
-  | some _ => throw ↑s!"parser '{aliasName}' does not take two arguments"
-  | none   => throw ↑s!"parser '{aliasName}' was not found"
+  | some _ => throw ↑s!"parser `{aliasName}` does not take two arguments"
+  | none   => throw ↑s!"parser `{aliasName}` was not found"
 
 abbrev ParserAliasValue := AliasValue Parser
 
@@ -218,7 +223,7 @@ builtin_initialize parserAlias2kindRef : IO.Ref (NameMap SyntaxNodeKind) ← IO.
 builtin_initialize parserAliases2infoRef : IO.Ref (NameMap ParserAliasInfo) ← IO.mkRef {}
 
 def getParserAliasInfo (aliasName : Name) : IO ParserAliasInfo := do
-  return (← parserAliases2infoRef.get).findD aliasName {}
+  return (← parserAliases2infoRef.get).getD aliasName {}
 
 -- Later, we define macro `register_parser_alias` which registers a parser, formatter and parenthesizer
 def registerAlias (aliasName declName : Name) (p : ParserAliasValue) (kind? : Option SyntaxNodeKind := none) (info : ParserAliasInfo := {}) : IO Unit := do
@@ -252,7 +257,7 @@ unsafe def mkParserOfConstantUnsafe (constName : Name) (compileParserDescr : Par
   let env  := (← read).env
   let opts := (← read).opts
   match env.find? constName with
-  | none      => throw ↑s!"unknown constant '{constName}'"
+  | none      => throw ↑s!"Unknown constant `{constName}`"
   | some info =>
     match info.type with
     | Expr.const `Lean.Parser.TrailingParser _ =>
@@ -269,7 +274,7 @@ unsafe def mkParserOfConstantUnsafe (constName : Name) (compileParserDescr : Par
       let d ← IO.ofExcept $ env.evalConst TrailingParserDescr opts constName
       let p ← compileParserDescr d
       pure ⟨false, p⟩
-    | _ => throw ↑s!"unexpected parser type at '{constName}' (`ParserDescr`, `TrailingParserDescr`, `Parser` or `TrailingParser` expected)"
+    | _ => throw ↑s!"unexpected parser type at `{constName}` (`ParserDescr`, `TrailingParserDescr`, `Parser` or `TrailingParser` expected)"
 
 @[implemented_by mkParserOfConstantUnsafe]
 opaque mkParserOfConstantAux (constName : Name) (compileParserDescr : ParserDescr → ImportM Parser) : ImportM (Bool × Parser)
@@ -286,6 +291,7 @@ partial def compileParserDescr (categories : ParserCategories) (d : ParserDescr)
     | ParserDescr.trailingNode k prec lhsPrec d       => return trailingNode k prec lhsPrec (← visit d)
     | ParserDescr.symbol tk                           => return symbol tk
     | ParserDescr.nonReservedSymbol tk includeIdent   => return nonReservedSymbol tk includeIdent
+    | ParserDescr.unicodeSymbol tk asciiTk preserve   => return unicodeSymbol tk asciiTk preserve
     | ParserDescr.parser constName                    => do
       let (_, p) ← mkParserOfConstantAux constName visit;
       pure p
@@ -345,8 +351,11 @@ builtin_initialize parserExtension : ParserExtension ←
     ofOLeanEntry    := ParserExtension.OLeanEntry.toEntry
   }
 
+def getParserCategory? (env : Environment) (catName : Name) : Option ParserCategory :=
+  (parserExtension.getState env).categories.find? catName
+
 def isParserCategory (env : Environment) (catName : Name) : Bool :=
-  (parserExtension.getState env).categories.contains catName
+  getParserCategory? env catName |>.isSome
 
 def addParserCategory (env : Environment) (catName declName : Name) (behavior : LeadingIdentBehavior) : Except String Environment := do
   if isParserCategory env catName then
@@ -376,10 +385,12 @@ register_builtin_option internal.parseQuotWithCurrentStage : Bool := {
   descr    := "(Lean bootstrapping) use parsers from the current stage inside quotations"
 }
 
-/-- Run `declName` if possible and inside a quotation, or else `p`. The `ParserInfo` will always be taken from `p`. -/
+/-- Interpret `declName` if possible and inside a quotation, or else run `p`. The `ParserInfo` will always be taken from `p`. -/
 def evalInsideQuot (declName : Name) : Parser → Parser := withFn fun f c s =>
   if c.quotDepth > 0 && !c.suppressInsideQuot && internal.parseQuotWithCurrentStage.get c.options && c.env.contains declName then
-    evalParserConst declName c s
+    adaptUncacheableContextFn (fun ctx =>
+      { ctx with options := ctx.options.setBool `interpreter.prefer_native false })
+      (evalParserConst declName) c s
   else
     f c s
 
@@ -437,12 +448,27 @@ def getSyntaxNodeKinds (env : Environment) : List SyntaxNodeKind :=
 def getTokenTable (env : Environment) : TokenTable :=
   (parserExtension.getState env).tokens
 
+set_option linter.unusedVariables.funArgs false in
 -- Note: `crlfToLf` preserves logical line and column numbers for each character.
-def mkInputContext (input : String) (fileName : String) (normalizeLineEndings := true) : InputContext :=
-  let input' := if normalizeLineEndings then input.crlfToLf else input
-  { input    := input',
-    fileName := fileName,
-    fileMap  := input'.toFileMap }
+def mkInputContext (input : String) (fileName : String)
+    (normalizeLineEndings := true)
+    (endPos := input.endPos)
+    (endPos_valid : endPos ≤ input.endPos := by simp) :
+    InputContext :=
+  let text := FileMap.ofString input
+  let next := if normalizeLineEndings then
+    -- Convert the stop position to a line/column position so crlf translation doesn't invalidate it
+    let endPos' := text.toPosition endPos
+    let text := FileMap.ofString text.source.crlfToLf
+    (text, text.ofPosition endPos')
+  else
+    (text, endPos)
+  let text := next.1
+  let endPos' := next.2
+  if h : endPos' ≤ text.source.endPos then
+    .mk text.source fileName (fileMap := text) (endPos := endPos') (endPos_valid := h)
+  else
+    .mk text.source fileName (fileMap := text)
 
 def mkParserState (input : String) : ParserState :=
   { cache := initCacheForInput input }
@@ -454,7 +480,7 @@ def runParserCategory (env : Environment) (catName : Name) (input : String) (fil
   let s := p.run ictx { env, options := {} } (getTokenTable env) (mkParserState input)
   if !s.allErrors.isEmpty  then
     Except.error (s.toErrorMsg ictx)
-  else if ictx.input.atEnd s.pos then
+  else if ictx.atEnd s.pos then
     Except.ok s.stxStack.back
   else
     Except.error ((s.mkError "end of input").toErrorMsg ictx)
@@ -474,20 +500,21 @@ def getParserPriority (args : Syntax) : Except String Nat :=
   | 0 => pure 0
   | 1 => match (args.getArg 0).isNatLit? with
     | some prio => pure prio
-    | none => throw "invalid parser attribute, numeral expected"
-  | _ => throw "invalid parser attribute, no argument or numeral expected"
+    | none => throw s!"Invalid parser attribute: Numeral expected, but found `{args.getArg 0}`"
+  | _ => throw "Invalid parser attribute: No argument or numeral expected"
 
 private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
     (declName : Name) (stx : Syntax) (kind : AttributeKind) : AttrM Unit := do
   let prio ← Attribute.Builtin.getPrio stx
-  unless kind == AttributeKind.global do throwError "invalid attribute '{attrName}', must be global"
+  unless kind == AttributeKind.global do throwAttrMustBeGlobal attrName kind
   let decl ← getConstInfo declName
   match decl.type with
   | Expr.const `Lean.Parser.TrailingParser _ =>
     declareTrailingBuiltinParser catName declName prio
   | Expr.const `Lean.Parser.Parser _ =>
     declareLeadingBuiltinParser catName declName prio
-  | _ => throwError "unexpected parser type at '{declName}' (`Parser` or `TrailingParser` expected)"
+  | _ => throwError "Unexpected type for parser declaration: Parsers must have type `Parser` or \
+    `TrailingParser`, but `{.ofConstName declName}` has type{indentExpr decl.type}"
   declareBuiltinDocStringAndRanges declName
   runParserAttributeHooks catName declName (builtin := true)
 
@@ -520,7 +547,7 @@ private def ParserAttribute.add (_attrName : Name) (catName : Name) (declName : 
     try
       addToken token attrKind
     catch
-      | Exception.error _   msg => throwError "invalid parser '{declName}', {msg}"
+      | Exception.error _   msg => throwError "invalid parser `{.ofConstName declName}`, {msg}"
       | ex => throw ex
   let kinds := parser.info.collectKinds {}
   kinds.forM fun kind _ => modifyEnv fun env => addSyntaxNodeKind env kind
@@ -690,11 +717,10 @@ def parserOfStackFn (offset : Nat) : ParserFn := fun ctx s => Id.run do
       categoryParserFn cat ctx s
     | [.parser parserName _] =>
       adaptUncacheableContextFn (fun ctx =>
-        if !internal.parseQuotWithCurrentStage.get ctx.options then
-          -- static quotations such as `(e) do not use the interpreter unless the above option is set,
-          -- so for consistency neither should dynamic quotations using this function
-          { ctx with options := ctx.options.setBool `interpreter.prefer_native true }
-        else ctx) (evalParserConst parserName) ctx s
+        -- static quotations such as `(e) do not use the interpreter unless the above option is set,
+        -- so for consistency neither should dynamic quotations using this function
+        { ctx with options := ctx.options.setBool `interpreter.prefer_native (!internal.parseQuotWithCurrentStage.get ctx.options) })
+        (evalParserConst parserName) ctx s
     | [.alias alias] =>
       match alias with
       | .const p => p.fn ctx s

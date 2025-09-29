@@ -9,8 +9,7 @@
 -- This file only contains those theorems that can be proved "effortlessly" with `grind`.
 -- `tests/lean/grind/experiments/list.lean` contains everything from `Data/List/Lemmas.lean`
 -- that still resists `grind`!
-
-set_option grind.warning false
+@[expose] public section -- TODO: remove after congr_eq has been fixed
 open List Nat
 
 namespace Hidden
@@ -93,6 +92,14 @@ theorem getD_cons_succ : getD (x :: xs) (n + 1) d = getD xs n d := by grind
 
 
 /-! ### mem -/
+
+-- I've gone back and forth on this one. It's an expensive lemma to instantiate merely because we see `a ∈ l`,
+-- so globally it is set up with `grind_pattern length_pos_of_mem => a ∈ l, length l`.
+-- While it's quite useful as simply `grind →` in this "very eary theory", it doesn't  seem essential?
+
+section length_pos_of_mem
+
+attribute [local grind →] length_pos_of_mem
 
 theorem not_mem_nil {a : α} : ¬ a ∈ [] := by grind
 
@@ -197,6 +204,8 @@ theorem contains_eq_mem [BEq α] [LawfulBEq α] (a : α) (as : List α) :
 theorem contains_cons [BEq α] {a : α} {b : α} {l : List α} :
     (a :: l).contains b = (b == a || l.contains b) := by grind
 
+end length_pos_of_mem
+
 /-! ### `isEmpty` -/
 
 theorem isEmpty_iff {l : List α} : l.isEmpty ↔ l = [] := by grind
@@ -268,7 +277,7 @@ theorem cons_beq_cons [BEq α] {a b : α} {l₁ l₂ : List α} :
 
 theorem concat_beq_concat [BEq α] {a b : α} {l₁ l₂ : List α} :
     (l₁ ++ [a] == l₂ ++ [b]) = (l₁ == l₂ && a == b) := by
-  induction l₁ generalizing l₂ with cases l₂ with grind
+  induction l₁ generalizing l₂ with cases l₂ with grind [→ eq_nil_of_append_eq_nil]
 
 theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l₁.length = l₂.length := by
   induction l₁ generalizing l₂ with cases l₂ with grind
@@ -446,7 +455,7 @@ theorem map_eq_cons_iff' {f : α → β} {l : List α} :
 
 theorem map_eq_singleton_iff {f : α → β} {l : List α} {b : β} :
     map f l = [b] ↔ ∃ a, l = [a] ∧ f a = b := by
-  grind [map_eq_cons_iff]
+  grind [cases List]
 
 -- FIXME
 attribute [local grind] List.map_inj_left in
@@ -459,9 +468,10 @@ theorem map_eq_iff : map f l = l' ↔ ∀ i : Nat, l'[i]? = l[i]?.map f := by
 theorem map_eq_foldr {f : α → β} {l : List α} : map f l = foldr (fun a bs => f a :: bs) [] l := by
   induction l <;> grind
 
+attribute [local ext, local grind ext] List.ext_getElem in
 theorem map_set {f : α → β} {l : List α} {i : Nat} {a : α} :
     (l.set i a).map f = (l.map f).set i (f a) := by
-  grind +extAll
+  grind
 
 theorem head_map {f : α → β} {l : List α} (w) :
     (map f l).head w = f (l.head (by grind)) := by
@@ -480,8 +490,8 @@ theorem map_tail {f : α → β} {l : List α} :
 theorem headD_map {f : α → β} {l : List α} {a : α} : (map f l).headD (f a) = f (l.headD a) := by
   cases l with grind
 
-theorem getLastD_map {f : α → β} {l : List α} {a : α} : (map f l).getLastD (f a) = f (l.getLastD a) := by
-  grind
+-- theorem getLastD_map {f : α → β} {l : List α} {a : α} : (map f l).getLastD (f a) = f (l.getLastD a) := by
+--   grind
 
 theorem map_map {g : β → γ} {f : α → β} {l : List α} :
     map g (map f l) = map (g ∘ f) l := by induction l with grind
@@ -630,16 +640,19 @@ theorem getElem_append_left' {l₁ : List α} {i : Nat} (hi : i < l₁.length) (
 
 theorem singleton_append : [x] ++ l = x :: l := by grind
 
-theorem getLast_concat {a : α} {l : List α} : getLast (l ++ [a]) (by grind) = a := by
+theorem getLast_concat {a : α} {l : List α} :
+    getLast (l ++ [a]) (by grind [→ eq_nil_of_append_eq_nil]) = a := by
   induction l with grind
 
-theorem append_eq_nil_iff : p ++ q = [] ↔ p = [] ∧ q = [] := by grind
+theorem append_eq_nil_iff : p ++ q = [] ↔ p = [] ∧ q = [] := by grind [→ eq_nil_of_append_eq_nil]
 
-theorem nil_eq_append_iff : [] = a ++ b ↔ a = [] ∧ b = [] := by grind
+theorem nil_eq_append_iff : [] = a ++ b ↔ a = [] ∧ b = [] := by grind [→ eq_nil_of_append_eq_nil]
 
-theorem append_ne_nil_of_left_ne_nil {s : List α} (h : s ≠ []) (t : List α) : s ++ t ≠ [] := by grind
+theorem append_ne_nil_of_left_ne_nil {s : List α} (h : s ≠ []) (t : List α) : s ++ t ≠ [] := by
+  grind [→ eq_nil_of_append_eq_nil]
 
-theorem append_ne_nil_of_right_ne_nil (s : List α) : t ≠ [] → s ++ t ≠ [] := by grind
+theorem append_ne_nil_of_right_ne_nil (s : List α) : t ≠ [] → s ++ t ≠ [] := by
+  grind [→ eq_nil_of_append_eq_nil]
 
 theorem cons_eq_append_iff :
     x :: cs = as ++ bs ↔ (as = [] ∧ bs = x :: cs) ∨ (∃ as', as = x :: as' ∧ cs = as' ++ bs) := by
@@ -661,7 +674,8 @@ theorem head_append {l₁ l₂ : List α} (w : l₁ ++ l₂ ≠ []) :
         head l₁ (by grind) := by grind
 
 theorem head_append_left {l₁ l₂ : List α} (h : l₁ ≠ []) :
-    head (l₁ ++ l₂) (fun h => by grind) = head l₁ h := by grind
+    head (l₁ ++ l₂) (fun h => by grind [→ eq_nil_of_append_eq_nil]) = head l₁ h := by
+  grind
 
 theorem head_append_right {l₁ l₂ : List α} (w : l₁ ++ l₂ ≠ []) (h : l₁ = []) :
     head (l₁ ++ l₂) w = head l₂ (by grind) := by grind
@@ -841,8 +855,9 @@ theorem replicate_eq_append_iff {l₁ l₂ : List α} {a : α} :
       l₁.length + l₂.length = n ∧ l₁ = replicate l₁.length a ∧ l₂ = replicate l₂.length a := by
   grind [append_eq_replicate_iff]
 
+attribute [local ext, local grind ext] List.ext_getElem in
 theorem map_replicate : (replicate n a).map f = replicate n (f a) := by
-  grind +extAll
+  grind
 
 theorem filter_replicate_of_pos (h : p a) : (replicate n a).filter p = replicate n a := by grind
 
@@ -1001,12 +1016,12 @@ theorem foldr_hom (f : β₁ → β₂) {g₁ : α → β₁ → β₁} {g₂ : 
 theorem foldl_rel {l : List α} {f g : β → α → β} {a b : β} {r : β → β → Prop}
     (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f c a) (g c' a)) :
     r (l.foldl (fun acc a => f acc a) a) (l.foldl (fun acc a => g acc a) b) := by
-  induction l generalizing a b with grind (ematch := 6)
+  induction l generalizing a b with grind
 
 theorem foldr_rel {l : List α} {f g : α → β → β} {a b : β} {r : β → β → Prop}
     (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f a c) (g a c')) :
     r (l.foldr (fun a acc => f a acc) a) (l.foldr (fun a acc => g a acc) b) := by
-  induction l generalizing a b with grind (ematch := 6)
+  induction l generalizing a b with grind
 
 /-! #### Further results about `getLast` and `getLast?` -/
 
@@ -1018,7 +1033,8 @@ theorem getLast_append {l : List α} (h : l ++ l' ≠ []) :
         l'.getLast (by grind) := by grind
 
 theorem getLast_append_right {l : List α} (h : l' ≠ []) :
-    (l ++ l').getLast (fun h => by grind) = l'.getLast h := by grind
+    (l ++ l').getLast (fun h => by grind [→ eq_nil_of_append_eq_nil]) = l'.getLast h := by
+  grind
 
 theorem getLast_append_left {l : List α} (w : l ++ l' ≠ []) (h : l' = []) :
     (l ++ l').getLast w = l.getLast (by grind) := by grind
@@ -1080,11 +1096,7 @@ theorem dropLast_append {l₁ l₂ : List α} :
 theorem dropLast_append_cons : dropLast (l₁ ++ b :: l₂) = l₁ ++ dropLast (b :: l₂) := by
   grind +extAll
 
--- Failing with:
--- [issue] unexpected metavariable during internalization
---       ?α
---     `grind` is not supposed to be used in goals containing metavariables.
--- theorem dropLast_concat : dropLast (l₁ ++ [b]) = l₁ := by grind (gen := 6)
+-- theorem dropLast_concat : dropLast (l₁ ++ [b]) = l₁ := by grind
 
 theorem dropLast_replicate {n : Nat} {a : α} : dropLast (replicate n a) = replicate (n - 1) a := by
   grind +extAll

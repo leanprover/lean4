@@ -6,8 +6,10 @@ Authors: Mario Carneiro, Kim Morrison
 module
 
 prelude
-import Init.Data.List.Basic
-import Init.Data.Fin.Fold
+public import Init.Data.List.Basic
+public import Init.Data.Fin.Fold
+
+public section
 
 /-!
 # Theorems about `List.ofFn`
@@ -34,14 +36,14 @@ to each potential index in order, starting at `0`.
 def ofFnM {n} [Monad m] (f : Fin n → m α) : m (List α) :=
   List.reverse <$> Fin.foldlM n (fun xs i => (· :: xs) <$> f i) []
 
-@[simp]
+@[simp, grind =]
 theorem length_ofFn {f : Fin n → α} : (ofFn f).length = n := by
   simp only [ofFn]
   induction n with
   | zero => simp
   | succ n ih => simp [Fin.foldr_succ, ih]
 
-@[simp]
+@[simp, grind =]
 protected theorem getElem_ofFn {f : Fin n → α} (h : i < (ofFn f).length) :
     (ofFn f)[i] = f ⟨i, by simp_all⟩ := by
   simp only [ofFn]
@@ -55,7 +57,7 @@ protected theorem getElem_ofFn {f : Fin n → α} (h : i < (ofFn f).length) :
       apply ih
       simp_all
 
-@[simp]
+@[simp, grind =]
 protected theorem getElem?_ofFn {f : Fin n → α} :
     (ofFn f)[i]? = if h : i < n then some (f ⟨i, h⟩) else none :=
   if h : i < (ofFn f).length
@@ -67,7 +69,7 @@ protected theorem getElem?_ofFn {f : Fin n → α} :
     simpa using h
 
 /-- `ofFn` on an empty domain is the empty list. -/
-@[simp]
+@[simp, grind =]
 theorem ofFn_zero {f : Fin 0 → α} : ofFn f = [] := by
   rw [ofFn, Fin.foldr_zero]
 
@@ -96,9 +98,9 @@ theorem ofFn_add {n m} {f : Fin (n + m) → α} :
 
 @[simp]
 theorem ofFn_eq_nil_iff {f : Fin n → α} : ofFn f = [] ↔ n = 0 := by
-  cases n <;> simp only [ofFn_zero, ofFn_succ, eq_self_iff_true, Nat.succ_ne_zero, reduceCtorEq]
+  cases n <;> simp only [ofFn_zero, ofFn_succ, Nat.succ_ne_zero, reduceCtorEq]
 
-@[simp 500]
+@[simp 500, grind =]
 theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i = a := by
   constructor
   · intro w
@@ -107,17 +109,17 @@ theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i =
   · rintro ⟨i, rfl⟩
     apply mem_of_getElem (i := i) <;> simp
 
-theorem head_ofFn {n} {f : Fin n → α} (h : ofFn f ≠ []) :
+@[grind =] theorem head_ofFn {n} {f : Fin n → α} (h : ofFn f ≠ []) :
     (ofFn f).head h = f ⟨0, Nat.pos_of_ne_zero (mt ofFn_eq_nil_iff.2 h)⟩ := by
   rw [← getElem_zero (length_ofFn ▸ Nat.pos_of_ne_zero (mt ofFn_eq_nil_iff.2 h)),
     List.getElem_ofFn]
 
-theorem getLast_ofFn {n} {f : Fin n → α} (h : ofFn f ≠ []) :
+@[grind =]theorem getLast_ofFn {n} {f : Fin n → α} (h : ofFn f ≠ []) :
     (ofFn f).getLast h = f ⟨n - 1, Nat.sub_one_lt (mt ofFn_eq_nil_iff.2 h)⟩ := by
   simp [getLast_eq_getElem, length_ofFn, List.getElem_ofFn]
 
 /-- `ofFnM` on an empty domain is the empty list. -/
-@[simp]
+@[simp, grind =]
 theorem ofFnM_zero [Monad m] [LawfulMonad m] {f : Fin 0 → m α} : ofFnM f = pure [] := by
   simp [ofFnM]
 

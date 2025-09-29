@@ -1,2 +1,2 @@
-ambiguousOpenExport.lean:9:8-9:10: error: ambiguous identifier 'mk', possible interpretations: [Bla.C.mk, Foo.C.mk]
-ambiguousOpenExport.lean:11:10-11:12: error: ambiguous identifier 'mk', possible interpretations: [Bla.C.mk, Foo.C.mk]
+ambiguousOpenExport.lean:9:8-9:10: error: ambiguous identifier `mk`, possible interpretations: [Bla.C.mk, Foo.C.mk]
+ambiguousOpenExport.lean:11:10-11:12: error: ambiguous identifier `mk`, possible interpretations: [Bla.C.mk, Foo.C.mk]

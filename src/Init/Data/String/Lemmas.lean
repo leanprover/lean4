@@ -6,8 +6,15 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Char.Lemmas
-import Init.Data.List.Lex
+public import Init.Data.Char.Order
+public import Init.Data.Char.Lemmas
+public import Init.Data.List.Lex
+import Init.Data.Order.Lemmas
+public import Init.Data.String.Basic
+
+public section
+
+open Std
 
 namespace String
 
@@ -31,5 +38,15 @@ protected theorem lt_asymm {a b : String} (h : a < b) : ¬ b < a := List.lt_asym
 protected theorem ne_of_lt {a b : String} (h : a < b) : a ≠ b := by
   have := String.lt_irrefl a
   intro h; subst h; contradiction
+
+instance instIsLinearOrder : IsLinearOrder String := by
+  apply IsLinearOrder.of_le
+  case le_antisymm => constructor; apply String.le_antisymm
+  case le_trans => constructor; apply String.le_trans
+  case le_total => constructor; apply String.le_total
+
+instance : LawfulOrderLT String where
+  lt_iff a b := by
+    simp [← String.not_le, Decidable.imp_iff_not_or, Std.Total.total]
 
 end String

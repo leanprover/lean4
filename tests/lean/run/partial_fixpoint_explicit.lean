@@ -11,7 +11,7 @@ partial_fixpoint monotonicity sorry
 
 set_option pp.mvars.anonymous false in
 /--
-error: don't know how to synthesize placeholder for argument 'a'
+error: don't know how to synthesize placeholder for argument `a`
 context:
 ⊢ Lean.Order.monotone fun f x => f (x + 1)
 -/
@@ -28,12 +28,13 @@ partial_fixpoint monotonicity fun _ _ a _ => a _
 -- Type error
 
 /--
-error: type mismatch
+error: Type mismatch
   ()
 has type
-  Unit : Type
-but is expected to have type
-  Lean.Order.monotone fun f x => f (x + 1) : Prop
+  Unit
+of sort `Type` but is expected to have type
+  Lean.Order.monotone fun f x => f (x + 1)
+of sort `Prop`
 -/
 #guard_msgs in
 def nullary2 (x : Nat) : Option Unit := nullary2 (x + 1)
@@ -49,7 +50,10 @@ partial_fixpoint monotonicity
 
 -- Tactics
 
-/-- info: Try this: exact fun x y a x => a (x + 1) -/
+/--
+info: Try this:
+  exact fun x y a x_1 => a (x_1 + 1)
+-/
 #guard_msgs in
 def nullary6 (x : Nat) : Option Unit := nullary6 (x + 1)
 partial_fixpoint monotonicity by
@@ -62,3 +66,15 @@ partial_fixpoint monotonicity by
   intro y
   apply Lean.Order.monotone_apply
   apply Lean.Order.monotone_id
+
+-- Mutual
+
+mutual
+
+def mutual1 (x : Nat) : Option Unit := mutual2 (x + 1)
+partial_fixpoint monotonicity fun _ _ a x => a.2 (x + 1)
+
+def mutual2 (x : Nat) : Option Unit := mutual1 (x + 1)
+partial_fixpoint monotonicity fun _ _ a x => a.1 (x + 1)
+
+end

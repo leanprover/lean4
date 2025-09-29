@@ -3,10 +3,10 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+import all Init.Data.Array.QSort.Basic
 
 -- TODO: when `grind` is ready for production use, move this file to `src/Init/Data/Array/QSort/Lemmas.lean`.
-set_option grind.warning false
-
 /-!
 # Verification of `Array.qsort`
 
@@ -30,8 +30,6 @@ open List Vector
 
 -- These attributes still need to be moved to the standard library.
 
--- attribute [grind =] Vector.getElem_swap_of_ne -- Setting `(splits := 9)` means we don't need this
-
 -- set_option trace.grind.ematch.pattern true in
 -- attribute [grind] Vector.getElem?_eq_getElem -- This one requires some consideration! -- Probably not need, see Vector.Perm.extract' below.
 
@@ -48,7 +46,7 @@ attribute [grind] Vector.Perm.refl
 -- attribute [grind] Array.Perm.extract
 -- attribute [grind] Vector.Perm.extract
 
--- These are just the patterns resultin from `grind`, but the behaviour should be explained!
+-- These are just the patterns resulting from `grind`, but the behaviour should be explained!
 grind_pattern List.Perm.trans => l₁ ~ l₂, l₁ ~ l₃
 grind_pattern Array.Perm.trans => xs ~ ys, xs ~ zs
 grind_pattern Vector.Perm.trans => xs ~ ys, xs ~ zs
@@ -91,7 +89,7 @@ attribute [grind] Vector.Perm.extract'
 
 variable (lt : α → α → Bool) (lo hi : Nat)
 
-@[simp, grind] theorem size_qsort (as : Array α) :
+@[simp, grind =] theorem size_qsort (as : Array α) :
     (qsort as lt lo hi).size = as.size := by
   grind [qsort]
 
@@ -129,9 +127,9 @@ private theorem getElem_qpartition_loop_snd_of_lt_lo
 private theorem getElem_qpartition_snd_of_lt_lo (as : Vector α n)
     (hhi : hi < n) (w : lo ≤ hi)
     (k : Nat) (h : k < lo) : (qpartition as lt lo hi).2[k] = as[k] := by
-  grind (splits := 9) [qpartition, getElem_qpartition_loop_snd_of_lt_lo]
+  grind [qpartition, getElem_qpartition_loop_snd_of_lt_lo]
 
-@[local grind] private theorem getElem_qsort_sort_of_lt_lo
+@[local grind =] private theorem getElem_qsort_sort_of_lt_lo
     (as : Vector α n)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
     (i : Nat) (h : i < lo) : (qsort.sort lt as lo hi)[i] = as[i] := by
@@ -146,7 +144,7 @@ private theorem getElem_qpartition_loop_snd_of_hi_lt
 private theorem getElem_qpartition_snd_of_hi_lt (as : Vector α n)
     (hhi : hi < n) (w : lo ≤ hi)
     (k : Nat) (h : hi < k) (h' : k < n) : (qpartition as lt lo hi).2[k] = as[k] := by
-  grind (splits := 9) [qpartition, getElem_qpartition_loop_snd_of_hi_lt]
+  grind [qpartition, getElem_qpartition_loop_snd_of_hi_lt]
 
 @[local grind] private theorem getElem_qsort_sort_of_hi_lt
     (as : Vector α n) (w : lo ≤ hi)
@@ -195,6 +193,7 @@ private theorem qpartition_spec₁
     (w_mid : mid = (qpartition as lt lo hi).fst.1) (hmid : mid < n)
     (w_as : as' = (qpartition as lt lo hi).2) :
     ∀ i, (h₁ : lo ≤ i) → (h₂ : i < mid) → lt as'[i] as'[mid] := by
+  set_option trace.grind.ematch.pattern true in
   grind [qpartition, qpartition_loop_spec₁]
 
 /--
@@ -270,7 +269,7 @@ private theorem qsort_sort_spec
         -- moving elements above where we're looking.
         rw [getElem_qsort_sort_of_lt_lo (i := i)]
         rw [getElem_qsort_sort_of_lt_lo (i := i + 1)]
-        -- And so we can appply the theorem recursively replacing `hi` with `mid`.
+        -- And so we can apply the theorem recursively replacing `hi` with `mid`.
         apply qsort_sort_spec lt_asymm le_trans as' lo mid
         -- The remaining arithmetic side conditions are easily resolved.
         all_goals grind

@@ -1,7 +1,7 @@
-import Lake.DSL.Key
-import Lake.Build.Data
-import Lake.Build.Target.Basic
-open Lake DSL
+import Lake
+open System Lake DSL
+
+package test
 
 /-! ## Test Key Literal Representations -/
 

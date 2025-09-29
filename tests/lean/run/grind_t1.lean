@@ -1,5 +1,4 @@
-set_option grind.warning false
-
+module
 example (a b : List Nat) : a = [] → b = [2] → a = b → False := by
   grind
 
@@ -131,7 +130,7 @@ trace: [grind.eqc] x = 2 * a
 -/
 #guard_msgs (trace) in
 set_option trace.grind.eqc true in
-example (a : Nat) : let_fun x := a + a; y = x → y = a + a := by
+example (a : Nat) : have x := a + a; y = x → y = a + a := by
   grind -zetaDelta
 
 /--
@@ -140,7 +139,7 @@ trace: [grind.eqc] y = 2 * a
 -/
 #guard_msgs (trace) in
 set_option trace.grind.eqc true in
-example (a : Nat) : let_fun x := a + a; y = x → y = a + a := by
+example (a : Nat) : have x := a + a; y = x → y = a + a := by
   grind
 
 example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
@@ -148,7 +147,7 @@ example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
         (h₂ : cast h₁ a₁ = b₁)
         (h₃ : a₁ = a₂)
         (h₄ : b₁ = b₂)
-        : HEq a₂ b₂ := by
+        : a₂ ≍ b₂ := by
   grind
 
 example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
@@ -156,7 +155,7 @@ example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
         (h₂ : h₁ ▸ a₁ = b₁)
         (h₃ : a₁ = a₂)
         (h₄ : b₁ = b₂)
-        : HEq a₂ b₂ := by
+        : a₂ ≍ b₂ := by
   grind
 
 example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
@@ -164,7 +163,7 @@ example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
         (h₂ : Eq.recOn h₁ a₁ = b₁)
         (h₃ : a₁ = a₂)
         (h₄ : b₁ = b₂)
-        : HEq a₂ b₂ := by
+        : a₂ ≍ b₂ := by
   grind
 
 example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
@@ -172,7 +171,7 @@ example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
         (h₂ : Eq.ndrec (motive := id) a₁ h₁ = b₁)
         (h₃ : a₁ = a₂)
         (h₄ : b₁ = b₂)
-        : HEq a₂ b₂ := by
+        : a₂ ≍ b₂ := by
   grind
 
 example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
@@ -180,7 +179,7 @@ example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
         (h₂ : Eq.rec (motive := fun x _ => x) a₁ h₁ = b₁)
         (h₃ : a₁ = a₂)
         (h₄ : b₁ = b₂)
-        : HEq a₂ b₂ := by
+        : a₂ ≍ b₂ := by
   grind
 
 /--
@@ -190,7 +189,6 @@ trace: [grind.assert] ∀ (a : α), a ∈ b → p a
 [grind.assert] w ∈ b
 [grind.assert] ¬p w
 [grind.ematch.instance] h₁: w ∈ b → p w
-[grind.ematch.instance] List.length_pos_of_mem: w ∈ b → 0 < b.length
 [grind.assert] w ∈ b → p w
 -/
 #guard_msgs (trace) in
@@ -378,7 +376,8 @@ h_1 : b = true
   [eqc] True propositions
     [prop] b = true
   [eqc] Equivalence classes
-    [eqc] {a, 10, if b = true then 10 else 20}
+    [eqc] {a, 10}
+      [eqc] {if b = true then 10 else 20}
     [eqc] {b, true}
   [cutsat] Assignment satisfying linear constraints
     [assign] a := 10

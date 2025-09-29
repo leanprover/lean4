@@ -1,4 +1,5 @@
-set_option grind.warning false
+module
+@[expose] public section -- TODO: remove after we fix congr_eq
 
 def f (a : Option Nat) (h : a ≠ none) : Nat :=
  match a with

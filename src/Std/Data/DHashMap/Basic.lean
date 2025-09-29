@@ -3,8 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.DHashMap.Raw
+public import Std.Data.DHashMap.Raw
+import all Std.Data.DHashMap.Raw
+
+public section
 
 /-!
 # Dependent hash maps
@@ -26,9 +31,9 @@ For implementation notes, see the docstring of the module `Std.Data.DHashMap.Int
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v w
+universe u v w w'
 
-variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w} [Monad m]
+variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w'} [Monad m]
 
 variable {_ : BEq α} {_ : Hashable α}
 
@@ -40,7 +45,7 @@ open DHashMap.Internal DHashMap.Internal.List
 Dependent hash maps.
 
 This is a simple separate-chaining hash table. The data of the hash map consists of a cached size
-and an array of buckets, where each bucket is a linked list of key-value pais. The number of buckets
+and an array of buckets, where each bucket is a linked list of key-value pairs. The number of buckets
 is always a power of two. The hash map doubles its size upon inserting an element such that the
 number of elements is more than 75% of the number of buckets.
 
@@ -61,7 +66,11 @@ be used in nested inductive types. For these use cases, `Std.DHashMap.Raw` and
 For a variant that is more convenient for use in proofs because of extensionalities, see
 `Std.ExtDHashMap` which is defined in the module `Std.Data.ExtDHashMap`.
 -/
-def DHashMap (α : Type u) (β : α → Type v) [BEq α] [Hashable α] := { m : DHashMap.Raw α β // m.WF }
+structure DHashMap (α : Type u) (β : α → Type v) [BEq α] [Hashable α] where
+  /-- Internal implementation detail of the hash map. -/
+  inner : DHashMap.Raw α β
+  /-- Internal implementation detail of the hash map. -/
+  wf : inner.WF
 
 namespace DHashMap
 
@@ -290,6 +299,18 @@ This function ensures that the value is used linearly.
   ⟨(Raw₀.Const.insertManyIfNewUnit ⟨m.1, m.2.size_buckets_pos⟩ l).1,
    (Raw₀.Const.insertManyIfNewUnit ⟨m.1, m.2.size_buckets_pos⟩ l).2 _ Raw.WF.insertIfNew₀ m.2⟩
 
+@[inline, inherit_doc Raw.toArray] def toArray (m : DHashMap α β) :
+    Array ((a : α) × β a) :=
+  m.1.toArray
+
+@[inline, inherit_doc Raw.Const.toArray] def Const.toArray {β : Type v}
+    (m : DHashMap α (fun _ => β)) : Array (α × β) :=
+  Raw.Const.toArray m.1
+
+@[inline, inherit_doc Raw.keysArray] def keysArray (m : DHashMap α β) :
+    Array α :=
+  m.1.keysArray
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -302,18 +323,6 @@ section Unverified
       (l.insert a b, r)
     else
       (l, r.insert a b)
-
-@[inline, inherit_doc Raw.toArray] def toArray (m : DHashMap α β) :
-    Array ((a : α) × β a) :=
-  m.1.toArray
-
-@[inline, inherit_doc Raw.Const.toArray] def Const.toArray {β : Type v}
-    (m : DHashMap α (fun _ => β)) : Array (α × β) :=
-  Raw.Const.toArray m.1
-
-@[inline, inherit_doc Raw.keysArray] def keysArray (m : DHashMap α β) :
-    Array α :=
-  m.1.keysArray
 
 @[inline, inherit_doc Raw.values] def values {β : Type v}
     (m : DHashMap α (fun _ => β)) : List β :=

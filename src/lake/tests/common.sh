@@ -13,7 +13,7 @@ echo "OS=$OS"
 UNAME="`uname`"
 echo "UNAME=$UNAME"
 
-if [ "${OS:-}" = Windows_NT ]; then
+if [ "$OS" = Windows_NT ]; then
 LIB_PREFIX=
 SHARED_LIB_EXT=dll
 elif [ "$UNAME" = Darwin ]; then
@@ -31,6 +31,24 @@ else
   sed_i() { sed -i "$@"; }
   TAIL=tail
 fi
+
+if [ "$OS" = Windows_NT ]; then
+  norm_dirname() { cygpath -u "$(dirname -- "$1")";  }
+else
+  norm_dirname() { dirname -- "$1"; }
+fi
+
+init_git() {
+  echo "# initialize test repository"
+  set -x
+  git init
+  git checkout -b master
+  git config user.name test
+  git config user.email test@example.com
+  git add --all
+  git commit -m "initial commit"
+  set +x
+}
 
 # Test functions
 
@@ -194,9 +212,9 @@ test_err() {
   expected=$1; shift
   if lake_out "$@"; then rc=$?; else rc=$?; fi
   if match_text "$expected" produced.out; then
-    if [ $rc != 1 ]; then
+    if [ $rc == 0 ]; then
       echo "FAILURE: Lake unexpectedly succeeded"
-      return 1
+      return $rc
     fi
   else
     return 1
@@ -209,22 +227,29 @@ test_maybe_err() {
   match_text "$expected" produced.out
 }
 
-check_diff() {
+check_diff_core() {
   expected=$1; actual=$2
   if diff -u --strip-trailing-cr "$expected" "$actual"; then
     cat "$actual"
     echo "Output matched expectations"
-    return 9
+    return 0
   else
     return 1
   fi
 }
 
+check_diff() {
+  expected=$1; actual=$2
+  cat "$actual" > produced.out
+  check_diff_core "$expected" produced.out
+}
+
 test_out_diff() {
   expected=$1; shift
+  cat "$expected" > produced.expected.out
   echo '$' lake "$@"
   if "$LAKE" "$@" >produced.out 2>&1; then rc=$?; else rc=$?; fi
-  if check_diff "$expected" produced.out; then
+  if check_diff_core produced.expected.out produced.out; then
     if [ $rc != 0 ]; then
       echo "FAILURE: Program exited with code $rc"
       return 1
@@ -233,23 +258,24 @@ test_out_diff() {
     if [ $rc != 0 ]; then
       echo "Program exited with code $rc"
     fi
+    return 1
   fi
 }
 
 test_err_diff() {
   expected=$1; shift
+  cat "$expected" > produced.expected.out
   echo '$' lake "$@"
   if "$LAKE" "$@" >produced.out 2>&1; then rc=$?; else rc=$?; fi
-  if check_diff "$expected" produced.out; then
-    if [ $rc != 1 ]; then
+  if check_diff_core produced.expected.out produced.out; then
+    if [ $rc == 0 ]; then
       echo "FAILURE: Lake unexpectedly succeeded"
       return 1
     fi
+    echo "Lake exited with code $rc"
   else
-    if [ $rc != 1 ]; then
-      echo "Lake exited with code $rc."
-    fi
-    return 0
+    echo "Lake exited with code $rc"
+    return 1
   fi
 }
 

@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.DTreeMap.Internal.WF.Defs
+public import Std.Data.DTreeMap.Internal.WF.Defs
+
+@[expose] public section
 
 /-!
 # Dependent tree maps
@@ -15,7 +19,7 @@ Lemmas about the operations on `Std.DTreeMap` will be available in the
 module `Std.Data.DTreeMap.Lemmas`.
 
 See the module `Std.Data.DTreeMap.Raw.Basic` for a variant of this type which is safe to use in
-nested inductive types.
+nested inductive types and `Std.Data.ExtDTreeMap.Basic` for a variant with extensionality.
 -/
 
 set_option autoImplicit false
@@ -24,7 +28,6 @@ set_option linter.missingDocs true
 universe u v w w₂
 
 variable {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 namespace Std
 
@@ -54,6 +57,10 @@ To avoid expensive copies, users should make sure that the tree map is used line
 Internally, the tree maps are represented as size-bounded trees, a type of self-balancing binary
 search tree with efficient order statistic lookups.
 
+For use in proofs, the type `Std.ExtDTreeMap` of extensional dependent tree maps should be
+preferred. This type comes with several extensionality lemmas and provides the same functions but
+requires a `TransCmp` instance to work with.
+
 These tree maps contain a bundled well-formedness invariant, which means that they cannot
 be used in nested inductive types. For these use cases, `Std.DTreeMap.Raw` and
 `Std.DTreeMap.Raw.WF` unbundle the invariant from the tree map. When in doubt, prefer
@@ -67,6 +74,8 @@ structure DTreeMap (α : Type u) (β : α → Type v) (cmp : α → α → Order
 
 namespace DTreeMap
 open Internal (Impl)
+
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 /--
 Creates a new empty tree map. It is also possible and recommended to
@@ -83,7 +92,14 @@ instance : EmptyCollection (DTreeMap α β cmp) where
 instance : Inhabited (DTreeMap α β cmp) where
   default := ∅
 
-@[simp]
+@[inherit_doc Impl.Equiv]
+structure Equiv (m₁ m₂ : DTreeMap α β cmp) where
+  /-- Internal implementation detail of the tree map -/
+  inner : m₁.1.Equiv m₂.1
+
+@[inherit_doc] scoped infix:50 " ~m " => Equiv
+
+@[simp, grind =]
 theorem empty_eq_emptyc : (empty : DTreeMap α β cmp) = ∅ :=
   rfl
 
@@ -197,10 +213,6 @@ Uses the `LawfulEqCmp` instance to cast the retrieved value to the correct type.
 def get? [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) : Option (β a) :=
   letI : Ord α := ⟨cmp⟩; t.inner.get? a
 
-@[inline, inherit_doc get?, deprecated get? (since := "2025-02-12")]
-def find? [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) : Option (β a) :=
-  t.get? a
-
 /--
 Given a proof that a mapping for the given key is present, retrieves the mapping for the given key.
 
@@ -219,10 +231,6 @@ Uses the `LawfulEqCmp` instance to cast the retrieved value to the correct type.
 def get! [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) [Inhabited (β a)]  : β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.get! a
 
-@[inline, inherit_doc get!, deprecated get! (since := "2025-02-12")]
-def find! [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) [Inhabited (β a)]  : β a :=
-  t.get! a
-
 /--
 Tries to retrieve the mapping for the given key, returning `fallback` if no such mapping is present.
 
@@ -231,10 +239,6 @@ Uses the `LawfulEqCmp` instance to cast the retrieved value to the correct type.
 @[inline]
 def getD [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (fallback : β a) : β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.getD a fallback
-
-@[inline, inherit_doc getD, deprecated getD (since := "2025-02-12")]
-def findD [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (fallback : β a) : β a :=
-  t.getD a fallback
 
 /--
 Checks if a mapping for the given key exists and returns the key if it does, otherwise `none`.
@@ -500,7 +504,7 @@ def getEntryLE? (t : DTreeMap α β cmp) (k : α) : Option ((a : α) × β a) :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryLE? k t.inner
 
 /--
-Tries to retrieve the key-value pair with the smallest key that is less than the given key,
+Tries to retrieve the key-value pair with the largest key that is less than the given key,
 returning `none` if no such pair exists.
 -/
 @[inline]
@@ -537,7 +541,7 @@ def getEntryLE! [Inhabited (Sigma β)] (t : DTreeMap α β cmp) (k : α) : (a : 
   letI : Ord α := ⟨cmp⟩; Impl.getEntryLE! k t.inner
 
 /--
-Tries to retrieve the key-value pair with the smallest key that is less than the given key,
+Tries to retrieve the key-value pair with the largest key that is less than the given key,
 panicking if no such pair exists.
 -/
 @[inline]
@@ -569,7 +573,7 @@ def getEntryLED (t : DTreeMap α β cmp) (k : α) (fallback : Sigma β) : (a : �
   letI : Ord α := ⟨cmp⟩; Impl.getEntryLED k t.inner fallback
 
 /--
-Tries to retrieve the key-value pair with the smallest key that is less than the given key,
+Tries to retrieve the key-value pair with the largest key that is less than the given key,
 returning `fallback` if no such pair exists.
 -/
 @[inline]
@@ -601,7 +605,7 @@ def getKeyLE? (t : DTreeMap α β cmp) (k : α) : Option α :=
   letI : Ord α := ⟨cmp⟩; t.inner.getKeyLE? k
 
 /--
-Tries to retrieve the smallest key that is less than the given key,
+Tries to retrieve the largest key that is less than the given key,
 returning `none` if no such key exists.
 -/
 @[inline]
@@ -638,7 +642,7 @@ def getKeyLE! [Inhabited α] (t : DTreeMap α β cmp) (k : α) : α :=
   letI : Ord α := ⟨cmp⟩; Impl.getKeyLE! k t.inner
 
 /--
-Tries to retrieve the smallest key that is less than the given key,
+Tries to retrieve the largest key that is less than the given key,
 panicking if no such key exists.
 -/
 @[inline]
@@ -670,7 +674,7 @@ def getKeyLED (t : DTreeMap α β cmp) (k : α) (fallback : α) : α :=
   letI : Ord α := ⟨cmp⟩; Impl.getKeyLED k t.inner fallback
 
 /--
-Tries to retrieve the smallest key that is less than the given key,
+Tries to retrieve the largest key that is less than the given key,
 returning `fallback` if no such key exists.
 -/
 @[inline]
@@ -692,10 +696,6 @@ def getThenInsertIfNew? (t : DTreeMap α β cmp) (a : α) (b : β) :
 def get? (t : DTreeMap α β cmp) (a : α) : Option β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get? t.inner a
 
-@[inline, inherit_doc get?, deprecated get? (since := "2025-02-12")]
-def find? (t : DTreeMap α β cmp) (a : α) : Option β :=
-  get? t a
-
 @[inline, inherit_doc DTreeMap.get]
 def get (t : DTreeMap α β cmp) (a : α) (h : a ∈ t) : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get t.inner a h
@@ -704,17 +704,9 @@ def get (t : DTreeMap α β cmp) (a : α) (h : a ∈ t) : β :=
 def get! (t : DTreeMap α β cmp) (a : α) [Inhabited β] : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get! t.inner a
 
-@[inline, inherit_doc get!, deprecated get! (since := "2025-02-12")]
-def find! (t : DTreeMap α β cmp) (a : α) [Inhabited β] : β :=
-  get! t a
-
 @[inline, inherit_doc DTreeMap.getD]
 def getD (t : DTreeMap α β cmp) (a : α) (fallback : β) : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.getD t.inner a fallback
-
-@[inline, inherit_doc getD, deprecated getD (since := "2025-02-12")]
-def findD (t : DTreeMap α β cmp) (a : α) (fallback : β) : β :=
-  getD t a fallback
 
 @[inline, inherit_doc DTreeMap.minEntry?]
 def minEntry? (t : DTreeMap α β cmp) : Option (α × β) :=
@@ -864,18 +856,10 @@ def filter (f : (a : α) → β a → Bool) (t : DTreeMap α β cmp) : DTreeMap 
 def foldlM (f : δ → (a : α) → β a → m δ) (init : δ) (t : DTreeMap α β cmp) : m δ :=
   t.inner.foldlM f init
 
-@[inline, inherit_doc foldlM, deprecated foldlM (since := "2025-02-12")]
-def foldM (f : δ → (a : α) → β a → m δ) (init : δ) (t : DTreeMap α β cmp) : m δ :=
-  t.foldlM f init
-
 /-- Folds the given function over the mappings in the map in ascending order. -/
 @[inline]
 def foldl (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α β cmp) : δ :=
   t.inner.foldl f init
-
-@[inline, inherit_doc foldl, deprecated foldl (since := "2025-02-12")]
-def fold (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α β cmp) : δ :=
-  t.foldl f init
 
 /-- Folds the given monadic function over the mappings in the map in descending order. -/
 @[inline]
@@ -886,10 +870,6 @@ def foldrM (f : (a : α) → β a → δ → m δ) (init : δ) (t : DTreeMap α 
 @[inline]
 def foldr (f : (a : α) → β a → δ → δ) (init : δ) (t : DTreeMap α β cmp) : δ :=
   t.inner.foldr f init
-
-@[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
-def revFold (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α β cmp) : δ :=
-  foldr (fun k v acc => f acc k v) init t
 
 /-- Partitions a tree map into two tree maps based on a predicate. -/
 @[inline] def partition (f : (a : α) → β a → Bool)
@@ -936,7 +916,7 @@ def forInUncurried (f : α × β → δ → m (ForInStep δ)) (init : δ) (t : D
 
 end Const
 
-/-- Check if any element satisfes the predicate, short-circuiting if a predicate fails. -/
+/-- Check if any element satisfies the predicate, short-circuiting if a predicate fails. -/
 @[inline]
 def any (t : DTreeMap α β cmp) (p : (a : α) → β a → Bool) : Bool := Id.run $ do
   for ⟨a, b⟩ in t do
@@ -981,10 +961,6 @@ def ofList (l : List ((a : α) × β a)) (cmp : α → α → Ordering := by exa
     DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.ofList l, Impl.WF.empty.insertMany⟩
 
-@[inline, inherit_doc ofList, deprecated ofList (since := "2025-02-12")]
-def fromList (l : List ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
-  ofList l cmp
-
 /-- Transforms the tree map into a list of mappings in ascending order. -/
 @[inline]
 def toArray (t : DTreeMap α β cmp) : Array ((a : α) × β a) :=
@@ -995,10 +971,6 @@ def toArray (t : DTreeMap α β cmp) : Array ((a : α) × β a) :=
 def ofArray (a : Array ((a : α) × β a)) (cmp : α → α → Ordering := by exact compare) :
     DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.ofArray a, Impl.WF.empty.insertMany⟩
-
-@[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-12")]
-def fromArray (a : Array ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
-  ofArray a cmp
 
 /--
 Modifies in place the value associated with a given key.
@@ -1039,11 +1011,6 @@ Hence, the runtime of this method scales logarithmically in the size of `t₁` a
 def mergeWith [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : DTreeMap α β cmp) :
     DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.mergeWith mergeFn t₂.inner t₁.wf.balanced |>.impl, t₁.wf.mergeWith⟩
-
-@[inline, inherit_doc mergeWith, deprecated mergeWith (since := "2025-02-12")]
-def mergeBy [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : DTreeMap α β cmp) :
-    DTreeMap α β cmp :=
-  mergeWith mergeFn t₁ t₂
 
 namespace Const
 
@@ -1091,10 +1058,6 @@ def alter (t : DTreeMap α β cmp) (a : α) (f : Option β → Option β) : DTre
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩;
   ⟨Impl.Const.mergeWith mergeFn t₁.inner t₂.inner t₁.wf.balanced |>.impl, t₁.wf.constMergeWith⟩
-
-@[inline, inherit_doc mergeWith, deprecated mergeWith (since := "2025-02-12")]
-def mergeBy (mergeFn : α → β → β → β) (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
-  mergeWith mergeFn t₁ t₂
 
 end Const
 

@@ -3,14 +3,18 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.Iterators.Basic
-import Std.Data.Iterators.Producers
-import Std.Data.Iterators.Consumers
-import Std.Data.Iterators.Combinators
-import Std.Data.Iterators.Lemmas
-import Std.Data.Iterators.PostConditionMonad
-import Std.Data.Iterators.Internal
+public import Init.Data.Iterators.Basic
+public import Init.Data.Iterators.Consumers
+public import Init.Data.Iterators.PostconditionMonad
+public import Init.Data.Iterators.Internal
+public import Std.Data.Iterators.Producers
+public import Std.Data.Iterators.Combinators
+public import Std.Data.Iterators.Lemmas
+
+@[expose] public section
 
 /-!
 # Iterators
@@ -67,7 +71,7 @@ steps are called productive. This behavior is encoded in the `Std.Iterators.Prod
 ## Stability
 
 The API for the usage of iterators provided in this module can be considered stable, as well as
-the API for the verification of programms using iterators, unless explicitly stated otherwise.
+the API for the verification of programs using iterators, unless explicitly stated otherwise.
 
 Contrarily, the API for implementation of new iterators, including the design of the `Iterator`
 typeclass, is still experimental and will change in the future. It is already planned that there
@@ -79,7 +83,9 @@ that needs to wait for a language feature.
 A distinction that cuts through the whole module is that between pure and monadic
 iterators. Each submodule contains a dedicated `Monadic` sub-submodule.
 
-All of the following module names are prefixed with `Std.Data.Iterators`.
+Depending on whether functionality is needed in `Init`, modules might exist in `Init` or in `Std`.
+The following module names can then be found under `Init.Data.Iterators`, `Std.Data.Iterators` or
+both.
 
 ### Basic iterator API
 
@@ -96,6 +102,8 @@ All of the following module names are prefixed with `Std.Data.Iterators`.
 ### Verification API
 
 `Lemmas` provides the means to verify programs that use iterators.
+
+In particular, `Lemmas.Equivalence` develops the theory of equivalences of iterators.
 
 ### Implementation details
 

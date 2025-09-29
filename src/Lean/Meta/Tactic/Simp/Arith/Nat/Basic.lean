@@ -3,14 +3,15 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Util.SortExprs
-import Lean.Meta.Check
+public import Lean.Util.SortExprs
+public import Lean.Meta.KExprMap
 import Lean.Meta.Offset
-import Lean.Meta.AppBuilder
-import Lean.Meta.KExprMap
 import Lean.Data.RArray
-
+import Lean.Meta.AppBuilder
+import Lean.Meta.NatInstTesters
+public section
 namespace Nat.Linear
 
 /-- Applies the given variable permutation to `e` -/

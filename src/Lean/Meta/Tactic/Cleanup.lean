@@ -3,9 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.CollectFVars
-import Lean.Meta.Tactic.Clear
+public import Lean.Meta.CollectFVars
+public import Lean.Meta.Tactic.Clear
+
+public section
 
 namespace Lean.Meta
 
@@ -69,7 +73,7 @@ where
   By default, `toPreserve := #[]` and `indirectProps := true`. These settings are used in the mathlib tactic `extract_goal`
   to give the user more control over which variables to include.
 -/
-abbrev _root_.Lean.MVarId.cleanup (mvarId : MVarId) (toPreserve : Array FVarId := #[]) (indirectProps : Bool := true) : MetaM MVarId := do
+@[inline] def _root_.Lean.MVarId.cleanup (mvarId : MVarId) (toPreserve : Array FVarId := #[]) (indirectProps : Bool := true) : MetaM MVarId := do
   cleanupCore mvarId toPreserve indirectProps
 
 end Lean.Meta

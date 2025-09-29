@@ -3,9 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftLeft
+public import Init.Data.BitVec.Bitblast
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftLeft
+
+@[expose] public section
 
 /-!
 This module contains the verification of the bitblasters for `BitVec.shiftLeft` from
@@ -38,20 +43,15 @@ theorem go_get_aux (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
     split at hgo
     · rw [← hgo]
       intros
-      rw [go_get_aux]
+      rw [go_get_aux (hidx := Nat.lt_succ_of_lt hidx) (hfoo := ‹_›)]
       rw [AIG.RefVec.get_push_ref_lt]
-      · simp only [Ref.cast, Ref.mk.injEq]
-        rw [AIG.RefVec.get_cast]
-        · simp
-        · assumption
-      · apply go_le_size
     · rw [← hgo]
       intros
-      rw [go_get_aux]
+      rw [go_get_aux (hidx := Nat.lt_succ_of_lt hidx) (hfoo := ‹_›)]
       rw [AIG.RefVec.get_push_ref_lt]
   · dsimp only at hgo
     rw [← hgo]
-    simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
+    simp only [Nat.le_refl]
     obtain rfl : curr = w := by omega
     simp
 termination_by w - curr
@@ -107,17 +107,18 @@ theorem go_denote_eq (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
       split at hgo
       · split
         · rw [← hgo]
-          rw [go_get]
+          rw [go_get]; case hidx => omega
           rw [AIG.RefVec.get_push_ref_eq']
           · rw [go_denote_mem_prefix]
-            · simp
+            · simp only [Ref.cast_eq]
+              rw [denote_mkConstCached]
             · simp [Ref.hgate]
           · rw [heq]
         · omega
       · split
         · omega
         · rw [← hgo]
-          rw [go_get]
+          rw [go_get]; case hidx => omega
           rw [AIG.RefVec.get_push_ref_eq']
           · rw [go_denote_mem_prefix]
             · simp [heq]
@@ -126,20 +127,19 @@ theorem go_denote_eq (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
     | inr =>
       split at hgo
       · split
-        · next hidx =>
+        next hidx =>
           rw [← hgo]
           rw [go_denote_eq]
           · simp [hidx]
           · omega
-        · next hidx =>
+        next hidx =>
           rw [← hgo]
           rw [go_denote_eq]
-          · simp only [hidx, ↓reduceDIte, RefVec.get_cast, Ref.cast_eq]
-            rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
+          · simp [hidx]
           · omega
       · split
         · omega
-        · next hidx =>
+        next hidx =>
           rw [← hgo]
           rw [go_denote_eq]
           · simp [hidx]
@@ -191,11 +191,11 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
   dsimp only at hg
   split at hg
   · split
-    · next hif1 =>
+    next hif1 =>
       rw [← hg]
       simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
         denote_blastShiftLeftConst]
-      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst)]
+      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst) (h := Ref.hgate _)]
       rw [hright]
       simp only [hif1, ↓reduceIte]
       have hmod : 2 ^ pow % 2 ^ n = 2 ^ pow := by
@@ -213,15 +213,15 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
           decide_true, Bool.true_and, Bool.eq_and_self, Bool.not_eq_true', decide_eq_false_iff_not,
           Nat.not_lt]
         omega
-    · next hif1 =>
+    next hif1 =>
       simp only [Bool.not_eq_true] at hif1
       rw [← hg]
       simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
         denote_blastShiftLeftConst]
-      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst)]
+      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst) (h := Ref.hgate _)]
       rw [hright]
       simp only [hif1, Bool.false_eq_true, ↓reduceIte]
-      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst)]
+      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst) (h := Ref.hgate _)]
       rw [hleft]
       simp
   · have : rhs.getLsbD pow = false := by
@@ -289,7 +289,7 @@ theorem denote_blastShiftLeft (aig : AIG α) (target : ArbitraryShiftTarget aig 
   unfold blastShiftLeft at hg
   dsimp only at hg
   split at hg
-  · next hzero =>
+  next hzero =>
     dsimp only
     subst hzero
     rw [← hg]

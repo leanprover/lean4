@@ -1,9 +1,8 @@
+module
 
 import Std.Data.HashSet
 
 open Std
-
-set_option grind.warning false
 
 namespace List
 

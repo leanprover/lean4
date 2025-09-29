@@ -3,18 +3,38 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.Meta.InferType
+public import Lean.Meta.Basic
+public import Lean.Meta.InferType
+
+public section
 
 namespace Lean.Meta
+
+private structure FunInfoEnvCacheKey where
+  c : Name
+  ls : List Level
+  maxArgs? : Option Nat
+deriving BEq, Hashable, TypeName
 
 @[inline] private def checkFunInfoCache (fn : Expr) (maxArgs? : Option Nat) (k : MetaM FunInfo) : MetaM FunInfo := do
   let key ← mkInfoCacheKey fn maxArgs?
   match (← get).cache.funInfo.find? key with
   | some finfo => return finfo
   | none       => do
-    let finfo ← k
+    let finfo ← match fn with
+      | .const c ls =>
+        -- If `fn` is only a single constant, we can share the result with any thread that can see `c`
+        -- as well.
+        if ls.any (·.hasMVar) then
+          -- However, if any level mvars are present, other threads should not be able to encounter
+          -- the same `fn` and sharing would just waste time.
+          k
+        else
+          realizeValue c { c, ls, maxArgs? : FunInfoEnvCacheKey } k
+      | _ => k
     modify fun s => { s with cache := { s.cache with funInfo := s.cache.funInfo.insert key finfo } }
     return finfo
 
@@ -59,7 +79,7 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
       forallBoundedTelescope fnType maxArgs? fun fvars type => do
         let mut paramInfo := #[]
         let mut higherOrderOutParams : FVarIdSet := {}
-        for h : i in [:fvars.size] do
+        for h : i in *...fvars.size do
           let fvar := fvars[i]
           let decl ← getFVarLocalDecl fvar
           let backDeps := collectDeps fvars decl.type
@@ -79,7 +99,7 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
               if let some outParamPositions := getOutParamPositions? (← getEnv) className then
                 unless outParamPositions.isEmpty do
                   let args := decl.type.getAppArgs
-                  for h2 : i in [:args.size] do
+                  for h2 : i in *...args.size do
                     if outParamPositions.contains i then
                       let arg := args[i]
                       if let some idx := fvars.idxOf? arg then
@@ -90,8 +110,8 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
         paramInfo := updateHasFwdDeps paramInfo resultDeps
         return { resultDeps, paramInfo }
 
-def getFunInfo (fn : Expr) : MetaM FunInfo :=
-  getFunInfoAux fn none
+def getFunInfo (fn : Expr) (maxArgs? : Option Nat := none) : MetaM FunInfo :=
+  getFunInfoAux fn maxArgs?
 
 def getFunInfoNArgs (fn : Expr) (nargs : Nat) : MetaM FunInfo :=
   getFunInfoAux fn (some nargs)

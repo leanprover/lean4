@@ -6,9 +6,12 @@ Authors: Kim Morrison
 module
 
 prelude
+public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
-import Init.Data.Array.Lemmas
-import Init.Data.List.Nat.Count
+public import Init.Data.Array.Lemmas
+public import Init.Data.List.Nat.Count
+
+public section
 
 /-!
 # Lemmas about `Array.countP` and `Array.count`.
@@ -52,6 +55,7 @@ theorem countP_push {a : α} {xs : Array α} : countP p (xs.push a) = countP p x
   rcases xs with ⟨xs⟩
   simp_all
 
+@[grind =]
 theorem countP_singleton {a : α} : countP p #[a] = if p a then 1 else 0 := by
   simp
 
@@ -59,10 +63,12 @@ theorem size_eq_countP_add_countP {xs : Array α} : xs.size = countP p xs + coun
   rcases xs with ⟨xs⟩
   simp [List.length_eq_countP_add_countP (p := p)]
 
+@[grind =]
 theorem countP_eq_size_filter {xs : Array α} : countP p xs = (filter p xs).size := by
   rcases xs with ⟨xs⟩
   simp [List.countP_eq_length_filter]
 
+@[grind =]
 theorem countP_eq_size_filter' : countP p = size ∘ filter p := by
   funext xs
   apply countP_eq_size_filter
@@ -71,7 +77,7 @@ theorem countP_le_size : countP p xs ≤ xs.size := by
   simp only [countP_eq_size_filter]
   apply size_filter_le
 
-@[simp] theorem countP_append {xs ys : Array α} : countP p (xs ++ ys) = countP p xs + countP p ys := by
+@[simp, grind =] theorem countP_append {xs ys : Array α} : countP p (xs ++ ys) = countP p xs + countP p ys := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
   simp
@@ -102,6 +108,7 @@ theorem boole_getElem_le_countP {xs : Array α} {i : Nat} (h : i < xs.size) :
   rcases xs with ⟨xs⟩
   simp [List.boole_getElem_le_countP]
 
+@[grind =]
 theorem countP_set {xs : Array α} {i : Nat} {a : α} (h : i < xs.size) :
     (xs.set i a).countP p = xs.countP p - (if p xs[i] then 1 else 0) + (if p a then 1 else 0) := by
   rcases xs with ⟨xs⟩
@@ -146,7 +153,7 @@ theorem countP_flatMap {p : β → Bool} {xs : Array α} {f : α → Array β} :
   rcases xs with ⟨xs⟩
   simp [List.countP_flatMap, Function.comp_def]
 
-@[simp] theorem countP_reverse {xs : Array α} : countP p xs.reverse = countP p xs := by
+@[simp, grind =] theorem countP_reverse {xs : Array α} : countP p xs.reverse = countP p xs := by
   rcases xs with ⟨xs⟩
   simp [List.countP_reverse]
 
@@ -173,7 +180,7 @@ variable [BEq α]
   cases xs
   simp
 
-@[simp] theorem count_empty {a : α} : count a #[] = 0 := rfl
+@[simp, grind =] theorem count_empty {a : α} : count a #[] = 0 := rfl
 
 theorem count_push {a b : α} {xs : Array α} :
     count a (xs.push b) = count a xs + if b == a then 1 else 0 := by
@@ -186,21 +193,28 @@ theorem count_eq_countP' {a : α} : count a = countP (· == a) := by
 
 theorem count_le_size {a : α} {xs : Array α} : count a xs ≤ xs.size := countP_le_size
 
+grind_pattern count_le_size => count a xs
+
+@[grind =]
+theorem count_eq_size_filter {a : α} {xs : Array α} : count a xs = (filter (· == a) xs).size := by
+  simp [count, countP_eq_size_filter]
+
 theorem count_le_count_push {a b : α} {xs : Array α} : count a xs ≤ count a (xs.push b) := by
   simp [count_push]
 
+@[grind =]
 theorem count_singleton {a b : α} : count a #[b] = if b == a then 1 else 0 := by
   simp [count_eq_countP]
 
-@[simp] theorem count_append {a : α} {xs ys : Array α} : count a (xs ++ ys) = count a xs + count a ys :=
+@[simp, grind =] theorem count_append {a : α} {xs ys : Array α} : count a (xs ++ ys) = count a xs + count a ys :=
   countP_append
 
-@[simp] theorem count_flatten {a : α} {xss : Array (Array α)} :
+@[simp, grind =] theorem count_flatten {a : α} {xss : Array (Array α)} :
     count a xss.flatten = (xss.map (count a)).sum := by
   cases xss using array₂_induction
   simp [List.count_flatten, Function.comp_def]
 
-@[simp] theorem count_reverse {a : α} {xs : Array α} : count a xs.reverse = count a xs := by
+@[simp, grind =] theorem count_reverse {a : α} {xs : Array α} : count a xs.reverse = count a xs := by
   rcases xs with ⟨xs⟩
   simp
 
@@ -209,9 +223,10 @@ theorem boole_getElem_le_count {xs : Array α} {i : Nat} {a : α} (h : i < xs.si
   rw [count_eq_countP]
   apply boole_getElem_le_countP (p := (· == a))
 
+@[grind =]
 theorem count_set {xs : Array α} {i : Nat} {a b : α} (h : i < xs.size) :
     (xs.set i a).count b = xs.count b - (if xs[i] == b then 1 else 0) + (if a == b then 1 else 0) := by
-  simp [count_eq_countP, countP_set, h]
+  simp [count_eq_countP, countP_set]
 
 variable [LawfulBEq α]
 
@@ -219,7 +234,7 @@ variable [LawfulBEq α]
   simp [count_push]
 
 @[simp] theorem count_push_of_ne {xs : Array α} (h : b ≠ a) : count a (xs.push b) = count a xs := by
-  simp_all [count_push, h]
+  simp_all [count_push]
 
 theorem count_singleton_self {a : α} : count a #[a] = 1 := by simp
 
@@ -280,17 +295,17 @@ abbrev mkArray_count_eq_of_count_eq_size := @replicate_count_eq_of_count_eq_size
 theorem count_le_count_map [BEq β] [LawfulBEq β] {xs : Array α} {f : α → β} {x : α} :
     count x xs ≤ count (f x) (map f xs) := by
   rcases xs with ⟨xs⟩
-  simp [List.count_le_count_map, countP_map]
+  simp [List.count_le_count_map]
 
 theorem count_filterMap {α} [BEq β] {b : β} {f : α → Option β} {xs : Array α} :
     count b (filterMap f xs) = countP (fun a => f a == some b) xs := by
   rcases xs with ⟨xs⟩
-  simp [List.count_filterMap, countP_filterMap]
+  simp [List.count_filterMap]
 
 theorem count_flatMap {α} [BEq β] {xs : Array α} {f : α → Array β} {x : β} :
     count x (xs.flatMap f) = sum (map (count x ∘ f) xs) := by
   rcases xs with ⟨xs⟩
-  simp [List.count_flatMap, countP_flatMap, Function.comp_def]
+  simp [List.count_flatMap, Function.comp_def]
 
 theorem countP_replace {a b : α} {xs : Array α} {p : α → Bool} :
     (xs.replace a b).countP p =

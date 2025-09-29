@@ -3,12 +3,13 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Init.Grind.Offset
-import Lean.Meta.Tactic.Grind.Types
+public import Init.Grind.Offset
+public import Lean.Meta.Tactic.Grind.Arith.Offset.Types
 import Lean.Meta.Tactic.Grind.Arith.Offset.Proof
 import Lean.Meta.Tactic.Grind.Arith.Offset.Util
-
+public section
 namespace Lean.Meta.Grind.Arith.Offset
 /-!
 This module implements a decision procedure for offset constraints of the form:
@@ -31,11 +32,11 @@ The main advantage of this module over a full linear integer arithmetic procedur
 its ability to efficiently detect all implied equalities and inequalities.
 -/
 
-def get' : GoalM State := do
-  return (← get).arith.offset
+def get' : GoalM State :=
+  offsetExt.getState
 
 @[inline] def modify' (f : State → State) : GoalM Unit := do
-  modify fun s => { s with arith.offset := f s.arith.offset }
+  offsetExt.modifyState f
 
 def mkNode (expr : Expr) : GoalM NodeId := do
   if let some nodeId := (← get').nodeMap.find? { expr } then
@@ -49,7 +50,7 @@ def mkNode (expr : Expr) : GoalM NodeId := do
     targets := s.targets.push {}
     proofs  := s.proofs.push {}
   }
-  markAsOffsetTerm expr
+  offsetExt.markTerm expr
   return nodeId
 
 private def getExpr (u : NodeId) : GoalM Expr := do
@@ -143,7 +144,8 @@ private def propagateEqFalse (e : Expr) (u v : NodeId) (k k' : Int) : GoalM Unit
 
 /-- Propagates all pending constraints and equalities and resets to "to do" list. -/
 private def propagatePending : GoalM Unit := do
-  let todo ← modifyGet fun s => (s.arith.offset.propagate, { s with arith.offset.propagate := [] })
+  let todo := (← get').propagate
+  modify' fun s => { s with propagate := [] }
   for p in todo do
     match p with
     | .eqTrue e u v k k' => propagateEqTrue e u v k k'
@@ -235,14 +237,14 @@ def Cnstr.toExpr (c : Cnstr NodeId) : GoalM Expr := do
 def checkInvariants : GoalM Unit := do
   unless (← isInconsistent) do
   let s ← get'
-  for u in [:s.targets.size], es in s.targets.toArray do
+  for u in *...s.targets.size, es in s.targets.toArray do
     for (v, k) in es do
       let c : Cnstr NodeId := { u, v, k }
       trace[grind.debug.offset] "{c}"
       let p ← mkProofForPath u v
       trace[grind.debug.offset.proof] "{p} : {← inferType p}"
       check p
-      unless (← withDefault <| isDefEq (← inferType p) (← Cnstr.toExpr c)) do
+      unless (← isDefEqD (← inferType p) (← Cnstr.toExpr c)) do
         throwError "`grind` internal error in the offset constraint module, constraint{indentExpr (← Cnstr.toExpr c)}\nis not definitionally equal to type of its proof{indentExpr (← inferType p)}"
 
 /--
@@ -330,6 +332,7 @@ private def alreadyInternalized (e : Expr) : GoalM Bool := do
   return s.cnstrs.contains { expr := e } || s.nodeMap.contains { expr := e }
 
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
+  unless (← getConfig).offset do return ()
   if (← alreadyInternalized e) then
     return ()
   let z ← getNatZeroExpr
@@ -341,8 +344,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     else if let some k := isNatNum? e then
       internalizeTerm e z k
 
-@[export lean_process_new_offset_eq]
-def processNewEqImpl (a b : Expr) : GoalM Unit := do
+def processNewEq (a b : Expr) : GoalM Unit := do
   unless isSameExpr a b do
     trace[grind.offset.eq.to] "{a}, {b}"
     let u ← getNodeId a
@@ -353,7 +355,7 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
 
 def traceDists : GoalM Unit := do
   let s ← get'
-  for u in [:s.targets.size], es in s.targets.toArray do
+  for u in *...s.targets.size, es in s.targets.toArray do
     for (v, k) in es do
       trace[grind.offset.dist] "#{u} -({k})-> #{v}"
 

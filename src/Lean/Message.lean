@@ -5,25 +5,53 @@ Author: Sebastian Ullrich, Leonardo de Moura
 
 Message type used by the Lean frontend
 -/
+module
+
 prelude
-import Lean.Data.Position
-import Lean.Data.OpenDecl
-import Lean.MetavarContext
-import Lean.Environment
-import Lean.Util.PPExt
-import Lean.Util.Sorry
+public import Init.Data.Slice.Array
+public import Lean.Data.Position
+public import Lean.Data.OpenDecl
+public import Lean.MetavarContext
+public import Lean.Environment
+public import Lean.Util.PPExt
+public import Lean.Util.Sorry
+
+public section
 
 namespace Lean
 
-def mkErrorStringWithPos (fileName : String) (pos : Position) (msg : String) (endPos : Option Position := none) : String :=
+/--
+Creates a string describing an error message `msg` produced at `pos`, optionally ending at `endPos`,
+in `fileName`.
+
+Additional optional arguments can be used to prepend a label `kind` describing the severity of
+the error (e.g., `"warning"` or `"error"`) and a bracketed `name` label displaying the name of the
+error if it has one.
+-/
+def mkErrorStringWithPos (fileName : String) (pos : Position) (msg : String)
+    (endPos : Option Position := none) (kind : Option String := none) (name : Option Name := none)
+    : String :=
   let endPos := match endPos with
     | some endPos => s!"-{endPos.line}:{endPos.column}"
     | none        => ""
-  s!"{fileName}:{pos.line}:{pos.column}{endPos}: {msg}"
+  let label := if name.isSome || kind.isSome then
+    let name := name.map (s!"({·})")
+    s!" {kind.getD ""}{name.getD ""}:"
+  else
+    ""
+  s!"{fileName}:{pos.line}:{pos.column}{endPos}:{label} {msg}"
 
 inductive MessageSeverity where
   | information | warning | error
   deriving Inhabited, BEq, ToJson, FromJson
+
+def MessageSeverity.toString : MessageSeverity → String
+  | .information => "information"
+  | .warning => "warning"
+  | .error => "error"
+
+instance : ToString MessageSeverity where
+  toString := MessageSeverity.toString
 
 structure MessageDataContext where
   env  : Environment
@@ -153,6 +181,16 @@ def isTrace : MessageData → Bool
   | tagged _ msg            => msg.isTrace
   | .trace _ _ _            => true
   | _                       => false
+
+/--
+`composePreservingKind msg msg'` appends the contents of `msg'` to the end of `msg` but ensures that
+the resulting message preserves the kind (as given by `MessageData.kind`) of `msg`.
+-/
+def composePreservingKind : MessageData → MessageData → MessageData
+  | withContext ctx msg     , msg' => withContext ctx (composePreservingKind msg msg')
+  | withNamingContext nc msg, msg' => withNamingContext nc (composePreservingKind msg msg')
+  | tagged t msg            , msg' => tagged t (compose msg msg')
+  | msg                     , msg' => compose msg msg'
 
 /-- An empty message. -/
 def nil : MessageData :=
@@ -401,6 +439,51 @@ structure SerialMessage extends BaseMessage String where
   kind          : Name
   deriving ToJson, FromJson
 
+/--
+A suffix added to diagnostic name-containing tags to indicate that they should be used as an error
+code.
+-/
+def errorNameSuffix := "_namedError"
+
+/--
+Creates a tag (i.e., message kind) for an error message with (user-facing) name `errorName`.
+-/
+def kindOfErrorName (errorName : Name) : Name :=
+  .str errorName errorNameSuffix
+
+/--
+Produces a `MessageData` tagged with an identifier for error `name`.
+
+Note: this function generally should not be called directly; instead, use the macros `logNamedError`
+and `throwNamedError`.
+-/
+def MessageData.tagWithErrorName (msg : MessageData) (name : Name) : MessageData :=
+  .tagged (kindOfErrorName name) msg
+
+/--
+If the provided name is labeled as a diagnostic name, removes the label and returns the
+corresponding diagnostic name.
+
+Note: we use this labeling mechanism so that we can have error kinds that are not intended to be
+shown to the user, without having to validate the presence of an error explanation at runtime.
+-/
+def errorNameOfKind? : Name → Option Name
+  | .str p last => if last == errorNameSuffix then some p else none
+  | _ => none
+
+/--
+Returns the error name with which `msg` is tagged, if one exists.
+
+Note that this is distinct from `msg.kind`: the `kind` of a named-error message is not equal to its
+name, and there exist message kinds that are not error-name kinds.
+-/
+def MessageData.errorName? (msg : MessageData) : Option Name :=
+  errorNameOfKind? msg.kind
+
+@[inherit_doc MessageData.errorName?]
+def Message.errorName? (msg : Message) : Option Name :=
+  msg.data.errorName?
+
 namespace SerialMessage
 
 @[inline] def toMessage (msg : SerialMessage) : Message :=
@@ -413,8 +496,10 @@ protected def toString (msg : SerialMessage) (includeEndPos := false) : String :
     str := msg.caption ++ ":\n" ++ str
   match msg.severity with
   | .information => pure ()
-  | .warning     => str := mkErrorStringWithPos msg.fileName msg.pos (endPos := endPos) "warning: " ++ str
-  | .error       => str := mkErrorStringWithPos msg.fileName msg.pos (endPos := endPos) "error: " ++ str
+  | .warning     =>
+    str := mkErrorStringWithPos msg.fileName msg.pos str endPos "warning" (errorNameOfKind? msg.kind)
+  | .error       =>
+    str := mkErrorStringWithPos msg.fileName msg.pos str endPos "error" (errorNameOfKind? msg.kind)
   if str.isEmpty || str.back != '\n' then
     str := str ++ "\n"
   return str
@@ -489,7 +574,7 @@ def add (msg : Message) (log : MessageLog) : MessageLog :=
 protected def append (l₁ l₂ : MessageLog) : MessageLog where
   reported := l₁.reported ++ l₂.reported
   unreported := l₁.unreported ++ l₂.unreported
-  loggedKinds := l₁.loggedKinds.union l₂.loggedKinds
+  loggedKinds := l₁.loggedKinds.merge l₂.loggedKinds
 
 instance : Append MessageLog :=
   ⟨MessageLog.append⟩
@@ -544,7 +629,9 @@ actually rendered. Consider using this function in lazy message data to avoid un
 computation for messages that are not displayed.
 -/
 private def MessageData.formatLength (ctx : PPContext) (msg : MessageData) : BaseIO Nat := do
-  let { env, mctx, lctx, opts, ..} := ctx
+  let { env, mctx, lctx, opts, currNamespace, openDecls } := ctx
+  -- Simulate the naming context that will be added to the actual message
+  let msg := MessageData.withNamingContext { currNamespace, openDecls } msg
   let fmt ← msg.format (some { env, mctx, lctx, opts })
   return fmt.pretty.length
 
@@ -564,9 +651,24 @@ def inlineExpr (e : Expr) (maxInlineLength := 30) : MessageData :=
       if (← msg.formatLength ctx) > maxInlineLength then
         return indentD msg ++ "\n"
       else
-        return " " ++ msg ++ " ")
+        return " `" ++ msg ++ "` ")
     (fun mctx => instantiateMVarsCore mctx e |>.1.hasSyntheticSorry)
-    (fun () => return " " ++ MessageData.ofExpr e ++ " ")
+    (fun () => return " `" ++ MessageData.ofExpr e ++ "` ")
+
+/--
+See `Lean.inlineExpr`. This variation is to be used when the expression is the trailing element of a
+message; it does not append a newline or space after the expression.
+-/
+def inlineExprTrailing (e : Expr) (maxInlineLength := 30) : MessageData :=
+  .lazy
+    (fun ctx => do
+      let msg := MessageData.ofExpr e
+      if (← msg.formatLength ctx) > maxInlineLength then
+        return indentD msg
+      else
+        return " `" ++ msg ++ "`")
+    (fun mctx => instantiateMVarsCore mctx e |>.1.hasSyntheticSorry)
+    (fun () => return " `" ++ MessageData.ofExpr e ++ "`")
 
 /-- Atom quotes -/
 def aquote (msg : MessageData) : MessageData :=
@@ -622,7 +724,7 @@ instance : ToMessageData MVarId        := ⟨MessageData.ofGoal⟩
 instance : ToMessageData MessageData   := ⟨id⟩
 instance [ToMessageData α] : ToMessageData (List α)  := ⟨fun as => MessageData.ofList <| as.map toMessageData⟩
 instance [ToMessageData α] : ToMessageData (Array α) := ⟨fun as => toMessageData as.toList⟩
-instance [ToMessageData α] : ToMessageData (Subarray α) := ⟨fun as => toMessageData as.toArray.toList⟩
+instance [ToMessageData α] : ToMessageData (Subarray α) := ⟨fun as => toMessageData as.toList⟩
 instance [ToMessageData α] : ToMessageData (Option α) := ⟨fun | none => "none" | some e => "some (" ++ toMessageData e ++ ")"⟩
 instance [ToMessageData α] [ToMessageData β] : ToMessageData (α × β) :=
   ⟨fun (a, b) => .paren <| toMessageData a ++ "," ++ Format.line ++ toMessageData b⟩

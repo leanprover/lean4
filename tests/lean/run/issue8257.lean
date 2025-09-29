@@ -1,4 +1,7 @@
-/-- info: Try this: termination_by xs.length / 2 - i -/
+/--
+info: Try this:
+  termination_by xs.length / 2 - i
+-/
 #guard_msgs in
 def foo (xs : String) (i : Nat) (a b : String.Iterator) : Bool :=
   if xs.length / 2 ≤ i then
@@ -9,7 +12,10 @@ def foo (xs : String) (i : Nat) (a b : String.Iterator) : Bool :=
     foo xs (i + 1) a.next b.prev
 termination_by?
 
-/-- info: Try this: termination_by xs.length / 2 - i -/
+/--
+info: Try this:
+  termination_by xs.length / 2 - i
+-/
 #guard_msgs in
 def bar (xs : String) (i : Nat) (a b : String.Iterator) : Bool :=
   if i < xs.length / 2 then
@@ -22,7 +28,10 @@ def bar (xs : String) (i : Nat) (a b : String.Iterator) : Bool :=
 termination_by?
 
 
-/-- info: Try this: termination_by xs.length / 2 - i -/
+/--
+info: Try this:
+  termination_by xs.length / 2 - i
+-/
 #guard_msgs in
 def baz (xs : String) (i : Nat) (a b : String.Iterator) : Bool :=
   if ¬ (i < xs.length / 2) then

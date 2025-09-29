@@ -6,9 +6,11 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Nat.Basic
-import Init.Data.Nat.Div.Basic
-import Init.Coe
+public import Init.Data.Nat.Basic
+public import Init.Data.Nat.Div.Basic
+public import Init.Coe
+
+public section
 
 namespace Nat
 
@@ -95,7 +97,7 @@ def shiftRight : @& Nat → @& Nat → Nat
 
 instance : AndOp Nat := ⟨Nat.land⟩
 instance : OrOp Nat := ⟨Nat.lor⟩
-instance : Xor Nat := ⟨Nat.xor⟩
+instance : XorOp Nat := ⟨Nat.xor⟩
 instance : ShiftLeft Nat := ⟨Nat.shiftLeft⟩
 instance : ShiftRight Nat := ⟨Nat.shiftRight⟩
 
@@ -103,9 +105,9 @@ theorem shiftLeft_eq (a b : Nat) : a <<< b = a * 2 ^ b :=
   match b with
   | 0 => (Nat.mul_one _).symm
   | b+1 => (shiftLeft_eq _ b).trans <| by
-    simp [Nat.pow_succ, Nat.mul_assoc, Nat.mul_left_comm, Nat.mul_comm]
+    simp [Nat.pow_succ, Nat.mul_assoc, Nat.mul_comm]
 
-@[simp] theorem shiftRight_zero : n >>> 0 = n := rfl
+@[simp, grind =] theorem shiftRight_zero : n >>> 0 = n := rfl
 
 theorem shiftRight_succ (m n) : m >>> (n + 1) = (m >>> n) / 2 := rfl
 
@@ -135,7 +137,7 @@ of a number.
 /--
 Returns `true` if the `(n+1)`th least significant bit is `1`, or `false` if it is `0`.
 -/
-def testBit (m n : Nat) : Bool :=
+@[expose] def testBit (m n : Nat) : Bool :=
   -- `1 &&& n` is faster than `n &&& 1` for big `n`.
   1 &&& (m >>> n) != 0
 

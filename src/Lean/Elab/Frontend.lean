@@ -3,11 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Language.Lean
-import Lean.Util.Profile
-import Lean.Server.References
-import Lean.Util.Profiler
+public import Lean.Language.Lean
+public import Lean.Util.Profile
+public import Lean.Server.References
+public import Lean.Util.Profiler
+
+public section
 
 namespace Lean.Elab.Frontend
 
@@ -112,9 +116,9 @@ where
         |>.foldl (· ++ ·) {}
       -- In contrast to messages, we should collect info trees only from the top-level command
       -- snapshots as they subsume any info trees reported incrementally by their children.
-      let trees := commands.map (·.infoTreeSnap.get.infoTree?) |>.filterMap id |>.toPArray'
+      let trees := commands.map (·.elabSnap.infoTreeSnap.get.infoTree?) |>.filterMap id |>.toPArray'
       return {
-        commandState := { snap.resultSnap.get.cmdState with messages, infoState.trees := trees }
+        commandState := { snap.elabSnap.resultSnap.get.cmdState with messages, infoState.trees := trees }
         parserState := snap.parserState
         cmdPos := snap.parserState.pos
         commands := commands.map (·.stx)
@@ -132,20 +136,19 @@ def process (input : String) (env : Environment) (opts : Options) (fileName : Op
   let s ← IO.processCommands inputCtx { : Parser.ModuleParserState } (Command.mkState env {} opts)
   pure (s.commandState.env, s.commandState.messages)
 
-@[export lean_run_frontend]
 def runFrontend
     (input : String)
     (opts : Options)
     (fileName : String)
     (mainModuleName : Name)
     (trustLevel : UInt32 := 0)
-    (oleanFileName? : Option String := none)
-    (ileanFileName? : Option String := none)
+    (oleanFileName? : Option System.FilePath := none)
+    (ileanFileName? : Option System.FilePath := none)
     (jsonOutput : Bool := false)
     (errorOnKinds : Array Name := #[])
     (plugins : Array System.FilePath := #[])
     (printStats : Bool := false)
-    (setupFileName? : Option System.FilePath := none)
+    (setup? : Option ModuleSetup := none)
     : IO (Option Environment) := do
   let startTime := (← IO.monoNanosNow).toFloat / 1000000000
   let inputCtx := Parser.mkInputContext input fileName
@@ -154,17 +157,16 @@ def runFrontend
   let opts := Elab.async.setIfNotSet opts true
   let ctx := { inputCtx with }
   let setup stx := do
-    if let some file := setupFileName? then
-      let setup ← ModuleSetup.load file
+    if let some setup := setup? then
       liftM <| setup.dynlibs.forM Lean.loadDynlib
       return .ok {
         trustLevel
         mainModuleName := setup.name
-        isModule := setup.isModule
-        imports := setup.imports
+        isModule := strictOr setup.isModule stx.isModule
+        imports := setup.imports?.getD stx.imports
         plugins := plugins ++ setup.plugins
-        modules := setup.modules
-        -- override cmdline options with header options
+        importArts := setup.importArts
+        -- override cmdline options with setup options
         opts := opts.mergeBy (fun _ _ hOpt => hOpt) setup.options.toOptions
       }
     else
@@ -200,7 +202,12 @@ def runFrontend
   if let some ileanFileName := ileanFileName? then
     let trees := snaps.getAll.flatMap (match ·.infoTree? with | some t => #[t] | _ => #[])
     let references := Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false)
-    let ilean := { module := mainModuleName, references := ← references.toLspModuleRefs : Lean.Server.Ilean }
+    let ilean := {
+      module        := mainModuleName
+      directImports := Server.collectImports ⟨snap.stx⟩
+      references    := ← references.toLspModuleRefs
+      : Lean.Server.Ilean
+    }
     IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
 
   if let some out := trace.profiler.output.get? opts then

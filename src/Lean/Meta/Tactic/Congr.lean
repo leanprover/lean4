@@ -3,13 +3,17 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.CongrTheorems
-import Lean.Meta.Tactic.Assert
-import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Clear
-import Lean.Meta.Tactic.Refl
-import Lean.Meta.Tactic.Assumption
+public import Lean.Meta.CongrTheorems
+public import Lean.Meta.Tactic.Assert
+public import Lean.Meta.Tactic.Apply
+public import Lean.Meta.Tactic.Clear
+public import Lean.Meta.Tactic.Refl
+public import Lean.Meta.Tactic.Assumption
+
+public section
 
 namespace Lean
 open Meta
@@ -46,7 +50,7 @@ def MVarId.congr? (mvarId : MVarId) : MetaM (Option (List MVarId)) :=
     let some (_, lhs, _) := target.eq? | return none
     let lhs := lhs.cleanupAnnotations
     unless lhs.isApp do return none
-    let some congrThm ← mkCongrSimp? lhs.getAppFn (subsingletonInstImplicitRhs := false) | return none
+    let some congrThm ← mkCongrSimp? lhs.getAppFn (subsingletonInstImplicitRhs := false) (maxArgs? := lhs.getAppNumArgs) | return none
     applyCongrThm? mvarId congrThm
 
 /--
@@ -62,7 +66,7 @@ def MVarId.hcongr? (mvarId : MVarId) : MetaM (Option (List MVarId)) := do
       let some (_, lhs, _, _) := target.heq? | return none
       let lhs := lhs.cleanupAnnotations
       unless lhs.isApp do return none
-      let congrThm ← mkHCongr lhs.getAppFn
+      let congrThm ← mkHCongrWithArity lhs.getAppFn lhs.getAppNumArgs
       applyCongrThm? mvarId congrThm
 
 /--
@@ -70,11 +74,12 @@ Try to apply `implies_congr`.
 -/
 def MVarId.congrImplies? (mvarId : MVarId) : MetaM (Option (List MVarId)) :=
   observing? do
-    let mvarId₁ :: mvarId₂ :: _ ← mvarId.apply (← mkConstWithFreshMVarLevels ``implies_congr) | throwError "unexpected number of goals"
+    let mvarId₁ :: mvarId₂ :: _ ← mvarId.apply (← mkConstWithFreshMVarLevels ``implies_congr)
+      | throwError "Internal error: Expected at least two goals after applying `{.ofConstName ``implies_congr}`, but unexpectedly found fewer"
     return [mvarId₁, mvarId₂]
 
 /--
-Given a goal of the form `⊢ f as = f bs`, `⊢ (p → q) = (p' → q')`, or `⊢ HEq (f as) (f bs)`, try to apply congruence.
+Given a goal of the form `⊢ f as = f bs`, `⊢ (p → q) = (p' → q')`, or `⊢ f as ≍ f bs`, try to apply congruence.
 It takes proof irrelevance into account, and the fact that `Decidable p` is a subsingleton.
 -/
 def MVarId.congrCore (mvarId : MVarId) : MetaM (List MVarId) := do
@@ -85,10 +90,10 @@ def MVarId.congrCore (mvarId : MVarId) : MetaM (List MVarId) := do
   else if let some mvarIds ← mvarId.congrImplies? then
     pure mvarIds
   else
-    throwTacticEx `congr mvarId "failed to apply congruence"
+    throwTacticEx `congr mvarId "Failed to apply congruence"
 
 /--
-Given a goal of the form `⊢ f as = f bs`, `⊢ (p → q) = (p' → q')`, or `⊢ HEq (f as) (f bs)`, try to apply congruence.
+Given a goal of the form `⊢ f as = f bs`, `⊢ (p → q) = (p' → q')`, or `⊢ f as ≍ f bs`, try to apply congruence.
 It takes proof irrelevance into account, and the fact that `Decidable p` is a subsingleton.
 
 * Applies `congr` recursively up to depth `depth`.

@@ -7,12 +7,17 @@ Authors: Shreyas Srinivas, François G. Dorais, Kim Morrison
 module
 
 prelude
-import Init.Data.Array.Lemmas
-import Init.Data.Array.MapIdx
-import Init.Data.Array.InsertIdx
-import Init.Data.Array.Range
-import Init.Data.Range
-import Init.Data.Stream
+public meta import Init.Coe
+public import Init.Data.Stream
+public import Init.Data.Array.Lemmas
+public import Init.Data.Array.MapIdx
+public import Init.Data.Array.InsertIdx
+public import Init.Data.Array.Range
+public import Init.Data.Range
+-- TODO: Making this private leads to a panic in Init.Grind.Ring.Poly.
+public import Init.Data.Slice.Array.Iterator
+
+public section
 
 /-!
 # Vectors
@@ -31,7 +36,7 @@ structure Vector (α : Type u) (n : Nat) where
   size_toArray : toArray.size = n
 deriving Repr, DecidableEq
 
-attribute [simp, grind] Vector.size_toArray
+attribute [simp, grind =] Vector.size_toArray
 
 /--
 Converts an array to a vector. The resulting vector's size is the array's size.
@@ -49,6 +54,11 @@ syntax (name := «term#v[_,]») "#v[" withoutPosition(term,*,?) "]" : term
 open Lean in
 macro_rules
   | `(#v[ $elems,* ]) => `(Vector.mk (n := $(quote elems.getElems.size)) #[$elems,*] rfl)
+
+@[app_unexpander Vector.mk]
+meta def unexpandMk : Lean.PrettyPrinter.Unexpander
+  | `($_ #[ $elems,* ] $_) => `(#v[ $elems,* ])
+  | _ => throw ()
 
 recommended_spelling "empty" for "#v[]" in [Vector.mk, «term#v[_,]»]
 recommended_spelling "singleton" for "#v[x]" in [Vector.mk, «term#v[_,]»]
@@ -300,8 +310,7 @@ def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : N
 @[inline, expose] def zipIdx (xs : Vector α n) (k : Nat := 0) : Vector (α × Nat) n :=
   ⟨xs.toArray.zipIdx k, by simp⟩
 
-@[deprecated zipIdx (since := "2025-01-21")]
-abbrev zipWithIndex := @zipIdx
+
 
 @[inline, expose] def zip (as : Vector α n) (bs : Vector β n) : Vector (α × β) n :=
   ⟨as.toArray.zip bs.toArray, by simp⟩
@@ -423,8 +432,7 @@ no element of the index matches the given value.
 @[inline, expose] def finIdxOf? [BEq α] (xs : Vector α n) (x : α) : Option (Fin n) :=
   (xs.toArray.finIdxOf? x).map (Fin.cast xs.size_toArray)
 
-@[deprecated finIdxOf? (since := "2025-01-29")]
-abbrev indexOf? := @finIdxOf?
+
 
 /-- Finds the first index of a given value in a vector using a predicate. Returns `none` if the
 no element of the index matches the given value. -/
@@ -541,8 +549,9 @@ instance : ForM m (Vector α n) α where
 
 /-! ### ToStream instance -/
 
+@[no_expose]
 instance : ToStream (Vector α n) (Subarray α) where
-  toStream xs := xs.toArray[:n]
+  toStream xs := xs.toArray[*...*]
 
 /-! ### Lexicographic ordering -/
 
@@ -557,7 +566,7 @@ Lexicographic comparator for vectors.
 - there is an index `i` such that `lt v[i] w[i]`, and for all `j < i`, `v[j] == w[j]`.
 -/
 def lex [BEq α] (xs ys : Vector α n) (lt : α → α → Bool := by exact (· < ·)) : Bool := Id.run do
-  for h : i in [0 : n] do
+  for h : i in 0...n do
     if lt xs[i] ys[i] then
       return true
     else if xs[i] != ys[i] then

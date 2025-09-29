@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.CNF
-import Std.Sat.AIG.Basic
-import Std.Sat.AIG.Lemmas
+public import Std.Sat.CNF
+public import Std.Sat.AIG.Basic
+public import Std.Sat.AIG.Lemmas
+
+public section
 
 
 /-!
@@ -264,11 +268,11 @@ def Cache.addFalse (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size
         intro assign heval idx hbound hmarked
         rw [Array.getElem_set] at hmarked
         split at hmarked
-        · next heq =>
+        next heq =>
           simp only [heq, CNF.eval_append, Decl.falseToCNF_eval, Bool.and_eq_true, beq_iff_eq]
             at htip heval
           simp [denote_idx_false htip, projectRightAssign_property, heval]
-        · next heq =>
+        next heq =>
           simp only [CNF.eval_append, Decl.falseToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
           have := cache.inv assign heval.right idx hbound hmarked
           rw [this]
@@ -294,10 +298,10 @@ def Cache.addAtom (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
         intro assign heval idx hbound hmarked
         rw [Array.getElem_set] at hmarked
         split at hmarked
-        · next heq =>
+        next heq =>
           simp only [heq, CNF.eval_append, Decl.atomToCNF_eval, Bool.and_eq_true, beq_iff_eq] at htip heval
           simp [heval, denote_idx_atom htip]
-        · next heq =>
+        next heq =>
           simp only [CNF.eval_append, Decl.atomToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
           have := cache.inv assign heval.right idx hbound hmarked
           rw [this]
@@ -333,7 +337,7 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
         intro assign heval idx hbound hmarked
         rw [Array.getElem_set] at hmarked
         split at hmarked
-        · next heq =>
+        next heq =>
           simp only [heq, CNF.eval_append, Decl.gateToCNF_eval, Bool.and_eq_true, beq_iff_eq]
             at htip heval
           have hleval := cache.inv assign heval.right lhs.gate (by omega) hl
@@ -342,7 +346,7 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
           generalize lhs.invert = linv
           generalize rhs.invert = rinv
           cases linv <;> cases rinv <;> simp [hleval, hreval]
-        · next heq =>
+        next heq =>
           simp only [CNF.eval_append, Decl.gateToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
           have := cache.inv assign heval.right idx hbound hmarked
           rw [this]
@@ -591,7 +595,7 @@ where
 The function we use to convert from CNF with explicit auxiliary variables to just `Nat` variables
 in `toCNF` is an injection.
 -/
-theorem toCNF.inj_is_injection {aig : AIG Nat} (a b : CNFVar aig) :
+private theorem toCNF.inj_is_injection {aig : AIG Nat} (a b : CNFVar aig) :
     toCNF.inj a = toCNF.inj b → a = b := by
   intro h
   cases a with
@@ -619,21 +623,21 @@ theorem toCNF.inj_is_injection {aig : AIG Nat} (a b : CNFVar aig) :
 /--
 The node that we started CNF conversion at will always be marked as visited in the CNF cache.
 -/
-theorem toCNF.go_marks :
+private theorem toCNF.go_marks :
     (go aig start h state).val.cache.marks[start]'(by have := (go aig start h state).val.cache.hmarks; omega) = true :=
   (go aig start h state).property.trueAt
 
 /--
 The CNF returned by `go` will always be SAT at `cnfSatAssignment`.
 -/
-theorem toCNF.go_sat (aig : AIG Nat) (start : Nat) (h1 : start < aig.decls.size) (assign1 : Nat → Bool)
+private theorem toCNF.go_sat (aig : AIG Nat) (start : Nat) (h1 : start < aig.decls.size) (assign1 : Nat → Bool)
     (state : toCNF.State aig) :
     (go aig start h1 state).val.Sat (cnfSatAssignment aig assign1)  := by
   have := (go aig start h1 state).val.inv assign1
   rw [State.sat_iff]
   simp [this]
 
-theorem toCNF.go_as_denote' (aig : AIG Nat) (start) (inv) (h1) (assign1) :
+private theorem toCNF.go_as_denote' (aig : AIG Nat) (start) (inv) (h1) (assign1) :
     ⟦aig, ⟨start, inv, h1⟩, assign1⟧ → (go aig start h1 (.empty aig)).val.eval (cnfSatAssignment aig assign1) := by
   have := go_sat aig start h1 assign1 (.empty aig)
   simp only [State.Sat, CNF.sat_def] at this
@@ -642,7 +646,7 @@ theorem toCNF.go_as_denote' (aig : AIG Nat) (start) (inv) (h1) (assign1) :
 /--
 Connect SAT results about the CNF to SAT results about the AIG.
 -/
-theorem toCNF.go_as_denote (aig : AIG Nat) (start) (h1) (assign1) :
+private theorem toCNF.go_as_denote (aig : AIG Nat) (start) (h1) (assign1) :
     ((⟦aig, ⟨start, inv, h1⟩, assign1⟧ && (go aig start h1 (.empty aig)).val.eval (cnfSatAssignment aig assign1)) = sat?)
       →
     (⟦aig, ⟨start, inv, h1⟩, assign1⟧ = sat?) := by
@@ -652,7 +656,7 @@ theorem toCNF.go_as_denote (aig : AIG Nat) (start) (h1) (assign1) :
 /--
 Connect SAT results about the AIG to SAT results about the CNF.
 -/
-theorem toCNF.denote_as_go {assign : AIG.CNFVar aig → Bool} :
+private theorem toCNF.denote_as_go {assign : AIG.CNFVar aig → Bool} :
     (⟦aig, ⟨start, inv, h1⟩, projectLeftAssign assign⟧ = false)
       →
     CNF.eval assign (([(.inr ⟨start, h1⟩, !inv)] :: (go aig start h1 (.empty aig)).val.cnf)) = false := by

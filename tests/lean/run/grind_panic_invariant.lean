@@ -1,3 +1,4 @@
+module
 -- grind fails, but also produces a panic.
 
 @[grind] inductive star (R : α → α → Prop) : α → α → Prop where
@@ -5,8 +6,6 @@
   | star_step : ∀ x y z, R x y → star R y z → star R x z
 
 set_option grind.debug true
-set_option grind.warning false
-
 inductive com: Type where
   | SKIP
   | ASSIGN

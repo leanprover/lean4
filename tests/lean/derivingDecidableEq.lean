@@ -23,3 +23,8 @@ deriving DecidableEq
 #eval
   List'.nil.cons 0 rfl
   = (List'.nil.cons 0 rfl).cons 1 rfl
+
+structure A
+deriving DecidableEq
+
+#eval A.mk = A.mk

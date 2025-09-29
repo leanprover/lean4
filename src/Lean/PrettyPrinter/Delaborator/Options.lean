@@ -3,8 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Data.Options
+public import Lean.Data.Options
+
+public section
 
 namespace Lean
 
@@ -29,10 +33,15 @@ register_builtin_option pp.parens : Bool := {
   group    := "pp"
   descr    := "(pretty printer) if set to true, notation is wrapped in parentheses regardless of precedence"
 }
+register_builtin_option pp.unicode : Bool := {
+  defValue := true
+  group    := "pp"
+  descr    := "(pretty printer) if set to false, avoid using non-unicode symbols when formatting"
+}
 register_builtin_option pp.unicode.fun : Bool := {
   defValue := false
   group    := "pp"
-  descr    := "(pretty printer) disable/enable unicode ↦ notation for functions"
+  descr    := "(pretty printer) if set to true, use unicode `↦` notation for functions"
 }
 register_builtin_option pp.match : Bool := {
   defValue := true
@@ -78,6 +87,17 @@ register_builtin_option pp.piBinderTypes : Bool := {
   defValue := true
   group    := "pp"
   descr    := "(pretty printer) display types of pi parameters"
+}
+register_builtin_option pp.piBinderNames : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) display names for pi parameters, even if they are unused; \
+    when `pp.piBinderNames.hygienic` is false then unused hygienic parameters are not displayed."
+}
+register_builtin_option pp.piBinderNames.hygienic : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) if false, disables displaying names for unused pi parameters with hygienic names."
 }
 register_builtin_option pp.foralls : Bool := {
   defValue := true
@@ -267,6 +287,8 @@ def getPPMaxSteps (o : Options) : Nat := o.get pp.maxSteps.name pp.maxSteps.defV
 def getPPAll (o : Options) : Bool := o.get pp.all.name false
 def getPPFunBinderTypes (o : Options) : Bool := o.get pp.funBinderTypes.name (getPPAll o)
 def getPPPiBinderTypes (o : Options) : Bool := o.get pp.piBinderTypes.name pp.piBinderTypes.defValue
+def getPPPiBinderNames (o : Options) : Bool := o.get pp.piBinderNames.name (getPPAll o)
+def getPPPiBinderNamesHygienic (o : Options) : Bool := o.get pp.piBinderNames.hygienic.name pp.piBinderNames.hygienic.defValue
 def getPPLetVarTypes (o : Options) : Bool := o.get pp.letVarTypes.name (getPPAll o)
 def getPPNumericTypes (o : Options) : Bool := o.get pp.numericTypes.name pp.numericTypes.defValue
 def getPPNatLit (o : Options) : Bool := o.get pp.natLit.name (getPPNumericTypes o && !getPPAll o)
@@ -276,7 +298,8 @@ def getPPExplicit (o : Options) : Bool := o.get pp.explicit.name (getPPAll o)
 def getPPForalls (o : Options) : Bool := o.get pp.foralls.name pp.foralls.defValue
 def getPPNotation (o : Options) : Bool := o.get pp.notation.name (!getPPAll o)
 def getPPParens (o : Options) : Bool := o.get pp.parens.name pp.parens.defValue
-def getPPUnicodeFun (o : Options) : Bool := o.get pp.unicode.fun.name false
+def getPPUnicode (o : Options) : Bool := o.get pp.unicode.name pp.unicode.defValue
+def getPPUnicodeFun (o : Options) : Bool := o.get pp.unicode.fun.name pp.unicode.fun.defValue
 def getPPMatch (o : Options) : Bool := o.get pp.match.name (!getPPAll o)
 def getPPSorrySource (o : Options) : Bool := o.get pp.sorrySource.name pp.sorrySource.defValue
 def getPPFieldNotation (o : Options) : Bool := o.get pp.fieldNotation.name (!getPPAll o)

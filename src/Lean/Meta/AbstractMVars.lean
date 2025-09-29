@@ -3,8 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Basic
+public import Lean.Meta.Basic
+
+public section
 
 namespace Lean.Meta
 namespace AbstractMVars
@@ -78,7 +82,7 @@ partial def abstractExprMVars (e : Expr) : M Expr := do
     | e@(Expr.mdata _ b)       => return e.updateMData! (← abstractExprMVars b)
     | e@(Expr.lam _ d b _)     => return e.updateLambdaE! (← abstractExprMVars d) (← abstractExprMVars b)
     | e@(Expr.forallE _ d b _) => return e.updateForallE! (← abstractExprMVars d) (← abstractExprMVars b)
-    | e@(Expr.letE _ t v b _)  => return e.updateLet! (← abstractExprMVars t) (← abstractExprMVars v) (← abstractExprMVars b)
+    | e@(Expr.letE _ t v b _)  => return e.updateLetE! (← abstractExprMVars t) (← abstractExprMVars v) (← abstractExprMVars b)
     | e@(Expr.mvar mvarId)     =>
       let decl := (← getMCtx).getDecl mvarId
       if decl.depth != (← getMCtx).depth then

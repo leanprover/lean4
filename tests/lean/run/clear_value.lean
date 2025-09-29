@@ -17,6 +17,21 @@ example : let x := 22; 0 ≤ x := by
   exact Nat.zero_le _
 
 /-!
+Check that `clear_value` preserves the order of the local context.
+-/
+/--
+trace: x : Nat
+y : Nat := 23
+⊢ True
+-/
+#guard_msgs in
+example : let _x := 22; let _y := 23; True := by
+  intro x y
+  clear_value x
+  trace_state
+  trivial
+
+/-!
 Test `*` mode.
 -/
 /--
@@ -31,7 +46,7 @@ example : let x := 22; 0 ≤ x := by
   exact Nat.zero_le _
 
 /-!
-Double `*` is not allowd.
+Double `*` is not allowed.
 -/
 /-- error: Multiple `*` arguments provided. -/
 #guard_msgs in
@@ -167,7 +182,7 @@ example : let x := 22; 0 ≤ x := by
 Error if unification does not solve all metavariables.
 -/
 /--
-error: don't know how to synthesize placeholder for argument 'e'
+error: don't know how to synthesize placeholder for argument `e`
 context:
 x : Nat := ⋯
 ⊢ Nat
@@ -347,3 +362,19 @@ example : True := by
     clear_value val -- used to fail
     rfl
   trivial
+
+/-!
+Local context order preservation.
+-/
+/--
+trace: x : Nat
+y : Nat := 2
+z : Nat := 3
+⊢ x + y = x + z - 1
+-/
+#guard_msgs in
+example : let x := 1; let y := 2; let z := 3; x + y = x + z - 1 := by
+  intro x y z
+  clear_value x
+  trace_state
+  rfl

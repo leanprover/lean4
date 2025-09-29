@@ -3,8 +3,12 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Lean.Parser.Extension
+public import Lean.Parser.Extension
+
+public section
 
 /-! Environment extension to register preferred spellings of notations in identifiers. -/
 
@@ -31,9 +35,9 @@ builtin_initialize recommendedSpellingByNameExt
   registerPersistentEnvExtension {
     mkInitial := pure {},
     addImportedFn := fun _ => pure {},
-    addEntryFn := fun es (rec, xs) => xs.foldl (init := es) fun es x => es.insert x (es.findD x #[] |>.push rec),
+    addEntryFn := fun es (rec, xs) => xs.foldl (init := es) fun es x => es.insert x (es.getD x #[] |>.push rec),
     exportEntriesFn := fun es =>
-      es.fold (fun a src tgt => a.push (src, tgt)) #[] |>.qsort (Name.quickLt ·.1 ·.1)
+      es.foldl (fun a src tgt => a.push (src, tgt)) #[] |>.qsort (Name.quickLt ·.1 ·.1)
   }
 
 /-- Recommended spellings for notations, stored in such a way that it is easy to generate a table

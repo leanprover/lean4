@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.RefVec
-import Std.Sat.AIG.LawfulVecOperator
+public import Std.Sat.AIG.RefVec
+public import Std.Sat.AIG.LawfulVecOperator
+
+@[expose] public section
 
 namespace Std
 namespace Sat
@@ -19,14 +23,8 @@ variable {α : Type} [Hashable α] [DecidableEq α] {aig : AIG α}
 def fold (aig : AIG α) (vec : RefVec aig len)
     (func : (aig : AIG α) → BinaryInput aig → Entrypoint α) [LawfulOperator α BinaryInput func] :
     Entrypoint α :=
-  let res := aig.mkConstCached true
-  let aig := res.aig
-  let acc := res.ref
-  let input := vec.cast <| by
-    intros
-    apply LawfulOperator.le_size_of_le_aig_size (f := mkConstCached)
-    omega
-  go aig acc 0 len input func
+  let acc := aig.mkConstCached true
+  go aig acc 0 len vec func
 where
   @[specialize]
   go (aig : AIG α) (acc : Ref aig) (idx : Nat) (len : Nat) (input : RefVec aig len)
@@ -50,7 +48,7 @@ theorem fold.go_le_size {aig : AIG α} (acc : Ref aig) (idx : Nat) (s : RefVec a
     aig.decls.size ≤ (go aig acc idx len s f).1.decls.size := by
   unfold go
   split
-  · next h =>
+  next h =>
     dsimp only
     refine Nat.le_trans ?_ (by apply fold.go_le_size)
     apply LawfulOperator.le_size
@@ -63,8 +61,7 @@ theorem fold_le_size {aig : AIG α} (vec : RefVec aig len)
     aig.decls.size ≤ (fold aig vec func).1.decls.size := by
   unfold fold
   dsimp only
-  refine Nat.le_trans ?_ (by apply fold.go_le_size)
-  apply LawfulOperator.le_size (f := mkConstCached)
+  apply fold.go_le_size
 
 theorem fold.go_decl_eq {aig : AIG α} (acc : Ref aig) (i : Nat) (s : RefVec aig len)
     (f : (aig : AIG α) → BinaryInput aig → Entrypoint α) [LawfulOperator α BinaryInput f] :
@@ -95,9 +92,6 @@ theorem fold_decl_eq {aig : AIG α} (vec : RefVec aig len)
   unfold fold
   dsimp only
   rw [fold.go_decl_eq]
-  rw [LawfulOperator.decl_eq (f := mkConstCached)]
-  apply LawfulOperator.lt_size_of_lt_aig_size (f := mkConstCached)
-  assumption
 
 theorem fold_lt_size_of_lt_aig_size (aig : AIG α) (vec : RefVec aig len)
     (func : (aig : AIG α) → BinaryInput aig → Entrypoint α) [LawfulOperator α BinaryInput func]
@@ -177,18 +171,7 @@ theorem denote_fold_and {aig : AIG α} (s : RefVec aig len) :
     (∀ (idx : Nat) (hidx : idx < len), ⟦aig, s.get idx hidx, assign⟧) := by
   unfold fold
   rw [fold.denote_go_and]
-  · simp only [denote_projected_entry, mkConstCached_eval_eq_mkConst_eval, denote_mkConst,
-    Nat.zero_le, get_cast, Ref.cast_eq, true_implies, true_and]
-    constructor
-    · intro h idx hidx
-      specialize h idx hidx
-      rw [AIG.LawfulOperator.denote_mem_prefix (f := mkConstCached)] at h
-      rw [← h]
-    · intro h idx hidx
-      specialize h idx hidx
-      rw [AIG.LawfulOperator.denote_mem_prefix (f := mkConstCached)]
-      · simp only [← h]
-      · apply RefVec.hrefs
+  · simp
   · omega
 
 end RefVec

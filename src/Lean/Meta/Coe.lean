@@ -3,19 +3,32 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Transform
-import Lean.Meta.SynthInstance
-import Lean.Meta.AppBuilder
+public import Lean.Meta.Transform
+public import Lean.Meta.SynthInstance
+public import Lean.Meta.AppBuilder
+import Lean.ExtraModUses
+
+public section
 
 namespace Lean.Meta
 
+/--
+Tags declarations to be unfolded during coercion elaboration.
+
+This is mostly used to hide coercion implementation details and show the coerced result instead of
+an application of auxiliary definitions (e.g. `CoeT.coe`, `Coe.coe`). This attribute only works on
+reducible functions and instance projections.
+-/
+@[builtin_doc]
 builtin_initialize coeDeclAttr : TagAttribute ←
   registerTagAttribute `coe_decl "auxiliary definition used to implement coercion (unfolded during elaboration)"
 
 /--
-  Return true iff `declName` is one of the auxiliary definitions/projections
-  used to implement coercions.
+Return true iff `declName` is one of the auxiliary definitions/projections used to implement
+coercions.
 -/
 def isCoeDecl (env : Environment) (declName : Name) : Bool :=
   coeDeclAttr.hasTag env declName
@@ -28,6 +41,11 @@ partial def expandCoe (e : Expr) : MetaM Expr :=
       if f.isConst then
         let declName := f.constName!
         if isCoeDecl (← getEnv) declName then
+          for arg in e.getAppArgs do
+            -- The following should record at least the top-level instance as a dependency, which
+            -- appears to be good enough for now.
+            if let .const n .. := arg then
+              recordExtraModUseFromDecl (isMeta := false) n
           if let some e ← unfoldDefinition? e then
             return .visit e.headBeta
       return .continue
@@ -47,7 +65,7 @@ def coerceSimple? (expr expectedType : Expr) : MetaM (LOption Expr) := do
   | .some inst =>
     let result ← expandCoe (mkAppN (mkConst ``CoeT.coe [u, v]) #[eType, expr, expectedType, inst])
     unless ← isDefEq (← inferType result) expectedType do
-      throwError "could not coerce{indentExpr expr}\nto{indentExpr expectedType}\ncoerced expression has wrong type:{indentExpr result}"
+      throwError "Could not coerce{indentExpr expr}\nto{indentExpr expectedType}\ncoerced expression has wrong type:{indentExpr result}"
     return .some result
   | .undef => return .undef
   | .none => return .none
@@ -62,7 +80,8 @@ def coerceToFunction? (expr : Expr) : MetaM (Option Expr) := do
   let .some inst ← trySynthInstance (mkApp2 (.const ``CoeFun [u,v]) α γ) | return none
   let expanded ← expandCoe (mkApp4 (.const ``CoeFun.coe [u,v]) α γ inst expr)
   unless (← whnf (← inferType expanded)).isForall do
-    throwError "failed to coerce{indentExpr expr}\nto a function, after applying `CoeFun.coe`, result is still not a function{indentExpr expanded}\nthis is often due to incorrect `CoeFun` instances, the synthesized instance was{indentExpr inst}"
+    throwError m!"Failed to coerce{indentExpr expr}\nto a function: After applying `CoeFun.coe`, result is still not a function{indentExpr expanded}"
+      ++ .hint' m!"This is often due to incorrect `CoeFun` instances; the synthesized instance was{indentExpr inst}"
   return expanded
 
 /-- Coerces `expr` to a type. -/
@@ -75,7 +94,8 @@ def coerceToSort? (expr : Expr) : MetaM (Option Expr) := do
   let .some inst ← trySynthInstance (mkApp2 (.const ``CoeSort [u,v]) α β) | return none
   let expanded ← expandCoe (mkApp4 (.const ``CoeSort.coe [u,v]) α β inst expr)
   unless (← whnf (← inferType expanded)).isSort do
-    throwError "failed to coerce{indentExpr expr}\nto a type, after applying `CoeSort.coe`, result is still not a type{indentExpr expanded}\nthis is often due to incorrect `CoeSort` instances, the synthesized instance was{indentExpr inst}"
+    throwError m!"Failed to coerce{indentExpr expr}\nto a type: After applying `CoeSort.coe`, result is still not a type{indentExpr expanded}"
+      ++ .hint' m!"This is often due to incorrect `CoeSort` instances; the synthesized instance was{indentExpr inst}"
   return expanded
 
 /-- Return `some (m, α)` if `type` can be reduced to an application of the form `m α` using `[reducible]` transparency. -/

@@ -1,4 +1,7 @@
-import Std.Data.HashMap.Lemmas
+module
+public import Std.Data.HashMap.Lemmas
+@[expose] public section -- TODO: remove after we fix congr_eq
+
 
 -- This is a variant of the "if normalization" example, acting as a regression test for a now-fixed problem in grind.
 -- It is not a solution to the "if normalization" challenge.
@@ -99,8 +102,6 @@ def IfNormalization : Type := { Z : IfExpr → IfExpr // ∀ e, (Z e).normalized
 -/
 
 -- `grind` is currently experimental, but for now we can suppress the warnings about this.
-set_option grind.warning false
-
 namespace IfExpr
 
 attribute [grind] List.mem_cons List.not_mem_nil List.mem_append

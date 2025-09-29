@@ -135,7 +135,7 @@ example : ∀ n : Nat, n = (let x := 0; n + x) := by
   rfl
 
 /-!
-Lifting `letFun` under a binder, dependency.
+Lifting `have` under a binder, dependency.
 -/
 /--
 trace: ⊢ ∀ (n : Nat),
@@ -150,7 +150,7 @@ example : ∀ n : Nat, n = (have x := n; x) := by
   rfl
 
 /-!
-Lifting `letFun` under a binder, no dependency.
+Lifting `have` under a binder, no dependency.
 -/
 /--
 trace: ⊢ have x := 0;
@@ -198,7 +198,8 @@ example : (fun (_ : let ty := Nat; ty) => Nat) (2 : Nat) := by
 When `-types`, doesn't lift out of binder type.
 -/
 /--
-error: tactic 'lift_lets' failed, made no progress
+error: Tactic `lift_lets` failed: made no progress
+
 ⊢ (fun x => Nat) 2
 -/
 #guard_msgs in
@@ -283,7 +284,8 @@ example : ∀ n : Nat, let x := n; let y := 0; x + y = n := by
 Doesn't lift from implicit arguments by default
 -/
 /--
-error: tactic 'lift_lets' failed, made no progress
+error: Tactic `lift_lets` failed: made no progress
+
 ⊢ id = id
 -/
 #guard_msgs in

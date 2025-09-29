@@ -3,13 +3,15 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.SearchM
 import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.EMatch
-import Lean.Meta.Tactic.Grind.Arith
 import Lean.Meta.Tactic.Grind.Lookahead
-import Lean.Meta.Tactic.Grind.SearchM
-
+import Lean.Meta.Tactic.Grind.Intro
+public section
 namespace Lean.Meta.Grind
 def tryFallback : GoalM Bool := do
   (← getMethods).fallback
@@ -47,7 +49,8 @@ where
           intros gen
         else
           break
-      if (← assertAll <||> Arith.check <||> ematch <||> lookahead <||> splitNext <||> Arith.Cutsat.mbtc <||> tryFallback) then
+      if (← assertAll <||> Solvers.check <||> ematch <||> lookahead <||> splitNext
+           <||> Solvers.mbtc <||> tryFallback) then
         continue
       return some (← getGoal) -- failed
     return none -- solved

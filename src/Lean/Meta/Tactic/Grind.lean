@@ -3,34 +3,46 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.Attr
-import Lean.Meta.Tactic.Grind.RevertAll
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Util
-import Lean.Meta.Tactic.Grind.Cases
-import Lean.Meta.Tactic.Grind.Injection
-import Lean.Meta.Tactic.Grind.Core
-import Lean.Meta.Tactic.Grind.Canon
-import Lean.Meta.Tactic.Grind.MarkNestedProofs
-import Lean.Meta.Tactic.Grind.Inv
-import Lean.Meta.Tactic.Grind.Proof
-import Lean.Meta.Tactic.Grind.Propagate
-import Lean.Meta.Tactic.Grind.PP
-import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Ctor
-import Lean.Meta.Tactic.Grind.Parser
-import Lean.Meta.Tactic.Grind.EMatchTheorem
-import Lean.Meta.Tactic.Grind.EMatch
-import Lean.Meta.Tactic.Grind.Main
-import Lean.Meta.Tactic.Grind.CasesMatch
-import Lean.Meta.Tactic.Grind.Arith
-import Lean.Meta.Tactic.Grind.Ext
-import Lean.Meta.Tactic.Grind.MatchCond
-import Lean.Meta.Tactic.Grind.MatchDiscrOnly
-import Lean.Meta.Tactic.Grind.Diseq
-import Lean.Meta.Tactic.Grind.MBTC
-import Lean.Meta.Tactic.Grind.Lookahead
+public import Lean.Meta.Tactic.Grind.Attr
+public import Lean.Meta.Tactic.Grind.RevertAll
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Util
+public import Lean.Meta.Tactic.Grind.Cases
+public import Lean.Meta.Tactic.Grind.Injection
+public import Lean.Meta.Tactic.Grind.Core
+public import Lean.Meta.Tactic.Grind.Canon
+public import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
+public import Lean.Meta.Tactic.Grind.Inv
+public import Lean.Meta.Tactic.Grind.Proof
+public import Lean.Meta.Tactic.Grind.Propagate
+public import Lean.Meta.Tactic.Grind.PP
+public import Lean.Meta.Tactic.Grind.Simp
+public import Lean.Meta.Tactic.Grind.Ctor
+public import Lean.Meta.Tactic.Grind.Parser
+public import Lean.Meta.Tactic.Grind.EMatchTheorem
+public import Lean.Meta.Tactic.Grind.EMatch
+public import Lean.Meta.Tactic.Grind.Main
+public import Lean.Meta.Tactic.Grind.CasesMatch
+public import Lean.Meta.Tactic.Grind.Arith
+public import Lean.Meta.Tactic.Grind.Ext
+public import Lean.Meta.Tactic.Grind.MatchCond
+public import Lean.Meta.Tactic.Grind.MatchDiscrOnly
+public import Lean.Meta.Tactic.Grind.Diseq
+public import Lean.Meta.Tactic.Grind.MBTC
+public import Lean.Meta.Tactic.Grind.Lookahead
+public import Lean.Meta.Tactic.Grind.LawfulEqCmp
+public import Lean.Meta.Tactic.Grind.ReflCmp
+public import Lean.Meta.Tactic.Grind.SynthInstance
+public import Lean.Meta.Tactic.Grind.AC
+public import Lean.Meta.Tactic.Grind.VarRename
+public import Lean.Meta.Tactic.Grind.ProofUtil
+public import Lean.Meta.Tactic.Grind.PropagateInj
+public import Lean.Meta.Tactic.Grind.Order
+
+public section
 
 namespace Lean
 
@@ -70,7 +82,7 @@ builtin_initialize registerTraceClass `grind.debug.final
 builtin_initialize registerTraceClass `grind.debug.forallPropagator
 builtin_initialize registerTraceClass `grind.debug.split
 builtin_initialize registerTraceClass `grind.debug.canon
-builtin_initialize registerTraceClass `grind.debug.ematch.activate
+builtin_initialize registerTraceClass `grind.debug.theorem.activate
 builtin_initialize registerTraceClass `grind.debug.ematch.pattern
 builtin_initialize registerTraceClass `grind.debug.beta
 builtin_initialize registerTraceClass `grind.debug.internalize

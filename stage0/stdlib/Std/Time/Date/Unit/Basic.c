@@ -13,15 +13,15 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Std_Time_Day_Offset_ofWeeks___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_toWeeks___boxed(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
+static lean_object* l_Std_Time_Day_Offset_ofWeeks___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_ofWeeks___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_toWeeks(lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_ofWeeks(lean_object*);
 lean_object* lean_int_ediv(lean_object*, lean_object*);
-static lean_object* _init_l_Std_Time_Day_Offset_ofWeeks___closed__1() {
+static lean_object* _init_l_Std_Time_Day_Offset_ofWeeks___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -34,7 +34,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_ofWeeks(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Std_Time_Day_Offset_ofWeeks___closed__1;
+x_2 = l_Std_Time_Day_Offset_ofWeeks___closed__0;
 x_3 = lean_int_mul(x_1, x_2);
 return x_3;
 }
@@ -52,7 +52,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_toWeeks(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Std_Time_Day_Offset_ofWeeks___closed__1;
+x_2 = l_Std_Time_Day_Offset_ofWeeks___closed__0;
 x_3 = lean_int_ediv(x_1, x_2);
 return x_3;
 }
@@ -91,8 +91,8 @@ lean_dec_ref(res);
 res = initialize_Std_Time_Date_Unit_Week(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Time_Day_Offset_ofWeeks___closed__1 = _init_l_Std_Time_Day_Offset_ofWeeks___closed__1();
-lean_mark_persistent(l_Std_Time_Day_Offset_ofWeeks___closed__1);
+l_Std_Time_Day_Offset_ofWeeks___closed__0 = _init_l_Std_Time_Day_Offset_ofWeeks___closed__0();
+lean_mark_persistent(l_Std_Time_Day_Offset_ofWeeks___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

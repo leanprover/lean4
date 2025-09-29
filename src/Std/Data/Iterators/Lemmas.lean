@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.Iterators.Lemmas.Basic
-import Std.Data.Iterators.Lemmas.Monadic
-import Std.Data.Iterators.Lemmas.Consumers
-import Std.Data.Iterators.Lemmas.Combinators
-import Std.Data.Iterators.Lemmas.Producers
+public import Init.Data.Iterators.Lemmas.Basic
+public import Std.Data.Iterators.Lemmas.Monadic
+public import Std.Data.Iterators.Lemmas.Combinators
+public import Std.Data.Iterators.Lemmas.Producers
+public import Std.Data.Iterators.Lemmas.Equivalence
+
+@[expose] public section

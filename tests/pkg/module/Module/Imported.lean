@@ -1,7 +1,30 @@
 module
 
 prelude
-import Module.Basic
+public import Module.Basic
+
+/-! Definitions should be exported without their bodies by default -/
+
+/--
+info: def f : Nat :=
+<not imported>
+-/
+#guard_msgs in
+#print f
+
+/--
+error: Type mismatch
+  rfl
+has type
+  ?m.5 = ?m.5
+but is expected to have type
+  f = 1
+
+Note: The following definitions were not unfolded because their definition is not exposed:
+  f ↦ 1
+-/
+#guard_msgs in
+example : f = 1 := rfl
 
 /-! Theorems should be exported without their bodies -/
 
@@ -12,14 +35,43 @@ info: theorem t : f = 1 :=
 #guard_msgs in
 #print t
 
-/-- error: dsimp made no progress -/
+/--
+info: theorem trfl : f = 1 :=
+<not imported>
+-/
 #guard_msgs in
-example : f = 1 := by dsimp only [t]
+#print trfl
 
+/-! Metadata of private decls should not be exported. -/
+
+-- Should not fail with 'unknown constant `inst*`
+/--
+error: failed to synthesize
+  X
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#guard_msgs in
+def fX : X := inferInstance
+
+/-- error: `dsimp` made no progress -/
+#guard_msgs in
+example : P f := by dsimp only [t]; exact hP1
+example : P f := by simp only [t]; exact hP1
+
+/-- error: `dsimp` made no progress -/
+#guard_msgs in
+example : P f := by dsimp only [trfl]; exact hP1
+/-- error: `dsimp` made no progress -/
+#guard_msgs in
+example : P f := by dsimp only [trfl']; exact hP1
+
+example : P fexp := by dsimp only [fexp_trfl]; exact hP1
+example : P fexp := by dsimp only [fexp_trfl']; exact hP1
 example : t = t := by dsimp only [trfl]
 
 /--
-error: invalid field 'eq_def', the environment does not contain 'Nat.eq_def'
+error: Invalid field `eq_def`: The environment does not contain `Nat.eq_def`
   f
 has type
   Nat
@@ -28,7 +80,7 @@ has type
 #check f.eq_def
 
 /--
-error: invalid field 'eq_unfold', the environment does not contain 'Nat.eq_unfold'
+error: Invalid field `eq_unfold`: The environment does not contain `Nat.eq_unfold`
   f
 has type
   Nat
@@ -36,31 +88,31 @@ has type
 #guard_msgs in
 #check f.eq_unfold
 
-/-- error: unknown constant 'f_struct.eq_1' -/
+/-- error: Unknown constant `f_struct.eq_1` -/
 #guard_msgs in
 #check f_struct.eq_1
 
-/-- error: unknown constant 'f_struct.eq_def' -/
+/-- error: Unknown constant `f_struct.eq_def` -/
 #guard_msgs in
 #check f_struct.eq_def
 
-/-- error: unknown constant 'f_struct.eq_unfold' -/
+/-- error: Unknown constant `f_struct.eq_unfold` -/
 #guard_msgs in
 #check f_struct.eq_unfold
 
-/-- error: unknown constant 'f_wfrec.eq_1' -/
+/-- error: Unknown constant `f_wfrec.eq_1` -/
 #guard_msgs in
 #check f_wfrec.eq_1
 
-/-- error: unknown constant 'f_wfrec.eq_def' -/
+/-- error: Unknown constant `f_wfrec.eq_def` -/
 #guard_msgs in
 #check f_wfrec.eq_def
 
-/-- error: unknown constant 'f_wfrec.eq_unfold' -/
+/-- error: Unknown constant `f_wfrec.eq_unfold` -/
 #guard_msgs in
 #check f_wfrec.eq_unfold
 
-/-- error: unknown constant 'f_wfrec.induct_unfolding' -/
+/-- error: Unknown constant `f_wfrec.induct_unfolding` -/
 #guard_msgs(pass trace, all) in
 #check f_wfrec.induct_unfolding
 
@@ -95,3 +147,9 @@ info: f_exp_wfrec.induct_unfolding (motive : Nat → Nat → Nat → Prop) (case
 -/
 #guard_msgs(pass trace, all) in
 #check f_exp_wfrec.induct_unfolding
+
+/-! Basic non-`meta` check. -/
+
+/-- error: Invalid definition `nonMeta`, may not access declaration `pubMeta` marked as `meta` -/
+#guard_msgs in
+def nonMeta := pubMeta

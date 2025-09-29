@@ -1,7 +1,5 @@
 open Option
 
-set_option grind.warning false
-
 -- TODO: the following lemmas currently fail, but could be solved with some subset of the following attributes:
 -- I haven't added them yet, because the nuclear option of `[grind cases]` is tempting, but a bit scary.
 

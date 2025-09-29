@@ -4,9 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Init.System.IO
-import Lean.Data.JsonRpc
+public import Init.System.IO
+public import Lean.Data.JsonRpc
+
+public section
 
 /-! Reading/writing LSP messages from/to IO handles. -/
 
@@ -71,6 +75,13 @@ section
     catch e =>
       throw $ userError s!"Cannot read LSP message: {e}"
 
+  def readLspMessageAsString (h : FS.Stream) : IO String := do
+    try
+      let nBytes ← readLspHeader h
+      h.readUTF8 nBytes
+    catch e =>
+      throw $ userError s!"Cannot read LSP message: {e}"
+
   def readLspRequestAs (h : FS.Stream) (expectedMethod : String) (α) [FromJson α] : IO (Request α) := do
     try
       let nBytes ← readLspHeader h
@@ -96,13 +107,15 @@ end
 section
   variable [ToJson α]
 
-  def writeLspMessage (h : FS.Stream) (msg : Message) : IO Unit := do
+  def writeSerializedLspMessage (h : FS.Stream) (msg : String) : IO Unit := do
+    let header := s!"Content-Length: {toString msg.utf8ByteSize}\r\n\r\n"
     -- inlined implementation instead of using jsonrpc's writeMessage
     -- to maintain the atomicity of putStr
-    let j := (toJson msg).compress
-    let header := s!"Content-Length: {toString j.utf8ByteSize}\r\n\r\n"
-    h.putStr (header ++ j)
+    h.putStr (header ++ msg)
     h.flush
+
+  def writeLspMessage (h : FS.Stream) (msg : Message) : IO Unit := do
+    h.writeSerializedLspMessage (toJson msg).compress
 
   def writeLspRequest (h : FS.Stream) (r : Request α) : IO Unit :=
     h.writeLspMessage r

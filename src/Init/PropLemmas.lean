@@ -9,8 +9,10 @@ needed for Core and SimpLemmas.
 module
 
 prelude
-import Init.Core
-import Init.NotationExtra
+public import Init.Core
+public import Init.NotationExtra
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 /-! ## cast and equality -/
@@ -25,7 +27,7 @@ set_option linter.missingDocs true -- keep it documented
 @[simp] theorem eq_true_eq_id : Eq True = id := by
   funext _; simp only [true_iff, id_def, eq_iff_iff]
 
-theorem proof_irrel_heq {p q : Prop} (hp : p) (hq : q) : HEq hp hq := by
+theorem proof_irrel_heq {p q : Prop} (hp : p) (hq : q) : hp ≍ hq := by
   cases propext (iff_of_true hp hq); rfl
 
 /-! ## not -/
@@ -587,17 +589,17 @@ theorem Decidable.or_congr_right' [Decidable a] (h : ¬a → (b ↔ c)) : a ∨ 
 
 @[simp] theorem Decidable.iff_congr_left {P Q R : Prop} [Decidable P] [Decidable Q] [Decidable R] :
     ((P ↔ R) ↔ (Q ↔ R)) ↔ (P ↔ Q) :=
-  if h : R then by simp_all [Decidable.not_iff_not] else by simp_all [Decidable.not_iff_not]
+  if h : R then by simp_all else by simp_all [Decidable.not_iff_not]
 
 @[simp] theorem Decidable.iff_congr_right {P Q R : Prop} [Decidable P] [Decidable Q] [Decidable R] :
     ((P ↔ Q) ↔ (P ↔ R)) ↔ (Q ↔ R) :=
-  if h : P then by simp_all [Decidable.not_iff_not] else by simp_all [Decidable.not_iff_not]
+  if h : P then by simp_all else by simp_all [Decidable.not_iff_not]
 
 /-- Transfer decidability of `a` to decidability of `b`, if the propositions are equivalent.
 **Important**: this function should be used instead of `rw` on `Decidable b`, because the
 kernel will get stuck reducing the usage of `propext` otherwise,
 and `decide` will not work. -/
-@[inline] def decidable_of_iff (a : Prop) (h : a ↔ b) [Decidable a] : Decidable b :=
+@[inline, expose] def decidable_of_iff (a : Prop) (h : a ↔ b) [Decidable a] : Decidable b :=
   decidable_of_decidable_of_iff h
 
 /-- Transfer decidability of `b` to decidability of `a`, if the propositions are equivalent.

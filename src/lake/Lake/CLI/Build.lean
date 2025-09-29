@@ -3,10 +3,16 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
+public import Lake.CLI.Error
+public import Lake.Config.Workspace
 import Lake.Config.Monad
-import Lake.Build.Job
-import Lake.CLI.Error
+import Lake.Build.Infos
+import Lake.Build.Job.Monad
+public import Lake.Build.Job.Register
+import Lake.Util.IO
 
 open System Lean
 
@@ -14,7 +20,7 @@ namespace Lake
 
 /-! ## Build Target Specifiers -/
 
-structure BuildSpec where
+public structure BuildSpec where
   info : BuildInfo
   buildable := true
   format : OutFormat → BuildData info.key → String := nullFormat
@@ -26,7 +32,7 @@ structure BuildSpec where
   buildable := true
   format := h.fam_eq ▸ formatQuery
 
-@[inline] def mkConfigBuildSpec
+@[inline] public def mkConfigBuildSpec
   (info : BuildInfo)
   (config : FacetConfig facet)
   (h : BuildData info.key = FacetOut facet)
@@ -35,25 +41,25 @@ structure BuildSpec where
   buildable := config.buildable
   format := h ▸ config.format
 
-@[inline] protected def BuildSpec.fetch (self : BuildSpec) : FetchM (Job (BuildData self.info.key)) := do
+@[inline] public protected def BuildSpec.fetch (self : BuildSpec) : FetchM (Job (BuildData self.info.key)) := do
   maybeRegisterJob self.info.key.toSimpleString (← self.info.fetch)
 
-@[inline] protected def BuildSpec.build (self : BuildSpec) : FetchM OpaqueJob := do
+@[inline] public protected def BuildSpec.build (self : BuildSpec) : FetchM OpaqueJob := do
   return (← self.fetch).toOpaque
 
-@[inline] protected def BuildSpec.query (self : BuildSpec) (fmt : OutFormat) : FetchM (Job String) := do
+@[inline] public protected def BuildSpec.query (self : BuildSpec) (fmt : OutFormat) : FetchM (Job String) := do
   maybeRegisterJob self.info.key.toSimpleString =<< do
     return (← self.info.fetch).map (self.format fmt)
 
-def buildSpecs (specs : Array BuildSpec) : FetchM (Job Unit) := do
+public def buildSpecs (specs : Array BuildSpec) : FetchM (Job Unit) := do
   return Job.mixArray (← specs.mapM (·.build))
 
-def querySpecs (specs : Array BuildSpec) (fmt : OutFormat) : FetchM (Job (Array String)) := do
+public def querySpecs (specs : Array BuildSpec) (fmt : OutFormat) : FetchM (Job (Array String)) := do
   return Job.collectArray (← specs.mapM (·.query fmt))
 
 /-! ## Parsing CLI Build Target Specifiers -/
 
-def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package :=
+public def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package :=
   if spec.isEmpty then
     return ws.root
   else
@@ -98,7 +104,8 @@ def resolveConfigDeclTarget
     else
       throw <| CliError.unknownFacet decl.kind.toString facet
 
-def resolveLibTarget
+/-- **For internal use only.** -/
+public def resolveLibTarget
   (ws : Workspace) (lib : LeanLib) (facet : Name := .anonymous)
 : Except CliError (Array BuildSpec) :=
   if facet.isAnonymous then
@@ -198,7 +205,7 @@ private def resolveTargetLikeSpec
     else
       throw <| CliError.invalidTargetSpec spec '/'
 
-def resolveTargetBaseSpec
+private def resolveTargetBaseSpec
   (ws : Workspace) (spec : String) (facet : Name)
 : EIO CliError (Array BuildSpec) := do
   if spec.startsWith "@" then
@@ -220,7 +227,7 @@ def resolveTargetBaseSpec
   else
     resolveTargetLikeSpec ws spec facet true
 
-def parseExeTargetSpec
+public def parseExeTargetSpec
   (ws : Workspace) (spec : String)
 : Except CliError LeanExe := do
   match spec.splitOn "/" with
@@ -239,7 +246,7 @@ def parseExeTargetSpec
   | _ =>
     throw <| CliError.invalidTargetSpec spec '/'
 
-def parseTargetSpec
+public def parseTargetSpec
   (ws : Workspace) (spec : String)
 : EIO CliError (Array BuildSpec) := do
   match spec.splitOn ":" with
@@ -250,7 +257,7 @@ def parseTargetSpec
   | _ =>
     throw <| CliError.invalidTargetSpec spec ':'
 
-def parseTargetSpecs
+public def parseTargetSpecs
   (ws : Workspace) (specs : List String)
 : EIO CliError (Array BuildSpec) := do
   let mut results := #[]

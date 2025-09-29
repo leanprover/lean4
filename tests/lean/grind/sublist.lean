@@ -1,7 +1,5 @@
 open List
 
-set_option grind.warning false
-
 example (h : zs <+ ys) (w : xs ++ ys <+ zs) (h' : ¬xs = []) : False := by
   fail_if_success grind
   -- I'm not sure how to make progress here without manually adding that since `xs ≠ []`, it must be a `cons`.

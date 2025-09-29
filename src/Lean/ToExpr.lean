@@ -3,11 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Expr
-import Lean.ToLevel
-import Init.Data.BitVec.Basic
-import Init.Data.SInt.Basic
+public import Lean.Expr
+public import Lean.ToLevel
+public import Init.Data.BitVec.Basic
+public import Init.Data.SInt.Basic
+
+public section
 universe u
 
 namespace Lean
@@ -207,7 +211,7 @@ where
     | .num p n ..=> mkApp2 (mkConst ``Lean.Name.num) (go p) (toExpr n)
 
 instance : ToExpr Name where
-  toExpr     := Name.toExprAux
+  toExpr     := private Name.toExprAux
   toTypeExpr := mkConst ``Name
 
 instance {α : Type u} [ToLevel.{u}] [ToExpr α] : ToExpr (Option α) :=
@@ -225,7 +229,7 @@ instance {α : Type u} [ToLevel.{u}] [ToExpr α] : ToExpr (List α) :=
   let type := toTypeExpr α
   let nil  := mkApp (mkConst ``List.nil [toLevel.{u}]) type
   let cons := mkApp (mkConst ``List.cons [toLevel.{u}]) type
-  { toExpr     := List.toExprAux nil cons,
+  { toExpr     := private List.toExprAux nil cons,
     toTypeExpr := mkApp (mkConst ``List [toLevel.{u}]) type }
 
 instance {α : Type u} [ToLevel.{u}] [ToExpr α] : ToExpr (Array α) :=
@@ -255,13 +259,5 @@ instance : ToExpr Syntax.Preresolved where
   toExpr
     | .namespace ns => mkApp (.const ``Syntax.Preresolved.namespace []) (toExpr ns)
     | .decl a ls => mkApp2 (.const ``Syntax.Preresolved.decl []) (toExpr a) (toExpr ls)
-
-def Expr.toCtorIfLit : Expr → Expr
-  | .lit (.natVal v) =>
-    if v == 0 then mkConst ``Nat.zero
-    else mkApp (mkConst ``Nat.succ) (mkRawNatLit (v-1))
-  | .lit (.strVal v) =>
-    mkApp (mkConst ``String.mk) (toExpr v.toList)
-  | e => e
 
 end Lean

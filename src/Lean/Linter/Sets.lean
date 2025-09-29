@@ -3,18 +3,22 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Anne Baanen
 -/
+module
+
 prelude
-import Lean.Elab.Command
-import Lean.Linter.Basic
+public meta import Lean.Linter.Basic
+public meta import Lean.Elab.Command
+
+public section
 
 namespace Lean.Linter
 
 /-- Add a new linter set that contains the given linters. -/
-def insertLinterSet [MonadEnv m] (setName : Name) (linterNames : NameSet) : m Unit :=
+meta def insertLinterSet [MonadEnv m] (setName : Name) (linterNames : NameSet) : m Unit :=
   modifyEnv (linterSetsExt.addEntry · (setName, linterNames))
 
 /-- `registerSet` wraps `registerOption` by setting relevant values. -/
-def registerSet (setName : Name) (ref : Name := by exact decl_name%) : IO (Lean.Option Bool) := do
+meta def registerSet (setName : Name) (ref : Name := by exact decl_name%) : IO (Lean.Option Bool) := do
   registerOption setName {
     declName := ref
     defValue := false

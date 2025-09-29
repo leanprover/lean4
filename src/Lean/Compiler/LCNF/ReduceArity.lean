@@ -3,11 +3,15 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.PhaseExt
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.LCNF.Internalize
+public import Lean.Compiler.LCNF.CompilerM
+public import Lean.Compiler.LCNF.PhaseExt
+public import Lean.Compiler.LCNF.InferType
+public import Lean.Compiler.LCNF.Internalize
+
+public section
 
 namespace Lean.Compiler.LCNF
 /-!
@@ -55,7 +59,7 @@ structure Context where
   params : FVarIdSet
 
 structure State where
-  used : FVarIdSet := {}
+  used : FVarIdHashSet := {}
 
 abbrev FindUsedM := ReaderT Context <| StateRefT State CompilerM
 
@@ -83,10 +87,10 @@ def visitLetValue (e : LetValue) : FindUsedM Unit := do
             visitFVar fvarId
         | .erased | .type .. => pure ()
       -- over-application
-      for arg in args[decl.params.size:] do
+      for arg in args[decl.params.size...*] do
         visitArg arg
       -- partial-application
-      for param in decl.params[args.size:] do
+      for param in decl.params[args.size...*] do
         -- If recursive function is partially applied, we assume missing parameters are used because we don't want to eta-expand.
         visitFVar param.fvarId
     else
@@ -106,7 +110,7 @@ partial def visit (code : Code) : FindUsedM Unit := do
   | .return fvarId => visitFVar fvarId
   | .unreach _ => return ()
 
-def collectUsedParams (decl : Decl) : CompilerM FVarIdSet := do
+def collectUsedParams (decl : Decl) : CompilerM FVarIdHashSet := do
   let params := decl.params.foldl (init := {}) fun s p => s.insert p.fvarId
   let (_, { used, .. }) ← decl.value.forCodeM visit |>.run { decl, params } |>.run {}
   return used

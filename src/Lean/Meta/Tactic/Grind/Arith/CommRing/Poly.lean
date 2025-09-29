@@ -3,9 +3,21 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Init.Grind.CommRing.Poly
+public import Init.Grind.Ring.CommSolver
+public section
 namespace Lean.Grind.CommRing
+
+/-- `sharesVar m₁ m₂` returns `true` if `m₁` and `m₂` shares at least one variable. -/
+def Mon.sharesVar : Mon → Mon → Bool
+  | .unit, _ => false
+  | _, .unit => false
+  | .mult pw₁ m₁, .mult pw₂ m₂ =>
+    match compare pw₁.x pw₂.x with
+    | .eq => true
+    | .lt => sharesVar m₁ (.mult pw₂ m₂)
+    | .gt => sharesVar (.mult pw₁ m₁) m₂
 
 /-- `lcm m₁ m₂` returns the least common multiple of the given monomials. -/
 def Mon.lcm : Mon → Mon → Mon
@@ -17,11 +29,13 @@ def Mon.lcm : Mon → Mon → Mon
     | .lt => .mult pw₁ (lcm m₁ (.mult pw₂ m₂))
     | .gt => .mult pw₂ (lcm (.mult pw₁ m₁) m₂)
 
+-- Remark: we expose `Mon.divides` and `Mon.div` because we use then to write tests using `rfl`
+
 /--
 `divides m₁ m₂` returns `true` if monomial `m₁` divides `m₂`
 Example: `x^2.z` divides `w.x^3.y^2.z`
 -/
-def Mon.divides : Mon → Mon → Bool
+@[expose] def Mon.divides : Mon → Mon → Bool
   | .unit, _ => true
   | _, .unit => false
   | .mult pw₁ m₁, .mult pw₂ m₂ =>
@@ -35,7 +49,7 @@ Given `m₁` and `m₂` such that `m₂.divides m₁`, then
 `m₁.div m₂` returns the result.
 Example `w.x^3.y^2.z` div `x^2.z` returns `w.x.y^2`
 -/
-def Mon.div : Mon → Mon → Mon
+@[expose] def Mon.div : Mon → Mon → Mon
   | m₁, .unit => m₁
   | .unit, _  => .unit -- reachable only if pre-condition does not hold
   | .mult pw₁ m₁, .mult pw₂ m₂ =>
@@ -222,5 +236,38 @@ def Poly.size : Poly → Nat
 def Poly.length : Poly → Nat
   | .num _ => 0
   | .add _ _ p => 1 + p.length
+
+def Power.toExpr (pw : Power) : Expr :=
+  if pw.k == 1 then
+    .var pw.x
+  else
+    .pow (.var pw.x) pw.k
+
+def Mon.toExpr (m : Mon) : Expr :=
+  match m with
+  | .unit => .num 1
+  | .mult pw m => go m pw.toExpr
+where
+  go (m : Mon) (acc : Expr) : Expr :=
+    match m with
+    | .unit => acc
+    | .mult pw m => go m (.mul acc pw.toExpr)
+
+def Poly.toExpr (p : Poly) : Expr :=
+  match p with
+  | .num k => .num k
+  | .add k m p => go p (goTerm k m)
+where
+  goTerm (k : Int) (m : Mon) : Expr :=
+    if k == 1 then
+      m.toExpr
+    else
+      .mul (.num k) m.toExpr
+
+  go (p : Poly) (acc : Expr) : Expr :=
+    match p with
+    | .num 0 => acc
+    | .num k => .add acc (.num k)
+    | .add k m p => go p (.add acc (goTerm k m))
 
 end Lean.Grind.CommRing

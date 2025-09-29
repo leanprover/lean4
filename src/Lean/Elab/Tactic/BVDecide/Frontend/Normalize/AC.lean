@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving, Alex Keizer, Siddharth Bhat
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.AC.Main
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
+public import Lean.Meta.Tactic.AC.Main
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
+
+public section
 
 namespace Lean.Elab.Tactic.BVDecide
 namespace Frontend.Normalize
@@ -186,7 +190,7 @@ structure SharedCoefficients where
 mapping), extract the shared coefficients, such that `x` (resp. `y`) is the sum of
 coefficients in `common` and `x` (resp `y`) of the result.
 
-That is, if `{ common, x', y' } ← SharedCoeffients.compute x y`, then
+That is, if `{ common, x', y' } ← SharedCoefficients.compute x y`, then
   `x[idx] = common[idx] + x'[idx]` and
   `y[idx] = common[idx] + y'[idx]`
 for all valid variable indices `idx`.
@@ -220,7 +224,7 @@ def CoefficientsMap.toExpr (coeff : CoefficientsMap) (op : Op) : VarStateM (Opti
   let mut acc : Option Expr := none
   for (var, coeff) in coeffArr do
     let expr := (← get).varToExpr[var]!
-    for _ in [0:coeff] do
+    for _ in *...coeff do
       acc := match acc with
       | none => expr
       | some acc => some <| mkApp2 op.toExpr acc expr

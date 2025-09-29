@@ -3,12 +3,14 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
-prelude
-import Std.Tactic.BVDecide.LRAT.Internal.LRATChecker
-import Std.Tactic.BVDecide.LRAT.Internal.CNF
-import Std.Tactic.BVDecide.LRAT.Internal.Actions
+module
 
-set_option grind.warning false
+prelude
+public import Std.Tactic.BVDecide.LRAT.Internal.LRATChecker
+public import Std.Tactic.BVDecide.LRAT.Internal.CNF
+public import Std.Tactic.BVDecide.LRAT.Internal.Actions
+
+@[expose] public section
 
 namespace Std.Tactic.BVDecide
 namespace LRAT

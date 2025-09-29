@@ -1,4 +1,4 @@
-set_option grind.warning false
+module
 variable (d : Nat) in
 inductive X : Nat → Prop
   | f {s : Nat} : X s

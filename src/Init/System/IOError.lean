@@ -7,7 +7,10 @@ Authors: Simon Hudon
 module
 
 prelude
-import Init.Data.ToString.Basic
+public import Init.Data.ToString.Basic
+import Init.Data.String.Basic
+
+public section
 
 /--
 Exceptions that may be thrown in the `IO` monad.

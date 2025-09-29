@@ -3,16 +3,24 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
+public import Lean.Meta.Tactic.Grind.Proof
+import Lean.Compiler.InitAttr
 import Init.Grind
-import Lean.Meta.Tactic.Grind.Proof
-
+public section
 namespace Lean.Meta.Grind
+
+abbrev PropagatorMap := Std.HashMap Name (List Propagator)
+
+def PropagatorMap.insert (m : PropagatorMap) (declName : Name) (p : Propagator) : PropagatorMap :=
+  let ps := m[declName]? |>.getD []
+  Std.HashMap.insert m declName (p :: ps)
 
 /-- Builtin propagators. -/
 structure BuiltinPropagators where
-  up   : Std.HashMap Name Propagator := {}
-  down : Std.HashMap Name Propagator := {}
+  up   : PropagatorMap := {}
+  down : PropagatorMap := {}
   deriving Inhabited
 
 builtin_initialize builtinPropagatorsRef : IO.Ref BuiltinPropagators ← IO.mkRef {}
@@ -21,12 +29,8 @@ private def registerBuiltinPropagatorCore (declName : Name) (up : Bool) (proc : 
   unless (← initializing) do
     throw (IO.userError s!"invalid builtin `grind` propagator declaration, it can only be registered during initialization")
   if up then
-    if (← builtinPropagatorsRef.get).up.contains declName then
-      throw (IO.userError s!"invalid builtin `grind` upward propagator `{declName}`, it has already been declared")
     builtinPropagatorsRef.modify fun { up, down } => { up := up.insert declName proc, down }
   else
-    if (← builtinPropagatorsRef.get).down.contains declName then
-      throw (IO.userError s!"invalid builtin `grind` downward propagator `{declName}`, it has already been declared")
     builtinPropagatorsRef.modify fun { up, down } => { up, down := down.insert declName proc }
 
 def registerBuiltinUpwardPropagator (declName : Name) (proc : Propagator) : IO Unit :=

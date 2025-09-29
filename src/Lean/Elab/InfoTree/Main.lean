@@ -4,10 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Init.Task
-import Lean.Meta.PPGoal
-import Lean.ReservedNameAction
+public import Init.Task
+public import Lean.Meta.PPGoal
+public import Lean.ReservedNameAction
+
+public section
 
 namespace Lean.Elab.CommandContextInfo
 
@@ -45,10 +49,14 @@ def PartialContextInfo.mergeIntoOuter?
     some { info with }
   | .parentDeclCtx _, none =>
     panic! "Unexpected incomplete InfoTree context info."
+  | .autoImplicitCtx _, none =>
+    panic! "Unexpected incomplete InfoTree context info."
   | .commandCtx innerInfo, some outer =>
     some { outer with toCommandContextInfo := innerInfo }
   | .parentDeclCtx innerParentDecl, some outer =>
     some { outer with parentDecl? := innerParentDecl }
+  | .autoImplicitCtx innerAutoImplicits, some outer =>
+    some { outer with autoImplicits := innerAutoImplicits }
 
 def CompletionInfo.stx : CompletionInfo → Syntax
   | dot i ..          => i.stx
@@ -57,6 +65,7 @@ def CompletionInfo.stx : CompletionInfo → Syntax
   | fieldId stx ..    => stx
   | namespaceId stx   => stx
   | option stx        => stx
+  | errorName stx ..  => stx
   | endSection stx .. => stx
   | tactic stx ..     => stx
 
@@ -172,6 +181,9 @@ def CommandInfo.format (ctx : ContextInfo) (info : CommandInfo) : IO Format := d
 def OptionInfo.format (ctx : ContextInfo) (info : OptionInfo) : IO Format := do
   return f!"[Option] {info.optionName} @ {formatStxRange ctx info.stx}"
 
+def ErrorNameInfo.format (ctx : ContextInfo) (info : ErrorNameInfo) : IO Format := do
+  return f!"[ErrorName] {info.errorName} @ {formatStxRange ctx info.stx}"
+
 def FieldInfo.format (ctx : ContextInfo) (info : FieldInfo) : IO Format := do
   ctx.runMetaM info.lctx do
     return f!"[Field] {info.fieldName} : {← Meta.ppExpr (← Meta.inferType info.val)} := {← Meta.ppExpr info.val} @ {formatStxRange ctx info.stx}"
@@ -213,6 +225,12 @@ def DelabTermInfo.format (ctx : ContextInfo) (info : DelabTermInfo) : IO Format 
 def ChoiceInfo.format (ctx : ContextInfo) (info : ChoiceInfo) : Format :=
   f!"[Choice] @ {formatElabInfo ctx info.toElabInfo}"
 
+def DocInfo.format (ctx : ContextInfo) (info : DocInfo) : Format :=
+  f!"[Doc] {info.stx.getKind} @ {formatElabInfo ctx info.toElabInfo}"
+
+def DocElabInfo.format (ctx : ContextInfo) (info : DocElabInfo) : Format :=
+  f!"[DocElab] {info.name} ({repr info.kind}) @ {formatElabInfo ctx info.toElabInfo}"
+
 def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofTacticInfo i         => i.format ctx
   | ofTermInfo i           => i.format ctx
@@ -220,6 +238,7 @@ def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofCommandInfo i        => i.format ctx
   | ofMacroExpansionInfo i => i.format ctx
   | ofOptionInfo i         => i.format ctx
+  | ofErrorNameInfo i      => i.format ctx
   | ofFieldInfo i          => i.format ctx
   | ofCompletionInfo i     => i.format ctx
   | ofUserWidgetInfo i     => pure <| i.format
@@ -228,6 +247,8 @@ def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofFieldRedeclInfo i    => pure <| i.format ctx
   | ofDelabTermInfo i      => i.format ctx
   | ofChoiceInfo i         => pure <| i.format ctx
+  | ofDocInfo i            => pure <| i.format ctx
+  | ofDocElabInfo i        => pure <| i.format ctx
 
 def Info.toElabInfo? : Info → Option ElabInfo
   | ofTacticInfo i         => some i.toElabInfo
@@ -236,6 +257,7 @@ def Info.toElabInfo? : Info → Option ElabInfo
   | ofCommandInfo i        => some i.toElabInfo
   | ofMacroExpansionInfo _ => none
   | ofOptionInfo _         => none
+  | ofErrorNameInfo _      => none
   | ofFieldInfo _          => none
   | ofCompletionInfo _     => none
   | ofUserWidgetInfo _     => none
@@ -244,6 +266,8 @@ def Info.toElabInfo? : Info → Option ElabInfo
   | ofFieldRedeclInfo _    => none
   | ofDelabTermInfo i      => some i.toElabInfo
   | ofChoiceInfo i         => some i.toElabInfo
+  | ofDocInfo i            => some i.toElabInfo
+  | ofDocElabInfo i        => some i.toElabInfo
 
 /--
   Helper function for propagating the tactic metavariable context to its children nodes.
@@ -262,6 +286,12 @@ def Info.toElabInfo? : Info → Option ElabInfo
 def Info.updateContext? : Option ContextInfo → Info → Option ContextInfo
   | some ctx, ofTacticInfo i => some { ctx with mctx := i.mctxAfter }
   | ctx?, _ => ctx?
+
+def PartialContextInfo.format (ctx : PartialContextInfo) : Format :=
+  match ctx with
+  | .commandCtx _ => "command"
+  | .parentDeclCtx n => s!"parent[{n}]"
+  | .autoImplicitCtx implicits => s!"autoImplicits[{implicits}]"
 
 partial def InfoTree.format (tree : InfoTree) (ctx? : Option ContextInfo := none) : IO Format := do
   match tree with
@@ -313,7 +343,7 @@ def addConstInfo [MonadEnv m] [MonadError m]
 /-- This does the same job as `realizeGlobalConstNoOverload`; resolving an identifier
 syntax to a unique fully resolved name or throwing if there are ambiguities.
 But also adds this resolved name to the infotree. This means that when you hover
-over a name in the sourcefile you will see the fully resolved name in the hover info.-/
+over a name in the source file you will see the fully resolved name in the hover info.-/
 def realizeGlobalConstNoOverloadWithInfo (id : Syntax) (expectedType? : Option Expr := none) : CoreM Name := do
   let n ← realizeGlobalConstNoOverload id
   if (← getInfoState).enabled then
@@ -432,6 +462,16 @@ def withSaveParentDeclInfoContext [MonadFinally m] [MonadParentDecl m] (x : m α
     let some declName ← getParentDeclName?
       | return none
     return some <| .parentDeclCtx declName
+
+/--
+Resets the trees state `t₀`, runs `x` to produce a new trees state `t₁` and sets the state to be
+`t₀ ++ (InfoTree.context (PartialContextInfo.autoImplicitCtx Γ) <$> t₁)` where `Γ` is the set of
+auto-implicits provided by `MonadAutoImplicits m`.
+-/
+def withSaveAutoImplicitInfoContext [MonadFinally m] [MonadAutoImplicits m] (x : m α) : m α := do
+  withSavedPartialInfoContext x do
+    let autoImplicits ← getAutoImplicits
+    return some <| .autoImplicitCtx autoImplicits
 
 def getInfoHoleIdAssignment? (mvarId : MVarId) : m (Option InfoTree) :=
   return (← getInfoState).assignment[mvarId]

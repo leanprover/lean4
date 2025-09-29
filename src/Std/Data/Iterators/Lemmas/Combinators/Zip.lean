@@ -3,13 +3,17 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.Iterators.Combinators.Take
-import Std.Data.Iterators.Combinators.Zip
-import Std.Data.Iterators.Consumers.Access
-import Std.Data.Iterators.Lemmas.Combinators.Monadic.Zip
-import Std.Data.Iterators.Lemmas.Combinators.Take
-import Std.Data.Iterators.Lemmas.Consumers
+public import Std.Data.Iterators.Combinators.Take
+public import Std.Data.Iterators.Combinators.Zip
+public import Init.Data.Iterators.Consumers.Access
+public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Zip
+public import Std.Data.Iterators.Lemmas.Combinators.Take
+public import Init.Data.Iterators.Lemmas.Consumers
+
+@[expose] public section
 
 namespace Std.Iterators
 
@@ -246,7 +250,7 @@ theorem Iter.atIdxSlow?_intermediateZip [Iterator α₁ Id β₁] [Iterator α�
       simp only at h
       split at h <;> cases h
       rename_i hs₁
-      simp [atIdxSlow?.eq_def (it := it₁), hs₁]
+      simp [hs₁]
     case some =>
       simp only at h
       split at h <;> cases h

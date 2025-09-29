@@ -8,10 +8,15 @@ module
 
 prelude
 
+public import Init.Data.List.Control
 import all Init.Data.List.Control
+public import Init.Data.Option.Basic
 import all Init.Data.Option.Basic
+public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
-import Init.Internal.Order.Basic
+public import Init.Internal.Order.Basic
+
+public section
 
 /-!
 
@@ -421,7 +426,7 @@ theorem monotone_foldrM_fold
     apply monotone_const
   | case2  =>
     unfold Array.foldrM.fold
-    simp only [↓reduceIte, *]
+    simp only [*]
     apply monotone_const
   | case3 _ _ _ _ _ ih =>
     unfold Array.foldrM.fold
@@ -451,7 +456,7 @@ theorem monotone_foldrM
 theorem monotone_mapM (xs : Array α) (f : γ → α → m β) (hmono : monotone f) :
     monotone (fun x => xs.mapM (f x)) := by
   suffices ∀ i r, monotone (fun x => Array.mapM.map (f x) xs i r) by apply this
-  intros i r
+  intro i r
   induction i, r using Array.mapM.map.induct xs
   case case1 ih =>
     unfold Array.mapM.map
@@ -471,7 +476,7 @@ theorem monotone_mapM (xs : Array α) (f : γ → α → m β) (hmono : monotone
 theorem monotone_mapFinIdxM (xs : Array α) (f : γ → (i : Nat) → α → i < xs.size → m β)
     (hmono : monotone f) : monotone (fun x => xs.mapFinIdxM (f x)) := by
   suffices ∀ i j (h : i + j = xs.size) r, monotone (fun x => Array.mapFinIdxM.map xs (f x) i j h r) by apply this
-  intros i j h r
+  intro i j h r
   induction i, j, h, r using Array.mapFinIdxM.map.induct xs
   case case1 =>
     apply monotone_const
@@ -595,7 +600,7 @@ theorem monotone_findSomeRevM?
     monotone (fun x => xs.findSomeRevM? (f x)) := by
   unfold Array.findSomeRevM?
   suffices ∀ i (h : i ≤ xs.size), monotone (fun x => Array.findSomeRevM?.find (f x) xs i h) by apply this
-  intros i h
+  intro i h
   induction i, h using Array.findSomeRevM?.find.induct with
   | case1 =>
     unfold Array.findSomeRevM?.find

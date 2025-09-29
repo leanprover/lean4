@@ -1,5 +1,5 @@
+module
 reset_grind_attrs%
-set_option grind.warning false
 attribute [grind] Vector.getElem_swap_of_ne
 
 example (hi : i < n) (hj : j < i) (hk : k < j) (as : Vector α n) (p : α → Prop) (h : p as[k]) :

@@ -1,6 +1,5 @@
+module
 reset_grind_attrs%
-set_option grind.warning false
-
 example {l : List α} {f : β → α → β} {b : β} :
     l.foldl f b = l.reverse.foldr (fun x y => f y x) b := by
   grind [List.foldr_reverse]

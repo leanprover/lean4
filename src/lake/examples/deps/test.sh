@@ -17,7 +17,7 @@ $LAKE -d foo build --update
 ./bar/.lake/build/bin/bar
 
 # Test setup-file works (i.e., does not error)
-$LAKE -d foo setup-file ./foo/Foo.lean A B
+$LAKE -d foo setup-file ./foo/Foo.lean
 
 # Test `lake clean`
 test -d a/.lake/build

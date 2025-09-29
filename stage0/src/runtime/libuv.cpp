@@ -20,9 +20,14 @@ extern "C" void initialize_libuv() {
     initialize_libuv_timer();
     initialize_libuv_tcp_socket();
     initialize_libuv_udp_socket();
+    initialize_libuv_signal();
     initialize_libuv_loop();
 
     lthread([]() { event_loop_run_loop(&global_ev); });
+}
+
+extern "C" LEAN_EXPORT char ** lean_setup_args(int argc, char ** argv) {
+    return uv_setup_args(argc, argv);
 }
 
 /* Lean.libUVVersionFn : Unit → Nat */
@@ -37,6 +42,11 @@ extern "C" void initialize_libuv() {}
 extern "C" LEAN_EXPORT lean_obj_res lean_libuv_version(lean_obj_arg o) {
     return lean_box(0);
 }
+
+extern "C" LEAN_EXPORT char ** lean_setup_args(int argc, char ** argv) {
+    return argv;
+}
+
 
 #endif
 }

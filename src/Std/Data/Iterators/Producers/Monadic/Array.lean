@@ -3,11 +3,15 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Nat.Lemmas
-import Init.RCases
-import Std.Data.Iterators.Consumers
-import Std.Data.Iterators.Internal.Termination
+public import Init.Data.Nat.Lemmas
+public import Init.RCases
+public import Init.Data.Iterators.Consumers
+public import Init.Data.Iterators.Internal.Termination
+
+@[expose] public section
 
 /-!
 # Array iterator
@@ -23,12 +27,20 @@ variable {α : Type w} {m : Type w → Type w'}
 The underlying state of a list iterator. Its contents are internal and should
 not be used by downstream users of the library.
 -/
-@[unbox]
+@[unbox, ext]
 structure ArrayIterator (α : Type w) where
   /-- Internal implementation detail of the iterator library. -/
   array : Array α
   /-- Internal implementation detail of the iterator library. -/
   pos : Nat
+
+theorem ArrayIterator.exists_iff {α : Type w} {P : ArrayIterator α → Prop} :
+    (∃ s, P s) ↔ ∃ array pos, P ⟨array, pos⟩ := by
+  constructor
+  · rintro ⟨⟨array, pos⟩, h⟩
+    exact ⟨array, pos, h⟩
+  · rintro ⟨array, pos, h⟩
+    exact ⟨⟨array, pos⟩, h⟩
 
 /--
 Returns a finite monadic iterator for the given array starting at the given index.
@@ -41,7 +53,7 @@ The pure version of this iterator is `Array.iterFromIdx`.
 * `Finite` instance: always
 * `Productive` instance: always
 -/
-@[always_inline, inline]
+@[always_inline, inline, match_pattern]
 def _root_.Array.iterFromIdxM {α : Type w} (array : Array α) (m : Type w → Type w') (pos : Nat)
     [Pure m] :
     IterM (α := ArrayIterator α) m α :=
@@ -98,23 +110,35 @@ private def ArrayIterator.finitenessRelation [Pure m] :
     · cases h'
     · cases h
 
-instance [Pure m] : Finite (ArrayIterator α) m :=
-  Finite.of_finitenessRelation ArrayIterator.finitenessRelation
+instance [Pure m] : Finite (ArrayIterator α) m := by
+  exact Finite.of_finitenessRelation ArrayIterator.finitenessRelation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] [Monad n] : IteratorCollect (ArrayIterator α) m n :=
+instance {α : Type w} [Monad m] {n : Type w → Type w''} [Monad n] :
+    IteratorCollect (ArrayIterator α) m n :=
   .defaultImplementation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] [Monad n] : IteratorCollectPartial (ArrayIterator α) m n :=
+instance {α : Type w} [Monad m] {n : Type w → Type w''} [Monad n] :
+    IteratorCollectPartial (ArrayIterator α) m n :=
   .defaultImplementation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] [Monad n] : IteratorLoop (ArrayIterator α) m n :=
+instance {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
+    IteratorLoop (ArrayIterator α) m n :=
   .defaultImplementation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] [Monad n] : IteratorLoopPartial (ArrayIterator α) m n :=
+instance {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
+    IteratorLoopPartial (ArrayIterator α) m n :=
+  .defaultImplementation
+
+@[always_inline, inline]
+instance {α : Type w} [Monad m] : IteratorSize (ArrayIterator α) m :=
+  .defaultImplementation
+
+@[always_inline, inline]
+instance {α : Type w} [Monad m] : IteratorSizePartial (ArrayIterator α) m :=
   .defaultImplementation
 
 end Std.Iterators

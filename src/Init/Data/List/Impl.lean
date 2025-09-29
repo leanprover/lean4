@@ -6,7 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Array.Bootstrap
+public import Init.Data.Array.Bootstrap
+
+public section
 
 /-!
 ## Tail recursive implementations for `List` definitions.
@@ -96,7 +98,7 @@ Example:
 [10, 14, 14]
 ```
 -/
-@[inline] def filterMapTR (f : α → Option β) (l : List α) : List β := go l #[] where
+@[inline, expose] def filterMapTR (f : α → Option β) (l : List α) : List β := go l #[] where
   /-- Auxiliary for `filterMap`: `filterMap.go f l = acc.toList ++ filterMap f l` -/
   @[specialize] go : List α → Array β → List β
   | [], acc => acc.toList
@@ -234,7 +236,7 @@ Examples:
   intro xs; induction xs with intro acc
   | nil => simp [takeWhile, takeWhileTR.go]
   | cons x xs IH =>
-    simp only [takeWhileTR.go, Array.toListImpl_eq, takeWhile]
+    simp only [takeWhileTR.go, takeWhile]
     split
     · intro h; rw [IH] <;> simp_all
     · simp [*]
@@ -261,11 +263,11 @@ Examples:
 /-- Tail recursive implementation of `findRev?`. This is only used at runtime. -/
 def findRev?TR (p : α → Bool) (l : List α) : Option α := l.reverse.find? p
 
-@[simp] theorem find?_singleton {a : α} : [a].find? p = if p a then some a else none := by
+@[simp, grind =] theorem find?_singleton {a : α} : [a].find? p = if p a then some a else none := by
   simp only [find?]
   split <;> simp_all
 
-@[simp] theorem find?_append {xs ys : List α} : (xs ++ ys).find? p = (xs.find? p).or (ys.find? p) := by
+@[simp, grind =] theorem find?_append {xs ys : List α} : (xs ++ ys).find? p = (xs.find? p).or (ys.find? p) := by
   induction xs with
   | nil => simp [find?]
   | cons x xs ih =>
@@ -287,12 +289,12 @@ def findRev?TR (p : α → Bool) (l : List α) : Option α := l.reverse.find? p
 /-- Tail recursive implementation of `finSomedRev?`. This is only used at runtime. -/
 def findSomeRev?TR (f : α → Option β) (l : List α) : Option β := l.reverse.findSome? f
 
-@[simp] theorem findSome?_singleton {a : α} :
+@[simp, grind =] theorem findSome?_singleton {a : α} :
     [a].findSome? f = f a := by
   simp only [findSome?_cons, findSome?_nil]
   split <;> simp_all
 
-@[simp] theorem findSome?_append {xs ys : List α} : (xs ++ ys).findSome? f = (xs.findSome? f).or (ys.findSome? f) := by
+@[simp, grind =] theorem findSome?_append {xs ys : List α} : (xs ++ ys).findSome? f = (xs.findSome? f).or (ys.findSome? f) := by
   induction xs with
   | nil => simp [findSome?]
   | cons x xs ih =>
@@ -365,7 +367,7 @@ def modifyTR (l : List α) (i : Nat) (f : α → α) : List α := go l i #[] whe
   | a :: l, 0, acc => acc.toListAppend (f a :: l)
   | a :: l, i+1, acc => go l i (acc.push a)
 
-theorem modifyTR_go_eq : ∀ l i, modifyTR.go f l i acc = acc.toList ++ modify l i f
+private theorem modifyTR_go_eq : ∀ l i, modifyTR.go f l i acc = acc.toList ++ modify l i f
   | [], i => by cases i <;> simp [modifyTR.go, modify]
   | a :: l, 0 => by simp [modifyTR.go, modify]
   | a :: l, i+1 => by simp [modifyTR.go, modify, modifyTR_go_eq l]
@@ -397,7 +399,7 @@ Examples:
   | _, [], acc => acc.toList
   | n+1, a :: l, acc => go n l (acc.push a)
 
-theorem insertIdxTR_go_eq : ∀ i l, insertIdxTR.go a i l acc = acc.toList ++ insertIdx l i a
+private theorem insertIdxTR_go_eq : ∀ i l, insertIdxTR.go a i l acc = acc.toList ++ insertIdx l i a
   | 0, l | _+1, [] => by simp [insertIdxTR.go, insertIdx]
   | n+1, a :: l => by simp [insertIdxTR.go, insertIdx, insertIdxTR_go_eq n l]
 
@@ -562,24 +564,7 @@ def zipIdxTR (l : List α) (n : Nat := 0) : List (α × Nat) :=
 
 /-! ### enumFrom -/
 
-/-- Tail recursive version of `List.enumFrom`. -/
-@[deprecated zipIdxTR (since := "2025-01-21")]
-def enumFromTR (n : Nat) (l : List α) : List (Nat × α) :=
-  let as := l.toArray
-  (as.foldr (fun a (n, acc) => (n-1, (n-1, a) :: acc)) (n + as.size, [])).2
 
-set_option linter.deprecated false in
-@[deprecated zipIdx_eq_zipIdxTR (since := "2025-01-21"), csimp]
-theorem enumFrom_eq_enumFromTR : @enumFrom = @enumFromTR := by
-  funext α n l; simp only [enumFromTR]
-  let f := fun (a : α) (n, acc) => (n-1, (n-1, a) :: acc)
-  let rec go : ∀ l n, l.foldr f (n + l.length, []) = (n, enumFrom n l)
-    | [], n => rfl
-    | a::as, n => by
-      rw [← show _ + as.length = n + (a::as).length from Nat.succ_add .., foldr, go as]
-      simp [enumFrom, f]
-  rw [← Array.foldr_toList]
-  simp +zetaDelta [go]
 
 /-! ## Other list operations -/
 

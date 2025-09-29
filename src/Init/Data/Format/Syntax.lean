@@ -6,9 +6,13 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Format.Macro
-import Init.Data.Format.Instances
-import Init.Meta
+public import Init.Data.Format.Macro
+public import Init.Data.Format.Instances
+public import Init.Meta
+import Init.Data.String.Basic
+import Init.Data.ToString.Name
+
+public section
 
 namespace Lean.Syntax
 

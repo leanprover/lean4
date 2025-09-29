@@ -3,10 +3,15 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner
 -/
-prelude
-import Lean.Elab.Deriving.Basic
+module
 
-namespace Lean.Elab
+prelude
+public import Lean.Elab.Deriving.Basic
+import Lean.Elab.Deriving.Util
+
+public section
+
+namespace Lean.Elab.Deriving
 open Command Meta Parser Term
 
 private def mkNonemptyInstance (declName : Name) : TermElabM Syntax.Command := do
@@ -25,17 +30,16 @@ private def mkNonemptyInstance (declName : Name) : TermElabM Syntax.Command := d
     `(tactic| apply @$(mkCIdent ctor) <;> exact Classical.ofNonempty)
   `(command| variable $binders* in
     instance : Nonempty (@$(mkCIdent declName) $indArgs*) :=
-      ⟨by first $[| $ctorTacs:tactic]*⟩)
+      by constructor; first $[| $ctorTacs:tactic]*)
 
 def mkNonemptyInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if (← declNames.allM isInductive) then
     for declName in declNames do
-      elabCommand (← liftTermElabM do mkNonemptyInstance declName)
+      withoutExposeFromCtors declName do
+        elabCommand (← liftTermElabM do mkNonemptyInstance declName)
     return true
   else
     return false
 
 builtin_initialize
   registerDerivingHandler `Nonempty mkNonemptyInstanceHandler
-
-end Lean.Elab

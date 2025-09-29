@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.CNF.RelabelFin
-import Std.Tactic.BVDecide.LRAT.Internal.Formula
+public import Std.Sat.CNF.RelabelFin
+public import Std.Tactic.BVDecide.LRAT.Internal.Formula
+
+@[expose] public section
 
 namespace Std.Tactic.BVDecide
 
@@ -69,7 +73,7 @@ theorem CNF.Clause.convertLRAT_sat_of_sat (clause : CNF.Clause (PosFin n))
     (h : Clause.convertLRAT' clause = some lratClause) :
     clause.eval assign → assign ⊨ lratClause := by
   intro h2
-  simp only [CNF.Clause.eval, List.any_eq_true, bne_iff_ne, ne_eq] at h2
+  simp only [CNF.Clause.eval, List.any_eq_true] at h2
   simp only [(· ⊨ ·), Clause.eval, List.any_eq_true, decide_eq_true_eq]
   rcases h2 with ⟨lit, ⟨hlit1, hlit2⟩⟩
   apply Exists.intro lit
@@ -128,12 +132,12 @@ theorem CNF.unsat_of_convertLRAT_unsat (cnf : CNF Nat) :
   simp only [Formula.formulaEntails_def, List.all_eq_true, decide_eq_true_eq]
   intro lratClause hlclause
   simp only [Formula.toList, DefaultFormula.toList, DefaultFormula.ofArray,
-    CNF.convertLRAT', List.size_toArray, List.length_map, List.toList_toArray,
-    List.map_nil, List.append_nil, List.mem_filterMap, List.mem_map, id_eq, exists_eq_right] at hlclause
+    CNF.convertLRAT', List.size_toArray, List.toList_toArray,
+    List.map_nil, List.append_nil, List.mem_filterMap, id_eq, exists_eq_right] at hlclause
   rcases hlclause with ⟨reflectClause, ⟨hrclause1, hrclause2⟩⟩
   simp only [CNF.eval, List.all_eq_true] at h2
   split at hrclause2
-  · next heq =>
+  next heq =>
     rw [← heq] at hrclause2
     simp only [Option.some.injEq] at hrclause2
     simp [CNF.Clause.convertLRAT_sat_of_sat reflectClause hrclause2, h2 reflectClause hrclause1]

@@ -4,7 +4,8 @@ def foo : Nat → Nat
 decreasing_by decreasing_tactic
 
 /--
-info: Try this: simp only [foo]
+info: Try this:
+  simp only [foo]
 -/
 #guard_msgs in
 def foo2 : foo 2 = 0 := by

@@ -1,5 +1,4 @@
-import Std.Internal.Rat
-set_option grind.warning false
+module
 
 example (x y : Int) :
     27 ≤ 11*x + 13*y →

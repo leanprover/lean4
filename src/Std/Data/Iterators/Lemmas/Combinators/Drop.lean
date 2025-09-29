@@ -3,11 +3,15 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.Iterators.Combinators.Drop
-import Std.Data.Iterators.Lemmas.Combinators.Monadic.Drop
-import Std.Data.Iterators.Lemmas.Combinators.Take
-import Std.Data.Iterators.Lemmas.Consumers
+public import Std.Data.Iterators.Combinators.Drop
+public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Drop
+public import Std.Data.Iterators.Lemmas.Combinators.Take
+public import Init.Data.Iterators.Lemmas.Consumers
+
+@[expose] public section
 
 namespace Std.Iterators
 
@@ -37,7 +41,7 @@ theorem Iter.atIdxSlow?_drop {α β}
     (it.drop k).atIdxSlow? l = it.atIdxSlow? (l + k) := by
   induction k generalizing it <;> induction l generalizing it
   all_goals
-    induction it using Iter.inductSkips with | step it ih =>
+    induction it using Iter.inductSkips with | step it ih
     rw [atIdxSlow?.eq_def, atIdxSlow?.eq_def, step_drop]
     cases it.step using PlausibleIterStep.casesOn <;> simp [*]
 
@@ -65,7 +69,7 @@ theorem List.drop_eq_extract {l : List α} {k : Nat} :
     match k with
     | 0 => simp
     | _ + 1 =>
-      simp only [List.drop_succ_cons, List.length_cons, Nat.reduceSubDiff, ih]
+      simp only [List.drop_succ_cons, List.length_cons, ih]
       simp only [List.extract_eq_drop_take, Nat.reduceSubDiff, List.drop_succ_cons]
 
 @[simp]

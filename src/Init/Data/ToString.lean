@@ -6,5 +6,8 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Data.ToString.Basic
-import Init.Data.ToString.Macro
+public import Init.Data.ToString.Basic
+public import Init.Data.ToString.Macro
+public meta import Init.Data.ToString.Name
+
+public section

@@ -6,7 +6,12 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.BitVec.Basic
-import Init.Data.BitVec.Bitblast
-import Init.Data.BitVec.Folds
-import Init.Data.BitVec.Lemmas
+public import Init.Data.BitVec.BasicAux
+public import Init.Data.BitVec.Basic
+public import Init.Data.BitVec.Bootstrap
+public import Init.Data.BitVec.Bitblast
+public import Init.Data.BitVec.Decidable
+public import Init.Data.BitVec.Lemmas
+public import Init.Data.BitVec.Folds
+
+public section

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.HashMap.RawLemmas
-// Imports: Std.Data.DHashMap.RawLemmas Std.Data.HashMap.Raw
+// Imports: Std.Data.DHashMap.RawLemmas Std.Data.HashMap.Raw Std.Data.DHashMap.Raw
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22,6 +22,7 @@ return lean_box(0);
 }
 lean_object* initialize_Std_Data_DHashMap_RawLemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_HashMap_Raw(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_DHashMap_Raw(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_HashMap_RawLemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -31,6 +32,9 @@ res = initialize_Std_Data_DHashMap_RawLemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_HashMap_Raw(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_DHashMap_Raw(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

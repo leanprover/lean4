@@ -3,15 +3,20 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Eqns
-import Lean.Util.CollectAxioms
-import Lean.Elab.Command
+public import Lean.Meta.Eqns
+public import Lean.Util.CollectAxioms
+public import Lean.Elab.Command
+import Lean.PrettyPrinter.Delaborator.Builtins
+
+public section
 
 namespace Lean.Elab.Command
 
 private def throwUnknownId (id : Name) : CommandElabM Unit :=
-  throwError "unknown identifier '{.ofConstName id}'"
+  throwError "Unknown identifier `{.ofConstName id}`"
 
 private def levelParamsToMessageData (levelParams : List Name) : MessageData :=
   match levelParams with
@@ -29,6 +34,13 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
   | ReducibilityStatus.reducible =>     attrs := attrs.push m!"reducible"
   | ReducibilityStatus.semireducible => pure ()
 
+  let env ← getEnv
+  if env.header.isModule && (env.setExporting true |>.find? id |>.any (·.isDefinition)) then
+    attrs := attrs.push m!"expose"
+
+  if defeqAttr.hasTag (← getEnv) id then
+    attrs := attrs.push m!"defeq"
+
   let mut m : MessageData := m!""
   unless attrs.isEmpty do
     m := m ++ "@[" ++ MessageData.joinSep attrs.toList ", " ++ "] "
@@ -38,15 +50,18 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
   | DefinitionSafety.partial => m := m ++ "partial "
   | DefinitionSafety.safe    => pure ()
 
-  if isProtected (← getEnv) id then
-    m := m ++ "protected "
-
   let id' ← match privateToUserName? id with
     | some id' =>
       m := m ++ "private "
       pure id'
     | none =>
       pure id
+
+  if isProtected (← getEnv) id then
+    m := m ++ "protected "
+
+  if isMeta (← getEnv) id then
+    m := m ++ "meta "
 
   if sig then
     return m!"{m}{kind} {id'}{levelParamsToMessageData levelParams} : {type}"
@@ -79,6 +94,19 @@ private def printInduct (id : Name) (levelParams : List Name) (numParams : Nat) 
   for ctor in ctors do
     let cinfo ← getConstInfo ctor
     m := m ++ Format.line ++ ctor ++ " : " ++ cinfo.type
+  logInfo m
+
+private def printRecursor (recInfo : RecursorVal) : CommandElabM Unit := do
+  let mut m ← mkHeader "recursor" recInfo.name recInfo.levelParams recInfo.type (if recInfo.isUnsafe then .unsafe else .safe)
+  m := m ++ Format.line ++ m!"number of parameters: {recInfo.numParams}"
+  m := m ++ Format.line ++ m!"number of indices: {recInfo.numIndices}"
+  m := m ++ Format.line ++ m!"number of motives: {recInfo.numMotives}"
+  m := m ++ Format.line ++ m!"number of minors: {recInfo.numMinors}"
+  if recInfo.k then
+    m := m ++ Format.line ++ m!"supports k-like reduction"
+  m := m ++ Format.line ++ "rules:"
+  for rule in recInfo.rules do
+    m := m ++ Format.line ++ m!"for {rule.ctor} ({rule.nfields} fields): {rule.rhs}"
   logInfo m
 
 /--
@@ -122,7 +150,7 @@ private partial def printStructure (id : Name) (levelParams : List Name) (numPar
       let flatCtorName := mkFlatCtorOfStructCtorName ctor
       let flatCtorInfo ← getConstInfo flatCtorName
       let autoParams : NameMap Syntax ← forallTelescope flatCtorInfo.type fun args _ =>
-        args[numParams:].foldlM (init := {}) fun set arg => do
+        args[numParams...*].foldlM (init := {}) fun set arg => do
           let decl ← arg.fvarId!.getDecl
           if let some (.const tacticDecl _) := decl.type.getAutoParamTactic? then
             let tacticSyntax ← ofExcept <| evalSyntaxConstant (← getEnv) (← getOptions) tacticDecl
@@ -142,7 +170,7 @@ private partial def printStructure (id : Name) (levelParams : List Name) (numPar
           let fi ← getFieldOrigin source field
           let proj := fi.projFn
           let modifier := if isPrivateName proj then "private " else ""
-          let ftype ← inferType (fieldMap.find! field)
+          let ftype ← inferType (fieldMap.get! field)
           let value ←
             if let some stx := autoParams.find? field then
               let stx : TSyntax ``Parser.Tactic.tacticSeq := ⟨stx⟩
@@ -181,7 +209,7 @@ private def printIdCore (sigOnly : Bool) (id : Name) : CommandElabM Unit := do
   | ConstantInfo.opaqueInfo  { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "opaque" id us t (if u then .unsafe else .safe)
   | ConstantInfo.quotInfo  { levelParams := us, type := t, .. } => printQuot id us t
   | ConstantInfo.ctorInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "constructor" id us t (if u then .unsafe else .safe)
-  | ConstantInfo.recInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "recursor" id us t (if u then .unsafe else .safe)
+  | ConstantInfo.recInfo recInfo => printRecursor recInfo
   | ConstantInfo.inductInfo { levelParams := us, numParams, type := t, ctors, isUnsafe := u, .. } =>
     if isStructure env id then
       printStructure id us numParams t ctors[0]! u

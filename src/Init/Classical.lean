@@ -6,7 +6,9 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.PropLemmas
+public import Init.PropLemmas
+
+public section
 
 universe u v
 
@@ -45,7 +47,7 @@ theorem em (p : Prop) : p ∨ ¬p :=
     | Or.inr h, _ => Or.inr h
     | _, Or.inr h => Or.inr h
     | Or.inl hut, Or.inl hvf =>
-      have hne : u ≠ v := by simp [hvf, hut, true_ne_false]
+      have hne : u ≠ v := by simp [hvf, hut]
       Or.inl hne
   have p_implies_uv : p → u = v :=
     fun hp =>

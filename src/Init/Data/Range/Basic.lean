@@ -6,8 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Meta
-import Init.Omega
+public import Init.Meta
+public import Init.Omega
+
+public section
 
 namespace Std
 -- We put `Range` in `Init` because we want the notation `[i:j]`  without importing `Std`
@@ -85,4 +87,4 @@ theorem Membership.get_elem_helper {i n : Nat} {r : Std.Range} (h₁ : i ∈ r) 
     i < n := h₂ ▸ h₁.2.1
 
 macro_rules
-  | `(tactic| get_elem_tactic_trivial) => `(tactic| apply Membership.get_elem_helper; assumption; rfl)
+  | `(tactic| get_elem_tactic_extensible) => `(tactic| apply Membership.get_elem_helper; assumption; rfl)

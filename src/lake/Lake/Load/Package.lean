@@ -3,7 +3,12 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
+public import Lake.Load.Config
+public import Lake.Config.Package
+import Lake.Util.IO
 import Lake.Load.Lean
 import Lake.Load.Toml
 
@@ -14,15 +19,15 @@ from Lake configuration file (either Lean or TOML).
 -/
 
 open Lean
+open System (FilePath)
 
 namespace Lake
-open System (FilePath)
 
 /--
 Return whether a configuration file with the given name
 and/or a supported extension exists.
 -/
-def configFileExists (cfgFile : FilePath) : BaseIO Bool :=
+public def configFileExists (cfgFile : FilePath) : BaseIO Bool :=
   if cfgFile.extension.isSome then
     cfgFile.pathExists
   else
@@ -34,7 +39,7 @@ def configFileExists (cfgFile : FilePath) : BaseIO Bool :=
 Returns the normalized real path of the configuration file (if it exists).
 Otherwise, returns an empty string.
 -/
-def realConfigFile (cfgFile : FilePath) : BaseIO FilePath := do
+public def realConfigFile (cfgFile : FilePath) : BaseIO FilePath := do
   if cfgFile.extension.isSome then
     resolvePath cfgFile
   else
@@ -47,7 +52,7 @@ def realConfigFile (cfgFile : FilePath) : BaseIO FilePath := do
 Loads a Lake package configuration (either Lean or TOML).
 The resulting package does not yet include any dependencies.
 -/
-def loadPackageCore
+public def loadPackageCore
   (name : String) (cfg : LoadConfig)
 : LogIO (Package × Option Environment) := do
   if let some ext := cfg.relConfigFile.extension then
@@ -79,6 +84,6 @@ def loadPackageCore
         error s!"{name}: no configuration file with a supported extension:\n{leanFile}\n{tomlFile}"
 
 /-- Loads a Lake package as a single independent object (without dependencies). -/
-def loadPackage (config : LoadConfig) : LogIO Package := do
+public def loadPackage (config : LoadConfig) : LogIO Package := do
   Lean.searchPathRef.set config.lakeEnv.leanSearchPath
   (·.1) <$> loadPackageCore "[root]" config

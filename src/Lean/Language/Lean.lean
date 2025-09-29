@@ -8,12 +8,16 @@ recompilation
 Authors: Sebastian Ullrich
 -/
 
+module
+
 prelude
-import Lean.Language.Basic
-import Lean.Language.Util
-import Lean.Language.Lean.Types
-import Lean.Parser.Module
-import Lean.Elab.Import
+public import Lean.Language.Basic
+public import Lean.Language.Util
+public import Lean.Language.Lean.Types
+public import Lean.Parser.Module
+public import Lean.Elab.Import
+
+public section
 
 /-!
 # Note [Incremental Parsing]
@@ -256,7 +260,7 @@ ruled out.
 def LeanProcessingM.run (act : LeanProcessingM α) (oldInputCtx? : Option InputContext) :
     ProcessingM α := do
   -- compute position of syntactic change once
-  let firstDiffPos? := oldInputCtx?.map (·.input.firstDiffPos (← read).input)
+  let firstDiffPos? := oldInputCtx?.map (·.inputString.firstDiffPos (← read).inputString)
   ReaderT.adapt ({ · with firstDiffPos? }) act
 
 /--
@@ -291,8 +295,8 @@ structure SetupImportsResult where
   opts : Options
   /-- Kernel trust level. -/
   trustLevel : UInt32 := 0
-  /-- Pre-resolved artifacts of related modules (e.g., this module's transitive imports). -/
-  modules : NameMap ModuleArtifacts := {}
+  /-- Pre-resolved artifacts of transitively imported modules. -/
+  importArts : NameMap ImportArtifacts := {}
   /-- Lean plugins to load as part of the environment setup. -/
   plugins : Array System.FilePath := #[]
 
@@ -388,25 +392,31 @@ where
       -- they are passed separately from `old`
       if let some oldSuccess := old.result? then
         -- make sure to update ranges of all reused tasks
-        let progressRange? := some ⟨newParserState.pos, ctx.input.endPos⟩
+        let progressRange? := .some ⟨newParserState.pos, ctx.endPos⟩
         return {
           ictx
           stx := newStx
-          diagnostics := old.diagnostics
+          diagnostics := .empty
+          metaSnap := .finished newStx {
+            diagnostics := old.diagnostics
+          }
           result? := some {
             parserState := newParserState
-            processedSnap := (← oldSuccess.processedSnap.bindIO (stx? := newStx)
-                (cancelTk? := none) (reportingRange? := progressRange?) (sync := true) fun oldProcessed => do
+            processedSnap := (← oldSuccess.processedSnap.bindIO
+                (cancelTk? := none) (reportingRange := progressRange?) (sync := true) fun oldProcessed => do
               if let some oldProcSuccess := oldProcessed.result? then
                 -- also wait on old command parse snapshot as parsing is cheap and may allow for
                 -- elaboration reuse
-                oldProcSuccess.firstCmdSnap.bindIO (sync := true) (stx? := newStx)
-                    (cancelTk? := none) (reportingRange? := progressRange?) fun oldCmd => do
+                oldProcSuccess.firstCmdSnap.bindIO (sync := true)
+                    (cancelTk? := none) (reportingRange := progressRange?) fun oldCmd => do
                   let prom ← IO.Promise.new
                   let cancelTk ← IO.CancelToken.new
                   parseCmd oldCmd newParserState oldProcSuccess.cmdState prom (sync := true) cancelTk ctx
-                  return .finished newStx {
-                    diagnostics := oldProcessed.diagnostics
+                  return .finished none {
+                    diagnostics := .empty
+                    metaSnap := .finished newStx {
+                      diagnostics := oldProcessed.diagnostics
+                    }
                     result? := some {
                       cmdState := oldProcSuccess.cmdState
                       firstCmdSnap := { stx? := none, task := prom.result!, cancelTk? := cancelTk } } }
@@ -420,18 +430,21 @@ where
         if let some (some processed) ← old.processedResult.get? then
           -- ...and the edit is after the second-next command (see note [Incremental Parsing])...
           if let some nextCom ← processed.firstCmdSnap.get? then
-            if let some nextNextCom ← processed.firstCmdSnap.get? then
+            if let some nextNextCom ← nextCom.nextCmdSnap?.bindM (·.get?) then
               if (← isBeforeEditPos nextNextCom.parserState.pos) then
                 -- ...go immediately to next snapshot
                 return (← unchanged old old.stx oldSuccess.parserState)
 
-    withHeaderExceptions ({ · with ictx, stx := .missing, result? := none }) do
+    withHeaderExceptions ({ · with ictx, stx := .missing, result? := none, metaSnap := default }) do
       -- parsing the header should be cheap enough to do synchronously
       let (stx, parserState, msgLog) ← Parser.parseHeader ictx
       if msgLog.hasErrors then
         return {
           ictx, stx
-          diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
+          diagnostics := .empty
+          metaSnap := .finished stx {
+            diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
+          }
           result? := none
         }
 
@@ -452,7 +465,10 @@ where
         old.result?.forM (·.processedSnap.cancelRec)
       return {
         ictx, stx
-        diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
+        diagnostics := .empty
+        metaSnap := .finished stx {
+          diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
+        }
         result? := some {
           parserState
           processedSnap := (← processHeader ⟨trimmedStx⟩ parserState)
@@ -462,9 +478,9 @@ where
   processHeader (stx : HeaderSyntax) (parserState : Parser.ModuleParserState) :
       LeanProcessingM (SnapshotTask HeaderProcessedSnapshot) := do
     let ctx ← read
-    SnapshotTask.ofIO stx none (some ⟨0, ctx.input.endPos⟩) <|
+    SnapshotTask.ofIO none none (.some ⟨0, ctx.endPos⟩) <|
     ReaderT.run (r := ctx) <|  -- re-enter reader in new task
-    withHeaderExceptions (α := HeaderProcessedSnapshot) ({ · with result? := none }) do
+    withHeaderExceptions (α := HeaderProcessedSnapshot) ({ · with result? := none, metaSnap := default }) do
       let setup ← match (← setupImports stx) with
         | .ok setup => pure setup
         | .error snap => return snap
@@ -472,18 +488,18 @@ where
       let startTime := (← IO.monoNanosNow).toFloat / 1000000000
       let mut opts := setup.opts
       -- HACK: no better way to enable in core with `USE_LAKE` off
-      if (`Init).isPrefixOf setup.mainModuleName then
+      if setup.mainModuleName.getRoot ∈ [`Init, `Std, `Lean, `Lake, `LakeMain] then
         opts := experimental.module.setIfNotSet opts true
       if !stx.raw[0].isNone && !experimental.module.get opts then
         throw <| IO.Error.userError "`module` keyword is experimental and not enabled here"
       -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
       let (headerEnv, msgLog) ← Elab.processHeaderCore (leakEnv := true)
         stx.startPos setup.imports setup.isModule setup.opts .empty ctx.toInputContext
-        setup.trustLevel setup.plugins setup.mainModuleName setup.modules
+        setup.trustLevel setup.plugins setup.mainModuleName setup.importArts
       let stopTime := (← IO.monoNanosNow).toFloat / 1000000000
       let diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
       if msgLog.hasErrors then
-        return { diagnostics, result? := none }
+        return { diagnostics, result? := none, metaSnap := default }
 
       let mut traceState := default
       if trace.profiler.output.get? setup.opts |>.isSome then
@@ -521,8 +537,11 @@ where
       let cancelTk ← IO.CancelToken.new
       parseCmd none parserState cmdState prom (sync := true) cancelTk ctx
       return {
-        diagnostics
-        infoTree? := cmdState.infoState.trees[0]!
+        diagnostics := .empty
+        metaSnap := .finished stx {
+          diagnostics
+          infoTree? := cmdState.infoState.trees[0]!
+        }
         result? := some {
           cmdState
           firstCmdSnap := { stx? := none, task := prom.result!, cancelTk? := cancelTk }
@@ -543,14 +562,14 @@ where
         let newProm ← IO.Promise.new
         let cancelTk ← IO.CancelToken.new
         -- can reuse range, syntax unchanged
-        BaseIO.chainTask (sync := true) old.resultSnap.task fun oldResult =>
+        BaseIO.chainTask (sync := true) old.elabSnap.resultSnap.task fun oldResult =>
           -- also wait on old command parse snapshot as parsing is cheap and may allow for
           -- elaboration reuse
           BaseIO.chainTask (sync := true) oldNext.task fun oldNext => do
             parseCmd oldNext newParserState oldResult.cmdState newProm sync cancelTk ctx
         prom.resolve <| { old with nextCmdSnap? := some {
           stx? := none
-          reportingRange? := some ⟨newParserState.pos, ctx.input.endPos⟩
+          reportingRange := .some ⟨newParserState.pos, ctx.endPos⟩
           task := newProm.result!
           cancelTk? := cancelTk
         } }
@@ -601,10 +620,13 @@ where
       -- is not `Inhabited`
       prom.resolve <| {
         diagnostics := .empty, stx := .missing, parserState
-        elabSnap := default
-        resultSnap := .finished none { diagnostics := .empty, cmdState }
-        infoTreeSnap := .finished none { diagnostics := .empty }
-        reportSnap := default
+        elabSnap := {
+          diagnostics := .empty
+          elabSnap := default
+          resultSnap := .finished none { diagnostics := .empty, cmdState }
+          infoTreeSnap := .finished none { diagnostics := .empty }
+          reportSnap := default
+        }
         nextCmdSnap? := none
       }
       return
@@ -623,13 +645,13 @@ where
         (stx, parserState)
       -- report terminal tasks on first line of decl such as not to hide incremental tactics'
       -- progress
-      let initRange? := getNiceCommandStartPos? stx |>.map fun pos => ⟨pos, pos⟩
+      let initRange? := .ofOptionInheriting <| getNiceCommandStartPos? stx |>.map fun pos => ⟨pos, pos⟩
       let next? ← if Parser.isTerminalCommand stx then pure none
         -- for now, wait on "command finished" snapshot before parsing next command
         else some <$> IO.Promise.new
       let nextCmdSnap? := next?.map ({
         stx? := none
-        reportingRange? := some ⟨parserState.pos, ctx.input.endPos⟩
+        reportingRange := .some ⟨parserState.pos, ctx.endPos⟩
         cancelTk? := parseCancelTk
         task := ·.result!
       })
@@ -641,13 +663,16 @@ where
       prom.resolve {
         diagnostics, nextCmdSnap?
         stx := stx', parserState := parserState'
-        elabSnap := { stx? := stx', task := elabPromise.result!, cancelTk? := some elabCmdCancelTk }
-        resultSnap := { stx? := stx', reportingRange? := initRange?, task := resultPromise.result!, cancelTk? := none }
-        infoTreeSnap := { stx? := stx', reportingRange? := initRange?, task := finishedPromise.result!, cancelTk? := none }
-        reportSnap := { stx? := none, reportingRange? := initRange?, task := reportPromise.result!, cancelTk? := none }
+        elabSnap := {
+          diagnostics := .empty
+          elabSnap := { stx? := stx', task := elabPromise.result!, cancelTk? := some elabCmdCancelTk }
+          resultSnap := { stx? := stx', reportingRange := initRange?, task := resultPromise.result!, cancelTk? := none }
+          infoTreeSnap := { stx? := stx', reportingRange := initRange?, task := finishedPromise.result!, cancelTk? := none }
+          reportSnap := { stx? := none, reportingRange := initRange?, task := reportPromise.result!, cancelTk? := none }
+        }
       }
       let cmdState ← doElab stx cmdState beginPos
-        { old? := old?.map fun old => ⟨old.stx, old.elabSnap⟩, new := elabPromise }
+        { old? := old?.map fun old => ⟨old.stx, old.elabSnap.elabSnap⟩, new := elabPromise }
         elabCmdCancelTk ctx
 
       let mut reportedCmdState := cmdState
@@ -710,7 +735,7 @@ where
         .mk { diagnostics := .empty } <|
           cmdState.snapshotTasks.push {
             stx? := none
-            reportingRange? := initRange?
+            reportingRange := initRange?
             task := traceTask
             cancelTk? := none
           }
@@ -777,6 +802,6 @@ where goCmd snap :=
   if let some next := snap.nextCmdSnap? then
     goCmd next.get
   else
-    snap.resultSnap.get.cmdState
+    snap.elabSnap.resultSnap.get.cmdState
 
 end Lean

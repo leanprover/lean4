@@ -763,7 +763,7 @@ mpz & mpz::operator%=(mpz const & o) {
     return rem(o.m_size, o.m_digits);
 }
 
-mpz divexact(mpz const & n, mpz const & d) {
+mpz mpz::divexact(mpz const & n, mpz const & d) {
     return n / d;
 }
 

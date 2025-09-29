@@ -1,5 +1,4 @@
-
-set_option grind.warning false
+module
 
 open List Nat
 
@@ -109,6 +108,9 @@ theorem countP_mono_left (h : ∀ x ∈ l, p x → q x) : countP p l ≤ countP 
 theorem countP_congr (h : ∀ x ∈ l, p x ↔ q x) : countP p l = countP q l := by
   induction l with grind
 
+theorem length_eq_countP_add_countP (p : α → Bool) {l : List α} : length l = countP p l + countP (fun a => ¬p a) l := by
+  induction l with grind
+
 end countP
 
 /-! ### count -/
@@ -120,9 +122,6 @@ theorem count_nil {a : α} : count a [] = 0 := by grind
 
 theorem count_cons {a b : α} {l : List α} :
     count a (b :: l) = count a l + if b == a then 1 else 0 := by grind
-
-theorem count_eq_countP {a : α} {l : List α} : count a l = countP (· == a) l := by grind
-theorem count_eq_countP' {a : α} : count a = countP (· == a) := by grind
 
 theorem count_tail {l : List α} (h : l ≠ []) (a : α) :
       l.tail.count a = l.count a - if l.head h == a then 1 else 0 := by
@@ -207,5 +206,18 @@ theorem count_le_count_map {β} [BEq β] [LawfulBEq β] {l : List α} {f : α �
 
 theorem count_erase {a b : α} {l : List α} : count a (l.erase b) = count a l - if b == a then 1 else 0 := by
   induction l <;> grind [-List.count_erase]
+
+theorem filter_beq {l : List α} (a : α) : l.filter (· == a) = replicate (count a l) a := by
+  ext
+  grind
+
+theorem count_flatten {α} [BEq α] {a : α} {l : List (List α)} : count a l.flatten = (l.map (count a)).sum := by
+  grind
+
+theorem count_concat_self {a : α} {l : List α} : count a (concat l a) = count a l + 1 := by grind
+
+theorem count_flatMap {α} [BEq β] {l : List α} {f : α → List β} {x : β} :
+    count x (l.flatMap f) = sum (map (count x ∘ f) l) := by
+  grind
 
 end count

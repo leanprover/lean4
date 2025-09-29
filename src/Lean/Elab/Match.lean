@@ -3,23 +3,27 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
+module
+
 prelude
-import Lean.Util.ForEachExprWhere
-import Lean.Meta.CtorRecognizer
-import Lean.Meta.Match.Match
-import Lean.Meta.GeneralizeVars
-import Lean.Meta.ForEachExpr
-import Lean.Elab.BindersUtil
-import Lean.Elab.PatternVar
-import Lean.Elab.Quotation.Precheck
-import Lean.Elab.SyntheticMVars
+public import Lean.Util.ForEachExprWhere
+public import Lean.Meta.CtorRecognizer
+public import Lean.Meta.Match.Match
+public import Lean.Meta.GeneralizeVars
+public import Lean.Meta.ForEachExpr
+public import Lean.Elab.BindersUtil
+public import Lean.Elab.PatternVar
+public import Lean.Elab.Quotation.Precheck
+public import Lean.Elab.SyntheticMVars
+
+public section
 
 namespace Lean.Elab.Term
 open Meta
 open Lean.Parser.Term
 
 private def expandSimpleMatch (stx : Syntax) (discr : Term) (lhsVar : Ident) (rhs : Term) (expectedType? : Option Expr) : TermElabM Expr := do
-  let newStx ← `(let $lhsVar := $discr; $rhs)
+  let newStx ← `(let $lhsVar:ident := $discr; $rhs)
   withMacroExpansion stx newStx <| elabTerm newStx expectedType?
 
 private def mkUserNameFor (e : Expr) : TermElabM Name := do
@@ -195,7 +199,8 @@ private partial def withPatternVars {α} (pVars : Array PatternVar) (k : Array P
   let rec loop (i : Nat) (decls : Array PatternVarDecl) (userNames : Array Name) := do
     if h : i < pVars.size then
       let type ← mkFreshTypeMVar
-      withLocalDecl pVars[i].getId BinderInfo.default type fun x =>
+      let n := pVars[i].getId
+      withLocalDecl n BinderInfo.default type (kind := .ofBinderName n) fun x =>
         loop (i+1) (decls.push { fvarId := x.fvarId! }) (userNames.push Name.anonymous)
     else
       k decls
@@ -295,12 +300,12 @@ where
     matchConstInduct t.getAppFn (fun _ => failure) fun info _ => do
       let tArgs := t.getAppArgs
       let dArgs := d.getAppArgs
-      for i in [:info.numParams] do
+      for i in *...info.numParams do
         let tArg := tArgs[i]!
         let dArg := dArgs[i]!
         unless (← isDefEq tArg dArg) do
           return i :: (← goType tArg dArg)
-      for h : i in [info.numParams : tArgs.size] do
+      for h : i in info.numParams...tArgs.size do
         let tArg := tArgs[i]
         let dArg := dArgs[i]!
         unless (← isDefEq tArg dArg) do
@@ -318,12 +323,12 @@ where
       matchConstCtor t.getAppFn (fun _ => failure) fun info _ => do
         let tArgs := t.getAppArgs
         let dArgs := d.getAppArgs
-        for i in [:info.numParams] do
+        for i in *...info.numParams do
           let tArg := tArgs[i]!
           let dArg := dArgs[i]!
           unless (← isDefEq tArg dArg) do
             failure
-        for i in [info.numParams : tArgs.size] do
+        for i in info.numParams...tArgs.size do
           let tArg := tArgs[i]!
           let dArg := dArgs[i]!
           unless (← isDefEq tArg dArg) do
@@ -334,7 +339,7 @@ private partial def eraseIndices (type : Expr) : MetaM Expr := do
   let type' ← whnfD type
   matchConstInduct type'.getAppFn (fun _ => return type) fun info _ => do
     let args := type'.getAppArgs
-    let params ← args[:info.numParams].toArray.mapM eraseIndices
+    let params ← args[*...info.numParams].toArray.mapM eraseIndices
     let result := mkAppN type'.getAppFn params
     let resultType ← inferType result
     let (newIndices, _, _) ← forallMetaTelescopeReducing resultType (some (args.size - info.numParams))
@@ -356,13 +361,13 @@ private def elabPatterns (patternStxs : Array Syntax) (numDiscrs : Nat) (matchTy
       logIncorrectNumberOfPatternsAt (← getRef) "Not enough" numDiscrs patternStxs.size patternStxs.toList
       let numHoles := numDiscrs - patternStxs.size
       let mut extraStxs := Array.emptyWithCapacity numHoles
-      for _ in [:numHoles] do
+      for _ in *...numHoles do
         extraStxs := extraStxs.push (← `(_))
       patternStxs := patternStxs ++ extraStxs
     else if patternStxs.size > numDiscrs then
       throwIncorrectNumberOfPatternsAt (← getRef) "Too many" numDiscrs patternStxs.size patternStxs.toList
 
-    for h : idx in [:patternStxs.size] do
+    for h : idx in *...patternStxs.size do
       let patternStx := patternStxs[idx]
       matchType ← whnf matchType
       match matchType with
@@ -372,7 +377,8 @@ private def elabPatterns (patternStxs : Array Syntax) (numDiscrs : Nat) (matchTy
           try
             liftM <| withSynthesize <| withPatternElabConfig <| elabTermEnsuringType patternStx d
           catch ex : Exception =>
-            restoreState s
+            -- Discard info trees to remove any named-argument hints (they are generated anew when re-elaborating)
+            s.restore (restoreInfo := true)
             match (← liftM <| commitIfNoErrors? <| withPatternElabConfig do elabTermAndSynthesize patternStx (← eraseIndices d)) with
             | some pattern =>
               match (← findDiscrRefinementPath pattern d |>.run) with
@@ -670,7 +676,7 @@ where
     match p with
     | .forallE n d b bi  => withLocalDecl n bi (← go d) fun x => do mkForallFVars #[x] (← go (b.instantiate1 x))
     | .lam n d b bi      => withLocalDecl n bi (← go d) fun x => do mkLambdaFVars #[x] (← go (b.instantiate1 x))
-    | .letE n t v b ..  => withLetDecl n (← go t) (← go v) fun x => do mkLetFVars #[x] (← go (b.instantiate1 x))
+    | .letE n t v b nondep => mapLetDecl n (← go t) (← go v) (nondep := nondep) fun x => go (b.instantiate1 x)
     | .app f a          => return mkApp (← go f) (← go a)
     | .proj _ _ b       => return p.updateProj! (← go b)
     | .mdata k b        =>
@@ -739,7 +745,7 @@ where
     let rec go (packed : Expr) (patternVars : Array Expr) : TermElabM α := do
       match packed with
       | .lam n d b _ =>
-        withLocalDeclD n (← erasePatternRefAnnotations (← eraseInaccessibleAnnotations d)) fun patternVar =>
+        withLocalDecl n .default (← erasePatternRefAnnotations (← eraseInaccessibleAnnotations d)) (kind := .ofBinderName n) fun patternVar =>
           go (b.instantiate1 patternVar) (patternVars.push patternVar)
       | _ =>
         let (matchType, patterns) := unpackMatchTypePatterns packed
@@ -1041,7 +1047,7 @@ def reportMatcherResultErrors (altLHSS : List AltLHS) (result : MatcherResult) :
         withRef alt.ref do withInPattern do withExistingLocalDecls alt.fvarDecls do
           let pats ← alt.patterns.mapM fun p => return toMessageData (← Pattern.toExpr p)
           let pats := MessageData.joinSep pats ", "
-          logError (mkRedundantAlternativeMsg none pats)
+          logNamedError lean.redundantMatchAlt (mkRedundantAlternativeMsg none pats)
       i := i + 1
 
 /--

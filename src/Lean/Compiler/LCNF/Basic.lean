@@ -3,14 +3,18 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.List.BasicAux
-import Lean.Expr
-import Lean.Meta.Instances
-import Lean.Compiler.ExternAttr
-import Lean.Compiler.InlineAttrs
-import Lean.Compiler.Specialize
-import Lean.Compiler.LCNF.Types
+public import Init.Data.List.BasicAux
+public import Lean.Expr
+public import Lean.Meta.Instances
+public import Lean.Compiler.ExternAttr
+public import Lean.Compiler.InlineAttrs
+public import Lean.Compiler.Specialize
+public import Lean.Compiler.LCNF.Types
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -89,7 +93,6 @@ inductive LetValue where
   | proj (typeName : Name) (idx : Nat) (struct : FVarId)
   | const (declName : Name) (us : List Level) (args : Array Arg)
   | fvar (fvarId : FVarId) (args : Array Arg)
-  -- TODO: add constructors for mono and impure phases
   deriving Inhabited, BEq, Hashable
 
 def Arg.toLetValue (arg : Arg) : LetValue :=
@@ -641,25 +644,29 @@ def Decl.instantiateParamsLevelParams (decl : Decl) (us : List Level) : Array Pa
 /--
 Return `true` if the arrow type contains an instance implicit argument.
 -/
-def hasLocalInst (type : Expr) : Bool :=
+def hasLocalInst (type : Expr) : CoreM Bool := do
   match type with
-  | .forallE _ _ b bi => bi.isInstImplicit || hasLocalInst b
-  | _ => false
+  | .forallE _ d b bi =>
+    (pure bi.isInstImplicit) <||>
+    ((pure bi.isImplicit) <&&> (pure (← isArrowClass? d).isSome)) <||>
+    hasLocalInst b
+  | _ => return false
 
 /--
 Return `true` if `decl` is supposed to be inlined/specialized.
 -/
 def Decl.isTemplateLike (decl : Decl) : CoreM Bool := do
-  if hasLocalInst decl.type then
+  let env ← getEnv
+  if ← hasLocalInst decl.type then
     return true -- `decl` applications will be specialized
-  else if (← Meta.isInstance decl.name) then
+  else if Meta.isInstanceCore env decl.name then
     return true -- `decl` is "fuel" for code specialization
-  else if decl.inlineable || hasSpecializeAttribute (← getEnv) decl.name then
+  else if decl.inlineable || hasSpecializeAttribute env decl.name then
     return true -- `decl` is going to be inlined or specialized
   else
     return false
 
-private partial def collectType (e : Expr) : FVarIdSet → FVarIdSet :=
+private partial def collectType (e : Expr) : FVarIdHashSet → FVarIdHashSet :=
   match e with
   | .forallE _ d b _ => collectType b ∘ collectType d
   | .lam _ d b _     => collectType b ∘ collectType d
@@ -669,30 +676,30 @@ private partial def collectType (e : Expr) : FVarIdSet → FVarIdSet :=
   | .proj .. | .letE .. => unreachable!
   | _                => id
 
-private def collectArg (arg : Arg) (s : FVarIdSet) : FVarIdSet :=
+private def collectArg (arg : Arg) (s : FVarIdHashSet) : FVarIdHashSet :=
   match arg with
   | .erased => s
   | .fvar fvarId => s.insert fvarId
   | .type e => collectType e s
 
-private def collectArgs (args : Array Arg) (s : FVarIdSet) : FVarIdSet :=
+private def collectArgs (args : Array Arg) (s : FVarIdHashSet) : FVarIdHashSet :=
   args.foldl (init := s) fun s arg => collectArg arg s
 
-private def collectLetValue (e : LetValue) (s : FVarIdSet) : FVarIdSet :=
+private def collectLetValue (e : LetValue) (s : FVarIdHashSet) : FVarIdHashSet :=
   match e with
   | .fvar fvarId args => collectArgs args <| s.insert fvarId
   | .const _ _ args => collectArgs args s
   | .proj _ _ fvarId => s.insert fvarId
   | .lit .. | .erased => s
 
-private partial def collectParams (ps : Array Param) (s : FVarIdSet) : FVarIdSet :=
+private partial def collectParams (ps : Array Param) (s : FVarIdHashSet) : FVarIdHashSet :=
   ps.foldl (init := s) fun s p => collectType p.type s
 
 mutual
-partial def FunDecl.collectUsed (decl : FunDecl) (s : FVarIdSet := {}) : FVarIdSet :=
+partial def FunDecl.collectUsed (decl : FunDecl) (s : FVarIdHashSet := {}) : FVarIdHashSet :=
   decl.value.collectUsed <| collectParams decl.params <| collectType decl.type s
 
-partial def Code.collectUsed (code : Code) (s : FVarIdSet := {}) : FVarIdSet :=
+partial def Code.collectUsed (code : Code) (s : FVarIdHashSet := {}) : FVarIdHashSet :=
   match code with
   | .let decl k => k.collectUsed <| collectLetValue decl.value <| collectType decl.type s
   | .jp decl k | .fun decl k => k.collectUsed <| decl.collectUsed s
@@ -708,7 +715,7 @@ partial def Code.collectUsed (code : Code) (s : FVarIdSet := {}) : FVarIdSet :=
   | .jmp fvarId args => collectArgs args <| s.insert fvarId
 end
 
-abbrev collectUsedAtExpr (s : FVarIdSet) (e : Expr) : FVarIdSet :=
+@[inline] def collectUsedAtExpr (s : FVarIdHashSet) (e : Expr) : FVarIdHashSet :=
   collectType e s
 
 /--

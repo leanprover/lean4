@@ -6,7 +6,9 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.Coe
+public import Init.Coe
+
+public section
 
 /-!
 In this file, we define the coercion `α → Option α`.

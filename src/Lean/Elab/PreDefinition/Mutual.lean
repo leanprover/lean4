@@ -3,8 +3,12 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Elab.PreDefinition.Basic
+public import Lean.Elab.PreDefinition.Basic
+
+public section
 
 /-!
 This module contains code common to mutual-via-fixedpoint constructions, i.e.
@@ -26,7 +30,7 @@ where
       withLocalDecl vals[0]!.bindingName! vals[0]!.binderInfo vals[0]!.bindingDomain! fun x =>
         go (fvars.push x) (vals.map fun val => val.bindingBody!.instantiate1 x)
 
-def addPreDefsFromUnary (preDefs : Array PreDefinition) (preDefsNonrec : Array PreDefinition)
+def addPreDefsFromUnary (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDefinition) (preDefsNonrec : Array PreDefinition)
     (unaryPreDefNonRec : PreDefinition) (cacheProofs := true) : TermElabM Unit := do
   /-
   We must remove `implemented_by` attributes from the auxiliary application because
@@ -41,11 +45,11 @@ def addPreDefsFromUnary (preDefs : Array PreDefinition) (preDefsNonrec : Array P
   -- we recognize that below and then do not set @[irreducible]
   withOptions (allowUnsafeReducibility.set · true) do
     if unaryPreDefNonRec.declName = preDefs[0]!.declName then
-      addNonRec preDefNonRec (applyAttrAfterCompilation := false) (cacheProofs := cacheProofs)
+      addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (cacheProofs := cacheProofs)
     else
       withEnableInfoTree false do
-        addNonRec preDefNonRec (applyAttrAfterCompilation := false) (cacheProofs := cacheProofs)
-      preDefsNonrec.forM (addNonRec · (applyAttrAfterCompilation := false) (all := declNames) (cacheProofs := cacheProofs))
+        addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (cacheProofs := cacheProofs)
+      preDefsNonrec.forM (addNonRec docCtx · (applyAttrAfterCompilation := false) (all := declNames) (cacheProofs := cacheProofs))
 
 /--
 Cleans the right-hand-sides of the predefinitions, to prepare for inclusion in the EqnInfos:

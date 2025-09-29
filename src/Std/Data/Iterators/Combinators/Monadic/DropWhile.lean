@@ -3,20 +3,24 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Nat.Lemmas
-import Init.RCases
-import Std.Data.Iterators.Basic
-import Std.Data.Iterators.Consumers.Monadic.Collect
-import Std.Data.Iterators.Consumers.Monadic.Loop
-import Std.Data.Iterators.Internal.Termination
-import Std.Data.Iterators.PostConditionMonad
+public import Init.Data.Nat.Lemmas
+public import Init.RCases
+public import Init.Data.Iterators.Basic
+public import Init.Data.Iterators.Consumers.Monadic.Collect
+public import Init.Data.Iterators.Consumers.Monadic.Loop
+public import Init.Data.Iterators.Internal.Termination
+public import Init.Data.Iterators.PostconditionMonad
+
+@[expose] public section
 
 /-!
 # Monadic `dropWhile` iterator combinator
 
 This module provides the iterator combinator `IterM.dropWhile` that will drop all values emitted
-by a given iterator until a given predicate on these values becomes false the first fime. Beginning
+by a given iterator until a given predicate on these values becomes false the first time. Beginning
 with that moment, the combinator will forward all emitted values.
 
 Several variants of this combinator are provided:
@@ -119,7 +123,7 @@ Depending on `P`, it is possible that `it.dropWhileWithPostcondition P` is finit
 **Performance:**
 
 This combinator calls `P` on each output of `it` until the predicate evaluates to false. After
-that, the combinator incurs an addictional O(1) cost for each value emitted by `it`.
+that, the combinator incurs an additional O(1) cost for each value emitted by `it`.
 -/
 @[always_inline, inline]
 def IterM.dropWhileWithPostcondition (P : β → PostconditionT m (ULift Bool)) (it : IterM (α := α) m β) :=
@@ -267,7 +271,7 @@ private def DropWhile.instFinitenessRelation [Monad m] [Iterator α m β]
 
 instance DropWhile.instFinite [Monad m] [Iterator α m β] [Finite α m] {P} :
     Finite (DropWhile α m β P) m :=
-  Finite.of_finitenessRelation instFinitenessRelation
+  by exact Finite.of_finitenessRelation instFinitenessRelation
 
 instance DropWhile.instIteratorCollect [Monad m] [Monad n] [Iterator α m β] [Productive α m] {P} :
     IteratorCollect (DropWhile α m β P) m n :=
@@ -278,12 +282,20 @@ instance DropWhile.instIteratorCollectPartial [Monad m] [Monad n] [Iterator α m
   .defaultImplementation
 
 instance DropWhile.instIteratorLoop [Monad m] [Monad n] [Iterator α m β] :
-    IteratorLoop α m n :=
+    IteratorLoop (DropWhile α m β P) m n :=
   .defaultImplementation
 
 instance DropWhile.instIteratorForPartial [Monad m] [Monad n] [Iterator α m β]
     [IteratorLoopPartial α m n] [MonadLiftT m n] {P} :
     IteratorLoopPartial (DropWhile α m β P) m n :=
+  .defaultImplementation
+
+instance {α : Type w} [Monad m] [Iterator α m β] [Finite α m] [IteratorLoop α m m] {P} :
+    IteratorSize (DropWhile α m β P) m :=
+  .defaultImplementation
+
+instance {α : Type w} [Monad m] [Iterator α m β] [IteratorLoopPartial α m m] {P} :
+    IteratorSizePartial (DropWhile α m β P) m :=
   .defaultImplementation
 
 end Std.Iterators

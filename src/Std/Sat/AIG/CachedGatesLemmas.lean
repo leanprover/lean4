@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.CachedGates
-import Std.Sat.AIG.LawfulOperator
+public import Std.Sat.AIG.CachedGates
+public import Std.Sat.AIG.LawfulOperator
+
+@[expose] public section
 
 /-!
 This module contains the theory of the cached gate creation functions, mostly enabled by the
@@ -61,7 +65,7 @@ instance : LawfulOperator α Ref mkNotCached where
 @[simp]
 theorem denote_mkNotCached {aig : AIG α} {gate : Ref aig} :
     ⟦aig.mkNotCached gate, assign⟧ = !⟦aig, gate, assign⟧ := by
-  simp [mkNotCached, LawfulOperator.denote_mem_prefix (f := mkConstCached) gate.hgate]
+  simp [mkNotCached]
 
 theorem mkAndCached_le_size (aig : AIG α) (input : BinaryInput aig) :
     aig.decls.size ≤ (aig.mkAndCached input).aig.decls.size := by
@@ -103,7 +107,7 @@ instance : LawfulOperator α BinaryInput mkOrCached where
 theorem denote_mkOrCached {aig : AIG α} {input : BinaryInput aig} :
     ⟦aig.mkOrCached input, assign⟧ = (⟦aig, input.lhs, assign⟧ || ⟦aig, input.rhs, assign⟧) := by
   rw [← or_as_aig]
-  simp [mkOrCached, LawfulOperator.denote_input_entry (f := mkConstCached)]
+  simp [mkOrCached]
 
 
 theorem mkXorCached_le_size (aig : AIG α) {input : BinaryInput aig} :
@@ -120,8 +124,8 @@ theorem mkXorCached_decl_eq idx (aig : AIG α) (input : BinaryInput aig) {h : id
   simp only [mkXorCached]
   rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
   rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
-  · rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
-    apply LawfulOperator.lt_size_of_lt_aig_size
+  rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
+  · apply LawfulOperator.lt_size_of_lt_aig_size
     assumption
   · apply LawfulOperator.lt_size_of_lt_aig_size
     apply LawfulOperator.lt_size_of_lt_aig_size
@@ -155,8 +159,8 @@ theorem mkBEqCached_decl_eq idx (aig : AIG α) (input : BinaryInput aig) {h : id
   simp only [mkBEqCached]
   rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
   rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
-  · rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
-    apply LawfulOperator.lt_size_of_lt_aig_size
+  rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
+  · apply LawfulOperator.lt_size_of_lt_aig_size
     assumption
   · apply LawfulOperator.lt_size_of_lt_aig_size
     apply LawfulOperator.lt_size_of_lt_aig_size
@@ -195,7 +199,7 @@ instance : LawfulOperator α BinaryInput mkImpCached where
 theorem denote_mkImpCached {aig : AIG α} {input : BinaryInput aig} :
     ⟦aig.mkImpCached input, assign⟧ = ( !⟦aig, input.lhs, assign⟧ || ⟦aig, input.rhs, assign⟧) := by
   rw [← imp_as_aig]
-  simp [mkImpCached, LawfulOperator.denote_input_entry (f := mkConstCached)]
+  simp [mkImpCached]
 
 end AIG
 

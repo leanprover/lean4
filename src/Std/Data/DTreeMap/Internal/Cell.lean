@@ -3,9 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Classes.Ord.Basic
-import Std.Data.Internal.List.Associative
+public import Std.Data.Internal.List.Associative
+
+@[expose] public section
 
 /-!
 # The `Cell` type

@@ -3,7 +3,10 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
+public import Lean.Meta.Basic
 import Lean.Meta.Eqns
 import Lean.Meta.CtorRecognizer
 import Lean.Util.CollectFVars
@@ -12,11 +15,14 @@ import Lean.Meta.Tactic.Split
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Refl
 import Lean.Meta.Match.MatchEqs
+import Lean.DefEqAttrib
+import Lean.Meta.Tactic.SplitIf
+import Lean.Meta.Tactic.Simp.Main
 
 namespace Lean.Elab.Eqns
 open Meta
 
-structure EqnInfoCore where
+public structure EqnInfoCore where
   declName    : Name
   levelParams : List Name
   type        : Expr
@@ -24,18 +30,14 @@ structure EqnInfoCore where
   deriving Inhabited
 
 /--
-Zeta reduces `let` and `let_fun` while consuming metadata.
+Zeta reduces `let` and `have` while consuming metadata.
 Returns true if progress is made.
 -/
 partial def expand (progress : Bool) (e : Expr) : Bool × Expr :=
   match e with
   | Expr.letE _ _ v b _ => expand true (b.instantiate1 v)
   | Expr.mdata _ b      => expand true b
-  | e =>
-    if let some (_, _, v, b) := e.letFun? then
-      expand true (b.instantiate1 v)
-    else
-      (progress, e)
+  | e                   => (progress, e)
 
 def expandRHS? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let target ← mvarId.getType'
@@ -43,12 +45,16 @@ def expandRHS? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let (true, rhs') := expand false rhs | return none
   return some (← mvarId.replaceTargetDefEq (← mkEq lhs rhs'))
 
-def simpMatch? (mvarId : MVarId) : MetaM (Option MVarId) := do
+public def simpMatch? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let mvarId' ← Split.simpMatchTarget mvarId
   if mvarId != mvarId' then return some mvarId' else return none
 
-def simpIf? (mvarId : MVarId) : MetaM (Option MVarId) := do
-  let mvarId' ← simpIfTarget mvarId (useDecide := true)
+/--
+Simplify `if-then-expression`s in the goal target.
+If `useNewSemantics` is `true`, the flag `backward.split` is ignored.
+-/
+public def simpIf? (mvarId : MVarId) (useNewSemantics := false) : MetaM (Option MVarId) := do
+  let mvarId' ← simpIfTarget mvarId (useDecide := true) (useNewSemantics := useNewSemantics)
   if mvarId != mvarId' then return some mvarId' else return none
 
 private def findMatchToSplit? (deepRecursiveSplit : Bool) (env : Environment) (e : Expr)
@@ -60,7 +66,7 @@ private def findMatchToSplit? (deepRecursiveSplit : Bool) (env : Environment) (e
       let args := e.getAppArgs
       -- If none of the discriminants is a free variable, then it is not worth splitting the match
       let mut hasFVarDiscr := false
-      for i in [info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
+      for i in info.getFirstDiscrPos...(info.getFirstDiscrPos + info.numDiscrs) do
         let discr := args[i]!
         if discr.isFVar then
           hasFVarDiscr := true
@@ -75,7 +81,7 @@ private def findMatchToSplit? (deepRecursiveSplit : Bool) (env : Environment) (e
           return Expr.FindStep.found
       -- Else, the “old” behavior is split only when at least one alternative contains a `declNames`
       -- application with loose bound variables.
-      for i in [info.getFirstAltPos : info.getFirstAltPos + info.numAlts] do
+      for i in info.getFirstAltPos...(info.getFirstAltPos + info.numAlts) do
         let alt := args[i]!
         if Option.isSome <| alt.find? fun e => declNames.any e.isAppOf && e.hasLooseBVars then
           return Expr.FindStep.found
@@ -110,7 +116,7 @@ private def lhsDependsOn (type : Expr) (fvarId : FVarId) : MetaM Bool :=
       dependsOn type fvarId
 
 /-- Try to close goal using `rfl` with smart unfolding turned off. -/
-def tryURefl (mvarId : MVarId) : MetaM Bool :=
+public def tryURefl (mvarId : MVarId) : MetaM Bool :=
   withOptions (smartUnfolding.set · false) do
     try mvarId.refl; return true catch _ => return false
 
@@ -220,12 +226,12 @@ private def shouldUseSimpMatch (e : Expr) : MetaM Bool := do
     root.forEach fun e => do
       if let some info := isMatcherAppCore? env e then
         let args := e.getAppArgs
-        for discr in args[info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
+        for discr in args[info.getFirstDiscrPos...(info.getFirstDiscrPos + info.numDiscrs)] do
           if (← Meta.isConstructorApp discr) then
             throwThe Unit ()
   return (← (find e).run) matches .error _
 
-partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array Expr) := do
+public partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array Expr) := do
   let (_, eqnTypes) ← go mvarId |>.run #[]
   return eqnTypes
 where
@@ -251,7 +257,7 @@ where
   Alternative solution: improve `saveEqn` and make sure it never includes unnecessary hypotheses.
   These hypotheses are leftovers from tactics such as `splitMatch?` used in `mkEqnTypes`.
 -/
-def removeUnusedEqnHypotheses (declType declValue : Expr) : CoreM (Expr × Expr) := do
+public def removeUnusedEqnHypotheses (declType declValue : Expr) : CoreM (Expr × Expr) := do
   go declType declValue #[] {}
 where
   go (type value : Expr) (xs : Array Expr) (lctx : LocalContext) : CoreM (Expr × Expr) := do
@@ -276,7 +282,7 @@ where
         return (lctx.mkForall xsNew type, lctx.mkLambda xsNew value)
 
 /-- Delta reduce the equation left-hand-side -/
-def deltaLHS (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+public def deltaLHS (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | throwTacticEx `deltaLHS mvarId "equality expected"
   let some lhs ← delta? lhs | throwTacticEx `deltaLHS mvarId "failed to delta reduce lhs"
@@ -296,7 +302,7 @@ private partial def whnfAux (e : Expr) : MetaM Expr := do
   | _ => return e
 
 /-- Apply `whnfR` to lhs, return `none` if `lhs` was not modified -/
-def whnfReducibleLHS? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withContext do
+public def whnfReducibleLHS? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withContext do
   let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | return none
   let lhs' ← whnfAux lhs
@@ -305,7 +311,7 @@ def whnfReducibleLHS? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withCo
   else
     return none
 
-def tryContradiction (mvarId : MVarId) : MetaM Bool := do
+public def tryContradiction (mvarId : MVarId) : MetaM Bool := do
   mvarId.contradictionCore { genDiseq := true }
 
 /--
@@ -372,7 +378,7 @@ private partial def mkEqnProof (declName : Name) (type : Expr) (tryRefl : Bool) 
       return ()
     else if let some mvarId ← simpMatch? mvarId then
       go mvarId
-    else if let some mvarId ← simpIf? mvarId then
+    else if let some mvarId ← simpIf? mvarId (useNewSemantics := true) then
       go mvarId
     else if let some mvarId ← whnfReducibleLHS? mvarId then
       go mvarId
@@ -384,10 +390,10 @@ private partial def mkEqnProof (declName : Name) (type : Expr) (tryRefl : Bool) 
       | TacticResultCNM.noChange =>
         if let some mvarIds ← casesOnStuckLHS? mvarId then
           mvarIds.forM go
-        else if let some mvarIds ← splitTarget? mvarId then
+        else if let some mvarIds ← splitTarget? mvarId (useNewSemantics := true) then
           mvarIds.forM go
         else
-          throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
+          throwError "failed to generate equational theorem for `{.ofConstName declName}`\n{MessageData.ofGoal mvarId}"
 
 
 /--
@@ -400,8 +406,8 @@ proves them using `mkEqnProof`.
 This is currently used for non-recursive functions, well-founded recursion and partial_fixpoint,
 but not for structural recursion.
 -/
-def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true): MetaM (Array Name) := do
-  trace[Elab.definition.eqns] "mkEqns: {declName}"
+public def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true): MetaM (Array Name) := do
+  trace[Elab.definition.eqns] "mkEqns: {.ofConstName declName}"
   let info ← getConstInfoDefn declName
   let us := info.levelParams.map mkLevelParam
   withOptions (tactic.hygienic.set · false) do
@@ -412,7 +418,7 @@ def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true): MetaM (
       withReducible do
         mkEqnTypes declNames goal.mvarId!
   let mut thmNames := #[]
-  for h : i in [: eqnTypes.size] do
+  for h : i in *...eqnTypes.size do
     let type := eqnTypes[i]
     trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]}"
     let name := mkEqLikeNameFor (← getEnv) declName s!"{eqnThmSuffixBasePrefix}{i+1}"
@@ -429,6 +435,7 @@ where
       name, type, value
       levelParams := info.levelParams
     }
+    inferDefEqAttr name
 
 /--
   Auxiliary method for `mkUnfoldEq`. The structure is based on `mkEqnTypes`.
@@ -440,8 +447,8 @@ where
   We basically keep splitting the `match` and `if-then-else` expressions in the right hand side
   until one of the equational theorems is applicable.
 -/
-partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
-  let some eqs ← getEqnsFor? declName | throwError "failed to generate equations for '{declName}'"
+public partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
+  let some eqs ← getEqnsFor? declName | throwError "failed to generate equations for `{.ofConstName declName}`"
   let tryEqns (mvarId : MVarId) : MetaM Bool :=
     eqs.anyM fun eq => commitWhen do checkpointDefEq (mayPostpone := false) do
       try
@@ -461,13 +468,13 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
       if let some mvarId ← simpMatch? mvarId then
         return (← go mvarId)
 
-    if let some mvarIds ← splitTarget? mvarId (splitIte := false) then
+    if let some mvarIds ← splitTarget? mvarId (splitIte := false) (useNewSemantics := true) then
       return (← mvarIds.forM go)
 
     if (← tryContradiction mvarId) then
       return ()
 
-    throwError "failed to generate unfold theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
+    throwError "failed to generate unfold theorem for `{.ofConstName declName}`\n{MessageData.ofGoal mvarId}"
   go mvarId
 
 builtin_initialize

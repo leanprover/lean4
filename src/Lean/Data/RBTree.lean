@@ -3,12 +3,16 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Data.RBMap
+public import Lean.Data.RBMap
+
+public section
 namespace Lean
 universe u v w
 
-def RBTree (α : Type u) (cmp : α → α → Ordering) : Type u :=
+@[expose] def RBTree (α : Type u) (cmp : α → α → Ordering) : Type u :=
   RBMap α Unit cmp
 
 instance : Inhabited (RBTree α p) where

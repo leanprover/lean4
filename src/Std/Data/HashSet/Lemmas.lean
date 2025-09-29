@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.HashMap.Lemmas
-import Std.Data.HashSet.Basic
+public import Std.Data.HashMap.Lemmas
+public import Std.Data.HashSet.Basic
+
+@[expose] public section
 
 /-!
 # Hash set lemmas
@@ -18,7 +22,7 @@ is to provide an instance of `LawfulBEq α`.
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v
+universe u v w
 
 variable {α : Type u} {_ : BEq α} {_ : Hashable α}
 
@@ -65,7 +69,7 @@ theorem mem_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : 
 theorem contains_emptyWithCapacity {a : α} {c} : (emptyWithCapacity c : HashSet α).contains a = false :=
   HashMap.contains_emptyWithCapacity
 
-@[simp, grind] theorem not_mem_emptyWithCapacity {a : α} {c} : ¬a ∈ (emptyWithCapacity c : HashSet α) :=
+@[simp, grind ←] theorem not_mem_emptyWithCapacity {a : α} {c} : ¬a ∈ (emptyWithCapacity c : HashSet α) :=
   HashMap.not_mem_emptyWithCapacity
 
 @[simp, grind =] theorem contains_empty {a : α} : (∅ : HashSet α).contains a = false :=
@@ -239,7 +243,7 @@ theorem contains_eq_isSome_get? [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = (m.get? a).isSome :=
   HashMap.contains_eq_isSome_getKey?
 
-@[simp]
+@[simp, grind =]
 theorem isSome_get?_eq_contains [EquivBEq α] [LawfulHashable α] {a : α} :
     (m.get? a).isSome = m.contains a :=
   contains_eq_isSome_get?.symm
@@ -252,6 +256,14 @@ theorem mem_iff_isSome_get? [EquivBEq α] [LawfulHashable α] {a : α} :
 theorem isSome_get?_iff_mem [EquivBEq α] [LawfulHashable α] {a : α} :
     (m.get? a).isSome ↔ a ∈ m :=
   mem_iff_isSome_get?.symm
+
+theorem get?_eq_some_iff [EquivBEq α] [LawfulHashable α] {k k' : α} :
+    m.get? k = some k' ↔ ∃ h : k ∈ m, m.get k h = k' :=
+  HashMap.getKey?_eq_some_iff
+
+theorem mem_of_get?_eq_some [EquivBEq α] [LawfulHashable α] {k k' : α}
+    (h : m.get? k = some k') : k' ∈ m :=
+  HashMap.mem_of_getKey?_eq_some h
 
 theorem get?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = false → m.get? a = none :=
@@ -470,17 +482,61 @@ theorem contains_toList [EquivBEq α] [LawfulHashable α] {k : α} :
   HashMap.contains_keys
 
 @[simp, grind =]
-theorem mem_toList [LawfulBEq α] [LawfulHashable α] {k : α} :
+theorem mem_toList [LawfulBEq α] {k : α} :
     k ∈ m.toList ↔ k ∈ m :=
   HashMap.mem_keys
 
-theorem distinct_toList [EquivBEq α] [LawfulHashable α]:
+theorem mem_of_mem_toList [EquivBEq α] [LawfulHashable α] {k : α} :
+    k ∈ m.toList → k ∈ m :=
+  HashMap.mem_of_mem_keys
+
+theorem distinct_toList [EquivBEq α] [LawfulHashable α] :
     m.toList.Pairwise (fun a b => (a == b) = false) :=
   HashMap.distinct_keys
 
+@[simp]
+theorem toArray_toList :
+    m.toList.toArray = m.toArray :=
+  HashMap.toArray_keys
+
+@[simp]
+theorem toList_toArray :
+    m.toArray.toList = m.toList :=
+  HashMap.toList_keysArray
+
+@[simp]
+theorem size_toArray [EquivBEq α] [LawfulHashable α] :
+    m.toArray.size = m.size :=
+  HashMap.size_keysArray
+
+@[simp]
+theorem isEmpty_toArray [EquivBEq α] [LawfulHashable α] :
+    m.toArray.isEmpty = m.isEmpty :=
+  HashMap.isEmpty_keysArray
+
+@[simp]
+theorem contains_toArray [EquivBEq α] [LawfulHashable α]
+    {k : α} :
+    m.toArray.contains k = m.contains k :=
+  HashMap.contains_keysArray
+
+@[simp]
+theorem mem_toArray [LawfulBEq α] {k : α} :
+    k ∈ m.toArray ↔ k ∈ m :=
+  HashMap.mem_keysArray
+
+theorem forall_mem_toArray_iff_forall_mem_get [EquivBEq α] [LawfulHashable α]
+    {p : α → Prop} :
+    (∀ k ∈ m.toArray, p k) ↔ ∀ (k : α) (h : k ∈ m), p (m.get k h) :=
+  HashMap.forall_mem_keysArray_iff_forall_mem_getKey
+
+theorem contains_of_mem_toArray [EquivBEq α] [LawfulHashable α] {k : α}
+    (h' : k ∈ m.toArray) : m.contains k :=
+  HashMap.contains_of_mem_keysArray h'
+
 section monadic
 
-variable {δ : Type v} {m' : Type v → Type v}
+variable {δ : Type v} {m' : Type v → Type w}
 
 theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m']
     {f : δ → α → m' δ} {init : δ} :
@@ -508,6 +564,24 @@ theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
     {f : α → δ → m' (ForInStep δ)} {init : δ} :
     ForIn.forIn m init f = ForIn.forIn m.toList init f :=
   HashMap.forIn_eq_forIn_keys
+
+theorem foldM_eq_foldlM_toArray [Monad m'] [LawfulMonad m']
+    {f : δ → α → m' δ} {init : δ} :
+    m.foldM (fun d a => f d a) init = m.toArray.foldlM f init :=
+  HashMap.foldM_eq_foldlM_keysArray
+
+theorem fold_eq_foldl_toArray {f : δ → α → δ} {init : δ} :
+    m.fold (fun d a => f d a) init = m.toArray.foldl f init :=
+  HashMap.fold_eq_foldl_keysArray
+
+theorem forM_eq_forM_toArray [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
+    m.forM (fun a => f a) = m.toArray.forM f :=
+  HashMap.forM_eq_forM_keysArray
+
+theorem forIn_eq_forIn_toArray [Monad m'] [LawfulMonad m']
+    {f : α → δ → m' (ForInStep δ)} {init : δ} :
+    m.forIn (fun a d => f a d) init = ForIn.forIn m.toArray init f :=
+  HashMap.forIn_eq_forIn_keysArray
 
 end monadic
 

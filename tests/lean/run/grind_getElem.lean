@@ -1,4 +1,4 @@
-set_option grind.warning false
+module
 reset_grind_attrs%
 
 attribute [grind]

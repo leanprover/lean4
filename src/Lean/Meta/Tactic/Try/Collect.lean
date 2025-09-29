@@ -3,15 +3,17 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Init.Try
-import Lean.Meta.Tactic.LibrarySearch
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Grind.Cases
-import Lean.Meta.Tactic.Grind.EMatchTheorem
-import Lean.Meta.Tactic.FunIndInfo
-import Lean.Meta.Tactic.FunIndCollect
-
+public import Init.Try
+public import Lean.Meta.Tactic.LibrarySearch
+public import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.Grind.Cases
+public import Lean.Meta.Tactic.Grind.EMatchTheorem
+public import Lean.Meta.Tactic.FunIndInfo
+public import Lean.Meta.Tactic.FunIndCollect
+import Lean.Meta.Eqns
+public section
 namespace Lean.Meta.Try.Collector
 
 structure InductionCandidate where

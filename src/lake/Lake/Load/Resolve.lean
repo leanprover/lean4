@@ -3,11 +3,17 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone, Gabriel Ebner
 -/
+module
+
 prelude
-import Lake.Config.Monad
+public import Lake.Config.Workspace
+public import Lake.Load.Manifest
+import Lake.Util.IO
 import Lake.Util.StoreInsts
+import Lake.Config.Monad
 import Lake.Build.Topological
 import Lake.Load.Materialize
+import Lake.Load.Lean.Eval
 import Lake.Load.Package
 
 open System Lean
@@ -18,20 +24,6 @@ This module contains definitions for resolving the dependencies of a package.
 -/
 
 namespace Lake
-
-def stdMismatchError (newName : String) (rev : String) :=
-s!"the 'std' package has been renamed to '{newName}' and moved to the
-'leanprover-community' organization; downstream packages which wish to
-update to the new std should replace
-
-  require std from
-    git \"https://github.com/leanprover/std4\"{rev}
-
-in their Lake configuration file with
-
-  require {newName} from
-    git \"https://github.com/leanprover-community/{newName}\"{rev}
-"
 
 /--
 Loads the package configuration of a materialized dependency.
@@ -49,6 +41,7 @@ def loadDepPackage
   let (pkg, env?) ← loadPackageCore name {
     lakeEnv := ws.lakeEnv
     wsDir := ws.dir
+    pkgName := dep.name
     pkgDir
     relPkgDir := dep.relPkgDir
     relConfigFile := dep.configFile
@@ -211,24 +204,6 @@ private def updateAndMaterializeDep
     store matDep.name matDep.manifestEntry
     return matDep
 
-/-- Verify that a dependency was loaded with the correct name. -/
-private def validateDep
-  (pkg : Package) (dep : Dependency) (matDep : MaterializedDep) (depPkg : Package)
-: LoggerIO PUnit := do
-  if depPkg.name ≠ dep.name then
-    if dep.name = .mkSimple "std" then
-      let rev :=
-        match matDep.manifestEntry.src with
-        | .git (inputRev? := some rev) .. => s!" @ {repr rev}"
-        | _ => ""
-      logError (stdMismatchError depPkg.name.toString rev)
-    if matDep.manifestEntry.src matches .git .. then
-      if let .error e ← IO.FS.removeDirAll depPkg.dir |>.toBaseIO then -- cleanup
-        -- Deleting git repositories via IO.FS.removeDirAll does not work reliably on Windows
-        logError s!"'{dep.name}' was downloaded incorrectly; \
-          you will need to manually delete '{depPkg.dir}': {e}"
-    error s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
-
 /--
 Exit code returned if Lake needs a manual restart.
 Used, for instance, if the toolchain is updated and no Elan is detected.
@@ -345,7 +320,7 @@ def Workspace.updateAndMaterializeCore
     ws.updateToolchain matDeps
     let start := ws.packages.size
     let ws ← (deps.zip matDeps).foldlM (init := ws) fun ws (dep, matDep) => do
-      let (depPkg, ws) ← loadUpdatedDep ws.root dep matDep ws
+      let (depPkg, ws) ← loadUpdatedDep dep matDep ws
       let ws := ws.addPackage depPkg
       return ws
     ws.packages.foldlM (init := ws) (start := start) fun ws pkg =>
@@ -355,10 +330,9 @@ def Workspace.updateAndMaterializeCore
 where
   @[inline] updateAndLoadDep pkg dep := do
     let matDep ← updateAndMaterializeDep (← getWorkspace) pkg dep
-    loadUpdatedDep pkg dep matDep
-  @[inline] loadUpdatedDep pkg dep matDep : StateT Workspace (UpdateT LoggerIO) Package  := do
+    loadUpdatedDep dep matDep
+  @[inline] loadUpdatedDep dep matDep : StateT Workspace (UpdateT LoggerIO) Package  := do
     let depPkg ← loadDepPackage matDep dep.opts leanOpts true
-    validateDep pkg dep matDep depPkg
     addDependencyEntries depPkg
     return depPkg
 
@@ -391,7 +365,7 @@ post-update hooks.
 
 See `Workspace.updateAndMaterializeCore` for details on the update process.
 -/
-def Workspace.updateAndMaterialize
+public def Workspace.updateAndMaterialize
   (ws : Workspace)
   (toUpdate : NameSet := {}) (leanOpts : Options := {})
   (updateToolchain := true)
@@ -427,7 +401,7 @@ def validateManifest
 Resolving a workspace's dependencies using a manifest,
 downloading and/or updating them as necessary.
 -/
-def Workspace.materializeDeps
+public def Workspace.materializeDeps
   (ws : Workspace) (manifest : Manifest)
   (leanOpts : Options := {}) (reconfigure := false)
   (overrides : Array PackageEntry := #[])

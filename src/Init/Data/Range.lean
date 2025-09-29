@@ -6,5 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Range.Basic
-import Init.Data.Range.Lemmas
+public import Init.Data.Range.Basic
+public import Init.Data.Range.Lemmas
+
+public section

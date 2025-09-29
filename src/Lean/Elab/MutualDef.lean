@@ -1299,7 +1299,7 @@ where
           return true
         -- ... or NONE of the following:
         -- ... this is a non-`meta` `def` inside a `@[expose] section`
-        if header.kind == .def && !header.modifiers.isMeta && sc.attrs.any (· matches `(attrInstance| expose)) then
+        if header.kind == .def && (!header.modifiers.isMeta || sc.isMeta) && sc.attrs.any (· matches `(attrInstance| expose)) then
           return false
         -- ... there is an `@[expose]` attribute directly on the def (of any kind or phase)
         if header.modifiers.attrs.any (·.name == `expose) then

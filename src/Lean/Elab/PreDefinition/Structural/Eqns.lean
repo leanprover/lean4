@@ -168,7 +168,7 @@ where
     lambdaTelescope info.value fun xs body => do
       let us := info.levelParams.map mkLevelParam
       let type ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
-      let value ← mkProof declName type
+      let value ← withoutExporting <| mkProof declName type
       let type ← mkForallFVars xs type
       let type ← letToHave type
       let value ← mkLambdaFVars xs value

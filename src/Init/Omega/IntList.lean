@@ -6,7 +6,6 @@ Authors: Kim Morrison
 module
 
 prelude
--- import Init.Data.List.Zip
 public import Init.Data.Int.DivMod.Bootstrap
 public import Init.Data.Nat.Gcd
 
@@ -14,6 +13,7 @@ public section
 
 @[expose] section
 
+-- We replay some `List` theory here in order to avoid importing `List` theory.
 namespace List
 
 private theorem getElem?_cons_succ {l : List α} : (a::l)[i+1]? = l[i]? := rfl

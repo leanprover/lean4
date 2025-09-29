@@ -45,11 +45,11 @@
 [{"item":
   {"uri": "file:///src/Lean/Server/Test/Refs.lean",
    "selectionRange":
-   {"start": {"line": 13, "character": 11},
-    "end": {"line": 13, "character": 16}},
+   {"start": {"line": 15, "character": 11},
+    "end": {"line": 15, "character": 16}},
    "range":
-   {"start": {"line": 13, "character": 11},
-    "end": {"line": 13, "character": 16}},
+   {"start": {"line": 15, "character": 11},
+    "end": {"line": 15, "character": 16}},
    "name": "Lean.Server.Test.Refs.Test1",
    "kind": 14,
    "data":
@@ -59,70 +59,70 @@
   [{"item":
     {"uri": "file:///src/Lean/Server/Test/Refs.lean",
      "selectionRange":
-     {"start": {"line": 14, "character": 11},
-      "end": {"line": 14, "character": 16}},
+     {"start": {"line": 16, "character": 11},
+      "end": {"line": 16, "character": 16}},
      "range":
-     {"start": {"line": 14, "character": 0},
-      "end": {"line": 14, "character": 25}},
+     {"start": {"line": 16, "character": 0},
+      "end": {"line": 16, "character": 25}},
      "name": "Lean.Server.Test.Refs.Test2",
      "kind": 14,
      "data":
      {"name": "Lean.Server.Test.Refs.Test2",
       "module": "Lean.Server.Test.Refs"}},
     "fromRanges":
-    [{"start": {"line": 14, "character": 20},
-      "end": {"line": 14, "character": 25}}],
+    [{"start": {"line": 16, "character": 20},
+      "end": {"line": 16, "character": 25}}],
     "children":
     [{"item":
       {"uri": "file:///src/Lean/Server/Test/Refs.lean",
        "selectionRange":
-       {"start": {"line": 16, "character": 11},
-        "end": {"line": 16, "character": 16}},
+       {"start": {"line": 18, "character": 11},
+        "end": {"line": 18, "character": 16}},
        "range":
-       {"start": {"line": 16, "character": 0},
-        "end": {"line": 16, "character": 25}},
+       {"start": {"line": 18, "character": 0},
+        "end": {"line": 18, "character": 25}},
        "name": "Lean.Server.Test.Refs.Test4",
        "kind": 14,
        "data":
        {"name": "Lean.Server.Test.Refs.Test4",
         "module": "Lean.Server.Test.Refs"}},
       "fromRanges":
-      [{"start": {"line": 16, "character": 20},
-        "end": {"line": 16, "character": 25}}],
+      [{"start": {"line": 18, "character": 20},
+        "end": {"line": 18, "character": 25}}],
       "children": []},
      {"item":
       {"uri": "file:///src/Lean/Server/Test/Refs.lean",
        "selectionRange":
-       {"start": {"line": 17, "character": 11},
-        "end": {"line": 17, "character": 16}},
+       {"start": {"line": 19, "character": 11},
+        "end": {"line": 19, "character": 16}},
        "range":
-       {"start": {"line": 17, "character": 0},
-        "end": {"line": 17, "character": 25}},
+       {"start": {"line": 19, "character": 0},
+        "end": {"line": 19, "character": 25}},
        "name": "Lean.Server.Test.Refs.Test5",
        "kind": 14,
        "data":
        {"name": "Lean.Server.Test.Refs.Test5",
         "module": "Lean.Server.Test.Refs"}},
       "fromRanges":
-      [{"start": {"line": 17, "character": 20},
-        "end": {"line": 17, "character": 25}}],
+      [{"start": {"line": 19, "character": 20},
+        "end": {"line": 19, "character": 25}}],
       "children": []}]},
    {"item":
     {"uri": "file:///src/Lean/Server/Test/Refs.lean",
      "selectionRange":
-     {"start": {"line": 15, "character": 11},
-      "end": {"line": 15, "character": 16}},
+     {"start": {"line": 17, "character": 11},
+      "end": {"line": 17, "character": 16}},
      "range":
-     {"start": {"line": 15, "character": 0},
-      "end": {"line": 15, "character": 25}},
+     {"start": {"line": 17, "character": 0},
+      "end": {"line": 17, "character": 25}},
      "name": "Lean.Server.Test.Refs.Test3",
      "kind": 14,
      "data":
      {"name": "Lean.Server.Test.Refs.Test3",
       "module": "Lean.Server.Test.Refs"}},
     "fromRanges":
-    [{"start": {"line": 15, "character": 20},
-      "end": {"line": 15, "character": 25}}],
+    [{"start": {"line": 17, "character": 20},
+      "end": {"line": 17, "character": 25}}],
     "children": []},
    {"item":
     {"uri": "file:///incomingCallHierarchy.lean",

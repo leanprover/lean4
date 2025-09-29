@@ -286,11 +286,11 @@
     [{"item":
       {"uri": "file:///src/Lean/Server/Test/Refs.lean",
        "selectionRange":
-       {"start": {"line": 24, "character": 11},
-        "end": {"line": 24, "character": 17}},
+       {"start": {"line": 26, "character": 11},
+        "end": {"line": 26, "character": 17}},
        "range":
-       {"start": {"line": 24, "character": 11},
-        "end": {"line": 24, "character": 17}},
+       {"start": {"line": 26, "character": 11},
+        "end": {"line": 26, "character": 17}},
        "name": "Lean.Server.Test.Refs.test10",
        "kind": 14,
        "data":
@@ -303,70 +303,70 @@
       [{"item":
         {"uri": "file:///src/Lean/Server/Test/Refs.lean",
          "selectionRange":
-         {"start": {"line": 23, "character": 11},
-          "end": {"line": 23, "character": 16}},
+         {"start": {"line": 25, "character": 11},
+          "end": {"line": 25, "character": 16}},
          "range":
-         {"start": {"line": 23, "character": 11},
-          "end": {"line": 23, "character": 16}},
+         {"start": {"line": 25, "character": 11},
+          "end": {"line": 25, "character": 16}},
          "name": "Lean.Server.Test.Refs.test9",
          "kind": 14,
          "data":
          {"name": "Lean.Server.Test.Refs.test9",
           "module": "Lean.Server.Test.Refs"}},
         "fromRanges":
-        [{"start": {"line": 24, "character": 21},
-          "end": {"line": 24, "character": 26}}],
+        [{"start": {"line": 26, "character": 21},
+          "end": {"line": 26, "character": 26}}],
         "children":
         [{"item":
           {"uri": "file:///src/Lean/Server/Test/Refs.lean",
            "selectionRange":
-           {"start": {"line": 21, "character": 11},
-            "end": {"line": 21, "character": 16}},
+           {"start": {"line": 23, "character": 11},
+            "end": {"line": 23, "character": 16}},
            "range":
-           {"start": {"line": 21, "character": 11},
-            "end": {"line": 21, "character": 16}},
+           {"start": {"line": 23, "character": 11},
+            "end": {"line": 23, "character": 16}},
            "name": "Lean.Server.Test.Refs.test7",
            "kind": 14,
            "data":
            {"name": "Lean.Server.Test.Refs.test7",
             "module": "Lean.Server.Test.Refs"}},
           "fromRanges":
-          [{"start": {"line": 23, "character": 20},
-            "end": {"line": 23, "character": 25}}],
+          [{"start": {"line": 25, "character": 20},
+            "end": {"line": 25, "character": 25}}],
           "children":
           [{"item":
             {"uri": "file:///src/Lean/Server/Test/Refs.lean",
              "selectionRange":
-             {"start": {"line": 19, "character": 17},
-              "end": {"line": 19, "character": 22}},
+             {"start": {"line": 21, "character": 17},
+              "end": {"line": 21, "character": 22}},
              "range":
-             {"start": {"line": 19, "character": 17},
-              "end": {"line": 19, "character": 22}},
+             {"start": {"line": 21, "character": 17},
+              "end": {"line": 21, "character": 22}},
              "name": "Lean.Server.Test.Refs.Test6",
              "kind": 14,
              "data":
              {"name": "Lean.Server.Test.Refs.Test6",
               "module": "Lean.Server.Test.Refs"}},
             "fromRanges":
-            [{"start": {"line": 21, "character": 19},
-              "end": {"line": 21, "character": 24}}],
+            [{"start": {"line": 23, "character": 19},
+              "end": {"line": 23, "character": 24}}],
             "children": []},
            {"item":
             {"uri": "file:///src/Lean/Server/Test/Refs.lean",
              "selectionRange":
-             {"start": {"line": 20, "character": 4},
-              "end": {"line": 20, "character": 6}},
+             {"start": {"line": 22, "character": 4},
+              "end": {"line": 22, "character": 6}},
              "range":
-             {"start": {"line": 20, "character": 4},
-              "end": {"line": 20, "character": 6}},
+             {"start": {"line": 22, "character": 4},
+              "end": {"line": 22, "character": 6}},
              "name": "Lean.Server.Test.Refs.Test6.mk",
              "kind": 14,
              "data":
              {"name": "Lean.Server.Test.Refs.Test6.mk",
               "module": "Lean.Server.Test.Refs"}},
             "fromRanges":
-            [{"start": {"line": 21, "character": 28},
-              "end": {"line": 21, "character": 31}}],
+            [{"start": {"line": 23, "character": 28},
+              "end": {"line": 23, "character": 31}}],
             "children": []}]}]}]},
      {"item":
       {"uri": "file:///outgoingCallHierarchy.lean",
@@ -694,11 +694,11 @@
       [{"item":
         {"uri": "file:///src/Lean/Server/Test/Refs.lean",
          "selectionRange":
-         {"start": {"line": 19, "character": 17},
-          "end": {"line": 19, "character": 22}},
+         {"start": {"line": 21, "character": 17},
+          "end": {"line": 21, "character": 22}},
          "range":
-         {"start": {"line": 19, "character": 17},
-          "end": {"line": 19, "character": 22}},
+         {"start": {"line": 21, "character": 17},
+          "end": {"line": 21, "character": 22}},
          "name": "Lean.Server.Test.Refs.Test6",
          "kind": 14,
          "data":

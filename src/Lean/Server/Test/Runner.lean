@@ -217,28 +217,45 @@ def ident : Parser Name := do
   let xs ← many1 (pchar '.' *> word)
   return xs.foldl .str $ .mkSimple head
 
-def patchUri (s : String) : String := Id.run do
+def patchUri (s : String) : IO String := do
   let some path := System.Uri.fileUriToPath? s
     | return s
+  let path ←
+    try
+      IO.FS.realPath path
+    catch _ =>
+      return s
   let c := path.components.toArray
-  let some srcIdx := c.findIdx? (· == "src")
-    | return s
-  if ! c[srcIdx + 1]?.any (fun dir => dir == "Init" || dir == "Lean" || dir == "Std") then
+  if let some srcIdx := c.findIdx? (· == "src") then
+    if ! c[srcIdx + 1]?.any (fun dir => dir == "Init" || dir == "Lean" || dir == "Std") then
+      return s
+    let c := c.drop <| srcIdx
+    let path := System.mkFilePath c.toList
+    return System.Uri.pathToUri path
+  if let some testIdx := c.findIdx? (· == "tests") then
+    let c := c.drop <| testIdx
+    let path := System.mkFilePath c.toList
+    return System.Uri.pathToUri path
+  else
     return s
-  let c := c.drop <| srcIdx
-  let path := System.mkFilePath c.toList
-  return System.Uri.pathToUri path
 
-partial def patchUris : Json → Json
-  | .null => .null
-  | .bool b => .bool b
-  | .num n => .num n
-  | .arr elems => .arr <| elems.map patchUris
-  | .obj kvPairs => .obj <| kvPairs.foldl (init := ∅) fun acc k v => acc.insert k (patchUris v)
-  | .str s => patchUri s
+partial def patchUris : Json → IO Json
+  | .null =>
+    return .null
+  | .bool b =>
+    return .bool b
+  | .num n =>
+    return .num n
+  | .arr elems =>
+    return .arr <| ← elems.mapM patchUris
+  | .obj kvPairs =>
+    return .obj <| ← kvPairs.foldlM (init := ∅) fun acc k v =>
+      return acc.insert k (← patchUris v)
+  | .str s =>
+    patchUri s
 
-def printOutputLn (j : Json) : IO Unit :=
-  IO.eprintln (patchUris j)
+def printOutputLn (j : Json) : IO Unit := do
+  IO.eprintln (← patchUris j)
 
 structure RunnerState where
   uri : DocumentUri

@@ -13,6 +13,8 @@ public import Init.Data.Hashable
 public import Init.Data.ToString.Macro
 public import Std.Data.TreeMap.Raw.Basic
 public import Init.Data.Ord.String
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Nat
 
 public section
 

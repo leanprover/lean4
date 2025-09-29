@@ -288,41 +288,38 @@ private def isClosed (ch : Bounded α) : BaseIO Bool :=
 
 namespace Receiver
 
-private def getSlotValue
-  [Monad m] [MonadLiftT (ST IO.RealWorld) m]
-  (slot : IO.Ref (Slot α)) (next : Nat) :
-  AtomicT (Bounded.State α) m (Option α × Bool) :=
-    slot.modifyGet fun slot =>
-      if next != slot.pos then
-        ((none, false), slot)
-      else if slot.remaining == 1 then
-        ((slot.value, true), { slot with value := none, remaining := 0 })
-      else
-        ((slot.value, false), { slot with remaining := slot.remaining - 1 })
+private def getSlotValue [Monad m] [MonadLiftT (ST IO.RealWorld) m]
+    (slot : IO.Ref (Slot α)) (next : Nat) : AtomicT (Bounded.State α) m (Option α × Bool) :=
+  slot.modifyGet fun slot =>
+    if next != slot.pos then
+      ((none, false), slot)
+    else if slot.remaining == 1 then
+      ((slot.value, true), { slot with value := none, remaining := 0 })
+    else
+      ((slot.value, false), { slot with remaining := slot.remaining - 1 })
 
-private def getValueByPosition
-  [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m] (next : Nat) :
-  AtomicT (Bounded.State α) m (Option α) := do
-    let mut st ← get
+private def getValueByPosition [Monad m] [MonadLiftT (ST IO.RealWorld) m]
+    [MonadLiftT BaseIO m] (next : Nat) : AtomicT (Bounded.State α) m (Option α) := do
+  let mut st ← get
 
-    if ← isEmpty then
-      return none
+  if ← isEmpty then
+    return none
 
-    let id := next % st.capacity
-    let slot ← getSlot id
+  let id := next % st.capacity
+  let slot ← getSlot id
 
-    let (some val, shouldDequeue) ← getSlotValue slot next
-      | return none
+  let (some val, shouldDequeue) ← getSlotValue slot next
+    | return none
 
-    if shouldDequeue then
-      st := dequeue st
+  if shouldDequeue then
+    st := dequeue st
 
-      if let some (producer, producers) := st.producers.dequeue? then
-        producer.resolve true
-        st := { st with producers }
+    if let some (producer, producers) := st.producers.dequeue? then
+      producer.resolve true
+      st := { st with producers }
 
-    set st
-    return some val
+  set st
+  return some val
 
 /--
 Unsubscribes a `Receiver` from the `Bounded` channel.
@@ -393,20 +390,20 @@ private partial def forAsync
 
 @[inline]
 private def recvReady'
-  [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT IO m] [MonadLiftT BaseIO m]
-  (receiverId : Nat) : AtomicT (State α) m Bool := do
-    let st ← get
+    [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT IO m] [MonadLiftT BaseIO m]
+    (receiverId : Nat) : AtomicT (State α) m Bool := do
+  let st ← get
 
-    let some next := st.receivers.get? receiverId
-      | return false
+  let some next := st.receivers.get? receiverId
+    | return false
 
-    if st.size = 0 then
-      return false
-    else
-      let id := next % st.capacity
-      let slot ← getSlot id
-      let slotVal ← slot.get
-      return slotVal.pos = next
+  if st.size = 0 then
+    return false
+  else
+    let id := next % st.capacity
+    let slot ← getSlot id
+    let slotVal ← slot.get
+    return slotVal.pos = next
 
 open Internal.IO.Async in
 private partial def recvSelector (ch : Bounded.Receiver α) : Selector (Option α) where

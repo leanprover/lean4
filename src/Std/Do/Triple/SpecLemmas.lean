@@ -399,7 +399,7 @@ theorem Spec.tryCatch_MonadExcept [MonadExceptOf ε m] [WP m ps] (Q : PostCond �
   Triple (tryCatch x h : m α) (spred(wp⟦MonadExceptOf.tryCatch x h : m α⟧ Q)) spred(Q) := SPred.entails.rfl
 
 @[spec]
-theorem Spec.throw_ReaderT  [WP m sh] [Monad m] [MonadExceptOf ε m] :
+theorem Spec.throw_ReaderT  [WP m sh] [MonadExceptOf ε m] :
   Triple (MonadExceptOf.throw e : ReaderT ρ m α) (spred(wp⟦MonadLift.monadLift (MonadExceptOf.throw (ε:=ε) e : m α) : ReaderT ρ m α⟧ Q)) spred(Q) := SPred.entails.rfl
 
 @[spec]
@@ -407,7 +407,7 @@ theorem Spec.throw_StateT [WP m ps] [Monad m] [MonadExceptOf ε m] (Q : PostCond
   Triple (MonadExceptOf.throw e : StateT σ m α) (spred(wp⟦MonadLift.monadLift (MonadExceptOf.throw (ε:=ε) e : m α) : StateT σ m α⟧ Q)) spred(Q) := SPred.entails.rfl
 
 @[spec]
-theorem Spec.throw_ExceptT_lift [WP m ps] [Monad m] [MonadExceptOf ε m] (Q : PostCond α (.except ε' ps)) :
+theorem Spec.throw_ExceptT_lift [WP m ps] [MonadExceptOf ε m] (Q : PostCond α (.except ε' ps)) :
   Triple (ps:=.except ε' ps)
     (MonadExceptOf.throw e : ExceptT ε' m α)
     (wp⟦MonadExceptOf.throw (ε:=ε) e : m (Except ε' α)⟧ (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2))
@@ -419,7 +419,7 @@ theorem Spec.throw_ExceptT_lift [WP m ps] [Monad m] [MonadExceptOf ε m] (Q : Po
   split <;> rfl
 
 @[spec]
-theorem Spec.tryCatch_ReaderT [WP m ps] [Monad m] [MonadExceptOf ε m] (Q : PostCond α (.arg ρ ps)) :
+theorem Spec.tryCatch_ReaderT [WP m ps] [MonadExceptOf ε m] (Q : PostCond α (.arg ρ ps)) :
   Triple (MonadExceptOf.tryCatch x h : ReaderT ρ m α) (spred(fun r => wp⟦MonadExceptOf.tryCatch (ε:=ε) (x.run r) (fun e => (h e).run r) : m α⟧ (fun a => Q.1 a r, Q.2))) spred(Q) := SPred.entails.rfl
 
 @[spec]
@@ -427,13 +427,13 @@ theorem Spec.tryCatch_StateT [WP m ps] [Monad m] [MonadExceptOf ε m] (Q : PostC
   Triple (MonadExceptOf.tryCatch x h : StateT σ m α) (spred(fun s => wp⟦MonadExceptOf.tryCatch (ε:=ε) (x.run s) (fun e => (h e).run s) : m (α × σ)⟧ (fun xs => Q.1 xs.1 xs.2, Q.2))) spred(Q) := SPred.entails.rfl
 
 @[spec]
-theorem Spec.tryCatch_ExceptT_lift [WP m ps] [Monad m] [MonadExceptOf ε m] (Q : PostCond α (.except ε' ps)) :
+theorem Spec.tryCatch_ExceptT_lift [WP m ps] [MonadExceptOf ε m] (Q : PostCond α (.except ε' ps)) :
     Triple
       (ps:=.except ε' ps)
       (MonadExceptOf.tryCatch x h : ExceptT ε' m α)
       (wp⟦MonadExceptOf.tryCatch (ε:=ε) x h : m (Except ε' α)⟧ (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2))
       Q := by
-  simp only [Triple, WP.tryCatch_lift_ExceptT]
+  simp only [Triple]
   apply (wp _).mono
   simp
   intro x

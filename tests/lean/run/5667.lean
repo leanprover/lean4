@@ -23,25 +23,12 @@ info: optimize.eq_def (x✝ : Expr) :
 #check optimize.eq_def
 
 /--
-error: failed to generate equational theorem for `optimize`
-  no progress at goal
-  case h_2
-  e1 : Expr
-  i : BitVec 32
-  heq : optimize e1 = Expr.const i
-  bop✝ bop_1 : Unit
-  x : Expr
-  r : Expr.below (Expr.op bop✝ e1) :=
-    (Expr.brecOn.go (Expr.op bop✝ e1) fun x f =>
-        (match (motive := (x : Expr) → Expr.below x → Expr) x with
-          | Expr.const i => fun x => Expr.const i
-          | Expr.op bop e1 => fun x =>
-            match bop, x.1 with
-            | x, Expr.const i => Expr.op bop (Expr.const 0)
-            | x, x_1 => Expr.const 0)
-          f).2
-  x_3 : ∀ (i : BitVec 32), r.1 = Expr.const i → False
-  ⊢ Expr.const 0 = Expr.op bop✝ (Expr.const 0)
+info: equations:
+@[defeq] theorem optimize.eq_1 : ∀ (i : BitVec 32), optimize (Expr.const i) = Expr.const i
+theorem optimize.eq_2 : ∀ (e1 : Expr) (bop : Unit) (i : BitVec 32),
+  optimize e1 = Expr.const i → optimize (Expr.op bop e1) = Expr.op bop (Expr.const 0)
+theorem optimize.eq_3 : ∀ (e1 : Expr) (bop : Unit),
+  (∀ (i : BitVec 32), optimize e1 = Expr.const i → False) → optimize (Expr.op bop e1) = Expr.const 0
 -/
 #guard_msgs in
 #print equations optimize

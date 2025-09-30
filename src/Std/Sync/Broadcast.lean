@@ -44,11 +44,6 @@ inductive Broadcast.Error where
   | alreadyClosed
 
   /--
-  Tried to send a message to a broadcast channel without no subscribers.
-  -/
-  | noSubscribers
-
-  /--
   Tried to unsubscribe a channel that already is not part of it.
   -/
   | notSubscribed
@@ -57,10 +52,9 @@ deriving Repr, DecidableEq, Hashable
 
 instance instToStringBroadcastError : ToString Broadcast.Error where
   toString
-    | .closed => "trying to send on an already closed channel"
-    | .alreadyClosed => "trying to close an already closed broadcast channel"
-    | .noSubscribers => "there are no subscribers"
-    | .notSubscribed => "there channel is not subscribed."
+    | .closed => "attempted to send on an already closed channel"
+    | .alreadyClosed => "attempted to close an already closed broadcast channel"
+    | .notSubscribed => "receiver not subscribed in a broadcast channel"
 
 instance instMonadLiftBroadcastIO : MonadLift (EIO Broadcast.Error) IO where
   monadLift x := EIO.toIO (.userError <| toString ·) x

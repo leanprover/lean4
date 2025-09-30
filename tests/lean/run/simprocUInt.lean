@@ -1,5 +1,3 @@
-module
-
 section
 
 variable (x : Nat)

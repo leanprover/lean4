@@ -220,11 +220,11 @@ Peeks at the element at the front of the buffer without removing it.
 Returns none if the buffer is empty.
 -/
 private def getSlot
-  [Monad m] [MonadLiftT (ST IO.RealWorld) m] (place : Nat) :
-  AtomicT (Bounded.State α) m (IO.Ref (Slot α)) := do
-    let st ← get
-    let idx := (@Fin.ofNat st.capacity ⟨Nat.ne_zero_of_lt st.capacity.property⟩ place)
-    return st.buffer.get idx
+    [Monad m] [MonadLiftT (ST IO.RealWorld) m] (place : Nat) :
+    AtomicT (Bounded.State α) m (IO.Ref (Slot α)) := do
+  let st ← get
+  let idx := (@Fin.ofNat st.capacity ⟨Nat.ne_zero_of_lt st.capacity.property⟩ place)
+  return st.buffer.get idx
 
 /--
 Subscribes a new `Receiver` in the `Bounded` channel.

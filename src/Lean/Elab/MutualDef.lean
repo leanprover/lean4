@@ -104,6 +104,8 @@ private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewEl
     throwError "'unsafe' theorems are not allowed"
   if newHeader.kind.isTheorem && newHeader.modifiers.isPartial then
     throwError "'partial' theorems are not allowed, 'partial' is a code generation directive"
+  if newHeader.kind.isTheorem && newHeader.modifiers.isMeta then
+    throwError "'meta' theorems are not allowed, 'meta' is a code generation directive"
   if newHeader.kind.isTheorem && newHeader.modifiers.isNoncomputable then
     throwError "'theorem' subsumes 'noncomputable', code is not generated for theorems"
   if newHeader.modifiers.isNoncomputable && newHeader.modifiers.isPartial then

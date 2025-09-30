@@ -2704,7 +2704,12 @@ theorem contains_union_of_left  [EquivBEq α] [LawfulHashable α] (h₁ : m₁.v
 theorem contains_union_of_right  [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
     (h₂ : m₂.val.WF) {k : α} :
     m₂.contains k → (m₁.union m₂).contains k := by
-  sorry
+  simp_to_model [contains, union]
+  simp only [List.containsKey_insertSmallerList]
+  intro h
+  simp only [Bool.or_eq_true]
+  apply Or.inr
+  exact h
 
 @[simp]
 theorem contains_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
@@ -2716,22 +2721,40 @@ theorem contains_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
 theorem contains_union_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
     (h₂ : m₂.val.WF) {k : α} :
     (m₁.union m₂).contains k ↔ m₁.contains k ∨ m₂.contains k := by
-  sorry
+  apply Iff.trans
+  rotate_left
+  . apply iff_of_eq
+    apply Bool.or_eq_true
+  . rw [Bool.coe_iff_coe]
+    apply contains_union h₁ h₂
 
 theorem contains_of_contains_union_of_contains_right_eq_false [EquivBEq α]
     [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
     (m₁.union m₂).contains k → m₂.contains k = false → m₁.contains k := by
-  sorry
+  intro h₃ h₄
+  apply Or.elim <| (@contains_union_iff α β _ _ _ _ _ _ h₁ h₂ k).1 h₃
+  . simp only [imp_self]
+  . intro n
+    rw [n] at h₄
+    contradiction
 
 theorem contains_of_contains_union_of_contains_left_eq_false [EquivBEq α]
     [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
     (m₁.union m₂).contains k → m₁.contains k = false → m₂.contains k := by
-  sorry
+  intro h₃ h₄
+  apply Or.elim <| (@contains_union_iff α β _ _ _ _ _ _ h₁ h₂ k).1 h₃
+  . intro n
+    rw [n] at h₄
+    contradiction
+  . simp only [imp_self]
 
 theorem get?_union_of_contains_right_eq_false [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} (contains_eq_false : m₂.contains k = false) :
     (m₁.union m₂).get? k = m₁.get? k := by
-  sorry
+  revert contains_eq_false
+  simp_to_model [union, get?, contains]
+  intro contains_eq_false
+
 
 theorem get_union_of_contains_right_eq_false [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} (contains_eq_false : m₂.contains k = false) {h'} :
@@ -2823,21 +2846,21 @@ theorem size_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
 
 theorem size_left_le_size_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
     (h₂ : m₂.val.WF) : m₁.1.size ≤ (m₁.union m₂).1.size := by
-  sorry
+  simp_to_model [union, size] using length_left_le_length_insertSmallerList
 
 theorem size_right_le_size_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
     (h₂ : m₂.val.WF) : m₂.1.size ≤ (m₁.union m₂).1.size := by
-  sorry
+  simp_to_model [union, size] using length_right_le_length_insertSmallerList
 
 theorem size_union_le_size_add_size [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
     (m₁.union m₂).1.size ≤ m₁.1.size + m₂.1.size := by
-  sorry
+  simp_to_model [union, size] using length_insertSmallerList_le
 
 @[simp]
 theorem isEmpty_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
     (m₁.union m₂).1.isEmpty = (m₁.1.isEmpty && m₂.1.isEmpty) := by
-  sorry
+  simp_to_model [isEmpty, union] using isEmpty_insertSmallerList
 
 end Union
 

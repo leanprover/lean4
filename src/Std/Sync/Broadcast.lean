@@ -349,18 +349,18 @@ private def unsubscribe (bd : Bounded.Receiver α) : IO Unit := do
   | .ok _ => pure ()
 
 private def tryRecv'
-  [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m]
-  (receiverId : Nat) : AtomicT (Bounded.State α) m (Option α) := do
-    let st ← get
+    [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m]
+    (receiverId : Nat) : AtomicT (Bounded.State α) m (Option α) := do
+  let st ← get
 
-    let some next := st.receivers[receiverId]?
-      | return none
+  let some next := st.receivers[receiverId]?
+    | return none
 
-    if let some val ← getValueByPosition next then
-      modify ({ · with receivers := st.receivers.modify receiverId (· + 1) })
-      return some val
-    else
-      return none
+  if let some val ← getValueByPosition next then
+    modify ({ · with receivers := st.receivers.modify receiverId (· + 1) })
+    return some val
+  else
+    return none
 
 private def tryRecv (ch : Bounded.Receiver α) : BaseIO (Option α) :=
   ch.state.atomically (tryRecv' ch.id)

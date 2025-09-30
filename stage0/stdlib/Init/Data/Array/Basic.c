@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Basic
-// Imports: Init.WFTactics Init.Data.Nat.Basic Init.Data.Fin.Basic Init.Data.UInt.BasicAux Init.GetElem Init.Data.List.ToArrayImpl Init.Data.List.ToArrayImpl Init.Data.Array.Set Init.Data.Array.Set
+// Imports: public import Init.WFTactics public import Init.Data.Nat.Basic public import Init.Data.Fin.Basic public import Init.Data.UInt.BasicAux public import Init.GetElem public import Init.Data.List.ToArrayImpl import all Init.Data.List.ToArrayImpl public import Init.Data.Array.Set import all Init.Data.Array.Set
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

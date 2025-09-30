@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DHashMap.Internal.AssocList.Lemmas
-// Imports: Std.Data.DHashMap.Internal.AssocList.Basic Std.Data.DHashMap.Internal.AssocList.Basic Std.Data.Internal.List.Associative
+// Imports: public import Std.Data.DHashMap.Internal.AssocList.Basic import all Std.Data.DHashMap.Internal.AssocList.Basic public import Std.Data.Internal.List.Associative
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -199,7 +199,12 @@ def a := "a"
 def b := "b"
 end A
 
-/-- error: Unknown constant `a` -/
+/--
+error: Unknown constant `a`
+
+Hint: Insert a fully-qualified name:
+  {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲A̲.̲a̲)̲}`a`
+-/
 #guard_msgs in
 /--
 role {name}`a` here
@@ -223,7 +228,13 @@ def testDef' := 15
 -/
 def testDef'' := 15
 
-/-- error: Unknown constant `b` -/
+/--
+error: Unknown constant `b`
+
+Hint: Insert a fully-qualified name:
+  • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲A̲.̲b̲)̲}`b`
+  • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲M̲e̲t̲a̲.̲G̲r̲i̲n̲d̲.̲A̲r̲i̲t̲h̲.̲C̲u̲t̲s̲a̲t̲.̲D̲v̲d̲S̲o̲l̲u̲t̲i̲o̲n̲.̲b̲)̲}`b`
+-/
 #guard_msgs in
 /--
 {open A only:=a}
@@ -311,6 +322,18 @@ Suggestions are as well.
  * {attr}`@[samp, inlone]`
 -/
 def otherAttr := ()
+
+/--
+error: Unknown constant `Constraint.add`
+
+Hint: Insert a fully-qualified name:
+  {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲O̲m̲e̲g̲a̲.̲C̲o̲n̲s̲t̲r̲a̲i̲n̲t̲.̲a̲d̲d̲)̲}`Constraint.add`
+-/
+#guard_msgs in
+/--
+{name}`Constraint.add`
+-/
+def nameErrSuggestions := ()
 
 /--
 Options control Lean.

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.Simp.ConstantFold
-// Imports: Init.Data.UInt.Log2 Lean.Compiler.LCNF.CompilerM Lean.Compiler.LCNF.InferType Lean.Compiler.LCNF.PassManager
+// Imports: public import Init.Data.UInt.Log2 public import Lean.Compiler.LCNF.CompilerM public import Lean.Compiler.LCNF.InferType public import Lean.Compiler.LCNF.PassManager
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

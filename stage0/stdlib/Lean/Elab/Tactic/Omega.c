@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Omega
-// Imports: Lean.Elab.Tactic.Omega.Frontend
+// Imports: public import Lean.Elab.Tactic.Omega.Frontend
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

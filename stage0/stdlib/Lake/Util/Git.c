@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Git
-// Imports: Init.System.IO Init.Data.ToString Lake.Util.Log Lake.Util.Proc
+// Imports: public import Init.System.IO public import Init.Data.ToString public import Lake.Util.Log public import Lake.Util.Proc
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

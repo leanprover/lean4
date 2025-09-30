@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Option.Attach
-// Imports: Init.Data.Option.Basic Init.Data.Option.List Init.Data.Option.Array Init.Data.Array.Attach Init.Data.List.Attach Init.BinderPredicates
+// Imports: public import Init.Data.Option.Basic public import Init.Data.Option.List public import Init.Data.Option.Array public import Init.Data.Array.Attach public import Init.Data.List.Attach public import Init.BinderPredicates
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

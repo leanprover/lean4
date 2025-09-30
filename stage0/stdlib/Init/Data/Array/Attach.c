@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Attach
-// Imports: Init.Data.Array.Mem Init.Data.Array.Lemmas Init.Data.Array.Count Init.Data.List.Attach Init.Data.List.Attach
+// Imports: public import Init.Data.Array.Mem public import Init.Data.Array.Lemmas public import Init.Data.Array.Count public import Init.Data.List.Attach import all Init.Data.List.Attach
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

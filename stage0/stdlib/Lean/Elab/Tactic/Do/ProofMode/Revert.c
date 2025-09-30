@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Do.ProofMode.Revert
-// Imports: Std.Tactic.Do.Syntax Lean.Elab.Tactic.Do.ProofMode.Focus Lean.Elab.Tactic.Do.ProofMode.Basic
+// Imports: public import Std.Tactic.Do.Syntax public import Lean.Elab.Tactic.Do.ProofMode.Focus public import Lean.Elab.Tactic.Do.ProofMode.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -8183,15 +8183,15 @@ lean_inc(x_45);
 lean_dec(x_42);
 x_11 = x_44;
 x_12 = x_45;
-x_13 = x_36;
-x_14 = x_33;
-x_15 = x_37;
-x_16 = x_32;
-x_17 = x_43;
-x_18 = x_34;
-x_19 = x_38;
-x_20 = x_39;
-x_21 = x_35;
+x_13 = x_43;
+x_14 = x_38;
+x_15 = x_36;
+x_16 = x_35;
+x_17 = x_34;
+x_18 = x_33;
+x_19 = x_39;
+x_20 = x_37;
+x_21 = x_32;
 x_22 = x_30;
 goto block_26;
 }
@@ -8213,15 +8213,15 @@ x_50 = l_Lean_TSyntax_getNat(x_49);
 lean_dec(x_49);
 x_11 = x_47;
 x_12 = x_48;
-x_13 = x_36;
-x_14 = x_33;
-x_15 = x_37;
-x_16 = x_32;
-x_17 = x_46;
-x_18 = x_34;
-x_19 = x_38;
-x_20 = x_39;
-x_21 = x_35;
+x_13 = x_46;
+x_14 = x_38;
+x_15 = x_36;
+x_16 = x_35;
+x_17 = x_34;
+x_18 = x_33;
+x_19 = x_39;
+x_20 = x_37;
+x_21 = x_32;
 x_22 = x_50;
 goto block_26;
 }
@@ -8269,7 +8269,7 @@ lean_closure_set(x_24, 0, x_23);
 lean_closure_set(x_24, 1, x_12);
 lean_closure_set(x_24, 2, x_22);
 lean_closure_set(x_24, 3, x_11);
-x_25 = l_Lean_MVarId_withContext___at___Lean_Elab_Tactic_Do_ProofMode_elabMRevert_spec__22___redArg(x_11, x_24, x_16, x_14, x_18, x_21, x_13, x_15, x_19, x_20, x_17);
+x_25 = l_Lean_MVarId_withContext___at___Lean_Elab_Tactic_Do_ProofMode_elabMRevert_spec__22___redArg(x_11, x_24, x_21, x_18, x_17, x_16, x_15, x_20, x_14, x_19, x_13);
 return x_25;
 }
 }

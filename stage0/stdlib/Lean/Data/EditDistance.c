@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.EditDistance
-// Imports: Init
+// Imports: public import Init
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

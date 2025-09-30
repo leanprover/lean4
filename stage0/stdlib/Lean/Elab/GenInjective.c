@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.GenInjective
-// Imports: Lean.Elab.Command Lean.Meta.Injective Lean.Meta.Constructions.CtorIdx
+// Imports: public import Lean.Elab.Command import Lean.Meta.Injective import Lean.Meta.Constructions.CtorIdx
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

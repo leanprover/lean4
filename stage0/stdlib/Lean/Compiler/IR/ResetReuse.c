@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.ResetReuse
-// Imports: Lean.Compiler.IR.Basic Lean.Compiler.IR.CompilerM Lean.Compiler.IR.LiveVars Lean.Compiler.IR.Format
+// Imports: public import Lean.Compiler.IR.Basic public import Lean.Compiler.IR.CompilerM public import Lean.Compiler.IR.LiveVars public import Lean.Compiler.IR.Format
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

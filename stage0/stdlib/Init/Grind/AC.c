@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.AC
-// Imports: Init.Core Init.Data.Nat.Lemmas Init.Data.RArray Init.Data.Bool Init.LawfulBEqTactics
+// Imports: public import Init.Core public import Init.Data.Nat.Lemmas public import Init.Data.RArray public import Init.Data.Bool import Init.LawfulBEqTactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

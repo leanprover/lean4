@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Generalize
-// Imports: Lean.Meta.Tactic.Generalize Lean.Meta.Check Lean.Meta.Tactic.Intro Lean.Elab.Binders Lean.Elab.Tactic.ElabTerm Lean.Elab.Tactic.Location
+// Imports: public import Lean.Meta.Tactic.Generalize public import Lean.Meta.Check public import Lean.Meta.Tactic.Intro public import Lean.Elab.Binders public import Lean.Elab.Tactic.ElabTerm public import Lean.Elab.Tactic.Location
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

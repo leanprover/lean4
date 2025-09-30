@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Match.Basic
-// Imports: Lean.Meta.Check Lean.Meta.CollectFVars Lean.Meta.Match.MatcherInfo Lean.Meta.Match.CaseArraySizes
+// Imports: public import Lean.Meta.Check public import Lean.Meta.CollectFVars public import Lean.Meta.Match.MatcherInfo public import Lean.Meta.Match.CaseArraySizes
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

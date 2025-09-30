@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Try
-// Imports: Lean.Meta.Tactic.Try.Collect
+// Imports: public import Lean.Meta.Tactic.Try.Collect
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

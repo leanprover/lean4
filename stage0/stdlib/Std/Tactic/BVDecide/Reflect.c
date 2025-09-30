@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Reflect
-// Imports: Std.Tactic.BVDecide.LRAT.Checker Std.Tactic.BVDecide.LRAT.Parser Std.Tactic.BVDecide.Bitblast Std.Sat.AIG.CNF Std.Sat.AIG.RelabelNat
+// Imports: public import Std.Tactic.BVDecide.LRAT.Checker public import Std.Tactic.BVDecide.LRAT.Parser public import Std.Tactic.BVDecide.Bitblast public import Std.Sat.AIG.CNF public import Std.Sat.AIG.RelabelNat
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

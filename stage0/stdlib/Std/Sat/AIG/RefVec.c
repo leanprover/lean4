@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sat.AIG.RefVec
-// Imports: Std.Sat.AIG.LawfulOperator Std.Sat.AIG.CachedGatesLemmas Init.Data.Vector.Lemmas
+// Imports: public import Std.Sat.AIG.LawfulOperator public import Std.Sat.AIG.CachedGatesLemmas public import Init.Data.Vector.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

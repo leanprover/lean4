@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Cases
-// Imports: Lean.Meta.AppBuilder Lean.Meta.Tactic.Induction Lean.Meta.Tactic.Injection Lean.Meta.Tactic.Assert Lean.Meta.Tactic.Subst Lean.Meta.Tactic.Acyclic Lean.Meta.Tactic.UnifyEq
+// Imports: public import Lean.Meta.AppBuilder public import Lean.Meta.Tactic.Induction public import Lean.Meta.Tactic.Injection public import Lean.Meta.Tactic.Assert public import Lean.Meta.Tactic.Subst public import Lean.Meta.Tactic.Acyclic public import Lean.Meta.Tactic.UnifyEq
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2609,11 +2609,11 @@ x_41 = lean_unsigned_to_nat(0u);
 if (x_24 == 0)
 {
 lean_dec(x_22);
-x_10 = x_5;
-x_11 = x_6;
-x_12 = x_8;
-x_13 = x_7;
-x_14 = x_9;
+x_10 = x_9;
+x_11 = x_7;
+x_12 = x_5;
+x_13 = x_8;
+x_14 = x_6;
 x_15 = x_41;
 x_16 = x_23;
 goto block_21;
@@ -2621,11 +2621,11 @@ goto block_21;
 else
 {
 lean_dec(x_23);
-x_10 = x_5;
-x_11 = x_6;
-x_12 = x_8;
-x_13 = x_7;
-x_14 = x_9;
+x_10 = x_9;
+x_11 = x_7;
+x_12 = x_5;
+x_13 = x_8;
+x_14 = x_6;
 x_15 = x_41;
 x_16 = x_22;
 goto block_21;
@@ -2641,7 +2641,7 @@ lean_inc_ref(x_18);
 x_19 = lean_alloc_closure((void*)(l_Lean_Meta_generalizeTargetsEq___lam__0___boxed), 9, 2);
 lean_closure_set(x_19, 0, x_1);
 lean_closure_set(x_19, 1, x_18);
-x_20 = l_Lean_Meta_withNewEqs___redArg(x_2, x_18, x_19, x_10, x_11, x_13, x_12, x_14);
+x_20 = l_Lean_Meta_withNewEqs___redArg(x_2, x_18, x_19, x_12, x_14, x_11, x_13, x_10);
 return x_20;
 }
 }
@@ -5641,10 +5641,10 @@ x_159 = l_Lean_Expr_hasMVar(x_150);
 if (x_159 == 0)
 {
 lean_dec_ref(x_150);
-x_76 = x_128;
+x_76 = x_125;
 x_77 = x_155;
-x_78 = x_151;
-x_79 = x_125;
+x_78 = x_128;
+x_79 = x_151;
 x_80 = x_159;
 x_81 = x_152;
 goto block_86;
@@ -5655,10 +5655,10 @@ lean_object* x_160;
 lean_inc_ref(x_125);
 lean_inc_ref(x_128);
 x_160 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_128, x_125, x_150, x_152);
-x_87 = x_128;
+x_87 = x_125;
 x_88 = x_155;
-x_89 = x_151;
-x_90 = x_125;
+x_89 = x_128;
+x_90 = x_151;
 x_91 = x_160;
 goto block_95;
 }
@@ -5669,10 +5669,10 @@ lean_object* x_161;
 lean_inc_ref(x_125);
 lean_inc_ref(x_128);
 x_161 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_128, x_125, x_150, x_152);
-x_87 = x_128;
+x_87 = x_125;
 x_88 = x_155;
-x_89 = x_151;
-x_90 = x_125;
+x_89 = x_128;
+x_90 = x_151;
 x_91 = x_161;
 goto block_95;
 }
@@ -5700,10 +5700,10 @@ x_168 = l_Lean_Expr_hasMVar(x_150);
 if (x_168 == 0)
 {
 lean_dec_ref(x_150);
-x_76 = x_128;
+x_76 = x_125;
 x_77 = x_163;
-x_78 = x_151;
-x_79 = x_125;
+x_78 = x_128;
+x_79 = x_151;
 x_80 = x_168;
 x_81 = x_166;
 goto block_86;
@@ -5714,10 +5714,10 @@ lean_object* x_169;
 lean_inc_ref(x_125);
 lean_inc_ref(x_128);
 x_169 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_128, x_125, x_150, x_166);
-x_87 = x_128;
+x_87 = x_125;
 x_88 = x_163;
-x_89 = x_151;
-x_90 = x_125;
+x_89 = x_128;
+x_90 = x_151;
 x_91 = x_169;
 goto block_95;
 }
@@ -5728,10 +5728,10 @@ lean_object* x_170;
 lean_inc_ref(x_125);
 lean_inc_ref(x_128);
 x_170 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_128, x_125, x_150, x_166);
-x_87 = x_128;
+x_87 = x_125;
 x_88 = x_163;
-x_89 = x_151;
-x_90 = x_125;
+x_89 = x_128;
+x_90 = x_151;
 x_91 = x_170;
 goto block_95;
 }
@@ -6068,11 +6068,11 @@ block_86:
 if (x_80 == 0)
 {
 uint8_t x_82; 
-x_82 = l_Lean_Expr_hasFVar(x_78);
+x_82 = l_Lean_Expr_hasFVar(x_79);
 if (x_82 == 0)
 {
 uint8_t x_83; 
-x_83 = l_Lean_Expr_hasMVar(x_78);
+x_83 = l_Lean_Expr_hasMVar(x_79);
 if (x_83 == 0)
 {
 lean_dec_ref(x_79);
@@ -6086,7 +6086,7 @@ goto block_69;
 else
 {
 lean_object* x_84; 
-x_84 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_76, x_79, x_78, x_81);
+x_84 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_78, x_76, x_79, x_81);
 x_70 = x_77;
 x_71 = x_84;
 goto block_75;
@@ -6095,7 +6095,7 @@ goto block_75;
 else
 {
 lean_object* x_85; 
-x_85 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_76, x_79, x_78, x_81);
+x_85 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_78, x_76, x_79, x_81);
 x_70 = x_77;
 x_71 = x_85;
 goto block_75;

@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Range
 public import Init.Data.Array.Subarray
-public import Init.Data.String.Basic
 
 import Init.Data.Slice.Array.Basic
 
@@ -111,12 +110,5 @@ instance : Stream Std.Range Nat where
   next? r :=
     if r.start < r.stop then
       some (r.start, { r with start := r.start + r.step })
-    else
-      none
-
-instance : Stream Substring Char where
-  next? s :=
-    if s.startPos < s.stopPos then
-      some (s.str.get s.startPos, { s with startPos := s.str.next s.startPos })
     else
       none

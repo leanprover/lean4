@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.PtrSet
-// Imports: Init.Data.Hashable Std.Data.HashSet.Basic Std.Data.HashMap.Basic
+// Imports: public import Init.Data.Hashable public import Std.Data.HashSet.Basic public import Std.Data.HashMap.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Trace
-// Imports: Init.System.IO Lean.Data.Json Init.Data.Nat.Fold Lake.Util.String Lake.Util.IO
+// Imports: public import Init.System.IO public import Lean.Data.Json import Init.Data.Nat.Fold import Lake.Util.String import Lake.Util.IO
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

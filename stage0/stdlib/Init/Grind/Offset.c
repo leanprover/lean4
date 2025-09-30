@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Offset
-// Imports: Init.Core Init.Omega
+// Imports: public import Init.Core public import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.AddExtern
-// Imports: Lean.CoreM Lean.Compiler.BorrowedAnnotation Lean.Compiler.ExternAttr Lean.Compiler.IR.Basic Lean.Compiler.IR.Boxing Lean.Compiler.IR.CompilerM Lean.Compiler.IR.ToIRType Lean.Compiler.LCNF.MonoTypes
+// Imports: public import Lean.CoreM public import Lean.Compiler.BorrowedAnnotation public import Lean.Compiler.ExternAttr public import Lean.Compiler.IR.Basic public import Lean.Compiler.IR.Boxing public import Lean.Compiler.IR.CompilerM public import Lean.Compiler.IR.ToIRType public import Lean.Compiler.LCNF.MonoTypes
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

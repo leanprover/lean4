@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Basic
-// Imports: Init.Meta Init.Omega
+// Imports: public import Init.Meta public import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

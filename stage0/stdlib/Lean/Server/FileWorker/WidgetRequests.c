@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.FileWorker.WidgetRequests
-// Imports: Lean.Widget.Basic Lean.Widget.InteractiveCode Lean.Widget.InteractiveGoal Lean.Widget.InteractiveDiagnostic Lean.Server.Rpc.RequestHandling Lean.Server.FileWorker.RequestHandling Lean.PrettyPrinter.Delaborator.Builtins
+// Imports: public import Lean.Widget.Basic public import Lean.Widget.InteractiveCode public import Lean.Widget.InteractiveGoal public import Lean.Widget.InteractiveDiagnostic public import Lean.Server.Rpc.RequestHandling public import Lean.Server.FileWorker.RequestHandling import Lean.PrettyPrinter.Delaborator.Builtins
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3887,8 +3887,8 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10;
 x_7 = l_Option_toJson___at___Lean_Widget_instRpcEncodableInfoPopup_enc____x40_Lean_Server_FileWorker_WidgetRequests_2734021171____hygCtx___hyg_1__spec__0(x_5);
 lean_dec(x_5);
 x_8 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_8, 0, x_3);
-lean_ctor_set(x_8, 1, x_4);
+lean_ctor_set(x_8, 0, x_4);
+lean_ctor_set(x_8, 1, x_3);
 lean_ctor_set(x_8, 2, x_7);
 x_9 = l_Lean_Widget_instToJsonRpcEncodablePacket_toJson____x40_Lean_Server_FileWorker_WidgetRequests_1691946469____hygCtx___hyg_51_(x_8);
 lean_dec_ref(x_8);
@@ -3906,8 +3906,8 @@ if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_19; 
 x_19 = lean_box(0);
-x_3 = x_15;
-x_4 = x_18;
+x_3 = x_18;
+x_4 = x_15;
 x_5 = x_19;
 x_6 = x_17;
 goto block_11;
@@ -3923,8 +3923,8 @@ x_21 = lean_ctor_get(x_14, 0);
 x_22 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_22, 0, x_21);
 lean_ctor_set(x_14, 0, x_22);
-x_3 = x_15;
-x_4 = x_18;
+x_3 = x_18;
+x_4 = x_15;
 x_5 = x_14;
 x_6 = x_17;
 goto block_11;
@@ -3939,8 +3939,8 @@ x_24 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_24, 0, x_23);
 x_25 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_25, 0, x_24);
-x_3 = x_15;
-x_4 = x_18;
+x_3 = x_18;
+x_4 = x_15;
 x_5 = x_25;
 x_6 = x_17;
 goto block_11;
@@ -12903,7 +12903,7 @@ return x_3;
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; lean_object* x_53; uint8_t x_54; 
+lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; lean_object* x_53; uint8_t x_54; 
 x_28 = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___closed__9;
 x_29 = l_Std_PRange_instUpwardEnumerableNat;
 x_30 = lean_unsigned_to_nat(0u);
@@ -12938,11 +12938,11 @@ goto block_52;
 }
 block_18:
 {
-if (x_7 == 0)
+if (x_8 == 0)
 {
 lean_object* x_10; 
 lean_dec_ref(x_9);
-lean_dec(x_8);
+lean_dec(x_7);
 x_10 = lean_box(0);
 return x_10;
 }
@@ -12956,7 +12956,7 @@ lean_dec(x_11);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
-lean_dec(x_8);
+lean_dec(x_7);
 x_14 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_14, 0, x_9);
 x_15 = lean_alloc_ctor(1, 1, 0);
@@ -12966,8 +12966,8 @@ return x_15;
 else
 {
 lean_object* x_16; lean_object* x_17; 
-x_16 = lean_array_fget(x_9, x_8);
-lean_dec(x_8);
+x_16 = lean_array_fget(x_9, x_7);
+lean_dec(x_7);
 lean_dec_ref(x_9);
 x_17 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
@@ -12985,8 +12985,8 @@ lean_dec(x_21);
 lean_dec_ref(x_2);
 if (lean_obj_tag(x_24) == 0)
 {
-x_7 = x_20;
-x_8 = x_19;
+x_7 = x_19;
+x_8 = x_20;
 x_9 = x_22;
 goto block_18;
 }
@@ -12997,8 +12997,8 @@ x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
 lean_dec_ref(x_24);
 x_26 = lean_array_push(x_22, x_25);
-x_7 = x_20;
-x_8 = x_19;
+x_7 = x_19;
+x_8 = x_20;
 x_9 = x_26;
 goto block_18;
 }
@@ -13834,7 +13834,7 @@ return x_19;
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_28; uint8_t x_29; lean_object* x_49; uint8_t x_50; 
+lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_28; uint8_t x_29; lean_object* x_49; uint8_t x_50; 
 x_28 = lean_unsigned_to_nat(0u);
 x_49 = lean_string_utf8_byte_size(x_2);
 x_50 = lean_nat_dec_eq(x_49, x_28);
@@ -13855,11 +13855,11 @@ goto block_48;
 }
 block_18:
 {
-if (x_7 == 0)
+if (x_8 == 0)
 {
 lean_object* x_10; 
 lean_dec_ref(x_9);
-lean_dec(x_8);
+lean_dec(x_7);
 x_10 = lean_box(0);
 return x_10;
 }
@@ -13873,7 +13873,7 @@ lean_dec(x_11);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
-lean_dec(x_8);
+lean_dec(x_7);
 x_14 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_14, 0, x_9);
 x_15 = lean_alloc_ctor(1, 1, 0);
@@ -13883,8 +13883,8 @@ return x_15;
 else
 {
 lean_object* x_16; lean_object* x_17; 
-x_16 = lean_array_fget(x_9, x_8);
-lean_dec(x_8);
+x_16 = lean_array_fget(x_9, x_7);
+lean_dec(x_7);
 lean_dec_ref(x_9);
 x_17 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
@@ -13901,8 +13901,8 @@ lean_dec(x_23);
 lean_dec(x_21);
 if (lean_obj_tag(x_24) == 0)
 {
-x_7 = x_20;
-x_8 = x_19;
+x_7 = x_19;
+x_8 = x_20;
 x_9 = x_22;
 goto block_18;
 }
@@ -13913,8 +13913,8 @@ x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
 lean_dec_ref(x_24);
 x_26 = lean_array_push(x_22, x_25);
-x_7 = x_20;
-x_8 = x_19;
+x_7 = x_19;
+x_8 = x_20;
 x_9 = x_26;
 goto block_18;
 }

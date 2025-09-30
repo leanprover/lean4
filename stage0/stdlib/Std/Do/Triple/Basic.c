@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Do.Triple.Basic
-// Imports: Std.Do.WP Std.Do.SPred.Notation
+// Imports: public import Std.Do.WP meta import Std.Do.SPred.Notation
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

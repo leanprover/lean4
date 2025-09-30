@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Rpc
-// Imports: Lean.Server.Rpc.Basic Lean.Server.Rpc.Deriving Lean.Server.Rpc.RequestHandling
+// Imports: public import Lean.Server.Rpc.Basic public import Lean.Server.Rpc.Deriving public import Lean.Server.Rpc.RequestHandling
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

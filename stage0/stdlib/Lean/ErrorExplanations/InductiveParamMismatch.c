@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.ErrorExplanations.InductiveParamMismatch
-// Imports: Lean.ErrorExplanation Lean.ErrorExplanation
+// Imports: public import Lean.ErrorExplanation meta import Lean.ErrorExplanation
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

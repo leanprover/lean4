@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Conv
-// Imports: Lean.Elab.Tactic.Conv.Basic Lean.Elab.Tactic.Conv.Congr Lean.Elab.Tactic.Conv.Rewrite Lean.Elab.Tactic.Conv.Change Lean.Elab.Tactic.Conv.Lets Lean.Elab.Tactic.Conv.Simp Lean.Elab.Tactic.Conv.Pattern Lean.Elab.Tactic.Conv.Delta Lean.Elab.Tactic.Conv.Unfold
+// Imports: public import Lean.Elab.Tactic.Conv.Basic public import Lean.Elab.Tactic.Conv.Congr public import Lean.Elab.Tactic.Conv.Rewrite public import Lean.Elab.Tactic.Conv.Change public import Lean.Elab.Tactic.Conv.Lets public import Lean.Elab.Tactic.Conv.Simp public import Lean.Elab.Tactic.Conv.Pattern public import Lean.Elab.Tactic.Conv.Delta public import Lean.Elab.Tactic.Conv.Unfold
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

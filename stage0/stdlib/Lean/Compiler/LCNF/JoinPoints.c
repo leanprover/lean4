@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.JoinPoints
-// Imports: Lean.Compiler.LCNF.CompilerM Lean.Compiler.LCNF.PassManager Lean.Compiler.LCNF.PullFunDecls Lean.Compiler.LCNF.FVarUtil Lean.Compiler.LCNF.ScopeM Lean.Compiler.LCNF.InferType
+// Imports: public import Lean.Compiler.LCNF.CompilerM public import Lean.Compiler.LCNF.PassManager public import Lean.Compiler.LCNF.PullFunDecls public import Lean.Compiler.LCNF.FVarUtil public import Lean.Compiler.LCNF.ScopeM public import Lean.Compiler.LCNF.InferType
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -11440,10 +11440,10 @@ x_77 = lean_ctor_get(x_1, 1);
 lean_dec(x_77);
 x_78 = lean_ctor_get(x_1, 0);
 lean_dec(x_78);
-lean_ctor_set(x_1, 1, x_74);
+lean_ctor_set(x_1, 1, x_73);
 x_79 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_79, 0, x_1);
-lean_ctor_set(x_79, 1, x_73);
+lean_ctor_set(x_79, 1, x_74);
 return x_79;
 }
 else
@@ -11452,20 +11452,20 @@ lean_object* x_80; lean_object* x_81;
 lean_dec(x_1);
 x_80 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_80, 0, x_71);
-lean_ctor_set(x_80, 1, x_74);
+lean_ctor_set(x_80, 1, x_73);
 x_81 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_81, 0, x_80);
-lean_ctor_set(x_81, 1, x_73);
+lean_ctor_set(x_81, 1, x_74);
 return x_81;
 }
 }
 else
 {
 lean_object* x_82; 
-lean_dec_ref(x_74);
+lean_dec_ref(x_73);
 x_82 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_82, 0, x_1);
-lean_ctor_set(x_82, 1, x_73);
+lean_ctor_set(x_82, 1, x_74);
 return x_82;
 }
 }
@@ -11475,8 +11475,8 @@ uint8_t x_86;
 x_86 = l_Lean_instBEqFVarId_beq(x_71, x_71);
 if (x_86 == 0)
 {
-x_73 = x_85;
-x_74 = x_84;
+x_73 = x_84;
+x_74 = x_85;
 x_75 = x_86;
 goto block_83;
 }
@@ -11486,8 +11486,8 @@ size_t x_87; size_t x_88; uint8_t x_89;
 x_87 = lean_ptr_addr(x_72);
 x_88 = lean_ptr_addr(x_84);
 x_89 = lean_usize_dec_eq(x_87, x_88);
-x_73 = x_85;
-x_74 = x_84;
+x_73 = x_84;
+x_74 = x_85;
 x_75 = x_89;
 goto block_83;
 }
@@ -12378,7 +12378,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___Lean_Compiler_LCNF_JoinPointCommonArgs_isInJpScope_spec__0___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(13u);
-x_3 = lean_unsigned_to_nat(182u);
+x_3 = lean_unsigned_to_nat(183u);
 x_4 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___Lean_Compiler_LCNF_JoinPointCommonArgs_isInJpScope_spec__0___redArg___closed__1;
 x_5 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___Lean_Compiler_LCNF_JoinPointCommonArgs_isInJpScope_spec__0___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -16033,9 +16033,9 @@ x_88 = lean_ptr_addr(x_82);
 x_89 = lean_usize_dec_eq(x_87, x_88);
 if (x_89 == 0)
 {
-x_8 = x_85;
-x_9 = x_82;
-x_10 = x_86;
+x_8 = x_82;
+x_9 = x_86;
+x_10 = x_85;
 x_11 = x_89;
 goto block_15;
 }
@@ -16045,9 +16045,9 @@ size_t x_90; size_t x_91; uint8_t x_92;
 x_90 = lean_ptr_addr(x_70);
 x_91 = lean_ptr_addr(x_85);
 x_92 = lean_usize_dec_eq(x_90, x_91);
-x_8 = x_85;
-x_9 = x_82;
-x_10 = x_86;
+x_8 = x_82;
+x_9 = x_86;
+x_10 = x_85;
 x_11 = x_92;
 goto block_15;
 }
@@ -16429,21 +16429,21 @@ if (x_11 == 0)
 lean_object* x_12; lean_object* x_13; 
 lean_dec_ref(x_1);
 x_12 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_12, 0, x_8);
-lean_ctor_set(x_12, 1, x_9);
+lean_ctor_set(x_12, 0, x_10);
+lean_ctor_set(x_12, 1, x_8);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
-lean_ctor_set(x_13, 1, x_10);
+lean_ctor_set(x_13, 1, x_9);
 return x_13;
 }
 else
 {
 lean_object* x_14; 
-lean_dec_ref(x_9);
+lean_dec_ref(x_10);
 lean_dec_ref(x_8);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_1);
-lean_ctor_set(x_14, 1, x_10);
+lean_ctor_set(x_14, 1, x_9);
 return x_14;
 }
 }

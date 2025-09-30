@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.PassManager
-// Imports: Lean.Attributes Lean.Environment Lean.Meta.Basic Lean.Compiler.LCNF.CompilerM
+// Imports: public import Lean.Attributes public import Lean.Environment public import Lean.Meta.Basic public import Lean.Compiler.LCNF.CompilerM
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

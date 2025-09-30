@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Parser.Basic
-// Imports: Lean.Parser.Types
+// Imports: public import Lean.Parser.Types
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

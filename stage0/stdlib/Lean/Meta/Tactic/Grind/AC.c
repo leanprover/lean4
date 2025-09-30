@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.AC
-// Imports: Lean.Meta.Tactic.Grind.AC.Types Lean.Meta.Tactic.Grind.AC.Util Lean.Meta.Tactic.Grind.AC.Var Lean.Meta.Tactic.Grind.AC.Internalize Lean.Meta.Tactic.Grind.AC.Eq Lean.Meta.Tactic.Grind.AC.Seq Lean.Meta.Tactic.Grind.AC.Proof Lean.Meta.Tactic.Grind.AC.DenoteExpr Lean.Meta.Tactic.Grind.AC.ToExpr Lean.Meta.Tactic.Grind.AC.VarRename Lean.Meta.Tactic.Grind.AC.PP Lean.Meta.Tactic.Grind.AC.Inv
+// Imports: public import Lean.Meta.Tactic.Grind.AC.Types public import Lean.Meta.Tactic.Grind.AC.Util public import Lean.Meta.Tactic.Grind.AC.Var public import Lean.Meta.Tactic.Grind.AC.Internalize public import Lean.Meta.Tactic.Grind.AC.Eq public import Lean.Meta.Tactic.Grind.AC.Seq public import Lean.Meta.Tactic.Grind.AC.Proof public import Lean.Meta.Tactic.Grind.AC.DenoteExpr public import Lean.Meta.Tactic.Grind.AC.ToExpr public import Lean.Meta.Tactic.Grind.AC.VarRename public import Lean.Meta.Tactic.Grind.AC.PP public import Lean.Meta.Tactic.Grind.AC.Inv
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

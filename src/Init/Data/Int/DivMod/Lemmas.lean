@@ -13,6 +13,7 @@ public import Init.Data.Int.Order
 public import Init.Data.Int.Lemmas
 public import Init.Data.Nat.Dvd
 public import Init.RCases
+import Init.TacticsExtra
 
 public section
 

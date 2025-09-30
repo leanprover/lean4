@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.FloatArray.Basic
-// Imports: Init.Data.Array.Basic Init.Data.Float Init.Data.Option.Basic Init.Ext Init.Data.Array.DecidableEq
+// Imports: public import Init.Data.Array.Basic public import Init.Data.Float public import Init.Data.Option.Basic import Init.Ext public import Init.Data.Array.DecidableEq
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

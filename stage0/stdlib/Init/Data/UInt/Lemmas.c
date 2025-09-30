@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.UInt.Lemmas
-// Imports: Init.Data.UInt.Basic Init.Data.UInt.Basic Init.Data.UInt.BasicAux Init.Data.UInt.BasicAux Init.Data.Fin.Lemmas Init.Data.Fin.Bitwise Init.Data.Fin.Bitwise Init.Data.BitVec.BasicAux Init.Data.BitVec.BasicAux Init.Data.BitVec.Basic Init.Data.BitVec.Basic Init.Data.BitVec.Lemmas Init.Data.Nat.Div.Lemmas Init.System.Platform Init.Data.Order.Factories Init.Data.Order.Lemmas
+// Imports: public import Init.Data.UInt.Basic import all Init.Data.UInt.Basic public import Init.Data.UInt.BasicAux import all Init.Data.UInt.BasicAux public import Init.Data.Fin.Lemmas public import Init.Data.Fin.Bitwise import all Init.Data.Fin.Bitwise public import Init.Data.BitVec.BasicAux import all Init.Data.BitVec.BasicAux public import Init.Data.BitVec.Basic import all Init.Data.BitVec.Basic public import Init.Data.BitVec.Lemmas public import Init.Data.Nat.Div.Lemmas public import Init.System.Platform public import Init.Data.Order.Factories import Init.Data.Order.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

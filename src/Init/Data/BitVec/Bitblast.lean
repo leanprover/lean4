@@ -17,6 +17,7 @@ import all Init.Data.BitVec.Basic
 public import Init.Data.BitVec.Decidable
 public import Init.Data.BitVec.Lemmas
 public import Init.Data.BitVec.Folds
+import Init.BinderPredicates
 
 @[expose] public section
 

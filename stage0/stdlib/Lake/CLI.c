@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.CLI
-// Imports: Lake.CLI.Actions Lake.CLI.Build Lake.CLI.Error Lake.CLI.Help Lake.CLI.Init Lake.CLI.Main Lake.CLI.Serve Lake.CLI.Translate Lake.CLI.Translate.Lean Lake.CLI.Translate.Toml
+// Imports: public import Lake.CLI.Actions public import Lake.CLI.Build public import Lake.CLI.Error public import Lake.CLI.Help public import Lake.CLI.Init public import Lake.CLI.Main public import Lake.CLI.Serve public import Lake.CLI.Translate public import Lake.CLI.Translate.Lean public import Lake.CLI.Translate.Toml
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

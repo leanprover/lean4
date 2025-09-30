@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Reservoir
-// Imports: Lake.Util.Log Lake.Util.JsonObject Lake.Util.Version Lake.Config.Env Lake.Util.Reservoir Lake.Util.Proc Lake.Util.Url
+// Imports: public import Lake.Util.Log public import Lake.Util.JsonObject public import Lake.Util.Version public import Lake.Config.Env public import Lake.Util.Reservoir import Lake.Util.Proc import Lake.Util.Url
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

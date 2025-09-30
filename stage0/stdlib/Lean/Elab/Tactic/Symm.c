@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Symm
-// Imports: Lean.Meta.Tactic.Symm Lean.Elab.Tactic.Location
+// Imports: public import Lean.Meta.Tactic.Symm public import Lean.Elab.Tactic.Location
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

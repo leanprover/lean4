@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Lex
-// Imports: Init.Data.List.Lemmas Init.Data.List.Nat.TakeDrop Init.Data.Order.Factories Init.Data.Order.Lemmas
+// Imports: public import Init.Data.List.Lemmas public import Init.Data.List.Nat.TakeDrop public import Init.Data.Order.Factories import Init.Data.Order.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

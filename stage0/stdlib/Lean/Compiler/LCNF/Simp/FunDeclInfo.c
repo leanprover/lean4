@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.Simp.FunDeclInfo
-// Imports: Lean.Compiler.LCNF.Simp.Basic
+// Imports: public import Lean.Compiler.LCNF.Simp.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

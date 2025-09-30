@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.ShowTerm
-// Imports: Lean.Elab.ElabRules Lean.Meta.Tactic.TryThis
+// Imports: public import Lean.Elab.ElabRules public import Lean.Meta.Tactic.TryThis
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

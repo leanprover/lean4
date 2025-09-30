@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.TryThis
-// Imports: Lean.CoreM Lean.Message Lean.Elab.InfoTree.Types Lean.Data.Lsp.Basic Lean.PrettyPrinter
+// Imports: public import Lean.CoreM public import Lean.Message public import Lean.Elab.InfoTree.Types public import Lean.Data.Lsp.Basic public import Lean.PrettyPrinter
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2041,7 +2041,7 @@ x_19 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_19, 0, x_13);
 lean_ctor_set(x_19, 1, x_18);
 x_20 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_20, 0, x_16);
+lean_ctor_set(x_20, 0, x_17);
 lean_ctor_set(x_20, 1, x_19);
 if (lean_is_scalar(x_15)) {
  x_21 = lean_alloc_ctor(0, 2, 0);
@@ -2049,7 +2049,7 @@ if (lean_is_scalar(x_15)) {
  x_21 = x_15;
 }
 lean_ctor_set(x_21, 0, x_20);
-lean_ctor_set(x_21, 1, x_17);
+lean_ctor_set(x_21, 1, x_16);
 return x_21;
 }
 block_33:
@@ -2060,8 +2060,8 @@ if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_26; 
 x_26 = lean_box(0);
-x_16 = x_25;
-x_17 = x_24;
+x_16 = x_24;
+x_17 = x_25;
 x_18 = x_26;
 goto block_22;
 }
@@ -2076,8 +2076,8 @@ x_28 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
 x_29 = lean_apply_1(x_28, x_13);
 lean_ctor_set(x_11, 0, x_29);
-x_16 = x_25;
-x_17 = x_24;
+x_16 = x_24;
+x_17 = x_25;
 x_18 = x_11;
 goto block_22;
 }
@@ -2091,8 +2091,8 @@ lean_inc(x_13);
 x_31 = lean_apply_1(x_30, x_13);
 x_32 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_32, 0, x_31);
-x_16 = x_25;
-x_17 = x_24;
+x_16 = x_24;
+x_17 = x_25;
 x_18 = x_32;
 goto block_22;
 }

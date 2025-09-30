@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.CLI.Help
-// Imports: Init.Data.ToString Lake.Version Init.Data.String.Basic
+// Imports: public import Init.Data.ToString import Lake.Version import Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -95,6 +95,7 @@ static lean_object* l___private_Lake_CLI_Help_0__Lake_helpTranslateConfig___clos
 static lean_object* l_Lake_usage___closed__2;
 static lean_object* l_Lake_help___closed__14;
 static lean_object* l___private_Lake_CLI_Help_0__Lake_helpLint___closed__0;
+static lean_object* l_Lake_help___closed__23;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Help_0__Lake_newInitHelp;
 static lean_object* l___private_Lake_CLI_Help_0__Lake_helpExe___closed__0;
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -792,7 +793,7 @@ static lean_object* _init_l_Lake_help___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("test", 4, 4);
+x_1 = lean_mk_string_unchecked("cache", 5, 5);
 return x_1;
 }
 }
@@ -800,7 +801,7 @@ static lean_object* _init_l_Lake_help___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("check-test", 10, 10);
+x_1 = lean_mk_string_unchecked("test", 4, 4);
 return x_1;
 }
 }
@@ -808,7 +809,7 @@ static lean_object* _init_l_Lake_help___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("lint", 4, 4);
+x_1 = lean_mk_string_unchecked("check-test", 10, 10);
 return x_1;
 }
 }
@@ -816,7 +817,7 @@ static lean_object* _init_l_Lake_help___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("check-lint", 10, 10);
+x_1 = lean_mk_string_unchecked("lint", 4, 4);
 return x_1;
 }
 }
@@ -824,7 +825,7 @@ static lean_object* _init_l_Lake_help___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("clean", 5, 5);
+x_1 = lean_mk_string_unchecked("check-lint", 10, 10);
 return x_1;
 }
 }
@@ -832,7 +833,7 @@ static lean_object* _init_l_Lake_help___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("script", 6, 6);
+x_1 = lean_mk_string_unchecked("clean", 5, 5);
 return x_1;
 }
 }
@@ -840,7 +841,7 @@ static lean_object* _init_l_Lake_help___closed__16() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("scripts", 7, 7);
+x_1 = lean_mk_string_unchecked("script", 6, 6);
 return x_1;
 }
 }
@@ -848,7 +849,7 @@ static lean_object* _init_l_Lake_help___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("serve", 5, 5);
+x_1 = lean_mk_string_unchecked("scripts", 7, 7);
 return x_1;
 }
 }
@@ -856,7 +857,7 @@ static lean_object* _init_l_Lake_help___closed__18() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("env", 3, 3);
+x_1 = lean_mk_string_unchecked("serve", 5, 5);
 return x_1;
 }
 }
@@ -864,7 +865,7 @@ static lean_object* _init_l_Lake_help___closed__19() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("exe", 3, 3);
+x_1 = lean_mk_string_unchecked("env", 3, 3);
 return x_1;
 }
 }
@@ -872,7 +873,7 @@ static lean_object* _init_l_Lake_help___closed__20() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("exec", 4, 4);
+x_1 = lean_mk_string_unchecked("exe", 3, 3);
 return x_1;
 }
 }
@@ -880,11 +881,19 @@ static lean_object* _init_l_Lake_help___closed__21() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("lean", 4, 4);
+x_1 = lean_mk_string_unchecked("exec", 4, 4);
 return x_1;
 }
 }
 static lean_object* _init_l_Lake_help___closed__22() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("lean", 4, 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_help___closed__23() {
 _start:
 {
 lean_object* x_1; 
@@ -981,12 +990,12 @@ x_35 = lean_string_dec_eq(x_1, x_34);
 if (x_35 == 0)
 {
 lean_object* x_36; uint8_t x_37; 
-x_36 = l_Lake_helpScript___closed__1;
+x_36 = l_Lake_help___closed__17;
 x_37 = lean_string_dec_eq(x_1, x_36);
 if (x_37 == 0)
 {
 lean_object* x_38; uint8_t x_39; 
-x_38 = l_Lake_help___closed__17;
+x_38 = l_Lake_helpScript___closed__1;
 x_39 = lean_string_dec_eq(x_1, x_38);
 if (x_39 == 0)
 {
@@ -1015,176 +1024,188 @@ x_48 = l_Lake_help___closed__22;
 x_49 = lean_string_dec_eq(x_1, x_48);
 if (x_49 == 0)
 {
-lean_object* x_50; 
-x_50 = l_Lake_usage;
-return x_50;
-}
-else
-{
-lean_object* x_51; 
-x_51 = l___private_Lake_CLI_Help_0__Lake_helpTranslateConfig___closed__0;
-return x_51;
-}
-}
-else
+lean_object* x_50; uint8_t x_51; 
+x_50 = l_Lake_help___closed__23;
+x_51 = lean_string_dec_eq(x_1, x_50);
+if (x_51 == 0)
 {
 lean_object* x_52; 
-x_52 = l___private_Lake_CLI_Help_0__Lake_helpLean___closed__0;
+x_52 = l_Lake_usage;
 return x_52;
-}
 }
 else
 {
 lean_object* x_53; 
-x_53 = l___private_Lake_CLI_Help_0__Lake_helpExe___closed__0;
+x_53 = l___private_Lake_CLI_Help_0__Lake_helpTranslateConfig___closed__0;
 return x_53;
 }
 }
 else
 {
 lean_object* x_54; 
-x_54 = l___private_Lake_CLI_Help_0__Lake_helpExe___closed__0;
+x_54 = l___private_Lake_CLI_Help_0__Lake_helpLean___closed__0;
 return x_54;
 }
 }
 else
 {
 lean_object* x_55; 
-x_55 = l___private_Lake_CLI_Help_0__Lake_helpEnv___closed__0;
+x_55 = l___private_Lake_CLI_Help_0__Lake_helpExe___closed__0;
 return x_55;
 }
 }
 else
 {
 lean_object* x_56; 
-x_56 = l___private_Lake_CLI_Help_0__Lake_helpServe___closed__0;
+x_56 = l___private_Lake_CLI_Help_0__Lake_helpExe___closed__0;
 return x_56;
 }
 }
 else
 {
 lean_object* x_57; 
-x_57 = l___private_Lake_CLI_Help_0__Lake_helpScriptRun___closed__0;
+x_57 = l___private_Lake_CLI_Help_0__Lake_helpEnv___closed__0;
 return x_57;
 }
 }
 else
 {
 lean_object* x_58; 
-x_58 = l___private_Lake_CLI_Help_0__Lake_helpScriptList___closed__0;
+x_58 = l___private_Lake_CLI_Help_0__Lake_helpServe___closed__0;
 return x_58;
 }
 }
 else
 {
 lean_object* x_59; 
-x_59 = l___private_Lake_CLI_Help_0__Lake_helpScriptCli___closed__0;
+x_59 = l___private_Lake_CLI_Help_0__Lake_helpScriptRun___closed__0;
 return x_59;
 }
 }
 else
 {
 lean_object* x_60; 
-x_60 = l___private_Lake_CLI_Help_0__Lake_helpClean___closed__0;
+x_60 = l___private_Lake_CLI_Help_0__Lake_helpScriptList___closed__0;
 return x_60;
 }
 }
 else
 {
 lean_object* x_61; 
-x_61 = l___private_Lake_CLI_Help_0__Lake_helpCheckLint___closed__0;
+x_61 = l___private_Lake_CLI_Help_0__Lake_helpScriptCli___closed__0;
 return x_61;
 }
 }
 else
 {
 lean_object* x_62; 
-x_62 = l___private_Lake_CLI_Help_0__Lake_helpLint___closed__0;
+x_62 = l___private_Lake_CLI_Help_0__Lake_helpClean___closed__0;
 return x_62;
 }
 }
 else
 {
 lean_object* x_63; 
-x_63 = l___private_Lake_CLI_Help_0__Lake_helpCheckTest___closed__0;
+x_63 = l___private_Lake_CLI_Help_0__Lake_helpCheckLint___closed__0;
 return x_63;
 }
 }
 else
 {
 lean_object* x_64; 
-x_64 = l___private_Lake_CLI_Help_0__Lake_helpTest___closed__0;
+x_64 = l___private_Lake_CLI_Help_0__Lake_helpLint___closed__0;
 return x_64;
 }
 }
 else
 {
 lean_object* x_65; 
-x_65 = l___private_Lake_CLI_Help_0__Lake_helpUpload___closed__0;
+x_65 = l___private_Lake_CLI_Help_0__Lake_helpCheckTest___closed__0;
 return x_65;
 }
 }
 else
 {
 lean_object* x_66; 
-x_66 = l___private_Lake_CLI_Help_0__Lake_helpUnpack___closed__0;
+x_66 = l___private_Lake_CLI_Help_0__Lake_helpTest___closed__0;
 return x_66;
 }
 }
 else
 {
 lean_object* x_67; 
-x_67 = l___private_Lake_CLI_Help_0__Lake_helpPack___closed__0;
+x_67 = l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0;
 return x_67;
 }
 }
 else
 {
 lean_object* x_68; 
-x_68 = l___private_Lake_CLI_Help_0__Lake_helpUpdate___closed__0;
+x_68 = l___private_Lake_CLI_Help_0__Lake_helpUpload___closed__0;
 return x_68;
 }
 }
 else
 {
 lean_object* x_69; 
-x_69 = l___private_Lake_CLI_Help_0__Lake_helpUpdate___closed__0;
+x_69 = l___private_Lake_CLI_Help_0__Lake_helpUnpack___closed__0;
 return x_69;
 }
 }
 else
 {
 lean_object* x_70; 
-x_70 = l___private_Lake_CLI_Help_0__Lake_helpQuery___closed__0;
+x_70 = l___private_Lake_CLI_Help_0__Lake_helpPack___closed__0;
 return x_70;
 }
 }
 else
 {
 lean_object* x_71; 
-x_71 = l___private_Lake_CLI_Help_0__Lake_helpCheckBuild___closed__0;
+x_71 = l___private_Lake_CLI_Help_0__Lake_helpUpdate___closed__0;
 return x_71;
 }
 }
 else
 {
 lean_object* x_72; 
-x_72 = l___private_Lake_CLI_Help_0__Lake_helpBuild___closed__0;
+x_72 = l___private_Lake_CLI_Help_0__Lake_helpUpdate___closed__0;
 return x_72;
 }
 }
 else
 {
 lean_object* x_73; 
-x_73 = l___private_Lake_CLI_Help_0__Lake_helpInit___closed__0;
+x_73 = l___private_Lake_CLI_Help_0__Lake_helpQuery___closed__0;
 return x_73;
 }
 }
 else
 {
 lean_object* x_74; 
-x_74 = l___private_Lake_CLI_Help_0__Lake_helpNew___closed__0;
+x_74 = l___private_Lake_CLI_Help_0__Lake_helpCheckBuild___closed__0;
 return x_74;
+}
+}
+else
+{
+lean_object* x_75; 
+x_75 = l___private_Lake_CLI_Help_0__Lake_helpBuild___closed__0;
+return x_75;
+}
+}
+else
+{
+lean_object* x_76; 
+x_76 = l___private_Lake_CLI_Help_0__Lake_helpInit___closed__0;
+return x_76;
+}
+}
+else
+{
+lean_object* x_77; 
+x_77 = l___private_Lake_CLI_Help_0__Lake_helpNew___closed__0;
+return x_77;
 }
 }
 }
@@ -1386,6 +1407,8 @@ l_Lake_help___closed__21 = _init_l_Lake_help___closed__21();
 lean_mark_persistent(l_Lake_help___closed__21);
 l_Lake_help___closed__22 = _init_l_Lake_help___closed__22();
 lean_mark_persistent(l_Lake_help___closed__22);
+l_Lake_help___closed__23 = _init_l_Lake_help___closed__23();
+lean_mark_persistent(l_Lake_help___closed__23);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

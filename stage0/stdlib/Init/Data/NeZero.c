@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.NeZero
-// Imports: Init.Data.Zero
+// Imports: public import Init.Data.Zero
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

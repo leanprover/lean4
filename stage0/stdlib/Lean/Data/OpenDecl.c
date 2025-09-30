@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.OpenDecl
-// Imports: Init.Meta Init.Data.String.Basic Init.Data.ToString.Name
+// Imports: public import Init.Meta public import Init.Data.String.Basic public import Init.Data.ToString.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

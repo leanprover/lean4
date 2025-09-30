@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DHashMap.Internal.WF
-// Imports: Std.Data.Internal.List.Associative Std.Data.DHashMap.Raw Std.Data.DHashMap.Basic Std.Data.DHashMap.Internal.Defs Std.Data.DHashMap.Internal.Model Std.Data.DHashMap.Internal.AssocList.Basic Std.Data.DHashMap.Internal.AssocList.Lemmas
+// Imports: import all Std.Data.Internal.List.Associative import all Std.Data.DHashMap.Raw public import Std.Data.DHashMap.Basic import all Std.Data.DHashMap.Internal.Defs public import Std.Data.DHashMap.Internal.Model import all Std.Data.DHashMap.Internal.AssocList.Basic public import Std.Data.DHashMap.Internal.AssocList.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

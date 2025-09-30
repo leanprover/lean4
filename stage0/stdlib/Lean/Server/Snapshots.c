@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Snapshots
-// Imports: Init.System.IO Lean.Elab.Import Lean.Elab.Command Lean.Widget.InteractiveDiagnostic
+// Imports: public import Init.System.IO public import Lean.Elab.Import public import Lean.Elab.Command public import Lean.Widget.InteractiveDiagnostic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

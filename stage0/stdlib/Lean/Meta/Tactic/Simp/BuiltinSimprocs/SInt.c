@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Simp.BuiltinSimprocs.SInt
-// Imports: Lean.Meta.LitValues Init.Data.SInt.Lemmas Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int
+// Imports: public import Lean.Meta.LitValues public import Init.Data.SInt.Lemmas public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

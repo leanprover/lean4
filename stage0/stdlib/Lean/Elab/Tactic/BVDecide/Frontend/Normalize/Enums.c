@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Enums
-// Imports: Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ApplyControlFlow Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Structures Lean.Meta.Tactic.Simp
+// Imports: public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ApplyControlFlow public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Structures public import Lean.Meta.Tactic.Simp
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

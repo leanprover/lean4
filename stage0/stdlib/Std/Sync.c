@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sync
-// Imports: Std.Sync.Basic Std.Sync.Channel Std.Sync.Mutex Std.Sync.RecursiveMutex Std.Sync.Barrier Std.Sync.SharedMutex Std.Sync.Notify
+// Imports: public import Std.Sync.Basic public import Std.Sync.Channel public import Std.Sync.Mutex public import Std.Sync.RecursiveMutex public import Std.Sync.Barrier public import Std.Sync.SharedMutex public import Std.Sync.Notify
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.FunInfo
-// Imports: Lean.Meta.Basic Lean.Meta.InferType
+// Imports: public import Lean.Meta.Basic public import Lean.Meta.InferType
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

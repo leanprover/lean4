@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Linear.VarRename
-// Imports: Init.Grind.Ordered.Linarith Lean.Meta.Tactic.Grind.VarRename
+// Imports: public import Init.Grind.Ordered.Linarith public import Lean.Meta.Tactic.Grind.VarRename
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

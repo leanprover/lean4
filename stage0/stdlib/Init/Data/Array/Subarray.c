@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Subarray
-// Imports: Init.GetElem Init.Data.Array.Basic Init.Data.Array.GetLit Init.Data.Slice.Basic
+// Imports: public import Init.GetElem public import Init.Data.Array.Basic import Init.Data.Array.GetLit public import Init.Data.Slice.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

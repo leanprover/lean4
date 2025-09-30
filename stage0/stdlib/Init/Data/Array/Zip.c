@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Zip
-// Imports: Init.Data.Array.Basic Init.Data.Array.Basic Init.Data.Array.TakeDrop Init.Data.List.Zip
+// Imports: public import Init.Data.Array.Basic import all Init.Data.Array.Basic public import Init.Data.Array.TakeDrop public import Init.Data.List.Zip
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

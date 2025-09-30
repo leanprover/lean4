@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Do.Triple.SpecLemmas
-// Imports: Std.Do.Triple.Basic Std.Do.WP Init.Data.Range.Polymorphic
+// Imports: public import Std.Do.Triple.Basic public import Std.Do.WP public import Init.Data.Range.Polymorphic.UpwardEnumerable public import Init.Data.Range.Polymorphic.PRange public import Init.Data.Range.Polymorphic.Iterators import Init.Data.Range.Polymorphic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -42,6 +42,7 @@ lean_object* l_Array_empty(lean_object*);
 static lean_object* l___auto___closed__9____x40_Std_Do_Triple_SpecLemmas_1480799163____hygCtx___hyg_7_;
 LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__Std_Do_WP_monadMap__ExceptT_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__21____x40_Std_Do_Triple_SpecLemmas_1480799163____hygCtx___hyg_7_;
+LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__Std_Do_PredTrans_pushExcept_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__19____x40_Std_Do_Triple_SpecLemmas_1480799163____hygCtx___hyg_7_;
 static lean_object* l___auto___closed__2____x40_Std_Do_Triple_SpecLemmas_1480799163____hygCtx___hyg_7_;
 static lean_object* l___auto___closed__10____x40_Std_Do_Triple_SpecLemmas_1480799163____hygCtx___hyg_7_;
@@ -62,6 +63,7 @@ LEAN_EXPORT lean_object* l___auto____x40_Std_Do_Triple_SpecLemmas_1480799163____
 static lean_object* l_List_Cursor_at___redArg___closed__0;
 LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__Std_Do_Spec_throw__ExceptT__lift_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_get___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__Std_Do_PredTrans_pushExcept_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__16____x40_Std_Do_Triple_SpecLemmas_1480799163____hygCtx___hyg_7_;
 LEAN_EXPORT lean_object* l_List_Cursor_begin___redArg(lean_object*);
 static lean_object* l___auto___closed__14____x40_Std_Do_Triple_SpecLemmas_1480799163____hygCtx___hyg_7_;
@@ -668,6 +670,39 @@ x_7 = l___private_Std_Do_Triple_SpecLemmas_0__Std_Do_Spec_throw__ExceptT__lift_m
 return x_7;
 }
 }
+LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__Std_Do_PredTrans_pushExcept_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_4; lean_object* x_5; 
+lean_dec(x_2);
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+lean_dec_ref(x_1);
+x_5 = lean_apply_1(x_3, x_4);
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; 
+lean_dec(x_3);
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+lean_dec_ref(x_1);
+x_7 = lean_apply_1(x_2, x_6);
+return x_7;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__Std_Do_PredTrans_pushExcept_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l___private_Std_Do_Triple_SpecLemmas_0__Std_Do_PredTrans_pushExcept_match__1_splitter___redArg(x_4, x_5, x_6);
+return x_7;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Do_Invariant_withEarlyReturn___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -826,6 +861,9 @@ return x_6;
 }
 lean_object* initialize_Std_Do_Triple_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Do_WP(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Range_Polymorphic_UpwardEnumerable(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Range_Polymorphic_PRange(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Range_Polymorphic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Do_Triple_SpecLemmas(uint8_t builtin, lean_object* w) {
@@ -836,6 +874,15 @@ res = initialize_Std_Do_Triple_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Do_WP(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_UpwardEnumerable(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_PRange(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Range_Polymorphic(builtin, lean_io_mk_world());

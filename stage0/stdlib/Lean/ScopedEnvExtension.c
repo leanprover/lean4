@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.ScopedEnvExtension
-// Imports: Lean.Environment Lean.Data.NameTrie Lean.Attributes
+// Imports: public import Lean.Environment public import Lean.Data.NameTrie public import Lean.Attributes
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

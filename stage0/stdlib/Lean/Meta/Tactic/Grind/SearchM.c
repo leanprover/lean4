@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.SearchM
-// Imports: Lean.Meta.Tactic.Grind.Types Lean.Util.ForEachExpr
+// Imports: public import Lean.Meta.Tactic.Grind.Types import Lean.Util.ForEachExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

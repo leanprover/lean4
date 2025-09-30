@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Conv.Unfold
-// Imports: Lean.Elab.Tactic.Unfold Lean.Elab.Tactic.Conv.Simp
+// Imports: public import Lean.Elab.Tactic.Unfold public import Lean.Elab.Tactic.Conv.Simp
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

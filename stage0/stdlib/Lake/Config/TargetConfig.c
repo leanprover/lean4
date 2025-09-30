@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.TargetConfig
-// Imports: Lake.Build.Fetch Lake.Config.OutFormat Lake.Util.OpaqueType
+// Imports: public import Lake.Build.Fetch public import Lake.Config.OutFormat meta import all Lake.Util.OpaqueType
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

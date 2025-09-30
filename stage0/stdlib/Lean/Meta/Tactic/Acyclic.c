@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Acyclic
-// Imports: Lean.Meta.MatchUtil Lean.Meta.Tactic.Simp.Main
+// Imports: public import Lean.Meta.MatchUtil import Lean.Meta.Tactic.Simp.Main
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2588,9 +2588,9 @@ block_35:
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
-lean_dec_ref(x_11);
+lean_dec_ref(x_12);
 x_14 = l___private_Lean_Meta_Tactic_Acyclic_0__Lean_MVarId_acyclic_go___closed__3;
-x_15 = l_Lean_isTracingEnabledFor___at_____private_Lean_Meta_Tactic_Acyclic_0__Lean_MVarId_acyclic_go_spec__0___redArg(x_14, x_7, x_12);
+x_15 = l_Lean_isTracingEnabledFor___at_____private_Lean_Meta_Tactic_Acyclic_0__Lean_MVarId_acyclic_go_spec__0___redArg(x_14, x_7, x_11);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
 x_17 = lean_unbox(x_16);
@@ -2673,7 +2673,7 @@ lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec_ref(x_5);
-return x_11;
+return x_12;
 }
 }
 block_41:
@@ -2685,16 +2685,16 @@ if (x_39 == 0)
 uint8_t x_40; 
 x_40 = l_Lean_Exception_isRuntime(x_37);
 x_10 = x_37;
-x_11 = x_36;
-x_12 = x_38;
+x_11 = x_38;
+x_12 = x_36;
 x_13 = x_40;
 goto block_35;
 }
 else
 {
 x_10 = x_37;
-x_11 = x_36;
-x_12 = x_38;
+x_11 = x_38;
+x_12 = x_36;
 x_13 = x_39;
 goto block_35;
 }

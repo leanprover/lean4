@@ -9,7 +9,7 @@ prelude
 public import Init.Data.String.Pattern
 public import Init.Data.Iterators.Consumers.Monadic.Collect
 public import Init.Data.Ord.Basic
-import Init.Data.Iterators.Combinators.FilterMap
+public import Init.Data.Iterators.Combinators.FilterMap
 
 set_option doc.verso true
 

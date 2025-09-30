@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Omega.OmegaM
-// Imports: Init.Omega.LinearCombo Init.Omega.Int Init.Omega.Logic Init.Data.BitVec.Basic Lean.Meta.AppBuilder Lean.Meta.Canonicalizer Std.Data.HashMap.Basic Std.Data.HashSet.Basic
+// Imports: public import Init.Omega.LinearCombo public import Init.Omega.Int public import Init.Omega.Logic public import Init.Data.BitVec.Basic public import Lean.Meta.AppBuilder public import Lean.Meta.Canonicalizer public import Std.Data.HashMap.Basic public import Std.Data.HashSet.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -778,7 +778,7 @@ block_18:
 {
 lean_object* x_17; 
 lean_dec(x_14);
-x_17 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Elab_Tactic_Omega_atoms_spec__1___redArg(x_15, x_13, x_16);
+x_17 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Elab_Tactic_Omega_atoms_spec__1___redArg(x_13, x_15, x_16);
 lean_dec(x_16);
 x_7 = x_17;
 goto block_12;
@@ -786,23 +786,23 @@ goto block_12;
 block_24:
 {
 uint8_t x_23; 
-x_23 = lean_nat_dec_le(x_22, x_19);
+x_23 = lean_nat_dec_le(x_22, x_21);
 if (x_23 == 0)
 {
-lean_dec(x_19);
+lean_dec(x_21);
 lean_inc(x_22);
-x_13 = x_22;
+x_13 = x_19;
 x_14 = x_20;
-x_15 = x_21;
+x_15 = x_22;
 x_16 = x_22;
 goto block_18;
 }
 else
 {
-x_13 = x_22;
+x_13 = x_19;
 x_14 = x_20;
-x_15 = x_21;
-x_16 = x_19;
+x_15 = x_22;
+x_16 = x_21;
 goto block_18;
 }
 }
@@ -821,17 +821,17 @@ x_31 = lean_nat_dec_le(x_27, x_30);
 if (x_31 == 0)
 {
 lean_inc(x_30);
-x_19 = x_30;
+x_19 = x_25;
 x_20 = x_26;
-x_21 = x_25;
+x_21 = x_30;
 x_22 = x_30;
 goto block_24;
 }
 else
 {
-x_19 = x_30;
+x_19 = x_25;
 x_20 = x_26;
-x_21 = x_25;
+x_21 = x_30;
 x_22 = x_27;
 goto block_24;
 }

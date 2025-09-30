@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.PrettyPrinter.Basic
-// Imports: Lean.KeyedDeclsAttribute
+// Imports: public import Lean.KeyedDeclsAttribute
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

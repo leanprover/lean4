@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.AsyncList
-// Imports: Lean.Server.ServerTask Init.System.Promise
+// Imports: public import Lean.Server.ServerTask public import Init.System.Promise
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.DSL
-// Imports: Lake.DSL.Attributes Lake.DSL.Config Lake.DSL.DeclUtil Lake.DSL.Extensions Lake.DSL.Key Lake.DSL.Meta Lake.DSL.Package Lake.DSL.Script Lake.DSL.Require Lake.DSL.Targets Lake.DSL.VerLit
+// Imports: public import Lake.DSL.Attributes public import Lake.DSL.Config public import Lake.DSL.DeclUtil public import Lake.DSL.Extensions public import Lake.DSL.Key public import Lake.DSL.Meta public import Lake.DSL.Package public import Lake.DSL.Script public import Lake.DSL.Require public import Lake.DSL.Targets public import Lake.DSL.VerLit
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

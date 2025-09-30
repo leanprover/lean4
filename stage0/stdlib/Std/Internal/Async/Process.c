@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Async.Process
-// Imports: Std.Time Std.Internal.UV.System Std.Data.HashMap
+// Imports: public import Std.Time public import Std.Internal.UV.System public import Std.Data.HashMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

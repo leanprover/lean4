@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.CongrTheorems
-// Imports: Lean.AddDecl Lean.Class Lean.ReservedNameAction Lean.ResolveName Lean.Meta.Basic Lean.Meta.AppBuilder Lean.Meta.Tactic.Subst Lean.Meta.Tactic.Intro Lean.Meta.Tactic.Assert
+// Imports: public import Lean.AddDecl public import Lean.Class public import Lean.ReservedNameAction public import Lean.ResolveName public import Lean.Meta.Basic import Lean.Meta.AppBuilder import Lean.Meta.Tactic.Subst import Lean.Meta.Tactic.Intro import Lean.Meta.Tactic.Assert
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.MinMax
-// Imports: Init.Data.List.Lemmas Init.Data.List.Pairwise Init.Data.Order.Factories Init.Data.Subtype.Order Init.Data.Order.Lemmas
+// Imports: public import Init.Data.List.Lemmas public import Init.Data.List.Pairwise public import Init.Data.Order.Factories public import Init.Data.Subtype.Order import Init.Data.Order.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

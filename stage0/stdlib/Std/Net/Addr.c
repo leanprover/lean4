@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Net.Addr
-// Imports: Init.System.IO Init.Data.Vector.Basic
+// Imports: public import Init.System.IO public import Init.Data.Vector.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

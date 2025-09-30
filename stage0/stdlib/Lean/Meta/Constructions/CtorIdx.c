@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Constructions.CtorIdx
-// Imports: Lean.Meta.Basic Lean.AddDecl Lean.Meta.AppBuilder Lean.Meta.CompletionName Lean.Meta.Injective Lean.Linter.Deprecated
+// Imports: public import Lean.Meta.Basic import Lean.AddDecl import Lean.Meta.AppBuilder import Lean.Meta.CompletionName import Lean.Meta.Injective import Lean.Linter.Deprecated
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

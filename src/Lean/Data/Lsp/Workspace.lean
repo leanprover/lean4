@@ -29,7 +29,7 @@ structure WorkspaceFolder where
 
 structure FileSystemWatcher where
   globPattern : String
-  kind : Option Nat := none
+  kind? : Option Nat := none
   deriving FromJson, ToJson
 
 namespace FileSystemWatcher

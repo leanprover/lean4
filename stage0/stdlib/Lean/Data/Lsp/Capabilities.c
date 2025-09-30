@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Lsp.Capabilities
-// Imports: Lean.Data.JsonRpc Lean.Data.Lsp.TextSync Lean.Data.Lsp.LanguageFeatures Lean.Data.Lsp.CodeActions Lean.Data.Lsp.Extra
+// Imports: public import Lean.Data.JsonRpc public import Lean.Data.Lsp.TextSync public import Lean.Data.Lsp.LanguageFeatures public import Lean.Data.Lsp.CodeActions public import Lean.Data.Lsp.Extra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

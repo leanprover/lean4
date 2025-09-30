@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Perm
-// Imports: Init.Data.List.Nat.Perm Init.Data.Array.Basic Init.Data.Array.Basic Init.Data.Array.Lemmas
+// Imports: public import Init.Data.List.Nat.Perm public import Init.Data.Array.Basic import all Init.Data.Array.Basic public import Init.Data.Array.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

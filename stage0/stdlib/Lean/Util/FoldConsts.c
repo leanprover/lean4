@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.FoldConsts
-// Imports: Lean.Expr Lean.Util.PtrSet Lean.Declaration
+// Imports: public import Lean.Expr public import Lean.Util.PtrSet public import Lean.Declaration
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sync.Barrier
-// Imports: Std.Sync.Mutex
+// Imports: public import Std.Sync.Mutex
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

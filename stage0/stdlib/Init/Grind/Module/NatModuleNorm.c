@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Module.NatModuleNorm
-// Imports: Init.Grind.Module.Envelope Init.Grind.Ordered.Linarith
+// Imports: public import Init.Grind.Module.Envelope public import Init.Grind.Ordered.Linarith
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

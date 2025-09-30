@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Slice.Notation
-// Imports: Init.Data.Range.Polymorphic.PRange
+// Imports: public import Init.Data.Range.Polymorphic.PRange
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

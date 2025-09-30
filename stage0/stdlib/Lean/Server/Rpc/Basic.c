@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Rpc.Basic
-// Imports: Init.Dynamic Lean.Data.Json.FromToJson.Basic
+// Imports: public import Init.Dynamic public import Lean.Data.Json.FromToJson.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

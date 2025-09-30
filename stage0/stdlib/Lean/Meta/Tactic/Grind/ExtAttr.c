@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.ExtAttr
-// Imports: Lean.Meta.Tactic.Ext
+// Imports: public import Lean.Meta.Tactic.Ext
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

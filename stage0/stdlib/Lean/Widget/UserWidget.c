@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Widget.UserWidget
-// Imports: Lean.Elab.Eval Lean.Server.Rpc.RequestHandling Lean.Widget.Types Lean.Parser.Term Lean.Elab.Command
+// Imports: public import Lean.Elab.Eval public import Lean.Server.Rpc.RequestHandling public import Lean.Widget.Types meta import Lean.Parser.Term meta import Lean.Elab.Command
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

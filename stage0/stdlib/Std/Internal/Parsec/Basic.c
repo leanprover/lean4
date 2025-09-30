@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Parsec.Basic
-// Imports: Init.NotationExtra Init.Data.ToString.Macro Init.Data.String.Basic
+// Imports: public import Init.NotationExtra public import Init.Data.ToString.Macro import Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

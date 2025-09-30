@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.CSimpAttr
-// Imports: Lean.ScopedEnvExtension Lean.Util.Recognizers Lean.Util.ReplaceExpr
+// Imports: public import Lean.ScopedEnvExtension public import Lean.Util.Recognizers public import Lean.Util.ReplaceExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

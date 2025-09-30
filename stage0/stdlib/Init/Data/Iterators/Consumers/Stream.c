@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.Consumers.Stream
-// Imports: Init.Data.Stream Init.Data.Iterators.Consumers.Access
+// Imports: public import Init.Data.Stream public import Init.Data.Iterators.Consumers.Access
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

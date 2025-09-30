@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Notation
-// Imports: Std.Time.Date Std.Time.Time Std.Time.Zoned Std.Time.DateTime Std.Time.Format Std.Time.Format
+// Imports: public import Std.Time.Date public import Std.Time.Time public meta import Std.Time.Zoned public import Std.Time.DateTime public import Std.Time.Format public meta import Std.Time.Format
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

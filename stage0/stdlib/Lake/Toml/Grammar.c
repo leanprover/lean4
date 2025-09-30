@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Toml.Grammar
-// Imports: Lean.Parser.Types Lake.Toml.ParserUtil Lean.Parser
+// Imports: public import Lean.Parser.Types import Lake.Toml.ParserUtil import Lean.Parser
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

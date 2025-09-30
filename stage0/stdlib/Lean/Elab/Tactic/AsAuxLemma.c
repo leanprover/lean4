@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.AsAuxLemma
-// Imports: Init.Tactics Lean.Elab.Tactic.Basic Lean.Elab.Tactic.Meta Lean.MetavarContext Lean.Meta.Closure
+// Imports: public import Init.Tactics public import Lean.Elab.Tactic.Basic public import Lean.Elab.Tactic.Meta public import Lean.MetavarContext public import Lean.Meta.Closure
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

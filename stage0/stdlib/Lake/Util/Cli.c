@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Cli
-// Imports: Init.Control.State Init.Data.Array.Basic Init.Data.String.Basic
+// Imports: public import Init.Control.State import Init.Data.Array.Basic public import Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

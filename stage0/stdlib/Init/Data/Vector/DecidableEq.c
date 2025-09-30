@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector.DecidableEq
-// Imports: Init.Data.Array.DecidableEq Init.Data.Vector.Lemmas
+// Imports: public import Init.Data.Array.DecidableEq public import Init.Data.Vector.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

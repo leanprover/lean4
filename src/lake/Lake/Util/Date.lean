@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Ord.Basic
 import Lake.Util.String
+import Init.Data.String.Basic
 
 /-!
 #  Date

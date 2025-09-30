@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.BuiltinDocAttr
-// Imports: Lean.Compiler.InitAttr Lean.DocString.Extension
+// Imports: public import Lean.Compiler.InitAttr public import Lean.DocString.Extension
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

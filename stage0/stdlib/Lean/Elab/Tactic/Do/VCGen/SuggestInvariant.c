@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Do.VCGen.SuggestInvariant
-// Imports: Lean.Elab.Tactic.Basic Lean.Meta.Tactic.Simp.Types Lean.Meta.Tactic.Simp.Rewrite Lean.Meta.Tactic.Simp.Main Lean.Util.OccursCheck Lean.PrettyPrinter.Delaborator Lean.Elab.Tactic.Do.ProofMode.MGoal Lean.Util.CollectFVars Std.Do.Triple Std.Tactic.Do
+// Imports: public import Lean.Elab.Tactic.Basic public import Lean.Meta.Tactic.Simp.Types import Lean.Meta.Tactic.Simp.Rewrite import Lean.Meta.Tactic.Simp.Main import Lean.Util.OccursCheck import Lean.PrettyPrinter.Delaborator import Lean.Elab.Tactic.Do.ProofMode.MGoal import Lean.Util.CollectFVars import Std.Do.Triple import Std.Tactic.Do
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

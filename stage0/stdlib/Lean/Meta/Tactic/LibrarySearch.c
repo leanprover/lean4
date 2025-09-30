@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.LibrarySearch
-// Imports: Init.Data.Nat.MinMax Lean.Meta.LazyDiscrTree Lean.Meta.Tactic.SolveByElim Lean.Util.Heartbeats
+// Imports: public import Init.Data.Nat.MinMax public import Lean.Meta.LazyDiscrTree public import Lean.Meta.Tactic.SolveByElim public import Lean.Util.Heartbeats
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

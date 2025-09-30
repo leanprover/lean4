@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Simproc
-// Imports: Init.Simproc Lean.ReservedNameAction Lean.Meta.Tactic.Simp.Simproc Lean.Elab.Binders Lean.Elab.SyntheticMVars Lean.Elab.Term Lean.Elab.Command
+// Imports: public import Init.Simproc public import Lean.ReservedNameAction public import Lean.Meta.Tactic.Simp.Simproc public import Lean.Elab.Binders public import Lean.Elab.SyntheticMVars public import Lean.Elab.Term public import Lean.Elab.Command
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

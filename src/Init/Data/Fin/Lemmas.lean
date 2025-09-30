@@ -918,7 +918,7 @@ theorem exists_fin_succ {P : Fin (n + 1) → Prop} : (∃ i, P i) ↔ P 0 ∨ �
 @[simp] theorem forall_fin_zero {p : Fin 0 → Prop} : (∀ i, p i) ↔ True :=
   ⟨fun _ => trivial, fun _ ⟨_, h⟩ => False.elim <| Nat.not_lt_zero _ h⟩
 
-theorem exists_fin_zero {p : Fin 0 → Prop} : (∃ i, p i) ↔ False := by simp
+@[simp] theorem exists_fin_zero {p : Fin 0 → Prop} : (∃ i, p i) ↔ False := by simp
 
 @[simp] theorem forall_fin_one {p : Fin 1 → Prop} : (∀ i, p i) ↔ p 0 :=
   ⟨fun h => h _, fun h i => Subsingleton.elim i 0 ▸ h⟩

@@ -2510,6 +2510,17 @@ protected theorem ISize.neg_add {a b : ISize} : - (a + b) = -a - b := ISize.toBi
 @[simp] protected theorem ISize.neg_sub {a b : ISize} : -(a - b) = b - a := by
   rw [ISize.sub_eq_add_neg, ISize.neg_add, ISize.sub_neg, ISize.add_comm, ← ISize.sub_eq_add_neg]
 
+protected theorem Int8.sub_sub (a b c : Int8) : a - b - c = a - (b + c) := by
+  simp [Int8.sub_eq_add_neg, Int8.add_assoc, Int8.neg_add]
+protected theorem Int16.sub_sub (a b c : Int16) : a - b - c = a - (b + c) := by
+  simp [Int16.sub_eq_add_neg, Int16.add_assoc, Int16.neg_add]
+protected theorem Int32.sub_sub (a b c : Int32) : a - b - c = a - (b + c) := by
+  simp [Int32.sub_eq_add_neg, Int32.add_assoc, Int32.neg_add]
+protected theorem Int64.sub_sub (a b c : Int64) : a - b - c = a - (b + c) := by
+  simp [Int64.sub_eq_add_neg, Int64.add_assoc, Int64.neg_add]
+protected theorem ISize.sub_sub (a b c : ISize) : a - b - c = a - (b + c) := by
+  simp [ISize.sub_eq_add_neg, ISize.add_assoc, ISize.neg_add]
+
 @[simp] protected theorem Int8.add_left_inj {a b : Int8} (c : Int8) : (a + c = b + c) ↔ a = b := by
   simp [← Int8.toBitVec_inj]
 @[simp] protected theorem Int16.add_left_inj {a b : Int16} (c : Int16) : (a + c = b + c) ↔ a = b := by

@@ -119,16 +119,67 @@ instance : Rxi.IsAlwaysFinite (BitVec n) := inferInstance
 
 namespace Signed
 
+def irredMin n : BitVec n := ↑(2 ^ (n - 1) : Nat)
+theorem irredMin_def : irredMin n = ↑(2 ^ (n - 1) : Nat) := (rfl)
+seal irredMin
+
+def irredMax n : BitVec n := ↑(2 ^ (n - 1) - 1 : Nat)
+theorem irredMax_def : irredMax n = ↑(2 ^ (n - 1) - 1 : Nat) := (rfl)
+seal irredMax
+
 @[expose]
-def rotate (x : BitVec n) : BitVec n := x + ↑(2 ^ (n - 1) : Nat)
+def rotate (x : BitVec n) : BitVec n := x + irredMin n
+
+theorem irredMax_eq_irredMin_add :
+    irredMax n = irredMin n + ↑(2 ^ n - 1 : Nat) := by
+  match n with
+  | 0 => simp [eq_nil (irredMax 0), eq_nil (irredMin 0)]
+  | n + 1 =>
+    simp only [irredMax_def, Nat.add_one_sub_one, natCast_eq_ofNat, irredMin_def, ← ofNat_add,
+      ← toNat_inj, toNat_ofNat, Nat.mod_eq_mod_iff]
+    exact ⟨1, 0, by omega⟩
+
+theorem irredMin_add_irredMin :
+    irredMin n + irredMin n = 0 := by
+  match n with
+  | 0 => simp [eq_nil (irredMin 0)]
+  | n + 1 =>
+    simp [irredMin_def, ← BitVec.ofNat_add, show 2 ^ n + 2 ^ n = 2 ^ (n + 1) by omega,
+      ← BitVec.toNat_inj]
+
+theorem rotate_neg_eq_irredMin_sub {x : BitVec n} :
+    rotate (-x) = irredMin n - x := by
+  simp only [rotate, irredMin_def, natCast_eq_ofNat]
+  rw [eq_sub_iff_add_eq, BitVec.add_comm, ← BitVec.add_assoc, BitVec.add_neg_eq_sub,
+    BitVec.sub_self, BitVec.zero_add]
+
+theorem rotate_eq_sub_irredMin {x : BitVec n} :
+    rotate x = x - irredMin n := by
+  simp [rotate, eq_sub_iff_add_eq, BitVec.add_assoc, irredMin_add_irredMin]
+
+theorem rotate_add {x y : BitVec n} :
+    rotate (x + y) = rotate x + y := by
+  simp [rotate, BitVec.add_assoc, BitVec.add_comm y]
+
+theorem rotate_sub {x y : BitVec n} :
+    rotate (x - y) = rotate x - y := by
+  simp [BitVec.sub_eq_add_neg, rotate_add]
+
+theorem rotate_irredMin :
+    rotate (irredMin n) = ↑(0 : Nat) := by
+  simp [rotate, irredMin_add_irredMin]
+
+theorem rotate_irredMax :
+    rotate (irredMax n) = ↑(2 ^ n - 1 : Nat) := by
+  simp [irredMax_eq_irredMin_add, rotate_add, rotate_irredMin]
 
 theorem rotate_rotate {x : BitVec n} :
     rotate (rotate x) = x := by
   match n with
-  | 0 => simp [eq_nil x, rotate]
+  | 0 => simp [eq_nil x, rotate, irredMin_def]
   | n + 1 =>
     simp only [rotate, BitVec.add_assoc]
-    simp [← BitVec.toNat_inj, ← Nat.two_mul, show 2 * 2 ^ n = 2 ^ (n + 1) by omega]
+    simp [← BitVec.toNat_inj, ← Nat.two_mul, irredMin_def, show 2 * 2 ^ n = 2 ^ (n + 1) by omega]
 
 theorem rotate_map_eq_iff {x y : Option (BitVec n)} :
     rotate <$> x = y ↔ x = rotate <$> y := by
@@ -156,7 +207,8 @@ theorem sle_iff_rotate_le_rotate {x y : BitVec n} :
   match n with
   | 0 => simp [eq_nil x, eq_nil y]
   | n + 1 =>
-    simp [BitVec.sle_iff_toInt_le, BitVec.toInt, Nat.pow_add, Nat.mul_comm _ 2, rotate, BitVec.le_def]
+    simp [BitVec.sle_iff_toInt_le, BitVec.toInt, Nat.pow_add, Nat.mul_comm _ 2, rotate, BitVec.le_def,
+      irredMin_def]
     split <;> split
     · simp only [Int.ofNat_le]
       rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by omega)]
@@ -200,12 +252,20 @@ theorem rotate_inj {x y : BitVec n} :
   · intro h
     exact congrArg rotate h
 
-theorem toInt_eq_ofNat_toNat_rotate_sub {x : BitVec n} (h : n > 0) :
-    x.toInt = (↑(rotate x).toNat : Int) - 2 ^ (n - 1) := by
+theorem rotate_eq_iff {x y : BitVec n} :
+    rotate x = y ↔ x = rotate y := by
+  rw [← rotate_rotate (x := y), rotate_inj, rotate_rotate]
+
+theorem toInt_eq_ofNat_toNat_rotate_sub' {x : BitVec n} (h : n > 0) :
+    x.toInt = (↑(rotate x).toNat : Int) - ↑(irredMin n).toNat := by
   match n with
   | 0 => omega
   | n + 1 =>
-    simp [BitVec.toInt, rotate]
+    simp [BitVec.toInt, rotate, irredMin_def]
+    rw [Int.emod_eq_of_lt (a := 2 ^ n)]; rotate_left
+    · exact Int.le_of_lt (Int.pow_pos (by omega))
+    · rw [Int.pow_add, Int.pow_succ, Int.pow_zero, Int.one_mul, Int.mul_comm, Int.two_mul]
+      exact Int.lt_add_of_pos_right _ (Int.pow_pos (by omega))
     have : (2 : Int) ^ n > 0 := Int.pow_pos (by omega)
     split <;> rename_i h
     · rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm _ 2, Nat.mul_lt_mul_left (by omega),
@@ -224,6 +284,44 @@ theorem toInt_eq_ofNat_toNat_rotate_sub {x : BitVec n} (h : n > 0) :
         omega
       · conv => rhs; rw [← Int.sub_sub, Int.sub_sub (b := 2 ^ n), Int.add_comm, ← Int.sub_sub]
         exact ⟨-1, by omega⟩
+
+theorem toInt_eq_ofNat_toNat_rotate_sub {x : BitVec n} (h : n > 0) :
+    x.toInt = (↑(rotate x).toNat : Int) - 2 ^ (n - 1) := by
+  match n with
+  | 0 => omega
+  | n + 1 =>
+    simp [BitVec.toInt, rotate, irredMin_def]
+    have : (2 : Int) ^ n > 0 := Int.pow_pos (by omega)
+    split <;> rename_i h
+    · rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm _ 2, Nat.mul_lt_mul_left (by omega),
+        ← Int.ofNat_lt, Int.natCast_pow, Int.cast_ofNat_Int] at h
+      rw [Int.emod_eq_of_lt (by omega) (by omega)]
+      omega
+    · rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm _ 2, Nat.mul_lt_mul_left (by omega),
+        ← Int.ofNat_lt, Int.natCast_pow, Int.cast_ofNat_Int] at h
+      simp [Int.pow_add, Int.mul_comm _ 2, Int.two_mul, ← Int.sub_sub]
+      rw [eq_comm, Int.emod_eq_iff (by omega)]
+      refine ⟨by omega, ?_, ?_⟩
+      · have := BitVec.toNat_lt_twoPow_of_le (x := x) (Nat.le_refl _)
+        rw [Int.ofNat_natAbs_of_nonneg (by omega)]
+        simp only [Nat.pow_add, Nat.pow_one, ← Int.ofNat_lt, Int.natCast_mul, Int.natCast_pow,
+          Int.cast_ofNat_Int] at this
+        omega
+      · conv => rhs; rw [← Int.sub_sub, Int.sub_sub (b := 2 ^ n), Int.add_comm, ← Int.sub_sub]
+        exact ⟨-1, by omega⟩
+
+theorem ofNat_eq_rotate_ofInt_sub {n k : Nat} :
+    BitVec.ofNat n k = rotate (BitVec.ofInt n (↑k - ↑(irredMin n).toNat)) := by
+  match n with
+  | 0 => simp only [eq_nil (BitVec.ofNat _ _), eq_nil (rotate _)]
+  | n + 1 =>
+    simp [irredMin]
+    rw [Int.emod_eq_of_lt]; rotate_left
+    · exact Int.le_of_lt (Int.pow_pos (by omega))
+    · exact Int.pow_lt_pow_of_lt (by omega) (by omega)
+    simp [← BitVec.toInt_inj, toInt_ofNat', rotate, Int.bmod_eq_bmod_iff_bmod_sub_eq_zero]
+    simp [Int.sub_eq_add_neg, Int.neg_add, ← Int.add_assoc]
+    simp [Int.add_neg_eq_sub, irredMin, toInt_ofNat']
 
 scoped instance instLE : LE (BitVec n) where
   le x y := x.sle y
@@ -308,7 +406,7 @@ scoped instance : Rxc.LawfulHasSize (BitVec n) where
     generalize rotate lo = lo
     simp only [LE.le]
     match n with
-    | 0 => simp [eq_nil lo, eq_nil hi, succ?, rotate, Rxc.HasSize.size]
+    | 0 => simp [eq_nil lo, eq_nil hi, succ?, rotate, Rxc.HasSize.size, irredMin_def]
     | n + 1 =>
       simp [BitVec.sle_iff_toInt_le, toInt_eq_ofNat_toNat_rotate_sub,
         Rxc.HasSize.size, rotate_rotate, succ?_rotate, Option.map_eq_map, Option.map_eq_none_iff,
@@ -319,7 +417,7 @@ scoped instance : Rxc.LawfulHasSize (BitVec n) where
     generalize rotate lo = lo
     simp only [LE.le]
     match n with
-    | 0 => simp [eq_nil lo, eq_nil hi, succ?, rotate, Rxc.HasSize.size]
+    | 0 => simp [eq_nil lo, eq_nil hi, succ?, rotate, Rxc.HasSize.size, irredMin_def]
     | n + 1 =>
       simp [BitVec.sle_iff_toInt_le, toInt_eq_ofNat_toNat_rotate_sub,
         Rxc.HasSize.size, rotate_rotate, succ?_rotate, succ?_eq_some]

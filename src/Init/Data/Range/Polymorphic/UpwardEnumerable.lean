@@ -27,6 +27,7 @@ These properties and the compatibility of `succ?` with `succMany?` are encoded i
 `LawfulUpwardEnumerable`, `LawfulUpwardEnumerableLE` and `LawfulUpwardEnumerableLT`.
 
 -/
+@[ext]
 class UpwardEnumerable (α : Type u) where
   /-- Maps elements of `α` to their successor, or none if no successor exists. -/
   succ? : α → Option α

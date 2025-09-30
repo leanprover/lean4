@@ -1315,7 +1315,7 @@ public theorem isUtf8FirstByte_getElem_zero_utf8EncodeChar {c : Char} :
   simp
 
 @[expose]
-public def utf8ByteSize (c : UInt8) (_h : c.IsUtf8FirstByte) : String.Pos :=
+public def utf8ByteSize (c : UInt8) (_h : c.IsUtf8FirstByte) : String.Pos.Raw :=
   if c &&& 0x80 = 0 then
     ⟨1⟩
   else if c &&& 0xe0 = 0xc0 then
@@ -1325,7 +1325,7 @@ public def utf8ByteSize (c : UInt8) (_h : c.IsUtf8FirstByte) : String.Pos :=
   else
     ⟨4⟩
 
-def _root_.ByteArray.utf8DecodeChar?.FirstByte.utf8ByteSize : FirstByte → String.Pos
+def _root_.ByteArray.utf8DecodeChar?.FirstByte.utf8ByteSize : FirstByte → String.Pos.Raw
   | .invalid => ⟨0⟩
   | .done => ⟨1⟩
   | .oneMore => ⟨2⟩

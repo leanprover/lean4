@@ -383,12 +383,12 @@ private partial def recv (ch : Bounded.Receiver α) : BaseIO (Task (Option α)) 
           return .pure none
 
 private partial def forAsync
-  (f : α → BaseIO Unit) (ch : Bounded.Receiver α)
-  (prio : Task.Priority := .default) :
-  BaseIO (Task Unit) := do
-    BaseIO.bindTask (prio := prio) (← ch.recv) fun
-      | none => return .pure ()
-      | some v => do f v; forAsync f ch prio
+    (f : α → BaseIO Unit) (ch : Bounded.Receiver α)
+    (prio : Task.Priority := .default) :
+    BaseIO (Task Unit) := do
+  BaseIO.bindTask (prio := prio) (← ch.recv) fun
+    | none => return .pure ()
+    | some v => do f v; forAsync f ch prio
 
 @[inline]
 private def recvReady'

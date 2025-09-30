@@ -19,13 +19,13 @@ public section
 
 open Std Std.PRange
 
-namespace BitVecModel
+namespace HasModel
 
 open BitVec.Signed
 
 variable {α : Type u} [LE α] [LT α] {β : Type u} [LE β] [LT β]
 
-class HasModel (α : Type u) [LE α] [LT α] (β : outParam (Type v)) [LE β] [LT β]
+class _root_.HasModel (α : Type u) [LE α] [LT α] (β : outParam (Type v)) [LE β] [LT β]
     [UpwardEnumerable β] [LawfulUpwardEnumerable β] [LawfulUpwardEnumerableLE β]
     [LawfulUpwardEnumerableLT β] where
   encode : α → β
@@ -38,47 +38,47 @@ class HasModel (α : Type u) [LE α] [LT α] (β : outParam (Type v)) [LE β] [L
 variable [UpwardEnumerable β] [LawfulUpwardEnumerable β] [LawfulUpwardEnumerableLE β]
   [LawfulUpwardEnumerableLT β]
 
-scoped instance HasModel.instUpwardEnumerable [m : HasModel α β] :
+scoped instance instUpwardEnumerable [m : HasModel α β] :
     UpwardEnumerable α where
   succ? a := (succ? (m.encode a)).map m.decode
   succMany? n a := (succMany? n (m.encode a)).map m.decode
 
-theorem HasModel.succ?_decode [m : HasModel α β] {x : β} :
+theorem succ?_decode [m : HasModel α β] {x : β} :
     UpwardEnumerable.succ? (m.decode x) = (UpwardEnumerable.succ? x).map m.decode := by
   simp [instUpwardEnumerable, HasModel.encode_decode]
 
-theorem HasModel.succ?_encode [m : HasModel α β] {x : α} :
+theorem succ?_encode [m : HasModel α β] {x : α} :
     UpwardEnumerable.succ? (m.encode x) = (UpwardEnumerable.succ? x).map m.encode := by
   simp [instUpwardEnumerable, Function.comp_def, HasModel.encode_decode]
 
-theorem HasModel.succMany?_decode [m : HasModel α β] {x : β} :
+theorem succMany?_decode [m : HasModel α β] {x : β} :
     UpwardEnumerable.succMany? n' (m.decode x) = (UpwardEnumerable.succMany? n' x).map m.decode := by
   simp [instUpwardEnumerable, HasModel.encode_decode]
 
-theorem HasModel.succMany?_encode [m : HasModel α β] {x : α} :
+theorem succMany?_encode [m : HasModel α β] {x : α} :
     UpwardEnumerable.succMany? n' (m.encode x) = (UpwardEnumerable.succMany? n' x).map m.encode := by
   simp [instUpwardEnumerable, Function.comp_def, HasModel.encode_decode]
 
-theorem HasModel.eq_of_encode_eq [m : HasModel α β] (x y : α) :
+theorem eq_of_encode_eq [m : HasModel α β] (x y : α) :
     m.encode x = m.encode y → x = y := by
   sorry
 
-theorem HasModel.encode_inj [m : HasModel α β] {x y : α} :
+theorem encode_inj [m : HasModel α β] {x y : α} :
     m.encode x = m.encode y ↔ x = y := by
   exact ⟨m.eq_of_encode_eq x y, by simp +contextual⟩
 
-theorem HasModel.le_iff [m : HasModel α β] {x y : α} :
+theorem le_iff [m : HasModel α β] {x y : α} :
     UpwardEnumerable.LE x y ↔ UpwardEnumerable.LE (m.encode x) (m.encode y) := by
   simp [UpwardEnumerable.le_iff_exists, succMany?_encode, ← Option.map_some,
     Option.map_inj_right eq_of_encode_eq]
 
-theorem HasModel.lt_iff [m : HasModel α β] {x y : α} :
+theorem lt_iff [m : HasModel α β] {x y : α} :
     UpwardEnumerable.LT x y ↔ UpwardEnumerable.LT (m.encode x) (m.encode y) := by
   simp [UpwardEnumerable.lt_iff_exists, succMany?_encode, ← Option.map_some,
     Option.map_inj_right eq_of_encode_eq]
 
 attribute [local instance] HasModel.instUpwardEnumerable
-scoped instance HasModel.instLawfulUpwardEnumerable [m : HasModel α β] :
+scoped instance instLawfulUpwardEnumerable [m : HasModel α β] :
     LawfulUpwardEnumerable α where
   ne_of_lt x y := by
     rw [m.lt_iff, ne_eq, ← m.encode_inj]
@@ -93,13 +93,13 @@ scoped instance HasModel.instLawfulUpwardEnumerable [m : HasModel α β] :
     rw [← Function.comp_def, ← Option.bind_map, ← succMany?_encode (n' := n),
       LawfulUpwardEnumerable.succMany?_add_one]
 
-scoped instance HasModel.instLawfulUpwardEnumerableLE [m : HasModel α β] :
+scoped instance instLawfulUpwardEnumerableLE [m : HasModel α β] :
     LawfulUpwardEnumerableLE α where
   le_iff x y := by
     rw [m.le_iff_encode_le, m.le_iff]
     apply LawfulUpwardEnumerableLE.le_iff
 
-scoped instance HasModel.instLawfulUpwardEnumerableLT [m : HasModel α β] :
+scoped instance instLawfulUpwardEnumerableLT [m : HasModel α β] :
     LawfulUpwardEnumerableLT α where
   lt_iff x y := by
     rw [m.lt_iff_encode_lt, m.lt_iff]
@@ -151,11 +151,12 @@ scoped instance instRxiLawfulHasSize [m : HasModel α β] [Rxi.HasSize β] [Rxi.
     simp only [this, instRxiHasSize]
     apply Rxi.LawfulHasSize.size_eq_succ_of_succ?_eq_some
 
-end BitVecModel
+end HasModel
 
 namespace Int8
 
 open BitVec.Signed
+open scoped HasModel
 
 attribute [-instance] BitVec.instUpwardEnumerable BitVec.instHasSize BitVec.instHasSize_1
   BitVec.instHasSize_2 BitVec.instLawfulUpwardEnumerable
@@ -166,65 +167,38 @@ instance : UpwardEnumerable Int8 where
     have := i.minValue_le_toInt
     if h : i.toInt + n ≤ Int8.maxValue.toInt then some (.ofIntLE _ (by omega) h) else none
 
-theorem succ?_ofBitVec {x : BitVec 8} :
-    UpwardEnumerable.succ? (Int8.ofBitVec x) = Int8.ofBitVec <$> UpwardEnumerable.succ? x := by
-  simp only [succ?, ← toBitVec_inj, Int8.toBitVec_add, toBitVec_ofBitVec, toBitVec_ofNat,
-    BitVec.ofNat_eq_ofNat, toBitVec_neg, BitVec.reduceNeg, rotate, BitVec.natCast_eq_ofNat,
-    Option.map_eq_map, Option.map_map, Function.comp_def]
-  split <;> split <;> try (simp_all [Int8.add_assoc]; done)
-  all_goals
-    rename_i h h'
-    rw [BitVec.add_assoc, BitVec.add_comm 128#8 1#8, ← BitVec.add_assoc,
-      ← BitVec.eq_sub_iff_add_eq] at h'
-    simp [h] at h'
+instance : HasModel Int8 (BitVec 8) where
+  encode x := x.toBitVec
+  decode x := .ofBitVec x
+  encode_decode := by simp
+  decode_encode := by simp
+  le_iff_encode_le := by simp [Int8.le_iff_toBitVec_sle, BitVec.Signed.instLE]
+  lt_iff_encode_lt := by simp [Int8.lt_iff_toBitVec_slt, BitVec.Signed.instLT]
 
-theorem succMany?_ofBitVec {k : Nat} {x : BitVec 8} :
-    UpwardEnumerable.succMany? k (Int8.ofBitVec x) =
-      Int8.ofBitVec <$> UpwardEnumerable.succMany? k x := by
-  simp only [succMany?, maxValue, ofIntLE_eq_ofInt, ofInt_add, dite_eq_ite, rotate,
-    BitVec.ofNatLT_eq_ofNat, Option.map_eq_map, Option.map_if, ofBitVec_add, ofBitVec_ofNat,
-    ofNat_add, ofNat_bitVecToNat]
-  split <;> split <;> try (simp [← ofBitVec_ofInt, Int8.add_assoc, Int8.add_comm (-128)]; done)
-  all_goals
-    rename_i h h'
-    simp [toInt_eq_ofNat_toNat_rotate_sub, rotate] at h h'
+theorem instUpwardEnumerable_eq :
+    instUpwardEnumerable = HasModel.instUpwardEnumerable := by
+  simp only [instUpwardEnumerable, HasModel.instUpwardEnumerable,
+    HasModel.encode, HasModel.decode, UpwardEnumerable.succ?,
+    UpwardEnumerable.succMany?]
+  congr 1
+  · ext x y
+    simp [← Int8.toBitVec_inj, ← BitVec.eq_sub_iff_add_eq, rotate, BitVec.sub_sub]
+  · ext n x y
+    have h₁ : ∀ n, (2 : Int) ^ n = ↑((2 : Nat) ^ n) := by simp
+    have h₂ : ∀ x : Int8, x - ofNat (2 ^ 7) = x + ofNat (2 ^ 7) := by simp
+    simp [h₁, h₂, ← Int8.toInt_toBitVec, toInt_eq_ofNat_toNat_rotate_sub (show 8 > 0 by omega),
+      rotate, BitVec.ofNatLT_eq_ofNat, ofIntLE_eq_ofInt, Int8.ofInt_eq_ofNat,
+      ofInt_eq_ofNat, Int8.add_assoc, Int8.add_comm (ofNat (2 ^ 7)), and_congr_left_iff,
+      - Int.reducePow, - Nat.reducePow, - Int.natCast_pow, - Int.natCast_add, - Int.natCast_emod, ]
     omega
 
-theorem upwardEnumerableLE_ofBitVec {x y : BitVec 8} :
-    UpwardEnumerable.LE (Int8.ofBitVec x) (Int8.ofBitVec y) ↔ UpwardEnumerable.LE x y := by
-  simp [UpwardEnumerable.LE, succMany?_ofBitVec, ofBitVec_inj]
+instance : LawfulUpwardEnumerable Int8 := by
+  simp only [instUpwardEnumerable_eq]
+  infer_instance
 
-theorem upwardEnumerableLT_ofBitVec {x y : BitVec 8} :
-    UpwardEnumerable.LT (Int8.ofBitVec x) (Int8.ofBitVec y) ↔ UpwardEnumerable.LT x y := by
-  simp [UpwardEnumerable.LT, succMany?_ofBitVec, ofBitVec_inj]
-
-instance : LawfulUpwardEnumerable Int8 where
-  ne_of_lt x y := by
-    rw [← ofBitVec_toBitVec x, ← ofBitVec_toBitVec y]
-    simpa [upwardEnumerableLT_ofBitVec, ne_iff_ofBitVec_ne, -ofBitVec_toBitVec] using
-      LawfulUpwardEnumerable.ne_of_lt (α := BitVec 8) _ _
-  succMany?_zero x := by
-    rw [← ofBitVec_toBitVec x]
-    simpa [succMany?_ofBitVec, ofBitVec_inj, -ofBitVec_toBitVec] using succMany?_zero
-  succMany?_add_one n x := by
-    rw [← ofBitVec_toBitVec x]
-    simp [succMany?_ofBitVec, succMany?_add_one, Option.bind_map, Function.comp_def,
-      succ?_ofBitVec, -ofBitVec_toBitVec]
-
-private theorem toBitVec_le {x y : Int8} :
-    x.toBitVec ≤ y.toBitVec ↔ x ≤ y := by
-  rw [Int8.le_iff_toBitVec_sle]
-  simp [LE.le]
-
-private theorem ofBitVec_le {x y : BitVec 8} :
-    Int8.ofBitVec x ≤ Int8.ofBitVec y ↔ x ≤ y := by
-  simp [← toBitVec_le]
-
-instance : LawfulUpwardEnumerableLE Int8 where
-  le_iff x y := by
-    rw [← ofBitVec_toBitVec x, ← ofBitVec_toBitVec y]
-    simpa [upwardEnumerableLE_ofBitVec, -ofBitVec_toBitVec, ofBitVec_le] using
-      LawfulUpwardEnumerableLE.le_iff (α := BitVec 8) _ _
+instance : LawfulUpwardEnumerableLE Int8 := by
+  simp only [instUpwardEnumerable_eq]
+  infer_instance
 
 instance : LawfulUpwardEnumerableLT Int8 := inferInstance
 instance : LawfulUpwardEnumerableLT Int8 := inferInstance
@@ -232,53 +206,436 @@ instance : LawfulUpwardEnumerableLT Int8 := inferInstance
 instance : Rxc.HasSize Int8 where
   size lo hi := (hi.toInt + 1 - lo.toInt).toNat
 
-theorem rxcHasSize_eq_toBitVec :
-    Rxc.HasSize.size (Int8.ofBitVec lo) hi = Rxc.HasSize.size lo hi.toBitVec := by
-  simp [Rxc.HasSize.size, rotate, ← toInt_toBitVec, toInt_eq_ofNat_toNat_rotate_sub]
-  omega
+theorem bla {lo hi : BitVec n} (h : n > 0) :
+    (hi.toInt + 1 - lo.toInt).toNat = (rotate hi).toNat + 1 - (rotate lo).toNat := by
+  match n with
+  | 0 => omega
+  | n + 1 =>
+    simp only [toInt_eq_ofNat_toNat_rotate_sub h, rotate, BitVec.toNat_add, Int.natCast_emod,
+      show ∀ a b c d : Int, (a - b) + c - (d - b) = a + c - d by omega]
+    omega
+
+theorem instRxcHasSize_eq :
+    instHasSize = HasModel.instRxcHasSize := by
+  simp only [instHasSize, HasModel.instRxcHasSize, Rxc.HasSize.size, HasModel.encode,
+    ← toInt_toBitVec, bla (Nat.zero_lt_succ _)]
 
 private theorem ofBitVec_eq_iff {x : BitVec 8} {y : Int8} :
     Int8.ofBitVec x = y ↔ x = y.toBitVec := by
   rw [← toBitVec_ofBitVec x, toBitVec_inj, toBitVec_ofBitVec]
 
-instance : Rxc.LawfulHasSize Int8 where
-  size_eq_zero_of_not_le lo hi := by
-    rw [← ofBitVec_toBitVec lo, ← ofBitVec_toBitVec hi]
-    simpa [rxcHasSize_eq_toBitVec, UInt8.lt_iff_toBitVec_lt, ofBitVec_le, -ofBitVec_toBitVec] using
-      Rxc.LawfulHasSize.size_eq_zero_of_not_le (α := BitVec 8) _ _
-  size_eq_one_of_succ?_eq_none lo hi := by
-    rw [← ofBitVec_toBitVec lo, ← ofBitVec_toBitVec hi]
-    simpa [rxcHasSize_eq_toBitVec, UInt8.le_iff_toBitVec_le, succ?_ofBitVec, ofBitVec_le,
-      -ofBitVec_toBitVec] using Rxc.LawfulHasSize.size_eq_one_of_succ?_eq_none (α := BitVec 8) _ _
-  size_eq_succ_of_succ?_eq_some lo hi x := by
-    rw [← ofBitVec_toBitVec lo, ← ofBitVec_toBitVec x, ← ofBitVec_toBitVec hi]
-    simpa [rxcHasSize_eq_toBitVec, UInt8.le_iff_toBitVec_le, ← UInt8.toBitVec_inj,
-      ofBitVec_le, succ?_ofBitVec, -ofBitVec_toBitVec, ofBitVec_eq_iff] using
-      Rxc.LawfulHasSize.size_eq_succ_of_succ?_eq_some (α := BitVec 8) _ _ _
-
+instance : Rxc.LawfulHasSize Int8 := by
+  simp only [instUpwardEnumerable_eq, instRxcHasSize_eq]
+  infer_instance
 instance : Rxc.IsAlwaysFinite Int8 := inferInstance
 
 instance : Rxo.HasSize Int8 := .ofClosed
 instance : Rxo.LawfulHasSize Int8 := inferInstance
 instance : Rxo.IsAlwaysFinite Int8 := inferInstance
 
-instance : Rxi.HasSize Int8 where
+instance instRxiHasSize : Rxi.HasSize Int8 where
   size lo := ((2 : Int) ^ 7 - lo.toInt).toNat
 
-theorem rxiHasSize_eq_toBitVec :
-    Rxi.HasSize.size (Int8.ofBitVec lo) = Rxi.HasSize.size lo := by
-  simp [Rxi.HasSize.size, rotate, toInt_eq_ofNat_toNat_rotate_sub]
-  omega
+theorem instRxiHasSize_eq :
+    instRxiHasSize = HasModel.instRxiHasSize := by
+  simp only [instRxiHasSize, HasModel.instRxiHasSize, Rxi.HasSize.size, HasModel.encode,
+    ← toInt_toBitVec, toInt_eq_ofNat_toNat_rotate_sub (Nat.zero_lt_succ _), Int.toNat_sub,
+    show ∀ a : Int, (2 ^ 7) - (a - (2 ^ 7)) = ↑((2 : Nat) ^ 8) - a by omega]
 
-instance : Rxi.LawfulHasSize Int8 where
-  size_eq_one_of_succ?_eq_none lo := by
-    rw [← ofBitVec_toBitVec lo]
-    simpa [rxiHasSize_eq_toBitVec, succ?_ofBitVec, -ofBitVec_toBitVec] using
-      Rxi.LawfulHasSize.size_eq_one_of_succ?_eq_none (α := BitVec 8) _
-  size_eq_succ_of_succ?_eq_some lo lo' := by
-    rw [← ofBitVec_toBitVec lo, ← ofBitVec_toBitVec lo']
-    simpa [rxiHasSize_eq_toBitVec, succ?_ofBitVec, ofBitVec_eq_iff, -ofBitVec_toBitVec] using
-      Rxi.LawfulHasSize.size_eq_succ_of_succ?_eq_some (α := BitVec 8) _ _
+instance : Rxi.LawfulHasSize Int8 := by
+  simp only [instUpwardEnumerable_eq, instRxiHasSize_eq]
+  infer_instance
+instance : Rxi.IsAlwaysFinite Int8 := inferInstance
+
+end Int8
+
+namespace Int16
+
+open BitVec.Signed
+open scoped HasModel
+
+attribute [-instance] BitVec.instUpwardEnumerable BitVec.instHasSize BitVec.instHasSize_1
+  BitVec.instHasSize_2 BitVec.instLawfulUpwardEnumerable
+
+instance : UpwardEnumerable Int16 where
+  succ? i := if i + 1 = Int16.minValue then none else some (i + 1)
+  succMany? n i :=
+    have := i.minValue_le_toInt
+    if h : i.toInt + n ≤ Int16.maxValue.toInt then some (.ofIntLE _ (by omega) h) else none
+
+instance : HasModel Int16 (BitVec 16) where
+  encode x := x.toBitVec
+  decode x := .ofBitVec x
+  encode_decode := by simp
+  decode_encode := by simp
+  le_iff_encode_le := by simp [Int16.le_iff_toBitVec_sle, BitVec.Signed.instLE]
+  lt_iff_encode_lt := by simp [Int16.lt_iff_toBitVec_slt, BitVec.Signed.instLT]
+
+theorem instUpwardEnumerable_eq :
+    instUpwardEnumerable = HasModel.instUpwardEnumerable := by
+  simp only [instUpwardEnumerable, HasModel.instUpwardEnumerable,
+    HasModel.encode, HasModel.decode, UpwardEnumerable.succ?,
+    UpwardEnumerable.succMany?]
+  have : ∀ {s sm s' sm'}, s = s' → sm = sm' → UpwardEnumerable.mk s sm = (UpwardEnumerable.mk s' sm' : UpwardEnumerable Int16) := by
+    sorry
+  apply this
+  --congr 1
+  · ext x y
+    simp [← Int16.toBitVec_inj, ← BitVec.eq_sub_iff_add_eq, rotate, BitVec.sub_sub]
+  · ext n x y
+    have h₁ : ∀ n, (2 : Int) ^ n = ↑((2 : Nat) ^ n) := by simp
+    have h₂ : ∀ x : Int16, x - ofNat (2 ^ 15) = x + ofNat (2 ^ 15) := by simp
+    simp only [← toInt_toBitVec, toInt_eq_ofNat_toNat_rotate_sub (show 16 > 0 by omega), rotate,
+      BitVec.natCast_eq_ofNat, BitVec.toNat_add, BitVec.toNat_ofNat]
+    simp only [ofIntLE_eq_ofInt]
+    -- simp [h₁, h₂, ← Int16.toInt_toBitVec, toInt_eq_ofNat_toNat_rotate_sub (show 16 > 0 by omega),
+    --   rotate, BitVec.ofNatLT_eq_ofNat, ofIntLE_eq_ofInt, Int16.ofInt_eq_ofNat,
+    --   ofInt_eq_ofNat, Int16.add_assoc, Int16.add_comm (ofNat (2 ^ 15)), and_congr_left_iff,
+    --   - Int.reducePow, - Nat.reducePow, - Int.natCast_pow, - Int.natCast_add, - Int.natCast_emod, ]
+    omega
+
+instance : LawfulUpwardEnumerable Int16 := by
+  simp only [instUpwardEnumerable_eq]
+  infer_instance
+
+instance : LawfulUpwardEnumerableLE Int16 := by
+  simp only [instUpwardEnumerable_eq]
+  infer_instance
+
+instance : LawfulUpwardEnumerableLT Int16 := inferInstance
+instance : LawfulUpwardEnumerableLT Int16 := inferInstance
+
+instance : Rxc.HasSize Int16 where
+  size lo hi := (hi.toInt + 1 - lo.toInt).toNat
+
+theorem bla {lo hi : BitVec n} (h : n > 0) :
+    (hi.toInt + 1 - lo.toInt).toNat = (rotate hi).toNat + 1 - (rotate lo).toNat := by
+  match n with
+  | 0 => omega
+  | n + 1 =>
+    simp only [toInt_eq_ofNat_toNat_rotate_sub h, rotate, BitVec.toNat_add, Int.natCast_emod,
+      show ∀ a b c d : Int, (a - b) + c - (d - b) = a + c - d by omega]
+    omega
+
+theorem instRxcHasSize_eq :
+    instHasSize = HasModel.instRxcHasSize := by
+  simp only [instHasSize, HasModel.instRxcHasSize, Rxc.HasSize.size, HasModel.encode,
+    ← toInt_toBitVec, bla (Nat.zero_lt_succ _)]
+
+private theorem ofBitVec_eq_iff {x : BitVec 16} {y : Int16} :
+    Int16.ofBitVec x = y ↔ x = y.toBitVec := by
+  rw [← toBitVec_ofBitVec x, toBitVec_inj, toBitVec_ofBitVec]
+
+instance : Rxc.LawfulHasSize Int16 := by
+  simp only [instUpwardEnumerable_eq, instRxcHasSize_eq]
+  infer_instance
+instance : Rxc.IsAlwaysFinite Int16 := inferInstance
+
+instance : Rxo.HasSize Int16 := .ofClosed
+instance : Rxo.LawfulHasSize Int16 := inferInstance
+instance : Rxo.IsAlwaysFinite Int16 := inferInstance
+
+instance instRxiHasSize : Rxi.HasSize Int16 where
+  size lo := ((2 : Int) ^ 15 - lo.toInt).toNat
+
+theorem instRxiHasSize_eq :
+    instRxiHasSize = HasModel.instRxiHasSize := by
+  simp only [instRxiHasSize, HasModel.instRxiHasSize, Rxi.HasSize.size, HasModel.encode,
+    ← toInt_toBitVec, toInt_eq_ofNat_toNat_rotate_sub (Nat.zero_lt_succ _), Int.toNat_sub,
+    show ∀ a : Int, (2 ^ 15) - (a - (2 ^ 15)) = ↑((2 : Nat) ^ 16) - a by omega]
+
+instance : Rxi.LawfulHasSize Int16 := by
+  simp only [instUpwardEnumerable_eq, instRxiHasSize_eq]
+  infer_instance
+instance : Rxi.IsAlwaysFinite Int16 := inferInstance
+
+end Int16
+
+namespace Int8
+
+open BitVec.Signed
+open scoped HasModel
+
+attribute [-instance] BitVec.instUpwardEnumerable BitVec.instHasSize BitVec.instHasSize_1
+  BitVec.instHasSize_2 BitVec.instLawfulUpwardEnumerable
+
+instance : UpwardEnumerable Int8 where
+  succ? i := if i + 1 = Int8.minValue then none else some (i + 1)
+  succMany? n i :=
+    have := i.minValue_le_toInt
+    if h : i.toInt + n ≤ Int8.maxValue.toInt then some (.ofIntLE _ (by omega) h) else none
+
+instance : HasModel Int8 (BitVec 8) where
+  encode x := x.toBitVec
+  decode x := .ofBitVec x
+  encode_decode := by simp
+  decode_encode := by simp
+  le_iff_encode_le := by simp [Int8.le_iff_toBitVec_sle, BitVec.Signed.instLE]
+  lt_iff_encode_lt := by simp [Int8.lt_iff_toBitVec_slt, BitVec.Signed.instLT]
+
+theorem instUpwardEnumerable_eq :
+    instUpwardEnumerable = HasModel.instUpwardEnumerable := by
+  simp only [instUpwardEnumerable, HasModel.instUpwardEnumerable,
+    HasModel.encode, HasModel.decode, UpwardEnumerable.succ?,
+    UpwardEnumerable.succMany?]
+  congr 1
+  · ext x y
+    simp [← Int8.toBitVec_inj, ← BitVec.eq_sub_iff_add_eq, rotate, BitVec.sub_sub]
+  · ext n x y
+    have h₁ : ∀ n, (2 : Int) ^ n = ↑((2 : Nat) ^ n) := by simp
+    have h₂ : ∀ x : Int8, x - ofNat (2 ^ 7) = x + ofNat (2 ^ 7) := by simp
+    simp [h₁, h₂, ← Int8.toInt_toBitVec, toInt_eq_ofNat_toNat_rotate_sub (show 8 > 0 by omega),
+      rotate, BitVec.ofNatLT_eq_ofNat, ofIntLE_eq_ofInt, Int8.ofInt_eq_ofNat,
+      ofInt_eq_ofNat, Int8.add_assoc, Int8.add_comm (ofNat (2 ^ 7)), and_congr_left_iff,
+      - Int.reducePow, - Nat.reducePow, - Int.natCast_pow, - Int.natCast_add, - Int.natCast_emod, ]
+    omega
+
+instance : LawfulUpwardEnumerable Int8 := by
+  simp only [instUpwardEnumerable_eq]
+  infer_instance
+
+instance : LawfulUpwardEnumerableLE Int8 := by
+  simp only [instUpwardEnumerable_eq]
+  infer_instance
+
+instance : LawfulUpwardEnumerableLT Int8 := inferInstance
+instance : LawfulUpwardEnumerableLT Int8 := inferInstance
+
+instance : Rxc.HasSize Int8 where
+  size lo hi := (hi.toInt + 1 - lo.toInt).toNat
+
+theorem bla {lo hi : BitVec n} (h : n > 0) :
+    (hi.toInt + 1 - lo.toInt).toNat = (rotate hi).toNat + 1 - (rotate lo).toNat := by
+  match n with
+  | 0 => omega
+  | n + 1 =>
+    simp only [toInt_eq_ofNat_toNat_rotate_sub h, rotate, BitVec.toNat_add, Int.natCast_emod,
+      show ∀ a b c d : Int, (a - b) + c - (d - b) = a + c - d by omega]
+    omega
+
+theorem instRxcHasSize_eq :
+    instHasSize = HasModel.instRxcHasSize := by
+  simp only [instHasSize, HasModel.instRxcHasSize, Rxc.HasSize.size, HasModel.encode,
+    ← toInt_toBitVec, bla (Nat.zero_lt_succ _)]
+
+private theorem ofBitVec_eq_iff {x : BitVec 8} {y : Int8} :
+    Int8.ofBitVec x = y ↔ x = y.toBitVec := by
+  rw [← toBitVec_ofBitVec x, toBitVec_inj, toBitVec_ofBitVec]
+
+instance : Rxc.LawfulHasSize Int8 := by
+  simp only [instUpwardEnumerable_eq, instRxcHasSize_eq]
+  infer_instance
+instance : Rxc.IsAlwaysFinite Int8 := inferInstance
+
+instance : Rxo.HasSize Int8 := .ofClosed
+instance : Rxo.LawfulHasSize Int8 := inferInstance
+instance : Rxo.IsAlwaysFinite Int8 := inferInstance
+
+instance instRxiHasSize : Rxi.HasSize Int8 where
+  size lo := ((2 : Int) ^ 7 - lo.toInt).toNat
+
+theorem instRxiHasSize_eq :
+    instRxiHasSize = HasModel.instRxiHasSize := by
+  simp only [instRxiHasSize, HasModel.instRxiHasSize, Rxi.HasSize.size, HasModel.encode,
+    ← toInt_toBitVec, toInt_eq_ofNat_toNat_rotate_sub (Nat.zero_lt_succ _), Int.toNat_sub,
+    show ∀ a : Int, (2 ^ 7) - (a - (2 ^ 7)) = ↑((2 : Nat) ^ 8) - a by omega]
+
+instance : Rxi.LawfulHasSize Int8 := by
+  simp only [instUpwardEnumerable_eq, instRxiHasSize_eq]
+  infer_instance
+instance : Rxi.IsAlwaysFinite Int8 := inferInstance
+
+end Int8
+
+namespace Int8
+
+open BitVec.Signed
+open scoped HasModel
+
+attribute [-instance] BitVec.instUpwardEnumerable BitVec.instHasSize BitVec.instHasSize_1
+  BitVec.instHasSize_2 BitVec.instLawfulUpwardEnumerable
+
+instance : UpwardEnumerable Int8 where
+  succ? i := if i + 1 = Int8.minValue then none else some (i + 1)
+  succMany? n i :=
+    have := i.minValue_le_toInt
+    if h : i.toInt + n ≤ Int8.maxValue.toInt then some (.ofIntLE _ (by omega) h) else none
+
+instance : HasModel Int8 (BitVec 8) where
+  encode x := x.toBitVec
+  decode x := .ofBitVec x
+  encode_decode := by simp
+  decode_encode := by simp
+  le_iff_encode_le := by simp [Int8.le_iff_toBitVec_sle, BitVec.Signed.instLE]
+  lt_iff_encode_lt := by simp [Int8.lt_iff_toBitVec_slt, BitVec.Signed.instLT]
+
+theorem instUpwardEnumerable_eq :
+    instUpwardEnumerable = HasModel.instUpwardEnumerable := by
+  simp only [instUpwardEnumerable, HasModel.instUpwardEnumerable,
+    HasModel.encode, HasModel.decode, UpwardEnumerable.succ?,
+    UpwardEnumerable.succMany?]
+  congr 1
+  · ext x y
+    simp [← Int8.toBitVec_inj, ← BitVec.eq_sub_iff_add_eq, rotate, BitVec.sub_sub]
+  · ext n x y
+    have h₁ : ∀ n, (2 : Int) ^ n = ↑((2 : Nat) ^ n) := by simp
+    have h₂ : ∀ x : Int8, x - ofNat (2 ^ 7) = x + ofNat (2 ^ 7) := by simp
+    simp [h₁, h₂, ← Int8.toInt_toBitVec, toInt_eq_ofNat_toNat_rotate_sub (show 8 > 0 by omega),
+      rotate, BitVec.ofNatLT_eq_ofNat, ofIntLE_eq_ofInt, Int8.ofInt_eq_ofNat,
+      ofInt_eq_ofNat, Int8.add_assoc, Int8.add_comm (ofNat (2 ^ 7)), and_congr_left_iff,
+      - Int.reducePow, - Nat.reducePow, - Int.natCast_pow, - Int.natCast_add, - Int.natCast_emod, ]
+    omega
+
+instance : LawfulUpwardEnumerable Int8 := by
+  simp only [instUpwardEnumerable_eq]
+  infer_instance
+
+instance : LawfulUpwardEnumerableLE Int8 := by
+  simp only [instUpwardEnumerable_eq]
+  infer_instance
+
+instance : LawfulUpwardEnumerableLT Int8 := inferInstance
+instance : LawfulUpwardEnumerableLT Int8 := inferInstance
+
+instance : Rxc.HasSize Int8 where
+  size lo hi := (hi.toInt + 1 - lo.toInt).toNat
+
+theorem bla {lo hi : BitVec n} (h : n > 0) :
+    (hi.toInt + 1 - lo.toInt).toNat = (rotate hi).toNat + 1 - (rotate lo).toNat := by
+  match n with
+  | 0 => omega
+  | n + 1 =>
+    simp only [toInt_eq_ofNat_toNat_rotate_sub h, rotate, BitVec.toNat_add, Int.natCast_emod,
+      show ∀ a b c d : Int, (a - b) + c - (d - b) = a + c - d by omega]
+    omega
+
+theorem instRxcHasSize_eq :
+    instHasSize = HasModel.instRxcHasSize := by
+  simp only [instHasSize, HasModel.instRxcHasSize, Rxc.HasSize.size, HasModel.encode,
+    ← toInt_toBitVec, bla (Nat.zero_lt_succ _)]
+
+private theorem ofBitVec_eq_iff {x : BitVec 8} {y : Int8} :
+    Int8.ofBitVec x = y ↔ x = y.toBitVec := by
+  rw [← toBitVec_ofBitVec x, toBitVec_inj, toBitVec_ofBitVec]
+
+instance : Rxc.LawfulHasSize Int8 := by
+  simp only [instUpwardEnumerable_eq, instRxcHasSize_eq]
+  infer_instance
+instance : Rxc.IsAlwaysFinite Int8 := inferInstance
+
+instance : Rxo.HasSize Int8 := .ofClosed
+instance : Rxo.LawfulHasSize Int8 := inferInstance
+instance : Rxo.IsAlwaysFinite Int8 := inferInstance
+
+instance instRxiHasSize : Rxi.HasSize Int8 where
+  size lo := ((2 : Int) ^ 7 - lo.toInt).toNat
+
+theorem instRxiHasSize_eq :
+    instRxiHasSize = HasModel.instRxiHasSize := by
+  simp only [instRxiHasSize, HasModel.instRxiHasSize, Rxi.HasSize.size, HasModel.encode,
+    ← toInt_toBitVec, toInt_eq_ofNat_toNat_rotate_sub (Nat.zero_lt_succ _), Int.toNat_sub,
+    show ∀ a : Int, (2 ^ 7) - (a - (2 ^ 7)) = ↑((2 : Nat) ^ 8) - a by omega]
+
+instance : Rxi.LawfulHasSize Int8 := by
+  simp only [instUpwardEnumerable_eq, instRxiHasSize_eq]
+  infer_instance
+instance : Rxi.IsAlwaysFinite Int8 := inferInstance
+
+end Int8
+
+namespace Int8
+
+open BitVec.Signed
+open scoped HasModel
+
+attribute [-instance] BitVec.instUpwardEnumerable BitVec.instHasSize BitVec.instHasSize_1
+  BitVec.instHasSize_2 BitVec.instLawfulUpwardEnumerable
+
+instance : UpwardEnumerable Int8 where
+  succ? i := if i + 1 = Int8.minValue then none else some (i + 1)
+  succMany? n i :=
+    have := i.minValue_le_toInt
+    if h : i.toInt + n ≤ Int8.maxValue.toInt then some (.ofIntLE _ (by omega) h) else none
+
+instance : HasModel Int8 (BitVec 8) where
+  encode x := x.toBitVec
+  decode x := .ofBitVec x
+  encode_decode := by simp
+  decode_encode := by simp
+  le_iff_encode_le := by simp [Int8.le_iff_toBitVec_sle, BitVec.Signed.instLE]
+  lt_iff_encode_lt := by simp [Int8.lt_iff_toBitVec_slt, BitVec.Signed.instLT]
+
+theorem instUpwardEnumerable_eq :
+    instUpwardEnumerable = HasModel.instUpwardEnumerable := by
+  simp only [instUpwardEnumerable, HasModel.instUpwardEnumerable,
+    HasModel.encode, HasModel.decode, UpwardEnumerable.succ?,
+    UpwardEnumerable.succMany?]
+  congr 1
+  · ext x y
+    simp [← Int8.toBitVec_inj, ← BitVec.eq_sub_iff_add_eq, rotate, BitVec.sub_sub]
+  · ext n x y
+    have h₁ : ∀ n, (2 : Int) ^ n = ↑((2 : Nat) ^ n) := by simp
+    have h₂ : ∀ x : Int8, x - ofNat (2 ^ 7) = x + ofNat (2 ^ 7) := by simp
+    simp [h₁, h₂, ← Int8.toInt_toBitVec, toInt_eq_ofNat_toNat_rotate_sub (show 8 > 0 by omega),
+      rotate, BitVec.ofNatLT_eq_ofNat, ofIntLE_eq_ofInt, Int8.ofInt_eq_ofNat,
+      ofInt_eq_ofNat, Int8.add_assoc, Int8.add_comm (ofNat (2 ^ 7)), and_congr_left_iff,
+      - Int.reducePow, - Nat.reducePow, - Int.natCast_pow, - Int.natCast_add, - Int.natCast_emod, ]
+    omega
+
+instance : LawfulUpwardEnumerable Int8 := by
+  simp only [instUpwardEnumerable_eq]
+  infer_instance
+
+instance : LawfulUpwardEnumerableLE Int8 := by
+  simp only [instUpwardEnumerable_eq]
+  infer_instance
+
+instance : LawfulUpwardEnumerableLT Int8 := inferInstance
+instance : LawfulUpwardEnumerableLT Int8 := inferInstance
+
+instance : Rxc.HasSize Int8 where
+  size lo hi := (hi.toInt + 1 - lo.toInt).toNat
+
+theorem bla {lo hi : BitVec n} (h : n > 0) :
+    (hi.toInt + 1 - lo.toInt).toNat = (rotate hi).toNat + 1 - (rotate lo).toNat := by
+  match n with
+  | 0 => omega
+  | n + 1 =>
+    simp only [toInt_eq_ofNat_toNat_rotate_sub h, rotate, BitVec.toNat_add, Int.natCast_emod,
+      show ∀ a b c d : Int, (a - b) + c - (d - b) = a + c - d by omega]
+    omega
+
+theorem instRxcHasSize_eq :
+    instHasSize = HasModel.instRxcHasSize := by
+  simp only [instHasSize, HasModel.instRxcHasSize, Rxc.HasSize.size, HasModel.encode,
+    ← toInt_toBitVec, bla (Nat.zero_lt_succ _)]
+
+private theorem ofBitVec_eq_iff {x : BitVec 8} {y : Int8} :
+    Int8.ofBitVec x = y ↔ x = y.toBitVec := by
+  rw [← toBitVec_ofBitVec x, toBitVec_inj, toBitVec_ofBitVec]
+
+instance : Rxc.LawfulHasSize Int8 := by
+  simp only [instUpwardEnumerable_eq, instRxcHasSize_eq]
+  infer_instance
+instance : Rxc.IsAlwaysFinite Int8 := inferInstance
+
+instance : Rxo.HasSize Int8 := .ofClosed
+instance : Rxo.LawfulHasSize Int8 := inferInstance
+instance : Rxo.IsAlwaysFinite Int8 := inferInstance
+
+instance instRxiHasSize : Rxi.HasSize Int8 where
+  size lo := ((2 : Int) ^ 7 - lo.toInt).toNat
+
+theorem instRxiHasSize_eq :
+    instRxiHasSize = HasModel.instRxiHasSize := by
+  simp only [instRxiHasSize, HasModel.instRxiHasSize, Rxi.HasSize.size, HasModel.encode,
+    ← toInt_toBitVec, toInt_eq_ofNat_toNat_rotate_sub (Nat.zero_lt_succ _), Int.toNat_sub,
+    show ∀ a : Int, (2 ^ 7) - (a - (2 ^ 7)) = ↑((2 : Nat) ^ 8) - a by omega]
+
+instance : Rxi.LawfulHasSize Int8 := by
+  simp only [instUpwardEnumerable_eq, instRxiHasSize_eq]
+  infer_instance
+instance : Rxi.IsAlwaysFinite Int8 := inferInstance
 
 end Int8
 

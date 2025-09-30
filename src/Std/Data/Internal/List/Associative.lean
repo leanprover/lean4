@@ -3218,6 +3218,15 @@ theorem getValue?_insertSmallerList_of_contains_eq_false [BEq α] [PartialEquivB
   case isFalse =>
     simp only [containsKey_eq_contains_map_fst] at not_contains
     simp [getValueCast?_insertList_of_contains_eq_false not_contains]
+
+theorem getValue_insertSmallerList_of_contains_eq_false [BEq α] [PartialEquivBEq α] [LawfulBEq α]
+    {l toInsert : List ((a : α) × β a)} {k : α}
+    (not_contains : containsKey k toInsert = false)
+    {p1 : containsKey k (insertSmallerList l toInsert) = true}
+    {p2 : containsKey k l = true}:
+    getValueCast k (insertSmallerList l toInsert) p1  = getValueCast k l p2  := by
+      sorry
+
 section
 
 variable {β : Type v}

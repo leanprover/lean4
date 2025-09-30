@@ -50,7 +50,7 @@ where
       unless brecOn.isConst do
         throwError "goal not headed by `.brecOn`\n{MessageData.ofGoal mvarId}"
       let brecOnName := brecOn.constName!
-      unless Name.isSuffixOf `brecOn brecOnName do
+      unless isBRecOnRecursor (← getEnv) brecOnName do
         throwError "goal not headed by `.brecOn`\n{MessageData.ofGoal mvarId}"
       let brecOnThmName := brecOnName.str "eq"
       unless (← hasConst brecOnThmName) do

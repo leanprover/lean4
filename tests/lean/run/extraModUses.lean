@@ -233,7 +233,7 @@ register_error_explanation lean.never {
 }
 
 /--
-info: Entries: [import Lean.ErrorExplanation]
+info: Entries: [meta import Lean.ErrorExplanation]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses

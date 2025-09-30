@@ -6,13 +6,13 @@ Authors: Paul Reichert
 module
 
 prelude
+
 public import Init.Data.Range.Polymorphic.Instances
 public import Init.Data.Order.Lemmas
 public import Init.Data.SInt
 import Init.Omega
 public import Init.Data.Range.Polymorphic.BitVec
 import Init.Data.Range.Polymorphic.UInt
-
 import all Init.Data.SInt.Basic
 
 public section
@@ -23,7 +23,7 @@ namespace HasModel
 
 open BitVec.Signed
 
-variable {α : Type u} [LE α] [LT α] {β : Type u} [LE β] [LT β]
+variable {α : Type u} [LE α] [LT α] {β : Type v} [LE β] [LT β]
 
 class _root_.HasModel (α : Type u) [LE α] [LT α] (β : outParam (Type v)) [LE β] [LT β]
     [UpwardEnumerable β] [LawfulUpwardEnumerable β] [LawfulUpwardEnumerableLE β]
@@ -257,11 +257,29 @@ open scoped HasModel
 attribute [-instance] BitVec.instUpwardEnumerable BitVec.instHasSize BitVec.instHasSize_1
   BitVec.instHasSize_2 BitVec.instLawfulUpwardEnumerable
 
+@[inline]
+def irredMin := Int16.minValue
+theorem irredMin_def : irredMin = Int16.minValue := (rfl)
+seal irredMin
+
+@[inline]
+def irredMax := Int16.maxValue
+theorem irredMax_def : irredMax = Int16.maxValue := (rfl)
+seal irredMax
+
+theorem toBitVec_irredMin_eq_irredMin :
+    irredMin.toBitVec = BitVec.Signed.irredMin 16 := by
+  simp [irredMin_def, BitVec.Signed.irredMin_def]
+
+theorem toBitVec_irredMax_eq_irredMax :
+    irredMax.toBitVec = BitVec.Signed.irredMax 16 := by
+  simp [irredMax_def, BitVec.Signed.irredMax_def]
+
 instance : UpwardEnumerable Int16 where
-  succ? i := if i + 1 = Int16.minValue then none else some (i + 1)
+  succ? i := if i + 1 = irredMin then none else some (i + 1)
   succMany? n i :=
     have := i.minValue_le_toInt
-    if h : i.toInt + n ≤ Int16.maxValue.toInt then some (.ofIntLE _ (by omega) h) else none
+    if h : i.toInt + n ≤ irredMax.toInt then some (.ofIntLE _ (by omega) (irredMax_def ▸ h)) else none
 
 instance : HasModel Int16 (BitVec 16) where
   encode x := x.toBitVec
@@ -270,6 +288,131 @@ instance : HasModel Int16 (BitVec 16) where
   decode_encode := by simp
   le_iff_encode_le := by simp [Int16.le_iff_toBitVec_sle, BitVec.Signed.instLE]
   lt_iff_encode_lt := by simp [Int16.lt_iff_toBitVec_slt, BitVec.Signed.instLT]
+
+private theorem ofBitVec_eq_iff {x : BitVec 16} {y : Int16} :
+    Int16.ofBitVec x = y ↔ x = y.toBitVec := by
+  rw [← toBitVec_ofBitVec x, toBitVec_inj, toBitVec_ofBitVec]
+
+theorem general_succ? {α : Type u} [UpwardEnumerable α] [LE α] [LT α] [m : HasModel α (BitVec n)]
+    {x : α}
+    (h : ∀ y, succ? x = some y ↔ ¬ m.encode x + 1#n = BitVec.Signed.irredMin n ∧ m.encode x + 1#n = m.encode y) :
+    succ? x = (haveI := HasModel.instUpwardEnumerable (α := α); succ? x) := by
+  ext y
+  simp only [UpwardEnumerable.succ?, h]
+  rw [← Option.map_inj_right HasModel.eq_of_encode_eq, Option.map_map, Function.comp_def]
+  simp [HasModel.encode_decode, ← BitVec.eq_sub_iff_add_eq, rotate_eq_iff,
+    ← rotate_neg_eq_irredMin_sub, rotate_sub, rotate_rotate]
+
+theorem general_succMany? {α : Type u} [UpwardEnumerable α] [LE α] [LT α] [m : HasModel α (BitVec n)]
+    {x : α} {k} :
+    haveI := HasModel.instUpwardEnumerable (α := α)
+    succMany? k x = if (m.encode x).toInt + ↑k ≤ (BitVec.Signed.irredMax n).toInt then some (m.decode (BitVec.ofInt n ((m.encode x).toInt + ↑k))) else none := by
+  have h : ∀ a b c d : Int, a - b + c ≤ d - b ↔ a + c ≤ d := by omega
+  simp [UpwardEnumerable.succMany?, BitVec.ofNatLT_eq_ofNat]
+  simp [toInt_eq_ofNat_toNat_rotate_sub' sorry, rotate_irredMax, h]
+  simp only [← Int.natCast_add]
+  congr
+  · rw [Nat.lt_iff_add_one_le, Int.ofNat_le, Nat.le_sub_iff_add_le]
+    exact Nat.pow_pos (Nat.zero_lt_succ _)
+  · generalize rotate (HasModel.encode x) = x
+    simp only [ofNat_eq_rotate_ofInt_sub, rotate_rotate]
+    congr; omega
+
+theorem instUpwardEnumerable_eq :
+    instUpwardEnumerable = HasModel.instUpwardEnumerable := by
+  apply UpwardEnumerable.ext
+  · apply funext; intro x
+    apply general_succ?
+    intro y
+    simp [HasModel.encode, succ?, ← Int16.toBitVec_inj, toBitVec_irredMin_eq_irredMin]
+  · apply funext; intro n; apply funext; intro x
+    simp [general_succMany?, instUpwardEnumerable, HasModel.encode, HasModel.decode,
+      ← toInt_toBitVec, toBitVec_irredMax_eq_irredMax, ofIntLE_eq_ofInt]
+
+open BitVec.Signed
+open scoped HasModel
+
+attribute [-instance] BitVec.instUpwardEnumerable BitVec.instHasSize BitVec.instHasSize_1
+  BitVec.instHasSize_2 BitVec.instLawfulUpwardEnumerable
+
+@[inline]
+def irredMin := Int16.minValue
+theorem irredMin_def : irredMin = Int16.minValue := (rfl)
+seal irredMin
+
+@[inline]
+def irredMax := Int16.maxValue
+theorem irredMax_def : irredMax = Int16.maxValue := (rfl)
+seal irredMax
+
+instance : UpwardEnumerable Int16 where
+  succ? i := if i + 1 = irredMin then none else some (i + 1)
+  succMany? n i :=
+    have := i.minValue_le_toInt
+    if h : i.toInt + n ≤ irredMax.toInt then some (.ofIntLE _ (by omega) (irredMax_def ▸ h)) else none
+
+instance : HasModel Int16 (BitVec 16) where
+  encode x := x.toBitVec
+  decode x := .ofBitVec x
+  encode_decode := by simp
+  decode_encode := by simp
+  le_iff_encode_le := by simp [Int16.le_iff_toBitVec_sle, BitVec.Signed.instLE]
+  lt_iff_encode_lt := by simp [Int16.lt_iff_toBitVec_slt, BitVec.Signed.instLT]
+
+-- theorem bla {x : Int16} :
+--     (succ? x) = (if (x.toBitVec + 1 = - 2 ^ 15) then none else some (x.toBitVec + 1)).map .ofBitVec := by
+--   sorry
+
+-- #print instUpwardEnumerable
+
+-- axiom sry {α} : α
+
+-- seal HasModel.instUpwardEnumerable
+
+-- theorem ex :
+--     sry = (HasModel.instUpwardEnumerable : UpwardEnumerable Int16) := by
+--   apply UpwardEnumerable.ext
+--   · apply funext; intro x
+--     generalize h : @succ? Int16 sry x = g
+--     rw [bla] at h
+--     rw [bla]
+
+theorem bla {x : Int16} :
+    (succ? x) = (if (x.toBitVec + 1 = - 2 ^ 15) then none else some (x.toBitVec + 1)).map .ofBitVec := by
+  simp only [← BitVec.eq_sub_iff_add_eq, succ?, ← toBitVec_inj,
+    show minValue.toBitVec = - 2 ^ 15 by rfl, Int16.toBitVec_add, toBitVec_ofNat]
+  split <;> simp
+
+#print instUpwardEnumerable
+
+--seal HasModel.instUpwardEnumerable
+--seal instUpwardEnumerable
+
+theorem ex :
+    instUpwardEnumerable = HasModel.instUpwardEnumerable := by
+  apply UpwardEnumerable.ext
+  · apply funext; intro x
+    refine Eq.trans bla ?_
+
+
+  simp only [instUpwardEnumerable, HasModel.instUpwardEnumerable, HasModel.encode,
+    HasModel.decode]
+  -- simp only [instUpwardEnumerable, HasModel.instUpwardEnumerable,
+  --   HasModel.encode, HasModel.decode, UpwardEnumerable.succ?,
+  --   UpwardEnumerable.succMany?]
+  -- have : ∀ {s sm s' sm'}, sm = sm' → UpwardEnumerable.mk s sm = (UpwardEnumerable.mk s' sm' : UpwardEnumerable Int16) := by
+  --   sorry
+
+  -- apply this
+  -- · ext n x y
+  --   simp only [← toInt_toBitVec, toInt_eq_ofNat_toNat_rotate_sub (show 16 > 0 by omega), rotate,
+  --     BitVec.natCast_eq_ofNat, BitVec.toNat_add, BitVec.toNat_ofNat]
+  --   simp only [ofIntLE_eq_ofInt]
+  --   -- simp [h₁, h₂, ← Int16.toInt_toBitVec, toInt_eq_ofNat_toNat_rotate_sub (show 16 > 0 by omega),
+  --   --   rotate, BitVec.ofNatLT_eq_ofNat, ofIntLE_eq_ofInt, Int16.ofInt_eq_ofNat,
+  --   --   ofInt_eq_ofNat, Int16.add_assoc, Int16.add_comm (ofNat (2 ^ 15)), and_congr_left_iff,
+  --   --   - Int.reducePow, - Nat.reducePow, - Int.natCast_pow, - Int.natCast_add, - Int.natCast_emod, ]
+  --   omega
 
 theorem instUpwardEnumerable_eq :
     instUpwardEnumerable = HasModel.instUpwardEnumerable := by
@@ -280,11 +423,10 @@ theorem instUpwardEnumerable_eq :
     sorry
   apply this
   --congr 1
-  · ext x y
-    simp [← Int16.toBitVec_inj, ← BitVec.eq_sub_iff_add_eq, rotate, BitVec.sub_sub]
+  · sorry
+    -- ext x y
+    -- simp [← Int16.toBitVec_inj, ← BitVec.eq_sub_iff_add_eq, rotate, BitVec.sub_sub]
   · ext n x y
-    have h₁ : ∀ n, (2 : Int) ^ n = ↑((2 : Nat) ^ n) := by simp
-    have h₂ : ∀ x : Int16, x - ofNat (2 ^ 15) = x + ofNat (2 ^ 15) := by simp
     simp only [← toInt_toBitVec, toInt_eq_ofNat_toNat_rotate_sub (show 16 > 0 by omega), rotate,
       BitVec.natCast_eq_ofNat, BitVec.toNat_add, BitVec.toNat_ofNat]
     simp only [ofIntLE_eq_ofInt]

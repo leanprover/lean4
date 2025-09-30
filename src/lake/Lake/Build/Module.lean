@@ -836,17 +836,17 @@ This version does not export any Lean symbols.
 private def Module.recBuildOExportToONoExport (self : Module) : FetchM (Job FilePath) := do
   let suffix := if (← getIsVerbose) then " (without exports)" else ""
   withRegisterJob s!"{self.name}:c.o{suffix}" <| withCurrPackage self.pkg do
-  try
-    (← self.coExport.fetch).mapM fun path => do
-      discard <| IO.Process.run {
-        cmd := "llvm-objcopy"
-        args := #["--remove-section", ".drectve", path.toString, self.coNoExportFile.toString]
-      }
-      return self.coNoExportFile
-  catch _ =>
+  --try
+  (← self.coExport.fetch).mapM fun path => do
+    discard <| IO.Process.run {
+      cmd := "llvm-objcopy"
+      args := #["--remove-section", ".drectve", path.toString, self.coNoExportFile.toString]
+    }
+    return self.coNoExportFile
+  /-catch _ =>
     -- fallback if we don't have llvm-objcopy
     -- TODO: add option to pass a target triplet for cross compilation
-    buildLeanO self.coNoExportFile (← self.c.fetch) self.weakLeancArgs self.leancArgs self.leanIncludeDir?
+    buildLeanO self.coNoExportFile (← self.c.fetch) self.weakLeancArgs self.leancArgs self.leanIncludeDir?-/
 
 /-- The `ModuleFacetConfig` for the builtin `coNoExportFacet`. -/
 public def Module.coNoExportFacetConfig : ModuleFacetConfig coNoExportFacet :=

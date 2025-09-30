@@ -39,7 +39,7 @@ structure Context where
   fileName       : String
   fileMap        : FileMap
   currRecDepth   : Nat := 0
-  cmdPos         : String.Pos := 0
+  cmdPos         : String.Pos.Raw := 0
   macroStack     : MacroStack := []
   quotContext?   : Option Name := none
   currMacroScope : MacroScope := firstFrontendMacroScope

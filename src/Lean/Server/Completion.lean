@@ -33,7 +33,7 @@ partial def find?
     (mod      : Name)
     (pos      : Lsp.Position)
     (fileMap  : FileMap)
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (cmdStx   : Syntax)
     (infoTree : InfoTree)
     (caps     : ClientCapabilities)

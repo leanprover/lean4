@@ -49,7 +49,7 @@ where
 
 def findCompletionInfosAt
     (fileMap  : FileMap)
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (cmdStx   : Syntax)
     (infoTree : InfoTree)
     : Array ContextualizedCompletionInfo × Bool := Id.run do
@@ -128,7 +128,7 @@ user. We choose priorities by the following rules:
 -/
 def findPrioritizedCompletionPartitionsAt
     (fileMap  : FileMap)
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (cmdStx   : Syntax)
     (infoTree : InfoTree)
     : Array (Array (ContextualizedCompletionInfo × Nat)) × Bool :=

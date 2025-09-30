@@ -407,7 +407,7 @@ def addTraceAsMessages [Monad m] [MonadRef m] [MonadLog m] [MonadTrace m] : m Un
   let traces ← getResetTraces
   if traces.isEmpty then
     return
-  let mut pos2traces : Std.HashMap (String.Pos × String.Pos) (Array MessageData) := ∅
+  let mut pos2traces : Std.HashMap (String.Pos.Raw × String.Pos.Raw) (Array MessageData) := ∅
   for traceElem in traces do
     let ref := replaceRef traceElem.ref (← getRef)
     let pos := ref.getPos?.getD 0

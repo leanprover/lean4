@@ -82,7 +82,7 @@ variable [Monad m] [MonadStateOf ArgList m]
 
 /-- Process a multiple short options grouped together (ex. `-xyz` as `x`, `y`, `z`). -/
 @[inline] public def multiShortOption (handle : Char → m PUnit) (opt : String) : m PUnit := do
-  let rec loop (p : String.Pos) := do
+  let rec loop (p : String.Pos.Raw) := do
     if h : opt.atEnd p then
       return
     else

@@ -64,7 +64,7 @@ def isAbortTacticException (ex : Exception) : Bool :=
 def isAbortExceptionId (id : InternalExceptionId) : Bool :=
   id == abortCommandExceptionId || id == abortTermExceptionId || id == abortTacticExceptionId
 
-def mkMessageCore (fileName : String) (fileMap : FileMap) (data : MessageData) (severity : MessageSeverity) (pos : String.Pos) (endPos : String.Pos) : Message :=
+def mkMessageCore (fileName : String) (fileMap : FileMap) (data : MessageData) (severity : MessageSeverity) (pos : String.Pos.Raw) (endPos : String.Pos.Raw) : Message :=
   let pos := fileMap.toPosition pos
   let endPos := fileMap.toPosition endPos
   { fileName, pos, endPos, data, severity }

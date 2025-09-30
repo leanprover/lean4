@@ -164,7 +164,7 @@ def checkDecl : SimpleHandler := fun stx => do
           lintField rest[1][0] stx[1] "computed field"
   else if rest.getKind == ``«structure» then
     unless rest[4][2].isNone do
-      let redecls : Std.HashSet String.Pos :=
+      let redecls : Std.HashSet String.Pos.Raw :=
         (← get).infoState.trees.foldl (init := {}) fun s tree =>
           tree.foldInfo (init := s) fun _ info s =>
             if let .ofFieldRedeclInfo info := info then

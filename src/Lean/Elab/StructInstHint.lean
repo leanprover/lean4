@@ -29,19 +29,19 @@ open TSyntax.Compat
 /-- Auxiliary type for `mkMissingFieldsHint` -/
 private structure FieldsHintView where
   /-- The position of the first existing field in the structure instance, if one exists. -/
-  initFieldPos? : Option String.Pos
+  initFieldPos? : Option String.Pos.Raw
   /-- The tail position of the last existing field, or `none` if there are none. -/
-  lastFieldTailPos? : Option String.Pos
+  lastFieldTailPos? : Option String.Pos.Raw
   /-- Does this structure instance have a `with` clause? -/
   hasWith : Bool
   /-- The number of existing fields present in the structure instance. -/
   numFields : Nat
   /-- The position of the opening syntax (i.e., `{`) for the structure instance. -/
-  openingPos : String.Pos
+  openingPos : String.Pos.Raw
   /-- The position of the "leader" immediately preceding the fields -- either `with` or `{`. -/
-  leaderPos : String.Pos
+  leaderPos : String.Pos.Raw
   /-- The tail position of the "leader" syntax. -/
-  leaderTailPos : String.Pos
+  leaderTailPos : String.Pos.Raw
   /--
   The position of the closing syntax (i.e., `}`) for the structure instance.
 
@@ -49,7 +49,7 @@ private structure FieldsHintView where
   erases the type annotation if it was present, and it's impossible to have an ellipsis if we're
   generating a "fields missing" error.
   -/
-  closingPos : String.Pos
+  closingPos : String.Pos.Raw
 
 /--
 Creates a hint message for the "fields missing" error that fills in the missing fields, adapting to
@@ -73,7 +73,7 @@ def mkMissingFieldsHint (fields : Array (Name × Option Expr)) (stx : Syntax) : 
       Format.line.joinSep newFields.toList
 
   let fileMap ← getFileMap
-  let col (p : String.Pos) := (fileMap.utf8PosToLspPos p).character
+  let col (p : String.Pos.Raw) := (fileMap.utf8PosToLspPos p).character
   let indent :=
     if let some initFieldPos := view.initFieldPos? then
       col initFieldPos
@@ -149,7 +149,7 @@ where
   Returns the position of the end of the line that contains the position `pos`.
   Counterpart of `String.findLineStart`.
   -/
-  findLineEnd (s : String) (p : String.Pos) : String.Pos :=
+  findLineEnd (s : String) (p : String.Pos.Raw) : String.Pos.Raw :=
     s.findAux (· == '\n') s.endPos p
 
   /--

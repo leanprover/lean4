@@ -1,3 +1,5 @@
+module
+
 section
 
 variable (x : Int)

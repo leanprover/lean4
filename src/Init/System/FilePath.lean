@@ -121,7 +121,7 @@ instance : Div FilePath where
 instance : HDiv FilePath String FilePath where
   hDiv p sub := FilePath.join p ⟨sub⟩
 
-private def posOfLastSep (p : FilePath) : Option String.Pos :=
+private def posOfLastSep (p : FilePath) : Option String.Pos.Raw :=
   p.toString.revFind pathSeparators.contains
 
 /--
@@ -137,7 +137,7 @@ def parent (p : FilePath) : Option FilePath :=
     if p.toString.length == lengthOfRootDirectory then
       -- `p` is a root directory
       none
-    else if posOfLastSep p == some (String.Pos.mk (lengthOfRootDirectory - 1)) then
+    else if posOfLastSep p == some (String.Pos.Raw.mk (lengthOfRootDirectory - 1)) then
       -- `p` is a direct child of the root
       some ⟨p.toString.extract 0 ⟨lengthOfRootDirectory⟩⟩
     else

@@ -43,7 +43,7 @@ def checkSchemaVersion (inputName : String) (line : String) : LogIO Unit := do
 
 /-- Parse a `Cache` from a JSON Lines string. -/
 public partial def parse (inputName : String) (contents : String) : LoggerIO CacheMap := do
-  let rec loop (i : Nat) (cache : CacheMap) (stopPos pos : String.Pos) := do
+  let rec loop (i : Nat) (cache : CacheMap) (stopPos pos : String.Pos.Raw) := do
     let lfPos := contents.posOfAux '\n' stopPos pos
     let line := contents.extract pos lfPos
     if line.trim.isEmpty then

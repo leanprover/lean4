@@ -13186,9 +13186,9 @@ if (x_54 == 0)
 {
 lean_inc_ref(x_43);
 lean_dec(x_40);
-x_6 = x_43;
-x_7 = x_38;
-x_8 = x_47;
+x_6 = x_38;
+x_7 = x_47;
+x_8 = x_43;
 goto block_22;
 }
 else
@@ -13217,9 +13217,9 @@ else
 {
 lean_inc_ref(x_43);
 lean_dec(x_40);
-x_6 = x_43;
-x_7 = x_38;
-x_8 = x_47;
+x_6 = x_38;
+x_7 = x_47;
+x_8 = x_43;
 goto block_22;
 }
 }
@@ -13374,9 +13374,9 @@ if (x_98 == 0)
 {
 lean_inc_ref(x_87);
 lean_dec(x_84);
-x_6 = x_87;
-x_7 = x_82;
-x_8 = x_91;
+x_6 = x_82;
+x_7 = x_91;
+x_8 = x_87;
 goto block_22;
 }
 else
@@ -13405,9 +13405,9 @@ else
 {
 lean_inc_ref(x_87);
 lean_dec(x_84);
-x_6 = x_87;
-x_7 = x_82;
-x_8 = x_91;
+x_6 = x_82;
+x_7 = x_91;
+x_8 = x_87;
 goto block_22;
 }
 }
@@ -13527,19 +13527,19 @@ return x_127;
 block_22:
 {
 lean_object* x_9; 
-x_9 = l___private_Lean_Elab_SetOption_0__Lean_Elab_ctorType_x3f(x_6);
-lean_dec_ref(x_6);
+x_9 = l___private_Lean_Elab_SetOption_0__Lean_Elab_ctorType_x3f(x_8);
+lean_dec_ref(x_8);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; 
 lean_dec(x_2);
-x_10 = l___private_Lean_Elab_SetOption_0__Lean_Elab_throwUnconfigurable___at___Lean_Elab_elabSetOption___at___Lean_Linter_MissingDocs_handleIn_spec__0_spec__3___redArg(x_7, x_3, x_4, x_8);
+x_10 = l___private_Lean_Elab_SetOption_0__Lean_Elab_throwUnconfigurable___at___Lean_Elab_elabSetOption___at___Lean_Linter_MissingDocs_handleIn_spec__0_spec__3___redArg(x_6, x_3, x_4, x_7);
 return x_10;
 }
 else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-lean_dec(x_7);
+lean_dec(x_6);
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
 lean_dec_ref(x_9);
@@ -13560,7 +13560,7 @@ x_19 = l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lea
 x_20 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);
-x_21 = l_Lean_throwError___at_____private_Lean_Elab_SetOption_0__Lean_Elab_throwUnconfigurable___at___Lean_Elab_elabSetOption___at___Lean_Linter_MissingDocs_handleIn_spec__0_spec__3_spec__3___redArg(x_20, x_3, x_4, x_8);
+x_21 = l_Lean_throwError___at_____private_Lean_Elab_SetOption_0__Lean_Elab_throwUnconfigurable___at___Lean_Elab_elabSetOption___at___Lean_Linter_MissingDocs_handleIn_spec__0_spec__3_spec__3___redArg(x_20, x_3, x_4, x_7);
 return x_21;
 }
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.OfFn
-// Imports: public import Init.Data.List.Basic public import Init.Data.Fin.Fold
+// Imports: public import Init.Data.Fin.Fold public import Init.Data.List.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -149,17 +149,17 @@ x_6 = l_List_ofFnM___redArg(x_3, x_4, x_5);
 return x_6;
 }
 }
-lean_object* initialize_Init_Data_List_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Fin_Fold(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_OfFn(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_List_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Fin_Fold(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Fin_Fold(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_List_ofFnM___redArg___closed__0 = _init_l_List_ofFnM___redArg___closed__0();

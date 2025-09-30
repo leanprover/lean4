@@ -4984,7 +4984,7 @@ x_10 = lean_array_get_size(x_3);
 x_11 = lean_nat_dec_eq(x_10, x_1);
 if (x_11 == 0)
 {
-uint8_t x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_22; lean_object* x_23; uint8_t x_51; 
+uint8_t x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_22; lean_object* x_23; uint8_t x_51; 
 x_12 = 1;
 x_51 = lean_nat_dec_lt(x_1, x_10);
 if (x_51 == 0)
@@ -5061,7 +5061,7 @@ lean_object* x_18; lean_object* x_19; lean_object* x_20;
 x_18 = l_Array_toSubarray___redArg(x_3, x_16, x_17);
 x_19 = l_Array_ofSubarray___redArg(x_18);
 lean_dec_ref(x_18);
-x_20 = l_Lean_Meta_mkLambdaFVars(x_19, x_14, x_11, x_12, x_11, x_12, x_15, x_5, x_6, x_7, x_8, x_13);
+x_20 = l_Lean_Meta_mkLambdaFVars(x_19, x_15, x_11, x_12, x_11, x_12, x_13, x_5, x_6, x_7, x_8, x_14);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
@@ -5137,9 +5137,9 @@ x_45 = lean_nat_dec_le(x_1, x_10);
 if (x_45 == 0)
 {
 lean_dec(x_1);
-x_13 = x_43;
-x_14 = x_42;
-x_15 = x_26;
+x_13 = x_26;
+x_14 = x_43;
+x_15 = x_42;
 x_16 = x_44;
 x_17 = x_10;
 goto block_21;
@@ -5147,9 +5147,9 @@ goto block_21;
 else
 {
 lean_dec(x_10);
-x_13 = x_43;
-x_14 = x_42;
-x_15 = x_26;
+x_13 = x_26;
+x_14 = x_43;
+x_15 = x_42;
 x_16 = x_44;
 x_17 = x_1;
 goto block_21;

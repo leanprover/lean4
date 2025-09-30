@@ -2610,10 +2610,10 @@ if (x_24 == 0)
 {
 lean_dec(x_22);
 x_10 = x_9;
-x_11 = x_8;
-x_12 = x_6;
-x_13 = x_5;
-x_14 = x_7;
+x_11 = x_7;
+x_12 = x_5;
+x_13 = x_8;
+x_14 = x_6;
 x_15 = x_41;
 x_16 = x_23;
 goto block_21;
@@ -2622,10 +2622,10 @@ else
 {
 lean_dec(x_23);
 x_10 = x_9;
-x_11 = x_8;
-x_12 = x_6;
-x_13 = x_5;
-x_14 = x_7;
+x_11 = x_7;
+x_12 = x_5;
+x_13 = x_8;
+x_14 = x_6;
 x_15 = x_41;
 x_16 = x_22;
 goto block_21;
@@ -2641,7 +2641,7 @@ lean_inc_ref(x_18);
 x_19 = lean_alloc_closure((void*)(l_Lean_Meta_generalizeTargetsEq___lam__0___boxed), 9, 2);
 lean_closure_set(x_19, 0, x_1);
 lean_closure_set(x_19, 1, x_18);
-x_20 = l_Lean_Meta_withNewEqs___redArg(x_2, x_18, x_19, x_13, x_12, x_14, x_11, x_10);
+x_20 = l_Lean_Meta_withNewEqs___redArg(x_2, x_18, x_19, x_12, x_14, x_11, x_13, x_10);
 return x_20;
 }
 }

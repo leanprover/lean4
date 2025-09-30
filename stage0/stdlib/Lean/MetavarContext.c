@@ -7235,7 +7235,7 @@ lean_dec_ref(x_6);
 lean_dec(x_3);
 x_10 = l_Lean_isLevelMVarAssignable___redArg___lam__0___closed__0;
 x_11 = l_Lean_instantiateLCtxMVars___redArg___lam__1___closed__0;
-x_12 = lean_unsigned_to_nat(615u);
+x_12 = lean_unsigned_to_nat(625u);
 x_13 = lean_unsigned_to_nat(12u);
 x_14 = l_Lean_instantiateLCtxMVars___redArg___lam__1___closed__1;
 x_15 = 1;
@@ -13237,7 +13237,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_MetavarContext_getDecl___closed__1;
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(902u);
+x_3 = lean_unsigned_to_nat(912u);
 x_4 = l_Lean_MetavarContext_getLevelDepth___closed__0;
 x_5 = l_Lean_isLevelMVarAssignable___redArg___lam__0___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

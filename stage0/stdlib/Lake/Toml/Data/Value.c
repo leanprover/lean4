@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Toml.Data.Value
-// Imports: public import Init.Data.Float public import Lake.Toml.Data.Dict public import Lake.Toml.Data.DateTime import Lake.Util.String
+// Imports: public import Init.Data.Float public import Lake.Toml.Data.Dict public import Lake.Toml.Data.DateTime import Lake.Util.String import Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2062,7 +2062,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_Toml_ppTable_spec__3_spec__3___closed__4;
 x_2 = lean_unsigned_to_nat(17u);
-x_3 = lean_unsigned_to_nat(124u);
+x_3 = lean_unsigned_to_nat(125u);
 x_4 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_Toml_ppTable_spec__3_spec__3___closed__3;
 x_5 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_Toml_ppTable_spec__3_spec__3___closed__2;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3118,6 +3118,7 @@ lean_object* initialize_Init_Data_Float(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Toml_Data_Dict(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Toml_Data_DateTime(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_String(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Toml_Data_Value(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -3133,6 +3134,9 @@ res = initialize_Lake_Toml_Data_DateTime(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Util_String(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_Toml_instInhabitedValue_default___closed__0 = _init_l_Lake_Toml_instInhabitedValue_default___closed__0();

@@ -5214,8 +5214,8 @@ return x_17;
 block_24:
 {
 lean_object* x_23; 
-lean_dec(x_19);
-x_23 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_CoefficientsMap_toExpr_spec__3___redArg(x_21, x_20, x_22);
+lean_dec(x_20);
+x_23 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_CoefficientsMap_toExpr_spec__3___redArg(x_19, x_21, x_22);
 lean_dec(x_22);
 x_13 = x_23;
 goto block_18;
@@ -5223,23 +5223,23 @@ goto block_18;
 block_30:
 {
 uint8_t x_29; 
-x_29 = lean_nat_dec_le(x_28, x_26);
+x_29 = lean_nat_dec_le(x_28, x_25);
 if (x_29 == 0)
 {
-lean_dec(x_26);
+lean_dec(x_25);
 lean_inc(x_28);
-x_19 = x_25;
-x_20 = x_28;
-x_21 = x_27;
+x_19 = x_26;
+x_20 = x_27;
+x_21 = x_28;
 x_22 = x_28;
 goto block_24;
 }
 else
 {
-x_19 = x_25;
-x_20 = x_28;
-x_21 = x_27;
-x_22 = x_26;
+x_19 = x_26;
+x_20 = x_27;
+x_21 = x_28;
+x_22 = x_25;
 goto block_24;
 }
 }
@@ -5258,17 +5258,17 @@ x_37 = lean_nat_dec_le(x_33, x_36);
 if (x_37 == 0)
 {
 lean_inc(x_36);
-x_25 = x_32;
-x_26 = x_36;
-x_27 = x_31;
+x_25 = x_36;
+x_26 = x_31;
+x_27 = x_32;
 x_28 = x_36;
 goto block_30;
 }
 else
 {
-x_25 = x_32;
-x_26 = x_36;
-x_27 = x_31;
+x_25 = x_36;
+x_26 = x_31;
+x_27 = x_32;
 x_28 = x_33;
 goto block_30;
 }

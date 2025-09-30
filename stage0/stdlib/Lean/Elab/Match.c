@@ -12616,10 +12616,10 @@ x_84 = lean_apply_2(x_83, x_69, x_71);
 x_85 = lean_unbox(x_84);
 if (x_85 == 0)
 {
-x_12 = x_82;
-x_13 = x_70;
+x_12 = x_81;
+x_13 = x_82;
 x_14 = x_69;
-x_15 = x_81;
+x_15 = x_70;
 x_16 = x_77;
 x_17 = x_64;
 goto block_42;
@@ -12678,10 +12678,10 @@ lean_dec_ref(x_87);
 x_94 = lean_ctor_get(x_86, 1);
 lean_inc(x_94);
 lean_dec_ref(x_86);
-x_12 = x_82;
-x_13 = x_70;
+x_12 = x_81;
+x_13 = x_82;
 x_14 = x_69;
-x_15 = x_81;
+x_15 = x_70;
 x_16 = x_77;
 x_17 = x_94;
 goto block_42;
@@ -12865,7 +12865,7 @@ block_42:
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; 
 x_18 = lean_array_get_size(x_16);
 x_19 = lean_box(0);
-x_20 = l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(x_13);
+x_20 = l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(x_15);
 lean_inc(x_14);
 lean_inc(x_18);
 x_21 = lean_apply_2(x_20, x_18, x_14);
@@ -12875,8 +12875,8 @@ if (x_22 == 0)
 lean_object* x_23; 
 lean_dec(x_18);
 lean_dec_ref(x_16);
-lean_dec_ref(x_15);
 lean_dec(x_14);
+lean_dec_ref(x_12);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -12891,9 +12891,9 @@ else
 lean_object* x_24; lean_object* x_25; 
 x_24 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_24, 0, x_19);
-lean_ctor_set(x_24, 1, x_12);
-x_25 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Match_0__Lean_Elab_Term_findDiscrRefinementPath_goIndex_spec__0___redArg(x_16, x_15, x_12, x_24, x_18, x_14, x_3, x_4, x_5, x_6, x_17);
-lean_dec_ref(x_15);
+lean_ctor_set(x_24, 1, x_13);
+x_25 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Match_0__Lean_Elab_Term_findDiscrRefinementPath_goIndex_spec__0___redArg(x_16, x_12, x_13, x_24, x_18, x_14, x_3, x_4, x_5, x_6, x_17);
+lean_dec_ref(x_12);
 lean_dec_ref(x_16);
 if (lean_obj_tag(x_25) == 0)
 {

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector
-// Imports: public import Init.Data.Vector.Basic public import Init.Data.Vector.Lemmas public import Init.Data.Vector.Lex public import Init.Data.Vector.MapIdx public import Init.Data.Vector.Count public import Init.Data.Vector.DecidableEq public import Init.Data.Vector.Zip public import Init.Data.Vector.OfFn public import Init.Data.Vector.Range public import Init.Data.Vector.Erase public import Init.Data.Vector.Monadic public import Init.Data.Vector.InsertIdx public import Init.Data.Vector.FinRange public import Init.Data.Vector.Extract public import Init.Data.Vector.Perm public import Init.Data.Vector.Find public import Init.Data.Vector.Algebra
+// Imports: public import Init.Data.Vector.Basic public import Init.Data.Vector.Lemmas public import Init.Data.Vector.Lex public import Init.Data.Vector.MapIdx public import Init.Data.Vector.Count public import Init.Data.Vector.DecidableEq public import Init.Data.Vector.Zip public import Init.Data.Vector.OfFn public import Init.Data.Vector.Range public import Init.Data.Vector.Erase public import Init.Data.Vector.Monadic public import Init.Data.Vector.InsertIdx public import Init.Data.Vector.FinRange public import Init.Data.Vector.Extract public import Init.Data.Vector.Perm public import Init.Data.Vector.Find public import Init.Data.Vector.Algebra public import Init.Data.Vector.Stream
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -30,6 +30,7 @@ lean_object* initialize_Init_Data_Vector_Extract(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Vector_Perm(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Vector_Find(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Vector_Algebra(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Vector_Stream(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Vector(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -84,6 +85,9 @@ res = initialize_Init_Data_Vector_Find(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Vector_Algebra(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Vector_Stream(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -198,7 +198,7 @@ lean_dec_ref(x_1);
 x_8 = lean_ctor_get(x_4, 1);
 lean_inc(x_8);
 lean_dec_ref(x_4);
-x_9 = lean_ctor_get(x_8, 4);
+x_9 = lean_ctor_get(x_8, 5);
 lean_inc(x_9);
 lean_dec(x_8);
 x_10 = l___private_Lake_Build_Target_Fetch_0__Lake_PartialBuildKey_fetchInCoreAux_resolveTargetPackageD___redArg___closed__0;
@@ -278,7 +278,7 @@ lean_dec_ref(x_1);
 x_12 = lean_ctor_get(x_8, 1);
 lean_inc(x_12);
 lean_dec_ref(x_8);
-x_13 = lean_ctor_get(x_12, 4);
+x_13 = lean_ctor_get(x_12, 5);
 lean_inc(x_13);
 lean_dec(x_12);
 x_14 = l___private_Lake_Build_Target_Fetch_0__Lake_PartialBuildKey_fetchInCoreAux_resolveTargetPackageD___redArg___closed__0;
@@ -2511,7 +2511,7 @@ lean_dec_ref(x_1);
 x_61 = lean_ctor_get(x_9, 1);
 lean_inc(x_61);
 lean_dec_ref(x_9);
-x_62 = lean_ctor_get(x_61, 4);
+x_62 = lean_ctor_get(x_61, 5);
 lean_inc(x_62);
 lean_dec(x_61);
 x_63 = l_Std_DTreeMap_Internal_Impl_get_x3f___at_____private_Lake_Build_Target_Fetch_0__Lake_PartialBuildKey_fetchInCoreAux_spec__0___redArg(x_62, x_42);
@@ -2626,7 +2626,7 @@ if (x_304 == 0)
 lean_object* x_305; lean_object* x_306; lean_object* x_307; 
 lean_dec_ref(x_1);
 x_305 = lean_ctor_get(x_9, 1);
-x_306 = lean_ctor_get(x_305, 4);
+x_306 = lean_ctor_get(x_305, 5);
 x_307 = l_Std_DTreeMap_Internal_Impl_get_x3f___at_____private_Lake_Build_Target_Fetch_0__Lake_PartialBuildKey_fetchInCoreAux_spec__0___redArg(x_306, x_81);
 if (lean_obj_tag(x_307) == 0)
 {
@@ -4484,7 +4484,7 @@ lean_dec_ref(x_7);
 x_40 = lean_ctor_get(x_2, 0);
 lean_inc(x_40);
 lean_dec_ref(x_2);
-x_41 = lean_ctor_get(x_39, 4);
+x_41 = lean_ctor_get(x_39, 5);
 lean_inc(x_41);
 lean_dec(x_39);
 x_42 = l_Std_DTreeMap_Internal_Impl_get_x3f___at_____private_Lake_Build_Target_Fetch_0__Lake_PartialBuildKey_fetchInCoreAux_spec__0___redArg(x_41, x_40);
@@ -4558,7 +4558,7 @@ lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean
 x_70 = lean_ctor_get(x_7, 1);
 x_71 = lean_ctor_get(x_2, 0);
 x_72 = lean_ctor_get(x_2, 1);
-x_73 = lean_ctor_get(x_70, 4);
+x_73 = lean_ctor_get(x_70, 5);
 x_74 = l_Std_DTreeMap_Internal_Impl_get_x3f___at_____private_Lake_Build_Target_Fetch_0__Lake_PartialBuildKey_fetchInCoreAux_spec__0___redArg(x_73, x_71);
 if (lean_obj_tag(x_74) == 0)
 {
@@ -4618,7 +4618,7 @@ x_94 = lean_ctor_get(x_2, 1);
 lean_inc(x_94);
 lean_inc(x_93);
 lean_dec(x_2);
-x_95 = lean_ctor_get(x_92, 4);
+x_95 = lean_ctor_get(x_92, 5);
 x_96 = l_Std_DTreeMap_Internal_Impl_get_x3f___at_____private_Lake_Build_Target_Fetch_0__Lake_PartialBuildKey_fetchInCoreAux_spec__0___redArg(x_95, x_93);
 if (lean_obj_tag(x_96) == 0)
 {

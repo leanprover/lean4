@@ -5137,9 +5137,9 @@ x_34 = l_Array_toSubarray___redArg(x_27, x_32, x_33);
 x_35 = l_Array_ofSubarray___redArg(x_34);
 lean_dec_ref(x_34);
 x_36 = lean_array_push(x_35, x_29);
-x_37 = l_Lean_mkAppN(x_30, x_36);
+x_37 = l_Lean_mkAppN(x_31, x_36);
 lean_dec_ref(x_36);
-x_38 = l_Lean_Meta_mkEqSymm(x_37, x_4, x_5, x_6, x_7, x_31);
+x_38 = l_Lean_Meta_mkEqSymm(x_37, x_4, x_5, x_6, x_7, x_30);
 return x_38;
 }
 block_61:
@@ -5181,8 +5181,8 @@ if (x_60 == 0)
 {
 lean_dec(x_59);
 x_29 = x_48;
-x_30 = x_55;
-x_31 = x_49;
+x_30 = x_49;
+x_31 = x_55;
 x_32 = x_56;
 x_33 = x_57;
 goto block_39;
@@ -5191,8 +5191,8 @@ else
 {
 lean_dec(x_57);
 x_29 = x_48;
-x_30 = x_55;
-x_31 = x_49;
+x_30 = x_49;
+x_31 = x_55;
 x_32 = x_56;
 x_33 = x_59;
 goto block_39;

@@ -32704,20 +32704,20 @@ goto block_121;
 block_26:
 {
 lean_object* x_13; 
-x_13 = l___private_Lean_Elab_SetOption_0__Lean_Elab_ctorType_x3f(x_12);
-lean_dec_ref(x_12);
+x_13 = l___private_Lean_Elab_SetOption_0__Lean_Elab_ctorType_x3f(x_10);
+lean_dec_ref(x_10);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; 
 lean_dec(x_2);
-x_14 = l___private_Lean_Elab_SetOption_0__Lean_Elab_throwUnconfigurable___at___Lean_Elab_elabSetOption___at___Lean_Elab_Term_elabSetOption_spec__0_spec__0___redArg(x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_11);
+x_14 = l___private_Lean_Elab_SetOption_0__Lean_Elab_throwUnconfigurable___at___Lean_Elab_elabSetOption___at___Lean_Elab_Term_elabSetOption_spec__0_spec__0___redArg(x_11, x_3, x_4, x_5, x_6, x_7, x_8, x_12);
 lean_dec_ref(x_7);
 return x_14;
 }
 else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-lean_dec(x_10);
+lean_dec(x_11);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec_ref(x_13);
@@ -32738,7 +32738,7 @@ x_23 = l___private_Lean_Elab_BuiltinTerm_0__Lean_Elab_Term_getMVarFromUserName__
 x_24 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_24, 0, x_22);
 lean_ctor_set(x_24, 1, x_23);
-x_25 = l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_Elab_Term_elabPipeCompletion_spec__0_spec__0___redArg(x_24, x_3, x_4, x_5, x_6, x_7, x_8, x_11);
+x_25 = l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_Elab_Term_elabPipeCompletion_spec__0_spec__0___redArg(x_24, x_3, x_4, x_5, x_6, x_7, x_8, x_12);
 lean_dec_ref(x_7);
 return x_25;
 }
@@ -32810,9 +32810,9 @@ if (x_56 == 0)
 {
 lean_inc_ref(x_45);
 lean_dec(x_42);
-x_10 = x_40;
-x_11 = x_49;
-x_12 = x_45;
+x_10 = x_45;
+x_11 = x_40;
+x_12 = x_49;
 goto block_26;
 }
 else
@@ -32841,9 +32841,9 @@ else
 {
 lean_inc_ref(x_45);
 lean_dec(x_42);
-x_10 = x_40;
-x_11 = x_49;
-x_12 = x_45;
+x_10 = x_45;
+x_11 = x_40;
+x_12 = x_49;
 goto block_26;
 }
 }
@@ -32999,9 +32999,9 @@ if (x_100 == 0)
 {
 lean_inc_ref(x_89);
 lean_dec(x_86);
-x_10 = x_84;
-x_11 = x_93;
-x_12 = x_89;
+x_10 = x_89;
+x_11 = x_84;
+x_12 = x_93;
 goto block_26;
 }
 else
@@ -33030,9 +33030,9 @@ else
 {
 lean_inc_ref(x_89);
 lean_dec(x_86);
-x_10 = x_84;
-x_11 = x_93;
-x_12 = x_89;
+x_10 = x_89;
+x_11 = x_84;
+x_12 = x_93;
 goto block_26;
 }
 }

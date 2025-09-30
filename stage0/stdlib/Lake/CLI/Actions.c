@@ -913,7 +913,7 @@ lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean
 x_38 = lean_ctor_get(x_25, 0);
 x_39 = lean_ctor_get(x_25, 1);
 lean_dec(x_39);
-x_40 = lean_ctor_get(x_4, 4);
+x_40 = lean_ctor_get(x_4, 5);
 lean_inc(x_35);
 x_41 = l_String_toName(x_35);
 x_42 = l_Std_DTreeMap_Internal_Impl_get_x3f___at___Lake_Package_resolveDriver_spec__2___redArg(x_40, x_41);
@@ -960,7 +960,7 @@ lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56;
 x_53 = lean_ctor_get(x_25, 0);
 lean_inc(x_53);
 lean_dec(x_25);
-x_54 = lean_ctor_get(x_4, 4);
+x_54 = lean_ctor_get(x_4, 5);
 lean_inc(x_35);
 x_55 = l_String_toName(x_35);
 x_56 = l_Std_DTreeMap_Internal_Impl_get_x3f___at___Lake_Package_resolveDriver_spec__2___redArg(x_54, x_55);
@@ -1019,7 +1019,7 @@ if (lean_is_exclusive(x_25)) {
  lean_dec_ref(x_25);
  x_71 = lean_box(0);
 }
-x_72 = lean_ctor_get(x_4, 4);
+x_72 = lean_ctor_get(x_4, 5);
 lean_inc(x_69);
 x_73 = l_String_toName(x_69);
 x_74 = l_Std_DTreeMap_Internal_Impl_get_x3f___at___Lake_Package_resolveDriver_spec__2___redArg(x_72, x_73);

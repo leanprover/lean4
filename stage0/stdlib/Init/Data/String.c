@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String
-// Imports: public import Init.Data.String.Basic public import Init.Data.String.Bootstrap public import Init.Data.String.Decode public import Init.Data.String.Extra public import Init.Data.String.Lemmas public import Init.Data.String.Repr public import Init.Data.String.Bootstrap public import Init.Data.String.Slice public import Init.Data.String.Pattern
+// Imports: public import Init.Data.String.Basic public import Init.Data.String.Bootstrap public import Init.Data.String.Decode public import Init.Data.String.Extra public import Init.Data.String.Lemmas public import Init.Data.String.Repr public import Init.Data.String.Bootstrap public import Init.Data.String.Slice public import Init.Data.String.Pattern public import Init.Data.String.Stream
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22,6 +22,7 @@ lean_object* initialize_Init_Data_String_Repr(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_String_Bootstrap(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_String_Slice(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_String_Pattern(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_String_Stream(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -52,6 +53,9 @@ res = initialize_Init_Data_String_Slice(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Pattern(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Stream(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

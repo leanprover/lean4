@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Slice
-// Imports: public import Init.Data.String.Pattern public import Init.Data.Iterators.Consumers.Monadic.Collect public import Init.Data.Ord.Basic import Init.Data.Iterators.Combinators.FilterMap
+// Imports: public import Init.Data.String.Pattern public import Init.Data.Iterators.Consumers.Monadic.Collect public import Init.Data.Ord.Basic public import Init.Data.Iterators.Combinators.FilterMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Bitwise.Lemmas
-// Imports: public import Init.Data.Bool public import Init.Data.Int.Pow public import Init.Data.Nat.Bitwise.Basic import all Init.Data.Nat.Bitwise.Basic public import Init.Data.Nat.Lemmas public import Init.Data.Nat.Simproc public import Init.TacticsExtra
+// Imports: public import Init.Data.Bool public import Init.Data.Int.Pow public import Init.Data.Nat.Bitwise.Basic import all Init.Data.Nat.Bitwise.Basic public import Init.Data.Nat.Lemmas public import Init.Data.Nat.Simproc public import Init.TacticsExtra import Init.BinderPredicates
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -314,6 +314,7 @@ lean_object* initialize_Init_Data_Nat_Bitwise_Basic(uint8_t builtin, lean_object
 lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Simproc(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_TacticsExtra(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_BinderPredicates(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Nat_Bitwise_Lemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -338,6 +339,9 @@ res = initialize_Init_Data_Nat_Simproc(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_TacticsExtra(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_BinderPredicates(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___auto___closed__0____x40_Init_Data_Nat_Bitwise_Lemmas_3058011573____hygCtx___hyg_67_ = _init_l___auto___closed__0____x40_Init_Data_Nat_Bitwise_Lemmas_3058011573____hygCtx___hyg_67_();

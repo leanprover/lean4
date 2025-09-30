@@ -1061,10 +1061,10 @@ goto block_51;
 block_13:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_8 = lean_array_get_size(x_7);
-lean_dec_ref(x_7);
-x_9 = l_Lean_Meta_Match_MatcherInfo_arity(x_6);
+x_8 = lean_array_get_size(x_6);
 lean_dec_ref(x_6);
+x_9 = l_Lean_Meta_Match_MatcherInfo_arity(x_7);
+lean_dec_ref(x_7);
 x_10 = lean_nat_sub(x_8, x_9);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -1124,8 +1124,8 @@ if (x_31 == 0)
 {
 lean_dec(x_22);
 lean_dec(x_21);
-x_6 = x_18;
-x_7 = x_28;
+x_6 = x_28;
+x_7 = x_18;
 goto block_13;
 }
 else
@@ -1139,8 +1139,8 @@ lean_inc(x_35);
 lean_dec_ref(x_34);
 if (lean_obj_tag(x_35) == 0)
 {
-x_6 = x_18;
-x_7 = x_28;
+x_6 = x_28;
+x_7 = x_18;
 goto block_13;
 }
 else
@@ -1162,15 +1162,15 @@ block_44:
 {
 if (x_40 == 0)
 {
-lean_dec(x_38);
+lean_dec(x_39);
 goto block_37;
 }
 else
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 lean_dec_ref(x_1);
-x_41 = lean_nat_sub(x_38, x_39);
-lean_dec(x_38);
+x_41 = lean_nat_sub(x_39, x_38);
+lean_dec(x_39);
 x_42 = l_Lean_Expr_getBoundedAppFn(x_41, x_3);
 lean_dec_ref(x_3);
 x_43 = l___private_Lean_Meta_Tactic_SplitIf_0__Lean_Meta_FindSplitImpl_isCandidate_x3f___lam__0(x_4, x_42);
@@ -1185,8 +1185,8 @@ x_46 = lean_unsigned_to_nat(5u);
 x_47 = lean_nat_dec_le(x_46, x_45);
 if (x_47 == 0)
 {
-x_38 = x_45;
-x_39 = x_46;
+x_38 = x_46;
+x_39 = x_45;
 x_40 = x_47;
 goto block_44;
 }
@@ -1199,8 +1199,8 @@ x_50 = l_Lean_Expr_hasLooseBVars(x_49);
 lean_dec_ref(x_49);
 if (x_50 == 0)
 {
-x_38 = x_45;
-x_39 = x_46;
+x_38 = x_46;
+x_39 = x_45;
 x_40 = x_47;
 goto block_44;
 }

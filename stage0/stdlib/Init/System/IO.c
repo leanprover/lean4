@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.System.IO
-// Imports: public import Init.System.IOError public import Init.System.FilePath public import Init.System.ST public import Init.Data.Ord.Basic public import Init.Data.String.Extra
+// Imports: public import Init.System.IOError public import Init.System.FilePath public import Init.System.ST public import Init.Data.Ord.Basic public import Init.Data.Ord.UInt public import Init.Data.String.Extra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13084,6 +13084,7 @@ lean_object* initialize_Init_System_IOError(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_System_FilePath(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_System_ST(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Ord_UInt(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_String_Extra(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object* w) {
@@ -13100,6 +13101,9 @@ res = initialize_Init_System_ST(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Ord_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Ord_UInt(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Extra(builtin, lean_io_mk_world());

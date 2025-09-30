@@ -101,10 +101,11 @@ partial def splitMatch? (mvarId : MVarId) (declNames : Array Name) : MetaM (Opti
                                        target declNames badCases then
       try
         Meta.Split.splitMatch mvarId e
-      catch _ =>
+      catch ex =>
+        trace[Elab.definition.eqns] "cannot split {e}\n{ex.toMessageData}"
         go (badCases.insert e)
     else
-      trace[Meta.Tactic.split] "did not find term to split\n{MessageData.ofGoal mvarId}"
+      trace[Elab.definition.eqns] "did not find term to split\n{MessageData.ofGoal mvarId}"
       return none
   go {}
 

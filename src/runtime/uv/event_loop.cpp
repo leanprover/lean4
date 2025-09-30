@@ -122,7 +122,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
 
     event_loop_unlock(&global_ev);
 
-    return lean_io_result_mk_ok(lean_box(0));
+    return lean_mk_baseio_out(lean_box(0));
 }
 
 /* Std.Internal.UV.Loop.alive : BaseIO UInt64 */
@@ -131,7 +131,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive(obj_arg /* w */ ) {
     int is_alive = uv_loop_alive(global_ev.loop);
     event_loop_unlock(&global_ev);
 
-    return lean_io_result_mk_ok(lean_box(is_alive));
+    return lean_mk_baseio_out(lean_box(is_alive));
 }
 
 void initialize_libuv_loop() {

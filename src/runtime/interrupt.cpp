@@ -32,7 +32,7 @@ void set_max_heartbeat(size_t max) { g_max_heartbeat = max; }
 
 extern "C" LEAN_EXPORT obj_res lean_internal_set_max_heartbeat(usize max) {
     set_max_heartbeat(max);
-    return lean_io_result_mk_ok(lean_box(0));
+    return lean_mk_baseio_out(lean_box(0));
 }
 
 size_t get_max_heartbeat() { return g_max_heartbeat; }
@@ -63,7 +63,7 @@ extern "C" lean_obj_res lean_io_cancel_token_is_set(b_lean_obj_arg cancel_tk, le
 void check_interrupted() {
     if (g_cancel_tk) {
         inc_ref(g_cancel_tk);
-        if (get_io_scalar_result<bool>(lean_io_cancel_token_is_set(g_cancel_tk, lean_io_mk_world())) &&
+        if (get_baseio_scalar_result<bool>(lean_io_cancel_token_is_set(g_cancel_tk, lean_io_mk_world())) &&
             !std::uncaught_exception()) {
             throw interrupted();
         }

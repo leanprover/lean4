@@ -367,10 +367,12 @@ private def tryRecv (ch : Bounded.Receiver α) : BaseIO (Option α) :=
 
 private partial def recv (ch : Bounded.Receiver α) : BaseIO (Task (Option α)) := do
   ch.state.atomically do
-    if (← get).closed ∨ ¬(← get).receivers.contains ch.id then
+    if ¬ (← get).receivers.contains ch.id then
       return .pure none
     else if let some val ← tryRecv' ch.id then
       return .pure <| some val
+    else if (← get).closed then
+      return .pure none
     else
       let promise ← IO.Promise.new
       modify fun st => { st with waiters := st.waiters.enqueue ⟨promise, none⟩ }
@@ -393,6 +395,9 @@ private def recvReady'
     [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT IO m] [MonadLiftT BaseIO m]
     (receiverId : Nat) : AtomicT (State α) m Bool := do
   let st ← get
+
+  if st.closed then
+    return true
 
   let some next := st.receivers.get? receiverId
     | return false

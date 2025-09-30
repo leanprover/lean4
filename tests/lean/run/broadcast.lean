@@ -237,3 +237,155 @@ def testRecvOnEmpty : Async Unit := do
   assert! recv.get == some 3
 
 #eval testRecvOnEmpty.block
+
+-- Test recv
+def recvConditions : Async Unit := do
+  let channel ← Std.Broadcast.new (capacity := 16) (α := Nat)
+  let subs1 ← channel.subscribe
+  let subs2 ← channel.subscribe
+  let subs3 ← channel.subscribe
+
+  discard <| EAsync.ofETask (← channel.send 1)
+  discard <| EAsync.ofETask (← channel.send 2)
+  discard <| EAsync.ofETask (← channel.send 3)
+
+  channel.close
+
+  let recv ← subs1.recv
+  assert! (← IO.getTaskState recv) == IO.TaskState.finished
+  assert! recv.get == some 1
+
+  let recv ← subs1.recv
+  assert! (← IO.getTaskState recv) == IO.TaskState.finished
+  assert! recv.get == some 2
+
+  let recv ← subs1.recv
+  assert! (← IO.getTaskState recv) == IO.TaskState.finished
+  assert! recv.get == some 3
+
+  let recv ← subs1.recv
+  assert! (← IO.getTaskState recv) == IO.TaskState.finished
+  assert! recv.get == none
+
+  let recv ← subs1.recv
+  assert! (← IO.getTaskState recv) == IO.TaskState.finished
+  assert! recv.get == none
+
+  let recv ← subs2.recv
+  assert! (← IO.getTaskState recv) == IO.TaskState.finished
+  assert! recv.get == some 1
+
+  let recv ← subs2.recv
+  assert! (← IO.getTaskState recv) == IO.TaskState.finished
+  assert! recv.get == some 2
+
+  let recv ← subs2.recv
+  assert! (← IO.getTaskState recv) == IO.TaskState.finished
+  assert! recv.get == some 3
+
+  let recv ← subs2.recv
+  assert! (← IO.getTaskState recv) == IO.TaskState.finished
+  assert! recv.get == none
+
+  let recv ← subs2.recv
+  assert! (← IO.getTaskState recv) == IO.TaskState.finished
+  assert! recv.get == none
+
+  subs3.unsubscribe
+
+  let recv ← subs3.recv
+  assert! (← IO.getTaskState recv) == IO.TaskState.finished
+  assert! recv.get == none
+
+#eval recvConditions.block
+
+-- Test selectables
+def selectableConditions : Async Unit := do
+  let channel1 ← Std.Channel.new
+
+  let channel ← Std.Broadcast.new (capacity := 16) (α := Nat)
+  let subs1 ← channel.subscribe
+  let subs2 ← channel.subscribe
+  let subs3 ← channel.subscribe
+
+  discard <| EAsync.ofETask (← channel.send 1)
+  discard <| EAsync.ofETask (← channel.send 2)
+  discard <| EAsync.ofETask (← channel.send 3)
+
+  channel.close
+
+  let recv ← Async.toIO <| Selectable.one #[
+    .case subs1.recvSelector pure,
+    .case channel1.recvSelector pure
+  ]
+
+  assert! (← IO.getTaskState recv) == IO.TaskState.finished
+  assert! (← IO.ofExcept recv.get) == some 1
+
+  let recv ← Async.toIO <| Selectable.one #[
+    .case subs1.recvSelector pure,
+    .case channel1.recvSelector pure
+  ]
+
+  assert! (← IO.getTaskState recv) == IO.TaskState.finished
+  assert! (← IO.ofExcept recv.get) == some 2
+
+  let recv ← Async.toIO <| Selectable.one #[
+    .case subs1.recvSelector pure,
+    .case channel1.recvSelector pure
+  ]
+
+  assert! (← IO.getTaskState recv) == IO.TaskState.finished
+  assert! (← IO.ofExcept recv.get) == some 3
+
+  let recv ← Async.toIO <| Selectable.one #[
+    .case subs1.recvSelector pure,
+    .case channel1.recvSelector pure
+  ]
+
+  assert! (← IO.getTaskState recv) == IO.TaskState.finished
+  assert! (← IO.ofExcept recv.get) == none
+
+  let recv ← Async.toIO <| Selectable.one #[
+    .case subs2.recvSelector pure,
+    .case channel1.recvSelector pure
+  ]
+
+  assert! (← IO.getTaskState recv) == IO.TaskState.finished
+  assert! (← IO.ofExcept recv.get) == some 1
+
+  let recv ← Async.toIO <| Selectable.one #[
+    .case subs2.recvSelector pure,
+    .case channel1.recvSelector pure
+  ]
+
+  assert! (← IO.getTaskState recv) == IO.TaskState.finished
+  assert! (← IO.ofExcept recv.get) == some 2
+
+  let recv ← Async.toIO <| Selectable.one #[
+    .case subs2.recvSelector pure,
+    .case channel1.recvSelector pure
+  ]
+
+  assert! (← IO.getTaskState recv) == IO.TaskState.finished
+  assert! (← IO.ofExcept recv.get) == some 3
+
+  let recv ← Async.toIO <| Selectable.one #[
+    .case subs2.recvSelector pure,
+    .case channel1.recvSelector pure
+  ]
+
+  assert! (← IO.getTaskState recv) == IO.TaskState.finished
+  assert! (← IO.ofExcept recv.get) == none
+
+  subs3.unsubscribe
+
+  let recv ← Async.toIO <| Selectable.one #[
+    .case subs3.recvSelector pure,
+    .case channel1.recvSelector pure
+  ]
+
+  assert! (← IO.getTaskState recv) == IO.TaskState.finished
+  assert! (← IO.ofExcept recv.get) == none
+
+#eval selectableConditions.block

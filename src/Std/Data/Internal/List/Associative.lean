@@ -3128,40 +3128,33 @@ theorem length_right_le_length_insertSmallerList [BEq α] [EquivBEq α]
         . apply le_of_lt h
         . simp only [length_le_length_insertList]
 
-theorem getEntry?_insertListIfNew_of_same_elem [BEq α] [PartialEquivBEq α] [LawfulBEq α] {l t : List ((a : α) × β a)} {k : α} {v : β k} (not_contains: containsKey k l = false):
-  getEntry? k (insertListIfNew (⟨k, v⟩ :: l) t) = .some ⟨k, v⟩ := by
-  induction t generalizing l
-  case nil => simp [insertListIfNew]
-  case cons h t ih =>
-    unfold insertListIfNew
-    by_cases (k = h.fst)
-    case pos h_eq =>
-      simp [h_eq, insertEntryIfNew]
-      replace ih := @ih l
-      simp [h_eq] at ih
-      apply ih
-      simp [←h_eq, not_contains]
-    case neg h_neg =>
-      simp [insertEntryIfNew]
-      have : (k == h.fst) = false := by simp only [beq_eq_false_iff_ne, ne_eq, h_neg,
-        not_false_eq_true]
+theorem getEntry?_insertListIfNew [BEq α] [PartialEquivBEq α] [LawfulBEq α] {l toInsert : List ((a : α) × β a)}
+    {k : α} :
+    getEntry? k (insertListIfNew l toInsert) =
+      (getEntry? k l).or (getEntry? k toInsert) := by
+  induction toInsert generalizing l with
+  | nil => simp [insertListIfNew]
+  | cons hd tl ih =>
+    simp only [insertListIfNew, ih, getEntry?_insertEntryIfNew]
+    cases hhd : hd.fst == k
+    . have := @getEntry?_cons α β _ tl hd.fst k hd.snd
       simp [this]
-      by_cases containsKey h.fst l = true
-      case pos h_contains =>
-        simp [h_contains]
-        apply ih
-        exact not_contains
-      case neg h_not_contains =>
-        simp at h_not_contains
-        simp [h_not_contains]
-        have := @ih (⟨h.fst,h.snd⟩ :: l)
-        have not_contains_bigger := @containsKey_cons α β _ l h.fst k h.snd
-        simp [not_contains_bigger, not_contains] at this
-        rw [Eq.comm] at h_neg
-        specialize this h_neg
-        sorry
+      simp only [hhd, cond_false]
+    . cases hc : containsKey hd.fst l
+      . simp only [Bool.not_false, Bool.and_self, ↓reduceIte, Option.some_or]
+        rw [getEntry?_eq_none.2]
+        . simp only [Option.none_or]
+          rw [←@getEntry?_congr _ _ _ _ (hd :: tl) hd.fst k hhd]
+          simp [@getEntry?_cons_self _ _ _ _ tl hd.fst hd.snd]
+        . simp only [←containsKey_congr hhd, hc]
+      . simp only [Bool.not_true, Bool.and_false, Bool.false_eq_true, ↓reduceIte]
+        rw [containsKey_congr hhd, containsKey_eq_isSome_getEntry?] at hc
+        obtain ⟨v, hv⟩ := Option.isSome_iff_exists.1 hc
+        simp [hv]
 
-
+theorem getEntry?_insertListIfNew_of_same_elem [BEq α] [PartialEquivBEq α] [LawfulBEq α] {l t : List ((a : α) × β a)} {k : α} {v : β k}:
+  getEntry? k (insertListIfNew (⟨k, v⟩ :: l) t) = .some ⟨k, v⟩ := by
+  simp [getEntry?_insertListIfNew]
 
 theorem getEntry?_insertListIfNew_of_contains_eq_false_right [BEq α] [PartialEquivBEq α] [LawfulBEq α]
     {l toInsert : List ((a : α) × β a)} {k : α}
@@ -3176,7 +3169,7 @@ theorem getEntry?_insertListIfNew_of_contains_eq_false_right [BEq α] [PartialEq
       rw [h_eq]
       rw [h_eq] at not_contains
       simp only [@insertEntryIfNew_of_containsKey_eq_false α β _ l h.fst h.snd not_contains]
-      simp only [getEntry?_insertListIfNew_of_same_elem not_contains]
+      simp only [getEntry?_insertListIfNew_of_same_elem]
       simp [getEntry?]
     case neg h_ne =>
       have := @getEntry?_cons_of_false α β _  t h.fst k h.snd (by simp; rw [Eq.comm]; exact h_ne)

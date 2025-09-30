@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.System.Uri
-// Imports: Init.Data.String.Extra Init.Data.Nat.Linear Init.System.FilePath
+// Imports: public import Init.Data.String.Extra public import Init.Data.Nat.Linear public import Init.System.FilePath
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

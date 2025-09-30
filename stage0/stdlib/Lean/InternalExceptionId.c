@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.InternalExceptionId
-// Imports: Init.System.IO Init.Data.ToString.Name
+// Imports: public import Init.System.IO import Init.Data.ToString.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

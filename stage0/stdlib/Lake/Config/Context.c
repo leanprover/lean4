@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Context
-// Imports: Init.Control.Id Lake.Config.Opaque
+// Imports: public import Init.Control.Id public import Lake.Config.Opaque
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind
-// Imports: Init.Grind.Norm Init.Grind.Tactics Init.Grind.Lemmas Init.Grind.Cases Init.Grind.Propagator Init.Grind.Util Init.Grind.Offset Init.Grind.PP Init.Grind.Ring Init.Grind.Module Init.Grind.Ordered Init.Grind.Ext Init.Grind.ToInt Init.Grind.ToIntLemmas Init.Grind.Attr Init.Data.Int.OfNat Init.Grind.AC Init.Grind.Injective Init.Grind.Order Init.Grind.Interactive
+// Imports: public import Init.Grind.Norm public import Init.Grind.Tactics public import Init.Grind.Lemmas public import Init.Grind.Cases public import Init.Grind.Propagator public import Init.Grind.Util public import Init.Grind.Offset public import Init.Grind.PP public import Init.Grind.Ring public import Init.Grind.Module public import Init.Grind.Ordered public import Init.Grind.Ext public import Init.Grind.ToInt public import Init.Grind.ToIntLemmas public import Init.Grind.Attr public import Init.Data.Int.OfNat public import Init.Grind.AC public import Init.Grind.Injective public import Init.Grind.Order public import Init.Grind.Interactive
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

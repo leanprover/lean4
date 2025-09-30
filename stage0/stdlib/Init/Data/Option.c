@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Option
-// Imports: Init.Data.Option.Basic Init.Data.Option.BasicAux Init.Data.Option.Coe Init.Data.Option.Instances Init.Data.Option.Lemmas Init.Data.Option.Attach Init.Data.Option.List Init.Data.Option.Monadic Init.Data.Option.Array
+// Imports: public import Init.Data.Option.Basic public import Init.Data.Option.BasicAux public import Init.Data.Option.Coe public import Init.Data.Option.Instances public import Init.Data.Option.Lemmas public import Init.Data.Option.Attach public import Init.Data.Option.List public import Init.Data.Option.Monadic public import Init.Data.Option.Array
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

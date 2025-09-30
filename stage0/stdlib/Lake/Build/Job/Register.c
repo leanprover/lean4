@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Job.Register
-// Imports: Lake.Build.Fetch
+// Imports: public import Lake.Build.Fetch
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

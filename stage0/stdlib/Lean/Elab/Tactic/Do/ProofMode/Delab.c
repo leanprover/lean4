@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Do.ProofMode.Delab
-// Imports: Lean.Elab.Tactic.Do.ProofMode.MGoal Lean.PrettyPrinter.Delaborator.Basic Std.Do.SPred.Notation.Basic
+// Imports: public import Lean.Elab.Tactic.Do.ProofMode.MGoal public import Lean.PrettyPrinter.Delaborator.Basic import Std.Do.SPred.Notation.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

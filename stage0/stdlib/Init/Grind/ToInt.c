@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.ToInt
-// Imports: Init.Data.Int.DivMod.Lemmas Init.LawfulBEqTactics
+// Imports: public import Init.Data.Int.DivMod.Lemmas import Init.LawfulBEqTactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

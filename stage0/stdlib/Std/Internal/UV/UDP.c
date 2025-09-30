@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.UV.UDP
-// Imports: Init.System.IO Init.System.Promise Std.Net
+// Imports: public import Init.System.IO public import Init.System.Promise public import Std.Net
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

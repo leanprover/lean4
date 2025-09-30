@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.UV.Signal
-// Imports: Init.System.IO Init.System.Promise Init.Data.SInt Std.Net
+// Imports: public import Init.System.IO public import Init.System.Promise public import Init.Data.SInt public import Std.Net
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

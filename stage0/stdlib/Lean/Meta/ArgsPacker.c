@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.ArgsPacker
-// Imports: Lean.Meta.AppBuilder Lean.Meta.PProdN Lean.Meta.ArgsPacker.Basic
+// Imports: public import Lean.Meta.AppBuilder public import Lean.Meta.PProdN public import Lean.Meta.ArgsPacker.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

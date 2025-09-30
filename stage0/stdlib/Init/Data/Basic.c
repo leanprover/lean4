@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Basic
-// Imports: Init.Data.Nat.Basic Init.Data.Fin.Basic Init.Data.List.Basic Init.Data.Char.Basic Init.Data.String.Basic Init.Data.Option.Basic Init.Data.UInt Init.Data.Repr Init.Data.ToString.Basic Init.Data.String.Extra
+// Imports: public import Init.Data.Nat.Basic public import Init.Data.Fin.Basic public import Init.Data.List.Basic public import Init.Data.Char.Basic public import Init.Data.String.Basic public import Init.Data.Option.Basic public import Init.Data.UInt public import Init.Data.Repr public import Init.Data.ToString.Basic public import Init.Data.String.Extra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

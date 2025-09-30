@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.DSL.Config
-// Imports: Lean.Elab.Term Lake.DSL.Extensions Lake.DSL.Syntax Lake.Util.Name
+// Imports: public import Lean.Elab.Term import Lake.DSL.Extensions import Lake.DSL.Syntax import Lake.Util.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -841,12 +841,12 @@ if (lean_obj_tag(x_40) == 0)
 {
 lean_object* x_41; 
 x_41 = l___private_Lake_DSL_Config_0__Lake_DSL_elabNameConst___closed__6;
-x_10 = x_26;
-x_11 = x_3;
-x_12 = x_6;
-x_13 = x_8;
-x_14 = x_4;
-x_15 = x_7;
+x_10 = x_3;
+x_11 = x_8;
+x_12 = x_4;
+x_13 = x_7;
+x_14 = x_6;
+x_15 = x_26;
 x_16 = x_5;
 x_17 = x_41;
 goto block_23;
@@ -857,12 +857,12 @@ uint8_t x_42; lean_object* x_43;
 x_42 = 0;
 lean_inc(x_1);
 x_43 = l_Lake_Name_quoteFrom(x_1, x_40, x_42);
-x_10 = x_26;
-x_11 = x_3;
-x_12 = x_6;
-x_13 = x_8;
-x_14 = x_4;
-x_15 = x_7;
+x_10 = x_3;
+x_11 = x_8;
+x_12 = x_4;
+x_13 = x_7;
+x_14 = x_6;
+x_15 = x_26;
 x_16 = x_5;
 x_17 = x_43;
 goto block_23;
@@ -880,7 +880,7 @@ lean_closure_set(x_21, 0, x_17);
 lean_closure_set(x_21, 1, x_2);
 lean_closure_set(x_21, 2, x_19);
 lean_closure_set(x_21, 3, x_20);
-x_22 = l_Lean_Elab_Term_withMacroExpansion___redArg(x_1, x_17, x_21, x_11, x_14, x_16, x_12, x_15, x_13, x_10);
+x_22 = l_Lean_Elab_Term_withMacroExpansion___redArg(x_1, x_17, x_21, x_10, x_12, x_16, x_14, x_13, x_11, x_15);
 return x_22;
 }
 }

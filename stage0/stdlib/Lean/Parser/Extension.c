@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Parser.Extension
-// Imports: Lean.Parser.Basic Lean.ScopedEnvExtension Lean.PrivateName Lean.BuiltinDocAttr
+// Imports: public import Lean.Parser.Basic public import Lean.ScopedEnvExtension import Lean.PrivateName import Lean.BuiltinDocAttr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

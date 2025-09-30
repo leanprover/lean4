@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Coe
-// Imports: Lean.Meta.Transform Lean.Meta.SynthInstance Lean.Meta.AppBuilder Lean.ExtraModUses
+// Imports: public import Lean.Meta.Transform public import Lean.Meta.SynthInstance public import Lean.Meta.AppBuilder import Lean.ExtraModUses
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

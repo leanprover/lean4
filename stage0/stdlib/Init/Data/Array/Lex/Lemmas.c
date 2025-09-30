@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Lex.Lemmas
-// Imports: Init.Data.Array.Lex.Basic Init.Data.Array.Lex.Basic Init.Data.Array.Lemmas Init.Data.List.Lex Init.Data.Range.Polymorphic.Lemmas Init.Data.Range.Polymorphic.NatLemmas Init.Data.Order.Lemmas
+// Imports: import all Init.Data.Array.Lex.Basic public import Init.Data.Array.Lex.Basic public import Init.Data.Array.Lemmas public import Init.Data.List.Lex import Init.Data.Range.Polymorphic.Lemmas import Init.Data.Range.Polymorphic.NatLemmas import Init.Data.Order.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

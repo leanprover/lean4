@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Xml
-// Imports: Lean.Data.Xml.Basic Lean.Data.Xml.Parser
+// Imports: public import Lean.Data.Xml.Basic public import Lean.Data.Xml.Parser
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

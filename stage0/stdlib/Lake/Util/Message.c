@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Message
-// Imports: Lean.Message Lean.Exception Lean.Parser.Basic
+// Imports: public import Lean.Message public import Lean.Exception public import Lean.Parser.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

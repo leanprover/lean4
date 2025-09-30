@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Module.Basic
-// Imports: Init.Data.Int.Order Init.Grind.ToInt Init.Grind.ToInt
+// Imports: public import Init.Data.Int.Order public import Init.Grind.ToInt import all Init.Grind.ToInt
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

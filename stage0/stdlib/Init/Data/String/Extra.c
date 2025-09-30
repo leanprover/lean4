@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Extra
-// Imports: Init.Data.ByteArray.Basic Init.Data.ByteArray.Basic Init.Data.String.Basic Init.Data.String.Basic Init.Data.UInt.Lemmas Init.Data.UInt.Bitwise
+// Imports: public import Init.Data.ByteArray.Basic import all Init.Data.ByteArray.Basic public import Init.Data.String.Basic import all Init.Data.String.Basic import Init.Data.UInt.Lemmas import Init.Data.UInt.Bitwise
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

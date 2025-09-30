@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.ByteArray.Lemmas
-// Imports: Init.Data.ByteArray.Basic Init.Data.Array.Extract
+// Imports: public import Init.Data.ByteArray.Basic public import Init.Data.Array.Extract
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

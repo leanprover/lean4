@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.SolveByElim
-// Imports: Init.Data.Sum Lean.LabelAttribute Lean.Meta.Tactic.Apply Lean.Meta.Tactic.Backtrack Lean.Meta.Tactic.Constructor Lean.Meta.Tactic.Repeat Lean.Meta.Tactic.Symm Lean.Elab.Term
+// Imports: public import Init.Data.Sum public import Lean.LabelAttribute public import Lean.Meta.Tactic.Apply public import Lean.Meta.Tactic.Backtrack public import Lean.Meta.Tactic.Constructor public import Lean.Meta.Tactic.Repeat public import Lean.Meta.Tactic.Symm public import Lean.Elab.Term
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -10963,10 +10963,10 @@ if (x_24 == 0)
 {
 if (x_1 == 0)
 {
-lean_dec_ref(x_19);
-x_11 = x_17;
+lean_dec_ref(x_22);
+x_11 = x_19;
 x_12 = x_23;
-x_13 = x_21;
+x_13 = x_18;
 goto block_16;
 }
 else
@@ -10975,10 +10975,10 @@ if (x_2 == 0)
 {
 lean_object* x_25; lean_object* x_26; uint8_t x_27; 
 lean_dec(x_23);
-lean_dec_ref(x_17);
-x_25 = l_Lean_Meta_SolveByElim_mkAssumptionSet___closed__1;
-x_26 = l_Lean_throwError___at___Lean_Meta_SolveByElim_SolveByElimConfig_testPartialSolutions_spec__3___redArg(x_25, x_18, x_20, x_19, x_22, x_21);
 lean_dec_ref(x_19);
+x_25 = l_Lean_Meta_SolveByElim_mkAssumptionSet___closed__1;
+x_26 = l_Lean_throwError___at___Lean_Meta_SolveByElim_SolveByElimConfig_testPartialSolutions_spec__3___redArg(x_25, x_17, x_20, x_22, x_21, x_18);
+lean_dec_ref(x_22);
 x_27 = !lean_is_exclusive(x_26);
 if (x_27 == 0)
 {
@@ -11000,20 +11000,20 @@ return x_30;
 }
 else
 {
-lean_dec_ref(x_19);
-x_11 = x_17;
+lean_dec_ref(x_22);
+x_11 = x_19;
 x_12 = x_23;
-x_13 = x_21;
+x_13 = x_18;
 goto block_16;
 }
 }
 }
 else
 {
-lean_dec_ref(x_19);
-x_11 = x_17;
+lean_dec_ref(x_22);
+x_11 = x_19;
 x_12 = x_23;
-x_13 = x_21;
+x_13 = x_18;
 goto block_16;
 }
 }
@@ -11021,19 +11021,19 @@ block_50:
 {
 lean_object* x_43; lean_object* x_44; 
 x_43 = lean_array_to_list(x_42);
-lean_inc(x_41);
-x_44 = l_List_mapTR_loop___at___Lean_Meta_SolveByElim_mkAssumptionSet_spec__5(x_43, x_41);
+lean_inc(x_39);
+x_44 = l_List_mapTR_loop___at___Lean_Meta_SolveByElim_mkAssumptionSet_spec__5(x_43, x_39);
 if (x_1 == 0)
 {
 lean_object* x_45; lean_object* x_46; lean_object* x_47; 
-x_45 = l_List_mapTR_loop___at___Lean_Meta_SolveByElim_mkAssumptionSet_spec__4(x_3, x_41);
+x_45 = l_List_mapTR_loop___at___Lean_Meta_SolveByElim_mkAssumptionSet_spec__4(x_3, x_39);
 x_46 = l_List_appendTR___redArg(x_45, x_44);
-x_47 = l_List_appendTR___redArg(x_46, x_39);
-x_17 = x_34;
-x_18 = x_35;
-x_19 = x_36;
+x_47 = l_List_appendTR___redArg(x_46, x_37);
+x_17 = x_35;
+x_18 = x_36;
+x_19 = x_34;
 x_20 = x_38;
-x_21 = x_37;
+x_21 = x_41;
 x_22 = x_40;
 x_23 = x_47;
 goto block_31;
@@ -11041,14 +11041,14 @@ goto block_31;
 else
 {
 lean_object* x_48; lean_object* x_49; 
-lean_dec(x_39);
-x_48 = l_List_mapTR_loop___at___Lean_Meta_SolveByElim_mkAssumptionSet_spec__4(x_3, x_41);
+lean_dec(x_37);
+x_48 = l_List_mapTR_loop___at___Lean_Meta_SolveByElim_mkAssumptionSet_spec__4(x_3, x_39);
 x_49 = l_List_appendTR___redArg(x_48, x_44);
-x_17 = x_34;
-x_18 = x_35;
-x_19 = x_36;
+x_17 = x_35;
+x_18 = x_36;
+x_19 = x_34;
 x_20 = x_38;
-x_21 = x_37;
+x_21 = x_41;
 x_22 = x_40;
 x_23 = x_49;
 goto block_31;
@@ -11161,12 +11161,12 @@ if (x_104 == 0)
 lean_dec(x_103);
 lean_dec(x_71);
 x_35 = x_51;
-x_36 = x_53;
-x_37 = x_72;
+x_36 = x_72;
+x_37 = x_100;
 x_38 = x_52;
-x_39 = x_100;
-x_40 = x_54;
-x_41 = x_81;
+x_39 = x_81;
+x_40 = x_53;
+x_41 = x_54;
 x_42 = x_101;
 goto block_50;
 }
@@ -11179,12 +11179,12 @@ if (x_105 == 0)
 lean_dec(x_103);
 lean_dec(x_71);
 x_35 = x_51;
-x_36 = x_53;
-x_37 = x_72;
+x_36 = x_72;
+x_37 = x_100;
 x_38 = x_52;
-x_39 = x_100;
-x_40 = x_54;
-x_41 = x_81;
+x_39 = x_81;
+x_40 = x_53;
+x_41 = x_54;
 x_42 = x_101;
 goto block_50;
 }
@@ -11196,12 +11196,12 @@ lean_dec(x_103);
 x_107 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Meta_SolveByElim_mkAssumptionSet_spec__6(x_71, x_69, x_106, x_101);
 lean_dec(x_71);
 x_35 = x_51;
-x_36 = x_53;
-x_37 = x_72;
+x_36 = x_72;
+x_37 = x_100;
 x_38 = x_52;
-x_39 = x_100;
-x_40 = x_54;
-x_41 = x_81;
+x_39 = x_81;
+x_40 = x_53;
+x_41 = x_54;
 x_42 = x_107;
 goto block_50;
 }
@@ -11331,12 +11331,12 @@ if (x_151 == 0)
 lean_dec(x_150);
 lean_dec(x_117);
 x_35 = x_51;
-x_36 = x_53;
-x_37 = x_118;
+x_36 = x_118;
+x_37 = x_147;
 x_38 = x_52;
-x_39 = x_147;
-x_40 = x_54;
-x_41 = x_127;
+x_39 = x_127;
+x_40 = x_53;
+x_41 = x_54;
 x_42 = x_148;
 goto block_50;
 }
@@ -11349,12 +11349,12 @@ if (x_152 == 0)
 lean_dec(x_150);
 lean_dec(x_117);
 x_35 = x_51;
-x_36 = x_53;
-x_37 = x_118;
+x_36 = x_118;
+x_37 = x_147;
 x_38 = x_52;
-x_39 = x_147;
-x_40 = x_54;
-x_41 = x_127;
+x_39 = x_127;
+x_40 = x_53;
+x_41 = x_54;
 x_42 = x_148;
 goto block_50;
 }
@@ -11366,12 +11366,12 @@ lean_dec(x_150);
 x_154 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Meta_SolveByElim_mkAssumptionSet_spec__6(x_117, x_115, x_153, x_148);
 lean_dec(x_117);
 x_35 = x_51;
-x_36 = x_53;
-x_37 = x_118;
+x_36 = x_118;
+x_37 = x_147;
 x_38 = x_52;
-x_39 = x_147;
-x_40 = x_54;
-x_41 = x_127;
+x_39 = x_127;
+x_40 = x_53;
+x_41 = x_54;
 x_42 = x_154;
 goto block_50;
 }
@@ -11521,12 +11521,12 @@ if (x_203 == 0)
 lean_dec(x_202);
 lean_dec(x_168);
 x_35 = x_51;
-x_36 = x_53;
-x_37 = x_169;
+x_36 = x_169;
+x_37 = x_199;
 x_38 = x_52;
-x_39 = x_199;
-x_40 = x_54;
-x_41 = x_178;
+x_39 = x_178;
+x_40 = x_53;
+x_41 = x_54;
 x_42 = x_200;
 goto block_50;
 }
@@ -11539,12 +11539,12 @@ if (x_204 == 0)
 lean_dec(x_202);
 lean_dec(x_168);
 x_35 = x_51;
-x_36 = x_53;
-x_37 = x_169;
+x_36 = x_169;
+x_37 = x_199;
 x_38 = x_52;
-x_39 = x_199;
-x_40 = x_54;
-x_41 = x_178;
+x_39 = x_178;
+x_40 = x_53;
+x_41 = x_54;
 x_42 = x_200;
 goto block_50;
 }
@@ -11556,12 +11556,12 @@ lean_dec(x_202);
 x_206 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Meta_SolveByElim_mkAssumptionSet_spec__6(x_168, x_166, x_205, x_200);
 lean_dec(x_168);
 x_35 = x_51;
-x_36 = x_53;
-x_37 = x_169;
+x_36 = x_169;
+x_37 = x_199;
 x_38 = x_52;
-x_39 = x_199;
-x_40 = x_54;
-x_41 = x_178;
+x_39 = x_178;
+x_40 = x_53;
+x_41 = x_54;
 x_42 = x_206;
 goto block_50;
 }
@@ -11729,12 +11729,12 @@ if (x_260 == 0)
 lean_dec(x_259);
 lean_dec(x_224);
 x_35 = x_51;
-x_36 = x_53;
-x_37 = x_225;
+x_36 = x_225;
+x_37 = x_256;
 x_38 = x_52;
-x_39 = x_256;
-x_40 = x_54;
-x_41 = x_234;
+x_39 = x_234;
+x_40 = x_53;
+x_41 = x_54;
 x_42 = x_257;
 goto block_50;
 }
@@ -11747,12 +11747,12 @@ if (x_261 == 0)
 lean_dec(x_259);
 lean_dec(x_224);
 x_35 = x_51;
-x_36 = x_53;
-x_37 = x_225;
+x_36 = x_225;
+x_37 = x_256;
 x_38 = x_52;
-x_39 = x_256;
-x_40 = x_54;
-x_41 = x_234;
+x_39 = x_234;
+x_40 = x_53;
+x_41 = x_54;
 x_42 = x_257;
 goto block_50;
 }
@@ -11764,12 +11764,12 @@ lean_dec(x_259);
 x_263 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Meta_SolveByElim_mkAssumptionSet_spec__6(x_224, x_222, x_262, x_257);
 lean_dec(x_224);
 x_35 = x_51;
-x_36 = x_53;
-x_37 = x_225;
+x_36 = x_225;
+x_37 = x_256;
 x_38 = x_52;
-x_39 = x_256;
-x_40 = x_54;
-x_41 = x_234;
+x_39 = x_234;
+x_40 = x_53;
+x_41 = x_54;
 x_42 = x_263;
 goto block_50;
 }

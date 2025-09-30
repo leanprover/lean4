@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.Basic
-// Imports: Lean.Data.KVMap Lean.Data.Name Lean.Data.Format Lean.Compiler.ExternAttr
+// Imports: public import Lean.Data.KVMap public import Lean.Data.Name public import Lean.Data.Format public import Lean.Compiler.ExternAttr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

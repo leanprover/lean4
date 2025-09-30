@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.DivMod.Lemmas
-// Imports: Init.Data.Int.DivMod.Bootstrap Init.Data.Nat.Lemmas Init.Data.Nat.Div.Lemmas Init.Data.Int.Order Init.Data.Int.Lemmas Init.Data.Nat.Dvd Init.RCases
+// Imports: public import Init.Data.Int.DivMod.Bootstrap public import Init.Data.Nat.Lemmas public import Init.Data.Nat.Div.Lemmas public import Init.Data.Int.Order public import Init.Data.Int.Lemmas public import Init.Data.Nat.Dvd public import Init.RCases import Init.TacticsExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -506,6 +506,7 @@ lean_object* initialize_Init_Data_Int_Order(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Dvd(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_RCases(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_TacticsExtra(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -530,6 +531,9 @@ res = initialize_Init_Data_Nat_Dvd(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_RCases(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_TacticsExtra(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Int_decidableDvd___closed__0 = _init_l_Int_decidableDvd___closed__0();

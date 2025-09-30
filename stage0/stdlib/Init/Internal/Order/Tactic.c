@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Internal.Order.Tactic
-// Imports: Init.Notation
+// Imports: public import Init.Notation
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

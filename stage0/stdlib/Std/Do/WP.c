@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Do.WP
-// Imports: Std.Do.WP.Basic Std.Do.WP.Monad Std.Do.WP.IO Std.Do.WP.SimpLemmas
+// Imports: public import Std.Do.WP.Basic public import Std.Do.WP.Monad public import Std.Do.WP.IO public import Std.Do.WP.SimpLemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

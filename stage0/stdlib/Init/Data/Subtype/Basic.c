@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Subtype.Basic
-// Imports: Init.Ext Init.Core
+// Imports: public import Init.Ext public import Init.Core
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

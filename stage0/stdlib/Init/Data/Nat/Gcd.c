@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Gcd
-// Imports: Init.Data.Nat.Dvd Init.NotationExtra Init.RCases
+// Imports: public import Init.Data.Nat.Dvd public import Init.NotationExtra public import Init.RCases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

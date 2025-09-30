@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Hashable
-// Imports: Init.Data.UInt.Basic Init.Data.String.Basic Init.Data.ByteArray.Basic
+// Imports: public import Init.Data.UInt.Basic public import Init.Data.String.Basic public import Init.Data.ByteArray.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

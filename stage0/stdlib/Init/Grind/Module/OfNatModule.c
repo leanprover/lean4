@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Module.OfNatModule
-// Imports: Init.Grind.Module.Envelope
+// Imports: public import Init.Grind.Module.Envelope
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

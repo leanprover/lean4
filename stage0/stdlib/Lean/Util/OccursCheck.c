@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.OccursCheck
-// Imports: Lean.MetavarContext
+// Imports: public import Lean.MetavarContext
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

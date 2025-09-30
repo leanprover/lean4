@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.PrettyPrinter
-// Imports: Lean.PrettyPrinter.Delaborator.Options Lean.Compiler.LCNF.CompilerM Lean.Compiler.LCNF.Internalize
+// Imports: public import Lean.PrettyPrinter.Delaborator.Options public import Lean.Compiler.LCNF.CompilerM public import Lean.Compiler.LCNF.Internalize
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

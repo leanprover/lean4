@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Order
-// Imports: Lean.Meta.Tactic.Grind.Order.Types Lean.Meta.Tactic.Grind.Order.Internalize Lean.Meta.Tactic.Grind.Order.StructId Lean.Meta.Tactic.Grind.Order.OrderM Lean.Meta.Tactic.Grind.Order.Assert Lean.Meta.Tactic.Grind.Order.Util
+// Imports: public import Lean.Meta.Tactic.Grind.Order.Types public import Lean.Meta.Tactic.Grind.Order.Internalize public import Lean.Meta.Tactic.Grind.Order.StructId public import Lean.Meta.Tactic.Grind.Order.OrderM public import Lean.Meta.Tactic.Grind.Order.Assert public import Lean.Meta.Tactic.Grind.Order.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Log
-// Imports: Lean.Util.Sorry Lean.Widget.Types Lean.Message Lean.DocString.Links Lean.ErrorExplanations Lean.Data.Json.Basic
+// Imports: public import Lean.Util.Sorry public import Lean.Widget.Types public import Lean.Message public import Lean.DocString.Links public import Lean.ErrorExplanations public import Lean.Data.Json.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

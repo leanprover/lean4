@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Conv.Change
-// Imports: Lean.Elab.Tactic.ElabTerm Lean.Elab.Tactic.Change Lean.Elab.Tactic.Conv.Basic
+// Imports: public import Lean.Elab.Tactic.ElabTerm public import Lean.Elab.Tactic.Change public import Lean.Elab.Tactic.Conv.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

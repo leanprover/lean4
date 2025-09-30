@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Match
-// Imports: Lean.Parser.Term Lean.Elab.Match Lean.Elab.Tactic.Basic Lean.Elab.Tactic.Induction
+// Imports: public import Lean.Parser.Term public import Lean.Elab.Match public import Lean.Elab.Tactic.Basic public import Lean.Elab.Tactic.Induction
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

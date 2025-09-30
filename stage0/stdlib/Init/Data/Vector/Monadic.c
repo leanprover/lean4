@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector.Monadic
-// Imports: Init.Data.Vector.Basic Init.Data.Vector.Basic Init.Data.Vector.Lemmas Init.Data.Vector.Attach Init.Data.Array.Monadic Init.Control.Lawful.Lemmas
+// Imports: public import Init.Data.Vector.Basic import all Init.Data.Vector.Basic public import Init.Data.Vector.Lemmas public import Init.Data.Vector.Attach public import Init.Data.Array.Monadic public import Init.Control.Lawful.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

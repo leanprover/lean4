@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Congr
-// Imports: Lean.Meta.CongrTheorems Lean.Meta.Tactic.Assert Lean.Meta.Tactic.Apply Lean.Meta.Tactic.Clear Lean.Meta.Tactic.Refl Lean.Meta.Tactic.Assumption
+// Imports: public import Lean.Meta.CongrTheorems public import Lean.Meta.Tactic.Assert public import Lean.Meta.Tactic.Apply public import Lean.Meta.Tactic.Clear public import Lean.Meta.Tactic.Refl public import Lean.Meta.Tactic.Assumption
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -897,7 +897,7 @@ if (x_13 == 0)
 {
 lean_object* x_14; 
 lean_dec(x_10);
-x_14 = l_Lean_Meta_SavedState_restore___redArg(x_8, x_3, x_5, x_12);
+x_14 = l_Lean_Meta_SavedState_restore___redArg(x_8, x_3, x_5, x_11);
 lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_8);
@@ -911,7 +911,7 @@ lean_object* x_16;
 x_16 = lean_ctor_get(x_14, 0);
 lean_dec(x_16);
 lean_ctor_set_tag(x_14, 1);
-lean_ctor_set(x_14, 0, x_11);
+lean_ctor_set(x_14, 0, x_12);
 return x_14;
 }
 else
@@ -921,7 +921,7 @@ x_17 = lean_ctor_get(x_14, 1);
 lean_inc(x_17);
 lean_dec(x_14);
 x_18 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_18, 0, x_11);
+lean_ctor_set(x_18, 0, x_12);
 lean_ctor_set(x_18, 1, x_17);
 return x_18;
 }
@@ -929,7 +929,7 @@ return x_18;
 else
 {
 uint8_t x_19; 
-lean_dec_ref(x_11);
+lean_dec_ref(x_12);
 x_19 = !lean_is_exclusive(x_14);
 if (x_19 == 0)
 {
@@ -962,8 +962,8 @@ if (lean_is_scalar(x_10)) {
  x_23 = x_10;
  lean_ctor_set_tag(x_23, 1);
 }
-lean_ctor_set(x_23, 0, x_11);
-lean_ctor_set(x_23, 1, x_12);
+lean_ctor_set(x_23, 0, x_12);
+lean_ctor_set(x_23, 1, x_11);
 return x_23;
 }
 }
@@ -975,15 +975,15 @@ if (x_27 == 0)
 {
 uint8_t x_28; 
 x_28 = l_Lean_Exception_isRuntime(x_25);
-x_11 = x_25;
-x_12 = x_26;
+x_11 = x_26;
+x_12 = x_25;
 x_13 = x_28;
 goto block_24;
 }
 else
 {
-x_11 = x_25;
-x_12 = x_26;
+x_11 = x_26;
+x_12 = x_25;
 x_13 = x_27;
 goto block_24;
 }

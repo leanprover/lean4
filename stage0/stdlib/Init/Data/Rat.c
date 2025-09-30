@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Rat
-// Imports: Init.Data.Rat.Basic Init.Data.Rat.Lemmas
+// Imports: public import Init.Data.Rat.Basic public import Init.Data.Rat.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

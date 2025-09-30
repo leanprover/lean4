@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.ACLt
-// Imports: Lean.Meta.Basic Lean.Meta.FunInfo Lean.Meta.DiscrTree
+// Imports: public import Lean.Meta.Basic public import Lean.Meta.FunInfo public import Lean.Meta.DiscrTree
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

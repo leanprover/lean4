@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.InstallPath
-// Imports: Lean.Compiler.FFI Lake.Config.Dynlib Lake.Config.Defaults Lake.Util.NativeLib
+// Imports: public import Lean.Compiler.FFI public import Lake.Config.Dynlib public import Lake.Config.Defaults public import Lake.Util.NativeLib
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.PropagatorAttr
-// Imports: Lean.Meta.Tactic.Grind.Proof Lean.Compiler.InitAttr Init.Grind
+// Imports: public import Lean.Meta.Tactic.Grind.Proof import Lean.Compiler.InitAttr import Init.Grind
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.ToString.Name
-// Imports: Init.Meta Init.Data.String.Extra
+// Imports: public import Init.Meta public import Init.Data.String.Extra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

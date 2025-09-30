@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
-// Imports: Lean.Meta.Tactic.Grind.Arith.Cutsat.Types Init.Grind.ToInt Lean.Meta.Tactic.Grind.Arith.ModelUtil
+// Imports: public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types import Init.Grind.ToInt import Lean.Meta.Tactic.Grind.Arith.ModelUtil
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

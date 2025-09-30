@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Offset
-// Imports: Lean.Meta.Tactic.Grind.Arith.Offset.Main Lean.Meta.Tactic.Grind.Arith.Offset.Proof Lean.Meta.Tactic.Grind.Arith.Offset.Util Lean.Meta.Tactic.Grind.Arith.Offset.Types
+// Imports: public import Lean.Meta.Tactic.Grind.Arith.Offset.Main public import Lean.Meta.Tactic.Grind.Arith.Offset.Proof public import Lean.Meta.Tactic.Grind.Arith.Offset.Util public import Lean.Meta.Tactic.Grind.Arith.Offset.Types
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

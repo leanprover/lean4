@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.LeanConfig
-// Imports: Lean.Util.LeanOptions Lake.Build.Target.Basic Lake.Config.Dynlib Lake.Config.MetaClasses Lake.Config.Meta Lake.Util.Name
+// Imports: public import Lean.Util.LeanOptions public import Lake.Build.Target.Basic public import Lake.Config.Dynlib public import Lake.Config.MetaClasses meta import all Lake.Config.Meta import Lake.Util.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

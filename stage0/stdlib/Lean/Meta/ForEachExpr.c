@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.ForEachExpr
-// Imports: Lean.Expr Lean.Util.MonadCache Lean.Meta.Basic
+// Imports: public import Lean.Expr public import Lean.Util.MonadCache public import Lean.Meta.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

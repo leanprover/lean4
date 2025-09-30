@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.ExposeNames
-// Imports: Lean.Meta.Tactic.ExposeNames Lean.Elab.Tactic.Basic
+// Imports: public import Lean.Meta.Tactic.ExposeNames public import Lean.Elab.Tactic.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

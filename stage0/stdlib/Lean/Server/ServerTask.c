@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.ServerTask
-// Imports: Init.Task
+// Imports: public import Init.Task
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

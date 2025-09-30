@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Completion.EligibleHeaderDecls
-// Imports: Lean.Meta.CompletionName Lean.Data.Lsp.LanguageFeatures Lean.AddDecl Lean.ProjFns Std.Sync.Mutex Lean.Linter.Deprecated
+// Imports: public import Lean.Meta.CompletionName public import Lean.Data.Lsp.LanguageFeatures public import Lean.AddDecl public import Lean.ProjFns public import Std.Sync.Mutex import Lean.Linter.Deprecated
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

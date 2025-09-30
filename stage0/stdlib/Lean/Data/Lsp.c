@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Lsp
-// Imports: Lean.Data.Lsp.Basic Lean.Data.Lsp.CancelParams Lean.Data.Lsp.Capabilities Lean.Data.Lsp.Client Lean.Data.Lsp.Communication Lean.Data.Lsp.Diagnostics Lean.Data.Lsp.Extra Lean.Data.Lsp.InitShutdown Lean.Data.Lsp.Internal Lean.Data.Lsp.LanguageFeatures Lean.Data.Lsp.TextSync Lean.Data.Lsp.Utf16 Lean.Data.Lsp.Workspace Lean.Data.Lsp.Ipc Lean.Data.Lsp.CodeActions Lean.Data.Lsp.Window
+// Imports: public import Lean.Data.Lsp.Basic public import Lean.Data.Lsp.CancelParams public import Lean.Data.Lsp.Capabilities public import Lean.Data.Lsp.Client public import Lean.Data.Lsp.Communication public import Lean.Data.Lsp.Diagnostics public import Lean.Data.Lsp.Extra public import Lean.Data.Lsp.InitShutdown public import Lean.Data.Lsp.Internal public import Lean.Data.Lsp.LanguageFeatures public import Lean.Data.Lsp.TextSync public import Lean.Data.Lsp.Utf16 public import Lean.Data.Lsp.Workspace public import Lean.Data.Lsp.Ipc public import Lean.Data.Lsp.CodeActions public import Lean.Data.Lsp.Window
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Lemmas
-// Imports: Init.Data.Nat.Lemmas Init.Data.List.Range Init.Data.List.Nat.TakeDrop Init.Data.List.Nat.Modify Init.Data.List.Nat.Basic Init.Data.List.Monadic Init.Data.List.OfFn Init.Data.Array.Mem Init.Data.Array.DecidableEq Init.Data.Range.Lemmas Init.TacticsExtra Init.Data.List.ToArray Init.Data.List.Control Init.Data.Array.Basic Init.Data.Array.Bootstrap
+// Imports: public import Init.Data.Nat.Lemmas public import Init.Data.List.Range public import Init.Data.List.Nat.TakeDrop public import Init.Data.List.Nat.Modify public import Init.Data.List.Nat.Basic public import Init.Data.List.Monadic public import Init.Data.List.OfFn public import Init.Data.Array.Mem public import Init.Data.Array.DecidableEq public import Init.Data.Range.Lemmas public import Init.TacticsExtra public import Init.Data.List.ToArray import all Init.Data.List.Control import all Init.Data.Array.Basic import all Init.Data.Array.Bootstrap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

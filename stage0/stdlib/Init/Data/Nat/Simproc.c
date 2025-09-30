@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Simproc
-// Imports: Init.Data.Bool Init.Data.Nat.Basic Init.Data.Nat.Lemmas
+// Imports: public import Init.Data.Bool public import Init.Data.Nat.Basic public import Init.Data.Nat.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

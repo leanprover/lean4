@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.Mutual
-// Imports: Lean.Elab.PreDefinition.Basic
+// Imports: public import Lean.Elab.PreDefinition.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

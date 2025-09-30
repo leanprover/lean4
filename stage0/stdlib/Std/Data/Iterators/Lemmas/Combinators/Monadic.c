@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Lemmas.Combinators.Monadic
-// Imports: Std.Data.Iterators.Lemmas.Combinators.Monadic.Take Std.Data.Iterators.Lemmas.Combinators.Monadic.TakeWhile Std.Data.Iterators.Lemmas.Combinators.Monadic.Drop Std.Data.Iterators.Lemmas.Combinators.Monadic.DropWhile Std.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap Std.Data.Iterators.Lemmas.Combinators.Monadic.Zip
+// Imports: public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Take public import Std.Data.Iterators.Lemmas.Combinators.Monadic.TakeWhile public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Drop public import Std.Data.Iterators.Lemmas.Combinators.Monadic.DropWhile public import Std.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Zip
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

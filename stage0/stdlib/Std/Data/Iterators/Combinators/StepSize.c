@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Combinators.StepSize
-// Imports: Std.Data.Iterators.Combinators.Monadic.StepSize
+// Imports: public import Std.Data.Iterators.Combinators.Monadic.StepSize
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

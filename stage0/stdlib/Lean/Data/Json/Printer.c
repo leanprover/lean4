@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Json.Printer
-// Imports: Lean.Data.Format Lean.Data.Json.Basic Init.Data.List.Impl
+// Imports: public import Lean.Data.Format public import Lean.Data.Json.Basic public import Init.Data.List.Impl
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

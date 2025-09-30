@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Fin.Basic
-// Imports: Init.Data.Nat.Bitwise.Basic
+// Imports: public import Init.Data.Nat.Bitwise.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

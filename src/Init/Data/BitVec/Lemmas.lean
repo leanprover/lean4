@@ -22,6 +22,9 @@ public import Init.Data.Int.Pow
 public import Init.Data.Int.LemmasAux
 public import Init.Data.BitVec.Bootstrap
 public import Init.Data.Order.Factories
+public import Init.Data.List.BasicAux
+import Init.Data.List.Lemmas
+import Init.Data.BEq
 
 public section
 

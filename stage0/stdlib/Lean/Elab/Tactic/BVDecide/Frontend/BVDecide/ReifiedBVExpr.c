@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.ReifiedBVExpr
-// Imports: Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.Reflect Std.Tactic.BVDecide.Reflect
+// Imports: public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.Reflect public import Std.Tactic.BVDecide.Reflect
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

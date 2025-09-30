@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Monad
-// Imports: Lake.Config.Workspace
+// Imports: public import Lake.Config.Workspace
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -73,7 +73,6 @@ LEAN_EXPORT lean_object* l_Lake_getLean___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getElanHome_x3f(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getAugmentedEnv___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_findLeanLib_x3f___redArg___lam__0(lean_object*, lean_object*);
-static lean_object* l_Lake_getLakeCache___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lake_getLeanLinkSharedFlags___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getAugmentedSharedLibPath___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanSrcPath___redArg(lean_object*, lean_object*);
@@ -133,6 +132,7 @@ static lean_object* l_Lake_getElanHome_x3f___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lake_getAugmentedLeanSrcPath___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanSrcDir___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLakeEnv___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_getLakeCache___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_findExternLib_x3f___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanSystemLibDir___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadWorkspaceOfMonadStateOfWorkspace___boxed(lean_object*, lean_object*);
@@ -158,7 +158,6 @@ LEAN_EXPORT lean_object* l_Lake_getLake(lean_object*, lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Lake_getLeanSrcDir___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanAr___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getEnvSharedLibPath___redArg___lam__0(lean_object*);
-extern lean_object* l_Lake_defaultLakeDir;
 LEAN_EXPORT lean_object* l_Lake_getElan_x3f___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getServerOptions___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanSysroot___redArg(lean_object*, lean_object*);
@@ -250,7 +249,6 @@ LEAN_EXPORT lean_object* l_Lake_getLakeHome___redArg___lam__0___boxed(lean_objec
 LEAN_EXPORT lean_object* l_Lake_getEnvSharedLibPath___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getNoCache___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanOptions___redArg(lean_object*, lean_object*);
-lean_object* l_Lake_joinRelative(lean_object*, lean_object*);
 lean_object* l_Lake_LeanInstall_leanCc_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getNoCache___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Workspace_augmentedLeanSrcPath(lean_object*);
@@ -575,7 +573,7 @@ LEAN_EXPORT lean_object* l_Lake_findPackage_x3f___redArg___lam__0(lean_object* x
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_2, 4);
+x_3 = lean_ctor_get(x_2, 5);
 lean_inc(x_3);
 lean_dec_ref(x_2);
 x_4 = l_Lake_findPackage_x3f___redArg___lam__0___closed__0;
@@ -1233,43 +1231,13 @@ x_6 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_5, x_2);
 return x_6;
 }
 }
-static lean_object* _init_l_Lake_getLakeCache___redArg___lam__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_defaultLakeDir;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_getLakeCache___redArg___lam__0(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
-x_2 = lean_ctor_get(x_1, 1);
-x_3 = lean_ctor_get(x_2, 6);
-if (lean_obj_tag(x_3) == 0)
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
-lean_dec_ref(x_1);
-x_5 = lean_ctor_get(x_4, 2);
-lean_inc_ref(x_5);
-lean_dec_ref(x_4);
-x_6 = l_Lake_getLakeCache___redArg___lam__0___closed__0;
-x_7 = l_Lake_joinRelative(x_5, x_6);
-return x_7;
-}
-else
-{
-lean_object* x_8; 
-lean_inc_ref(x_3);
-lean_dec_ref(x_1);
-x_8 = lean_ctor_get(x_3, 0);
-lean_inc(x_8);
-lean_dec_ref(x_3);
-return x_8;
-}
+lean_object* x_2; 
+x_2 = lean_ctor_get(x_1, 2);
+lean_inc_ref(x_2);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_getLakeCache___redArg(lean_object* x_1, lean_object* x_2) {
@@ -1279,7 +1247,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 lean_dec_ref(x_2);
-x_4 = lean_alloc_closure((void*)(l_Lake_getLakeCache___redArg___lam__0), 1, 0);
+x_4 = lean_alloc_closure((void*)(l_Lake_getLakeCache___redArg___lam__0___boxed), 1, 0);
 x_5 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_4, x_1);
 return x_5;
 }
@@ -1291,9 +1259,18 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6;
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 lean_dec_ref(x_3);
-x_5 = lean_alloc_closure((void*)(l_Lake_getLakeCache___redArg___lam__0), 1, 0);
+x_5 = lean_alloc_closure((void*)(l_Lake_getLakeCache___redArg___lam__0___boxed), 1, 0);
 x_6 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_5, x_2);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_getLakeCache___redArg___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lake_getLakeCache___redArg___lam__0(x_1);
+lean_dec_ref(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_getArtifact_x3f___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1311,7 +1288,7 @@ static lean_object* _init_l_Lake_getArtifact_x3f___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_getLakeCache___redArg___lam__0), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lake_getLakeCache___redArg___lam__0___boxed), 1, 0);
 return x_1;
 }
 }
@@ -2810,8 +2787,6 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_findPackage_x3f___redArg___lam__0___closed__0 = _init_l_Lake_findPackage_x3f___redArg___lam__0___closed__0();
 lean_mark_persistent(l_Lake_findPackage_x3f___redArg___lam__0___closed__0);
-l_Lake_getLakeCache___redArg___lam__0___closed__0 = _init_l_Lake_getLakeCache___redArg___lam__0___closed__0();
-lean_mark_persistent(l_Lake_getLakeCache___redArg___lam__0___closed__0);
 l_Lake_getArtifact_x3f___redArg___closed__0 = _init_l_Lake_getArtifact_x3f___redArg___closed__0();
 lean_mark_persistent(l_Lake_getArtifact_x3f___redArg___closed__0);
 l_Lake_getElanHome_x3f___redArg___closed__0 = _init_l_Lake_getElanHome_x3f___redArg___closed__0();

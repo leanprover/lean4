@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Bitblast.BoolExpr.Basic
-// Imports: Init.Notation Init.Data.Bool Init.Data.String.Basic
+// Imports: public import Init.Notation public import Init.Data.Bool public import Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

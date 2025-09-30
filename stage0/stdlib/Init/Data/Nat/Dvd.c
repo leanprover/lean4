@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Dvd
-// Imports: Init.Data.Nat.Div.Basic Init.Meta
+// Imports: public import Init.Data.Nat.Div.Basic public import Init.Meta
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

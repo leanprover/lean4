@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Load.Lean
-// Imports: Lean.Environment Lake.Config.Package Lake.Load.Config Lake.Load.Lean.Elab Lake.Load.Lean.Eval
+// Imports: public import Lean.Environment public import Lake.Config.Package public import Lake.Load.Config import Lake.Load.Lean.Elab import Lake.Load.Lean.Eval
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

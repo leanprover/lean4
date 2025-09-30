@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.BinderNameHint
-// Imports: Lean.Util.FindExpr Lean.Meta.Basic Init.BinderNameHint
+// Imports: public import Lean.Util.FindExpr public import Lean.Meta.Basic public import Init.BinderNameHint
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

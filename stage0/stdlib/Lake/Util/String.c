@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.String
-// Imports: Init.Data.ToString.Basic Init.Data.String.Extra Init.Data.Nat.Fold
+// Imports: public import Init.Data.ToString.Basic import Init.Data.String.Extra import Init.Data.Nat.Fold
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

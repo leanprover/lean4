@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Lsp.Diagnostics
-// Imports: Lean.Data.Lsp.Basic Lean.Data.Lsp.Utf16 Lean.Message
+// Imports: public import Lean.Data.Lsp.Basic public import Lean.Data.Lsp.Utf16 public import Lean.Message
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

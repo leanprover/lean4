@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Constructions.CasesOnSameCtor
-// Imports: Lean.Meta.Basic Lean.AddDecl Lean.Meta.AppBuilder Lean.Meta.CompletionName Lean.Meta.Constructions.CtorIdx Lean.Meta.Constructions.CtorElim Lean.Elab.App Lean.Meta.SameCtorUtils
+// Imports: public import Lean.Meta.Basic import Lean.AddDecl import Lean.Meta.AppBuilder import Lean.Meta.CompletionName import Lean.Meta.Constructions.CtorIdx import Lean.Meta.Constructions.CtorElim import Lean.Elab.App import Lean.Meta.SameCtorUtils
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

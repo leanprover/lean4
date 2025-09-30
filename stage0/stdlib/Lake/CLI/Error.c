@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.CLI.Error
-// Imports: Init.Data.ToString Init.System.FilePath Init.Meta Init.Data.ToString.Name
+// Imports: public import Init.Data.ToString public import Init.System.FilePath import Init.Meta import Init.Data.ToString.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -9,6 +9,7 @@ prelude
 import Std.Data.TreeMap.Raw.Lemmas
 import Std.Data.DTreeMap.Raw.Lemmas
 public import Std.Data.TreeSet.Raw.Basic
+public import Init.Data.List.BasicAux
 
 @[expose] public section
 

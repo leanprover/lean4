@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.LRAT.Internal.Entails
-// Imports: Init.NotationExtra Init.PropLemmas
+// Imports: public import Init.NotationExtra public import Init.PropLemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

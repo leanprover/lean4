@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.DSL.VerLit
-// Imports: Lean.ToExpr Lake.Util.Version Lean.Elab.Eval Lake.DSL.Syntax
+// Imports: public import Lean.ToExpr public import Lake.Util.Version import Lean.Elab.Eval import Lake.DSL.Syntax
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

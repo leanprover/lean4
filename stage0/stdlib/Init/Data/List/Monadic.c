@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Monadic
-// Imports: Init.Data.List.TakeDrop Init.Data.List.Attach Init.Data.List.OfFn Init.Data.Array.Bootstrap Init.Data.List.Control Init.Data.List.Control
+// Imports: public import Init.Data.List.TakeDrop public import Init.Data.List.Attach public import Init.Data.List.OfFn public import Init.Data.Array.Bootstrap public import Init.Data.List.Control import all Init.Data.List.Control
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

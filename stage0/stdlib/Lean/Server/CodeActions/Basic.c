@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.CodeActions.Basic
-// Imports: Lean.Server.Requests Lean.Server.InfoUtils
+// Imports: public import Lean.Server.Requests public import Lean.Server.InfoUtils
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

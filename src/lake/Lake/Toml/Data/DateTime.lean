@@ -8,6 +8,7 @@ module
 prelude
 public import Lake.Util.Date
 import Lake.Util.String
+import Init.Data.String.Basic
 
 /-!
 # TOML Date-Time

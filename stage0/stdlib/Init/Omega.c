@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Omega
-// Imports: Init.Omega.Int Init.Omega.IntList Init.Omega.LinearCombo Init.Omega.Constraint Init.Omega.Logic
+// Imports: public import Init.Omega.Int public import Init.Omega.IntList public import Init.Omega.LinearCombo public import Init.Omega.Constraint public import Init.Omega.Logic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

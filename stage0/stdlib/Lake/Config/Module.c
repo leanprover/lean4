@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Module
-// Imports: Lake.Build.Trace Lake.Config.LeanLib Lake.Config.OutFormat Lake.Util.OrdHashSet Lake.Util.NativeLib Lake.Util.FilePath
+// Imports: public import Lake.Build.Trace public import Lake.Config.LeanLib public import Lake.Config.OutFormat import Lake.Util.OrdHashSet import Lake.Util.NativeLib import Lake.Util.FilePath
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

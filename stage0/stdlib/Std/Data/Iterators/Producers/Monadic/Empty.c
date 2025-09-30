@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Producers.Monadic.Empty
-// Imports: Init.Data.Iterators.Consumers.Collect Init.Data.Iterators.Consumers.Loop Init.Data.Iterators.Internal.Termination
+// Imports: public import Init.Data.Iterators.Consumers.Collect public import Init.Data.Iterators.Consumers.Loop public import Init.Data.Iterators.Internal.Termination
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

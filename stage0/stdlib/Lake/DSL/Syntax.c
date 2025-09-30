@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.DSL.Syntax
-// Imports: Lake.DSL.DeclUtil
+// Imports: public import Lake.DSL.DeclUtil
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

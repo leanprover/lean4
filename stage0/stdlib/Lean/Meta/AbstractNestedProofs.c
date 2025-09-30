@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.AbstractNestedProofs
-// Imports: Init.Grind.Util Lean.Meta.Closure Lean.Meta.Transform
+// Imports: public import Init.Grind.Util public import Lean.Meta.Closure public import Lean.Meta.Transform
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

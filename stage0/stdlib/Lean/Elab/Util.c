@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Util
-// Imports: Lean.Parser.Extension Lean.Parser.Command Lean.KeyedDeclsAttribute Lean.Elab.Exception Lean.BuiltinDocAttr Lean.ExtraModUses Init.Prelude
+// Imports: public import Lean.Parser.Extension meta import Lean.Parser.Command public import Lean.KeyedDeclsAttribute public import Lean.Elab.Exception import Lean.BuiltinDocAttr public import Lean.ExtraModUses import all Init.Prelude
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2528,16 +2528,16 @@ if (x_28 == 0)
 uint8_t x_29; 
 x_29 = l_Lean_Exception_isRuntime(x_26);
 lean_dec(x_26);
-x_10 = x_27;
-x_11 = x_25;
+x_10 = x_25;
+x_11 = x_27;
 x_12 = x_29;
 goto block_19;
 }
 else
 {
 lean_dec(x_26);
-x_10 = x_27;
-x_11 = x_25;
+x_10 = x_25;
+x_11 = x_27;
 x_12 = x_28;
 goto block_19;
 }
@@ -2559,7 +2559,7 @@ block_19:
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-lean_dec_ref(x_11);
+lean_dec_ref(x_10);
 x_13 = l_Lean_Elab_syntaxNodeKindOfAttrParam___closed__1;
 x_14 = l_Lean_MessageData_ofName(x_7);
 if (lean_is_scalar(x_9)) {
@@ -2574,7 +2574,7 @@ x_16 = l_Lean_Elab_syntaxNodeKindOfAttrParam___closed__3;
 x_17 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
-x_18 = l_Lean_throwError___at___Lean_Elab_checkSyntaxNodeKind___at___Lean_Elab_checkSyntaxNodeKindAtNamespaces___at___Lean_Elab_checkSyntaxNodeKindAtCurrentNamespaces_spec__0_spec__0_spec__0___redArg(x_17, x_3, x_4, x_10);
+x_18 = l_Lean_throwError___at___Lean_Elab_checkSyntaxNodeKind___at___Lean_Elab_checkSyntaxNodeKindAtNamespaces___at___Lean_Elab_checkSyntaxNodeKindAtCurrentNamespaces_spec__0_spec__0_spec__0___redArg(x_17, x_3, x_4, x_11);
 lean_dec_ref(x_3);
 return x_18;
 }
@@ -2583,7 +2583,7 @@ else
 lean_dec(x_9);
 lean_dec(x_7);
 lean_dec_ref(x_3);
-return x_11;
+return x_10;
 }
 }
 }

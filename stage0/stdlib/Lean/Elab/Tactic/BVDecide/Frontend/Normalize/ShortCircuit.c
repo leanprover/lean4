@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ShortCircuit
-// Imports: Lean.Elab.Tactic.Simp Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic Lean.Elab.Tactic.BVDecide.Frontend.Attr Std.Tactic.BVDecide.Normalize.BitVec
+// Imports: public import Lean.Elab.Tactic.Simp public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic public import Lean.Elab.Tactic.BVDecide.Frontend.Attr public import Std.Tactic.BVDecide.Normalize.BitVec
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

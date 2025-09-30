@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Parsec.ByteArray
-// Imports: Std.Internal.Parsec.Basic Init.Data.ByteArray.Basic Init.Data.String.Extra Std.Data.ByteSlice
+// Imports: public import Std.Internal.Parsec.Basic public import Init.Data.ByteArray.Basic public import Init.Data.String.Extra public import Std.Data.ByteSlice
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

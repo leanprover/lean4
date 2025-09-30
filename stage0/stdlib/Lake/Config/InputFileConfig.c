@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.InputFileConfig
-// Imports: Lean.Data.Name Lake.Config.Pattern Lake.Config.MetaClasses Init.Data.ToString.Name Lake.Config.Meta
+// Imports: public import Lean.Data.Name public import Lake.Config.Pattern public import Lake.Config.MetaClasses public import Init.Data.ToString.Name meta import all Lake.Config.Meta
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

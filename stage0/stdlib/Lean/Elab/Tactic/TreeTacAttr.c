@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.TreeTacAttr
-// Imports: Lean.Meta.Tactic.Simp
+// Imports: public import Lean.Meta.Tactic.Simp
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

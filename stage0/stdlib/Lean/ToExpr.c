@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.ToExpr
-// Imports: Lean.Expr Lean.ToLevel Init.Data.BitVec.Basic Init.Data.SInt.Basic
+// Imports: public import Lean.Expr public import Lean.ToLevel public import Init.Data.BitVec.Basic public import Init.Data.SInt.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

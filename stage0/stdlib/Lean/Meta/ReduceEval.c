@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.ReduceEval
-// Imports: Lean.Meta.Offset
+// Imports: public import Lean.Meta.Offset
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

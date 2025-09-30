@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Ord.BitVec
-// Imports: Init.Data.Order.Ord Init.Data.BitVec.Lemmas
+// Imports: public import Init.Data.Order.Ord public import Init.Data.BitVec.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

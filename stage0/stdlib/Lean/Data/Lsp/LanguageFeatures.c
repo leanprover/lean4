@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Lsp.LanguageFeatures
-// Imports: Lean.Data.Json.FromToJson.Basic Lean.Data.Lsp.Basic Lean.Data.Json Lean.Expr
+// Imports: public import Lean.Data.Json.FromToJson.Basic public import Lean.Data.Lsp.Basic meta import Lean.Data.Json public import Lean.Expr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

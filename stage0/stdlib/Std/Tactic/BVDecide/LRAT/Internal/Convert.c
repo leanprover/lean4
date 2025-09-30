@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.LRAT.Internal.Convert
-// Imports: Std.Sat.CNF.RelabelFin Std.Tactic.BVDecide.LRAT.Internal.Formula
+// Imports: public import Std.Sat.CNF.RelabelFin public import Std.Tactic.BVDecide.LRAT.Internal.Formula
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

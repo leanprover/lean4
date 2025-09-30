@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Lemmas.Equivalence.HetT
-// Imports: Init.Control.Lawful.Basic Init.Data.Subtype.Basic Init.PropLemmas Init.Classical Init.Data.Iterators.Internal.LawfulMonadLiftFunction Init.Data.Iterators.PostconditionMonad
+// Imports: public import Init.Control.Lawful.Basic public import Init.Data.Subtype.Basic public import Init.PropLemmas public import Init.Classical public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction public import Init.Data.Iterators.PostconditionMonad
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.GoTo
-// Imports: Lean.Data.Json.FromToJson.Basic Lean.Util.Path Lean.Server.Utils Lean.Data.Lsp.Internal Lean.Util.CollectFVars Lean.Util.ForEachExpr Lean.Parser.Module
+// Imports: public import Lean.Data.Json.FromToJson.Basic public import Lean.Util.Path public import Lean.Server.Utils public import Lean.Data.Lsp.Internal public import Lean.Util.CollectFVars public import Lean.Util.ForEachExpr meta import Lean.Parser.Module
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

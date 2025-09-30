@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Time.Unit.Minute
-// Imports: Std.Time.Internal Std.Time.Time.Unit.Second
+// Imports: public import Std.Time.Internal public import Std.Time.Time.Unit.Second
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

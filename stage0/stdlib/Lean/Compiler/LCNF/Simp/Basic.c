@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.Simp.Basic
-// Imports: Lean.Meta.Instances Lean.Compiler.InlineAttrs Lean.Compiler.Specialize Lean.Compiler.LCNF.CompilerM
+// Imports: public import Lean.Meta.Instances public import Lean.Compiler.InlineAttrs public import Lean.Compiler.Specialize public import Lean.Compiler.LCNF.CompilerM
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

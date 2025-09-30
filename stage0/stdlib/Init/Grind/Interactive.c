@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Interactive
-// Imports: Init.Tactics Init.Meta
+// Imports: public import Init.Tactics public meta import Init.Meta
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

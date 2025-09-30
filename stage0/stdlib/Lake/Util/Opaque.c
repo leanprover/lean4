@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Opaque
-// Imports: Init.Prelude Init.Tactics
+// Imports: public import Init.Prelude import Init.Tactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

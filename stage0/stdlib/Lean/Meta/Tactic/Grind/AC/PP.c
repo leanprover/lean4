@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.AC.PP
-// Imports: Lean.Meta.Tactic.Grind.Types Lean.Meta.Tactic.Grind.AC.DenoteExpr
+// Imports: public import Lean.Meta.Tactic.Grind.Types import Lean.Meta.Tactic.Grind.AC.DenoteExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3562,21 +3562,21 @@ goto block_41;
 block_74:
 {
 lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; 
-x_69 = lean_ctor_get(x_66, 4);
+x_69 = lean_ctor_get(x_64, 4);
 lean_inc(x_69);
 x_70 = l___private_Lean_Meta_Tactic_Grind_AC_PP_0__Lean_Meta_Grind_AC_ppStruct_x3f___closed__4;
 x_71 = l_List_forIn_x27_loop___at_____private_Lean_Meta_Tactic_Grind_AC_PP_0__Lean_Meta_Grind_AC_ppBasis_x3f_spec__3___redArg___closed__1;
 x_72 = l_Lean_toTraceElem___at_____private_Lean_Meta_Tactic_Grind_AC_PP_0__Lean_Meta_Grind_AC_ppStruct_x3f_spec__1(x_70, x_71);
-x_73 = lean_array_push(x_68, x_72);
+x_73 = lean_array_push(x_63, x_72);
 x_42 = x_73;
-x_43 = x_63;
-x_44 = x_66;
+x_43 = x_61;
+x_44 = x_64;
 x_45 = x_69;
-x_46 = x_67;
-x_47 = x_64;
-x_48 = x_62;
-x_49 = x_61;
-x_50 = x_65;
+x_46 = x_65;
+x_47 = x_68;
+x_48 = x_66;
+x_49 = x_67;
+x_50 = x_62;
 goto block_60;
 }
 block_85:
@@ -3599,14 +3599,14 @@ goto block_60;
 else
 {
 lean_dec(x_78);
-x_61 = x_83;
-x_62 = x_82;
-x_63 = x_76;
-x_64 = x_81;
-x_65 = x_84;
-x_66 = x_77;
-x_67 = x_80;
-x_68 = x_75;
+x_61 = x_76;
+x_62 = x_84;
+x_63 = x_75;
+x_64 = x_77;
+x_65 = x_80;
+x_66 = x_82;
+x_67 = x_83;
+x_68 = x_81;
 goto block_74;
 }
 }
@@ -3614,14 +3614,14 @@ else
 {
 lean_dec_ref(x_79);
 lean_dec(x_78);
-x_61 = x_83;
-x_62 = x_82;
-x_63 = x_76;
-x_64 = x_81;
-x_65 = x_84;
-x_66 = x_77;
-x_67 = x_80;
-x_68 = x_75;
+x_61 = x_76;
+x_62 = x_84;
+x_63 = x_75;
+x_64 = x_77;
+x_65 = x_80;
+x_66 = x_82;
+x_67 = x_83;
+x_68 = x_81;
 goto block_74;
 }
 }

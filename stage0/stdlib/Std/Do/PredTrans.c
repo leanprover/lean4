@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Do.PredTrans
-// Imports: Init.Control.Lawful Std.Do.PostCond
+// Imports: public import Init.Control.Lawful public import Std.Do.PostCond
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Nat.Sublist
-// Imports: Init.Data.List.Sublist Init.Data.List.Nat.Basic Init.Data.List.Nat.TakeDrop Init.Data.Nat.Lemmas
+// Imports: public import Init.Data.List.Sublist public import Init.Data.List.Nat.Basic public import Init.Data.List.Nat.TakeDrop public import Init.Data.Nat.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

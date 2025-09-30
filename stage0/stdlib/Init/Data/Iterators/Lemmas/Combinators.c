@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.Lemmas.Combinators
-// Imports: Init.Data.Iterators.Lemmas.Combinators.Attach Init.Data.Iterators.Lemmas.Combinators.Monadic Init.Data.Iterators.Lemmas.Combinators.FilterMap Init.Data.Iterators.Lemmas.Combinators.ULift
+// Imports: public import Init.Data.Iterators.Lemmas.Combinators.Attach public import Init.Data.Iterators.Lemmas.Combinators.Monadic public import Init.Data.Iterators.Lemmas.Combinators.FilterMap public import Init.Data.Iterators.Lemmas.Combinators.ULift
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

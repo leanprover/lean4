@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.DeclarationRange
-// Imports: Lean.Data.DeclarationRange Lean.MonadEnv
+// Imports: public import Lean.Data.DeclarationRange public import Lean.MonadEnv
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

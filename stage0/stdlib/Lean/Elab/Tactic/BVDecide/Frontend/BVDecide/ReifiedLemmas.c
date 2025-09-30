@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.ReifiedLemmas
-// Imports: Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.ReifiedBVLogical
+// Imports: public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.ReifiedBVLogical
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

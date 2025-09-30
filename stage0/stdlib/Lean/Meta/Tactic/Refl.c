@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Refl
-// Imports: Lean.Meta.Reduce Lean.Meta.Tactic.Util Lean.Meta.Tactic.Apply
+// Imports: public import Lean.Meta.Reduce public import Lean.Meta.Tactic.Util public import Lean.Meta.Tactic.Apply
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

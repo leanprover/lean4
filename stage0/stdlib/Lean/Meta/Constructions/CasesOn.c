@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Constructions.CasesOn
-// Imports: Lean.AddDecl Lean.Meta.Basic
+// Imports: public import Lean.AddDecl public import Lean.Meta.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

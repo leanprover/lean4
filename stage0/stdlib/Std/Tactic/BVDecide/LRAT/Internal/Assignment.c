@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.LRAT.Internal.Assignment
-// Imports: Init.ByCases Std.Tactic.BVDecide.LRAT.Internal.Entails Std.Tactic.BVDecide.LRAT.Internal.PosFin Init.Grind
+// Imports: public import Init.ByCases public import Std.Tactic.BVDecide.LRAT.Internal.Entails public import Std.Tactic.BVDecide.LRAT.Internal.PosFin public import Init.Grind
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

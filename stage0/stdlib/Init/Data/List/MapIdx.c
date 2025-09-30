@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.MapIdx
-// Imports: Init.Data.Array.Lemmas Init.Data.List.Nat.Range Init.Data.List.OfFn Init.Data.Fin.Lemmas Init.Data.Option.Attach
+// Imports: public import Init.Data.Array.Lemmas public import Init.Data.List.Nat.Range public import Init.Data.List.OfFn public import Init.Data.Fin.Lemmas public import Init.Data.Option.Attach
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

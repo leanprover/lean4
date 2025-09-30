@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Normalize.Canonicalize
-// Imports: Init.Data.BitVec.Lemmas Std.Tactic.BVDecide.Syntax
+// Imports: public import Init.Data.BitVec.Lemmas public import Std.Tactic.BVDecide.Syntax
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

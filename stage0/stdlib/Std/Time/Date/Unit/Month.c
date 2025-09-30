@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Date.Unit.Month
-// Imports: Std.Time.Date.Unit.Day
+// Imports: public import Std.Time.Date.Unit.Day
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

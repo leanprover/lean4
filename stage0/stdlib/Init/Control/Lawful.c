@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Lawful
-// Imports: Init.Control.Lawful.Basic Init.Control.Lawful.Instances Init.Control.Lawful.Lemmas Init.Control.Lawful.MonadLift
+// Imports: public import Init.Control.Lawful.Basic public import Init.Control.Lawful.Instances public import Init.Control.Lawful.Lemmas public import Init.Control.Lawful.MonadLift
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

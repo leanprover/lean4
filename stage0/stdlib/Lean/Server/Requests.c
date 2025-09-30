@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Requests
-// Imports: Lean.DeclarationRange Lean.Data.Json.Basic Lean.Data.Lsp Lean.Elab.Command Lean.Server.RequestCancellation Lean.Server.ServerTask Lean.Server.FileSource Lean.Server.FileWorker.Utils Lean.Server.Rpc.Basic Std.Sync.Mutex
+// Imports: public import Lean.DeclarationRange public import Lean.Data.Json.Basic public import Lean.Data.Lsp public import Lean.Elab.Command public import Lean.Server.RequestCancellation public import Lean.Server.ServerTask public import Lean.Server.FileSource public import Lean.Server.FileWorker.Utils public import Lean.Server.Rpc.Basic public import Std.Sync.Mutex
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

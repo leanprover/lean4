@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.ExtTreeSet.Lemmas
-// Imports: Std.Data.ExtTreeMap.Lemmas Std.Data.ExtTreeSet.Basic
+// Imports: public import Std.Data.ExtTreeMap.Lemmas public import Std.Data.ExtTreeSet.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

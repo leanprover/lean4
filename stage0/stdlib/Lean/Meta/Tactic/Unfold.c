@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Unfold
-// Imports: Lean.Meta.Eqns Lean.Meta.Tactic.Delta Lean.Meta.Tactic.Simp.Main
+// Imports: public import Lean.Meta.Eqns public import Lean.Meta.Tactic.Delta public import Lean.Meta.Tactic.Simp.Main
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Canonicalizer
-// Imports: Lean.Util.ShareCommon Lean.Meta.Basic Lean.Meta.FunInfo Std.Data.HashMap.Raw
+// Imports: public import Lean.Util.ShareCommon public import Lean.Meta.Basic public import Lean.Meta.FunInfo public import Std.Data.HashMap.Raw
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

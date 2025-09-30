@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Nat.Perm
-// Imports: Init.Data.List.Nat.TakeDrop Init.Data.List.Perm
+// Imports: public import Init.Data.List.Nat.TakeDrop public import Init.Data.List.Perm
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

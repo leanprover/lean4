@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.CLI.Build
-// Imports: Lake.CLI.Error Lake.Config.Workspace Lake.Config.Monad Lake.Build.Infos Lake.Build.Job.Monad Lake.Build.Job.Register Lake.Util.IO
+// Imports: public import Lake.CLI.Error public import Lake.Config.Workspace import Lake.Config.Monad import Lake.Build.Infos import Lake.Build.Job.Monad public import Lake.Build.Job.Register import Lake.Util.IO
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2297,7 +2297,7 @@ lean_dec(x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = lean_ctor_get(x_1, 4);
+x_6 = lean_ctor_get(x_1, 5);
 lean_inc_ref(x_2);
 x_7 = l_Lake_stringToLegalOrSimpleName(x_2);
 x_8 = l_Std_DTreeMap_Internal_Impl_get_x3f___at___Lake_parsePackageSpec_spec__0___redArg(x_6, x_7);
@@ -3789,7 +3789,7 @@ x_4 = l_Lake_Workspace_findTargetDecl_x3f(x_2, x_1);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = lean_ctor_get(x_1, 4);
+x_5 = lean_ctor_get(x_1, 5);
 x_6 = l_Std_DTreeMap_Internal_Impl_get_x3f___at___Lake_parsePackageSpec_spec__0___redArg(x_5, x_2);
 if (lean_obj_tag(x_6) == 0)
 {

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Sorry
-// Imports: Lean.Data.Lsp.Utf16 Lean.Meta.ForEachExpr Lean.Meta.InferType Lean.Util.Recognizers
+// Imports: public import Lean.Data.Lsp.Utf16 public import Lean.Meta.ForEachExpr public import Lean.Meta.InferType public import Lean.Util.Recognizers
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

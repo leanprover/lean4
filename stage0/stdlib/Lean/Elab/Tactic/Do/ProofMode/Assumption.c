@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Do.ProofMode.Assumption
-// Imports: Std.Tactic.Do.Syntax Lean.Elab.Tactic.Do.ProofMode.Basic Lean.Elab.Tactic.Do.ProofMode.Exact Lean.Elab.Tactic.Do.ProofMode.Focus Lean.Meta.Tactic.Assumption
+// Imports: public import Std.Tactic.Do.Syntax public import Lean.Elab.Tactic.Do.ProofMode.Basic public import Lean.Elab.Tactic.Do.ProofMode.Exact public import Lean.Elab.Tactic.Do.ProofMode.Focus import Lean.Meta.Tactic.Assumption
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

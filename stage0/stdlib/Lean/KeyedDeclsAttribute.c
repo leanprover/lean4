@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.KeyedDeclsAttribute
-// Imports: Lean.ScopedEnvExtension Lean.Compiler.InitAttr Lean.Compiler.IR.CompilerM
+// Imports: public import Lean.ScopedEnvExtension import Lean.Compiler.InitAttr import Lean.Compiler.IR.CompilerM
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

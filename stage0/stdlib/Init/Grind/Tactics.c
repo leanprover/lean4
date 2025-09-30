@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Tactics
-// Imports: Init.Grind.Attr Init.Core
+// Imports: public import Init.Grind.Attr public import Init.Core
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

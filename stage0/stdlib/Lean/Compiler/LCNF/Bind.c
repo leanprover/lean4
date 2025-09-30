@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.Bind
-// Imports: Lean.Compiler.LCNF.InferType
+// Imports: public import Lean.Compiler.LCNF.InferType
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

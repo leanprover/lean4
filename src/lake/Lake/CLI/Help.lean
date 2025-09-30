@@ -516,6 +516,7 @@ public def help : (cmd : String) → String
 | "pack"                => helpPack
 | "unpack"              => helpUnpack
 | "upload"              => helpUpload
+| "cache"               => helpCacheCli
 | "test"                => helpTest
 | "check-test"          => helpCheckTest
 | "lint"                => helpLint

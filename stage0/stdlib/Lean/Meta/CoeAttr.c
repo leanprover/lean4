@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.CoeAttr
-// Imports: Lean.Attributes Lean.ScopedEnvExtension Lean.Meta.FunInfo
+// Imports: public import Lean.Attributes public import Lean.ScopedEnvExtension public import Lean.Meta.FunInfo
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

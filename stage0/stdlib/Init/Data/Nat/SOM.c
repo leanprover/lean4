@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.SOM
-// Imports: Init.Data.Nat.Linear Init.Data.List.BasicAux
+// Imports: public import Init.Data.Nat.Linear public import Init.Data.List.BasicAux
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

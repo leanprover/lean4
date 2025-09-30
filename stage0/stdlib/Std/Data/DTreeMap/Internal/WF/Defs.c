@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DTreeMap.Internal.WF.Defs
-// Imports: Std.Data.DTreeMap.Internal.Operations
+// Imports: public import Std.Data.DTreeMap.Internal.Operations
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

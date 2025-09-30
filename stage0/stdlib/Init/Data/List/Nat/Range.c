@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Nat.Range
-// Imports: Init.Data.List.Nat.TakeDrop Init.Data.List.Range Init.Data.List.Pairwise Init.Data.List.Find Init.Data.List.Erase
+// Imports: public import Init.Data.List.Nat.TakeDrop public import Init.Data.List.Range public import Init.Data.List.Pairwise public import Init.Data.List.Find public import Init.Data.List.Erase
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

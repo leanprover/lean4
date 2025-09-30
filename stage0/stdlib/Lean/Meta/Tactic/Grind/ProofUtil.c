@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.ProofUtil
-// Imports: Lean.Meta.Tactic.Grind.Types
+// Imports: public import Lean.Meta.Tactic.Grind.Types
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

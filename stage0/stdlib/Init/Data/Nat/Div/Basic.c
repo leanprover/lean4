@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Div.Basic
-// Imports: Init.WF Init.WFTactics Init.Data.Nat.Basic Init.MetaTypes
+// Imports: public import Init.WF public import Init.WFTactics public import Init.Data.Nat.Basic public meta import Init.MetaTypes
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

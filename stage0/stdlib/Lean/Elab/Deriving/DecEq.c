@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Deriving.DecEq
-// Imports: Lean.Data.Options Lean.Meta.Transform Lean.Meta.Inductive Lean.Elab.Deriving.Basic Lean.Elab.Deriving.Util Lean.Meta.NatTable Lean.Meta.Constructions.CtorIdx Lean.Meta.Constructions.CasesOnSameCtor Lean.Meta.SameCtorUtils
+// Imports: public import Lean.Data.Options import Lean.Meta.Transform import Lean.Meta.Inductive import Lean.Elab.Deriving.Basic import Lean.Elab.Deriving.Util import Lean.Meta.NatTable import Lean.Meta.Constructions.CtorIdx import Lean.Meta.Constructions.CasesOnSameCtor import Lean.Meta.SameCtorUtils
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

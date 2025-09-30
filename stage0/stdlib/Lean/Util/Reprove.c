@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.Reprove
-// Imports: Lean.Elab.Command Lean.Elab.Tactic.Basic Lean.Elab.Term
+// Imports: public meta import Lean.Elab.Command import Lean.Elab.Tactic.Basic import Lean.Elab.Term
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

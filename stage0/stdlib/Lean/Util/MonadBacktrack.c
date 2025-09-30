@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.MonadBacktrack
-// Imports: Init.Control.Except Init.Data.Option.Coe
+// Imports: public import Init.Control.Except public import Init.Data.Option.Coe
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

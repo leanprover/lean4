@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.DSL.AttributesCore
-// Imports: Lake.Util.OrderedTagAttribute
+// Imports: public import Lake.Util.OrderedTagAttribute
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

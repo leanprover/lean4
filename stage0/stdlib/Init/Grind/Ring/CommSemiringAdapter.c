@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Ring.CommSemiringAdapter
-// Imports: Init.Grind.Ring.Envelope Init.Data.Hashable Init.Data.RArray Init.Grind.Ring.CommSolver
+// Imports: public import Init.Grind.Ring.Envelope public import Init.Data.Hashable public import Init.Data.RArray public import Init.Grind.Ring.CommSolver
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

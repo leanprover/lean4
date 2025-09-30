@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Solve
-// Imports: Lean.Meta.Tactic.Grind.Types Lean.Meta.Tactic.Grind.SearchM Lean.Meta.Tactic.Grind.Split Lean.Meta.Tactic.Grind.EMatch Lean.Meta.Tactic.Grind.Lookahead Lean.Meta.Tactic.Grind.Intro
+// Imports: public import Lean.Meta.Tactic.Grind.Types public import Lean.Meta.Tactic.Grind.SearchM import Lean.Meta.Tactic.Grind.Split import Lean.Meta.Tactic.Grind.EMatch import Lean.Meta.Tactic.Grind.Lookahead import Lean.Meta.Tactic.Grind.Intro
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.SizeOfLemmas
-// Imports: Init.Data.Char.Basic Init.Data.Char.Basic Init.Meta Init.SizeOf Init.SizeOf Init.Data.Nat.Linear
+// Imports: public import Init.Data.Char.Basic import all Init.Data.Char.Basic public import Init.Meta public import Init.SizeOf import all Init.SizeOf public import Init.Data.Nat.Linear
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

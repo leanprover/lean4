@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Modifiers
-// Imports: Lean.EnvExtension Lean.PrivateName
+// Imports: public import Lean.EnvExtension public import Lean.PrivateName
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

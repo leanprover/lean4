@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.MatchExpr
-// Imports: Lean.Elab.Term
+// Imports: public import Lean.Elab.Term
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.Meta
-// Imports: Lean.Compiler.IR.CompilerM Lean.Compiler.MetaAttr
+// Imports: public import Lean.Compiler.IR.CompilerM public import Lean.Compiler.MetaAttr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

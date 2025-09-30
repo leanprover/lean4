@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.Specialize
-// Imports: Lean.Meta.Basic Lean.Attributes
+// Imports: public import Lean.Meta.Basic public import Lean.Attributes
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.LRAT.Internal.Formula.RatAddResult
-// Imports: Std.Tactic.BVDecide.LRAT.Internal.Formula.RupAddSound
+// Imports: public import Std.Tactic.BVDecide.LRAT.Internal.Formula.RupAddSound
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

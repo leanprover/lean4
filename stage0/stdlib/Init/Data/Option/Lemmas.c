@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Option.Lemmas
-// Imports: Init.Data.Option.BasicAux Init.Data.Option.BasicAux Init.Data.Option.Instances Init.Data.Option.Instances Init.Data.BEq Init.Classical Init.Ext Init.Grind.Tactics
+// Imports: public import Init.Data.Option.BasicAux import all Init.Data.Option.BasicAux public import Init.Data.Option.Instances import all Init.Data.Option.Instances public import Init.Data.BEq public import Init.Classical public import Init.Ext public import Init.Grind.Tactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

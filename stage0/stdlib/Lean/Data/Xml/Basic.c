@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Xml.Basic
-// Imports: Init.Data.ToString.Macro Std.Data.TreeMap.Basic
+// Imports: public import Init.Data.ToString.Macro public import Std.Data.TreeMap.Basic public import Init.Data.Ord.String
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -625,6 +625,7 @@ return x_1;
 }
 lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_TreeMap_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Ord_String(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_Xml_Basic(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -634,6 +635,9 @@ res = initialize_Init_Data_ToString_Macro(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_TreeMap_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Ord_String(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Xml_instToStringAttributes___lam__0___closed__0 = _init_l_Lean_Xml_instToStringAttributes___lam__0___closed__0();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.Testing
-// Imports: Lean.Compiler.LCNF.PassManager Lean.Compiler.LCNF.PrettyPrinter
+// Imports: public import Lean.Compiler.LCNF.PassManager public import Lean.Compiler.LCNF.PrettyPrinter
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

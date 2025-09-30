@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.InitAttr
-// Imports: Lean.AddDecl Lean.MonadEnv Lean.Elab.InfoTree.Main
+// Imports: public import Lean.AddDecl public import Lean.MonadEnv public import Lean.Elab.InfoTree.Main
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

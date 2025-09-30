@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Slice.Array.Iterator
-// Imports: Init.Core Init.Data.Slice.Array.Basic Init.Data.Iterators.Combinators.Attach Init.Data.Iterators.Combinators.FilterMap Init.Data.Iterators.Combinators.ULift Init.Data.Iterators.Consumers.Collect Init.Data.Iterators.Consumers.Loop Init.Data.Range.Polymorphic.Basic Init.Data.Range.Polymorphic.Basic Init.Data.Range.Polymorphic.Nat Init.Data.Range.Polymorphic.Iterators Init.Data.Slice.Operations Init.Omega
+// Imports: public import Init.Core public import Init.Data.Slice.Array.Basic import Init.Data.Iterators.Combinators.Attach import Init.Data.Iterators.Combinators.FilterMap public import Init.Data.Iterators.Combinators.ULift public import Init.Data.Iterators.Consumers.Collect public import Init.Data.Iterators.Consumers.Loop public import Init.Data.Range.Polymorphic.Basic import all Init.Data.Range.Polymorphic.Basic public import Init.Data.Range.Polymorphic.Nat public import Init.Data.Range.Polymorphic.Iterators public import Init.Data.Slice.Operations import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

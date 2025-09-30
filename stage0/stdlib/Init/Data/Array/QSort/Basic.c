@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.QSort.Basic
-// Imports: Init.Data.Vector.Basic Init.Data.Ord.Basic
+// Imports: public import Init.Data.Vector.Basic public import Init.Data.Ord.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

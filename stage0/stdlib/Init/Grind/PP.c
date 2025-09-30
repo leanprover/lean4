@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.PP
-// Imports: Init.NotationExtra Init.Data.String.Basic
+// Imports: public import Init.NotationExtra public meta import Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

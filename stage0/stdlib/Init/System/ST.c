@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.System.ST
-// Imports: Init.Classical Init.Control.EState Init.Control.Reader
+// Imports: public import Init.Classical public import Init.Control.EState public import Init.Control.Reader
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

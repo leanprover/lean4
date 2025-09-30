@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Toml.Elab.Value
-// Imports: Lean.CoreM Lake.Toml.Data.Value Lake.Toml.Grammar Lake.Toml.Grammar
+// Imports: public import Lean.CoreM public import Lake.Toml.Data.Value public import Lake.Toml.Grammar meta import all Lake.Toml.Grammar
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

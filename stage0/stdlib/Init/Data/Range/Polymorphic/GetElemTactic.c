@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Polymorphic.GetElemTactic
-// Imports: Init.Data.Range.Polymorphic.Basic Init.Data.Vector.Basic
+// Imports: public import Init.Data.Range.Polymorphic.Basic public import Init.Data.Vector.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

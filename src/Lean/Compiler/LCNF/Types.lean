@@ -166,8 +166,12 @@ where
     | .proj ``Subtype 0 (.const ``IO.RealWorld.nonemptyType []) =>
       return mkConst ``lcRealWorld
     | _        => return mkConst ``lcAny
+
   whnfEta (type : Expr) : MetaM Expr := do
-    let type ← whnf type
+    -- We increase transparency here to unfold type aliases of functions that are declared as
+    -- `irreducible`, such that they end up being represented as C functions.
+    let type ← withTransparency .all do
+      whnf type
     let type' := type.eta
     if type' != type then
       whnfEta type'

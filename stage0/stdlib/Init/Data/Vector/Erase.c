@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector.Erase
-// Imports: Init.Data.Vector.Lemmas Init.Data.Array.Erase
+// Imports: public import Init.Data.Vector.Lemmas public import Init.Data.Array.Erase
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

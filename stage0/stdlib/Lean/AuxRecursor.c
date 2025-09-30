@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.AuxRecursor
-// Imports: Lean.EnvExtension
+// Imports: public import Lean.EnvExtension
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

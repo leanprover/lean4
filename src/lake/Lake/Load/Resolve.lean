@@ -256,7 +256,7 @@ def Workspace.updateToolchain
     let child ← IO.Process.spawn {
       cmd := elanInstall.elan.toString
       args := #["run", "--install", tc.toString, "lake"] ++ lakeArgs
-      env := Env.noToolchainVars
+      env := ws.lakeEnv.noToolchainVars
     }
     IO.Process.exit (← child.wait).toUInt8
   else

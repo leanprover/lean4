@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Rpc.Deriving
-// Imports: Lean.Elab.Command Lean.Elab.Term Lean.Elab.Deriving.Basic Lean.Server.Rpc.Basic
+// Imports: public import Lean.Elab.Command public import Lean.Elab.Term public import Lean.Elab.Deriving.Basic public import Lean.Server.Rpc.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.FunIndInfo
-// Imports: Lean.Meta.Basic Lean.ScopedEnvExtension Lean.ReservedNameAction
+// Imports: public import Lean.Meta.Basic public import Lean.ScopedEnvExtension public import Lean.ReservedNameAction
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

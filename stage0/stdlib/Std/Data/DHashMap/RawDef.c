@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DHashMap.RawDef
-// Imports: Std.Data.DHashMap.Internal.AssocList.Basic
+// Imports: public import Std.Data.DHashMap.Internal.AssocList.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

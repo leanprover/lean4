@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.BVDecide.External
-// Imports: Std.Tactic.BVDecide.LRAT.Parser Lean.CoreM Std.Internal.Parsec
+// Imports: public import Std.Tactic.BVDecide.LRAT.Parser public import Lean.CoreM public import Std.Internal.Parsec
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

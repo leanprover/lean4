@@ -30,6 +30,29 @@ public structure EqnInfo extends EqnInfoCore where
   fixedParamPerms : FixedParamPerms
   deriving Inhabited
 
+/--
+Searches in the lhs of goal for a `.brecOn` application, possibly with extra arguments
+and under `PProd` projections. Returns the `.brecOn` application and the context
+`(fun x => (x).1.2.3 extraArgs = rhs)`.
+-/
+partial def findBRecOnLHS (goal : Expr) : MetaM (Expr × Expr) := do
+  let some (_, lhs, rhs) := goal.eq? | throwError "goal not an equality{indentExpr goal}"
+  go lhs fun brecOnApp x c =>
+    return (brecOnApp, ← mkLambdaFVars #[x] (← mkEq c rhs))
+where
+  go {α} (e : Expr) (k : Expr → Expr → Expr → MetaM α) : MetaM α := e.withApp fun f xs => do
+    if let .proj t n e := f then
+      return ← go e fun brecOnApp x c => k brecOnApp x (mkAppN (mkProj t n c) xs)
+    if let .const name _ := f then
+      if isBRecOnRecursor (← getEnv) name then
+        let arity ← forallTelescope (← inferType f) fun xs _ => return xs.size
+        if arity ≤ xs.size then
+          let brecOnApp := mkAppN f xs[:arity]
+          let extraArgs := xs[arity:]
+          return ← withLocalDeclD `x (← inferType brecOnApp) fun x =>
+            k brecOnApp x (mkAppN x extraArgs)
+    throwError "could not find `.brecOn` application in{indentExpr e}"
+
 private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
   withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} proving:{indentExpr type}") do
     prependError m!"failed to generate equational theorem for `{.ofConstName declName}`" do
@@ -45,33 +68,25 @@ where
     let mvarId' ← mvarId.withContext do
       -- This should now be headed by `.brecOn`
       let goal ← mvarId.getType
-      let some (α, lhs, rhs) := goal.eq? | throwError "goal not an equality\n{MessageData.ofGoal mvarId}"
-      let brecOn := lhs.getAppFn
-      unless brecOn.isConst do
-        throwError "goal not headed by `.brecOn`\n{MessageData.ofGoal mvarId}"
-      let brecOnName := brecOn.constName!
-      unless isBRecOnRecursor (← getEnv) brecOnName do
-        throwError "goal not headed by `.brecOn`\n{MessageData.ofGoal mvarId}"
+      let (brecOnApp, context) ← findBRecOnLHS goal
+      let brecOnName := brecOnApp.getAppFn.constName!
+      let us := brecOnApp.getAppFn.constLevels!
       let brecOnThmName := brecOnName.str "eq"
+      let brecOnAppArgs := brecOnApp.getAppArgs
       unless (← hasConst brecOnThmName) do
         throwError "no theorem `{brecOnThmName}`\n{MessageData.ofGoal mvarId}"
       -- We don't just `← inferType eqThmApp` as that beta-reduces more than we want
-      let eqThmType ← inferType (mkConst brecOnThmName brecOn.constLevels!)
-      let eqThmArity ← forallTelescope eqThmType fun xs _ => return xs.size
-      let mut eqThmApp := mkAppN (mkConst brecOnThmName brecOn.constLevels!) lhs.getAppArgs[:eqThmArity]
-      let eqThmType ← instantiateForall eqThmType eqThmApp.getAppArgs[:eqThmArity]
+      let eqThmType ← inferType (mkConst brecOnThmName us)
+      let eqThmType ← instantiateForall eqThmType brecOnAppArgs
       let some (_, _, rwRhs) := eqThmType.eq? | throwError "theorem `{brecOnThmName}` is not an equality\n{MessageData.ofGoal mvarId}"
       let recArg := rwRhs.getAppArgs.back!
       trace[Elab.definition.structural.eqns] "abstracting{inlineExpr recArg} from{indentExpr rwRhs}"
       let mvarId2 ← mvarId.define `r (← inferType recArg) recArg
       let (r, mvarId3) ← mvarId2.intro1P
-      let mut rwRhs := mkApp rwRhs.appFn! (mkFVar r)
-      for extraArg in lhs.getAppArgs[eqThmArity:] do
-        rwRhs := mkApp rwRhs extraArg
-        eqThmApp ← mkCongrFun eqThmApp extraArg
-      let eqThmAppTrans := mkApp5 (mkConst ``Eq.trans goal.getAppFn.constLevels!) α lhs rwRhs rhs eqThmApp
-      let [mvarId4] ← mvarId3.applyN eqThmAppTrans 1 |
-        throwError "rewriting with{inlineExpr eqThmAppTrans} failed\n{MessageData.ofGoal mvarId}"
+      let mvarId4 ← mvarId3.withContext do
+        let goal' := mkApp rwRhs.appFn! (mkFVar r)
+        let thm ← mkCongrArg context (mkAppN (mkConst brecOnThmName us) brecOnAppArgs)
+        mvarId3.replaceTargetEq (mkApp context goal') thm
       pure mvarId4
     go mvarId'
 

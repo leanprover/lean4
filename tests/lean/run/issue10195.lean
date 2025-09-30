@@ -28,51 +28,30 @@ termination_by structural x
 #print sig decEqVecPlain.match_1.eq_1
 
 /--
-error: Failed to realize constant decEqVecPlain.eq_def:
-  failed to generate equational theorem for `decEqVecPlain`
-  case nil.isTrue
-  α : Type u_1
-  inst : DecidableEq α
-  x_1 : Vec α 0
-  h✝ : Vec.nil.ctorIdx = x_1.ctorIdx
-  ⊢ (match (motive :=
-          (a : Nat) →
-            (x x_1 : Vec α a) →
-              x.ctorIdx = x_1.ctorIdx →
-                Vec.rec PUnit (fun a {n} a_1 a_ih => ((x_1 : Vec α n) → Decidable (a_1 = x_1)) ×' a_ih) x →
-                  Decidable (x = x_1))
-          0, Vec.nil, x_1, ⋯ with
-        | .(0), Vec.nil, Vec.nil, x => fun x => isTrue ⋯
-        | .(n + 1), Vec.cons a_1 a_2, Vec.cons b b_1, x => fun x_2 =>
-          if h : a_1 = b then
-            Eq.rec (motive := fun x x_3 =>
-              (Vec.cons a_1 a_2).ctorIdx = (Vec.cons x b_1).ctorIdx → Decidable (Vec.cons a_1 a_2 = Vec.cons x b_1))
-              (fun x =>
-                if h_2 : a_2 = b_1 then
-                  Eq.rec (motive := fun x x_3 =>
-                    (Vec.cons a_1 a_2).ctorIdx = (Vec.cons a_1 x).ctorIdx →
-                      Decidable (Vec.cons a_1 a_2 = Vec.cons a_1 x))
-                    (fun x => isTrue ⋯) h_2 x
-                else isFalse ⋯)
-              ⋯ x
-          else isFalse ⋯)
-        PUnit.unit =
-      match 0, Vec.nil, x_1, ⋯ with
+info: theorem decEqVecPlain.eq_def.{u_1} : ∀ {α : Type u_1} {a : Nat} [inst : DecidableEq α] (x x_1 : Vec α a),
+  decEqVecPlain x x_1 =
+    if h : x.ctorIdx = x_1.ctorIdx then
+      match a, x, x_1, h with
       | .(0), Vec.nil, Vec.nil, x => isTrue ⋯
       | .(n + 1), Vec.cons a_1 a_2, Vec.cons b b_1, x =>
-        if h : a_1 = b then
-          Eq.rec (motive := fun x x_2 =>
-            (Vec.cons a_1 a_2).ctorIdx = (Vec.cons x b_1).ctorIdx → Decidable (Vec.cons a_1 a_2 = Vec.cons x b_1))
+        if h_1 : a_1 = b then
+          Eq.ndrec (motive := fun b =>
+            (Vec.cons a_1 a_2).ctorIdx = (Vec.cons b b_1).ctorIdx → Decidable (Vec.cons a_1 a_2 = Vec.cons b b_1))
             (fun x =>
+              have inst_1 := decEqVecPlain a_2 b_1;
               if h_2 : a_2 = b_1 then
-                Eq.rec (motive := fun x x_2 =>
-                  (Vec.cons a_1 a_2).ctorIdx = (Vec.cons a_1 x).ctorIdx → Decidable (Vec.cons a_1 a_2 = Vec.cons a_1 x))
-                  (fun x => isTrue ⋯) h_2 x
+                Eq.ndrec (motive := fun b_1 =>
+                  (Vec.cons a_1 a_2).ctorIdx = (Vec.cons a_1 b_1).ctorIdx →
+                    have inst := decEqVecPlain a_2 b_1;
+                    Decidable (Vec.cons a_1 a_2 = Vec.cons a_1 b_1))
+                  (fun x =>
+                    have inst := decEqVecPlain a_2 a_2;
+                    isTrue ⋯)
+                  h_2 x
               else isFalse ⋯)
-            ⋯ x
+            h_1 x
         else isFalse ⋯
----
-error: Unknown constant `decEqVecPlain.eq_def`
+    else isFalse ⋯
 -/
 #guard_msgs(pass trace, all) in
 #print sig decEqVecPlain.eq_def
@@ -94,32 +73,12 @@ termination_by structural x
 
 
 /--
-error: Failed to realize constant foo.eq_def:
-  failed to generate equational theorem for `foo`
-  case isTrue
-  n_1 : Nat
-  a : I n_1
-  x' : I (n_1 + 1)
-  h✝ : P a.cons
-  ⊢ (match (motive := (n : Nat) → (x : I n) → I n → P x → I.rec (fun {n} a a_ih => (I n → R a) ×' a_ih) x → R x)
-          n_1 + 1, a.cons, x', ⋯ with
-        | .(n + 1), a_2.cons, a_2'.cons, x => fun x => testSorry (x.1 a_2') h✝)
-        (I.rec
-          (fun {n} a a_ih =>
-            ⟨fun x' =>
-              if h : P a.cons then
-                (match (motive :=
-                    (n : Nat) → (x : I n) → I n → P x → I.rec (fun {n} a a_ih => (I n → R a) ×' a_ih) x → R x) n + 1,
-                    a.cons, x', ⋯ with
-                  | .(n_2 + 1), a_2.cons, a_2'.cons, x => fun x => testSorry (x.1 a_2') h)
-                  a_ih
-              else testSorry,
-              a_ih⟩)
-          a) =
-      match n_1 + 1, a.cons, x', ⋯ with
-      | .(n + 1), a_2.cons, a_2'.cons, x => testSorry (foo a_2 a_2') h✝
----
-error: Unknown constant `foo.eq_def`
+info: theorem foo.eq_def.{u_1, u_2} : ∀ {n : Nat} (x : I n) (x' : I n),
+  foo x x' =
+    if h : P x then
+      match n, x, x', ⋯ with
+      | .(n_1 + 1), a_2.cons, a_2'.cons, x_1 => testSorry (foo a_2 a_2') h
+    else testSorry
 -/
 #guard_msgs(pass trace, all) in
 #print sig foo.eq_def

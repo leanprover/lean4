@@ -53,7 +53,7 @@ where
             k brecOnApp x (mkAppN x extraArgs)
     throwError "could not find `.brecOn` application in{indentExpr e}"
 
-private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
+partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
   withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} proving:{indentExpr type}") do
     prependError m!"failed to generate equational theorem for `{.ofConstName declName}`" do
     withNewMCtxDepth do
@@ -128,34 +128,6 @@ where
           else
             throwError "no progress at goal\n{MessageData.ofGoal mvarId}"
 
-def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
-  withOptions (tactic.hygienic.set · false) do
-  let eqnTypes ← withNewMCtxDepth <| lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
-    let us := info.levelParams.map mkLevelParam
-    let target ← mkEq (mkAppN (Lean.mkConst info.declName us) xs) body
-    let goal ← mkFreshExprSyntheticOpaqueMVar target
-    mkEqnTypes info.declNames goal.mvarId!
-  let mut thmNames := #[]
-  for h : i in *...eqnTypes.size do
-    let type := eqnTypes[i]
-    trace[Elab.definition.structural.eqns] "eqnType {i+1}: {type}"
-    let name := mkEqLikeNameFor (← getEnv) info.declName s!"{eqnThmSuffixBasePrefix}{i+1}"
-    thmNames := thmNames.push name
-    -- determinism: `type` should be independent of the environment changes since `baseName` was
-    -- added
-    realizeConst info.declNames[0]! name (doRealize name type)
-  return thmNames
-where
-  doRealize name type := withOptions (tactic.hygienic.set · false) do
-    let value ← withoutExporting do mkProof info.declName type
-    let (type, value) ← removeUnusedEqnHypotheses type value
-    let type ← letToHave type
-    addDecl <| Declaration.thmDecl {
-      name, type, value
-      levelParams := info.levelParams
-    }
-    inferDefEqAttr name
-
 public builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ←
   mkMapDeclarationExtension (exportEntriesFn := fun env s _ =>
     -- Do not export for non-exposed defs
@@ -169,7 +141,7 @@ public def registerEqnsInfo (preDef : PreDefinition) (declNames : Array Name) (r
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if let some info := eqnInfoExt.find? (← getEnv) declName then
-    mkEqns info
+    mkEqns declName info.declNames
   else
     return none
 
@@ -203,6 +175,7 @@ def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
 def getStructuralRecArgPosImp? (declName : Name) : CoreM (Option Nat) := do
   let some info := eqnInfoExt.find? (← getEnv) declName | return none
   return some info.recArgPos
+
 
 builtin_initialize
   registerGetEqnsFn getEqnsFor?

@@ -20,7 +20,7 @@ This file defines the type `Std.Data.DHashMap.Raw`. All of its functions are def
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v w
+universe u v w w'
 
 namespace Std.DHashMap
 
@@ -54,7 +54,7 @@ structure Raw (α : Type u) (β : α → Type v) where
 
 namespace Raw
 
-variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w}
+variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w'}
 
 /-- Carries out a monadic action on each mapping in the hash map in some order. -/
 @[inline] def forM [Monad m] (f : (a : α) → β a → m PUnit) (b : Raw α β) : m PUnit :=

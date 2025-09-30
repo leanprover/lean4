@@ -13,6 +13,7 @@ import all Std.Data.DHashMap.Internal.Defs
 public import Std.Data.DHashMap.Internal.Model
 import all Std.Data.DHashMap.Internal.AssocList.Basic
 public import Std.Data.DHashMap.Internal.AssocList.Lemmas
+import all Std.Data.DHashMap.RawDef
 
 public section
 
@@ -1086,7 +1087,7 @@ theorem insertManyIfNew_eq_insertListIfNewₘ_toListModel [BEq α] [Hashable α]
   induction l generalizing m with
   | nil => simp [insertListIfNewₘ]
   | cons hd tl ih =>
-    simp only [List.foldl_cons, insertListₘ]
+    simp only [List.foldl_cons]
     apply ih
 
 theorem union_eq_unionₘ [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) :

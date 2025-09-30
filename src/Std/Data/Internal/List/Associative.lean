@@ -3033,7 +3033,7 @@ theorem containsKey_insertListIfNew [BEq α] [PartialEquivBEq α] {l toInsert : 
     unfold insertListIfNew
     rw [ih]
     rw [containsKey_insertEntryIfNew]
-    simp only [Bool.or_eq_true, List.map_cons, List.contains_cons]
+    simp only [List.map_cons, List.contains_cons]
     rw [BEq.comm]
     conv => left; left; rw [Bool.or_comm]
     rw [Bool.or_assoc]

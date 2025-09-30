@@ -629,7 +629,7 @@ theorem insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l
 
 theorem insertManyIfNew_eq_insertListIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) :
     insertManyIfNew m l = insertListIfNewₘ m l := by
-  simp only [insertManyIfNew, Id.run_pure, Id.run_bind, pure_bind, List.forIn_pure_yield_eq_foldl]
+  simp only [insertManyIfNew, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
     (∀ {m'' : Raw₀ α β} {a : α} {b : β a}, P m'' → P (m''.insertIfNew a b)) → P m → P m' }),
       (List.foldl (fun m' p => ⟨m'.val.insertIfNew p.1 p.2, fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =

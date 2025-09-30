@@ -2829,12 +2829,12 @@ LEAN_EXPORT lean_obj_res lean_decode_uv_error(int errnum, b_lean_obj_arg fname);
 
 static inline lean_obj_res lean_io_mk_world() { return lean_box(0); }
 
-static inline lean_obj_res lean_baseio_out_val(b_lean_obj_arg r) {
+static inline b_lean_obj_res lean_baseio_out_val(b_lean_obj_arg r) {
     // TODO: This function needs to become identity after we are done.
     return lean_ctor_get(r, 0);
 }
 
-static inline lean_obj_res lean_mk_baseio_out(b_lean_obj_arg i) {
+static inline lean_obj_res lean_mk_baseio_out(lean_obj_arg i) {
     // TODO: This function needs to become identity after we are done.
     lean_object * r = lean_alloc_ctor(0, 2, 0);
     lean_ctor_set(r, 0, i);

@@ -95,7 +95,7 @@ theorem Int8.toBitVec.inj : {x y : Int8} → x.toBitVec = y.toBitVec → x = y
   | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
 
 /-- Obtains the `Int8` that is 2's complement equivalent to the `UInt8`. -/
-@[inline] def UInt8.toInt8 (i : UInt8) : Int8 := Int8.ofUInt8 i
+@[inline, expose] def UInt8.toInt8 (i : UInt8) : Int8 := Int8.ofUInt8 i
 
 /--
 Converts an arbitrary-precision integer to an 8-bit integer, wrapping on overflow or underflow.
@@ -157,11 +157,11 @@ Converts an 8-bit signed integer to a natural number, mapping all negative numbe
 
 Use `Int8.toBitVec` to obtain the two's complement representation.
 -/
-@[inline, expose]
+@[inline, expose, expose]
 def Int8.toNatClampNeg (i : Int8) : Nat := i.toInt.toNat
 
 /-- Obtains the `Int8` whose 2's complement representation is the given `BitVec 8`. -/
-@[inline] def Int8.ofBitVec (b : BitVec 8) : Int8 := ⟨⟨b⟩⟩
+@[inline, expose] def Int8.ofBitVec (b : BitVec 8) : Int8 := ⟨⟨b⟩⟩
 /--
 Negates 8-bit signed integers. Usually accessed via the `-` prefix operator.
 
@@ -192,6 +192,7 @@ abbrev Int8.minValue : Int8 := -128
 def Int8.ofIntLE (i : Int) (_hl : Int8.minValue.toInt ≤ i) (_hr : i ≤ Int8.maxValue.toInt) : Int8 :=
   Int8.ofInt i
 /-- Constructs an `Int8` from an `Int`, clamping if the value is too small or too large. -/
+@[expose]
 def Int8.ofIntTruncate (i : Int) : Int8 :=
   if hl : Int8.minValue.toInt ≤ i then
     if hr : i ≤ Int8.maxValue.toInt then
@@ -248,6 +249,7 @@ wrapping around on overflow. Usually accessed via the `^` operator.
 This function is currently *not* overridden at runtime with an efficient implementation,
 and should be used with caution. See https://github.com/leanprover/lean4/issues/7887.
 -/
+@[expose]
 protected def Int8.pow (x : Int8) (n : Nat) : Int8 :=
   match n with
   | 0 => 1
@@ -281,7 +283,7 @@ according to the two's complement representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int8_land"]
+@[extern "lean_int8_land", expose]
 protected def Int8.land (a b : Int8) : Int8 := ⟨⟨a.toBitVec &&& b.toBitVec⟩⟩
 /--
 Bitwise or for 8-bit signed integers. Usually accessed via the `|||` operator.
@@ -291,7 +293,7 @@ integers is set, according to the two's complement representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int8_lor"]
+@[extern "lean_int8_lor", expose]
 protected def Int8.lor (a b : Int8) : Int8 := ⟨⟨a.toBitVec ||| b.toBitVec⟩⟩
 /--
 Bitwise exclusive or for 8-bit signed integers. Usually accessed via the `^^^` operator.
@@ -301,7 +303,7 @@ integers is set, according to the two's complement representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int8_xor"]
+@[extern "lean_int8_xor", expose]
 protected def Int8.xor (a b : Int8) : Int8 := ⟨⟨a.toBitVec ^^^ b.toBitVec⟩⟩
 /--
 Bitwise left shift for 8-bit signed integers. Usually accessed via the `<<<` operator.
@@ -310,7 +312,7 @@ Signed integers are interpreted as bitvectors according to the two's complement 
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int8_shift_left"]
+@[extern "lean_int8_shift_left", expose]
 protected def Int8.shiftLeft (a b : Int8) : Int8 := ⟨⟨a.toBitVec <<< (b.toBitVec.smod 8)⟩⟩
 /--
 Arithmetic right shift for 8-bit signed integers. Usually accessed via the `<<<` operator.
@@ -319,7 +321,7 @@ The high bits are filled with the value of the most significant bit.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int8_shift_right"]
+@[extern "lean_int8_shift_right", expose]
 protected def Int8.shiftRight (a b : Int8) : Int8 := ⟨⟨BitVec.sshiftRight' a.toBitVec (b.toBitVec.smod 8)⟩⟩
 /--
 Bitwise complement, also known as bitwise negation, for 8-bit signed integers. Usually accessed via
@@ -330,7 +332,7 @@ Integers use the two's complement representation, so `Int8.complement a = -(a + 
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int8_complement"]
+@[extern "lean_int8_complement", expose]
 protected def Int8.complement (a : Int8) : Int8 := ⟨⟨~~~a.toBitVec⟩⟩
 /--
 Computes the absolute value of an 8-bit signed integer.
@@ -340,7 +342,7 @@ mapped to `Int8.minValue`.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int8_abs"]
+@[extern "lean_int8_abs", expose]
 protected def Int8.abs (a : Int8) : Int8 := ⟨⟨a.toBitVec.abs⟩⟩
 
 /--
@@ -449,7 +451,7 @@ theorem Int16.toBitVec.inj : {x y : Int16} → x.toBitVec = y.toBitVec → x = y
   | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
 
 /-- Obtains the `Int16` that is 2's complement equivalent to the `UInt16`. -/
-@[inline] def UInt16.toInt16 (i : UInt16) : Int16 := Int16.ofUInt16 i
+@[inline, expose] def UInt16.toInt16 (i : UInt16) : Int16 := Int16.ofUInt16 i
 
 /--
 Converts an arbitrary-precision integer to a 16-bit signed integer, wrapping on overflow or underflow.
@@ -517,21 +519,21 @@ Use `Int16.toBitVec` to obtain the two's complement representation.
 def Int16.toNatClampNeg (i : Int16) : Nat := i.toInt.toNat
 
 /-- Obtains the `Int16` whose 2's complement representation is the given `BitVec 16`. -/
-@[inline] def Int16.ofBitVec (b : BitVec 16) : Int16 := ⟨⟨b⟩⟩
+@[inline, expose] def Int16.ofBitVec (b : BitVec 16) : Int16 := ⟨⟨b⟩⟩
 /--
 Converts 16-bit signed integers to 8-bit signed integers by truncating their bitvector
 representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int16_to_int8"]
+@[extern "lean_int16_to_int8", expose]
 def Int16.toInt8 (a : Int16) : Int8 := ⟨⟨a.toBitVec.signExtend 8⟩⟩
 /--
 Converts 8-bit signed integers to 16-bit signed integers that denote the same number.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int8_to_int16"]
+@[extern "lean_int8_to_int16", expose]
 def Int8.toInt16 (a : Int8) : Int16 := ⟨⟨a.toBitVec.signExtend 16⟩⟩
 /--
 Negates 16-bit signed integers. Usually accessed via the `-` prefix operator.
@@ -563,6 +565,7 @@ abbrev Int16.minValue : Int16 := -32768
 def Int16.ofIntLE (i : Int) (_hl : Int16.minValue.toInt ≤ i) (_hr : i ≤ Int16.maxValue.toInt) : Int16 :=
   Int16.ofInt i
 /-- Constructs an `Int16` from an `Int`, clamping if the value is too small or too large. -/
+@[expose]
 def Int16.ofIntTruncate (i : Int) : Int16 :=
   if hl : Int16.minValue.toInt ≤ i then
     if hr : i ≤ Int16.maxValue.toInt then
@@ -620,6 +623,7 @@ wrapping around on overflow. Usually accessed via the `^` operator.
 This function is currently *not* overridden at runtime with an efficient implementation,
 and should be used with caution. See https://github.com/leanprover/lean4/issues/7887.
 -/
+@[expose]
 protected def Int16.pow (x : Int16) (n : Nat) : Int16 :=
   match n with
   | 0 => 1
@@ -653,7 +657,7 @@ according to the two's complement representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int16_land"]
+@[extern "lean_int16_land", expose]
 protected def Int16.land (a b : Int16) : Int16 := ⟨⟨a.toBitVec &&& b.toBitVec⟩⟩
 /--
 Bitwise or for 16-bit signed integers. Usually accessed via the `|||` operator.
@@ -663,7 +667,7 @@ integers is set, according to the two's complement representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int16_lor"]
+@[extern "lean_int16_lor", expose]
 protected def Int16.lor (a b : Int16) : Int16 := ⟨⟨a.toBitVec ||| b.toBitVec⟩⟩
 /--
 Bitwise exclusive or for 16-bit signed integers. Usually accessed via the `^^^` operator.
@@ -673,7 +677,7 @@ integers is set, according to the two's complement representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int16_xor"]
+@[extern "lean_int16_xor", expose]
 protected def Int16.xor (a b : Int16) : Int16 := ⟨⟨a.toBitVec ^^^ b.toBitVec⟩⟩
 /--
 Bitwise left shift for 16-bit signed integers. Usually accessed via the `<<<` operator.
@@ -682,7 +686,7 @@ Signed integers are interpreted as bitvectors according to the two's complement 
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int16_shift_left"]
+@[extern "lean_int16_shift_left", expose]
 protected def Int16.shiftLeft (a b : Int16) : Int16 := ⟨⟨a.toBitVec <<< (b.toBitVec.smod 16)⟩⟩
 /--
 Arithmetic right shift for 16-bit signed integers. Usually accessed via the `<<<` operator.
@@ -691,7 +695,7 @@ The high bits are filled with the value of the most significant bit.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int16_shift_right"]
+@[extern "lean_int16_shift_right", expose]
 protected def Int16.shiftRight (a b : Int16) : Int16 := ⟨⟨BitVec.sshiftRight' a.toBitVec (b.toBitVec.smod 16)⟩⟩
 /--
 Bitwise complement, also known as bitwise negation, for 16-bit signed integers. Usually accessed via
@@ -702,7 +706,7 @@ Integers use the two's complement representation, so `Int16.complement a = -(a +
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int16_complement"]
+@[extern "lean_int16_complement", expose]
 protected def Int16.complement (a : Int16) : Int16 := ⟨⟨~~~a.toBitVec⟩⟩
 /--
 Computes the absolute value of a 16-bit signed integer.
@@ -712,7 +716,7 @@ mapped to `Int16.minValue`.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int16_abs"]
+@[extern "lean_int16_abs", expose]
 protected def Int16.abs (a : Int16) : Int16 := ⟨⟨a.toBitVec.abs⟩⟩
 
 /--
@@ -739,7 +743,7 @@ def Int16.decEq (a b : Int16) : Decidable (a = b) :=
 Strict inequality of 16-bit signed integers, defined as inequality of the corresponding integers.
 Usually accessed via the `<` operator.
 -/
-@[expose] -- TODO: Is this one needed or decidability?
+@[expose]
 protected def Int16.lt (a b : Int16) : Prop := a.toBitVec.slt b.toBitVec
 /--
 Non-strict inequality of 16-bit signed integers, defined as inequality of the corresponding
@@ -770,7 +774,7 @@ instance : DecidableEq Int16 := Int16.decEq
 /--
 Converts `true` to `1` and `false` to `0`.
 -/
-@[extern "lean_bool_to_int16"]
+@[extern "lean_bool_to_int16", expose]
 def Bool.toInt16 (b : Bool) : Int16 := if b then 1 else 0
 
 /--
@@ -821,7 +825,7 @@ theorem Int32.toBitVec.inj : {x y : Int32} → x.toBitVec = y.toBitVec → x = y
   | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
 
 /-- Obtains the `Int32` that is 2's complement equivalent to the `UInt32`. -/
-@[inline] def UInt32.toInt32 (i : UInt32) : Int32 := Int32.ofUInt32 i
+@[inline, expose] def UInt32.toInt32 (i : UInt32) : Int32 := Int32.ofUInt32 i
 
 /--
 Converts an arbitrary-precision integer to a 32-bit integer, wrapping on overflow or underflow.
@@ -890,14 +894,14 @@ Use `Int32.toBitVec` to obtain the two's complement representation.
 def Int32.toNatClampNeg (i : Int32) : Nat := i.toInt.toNat
 
 /-- Obtains the `Int32` whose 2's complement representation is the given `BitVec 32`. -/
-@[inline] def Int32.ofBitVec (b : BitVec 32) : Int32 := ⟨⟨b⟩⟩
+@[inline, expose] def Int32.ofBitVec (b : BitVec 32) : Int32 := ⟨⟨b⟩⟩
 /--
 Converts a 32-bit signed integer to an 8-bit signed integer by truncating its bitvector
 representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int32_to_int8"]
+@[extern "lean_int32_to_int8", expose]
 def Int32.toInt8 (a : Int32) : Int8 := ⟨⟨a.toBitVec.signExtend 8⟩⟩
 /--
 Converts a 32-bit signed integer to an 16-bit signed integer by truncating its bitvector
@@ -905,21 +909,21 @@ representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int32_to_int16"]
+@[extern "lean_int32_to_int16", expose]
 def Int32.toInt16 (a : Int32) : Int16 := ⟨⟨a.toBitVec.signExtend 16⟩⟩
 /--
 Converts 8-bit signed integers to 32-bit signed integers that denote the same number.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int8_to_int32"]
+@[extern "lean_int8_to_int32", expose]
 def Int8.toInt32 (a : Int8) : Int32 := ⟨⟨a.toBitVec.signExtend 32⟩⟩
 /--
 Converts 8-bit signed integers to 32-bit signed integers that denote the same number.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int16_to_int32"]
+@[extern "lean_int16_to_int32", expose]
 def Int16.toInt32 (a : Int16) : Int32 := ⟨⟨a.toBitVec.signExtend 32⟩⟩
 /--
 Negates 32-bit signed integers. Usually accessed via the `-` prefix operator.
@@ -951,6 +955,7 @@ abbrev Int32.minValue : Int32 := -2147483648
 def Int32.ofIntLE (i : Int) (_hl : Int32.minValue.toInt ≤ i) (_hr : i ≤ Int32.maxValue.toInt) : Int32 :=
   Int32.ofInt i
 /-- Constructs an `Int32` from an `Int`, clamping if the value is too small or too large. -/
+@[expose]
 def Int32.ofIntTruncate (i : Int) : Int32 :=
   if hl : Int32.minValue.toInt ≤ i then
     if hr : i ≤ Int32.maxValue.toInt then
@@ -1008,6 +1013,7 @@ wrapping around on overflow. Usually accessed via the `^` operator.
 This function is currently *not* overridden at runtime with an efficient implementation,
 and should be used with caution. See https://github.com/leanprover/lean4/issues/7887.
 -/
+@[expose]
 protected def Int32.pow (x : Int32) (n : Nat) : Int32 :=
   match n with
   | 0 => 1
@@ -1041,7 +1047,7 @@ according to the two's complement representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int32_land"]
+@[extern "lean_int32_land", expose]
 protected def Int32.land (a b : Int32) : Int32 := ⟨⟨a.toBitVec &&& b.toBitVec⟩⟩
 /--
 Bitwise or for 32-bit signed integers. Usually accessed via the `|||` operator.
@@ -1051,7 +1057,7 @@ integers is set, according to the two's complement representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int32_lor"]
+@[extern "lean_int32_lor", expose]
 protected def Int32.lor (a b : Int32) : Int32 := ⟨⟨a.toBitVec ||| b.toBitVec⟩⟩
 /--
 Bitwise exclusive or for 32-bit signed integers. Usually accessed via the `^^^` operator.
@@ -1061,7 +1067,7 @@ integers is set, according to the two's complement representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int32_xor"]
+@[extern "lean_int32_xor", expose]
 protected def Int32.xor (a b : Int32) : Int32 := ⟨⟨a.toBitVec ^^^ b.toBitVec⟩⟩
 /--
 Bitwise left shift for 32-bit signed integers. Usually accessed via the `<<<` operator.
@@ -1070,7 +1076,7 @@ Signed integers are interpreted as bitvectors according to the two's complement 
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int32_shift_left"]
+@[extern "lean_int32_shift_left", expose]
 protected def Int32.shiftLeft (a b : Int32) : Int32 := ⟨⟨a.toBitVec <<< (b.toBitVec.smod 32)⟩⟩
 /--
 Arithmetic right shift for 32-bit signed integers. Usually accessed via the `<<<` operator.
@@ -1079,7 +1085,7 @@ The high bits are filled with the value of the most significant bit.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int32_shift_right"]
+@[extern "lean_int32_shift_right", expose]
 protected def Int32.shiftRight (a b : Int32) : Int32 := ⟨⟨BitVec.sshiftRight' a.toBitVec (b.toBitVec.smod 32)⟩⟩
 /--
 Bitwise complement, also known as bitwise negation, for 32-bit signed integers. Usually accessed via
@@ -1090,7 +1096,7 @@ Integers use the two's complement representation, so `Int32.complement a = -(a +
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int32_complement"]
+@[extern "lean_int32_complement", expose]
 protected def Int32.complement (a : Int32) : Int32 := ⟨⟨~~~a.toBitVec⟩⟩
 /--
 Computes the absolute value of a 32-bit signed integer.
@@ -1100,7 +1106,7 @@ mapped to `Int32.minValue`.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int32_abs"]
+@[extern "lean_int32_abs", expose]
 protected def Int32.abs (a : Int32) : Int32 := ⟨⟨a.toBitVec.abs⟩⟩
 
 /--
@@ -1209,7 +1215,7 @@ theorem Int64.toBitVec.inj : {x y : Int64} → x.toBitVec = y.toBitVec → x = y
   | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
 
 /-- Obtains the `Int64` that is 2's complement equivalent to the `UInt64`. -/
-@[inline] def UInt64.toInt64 (i : UInt64) : Int64 := Int64.ofUInt64 i
+@[inline, expose] def UInt64.toInt64 (i : UInt64) : Int64 := Int64.ofUInt64 i
 
 /--
 Converts an arbitrary-precision integer to a 64-bit integer, wrapping on overflow or underflow.
@@ -1283,14 +1289,14 @@ Use `Int64.toBitVec` to obtain the two's complement representation.
 def Int64.toNatClampNeg (i : Int64) : Nat := i.toInt.toNat
 
 /-- Obtains the `Int64` whose 2's complement representation is the given `BitVec 64`. -/
-@[inline] def Int64.ofBitVec (b : BitVec 64) : Int64 := ⟨⟨b⟩⟩
+@[inline, expose] def Int64.ofBitVec (b : BitVec 64) : Int64 := ⟨⟨b⟩⟩
 /--
 Converts a 64-bit signed integer to an 8-bit signed integer by truncating its bitvector
 representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int64_to_int8"]
+@[extern "lean_int64_to_int8", expose]
 def Int64.toInt8 (a : Int64) : Int8 := ⟨⟨a.toBitVec.signExtend 8⟩⟩
 /--
 Converts a 64-bit signed integer to a 16-bit signed integer by truncating its bitvector
@@ -1298,7 +1304,7 @@ representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int64_to_int16"]
+@[extern "lean_int64_to_int16", expose]
 def Int64.toInt16 (a : Int64) : Int16 := ⟨⟨a.toBitVec.signExtend 16⟩⟩
 /--
 Converts a 64-bit signed integer to a 32-bit signed integer by truncating its bitvector
@@ -1306,28 +1312,28 @@ representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int64_to_int32"]
+@[extern "lean_int64_to_int32", expose]
 def Int64.toInt32 (a : Int64) : Int32 := ⟨⟨a.toBitVec.signExtend 32⟩⟩
 /--
 Converts 8-bit signed integers to 64-bit signed integers that denote the same number.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int8_to_int64"]
+@[extern "lean_int8_to_int64", expose]
 def Int8.toInt64 (a : Int8) : Int64 := ⟨⟨a.toBitVec.signExtend 64⟩⟩
 /--
 Converts 16-bit signed integers to 64-bit signed integers that denote the same number.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int16_to_int64"]
+@[extern "lean_int16_to_int64", expose]
 def Int16.toInt64 (a : Int16) : Int64 := ⟨⟨a.toBitVec.signExtend 64⟩⟩
 /--
 Converts 32-bit signed integers to 64-bit signed integers that denote the same number.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int32_to_int64"]
+@[extern "lean_int32_to_int64", expose]
 def Int32.toInt64 (a : Int32) : Int64 := ⟨⟨a.toBitVec.signExtend 64⟩⟩
 /--
 Negates 64-bit signed integers. Usually accessed via the `-` prefix operator.
@@ -1359,6 +1365,7 @@ abbrev Int64.minValue : Int64 := -9223372036854775808
 def Int64.ofIntLE (i : Int) (_hl : Int64.minValue.toInt ≤ i) (_hr : i ≤ Int64.maxValue.toInt) : Int64 :=
   Int64.ofInt i
 /-- Constructs an `Int64` from an `Int`, clamping if the value is too small or too large. -/
+@[expose]
 def Int64.ofIntTruncate (i : Int) : Int64 :=
   if hl : Int64.minValue.toInt ≤ i then
     if hr : i ≤ Int64.maxValue.toInt then
@@ -1416,6 +1423,7 @@ wrapping around on overflow. Usually accessed via the `^` operator.
 This function is currently *not* overridden at runtime with an efficient implementation,
 and should be used with caution. See https://github.com/leanprover/lean4/issues/7887.
 -/
+@[expose]
 protected def Int64.pow (x : Int64) (n : Nat) : Int64 :=
   match n with
   | 0 => 1
@@ -1449,7 +1457,7 @@ according to the two's complement representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int64_land"]
+@[extern "lean_int64_land", expose]
 protected def Int64.land (a b : Int64) : Int64 := ⟨⟨a.toBitVec &&& b.toBitVec⟩⟩
 /--
 Bitwise or for 64-bit signed integers. Usually accessed via the `|||` operator.
@@ -1459,7 +1467,7 @@ integers is set, according to the two's complement representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int64_lor"]
+@[extern "lean_int64_lor", expose]
 protected def Int64.lor (a b : Int64) : Int64 := ⟨⟨a.toBitVec ||| b.toBitVec⟩⟩
 /--
 Bitwise exclusive or for 64-bit signed integers. Usually accessed via the `^^^` operator.
@@ -1469,7 +1477,7 @@ integers is set, according to the two's complement representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int64_xor"]
+@[extern "lean_int64_xor", expose]
 protected def Int64.xor (a b : Int64) : Int64 := ⟨⟨a.toBitVec ^^^ b.toBitVec⟩⟩
 /--
 Bitwise left shift for 64-bit signed integers. Usually accessed via the `<<<` operator.
@@ -1478,7 +1486,7 @@ Signed integers are interpreted as bitvectors according to the two's complement 
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int64_shift_left"]
+@[extern "lean_int64_shift_left", expose]
 protected def Int64.shiftLeft (a b : Int64) : Int64 := ⟨⟨a.toBitVec <<< (b.toBitVec.smod 64)⟩⟩
 /--
 Arithmetic right shift for 64-bit signed integers. Usually accessed via the `<<<` operator.
@@ -1487,7 +1495,7 @@ The high bits are filled with the value of the most significant bit.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int64_shift_right"]
+@[extern "lean_int64_shift_right", expose]
 protected def Int64.shiftRight (a b : Int64) : Int64 := ⟨⟨BitVec.sshiftRight' a.toBitVec (b.toBitVec.smod 64)⟩⟩
 /--
 Bitwise complement, also known as bitwise negation, for 64-bit signed integers. Usually accessed via
@@ -1498,7 +1506,7 @@ Integers use the two's complement representation, so `Int64.complement a = -(a +
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int64_complement"]
+@[extern "lean_int64_complement", expose]
 protected def Int64.complement (a : Int64) : Int64 := ⟨⟨~~~a.toBitVec⟩⟩
 /--
 Computes the absolute value of a 64-bit signed integer.
@@ -1508,7 +1516,7 @@ mapped to `Int64.minValue`.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int64_abs"]
+@[extern "lean_int64_abs", expose]
 protected def Int64.abs (a : Int64) : Int64 := ⟨⟨a.toBitVec.abs⟩⟩
 
 /--
@@ -1566,7 +1574,7 @@ instance : DecidableEq Int64 := Int64.decEq
 /--
 Converts `true` to `1` and `false` to `0`.
 -/
-@[extern "lean_bool_to_int64"]
+@[extern "lean_bool_to_int64", expose]
 def Bool.toInt64 (b : Bool) : Int64 := if b then 1 else 0
 
 /--
@@ -1610,13 +1618,13 @@ abbrev ISize.size : Nat := 2^System.Platform.numBits
 /--
 Obtain the `BitVec` that contains the 2's complement representation of the `ISize`.
 -/
-@[inline] def ISize.toBitVec (x : ISize) : BitVec System.Platform.numBits := x.toUSize.toBitVec
+@[inline, expose] def ISize.toBitVec (x : ISize) : BitVec System.Platform.numBits := x.toUSize.toBitVec
 
 theorem ISize.toBitVec.inj : {x y : ISize} → x.toBitVec = y.toBitVec → x = y
   | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
 
 /-- Obtains the `ISize` that is 2's complement equivalent to the `USize`. -/
-@[inline] def USize.toISize (i : USize) : ISize := ISize.ofUSize i
+@[inline, expose] def USize.toISize (i : USize) : ISize := ISize.ofUSize i
 
 /--
 Converts an arbitrary-precision integer to a word-sized signed integer, wrapping around on over- or
@@ -1653,20 +1661,20 @@ Use `ISize.toBitVec` to obtain the two's complement representation.
 def ISize.toNatClampNeg (i : ISize) : Nat := i.toInt.toNat
 
 /-- Obtains the `ISize` whose 2's complement representation is the given `BitVec`. -/
-@[inline] def ISize.ofBitVec (b : BitVec System.Platform.numBits) : ISize := ⟨⟨b⟩⟩
+@[inline, expose] def ISize.ofBitVec (b : BitVec System.Platform.numBits) : ISize := ⟨⟨b⟩⟩
 /--
 Converts a word-sized signed integer to an 8-bit signed integer by truncating its bitvector representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_isize_to_int8"]
+@[extern "lean_isize_to_int8", expose]
 def ISize.toInt8 (a : ISize) : Int8 := ⟨⟨a.toBitVec.signExtend 8⟩⟩
 /--
 Converts a word-sized integer to a 16-bit integer by truncating its bitvector representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_isize_to_int16"]
+@[extern "lean_isize_to_int16", expose]
 def ISize.toInt16 (a : ISize) : Int16 := ⟨⟨a.toBitVec.signExtend 16⟩⟩
 /--
 Converts a word-sized signed integer to a 32-bit signed integer.
@@ -1677,7 +1685,7 @@ implementation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_isize_to_int32"]
+@[extern "lean_isize_to_int32", expose]
 def ISize.toInt32 (a : ISize) : Int32 := ⟨⟨a.toBitVec.signExtend 32⟩⟩
 /--
 Converts word-sized signed integers to 64-bit signed integers that denote the same number. This
@@ -1685,7 +1693,7 @@ conversion is lossless, because `ISize` is either `Int32` or `Int64`.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_isize_to_int64"]
+@[extern "lean_isize_to_int64", expose]
 def ISize.toInt64 (a : ISize) : Int64 := ⟨⟨a.toBitVec.signExtend 64⟩⟩
 /--
 Converts 8-bit signed integers to word-sized signed integers that denote the same number. This
@@ -1693,7 +1701,7 @@ conversion is lossless, because `ISize` is either `Int32` or `Int64`.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int8_to_isize"]
+@[extern "lean_int8_to_isize", expose]
 def Int8.toISize (a : Int8) : ISize := ⟨⟨a.toBitVec.signExtend System.Platform.numBits⟩⟩
 /--
 Converts 16-bit signed integers to word-sized signed integers that denote the same number. This conversion is lossless, because
@@ -1701,7 +1709,7 @@ Converts 16-bit signed integers to word-sized signed integers that denote the sa
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int16_to_isize"]
+@[extern "lean_int16_to_isize", expose]
 def Int16.toISize (a : Int16) : ISize := ⟨⟨a.toBitVec.signExtend System.Platform.numBits⟩⟩
 /--
 Converts 32-bit signed integers to word-sized signed integers that denote the same number. This
@@ -1709,7 +1717,7 @@ conversion is lossless, because `ISize` is either `Int32` or `Int64`.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int32_to_isize"]
+@[extern "lean_int32_to_isize", expose]
 def Int32.toISize (a : Int32) : ISize := ⟨⟨a.toBitVec.signExtend System.Platform.numBits⟩⟩
 /--
 Converts 64-bit signed integers to word-sized signed integers, truncating the bitvector
@@ -1717,7 +1725,7 @@ representation on 32-bit platforms. This conversion is lossless on 64-bit platfo
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int64_to_isize"]
+@[extern "lean_int64_to_isize", expose]
 def Int64.toISize (a : Int64) : ISize := ⟨⟨a.toBitVec.signExtend System.Platform.numBits⟩⟩
 /--
 Negates word-sized signed integers. Usually accessed via the `-` prefix operator.
@@ -1750,6 +1758,7 @@ abbrev ISize.minValue : ISize := .ofInt (-2 ^ (System.Platform.numBits - 1))
 def ISize.ofIntLE (i : Int) (_hl : ISize.minValue.toInt ≤ i) (_hr : i ≤ ISize.maxValue.toInt) : ISize :=
   ISize.ofInt i
 /-- Constructs an `ISize` from an `Int`, clamping if the value is too small or too large. -/
+@[expose]
 def ISize.ofIntTruncate (i : Int) : ISize :=
   if hl : ISize.minValue.toInt ≤ i then
     if hr : i ≤ ISize.maxValue.toInt then
@@ -1807,6 +1816,7 @@ wrapping around on overflow. Usually accessed via the `^` operator.
 This function is currently *not* overridden at runtime with an efficient implementation,
 and should be used with caution. See https://github.com/leanprover/lean4/issues/7887.
 -/
+@[expose]
 protected def ISize.pow (x : ISize) (n : Nat) : ISize :=
   match n with
   | 0 => 1
@@ -1840,7 +1850,7 @@ according to the two's complement representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_isize_land"]
+@[extern "lean_isize_land", expose]
 protected def ISize.land (a b : ISize) : ISize := ⟨⟨a.toBitVec &&& b.toBitVec⟩⟩
 /--
 Bitwise or for word-sized signed integers. Usually accessed via the `|||` operator.
@@ -1850,7 +1860,7 @@ integers is set, according to the two's complement representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_isize_lor"]
+@[extern "lean_isize_lor", expose]
 protected def ISize.lor (a b : ISize) : ISize := ⟨⟨a.toBitVec ||| b.toBitVec⟩⟩
 /--
 Bitwise exclusive or for word-sized signed integers. Usually accessed via the `^^^` operator.
@@ -1860,7 +1870,7 @@ integers is set, according to the two's complement representation.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_isize_xor"]
+@[extern "lean_isize_xor", expose]
 protected def ISize.xor (a b : ISize) : ISize := ⟨⟨a.toBitVec ^^^ b.toBitVec⟩⟩
 /--
 Bitwise left shift for word-sized signed integers. Usually accessed via the `<<<` operator.
@@ -1869,7 +1879,7 @@ Signed integers are interpreted as bitvectors according to the two's complement 
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_isize_shift_left"]
+@[extern "lean_isize_shift_left", expose]
 protected def ISize.shiftLeft (a b : ISize) : ISize := ⟨⟨a.toBitVec <<< (b.toBitVec.smod System.Platform.numBits)⟩⟩
 /--
 Arithmetic right shift for word-sized signed integers. Usually accessed via the `<<<` operator.
@@ -1879,7 +1889,7 @@ the most significant bit.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_isize_shift_right"]
+@[extern "lean_isize_shift_right", expose]
 protected def ISize.shiftRight (a b : ISize) : ISize := ⟨⟨BitVec.sshiftRight' a.toBitVec (b.toBitVec.smod System.Platform.numBits)⟩⟩
 /--
 Bitwise complement, also known as bitwise negation, for word-sized signed integers. Usually accessed
@@ -1890,7 +1900,7 @@ Integers use the two's complement representation, so `ISize.complement a = -(a +
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_isize_complement"]
+@[extern "lean_isize_complement", expose]
 protected def ISize.complement (a : ISize) : ISize := ⟨⟨~~~a.toBitVec⟩⟩
 
 /--
@@ -1901,7 +1911,7 @@ mapped to `ISize.minValue`.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_isize_abs"]
+@[extern "lean_isize_abs", expose]
 protected def ISize.abs (a : ISize) : ISize := ⟨⟨a.toBitVec.abs⟩⟩
 
 /--
@@ -1959,7 +1969,7 @@ instance : DecidableEq ISize := ISize.decEq
 /--
 Converts `true` to `1` and `false` to `0`.
 -/
-@[extern "lean_bool_to_isize"]
+@[extern "lean_bool_to_isize", expose]
 def Bool.toISize (b : Bool) : ISize := if b then 1 else 0
 
 /--

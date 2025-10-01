@@ -377,7 +377,7 @@ class ForIn (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v))
   More information about the translation of `for` loops into `ForIn.forIn` is available in [the Lean
   reference manual](lean-manual://section/monad-iteration-syntax).
   -/
-  forIn {β} [Monad m] (xs : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β
+  forIn {β} (xs : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β
 
 export ForIn (forIn)
 
@@ -405,7 +405,7 @@ class ForIn' (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)
   More information about the translation of `for` loops into `ForIn'.forIn'` is available in [the
   Lean reference manual](lean-manual://section/monad-iteration-syntax).
   -/
-  forIn' {β} [Monad m] (x : ρ) (b : β) (f : (a : α) → a ∈ x → β → m (ForInStep β)) : m β
+  forIn' {β} (x : ρ) (b : β) (f : (a : α) → a ∈ x → β → m (ForInStep β)) : m β
 
 export ForIn' (forIn')
 

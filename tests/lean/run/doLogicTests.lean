@@ -485,11 +485,11 @@ theorem test_match_splitting {m : Option Nat} (h : m = some 4) :
 
 theorem test_sum :
   ⦃⌜True⌝⦄
-  do
+  (do
     let mut x := 0
     for i in [1:5] do
       x := x + i
-    pure (f := Id) x
+    pure x : Id _)
   ⦃⇓r => ⌜r < 30⌝⦄ := by
   mvcgen
   case inv1 => exact (⇓ (xs, r) => ⌜r + xs.suffix.length * 5 ≤ 25⌝)

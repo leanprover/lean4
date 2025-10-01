@@ -37,7 +37,15 @@ def getLambdaBody (e : Expr) : Expr :=
   | .lam _ _ b _ => getLambdaBody b
   | _ => e
 
-def isNonTrivialProof (e : Expr) : MetaM Bool := do
+def isNonTrivialProof (e : Expr) : MetaM Bool :=
+  -- NOTE: this `withoutExporting` is not strictly necessary when considering the Lean elaborator
+  -- per se because there `e` is an elaboration result that should have been produced under the same
+  -- `Environment.isExporting` setting as the current one, so all referenced constants should be
+  -- accessible as is. However, Mathlib's `[to_additive]`, for example, uses `abstractNestedProofs`
+  -- on terms that contain the unfolding of non-exposed definitions and so may reference private
+  -- declarations but the code might still be run under `isExporting = true` in order to create the
+  -- new aux decls in the public scope. Thus we always shift to the private scope here.
+  withoutExporting do
   if !(← isProof e) then
     return false
   else if e.isAppOf ``Grind.nestedProof then

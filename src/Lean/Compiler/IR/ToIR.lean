@@ -20,7 +20,8 @@ public section
 namespace Lean.IR
 
 open Lean.Compiler (LCNF.Alt LCNF.Arg LCNF.Code LCNF.Decl LCNF.DeclValue LCNF.LCtx LCNF.LetDecl
-                    LCNF.LetValue LCNF.LitValue LCNF.Param LCNF.getMonoDecl?)
+  LCNF.LetValue LCNF.LitValue LCNF.Param LCNF.getMonoDecl? LCNF.FVarSubst LCNF.MonadFVarSubst
+  LCNF.MonadFVarSubstState LCNF.addSubst LCNF.normLetValue LCNF.normFVar)
 
 namespace ToIR
 
@@ -28,14 +29,23 @@ structure BuilderState where
   vars : Std.HashMap FVarId Arg := {}
   joinPoints : Std.HashMap FVarId JoinPointId := {}
   nextId : Nat := 1
+  subst : LCNF.FVarSubst := {}
 
 abbrev M := StateRefT BuilderState CoreM
+
+instance : LCNF.MonadFVarSubst M false where
+  getSubst := return (← get).subst
+
+instance : LCNF.MonadFVarSubstState M where
+  modifySubst f := modify fun s => { s with subst := f s.subst }
 
 def M.run (x : M α) : CoreM α := do
   x.run' {}
 
 def getFVarValue (fvarId : FVarId) : M Arg := do
-  return (← get).vars.get! fvarId
+  match ← LCNF.normFVar fvarId with
+  | .fvar fvarId => return (← get).vars.get! fvarId
+  | .erased => return .erased
 
 def getJoinPointValue (fvarId : FVarId) : M JoinPointId := do
   return (← get).joinPoints.get! fvarId
@@ -89,6 +99,7 @@ def lowerArg (a : LCNF.Arg) : M Arg := do
 inductive TranslatedProj where
   | expr (e : Expr)
   | erased
+  | void
   deriving Inhabited
 
 def lowerProj (base : VarId) (ctorInfo : CtorInfo) (field : CtorFieldInfo)
@@ -98,6 +109,7 @@ def lowerProj (base : VarId) (ctorInfo : CtorInfo) (field : CtorFieldInfo)
   | .usize i => ⟨.expr (.uproj i base), .usize⟩
   | .scalar _ offset irType => ⟨.expr (.sproj (ctorInfo.size + ctorInfo.usize) offset base), irType⟩
   | .erased => ⟨.erased, .erased⟩
+  | .void => ⟨.void, .void⟩
 
 def lowerParam (p : LCNF.Param) : M Param := do
   let x ← bindVar p.fvarId
@@ -117,40 +129,61 @@ partial def lowerCode (c : LCNF.Code) : M FnBody := do
     let joinPointId ← getJoinPointValue fvarId
     return .jmp joinPointId (← args.mapM lowerArg)
   | .cases cases =>
-    -- `casesOn` for inductive predicates should have already been expanded.
-    let .var varId := (← getFVarValue cases.discr) | unreachable!
-    return .case cases.typeName
-                 varId
-                 (← nameToIRType cases.typeName)
-                 (← cases.alts.mapM (lowerAlt varId))
+    if let some info ← hasTrivialStructure? cases.typeName then
+      assert! cases.alts.size == 1
+      let .alt ctorName ps k := cases.alts[0]! | unreachable!
+      assert! ctorName == info.ctorName
+      assert! info.fieldIdx < ps.size
+      for idx in 0...ps.size do
+        let p := ps[idx]!
+        if idx == info.fieldIdx then
+          LCNF.addSubst p.fvarId (.fvar cases.discr)
+        else
+          bindErased p.fvarId
+      lowerCode k
+    else
+      -- `casesOn` for inductive predicates should have already been expanded.
+      let .var varId := (← getFVarValue cases.discr) | unreachable!
+      return .case cases.typeName
+                   varId
+                   (← nameToIRType cases.typeName)
+                   (← cases.alts.mapM (lowerAlt varId))
   | .return fvarId =>
     return .ret (← getFVarValue fvarId)
   | .unreach .. => return .unreachable
   | .fun .. => panic! "all local functions should be λ-lifted"
 
 partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
-  match decl.value with
+  let value ← LCNF.normLetValue decl.value
+  match value with
   | .lit litValue =>
     let var ← bindVar decl.fvarId
     let ⟨litValue, type⟩ := lowerLitValue litValue
     return .vdecl var type (.lit litValue) (← lowerCode k)
   | .proj typeName i fvarId =>
-    match (← getFVarValue fvarId) with
-    | .var varId =>
-      let some (.inductInfo { ctors := [ctorName], .. }) := (← Lean.getEnv).find? typeName
-        | panic! "projection of non-structure type"
-      let ⟨ctorInfo, fields⟩ ← getCtorLayout ctorName
-      let ⟨result, type⟩ := lowerProj varId ctorInfo fields[i]!
-      match result with
-      | .expr e =>
-        let var ← bindVar decl.fvarId
-        return .vdecl var type e (← lowerCode k)
+    if let some info ← hasTrivialStructure? typeName then
+      if info.fieldIdx == i then
+        LCNF.addSubst decl.fvarId (.fvar fvarId)
+      else
+        bindErased decl.fvarId
+      lowerCode k
+    else
+      match (← getFVarValue fvarId) with
+      | .var varId =>
+        let some (.inductInfo { ctors := [ctorName], .. }) := (← Lean.getEnv).find? typeName
+          | panic! "projection of non-structure type"
+        let ⟨ctorInfo, fields⟩ ← getCtorLayout ctorName
+        let ⟨result, type⟩ := lowerProj varId ctorInfo fields[i]!
+        match result with
+        | .expr e =>
+          let var ← bindVar decl.fvarId
+          return .vdecl var type e (← lowerCode k)
+        | .erased | .void =>
+          bindErased decl.fvarId
+          lowerCode k
       | .erased =>
         bindErased decl.fvarId
         lowerCode k
-    | .erased =>
-      bindErased decl.fvarId
-      lowerCode k
   | .const name _ args =>
     let irArgs ← args.mapM lowerArg
     if let some decl ← findDecl name then
@@ -160,43 +193,48 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
     let env ← Lean.getEnv
     match env.find? name with
     | some (.ctorInfo ctorVal) =>
-      let type ← nameToIRType ctorVal.induct
-      if type.isScalar then
-        let var ← bindVar decl.fvarId
-        return .vdecl var type (.lit (.num ctorVal.cidx)) (← lowerCode k)
+      if let some info ← hasTrivialStructure? ctorVal.induct then
+        let arg := args[info.numParams + info.fieldIdx]!
+        LCNF.addSubst decl.fvarId arg
+        lowerCode k
+      else
+        let type ← nameToIRType ctorVal.induct
+        if type.isScalar then
+          let var ← bindVar decl.fvarId
+          return .vdecl var type (.lit (.num ctorVal.cidx)) (← lowerCode k)
 
-      let ⟨ctorInfo, fields⟩ ← getCtorLayout name
-      let irArgs := irArgs.extract (start := ctorVal.numParams)
-      if irArgs.size != fields.size then
-        -- An overapplied constructor arises from compiler
-        -- transformations on unreachable code
-        return .unreachable
+        let ⟨ctorInfo, fields⟩ ← getCtorLayout name
+        let irArgs := irArgs.extract (start := ctorVal.numParams)
+        if irArgs.size != fields.size then
+          -- An overapplied constructor arises from compiler
+          -- transformations on unreachable code
+          return .unreachable
 
-      let objArgs : Array Arg ← do
-        let mut result : Array Arg := #[]
-        for h : i in *...fields.size do
-          match fields[i] with
-          | .object .. =>
-            result := result.push irArgs[i]!
-          | .usize .. | .scalar .. | .erased => pure ()
-        pure result
-      let objVar ← bindVar decl.fvarId
-      let rec lowerNonObjectFields (_ : Unit) : M FnBody :=
-        let rec loop (i : Nat) : M FnBody := do
-          match irArgs[i]? with
-          | some (.var varId) =>
-            match fields[i]! with
-            | .usize usizeIdx =>
-              let k ← loop (i + 1)
-              return .uset objVar usizeIdx varId k
-            | .scalar _ offset argType =>
-              let k ← loop (i + 1)
-              return .sset objVar (ctorInfo.size + ctorInfo.usize) offset varId argType k
-            | .object .. | .erased => loop (i + 1)
-          | some .erased => loop (i + 1)
-          | none => lowerCode k
-        loop 0
-      return .vdecl objVar ctorInfo.type (.ctor ctorInfo objArgs) (← lowerNonObjectFields ())
+        let objArgs : Array Arg ← do
+          let mut result : Array Arg := #[]
+          for h : i in *...fields.size do
+            match fields[i] with
+            | .object .. =>
+              result := result.push irArgs[i]!
+            | .usize .. | .scalar .. | .erased | .void => pure ()
+          pure result
+        let objVar ← bindVar decl.fvarId
+        let rec lowerNonObjectFields (_ : Unit) : M FnBody :=
+          let rec loop (i : Nat) : M FnBody := do
+            match irArgs[i]? with
+            | some (.var varId) =>
+              match fields[i]! with
+              | .usize usizeIdx =>
+                let k ← loop (i + 1)
+                return .uset objVar usizeIdx varId k
+              | .scalar _ offset argType =>
+                let k ← loop (i + 1)
+                return .sset objVar (ctorInfo.size + ctorInfo.usize) offset varId argType k
+              | .object .. | .erased | .void => loop (i + 1)
+            | some .erased => loop (i + 1)
+            | none => lowerCode k
+          loop 0
+        return .vdecl objVar ctorInfo.type (.ctor ctorInfo objArgs) (← lowerNonObjectFields ())
     | some (.defnInfo ..) | some (.opaqueInfo ..) =>
       mkFap name irArgs
     | some (.axiomInfo ..) | .some (.quotInfo ..) | .some (.inductInfo ..) | .some (.thmInfo ..) =>
@@ -267,7 +305,7 @@ partial def lowerAlt (discr : VarId) (a : LCNF.Alt) : M Alt := do
                           type
                           e
                           (← loop (i + 1))
-          | .erased =>
+          | .erased | .void =>
             bindErased param.fvarId
             loop (i + 1)
         | none, none => lowerCode code

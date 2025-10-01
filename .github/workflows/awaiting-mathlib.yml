@@ -12,7 +12,7 @@ jobs:
       - name: Check awaiting-mathlib label
         id: check-awaiting-mathlib-label
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const { labels, number: prNumber } = context.payload.pull_request;

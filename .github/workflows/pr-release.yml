@@ -101,7 +101,7 @@ jobs:
 
       - name: Report release status (short format)
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             await github.rest.repos.createCommitStatus({
@@ -115,7 +115,7 @@ jobs:
 
       - name: Report release status (SHA-suffixed format)
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             await github.rest.repos.createCommitStatus({
@@ -129,7 +129,7 @@ jobs:
 
       - name: Add label
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             await github.rest.issues.addLabels({
@@ -368,7 +368,7 @@ jobs:
 
       - name: Report mathlib base
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true' }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const description =

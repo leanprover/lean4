@@ -94,7 +94,7 @@ where
             (have := c.utf8Size_pos; have := le_size_of_utf8DecodeChar?_eq_some h; by omega)
   termination_by structural fuel
 
-@[inline, expose]
+@[expose, extern "lean_string_validate_utf8"]
 def ByteArray.validateUTF8 (b : ByteArray) : Bool :=
   go (b.size + 1) 0 (by simp) (by simp)
 where

@@ -69,6 +69,7 @@ def toCType : IRType → String
   | IRType.tagged     => "lean_object*"
   | IRType.tobject    => "lean_object*"
   | IRType.erased     => "lean_object*"
+  | IRType.void       => "lean_object*"
   | IRType.struct _ _ => panic! "not implemented yet"
   | IRType.union _ _  => panic! "not implemented yet"
 

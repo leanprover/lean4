@@ -59,6 +59,20 @@ def Cursor.tail (s : Cursor l) (h : 0 < s.suffix.length := by get_elem_tactic) :
     (Cursor.at l n).tail (by simpa using Nat.sub_lt_sub_right (Nat.le_refl n) h) = Cursor.at l (n + 1) := by
   simp [Cursor.tail, Cursor.at, Cursor.current]
 
+/--
+The position of the cursor in the list.
+It's a shortcut for the number of elements in the prefix.
+-/
+abbrev Cursor.pos (c : Cursor l) : Nat := c.prefix.length
+
+@[simp, grind =]
+theorem Cursor.pos_at {l : List α} {n : Nat} (h : n < l.length) :
+    (Cursor.at l n).pos = n := by simp only [pos, «at», length_take]; omega
+
+@[simp]
+theorem Cursor.pos_mk {l pre suff : List α} (h : pre ++ suff = l) :
+    (Cursor.mk pre suff h).pos = pre.length := rfl
+
 @[grind →]
 theorem eq_of_range'_eq_append_cons (h : range' s n step = xs ++ cur :: ys) :
     cur = s + step * xs.length := by

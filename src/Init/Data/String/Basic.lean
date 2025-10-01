@@ -3478,7 +3478,7 @@ where
       let spos' := s.str.prev spos
       let tpos' := t.str.prev tpos
       if s.str.get spos' == t.str.get tpos' then
-        have : spos' < spos := s.str.prev_lt_of_pos spos (String.Pos.ne_zero_of_lt h.1)
+        have : spos' < spos := s.str.prev_lt_of_pos spos (String.Pos.Raw.ne_zero_of_lt h.1)
         loop spos' tpos'
       else
         spos

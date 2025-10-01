@@ -2189,7 +2189,7 @@ def next' (s : @& String) (p : @& Pos.Raw) (h : ¬ s.atEnd p) : Pos.Raw :=
 
 @[simp] theorem pos_add_char (p : Pos.Raw) (c : Char) : (p + c).byteIdx = p.byteIdx + c.utf8Size := rfl
 
-protected theorem Pos.ne_zero_of_lt : {a b : Pos.Raw} → a < b → b ≠ 0
+protected theorem Pos.Raw.ne_zero_of_lt : {a b : Pos.Raw} → a < b → b ≠ 0
   | _, _, hlt, rfl => Nat.not_lt_zero _ hlt
 
 theorem lt_next (s : String) (i : Pos.Raw) : i.1 < (s.next i).1 :=

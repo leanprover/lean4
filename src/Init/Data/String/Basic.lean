@@ -94,6 +94,55 @@ where
             (have := c.utf8Size_pos; have := le_size_of_utf8DecodeChar?_eq_some h; by omega)
   termination_by structural fuel
 
+@[inline, expose]
+def ByteArray.validateUTF8 (b : ByteArray) : Bool :=
+  go (b.size + 1) 0 (by simp) (by simp)
+where
+  go (fuel : Nat) (i : Nat) (hi : i ≤ b.size) (hf : b.size - i < fuel) : Bool :=
+    match fuel, hf with
+    | fuel + 1, _ =>
+      if hi : i = b.size then
+        true
+      else
+        match h : validateUtf8At b i with
+        | false => false
+        | true => go fuel (i + (b[i].utf8ByteSize (isUtf8FirstByte_of_validateUtf8At h)).byteIdx)
+            ?_ ?_
+  termination_by structural fuel
+finally
+  all_goals rw [ByteArray.validateUtf8At_eq_isSome_utf8DecodeChar?] at h
+  · rw [← ByteArray.utf8Size_utf8DecodeChar (h := h)]
+    exact add_utf8Size_utf8DecodeChar_le_size
+  · rw [← ByteArray.utf8Size_utf8DecodeChar (h := h)]
+    have := add_utf8Size_utf8DecodeChar_le_size (h := h)
+    have := (b.utf8DecodeChar i h).utf8Size_pos
+    omega
+
+theorem ByteArray.isSome_utf8Decode?Go_eq_validateUtf8Go {b : ByteArray} {fuel : Nat}
+    {i : Nat} {acc : Array Char} {hi : i ≤ b.size} {hf : b.size - i < fuel} :
+    (utf8Decode?.go b fuel i acc hi hf).isSome = validateUTF8.go b fuel i hi hf := by
+  fun_induction utf8Decode?.go with
+  | case1 => simp [validateUTF8.go]
+  | case2 i acc hi fuel hf h₁ h₂ =>
+    simp only [Option.isSome_none, validateUTF8.go, h₁, ↓reduceDIte, Bool.false_eq]
+    split
+    · rfl
+    · rename_i heq
+      simp [validateUtf8At_eq_isSome_utf8DecodeChar?, h₂] at heq
+  | case3 i acc hi fuel hf h₁ c h₂ ih =>
+    simp [validateUTF8.go, h₁]
+    split
+    · rename_i heq
+      simp [validateUtf8At_eq_isSome_utf8DecodeChar?, h₂] at heq
+    · rw [ih]
+      congr
+      rw [← ByteArray.utf8Size_utf8DecodeChar (h := by simp [h₂])]
+      simp [utf8DecodeChar, h₂]
+
+theorem ByteArray.isSome_utf8Decode?_eq_validateUtf8 {b : ByteArray} :
+    b.utf8Decode?.isSome = b.validateUTF8 :=
+  b.isSome_utf8Decode?Go_eq_validateUtf8Go
+
 theorem ByteArray.utf8Decode?.go.congr {b b' : ByteArray} {fuel fuel' i i' : Nat} {acc acc' : Array Char} {hi hi' hf hf'}
     (hbb' : b = b') (hii' : i = i') (hacc : acc = acc') :
     ByteArray.utf8Decode?.go b fuel i acc hi hf = ByteArray.utf8Decode?.go b' fuel' i' acc' hi' hf' := by
@@ -151,7 +200,50 @@ theorem ByteArray.isSome_utf8Decode?_iff {b : ByteArray} :
   rw [utf8Decode?, isSome_utf8Decode?go_iff, extract_zero_size]
 
 @[simp]
-theorem String.bytes_empty : "".bytes = ByteArray.empty := (rfl)
+theorem ByteArray.validateUTF8_eq_true_iff {b : ByteArray} :
+    b.validateUTF8 = true ↔ IsValidUtf8 b := by
+  rw [← isSome_utf8Decode?_eq_validateUtf8, isSome_utf8Decode?_iff]
+
+@[simp]
+theorem ByteArray.validateUTF8_eq_false_iff {b : ByteArray} :
+    b.validateUTF8 = false ↔ ¬ IsValidUtf8 b := by
+  simp [← Bool.not_eq_true]
+
+instance {b : ByteArray} : Decidable b.IsValidUtf8 :=
+  decidable_of_iff (b.validateUTF8 = true) ByteArray.validateUTF8_eq_true_iff
+
+/--
+Decodes an array of bytes that encode a string as [UTF-8](https://en.wikipedia.org/wiki/UTF-8) into
+the corresponding string.
+-/
+@[inline, expose]
+def String.fromUTF8 (a : @& ByteArray) (h : a.IsValidUtf8) : String :=
+  .ofByteArray a h
+
+/--
+Decodes an array of bytes that encode a string as [UTF-8](https://en.wikipedia.org/wiki/UTF-8) into
+the corresponding string, or returns `none` if the array is not a valid UTF-8 encoding of a string.
+-/
+@[inline, expose] def String.fromUTF8? (a : ByteArray) : Option String :=
+  if h : a.IsValidUtf8 then some (fromUTF8 a h) else none
+
+/--
+Decodes an array of bytes that encode a string as [UTF-8](https://en.wikipedia.org/wiki/UTF-8) into
+the corresponding string, or panics if the array is not a valid UTF-8 encoding of a string.
+-/
+@[inline, expose] def String.fromUTF8! (a : ByteArray) : String :=
+  if h : a.IsValidUtf8 then fromUTF8 a h else panic! "invalid UTF-8 string"
+
+/--
+Encodes a string in UTF-8 as an array of bytes.
+-/
+@[extern "lean_string_to_utf8"]
+def String.toUTF8 (a : @& String) : ByteArray :=
+  a.bytes
+
+@[simp] theorem String.toUTF8_eq_bytes {s : String} : s.toUTF8 = s.bytes := (rfl)
+
+@[simp] theorem String.bytes_empty : "".bytes = ByteArray.empty := (rfl)
 
 /--
 Appends two strings. Usually accessed via the `++` operator.

@@ -92,6 +92,7 @@ def ifOutOfFuel (x : VCGenM α) (k : VCGenM α) : VCGenM α := do
   | _ => k
 
 def addSubGoalAsVC (goal : MVarId) : VCGenM PUnit := do
+  goal.freshenLCtxUserNamesSinceIdx (← read).initialCtxSize
   let ty ← goal.getType
   if ty.isAppOf ``Std.Do.Invariant then
     modify fun s => { s with invariants := s.invariants.push goal }
@@ -99,10 +100,9 @@ def addSubGoalAsVC (goal : MVarId) : VCGenM PUnit := do
     modify fun s => { s with vcs := s.vcs.push goal }
 
 def emitVC (subGoal : Expr) (name : Name) : VCGenM Expr := do
-  withFreshUserNamesSinceIdx (← read).initialCtxSize do
-    let m ← liftM <| mkFreshExprSyntheticOpaqueMVar subGoal (tag := name)
-    addSubGoalAsVC m.mvarId!
-    return m
+  let m ← liftM <| mkFreshExprSyntheticOpaqueMVar subGoal (tag := name)
+  addSubGoalAsVC m.mvarId!
+  return m
 
 def liftSimpM (x : SimpM α) : VCGenM α := do
   let ctx ← read

@@ -1968,14 +1968,14 @@ def withErasedFVars [MonadLCtx n] [MonadLiftT MetaM n] (fvarIds : Array FVarId) 
 /--
 Ensures that the user names of all local declarations after index `idx` have a macro scope.
 -/
-def withFreshUserNamesSinceIdx [MonadLCtx n] [MonadLiftT MetaM n] (idx : Nat) (k : n α) : n α := do
-  let mut lctx ← getLCtx
+private def freshenUserNamesSinceIdx [MonadLiftT MetaM n] (lctx : LocalContext) (idx : Nat) : n LocalContext := do
+  let mut lctx := lctx
   for i in [idx:lctx.numIndices] do
     let some decl := lctx.decls[i]! | continue
     let n := decl.userName
     if !n.hasMacroScopes then
       lctx := lctx.setUserName decl.fvarId (← liftMetaM <| mkFreshUserName n)
-  withLCtx' lctx k
+  return lctx
 
 private def withMVarContextImp (mvarId : MVarId) (x : MetaM α) : MetaM α := do
   let mvarDecl ← mvarId.getDecl
@@ -2012,6 +2012,14 @@ def withoutModifyingMCtx : n α → n α :=
       x
     finally
       modify fun s => { s with cache, mctx }
+
+/--
+Ensures that the user names of all local declarations after index `idx` have a macro scope.
+-/
+def _root_.Lean.MVarId.freshenLCtxUserNamesSinceIdx [MonadMCtx n] [MonadLiftT MetaM n] (mvarId : MVarId) (idx : Nat) : n Unit := do
+  let some decl := (← getMCtx).findDecl? mvarId | liftMetaM <| throwError m!"unknown metavariable {mvarId.name}"
+  let lctx ← freshenUserNamesSinceIdx decl.lctx idx
+  modifyMCtx fun mctx => { mctx with decls := mctx.decls.insert mvarId { decl with lctx } }
 
 @[inline] private def approxDefEqImp (x : MetaM α) : MetaM α :=
   withConfig (fun config => { config with foApprox := true, ctxApprox := true, quasiPatternApprox := true}) x

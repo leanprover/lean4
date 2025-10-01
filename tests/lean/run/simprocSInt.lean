@@ -1,3 +1,5 @@
+module
+
 section
 
 variable (x : Int)
@@ -30,6 +32,9 @@ section
 
 variable (x : Int8)
 
+example : (5 : Int8) = 5 := by decide
+example : (5 : Int8) ≤ 5 := by decide
+example : (5 : Int8) < 6 := by decide
 example : Int8.toInt (-(-(-8))) + 8 = 0 := by simp +ground only
 example : Int8.toInt (-8) + 8 = 0 := by simp +ground only
 #check_simp (-5 : Int8).toNatClampNeg ~> 0
@@ -73,6 +78,9 @@ section
 
 variable (x : Int16)
 
+example : (5 : Int16) = 5 := by decide
+example : (5 : Int16) ≤ 5 := by decide
+example : (5 : Int16) < 6 := by decide
 example : Int16.toInt (-(-(-16))) + 16 = 0 := by simp +ground only
 example : Int16.toInt (-16) + 16 = 0 := by simp +ground only
 #check_simp (-5 : Int16).toNatClampNeg ~> 0
@@ -111,6 +119,9 @@ section
 
 variable (x : Int32)
 
+example : (5 : Int32) = 5 := by decide
+example : (5 : Int32) ≤ 5 := by decide
+example : (5 : Int32) < 6 := by decide
 example : Int32.toInt (-(-(-32))) + 32 = 0 := by simp +ground only
 example : Int32.toInt (-32) + 32 = 0 := by simp +ground only
 #check_simp (-5 : Int32).toNatClampNeg ~> 0
@@ -149,6 +160,9 @@ section
 
 variable (x : Int64)
 
+example : (5 : Int64) = 5 := by decide
+example : (5 : Int64) ≤ 5 := by decide
+example : (5 : Int64) < 6 := by decide
 example : Int64.toInt (-(-(-64))) + 64 = 0 := by simp +ground only
 example : Int64.toInt (-64) + 64 = 0 := by simp +ground only
 #check_simp (-5 : Int64).toNatClampNeg ~> 0

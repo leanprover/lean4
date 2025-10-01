@@ -875,7 +875,7 @@ def withCleanLCtxFor (m : MkMatcherInput) (k : MetaM α) : MetaM α := do
   let lctx ← getLCtx
   let lctx := lctx.foldr (init := lctx) fun localDecl lctx =>
     if s.contains localDecl.fvarId then lctx else lctx.erase localDecl.fvarId
-  let localInstances := (← getLocalInstances).filter fun localInst => s.contains localInst.fvar.fvarId!
+  let localInstances := (← getLocalInstances).filter fun localInst => s.contains localInst.fvarId
   withLCtx lctx localInstances k
 
 /--

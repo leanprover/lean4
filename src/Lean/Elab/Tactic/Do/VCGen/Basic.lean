@@ -18,9 +18,9 @@ open Lean Parser Elab Tactic Meta Do SpecAttr
 builtin_initialize registerTraceClass `Elab.Tactic.Do.vcgen
 
 register_builtin_option mvcgen.warning : Bool := {
-  defValue := true
+  defValue := false
   group    := "debug"
-  descr    := "disable `mvcgen` usage warning"
+  descr    := "enable `mvcgen` usage warning"
 }
 
 inductive Fuel where

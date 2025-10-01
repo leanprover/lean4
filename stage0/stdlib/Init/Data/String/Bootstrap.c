@@ -36,6 +36,7 @@ LEAN_EXPORT lean_object* l_String_Internal_trim___boxed(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_String_Internal_length___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Internal_next___boxed(lean_object*, lean_object*);
+uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 lean_object* lean_string_foldl(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Internal_isPrefixOf___boxed(lean_object*, lean_object*);
 uint8_t lean_string_contains(lean_object*, uint32_t);
@@ -83,6 +84,7 @@ LEAN_EXPORT lean_object* l_String_Pos_Raw_Internal_sub___boxed(lean_object*, lea
 LEAN_EXPORT lean_object* l_String_Internal_extract___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_dropright(lean_object*, lean_object*);
 static lean_object* l_String_instInhabited___closed__0;
+LEAN_EXPORT lean_object* l_String_Internal_getUTF8Byte___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_substring_beq(lean_object*, lean_object*);
 uint8_t lean_substring_all(lean_object*, lean_object*);
 uint32_t lean_substring_front(lean_object*);
@@ -334,6 +336,16 @@ _start:
 lean_object* x_3; 
 x_3 = lean_string_dropright(x_1, x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_String_Internal_getUTF8Byte___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_string_get_byte_fast(x_1, x_2);
+lean_dec_ref(x_1);
+x_5 = lean_box(x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_String_mk___boxed(lean_object* x_1) {

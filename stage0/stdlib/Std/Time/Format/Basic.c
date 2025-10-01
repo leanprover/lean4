@@ -1463,9 +1463,14 @@ return x_1;
 LEAN_EXPORT lean_object* l_Std_Time_Text_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_Time_Text_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Std_Time_Text_ctorIdx(x_1);
+x_4 = l_Std_Time_Text_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = lean_alloc_closure((void*)(l_Std_Time_Text_noConfusion___redArg___lam__0___boxed), 1, 0);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_Text_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
@@ -3112,9 +3117,14 @@ return x_1;
 LEAN_EXPORT lean_object* l_Std_Time_ZoneId_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Std_Time_ZoneId_noConfusion___redArg___closed__0;
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Std_Time_ZoneId_ctorIdx(x_1);
+x_4 = l_Std_Time_ZoneId_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = l_Std_Time_ZoneId_noConfusion___redArg___closed__0;
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_ZoneId_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
@@ -3506,9 +3516,14 @@ return x_6;
 LEAN_EXPORT lean_object* l_Std_Time_ZoneName_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Std_Time_ZoneId_noConfusion___redArg___closed__0;
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Std_Time_ZoneName_ctorIdx(x_1);
+x_4 = l_Std_Time_ZoneName_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = l_Std_Time_ZoneId_noConfusion___redArg___closed__0;
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_ZoneName_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
@@ -4068,9 +4083,14 @@ return x_6;
 LEAN_EXPORT lean_object* l_Std_Time_OffsetX_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Std_Time_ZoneId_noConfusion___redArg___closed__0;
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Std_Time_OffsetX_ctorIdx(x_1);
+x_4 = l_Std_Time_OffsetX_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = l_Std_Time_ZoneId_noConfusion___redArg___closed__0;
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_OffsetX_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
@@ -4689,9 +4709,14 @@ return x_6;
 LEAN_EXPORT lean_object* l_Std_Time_OffsetO_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Std_Time_ZoneId_noConfusion___redArg___closed__0;
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Std_Time_OffsetO_ctorIdx(x_1);
+x_4 = l_Std_Time_OffsetO_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = l_Std_Time_ZoneId_noConfusion___redArg___closed__0;
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_OffsetO_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
@@ -5124,9 +5149,14 @@ return x_6;
 LEAN_EXPORT lean_object* l_Std_Time_OffsetZ_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Std_Time_ZoneId_noConfusion___redArg___closed__0;
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Std_Time_OffsetZ_ctorIdx(x_1);
+x_4 = l_Std_Time_OffsetZ_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = l_Std_Time_ZoneId_noConfusion___redArg___closed__0;
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_OffsetZ_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
@@ -19900,155 +19930,162 @@ return x_1;
 LEAN_EXPORT lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_nat_abs(x_1);
-x_4 = lean_unsigned_to_nat(1u);
-x_5 = lean_nat_sub(x_3, x_4);
-lean_dec(x_3);
+x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_pad___closed__0;
+x_4 = lean_int_dec_lt(x_1, x_3);
+x_5 = lean_nat_abs(x_1);
 x_6 = lean_nat_dec_eq(x_5, x_2);
-if (x_6 == 1)
-{
-lean_object* x_7; 
-lean_dec(x_5);
-x_7 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__0;
-return x_7;
-}
-else
-{
-lean_object* x_8; uint8_t x_9; 
-x_8 = lean_nat_sub(x_5, x_4);
+x_7 = lean_unsigned_to_nat(1u);
+x_8 = lean_nat_sub(x_5, x_7);
 lean_dec(x_5);
 x_9 = lean_nat_dec_eq(x_8, x_2);
 if (x_9 == 1)
 {
 lean_object* x_10; 
 lean_dec(x_8);
-x_10 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__1;
+x_10 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__0;
 return x_10;
 }
 else
 {
 lean_object* x_11; uint8_t x_12; 
-x_11 = lean_nat_sub(x_8, x_4);
+x_11 = lean_nat_sub(x_8, x_7);
 lean_dec(x_8);
 x_12 = lean_nat_dec_eq(x_11, x_2);
 if (x_12 == 1)
 {
 lean_object* x_13; 
 lean_dec(x_11);
-x_13 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__2;
+x_13 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__1;
 return x_13;
 }
 else
 {
 lean_object* x_14; uint8_t x_15; 
-x_14 = lean_nat_sub(x_11, x_4);
+x_14 = lean_nat_sub(x_11, x_7);
 lean_dec(x_11);
 x_15 = lean_nat_dec_eq(x_14, x_2);
 if (x_15 == 1)
 {
 lean_object* x_16; 
 lean_dec(x_14);
-x_16 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__3;
+x_16 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__2;
 return x_16;
 }
 else
 {
 lean_object* x_17; uint8_t x_18; 
-x_17 = lean_nat_sub(x_14, x_4);
+x_17 = lean_nat_sub(x_14, x_7);
 lean_dec(x_14);
 x_18 = lean_nat_dec_eq(x_17, x_2);
 if (x_18 == 1)
 {
 lean_object* x_19; 
 lean_dec(x_17);
-x_19 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__4;
+x_19 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__3;
 return x_19;
 }
 else
 {
 lean_object* x_20; uint8_t x_21; 
-x_20 = lean_nat_sub(x_17, x_4);
+x_20 = lean_nat_sub(x_17, x_7);
 lean_dec(x_17);
 x_21 = lean_nat_dec_eq(x_20, x_2);
 if (x_21 == 1)
 {
 lean_object* x_22; 
 lean_dec(x_20);
-x_22 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__5;
+x_22 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__4;
 return x_22;
 }
 else
 {
 lean_object* x_23; uint8_t x_24; 
-x_23 = lean_nat_sub(x_20, x_4);
+x_23 = lean_nat_sub(x_20, x_7);
 lean_dec(x_20);
 x_24 = lean_nat_dec_eq(x_23, x_2);
 if (x_24 == 1)
 {
 lean_object* x_25; 
 lean_dec(x_23);
-x_25 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__6;
+x_25 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__5;
 return x_25;
 }
 else
 {
 lean_object* x_26; uint8_t x_27; 
-x_26 = lean_nat_sub(x_23, x_4);
+x_26 = lean_nat_sub(x_23, x_7);
 lean_dec(x_23);
 x_27 = lean_nat_dec_eq(x_26, x_2);
 if (x_27 == 1)
 {
 lean_object* x_28; 
 lean_dec(x_26);
-x_28 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__7;
+x_28 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__6;
 return x_28;
 }
 else
 {
 lean_object* x_29; uint8_t x_30; 
-x_29 = lean_nat_sub(x_26, x_4);
+x_29 = lean_nat_sub(x_26, x_7);
 lean_dec(x_26);
 x_30 = lean_nat_dec_eq(x_29, x_2);
 if (x_30 == 1)
 {
 lean_object* x_31; 
 lean_dec(x_29);
-x_31 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__8;
+x_31 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__7;
 return x_31;
 }
 else
 {
 lean_object* x_32; uint8_t x_33; 
-x_32 = lean_nat_sub(x_29, x_4);
+x_32 = lean_nat_sub(x_29, x_7);
 lean_dec(x_29);
 x_33 = lean_nat_dec_eq(x_32, x_2);
 if (x_33 == 1)
 {
 lean_object* x_34; 
 lean_dec(x_32);
-x_34 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__9;
+x_34 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__8;
 return x_34;
 }
 else
 {
 lean_object* x_35; uint8_t x_36; 
-x_35 = lean_nat_sub(x_32, x_4);
+x_35 = lean_nat_sub(x_32, x_7);
 lean_dec(x_32);
 x_36 = lean_nat_dec_eq(x_35, x_2);
-lean_dec(x_35);
 if (x_36 == 1)
 {
 lean_object* x_37; 
-x_37 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__10;
+lean_dec(x_35);
+x_37 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__9;
 return x_37;
 }
 else
 {
-lean_object* x_38; 
-x_38 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__11;
-return x_38;
+lean_object* x_38; uint8_t x_39; 
+x_38 = lean_nat_sub(x_35, x_7);
+lean_dec(x_35);
+x_39 = lean_nat_dec_eq(x_38, x_2);
+if (x_39 == 1)
+{
+lean_object* x_40; 
+lean_dec(x_38);
+x_40 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__10;
+return x_40;
+}
+else
+{
+lean_object* x_41; uint8_t x_42; lean_object* x_43; 
+x_41 = lean_nat_sub(x_38, x_7);
+lean_dec(x_38);
+x_42 = lean_nat_dec_eq(x_41, x_2);
+lean_dec(x_41);
+x_43 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__11;
+return x_43;
 }
 }
 }
@@ -20162,155 +20199,162 @@ return x_1;
 LEAN_EXPORT lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_nat_abs(x_1);
-x_4 = lean_unsigned_to_nat(1u);
-x_5 = lean_nat_sub(x_3, x_4);
-lean_dec(x_3);
+x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_pad___closed__0;
+x_4 = lean_int_dec_lt(x_1, x_3);
+x_5 = lean_nat_abs(x_1);
 x_6 = lean_nat_dec_eq(x_5, x_2);
-if (x_6 == 1)
-{
-lean_object* x_7; 
-lean_dec(x_5);
-x_7 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__0;
-return x_7;
-}
-else
-{
-lean_object* x_8; uint8_t x_9; 
-x_8 = lean_nat_sub(x_5, x_4);
+x_7 = lean_unsigned_to_nat(1u);
+x_8 = lean_nat_sub(x_5, x_7);
 lean_dec(x_5);
 x_9 = lean_nat_dec_eq(x_8, x_2);
 if (x_9 == 1)
 {
 lean_object* x_10; 
 lean_dec(x_8);
-x_10 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__1;
+x_10 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__0;
 return x_10;
 }
 else
 {
 lean_object* x_11; uint8_t x_12; 
-x_11 = lean_nat_sub(x_8, x_4);
+x_11 = lean_nat_sub(x_8, x_7);
 lean_dec(x_8);
 x_12 = lean_nat_dec_eq(x_11, x_2);
 if (x_12 == 1)
 {
 lean_object* x_13; 
 lean_dec(x_11);
-x_13 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__2;
+x_13 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__1;
 return x_13;
 }
 else
 {
 lean_object* x_14; uint8_t x_15; 
-x_14 = lean_nat_sub(x_11, x_4);
+x_14 = lean_nat_sub(x_11, x_7);
 lean_dec(x_11);
 x_15 = lean_nat_dec_eq(x_14, x_2);
 if (x_15 == 1)
 {
 lean_object* x_16; 
 lean_dec(x_14);
-x_16 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__3;
+x_16 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__2;
 return x_16;
 }
 else
 {
 lean_object* x_17; uint8_t x_18; 
-x_17 = lean_nat_sub(x_14, x_4);
+x_17 = lean_nat_sub(x_14, x_7);
 lean_dec(x_14);
 x_18 = lean_nat_dec_eq(x_17, x_2);
 if (x_18 == 1)
 {
 lean_object* x_19; 
 lean_dec(x_17);
-x_19 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__4;
+x_19 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__3;
 return x_19;
 }
 else
 {
 lean_object* x_20; uint8_t x_21; 
-x_20 = lean_nat_sub(x_17, x_4);
+x_20 = lean_nat_sub(x_17, x_7);
 lean_dec(x_17);
 x_21 = lean_nat_dec_eq(x_20, x_2);
 if (x_21 == 1)
 {
 lean_object* x_22; 
 lean_dec(x_20);
-x_22 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__4;
+x_22 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthLong___closed__4;
 return x_22;
 }
 else
 {
 lean_object* x_23; uint8_t x_24; 
-x_23 = lean_nat_sub(x_20, x_4);
+x_23 = lean_nat_sub(x_20, x_7);
 lean_dec(x_20);
 x_24 = lean_nat_dec_eq(x_23, x_2);
 if (x_24 == 1)
 {
 lean_object* x_25; 
 lean_dec(x_23);
-x_25 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__5;
+x_25 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__4;
 return x_25;
 }
 else
 {
 lean_object* x_26; uint8_t x_27; 
-x_26 = lean_nat_sub(x_23, x_4);
+x_26 = lean_nat_sub(x_23, x_7);
 lean_dec(x_23);
 x_27 = lean_nat_dec_eq(x_26, x_2);
 if (x_27 == 1)
 {
 lean_object* x_28; 
 lean_dec(x_26);
-x_28 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__6;
+x_28 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__5;
 return x_28;
 }
 else
 {
 lean_object* x_29; uint8_t x_30; 
-x_29 = lean_nat_sub(x_26, x_4);
+x_29 = lean_nat_sub(x_26, x_7);
 lean_dec(x_26);
 x_30 = lean_nat_dec_eq(x_29, x_2);
 if (x_30 == 1)
 {
 lean_object* x_31; 
 lean_dec(x_29);
-x_31 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__7;
+x_31 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__6;
 return x_31;
 }
 else
 {
 lean_object* x_32; uint8_t x_33; 
-x_32 = lean_nat_sub(x_29, x_4);
+x_32 = lean_nat_sub(x_29, x_7);
 lean_dec(x_29);
 x_33 = lean_nat_dec_eq(x_32, x_2);
 if (x_33 == 1)
 {
 lean_object* x_34; 
 lean_dec(x_32);
-x_34 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__8;
+x_34 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__7;
 return x_34;
 }
 else
 {
 lean_object* x_35; uint8_t x_36; 
-x_35 = lean_nat_sub(x_32, x_4);
+x_35 = lean_nat_sub(x_32, x_7);
 lean_dec(x_32);
 x_36 = lean_nat_dec_eq(x_35, x_2);
-lean_dec(x_35);
 if (x_36 == 1)
 {
 lean_object* x_37; 
-x_37 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__9;
+lean_dec(x_35);
+x_37 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__8;
 return x_37;
 }
 else
 {
-lean_object* x_38; 
-x_38 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__10;
-return x_38;
+lean_object* x_38; uint8_t x_39; 
+x_38 = lean_nat_sub(x_35, x_7);
+lean_dec(x_35);
+x_39 = lean_nat_dec_eq(x_38, x_2);
+if (x_39 == 1)
+{
+lean_object* x_40; 
+lean_dec(x_38);
+x_40 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__9;
+return x_40;
+}
+else
+{
+lean_object* x_41; uint8_t x_42; lean_object* x_43; 
+x_41 = lean_nat_sub(x_38, x_7);
+lean_dec(x_38);
+x_42 = lean_nat_dec_eq(x_41, x_2);
+lean_dec(x_41);
+x_43 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthShort___closed__10;
+return x_43;
 }
 }
 }
@@ -20400,89 +20444,79 @@ return x_1;
 LEAN_EXPORT lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_nat_abs(x_1);
-x_4 = lean_unsigned_to_nat(1u);
-x_5 = lean_nat_sub(x_3, x_4);
-lean_dec(x_3);
+x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_pad___closed__0;
+x_4 = lean_int_dec_lt(x_1, x_3);
+x_5 = lean_nat_abs(x_1);
 x_6 = lean_nat_dec_eq(x_5, x_2);
-if (x_6 == 1)
-{
-lean_object* x_7; 
-lean_dec(x_5);
-x_7 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow___closed__0;
-return x_7;
-}
-else
-{
-lean_object* x_8; uint8_t x_9; 
-x_8 = lean_nat_sub(x_5, x_4);
+x_7 = lean_unsigned_to_nat(1u);
+x_8 = lean_nat_sub(x_5, x_7);
 lean_dec(x_5);
 x_9 = lean_nat_dec_eq(x_8, x_2);
 if (x_9 == 1)
 {
 lean_object* x_10; 
 lean_dec(x_8);
-x_10 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow___closed__1;
+x_10 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow___closed__0;
 return x_10;
 }
 else
 {
 lean_object* x_11; uint8_t x_12; 
-x_11 = lean_nat_sub(x_8, x_4);
+x_11 = lean_nat_sub(x_8, x_7);
 lean_dec(x_8);
 x_12 = lean_nat_dec_eq(x_11, x_2);
 if (x_12 == 1)
 {
 lean_object* x_13; 
 lean_dec(x_11);
-x_13 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow___closed__2;
+x_13 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow___closed__1;
 return x_13;
 }
 else
 {
 lean_object* x_14; uint8_t x_15; 
-x_14 = lean_nat_sub(x_11, x_4);
+x_14 = lean_nat_sub(x_11, x_7);
 lean_dec(x_11);
 x_15 = lean_nat_dec_eq(x_14, x_2);
 if (x_15 == 1)
 {
 lean_object* x_16; 
 lean_dec(x_14);
-x_16 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow___closed__3;
+x_16 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow___closed__2;
 return x_16;
 }
 else
 {
 lean_object* x_17; uint8_t x_18; 
-x_17 = lean_nat_sub(x_14, x_4);
+x_17 = lean_nat_sub(x_14, x_7);
 lean_dec(x_14);
 x_18 = lean_nat_dec_eq(x_17, x_2);
 if (x_18 == 1)
 {
 lean_object* x_19; 
 lean_dec(x_17);
-x_19 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow___closed__2;
+x_19 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow___closed__3;
 return x_19;
 }
 else
 {
 lean_object* x_20; uint8_t x_21; 
-x_20 = lean_nat_sub(x_17, x_4);
+x_20 = lean_nat_sub(x_17, x_7);
 lean_dec(x_17);
 x_21 = lean_nat_dec_eq(x_20, x_2);
 if (x_21 == 1)
 {
 lean_object* x_22; 
 lean_dec(x_20);
-x_22 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow___closed__0;
+x_22 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow___closed__2;
 return x_22;
 }
 else
 {
 lean_object* x_23; uint8_t x_24; 
-x_23 = lean_nat_sub(x_20, x_4);
+x_23 = lean_nat_sub(x_20, x_7);
 lean_dec(x_20);
 x_24 = lean_nat_dec_eq(x_23, x_2);
 if (x_24 == 1)
@@ -20495,60 +20529,77 @@ return x_25;
 else
 {
 lean_object* x_26; uint8_t x_27; 
-x_26 = lean_nat_sub(x_23, x_4);
+x_26 = lean_nat_sub(x_23, x_7);
 lean_dec(x_23);
 x_27 = lean_nat_dec_eq(x_26, x_2);
 if (x_27 == 1)
 {
 lean_object* x_28; 
 lean_dec(x_26);
-x_28 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow___closed__3;
+x_28 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow___closed__0;
 return x_28;
 }
 else
 {
 lean_object* x_29; uint8_t x_30; 
-x_29 = lean_nat_sub(x_26, x_4);
+x_29 = lean_nat_sub(x_26, x_7);
 lean_dec(x_26);
 x_30 = lean_nat_dec_eq(x_29, x_2);
 if (x_30 == 1)
 {
 lean_object* x_31; 
 lean_dec(x_29);
-x_31 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow___closed__4;
+x_31 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow___closed__3;
 return x_31;
 }
 else
 {
 lean_object* x_32; uint8_t x_33; 
-x_32 = lean_nat_sub(x_29, x_4);
+x_32 = lean_nat_sub(x_29, x_7);
 lean_dec(x_29);
 x_33 = lean_nat_dec_eq(x_32, x_2);
 if (x_33 == 1)
 {
 lean_object* x_34; 
 lean_dec(x_32);
-x_34 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow___closed__5;
+x_34 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow___closed__4;
 return x_34;
 }
 else
 {
 lean_object* x_35; uint8_t x_36; 
-x_35 = lean_nat_sub(x_32, x_4);
+x_35 = lean_nat_sub(x_32, x_7);
 lean_dec(x_32);
 x_36 = lean_nat_dec_eq(x_35, x_2);
-lean_dec(x_35);
 if (x_36 == 1)
 {
 lean_object* x_37; 
-x_37 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow___closed__6;
+lean_dec(x_35);
+x_37 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow___closed__5;
 return x_37;
 }
 else
 {
-lean_object* x_38; 
-x_38 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow___closed__7;
-return x_38;
+lean_object* x_38; uint8_t x_39; 
+x_38 = lean_nat_sub(x_35, x_7);
+lean_dec(x_35);
+x_39 = lean_nat_dec_eq(x_38, x_2);
+if (x_39 == 1)
+{
+lean_object* x_40; 
+lean_dec(x_38);
+x_40 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow___closed__6;
+return x_40;
+}
+else
+{
+lean_object* x_41; uint8_t x_42; lean_object* x_43; 
+x_41 = lean_nat_sub(x_38, x_7);
+lean_dec(x_38);
+x_42 = lean_nat_dec_eq(x_41, x_2);
+lean_dec(x_41);
+x_43 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMonthNarrow___closed__7;
+return x_43;
 }
 }
 }
@@ -21028,51 +21079,58 @@ return x_1;
 LEAN_EXPORT lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterNumber(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_nat_abs(x_1);
-x_4 = lean_unsigned_to_nat(1u);
-x_5 = lean_nat_sub(x_3, x_4);
-lean_dec(x_3);
+x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_pad___closed__0;
+x_4 = lean_int_dec_lt(x_1, x_3);
+x_5 = lean_nat_abs(x_1);
 x_6 = lean_nat_dec_eq(x_5, x_2);
-if (x_6 == 1)
-{
-lean_object* x_7; 
-lean_dec(x_5);
-x_7 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterNumber___closed__0;
-return x_7;
-}
-else
-{
-lean_object* x_8; uint8_t x_9; 
-x_8 = lean_nat_sub(x_5, x_4);
+x_7 = lean_unsigned_to_nat(1u);
+x_8 = lean_nat_sub(x_5, x_7);
 lean_dec(x_5);
 x_9 = lean_nat_dec_eq(x_8, x_2);
 if (x_9 == 1)
 {
 lean_object* x_10; 
 lean_dec(x_8);
-x_10 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterNumber___closed__1;
+x_10 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterNumber___closed__0;
 return x_10;
 }
 else
 {
 lean_object* x_11; uint8_t x_12; 
-x_11 = lean_nat_sub(x_8, x_4);
+x_11 = lean_nat_sub(x_8, x_7);
 lean_dec(x_8);
 x_12 = lean_nat_dec_eq(x_11, x_2);
-lean_dec(x_11);
 if (x_12 == 1)
 {
 lean_object* x_13; 
-x_13 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterNumber___closed__2;
+lean_dec(x_11);
+x_13 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterNumber___closed__1;
 return x_13;
 }
 else
 {
-lean_object* x_14; 
-x_14 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterNumber___closed__3;
-return x_14;
+lean_object* x_14; uint8_t x_15; 
+x_14 = lean_nat_sub(x_11, x_7);
+lean_dec(x_11);
+x_15 = lean_nat_dec_eq(x_14, x_2);
+if (x_15 == 1)
+{
+lean_object* x_16; 
+lean_dec(x_14);
+x_16 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterNumber___closed__2;
+return x_16;
+}
+else
+{
+lean_object* x_17; uint8_t x_18; lean_object* x_19; 
+x_17 = lean_nat_sub(x_14, x_7);
+lean_dec(x_14);
+x_18 = lean_nat_dec_eq(x_17, x_2);
+lean_dec(x_17);
+x_19 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterNumber___closed__3;
+return x_19;
 }
 }
 }
@@ -21122,51 +21180,58 @@ return x_1;
 LEAN_EXPORT lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterShort(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_nat_abs(x_1);
-x_4 = lean_unsigned_to_nat(1u);
-x_5 = lean_nat_sub(x_3, x_4);
-lean_dec(x_3);
+x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_pad___closed__0;
+x_4 = lean_int_dec_lt(x_1, x_3);
+x_5 = lean_nat_abs(x_1);
 x_6 = lean_nat_dec_eq(x_5, x_2);
-if (x_6 == 1)
-{
-lean_object* x_7; 
-lean_dec(x_5);
-x_7 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterShort___closed__0;
-return x_7;
-}
-else
-{
-lean_object* x_8; uint8_t x_9; 
-x_8 = lean_nat_sub(x_5, x_4);
+x_7 = lean_unsigned_to_nat(1u);
+x_8 = lean_nat_sub(x_5, x_7);
 lean_dec(x_5);
 x_9 = lean_nat_dec_eq(x_8, x_2);
 if (x_9 == 1)
 {
 lean_object* x_10; 
 lean_dec(x_8);
-x_10 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterShort___closed__1;
+x_10 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterShort___closed__0;
 return x_10;
 }
 else
 {
 lean_object* x_11; uint8_t x_12; 
-x_11 = lean_nat_sub(x_8, x_4);
+x_11 = lean_nat_sub(x_8, x_7);
 lean_dec(x_8);
 x_12 = lean_nat_dec_eq(x_11, x_2);
-lean_dec(x_11);
 if (x_12 == 1)
 {
 lean_object* x_13; 
-x_13 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterShort___closed__2;
+lean_dec(x_11);
+x_13 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterShort___closed__1;
 return x_13;
 }
 else
 {
-lean_object* x_14; 
-x_14 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterShort___closed__3;
-return x_14;
+lean_object* x_14; uint8_t x_15; 
+x_14 = lean_nat_sub(x_11, x_7);
+lean_dec(x_11);
+x_15 = lean_nat_dec_eq(x_14, x_2);
+if (x_15 == 1)
+{
+lean_object* x_16; 
+lean_dec(x_14);
+x_16 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterShort___closed__2;
+return x_16;
+}
+else
+{
+lean_object* x_17; uint8_t x_18; lean_object* x_19; 
+x_17 = lean_nat_sub(x_14, x_7);
+lean_dec(x_14);
+x_18 = lean_nat_dec_eq(x_17, x_2);
+lean_dec(x_17);
+x_19 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterShort___closed__3;
+return x_19;
 }
 }
 }
@@ -21216,51 +21281,58 @@ return x_1;
 LEAN_EXPORT lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterLong(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_nat_abs(x_1);
-x_4 = lean_unsigned_to_nat(1u);
-x_5 = lean_nat_sub(x_3, x_4);
-lean_dec(x_3);
+x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_pad___closed__0;
+x_4 = lean_int_dec_lt(x_1, x_3);
+x_5 = lean_nat_abs(x_1);
 x_6 = lean_nat_dec_eq(x_5, x_2);
-if (x_6 == 1)
-{
-lean_object* x_7; 
-lean_dec(x_5);
-x_7 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterLong___closed__0;
-return x_7;
-}
-else
-{
-lean_object* x_8; uint8_t x_9; 
-x_8 = lean_nat_sub(x_5, x_4);
+x_7 = lean_unsigned_to_nat(1u);
+x_8 = lean_nat_sub(x_5, x_7);
 lean_dec(x_5);
 x_9 = lean_nat_dec_eq(x_8, x_2);
 if (x_9 == 1)
 {
 lean_object* x_10; 
 lean_dec(x_8);
-x_10 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterLong___closed__1;
+x_10 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterLong___closed__0;
 return x_10;
 }
 else
 {
 lean_object* x_11; uint8_t x_12; 
-x_11 = lean_nat_sub(x_8, x_4);
+x_11 = lean_nat_sub(x_8, x_7);
 lean_dec(x_8);
 x_12 = lean_nat_dec_eq(x_11, x_2);
-lean_dec(x_11);
 if (x_12 == 1)
 {
 lean_object* x_13; 
-x_13 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterLong___closed__2;
+lean_dec(x_11);
+x_13 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterLong___closed__1;
 return x_13;
 }
 else
 {
-lean_object* x_14; 
-x_14 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterLong___closed__3;
-return x_14;
+lean_object* x_14; uint8_t x_15; 
+x_14 = lean_nat_sub(x_11, x_7);
+lean_dec(x_11);
+x_15 = lean_nat_dec_eq(x_14, x_2);
+if (x_15 == 1)
+{
+lean_object* x_16; 
+lean_dec(x_14);
+x_16 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterLong___closed__2;
+return x_16;
+}
+else
+{
+lean_object* x_17; uint8_t x_18; lean_object* x_19; 
+x_17 = lean_nat_sub(x_14, x_7);
+lean_dec(x_14);
+x_18 = lean_nat_dec_eq(x_17, x_2);
+lean_dec(x_17);
+x_19 = l___private_Std_Time_Format_Basic_0__Std_Time_formatQuarterLong___closed__3;
+return x_19;
 }
 }
 }
@@ -48342,9 +48414,14 @@ return x_6;
 LEAN_EXPORT lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_Reason_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Std_Time_ZoneId_noConfusion___redArg___closed__0;
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_Reason_ctorIdx(x_1);
+x_4 = l___private_Std_Time_Format_Basic_0__Std_Time_Reason_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = l_Std_Time_ZoneId_noConfusion___redArg___closed__0;
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_Reason_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {

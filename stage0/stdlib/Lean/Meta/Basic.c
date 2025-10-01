@@ -529,7 +529,6 @@ static lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_initFn___closed__20
 LEAN_EXPORT lean_object* l_Lean_MVarId_setKind___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkFreshFVarId___at_____private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAuxAux_process_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaLetTelescope___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t);
-uint8_t lean_string_validate_utf8(lean_object*);
 lean_object* l_Lean_addMessageContextFull(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_isInductivePredicateVal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDeclD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1207,7 +1206,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_instBEqAbstractMVarsResult;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAuxAux_process___redArg___lam__0(uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaLetTelescope___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instMonadBacktrackSavedStateMetaM;
-lean_object* lean_string_from_utf8_unchecked(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mapLetTelescope___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeConst_realizeAndReport_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at_____private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep_spec__0_spec__0_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1486,6 +1484,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_instMonadMCtxMetaM___lam__1___boxed(lean_ob
 LEAN_EXPORT lean_object* l_Lean_addTraceAsMessages___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeValue_realizeAndReport_spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Meta_mkConstWithFreshMVarLevels_spec__0_spec__0_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateLevelMVars___at___Lean_Meta_normalizeLevel_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_string_validate_utf8(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_modifyPostponed___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_toArray___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_realizeValue_realizeAndReport___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1834,6 +1833,7 @@ static lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___Le
 static lean_object* l_Lean_Meta_instReprProjReductionKind_repr___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_withLCtx___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instMonadEnvMetaM___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_from_utf8_unchecked(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkFreshTypeMVar(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_withIncRecDepth___redArg___closed__0;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_addTraceAsMessages___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeValue_realizeAndReport_spec__6_spec__22___redArg___lam__0___closed__0;
@@ -2424,9 +2424,14 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Meta_ProjReductionKind_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_Meta_ProjReductionKind_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Lean_Meta_ProjReductionKind_ctorIdx(x_1);
+x_4 = l_Lean_Meta_ProjReductionKind_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = lean_alloc_closure((void*)(l_Lean_Meta_ProjReductionKind_noConfusion___redArg___lam__0___boxed), 1, 0);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_ProjReductionKind_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
@@ -68727,7 +68732,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_____private_Lean_Meta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Init.Data.String.Extra", 22, 22);
+x_1 = lean_mk_string_unchecked("Init.Data.String.Basic", 22, 22);
 return x_1;
 }
 }
@@ -68752,8 +68757,8 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_IO_FS_withIsolatedStreams___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeValue_realizeAndReport_spec__1___redArg___closed__3;
-x_2 = lean_unsigned_to_nat(47u);
-x_3 = lean_unsigned_to_nat(133u);
+x_2 = lean_unsigned_to_nat(46u);
+x_3 = lean_unsigned_to_nat(235u);
 x_4 = l_IO_FS_withIsolatedStreams___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeValue_realizeAndReport_spec__1___redArg___closed__2;
 x_5 = l_IO_FS_withIsolatedStreams___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeValue_realizeAndReport_spec__1___redArg___closed__1;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -68833,6 +68838,7 @@ lean_dec_ref(x_28);
 x_31 = lean_ctor_get(x_29, 0);
 lean_inc_ref(x_31);
 lean_dec(x_29);
+lean_inc_ref(x_31);
 x_32 = lean_string_validate_utf8(x_31);
 if (x_32 == 0)
 {
@@ -68849,7 +68855,6 @@ else
 {
 lean_object* x_35; 
 x_35 = lean_string_from_utf8_unchecked(x_31);
-lean_dec_ref(x_31);
 x_8 = x_26;
 x_9 = x_30;
 x_10 = x_35;
@@ -71641,8 +71646,8 @@ return x_29;
 block_36:
 {
 lean_object* x_35; 
-lean_dec(x_33);
-x_35 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_addTraceAsMessages___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeValue_realizeAndReport_spec__6_spec__23___redArg(x_31, x_32, x_34);
+lean_dec(x_32);
+x_35 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_addTraceAsMessages___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeValue_realizeAndReport_spec__6_spec__23___redArg(x_31, x_33, x_34);
 lean_dec(x_34);
 x_21 = x_35;
 goto block_30;
@@ -71650,23 +71655,23 @@ goto block_30;
 block_42:
 {
 uint8_t x_41; 
-x_41 = lean_nat_dec_le(x_40, x_38);
+x_41 = lean_nat_dec_le(x_40, x_39);
 if (x_41 == 0)
 {
-lean_dec(x_38);
+lean_dec(x_39);
 lean_inc(x_40);
 x_31 = x_37;
-x_32 = x_40;
-x_33 = x_39;
+x_32 = x_38;
+x_33 = x_40;
 x_34 = x_40;
 goto block_36;
 }
 else
 {
 x_31 = x_37;
-x_32 = x_40;
-x_33 = x_39;
-x_34 = x_38;
+x_32 = x_38;
+x_33 = x_40;
+x_34 = x_39;
 goto block_36;
 }
 }
@@ -71685,16 +71690,16 @@ if (x_48 == 0)
 {
 lean_inc(x_47);
 x_37 = x_43;
-x_38 = x_47;
-x_39 = x_44;
+x_38 = x_44;
+x_39 = x_47;
 x_40 = x_47;
 goto block_42;
 }
 else
 {
 x_37 = x_43;
-x_38 = x_47;
-x_39 = x_44;
+x_38 = x_44;
+x_39 = x_47;
 x_40 = x_16;
 goto block_42;
 }
@@ -71808,8 +71813,8 @@ return x_77;
 block_84:
 {
 lean_object* x_83; 
-lean_dec(x_81);
-x_83 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_addTraceAsMessages___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeValue_realizeAndReport_spec__6_spec__23___redArg(x_79, x_80, x_82);
+lean_dec(x_80);
+x_83 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_addTraceAsMessages___at_____private_Lean_Meta_Basic_0__Lean_Meta_realizeValue_realizeAndReport_spec__6_spec__23___redArg(x_79, x_81, x_82);
 lean_dec(x_82);
 x_70 = x_83;
 goto block_78;
@@ -71817,23 +71822,23 @@ goto block_78;
 block_90:
 {
 uint8_t x_89; 
-x_89 = lean_nat_dec_le(x_88, x_86);
+x_89 = lean_nat_dec_le(x_88, x_87);
 if (x_89 == 0)
 {
-lean_dec(x_86);
+lean_dec(x_87);
 lean_inc(x_88);
 x_79 = x_85;
-x_80 = x_88;
-x_81 = x_87;
+x_80 = x_86;
+x_81 = x_88;
 x_82 = x_88;
 goto block_84;
 }
 else
 {
 x_79 = x_85;
-x_80 = x_88;
-x_81 = x_87;
-x_82 = x_86;
+x_80 = x_86;
+x_81 = x_88;
+x_82 = x_87;
 goto block_84;
 }
 }
@@ -71852,16 +71857,16 @@ if (x_96 == 0)
 {
 lean_inc(x_95);
 x_85 = x_91;
-x_86 = x_95;
-x_87 = x_92;
+x_86 = x_92;
+x_87 = x_95;
 x_88 = x_95;
 goto block_90;
 }
 else
 {
 x_85 = x_91;
-x_86 = x_95;
-x_87 = x_92;
+x_86 = x_92;
+x_87 = x_95;
 x_88 = x_65;
 goto block_90;
 }

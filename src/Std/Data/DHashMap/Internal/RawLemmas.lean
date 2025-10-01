@@ -2699,22 +2699,12 @@ theorem union_insert_emptyWithCapacity {k : α} {v : β k} [EquivBEq α] [Lawful
 theorem contains_union_of_left  [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
     (h₂ : m₂.val.WF) {k : α} :
     m₁.contains k → (m₁.union m₂).contains k := by
-  simp_to_model [contains, union]
-  simp only [List.containsKey_insertSmallerList]
-  intro h
-  simp only [Bool.or_eq_true]
-  apply Or.inl
-  exact h
+  simp_to_model [contains, union] using List.contains_insertSmallerList_of_left
 
 theorem contains_union_of_right  [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
     (h₂ : m₂.val.WF) {k : α} :
     m₂.contains k → (m₁.union m₂).contains k := by
-  simp_to_model [contains, union]
-  simp only [List.containsKey_insertSmallerList]
-  intro h
-  simp only [Bool.or_eq_true]
-  apply Or.inr
-  exact h
+  simp_to_model [contains, union] using List.contains_insertSmallerList_of_right
 
 @[simp]
 theorem contains_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
@@ -2726,32 +2716,17 @@ theorem contains_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
 theorem contains_union_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
     (h₂ : m₂.val.WF) {k : α} :
     (m₁.union m₂).contains k ↔ m₁.contains k ∨ m₂.contains k := by
-  apply Iff.trans
-  rotate_left
-  . apply iff_of_eq
-    apply Bool.or_eq_true
-  . rw [Bool.coe_iff_coe]
-    apply contains_union h₁ h₂
+  simp_to_model [union, contains] using List.contains_insertSmallerList_iff
 
 theorem contains_of_contains_union_of_contains_right_eq_false [EquivBEq α]
     [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
     (m₁.union m₂).contains k → m₂.contains k = false → m₁.contains k := by
-  intro h₃ h₄
-  apply Or.elim <| (@contains_union_iff α β _ _ _ _ _ _ h₁ h₂ k).1 h₃
-  . simp only [imp_self]
-  . intro n
-    rw [n] at h₄
-    contradiction
+  simp_to_model [union, contains] using List.contains_of_contains_insertSmallerList_of_contains_right_eq_false
 
 theorem contains_of_contains_union_of_contains_left_eq_false [EquivBEq α]
     [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
     (m₁.union m₂).contains k → m₁.contains k = false → m₂.contains k := by
-  intro h₃ h₄
-  apply Or.elim <| (@contains_union_iff α β _ _ _ _ _ _ h₁ h₂ k).1 h₃
-  . intro n
-    rw [n] at h₄
-    contradiction
-  . simp only [imp_self]
+  simp_to_model [union, contains] using List.contains_of_contains_insertSmallerList_of_contains_left_eq_false
 
 theorem get?_union_of_contains_right_eq_false [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} (contains_eq_false : m₂.contains k = false) :
@@ -2759,9 +2734,7 @@ theorem get?_union_of_contains_right_eq_false [LawfulBEq α] (h₁ : m₁.val.WF
   revert contains_eq_false
   simp_to_model [union, get?, contains]
   intro contains_eq_false
-  apply List.getValue?_insertSmallerList_of_contains_eq_false
-  exact contains_eq_false
-
+  apply List.getValue?_insertSmallerList_of_contains_eq_false contains_eq_false
 
 theorem get_union_of_contains_right_eq_false [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
     {k : α} (contains_eq_false : m₂.contains k = false) {h'} :
@@ -2769,8 +2742,7 @@ theorem get_union_of_contains_right_eq_false [LawfulBEq α] (h₁ : m₁.val.WF)
   revert contains_eq_false
   simp_to_model [union, get, contains]
   intro contains_eq_false
-  apply List.getValue_insertSmallerList_of_contains_eq_false
-  exact contains_eq_false
+  apply List.getValue_insertSmallerList_of_contains_eq_false contains_eq_false
 
 theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
@@ -2793,7 +2765,13 @@ theorem getKey!_union_of_contains_right_eq_false [Inhabited α]
     [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α}
     (h' : m₂.contains k = false) :
     (m₁.union m₂).getKey! k = m₁.getKey! k := by
+  simp_to_model
+  simp only [List.getKey!_eq_getKey?]
+  apply Option.get!.congr_simp
+  simp only [List.getKey?_eq_getEntry?]
+  congr 1
   sorry
+  --rw [List.getEntry?_eq_getValueCast?]
 
 theorem getKey!_union_of_mem_right [EquivBEq α] [LawfulHashable α] [Inhabited α] (h₁ : m₁.1.WF)
     (h₂ : m₂.1.WF) {k : α} (mem : m₂.contains k) :

@@ -3056,6 +3056,32 @@ theorem containsKey_insertSmallerList [BEq α] [PartialEquivBEq α] {l₁ l₂ :
   · rw [containsKey_insertListIfNew, ← containsKey_eq_contains_map_fst, Bool.or_comm]
   · rw [containsKey_insertList, ← containsKey_eq_contains_map_fst]
 
+theorem contains_insertSmallerList_iff [BEq α] [EquivBEq α] {l toInsert : List ((a : α) × β a)} {k : α} :
+    containsKey k (insertSmallerList l toInsert) = true ↔ containsKey k l = true ∨ containsKey k toInsert = true := by
+  simp only [containsKey_insertSmallerList, Bool.or_eq_true]
+
+theorem contains_of_contains_insertSmallerList_of_contains_right_eq_false [BEq α] [EquivBEq α] {l toInsert : List ((a : α) × β a)} {k : α}
+   (h₁ : containsKey k (insertSmallerList l toInsert) = true)
+   (h₂ : containsKey k toInsert = false) : containsKey k l = true := by
+    have := contains_insertSmallerList_iff.1 h₁
+    simpa only [h₂, Bool.false_eq_true, or_false]
+
+theorem contains_of_contains_insertSmallerList_of_contains_left_eq_false [BEq α] [EquivBEq α] {l toInsert : List ((a : α) × β a)} {k : α}
+   (h₁ : containsKey k (insertSmallerList l toInsert) = true)
+   (h₂ : containsKey k l = false) : containsKey k toInsert = true := by
+    have := contains_insertSmallerList_iff.1 h₁
+    simpa only [h₂, Bool.false_eq_true, false_or]
+
+theorem contains_insertSmallerList_of_left [BEq α] [EquivBEq α] {l toInsert : List ((a : α) × β a)} {k : α}
+   (contains : containsKey k l = true) : containsKey k (insertSmallerList l toInsert) = true := by
+    apply contains_insertSmallerList_iff.2
+    exact Or.inl contains
+
+theorem contains_insertSmallerList_of_right [BEq α] [EquivBEq α] {l toInsert : List ((a : α) × β a)} {k : α}
+   (contains : containsKey k toInsert = true) : containsKey k (insertSmallerList l toInsert) = true := by
+    apply contains_insertSmallerList_iff.2
+    exact Or.inr contains
+
 theorem isEmpty_insertListIfNew [BEq α]
     {l toInsert : List ((a : α) × β a)} :
     (List.insertListIfNew l toInsert).isEmpty = (l.isEmpty && toInsert.isEmpty) := by
@@ -3128,7 +3154,7 @@ theorem length_right_le_length_insertSmallerList [BEq α] [EquivBEq α]
         . apply le_of_lt h
         . simp only [length_le_length_insertList]
 
-theorem getEntry?_insertListIfNew [BEq α] [PartialEquivBEq α] [LawfulBEq α] {l toInsert : List ((a : α) × β a)}
+theorem getEntry?_insertListIfNew [BEq α] [EquivBEq α] {l toInsert : List ((a : α) × β a)}
     {k : α} :
     getEntry? k (insertListIfNew l toInsert) =
       (getEntry? k l).or (getEntry? k toInsert) := by
@@ -3145,41 +3171,25 @@ theorem getEntry?_insertListIfNew [BEq α] [PartialEquivBEq α] [LawfulBEq α] {
         rw [getEntry?_eq_none.2]
         . simp only [Option.none_or]
           rw [←@getEntry?_congr _ _ _ _ (hd :: tl) hd.fst k hhd]
-          simp [@getEntry?_cons_self _ _ _ _ tl hd.fst hd.snd]
+          simp only [@getEntry?_cons_self _ _ _ _ tl hd.fst hd.snd]
         . simp only [←containsKey_congr hhd, hc]
       . simp only [Bool.not_true, Bool.and_false, Bool.false_eq_true, ↓reduceIte]
         rw [containsKey_congr hhd, containsKey_eq_isSome_getEntry?] at hc
         obtain ⟨v, hv⟩ := Option.isSome_iff_exists.1 hc
         simp [hv]
 
-theorem getEntry?_insertListIfNew_of_same_elem [BEq α] [PartialEquivBEq α] [LawfulBEq α] {l t : List ((a : α) × β a)} {k : α} {v : β k}:
+theorem getEntry?_insertListIfNew_of_same_elem [BEq α] [LawfulBEq α] {l t : List ((a : α) × β a)} {k : α} {v : β k}:
   getEntry? k (insertListIfNew (⟨k, v⟩ :: l) t) = .some ⟨k, v⟩ := by
-  simp [getEntry?_insertListIfNew]
+  simp only [getEntry?_insertListIfNew, getEntry?_cons_self, Option.some_or]
 
-theorem getEntry?_insertListIfNew_of_contains_eq_false_right [BEq α] [PartialEquivBEq α] [LawfulBEq α]
+theorem getEntry?_insertListIfNew_of_contains_eq_false_right [BEq α] [LawfulBEq α]
     {l toInsert : List ((a : α) × β a)} {k : α}
     (not_contains : containsKey k l = false) :
     getEntry? k (insertListIfNew l toInsert) = getEntry? k toInsert := by
-  induction toInsert generalizing l with
-  | nil => simpa [insertListIfNew]
-  | cons h t ih =>
-    unfold insertListIfNew
-    by_cases (k = h.fst)
-    case pos h_eq =>
-      rw [h_eq]
-      rw [h_eq] at not_contains
-      simp only [@insertEntryIfNew_of_containsKey_eq_false α β _ l h.fst h.snd not_contains]
-      simp only [getEntry?_insertListIfNew_of_same_elem]
-      simp [getEntry?]
-    case neg h_ne =>
-      have := @getEntry?_cons_of_false α β _  t h.fst k h.snd (by simp; rw [Eq.comm]; exact h_ne)
-      simp [this]
-      apply ih
-      have := @containsKey_insertEntryIfNew α β _ _ l h.fst k h.snd
-      simp [not_contains] at this
-      simp [this]
-      rw [Eq.comm]
-      exact h_ne
+  rw [getEntry?_insertListIfNew]
+  simp only [containsKey_eq_isSome_getEntry?] at not_contains
+  rw [(@Option.not_isSome_iff_eq_none  ((a : α) × β a) (getEntry? k l)).1 (by simp [not_contains])]
+  simp only [Option.none_or]
 
 theorem getEntry?_insertListIfNew_of_contains_eq_false [BEq α] [PartialEquivBEq α]
     {l toInsert : List ((a : α) × β a)} {k : α}
@@ -3193,14 +3203,14 @@ theorem getEntry?_insertListIfNew_of_contains_eq_false [BEq α] [PartialEquivBEq
     rw [ih not_contains.right, getEntry?_insertEntryIfNew]
     simp [not_contains]
 
-theorem getValueCast?_insertListIfNew_of_contains_eq_false [BEq α] [PartialEquivBEq α] [LawfulBEq α]
+theorem getValueCast?_insertListIfNew_of_contains_eq_false [BEq α] [LawfulBEq α]
     {l toInsert : List ((a : α) × β a)}  {k : α}
     (not_contains : containsKey k toInsert = false) :
     getValueCast? k (insertListIfNew toInsert l) = getValueCast? k l := by
   rw [getValueCast?_eq_getEntry?, getValueCast?_eq_getEntry?]
   simp only [getEntry?_insertListIfNew_of_contains_eq_false_right not_contains]
 
-theorem getValue?_insertSmallerList_of_contains_eq_false [BEq α] [PartialEquivBEq α] [LawfulBEq α]
+theorem getValue?_insertSmallerList_of_contains_eq_false [BEq α] [LawfulBEq α]
     {l toInsert : List ((a : α) × β a)} {k : α}
     (not_contains : containsKey k toInsert = false) :
     getValueCast? k (insertSmallerList l toInsert) = getValueCast? k l := by

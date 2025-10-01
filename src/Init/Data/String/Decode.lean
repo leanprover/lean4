@@ -343,7 +343,7 @@ theorem toBitVec_eq_of_parseFirstByte_eq_threeMore {b : UInt8} (h : parseFirstBy
     b.toBitVec = 0b11110#5 ++ b.toBitVec.setWidth 3 := by
   exact helper₂ 3 b.toBitVec (parseFirstByte_eq_threeMore_iff_toBitVec.1 h)
 
-/-! # `isInvalidContinuationByte` definiton & API -/
+/-! # `isInvalidContinuationByte` definition & API -/
 
 @[inline, expose]
 public def isInvalidContinuationByte (b : UInt8) : Bool :=
@@ -923,6 +923,11 @@ open ByteArray.utf8DecodeChar?
 
 /- # `utf8DecodeChar?` -/
 
+/--
+Decodes and returns the `Char` whose UTF-8 encoding begins at `i` in `bytes`.
+
+Returns `none` if `i` is not the start of a valid UTF-8 encoding of a character.
+-/
 @[inline, expose]
 public def ByteArray.utf8DecodeChar? (bytes : ByteArray) (i : Nat) : Option Char :=
   if h₀ : i < bytes.size then
@@ -1207,6 +1212,12 @@ public theorem ByteArray.isSome_utf8DecodeChar?_append {b : ByteArray} {i : Nat}
   obtain ⟨c, hc⟩ := Option.isSome_iff_exists.1 h
   rw [utf8DecodeChar?_append_eq_some hc, Option.isSome_some]
 
+/--
+Decodes and returns the `Char` whose UTF-8 encoding begins at `i` in `bytes`.
+
+This function requires a proof that there is, in fact, a valid `Char` at `i`. `utf8DecodeChar?` is
+an alternative function that returns `Option Char` instead of requiring a proof ahead of time.
+-/
 @[inline, expose]
 public def ByteArray.utf8DecodeChar (bytes : ByteArray) (i : Nat) (h : (utf8DecodeChar? bytes i).isSome) : Char :=
   (utf8DecodeChar? bytes i).get h

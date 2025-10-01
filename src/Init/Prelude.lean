@@ -3290,10 +3290,22 @@ def Array.extract (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : A
   let sz' := Nat.sub (min stop as.size) start
   loop sz' start (emptyWithCapacity sz')
 
-/-- `ByteArray` is like `Array UInt8`, but with an efficient run-time representation as a packed
-byte buffer. -/
+/--
+`ByteArray` is like `Array UInt8`, but with an efficient run-time representation as a packed
+byte buffer.
+-/
 structure ByteArray where
-  /-- The data contained in the byte array. -/
+  /--
+  Packs an array of bytes into a `ByteArray`.
+
+  Converting between `Array` and `ByteArray` takes linear time.
+  -/
+  mk ::
+  /--
+  The data contained in the byte array.
+
+  Converting between `Array` and `ByteArray` takes linear time.
+  -/
   data : Array UInt8
 
 attribute [extern "lean_byte_array_mk"] ByteArray.mk
@@ -3317,7 +3329,7 @@ def ByteArray.empty : ByteArray := emptyWithCapacity 0
 Adds an element to the end of an array. The resulting array's size is one greater than the input
 array. If there are no other references to the array, then it is modified in-place.
 
-This takes amortized `O(1)` time because `Array α` is represented by a dynamic array.
+This takes amortized `O(1)` time because `ByteArray` is represented by a dynamic array.
 -/
 @[extern "lean_byte_array_push"]
 def ByteArray.push : ByteArray → UInt8 → ByteArray
@@ -3332,7 +3344,12 @@ def List.toByteArray (bs : List UInt8) : ByteArray :=
     | cons b bs,  r => loop bs (r.push b)
   loop bs ByteArray.empty
 
-/-- Returns the size of the byte array. -/
+/--
+Returns the number of bytes in the byte array.
+
+This is the number of bytes actually in the array, as distinct from its capacity, which is the
+amount of memory presently allocated for the array.
+-/
 @[extern "lean_byte_array_size"]
 def ByteArray.size : (@& ByteArray) → Nat
   | ⟨bs⟩ => bs.size

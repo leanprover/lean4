@@ -77,6 +77,10 @@ theorem ByteArray.isValidUtf8_utf8Encode_singleton_append_iff {b : ByteArray} {c
       ByteArray.append_right_inj] at hl
     exact hl ▸ isValidUtf8_utf8Encode
 
+/--
+Decodes a sequence of characters from their UTF-8 representation. Returns `none` if the bytes are
+not a sequence of Unicode scalar values.
+-/
 @[inline, expose]
 def ByteArray.utf8Decode? (b : ByteArray) : Option (Array Char) :=
   go (b.size + 1) 0 #[] (by simp) (by simp)

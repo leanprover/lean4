@@ -10,12 +10,19 @@ public import Init.Prelude
 public import Init.Data.List.Basic
 
 public section
+set_option doc.verso true
 
 namespace ByteArray
 
 @[simp]
 theorem data_push {a : ByteArray} {b : UInt8} : (a.push b).data = a.data.push b := rfl
 
+/--
+Appends two byte arrays.
+
+In compiled code, calls to {name}`ByteArray.append` are replaced with the much more efficient
+{name (scope:="Init.Data.ByteArray.Basic")}`ByteArray.fastAppend`.
+-/
 @[expose]
 protected def append (a b : ByteArray) : ByteArray :=
   ⟨⟨a.data.toList ++ b.data.toList⟩⟩

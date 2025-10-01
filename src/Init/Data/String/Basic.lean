@@ -804,6 +804,15 @@ At runtime, this function is implemented by efficient, constant-time code.
 def getUtf8Byte (s : @& String) (p : Pos.Raw) (h : p < s.endPos) : UInt8 :=
   s.bytes[p.byteIdx]
 
+/--
+Accesses the indicated byte in the UTF-8 encoding of a string.
+
+At runtime, this function is implemented by efficient, constant-time code.
+-/
+@[extern "lean_string_get_byte_fast", expose]
+def getUTF8Byte (s : @& String) (p : Pos.Raw) (h : p < s.endPos) : UInt8 :=
+  s.bytes[p.byteIdx]
+
 @[simp]
 theorem endPos_empty : "".endPos = 0 := rfl
 

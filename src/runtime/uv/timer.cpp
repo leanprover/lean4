@@ -171,9 +171,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj, obj_arg /*
                     } else {
                         // Creates a resolved promise
                         lean_object* finished_promise = create_promise();
-                        lean_object* res = lean_io_promise_resolve(lean_box(0), finished_promise, lean_io_mk_world());
-                        lean_dec(res);
-                        timer->m_promise = finished_promise;
                         return lean_io_result_mk_ok(finished_promise);
                     }
                 }
@@ -181,11 +178,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj, obj_arg /*
     } else {
         if (timer->m_state == TIMER_STATE_INITIAL) {
             return setup_timer();
-        } else {
-            lean_assert(timer->m_promise != NULL);
-
+        } else if (timer->m_promise != NULL) {
             lean_inc(timer->m_promise);
             return lean_io_result_mk_ok(timer->m_promise);
+        } else {
+            // Creates a resolved promise
+            lean_object* finished_promise = create_promise();
+            return lean_io_result_mk_ok(finished_promise);
         }
     }
 }
@@ -258,8 +257,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_cancel(b_obj_arg obj, obj_arg 
             timer->m_promise = NULL;
             timer->m_state = TIMER_STATE_FINISHED;
 
+            // The loop does not need to keep the timer alive anymore.
             lean_dec(obj);
-
         }
     }
 

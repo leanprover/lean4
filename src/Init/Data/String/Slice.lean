@@ -688,8 +688,8 @@ def eqIgnoreAsciiCase (s1 s2 : Slice) : Bool :=
 where
   go (s1 : Slice) (s1Curr : String.Pos.Raw) (s2 : Slice) (s2Curr : String.Pos.Raw) : Bool :=
     if h : s1Curr < s1.utf8ByteSize ∧ s2Curr < s2.utf8ByteSize then
-      let c1 := (s1.getUtf8Byte s1Curr h.left).toAsciiLower
-      let c2 := (s2.getUtf8Byte s2Curr h.right).toAsciiLower
+      let c1 := (s1.getUTF8Byte s1Curr h.left).toAsciiLower
+      let c2 := (s2.getUTF8Byte s2Curr h.right).toAsciiLower
       if c1 == c2 then
         go s1 s1Curr.inc s2 s2Curr.inc
       else
@@ -900,12 +900,12 @@ instance [Pure m] : Std.Iterators.Iterator ByteIterator m UInt8 where
       ∃ h1 : it.internalState.offset < it.internalState.s.utf8ByteSize,
         it.internalState.s = it'.internalState.s ∧
         it'.internalState.offset = it.internalState.offset.inc ∧
-        it.internalState.s.getUtf8Byte it.internalState.offset h1 = out
+        it.internalState.s.getUTF8Byte it.internalState.offset h1 = out
     | .skip _ => False
     | .done => ¬ it.internalState.offset < it.internalState.s.utf8ByteSize
   step := fun ⟨s, offset⟩ =>
     if h : offset < s.utf8ByteSize then
-      pure ⟨.yield ⟨s, offset.inc⟩ (s.getUtf8Byte offset h), by simp [h]⟩
+      pure ⟨.yield ⟨s, offset.inc⟩ (s.getUTF8Byte offset h), by simp [h]⟩
     else
       pure ⟨.done, by simp [h]⟩
 
@@ -981,7 +981,7 @@ instance [Pure m] : Std.Iterators.Iterator RevByteIterator m UInt8 where
         it.internalState.s = it'.internalState.s ∧
         it.internalState.offset ≠ 0 ∧
         it'.internalState.offset = it.internalState.offset.dec ∧
-        it.internalState.s.getUtf8Byte it.internalState.offset.dec h1 = out
+        it.internalState.s.getUTF8Byte it.internalState.offset.dec h1 = out
     | .skip _ => False
     | .done => it.internalState.offset = 0
   step := fun ⟨s, offset, hinv⟩ =>
@@ -994,7 +994,7 @@ instance [Pure m] : Std.Iterators.Iterator RevByteIterator m UInt8 where
         simp [String.Pos.Raw.le_iff, nextOffset] at hinv ⊢
         omega
       have hiter := by simp [nextOffset, hbound, h]
-      pure ⟨.yield ⟨s, nextOffset, hinv⟩ (s.getUtf8Byte nextOffset hbound), hiter⟩
+      pure ⟨.yield ⟨s, nextOffset, hinv⟩ (s.getUTF8Byte nextOffset hbound), hiter⟩
     else
       pure ⟨.done, by simpa using h⟩
 

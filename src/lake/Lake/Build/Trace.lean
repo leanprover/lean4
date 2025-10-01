@@ -124,7 +124,7 @@ public def ofJsonNumber? (n : JsonNumber) : Except String Hash :=
 /-- Parse a hash from a string of hexadecimal digits. Does no validation. -/
 public def ofHex (s : String) : Hash :=
   mk <| s.utf8ByteSize.fold (init := 0) fun i h n =>
-    let c := s.getUtf8Byte ⟨i⟩ h
+    let c := s.getUTF8Byte ⟨i⟩ h
     if c ≤ 57 then n*16 + (c - 48).toUInt64
     else if 97 ≤ c then n*16 + (c - 87).toUInt64 -- c - 'a' + 10 = (c - 87)
     else n*16 + (c - 55).toUInt64 -- c - 'A' + 10 = (c - 55)

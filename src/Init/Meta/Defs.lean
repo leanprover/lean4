@@ -156,12 +156,6 @@ def isInaccessibleUserName : Name → Bool
   | Name.num p _   => isInaccessibleUserName p
   | _              => false
 
--- FIXME: `getUtf8Byte` is in `Init.Data.String.Extra`, which causes an import cycle with
--- `Init.Meta`. Moving `getUtf8Byte` up to `Init.Data.String.Basic` creates another import cycle.
--- Please replace this definition with `getUtf8Byte` when the string refactor is through.
-@[extern "lean_string_get_byte_fast"]
-private opaque getUtf8Byte' (s : @& String) (n : Nat) (h : n < s.utf8ByteSize) : UInt8
-
 section ToString
 
 /-!
@@ -177,14 +171,14 @@ inner-loop function like `Name.toString`.
 -- If you change this, also change the corresponding function in `Init.Data.ToString.Name`.
 private partial def needsNoEscapeAsciiRest (s : String) (i : Nat) : Bool :=
   if h : i < s.utf8ByteSize then
-    let c := getUtf8Byte' s i h
+    let c := String.Internal.getUTF8Byte s i h
     isIdRestAscii c && needsNoEscapeAsciiRest s (i + 1)
   else
     true
 
 -- If you change this, also change the corresponding function in `Init.Data.ToString.Name`.
 @[inline] private def needsNoEscapeAscii (s : String) (h : s.utf8ByteSize > 0) : Bool :=
-  let c := getUtf8Byte' s 0 h
+  let c := String.Internal.getUTF8Byte s 0 h
   isIdFirstAscii c && needsNoEscapeAsciiRest s 1
 
 -- If you change this, also change the corresponding function in `Init.Data.ToString.Name`.

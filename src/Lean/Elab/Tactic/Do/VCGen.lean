@@ -464,7 +464,7 @@ where
 @[builtin_tactic Lean.Parser.Tactic.mvcgen]
 def elabMVCGen : Tactic := fun stx => withMainContext do
   if mvcgen.warning.get (← getOptions) then
-    logWarningAt stx "The `mvcgen` tactic is experimental and still under development. Avoid using it in production projects."
+    logWarningAt stx "The `mvcgen` tactic is new and its behavior may change in the future. This project has used `set_option mvcgen.warning true` to discourage its use."
   let ctx ← mkSpecContext stx[1] stx[2]
   let fuel := match ctx.config.stepLimit with
     | some n => .limited n

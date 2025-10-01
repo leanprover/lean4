@@ -8,7 +8,7 @@ module
 prelude
 public import Init.PropLemmas
 
-public section
+@[expose] public section
 
 universe u v
 

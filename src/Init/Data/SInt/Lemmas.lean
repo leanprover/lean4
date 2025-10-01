@@ -1302,6 +1302,13 @@ theorem Int64.toISize_ofIntTruncate {n : Int} (h₁ : -2 ^ 63 ≤ n) (h₂ : n <
   BitVec.eq_of_toInt_eq (by rw [toInt_toBitVec, toInt_minValue,
     BitVec.toInt_intMin_of_pos (by cases System.Platform.numBits_eq <;> simp_all)])
 
+@[simp, int_toBitVec] theorem Int8.toBitVec_maxValue : maxValue.toBitVec = BitVec.intMax _ := (rfl)
+@[simp, int_toBitVec] theorem Int16.toBitVec_maxValue : maxValue.toBitVec = BitVec.intMax _ := (rfl)
+@[simp, int_toBitVec] theorem Int32.toBitVec_maxValue : maxValue.toBitVec = BitVec.intMax _ := (rfl)
+@[simp, int_toBitVec] theorem Int64.toBitVec_maxValue : maxValue.toBitVec = BitVec.intMax _ := (rfl)
+@[simp, int_toBitVec] theorem ISize.toBitVec_maxValue : maxValue.toBitVec = BitVec.intMax _ :=
+  BitVec.eq_of_toInt_eq (by rw [toInt_toBitVec, toInt_maxValue, BitVec.toInt_intMax])
+
 @[simp] theorem Int16.toInt8_neg (x : Int16) : (-x).toInt8 = -x.toInt8 := Int8.toBitVec.inj (by simp)
 @[simp] theorem Int32.toInt8_neg (x : Int32) : (-x).toInt8 = -x.toInt8 := Int8.toBitVec.inj (by simp)
 @[simp] theorem Int64.toInt8_neg (x : Int64) : (-x).toInt8 = -x.toInt8 := Int8.toBitVec.inj (by simp)

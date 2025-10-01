@@ -89,6 +89,7 @@ def lowerArg (a : LCNF.Arg) : M Arg := do
 inductive TranslatedProj where
   | expr (e : Expr)
   | erased
+  | void
   deriving Inhabited
 
 def lowerProj (base : VarId) (ctorInfo : CtorInfo) (field : CtorFieldInfo)
@@ -98,6 +99,7 @@ def lowerProj (base : VarId) (ctorInfo : CtorInfo) (field : CtorFieldInfo)
   | .usize i => ⟨.expr (.uproj i base), .usize⟩
   | .scalar _ offset irType => ⟨.expr (.sproj (ctorInfo.size + ctorInfo.usize) offset base), irType⟩
   | .erased => ⟨.erased, .erased⟩
+  | .void => ⟨.void, .void⟩
 
 def lowerParam (p : LCNF.Param) : M Param := do
   let x ← bindVar p.fvarId
@@ -148,6 +150,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
       | .erased =>
         bindErased decl.fvarId
         lowerCode k
+      | .void => unreachable!
     | .erased =>
       bindErased decl.fvarId
       lowerCode k
@@ -178,7 +181,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
           match fields[i] with
           | .object .. =>
             result := result.push irArgs[i]!
-          | .usize .. | .scalar .. | .erased => pure ()
+          | .usize .. | .scalar .. | .erased | .void => pure ()
         pure result
       let objVar ← bindVar decl.fvarId
       let rec lowerNonObjectFields (_ : Unit) : M FnBody :=
@@ -192,7 +195,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
             | .scalar _ offset argType =>
               let k ← loop (i + 1)
               return .sset objVar (ctorInfo.size + ctorInfo.usize) offset varId argType k
-            | .object .. | .erased => loop (i + 1)
+            | .object .. | .erased | .void => loop (i + 1)
           | some .erased => loop (i + 1)
           | none => lowerCode k
         loop 0
@@ -270,6 +273,12 @@ partial def lowerAlt (discr : VarId) (a : LCNF.Alt) : M Alt := do
           | .erased =>
             bindErased param.fvarId
             loop (i + 1)
+          | .void =>
+            let info ← getCtorLayout ``PUnit.unit
+            return .vdecl (← bindVar param.fvarId)
+                          .void
+                          (.ctor info.ctorInfo #[])
+                          (← loop (i + 1))
         | none, none => lowerCode code
         | _, _ => panic! "mismatched fields and params"
       loop 0

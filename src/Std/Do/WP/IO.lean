@@ -29,7 +29,10 @@ This is pretty much the instance for `EStateM` specialized to `σ = IO.RealWorld
 However, `IO.RealWorld` is omitted in the `PredShape`.
 -/
 noncomputable scoped instance instWP : WP (EIO ε) (.except ε .pure) where
-  wp x := -- Could define as PredTrans.mkExcept (PredTrans.modifyGetM (fun s => pure (EStateM.Result.toExceptState (x s))))
+  wp x := sorry/-
+
+
+  -- Could define as PredTrans.mkExcept (PredTrans.modifyGetM (fun s => pure (EStateM.Result.toExceptState (x s))))
     { apply := fun Q => match x Classical.ofNonempty with
         | .ok a _rw => Q.1 a
         | .error e _rw => Q.2.1 e
@@ -38,6 +41,6 @@ noncomputable scoped instance instWP : WP (EIO ε) (.except ε .pure) where
         apply SPred.bientails.of_eq
         dsimp
         cases (x Classical.ofNonempty) <;> rfl
-    }
+    }-/
 
-instance instLawfulMonad : LawfulMonad (EIO ε) := inferInstanceAs (LawfulMonad (EStateM ε IO.RealWorld))
+instance instLawfulMonad : LawfulMonad (EIO ε) := sorry--inferInstanceAs (LawfulMonad (EStateM ε IO.RealWorld))

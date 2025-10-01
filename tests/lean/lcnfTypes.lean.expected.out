@@ -19,11 +19,11 @@ Lean.getConstInfo : {m : Type → Type} → [Monad m] → [MonadEnv m] → [Mona
 Lean.Meta.instMonadMetaM : Monad fun α =>
   Context →
     ST.Ref lcRealWorld State →
-      Core.Context → ST.Ref lcRealWorld Core.State → lcRealWorld → EStateM.Result Exception lcRealWorld α
+      Core.Context → ST.Ref lcRealWorld Core.State → lcRealWorld → BaseIO.Out (Except Exception α)
 Lean.Meta.inferType : Expr →
   Context →
     ST.Ref lcRealWorld State →
-      Core.Context → ST.Ref lcRealWorld Core.State → lcRealWorld → EStateM.Result Exception lcRealWorld Expr
+      Core.Context → ST.Ref lcRealWorld Core.State → lcRealWorld → BaseIO.Out (Except Exception Expr)
 Lean.Elab.Term.elabTerm : Syntax →
   Option Expr →
     Bool →
@@ -32,7 +32,7 @@ Lean.Elab.Term.elabTerm : Syntax →
           ST.Ref lcRealWorld Elab.Term.State →
             Context →
               ST.Ref lcRealWorld State →
-                Core.Context → ST.Ref lcRealWorld Core.State → lcRealWorld → EStateM.Result Exception lcRealWorld Expr
+                Core.Context → ST.Ref lcRealWorld Core.State → lcRealWorld → BaseIO.Out (Except Exception Expr)
 Nat.add : Nat → Nat → Nat
 Magma.mul : Magma → lcAny → lcAny → lcAny
 weird1 : Bool → lcAny
@@ -49,12 +49,12 @@ MonadControl.restoreM : {m n : lcErased} → [self : MonadControl lcAny lcAny] �
 Decidable.casesOn : {p motive : lcErased} → Bool → (lcErased → lcAny) → (lcErased → lcAny) → lcAny
 Lean.getConstInfo : {m : lcErased} → [Monad lcAny] → [MonadEnv lcAny] → [MonadError lcAny] → Name → lcAny
 Lean.Meta.instMonadMetaM : Monad lcAny
-Lean.Meta.inferType : Expr → Context → lcAny → Core.Context → lcAny → lcRealWorld → EStateM.Result Exception lcRealWorld Expr
+Lean.Meta.inferType : Expr → Context → lcAny → Core.Context → lcAny → lcRealWorld → BaseIO.Out (Except Exception Expr)
 Lean.Elab.Term.elabTerm : Syntax →
   Option Expr →
     Bool →
       Bool →
         Elab.Term.Context →
-          lcAny → Context → lcAny → Core.Context → lcAny → lcRealWorld → EStateM.Result Exception lcRealWorld Expr
+          lcAny → Context → lcAny → Core.Context → lcAny → lcRealWorld → BaseIO.Out (Except Exception Expr)
 Nat.add : Nat → Nat → Nat
 Fin.add : {n : Nat} → Nat → Nat → Nat

@@ -54,7 +54,7 @@ where fillCache : CoreM IRType := do
     -- `Int` is specified as an inductive type with two constructors that have relevant arguments,
     -- but it has the same runtime representation as `Nat` and thus needs to be special-cased here.
     | ``Int => return .tobject
-    | ``lcRealWorld => return .tagged
+    | ``lcRealWorld => return .void
     | _ =>
       let env ← Lean.getEnv
       let some (.inductInfo inductiveVal) := env.find? name | return .tobject
@@ -110,12 +110,14 @@ inductive CtorFieldInfo where
   | object (i : Nat) (type : IRType)
   | usize  (i : Nat)
   | scalar (sz : Nat) (offset : Nat) (type : IRType)
+  | void
   deriving Inhabited
 
 namespace CtorFieldInfo
 
 def format : CtorFieldInfo → Format
   | erased => "◾"
+  | void => "void"
   | object i type => f!"obj@{i}:{type}"
   | usize i    => f!"usize@{i}"
   | scalar sz offset type => f!"scalar#{sz}@{offset}:{type}"
@@ -160,6 +162,7 @@ where fillCache := do
         pure <| .object i irFieldType
       | .usize => pure <| .usize 0
       | .erased => .pure <| .erased
+      | .void => .pure <| .void
       | .uint8 =>
         has1BScalar := true
         .pure <| .scalar 1 0 .uint8
@@ -186,7 +189,7 @@ where fillCache := do
       | .usize _ => do
         let i ← modifyGet fun nextIdx => (nextIdx, nextIdx + 1)
         return .usize i
-      | .object .. | .scalar .. | .erased => return field
+      | .object .. | .scalar .. | .erased | .void => return field
     let numUSize := nextIdx - numObjs
     let adjustScalarsForSize (fields : Array CtorFieldInfo) (size : Nat) (nextOffset : Nat)
         : Array CtorFieldInfo × Nat :=
@@ -198,7 +201,7 @@ where fillCache := do
             return .scalar sz offset type
           else
             return field
-        | .object .. | .usize _ | .erased => return field
+        | .object .. | .usize _ | .erased | .void => return field
     let mut nextOffset := 0
     if has8BScalar then
       ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 8 nextOffset

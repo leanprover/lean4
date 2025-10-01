@@ -74,6 +74,7 @@ private def initFn :=
     descr := "simplification theorem for the compiler"
     add   := fun declName stx attrKind => do
       Attribute.Builtin.ensureNoArgs stx
+      ensureAttrDeclIsPublic `csimp declName attrKind
       discard <| add declName attrKind
   }
 

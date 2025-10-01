@@ -144,8 +144,9 @@ Computed values are cached, so the value is not recomputed.
   x.fn ()
 
 -- Ensure `Thunk.fn` is still computable even if it shouldn't be accessed directly.
-@[inline] private def Thunk.fnImpl (x : Thunk α) : Unit → α := fun _ => x.get
-@[csimp] private theorem Thunk.fn_eq_fnImpl : @Thunk.fn = @Thunk.fnImpl := rfl
+/-- Implementation detail. -/
+@[inline] def Thunk.fnImpl (x : Thunk α) : Unit → α := fun _ => x.get
+@[csimp] theorem Thunk.fn_eq_fnImpl : @Thunk.fn = @Thunk.fnImpl := rfl
 
 /--
 Constructs a new thunk that forces `x` and then applies `x` to the result. Upon forcing, the result

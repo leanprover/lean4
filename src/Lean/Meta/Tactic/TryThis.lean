@@ -73,7 +73,7 @@ def delabToRefinableSyntax (e : Expr) : MetaM Term :=
 
 /-- Delaborate `e` into a suggestion suitable for use by `refine`. -/
 def delabToRefinableSuggestion (e : Expr) : MetaM Suggestion :=
-  return { suggestion := ← delabToRefinableSyntax e, messageData? := e }
+  return { suggestion := ← delabToRefinableSyntax e, messageData? := ← addMessageContext <| toMessageData e }
 
 /-- Add a "try this" suggestion. This has two effects:
 

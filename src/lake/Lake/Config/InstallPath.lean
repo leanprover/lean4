@@ -35,7 +35,7 @@ public structure ElanInstall where
 @[inline] public partial def toolchain2Dir (toolchain : String) : FilePath :=
   go "" 0
 where
-  go (acc : String) (pos : String.Pos) : FilePath :=
+  go (acc : String) (pos : String.Pos.Raw) : FilePath :=
     if h : toolchain.atEnd pos then
       FilePath.mk acc
     else

@@ -16,7 +16,7 @@ universe u
 instance : Hashable Nat where
   hash n := UInt64.ofNat n
 
-instance : Hashable String.Pos where
+instance : Hashable String.Pos.Raw where
   hash p := UInt64.ofNat p.byteIdx
 
 instance [Hashable α] [Hashable β] : Hashable (α × β) where

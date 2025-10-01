@@ -27,7 +27,7 @@ public section
 
 /-- Checks whether `r` contains `hoverPos`, taking into account EOF according to `text`. -/
 def Lean.FileMap.rangeContainsHoverPos (text : Lean.FileMap) (r : String.Range)
-    (hoverPos : String.Pos) (includeStop := false) : Bool :=
+    (hoverPos : String.Pos.Raw) (includeStop := false) : Bool :=
   -- When `hoverPos` is at the very end of the file, it is *after* the last position in `text`.
   -- However, for `includeStop = false`, all ranges stop at the last position in `text`,
   -- which always excludes a `hoverPos` at the very end of the file.
@@ -102,7 +102,7 @@ that contains `hoverPos` in its whitespace, which is not necessarily the correct
 (e.g. it may be indentation-sensitive).
 -/
 partial def SnapshotTree.findInfoTreeAtPos (text : FileMap) (tree : SnapshotTree)
-    (hoverPos : String.Pos) (includeStop : Bool) : ServerTask (Option Elab.InfoTree) :=
+    (hoverPos : String.Pos.Raw) (includeStop : Bool) : ServerTask (Option Elab.InfoTree) :=
   tree.foldSnaps (init := none) fun snap _ => Id.run do
     let some stx := snap.stx?
       -- One of the invariants of the snapshot tree is that `stx? = none` implies that
@@ -372,7 +372,7 @@ def withWaitFindSnapAtPos
 
 open Language.Lean in
 /-- Finds the first `CommandParsedSnapshot` containing `hoverPos`, asynchronously. -/
-partial def findCmdParsedSnap (doc : EditableDocument) (hoverPos : String.Pos)
+partial def findCmdParsedSnap (doc : EditableDocument) (hoverPos : String.Pos.Raw)
     : ServerTask (Option CommandParsedSnapshot) := Id.run do
   let some headerParsed := doc.initSnap.result?
     | .pure none
@@ -414,7 +414,7 @@ See `SnapshotTree.findInfoTreeAtPos` for details on how the search is done.
 -/
 def findCmdDataAtPos
     (doc : EditableDocument)
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (includeStop : Bool)
     : ServerTask (Option (Syntax × Elab.InfoTree)) :=
   findCmdParsedSnap doc hoverPos |>.bindCheap fun
@@ -434,7 +434,7 @@ See `SnapshotTree.findInfoTreeAtPos` for details on how the search is done.
 -/
 partial def findInfoTreeAtPos
     (doc : EditableDocument)
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (includeStop : Bool)
     : ServerTask (Option Elab.InfoTree) :=
   findCmdDataAtPos doc hoverPos includeStop |>.mapCheap (·.map (·.2))

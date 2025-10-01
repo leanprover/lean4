@@ -33,7 +33,7 @@ structure Snapshot where
 
 namespace Snapshot
 
-def endPos (s : Snapshot) : String.Pos :=
+def endPos (s : Snapshot) : String.Pos.Raw :=
   s.mpState.pos
 
 def env (s : Snapshot) : Environment :=

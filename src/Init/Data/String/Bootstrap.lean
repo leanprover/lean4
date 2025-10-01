@@ -14,7 +14,10 @@ public section
 
 namespace String
 
-instance : OfNat String.Pos (nat_lit 0) where
+@[deprecated Pos.Raw (since := "2025-09-30")]
+abbrev Pos := Pos.Raw
+
+instance : OfNat String.Pos.Raw (nat_lit 0) where
   ofNat := {}
 
 instance : Inhabited String where
@@ -57,13 +60,13 @@ end String
 namespace String.Internal
 
 @[extern "lean_string_posof"]
-opaque posOf (s : String) (c : Char) : Pos
+opaque posOf (s : String) (c : Char) : Pos.Raw
 
 @[extern "lean_string_offsetofpos"]
-opaque offsetOfPos (s : String) (pos : Pos) : Nat
+opaque offsetOfPos (s : String) (pos : Pos.Raw) : Nat
 
 @[extern "lean_string_utf8_extract"]
-opaque extract : (@& String) → (@& Pos) → (@& Pos) → String
+opaque extract : (@& String) → (@& Pos.Raw) → (@& Pos.Raw) → String
 
 @[extern "lean_string_length"]
 opaque length : (@& String) → Nat
@@ -75,7 +78,7 @@ opaque pushn (s : String) (c : Char) (n : Nat) : String
 opaque append : String → (@& String) → String
 
 @[extern "lean_string_utf8_next"]
-opaque next (s : @& String) (p : @& Pos) : Pos
+opaque next (s : @& String) (p : @& Pos.Raw) : Pos.Raw
 
 @[extern "lean_string_isempty"]
 opaque isEmpty (s : String) : Bool
@@ -93,16 +96,16 @@ opaque any (s : String) (p : Char → Bool) : Bool
 opaque contains (s : String) (c : Char) : Bool
 
 @[extern "lean_string_utf8_get"]
-opaque get (s : @& String) (p : @& Pos) : Char
+opaque get (s : @& String) (p : @& Pos.Raw) : Char
 
 @[extern "lean_string_capitalize"]
 opaque capitalize (s : String) : String
 
 @[extern "lean_string_utf8_at_end"]
-opaque atEnd : (@& String) → (@& Pos) → Bool
+opaque atEnd : (@& String) → (@& Pos.Raw) → Bool
 
 @[extern "lean_string_nextwhile"]
-opaque nextWhile (s : String) (p : Char → Bool) (i : String.Pos) : String.Pos
+opaque nextWhile (s : String) (p : Char → Bool) (i : String.Pos.Raw) : String.Pos.Raw
 
 @[extern "lean_string_trim"]
 opaque trim (s : String) : String
@@ -160,7 +163,7 @@ opaque front (s : Substring) : Char
 opaque takeWhile : Substring → (Char → Bool) → Substring
 
 @[extern "lean_substring_extract"]
-opaque extract : Substring → String.Pos → String.Pos → Substring
+opaque extract : Substring → String.Pos.Raw → String.Pos.Raw → Substring
 
 @[extern "lean_substring_all"]
 opaque all (s : Substring) (p : Char → Bool) : Bool
@@ -172,22 +175,22 @@ opaque beq (ss1 ss2 : Substring) : Bool
 opaque isEmpty (ss : Substring) : Bool
 
 @[extern "lean_substring_get"]
-opaque get : Substring → String.Pos → Char
+opaque get : Substring → String.Pos.Raw → Char
 
 @[extern "lean_substring_prev"]
-opaque prev : Substring → String.Pos → String.Pos
+opaque prev : Substring → String.Pos.Raw → String.Pos.Raw
 
 end Substring.Internal
 
-namespace String.Pos.Internal
+namespace String.Pos.Raw.Internal
 
 @[extern "lean_string_pos_sub"]
-opaque sub : String.Pos → String.Pos → String.Pos
+opaque sub : String.Pos.Raw → String.Pos.Raw → String.Pos.Raw
 
 @[extern "lean_string_pos_min"]
-opaque min (p₁ p₂ : Pos) : Pos
+opaque min (p₁ p₂ : Pos.Raw) : Pos.Raw
 
-end String.Pos.Internal
+end String.Pos.Raw.Internal
 
 namespace Char
 

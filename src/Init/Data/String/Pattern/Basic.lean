@@ -75,18 +75,18 @@ class ForwardPattern (ρ : Type) where
 namespace Internal
 
 @[extern "lean_slice_memcmp"]
-def memcmp (lhs rhs : @& Slice) (lstart : @& String.Pos) (rstart : @& String.Pos)
-    (len : @& String.Pos) (h1 : lstart + len ≤ lhs.utf8ByteSize)
+def memcmp (lhs rhs : @& Slice) (lstart : @& String.Pos.Raw) (rstart : @& String.Pos.Raw)
+    (len : @& String.Pos.Raw) (h1 : lstart + len ≤ lhs.utf8ByteSize)
     (h2 : rstart + len ≤ rhs.utf8ByteSize) : Bool :=
   go 0
 where
-  go (curr : String.Pos) : Bool :=
+  go (curr : String.Pos.Raw) : Bool :=
     if h : curr < len then
       have hl := by
-        simp [Pos.le_iff] at h h1 ⊢
+        simp [Pos.Raw.le_iff] at h h1 ⊢
         omega
       have hr := by
-        simp [Pos.le_iff] at h h2 ⊢
+        simp [Pos.Raw.le_iff] at h h2 ⊢
         omega
       if lhs.getUtf8Byte (lstart + curr) hl == rhs.getUtf8Byte (rstart + curr) hr then
         go curr.inc

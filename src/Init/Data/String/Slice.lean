@@ -59,8 +59,8 @@ The implementation is an efficient equivalent of {lean}`s1.copy == s2.copy`
 -/
 def beq (s1 s2 : Slice) : Bool :=
   if h : s1.utf8ByteSize = s2.utf8ByteSize then
-    have h1 := by simp [h, String.Pos.le_iff]
-    have h2 := by simp [h, String.Pos.le_iff]
+    have h1 := by simp [h, String.Pos.Raw.le_iff]
+    have h2 := by simp [h, String.Pos.Raw.le_iff]
     Internal.memcmp s1 s2 s1.startPos.offset s2.startPos.offset s1.utf8ByteSize h1 h2
   else
     false
@@ -686,7 +686,7 @@ Checks whether {lean}`s1 == s2` if ASCII upper/lowercase are ignored.
 def eqIgnoreAsciiCase (s1 s2 : Slice) : Bool :=
   s1.utf8ByteSize == s2.utf8ByteSize && go s1 s1.startPos.offset s2 s2.startPos.offset
 where
-  go (s1 : Slice) (s1Curr : String.Pos) (s2 : Slice) (s2Curr : String.Pos) : Bool :=
+  go (s1 : Slice) (s1Curr : String.Pos.Raw) (s2 : Slice) (s2Curr : String.Pos.Raw) : Bool :=
     if h : s1Curr < s1.utf8ByteSize ∧ s2Curr < s2.utf8ByteSize then
       let c1 := (s1.getUtf8Byte s1Curr h.left).toAsciiLower
       let c2 := (s2.getUtf8Byte s2Curr h.right).toAsciiLower
@@ -750,7 +750,7 @@ private def finitenessRelation [Pure m] :
       obtain ⟨h1, h2, _⟩ := h'
       have h3 := Char.utf8Size_pos (it.internalState.currPos.get h1)
       have h4 := it.internalState.currPos.isValidForSlice.le_utf8ByteSize
-      simp [Pos.ext_iff, String.Pos.ext_iff, Pos.le_iff] at h1 h2 h4
+      simp [Pos.ext_iff, String.Pos.Raw.ext_iff, Pos.Raw.le_iff] at h1 h2 h4
       omega
     · cases h'
     · cases h
@@ -836,7 +836,7 @@ private def finitenessRelation [Pure m] :
     · cases h
       obtain ⟨h1, h2, _⟩ := h'
       have h3 := Pos.offset_prev_lt_offset (h := h1)
-      simp [Pos.ext_iff, String.Pos.ext_iff] at h2 h3
+      simp [Pos.ext_iff, String.Pos.Raw.ext_iff] at h2 h3
       omega
     · cases h'
     · cases h
@@ -876,7 +876,7 @@ def revChars (s : Slice) :=
 
 structure ByteIterator where
   s : Slice
-  offset : String.Pos
+  offset : String.Pos.Raw
 deriving Inhabited
 
 set_option doc.verso false
@@ -923,7 +923,7 @@ private def finitenessRelation [Pure m] :
       clear h4
       generalize it'.internalState.s = s at *
       cases h2
-      simp [String.Pos.ext_iff] at h1 h3
+      simp [String.Pos.Raw.ext_iff] at h1 h3
       omega
     · cases h'
     · cases h
@@ -950,7 +950,7 @@ end ByteIterator
 
 structure RevByteIterator where
   s : Slice
-  offset : String.Pos
+  offset : String.Pos.Raw
   hinv : offset ≤ s.utf8ByteSize
 
 set_option doc.verso false
@@ -988,10 +988,10 @@ instance [Pure m] : Std.Iterators.Iterator RevByteIterator m UInt8 where
     if h : offset ≠ 0 then
       let nextOffset := offset.dec
       have hbound := by
-        simp [String.Pos.le_iff, nextOffset] at h hinv ⊢
+        simp [String.Pos.Raw.le_iff, nextOffset] at h hinv ⊢
         omega
       have hinv := by
-        simp [String.Pos.le_iff, nextOffset] at hinv ⊢
+        simp [String.Pos.Raw.le_iff, nextOffset] at hinv ⊢
         omega
       have hiter := by simp [nextOffset, hbound, h]
       pure ⟨.yield ⟨s, nextOffset, hinv⟩ (s.getUtf8Byte nextOffset hbound), hiter⟩

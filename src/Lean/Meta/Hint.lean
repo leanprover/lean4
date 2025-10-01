@@ -300,7 +300,7 @@ where
   splitWords (s : String) : Array String × Array String :=
     splitWordsAux s 0 0 #[] #[]
 
-  splitWordsAux (s : String) (b : String.Pos) (i : String.Pos) (r ws : Array String) : Array String × Array String :=
+  splitWordsAux (s : String) (b : String.Pos.Raw) (i : String.Pos.Raw) (r ws : Array String) : Array String × Array String :=
     if h : s.atEnd i then
       (r.push (s.extract b i), ws)
     else

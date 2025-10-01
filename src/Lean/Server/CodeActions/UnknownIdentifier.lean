@@ -203,7 +203,7 @@ def computeDotIdQuery?
 
 def computeQueries
     (doc          : EditableDocument)
-    (requestedPos : String.Pos)
+    (requestedPos : String.Pos.Raw)
     : RequestM (Array Query) := do
   let text := doc.meta.text
   let some (stx, infoTree) := RequestM.findCmdDataAtPos doc requestedPos (includeStop := true) |>.get

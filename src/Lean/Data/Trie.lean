@@ -166,7 +166,7 @@ partial def findPrefix (t : Trie α) (pre : String) : Array α := go t 0
 
 /-- Find the longest _key_ in the trie that is contained in the given string `s` at position `i`,
 and return the associated value. -/
-partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos)
+partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos.Raw)
     (endByte := s.utf8ByteSize)
     (endByte_valid : endByte ≤ s.utf8ByteSize := by simp) : Option α :=
   let rec loop

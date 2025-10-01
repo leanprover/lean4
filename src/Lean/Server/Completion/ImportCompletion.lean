@@ -28,7 +28,7 @@ def AvailableImports.toImportTrie (imports : AvailableImports) : ImportTrie := I
     importTrie := importTrie.insert i i
   return importTrie
 
-def isImportNameCompletionRequest (headerStx : TSyntax ``Parser.Module.header) (completionPos : String.Pos) : Bool := Id.run do
+def isImportNameCompletionRequest (headerStx : TSyntax ``Parser.Module.header) (completionPos : String.Pos.Raw) : Bool := Id.run do
   let `(Parser.Module.header| $[module]? $[prelude]? $importsStx*) := headerStx
     | return false
   return importsStx.any fun importStx => Id.run do
@@ -42,7 +42,7 @@ def isImportNameCompletionRequest (headerStx : TSyntax ``Parser.Module.header) (
     return importId.isMissing && keywordsTailPos.isSome && completionPos == keywordsTailPos.get! + ' '
 
 /-- Checks whether `completionPos` points at a free space in the header. -/
-def isImportCmdCompletionRequest (headerStx : TSyntax ``Parser.Module.header) (completionPos : String.Pos) : Bool := Id.run do
+def isImportCmdCompletionRequest (headerStx : TSyntax ``Parser.Module.header) (completionPos : String.Pos.Raw) : Bool := Id.run do
   let `(Parser.Module.header| $[module]? $[prelude]? $importsStx*) := headerStx
     | return false
   return ! importsStx.any fun importStx => importStx.raw.getArgs.any fun arg =>
@@ -51,7 +51,7 @@ def isImportCmdCompletionRequest (headerStx : TSyntax ``Parser.Module.header) (c
 
 def computePartialImportCompletions
     (headerStx : TSyntax ``Parser.Module.header)
-    (completionPos : String.Pos)
+    (completionPos : String.Pos.Raw)
     (availableImports : ImportTrie)
     : Array Name := Id.run do
   let `(Parser.Module.header| $[module]? $[prelude]? $importsStx*) := headerStx

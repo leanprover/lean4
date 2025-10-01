@@ -248,7 +248,7 @@ This is an optimized version of `String.replace text "\r\n" "\n"`.
 def crlfToLf (text : String) : String :=
   go "" 0 0
 where
-  go (acc : String) (accStop pos : String.Pos) : String :=
+  go (acc : String) (accStop pos : String.Pos.Raw) : String :=
     if h : text.atEnd pos then
       -- note: if accStop = 0 then acc is empty
       if accStop = 0 then text else acc ++ text.extract accStop pos

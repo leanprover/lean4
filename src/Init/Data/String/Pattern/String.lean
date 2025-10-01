@@ -39,16 +39,16 @@ partial def buildTable (pat : Slice) : Array String.Pos.Raw :=
 where
   go (pos : String.Pos.Raw) (table : Array String.Pos.Raw) :=
     if h : pos < pat.utf8ByteSize then
-      let patByte := pat.getUtf8Byte pos h
+      let patByte := pat.getUTF8Byte pos h
       let distance := computeDistance table[table.size - 1]! patByte table
-      let distance := if patByte = pat.getUtf8Byte! distance then distance.inc else distance
+      let distance := if patByte = pat.getUTF8Byte! distance then distance.inc else distance
       go pos.inc (table.push distance)
     else
       table
 
   computeDistance (distance : String.Pos.Raw) (patByte : UInt8) (table : Array String.Pos.Raw) :
       String.Pos.Raw :=
-    if distance > 0 && patByte != pat.getUtf8Byte! distance then
+    if distance > 0 && patByte != pat.getUTF8Byte! distance then
       computeDistance table[distance.byteIdx - 1]! patByte table
     else
       distance
@@ -62,7 +62,7 @@ def iter (s : Slice) (pat : Slice) : Std.Iter (α := ForwardSliceSearcher s) (Se
 
 partial def backtrackIfNecessary (pat : Slice) (table : Array String.Pos.Raw) (stackByte : UInt8)
     (needlePos : String.Pos.Raw) : String.Pos.Raw :=
-  if needlePos != 0 && stackByte != pat.getUtf8Byte! needlePos then
+  if needlePos != 0 && stackByte != pat.getUTF8Byte! needlePos then
     backtrackIfNecessary pat table stackByte table[needlePos.byteIdx - 1]!
   else
     needlePos
@@ -95,9 +95,9 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
       let rec findNext (startPos : String.Pos.Raw)
           (currStackPos : String.Pos.Raw) (needlePos : String.Pos.Raw) (h : stackPos ≤ currStackPos) :=
         if h1 : currStackPos < s.utf8ByteSize then
-          let stackByte := s.getUtf8Byte currStackPos h1
+          let stackByte := s.getUTF8Byte currStackPos h1
           let needlePos := backtrackIfNecessary needle table stackByte needlePos
-          let patByte := needle.getUtf8Byte! needlePos
+          let patByte := needle.getUTF8Byte! needlePos
           if stackByte != patByte then
             let nextStackPos := s.findNextPos currStackPos h1 |>.offset
             let res := .rejected (s.pos! startPos) (s.pos! nextStackPos)

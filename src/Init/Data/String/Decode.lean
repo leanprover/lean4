@@ -982,7 +982,7 @@ end ByteArray.utf8DecodeChar?
 
 open ByteArray.utf8DecodeChar?
 
-/- # `utf8DecodeChar?` and `validateUtf8At` -/
+/- # `utf8DecodeChar?` and `validateUTF8At` -/
 
 @[inline, expose]
 public def ByteArray.utf8DecodeChar? (bytes : ByteArray) (i : Nat) : Option Char :=
@@ -1006,7 +1006,7 @@ public def ByteArray.utf8DecodeChar? (bytes : ByteArray) (i : Nat) : Option Char
   else none
 
 @[inline, expose]
-public def ByteArray.validateUtf8At (bytes : ByteArray) (i : Nat) : Bool :=
+public def ByteArray.validateUTF8At (bytes : ByteArray) (i : Nat) : Bool :=
   if h₀ : i < bytes.size then
     match h : parseFirstByte bytes[i] with
     | .invalid => false
@@ -1212,9 +1212,9 @@ public theorem String.toByteArray_utf8EncodeChar_of_utf8DecodeChar?_eq_some {b :
     rw [← assemble₄_eq_some_iff_utf8EncodeChar_eq]
     exact ⟨this, h⟩
 
-public theorem ByteArray.validateUtf8At_eq_isSome_utf8DecodeChar? {b : ByteArray} {i : Nat} :
-    b.validateUtf8At i = (b.utf8DecodeChar? i).isSome := by
-  simp only [validateUtf8At, utf8DecodeChar?]
+public theorem ByteArray.validateUTF8At_eq_isSome_utf8DecodeChar? {b : ByteArray} {i : Nat} :
+    b.validateUTF8At i = (b.utf8DecodeChar? i).isSome := by
+  simp only [validateUTF8At, utf8DecodeChar?]
   split
   · split <;> (try split) <;> simp [verify₁_eq_isSome_assemble₁, verify₂_eq_isSome_assemble₂,
       verify₃_eq_isSome_assemble₃, verify₄_eq_isSome_assemble₄]
@@ -1285,9 +1285,9 @@ public theorem ByteArray.lt_size_of_isSome_utf8DecodeChar? {b : ByteArray} {i : 
   have := c.utf8Size_pos
   omega
 
-public theorem ByteArray.lt_size_of_validateUtf8At {b : ByteArray} {i : Nat} :
-    validateUtf8At b i = true → i < b.size :=
-  validateUtf8At_eq_isSome_utf8DecodeChar? ▸ lt_size_of_isSome_utf8DecodeChar?
+public theorem ByteArray.lt_size_of_validateUTF8At {b : ByteArray} {i : Nat} :
+    validateUTF8At b i = true → i < b.size :=
+  validateUTF8At_eq_isSome_utf8DecodeChar? ▸ lt_size_of_isSome_utf8DecodeChar?
 
 public theorem ByteArray.utf8DecodeChar?_append_eq_some {b : ByteArray} {i : Nat} {c : Char} (h : utf8DecodeChar? b i = some c)
     (b' : ByteArray) : utf8DecodeChar? (b ++ b') i = some c := by
@@ -1366,7 +1366,7 @@ public theorem List.utf8DecodeChar_utf8Encode_cons {l : List Char} {c : Char} {h
     ByteArray.utf8DecodeChar (c::l).utf8Encode 0 h = c := by
   simp [ByteArray.utf8DecodeChar]
 
-/-! # `UInt8.IsUtf8FirstByte` -/
+/-! # `UInt8.IsUTF8FirstByte` -/
 
 namespace UInt8
 
@@ -1375,27 +1375,27 @@ Predicate for whether a byte can appear as the first byte of the UTF-8 encoding 
 scalar value.
 -/
 @[expose]
-public def IsUtf8FirstByte (c : UInt8) : Prop :=
+public def IsUTF8FirstByte (c : UInt8) : Prop :=
   c &&& 0x80 = 0 ∨ c &&& 0xe0 = 0xc0 ∨ c &&& 0xf0 = 0xe0 ∨ c &&& 0xf8 = 0xf0
 
-public instance {c : UInt8} : Decidable c.IsUtf8FirstByte :=
+public instance {c : UInt8} : Decidable c.IsUTF8FirstByte :=
   inferInstanceAs <| Decidable (c &&& 0x80 = 0 ∨ c &&& 0xe0 = 0xc0 ∨ c &&& 0xf0 = 0xe0 ∨ c &&& 0xf8 = 0xf0)
 
-theorem isUtf8FirstByte_iff_parseFirstByte_ne_invalid {c : UInt8} :
-    c.IsUtf8FirstByte ↔ parseFirstByte c ≠ FirstByte.invalid := by
-  fun_cases parseFirstByte with simp_all [IsUtf8FirstByte]
+theorem isUTF8FirstByte_iff_parseFirstByte_ne_invalid {c : UInt8} :
+    c.IsUTF8FirstByte ↔ parseFirstByte c ≠ FirstByte.invalid := by
+  fun_cases parseFirstByte with simp_all [IsUTF8FirstByte]
 
 @[simp]
-public theorem isUtf8FirstByte_getElem_utf8EncodeChar {c : Char} {i : Nat} {hi : i < (String.utf8EncodeChar c).length} :
-    (String.utf8EncodeChar c)[i].IsUtf8FirstByte ↔ i = 0 := by
+public theorem isUTF8FirstByte_getElem_utf8EncodeChar {c : Char} {i : Nat} {hi : i < (String.utf8EncodeChar c).length} :
+    (String.utf8EncodeChar c)[i].IsUTF8FirstByte ↔ i = 0 := by
   obtain (rfl|hi₀) := Nat.eq_zero_or_pos i
-  · simp only [isUtf8FirstByte_iff_parseFirstByte_ne_invalid, iff_true]
+  · simp only [isUTF8FirstByte_iff_parseFirstByte_ne_invalid, iff_true]
     match h : c.utf8Size, c.utf8Size_pos, c.utf8Size_le_four with
     | 1, _, _ => simp [parseFirstByte_utf8EncodeChar_eq_done h]
     | 2, _, _ => simp [parseFirstByte_utf8EncodeChar_eq_oneMore h]
     | 3, _, _ => simp [parseFirstByte_utf8EncodeChar_eq_twoMore h]
     | 4, _, _ => simp [parseFirstByte_utf8EncodeChar_eq_threeMore h]
-  · simp only [isUtf8FirstByte_iff_parseFirstByte_ne_invalid, ne_eq, Nat.ne_of_lt' hi₀, iff_false,
+  · simp only [isUTF8FirstByte_iff_parseFirstByte_ne_invalid, ne_eq, Nat.ne_of_lt' hi₀, iff_false,
       Classical.not_not]
     apply parseFirstByte_eq_invalid_of_isInvalidContinuationByte_eq_false
     simp only [String.length_utf8EncodeChar] at hi
@@ -1408,12 +1408,12 @@ public theorem isUtf8FirstByte_getElem_utf8EncodeChar {c : Char} {i : Nat} {hi :
     | 4, _, _, 2, _, _ => simp [isInvalidContinuationByte_getElem_utf8EncodeChar_two_of_utf8Size_eq_four h]
     | 4, _, _, 3, _, _ => simp [isInvalidContinuationByte_getElem_utf8EncodeChar_three_of_utf8Size_eq_four h]
 
-public theorem isUtf8FirstByte_getElem_zero_utf8EncodeChar {c : Char} :
-    ((String.utf8EncodeChar c)[0]'(by simp [c.utf8Size_pos])).IsUtf8FirstByte := by
+public theorem isUTF8FirstByte_getElem_zero_utf8EncodeChar {c : Char} :
+    ((String.utf8EncodeChar c)[0]'(by simp [c.utf8Size_pos])).IsUTF8FirstByte := by
   simp
 
 @[expose]
-public def utf8ByteSize (c : UInt8) (_h : c.IsUtf8FirstByte) : String.Pos.Raw :=
+public def utf8ByteSize (c : UInt8) (_h : c.IsUTF8FirstByte) : String.Pos.Raw :=
   if c &&& 0x80 = 0 then
     ⟨1⟩
   else if c &&& 0xe0 = 0xc0 then
@@ -1430,7 +1430,7 @@ def _root_.ByteArray.utf8DecodeChar?.FirstByte.utf8ByteSize : FirstByte → Stri
   | .twoMore => ⟨3⟩
   | .threeMore => ⟨4⟩
 
-theorem utf8ByteSize_eq_utf8ByteSize_parseFirstByte {c : UInt8} {h : c.IsUtf8FirstByte} :
+theorem utf8ByteSize_eq_utf8ByteSize_parseFirstByte {c : UInt8} {h : c.IsUTF8FirstByte} :
     c.utf8ByteSize h = (parseFirstByte c).utf8ByteSize := by
   simp only [utf8ByteSize, FirstByte.utf8ByteSize, parseFirstByte, beq_iff_eq]
   split
@@ -1447,28 +1447,28 @@ theorem utf8ByteSize_eq_utf8ByteSize_parseFirstByte {c : UInt8} {h : c.IsUtf8Fir
 
 end UInt8
 
-public theorem ByteArray.isUtf8FirstByte_getElem_zero_utf8EncodeChar_append {c : Char} {b : ByteArray} :
-    (((String.utf8EncodeChar c).toByteArray ++ b)[0]'(by simp; have := c.utf8Size_pos; omega)).IsUtf8FirstByte := by
+public theorem ByteArray.isUTF8FirstByte_getElem_zero_utf8EncodeChar_append {c : Char} {b : ByteArray} :
+    (((String.utf8EncodeChar c).toByteArray ++ b)[0]'(by simp; have := c.utf8Size_pos; omega)).IsUTF8FirstByte := by
   rw [ByteArray.getElem_append_left (by simp [c.utf8Size_pos]),
-    List.getElem_toByteArray, UInt8.isUtf8FirstByte_getElem_utf8EncodeChar]
+    List.getElem_toByteArray, UInt8.isUTF8FirstByte_getElem_utf8EncodeChar]
 
-public theorem ByteArray.isUtf8FirstByte_of_isSome_utf8DecodeChar? {b : ByteArray} {i : Nat}
-    (h : (utf8DecodeChar? b i).isSome) : (b[i]'(lt_size_of_isSome_utf8DecodeChar? h)).IsUtf8FirstByte := by
+public theorem ByteArray.isUTF8FirstByte_of_isSome_utf8DecodeChar? {b : ByteArray} {i : Nat}
+    (h : (utf8DecodeChar? b i).isSome) : (b[i]'(lt_size_of_isSome_utf8DecodeChar? h)).IsUTF8FirstByte := by
   rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract] at h
-  suffices ((b.extract i b.size)[0]'(lt_size_of_isSome_utf8DecodeChar? h)).IsUtf8FirstByte by
+  suffices ((b.extract i b.size)[0]'(lt_size_of_isSome_utf8DecodeChar? h)).IsUTF8FirstByte by
     simpa [ByteArray.getElem_extract, Nat.add_zero] using this
   obtain ⟨c, hc⟩ := Option.isSome_iff_exists.1 h
   conv => congr; congr; rw [eq_of_utf8DecodeChar?_eq_some hc]
-  exact isUtf8FirstByte_getElem_zero_utf8EncodeChar_append
+  exact isUTF8FirstByte_getElem_zero_utf8EncodeChar_append
 
-public theorem ByteArray.isUtf8FirstByte_of_validateUtf8At  {b : ByteArray} {i : Nat} :
-    (h : validateUtf8At b i = true) → (b[i]'(lt_size_of_validateUtf8At h)).IsUtf8FirstByte := by
-  simp only [validateUtf8At_eq_isSome_utf8DecodeChar?]
-  exact isUtf8FirstByte_of_isSome_utf8DecodeChar?
+public theorem ByteArray.isUTF8FirstByte_of_validateUTF8At  {b : ByteArray} {i : Nat} :
+    (h : validateUTF8At b i = true) → (b[i]'(lt_size_of_validateUTF8At h)).IsUTF8FirstByte := by
+  simp only [validateUTF8At_eq_isSome_utf8DecodeChar?]
+  exact isUTF8FirstByte_of_isSome_utf8DecodeChar?
 
 theorem Char.byteIdx_utf8ByteSize_getElem_utf8EncodeChar {c : Char} :
     (((String.utf8EncodeChar c)[0]'(by simp [c.utf8Size_pos])).utf8ByteSize
-      UInt8.isUtf8FirstByte_getElem_zero_utf8EncodeChar).byteIdx = c.utf8Size := by
+      UInt8.isUTF8FirstByte_getElem_zero_utf8EncodeChar).byteIdx = c.utf8Size := by
   rw [UInt8.utf8ByteSize_eq_utf8ByteSize_parseFirstByte]
   obtain (hc|hc|hc|hc) := c.utf8Size_eq
   · rw [parseFirstByte_utf8EncodeChar_eq_done hc, FirstByte.utf8ByteSize, hc]
@@ -1478,7 +1478,7 @@ theorem Char.byteIdx_utf8ByteSize_getElem_utf8EncodeChar {c : Char} :
 
 public theorem ByteArray.utf8Size_utf8DecodeChar {b : ByteArray} {i} {h} :
     (utf8DecodeChar b i h).utf8Size =
-      ((b[i]'(lt_size_of_isSome_utf8DecodeChar? h)).utf8ByteSize (isUtf8FirstByte_of_isSome_utf8DecodeChar? h)).byteIdx := by
+      ((b[i]'(lt_size_of_isSome_utf8DecodeChar? h)).utf8ByteSize (isUTF8FirstByte_of_isSome_utf8DecodeChar? h)).byteIdx := by
   rw [← Char.byteIdx_utf8ByteSize_getElem_utf8EncodeChar]
   simp only [List.getElem_eq_getElem_toByteArray, utf8EncodeChar_utf8DecodeChar]
   simp [ByteArray.getElem_extract]

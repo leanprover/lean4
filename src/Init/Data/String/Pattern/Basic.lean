@@ -88,7 +88,7 @@ where
       have hr := by
         simp [Pos.Raw.le_iff] at h h2 ⊢
         omega
-      if lhs.getUtf8Byte (lstart + curr) hl == rhs.getUtf8Byte (rstart + curr) hr then
+      if lhs.getUTF8Byte (lstart + curr) hl == rhs.getUTF8Byte (rstart + curr) hr then
         go curr.inc
       else
         false

@@ -3378,7 +3378,7 @@ def List.utf8Encode (l : List Char) : ByteArray :=
 Note that in order for this definition to be well-behaved it is necessary to know that this `m`
 is unique. To show this, one defines UTF-8 decoding and shows that encoding and decoding are
 mutually inverse. -/
-inductive ByteArray.IsValidUtf8 (b : ByteArray) : Prop
+inductive ByteArray.IsValidUTF8 (b : ByteArray) : Prop
   /-- Show that a byte -/
   | intro (m : List Char) (hm : Eq b (List.utf8Encode m))
 
@@ -3393,10 +3393,10 @@ modifications when the reference to the string is unique.
 structure String where ofByteArray ::
   /-- The bytes of the UTF-8 encoding of the string. Since strings have a special representation in
   the runtime, this function actually takes linear time and space at runtime. For efficient access
-  to the string's bytes, use `String.utf8ByteSize` and `String.getUtf8Byte`. -/
+  to the string's bytes, use `String.utf8ByteSize` and `String.getUTF8Byte`. -/
   bytes : ByteArray
   /-- The bytes of the string form valid UTF-8. -/
-  isValidUtf8 : ByteArray.IsValidUtf8 bytes
+  isValidUTF8 : ByteArray.IsValidUTF8 bytes
 
 attribute [extern "lean_string_to_utf8"] String.bytes
 attribute [extern "lean_string_from_utf8_unchecked"] String.ofByteArray

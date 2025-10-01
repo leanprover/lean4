@@ -12,7 +12,7 @@ macro "test_extern'" t:term " => " v:term : command =>
 
 def checkGet (s : String) (arr : Array UInt8) :=
   (List.range s.utf8ByteSize).all fun i =>
-    let c := if h : _ then s.getUtf8Byte ⟨i⟩ h else unreachable!
+    let c := if h : _ then s.getUTF8Byte ⟨i⟩ h else unreachable!
     c == arr[i]!
 
 macro "validate" arr:term " => " "↯" : command =>

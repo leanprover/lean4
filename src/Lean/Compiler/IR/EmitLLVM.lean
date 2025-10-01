@@ -325,6 +325,7 @@ def toLLVMType (t : IRType) : M llvmctx (LLVM.LLVMType llvmctx) := do
   | IRType.tagged     => do LLVM.pointerType (← LLVM.i8Type llvmctx)
   | IRType.tobject    => do LLVM.pointerType (← LLVM.i8Type llvmctx)
   | IRType.erased     => do LLVM.pointerType (← LLVM.i8Type llvmctx)
+  | .void             => do LLVM.pointerType (← LLVM.i8Type llvmctx)
   | IRType.struct _ _ => panic! "not implemented yet"
   | IRType.union _ _  => panic! "not implemented yet"
 

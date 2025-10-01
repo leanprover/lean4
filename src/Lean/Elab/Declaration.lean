@@ -174,7 +174,9 @@ def elabDeclaration : CommandElab := fun stx => do
     -- use hash of declaration name, if any, as stable quot context; `elabMutualDef` has its own
     -- handling
     withInitQuotContext (getDeclName? stx |>.map hash) do
-    let modifiers ← elabModifiers modifiers
+    let mut modifiers ← elabModifiers modifiers
+    if (← getScope).isMeta && modifiers.computeKind == .regular then
+      modifiers := { modifiers with computeKind := .meta }
     withExporting (isExporting := modifiers.isInferredPublic (← getEnv)) do
       if declKind == ``Lean.Parser.Command.«axiom» then
         elabAxiom modifiers decl

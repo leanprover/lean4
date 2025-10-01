@@ -8,7 +8,7 @@ setLit.lean:22:19-22:21: error: overloaded, errors
 
   Hint: Add missing fields:
      ̲b̲y̲t̲e̲s̲ ̲:̲=̲ ̲_̲
-    ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲i̲s̲V̲a̲l̲i̲d̲U̲t̲f̲8̲ ̲:̲=̲ ̲_̲ ̲
+    ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲i̲s̲V̲a̲l̲i̲d̲U̲TF8̲ ̲:̲=̲ ̲_̲ ̲
 setLit.lean:24:31-24:38: error: overloaded, errors
   failed to synthesize
     Singleton Nat String

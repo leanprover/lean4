@@ -2699,7 +2699,12 @@ theorem union_insert_emptyWithCapacity {k : α} {v : β k} [EquivBEq α] [Lawful
 theorem contains_union_of_left  [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
     (h₂ : m₂.val.WF) {k : α} :
     m₁.contains k → (m₁.union m₂).contains k := by
-  sorry
+  simp_to_model [contains, union]
+  simp only [List.containsKey_insertSmallerList]
+  intro h
+  simp only [Bool.or_eq_true]
+  apply Or.inl
+  exact h
 
 theorem contains_union_of_right  [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
     (h₂ : m₂.val.WF) {k : α} :
@@ -2762,8 +2767,10 @@ theorem get_union_of_contains_right_eq_false [LawfulBEq α] (h₁ : m₁.val.WF)
     {k : α} (contains_eq_false : m₂.contains k = false) {h'} :
     (m₁.union m₂).get k h' = m₁.get k (contains_of_contains_union_of_contains_right_eq_false h₁ h₂ h' contains_eq_false) := by
   revert contains_eq_false
-  simp_to_model [union, get]
+  simp_to_model [union, get, contains]
   intro contains_eq_false
+  apply List.getValue_insertSmallerList_of_contains_eq_false
+  exact contains_eq_false
 
 theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :

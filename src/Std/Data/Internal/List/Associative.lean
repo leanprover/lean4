@@ -3212,14 +3212,6 @@ theorem getValue?_insertSmallerList_of_contains_eq_false [BEq α] [PartialEquivB
     simp only [containsKey_eq_contains_map_fst] at not_contains
     simp [getValueCast?_insertList_of_contains_eq_false not_contains]
 
-theorem getValue_insertSmallerList_of_contains_eq_false [BEq α] [PartialEquivBEq α] [LawfulBEq α]
-    {l toInsert : List ((a : α) × β a)} {k : α}
-    (not_contains : containsKey k toInsert = false)
-    {p1 : containsKey k (insertSmallerList l toInsert) = true}
-    {p2 : containsKey k l = true}:
-    getValueCast k (insertSmallerList l toInsert) p1  = getValueCast k l p2  := by
-      sorry
-
 section
 
 variable {β : Type v}
@@ -5100,6 +5092,16 @@ theorem getValueCast_eq_get_getValueCast? [BEq α] [LawfulBEq α] {a : α} {l : 
     {h : containsKey a l} :
     getValueCast a l h = (getValueCast? a l).get (containsKey_eq_isSome_getValueCast? (a := a) ▸ h) := by
   simp [getValueCast?_eq_some_getValueCast h]
+
+theorem getValue_insertSmallerList_of_contains_eq_false [BEq α] [PartialEquivBEq α] [LawfulBEq α]
+    {l toInsert : List ((a : α) × β a)} {k : α}
+    (not_contains : containsKey k toInsert = false)
+    {p1 : containsKey k (insertSmallerList l toInsert) = true}
+    {p2 : containsKey k l = true}:
+    getValueCast k (insertSmallerList l toInsert) p1  = getValueCast k l p2  := by
+      simp only [getValueCast_eq_get_getValueCast?]
+      apply Option.get.congr_simp
+      simp [getValue?_insertSmallerList_of_contains_eq_false, not_contains]
 
 theorem getKey?_filter [BEq α] [LawfulBEq α]
     {f : (a : α) → β a → Bool}

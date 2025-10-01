@@ -4115,6 +4115,7 @@ theorem getElem_modify_of_ne {xs : Array α} {i : Nat} (h : i ≠ j)
     (hi' : k ≠ i) (hj' : k ≠ j) : (xs.swap i j hi hj)[k]'(xs.size_swap .. |>.symm ▸ hp) = xs[k] := by
   simp [swap_def, getElem_set, hi'.symm, hj'.symm]
 
+@[deprecated getElem_swap (since := "2025-05-19")]
 theorem getElem_swap' {xs : Array α} {i j : Nat} {hi hj} {k : Nat} (hk : k < xs.size) :
     (xs.swap i j hi hj)[k]'(by simp_all) = if k = i then xs[j] else if k = j then xs[i] else xs[k] := by
   split
@@ -4145,8 +4146,78 @@ theorem swap_comm {xs : Array α} {i j : Nat} (hi hj) : xs.swap i j hi hj = xs.s
     · split <;> simp_all
     · split <;> simp_all
 
+/-! ### swapIfInBounds -/
+
 @[simp, grind =] theorem size_swapIfInBounds {xs : Array α} {i j : Nat} :
-    (xs.swapIfInBounds i j).size = xs.size := by unfold swapIfInBounds; split <;> (try split) <;> simp [size_swap]
+    (xs.swapIfInBounds i j).size = xs.size := by
+  unfold swapIfInBounds; split <;> (try split) <;> simp [size_swap]
+
+@[simp]
+theorem getElem_swapIfInBounds_of_size_le_left {xs : Array α} {i j k : Nat} (h : xs.size ≤ i)
+    (hk : k < (xs.swapIfInBounds i j).size) :
+    (xs.swapIfInBounds i j)[k] = xs[k]'(Nat.lt_of_lt_of_eq hk size_swapIfInBounds) := by
+  unfold swapIfInBounds
+  simp only [dif_neg (Nat.not_lt_of_le h)]
+
+@[simp]
+theorem getElem_swapIfInBounds_of_size_le_right {xs : Array α} {i j k : Nat} (h : xs.size ≤ j)
+    (hk : k < (xs.swapIfInBounds i j).size) :
+    (xs.swapIfInBounds i j)[k] = xs[k]'(Nat.lt_of_lt_of_eq hk size_swapIfInBounds) := by
+  unfold swapIfInBounds
+  simp only [dif_neg (Nat.not_lt_of_le h), dite_eq_ite, ite_self]
+
+@[simp]
+theorem getElem_swapIfInBounds_left {xs : Array α} {i j : Nat} (hj : j < xs.size)
+    (hi : i < (xs.swapIfInBounds i j).size) : (xs.swapIfInBounds i j)[i] = xs[j] := by
+  simp only [size_swapIfInBounds] at hi
+  unfold swapIfInBounds
+  simp only [dif_pos hi, dif_pos hj]
+  exact getElem_swap_left
+
+@[simp]
+theorem getElem_swapIfInBounds_right {xs : Array α} {i j : Nat} (hi : i < xs.size)
+    (hj : j < (xs.swapIfInBounds i j).size) :
+    (xs.swapIfInBounds i j)[j] = xs[i] := by
+  simp only [size_swapIfInBounds] at hj
+  unfold swapIfInBounds
+  simp only [dif_pos hi, dif_pos hj]
+  exact getElem_swap_right
+
+@[simp]
+theorem getElem_swapIfInBounds_of_ne_of_ne {xs : Array α} {i j k : Nat} (hi : k ≠ i) (hj : k ≠ j)
+    (hk : k < (xs.swapIfInBounds i j).size) :
+    (xs.swapIfInBounds i j)[k] = xs[k]'(Nat.lt_of_lt_of_eq hk size_swapIfInBounds) := by
+  simp only [size_swapIfInBounds] at hk
+  unfold swapIfInBounds
+  split
+  · split
+    · exact getElem_swap_of_ne _ hi hj
+    · rfl
+  · rfl
+
+@[grind =] theorem getElem_swapIfInBounds {xs : Array α} {i j k : Nat}
+    (hk : k < (xs.swapIfInBounds i j).size) :
+    (xs.swapIfInBounds i j)[k] =
+    if h : k = i ∧ j < xs.size then xs[j]'h.2
+    else if h₂ : k = j ∧ i < xs.size then xs[i]'h₂.2
+    else xs[k]'(Nat.lt_of_lt_of_eq hk size_swapIfInBounds) := by
+  simp only [size_swapIfInBounds] at hk
+  split
+  · case isTrue hij =>
+    cases hij.1
+    exact getElem_swapIfInBounds_left _ _
+  · case isFalse hij =>
+    split
+    · case isTrue hij =>
+      cases hij.1
+      exact getElem_swapIfInBounds_right _ _
+    · case isFalse hji =>
+      simp only [not_and, Nat.not_lt] at hij hji
+      by_cases hki : k = i
+      · exact getElem_swapIfInBounds_of_size_le_right (hij hki) _
+      · by_cases hkj : k = j
+        · exact getElem_swapIfInBounds_of_size_le_left (hji hkj) _
+        · exact getElem_swapIfInBounds_of_ne_of_ne hki hkj _
 
 /-! ### swapAt -/
 

@@ -3295,6 +3295,62 @@ theorem getKey?_insertSmallerList_of_contains_left_of_contains_right_eq_false [B
       rw [←getKey?_eq_getEntry?]
       simp [getKey?_eq_some contains]
 
+theorem length_insertListIfNew [BEq α] [EquivBEq α]
+    {l toInsert : List ((a : α) × β a)}
+    (distinct_l : DistinctKeys l)
+    (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
+    (distinct_both : ∀ (a : α), containsKey a l → (toInsert.map Sigma.fst).contains a = false) :
+    (insertListIfNew l toInsert).length = l.length + toInsert.length := by
+  induction toInsert generalizing l with
+  | nil => simp [insertListIfNew]
+  | cons hd tl ih =>
+    simp only [insertListIfNew, List.length_cons]
+    rw [ih]
+    · rw [length_insertEntryIfNew]
+      specialize distinct_both hd.fst
+      simp at distinct_both
+      cases eq : containsKey hd.fst l with
+      | true => simp [eq] at distinct_both
+      | false =>
+        simp only [Bool.false_eq_true, ↓reduceIte]
+        rw [Nat.add_assoc, Nat.add_comm 1 _]
+    · apply DistinctKeys.insertEntryIfNew distinct_l
+    · simp only [pairwise_cons] at distinct_toInsert
+      apply And.right distinct_toInsert
+    · intro a
+      simp [List.contains_cons] at distinct_both
+      rw [containsKey_insertEntryIfNew]
+      simp only [Bool.or_eq_true]
+      intro h
+      cases h with
+      | inl h =>
+        simp only [pairwise_cons] at distinct_toInsert
+        rw [List.contains_eq_any_beq]
+        simp only [List.any_map, List.any_eq_false, Function.comp_apply]
+        intro x x_mem
+        replace distinct_toInsert := distinct_toInsert.1 x x_mem
+        simp
+        apply BEq.neq_of_beq_of_neq
+        apply BEq.symm h
+        exact distinct_toInsert
+      | inr h =>
+        specialize distinct_both a h
+        simp only [List.contains_map, List.any_eq_false, Bool.not_eq_true]
+        apply distinct_both.2
+
+theorem length_insertSmallerList [BEq α] [EquivBEq α]
+    {l toInsert : List ((a : α) × β a)}
+    (distinct_l : DistinctKeys l)
+    (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
+    (distinct_both : ∀ (a : α), containsKey a l → (toInsert.map Sigma.fst).contains a = false) :
+    (insertSmallerList l toInsert).length = l.length + toInsert.length := by
+  unfold insertSmallerList
+  split
+  case isTrue =>
+    apply length_insertListIfNew
+  case isFalse =>
+    apply length_insertList
+
 section
 
 variable {β : Type v}

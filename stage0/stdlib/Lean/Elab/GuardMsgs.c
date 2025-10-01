@@ -14407,7 +14407,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction___red
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Update #guard_msgs with tactic output", 37, 37);
+x_1 = lean_mk_string_unchecked("Update #guard_msgs with generated message", 41, 41);
 return x_1;
 }
 }

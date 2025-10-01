@@ -19,7 +19,6 @@ LEAN_EXPORT lean_object* l_Substring_Internal_isEmpty___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_asString(lean_object*);
 LEAN_EXPORT lean_object* l_String_Internal_pushn___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Internal_contains___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_instOfNatPos;
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Internal_intercalate___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_Internal_takeWhile___boxed(lean_object*, lean_object*);
@@ -44,8 +43,8 @@ LEAN_EXPORT lean_object* l_String_Internal_isEmpty___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Internal_drop___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Internal_any___boxed(lean_object*, lean_object*);
 lean_object* lean_string_mk(lean_object*);
+LEAN_EXPORT lean_object* l_String_Pos_Raw_Internal_min___boxed(lean_object*, lean_object*);
 lean_object* lean_string_offsetofpos(lean_object*, lean_object*);
-lean_object* lean_string_pos_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_Internal_front___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Internal_get___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_instInhabited;
@@ -61,18 +60,17 @@ uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_Internal_prev___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Internal_capitalize___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_push___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Pos_Internal_sub___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Pos_Internal_min___boxed(lean_object*, lean_object*);
 lean_object* lean_substring_takewhile(lean_object*, lean_object*);
+lean_object* lean_string_pos_min(lean_object*, lean_object*);
 lean_object* lean_string_pushn(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_Char_toString___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Substring_Internal_toString___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Internal_atEnd___boxed(lean_object*, lean_object*);
-lean_object* lean_string_pos_min(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Internal_dropRight___boxed(lean_object*, lean_object*);
 lean_object* lean_string_nextwhile(lean_object*, lean_object*, lean_object*);
 lean_object* lean_substring_prev(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_instOfNatRaw;
 uint32_t lean_string_front(lean_object*);
 LEAN_EXPORT lean_object* l_String_Internal_posOf___boxed(lean_object*, lean_object*);
 lean_object* lean_string_intercalate(lean_object*, lean_object*);
@@ -81,6 +79,7 @@ uint8_t lean_string_isempty(lean_object*);
 LEAN_EXPORT lean_object* l_String_singleton(uint32_t);
 LEAN_EXPORT lean_object* l_String_mk___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Substring_Internal_get___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Pos_Raw_Internal_sub___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Internal_extract___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_dropright(lean_object*, lean_object*);
 static lean_object* l_String_instInhabited___closed__0;
@@ -90,8 +89,9 @@ uint32_t lean_substring_front(lean_object*);
 LEAN_EXPORT lean_object* l_String_Internal_front___boxed(lean_object*);
 uint32_t lean_substring_get(lean_object*, lean_object*);
 uint8_t lean_string_any(lean_object*, lean_object*);
+lean_object* lean_string_pos_sub(lean_object*, lean_object*);
 lean_object* lean_string_capitalize(lean_object*);
-static lean_object* _init_l_String_instOfNatPos() {
+static lean_object* _init_l_String_instOfNatRaw() {
 _start:
 {
 lean_object* x_1; 
@@ -437,7 +437,7 @@ x_3 = lean_substring_prev(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_String_Pos_Internal_sub___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_String_Pos_Raw_Internal_sub___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -445,7 +445,7 @@ x_3 = lean_string_pos_sub(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_String_Pos_Internal_min___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_String_Pos_Raw_Internal_min___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -489,8 +489,8 @@ lean_dec_ref(res);
 res = initialize_Init_Data_ByteArray_Bootstrap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_String_instOfNatPos = _init_l_String_instOfNatPos();
-lean_mark_persistent(l_String_instOfNatPos);
+l_String_instOfNatRaw = _init_l_String_instOfNatRaw();
+lean_mark_persistent(l_String_instOfNatRaw);
 l_String_instInhabited___closed__0 = _init_l_String_instInhabited___closed__0();
 lean_mark_persistent(l_String_instInhabited___closed__0);
 l_String_instInhabited = _init_l_String_instInhabited();

@@ -15,9 +15,11 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Prod_repr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Sum_repr___redArg___closed__2;
+static lean_object* l_instReprRaw___lam__0___closed__2;
 lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_reprStr___redArg(lean_object*, lean_object*);
 static lean_object* l_Bool_repr___redArg___closed__2;
+static lean_object* l_instReprRaw___lam__0___closed__0;
 static lean_object* l_List_repr___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Nat_toDigitsCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Char_quoteCore___closed__2;
@@ -60,16 +62,13 @@ LEAN_EXPORT lean_object* l_instReprSigma___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprEmpty___lam__0(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_instReprSum(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprFin___lam__0(lean_object*, lean_object*);
-static lean_object* l_instReprPos___lam__0___closed__2;
 static lean_object* l_Int_repr___closed__0;
 LEAN_EXPORT lean_object* l_instReprString___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprSum___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_toSuperDigits(lean_object*);
 LEAN_EXPORT lean_object* l_Option_repr(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprInt___lam__0___boxed(lean_object*, lean_object*);
-static lean_object* l_instReprPos___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_instReprUInt8;
-LEAN_EXPORT lean_object* l_instReprPos;
 LEAN_EXPORT lean_object* l_Decidable_repr___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprChar;
 static lean_object* l_Sum_repr___redArg___closed__1;
@@ -112,6 +111,7 @@ LEAN_EXPORT uint32_t l_Nat_digitChar(lean_object*);
 LEAN_EXPORT lean_object* l_instReprDecidable(lean_object*);
 static lean_object* l_List_repr___redArg___closed__1;
 LEAN_EXPORT lean_object* l_String_quote___lam__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprRaw___lam__0___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprChar___lam__0___boxed(lean_object*, lean_object*);
@@ -120,7 +120,6 @@ LEAN_EXPORT lean_object* l_Char_quoteCore___boxed(lean_object*, lean_object*);
 static lean_object* l_instReprSubstring___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_instReprAtomUInt16;
 lean_object* l_List_range(lean_object*);
-LEAN_EXPORT lean_object* l_instReprPos___lam__0___boxed(lean_object*, lean_object*);
 static lean_object* l_instReprSourceInfo_repr___closed__7;
 static lean_object* l_Repr_addAppParen___closed__1;
 LEAN_EXPORT lean_object* l_instReprUnit;
@@ -170,6 +169,7 @@ LEAN_EXPORT lean_object* l_instReprSubstring___lam__0___boxed(lean_object*, lean
 static lean_object* l_Repr_addAppParen___closed__0;
 static lean_object* l_Char_quoteCore___closed__5;
 static lean_object* l_Int_repr___closed__1;
+LEAN_EXPORT lean_object* l_instReprRaw___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_repr_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l_instReprListOfReprAtom___redArg(lean_object*, lean_object*);
@@ -177,7 +177,6 @@ LEAN_EXPORT lean_object* l_List_repr_x27___redArg(lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Std_instToFormatFormat___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instReprUnit___lam__0___boxed(lean_object*, lean_object*);
-static lean_object* l_instReprPos___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Char_repr(uint32_t);
 static lean_object* l_instReprSourceInfo_repr___closed__5;
 LEAN_EXPORT lean_object* l_instReprULift___redArg(lean_object*);
@@ -236,9 +235,9 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Bool_repr___redArg(uint8_t);
 static lean_object* l_instReprSourceInfo_repr___closed__8;
 LEAN_EXPORT lean_object* l_Sigma_repr___redArg(lean_object*, lean_object*, lean_object*);
+static lean_object* l_instReprRaw___lam__0___closed__1;
 static lean_object* l_Sigma_repr___redArg___closed__5;
 LEAN_EXPORT lean_object* l_instReprUInt32___lam__0___boxed(lean_object*, lean_object*);
-static lean_object* l_instReprPos___lam__0___closed__3;
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_instReprPUnit___lam__0___closed__1;
 static lean_object* l_instReprSourceInfo_repr___closed__4;
@@ -259,6 +258,7 @@ lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_instReprFin(lean_object*);
 static lean_object* l_Sum_repr___redArg___closed__0;
 lean_object* lean_uint8_to_nat(uint8_t);
+static lean_object* l_instReprRaw___lam__0___closed__3;
 static lean_object* l_Option_repr___redArg___closed__1;
 static lean_object* l_instReprULift___redArg___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_instReprSubtype___redArg(lean_object*);
@@ -277,7 +277,6 @@ static lean_object* l_instReprUnit___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_Decidable_repr___redArg(uint8_t, lean_object*);
 lean_object* lean_string_of_usize(size_t);
 LEAN_EXPORT lean_object* l_instReprAtomUInt64;
-LEAN_EXPORT lean_object* l_instReprPos___lam__0(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Sum_repr___redArg___closed__3;
 LEAN_EXPORT lean_object* l_instReprAtomInt;
@@ -305,6 +304,7 @@ static lean_object* l_Prod_repr___redArg___closed__0;
 LEAN_EXPORT uint32_t l_Nat_subDigitChar(lean_object*);
 static lean_object* l_Char_quoteCore___closed__4;
 LEAN_EXPORT lean_object* l_Bool_repr(uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_instReprRaw;
 LEAN_EXPORT lean_object* l_instReprAtomString;
 LEAN_EXPORT lean_object* l_Option_repr___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprId__1___redArg(lean_object*);
@@ -2990,7 +2990,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_instReprPos___lam__0___closed__0() {
+static lean_object* _init_l_instReprRaw___lam__0___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -2998,17 +2998,17 @@ x_1 = lean_mk_string_unchecked("{ byteIdx := ", 13, 13);
 return x_1;
 }
 }
-static lean_object* _init_l_instReprPos___lam__0___closed__1() {
+static lean_object* _init_l_instReprRaw___lam__0___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_instReprPos___lam__0___closed__0;
+x_1 = l_instReprRaw___lam__0___closed__0;
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_instReprPos___lam__0___closed__2() {
+static lean_object* _init_l_instReprRaw___lam__0___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -3016,47 +3016,47 @@ x_1 = lean_mk_string_unchecked(" }", 2, 2);
 return x_1;
 }
 }
-static lean_object* _init_l_instReprPos___lam__0___closed__3() {
+static lean_object* _init_l_instReprRaw___lam__0___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_instReprPos___lam__0___closed__2;
+x_1 = l_instReprRaw___lam__0___closed__2;
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_instReprPos___lam__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_instReprRaw___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_3 = l_instReprPos___lam__0___closed__1;
+x_3 = l_instReprRaw___lam__0___closed__1;
 x_4 = l_Nat_reprFast(x_1);
 x_5 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_5, 0, x_4);
 x_6 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_6, 0, x_3);
 lean_ctor_set(x_6, 1, x_5);
-x_7 = l_instReprPos___lam__0___closed__3;
+x_7 = l_instReprRaw___lam__0___closed__3;
 x_8 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_8, 0, x_6);
 lean_ctor_set(x_8, 1, x_7);
 return x_8;
 }
 }
-static lean_object* _init_l_instReprPos() {
+static lean_object* _init_l_instReprRaw() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instReprPos___lam__0___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_instReprRaw___lam__0___boxed), 2, 0);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_instReprPos___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_instReprRaw___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_instReprPos___lam__0(x_1, x_2);
+x_3 = l_instReprRaw___lam__0(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
@@ -3730,14 +3730,14 @@ lean_ctor_set(x_22, 1, x_21);
 x_23 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_23, 0, x_22);
 lean_ctor_set(x_23, 1, x_15);
-x_24 = l_instReprPos___lam__0___closed__1;
+x_24 = l_instReprRaw___lam__0___closed__1;
 x_25 = l_Nat_reprFast(x_11);
 x_26 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_26, 0, x_25);
 x_27 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_27, 0, x_24);
 lean_ctor_set(x_27, 1, x_26);
-x_28 = l_instReprPos___lam__0___closed__3;
+x_28 = l_instReprRaw___lam__0___closed__3;
 x_29 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_29, 0, x_27);
 lean_ctor_set(x_29, 1, x_28);
@@ -3811,14 +3811,14 @@ block_78:
 lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; uint8_t x_75; lean_object* x_76; lean_object* x_77; 
 x_56 = lean_box(1);
 x_57 = l_instReprSourceInfo_repr___closed__9;
-x_58 = l_instReprPos___lam__0___closed__1;
+x_58 = l_instReprRaw___lam__0___closed__1;
 x_59 = l_Nat_reprFast(x_52);
 x_60 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_60, 0, x_59);
 x_61 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_61, 0, x_58);
 lean_ctor_set(x_61, 1, x_60);
-x_62 = l_instReprPos___lam__0___closed__3;
+x_62 = l_instReprRaw___lam__0___closed__3;
 x_63 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_63, 0, x_61);
 lean_ctor_set(x_63, 1, x_62);
@@ -4065,16 +4065,16 @@ l_String_quote___closed__1 = _init_l_String_quote___closed__1();
 lean_mark_persistent(l_String_quote___closed__1);
 l_instReprString = _init_l_instReprString();
 lean_mark_persistent(l_instReprString);
-l_instReprPos___lam__0___closed__0 = _init_l_instReprPos___lam__0___closed__0();
-lean_mark_persistent(l_instReprPos___lam__0___closed__0);
-l_instReprPos___lam__0___closed__1 = _init_l_instReprPos___lam__0___closed__1();
-lean_mark_persistent(l_instReprPos___lam__0___closed__1);
-l_instReprPos___lam__0___closed__2 = _init_l_instReprPos___lam__0___closed__2();
-lean_mark_persistent(l_instReprPos___lam__0___closed__2);
-l_instReprPos___lam__0___closed__3 = _init_l_instReprPos___lam__0___closed__3();
-lean_mark_persistent(l_instReprPos___lam__0___closed__3);
-l_instReprPos = _init_l_instReprPos();
-lean_mark_persistent(l_instReprPos);
+l_instReprRaw___lam__0___closed__0 = _init_l_instReprRaw___lam__0___closed__0();
+lean_mark_persistent(l_instReprRaw___lam__0___closed__0);
+l_instReprRaw___lam__0___closed__1 = _init_l_instReprRaw___lam__0___closed__1();
+lean_mark_persistent(l_instReprRaw___lam__0___closed__1);
+l_instReprRaw___lam__0___closed__2 = _init_l_instReprRaw___lam__0___closed__2();
+lean_mark_persistent(l_instReprRaw___lam__0___closed__2);
+l_instReprRaw___lam__0___closed__3 = _init_l_instReprRaw___lam__0___closed__3();
+lean_mark_persistent(l_instReprRaw___lam__0___closed__3);
+l_instReprRaw = _init_l_instReprRaw();
+lean_mark_persistent(l_instReprRaw);
 l_instReprSubstring___lam__0___closed__0 = _init_l_instReprSubstring___lam__0___closed__0();
 lean_mark_persistent(l_instReprSubstring___lam__0___closed__0);
 l_instReprSubstring = _init_l_instReprSubstring();

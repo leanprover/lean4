@@ -3178,11 +3178,7 @@ theorem getEntry?_insertListIfNew [BEq α] [EquivBEq α] {l toInsert : List ((a 
         obtain ⟨v, hv⟩ := Option.isSome_iff_exists.1 hc
         simp [hv]
 
-theorem getEntry?_insertListIfNew_of_same_elem [BEq α] [LawfulBEq α] {l t : List ((a : α) × β a)} {k : α} {v : β k}:
-  getEntry? k (insertListIfNew (⟨k, v⟩ :: l) t) = .some ⟨k, v⟩ := by
-  simp only [getEntry?_insertListIfNew, getEntry?_cons_self, Option.some_or]
-
-theorem getEntry?_insertListIfNew_of_contains_eq_false_right [BEq α] [LawfulBEq α]
+theorem getEntry?_insertListIfNew_of_contains_eq_false_right [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)} {k : α}
     (not_contains : containsKey k l = false) :
     getEntry? k (insertListIfNew l toInsert) = getEntry? k toInsert := by
@@ -3203,6 +3199,63 @@ theorem getEntry?_insertListIfNew_of_contains_eq_false [BEq α] [PartialEquivBEq
     rw [ih not_contains.right, getEntry?_insertEntryIfNew]
     simp [not_contains]
 
+theorem getEntry?_insertSmallerList_of_contains_eq_false [BEq α] [EquivBEq α]
+    {l toInsert : List ((a : α) × β a)} {k : α}
+    (not_contains : containsKey k toInsert = false) :
+    getEntry? k (insertSmallerList l toInsert) = getEntry? k l := by
+  unfold insertSmallerList
+  split
+  case isTrue =>
+    simp only [getEntry?_insertListIfNew_of_contains_eq_false_right not_contains]
+  case isFalse =>
+    simp only [getEntry?_insertList_of_contains_eq_false not_contains]
+
+theorem getEntry?_insertSmallerList_of_contains_right [BEq α] [EquivBEq α]
+    {l toInsert : List ((a : α) × β a)} {k : α}
+    (distinct_l : DistinctKeys l)
+    (distinct_toInsert : List.Pairwise (fun a b => (a.fst == b.fst) = false) toInsert)
+    (contains : containsKey k toInsert = true) :
+    getEntry? k (insertSmallerList l toInsert) = getEntry? k toInsert := by
+  unfold insertSmallerList
+  split
+  case isTrue =>
+    simp [getEntry?_insertListIfNew]
+    rw [containsKey_eq_isSome_getEntry?] at contains
+    simp [Option.or_of_isSome, contains]
+  case isFalse =>
+    exact @getEntry?_insertList_of_contains_eq_true α β _ _ l toInsert k distinct_l distinct_toInsert contains
+
+theorem getKey?_insertSmallerList_of_contains_right [BEq α] [LawfulBEq α]
+    {l toInsert : List ((a : α) × β a)} {k : α}
+    (distinct_l : DistinctKeys l)
+    (distinct_toInsert : List.Pairwise (fun a b => (a.fst == b.fst) = false) toInsert)
+    (contains : containsKey k toInsert = true) :
+    getKey? k (insertSmallerList l toInsert) = some k := by
+  rw [getKey?_eq_getEntry?]
+  rw [getEntry?_insertSmallerList_of_contains_right distinct_l distinct_toInsert contains]
+  rw [←getKey?_eq_getEntry?]
+  rw [getKey?_eq_some contains]
+
+theorem getKey!_insertListIfNew_of_contains_right_eq_false [Inhabited α] [BEq α] [EquivBEq α]
+    {l toInsert : List ((a : α) × β a)}  {k : α}
+    (not_contains: containsKey k toInsert = false) :
+    List.getKey! k (insertSmallerList l toInsert) = List.getKey! k l := by
+  simp only [getKey!_eq_getKey?]
+  congr 1
+  simp only [getKey?_eq_getEntry?]
+  congr 1
+  simp [getEntry?_insertSmallerList_of_contains_eq_false not_contains]
+
+theorem getKeyD_insertListIfNew_of_contains_right_eq_false [BEq α] [EquivBEq α]
+    {l toInsert : List ((a : α) × β a)}  {k fallback : α}
+    (not_contains: containsKey k toInsert = false) :
+    List.getKeyD k (insertSmallerList l toInsert) fallback = List.getKeyD k l fallback := by
+  simp only [getKeyD_eq_getKey?]
+  congr 1
+  simp only [getKey?_eq_getEntry?]
+  congr 1
+  simp [getEntry?_insertSmallerList_of_contains_eq_false not_contains]
+
 theorem getValueCast?_insertListIfNew_of_contains_eq_false [BEq α] [LawfulBEq α]
     {l toInsert : List ((a : α) × β a)}  {k : α}
     (not_contains : containsKey k toInsert = false) :
@@ -3210,7 +3263,7 @@ theorem getValueCast?_insertListIfNew_of_contains_eq_false [BEq α] [LawfulBEq �
   rw [getValueCast?_eq_getEntry?, getValueCast?_eq_getEntry?]
   simp only [getEntry?_insertListIfNew_of_contains_eq_false_right not_contains]
 
-theorem getValue?_insertSmallerList_of_contains_eq_false [BEq α] [LawfulBEq α]
+theorem getValueCast?_insertSmallerList_of_contains_eq_false [BEq α] [LawfulBEq α]
     {l toInsert : List ((a : α) × β a)} {k : α}
     (not_contains : containsKey k toInsert = false) :
     getValueCast? k (insertSmallerList l toInsert) = getValueCast? k l := by
@@ -3221,6 +3274,26 @@ theorem getValue?_insertSmallerList_of_contains_eq_false [BEq α] [LawfulBEq α]
   case isFalse =>
     simp only [containsKey_eq_contains_map_fst] at not_contains
     simp [getValueCast?_insertList_of_contains_eq_false not_contains]
+
+theorem getKey!_insertSmallerList_of_contains_left_eq_false [BEq α] [LawfulBEq α] [Inhabited α]
+    {l toInsert : List ((a : α) × β a)} {k : α}
+    (not_contains : containsKey k toInsert = false) :
+    getKey! k (insertSmallerList l toInsert) = getKey! k l := by
+  simp only [getKey!_eq_getKey?]
+  congr 1
+  simp only [getKey?_eq_getEntry?]
+  congr 1
+  simp [getEntry?_insertSmallerList_of_contains_eq_false not_contains]
+
+theorem getKey?_insertSmallerList_of_contains_left_of_contains_right_eq_false [BEq α] [LawfulBEq α]
+    {l toInsert : List ((a : α) × β a)} {k : α}
+    (contains : containsKey k l = true)
+    (not_contains : containsKey k toInsert = false) :
+    getKey? k (insertSmallerList l toInsert) = some k := by
+      rw [getKey?_eq_getEntry?]
+      simp only [getEntry?_insertSmallerList_of_contains_eq_false not_contains]
+      rw [←getKey?_eq_getEntry?]
+      simp [getKey?_eq_some contains]
 
 section
 
@@ -5111,7 +5184,7 @@ theorem getValue_insertSmallerList_of_contains_eq_false [BEq α] [PartialEquivBE
     getValueCast k (insertSmallerList l toInsert) p1  = getValueCast k l p2  := by
       simp only [getValueCast_eq_get_getValueCast?]
       apply Option.get.congr_simp
-      simp [getValue?_insertSmallerList_of_contains_eq_false, not_contains]
+      simp [getValueCast?_insertSmallerList_of_contains_eq_false, not_contains]
 
 theorem getKey?_filter [BEq α] [LawfulBEq α]
     {f : (a : α) → β a → Bool}

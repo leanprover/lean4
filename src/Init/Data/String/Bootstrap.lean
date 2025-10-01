@@ -122,6 +122,9 @@ opaque drop (s : String) (n : Nat) : String
 @[extern "lean_string_dropright"]
 opaque dropRight (s : String) (n : Nat) : String
 
+@[extern "lean_string_get_byte_fast"]
+opaque getUTF8Byte (s : @& String) (n : Nat) (h : n < s.utf8ByteSize) : UInt8
+
 end String.Internal
 
 /--

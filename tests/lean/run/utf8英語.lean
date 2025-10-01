@@ -16,10 +16,10 @@ def checkGet (s : String) (arr : Array UInt8) :=
     c == arr[i]!
 
 macro "validate" arr:term " => " "↯" : command =>
-  `(test_extern' String.validateUTF8 $arr => false)
+  `(test_extern' ByteArray.validateUTF8 $arr => false)
 macro "validate" arr:term " => " str:term : command =>
-  `(test_extern' String.validateUTF8 $arr => true
-    test_extern' String.fromUTF8 $arr (with_decl_name% _validate by native_decide) => $str
+  `(test_extern' ByteArray.validateUTF8 $arr => true
+    test_extern' String.ofByteArray $arr (with_decl_name% _validate by native_decide) => $str
     test_extern' String.toUTF8 $str => $arr
     #guard checkGet $str ($arr : ByteArray).data)
 

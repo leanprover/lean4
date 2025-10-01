@@ -64,41 +64,25 @@ where
     -- trace[Elab.Tactic.Do.vcgen] "fail {goal.toExpr}"
     emitVC goal.toExpr name
 
-  tryGoal (goal : Expr) (name : Name) : VCGenM Expr := do
-    -- trace[Elab.Tactic.Do.vcgen] "tryGoal: {goal}"
-    forallTelescope goal fun xs body => do
-      let res ← try mStart body catch _ =>
-        -- trace[Elab.Tactic.Do.vcgen] "not an MGoal: {body}"
-        return ← mkLambdaFVars xs (← emitVC body name)
+  tryGoal (mvar : MVarId) : OptionT VCGenM Expr := mvar.withContext do
+    -- The type might contain more `P ⊢ₛ wp⟦prog⟧ Q` apps. Try and prove it!
+    forallTelescope (← mvar.getType) fun xs body => do
+      let res ← try mStart body catch _ => OptionT.fail
       -- trace[Elab.Tactic.Do.vcgen] "an MGoal: {res.goal.toExpr}"
-      let mut prf ← onGoal res.goal name
+      let mut prf ← onGoal res.goal (← mvar.getTag)
       -- res.goal.checkProof prf
       if let some proof := res.proof? then
         prf := mkApp proof prf
-      mkLambdaFVars xs prf
+      return ← mkLambdaFVars xs prf
 
   assignMVars (mvars : List MVarId) : VCGenM PUnit := do
     for mvar in mvars do
       if ← mvar.isAssigned then continue
-      mvar.withContext <| do
       -- trace[Elab.Tactic.Do.vcgen] "assignMVars {← mvar.getTag}, isDelayedAssigned: {← mvar.isDelayedAssigned},\n{mvar}"
-      let ty ← mvar.getType
-      if ← isProp ty then
-        -- Might contain more `P ⊢ₛ wp⟦prog⟧ Q` apps. Try and prove it!
-        let prf ← tryGoal ty (← mvar.getTag)
-        if ← mvar.isAssigned then
-          throwError "Tried to assign already assigned metavariable `{← mvar.getTag}` while `tryGoal`. MVar: {mvar}\nAssignment: {mkMVar mvar}\nNew assignment: {prf}"
-        mvar.assign prf
-        return
-      if ty.isAppOf ``PostCond || ty.isAppOf ``Invariant || ty.isAppOf ``SPred then
-        -- Here we make `mvar` a synthetic opaque goal upon discharge failure.
-        -- This is the right call for (previously natural) holes such as loop invariants, which
-        -- would otherwise lead to spurious instantiations and unwanted renamings (when leaving the
-        -- scope of a local).
-        -- But it's wrong for, e.g., schematic variables. The latter should never be PostConds,
-        -- Invariants or SPreds, hence the condition.
-        mvar.setKind .syntheticOpaque
-      addSubGoalAsVC mvar
+      let some prf ← (tryGoal mvar).run | addSubGoalAsVC mvar
+      if ← mvar.isAssigned then
+        throwError "Tried to assign already assigned metavariable `{← mvar.getTag}`. MVar: {mvar}\nAssignment: {mkMVar mvar}\nNew assignment: {prf}"
+      mvar.assign prf
 
   onGoal goal name : VCGenM Expr := do
     let T := goal.target

@@ -14,15 +14,13 @@ public import Lean.Elab.Tactic.Do.ProofMode.Assumption
 public import Lean.Elab.Tactic.Do.Attr
 public import Std.Do.Triple
 
-public section
-
 namespace Lean.Elab.Tactic.Do
 open Lean Elab Tactic Meta
 open Std.Do Do.SpecAttr Do.ProofMode
 
 builtin_initialize registerTraceClass `Elab.Tactic.Do.spec
 
-def findSpec (database : SpecTheorems) (wp : Expr) : MetaM SpecTheorem := do
+public def findSpec (database : SpecTheorems) (wp : Expr) : MetaM SpecTheorem := do
   let_expr c@WP.wp _m _ps _instWP _α prog := wp | throwError "target not a wp application {wp}"
   let prog ← instantiateMVarsIfMVarApp prog
   let prog := prog.headBeta
@@ -139,7 +137,7 @@ def dischargeMGoal (goal : MGoal) (goalTag : Name) : n Expr := do
 /--
   Returns the proof and the list of new unassigned MVars.
 -/
-def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name) : n Expr := do
+public def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name) : n Expr := do
   -- First instantiate `fun s => ...` in the target via repeated `mintro ∀s`.
   mIntroForallN goal goal.target.consumeMData.getNumHeadLambdas fun goal => do
   -- Elaborate the spec for the wp⟦e⟧ app in the target
@@ -177,10 +175,24 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name
   let excessArgs := (args.extract 4 args.size).reverse
 
   -- Actually instantiate the specThm using the expected type computed from `wp`.
-  let_expr f@Triple m ps instWP α prog P Q := specTy | do liftMetaM (throwError "target not a Triple application {specTy}")
+  let_expr f@Triple m ps instWP α prog P Q := specTy
+    | liftMetaM <| throwError "target not a Triple application {specTy}"
   let wp' := mkApp5 (mkConst ``WP.wp f.constLevels!) m ps instWP α prog
   unless (← withAssignableSyntheticOpaque <| isDefEq wp wp') do
     Term.throwTypeMismatchError none wp wp' spec
+
+  -- Try synthesizing synthetic MVars. We don't have the convenience of `TermElabM`, hence
+  -- this poor man's version of `TermElabM.synthesizeSyntheticMVars`.
+  -- We do so after the def eq call so that instance resolution is likely to succeed.
+  -- If it _doesn't_ succeed now, then the spec theorem leaves behind an additional subgoal.
+  -- We'll add a trace message if that happens.
+  for mvar in mvars do
+    let mvar := mvar.mvarId!
+    if (← mvar.getKind) matches .synthetic && !(← liftMetaM <| mvar.isAssigned) then
+      match ← trySynthInstance (← mvar.getType) with
+      | .some prf => liftMetaM <| mvar.assign prf
+      | .none => continue
+      | .undef => liftMetaM <| do trace[Elab.Tactic.Do.spec] "Failed to synthesize synthetic MVar {mvar} from unifying {specTy} against {prog}.\nThis likely leaves behind an additional subgoal."
 
   let P ← instantiateMVarsIfMVarApp P
   let Q ← instantiateMVarsIfMVarApp Q

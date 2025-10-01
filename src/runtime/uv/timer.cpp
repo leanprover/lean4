@@ -48,17 +48,17 @@ void handle_timer_event(uv_timer_t* handle) {
     lean_uv_timer_object * timer = lean_to_uv_timer(obj);
 
     // handle_timer_event may only be called while the timer is running. The promise can be NULL
-    // if it the last promise was cancelled.
+    // if the last promise was cancelled.
     lean_assert(timer->m_state == TIMER_STATE_RUNNING);
 
    if (timer->m_repeating) {
-        // For repeating timers, only resolve if promise exists and is not finished
+        // For repeating timers, only resolves if the promise exists and is not finished
         if (timer->m_promise != NULL && !timer_promise_is_finished(timer)) {
             lean_object* res = lean_io_promise_resolve(lean_box(0), timer->m_promise, lean_io_mk_world());
             lean_dec(res);
         }
     } else {
-        // For non-repeating timers, resolve if promise exists
+        // For non-repeating timers, resolves if the promise exists
         if (timer->m_promise != NULL) {
             lean_assert(!timer_promise_is_finished(timer));
             lean_object* res = lean_io_promise_resolve(lean_box(0), timer->m_promise, lean_io_mk_world());
@@ -156,14 +156,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj, obj_arg /*
                         if (timer->m_promise != NULL) {
                             lean_dec(timer->m_promise);
                         }
-                        timer->m_promise = create_promise();
 
-                        lean_inc(timer->m_promise);
-                        return lean_io_result_mk_ok(timer->m_promise);
-                    } else {
-                        lean_inc(timer->m_promise);
-                        return lean_io_result_mk_ok(timer->m_promise);
+                        timer->m_promise = create_promise();
                     }
+
+                    lean_inc(timer->m_promise);
+                    return lean_io_result_mk_ok(timer->m_promise);
                 }
             case TIMER_STATE_FINISHED:
                 {
@@ -171,9 +169,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj, obj_arg /*
                         lean_inc(timer->m_promise);
                         return lean_io_result_mk_ok(timer->m_promise);
                     } else {
+                        // Creates a resolved promise
                         lean_object* finished_promise = create_promise();
                         lean_object* res = lean_io_promise_resolve(lean_box(0), finished_promise, lean_io_mk_world());
                         lean_dec(res);
+                        timer->m_promise = finished_promise;
                         return lean_io_result_mk_ok(finished_promise);
                     }
                 }

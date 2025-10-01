@@ -214,6 +214,19 @@ public instance : UpwardEnumerable Int8 where
     have := i.minValue_le_toInt
     if h : i.toInt + n ≤ maxValueSealed.toInt then some (.ofIntLE _ (by omega) (maxValueSealed_def ▸ h)) else none
 
+instance : Least? Int8 where
+  least? := some Int8.minValue
+
+instance : LawfulUpwardEnumerableLeast? Int8 where
+  least?_le x := by
+    refine ⟨Int8.minValue, rfl, (x.toInt - Int8.minValue.toInt).toNat, ?_⟩
+    simp only [succMany?, toInt_neg, Int8.reduceToInt, Int.neg_neg, Nat.reducePow, Int.reduceBmod,
+      Int.sub_neg, Int.ofNat_toNat, ofIntLE_eq_ofInt]
+    rw [Int.max_eq_left, Int.add_comm _ 128, ← Int.add_assoc]
+    · simp [maxValueSealed_def, toInt_le]
+    · have := le_toInt x
+      omega
+
 instance : HasModel Int8 (BitVec 8) where
   encode x := x.toBitVec
   decode x := .ofBitVec x
@@ -294,6 +307,19 @@ public instance : UpwardEnumerable Int16 where
   succMany? n i :=
     have := i.minValue_le_toInt
     if h : i.toInt + n ≤ maxValueSealed.toInt then some (.ofIntLE _ (by omega) (maxValueSealed_def ▸ h)) else none
+
+instance : Least? Int16 where
+  least? := some Int16.minValue
+
+instance : LawfulUpwardEnumerableLeast? Int16 where
+  least?_le x := by
+    refine ⟨Int16.minValue, rfl, (x.toInt - Int16.minValue.toInt).toNat, ?_⟩
+    simp only [succMany?, toInt_neg, Int16.reduceToInt, Int.neg_neg, Nat.reducePow, Int.reduceBmod,
+      Int.sub_neg, Int.ofNat_toNat, ofIntLE_eq_ofInt]
+    rw [Int.max_eq_left, Int.add_comm _ 32768, ← Int.add_assoc]
+    · simp [maxValueSealed_def, toInt_le]
+    · have := le_toInt x
+      omega
 
 instance : HasModel Int16 (BitVec 16) where
   encode x := x.toBitVec
@@ -376,6 +402,19 @@ public instance : UpwardEnumerable Int32 where
     have := i.minValue_le_toInt
     if h : i.toInt + n ≤ maxValueSealed.toInt then some (.ofIntLE _ (by omega) (maxValueSealed_def ▸ h)) else none
 
+instance : Least? Int32 where
+  least? := some Int32.minValue
+
+instance : LawfulUpwardEnumerableLeast? Int32 where
+  least?_le x := by
+    refine ⟨Int32.minValue, rfl, (x.toInt - Int32.minValue.toInt).toNat, ?_⟩
+    simp only [succMany?, toInt_neg, Int32.reduceToInt, Int.neg_neg, Nat.reducePow, Int.reduceBmod,
+      Int.sub_neg, Int.ofNat_toNat, ofIntLE_eq_ofInt]
+    rw [Int.max_eq_left, Int.add_comm _ (OfNat.ofNat _), ← Int.add_assoc]
+    · simp [maxValueSealed_def, toInt_le]
+    · have := le_toInt x
+      omega
+
 instance : HasModel Int32 (BitVec 32) where
   encode x := x.toBitVec
   decode x := .ofBitVec x
@@ -456,6 +495,19 @@ public instance : UpwardEnumerable Int64 where
   succMany? n i :=
     have := i.minValue_le_toInt
     if h : i.toInt + n ≤ maxValueSealed.toInt then some (.ofIntLE _ (by omega) (maxValueSealed_def ▸ h)) else none
+
+instance : Least? Int64 where
+  least? := some Int64.minValue
+
+instance : LawfulUpwardEnumerableLeast? Int64 where
+  least?_le x := by
+    refine ⟨Int64.minValue, rfl, (x.toInt - Int64.minValue.toInt).toNat, ?_⟩
+    simp only [succMany?, toInt_neg, Int64.reduceToInt, Int.neg_neg, Nat.reducePow, Int.reduceBmod,
+      Int.sub_neg, Int.ofNat_toNat, ofIntLE_eq_ofInt]
+    rw [Int.max_eq_left, Int.add_comm _ (OfNat.ofNat _), ← Int.add_assoc]
+    · simp [maxValueSealed_def, toInt_le]
+    · have := le_toInt x
+      omega
 
 instance : HasModel Int64 (BitVec 64) where
   encode x := x.toBitVec
@@ -543,6 +595,18 @@ public instance : UpwardEnumerable ISize where
   succMany? n i :=
     have := i.minValue_le_toInt
     if h : i.toInt + n ≤ maxValueSealed.toInt then some (.ofIntLE _ (by omega) (maxValueSealed_def ▸ h)) else none
+
+instance : Least? ISize where
+  least? := some ISize.minValue
+
+instance : LawfulUpwardEnumerableLeast? ISize where
+  least?_le x := by
+    refine ⟨ISize.minValue, rfl, (x.toInt - ISize.minValue.toInt).toNat, ?_⟩
+    simp only [succMany?, Int.ofNat_toNat, ofIntLE_eq_ofInt, maxValueSealed]
+    rw [Int.max_eq_left, Int.sub_eq_add_neg, Int.add_comm _ (-minValue.toInt), ← Int.add_assoc,
+      ← Int.sub_eq_add_neg, Int.sub_self, Int.zero_add, dif_pos (toInt_le x), ofInt_toInt]
+    have := minValue_le_toInt x
+    omega
 
 instance : HasModel ISize (BitVec System.Platform.numBits) where
   encode x := x.toBitVec

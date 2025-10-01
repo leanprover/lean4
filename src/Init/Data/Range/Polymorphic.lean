@@ -10,10 +10,13 @@ public import Init.Data.Range.Polymorphic.Basic
 public import Init.Data.Range.Polymorphic.Iterators
 public import Init.Data.Range.Polymorphic.Stream
 public import Init.Data.Range.Polymorphic.Lemmas
+
 public import Init.Data.Range.Polymorphic.Nat
 public import Init.Data.Range.Polymorphic.Int
 public import Init.Data.Range.Polymorphic.BitVec
 public import Init.Data.Range.Polymorphic.UInt
+public import Init.Data.Range.Polymorphic.SInt
+
 public import Init.Data.Range.Polymorphic.NatLemmas
 public import Init.Data.Range.Polymorphic.GetElemTactic
 

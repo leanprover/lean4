@@ -159,7 +159,16 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name
   mTryFrame goal fun goal => do
 
   -- Fully instantiate the specThm without instantiating its MVars to `wp` yet
-  let (_, _, spec, specTy) ← specThm.proof.instantiate
+  let (mvars, _, spec, specTy) ← specThm.proof.instantiate
+
+  -- Instantiation creates `.natural` MVars, which possibly get instantiated by the def eq checks
+  -- below when they occur in `P` or `Q`.
+  -- That's good for many such as MVars ("schematic variables"), but problematic for MVars
+  -- corresponding to `Invariant`s, which should end up as user goals.
+  -- To prevent accidental instantiation, we mark all `Invariant` MVars as synthetic opaque.
+  for mvar in mvars do
+    let ty ← mvar.mvarId!.getType
+    if ty.isAppOf ``Invariant then mvar.mvarId!.setKind .syntheticOpaque
 
   -- Apply the spec to the excess arguments of the `wp⟦e⟧ Q` application
   let T := goal.target.consumeMData

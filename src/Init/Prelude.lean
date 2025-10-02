@@ -3790,6 +3790,11 @@ abbrev liftM := @monadLift
 instance (m n o) [MonadLift n o] [MonadLiftT m n] : MonadLiftT m o where
   monadLift x := MonadLift.monadLift (m := n) (monadLift x)
 
+-- Force the eager realization of instMonadLiftTOfMonadLift (#10652)
+-- Without this line, adding the `spec` attribute for the above instance in
+-- `Std.Do.Triple.SpecLemmas` fails.
+private def instMonadLiftTOfMonadLift.__eq_1 := instMonadLiftTOfMonadLift.eq_1
+
 instance (m) : MonadLiftT m m where
   monadLift x := x
 

@@ -228,6 +228,9 @@ example : ([1, 2, 3].iter.map (· * 2)).toList = [2, 4, 6] := by
 example : ([1, 2, 3].iter.filter (· % 2 = 0)).toList = [2] := by
   simp
 
+example : ([1, 2, 3].iter.map (· * 2)).fold (init := 0) (· + ·) = 12 := by
+  simp [Iter.fold_map]
+
 /--
 info: Lean
 is

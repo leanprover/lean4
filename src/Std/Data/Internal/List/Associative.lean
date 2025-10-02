@@ -3338,6 +3338,39 @@ theorem length_insertListIfNew [BEq α] [EquivBEq α]
         simp only [List.contains_map, List.any_eq_false, Bool.not_eq_true]
         apply distinct_both.2
 
+theorem length_insertListIfNew_right [BEq α] [EquivBEq α]
+    {l toInsert : List ((a : α) × β a)}
+    (distinct_l : DistinctKeys l)
+    (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
+    (distinct_both : ∀ (a : α), containsKey a l → (toInsert.map Sigma.fst).contains a = false) :
+    (insertListIfNew toInsert l).length = l.length + toInsert.length := by
+  induction toInsert generalizing l with
+  | nil =>
+    unfold insertListIfNew
+    split
+    . simp
+    . simp [insertEntryIfNew, insertListIfNew]
+      rw [Nat.add_comm]
+      apply Eq.trans
+      . apply length_insertListIfNew
+        . simp
+        . cases distinct_l
+          next =>
+            rename_i distinct_l
+            simp at distinct_l
+            replace distinct_l := distinct_l.2
+            simp [keys_eq_map] at distinct_l
+            sorry
+
+
+
+  | cons h t ih =>
+      simp
+      unfold insertListIfNew
+      split
+      . simp
+      . sorry
+
 theorem length_insertSmallerList [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)}
     (distinct_l : DistinctKeys l)
@@ -3347,9 +3380,9 @@ theorem length_insertSmallerList [BEq α] [EquivBEq α]
   unfold insertSmallerList
   split
   case isTrue =>
-    apply length_insertListIfNew
+    apply length_insertListIfNew_right distinct_l distinct_toInsert distinct_both
   case isFalse =>
-    apply length_insertList
+    apply length_insertList distinct_l distinct_toInsert distinct_both
 
 section
 

@@ -70,7 +70,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_one___redArg___lam__
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Std_Internal_IO_Async_Selectable_one_spec__3___redArg___lam__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_uint64_to_nat(uint64_t);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Async_Select_0__Std_Internal_IO_Async_shuffleIt_go___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_randNat___at_____private_Std_Internal_Async_Select_0__Std_Internal_IO_Async_shuffleIt_go_spec__0___closed__0;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___redArg___lam__0___boxed(lean_object*);
@@ -82,6 +81,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Random_0__randNatAux___at___randN
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_one(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Std_Internal_IO_Async_Selectable_one_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
+lean_object* l_IO_mkRef___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_one___redArg___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__5___closed__0;
 extern lean_object* l_stdRange;
@@ -2695,7 +2695,7 @@ x_14 = lean_ctor_get(x_4, 0);
 lean_dec(x_14);
 x_15 = 0;
 x_16 = lean_box(x_15);
-x_17 = lean_st_mk_ref(x_16, x_5);
+x_17 = l_IO_mkRef___redArg(x_16, x_5);
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
 x_19 = lean_ctor_get(x_17, 1);
@@ -2720,7 +2720,7 @@ uint8_t x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_obje
 lean_dec(x_4);
 x_25 = 0;
 x_26 = lean_box(x_25);
-x_27 = lean_st_mk_ref(x_26, x_5);
+x_27 = l_IO_mkRef___redArg(x_26, x_5);
 x_28 = lean_ctor_get(x_27, 0);
 lean_inc(x_28);
 x_29 = lean_ctor_get(x_27, 1);

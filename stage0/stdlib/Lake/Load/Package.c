@@ -134,7 +134,6 @@ x_11 = lean_nat_dec_eq(x_9, x_10);
 lean_dec(x_9);
 if (x_11 == 0)
 {
-lean_dec(x_8);
 lean_dec_ref(x_1);
 return x_6;
 }

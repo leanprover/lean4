@@ -259,7 +259,6 @@ static lean_object* l_Lean_addTraceAsMessages___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_instMonadAlwaysExceptStateT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNodeBefore___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 static lean_object* l___private_Lean_Util_Trace_0__Lean_expandTraceMacro___closed__67;
-lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_withStartStop___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Util_Trace_0__Lean_checkTraceOption_go(lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
@@ -380,6 +379,7 @@ LEAN_EXPORT lean_object* l_Lean_exceptOptionEmoji___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addTraceAsMessages___redArg___lam__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_Trace_0__Lean_expandTraceMacro___closed__27;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___redArg___lam__22___boxed(lean_object**);
+lean_object* l_IO_mkRef___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_doElemTrace_x5b___x5d_______closed__4;
 static lean_object* l___private_Lean_Util_Trace_0__Lean_expandTraceMacro___closed__14;
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_withStartStop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -769,7 +769,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
 x_2 = l_Lean_initFn___closed__4____x40_Lean_Util_Trace_3842689300____hygCtx___hyg_2_;
-x_3 = lean_st_mk_ref(x_2, x_1);
+x_3 = l_IO_mkRef___redArg(x_2, x_1);
 x_4 = !lean_is_exclusive(x_3);
 if (x_4 == 0)
 {
@@ -5149,37 +5149,58 @@ return x_17;
 }
 else
 {
-lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; 
-x_18 = lean_ctor_get(x_11, 1);
-lean_inc(x_18);
-lean_dec_ref(x_11);
-x_19 = l_Lean_registerTraceClass___closed__2;
-x_20 = lean_st_ref_take(x_19, x_18);
-x_21 = lean_ctor_get(x_20, 0);
-lean_inc(x_21);
-x_22 = lean_ctor_get(x_20, 1);
-lean_inc(x_22);
-lean_dec_ref(x_20);
-x_23 = lean_box(0);
-x_24 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_registerTraceClass_spec__0___redArg(x_21, x_7, x_23);
-x_25 = lean_st_ref_set(x_19, x_24, x_22);
-x_26 = !lean_is_exclusive(x_25);
-if (x_26 == 0)
+uint8_t x_18; 
+x_18 = !lean_is_exclusive(x_11);
+if (x_18 == 0)
 {
-return x_25;
+lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
+x_19 = lean_ctor_get(x_11, 1);
+x_20 = lean_ctor_get(x_11, 0);
+lean_dec(x_20);
+x_21 = l_Lean_registerTraceClass___closed__2;
+x_22 = lean_st_ref_take(x_21, x_19);
+x_23 = lean_ctor_get(x_22, 0);
+lean_inc(x_23);
+x_24 = lean_ctor_get(x_22, 1);
+lean_inc(x_24);
+lean_dec_ref(x_22);
+x_25 = lean_box(0);
+x_26 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_registerTraceClass_spec__0___redArg(x_23, x_7, x_25);
+x_27 = lean_st_ref_set(x_21, x_26, x_24);
+x_28 = lean_ctor_get(x_27, 0);
+lean_inc(x_28);
+x_29 = lean_ctor_get(x_27, 1);
+lean_inc(x_29);
+lean_dec_ref(x_27);
+lean_ctor_set(x_11, 1, x_29);
+lean_ctor_set(x_11, 0, x_28);
+return x_11;
 }
 else
 {
-lean_object* x_27; lean_object* x_28; lean_object* x_29; 
-x_27 = lean_ctor_get(x_25, 0);
-x_28 = lean_ctor_get(x_25, 1);
-lean_inc(x_28);
-lean_inc(x_27);
-lean_dec(x_25);
-x_29 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_29, 0, x_27);
-lean_ctor_set(x_29, 1, x_28);
-return x_29;
+lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
+x_30 = lean_ctor_get(x_11, 1);
+lean_inc(x_30);
+lean_dec(x_11);
+x_31 = l_Lean_registerTraceClass___closed__2;
+x_32 = lean_st_ref_take(x_31, x_30);
+x_33 = lean_ctor_get(x_32, 0);
+lean_inc(x_33);
+x_34 = lean_ctor_get(x_32, 1);
+lean_inc(x_34);
+lean_dec_ref(x_32);
+x_35 = lean_box(0);
+x_36 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_registerTraceClass_spec__0___redArg(x_33, x_7, x_35);
+x_37 = lean_st_ref_set(x_31, x_36, x_34);
+x_38 = lean_ctor_get(x_37, 0);
+lean_inc(x_38);
+x_39 = lean_ctor_get(x_37, 1);
+lean_inc(x_39);
+lean_dec_ref(x_37);
+x_40 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_40, 0, x_38);
+lean_ctor_set(x_40, 1, x_39);
+return x_40;
 }
 }
 }

@@ -22,11 +22,11 @@ LEAN_EXPORT lean_object* l_Lean_initializing(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_runInitializersRef;
 LEAN_EXPORT lean_object* lean_enable_initializer_execution(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_importingRef;
 LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_initFn____x40_Lean_ImportingFlag_1124607303____hygCtx___hyg_2_(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_initFn____x40_Lean_ImportingFlag_2251799370____hygCtx___hyg_2_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withImporting___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_IO_mkRef___redArg(lean_object*, lean_object*);
 lean_object* lean_io_initializing(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withImporting___redArg___lam__0(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -36,7 +36,7 @@ _start:
 uint8_t x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_2 = 0;
 x_3 = lean_box(x_2);
-x_4 = lean_st_mk_ref(x_3, x_1);
+x_4 = l_IO_mkRef___redArg(x_3, x_1);
 x_5 = !lean_is_exclusive(x_4);
 if (x_5 == 0)
 {
@@ -63,7 +63,7 @@ _start:
 uint8_t x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_2 = 0;
 x_3 = lean_box(x_2);
-x_4 = lean_st_mk_ref(x_3, x_1);
+x_4 = l_IO_mkRef___redArg(x_3, x_1);
 x_5 = !lean_is_exclusive(x_4);
 if (x_5 == 0)
 {

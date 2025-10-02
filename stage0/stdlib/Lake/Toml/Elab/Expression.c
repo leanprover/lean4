@@ -179,6 +179,7 @@ static lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at_
 static lean_object* l___private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabKeyval___closed__9;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabSubKeys_spec__3_spec__3___closed__0;
 static lean_object* l___private_Lake_Toml_Elab_Expression_0__Lake_Toml_instToStringKeyTy___closed__0;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___at___Lean_logErrorAt___at___Lake_Toml_elabToml_spec__2_spec__2___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logErrorAt___at___Lake_Toml_elabToml_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -532,9 +533,14 @@ return x_1;
 LEAN_EXPORT lean_object* l___private_Lake_Toml_Elab_Expression_0__Lake_Toml_KeyTy_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l___private_Lake_Toml_Elab_Expression_0__Lake_Toml_KeyTy_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l___private_Lake_Toml_Elab_Expression_0__Lake_Toml_KeyTy_ctorIdx(x_1);
+x_4 = l___private_Lake_Toml_Elab_Expression_0__Lake_Toml_KeyTy_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = lean_alloc_closure((void*)(l___private_Lake_Toml_Elab_Expression_0__Lake_Toml_KeyTy_noConfusion___redArg___lam__0___boxed), 1, 0);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lake_Toml_Elab_Expression_0__Lake_Toml_KeyTy_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
@@ -897,53 +903,56 @@ x_5 = lean_st_ref_get(x_3, x_4);
 x_6 = !lean_is_exclusive(x_5);
 if (x_6 == 0)
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_7 = lean_ctor_get(x_5, 0);
-x_8 = lean_ctor_get(x_7, 0);
-lean_inc_ref(x_8);
+x_8 = lean_ctor_get(x_5, 1);
+x_9 = lean_ctor_get(x_7, 0);
+lean_inc_ref(x_9);
 lean_dec(x_7);
-x_9 = lean_ctor_get(x_2, 2);
-x_10 = l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_throwErrorAt___at_____private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabSubKeys_spec__0_spec__0_spec__0___closed__2;
-x_11 = l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_throwErrorAt___at_____private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabSubKeys_spec__0_spec__0_spec__0___closed__6;
-lean_inc(x_9);
-x_12 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_12, 0, x_8);
-lean_ctor_set(x_12, 1, x_10);
-lean_ctor_set(x_12, 2, x_11);
-lean_ctor_set(x_12, 3, x_9);
-x_13 = lean_alloc_ctor(3, 2, 0);
-lean_ctor_set(x_13, 0, x_12);
-lean_ctor_set(x_13, 1, x_1);
+x_10 = lean_ctor_get(x_2, 2);
+x_11 = l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_throwErrorAt___at_____private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabSubKeys_spec__0_spec__0_spec__0___closed__2;
+x_12 = l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_throwErrorAt___at_____private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabSubKeys_spec__0_spec__0_spec__0___closed__6;
+lean_inc(x_10);
+x_13 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_13, 0, x_9);
+lean_ctor_set(x_13, 1, x_11);
+lean_ctor_set(x_13, 2, x_12);
+lean_ctor_set(x_13, 3, x_10);
+lean_ctor_set_tag(x_5, 3);
+lean_ctor_set(x_5, 1, x_1);
 lean_ctor_set(x_5, 0, x_13);
-return x_5;
+x_14 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_14, 0, x_5);
+lean_ctor_set(x_14, 1, x_8);
+return x_14;
 }
 else
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_14 = lean_ctor_get(x_5, 0);
-x_15 = lean_ctor_get(x_5, 1);
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
+x_15 = lean_ctor_get(x_5, 0);
+x_16 = lean_ctor_get(x_5, 1);
+lean_inc(x_16);
 lean_inc(x_15);
-lean_inc(x_14);
 lean_dec(x_5);
-x_16 = lean_ctor_get(x_14, 0);
-lean_inc_ref(x_16);
-lean_dec(x_14);
-x_17 = lean_ctor_get(x_2, 2);
-x_18 = l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_throwErrorAt___at_____private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabSubKeys_spec__0_spec__0_spec__0___closed__2;
-x_19 = l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_throwErrorAt___at_____private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabSubKeys_spec__0_spec__0_spec__0___closed__6;
-lean_inc(x_17);
-x_20 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_20, 0, x_16);
-lean_ctor_set(x_20, 1, x_18);
-lean_ctor_set(x_20, 2, x_19);
-lean_ctor_set(x_20, 3, x_17);
-x_21 = lean_alloc_ctor(3, 2, 0);
-lean_ctor_set(x_21, 0, x_20);
-lean_ctor_set(x_21, 1, x_1);
-x_22 = lean_alloc_ctor(0, 2, 0);
+x_17 = lean_ctor_get(x_15, 0);
+lean_inc_ref(x_17);
+lean_dec(x_15);
+x_18 = lean_ctor_get(x_2, 2);
+x_19 = l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_throwErrorAt___at_____private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabSubKeys_spec__0_spec__0_spec__0___closed__2;
+x_20 = l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_throwErrorAt___at_____private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabSubKeys_spec__0_spec__0_spec__0___closed__6;
+lean_inc(x_18);
+x_21 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_21, 0, x_17);
+lean_ctor_set(x_21, 1, x_19);
+lean_ctor_set(x_21, 2, x_20);
+lean_ctor_set(x_21, 3, x_18);
+x_22 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_22, 0, x_21);
-lean_ctor_set(x_22, 1, x_15);
-return x_22;
+lean_ctor_set(x_22, 1, x_1);
+x_23 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_23, 0, x_22);
+lean_ctor_set(x_23, 1, x_16);
+return x_23;
 }
 }
 }

@@ -2514,7 +2514,6 @@ x_17 = lean_unbox(x_16);
 if (x_17 == 0)
 {
 lean_dec(x_14);
-lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_7);
 lean_dec_ref(x_6);

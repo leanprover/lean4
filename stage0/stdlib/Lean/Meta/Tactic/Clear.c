@@ -3182,8 +3182,8 @@ x_10 = x_42;
 x_11 = x_43;
 x_12 = x_44;
 x_13 = x_49;
-x_14 = x_39;
-x_15 = x_41;
+x_14 = x_41;
+x_15 = x_39;
 x_16 = x_48;
 x_17 = x_40;
 x_18 = x_47;
@@ -3200,8 +3200,8 @@ x_10 = x_42;
 x_11 = x_43;
 x_12 = x_44;
 x_13 = x_49;
-x_14 = x_39;
-x_15 = x_41;
+x_14 = x_41;
+x_15 = x_39;
 x_16 = x_48;
 x_17 = x_40;
 x_18 = x_53;
@@ -3559,8 +3559,8 @@ block_35:
 uint8_t x_19; lean_object* x_20; lean_object* x_21; 
 x_19 = 2;
 x_20 = lean_unsigned_to_nat(0u);
-x_21 = l_Lean_Meta_mkFreshExprMVarAt(x_13, x_18, x_14, x_19, x_17, x_20, x_15, x_10, x_11, x_12, x_16);
-lean_dec_ref(x_15);
+x_21 = l_Lean_Meta_mkFreshExprMVarAt(x_13, x_18, x_15, x_19, x_17, x_20, x_14, x_10, x_11, x_12, x_16);
+lean_dec_ref(x_14);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
@@ -4010,7 +4010,6 @@ return x_23;
 }
 else
 {
-lean_dec(x_13);
 lean_dec(x_9);
 lean_dec(x_6);
 lean_dec(x_4);

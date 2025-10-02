@@ -274,45 +274,46 @@ return x_6;
 LEAN_EXPORT lean_object* l_Std_Barrier_wait___lam__0(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; uint8_t x_6; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_5 = lean_st_ref_get(x_3, x_4);
-x_6 = !lean_is_exclusive(x_5);
-if (x_6 == 0)
+x_6 = lean_ctor_get(x_5, 0);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_5, 1);
+lean_inc(x_7);
+lean_dec_ref(x_5);
+x_8 = !lean_is_exclusive(x_6);
+if (x_8 == 0)
 {
-lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_7 = lean_ctor_get(x_5, 0);
-x_8 = lean_ctor_get(x_7, 1);
-lean_inc(x_8);
-lean_dec(x_7);
-x_9 = lean_nat_dec_eq(x_8, x_1);
-lean_dec(x_8);
-if (x_9 == 0)
+lean_object* x_9; lean_object* x_10; uint8_t x_11; 
+x_9 = lean_ctor_get(x_6, 1);
+x_10 = lean_ctor_get(x_6, 0);
+lean_dec(x_10);
+x_11 = lean_nat_dec_eq(x_9, x_1);
+lean_dec(x_9);
+if (x_11 == 0)
 {
-lean_object* x_10; 
-x_10 = lean_box(x_2);
-lean_ctor_set(x_5, 0, x_10);
-return x_5;
+lean_object* x_12; 
+x_12 = lean_box(x_2);
+lean_ctor_set(x_6, 1, x_7);
+lean_ctor_set(x_6, 0, x_12);
+return x_6;
 }
 else
 {
-uint8_t x_11; lean_object* x_12; 
-x_11 = 0;
-x_12 = lean_box(x_11);
-lean_ctor_set(x_5, 0, x_12);
-return x_5;
+uint8_t x_13; lean_object* x_14; 
+x_13 = 0;
+x_14 = lean_box(x_13);
+lean_ctor_set(x_6, 1, x_7);
+lean_ctor_set(x_6, 0, x_14);
+return x_6;
 }
 }
 else
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_13 = lean_ctor_get(x_5, 0);
-x_14 = lean_ctor_get(x_5, 1);
-lean_inc(x_14);
-lean_inc(x_13);
-lean_dec(x_5);
-x_15 = lean_ctor_get(x_13, 1);
+lean_object* x_15; uint8_t x_16; 
+x_15 = lean_ctor_get(x_6, 1);
 lean_inc(x_15);
-lean_dec(x_13);
+lean_dec(x_6);
 x_16 = lean_nat_dec_eq(x_15, x_1);
 lean_dec(x_15);
 if (x_16 == 0)
@@ -321,7 +322,7 @@ lean_object* x_17; lean_object* x_18;
 x_17 = lean_box(x_2);
 x_18 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_18, 0, x_17);
-lean_ctor_set(x_18, 1, x_14);
+lean_ctor_set(x_18, 1, x_7);
 return x_18;
 }
 else
@@ -331,7 +332,7 @@ x_19 = 0;
 x_20 = lean_box(x_19);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
-lean_ctor_set(x_21, 1, x_14);
+lean_ctor_set(x_21, 1, x_7);
 return x_21;
 }
 }

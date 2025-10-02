@@ -50,7 +50,6 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Random_0__randNatAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_randNat___at___IO_rand_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_stdNext___closed__4;
-lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Random_0__randNatAux___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_instReprStdGen___lam__0___closed__0;
 static lean_object* l_stdNext___closed__2;
@@ -62,6 +61,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Random_0__randNatAux___at___randN
 lean_object* lean_int_sub(lean_object*, lean_object*);
 static lean_object* l_stdNext___closed__7;
 LEAN_EXPORT lean_object* l_instReprStdGen___lam__0___boxed(lean_object*, lean_object*);
+lean_object* l_IO_mkRef___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_stdRange;
 lean_object* lean_int_mul(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -1109,57 +1109,73 @@ x_2 = 8;
 x_3 = lean_io_get_random_bytes(x_2, x_1);
 if (lean_obj_tag(x_3) == 0)
 {
-lean_object* x_4; lean_object* x_5; uint64_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
-x_4 = lean_ctor_get(x_3, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_3, 1);
-lean_inc(x_5);
-lean_dec_ref(x_3);
-x_6 = l_ByteArray_toUInt64LE_x21(x_4);
-lean_dec(x_4);
-x_7 = lean_uint64_to_nat(x_6);
-x_8 = l_mkStdGen(x_7);
-lean_dec(x_7);
-x_9 = lean_st_mk_ref(x_8, x_5);
-x_10 = !lean_is_exclusive(x_9);
-if (x_10 == 0)
+uint8_t x_4; 
+x_4 = !lean_is_exclusive(x_3);
+if (x_4 == 0)
 {
-return x_9;
-}
-else
-{
-lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_11 = lean_ctor_get(x_9, 0);
-x_12 = lean_ctor_get(x_9, 1);
-lean_inc(x_12);
+lean_object* x_5; lean_object* x_6; uint64_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_5 = lean_ctor_get(x_3, 0);
+x_6 = lean_ctor_get(x_3, 1);
+x_7 = l_ByteArray_toUInt64LE_x21(x_5);
+lean_dec(x_5);
+x_8 = lean_uint64_to_nat(x_7);
+x_9 = l_mkStdGen(x_8);
+lean_dec(x_8);
+x_10 = l_IO_mkRef___redArg(x_9, x_6);
+x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
-lean_dec(x_9);
-x_13 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_13, 0, x_11);
-lean_ctor_set(x_13, 1, x_12);
-return x_13;
+x_12 = lean_ctor_get(x_10, 1);
+lean_inc(x_12);
+lean_dec_ref(x_10);
+lean_ctor_set(x_3, 1, x_12);
+lean_ctor_set(x_3, 0, x_11);
+return x_3;
+}
+else
+{
+lean_object* x_13; lean_object* x_14; uint64_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+x_13 = lean_ctor_get(x_3, 0);
+x_14 = lean_ctor_get(x_3, 1);
+lean_inc(x_14);
+lean_inc(x_13);
+lean_dec(x_3);
+x_15 = l_ByteArray_toUInt64LE_x21(x_13);
+lean_dec(x_13);
+x_16 = lean_uint64_to_nat(x_15);
+x_17 = l_mkStdGen(x_16);
+lean_dec(x_16);
+x_18 = l_IO_mkRef___redArg(x_17, x_14);
+x_19 = lean_ctor_get(x_18, 0);
+lean_inc(x_19);
+x_20 = lean_ctor_get(x_18, 1);
+lean_inc(x_20);
+lean_dec_ref(x_18);
+x_21 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_21, 0, x_19);
+lean_ctor_set(x_21, 1, x_20);
+return x_21;
 }
 }
 else
 {
-uint8_t x_14; 
-x_14 = !lean_is_exclusive(x_3);
-if (x_14 == 0)
+uint8_t x_22; 
+x_22 = !lean_is_exclusive(x_3);
+if (x_22 == 0)
 {
 return x_3;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_15 = lean_ctor_get(x_3, 0);
-x_16 = lean_ctor_get(x_3, 1);
-lean_inc(x_16);
-lean_inc(x_15);
+lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+x_23 = lean_ctor_get(x_3, 0);
+x_24 = lean_ctor_get(x_3, 1);
+lean_inc(x_24);
+lean_inc(x_23);
 lean_dec(x_3);
-x_17 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_17, 0, x_15);
-lean_ctor_set(x_17, 1, x_16);
-return x_17;
+x_25 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_25, 0, x_23);
+lean_ctor_set(x_25, 1, x_24);
+return x_25;
 }
 }
 }
@@ -1175,11 +1191,28 @@ return x_1;
 LEAN_EXPORT lean_object* l_IO_setRandSeed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_3 = l_IO_setRandSeed___closed__0;
 x_4 = l_mkStdGen(x_1);
 x_5 = lean_st_ref_set(x_3, x_4, x_2);
+x_6 = !lean_is_exclusive(x_5);
+if (x_6 == 0)
+{
 return x_5;
+}
+else
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_7 = lean_ctor_get(x_5, 0);
+x_8 = lean_ctor_get(x_5, 1);
+lean_inc(x_8);
+lean_inc(x_7);
+lean_dec(x_5);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_7);
+lean_ctor_set(x_9, 1, x_8);
+return x_9;
+}
 }
 }
 LEAN_EXPORT lean_object* l_IO_setRandSeed___boxed(lean_object* x_1, lean_object* x_2) {

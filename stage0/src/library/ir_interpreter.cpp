@@ -1148,7 +1148,7 @@ uint32 run_main(elab_environment const & env, options const & opts, list_ref<str
 /* runMain (env : Environment) (opts : Iptions) (args : List String) : BaseIO UInt32 */
 extern "C" LEAN_EXPORT obj_res lean_run_main(b_obj_arg env, b_obj_arg opts, b_obj_arg args, obj_arg) {
     uint32 ret = run_main(TO_REF(elab_environment, env), TO_REF(options, opts), TO_REF(list_ref<string_ref>, args));
-    return io_result_mk_ok(box(ret));
+    return lean_mk_baseio_out(box(ret));
 }
 
 extern "C" LEAN_EXPORT object * lean_eval_const(object * env, object * opts, object * c) {

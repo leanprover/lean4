@@ -30,7 +30,6 @@ LEAN_EXPORT lean_object* l_Array_contains___at___Lean_registerInternalExceptionI
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerInternalExceptionId(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* lean_mk_io_user_error(lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Array_contains___at___Lean_registerInternalExceptionId_spec__0_spec__0(lean_object*, lean_object*, size_t, size_t);
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -38,6 +37,7 @@ LEAN_EXPORT lean_object* l_Lean_internalExceptionsRef;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Array_contains___at___Lean_registerInternalExceptionId_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_InternalExceptionId_3474817028____hygCtx___hyg_2_(lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(lean_object*, uint8_t);
+lean_object* l_IO_mkRef___redArg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_contains___at___Lean_registerInternalExceptionId_spec__0(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqInternalExceptionId;
@@ -139,7 +139,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
 x_2 = l_Lean_initFn___closed__0____x40_Lean_InternalExceptionId_3474817028____hygCtx___hyg_2_;
-x_3 = lean_st_mk_ref(x_2, x_1);
+x_3 = l_IO_mkRef___redArg(x_2, x_1);
 x_4 = !lean_is_exclusive(x_3);
 if (x_4 == 0)
 {

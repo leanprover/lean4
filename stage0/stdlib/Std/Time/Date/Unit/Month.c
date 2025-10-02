@@ -2157,9 +2157,11 @@ return x_2;
 LEAN_EXPORT lean_object* l_Std_Time_Month_Ordinal_toNat(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_nat_abs(x_1);
-return x_2;
+lean_object* x_2; uint8_t x_3; lean_object* x_4; 
+x_2 = l_Std_Time_Month_Ordinal_toNat___closed__0;
+x_3 = lean_int_dec_lt(x_1, x_2);
+x_4 = lean_nat_abs(x_1);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_Month_Ordinal_toNat___boxed(lean_object* x_1) {
@@ -2457,35 +2459,37 @@ return x_2;
 LEAN_EXPORT lean_object* l_Std_Time_Month_Ordinal_toSeconds(uint8_t x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_3 = l_Std_Time_Day_instInhabitedOffset;
-x_4 = lean_nat_abs(x_2);
-x_5 = l_Std_Time_Month_Ordinal_toSeconds___closed__23;
-x_6 = lean_array_get(x_3, x_5, x_4);
-x_7 = l_Std_Time_Month_Ordinal_toSeconds___closed__24;
-x_8 = lean_int_mul(x_6, x_7);
-lean_dec(x_6);
+lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_3 = l_Std_Time_Month_Ordinal_toNat___closed__0;
+x_4 = lean_int_dec_lt(x_2, x_3);
+x_5 = l_Std_Time_Day_instInhabitedOffset;
+x_6 = lean_nat_abs(x_2);
+x_7 = l_Std_Time_Month_Ordinal_toSeconds___closed__23;
+x_8 = lean_array_get(x_5, x_7, x_6);
+x_9 = l_Std_Time_Month_Ordinal_toSeconds___closed__24;
+x_10 = lean_int_mul(x_8, x_9);
+lean_dec(x_8);
 if (x_1 == 0)
 {
-lean_dec(x_4);
-return x_8;
+lean_dec(x_6);
+return x_10;
 }
 else
 {
-lean_object* x_9; uint8_t x_10; 
-x_9 = lean_unsigned_to_nat(2u);
-x_10 = lean_nat_dec_le(x_9, x_4);
-lean_dec(x_4);
-if (x_10 == 0)
+lean_object* x_11; uint8_t x_12; 
+x_11 = lean_unsigned_to_nat(2u);
+x_12 = lean_nat_dec_le(x_11, x_6);
+lean_dec(x_6);
+if (x_12 == 0)
 {
-return x_8;
+return x_10;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; 
-x_11 = l_Std_Time_Second_instAddOffset;
-x_12 = lean_apply_2(x_11, x_8, x_7);
-return x_12;
+lean_object* x_13; lean_object* x_14; 
+x_13 = l_Std_Time_Second_instAddOffset;
+x_14 = lean_apply_2(x_13, x_10, x_9);
+return x_14;
 }
 }
 }

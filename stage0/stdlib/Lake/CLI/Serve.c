@@ -44,7 +44,6 @@ static lean_object* l_Lake_setupFile___closed__3;
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lake_resolvePath(lean_object*, lean_object*);
 static lean_object* l_Lake_serve___closed__1;
-lean_object* l_instMonadEIO(lean_object*);
 lean_object* l_Lake_logToStream(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_invalidConfigEnvVar;
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
@@ -58,6 +57,7 @@ LEAN_EXPORT lean_object* l_Lake_setupFile(lean_object*, lean_object*, lean_objec
 lean_object* l_Lake_OutStream_logEntry(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___boxed__const__2;
 LEAN_EXPORT lean_object* l_IO_eprint___at_____private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21_spec__0(lean_object*, lean_object*);
+extern lean_object* l_instMonadBaseIO;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_setupFile___lam__0(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lake_serve___closed__0;
@@ -147,21 +147,21 @@ return x_5;
 static lean_object* _init_l_panic___at_____private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__2___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_instMonadEIO(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_instMonadBaseIO;
+x_3 = l_instInhabitedOfMonad___redArg(x_2, x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_panic___at_____private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = l_panic___at_____private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__2___closed__0;
-x_4 = lean_box(0);
-x_5 = l_instInhabitedOfMonad___redArg(x_3, x_4);
-x_6 = lean_panic_fn(x_5, x_1);
-x_7 = lean_apply_1(x_6, x_2);
-return x_7;
+x_4 = lean_panic_fn(x_3, x_1);
+x_5 = lean_apply_1(x_4, x_2);
+return x_5;
 }
 }
 static lean_object* _init_l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__0() {

@@ -252,6 +252,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_bind___boxed(lean_obj
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_ofPurePromise___redArg___lam__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_race___redArg___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_ofIOTask___redArg___lam__0(lean_object*);
+lean_object* l_BaseIO_pure(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_ofETask(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_MaybeTask_ctorIdx___redArg___boxed(lean_object*);
@@ -339,7 +340,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_ofIOTask___redArg(lean_ob
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_concurrently(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Async_toIO___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_BaseAsync_instMonad___lam__6(lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_pure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instFunctor(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_EAsync_instMonadAwaitAsyncTaskError;
 static lean_object* l_Std_Internal_IO_Async_BaseAsync_race___redArg___closed__0;
@@ -4971,11 +4971,9 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
-x_3 = lean_alloc_closure((void*)(l_EStateM_pure), 5, 4);
+x_3 = lean_alloc_closure((void*)(l_BaseIO_pure), 3, 2);
 lean_closure_set(x_3, 0, lean_box(0));
-lean_closure_set(x_3, 1, lean_box(0));
-lean_closure_set(x_3, 2, lean_box(0));
-lean_closure_set(x_3, 3, x_2);
+lean_closure_set(x_3, 1, x_2);
 x_4 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_BaseAsync_mk), 3, 2);
 lean_closure_set(x_4, 0, lean_box(0));
 lean_closure_set(x_4, 1, x_3);

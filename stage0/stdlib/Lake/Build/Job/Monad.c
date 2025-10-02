@@ -110,7 +110,6 @@ LEAN_EXPORT lean_object* l_Lake_Job_bindTask___redArg___lam__0___boxed(lean_obje
 extern lean_object* l_Lake_instDataKindUnit;
 static lean_object* l_Lake_instMonadStateOfJobStateJobM___closed__2;
 static lean_object* l_Lake_instMonadStateOfJobStateJobM___closed__4;
-lean_object* l_instMonadEIO(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_SpawnM_toFn___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_bindTask___redArg___lam__0(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_mixList(lean_object*, lean_object*, lean_object*);
@@ -132,10 +131,12 @@ lean_object* lean_io_map_task(lean_object*, lean_object*, lean_object*, uint8_t,
 static lean_object* l_Lake_Job_async___redArg___closed__4;
 lean_object* l_Lake_EStateT_instMonadFinallyOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_newTrace___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_BaseIO_pure(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_bindTask___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_EStateT_instMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_zipResultWith___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_wait(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_instMonadBaseIO;
 static lean_object* l_Lake_instMonadStateOfJobStateJobM___closed__0;
 static lean_object* l_Lake_instMonadLiftFetchMJobM___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___List_foldrTR___at___Lake_Job_mixList_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -172,7 +173,6 @@ LEAN_EXPORT lean_object* l_Lake_instMonadErrorJobM___lam__0___boxed(lean_object*
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___List_foldrTR___at___Lake_Job_collectList_spec__0_spec__0___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_collectArray(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_mapM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_pure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Job_async___redArg___closed__11;
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftLogIOJobM;
 LEAN_EXPORT lean_object* l_Lake_instMonadStateOfLogJobM___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -218,7 +218,6 @@ lean_object* l_Lake_EStateT_instMonad___redArg___lam__5(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lake_JobM_ofFn___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 lean_object* lean_array_mk(lean_object*);
-static lean_object* l_Lake_instAlternativeJobM___closed__0;
 LEAN_EXPORT lean_object* l_Lake_updateAction(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_updateAction___redArg(uint8_t, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
@@ -294,9 +293,7 @@ static lean_object* _init_l_Lake_instMonadStateOfJobStateJobM___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_EStateM_pure), 5, 2);
-lean_closure_set(x_1, 0, lean_box(0));
-lean_closure_set(x_1, 1, lean_box(0));
+x_1 = lean_alloc_closure((void*)(l_BaseIO_pure), 3, 0);
 return x_1;
 }
 }
@@ -857,19 +854,11 @@ return x_28;
 }
 }
 }
-static lean_object* _init_l_Lake_instAlternativeJobM___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instMonadEIO(lean_box(0));
-return x_1;
-}
-}
 static lean_object* _init_l_Lake_instAlternativeJobM() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; 
-x_1 = l_Lake_instAlternativeJobM___closed__0;
+x_1 = l_instMonadBaseIO;
 x_2 = !lean_is_exclusive(x_1);
 if (x_2 == 0)
 {
@@ -4173,7 +4162,7 @@ static lean_object* _init_l_Lake_Job_async___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lake_instAlternativeJobM___closed__0;
+x_1 = l_instMonadBaseIO;
 x_2 = l_Lake_EStateT_instMonadLiftOfMonad___redArg(x_1);
 return x_2;
 }
@@ -4263,7 +4252,7 @@ static lean_object* _init_l_Lake_Job_async___redArg___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lake_instAlternativeJobM___closed__0;
+x_1 = l_instMonadBaseIO;
 x_2 = lean_alloc_closure((void*)(l_Lake_EStateT_instMonadFinallyOfMonad___redArg___lam__0), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
@@ -4347,7 +4336,7 @@ LEAN_EXPORT lean_object* l_Lake_Job_async___redArg(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_11; uint8_t x_12; 
-x_11 = l_Lake_instAlternativeJobM___closed__0;
+x_11 = l_instMonadBaseIO;
 x_12 = !lean_is_exclusive(x_11);
 if (x_12 == 0)
 {
@@ -4670,7 +4659,7 @@ LEAN_EXPORT lean_object* l_Lake_Job_async(lean_object* x_1, lean_object* x_2, le
 _start:
 {
 lean_object* x_13; uint8_t x_14; 
-x_13 = l_Lake_instAlternativeJobM___closed__0;
+x_13 = l_instMonadBaseIO;
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
 {
@@ -5194,7 +5183,7 @@ LEAN_EXPORT lean_object* l_Lake_Job_await___redArg(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = l_Lake_instAlternativeJobM___closed__0;
+x_4 = l_instMonadBaseIO;
 x_5 = !lean_is_exclusive(x_4);
 if (x_5 == 0)
 {
@@ -6274,7 +6263,7 @@ LEAN_EXPORT lean_object* l_Lake_Job_await(lean_object* x_1, lean_object* x_2, le
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
-x_5 = l_Lake_instAlternativeJobM___closed__0;
+x_5 = l_instMonadBaseIO;
 x_6 = !lean_is_exclusive(x_5);
 if (x_6 == 0)
 {
@@ -7779,7 +7768,7 @@ LEAN_EXPORT lean_object* l_Lake_Job_mapM___redArg(lean_object* x_1, lean_object*
 _start:
 {
 lean_object* x_13; uint8_t x_14; 
-x_13 = l_Lake_instAlternativeJobM___closed__0;
+x_13 = l_instMonadBaseIO;
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
 {
@@ -8810,7 +8799,7 @@ LEAN_EXPORT lean_object* l_Lake_Job_bindM___redArg(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_13; uint8_t x_14; 
-x_13 = l_Lake_instAlternativeJobM___closed__0;
+x_13 = l_instMonadBaseIO;
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
 {
@@ -10976,8 +10965,6 @@ l_Lake_instMonadLogJobM = _init_l_Lake_instMonadLogJobM();
 lean_mark_persistent(l_Lake_instMonadLogJobM);
 l_Lake_instMonadErrorJobM = _init_l_Lake_instMonadErrorJobM();
 lean_mark_persistent(l_Lake_instMonadErrorJobM);
-l_Lake_instAlternativeJobM___closed__0 = _init_l_Lake_instAlternativeJobM___closed__0();
-lean_mark_persistent(l_Lake_instAlternativeJobM___closed__0);
 l_Lake_instAlternativeJobM = _init_l_Lake_instAlternativeJobM();
 lean_mark_persistent(l_Lake_instAlternativeJobM);
 l_Lake_instMonadLiftLogIOJobM = _init_l_Lake_instMonadLiftLogIOJobM();

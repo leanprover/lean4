@@ -12,6 +12,8 @@ public import Init.Data.Range.Polymorphic.Instances
 public import Init.Data.Order.Classes
 public import Init.Data.Order.Lemmas
 
+set_option doc.verso true
+
 public section
 
 open Std PRange
@@ -48,123 +50,106 @@ instance : LawfulUpwardEnumerable Nat where
     omega
 
 instance : LawfulUpwardEnumerableLT Nat := inferInstance
-instance : LawfulUpwardEnumerableLowerBound .closed Nat := inferInstance
-instance : LawfulUpwardEnumerableUpperBound .closed Nat := inferInstance
-instance : LawfulUpwardEnumerableLowerBound .open Nat := inferInstance
-instance : LawfulUpwardEnumerableUpperBound .open Nat := inferInstance
-instance : LawfulUpwardEnumerableLowerBound .unbounded Nat := inferInstance
-instance : LawfulUpwardEnumerableUpperBound .unbounded Nat := inferInstance
 
 instance : InfinitelyUpwardEnumerable Nat where
   isSome_succ? a := by simp [UpwardEnumerable.succ?]
 
-instance : RangeSize .closed Nat where
-  size bound a := bound + 1 - a
+instance : Rxc.HasSize Nat where
+  size lo hi := hi + 1 - lo
 
-instance : RangeSize .open Nat := .openOfClosed
+instance : Rxo.HasSize Nat := .ofClosed
 
-instance : LawfulRangeSize .closed Nat where
-  size_eq_zero_of_not_isSatisfied upperBound init hu := by
-    simp only [SupportsUpperBound.IsSatisfied, RangeSize.size] at hu ⊢
+instance : Rxc.LawfulHasSize Nat where
+  size_eq_zero_of_not_le lo hi hu := by
+    simp only [Rxc.HasSize.size] at hu ⊢
     omega
   size_eq_one_of_succ?_eq_none upperBound init hu h := by
     simp only [UpwardEnumerable.succ?] at h
     cases h
   size_eq_succ_of_succ?_eq_some upperBound init hu h := by
-    simp only [SupportsUpperBound.IsSatisfied, RangeSize.size, UpwardEnumerable.succ?,
+    simp only [Rxc.HasSize.size, UpwardEnumerable.succ?,
       Option.some.injEq] at hu h ⊢
     omega
 
-instance : LawfulRangeSize .open Nat := inferInstance
-instance : HasFiniteRanges .closed Nat := inferInstance
-instance : HasFiniteRanges .open Nat := inferInstance
+instance : Rxc.IsAlwaysFinite Nat := inferInstance
+instance : Rxo.LawfulHasSize Nat := inferInstance
+instance : Rxo.IsAlwaysFinite Nat := inferInstance
+
 instance : LinearlyUpwardEnumerable Nat := inferInstance
 
+end PRange
+
+-- TODO: Replace the `lit` role with a `module` role?
 /-!
-The following instances are used for the implementation of array slices a.k.a. `Subarray`.
-See also `Init.Data.Slice.Array`.
+The following instances are used for the implementation of array slices a.k.a.
+{name (scope := "Init.Data.Array.Subarray")}`Subarray`.
+See also {lit}`Init.Data.Slice.Array`.
 -/
 
-instance : ClosedOpenIntersection ⟨.open, .open⟩ Nat where
-  intersection r s := PRange.mk (max (r.lower + 1) s.lower) (min r.upper s.upper)
+instance : Roo.HasRcoIntersection Nat where
+  intersection r s := (max (r.lower + 1) s.lower)...(min r.upper s.upper)
 
 example (h : b + 1 ≤ a) : b < a := by omega
 
-instance : LawfulClosedOpenIntersection ⟨.open, .open⟩ Nat where
+instance : Roo.LawfulRcoIntersection Nat where
   mem_intersection_iff {a r s} := by
-    simp only [ClosedOpenIntersection.intersection, Membership.mem, SupportsLowerBound.IsSatisfied,
-      SupportsUpperBound.IsSatisfied, Nat.max_le, Nat.lt_min, Bound]
+    simp only [Roo.HasRcoIntersection.intersection, Membership.mem, Nat.max_le, Nat.lt_min]
     omega
 
-instance : ClosedOpenIntersection ⟨.open, .closed⟩ Nat where
-  intersection r s := PRange.mk (max (r.lower + 1) s.lower) (min (r.upper + 1) s.upper)
+instance : Roc.HasRcoIntersection Nat where
+  intersection r s := (max (r.lower + 1) s.lower)...(min (r.upper + 1) s.upper)
 
-instance : LawfulClosedOpenIntersection ⟨.open, .closed⟩ Nat where
+instance : Roc.LawfulRcoIntersection Nat where
   mem_intersection_iff {a r s} := by
-    simp only [ClosedOpenIntersection.intersection, Membership.mem, SupportsLowerBound.IsSatisfied,
-      SupportsUpperBound.IsSatisfied, Nat.max_le, Nat.lt_min, Bound]
+    simp only [Roc.HasRcoIntersection.intersection, Membership.mem, Nat.max_le, Nat.lt_min]
     omega
 
-instance : ClosedOpenIntersection ⟨.open, .unbounded⟩ Nat where
-  intersection r s := PRange.mk (max (r.lower + 1) s.lower) s.upper
+instance : Roi.HasRcoIntersection Nat where
+  intersection r s := (max (r.lower + 1) s.lower)...s.upper
 
-instance : LawfulClosedOpenIntersection ⟨.open, .unbounded⟩ Nat where
+instance : Roi.LawfulRcoIntersection Nat where
   mem_intersection_iff {a r s} := by
-    simp only [Membership.mem, SupportsLowerBound.IsSatisfied, Bound,
-      ClosedOpenIntersection.intersection, Nat.max_le, SupportsUpperBound.IsSatisfied, and_true]
+    simp only [Roi.HasRcoIntersection.intersection, Membership.mem, Nat.max_le]
     omega
 
-instance : ClosedOpenIntersection ⟨.closed, .open⟩ Nat where
-  intersection r s := PRange.mk (max r.lower s.lower) (min r.upper s.upper)
+instance : Rco.HasRcoIntersection Nat where
+  intersection r s := (max r.lower s.lower)...(min r.upper s.upper)
 
-instance : LawfulClosedOpenIntersection ⟨.closed, .open⟩ Nat where
+instance : Rco.LawfulRcoIntersection Nat where
   mem_intersection_iff {a r s} := by
-    simp only [ClosedOpenIntersection.intersection, Membership.mem, SupportsLowerBound.IsSatisfied,
-      SupportsUpperBound.IsSatisfied, Nat.max_le, Nat.lt_min, Bound]
+    simp only [Rco.HasRcoIntersection.intersection, Membership.mem, Nat.max_le, Nat.lt_min]
     omega
 
-instance : ClosedOpenIntersection ⟨.closed, .closed⟩ Nat where
-  intersection r s := PRange.mk (max r.lower s.lower) (min (r.upper + 1) s.upper)
+instance : Rcc.HasRcoIntersection Nat where
+  intersection r s := (max r.lower s.lower)...(min (r.upper + 1) s.upper)
 
-instance : LawfulClosedOpenIntersection ⟨.closed, .closed⟩ Nat where
+instance : Rcc.LawfulRcoIntersection Nat where
   mem_intersection_iff {a r s} := by
-    simp only [ClosedOpenIntersection.intersection, Membership.mem, SupportsLowerBound.IsSatisfied,
-      SupportsUpperBound.IsSatisfied, Nat.max_le, Nat.lt_min, Bound]
+    simp only [Rcc.HasRcoIntersection.intersection, Membership.mem, Nat.max_le, Nat.lt_min]
     omega
 
-instance : ClosedOpenIntersection ⟨.closed, .unbounded⟩ Nat where
-  intersection r s := PRange.mk (max r.lower s.lower) s.upper
+instance : Rci.HasRcoIntersection Nat where
+  intersection r s := (max r.lower s.lower)...s.upper
 
-instance : LawfulClosedOpenIntersection ⟨.closed, .unbounded⟩ Nat where
+instance : Rci.LawfulRcoIntersection Nat where
   mem_intersection_iff {a r s} := by
-    simp only [Membership.mem, SupportsLowerBound.IsSatisfied, Bound,
-      ClosedOpenIntersection.intersection, Nat.max_le, SupportsUpperBound.IsSatisfied, and_true]
+    simp only [Rci.HasRcoIntersection.intersection, Membership.mem, Nat.max_le]
     omega
 
-instance : ClosedOpenIntersection ⟨.unbounded, .open⟩ Nat where
-  intersection r s := PRange.mk s.lower (min r.upper s.upper)
+instance : Rio.HasRcoIntersection Nat where
+  intersection r s := s.lower...(min r.upper s.upper)
 
-instance : LawfulClosedOpenIntersection ⟨.unbounded, .open⟩ Nat where
+instance : Rio.LawfulRcoIntersection Nat where
   mem_intersection_iff {a r s} := by
-    simp only [Membership.mem, SupportsLowerBound.IsSatisfied, Bound,
-      ClosedOpenIntersection.intersection, SupportsUpperBound.IsSatisfied, true_and]
+    simp only [Rio.HasRcoIntersection.intersection, Membership.mem]
     omega
 
-instance : ClosedOpenIntersection ⟨.unbounded, .closed⟩ Nat where
-  intersection r s := PRange.mk s.lower (min (r.upper + 1) s.upper)
+instance : Ric.HasRcoIntersection Nat where
+  intersection r s := s.lower...(min (r.upper + 1) s.upper)
 
-instance : LawfulClosedOpenIntersection ⟨.unbounded, .closed⟩ Nat where
+instance : Ric.LawfulRcoIntersection Nat where
   mem_intersection_iff {a r s} := by
-    simp only [Membership.mem, SupportsLowerBound.IsSatisfied, Bound,
-      ClosedOpenIntersection.intersection, SupportsUpperBound.IsSatisfied, true_and]
+    simp only [Ric.HasRcoIntersection.intersection, Membership.mem]
     omega
 
-instance : ClosedOpenIntersection ⟨.unbounded, .unbounded⟩ Nat where
-  intersection _ s := s
-
-instance : LawfulClosedOpenIntersection ⟨.unbounded, .unbounded⟩ Nat where
-  mem_intersection_iff {a r s} := by
-    simp [Membership.mem, SupportsLowerBound.IsSatisfied, Bound,
-      ClosedOpenIntersection.intersection, SupportsUpperBound.IsSatisfied]
-
-end Std.PRange
+end Std

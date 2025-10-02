@@ -44,19 +44,31 @@ theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
             f out acc) := by
   simp [ForIn.forIn, forIn'_eq, -forIn'_eq_forIn]
 
-@[congr] theorem Iter.forIn'_congr {α β : Type w}
-    [Iterator α Id β] [Finite α Id] [IteratorLoop α Id Id]
+@[congr] theorem Iter.forIn'_congr {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m]
     {ita itb : Iter (α := α) β} (w : ita = itb)
     {b b' : γ} (hb : b = b')
-    {f : (a' : β) → _ → γ → Id (ForInStep γ)}
-    {g : (a' : β) → _ → γ → Id (ForInStep γ)}
+    {f : (a' : β) → _ → γ → m (ForInStep γ)}
+    {g : (a' : β) → _ → γ → m (ForInStep γ)}
     (h : ∀ a m b, f a (by simpa [w] using m) b = g a m b) :
-    letI : ForIn' Id (Iter (α := α) β) β _ := Iter.instForIn'
+    letI : ForIn' m (Iter (α := α) β) β _ := Iter.instForIn'
     forIn' ita b f = forIn' itb b' g := by
   subst_eqs
   simp only [← funext_iff] at h
   rw [← h]
   rfl
+
+@[congr] theorem Iter.forIn_congr {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m]
+    {ita itb : Iter (α := α) β} (w : ita = itb)
+    {b b' : γ} (hb : b = b')
+    {f : (a' : β) → γ → m (ForInStep γ)}
+    {g : (a' : β) → γ → m (ForInStep γ)}
+    (h : ∀ a b, f a b = g a b) :
+    forIn ita b f = forIn itb b' g := by
+  subst_eqs
+  simp only [← funext_iff] at h
+  rw [← h]
 
 theorem Iter.forIn'_eq_forIn'_toIterM {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]

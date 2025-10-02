@@ -243,7 +243,9 @@ def checkSimpLike : SimpleHandler := mkSimpleHandler "simp-like tactic"
 def checkRegisterBuiltinOption : SimpleHandler := mkSimpleHandler (declNameStxIdx := 3) "option"
 
 @[builtin_missing_docs_handler Option.registerOption]
-def checkRegisterOption : SimpleHandler := mkSimpleHandler (declNameStxIdx := 3) "option"
+def checkRegisterOption : SimpleHandler := fun stx => do
+  if (← declModifiersPubNoDoc stx[0]) then
+    lintNamed stx[2] "option"
 
 @[builtin_missing_docs_handler registerSimpAttr]
 def checkRegisterSimpAttr : SimpleHandler := mkSimpleHandler "simp attr"

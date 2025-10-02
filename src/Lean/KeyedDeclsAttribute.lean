@@ -9,6 +9,7 @@ prelude
 public import Lean.ScopedEnvExtension
 import Lean.Compiler.InitAttr
 import Lean.Compiler.IR.CompilerM
+import Lean.ExtraModUses
 
 public section
 

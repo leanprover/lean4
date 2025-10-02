@@ -62,12 +62,11 @@ namespace Rcc
 
 variable {α : Type u}
 
--- TODO: Replace the `lit` role with a `module` role?
 /--
 Internal function that constructs an iterator for a closed range {lit}`lo...=hi`.
 This is an internal function.
 Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Rcc.iter` instead, which requires
-importing {lit}`Std.Data.Iterators`.
+importing {module -checked}`Std.Data.Iterators`.
 -/
 @[always_inline, inline]
 def Internal.iter [UpwardEnumerable α] (r : Rcc α) : Iter (α := Rxc.Iterator α) α :=
@@ -149,12 +148,11 @@ namespace Rco
 
 variable {α : Type u}
 
--- TODO: Replace the `lit` role with a `module` role?
 /--
 Internal function that constructs an iterator for a closed range {lit}`lo...hi`.
 This is an internal function.
 Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Rco.iter` instead, which requires
-importing {lit}`Std.Data.Iterators`.
+importing {module -checked}`Std.Data.Iterators`.
 -/
 @[always_inline, inline]
 def Internal.iter [UpwardEnumerable α] (r : Rco α) : Iter (α := Rxo.Iterator α) α :=
@@ -236,12 +234,11 @@ namespace Rci
 
 variable {α : Type u}
 
--- TODO: Replace the `lit` role with a `module` role?
 /--
 Internal function that constructs an iterator for a closed range {lit}`lo...*`.
 This is an internal function.
 Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Rcc.iter` instead, which requires
-importing {lit}`Std.Data.Iterators`.
+importing {module -checked}`Std.Data.Iterators`.
 -/
 @[always_inline, inline]
 def Internal.iter [UpwardEnumerable α] (r : Rci α) : Iter (α := Rxi.Iterator α) α :=
@@ -322,12 +319,11 @@ namespace Roc
 
 variable {α : Type u}
 
--- TODO: Replace the `lit` role with a `module` role?
 /--
 Internal function that constructs an iterator for a left-open right-closed range {lit}`lo<...=hi`.
 This is an internal function.
 Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Roc.iter` instead, which requires
-importing {lit}`Std.Data.Iterators`.
+importing {module -checked}`Std.Data.Iterators`.
 -/
 @[always_inline, inline]
 def Internal.iter [UpwardEnumerable α] (r : Roc α) : Iter (α := Rxc.Iterator α) α :=
@@ -402,12 +398,11 @@ namespace Roo
 
 variable {α : Type u}
 
--- TODO: Replace the `lit` role with a `module` role?
 /--
 Internal function that constructs an iterator for an open range {lit}`lo<...hi`.
 This is an internal function.
 Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Roo.iter` instead, which requires
-importing {lit}`Std.Data.Iterators`.
+importing {module -checked}`Std.Data.Iterators`.
 -/
 @[always_inline, inline]
 def Internal.iter [UpwardEnumerable α] (r : Roo α) : Iter (α := Rxo.Iterator α) α :=
@@ -481,12 +476,11 @@ namespace Roi
 
 variable {α : Type u}
 
--- TODO: Replace the `lit` role with a `module` role?
 /--
 Internal function that constructs an iterator for a closed range {lit}`lo<...*`.
 This is an internal function.
 Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Roi.iter` instead, which requires
-importing {lit}`Std.Data.Iterators`.
+importing {module -checked}`Std.Data.Iterators`.
 -/
 @[always_inline, inline]
 def Internal.iter [UpwardEnumerable α] (r : Roi α) : Iter (α := Rxi.Iterator α) α :=
@@ -556,12 +550,11 @@ namespace Ric
 
 variable {α : Type u}
 
--- TODO: Replace the `lit` role with a `module` role?
 /--
 Internal function that constructs an iterator for a left-unbounded right-closed range {lit}`*...=hi`.
 This is an internal function.
 Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Ric.iter` instead, which requires
-importing {lit}`Std.Data.Iterators`.
+importing {module -checked}`Std.Data.Iterators`.
 -/
 @[always_inline, inline]
 def Internal.iter [Least? α] (r : Ric α) : Iter (α := Rxc.Iterator α) α :=
@@ -630,12 +623,11 @@ namespace Rio
 
 variable {α : Type u}
 
--- TODO: Replace the `lit` role with a `module` role?
 /--
 Internal function that constructs an iterator for a left-unbounded right-open range {lit}`*...hi`.
 This is an internal function.
 Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Rio.iter` instead, which requires
-importing {lit}`Std.Data.Iterators`.
+importing {module -checked}`Std.Data.Iterators`.
 -/
 @[always_inline, inline]
 def Internal.iter [UpwardEnumerable α] [Least? α] (r : Rio α) : Iter (α := Rxo.Iterator α) α :=
@@ -703,12 +695,11 @@ namespace Rii
 
 variable {α : Type u}
 
--- TODO: Replace the `lit` role with a `module` role?
 /--
 Internal function that constructs an iterator for the full range {lean}`*...*`.
 This is an internal function.
 Use {name (scope := "Std.Data.Iterators.Producers.Range")}`Rio.iter` instead, which requires
-importing {lit}`Std.Data.Iterators`.
+importing {module -checked}`Std.Data.Iterators`.
 -/
 @[always_inline, inline]
 def Internal.iter [UpwardEnumerable α] [Least? α] (_ : Rii α) : Iter (α := Rxi.Iterator α) α :=

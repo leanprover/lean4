@@ -707,7 +707,7 @@ deriving Inhabited
 
 set_option doc.verso false
 /--
-Creates and iterator over all valid positions within {name}`s`.
+Creates an iterator over all valid positions within {name}`s`.
 
 Examples
  * {lean}`("abc".toSlice.positions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['a', 'b', 'c']`
@@ -776,7 +776,7 @@ docs_to_verso positions
 end PosIterator
 
 /--
-Creates and iterator over all characters (Unicode code points) in {name}`s`.
+Creates an iterator over all characters (Unicode code points) in {name}`s`.
 
 Examples:
  * {lean}`"abc".toSlice.chars.toList = ['a', 'b', 'c']`
@@ -792,7 +792,7 @@ deriving Inhabited
 
 set_option doc.verso false
 /--
-Creates and iterator over all valid positions within {name}`s`, starting from the last valid
+Creates an iterator over all valid positions within {name}`s`, starting from the last valid
 position and iterating towards the first one.
 
 Examples
@@ -863,7 +863,7 @@ docs_to_verso revPositions
 end RevPosIterator
 
 /--
-Creates and iterator over all characters (Unicode code points) in {name}`s`, starting from the end
+Creates an iterator over all characters (Unicode code points) in {name}`s`, starting from the end
 of the slice and iterating towards the start.
 
 Example:
@@ -881,7 +881,7 @@ deriving Inhabited
 
 set_option doc.verso false
 /--
-Creates and iterator over all bytes in {name}`s`.
+Creates an iterator over all bytes in {name}`s`.
 
 Examples:
  * {lean}`"abc".toSlice.bytes.toList = [97, 98, 99]`
@@ -955,7 +955,7 @@ structure RevByteIterator where
 
 set_option doc.verso false
 /--
-Creates and iterator over all bytes in {name}`s`, starting from the last one and iterating towards
+Creates an iterator over all bytes in {name}`s`, starting from the last one and iterating towards
 the first one.
 
 Examples:

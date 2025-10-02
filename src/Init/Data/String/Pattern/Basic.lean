@@ -14,12 +14,12 @@ set_option doc.verso true
 /-!
 This module defines the notion of patterns which is central to the {name}`String.Slice` and
 {name}`String` API. All functions on {name}`String.Slice` and {name}`String` that
-"search for something" are polymorphic over a pattern instead of taking just one particular kind
+“search for something” are polymorphic over a pattern instead of taking just one particular kind
 of pattern such as a {name}`Char`. The key components are:
 - {name (scope := "Init.Data.String.Pattern.Basic")}`ToForwardSearcher`
 - {name (scope := "Init.Data.String.Pattern.Basic")}`ForwardPattern`
 - {name (scope := "Init.Data.String.Pattern.Basic")}`ToBackwardSearcher`
-- {name (scope := "Init.Data.String.Pattern.Basic")}`SuffixPattern`
+- {name (scope := "Init.Data.String.Pattern.Basic")}`BackwardPattern`
 -/
 
 public section
@@ -41,12 +41,12 @@ inductive SearchStep (s : Slice) where
 deriving Inhabited
 
 /--
-Provides a conversion from a pattern to an iterator of {name}`SearchStep` searching for matches of
-the pattern from the start towards the end of a {name}`Slice`.
+Provides a conversion from a pattern to an iterator of {name}`SearchStep` that searches for matches
+of the pattern from the start towards the end of a {name}`Slice`.
 -/
 class ToForwardSearcher (ρ : Type) (σ : outParam (Slice → Type)) where
   /--
-  Build an iterator of {name}`SearchStep` corresponding to matches of {name}`pat` along the slice
+  Builds an iterator of {name}`SearchStep` corresponding to matches of {name}`pat` along the slice
   {name}`s`. The {name}`SearchStep`s returned by this iterator must contain ranges that are
   adjacent, non-overlapping and cover all of {name}`s`.
   -/
@@ -56,8 +56,8 @@ class ToForwardSearcher (ρ : Type) (σ : outParam (Slice → Type)) where
 Provides simple pattern matching capabilities from the start of a {name}`Slice`.
 
 While these operations can be implemented on top of {name}`ToForwardSearcher` some patterns allow
-for more efficient implementations so this class can be used to specialise for them. If there is no
-need to specialise in this fashion
+for more efficient implementations. This class can be used to specialize for them. If there is no
+need to specialize in this fashion, then
 {name (scope := "Init.Data.String.Pattern.Basic")}`ForwardPattern.defaultImplementation` can be used
 to automatically derive an instance.
 -/
@@ -67,8 +67,8 @@ class ForwardPattern (ρ : Type) where
   -/
   startsWith : Slice → ρ → Bool
   /--
-  Checks whether the slice starts with the pattern, if it does return slice with the prefix removed,
-  otherwise {name}`none`.
+  Checks whether the slice starts with the pattern. If it does, the slice is returned with the
+  prefix removed; otherwise the result is {name}`none`.
   -/
   dropPrefix? : Slice → ρ → Option Slice
 
@@ -181,14 +181,21 @@ class ToBackwardSearcher (ρ : Type) (σ : outParam (Slice → Type)) where
 /--
 Provides simple pattern matching capabilities from the end of a {name}`Slice`.
 
-While these operations can be implemented on top of {name}`ToBackwardSearcher` some patterns allow
-for more efficient implementations so this class can be used to specialise for them. If there is no
-need to specialise in this fashion
+While these operations can be implemented on top of {name}`ToBackwardSearcher`, some patterns allow
+for more efficient implementations. This class can be used to specialize for them. If there is no
+need to specialize in this fashion, then
 {name (scope := "Init.Data.String.Pattern.Basic")}`BackwardPattern.defaultImplementation` can be
 used to automatically derive an instance.
 -/
 class BackwardPattern (ρ : Type) where
+  /--
+  Checks whether the slice ends with the pattern.
+  -/
   endsWith : Slice → ρ → Bool
+  /--
+  Checks whether the slice ends with the pattern. If it does, the slice is returned with the
+  suffix removed; otherwise the result is {name}`none`.
+  -/
   dropSuffix? : Slice → ρ → Option Slice
 
 namespace ToBackwardSearcher

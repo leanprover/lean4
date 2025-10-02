@@ -1010,10 +1010,9 @@ theorem ValidPos.isValidUTF8_extract {s : String} (pos₁ pos₂ : s.ValidPos) :
 /--
 A region or slice of some underlying string.
 
-A substring contains an string together with the start and end byte positions of a region of
+A slice consists of a string together with the start and end byte positions of a region of
 interest. Actually extracting a substring requires copying and memory allocation, while many
-substrings of the same underlying string may exist with very little overhead, and they are more
-convenient than tracking the bounds by hand.
+slices of the same underlying string may exist with very little overhead. While this could be achieved by tracking the bounds by hand, the slice API is much more convenient.
 
 `String.Slice` bundles proofs to ensure that the start and end positions always delineate a valid
 string. For this reason, it should be preferred over `Substring`.
@@ -1031,6 +1030,9 @@ structure Slice where
 instance : Inhabited Slice where
   default := ⟨"", "".startValidPos, "".startValidPos, by simp [Pos.Raw.le_iff]⟩
 
+/--
+Returns a slice that contains the entire string.
+-/
 @[inline, expose] -- expose for the defeq `s.toSlice.str = s`.
 def toSlice (s : String) : Slice where
   str := s

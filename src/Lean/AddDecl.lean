@@ -98,7 +98,13 @@ def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
         -- This case should not happen, but it ensures a warning will get logged no matter what.
         logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
 
-def addDecl (decl : Declaration) : CoreM Unit := do
+/--
+Adds the given declaration to the environment's private scope, deriving a suitable presentation in
+the public scope if under the module system and if the declaration is not private. If `forceExpose`
+is true, exposes the declaration body, i.e. preserves the full representation in the public scope,
+independently of `Environment.isExporting` and even for theorems.
+-/
+def addDecl (decl : Declaration) (forceExpose := false) : CoreM Unit := do
   -- register namespaces for newly added constants; this used to be done by the kernel itself
   -- but that is incompatible with moving it to a separate task
   -- NOTE: we do not use `getTopLevelNames` here so that inductive types are registered as
@@ -110,15 +116,15 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   let mut exportedInfo? := none
   let (name, info, kind) ← match decl with
     | .thmDecl thm =>
-      if (← getEnv).header.isModule then
+      if !forceExpose && (← getEnv).header.isModule then
         exportedInfo? := some <| .axiomInfo { thm with isUnsafe := false }
       pure (thm.name, .thmInfo thm, .thm)
     | .defnDecl defn | .mutualDefnDecl [defn] =>
-      if (← getEnv).header.isModule && !(← getEnv).isExporting then
+      if !forceExpose && (← getEnv).header.isModule && !(← getEnv).isExporting then
         exportedInfo? := some <| .axiomInfo { defn with isUnsafe := defn.safety == .unsafe }
       pure (defn.name, .defnInfo defn, .defn)
     | .opaqueDecl op =>
-      if (← getEnv).header.isModule && !(← getEnv).isExporting then
+      if !forceExpose && (← getEnv).header.isModule && !(← getEnv).isExporting then
         exportedInfo? := some <| .axiomInfo { op with }
       pure (op.name, .opaqueInfo op, .opaque)
     | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)

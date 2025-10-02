@@ -104,6 +104,8 @@ private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewEl
     throwError "'unsafe' theorems are not allowed"
   if newHeader.kind.isTheorem && newHeader.modifiers.isPartial then
     throwError "'partial' theorems are not allowed, 'partial' is a code generation directive"
+  if newHeader.kind.isTheorem && newHeader.modifiers.isMeta then
+    throwError "'meta' theorems are not allowed, 'meta' is a code generation directive"
   if newHeader.kind.isTheorem && newHeader.modifiers.isNoncomputable then
     throwError "'theorem' subsumes 'noncomputable', code is not generated for theorems"
   if newHeader.modifiers.isNoncomputable && newHeader.modifiers.isPartial then
@@ -1299,7 +1301,7 @@ where
           return true
         -- ... or NONE of the following:
         -- ... this is a non-`meta` `def` inside a `@[expose] section`
-        if header.kind == .def && !header.modifiers.isMeta && sc.attrs.any (· matches `(attrInstance| expose)) then
+        if header.kind == .def && (!header.modifiers.isMeta || sc.isMeta) && sc.attrs.any (· matches `(attrInstance| expose)) then
           return false
         -- ... there is an `@[expose]` attribute directly on the def (of any kind or phase)
         if header.modifiers.attrs.any (·.name == `expose) then

@@ -34,7 +34,7 @@ def isCoeDecl (env : Environment) (declName : Name) : Bool :=
   coeDeclAttr.hasTag env declName
 
 /-- Recurse through projection functions (e.g. `(f a b c).fst.snd` => `f`) -/
-private def recProjTarget (e : Expr) (nm : Name := e.getAppFn.constName!) : MetaM Name :=
+private def recProjTarget (e : Expr) (nm : Name := e.getAppFn.constName!) : MetaM Name := do
   let some info ← getProjectionFnInfo? nm | return nm
   let target := e.getArgD info.numParams (.sort .zero)
   if target.getAppFn.isConst then
@@ -56,7 +56,7 @@ partial def expandCoe (e : Expr) : MetaM Expr :=
           recording the declaration. We shouldn't need to record any other arguments because they
           should still appear after unfolding (unless there are unused variables in the instances).
           -/
-          recordExtraModUseFromDecl (isMeta := false) (recProjTarget e)
+          recordExtraModUseFromDecl (isMeta := false) (← recProjTarget e)
           if let some e ← unfoldDefinition? e then
             return .visit e.headBeta
       return .continue

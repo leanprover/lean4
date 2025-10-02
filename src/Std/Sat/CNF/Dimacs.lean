@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Sat.CNF.Basic
 public import Std.Sat.CNF.RelabelFin
+import Init.Data.String.Basic
 
 public section
 

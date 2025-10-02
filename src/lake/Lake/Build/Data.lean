@@ -13,6 +13,7 @@ public import Lake.Config.Kinds
 public meta import Lake.Config.Kinds
 public meta import Lake.Util.Name
 import all Lake.Config.Kinds
+import Lake.Util.Name
 
 open Lean
 

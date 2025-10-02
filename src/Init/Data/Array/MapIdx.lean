@@ -6,10 +6,7 @@ Authors: Mario Carneiro, Kim Morrison
 module
 
 prelude
-public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
-public import Init.Data.Array.Lemmas
-public import Init.Data.Array.Attach
 public import Init.Data.Array.OfFn
 public import Init.Data.List.MapIdx
 import all Init.Data.List.MapIdx

@@ -6,8 +6,8 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 module
 
 prelude
-public import Init.Data.Int.Lemmas
 public import Init.Data.Nat.Lemmas
+import Init.Classical
 
 public section
 

@@ -9,6 +9,8 @@ prelude
 public import Init.Control.Except
 public import Init.Data.ToString
 import Init.Data.String.Basic
+public import Init.Data.String.Basic
+import Init.Data.Array.Lemmas
 
 namespace Lake
 

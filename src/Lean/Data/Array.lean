@@ -10,6 +10,8 @@ public import Init.Prelude
 import Init.Data.Stream
 public import Init.Data.Range.Polymorphic.Nat
 public import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.List.Monadic
+import Init.Data.Nat.Lemmas
 
 namespace Array
 

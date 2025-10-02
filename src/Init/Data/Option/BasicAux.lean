@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Option.Basic
 public import Init.Util
 
 public section

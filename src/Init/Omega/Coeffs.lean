@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Omega.IntList
 import all Init.Omega.IntList
+import Init.Grind.Tactics
 
 public section
 

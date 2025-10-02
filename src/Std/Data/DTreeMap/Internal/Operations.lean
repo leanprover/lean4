@@ -10,6 +10,8 @@ public import Init.Data.Nat.Compare
 public import Std.Data.DTreeMap.Internal.Balancing
 public import Std.Data.DTreeMap.Internal.Queries
 public import Init.Data.List.Control
+import Init.Classical
+import Init.Data.Nat.Linear
 
 @[expose] public section
 

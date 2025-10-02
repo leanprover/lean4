@@ -13,6 +13,7 @@ public import Lean.Data.SMap
 public import Lean.Level
 public import Std.Data.HashSet.Basic
 public import Std.Data.TreeSet.Basic
+import Init.Data.Iterators.Combinators.Monadic.Attach
 
 public section
 

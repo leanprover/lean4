@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.Util
+public import Init.Data.Option.Basic
+import Init.Grind.Attr
 
 public section
 

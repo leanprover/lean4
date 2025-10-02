@@ -11,6 +11,7 @@ public import Init.Data.Hashable
 public import Lean.Data.Name
 public import Lean.Data.Format
 public import Init.Data.Option.Coe
+import Init.Syntax
 
 public section
 

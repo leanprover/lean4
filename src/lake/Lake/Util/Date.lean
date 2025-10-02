@@ -9,6 +9,8 @@ prelude
 public import Init.Data.Ord.Basic
 import Lake.Util.String
 import Init.Data.String.Basic
+public import Init.Data.ToString.Basic
+import Init.Data.Array.Lemmas
 
 /-!
 #  Date

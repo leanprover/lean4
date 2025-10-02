@@ -16,6 +16,7 @@ import Lean.Elab.Tactic.Do.ProofMode.MGoal
 import Lean.Util.CollectFVars
 import Std.Do.Triple
 import Std.Tactic.Do -- Needed for use of `mleave` in quote
+import Init.Data.Array.Mem
 
 namespace Lean.Elab.Tactic.Do
 

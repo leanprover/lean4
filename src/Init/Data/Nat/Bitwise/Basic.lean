@@ -6,9 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Nat.Basic
 public import Init.Data.Nat.Div.Basic
-public import Init.Coe
+import Init.Grind.Attr
 
 public section
 

@@ -6,16 +6,13 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Init.Data.UInt.Basic
 import all Init.Data.UInt.Basic
-public import Init.Data.UInt.Bitwise
-public import Init.Data.BitVec.Basic
 import all Init.Data.BitVec.Basic
-public import Init.Data.BitVec.Lemmas
 import all Init.Data.BitVec.Lemmas
 public import Init.Data.SInt.Basic
 import all Init.Data.SInt.Basic
 public import Init.Data.SInt.Lemmas
+import Init.Grind.Tactics
 
 public section
 

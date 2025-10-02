@@ -6,9 +6,8 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.SizeOf
-public import Init.MetaTypes
-public import Init.WF
+public meta import Init.Prelude
+import Init.Tactics
 
 public section
 

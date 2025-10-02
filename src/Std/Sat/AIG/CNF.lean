@@ -9,6 +9,7 @@ prelude
 public import Std.Sat.CNF
 public import Std.Sat.AIG.Basic
 public import Std.Sat.AIG.Lemmas
+import Init.Data.Iterators.Combinators.Monadic.Attach
 
 public section
 

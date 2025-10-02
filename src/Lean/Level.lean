@@ -14,6 +14,7 @@ public import Lean.Data.Name
 public import Lean.Data.Format
 public import Init.Data.Option.Coe
 public import Std.Data.TreeSet.Basic
+import Init.Data.Iterators.Combinators.Monadic.Attach
 
 public section
 

@@ -10,6 +10,7 @@ public import Lean.Compiler.FFI
 public import Lake.Config.Dynlib
 public import Lake.Config.Defaults
 public import Lake.Util.NativeLib
+import Init.Control.Option
 
 open System Lean.Compiler.FFI
 

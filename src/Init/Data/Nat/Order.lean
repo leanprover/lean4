@@ -9,6 +9,8 @@ prelude
 public import Init.Data.Nat.Basic
 import Init.Data.Nat.MinMax
 public import Init.Data.Order.Factories
+import Init.NotationExtra
+import Init.Grind.Tactics
 
 open Std
 

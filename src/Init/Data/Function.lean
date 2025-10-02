@@ -6,7 +6,7 @@ Authors: Kim Morrison
 module
 prelude
 public import Init.Core
-public import Init.Grind.Tactics
+import Init.Grind.Attr
 public section
 namespace Function
 

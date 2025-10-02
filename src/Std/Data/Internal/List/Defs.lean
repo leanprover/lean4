@@ -7,6 +7,9 @@ module
 
 prelude
 public import Init.BinderPredicates
+public import Init.Data.List.Basic
+import Init.Core
+import Init.Data.List.Notation
 
 public section
 

@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.Tactic.Induction
 import Lean.Meta.Tactic.Replace
+public import Lean.Meta.Tactic.Replace
 
 public section
 

@@ -10,6 +10,7 @@ public import Std.Time.Internal
 public import Std.Time.Date.Basic
 import all Std.Time.Date.Unit.Month
 import all Std.Time.Date.Unit.Year
+import Init.Data.Array.Lemmas
 
 public section
 

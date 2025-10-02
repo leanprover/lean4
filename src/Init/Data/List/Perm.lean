@@ -6,11 +6,10 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 module
 
 prelude
-public import Init.Data.List.Pairwise
 public import Init.Data.List.Erase
-public import Init.Data.List.Find
 public import Init.Data.List.Attach
 import all Init.Data.List.Attach
+import Init.TacticsExtra
 
 public section
 

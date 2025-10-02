@@ -10,6 +10,7 @@ module
 
 prelude
 public import Init.Data.List.Control
+import Init.NotationExtra
 
 public section
 

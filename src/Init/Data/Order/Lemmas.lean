@@ -6,10 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Order.Classes
 public import Init.Data.Order.Factories
 import all Init.Data.Order.Factories
-import Init.SimpLemmas
 public import Init.Classical
 public import Init.Data.BEq
 

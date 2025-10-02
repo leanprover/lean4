@@ -6,7 +6,6 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Array.Count
 import all Init.Data.Array.Count
 public import Init.Data.Vector.Basic
 import all Init.Data.Vector.Basic

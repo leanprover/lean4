@@ -9,6 +9,7 @@ public import Lean.Parser.Types
 public import Lean.DocString.Syntax
 import Lean.PrettyPrinter.Formatter
 import Lean.Parser.Term.Basic
+import Init.While
 
 set_option linter.missingDocs true
 

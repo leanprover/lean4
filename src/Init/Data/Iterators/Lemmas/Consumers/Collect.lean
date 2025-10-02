@@ -12,6 +12,7 @@ public import Init.Data.Iterators.Consumers.Access
 import all Init.Data.Iterators.Consumers.Access
 public import Init.Data.Iterators.Consumers.Collect
 import all Init.Data.Iterators.Consumers.Collect
+import Init.Data.Range.Polymorphic.RangeIterator
 
 public section
 

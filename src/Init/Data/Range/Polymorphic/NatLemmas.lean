@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Range.Polymorphic.Nat
 public import Init.Data.Range.Polymorphic.Lemmas
+import Init.Data.Nat.Simproc
 
 public section
 

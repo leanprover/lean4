@@ -24,6 +24,8 @@ import Lean.Meta.Tactic.TryThis
 
 public import Lean.Elab.Tactic.Do.VCGen.Basic
 import Lean.Elab.Tactic.Do.VCGen.SuggestInvariant
+public import Lean.Elab.Tactic.Do.Spec
+public import Lean.Elab.Tactic.Do.VCGen.Split
 
 public section
 

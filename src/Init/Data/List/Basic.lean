@@ -9,7 +9,7 @@ prelude
 public import Init.SimpLemmas
 public import Init.Data.Nat.Basic
 public import Init.Data.List.Notation
-public import Init.Data.Nat.Div.Basic
+import Init.Grind.Attr
 
 public section
 

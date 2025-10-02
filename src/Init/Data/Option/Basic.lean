@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Control.Basic
-public import Init.Grind.Tactics
+import Init.Grind.Attr
 
 public section
 

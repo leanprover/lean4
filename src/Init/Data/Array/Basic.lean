@@ -6,15 +6,12 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.WFTactics
-public import Init.Data.Nat.Basic
-public import Init.Data.Fin.Basic
-public import Init.Data.UInt.BasicAux
 public import Init.GetElem
 public import Init.Data.List.ToArrayImpl
 import all Init.Data.List.ToArrayImpl
 public import Init.Data.Array.Set
 import all Init.Data.Array.Set
+import Init.Grind.Tactics
 
 public section
 

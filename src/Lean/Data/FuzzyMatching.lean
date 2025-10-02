@@ -18,6 +18,8 @@ public import Init.Data.Option.Coe
 public import Init.Data.Range
 import Init.Data.SInt.Basic
 import Init.Data.String.Basic
+public import Init.Data.SInt.Basic
+import Init.Data.Array.Lemmas
 
 public section
 

@@ -7,8 +7,9 @@ Authors: Dany Fabian
 module
 
 prelude
-public import Init.Classical
 public import Init.ByCases
+public import Init.GetElem
+import Init.PropLemmas
 
 @[expose] public section
 

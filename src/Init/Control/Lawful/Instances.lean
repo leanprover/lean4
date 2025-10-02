@@ -7,14 +7,12 @@ module
 
 prelude
 public import Init.Control.Lawful.Basic
-public import Init.Control.Except
 import all Init.Control.Except
 public import Init.Control.Option
 import all Init.Control.Option
-public import Init.Control.State
 import all Init.Control.State
 public import Init.Control.StateRef
-public import Init.Ext
+import Init.Grind.Tactics
 
 public section
 

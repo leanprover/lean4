@@ -6,10 +6,12 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Init.Data.String.Pattern
-public import Init.Data.Iterators.Consumers.Monadic.Collect
 public import Init.Data.Ord.Basic
 public import Init.Data.Iterators.Combinators.FilterMap
+public import Init.Data.String.Pattern.Char
+public import Init.Data.String.Pattern.Pred
+import Init.Data.Iterators.Consumers.Loop
+import Init.Data.String.Pattern
 
 set_option doc.verso true
 
@@ -97,6 +99,7 @@ variable [∀ s, Std.Iterators.Iterator (σ s) Id (SearchStep s)]
 variable [∀ s, Std.Iterators.Finite (σ s) Id]
 variable [∀ s, Std.Iterators.IteratorLoop (σ s) Id Id]
 
+set_option trace.extraModUses true in
 /--
 Checks whether the slice ({name}`s`) begins with the pattern ({name}`pat`).
 

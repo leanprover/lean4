@@ -7,8 +7,8 @@ module
 
 prelude
 public import Init.Data.Array.Basic
-public import Init.Data.Int.DivMod.Lemmas
 public import Init.Omega
+import Init.Data.Bool
 
 public section
 universe u v

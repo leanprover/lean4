@@ -9,6 +9,7 @@ prelude
 public import Init.Data.ToString.Basic
 import Init.Data.String.Extra
 import Init.Data.Nat.Fold
+import Init.Data.Array.Lemmas
 
 namespace Lake
 

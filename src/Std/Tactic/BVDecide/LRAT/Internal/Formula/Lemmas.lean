@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Tactic.BVDecide.LRAT.Internal.Formula.Implementation
 public import Std.Tactic.BVDecide.LRAT.Internal.CNF
+import Init.Data.Int.OfNat
 
 @[expose] public section
 

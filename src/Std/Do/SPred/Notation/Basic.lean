@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Do.SPred.SPred
 import Init.NotationExtra
+import Init.Grind.Tactics
 
 public section
 

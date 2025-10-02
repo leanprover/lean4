@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.Grind.Ring.Basic
+import Init.Classical
+import Init.TacticsExtra
 
 public section
 

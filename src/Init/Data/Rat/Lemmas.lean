@@ -8,7 +8,7 @@ prelude
 
 public import Init.Data.Rat.Basic
 public import Init.Data.Int.Gcd
-import Init.Data.Int.Bitwise.Lemmas
+import Init.Data.Int.Linear
 
 @[expose] public section
 

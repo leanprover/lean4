@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Omega
+import Init.Classical
 
 public section
 

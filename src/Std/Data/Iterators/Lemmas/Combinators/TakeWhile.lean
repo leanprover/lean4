@@ -9,6 +9,7 @@ prelude
 public import Std.Data.Iterators.Combinators.TakeWhile
 public import Std.Data.Iterators.Lemmas.Combinators.Monadic.TakeWhile
 public import Std.Data.Iterators.Lemmas.Consumers
+public import Std.Data.Iterators.Lemmas.Combinators.Take
 
 @[expose] public section
 

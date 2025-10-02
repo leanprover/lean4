@@ -12,6 +12,10 @@ public import Init.Data.Range.Polymorphic.UpwardEnumerable
 public import Init.Data.Range.Polymorphic.PRange
 public import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic
+public import Init.Data.List.Monadic
+public import Init.Data.Range.Basic
+import Init.Data.Range.Lemmas
+import Init.Data.List.Nat.Range
 
 @[expose] public section
 

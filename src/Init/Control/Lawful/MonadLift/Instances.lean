@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Control.Option
 import all Init.Control.Option
-public import Init.Control.Except
 import all Init.Control.Except
 public import Init.Control.ExceptCps
 import all Init.Control.ExceptCps
@@ -16,10 +15,10 @@ public import Init.Control.StateRef
 import all Init.Control.StateRef
 public import Init.Control.StateCps
 import all Init.Control.StateCps
-public import Init.Control.Id
 import all Init.Control.Id
 public import Init.Control.Lawful.MonadLift.Lemmas
 public import Init.Control.Lawful.Instances
+import Init.Grind.Tactics
 
 public section
 

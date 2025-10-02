@@ -10,6 +10,7 @@ public import Lean.Meta.Match.MatchPatternAttr
 public import Lean.Meta.Hint
 public import Lean.Elab.Arg
 public import Lean.Elab.MatchAltView
+public import Init.Syntax
 
 public section
 

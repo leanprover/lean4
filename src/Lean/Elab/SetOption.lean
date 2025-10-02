@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Log
 public import Lean.Elab.InfoTree
+public import Init.Syntax
 
 public section
 namespace Lean.Elab

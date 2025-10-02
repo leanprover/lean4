@@ -8,6 +8,8 @@ module
 
 prelude
 public import Init.PropLemmas
+public import Init.GetElem
+import Init.Data.Nat.Basic
 
 public section
 

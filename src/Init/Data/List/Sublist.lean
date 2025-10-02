@@ -8,6 +8,7 @@ module
 
 prelude
 public import Init.Data.List.TakeDrop
+import Init.TacticsExtra
 
 public section
 

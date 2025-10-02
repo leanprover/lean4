@@ -6,8 +6,7 @@ Authors: Leonardo de Moura and Sebastian Ullrich
 module
 
 prelude
-public import Init.Meta
-public import Init.Data.String.Extra
+public import Init.Data.String.Basic
 
 /-!
 Here we give the. implementation of `Name.toString`. There is also a private implementation in

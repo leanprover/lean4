@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind.Lemmas
+import Init.Grind.Util
 public section
 namespace Lean.Meta.Grind
 

@@ -9,7 +9,6 @@ module
 
 prelude
 public import Init.Control.Basic
-public import Init.Control.Id
 public import Init.Control.Except
 
 public section

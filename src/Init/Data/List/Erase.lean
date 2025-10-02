@@ -9,6 +9,7 @@ module
 prelude
 public import Init.Data.List.Pairwise
 public import Init.Data.List.Find
+import Init.TacticsExtra
 
 public section
 

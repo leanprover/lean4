@@ -7,8 +7,9 @@ module
 
 prelude
 public import Init.Grind.Ordered.Module
-public import Init.Data.AC
 import all Init.Data.AC
+import Init.Grind.Tactics
+import Init.Grind.Ring.Envelope
 
 public section
 

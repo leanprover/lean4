@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.PropLemmas
+import Init.Grind.Attr
 
 public section
 

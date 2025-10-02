@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Grind.Ring.Basic
-public import Init.Grind.ToInt
 
 public section
 

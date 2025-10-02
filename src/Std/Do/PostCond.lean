@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Do.SPred
+import Init.Grind.Attr
 
 @[expose] public section
 

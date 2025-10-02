@@ -10,6 +10,7 @@ public import Init.Data.Iterators.Combinators.ULift
 import all Init.Data.Iterators.Combinators.ULift
 public import Init.Data.Iterators.Lemmas.Combinators.Monadic.ULift
 public import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Control.Lawful.MonadLift.Instances
 
 public section
 

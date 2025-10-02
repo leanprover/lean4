@@ -7,8 +7,6 @@ module
 
 prelude
 public import Init.Classical
-public import Init.Control.EState
-public import Init.Control.Reader
 
 public section
 

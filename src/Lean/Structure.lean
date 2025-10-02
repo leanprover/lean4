@@ -12,6 +12,7 @@ public import Init.Control.Option
 public import Lean.Environment
 public import Lean.ProjFns
 public import Lean.Exception
+public import Init.While
 
 public section
 

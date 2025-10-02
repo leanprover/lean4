@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Bool
-public import Init.Data.Nat.Basic
 public import Init.Data.Nat.Lemmas
 
 public section

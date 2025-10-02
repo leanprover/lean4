@@ -9,7 +9,7 @@ module
 
 prelude
 public import Init.Tactics
-public meta import Init.Meta
+public meta import Init.Meta.Defs
 
 public section
 

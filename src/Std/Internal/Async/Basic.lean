@@ -9,6 +9,8 @@ prelude
 public import Init.Core
 public import Init.System.IO
 public import Init.System.Promise
+public import Init.While
+public import Init.Control.StateRef
 
 public section
 

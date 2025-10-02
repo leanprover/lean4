@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Ord.Basic
 import all Init.Data.Ord.Basic
+import Init.Grind.Tactics
 
 public section
 

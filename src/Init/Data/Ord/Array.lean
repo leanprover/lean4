@@ -8,6 +8,8 @@ module
 prelude
 public import Init.Data.Ord.Basic
 import Init.Omega
+public import Init.GetElem
+import Init.Grind.Tactics
 
 public section
 

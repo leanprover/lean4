@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Vector.Lemmas
-public import Init.Data.Array.InsertIdx
 
 public section
 

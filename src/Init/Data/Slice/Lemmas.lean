@@ -8,7 +8,8 @@ module
 prelude
 public import Init.Data.Slice.Operations
 import all Init.Data.Slice.Operations
-import Init.Data.Iterators.Lemmas.Consumers
+public import Init.Data.Iterators.Consumers.Loop
+import Init.Data.Iterators.Lemmas.Consumers.Loop
 
 public section
 

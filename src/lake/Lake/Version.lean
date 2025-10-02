@@ -10,6 +10,7 @@ public import Init.Prelude
 import Init.Data.ToString
 import Init.Meta
 import Init.Data.String.Basic
+import Init.Data.Array.Lemmas
 
 namespace Lake
 

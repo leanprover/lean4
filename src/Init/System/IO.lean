@@ -11,7 +11,7 @@ public import Init.System.FilePath
 public import Init.System.ST
 public import Init.Data.Ord.Basic
 public import Init.Data.Ord.UInt
-public import Init.Data.String.Extra
+public import Init.Control.EState
 
 public section
 

@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Data.DTreeMap.Internal.WF.Defs
 public import Std.Data.DTreeMap.Basic
+import Init.Grind.Attr
 
 @[expose] public section
 

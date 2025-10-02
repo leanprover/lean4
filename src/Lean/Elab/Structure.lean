@@ -10,6 +10,7 @@ public import Lean.Meta.Structure
 public import Lean.Elab.MutualInductive
 import Lean.Linter.Basic
 import Lean.DocString
+public import Lean.DocString
 
 public section
 

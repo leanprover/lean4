@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.List.Nat.Range
-public import Init.Data.List.Find
 
 public section
 

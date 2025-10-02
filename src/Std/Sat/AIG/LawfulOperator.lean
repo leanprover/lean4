@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Sat.AIG.Basic
+import Init.Data.Iterators.Combinators.Monadic.Attach
 
 @[expose] public section
 

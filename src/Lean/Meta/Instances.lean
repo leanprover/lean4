@@ -11,6 +11,7 @@ public import Lean.ScopedEnvExtension
 public import Lean.Meta.GlobalInstances
 public import Lean.Meta.DiscrTree
 public import Lean.Meta.CollectMVars
+import Init.Data.Iterators.Consumers.Stream
 
 public section
 

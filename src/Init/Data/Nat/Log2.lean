@@ -6,7 +6,10 @@ Authors: Gabriel Ebner, Robin Arnez
 module
 
 prelude
-public import Init.Data.Nat.Linear
+public import Init.Notation
+meta import Init.MetaTypes
+import Init.NotationExtra
+import Init.Data.Nat.Div.Basic
 
 public section
 

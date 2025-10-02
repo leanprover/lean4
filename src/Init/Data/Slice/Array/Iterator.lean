@@ -6,19 +6,17 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Core
-public import Init.Data.Slice.Array.Basic
 import Init.Data.Iterators.Combinators.Attach
 import Init.Data.Iterators.Combinators.FilterMap
 public import Init.Data.Iterators.Combinators.ULift
-public import Init.Data.Iterators.Consumers.Collect
-public import Init.Data.Iterators.Consumers.Loop
-public import Init.Data.Range.Polymorphic.Basic
 import all Init.Data.Range.Polymorphic.Basic
 public import Init.Data.Range.Polymorphic.Nat
 public import Init.Data.Range.Polymorphic.Iterators
 public import Init.Data.Slice.Operations
 import Init.Omega
+public import Init.Data.Array.Subarray
+public import Init.Data.Iterators.Combinators.Attach
+public import Init.Data.Iterators.Combinators.FilterMap
 
 public section
 

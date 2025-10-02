@@ -8,7 +8,7 @@ module
 prelude
 public import Init.SimpLemmas
 public import Init.Data.NeZero
-public import Init.Grind.Tactics
+import Init.Grind.Attr
 
 public section
 

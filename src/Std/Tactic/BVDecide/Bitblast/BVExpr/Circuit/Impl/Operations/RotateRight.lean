@@ -9,6 +9,7 @@ prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
 public import Std.Sat.AIG.CachedGatesLemmas
 public import Std.Sat.AIG.LawfulVecOperator
+import Init.Data.Iterators.Combinators.Monadic.Attach
 
 @[expose] public section
 

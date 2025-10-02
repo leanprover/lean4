@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Ord.Basic
 public import Init.Data.Nat.Linear
+public import Init.Data.Array.Basic
 
 public section
 

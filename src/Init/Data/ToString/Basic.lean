@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Repr
-public import Init.Data.Option.Basic
 
 public section
 

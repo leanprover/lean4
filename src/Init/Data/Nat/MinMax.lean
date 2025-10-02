@@ -7,6 +7,9 @@ module
 
 prelude
 public import Init.ByCases
+public import Init.Data.Nat.Basic
+meta import Init.MetaTypes
+import Init.PropLemmas
 
 public section
 

@@ -13,7 +13,6 @@ public import Init.Data.Array.Lex.Basic
 import all Init.Data.Array.Lex.Basic
 public import Init.Data.Array.Lex.Lemmas
 import Init.Data.Range.Polymorphic.Lemmas
-import Init.Data.Order.Lemmas
 
 public section
 

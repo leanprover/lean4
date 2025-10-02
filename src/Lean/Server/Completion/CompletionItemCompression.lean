@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Data.Lsp.LanguageFeatures
+import Init.Data.Iterators.Combinators.Monadic.Attach
 
 namespace Lean.Lsp.ResolvableCompletionList
 

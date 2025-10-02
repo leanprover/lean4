@@ -6,8 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Ext
-public import Init.Grind.Tactics
+import Init.Core
+import Init.Grind.Attr
 
 public section
 

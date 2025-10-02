@@ -7,15 +7,14 @@ Authors: Shreyas Srinivas, François G. Dorais, Kim Morrison
 module
 
 prelude
-public meta import Init.Coe
 -- public import Init.Data.Stream
-public import Init.Data.Array.Lemmas
 public import Init.Data.Array.MapIdx
 public import Init.Data.Array.InsertIdx
-public import Init.Data.Array.Range
-public import Init.Data.Range
 -- TODO: Making this private leads to a panic in Init.Grind.Ring.Poly.
-public import Init.Data.Slice.Array.Iterator
+public import Init.Data.Range.Polymorphic.Nat
+public import Init.Data.Range.Polymorphic.RangeIterator
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Iterators.Combinators.Monadic.Attach
 
 public section
 

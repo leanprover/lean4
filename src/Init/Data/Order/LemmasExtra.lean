@@ -11,6 +11,7 @@ public import Init.Data.Order.FactoriesExtra
 public import Init.Data.Order.Ord
 public import Init.Data.Order.Lemmas
 import Init.ByCases
+import Init.Grind.Tactics
 
 namespace Std
 

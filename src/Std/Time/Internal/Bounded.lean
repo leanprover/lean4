@@ -10,6 +10,7 @@ public import Init.Omega
 public import Init.Data.Int.DivMod.Lemmas
 public import Init.Data.Order.Ord
 import Init.Data.Subtype.Basic
+import Init.Grind.Tactics
 
 @[expose] public section
 

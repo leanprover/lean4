@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Data.TreeMap.Basic
+import Init.Grind.Attr
 
 @[expose] public section
 

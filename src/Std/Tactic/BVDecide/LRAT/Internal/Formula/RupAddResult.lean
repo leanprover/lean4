@@ -7,6 +7,8 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.LRAT.Internal.Formula.Lemmas
+public import Init.GrindInstances.ToInt
+import Init.Data.Int.OfNat
 
 @[expose] public section
 

@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Prelude
 public meta import Lake.Util.Binder
+import Lake.Util.Binder
 
 /-!
 This module provides utilities for defining simple opaque types

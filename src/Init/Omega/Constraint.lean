@@ -6,8 +6,9 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Omega.LinearCombo
 public import Init.Omega.Int
+public import Init.Omega.Coeffs
+import Init.Data.ToString.Macro
 
 public section
 

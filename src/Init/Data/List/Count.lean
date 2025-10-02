@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.List.Sublist
+import Init.TacticsExtra
 
 public section
 

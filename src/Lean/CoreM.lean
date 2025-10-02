@@ -14,6 +14,7 @@ public import Lean.Elab.InfoTree.Types
 public import Lean.MonadEnv
 public import Lean.Elab.Exception
 public import Lean.Language.Basic
+import Init.While
 
 public section
 

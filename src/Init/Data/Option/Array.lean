@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Array.Lemmas
 public import Init.Data.Option.List
-public import Init.Data.Option.Instances
 import all Init.Data.Option.Instances
 
 public section

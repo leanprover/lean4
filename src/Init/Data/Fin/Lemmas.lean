@@ -8,11 +8,10 @@ module
 prelude
 public import Init.Data.Nat.Lemmas
 public import Init.Ext
-public import Init.ByCases
-public import Init.Conv
-public import Init.Omega
-public import Init.Data.Order.Factories
 import Init.Data.Order.Lemmas
+import Init.TacticsExtra
+import Init.Grind.Tactics
+import Init.Data.Nat.Linear
 
 public section
 

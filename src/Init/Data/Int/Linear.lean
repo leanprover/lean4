@@ -6,11 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.ByCases
-public import Init.Data.Prod
-public import Init.Data.Int.Lemmas
 public import Init.Data.Int.LemmasAux
-public import Init.Data.Int.DivMod.Bootstrap
 public import Init.Data.Int.Cooper
 public import Init.Data.Int.Gcd
 import all Init.Data.Int.Gcd
@@ -18,6 +14,7 @@ public import Init.Data.RArray
 public import Init.Data.AC
 import all Init.Data.AC
 import Init.LawfulBEqTactics
+import Init.Grind.Tactics
 
 public section
 

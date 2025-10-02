@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Data.TreeMap.Raw.Basic
 public import Std.Data.TreeSet.Basic
+import Init.Grind.Attr
 
 @[expose] public section
 

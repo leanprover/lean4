@@ -7,10 +7,10 @@ module
 
 prelude
 
-public import Init.Data.Option.Instances
 import all Init.Data.Option.Instances
-public import Init.Data.Option.Attach
 public import Init.Control.Lawful.Basic
+public import Init.Data.Option.Lemmas
+import Init.Control.Lawful.Instances
 
 public section
 

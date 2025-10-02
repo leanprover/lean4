@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Char.Basic
 import all Init.Data.Char.Basic
 public import Init.Data.UInt.Lemmas
+import Init.Grind.Tactics
 
 public section
 

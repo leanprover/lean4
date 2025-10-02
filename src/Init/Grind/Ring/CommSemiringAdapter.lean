@@ -6,8 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Grind.Ring.Envelope
-public import Init.Data.Hashable
-public import Init.Data.RArray
 public import Init.Grind.Ring.CommSolver
 @[expose] public section
 namespace Lean.Grind

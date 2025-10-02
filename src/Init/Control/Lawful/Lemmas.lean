@@ -7,8 +7,8 @@ module
 
 prelude
 public import Init.Control.Lawful.Basic
-public import Init.RCases
 public import Init.ByCases
+public import Init.Classical
 
 public section
 

@@ -6,8 +6,9 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Int.DivMod.Bootstrap
 public import Init.Data.Int.Order
+public import Init.Data.Fin.Basic
+public import Init.Data.Int.DivMod.Basic
 
 public section
 

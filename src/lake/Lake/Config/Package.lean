@@ -15,6 +15,7 @@ public import Lake.Util.FilePath -- use scoped instance downstream
 public import Lake.Util.OrdHashSet
 public import Lake.Util.Name
 meta import all Lake.Util.OpaqueType
+import Lake.Util.OpaqueType
 
 open System Lean
 

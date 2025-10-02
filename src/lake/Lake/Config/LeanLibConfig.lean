@@ -12,6 +12,7 @@ public import Lake.Build.Facets
 public import Lake.Config.LeanConfig
 public import Lake.Config.Glob
 meta import all Lake.Config.Meta
+import Lake.Config.Meta
 
 namespace Lake
 open Lean System

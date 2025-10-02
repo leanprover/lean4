@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Array.Basic
-public import Init.Data.Nat.Linear
 public import Init.Data.List.BasicAux
 
 public section

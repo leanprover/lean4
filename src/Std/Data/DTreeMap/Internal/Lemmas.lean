@@ -9,6 +9,7 @@ prelude
 public import Std.Data.HashMap.Basic
 meta import Std.Data.HashMap.Basic
 public import Std.Data.DTreeMap.Internal.WF.Lemmas
+public meta import Std.Data.HashMap.Basic
 
 @[expose] public section
 

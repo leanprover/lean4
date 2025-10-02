@@ -8,6 +8,7 @@ module
 
 prelude
 public import Lean.Syntax
+import Init.While
 
 public section
 

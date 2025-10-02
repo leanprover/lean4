@@ -10,7 +10,6 @@ public import Init.Data.List.Perm
 public import Init.Data.List.Sort.Basic
 import all Init.Data.List.Sort.Basic
 public import Init.Data.List.Nat.Range
-public import Init.Data.Bool
 
 public section
 

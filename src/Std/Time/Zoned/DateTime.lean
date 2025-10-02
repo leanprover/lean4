@@ -11,6 +11,7 @@ public import Std.Time.Zoned.TimeZone
 import all Std.Time.Date.Unit.Month
 import all Std.Time.Date.Unit.Year
 import all Std.Time.DateTime.PlainDateTime
+import Init.Data.Array.Lemmas
 
 public section
 

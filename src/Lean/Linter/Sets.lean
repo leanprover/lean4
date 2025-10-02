@@ -8,6 +8,7 @@ module
 prelude
 public meta import Lean.Linter.Basic
 public meta import Lean.Elab.Command
+import Lean.Data.KVMap
 
 public section
 

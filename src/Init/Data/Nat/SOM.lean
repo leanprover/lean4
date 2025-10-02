@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Nat.Linear
 public import Init.Data.List.BasicAux
+import Init.Meta
 
 public section
 

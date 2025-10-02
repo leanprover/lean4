@@ -10,7 +10,7 @@ module
 
 prelude
 public import Init.Data.ToString.Macro
-public import Init.Meta
+import Init.Notation
 
 public section
 

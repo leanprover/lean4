@@ -8,7 +8,6 @@ notation, basic datatypes and type classes
 module
 
 prelude
-public meta import Init.Prelude
 public import Init.SizeOf
 
 public section

@@ -11,6 +11,7 @@ public import Lean.Meta.Tactic.Apply
 public import Lean.Meta.Tactic.Replace
 public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.Tactic.BuiltinTactic
+import Init.Data.Iterators.Consumers.Stream
 
 public section
 

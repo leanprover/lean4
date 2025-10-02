@@ -7,10 +7,10 @@ Authors: David Thrane Christiansen
 module
 
 prelude
-public import Init.Data.Array.Basic
 public import Init.Data.Array.Subarray
 import all Init.Data.Array.Subarray
 public import Init.Omega
+import Init.Grind.Tactics
 
 public section
 

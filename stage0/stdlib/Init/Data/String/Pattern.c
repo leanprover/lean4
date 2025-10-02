@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Pattern
-// Imports: Init.Data.String.Pattern.Basic Init.Data.String.Pattern.Char Init.Data.String.Pattern.String Init.Data.String.Pattern.Pred
+// Imports: public import Init.Data.String.Pattern.Basic public import Init.Data.String.Pattern.Char public import Init.Data.String.Pattern.String public import Init.Data.String.Pattern.Pred
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

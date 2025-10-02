@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.UV
-// Imports: Init.System.IO Init.System.Promise Std.Internal.UV.Loop Std.Internal.UV.Timer Std.Internal.UV.TCP Std.Internal.UV.UDP Std.Internal.UV.System Std.Internal.UV.DNS Std.Internal.UV.Signal
+// Imports: public import Init.System.IO public import Init.System.Promise public import Std.Internal.UV.Loop public import Std.Internal.UV.Timer public import Std.Internal.UV.TCP public import Std.Internal.UV.UDP public import Std.Internal.UV.System public import Std.Internal.UV.DNS public import Std.Internal.UV.Signal
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

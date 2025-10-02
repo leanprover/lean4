@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.Structural.Preprocess
-// Imports: Lean.Meta.Transform Lean.Elab.RecAppSyntax Lean.Meta.WHNF
+// Imports: public import Lean.Meta.Transform public import Lean.Elab.RecAppSyntax public import Lean.Meta.WHNF
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

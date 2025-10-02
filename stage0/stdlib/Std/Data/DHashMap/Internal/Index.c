@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DHashMap.Internal.Index
-// Imports: Init.Data.UInt.Lemmas Init.Data.UInt.Bitwise
+// Imports: public import Init.Data.UInt.Lemmas public import Init.Data.UInt.Bitwise
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

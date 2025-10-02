@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.DocString.Parser
-// Imports: Lean.Parser.Types Lean.DocString.Syntax Lean.PrettyPrinter.Formatter Lean.Parser.Term.Basic
+// Imports: public import Lean.Parser.Types public import Lean.DocString.Syntax import Lean.PrettyPrinter.Formatter import Lean.Parser.Term.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2979,7 +2979,7 @@ goto _start;
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Lean_DocString_Parser_0__Lean_Doc_Parser_onlyBlockOpeners_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint32_t x_22; lean_object* x_23; uint8_t x_24; lean_object* x_74; lean_object* x_75; uint8_t x_76; uint8_t x_87; 
+lean_object* x_5; lean_object* x_19; lean_object* x_20; uint32_t x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; lean_object* x_74; lean_object* x_75; uint8_t x_76; uint8_t x_87; 
 x_19 = lean_ctor_get(x_4, 1);
 lean_inc(x_19);
 if (lean_is_exclusive(x_4)) {
@@ -3053,32 +3053,32 @@ if (x_24 == 0)
 {
 uint32_t x_25; uint8_t x_26; 
 x_25 = 32;
-x_26 = lean_uint32_dec_eq(x_22, x_25);
+x_26 = lean_uint32_dec_eq(x_21, x_25);
 if (x_26 == 0)
 {
 uint32_t x_27; uint8_t x_28; 
 x_27 = 62;
-x_28 = lean_uint32_dec_eq(x_22, x_27);
+x_28 = lean_uint32_dec_eq(x_21, x_27);
 if (x_28 == 0)
 {
 uint32_t x_29; uint8_t x_30; 
 x_29 = 42;
-x_30 = lean_uint32_dec_eq(x_22, x_29);
+x_30 = lean_uint32_dec_eq(x_21, x_29);
 if (x_30 == 0)
 {
 uint32_t x_31; uint8_t x_32; 
 x_31 = 43;
-x_32 = lean_uint32_dec_eq(x_22, x_31);
+x_32 = lean_uint32_dec_eq(x_21, x_31);
 if (x_32 == 0)
 {
 uint32_t x_33; uint8_t x_34; 
 x_33 = 45;
-x_34 = lean_uint32_dec_eq(x_22, x_33);
+x_34 = lean_uint32_dec_eq(x_21, x_33);
 if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; 
-lean_dec(x_23);
-lean_dec_ref(x_21);
+lean_dec_ref(x_23);
+lean_dec(x_22);
 lean_dec(x_1);
 x_35 = lean_box(x_34);
 x_36 = lean_alloc_ctor(1, 1, 0);
@@ -3096,10 +3096,10 @@ else
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; 
 lean_dec(x_19);
-x_38 = lean_string_utf8_next(x_21, x_23);
-lean_dec(x_23);
+x_38 = lean_string_utf8_next(x_23, x_22);
+lean_dec(x_22);
 x_39 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_39, 0, x_21);
+lean_ctor_set(x_39, 0, x_23);
 lean_ctor_set(x_39, 1, x_38);
 lean_inc(x_1);
 if (lean_is_scalar(x_20)) {
@@ -3117,10 +3117,10 @@ else
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; 
 lean_dec(x_19);
-x_42 = lean_string_utf8_next(x_21, x_23);
-lean_dec(x_23);
+x_42 = lean_string_utf8_next(x_23, x_22);
+lean_dec(x_22);
 x_43 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_43, 0, x_21);
+lean_ctor_set(x_43, 0, x_23);
 lean_ctor_set(x_43, 1, x_42);
 lean_inc(x_1);
 if (lean_is_scalar(x_20)) {
@@ -3138,10 +3138,10 @@ else
 {
 lean_object* x_46; lean_object* x_47; lean_object* x_48; 
 lean_dec(x_19);
-x_46 = lean_string_utf8_next(x_21, x_23);
-lean_dec(x_23);
+x_46 = lean_string_utf8_next(x_23, x_22);
+lean_dec(x_22);
 x_47 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_47, 0, x_21);
+lean_ctor_set(x_47, 0, x_23);
 lean_ctor_set(x_47, 1, x_46);
 lean_inc(x_1);
 if (lean_is_scalar(x_20)) {
@@ -3159,10 +3159,10 @@ else
 {
 lean_object* x_50; lean_object* x_51; lean_object* x_52; 
 lean_dec(x_19);
-x_50 = lean_string_utf8_next(x_21, x_23);
-lean_dec(x_23);
+x_50 = lean_string_utf8_next(x_23, x_22);
+lean_dec(x_22);
 x_51 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_51, 0, x_21);
+lean_ctor_set(x_51, 0, x_23);
 lean_ctor_set(x_51, 1, x_50);
 lean_inc(x_1);
 if (lean_is_scalar(x_20)) {
@@ -3180,10 +3180,10 @@ else
 {
 lean_object* x_54; lean_object* x_55; lean_object* x_56; 
 lean_dec(x_19);
-x_54 = lean_string_utf8_next(x_21, x_23);
-lean_dec(x_23);
+x_54 = lean_string_utf8_next(x_23, x_22);
+lean_dec(x_22);
 x_55 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_55, 0, x_21);
+lean_ctor_set(x_55, 0, x_23);
 lean_ctor_set(x_55, 1, x_54);
 lean_inc(x_1);
 if (lean_is_scalar(x_20)) {
@@ -3200,8 +3200,8 @@ goto _start;
 else
 {
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; uint8_t x_62; 
-lean_dec(x_23);
-lean_dec_ref(x_21);
+lean_dec_ref(x_23);
+lean_dec(x_22);
 x_58 = l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Lean_DocString_Parser_0__Lean_Doc_Parser_onlyBlockOpeners_spec__0(x_3, x_19);
 x_59 = lean_ctor_get(x_58, 0);
 lean_inc_ref(x_59);
@@ -3304,11 +3304,11 @@ x_82 = 48;
 x_83 = lean_uint32_dec_le(x_82, x_81);
 if (x_83 == 0)
 {
-lean_inc(x_75);
 lean_inc_ref(x_74);
-x_21 = x_74;
-x_22 = x_81;
-x_23 = x_75;
+lean_inc(x_75);
+x_21 = x_81;
+x_22 = x_75;
+x_23 = x_74;
 x_24 = x_83;
 goto block_73;
 }
@@ -3317,11 +3317,11 @@ else
 uint32_t x_84; uint8_t x_85; 
 x_84 = 57;
 x_85 = lean_uint32_dec_le(x_81, x_84);
-lean_inc(x_75);
 lean_inc_ref(x_74);
-x_21 = x_74;
-x_22 = x_81;
-x_23 = x_75;
+lean_inc(x_75);
+x_21 = x_81;
+x_22 = x_75;
+x_23 = x_74;
 x_24 = x_85;
 goto block_73;
 }
@@ -3984,9 +3984,14 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_OrderedListType_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_Doc_Parser_OrderedListType_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Lean_Doc_Parser_OrderedListType_ctorIdx(x_1);
+x_4 = l_Lean_Doc_Parser_OrderedListType_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = lean_alloc_closure((void*)(l_Lean_Doc_Parser_OrderedListType_noConfusion___redArg___lam__0___boxed), 1, 0);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_OrderedListType_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
@@ -4555,9 +4560,14 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_UnorderedListType_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Lean_Doc_Parser_UnorderedListType_noConfusion___redArg___closed__0;
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Lean_Doc_Parser_UnorderedListType_ctorIdx(x_1);
+x_4 = l_Lean_Doc_Parser_UnorderedListType_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = l_Lean_Doc_Parser_UnorderedListType_noConfusion___redArg___closed__0;
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_UnorderedListType_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {

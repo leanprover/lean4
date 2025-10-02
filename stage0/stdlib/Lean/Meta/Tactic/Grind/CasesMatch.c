@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.CasesMatch
-// Imports: Lean.Meta.Tactic.Util Lean.Meta.Tactic.Grind.Types Lean.Meta.Tactic.Grind.Util Lean.Meta.Tactic.Cases Lean.Meta.Match.MatcherApp Lean.Meta.Tactic.Grind.MatchCond Lean.Meta.Tactic.Grind.Simp
+// Imports: public import Lean.Meta.Tactic.Util import Lean.Meta.Tactic.Grind.Types import Lean.Meta.Tactic.Grind.Util import Lean.Meta.Tactic.Cases import Lean.Meta.Match.MatcherApp import Lean.Meta.Tactic.Grind.MatchCond import Lean.Meta.Tactic.Grind.Simp
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

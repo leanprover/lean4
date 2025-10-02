@@ -37,7 +37,7 @@ def mStart (goal : Expr) : MetaM MStartResult := do
 def mStartMVar (mvar : MVarId) : MetaM (MVarId × MGoal) := mvar.withContext do
   let goal ← instantiateMVars <| ← mvar.getType
   unless ← isProp goal do
-    throwError "type mismatch\n{← mkHasTypeButIsExpectedMsg (← inferType goal) (mkSort .zero)}"
+    throwError "The goal type of `{mkMVar mvar}` is not a proposition. It has type `{← inferType goal}`."
 
   let result ← mStart goal
   if let some proof := result.proof? then

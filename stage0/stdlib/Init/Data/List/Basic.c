@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Basic
-// Imports: Init.SimpLemmas Init.Data.Nat.Basic Init.Data.List.Notation Init.Data.Nat.Div.Basic
+// Imports: public import Init.SimpLemmas public import Init.Data.Nat.Basic public import Init.Data.List.Notation public import Init.Data.Nat.Div.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

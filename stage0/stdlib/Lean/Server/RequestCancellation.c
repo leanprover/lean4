@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.RequestCancellation
-// Imports: Init.System.Promise Lean.Server.ServerTask
+// Imports: public import Init.System.Promise public import Lean.Server.ServerTask
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

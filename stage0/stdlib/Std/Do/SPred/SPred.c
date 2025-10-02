@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Do.SPred.SPred
-// Imports: Init.Ext Std.Do.SPred.SVal
+// Imports: public import Init.Ext public import Std.Do.SPred.SVal
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

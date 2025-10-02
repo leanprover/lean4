@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Lex
-// Imports: Init.Data.Array.Lex.Basic Init.Data.Array.Lex.Lemmas
+// Imports: public import Init.Data.Array.Lex.Basic public import Init.Data.Array.Lex.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

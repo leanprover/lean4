@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Glob
-// Imports: Init.System.IO Lean.Util.Path Lake.Util.Name
+// Imports: public import Init.System.IO public import Lean.Util.Path import Lake.Util.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

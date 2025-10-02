@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Reservoir
-// Imports: Init.Prelude Init.Data.Array.Basic
+// Imports: public import Init.Prelude import Init.Data.Array.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

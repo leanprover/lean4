@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Data.UInt.Basic
 
-public section
+@[expose] public section
 
 set_option linter.missingDocs true
 
@@ -23,7 +23,7 @@ Signed 8-bit integers.
 This type has special support in the compiler so it can be represented by an unboxed 8-bit value.
 -/
 structure Int8 where
-  private ofUInt8 ::
+  ofUInt8 ::
   /--
   Converts an 8-bit signed integer into the 8-bit unsigned integer that is its two's complement
   encoding.
@@ -36,7 +36,7 @@ Signed 16-bit integers.
 This type has special support in the compiler so it can be represented by an unboxed 16-bit value.
 -/
 structure Int16 where
-  private ofUInt16 ::
+  ofUInt16 ::
   /--
   Converts an 16-bit signed integer into the 16-bit unsigned integer that is its two's complement
   encoding.
@@ -49,7 +49,7 @@ Signed 32-bit integers.
 This type has special support in the compiler so it can be represented by an unboxed 32-bit value.
 -/
 structure Int32 where
-  private ofUInt32 ::
+  ofUInt32 ::
   /--
   Converts an 32-bit signed integer into the 32-bit unsigned integer that is its two's complement
   encoding.
@@ -62,7 +62,7 @@ Signed 64-bit integers.
 This type has special support in the compiler so it can be represented by an unboxed 64-bit value.
 -/
 structure Int64 where
-  private ofUInt64 ::
+  ofUInt64 ::
   /--
   Converts an 64-bit signed integer into the 64-bit unsigned integer that is its two's complement
   encoding.
@@ -76,7 +76,7 @@ On a 32-bit architecture, `ISize` is equivalent to `Int32`. On a 64-bit machine,
 `Int64`. This type has special support in the compiler so it can be represented by an unboxed value.
 -/
 structure ISize where
-  private ofUSize ::
+  ofUSize ::
   /--
   Converts a word-sized signed integer into the word-sized unsigned integer that is its two's
   complement encoding.

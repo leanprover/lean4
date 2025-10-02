@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.RecursorInfo
-// Imports: Lean.AuxRecursor Lean.Util.FindExpr Lean.Meta.Basic
+// Imports: public import Lean.AuxRecursor public import Lean.Util.FindExpr public import Lean.Meta.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

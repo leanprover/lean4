@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Date
-// Imports: Init.Data.Ord.Basic Lake.Util.String
+// Imports: public import Init.Data.Ord.Basic import Lake.Util.String import Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1152,6 +1152,7 @@ return x_1;
 }
 lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_String(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Util_Date(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1161,6 +1162,9 @@ res = initialize_Init_Data_Ord_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Util_String(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instInhabitedDate_default___closed__0 = _init_l_Lake_instInhabitedDate_default___closed__0();

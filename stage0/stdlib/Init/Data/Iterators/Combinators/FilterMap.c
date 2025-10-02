@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.Combinators.FilterMap
-// Imports: Init.Data.Iterators.Combinators.Monadic.FilterMap
+// Imports: public import Init.Data.Iterators.Combinators.Monadic.FilterMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

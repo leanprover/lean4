@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.OfNat
-// Imports: Init.Data.Int.Lemmas Init.Data.Int.DivMod Init.Data.Int.Linear Init.GrindInstances.ToInt Init.Data.RArray
+// Imports: public import Init.Data.Int.Lemmas public import Init.Data.Int.DivMod public import Init.Data.Int.Linear public import Init.GrindInstances.ToInt public import Init.Data.RArray
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

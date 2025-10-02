@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.PackageConfig
-// Imports: Init.Dynamic Lake.Util.Version Lake.Config.Pattern Lake.Config.Defaults Lake.Config.LeanConfig Lake.Config.WorkspaceConfig Lake.Config.Meta
+// Imports: public import Init.Dynamic public import Lake.Util.Version public import Lake.Config.Pattern public import Lake.Config.Defaults public import Lake.Config.LeanConfig public import Lake.Config.WorkspaceConfig meta import all Lake.Config.Meta
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

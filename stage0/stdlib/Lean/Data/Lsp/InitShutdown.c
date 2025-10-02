@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Lsp.InitShutdown
-// Imports: Lean.Data.Lsp.Capabilities Lean.Data.Lsp.Workspace
+// Imports: public import Lean.Data.Lsp.Capabilities public import Lean.Data.Lsp.Workspace
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -168,6 +168,7 @@ lean_object* l_Lean_Lsp_instFromJsonClientCapabilities_fromJson(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_InitializedParams_noConfusion(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at___Lean_Lsp_instFromJsonClientInfo_fromJson_spec__1_spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_instFromJsonClientInfo_fromJson_spec__0(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonClientInfo_fromJson___closed__12;
 LEAN_EXPORT lean_object* l_Lean_Lsp_Trace_noConfusion___redArg(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonInitializeParams;
@@ -1062,9 +1063,14 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Lsp_Trace_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_Lsp_Trace_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Lean_Lsp_Trace_ctorIdx(x_1);
+x_4 = l_Lean_Lsp_Trace_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = lean_alloc_closure((void*)(l_Lean_Lsp_Trace_noConfusion___redArg___lam__0___boxed), 1, 0);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Lsp_Trace_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {

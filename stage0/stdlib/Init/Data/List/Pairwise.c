@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Pairwise
-// Imports: Init.Data.List.Sublist Init.Data.List.Attach
+// Imports: public import Init.Data.List.Sublist public import Init.Data.List.Attach
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

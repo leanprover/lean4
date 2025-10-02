@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Order.ClassesExtra
 public import Init.Data.Order.Ord
+import Init.Data.Order.Lemmas
 
 namespace Std
 

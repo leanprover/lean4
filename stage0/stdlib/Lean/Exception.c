@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Exception
-// Imports: Lean.Message Lean.InternalExceptionId Lean.Data.Options Lean.Util.MonadCache Lean.ErrorExplanations
+// Imports: public import Lean.Message public import Lean.InternalExceptionId public import Lean.Data.Options public import Lean.Util.MonadCache public import Lean.ErrorExplanations
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

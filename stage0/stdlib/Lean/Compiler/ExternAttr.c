@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.ExternAttr
-// Imports: Init.Data.List.BasicAux Lean.Expr Lean.Environment Lean.Attributes Lean.ProjFns Lean.Meta.Basic
+// Imports: public import Init.Data.List.BasicAux public import Lean.Expr public import Lean.Environment public import Lean.Attributes public import Lean.ProjFns public import Lean.Meta.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

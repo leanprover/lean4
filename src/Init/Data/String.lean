@@ -15,5 +15,6 @@ public import Init.Data.String.Repr
 public import Init.Data.String.Bootstrap
 public import Init.Data.String.Slice
 public import Init.Data.String.Pattern
+public import Init.Data.String.Stream
 
 public section

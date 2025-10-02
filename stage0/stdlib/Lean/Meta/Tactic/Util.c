@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Util
-// Imports: Lean.Util.ForEachExprWhere Lean.Meta.Basic Lean.Meta.PPGoal Lean.Meta.AppBuilder
+// Imports: public import Lean.Util.ForEachExprWhere public import Lean.Meta.Basic public import Lean.Meta.PPGoal import Lean.Meta.AppBuilder
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5472,8 +5472,8 @@ lean_dec_ref(x_38);
 x_43 = l_Lean_LocalDecl_hasValue(x_22, x_29);
 if (x_43 == 0)
 {
-x_23 = x_32;
-x_24 = x_42;
+x_23 = x_42;
+x_24 = x_32;
 goto block_28;
 }
 else
@@ -5487,8 +5487,8 @@ goto block_17;
 }
 else
 {
-x_23 = x_32;
-x_24 = x_42;
+x_23 = x_42;
+x_24 = x_32;
 goto block_28;
 }
 }
@@ -5538,9 +5538,9 @@ lean_object* x_25; lean_object* x_26; lean_object* x_27;
 x_25 = l_Lean_LocalDecl_fvarId(x_22);
 lean_dec(x_22);
 x_26 = lean_box(0);
-x_27 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_MVarId_getNondepPropHyps_spec__13___redArg(x_23, x_25, x_26);
+x_27 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_MVarId_getNondepPropHyps_spec__13___redArg(x_24, x_25, x_26);
 x_11 = x_27;
-x_12 = x_24;
+x_12 = x_23;
 goto block_17;
 }
 }
@@ -11575,16 +11575,16 @@ block_12:
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
-lean_dec_ref(x_8);
+lean_dec_ref(x_7);
 x_10 = lean_box(x_9);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
-lean_ctor_set(x_11, 1, x_7);
+lean_ctor_set(x_11, 1, x_8);
 return x_11;
 }
 else
 {
-return x_8;
+return x_7;
 }
 }
 block_18:
@@ -11596,16 +11596,16 @@ if (x_16 == 0)
 uint8_t x_17; 
 x_17 = l_Lean_Exception_isRuntime(x_14);
 lean_dec_ref(x_14);
-x_7 = x_15;
-x_8 = x_13;
+x_7 = x_13;
+x_8 = x_15;
 x_9 = x_17;
 goto block_12;
 }
 else
 {
 lean_dec_ref(x_14);
-x_7 = x_15;
-x_8 = x_13;
+x_7 = x_13;
+x_8 = x_15;
 x_9 = x_16;
 goto block_12;
 }

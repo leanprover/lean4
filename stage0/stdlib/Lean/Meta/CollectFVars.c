@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.CollectFVars
-// Imports: Lean.Util.CollectFVars Lean.Meta.Basic
+// Imports: public import Lean.Util.CollectFVars public import Lean.Meta.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

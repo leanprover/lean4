@@ -18,7 +18,7 @@ namespace Lean.Elab.Frontend
 structure State where
   commandState : Command.State
   parserState  : Parser.ModuleParserState
-  cmdPos       : String.Pos
+  cmdPos       : String.Pos.Raw
   commands     : Array Syntax := #[]
 deriving Nonempty
 

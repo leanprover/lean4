@@ -143,13 +143,16 @@ def throwAttrDeclNotOfExpectedType (attrName declName : Name) (givenType expecte
   throwError m!"Cannot add attribute `[{attrName}]`: Declaration `{.ofConstName declName}` has type{indentExpr givenType}\n\
     but `[{attrName}]` can only be added to declarations of type{indentExpr expectedType}"
 
+def ensureAttrDeclIsPublic [MonadEnv m] (attrName declName : Name) (attrKind : AttributeKind) : m Unit := do
+  if (← getEnv).header.isModule && attrKind != .local && !((← getEnv).setExporting true).contains declName then
+    throwError m!"Cannot add attribute `[{attrName}]`: Declaration `{.ofConstName declName}` must be public"
+
 def ensureAttrDeclIsMeta [MonadEnv m] (attrName declName : Name) (attrKind : AttributeKind) : m Unit := do
   if (← getEnv).header.isModule && !isMeta (← getEnv) declName then
     throwError m!"Cannot add attribute `[{attrName}]`: Declaration `{.ofConstName declName}` must be marked as `meta`"
   -- Make sure attributed decls can't refer to private meta imports, which is already checked for
   -- public decls.
-  if (← getEnv).header.isModule && attrKind == .global && !((← getEnv).setExporting true).contains declName then
-    throwError m!"Cannot add attribute `[{attrName}]`: Declaration `{.ofConstName declName}` must be public"
+  ensureAttrDeclIsPublic attrName declName attrKind
 
 end
 

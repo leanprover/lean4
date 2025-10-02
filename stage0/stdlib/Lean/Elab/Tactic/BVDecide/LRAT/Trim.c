@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.BVDecide.LRAT.Trim
-// Imports: Init.Data.Nat.Fold Std.Tactic.BVDecide.LRAT.Actions Std.Data.HashMap
+// Imports: public import Init.Data.Nat.Fold public import Std.Tactic.BVDecide.LRAT.Actions public import Std.Data.HashMap import Init.Data.Range.Polymorphic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2998,6 +2998,7 @@ return x_2;
 lean_object* initialize_Init_Data_Nat_Fold(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Tactic_BVDecide_LRAT_Actions(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_HashMap(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Range_Polymorphic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_BVDecide_LRAT_Trim(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -3010,6 +3011,9 @@ res = initialize_Std_Tactic_BVDecide_LRAT_Actions(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_HashMap(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findInitialId___closed__0 = _init_l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findInitialId___closed__0();

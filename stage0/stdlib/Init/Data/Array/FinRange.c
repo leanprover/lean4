@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.FinRange
-// Imports: Init.Data.List.FinRange Init.Data.Array.OfFn
+// Imports: public import Init.Data.List.FinRange public import Init.Data.Array.OfFn
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

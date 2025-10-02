@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.UnboxResult
-// Imports: Lean.Data.Format Lean.Compiler.IR.Basic
+// Imports: public import Lean.Data.Format public import Lean.Compiler.IR.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

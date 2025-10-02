@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.FileWorker.SetupFile
-// Imports: Init.System.IO Lean.Server.Utils Lean.Util.LakePath Lean.LoadDynlib Lean.Server.ServerTask
+// Imports: public import Init.System.IO public import Lean.Server.Utils public import Lean.Util.LakePath public import Lean.LoadDynlib public import Lean.Server.ServerTask
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

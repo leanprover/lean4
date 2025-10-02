@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Rat.Basic
-// Imports: Init.Data.Nat.Coprime Init.Data.Hashable Init.Data.OfScientific Init.Data.Int.Bitwise
+// Imports: public import Init.Data.Nat.Coprime public import Init.Data.Hashable public import Init.Data.OfScientific import Init.Data.Int.Bitwise
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

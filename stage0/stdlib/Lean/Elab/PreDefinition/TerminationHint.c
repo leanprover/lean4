@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.TerminationHint
-// Imports: Lean.Parser.Term Lean.Parser.Term
+// Imports: public import Lean.Parser.Term meta import Lean.Parser.Term
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -519,9 +519,14 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Elab_PartialFixpointType_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_Elab_PartialFixpointType_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Lean_Elab_PartialFixpointType_ctorIdx(x_1);
+x_4 = l_Lean_Elab_PartialFixpointType_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = lean_alloc_closure((void*)(l_Lean_Elab_PartialFixpointType_noConfusion___redArg___lam__0___boxed), 1, 0);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_PartialFixpointType_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
@@ -3711,7 +3716,7 @@ return x_81;
 }
 else
 {
-lean_object* x_82; uint8_t x_83; lean_object* x_84; lean_object* x_85; uint8_t x_86; uint8_t x_92; lean_object* x_93; uint8_t x_94; lean_object* x_101; lean_object* x_120; uint8_t x_121; 
+lean_object* x_82; lean_object* x_83; uint8_t x_84; lean_object* x_85; uint8_t x_86; lean_object* x_92; uint8_t x_93; uint8_t x_94; lean_object* x_101; lean_object* x_120; uint8_t x_121; 
 lean_dec_ref(x_10);
 lean_dec_ref(x_9);
 lean_dec_ref(x_8);
@@ -3762,10 +3767,10 @@ block_91:
 lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; 
 x_87 = lean_alloc_ctor(0, 3, 2);
 lean_ctor_set(x_87, 0, x_21);
-lean_ctor_set(x_87, 1, x_85);
-lean_ctor_set(x_87, 2, x_84);
+lean_ctor_set(x_87, 1, x_83);
+lean_ctor_set(x_87, 2, x_85);
 lean_ctor_set_uint8(x_87, sizeof(void*)*3, x_86);
-lean_ctor_set_uint8(x_87, sizeof(void*)*3 + 1, x_83);
+lean_ctor_set_uint8(x_87, sizeof(void*)*3 + 1, x_84);
 if (lean_is_scalar(x_22)) {
  x_88 = lean_alloc_ctor(1, 1, 0);
 } else {
@@ -3784,9 +3789,9 @@ lean_dec(x_2);
 x_96 = lean_alloc_ctor(0, 3, 2);
 lean_ctor_set(x_96, 0, x_21);
 lean_ctor_set(x_96, 1, x_95);
-lean_ctor_set(x_96, 2, x_93);
+lean_ctor_set(x_96, 2, x_92);
 lean_ctor_set_uint8(x_96, sizeof(void*)*3, x_94);
-lean_ctor_set_uint8(x_96, sizeof(void*)*3 + 1, x_92);
+lean_ctor_set_uint8(x_96, sizeof(void*)*3 + 1, x_93);
 x_97 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_97, 0, x_96);
 x_98 = lean_apply_2(x_3, lean_box(0), x_97);
@@ -3825,16 +3830,16 @@ x_109 = lean_unsigned_to_nat(3u);
 x_110 = l_Lean_Syntax_getArg(x_21, x_109);
 if (lean_obj_tag(x_101) == 0)
 {
-x_92 = x_104;
-x_93 = x_110;
+x_92 = x_110;
+x_93 = x_104;
 x_94 = x_104;
 goto block_100;
 }
 else
 {
 lean_dec_ref(x_101);
-x_92 = x_104;
-x_93 = x_110;
+x_92 = x_110;
+x_93 = x_104;
 x_94 = x_105;
 goto block_100;
 }
@@ -3859,18 +3864,18 @@ x_115 = l_Lean_Syntax_getArgs(x_111);
 lean_dec(x_111);
 if (lean_obj_tag(x_101) == 0)
 {
-x_83 = x_112;
-x_84 = x_114;
-x_85 = x_115;
+x_83 = x_115;
+x_84 = x_112;
+x_85 = x_114;
 x_86 = x_112;
 goto block_91;
 }
 else
 {
 lean_dec_ref(x_101);
-x_83 = x_112;
-x_84 = x_114;
-x_85 = x_115;
+x_83 = x_115;
+x_84 = x_112;
+x_85 = x_114;
 x_86 = x_104;
 goto block_91;
 }

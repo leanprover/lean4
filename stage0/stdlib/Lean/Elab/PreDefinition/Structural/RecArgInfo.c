@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.Structural.RecArgInfo
-// Imports: Lean.Meta.Basic Lean.Meta.ForEachExpr Lean.Elab.PreDefinition.FixedParams Lean.Elab.PreDefinition.Structural.IndGroupInfo
+// Imports: public import Lean.Meta.Basic public import Lean.Meta.ForEachExpr public import Lean.Elab.PreDefinition.FixedParams public import Lean.Elab.PreDefinition.Structural.IndGroupInfo
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

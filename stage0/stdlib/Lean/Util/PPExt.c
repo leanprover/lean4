@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.PPExt
-// Imports: Lean.Environment Lean.MetavarContext Lean.Data.OpenDecl Lean.Elab.InfoTree.Types
+// Imports: public import Lean.Environment public import Lean.MetavarContext public import Lean.Data.OpenDecl public import Lean.Elab.InfoTree.Types
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

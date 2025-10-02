@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.System.FilePath
-// Imports: Init.System.Platform Init.Data.ToString.Basic Init.Data.String.Basic
+// Imports: public import Init.System.Platform public import Init.Data.ToString.Basic public import Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

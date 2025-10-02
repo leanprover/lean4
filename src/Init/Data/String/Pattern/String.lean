@@ -23,13 +23,13 @@ namespace String.Slice.Pattern
 
 inductive ForwardSliceSearcher (s : Slice) where
   | empty (pos : s.Pos)
-  | proper (needle : Slice) (table : Array String.Pos) (stackPos : String.Pos) (needlePos : String.Pos)
+  | proper (needle : Slice) (table : Array String.Pos.Raw) (stackPos : String.Pos.Raw) (needlePos : String.Pos.Raw)
   | atEnd
 deriving Inhabited
 
 namespace ForwardSliceSearcher
 
-partial def buildTable (pat : Slice) : Array String.Pos :=
+partial def buildTable (pat : Slice) : Array String.Pos.Raw :=
   if pat.utf8ByteSize == 0 then
     #[]
   else
@@ -37,18 +37,18 @@ partial def buildTable (pat : Slice) : Array String.Pos :=
     let arr := arr.push 0
     go ⟨1⟩ arr
 where
-  go (pos : String.Pos) (table : Array String.Pos) :=
+  go (pos : String.Pos.Raw) (table : Array String.Pos.Raw) :=
     if h : pos < pat.utf8ByteSize then
-      let patByte := pat.getUtf8Byte pos h
+      let patByte := pat.getUTF8Byte pos h
       let distance := computeDistance table[table.size - 1]! patByte table
-      let distance := if patByte = pat.getUtf8Byte! distance then distance.inc else distance
+      let distance := if patByte = pat.getUTF8Byte! distance then distance.inc else distance
       go pos.inc (table.push distance)
     else
       table
 
-  computeDistance (distance : String.Pos) (patByte : UInt8) (table : Array String.Pos) :
-      String.Pos :=
-    if distance > 0 && patByte != pat.getUtf8Byte! distance then
+  computeDistance (distance : String.Pos.Raw) (patByte : UInt8) (table : Array String.Pos.Raw) :
+      String.Pos.Raw :=
+    if distance > 0 && patByte != pat.getUTF8Byte! distance then
       computeDistance table[distance.byteIdx - 1]! patByte table
     else
       distance
@@ -60,9 +60,9 @@ def iter (s : Slice) (pat : Slice) : Std.Iter (α := ForwardSliceSearcher s) (Se
   else
     { internalState := .proper pat (buildTable pat) s.startPos.offset pat.startPos.offset }
 
-partial def backtrackIfNecessary (pat : Slice) (table : Array String.Pos) (stackByte : UInt8)
-    (needlePos : String.Pos) : String.Pos :=
-  if needlePos != 0 && stackByte != pat.getUtf8Byte! needlePos then
+partial def backtrackIfNecessary (pat : Slice) (table : Array String.Pos.Raw) (stackByte : UInt8)
+    (needlePos : String.Pos.Raw) : String.Pos.Raw :=
+  if needlePos != 0 && stackByte != pat.getUTF8Byte! needlePos then
     backtrackIfNecessary pat table stackByte table[needlePos.byteIdx - 1]!
   else
     needlePos
@@ -92,12 +92,12 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
       else
         pure ⟨.yield ⟨.atEnd⟩ res, by simp⟩
     | .proper needle table stackPos needlePos =>
-      let rec findNext (startPos : String.Pos)
-          (currStackPos : String.Pos) (needlePos : String.Pos) (h : stackPos ≤ currStackPos) :=
+      let rec findNext (startPos : String.Pos.Raw)
+          (currStackPos : String.Pos.Raw) (needlePos : String.Pos.Raw) (h : stackPos ≤ currStackPos) :=
         if h1 : currStackPos < s.utf8ByteSize then
-          let stackByte := s.getUtf8Byte currStackPos h1
+          let stackByte := s.getUTF8Byte currStackPos h1
           let needlePos := backtrackIfNecessary needle table stackByte needlePos
-          let patByte := needle.getUtf8Byte! needlePos
+          let patByte := needle.getUTF8Byte! needlePos
           if stackByte != patByte then
             let nextStackPos := s.findNextPos currStackPos h1 |>.offset
             let res := .rejected (s.pos! startPos) (s.pos! nextStackPos)
@@ -108,9 +108,9 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
               simp only [pos_lt_eq, proper.injEq, true_and, exists_and_left, exists_eq', and_true,
                 nextStackPos]
               constructor
-              · simp [String.Pos.le_iff] at h haux ⊢
+              · simp [String.Pos.Raw.le_iff] at h haux ⊢
                 omega
-              · apply Pos.IsValidForSlice.le_utf8ByteSize
+              · apply Pos.Raw.IsValidForSlice.le_utf8ByteSize
                 apply Pos.isValidForSlice
             ⟨.yield ⟨.proper needle table nextStackPos needlePos⟩ res, hiter⟩
           else
@@ -121,17 +121,17 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
               have hiter := by
                 left
                 exists nextStackPos
-                simp only [pos_lt_eq, Pos.byteIdx_inc, proper.injEq, true_and, exists_and_left,
+                simp only [pos_lt_eq, Pos.Raw.byteIdx_inc, proper.injEq, true_and, exists_and_left,
                   exists_eq', and_true, nextStackPos]
                 constructor
-                · simp [String.Pos.le_iff] at h ⊢
+                · simp [String.Pos.Raw.le_iff] at h ⊢
                   omega
-                · simp [String.Pos.le_iff] at h1 ⊢
+                · simp [String.Pos.Raw.le_iff] at h1 ⊢
                   omega
               ⟨.yield ⟨.proper needle table nextStackPos 0⟩ res, hiter⟩
             else
               have hinv := by
-                simp [String.Pos.le_iff] at h ⊢
+                simp [String.Pos.Raw.le_iff] at h ⊢
                 omega
               findNext startPos currStackPos.inc needlePos hinv
         else
@@ -177,7 +177,7 @@ private def finitenessRelation :
           apply Prod.Lex.right'
           · simp
           · have haux := np.isValidForSlice.le_utf8ByteSize
-            simp [String.Pos.le_iff] at h1' haux ⊢
+            simp [String.Pos.Raw.le_iff] at h1' haux ⊢
             omega
         · apply Prod.Lex.left
           simp [h']
@@ -187,7 +187,7 @@ private def finitenessRelation :
         · rw [h3']
           apply Prod.Lex.right'
           · simp
-          · simp [String.Pos.le_iff] at h1' h2' ⊢
+          · simp [String.Pos.Raw.le_iff] at h1' h2' ⊢
             omega
         · apply Prod.Lex.left
           simp [h']
@@ -209,10 +209,10 @@ instance : ToForwardSearcher Slice ForwardSliceSearcher where
 def startsWith (s : Slice) (pat : Slice) : Bool :=
   if h : pat.utf8ByteSize ≤ s.utf8ByteSize then
     have hs := by
-      simp [Pos.le_iff] at h ⊢
+      simp [Pos.Raw.le_iff] at h ⊢
       omega
     have hp := by
-      simp [Pos.le_iff]
+      simp [Pos.Raw.le_iff]
     Internal.memcmp s pat s.startPos.offset pat.startPos.offset pat.utf8ByteSize hs hp
   else
     false
@@ -245,10 +245,10 @@ def endsWith (s : Slice) (pat : Slice) : Bool :=
     let sStart := s.endPos.offset - pat.utf8ByteSize
     let patStart := pat.startPos.offset
     have hs := by
-      simp [sStart, Pos.le_iff] at h ⊢
+      simp [sStart, Pos.Raw.le_iff] at h ⊢
       omega
     have hp := by
-      simp [patStart, Pos.le_iff] at h ⊢
+      simp [patStart, Pos.Raw.le_iff] at h ⊢
     Internal.memcmp s pat sStart patStart pat.utf8ByteSize hs hp
   else
     false

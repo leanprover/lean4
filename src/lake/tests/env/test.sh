@@ -36,6 +36,8 @@ LAKE_CACHE_DIR= test_run env -d ../../examples/hello env printenv LAKE_CACHE_DIR
 # Test that `env` preserves the input environment for certain variables
 echo "# TEST: Setting variables for lake env"
 test_eq "foo" env env ELAN_TOOLCHAIN=foo $LAKE env printenv ELAN_TOOLCHAIN
+test_out "foo" env env -u LAKE_CACHE_DIR ELAN_HOME=/ ELAN_TOOLCHAIN=foo \
+  $LAKE env printenv LAKE_CACHE_DIR
 LAKE_CACHE_DIR=foo test_eq "foo" env printenv LAKE_CACHE_DIR
 LEAN_GITHASH=foo test_eq "foo" env printenv LEAN_GITHASH
 LEAN_AR=foo test_eq "foo" env printenv LEAN_AR

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Linear
-// Imports: Init.ByCases Init.Data.Prod Init.Data.RArray Init.LawfulBEqTactics
+// Imports: public import Init.ByCases public import Init.Data.Prod public import Init.Data.RArray import Init.LawfulBEqTactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

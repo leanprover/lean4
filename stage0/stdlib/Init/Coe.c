@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Coe
-// Imports: Init.Prelude Init.Prelude
+// Imports: public import Init.Prelude public meta import Init.Prelude
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

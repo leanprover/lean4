@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Except
-// Imports: Init.Control.Basic Init.Control.Id Init.Coe
+// Imports: public import Init.Control.Basic public import Init.Control.Id public import Init.Coe
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

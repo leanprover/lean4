@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.ResolveName
-// Imports: Lean.Data.OpenDecl Lean.Hygiene Lean.Modifiers Lean.Exception Lean.Namespace
+// Imports: public import Lean.Data.OpenDecl public import Lean.Hygiene public import Lean.Modifiers public import Lean.Exception public import Lean.Namespace
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

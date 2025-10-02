@@ -20,6 +20,18 @@ namespace Lean.Server.FileWorker
 open Lean.Lsp
 open Lean.Server.Completion
 
+private def compareRanges (r1 r2 : String.Range) : Ordering :=
+  if r1.start < r2.start then
+    .lt
+  else if r1.start > r2.start then
+    .gt
+  else if r1.stop < r2.stop then
+    .lt
+  else if r1.stop > r2.stop then
+    .gt
+  else
+    .eq
+
 def waitUnknownIdentifierRanges (doc : EditableDocument) (requestedRange : String.Range)
     : BaseIO (Array String.Range × Bool) := do
   let text := doc.meta.text
@@ -37,32 +49,46 @@ def waitUnknownIdentifierRanges (doc : EditableDocument) (requestedRange : Strin
       continue
     ranges := ranges.push msgRange
   let isAnyUnknownIdentifierMessage := ! ranges.isEmpty
-  let autoImplicitUsages := tree.foldInfosInRange requestedRange #[] fun ctx i acc => Id.run do
-    let .ofTermInfo ti := i
-      | return acc
-    let some r := ti.stx.getRange? (canonicalOnly := true)
-      | return acc
-    if ! ti.expr.isFVar then
-      return acc
-    if ! ctx.autoImplicits.contains ti.expr then
-      return acc
-    return acc.push r
-  let autoImplicitUsages := autoImplicitUsages.get
+  let autoImplicitUsages : ServerTask (Std.TreeSet String.Range compareRanges) :=
+    tree.foldInfosInRange requestedRange ∅ fun ctx i acc => Id.run do
+      let .ofTermInfo ti := i
+        | return acc
+      let some r := ti.stx.getRange? (canonicalOnly := true)
+        | return acc
+      if ! ti.expr.isFVar then
+        return acc
+      if ! ctx.autoImplicits.contains ti.expr then
+        return acc
+      return acc.insert r
+  let autoImplicitUsages := autoImplicitUsages.get.toArray
   ranges := ranges ++ autoImplicitUsages
   return (ranges, isAnyUnknownIdentifierMessage)
 
 def waitAllUnknownIdentifierMessageRanges (doc : EditableDocument)
     : BaseIO (Array String.Range) := do
   let text := doc.meta.text
-  let msgLog : MessageLog := Language.toSnapshotTree doc.initSnap
-    |>.getAll.map (·.diagnostics.msgLog)
-    |>.foldl (· ++ ·) {}
+  let snaps := Language.toSnapshotTree doc.initSnap |>.getAll
+  let msgLog : MessageLog := snaps.map (·.diagnostics.msgLog) |>.foldl (· ++ ·) {}
   let mut ranges := #[]
   for msg in msgLog.unreported do
     if ! msg.data.hasTag (· == unknownIdentifierMessageTag) then
       continue
     let msgRange : String.Range := ⟨text.ofPosition msg.pos, text.ofPosition <| msg.endPos.getD msg.pos⟩
     ranges := ranges.push msgRange
+  let (cmdSnaps, _) := doc.cmdSnaps.waitAll.get
+  for snap in cmdSnaps do
+    let autoImplicitUsages : Std.TreeSet String.Range compareRanges :=
+      snap.infoTree.foldInfo (init := ∅) fun ctx i acc => Id.run do
+        let .ofTermInfo ti := i
+          | return acc
+        let some r := ti.stx.getRange? (canonicalOnly := true)
+          | return acc
+        if ! ti.expr.isFVar then
+          return acc
+        if ! ctx.autoImplicits.contains ti.expr then
+          return acc
+        return acc.insert r
+    ranges := ranges ++ autoImplicitUsages.toArray
   return ranges
 
 structure Insertion where
@@ -177,7 +203,7 @@ def computeDotIdQuery?
 
 def computeQueries
     (doc          : EditableDocument)
-    (requestedPos : String.Pos)
+    (requestedPos : String.Pos.Raw)
     : RequestM (Array Query) := do
   let text := doc.meta.text
   let some (stx, infoTree) := RequestM.findCmdDataAtPos doc requestedPos (includeStop := true) |>.get

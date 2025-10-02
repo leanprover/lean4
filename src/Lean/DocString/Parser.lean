@@ -137,7 +137,7 @@ private def unescapeStr (str : String) : String := Id.run do
       out := out.push c
   out
 
-private def asStringAux (quoted : Bool) (startPos : String.Pos) (transform : String → String) :
+private def asStringAux (quoted : Bool) (startPos : String.Pos.Raw) (transform : String → String) :
     ParserFn := fun c s =>
   let stopPos  := s.pos
   let leading  := c.mkEmptySubstringAt startPos

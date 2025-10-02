@@ -22,7 +22,7 @@ abbrev mkIdent (info : SourceInfo) (rawVal : Substring) (val : Name) : Syntax :=
   Syntax.ident info rawVal val []
 
 /-- Return character after position `pos` -/
-def getNext (input : String) (pos : String.Pos) : Char :=
+def getNext (input : String) (pos : String.Pos.Raw) : Char :=
   input.get (input.next pos)
 
 /-- Maximal (and function application) precedence.
@@ -52,17 +52,17 @@ structure InputContext where
   inputString : String
   fileName : String
   fileMap : FileMap
-  endPos : String.Pos := inputString.endPos
+  endPos : String.Pos.Raw := inputString.endPos
   endPos_valid : endPos ≤ inputString.endPos := by simp
 
 instance : Inhabited InputContext where
-  default := ⟨"", default, default, "".endPos, String.Pos.mk_le_mk.mpr (Nat.le_refl _)⟩
+  default := ⟨"", default, default, "".endPos, String.Pos.Raw.mk_le_mk.mpr (Nat.le_refl _)⟩
 
 
 namespace InputContext
 def mk
     (input fileName : String)
-    (endPos : String.Pos := input.endPos)
+    (endPos : String.Pos.Raw := input.endPos)
     (endPos_valid : endPos ≤ input.endPos := by simp)
     (fileMap : FileMap := FileMap.ofString input) :
     InputContext where
@@ -79,22 +79,22 @@ def input (c : InputContext) : String := c.inputString.extract 0 c.endPos
 Returns `true` if a specified byte position is greater than or equal to the position which points to
 the end of the input string. Otherwise, returns `false`.
 -/
-def atEnd (c : InputContext) (p : String.Pos) : Bool := p ≥ c.endPos
+def atEnd (c : InputContext) (p : String.Pos.Raw) : Bool := p ≥ c.endPos
 
 /--
 Returns the character at position `p` of the input string. If `p` is not a valid position, returns
 the fallback value `(default : Char)`, which is `'A'`, but does not panic.
 -/
 @[inline]
-def get (c : InputContext) (p : String.Pos) : Char := c.inputString.get p
+def get (c : InputContext) (p : String.Pos.Raw) : Char := c.inputString.get p
 
-theorem not_atEnd_inputString {c : InputContext} {p : String.Pos} :
+theorem not_atEnd_inputString {c : InputContext} {p : String.Pos.Raw} :
     ¬c.atEnd p → ¬c.inputString.atEnd p := by
   intro h
   let {inputString, endPos := ⟨e⟩, endPos_valid, ..} := c
   cases p
-  simp only [String.endPos, String.Pos.mk_le_mk] at endPos_valid
-  simp_all [String.atEnd, InputContext.atEnd, String.Pos.mk_le_mk]
+  simp only [String.endPos, String.Pos.Raw.mk_le_mk] at endPos_valid
+  simp_all [String.atEnd, InputContext.atEnd, String.Pos.Raw.mk_le_mk]
   exact Nat.lt_of_lt_of_le h endPos_valid
 
 /--
@@ -114,7 +114,7 @@ Even with evidence of `¬ s.atEnd p`, `p` may be invalid if a byte index points 
 multi-byte UTF-8 character.
 -/
 @[inline]
-def get' (c : InputContext) (p : String.Pos) (h : ¬c.atEnd p) : Char :=
+def get' (c : InputContext) (p : String.Pos.Raw) (h : ¬c.atEnd p) : Char :=
   c.inputString.get' p (c.not_atEnd_inputString h)
 
 /--
@@ -125,7 +125,7 @@ A run-time bounds check is performed to determine whether `p` is at the end of t
 bounds check has already been performed, use `InputContext.next'` to avoid a repeated check.
 -/
 @[inline]
-def next (c : InputContext) (p : String.Pos)  : String.Pos :=
+def next (c : InputContext) (p : String.Pos.Raw)  : String.Pos.Raw :=
   c.inputString.next p
 
 /--
@@ -135,7 +135,7 @@ is not a valid position.
 Requires evidence, `h`, that `p` is within bounds. No run-time bounds check is performed.
 -/
 @[inline]
-def next' (c : InputContext) (p : String.Pos) (h : ¬c.atEnd p) : String.Pos :=
+def next' (c : InputContext) (p : String.Pos.Raw) (h : ¬c.atEnd p) : String.Pos.Raw :=
   c.inputString.next' p (c.not_atEnd_inputString h)
 
 /--
@@ -146,24 +146,24 @@ start position is at the end of the string. If either position is invalid (that 
 at the middle of a multi-byte UTF-8 character) then the result is unspecified.
 -/
 @[inline]
-def extract (c : InputContext) : String.Pos → String.Pos → String :=
+def extract (c : InputContext) : String.Pos.Raw → String.Pos.Raw → String :=
   c.inputString.extract
 
 /--
 Extracts a substring of the input string, bounded by `startPos` and `stopPos`.
 -/
 @[inline]
-def substring (c : InputContext) (startPos stopPos : String.Pos) : Substring :=
+def substring (c : InputContext) (startPos stopPos : String.Pos.Raw) : Substring :=
   { str := c.inputString, startPos, stopPos := min stopPos c.endPos }
 
 /-- Return character after position `pos` -/
 @[inline]
-def getNext (input : InputContext) (pos : String.Pos) : Char :=
+def getNext (input : InputContext) (pos : String.Pos.Raw) : Char :=
   input.get (input.next pos)
 
 /-- Returns the character position prior to `pos` -/
 @[inline]
-def prev (c : InputContext) (pos : String.Pos) : String.Pos :=
+def prev (c : InputContext) (pos : String.Pos.Raw) : String.Pos.Raw :=
   c.inputString.prev pos
 
 end InputContext
@@ -183,7 +183,7 @@ structure CacheableParserContext where
   -- used for bootstrapping only
   quotDepth          : Nat := 0
   suppressInsideQuot : Bool := false
-  savedPos?          : Option String.Pos := none
+  savedPos?          : Option String.Pos.Raw := none
   forbiddenTk?       : Option Token := none
   deriving BEq
 
@@ -200,7 +200,7 @@ instance : Coe ParserContext InputContext := ⟨(·.toInputContext)⟩
 Modifies the ending position of a parser context.
 -/
 def ParserContext.setEndPos (c : ParserContext)
-    (endPos : String.Pos) (endPos_valid : endPos ≤ c.inputString.endPos) :
+    (endPos : String.Pos.Raw) (endPos_valid : endPos ≤ c.inputString.endPos) :
     ParserContext :=
   { c with endPos, endPos_valid }
 
@@ -241,13 +241,13 @@ def merge (e₁ e₂ : Error) : Error :=
 end Error
 
 structure TokenCacheEntry where
-  startPos : String.Pos := 0
-  stopPos  : String.Pos := 0
+  startPos : String.Pos.Raw := 0
+  stopPos  : String.Pos.Raw := 0
   token    : Syntax := Syntax.missing
 
 structure ParserCacheKey extends CacheableParserContext where
   parserName : Name
-  pos        : String.Pos
+  pos        : String.Pos.Raw
   deriving BEq
 
 instance : Hashable ParserCacheKey where
@@ -257,7 +257,7 @@ instance : Hashable ParserCacheKey where
 structure ParserCacheEntry where
   stx      : Syntax
   lhsPrec  : Nat
-  newPos   : String.Pos
+  newPos   : String.Pos.Raw
   errorMsg : Option Error
 
 structure ParserCache where
@@ -327,10 +327,10 @@ structure ParserState where
     Note that with chaining, the preceding parser can be another trailing parser:
     in `1 * 2 + 3`, the preceding parser is '*' when '+' is executed. -/
   lhsPrec  : Nat := 0
-  pos      : String.Pos := 0
+  pos      : String.Pos.Raw := 0
   cache    : ParserCache
   errorMsg : Option Error := none
-  recoveredErrors : Array (String.Pos × SyntaxStack × Error) := #[]
+  recoveredErrors : Array (String.Pos.Raw × SyntaxStack × Error) := #[]
 
 namespace ParserState
 
@@ -341,10 +341,10 @@ def hasError (s : ParserState) : Bool :=
 def stackSize (s : ParserState) : Nat :=
   s.stxStack.size
 
-def restore (s : ParserState) (iniStackSz : Nat) (iniPos : String.Pos) : ParserState :=
+def restore (s : ParserState) (iniStackSz : Nat) (iniPos : String.Pos.Raw) : ParserState :=
   { s with stxStack := s.stxStack.shrink iniStackSz, errorMsg := none, pos := iniPos }
 
-@[expose] def setPos (s : ParserState) (pos : String.Pos) : ParserState :=
+@[expose] def setPos (s : ParserState) (pos : String.Pos.Raw) : ParserState :=
   { s with pos := pos }
 
 def setCache (s : ParserState) (cache : ParserCache) : ParserState :=
@@ -359,10 +359,10 @@ def popSyntax (s : ParserState) : ParserState :=
 def shrinkStack (s : ParserState) (iniStackSz : Nat) : ParserState :=
   { s with stxStack := s.stxStack.shrink iniStackSz }
 
-def next (s : ParserState) (c : ParserContext) (pos : String.Pos) : ParserState :=
+def next (s : ParserState) (c : ParserContext) (pos : String.Pos.Raw) : ParserState :=
   { s with pos := c.next pos }
 
-def next' (s : ParserState) (c : ParserContext) (pos : String.Pos) (h : ¬ c.atEnd pos) : ParserState :=
+def next' (s : ParserState) (c : ParserContext) (pos : String.Pos.Raw) (h : ¬ c.atEnd pos) : ParserState :=
   { s with pos := c.next' pos h }
 
 def mkNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserState :=
@@ -392,7 +392,7 @@ def mkTrailingNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : P
     let stack   := stack.push newNode
     ⟨stack, lhsPrec, pos, cache, err, errs⟩
 
-def allErrors (s : ParserState) : Array (String.Pos × SyntaxStack × Error) :=
+def allErrors (s : ParserState) : Array (String.Pos.Raw × SyntaxStack × Error) :=
   s.recoveredErrors ++ (s.errorMsg.map (fun e => #[(s.pos, s.stxStack, e)])).getD #[]
 
 @[inline]
@@ -410,14 +410,14 @@ def mkUnexpectedError (s : ParserState) (msg : String) (expected : List String :
 def mkEOIError (s : ParserState) (expected : List String := []) : ParserState :=
   s.mkUnexpectedError "unexpected end of input" expected
 
-def mkErrorsAt (s : ParserState) (ex : List String) (pos : String.Pos) (initStackSz? : Option Nat := none) : ParserState := Id.run do
+def mkErrorsAt (s : ParserState) (ex : List String) (pos : String.Pos.Raw) (initStackSz? : Option Nat := none) : ParserState := Id.run do
   let mut s := s.setPos pos
   if let some sz := initStackSz? then
     s := s.shrinkStack sz
   s := s.setError { expected := ex }
   s.pushSyntax .missing
 
-def mkErrorAt (s : ParserState) (msg : String) (pos : String.Pos) (initStackSz? : Option Nat := none) : ParserState :=
+def mkErrorAt (s : ParserState) (msg : String) (pos : String.Pos.Raw) (initStackSz? : Option Nat := none) : ParserState :=
   s.mkErrorsAt [msg] pos initStackSz?
 
 /--
@@ -426,7 +426,7 @@ def mkErrorAt (s : ParserState) (msg : String) (pos : String.Pos) (initStackSz? 
   `iniPos` can be specified to avoid this position lookup but still must be identical to the token position. -/
 -- We use `0` as a cheap default to save an allocation; we're unlikely to do enough backtracking at that
 -- position to be significant.
-def mkUnexpectedTokenErrors (s : ParserState) (ex : List String) (iniPos : String.Pos := 0) : ParserState :=
+def mkUnexpectedTokenErrors (s : ParserState) (ex : List String) (iniPos : String.Pos.Raw := 0) : ParserState :=
   let tk := s.stxStack.back
   let s := s.setPos (if iniPos > 0 then iniPos else tk.getPos?.get!)
   let s := s.setError { unexpectedTk := tk, expected := ex }
@@ -436,10 +436,10 @@ def mkUnexpectedTokenErrors (s : ParserState) (ex : List String) (iniPos : Strin
   Reports given 'expected' message at range of top stack element (assumed to be a single token).
   Replaces the element with `missing` and resets position to the token position.
   `iniPos` can be specified to avoid this position lookup but still must be identical to the token position. -/
-def mkUnexpectedTokenError (s : ParserState) (msg : String) (iniPos : String.Pos := 0) : ParserState :=
+def mkUnexpectedTokenError (s : ParserState) (msg : String) (iniPos : String.Pos.Raw := 0) : ParserState :=
   s.mkUnexpectedTokenErrors [msg] iniPos
 
-def mkUnexpectedErrorAt (s : ParserState) (msg : String) (pos : String.Pos) : ParserState :=
+def mkUnexpectedErrorAt (s : ParserState) (msg : String) (pos : String.Pos.Raw) : ParserState :=
   s.setPos pos |>.mkUnexpectedError msg
 
 def toErrorMsg (ctx : InputContext) (s : ParserState) : String := Id.run do

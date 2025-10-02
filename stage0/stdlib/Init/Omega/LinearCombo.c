@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Omega.LinearCombo
-// Imports: Init.Omega.Coeffs Init.Data.ToString.Macro
+// Imports: public import Init.Omega.Coeffs public import Init.Data.ToString.Macro
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

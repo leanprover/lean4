@@ -8,6 +8,7 @@ module
 
 prelude
 public import Init.Data.BitVec.Bootstrap
+import Init.Ext
 
 public section
 

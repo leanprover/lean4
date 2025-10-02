@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Lemmas.Equivalence.StepCongr
-// Imports: Std.Data.Iterators.Lemmas.Equivalence.Basic
+// Imports: public import Std.Data.Iterators.Lemmas.Equivalence.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

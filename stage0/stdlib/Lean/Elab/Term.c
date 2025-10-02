@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Term
-// Imports: Lean.ReservedNameAction Lean.Meta.AppBuilder Lean.Meta.CollectMVars Lean.Meta.Coe Lean.Util.CollectLevelMVars Lean.Linter.Deprecated Lean.Elab.Config Lean.Elab.Level Lean.Elab.DeclModifiers Lean.Elab.PreDefinition.TerminationHint Lean.Elab.DeclarationRange Lean.Elab.WhereFinally Lean.Language.Basic Lean.Elab.InfoTree.InlayHints Lean.Parser.Term Lean.Elab.Term.TermElabM
+// Imports: public import Lean.ReservedNameAction public import Lean.Meta.AppBuilder public import Lean.Meta.CollectMVars public import Lean.Meta.Coe public import Lean.Util.CollectLevelMVars public import Lean.Linter.Deprecated public import Lean.Elab.Config public import Lean.Elab.Level public import Lean.Elab.DeclModifiers public import Lean.Elab.PreDefinition.TerminationHint public import Lean.Elab.DeclarationRange public import Lean.Elab.WhereFinally public import Lean.Language.Basic public import Lean.Elab.InfoTree.InlayHints public meta import Lean.Parser.Term public import Lean.Elab.Term.TermElabM
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.BinSearch
-// Imports: Init.Data.Array.Basic Init.Data.Int.DivMod.Lemmas Init.Omega
+// Imports: public import Init.Data.Array.Basic public import Init.Data.Int.DivMod.Lemmas public import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.FileWorker.Utils
-// Imports: Lean.Language.Lean.Types Lean.Server.Utils Lean.Server.Snapshots Lean.Server.AsyncList Lean.Server.Rpc.Basic Init.Data.ByteArray.Extra
+// Imports: public import Lean.Language.Lean.Types public import Lean.Server.Utils public import Lean.Server.Snapshots public import Lean.Server.AsyncList public import Lean.Server.Rpc.Basic import Init.Data.ByteArray.Extra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.ByteArray.Basic
-// Imports: Init.Data.Array.DecidableEq Init.Data.UInt.Basic Init.Data.UInt.BasicAux Init.Data.UInt.BasicAux Init.Data.Option.Basic Init.Data.Array.Extract
+// Imports: public import Init.Data.Array.DecidableEq public import Init.Data.UInt.Basic public import Init.Data.UInt.BasicAux import all Init.Data.UInt.BasicAux public import Init.Data.Option.Basic public import Init.Data.Array.Extract
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

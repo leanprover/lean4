@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.KExprMap
-// Imports: Lean.Data.AssocList Lean.HeadIndex Lean.Meta.Basic
+// Imports: public import Lean.Data.AssocList public import Lean.HeadIndex public import Lean.Meta.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

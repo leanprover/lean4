@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.BinderNameHint
-// Imports: Init.Prelude Init.Tactics
+// Imports: public import Init.Prelude public import Init.Tactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

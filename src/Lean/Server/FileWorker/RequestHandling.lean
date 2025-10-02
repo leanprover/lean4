@@ -29,7 +29,7 @@ open Lean.Parser.Tactic.Doc (alternativeOfTactic getTacticExtensionString)
 
 def findCompletionCmdDataAtPos
     (doc : EditableDocument)
-    (pos : String.Pos)
+    (pos : String.Pos.Raw)
     : ServerTask (Option (Syntax × Elab.InfoTree)) :=
   -- `findCmdDataAtPos` may produce an incorrect snapshot when `pos` is in whitespace.
   -- However, most completions don't need trailing whitespace at the term level;
@@ -142,7 +142,7 @@ def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
       locationLinksOfInfo doc.meta kind info snap.infoTree
 
 open Language in
-def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : ServerTask (Option (List Elab.GoalsAtResult)) :=
+def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos.Raw) : ServerTask (Option (List Elab.GoalsAtResult)) :=
   let text := doc.meta.text
   findCmdParsedSnap doc hoverPos |>.bindCostly fun
     | some cmdParsed =>
@@ -178,7 +178,7 @@ def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : ServerTask (
     | none =>
       .pure none
 where
-  getPositions (stx : Syntax) : Option (String.Pos × String.Pos × String.Pos) := do
+  getPositions (stx : Syntax) : Option (String.Pos.Raw × String.Pos.Raw × String.Pos.Raw) := do
     let pos ← stx.getPos? (canonicalOnly := true)
     let tailPos ← stx.getTailPos? (canonicalOnly := true)
     let trailingPos? ← stx.getTrailingTailPos? (canonicalOnly := true)

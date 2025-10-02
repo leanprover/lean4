@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Eval
-// Imports: Lean.Meta.Eval Lean.Elab.SyntheticMVars
+// Imports: public import Lean.Meta.Eval public import Lean.Elab.SyntheticMVars
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Polymorphic.UpwardEnumerable
-// Imports: Init.Classical Init.Core Init.Data.Nat.Basic Init.Data.Option.Lemmas
+// Imports: public import Init.Classical public import Init.Core public import Init.Data.Nat.Basic public import Init.Data.Option.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

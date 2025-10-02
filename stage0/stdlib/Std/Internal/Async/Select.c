@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Async.Select
-// Imports: Init.Data.Array.Basic Init.Data.Random Std.Internal.Async.Basic Init.Data.ByteArray.Extra
+// Imports: public import Init.Data.Array.Basic public import Init.Data.Random public import Std.Internal.Async.Basic import Init.Data.ByteArray.Extra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

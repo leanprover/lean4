@@ -172,9 +172,9 @@ def mkAuxFunction (ctx : Deriving.Context) (i : Nat) : TermElabM Command := do
     | _ => throwError "(internal error) expecting inst binder"
   let binders := header.binders.pop ++ levelBinders ++ #[← addLevels header.binders.back!]
   if ctx.usePartial then
-    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Expr := $body:term)
+    `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Expr := $body:term)
   else
-    `(private         def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Expr := $body:term)
+    `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Expr := $body:term)
 
 /--
 Creates all the auxiliary functions (using `mkAuxFunction`) for the (mutual) inductive type(s).

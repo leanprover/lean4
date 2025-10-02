@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.Internal.LawfulMonadLiftFunction
-// Imports: Init.Control.Basic Init.Control.Lawful.Basic Init.NotationExtra Init.Control.Lawful.MonadLift
+// Imports: public import Init.Control.Basic public import Init.Control.Lawful.Basic public import Init.NotationExtra public import Init.Control.Lawful.MonadLift
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

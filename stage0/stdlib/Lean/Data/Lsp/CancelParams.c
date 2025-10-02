@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Lsp.CancelParams
-// Imports: Lean.Data.JsonRpc
+// Imports: public import Lean.Data.JsonRpc
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Do
-// Imports: Std.Do.SPred Std.Do.WP Std.Do.Triple Std.Do.PredTrans Std.Do.PostCond
+// Imports: public import Std.Do.SPred public import Std.Do.WP public import Std.Do.Triple public import Std.Do.PredTrans public import Std.Do.PostCond
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

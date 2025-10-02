@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.InfoTree.Main
-// Imports: Init.Task Lean.Meta.PPGoal Lean.ReservedNameAction
+// Imports: public import Init.Task public import Lean.Meta.PPGoal public import Lean.ReservedNameAction
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5232,7 +5232,7 @@ lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean
 x_14 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_14, 0, x_13);
 x_15 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_15, 0, x_10);
+lean_ctor_set(x_15, 0, x_11);
 lean_ctor_set(x_15, 1, x_14);
 x_16 = l_Lean_Elab_TermInfo_format___lam__0___closed__1;
 x_17 = lean_alloc_ctor(5, 2, 0);
@@ -5240,7 +5240,7 @@ lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
 x_18 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_18, 0, x_17);
-lean_ctor_set(x_18, 1, x_11);
+lean_ctor_set(x_18, 1, x_10);
 x_19 = l___private_Lean_Elab_InfoTree_Main_0__Lean_Elab_formatElabInfo___closed__1;
 x_20 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
@@ -5283,8 +5283,8 @@ if (x_4 == 0)
 {
 lean_object* x_34; 
 x_34 = l_Lean_Elab_TermInfo_format___lam__0___closed__6;
-x_10 = x_33;
-x_11 = x_25;
+x_10 = x_25;
+x_11 = x_33;
 x_12 = x_30;
 x_13 = x_34;
 goto block_24;
@@ -5293,8 +5293,8 @@ else
 {
 lean_object* x_35; 
 x_35 = l_Lean_Elab_TermInfo_format___lam__0___closed__7;
-x_10 = x_33;
-x_11 = x_25;
+x_10 = x_25;
+x_11 = x_33;
 x_12 = x_30;
 x_13 = x_35;
 goto block_24;
@@ -5320,8 +5320,8 @@ if (x_4 == 0)
 {
 lean_object* x_42; 
 x_42 = l_Lean_Elab_TermInfo_format___lam__0___closed__6;
-x_10 = x_41;
-x_11 = x_25;
+x_10 = x_25;
+x_11 = x_41;
 x_12 = x_37;
 x_13 = x_42;
 goto block_24;
@@ -5330,8 +5330,8 @@ else
 {
 lean_object* x_43; 
 x_43 = l_Lean_Elab_TermInfo_format___lam__0___closed__7;
-x_10 = x_41;
-x_11 = x_25;
+x_10 = x_25;
+x_11 = x_41;
 x_12 = x_37;
 x_13 = x_43;
 goto block_24;

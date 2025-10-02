@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.LeanExeConfig
-// Imports: Lake.Build.Facets Lake.Config.LeanConfig Lake.Config.Meta
+// Imports: public import Lake.Build.Facets public import Lake.Config.LeanConfig meta import all Lake.Config.Meta
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

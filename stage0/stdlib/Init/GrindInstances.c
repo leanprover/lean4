@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.GrindInstances
-// Imports: Init.GrindInstances.ToInt Init.GrindInstances.Ring Init.GrindInstances.Nat
+// Imports: public import Init.GrindInstances.ToInt public import Init.GrindInstances.Ring public import Init.GrindInstances.Nat
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -9,7 +9,13 @@ prelude
 public import Init.Data.ByteArray.Basic
 import Init.Data.String.Basic
 
-/-- Interpret a `ByteArray` of size 8 as a little-endian `UInt64`. -/
+set_option doc.verso true
+
+/--
+Interprets a {name}`ByteArray` of size 8 as a little-endian {name}`UInt64`.
+
+Panics if the array's size is not 8.
+-/
 public def ByteArray.toUInt64LE! (bs : ByteArray) : UInt64 :=
   assert! bs.size == 8
   (bs.get! 7).toUInt64 <<< 0x38 |||
@@ -21,7 +27,11 @@ public def ByteArray.toUInt64LE! (bs : ByteArray) : UInt64 :=
   (bs.get! 1).toUInt64 <<< 0x8  |||
   (bs.get! 0).toUInt64
 
-/-- Interpret a `ByteArray` of size 8 as a big-endian `UInt64`. -/
+/--
+Interprets a {name}`ByteArray` of size 8 as a big-endian {name}`UInt64`.
+
+Panics if the array's size is not 8.
+-/
 public def ByteArray.toUInt64BE! (bs : ByteArray) : UInt64 :=
   assert! bs.size == 8
   (bs.get! 0).toUInt64 <<< 0x38 |||

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.SCC
-// Imports: Std.Data.HashMap.Basic Init.Data.Option.Coe
+// Imports: public import Std.Data.HashMap.Basic public import Init.Data.Option.Coe
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

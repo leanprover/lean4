@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.CongrTheorems
-// Imports: Lean.AddDecl Lean.Class Lean.ReservedNameAction Lean.ResolveName Lean.Meta.Basic Lean.Meta.AppBuilder Lean.Meta.Tactic.Subst Lean.Meta.Tactic.Intro Lean.Meta.Tactic.Assert
+// Imports: public import Lean.AddDecl public import Lean.Class public import Lean.ReservedNameAction public import Lean.ResolveName public import Lean.Meta.Basic import Lean.Meta.AppBuilder import Lean.Meta.Tactic.Subst import Lean.Meta.Tactic.Intro import Lean.Meta.Tactic.Assert
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -950,9 +950,14 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Meta_CongrArgKind_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_Meta_CongrArgKind_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Lean_Meta_CongrArgKind_ctorIdx(x_1);
+x_4 = l_Lean_Meta_CongrArgKind_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = lean_alloc_closure((void*)(l_Lean_Meta_CongrArgKind_noConfusion___redArg___lam__0___boxed), 1, 0);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_CongrArgKind_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {

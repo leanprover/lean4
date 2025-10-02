@@ -3290,10 +3290,22 @@ def Array.extract (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : A
   let sz' := Nat.sub (min stop as.size) start
   loop sz' start (emptyWithCapacity sz')
 
-/-- `ByteArray` is like `Array UInt8`, but with an efficient run-time representation as a packed
-byte buffer. -/
+/--
+`ByteArray` is like `Array UInt8`, but with an efficient run-time representation as a packed
+byte buffer.
+-/
 structure ByteArray where
-  /-- The data contained in the byte array. -/
+  /--
+  Packs an array of bytes into a `ByteArray`.
+
+  Converting between `Array` and `ByteArray` takes linear time.
+  -/
+  mk ::
+  /--
+  The data contained in the byte array.
+
+  Converting between `Array` and `ByteArray` takes linear time.
+  -/
   data : Array UInt8
 
 attribute [extern "lean_byte_array_mk"] ByteArray.mk
@@ -3317,7 +3329,7 @@ def ByteArray.empty : ByteArray := emptyWithCapacity 0
 Adds an element to the end of an array. The resulting array's size is one greater than the input
 array. If there are no other references to the array, then it is modified in-place.
 
-This takes amortized `O(1)` time because `Array α` is represented by a dynamic array.
+This takes amortized `O(1)` time because `ByteArray` is represented by a dynamic array.
 -/
 @[extern "lean_byte_array_push"]
 def ByteArray.push : ByteArray → UInt8 → ByteArray
@@ -3332,7 +3344,12 @@ def List.toByteArray (bs : List UInt8) : ByteArray :=
     | cons b bs,  r => loop bs (r.push b)
   loop bs ByteArray.empty
 
-/-- Returns the size of the byte array. -/
+/--
+Returns the number of bytes in the byte array.
+
+This is the number of bytes actually in the array, as distinct from its capacity, which is the
+amount of memory presently allocated for the array.
+-/
 @[extern "lean_byte_array_size"]
 def ByteArray.size : (@& ByteArray) → Nat
   | ⟨bs⟩ => bs.size
@@ -3378,7 +3395,7 @@ def List.utf8Encode (l : List Char) : ByteArray :=
 Note that in order for this definition to be well-behaved it is necessary to know that this `m`
 is unique. To show this, one defines UTF-8 decoding and shows that encoding and decoding are
 mutually inverse. -/
-inductive ByteArray.IsValidUtf8 (b : ByteArray) : Prop
+inductive ByteArray.IsValidUTF8 (b : ByteArray) : Prop
   /-- Show that a byte -/
   | intro (m : List Char) (hm : Eq b (List.utf8Encode m))
 
@@ -3393,10 +3410,10 @@ modifications when the reference to the string is unique.
 structure String where ofByteArray ::
   /-- The bytes of the UTF-8 encoding of the string. Since strings have a special representation in
   the runtime, this function actually takes linear time and space at runtime. For efficient access
-  to the string's bytes, use `String.utf8ByteSize` and `String.getUtf8Byte`. -/
+  to the string's bytes, use `String.utf8ByteSize` and `String.getUTF8Byte`. -/
   bytes : ByteArray
   /-- The bytes of the string form valid UTF-8. -/
-  isValidUtf8 : ByteArray.IsValidUtf8 bytes
+  isValidUTF8 : ByteArray.IsValidUTF8 bytes
 
 attribute [extern "lean_string_to_utf8"] String.bytes
 attribute [extern "lean_string_from_utf8_unchecked"] String.ofByteArray
@@ -3421,23 +3438,26 @@ instance : DecidableEq String := String.decEq
 A byte position in a `String`, according to its UTF-8 encoding.
 
 Character positions (counting the Unicode code points rather than bytes) are represented by plain
-`Nat`s. Indexing a `String` by a `String.Pos` takes constant time, while character positions need to
+`Nat`s. Indexing a `String` by a `String.Pos.Raw` takes constant time, while character positions need to
 be translated internally to byte positions, which takes linear time.
 
 A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.endPos` and `p` lies on a UTF-8
-character boundary.
+character boundary, see `String.Pos.IsValid`.
+
+There is another type, `String.ValidPos`, which bundles the validity predicate. Using `String.ValidPos`
+instead of `String.Pos.Raw` is recommended because it will lead to less error handling and fewer edge cases.
 -/
-structure String.Pos where
-  /-- Get the underlying byte index of a `String.Pos` -/
+structure String.Pos.Raw where
+  /-- Get the underlying byte index of a `String.Pos.Raw` -/
   byteIdx : Nat := 0
 
-instance : Inhabited String.Pos where
+instance : Inhabited String.Pos.Raw where
   default := {}
 
-instance : DecidableEq String.Pos :=
+instance : DecidableEq String.Pos.Raw :=
   fun ⟨a⟩ ⟨b⟩ => match decEq a b with
     | isTrue h => isTrue (h ▸ rfl)
-    | isFalse h => isFalse (fun he => String.Pos.noConfusion he fun he => absurd he h)
+    | isFalse h => isFalse (fun he => String.Pos.Raw.noConfusion he fun he => absurd he h)
 
 /--
 A region or slice of some underlying string.
@@ -3456,9 +3476,9 @@ structure Substring where
   /-- The underlying string. -/
   str      : String
   /-- The byte position of the start of the string slice. -/
-  startPos : String.Pos
+  startPos : String.Pos.Raw
   /-- The byte position of the end of the string slice. -/
-  stopPos  : String.Pos
+  stopPos  : String.Pos.Raw
 
 instance : Inhabited Substring where
   default := ⟨"", {}, {}⟩
@@ -3484,7 +3504,7 @@ A UTF-8 byte position that points at the end of a string, just after the last ch
 * `"abc".endPos = ⟨3⟩`
 * `"L∃∀N".endPos = ⟨8⟩`
 -/
-@[inline] def String.endPos (s : String) : String.Pos where
+@[inline] def String.endPos (s : String) : String.Pos.Raw where
   byteIdx := utf8ByteSize s
 
 /--
@@ -4698,7 +4718,7 @@ inductive SourceInfo where
   The `leading` whitespace is inferred after parsing by `Syntax.updateLeading`. This is because the
   “preceding token” is not well-defined during parsing, especially in the presence of backtracking.
   -/
-  | original (leading : Substring) (pos : String.Pos) (trailing : Substring) (endPos : String.Pos)
+  | original (leading : Substring) (pos : String.Pos.Raw) (trailing : Substring) (endPos : String.Pos.Raw)
   /--
   Synthetic syntax is syntax that was produced by a metaprogram or by Lean itself (e.g. by a
   quotation). Synthetic syntax is annotated with a source span from the original syntax, which
@@ -4722,7 +4742,7 @@ inductive SourceInfo where
   ```
   In these cases, if the user hovers over `h` they will see information about both binding sites.
   -/
-  | synthetic (pos : String.Pos) (endPos : String.Pos) (canonical := false)
+  | synthetic (pos : String.Pos.Raw) (endPos : String.Pos.Raw) (canonical := false)
   /-- A synthesized token without position information. -/
   | protected none
 
@@ -4735,7 +4755,7 @@ Gets the position information from a `SourceInfo`, if available.
 If `canonicalOnly` is true, then `.synthetic` syntax with `canonical := false`
 will also return `none`.
 -/
-def getPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos :=
+def getPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos.Raw :=
   match info, canonicalOnly with
   | original (pos := pos) ..,  _
   | synthetic (pos := pos) (canonical := true) .., _
@@ -4747,7 +4767,7 @@ Gets the end position information from a `SourceInfo`, if available.
 If `canonicalOnly` is true, then `.synthetic` syntax with `canonical := false`
 will also return `none`.
 -/
-def getTailPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos :=
+def getTailPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos.Raw :=
   match info, canonicalOnly with
   | original (endPos := endPos) ..,  _
   | synthetic (endPos := endPos) (canonical := true) .., _
@@ -4767,7 +4787,7 @@ Gets the end position information of the trailing whitespace of a `SourceInfo`, 
 If `canonicalOnly` is true, then `.synthetic` syntax with `canonical := false`
 will also return `none`.
 -/
-def getTrailingTailPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos :=
+def getTrailingTailPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos.Raw :=
   match info.getTrailing? with
   | some trailing => some trailing.stopPos
   | none          => info.getTailPos? canonicalOnly
@@ -5114,7 +5134,7 @@ Get the starting position of the syntax, if possible.
 If `canonicalOnly` is true, non-canonical `synthetic` nodes are treated as not carrying
 position information.
 -/
-def getPos? (stx : Syntax) (canonicalOnly := false) : Option String.Pos :=
+def getPos? (stx : Syntax) (canonicalOnly := false) : Option String.Pos.Raw :=
   stx.getHeadInfo.getPos? canonicalOnly
 
 /--
@@ -5122,7 +5142,7 @@ Get the ending position of the syntax, if possible.
 If `canonicalOnly` is true, non-canonical `synthetic` nodes are treated as not carrying
 position information.
 -/
-partial def getTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.Pos :=
+partial def getTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.Pos.Raw :=
   match stx, canonicalOnly with
   | atom (SourceInfo.original (endPos := pos) ..) .., _
   | atom (SourceInfo.synthetic (endPos := pos) (canonical := true) ..) _, _
@@ -5134,7 +5154,7 @@ partial def getTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.
   | node (SourceInfo.synthetic (endPos := pos) (canonical := true) ..) .., _
   | node (SourceInfo.synthetic (endPos := pos) ..) .., false => some pos
   | node _ _ args, _ =>
-    let rec loop (i : Nat) : Option String.Pos :=
+    let rec loop (i : Nat) : Option String.Pos.Raw :=
       match decide (LT.lt i args.size) with
       | true => match getTailPos? (args.get!Internal ((args.size.sub i).sub 1)) canonicalOnly with
          | some info => some info

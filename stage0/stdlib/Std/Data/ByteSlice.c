@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.ByteSlice
-// Imports: Init.Core Init.GetElem Init.Data.ByteArray Init.Data.Slice.Basic Init.Data.Slice.Notation Init.Data.Range.Polymorphic.Nat
+// Imports: public import Init.Core public import Init.GetElem public import Init.Data.ByteArray public import Init.Data.Slice.Basic public import Init.Data.Slice.Notation public import Init.Data.Range.Polymorphic.Nat
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

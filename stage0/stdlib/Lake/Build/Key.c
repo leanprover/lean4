@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Key
-// Imports: Init.Data.Order Init.Data.ToString.Basic Lake.Util.Name Lake.Config.Kinds
+// Imports: public import Init.Data.Order public import Init.Data.ToString.Basic import Lake.Util.Name import Lake.Config.Kinds
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.SubExpr
-// Imports: Lean.Meta.Basic Lean.Data.Json.Basic Init.Control.Option
+// Imports: public import Lean.Meta.Basic public import Lean.Data.Json.Basic public import Init.Control.Option
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

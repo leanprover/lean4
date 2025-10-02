@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Lawful.Basic
-// Imports: Init.Ext Init.SimpLemmas Init.Meta
+// Imports: public import Init.Ext public import Init.SimpLemmas public import Init.Meta
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

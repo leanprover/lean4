@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.WF
-// Imports: Init.SizeOf Init.BinderNameHint Init.Data.Nat.Basic
+// Imports: public import Init.SizeOf public import Init.BinderNameHint public import Init.Data.Nat.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

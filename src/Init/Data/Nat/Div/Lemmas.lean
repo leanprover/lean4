@@ -9,6 +9,7 @@ prelude
 public import Init.Omega
 public import Init.Data.Nat.Lemmas
 public import Init.Data.Nat.Simproc
+import Init.TacticsExtra
 
 public section
 

@@ -74,23 +74,23 @@ def parseQuotedStrLit (p : ParserFn) (strLit : StrLit) : m Syntax := do
   else
     throwError ((s.mkError "end of input").toErrorMsg ictx)
 where
-  reposition (text : FileMap) (posOfStr : String.Pos) (str : String) (posInStr : String.Pos) : String.Pos :=
+  reposition (text : FileMap) (posOfStr : String.Pos.Raw) (str : String) (posInStr : String.Pos.Raw) : String.Pos.Raw :=
     nextn text.source (posIndex str posInStr) posOfStr
-  repositionSyntax (text : FileMap) (posOfStr : String.Pos) (str : String) : Syntax → Syntax
+  repositionSyntax (text : FileMap) (posOfStr : String.Pos.Raw) (str : String) : Syntax → Syntax
     | .node info k args => .node (repositionInfo text posOfStr str info) k (args.map (repositionSyntax text posOfStr str))
     | .ident info sub x pre => .ident (repositionInfo text posOfStr str info) sub x pre
     | .atom info s => .atom (repositionInfo text posOfStr str info) s
     | .missing => .missing
-  repositionInfo (text : FileMap) (posOfStr : String.Pos) (str : String) : SourceInfo → SourceInfo
+  repositionInfo (text : FileMap) (posOfStr : String.Pos.Raw) (str : String) : SourceInfo → SourceInfo
     | .original _ pos _ endPos =>
       .synthetic (reposition text posOfStr str pos) (reposition text posOfStr str endPos) true
     | .synthetic pos endPos c =>
       .synthetic (reposition text posOfStr str pos) (reposition text posOfStr str endPos) c
     | .none => .none
 
-  nextn (str : String) (n : Nat) (p : String.Pos) : String.Pos :=
+  nextn (str : String) (n : Nat) (p : String.Pos.Raw) : String.Pos.Raw :=
     n.fold (init := p) fun _ _ _ => str.next p
-  posIndex (str : String) (p : String.Pos) : Nat := Id.run do
+  posIndex (str : String) (p : String.Pos.Raw) : Nat := Id.run do
     let mut p := p
     let mut n := 0
     while p > 0 do

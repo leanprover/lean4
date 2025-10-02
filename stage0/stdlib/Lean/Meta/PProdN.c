@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.PProdN
-// Imports: Lean.Meta.InferType Lean.Meta.Transform
+// Imports: public import Lean.Meta.InferType public import Lean.Meta.Transform
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

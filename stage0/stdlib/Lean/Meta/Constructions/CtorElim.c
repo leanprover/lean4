@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Constructions.CtorElim
-// Imports: Lean.Meta.Basic Lean.AddDecl Lean.Meta.AppBuilder Lean.Meta.CompletionName Lean.Meta.Constructions.CtorIdx Lean.Meta.NatTable Lean.Elab.App Lean.Meta.Tactic.Simp.SimpTheorems Lean.Meta.Tactic.Simp.Attr
+// Imports: public import Lean.Meta.Basic import Lean.AddDecl import Lean.Meta.AppBuilder import Lean.Meta.CompletionName import Lean.Meta.Constructions.CtorIdx import Lean.Meta.NatTable import Lean.Elab.App import Lean.Meta.Tactic.Simp.SimpTheorems import Lean.Meta.Tactic.Simp.Attr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Ring.Field
-// Imports: Init.Grind.Ring.Basic
+// Imports: public import Init.Grind.Ring.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

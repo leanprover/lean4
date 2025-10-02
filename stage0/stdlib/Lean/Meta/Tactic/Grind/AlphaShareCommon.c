@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.AlphaShareCommon
-// Imports: Lean.Meta.Tactic.Grind.ExprPtr
+// Imports: public import Lean.Meta.Tactic.Grind.ExprPtr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

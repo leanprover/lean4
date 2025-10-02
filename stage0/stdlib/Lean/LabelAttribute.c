@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.LabelAttribute
-// Imports: Lean.ScopedEnvExtension Lean.DocString Init.Data.String.Extra Init.Data.ToString.Name
+// Imports: public import Lean.ScopedEnvExtension public import Lean.DocString public meta import Init.Data.String.Extra meta import Init.Data.ToString.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2654,9 +2654,9 @@ lean_inc(x_8);
 x_24 = l_Lean_Syntax_node1(x_8, x_22, x_23);
 x_25 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__3;
 x_26 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__4;
-lean_inc(x_7);
+lean_inc(x_4);
 lean_inc(x_11);
-x_27 = l_Lean_addMacroScope(x_11, x_26, x_7);
+x_27 = l_Lean_addMacroScope(x_11, x_26, x_4);
 x_28 = lean_box(0);
 lean_inc(x_8);
 x_29 = lean_alloc_ctor(3, 4, 0);
@@ -2672,9 +2672,9 @@ lean_ctor_set(x_32, 0, x_8);
 lean_ctor_set(x_32, 1, x_31);
 x_33 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__9;
 x_34 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__11;
-lean_inc(x_7);
+lean_inc(x_4);
 lean_inc(x_11);
-x_35 = l_Lean_addMacroScope(x_11, x_34, x_7);
+x_35 = l_Lean_addMacroScope(x_11, x_34, x_4);
 x_36 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__13;
 lean_inc(x_8);
 x_37 = lean_alloc_ctor(3, 4, 0);
@@ -2699,9 +2699,9 @@ x_44 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean_
 x_45 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__22;
 x_46 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__23;
 x_47 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__24;
-lean_inc(x_7);
+lean_inc(x_4);
 lean_inc(x_11);
-x_48 = l_Lean_addMacroScope(x_11, x_47, x_7);
+x_48 = l_Lean_addMacroScope(x_11, x_47, x_4);
 x_49 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__27;
 lean_inc(x_8);
 x_50 = lean_alloc_ctor(3, 4, 0);
@@ -2709,7 +2709,7 @@ lean_ctor_set(x_50, 0, x_8);
 lean_ctor_set(x_50, 1, x_46);
 lean_ctor_set(x_50, 2, x_48);
 lean_ctor_set(x_50, 3, x_49);
-x_51 = l_Lean_instQuoteNameMkStr1___private__1(x_6);
+x_51 = l_Lean_instQuoteNameMkStr1___private__1(x_7);
 lean_inc(x_51);
 lean_inc(x_15);
 lean_inc(x_8);
@@ -2727,7 +2727,7 @@ x_56 = l_Lean_Syntax_node1(x_8, x_15, x_55);
 lean_inc(x_8);
 x_57 = l_Lean_Syntax_node1(x_8, x_42, x_56);
 lean_inc(x_8);
-x_58 = l_Lean_Syntax_node4(x_8, x_5, x_21, x_24, x_41, x_57);
+x_58 = l_Lean_Syntax_node4(x_8, x_6, x_21, x_24, x_41, x_57);
 x_59 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__28;
 x_60 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__29;
 x_61 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__31;
@@ -2765,7 +2765,7 @@ lean_inc(x_15);
 lean_inc(x_8);
 x_74 = l_Lean_Syntax_node1(x_8, x_15, x_73);
 x_75 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__40;
-x_76 = l_Lean_Syntax_mkStrLit(x_16, x_4);
+x_76 = l_Lean_Syntax_mkStrLit(x_16, x_5);
 lean_inc(x_8);
 x_77 = l_Lean_Syntax_node1(x_8, x_75, x_76);
 lean_inc(x_15);
@@ -2773,7 +2773,7 @@ lean_inc(x_8);
 x_78 = l_Lean_Syntax_node1(x_8, x_15, x_77);
 x_79 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__42;
 x_80 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__43;
-x_81 = l_Lean_addMacroScope(x_11, x_80, x_7);
+x_81 = l_Lean_addMacroScope(x_11, x_80, x_4);
 lean_inc(x_8);
 x_82 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_82, 0, x_8);
@@ -2828,10 +2828,10 @@ if (lean_obj_tag(x_98) == 0)
 {
 lean_object* x_116; 
 x_116 = l___auto___closed__5____x40_Lean_LabelAttribute_104523388____hygCtx___hyg_2_;
-x_4 = x_108;
-x_5 = x_113;
-x_6 = x_100;
-x_7 = x_105;
+x_4 = x_105;
+x_5 = x_108;
+x_6 = x_113;
+x_7 = x_100;
 x_8 = x_110;
 x_9 = x_102;
 x_10 = x_114;
@@ -2851,10 +2851,10 @@ x_117 = lean_ctor_get(x_98, 0);
 lean_inc(x_117);
 lean_dec_ref(x_98);
 x_118 = l_Array_mkArray1___redArg(x_117);
-x_4 = x_108;
-x_5 = x_113;
-x_6 = x_100;
-x_7 = x_105;
+x_4 = x_105;
+x_5 = x_108;
+x_6 = x_113;
+x_7 = x_100;
 x_8 = x_110;
 x_9 = x_102;
 x_10 = x_114;

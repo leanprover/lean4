@@ -37,7 +37,7 @@ structure InlayHintTextEdit where
   deriving BEq
 
 structure InlayHintInfo where
-  position     : String.Pos
+  position     : String.Pos.Raw
   label        : InlayHintLabel
   kind?        : Option InlayHintKind := none
   textEdits    : Array InlayHintTextEdit := #[]

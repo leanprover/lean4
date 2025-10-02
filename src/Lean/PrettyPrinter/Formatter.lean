@@ -199,7 +199,7 @@ def group (x : Formatter) : Formatter := do
 
 /-- If `pos?` has a position, run `x` and tag its results with that position,
 if they are not already tagged. Otherwise just run `x`. -/
-def withMaybeTag (pos? : Option String.Pos) (x : FormatterM Unit) : Formatter := do
+def withMaybeTag (pos? : Option String.Pos.Raw) (x : FormatterM Unit) : Formatter := do
   if let some p := pos? then
     concat x
     modify fun st => {
@@ -240,11 +240,11 @@ opaque mkAntiquot.formatter' (name : String) (kind : SyntaxNodeKind) (anonymous 
 @[extern "lean_pretty_printer_formatter_interpret_parser_descr"]
 opaque interpretParserDescr' : ParserDescr → CoreM Formatter
 
-private def SourceInfo.getExprPos? : SourceInfo → Option String.Pos
+private def SourceInfo.getExprPos? : SourceInfo → Option String.Pos.Raw
   | SourceInfo.synthetic (pos := pos) .. => pos
   | _ => none
 
-def getExprPos? : Syntax → Option String.Pos
+def getExprPos? : Syntax → Option String.Pos.Raw
   | Syntax.node info _ _ => SourceInfo.getExprPos? info
   | Syntax.atom info _ => SourceInfo.getExprPos? info
   | Syntax.ident info _ _ _ => SourceInfo.getExprPos? info

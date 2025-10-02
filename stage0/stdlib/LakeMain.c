@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: LakeMain
-// Imports: Init.System.IO Lake.DSL Lake.CLI.Main
+// Imports: public import Init.System.IO import Lake.DSL import Lake.CLI.Main
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

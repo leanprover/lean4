@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Impl
-// Imports: Init.Data.Array.Bootstrap
+// Imports: public import Init.Data.Array.Bootstrap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

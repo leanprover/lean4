@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.LRAT.Internal.Clause
-// Imports: Init.Data.List.Erase Init.Data.Array.Lemmas Std.Data.HashMap Std.Sat.CNF.Basic Std.Tactic.BVDecide.LRAT.Internal.PosFin Std.Tactic.BVDecide.LRAT.Internal.Assignment Init.Grind
+// Imports: public import Init.Data.List.Erase public import Init.Data.Array.Lemmas public import Std.Data.HashMap public import Std.Sat.CNF.Basic public import Std.Tactic.BVDecide.LRAT.Internal.PosFin public import Std.Tactic.BVDecide.LRAT.Internal.Assignment public import Init.Grind
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

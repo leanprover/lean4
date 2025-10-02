@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.Profile
-// Imports: Init.Data.OfScientific Lean.Data.Options
+// Imports: public import Init.Data.OfScientific public import Lean.Data.Options
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

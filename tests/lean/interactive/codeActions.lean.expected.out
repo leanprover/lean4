@@ -1,0 +1,62 @@
+{"textDocument": {"uri": "file:///codeActions.lean"},
+ "range":
+ {"start": {"line": 56, "character": 4}, "end": {"line": 56, "character": 4}},
+ "context": {"diagnostics": []}}
+[{"title": "foo",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///codeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 56, "character": 0},
+        "end": {"line": 56, "character": 16}},
+       "newText": "foo"}]}]}}]
+{"textDocument": {"uri": "file:///codeActions.lean"},
+ "range":
+ {"start": {"line": 59, "character": 2}, "end": {"line": 59, "character": 2}},
+ "context": {"diagnostics": []}}
+[{"title": "bar",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///codeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 59, "character": 0},
+        "end": {"line": 59, "character": 4}},
+       "newText": "#eval 0"}]}]}},
+ {"title": "foo",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///codeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 59, "character": 0},
+        "end": {"line": 59, "character": 4}},
+       "newText": "foo"}]}]}}]
+{"textDocument": {"uri": "file:///codeActions.lean"},
+ "range":
+ {"start": {"line": 62, "character": 18}, "end": {"line": 62, "character": 18}},
+ "context": {"diagnostics": []}}
+[{"title": "foobar",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///codeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 62, "character": 17},
+        "end": {"line": 62, "character": 18}},
+       "newText": "\"foobar\""}]}]}},
+ {"title": "foo",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///codeActions.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 62, "character": 0},
+        "end": {"line": 62, "character": 18}},
+       "newText": "foo"}]}]}}]

@@ -11,6 +11,7 @@ public import Lean.Parser.StrInterpolation
 public import Lean.ParserCompiler.Attribute
 public import Lean.PrettyPrinter.Basic
 public import Lean.PrettyPrinter.Delaborator.Options
+import Lean.ExtraModUses
 
 public section
 

@@ -13,6 +13,7 @@ public import Init.Data.Iterators.Lemmas.Monadic.Basic
 public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 public import Std.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 public import Std.Data.Iterators.Lemmas.Equivalence.StepCongr
+import Init.Control.Lawful.MonadLift.Instances
 
 @[expose] public section
 

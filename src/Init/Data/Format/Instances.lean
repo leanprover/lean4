@@ -6,10 +6,9 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Format.Basic
-public import Init.Data.Array.Basic
 public import Init.Data.ToString.Basic
 import Init.Data.String.Basic
+import Init.Data.Array.Lemmas
 
 public section
 

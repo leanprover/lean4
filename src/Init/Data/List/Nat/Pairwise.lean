@@ -6,7 +6,6 @@ Authors: Mario Carneiro, James Gallicchio
 module
 
 prelude
-public import Init.Data.Fin.Lemmas
 public import Init.Data.List.Nat.TakeDrop
 public import Init.Data.List.Pairwise
 

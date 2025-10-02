@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Int.Basic
+import Init.Data.Nat.Div.Basic
 
 public section
 

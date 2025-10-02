@@ -6,8 +6,8 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Init.Data.Nat.Bitwise
 public import Init.Data.Fin.Basic
+import Init.Data.Nat.Bitwise.Lemmas
 
 public section
 

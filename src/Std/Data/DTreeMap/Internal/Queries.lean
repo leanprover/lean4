@@ -11,6 +11,9 @@ public import Std.Data.DTreeMap.Internal.Def
 public import Std.Data.DTreeMap.Internal.Balanced
 public import Std.Data.DTreeMap.Internal.Ordered
 import Init.BinderPredicates
+public import Init.Data.Option.BasicAux
+import Init.Grind.Tactics
+import Init.Data.Nat.Linear
 
 @[expose] public section
 

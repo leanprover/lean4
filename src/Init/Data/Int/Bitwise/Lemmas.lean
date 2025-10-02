@@ -10,6 +10,7 @@ public import Init.Data.Nat.Bitwise.Lemmas
 public import Init.Data.Int.Bitwise.Basic
 import all Init.Data.Int.Bitwise.Basic
 public import Init.Data.Int.DivMod.Lemmas
+import Init.Grind.Tactics
 
 public section
 

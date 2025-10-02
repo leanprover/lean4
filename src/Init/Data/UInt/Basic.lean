@@ -6,10 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.UInt.BasicAux
 public import Init.Data.BitVec.Basic
-public import Init.Data.Order.Classes
-import Init.Data.Order.Factories
 
 @[expose] public section
 

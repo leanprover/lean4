@@ -10,6 +10,8 @@ public import Lean.Data.LBool
 public import Lean.Meta.Basic
 import Lean.Meta.NatInstTesters
 import Lean.Util.SafeExponentiation
+public import Lean.Meta.NatInstTesters
+public import Lean.Util.SafeExponentiation
 public section
 namespace Lean.Meta
 

@@ -9,6 +9,7 @@ prelude
 public import Init.Data.BitVec.Bitblast
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
+import Init.Data.Iterators.Combinators.Monadic.Attach
 
 @[expose] public section
 

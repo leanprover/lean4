@@ -6,10 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Control.Basic
 public import Init.Control.Lawful.Basic
-public import Init.NotationExtra
-public import Init.Control.Lawful.MonadLift
+public import Init.Control.Lawful.MonadLift.Basic
+import Init.Control.Lawful.MonadLift.Lemmas
 
 public section
 

@@ -6,7 +6,6 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Int.Order
 public import Init.Data.Order.Lemmas
 
 public section

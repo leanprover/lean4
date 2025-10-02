@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.IntInstTesters
 import Lean.Meta.NatInstTesters
+public import Lean.Meta.IntInstTesters
 public section
 
 namespace Lean.Meta.Grind.Arith

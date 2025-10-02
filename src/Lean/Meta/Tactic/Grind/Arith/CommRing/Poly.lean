@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Grind.Ring.CommSolver
+import Init.Data.Nat.Linear
 public section
 namespace Lean.Grind.CommRing
 

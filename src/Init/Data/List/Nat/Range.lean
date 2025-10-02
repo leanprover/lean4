@@ -7,10 +7,8 @@ module
 
 prelude
 public import Init.Data.List.Nat.TakeDrop
-public import Init.Data.List.Range
-public import Init.Data.List.Pairwise
-public import Init.Data.List.Find
 public import Init.Data.List.Erase
+import Init.TacticsExtra
 
 public section
 

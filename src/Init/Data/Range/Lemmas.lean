@@ -11,6 +11,7 @@ import all Init.Data.Range.Basic
 public import Init.Data.List.Range
 public import Init.Data.List.Monadic
 public import Init.Data.Nat.Div.Lemmas
+import Init.TacticsExtra
 
 public section
 

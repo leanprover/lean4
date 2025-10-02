@@ -8,10 +8,9 @@ module
 prelude
 public import Init.Data.Char.Basic
 import all Init.Data.Char.Basic
-public import Init.Meta
-public import Init.SizeOf
 import all Init.SizeOf
 public import Init.Data.Nat.Linear
+import Init.Grind.Tactics
 
 public section
 

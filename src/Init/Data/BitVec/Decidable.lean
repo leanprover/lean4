@@ -9,6 +9,8 @@ module
 prelude
 public import Init.Data.BitVec.Bootstrap
 import Init.Ext
+import Init.Classical
+import Init.Grind.Tactics
 
 public section
 

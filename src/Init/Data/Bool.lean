@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.NotationExtra
+public import Init.Data.Int.Basic
+import Init.Grind.Attr
 
 public section
 

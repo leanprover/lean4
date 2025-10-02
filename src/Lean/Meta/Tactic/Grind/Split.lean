@@ -12,6 +12,7 @@ import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Internalize
+import Init.Grind.Util
 public section
 namespace Lean.Meta.Grind
 

@@ -8,6 +8,8 @@ module
 
 prelude
 public meta import Lean.Widget.UserWidget
+public import Init.Notation
+import Lean.Attributes
 
 public section
 

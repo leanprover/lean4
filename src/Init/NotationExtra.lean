@@ -8,11 +8,8 @@ Extra notation that depends on Init/Meta
 module
 
 prelude
-public import Init.Data.ToString.Basic
 public import Init.Conv
-public import Init.Meta
-public import Init.While
-public meta import Init.Data.Option.Basic
+import Init.Meta.Defs
 
 public section
 

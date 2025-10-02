@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Hashable
 public import Init.Data.ToString
+import Init.Grind.Attr
 
 @[expose] public section
 

@@ -13,6 +13,7 @@ import Lean.Meta.Basic
 import Lean.Meta.InferType
 import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.Util
+public import Lean.Meta.Tactic.Grind.Util
 public section
 namespace Lean.Meta.Grind
 

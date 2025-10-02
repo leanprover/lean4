@@ -10,6 +10,7 @@ public import Init.Data.Iterators.Basic
 public import Init.Data.Iterators.Consumers.Collect
 public import Init.Data.Iterators.Consumers.Loop
 public import Init.Data.Iterators.Internal.Termination
+import Init.Data.Range.Polymorphic.RangeIterator
 
 @[expose] public section
 

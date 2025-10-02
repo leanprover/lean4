@@ -11,10 +11,11 @@ public import Init.Data.Bool
 public import Init.Data.Int.Pow
 public import Init.Data.Nat.Bitwise.Basic
 import all Init.Data.Nat.Bitwise.Basic
-public import Init.Data.Nat.Lemmas
-public import Init.Data.Nat.Simproc
 public import Init.TacticsExtra
 import Init.BinderPredicates
+public import Init.BinderPredicates
+import Init.Classical
+import Init.Grind.Tactics
 
 public section
 

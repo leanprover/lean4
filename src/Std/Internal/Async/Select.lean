@@ -10,6 +10,7 @@ public import Init.Data.Array.Basic
 public import Init.Data.Random
 public import Std.Internal.Async.Basic
 import Init.Data.ByteArray.Extra
+import Init.Data.Array.Lemmas
 
 public section
 

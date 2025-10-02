@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Prelude
 import Init.Data.Array.Basic
+import Init.Grind.Tactics
 
 namespace Lake
 

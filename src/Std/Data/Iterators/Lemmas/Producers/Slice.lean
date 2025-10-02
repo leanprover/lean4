@@ -9,6 +9,7 @@ prelude
 public import Std.Data.Iterators.Producers.Slice
 import all Std.Data.Iterators.Producers.Slice
 public import Init.Data.Slice.Lemmas
+import Init.Data.Iterators.Lemmas.Consumers.Collect
 
 @[expose] public section
 

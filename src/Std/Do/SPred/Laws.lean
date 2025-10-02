@@ -7,6 +7,8 @@ module
 
 prelude
 public import Std.Do.SPred.Notation
+public import Std.Do.SPred.Notation.Basic
+import Init.Grind.Attr
 
 @[expose] public section
 

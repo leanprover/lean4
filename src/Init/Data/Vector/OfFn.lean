@@ -8,9 +8,8 @@ module
 prelude
 public import Init.Data.Vector.Basic
 import all Init.Data.Vector.Basic
-public import Init.Data.Vector.Lemmas
 public import Init.Data.Vector.Monadic
-public import Init.Data.Array.OfFn
+import Init.Data.Iterators.Combinators.Monadic.Attach
 
 public section
 

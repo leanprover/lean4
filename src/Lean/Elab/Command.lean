@@ -16,6 +16,7 @@ public import Lean.Language.Basic
 public import Lean.Meta.ForEachExpr
 public meta import Lean.Parser.Command
 import Lean.ExtraModUses
+public import Init.Data.Iterators.Consumers.Stream
 
 public section
 

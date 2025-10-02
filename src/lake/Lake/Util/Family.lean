@@ -11,6 +11,9 @@ public meta import Init.Meta
 public meta import Init.Data.String.Basic
 public meta import Init.Data.ToString.Name
 import Init.Data.ToString
+public import Init.Notation
+import Init.Grind.Tactics
+import Init.Meta.Defs
 
 /-!
 # Open Type Families in Lean

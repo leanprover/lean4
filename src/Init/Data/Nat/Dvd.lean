@@ -7,7 +7,8 @@ module
 
 prelude
 public import Init.Data.Nat.Div.Basic
-public import Init.Meta
+meta import Init.Meta.Defs
+import Init.Data.List.Notation
 
 public section
 

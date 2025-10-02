@@ -6,13 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.List.Control
 import all Init.Data.List.Control
-public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
-public import Init.Data.Array.Lemmas
 public import Init.Data.Array.Attach
-public import Init.Data.List.Monadic
+import Init.Control.Lawful.Lemmas
 
 public section
 

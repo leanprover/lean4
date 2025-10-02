@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.Data.Nat.Linear
+import Init.Classical
+import Init.Data.Array.Basic
 
 public section
 

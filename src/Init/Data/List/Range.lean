@@ -6,8 +6,8 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Pairwise
 public import Init.Data.List.Zip
+import Init.Data.List.Sublist
 
 public section
 

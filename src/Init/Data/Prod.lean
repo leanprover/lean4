@@ -8,6 +8,7 @@ module
 prelude
 public import Init.SimpLemmas
 public import Init.NotationExtra
+import Init.Grind.Attr
 
 public section
 

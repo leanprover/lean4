@@ -10,6 +10,7 @@ public import Init.Data.Array.Lemmas
 public import Std.Data.DHashMap.RawDef
 public import Std.Data.Internal.List.Defs
 public import Std.Data.DHashMap.Internal.Index
+public import Init.Data.Nat.Power2
 
 public section
 

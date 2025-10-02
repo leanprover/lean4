@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Prelude
 meta import all Lake.Util.OpaqueType
+import Lake.Util.OpaqueType
 
 namespace Lake
 

@@ -8,6 +8,7 @@ module
 prelude
 public import Init.System.IO
 import Init.Data.ByteArray.Extra
+import Init.Data.Array.Lemmas
 
 public section
 universe u

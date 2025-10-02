@@ -11,6 +11,7 @@ prelude
 import Init.Data.Repr
 import Init.Data.Ord
 public import Lean.DocString.Types
+import Init.While
 
 set_option linter.missingDocs true
 

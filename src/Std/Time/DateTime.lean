@@ -9,6 +9,7 @@ prelude
 public import Std.Time.DateTime.Timestamp
 public import Std.Time.DateTime.PlainDateTime
 import all Std.Time.Date.Unit.Month
+import Init.Data.Array.Lemmas
 
 public section
 

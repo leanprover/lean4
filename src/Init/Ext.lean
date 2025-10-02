@@ -6,9 +6,8 @@ Authors: Gabriel Ebner, Mario Carneiro
 module
 
 prelude
-public import Init.Data.ToString.Macro
-public import Init.TacticsExtra
 public import Init.RCases
+import Init.Grind.Attr
 
 public section
 

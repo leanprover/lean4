@@ -8,7 +8,8 @@ module
 prelude
 public import Init.Data.Char.Basic
 import Init.Data.Char.Lemmas
-public import Init.Data.Order.Factories
+public import Init.Data.Order.Classes
+import Init.Grind.Tactics
 
 open Std
 

@@ -20,6 +20,7 @@ import Lean.Meta.Tactic.FVarSubst
 import Lean.Meta.Match.Basic
 import Lean.Meta.Tactic.TryThis
 import Lean.ExtraModUses
+public import Lean.Meta.TryThis
 public section
 namespace Lean.Meta.Grind
 /--

@@ -6,7 +6,8 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Classical
+public import Init.Notation
+import Init.SimpLemmas
 
 public section
 

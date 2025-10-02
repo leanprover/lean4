@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Data.Name
 import Init.Data.String.Basic
+import Init.Data.Array.Lemmas
 
 public section
 

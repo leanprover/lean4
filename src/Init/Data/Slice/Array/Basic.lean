@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Core
 public import Init.Data.Array.Subarray
 public import Init.Data.Slice.Notation
 public import Init.Data.Range.Polymorphic.Nat

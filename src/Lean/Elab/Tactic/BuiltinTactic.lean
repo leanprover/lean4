@@ -21,6 +21,7 @@ public import Lean.Elab.Tactic.ElabTerm
 public import Lean.Elab.Do
 import Lean.Meta.Tactic.Replace
 meta import Lean.Parser.Command
+import Init.Data.Iterators.Consumers.Stream
 
 public section
 

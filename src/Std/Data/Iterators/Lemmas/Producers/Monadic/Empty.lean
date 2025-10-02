@@ -9,6 +9,7 @@ prelude
 public import Std.Data.Iterators.Producers.Monadic.Empty
 public import Init.Data.Iterators.Lemmas.Consumers.Monadic
 public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
+import Init.Control.Lawful.MonadLift.Instances
 
 @[expose] public section
 

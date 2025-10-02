@@ -18,6 +18,7 @@ import Lean.Meta.Match.MatchEqs
 import Lean.DefEqAttrib
 import Lean.Meta.Tactic.SplitIf
 import Lean.Meta.Tactic.Simp.Main
+public import Lean.Util.CollectFVars
 
 namespace Lean.Elab.Eqns
 open Meta

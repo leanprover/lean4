@@ -7,8 +7,6 @@ module
 
 prelude
 public import Init.Data.Option.Basic
-public import Init.Control.Basic
-public import Init.Control.Except
 
 public section
 

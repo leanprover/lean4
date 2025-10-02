@@ -7,7 +7,8 @@ module
 
 prelude
 public import Init.Tactics
-public import Init.NotationExtra
+public meta import Init.Meta.Defs
+import Init.Meta.Defs
 
 public section
 

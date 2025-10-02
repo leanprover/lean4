@@ -6,12 +6,10 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.ByteArray.Basic
 import all Init.Data.ByteArray.Basic
 public import Init.Data.String.Basic
 import all Init.Data.String.Basic
-import Init.Data.UInt.Lemmas
-import Init.Data.UInt.Bitwise
+import Init.Data.Array.Lemmas
 
 public section
 

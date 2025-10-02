@@ -9,7 +9,9 @@ prelude
 public import Init.Data.Nat.Coprime
 public import Init.Data.Hashable
 public import Init.Data.OfScientific
-import Init.Data.Int.Bitwise
+public import Init.Data.String.Basic
+import Init.Grind.Tactics
+import Init.Data.Int.DivMod.Lemmas
 
 @[expose] public section
 

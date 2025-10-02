@@ -7,7 +7,10 @@ module
 
 prelude
 public import Init.Data.Vector.Lemmas
-public import Init.Grind
+public import Init.Grind.Module.Basic
+import Init.Grind.Lemmas
+import Init.Grind.Norm
+import Init.Grind.Util
 
 /-!
 # Componentwise algebraic structures on `Vector α n`.

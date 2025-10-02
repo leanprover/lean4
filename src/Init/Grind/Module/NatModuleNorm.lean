@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Grind.Module.Envelope
 public import Init.Grind.Ordered.Linarith
 @[expose] public section
 namespace Lean.Grind.Linarith

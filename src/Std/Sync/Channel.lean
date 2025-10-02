@@ -12,6 +12,7 @@ public import Std.Sync.Mutex
 public import Std.Internal.Async.Select
 public import Std.Internal.Async.IO
 import Init.Data.Vector.Basic
+public import Init.Data.Vector.Basic
 
 public section
 

@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Data.Range.Polymorphic.RangeIterator
 public import Init.Data.Range.Polymorphic.Basic
-public import Init.Data.Iterators.Combinators.Attach
+public import Init.Data.Iterators.Consumers.Loop
 
 @[expose] public section
 

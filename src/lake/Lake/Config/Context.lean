@@ -8,6 +8,8 @@ module
 prelude
 public import Init.Control.Id
 public import Lake.Config.Opaque
+public import Init.SizeOf
+import Init.Core
 
 open System
 namespace Lake

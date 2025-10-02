@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Do.WP.Basic
 import all Std.Do.WP.Basic
+import Init.Grind.Tactics
 
 @[expose] public section
 

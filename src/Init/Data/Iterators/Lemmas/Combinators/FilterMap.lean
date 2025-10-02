@@ -6,9 +6,11 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Lemmas.Consumers
 public import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
 public import Init.Data.Iterators.Combinators.FilterMap
+public import Init.Data.Iterators.Consumers.Collect
+import Init.Control.Lawful.MonadLift.Instances
+import Init.Data.Iterators.Lemmas.Consumers.Collect
 
 public section
 

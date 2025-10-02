@@ -12,6 +12,7 @@ public import Lean.AddDecl
 public import Lean.Meta.Transform
 public import Lean.Util.CollectFVars
 public import Lean.Util.CollectMVars
+import Init.While
 
 public section
 

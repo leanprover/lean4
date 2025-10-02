@@ -6,9 +6,9 @@ Authors: François G. Dorais
 module
 
 prelude
-public import Init.Data.Nat.Linear
 public import Init.Control.Lawful.Basic
 public import Init.Data.Fin.Lemmas
+import Init.TacticsExtra
 
 public section
 

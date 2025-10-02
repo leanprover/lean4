@@ -9,6 +9,7 @@ prelude
 public import Lake.Build.Fetch
 public import Lake.Config.OutFormat
 meta import all Lake.Util.OpaqueType
+import Lake.Util.OpaqueType
 
 open Lean
 

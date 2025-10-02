@@ -6,11 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Core
-public import Init.Classical
 public import Init.Ext
 public import Init.NotationExtra
-public import Init.TacticsExtra
 
 public section
 

@@ -9,6 +9,7 @@ module
 
 prelude
 public import Init.System.ST
+public import Init.Control.Reader
 
 public section
 

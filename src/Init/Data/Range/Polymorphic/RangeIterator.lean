@@ -7,11 +7,11 @@ module
 
 prelude
 public import Init.Data.Iterators.Internal.Termination
-public import Init.Data.Iterators.Consumers.Access
-public import Init.Data.Iterators.Consumers.Loop
-public import Init.Data.Iterators.Consumers.Collect
 public import Init.Data.Range.Polymorphic.PRange
-public import Init.Data.List.Sublist
+public import Init.Data.Iterators.Consumers.Monadic.Access
+public import Init.Data.Iterators.Consumers.Monadic.Collect
+public import Init.Data.Iterators.Consumers.Monadic.Loop
+import Init.Data.List.Attach
 
 set_option doc.verso true
 

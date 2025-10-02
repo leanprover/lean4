@@ -11,6 +11,7 @@ public import Init.Data.AC
 public import Std.Tactic.BVDecide.Normalize.Bool
 public import Std.Tactic.BVDecide.Normalize.Canonicalize
 public import Init.Data.SInt.Basic
+import Init.Data.BEq
 
 @[expose] public section
 

@@ -6,12 +6,10 @@ Author: Kim Morrison
 module
 
 prelude
-public import Init.Core
-import Init.Data.Array.Basic
 import Init.Data.Nat.Lemmas
 public import Init.Data.Range.Polymorphic.Iterators
 public import Init.Data.Range.Polymorphic.Nat
-import Init.Data.Iterators.Consumers
+import Init.Data.List.Monadic
 
 public section
 

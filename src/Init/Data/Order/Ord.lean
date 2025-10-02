@@ -6,16 +6,11 @@ Authors: Markus Himmel, Paul Reichert, Robin Arnez
 module
 
 prelude
-public import Init.Data.Ord.Basic
-import Init.RCases
-import Init.Data.Bool
-import Init.ByCases
-import Init.Data.Int.Order
-import Init.Data.Option.Lemmas
 import Init.Data.List.Lemmas
 import Init.Data.Array.DecidableEq
 public import Init.Data.Ord.Array
 public import Init.Data.BEq
+public import Init.Data.Array.Basic
 
 public section
 

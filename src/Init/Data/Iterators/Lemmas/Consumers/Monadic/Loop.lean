@@ -9,6 +9,8 @@ prelude
 public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 public import Init.Data.Iterators.Consumers.Monadic.Loop
 import all Init.Data.Iterators.Consumers.Monadic.Loop
+import Init.Control.Lawful.MonadLift.Instances
+import Init.Data.Range.Polymorphic.RangeIterator
 
 public section
 

@@ -9,6 +9,7 @@ prelude
 public import Lake.Util.Date
 import Lake.Util.String
 import Init.Data.String.Basic
+import Init.Data.Array.Lemmas
 
 /-!
 # TOML Date-Time

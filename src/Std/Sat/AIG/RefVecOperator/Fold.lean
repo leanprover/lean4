@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Sat.AIG.RefVec
 public import Std.Sat.AIG.LawfulVecOperator
+import Init.Data.Iterators.Combinators.Monadic.Attach
 
 @[expose] public section
 

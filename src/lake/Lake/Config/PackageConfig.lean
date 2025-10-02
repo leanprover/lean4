@@ -13,6 +13,7 @@ public import Lake.Config.Defaults
 public import Lake.Config.LeanConfig
 public import Lake.Config.WorkspaceConfig
 meta import all Lake.Config.Meta
+import Lake.Config.Meta
 
 open System Lean
 

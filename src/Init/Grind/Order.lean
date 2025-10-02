@@ -6,7 +6,8 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Grind.Ordered.Ring
-import Init.Grind.Ring
+import Init.Data.Array.Lemmas
+import Init.Data.String.Basic
 public section
 namespace Lean.Grind.Order
 

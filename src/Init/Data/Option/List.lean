@@ -9,7 +9,6 @@ prelude
 public import Init.Data.List.Lemmas
 public import Init.Data.List.Control
 import all Init.Data.List.Control
-public import Init.Data.Option.Instances
 import all Init.Data.Option.Instances
 
 public section

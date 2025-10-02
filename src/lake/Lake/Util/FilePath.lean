@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Data.Json
+import Init.Data.Iterators.Combinators.Monadic.Attach
 
 open System Lean
 

@@ -11,6 +11,7 @@ public import Lean.Data.NameMap.Basic
 public import Lake.Util.RBArray
 public import Lake.Util.Family
 public import Lake.Util.Store
+public import Init.Control.StateRef
 
 open Lean
 namespace Lake

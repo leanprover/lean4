@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.AC
 public import Std.Data.DTreeMap.Internal.Def
+import Init.Classical
 
 @[expose] public section
 

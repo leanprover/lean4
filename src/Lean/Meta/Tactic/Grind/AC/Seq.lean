@@ -8,6 +8,7 @@ prelude
 public import Init.Core
 public import Init.Grind.AC
 public import Init.Data.Ord
+import Init.Data.Iterators.Combinators.Monadic.Attach
 public section
 namespace Lean.Grind.AC
 

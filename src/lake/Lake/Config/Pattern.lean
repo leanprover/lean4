@@ -9,6 +9,8 @@ prelude
 public import Init.Data.Array.Basic
 public import Init.System.FilePath
 import Lake.Util.Name
+public import Lean.Data.Name
+public import Std.Data.TreeMap.Basic
 
 open System Lean
 

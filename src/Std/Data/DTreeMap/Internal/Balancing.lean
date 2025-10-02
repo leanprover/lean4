@@ -9,6 +9,8 @@ prelude
 public import Init.Data.AC
 public import Init.Data.Ord.Basic
 public import Std.Data.DTreeMap.Internal.Balanced
+import Init.Classical
+import Init.Data.Nat.Simproc
 
 @[expose] public section
 

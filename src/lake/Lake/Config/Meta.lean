@@ -11,6 +11,7 @@ public import Lake.Config.MetaClasses
 public meta import Lake.Util.Binder
 public meta import Lean.Parser.Command
 public meta import Lake.Util.Name
+import Lean.Parser.Command
 
 open Lean Syntax Parser Command
 

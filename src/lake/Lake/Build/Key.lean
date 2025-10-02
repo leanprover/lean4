@@ -10,6 +10,7 @@ public import Init.Data.Order
 public import Init.Data.ToString.Basic
 import Lake.Util.Name
 import Lake.Config.Kinds
+public import Lean.Data.Name
 
 namespace Lake
 open Lean (Name)

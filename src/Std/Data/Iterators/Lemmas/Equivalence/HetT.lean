@@ -12,6 +12,8 @@ public import Init.PropLemmas
 public import Init.Classical
 public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 public import Init.Data.Iterators.PostconditionMonad
+import Init.Data.List.Attach
+import Init.Control.Lawful.MonadLift.Lemmas
 
 @[expose] public section
 

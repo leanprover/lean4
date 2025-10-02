@@ -8,6 +8,8 @@ module
 prelude
 public import Init.Notation
 public import Init.Simproc
+public import Init.MetaTypes
+import Init.Core
 
 @[expose] public section
 

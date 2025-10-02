@@ -6,12 +6,11 @@ Authors: Joachim Breitner
 
 module
 prelude
-public import Init.Prelude
-public import Init.Notation
-public import Init.Tactics
 public import Init.Core
 import Init.Data.Bool
 import Init.ByCases
+import Init.Classical
+import Init.Grind.Tactics
 
 public section
 

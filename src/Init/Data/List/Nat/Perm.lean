@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.List.Nat.TakeDrop
 public import Init.Data.List.Perm
+import Init.TacticsExtra
 
 public section
 

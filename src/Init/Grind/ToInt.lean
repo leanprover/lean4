@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Int.DivMod.Lemmas
 import Init.LawfulBEqTactics
+import Init.Classical
 
 public section
 

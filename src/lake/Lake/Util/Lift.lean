@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.System.IO
+public import Init.Control.Option
 
 namespace Lake
 

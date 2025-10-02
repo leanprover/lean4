@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.LRAT.Internal.Formula.RupAddSound
+import Init.Data.Int.OfNat
 
 @[expose] public section
 

@@ -6,8 +6,7 @@ Authors: Kim Morrison
 module
 prelude
 import Init.Data.Dyadic.Basic
-import Init.Data.Dyadic.Round
-import Init.Grind.Ordered.Ring
+import Init.Data.Array.Lemmas
 
 /-!
 # Inversion for dyadic numbers

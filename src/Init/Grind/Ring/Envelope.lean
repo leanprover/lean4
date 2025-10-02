@@ -6,10 +6,10 @@ Authors: Leonardo de Moura, Kim Morrison
 module
 
 prelude
-public import Init.Grind.Ring.Basic
 public import Init.Grind.Ordered.Ring
 public import Init.Data.AC
 import all Init.Data.AC
+import Init.Grind.Tactics
 
 @[expose] public section
 

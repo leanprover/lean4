@@ -6,11 +6,10 @@ Authors: Joe Hendrix, Wojciech Nawrocki, Leonardo de Moura, Mario Carneiro, Alex
 module
 
 prelude
-public import Init.Data.Fin.Basic
 public import Init.Data.Nat.Bitwise.Lemmas
-public import Init.Data.Nat.Power2
 public import Init.Data.Int.Bitwise.Basic
-public import Init.Data.BitVec.BasicAux
+import Init.Grind.Attr
+import Init.Data.Nat.Linear
 
 @[expose] public section
 

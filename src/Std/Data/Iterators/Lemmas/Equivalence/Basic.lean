@@ -13,6 +13,7 @@ public import Init.Core
 public import Init.Data.Iterators.Basic
 public import Init.Data.Iterators.PostconditionMonad
 public import Std.Data.Iterators.Lemmas.Equivalence.HetT
+import Init.Control.Lawful.MonadLift.Lemmas
 
 @[expose] public section
 

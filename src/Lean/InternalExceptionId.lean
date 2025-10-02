@@ -8,6 +8,7 @@ module
 prelude
 public import Init.System.IO
 import Init.Data.ToString.Name
+import Init.Data.Array.Lemmas
 
 public section
 namespace Lean

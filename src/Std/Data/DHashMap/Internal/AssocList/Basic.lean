@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.NotationExtra
+public import Init.Util
 
 public section
 

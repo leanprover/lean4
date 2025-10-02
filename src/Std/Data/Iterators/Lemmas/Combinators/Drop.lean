@@ -10,6 +10,7 @@ public import Std.Data.Iterators.Combinators.Drop
 public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Drop
 public import Std.Data.Iterators.Lemmas.Combinators.Take
 public import Init.Data.Iterators.Lemmas.Consumers
+import Init.Data.Nat.Simproc
 
 @[expose] public section
 

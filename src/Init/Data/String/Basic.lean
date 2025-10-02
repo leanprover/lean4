@@ -6,10 +6,6 @@ Author: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Data.List.Basic
-public import Init.Data.Char.Basic
-public import Init.Data.String.Bootstrap
-public import Init.Data.ByteArray.Basic
 public import Init.Data.String.Decode
 import Init.Data.ByteArray.Lemmas
 

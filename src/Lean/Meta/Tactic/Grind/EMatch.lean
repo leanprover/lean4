@@ -13,6 +13,7 @@ import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.ProveEq
 import Lean.Meta.Tactic.Grind.SynthInstance
 import Lean.Meta.Tactic.Grind.Simp
+import Init.Grind.Util
 public section
 namespace Lean.Meta.Grind
 namespace EMatch

@@ -6,8 +6,6 @@ Author: Markus Himmel
 module
 
 prelude
-public import Init.Data.List.Lemmas
-import Init.Data.List.Lemmas
 public import Init.Data.UInt.Bitwise
 import Init.Data.Char.Lemmas
 public import Init.Data.ByteArray.Basic

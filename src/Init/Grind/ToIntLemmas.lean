@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Grind.ToInt
 import all Init.Grind.ToInt
+import Init.Grind.Tactics
 
 public section
 

@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Data.PrefixTree
 import Init.Data.Ord.String
+import Init.Data.Array.Lemmas
 
 public section
 

@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Classical
-public import Init.Core
 public import Init.Data.Nat.Basic
 public import Init.Data.Option.Lemmas
 public import Init.Data.Order.Classes

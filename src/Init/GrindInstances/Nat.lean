@@ -7,7 +7,6 @@ module
 prelude
 
 public import Init.Grind.Ordered.Module
-public import Init.Grind.Ring.Basic
 
 public section
 

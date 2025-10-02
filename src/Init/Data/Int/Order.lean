@@ -8,8 +8,10 @@ module
 prelude
 public import Init.Data.Int.Lemmas
 public import Init.ByCases
-public import Init.Data.Order.Factories
 import Init.Data.Order.Lemmas
+public import Init.Data.Order.Classes
+import Init.Grind.Tactics
+import Init.Data.List.Notation
 
 public section
 

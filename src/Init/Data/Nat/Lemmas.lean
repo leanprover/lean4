@@ -11,10 +11,11 @@ import all Init.Data.Nat.Bitwise.Basic
 public import Init.Data.Nat.MinMax
 public import Init.Data.Nat.Log2
 import all Init.Data.Nat.Log2
-public import Init.Data.Nat.Power2
 public import Init.Data.Nat.Mod
 import Init.TacticsExtra
-import Init.BinderPredicates
+import Init.Classical
+import Init.Grind.Tactics
+import Init.Data.Nat.Linear
 
 public section
 

@@ -8,6 +8,8 @@ module
 prelude
 public import Init.Data.Order.Classes
 import Init.Classical
+import Init.Grind.Tactics
+import Init.Data.Nat.Basic
 
 namespace Std
 

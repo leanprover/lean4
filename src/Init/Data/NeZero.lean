@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Zero
+public import Init.Core
 
 public section
 

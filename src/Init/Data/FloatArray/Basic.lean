@@ -6,11 +6,10 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Array.Basic
 public import Init.Data.Float
-public import Init.Data.Option.Basic
 import Init.Ext
-public import Init.Data.Array.DecidableEq
+public import Init.GetElem
+import Init.Grind.Tactics
 
 public section
 universe u

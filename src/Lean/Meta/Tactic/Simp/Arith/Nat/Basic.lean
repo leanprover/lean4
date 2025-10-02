@@ -11,6 +11,7 @@ import Lean.Meta.Offset
 import Lean.Data.RArray
 import Lean.Meta.AppBuilder
 import Lean.Meta.NatInstTesters
+public import Lean.Meta.Offset
 public section
 namespace Nat.Linear
 

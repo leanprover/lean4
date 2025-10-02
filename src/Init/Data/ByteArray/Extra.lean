@@ -6,8 +6,9 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.ByteArray.Basic
 import Init.Data.String.Basic
+public import Init.Prelude
+import Init.Data.Array.Lemmas
 
 set_option doc.verso true
 

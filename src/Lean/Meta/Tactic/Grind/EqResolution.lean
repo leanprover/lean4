@@ -9,6 +9,8 @@ public import Lean.Meta.Basic
 import Lean.Meta.AppBuilder
 import Lean.Meta.MatchUtil
 import Lean.Util.ForEachExpr
+public import Init.Control.Option
+public import Lean.Util.ForEachExpr
 public section
 namespace Lean.Meta.Grind
 /-! A basic "equality resolution" procedure. -/

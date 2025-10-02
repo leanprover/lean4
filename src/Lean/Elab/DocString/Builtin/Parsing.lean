@@ -8,6 +8,8 @@ prelude
 import Lean.Elab.DocString
 public import Lean.Parser.Extension
 public import Lean.Parser.Types
+public import Init.While
+import Init.Data.Array.Mem
 
 namespace Lean.Doc
 open Lean.Parser

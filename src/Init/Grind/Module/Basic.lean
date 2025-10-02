@@ -6,9 +6,9 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Int.Order
 public import Init.Grind.ToInt
 import all Init.Grind.ToInt
+import Init.Grind.Tactics
 
 public section
 

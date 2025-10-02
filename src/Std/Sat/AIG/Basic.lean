@@ -9,6 +9,8 @@ prelude
 public import Std.Data.HashSet
 public import Init.Data.Vector.Basic
 public import Init.Data.Hashable
+public import Init.Data.String.Basic
+import Init.Data.Iterators.Combinators.Monadic.Attach
 
 @[expose] public section
 

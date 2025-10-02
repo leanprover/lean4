@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Sat.CNF
+public import Init.Data.String.Basic
 
 @[expose] public section
 

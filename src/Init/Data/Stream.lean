@@ -6,10 +6,10 @@ Authors: Sebastian Ullrich, Andrew Kent, Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Range
 public import Init.Data.Array.Subarray
 
 import Init.Data.Slice.Array.Basic
+public import Init.Data.Range.Basic
 
 public section
 

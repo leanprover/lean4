@@ -11,6 +11,7 @@ public import Init.Data.Bool
 public import Init.Data.BitVec.Lemmas
 public import Init.Data.BitVec.Decidable
 import Init.Data.BEq
+import Init.Grind.Tactics
 
 @[expose] public section
 

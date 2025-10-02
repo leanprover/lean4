@@ -357,7 +357,7 @@ private partial def mkEqnProof (declName : Name) (type : Expr) (tryRefl : Bool) 
     -- For well-founded recursion this is disabled: The equation may hold
     -- definitionally as written, but not embedded in larger proofs
     if tryRefl then
-      if (← withAtLeastTransparency .all (tryURefl mvarId)) then
+      if (← tryURefl mvarId) then
         return ← instantiateMVars main
 
     go (← unfoldLHS declName mvarId)
@@ -372,7 +372,7 @@ private partial def mkEqnProof (declName : Name) (type : Expr) (tryRefl : Bool) 
   -/
   go (mvarId : MVarId) : MetaM Unit := do
     trace[Elab.definition.eqns] "step\n{MessageData.ofGoal mvarId}"
-    if ← withAtLeastTransparency .all (tryURefl mvarId) then
+    if (← tryURefl mvarId) then
       return ()
     else if (← tryContradiction mvarId) then
       return ()

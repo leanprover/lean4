@@ -335,7 +335,7 @@ where
         let name := id.map (·.getId.componentsRev) |>.getD [`«»]
         let entry := { name, stx, selection := id.map (·.raw) |>.getD stx, prevSiblings := syms }
         toDocumentSymbols text stxs #[] (entry :: stack)
-      | `(end $(id)?) =>
+      | `(end $[$id $[.$_]?]?) =>
         let rec popStack n syms
           | [] => toDocumentSymbols text stxs syms []
           | entry :: stack =>
@@ -395,7 +395,7 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
         addRanges text ((id.getId.getNumParts, stx.getPos?)::sections) stxs
       | `($_:sectionHeader section $(id)?) =>
         addRanges text ((id.map (·.getId.getNumParts) |>.getD 1, stx.getPos?)::sections) stxs
-      | `(end $(id)?) => do
+      | `(end $[$id $[.$_]?]?) => do
         let rec popRanges n sections := do
           if let (size, start)::rest := sections then
             if size == n then

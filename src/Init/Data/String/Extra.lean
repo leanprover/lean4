@@ -38,109 +38,16 @@ def toNat! (s : String) : Nat :=
   else
     panic! "Nat expected"
 
-/--
-Decodes the UTF-8 character sequence that starts at a given index in a byte array, or `none` if
-index `i` is out of bounds or is not the start of a valid UTF-8 character.
--/
-def utf8DecodeChar? (a : ByteArray) (i : Nat) : Option Char := do
-  let c ← a[i]?
-  if c &&& 0x80 == 0 then
-    some ⟨c.toUInt32, .inl (Nat.lt_trans c.toBitVec.isLt (by decide))⟩
-  else if c &&& 0xe0 == 0xc0 then
-    let c1 ← a[i+1]?
-    guard (c1 &&& 0xc0 == 0x80)
-    let r := ((c &&& 0x1f).toUInt32 <<< 6) ||| (c1 &&& 0x3f).toUInt32
-    guard (0x80 ≤ r)
-    -- TODO: Prove h from the definition of r once we have the necessary lemmas
-    if h : r < 0xd800 then some ⟨r, .inl ((UInt32.lt_ofNat_iff (by decide)).1 h)⟩ else none
-  else if c &&& 0xf0 == 0xe0 then
-    let c1 ← a[i+1]?
-    let c2 ← a[i+2]?
-    guard (c1 &&& 0xc0 == 0x80 && c2 &&& 0xc0 == 0x80)
-    let r :=
-      ((c &&& 0x0f).toUInt32 <<< 12) |||
-      ((c1 &&& 0x3f).toUInt32 <<< 6) |||
-      (c2 &&& 0x3f).toUInt32
-    guard (0x800 ≤ r)
-    -- TODO: Prove `r < 0x110000` from the definition of r once we have the necessary lemmas
-    if h : r < 0xd800 ∨ 0xdfff < r ∧ r < 0x110000 then
-      have :=
-        match h with
-        | .inl h => Or.inl ((UInt32.lt_ofNat_iff (by decide)).1 h)
-        | .inr h => Or.inr ⟨(UInt32.ofNat_lt_iff (by decide)).1 h.left, (UInt32.lt_ofNat_iff (by decide)).1 h.right⟩
-      some ⟨r, this⟩
-    else
-      none
-  else if c &&& 0xf8 == 0xf0 then
-    let c1 ← a[i+1]?
-    let c2 ← a[i+2]?
-    let c3 ← a[i+3]?
-    guard (c1 &&& 0xc0 == 0x80 && c2 &&& 0xc0 == 0x80 && c3 &&& 0xc0 == 0x80)
-    let r :=
-      ((c &&& 0x07).toUInt32 <<< 18) |||
-      ((c1 &&& 0x3f).toUInt32 <<< 12) |||
-      ((c2 &&& 0x3f).toUInt32 <<< 6) |||
-      (c3 &&& 0x3f).toUInt32
-    if h : 0x10000 ≤ r ∧ r < 0x110000 then
-      some ⟨r, .inr ⟨Nat.lt_of_lt_of_le (by decide) ((UInt32.ofNat_le_iff (by decide)).1 h.left), (UInt32.lt_ofNat_iff (by decide)).1 h.right⟩⟩
-    else none
-  else
-    none
+@[deprecated ByteArray.utf8DecodeChar? (since := "2025-10-01")]
+abbrev utf8DecodeChar? (a : ByteArray) (i : Nat) : Option Char :=
+  a.utf8DecodeChar? i
 
 /--
 Checks whether an array of bytes is a valid UTF-8 encoding of a string.
 -/
-@[extern "lean_string_validate_utf8"]
-def validateUTF8 (a : @& ByteArray) : Bool :=
-  (loop 0).isSome
-where
-  loop (i : Nat) : Option Unit := do
-    if i < a.size then
-      let c ← utf8DecodeChar? a i
-      loop (i + c.utf8Size)
-    else pure ()
-  termination_by a.size - i
-  decreasing_by exact Nat.sub_lt_sub_left ‹_› (Nat.lt_add_of_pos_right c.utf8Size_pos)
-
-/--
-Decodes an array of bytes that encode a string as [UTF-8](https://en.wikipedia.org/wiki/UTF-8) into
-the corresponding string.
--/
-@[extern "lean_string_from_utf8_unchecked"]
-def fromUTF8 (a : @& ByteArray) (h : validateUTF8 a) : String :=
-  loop 0 ""
-where
-  loop (i : Nat) (acc : String) : String :=
-    if i < a.size then
-      let c := (utf8DecodeChar? a i).getD default
-      loop (i + c.utf8Size) (acc.push c)
-    else acc
-  termination_by a.size - i
-  decreasing_by exact Nat.sub_lt_sub_left ‹_› (Nat.lt_add_of_pos_right c.utf8Size_pos)
-
-/--
-Decodes an array of bytes that encode a string as [UTF-8](https://en.wikipedia.org/wiki/UTF-8) into
-the corresponding string, or returns `none` if the array is not a valid UTF-8 encoding of a string.
--/
-@[inline] def fromUTF8? (a : ByteArray) : Option String :=
-  if h : validateUTF8 a then some (fromUTF8 a h) else none
-
-/--
-Decodes an array of bytes that encode a string as [UTF-8](https://en.wikipedia.org/wiki/UTF-8) into
-the corresponding string, or panics if the array is not a valid UTF-8 encoding of a string.
--/
-@[inline] def fromUTF8! (a : ByteArray) : String :=
-  if h : validateUTF8 a then fromUTF8 a h else panic! "invalid UTF-8 string"
-
-/--
-Encodes a string in UTF-8 as an array of bytes.
--/
-@[extern "lean_string_to_utf8"]
-def toUTF8 (a : @& String) : ByteArray :=
-  a.bytes
-
-@[simp] theorem size_toUTF8 (s : String) : s.toUTF8.size = s.utf8ByteSize := by
-  rfl
+@[deprecated ByteArray.validateUTF8 (since := "2025-10-01")]
+abbrev validateUTF8 (a : ByteArray) : Bool :=
+  a.validateUTF8
 
 theorem Iterator.sizeOf_next_lt_of_hasNext (i : String.Iterator) (h : i.hasNext) : sizeOf i.next < sizeOf i := by
   cases i; rename_i s pos; simp [Iterator.next, Iterator.sizeOf_eq]; simp [Iterator.hasNext] at h
@@ -248,7 +155,7 @@ This is an optimized version of `String.replace text "\r\n" "\n"`.
 def crlfToLf (text : String) : String :=
   go "" 0 0
 where
-  go (acc : String) (accStop pos : String.Pos) : String :=
+  go (acc : String) (accStop pos : String.Pos.Raw) : String :=
     if h : text.atEnd pos then
       -- note: if accStop = 0 then acc is empty
       if accStop = 0 then text else acc ++ text.extract accStop pos

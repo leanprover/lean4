@@ -5,6 +5,11 @@
    "kind": 5,
    "data": ["«external:file:///completion.lean»", 3, 22, 1, "cFoo.foo"]}],
  "isIncomplete": false}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "Foo → Nat",
+ "data": ["«external:file:///completion.lean»", 3, 22, 1, "cFoo.foo"]}
 {"textDocument": {"uri": "file:///completion.lean"},
  "position": {"line": 5, "character": 23}}
 {"items":
@@ -12,6 +17,11 @@
    "kind": 5,
    "data": ["«external:file:///completion.lean»", 5, 23, 1, "cFoo.foo"]}],
  "isIncomplete": false}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "Foo → Nat",
+ "data": ["«external:file:///completion.lean»", 5, 23, 1, "cFoo.foo"]}
 {"textDocument": {"uri": "file:///completion.lean"},
  "position": {"line": 7, "character": 28}}
 {"items":
@@ -19,6 +29,11 @@
    "kind": 5,
    "data": ["«external:file:///completion.lean»", 7, 28, 0, "cFoo.foo"]}],
  "isIncomplete": false}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "Foo → Nat",
+ "data": ["«external:file:///completion.lean»", 7, 28, 0, "cFoo.foo"]}
 {"textDocument": {"uri": "file:///completion.lean"},
  "position": {"line": 9, "character": 29}}
 {"items":
@@ -26,3 +41,8 @@
    "kind": 5,
    "data": ["«external:file:///completion.lean»", 9, 29, 0, "cFoo.foo"]}],
  "isIncomplete": false}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "Foo → Nat",
+ "data": ["«external:file:///completion.lean»", 9, 29, 0, "cFoo.foo"]}

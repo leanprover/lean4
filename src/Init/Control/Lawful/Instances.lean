@@ -9,6 +9,8 @@ prelude
 public import Init.Control.Lawful.Basic
 public import Init.Control.Except
 import all Init.Control.Except
+public import Init.Control.Option
+import all Init.Control.Option
 public import Init.Control.State
 import all Init.Control.State
 public import Init.Control.StateRef
@@ -109,6 +111,121 @@ instance : LawfulMonad (Except ε) := LawfulMonad.mk'
 
 instance : LawfulApplicative (Except ε) := inferInstance
 instance : LawfulFunctor (Except ε) := inferInstance
+
+/-! # OptionT -/
+
+namespace OptionT
+
+@[ext] theorem ext {x y : OptionT m α} (h : x.run = y.run) : x = y := by
+  simp [run] at h
+  assumption
+
+@[simp, grind =] theorem run_mk {m : Type u → Type v} (x : m (Option α)) :
+    OptionT.run (OptionT.mk x) = x := by rfl
+
+@[simp, grind =] theorem run_pure [Monad m] (x : α) : run (pure x : OptionT m α) = pure (some x) := by
+  simp [run, pure, OptionT.pure, OptionT.mk]
+
+@[simp, grind =] theorem run_lift  [Monad.{u, v} m] (x : m α) : run (OptionT.lift x : OptionT m α) = (return some (← x) : m (Option α)) := by
+  simp [run, OptionT.lift, OptionT.mk]
+
+@[simp, grind =] theorem run_throw [Monad m] : run (throw e : OptionT m β) = pure none := by
+  simp [run, throw, throwThe, MonadExceptOf.throw, OptionT.fail, OptionT.mk]
+
+@[simp, grind =] theorem run_bind_lift [Monad m] [LawfulMonad m] (x : m α) (f : α → OptionT m β) : run (OptionT.lift x >>= f : OptionT m β) = x >>= fun a => run (f a) := by
+  simp [OptionT.run, OptionT.lift, bind, OptionT.bind, OptionT.mk]
+
+@[simp, grind =] theorem bind_throw [Monad m] [LawfulMonad m] (f : α → OptionT m β) : (throw e >>= f) = throw e := by
+  simp [throw, throwThe, MonadExceptOf.throw, bind, OptionT.bind, OptionT.mk, OptionT.fail]
+
+@[simp, grind =] theorem run_bind (f : α → OptionT m β) [Monad m] :
+    (x >>= f).run = Option.elimM x.run (pure none) (fun x => (f x).run) := by
+  change x.run >>= _ = _
+  simp [Option.elimM]
+  exact bind_congr fun |some _ => rfl | none => rfl
+
+@[simp, grind =] theorem lift_pure [Monad m] [LawfulMonad m] {α : Type u} (a : α) : OptionT.lift (pure a : m α) = pure a := by
+  simp only [OptionT.lift, OptionT.mk, bind_pure_comp, map_pure, pure, OptionT.pure]
+
+@[simp, grind =] theorem run_map [Monad m] [LawfulMonad m] (f : α → β) (x : OptionT m α)
+    : (f <$> x).run = Option.map f <$> x.run := by
+  simp [Functor.map, Option.map, ←bind_pure_comp]
+  apply bind_congr
+  intro a; cases a <;> simp [OptionT.pure, OptionT.mk]
+
+protected theorem seq_eq {α β : Type u} [Monad m] (mf : OptionT m (α → β)) (x : OptionT m α) : mf <*> x = mf >>= fun f => f <$> x :=
+  rfl
+
+protected theorem bind_pure_comp [Monad m] (f : α → β) (x : OptionT m α) : x >>= pure ∘ f = f <$> x := by
+  intros; rfl
+
+protected theorem seqLeft_eq {α β : Type u} {m : Type u → Type v} [Monad m] [LawfulMonad m] (x : OptionT m α) (y : OptionT m β) : x <* y = const β <$> x <*> y := by
+  change (x >>= fun a => y >>= fun _ => pure a) = (const (α := α) β <$> x) >>= fun f => f <$> y
+  rw [← OptionT.bind_pure_comp]
+  apply ext
+  simp [Option.elimM, Option.elim]
+  apply bind_congr
+  intro
+  | none => simp
+  | some _ =>
+    simp [←bind_pure_comp]; apply bind_congr; intro b;
+    cases b <;> simp [const]
+
+protected theorem seqRight_eq [Monad m] [LawfulMonad m] (x : OptionT m α) (y : OptionT m β) : x *> y = const α id <$> x <*> y := by
+  change (x >>= fun _ => y) = (const α id <$> x) >>= fun f => f <$> y
+  rw [← OptionT.bind_pure_comp]
+  apply ext
+  simp [Option.elimM, Option.elim]
+  apply bind_congr
+  intro a; cases a <;> simp
+
+instance [Monad m] [LawfulMonad m] : LawfulMonad (OptionT m) where
+  id_map         := by intros; apply ext; simp
+  map_const      := by intros; rfl
+  seqLeft_eq     := OptionT.seqLeft_eq
+  seqRight_eq    := OptionT.seqRight_eq
+  pure_seq       := by intros; apply ext; simp [OptionT.seq_eq, Option.elimM, Option.elim]
+  bind_pure_comp := OptionT.bind_pure_comp
+  bind_map       := by intros; rfl
+  pure_bind      := by intros; apply ext; simp [Option.elimM, Option.elim]
+  bind_assoc     := by intros; apply ext; simp [Option.elimM, Option.elim]; apply bind_congr; intro a; cases a <;> simp
+
+@[simp] theorem run_seq [Monad m] [LawfulMonad m] (f : OptionT m (α → β)) (x : OptionT m α) :
+    (f <*> x).run = Option.elimM f.run (pure none) (fun f => Option.map f <$> x.run) := by
+  simp [seq_eq_bind, Option.elimM, Option.elim]
+
+@[simp] theorem run_seqLeft [Monad m] [LawfulMonad m] (x : OptionT m α) (y : OptionT m β) :
+    (x <* y).run = Option.elimM x.run (pure none)
+      (fun x => Option.map (Function.const β x) <$> y.run) := by
+  simp [seqLeft_eq, seq_eq_bind, Option.elimM, OptionT.run_bind]
+
+@[simp] theorem run_seqRight [Monad m] [LawfulMonad m] (x : OptionT m α) (y : OptionT m β) :
+    (x *> y).run = Option.elimM x.run (pure none) (Function.const α y.run) := by
+  simp only [seqRight_eq, run_seq, Option.elimM, run_map, Option.elim, bind_map_left]
+  refine bind_congr (fun | some _ => by simp | none => by simp)
+
+@[simp, grind =] theorem run_failure [Monad m] : (failure : OptionT m α).run = pure none := by rfl
+
+@[simp] theorem map_failure [Monad m] [LawfulMonad m] {α β : Type _} (f : α → β) :
+    f <$> (failure : OptionT m α) = (failure : OptionT m β) := by
+  simp [OptionT.mk, Functor.map, Alternative.failure, OptionT.fail, OptionT.bind]
+
+@[simp] theorem run_orElse [Monad m] (x : OptionT m α) (y : OptionT m α) :
+    (x <|> y).run = Option.elimM x.run y.run (fun x => pure (some x)) :=
+  bind_congr fun | some _ => by rfl | none => by rfl
+
+end OptionT
+
+/-! # Option -/
+
+instance : LawfulMonad Option := LawfulMonad.mk'
+  (id_map := fun x => by cases x <;> rfl)
+  (pure_bind := fun _ _ => by rfl)
+  (bind_assoc := fun a _ _ => by cases a <;> rfl)
+  (bind_pure_comp := bind_pure_comp)
+
+instance : LawfulApplicative Option := inferInstance
+instance : LawfulFunctor Option := inferInstance
 
 /-! # ReaderT -/
 

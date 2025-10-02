@@ -23,6 +23,7 @@ LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashM
 LEAN_EXPORT lean_object* l_Lean_addTraceAsMessages___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_Trace_0__Lean_withStartStop___redArg___closed__0;
 static lean_object* l___private_Lean_Util_Trace_0__Lean_expandTraceMacro___closed__40;
+lean_object* l_instHashableRaw___lam__0___boxed(lean_object*);
 static lean_object* l_Lean_MonadTrace_getInheritedTraceOptions___autoParam___closed__0;
 static lean_object* l_Lean_doElemTrace_x5b___x5d_______closed__22;
 lean_object* l_Lean_PersistentArray_forIn___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -221,7 +222,6 @@ static lean_object* l_Lean_trace_profiler_threshold_unitAdjusted___closed__0;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Array_empty(lean_object*);
 static lean_object* l___private_Lean_Util_Trace_0__Lean_expandTraceMacro___closed__70;
-lean_object* l_instDecidableEqPos___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedTraceElem_default___closed__0;
 LEAN_EXPORT lean_object* l_Lean_withTraceNodeBefore___redArg___lam__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___redArg___lam__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, double, double, lean_object*);
@@ -322,6 +322,7 @@ static lean_object* l_Lean_doElemTrace_x5b___x5d_______closed__8;
 LEAN_EXPORT lean_object* l_Lean_withTraceNodeBefore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__9____x40_Lean_Util_Trace_961701398____hygCtx___hyg_23_;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___redArg___lam__21___boxed(lean_object**);
+lean_object* l_instDecidableEqRaw___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instMonadAlwaysExceptReaderT___redArg(lean_object*);
 static lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___redArg___lam__3___closed__6;
 static lean_object* l_Lean_addTraceAsMessages___redArg___lam__10___closed__2;
@@ -356,7 +357,6 @@ static lean_object* l_Lean_addTraceAsMessages___redArg___closed__1;
 static lean_object* l___private_Lean_Util_Trace_0__Lean_withStartStop___redArg___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___redArg___lam__0(lean_object*);
 static double l___private_Lean_Util_Trace_0__Lean_withStartStop___redArg___lam__0___closed__0;
-lean_object* l_instHashablePos___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___redArg___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_Trace_0__Lean_expandTraceMacro___closed__57;
@@ -8015,7 +8015,7 @@ static lean_object* _init_l_Lean_addTraceAsMessages___redArg___lam__10___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_alloc_closure((void*)(l_instDecidableEqPos___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_instDecidableEqRaw___boxed), 2, 0);
 x_2 = l_instBEqOfDecidableEq___redArg(x_1);
 return x_2;
 }
@@ -8149,7 +8149,7 @@ static lean_object* _init_l_Lean_addTraceAsMessages___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instHashablePos___lam__0___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_instHashableRaw___lam__0___boxed), 1, 0);
 return x_1;
 }
 }

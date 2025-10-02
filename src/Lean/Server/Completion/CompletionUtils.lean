@@ -14,7 +14,7 @@ public section
 partial def String.charactersIn (a b : String) : Bool :=
   go ⟨0⟩ ⟨0⟩
 where
-  go (aPos bPos : String.Pos) : Bool :=
+  go (aPos bPos : String.Pos.Raw) : Bool :=
     if ha : a.atEnd aPos then
       true
     else if hb : b.atEnd bPos then

@@ -61,10 +61,10 @@ well-founded recursion mechanism to prove that the function terminates.
 @[inline, expose] def attach (l : List α) : List {x // x ∈ l} := attachWith l _ fun _ => id
 
 /-- Implementation of `pmap` using the zero-copy version of `attach`. -/
-@[inline] private def pmapImpl {P : α → Prop} (f : ∀ a, P a → β) (l : List α) (H : ∀ a ∈ l, P a) :
+@[inline] def pmapImpl {P : α → Prop} (f : ∀ a, P a → β) (l : List α) (H : ∀ a ∈ l, P a) :
     List β := (l.attachWith _ H).map fun ⟨x, h'⟩ => f x h'
 
-@[csimp] private theorem pmap_eq_pmapImpl : @pmap = @pmapImpl := by
+@[csimp] theorem pmap_eq_pmapImpl : @pmap = @pmapImpl := by
   funext α β p f l h'
   let rec go : ∀ l' (hL' : ∀ ⦃x⦄, x ∈ l' → p x),
       pmap f l' hL' = map (fun ⟨x, hx⟩ => f x hx) (pmap Subtype.mk l' hL')

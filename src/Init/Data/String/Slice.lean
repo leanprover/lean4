@@ -59,8 +59,8 @@ The implementation is an efficient equivalent of {lean}`s1.copy == s2.copy`
 -/
 def beq (s1 s2 : Slice) : Bool :=
   if h : s1.utf8ByteSize = s2.utf8ByteSize then
-    have h1 := by simp [h, String.Pos.le_iff]
-    have h2 := by simp [h, String.Pos.le_iff]
+    have h1 := by simp [h, String.Pos.Raw.le_iff]
+    have h2 := by simp [h, String.Pos.Raw.le_iff]
     Internal.memcmp s1 s2 s1.startPos.offset s2.startPos.offset s1.utf8ByteSize h1 h2
   else
     false
@@ -686,10 +686,10 @@ Checks whether {lean}`s1 == s2` if ASCII upper/lowercase are ignored.
 def eqIgnoreAsciiCase (s1 s2 : Slice) : Bool :=
   s1.utf8ByteSize == s2.utf8ByteSize && go s1 s1.startPos.offset s2 s2.startPos.offset
 where
-  go (s1 : Slice) (s1Curr : String.Pos) (s2 : Slice) (s2Curr : String.Pos) : Bool :=
+  go (s1 : Slice) (s1Curr : String.Pos.Raw) (s2 : Slice) (s2Curr : String.Pos.Raw) : Bool :=
     if h : s1Curr < s1.utf8ByteSize ∧ s2Curr < s2.utf8ByteSize then
-      let c1 := (s1.getUtf8Byte s1Curr h.left).toAsciiLower
-      let c2 := (s2.getUtf8Byte s2Curr h.right).toAsciiLower
+      let c1 := (s1.getUTF8Byte s1Curr h.left).toAsciiLower
+      let c2 := (s2.getUTF8Byte s2Curr h.right).toAsciiLower
       if c1 == c2 then
         go s1 s1Curr.inc s2 s2Curr.inc
       else
@@ -707,7 +707,7 @@ deriving Inhabited
 
 set_option doc.verso false
 /--
-Creates and iterator over all valid positions within {name}`s`.
+Creates an iterator over all valid positions within {name}`s`.
 
 Examples
  * {lean}`("abc".toSlice.positions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['a', 'b', 'c']`
@@ -750,7 +750,7 @@ private def finitenessRelation [Pure m] :
       obtain ⟨h1, h2, _⟩ := h'
       have h3 := Char.utf8Size_pos (it.internalState.currPos.get h1)
       have h4 := it.internalState.currPos.isValidForSlice.le_utf8ByteSize
-      simp [Pos.ext_iff, String.Pos.ext_iff, Pos.le_iff] at h1 h2 h4
+      simp [Pos.ext_iff, String.Pos.Raw.ext_iff, Pos.Raw.le_iff] at h1 h2 h4
       omega
     · cases h'
     · cases h
@@ -776,7 +776,7 @@ docs_to_verso positions
 end PosIterator
 
 /--
-Creates and iterator over all characters (Unicode code points) in {name}`s`.
+Creates an iterator over all characters (Unicode code points) in {name}`s`.
 
 Examples:
  * {lean}`"abc".toSlice.chars.toList = ['a', 'b', 'c']`
@@ -792,7 +792,7 @@ deriving Inhabited
 
 set_option doc.verso false
 /--
-Creates and iterator over all valid positions within {name}`s`, starting from the last valid
+Creates an iterator over all valid positions within {name}`s`, starting from the last valid
 position and iterating towards the first one.
 
 Examples
@@ -836,7 +836,7 @@ private def finitenessRelation [Pure m] :
     · cases h
       obtain ⟨h1, h2, _⟩ := h'
       have h3 := Pos.offset_prev_lt_offset (h := h1)
-      simp [Pos.ext_iff, String.Pos.ext_iff] at h2 h3
+      simp [Pos.ext_iff, String.Pos.Raw.ext_iff] at h2 h3
       omega
     · cases h'
     · cases h
@@ -863,7 +863,7 @@ docs_to_verso revPositions
 end RevPosIterator
 
 /--
-Creates and iterator over all characters (Unicode code points) in {name}`s`, starting from the end
+Creates an iterator over all characters (Unicode code points) in {name}`s`, starting from the end
 of the slice and iterating towards the start.
 
 Example:
@@ -876,12 +876,12 @@ def revChars (s : Slice) :=
 
 structure ByteIterator where
   s : Slice
-  offset : String.Pos
+  offset : String.Pos.Raw
 deriving Inhabited
 
 set_option doc.verso false
 /--
-Creates and iterator over all bytes in {name}`s`.
+Creates an iterator over all bytes in {name}`s`.
 
 Examples:
  * {lean}`"abc".toSlice.bytes.toList = [97, 98, 99]`
@@ -900,12 +900,12 @@ instance [Pure m] : Std.Iterators.Iterator ByteIterator m UInt8 where
       ∃ h1 : it.internalState.offset < it.internalState.s.utf8ByteSize,
         it.internalState.s = it'.internalState.s ∧
         it'.internalState.offset = it.internalState.offset.inc ∧
-        it.internalState.s.getUtf8Byte it.internalState.offset h1 = out
+        it.internalState.s.getUTF8Byte it.internalState.offset h1 = out
     | .skip _ => False
     | .done => ¬ it.internalState.offset < it.internalState.s.utf8ByteSize
   step := fun ⟨s, offset⟩ =>
     if h : offset < s.utf8ByteSize then
-      pure ⟨.yield ⟨s, offset.inc⟩ (s.getUtf8Byte offset h), by simp [h]⟩
+      pure ⟨.yield ⟨s, offset.inc⟩ (s.getUTF8Byte offset h), by simp [h]⟩
     else
       pure ⟨.done, by simp [h]⟩
 
@@ -923,7 +923,7 @@ private def finitenessRelation [Pure m] :
       clear h4
       generalize it'.internalState.s = s at *
       cases h2
-      simp [String.Pos.ext_iff] at h1 h3
+      simp [String.Pos.Raw.ext_iff] at h1 h3
       omega
     · cases h'
     · cases h
@@ -950,12 +950,12 @@ end ByteIterator
 
 structure RevByteIterator where
   s : Slice
-  offset : String.Pos
+  offset : String.Pos.Raw
   hinv : offset ≤ s.utf8ByteSize
 
 set_option doc.verso false
 /--
-Creates and iterator over all bytes in {name}`s`, starting from the last one and iterating towards
+Creates an iterator over all bytes in {name}`s`, starting from the last one and iterating towards
 the first one.
 
 Examples:
@@ -981,20 +981,20 @@ instance [Pure m] : Std.Iterators.Iterator RevByteIterator m UInt8 where
         it.internalState.s = it'.internalState.s ∧
         it.internalState.offset ≠ 0 ∧
         it'.internalState.offset = it.internalState.offset.dec ∧
-        it.internalState.s.getUtf8Byte it.internalState.offset.dec h1 = out
+        it.internalState.s.getUTF8Byte it.internalState.offset.dec h1 = out
     | .skip _ => False
     | .done => it.internalState.offset = 0
   step := fun ⟨s, offset, hinv⟩ =>
     if h : offset ≠ 0 then
       let nextOffset := offset.dec
       have hbound := by
-        simp [String.Pos.le_iff, nextOffset] at h hinv ⊢
+        simp [String.Pos.Raw.le_iff, nextOffset] at h hinv ⊢
         omega
       have hinv := by
-        simp [String.Pos.le_iff, nextOffset] at hinv ⊢
+        simp [String.Pos.Raw.le_iff, nextOffset] at hinv ⊢
         omega
       have hiter := by simp [nextOffset, hbound, h]
-      pure ⟨.yield ⟨s, nextOffset, hinv⟩ (s.getUtf8Byte nextOffset hbound), hiter⟩
+      pure ⟨.yield ⟨s, nextOffset, hinv⟩ (s.getUTF8Byte nextOffset hbound), hiter⟩
     else
       pure ⟨.done, by simpa using h⟩
 

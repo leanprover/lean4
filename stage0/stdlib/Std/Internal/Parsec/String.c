@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint32_t l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__5(lean_object*, lean_object*);
 lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Internal_Parsec_String_Parser_run___redArg___closed__2;
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
@@ -21,21 +22,18 @@ lean_object* lean_uint32_to_nat(uint32_t);
 static lean_object* l_Std_Internal_Parsec_String_digit___closed__1;
 static lean_object* l_Std_Internal_Parsec_String_asciiLetter___closed__0;
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_skipChar___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__2___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharRaw;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 static lean_object* l_Std_Internal_Parsec_String_hexDigit___closed__1;
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_skipString___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharPos;
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__2___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_pstring___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__4(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_Parser_run___redArg(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_Parsec_String_hexDigit___closed__0;
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
-LEAN_EXPORT uint32_t l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__2(lean_object*);
-LEAN_EXPORT uint32_t l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__5(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_hexDigit(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_pchar(uint32_t, lean_object*);
@@ -43,24 +41,27 @@ static lean_object* l_Std_Internal_Parsec_String_asciiLetter___closed__1;
 LEAN_EXPORT lean_object* l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_digitsCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_digitToNat(uint32_t);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_take(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__5___boxed(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__3(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_digits(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__1(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_pstring(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_asciiLetter(lean_object*);
 extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_pchar___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__0___boxed(lean_object*);
 static lean_object* l_Std_Internal_Parsec_String_pstring___closed__0;
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__3___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__4(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_digit(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_digitToNat___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__1(lean_object*);
 lean_object* l_String_Iterator_forward(lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_Parser_run(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__5___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__0___boxed(lean_object*);
 static lean_object* l_Std_Internal_Parsec_String_Parser_run___redArg___closed__3;
 static lean_object* l_Std_Internal_Parsec_String_pchar___closed__1;
 static lean_object* l_Std_Internal_Parsec_String_digit___closed__0;
@@ -70,19 +71,18 @@ lean_object* lean_nat_mul(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_Parsec_String_Parser_run___redArg___closed__1;
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_skipWs(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_skipChar(uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_skipString(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__3___boxed(lean_object*);
 static lean_object* l_Std_Internal_Parsec_String_pchar___closed__0;
-LEAN_EXPORT uint8_t l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__3(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_digitsCore_go(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_ws(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__0(lean_object*);
 static lean_object* l_Std_Internal_Parsec_String_pstring___closed__1;
+LEAN_EXPORT uint32_t l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__2(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_Parsec_String_Parser_run___redArg___closed__0;
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -91,7 +91,7 @@ lean_inc(x_2);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__1(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
@@ -123,7 +123,7 @@ return x_9;
 }
 }
 }
-LEAN_EXPORT uint32_t l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__2(lean_object* x_1) {
+LEAN_EXPORT uint32_t l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__2(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint32_t x_4; 
@@ -133,7 +133,7 @@ x_4 = lean_string_utf8_get(x_2, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__3(lean_object* x_1) {
+LEAN_EXPORT uint8_t l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__3(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
@@ -145,7 +145,7 @@ lean_dec(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__4(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__4(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -177,7 +177,7 @@ return x_10;
 }
 }
 }
-LEAN_EXPORT uint32_t l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__5(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint32_t l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__5(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint32_t x_5; 
@@ -187,16 +187,16 @@ x_5 = lean_string_utf8_get_fast(x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Std_Internal_Parsec_String_instInputIteratorCharPos() {
+static lean_object* _init_l_Std_Internal_Parsec_String_instInputIteratorCharRaw() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_1 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__0___boxed), 1, 0);
-x_2 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__1), 1, 0);
-x_3 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__2___boxed), 1, 0);
-x_4 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__3___boxed), 1, 0);
-x_5 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__4), 2, 0);
-x_6 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__5___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__0___boxed), 1, 0);
+x_2 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__1), 1, 0);
+x_3 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__2___boxed), 1, 0);
+x_4 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__3___boxed), 1, 0);
+x_5 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__4), 2, 0);
+x_6 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__5___boxed), 2, 0);
 x_7 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_7, 0, x_1);
 lean_ctor_set(x_7, 1, x_2);
@@ -207,40 +207,40 @@ lean_ctor_set(x_7, 5, x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__0___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__0___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__0(x_1);
+x_2 = l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__0(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__2___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__2___boxed(lean_object* x_1) {
 _start:
 {
 uint32_t x_2; lean_object* x_3; 
-x_2 = l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__2(x_1);
+x_2 = l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__2(x_1);
 lean_dec_ref(x_1);
 x_3 = lean_box_uint32(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__3___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__3___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; 
-x_2 = l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__3(x_1);
+x_2 = l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__3(x_1);
 lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__5___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__5___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint32_t x_3; lean_object* x_4; 
-x_3 = l_Std_Internal_Parsec_String_instInputIteratorCharPos___lam__5(x_1, x_2);
+x_3 = l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__5(x_1, x_2);
 lean_dec_ref(x_1);
 x_4 = lean_box_uint32(x_3);
 return x_4;
@@ -1567,8 +1567,8 @@ lean_dec_ref(res);
 res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Internal_Parsec_String_instInputIteratorCharPos = _init_l_Std_Internal_Parsec_String_instInputIteratorCharPos();
-lean_mark_persistent(l_Std_Internal_Parsec_String_instInputIteratorCharPos);
+l_Std_Internal_Parsec_String_instInputIteratorCharRaw = _init_l_Std_Internal_Parsec_String_instInputIteratorCharRaw();
+lean_mark_persistent(l_Std_Internal_Parsec_String_instInputIteratorCharRaw);
 l_Std_Internal_Parsec_String_Parser_run___redArg___closed__0 = _init_l_Std_Internal_Parsec_String_Parser_run___redArg___closed__0();
 lean_mark_persistent(l_Std_Internal_Parsec_String_Parser_run___redArg___closed__0);
 l_Std_Internal_Parsec_String_Parser_run___redArg___closed__1 = _init_l_Std_Internal_Parsec_String_Parser_run___redArg___closed__1();

@@ -35071,25 +35071,31 @@ goto block_62;
 }
 else
 {
-lean_object* x_76; uint8_t x_77; 
-x_76 = l_Lean_Syntax_getArg(x_73, x_13);
+lean_object* x_76; lean_object* x_77; size_t x_78; size_t x_79; lean_object* x_80; lean_object* x_81; uint8_t x_82; 
+x_76 = l_Lean_Syntax_getArg(x_73, x_40);
+x_77 = l_Lean_Syntax_getArgs(x_76);
+lean_dec(x_76);
+x_78 = lean_array_size(x_77);
+x_79 = 0;
+x_80 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Term_elabRunElab_spec__0___redArg(x_78, x_79, x_77);
+x_81 = l_Lean_Syntax_getArg(x_73, x_13);
 lean_dec(x_73);
-x_77 = l_Lean_Syntax_matchesNull(x_76, x_40);
-if (x_77 == 0)
+x_82 = l_Lean_Syntax_matchesNull(x_81, x_40);
+if (x_82 == 0)
 {
 lean_dec(x_66);
-x_61 = x_77;
+x_61 = x_82;
 goto block_62;
 }
 else
 {
-lean_object* x_78; uint8_t x_79; 
-x_78 = l_Lean_Syntax_getArg(x_66, x_13);
+lean_object* x_83; uint8_t x_84; 
+x_83 = l_Lean_Syntax_getArg(x_66, x_13);
 lean_dec(x_66);
-x_79 = l_Lean_Syntax_matchesNull(x_78, x_40);
-if (x_79 == 0)
+x_84 = l_Lean_Syntax_matchesNull(x_83, x_40);
+if (x_84 == 0)
 {
-x_61 = x_79;
+x_61 = x_84;
 goto block_62;
 }
 else

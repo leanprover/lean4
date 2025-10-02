@@ -39,7 +39,7 @@ structure Context where
   fileName       : String
   fileMap        : FileMap
   currRecDepth   : Nat := 0
-  cmdPos         : String.Pos := 0
+  cmdPos         : String.Pos.Raw := 0
   macroStack     : MacroStack := []
   quotContext?   : Option Name := none
   currMacroScope : MacroScope := firstFrontendMacroScope
@@ -303,7 +303,7 @@ def wrapAsyncAsSnapshot {α : Type} (act : α → CommandElabM Unit) (cancelTk? 
         withTraceNode `Elab.async (fun _ => return desc) do
           act a
       catch e =>
-        logError e.toMessageData
+        logException e
       finally
         addTraceAsMessages
       get

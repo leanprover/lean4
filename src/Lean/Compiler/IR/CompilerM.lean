@@ -181,6 +181,14 @@ private def findEnvDeclBoxed (env : Environment) (declName : Name) : Option Decl
     findAtSorted? (declMapExt.getModuleEntries env modIdx) boxed
   | none => declMapExt.getState env |>.find? boxed
 
+@[export lean_has_compile_error]
+private def hasCompileError (env : Environment) (constName : Name) : Bool :=
+  match env.getModuleIdxFor? constName with
+  | some _ => false  -- Compile errors in imports would have stopped the build before this point
+  -- TODO: do we need to store failures as a separate state? Not if we make sure to only ever
+  -- evaluate constants previously called `compileDecl` on.
+  | none => !(declMapExt.getState env |>.contains constName)
+
 def findDecl (n : Name) : CompilerM (Option Decl) :=
   return findEnvDecl (← getEnv) n
 

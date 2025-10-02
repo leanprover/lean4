@@ -411,7 +411,7 @@ def String.quote (s : String) : String :=
 instance : Repr String where
   reprPrec s _ := s.quote
 
-instance : Repr String.Pos where
+instance : Repr String.Pos.Raw where
   reprPrec p _ := "{ byteIdx := " ++ repr p.byteIdx ++ " }"
 
 instance : Repr Substring where

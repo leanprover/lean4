@@ -15,7 +15,7 @@ namespace ParseImports
 
 structure State where
   imports       : Array Import := #[]
-  pos           : String.Pos := 0
+  pos           : String.Pos.Raw := 0
   badModifier   : Bool := false
   error?        : Option String := none
   isModule      : Bool := false
@@ -31,7 +31,7 @@ structure State where
 
 instance : Inhabited Parser := ⟨skip⟩
 
-@[inline] def State.setPos (s : State) (pos : String.Pos) : State :=
+@[inline] def State.setPos (s : State) (pos : String.Pos.Raw) : State :=
   { s with pos := pos }
 
 @[inline] def State.mkError (s : State) (msg : String) : State :=
@@ -43,10 +43,10 @@ def State.mkEOIError (s : State) : State :=
 @[inline] def State.clearError (s : State) : State :=
   { s with error? := none, badModifier := false  }
 
-@[inline] def State.next (s : State) (input : String) (pos : String.Pos) : State :=
+@[inline] def State.next (s : State) (input : String) (pos : String.Pos.Raw) : State :=
   { s with pos := input.next pos }
 
-@[inline] def State.next' (s : State) (input : String) (pos : String.Pos) (h : ¬ input.atEnd pos): State :=
+@[inline] def State.next' (s : State) (input : String) (pos : String.Pos.Raw) (h : ¬ input.atEnd pos): State :=
   { s with pos := input.next' pos h }
 
 partial def finishCommentBlock (nesting : Nat) : Parser := fun input s =>
@@ -116,7 +116,7 @@ partial def whitespace : Parser := fun input s =>
     else s
 
 @[inline] partial def keywordCore (k : String) (failure : Parser) (success : Parser) : Parser := fun input s =>
-  let rec @[specialize] go (i j : String.Pos) : State :=
+  let rec @[specialize] go (i j : String.Pos.Raw) : State :=
     if h₁ : k.atEnd i then
       success input <| whitespace input (s.setPos j)
     else if h₂ : input.atEnd j then

@@ -16,7 +16,7 @@ public section
 
 namespace Lean.Server
 
-private structure RpcProcedure where
+structure RpcProcedure where private mk ::
   wrapper : (sessionId : UInt64) → Json → RequestM (RequestTask Json)
   deriving Inhabited
 
@@ -75,7 +75,7 @@ def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) := do
 builtin_initialize
   registerLspRequestHandler "$/lean/rpc/call" Lsp.RpcCallParams Json handleRpcCall
 
-private def wrapRpcProcedure (method : Name) paramType respType
+def wrapRpcProcedure (method : Name) paramType respType
     [RpcEncodable paramType] [RpcEncodable respType]
     (handler : paramType → RequestM (RequestTask respType)) : RpcProcedure where
   wrapper seshId j := do

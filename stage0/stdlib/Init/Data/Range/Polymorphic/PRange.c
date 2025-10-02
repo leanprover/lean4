@@ -205,6 +205,7 @@ static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__PRange__
 static lean_object* l_Std_PRange_SupportsLowerBound_decidableSatisfiesLowerBound___autoParam___closed__6;
 static lean_object* l_Std_PRange_term_x2a_x2e_x2e_x2e_x3d_____closed__4;
 static lean_object* l_Std_PRange___aux__Init__Data__Range__Polymorphic__PRange______macroRules__Std__PRange__term_x2a_x2e_x2e_x2e_x3d____1___closed__15;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Std_PRange_term_x2a_x2e_x2e_x2e_x2a___closed__1;
 static lean_object* l_Std_PRange_term_x2a_x2e_x2e_x2e_____closed__1;
 static lean_object* l_Std_PRange_term___x3c_x2e_x2e_x2e_____closed__3;
@@ -492,9 +493,14 @@ return x_1;
 LEAN_EXPORT lean_object* l_Std_PRange_BoundShape_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_PRange_BoundShape_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Std_PRange_BoundShape_ctorIdx(x_1);
+x_4 = l_Std_PRange_BoundShape_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = lean_alloc_closure((void*)(l_Std_PRange_BoundShape_noConfusion___redArg___lam__0___boxed), 1, 0);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Std_PRange_BoundShape_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {

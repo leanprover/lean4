@@ -13,6 +13,7 @@ public import Lean.Data.Lsp.Communication
 public import Lean.Data.Lsp.Diagnostics
 public import Lean.Data.Lsp.Extra
 import Init.Data.List.Sort.Basic
+public import Lean.Data.Lsp.LanguageFeatures
 
 public section
 
@@ -160,10 +161,191 @@ where
       | Except.error inner => throw $ userError s!"Cannot decode publishDiagnostics parameters\n{inner}"
     | _ => loop
 
-def runWith (lean : System.FilePath) (args : Array String := #[]) (test : IpcM α) : IO α := do
+structure CallHierarchy where
+  item       : CallHierarchyItem
+  fromRanges : Array Range
+  children   : Array CallHierarchy
+  deriving FromJson, ToJson
+
+partial def expandIncomingCallHierarchy (requestNo : Nat) (uri : DocumentUri) (pos : Lsp.Position) : IpcM (Array CallHierarchy × Nat) := do
+  writeRequest {
+    id := requestNo
+    method := "textDocument/prepareCallHierarchy"
+    param := {
+      textDocument := { uri }
+      position := pos
+      : CallHierarchyPrepareParams
+    }
+  }
+  let r ← readResponseAs requestNo (Option (Array CallHierarchyItem))
+  let mut requestNo := requestNo + 1
+  let roots := r.result.getD #[]
+  let mut hierarchies := #[]
+  for root in roots do
+    let (hierarchy, rootRequestNo) ← go requestNo root #[] {}
+    requestNo := rootRequestNo
+    hierarchies := hierarchies.push hierarchy
+  return (hierarchies, requestNo)
+where
+  go (requestNo : Nat) (item : CallHierarchyItem) (fromRanges : Array Range) (visited : Std.TreeSet String) : IpcM (CallHierarchy × Nat) := do
+    if visited.contains item.name then
+      return ({ item, fromRanges := #[], children := #[] }, requestNo)
+    writeRequest {
+      id := requestNo
+      method := "callHierarchy/incomingCalls"
+      param := {
+        item
+        : CallHierarchyIncomingCallsParams
+      }
+    }
+    let r ← readResponseAs requestNo (Option (Array CallHierarchyIncomingCall))
+    let visited : Std.TreeSet String := visited.insert item.name
+    let mut requestNo := requestNo + 1
+    let children := r.result.getD #[]
+    let mut childHierarchies := #[]
+    for c in children do
+      let (childHierarchy, childRequestNo) ← go requestNo c.from c.fromRanges visited
+      childHierarchies := childHierarchies.push childHierarchy
+      requestNo := childRequestNo
+    return ({ item, fromRanges, children := childHierarchies }, requestNo)
+
+partial def expandOutgoingCallHierarchy (requestNo : Nat) (uri : DocumentUri) (pos : Lsp.Position) : IpcM (Array CallHierarchy × Nat) := do
+  writeRequest {
+    id := requestNo
+    method := "textDocument/prepareCallHierarchy"
+    param := {
+      textDocument := { uri }
+      position := pos
+      : CallHierarchyPrepareParams
+    }
+  }
+  let r ← readResponseAs requestNo (Option (Array CallHierarchyItem))
+  let mut requestNo := requestNo + 1
+  let roots := r.result.getD #[]
+  let mut hierarchies := #[]
+  for root in roots do
+    let (hierarchy, rootRequestNo) ← go requestNo root #[] {}
+    requestNo := rootRequestNo
+    hierarchies := hierarchies.push hierarchy
+  return (hierarchies, requestNo)
+where
+  go (requestNo : Nat) (item : CallHierarchyItem) (fromRanges : Array Range) (visited : Std.TreeSet String) : IpcM (CallHierarchy × Nat) := do
+    if visited.contains item.name then
+      return ({ item, fromRanges := #[], children := #[] }, requestNo)
+    writeRequest {
+      id := requestNo
+      method := "callHierarchy/outgoingCalls"
+      param := {
+        item
+        : CallHierarchyOutgoingCallsParams
+      }
+    }
+    let r ← readResponseAs requestNo (Option (Array CallHierarchyOutgoingCall))
+    let visited : Std.TreeSet String := visited.insert item.name
+    let mut requestNo := requestNo + 1
+    let children := r.result.getD #[]
+    let mut childHierarchies := #[]
+    for c in children do
+      let (childHierarchy, childRequestNo) ← go requestNo c.to c.fromRanges visited
+      childHierarchies := childHierarchies.push childHierarchy
+      requestNo := childRequestNo
+    return ({ item, fromRanges, children := childHierarchies }, requestNo)
+
+structure ModuleHierarchy where
+  item : LeanImport
+  children : Array ModuleHierarchy
+  deriving FromJson, ToJson
+
+partial def expandModuleHierarchyImports (requestNo : Nat) (uri : DocumentUri) : IpcM (Option ModuleHierarchy × Nat) := do
+  writeRequest {
+    id := requestNo
+    method := "$/lean/prepareModuleHierarchy"
+    param := {
+      textDocument := { uri }
+      : LeanPrepareModuleHierarchyParams
+    }
+  }
+  let r ← readResponseAs requestNo (Option LeanModule)
+  let mut requestNo := requestNo + 1
+  let some root := r.result
+    | return (none, requestNo)
+  let root := {
+    module := root
+    kind := { isAll := false, isPrivate := false, metaKind := .full }
+  }
+  let (hierarchy, rootRequestNo) ← go requestNo root {}
+  requestNo := rootRequestNo
+  return (hierarchy, requestNo)
+where
+  go (requestNo : Nat) (item : LeanImport) (visited : Std.TreeSet String) : IpcM (ModuleHierarchy × Nat) := do
+    if visited.contains item.module.name then
+      return ({ item, children := #[] }, requestNo)
+    writeRequest {
+      id := requestNo
+      method := "$/lean/moduleHierarchy/imports"
+      param := {
+        module := item.module
+        : LeanModuleHierarchyImportsParams
+      }
+    }
+    let r ← readResponseAs requestNo (Array LeanImport)
+    let visited : Std.TreeSet String := visited.insert item.module.name
+    let mut requestNo := requestNo + 1
+    let children := r.result
+    let mut childHierarchies := #[]
+    for c in children do
+      let (childHierarchy, childRequestNo) ← go requestNo c visited
+      childHierarchies := childHierarchies.push childHierarchy
+      requestNo := childRequestNo
+    return ({ item, children := childHierarchies }, requestNo)
+
+partial def expandModuleHierarchyImportedBy (requestNo : Nat) (uri : DocumentUri) : IpcM (Option ModuleHierarchy × Nat) := do
+  writeRequest {
+    id := requestNo
+    method := "$/lean/prepareModuleHierarchy"
+    param := {
+      textDocument := { uri }
+      : LeanPrepareModuleHierarchyParams
+    }
+  }
+  let r ← readResponseAs requestNo (Option LeanModule)
+  let mut requestNo := requestNo + 1
+  let some root := r.result
+    | return (none, requestNo)
+  let root := {
+    module := root
+    kind := { isAll := false, isPrivate := false, metaKind := .full }
+  }
+  let (hierarchy, rootRequestNo) ← go requestNo root {}
+  requestNo := rootRequestNo
+  return (hierarchy, requestNo)
+where
+  go (requestNo : Nat) (item : LeanImport) (visited : Std.TreeSet String) : IpcM (ModuleHierarchy × Nat) := do
+    if visited.contains item.module.name then
+      return ({ item, children := #[] }, requestNo)
+    writeRequest {
+      id := requestNo
+      method := "$/lean/moduleHierarchy/importedBy"
+      param := {
+        module := item.module
+        : LeanModuleHierarchyImportedByParams
+      }
+    }
+    let r ← readResponseAs requestNo (Array LeanImport)
+    let visited : Std.TreeSet String := visited.insert item.module.name
+    let mut requestNo := requestNo + 1
+    let children := r.result
+    let mut childHierarchies := #[]
+    for c in children do
+      let (childHierarchy, childRequestNo) ← go requestNo c visited
+      childHierarchies := childHierarchies.push childHierarchy
+      requestNo := childRequestNo
+    return ({ item, children := childHierarchies }, requestNo)
+
+def runWith (lean : String) (args : Array String := #[]) (test : IpcM α) : IO α := do
   let proc ← Process.spawn {
     toStdioConfig := ipcStdioConfig
-    cmd := lean.toString
+    cmd := lean
     args := args }
   ReaderT.run test proc
 

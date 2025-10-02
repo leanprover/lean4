@@ -412,7 +412,14 @@ private unsafe def elabNativeDecideCoreUnsafe (tacticName : Name) (expectedType 
     hints := .abbrev
     safety := .safe
   }
-  addAndCompile decl
+  try
+    -- disable async codegen so we can catch its exceptions; we don't want to report `evalConst`
+    -- failures below when the actual reason was a codegen failure
+    withOptions (Elab.async.set · false) do
+      addAndCompile decl
+  catch ex =>
+    throwError m!"Tactic `{tacticName}` failed. Error: {ex.toMessageData}"
+
   -- get instance from `d`
   let s := d.appArg!
   let rflPrf ← mkEqRefl (toExpr true)

@@ -128,7 +128,7 @@ theorem UpwardEnumerable.succMany?_succ [UpwardEnumerable α] [LawfulUpwardEnume
 
 theorem UpwardEnumerable.succMany?_one [UpwardEnumerable α] [LawfulUpwardEnumerable α] {a : α} :
     succMany? 1 a = succ? a := by
-  simp [succMany?_succ?, succMany?_zero]
+  simp [succMany?_add_one, succMany?_zero]
 
 theorem UpwardEnumerable.succMany?_add [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     {m n : Nat} {a : α} :

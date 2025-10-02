@@ -16,12 +16,12 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lake_zpad(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Data_Nat_Fold_0__Nat_allTR_loop___at___Lake_isHex_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Data_Nat_Fold_0__Nat_allTR_loop___at___Lake_isHex_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_lpad(lean_object*, uint32_t, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_isHex(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* l_Nat_reprFast(lean_object*);
+uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_rpad___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_lpad___closed__0;
 LEAN_EXPORT lean_object* l_Lake_isHex___boxed(lean_object*);

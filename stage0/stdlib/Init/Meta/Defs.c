@@ -285,6 +285,7 @@ static lean_object* l_Lean_Meta_instReprConfig__1_repr___redArg___closed__22;
 LEAN_EXPORT lean_object* l_Lean_Syntax_decodeStrLitAux(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Meta_Defs_0__Lean_quoteArray___redArg___closed__1;
 LEAN_EXPORT uint8_t l_Lean_isIdFirstAscii(uint8_t);
+uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_mkCharLit___closed__0;
 static lean_object* l_Lean_Meta_instReprConfig_repr___redArg___closed__28;
 static lean_object* l_Lean_Parser_Tactic_getConfigItems___closed__4;
@@ -362,7 +363,6 @@ LEAN_EXPORT lean_object* l_Lean_Syntax_TSepArray_getElems___boxed(lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_instQuoteNameMkStr1___private__1(lean_object*);
 static lean_object* l_Lean_Meta_instReprConfig_repr___redArg___closed__22;
 LEAN_EXPORT lean_object* l_Lean_Syntax_isFieldIdx_x3f(lean_object*);
-uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instQuoteNatNumLitKind;
 static lean_object* l_Lean_Meta_instReprConfig_repr___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Syntax_getOptionalIdent_x3f___boxed(lean_object*);
@@ -913,7 +913,6 @@ static lean_object* l_Lean_Meta_instReprTransparencyMode_repr___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instReprPreresolved_repr(lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_instReprTSyntax_repr___redArg___closed__6;
 static lean_object* l_Lean_Option_hasQuote___redArg___lam__0___closed__0;
-LEAN_EXPORT lean_object* l___private_Init_Meta_Defs_0__Lean_Name_getUtf8Byte_x27___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkSepArray___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Macro_throwErrorAt___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_versionStringCore___closed__1;
@@ -2795,16 +2794,6 @@ uint8_t x_2; lean_object* x_3;
 x_2 = lean_is_inaccessible_user_name(x_1);
 x_3 = lean_box(x_2);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Meta_Defs_0__Lean_Name_getUtf8Byte_x27___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = lean_string_get_byte_fast(x_1, x_2);
-lean_dec_ref(x_1);
-x_5 = lean_box(x_4);
-return x_5;
 }
 }
 LEAN_EXPORT uint8_t l___private_Init_Meta_Defs_0__Lean_Name_needsNoEscapeAsciiRest(lean_object* x_1, lean_object* x_2) {
@@ -14379,7 +14368,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_foldr___at___List_foldr___at___Substring_toName_spec__0_spec__0___closed__2;
 x_2 = lean_unsigned_to_nat(10u);
-x_3 = lean_unsigned_to_nat(1136u);
+x_3 = lean_unsigned_to_nat(1130u);
 x_4 = l_List_foldr___at___List_foldr___at___Substring_toName_spec__0_spec__0___closed__1;
 x_5 = l_List_foldr___at___List_foldr___at___Substring_toName_spec__0_spec__0___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

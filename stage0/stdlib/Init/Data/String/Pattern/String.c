@@ -29,9 +29,9 @@ LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardSliceSearcher_instBackwa
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardSliceSearcher_dropSuffix_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_instIteratorIdSearchStep___lam__0___boxed(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Pattern_String_0__String_Slice_Pattern_ForwardSliceSearcher_toPair___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_String_Slice_getUTF8Byte_x21(lean_object*, lean_object*);
 static lean_object* l_String_Slice_Pattern_BackwardSliceSearcher_instBackwardPattern___closed__1;
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_instForwardPattern__1___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Pattern_String_0__String_Slice_Pattern_ForwardSliceSearcher_finitenessRelation___boxed(lean_object*);
@@ -51,6 +51,7 @@ static lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_instForwardPatte
 LEAN_EXPORT uint8_t l_String_Slice_Pattern_BackwardSliceSearcher_endsWith(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_iter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_ctorIdx___redArg(lean_object*);
+uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 lean_object* l_String_Slice_utf8ByteSize(lean_object*);
 static lean_object* l_String_Slice_Pattern_BackwardSliceSearcher_instBackwardPattern___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Pattern_String_0__String_Slice_Pattern_ForwardSliceSearcher_buildTable_computeDistance___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -70,7 +71,6 @@ static lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_instIteratorLoop
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_iter___redArg(lean_object*);
 static lean_object* l_String_Slice_Pattern_BackwardSliceSearcher_instBackwardPattern___closed__0;
 static lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_instIteratorLoopIdSearchStep___closed__5;
-uint8_t l_String_Slice_getUtf8Byte_x21(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Pattern_String_0__String_Slice_Pattern_ForwardSliceSearcher_buildTable_go(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_startsWith___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_ctorElim___redArg(lean_object*, lean_object*);
@@ -371,7 +371,7 @@ goto block_11;
 else
 {
 uint8_t x_14; uint8_t x_15; 
-x_14 = l_String_Slice_getUtf8Byte_x21(x_1, x_2);
+x_14 = l_String_Slice_getUTF8Byte_x21(x_1, x_2);
 x_15 = lean_uint8_dec_eq(x_3, x_14);
 if (x_15 == 0)
 {
@@ -444,7 +444,7 @@ x_20 = lean_array_get_borrowed(x_16, x_3, x_19);
 lean_dec(x_19);
 lean_inc(x_20);
 x_21 = l___private_Init_Data_String_Pattern_String_0__String_Slice_Pattern_ForwardSliceSearcher_buildTable_computeDistance(x_1, x_20, x_15, x_3);
-x_22 = l_String_Slice_getUtf8Byte_x21(x_1, x_21);
+x_22 = l_String_Slice_getUTF8Byte_x21(x_1, x_21);
 x_23 = lean_uint8_dec_eq(x_15, x_22);
 if (x_23 == 0)
 {
@@ -600,7 +600,7 @@ x_6 = lean_nat_dec_eq(x_4, x_5);
 if (x_6 == 0)
 {
 uint8_t x_7; uint8_t x_8; 
-x_7 = l_String_Slice_getUtf8Byte_x21(x_1, x_4);
+x_7 = l_String_Slice_getUTF8Byte_x21(x_1, x_4);
 x_8 = lean_uint8_dec_eq(x_3, x_7);
 if (x_8 == 0)
 {
@@ -682,7 +682,7 @@ x_17 = lean_ctor_get(x_1, 1);
 x_18 = lean_nat_add(x_17, x_5);
 x_19 = lean_string_get_byte_fast(x_16, x_18);
 x_20 = l_String_Slice_Pattern_ForwardSliceSearcher_backtrackIfNecessary(x_2, x_3, x_19, x_6);
-x_21 = l_String_Slice_getUtf8Byte_x21(x_2, x_20);
+x_21 = l_String_Slice_getUTF8Byte_x21(x_2, x_20);
 x_22 = lean_uint8_dec_eq(x_19, x_21);
 if (x_22 == 0)
 {

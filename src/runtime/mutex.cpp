@@ -31,9 +31,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_basemutex_lock(b_obj_arg mtx, obj_arg) {
     return lean_mk_baseio_out(box(0));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_basemutex_try_lock(b_obj_arg mtx, obj_arg) {
+extern "C" LEAN_EXPORT uint8_t lean_io_basemutex_try_lock(b_obj_arg mtx, obj_arg) {
     bool success = basemutex_get(mtx)->try_lock();
-    return lean_mk_baseio_out(box(success));
+    return success;
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_basemutex_unlock(b_obj_arg mtx, obj_arg) {
@@ -91,9 +91,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_baserecmutex_lock(b_obj_arg mtx, obj_arg)
     return lean_mk_baseio_out(box(0));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_baserecmutex_try_lock(b_obj_arg mtx, obj_arg) {
+extern "C" LEAN_EXPORT uint8_t lean_io_baserecmutex_try_lock(b_obj_arg mtx, obj_arg) {
     bool success = baserecmutex_get(mtx)->try_lock();
-    return lean_mk_baseio_out(box(success));
+    return success;
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_baserecmutex_unlock(b_obj_arg mtx, obj_arg) {
@@ -122,9 +122,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_basesharedmutex_write(b_obj_arg mtx, obj_
     return lean_mk_baseio_out(box(0));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_basesharedmutex_try_write(b_obj_arg mtx, obj_arg) {
+extern "C" LEAN_EXPORT uint8_t lean_io_basesharedmutex_try_write(b_obj_arg mtx, obj_arg) {
     bool success = basesharedmutex_get(mtx)->try_lock();
-    return lean_mk_baseio_out(box(success));
+    return success;
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_basesharedmutex_unlock_write(b_obj_arg mtx, obj_arg) {
@@ -137,9 +137,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_basesharedmutex_read(b_obj_arg mtx, obj_a
     return lean_mk_baseio_out(box(0));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_basesharedmutex_try_read(b_obj_arg mtx, obj_arg) {
+extern "C" LEAN_EXPORT uint8_t lean_io_basesharedmutex_try_read(b_obj_arg mtx, obj_arg) {
     bool success = basesharedmutex_get(mtx)->try_lock_shared();
-    return lean_mk_baseio_out(box(success));
+    return success;
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_basesharedmutex_unlock_read(b_obj_arg mtx, obj_arg) {

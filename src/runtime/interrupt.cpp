@@ -63,7 +63,7 @@ extern "C" lean_obj_res lean_io_cancel_token_is_set(b_lean_obj_arg cancel_tk, le
 void check_interrupted() {
     if (g_cancel_tk) {
         inc_ref(g_cancel_tk);
-        if (get_baseio_scalar_result<bool>(lean_io_cancel_token_is_set(g_cancel_tk, lean_io_mk_world())) &&
+        if (lean_io_cancel_token_is_set(g_cancel_tk, lean_io_mk_world()) &&
             !std::uncaught_exception()) {
             throw interrupted();
         }

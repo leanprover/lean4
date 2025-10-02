@@ -102,12 +102,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj, obj_arg /
     lean_uv_signal_object * signal = lean_to_uv_signal(obj);
 
     auto create_promise = []() {
-        lean_object * prom_res = lean_io_promise_new(lean_io_mk_world());
-        lean_object * promise = lean_ctor_get(prom_res, 0);
-        lean_inc(promise);
-        lean_dec(prom_res);
-
-        return promise;
+        return lean_io_promise_new(lean_io_mk_world());
     };
 
     auto setup_signal = [create_promise, obj, signal]() {

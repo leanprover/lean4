@@ -76,7 +76,6 @@ LEAN_EXPORT lean_object* l_String_Slice_ByteIterator_instIteratorLoopPartialUInt
 LEAN_EXPORT lean_object* l_String_Slice_lines_lineMap(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToBackwardSearcher_defaultDropSuffix_x3f___at___String_Slice_lines_lineMap_spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_RevSplitIterator_instIteratorOfPure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_SplitInclusiveIterator_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_SplitInclusiveIterator_ctorElim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_ByteIterator_instIteratorLoopUInt8OfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -169,6 +168,7 @@ extern lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instForwardPa
 LEAN_EXPORT lean_object* l_String_Slice_takeEnd(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_RevByteIterator_instIteratorLoopPartialUInt8OfMonad(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_startsWith___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_RevSplitIterator_operating_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_foldl___redArg___lam__1___boxed(lean_object*, lean_object*);
 lean_object* l_String_Slice_utf8ByteSize(lean_object*);

@@ -11,4 +11,4 @@ public import Init.Grind.Tactics
 
 public section
 
-attribute [grind ext] funext Prod Subtype Sigma PSigma
+attribute [grind ext] Prod Subtype Sigma PSigma

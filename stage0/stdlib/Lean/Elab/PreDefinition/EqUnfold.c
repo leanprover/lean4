@@ -241,7 +241,7 @@ LEAN_EXPORT uint8_t l_Array_isEqvAux___at___Lean_Meta_getConstUnfoldEqnFor_x3f_s
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Meta_getConstUnfoldEqnFor_x3f_spec__4_spec__4_spec__4_spec__4_spec__4_spec__4___closed__17;
 lean_object* l_Lean_mkLevelParam(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at___Lean_Meta_getConstUnfoldEqnFor_x3f_spec__14(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_addDecl(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_addDecl(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at_____private_Lean_Elab_PreDefinition_EqUnfold_0__Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold_1356299382____hygCtx___hyg_2__spec__0___redArg___closed__3;
 static lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__0___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3225,7 +3225,7 @@ lean_ctor_set_tag(x_11, 2);
 lean_ctor_set(x_11, 0, x_41);
 lean_inc(x_8);
 lean_inc_ref(x_7);
-x_42 = l_Lean_addDecl(x_11, x_7, x_8, x_36);
+x_42 = l_Lean_addDecl(x_11, x_3, x_7, x_8, x_36);
 if (lean_obj_tag(x_42) == 0)
 {
 lean_object* x_43; lean_object* x_44; 
@@ -3427,7 +3427,7 @@ x_82 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_82, 0, x_81);
 lean_inc(x_8);
 lean_inc_ref(x_7);
-x_83 = l_Lean_addDecl(x_82, x_7, x_8, x_76);
+x_83 = l_Lean_addDecl(x_82, x_3, x_7, x_8, x_76);
 if (lean_obj_tag(x_83) == 0)
 {
 lean_object* x_84; lean_object* x_85; 

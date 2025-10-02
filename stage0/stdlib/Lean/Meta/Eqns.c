@@ -443,7 +443,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___at__
 static lean_object* l___private_Lean_Meta_Eqns_0__Lean_Meta_initFn___lam__1___closed__4____x40_Lean_Meta_Eqns_1321976749____hygCtx___hyg_2_;
 LEAN_EXPORT uint8_t l___private_Lean_Meta_Eqns_0__Lean_Meta_initFn___lam__0____x40_Lean_Meta_Eqns_1636731419____hygCtx___hyg_2_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_getUnfoldEqnFor_x3f___lam__1___closed__0;
-lean_object* l_Lean_addDecl(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_addDecl(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_isEqnThm(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 double lean_float_sub(double, double);
@@ -2667,7 +2667,7 @@ x_38 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_38, 0, x_37);
 lean_inc(x_8);
 lean_inc_ref(x_7);
-x_39 = l_Lean_addDecl(x_38, x_7, x_8, x_35);
+x_39 = l_Lean_addDecl(x_38, x_21, x_7, x_8, x_35);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; lean_object* x_41; 
@@ -2933,7 +2933,7 @@ x_89 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_89, 0, x_88);
 lean_inc(x_8);
 lean_inc_ref(x_7);
-x_90 = l_Lean_addDecl(x_89, x_7, x_8, x_85);
+x_90 = l_Lean_addDecl(x_89, x_71, x_7, x_8, x_85);
 if (lean_obj_tag(x_90) == 0)
 {
 lean_object* x_91; lean_object* x_92; 

@@ -90,6 +90,7 @@ LEAN_EXPORT lean_object* l_Lean_instToMessageDataOption___redArg___lam__0(lean_o
 static lean_object* l_Lean_termM_x21_____closed__1;
 static lean_object* l_Lean_instFromJsonMessageSeverity_fromJson___closed__2;
 static lean_object* l_Lean_instToJsonSerialMessage_toJson___closed__0;
+lean_object* l_Std_Rxo_instIteratorIteratorIdOfUpwardEnumerableOfDecidableLT___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instFromJsonBaseMessage_fromJson___redArg___closed__39;
 static lean_object* l_Lean_Kernel_Exception_toMessageData___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_Lean_MessageSeverity_noConfusion___redArg___lam__0___boxed(lean_object*);
@@ -98,7 +99,6 @@ LEAN_EXPORT lean_object* l_Lean_MessageData_joinSep(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_BaseMessage_ctorIdx___boxed(lean_object*, lean_object*);
 lean_object* l_List_mapTR_loop___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MessageData_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__14;
 static lean_object* l_Lean_instFromJsonBaseMessage_fromJson___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Lean_instToJsonSerialMessage_toJson(lean_object*);
 static lean_object* l_Lean_instFromJsonBaseMessage_fromJson___redArg___closed__36;
@@ -111,7 +111,6 @@ static lean_object* l_Lean_instToMessageDataSubarray___redArg___lam__1___closed_
 lean_object* l_Nat_decLt___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_MessageData_ofList___closed__4;
 static lean_object* l_Lean_MessageData_orList___closed__3;
-lean_object* l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(lean_object*);
 static lean_object* l_Lean_Kernel_Exception_toMessageData___closed__33;
 LEAN_EXPORT lean_object* l_Lean_MessageData_errorName_x3f(lean_object*);
 extern lean_object* l_Lean_instInhabitedMVarId_default;
@@ -752,7 +751,6 @@ lean_object* l_Lean_ppGoal(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyM___at___Lean_MessageLog_hasErrors_spec__4___boxed(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lean_termM_x21_____closed__6;
-lean_object* l_Std_PRange_instIteratorRangeIteratorIdOfUpwardEnumerableOfSupportsUpperBound___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_instFromJsonSerialMessage_fromJson_spec__5___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MessageData_formatAux(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instFromJsonSerialMessage_fromJson___closed__21;
@@ -13084,25 +13082,16 @@ return x_1;
 static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__0;
-x_2 = l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_PRange_instUpwardEnumerableNat;
-x_2 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__1;
-x_3 = lean_alloc_closure((void*)(l_Std_PRange_instIteratorRangeIteratorIdOfUpwardEnumerableOfSupportsUpperBound___redArg___lam__0), 3, 2);
+x_2 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__0;
+x_3 = lean_alloc_closure((void*)(l_Std_Rxo_instIteratorIteratorIdOfUpwardEnumerableOfDecidableLT___redArg___lam__0), 3, 2);
 lean_closure_set(x_3, 0, x_2);
 lean_closure_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__3() {
+static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -13110,7 +13099,7 @@ x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__0), 4, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__4() {
+static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -13118,7 +13107,7 @@ x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__1___boxed), 4, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__5() {
+static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -13126,7 +13115,7 @@ x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__2___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__6() {
+static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -13134,7 +13123,7 @@ x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__3), 4, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__7() {
+static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -13142,7 +13131,7 @@ x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__4___boxed), 4, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__8() {
+static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -13150,7 +13139,7 @@ x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__5___boxed), 4, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__9() {
+static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -13158,27 +13147,27 @@ x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__6), 4, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__10() {
+static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__4;
-x_2 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__3;
+x_1 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__3;
+x_2 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__2;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__11() {
+static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__8;
-x_2 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__7;
-x_3 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__6;
-x_4 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__5;
-x_5 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__10;
+x_1 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__7;
+x_2 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__6;
+x_3 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__5;
+x_4 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__4;
+x_5 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__9;
 x_6 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_6, 0, x_5);
 lean_ctor_set(x_6, 1, x_4);
@@ -13188,29 +13177,29 @@ lean_ctor_set(x_6, 4, x_1);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__12() {
+static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__9;
-x_2 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__11;
+x_1 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__8;
+x_2 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__10;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__13() {
+static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__2;
-x_2 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__12;
+x_1 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__1;
+x_2 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__11;
 x_3 = l_Std_Iterators_Types_Attach_instIterator___redArg(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__14() {
+static lean_object* _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -13237,10 +13226,10 @@ lean_ctor_set(x_9, 0, x_6);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_7);
-x_11 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__12;
-x_12 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__13;
+x_11 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__11;
+x_12 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__12;
 x_13 = l_Std_Iterators_Types_ULiftIterator_instIterator___redArg(x_1, x_12, x_11);
-x_14 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__14;
+x_14 = l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__13;
 x_15 = l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___redArg(x_13, x_2, x_8, x_11, x_10, x_14);
 x_16 = lean_array_to_list(x_15);
 x_17 = lean_box(0);
@@ -15484,8 +15473,6 @@ l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__12 = _init_l_Lean_i
 lean_mark_persistent(l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__12);
 l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__13 = _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__13();
 lean_mark_persistent(l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__13);
-l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__14 = _init_l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__14();
-lean_mark_persistent(l_Lean_instToMessageDataSubarray___redArg___lam__1___closed__14);
 l_Lean_instToMessageDataOption___redArg___lam__0___closed__0 = _init_l_Lean_instToMessageDataOption___redArg___lam__0___closed__0();
 lean_mark_persistent(l_Lean_instToMessageDataOption___redArg___lam__0___closed__0);
 l_Lean_instToMessageDataOption___redArg___lam__0___closed__1 = _init_l_Lean_instToMessageDataOption___redArg___lam__0___closed__1();

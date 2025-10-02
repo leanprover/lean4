@@ -39,7 +39,7 @@ void display_cumulative_profiling_times(std::ostream & out) {
 }
 
 /* displayCumulativeProfilingTimes : BaseIO Unit */
-extern "C" LEAN_EXPORT obj_res lean_display_cumulative_profiling_times(obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_display_cumulative_profiling_times() {
    display_cumulative_profiling_times(std::cerr);
    return lean_mk_baseio_out(box(0));
 }

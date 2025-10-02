@@ -14,7 +14,7 @@ int main() {
   lean_object * res;
   // use same default as for Lean executables
   uint8_t builtin = 1;
-  res = initialize_RFFI(builtin, lean_io_mk_world());
+  res = initialize_RFFI(builtin);
   if (lean_io_result_is_ok(res)) {
       lean_dec_ref(res);
   } else {

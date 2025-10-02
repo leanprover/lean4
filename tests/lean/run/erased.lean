@@ -27,14 +27,14 @@ trace: [Compiler.result] size: 1
 ---
 trace: [Compiler.result] size: 5
     def _eval._lam_0 (_x.1 : Array
-       Lean.Name) (_x.2 : PUnit) (_y.3 : Lean.Elab.Term.Context) (_y.4 : lcAny) (_y.5 : Lean.Meta.Context) (_y.6 : lcAny) (_y.7 : Lean.Core.Context) (_y.8 : lcAny) (_y.9 : lcAny) : EST.Out
-      Lean.Exception lcRealWorld PUnit :=
-      let _x.10 : EST.Out Lean.Exception lcRealWorld PUnit := compile _x.1 _y.7 _y.8 _y.9;
-      cases _x.10 : EST.Out Lean.Exception lcRealWorld PUnit
-      | EST.Out.ok (a.11 : PUnit) (a.12 : lcAny) =>
-        let _x.13 : EST.Out Lean.Exception lcRealWorld PUnit := @EST.Out.ok ◾ ◾ ◾ _x.2 a.12;
+       Lean.Name) (_x.2 : PUnit) (_y.3 : Lean.Elab.Term.Context) (_y.4 : lcAny) (_y.5 : Lean.Meta.Context) (_y.6 : lcAny) (_y.7 : Lean.Core.Context) (_y.8 : lcAny) (_y.9 : lcVoid) : EST.Out
+      Lean.Exception lcAny PUnit :=
+      let _x.10 : EST.Out Lean.Exception lcAny PUnit := compile _x.1 _y.7 _y.8 _y.9;
+      cases _x.10 : EST.Out Lean.Exception lcAny PUnit
+      | EST.Out.ok (a.11 : PUnit) (a.12 : lcVoid) =>
+        let _x.13 : EST.Out Lean.Exception lcAny PUnit := @EST.Out.ok ◾ ◾ ◾ _x.2 a.12;
         return _x.13
-      | EST.Out.error (a.14 : Lean.Exception) (a.15 : lcAny) =>
+      | EST.Out.error (a.14 : Lean.Exception) (a.15 : lcVoid) =>
         return _x.10
 [Compiler.result] size: 1
     def _eval._closed_0 : String :=
@@ -62,8 +62,7 @@ trace: [Compiler.result] size: 5
       let _x.3 : Array Lean.Name := Array.push ◾ _x.2 _x.1;
       return _x.3
 [Compiler.result] size: 9
-    def _eval (a.1 : Lean.Elab.Command.Context) (a.2 : lcAny) (_y.3 : lcAny) : EST.Out Lean.Exception lcRealWorld
-      PUnit :=
+    def _eval (a.1 : Lean.Elab.Command.Context) (a.2 : lcAny) (_y.3 : lcVoid) : EST.Out Lean.Exception lcAny PUnit :=
       let _x.4 : String := _eval._closed_0;
       let _x.5 : String := _eval._closed_1;
       let _x.6 : Lean.Name := _eval._closed_2;
@@ -74,10 +73,8 @@ trace: [Compiler.result] size: 5
       let _f.11 : Lean.Elab.Term.Context →
         lcAny →
           Lean.Meta.Context →
-            lcAny →
-              Lean.Core.Context → lcAny → lcAny → EST.Out Lean.Exception lcRealWorld PUnit := _eval._lam_0 _x.9 _x.10;
-      let _x.12 : EST.Out Lean.Exception lcRealWorld
-        PUnit := Lean.Elab.Command.liftTermElabM._redArg _f.11 a.1 a.2 _y.3;
+            lcAny → Lean.Core.Context → lcAny → lcVoid → EST.Out Lean.Exception lcAny PUnit := _eval._lam_0 _x.9 _x.10;
+      let _x.12 : EST.Out Lean.Exception lcAny PUnit := Lean.Elab.Command.liftTermElabM._redArg _f.11 a.1 a.2 _y.3;
       return _x.12
 -/
 #guard_msgs in

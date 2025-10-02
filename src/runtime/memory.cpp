@@ -114,7 +114,7 @@ namespace lean {
 static size_t g_max_memory = 0;
 LEAN_THREAD_VALUE(size_t, g_counter, 0);
 
-extern "C" LEAN_EXPORT lean_obj_res lean_internal_get_default_max_memory(lean_obj_arg) {
+extern "C" LEAN_EXPORT lean_obj_res lean_internal_get_default_max_memory() {
 #ifdef LEAN_DEFAULT_MAX_MEMORY
     return lean_box(LEAN_DEFAULT_MAX_MEMORY);
 #else

@@ -1065,7 +1065,7 @@ extern "C" LEAN_EXPORT obj_res lean_task_pure(obj_arg a) {
     return (lean_object*)alloc_task(a);
 }
 
-static obj_res task_map_fn(obj_arg f, obj_arg t, obj_arg) {
+static obj_res task_map_fn(obj_arg f, obj_arg t) {
     b_obj_res v = lean_to_task(t)->m_value;
     lean_assert(v != nullptr);
     lean_inc(v);
@@ -1188,12 +1188,12 @@ void lean_promise_resolve(obj_arg value, b_obj_arg promise) {
     g_task_manager->resolve(lean_to_promise(promise)->m_result, mk_option_some(value));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_promise_new(obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_promise_new() {
     lean_object * o = lean_promise_new();
     return lean_mk_baseio_out(o);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg promise, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg promise) {
     lean_promise_resolve(value, promise);
     return lean_mk_baseio_out(box(0));
 }
@@ -2636,9 +2636,9 @@ extern "C" LEAN_EXPORT object * lean_max_small_nat(object *) {
 // =======================================
 // Debugging helper functions
 
-extern "C" obj_res lean_io_eprintln(obj_arg s, obj_arg w);
+extern "C" obj_res lean_io_eprintln(obj_arg s);
 void io_eprintln(obj_arg s) {
-    object * r = lean_io_eprintln(s, lean_io_mk_world());
+    object * r = lean_io_eprintln(s);
     lean_assert(lean_io_result_is_ok(r));
     lean_dec(r);
 }

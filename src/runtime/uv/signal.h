@@ -48,8 +48,8 @@ static inline lean_uv_signal_object* lean_to_uv_signal(lean_object * o) { return
 
 // =======================================
 // Signal manipulation functions
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8_t repeating, obj_arg /* w */);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg signal, obj_arg /* w */);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg signal, obj_arg /* w */);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8_t repeating);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg signal);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg signal);
 
 }

@@ -122,9 +122,9 @@ scope_trace_env::~scope_trace_env() {
     get_disabled_trace_classes().resize(m_disable_sz);
 }
 
-extern "C" obj_res lean_io_eprint(obj_arg s, obj_arg w);
+extern "C" obj_res lean_io_eprint(obj_arg s);
 static void io_eprint(obj_arg s) {
-    object * r = lean_io_eprint(s, lean_io_mk_world());
+    object * r = lean_io_eprint(s);
     if (!lean_io_result_is_ok(r))
         lean_io_result_show_error(r);
     lean_dec(r);
@@ -173,7 +173,7 @@ std::string pp_expr(elab_environment const & env, options const & opts, local_ct
     options o = opts;
     // o = o.update(name{"pp", "proofs"}, true); --
     object_ref fmt = get_io_result<object_ref>(lean_pp_expr(env.to_obj_arg(), lean_mk_metavar_ctx(lean_box(0)), lctx.to_obj_arg(), o.to_obj_arg(),
-                                                            e.to_obj_arg(), io_mk_world()));
+                                                            e.to_obj_arg()));
     string_ref str(lean_format_pretty(fmt.to_obj_arg(), lean_unsigned_to_nat(80), lean_unsigned_to_nat(0), lean_unsigned_to_nat(0)));
     return str.to_std_string();
 }

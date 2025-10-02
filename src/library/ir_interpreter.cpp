@@ -1083,9 +1083,7 @@ public:
         } else { // IO _
             lean_assert(params.size() == 1);
         }
-        object * w = io_mk_world();
-        call_args.push_back(w);
-        w = call_boxed("main", call_args.size(), &call_args[0]);
+        object* w = call_boxed("main", call_args.size(), &call_args[0]);
         if (io_result_is_ok(w)) {
             int ret = 0;
             lean::expr ret_ty = m_env.get("main").get_type();
@@ -1107,7 +1105,7 @@ public:
 
     object * run_init(name const & decl, name const & init_decl) {
         try {
-            object * args[] = { io_mk_world() };
+            object * args[] = {};
             object * r = call_boxed(init_decl, 1, args);
             if (io_result_is_ok(r)) {
                 object * o = io_result_get_value(r);
@@ -1157,9 +1155,9 @@ uint32 run_main(elab_environment const & env, options const & opts, list_ref<str
 }
 
 /* runMain (env : Environment) (opts : Iptions) (args : List String) : BaseIO UInt32 */
-extern "C" LEAN_EXPORT obj_res lean_run_main(b_obj_arg env, b_obj_arg opts, b_obj_arg args, obj_arg) {
+extern "C" LEAN_EXPORT uint32_t lean_run_main(b_obj_arg env, b_obj_arg opts, b_obj_arg args) {
     uint32 ret = run_main(TO_REF(elab_environment, env), TO_REF(options, opts), TO_REF(list_ref<string_ref>, args));
-    return lean_mk_baseio_out(box(ret));
+    return ret;
 }
 
 extern "C" LEAN_EXPORT object * lean_eval_const(object * env, object * opts, object * c) {
@@ -1178,7 +1176,7 @@ extern "C" LEAN_EXPORT object * lean_run_mod_init(object * mod, object *) {
     if (void * init = lookup_symbol_in_cur_exe(mangled.data())) {
         auto init_fn = reinterpret_cast<object *(*)(uint8_t, object *)>(init);
         uint8_t builtin = 0;
-        object * r = init_fn(builtin, io_mk_world());
+        object * r = init_fn(builtin);
         if (io_result_is_ok(r)) {
             dec_ref(r);
             return lean_io_result_mk_ok(box(true));

@@ -32,9 +32,9 @@ extern "C" LEAN_EXPORT void lean_initialize() {
     // * calling exported Lean functions from C++
     // * calling into native code of the current module from a previous stage when `prefer_native`
     //   is set
-    consume_io_result(initialize_Init(builtin, io_mk_world()));
-    consume_io_result(initialize_Std(builtin, io_mk_world()));
-    consume_io_result(initialize_Lean(builtin, io_mk_world()));
+    consume_io_result(initialize_Init(builtin));
+    consume_io_result(initialize_Std(builtin));
+    consume_io_result(initialize_Lean(builtin));
     initialize_kernel_module();
     init_default_print_fn();
     initialize_library_core_module();

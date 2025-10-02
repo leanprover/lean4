@@ -2836,17 +2836,16 @@ static inline lean_obj_res lean_void_mk(lean_obj_arg a) {
 
 static inline b_lean_obj_res lean_baseio_out_val(b_lean_obj_arg r) {
     // TODO: This function needs to become identity after we are done.
-    return lean_ctor_get(r, 0);
-    // return r;
+    // return lean_ctor_get(r, 0);
+    return r;
 }
 
 static inline lean_obj_res lean_mk_baseio_out(lean_obj_arg i) {
-    // TODO: This function needs to become identity after we are done.
-    lean_object * r = lean_alloc_ctor(0, 2, 0);
-    lean_ctor_set(r, 0, i);
-    lean_ctor_set(r, 1, lean_box(0));
-    return r;
+    // lean_object * r = lean_alloc_ctor(0, 2, 0);
+    // lean_ctor_set(r, 0, i);
+    // lean_ctor_set(r, 1, lean_box(0));
     // return i;
+    return i;
 }
 
 static inline bool lean_io_result_is_ok(b_lean_obj_arg r) { return lean_ptr_tag(r) == 0; }
@@ -2865,15 +2864,13 @@ static inline lean_obj_res lean_io_result_take_value(lean_obj_arg r) {
 LEAN_EXPORT void lean_io_result_show_error(b_lean_obj_arg r);
 LEAN_EXPORT void lean_io_mark_end_initialization(void);
 static inline lean_obj_res lean_io_result_mk_ok(lean_obj_arg a) {
-    lean_object * r = lean_alloc_ctor(0, 2, 0);
+    lean_object * r = lean_alloc_ctor(0, 1, 0);
     lean_ctor_set(r, 0, a);
-    lean_ctor_set(r, 1, lean_box(0));
     return r;
 }
 static inline lean_obj_res lean_io_result_mk_error(lean_obj_arg e) {
-    lean_object * r = lean_alloc_ctor(1, 2, 0);
+    lean_object * r = lean_alloc_ctor(1, 1, 0);
     lean_ctor_set(r, 0, e);
-    lean_ctor_set(r, 1, lean_box(0));
     return r;
 }
 

@@ -239,7 +239,7 @@ LLVMValueRef *array_ref_to_ArrayLLVMValue(
 }
 
 // == FFI ==
-extern "C" LEAN_EXPORT lean_object *lean_llvm_create_context(
+extern "C" LEAN_EXPORT size_t lean_llvm_create_context(
     lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -247,11 +247,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_create_context(
                   "the LLVM backend function."));
 #else
     LLVMContextRef ctx = LLVMContextCreate();
-    return lean_mk_baseio_out(lean_box_usize(Context_to_lean(ctx)));
+    return Context_to_lean(ctx);
 #endif  // LEAN_LLVM
 };
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_create_module(
+extern "C" LEAN_EXPORT size_t lean_llvm_create_module(
     size_t ctx, lean_object *str, lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -260,7 +260,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_create_module(
 #else
     LLVMModuleRef mod = LLVMModuleCreateWithNameInContext(lean_string_cstr(str),
                                                           lean_to_Context(ctx));
-    return lean_mk_baseio_out(lean_box_usize(Module_to_lean(mod)));
+    return Module_to_lean(mod);
 #endif  // LEAN_LLVM
 };
 
@@ -292,7 +292,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_module_to_string(
 #endif  // LEAN_LLVM
 };
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_add_function(
+extern "C" LEAN_EXPORT size_t lean_llvm_add_function(
     size_t ctx, size_t mod, lean_object *name, size_t type, lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -301,7 +301,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_add_function(
 #else
     LLVMValueRef out = LLVMAddFunction(
         lean_to_Module(mod), lean_string_cstr(name), lean_to_Type(type));
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
@@ -320,7 +320,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_get_named_function(
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_add_global(
+extern "C" LEAN_EXPORT size_t lean_llvm_add_global(
     size_t ctx, size_t mod, lean_object *name, size_t type, lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -330,7 +330,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_add_global(
     LLVMValueRef out = LLVMAddGlobal(lean_to_Module(mod), lean_to_Type(type),
                                      lean_string_cstr(name));
 
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
@@ -349,7 +349,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_get_named_global(
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_build_global_string(
+extern "C" LEAN_EXPORT size_t lean_llvm_build_global_string(
     size_t ctx, size_t builder, lean_object *str, lean_object *name,
     lean_object * /* w */) {
 #ifndef LEAN_LLVM
@@ -361,10 +361,10 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_global_string(
     lean::string_ref nameref = lean::string_ref(name, true);
     LLVMValueRef out = LLVMBuildGlobalString(lean_to_Builder(builder),
                                              sref.data(), nameref.data());
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
-extern "C" LEAN_EXPORT lean_object *lean_llvm_get_undef(size_t ctx, size_t ty,
+extern "C" LEAN_EXPORT size_t lean_llvm_get_undef(size_t ctx, size_t ty,
                                                         lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -372,7 +372,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_get_undef(size_t ctx, size_t ty,
                   "the LLVM backend function."));
 #else
     LLVMValueRef out = LLVMGetUndef(lean_to_Type(ty));
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
@@ -388,7 +388,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_set_initializer(
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_function_type(
+extern "C" LEAN_EXPORT size_t lean_llvm_function_type(
     size_t ctx, size_t retty, lean_object *argtys, uint8_t isvararg,
     lean_object * /* w */) {
 #ifndef LEAN_LLVM
@@ -402,71 +402,66 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_function_type(
     LLVMTypeRef out =
         LLVMFunctionType(lean_to_Type(retty), tys, arr.size(), isvararg);
     free(tys);
-    return lean_mk_baseio_out(lean_box_usize(Type_to_lean(out)));
+    return Type_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_opaque_pointer_type_in_context(
+extern "C" LEAN_EXPORT size_t lean_llvm_opaque_pointer_type_in_context(
     size_t ctx, uint64_t addrspace, lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
         false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
                   "the LLVM backend function."));
 #else
-    return lean_mk_baseio_out(lean_box_usize(
-        Type_to_lean(LLVMPointerTypeInContext(lean_to_Context(ctx), addrspace))));
+    return Type_to_lean(LLVMPointerTypeInContext(lean_to_Context(ctx), addrspace));
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_int_type_in_context(
+extern "C" LEAN_EXPORT size_t lean_llvm_int_type_in_context(
     size_t ctx, uint64_t width, lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
         false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
                   "the LLVM backend function."));
 #else
-    return lean_mk_baseio_out(lean_box_usize(
-        Type_to_lean(LLVMIntTypeInContext(lean_to_Context(ctx), width))));
+    return Type_to_lean(LLVMIntTypeInContext(lean_to_Context(ctx), width));
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_float_type_in_context(
+extern "C" LEAN_EXPORT size_t lean_llvm_float_type_in_context(
     size_t ctx, lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
         false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
                   "the LLVM backend function."));
 #else
-    return lean_mk_baseio_out(lean_box_usize(
-        Type_to_lean(LLVMFloatTypeInContext(lean_to_Context(ctx)))));
+    return Type_to_lean(LLVMFloatTypeInContext(lean_to_Context(ctx)));
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_void_type_in_context(
+extern "C" LEAN_EXPORT size_t lean_llvm_void_type_in_context(
     size_t ctx, lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
         false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
                   "the LLVM backend function."));
 #else
-    return lean_mk_baseio_out(lean_box_usize(
-        Type_to_lean(LLVMVoidTypeInContext(lean_to_Context(ctx)))));
+    return Type_to_lean(LLVMVoidTypeInContext(lean_to_Context(ctx)));
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_double_type_in_context(
+extern "C" LEAN_EXPORT size_t lean_llvm_double_type_in_context(
     size_t ctx, lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
         false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
                   "the LLVM backend function."));
 #else
-    return lean_mk_baseio_out(lean_box_usize(
-        Type_to_lean(LLVMDoubleTypeInContext(lean_to_Context(ctx)))));
+    return Type_to_lean(LLVMDoubleTypeInContext(lean_to_Context(ctx)));
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_pointer_type(
+extern "C" LEAN_EXPORT size_t lean_llvm_pointer_type(
     size_t ctx, size_t base, lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -474,11 +469,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_pointer_type(
                   "the LLVM backend function."));
 #else
     LLVMTypeRef out = LLVMPointerType(lean_to_Type(base), /*addrspace=*/0);
-    return lean_mk_baseio_out(lean_box_usize(Type_to_lean(out)));
+    return Type_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_array_type(
+extern "C" LEAN_EXPORT size_t lean_llvm_array_type(
     size_t ctx, size_t base, uint64_t nelem, lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -486,23 +481,22 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_array_type(
                   "the LLVM backend function."));
 #else
     LLVMTypeRef out = LLVMArrayType(lean_to_Type(base), /*nelem=*/nelem);
-    return lean_mk_baseio_out(lean_box_usize(Type_to_lean(out)));
+    return Type_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_create_builder_in_context(
+extern "C" LEAN_EXPORT size_t lean_llvm_create_builder_in_context(
     size_t ctx, lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
         false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
                   "the LLVM backend function."));
 #else
-    return lean_mk_baseio_out(lean_box_usize(
-        Builder_to_lean(LLVMCreateBuilderInContext(lean_to_Context(ctx)))));
+    return Builder_to_lean(LLVMCreateBuilderInContext(lean_to_Context(ctx)));
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_append_basic_block_in_context(
+extern "C" LEAN_EXPORT size_t lean_llvm_append_basic_block_in_context(
     size_t ctx, size_t fn, lean_object *name, lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -511,7 +505,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_append_basic_block_in_context(
 #else
     LLVMBasicBlockRef bb = LLVMAppendBasicBlockInContext(
         lean_to_Context(ctx), lean_to_Value(fn), lean_string_cstr(name));
-    return lean_mk_baseio_out(lean_box_usize(BasicBlock_to_lean(bb)));
+    return BasicBlock_to_lean(bb);
 #endif  // LEAN_LLVM
 }
 
@@ -539,7 +533,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_clear_insertion_position(size_t ct
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_build_call2(
+extern "C" LEAN_EXPORT size_t lean_llvm_build_call2(
     size_t ctx, size_t builder, size_t fnty, size_t fnval, lean_object *args,
     lean_object *name, lean_object * /* w */) {
 #ifndef LEAN_LLVM
@@ -554,11 +548,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_call2(
         lean_to_Builder(builder), lean_to_Type(fnty), lean_to_Value(fnval),
         arrArgVals, arr.size(), lean_string_cstr(name));
     free(arrArgVals);
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_build_cond_br(
+extern "C" LEAN_EXPORT size_t lean_llvm_build_cond_br(
     size_t ctx,
     size_t builder, size_t if_, size_t thenbb, size_t elsebb,
     lean_object * /* w */) {
@@ -570,11 +564,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_cond_br(
     LLVMValueRef out =
         LLVMBuildCondBr(lean_to_Builder(builder), lean_to_Value(if_),
                         lean_to_BasicBlock(thenbb), lean_to_BasicBlock(elsebb));
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_build_br(size_t ctx, size_t builder,
+extern "C" LEAN_EXPORT size_t lean_llvm_build_br(size_t ctx, size_t builder,
                                                        size_t bb,
                                                        lean_object * /* w */) {
 #ifndef LEAN_LLVM
@@ -584,7 +578,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_br(size_t ctx, size_t builde
 #else
     LLVMValueRef out =
         LLVMBuildBr(lean_to_Builder(builder), lean_to_BasicBlock(bb));
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
@@ -601,7 +595,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_store(size_t ctx,
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_build_load2(size_t ctx,
+extern "C" LEAN_EXPORT size_t lean_llvm_build_load2(size_t ctx,
     size_t builder, size_t ty, size_t slot, lean_object *name, lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -610,11 +604,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_load2(size_t ctx,
 #else
     LLVMValueRef out = LLVMBuildLoad2(
         lean_to_Builder(builder), lean_to_Type(ty), lean_to_Value(slot), lean_string_cstr(name));
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_build_alloca(size_t ctx,
+extern "C" LEAN_EXPORT size_t lean_llvm_build_alloca(size_t ctx,
     size_t builder, size_t type, lean_object *name, lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -623,11 +617,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_alloca(size_t ctx,
 #else
     LLVMValueRef out = LLVMBuildAlloca(
         lean_to_Builder(builder), lean_to_Type(type), lean_string_cstr(name));
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_build_ret(size_t ctx, size_t builder,
+extern "C" LEAN_EXPORT size_t lean_llvm_build_ret(size_t ctx, size_t builder,
                                                         size_t v,
                                                         lean_object * /* w */) {
 #ifndef LEAN_LLVM
@@ -636,11 +630,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_ret(size_t ctx, size_t build
                   "the LLVM backend function."));
 #else
     LLVMValueRef out = LLVMBuildRet(lean_to_Builder(builder), lean_to_Value(v));
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_build_ret_void(
+extern "C" LEAN_EXPORT size_t lean_llvm_build_ret_void(
     size_t builder, lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -648,11 +642,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_ret_void(
                   "the LLVM backend function."));
 #else
     LLVMValueRef out = LLVMBuildRetVoid(lean_to_Builder(builder));
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_build_unreachable(size_t ctx,
+extern "C" LEAN_EXPORT size_t lean_llvm_build_unreachable(size_t ctx,
     size_t builder, lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -660,11 +654,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_unreachable(size_t ctx,
                   "the LLVM backend function."));
 #else
     LLVMValueRef out = LLVMBuildUnreachable(lean_to_Builder(builder));
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_build_inbounds_gep2(size_t ctx,
+extern "C" LEAN_EXPORT size_t lean_llvm_build_inbounds_gep2(size_t ctx,
     size_t builder, size_t ty, size_t pointer, lean_object *indices, lean_object *name,
     lean_object * /* w */) {
 #ifndef LEAN_LLVM
@@ -681,11 +675,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_inbounds_gep2(size_t ctx,
         lean_to_Builder(builder), lean_to_Type(ty), lean_to_Value(pointer), indices_carr,
         indices_array_ref.size(), name_ref.data());
     free(indices_carr);
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_build_gep2(size_t ctx, size_t builder,
+extern "C" LEAN_EXPORT size_t lean_llvm_build_gep2(size_t ctx, size_t builder,
                                                         size_t ty,
                                                         size_t pointer,
                                                         lean_object *indices,
@@ -704,11 +698,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_gep2(size_t ctx, size_t buil
         LLVMBuildGEP2(lean_to_Builder(builder), lean_to_Type(ty), lean_to_Value(pointer),
                      indices_carr, indices_array_ref.size(), name_ref.data());
     free(indices_carr);
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_build_sext(size_t ctx,
+extern "C" LEAN_EXPORT size_t lean_llvm_build_sext(size_t ctx,
     size_t builder, size_t val, size_t destty, lean_object *name,
     lean_object * /* w */) {
 #ifndef LEAN_LLVM
@@ -719,11 +713,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_sext(size_t ctx,
     LLVMValueRef out =
         LLVMBuildSExt(lean_to_Builder(builder), lean_to_Value(val),
                       lean_to_Type(destty), lean_string_cstr(name));
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_build_zext(size_t ctx,
+extern "C" LEAN_EXPORT size_t lean_llvm_build_zext(size_t ctx,
     size_t builder, size_t val, size_t destty, lean_object *name,
     lean_object * /* w */) {
 #ifndef LEAN_LLVM
@@ -734,11 +728,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_zext(size_t ctx,
     LLVMValueRef out =
         LLVMBuildZExt(lean_to_Builder(builder), lean_to_Value(val),
                       lean_to_Type(destty), lean_string_cstr(name));
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_build_sext_or_trunc(size_t ctx,
+extern "C" LEAN_EXPORT size_t lean_llvm_build_sext_or_trunc(size_t ctx,
     size_t builder, size_t val, size_t destty, lean_object *name,
     lean_object * /* w */) {
 #ifndef LEAN_LLVM
@@ -759,11 +753,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_sext_or_trunc(size_t ctx,
         out = LLVMBuildTrunc(lean_to_Builder(builder), lean_to_Value(val),
                              lean_to_Type(destty), lean_string_cstr(name));
     }
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_build_switch(size_t ctx,
+extern "C" LEAN_EXPORT size_t lean_llvm_build_switch(size_t ctx,
     size_t builder, size_t val, size_t elsebb, uint64_t numCases,
     lean_object * /* w */) {
 #ifndef LEAN_LLVM
@@ -774,11 +768,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_switch(size_t ctx,
     LLVMValueRef out =
         LLVMBuildSwitch(lean_to_Builder(builder), lean_to_Value(val),
                         lean_to_BasicBlock(elsebb), numCases);
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_build_ptr_to_int(size_t ctx,
+extern "C" LEAN_EXPORT size_t lean_llvm_build_ptr_to_int(size_t ctx,
     size_t builder, size_t ptr, size_t destty, lean_object *name,
     lean_object * /* w */) {
 #ifndef LEAN_LLVM
@@ -790,11 +784,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_ptr_to_int(size_t ctx,
         LLVMBuildPtrToInt(lean_to_Builder(builder), lean_to_Value(ptr),
                           lean_to_Type(destty), lean_string_cstr(name));
 
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_build_mul(size_t ctx,
+extern "C" LEAN_EXPORT size_t lean_llvm_build_mul(size_t ctx,
         size_t builder,
                                                         size_t lhs, size_t rhs,
                                                         lean_object *name,
@@ -808,11 +802,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_mul(size_t ctx,
         LLVMBuildMul(lean_to_Builder(builder), lean_to_Value(lhs),
                      lean_to_Value(rhs), lean_string_cstr(name));
 
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_build_add(size_t ctx, size_t builder,
+extern "C" LEAN_EXPORT size_t lean_llvm_build_add(size_t ctx, size_t builder,
                                                         size_t lhs, size_t rhs,
                                                         lean_object *name,
                                                         lean_object * /* w */) {
@@ -825,11 +819,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_add(size_t ctx, size_t build
         LLVMBuildAdd(lean_to_Builder(builder), lean_to_Value(lhs),
                      lean_to_Value(rhs), lean_string_cstr(name));
 
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_build_sub(size_t ctx, size_t builder,
+extern "C" LEAN_EXPORT size_t lean_llvm_build_sub(size_t ctx, size_t builder,
                                                         size_t lhs, size_t rhs,
                                                         lean_object *name,
                                                         lean_object * /* w */) {
@@ -842,11 +836,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_sub(size_t ctx, size_t build
         LLVMBuildSub(lean_to_Builder(builder), lean_to_Value(lhs),
                      lean_to_Value(rhs), lean_string_cstr(name));
 
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_build_not(size_t ctx, size_t builder,
+extern "C" LEAN_EXPORT size_t lean_llvm_build_not(size_t ctx, size_t builder,
                                                         size_t v,
                                                         lean_object *name,
                                                         lean_object * /* w */) {
@@ -858,11 +852,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_not(size_t ctx, size_t build
     LLVMValueRef out = LLVMBuildNot(lean_to_Builder(builder), lean_to_Value(v),
                                     lean_string_cstr(name));
 
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_build_icmp(size_t ctx,
+extern "C" LEAN_EXPORT size_t lean_llvm_build_icmp(size_t ctx,
     size_t builder, uint64_t predicate, size_t x, size_t y, lean_object *name,
     lean_object * /* w */) {
 #ifndef LEAN_LLVM
@@ -874,7 +868,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_icmp(size_t ctx,
         lean_to_Builder(builder), LLVMIntPredicate(predicate), lean_to_Value(x),
         lean_to_Value(y), lean_string_cstr(name));
 
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
@@ -893,7 +887,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_add_case(size_t ctx, size_t switch
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_get_basic_block_parent(size_t ctx,
+extern "C" LEAN_EXPORT size_t lean_llvm_get_basic_block_parent(size_t ctx,
     size_t bb, lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -901,11 +895,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_get_basic_block_parent(size_t ctx,
                   "the LLVM backend function."));
 #else
     LLVMValueRef out = LLVMGetBasicBlockParent(lean_to_BasicBlock(bb));
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_get_insert_block(size_t ctx,
+extern "C" LEAN_EXPORT size_t lean_llvm_get_insert_block(size_t ctx,
     size_t builder, lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -913,11 +907,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_get_insert_block(size_t ctx,
                   "the LLVM backend function."));
 #else
     LLVMBasicBlockRef out = LLVMGetInsertBlock(lean_to_Builder(builder));
-    return lean_mk_baseio_out(lean_box_usize(BasicBlock_to_lean(out)));
+    return BasicBlock_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_type_of(size_t ctx, size_t val,
+extern "C" LEAN_EXPORT size_t lean_llvm_type_of(size_t ctx, size_t val,
                                                       lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -925,7 +919,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_type_of(size_t ctx, size_t val,
                   "the LLVM backend function."));
 #else
     LLVMTypeRef ty = LLVMTypeOf(lean_to_Value(val));
-    return lean_mk_baseio_out(lean_box_usize(Type_to_lean(ty)));
+    return Type_to_lean(ty);
 #endif  // LEAN_LLVM
 }
 
@@ -962,7 +956,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_print_module_to_file(size_t ctx,
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_const_int(size_t ctx, size_t ty, uint64_t val,
+extern "C" LEAN_EXPORT size_t lean_llvm_const_int(size_t ctx, size_t ty, uint64_t val,
                                                         uint8_t sext,
                                                         lean_object * /* w */) {
 #ifndef LEAN_LLVM
@@ -971,11 +965,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_const_int(size_t ctx, size_t ty, u
                   "the LLVM backend function."));
 #else
     LLVMValueRef out = LLVMConstInt(lean_to_Type(ty), val, sext);
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_const_array(
+extern "C" LEAN_EXPORT size_t lean_llvm_const_array(
     size_t ctx, size_t elemty, lean_object *args, lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -987,11 +981,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_const_array(
     LLVMValueRef out =
         LLVMConstArray(lean_to_Type(elemty), args_carr, args_array_ref.size());
     free(args_carr);
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_const_string(
+extern "C" LEAN_EXPORT size_t lean_llvm_const_string(
     size_t ctx, lean_object *s, lean_object * /* w */) {
     lean::string_ref sref = lean::string_ref(s, true);
 #ifndef LEAN_LLVM
@@ -1003,11 +997,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_const_string(
     LLVMValueRef out =
         LLVMConstStringInContext(lean_to_Context(ctx), sref.data(),
                                  sref.length(), /*DontNullTerminate=*/false);
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_const_pointer_null(
+extern "C" LEAN_EXPORT size_t lean_llvm_const_pointer_null(
     size_t ctx, size_t elemty, lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -1017,11 +1011,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_const_pointer_null(
 
     LLVMValueRef out = LLVMConstPointerNull(lean_to_Type(elemty));
 
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *llvm_get_param(size_t ctx, size_t f, uint64_t ix,
+extern "C" LEAN_EXPORT size_t llvm_get_param(size_t ctx, size_t f, uint64_t ix,
                                                    lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -1029,11 +1023,11 @@ extern "C" LEAN_EXPORT lean_object *llvm_get_param(size_t ctx, size_t f, uint64_
                   "the LLVM backend function."));
 #else
     LLVMValueRef out = LLVMGetParam(lean_to_Value(f), ix);
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object * llvm_count_params(size_t ctx, size_t f,
+extern "C" LEAN_EXPORT uint64_t llvm_count_params(size_t ctx, size_t f,
                                                        lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -1041,7 +1035,7 @@ extern "C" LEAN_EXPORT lean_object * llvm_count_params(size_t ctx, size_t f,
                   "the LLVM backend function."));
 #else
     unsigned n = LLVMCountParams(lean_to_Value(f));
-    return lean_mk_baseio_out(lean_box_uint64(n));
+    return n;
 #endif  // LEAN_LLVM
 }
 
@@ -1057,7 +1051,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_set_tail_call(
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *
+extern "C" LEAN_EXPORT size_t
 lean_llvm_create_memory_buffer_with_contents_of_file(size_t ctx, lean_object *path,
                                                      lean_object * /* w */) {
 #ifndef LEAN_LLVM
@@ -1076,11 +1070,11 @@ lean_llvm_create_memory_buffer_with_contents_of_file(size_t ctx, lean_object *pa
     }
     lean_always_assert((is_error != 1) && "failed to create membuf from file");
     lean_always_assert(err_str == NULL);
-    return lean_mk_baseio_out(lean_box_usize(MemoryBuffer_to_lean(membuf)));
+    return MemoryBuffer_to_lean(membuf);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_parse_bitcode(
+extern "C" LEAN_EXPORT size_t lean_llvm_parse_bitcode(
     size_t context, size_t membuf, lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -1098,7 +1092,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_parse_bitcode(
     }
     lean_always_assert(!is_error && "failed to parse bitcode");
     lean_always_assert(err_str == NULL);
-    return lean_mk_baseio_out(lean_box_usize(Module_to_lean(out_module)));
+    return Module_to_lean(out_module);
 #endif  // LEAN_LLVM
 }
 
@@ -1120,7 +1114,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_link_modules(size_t ctx,
 #endif
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_create_target_machine(size_t ctx,
+extern "C" LEAN_EXPORT size_t lean_llvm_create_target_machine(size_t ctx,
     size_t target, lean_object *tripleStr, lean_object *cpuStr,
     lean_object *featuresStr, lean_object * /* w */) {
 #ifndef LEAN_LLVM
@@ -1138,11 +1132,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_create_target_machine(size_t ctx,
         relocMode, codeModel);
 
 
-    return lean_mk_baseio_out(lean_box_usize(TargetMachine_to_lean(tm)));
+    return TargetMachine_to_lean(tm);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_get_target_from_triple(size_t ctx,
+extern "C" LEAN_EXPORT size_t lean_llvm_get_target_from_triple(size_t ctx,
     lean_object *triple, lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -1161,7 +1155,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_get_target_from_triple(size_t ctx,
     }
 
     lean_always_assert(!is_error && "failed to get target from triple");
-    return lean_mk_baseio_out(lean_box_usize(Target_to_lean(t)));
+    return Target_to_lean(t);
 #endif  // LEAN_LLVM
 }
 
@@ -1208,7 +1202,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_target_machine_emit_to_file(size_t
 //        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
 //                  "the LLVM backend function."));
 //#else
-//    return lean_mk_baseio_out(lean_box_usize(PassManager_to_lean(LLVMCreatePassManager())));
+//    return PassManager_to_lean(LLVMCreatePassManager());
 //#endif  // LEAN_LLVM
 //}
 //
@@ -1243,7 +1237,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_target_machine_emit_to_file(size_t
 //        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
 //                  "the LLVM backend function."));
 //#else
-//    return lean_mk_baseio_out(lean_box_usize(PassManagerBuilder_to_lean(LLVMPassManagerBuilderCreate())));
+//    return PassManagerBuilder_to_lean(LLVMPassManagerBuilderCreate());
 //#endif  // LEAN_LLVM
 //}
 //
@@ -1334,7 +1328,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_set_dll_storage_class(size_t ctx, 
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_create_string_attribute(size_t ctx, lean_object* key, lean_object* value,
+extern "C" LEAN_EXPORT size_t lean_llvm_create_string_attribute(size_t ctx, lean_object* key, lean_object* value,
     lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -1342,7 +1336,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_create_string_attribute(size_t ctx
                   "the LLVM backend function."));
 #else
     LLVMAttributeRef attr = LLVMCreateStringAttribute(lean_to_Context(ctx), lean_string_cstr(key), lean_string_len(key), lean_string_cstr(value), lean_string_len(value));
-    return lean_mk_baseio_out(lean_box_usize(Attribute_to_lean(attr)));
+    return Attribute_to_lean(attr);
 #endif  // LEAN_LLVM
 }
 
@@ -1358,7 +1352,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_add_attribute_at_index(size_t ctx,
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_get_first_global(size_t ctx, size_t mod,
+extern "C" LEAN_EXPORT size_t lean_llvm_get_first_global(size_t ctx, size_t mod,
     lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -1366,11 +1360,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_get_first_global(size_t ctx, size_
                   "the LLVM backend function."));
 #else
     LLVMValueRef out = LLVMGetFirstGlobal(lean_to_Module(mod));
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_get_next_global(size_t ctx, size_t global,
+extern "C" LEAN_EXPORT size_t lean_llvm_get_next_global(size_t ctx, size_t global,
     lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -1378,11 +1372,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_get_next_global(size_t ctx, size_t
                   "the LLVM backend function."));
 #else
     LLVMValueRef out = LLVMGetNextGlobal(lean_to_Value(global));
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_get_first_function(size_t ctx, size_t mod,
+extern "C" LEAN_EXPORT size_t lean_llvm_get_first_function(size_t ctx, size_t mod,
     lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -1390,11 +1384,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_get_first_function(size_t ctx, siz
                   "the LLVM backend function."));
 #else
     LLVMValueRef out = LLVMGetFirstFunction(lean_to_Module(mod));
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_get_next_function(size_t ctx, size_t function,
+extern "C" LEAN_EXPORT size_t lean_llvm_get_next_function(size_t ctx, size_t function,
     lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -1402,7 +1396,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_get_next_function(size_t ctx, size
                   "the LLVM backend function."));
 #else
     LLVMValueRef out = LLVMGetNextFunction(lean_to_Value(function));
-    return lean_mk_baseio_out(lean_box_usize(Value_to_lean(out)));
+    return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
 
@@ -1460,7 +1454,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_verify_module(size_t ctx, size_t m
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_count_basic_blocks(size_t ctx, size_t fn_val,
+extern "C" LEAN_EXPORT uint64_t lean_llvm_count_basic_blocks(size_t ctx, size_t fn_val,
     lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -1468,11 +1462,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_count_basic_blocks(size_t ctx, siz
                   "the LLVM backend function."));
 #else
     LLVMValueRef fn_ref = lean_to_Value(fn_val);
-    return lean_mk_baseio_out(lean_box_uint64((uint64_t)LLVMCountBasicBlocks(fn_ref)));
+    return (uint64_t)LLVMCountBasicBlocks(fn_ref);
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_get_entry_basic_block(size_t ctx, size_t fn_val,
+extern "C" LEAN_EXPORT size_t lean_llvm_get_entry_basic_block(size_t ctx, size_t fn_val,
     lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -1481,7 +1475,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_get_entry_basic_block(size_t ctx, 
 #else
     LLVMValueRef fn_ref = lean_to_Value(fn_val);
     LLVMBasicBlockRef bb_ref = LLVMGetEntryBasicBlock(fn_ref);
-    return lean_mk_baseio_out(lean_box_usize(BasicBlock_to_lean(bb_ref)));
+    return BasicBlock_to_lean(bb_ref);
 #endif  // LEAN_LLVM
 }
 

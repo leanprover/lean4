@@ -103,12 +103,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj, obj_arg /*
     lean_uv_timer_object * timer = lean_to_uv_timer(obj);
 
     auto create_promise = []() {
-        lean_object * prom_res = lean_io_promise_new(lean_io_mk_world());
-        lean_object * promise = lean_ctor_get(prom_res, 0);
-        lean_inc(promise);
-        lean_dec(prom_res);
-
-        return promise;
+        return lean_io_promise_new(lean_io_mk_world());
     };
 
     auto setup_timer = [create_promise, obj, timer]() {

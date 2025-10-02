@@ -78,8 +78,8 @@ static bool g_initializing = true;
 extern "C" LEAN_EXPORT void lean_io_mark_end_initialization() {
     g_initializing = false;
 }
-extern "C" LEAN_EXPORT obj_res lean_io_initializing(obj_arg) {
-    return lean_mk_baseio_out(box(g_initializing));
+extern "C" LEAN_EXPORT uint8_t lean_io_initializing(obj_arg) {
+    return g_initializing;
 }
 
 static obj_res mk_file_not_found_error(b_obj_arg fname) {
@@ -513,7 +513,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_unlock(b_obj_arg h, obj_arg /
 #endif
 
 /* Handle.isTty : (@& Handle) → BaseIO Bool */
-extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_is_tty(b_obj_arg h, obj_arg /* w */) {
+extern "C" LEAN_EXPORT uint8_t lean_io_prim_handle_is_tty(b_obj_arg h, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
 #ifdef LEAN_WINDOWS
     /*
@@ -533,17 +533,17 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_is_tty(b_obj_arg h, obj_arg /
     and Lean does not support pre-Windows 10.
     */
     DWORD mode;
-    return lean_mk_baseio_out(box(GetConsoleMode(win_handle(fp), &mode) != 0));
+    return GetConsoleMode(win_handle(fp), &mode) != 0;
 #else
     // We ignore errors for consistency with Windows.
-    return lean_mk_baseio_out(box(isatty(fileno(fp))));
+    return isatty(fileno(fp));
 #endif
 }
 
 /* Handle.isEof : (@& Handle) → BaseIO Bool */
-extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_is_eof(b_obj_arg h, obj_arg /* w */) {
+extern "C" LEAN_EXPORT uint8_t lean_io_prim_handle_is_eof(b_obj_arg h, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
-    return lean_mk_baseio_out(box(std::feof(fp) != 0));
+    return std::feof(fp) != 0;
 }
 
 /* Handle.flush : (@& Handle) → IO Unit */
@@ -1369,10 +1369,11 @@ extern "C" LEAN_EXPORT obj_res lean_io_current_dir(obj_arg) {
 
 obj_res mk_st_result(obj_arg a) {
     // TODO: This function needs to become identity after we are done
-    lean_object * r = lean_alloc_ctor(0, 2, 0);
-    lean_ctor_set(r, 0, a);
-    lean_ctor_set(r, 1, lean_box(0));
-    return r;
+    //lean_object * r = lean_alloc_ctor(0, 2, 0);
+    //lean_ctor_set(r, 0, a);
+    //lean_ctor_set(r, 1, lean_box(0));
+    //return r;
+    return a;
 }
 
 extern "C" LEAN_EXPORT obj_res lean_st_mk_ref(obj_arg a, obj_arg) {
@@ -1528,8 +1529,8 @@ extern "C" LEAN_EXPORT obj_res lean_io_bind_task(obj_arg t, obj_arg f, obj_arg p
     return lean_mk_baseio_out(t2);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_check_canceled(obj_arg) {
-    return lean_mk_baseio_out(box(lean_io_check_canceled_core()));
+extern "C" LEAN_EXPORT uint8_t lean_io_check_canceled(obj_arg) {
+    return lean_io_check_canceled_core();
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_cancel(b_obj_arg t, obj_arg) {
@@ -1537,8 +1538,8 @@ extern "C" LEAN_EXPORT obj_res lean_io_cancel(b_obj_arg t, obj_arg) {
     return lean_mk_baseio_out(box(0));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_get_task_state(b_obj_arg t, obj_arg) {
-    return lean_mk_baseio_out(box(lean_io_get_task_state_core(t)));
+extern "C" LEAN_EXPORT uint8_t lean_io_get_task_state(b_obj_arg t, obj_arg) {
+    return lean_io_get_task_state_core(t);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_wait(obj_arg t, obj_arg) {

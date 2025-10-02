@@ -134,6 +134,8 @@ private partial def quoteSyntax : Syntax → TermElabM Term
     -- Add global scopes at compilation time (now), add macro scope at runtime (in the quotation).
     -- See the paper for details.
     let consts ← resolveGlobalName val
+    -- Record all constants to make sure they are can still be resolved after shaking imports
+    consts.forM fun (n, _) => recordExtraModUseFromDecl (isMeta := false) n
     -- extension of the paper algorithm: also store unique section variable names as top-level scopes
     -- so they can be captured and used inside the section, but not outside
     let sectionVars := resolveSectionVariable (← read).sectionVars val
@@ -231,7 +233,7 @@ def getQuotKind (stx : Syntax) : TermElabM SyntaxNodeKind := do
     let id := stx[1]
     -- local parser use, so skip meta check
     match (← elabParserName id (checkMeta := false)) with
-    | .parser n _ => return n
+    | .parser n _ => recordExtraModUseFromDecl (isMeta := true) n; return n
     | .category c => return c
     | .alias _    => return (← Parser.getSyntaxKindOfParserAlias? id.getId.eraseMacroScopes).get!
   | k => throwError "unexpected quotation kind {k}"

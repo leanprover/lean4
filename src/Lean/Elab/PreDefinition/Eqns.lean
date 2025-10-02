@@ -348,7 +348,7 @@ private def unfoldLHS (declName : Name) (mvarId : MVarId) : MetaM MVarId := mvar
     deltaLHS mvarId
 
 private partial def mkEqnProof (declName : Name) (type : Expr) (tryRefl : Bool) : MetaM Expr := do
-  trace[Elab.definition.eqns] "proving: {type}"
+  withTraceNode `Elab.definition.eqns (return m!"{exceptEmoji ·} proving:{indentExpr type}") do
   withNewMCtxDepth do
     let main ← mkFreshExprSyntheticOpaqueMVar type
     let (_, mvarId) ← main.mvarId!.intros
@@ -372,7 +372,7 @@ private partial def mkEqnProof (declName : Name) (type : Expr) (tryRefl : Bool) 
   recursion and structural recursion can and should use this too.
   -/
   go (mvarId : MVarId) : MetaM Unit := do
-    trace[Elab.definition.eqns] "step\n{MessageData.ofGoal mvarId}"
+    withTraceNode `Elab.definition.eqns (return m!"{exceptEmoji ·} step:\n{MessageData.ofGoal mvarId}") do
     if ← withAtLeastTransparency .all (tryURefl mvarId) then
       return ()
     else if (← tryContradiction mvarId) then

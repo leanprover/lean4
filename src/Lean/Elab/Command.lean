@@ -611,6 +611,10 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
       -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
       elabCommand stx
     finally
+      -- This call could be placed at a prior point in this function except that it
+      -- would then record uses of `#guard_msgs` before that elaborator is run, which
+      -- would increase noise in related tests. Thus all other things being equal, we
+      -- place it here.
       recordUsedSyntaxKinds stx
       -- Make sure `snap?` is definitely resolved; we do not use it for reporting as `#guard_msgs` may
       -- be the caller of this function and add new messages and info trees

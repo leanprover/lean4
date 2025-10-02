@@ -34,7 +34,7 @@ def isCoeDecl (env : Environment) (declName : Name) : Bool :=
   coeDeclAttr.hasTag env declName
 
 /-- Recurse through projection functions (e.g. `(f a b c).fst.snd` => `f`) -/
-private def recProjTarget (e : Expr) (nm : Name := e.getAppFn.constName!) : MetaM Name := do
+private partial def recProjTarget (e : Expr) (nm : Name := e.getAppFn.constName!) : MetaM Name := do
   let some info ← getProjectionFnInfo? nm | return nm
   let target := e.getArgD info.numParams (.sort .zero)
   if target.getAppFn.isConst then

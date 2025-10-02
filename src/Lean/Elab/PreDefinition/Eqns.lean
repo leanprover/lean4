@@ -358,7 +358,7 @@ private partial def mkEqnProof (declName : Name) (type : Expr) (tryRefl : Bool) 
     -- For well-founded recursion this is disabled: The equation may hold
     -- definitionally as written, but not embedded in larger proofs
     if tryRefl then
-      if (← withAtLeastTransparency .all (tryURefl mvarId)) then
+      if (← tryURefl mvarId) then
         return ← instantiateMVars main
 
     go (← unfoldLHS declName mvarId)

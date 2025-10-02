@@ -79,11 +79,10 @@ instance : LinearlyUpwardEnumerable Nat := inferInstance
 
 end PRange
 
--- TODO: Replace the `lit` role with a `module` role?
 /-!
 The following instances are used for the implementation of array slices a.k.a.
 {name (scope := "Init.Data.Array.Subarray")}`Subarray`.
-See also {lit}`Init.Data.Slice.Array`.
+See also {module -checked}`Init.Data.Slice.Array`.
 -/
 
 instance : Roo.HasRcoIntersection Nat where

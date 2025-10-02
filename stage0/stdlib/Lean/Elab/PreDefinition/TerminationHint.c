@@ -3716,7 +3716,7 @@ return x_81;
 }
 else
 {
-lean_object* x_82; lean_object* x_83; uint8_t x_84; lean_object* x_85; uint8_t x_86; lean_object* x_92; uint8_t x_93; uint8_t x_94; lean_object* x_101; lean_object* x_120; uint8_t x_121; 
+lean_object* x_82; lean_object* x_83; lean_object* x_84; uint8_t x_85; uint8_t x_86; lean_object* x_92; uint8_t x_93; uint8_t x_94; lean_object* x_101; lean_object* x_120; uint8_t x_121; 
 lean_dec_ref(x_10);
 lean_dec_ref(x_9);
 lean_dec_ref(x_8);
@@ -3767,10 +3767,10 @@ block_91:
 lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; 
 x_87 = lean_alloc_ctor(0, 3, 2);
 lean_ctor_set(x_87, 0, x_21);
-lean_ctor_set(x_87, 1, x_83);
-lean_ctor_set(x_87, 2, x_85);
+lean_ctor_set(x_87, 1, x_84);
+lean_ctor_set(x_87, 2, x_83);
 lean_ctor_set_uint8(x_87, sizeof(void*)*3, x_86);
-lean_ctor_set_uint8(x_87, sizeof(void*)*3 + 1, x_84);
+lean_ctor_set_uint8(x_87, sizeof(void*)*3 + 1, x_85);
 if (lean_is_scalar(x_22)) {
  x_88 = lean_alloc_ctor(1, 1, 0);
 } else {
@@ -3864,18 +3864,18 @@ x_115 = l_Lean_Syntax_getArgs(x_111);
 lean_dec(x_111);
 if (lean_obj_tag(x_101) == 0)
 {
-x_83 = x_115;
-x_84 = x_112;
-x_85 = x_114;
+x_83 = x_114;
+x_84 = x_115;
+x_85 = x_112;
 x_86 = x_112;
 goto block_91;
 }
 else
 {
 lean_dec_ref(x_101);
-x_83 = x_115;
-x_84 = x_112;
-x_85 = x_114;
+x_83 = x_114;
+x_84 = x_115;
+x_85 = x_112;
 x_86 = x_104;
 goto block_91;
 }

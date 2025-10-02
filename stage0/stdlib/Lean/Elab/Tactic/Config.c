@@ -408,7 +408,7 @@ lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_
 static lean_object* l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_mkConfigElaborator___closed__36;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_expandField___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_configElab___closed__9;
-lean_object* l_Lean_Linter_MissingDocs_mkSimpleHandler(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Linter_MissingDocs_mkSimpleHandler(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__6;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_Tactic_elabConfig_spec__18_spec__18___lam__1___closed__21;
@@ -15212,10 +15212,11 @@ return x_1;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_checkConfigElab(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_checkConfigElab___closed__0;
-x_6 = l_Lean_Linter_MissingDocs_mkSimpleHandler(x_5, x_1, x_2, x_3, x_4);
-return x_6;
+x_6 = lean_unsigned_to_nat(2u);
+x_7 = l_Lean_Linter_MissingDocs_mkSimpleHandler(x_5, x_6, x_1, x_2, x_3, x_4);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_checkConfigElab___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -15507,10 +15508,11 @@ return x_22;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_checkCommandConfigElab(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_checkConfigElab___closed__0;
-x_6 = l_Lean_Linter_MissingDocs_mkSimpleHandler(x_5, x_1, x_2, x_3, x_4);
-return x_6;
+x_6 = lean_unsigned_to_nat(2u);
+x_7 = l_Lean_Linter_MissingDocs_mkSimpleHandler(x_5, x_6, x_1, x_2, x_3, x_4);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Config_0__Lean_Elab_Tactic_checkCommandConfigElab___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

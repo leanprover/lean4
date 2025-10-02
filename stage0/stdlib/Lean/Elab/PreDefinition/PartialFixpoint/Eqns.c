@@ -317,7 +317,7 @@ static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Eqns_0__
 lean_object* l_Lean_mkLevelParam(lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Eqns_0__Lean_Elab_PartialFixpoint_rwFixUnder___closed__4;
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Eqns_0__Lean_Elab_PartialFixpoint_mkUnfoldEq_doRealize_spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_addDecl(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_addDecl(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Eqns_0__Lean_Elab_PartialFixpoint_rwFixUnder___closed__18;
 LEAN_EXPORT uint8_t l___private_Lean_Elab_PreDefinition_PartialFixpoint_Eqns_0__Lean_Elab_PartialFixpoint_deltaLHSUntilFix___lam__0(lean_object*, lean_object*, lean_object*);
@@ -5688,7 +5688,7 @@ lean_ctor_set(x_38, 1, x_34);
 lean_ctor_set(x_38, 2, x_37);
 x_39 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_39, 0, x_38);
-x_40 = l_Lean_addDecl(x_39, x_9, x_10, x_35);
+x_40 = l_Lean_addDecl(x_39, x_21, x_9, x_10, x_35);
 return x_40;
 }
 else

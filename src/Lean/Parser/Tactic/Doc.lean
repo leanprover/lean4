@@ -12,6 +12,7 @@ import Lean.DocString.Extension
 import Lean.Elab.InfoTree.Main
 meta import Lean.Parser.Attr
 import Lean.Parser.Extension
+import Lean.ExtraModUses
 
 public section
 

@@ -373,7 +373,7 @@ private partial def mkEqnProof (declName : Name) (type : Expr) (tryRefl : Bool) 
   -/
   go (mvarId : MVarId) : MetaM Unit := do
     withTraceNode `Elab.definition.eqns (return m!"{exceptEmoji ·} step:\n{MessageData.ofGoal mvarId}") do
-    if ← withAtLeastTransparency .all (tryURefl mvarId) then
+    if (← tryURefl mvarId) then
       return ()
     else if (← tryContradiction mvarId) then
       return ()

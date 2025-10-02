@@ -9,9 +9,11 @@ def f (x : Nat) : Nat :=
 termination_by x
 
 /--
-error: maximum recursion depth has been reached
-use `set_option maxRecDepth <num>` to increase limit
-use `set_option diagnostics true` to get diagnostic information
+info: equations:
+theorem f.eq_1 : f 0 = 1
+theorem f.eq_2 : f 100 = 2
+theorem f.eq_3 : f 1000 = 3
+theorem f.eq_4 : ∀ (x_2 : Nat), (x_2 = 99 → False) → (x_2 = 999 → False) → f x_2.succ = f x_2
 -/
 #guard_msgs(pass trace, all) in
 #print equations f

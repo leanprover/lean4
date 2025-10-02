@@ -233,7 +233,7 @@ def getQuotKind (stx : Syntax) : TermElabM SyntaxNodeKind := do
     let id := stx[1]
     -- local parser use, so skip meta check
     match (← elabParserName id (checkMeta := false)) with
-    | .parser n _ => recordExtraModUseFromDecl (isMeta := true) n; return n
+    | .parser n _ => return n
     | .category c => return c
     | .alias _    => return (← Parser.getSyntaxKindOfParserAlias? id.getId.eraseMacroScopes).get!
   | k => throwError "unexpected quotation kind {k}"

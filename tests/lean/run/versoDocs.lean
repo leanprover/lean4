@@ -123,7 +123,8 @@ To prove that a relation {name}`P` holds universally for the natural numbers (th
 
 : Inductive step
 
-  {lean}`P` relates non-zero {given}`m` to {given}`n` if it relates {lean}`n % m` to {lean}`m`.
+  {lean}`P` relates non-zero {given (type :="Nat")}`m` to {given}`n` if it relates {lean}`n % m` to
+  {lean}`m`.
 
 This follows the computational behavior of {name}`gcd`.
 -/

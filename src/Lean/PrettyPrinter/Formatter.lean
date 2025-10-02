@@ -84,8 +84,10 @@ unsafe builtin_initialize formatterAttribute : KeyedDeclsAttribute Formatter ←
       -- synthesize a formatter for it immediately, so we just check for a declaration in this case
       unless (builtin && (env.find? id).isSome) || Parser.isValidSyntaxNodeKind env id do
         throwError "Invalid `[formatter]` argument: Unknown syntax kind `{id}`"
-      if (← getEnv).contains id && (← Elab.getInfoState).enabled then
-        Elab.addConstInfo stx id none
+      if (← getEnv).contains id then
+        recordExtraModUseFromDecl (isMeta := false) id
+        if (← Elab.getInfoState).enabled then
+          Elab.addConstInfo stx id none
       pure id
   }
 

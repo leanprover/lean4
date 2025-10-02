@@ -80,6 +80,7 @@ builtin_initialize
         | throwError "Invalid `[{name}]` attribute syntax"
 
       let tgtName ← Lean.Elab.realizeGlobalConstNoOverloadWithInfo tgt
+      recordExtraModUseFromDecl (isMeta := false) tgtName
 
       if !(isTactic (← getEnv) tgtName) then throwErrorAt tgt "`{tgtName}` is not a tactic"
       -- If the target is a known syntax kind, ensure that it's a tactic

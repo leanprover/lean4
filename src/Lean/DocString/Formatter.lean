@@ -7,7 +7,7 @@ Authors: David Thrane Christiansen
 module
 prelude
 public import Lean.PrettyPrinter.Formatter
-import Lean.DocString.Syntax
+import Lean.DocString.Parser
 
 
 namespace Lean.Doc.Parser
@@ -204,7 +204,7 @@ def formatMetadata : Formatter := do
     pushLine
     visitAtom .anonymous
     pushLine
-    metadataContents.formatter
+    Parser.metadataContents.formatter
     pushLine
     visitAtom .anonymous
 

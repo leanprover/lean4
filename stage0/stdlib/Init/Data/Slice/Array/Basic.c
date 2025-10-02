@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Slice.Array.Basic
-// Imports: Init.Core Init.Data.Array.Subarray Init.Data.Slice.Notation Init.Data.Range.Polymorphic.Nat
+// Imports: public import Init.Core public import Init.Data.Array.Subarray public import Init.Data.Slice.Notation public import Init.Data.Range.Polymorphic.Nat
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

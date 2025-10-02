@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.PP
-// Imports: Init.NotationExtra Init.Data.String.Basic
+// Imports: public import Init.NotationExtra public meta import Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -245,6 +245,7 @@ x_19 = l_Lean_TSyntax_getNat(x_13);
 lean_dec(x_13);
 x_20 = l_Nat_reprFast(x_19);
 x_21 = lean_string_append(x_18, x_20);
+lean_dec_ref(x_20);
 x_22 = lean_box(0);
 x_23 = l_Lean_Name_str___override(x_22, x_21);
 x_24 = lean_mk_syntax_ident(x_23);

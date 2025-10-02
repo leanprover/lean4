@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Match.CaseValues
-// Imports: Lean.Meta.Tactic.Subst Lean.Meta.Tactic.Clear Lean.Meta.Match.Value
+// Imports: public import Lean.Meta.Tactic.Subst public import Lean.Meta.Tactic.Clear public import Lean.Meta.Match.Value
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

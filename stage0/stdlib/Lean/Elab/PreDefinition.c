@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition
-// Imports: Lean.Elab.PreDefinition.Basic Lean.Elab.PreDefinition.Structural Lean.Elab.PreDefinition.Main Lean.Elab.PreDefinition.MkInhabitant Lean.Elab.PreDefinition.WF Lean.Elab.PreDefinition.Eqns Lean.Elab.PreDefinition.Nonrec.Eqns Lean.Elab.PreDefinition.EqUnfold
+// Imports: public import Lean.Elab.PreDefinition.Basic public import Lean.Elab.PreDefinition.Structural public import Lean.Elab.PreDefinition.Main public import Lean.Elab.PreDefinition.MkInhabitant public import Lean.Elab.PreDefinition.WF public import Lean.Elab.PreDefinition.Eqns public import Lean.Elab.PreDefinition.Nonrec.Eqns public import Lean.Elab.PreDefinition.EqUnfold
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

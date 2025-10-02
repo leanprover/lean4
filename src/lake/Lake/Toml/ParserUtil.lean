@@ -35,7 +35,7 @@ public scoped instance : AndThen ParserFn where
   andThen p q := fun c s => let s := p c s; if s.hasError then s else q () c s
 
 /-- `ParserFn` combinator that runs `f` with the current position. -/
-@[always_inline, inline] public def usePosFn (f : String.Pos → ParserFn) : ParserFn :=
+@[always_inline, inline] public def usePosFn (f : String.Pos.Raw → ParserFn) : ParserFn :=
   fun c s => f s.pos c s
 
 /-- Match an arbitrary parser or do nothing. -/
@@ -83,7 +83,7 @@ public def digitPairFn (expected := ["digit"]) : ParserFn :=
 public def chFn (c : Char) (expected : List String := [s!"'{c}'"]) : ParserFn :=
   satisfyFn (fun d => d == c) expected
 
-public partial def strAuxFn (str : String) (expected : List String) (strPos : String.Pos) : ParserFn := fun c s =>
+public partial def strAuxFn (str : String) (expected : List String) (strPos : String.Pos.Raw) : ParserFn := fun c s =>
   if h₁ : str.atEnd strPos then
     s
   else
@@ -126,7 +126,7 @@ public partial def sepByChar1Fn (p : Char → Bool) (sep : Char) (expected : Lis
 end
 
 /-- Push a new atom onto the syntax stack. -/
-public def pushAtom (startPos : String.Pos) (trailingFn := skipFn) : ParserFn := fun c s =>
+public def pushAtom (startPos : String.Pos.Raw) (trailingFn := skipFn) : ParserFn := fun c s =>
   let stopPos  := s.pos
   let leading  := c.mkEmptySubstringAt startPos
   let val      := c.extract startPos stopPos
@@ -184,7 +184,7 @@ public def strAtom.parenthesizer (_ : String) (_  : List String) (_ : ParserFn) 
   Parenthesizer.visitToken
 
 /-- Push `(Syntax.node kind <new-atom>)` onto the syntax stack. -/
-public def pushLit (kind : SyntaxNodeKind) (startPos : String.Pos) (trailingFn := skipFn) : ParserFn := fun c s =>
+public def pushLit (kind : SyntaxNodeKind) (startPos : String.Pos.Raw) (trailingFn := skipFn) : ParserFn := fun c s =>
   let stopPos   := s.pos
   let leading   := c.mkEmptySubstringAt startPos
   let val       := c.extract startPos stopPos

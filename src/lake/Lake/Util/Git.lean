@@ -53,6 +53,9 @@ public def cwd : GitRepo := ⟨"."⟩
 @[inline] public def dirExists (repo : GitRepo) : BaseIO Bool :=
   repo.dir.isDir
 
+@[inline] public def captureGit (args : Array String) (repo : GitRepo) : LogIO String :=
+  captureProc {cmd := "git", args, cwd := repo.dir}
+
 @[inline] public def captureGit? (args : Array String) (repo : GitRepo) : BaseIO (Option String) :=
   captureProc? {cmd := "git", args, cwd := repo.dir}
 
@@ -83,6 +86,11 @@ public def checkoutDetach (hash : String) (repo : GitRepo) : LogIO PUnit  :=
 public def resolveRevision? (rev : String) (repo : GitRepo) : BaseIO (Option String) := do
   repo.captureGit? #["rev-parse", "--verify", "--end-of-options", rev]
 
+public def resolveRevision (rev : String) (repo : GitRepo) : LogIO String := do
+  if Git.isFullObjectName rev then return rev
+  if let some rev ← repo.resolveRevision? rev then return rev
+  error s!"{repo}: revision not found '{rev}'"
+
 @[inline] public def getHeadRevision? (repo : GitRepo) : BaseIO (Option String) :=
   repo.resolveRevision? "HEAD"
 
@@ -90,6 +98,12 @@ public def getHeadRevision (repo : GitRepo) : LogIO String := do
   if let some rev ← repo.getHeadRevision? then return rev
   error s!"{repo}: could not resolve 'HEAD' to a commit; \
     the repository may be corrupt, so you may need to remove it and try again"
+
+public def getHeadRevisions (repo : GitRepo) (n : Nat := 0) : LogIO (Array String) := do
+  let args := #["rev-list", "HEAD"]
+  let args := if n != 0 then args ++ #["-n", toString n] else args
+  let revs ← repo.captureGit args
+  return revs.split (· == '\n') |>.toArray
 
 public def resolveRemoteRevision (rev : String) (remote := Git.defaultRemote) (repo : GitRepo) : LogIO String := do
   if Git.isFullObjectName rev then return rev
@@ -122,7 +136,7 @@ public def getFilteredRemoteUrl?
 : BaseIO (Option String) := OptionT.run do Git.filterUrl? (← repo.getRemoteUrl? remote)
 
 public def hasNoDiff (repo : GitRepo) : BaseIO Bool := do
-  repo.testGit #["diff", "--exit-code"]
+  repo.testGit #["diff", "HEAD", "--exit-code"]
 
 @[inline] public def hasDiff (repo : GitRepo) : BaseIO Bool := do
   not <$> repo.hasNoDiff

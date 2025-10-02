@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.LocalContext
-// Imports: Init.Data.Nat.Control Lean.Data.PersistentArray Lean.Expr Lean.Hygiene
+// Imports: public import Init.Data.Nat.Control public import Lean.Data.PersistentArray public import Lean.Expr public import Lean.Hygiene
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -748,9 +748,14 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_LocalDeclKind_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_LocalDeclKind_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Lean_LocalDeclKind_ctorIdx(x_1);
+x_4 = l_Lean_LocalDeclKind_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = lean_alloc_closure((void*)(l_Lean_LocalDeclKind_noConfusion___redArg___lam__0___boxed), 1, 0);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_LocalDeclKind_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
@@ -6993,9 +6998,9 @@ goto block_454;
 block_446:
 {
 lean_object* x_443; lean_object* x_444; lean_object* x_445; 
-x_443 = lean_nat_add(x_441, x_442);
+x_443 = lean_nat_add(x_440, x_442);
 lean_dec(x_442);
-lean_dec(x_441);
+lean_dec(x_440);
 if (lean_is_scalar(x_437)) {
  x_444 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -7014,7 +7019,7 @@ if (lean_is_scalar(x_427)) {
 lean_ctor_set(x_445, 0, x_439);
 lean_ctor_set(x_445, 1, x_430);
 lean_ctor_set(x_445, 2, x_431);
-lean_ctor_set(x_445, 3, x_440);
+lean_ctor_set(x_445, 3, x_441);
 lean_ctor_set(x_445, 4, x_444);
 return x_445;
 }
@@ -7041,8 +7046,8 @@ if (lean_obj_tag(x_433) == 0)
 lean_object* x_452; 
 x_452 = lean_ctor_get(x_433, 0);
 lean_inc(x_452);
-x_440 = x_450;
-x_441 = x_451;
+x_440 = x_451;
+x_441 = x_450;
 x_442 = x_452;
 goto block_446;
 }
@@ -7050,8 +7055,8 @@ else
 {
 lean_object* x_453; 
 x_453 = lean_unsigned_to_nat(0u);
-x_440 = x_450;
-x_441 = x_451;
+x_440 = x_451;
+x_441 = x_450;
 x_442 = x_453;
 goto block_446;
 }
@@ -11436,17 +11441,17 @@ goto _start;
 block_27:
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-lean_inc(x_21);
-x_22 = l_Lean_sanitizeName(x_21, x_4);
+lean_inc(x_20);
+x_22 = l_Lean_sanitizeName(x_20, x_4);
 x_23 = lean_ctor_get(x_22, 0);
 lean_inc(x_23);
 x_24 = lean_ctor_get(x_22, 1);
 lean_inc(x_24);
 lean_dec_ref(x_22);
-x_25 = l_Lean_NameSet_insert(x_3, x_21);
-x_26 = lean_ctor_get(x_20, 1);
+x_25 = l_Lean_NameSet_insert(x_3, x_20);
+x_26 = lean_ctor_get(x_21, 1);
 lean_inc(x_26);
-lean_dec_ref(x_20);
+lean_dec_ref(x_21);
 x_13 = x_25;
 x_14 = x_23;
 x_15 = x_24;
@@ -11458,8 +11463,8 @@ block_33:
 if (x_30 == 0)
 {
 lean_object* x_31; 
-lean_dec_ref(x_28);
-x_31 = l_Lean_NameSet_insert(x_3, x_29);
+lean_dec_ref(x_29);
+x_31 = l_Lean_NameSet_insert(x_3, x_28);
 x_1 = x_12;
 x_3 = x_31;
 goto _start;
@@ -11480,15 +11485,15 @@ if (x_36 == 0)
 lean_object* x_37; uint8_t x_38; 
 x_37 = lean_ctor_get(x_34, 2);
 x_38 = l_Lean_NameSet_contains(x_3, x_37);
-x_28 = x_34;
-x_29 = x_35;
+x_28 = x_35;
+x_29 = x_34;
 x_30 = x_38;
 goto block_33;
 }
 else
 {
-x_20 = x_34;
-x_21 = x_35;
+x_20 = x_35;
+x_21 = x_34;
 goto block_27;
 }
 }
@@ -11645,13 +11650,13 @@ goto block_14;
 block_9:
 {
 uint8_t x_6; 
-x_6 = l_Lean_instBEqFVarId_beq(x_3, x_5);
+x_6 = l_Lean_instBEqFVarId_beq(x_4, x_5);
 lean_dec(x_5);
-lean_dec(x_3);
+lean_dec(x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; 
-lean_dec(x_4);
+lean_dec(x_3);
 x_7 = lean_box(0);
 return x_7;
 }
@@ -11659,7 +11664,7 @@ else
 {
 lean_object* x_8; 
 x_8 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_8, 0, x_4);
+lean_ctor_set(x_8, 0, x_3);
 return x_8;
 }
 }
@@ -11669,8 +11674,8 @@ lean_object* x_13;
 x_13 = lean_ctor_get(x_10, 1);
 lean_inc(x_13);
 lean_dec_ref(x_10);
-x_3 = x_12;
-x_4 = x_11;
+x_3 = x_11;
+x_4 = x_12;
 x_5 = x_13;
 goto block_9;
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Simproc
-// Imports: Std.Tactic.BVDecide.Normalize Std.Tactic.BVDecide.Syntax Lean.Elab.Tactic.Simp Lean.Elab.Tactic.BVDecide.Frontend.Attr
+// Imports: public import Std.Tactic.BVDecide.Normalize public import Std.Tactic.BVDecide.Syntax public import Lean.Elab.Tactic.Simp public import Lean.Elab.Tactic.BVDecide.Frontend.Attr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

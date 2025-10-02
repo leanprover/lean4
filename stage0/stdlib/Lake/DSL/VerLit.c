@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.DSL.VerLit
-// Imports: Lean.ToExpr Lake.Util.Version Lean.Elab.Eval Lake.DSL.Syntax
+// Imports: public import Lean.ToExpr public import Lake.Util.Version import Lean.Elab.Eval import Lake.DSL.Syntax
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -94,7 +94,7 @@ lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_throwError___at_____private_Lake_DSL_VerLit_0__Lake_DSL_elabVerLit_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l___private_Lake_DSL_VerLit_0__Lake_DSL_elabVerLit___regBuiltin___private_Lake_DSL_VerLit_0__Lake_DSL_elabVerLit__1___closed__8;
-lean_object* l_Lean_Meta_evalExpr___redArg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_evalExpr___redArg(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_DSL_VerLit_0__Lake_DSL_elabVerLit___closed__14;
 static lean_object* l___private_Lake_DSL_VerLit_0__Lake_DSL_elabVerLit___closed__2;
 static lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at_____private_Lake_DSL_VerLit_0__Lake_DSL_elabVerLit_spec__1_spec__2___redArg___closed__4;
@@ -422,10 +422,11 @@ return x_4;
 LEAN_EXPORT lean_object* l___private_Lake_DSL_VerLit_0__Lake_DSL_elabVerLit_unsafe__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-uint8_t x_8; lean_object* x_9; 
+uint8_t x_8; uint8_t x_9; lean_object* x_10; 
 x_8 = 1;
-x_9 = l_Lean_Meta_evalExpr___redArg(x_1, x_2, x_8, x_3, x_4, x_5, x_6, x_7);
-return x_9;
+x_9 = 1;
+x_10 = l_Lean_Meta_evalExpr___redArg(x_1, x_2, x_8, x_9, x_3, x_4, x_5, x_6, x_7);
+return x_10;
 }
 }
 static lean_object* _init_l_Lean_Elab_throwUnsupportedSyntax___at_____private_Lake_DSL_VerLit_0__Lake_DSL_elabVerLit_spec__0___redArg___closed__0() {

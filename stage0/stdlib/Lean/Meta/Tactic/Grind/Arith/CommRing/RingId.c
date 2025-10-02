@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
-// Imports: Lean.Meta.Tactic.Grind.Arith.CommRing.RingM Init.Grind.Ring.Field Init.Grind.Ring.Envelope Lean.Meta.Tactic.Grind.Simp Lean.Meta.Tactic.Grind.SynthInstance Lean.Meta.Tactic.Grind.Arith.Insts
+// Imports: public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM import Init.Grind.Ring.Field import Init.Grind.Ring.Envelope import Lean.Meta.Tactic.Grind.Simp import Lean.Meta.Tactic.Grind.SynthInstance import Lean.Meta.Tactic.Grind.Arith.Insts
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1449,9 +1449,9 @@ return x_92;
 block_112:
 {
 lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; lean_object* x_111; 
-lean_dec(x_103);
-lean_dec(x_100);
-lean_dec_ref(x_96);
+lean_dec_ref(x_101);
+lean_dec(x_96);
+lean_dec(x_94);
 x_107 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_107, 0, x_106);
 x_108 = l_Lean_MessageData_ofFormat(x_107);
@@ -1461,19 +1461,19 @@ if (lean_is_scalar(x_34)) {
  x_109 = x_34;
  lean_ctor_set_tag(x_109, 7);
 }
-lean_ctor_set(x_109, 0, x_105);
+lean_ctor_set(x_109, 0, x_95);
 lean_ctor_set(x_109, 1, x_108);
-x_110 = l_Lean_addTrace___at_____private_Lean_Meta_Tactic_Grind_Arith_CommRing_RingId_0__Lean_Meta_Grind_Arith_CommRing_getCommRingId_x3f_go_x3f_spec__2___redArg(x_30, x_109, x_95, x_102, x_94, x_97, x_104);
+x_110 = l_Lean_addTrace___at_____private_Lean_Meta_Tactic_Grind_Arith_CommRing_RingId_0__Lean_Meta_Grind_Arith_CommRing_getCommRingId_x3f_go_x3f_spec__2___redArg(x_30, x_109, x_103, x_98, x_104, x_100, x_102);
 x_111 = lean_ctor_get(x_110, 1);
 lean_inc(x_111);
 lean_dec_ref(x_110);
-x_44 = x_99;
-x_45 = x_98;
-x_46 = x_101;
-x_47 = x_95;
-x_48 = x_102;
-x_49 = x_94;
-x_50 = x_97;
+x_44 = x_97;
+x_45 = x_99;
+x_46 = x_105;
+x_47 = x_103;
+x_48 = x_98;
+x_49 = x_104;
+x_50 = x_100;
 x_51 = x_111;
 goto block_93;
 }
@@ -1558,18 +1558,18 @@ if (lean_obj_tag(x_126) == 0)
 {
 lean_object* x_136; 
 x_136 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_RingId_0__Lean_Meta_Grind_Arith_CommRing_getCommRingId_x3f_go_x3f___closed__24;
-x_94 = x_119;
-x_95 = x_117;
-x_96 = x_115;
-x_97 = x_120;
-x_98 = x_123;
-x_99 = x_126;
-x_100 = x_114;
-x_101 = x_113;
-x_102 = x_118;
-x_103 = x_116;
-x_104 = x_134;
-x_105 = x_135;
+x_94 = x_114;
+x_95 = x_135;
+x_96 = x_116;
+x_97 = x_126;
+x_98 = x_118;
+x_99 = x_123;
+x_100 = x_120;
+x_101 = x_115;
+x_102 = x_134;
+x_103 = x_117;
+x_104 = x_119;
+x_105 = x_113;
 x_106 = x_136;
 goto block_112;
 }
@@ -1577,18 +1577,18 @@ else
 {
 lean_object* x_137; 
 x_137 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_RingId_0__Lean_Meta_Grind_Arith_CommRing_getCommRingId_x3f_go_x3f___closed__25;
-x_94 = x_119;
-x_95 = x_117;
-x_96 = x_115;
-x_97 = x_120;
-x_98 = x_123;
-x_99 = x_126;
-x_100 = x_114;
-x_101 = x_113;
-x_102 = x_118;
-x_103 = x_116;
-x_104 = x_134;
-x_105 = x_135;
+x_94 = x_114;
+x_95 = x_135;
+x_96 = x_116;
+x_97 = x_126;
+x_98 = x_118;
+x_99 = x_123;
+x_100 = x_120;
+x_101 = x_115;
+x_102 = x_134;
+x_103 = x_117;
+x_104 = x_119;
+x_105 = x_113;
 x_106 = x_137;
 goto block_112;
 }

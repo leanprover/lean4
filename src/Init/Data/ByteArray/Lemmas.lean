@@ -167,9 +167,9 @@ theorem ByteArray.append_inj_left {xs₁ xs₂ ys₁ ys₂ : ByteArray} (h : xs�
   simp only [ByteArray.ext_iff, ← ByteArray.size_data, ByteArray.data_append] at *
   exact Array.append_inj_left h hl
 
-theorem ByteArray.extract_append_eq_right {a b : ByteArray} {i : Nat} (hi : i = a.size) :
-    (a ++ b).extract i (a ++ b).size = b := by
-  subst hi
+theorem ByteArray.extract_append_eq_right {a b : ByteArray} {i j : Nat} (hi : i = a.size) (hj : j = a.size + b.size) :
+    (a ++ b).extract i j = b := by
+  subst hi hj
   ext1
   simp [← size_data]
 

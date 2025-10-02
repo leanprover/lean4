@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.DiscrTreeTypes
-// Imports: Lean.Expr Lean.ToExpr
+// Imports: public import Lean.Expr public import Lean.ToExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

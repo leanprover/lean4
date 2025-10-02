@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Trie
-// Imports: Lean.Data.Format Init.Data.Option.Coe
+// Imports: public import Lean.Data.Format public import Init.Data.Option.Coe
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

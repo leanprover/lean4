@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DTreeMap.Internal.WF.Lemmas
-// Imports: Init.Data.Option.List Init.Data.Array.Bootstrap Std.Data.DTreeMap.Internal.Model Std.Data.Internal.Cut Std.Data.Internal.List.Associative
+// Imports: public import Init.Data.Option.List public import Init.Data.Array.Bootstrap public import Std.Data.DTreeMap.Internal.Model public import Std.Data.Internal.Cut import all Std.Data.Internal.List.Associative
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

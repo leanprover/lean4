@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Notation.Spec
-// Imports: Std.Time.Date Std.Time.Time Std.Time.Zoned Std.Time.DateTime Std.Time.Format.Basic Std.Time.Format.Basic
+// Imports: public import Std.Time.Date public import Std.Time.Time public import Std.Time.Zoned public import Std.Time.DateTime public import Std.Time.Format.Basic public meta import Std.Time.Format.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -9921,6 +9921,7 @@ lean_inc(x_8);
 lean_dec_ref(x_7);
 x_9 = l___private_Std_Time_Notation_Spec_0__Std_Time_formatStringToFormat___closed__0;
 x_10 = lean_string_append(x_9, x_8);
+lean_dec(x_8);
 x_11 = l_Lean_Macro_throwErrorAt___redArg(x_1, x_10, x_3, x_4);
 return x_11;
 }

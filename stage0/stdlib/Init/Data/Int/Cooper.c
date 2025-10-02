@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.Cooper
-// Imports: Init.Data.Int.DivMod.Lemmas Init.Data.Int.Gcd
+// Imports: public import Init.Data.Int.DivMod.Lemmas public import Init.Data.Int.Gcd
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

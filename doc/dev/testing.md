@@ -59,7 +59,7 @@ All these tests are included by [src/shell/CMakeLists.txt](https://github.com/le
     open Foo in
     theorem tst2 (h : a ≤ b) : a + 2 ≤ b + 2 :=
     Bla.
-      --^ textDocument/completion
+      --^ completion
     ```
     In this example, the test driver [`test_single.sh`](https://github.com/leanprover/lean4/tree/master/tests/lean/interactive/test_single.sh) will simulate an
     auto-completion request at `Bla.`. The expected output is stored in

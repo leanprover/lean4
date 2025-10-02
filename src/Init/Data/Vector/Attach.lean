@@ -86,10 +86,10 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
   simp
 
 /-- Implementation of `pmap` using the zero-copy version of `attach`. -/
-@[inline] private def pmapImpl {P : α → Prop} (f : ∀ a, P a → β) (xs : Vector α n) (H : ∀ a ∈ xs, P a) :
+@[inline] def pmapImpl {P : α → Prop} (f : ∀ a, P a → β) (xs : Vector α n) (H : ∀ a ∈ xs, P a) :
     Vector β n := (xs.attachWith _ H).map fun ⟨x, h'⟩ => f x h'
 
-@[csimp] private theorem pmap_eq_pmapImpl : @pmap = @pmapImpl := by
+@[csimp] theorem pmap_eq_pmapImpl : @pmap = @pmapImpl := by
   funext α β n p f xs h'
   rcases xs with ⟨xs, rfl⟩
   simp only [pmap, pmapImpl, attachWith_mk, map_mk, Array.map_attachWith_eq_pmap, eq_mk]

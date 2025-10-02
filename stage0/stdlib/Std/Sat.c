@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sat
-// Imports: Std.Sat.AIG Std.Sat.CNF
+// Imports: public import Std.Sat.AIG public import Std.Sat.CNF
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

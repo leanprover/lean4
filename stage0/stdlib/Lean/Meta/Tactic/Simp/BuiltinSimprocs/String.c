@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Simp.BuiltinSimprocs.String
-// Imports: Lean.ToExpr Lean.Meta.Tactic.Simp.BuiltinSimprocs.Char
+// Imports: public import Lean.ToExpr public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Char
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -415,6 +415,7 @@ if (x_31 == 0)
 lean_object* x_32; lean_object* x_33; lean_object* x_34; 
 x_32 = lean_ctor_get(x_22, 0);
 x_33 = lean_string_append(x_19, x_32);
+lean_dec(x_32);
 x_34 = l_Lean_mkStrLit(x_33);
 lean_ctor_set_tag(x_22, 0);
 lean_ctor_set(x_22, 0, x_34);
@@ -427,6 +428,7 @@ x_35 = lean_ctor_get(x_22, 0);
 lean_inc(x_35);
 lean_dec(x_22);
 x_36 = lean_string_append(x_19, x_35);
+lean_dec(x_35);
 x_37 = l_Lean_mkStrLit(x_36);
 x_38 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_38, 0, x_37);
@@ -450,6 +452,7 @@ if (lean_is_exclusive(x_22)) {
  x_41 = lean_box(0);
 }
 x_42 = lean_string_append(x_19, x_40);
+lean_dec(x_40);
 x_43 = l_Lean_mkStrLit(x_42);
 if (lean_is_scalar(x_41)) {
  x_44 = lean_alloc_ctor(0, 1, 0);

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Completion.CompletionItemCompression
-// Imports: Lean.Data.Lsp.LanguageFeatures
+// Imports: public import Lean.Data.Lsp.LanguageFeatures
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,7 @@ static lean_object* l___private_Lean_Server_Completion_CompletionItemCompression
 static lean_object* l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressPositionFast___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressItemsFast___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressMarkupContentFast___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 static lean_object* l_Lean_Lsp_ResolvableCompletionList_compressFast___closed__0;
 static lean_object* l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressMarkupContentFast___closed__3;
@@ -159,6 +160,7 @@ if (x_65 == 0)
 {
 lean_object* x_66; lean_object* x_67; 
 x_66 = lean_string_append(x_64, x_62);
+lean_dec_ref(x_62);
 x_67 = lean_string_append(x_66, x_63);
 x_47 = x_67;
 goto block_61;
@@ -214,6 +216,7 @@ x_24 = lean_ctor_get(x_18, 0);
 lean_inc(x_24);
 lean_dec_ref(x_18);
 x_25 = lean_string_append(x_23, x_22);
+lean_dec_ref(x_22);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; uint8_t x_30; 
@@ -228,6 +231,7 @@ if (x_30 == 0)
 {
 lean_object* x_31; 
 x_31 = lean_string_append(x_28, x_29);
+lean_dec_ref(x_29);
 x_7 = x_31;
 goto block_10;
 }
@@ -258,6 +262,7 @@ if (x_40 == 0)
 {
 lean_object* x_41; 
 x_41 = lean_string_append(x_38, x_39);
+lean_dec_ref(x_39);
 x_11 = x_41;
 goto block_14;
 }
@@ -288,9 +293,11 @@ x_50 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_
 x_51 = lean_string_append(x_47, x_50);
 x_52 = l_Nat_reprFast(x_48);
 x_53 = lean_string_append(x_51, x_52);
+lean_dec_ref(x_52);
 x_54 = lean_string_append(x_53, x_50);
 x_55 = l_Nat_reprFast(x_49);
 x_56 = lean_string_append(x_54, x_55);
+lean_dec_ref(x_55);
 if (lean_obj_tag(x_17) == 0)
 {
 x_22 = x_50;
@@ -306,6 +313,7 @@ lean_dec_ref(x_17);
 x_58 = lean_string_append(x_56, x_50);
 x_59 = l_Nat_reprFast(x_57);
 x_60 = lean_string_append(x_58, x_59);
+lean_dec_ref(x_59);
 x_22 = x_50;
 x_23 = x_60;
 goto block_46;
@@ -359,8 +367,6 @@ _start:
 lean_object* x_3; uint8_t x_7; lean_object* x_8; lean_object* x_9; 
 x_7 = lean_ctor_get_uint8(x_2, sizeof(void*)*1);
 x_8 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_8);
-lean_dec_ref(x_2);
 if (x_7 == 0)
 {
 lean_object* x_26; 
@@ -388,6 +394,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_10 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressMarkupContentFast___closed__1;
 x_11 = lean_string_append(x_1, x_10);
 x_12 = lean_string_append(x_11, x_9);
+lean_dec_ref(x_9);
 x_13 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressMarkupContentFast___closed__2;
 x_14 = lean_string_append(x_12, x_13);
 x_15 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressItemDataFast___closed__1;
@@ -409,12 +416,20 @@ x_21 = lean_string_utf8_byte_size(x_8);
 x_22 = lean_unsigned_to_nat(0u);
 x_23 = l_String_foldlAux___redArg(x_20, x_8, x_21, x_22, x_16);
 lean_dec(x_21);
-lean_dec_ref(x_8);
 x_24 = lean_string_append(x_23, x_15);
 x_3 = x_24;
 goto block_6;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressMarkupContentFast___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressMarkupContentFast(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
 }
 }
 static lean_object* _init_l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressPositionFast___closed__0() {
@@ -446,10 +461,12 @@ x_5 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_R
 x_6 = lean_string_append(x_1, x_5);
 x_7 = l_Nat_reprFast(x_4);
 x_8 = lean_string_append(x_6, x_7);
+lean_dec_ref(x_7);
 x_9 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressPositionFast___closed__1;
 x_10 = lean_string_append(x_8, x_9);
 x_11 = l_Nat_reprFast(x_3);
 x_12 = lean_string_append(x_10, x_11);
+lean_dec_ref(x_11);
 x_13 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressMarkupContentFast___closed__0;
 x_14 = lean_string_append(x_12, x_13);
 return x_14;
@@ -496,10 +513,12 @@ x_11 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_
 x_12 = lean_string_append(x_10, x_11);
 x_13 = l_Nat_reprFast(x_6);
 x_14 = lean_string_append(x_12, x_13);
+lean_dec_ref(x_13);
 x_15 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressPositionFast___closed__1;
 x_16 = lean_string_append(x_14, x_15);
 x_17 = l_Nat_reprFast(x_5);
 x_18 = lean_string_append(x_16, x_17);
+lean_dec_ref(x_17);
 x_19 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressMarkupContentFast___closed__0;
 x_20 = lean_string_append(x_18, x_19);
 x_21 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressRangeFast___closed__1;
@@ -507,9 +526,11 @@ x_22 = lean_string_append(x_20, x_21);
 x_23 = lean_string_append(x_22, x_11);
 x_24 = l_Nat_reprFast(x_8);
 x_25 = lean_string_append(x_23, x_24);
+lean_dec_ref(x_24);
 x_26 = lean_string_append(x_25, x_15);
 x_27 = l_Nat_reprFast(x_7);
 x_28 = lean_string_append(x_26, x_27);
+lean_dec_ref(x_27);
 x_29 = lean_string_append(x_28, x_19);
 x_30 = lean_string_append(x_29, x_19);
 return x_30;
@@ -584,10 +605,12 @@ x_22 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_
 x_23 = lean_string_append(x_21, x_22);
 x_24 = l_Nat_reprFast(x_11);
 x_25 = lean_string_append(x_23, x_24);
+lean_dec_ref(x_24);
 x_26 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressPositionFast___closed__1;
 x_27 = lean_string_append(x_25, x_26);
 x_28 = l_Nat_reprFast(x_10);
 x_29 = lean_string_append(x_27, x_28);
+lean_dec_ref(x_28);
 x_30 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressMarkupContentFast___closed__0;
 x_31 = lean_string_append(x_29, x_30);
 x_32 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressRangeFast___closed__1;
@@ -595,14 +618,17 @@ x_33 = lean_string_append(x_31, x_32);
 x_34 = lean_string_append(x_33, x_22);
 x_35 = l_Nat_reprFast(x_13);
 x_36 = lean_string_append(x_34, x_35);
+lean_dec_ref(x_35);
 x_37 = lean_string_append(x_36, x_26);
 x_38 = l_Nat_reprFast(x_12);
 x_39 = lean_string_append(x_37, x_38);
+lean_dec_ref(x_38);
 x_40 = lean_string_append(x_39, x_30);
 x_41 = lean_string_append(x_40, x_30);
 x_42 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressEditFast___closed__1;
 x_43 = lean_string_append(x_41, x_42);
 x_44 = lean_string_append(x_43, x_9);
+lean_dec_ref(x_9);
 x_45 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressItemDataFast___closed__1;
 x_46 = lean_string_append(x_44, x_45);
 x_47 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressEditFast___closed__2;
@@ -611,17 +637,21 @@ x_49 = lean_string_append(x_48, x_20);
 x_50 = lean_string_append(x_49, x_22);
 x_51 = l_Nat_reprFast(x_15);
 x_52 = lean_string_append(x_50, x_51);
+lean_dec_ref(x_51);
 x_53 = lean_string_append(x_52, x_26);
 x_54 = l_Nat_reprFast(x_14);
 x_55 = lean_string_append(x_53, x_54);
+lean_dec_ref(x_54);
 x_56 = lean_string_append(x_55, x_30);
 x_57 = lean_string_append(x_56, x_32);
 x_58 = lean_string_append(x_57, x_22);
 x_59 = l_Nat_reprFast(x_17);
 x_60 = lean_string_append(x_58, x_59);
+lean_dec_ref(x_59);
 x_61 = lean_string_append(x_60, x_26);
 x_62 = l_Nat_reprFast(x_16);
 x_63 = lean_string_append(x_61, x_62);
+lean_dec_ref(x_62);
 x_64 = lean_string_append(x_63, x_30);
 x_65 = lean_string_append(x_64, x_30);
 x_66 = lean_string_append(x_65, x_30);
@@ -769,7 +799,7 @@ return x_1;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressItemFast(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_17; lean_object* x_34; lean_object* x_38; lean_object* x_42; uint8_t x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; uint8_t x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_92; lean_object* x_115; lean_object* x_130; lean_object* x_199; lean_object* x_210; lean_object* x_214; lean_object* x_215; lean_object* x_216; lean_object* x_233; lean_object* x_242; lean_object* x_257; lean_object* x_258; lean_object* x_259; lean_object* x_260; uint8_t x_261; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_17; lean_object* x_34; lean_object* x_38; lean_object* x_42; lean_object* x_46; uint8_t x_47; lean_object* x_48; lean_object* x_49; lean_object* x_73; lean_object* x_74; uint8_t x_75; lean_object* x_76; lean_object* x_77; lean_object* x_92; lean_object* x_115; lean_object* x_130; lean_object* x_199; lean_object* x_210; lean_object* x_214; lean_object* x_215; lean_object* x_216; lean_object* x_233; lean_object* x_242; lean_object* x_257; lean_object* x_258; lean_object* x_259; lean_object* x_260; uint8_t x_261; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_2, 1);
@@ -796,6 +826,7 @@ if (x_261 == 0)
 {
 lean_object* x_262; lean_object* x_263; 
 x_262 = lean_string_append(x_260, x_3);
+lean_dec_ref(x_3);
 x_263 = lean_string_append(x_262, x_259);
 x_242 = x_263;
 goto block_256;
@@ -905,7 +936,7 @@ block_72:
 {
 if (lean_obj_tag(x_48) == 0)
 {
-lean_dec_ref(x_47);
+lean_dec_ref(x_46);
 x_34 = x_49;
 goto block_37;
 }
@@ -915,7 +946,8 @@ lean_object* x_50; lean_object* x_51;
 x_50 = lean_ctor_get(x_48, 0);
 lean_inc(x_50);
 lean_dec_ref(x_48);
-x_51 = lean_string_append(x_49, x_47);
+x_51 = lean_string_append(x_49, x_46);
+lean_dec_ref(x_46);
 if (lean_obj_tag(x_50) == 0)
 {
 lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; 
@@ -924,12 +956,13 @@ lean_inc(x_52);
 lean_dec_ref(x_50);
 x_53 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressItemDataFast___closed__3;
 x_54 = lean_string_append(x_51, x_53);
-x_55 = l_Lean_Name_toString(x_52, x_46);
+x_55 = l_Lean_Name_toString(x_52, x_47);
 x_56 = l___private_Lean_Data_Json_Printer_0__Lean_Json_needEscape(x_55);
 if (x_56 == 0)
 {
 lean_object* x_57; 
 x_57 = lean_string_append(x_54, x_55);
+lean_dec_ref(x_55);
 x_42 = x_57;
 goto block_45;
 }
@@ -954,12 +987,13 @@ lean_inc(x_62);
 lean_dec_ref(x_50);
 x_63 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressItemDataFast___closed__5;
 x_64 = lean_string_append(x_51, x_63);
-x_65 = l_Lean_Name_toString(x_62, x_46);
+x_65 = l_Lean_Name_toString(x_62, x_47);
 x_66 = l___private_Lean_Data_Json_Printer_0__Lean_Json_needEscape(x_65);
 if (x_66 == 0)
 {
 lean_object* x_67; 
 x_67 = lean_string_append(x_64, x_65);
+lean_dec_ref(x_65);
 x_38 = x_67;
 goto block_41;
 }
@@ -981,38 +1015,41 @@ goto block_41;
 block_91:
 {
 lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; 
-x_78 = lean_ctor_get(x_76, 0);
+x_78 = lean_ctor_get(x_73, 0);
 lean_inc(x_78);
-x_79 = lean_ctor_get(x_76, 1);
+x_79 = lean_ctor_get(x_73, 1);
 lean_inc(x_79);
-lean_dec_ref(x_76);
+lean_dec_ref(x_73);
 x_80 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressItemDataFast___closed__6;
 x_81 = lean_string_append(x_77, x_80);
 x_82 = l_Nat_reprFast(x_78);
 x_83 = lean_string_append(x_81, x_82);
+lean_dec_ref(x_82);
 x_84 = lean_string_append(x_83, x_80);
 x_85 = l_Nat_reprFast(x_79);
 x_86 = lean_string_append(x_84, x_85);
-if (lean_obj_tag(x_74) == 0)
+lean_dec_ref(x_85);
+if (lean_obj_tag(x_76) == 0)
 {
-x_46 = x_73;
-x_47 = x_80;
-x_48 = x_75;
+x_46 = x_80;
+x_47 = x_75;
+x_48 = x_74;
 x_49 = x_86;
 goto block_72;
 }
 else
 {
 lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; 
-x_87 = lean_ctor_get(x_74, 0);
+x_87 = lean_ctor_get(x_76, 0);
 lean_inc(x_87);
-lean_dec_ref(x_74);
+lean_dec_ref(x_76);
 x_88 = lean_string_append(x_86, x_80);
 x_89 = l_Nat_reprFast(x_87);
 x_90 = lean_string_append(x_88, x_89);
-x_46 = x_73;
-x_47 = x_80;
-x_48 = x_75;
+lean_dec_ref(x_89);
+x_46 = x_80;
+x_47 = x_75;
+x_48 = x_74;
 x_49 = x_90;
 goto block_72;
 }
@@ -1052,11 +1089,12 @@ if (x_106 == 0)
 {
 lean_object* x_107; lean_object* x_108; 
 x_107 = lean_string_append(x_105, x_103);
+lean_dec_ref(x_103);
 x_108 = lean_string_append(x_107, x_104);
-x_73 = x_102;
-x_74 = x_96;
-x_75 = x_97;
-x_76 = x_95;
+x_73 = x_95;
+x_74 = x_97;
+x_75 = x_102;
+x_76 = x_96;
 x_77 = x_108;
 goto block_91;
 }
@@ -1070,10 +1108,10 @@ x_112 = l_String_foldlAux___redArg(x_109, x_103, x_110, x_111, x_105);
 lean_dec(x_110);
 lean_dec_ref(x_103);
 x_113 = lean_string_append(x_112, x_104);
-x_73 = x_102;
-x_74 = x_96;
-x_75 = x_97;
-x_76 = x_95;
+x_73 = x_95;
+x_74 = x_97;
+x_75 = x_102;
+x_76 = x_96;
 x_77 = x_113;
 goto block_91;
 }
@@ -1101,6 +1139,7 @@ if (x_121 == 0)
 {
 lean_object* x_122; lean_object* x_123; 
 x_122 = lean_string_append(x_120, x_116);
+lean_dec(x_116);
 x_123 = lean_string_append(x_122, x_119);
 x_92 = x_123;
 goto block_114;
@@ -1176,10 +1215,12 @@ x_153 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp
 x_154 = lean_string_append(x_152, x_153);
 x_155 = l_Nat_reprFast(x_140);
 x_156 = lean_string_append(x_154, x_155);
+lean_dec_ref(x_155);
 x_157 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressPositionFast___closed__1;
 x_158 = lean_string_append(x_156, x_157);
 x_159 = l_Nat_reprFast(x_139);
 x_160 = lean_string_append(x_158, x_159);
+lean_dec_ref(x_159);
 x_161 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressMarkupContentFast___closed__0;
 x_162 = lean_string_append(x_160, x_161);
 x_163 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressRangeFast___closed__1;
@@ -1187,14 +1228,17 @@ x_164 = lean_string_append(x_162, x_163);
 x_165 = lean_string_append(x_164, x_153);
 x_166 = l_Nat_reprFast(x_142);
 x_167 = lean_string_append(x_165, x_166);
+lean_dec_ref(x_166);
 x_168 = lean_string_append(x_167, x_157);
 x_169 = l_Nat_reprFast(x_141);
 x_170 = lean_string_append(x_168, x_169);
+lean_dec_ref(x_169);
 x_171 = lean_string_append(x_170, x_161);
 x_172 = lean_string_append(x_171, x_161);
 x_173 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressEditFast___closed__1;
 x_174 = lean_string_append(x_172, x_173);
 x_175 = lean_string_append(x_174, x_138);
+lean_dec_ref(x_138);
 x_176 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressItemDataFast___closed__1;
 x_177 = lean_string_append(x_175, x_176);
 x_178 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressEditFast___closed__2;
@@ -1203,17 +1247,21 @@ x_180 = lean_string_append(x_179, x_151);
 x_181 = lean_string_append(x_180, x_153);
 x_182 = l_Nat_reprFast(x_144);
 x_183 = lean_string_append(x_181, x_182);
+lean_dec_ref(x_182);
 x_184 = lean_string_append(x_183, x_157);
 x_185 = l_Nat_reprFast(x_143);
 x_186 = lean_string_append(x_184, x_185);
+lean_dec_ref(x_185);
 x_187 = lean_string_append(x_186, x_161);
 x_188 = lean_string_append(x_187, x_163);
 x_189 = lean_string_append(x_188, x_153);
 x_190 = l_Nat_reprFast(x_146);
 x_191 = lean_string_append(x_189, x_190);
+lean_dec_ref(x_190);
 x_192 = lean_string_append(x_191, x_157);
 x_193 = l_Nat_reprFast(x_145);
 x_194 = lean_string_append(x_192, x_193);
+lean_dec_ref(x_193);
 x_195 = lean_string_append(x_194, x_161);
 x_196 = lean_string_append(x_195, x_161);
 x_197 = lean_string_append(x_196, x_161);
@@ -1244,6 +1292,7 @@ x_206 = lean_nat_add(x_204, x_205);
 lean_dec(x_204);
 x_207 = l_Nat_reprFast(x_206);
 x_208 = lean_string_append(x_202, x_207);
+lean_dec_ref(x_207);
 x_130 = x_208;
 goto block_198;
 }
@@ -1262,6 +1311,7 @@ lean_object* x_217; lean_object* x_218; lean_object* x_219; lean_object* x_220; 
 x_217 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressMarkupContentFast___closed__1;
 x_218 = lean_string_append(x_214, x_217);
 x_219 = lean_string_append(x_218, x_216);
+lean_dec_ref(x_216);
 x_220 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressMarkupContentFast___closed__2;
 x_221 = lean_string_append(x_219, x_220);
 x_222 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressItemDataFast___closed__1;
@@ -1271,6 +1321,7 @@ if (x_224 == 0)
 {
 lean_object* x_225; lean_object* x_226; 
 x_225 = lean_string_append(x_223, x_215);
+lean_dec_ref(x_215);
 x_226 = lean_string_append(x_225, x_222);
 x_210 = x_226;
 goto block_213;
@@ -1350,6 +1401,7 @@ if (x_248 == 0)
 {
 lean_object* x_249; lean_object* x_250; 
 x_249 = lean_string_append(x_247, x_243);
+lean_dec(x_243);
 x_250 = lean_string_append(x_249, x_246);
 x_233 = x_250;
 goto block_241;
@@ -1428,7 +1480,6 @@ x_268 = l___private_Lean_Data_Json_Printer_0__Lean_Json_needEscape(x_19);
 if (x_268 == 0)
 {
 lean_object* x_269; lean_object* x_270; 
-lean_inc_ref(x_19);
 x_269 = lean_string_append(x_267, x_19);
 x_270 = lean_string_append(x_269, x_266);
 x_249 = x_270;
@@ -1535,19 +1586,20 @@ goto block_47;
 }
 block_79:
 {
-if (lean_obj_tag(x_56) == 0)
+if (lean_obj_tag(x_57) == 0)
 {
-lean_dec_ref(x_57);
+lean_dec_ref(x_56);
 x_44 = x_58;
 goto block_47;
 }
 else
 {
 lean_object* x_59; lean_object* x_60; 
-x_59 = lean_ctor_get(x_56, 0);
+x_59 = lean_ctor_get(x_57, 0);
 lean_inc(x_59);
+lean_dec_ref(x_57);
+x_60 = lean_string_append(x_58, x_56);
 lean_dec_ref(x_56);
-x_60 = lean_string_append(x_58, x_57);
 if (lean_obj_tag(x_59) == 0)
 {
 lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; uint8_t x_65; 
@@ -1562,6 +1614,7 @@ if (x_65 == 0)
 {
 lean_object* x_66; 
 x_66 = lean_string_append(x_63, x_64);
+lean_dec_ref(x_64);
 x_52 = x_66;
 goto block_55;
 }
@@ -1591,6 +1644,7 @@ if (x_74 == 0)
 {
 lean_object* x_75; 
 x_75 = lean_string_append(x_72, x_73);
+lean_dec_ref(x_73);
 x_48 = x_75;
 goto block_51;
 }
@@ -1611,36 +1665,39 @@ goto block_51;
 block_97:
 {
 lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; 
-x_84 = lean_ctor_get(x_80, 0);
+x_84 = lean_ctor_get(x_82, 0);
 lean_inc(x_84);
-x_85 = lean_ctor_get(x_80, 1);
+x_85 = lean_ctor_get(x_82, 1);
 lean_inc(x_85);
-lean_dec_ref(x_80);
+lean_dec_ref(x_82);
 x_86 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressItemDataFast___closed__6;
 x_87 = lean_string_append(x_83, x_86);
 x_88 = l_Nat_reprFast(x_84);
 x_89 = lean_string_append(x_87, x_88);
+lean_dec_ref(x_88);
 x_90 = lean_string_append(x_89, x_86);
 x_91 = l_Nat_reprFast(x_85);
 x_92 = lean_string_append(x_90, x_91);
-if (lean_obj_tag(x_82) == 0)
+lean_dec_ref(x_91);
+if (lean_obj_tag(x_80) == 0)
 {
-x_56 = x_81;
-x_57 = x_86;
+x_56 = x_86;
+x_57 = x_81;
 x_58 = x_92;
 goto block_79;
 }
 else
 {
 lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; 
-x_93 = lean_ctor_get(x_82, 0);
+x_93 = lean_ctor_get(x_80, 0);
 lean_inc(x_93);
-lean_dec_ref(x_82);
+lean_dec_ref(x_80);
 x_94 = lean_string_append(x_92, x_86);
 x_95 = l_Nat_reprFast(x_93);
 x_96 = lean_string_append(x_94, x_95);
-x_56 = x_81;
-x_57 = x_86;
+lean_dec_ref(x_95);
+x_56 = x_86;
+x_57 = x_81;
 x_58 = x_96;
 goto block_79;
 }
@@ -1675,13 +1732,14 @@ if (x_112 == 0)
 {
 lean_object* x_113; lean_object* x_114; 
 x_113 = lean_string_append(x_111, x_109);
+lean_dec_ref(x_109);
 x_114 = lean_string_append(x_113, x_110);
-lean_inc(x_103);
-lean_inc(x_104);
 lean_inc_ref(x_102);
-x_80 = x_102;
+lean_inc(x_104);
+lean_inc(x_103);
+x_80 = x_103;
 x_81 = x_104;
-x_82 = x_103;
+x_82 = x_102;
 x_83 = x_114;
 goto block_97;
 }
@@ -1694,12 +1752,12 @@ x_117 = l_String_foldlAux___at_____private_Lean_Server_Completion_CompletionItem
 lean_dec(x_115);
 lean_dec_ref(x_109);
 x_118 = lean_string_append(x_117, x_110);
-lean_inc(x_103);
-lean_inc(x_104);
 lean_inc_ref(x_102);
-x_80 = x_102;
+lean_inc(x_104);
+lean_inc(x_103);
+x_80 = x_103;
 x_81 = x_104;
-x_82 = x_103;
+x_82 = x_102;
 x_83 = x_118;
 goto block_97;
 }
@@ -1726,7 +1784,6 @@ x_127 = l___private_Lean_Data_Json_Printer_0__Lean_Json_needEscape(x_122);
 if (x_127 == 0)
 {
 lean_object* x_128; lean_object* x_129; 
-lean_inc(x_122);
 x_128 = lean_string_append(x_126, x_122);
 x_129 = lean_string_append(x_128, x_125);
 x_98 = x_129;
@@ -1784,11 +1841,13 @@ x_160 = lean_string_append(x_158, x_159);
 lean_inc(x_146);
 x_161 = l_Nat_reprFast(x_146);
 x_162 = lean_string_append(x_160, x_161);
+lean_dec_ref(x_161);
 x_163 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressPositionFast___closed__1;
 x_164 = lean_string_append(x_162, x_163);
 lean_inc(x_145);
 x_165 = l_Nat_reprFast(x_145);
 x_166 = lean_string_append(x_164, x_165);
+lean_dec_ref(x_165);
 x_167 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressMarkupContentFast___closed__0;
 x_168 = lean_string_append(x_166, x_167);
 x_169 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressRangeFast___closed__1;
@@ -1797,15 +1856,16 @@ x_171 = lean_string_append(x_170, x_159);
 lean_inc(x_148);
 x_172 = l_Nat_reprFast(x_148);
 x_173 = lean_string_append(x_171, x_172);
+lean_dec_ref(x_172);
 x_174 = lean_string_append(x_173, x_163);
 lean_inc(x_147);
 x_175 = l_Nat_reprFast(x_147);
 x_176 = lean_string_append(x_174, x_175);
+lean_dec_ref(x_175);
 x_177 = lean_string_append(x_176, x_167);
 x_178 = lean_string_append(x_177, x_167);
 x_179 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressEditFast___closed__1;
 x_180 = lean_string_append(x_178, x_179);
-lean_inc_ref(x_144);
 x_181 = lean_string_append(x_180, x_144);
 x_182 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressItemDataFast___closed__1;
 x_183 = lean_string_append(x_181, x_182);
@@ -1816,20 +1876,24 @@ x_187 = lean_string_append(x_186, x_159);
 lean_inc(x_150);
 x_188 = l_Nat_reprFast(x_150);
 x_189 = lean_string_append(x_187, x_188);
+lean_dec_ref(x_188);
 x_190 = lean_string_append(x_189, x_163);
 lean_inc(x_149);
 x_191 = l_Nat_reprFast(x_149);
 x_192 = lean_string_append(x_190, x_191);
+lean_dec_ref(x_191);
 x_193 = lean_string_append(x_192, x_167);
 x_194 = lean_string_append(x_193, x_169);
 x_195 = lean_string_append(x_194, x_159);
 lean_inc(x_152);
 x_196 = l_Nat_reprFast(x_152);
 x_197 = lean_string_append(x_195, x_196);
+lean_dec_ref(x_196);
 x_198 = lean_string_append(x_197, x_163);
 lean_inc(x_151);
 x_199 = l_Nat_reprFast(x_151);
 x_200 = lean_string_append(x_198, x_199);
+lean_dec_ref(x_199);
 x_201 = lean_string_append(x_200, x_167);
 x_202 = lean_string_append(x_201, x_167);
 x_203 = lean_string_append(x_202, x_167);
@@ -1859,6 +1923,7 @@ x_213 = lean_nat_add(x_211, x_212);
 lean_dec(x_211);
 x_214 = l_Nat_reprFast(x_213);
 x_215 = lean_string_append(x_209, x_214);
+lean_dec_ref(x_214);
 x_135 = x_215;
 goto block_204;
 }
@@ -1877,6 +1942,7 @@ lean_object* x_224; lean_object* x_225; lean_object* x_226; lean_object* x_227; 
 x_224 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressMarkupContentFast___closed__1;
 x_225 = lean_string_append(x_222, x_224);
 x_226 = lean_string_append(x_225, x_223);
+lean_dec_ref(x_223);
 x_227 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressMarkupContentFast___closed__2;
 x_228 = lean_string_append(x_226, x_227);
 x_229 = l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressItemDataFast___closed__1;
@@ -1886,6 +1952,7 @@ if (x_231 == 0)
 {
 lean_object* x_232; lean_object* x_233; 
 x_232 = lean_string_append(x_230, x_221);
+lean_dec_ref(x_221);
 x_233 = lean_string_append(x_232, x_229);
 x_217 = x_233;
 goto block_220;
@@ -1963,7 +2030,6 @@ x_256 = l___private_Lean_Data_Json_Printer_0__Lean_Json_needEscape(x_251);
 if (x_256 == 0)
 {
 lean_object* x_257; lean_object* x_258; 
-lean_inc(x_251);
 x_257 = lean_string_append(x_255, x_251);
 x_258 = lean_string_append(x_257, x_254);
 x_239 = x_258;
@@ -2102,6 +2168,7 @@ block_13:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_6 = lean_string_append(x_4, x_5);
+lean_dec_ref(x_5);
 x_7 = l_Lean_Lsp_ResolvableCompletionList_compressFast___closed__1;
 x_8 = lean_string_append(x_6, x_7);
 x_9 = lean_unsigned_to_nat(0u);

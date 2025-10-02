@@ -2176,12 +2176,16 @@ macro (name := mspecMacro) (priority:=low) "mspec" : tactic =>
 `mvcgen` will break down a Hoare triple proof goal like `⦃P⦄ prog ⦃Q⦄` into verification conditions,
 provided that all functions used in `prog` have specifications registered with `@[spec]`.
 
+### Verification Conditions and specifications
+
 A verification condition is an entailment in the stateful logic of `Std.Do.SPred`
 in which the original program `prog` no longer occurs.
 Verification conditions are introduced by the `mspec` tactic; see the `mspec` tactic for what they
 look like.
 When there's no applicable `mspec` spec, `mvcgen` will try and rewrite an application
 `prog = f a b c` with the simp set registered via `@[spec]`.
+
+### Features
 
 When used like `mvcgen +noLetElim [foo_spec, bar_def, instBEqFloat]`, `mvcgen` will additionally
 
@@ -2191,11 +2195,68 @@ When used like `mvcgen +noLetElim [foo_spec, bar_def, instBEqFloat]`, `mvcgen` w
 * unfold any method of the `instBEqFloat : BEq Float` instance in `prog`.
 * it will no longer substitute away `let`-expressions that occur at most once in `P`, `Q` or `prog`.
 
-Furthermore, `mvcgen` tries to close trivial verification conditions by `SPred.entails.rfl` or
-the tactic sequence `try (mpure_intro; trivial)`. The variant `mvcgen_no_trivial` does not do this.
+### Config options
 
-For debugging purposes there is also `mvcgen_step 42` which will do at most 42 VC generation
-steps. This is useful for bisecting issues with the generated VCs.
+`+noLetElim` is just one config option of many. Check out `Lean.Elab.Tactic.Do.VCGen.Config` for all
+options. Of particular note is `stepLimit = some 42`, which is useful for bisecting bugs in
+`mvcgen` and tracing its execution.
+
+### Extended syntax
+
+Often, `mvcgen` will be used like this:
+```
+mvcgen [...]
+case inv1 => by exact I1
+case inv2 => by exact I2
+all_goals (mleave; try grind)
+```
+There is special syntax for this:
+```
+mvcgen [...] invariants
+· I1
+· I2
+with grind
+```
+When `I1` and `I2` need to refer to inaccessibles (`mvcgen` will introduce a lot of them for program
+variables), you can use case label syntax:
+```
+mvcgen [...] invariants
+| inv1 _ acc _ => I1 acc
+| _ => I2
+with grind
+```
+This is more convenient than the equivalent `· by rename_i _ acc _; exact I1 acc`.
+
+### Invariant suggestions
+
+`mvcgen` will suggest invariants for you if you use the `invariants?` keyword.
+```
+mvcgen [...] invariants?
+```
+This is useful if you do not recall the exact syntax to construct invariants.
+Furthermore, it will suggest a concrete invariant encoding "this holds at the start of the loop and
+this must hold at the end of the loop" by looking at the corresponding VCs.
+Although the suggested invariant is a good starting point, it is too strong and requires users to
+interpolate it such that the inductive step can be proved. Example:
+```
+def mySum (l : List Nat) : Nat := Id.run do
+  let mut acc := 0
+  for x in l do
+    acc := acc + x
+  return acc
+
+/--
+info: Try this:
+  invariants
+    · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = 0 ∨ xs.suffix = [] ∧ letMuts = l.sum⌝
+-/
+#guard_msgs (info) in
+theorem mySum_suggest_invariant (l : List Nat) : mySum l = l.sum := by
+  generalize h : mySum l = r
+  apply Id.of_wp_run_eq h
+  mvcgen invariants?
+  all_goals admit
+```
 -/
 macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
   Macro.throwError "to use `mvcgen`, please include `import Std.Tactic.Do`"

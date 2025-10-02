@@ -89,6 +89,86 @@
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 1, 17, 0]}],
  "isIncomplete": false}
+Resolution of format.unicode:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 1, "character": 11}, "end": {"line": 1, "character": 17}},
+  "newText": "format.unicode",
+  "insert":
+  {"start": {"line": 1, "character": 11}, "end": {"line": 1, "character": 17}}},
+ "label": "format.unicode",
+ "kind": 10,
+ "detail": "(true), unicode characters",
+ "data": ["«external:file:///completionOption.lean»", 1, 17, 0]}
+Resolution of format.width:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 1, "character": 11}, "end": {"line": 1, "character": 17}},
+  "newText": "format.width",
+  "insert":
+  {"start": {"line": 1, "character": 11}, "end": {"line": 1, "character": 17}}},
+ "label": "format.width",
+ "kind": 10,
+ "detail": "(120), indentation",
+ "data": ["«external:file:///completionOption.lean»", 1, 17, 0]}
+Resolution of format.inputWidth:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 1, "character": 11}, "end": {"line": 1, "character": 17}},
+  "newText": "format.inputWidth",
+  "insert":
+  {"start": {"line": 1, "character": 11}, "end": {"line": 1, "character": 17}}},
+ "label": "format.inputWidth",
+ "kind": 10,
+ "detail": "(100), ideal input width",
+ "data": ["«external:file:///completionOption.lean»", 1, 17, 0]}
+Resolution of trace.PrettyPrinter.format.input:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 1, "character": 11}, "end": {"line": 1, "character": 17}},
+  "newText": "trace.PrettyPrinter.format.input",
+  "insert":
+  {"start": {"line": 1, "character": 11}, "end": {"line": 1, "character": 17}}},
+ "label": "trace.PrettyPrinter.format.input",
+ "kind": 10,
+ "detail":
+ "(false), enable/disable tracing for the given module and submodules",
+ "data": ["«external:file:///completionOption.lean»", 1, 17, 0]}
+Resolution of trace.PrettyPrinter.format:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 1, "character": 11}, "end": {"line": 1, "character": 17}},
+  "newText": "trace.PrettyPrinter.format",
+  "insert":
+  {"start": {"line": 1, "character": 11}, "end": {"line": 1, "character": 17}}},
+ "label": "trace.PrettyPrinter.format",
+ "kind": 10,
+ "detail":
+ "(false), enable/disable tracing for the given module and submodules",
+ "data": ["«external:file:///completionOption.lean»", 1, 17, 0]}
+Resolution of format.indent:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 1, "character": 11}, "end": {"line": 1, "character": 17}},
+  "newText": "format.indent",
+  "insert":
+  {"start": {"line": 1, "character": 11}, "end": {"line": 1, "character": 17}}},
+ "label": "format.indent",
+ "kind": 10,
+ "detail": "(2), indentation",
+ "data": ["«external:file:///completionOption.lean»", 1, 17, 0]}
+Resolution of trace.PrettyPrinter.format.backtrack:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 1, "character": 11}, "end": {"line": 1, "character": 17}},
+  "newText": "trace.PrettyPrinter.format.backtrack",
+  "insert":
+  {"start": {"line": 1, "character": 11}, "end": {"line": 1, "character": 17}}},
+ "label": "trace.PrettyPrinter.format.backtrack",
+ "kind": 10,
+ "detail":
+ "(false), enable/disable tracing for the given module and submodules",
+ "data": ["«external:file:///completionOption.lean»", 1, 17, 0]}
 {"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 4, "character": 20}}
 {"items":
@@ -130,6 +210,40 @@
    "detail": "(2), indentation",
    "data": ["«external:file:///completionOption.lean»", 4, 20, 0]}],
  "isIncomplete": false}
+Resolution of format.inputWidth:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 4, "character": 11}, "end": {"line": 4, "character": 20}},
+  "newText": "format.inputWidth",
+  "insert":
+  {"start": {"line": 4, "character": 11}, "end": {"line": 4, "character": 20}}},
+ "label": "format.inputWidth",
+ "kind": 10,
+ "detail": "(100), ideal input width",
+ "data": ["«external:file:///completionOption.lean»", 4, 20, 0]}
+Resolution of trace.PrettyPrinter.format.input:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 4, "character": 11}, "end": {"line": 4, "character": 20}},
+  "newText": "trace.PrettyPrinter.format.input",
+  "insert":
+  {"start": {"line": 4, "character": 11}, "end": {"line": 4, "character": 20}}},
+ "label": "trace.PrettyPrinter.format.input",
+ "kind": 10,
+ "detail":
+ "(false), enable/disable tracing for the given module and submodules",
+ "data": ["«external:file:///completionOption.lean»", 4, 20, 0]}
+Resolution of format.indent:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 4, "character": 11}, "end": {"line": 4, "character": 20}},
+  "newText": "format.indent",
+  "insert":
+  {"start": {"line": 4, "character": 11}, "end": {"line": 4, "character": 20}}},
+ "label": "format.indent",
+ "kind": 10,
+ "detail": "(2), indentation",
+ "data": ["«external:file:///completionOption.lean»", 4, 20, 0]}
 {"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 7, "character": 23}}
 {"items":
@@ -199,6 +313,66 @@
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 7, 23, 0]}],
  "isIncomplete": false}
+Resolution of trace.Compiler.specialize.candidate:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 23}},
+  "newText": "trace.Compiler.specialize.candidate",
+  "insert":
+  {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 23}}},
+ "label": "trace.Compiler.specialize.candidate",
+ "kind": 10,
+ "detail":
+ "(false), enable/disable tracing for the given module and submodules",
+ "data": ["«external:file:///completionOption.lean»", 7, 23, 0]}
+Resolution of trace.pp.analyze.error:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 23}},
+  "newText": "trace.pp.analyze.error",
+  "insert":
+  {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 23}}},
+ "label": "trace.pp.analyze.error",
+ "kind": 10,
+ "detail":
+ "(false), enable/disable tracing for the given module and submodules",
+ "data": ["«external:file:///completionOption.lean»", 7, 23, 0]}
+Resolution of trace.pp.analyze:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 23}},
+  "newText": "trace.pp.analyze",
+  "insert":
+  {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 23}}},
+ "label": "trace.pp.analyze",
+ "kind": 10,
+ "detail":
+ "(false), enable/disable tracing for the given module and submodules",
+ "data": ["«external:file:///completionOption.lean»", 7, 23, 0]}
+Resolution of trace.pp.analyze.tryUnify:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 23}},
+  "newText": "trace.pp.analyze.tryUnify",
+  "insert":
+  {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 23}}},
+ "label": "trace.pp.analyze.tryUnify",
+ "kind": 10,
+ "detail":
+ "(false), enable/disable tracing for the given module and submodules",
+ "data": ["«external:file:///completionOption.lean»", 7, 23, 0]}
+Resolution of trace.pp.analyze.annotate:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 23}},
+  "newText": "trace.pp.analyze.annotate",
+  "insert":
+  {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 23}}},
+ "label": "trace.pp.analyze.annotate",
+ "kind": 10,
+ "detail":
+ "(false), enable/disable tracing for the given module and submodules",
+ "data": ["«external:file:///completionOption.lean»", 7, 23, 0]}
 {"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 10, "character": 27}}
 {"items":
@@ -255,6 +429,62 @@
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 10, 27, 0]}],
  "isIncomplete": false}
+Resolution of trace.pp.analyze.error:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 10, "character": 11},
+   "end": {"line": 10, "character": 27}},
+  "newText": "trace.pp.analyze.error",
+  "insert":
+  {"start": {"line": 10, "character": 11},
+   "end": {"line": 10, "character": 27}}},
+ "label": "trace.pp.analyze.error",
+ "kind": 10,
+ "detail":
+ "(false), enable/disable tracing for the given module and submodules",
+ "data": ["«external:file:///completionOption.lean»", 10, 27, 0]}
+Resolution of trace.pp.analyze:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 10, "character": 11},
+   "end": {"line": 10, "character": 27}},
+  "newText": "trace.pp.analyze",
+  "insert":
+  {"start": {"line": 10, "character": 11},
+   "end": {"line": 10, "character": 27}}},
+ "label": "trace.pp.analyze",
+ "kind": 10,
+ "detail":
+ "(false), enable/disable tracing for the given module and submodules",
+ "data": ["«external:file:///completionOption.lean»", 10, 27, 0]}
+Resolution of trace.pp.analyze.tryUnify:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 10, "character": 11},
+   "end": {"line": 10, "character": 27}},
+  "newText": "trace.pp.analyze.tryUnify",
+  "insert":
+  {"start": {"line": 10, "character": 11},
+   "end": {"line": 10, "character": 27}}},
+ "label": "trace.pp.analyze.tryUnify",
+ "kind": 10,
+ "detail":
+ "(false), enable/disable tracing for the given module and submodules",
+ "data": ["«external:file:///completionOption.lean»", 10, 27, 0]}
+Resolution of trace.pp.analyze.annotate:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 10, "character": 11},
+   "end": {"line": 10, "character": 27}},
+  "newText": "trace.pp.analyze.annotate",
+  "insert":
+  {"start": {"line": 10, "character": 11},
+   "end": {"line": 10, "character": 27}}},
+ "label": "trace.pp.analyze.annotate",
+ "kind": 10,
+ "detail":
+ "(false), enable/disable tracing for the given module and submodules",
+ "data": ["«external:file:///completionOption.lean»", 10, 27, 0]}
 {"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 13, "character": 17}}
 {"items":
@@ -346,6 +576,100 @@
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 13, 17, 0]}],
  "isIncomplete": false}
+Resolution of format.unicode:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 13, "character": 11},
+   "end": {"line": 13, "character": 17}},
+  "newText": "format.unicode",
+  "insert":
+  {"start": {"line": 13, "character": 11},
+   "end": {"line": 13, "character": 17}}},
+ "label": "format.unicode",
+ "kind": 10,
+ "detail": "(true), unicode characters",
+ "data": ["«external:file:///completionOption.lean»", 13, 17, 0]}
+Resolution of format.width:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 13, "character": 11},
+   "end": {"line": 13, "character": 17}},
+  "newText": "format.width",
+  "insert":
+  {"start": {"line": 13, "character": 11},
+   "end": {"line": 13, "character": 17}}},
+ "label": "format.width",
+ "kind": 10,
+ "detail": "(120), indentation",
+ "data": ["«external:file:///completionOption.lean»", 13, 17, 0]}
+Resolution of format.inputWidth:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 13, "character": 11},
+   "end": {"line": 13, "character": 17}},
+  "newText": "format.inputWidth",
+  "insert":
+  {"start": {"line": 13, "character": 11},
+   "end": {"line": 13, "character": 17}}},
+ "label": "format.inputWidth",
+ "kind": 10,
+ "detail": "(100), ideal input width",
+ "data": ["«external:file:///completionOption.lean»", 13, 17, 0]}
+Resolution of trace.PrettyPrinter.format.input:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 13, "character": 11},
+   "end": {"line": 13, "character": 17}},
+  "newText": "trace.PrettyPrinter.format.input",
+  "insert":
+  {"start": {"line": 13, "character": 11},
+   "end": {"line": 13, "character": 17}}},
+ "label": "trace.PrettyPrinter.format.input",
+ "kind": 10,
+ "detail":
+ "(false), enable/disable tracing for the given module and submodules",
+ "data": ["«external:file:///completionOption.lean»", 13, 17, 0]}
+Resolution of trace.PrettyPrinter.format:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 13, "character": 11},
+   "end": {"line": 13, "character": 17}},
+  "newText": "trace.PrettyPrinter.format",
+  "insert":
+  {"start": {"line": 13, "character": 11},
+   "end": {"line": 13, "character": 17}}},
+ "label": "trace.PrettyPrinter.format",
+ "kind": 10,
+ "detail":
+ "(false), enable/disable tracing for the given module and submodules",
+ "data": ["«external:file:///completionOption.lean»", 13, 17, 0]}
+Resolution of format.indent:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 13, "character": 11},
+   "end": {"line": 13, "character": 17}},
+  "newText": "format.indent",
+  "insert":
+  {"start": {"line": 13, "character": 11},
+   "end": {"line": 13, "character": 17}}},
+ "label": "format.indent",
+ "kind": 10,
+ "detail": "(2), indentation",
+ "data": ["«external:file:///completionOption.lean»", 13, 17, 0]}
+Resolution of trace.PrettyPrinter.format.backtrack:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 13, "character": 11},
+   "end": {"line": 13, "character": 17}},
+  "newText": "trace.PrettyPrinter.format.backtrack",
+  "insert":
+  {"start": {"line": 13, "character": 11},
+   "end": {"line": 13, "character": 17}}},
+ "label": "trace.PrettyPrinter.format.backtrack",
+ "kind": 10,
+ "detail":
+ "(false), enable/disable tracing for the given module and submodules",
+ "data": ["«external:file:///completionOption.lean»", 13, 17, 0]}
 {"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 16, "character": 18}}
 {"items":
@@ -424,3 +748,83 @@
    "(false), enable/disable tracing for the given module and submodules",
    "data": ["«external:file:///completionOption.lean»", 16, 18, 0]}],
  "isIncomplete": false}
+Resolution of format.unicode:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 16, "character": 11},
+   "end": {"line": 16, "character": 18}},
+  "newText": "format.unicode",
+  "insert":
+  {"start": {"line": 16, "character": 11},
+   "end": {"line": 16, "character": 18}}},
+ "label": "format.unicode",
+ "kind": 10,
+ "detail": "(true), unicode characters",
+ "data": ["«external:file:///completionOption.lean»", 16, 18, 0]}
+Resolution of format.width:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 16, "character": 11},
+   "end": {"line": 16, "character": 18}},
+  "newText": "format.width",
+  "insert":
+  {"start": {"line": 16, "character": 11},
+   "end": {"line": 16, "character": 18}}},
+ "label": "format.width",
+ "kind": 10,
+ "detail": "(120), indentation",
+ "data": ["«external:file:///completionOption.lean»", 16, 18, 0]}
+Resolution of format.inputWidth:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 16, "character": 11},
+   "end": {"line": 16, "character": 18}},
+  "newText": "format.inputWidth",
+  "insert":
+  {"start": {"line": 16, "character": 11},
+   "end": {"line": 16, "character": 18}}},
+ "label": "format.inputWidth",
+ "kind": 10,
+ "detail": "(100), ideal input width",
+ "data": ["«external:file:///completionOption.lean»", 16, 18, 0]}
+Resolution of trace.PrettyPrinter.format.input:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 16, "character": 11},
+   "end": {"line": 16, "character": 18}},
+  "newText": "trace.PrettyPrinter.format.input",
+  "insert":
+  {"start": {"line": 16, "character": 11},
+   "end": {"line": 16, "character": 18}}},
+ "label": "trace.PrettyPrinter.format.input",
+ "kind": 10,
+ "detail":
+ "(false), enable/disable tracing for the given module and submodules",
+ "data": ["«external:file:///completionOption.lean»", 16, 18, 0]}
+Resolution of format.indent:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 16, "character": 11},
+   "end": {"line": 16, "character": 18}},
+  "newText": "format.indent",
+  "insert":
+  {"start": {"line": 16, "character": 11},
+   "end": {"line": 16, "character": 18}}},
+ "label": "format.indent",
+ "kind": 10,
+ "detail": "(2), indentation",
+ "data": ["«external:file:///completionOption.lean»", 16, 18, 0]}
+Resolution of trace.PrettyPrinter.format.backtrack:
+{"textEdit":
+ {"replace":
+  {"start": {"line": 16, "character": 11},
+   "end": {"line": 16, "character": 18}},
+  "newText": "trace.PrettyPrinter.format.backtrack",
+  "insert":
+  {"start": {"line": 16, "character": 11},
+   "end": {"line": 16, "character": 18}}},
+ "label": "trace.PrettyPrinter.format.backtrack",
+ "kind": 10,
+ "detail":
+ "(false), enable/disable tracing for the given module and submodules",
+ "data": ["«external:file:///completionOption.lean»", 16, 18, 0]}

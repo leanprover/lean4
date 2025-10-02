@@ -24,7 +24,7 @@ namespace Lake
 
 set_option linter.unusedVariables false in
 /-- A `Package`'s declarative configuration. -/
-public configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig where
+public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig, LeanConfig where
   /-- **For internal use.** Whether this package is Lean itself. -/
   bootstrap : Bool := false
 
@@ -295,6 +295,14 @@ public configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanCo
   -/
   enableArtifactCache?, enableArtifactCache : Option Bool := none
   /--
+  Whether, when the local artifact cache is enabled, Lake should copy all cached
+  artifacts into the build directory. This ensures the build results are available
+  to external consumers who expect them in the build directory.
+
+  Defaults to `false`.
+  -/
+  restoreAllArtifacts : Bool := false
+  /--
   Whether native libraries (of this package) should be prefixed with `lib` on Windows.
 
   Unlike Unix, Windows does not require native libraries to start with `lib` and,
@@ -306,11 +314,12 @@ public configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanCo
   libPrefixOnWindows : Bool := false
 deriving Inhabited
 
-/-- The package's name. -/
-public abbrev PackageConfig.name (_ : PackageConfig n) := n
+/-- The package's name as specified by the author. -/
+public abbrev PackageConfig.origName (_ : PackageConfig p n) := n
 
 /-- A package declaration from a configuration written in Lean. -/
 public structure PackageDecl where
   name : Name
-  config : PackageConfig name
+  origName : Name
+  config : PackageConfig name origName
   deriving TypeName

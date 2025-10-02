@@ -57,46 +57,32 @@ partial def genVCs (goal : MVarId) (ctx : Context) (fuel : Fuel) : MetaM Result 
       mv.setTag (Name.mkSimple ("inv" ++ toString (idx + 1)))
     for h : idx in [:state.vcs.size] do
       let mv := state.vcs[idx]
-      mv.setTag (Name.mkSimple ("vc" ++ toString (idx + 1)) ++ (← mv.getTag))
+      mv.setTag (Name.mkSimple ("vc" ++ toString (idx + 1)) ++ (← mv.getTag).eraseMacroScopes)
     return { invariants := state.invariants, vcs := state.vcs }
 where
   onFail (goal : MGoal) (name : Name) : VCGenM Expr := do
     -- trace[Elab.Tactic.Do.vcgen] "fail {goal.toExpr}"
     emitVC goal.toExpr name
 
-  tryGoal (goal : Expr) (name : Name) : VCGenM Expr := do
-    -- trace[Elab.Tactic.Do.vcgen] "tryGoal: {goal}"
-    forallTelescope goal fun xs body => do
-      let res ← try mStart body catch _ =>
-        -- trace[Elab.Tactic.Do.vcgen] "not an MGoal: {body}"
-        return ← mkLambdaFVars xs (← emitVC body name)
+  tryGoal (mvar : MVarId) : OptionT VCGenM Expr := mvar.withContext do
+    -- The type might contain more `P ⊢ₛ wp⟦prog⟧ Q` apps. Try and prove it!
+    forallTelescope (← mvar.getType) fun xs body => do
+      let res ← try mStart body catch _ => OptionT.fail
       -- trace[Elab.Tactic.Do.vcgen] "an MGoal: {res.goal.toExpr}"
-      let mut prf ← onGoal res.goal name
+      let mut prf ← onGoal res.goal (← mvar.getTag)
       -- res.goal.checkProof prf
       if let some proof := res.proof? then
         prf := mkApp proof prf
-      mkLambdaFVars xs prf
+      return ← mkLambdaFVars xs prf
 
   assignMVars (mvars : List MVarId) : VCGenM PUnit := do
     for mvar in mvars do
       if ← mvar.isAssigned then continue
-      mvar.withContext <| do
       -- trace[Elab.Tactic.Do.vcgen] "assignMVars {← mvar.getTag}, isDelayedAssigned: {← mvar.isDelayedAssigned},\n{mvar}"
-      let ty ← mvar.getType
-      if ← isProp ty then
-        -- Might contain more `P ⊢ₛ wp⟦prog⟧ Q` apps. Try and prove it!
-        mvar.assign (← tryGoal ty (← mvar.getTag))
-        return
-
-      if ty.isAppOf ``PostCond || ty.isAppOf ``Invariant || ty.isAppOf ``SPred then
-        -- Here we make `mvar` a synthetic opaque goal upon discharge failure.
-        -- This is the right call for (previously natural) holes such as loop invariants, which
-        -- would otherwise lead to spurious instantiations and unwanted renamings (when leaving the
-        -- scope of a local).
-        -- But it's wrong for, e.g., schematic variables. The latter should never be PostConds,
-        -- Invariants or SPreds, hence the condition.
-        mvar.setKind .syntheticOpaque
-      addSubGoalAsVC mvar
+      let some prf ← (tryGoal mvar).run | addSubGoalAsVC mvar
+      if ← mvar.isAssigned then
+        throwError "Tried to assign already assigned metavariable `{← mvar.getTag}`. MVar: {mvar}\nAssignment: {mkMVar mvar}\nNew assignment: {prf}"
+      mvar.assign prf
 
   onGoal goal name : VCGenM Expr := do
     let T := goal.target
@@ -124,7 +110,7 @@ where
     let e ← instantiateMVarsIfMVarApp e
     let e := e.headBeta
     let goal := goal.withNewProg e -- to persist the instantiation of `e` and `trans`
-    trace[Elab.Tactic.Do.vcgen] "Program: {e}"
+    withTraceNode `Elab.Tactic.Do.vcgen (msg := fun _ => return m!"Program: {e}") do
 
     -- let-expressions
     if let .letE x ty val body _nonDep := e.getAppFn' then
@@ -179,6 +165,7 @@ where
         let res ← Simp.mkCongrArg context res
         return ← res.mkEqMPR prf
       assignMVars specHoles.toList
+      trace[Elab.Tactic.Do.vcgen] "Unassigned specHoles: {(← specHoles.filterM (not <$> ·.isAssigned)).map fun m => (m.name, mkMVar m)}"
       return prf
     return ← onFail goal name
 
@@ -370,15 +357,40 @@ def elabInvariants (stx : Syntax) (invariants : Array MVarId) (suggestInvariant 
   match stx with
   | `(invariantAlts| $invariantsKW $alts*) =>
     let invariants ← invariants.filterM (not <$> ·.isAssigned)
+
+    let mut dotOrCase := LBool.undef -- .true => dot
     for h : n in 0...alts.size do
       let alt := alts[n]
       match alt with
-      | `(invariantAlt| · $rhs) =>
+      | `(invariantDotAlt| · $rhs) =>
+        if dotOrCase matches .false then
+          logErrorAt alt m!"Alternation between labelled and bulleted invariants is not supported."
+          break
+        dotOrCase := .true
         let some mv := invariants[n]? | do
-          logErrorAt rhs m!"More invariants have been defined ({alts.size}) than there were unassigned invariants goals `inv<n>` ({invariants.size})."
+          logErrorAt alt m!"More invariants have been defined ({alts.size}) than there were unassigned invariants goals `inv<n>` ({invariants.size})."
           continue
+        withRef rhs do
         discard <| evalTacticAt (← `(tactic| exact $rhs)) mv
-      | _ => logErrorAt alt m!"Expected invariantAlt, got {alt}"
+      | `(invariantCaseAlt| | $tag $args* => $rhs) =>
+        if dotOrCase matches .true then
+          logErrorAt alt m!"Alternation between labelled and bulleted invariants is not supported."
+          break
+        dotOrCase := .false
+        let n? : Option Nat := do
+            let `(binderIdent| $tag:ident) := tag | some n -- fall back to ordinal
+            let .str .anonymous s := tag.getId | none
+            s.dropPrefix? "inv" >>= Substring.toNat?
+        let some mv := do invariants[(← n?) - 1]? | do
+          logErrorAt alt m!"No invariant with label {tag} {repr tag}."
+          continue
+        if ← mv.isAssigned then
+          logErrorAt alt m!"Invariant {n?.get!} is already assigned."
+          continue
+        withRef rhs do
+        discard <| evalTacticAt (← `(tactic| rename_i $args*; exact $rhs)) mv
+      | _ => logErrorAt alt m!"Expected `invariantDotAlt`, got {alt}"
+
     if let `(invariantsKW| invariants) := invariantsKW then
       if alts.size < invariants.size then
         let missingTypes ← invariants[alts.size:].toArray.mapM (·.getType)
@@ -391,7 +403,7 @@ def elabInvariants (stx : Syntax) (invariants : Array MVarId) (suggestInvariant 
         if ← mv.isAssigned then
           continue
         let invariant ← suggestInvariant mv
-        suggestions := suggestions.push (← `(invariantAlt| · $invariant))
+        suggestions := suggestions.push (← `(invariantDotAlt| · $invariant))
       let alts' := alts ++ suggestions
       let stx' ← `(invariantAlts|invariants $alts'*)
       if suggestions.size > 0 then
@@ -436,7 +448,7 @@ where
 @[builtin_tactic Lean.Parser.Tactic.mvcgen]
 def elabMVCGen : Tactic := fun stx => withMainContext do
   if mvcgen.warning.get (← getOptions) then
-    logWarningAt stx "The `mvcgen` tactic is experimental and still under development. Avoid using it in production projects."
+    logWarningAt stx "The `mvcgen` tactic is new and its behavior may change in the future. This project has used `set_option mvcgen.warning true` to discourage its use."
   let ctx ← mkSpecContext stx[1] stx[2]
   let fuel := match ctx.config.stepLimit with
     | some n => .limited n
@@ -444,12 +456,16 @@ def elabMVCGen : Tactic := fun stx => withMainContext do
   let goal ← getMainGoal
   let goal ← if ctx.config.elimLets then elimLets goal else pure goal
   let { invariants, vcs } ← VCGen.genVCs goal ctx fuel
+  trace[Elab.Tactic.Do.vcgen] "after genVCs {← (invariants ++ vcs).mapM fun m => m.getTag}"
   let runOnVCs (tac : TSyntax `tactic) (vcs : Array MVarId) : TermElabM (Array MVarId) :=
     vcs.flatMapM fun vc => List.toArray <$> Term.withSynthesize do
       Tactic.run vc (Tactic.evalTactic tac *> Tactic.pruneSolvedGoals)
   let invariants ← Term.TermElabM.run' do
     let invariants ← if ctx.config.leave then runOnVCs (← `(tactic| try mleave)) invariants else pure invariants
+  trace[Elab.Tactic.Do.vcgen] "before elabInvariants {← (invariants ++ vcs).mapM fun m => m.getTag}"
   elabInvariants stx[3] invariants (suggestInvariant vcs)
+  let invariants ← invariants.filterM (not <$> ·.isAssigned)
+  trace[Elab.Tactic.Do.vcgen] "before trying trivial VCs {← (invariants ++ vcs).mapM fun m => m.getTag}"
   let vcs ← Term.TermElabM.run' do
     let vcs ← if ctx.config.trivial then runOnVCs (← `(tactic| try mvcgen_trivial)) vcs else pure vcs
     let vcs ← if ctx.config.leave then runOnVCs (← `(tactic| try mleave)) vcs else pure vcs
@@ -457,5 +473,8 @@ def elabMVCGen : Tactic := fun stx => withMainContext do
   -- Eliminating lets here causes some metavariables in `mkFreshPair_triple` to become nonassignable
   -- so we don't do it. Presumably some weird delayed assignment thing is going on.
   -- let vcs ← if ctx.config.elimLets then liftMetaM <| vcs.mapM elimLets else pure vcs
+  trace[Elab.Tactic.Do.vcgen] "before elabVCs {← (invariants ++ vcs).mapM fun m => m.getTag}"
   let vcs ← elabVCs stx[4] vcs
+  trace[Elab.Tactic.Do.vcgen] "before replacing main goal {← (invariants ++ vcs).mapM fun m => m.getTag}"
   replaceMainGoal (invariants ++ vcs).toList
+  -- trace[Elab.Tactic.Do.vcgen] "replaced main goal, new: {← getGoals}"

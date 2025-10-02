@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.FileWorker.WidgetRequests
-// Imports: Lean.Widget.Basic Lean.Widget.InteractiveCode Lean.Widget.InteractiveGoal Lean.Widget.InteractiveDiagnostic Lean.Server.Rpc.RequestHandling Lean.Server.FileWorker.RequestHandling Lean.PrettyPrinter.Delaborator.Builtins
+// Imports: public import Lean.Widget.Basic public import Lean.Widget.InteractiveCode public import Lean.Widget.InteractiveGoal public import Lean.Widget.InteractiveDiagnostic public import Lean.Server.Rpc.RequestHandling public import Lean.Server.FileWorker.RequestHandling import Lean.PrettyPrinter.Delaborator.Builtins
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Array_toJson___at_____private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_4152489880____hygCtx___hyg_2__spec__1_spec__1_spec__2_spec__2(size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Widget_instFromJsonRpcEncodablePacket_fromJson____x40_Lean_Server_FileWorker_WidgetRequests_433270988____hygCtx___hyg_25__spec__0___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_fromNat(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1454953308____hygCtx___hyg_2__spec__0_spec__0___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_kmpSearch_spec__3_spec__3___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -426,6 +427,7 @@ static lean_object* l_Lean_Widget_instRpcEncodableGetGoToLocationParams___closed
 LEAN_EXPORT lean_object* l_Lean_Widget_HighlightedMsgEmbed_widget_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket_expr____x40_Lean_Server_FileWorker_WidgetRequests_2377472685____hygCtx___hyg_1__elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_HighlightedMsgEmbed_trace_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Widget_instFromJsonGetInteractiveDiagnosticsParams_fromJson_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_makePopup___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instFromJsonRpcEncodablePacket_fromJson___lam__2____x40_Lean_Server_FileWorker_WidgetRequests_433376973____hygCtx___hyg_94_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -900,6 +902,15 @@ x_12 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_12, 0, x_11);
 return x_12;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Widget_instFromJsonRpcEncodablePacket_fromJson____x40_Lean_Server_FileWorker_WidgetRequests_433270988____hygCtx___hyg_25__spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Json_getObjValAs_x3f___at___Lean_Widget_instFromJsonRpcEncodablePacket_fromJson____x40_Lean_Server_FileWorker_WidgetRequests_433270988____hygCtx___hyg_25__spec__0(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Widget_instFromJsonRpcEncodablePacket___closed__0____x40_Lean_Server_FileWorker_WidgetRequests_433270988____hygCtx___hyg_25_() {
@@ -2244,13 +2255,16 @@ x_21 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedu
 x_22 = 1;
 x_23 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_22);
 x_24 = lean_string_append(x_21, x_23);
+lean_dec_ref(x_23);
 x_25 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__3;
 x_26 = lean_string_append(x_24, x_25);
 x_27 = l_Lean_Json_compress(x_5);
 x_28 = lean_string_append(x_26, x_27);
+lean_dec_ref(x_27);
 x_29 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__4;
 x_30 = lean_string_append(x_28, x_29);
 x_31 = lean_string_append(x_30, x_19);
+lean_dec(x_19);
 x_32 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set_uint8(x_32, sizeof(void*)*1, x_20);
@@ -2338,13 +2352,16 @@ x_49 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedu
 x_50 = 1;
 x_51 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_50);
 x_52 = lean_string_append(x_49, x_51);
+lean_dec_ref(x_51);
 x_53 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__3;
 x_54 = lean_string_append(x_52, x_53);
 x_55 = l_Lean_Json_compress(x_5);
 x_56 = lean_string_append(x_54, x_55);
+lean_dec_ref(x_55);
 x_57 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__4;
 x_58 = lean_string_append(x_56, x_57);
 x_59 = lean_string_append(x_58, x_47);
+lean_dec(x_47);
 x_60 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_60, 0, x_59);
 lean_ctor_set_uint8(x_60, sizeof(void*)*1, x_48);
@@ -2944,6 +2961,7 @@ x_9 = 1;
 lean_inc(x_1);
 x_10 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_9);
 x_11 = lean_string_append(x_8, x_10);
+lean_dec_ref(x_10);
 x_12 = l_Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0___closed__1;
 x_13 = lean_string_append(x_11, x_12);
 x_14 = lean_unbox(x_6);
@@ -3093,6 +3111,7 @@ x_57 = 1;
 lean_inc(x_1);
 x_58 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_57);
 x_59 = lean_string_append(x_56, x_58);
+lean_dec_ref(x_58);
 x_60 = l_Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0___closed__1;
 x_61 = lean_string_append(x_59, x_60);
 x_62 = lean_unbox(x_54);
@@ -3868,8 +3887,8 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10;
 x_7 = l_Option_toJson___at___Lean_Widget_instRpcEncodableInfoPopup_enc____x40_Lean_Server_FileWorker_WidgetRequests_2734021171____hygCtx___hyg_1__spec__0(x_5);
 lean_dec(x_5);
 x_8 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_8, 0, x_3);
-lean_ctor_set(x_8, 1, x_4);
+lean_ctor_set(x_8, 0, x_4);
+lean_ctor_set(x_8, 1, x_3);
 lean_ctor_set(x_8, 2, x_7);
 x_9 = l_Lean_Widget_instToJsonRpcEncodablePacket_toJson____x40_Lean_Server_FileWorker_WidgetRequests_1691946469____hygCtx___hyg_51_(x_8);
 lean_dec_ref(x_8);
@@ -3887,8 +3906,8 @@ if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_19; 
 x_19 = lean_box(0);
-x_3 = x_15;
-x_4 = x_18;
+x_3 = x_18;
+x_4 = x_15;
 x_5 = x_19;
 x_6 = x_17;
 goto block_11;
@@ -3904,8 +3923,8 @@ x_21 = lean_ctor_get(x_14, 0);
 x_22 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_22, 0, x_21);
 lean_ctor_set(x_14, 0, x_22);
-x_3 = x_15;
-x_4 = x_18;
+x_3 = x_18;
+x_4 = x_15;
 x_5 = x_14;
 x_6 = x_17;
 goto block_11;
@@ -3920,8 +3939,8 @@ x_24 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_24, 0, x_23);
 x_25 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_25, 0, x_24);
-x_3 = x_15;
-x_4 = x_18;
+x_3 = x_18;
+x_4 = x_15;
 x_5 = x_25;
 x_6 = x_17;
 goto block_11;
@@ -4112,6 +4131,7 @@ x_6 = l_Array_fromJson_x3f___at___Lean_Widget_instFromJsonTaggedText_fromJson___
 x_7 = lean_unsigned_to_nat(80u);
 x_8 = l_Lean_Json_pretty(x_1, x_7);
 x_9 = lean_string_append(x_6, x_8);
+lean_dec_ref(x_8);
 x_10 = l_Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0___closed__1;
 x_11 = lean_string_append(x_9, x_10);
 x_12 = lean_alloc_ctor(0, 1, 0);
@@ -6337,13 +6357,16 @@ x_22 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedu
 x_23 = 1;
 x_24 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_2, x_23);
 x_25 = lean_string_append(x_22, x_24);
+lean_dec_ref(x_24);
 x_26 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__3;
 x_27 = lean_string_append(x_25, x_26);
 x_28 = l_Lean_Json_compress(x_6);
 x_29 = lean_string_append(x_27, x_28);
+lean_dec_ref(x_28);
 x_30 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__4;
 x_31 = lean_string_append(x_29, x_30);
 x_32 = lean_string_append(x_31, x_20);
+lean_dec(x_20);
 x_33 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_33, 0, x_32);
 lean_ctor_set_uint8(x_33, sizeof(void*)*1, x_21);
@@ -6431,13 +6454,16 @@ x_50 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedu
 x_51 = 1;
 x_52 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_2, x_51);
 x_53 = lean_string_append(x_50, x_52);
+lean_dec_ref(x_52);
 x_54 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__3;
 x_55 = lean_string_append(x_53, x_54);
 x_56 = l_Lean_Json_compress(x_6);
 x_57 = lean_string_append(x_55, x_56);
+lean_dec_ref(x_56);
 x_58 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__4;
 x_59 = lean_string_append(x_57, x_58);
 x_60 = lean_string_append(x_59, x_48);
+lean_dec(x_48);
 x_61 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_61, 0, x_60);
 lean_ctor_set_uint8(x_61, sizeof(void*)*1, x_49);
@@ -6551,6 +6577,7 @@ x_9 = 1;
 lean_inc(x_1);
 x_10 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_9);
 x_11 = lean_string_append(x_8, x_10);
+lean_dec_ref(x_10);
 x_12 = l_Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0___closed__1;
 x_13 = lean_string_append(x_11, x_12);
 x_14 = lean_unbox(x_6);
@@ -6700,6 +6727,7 @@ x_57 = 1;
 lean_inc(x_1);
 x_58 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_57);
 x_59 = lean_string_append(x_56, x_58);
+lean_dec_ref(x_58);
 x_60 = l_Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0___closed__1;
 x_61 = lean_string_append(x_59, x_60);
 x_62 = lean_unbox(x_54);
@@ -7057,13 +7085,16 @@ x_20 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedu
 x_21 = 1;
 x_22 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_21);
 x_23 = lean_string_append(x_20, x_22);
+lean_dec_ref(x_22);
 x_24 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__3;
 x_25 = lean_string_append(x_23, x_24);
 x_26 = l_Lean_Json_compress(x_5);
 x_27 = lean_string_append(x_25, x_26);
+lean_dec_ref(x_26);
 x_28 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__4;
 x_29 = lean_string_append(x_27, x_28);
 x_30 = lean_string_append(x_29, x_18);
+lean_dec(x_18);
 x_31 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_31, 0, x_30);
 lean_ctor_set_uint8(x_31, sizeof(void*)*1, x_19);
@@ -7146,13 +7177,16 @@ x_46 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedu
 x_47 = 1;
 x_48 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_47);
 x_49 = lean_string_append(x_46, x_48);
+lean_dec_ref(x_48);
 x_50 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__3;
 x_51 = lean_string_append(x_49, x_50);
 x_52 = l_Lean_Json_compress(x_5);
 x_53 = lean_string_append(x_51, x_52);
+lean_dec_ref(x_52);
 x_54 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__4;
 x_55 = lean_string_append(x_53, x_54);
 x_56 = lean_string_append(x_55, x_44);
+lean_dec(x_44);
 x_57 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_57, 0, x_56);
 lean_ctor_set_uint8(x_57, sizeof(void*)*1, x_45);
@@ -7248,6 +7282,7 @@ x_9 = 1;
 lean_inc(x_1);
 x_10 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_9);
 x_11 = lean_string_append(x_8, x_10);
+lean_dec_ref(x_10);
 x_12 = l_Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0___closed__1;
 x_13 = lean_string_append(x_11, x_12);
 x_14 = lean_unbox(x_6);
@@ -7397,6 +7432,7 @@ x_57 = 1;
 lean_inc(x_1);
 x_58 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_57);
 x_59 = lean_string_append(x_56, x_58);
+lean_dec_ref(x_58);
 x_60 = l_Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0___closed__1;
 x_61 = lean_string_append(x_59, x_60);
 x_62 = lean_unbox(x_54);
@@ -7753,13 +7789,16 @@ x_20 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedu
 x_21 = 1;
 x_22 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_21);
 x_23 = lean_string_append(x_20, x_22);
+lean_dec_ref(x_22);
 x_24 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__3;
 x_25 = lean_string_append(x_23, x_24);
 x_26 = l_Lean_Json_compress(x_5);
 x_27 = lean_string_append(x_25, x_26);
+lean_dec_ref(x_26);
 x_28 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__4;
 x_29 = lean_string_append(x_27, x_28);
 x_30 = lean_string_append(x_29, x_18);
+lean_dec(x_18);
 x_31 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_31, 0, x_30);
 lean_ctor_set_uint8(x_31, sizeof(void*)*1, x_19);
@@ -7842,13 +7881,16 @@ x_46 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedu
 x_47 = 1;
 x_48 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_47);
 x_49 = lean_string_append(x_46, x_48);
+lean_dec_ref(x_48);
 x_50 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__3;
 x_51 = lean_string_append(x_49, x_50);
 x_52 = l_Lean_Json_compress(x_5);
 x_53 = lean_string_append(x_51, x_52);
+lean_dec_ref(x_52);
 x_54 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__4;
 x_55 = lean_string_append(x_53, x_54);
 x_56 = lean_string_append(x_55, x_44);
+lean_dec(x_44);
 x_57 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_57, 0, x_56);
 lean_ctor_set_uint8(x_57, sizeof(void*)*1, x_45);
@@ -7944,6 +7986,7 @@ x_9 = 1;
 lean_inc(x_1);
 x_10 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_9);
 x_11 = lean_string_append(x_8, x_10);
+lean_dec_ref(x_10);
 x_12 = l_Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0___closed__1;
 x_13 = lean_string_append(x_11, x_12);
 x_14 = lean_unbox(x_6);
@@ -8093,6 +8136,7 @@ x_57 = 1;
 lean_inc(x_1);
 x_58 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_57);
 x_59 = lean_string_append(x_56, x_58);
+lean_dec_ref(x_58);
 x_60 = l_Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0___closed__1;
 x_61 = lean_string_append(x_59, x_60);
 x_62 = lean_unbox(x_54);
@@ -8507,6 +8551,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7;
 x_5 = lean_ctor_get(x_3, 0);
 x_6 = l_Lean_Widget_instFromJsonGetInteractiveDiagnosticsParams_fromJson___closed__11;
 x_7 = lean_string_append(x_6, x_5);
+lean_dec(x_5);
 lean_ctor_set(x_3, 0, x_7);
 return x_3;
 }
@@ -8518,6 +8563,7 @@ lean_inc(x_8);
 lean_dec(x_3);
 x_9 = l_Lean_Widget_instFromJsonGetInteractiveDiagnosticsParams_fromJson___closed__11;
 x_10 = lean_string_append(x_9, x_8);
+lean_dec(x_8);
 x_11 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
 return x_11;
@@ -8565,6 +8611,15 @@ return x_17;
 }
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Widget_instFromJsonGetInteractiveDiagnosticsParams_fromJson_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Json_getObjValAs_x3f___at___Lean_Widget_instFromJsonGetInteractiveDiagnosticsParams_fromJson_spec__0(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Widget_instFromJsonGetInteractiveDiagnosticsParams___closed__0() {
@@ -9278,13 +9333,16 @@ x_21 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedu
 x_22 = 1;
 x_23 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_22);
 x_24 = lean_string_append(x_21, x_23);
+lean_dec_ref(x_23);
 x_25 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__3;
 x_26 = lean_string_append(x_24, x_25);
 x_27 = l_Lean_Json_compress(x_5);
 x_28 = lean_string_append(x_26, x_27);
+lean_dec_ref(x_27);
 x_29 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__4;
 x_30 = lean_string_append(x_28, x_29);
 x_31 = lean_string_append(x_30, x_19);
+lean_dec(x_19);
 x_32 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set_uint8(x_32, sizeof(void*)*1, x_20);
@@ -9372,13 +9430,16 @@ x_49 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedu
 x_50 = 1;
 x_51 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_50);
 x_52 = lean_string_append(x_49, x_51);
+lean_dec_ref(x_51);
 x_53 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__3;
 x_54 = lean_string_append(x_52, x_53);
 x_55 = l_Lean_Json_compress(x_5);
 x_56 = lean_string_append(x_54, x_55);
+lean_dec_ref(x_55);
 x_57 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__4;
 x_58 = lean_string_append(x_56, x_57);
 x_59 = lean_string_append(x_58, x_47);
+lean_dec(x_47);
 x_60 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_60, 0, x_59);
 lean_ctor_set_uint8(x_60, sizeof(void*)*1, x_48);
@@ -9474,6 +9535,7 @@ x_9 = 1;
 lean_inc(x_1);
 x_10 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_9);
 x_11 = lean_string_append(x_8, x_10);
+lean_dec_ref(x_10);
 x_12 = l_Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0___closed__1;
 x_13 = lean_string_append(x_11, x_12);
 x_14 = lean_unbox(x_6);
@@ -9623,6 +9685,7 @@ x_57 = 1;
 lean_inc(x_1);
 x_58 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_57);
 x_59 = lean_string_append(x_56, x_58);
+lean_dec_ref(x_58);
 x_60 = l_Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0___closed__1;
 x_61 = lean_string_append(x_59, x_60);
 x_62 = lean_unbox(x_54);
@@ -10765,13 +10828,16 @@ x_22 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedu
 x_23 = 1;
 x_24 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_2, x_23);
 x_25 = lean_string_append(x_22, x_24);
+lean_dec_ref(x_24);
 x_26 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__3;
 x_27 = lean_string_append(x_25, x_26);
 x_28 = l_Lean_Json_compress(x_6);
 x_29 = lean_string_append(x_27, x_28);
+lean_dec_ref(x_28);
 x_30 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__4;
 x_31 = lean_string_append(x_29, x_30);
 x_32 = lean_string_append(x_31, x_20);
+lean_dec(x_20);
 x_33 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_33, 0, x_32);
 lean_ctor_set_uint8(x_33, sizeof(void*)*1, x_21);
@@ -10859,13 +10925,16 @@ x_50 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedu
 x_51 = 1;
 x_52 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_2, x_51);
 x_53 = lean_string_append(x_50, x_52);
+lean_dec_ref(x_52);
 x_54 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__3;
 x_55 = lean_string_append(x_53, x_54);
 x_56 = l_Lean_Json_compress(x_6);
 x_57 = lean_string_append(x_55, x_56);
+lean_dec_ref(x_56);
 x_58 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__4;
 x_59 = lean_string_append(x_57, x_58);
 x_60 = lean_string_append(x_59, x_48);
+lean_dec(x_48);
 x_61 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_61, 0, x_60);
 lean_ctor_set_uint8(x_61, sizeof(void*)*1, x_49);
@@ -10971,6 +11040,7 @@ x_9 = 1;
 lean_inc(x_1);
 x_10 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_9);
 x_11 = lean_string_append(x_8, x_10);
+lean_dec_ref(x_10);
 x_12 = l_Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0___closed__1;
 x_13 = lean_string_append(x_11, x_12);
 x_14 = lean_unbox(x_6);
@@ -11120,6 +11190,7 @@ x_57 = 1;
 lean_inc(x_1);
 x_58 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_57);
 x_59 = lean_string_append(x_56, x_58);
+lean_dec_ref(x_58);
 x_60 = l_Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0___closed__1;
 x_61 = lean_string_append(x_59, x_60);
 x_62 = lean_unbox(x_54);
@@ -12832,7 +12903,7 @@ return x_3;
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; lean_object* x_53; uint8_t x_54; 
+lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; lean_object* x_53; uint8_t x_54; 
 x_28 = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___closed__9;
 x_29 = l_Std_PRange_instUpwardEnumerableNat;
 x_30 = lean_unsigned_to_nat(0u);
@@ -12867,11 +12938,11 @@ goto block_52;
 }
 block_18:
 {
-if (x_7 == 0)
+if (x_8 == 0)
 {
 lean_object* x_10; 
 lean_dec_ref(x_9);
-lean_dec(x_8);
+lean_dec(x_7);
 x_10 = lean_box(0);
 return x_10;
 }
@@ -12885,7 +12956,7 @@ lean_dec(x_11);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
-lean_dec(x_8);
+lean_dec(x_7);
 x_14 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_14, 0, x_9);
 x_15 = lean_alloc_ctor(1, 1, 0);
@@ -12895,8 +12966,8 @@ return x_15;
 else
 {
 lean_object* x_16; lean_object* x_17; 
-x_16 = lean_array_fget(x_9, x_8);
-lean_dec(x_8);
+x_16 = lean_array_fget(x_9, x_7);
+lean_dec(x_7);
 lean_dec_ref(x_9);
 x_17 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
@@ -12914,8 +12985,8 @@ lean_dec(x_21);
 lean_dec_ref(x_2);
 if (lean_obj_tag(x_24) == 0)
 {
-x_7 = x_20;
-x_8 = x_19;
+x_7 = x_19;
+x_8 = x_20;
 x_9 = x_22;
 goto block_18;
 }
@@ -12926,8 +12997,8 @@ x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
 lean_dec_ref(x_24);
 x_26 = lean_array_push(x_22, x_25);
-x_7 = x_20;
-x_8 = x_19;
+x_7 = x_19;
+x_8 = x_20;
 x_9 = x_26;
 goto block_18;
 }
@@ -13763,7 +13834,7 @@ return x_19;
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_28; uint8_t x_29; lean_object* x_49; uint8_t x_50; 
+lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_28; uint8_t x_29; lean_object* x_49; uint8_t x_50; 
 x_28 = lean_unsigned_to_nat(0u);
 x_49 = lean_string_utf8_byte_size(x_2);
 x_50 = lean_nat_dec_eq(x_49, x_28);
@@ -13784,11 +13855,11 @@ goto block_48;
 }
 block_18:
 {
-if (x_7 == 0)
+if (x_8 == 0)
 {
 lean_object* x_10; 
 lean_dec_ref(x_9);
-lean_dec(x_8);
+lean_dec(x_7);
 x_10 = lean_box(0);
 return x_10;
 }
@@ -13802,7 +13873,7 @@ lean_dec(x_11);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
-lean_dec(x_8);
+lean_dec(x_7);
 x_14 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_14, 0, x_9);
 x_15 = lean_alloc_ctor(1, 1, 0);
@@ -13812,8 +13883,8 @@ return x_15;
 else
 {
 lean_object* x_16; lean_object* x_17; 
-x_16 = lean_array_fget(x_9, x_8);
-lean_dec(x_8);
+x_16 = lean_array_fget(x_9, x_7);
+lean_dec(x_7);
 lean_dec_ref(x_9);
 x_17 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
@@ -13830,8 +13901,8 @@ lean_dec(x_23);
 lean_dec(x_21);
 if (lean_obj_tag(x_24) == 0)
 {
-x_7 = x_20;
-x_8 = x_19;
+x_7 = x_19;
+x_8 = x_20;
 x_9 = x_22;
 goto block_18;
 }
@@ -13842,8 +13913,8 @@ x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
 lean_dec_ref(x_24);
 x_26 = lean_array_push(x_22, x_25);
-x_7 = x_20;
-x_8 = x_19;
+x_7 = x_19;
+x_8 = x_20;
 x_9 = x_26;
 goto block_18;
 }
@@ -16701,6 +16772,7 @@ x_6 = l_Array_fromJson_x3f___at___Lean_Widget_instFromJsonTaggedText_fromJson___
 x_7 = lean_unsigned_to_nat(80u);
 x_8 = l_Lean_Json_pretty(x_1, x_7);
 x_9 = lean_string_append(x_6, x_8);
+lean_dec_ref(x_8);
 x_10 = l_Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0___closed__1;
 x_11 = lean_string_append(x_9, x_10);
 x_12 = lean_alloc_ctor(0, 1, 0);
@@ -21817,13 +21889,16 @@ x_21 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedu
 x_22 = 1;
 x_23 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_22);
 x_24 = lean_string_append(x_21, x_23);
+lean_dec_ref(x_23);
 x_25 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__3;
 x_26 = lean_string_append(x_24, x_25);
 x_27 = l_Lean_Json_compress(x_5);
 x_28 = lean_string_append(x_26, x_27);
+lean_dec_ref(x_27);
 x_29 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__4;
 x_30 = lean_string_append(x_28, x_29);
 x_31 = lean_string_append(x_30, x_19);
+lean_dec(x_19);
 x_32 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set_uint8(x_32, sizeof(void*)*1, x_20);
@@ -21911,13 +21986,16 @@ x_49 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedu
 x_50 = 1;
 x_51 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_50);
 x_52 = lean_string_append(x_49, x_51);
+lean_dec_ref(x_51);
 x_53 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__3;
 x_54 = lean_string_append(x_52, x_53);
 x_55 = l_Lean_Json_compress(x_5);
 x_56 = lean_string_append(x_54, x_55);
+lean_dec_ref(x_55);
 x_57 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3___lam__3___closed__4;
 x_58 = lean_string_append(x_56, x_57);
 x_59 = lean_string_append(x_58, x_47);
+lean_dec(x_47);
 x_60 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_60, 0, x_59);
 lean_ctor_set_uint8(x_60, sizeof(void*)*1, x_48);
@@ -22013,6 +22091,7 @@ x_9 = 1;
 lean_inc(x_1);
 x_10 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_9);
 x_11 = lean_string_append(x_8, x_10);
+lean_dec_ref(x_10);
 x_12 = l_Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0___closed__1;
 x_13 = lean_string_append(x_11, x_12);
 x_14 = lean_unbox(x_6);
@@ -22162,6 +22241,7 @@ x_57 = 1;
 lean_inc(x_1);
 x_58 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_57);
 x_59 = lean_string_append(x_56, x_58);
+lean_dec_ref(x_58);
 x_60 = l_Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0___closed__1;
 x_61 = lean_string_append(x_59, x_60);
 x_62 = lean_unbox(x_54);

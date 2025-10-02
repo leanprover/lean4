@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.Simp
-// Imports: Lean.Compiler.LCNF.ReduceJpArity Lean.Compiler.LCNF.Renaming Lean.Compiler.LCNF.Simp.Basic Lean.Compiler.LCNF.Simp.FunDeclInfo Lean.Compiler.LCNF.Simp.JpCases Lean.Compiler.LCNF.Simp.Config Lean.Compiler.LCNF.Simp.InlineCandidate Lean.Compiler.LCNF.Simp.SimpM Lean.Compiler.LCNF.Simp.Main Lean.Compiler.LCNF.Simp.InlineProj Lean.Compiler.LCNF.Simp.DefaultAlt Lean.Compiler.LCNF.Simp.SimpValue Lean.Compiler.LCNF.Simp.Used
+// Imports: public import Lean.Compiler.LCNF.ReduceJpArity public import Lean.Compiler.LCNF.Renaming public import Lean.Compiler.LCNF.Simp.Basic public import Lean.Compiler.LCNF.Simp.FunDeclInfo public import Lean.Compiler.LCNF.Simp.JpCases public import Lean.Compiler.LCNF.Simp.Config public import Lean.Compiler.LCNF.Simp.InlineCandidate public import Lean.Compiler.LCNF.Simp.SimpM public import Lean.Compiler.LCNF.Simp.Main public import Lean.Compiler.LCNF.Simp.InlineProj public import Lean.Compiler.LCNF.Simp.DefaultAlt public import Lean.Compiler.LCNF.Simp.SimpValue public import Lean.Compiler.LCNF.Simp.Used
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1359,7 +1359,7 @@ x_113 = l_Lean_Compiler_LCNF_Decl_simp_x3f___closed__9;
 x_114 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_114, 0, x_112);
 lean_ctor_set(x_114, 1, x_113);
-x_115 = l_Nat_reprFast(x_89);
+x_115 = l_Nat_reprFast(x_87);
 x_116 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_116, 0, x_115);
 x_117 = l_Lean_MessageData_ofFormat(x_116);
@@ -1370,7 +1370,7 @@ x_119 = l_Lean_Compiler_LCNF_Decl_simp_x3f___closed__11;
 x_120 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_120, 0, x_118);
 lean_ctor_set(x_120, 1, x_119);
-x_121 = l_Nat_reprFast(x_87);
+x_121 = l_Nat_reprFast(x_89);
 x_122 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_122, 0, x_121);
 x_123 = l_Lean_MessageData_ofFormat(x_122);
@@ -1430,7 +1430,7 @@ x_142 = l_Lean_Compiler_LCNF_Decl_simp_x3f___closed__9;
 x_143 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_143, 0, x_141);
 lean_ctor_set(x_143, 1, x_142);
-x_144 = l_Nat_reprFast(x_89);
+x_144 = l_Nat_reprFast(x_87);
 x_145 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_145, 0, x_144);
 x_146 = l_Lean_MessageData_ofFormat(x_145);
@@ -1441,7 +1441,7 @@ x_148 = l_Lean_Compiler_LCNF_Decl_simp_x3f___closed__11;
 x_149 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_149, 0, x_147);
 lean_ctor_set(x_149, 1, x_148);
-x_150 = l_Nat_reprFast(x_87);
+x_150 = l_Nat_reprFast(x_89);
 x_151 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_151, 0, x_150);
 x_152 = l_Lean_MessageData_ofFormat(x_151);
@@ -1522,9 +1522,9 @@ lean_free_object(x_162);
 x_178 = lean_ctor_get(x_175, 1);
 lean_inc(x_178);
 lean_dec_ref(x_175);
-x_87 = x_169;
+x_87 = x_168;
 x_88 = x_171;
-x_89 = x_168;
+x_89 = x_169;
 x_90 = x_167;
 x_91 = x_178;
 goto block_156;
@@ -1567,9 +1567,9 @@ x_188 = l_Lean_addTrace___at___Lean_Compiler_LCNF_Decl_simp_x3f_spec__1___redArg
 x_189 = lean_ctor_get(x_188, 1);
 lean_inc(x_189);
 lean_dec_ref(x_188);
-x_87 = x_169;
+x_87 = x_168;
 x_88 = x_171;
-x_89 = x_168;
+x_89 = x_169;
 x_90 = x_167;
 x_91 = x_189;
 goto block_156;
@@ -1649,9 +1649,9 @@ x_202 = l_Lean_addTrace___at___Lean_Compiler_LCNF_Decl_simp_x3f_spec__1___redArg
 x_203 = lean_ctor_get(x_202, 1);
 lean_inc(x_203);
 lean_dec_ref(x_202);
-x_87 = x_169;
+x_87 = x_168;
 x_88 = x_171;
-x_89 = x_168;
+x_89 = x_169;
 x_90 = x_167;
 x_91 = x_203;
 goto block_156;
@@ -1781,9 +1781,9 @@ lean_dec(x_222);
 x_226 = lean_ctor_get(x_223, 1);
 lean_inc(x_226);
 lean_dec_ref(x_223);
-x_87 = x_217;
+x_87 = x_216;
 x_88 = x_219;
-x_89 = x_216;
+x_89 = x_217;
 x_90 = x_215;
 x_91 = x_226;
 goto block_156;
@@ -1834,9 +1834,9 @@ x_237 = l_Lean_addTrace___at___Lean_Compiler_LCNF_Decl_simp_x3f_spec__1___redArg
 x_238 = lean_ctor_get(x_237, 1);
 lean_inc(x_238);
 lean_dec_ref(x_237);
-x_87 = x_217;
+x_87 = x_216;
 x_88 = x_219;
-x_89 = x_216;
+x_89 = x_217;
 x_90 = x_215;
 x_91 = x_238;
 goto block_156;

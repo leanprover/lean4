@@ -14,6 +14,7 @@ import all Init.Data.Nat.Bitwise.Basic
 public import Init.Data.Nat.Lemmas
 public import Init.Data.Nat.Simproc
 public import Init.TacticsExtra
+import Init.BinderPredicates
 
 public section
 

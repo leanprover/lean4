@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.KVMap
-// Imports: Init.Data.List.Impl Init.Data.Format.Syntax Init.Data.ToString.Name
+// Imports: public import Init.Data.List.Impl public import Init.Data.Format.Syntax public import Init.Data.ToString.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

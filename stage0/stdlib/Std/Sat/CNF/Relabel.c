@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sat.CNF.Relabel
-// Imports: Std.Sat.CNF.Basic
+// Imports: public import Std.Sat.CNF.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

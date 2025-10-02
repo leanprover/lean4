@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.Simp.DiscrM
-// Imports: Lean.Compiler.LCNF.CompilerM Lean.Compiler.LCNF.Types Lean.Compiler.LCNF.InferType Lean.Compiler.LCNF.Simp.Basic
+// Imports: public import Lean.Compiler.LCNF.CompilerM public import Lean.Compiler.LCNF.Types public import Lean.Compiler.LCNF.InferType public import Lean.Compiler.LCNF.Simp.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

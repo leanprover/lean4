@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.UInt.BasicAux
-// Imports: Init.Data.Fin.Basic Init.Data.BitVec.BasicAux
+// Imports: public import Init.Data.Fin.Basic public import Init.Data.BitVec.BasicAux
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

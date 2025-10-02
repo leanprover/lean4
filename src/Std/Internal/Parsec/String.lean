@@ -15,7 +15,7 @@ namespace Std.Internal
 namespace Parsec
 namespace String
 
-instance : Input String.Iterator Char String.Pos where
+instance : Input String.Iterator Char String.Pos.Raw where
   pos it := it.pos
   next it := it.next
   curr it := it.curr

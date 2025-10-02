@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.Do.ProofMode
-// Imports: Std.Do.SPred.SPred
+// Imports: public import Std.Do.SPred.SPred
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

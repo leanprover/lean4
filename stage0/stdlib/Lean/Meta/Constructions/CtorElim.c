@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Constructions.CtorElim
-// Imports: Lean.Meta.Basic Lean.AddDecl Lean.Meta.AppBuilder Lean.Meta.CompletionName Lean.Meta.Constructions.CtorIdx Lean.Meta.NatTable Lean.Elab.App Lean.Meta.Tactic.Simp.SimpTheorems Lean.Meta.Tactic.Simp.Attr
+// Imports: public import Lean.Meta.Basic import Lean.AddDecl import Lean.Meta.AppBuilder import Lean.Meta.CompletionName import Lean.Meta.Constructions.CtorIdx import Lean.Meta.NatTable import Lean.Elab.App import Lean.Meta.Tactic.Simp.SimpTheorems import Lean.Meta.Tactic.Simp.Attr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13100,11 +13100,12 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at_____private_Lean_Meta_Constructions_CtorElim_0__Lean_mkCtorElimType_spec__0_spec__0_spec__0_spec__0_spec__0___closed__1;
-x_2 = lean_alloc_ctor(0, 4, 0);
+x_2 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
 lean_ctor_set(x_2, 2, x_1);
 lean_ctor_set(x_2, 3, x_1);
+lean_ctor_set(x_2, 4, x_1);
 return x_2;
 }
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.BitVec.Lemmas
-// Imports: Init.Data.Bool Init.Data.BitVec.Basic Init.Data.BitVec.Basic Init.Data.BitVec.BasicAux Init.Data.BitVec.BasicAux Init.Data.Fin.Lemmas Init.Data.Nat.Lemmas Init.Data.Nat.Div.Lemmas Init.Data.Nat.Mod Init.Data.Nat.Div.Lemmas Init.Data.Int.Bitwise.Lemmas Init.Data.Int.LemmasAux Init.Data.Int.Pow Init.Data.Int.LemmasAux Init.Data.BitVec.Bootstrap Init.Data.Order.Factories
+// Imports: public import Init.Data.Bool public import Init.Data.BitVec.Basic import all Init.Data.BitVec.Basic public import Init.Data.BitVec.BasicAux import all Init.Data.BitVec.BasicAux public import Init.Data.Fin.Lemmas public import Init.Data.Nat.Lemmas public import Init.Data.Nat.Div.Lemmas public import Init.Data.Nat.Mod public import Init.Data.Nat.Div.Lemmas public import Init.Data.Int.Bitwise.Lemmas public import Init.Data.Int.LemmasAux public import Init.Data.Int.Pow public import Init.Data.Int.LemmasAux public import Init.Data.BitVec.Bootstrap public import Init.Data.Order.Factories public import Init.Data.List.BasicAux import Init.Data.List.Lemmas import Init.Data.BEq
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -333,6 +333,9 @@ lean_object* initialize_Init_Data_Int_Pow(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BitVec_Bootstrap(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Order_Factories(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_BasicAux(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_BEq(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -384,6 +387,15 @@ res = initialize_Init_Data_BitVec_Bootstrap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Order_Factories(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_BasicAux(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Lemmas(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_BEq(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Init_Data_BitVec_Lemmas_0__Int_toNat_match__1_splitter___redArg___closed__0 = _init_l___private_Init_Data_BitVec_Lemmas_0__Int_toNat_match__1_splitter___redArg___closed__0();

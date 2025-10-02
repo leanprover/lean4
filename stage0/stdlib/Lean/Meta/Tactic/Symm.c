@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Symm
-// Imports: Lean.Meta.Reduce Lean.Meta.Tactic.Assert Lean.Meta.DiscrTree Lean.Meta.AppBuilder
+// Imports: public import Lean.Meta.Reduce public import Lean.Meta.Tactic.Assert public import Lean.Meta.DiscrTree import Lean.Meta.AppBuilder
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3409,11 +3409,12 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at_____private_Lean_Meta_Tactic_Symm_0__Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm_3447505512____hygCtx___hyg_2__spec__0_spec__0_spec__0_spec__0_spec__0___closed__1;
-x_2 = lean_alloc_ctor(0, 4, 0);
+x_2 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
 lean_ctor_set(x_2, 2, x_1);
 lean_ctor_set(x_2, 3, x_1);
+lean_ctor_set(x_2, 4, x_1);
 return x_2;
 }
 }
@@ -6583,8 +6584,8 @@ block_27:
 if (x_19 == 0)
 {
 lean_object* x_20; 
-lean_dec_ref(x_18);
-x_20 = l_Lean_Meta_SavedState_restore___redArg(x_15, x_6, x_8, x_17);
+lean_dec_ref(x_17);
+x_20 = l_Lean_Meta_SavedState_restore___redArg(x_15, x_6, x_8, x_18);
 lean_dec(x_15);
 if (lean_obj_tag(x_20) == 0)
 {
@@ -6635,7 +6636,7 @@ lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
-return x_18;
+return x_17;
 }
 }
 block_33:
@@ -6647,16 +6648,16 @@ if (x_31 == 0)
 uint8_t x_32; 
 x_32 = l_Lean_Exception_isRuntime(x_29);
 lean_dec_ref(x_29);
-x_17 = x_30;
-x_18 = x_28;
+x_17 = x_28;
+x_18 = x_30;
 x_19 = x_32;
 goto block_27;
 }
 else
 {
 lean_dec_ref(x_29);
-x_17 = x_30;
-x_18 = x_28;
+x_17 = x_28;
+x_18 = x_30;
 x_19 = x_31;
 goto block_27;
 }
@@ -8679,8 +8680,8 @@ block_26:
 if (x_18 == 0)
 {
 lean_object* x_19; 
-lean_dec_ref(x_16);
-x_19 = l_Lean_Meta_SavedState_restore___redArg(x_14, x_5, x_7, x_17);
+lean_dec_ref(x_17);
+x_19 = l_Lean_Meta_SavedState_restore___redArg(x_14, x_5, x_7, x_16);
 lean_dec(x_14);
 if (lean_obj_tag(x_19) == 0)
 {
@@ -8732,7 +8733,7 @@ lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_2);
 lean_dec(x_1);
-return x_16;
+return x_17;
 }
 }
 block_32:
@@ -8744,16 +8745,16 @@ if (x_30 == 0)
 uint8_t x_31; 
 x_31 = l_Lean_Exception_isRuntime(x_28);
 lean_dec_ref(x_28);
-x_16 = x_27;
-x_17 = x_29;
+x_16 = x_29;
+x_17 = x_27;
 x_18 = x_31;
 goto block_26;
 }
 else
 {
 lean_dec_ref(x_28);
-x_16 = x_27;
-x_17 = x_29;
+x_16 = x_29;
+x_17 = x_27;
 x_18 = x_30;
 goto block_26;
 }

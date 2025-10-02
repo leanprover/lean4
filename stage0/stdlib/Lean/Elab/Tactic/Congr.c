@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Congr
-// Imports: Lean.Meta.Tactic.Congr Lean.Elab.Tactic.Basic
+// Imports: public import Lean.Meta.Tactic.Congr public import Lean.Elab.Tactic.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -311,15 +311,15 @@ x_34 = l_Lean_Syntax_getArg(x_29, x_33);
 lean_dec(x_29);
 x_35 = l_Lean_TSyntax_getNat(x_34);
 lean_dec(x_34);
-x_13 = x_6;
-x_14 = x_4;
-x_15 = x_9;
-x_16 = x_8;
-x_17 = x_7;
-x_18 = x_3;
-x_19 = x_10;
-x_20 = x_5;
-x_21 = x_2;
+x_13 = x_8;
+x_14 = x_10;
+x_15 = x_3;
+x_16 = x_2;
+x_17 = x_9;
+x_18 = x_5;
+x_19 = x_6;
+x_20 = x_4;
+x_21 = x_7;
 x_22 = x_35;
 goto block_26;
 }
@@ -329,15 +329,15 @@ else
 lean_object* x_36; 
 lean_dec(x_29);
 x_36 = lean_unsigned_to_nat(1000000u);
-x_13 = x_6;
-x_14 = x_4;
-x_15 = x_9;
-x_16 = x_8;
-x_17 = x_7;
-x_18 = x_3;
-x_19 = x_10;
-x_20 = x_5;
-x_21 = x_2;
+x_13 = x_8;
+x_14 = x_10;
+x_15 = x_3;
+x_16 = x_2;
+x_17 = x_9;
+x_18 = x_5;
+x_19 = x_6;
+x_20 = x_4;
+x_21 = x_7;
 x_22 = x_36;
 goto block_26;
 }
@@ -349,7 +349,7 @@ x_23 = lean_box(x_12);
 x_24 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr___lam__0___boxed), 11, 2);
 lean_closure_set(x_24, 0, x_22);
 lean_closure_set(x_24, 1, x_23);
-x_25 = l_Lean_Elab_Tactic_withMainContext___redArg(x_24, x_21, x_18, x_14, x_20, x_13, x_17, x_16, x_15, x_19);
+x_25 = l_Lean_Elab_Tactic_withMainContext___redArg(x_24, x_16, x_15, x_20, x_18, x_19, x_21, x_13, x_17, x_14);
 return x_25;
 }
 }

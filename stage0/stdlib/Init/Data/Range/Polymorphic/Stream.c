@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Polymorphic.Stream
-// Imports: Init.Data.Range.Polymorphic.Iterators Init.Data.Stream
+// Imports: public import Init.Data.Range.Polymorphic.Iterators public import Init.Data.Stream
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

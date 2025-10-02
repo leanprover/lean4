@@ -9,8 +9,8 @@ prelude
 public import Lean.Data.Json
 public import Lake.Build.Job.Monad
 public import Lake.Config.Monad
+public import Lake.Util.JsonObject
 import Lake.Util.IO
-import Lake.Util.JsonObject
 import Lake.Build.Target.Fetch
 public import Lake.Build.Actions
 
@@ -26,8 +26,6 @@ namespace Lake
 /-! ## General Utilities -/
 
 public instance : MonadWorkspace JobM := inferInstance
-
-public scoped instance : ToJson PUnit := ⟨fun _ => Json.null⟩
 
 open System.Platform in
 /--
@@ -65,22 +63,24 @@ public structure BuildMetadata where
   log : Log
   /-- A trace file that was created from fetching an artifact from the cache. -/
   synthetic : Bool
-  deriving ToJson
 
-public protected def BuildMetadata.fromJson? (json : Json) : Except String BuildMetadata := do
-  let obj ← JsonObject.fromJson? json
-  let depHash ← obj.get "depHash"
-  let inputs ← obj.getD "inputs" {}
-  let outputs? ← obj.getD "outputs" none
-  let log ← obj.getD "log" {}
-  let synthetic ← obj.getD "synthetic" false
-  return {depHash, inputs, outputs?, log, synthetic}
+/-- The current version of the trace file format. -/
+def BuildMetadata.schemaVersion : String := "2025-09-10"
 
-public instance : FromJson BuildMetadata := ⟨BuildMetadata.fromJson?⟩
+public protected def BuildMetadata.toJson (self : BuildMetadata) : Json :=
+  ({} : JsonObject)
+  |>.insert "schemaVersion" schemaVersion
+  |>.insert "depHash" self.depHash
+  |>.insert "inputs" self.inputs
+  |>.insert "outputs" self.outputs?
+  |>.insert "log" self.log
+  |>.insert "synthetic" self.synthetic
+
+public instance : ToJson BuildMetadata := ⟨BuildMetadata.toJson⟩
 
 /--
 Construct build metadata from a trace stub.
-That is, the old version of the trace file format that just contained a hash.
+That is, the very old version of the trace file format that just contained a hash.
 -/
 public def BuildMetadata.ofStub (hash : Hash) : BuildMetadata :=
   {depHash := hash,  inputs := #[], outputs? := none, log := {}, synthetic := false}
@@ -88,12 +88,44 @@ public def BuildMetadata.ofStub (hash : Hash) : BuildMetadata :=
 @[deprecated ofStub (since := "2025-06-28")]
 public abbrev BuildMetadata.ofHash := @ofStub
 
+public def BuildMetadata.fromJsonObject? (obj : JsonObject) : Except String BuildMetadata := do
+  let depHash ←
+    if obj.getJson? "schemaVersion" |>.isNone then
+      Hash.ofDecimal? (← obj.get "depHash") |>.getDM do
+        error "invalid trace: expected string 'depHash' of decimal digits"
+    else
+      obj.get "depHash"
+  let inputs ← obj.getD "inputs" {}
+  let outputs? ← obj.getD "outputs" none
+  let log ← obj.getD "log" {}
+  let synthetic ← obj.getD "synthetic" false
+  return {depHash, inputs, outputs?, log, synthetic}
+
+public protected def BuildMetadata.fromJson? (json : Json) : Except String BuildMetadata := do
+  match json with
+  | .num n =>
+    match Hash.ofJsonNumber? n with
+    | .ok hash =>
+      return .ofStub hash
+    | .error reason =>
+      error s!"invalid trace stub: {reason}"
+  | .obj (o : JsonObject) =>
+    match BuildMetadata.fromJsonObject? o with
+    | .ok data =>
+      return data
+    | .error e =>
+      if let some (.str ver) := o.getJson? "schemaVersion" then
+        if ver == BuildMetadata.schemaVersion then
+          error s!"invalid trace: {e}"
+      error s!"unknown trace format: {e}"
+  | _ =>
+    error s!"unknown trace format: expected JSON number or object"
+
+public instance : FromJson BuildMetadata := ⟨BuildMetadata.fromJson?⟩
+
 /-- Parse build metadata from a trace file's contents. -/
-public def BuildMetadata.parse (contents : String) : Except String BuildMetadata :=
-  if let some hash := Hash.ofString? contents.trim then
-    return .ofStub hash
-  else
-    Json.parse contents >>= fromJson?
+public def BuildMetadata.parse (contents : String) : Except String BuildMetadata := do
+  Json.parse contents >>= fromJson?
 
 /-- Construct build metadata from a cached input-to-output mapping. -/
 public def BuildMetadata.ofFetch (inputHash : Hash) (outputs : Json) : BuildMetadata :=
@@ -135,11 +167,16 @@ Logs if the read failed or the contents where invalid.
 public def readTraceFile (path : FilePath) : LogIO SavedTrace := do
   match (← IO.FS.readFile path |>.toBaseIO) with
   | .ok contents =>
-    match BuildMetadata.parse contents with
-    | .ok data => return .ok data
-    | .error e => logVerbose s!"{path}: invalid trace file: {e}"; return .invalid
-  | .error (.noFileOrDirectory ..) => return .missing
-  | .error e => logWarning s!"{path}: read failed: {e}"; return .invalid
+    match Json.parse contents >>= BuildMetadata.fromJson? with
+    | .ok data =>
+      return .ok data
+    | .error e =>
+      logWarning s!"{path}: {e}"
+      return .invalid
+  | .error (.noFileOrDirectory ..) =>
+    return .missing
+  | .error e =>
+    error s!"{path}: read failed: {e}"
 
 /--
 Tries to read data from a trace file. On failure, returns `none`.
@@ -183,7 +220,17 @@ as the point of comparison instead.
   else
     return false
 
-/-- Checks whether `info` is up-to-date, and replays the log of the trace if available. -/
+/-- Returns whether the hash does not match the trace's dependency hash. -/
+public def SavedTrace.isDifferentFrom  (hash : Hash) (self : SavedTrace) : Bool :=
+  match self with
+  | .ok data =>
+    hash != data.depHash
+  | _ =>
+    true
+
+/--
+Checks whether `info` is up-to-date with the trace.
+If so, replays the log of the trace if available. -/
 @[specialize] public def SavedTrace.replayIfUpToDate
   [CheckExists ι] [GetMTime ι]
   (info : ι) (depTrace : BuildTrace) (savedTrace : SavedTrace)
@@ -219,29 +266,38 @@ public def SavedTrace.replayOrFetch
     updateAction .fetch
     writeFetchTrace traceFile inputHash outputs
 
+/-- **For internal use only.** -/
+public class ToOutputJson (α : Type u) where
+  toOutputJson (arts : α) : Json
+
+public instance : ToOutputJson PUnit := ⟨fun _ => Json.null⟩
+public instance : ToOutputJson Artifact := ⟨(toJson ·.descr)⟩
+
+open ToOutputJson in
 /--
 Runs `build` as a build action of kind `action`.
 
-The build's input trace (`depTrace`), output hashes (the result of `build`),
+The build's input trace (`depTrace`), JSON description of the result of `build`,
 and log are saved to `traceFile`, if the build completes without a fatal error
 (i.e., it does not `throw`).
 -/
 @[specialize] public def buildAction
-  [ToJson α] (depTrace : BuildTrace) (traceFile : FilePath) (build : JobM α)
+  [ToOutputJson α]
+  (depTrace : BuildTrace) (traceFile : FilePath) (build : JobM α)
   (action : JobAction := .build)
 : JobM α := do
   if (← getNoBuild) then
     updateAction .build
-    error "target is out-of-date and needs to be rebuilt"
+    error s!"target is out-of-date and needs to be rebuilt"
   else
     updateAction action
     let startTime ← IO.monoMsNow
     try
       let iniPos ← getLogPos
-      let outputs ← build -- fatal errors will abort here
+      let a ← build -- fatal errors will abort here
       let log := (← getLog).takeFrom iniPos
-      writeBuildTrace traceFile depTrace outputs log
-      return outputs
+      writeBuildTrace traceFile depTrace (toOutputJson a) log
+      return a
     finally
       let endTime ← IO.monoMsNow
       let elapsed := endTime - startTime
@@ -306,11 +362,7 @@ public def cacheFileHash (file : FilePath) (text := false) : IO Unit := do
 
 /-- Remove the cached hash of a file (its `.hash` file) if it exists. -/
 public def clearFileHash (file : FilePath) : IO Unit := do
-  try
-    IO.FS.removeFile <| file.toString ++ ".hash"
-  catch
-    | .noFileOrDirectory .. => pure ()
-    | e => throw e
+  removeFileIfExists <| file.toString ++ ".hash"
 
 /--
 Fetches the hash of a file that may already be cached in a `.hash` file.
@@ -362,8 +414,6 @@ public def buildFileUnlessUpToDate'
     clearFileHash file
   setTrace (← fetchFileTrace file text)
 
-
-
 /--
 Copies `file` to the Lake cache with the file extension `ext`, and
 saves its hash in its `.hash` file.
@@ -379,16 +429,18 @@ public def Cache.saveArtifact
     let contents ← IO.FS.readFile file
     let normalized := contents.crlfToLf
     let hash := Hash.ofString normalized
-    let path := cache.artifactPath hash ext
+    let descr := artifactWithExt hash ext
+    let path := cache.artifactDir / descr.relPath
     createParentDirs path
     IO.FS.writeFile path normalized
     writeFileHash file hash
     let mtime := (← getMTime path |>.toBaseIO).toOption.getD 0
-    return {name := file.toString, path, mtime, hash}
+    return {descr, name := file.toString, path, mtime}
   else
     let contents ← IO.FS.readBinFile file
     let hash := Hash.ofByteArray contents
-    let path := cache.artifactPath hash ext
+    let descr := artifactWithExt hash ext
+    let path := cache.artifactDir / descr.relPath
     createParentDirs path
     IO.FS.writeBinFile path contents
     if exe then
@@ -396,80 +448,71 @@ public def Cache.saveArtifact
       IO.setAccessRights path ⟨r, r, r⟩ -- 777
     writeFileHash file hash
     let mtime := (← getMTime path |>.toBaseIO).toOption.getD 0
-    return {name := file.toString, path, mtime, hash}
+    return {descr, name := file.toString, path, mtime}
 
 @[inline,  inherit_doc Cache.saveArtifact]
 public def cacheArtifact
-  [MonadLakeEnv m] [MonadLiftT IO m] [Monad m]
+  [MonadWorkspace m] [MonadLiftT IO m] [Monad m]
   (file : FilePath) (ext := "art") (text := false) (exe := false)
 : m Artifact := do (← getLakeCache).saveArtifact file ext text exe
 
-/--
-Computes the trace of a cached artifact.
-`buildFile` is where the uncached artifact would be located.
--/
-public def computeArtifactTrace
-  (buildFile : FilePath) (art : FilePath) (contentHash : Hash)
-: BaseIO BuildTrace := do
-  let mtime := (← getMTime art |>.toBaseIO).toOption.getD 0
-  return {caption := buildFile.toString, mtime, hash := contentHash}
+/-- **For internal use only.** -/
+public class ResolveOutputs (m : Type v → Type w) (α : Type v) where
+  /-- **For internal use only.** -/
+  resolveOutputs? (outputs : Json) : m (Except String α)
 
-public class ResolveArtifacts (m : Type v → Type w) (α : Type u) (β : outParam $ Type v) where
-  resolveArtifacts? (contentHashes : α) : m (Option β)
-
-open ResolveArtifacts in
+open ResolveOutputs in
 /--
-Retrieve artifacts from the Lake cache using the the content hashes stored as `α`
+Retrieve artifacts from the Lake cache using the the outputs stored
 in either the saved trace file or in the cached input-to-content mapping.
+
+**For internal use only.**
 -/
-@[specialize] public def resolveArtifactsUsing?
-  (α : Type u) [FromJson α] [ResolveArtifacts JobM α β]
-  (inputHash : Hash) (traceFile : FilePath) (savedTrace : SavedTrace) (cache : CacheRef)
-: JobM (Option β) := do
-  if let some out ← cache.get? inputHash then
-    if let .ok (hashes : α) := fromJson? out then
-      if let some arts ← resolveArtifacts? hashes then
-        savedTrace.replayOrFetch traceFile inputHash out
-        return some arts
-      else
-        logWarning s!"\
-          input '{inputHash.toString.take 7}' found in package artifact cache, \
-          but some output(s) were not"
-        return none
-    else
+@[specialize] public nonrec def getArtifacts?
+  [ResolveOutputs JobM α]
+  (inputHash : Hash) (traceFile : FilePath) (savedTrace : SavedTrace)
+  (cache : Cache) (pkg : Package)
+: JobM (Option α) := do
+  let updateCache ← pkg.isArtifactCacheEnabled
+  if let some out ← cache.readOutputs? pkg.cacheScope inputHash then
+    match (← resolveOutputs? out) with
+    | .ok arts =>
+      savedTrace.replayOrFetch traceFile inputHash out
+      return some arts
+    | .error e =>
       logWarning s!"\
         input '{inputHash.toString.take 7}' found in package artifact cache, \
-        but output(s) were in an unexpected format"
+        but some output(s) have issues: {e}"
   if let .ok data := savedTrace then
     if data.depHash == inputHash then
       if let some out := data.outputs? then
-        if let .ok (hashes : α) := fromJson? out then
-          if let some arts ← resolveArtifacts? hashes then
-            cache.insert inputHash out
-            savedTrace.replayOrFetch traceFile inputHash out
-            return some arts
+        if let .ok arts ← resolveOutputs? out then
+          if updateCache then
+            cache.writeOutputs pkg.cacheScope inputHash out
+          savedTrace.replayOrFetch traceFile inputHash out
+          return some arts
   return none
 
-/-- The content hash of an artifact which is stored with extension `ext` in the Lake cache. -/
-public structure FileOutputHash (ext : String) where
-  hash : Hash
+@[inline] def resolveArtifactOutput?
+  [MonadWorkspace m] [MonadLiftT BaseIO m] [Monad m] (output : Json)
+: m (Except String Artifact) := do
+  match fromJson? output with
+  | .ok descr => (← getLakeCache).getArtifact descr |>.toBaseIO
+  | .error e => return .error s!"ill-formed artifact output `{output}`: {e}"
 
-public instance : ToJson (FileOutputHash ext) := ⟨(toJson ·.hash)⟩
-public instance : FromJson (FileOutputHash ext) := ⟨(.mk <$> fromJson? ·)⟩
-
-public instance
-  [MonadLakeEnv m] [MonadLiftT BaseIO m] [Monad m]
-: ResolveArtifacts m (FileOutputHash ext) Artifact := ⟨(getArtifact? ·.hash ext)⟩
+instance
+  [MonadWorkspace m] [MonadLiftT BaseIO m] [Monad m]
+: ResolveOutputs m Artifact := ⟨resolveArtifactOutput?⟩
 
 /--
 Construct an artifact from a path outside the Lake artifact cache.
 
 If `text := true`, `file` is hashed as a text file rather than a binary file.
 -/
-public def fetchLocalArtifact (path : FilePath) (text := false) : JobM Artifact := do
+public def computeArtifact (path : FilePath) (ext := "art") (text := false) : JobM Artifact := do
   let hash ← fetchFileHash path text
   let mtime := (← getMTime path |>.toBaseIO).toOption.getD 0
-  return {name := path.toString, path, mtime, hash}
+  return {descr := artifactWithExt hash ext, name := path.toString, path, mtime}
 
 /--
 Uses the current job's trace to search Lake's local artifact cache for an artifact
@@ -486,45 +529,70 @@ than the path to the cached artifact.
 public def buildArtifactUnlessUpToDate
   (file : FilePath) (build : JobM PUnit)
   (text := false) (ext := "art") (restore := false) (exe := false)
-: JobM FilePath := do
+: JobM Artifact := do
   let depTrace ← getTrace
   let traceFile := FilePath.mk <| file.toString ++ ".trace"
   let savedTrace ← readTraceFile traceFile
   if let some pkg ← getCurrPackage? then
+    let cache ← getLakeCache
     let inputHash := depTrace.hash
-    if let some cache := pkg.cacheRef? then
-      let art? ← resolveArtifactsUsing? (FileOutputHash ext) inputHash traceFile savedTrace cache
-      if let some art := art? then
-        if restore && !(← file.pathExists) then
+    let fetchArt? restore := do
+      let some (art : Artifact) ← getArtifacts? inputHash traceFile savedTrace cache pkg
+        | return none
+      if restore then
+        if savedTrace.isDifferentFrom inputHash || !(← file.pathExists) then
           logVerbose s!"restored artifact from cache to: {file}"
+          createParentDirs file
           copyFile art.path file
           if exe then
             let r := ⟨true, true, true⟩
             IO.setAccessRights file ⟨r, r, r⟩ -- 777
           writeFileHash file art.hash
+        return some (art.useLocalFile file)
+      else
+        return some art
+    if (← pkg.isArtifactCacheEnabled) then
+      if let some art ← fetchArt? (restore || pkg.restoreAllArtifacts) then
         setTrace art.trace
-        return if restore then file else art.path
-      unless (← savedTrace.replayIfUpToDate file depTrace) do
-        discard <| doBuild depTrace traceFile
-      let art ← cacheArtifact file ext text exe
-      cache.insert inputHash art.hash
+        if let some outputsRef := pkg.outputsRef? then
+          outputsRef.insert inputHash art.hash
+        return art
+      else
+        unless (← savedTrace.replayIfUpToDate file depTrace) do
+          discard <| doBuild depTrace traceFile
+        let art ← cacheArtifact file ext text exe
+        cache.writeOutputs pkg.cacheScope inputHash art.descr
+        if let some outputsRef := pkg.outputsRef? then
+          outputsRef.insert inputHash art.descr
+        setTrace art.trace
+        return if restore then art.useLocalFile file else art
+    else
+      let art ← id do
+        if (← savedTrace.replayIfUpToDate file depTrace) then
+          computeArtifact file ext
+        else if let some art ← fetchArt? (restore := true) then
+          return art
+        else
+          doBuild depTrace traceFile
+      if let some outputsRef := pkg.outputsRef? then
+        outputsRef.insert inputHash art.descr
       setTrace art.trace
-      return if restore then file else art.path
-  if (← savedTrace.replayIfUpToDate file depTrace) then
-    let contentHash ← fetchFileHash file text
-    setTrace (← computeArtifactTrace file file contentHash)
-    return file
+      return art
   else
-    let contentHash ← doBuild depTrace traceFile
-    writeFileHash file contentHash
-    setTrace (← computeArtifactTrace file file contentHash)
-    return file
+    let art ←
+      if (← savedTrace.replayIfUpToDate file depTrace) then
+        computeArtifact file ext text
+      else
+        doBuild depTrace traceFile
+    setTrace art.trace
+    return art
 where
   doBuild depTrace traceFile :=
     inline <| buildAction depTrace traceFile do
       build
       clearFileHash file
-      computeFileHash file text
+      removeFileIfExists traceFile
+      computeArtifact file ext
 
 /--
 Build `file` using `build` after `dep` completes if the dependency's
@@ -538,7 +606,8 @@ If `text := true`, `file` is handled as a text file rather than a binary file.
 : SpawnM (Job FilePath) :=
   dep.mapM fun depInfo => do
     addTrace (← extraDepTrace)
-    buildArtifactUnlessUpToDate file (build depInfo) text
+    let art ← buildArtifactUnlessUpToDate file (build depInfo) text
+    return art.path
 
 /-! ## Common Builds -/
 
@@ -591,7 +660,7 @@ public def inputDir
     let ps := ps.qsort (toString · < toString ·)
     return ps
   job.bindM fun ps =>
-    Job.collectArray <$> ps.mapM (inputFile · text)
+    Job.collectArray (traceCaption := path.toString) <$> ps.mapM (inputFile · text)
 
 /--
 Build an object file from a source file job using `compiler`. The invocation is:
@@ -617,8 +686,9 @@ which will be computed in the resulting `Job` before building.
     addPlatformTrace -- object files are platform-dependent artifacts
     addPureTrace traceArgs "traceArgs"
     addTrace (← extraDepTrace)
-    buildArtifactUnlessUpToDate oFile (ext := "o") do
+    let art ← buildArtifactUnlessUpToDate oFile (ext := "o") do
       compileO oFile srcFile (weakArgs ++ traceArgs) compiler
+    return art.path
 
 /--
 Build an object file from a source fie job (i.e, a `lean -c` output)
@@ -633,19 +703,21 @@ public def buildLeanO
     addLeanTrace
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- object files are platform-dependent artifacts
-    buildArtifactUnlessUpToDate oFile (ext := "o") do
+    let art ← buildArtifactUnlessUpToDate oFile (ext := "o") do
       let lean ← getLeanInstall
       let includeDir := leanIncludeDir?.getD lean.includeDir
       let args := #["-I", includeDir.toString] ++ lean.ccFlags ++ weakArgs ++ traceArgs
       compileO oFile srcFile args lean.cc
+    return art.path
 
 /-- Build a static library from object file jobs using the Lean toolchain's `ar`. -/
 public def buildStaticLib
   (libFile : FilePath) (oFileJobs : Array (Job FilePath)) (thin :=  false)
 : SpawnM (Job FilePath) :=
   (Job.collectArray oFileJobs "objs").mapM fun oFiles => do
-    buildArtifactUnlessUpToDate libFile (ext := "a") (restore := true) do
+    let art ← buildArtifactUnlessUpToDate libFile (ext := "a") (restore := true) do
       compileStaticLib libFile oFiles (← getLeanAr) thin
+    return art.path
 
 private def mkLinkObjArgs
   (objs : Array FilePath) (libs : Array Dynlib) : Array String
@@ -700,11 +772,11 @@ public def buildSharedLib
     addTrace (← extraDepTrace)
     -- Lean plugins are required to have a specific name
     -- and thus need to copied from the cache with that name
-    let libFile ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) (restore := true) do
+    let art ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) (restore := true) do
       let libs ← if linkDeps then mkLinkOrder libs else pure #[]
       let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs
       compileSharedLib libFile args linker
-    return {name := libName, path := libFile, deps := libs, plugin}
+    return {name := libName, path := art.path, deps := libs, plugin}
 
 /--
 Build a shared library by linking the results of `linkJobs`
@@ -723,13 +795,13 @@ public def buildLeanSharedLib
     addPlatformTrace -- shared libraries are platform-dependent artifacts
     -- Lean plugins are required to have a specific name
     -- and thus need to copied from the cache with that name
-    let libFile ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) (restore := true) do
+    let art ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) (restore := true) do
       let lean ← getLeanInstall
       let libs ← if linkDeps then mkLinkOrder libs else pure #[]
       let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs ++
         #["-L", lean.leanLibDir.toString] ++ lean.ccLinkSharedFlags
       compileSharedLib libFile args lean.cc
-    return {name := libName, path := libFile, deps := libs, plugin}
+    return {name := libName, path := art.path, deps := libs, plugin}
 
 /--
 Build an executable by linking the results of `linkJobs`
@@ -745,9 +817,10 @@ public def buildLeanExe
     addLeanTrace
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- executables are platform-dependent artifacts
-    buildArtifactUnlessUpToDate exeFile (ext := FilePath.exeExtension) (exe := true) (restore := true) do
+    let art ← buildArtifactUnlessUpToDate exeFile (ext := FilePath.exeExtension) (exe := true) (restore := true) do
       let lean ← getLeanInstall
       let libs ← mkLinkOrder libs
       let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs ++
         #["-L", lean.leanLibDir.toString] ++ lean.ccLinkFlags sharedLean
       compileExe exeFile args lean.cc
+    return art.path

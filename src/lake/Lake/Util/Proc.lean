@@ -39,14 +39,17 @@ public def proc (args : IO.Process.SpawnArgs) (quiet := false) : LogIO Unit := d
   if out.exitCode ≠ 0 then
     error s!"external command '{args.cmd}' exited with code {out.exitCode}"
 
-public def captureProc (args : IO.Process.SpawnArgs) : LogIO String := do
+public def captureProc' (args : IO.Process.SpawnArgs) : LogIO (IO.Process.Output) := do
   let out ← rawProc args (quiet := true)
   if out.exitCode = 0 then
-    return out.stdout.trim -- remove, e.g., newline at end
+    return out
   else errorWithLog do
     logVerbose (mkCmdLog args)
     logOutput out logInfo
     logError s!"external command '{args.cmd}' exited with code {out.exitCode}"
+
+@[inline] public def captureProc (args : IO.Process.SpawnArgs) : LogIO String := do
+  return (← captureProc' args).stdout.trim -- remove, e.g., newline at end
 
 public def captureProc? (args : IO.Process.SpawnArgs) : BaseIO (Option String) := do
   EIO.catchExceptions (h := fun _ => pure none) do

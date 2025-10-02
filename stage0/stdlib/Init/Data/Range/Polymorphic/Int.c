@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Polymorphic.Int
-// Imports: Init.Data.Range.Polymorphic.Instances Init.Data.Order.Classes Init.Data.Int.Order Init.Omega
+// Imports: public import Init.Data.Range.Polymorphic.Instances public import Init.Data.Order.Classes public import Init.Data.Int.Order import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

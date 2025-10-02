@@ -9,6 +9,8 @@ prelude
 public import Init.Data.Float
 public import Lake.Toml.Data.Dict
 public import Lake.Toml.Data.DateTime
+import Lake.Util.String
+import Init.Data.String.Basic
 
 /-!
 # TOML Value

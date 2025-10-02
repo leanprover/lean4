@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sat.CNF.Literal
-// Imports: Init.Data.Hashable Init.Data.ToString
+// Imports: public import Init.Data.Hashable public import Init.Data.ToString
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

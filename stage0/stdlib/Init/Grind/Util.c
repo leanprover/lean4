@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Util
-// Imports: Init.Core Init.Classical
+// Imports: public import Init.Core public import Init.Classical
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

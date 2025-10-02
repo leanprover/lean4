@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.LRAT.Internal.Formula.Implementation
-// Imports: Std.Tactic.BVDecide.LRAT.Internal.Formula.Class Std.Tactic.BVDecide.LRAT.Internal.Assignment Std.Sat.CNF.Basic
+// Imports: public import Std.Tactic.BVDecide.LRAT.Internal.Formula.Class public import Std.Tactic.BVDecide.LRAT.Internal.Assignment public import Std.Sat.CNF.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

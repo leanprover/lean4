@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Int.Order
 public import Init.Data.Int.Pow
-public import Init.Data.Int.DivMod.Lemmas
 public import Init.Omega
 
 public section

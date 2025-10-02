@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.BasicAux
-// Imports: Init.Data.Array.Basic Init.Data.Array.Basic Init.Data.Nat.Linear Init.NotationExtra
+// Imports: public import Init.Data.Array.Basic import all Init.Data.Array.Basic public import Init.Data.Nat.Linear public import Init.NotationExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

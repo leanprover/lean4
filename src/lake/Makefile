@@ -58,6 +58,9 @@ check-lake:
 tests/%.test:
 	cd tests/$* && ./test.sh
 
+tests/%.online-test:
+	cd tests/$* && ./online-test.sh
+
 tests/%.clean:
 	cd tests/$* && ./clean.sh || true
 

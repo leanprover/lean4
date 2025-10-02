@@ -45,11 +45,11 @@ def updateTokens (tokens : TokenTable) : TokenTable :=
 end Module
 
 structure ModuleParserState where
-  pos        : String.Pos := 0
+  pos        : String.Pos.Raw := 0
   recovering : Bool       := false
   deriving Inhabited
 
-private partial def mkErrorMessage (c : InputContext) (pos : String.Pos) (stk : SyntaxStack) (e : Parser.Error) : Message := Id.run do
+private partial def mkErrorMessage (c : InputContext) (pos : String.Pos.Raw) (stk : SyntaxStack) (e : Parser.Error) : Message := Id.run do
   let mut pos := pos
   let mut endPos? := none
   let mut e := e
@@ -118,14 +118,14 @@ def parseHeader (inputCtx : InputContext) : IO (TSyntax ``Module.header × Modul
                 private scope."
   pure (⟨stx⟩, {pos := s.pos, recovering := s.hasError}, messages)
 
-private def mkEOI (pos : String.Pos) : Syntax :=
+private def mkEOI (pos : String.Pos.Raw) : Syntax :=
   let atom := mkAtom (SourceInfo.original "".toSubstring pos "".toSubstring pos) ""
   mkNode ``Command.eoi #[atom]
 
 def isTerminalCommand (s : Syntax) : Bool :=
   s.isOfKind ``Command.exit || s.isOfKind ``Command.import || s.isOfKind ``Command.eoi
 
-private def consumeInput (inputCtx : InputContext) (pmctx : ParserModuleContext) (pos : String.Pos) : String.Pos :=
+private def consumeInput (inputCtx : InputContext) (pmctx : ParserModuleContext) (pos : String.Pos.Raw) : String.Pos.Raw :=
   let s : ParserState := { cache := initCacheForInput inputCtx.inputString, pos := pos }
   let s := tokenFn [] |>.run inputCtx pmctx (getTokenTable pmctx.env) s
   match s.errorMsg with

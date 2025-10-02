@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Repeat
-// Imports: Lean.Meta.Tactic.Repeat Lean.Elab.Tactic.Basic
+// Imports: public import Lean.Meta.Tactic.Repeat public import Lean.Elab.Tactic.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

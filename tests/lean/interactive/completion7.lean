@@ -5,6 +5,6 @@ structure And where
   right : Type
 
 #check And
-        --^ textDocument/completion
+        --^ completion
 #check And.
-         --^ textDocument/completion
+         --^ completion

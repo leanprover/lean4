@@ -14,6 +14,7 @@ public import Lean.DefEqAttrib
 public import Lean.DocString
 import Lean.Meta.AppBuilder
 import Lean.Meta.Eqns
+import Lean.ExtraModUses
 
 public section
 
@@ -384,6 +385,8 @@ Because some theorems lead to multiple `SimpTheorems` (in particular conjunction
 -/
 def mkSimpTheoremFromConst (declName : Name) (post := true) (inv := false)
     (prio : Nat := eval_prio default) : MetaM (Array SimpTheorem) := do
+  -- If the theorem is used definitionally, it will not be visible in the proof term.
+  recordExtraModUseFromDecl (isMeta := false) declName
   let cinfo ← getConstVal declName
   let us := cinfo.levelParams.map mkLevelParam
   let origin := .decl declName post inv
@@ -395,6 +398,8 @@ def mkSimpTheoremFromConst (declName : Name) (post := true) (inv := false)
       let mut r := #[]
       for (val, type) in (← preprocess val type inv (isGlobal := true)) do
         let auxName ← mkAuxLemma (kind? := `_simp) cinfo.levelParams type val (inferRfl := true)
+          (forceExpose := true)  -- These kinds of theorems are small and `to_additive` may need to
+                                 -- unfold them.
         r := r.push <| (← do mkSimpTheoremCore origin (mkConst auxName us) #[] (mkConst auxName) post prio (noIndexAtArgs := false))
       return r
     else

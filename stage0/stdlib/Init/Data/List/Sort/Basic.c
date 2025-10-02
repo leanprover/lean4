@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Sort.Basic
-// Imports: Init.Data.List.Impl Init.Data.List.Nat.TakeDrop
+// Imports: public import Init.Data.List.Impl public import Init.Data.List.Nat.TakeDrop
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

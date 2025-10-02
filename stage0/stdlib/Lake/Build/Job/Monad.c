@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Job.Monad
-// Imports: Lake.Build.Fetch
+// Imports: public import Lake.Build.Fetch
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4032,6 +4032,7 @@ lean_dec(x_36);
 lean_dec(x_35);
 lean_dec(x_21);
 x_38 = lean_string_append(x_33, x_37);
+lean_dec_ref(x_37);
 x_39 = 1;
 x_40 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_40, 0, x_38);
@@ -4062,6 +4063,7 @@ lean_dec(x_49);
 lean_dec(x_48);
 lean_dec(x_21);
 x_51 = lean_string_append(x_46, x_50);
+lean_dec_ref(x_50);
 x_52 = 1;
 x_53 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_53, 0, x_51);
@@ -7422,6 +7424,7 @@ lean_dec(x_43);
 lean_dec(x_42);
 lean_dec(x_28);
 x_45 = lean_string_append(x_40, x_44);
+lean_dec_ref(x_44);
 x_46 = 1;
 x_47 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_47, 0, x_45);
@@ -7452,6 +7455,7 @@ lean_dec(x_56);
 lean_dec(x_55);
 lean_dec(x_28);
 x_58 = lean_string_append(x_53, x_57);
+lean_dec_ref(x_57);
 x_59 = 1;
 x_60 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_60, 0, x_58);
@@ -7640,6 +7644,7 @@ lean_dec(x_109);
 lean_dec(x_108);
 lean_dec(x_91);
 x_111 = lean_string_append(x_106, x_110);
+lean_dec_ref(x_110);
 x_112 = 1;
 x_113 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_113, 0, x_111);
@@ -8459,6 +8464,7 @@ lean_dec(x_62);
 lean_dec(x_61);
 lean_dec(x_52);
 x_64 = lean_string_append(x_59, x_63);
+lean_dec_ref(x_63);
 x_65 = 1;
 x_66 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_66, 0, x_64);
@@ -8495,6 +8501,7 @@ lean_dec(x_77);
 lean_dec(x_76);
 lean_dec(x_52);
 x_79 = lean_string_append(x_74, x_78);
+lean_dec_ref(x_78);
 x_80 = 1;
 x_81 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_81, 0, x_79);
@@ -8630,6 +8637,7 @@ lean_dec(x_118);
 lean_dec(x_117);
 lean_dec(x_105);
 x_120 = lean_string_append(x_115, x_119);
+lean_dec_ref(x_119);
 x_121 = 1;
 x_122 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_122, 0, x_120);

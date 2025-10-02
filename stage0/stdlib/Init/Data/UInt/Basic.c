@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.UInt.Basic
-// Imports: Init.Data.UInt.BasicAux Init.Data.BitVec.Basic Init.Data.Order.Classes Init.Data.Order.Factories
+// Imports: public import Init.Data.UInt.BasicAux public import Init.Data.BitVec.Basic public import Init.Data.Order.Classes import Init.Data.Order.Factories
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -156,6 +156,7 @@ uint32_t lean_uint32_mul(uint32_t, uint32_t);
 LEAN_EXPORT size_t l_USize_modn(size_t, lean_object*);
 static lean_object* l_instMulUInt32___closed__0;
 size_t lean_usize_lor(size_t, size_t);
+LEAN_EXPORT lean_object* l_UInt8_toAsciiLower___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instDivUSize;
 LEAN_EXPORT lean_object* l_UInt32_neg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Bool_toUInt64___boxed(lean_object*);
@@ -216,6 +217,7 @@ size_t lean_uint16_to_usize(uint16_t);
 lean_object* lean_usize_to_nat(size_t);
 uint8_t lean_uint8_mul(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_instShiftRightUInt16;
+LEAN_EXPORT uint8_t l_UInt8_toAsciiLower(uint8_t);
 static lean_object* l_UInt32_ofInt___closed__0;
 uint16_t lean_uint16_of_nat(lean_object*);
 size_t lean_uint32_to_usize(uint32_t);
@@ -977,6 +979,51 @@ x_4 = lean_unbox(x_2);
 x_5 = l_instMinUInt8___lam__0(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
+}
+}
+LEAN_EXPORT uint8_t l_UInt8_toAsciiLower(uint8_t x_1) {
+_start:
+{
+uint8_t x_2; uint8_t x_6; uint8_t x_7; 
+x_6 = 65;
+x_7 = lean_uint8_dec_le(x_6, x_1);
+if (x_7 == 0)
+{
+x_2 = x_7;
+goto block_5;
+}
+else
+{
+uint8_t x_8; uint8_t x_9; 
+x_8 = 90;
+x_9 = lean_uint8_dec_le(x_1, x_8);
+x_2 = x_9;
+goto block_5;
+}
+block_5:
+{
+if (x_2 == 0)
+{
+return x_1;
+}
+else
+{
+uint8_t x_3; uint8_t x_4; 
+x_3 = 32;
+x_4 = lean_uint8_add(x_1, x_3);
+return x_4;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_UInt8_toAsciiLower___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; uint8_t x_3; lean_object* x_4; 
+x_2 = lean_unbox(x_1);
+x_3 = l_UInt8_toAsciiLower(x_2);
+x_4 = lean_box(x_3);
+return x_4;
 }
 }
 LEAN_EXPORT uint16_t l_UInt16_ofFin(lean_object* x_1) {

@@ -40,6 +40,7 @@ assignments are stored at `mctx`.
 -/
 structure ContextInfo extends CommandContextInfo where
   parentDecl? : Option Name := none
+  autoImplicits : Array Expr := #[]
 
 /--
 Context for a sub-`InfoTree`.
@@ -55,6 +56,7 @@ inductive PartialContextInfo where
   corresponding to the terms within the declaration.
   -/
   | parentDeclCtx (parentDecl : Name)
+  | autoImplicitCtx (autoImplicits : Array Expr)
   -- TODO: More constructors for the different kinds of scopes `commandCtx` is currently
   -- used for (e.g. eliminating `Info.updateContext?` would be nice!).
 
@@ -325,5 +327,10 @@ class MonadParentDecl (m : Type → Type) where
   getParentDeclName? : m (Option Name)
 
 export MonadParentDecl (getParentDeclName?)
+
+class MonadAutoImplicits (m : Type → Type) where
+  getAutoImplicits : m (Array Expr)
+
+export MonadAutoImplicits (getAutoImplicits)
 
 end Lean.Elab

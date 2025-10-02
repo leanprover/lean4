@@ -10,6 +10,7 @@ public import Init.System.IOError
 public import Init.System.FilePath
 public import Init.System.ST
 public import Init.Data.Ord.Basic
+public import Init.Data.Ord.UInt
 public import Init.Data.String.Extra
 
 public section
@@ -1512,6 +1513,15 @@ Terminates the current process with the provided exit code. `0` indicates succes
 indicate failure.
 -/
 @[extern "lean_io_exit"] opaque exit : UInt8 → IO α
+
+/--
+Terminates the current process with the provided exit code. `0` indicates success, all other values
+indicate failure.
+
+Calling this function is equivalent to calling
+[`std::_Exit`](https://en.cppreference.com/w/cpp/utility/program/_Exit.html).
+-/
+@[extern "lean_io_force_exit"] opaque forceExit : UInt8 → IO α
 
 end Process
 

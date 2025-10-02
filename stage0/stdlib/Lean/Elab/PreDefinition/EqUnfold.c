@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.EqUnfold
-// Imports: Lean.Meta.Eqns Lean.Meta.Tactic.Util Lean.Meta.Tactic.Rfl Lean.Meta.Tactic.Intro Lean.Meta.Tactic.Apply Lean.DefEqAttrib
+// Imports: public import Lean.Meta.Eqns public import Lean.Meta.Tactic.Util public import Lean.Meta.Tactic.Rfl public import Lean.Meta.Tactic.Intro public import Lean.Meta.Tactic.Apply public import Lean.DefEqAttrib
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2855,8 +2855,8 @@ lean_dec_ref(x_36);
 lean_dec_ref(x_35);
 x_12 = x_9;
 x_13 = x_7;
-x_14 = x_8;
-x_15 = x_10;
+x_14 = x_10;
+x_15 = x_8;
 x_16 = x_11;
 goto block_25;
 }
@@ -2871,8 +2871,8 @@ lean_dec_ref(x_36);
 lean_dec_ref(x_35);
 x_12 = x_9;
 x_13 = x_7;
-x_14 = x_8;
-x_15 = x_10;
+x_14 = x_10;
+x_15 = x_8;
 x_16 = x_11;
 goto block_25;
 }
@@ -2914,10 +2914,10 @@ x_18 = l_Lean_MessageData_ofExpr(x_1);
 x_19 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_18);
-x_20 = l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Meta_getConstUnfoldEqnFor_x3f_spec__4_spec__4_spec__4_spec__4_spec__4_spec__5_spec__5___redArg(x_19, x_13, x_14, x_12, x_15, x_16);
-lean_dec(x_15);
-lean_dec_ref(x_12);
+x_20 = l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Meta_getConstUnfoldEqnFor_x3f_spec__4_spec__4_spec__4_spec__4_spec__4_spec__5_spec__5___redArg(x_19, x_13, x_15, x_12, x_14, x_16);
 lean_dec(x_14);
+lean_dec_ref(x_12);
+lean_dec(x_15);
 lean_dec_ref(x_13);
 x_21 = !lean_is_exclusive(x_20);
 if (x_21 == 0)
@@ -4410,11 +4410,12 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Meta_getConstUnfoldEqnFor_x3f_spec__4_spec__4_spec__4_spec__4_spec__4_spec__4___closed__1;
-x_2 = lean_alloc_ctor(0, 4, 0);
+x_2 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
 lean_ctor_set(x_2, 2, x_1);
 lean_ctor_set(x_2, 3, x_1);
+lean_ctor_set(x_2, 4, x_1);
 return x_2;
 }
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Nat.InsertIdx
-// Imports: Init.Data.List.Nat.Modify
+// Imports: public import Init.Data.List.Nat.Modify
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

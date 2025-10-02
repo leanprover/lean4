@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Parser.Term
-// Imports: Lean.Parser.Attr Lean.Parser.Level Lean.Parser.Term.Basic Lean.Parser.Term.Basic Lean.Parser.Term.Basic Lean.Parser.Term.Doc Lean.Parser.Basic Lean.DocString.Parser Lean.DocString.Formatter
+// Imports: public import Lean.Parser.Attr public import Lean.Parser.Level public import Lean.Parser.Term.Basic public import Lean.Parser.Term.Basic meta import Lean.Parser.Term.Basic public import Lean.Parser.Term.Doc meta import Lean.Parser.Basic import Lean.DocString.Parser public import Lean.DocString.Formatter
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -71,6 +71,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_throwN
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_pipeProj___regBuiltin_Lean_Parser_Term_pipeProj_declRange__5___closed__0;
 static lean_object* l_Lean_Parser_Term_letOptEq___closed__9;
 static lean_object* l_Lean_Parser_Term_whereFinallySubsection_parenthesizer___closed__1;
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_suffices_formatter___closed__3;
 static lean_object* l_Lean_Parser_Term_letConfigItem_formatter___closed__0;
 static lean_object* l_Lean_Parser_Term_logNamedErrorAtMacro_formatter___closed__2;
@@ -147,6 +148,7 @@ static lean_object* l_Lean_Parser_Term_macroDollarArg_parenthesizer___closed__0;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_byTactic___regBuiltin_Lean_Parser_Term_byTactic__1___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Parser_Command_versoCommentBody_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_debugAssert_formatter___closed__0;
+lean_object* l_Lean_Parser_ParserState_mkNode(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_let_formatter___closed__6;
 static lean_object* l_Lean_Parser_Term_matchExpr_formatter___closed__5;
 lean_object* l_Lean_Parser_rawIdent_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -193,7 +195,6 @@ static lean_object* l_Lean_Parser_Term_funBinder_parenthesizer___closed__3;
 static lean_object* l_Lean_Parser_Term_ellipsis___closed__6;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_proj___regBuiltin_Lean_Parser_Term_proj_parenthesizer__13___closed__0;
 static lean_object* l_Lean_Parser_Term_letPatDecl_parenthesizer___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Parser_Command_versoCommentBodyFn___closed__1___boxed__const__1;
 static lean_object* l_Lean_Parser_Term_letOptPostponeValue___closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_match___regBuiltin_Lean_Parser_Term_matchDiscr_formatter__25(lean_object*);
 static lean_object* l_Lean_Parser_Term_quotedName___closed__2;
@@ -249,6 +250,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Tactic_quot
 static lean_object* l_Lean_Parser_Term_privateDecl_formatter___closed__0;
 static lean_object* l_Lean_Parser_Term_structInst___closed__25;
 static lean_object* l_Lean_Parser_Term_basicFun___closed__7;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_initFn___closed__41____x40_Lean_Parser_Term_2138309881____hygCtx___hyg_8_;
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_doubleQuotedName_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_letNegOpt;
@@ -404,6 +406,7 @@ static lean_object* l_Lean_Parser_Term_matchExprElseAlt_parenthesizer___closed__
 static lean_object* l_Lean_Parser_Tactic_quot_parenthesizer___closed__0;
 static lean_object* l_Lean_Parser_Term_structInst___closed__24;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_num___regBuiltin_Lean_Parser_Term_num__1___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Parser_Command_versoCommentBody___lam__2___boxed(lean_object*);
 static lean_object* l_Lean_Parser_Term_defaultOrOfNonempty___closed__9;
 lean_object* l_Lean_PrettyPrinter_Formatter_orelse_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_fromTerm_parenthesizer___closed__2;
@@ -446,6 +449,7 @@ static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_defaultOrOf
 static lean_object* l_Lean_Parser_Term_macroDollarArg___closed__6;
 static lean_object* l_Lean_Parser_Term_dynamicQuot___closed__9;
 static lean_object* l_Lean_Parser_Term_matchExprAlts_formatter___closed__0;
+static lean_object* l_Lean_Parser_Command_versoCommentBodyFn___closed__3;
 static lean_object* l_Lean_Parser_Termination_coinductiveFixpoint___closed__1;
 extern lean_object* l_Lean_Parser_Term_strictImplicitLeftBracket;
 static lean_object* l_Lean_Parser_Term_funStrictImplicitBinder_formatter___closed__8;
@@ -545,6 +549,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_ensure
 static lean_object* l_Lean_Parser_Term_macroDollarArg_parenthesizer___closed__3;
 static lean_object* l_Lean_Parser_Term_haveI_formatter___closed__3;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_quotedName___regBuiltin_Lean_Parser_Term_quotedName_declRange__5___closed__6;
+uint8_t l_Array_isEmpty___redArg(lean_object*);
 static lean_object* l_Lean_Parser_Term_ensureExpectedType_formatter___closed__3;
 static lean_object* l_Lean_Parser_Term_matchExprPat_parenthesizer___closed__6;
 static lean_object* l_Lean_Parser_Term_matchAlt___closed__5;
@@ -574,7 +579,6 @@ static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_letI___regB
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_showTermElabImpl___regBuiltin_Lean_Parser_Term_showTermElabImpl_parenthesizer__13(lean_object*);
 static lean_object* l_Lean_Parser_Term_trueVal___closed__4;
 static lean_object* l_Lean_Parser_Term_binop__lazy___closed__6;
-static lean_object* l_Lean_Parser_Command_versoCommentBody___closed__5;
 static lean_object* l_Lean_Parser_Term_typeAscription_formatter___closed__2;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_fun___regBuiltin_Lean_Parser_Term_fun_declRange__3___closed__5;
 static lean_object* l_Lean_Parser_Term_basicFun_parenthesizer___closed__5;
@@ -869,7 +873,7 @@ static lean_object* l_Lean_Parser_Term_let__tmp___closed__5;
 static lean_object* l_Lean_Parser_Term_noErrorIfUnused___closed__4;
 lean_object* l_Lean_Parser_interpolatedStr(lean_object*);
 static lean_object* l_Lean_Parser_Term_noindex_parenthesizer___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Parser_Command_versoCommentBody___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Parser_Command_versoCommentBody___lam__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_ellipsis_formatter___closed__6;
 static lean_object* l_Lean_Parser_Term_explicitUniv_formatter___closed__0;
 static lean_object* l_Lean_Parser_Term_noindex___closed__3;
@@ -923,6 +927,7 @@ static lean_object* l_Lean_Parser_Term_typeAscription___closed__17;
 static lean_object* l_Lean_Parser_Term_stateRefT_formatter___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_letIdLhs;
 static lean_object* l_Lean_Parser_Term_waitIfTypeContainsMVar_parenthesizer___closed__0;
+static lean_object* l_Lean_Parser_Command_versoCommentBody___lam__0___closed__3;
 lean_object* l_Lean_Parser_termParser_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_stateRefT___regBuiltin_Lean_Parser_Term_stateRefT_declRange__5___closed__3;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_leading__parser___regBuiltin_Lean_Parser_Term_leading__parser_formatter__13___closed__0;
@@ -1014,6 +1019,7 @@ static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_doubleQuote
 static lean_object* l_Lean_Parser_Term_structInst_formatter___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_letExpr_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_showTermElabImpl___closed__3;
+static lean_object* l_Lean_Parser_Command_versoCommentBodyFn___closed__7;
 static lean_object* l_Lean_Parser_Term_dynamicQuot_parenthesizer___closed__7;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_nomatch___regBuiltin_Lean_Parser_Term_nomatch_declRange__5___closed__1;
 static lean_object* l_Lean_Parser_Term_waitIfTypeMVar_formatter___closed__1;
@@ -1164,6 +1170,7 @@ static lean_object* l_Lean_Parser_Term_ensureTypeOf_parenthesizer___closed__1;
 static lean_object* l_Lean_Parser_Termination_suffix___closed__2;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_doubleQuotedName___regBuiltin_Lean_Parser_Term_doubleQuotedName_declRange__5___closed__0;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_letI___regBuiltin_Lean_Parser_Term_letI_declRange__5___closed__2;
+lean_object* l_Lean_Parser_ParserState_restore(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_pipeProj___regBuiltin_Lean_Parser_Term_pipeProj_declRange__5___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_suffices_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_waitIfTypeMVar___closed__7;
@@ -1391,6 +1398,7 @@ static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_let___regBu
 static lean_object* l_Lean_Parser_Term_dynamicQuot_parenthesizer___closed__6;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_letrec___regBuiltin_Lean_Parser_Term_attrKind_formatter__15___closed__0;
 static lean_object* l_Lean_Parser_Term_binrel_formatter___closed__6;
+lean_object* l_Lean_Parser_ParserState_stackSize(lean_object*);
 static lean_object* l_Lean_Parser_Term_binrel__no__prop___closed__0;
 static lean_object* l_Lean_Parser_Term_showTermElabImpl___closed__4;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_initFn___closed__14____x40_Lean_Parser_Term_2138309881____hygCtx___hyg_8_;
@@ -1489,6 +1497,7 @@ static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_ensureExpec
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_binop__lazy___regBuiltin_Lean_Parser_Term_binop__lazy_declRange__5___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_panic___regBuiltin_Lean_Parser_Term_panic__1(lean_object*);
 static lean_object* l_Lean_Parser_Term_subst___closed__3;
+static lean_object* l_Lean_Parser_Command_versoCommentBodyFn___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Parser_Termination_terminationBy_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_structInst___regBuiltin_Lean_Parser_Term_structInst_formatter__9___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_macroDollarArg;
@@ -1620,7 +1629,6 @@ static lean_object* l_Lean_Parser_Term_explicitUniv_formatter___closed__5;
 static lean_object* l_Lean_Parser_Termination_partialFixpoint___closed__12;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_declName___regBuiltin_Lean_Parser_Term_declName_declRange__5___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_ensureTypeOf;
-static lean_object* l_Lean_Parser_Command_versoCommentBody___closed__0;
 static lean_object* l_Lean_Parser_Term_letOptNondep___closed__6;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_let__tmp___regBuiltin_Lean_Parser_Term_let__tmp_declRange__5___closed__2;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_ensureTypeOf___regBuiltin_Lean_Parser_Term_ensureTypeOf_declRange__3___closed__2;
@@ -1708,7 +1716,6 @@ static lean_object* l_Lean_Parser_Term_funStrictImplicitBinder___closed__5;
 static lean_object* l_Lean_Parser_Term_proj___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_letIdLhs_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_let__tmp_formatter___closed__4;
-LEAN_EXPORT lean_object* l_Lean_Parser_Command_versoCommentBody___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_letConfigItem;
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_structInst_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_quotedName_formatter___closed__2;
@@ -2065,7 +2072,6 @@ static lean_object* l_Lean_Parser_Term_motive_formatter___closed__4;
 static lean_object* l_Lean_Parser_Term_attrKind___closed__0;
 static lean_object* l_Lean_Parser_Tactic_quot_parenthesizer___closed__4;
 static lean_object* l_Lean_Parser_semicolonOrLinebreak___closed__2;
-static lean_object* l_Lean_Parser_Command_versoCommentBody___closed__1;
 static lean_object* l_Lean_Parser_Term_waitIfTypeMVar_parenthesizer___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_waitIfTypeContainsMVar_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_let__delayed___regBuiltin_Lean_Parser_Term_let__delayed_formatter__9___closed__0;
@@ -2159,6 +2165,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_Term_leftact_formatter(lean_object*, lean
 static lean_object* l_Lean_Parser_Term_letPosOpt_formatter___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_structInstFieldDef_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_whereDecls___closed__4;
+static lean_object* l_Lean_Parser_Command_versoCommentBodyFn___closed__5;
 static lean_object* l_Lean_Parser_Term_funStrictImplicitBinder_parenthesizer___closed__0;
 static lean_object* l_Lean_Parser_Term_panic___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_forInMacro_x27___regBuiltin_Lean_Parser_Term_forInMacro_x27_declRange__3(lean_object*);
@@ -2207,6 +2214,7 @@ static lean_object* l_Lean_Parser_Term_withAnonymousAntiquot_formatter___closed_
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_binrel___regBuiltin_Lean_Parser_Term_binrel_formatter__9___closed__0;
 static lean_object* l_Lean_Parser_Term_letPatDecl___closed__2;
 static lean_object* l_Lean_Parser_Term_let__fun_parenthesizer___closed__2;
+static lean_object* l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_prop___regBuiltin_Lean_Parser_Term_prop__1(lean_object*);
 static lean_object* l_Lean_Parser_Term_typeAscription_parenthesizer___closed__11;
 static lean_object* l_Lean_Parser_Term_scoped___closed__4;
@@ -2423,6 +2431,7 @@ static lean_object* l_Lean_Parser_Tactic_quotSeq_parenthesizer___closed__1;
 static lean_object* l_Lean_Parser_Term_structInstFieldDef___closed__3;
 static lean_object* l_Lean_Parser_Term_sufficesDecl_parenthesizer___closed__5;
 static lean_object* l_Lean_Parser_Term_anonymousCtor_parenthesizer___closed__6;
+lean_object* l_Lean_Parser_ParserState_allErrors(lean_object*);
 static lean_object* l_Lean_Parser_Term_cdot___closed__4;
 static lean_object* l_Lean_Parser_Term_pipeProj_formatter___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_paren;
@@ -2887,6 +2896,7 @@ static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_type___regB
 static lean_object* l_Lean_Parser_Term_trailing__parser_parenthesizer___closed__0;
 static lean_object* l_Lean_Parser_Term_letMVar___closed__1;
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_checkColGt_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Parser_Command_versoCommentBody___lam__0___closed__2;
 static lean_object* l_Lean_Parser_Term_fromTerm___closed__5;
 static lean_object* l_Lean_Parser_Term_whereFinallySubsection_formatter___closed__0;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_unop___regBuiltin_Lean_Parser_Term_unop_declRange__5___closed__5;
@@ -2972,7 +2982,6 @@ static lean_object* l_Lean_Parser_Term_forInMacro_x27___closed__3;
 static lean_object* l_Lean_Parser_Term_macroDollarArg___closed__7;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_let___regBuiltin_Lean_Parser_Term_letConfig_parenthesizer__115___closed__0;
 static lean_object* l_Lean_Parser_Term_typeOf___closed__8;
-static lean_object* l_Lean_Parser_Command_versoCommentBody___closed__4;
 static lean_object* l_Lean_Parser_Term_let_parenthesizer___closed__6;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_borrowed___regBuiltin_Lean_Parser_Term_borrowed_declRange__5___closed__4;
 static lean_object* l_Lean_Parser_Term_dotIdent_parenthesizer___closed__1;
@@ -3310,6 +3319,7 @@ static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_proj___regB
 static lean_object* l_Lean_Parser_Term_dynamicQuot_parenthesizer___closed__3;
 lean_object* l_Lean_Parser_andthen(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_let__tmp___regBuiltin_Lean_Parser_Term_let__tmp_parenthesizer__13(lean_object*);
+static lean_object* l_Lean_Parser_Command_versoCommentBody___lam__0___closed__1;
 static lean_object* l_Lean_Parser_Termination_partialFixpoint_formatter___closed__1;
 static lean_object* l_Lean_Parser_Termination_terminationBy___closed__3;
 static lean_object* l_Lean_Parser_Term_haveI_parenthesizer___closed__2;
@@ -3662,6 +3672,7 @@ static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_letrec___re
 static lean_object* l_Lean_Parser_Term_generalizingParam_parenthesizer___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_letI___regBuiltin_Lean_Parser_Term_letI__1(lean_object*);
 static lean_object* l_Lean_Parser_Term_assert_parenthesizer___closed__1;
+static lean_object* l_Lean_Parser_Command_versoCommentBodyFn___closed__4;
 static lean_object* l_Lean_Parser_Term_letPosOpt_formatter___closed__2;
 static lean_object* l_Lean_Parser_Term_binop__lazy___closed__7;
 static lean_object* l_Lean_Parser_Tactic_quotSeq_parenthesizer___closed__6;
@@ -4170,6 +4181,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_forall
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_letMVar___regBuiltin_Lean_Parser_Term_letMVar_declRange__3___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_show___regBuiltin_Lean_Parser_Term_show_formatter__7(lean_object*);
 static lean_object* l_Lean_Parser_Termination_terminationBy___closed__19;
+static lean_object* l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_sort___regBuiltin_Lean_Parser_Term_sort_declRange__5___closed__2;
 static lean_object* l_Lean_Parser_Term_structInst___closed__15;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_sorry___regBuiltin_Lean_Parser_Term_sorry_declRange__5___closed__0;
@@ -4309,7 +4321,6 @@ static lean_object* l_Lean_Parser_Term_typeOf_formatter___closed__1;
 static lean_object* l_Lean_Parser_Term_forInMacro___closed__3;
 lean_object* l_Lean_Parser_Term_optEllipsis_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_letPosOpt___closed__1;
-static lean_object* l_Lean_Parser_Command_versoCommentBody___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_unsafe_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_waitIfTypeContainsMVar___closed__3;
 static lean_object* l_Lean_Parser_Termination_inductiveFixpoint___closed__6;
@@ -4464,6 +4475,7 @@ static lean_object* l_Lean_Parser_Term_throwNamedErrorMacro___closed__2;
 static lean_object* l_Lean_Parser_Term_paren_parenthesizer___closed__4;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_haveI___regBuiltin_Lean_Parser_Term_haveI_declRange__5___closed__1;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_initFn___closed__49____x40_Lean_Parser_Term_2138309881____hygCtx___hyg_8_;
+LEAN_EXPORT lean_object* l_Lean_Parser_Command_versoCommentBody___lam__2(lean_object*);
 static lean_object* l_Lean_Parser_Term_clear_parenthesizer___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_tuple___regBuiltin_Lean_Parser_Term_tuple_declRange__5(lean_object*);
 static lean_object* l_Lean_Parser_Term_logNamedErrorAtMacro___closed__4;
@@ -4759,7 +4771,6 @@ static lean_object* l_Lean_Parser_Term_noImplicitLambda_parenthesizer___closed__
 static lean_object* l_Lean_Parser_Term_macroDollarArg___closed__2;
 static lean_object* l_Lean_Parser_Term_byTactic_x27___closed__0;
 static lean_object* l_Lean_Parser_Termination_suffix___closed__6;
-static lean_object* l_Lean_Parser_Command_versoCommentBody___closed__2;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_ensureExpectedType___regBuiltin_Lean_Parser_Term_ensureExpectedType_declRange__3___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_app___regBuiltin_Lean_Parser_Term_ellipsis_parenthesizer__25(lean_object*);
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_letrec___regBuiltin_Lean_Parser_Termination_partialFixpoint_parenthesizer__95___closed__0;
@@ -4865,6 +4876,7 @@ static lean_object* l_Lean_Parser_Term_letOptPostponeValue_formatter___closed__1
 static lean_object* l_Lean_Parser_Term_waitIfTypeMVar_parenthesizer___closed__0;
 static lean_object* l_Lean_Parser_Term_structInst_formatter___closed__16;
 static lean_object* l_Lean_Parser_Term_waitIfTypeContainsMVar_formatter___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Parser_Command_versoCommentBodyFn___closed__0___boxed__const__1;
 static lean_object* l_Lean_Parser_Term_letNegOpt___closed__6;
 static lean_object* l_Lean_Parser_Term_structInstFieldEqns___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_declName_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5356,6 +5368,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_match_
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_letrec___regBuiltin_Lean_Parser_Term_attrKind_formatter__15(lean_object*);
 static lean_object* l_Lean_Parser_Term_letPatDecl_formatter___closed__0;
 static lean_object* l_Lean_Parser_Term_anonymousCtor___closed__11;
+lean_object* l_Lean_Parser_ParserContext_mkEmptySubstringAt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_borrowed;
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_letIdDecl;
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_letExpr___regBuiltin_Lean_Parser_Term_letExpr__1(lean_object*);
@@ -5808,7 +5821,29 @@ x_5 = l_Lean_Parser_andthenFn(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
+static lean_object* _init_l_Lean_Parser_Command_versoCommentBodyFn___closed__0___boxed__const__1() {
+_start:
+{
+uint32_t x_1; lean_object* x_2; 
+x_1 = 45;
+x_2 = lean_box_uint32(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_Parser_Command_versoCommentBodyFn___closed__0() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l_Lean_Parser_Command_versoCommentBodyFn___closed__0___boxed__const__1;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_closure((void*)(l_Lean_Parser_chFn___boxed), 4, 2);
+lean_closure_set(x_4, 0, x_2);
+lean_closure_set(x_4, 1, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Command_versoCommentBodyFn___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -5822,26 +5857,57 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Parser_Command_versoCommentBodyFn___closed__1___boxed__const__1() {
+static lean_object* _init_l_Lean_Parser_Command_versoCommentBodyFn___closed__2() {
 _start:
 {
-uint32_t x_1; lean_object* x_2; 
-x_1 = 45;
-x_2 = lean_box_uint32(x_1);
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Command_versoCommentBodyFn___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Doc", 3, 3);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Command_versoCommentBodyFn___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Syntax", 6, 6);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Command_versoCommentBodyFn___closed__5() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("parseFailure", 12, 12);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Command_versoCommentBodyFn___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Lean_Parser_Command_versoCommentBodyFn___closed__5;
+x_2 = l_Lean_Parser_Command_versoCommentBodyFn___closed__4;
+x_3 = l_Lean_Parser_Command_versoCommentBodyFn___closed__3;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
+x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
+return x_5;
+}
+}
+static lean_object* _init_l_Lean_Parser_Command_versoCommentBodyFn___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_Lean_Parser_Command_versoCommentBodyFn___closed__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = 0;
-x_2 = l_Lean_Parser_Command_versoCommentBodyFn___closed__1___boxed__const__1;
-x_3 = lean_box(x_1);
-x_4 = lean_alloc_closure((void*)(l_Lean_Parser_chFn___boxed), 4, 2);
-lean_closure_set(x_4, 0, x_2);
-lean_closure_set(x_4, 1, x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Parser_Command_versoCommentBodyFn(lean_object* x_1, lean_object* x_2) {
@@ -5867,65 +5933,163 @@ return x_5;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_30; lean_object* x_31; lean_object* x_32; uint8_t x_33; 
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_23; lean_object* x_24; lean_object* x_51; lean_object* x_52; lean_object* x_53; uint8_t x_54; 
 x_10 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_10);
 x_11 = lean_ctor_get(x_2, 2);
 lean_inc(x_11);
 lean_dec_ref(x_2);
 x_12 = lean_ctor_get(x_10, 0);
-x_13 = 0;
-x_14 = lean_box(x_13);
-x_15 = lean_alloc_closure((void*)(l_Lean_Parser_Command_versoCommentBodyFn___lam__0___boxed), 3, 1);
-lean_closure_set(x_15, 0, x_14);
-x_30 = lean_string_utf8_prev(x_12, x_6);
+lean_inc_ref(x_12);
+if (lean_is_exclusive(x_10)) {
+ lean_ctor_release(x_10, 0);
+ lean_ctor_release(x_10, 1);
+ lean_ctor_release(x_10, 2);
+ lean_ctor_release(x_10, 3);
+ x_13 = x_10;
+} else {
+ lean_dec_ref(x_10);
+ x_13 = lean_box(0);
+}
+x_14 = 0;
+x_15 = lean_box(x_14);
+x_16 = lean_alloc_closure((void*)(l_Lean_Parser_Command_versoCommentBodyFn___lam__0___boxed), 3, 1);
+lean_closure_set(x_16, 0, x_15);
+x_23 = l_Lean_Parser_ParserState_stackSize(x_5);
+x_51 = lean_string_utf8_prev(x_12, x_6);
 lean_dec(x_6);
-x_31 = lean_string_utf8_prev(x_12, x_30);
-lean_dec(x_30);
-x_32 = lean_string_utf8_byte_size(x_12);
-x_33 = lean_nat_dec_le(x_31, x_32);
-if (x_33 == 0)
+x_52 = lean_string_utf8_prev(x_12, x_51);
+lean_dec(x_51);
+x_53 = lean_string_utf8_byte_size(x_12);
+x_54 = lean_nat_dec_le(x_52, x_53);
+if (x_54 == 0)
 {
-lean_dec(x_31);
-x_16 = x_32;
-goto block_29;
+lean_dec(x_52);
+x_24 = x_53;
+goto block_50;
 }
 else
 {
-lean_dec(x_32);
-x_16 = x_31;
-goto block_29;
+lean_dec(x_53);
+x_24 = x_52;
+goto block_50;
 }
-block_29:
+block_22:
 {
-lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; 
-lean_inc_ref(x_1);
-x_17 = l_Lean_Parser_ParserContext_setEndPos___redArg(x_1, x_16);
+lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_18 = l_Lean_Parser_Command_versoCommentBodyFn___closed__0;
-x_19 = l_Lean_Parser_ParserState_setPos(x_5, x_11);
-x_20 = l_Lean_Doc_Parser_document(x_18, x_17, x_19);
-x_21 = lean_ctor_get(x_20, 4);
-lean_inc(x_21);
-x_22 = l_Option_instBEq_beq___at___Lean_Parser_Command_versoCommentBodyFn_spec__0(x_21, x_8);
-if (x_22 == 0)
+x_19 = lean_alloc_closure((void*)(l_Lean_Parser_Command_versoCommentBodyFn___lam__1), 4, 2);
+lean_closure_set(x_19, 0, x_18);
+lean_closure_set(x_19, 1, x_16);
+x_20 = lean_alloc_closure((void*)(l_Lean_Doc_Parser_ignoreFn), 3, 1);
+lean_closure_set(x_20, 0, x_19);
+x_21 = l_Lean_Parser_rawFn(x_20, x_3, x_1, x_17);
+return x_21;
+}
+block_50:
 {
-lean_object* x_23; lean_object* x_24; 
-lean_dec_ref(x_15);
-lean_dec_ref(x_1);
-x_23 = lean_box(0);
-x_24 = l_Lean_Parser_ParserState_pushSyntax(x_20, x_23);
-return x_24;
+lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; uint8_t x_30; 
+lean_inc(x_24);
+lean_inc_ref(x_1);
+x_25 = l_Lean_Parser_ParserContext_setEndPos___redArg(x_1, x_24);
+x_26 = l_Lean_Parser_Command_versoCommentBodyFn___closed__1;
+lean_inc(x_11);
+x_27 = l_Lean_Parser_ParserState_setPos(x_5, x_11);
+x_28 = l_Lean_Doc_Parser_document(x_26, x_25, x_27);
+lean_inc_ref(x_28);
+x_29 = l_Lean_Parser_ParserState_allErrors(x_28);
+x_30 = l_Array_isEmpty___redArg(x_29);
+lean_dec_ref(x_29);
+if (x_30 == 0)
+{
+if (x_9 == 0)
+{
+lean_dec(x_24);
+lean_dec(x_23);
+lean_dec(x_13);
+lean_dec_ref(x_12);
+lean_dec(x_11);
+x_17 = x_28;
+goto block_22;
 }
 else
 {
-lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
-x_25 = l_Lean_Parser_Command_versoCommentBodyFn___closed__1;
-x_26 = lean_alloc_closure((void*)(l_Lean_Parser_Command_versoCommentBodyFn___lam__1), 4, 2);
-lean_closure_set(x_26, 0, x_25);
-lean_closure_set(x_26, 1, x_15);
-x_27 = lean_alloc_closure((void*)(l_Lean_Doc_Parser_ignoreFn), 3, 1);
-lean_closure_set(x_27, 0, x_26);
-x_28 = l_Lean_Parser_rawFn(x_27, x_3, x_1, x_20);
-return x_28;
+lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; uint8_t x_40; 
+lean_inc(x_24);
+x_31 = l_Lean_Parser_ParserState_restore(x_28, x_23, x_24);
+lean_inc(x_11);
+x_32 = l_Lean_Parser_ParserContext_mkEmptySubstringAt(x_1, x_11);
+lean_inc(x_24);
+x_33 = l_Lean_Parser_ParserContext_mkEmptySubstringAt(x_1, x_24);
+lean_inc(x_24);
+lean_inc(x_11);
+if (lean_is_scalar(x_13)) {
+ x_34 = lean_alloc_ctor(0, 4, 0);
+} else {
+ x_34 = x_13;
+}
+lean_ctor_set(x_34, 0, x_32);
+lean_ctor_set(x_34, 1, x_11);
+lean_ctor_set(x_34, 2, x_33);
+lean_ctor_set(x_34, 3, x_24);
+x_35 = lean_string_utf8_extract(x_12, x_11, x_24);
+lean_dec(x_24);
+lean_dec(x_11);
+lean_dec_ref(x_12);
+x_36 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_36, 0, x_34);
+lean_ctor_set(x_36, 1, x_35);
+x_37 = l_Lean_Parser_ParserState_pushSyntax(x_31, x_36);
+x_38 = l_Lean_Parser_Command_versoCommentBodyFn___closed__6;
+x_39 = l_Lean_Parser_ParserState_mkNode(x_37, x_38, x_23);
+lean_dec(x_23);
+x_40 = !lean_is_exclusive(x_39);
+if (x_40 == 0)
+{
+lean_object* x_41; lean_object* x_42; 
+x_41 = lean_ctor_get(x_39, 5);
+lean_dec(x_41);
+x_42 = l_Lean_Parser_Command_versoCommentBodyFn___closed__7;
+lean_ctor_set(x_39, 5, x_42);
+x_17 = x_39;
+goto block_22;
+}
+else
+{
+lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; 
+x_43 = lean_ctor_get(x_39, 0);
+x_44 = lean_ctor_get(x_39, 1);
+x_45 = lean_ctor_get(x_39, 2);
+x_46 = lean_ctor_get(x_39, 3);
+x_47 = lean_ctor_get(x_39, 4);
+lean_inc(x_47);
+lean_inc(x_46);
+lean_inc(x_45);
+lean_inc(x_44);
+lean_inc(x_43);
+lean_dec(x_39);
+x_48 = l_Lean_Parser_Command_versoCommentBodyFn___closed__7;
+x_49 = lean_alloc_ctor(0, 6, 0);
+lean_ctor_set(x_49, 0, x_43);
+lean_ctor_set(x_49, 1, x_44);
+lean_ctor_set(x_49, 2, x_45);
+lean_ctor_set(x_49, 3, x_46);
+lean_ctor_set(x_49, 4, x_47);
+lean_ctor_set(x_49, 5, x_48);
+x_17 = x_49;
+goto block_22;
+}
+}
+}
+else
+{
+lean_dec(x_24);
+lean_dec(x_23);
+lean_dec(x_13);
+lean_dec_ref(x_12);
+lean_dec(x_11);
+x_17 = x_28;
+goto block_22;
 }
 }
 }
@@ -5949,29 +6113,7 @@ x_5 = l_Lean_Parser_Command_versoCommentBodyFn___lam__0(x_4, x_2, x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Parser_Command_versoCommentBody___lam__0(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Parser_Command_versoCommentBody___lam__1(lean_object* x_1) {
-_start:
-{
-lean_inc_ref(x_1);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Parser_Command_versoCommentBody___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean", 4, 4);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Parser_Command_versoCommentBody___closed__1() {
+static lean_object* _init_l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -5979,7 +6121,7 @@ x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Parser_Command_versoCommentBody___closed__2() {
+static lean_object* _init_l_Lean_Parser_Command_versoCommentBody___lam__0___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -5987,7 +6129,7 @@ x_1 = lean_mk_string_unchecked("Command", 7, 7);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Parser_Command_versoCommentBody___closed__3() {
+static lean_object* _init_l_Lean_Parser_Command_versoCommentBody___lam__0___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -5995,55 +6137,58 @@ x_1 = lean_mk_string_unchecked("versoCommentBody", 16, 16);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Parser_Command_versoCommentBody___closed__4() {
+static lean_object* _init_l_Lean_Parser_Command_versoCommentBody___lam__0___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_Command_versoCommentBody___closed__3;
-x_2 = l_Lean_Parser_Command_versoCommentBody___closed__2;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_1 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__2;
+x_2 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__1;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Parser_Command_versoCommentBody___closed__5() {
+LEAN_EXPORT lean_object* l_Lean_Parser_Command_versoCommentBody___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Command_versoCommentBodyFn), 2, 0);
-x_2 = l_Lean_Parser_Command_versoCommentBody___closed__4;
-x_3 = lean_alloc_closure((void*)(l_Lean_Parser_nodeFn), 4, 2);
-lean_closure_set(x_3, 0, x_2);
-lean_closure_set(x_3, 1, x_1);
-return x_3;
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__3;
+x_4 = lean_alloc_closure((void*)(l_Lean_Parser_Command_versoCommentBodyFn), 2, 0);
+x_5 = l_Lean_Parser_nodeFn(x_3, x_4, x_1, x_2);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Parser_Command_versoCommentBody___lam__1(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Parser_Command_versoCommentBody___lam__2(lean_object* x_1) {
+_start:
+{
+lean_inc_ref(x_1);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Parser_Command_versoCommentBody() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Command_versoCommentBody___lam__0___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Command_versoCommentBody___lam__0), 2, 0);
 x_2 = lean_alloc_closure((void*)(l_Lean_Parser_Command_versoCommentBody___lam__1___boxed), 1, 0);
-x_3 = lean_box(1);
-x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__5;
+x_3 = lean_alloc_closure((void*)(l_Lean_Parser_Command_versoCommentBody___lam__2___boxed), 1, 0);
+x_4 = lean_box(1);
+x_5 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_5, 0, x_2);
+lean_ctor_set(x_5, 1, x_3);
+lean_ctor_set(x_5, 2, x_4);
 x_6 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_6, 0, x_4);
-lean_ctor_set(x_6, 1, x_5);
+lean_ctor_set(x_6, 0, x_5);
+lean_ctor_set(x_6, 1, x_1);
 return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Parser_Command_versoCommentBody___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Parser_Command_versoCommentBody___lam__0(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Parser_Command_versoCommentBody___lam__1___boxed(lean_object* x_1) {
@@ -6051,6 +6196,15 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Parser_Command_versoCommentBody___lam__1(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Parser_Command_versoCommentBody___lam__2___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Parser_Command_versoCommentBody___lam__2(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -6270,7 +6424,7 @@ static lean_object* _init_l_Lean_Parser_Command_commentBody___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Command_versoCommentBody___lam__0___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Command_versoCommentBody___lam__1___boxed), 1, 0);
 return x_1;
 }
 }
@@ -6278,7 +6432,7 @@ static lean_object* _init_l_Lean_Parser_Command_commentBody___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Command_versoCommentBody___lam__1___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Command_versoCommentBody___lam__2___boxed), 1, 0);
 return x_1;
 }
 }
@@ -6409,9 +6563,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Command_docComment_formatter___closed__0;
-x_2 = l_Lean_Parser_Command_versoCommentBody___closed__2;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_2 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__1;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -6536,9 +6690,9 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Command_docComment_formatter___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__2;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__1;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -6675,9 +6829,9 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Command_docComment_formatter___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__2;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__1;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -6952,8 +7106,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_byTactic___closed__1;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -7302,8 +7456,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_byTactic___closed__1;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -7419,8 +7573,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_byTactic___closed__1;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -7451,8 +7605,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_byTactic_x27___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -7576,8 +7730,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Term_ident___regBuiltin_Lean_Parser_Term_ident__1___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -7794,8 +7948,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Term_num___regBuiltin_Lean_Parser_Term_num__1___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -8000,8 +8154,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Term_scientific___regBuiltin_Lean_Parser_Term_scientific__1___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -8196,8 +8350,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Term_str___regBuiltin_Lean_Parser_Term_str__1___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -8392,8 +8546,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Term_char___regBuiltin_Lean_Parser_Term_char__1___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -8562,8 +8716,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_type___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -9014,8 +9168,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_type___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -9169,8 +9323,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_type___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -9201,8 +9355,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_sort___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -9488,8 +9642,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_sort___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -9577,8 +9731,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_sort___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -9609,8 +9763,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_prop___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -9874,8 +10028,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_prop___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -9951,8 +10105,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_prop___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -9983,8 +10137,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_sorry___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -10240,8 +10394,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_sorry___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -10317,8 +10471,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_sorry___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -10349,8 +10503,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_hygienicLParen___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -10454,8 +10608,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_cdot___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -10763,8 +10917,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_cdot___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -10865,8 +11019,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_cdot___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -10897,8 +11051,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_typeAscription___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -11276,8 +11430,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_hygienicLParen___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -11471,8 +11625,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_typeAscription___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -11559,8 +11713,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_hygienicLParen___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -11746,8 +11900,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_typeAscription___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -11778,8 +11932,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_tuple___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -12217,8 +12371,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_tuple___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -12389,8 +12543,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_tuple___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -12421,8 +12575,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_paren___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -12751,8 +12905,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_paren___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -12872,8 +13026,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_paren___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -12904,8 +13058,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_anonymousCtor___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -13307,8 +13461,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_anonymousCtor___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -13455,8 +13609,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_anonymousCtor___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -13487,8 +13641,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_fromTerm___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -13603,8 +13757,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_sufficesDecl___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -13803,8 +13957,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_suffices___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -14100,8 +14254,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_fromTerm___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -14167,8 +14321,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_byTactic_x27___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -14342,8 +14496,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_sufficesDecl___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -14523,8 +14677,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_suffices___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -14612,8 +14766,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_fromTerm___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -14679,8 +14833,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_byTactic_x27___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -14820,8 +14974,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_sufficesDecl___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -15001,8 +15155,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_suffices___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -15033,8 +15187,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_show___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -15302,8 +15456,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_show___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -15391,8 +15545,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_show___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -15423,8 +15577,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_explicit___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -15729,8 +15883,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_explicit___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -15828,8 +15982,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_explicit___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -15860,8 +16014,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_inaccessible___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -16188,8 +16342,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_inaccessible___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -16299,8 +16453,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_inaccessible___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -16331,8 +16485,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_depArrow___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -16656,8 +16810,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_depArrow___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -16773,8 +16927,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_depArrow___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -16805,8 +16959,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_forall___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -17245,8 +17399,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_forall___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -17428,8 +17582,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_forall___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -17460,8 +17614,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_matchAlt___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -17627,8 +17781,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_matchAlts___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -17696,8 +17850,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_matchDiscr___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -17813,8 +17967,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_trueVal___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -17902,8 +18056,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_falseVal___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -17991,8 +18145,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_generalizingParam___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -18166,8 +18320,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_motive___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -18296,8 +18450,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_match___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -18670,8 +18824,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_trueVal___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -18750,8 +18904,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_falseVal___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -18922,8 +19076,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_generalizingParam___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -19060,8 +19214,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_motive___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -19159,8 +19313,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_matchDiscr___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -19519,8 +19673,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_match___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -19599,8 +19753,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_trueVal___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -19679,8 +19833,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_falseVal___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -19825,8 +19979,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_generalizingParam___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -19953,8 +20107,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_motive___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -20054,8 +20208,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_matchDiscr___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -20414,8 +20568,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_match___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -20446,8 +20600,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_nomatch___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -20733,8 +20887,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_nomatch___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -20822,8 +20976,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_nomatch___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -20854,8 +21008,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_nofun___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -21093,8 +21247,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_nofun___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -21170,8 +21324,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_nofun___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -21202,8 +21356,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_structInst___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -21921,8 +22075,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_structInst___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -22175,8 +22329,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_structInst___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -22207,8 +22361,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_structInstFieldDef___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -22432,8 +22586,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_structInstFieldDef___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -22543,8 +22697,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_structInstFieldDef___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -22575,8 +22729,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_structInstFieldEqns___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -22715,8 +22869,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_structInstFieldEqns___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -22794,8 +22948,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_structInstFieldEqns___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -22826,8 +22980,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_funImplicitBinder___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -23077,8 +23231,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_funBinder___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -23164,8 +23318,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_basicFun___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -23309,8 +23463,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_fun___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -23960,8 +24114,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_basicFun___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -24078,8 +24232,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_fun___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -24398,8 +24552,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_basicFun___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -24516,8 +24670,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_fun___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -24601,8 +24755,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_withAnonymousAntiquot___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -24748,8 +24902,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_leading__parser___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -25138,8 +25292,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_withAnonymousAntiquot___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -25261,8 +25415,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_leading__parser___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -25422,8 +25576,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_withAnonymousAntiquot___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -25545,8 +25699,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_leading__parser___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -25577,8 +25731,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_trailing__parser___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -25882,8 +26036,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_trailing__parser___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -25995,8 +26149,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_trailing__parser___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -26027,8 +26181,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_borrowed___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -26333,8 +26487,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_borrowed___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -26432,8 +26586,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_borrowed___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -26464,8 +26618,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_quotedName___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -26718,8 +26872,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_quotedName___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -26793,8 +26947,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_quotedName___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -26825,8 +26979,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_doubleQuotedName___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -27201,8 +27355,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_doubleQuotedName___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -27322,8 +27476,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_doubleQuotedName___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -27354,8 +27508,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_letId___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -27508,8 +27662,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_letIdBinder___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -27604,8 +27758,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_letIdDecl___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -27703,8 +27857,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_letPatDecl___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -27819,8 +27973,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_letEqnsDecl___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -27909,8 +28063,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_letDecl___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -28083,8 +28237,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_letOptNondep___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -28190,8 +28344,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_letOptPostponeValue___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -28297,8 +28451,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_letOptUsedOnly___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -28404,8 +28558,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_letOptZeta___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -28511,8 +28665,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_letOptGeneralize___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -28618,8 +28772,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_letOpts___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -28729,8 +28883,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_letPosOpt___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -28836,8 +28990,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_letNegOpt___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -28933,8 +29087,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_letOptEq___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -29116,8 +29270,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_letConfig___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -29195,8 +29349,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_let___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -29494,8 +29648,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_letOptNondep___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -29574,8 +29728,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_letOptPostponeValue___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -29654,8 +29808,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_letOptUsedOnly___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -29734,8 +29888,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_letOptZeta___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -29814,8 +29968,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_letOptGeneralize___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -29929,8 +30083,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_letOpts___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -30037,8 +30191,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_letPosOpt___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -30125,8 +30279,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_letNegOpt___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -30262,8 +30416,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_letOptEq___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -30360,8 +30514,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_letConfig___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -30622,8 +30776,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_letId___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -30793,8 +30947,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_letIdDecl___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -30883,8 +31037,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_letEqnsDecl___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -31042,8 +31196,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_letDecl___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -31165,8 +31319,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_let___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -31245,8 +31399,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_letOptNondep___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -31325,8 +31479,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_letOptPostponeValue___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -31405,8 +31559,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_letOptUsedOnly___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -31485,8 +31639,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_letOptZeta___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -31565,8 +31719,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_letOptGeneralize___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -31680,8 +31834,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_letOpts___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -31780,8 +31934,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_letPosOpt___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -31868,8 +32022,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_letNegOpt___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -31995,8 +32149,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_letOptEq___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -32093,8 +32247,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_letConfig___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -32354,8 +32508,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_letId___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -32515,8 +32669,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_letIdDecl___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -32605,8 +32759,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_letEqnsDecl___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -32764,8 +32918,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_letDecl___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -32887,8 +33041,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_let___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -32919,8 +33073,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_have___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -33239,8 +33393,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_have___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -33350,8 +33504,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_have___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -33382,8 +33536,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_let__fun___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -33759,8 +33913,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_let__fun___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -33892,8 +34046,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_let__fun___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -33924,8 +34078,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_let__delayed___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -34252,8 +34406,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_let__delayed___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -34363,8 +34517,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_let__delayed___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -34395,8 +34549,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_let__tmp___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -34723,8 +34877,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_let__tmp___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -34834,8 +34988,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_let__tmp___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -34866,8 +35020,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_haveI___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -35194,8 +35348,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_haveI___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -35305,8 +35459,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_haveI___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -35337,8 +35491,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_letI___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -35665,8 +35819,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_letI___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -35776,8 +35930,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_letI___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -35808,8 +35962,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_scoped___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -35896,8 +36050,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_local___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -35984,8 +36138,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_attrKind___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -36092,8 +36246,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_attrInstance___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -36200,8 +36354,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_attributes___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -36354,8 +36508,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Termination_terminationBy___closed__1;
 x_2 = l_Lean_Parser_Termination_terminationBy___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -36564,8 +36718,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Termination_terminationBy_x3f___closed__0;
 x_2 = l_Lean_Parser_Termination_terminationBy___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -36662,8 +36816,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Termination_partialFixpoint___closed__0;
 x_2 = l_Lean_Parser_Termination_terminationBy___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -36878,8 +37032,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Termination_coinductiveFixpoint___closed__0;
 x_2 = l_Lean_Parser_Termination_terminationBy___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -36985,8 +37139,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Termination_inductiveFixpoint___closed__0;
 x_2 = l_Lean_Parser_Termination_terminationBy___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -37092,8 +37246,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Termination_decreasingBy___closed__0;
 x_2 = l_Lean_Parser_Termination_terminationBy___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -37218,8 +37372,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Termination_suffix___closed__0;
 x_2 = l_Lean_Parser_Termination_terminationBy___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -37385,8 +37539,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_letRecDecl___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -37522,8 +37676,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_letRecDecls___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -37605,8 +37759,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_letrec___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -37919,8 +38073,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_scoped___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -37996,8 +38150,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_local___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -38085,8 +38239,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_attrKind___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -38189,8 +38343,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_attrInstance___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -38327,8 +38481,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_attributes___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -38404,8 +38558,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Termination_terminationBy_x3f___closed__0;
 x_3 = l_Lean_Parser_Termination_terminationBy___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -38604,8 +38758,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Termination_terminationBy___closed__1;
 x_3 = l_Lean_Parser_Termination_terminationBy___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -38762,8 +38916,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Termination_partialFixpoint___closed__0;
 x_3 = l_Lean_Parser_Termination_terminationBy___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -38861,8 +39015,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Termination_coinductiveFixpoint___closed__0;
 x_3 = l_Lean_Parser_Termination_terminationBy___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -38960,8 +39114,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Termination_inductiveFixpoint___closed__0;
 x_3 = l_Lean_Parser_Termination_terminationBy___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -39071,8 +39225,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Termination_decreasingBy___closed__0;
 x_3 = l_Lean_Parser_Termination_terminationBy___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -39230,8 +39384,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Termination_suffix___closed__0;
 x_3 = l_Lean_Parser_Termination_terminationBy___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -39353,8 +39507,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_letRecDecl___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -39437,8 +39591,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_letRecDecls___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -39583,8 +39737,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_letrec___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -39660,8 +39814,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_scoped___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -39737,8 +39891,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_local___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -39826,8 +39980,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_attrKind___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -39938,8 +40092,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_attrInstance___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -40076,8 +40230,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_attributes___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -40153,8 +40307,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Termination_terminationBy_x3f___closed__0;
 x_3 = l_Lean_Parser_Termination_terminationBy___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -40343,8 +40497,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Termination_terminationBy___closed__1;
 x_3 = l_Lean_Parser_Termination_terminationBy___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -40501,8 +40655,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Termination_partialFixpoint___closed__0;
 x_3 = l_Lean_Parser_Termination_terminationBy___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -40600,8 +40754,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Termination_coinductiveFixpoint___closed__0;
 x_3 = l_Lean_Parser_Termination_terminationBy___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -40699,8 +40853,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Termination_inductiveFixpoint___closed__0;
 x_3 = l_Lean_Parser_Termination_terminationBy___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -40810,8 +40964,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Termination_decreasingBy___closed__0;
 x_3 = l_Lean_Parser_Termination_terminationBy___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -40969,8 +41123,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Termination_suffix___closed__0;
 x_3 = l_Lean_Parser_Termination_terminationBy___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -41092,8 +41246,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_letRecDecl___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -41176,8 +41330,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_letRecDecls___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -41322,8 +41476,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_letrec___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -41354,8 +41508,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_whereFinallySubsection___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -41473,8 +41627,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_whereFinally___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -41737,8 +41891,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_whereFinallySubsection___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -41870,8 +42024,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_whereFinally___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -41902,8 +42056,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_whereDecls_formatter___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -42063,8 +42217,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_whereDecls_formatter___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -42186,8 +42340,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_whereFinallySubsection___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -42319,8 +42473,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_whereFinally___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -42479,8 +42633,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_whereDecls_formatter___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -42671,8 +42825,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_matchAltsWhereDecls_formatter___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -42760,8 +42914,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_matchAltsWhereDecls_formatter___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -42861,8 +43015,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_matchAltsWhereDecls_formatter___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -42973,8 +43127,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_noindex___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -43242,8 +43396,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_noindex___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -43331,8 +43485,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_noindex___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -43363,8 +43517,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_unsafe___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -43650,8 +43804,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_unsafe___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -43739,8 +43893,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_unsafe___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -43771,8 +43925,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_binrel___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -44146,8 +44300,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_binrel___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -44283,8 +44437,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_binrel___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -44315,8 +44469,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_binrel__no__prop___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -44602,8 +44756,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_binrel__no__prop___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -44691,8 +44845,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_binrel__no__prop___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -44723,8 +44877,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_binop___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -45010,8 +45164,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_binop___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -45099,8 +45253,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_binop___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -45131,8 +45285,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_binop__lazy___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -45418,8 +45572,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_binop__lazy___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -45507,8 +45661,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_binop__lazy___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -45539,8 +45693,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_leftact___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -45826,8 +45980,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_leftact___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -45915,8 +46069,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_leftact___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -45947,8 +46101,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_rightact___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -46234,8 +46388,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_rightact___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -46323,8 +46477,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_rightact___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -46355,8 +46509,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_unop___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -46664,8 +46818,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_unop___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -46765,8 +46919,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_unop___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -46797,8 +46951,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_forInMacro___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -47088,8 +47242,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_forInMacro___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -47189,8 +47343,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_forInMacro___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -47221,8 +47375,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_forInMacro_x27___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -47490,8 +47644,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_forInMacro_x27___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -47579,8 +47733,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_forInMacro_x27___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -47611,8 +47765,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_declName___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -47876,8 +48030,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_declName___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -47953,8 +48107,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_declName___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -47985,8 +48139,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_privateDecl___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -48170,8 +48324,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_privateDecl___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -48259,8 +48413,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_privateDecl___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -48291,8 +48445,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_withDeclName___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -48668,8 +48822,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_withDeclName___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -48801,8 +48955,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_withDeclName___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -48833,8 +48987,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_typeOf___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -49102,8 +49256,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_typeOf___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -49191,8 +49345,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_typeOf___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -49223,8 +49377,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_ensureTypeOf___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -49536,8 +49690,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_ensureTypeOf___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -49649,8 +49803,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_ensureTypeOf___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -49681,8 +49835,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_ensureExpectedType___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -49972,8 +50126,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_ensureExpectedType___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -50073,8 +50227,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_ensureExpectedType___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -50105,8 +50259,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_noImplicitLambda___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -50374,8 +50528,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_noImplicitLambda___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -50463,8 +50617,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_noImplicitLambda___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -50495,8 +50649,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_valueOf___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -50680,8 +50834,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_valueOf___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -50769,8 +50923,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_valueOf___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -50801,8 +50955,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_clear___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -51144,8 +51298,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_clear___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -51269,8 +51423,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_clear___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -51301,8 +51455,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_letMVar___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -51680,8 +51834,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_letMVar___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -51829,8 +51983,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_letMVar___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -51861,8 +52015,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_waitIfTypeMVar___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -52174,8 +52328,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_waitIfTypeMVar___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -52287,8 +52441,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_waitIfTypeMVar___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -52319,8 +52473,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_waitIfTypeContainsMVar___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -52588,8 +52742,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_waitIfTypeContainsMVar___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -52677,8 +52831,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_waitIfTypeContainsMVar___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -52709,8 +52863,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_waitIfContainsMVar___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -52978,8 +53132,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_waitIfContainsMVar___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -53067,8 +53221,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_waitIfContainsMVar___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -53099,8 +53253,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_defaultOrOfNonempty___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -53406,8 +53560,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_defaultOrOfNonempty___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -53515,8 +53669,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_defaultOrOfNonempty___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -53547,8 +53701,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_noErrorIfUnused___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -53834,8 +53988,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_noErrorIfUnused___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -53923,8 +54077,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_noErrorIfUnused___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -53955,8 +54109,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_namedArgument___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -54064,8 +54218,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_ellipsis___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -54297,8 +54451,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_app___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -54540,8 +54694,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_namedArgument___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -54660,8 +54814,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_ellipsis___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -54761,8 +54915,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_app___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -54863,8 +55017,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_namedArgument___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -54983,8 +55137,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_ellipsis___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -55086,8 +55240,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_app___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -55118,8 +55272,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_proj___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -55405,8 +55559,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_proj___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -55498,8 +55652,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_proj___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -55530,8 +55684,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_completion___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -55687,8 +55841,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_completion___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -55724,8 +55878,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_completion___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -55756,8 +55910,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_arrow___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -55985,8 +56139,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_arrow___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -56066,8 +56220,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_arrow___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -56098,8 +56252,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_identProjKind___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -56153,8 +56307,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_explicitUniv___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -56535,8 +56689,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_explicitUniv___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -56667,8 +56821,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_explicitUniv___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -56699,8 +56853,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_namedPattern___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -57039,8 +57193,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_namedPattern___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -57156,8 +57310,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_namedPattern___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -57188,8 +57342,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_pipeProj___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -57483,8 +57637,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_pipeProj___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -57576,8 +57730,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_pipeProj___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -57608,8 +57762,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_pipeCompletion___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -57765,8 +57919,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_pipeCompletion___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -57802,8 +57956,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_pipeCompletion___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -57834,8 +57988,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_subst___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -58106,8 +58260,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_subst___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -58192,8 +58346,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_subst___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -58256,8 +58410,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_panic___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -58543,8 +58697,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_panic___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -58632,8 +58786,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_panic___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -58664,8 +58818,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_unreachable___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -58929,8 +59083,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_unreachable___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -59006,8 +59160,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_unreachable___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -59038,8 +59192,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_dbgTrace___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -59407,8 +59561,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_dbgTrace___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -59540,8 +59694,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_dbgTrace___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -59572,8 +59726,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_assert___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -59900,8 +60054,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_assert___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -60011,8 +60165,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_assert___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -60043,8 +60197,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_debugAssert___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -60269,8 +60423,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_debugAssert___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -60380,8 +60534,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_debugAssert___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -60420,8 +60574,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_macroDollarArg___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -60545,8 +60699,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_stateRefT___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -60870,8 +61024,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_macroDollarArg___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -60993,8 +61147,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_stateRefT___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -61101,8 +61255,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_macroDollarArg___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -61224,8 +61378,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_stateRefT___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -61256,8 +61410,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_dynamicQuot___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -61664,8 +61818,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_dynamicQuot___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -61834,8 +61988,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_dynamicQuot___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -61866,8 +62020,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_dotIdent___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -62130,8 +62284,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_dotIdent___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -62221,8 +62375,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_dotIdent___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -62253,8 +62407,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_showTermElabImpl___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -62540,8 +62694,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_showTermElabImpl___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -62629,8 +62783,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_showTermElabImpl___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -62661,8 +62815,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_matchExprPat___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -62789,8 +62943,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_matchExprAlt___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -62839,8 +62993,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_matchExprElseAlt___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -62897,8 +63051,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_matchExprAlts___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -63010,8 +63164,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_matchExpr___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -63352,8 +63506,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_matchExprPat___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -63684,8 +63838,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_matchExpr___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -63807,8 +63961,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_matchExprPat___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -64138,8 +64292,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_matchExpr___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -64170,8 +64324,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_letExpr___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -64590,8 +64744,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_letExpr___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -64761,8 +64915,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_letExpr___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -64793,8 +64947,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_throwNamedErrorMacro___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -65060,8 +65214,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_throwNamedErrorMacro___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -65193,8 +65347,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_throwNamedErrorMacro___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -65225,8 +65379,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_throwNamedErrorAtMacro___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -65454,8 +65608,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_throwNamedErrorAtMacro___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -65567,8 +65721,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_throwNamedErrorAtMacro___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -65599,8 +65753,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_logNamedErrorMacro___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -65784,8 +65938,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_logNamedErrorMacro___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -65873,8 +66027,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_logNamedErrorMacro___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -65905,8 +66059,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_logNamedErrorAtMacro___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -66090,8 +66244,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_logNamedErrorAtMacro___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -66179,8 +66333,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_logNamedErrorAtMacro___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -66211,8 +66365,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_logNamedWarningMacro___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -66396,8 +66550,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_logNamedWarningMacro___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -66485,8 +66639,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_logNamedWarningMacro___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -66517,8 +66671,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_logNamedWarningAtMacro___closed__0;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -66702,8 +66856,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Term_logNamedWarningAtMacro___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -66791,8 +66945,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Term_logNamedWarningAtMacro___closed__0;
 x_3 = l_Lean_Parser_Term_byTactic___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -66831,8 +66985,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Tactic_quot___closed__1;
 x_2 = l_Lean_Parser_Tactic_quot___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -67197,8 +67351,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Tactic_quot___closed__1;
 x_3 = l_Lean_Parser_Tactic_quot___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -67328,8 +67482,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Tactic_quot___closed__1;
 x_3 = l_Lean_Parser_Tactic_quot___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -67360,8 +67514,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Tactic_quotSeq___closed__0;
 x_2 = l_Lean_Parser_Tactic_quot___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -67678,8 +67832,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_formatter__3___closed__1;
 x_2 = l_Lean_Parser_Tactic_quotSeq___closed__0;
 x_3 = l_Lean_Parser_Tactic_quot___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -67797,8 +67951,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_Command_docComment___regBuiltin_Lean_Parser_Command_docComment_parenthesizer__7___closed__1;
 x_2 = l_Lean_Parser_Tactic_quotSeq___closed__0;
 x_3 = l_Lean_Parser_Tactic_quot___closed__0;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_5 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_5 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -67891,8 +68045,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_initFn___closed__5____x40_Lean_Parser_Term_2138309881____hygCtx___hyg_8_;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -67984,8 +68138,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_initFn___closed__15____x40_Lean_Parser_Term_2138309881____hygCtx___hyg_8_;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -68126,8 +68280,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_initFn___closed__30____x40_Lean_Parser_Term_2138309881____hygCtx___hyg_8_;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -68244,8 +68398,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_initFn___closed__42____x40_Lean_Parser_Term_2138309881____hygCtx___hyg_8_;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -68337,8 +68491,8 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___private_Lean_Parser_Term_0__Lean_Parser_initFn___closed__52____x40_Lean_Parser_Term_2138309881____hygCtx___hyg_8_;
 x_2 = l_Lean_Parser_Term_byTactic___closed__0;
-x_3 = l_Lean_Parser_Command_versoCommentBody___closed__1;
-x_4 = l_Lean_Parser_Command_versoCommentBody___closed__0;
+x_3 = l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0;
+x_4 = l_Lean_Parser_Command_versoCommentBodyFn___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
@@ -69120,24 +69274,32 @@ lean_dec_ref(res);
 res = initialize_Lean_DocString_Formatter(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Lean_Parser_Command_versoCommentBodyFn___closed__0___boxed__const__1 = _init_l_Lean_Parser_Command_versoCommentBodyFn___closed__0___boxed__const__1();
+lean_mark_persistent(l_Lean_Parser_Command_versoCommentBodyFn___closed__0___boxed__const__1);
 l_Lean_Parser_Command_versoCommentBodyFn___closed__0 = _init_l_Lean_Parser_Command_versoCommentBodyFn___closed__0();
 lean_mark_persistent(l_Lean_Parser_Command_versoCommentBodyFn___closed__0);
-l_Lean_Parser_Command_versoCommentBodyFn___closed__1___boxed__const__1 = _init_l_Lean_Parser_Command_versoCommentBodyFn___closed__1___boxed__const__1();
-lean_mark_persistent(l_Lean_Parser_Command_versoCommentBodyFn___closed__1___boxed__const__1);
 l_Lean_Parser_Command_versoCommentBodyFn___closed__1 = _init_l_Lean_Parser_Command_versoCommentBodyFn___closed__1();
 lean_mark_persistent(l_Lean_Parser_Command_versoCommentBodyFn___closed__1);
-l_Lean_Parser_Command_versoCommentBody___closed__0 = _init_l_Lean_Parser_Command_versoCommentBody___closed__0();
-lean_mark_persistent(l_Lean_Parser_Command_versoCommentBody___closed__0);
-l_Lean_Parser_Command_versoCommentBody___closed__1 = _init_l_Lean_Parser_Command_versoCommentBody___closed__1();
-lean_mark_persistent(l_Lean_Parser_Command_versoCommentBody___closed__1);
-l_Lean_Parser_Command_versoCommentBody___closed__2 = _init_l_Lean_Parser_Command_versoCommentBody___closed__2();
-lean_mark_persistent(l_Lean_Parser_Command_versoCommentBody___closed__2);
-l_Lean_Parser_Command_versoCommentBody___closed__3 = _init_l_Lean_Parser_Command_versoCommentBody___closed__3();
-lean_mark_persistent(l_Lean_Parser_Command_versoCommentBody___closed__3);
-l_Lean_Parser_Command_versoCommentBody___closed__4 = _init_l_Lean_Parser_Command_versoCommentBody___closed__4();
-lean_mark_persistent(l_Lean_Parser_Command_versoCommentBody___closed__4);
-l_Lean_Parser_Command_versoCommentBody___closed__5 = _init_l_Lean_Parser_Command_versoCommentBody___closed__5();
-lean_mark_persistent(l_Lean_Parser_Command_versoCommentBody___closed__5);
+l_Lean_Parser_Command_versoCommentBodyFn___closed__2 = _init_l_Lean_Parser_Command_versoCommentBodyFn___closed__2();
+lean_mark_persistent(l_Lean_Parser_Command_versoCommentBodyFn___closed__2);
+l_Lean_Parser_Command_versoCommentBodyFn___closed__3 = _init_l_Lean_Parser_Command_versoCommentBodyFn___closed__3();
+lean_mark_persistent(l_Lean_Parser_Command_versoCommentBodyFn___closed__3);
+l_Lean_Parser_Command_versoCommentBodyFn___closed__4 = _init_l_Lean_Parser_Command_versoCommentBodyFn___closed__4();
+lean_mark_persistent(l_Lean_Parser_Command_versoCommentBodyFn___closed__4);
+l_Lean_Parser_Command_versoCommentBodyFn___closed__5 = _init_l_Lean_Parser_Command_versoCommentBodyFn___closed__5();
+lean_mark_persistent(l_Lean_Parser_Command_versoCommentBodyFn___closed__5);
+l_Lean_Parser_Command_versoCommentBodyFn___closed__6 = _init_l_Lean_Parser_Command_versoCommentBodyFn___closed__6();
+lean_mark_persistent(l_Lean_Parser_Command_versoCommentBodyFn___closed__6);
+l_Lean_Parser_Command_versoCommentBodyFn___closed__7 = _init_l_Lean_Parser_Command_versoCommentBodyFn___closed__7();
+lean_mark_persistent(l_Lean_Parser_Command_versoCommentBodyFn___closed__7);
+l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0 = _init_l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0();
+lean_mark_persistent(l_Lean_Parser_Command_versoCommentBody___lam__0___closed__0);
+l_Lean_Parser_Command_versoCommentBody___lam__0___closed__1 = _init_l_Lean_Parser_Command_versoCommentBody___lam__0___closed__1();
+lean_mark_persistent(l_Lean_Parser_Command_versoCommentBody___lam__0___closed__1);
+l_Lean_Parser_Command_versoCommentBody___lam__0___closed__2 = _init_l_Lean_Parser_Command_versoCommentBody___lam__0___closed__2();
+lean_mark_persistent(l_Lean_Parser_Command_versoCommentBody___lam__0___closed__2);
+l_Lean_Parser_Command_versoCommentBody___lam__0___closed__3 = _init_l_Lean_Parser_Command_versoCommentBody___lam__0___closed__3();
+lean_mark_persistent(l_Lean_Parser_Command_versoCommentBody___lam__0___closed__3);
 l_Lean_Parser_Command_versoCommentBody = _init_l_Lean_Parser_Command_versoCommentBody();
 lean_mark_persistent(l_Lean_Parser_Command_versoCommentBody);
 l_Lean_Parser_Command_versoCommentBody_formatter___closed__0 = _init_l_Lean_Parser_Command_versoCommentBody_formatter___closed__0();

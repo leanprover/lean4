@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.PrettyPrinter.Delaborator.FieldNotation
-// Imports: Lean.Meta.InferType Lean.Meta.WHNF Lean.PrettyPrinter.Delaborator.Attributes Lean.PrettyPrinter.Delaborator.Options Lean.Structure
+// Imports: public import Lean.Meta.InferType public import Lean.Meta.WHNF public import Lean.PrettyPrinter.Delaborator.Attributes public import Lean.PrettyPrinter.Delaborator.Options public import Lean.Structure
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2094,6 +2094,7 @@ else
 {
 uint8_t x_11; 
 x_11 = l_Lean_isInaccessiblePrivateName(x_1, x_8);
+lean_dec(x_8);
 if (x_11 == 0)
 {
 return x_10;
@@ -4986,7 +4987,6 @@ x_44 = lean_ctor_get(x_41, 1);
 x_45 = lean_ctor_get(x_43, 0);
 lean_inc_ref(x_45);
 lean_dec(x_43);
-lean_inc(x_28);
 x_46 = l_Lean_isInaccessiblePrivateName(x_45, x_28);
 lean_dec_ref(x_45);
 if (x_46 == 0)
@@ -5503,7 +5503,6 @@ lean_dec(x_41);
 x_126 = lean_ctor_get(x_124, 0);
 lean_inc_ref(x_126);
 lean_dec(x_124);
-lean_inc(x_28);
 x_127 = l_Lean_isInaccessiblePrivateName(x_126, x_28);
 lean_dec_ref(x_126);
 if (x_127 == 0)
@@ -6093,7 +6092,6 @@ if (lean_is_exclusive(x_219)) {
 x_223 = lean_ctor_get(x_220, 0);
 lean_inc_ref(x_223);
 lean_dec(x_220);
-lean_inc(x_208);
 x_224 = l_Lean_isInaccessiblePrivateName(x_223, x_208);
 lean_dec_ref(x_223);
 if (x_224 == 0)
@@ -6684,16 +6682,16 @@ block_17:
 {
 if (x_15 == 0)
 {
-lean_dec_ref(x_13);
-x_9 = x_14;
+lean_dec_ref(x_14);
+x_9 = x_13;
 goto block_12;
 }
 else
 {
 lean_object* x_16; 
 x_16 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_16, 0, x_13);
-lean_ctor_set(x_16, 1, x_14);
+lean_ctor_set(x_16, 0, x_14);
+lean_ctor_set(x_16, 1, x_13);
 return x_16;
 }
 }
@@ -6705,15 +6703,15 @@ if (x_20 == 0)
 {
 uint8_t x_21; 
 x_21 = l_Lean_Exception_isRuntime(x_18);
-x_13 = x_18;
-x_14 = x_19;
+x_13 = x_19;
+x_14 = x_18;
 x_15 = x_21;
 goto block_17;
 }
 else
 {
-x_13 = x_18;
-x_14 = x_19;
+x_13 = x_19;
+x_14 = x_18;
 x_15 = x_20;
 goto block_17;
 }

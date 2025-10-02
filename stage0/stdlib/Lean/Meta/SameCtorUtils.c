@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.SameCtorUtils
-// Imports: Lean.Meta.Basic Lean.Meta.Transform
+// Imports: public import Lean.Meta.Basic import Lean.Meta.Transform
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

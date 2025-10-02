@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Sort.Impl
-// Imports: Init.Data.List.Sort.Basic Init.Data.List.Sort.Basic Init.Data.List.Sort.Lemmas
+// Imports: public import Init.Data.List.Sort.Basic import all Init.Data.List.Sort.Basic public import Init.Data.List.Sort.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

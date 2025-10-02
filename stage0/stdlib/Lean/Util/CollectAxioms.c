@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.CollectAxioms
-// Imports: Lean.MonadEnv Lean.Util.FoldConsts
+// Imports: public import Lean.MonadEnv public import Lean.Util.FoldConsts
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

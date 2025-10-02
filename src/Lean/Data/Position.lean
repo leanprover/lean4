@@ -42,7 +42,7 @@ structure FileMap where
   /-- The positions of newline characters.
   The first entry is always `0` and the last always the index of the last character.
   In particular, if the last character is a newline, that index will appear twice. -/
-  positions : Array String.Pos
+  positions : Array String.Pos.Raw
   deriving Inhabited
 
 class MonadFileMap (m : Type → Type) where
@@ -63,7 +63,7 @@ def getLine (fmap : FileMap) (x : Nat) : Nat :=
   min (x + 1) fmap.getLastLine
 
 partial def ofString (s : String) : FileMap :=
-  let rec loop (i : String.Pos) (line : Nat) (ps : Array String.Pos) : FileMap :=
+  let rec loop (i : String.Pos.Raw) (line : Nat) (ps : Array String.Pos.Raw) : FileMap :=
     if s.atEnd i then { source := s, positions := ps.push i }
     else
       let c := s.get i
@@ -72,11 +72,11 @@ partial def ofString (s : String) : FileMap :=
       else loop i line ps
   loop 0 1 #[0]
 
-partial def toPosition (fmap : FileMap) (pos : String.Pos) : Position :=
+partial def toPosition (fmap : FileMap) (pos : String.Pos.Raw) : Position :=
   match fmap with
   | { source := str, positions := ps } =>
     if ps.size >= 2 && pos <= ps.back! then
-      let rec toColumn (i : String.Pos) (c : Nat) : Nat :=
+      let rec toColumn (i : String.Pos.Raw) (c : Nat) : Nat :=
         if i == pos || str.atEnd i then c
         else toColumn (str.next i) (c+1)
       let rec loop (b e : Nat) :=
@@ -98,7 +98,7 @@ partial def toPosition (fmap : FileMap) (pos : String.Pos) : Position :=
       ⟨fmap.getLastLine, (pos - ps.back!).byteIdx⟩
 
 /-- Convert a `Lean.Position` to a `String.Pos`. -/
-def ofPosition (text : FileMap) (pos : Position) : String.Pos :=
+def ofPosition (text : FileMap) (pos : Position) : String.Pos.Raw :=
   let colPos :=
     if h : pos.line - 1 < text.positions.size then
       text.positions[pos.line - 1]
@@ -112,7 +112,7 @@ def ofPosition (text : FileMap) (pos : Position) : String.Pos :=
 Returns the position of the start of (1-based) line `line`.
 This gives the same result as `map.ofPosition ⟨line, 0⟩`, but is more efficient.
 -/
-def lineStart (map : FileMap) (line : Nat) : String.Pos :=
+def lineStart (map : FileMap) (line : Nat) : String.Pos.Raw :=
   if h : line - 1 < map.positions.size then
     map.positions[line - 1]
   else map.positions.back?.getD 0

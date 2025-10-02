@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.SetOption
-// Imports: Lean.Log Lean.Elab.InfoTree
+// Imports: public import Lean.Log public import Lean.Elab.InfoTree
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

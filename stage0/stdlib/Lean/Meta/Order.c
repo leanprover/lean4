@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Order
-// Imports: Lean.Meta.InferType Lean.Meta.PProdN Lean.Meta.AppBuilder Init.Internal.Order.Basic
+// Imports: public import Lean.Meta.InferType public import Lean.Meta.PProdN public import Lean.Meta.AppBuilder public import Init.Internal.Order.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

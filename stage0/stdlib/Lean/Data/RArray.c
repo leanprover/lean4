@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.RArray
-// Imports: Init.Data.RArray Lean.Meta.InferType Lean.Meta.DecLevel Lean.ToExpr
+// Imports: public import Init.Data.RArray public import Lean.Meta.InferType public import Lean.Meta.DecLevel public import Lean.ToExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

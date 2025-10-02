@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.CLI.Error
-// Imports: Init.Data.ToString Init.System.FilePath Init.Meta Init.Data.ToString.Name
+// Imports: public import Init.Data.ToString public import Init.System.FilePath import Init.Meta import Init.Data.ToString.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4544,6 +4544,7 @@ lean_inc_ref(x_3);
 lean_dec_ref(x_1);
 x_4 = l_Lake_CliError_toString___closed__1;
 x_5 = lean_string_append(x_4, x_3);
+lean_dec_ref(x_3);
 x_6 = l_Lake_CliError_toString___closed__2;
 x_7 = lean_string_append(x_5, x_6);
 return x_7;
@@ -4556,6 +4557,7 @@ lean_inc_ref(x_8);
 lean_dec_ref(x_1);
 x_9 = l_Lake_CliError_toString___closed__3;
 x_10 = lean_string_append(x_9, x_8);
+lean_dec_ref(x_8);
 return x_10;
 }
 case 3:
@@ -4568,9 +4570,11 @@ lean_inc_ref(x_12);
 lean_dec_ref(x_1);
 x_13 = l_Lake_CliError_toString___closed__3;
 x_14 = lean_string_append(x_13, x_12);
+lean_dec_ref(x_12);
 x_15 = l_Lake_CliError_toString___closed__4;
 x_16 = lean_string_append(x_14, x_15);
 x_17 = lean_string_append(x_16, x_11);
+lean_dec_ref(x_11);
 return x_17;
 }
 case 4:
@@ -4583,9 +4587,11 @@ lean_inc_ref(x_19);
 lean_dec_ref(x_1);
 x_20 = l_Lake_CliError_toString___closed__5;
 x_21 = lean_string_append(x_20, x_18);
+lean_dec_ref(x_18);
 x_22 = l_Lake_CliError_toString___closed__6;
 x_23 = lean_string_append(x_21, x_22);
 x_24 = lean_string_append(x_23, x_19);
+lean_dec_ref(x_19);
 return x_24;
 }
 case 5:
@@ -4597,6 +4603,7 @@ x_26 = l_Lake_CliError_toString___closed__7;
 x_27 = l_Lake_CliError_toString___closed__8;
 x_28 = lean_string_push(x_27, x_25);
 x_29 = lean_string_append(x_26, x_28);
+lean_dec_ref(x_28);
 x_30 = l_Lake_CliError_toString___closed__2;
 x_31 = lean_string_append(x_29, x_30);
 return x_31;
@@ -4609,6 +4616,7 @@ lean_inc_ref(x_32);
 lean_dec_ref(x_1);
 x_33 = l_Lake_CliError_toString___closed__9;
 x_34 = lean_string_append(x_33, x_32);
+lean_dec_ref(x_32);
 x_35 = l_Lake_CliError_toString___closed__2;
 x_36 = lean_string_append(x_34, x_35);
 return x_36;
@@ -4623,6 +4631,7 @@ x_38 = l_Lake_CliError_toString___closed__10;
 x_39 = l_Lake_CliError_toString___closed__11;
 x_40 = l_String_intercalate(x_39, x_37);
 x_41 = lean_string_append(x_38, x_40);
+lean_dec_ref(x_40);
 return x_41;
 }
 case 8:
@@ -4639,6 +4648,7 @@ lean_inc_ref(x_43);
 lean_dec_ref(x_1);
 x_44 = l_Lake_CliError_toString___closed__13;
 x_45 = lean_string_append(x_44, x_43);
+lean_dec_ref(x_43);
 x_46 = l_Lake_CliError_toString___closed__14;
 x_47 = lean_string_append(x_45, x_46);
 return x_47;
@@ -4651,6 +4661,7 @@ lean_inc_ref(x_48);
 lean_dec_ref(x_1);
 x_49 = l_Lake_CliError_toString___closed__15;
 x_50 = lean_string_append(x_49, x_48);
+lean_dec_ref(x_48);
 x_51 = l_Lake_CliError_toString___closed__14;
 x_52 = lean_string_append(x_50, x_51);
 return x_52;
@@ -4665,6 +4676,7 @@ x_54 = l_Lake_CliError_toString___closed__16;
 x_55 = 0;
 x_56 = l_Lean_Name_toString(x_53, x_55);
 x_57 = lean_string_append(x_54, x_56);
+lean_dec_ref(x_56);
 x_58 = l_Lake_CliError_toString___closed__14;
 x_59 = lean_string_append(x_57, x_58);
 return x_59;
@@ -4677,6 +4689,7 @@ lean_inc_ref(x_60);
 lean_dec_ref(x_1);
 x_61 = l_Lake_CliError_toString___closed__17;
 x_62 = lean_string_append(x_61, x_60);
+lean_dec_ref(x_60);
 x_63 = l_Lake_CliError_toString___closed__14;
 x_64 = lean_string_append(x_62, x_63);
 return x_64;
@@ -4689,6 +4702,7 @@ lean_inc_ref(x_65);
 lean_dec_ref(x_1);
 x_66 = l_Lake_CliError_toString___closed__18;
 x_67 = lean_string_append(x_66, x_65);
+lean_dec_ref(x_65);
 x_68 = l_Lake_CliError_toString___closed__14;
 x_69 = lean_string_append(x_67, x_68);
 return x_69;
@@ -4703,11 +4717,13 @@ lean_inc(x_71);
 lean_dec_ref(x_1);
 x_72 = l_Lake_CliError_toString___closed__19;
 x_73 = lean_string_append(x_72, x_70);
+lean_dec_ref(x_70);
 x_74 = l_Lake_CliError_toString___closed__20;
 x_75 = lean_string_append(x_73, x_74);
 x_76 = 0;
 x_77 = l_Lean_Name_toString(x_71, x_76);
 x_78 = lean_string_append(x_75, x_77);
+lean_dec_ref(x_77);
 x_79 = l_Lake_CliError_toString___closed__14;
 x_80 = lean_string_append(x_78, x_79);
 return x_80;
@@ -4722,6 +4738,7 @@ x_82 = l_Lake_CliError_toString___closed__21;
 x_83 = 0;
 x_84 = l_Lean_Name_toString(x_81, x_83);
 x_85 = lean_string_append(x_82, x_84);
+lean_dec_ref(x_84);
 x_86 = l_Lake_CliError_toString___closed__14;
 x_87 = lean_string_append(x_85, x_86);
 return x_87;
@@ -4738,10 +4755,12 @@ x_90 = l_Lake_CliError_toString___closed__22;
 x_91 = 0;
 x_92 = l_Lean_Name_toString(x_88, x_91);
 x_93 = lean_string_append(x_90, x_92);
+lean_dec_ref(x_92);
 x_94 = l_Lake_CliError_toString___closed__23;
 x_95 = lean_string_append(x_93, x_94);
 x_96 = l_Lean_Name_toString(x_89, x_91);
 x_97 = lean_string_append(x_95, x_96);
+lean_dec_ref(x_96);
 x_98 = l_Lake_CliError_toString___closed__2;
 x_99 = lean_string_append(x_97, x_98);
 return x_99;
@@ -4758,9 +4777,11 @@ x_102 = l_Lake_CliError_toString___closed__22;
 x_103 = 0;
 x_104 = l_Lean_Name_toString(x_100, x_103);
 x_105 = lean_string_append(x_102, x_104);
+lean_dec_ref(x_104);
 x_106 = l_Lake_CliError_toString___closed__24;
 x_107 = lean_string_append(x_105, x_106);
 x_108 = lean_string_append(x_107, x_101);
+lean_dec_ref(x_101);
 x_109 = l_Lake_CliError_toString___closed__2;
 x_110 = lean_string_append(x_108, x_109);
 return x_110;
@@ -4773,6 +4794,7 @@ lean_inc_ref(x_111);
 lean_dec_ref(x_1);
 x_112 = l_Lake_CliError_toString___closed__2;
 x_113 = lean_string_append(x_112, x_111);
+lean_dec_ref(x_111);
 x_114 = l_Lake_CliError_toString___closed__25;
 x_115 = lean_string_append(x_113, x_114);
 return x_115;
@@ -4786,11 +4808,13 @@ x_117 = lean_ctor_get_uint32(x_1, sizeof(void*)*1);
 lean_dec_ref(x_1);
 x_118 = l_Lake_CliError_toString___closed__26;
 x_119 = lean_string_append(x_118, x_116);
+lean_dec_ref(x_116);
 x_120 = l_Lake_CliError_toString___closed__27;
 x_121 = lean_string_append(x_119, x_120);
 x_122 = l_Lake_CliError_toString___closed__8;
 x_123 = lean_string_push(x_122, x_117);
 x_124 = lean_string_append(x_121, x_123);
+lean_dec_ref(x_123);
 x_125 = l_Lake_CliError_toString___closed__28;
 x_126 = lean_string_append(x_124, x_125);
 return x_126;
@@ -4807,10 +4831,12 @@ x_129 = l_Lake_CliError_toString___closed__29;
 x_130 = 0;
 x_131 = l_Lean_Name_toString(x_128, x_130);
 x_132 = lean_string_append(x_129, x_131);
+lean_dec_ref(x_131);
 x_133 = l_Lake_CliError_toString___closed__30;
 x_134 = lean_string_append(x_132, x_133);
 x_135 = l_Lean_Name_toString(x_127, x_130);
 x_136 = lean_string_append(x_134, x_135);
+lean_dec_ref(x_135);
 x_137 = l_Lake_CliError_toString___closed__31;
 x_138 = lean_string_append(x_136, x_137);
 return x_138;
@@ -4823,6 +4849,7 @@ lean_inc_ref(x_139);
 lean_dec_ref(x_1);
 x_140 = l_Lake_CliError_toString___closed__32;
 x_141 = lean_string_append(x_140, x_139);
+lean_dec_ref(x_139);
 return x_141;
 }
 case 22:
@@ -4833,6 +4860,7 @@ lean_inc_ref(x_142);
 lean_dec_ref(x_1);
 x_143 = l_Lake_CliError_toString___closed__33;
 x_144 = lean_string_append(x_143, x_142);
+lean_dec_ref(x_142);
 return x_144;
 }
 case 23:
@@ -4843,6 +4871,7 @@ lean_inc_ref(x_145);
 lean_dec_ref(x_1);
 x_146 = l_Lake_CliError_toString___closed__34;
 x_147 = lean_string_append(x_146, x_145);
+lean_dec_ref(x_145);
 x_148 = l_Lake_CliError_toString___closed__14;
 x_149 = lean_string_append(x_147, x_148);
 return x_149;
@@ -4855,6 +4884,7 @@ lean_inc_ref(x_150);
 lean_dec_ref(x_1);
 x_151 = l_Lake_CliError_toString___closed__35;
 x_152 = lean_string_append(x_151, x_150);
+lean_dec_ref(x_150);
 x_153 = l_Lake_CliError_toString___closed__36;
 x_154 = lean_string_append(x_152, x_153);
 return x_154;
@@ -4867,6 +4897,7 @@ lean_inc_ref(x_155);
 lean_dec_ref(x_1);
 x_156 = l_Lake_CliError_toString___closed__37;
 x_157 = lean_string_append(x_156, x_155);
+lean_dec_ref(x_155);
 return x_157;
 }
 case 26:
@@ -4891,6 +4922,7 @@ lean_inc_ref(x_161);
 lean_dec_ref(x_1);
 x_162 = l_Lake_CliError_toString___closed__40;
 x_163 = lean_string_append(x_162, x_160);
+lean_dec_ref(x_160);
 x_164 = l_Lake_CliError_toString___closed__41;
 x_165 = lean_string_append(x_163, x_164);
 x_166 = lean_string_utf8_byte_size(x_161);
@@ -4901,6 +4933,7 @@ if (x_168 == 0)
 {
 lean_object* x_169; 
 x_169 = lean_string_append(x_165, x_161);
+lean_dec_ref(x_161);
 return x_169;
 }
 else
@@ -4928,6 +4961,7 @@ lean_inc_ref(x_173);
 lean_dec_ref(x_1);
 x_174 = l_Lake_CliError_toString___closed__43;
 x_175 = lean_string_append(x_174, x_173);
+lean_dec_ref(x_173);
 return x_175;
 }
 }

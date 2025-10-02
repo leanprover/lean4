@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Linear.Reify
-// Imports: Lean.Meta.Tactic.Grind.Arith.Linear.LinearM Lean.Meta.Tactic.Grind.Simp Lean.Meta.Tactic.Grind.Arith.Linear.Var
+// Imports: public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM import Lean.Meta.Tactic.Grind.Simp import Lean.Meta.Tactic.Grind.Arith.Linear.Var
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -90,7 +90,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_Linear_isAddInst(lean_object* x_1, l
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_ctor_get(x_1, 23);
+x_3 = lean_ctor_get(x_1, 22);
 x_4 = l_Lean_Expr_appArg_x21(x_3);
 x_5 = l___private_Lean_Meta_Tactic_Grind_ExprPtr_0__Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
 lean_dec_ref(x_4);
@@ -112,7 +112,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_Linear_isZeroInst(lean_object* x_1, 
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_ctor_get(x_1, 18);
+x_3 = lean_ctor_get(x_1, 17);
 x_4 = l_Lean_Expr_appArg_x21(x_3);
 x_5 = l___private_Lean_Meta_Tactic_Grind_ExprPtr_0__Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
 lean_dec_ref(x_4);
@@ -134,7 +134,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_Linear_isSMulIntInst(lean_object* x_
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_ctor_get(x_1, 24);
+x_3 = lean_ctor_get(x_1, 23);
 x_4 = l_Lean_Expr_appArg_x21(x_3);
 x_5 = l___private_Lean_Meta_Tactic_Grind_ExprPtr_0__Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
 lean_dec_ref(x_4);
@@ -156,7 +156,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_Linear_isSMulNatInst(lean_object* x_
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_ctor_get(x_1, 25);
+x_3 = lean_ctor_get(x_1, 24);
 x_4 = l_Lean_Expr_appArg_x21(x_3);
 x_5 = l___private_Lean_Meta_Tactic_Grind_ExprPtr_0__Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
 lean_dec_ref(x_4);
@@ -178,7 +178,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_Linear_isHomoMulInst(lean_object* x_
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_ctor_get(x_1, 28);
+x_3 = lean_ctor_get(x_1, 27);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 
@@ -209,7 +209,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_Linear_isHSMulIntInst(lean_object* x
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_ctor_get(x_1, 26);
+x_3 = lean_ctor_get(x_1, 25);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 
@@ -242,7 +242,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_Linear_isHSMulNatInst(lean_object* x
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_ctor_get(x_1, 27);
+x_3 = lean_ctor_get(x_1, 26);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 
@@ -275,7 +275,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_Linear_isSubInst(lean_object* x_1, l
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_ctor_get(x_1, 29);
+x_3 = lean_ctor_get(x_1, 28);
 x_4 = l_Lean_Expr_appArg_x21(x_3);
 x_5 = l___private_Lean_Meta_Tactic_Grind_ExprPtr_0__Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
 lean_dec_ref(x_4);
@@ -297,7 +297,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_Linear_isNegInst(lean_object* x_1, l
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_ctor_get(x_1, 30);
+x_3 = lean_ctor_get(x_1, 29);
 x_4 = l_Lean_Expr_appArg_x21(x_3);
 x_5 = l___private_Lean_Meta_Tactic_Grind_ExprPtr_0__Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
 lean_dec_ref(x_4);
@@ -877,7 +877,7 @@ lean_inc(x_13);
 x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec_ref(x_12);
-x_15 = lean_ctor_get(x_13, 19);
+x_15 = lean_ctor_get(x_13, 18);
 lean_inc_ref(x_15);
 lean_dec(x_13);
 x_16 = l_Lean_Meta_Grind_isDefEqD(x_1, x_15, x_7, x_8, x_9, x_10, x_14);

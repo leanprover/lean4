@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.CastLike
-// Imports: Lean.Expr Init.Grind.ToInt Init.Grind.Ring.Envelope Init.Grind.Module.Envelope
+// Imports: public import Lean.Expr import Init.Grind.ToInt import Init.Grind.Ring.Envelope import Init.Grind.Module.Envelope
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

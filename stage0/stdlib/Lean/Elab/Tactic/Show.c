@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Show
-// Imports: Lean.Elab.Tactic.Change
+// Imports: public import Lean.Elab.Tactic.Change
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -751,8 +751,8 @@ block_38:
 if (x_33 == 0)
 {
 lean_object* x_34; 
-lean_dec_ref(x_31);
-x_34 = l_Lean_Elab_Tactic_SavedState_restore___redArg(x_29, x_30, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_32);
+lean_dec_ref(x_29);
+x_34 = l_Lean_Elab_Tactic_SavedState_restore___redArg(x_32, x_30, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_31);
 if (lean_obj_tag(x_34) == 0)
 {
 lean_object* x_35; lean_object* x_36; 
@@ -792,7 +792,7 @@ return x_34;
 }
 else
 {
-lean_dec_ref(x_29);
+lean_dec_ref(x_32);
 lean_dec(x_28);
 lean_dec(x_27);
 lean_dec(x_26);
@@ -807,7 +807,7 @@ lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
-return x_31;
+return x_29;
 }
 }
 block_57:
@@ -877,20 +877,20 @@ if (x_49 == 0)
 uint8_t x_50; 
 x_50 = l_Lean_Exception_isRuntime(x_46);
 lean_dec(x_46);
-x_29 = x_41;
+x_29 = x_45;
 x_30 = x_48;
-x_31 = x_45;
-x_32 = x_47;
+x_31 = x_47;
+x_32 = x_41;
 x_33 = x_50;
 goto block_38;
 }
 else
 {
 lean_dec(x_46);
-x_29 = x_41;
+x_29 = x_45;
 x_30 = x_48;
-x_31 = x_45;
-x_32 = x_47;
+x_31 = x_47;
+x_32 = x_41;
 x_33 = x_49;
 goto block_38;
 }

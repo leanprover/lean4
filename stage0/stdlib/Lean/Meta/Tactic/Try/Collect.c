@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Try.Collect
-// Imports: Init.Try Lean.Meta.Tactic.LibrarySearch Lean.Meta.Tactic.Util Lean.Meta.Tactic.Grind.Cases Lean.Meta.Tactic.Grind.EMatchTheorem Lean.Meta.Tactic.FunIndInfo Lean.Meta.Tactic.FunIndCollect Lean.Meta.Eqns
+// Imports: public import Init.Try public import Lean.Meta.Tactic.LibrarySearch public import Lean.Meta.Tactic.Util public import Lean.Meta.Tactic.Grind.Cases public import Lean.Meta.Tactic.Grind.EMatchTheorem public import Lean.Meta.Tactic.FunIndInfo public import Lean.Meta.Tactic.FunIndCollect import Lean.Meta.Eqns
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Ordered.Int
-// Imports: Init.Grind.Ordered.Ring Init.GrindInstances.Ring.Int Init.Omega
+// Imports: public import Init.Grind.Ordered.Ring public import Init.GrindInstances.Ring.Int public import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

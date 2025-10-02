@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Rpc.RequestHandling
-// Imports: Lean.Data.Lsp.Extra Lean.Server.Requests Lean.Server.Rpc.Basic
+// Imports: public import Lean.Data.Lsp.Extra public import Lean.Server.Requests public import Lean.Server.Rpc.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1478,9 +1478,11 @@ x_25 = 4;
 x_26 = l_Lean_Server_handleRpcCall___lam__2___closed__0;
 x_27 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_19, x_5);
 x_28 = lean_string_append(x_26, x_27);
+lean_dec_ref(x_27);
 x_29 = l_Lean_Server_handleRpcCall___lam__2___closed__1;
 x_30 = lean_string_append(x_28, x_29);
 x_31 = lean_string_append(x_30, x_24);
+lean_dec(x_24);
 x_32 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set_uint8(x_32, sizeof(void*)*1, x_25);
@@ -1668,6 +1670,7 @@ x_26 = 1;
 lean_inc(x_10);
 x_27 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_10, x_26);
 x_28 = lean_string_append(x_25, x_27);
+lean_dec_ref(x_27);
 x_29 = l_Lean_Server_handleRpcCall___closed__2;
 x_30 = lean_string_append(x_28, x_29);
 x_31 = lean_alloc_ctor(0, 1, 1);
@@ -1854,9 +1857,11 @@ x_5 = 3;
 x_6 = l_Lean_Server_parseRequestParams___at___Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling_1370296685____hygCtx___hyg_2__spec__0_spec__0___closed__0;
 x_7 = l_Lean_Json_compress(x_1);
 x_8 = lean_string_append(x_6, x_7);
+lean_dec_ref(x_7);
 x_9 = l_Lean_Server_parseRequestParams___at___Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling_1370296685____hygCtx___hyg_2__spec__0_spec__0___closed__1;
 x_10 = lean_string_append(x_8, x_9);
 x_11 = lean_string_append(x_10, x_4);
+lean_dec(x_4);
 x_12 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_12, 0, x_11);
 lean_ctor_set_uint8(x_12, sizeof(void*)*1, x_5);
@@ -1873,9 +1878,11 @@ x_14 = 3;
 x_15 = l_Lean_Server_parseRequestParams___at___Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling_1370296685____hygCtx___hyg_2__spec__0_spec__0___closed__0;
 x_16 = l_Lean_Json_compress(x_1);
 x_17 = lean_string_append(x_15, x_16);
+lean_dec_ref(x_16);
 x_18 = l_Lean_Server_parseRequestParams___at___Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling_1370296685____hygCtx___hyg_2__spec__0_spec__0___closed__1;
 x_19 = lean_string_append(x_17, x_18);
 x_20 = lean_string_append(x_19, x_13);
+lean_dec(x_13);
 x_21 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set_uint8(x_21, sizeof(void*)*1, x_14);
@@ -2835,6 +2842,7 @@ x_9 = lean_ctor_get(x_5, 0);
 lean_dec(x_9);
 x_10 = l_Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling_1370296685____hygCtx___hyg_2__spec__0___closed__0;
 x_11 = lean_string_append(x_10, x_1);
+lean_dec_ref(x_1);
 x_12 = l_Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling_1370296685____hygCtx___hyg_2__spec__0___closed__1;
 x_13 = lean_string_append(x_11, x_12);
 x_14 = lean_mk_io_user_error(x_13);
@@ -2850,6 +2858,7 @@ lean_inc(x_15);
 lean_dec(x_5);
 x_16 = l_Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling_1370296685____hygCtx___hyg_2__spec__0___closed__0;
 x_17 = lean_string_append(x_16, x_1);
+lean_dec_ref(x_1);
 x_18 = l_Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling_1370296685____hygCtx___hyg_2__spec__0___closed__1;
 x_19 = lean_string_append(x_17, x_18);
 x_20 = lean_mk_io_user_error(x_19);
@@ -2965,6 +2974,7 @@ lean_dec(x_3);
 lean_dec_ref(x_2);
 x_54 = l_Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling_1370296685____hygCtx___hyg_2__spec__0___closed__0;
 x_55 = lean_string_append(x_54, x_1);
+lean_dec_ref(x_1);
 x_56 = l_Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling_1370296685____hygCtx___hyg_2__spec__0___closed__3;
 x_57 = lean_string_append(x_55, x_56);
 x_58 = lean_mk_io_user_error(x_57);
@@ -3043,6 +3053,7 @@ lean_dec(x_3);
 lean_dec_ref(x_2);
 x_76 = l_Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling_1370296685____hygCtx___hyg_2__spec__0___closed__0;
 x_77 = lean_string_append(x_76, x_1);
+lean_dec_ref(x_1);
 x_78 = l_Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling_1370296685____hygCtx___hyg_2__spec__0___closed__3;
 x_79 = lean_string_append(x_77, x_78);
 x_80 = lean_mk_io_user_error(x_79);
@@ -3462,13 +3473,16 @@ x_25 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedu
 x_26 = 1;
 x_27 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_3, x_26);
 x_28 = lean_string_append(x_25, x_27);
+lean_dec_ref(x_27);
 x_29 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___redArg___lam__3___closed__3;
 x_30 = lean_string_append(x_28, x_29);
 x_31 = l_Lean_Json_compress(x_7);
 x_32 = lean_string_append(x_30, x_31);
+lean_dec_ref(x_31);
 x_33 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___redArg___lam__3___closed__4;
 x_34 = lean_string_append(x_32, x_33);
 x_35 = lean_string_append(x_34, x_23);
+lean_dec(x_23);
 x_36 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_36, 0, x_35);
 lean_ctor_set_uint8(x_36, sizeof(void*)*1, x_24);
@@ -3559,13 +3573,16 @@ x_54 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedu
 x_55 = 1;
 x_56 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_3, x_55);
 x_57 = lean_string_append(x_54, x_56);
+lean_dec_ref(x_56);
 x_58 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___redArg___lam__3___closed__3;
 x_59 = lean_string_append(x_57, x_58);
 x_60 = l_Lean_Json_compress(x_7);
 x_61 = lean_string_append(x_59, x_60);
+lean_dec_ref(x_60);
 x_62 = l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_wrapRpcProcedure___redArg___lam__3___closed__4;
 x_63 = lean_string_append(x_61, x_62);
 x_64 = lean_string_append(x_63, x_52);
+lean_dec(x_52);
 x_65 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_65, 0, x_64);
 lean_ctor_set_uint8(x_65, sizeof(void*)*1, x_53);
@@ -3752,6 +3769,7 @@ x_11 = 1;
 lean_inc(x_1);
 x_12 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_11);
 x_13 = lean_string_append(x_10, x_12);
+lean_dec_ref(x_12);
 x_14 = l_Lean_Server_registerBuiltinRpcProcedure___redArg___closed__1;
 x_15 = lean_string_append(x_13, x_14);
 x_16 = lean_unbox(x_8);
@@ -3913,6 +3931,7 @@ x_63 = 1;
 lean_inc(x_1);
 x_64 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_1, x_63);
 x_65 = lean_string_append(x_62, x_64);
+lean_dec_ref(x_64);
 x_66 = l_Lean_Server_registerBuiltinRpcProcedure___redArg___closed__1;
 x_67 = lean_string_append(x_65, x_66);
 x_68 = lean_unbox(x_60);
@@ -4750,11 +4769,12 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_Server_registerRpcProcedure_spec__3_spec__3___closed__1;
-x_2 = lean_alloc_ctor(0, 4, 0);
+x_2 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
 lean_ctor_set(x_2, 2, x_1);
 lean_ctor_set(x_2, 3, x_1);
+lean_ctor_set(x_2, 4, x_1);
 return x_2;
 }
 }
@@ -5859,7 +5879,7 @@ lean_inc_ref(x_87);
 lean_dec(x_17);
 x_88 = l_Lean_Environment_header(x_15);
 lean_dec_ref(x_15);
-x_89 = lean_ctor_get_uint8(x_88, sizeof(void*)*5 + 4);
+x_89 = lean_ctor_get_uint8(x_88, sizeof(void*)*6 + 4);
 lean_dec_ref(x_88);
 if (x_89 == 0)
 {
@@ -5914,7 +5934,7 @@ lean_inc_ref(x_29);
 lean_dec(x_27);
 x_30 = l_Lean_Environment_header(x_24);
 lean_dec_ref(x_24);
-x_31 = lean_ctor_get_uint8(x_30, sizeof(void*)*5 + 4);
+x_31 = lean_ctor_get_uint8(x_30, sizeof(void*)*6 + 4);
 lean_dec_ref(x_30);
 if (x_31 == 0)
 {
@@ -6011,7 +6031,7 @@ lean_inc_ref(x_46);
 lean_dec(x_44);
 x_47 = l_Lean_Environment_header(x_24);
 lean_dec_ref(x_24);
-x_48 = lean_ctor_get_uint8(x_47, sizeof(void*)*5 + 4);
+x_48 = lean_ctor_get_uint8(x_47, sizeof(void*)*6 + 4);
 lean_dec_ref(x_47);
 if (x_48 == 0)
 {
@@ -6122,7 +6142,7 @@ lean_inc_ref(x_69);
 lean_dec(x_66);
 x_70 = l_Lean_Environment_header(x_64);
 lean_dec_ref(x_64);
-x_71 = lean_ctor_get_uint8(x_70, sizeof(void*)*5 + 4);
+x_71 = lean_ctor_get_uint8(x_70, sizeof(void*)*6 + 4);
 lean_dec_ref(x_70);
 if (x_71 == 0)
 {

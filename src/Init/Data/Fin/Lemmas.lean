@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Nat.Lemmas
-public import Init.Data.Int.DivMod.Lemmas
 public import Init.Ext
 public import Init.ByCases
 public import Init.Conv
@@ -327,7 +326,9 @@ theorem subsingleton_iff_le_one : Subsingleton (Fin n) ↔ n ≤ 1 := by
   (match n with | 0 | 1 | n+2 => ?_) <;> try simp
   · exact ⟨nofun⟩
   · exact ⟨fun ⟨0, _⟩ ⟨0, _⟩ => rfl⟩
-  · exact fun h => by have := zero_lt_one (n := n); simp_all [h.elim 0 1]
+  · have : ¬ n + 2 ≤ 1 := by simp [Nat.not_le]
+    simp only [this, iff_false]
+    exact fun h => by have := zero_lt_one (n := n); simp_all [h.elim 0 1]
 
 instance subsingleton_zero : Subsingleton (Fin 0) := subsingleton_iff_le_one.2 (by decide)
 

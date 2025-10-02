@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.ToString.Basic
-// Imports: Init.Data.Repr Init.Data.Option.Basic
+// Imports: public import Init.Data.Repr public import Init.Data.Option.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -29,7 +29,6 @@ static lean_object* l_instToStringSum___redArg___lam__0___closed__0;
 lean_object* lean_substring_tostring(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringExcept___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringChar;
-LEAN_EXPORT lean_object* l_instToStringPos;
 LEAN_EXPORT lean_object* l_instToStringList(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringList___redArg(lean_object*);
 uint8_t lean_string_isprefixof(lean_object*, lean_object*);
@@ -43,6 +42,7 @@ LEAN_EXPORT lean_object* l_instToStringFormat;
 LEAN_EXPORT lean_object* l_instToStringSigma___redArg(lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_ToString_ctorIdx(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instToStringRaw;
 static lean_object* l_instToStringInt___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_instToStringPUnit;
 static lean_object* l_instToStringBool___lam__0___closed__1;
@@ -69,6 +69,7 @@ LEAN_EXPORT lean_object* l_instToStringSum(lean_object*, lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_instToStringSubtype(lean_object*, lean_object*, lean_object*);
 static lean_object* l_instToStringFormat___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_instToStringProd___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instToStringRaw___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_instReprExcept___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringNat;
 LEAN_EXPORT lean_object* l_instToStringChar___lam__0___boxed(lean_object*);
@@ -148,7 +149,6 @@ uint8_t lean_string_any(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringId__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringSum___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringUInt64___lam__0___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_instToStringPos___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_ToString_ctorIdx(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -592,7 +592,7 @@ x_1 = lean_alloc_closure((void*)(l_instToStringNat___lam__0), 1, 0);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_instToStringPos___lam__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_instToStringRaw___lam__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -600,11 +600,11 @@ x_2 = l_Nat_reprFast(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_instToStringPos() {
+static lean_object* _init_l_instToStringRaw() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instToStringPos___lam__0), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_instToStringRaw___lam__0), 1, 0);
 return x_1;
 }
 }
@@ -1484,8 +1484,8 @@ l_instToStringUnit = _init_l_instToStringUnit();
 lean_mark_persistent(l_instToStringUnit);
 l_instToStringNat = _init_l_instToStringNat();
 lean_mark_persistent(l_instToStringNat);
-l_instToStringPos = _init_l_instToStringPos();
-lean_mark_persistent(l_instToStringPos);
+l_instToStringRaw = _init_l_instToStringRaw();
+lean_mark_persistent(l_instToStringRaw);
 l_instToStringInt___lam__0___closed__0 = _init_l_instToStringInt___lam__0___closed__0();
 lean_mark_persistent(l_instToStringInt___lam__0___closed__0);
 l_instToStringInt___lam__0___closed__1 = _init_l_instToStringInt___lam__0___closed__1();

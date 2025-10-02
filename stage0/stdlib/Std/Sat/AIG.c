@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sat.AIG
-// Imports: Std.Sat.AIG.Basic Std.Sat.AIG.LawfulOperator Std.Sat.AIG.Lemmas Std.Sat.AIG.Cached Std.Sat.AIG.CachedLemmas Std.Sat.AIG.CachedGates Std.Sat.AIG.CachedGatesLemmas Std.Sat.AIG.CNF Std.Sat.AIG.Relabel Std.Sat.AIG.RelabelNat Std.Sat.AIG.RefVec Std.Sat.AIG.RefVecOperator Std.Sat.AIG.LawfulVecOperator Std.Sat.AIG.If
+// Imports: public import Std.Sat.AIG.Basic public import Std.Sat.AIG.LawfulOperator public import Std.Sat.AIG.Lemmas public import Std.Sat.AIG.Cached public import Std.Sat.AIG.CachedLemmas public import Std.Sat.AIG.CachedGates public import Std.Sat.AIG.CachedGatesLemmas public import Std.Sat.AIG.CNF public import Std.Sat.AIG.Relabel public import Std.Sat.AIG.RelabelNat public import Std.Sat.AIG.RefVec public import Std.Sat.AIG.RefVecOperator public import Std.Sat.AIG.LawfulVecOperator public import Std.Sat.AIG.If
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

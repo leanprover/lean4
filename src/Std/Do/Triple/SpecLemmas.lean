@@ -8,6 +8,9 @@ module
 prelude
 public import Std.Do.Triple.Basic
 public import Std.Do.WP
+public import Init.Data.Range.Polymorphic.UpwardEnumerable
+public import Init.Data.Range.Polymorphic.PRange
+public import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic
 
 @[expose] public section
@@ -55,6 +58,20 @@ def Cursor.tail (s : Cursor l) (h : 0 < s.suffix.length := by get_elem_tactic) :
 @[simp, grind =] theorem Cursor.tail_at (l : List α) (h : n < l.length) :
     (Cursor.at l n).tail (by simpa using Nat.sub_lt_sub_right (Nat.le_refl n) h) = Cursor.at l (n + 1) := by
   simp [Cursor.tail, Cursor.at, Cursor.current]
+
+/--
+The position of the cursor in the list.
+It's a shortcut for the number of elements in the prefix.
+-/
+abbrev Cursor.pos (c : Cursor l) : Nat := c.prefix.length
+
+@[simp, grind =]
+theorem Cursor.pos_at {l : List α} {n : Nat} (h : n < l.length) :
+    (Cursor.at l n).pos = n := by simp only [pos, «at», length_take]; omega
+
+@[simp]
+theorem Cursor.pos_mk {l pre suff : List α} (h : pre ++ suff = l) :
+    (Cursor.mk pre suff h).pos = pre.length := rfl
 
 @[grind →]
 theorem eq_of_range'_eq_append_cons (h : range' s n step = xs ++ cur :: ys) :
@@ -181,6 +198,89 @@ theorem Spec.monadMap_trans [WP o ps] [MonadFunctor n o] [MonadFunctorT m n] :
 theorem Spec.monadMap_refl [WP m ps] :
   Triple (MonadFunctorT.monadMap f x : m α) (spred(wp⟦f x : m α⟧ Q)) spred(Q) := by simp [Triple]
 
+/-! # `MonadControl` -/
+
+@[spec]
+theorem Spec.liftWith_StateT [Monad m] [WPMonad m ps]
+  (f : (∀{β}, StateT σ m β → m (β × σ)) → m α) :
+    Triple
+      (MonadControl.liftWith (m:=m) f)
+      (fun s => wp⟦f (fun x => x.run s)⟧ (fun a => Q.1 a s, Q.2))
+      Q := by simp [Triple]
+
+@[spec]
+theorem Spec.liftWith_ReaderT [Monad m] [WPMonad m ps]
+  (f : (∀{β}, ReaderT ρ m β → m β) → m α) :
+    Triple
+      (MonadControl.liftWith (m:=m) f)
+      (fun s => wp⟦f (fun x => x.run s)⟧ (fun a => Q.1 a s, Q.2))
+      Q := by simp [Triple]
+
+@[spec]
+theorem Spec.liftWith_ExceptT [Monad m] [WPMonad m ps]
+  (f : (∀{β}, ExceptT ε m β → m (Except ε β)) → m α) :
+    Triple (ps := .except ε ps)
+      (MonadControl.liftWith (m:=m) f)
+      (wp⟦f (fun x => x.run)⟧ (Q.1, Q.2.2))
+      Q := by simp [Triple]
+
+@[spec]
+theorem Spec.restoreM_StateT [Monad m] [WPMonad m ps] (x : m (α × σ)) :
+    Triple
+      (MonadControl.restoreM x : StateT σ m α)
+      (fun _ => wp⟦x⟧ (fun (a, s) => Q.1 a s, Q.2))
+      Q := by simp [Triple]
+
+@[spec]
+theorem Spec.restoreM_ReaderT [Monad m] [WPMonad m ps] (x : m α) :
+    Triple (m := ReaderT ρ m)
+      (MonadControl.restoreM (m:=m) x)
+      (fun s => wp⟦x⟧ (fun a => Q.1 a s, Q.2))
+      Q := by simp [Triple]
+
+@[spec]
+theorem Spec.restoreM_ExceptT [Monad m] [WPMonad m ps] (x : m (Except ε α)) :
+    Triple (ps := .except ε ps)
+      (MonadControl.restoreM x : ExceptT ε m α)
+      (wp⟦x⟧ (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2))
+      Q := by simp [Triple]; rfl
+
+/-! # `MonadControlT` -/
+
+@[spec]
+theorem Spec.liftWith_trans [WP o ps] [MonadControl n o] [MonadControlT m n]
+  (f : (∀{β}, o β → m (stM m o β)) → m α) :
+    Triple (m:=o)
+      (MonadControlT.liftWith (m:=m) f)
+      (wp⟦MonadControl.liftWith (m:=n) fun x₂ => MonadControlT.liftWith fun x₁ => f (x₁ ∘ x₂) : o α⟧ Q)
+      Q := .rfl
+
+@[spec]
+theorem Spec.liftWith_refl [WP m ps] [Pure m]
+  (f : (∀{β}, m β → m β) → m α) :
+    Triple (m:=m)
+      (MonadControlT.liftWith (m:=m) f)
+      (wp⟦f (fun x => x) : m α⟧ Q)
+      Q := .rfl
+
+@[spec]
+theorem Spec.restoreM_trans [WP o ps] [MonadControl n o] [MonadControlT m n]
+  (x : stM m o α) :
+    Triple (m:=o)
+      (MonadControlT.restoreM (m:=m) x)
+      (wp⟦MonadControl.restoreM (m:=n) (MonadControlT.restoreM (m:=m) x) : o α⟧ Q)
+      Q := .rfl
+
+@[spec]
+theorem Spec.restoreM_refl [WP m ps] [Pure m]
+  (x : stM m m α) :
+    Triple (m:=m)
+      (MonadControlT.restoreM (m:=m) x)
+      (wp⟦Pure.pure x : m α⟧ Q)
+      Q := .rfl
+
+attribute [spec] controlAt control
+
 /-! # `ReaderT` -/
 
 attribute [spec] ReaderT.run
@@ -190,8 +290,12 @@ theorem Spec.read_ReaderT [Monad m] [WPMonad m psm] :
   Triple (MonadReaderOf.read : ReaderT ρ m ρ) (spred(fun r => Q.1 r r)) spred(Q) := by simp [Triple]
 
 @[spec]
-theorem Spec.withReader_ReaderT [Monad m] [WPMonad m psm] :
+theorem Spec.withReader_ReaderT [WP m psm] :
   Triple (MonadWithReaderOf.withReader f x : ReaderT ρ m α) (spred(fun r => wp⟦x⟧ (fun a _ => Q.1 a r, Q.2) (f r))) spred(Q) := by simp [Triple]
+
+@[spec]
+theorem Spec.adapt_ReaderT [WP m ps] (f : ρ → ρ') :
+  Triple (ReaderT.adapt f x : ReaderT ρ m α) spred(fun r => wp⟦x⟧ (fun a _ => Q.1 a r, Q.2) (f r)) spred(Q) := by simp [Triple]
 
 /-! # `StateT` -/
 
@@ -229,6 +333,15 @@ theorem Spec.tryCatch_ExceptT [Monad m] [WPMonad m ps] (Q : PostCond α (.except
     Triple (MonadExceptOf.tryCatch x h : ExceptT ε m α) (spred(wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2))) spred(Q) := by
   simp [Triple]
 
+@[spec]
+theorem Spec.orElse_ExceptT [Monad m] [WPMonad m ps] (Q : PostCond α (.except ε ps)) :
+    Triple (OrElse.orElse x h : ExceptT ε m α) (spred(wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2))) spred(Q) := by
+  simp [Triple]
+
+@[spec]
+theorem Spec.adapt_ExceptT [Monad m] [WPMonad m ps] (f : ε → ε') (Q : PostCond α (.except ε' ps)) :
+  Triple (ps := .except ε' ps) (ExceptT.adapt f x : ExceptT ε' m α) (wp⟦x⟧ (Q.1, fun e => Q.2.1 (f e), Q.2.2)) Q := by simp [Triple]
+
 /-! # `Except` -/
 
 @[spec]
@@ -238,6 +351,11 @@ theorem Spec.throw_Except [Monad m] [WPMonad m ps] :
 @[spec]
 theorem Spec.tryCatch_Except (Q : PostCond α (.except ε .pure)) :
     Triple (MonadExceptOf.tryCatch x h : Except ε α) (spred(wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2))) spred(Q) := by
+  simp [Triple]
+
+@[spec]
+theorem Spec.orElse_Except (Q : PostCond α (.except ε .pure)) :
+    Triple (OrElse.orElse x h : Except ε α) (spred(wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2))) spred(Q) := by
   simp [Triple]
 
 /-! # `EStateM` -/
@@ -264,9 +382,19 @@ theorem Spec.tryCatch_EStateM (Q : PostCond α (.except ε (.arg σ .pure))) :
   Triple (MonadExceptOf.tryCatch x h : EStateM ε σ α) (spred(fun s => wp⟦x⟧ (Q.1, fun e s' => wp⟦h e⟧ Q (restore s' (save s)), Q.2.2) s)) spred(Q) := by
   simp [Triple]
 
+open EStateM.Backtrackable in
+@[spec]
+theorem Spec.orElse_EStateM (Q : PostCond α (.except ε (.arg σ .pure))) :
+  Triple (OrElse.orElse x h : EStateM ε σ α) (spred(fun s => wp⟦x⟧ (Q.1, fun _ s' => wp⟦h ()⟧ Q (restore s' (save s)), Q.2.2) s)) spred(Q) := by
+  simp [Triple]
+
+@[spec]
+theorem Spec.adaptExcept_EStateM (f : ε → ε') (Q : PostCond α (.except ε' (.arg σ .pure))) :
+  Triple (ps := .except ε' (.arg σ .pure)) (EStateM.adaptExcept f x : EStateM ε' σ α) (wp⟦x⟧ (Q.1, fun e => Q.2.1 (f e), Q.2.2)) Q := by simp [Triple]
+
 /-! # Lifting `MonadStateOf` -/
 
-attribute [spec] modify modifyThe getThe
+attribute [spec] modify modifyThe getThe getModify modifyGetThe
   instMonadStateOfMonadStateOf instMonadStateOfOfMonadLift
 
 /-! # Lifting `MonadReaderOf` -/
@@ -288,7 +416,7 @@ theorem Spec.tryCatch_MonadExcept [MonadExceptOf ε m] [WP m ps] (Q : PostCond �
   Triple (tryCatch x h : m α) (spred(wp⟦MonadExceptOf.tryCatch x h : m α⟧ Q)) spred(Q) := SPred.entails.rfl
 
 @[spec]
-theorem Spec.throw_ReaderT  [WP m sh] [Monad m] [MonadExceptOf ε m] :
+theorem Spec.throw_ReaderT  [WP m sh] [MonadExceptOf ε m] :
   Triple (MonadExceptOf.throw e : ReaderT ρ m α) (spred(wp⟦MonadLift.monadLift (MonadExceptOf.throw (ε:=ε) e : m α) : ReaderT ρ m α⟧ Q)) spred(Q) := SPred.entails.rfl
 
 @[spec]
@@ -296,7 +424,7 @@ theorem Spec.throw_StateT [WP m ps] [Monad m] [MonadExceptOf ε m] (Q : PostCond
   Triple (MonadExceptOf.throw e : StateT σ m α) (spred(wp⟦MonadLift.monadLift (MonadExceptOf.throw (ε:=ε) e : m α) : StateT σ m α⟧ Q)) spred(Q) := SPred.entails.rfl
 
 @[spec]
-theorem Spec.throw_ExceptT_lift [WP m ps] [Monad m] [MonadExceptOf ε m] (Q : PostCond α (.except ε' ps)) :
+theorem Spec.throw_ExceptT_lift [WP m ps] [MonadExceptOf ε m] (Q : PostCond α (.except ε' ps)) :
   Triple (ps:=.except ε' ps)
     (MonadExceptOf.throw e : ExceptT ε' m α)
     (wp⟦MonadExceptOf.throw (ε:=ε) e : m (Except ε' α)⟧ (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2))
@@ -308,7 +436,7 @@ theorem Spec.throw_ExceptT_lift [WP m ps] [Monad m] [MonadExceptOf ε m] (Q : Po
   split <;> rfl
 
 @[spec]
-theorem Spec.tryCatch_ReaderT [WP m ps] [Monad m] [MonadExceptOf ε m] (Q : PostCond α (.arg ρ ps)) :
+theorem Spec.tryCatch_ReaderT [WP m ps] [MonadExceptOf ε m] (Q : PostCond α (.arg ρ ps)) :
   Triple (MonadExceptOf.tryCatch x h : ReaderT ρ m α) (spred(fun r => wp⟦MonadExceptOf.tryCatch (ε:=ε) (x.run r) (fun e => (h e).run r) : m α⟧ (fun a => Q.1 a r, Q.2))) spred(Q) := SPred.entails.rfl
 
 @[spec]
@@ -316,17 +444,19 @@ theorem Spec.tryCatch_StateT [WP m ps] [Monad m] [MonadExceptOf ε m] (Q : PostC
   Triple (MonadExceptOf.tryCatch x h : StateT σ m α) (spred(fun s => wp⟦MonadExceptOf.tryCatch (ε:=ε) (x.run s) (fun e => (h e).run s) : m (α × σ)⟧ (fun xs => Q.1 xs.1 xs.2, Q.2))) spred(Q) := SPred.entails.rfl
 
 @[spec]
-theorem Spec.tryCatch_ExceptT_lift [WP m ps] [Monad m] [MonadExceptOf ε m] (Q : PostCond α (.except ε' ps)) :
+theorem Spec.tryCatch_ExceptT_lift [WP m ps] [MonadExceptOf ε m] (Q : PostCond α (.except ε' ps)) :
     Triple
       (ps:=.except ε' ps)
       (MonadExceptOf.tryCatch x h : ExceptT ε' m α)
       (wp⟦MonadExceptOf.tryCatch (ε:=ε) x h : m (Except ε' α)⟧ (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2))
       Q := by
-  simp only [Triple, WP.tryCatch_lift_ExceptT]
+  simp only [Triple]
   apply (wp _).mono
   simp
   intro x
   split <;> rfl
+
+/-! # Lifting `OrElse` -/
 
 /-! # `ForIn` -/
 
@@ -519,34 +649,30 @@ theorem Spec.forIn_range {β : Type} {m : Type → Type v} {ps : PostShape}
 
 open Std.PRange in
 @[spec]
-theorem Spec.forIn'_prange {α β : Type u}
+theorem Spec.forIn'_rcc {α β : Type u}
     [Monad m] [WPMonad m ps]
-    [UpwardEnumerable α]
-    [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
-    [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
-    [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
-    {xs : PRange ⟨sl, su⟩ α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
+    [LE α] [DecidableLE α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    {xs : Rcc α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
     (inv : Invariant xs.toList β ps)
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (f cur (by simp [←mem_toList_iff_mem, h]) b)
+        (f cur (by simp [← Rcc.mem_toList_iff_mem, h]) b)
         (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
         (fun r => match r with
           | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
           | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
     Triple (forIn' xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
-  simp only [forIn'_eq_forIn'_toList]
+  simp only [Rcc.forIn'_eq_forIn'_toList]
   apply Spec.forIn'_list inv step
 
 open Std.PRange in
 @[spec]
-theorem Spec.forIn_prange {α β : Type u}
+theorem Spec.forIn_rcc {α β : Type u}
     [Monad m] [WPMonad m ps]
-    [UpwardEnumerable α]
-    [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
-    [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
-    [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
-    {xs : PRange ⟨sl, su⟩ α} {init : β} {f : α → β → m (ForInStep β)}
+    [LE α] [DecidableLE α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    {xs : Rcc α} {init : β} {f : α → β → m (ForInStep β)}
     (inv : Invariant xs.toList β ps)
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
@@ -557,7 +683,311 @@ theorem Spec.forIn_prange {α β : Type u}
           | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
     Triple (forIn xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
   simp only [forIn]
-  apply Spec.forIn'_prange inv step
+  apply Spec.forIn'_rcc inv step
+
+open Std.PRange in
+@[spec]
+theorem Spec.forIn'_rco {α β : Type u}
+    [Monad m] [WPMonad m ps]
+    [LE α] [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
+    {xs : Rco α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
+    (inv : Invariant xs.toList β ps)
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+      Triple
+        (f cur (by simp [← Rco.mem_toList_iff_mem, h]) b)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+          | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
+    Triple (forIn' xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
+  simp only [Rco.forIn'_eq_forIn'_toList]
+  apply Spec.forIn'_list inv step
+
+open Std.PRange in
+@[spec]
+theorem Spec.forIn_rco {α β : Type u}
+    [Monad m] [WPMonad m ps]
+    [LE α] [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
+    {xs : Rco α} {init : β} {f : α → β → m (ForInStep β)}
+    (inv : Invariant xs.toList β ps)
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+      Triple
+        (f cur b)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+          | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
+    Triple (forIn xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
+  simp only [forIn]
+  apply Spec.forIn'_rco inv step
+
+open Std.PRange in
+@[spec]
+theorem Spec.forIn'_rci {α β : Type u}
+    [Monad m] [WPMonad m ps]
+    [LE α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    {xs : Rci α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
+    (inv : Invariant xs.toList β ps)
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+      Triple
+        (f cur (by simp [← Rci.mem_toList_iff_mem, h]) b)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+          | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
+    Triple (forIn' xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
+  simp only [Rci.forIn'_eq_forIn'_toList]
+  apply Spec.forIn'_list inv step
+
+open Std.PRange in
+@[spec]
+theorem Spec.forIn_rci {α β : Type u}
+    [Monad m] [WPMonad m ps]
+    [LE α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    {xs : Rci α} {init : β} {f : α → β → m (ForInStep β)}
+    (inv : Invariant xs.toList β ps)
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+      Triple
+        (f cur b)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+          | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
+    Triple (forIn xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
+  simp only [forIn]
+  apply Spec.forIn'_rci inv step
+
+open Std.PRange in
+@[spec]
+theorem Spec.forIn'_roc {α β : Type u}
+    [Monad m] [WPMonad m ps]
+    [LE α] [DecidableLE α] [LT α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
+    {xs : Roc α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
+    (inv : Invariant xs.toList β ps)
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+      Triple
+        (f cur (by simp [← Roc.mem_toList_iff_mem, h]) b)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+          | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
+    Triple (forIn' xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
+  simp only [Roc.forIn'_eq_forIn'_toList]
+  apply Spec.forIn'_list inv step
+
+open Std.PRange in
+@[spec]
+theorem Spec.forIn_roc {α β : Type u}
+    [Monad m] [WPMonad m ps]
+    [LE α] [DecidableLE α] [LT α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
+    {xs : Roc α} {init : β} {f : α → β → m (ForInStep β)}
+    (inv : Invariant xs.toList β ps)
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+      Triple
+        (f cur b)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+          | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
+    Triple (forIn xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
+  simp only [forIn]
+  apply Spec.forIn'_roc inv step
+
+open Std.PRange in
+@[spec]
+theorem Spec.forIn'_roo {α β : Type u}
+    [Monad m] [WPMonad m ps]
+    [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+    {xs : Roo α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
+    (inv : Invariant xs.toList β ps)
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+      Triple
+        (f cur (by simp [← Roo.mem_toList_iff_mem, h]) b)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+          | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
+    Triple (forIn' xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
+  simp only [Roo.forIn'_eq_forIn'_toList]
+  apply Spec.forIn'_list inv step
+
+open Std.PRange in
+@[spec]
+theorem Spec.forIn_roo {α β : Type u}
+    [Monad m] [WPMonad m ps]
+    [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+    {xs : Roo α} {init : β} {f : α → β → m (ForInStep β)}
+    (inv : Invariant xs.toList β ps)
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+      Triple
+        (f cur b)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+          | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
+    Triple (forIn xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
+  simp only [forIn]
+  apply Spec.forIn'_roo inv step
+
+open Std.PRange in
+@[spec]
+theorem Spec.forIn'_roi {α β : Type u}
+    [Monad m] [WPMonad m ps]
+    [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+    {xs : Roi α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
+    (inv : Invariant xs.toList β ps)
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+      Triple
+        (f cur (by simp [← Roi.mem_toList_iff_mem, h]) b)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+          | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
+    Triple (forIn' xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
+  simp only [Roi.forIn'_eq_forIn'_toList]
+  apply Spec.forIn'_list inv step
+
+open Std.PRange in
+@[spec]
+theorem Spec.forIn_roi {α β : Type u}
+    [Monad m] [WPMonad m ps]
+    [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+    {xs : Roi α} {init : β} {f : α → β → m (ForInStep β)}
+    (inv : Invariant xs.toList β ps)
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+      Triple
+        (f cur b)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+          | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
+    Triple (forIn xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
+  simp only [forIn]
+  apply Spec.forIn'_roi inv step
+
+open Std.PRange in
+@[spec]
+theorem Spec.forIn'_ric {α β : Type u}
+    [Monad m] [WPMonad m ps]
+    [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α] [LawfulUpwardEnumerableLE α]
+    {xs : Ric α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
+    (inv : Invariant xs.toList β ps)
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+      Triple
+        (f cur (by simp [← Ric.mem_toList_iff_mem, h]) b)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+          | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
+    Triple (forIn' xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
+  simp only [Ric.forIn'_eq_forIn'_toList]
+  apply Spec.forIn'_list inv step
+
+open Std.PRange in
+@[spec]
+theorem Spec.forIn_ric {α β : Type u}
+    [Monad m] [WPMonad m ps]
+    [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α] [LawfulUpwardEnumerableLE α]
+    {xs : Ric α} {init : β} {f : α → β → m (ForInStep β)}
+    (inv : Invariant xs.toList β ps)
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+      Triple
+        (f cur b)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+          | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
+    Triple (forIn xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
+  simp only [forIn]
+  apply Spec.forIn'_ric inv step
+
+open Std.PRange in
+@[spec]
+theorem Spec.forIn'_rio {α β : Type u}
+    [Monad m] [WPMonad m ps]
+    [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α] [LawfulUpwardEnumerableLT α]
+    {xs : Rio α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
+    (inv : Invariant xs.toList β ps)
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+      Triple
+        (f cur (by simp [← Rio.mem_toList_iff_mem, h]) b)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+          | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
+    Triple (forIn' xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
+  simp only [Rio.forIn'_eq_forIn'_toList]
+  apply Spec.forIn'_list inv step
+
+open Std.PRange in
+@[spec]
+theorem Spec.forIn_rio {α β : Type u}
+    [Monad m] [WPMonad m ps]
+    [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α] [LawfulUpwardEnumerableLT α]
+    {xs : Rio α} {init : β} {f : α → β → m (ForInStep β)}
+    (inv : Invariant xs.toList β ps)
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+      Triple
+        (f cur b)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+          | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
+    Triple (forIn xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
+  simp only [forIn]
+  apply Spec.forIn'_rio inv step
+
+open Std.PRange in
+@[spec]
+theorem Spec.forIn'_rii {α β : Type u}
+    [Monad m] [WPMonad m ps]
+    [Least? α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
+    {xs : Rii α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
+    (inv : Invariant xs.toList β ps)
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+      Triple
+        (f cur (by simp [Rii.mem]) b)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+          | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
+    Triple (forIn' xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
+  simp only [Rii.forIn'_eq_forIn'_toList]
+  apply Spec.forIn'_list inv step
+
+open Std.PRange in
+@[spec]
+theorem Spec.forIn_rii {α β : Type u}
+    [Monad m] [WPMonad m ps]
+    [Least? α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
+    {xs : Rii α} {init : β} {f : α → β → m (ForInStep β)}
+    (inv : Invariant xs.toList β ps)
+    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+      Triple
+        (f cur b)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+          | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
+    Triple (forIn xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
+  simp only [forIn]
+  apply Spec.forIn'_rii inv step
 
 @[spec]
 theorem Spec.forIn'_array {α β : Type u}

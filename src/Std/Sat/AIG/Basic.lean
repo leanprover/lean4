@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Data.HashSet
 public import Init.Data.Vector.Basic
+public import Init.Data.Hashable
 
 @[expose] public section
 

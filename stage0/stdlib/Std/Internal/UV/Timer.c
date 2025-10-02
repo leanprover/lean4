@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.UV.Timer
-// Imports: Init.System.IO Init.System.Promise
+// Imports: public import Init.System.IO public import Init.System.Promise
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -88,7 +88,7 @@ def mSpecializeForall (P : Expr) (Ψ : Expr) (arg : TSyntax `term) : OptionT Tac
 @[builtin_tactic Lean.Parser.Tactic.mspecialize]
 def elabMSpecialize : Tactic
   | `(tactic| mspecialize $hyp $args*) => do
-  let (mvar, goal) ← mStartMVar (← getMainGoal)
+  let (mvar, goal) ← mStartMainGoal
   mvar.withContext do
 
   -- Want to prove goal P ⊢ T, where hyp occurs in P.
@@ -133,7 +133,7 @@ def elabMSpecialize : Tactic
 def elabMspecializePure : Tactic
   | `(tactic| mspecialize_pure $head $args* => $hyp) => do
   -- "mspecialize_pure" >> term >> many (ppSpace >> checkColGt "irrelevant" >> termParser (eval_prec max)) >> "as" >> ident
-  let (mvar, goal) ← mStartMVar (← getMainGoal)
+  let (mvar, goal) ← mStartMainGoal
   mvar.withContext do
 
   -- Want to prove goal P ⊢ₛ T. `head` is a pure proof of type `φ` that turns into `⊢ₛ H` via `start_entails`.

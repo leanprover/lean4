@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.BVDecide.Frontend.Normalize.EmbeddedConstraint
-// Imports: Std.Tactic.BVDecide.Normalize.Bool Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic Lean.Meta.Tactic.Simp
+// Imports: public import Std.Tactic.BVDecide.Normalize.Bool public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic public import Lean.Meta.Tactic.Simp
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

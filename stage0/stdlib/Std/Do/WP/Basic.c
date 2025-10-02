@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Do.WP.Basic
-// Imports: Std.Do.PredTrans
+// Imports: public import Std.Do.PredTrans
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

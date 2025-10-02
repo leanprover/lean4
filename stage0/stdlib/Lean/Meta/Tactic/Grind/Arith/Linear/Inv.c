@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Linear.Inv
-// Imports: Lean.Meta.Tactic.Grind.Arith.Linear.LinearM Lean.Meta.Tactic.Grind.Arith.Linear.Util
+// Imports: public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5584,9 +5584,9 @@ if (lean_obj_tag(x_11) == 0)
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
-x_13 = lean_ctor_get(x_12, 33);
+x_13 = lean_ctor_get(x_12, 32);
 lean_inc_ref(x_13);
-x_14 = lean_ctor_get(x_12, 31);
+x_14 = lean_ctor_get(x_12, 30);
 lean_inc_ref(x_14);
 lean_dec(x_12);
 x_15 = lean_ctor_get(x_11, 1);
@@ -5685,9 +5685,9 @@ if (lean_obj_tag(x_11) == 0)
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
-x_13 = lean_ctor_get(x_12, 34);
+x_13 = lean_ctor_get(x_12, 33);
 lean_inc_ref(x_13);
-x_14 = lean_ctor_get(x_12, 31);
+x_14 = lean_ctor_get(x_12, 30);
 lean_inc_ref(x_14);
 lean_dec(x_12);
 x_15 = lean_ctor_get(x_11, 1);
@@ -8961,9 +8961,9 @@ if (lean_obj_tag(x_11) == 0)
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
-x_13 = lean_ctor_get(x_12, 31);
+x_13 = lean_ctor_get(x_12, 30);
 lean_inc_ref(x_13);
-x_14 = lean_ctor_get(x_12, 35);
+x_14 = lean_ctor_get(x_12, 34);
 lean_inc_ref(x_14);
 lean_dec(x_12);
 x_15 = lean_ctor_get(x_11, 1);
@@ -10167,9 +10167,9 @@ lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
 lean_dec_ref(x_11);
-x_14 = lean_ctor_get(x_12, 31);
+x_14 = lean_ctor_get(x_12, 30);
 lean_inc_ref(x_14);
-x_15 = lean_ctor_get(x_12, 32);
+x_15 = lean_ctor_get(x_12, 31);
 lean_inc_ref(x_15);
 lean_dec(x_12);
 lean_inc_ref(x_14);

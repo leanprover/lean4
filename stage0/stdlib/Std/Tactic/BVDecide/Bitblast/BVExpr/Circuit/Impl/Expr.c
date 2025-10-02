@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
-// Imports: Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Var Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Not Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftLeft Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftRight Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Append Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Replicate Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extract Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateLeft Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateRight Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Umod Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Reverse Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Clz
+// Imports: public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Var public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Not public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftLeft public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftRight public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Append public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Replicate public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extract public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateLeft public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateRight public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Umod public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Reverse public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Clz
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5894,9 +5894,9 @@ block_17:
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_10 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_10, 0, x_9);
-lean_ctor_set(x_10, 1, x_7);
+lean_ctor_set(x_10, 1, x_8);
 lean_ctor_set(x_10, 2, x_6);
-x_11 = l_Std_Sat_AIG_RefVec_ite___at___Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_blast___at___Std_Tactic_BVDecide_BVExpr_bitblast_blastMul___at___Std_Tactic_BVDecide_BVExpr_bitblast_go_spec__34_spec__34_spec__34(x_1, x_8, x_10);
+x_11 = l_Std_Sat_AIG_RefVec_ite___at___Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_blast___at___Std_Tactic_BVDecide_BVExpr_bitblast_blastMul___at___Std_Tactic_BVDecide_BVExpr_bitblast_go_spec__34_spec__34_spec__34(x_1, x_7, x_10);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc_ref(x_12);
 x_13 = lean_ctor_get(x_11, 1);
@@ -5952,8 +5952,8 @@ lean_object* x_35;
 x_35 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_35, 0, x_31);
 lean_ctor_set_uint8(x_35, sizeof(void*)*1, x_18);
-x_7 = x_28;
-x_8 = x_27;
+x_7 = x_27;
+x_8 = x_28;
 x_9 = x_35;
 goto block_17;
 }
@@ -5963,8 +5963,8 @@ lean_object* x_36;
 x_36 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_36, 0, x_31);
 lean_ctor_set_uint8(x_36, sizeof(void*)*1, x_21);
-x_7 = x_28;
-x_8 = x_27;
+x_7 = x_27;
+x_8 = x_28;
 x_9 = x_36;
 goto block_17;
 }
@@ -6000,8 +6000,8 @@ lean_object* x_49;
 x_49 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_49, 0, x_45);
 lean_ctor_set_uint8(x_49, sizeof(void*)*1, x_18);
-x_7 = x_42;
-x_8 = x_41;
+x_7 = x_41;
+x_8 = x_42;
 x_9 = x_49;
 goto block_17;
 }
@@ -6011,8 +6011,8 @@ lean_object* x_50;
 x_50 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_50, 0, x_45);
 lean_ctor_set_uint8(x_50, sizeof(void*)*1, x_21);
-x_7 = x_42;
-x_8 = x_41;
+x_7 = x_41;
+x_8 = x_42;
 x_9 = x_50;
 goto block_17;
 }
@@ -6172,7 +6172,7 @@ return x_15;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkBEqCached___at___Std_Tactic_BVDecide_BVPred_mkEq___at___Std_Tactic_BVDecide_BVExpr_bitblast_blastUdiv___at___Std_Tactic_BVDecide_BVExpr_bitblast_go_spec__44_spec__44_spec__44(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_48; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_24; uint8_t x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_48; 
 x_48 = !lean_is_exclusive(x_2);
 if (x_48 == 0)
 {
@@ -6240,10 +6240,10 @@ if (lean_is_scalar(x_56)) {
 }
 lean_ctor_set(x_62, 0, x_52);
 lean_ctor_set_uint8(x_62, sizeof(void*)*1, x_61);
-x_24 = x_55;
-x_25 = x_59;
-x_26 = x_54;
-x_27 = x_60;
+x_24 = x_54;
+x_25 = x_55;
+x_26 = x_60;
+x_27 = x_59;
 x_28 = x_62;
 goto block_47;
 }
@@ -6263,10 +6263,10 @@ if (lean_is_scalar(x_56)) {
 }
 lean_ctor_set(x_66, 0, x_52);
 lean_ctor_set_uint8(x_66, sizeof(void*)*1, x_65);
-x_24 = x_55;
-x_25 = x_63;
-x_26 = x_54;
-x_27 = x_64;
+x_24 = x_54;
+x_25 = x_55;
+x_26 = x_64;
+x_27 = x_63;
 x_28 = x_66;
 goto block_47;
 }
@@ -6340,10 +6340,10 @@ if (lean_is_scalar(x_77)) {
 }
 lean_ctor_set(x_83, 0, x_73);
 lean_ctor_set_uint8(x_83, sizeof(void*)*1, x_82);
-x_24 = x_76;
-x_25 = x_80;
-x_26 = x_75;
-x_27 = x_81;
+x_24 = x_75;
+x_25 = x_76;
+x_26 = x_81;
+x_27 = x_80;
 x_28 = x_83;
 goto block_47;
 }
@@ -6363,10 +6363,10 @@ if (lean_is_scalar(x_77)) {
 }
 lean_ctor_set(x_87, 0, x_73);
 lean_ctor_set_uint8(x_87, sizeof(void*)*1, x_86);
-x_24 = x_76;
-x_25 = x_84;
-x_26 = x_75;
-x_27 = x_85;
+x_24 = x_75;
+x_25 = x_76;
+x_26 = x_85;
+x_27 = x_84;
 x_28 = x_87;
 goto block_47;
 }
@@ -6457,10 +6457,10 @@ if (lean_is_scalar(x_101)) {
 }
 lean_ctor_set(x_107, 0, x_96);
 lean_ctor_set_uint8(x_107, sizeof(void*)*1, x_106);
-x_24 = x_100;
-x_25 = x_104;
-x_26 = x_99;
-x_27 = x_105;
+x_24 = x_99;
+x_25 = x_100;
+x_26 = x_105;
+x_27 = x_104;
 x_28 = x_107;
 goto block_47;
 }
@@ -6480,10 +6480,10 @@ if (lean_is_scalar(x_101)) {
 }
 lean_ctor_set(x_111, 0, x_96);
 lean_ctor_set_uint8(x_111, sizeof(void*)*1, x_110);
-x_24 = x_100;
-x_25 = x_108;
-x_26 = x_99;
-x_27 = x_109;
+x_24 = x_99;
+x_25 = x_100;
+x_26 = x_109;
+x_27 = x_108;
 x_28 = x_111;
 goto block_47;
 }
@@ -6567,13 +6567,13 @@ block_47:
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; 
 x_29 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_29, 0, x_26);
-lean_ctor_set_uint8(x_29, sizeof(void*)*1, x_24);
+lean_ctor_set(x_29, 0, x_24);
+lean_ctor_set_uint8(x_29, sizeof(void*)*1, x_25);
 x_30 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_30, 0, x_28);
 lean_ctor_set(x_30, 1, x_29);
-x_31 = l_Std_Sat_AIG_mkGateCached___at___Std_Tactic_BVDecide_BVExpr_bitblast_go_spec__5(x_25, x_30);
-x_32 = lean_ctor_get_uint8(x_27, sizeof(void*)*1);
+x_31 = l_Std_Sat_AIG_mkGateCached___at___Std_Tactic_BVDecide_BVExpr_bitblast_go_spec__5(x_27, x_30);
+x_32 = lean_ctor_get_uint8(x_26, sizeof(void*)*1);
 if (x_32 == 0)
 {
 lean_object* x_33; lean_object* x_34; uint8_t x_35; 
@@ -6582,23 +6582,23 @@ lean_inc_ref(x_33);
 x_34 = lean_ctor_get(x_31, 1);
 lean_inc_ref(x_34);
 lean_dec_ref(x_31);
-x_35 = !lean_is_exclusive(x_27);
+x_35 = !lean_is_exclusive(x_26);
 if (x_35 == 0)
 {
 uint8_t x_36; 
 x_36 = 1;
-lean_ctor_set_uint8(x_27, sizeof(void*)*1, x_36);
+lean_ctor_set_uint8(x_26, sizeof(void*)*1, x_36);
 x_9 = x_33;
 x_10 = x_34;
-x_11 = x_27;
+x_11 = x_26;
 goto block_23;
 }
 else
 {
 lean_object* x_37; uint8_t x_38; lean_object* x_39; 
-x_37 = lean_ctor_get(x_27, 0);
+x_37 = lean_ctor_get(x_26, 0);
 lean_inc(x_37);
-lean_dec(x_27);
+lean_dec(x_26);
 x_38 = 1;
 x_39 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_39, 0, x_37);
@@ -6617,23 +6617,23 @@ lean_inc_ref(x_40);
 x_41 = lean_ctor_get(x_31, 1);
 lean_inc_ref(x_41);
 lean_dec_ref(x_31);
-x_42 = !lean_is_exclusive(x_27);
+x_42 = !lean_is_exclusive(x_26);
 if (x_42 == 0)
 {
 uint8_t x_43; 
 x_43 = 0;
-lean_ctor_set_uint8(x_27, sizeof(void*)*1, x_43);
+lean_ctor_set_uint8(x_26, sizeof(void*)*1, x_43);
 x_9 = x_40;
 x_10 = x_41;
-x_11 = x_27;
+x_11 = x_26;
 goto block_23;
 }
 else
 {
 lean_object* x_44; uint8_t x_45; lean_object* x_46; 
-x_44 = lean_ctor_get(x_27, 0);
+x_44 = lean_ctor_get(x_26, 0);
 lean_inc(x_44);
-lean_dec(x_27);
+lean_dec(x_26);
 x_45 = 0;
 x_46 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_46, 0, x_44);

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.DivMod
-// Imports: Init.Data.Int.DivMod.Basic Init.Data.Int.DivMod.Bootstrap Init.Data.Int.DivMod.Lemmas
+// Imports: public import Init.Data.Int.DivMod.Basic public import Init.Data.Int.DivMod.Bootstrap public import Init.Data.Int.DivMod.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

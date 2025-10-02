@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.EState
-// Imports: Init.Control.State Init.Control.Except Init.Data.ToString.Basic
+// Imports: public import Init.Control.State public import Init.Control.Except public import Init.Data.ToString.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

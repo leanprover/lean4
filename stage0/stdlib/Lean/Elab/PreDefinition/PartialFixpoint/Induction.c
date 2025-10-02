@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.PartialFixpoint.Induction
-// Imports: Lean.Meta.Basic Lean.Meta.Match.MatcherApp.Transform Lean.Meta.Check Lean.Meta.Tactic.Subst Lean.Meta.Injective Lean.Meta.ArgsPacker Lean.Meta.PProdN Lean.Meta.Tactic.Apply Lean.Elab.PreDefinition.PartialFixpoint.Eqns Lean.Elab.Command Lean.Meta.Tactic.ElimInfo Init.Internal.Order.Basic
+// Imports: import Lean.Meta.Basic import Lean.Meta.Match.MatcherApp.Transform import Lean.Meta.Check import Lean.Meta.Tactic.Subst import Lean.Meta.Injective import Lean.Meta.ArgsPacker import Lean.Meta.PProdN import Lean.Meta.Tactic.Apply import Lean.Elab.PreDefinition.PartialFixpoint.Eqns import Lean.Elab.Command import Lean.Meta.Tactic.ElimInfo import Init.Internal.Order.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4683,6 +4683,7 @@ x_7 = lean_string_append(x_2, x_6);
 x_8 = lean_nat_add(x_3, x_4);
 x_9 = l_Nat_reprFast(x_8);
 x_10 = lean_string_append(x_7, x_9);
+lean_dec_ref(x_9);
 x_11 = lean_box(0);
 x_12 = l_Lean_Name_str___override(x_11, x_10);
 return x_12;
@@ -16442,11 +16443,12 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoDefn___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Induction_0__Lean_Elab_PartialFixpoint_unfoldPredRelMutual_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__1;
-x_2 = lean_alloc_ctor(0, 4, 0);
+x_2 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
 lean_ctor_set(x_2, 2, x_1);
 lean_ctor_set(x_2, 3, x_1);
+lean_ctor_set(x_2, 4, x_1);
 return x_2;
 }
 }
@@ -17169,6 +17171,7 @@ x_6 = lean_unsigned_to_nat(48u);
 x_7 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Induction_0__Lean_Elab_PartialFixpoint_isOptionFixpoint___lam__0___closed__1;
 x_8 = lean_expr_dbg_to_string(x_1);
 x_9 = lean_string_append(x_7, x_8);
+lean_dec_ref(x_8);
 x_10 = l_mkPanicMessageWithDecl(x_3, x_4, x_5, x_6, x_9);
 lean_dec_ref(x_9);
 x_11 = l_panic___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Induction_0__Lean_Elab_PartialFixpoint_isOptionFixpoint_spec__1(x_10);
@@ -18796,6 +18799,7 @@ x_22 = l_Array_mapFinIdxM_map___at_____private_Lean_Elab_PreDefinition_PartialFi
 x_23 = lean_nat_add(x_4, x_10);
 x_24 = l_Nat_reprFast(x_23);
 x_25 = lean_string_append(x_22, x_24);
+lean_dec_ref(x_24);
 x_26 = lean_box(0);
 x_27 = l_Lean_Name_str___override(x_26, x_25);
 x_14 = x_27;

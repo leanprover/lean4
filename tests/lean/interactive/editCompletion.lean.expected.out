@@ -5,3 +5,8 @@
    "kind": 5,
    "data": ["«external:file:///editCompletion.lean»", 3, 22, 1, "cFoo.foo"]}],
  "isIncomplete": false}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "Foo → Nat",
+ "data": ["«external:file:///editCompletion.lean»", 3, 22, 1, "cFoo.foo"]}

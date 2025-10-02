@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Polymorphic.NatLemmas
-// Imports: Init.Data.Range.Polymorphic.Nat Init.Data.Range.Polymorphic.Lemmas
+// Imports: public import Init.Data.Range.Polymorphic.Nat public import Init.Data.Range.Polymorphic.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

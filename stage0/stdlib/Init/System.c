@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.System
-// Imports: Init.System.IO Init.System.Platform Init.System.Uri Init.System.Promise
+// Imports: public import Init.System.IO public import Init.System.Platform public import Init.System.Uri public import Init.System.Promise
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

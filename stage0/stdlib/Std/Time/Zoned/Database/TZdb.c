@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Zoned.Database.TZdb
-// Imports: Std.Time.DateTime Std.Time.Zoned.TimeZone Std.Time.Zoned.ZoneRules Std.Time.Zoned.Database.Basic
+// Imports: public import Std.Time.DateTime public import Std.Time.Zoned.TimeZone public import Std.Time.Zoned.ZoneRules public import Std.Time.Zoned.Database.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -48,6 +48,7 @@ static lean_object* l_Std_Time_Database_TZdb_default___closed__4;
 lean_object* l_Std_Time_TimeZone_convertTZif(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_inst___lam__0(lean_object*, lean_object*);
 lean_object* l_System_FilePath_components(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_parseTZIfFromDisk___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_default___closed__10;
 lean_object* lean_mk_io_user_error(lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_parseTZif___closed__0;
@@ -323,7 +324,6 @@ lean_object* x_4;
 x_4 = l_IO_FS_readBinFile(x_1, x_3);
 if (lean_obj_tag(x_4) == 0)
 {
-lean_dec_ref(x_1);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
@@ -372,6 +372,7 @@ x_14 = lean_ctor_get(x_4, 0);
 lean_dec(x_14);
 x_15 = l_Std_Time_Database_TZdb_parseTZIfFromDisk___closed__0;
 x_16 = lean_string_append(x_15, x_2);
+lean_dec_ref(x_2);
 x_17 = l_Std_Time_Database_TZdb_parseTZIfFromDisk___closed__1;
 x_18 = lean_string_append(x_16, x_17);
 x_19 = lean_string_append(x_18, x_1);
@@ -389,6 +390,7 @@ lean_inc(x_23);
 lean_dec(x_4);
 x_24 = l_Std_Time_Database_TZdb_parseTZIfFromDisk___closed__0;
 x_25 = lean_string_append(x_24, x_2);
+lean_dec_ref(x_2);
 x_26 = l_Std_Time_Database_TZdb_parseTZIfFromDisk___closed__1;
 x_27 = lean_string_append(x_25, x_26);
 x_28 = lean_string_append(x_27, x_1);
@@ -401,6 +403,15 @@ lean_ctor_set(x_32, 1, x_23);
 return x_32;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_parseTZIfFromDisk___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_Time_Database_TZdb_parseTZIfFromDisk(x_1, x_2, x_3);
+lean_dec_ref(x_1);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___Std_Time_Database_TZdb_idFromPath_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -635,6 +646,7 @@ lean_dec(x_26);
 lean_dec(x_25);
 lean_dec_ref(x_13);
 x_28 = lean_string_append(x_23, x_27);
+lean_dec_ref(x_27);
 x_29 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_29, 0, x_28);
 return x_29;
@@ -729,6 +741,7 @@ x_9 = lean_ctor_get(x_7, 0);
 lean_inc(x_9);
 lean_dec_ref(x_7);
 x_10 = l_Std_Time_Database_TZdb_parseTZIfFromDisk(x_1, x_9, x_6);
+lean_dec_ref(x_1);
 return x_10;
 }
 }
@@ -758,6 +771,7 @@ x_16 = lean_ctor_get(x_13, 0);
 lean_inc(x_16);
 lean_dec_ref(x_13);
 x_17 = l_Std_Time_Database_TZdb_parseTZIfFromDisk(x_1, x_16, x_12);
+lean_dec_ref(x_1);
 return x_17;
 }
 }
@@ -791,9 +805,9 @@ LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_readRulesFromDisk(lean_object*
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-lean_inc_ref(x_2);
 x_4 = l_System_FilePath_join(x_1, x_2);
 x_5 = l_Std_Time_Database_TZdb_parseTZIfFromDisk(x_4, x_2, x_3);
+lean_dec_ref(x_4);
 return x_5;
 }
 }
@@ -1002,6 +1016,7 @@ x_20 = lean_ctor_get(x_16, 0);
 lean_dec(x_20);
 x_21 = l_Std_Time_Database_TZdb_inst___lam__2___closed__2;
 x_22 = lean_string_append(x_21, x_3);
+lean_dec_ref(x_3);
 x_23 = l_Std_Time_Database_TZdb_inst___lam__2___closed__3;
 x_24 = lean_string_append(x_22, x_23);
 x_25 = lean_mk_io_user_error(x_24);
@@ -1017,6 +1032,7 @@ lean_inc(x_26);
 lean_dec(x_16);
 x_27 = l_Std_Time_Database_TZdb_inst___lam__2___closed__2;
 x_28 = lean_string_append(x_27, x_3);
+lean_dec_ref(x_3);
 x_29 = l_Std_Time_Database_TZdb_inst___lam__2___closed__3;
 x_30 = lean_string_append(x_28, x_29);
 x_31 = lean_mk_io_user_error(x_30);

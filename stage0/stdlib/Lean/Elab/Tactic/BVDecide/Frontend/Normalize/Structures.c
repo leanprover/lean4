@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Structures
-// Imports: Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ApplyControlFlow Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis Lean.Meta.Tactic.Cases Lean.Meta.Tactic.Simp Lean.Meta.Injective
+// Imports: public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ApplyControlFlow public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis public import Lean.Meta.Tactic.Cases public import Lean.Meta.Tactic.Simp public import Lean.Meta.Injective
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

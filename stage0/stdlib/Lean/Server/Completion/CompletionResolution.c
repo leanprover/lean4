@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Completion.CompletionResolution
-// Imports: Lean.Data.Lsp Lean.Server.Completion.CompletionInfoSelection Lean.Linter.Deprecated
+// Imports: public import Lean.Data.Lsp public import Lean.Server.Completion.CompletionInfoSelection public import Lean.Linter.Deprecated
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -628,6 +628,7 @@ lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45;
 x_42 = l_Lean_Lsp_CompletionItem_resolve___closed__0;
 x_43 = lean_string_append(x_41, x_42);
 x_44 = lean_string_append(x_43, x_40);
+lean_dec_ref(x_40);
 x_45 = l_Lean_Lsp_CompletionItem_resolve___lam__0(x_44);
 x_8 = x_38;
 x_9 = x_39;
@@ -943,6 +944,7 @@ x_131 = l_Lean_Lsp_CompletionItem_resolve___closed__6;
 lean_inc(x_122);
 x_132 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_122, x_121);
 x_133 = lean_string_append(x_131, x_132);
+lean_dec_ref(x_132);
 x_134 = l_Lean_Lsp_CompletionItem_resolve___closed__7;
 x_135 = lean_string_append(x_133, x_134);
 lean_ctor_set(x_125, 0, x_135);
@@ -968,10 +970,12 @@ x_138 = l_Lean_Lsp_CompletionItem_resolve___closed__6;
 lean_inc(x_122);
 x_139 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_122, x_121);
 x_140 = lean_string_append(x_138, x_139);
+lean_dec_ref(x_139);
 x_141 = l_Lean_Lsp_CompletionItem_resolve___closed__8;
 x_142 = lean_string_append(x_140, x_141);
 x_143 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_137, x_121);
 x_144 = lean_string_append(x_142, x_143);
+lean_dec_ref(x_143);
 x_145 = l_Lean_Lsp_CompletionItem_resolve___closed__9;
 x_146 = lean_string_append(x_144, x_145);
 lean_ctor_set(x_130, 0, x_146);
@@ -994,10 +998,12 @@ x_148 = l_Lean_Lsp_CompletionItem_resolve___closed__6;
 lean_inc(x_122);
 x_149 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_122, x_121);
 x_150 = lean_string_append(x_148, x_149);
+lean_dec_ref(x_149);
 x_151 = l_Lean_Lsp_CompletionItem_resolve___closed__8;
 x_152 = lean_string_append(x_150, x_151);
 x_153 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_147, x_121);
 x_154 = lean_string_append(x_152, x_153);
+lean_dec_ref(x_153);
 x_155 = l_Lean_Lsp_CompletionItem_resolve___closed__9;
 x_156 = lean_string_append(x_154, x_155);
 x_157 = lean_alloc_ctor(1, 1, 0);
@@ -1048,6 +1054,7 @@ x_161 = l_Lean_Lsp_CompletionItem_resolve___closed__6;
 lean_inc(x_122);
 x_162 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_122, x_121);
 x_163 = lean_string_append(x_161, x_162);
+lean_dec_ref(x_162);
 x_164 = l_Lean_Lsp_CompletionItem_resolve___closed__7;
 x_165 = lean_string_append(x_163, x_164);
 x_166 = lean_alloc_ctor(1, 1, 0);
@@ -1077,10 +1084,12 @@ x_169 = l_Lean_Lsp_CompletionItem_resolve___closed__6;
 lean_inc(x_122);
 x_170 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_122, x_121);
 x_171 = lean_string_append(x_169, x_170);
+lean_dec_ref(x_170);
 x_172 = l_Lean_Lsp_CompletionItem_resolve___closed__8;
 x_173 = lean_string_append(x_171, x_172);
 x_174 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_167, x_121);
 x_175 = lean_string_append(x_173, x_174);
+lean_dec_ref(x_174);
 x_176 = l_Lean_Lsp_CompletionItem_resolve___closed__9;
 x_177 = lean_string_append(x_175, x_176);
 if (lean_is_scalar(x_168)) {

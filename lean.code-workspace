@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "tests"
+		},
+		{
+			"path": "script"
 		}
 	],
 	"settings": {

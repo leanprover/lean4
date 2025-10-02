@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.Util
-// Imports: Init.Data.FloatArray.Basic Lean.CoreM Lean.MonadEnv Lean.Util.Recognizers
+// Imports: public import Init.Data.FloatArray.Basic public import Lean.CoreM public import Lean.MonadEnv public import Lean.Util.Recognizers
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

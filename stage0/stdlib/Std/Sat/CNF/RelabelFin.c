@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sat.CNF.RelabelFin
-// Imports: Init.Data.List.Nat.Basic Init.Data.Nat.Order Std.Sat.CNF.Relabel
+// Imports: public import Init.Data.List.Nat.Basic public import Init.Data.Nat.Order public import Std.Sat.CNF.Relabel
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -797,6 +797,9 @@ install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/" DESTINATION lib
 
 # symlink source into expected installation location for go-to-definition, if file system allows it
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src)
+# get rid of all files in `src/lean` that may have been loaded from the cache
+# (at the time of writing this, this is the case for some lake test .c files)
+file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/src/lean)
 if(${STAGE} EQUAL 0)
   file(CREATE_LINK ${CMAKE_SOURCE_DIR}/../../src ${CMAKE_BINARY_DIR}/src/lean RESULT _IGNORE_RES SYMBOLIC)
 else()
@@ -844,15 +847,13 @@ endfunction()
 string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_CC "${LEANC_CC}")
 string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_FLAGS "${LEANC_INTERNAL_FLAGS}")
 string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_LINKER_FLAGS "${LEANC_INTERNAL_LINKER_FLAGS}")
-set(LEANC_OPTS_TOML "${LEANC_OPTS} ${LEANC_EXTRA_CC_FLAGS} ${LEANC_INTERNAL_FLAGS}")
-set(LINK_OPTS_TOML "${LEANC_INTERNAL_LINKER_FLAGS} -L${CMAKE_BINARY_DIR}/lib/lean ${LEAN_EXTRA_LINKER_FLAGS}")
 
 toml_escape("${LEAN_EXTRA_MAKE_OPTS}" LEAN_EXTRA_OPTS_TOML)
-toml_escape("${LEANC_OPTS_TOML}" LEANC_OPTS_TOML)
-toml_escape("${LINK_OPTS_TOML}" LINK_OPTS_TOML)
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  set(LAKE_LIB_PREFIX "lib")
+if(${CMAKE_BUILD_TYPE} MATCHES "Debug|Release|RelWithDebInfo|MinSizeRel")
+  set(CMAKE_BUILD_TYPE_TOML "${CMAKE_BUILD_TYPE}")
+else()
+  set(CMAKE_BUILD_TYPE_TOML "Release")
 endif()
 
 if(USE_LAKE)

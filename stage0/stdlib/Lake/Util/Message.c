@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Message
-// Imports: Lean.Message Lean.Exception Lean.Parser.Basic
+// Imports: public import Lean.Message public import Lean.Exception public import Lean.Parser.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -279,6 +279,7 @@ lean_object* x_40; lean_object* x_41; lean_object* x_42;
 x_40 = l_Lake_mkMessageStringCore___closed__4;
 x_41 = lean_string_append(x_3, x_40);
 x_42 = lean_string_append(x_41, x_4);
+lean_dec_ref(x_4);
 x_24 = x_42;
 goto block_37;
 }
@@ -362,6 +363,7 @@ x_25 = l_Lake_mkMessageStringCore___closed__1;
 x_26 = lean_box(0);
 x_27 = l_Lean_mkErrorStringWithPos(x_2, x_5, x_25, x_6, x_26, x_26);
 x_28 = lean_string_append(x_27, x_24);
+lean_dec_ref(x_24);
 x_15 = x_28;
 goto block_23;
 }
@@ -373,6 +375,7 @@ x_29 = l_Lake_mkMessageStringCore___closed__2;
 x_30 = lean_box(0);
 x_31 = l_Lean_mkErrorStringWithPos(x_2, x_5, x_29, x_6, x_30, x_30);
 x_32 = lean_string_append(x_31, x_24);
+lean_dec_ref(x_24);
 x_15 = x_32;
 goto block_23;
 }
@@ -383,6 +386,7 @@ x_33 = l_Lake_mkMessageStringCore___closed__3;
 x_34 = lean_box(0);
 x_35 = l_Lean_mkErrorStringWithPos(x_2, x_5, x_33, x_6, x_34, x_34);
 x_36 = lean_string_append(x_35, x_24);
+lean_dec_ref(x_24);
 x_15 = x_36;
 goto block_23;
 }
@@ -497,6 +501,7 @@ x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
 lean_dec_ref(x_9);
 x_12 = lean_string_append(x_1, x_10);
+lean_dec(x_10);
 x_1 = x_12;
 x_2 = x_6;
 x_3 = x_11;

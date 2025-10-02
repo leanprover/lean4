@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Widget.Basic
-// Imports: Lean.Elab.InfoTree Lean.Message Lean.Server.Rpc.Basic Lean.Server.InfoUtils Lean.Widget.Types
+// Imports: public import Lean.Elab.InfoTree public import Lean.Message public import Lean.Server.Rpc.Basic public import Lean.Server.InfoUtils public import Lean.Widget.Types
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

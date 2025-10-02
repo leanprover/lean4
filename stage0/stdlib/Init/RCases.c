@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.RCases
-// Imports: Init.Tactics Init.Meta
+// Imports: public import Init.Tactics public import Init.Meta
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

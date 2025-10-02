@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler
-// Imports: Lean.Compiler.InlineAttrs Lean.Compiler.Specialize Lean.Compiler.ClosedTermCache Lean.Compiler.ExternAttr Lean.Compiler.ImplementedByAttr Lean.Compiler.NeverExtractAttr Lean.Compiler.IR Lean.Compiler.CSimpAttr Lean.Compiler.FFI Lean.Compiler.MetaAttr Lean.Compiler.NoncomputableAttr Lean.Compiler.Main Lean.Compiler.Old
+// Imports: public import Lean.Compiler.InlineAttrs public import Lean.Compiler.Specialize public import Lean.Compiler.ClosedTermCache public import Lean.Compiler.ExternAttr public import Lean.Compiler.ImplementedByAttr public import Lean.Compiler.NeverExtractAttr public import Lean.Compiler.IR public import Lean.Compiler.CSimpAttr public import Lean.Compiler.FFI public import Lean.Compiler.MetaAttr public import Lean.Compiler.NoncomputableAttr public import Lean.Compiler.Main public import Lean.Compiler.Old
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

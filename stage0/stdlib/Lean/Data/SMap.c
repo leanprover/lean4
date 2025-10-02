@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.SMap
-// Imports: Std.Data.HashMap.Basic Lean.Data.PersistentHashMap
+// Imports: public import Std.Data.HashMap.Basic public import Lean.Data.PersistentHashMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

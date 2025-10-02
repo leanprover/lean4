@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.NameMangling
-// Imports: Lean.Data.Name
+// Imports: public import Lean.Data.Name import Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -395,7 +395,6 @@ LEAN_EXPORT lean_object* l_String_mangle(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-lean_inc_ref(x_1);
 x_2 = lean_string_length(x_1);
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_alloc_ctor(0, 2, 0);
@@ -444,6 +443,7 @@ x_6 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux(x_3);
 x_7 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux___closed__0;
 x_8 = lean_string_append(x_6, x_7);
 x_9 = lean_string_append(x_8, x_5);
+lean_dec_ref(x_5);
 return x_9;
 }
 }
@@ -460,6 +460,7 @@ x_13 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux___closed__0
 x_14 = lean_string_append(x_12, x_13);
 x_15 = l_Nat_reprFast(x_11);
 x_16 = lean_string_append(x_14, x_15);
+lean_dec_ref(x_15);
 x_17 = lean_string_append(x_16, x_13);
 return x_17;
 }
@@ -472,6 +473,7 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux(x_1);
 x_4 = lean_string_append(x_2, x_3);
+lean_dec_ref(x_3);
 return x_4;
 }
 }
@@ -491,16 +493,21 @@ x_2 = l_Lean_mkModuleInitializationFunctionName___closed__0;
 x_3 = l_String_mangle___closed__0;
 x_4 = lean_name_mangle(x_1, x_3);
 x_5 = lean_string_append(x_2, x_4);
+lean_dec_ref(x_4);
 return x_5;
 }
 }
 lean_object* initialize_Lean_Data_Name(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_NameMangling(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Data_Name(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Compiler_NameMangling_0__String_mangleAux___closed__0 = _init_l___private_Lean_Compiler_NameMangling_0__String_mangleAux___closed__0();

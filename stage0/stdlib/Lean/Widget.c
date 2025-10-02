@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Widget
-// Imports: Lean.Widget.InteractiveCode Lean.Widget.InteractiveDiagnostic Lean.Widget.InteractiveGoal Lean.Widget.TaggedText Lean.Widget.UserWidget Lean.Widget.Commands
+// Imports: public import Lean.Widget.InteractiveCode public import Lean.Widget.InteractiveDiagnostic public import Lean.Widget.InteractiveGoal public import Lean.Widget.TaggedText public import Lean.Widget.UserWidget public import Lean.Widget.Commands
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

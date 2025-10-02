@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.Internalize
-// Imports: Lean.Compiler.LCNF.Types Lean.Compiler.LCNF.Bind Lean.Compiler.LCNF.CompilerM
+// Imports: public import Lean.Compiler.LCNF.Types public import Lean.Compiler.LCNF.Bind public import Lean.Compiler.LCNF.CompilerM
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

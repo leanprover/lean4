@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Find
-// Imports: Init.Data.List.Nat.Find Init.Data.Array.Basic Init.Data.Array.Basic Init.Data.Array.Lemmas Init.Data.Array.Attach Init.Data.Array.Range
+// Imports: public import Init.Data.List.Nat.Find public import Init.Data.Array.Basic import all Init.Data.Array.Basic public import Init.Data.Array.Lemmas public import Init.Data.Array.Attach public import Init.Data.Array.Range
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

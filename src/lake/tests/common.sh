@@ -38,6 +38,18 @@ else
   norm_dirname() { dirname -- "$1"; }
 fi
 
+init_git() {
+  echo "# initialize test repository"
+  set -x
+  git init
+  git checkout -b master
+  git config user.name test
+  git config user.email test@example.com
+  git add --all
+  git commit -m "initial commit"
+  set +x
+}
+
 # Test functions
 
 test_cmd() {

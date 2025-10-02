@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Syntax
-// Imports: Init.Data.Slice Init.Data.Hashable Lean.Data.Name Lean.Data.Format Init.Data.Option.Coe
+// Imports: public import Init.Data.Slice public import Init.Data.Hashable public import Lean.Data.Name public import Lean.Data.Format public import Init.Data.Option.Coe
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -74,6 +74,7 @@ LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_goDown___redArg___lam__0(l
 lean_object* lean_substring_tostring(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Syntax_0__Lean_Syntax_findStack_x3f_go_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Syntax_0__Lean_Syntax_reprint_reprintLeaf___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_getAntiquotSuffixSpliceInner(lean_object*);
 static lean_object* l_Lean_Syntax_identComponents___closed__1;
 static lean_object* l___private_Lean_Syntax_0__Lean_Syntax_identComponents_nameComps___closed__0;
@@ -2483,11 +2484,13 @@ x_13 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__5;
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_format_pretty(x_12, x_13, x_14, x_14);
 x_16 = lean_string_append(x_10, x_15);
+lean_dec_ref(x_15);
 x_17 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__6;
 x_18 = lean_string_append(x_16, x_17);
 x_19 = l_Lean_Syntax_formatStx(x_3, x_11, x_5);
 x_20 = lean_format_pretty(x_19, x_13, x_14, x_14);
 x_21 = lean_string_append(x_18, x_20);
+lean_dec_ref(x_20);
 x_22 = lean_dbg_trace(x_21, x_9);
 x_23 = lean_unbox(x_22);
 return x_23;
@@ -2848,11 +2851,13 @@ x_13 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__5;
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_format_pretty(x_12, x_13, x_14, x_14);
 x_16 = lean_string_append(x_10, x_15);
+lean_dec_ref(x_15);
 x_17 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__6;
 x_18 = lean_string_append(x_16, x_17);
 x_19 = l_Lean_Syntax_formatStx(x_3, x_11, x_5);
 x_20 = lean_format_pretty(x_19, x_13, x_14, x_14);
 x_21 = lean_string_append(x_18, x_20);
+lean_dec_ref(x_20);
 x_22 = lean_dbg_trace(x_21, x_9);
 x_23 = lean_unbox(x_22);
 return x_23;
@@ -5541,6 +5546,7 @@ x_5 = lean_substring_tostring(x_3);
 x_6 = lean_string_append(x_5, x_2);
 x_7 = lean_substring_tostring(x_4);
 x_8 = lean_string_append(x_6, x_7);
+lean_dec_ref(x_7);
 return x_8;
 }
 else
@@ -5552,6 +5558,15 @@ x_10 = lean_string_append(x_9, x_2);
 x_11 = lean_string_append(x_10, x_9);
 return x_11;
 }
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Syntax_0__Lean_Syntax_reprint_reprintLeaf___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l___private_Lean_Syntax_0__Lean_Syntax_reprint_reprintLeaf(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at___Lean_Syntax_reprint_spec__0___redArg___closed__0() {
@@ -6173,10 +6188,10 @@ case 2:
 lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; 
 x_62 = lean_ctor_get(x_2, 0);
 x_63 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_63);
 lean_inc(x_62);
 x_64 = l___private_Lean_Syntax_0__Lean_Syntax_reprint_reprintLeaf(x_62, x_63);
 x_65 = lean_string_append(x_3, x_64);
+lean_dec_ref(x_64);
 x_18 = x_65;
 goto block_30;
 }
@@ -6191,7 +6206,9 @@ x_70 = lean_ctor_get(x_66, 2);
 x_71 = lean_string_utf8_extract(x_68, x_69, x_70);
 lean_inc(x_67);
 x_72 = l___private_Lean_Syntax_0__Lean_Syntax_reprint_reprintLeaf(x_67, x_71);
+lean_dec_ref(x_71);
 x_73 = lean_string_append(x_3, x_72);
+lean_dec_ref(x_72);
 x_18 = x_73;
 goto block_30;
 }
@@ -6414,10 +6431,10 @@ case 2:
 lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; 
 x_62 = lean_ctor_get(x_2, 0);
 x_63 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_63);
 lean_inc(x_62);
 x_64 = l___private_Lean_Syntax_0__Lean_Syntax_reprint_reprintLeaf(x_62, x_63);
 x_65 = lean_string_append(x_3, x_64);
+lean_dec_ref(x_64);
 x_18 = x_65;
 goto block_30;
 }
@@ -6432,7 +6449,9 @@ x_70 = lean_ctor_get(x_66, 2);
 x_71 = lean_string_utf8_extract(x_68, x_69, x_70);
 lean_inc(x_67);
 x_72 = l___private_Lean_Syntax_0__Lean_Syntax_reprint_reprintLeaf(x_67, x_71);
+lean_dec_ref(x_71);
 x_73 = lean_string_append(x_3, x_72);
+lean_dec_ref(x_72);
 x_18 = x_73;
 goto block_30;
 }
@@ -6443,11 +6462,11 @@ lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11;
 x_7 = lean_box(0);
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
-lean_ctor_set(x_8, 1, x_6);
-x_9 = lean_array_size(x_5);
+lean_ctor_set(x_8, 1, x_5);
+x_9 = lean_array_size(x_6);
 x_10 = 0;
-x_11 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Syntax_instForInTopDown_loop___at___Lean_Syntax_instForInTopDown_loop___at___Lean_Syntax_reprint_spec__1_spec__1_spec__1(x_1, x_4, x_7, x_5, x_9, x_10, x_8);
-lean_dec_ref(x_5);
+x_11 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Syntax_instForInTopDown_loop___at___Lean_Syntax_instForInTopDown_loop___at___Lean_Syntax_reprint_spec__1_spec__1_spec__1(x_1, x_4, x_7, x_6, x_9, x_10, x_8);
+lean_dec_ref(x_6);
 if (lean_obj_tag(x_11) == 0)
 {
 return x_7;
@@ -6487,8 +6506,8 @@ lean_object* x_19;
 x_19 = lean_ctor_get(x_2, 2);
 lean_inc_ref(x_19);
 lean_dec_ref(x_2);
-x_5 = x_19;
-x_6 = x_18;
+x_5 = x_18;
+x_6 = x_19;
 goto block_17;
 }
 else
@@ -6504,8 +6523,8 @@ x_23 = lean_name_eq(x_20, x_22);
 lean_dec(x_20);
 if (x_23 == 0)
 {
-x_5 = x_21;
-x_6 = x_18;
+x_5 = x_18;
+x_6 = x_21;
 goto block_17;
 }
 else

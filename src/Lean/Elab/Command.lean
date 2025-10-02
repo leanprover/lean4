@@ -15,6 +15,7 @@ public import Lean.Elab.SetOption
 public import Lean.Language.Basic
 public import Lean.Meta.ForEachExpr
 public meta import Lean.Parser.Command
+import Lean.ExtraModUses
 
 public section
 
@@ -38,7 +39,7 @@ structure Context where
   fileName       : String
   fileMap        : FileMap
   currRecDepth   : Nat := 0
-  cmdPos         : String.Pos := 0
+  cmdPos         : String.Pos.Raw := 0
   macroStack     : MacroStack := []
   quotContext?   : Option Name := none
   currMacroScope : MacroScope := firstFrontendMacroScope
@@ -189,6 +190,8 @@ private def runCore (x : CoreM α) : CommandElabM α := do
     auxDeclNGen := s.auxDeclNGen
     nextMacroScope := s.nextMacroScope
     infoState.enabled := s.infoState.enabled
+    -- accumulate lazy assignments from all `CoreM` lifts
+    infoState.lazyAssignment := s.infoState.lazyAssignment
     traceState := s.traceState
     snapshotTasks := s.snapshotTasks
   }
@@ -300,7 +303,7 @@ def wrapAsyncAsSnapshot {α : Type} (act : α → CommandElabM Unit) (cancelTk? 
         withTraceNode `Elab.async (fun _ => return desc) do
           act a
       catch e =>
-        logError e.toMessageData
+        logException e
       finally
         addTraceAsMessages
       get
@@ -582,6 +585,13 @@ def withInitQuotContext (hint? : Option UInt64) (act : CommandElabM Unit) : Comm
   finally
     modify ({ · with nextMacroScope })
 
+private partial def recordUsedSyntaxKinds (stx : Syntax) : CommandElabM Unit := do
+  if let .node _ k .. := stx then
+    -- do not record builtin parsers, they do not have to be imported
+    if !(← Parser.builtinSyntaxNodeKindSetRef.get).contains k then
+      recordExtraModUseFromDecl (isMeta := true) k
+  stx.forArgsM recordUsedSyntaxKinds
+
 /--
 `elabCommand` wrapper that should be used for the initial invocation, not for recursive calls after
 macro expansion etc.
@@ -589,6 +599,7 @@ macro expansion etc.
 def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do profileitM Exception "elaboration" (← getOptions) do
   withReader ({ · with suppressElabErrors :=
     stx.hasMissing && !showPartialSyntaxErrors.get (← getOptions) }) do
+  recordUsedSyntaxKinds stx
   -- initialize quotation context using hash of input string
   let ss? := stx.getSubstring? (withLeading := false) (withTrailing := false)
   withInitQuotContext (ss?.map (hash ·.toString.trim)) do

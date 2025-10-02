@@ -200,7 +200,7 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
       match filterFn msg with
       | .check       => toCheck := toCheck.add msg
       | .drop        => pure ()
-      | pass => toPassthrough := toPassthrough.add msg
+      | .pass => toPassthrough := toPassthrough.add msg
     let map ← getFileMap
     let reportPos? :=
       if reportPositions then
@@ -235,7 +235,7 @@ def guardMsgsCodeAction : CommandCodeAction := fun _ _ _ node => do
   let some (stx, res) := res | return #[]
   let doc ← readDoc
   let eager := {
-    title := "Update #guard_msgs with tactic output"
+    title := "Update #guard_msgs with generated message"
     kind? := "quickfix"
     isPreferred? := true
   }

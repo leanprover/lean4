@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.GetElem
-// Imports: Init.Util
+// Imports: public import Init.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

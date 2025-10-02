@@ -13,7 +13,7 @@ public section
 /-!
 # Lemmas about `List.countP` and `List.count`.
 
-Because we mark `countP_eq_length_filter` and `count_eq_countP` with `@[grind _=_]`,
+Because we mark `countP_eq_length_filter` with `@[grind =]`,
 we don't need many other `@[grind]` annotations here.
 -/
 
@@ -66,7 +66,7 @@ theorem length_eq_countP_add_countP (p : α → Bool) {l : List α} : length l =
       · rfl
       · simp [h]
 
-@[grind _=_]  -- This to quite aggressive, as it introduces `filter` based reasoning whenever we see `countP`.
+@[grind =]  -- This to quite aggressive, as it introduces `filter` based reasoning whenever we see `countP`.
 theorem countP_eq_length_filter {l : List α} : countP p l = (filter p l).length := by
   induction l with
   | nil => rfl

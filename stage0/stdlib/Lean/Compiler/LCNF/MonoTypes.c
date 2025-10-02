@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.MonoTypes
-// Imports: Lean.Meta.InferType Lean.Compiler.LCNF.Util Lean.Compiler.LCNF.BaseTypes Lean.Compiler.LCNF.CompilerM
+// Imports: public import Lean.Meta.InferType public import Lean.Compiler.LCNF.Util public import Lean.Compiler.LCNF.BaseTypes public import Lean.Compiler.LCNF.CompilerM
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2088,11 +2088,12 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Compiler_LCNF_getRelevantCtorFields_spec__0_spec__0_spec__0_spec__0_spec__0___closed__1;
-x_2 = lean_alloc_ctor(0, 4, 0);
+x_2 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
 lean_ctor_set(x_2, 2, x_1);
 lean_ctor_set(x_2, 3, x_1);
+lean_ctor_set(x_2, 4, x_1);
 return x_2;
 }
 }
@@ -5885,7 +5886,7 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18;
 x_16 = l_Array_toSubarray___redArg(x_2, x_14, x_15);
 x_17 = l_Array_ofSubarray___redArg(x_16);
 lean_dec_ref(x_16);
-x_18 = l_Lean_Compiler_LCNF_instantiateForall(x_11, x_17, x_13, x_12, x_9);
+x_18 = l_Lean_Compiler_LCNF_instantiateForall(x_13, x_17, x_11, x_10, x_9);
 lean_dec_ref(x_17);
 if (lean_obj_tag(x_18) == 0)
 {
@@ -5896,16 +5897,16 @@ x_20 = lean_ctor_get(x_18, 1);
 lean_inc(x_20);
 lean_dec_ref(x_18);
 x_21 = l_Lean_Compiler_LCNF_getParamTypes(x_19);
-x_22 = lean_array_get(x_8, x_21, x_10);
-lean_dec(x_10);
+x_22 = lean_array_get(x_8, x_21, x_12);
+lean_dec(x_12);
 lean_dec_ref(x_21);
-x_23 = l_Lean_Compiler_LCNF_toMonoType(x_22, x_13, x_12, x_20);
+x_23 = l_Lean_Compiler_LCNF_toMonoType(x_22, x_11, x_10, x_20);
 return x_23;
 }
 else
 {
-lean_dec_ref(x_13);
 lean_dec(x_12);
+lean_dec_ref(x_11);
 lean_dec(x_10);
 return x_18;
 }
@@ -6157,10 +6158,10 @@ if (x_85 == 0)
 {
 lean_dec(x_77);
 x_9 = x_82;
-x_10 = x_78;
-x_11 = x_81;
-x_12 = x_26;
-x_13 = x_25;
+x_10 = x_26;
+x_11 = x_25;
+x_12 = x_78;
+x_13 = x_81;
 x_14 = x_83;
 x_15 = x_84;
 goto block_24;
@@ -6169,10 +6170,10 @@ else
 {
 lean_dec(x_84);
 x_9 = x_82;
-x_10 = x_78;
-x_11 = x_81;
-x_12 = x_26;
-x_13 = x_25;
+x_10 = x_26;
+x_11 = x_25;
+x_12 = x_78;
+x_13 = x_81;
 x_14 = x_83;
 x_15 = x_77;
 goto block_24;

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Injection
-// Imports: Lean.Meta.Basic Lean.Meta.CtorRecognizer Lean.Meta.Tactic.Util Lean.Meta.Tactic.Clear Lean.Meta.AppBuilder
+// Imports: public import Lean.Meta.Basic import Lean.Meta.CtorRecognizer import Lean.Meta.Tactic.Util import Lean.Meta.Tactic.Clear import Lean.Meta.AppBuilder
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

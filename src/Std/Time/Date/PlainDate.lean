@@ -15,7 +15,6 @@ public section
 
 namespace Std
 namespace Time
-open Std.Internal
 open Std.Time
 open Internal
 open Lean

@@ -156,12 +156,6 @@ def isInaccessibleUserName : Name → Bool
   | Name.num p _   => isInaccessibleUserName p
   | _              => false
 
--- FIXME: `getUtf8Byte` is in `Init.Data.String.Extra`, which causes an import cycle with
--- `Init.Meta`. Moving `getUtf8Byte` up to `Init.Data.String.Basic` creates another import cycle.
--- Please replace this definition with `getUtf8Byte` when the string refactor is through.
-@[extern "lean_string_get_byte_fast"]
-private opaque getUtf8Byte' (s : @& String) (n : Nat) (h : n < s.utf8ByteSize) : UInt8
-
 section ToString
 
 /-!
@@ -177,14 +171,14 @@ inner-loop function like `Name.toString`.
 -- If you change this, also change the corresponding function in `Init.Data.ToString.Name`.
 private partial def needsNoEscapeAsciiRest (s : String) (i : Nat) : Bool :=
   if h : i < s.utf8ByteSize then
-    let c := getUtf8Byte' s i h
+    let c := String.Internal.getUTF8Byte s i h
     isIdRestAscii c && needsNoEscapeAsciiRest s (i + 1)
   else
     true
 
 -- If you change this, also change the corresponding function in `Init.Data.ToString.Name`.
 @[inline] private def needsNoEscapeAscii (s : String) (h : s.utf8ByteSize > 0) : Bool :=
-  let c := getUtf8Byte' s 0 h
+  let c := String.Internal.getUTF8Byte s 0 h
   isIdFirstAscii c && needsNoEscapeAsciiRest s 1
 
 -- If you change this, also change the corresponding function in `Init.Data.ToString.Name`.
@@ -560,7 +554,7 @@ Finds the tail position of the trailing whitespace of the first `SourceInfo` fro
 If no `SourceInfo` can be found or the first `SourceInfo` from the back of `stx` contains
 no trailing whitespace and lacks a tail position, the result is `none`.
 -/
-def getTrailingTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.Pos :=
+def getTrailingTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.Pos.Raw :=
   stx.getTailInfo.getTrailingTailPos? canonicalOnly
 
 /--
@@ -818,7 +812,7 @@ def mkNameLit (val : String) (info := SourceInfo.none) : NameLit :=
    in binary, octal, decimal and hexadecimal format. `isNatLit` implements a "decoder"
    for Syntax objects representing these numerals. -/
 
-private partial def decodeBinLitAux (s : String) (i : String.Pos) (val : Nat) : Option Nat :=
+private partial def decodeBinLitAux (s : String) (i : String.Pos.Raw) (val : Nat) : Option Nat :=
   if String.Internal.atEnd s i then some val
   else
     let c := String.Internal.get s i
@@ -827,7 +821,7 @@ private partial def decodeBinLitAux (s : String) (i : String.Pos) (val : Nat) : 
     else if c == '_' then decodeBinLitAux s (String.Internal.next s i) val
     else none
 
-private partial def decodeOctalLitAux (s : String) (i : String.Pos) (val : Nat) : Option Nat :=
+private partial def decodeOctalLitAux (s : String) (i : String.Pos.Raw) (val : Nat) : Option Nat :=
   if String.Internal.atEnd s i then some val
   else
     let c := String.Internal.get s i
@@ -835,7 +829,7 @@ private partial def decodeOctalLitAux (s : String) (i : String.Pos) (val : Nat) 
     else if c == '_' then decodeOctalLitAux s (String.Internal.next s i) val
     else none
 
-private def decodeHexDigit (s : String) (i : String.Pos) : Option (Nat × String.Pos) :=
+private def decodeHexDigit (s : String) (i : String.Pos.Raw) : Option (Nat × String.Pos.Raw) :=
   let c := String.Internal.get s i
   let i := String.Internal.next s i
   if '0' ≤ c && c ≤ '9' then some (c.toNat - '0'.toNat, i)
@@ -843,7 +837,7 @@ private def decodeHexDigit (s : String) (i : String.Pos) : Option (Nat × String
   else if 'A' ≤ c && c ≤ 'F' then some (10 + c.toNat - 'A'.toNat, i)
   else none
 
-private partial def decodeHexLitAux (s : String) (i : String.Pos) (val : Nat) : Option Nat :=
+private partial def decodeHexLitAux (s : String) (i : String.Pos.Raw) (val : Nat) : Option Nat :=
   if String.Internal.atEnd s i then some val
   else match decodeHexDigit s i with
     | some (d, i) => decodeHexLitAux s i (16*val + d)
@@ -851,7 +845,7 @@ private partial def decodeHexLitAux (s : String) (i : String.Pos) (val : Nat) : 
       if String.Internal.get s i == '_' then decodeHexLitAux s (String.Internal.next s i) val
       else none
 
-private partial def decodeDecimalLitAux (s : String) (i : String.Pos) (val : Nat) : Option Nat :=
+private partial def decodeDecimalLitAux (s : String) (i : String.Pos.Raw) (val : Nat) : Option Nat :=
   if String.Internal.atEnd s i then some val
   else
     let c := String.Internal.get s i
@@ -911,7 +905,7 @@ partial def decodeScientificLitVal? (s : String) : Option (Nat × Bool × Nat) :
       decode 0 0
     else none
 where
-  decodeAfterExp (i : String.Pos) (val : Nat) (e : Nat) (sign : Bool) (exp : Nat) : Option (Nat × Bool × Nat) :=
+  decodeAfterExp (i : String.Pos.Raw) (val : Nat) (e : Nat) (sign : Bool) (exp : Nat) : Option (Nat × Bool × Nat) :=
     if String.Internal.atEnd s i then
       if sign then
         some (val, sign, exp + e)
@@ -928,7 +922,7 @@ where
       else
         none
 
-  decodeExp (i : String.Pos) (val : Nat) (e : Nat) : Option (Nat × Bool × Nat) :=
+  decodeExp (i : String.Pos.Raw) (val : Nat) (e : Nat) : Option (Nat × Bool × Nat) :=
     if String.Internal.atEnd s i then none else
     let c := String.Internal.get s i
     if c == '-' then
@@ -938,7 +932,7 @@ where
     else
        decodeAfterExp i val e false 0
 
-  decodeAfterDot (i : String.Pos) (val : Nat) (e : Nat) : Option (Nat × Bool × Nat) :=
+  decodeAfterDot (i : String.Pos.Raw) (val : Nat) (e : Nat) : Option (Nat × Bool × Nat) :=
     if String.Internal.atEnd s i then
       some (val, true, e)
     else
@@ -952,7 +946,7 @@ where
       else
         none
 
-  decode (i : String.Pos) (val : Nat) : Option (Nat × Bool × Nat) :=
+  decode (i : String.Pos.Raw) (val : Nat) : Option (Nat × Bool × Nat) :=
     if String.Internal.atEnd s i then
       none
     else
@@ -983,7 +977,7 @@ def toNat (stx : Syntax) : Nat :=
   | some val => val
   | none     => 0
 
-def decodeQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos) := do
+def decodeQuotedChar (s : String) (i : String.Pos.Raw) : Option (Char × String.Pos.Raw) := do
   let c := String.Internal.get s i
   let i := String.Internal.next s i
   if c == '\\' then pure ('\\', i)
@@ -1011,11 +1005,11 @@ Note that this function matches `"\" whitespace+` rather than
 the more restrictive `"\" newline whitespace*` since this simplifies the implementation.
 Justification: this does not overlap with any other sequences beginning with `\`.
 -/
-def decodeStringGap (s : String) (i : String.Pos) : Option String.Pos := do
+def decodeStringGap (s : String) (i : String.Pos.Raw) : Option String.Pos.Raw := do
   guard <| (String.Internal.get s i).isWhitespace
   some <| String.Internal.nextWhile s Char.isWhitespace (String.Internal.next s i)
 
-partial def decodeStrLitAux (s : String) (i : String.Pos) (acc : String) : Option String := do
+partial def decodeStrLitAux (s : String) (i : String.Pos.Raw) (acc : String) : Option String := do
   let c := String.Internal.get s i
   let i := String.Internal.next s i
   if c == '\"' then
@@ -1038,7 +1032,7 @@ The position `i` should start at `1`, which is the character after the leading `
 The algorithm is simple: we are given `r##...#"...string..."##...#` with zero or more `#`s.
 By counting the number of leading `#`'s, we can extract the `...string...`.
 -/
-partial def decodeRawStrLitAux (s : String) (i : String.Pos) (num : Nat) : String :=
+partial def decodeRawStrLitAux (s : String) (i : String.Pos.Raw) (num : Nat) : String :=
   let c := String.Internal.get s i
   let i := String.Internal.next s i
   if c == '#' then
@@ -1097,7 +1091,7 @@ private partial def splitNameLitAux (ss : Substring) (acc : List Substring) : Li
     let curr := Substring.Internal.front ss
     if isIdBeginEscape curr then
       let escapedPart := Substring.Internal.takeWhile ss (!isIdEndEscape ·)
-      let escapedPart := { escapedPart with stopPos := String.Pos.Internal.min ss.stopPos (String.Internal.next escapedPart.str escapedPart.stopPos) }
+      let escapedPart := { escapedPart with stopPos := String.Pos.Raw.Internal.min ss.stopPos (String.Internal.next escapedPart.str escapedPart.stopPos) }
       if !isIdEndEscape (Substring.Internal.get escapedPart <| Substring.Internal.prev escapedPart ⟨escapedPart.bsize⟩) then []
       else splitRest (Substring.Internal.extract ss ⟨escapedPart.bsize⟩ ⟨ss.bsize⟩) (escapedPart :: acc)
     else if isIdFirst curr then
@@ -1462,7 +1456,7 @@ end Lean.Syntax
 
 namespace Lean.Syntax
 
-private def decodeInterpStrQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos) := do
+private def decodeInterpStrQuotedChar (s : String) (i : String.Pos.Raw) : Option (Char × String.Pos.Raw) := do
   match decodeQuotedChar s i with
   | some r => some r
   | none   =>
@@ -1472,7 +1466,7 @@ private def decodeInterpStrQuotedChar (s : String) (i : String.Pos) : Option (Ch
     else none
 
 private partial def decodeInterpStrLit (s : String) : Option String :=
-  let rec loop (i : String.Pos) (acc : String) : Option String :=
+  let rec loop (i : String.Pos.Raw) (acc : String) : Option String :=
     let c := String.Internal.get s i
     let i := String.Internal.next s i
     if c == '\"' || c == '{' then
@@ -1533,7 +1527,7 @@ def expandInterpolatedStr (interpStr : TSyntax interpolatedStrKind) (type : Term
 
 def getDocString (stx : TSyntax `Lean.Parser.Command.docComment) : String :=
   match stx.raw[1] with
-  | Syntax.atom _ val => String.Internal.extract val 0 (String.Pos.Internal.sub val.endPos ⟨2⟩)
+  | Syntax.atom _ val => String.Internal.extract val 0 (String.Pos.Raw.Internal.sub val.endPos ⟨2⟩)
   | _                 => ""
 
 end TSyntax

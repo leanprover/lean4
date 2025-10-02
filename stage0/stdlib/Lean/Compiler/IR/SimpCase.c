@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.SimpCase
-// Imports: Lean.Compiler.IR.Basic Lean.Compiler.IR.Format
+// Imports: public import Lean.Compiler.IR.Basic public import Lean.Compiler.IR.Format
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

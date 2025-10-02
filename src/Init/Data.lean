@@ -30,6 +30,7 @@ public import Init.Data.Random
 public import Init.Data.ToString
 public import Init.Data.Range
 public import Init.Data.Hashable
+public import Init.Data.LawfulHashable
 public import Init.Data.OfScientific
 public import Init.Data.Format
 public import Init.Data.Stream

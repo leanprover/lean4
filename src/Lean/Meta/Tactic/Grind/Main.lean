@@ -53,18 +53,18 @@ def mkMethods (fallback : Fallback) : CoreM Methods := do
   return {
     fallback
     propagateUp := fun e => do
-     propagateForallPropUp e
-     propagateReflCmp e
-     let .const declName _ := e.getAppFn | return ()
-     propagateProjEq e
-     if let some prop := builtinPropagators.up[declName]? then
-       prop e
+      propagateForallPropUp e
+      propagateReflCmp e
+      let .const declName _ := e.getAppFn | return ()
+      propagateProjEq e
+      if let some props := builtinPropagators.up[declName]? then
+       props.forM fun prop => prop e
     propagateDown := fun e => do
-     propagateForallPropDown e
-     propagateLawfulEqCmp e
-     let .const declName _ := e.getAppFn | return ()
-     if let some prop := builtinPropagators.down[declName]? then
-       prop e
+      propagateForallPropDown e
+      propagateLawfulEqCmp e
+      let .const declName _ := e.getAppFn | return ()
+      if let some props := builtinPropagators.down[declName]? then
+       props.forM fun prop => prop e
   }
 
 -- A `simp` discharger that does not use assumptions.

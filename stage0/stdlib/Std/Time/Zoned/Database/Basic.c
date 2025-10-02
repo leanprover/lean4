@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Zoned.Database.Basic
-// Imports: Std.Time.Zoned.ZoneRules Std.Time.Zoned.Database.TzIf
+// Imports: public import Std.Time.Zoned.ZoneRules public import Std.Time.Zoned.Database.TzIf
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -174,7 +174,7 @@ return x_10;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; uint8_t x_15; uint8_t x_16; lean_object* x_21; uint8_t x_22; lean_object* x_29; lean_object* x_35; uint8_t x_36; 
+lean_object* x_11; lean_object* x_12; uint8_t x_13; uint8_t x_14; lean_object* x_15; uint8_t x_16; lean_object* x_21; uint8_t x_22; lean_object* x_29; lean_object* x_35; uint8_t x_36; 
 x_11 = lean_array_fget_borrowed(x_4, x_1);
 x_12 = lean_ctor_get(x_11, 0);
 x_13 = lean_ctor_get_uint8(x_11, sizeof(void*)*1);
@@ -204,10 +204,10 @@ x_17 = l_Std_Time_TimeZone_convertUt(x_16);
 lean_inc(x_12);
 x_18 = lean_alloc_ctor(0, 3, 3);
 lean_ctor_set(x_18, 0, x_12);
-lean_ctor_set(x_18, 1, x_14);
+lean_ctor_set(x_18, 1, x_15);
 lean_ctor_set(x_18, 2, x_3);
 lean_ctor_set_uint8(x_18, sizeof(void*)*3, x_13);
-lean_ctor_set_uint8(x_18, sizeof(void*)*3 + 1, x_15);
+lean_ctor_set_uint8(x_18, sizeof(void*)*3 + 1, x_14);
 lean_ctor_set_uint8(x_18, sizeof(void*)*3 + 2, x_17);
 x_19 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
@@ -222,8 +222,8 @@ x_25 = lean_nat_dec_lt(x_1, x_24);
 lean_dec(x_24);
 if (x_25 == 0)
 {
-x_14 = x_21;
-x_15 = x_23;
+x_14 = x_23;
+x_15 = x_21;
 x_16 = x_9;
 goto block_20;
 }
@@ -232,8 +232,8 @@ else
 lean_object* x_26; uint8_t x_27; 
 x_26 = lean_array_fget_borrowed(x_7, x_1);
 x_27 = lean_unbox(x_26);
-x_14 = x_21;
-x_15 = x_23;
+x_14 = x_23;
+x_15 = x_21;
 x_16 = x_27;
 goto block_20;
 }
@@ -442,6 +442,7 @@ lean_dec_ref(x_2);
 x_7 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_Time_TimeZone_convertTZifV1_spec__1___redArg___closed__0;
 x_8 = l_Nat_reprFast(x_5);
 x_9 = lean_string_append(x_7, x_8);
+lean_dec_ref(x_8);
 x_10 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_Time_TimeZone_convertTZifV1_spec__0___redArg___closed__1;
 x_11 = lean_string_append(x_9, x_10);
 x_12 = lean_alloc_ctor(0, 1, 0);
@@ -620,6 +621,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8;
 lean_dec_ref(x_3);
 x_6 = l_Std_Time_TimeZone_convertTZifV1___closed__0;
 x_7 = lean_string_append(x_6, x_2);
+lean_dec_ref(x_2);
 x_8 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
 return x_8;

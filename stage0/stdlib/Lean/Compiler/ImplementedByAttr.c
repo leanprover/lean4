@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.ImplementedByAttr
-// Imports: Lean.Attributes Lean.Declaration Lean.MonadEnv Lean.Elab.InfoTree Lean.Compiler.LCNF.PhaseExt
+// Imports: public import Lean.Attributes public import Lean.Declaration public import Lean.MonadEnv public import Lean.Elab.InfoTree public import Lean.Compiler.LCNF.PhaseExt
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

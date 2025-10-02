@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sat.AIG.LawfulOperator
-// Imports: Std.Sat.AIG.Basic
+// Imports: public import Std.Sat.AIG.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Zoned.Database
-// Imports: Std.Time.Zoned.ZonedDateTime Std.Time.Zoned.Database.Basic Std.Time.Zoned.Database.TZdb Std.Time.Zoned.Database.Windows Init.System.Platform
+// Imports: public import Std.Time.Zoned.ZonedDateTime public import Std.Time.Zoned.Database.Basic public import Std.Time.Zoned.Database.TZdb public import Std.Time.Zoned.Database.Windows public import Init.System.Platform
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -409,6 +409,7 @@ x_17 = lean_ctor_get(x_13, 0);
 lean_dec(x_17);
 x_18 = l_Std_Time_Database_defaultGetZoneRules___closed__13;
 x_19 = lean_string_append(x_18, x_1);
+lean_dec_ref(x_1);
 x_20 = l_Std_Time_Database_defaultGetZoneRules___closed__14;
 x_21 = lean_string_append(x_19, x_20);
 x_22 = lean_mk_io_user_error(x_21);
@@ -424,6 +425,7 @@ lean_inc(x_23);
 lean_dec(x_13);
 x_24 = l_Std_Time_Database_defaultGetZoneRules___closed__13;
 x_25 = lean_string_append(x_24, x_1);
+lean_dec_ref(x_1);
 x_26 = l_Std_Time_Database_defaultGetZoneRules___closed__14;
 x_27 = lean_string_append(x_25, x_26);
 x_28 = lean_mk_io_user_error(x_27);

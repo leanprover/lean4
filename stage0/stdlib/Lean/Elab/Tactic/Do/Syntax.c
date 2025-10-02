@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Do.Syntax
-// Imports: Init.NotationExtra Lean.Elab.BuiltinNotation Std.Do.PostCond Std.Do.Triple.Basic Std.Do.SPred.Notation.Basic
+// Imports: public import Init.NotationExtra public import Lean.Elab.BuiltinNotation public import Std.Do.PostCond public import Std.Do.Triple.Basic import Std.Do.SPred.Notation.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

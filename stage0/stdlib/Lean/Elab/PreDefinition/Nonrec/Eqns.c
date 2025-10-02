@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.Nonrec.Eqns
-// Imports: Lean.Meta.Tactic.Rewrite Lean.Meta.Tactic.Split Lean.Elab.PreDefinition.Basic Lean.Elab.PreDefinition.Eqns Lean.Meta.ArgsPacker.Basic Init.Data.Array.Basic
+// Imports: import Lean.Meta.Tactic.Rewrite import Lean.Meta.Tactic.Split import Lean.Elab.PreDefinition.Basic import Lean.Elab.PreDefinition.Eqns import Lean.Meta.ArgsPacker.Basic import Init.Data.Array.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

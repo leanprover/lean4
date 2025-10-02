@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Diseq
-// Imports: Lean.Meta.Tactic.Grind.Types Init.Grind.Lemmas
+// Imports: public import Lean.Meta.Tactic.Grind.Types import Init.Grind.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

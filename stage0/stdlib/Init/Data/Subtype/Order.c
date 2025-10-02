@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Subtype.Order
-// Imports: Init.SimpLemmas Init.Data.Order.Classes Init.Data.Order.Lemmas Init.Data.Order.Factories Init.Data.Subtype.Basic
+// Imports: import Init.SimpLemmas public import Init.Data.Order.Classes public import Init.Data.Order.Lemmas import Init.Data.Order.Factories import Init.Data.Subtype.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

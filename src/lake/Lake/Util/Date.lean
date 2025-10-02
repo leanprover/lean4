@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.Data.Ord.Basic
+import Lake.Util.String
+import Init.Data.String.Basic
 
 /-!
 #  Date
@@ -16,15 +18,6 @@ parser (for nightlies).
 -/
 
 namespace Lake
-
-public def lpad (s : String) (c : Char) (len : Nat) : String :=
-  "".pushn c (len - s.length) ++ s
-
-public def rpad (s : String) (c : Char) (len : Nat) : String :=
-  s.pushn c (len - s.length)
-
-public def zpad (n : Nat) (len : Nat) : String :=
-  lpad (toString n) '0' len
 
 /-- A date (year-month-day). -/
 public structure Date where

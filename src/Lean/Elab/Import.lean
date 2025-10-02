@@ -18,7 +18,7 @@ namespace Lean.Elab
 
 abbrev HeaderSyntax := TSyntax ``Parser.Module.header
 
-def HeaderSyntax.startPos (header : HeaderSyntax) : String.Pos :=
+def HeaderSyntax.startPos (header : HeaderSyntax) : String.Pos.Raw :=
   header.raw.getPos?.getD 0
 
 def HeaderSyntax.isModule (header : HeaderSyntax) : Bool :=
@@ -43,7 +43,7 @@ def HeaderSyntax.toModuleHeader (stx : HeaderSyntax) : ModuleHeader where
 abbrev headerToImports := @HeaderSyntax.imports
 
 def processHeaderCore
-    (startPos : String.Pos) (imports : Array Import) (isModule : Bool)
+    (startPos : String.Pos.Raw) (imports : Array Import) (isModule : Bool)
     (opts : Options) (messages : MessageLog) (inputCtx : Parser.InputContext)
     (trustLevel : UInt32 := 0) (plugins : Array System.FilePath := #[]) (leakEnv := false)
     (mainModule := Name.anonymous) (arts : NameMap ImportArtifacts := {})

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Parser.Level
-// Imports: Lean.Parser.Extra
+// Imports: public import Lean.Parser.Extra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Async.Basic
-// Imports: Init.Core Init.System.IO Init.System.Promise
+// Imports: public import Init.Core public import Init.System.IO public import Init.System.Promise
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

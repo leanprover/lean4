@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.PullFunDecls
-// Imports: Lean.Compiler.LCNF.CompilerM Lean.Compiler.LCNF.DependsOn Lean.Compiler.LCNF.PassManager
+// Imports: public import Lean.Compiler.LCNF.CompilerM public import Lean.Compiler.LCNF.DependsOn public import Lean.Compiler.LCNF.PassManager
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Completion
-// Imports: Lean.Server.Completion.CompletionCollectors Lean.Server.RequestCancellation Std.Data.HashMap
+// Imports: public import Lean.Server.Completion.CompletionCollectors public import Lean.Server.RequestCancellation public import Std.Data.HashMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith
-// Imports: Lean.Meta.Tactic.Grind.Arith.Util Lean.Meta.Tactic.Grind.Arith.Types Lean.Meta.Tactic.Grind.Arith.Main Lean.Meta.Tactic.Grind.Arith.Offset Lean.Meta.Tactic.Grind.Arith.CommRing Lean.Meta.Tactic.Grind.Arith.Linear Lean.Meta.Tactic.Grind.Arith.Cutsat Lean.Meta.Tactic.Grind.Arith.Simproc
+// Imports: public import Lean.Meta.Tactic.Grind.Arith.Util public import Lean.Meta.Tactic.Grind.Arith.Types public import Lean.Meta.Tactic.Grind.Arith.Main public import Lean.Meta.Tactic.Grind.Arith.Offset public import Lean.Meta.Tactic.Grind.Arith.CommRing public import Lean.Meta.Tactic.Grind.Arith.Linear public import Lean.Meta.Tactic.Grind.Arith.Cutsat public import Lean.Meta.Tactic.Grind.Arith.Simproc
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

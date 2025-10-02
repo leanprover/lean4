@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.System.IOError
-// Imports: Init.Data.ToString.Basic Init.Data.String.Basic
+// Imports: public import Init.Data.ToString.Basic import Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1334,6 +1334,7 @@ x_7 = lean_string_append(x_5, x_6);
 x_8 = lean_uint32_to_nat(x_3);
 x_9 = l_Nat_reprFast(x_8);
 x_10 = lean_string_append(x_7, x_9);
+lean_dec_ref(x_9);
 x_11 = l_IO_Error_fopenErrorToString___closed__1;
 x_12 = lean_string_append(x_10, x_11);
 x_13 = lean_string_append(x_12, x_2);
@@ -1351,10 +1352,12 @@ x_17 = lean_string_append(x_15, x_16);
 x_18 = lean_uint32_to_nat(x_3);
 x_19 = l_Nat_reprFast(x_18);
 x_20 = lean_string_append(x_17, x_19);
+lean_dec_ref(x_19);
 x_21 = l_IO_Error_fopenErrorToString___closed__2;
 x_22 = lean_string_append(x_20, x_21);
 x_23 = l___private_Init_System_IOError_0__IO_Error_downCaseFirst(x_14);
 x_24 = lean_string_append(x_22, x_23);
+lean_dec_ref(x_23);
 x_25 = l_IO_Error_fopenErrorToString___closed__1;
 x_26 = lean_string_append(x_24, x_25);
 x_27 = lean_string_append(x_26, x_2);
@@ -1369,6 +1372,7 @@ uint32_t x_5; lean_object* x_6;
 x_5 = lean_unbox_uint32(x_3);
 lean_dec(x_3);
 x_6 = l_IO_Error_fopenErrorToString(x_1, x_2, x_5, x_4);
+lean_dec_ref(x_2);
 return x_6;
 }
 }
@@ -1392,6 +1396,7 @@ x_6 = lean_string_append(x_4, x_5);
 x_7 = lean_uint32_to_nat(x_2);
 x_8 = l_Nat_reprFast(x_7);
 x_9 = lean_string_append(x_6, x_8);
+lean_dec_ref(x_8);
 x_10 = l_IO_Error_otherErrorToString___closed__0;
 x_11 = lean_string_append(x_9, x_10);
 return x_11;
@@ -1408,10 +1413,12 @@ x_15 = lean_string_append(x_13, x_14);
 x_16 = lean_uint32_to_nat(x_2);
 x_17 = l_Nat_reprFast(x_16);
 x_18 = lean_string_append(x_15, x_17);
+lean_dec_ref(x_17);
 x_19 = l_IO_Error_fopenErrorToString___closed__2;
 x_20 = lean_string_append(x_18, x_19);
 x_21 = l___private_Init_System_IOError_0__IO_Error_downCaseFirst(x_12);
 x_22 = lean_string_append(x_20, x_21);
+lean_dec_ref(x_21);
 x_23 = l_IO_Error_otherErrorToString___closed__0;
 x_24 = lean_string_append(x_22, x_23);
 return x_24;
@@ -1594,6 +1601,7 @@ x_16 = lean_ctor_get(x_7, 0);
 x_17 = l_IO_Error_toString___closed__0;
 lean_ctor_set(x_7, 0, x_14);
 x_18 = l_IO_Error_fopenErrorToString(x_17, x_16, x_13, x_7);
+lean_dec(x_16);
 return x_18;
 }
 else
@@ -1606,6 +1614,7 @@ x_20 = l_IO_Error_toString___closed__0;
 x_21 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_21, 0, x_14);
 x_22 = l_IO_Error_fopenErrorToString(x_20, x_19, x_13, x_21);
+lean_dec(x_19);
 return x_22;
 }
 }
@@ -1732,6 +1741,7 @@ x_66 = l_IO_Error_toString___closed__9;
 x_67 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_67, 0, x_65);
 x_68 = l_IO_Error_fopenErrorToString(x_66, x_63, x_64, x_67);
+lean_dec_ref(x_63);
 return x_68;
 }
 case 11:
@@ -1744,6 +1754,7 @@ lean_dec_ref(x_1);
 x_71 = l_IO_Error_toString___closed__10;
 x_72 = lean_box(0);
 x_73 = l_IO_Error_fopenErrorToString(x_71, x_69, x_70, x_72);
+lean_dec_ref(x_69);
 return x_73;
 }
 case 12:
@@ -1779,6 +1790,7 @@ x_83 = lean_ctor_get(x_74, 0);
 x_84 = l_IO_Error_toString___closed__11;
 lean_ctor_set(x_74, 0, x_81);
 x_85 = l_IO_Error_fopenErrorToString(x_84, x_83, x_80, x_74);
+lean_dec(x_83);
 return x_85;
 }
 else
@@ -1791,6 +1803,7 @@ x_87 = l_IO_Error_toString___closed__11;
 x_88 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_88, 0, x_81);
 x_89 = l_IO_Error_fopenErrorToString(x_87, x_86, x_80, x_88);
+lean_dec(x_86);
 return x_89;
 }
 }
@@ -1823,6 +1836,7 @@ lean_inc(x_95);
 lean_dec_ref(x_90);
 x_96 = lean_box(0);
 x_97 = l_IO_Error_fopenErrorToString(x_94, x_95, x_93, x_96);
+lean_dec(x_95);
 return x_97;
 }
 }
@@ -1859,6 +1873,7 @@ x_107 = lean_ctor_get(x_98, 0);
 x_108 = l_IO_Error_toString___closed__12;
 lean_ctor_set(x_98, 0, x_105);
 x_109 = l_IO_Error_fopenErrorToString(x_108, x_107, x_104, x_98);
+lean_dec(x_107);
 return x_109;
 }
 else
@@ -1871,6 +1886,7 @@ x_111 = l_IO_Error_toString___closed__12;
 x_112 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_112, 0, x_105);
 x_113 = l_IO_Error_fopenErrorToString(x_111, x_110, x_104, x_112);
+lean_dec(x_110);
 return x_113;
 }
 }
@@ -1908,6 +1924,7 @@ x_123 = lean_ctor_get(x_114, 0);
 x_124 = l_IO_Error_toString___closed__13;
 lean_ctor_set(x_114, 0, x_121);
 x_125 = l_IO_Error_fopenErrorToString(x_124, x_123, x_120, x_114);
+lean_dec(x_123);
 return x_125;
 }
 else
@@ -1920,6 +1937,7 @@ x_127 = l_IO_Error_toString___closed__13;
 x_128 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_128, 0, x_121);
 x_129 = l_IO_Error_fopenErrorToString(x_127, x_126, x_120, x_128);
+lean_dec(x_126);
 return x_129;
 }
 }
@@ -1957,6 +1975,7 @@ x_139 = lean_ctor_get(x_130, 0);
 x_140 = l_IO_Error_toString___closed__14;
 lean_ctor_set(x_130, 0, x_137);
 x_141 = l_IO_Error_fopenErrorToString(x_140, x_139, x_136, x_130);
+lean_dec(x_139);
 return x_141;
 }
 else
@@ -1969,6 +1988,7 @@ x_143 = l_IO_Error_toString___closed__14;
 x_144 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_144, 0, x_137);
 x_145 = l_IO_Error_fopenErrorToString(x_143, x_142, x_136, x_144);
+lean_dec(x_142);
 return x_145;
 }
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.DecidableEq
-// Imports: Init.Data.Array.Basic Init.Data.Array.Basic Init.Data.BEq Init.Data.List.Nat.BEq Init.ByCases
+// Imports: public import Init.Data.Array.Basic import all Init.Data.Array.Basic public import Init.Data.BEq public import Init.Data.List.Nat.BEq public import Init.ByCases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Lemmas.Producers
-// Imports: Std.Data.Iterators.Lemmas.Producers.Monadic Std.Data.Iterators.Lemmas.Producers.Array Std.Data.Iterators.Lemmas.Producers.Empty Std.Data.Iterators.Lemmas.Producers.List Std.Data.Iterators.Lemmas.Producers.Repeat Std.Data.Iterators.Lemmas.Producers.Range Std.Data.Iterators.Lemmas.Producers.Slice
+// Imports: public import Std.Data.Iterators.Lemmas.Producers.Monadic public import Std.Data.Iterators.Lemmas.Producers.Array public import Std.Data.Iterators.Lemmas.Producers.Empty public import Std.Data.Iterators.Lemmas.Producers.List public import Std.Data.Iterators.Lemmas.Producers.Repeat public import Std.Data.Iterators.Lemmas.Producers.Range public import Std.Data.Iterators.Lemmas.Producers.Slice
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

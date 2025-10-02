@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.PrefixTree
-// Imports: Std.Data.TreeMap.Raw.Basic
+// Imports: public import Std.Data.TreeMap.Raw.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

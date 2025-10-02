@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Do.Attr
-// Imports: Lean.Meta.Tactic.Simp Std.Do.Triple.Basic Std.Tactic.Do.Syntax
+// Imports: public import Lean.Meta.Tactic.Simp public import Std.Do.Triple.Basic public import Std.Tactic.Do.Syntax
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -11214,11 +11214,12 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Elab_Tactic_Do_SpecAttr_mkSpecTheoremFromConst_spec__0_spec__0_spec__0_spec__0_spec__0___closed__1;
-x_2 = lean_alloc_ctor(0, 4, 0);
+x_2 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
 lean_ctor_set(x_2, 2, x_1);
 lean_ctor_set(x_2, 3, x_1);
+lean_ctor_set(x_2, 4, x_1);
 return x_2;
 }
 }
@@ -11427,16 +11428,16 @@ if (x_87 == 0)
 {
 uint8_t x_88; 
 x_88 = l_Lean_Exception_isRuntime(x_85);
-x_44 = x_86;
-x_45 = x_84;
+x_44 = x_84;
+x_45 = x_86;
 x_46 = x_85;
 x_47 = x_88;
 goto block_70;
 }
 else
 {
-x_44 = x_86;
-x_45 = x_84;
+x_44 = x_84;
+x_45 = x_86;
 x_46 = x_85;
 x_47 = x_87;
 goto block_70;
@@ -11543,16 +11544,16 @@ if (x_111 == 0)
 {
 uint8_t x_112; 
 x_112 = l_Lean_Exception_isRuntime(x_109);
-x_44 = x_110;
-x_45 = x_108;
+x_44 = x_108;
+x_45 = x_110;
 x_46 = x_109;
 x_47 = x_112;
 goto block_70;
 }
 else
 {
-x_44 = x_110;
-x_45 = x_108;
+x_44 = x_108;
+x_45 = x_110;
 x_46 = x_109;
 x_47 = x_111;
 goto block_70;
@@ -11663,11 +11664,11 @@ block_70:
 if (x_47 == 0)
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; uint8_t x_52; 
-lean_dec_ref(x_45);
+lean_dec_ref(x_44);
 x_48 = l___private_Lean_Elab_Tactic_Do_Attr_0__Lean_Elab_Tactic_Do_SpecAttr_initFn___closed__3____x40_Lean_Elab_Tactic_Do_Attr_1315642830____hygCtx___hyg_2_;
 x_49 = l_Lean_Name_mkStr4(x_3, x_4, x_5, x_48);
 lean_inc(x_49);
-x_50 = l_Lean_isTracingEnabledFor___at___Lean_Elab_Tactic_Do_SpecAttr_mkSpecAttr_spec__1___redArg(x_49, x_10, x_44);
+x_50 = l_Lean_isTracingEnabledFor___at___Lean_Elab_Tactic_Do_SpecAttr_mkSpecAttr_spec__1___redArg(x_49, x_10, x_45);
 x_51 = lean_ctor_get(x_50, 0);
 lean_inc(x_51);
 x_52 = lean_unbox(x_51);
@@ -11741,7 +11742,7 @@ lean_dec_ref(x_6);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
-x_36 = x_45;
+x_36 = x_44;
 goto block_43;
 }
 }

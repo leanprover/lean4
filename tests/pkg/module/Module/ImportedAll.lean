@@ -144,3 +144,19 @@ Note: A private declaration `priv✝` (from `Module.Basic`) exists but would nee
 -/
 #guard_msgs in
 @[expose] public def pub' := priv
+
+#check { x := 1 : StructWithPrivateField }
+
+/-- error: invalid {...} notation, constructor for `StructWithPrivateField` is marked as private -/
+#guard_msgs in
+#with_exporting
+#check { x := 1 : StructWithPrivateField }
+
+#check (⟨1⟩ : StructWithPrivateField)
+
+/--
+error: Invalid `⟨...⟩` notation: Constructor for `StructWithPrivateField` is marked as private
+-/
+#guard_msgs in
+#with_exporting
+#check (⟨1⟩ : StructWithPrivateField)

@@ -137,7 +137,7 @@ private def unescapeStr (str : String) : String := Id.run do
       out := out.push c
   out
 
-private def asStringAux (quoted : Bool) (startPos : String.Pos) (transform : String → String) :
+private def asStringAux (quoted : Bool) (startPos : String.Pos.Raw) (transform : String → String) :
     ParserFn := fun c s =>
   let stopPos  := s.pos
   let leading  := c.mkEmptySubstringAt startPos
@@ -804,7 +804,9 @@ Parses a line of text (that is, one or more inline elements).
 def textLine (allowNewlines := true) : ParserFn := many1Fn (inline { allowNewlines })
 
 open Lean.Parser.Term in
-def metadataContents : Parser :=
+/-- A non-`meta` copy of `Lean.Doc.Syntax.metadataContents`. -/
+@[run_builtin_parser_attribute_hooks]
+public def metadataContents : Parser :=
   structInstFields (sepByIndent structInstField ", " (allowTrailingSep := true))
 
 def withPercents : ParserFn → ParserFn := fun p =>

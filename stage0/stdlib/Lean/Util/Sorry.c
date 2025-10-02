@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.Sorry
-// Imports: Lean.Util.FindExpr Lean.Declaration
+// Imports: public import Lean.Util.FindExpr public import Lean.Declaration
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

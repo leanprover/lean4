@@ -147,3 +147,9 @@ info: f_exp_wfrec.induct_unfolding (motive : Nat → Nat → Nat → Prop) (case
 -/
 #guard_msgs(pass trace, all) in
 #check f_exp_wfrec.induct_unfolding
+
+/-! Basic non-`meta` check. -/
+
+/-- error: Invalid definition `nonMeta`, may not access declaration `pubMeta` marked as `meta` -/
+#guard_msgs in
+def nonMeta := pubMeta

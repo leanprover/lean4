@@ -13,9 +13,9 @@ trace: [Compiler.result] size: 0
 ---
 trace: [Compiler.result] size: 5
     def _private.lean.run.emptyLcnf.0._eval._lam_0 _x.1 _x.2 _y.3 _y.4 _y.5 _y.6 _y.7 _y.8 _y.9 : EST.Out Lean.Exception
-      lcRealWorld PUnit :=
+      lcAny PUnit :=
       let _x.10 := Lean.Compiler.compile _x.1 _y.7 _y.8 _y.9;
-      cases _x.10 : EST.Out Lean.Exception lcRealWorld PUnit
+      cases _x.10 : EST.Out Lean.Exception lcAny PUnit
       | EST.Out.ok a.11 a.12 =>
         let _x.13 := @EST.Out.ok ◾ ◾ ◾ _x.2 a.12;
         return _x.13

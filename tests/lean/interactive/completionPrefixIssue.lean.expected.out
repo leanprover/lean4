@@ -19,7 +19,7 @@ Resolution of veryLongDefinitionName:
  "kind": 6,
  "detail": "Nat",
  "data":
- ["«external:file:///completionPrefixIssue.lean»", 1, 64, 0, "f_uniq.35"]}
+ ["«external:file:///completionPrefixIssue.lean»", 1, 64, 0, "f_uniq.44"]}
 Resolution of veryLongDefinitionNameVeryLongDefinitionName:
 {"label": "veryLongDefinitionNameVeryLongDefinitionName",
  "kind": 21,

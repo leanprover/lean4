@@ -595,7 +595,7 @@ theorem and_or_distrib_right (x y z : Nat) : (x ||| y) &&& z = (x &&& z) ||| (y 
    apply Nat.eq_of_testBit_eq
    simp [Bool.and_or_distrib_right]
 
-@[deprecated and_or_distrib_right (since := "2025-01-01")]
+@[deprecated and_or_distrib_right (since := "2025-10-02")]
 abbrev and_distrib_right := and_or_distrib_right
 
 theorem or_and_distrib_left (x y z : Nat) : x ||| (y &&& z) = (x ||| y) &&& (x ||| z) := by

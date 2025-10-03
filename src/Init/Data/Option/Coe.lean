@@ -22,22 +22,28 @@ is enforced by the test `importStructure.lean`).
 instance optionCoe {α : Type u} : Coe α (Option α) where
   coe := some
 
-/--
-The coercion-to-option-type behavior provided by `optionCoe` does not work for natural number
-literals or floating point literals because of the automatic insertion of `OfNat` and `OfScientific`
-coercions around these literals.
+/-!
+The coercion to `Option` types provided by `optionCoe` does not work for numeric literals because
+of the way numeric literals are automatically wrapped in a call to `OfNat.ofNat`: Lean expands the
+the literal `5` to the syntax `OfNat.ofNat (α := _) (nat_lit 5)` unless it's preceded by `nat_lit`.
 
-This instance provides the corresponding coercion for natural number literals.
+Without the following typeclass instances, `(5 : Option Nat)` fails at typeclass inference, even
+though `(OfNat.ofNat (α := Nat) (nat_lit 5) : Option Nat)` would succeed, with the help of a type
+coercion, via the `optionCoe` instance and inserting a type coercion. While these definitions do
+not involve type coercion, they result in Lean behaving more uniformly in the presence of
+`optionCoe`.
 -/
-instance natOptionCoe {α : Type u} {n : Nat} [OfNat α n] : OfNat (Option α) n where
+
+/--
+If the natural number n can be used as an expression of α via `OfNat.ofNat`, then it can also be
+used an expression of type `Option α`.
+-/
+instance {α : Type u} {n : Nat} [OfNat α n] : OfNat (Option α) n where
   ofNat := some (OfNat.ofNat n)
 
 /--
-The coercion-to-option-type behavior provided by `optionCoe` does not work for natural number
-literals or floating point literals because of the automatic insertion of `OfNat` and `OfScientific`
-coercions around these literals.
-
-This instance provides the corresponding coercion for scientific number literals.
+If an scientific number can be used as an expression of α via `OfScientific.ofScientific`, then it
+can also be used an expression of type `Option α`.
 -/
 instance scientificOptionCoe {α : Type u} [OfScientific α] : OfScientific (Option α) where
   ofScientific (mantissa : Nat) (exponentSign : Bool) (decimalExponent : Nat) :=

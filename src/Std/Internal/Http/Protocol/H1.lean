@@ -98,11 +98,6 @@ structure Config where
   -/
   identityHeader : Option HeaderValue := some (.new "LeanHTTP/1.1")
 
-  /--
-  Default buffer size for the connection
-  -/
-  defaultPayloadBytes : Nat := 8192
-
 /--
 Specific HTTP processing errors with detailed information.
 -/

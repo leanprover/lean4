@@ -9,6 +9,7 @@ prelude
 public import Lean.ScopedEnvExtension
 import Lean.Compiler.InitAttr
 import Lean.Compiler.IR.CompilerM
+import Lean.ExtraModUses
 
 public section
 
@@ -43,8 +44,10 @@ structure Def (γ : Type) where
   evalKey (builtin : Bool) (stx : Syntax) : AttrM Key := private_decl% (do
     let stx ← Attribute.Builtin.getIdent stx
     let kind := stx.getId
-    if (← getEnv).contains kind && (← Elab.getInfoState).enabled then
-      Elab.addConstInfo stx kind none
+    if (← getEnv).contains kind then
+      recordExtraModUseFromDecl (isMeta := false) kind
+      if (← Elab.getInfoState).enabled then
+        Elab.addConstInfo stx kind none
     pure kind)
   onAdded (builtin : Bool) (declName : Name) (key : Key) : AttrM Unit := pure ()
   deriving Inhabited

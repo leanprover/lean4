@@ -11,6 +11,7 @@ public import Lean.Parser.StrInterpolation
 public import Lean.ParserCompiler.Attribute
 public import Lean.PrettyPrinter.Basic
 public import Lean.PrettyPrinter.Delaborator.Options
+import Lean.ExtraModUses
 
 public section
 
@@ -139,8 +140,10 @@ unsafe builtin_initialize parenthesizerAttribute : KeyedDeclsAttribute Parenthes
       -- synthesize a parenthesizer for it immediately, so we just check for a declaration in this case
       unless (builtin && (env.find? id).isSome) || Parser.isValidSyntaxNodeKind env id do
         throwError "Invalid `[parenthesizer]` argument: Unknown syntax kind `{id}`"
-      if (← getEnv).contains id && (← Elab.getInfoState).enabled then
-        Elab.addConstInfo stx id none
+      if (← getEnv).contains id then
+        recordExtraModUseFromDecl (isMeta := false) id
+        if (← Elab.getInfoState).enabled then
+          Elab.addConstInfo stx id none
       pure id
   }
 
@@ -168,8 +171,10 @@ unsafe builtin_initialize categoryParenthesizerAttribute : KeyedDeclsAttribute C
       let id := stx.getId
       let some cat := (Parser.parserExtension.getState env).categories.find? id
         | throwError "Invalid `[category_parenthesizer]` argument: Unknown parser category `{toString id}`"
-      if (← Elab.getInfoState).enabled && (← getEnv).contains cat.declName then
-        Elab.addConstInfo stx cat.declName none
+      if (← getEnv).contains cat.declName then
+        recordExtraModUseFromDecl (isMeta := false) cat.declName
+        if (← Elab.getInfoState).enabled then
+          Elab.addConstInfo stx cat.declName none
       pure id
   }
 

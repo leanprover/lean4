@@ -71,6 +71,40 @@ def accept (s : Server) : Async Client := do
   |>.map Client.ofNative
 
 /--
+Tries to accepts an incoming connection.
+-/
+@[inline]
+def tryAccept (s : Server) : Async (Option Client) := do
+  let res ← s.native.tryAccept
+  let socket ← Async.ofExcept res
+  return Client.ofNative <$> socket
+
+/--
+Creates a `Selector` that resolves once `s` has a connetion available. Calling this function
+does not starts the connection wait, so it must not be called in parallel with `accept`.
+-/
+def acceptSelector (s : TCP.Socket.Server) : Async (Selector Client) := do
+  return {
+    tryFn := s.tryAccept
+    registerFn waiter := do
+      let task ← s.native.accept
+      -- If we get cancelled the promise will be dropped so prepare for that
+      IO.chainTask (t := task.result?) fun res => do
+        match res with
+        | none => return ()
+        | some res =>
+          let lose := return ()
+          let win promise := do
+            try
+              let result ← IO.ofExcept res
+              promise.resolve (.ok (Client.ofNative result))
+            catch e =>
+              promise.resolve (.error e)
+          waiter.race lose win
+    unregisterFn := s.native.cancelAccept
+  }
+
+/--
 Gets the local address of the server socket.
 -/
 @[inline]

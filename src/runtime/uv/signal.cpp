@@ -219,8 +219,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj, obj_arg /
     }
 }
 
-/* Std.Internal.UV.Signal.cancelNext (signal : @& Signal) : IO Unit */
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_cancel_next(b_obj_arg obj, obj_arg /* w */) {
+/* Std.Internal.UV.Signal.cancel (signal : @& Signal) : IO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_cancel(b_obj_arg obj, obj_arg /* w */) {
     lean_uv_signal_object * signal = lean_to_uv_signal(obj);
 
     // It's locking here to avoid changing the state during other operations.
@@ -262,6 +262,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg signal, obj_ar
 
 /* Std.Internal.UV.Signal.stop (signal : @& Signal) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg signal, obj_arg /* w */) {
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
+}
+
+/* Std.Internal.UV.Signal.cancel (signal : @& Signal) : IO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_cancel(b_obj_arg obj, obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );

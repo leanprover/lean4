@@ -242,19 +242,21 @@ Create a `Selector` that resolves once `s` has received the signal. Note that ca
 if it hasn't already started.
 -/
 def selector (s : Signal.Waiter) : IO (Selector Unit) := do
-  let signalWaiter ← s.wait
   return {
     tryFn := do
+      let signalWaiter : AsyncTask _ ← async s.wait
       if ← IO.hasFinished signalWaiter then
         return some ()
       else
         return none
 
     registerFn waiter := do
+      let signalWaiter ← s.wait
       discard <| AsyncTask.mapIO (x := signalWaiter) fun _ => do
         let lose := return ()
         let win promise := promise.resolve (.ok ())
         waiter.race lose win
 
-    unregisterFn := s.stop
+    unregisterFn := s.native.cancel
+
   }

@@ -524,6 +524,35 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket, obj_arg
     return lean_io_result_mk_ok(promise);
 }
 
+
+/* Std.Internal.UV.TCP.Socket.cancelAccept (socket : @& Socket) : IO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_accept(b_obj_arg socket, obj_arg /* w */) {
+    lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
+
+    event_loop_lock(&global_ev);
+
+    if (tcp_socket->m_promise_accept == nullptr) {
+        event_loop_unlock(&global_ev);
+        return lean_io_result_mk_ok(lean_box(0));
+    }
+
+    lean_object* promise = tcp_socket->m_promise_accept;
+    lean_dec(promise);
+    tcp_socket->m_promise_accept = nullptr;
+
+    lean_object* client = tcp_socket->m_client;
+
+    if (client != nullptr) {
+        lean_dec(client);
+        tcp_socket->m_client = nullptr;
+    }
+
+    lean_dec(socket);
+
+    event_loop_unlock(&global_ev);
+    return lean_io_result_mk_ok(lean_box(0));
+}
+
 /* Std.Internal.UV.TCP.Socket.shutdown (socket : @& Socket) : IO (IO.Promise (Except IO.Error Unit)) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket, obj_arg /* w */) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);

@@ -10,7 +10,7 @@ public import Lean.Runtime
 public import Lean.Compiler.IR.CompilerM
 
 public section
-
+-- TODO: What's the approach for inserting inc/dec here?
 namespace Lean.IR.ExplicitRC
 /-!
 Insert explicit RC instructions. So, it assumes the input code does not contain `inc` nor `dec` instructions.

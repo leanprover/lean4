@@ -20,6 +20,10 @@ inserted `inc/dec` instructions, and performed lower level optimizations
 that introduce the instructions `release` and `set`.
 -/
 
+-- TODO: does this module still implement the immutable beans paper faithfully or did we make
+-- meaningful heuristical changes that we should be aware of (apart from the differences listed
+-- below)?
+
 /-!
 Remark: the functions `S`, `D` and `R` defined here implement the
 corresponding functions in the paper "Counting Immutable Beans"

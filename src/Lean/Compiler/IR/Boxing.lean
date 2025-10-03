@@ -161,6 +161,7 @@ def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
   if expectedType.isScalar then
     return .unbox x
   else
+    -- TODO: what is this case distinction good for?
     match (← isExpensiveConstantValueBoxing x xType) with
     | some v => do
       let ctx ← read
@@ -313,6 +314,7 @@ def run (env : Environment) (decls : Array Decl) : Array Decl :=
       let (b, s)   := withParams xs (visitFnBody b) { f, resultType, decls, env } |>.run { nextIdx }
       let newDecls := newDecls ++ s.auxDecls
       let newDecl  := decl.updateBody! b
+      -- TODO: why do we need to kill dead decls again after the fact?
       let newDecl  := newDecl.elimDead
       newDecls.push newDecl
     | d => newDecls.push d

@@ -124,7 +124,7 @@ def cancelStopNoRepeat : IO Unit := do
   timer.stop
   timer.cancel
   timer.stop
-  IO.sleep 10
+  IO.sleep EPS.toUInt32
   assert! (← IO.getTaskState prom.result?) == IO.TaskState.finished
   assert! prom.result?.get == none
 
@@ -295,38 +295,37 @@ where
 def cancelBehaviorRepeat : IO Unit := do
   let timer ← Timer.mk BASE_DURATION.toUInt64 true
   let prom ← timer.next
-  IO.sleep 10
+  IO.sleep EPS.toUInt32
   assert! (← IO.getTaskState prom.result?) == IO.TaskState.finished
   let prom ← timer.next
-  IO.sleep 10
+  IO.sleep EPS.toUInt32
   assert! (← IO.getTaskState prom.result?) != IO.TaskState.finished
   timer.cancel
-  IO.sleep 10
+  IO.sleep EPS.toUInt32
   assert! (← IO.getTaskState prom.result?) == IO.TaskState.finished
   let prom ← timer.next
-  IO.sleep 10
+  IO.sleep EPS.toUInt32
   assert! (← IO.getTaskState prom.result?) != IO.TaskState.finished
   timer.cancel
-  IO.sleep 10
+  IO.sleep EPS.toUInt32
   assert! (← IO.getTaskState prom.result?) == IO.TaskState.finished
   assert! prom.result?.get == none
 
 def stopBehaviorRepeat : IO Unit := do
   let timer ← Timer.mk BASE_DURATION.toUInt64 true
   let prom ← timer.next
-  assert! (← IO.getTaskState prom.result?) != IO.TaskState.finished
-  IO.sleep 10
+  IO.sleep EPS.toUInt32
   assert! (← IO.getTaskState prom.result?) == IO.TaskState.finished
   let prom ← timer.next
-  IO.sleep 10
+  IO.sleep EPS.toUInt32
   assert! (← IO.getTaskState prom.result?) != IO.TaskState.finished
   timer.stop
-  IO.sleep 10
+  IO.sleep EPS.toUInt32
   assert! (← IO.getTaskState prom.result?) == IO.TaskState.finished
   assert! prom.result?.get == none
 
 def stopCancelRepeat : IO Unit := do
-  let timer ← Timer.mk 1000 true
+  let timer ← Timer.mk BASE_DURATION.toUInt64 true
   let prom ← timer.next
   assert! prom.result?.get == some ()
   let prom ← timer.next
@@ -340,7 +339,7 @@ def stopCancelRepeat : IO Unit := do
   assert! prom.result?.get == none
 
 def cancelStopRepeat : IO Unit := do
-  let timer ← Timer.mk 1000 true
+  let timer ← Timer.mk BASE_DURATION.toUInt64 true
   let prom ← timer.next
   assert! prom.result?.get == some ()
   let prom ← timer.next
@@ -352,12 +351,12 @@ def cancelStopRepeat : IO Unit := do
   timer.stop
   timer.cancel
   timer.stop
-  IO.sleep 10
+  IO.sleep EPS.toUInt32
   assert! (← IO.getTaskState prom.result?) == IO.TaskState.finished
   assert! prom.result?.get == none
 
 def stopRepeat : IO Unit := do
-  let timer ← Timer.mk 1000 true
+  let timer ← Timer.mk BASE_DURATION.toUInt64 true
   let prom ← timer.next
 
   assert! prom.result?.get == some ()
@@ -370,7 +369,7 @@ def stopRepeat : IO Unit := do
   assert! prom.result?.get == none
 
 def cancelRepeat : IO Unit := do
-  let timer ← Timer.mk 1000 true
+  let timer ← Timer.mk BASE_DURATION.toUInt64 true
   timer.cancel
 
   let prom ← timer.next

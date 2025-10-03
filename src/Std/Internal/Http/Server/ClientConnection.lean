@@ -134,7 +134,6 @@ Close the mock connection and notify all waiters.
 def close (client : Mock.Client) : BaseIO Unit := do
   client.state.atomically do
     let st ← get
-    -- Notify all waiting consumers that connection is closed
     for consumer in st.consumers.toArray do
       discard <| consumer.resolve none
 
@@ -202,7 +201,6 @@ private def recvReady' : AtomicT MockClient.State Async Bool := do
 Receive data from the mock client, simulating network behavior.
 -/
 def recv? (client : Mock.Client) (size : UInt64) : Async (Option ByteArray) := do
-  -- Try to get data immediately
   client.state.atomically do
     if let some data ← tryRecv' size then
       return (some data)

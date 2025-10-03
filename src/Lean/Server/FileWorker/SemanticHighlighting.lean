@@ -47,6 +47,8 @@ structure LeanSemanticToken where
   stx  : Syntax
   /-- Type of the semantic token. -/
   type : SemanticTokenType
+  /-- In case of overlap, higher-priority tokens will take precendence -/
+  priority : Nat := 5
 
 /-- Semantic token information with absolute LSP positions. -/
 structure AbsoluteLspSemanticToken where
@@ -56,6 +58,8 @@ structure AbsoluteLspSemanticToken where
   tailPos : Lsp.Position
   /-- Start position of the semantic token. -/
   type    : SemanticTokenType
+  /-- In case of overlap, higher-priority tokens will take precendence -/
+  priority : Nat := 5
   deriving BEq, Hashable, FromJson, ToJson
 
 /--
@@ -68,15 +72,182 @@ def computeAbsoluteLspSemanticTokens
     (endPos?  : Option String.Pos.Raw)
     (tokens   : Array LeanSemanticToken)
     : Array AbsoluteLspSemanticToken :=
-  tokens.filterMap fun ⟨stx, tokenType⟩ => do
+  tokens.filterMap fun ⟨stx, tokenType, priority⟩ => do
     let (pos, tailPos) := (← stx.getPos?, ← stx.getTailPos?)
     guard <| beginPos <= pos && endPos?.all (pos < ·)
     let (lspPos, lspTailPos) := (text.utf8PosToLspPos pos, text.utf8PosToLspPos tailPos)
-    return ⟨lspPos, lspTailPos, tokenType⟩
+    return ⟨lspPos, lspTailPos, tokenType, priority⟩
 
-/-- Filters all duplicate semantic tokens with the same `pos`, `tailPos` and `type`. -/
-def filterDuplicateSemanticTokens (tokens : Array AbsoluteLspSemanticToken) : Array AbsoluteLspSemanticToken :=
-  tokens.groupByKey id |>.toArray.map (·.1)
+
+/--
+The state used to handle computing non-overlapping semantic tokens. See
+`handleOverlappingSemanticTokens` for a description of the problem.
+
+Tokens are computed by iterating over every token _boundary_. At a given boundary, one of the
+following things may happen:
+1. We leave the range of a token, and there is no current token
+2. We leave the range of a token, starting a new one
+3. We start a token when there was none before
+
+To do this, we maintain a set of tokens that could in principle occupy the interval from the last
+token boundary to the one being considered. This includes tokens that are already in progress, and
+potentially a new one from the input. The one with the highest priority is selected to be the next
+one at each transition.
+-/
+private structure HandleOverlapState where
+  /-- The non-overlapping tokens that have been definitively produced -/
+  nonOverlapping : Array AbsoluteLspSemanticToken
+  /--
+  The current interval's token, with it's start position suitably adjusted.
+
+  When a token is replaced by a higher-priority token in part of its interval, its start position is
+  set to the end position of the overriding token when it is resumed.
+  -/
+  current : Option AbsoluteLspSemanticToken
+  /--
+  The other tokens whose intervals include the current token's start position.
+
+  Sorted by end position (increasing), because we've already passed their start positions. Only
+  their end positions may contribute new token boundaries.
+  -/
+  surrounding : List AbsoluteLspSemanticToken
+deriving Inhabited
+
+/--
+Adds a surrounding token to the set. These are tokens whose interval includes the boundaries being
+processed, but are superseded by the current token.
+-/
+private def HandleOverlapState.addSurrounding
+    (st : HandleOverlapState) (s : AbsoluteLspSemanticToken) : HandleOverlapState :=
+  { st with surrounding := go st.surrounding }
+where
+  go
+    | [] => [s]
+    | x :: xs =>
+      if s.tailPos < x.tailPos then s :: x :: xs else x :: go xs
+
+/--
+Handles state transitions that are not due to a new token. If `nextToken?` is `none`, then there are
+no more tokens to process, so all remaining transitions occur. If it is `some t`, then state
+transitions only occur for token boundaries less than the `t`'s start.
+-/
+private def HandleOverlapState.untilToken (st : HandleOverlapState) (nextToken? : Option AbsoluteLspSemanticToken) : HandleOverlapState := Id.run do
+  let mut st := st
+  repeat
+    if let some curr := st.current then
+      -- We know that the current token is higher priority than surrounding tokens, so we should
+      -- discard any surrounding tokens that end before it does
+      st := { st with surrounding := st.surrounding.dropWhile (·.tailPos ≤ curr.tailPos) }
+      -- If the current token ends before the next token starts, or if there are no new tokens, then
+      -- we end it now
+      let endNow : Bool :=
+        if let some t := nextToken? then curr.tailPos ≤ t.pos else true
+      if endNow then
+        st := { st with
+          nonOverlapping := st.nonOverlapping.push curr,
+          current := takeBest st.surrounding |>.map ({ · with pos := curr.tailPos })
+        }
+      -- If the current token extends past t's start, then we're done with this loop and ready to handle t
+      else break
+    else
+      -- Check whether the surrounding tokens need to become current.
+      -- Make the highest-priority surrounding token into the new current one.
+      if let some best := takeBest st.surrounding then
+        -- No need to remove it from surrounding because this will happen at its end position
+        st := { st with current := best }
+      else
+        -- Nothing is current, and nothing is surrounding. We're done.
+        break
+  st
+where
+  /--
+  The best token is the nonempty token with the highest priority; given equal priorities, earlier
+  tokens win. Breaking ties in favor of shorter tokens means that more information has the chance to
+  be displayed.
+  -/
+  takeBest (toks : List AbsoluteLspSemanticToken) : Option AbsoluteLspSemanticToken :=
+    toks.foldl (init := none) fun
+      | none, t =>
+        if t.pos < t.tailPos then some t else none
+      | some soFar, t =>
+        if better t soFar then
+          some t
+        else
+          some soFar
+
+  better (t soFar : AbsoluteLspSemanticToken) : Bool :=
+    t.pos < t.tailPos &&
+    (t.priority > soFar.priority || (t.priority == soFar.priority && t.tailPos > soFar.tailPos))
+
+/--
+Handles a new token. First, `untilToken` is called, which takes care of all transitions that are due
+to token boundaries prior to the start of `t`. After that `t`'s priority is compared to the current
+token (if any), and then the highest-priority of the two is made current with the other relegated to
+the surrounding tokens list.
+-/
+private def HandleOverlapState.token (st : HandleOverlapState) (t : AbsoluteLspSemanticToken) : HandleOverlapState :=
+  let st := st.untilToken (some t)
+  -- Now we know that the current token, if present, overlaps with `t`
+  if let some curr := st.current then
+    if curr.priority > t.priority then
+      -- Insert t into surrounding, continue with current
+      st.addSurrounding t
+    else
+      -- Transition to t, save current if it's longer than t
+      let st := { st with
+        current := some t,
+        nonOverlapping :=
+          let curr := { curr with tailPos := t.pos }
+          -- Only save the token if it actually takes up space. This step is what filters out
+          -- actual duplicates.
+          if curr.pos < curr.tailPos then
+            st.nonOverlapping.push curr
+          else st.nonOverlapping
+      }
+      if curr.tailPos > t.tailPos then
+        st.addSurrounding curr
+      else
+        st
+  else
+    -- If there was no current token, then there's no surrounding tokens either
+    { st with current := some t }
+
+
+/--
+Eliminates overlapping tokens by selecting a single “best” token for each interval between token
+boundaries.
+
+While LSP allows clients to state they they can handle overlapping tokens, widely used clients such
+as VSCode cannot handle them. Thus, we need to make them non-overlapping (this strictly generalizes
+removal of duplicates).
+
+Given tokens A, B, C, D as in:
+```
+|-----A------|  |----D----|
+    |------B----------|
+        |----C----|
+```
+with priorities C > B, B > A, B > C, we want to emit the tokens:
+```
+|-A-|-B-|----C----|-B-|-D--|
+```
+In other words, `B` is split into two regions: before and after `C`.
+-/
+def handleOverlappingSemanticTokens (tokens : Array AbsoluteLspSemanticToken) :
+    Array AbsoluteLspSemanticToken := Id.run do
+  let tokens := tokens.qsort fun ⟨pos1, tailPos1, _, _⟩ ⟨pos2, tailPos2, _, _⟩ =>
+    pos1 < pos2 || pos1 == pos2 && tailPos1 <= tailPos2
+  let mut st : HandleOverlapState := {
+    current := none
+    -- Reserve 10% for overlaps
+    nonOverlapping := Array.mkEmpty (tokens.size * 11 / 10)
+    surrounding := []
+  }
+  for t in tokens do
+    st := st.token t
+  st := st.untilToken none
+  return st.nonOverlapping
+
 
 /--
 Given a set of `AbsoluteLspSemanticToken`, computes the LSP `SemanticTokens` data with
@@ -84,11 +255,11 @@ token-relative positioning.
 See https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_semanticTokens.
 -/
 def computeDeltaLspSemanticTokens (tokens : Array AbsoluteLspSemanticToken) : SemanticTokens := Id.run do
-  let tokens := tokens.qsort fun ⟨pos1, tailPos1, _⟩ ⟨pos2, tailPos2, _⟩ =>
+  let tokens := tokens.qsort fun ⟨pos1, tailPos1, _, _⟩ ⟨pos2, tailPos2, _, _⟩ =>
     pos1 < pos2 || pos1 == pos2 && tailPos1 <= tailPos2
   let mut data : Array Nat := Array.mkEmpty (5*tokens.size)
   let mut lastPos : Lsp.Position := ⟨0, 0⟩
-  for ⟨pos, tailPos, tokenType⟩ in tokens do
+  for ⟨pos, tailPos, tokenType, _⟩ in tokens do
     let deltaLine := pos.line - lastPos.line
     let deltaStart := pos.character - (if pos.line == lastPos.line then lastPos.character else 0)
     let length := tailPos.character - pos.character
@@ -102,15 +273,42 @@ open Lean.Doc.Syntax in
 def isVersoKind (k : SyntaxNodeKind) : Bool :=
   (`Lean.Doc.Syntax).isPrefixOf k
 
+/--
+Split the token at newline boundaries to support LSP clients such as VSCode that can't deal with
+newline-spanning tokens.
+-/
+private def splitStr (text : FileMap) (stx : Syntax) : Array Syntax := Id.run do
+  if let some ⟨s, e⟩ := stx.getRange? then
+    -- Construct fake syntax with the right source spans
+    let mut s := s
+    let mut stxs := #[]
+    for l in text.positions do
+      if l > e then
+        stxs := stxs.push (Syntax.mkStrLit (text.source.extract s e) (info := .synthetic s e))
+        break
+      if l > s then
+        let l' := text.source.prev l
+        stxs := stxs.push (Syntax.mkStrLit (text.source.extract s l') (info := .synthetic s l'))
+        s := l
+    return stxs
+
+  else
+    return #[]
+
 
 open Lean.Doc.Syntax in
 private partial def collectVersoTokens
+    (text : FileMap)
     (stx : Syntax) (getTokens : (stx : Syntax) → Array LeanSemanticToken) :
     Array LeanSemanticToken :=
   go stx |>.run #[] |>.2
 where
   tok (tk : Syntax) (k : SemanticTokenType) : StateM (Array LeanSemanticToken) Unit :=
-    modify (·.push ⟨tk, k⟩)
+    let prio :=
+      match k with
+      | .string => 3
+      | _ => 5
+    modify (·.push ⟨tk, k, prio⟩)
 
   go (stx : Syntax) : StateM (Array LeanSemanticToken) Unit := do
   match stx with
@@ -133,11 +331,11 @@ where
     tok x .property
   | `(link_target| [%$tk1 $s ]%$tk2) =>
     tok tk1 .keyword
-    tok s .string
+    tok s .property
     tok tk2 .keyword
   | `(link_target| (%$tk1 $s )%$tk2) =>
     tok tk1 .keyword
-    tok s .property
+    tok s .string
     tok tk2 .keyword
   | `(inline|$_:str) | `(inline|line! $_) => pure () -- No tokens for plain text or line breaks
   | `(inline| *[%$tk1 $inls* ]%$tk2) | `(inline|_[%$tk1 $inls* ]%$tk2) =>
@@ -188,7 +386,7 @@ where
     tok tk1 .keyword
     tok x .function
     args.forM go
-    tok s .string
+    for line in splitStr text s do tok line .string
     tok tk2 .keyword
   | `(block| :::%$tk1 $x $args* { $blks* }%$tk2)=>
     tok tk1 .keyword
@@ -220,20 +418,22 @@ where
     inls.forM go
   | `(block|ul{$items*}) | `(block|ol($_){$items*}) | `(block|dl{$items*}) =>
     items.forM go
-  | _ =>
-    pure ()
+  | other =>
+    let k := other.getKind
+    if k == nullKind || k == ``Lean.Parser.Command.versoCommentBody then
+      other.getArgs.forM go
 
 /--
 Collects all semantic tokens that can be deduced purely from `Syntax`
 without elaboration information.
 -/
-partial def collectSyntaxBasedSemanticTokens : (stx : Syntax) → Array LeanSemanticToken
+partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) → Array LeanSemanticToken
   | `($e.$id:ident)    =>
-    let tokens := collectSyntaxBasedSemanticTokens e
-    tokens.push ⟨id, SemanticTokenType.property⟩
+    let tokens := collectSyntaxBasedSemanticTokens text e
+    tokens.push ⟨id, SemanticTokenType.property, 5⟩
   | `($e |>.$field:ident) =>
-    let tokens := collectSyntaxBasedSemanticTokens e
-    tokens.push ⟨field, SemanticTokenType.property⟩
+    let tokens := collectSyntaxBasedSemanticTokens text e
+    tokens.push ⟨field, SemanticTokenType.property, 5⟩
   | stx => Id.run do
     if noHighlightKinds.contains stx.getKind then
       return #[]
@@ -242,22 +442,20 @@ partial def collectSyntaxBasedSemanticTokens : (stx : Syntax) → Array LeanSema
       if stx[1].isAtom then
         return #[]
       else
-        return collectVersoTokens stx[1] collectSyntaxBasedSemanticTokens
+        return collectVersoTokens text stx[1] (collectSyntaxBasedSemanticTokens text)
     let mut tokens :=
       if stx.isOfKind choiceKind then
-        collectSyntaxBasedSemanticTokens stx[0]
+        collectSyntaxBasedSemanticTokens text stx[0]
       else
-        stx.getArgs.map collectSyntaxBasedSemanticTokens |>.flatten
+        stx.getArgs.map (collectSyntaxBasedSemanticTokens text) |>.flatten
     let Syntax.atom _ val := stx
       | return tokens
     let isRegularKeyword := val.length > 0 && isIdFirst val.front
     let isHashKeyword := val.length > 1 && val.front == '#' && isIdFirst (val.get ⟨1⟩)
     if ! isRegularKeyword && ! isHashKeyword then
       return tokens
-    return tokens.push ⟨stx, keywordSemanticTokenMap.getD val .keyword⟩
+    return tokens.push ⟨stx, keywordSemanticTokenMap.getD val .keyword, 5⟩
 
-
-open Lean.Doc.Syntax in
 /-- Collects all semantic tokens from the given `Elab.InfoTree`. -/
 def collectInfoBasedSemanticTokens (i : Elab.InfoTree) : Array LeanSemanticToken :=
   List.toArray <| i.deepestNodes fun _ info _ => do
@@ -271,12 +469,23 @@ def collectInfoBasedSemanticTokens (i : Elab.InfoTree) : Array LeanSemanticToken
           -- Recall that `isAuxDecl` is an auxiliary declaration used to elaborate a recursive definition.
           if localDecl.isAuxDecl then
             if ti.isBinder then
-              return ⟨ti.stx, SemanticTokenType.function⟩
+              return ⟨ti.stx, SemanticTokenType.function, 5⟩
           else if ! localDecl.isImplementationDetail then
-            return ⟨ti.stx, SemanticTokenType.variable⟩
+            return ⟨ti.stx, SemanticTokenType.variable, 5⟩
     if ti.stx.getKind == Parser.Term.identProjKind then
-      return ⟨ti.stx, SemanticTokenType.property⟩
+      return ⟨ti.stx, SemanticTokenType.property, 5⟩
     none
+
+def showTokens (text : FileMap) (toks : Array LeanSemanticToken) : String := Id.run do
+  let mut byLine : Std.HashMap Nat (Array (Nat × Nat × LeanSemanticToken)) := {}
+  for ⟨stx, tok, prio⟩ in toks do
+    if let some ⟨⟨l, c1⟩, ⟨_, c2⟩⟩ := text.lspRangeOfStx? stx then
+      byLine := byLine.alter l fun x? => some (x?.getD #[] |>.push (c1, c2, ⟨stx, tok, prio⟩))
+  let mut out := ""
+  for (l, vals) in byLine.toArray.qsort (fun x y => x.1 < y.1) do
+    let vals := vals.qsort fun x y => x.1 < y.1
+    out := out ++ s!"{l}:\t{vals.map (fun (c1, c2, ⟨stx, tok, prio⟩) => (c1, c2, stx, toJson tok, prio))}\n"
+  out
 
 def computeSemanticTokens  (doc : EditableDocument) (beginPos : String.Pos.Raw)
     (endPos? : Option String.Pos.Raw) (snaps : List Snapshots.Snapshot) : RequestM SemanticTokens := do
@@ -284,13 +493,13 @@ def computeSemanticTokens  (doc : EditableDocument) (beginPos : String.Pos.Raw)
   for s in snaps do
     if s.endPos <= beginPos then
       continue
-    let syntaxBasedSemanticTokens := collectSyntaxBasedSemanticTokens s.stx
+    let syntaxBasedSemanticTokens := collectSyntaxBasedSemanticTokens doc.meta.text s.stx
     let infoBasedSemanticTokens := collectInfoBasedSemanticTokens s.infoTree
     leanSemanticTokens := leanSemanticTokens ++ syntaxBasedSemanticTokens ++ infoBasedSemanticTokens
     RequestM.checkCancelled
   let absoluteLspSemanticTokens := computeAbsoluteLspSemanticTokens doc.meta.text beginPos endPos? leanSemanticTokens
   RequestM.checkCancelled
-  let absoluteLspSemanticTokens := filterDuplicateSemanticTokens absoluteLspSemanticTokens
+  let absoluteLspSemanticTokens := handleOverlappingSemanticTokens absoluteLspSemanticTokens
   RequestM.checkCancelled
   let semanticTokens := computeDeltaLspSemanticTokens absoluteLspSemanticTokens
   return semanticTokens

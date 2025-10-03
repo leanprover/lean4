@@ -226,8 +226,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg obj, obj_arg /*
         uv_timer_stop(timer->m_uv_timer);
         event_loop_unlock(&global_ev);
 
-        lean_dec(timer->m_promise);
-        timer->m_promise = NULL;
+        if (timer->m_promise != NULL) {
+            lean_dec(timer->m_promise);
+            timer->m_promise = NULL;
+        }
+
         timer->m_state = TIMER_STATE_FINISHED;
 
         // The loop does not need to keep the timer alive anymore.

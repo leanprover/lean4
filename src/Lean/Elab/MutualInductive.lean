@@ -14,7 +14,9 @@ public import Lean.Meta.Constructions
 public import Lean.Meta.CollectFVars
 public import Lean.Meta.SizeOf
 public import Lean.Meta.Injective
+public import Lean.Meta.MkIffOfInductiveProp
 public import Lean.Elab.Command
+public import Lean.Elab.Coinductive
 public import Lean.Elab.DefView
 public import Lean.Elab.DeclUtil
 public import Lean.Elab.Deriving.Basic
@@ -114,6 +116,7 @@ structure InductiveView where
   derivingClasses : Array DerivingClassView
   /-- The declaration docstring, and whether it's Verso -/
   docString?      : Option (TSyntax ``Lean.Parser.Command.docComment × Bool)
+  isCoinductive : Bool := false
   deriving Inhabited
 
 /-- Elaborated header for an inductive type before fvars for each inductive are added to the local context. -/
@@ -851,7 +854,7 @@ private def mkIndFVar2Const (views : Array InductiveView) (indFVars : Array Expr
 /-- Remark: `numVars <= numParams`. `numVars` is the number of context `variables` used in the inductive declaration,
    and `numParams` is `numVars` + number of explicit parameters provided in the declaration. -/
 private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : Array Expr) (levelNames : List Name)
-    (numVars : Nat) (numParams : Nat) (indTypes : List InductiveType) : TermElabM (List InductiveType) :=
+    (numVars : Nat) (numParams : Nat) (indTypes : List InductiveType) (applyVariables : Bool := true) : TermElabM (List InductiveType) :=
   let indFVar2Const := mkIndFVar2Const views indFVars levelNames
   indTypes.mapM fun indType => do
     let ctors ← indType.ctors.mapM fun ctor => do
@@ -861,7 +864,7 @@ private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : 
             none
           else match indFVar2Const[e]? with
             | none   => none
-            | some c => mkAppN c (params.extract 0 numVars)
+            | some c => if applyVariables then mkAppN c (params.extract 0 numVars) else c
         instantiateMVars (← mkForallFVars params type)
       return { ctor with type }
     return { indType with ctors }
@@ -875,99 +878,252 @@ private structure FinalizeContext where
   localInsts : LocalInstances
   replaceIndFVars : Expr → MetaM Expr
 
-private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM FinalizeContext :=
-  Term.withoutSavingRecAppSyntax do
+private structure FinalizeInductiveDecl where
+  decl : Declaration
+  indFvars : Array Expr
+  numParams : Int
+  rs : Array PreElabHeaderResult
+
+/--
+  For nested inductive types, the kernel adds a variable number of auxiliary recursors.
+  Let the elaborator know about them as well. (Other auxiliaries have already been
+  registered by `addDecl` via `Declaration.getNames`.)
+  NOTE: If we want to make inductive elaboration parallel, this should switch to using
+  reserved names.
+-/
+private def addAuxRecs (indTypes : List InductiveType) : TermElabM Unit := do
+  for indType in indTypes do
+    let mut i := 1
+    while true do
+      let auxRecName := indType.name ++ `rec |>.appendIndexAfter i
+      let env ← getEnv
+      let some const := env.toKernelEnv.find? auxRecName | break
+      let res ← env.addConstAsync auxRecName .recursor
+      res.commitConst res.asyncEnv (info? := const)
+      res.commitCheckEnv res.asyncEnv
+      setEnv res.mainEnv
+      i := i + 1
+
+private def mkReplaceIndFVars (views : Array InductiveView) (indFVars : Array Expr)
+   (levelParams : List Name) (vars : Array Expr) : Expr → MetaM Expr := fun e => do
+    let indFVar2Const := mkIndFVar2Const views indFVars levelParams
+    return (← instantiateMVars e).replace fun e' =>
+      if !e'.isFVar then
+        none
+      else
+        match indFVar2Const[e']? with
+        | none   => none
+        | some c => mkAppN c vars
+
+private def buildFinalizeContext (elabs' : Array InductiveElabStep2) (levelParams : List Name)
+    (vars params : Array Expr) (views : Array InductiveView) (newIndFVars : Array Expr)
+    (rs : Array ElabHeaderResult) : TermElabM FinalizeContext := do
+  let lctx := rs.foldl (init := ← getLCtx) fun lctx r =>
+    lctx.modifyLocalDecl r.indFVar.fvarId! fun decl =>
+      decl.setUserName (`_indFVar ++ decl.userName)
+
+  pure {
+    elabs := elabs',
+    levelParams,
+    params := vars ++ params,
+    replaceIndFVars := mkReplaceIndFVars views newIndFVars levelParams vars,
+    mctx := ← getMCtx,
+    lctx,
+    localInsts := ← getLocalInstances
+  }
+
+def replaceIndFVars (numParams : Nat) (oldFVars : Array Expr) (calls : Array Expr) : Expr → Expr := fun e =>
+  let replacementMap : ExprMap Expr := {}
+  let replacementMap := replacementMap.insertMany <| oldFVars.zip calls
+  e.replace (fun e =>
+    if e.isApp || numParams == 0 then
+      if let some replacement := replacementMap.get? e.getAppFn then
+        mkAppN replacement <| e.getAppArgs.extract numParams
+      else
+        .none
+    else
+      .none
+    )
+
+/--
+  Given a list of `InductiveType` structures and some local variables of `mkInductiveDecl`,
+  rewrites the inductive types and their constructors in a way that signature contains parameters
+  representing the types being defined, and all the recursive occurrences of the inductive types
+  in constructor are replaced by applications of these parameters.
+
+  This function is used to implement coinductive predicates. For more details, see the comment in
+  `Elab.Coinductive`
+
+  Upon rewriting the inductive types, it adds the new inductive declaration to the environment,
+  following the same pattern as `mkInductiveDecl`.
+
+  We assume that numVars <= numParams, where numVars is the number of local variables.
+-/
+private def mkFlatInductive (views : Array InductiveView)
+  (indFVars : Array Expr) (levelParams : List Name) (numVars : Nat)
+  (numParams : Nat) (indTypes : List InductiveType) : TermElabM Unit := do
+
+  let namesAndTypes := indTypes.map fun indType => (indType.name.append `call, indType.type)
+  let namesAndTypes := namesAndTypes.toArray
+
+  -- We update the type of all inductive types, so they have recursive calls added as parameters
+  let newTypes ← namesAndTypes.mapM fun (_, indType) =>
+    forallBoundedTelescope indType numParams fun indTypeParams indTypeBody => do
+
+      -- We first go through all types in the mutual block and get rid of their parameters
+      -- by substiuting free variables
+      let typesWithAppliedParams ← namesAndTypes.mapM fun (newName, curIndType) => do
+        forallBoundedTelescope curIndType numParams fun curIntTypeParams curIndTypeBody => do
+          return (newName, curIndTypeBody.replaceFVars curIntTypeParams indTypeParams)
+      withLocalDeclsDND typesWithAppliedParams fun newParams => do
+       mkForallFVars (indTypeParams ++ newParams) indTypeBody
+  let rs ← newTypes.mapIdxM fun idx newType => do
+    return PreElabHeaderResult.mk views[idx]! levelParams (numParams + views.size) newType #[]
+
+  -- We now reuse the machinery for bringing in indFVars to the context
+  withInductiveLocalDecls rs fun newParams newIndFVars => do
+    let indTypes ← indTypes.mapIdxM fun indTypeIdx indType => do
+      let updatedCtors ← indType.ctors.mapM fun ctor => do
+        -- We first use new set of parameters
+        let updatedCtor ← instantiateForall ctor.type (newParams.take numParams)
+        let updatedCtor ← forallTelescope updatedCtor fun ctorArgs ctorBody => do
+            -- We assume that the conclusion is an application of the fvar
+          guard <| ctorBody.isApp || numParams == 0
+
+          -- We first get non-parameter arguments of the body
+          let bodyArgs := ctorBody.getAppArgs.extract (numParams - numVars)
+
+          -- And make a new conclusion with new indFVar. We pass new parameters and old non-parameter arguments
+          let ctorBody := mkAppN (newIndFVars[indTypeIdx]!) (newParams ++ bodyArgs)
+          mkForallFVars ctorArgs ctorBody
+
+        -- Then we replace indFVars in the premises of the rule
+        let calls := newParams.extract numParams
+        let updatedCtor := replaceIndFVars (numParams - numVars) indFVars calls updatedCtor
+
+        -- Finally, we need to abstract away the parameters
+        let updatedCtor ← mkForallFVars newParams updatedCtor
+        return { ctor with type := updatedCtor}
+      return { indType with type := newTypes[indTypeIdx]!, ctors := updatedCtors}
+
+    let indTypes ← replaceIndFVarsWithConsts views newIndFVars levelParams numVars (numParams + views.size) indTypes (applyVariables := false)
+    let decl := Declaration.inductDecl levelParams (numParams + views.size) indTypes false
+    Term.ensureNoUnassignedMVars decl
+    addDecl decl
+
+private structure AddAndFinalizeContext where
+  views : Array InductiveView
+  elabs' : Array InductiveElabStep2
+  indFVars : Array Expr
+  vars : Array Expr
+  levelParams : List Name
+  numVars : Nat
+  numParams : Nat
+  indTypes : List InductiveType
+  isUnsafe : Bool
+  rs : Array ElabHeaderResult
+  params : Array Expr
+  isCoinductive : Bool
+
+private def addAndFinalizeInductiveDecl (context : AddAndFinalizeContext) : TermElabM FinalizeContext := do
+    let indTypes ← replaceIndFVarsWithConsts context.views context.indFVars context.levelParams context.numVars context.numParams context.indTypes
+    let decl := Declaration.inductDecl context.levelParams context.numParams indTypes context.isUnsafe
+    Term.ensureNoUnassignedMVars decl
+    addDecl decl
+    addAuxRecs indTypes
+    buildFinalizeContext context.elabs' context.levelParams context.vars context.params context.views context.indFVars context.rs
+
+private def addTermInfoViews (views : Array InductiveView) : TermElabM Unit := -- save new env
+  withSaveInfoContext do -- save new env
+    for view in views do
+      do Term.addTermInfo' view.declId (← mkConstWithLevelParams view.declName) (isBinder := true)
+      for ctor in view.ctors do
+        if (ctor.declId.getPos? (canonicalOnly := true)).isSome then do
+          Term.addTermInfo' ctor.declId (← mkConstWithLevelParams ctor.declName) (isBinder := true)
+          enableRealizationsForConst ctor.declName
+
+private def mkInductiveDeclCore
+  (callback : AddAndFinalizeContext → TermElabM α) (vars : Array Expr)
+  (elabs : Array InductiveElabStep1) (rs : Array PreElabHeaderResult) (scopeLevelNames : List Name) : TermElabM α := do
+  let views := elabs.map (·.view)
+  let view0 := views[0]!
+  let isCoinductive := views.any (·.isCoinductive)
+  if isCoinductive then
+    unless (←rs.allM (forallTelescopeReducing ·.type fun args body => pure body.isProp)) do
+      throwErrorAt view0.declId "`coinductive` keyword can only be used to define predicates"
+  let allUserLevelNames := rs[0]!.levelNames
+  let isUnsafe          := view0.modifiers.isUnsafe
+  let res ← withInductiveLocalDecls rs fun params indFVars => do
+        trace[Elab.inductive] "indFVars: {indFVars}"
+        let rs := Array.zipWith (fun r indFVar => { r with indFVar : ElabHeaderResult }) rs indFVars
+        let mut indTypesArray : Array InductiveType := #[]
+        let mut elabs' := #[]
+        for h : i in *...views.size do
+          Term.addLocalVarInfo views[i].declId indFVars[i]!
+          let r     := rs[i]!
+          let elab' ← elabs[i]!.elabCtors rs r params
+          elabs'    := elabs'.push elab'
+          indTypesArray := indTypesArray.push { name := r.view.declName, type := r.type, ctors := elab'.ctors }
+        Term.synthesizeSyntheticMVarsNoPostponing
+        let numExplicitParams ← fixedIndicesToParams params.size indTypesArray indFVars
+        trace[Elab.inductive] "numExplicitParams: {numExplicitParams}"
+        let indTypes := indTypesArray.toList
+        let u ← getResultingUniverse indTypes
+        let univToInfer? ← shouldInferResultUniverse u
+        withUsed elabs' vars indTypes fun vars => do
+          let numVars   := vars.size
+          let numParams := numVars + numExplicitParams
+          let indTypes ← updateParams vars indTypes
+          -- allow general access to private data for steps that do no elaboration
+          let indTypes ←
+            withoutExporting do
+              if let some univToInfer := univToInfer? then
+                updateResultingUniverse views numParams (← levelMVarToParam indTypes univToInfer)
+              else
+                propagateUniversesToConstructors numParams indTypes
+                levelMVarToParam indTypes none
+          withoutExporting do
+            checkResultingUniverses views elabs' numParams indTypes
+          elabs'.forM fun elab' => elab'.finalizeTermElab
+          let usedLevelNames := collectLevelParamsInInductive indTypes
+          match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with
+          | .error msg      => throwErrorAt view0.declId msg
+          | .ok levelParams =>
+            callback {
+              views := views
+              elabs' := elabs'
+              indFVars := indFVars
+              vars := vars
+              levelParams := levelParams
+              indTypes := indTypes
+              isUnsafe := isUnsafe
+              rs := rs
+              params := params
+              isCoinductive := isCoinductive
+              numVars := numVars
+              numParams := numParams
+            }
+  return res
+
+private def withElaboratedHeaders (vars : Array Expr) (elabs : Array InductiveElabStep1)
+  (k : Array Expr → Array InductiveElabStep1 → Array PreElabHeaderResult → List Name → TermElabM α ) : TermElabM α :=
+Term.withoutSavingRecAppSyntax do
   let views := elabs.map (·.view)
   let view0 := views[0]!
   let scopeLevelNames ← Term.getLevelNames
   InductiveElabStep1.checkLevelNames views
   let allUserLevelNames := view0.levelNames
-  let isUnsafe          := view0.modifiers.isUnsafe
   withRef view0.ref <| Term.withLevelNames allUserLevelNames do
     let rs ← elabHeaders views
     Term.synthesizeSyntheticMVarsNoPostponing
     ElabHeaderResult.checkLevelNames rs
-    let allUserLevelNames := rs[0]!.levelNames
     trace[Elab.inductive] "level names: {allUserLevelNames}"
-    let res ← withInductiveLocalDecls rs fun params indFVars => do
-      trace[Elab.inductive] "indFVars: {indFVars}"
-      let rs := Array.zipWith (fun r indFVar => { r with indFVar : ElabHeaderResult }) rs indFVars
-      let mut indTypesArray : Array InductiveType := #[]
-      let mut elabs' := #[]
-      for h : i in *...views.size do
-        Term.addLocalVarInfo views[i].declId indFVars[i]!
-        let r     := rs[i]!
-        let elab' ← elabs[i]!.elabCtors rs r params
-        elabs'    := elabs'.push elab'
-        indTypesArray := indTypesArray.push { name := r.view.declName, type := r.type, ctors := elab'.ctors }
-      Term.synthesizeSyntheticMVarsNoPostponing
-      let numExplicitParams ← fixedIndicesToParams params.size indTypesArray indFVars
-      trace[Elab.inductive] "numExplicitParams: {numExplicitParams}"
-      let indTypes := indTypesArray.toList
-      let u ← getResultingUniverse indTypes
-      let univToInfer? ← shouldInferResultUniverse u
-      withUsed elabs' vars indTypes fun vars => do
-        let numVars   := vars.size
-        let numParams := numVars + numExplicitParams
-        let indTypes ← updateParams vars indTypes
-        -- allow general access to private data for steps that do no elaboration
-        let indTypes ←
-          withoutExporting do
-            if let some univToInfer := univToInfer? then
-              updateResultingUniverse views numParams (← levelMVarToParam indTypes univToInfer)
-            else
-              propagateUniversesToConstructors numParams indTypes
-              levelMVarToParam indTypes none
-        withoutExporting do
-          checkResultingUniverses views elabs' numParams indTypes
-        elabs'.forM fun elab' => elab'.finalizeTermElab
-        let usedLevelNames := collectLevelParamsInInductive indTypes
-        match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with
-        | .error msg      => throwErrorAt view0.declId msg
-        | .ok levelParams => do
-          let indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numVars numParams indTypes
-          let decl := Declaration.inductDecl levelParams numParams indTypes isUnsafe
-          Term.ensureNoUnassignedMVars decl
-          addDecl decl
+    k vars elabs rs scopeLevelNames
 
-          -- For nested inductive types, the kernel adds a variable number of auxiliary recursors.
-          -- Let the elaborator know about them as well. (Other auxiliaries have already been
-          -- registered by `addDecl` via `Declaration.getNames`.)
-          -- NOTE: If we want to make inductive elaboration parallel, this should switch to using
-          -- reserved names.
-          for indType in indTypes do
-            let mut i := 1
-            while true do
-              let auxRecName := indType.name ++ `rec |>.appendIndexAfter i
-              let env ← getEnv
-              let some const := env.toKernelEnv.find? auxRecName | break
-              let res ← env.addConstAsync auxRecName .recursor
-              res.commitConst res.asyncEnv (info? := const)
-              res.commitCheckEnv res.asyncEnv
-              setEnv res.mainEnv
-              i := i + 1
-
-          let replaceIndFVars (e : Expr) : MetaM Expr := do
-            let indFVar2Const := mkIndFVar2Const views indFVars levelParams
-            return (← instantiateMVars e).replace fun e' =>
-              if !e'.isFVar then
-                none
-              else
-                match indFVar2Const[e']? with
-                | none   => none
-                | some c => mkAppN c vars
-          -- Now the indFVars are (mostly) unnecessary, so rename them to prevent shadowing in messages.
-          -- Inductive elaborators might still have some indFVars around, but they should use `replaceIndFVars` as soon as possible during their `finalize` procedure.
-          let lctx := rs.foldl (init := ← getLCtx) (fun lctx r => lctx.modifyLocalDecl r.indFVar.fvarId! fun decl => decl.setUserName (`_indFVar ++ decl.userName))
-          pure {
-            elabs := elabs', levelParams, params := vars ++ params, replaceIndFVars,
-            mctx := ← getMCtx, lctx, localInsts := ← getLocalInstances }
-    withSaveInfoContext do -- save new env
-      for view in views do
-        Term.addTermInfo' view.declId (← mkConstWithLevelParams view.declName) (isBinder := true)
-        for ctor in view.ctors do
-          if (ctor.declId.getPos? (canonicalOnly := true)).isSome then
-            Term.addTermInfo' ctor.declId (← mkConstWithLevelParams ctor.declName) (isBinder := true)
+private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM FinalizeContext :=
+  withElaboratedHeaders vars elabs fun vars elabs rs scopeLevelNames => do
+    let res ← mkInductiveDeclCore addAndFinalizeInductiveDecl vars elabs rs scopeLevelNames
+    addTermInfoViews <| elabs.map (·.view)
     return res
 
 private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
@@ -986,6 +1142,14 @@ private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
     if hasUnit && hasProd then mkBelow n
   for n in declNames do
     if hasUnit && hasProd then mkBRecOn n
+
+def updateViewWithFunctorName (view : InductiveView) : InductiveView :=
+  let newCtors := view.ctors.map (fun ctor => {ctor with declName := ctor.declName.updatePrefix (addFunctorPostfix ctor.declName.getPrefix)})
+  {view with declName := addFunctorPostfix view.declName, ctors := newCtors}
+
+def updateViewRemovingFunctorName (view : InductiveView) : InductiveView :=
+  let newCtors := view.ctors.map (fun ctor => {ctor with declName := ctor.declName.updatePrefix (removeFunctorPostfix ctor.declName.getPrefix)})
+  {view with declName := addFunctorPostfix view.declName, ctors := newCtors}
 
 private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM FinalizeContext := do
   let view0 := elabs[0]!.view
@@ -1007,23 +1171,39 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
         enableRealizationsForConst ctor.declName
     return res
 
+private def elabFlatInductiveViews (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM Unit := do
+  let view0 := elabs[0]!.view
+  let ref := view0.ref
+  Term.withDeclName view0.declName do withRef ref do
+  withExporting (isExporting := !isPrivateName view0.declName) do
+    withElaboratedHeaders vars elabs <| mkInductiveDeclCore (fun context =>
+     mkFlatInductive context.views context.indFVars context.levelParams context.numVars context.numParams context.indTypes)
+    -- This might be too coarse, consider reconsidering on construction-by-construction basis
+    withoutExporting (when := view0.ctors.any (isPrivateName ·.declName)) do
+      mkAuxConstructions (elabs.map (·.view.declName))
+    -- Note that the below applies to the flat inductive
+    for e in elabs do
+      enableRealizationsForConst e.view.declName
+
 /-- Ensures that there are no conflicts among or between the type and constructor names defined in `elabs`. -/
-private def checkNoInductiveNameConflicts (elabs : Array InductiveElabStep1) : TermElabM Unit := do
+private def checkNoInductiveNameConflicts (elabs : Array InductiveElabStep1) (isCoinductive : Bool := false) : TermElabM Unit := do
   let throwErrorsAt (init cur : Syntax) (msg : MessageData) : TermElabM Unit := do
     logErrorAt init msg
     throwErrorAt cur msg
   -- Maps names of inductive types to to `true` and those of constructors to `false`, along with syntax refs
   let mut uniqueNames : Std.HashMap Name (Bool × Syntax) := {}
+  let declString := if isCoinductive then "coinductive predicate" else "inductive type"
+  trace[Elab.inductive] "deckString: {declString}"
   for { view, .. } in elabs do
     let typeDeclName := privateToUserName view.declName
     if let some (prevNameIsType, prevRef) := uniqueNames[typeDeclName]? then
-      let declKinds := if prevNameIsType then "multiple inductive types" else "an inductive type and a constructor"
+      let declKinds := if prevNameIsType then "multiple " ++ declString ++ "s" else "an " ++ declString ++ " and a constructor"
       throwErrorsAt prevRef view.declId m!"Cannot define {declKinds} with the same name `{typeDeclName}`"
     uniqueNames := uniqueNames.insert typeDeclName (true, view.declId)
     for ctor in view.ctors do
       let ctorName := privateToUserName ctor.declName
       if let some (prevNameIsType, prevRef) := uniqueNames[ctorName]? then
-        let declKinds := if prevNameIsType then "an inductive type and a constructor" else "multiple constructors"
+        let declKinds := if prevNameIsType then "an {declString} and a constructor" else "multiple constructors"
         throwErrorsAt prevRef ctor.declId m!"Cannot define {declKinds} with the same name `{ctorName}`"
       uniqueNames := uniqueNames.insert ctorName (false, ctor.declId)
 
@@ -1067,13 +1247,15 @@ private def applyDerivingHandlers (views : Array InductiveView) : CommandElabM U
             declNames := declNames.push view.declName
         classView.applyHandlers declNames
 
-private def elabInductiveViewsPostprocessing (views : Array InductiveView) (res : FinalizeContext) : CommandElabM Unit := do
+private def elabInductiveViewsPostprocessing (views : Array InductiveView) (res : FinalizeContext)
+     : CommandElabM Unit := do
   let view0 := views[0]!
   let ref := view0.ref
   applyComputedFields views -- NOTE: any generated code before this line is invalid
   liftTermElabM <| withMCtx res.mctx <| withLCtx res.lctx res.localInsts do
     let finalizers ← res.elabs.mapM fun elab' => elab'.prefinalize res.levelParams res.params res.replaceIndFVars
-    for view in views do withRef view.declId <| Term.applyAttributesAt view.declName view.modifiers.attrs .afterTypeChecking
+    for view in views do withRef view.declId <|
+      Term.applyAttributesAt view.declName view.modifiers.attrs .afterTypeChecking
     for elab' in finalizers do elab'.finalize
   applyDerivingHandlers views
   -- Docstrings are added during postprocessing to allow them to have checked references to
@@ -1089,16 +1271,64 @@ private def elabInductiveViewsPostprocessing (views : Array InductiveView) (res 
             addDocStringOf verso ctor.declName ctor.binders doc
 
   runTermElabM fun _ => Term.withDeclName view0.declName do withRef ref do
-    for view in views do withRef view.declId <| Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
+    for view in views do withRef view.declId <|
+      unless (views.any (·.isCoinductive)) do
+        Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
+
+private def elabInductiveViewsPostprocessingCoinductive (views : Array InductiveView)
+     : CommandElabM Unit := do
+  let views := views.map updateViewRemovingFunctorName
+  let view0 := views[0]!
+  let ref := view0.ref
+
+  applyDerivingHandlers views
+  -- Docstrings are added during postprocessing to allow them to have checked references to
+  -- the type and its constructors, but before attributes to enable e.g. `@[inherit_doc X]`
+  runTermElabM fun _ => Term.withDeclName view0.declName do withRef ref do
+    for view in views do
+      withRef view.declId do
+        if let some (doc, verso) := view.docString? then
+          addDocStringOf verso view.declName view.binders doc
+      for ctor in view.ctors do
+        withRef ctor.declId do
+          if let some (doc, verso) := ctor.modifiers.docString? then
+            addDocStringOf verso ctor.declName ctor.binders doc
+
+  runTermElabM fun _ => Term.withDeclName view0.declName do withRef ref do
+    for view in views do withRef view.declId <|
+      unless (views.any (·.isCoinductive)) do
+        Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
+
+def InductiveViewToCoinductiveElab (e : InductiveElabStep1) : CoinductiveElabData where
+  declId := e.view.declId
+  declName := e.view.declName
+  ref := e.view.ref
+  modifiers := e.view.modifiers
+  ctorSyntax := e.view.ctors.map (·.ref)
+  isGreatest := e.view.isCoinductive
 
 def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Unit := do
-  let (elabs, res) ← runTermElabM fun vars => do
-    let elabs ← inductives.mapM fun (modifiers, stx) => mkInductiveView modifiers stx
-    elabs.forM fun e => checkValidInductiveModifier e.view.modifiers
-    checkNoInductiveNameConflicts elabs
-    let res ← elabInductiveViews vars elabs
-    pure (elabs, res)
-  elabInductiveViewsPostprocessing (elabs.map (·.view)) res
+  let elabs ← runTermElabM fun _ =>
+      inductives.mapM fun (modifiers, stx) => mkInductiveView modifiers stx
+
+  let isCoinductive := elabs.any (·.view.isCoinductive)
+
+  if isCoinductive then
+    runTermElabM fun vars => do
+      checkNoInductiveNameConflicts elabs (isCoinductive := true)
+      let flatElabs := elabs.map fun e => {e with view := updateViewWithFunctorName e.view}
+      flatElabs.forM fun e => checkValidInductiveModifier e.view.modifiers
+      elabFlatInductiveViews vars flatElabs
+      discard <| flatElabs.mapM fun e => MetaM.run' do mkSumOfProducts e.view.declName
+      elabCoinductive (flatElabs.map InductiveViewToCoinductiveElab)
+      addTermInfoViews <| elabs.map (·.view)
+    elabInductiveViewsPostprocessingCoinductive (elabs.map (·.view))
+  else
+    let res ← runTermElabM fun vars => do
+      elabs.forM fun e => checkValidInductiveModifier e.view.modifiers
+      checkNoInductiveNameConflicts elabs
+      elabInductiveViews vars elabs
+    elabInductiveViewsPostprocessing (elabs.map (·.view)) res
 
 def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   elabInductives #[(modifiers, stx)]

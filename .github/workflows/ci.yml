@@ -213,7 +213,7 @@ jobs:
               },*/
               {
                 "name": "macOS",
-                "os": "macos-13",
+                "os": "macos-15-intel",
                 "release": true,
                 "check-level": 2,
                 "shell": "bash -euxo pipefail {0}",
@@ -226,7 +226,7 @@ jobs:
               {
                 "name": "macOS aarch64",
                 // standard GH runner only comes with 7GB so use large runner if possible when running tests
-                "os": large && !isPr ? "nscloud-macos-sonoma-arm64-6x14" : "macos-14",
+                "os": large && !isPr ? "nscloud-macos-sequoia-arm64-6x14" : "macos-15",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "release": true,
                 "shell": "bash -euxo pipefail {0}",

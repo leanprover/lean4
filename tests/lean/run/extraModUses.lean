@@ -3,7 +3,7 @@ module
 prelude
 public import Init.Prelude
 import all Lean.ExtraModUses
-public meta import Lean.CoreM
+public meta import Lean.Elab.Tactic.Basic
 
 /-!
 # Test for module dependencies described by ExtraModUses
@@ -234,6 +234,83 @@ register_error_explanation lean.never {
 
 /--
 info: Entries: [meta import Lean.ErrorExplanation]
+Is rev mod use: false
+-/
+#guard_msgs in #eval showExtraModUses
+
+/-!
+The syntax node kind in `syntax` declarations get recorded as a `meta` dependency.
+-/
+
+#eval resetExtraModUses
+
+syntax "test_me " Lean.Parser.Term.ident : term
+
+/--
+info: Entries: [meta import Lean.Parser.Term, import Init.Notation]
+Is rev mod use: false
+-/
+#guard_msgs in #eval showExtraModUses
+
+/-!
+Resolved constants from syntax quotations get added (here `List.sum` from Init.Data.List.Basic).
+-/
+
+#eval resetExtraModUses
+
+def test8 : Lean.MacroM Lean.Syntax := `(List.sum)
+
+/--
+info: Entries: [import Init.Notation, import Init.Coe, import Init.Data.List.Basic]
+Is rev mod use: false
+-/
+#guard_msgs in #eval showExtraModUses
+
+/-!
+Elaboration attributes add dependency on the syntax node kind
+(here `Lean.Parser.Tactic.done` from Init.Tactics).
+-/
+
+public meta def myElab : Lean.Elab.Tactic.Tactic := fun _ => pure ()
+
+#eval resetExtraModUses
+
+attribute [tactic Lean.Parser.Tactic.done] myElab
+
+/--
+info: Entries: [import Init.Tactics]
+Is rev mod use: false
+-/
+#guard_msgs in #eval showExtraModUses
+
+/-!
+Similarly with formatters...
+-/
+
+public meta def myFormatter : Lean.PrettyPrinter.Formatter := fun _ => pure ()
+
+#eval resetExtraModUses
+
+attribute [formatter Lean.Parser.Tactic.done] myFormatter
+
+/--
+info: Entries: [import Init.Tactics]
+Is rev mod use: false
+-/
+#guard_msgs in #eval showExtraModUses
+
+/-!
+... and parenthesizers
+-/
+
+public meta def myParenthesizer : Lean.PrettyPrinter.Parenthesizer := fun _ => pure ()
+
+#eval resetExtraModUses
+
+attribute [parenthesizer Lean.Parser.Tactic.done] myParenthesizer
+
+/--
+info: Entries: [import Init.Tactics]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses

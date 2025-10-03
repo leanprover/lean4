@@ -34,9 +34,19 @@ structure Config where
   maxHeaderSize : Nat := 8192
 
   /--
-  Connection timeout in milliseconds.
+  Maximum waiting time for more data.
   -/
-  timeoutMilliseconds : Time.Millisecond.Offset := 1000
+  lingeringTimeout : Time.Millisecond.Offset := 5000
+
+  /--
+  Timeout for keep-alive connections
+  -/
+  keepAliveTimeout : { x : Time.Millisecond.Offset // 0 < x } :=  ⟨45000, by decide⟩
+
+  /--
+  Maximum timeout time for request more data.
+  -/
+  requestTimeout : { x : Time.Millisecond.Offset // 0 < x } := ⟨10000, by decide⟩
 
   /--
   Whether to enable keep-alive connections by default.
@@ -49,7 +59,12 @@ structure Config where
   highMark : Nat := 4096
 
   /--
-  Default buffer size for the connection.
+  The maximum size that the connection can receive in a single recv call.
+  -/
+  maximumRecvSize : Nat := 8192
+
+  /--
+  Default buffer size for the connection
   -/
   defaultPayloadBytes : Nat := 8192
 
@@ -67,7 +82,6 @@ def toH1Config (config : Config) : Protocol.H1.Machine.Config :=
   { maxRequests := config.maxRequests
     maxHeaders := config.maxHeaders
     maxHeaderSize := config.maxHeaderSize
-    timeoutMilliseconds := config.timeoutMilliseconds
     enableKeepAlive := config.enableKeepAlive
     highMark := config.highMark
     serverName := config.serverName

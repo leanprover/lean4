@@ -22,18 +22,13 @@ open Time
 Serve conection
 -/
 def serve
-  (addr : Net.SocketAddress)
-  (onRequest : Request Body → Async (Response Body))
-  (onReady : Async Unit := pure ())
-  (onFailure : Error → Async Unit := fun _ => pure ())
-  (config : Config := {})
-  (backlog : UInt32 := 128) : Async Unit := do
-    let server ← Socket.Server.mk
-    server.bind addr
-    server.listen backlog
+    (addr : Net.SocketAddress)
+    (onRequest : Request Body → Async (Response Body))
+    (config : Config := {}) (backlog : UInt32 := 128) : Async Unit := do
+  let server ← Socket.Server.mk
+  server.bind addr
+  server.listen backlog
 
-    onReady
-
-    while true do
-      let client ← server.accept
-      background (prio := .max) <| serveConnection client onRequest onFailure config
+  while true do
+    let client ← server.accept
+    background (prio := .max) <| serveConnection client onRequest config

@@ -92,10 +92,8 @@ and contains some data.
 -/
 def tryRecv (stream : ByteStream) : Async (Option ByteArray) := do
   stream.state.atomically do
-    match ← tryRecvFromBuffer' with
-    | some ⟨#[], _⟩ => pure none
-    | none => pure none
-    | some res => pure (some res.toByteArray)
+    let buf ← tryRecvFromBuffer'
+    return Util.BufferBuilder.toByteArray <$> buf
 
 /--
 Receives (reads) all currently available data from the stream, emptying it.

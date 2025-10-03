@@ -137,6 +137,13 @@ protected def pure (x : α) : ETask ε α :=
   Task.pure <| .ok x
 
 /--
+Returns `true` if a `ETask` has finished it's execution
+-/
+@[inline]
+protected def isFinished (x : ETask ε α) : BaseIO Bool := do
+  return (← IO.getTaskState x) == IO.TaskState.finished
+
+/--
 Creates a new `ETask` that will run after `x` has finished. If `x`:
 - errors, return an `ETask` that resolves to the error.
 - succeeds, return an `ETask` that resolves to `f x`.
@@ -241,6 +248,13 @@ Construct an `AsyncTask` that is already resolved with value `x`.
 @[inline]
 protected def pure (x : α) : AsyncTask α :=
   Task.pure <| .ok x
+
+/--
+Returns `true` if a `AsyncTask` has finished it's execution
+-/
+@[inline]
+protected def isFinished (x : AsyncTask α) : BaseIO Bool := do
+  return (← IO.getTaskState x) == IO.TaskState.finished
 
 /--
 Create a new `AsyncTask` that will run after `x` has finished.

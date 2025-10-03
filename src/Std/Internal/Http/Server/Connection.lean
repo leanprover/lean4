@@ -47,144 +47,170 @@ private inductive Recv
   | bytes (x : Option ByteArray)
   | timeout
 
-private def receiveWithTimeout
-  [ClientConnection α] (socket : α) (expect : UInt64)
-  (timeoutMs : Millisecond.Offset) :
+private def receiveWithTimeout [ClientConnection α] (socket : α) (expect : UInt64)
+    (timeoutMs : Millisecond.Offset) :
   Async Recv := do
     Selectable.one #[
       .case (← ClientConnection.recvSelector socket expect) (fun x => pure <| .bytes x),
       .case (← Selector.sleep timeoutMs) (fun _ => pure <| .timeout)]
 
 private def processNeedMoreData
-  [ClientConnection α] (machine : Protocol.H1.Machine) (socket : α) (expect : Option Nat) :
-  Async (Except Protocol.H1.Machine.Error (Option ByteArray)) := do
-    try
-      let expect := expect.getD machine.config.defaultPayloadBytes
-      let data ← receiveWithTimeout socket expect.toUInt64 machine.config.timeoutMilliseconds
+    [ClientConnection α] (config : Config) (socket : α) (expect : Option Nat) :
+    Async (Except Protocol.H1.Machine.Error (Option ByteArray)) := do
+  try
+    let expect := expect
+      |>.getD config.defaultPayloadBytes
+      |>.min config.maximumRecvSize
 
-      match data with
-      | .bytes (some bytes) => pure (.ok <| some bytes)
-      | .bytes none => pure (.ok <| none)
-      | .timeout => pure (.error Protocol.H1.Machine.Error.timeout)
+    let data ← receiveWithTimeout socket expect.toUInt64 config.lingeringTimeout
 
-    catch _ =>
-      pure (.error Protocol.H1.Machine.Error.timeout)
+    match data with
+    | .bytes (some bytes) => pure (.ok <| some bytes)
+    | .bytes none => pure (.ok <| none)
+    | .timeout => pure (.error Protocol.H1.Machine.Error.timeout)
+
+  catch _ =>
+    pure (.error Protocol.H1.Machine.Error.timeout)
 
 private def handle
-  [ClientConnection α]
-  (connection : Connection α)
-  (handler : Request Body → Async (Response Body))
-  (onFailure : Error → Async Unit)
-  : Async Unit := do
-    let mut machine := connection.machine
-    let mut running := true
-    let socket := connection.socket
+    [ClientConnection α]
+    (connection : Connection α)
+    (config : Config)
+    (handler : Request Body → Async (Response Body)) : Async Unit := do
 
-    let mut requestStream ← Body.ByteStream.emptyWithCapacity
+  let mut machine := connection.machine
+  let mut running := true
+  let socket := connection.socket
 
-    let mut response ← IO.Promise.new
-    let mut errored ← IO.Promise.new
-    let mut respStream := none
-    let mut sentResponse := false
+  let mut requestStream ← Body.ByteStream.emptyWithCapacity
+  let mut requestTimer ← Interval.mk config.requestTimeout.val config.requestTimeout.property
+  let mut connectionTimer ← Sleep.mk config.keepAliveTimeout
 
-    try
-      while running do
-        machine := machine.processRead
-        machine := machine.processWrite
+  let mut response ← IO.Promise.new
+  let mut errored ← IO.Promise.new
+  let mut respStream := none
+  let mut sentResponse := false
+  let mut closing := false
 
-        let (newMachine, events) := machine.takeEvents
-        machine := newMachine
+  let mut requestTimerTask ← async requestTimer.tick
+  let connectionTimerTask ← async connectionTimer.wait
 
-        for event in events do
-          match event with
-          | .needMoreData expect => do
-            match ← processNeedMoreData machine socket expect with
-            | .ok (some bs) =>
-              machine := machine.feed bs
-            | .ok none =>
-              running := false;
-              break
-            | .error _ => do
-              if let .needStartLine := machine.reader.state then
-                running := false; break
-              else
-                machine := machine.setFailure .timeout .requestTimeout
+  while running do
+    machine := machine.processRead.processWrite
 
-          | .endHeaders head => do
-            if let some (.fixed n) := Protocol.H1.Machine.getRequestSize head then
-              requestStream.setKnownSize (some n)
+    let (newMachine, events) := machine.takeEvents
+    machine := newMachine
 
-            let newResponse := handler { head, body := (.stream requestStream) }
-            let task ← newResponse.asTask
-
-            BaseIO.chainTask task fun
-              | .error res => errored.resolve res
-              | .ok res => response.resolve res
-
-          | .gotData final data =>
-            discard <| requestStream.send data.toByteArray
-
-            if final then
-              requestStream.close
-
-          | .chunkExt _ =>
-            pure ()
-
-          | .failed =>
-            pure ()
-
-          | .close =>
-            running := false
-
-          | .next =>
-            requestStream ← Body.ByteStream.emptyWithCapacity
-            response ← IO.Promise.new
-            errored ← IO.Promise.new
-            respStream := none
-            sentResponse := false
-
-        if not sentResponse ∧ (← response.isResolved) then
-          sentResponse := true
-          let res ← await response.result!
-
-          if machine.isWaitingResponse then
-            machine := machine.sendResponse res.head
-            match res.body with
-            | some (.bytes data) => machine := machine.writeUserData data |>.closeWriter
-            | some ( .zero) | none => machine := machine.closeWriter
-            | some (.stream res) => do
-              if let some size ← res.getKnownSize then
-                machine := machine.setKnownSize size
-
-              respStream := some res
-
-        if let some stream := respStream then
-          if machine.isWriterOpened then
-            if machine.isReaderComplete ∧ events.isEmpty then
-              if let some data ← stream.recv then
-                machine := machine.writeUserData data
-              else
-                machine := machine.closeWriter
+    -- Process events like receiving data from the socket.
+    for event in events do
+      match event with
+      | .needMoreData expect => do
+        try
+          match ← processNeedMoreData config socket expect with
+          | .ok (some bs) =>
+            machine := machine.feed bs
+          | .ok none =>
+            running := false;
+            break
+          | .error _ => do
+            if let .needStartLine := machine.reader.state then
+              running := false; break
             else
-              if (← stream.isClosed) ∧ (← stream.isClosed) then
-                pure ()
-              else
-                match ← stream.tryRecv with
-                | some res => machine := machine.writeUserData res
-                | none => machine := machine.closeWriter
+              machine := machine.setFailure .timeout .requestTimeout
+        catch _ =>
+          running := false
 
-        if ← errored.isResolved then
-          let _ ← await errored.result!
-          machine := machine.setFailure (.other "Internal Error") .internalServerError
+      | .endHeaders head => do
+        if let some (.fixed n) := Protocol.H1.Machine.getRequestSize head then
+          requestStream.setKnownSize (some n)
 
-        if let some (newMachine, data) := machine.takeOutput then
-          machine := newMachine
+        let newResponse := handler { head, body := (.stream requestStream) }
+        let task ← newResponse.asTask
 
-          if data.size > 0 then
-            ClientConnection.sendAll socket data.data
+        BaseIO.chainTask task fun
+          | .error res => errored.resolve res
+          | .ok res => response.resolve res
 
-    catch err =>
-      onFailure err
+      | .gotData final data =>
+        discard <| requestStream.send data.toByteArray
+
+        if final then
+          requestStream.close
+
+      | .chunkExt _ =>
+        pure ()
+
+      | .failed =>
+        pure ()
+
+      | .close =>
+        running := false
+
+      | .next =>
+        requestTimer.reset
+        requestStream ← Body.ByteStream.emptyWithCapacity
+        response ← IO.Promise.new
+        errored ← IO.Promise.new
+        respStream := none
+        sentResponse := false
+
+    -- Sends the response head and starts to receive the response body.
+    if not sentResponse ∧ (← response.isResolved) then
+      sentResponse := true
+      let res ← await response.result!
+
+      if machine.isWaitingResponse then
+        machine := machine.sendResponse res.head
+        match res.body with
+        | some (.bytes data) => machine := machine.writeUserData data |>.closeWriter
+        | some ( .zero) | none => machine := machine.closeWriter
+        | some (.stream res) => do
+          if let some size ← res.getKnownSize then
+            machine := machine.setKnownSize size
+
+          respStream := some res
+
+    -- Sends data from the response body.
+    if let some stream := respStream then
+      if machine.isWriterOpened then
+        if machine.isReaderComplete ∧ events.isEmpty then
+          if let some data ← stream.recv then
+            machine := machine.writeUserData data
+          else
+            machine := machine.closeWriter
+        else
+          if ← stream.isClosed then
+            pure ()
+          else
+            match ← stream.tryRecv with
+            | some res => machine := machine.writeUserData res
+            | none => machine := machine.closeWriter
+
+    -- Checks for things that can close the connection.
+    if ¬closing then
+      if (← requestTimerTask.isFinished) ∨ (← connectionTimerTask.isFinished) then
+        machine := machine.setFailure .timeout .requestTimeout
+        closing := true
+
+      if ← errored.isResolved then
+        let _ ← await errored.result!
+        machine := machine.setFailure (.other "Internal Error") .internalServerError
+        closing := true
+
+    -- Sends the output of the machine to the socket in a vectored write.
+    if let some (newMachine, data) := machine.takeOutput then
+      machine := newMachine
+
+      if data.size > 0 then
+        try
+          ClientConnection.sendAll socket data.data
+        catch _ =>
+          running := false
+
+  -- End of the connection
+  connectionTimer.stop
+  requestTimer.stop
+
 end Connection
 
 /--
@@ -211,11 +237,7 @@ while true do
 ```
 
 -/
-def serveConnection
-  [ClientConnection t]
-  (client : t)
-  (onRequest : Request Body → Async (Response Body))
-  (onFailure : Error → Async Unit := fun _ => pure ())
-  (config : Config := {}) : Async Unit := do
-    Connection.mk client { config := config.toH1Config }
-    |>.handle onRequest onFailure
+def serveConnection [ClientConnection t] (client : t)
+    (onRequest : Request Body → Async (Response Body)) (config : Config := {}) : Async Unit := do
+  Connection.mk client { config := config.toH1Config }
+  |>.handle config onRequest

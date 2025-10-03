@@ -396,3 +396,15 @@ def cancelRepeat : IO Unit := do
 
 #eval stopRepeat
 #eval cancelRepeat
+
+#eval sleepFirst
+#eval sleepSecond
+#eval promiseBehavior1
+#eval promiseBehavior2
+#eval promiseBehavior3
+#eval delayedTickBehavior
+#eval skippedTickBehavior
+#eval resetBehavior
+#eval sequentialSleep
+
+end IntervalTest

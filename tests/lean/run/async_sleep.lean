@@ -394,4 +394,5 @@ def cancelRepeat : IO Unit := do
 #eval resetBehavior
 #eval sequentialSleep
 
-end IntervalTest
+#eval stopRepeat
+#eval cancelRepeat

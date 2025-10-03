@@ -85,36 +85,6 @@ def fromString? : String → Option Method
   | "PATCH" => some .patch
   | _ => none
 
-/--
-Request methods are considered safe if their defined semantics are essentially read-only.
-
-* Reference: https://httpwg.org/specs/rfc9110.html#method.properties
--/
-def isSafe : Method → Prop
-  | .get | .head | .options | .trace => True
-  | _ => False
-
-/--
-A request method is considered idempotent if the intended effect on the server of multiple
-identical requests with that method is the same as the effect for a single such request.
-
-* Reference: https://httpwg.org/specs/rfc9110.html#idempotent.methods
--/
-def isIdempotent : Method → Prop
-  | .get | .head | .options | .trace => True
-  | .put | .delete => True
-  | _ => False
-
-/--
-Checks if the given method allows a request body. GET and HEAD methods do not typically allow
-request bodies.
-
-* Reference: https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods
--/
-def allowsRequestBody : Method → Bool
-  | .get | .head => False
-  | _ => True
-
 instance : ToString Method where
   toString
     | .get => "GET"

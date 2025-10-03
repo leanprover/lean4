@@ -82,13 +82,6 @@ instance : ToString Head where
     toString req.headers ++ "\r\n\r\n"
 
 /--
-Determines if a request method typically doesn't allow a request body
--/
-@[inline]
-def isInformational (request : Head) : Bool :=
-  ¬request.method.allowsRequestBody
-
-/--
 Creates a new HTTP Request builder with default head (method: GET, version: HTTP/1.1, asterisk URI, empty headers)
 -/
 def new : Builder := { }

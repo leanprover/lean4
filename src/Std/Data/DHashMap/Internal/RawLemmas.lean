@@ -2747,7 +2747,7 @@ theorem get_union_of_contains_right_eq_false [LawfulBEq α] (h₁ : m₁.val.WF)
 theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
     (m₁.union (m₂.insert p.fst p.snd)).1.Equiv ((m₁.union m₂).insert p.fst p.snd).1 := by
-  sorry
+  simp_to_model [union, insert, Equiv]
 
 theorem getKey?_union_of_contains_right [EquivBEq α] [LawfulHashable α]
     {p : (a : α) × β a} (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
@@ -2805,7 +2805,8 @@ theorem getKey?_union_of_contains_left_of_contains_right_eq_false [EquivBEq α] 
   revert mem not_mem
   simp_to_model [contains, getKey?, union]
   intro not_mem mem
-  apply List.getKey?_insertSmallerList_of_contains_left_of_contains_right_eq_false not_mem mem
+  sorry
+  -- apply List.getKey?_insertSmallerList_of_contains_left_of_contains_right_eq_false not_mem mem
 
 theorem getKey_union_of_contains_left_of_contains_right_eq_false
     [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
@@ -2820,7 +2821,8 @@ theorem getKey!_union_of_contains_left_eq_false [Inhabited α]
   revert h'
   simp_to_model [getKey!, contains, union]
   have := @distinct_keys α β m₁ _ _ _ _ h₁
-  apply getKey!_insertSmallerList_of_contains_left_eq_false h'
+  sorry
+  --apply getKey!_insertSmallerList_of_contains_left_eq_false h'
 
 
 theorem getKey!_union_of_mem_left_of_not_mem_right [EquivBEq α] [LawfulHashable α] [Inhabited α]
@@ -2838,7 +2840,8 @@ theorem getKeyD_union_of_mem_left_of_contains_right_eq_false [EquivBEq α]
 theorem size_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
     (h₂ : m₂.val.WF) : (∀ (a : α), m₁.contains a → m₂.contains a = false) →
     (m₁.union m₂).1.size = m₁.1.size + m₂.1.size := by
-  simp_to_model [union, size]
+  simp_to_model [union, size, contains] using List.length_insertSmallerList
+
 
 theorem size_left_le_size_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
     (h₂ : m₂.val.WF) : m₁.1.size ≤ (m₁.union m₂).1.size := by

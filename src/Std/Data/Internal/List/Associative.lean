@@ -3344,45 +3344,45 @@ theorem length_insertListIfNew_right [BEq α] [EquivBEq α]
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
     (distinct_both : ∀ (a : α), containsKey a l → (toInsert.map Sigma.fst).contains a = false) :
     (insertListIfNew toInsert l).length = l.length + toInsert.length := by
-  induction toInsert generalizing l with
-  | nil =>
-    unfold insertListIfNew
-    split
-    . simp
-    . simp [insertEntryIfNew, insertListIfNew]
-      rw [Nat.add_comm]
-      apply Eq.trans
-      . apply length_insertListIfNew
-        . simp
-        . cases distinct_l
-          next =>
-            rename_i distinct_l
-            simp at distinct_l
-            replace distinct_l := distinct_l.2
-            simp [keys_eq_map] at distinct_l
-            sorry
-
-
-
-  | cons h t ih =>
-      simp
-      unfold insertListIfNew
-      split
-      . simp
-      . sorry
+  rw [Nat.add_comm]
+  apply @length_insertListIfNew α β _ _ toInsert l
+  . apply DistinctKeys.mk
+    simp [keys_eq_map]
+    apply List.Pairwise.map _ _ distinct_toInsert
+    simp only [imp_self, implies_true]
+  . exact pairwise_fst_eq_false distinct_l
+  . intro a hyp
+    rw [←Bool.not_eq_true]
+    intro hyp2
+    rw [←containsKey_eq_contains_map_fst] at hyp2
+    specialize distinct_both a hyp2
+    rw [←containsKey_eq_contains_map_fst, ←Bool.not_eq_true] at distinct_both
+    exact distinct_both hyp
 
 theorem length_insertSmallerList [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)}
     (distinct_l : DistinctKeys l)
-    (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
-    (distinct_both : ∀ (a : α), containsKey a l → (toInsert.map Sigma.fst).contains a = false) :
+    (distinct_toInsert : DistinctKeys toInsert) :
+    (∀ (a : α), containsKey a l → containsKey a toInsert = false) →
     (insertSmallerList l toInsert).length = l.length + toInsert.length := by
-  unfold insertSmallerList
-  split
-  case isTrue =>
-    apply length_insertListIfNew_right distinct_l distinct_toInsert distinct_both
-  case isFalse =>
-    apply length_insertList distinct_l distinct_toInsert distinct_both
+    intro distinct_keys
+    have subgoal : List.Pairwise (fun a b => (a.fst == b.fst) = false) toInsert := by
+      cases distinct_toInsert
+      case mk distinct_toInsert =>
+        simp only [keys_eq_map] at distinct_toInsert
+        apply List.Pairwise.of_map
+        case p => exact distinct_toInsert
+        simp only [imp_self, implies_true]
+    have subgoal2 : ∀ (a : α), containsKey a l = true → (List.map Sigma.fst toInsert).contains a = false := by
+      intro a h_contains
+      specialize distinct_keys a h_contains
+      rwa [containsKey_eq_contains_map_fst] at distinct_keys
+    unfold insertSmallerList
+    split
+    case isTrue =>
+      apply length_insertListIfNew_right distinct_l subgoal subgoal2
+    case isFalse =>
+      apply length_insertList distinct_l subgoal subgoal2
 
 section
 

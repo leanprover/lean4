@@ -253,12 +253,26 @@ Is rev mod use: false
 #guard_msgs in #eval showExtraModUses
 
 /-!
+The syntax node kind in quotations get recorded as a `meta` dependency.
+-/
+
+#eval resetExtraModUses
+
+def test8 : Lean.MacroM Lean.Syntax := `(Lean.Parser.Command.declaration| def a := 5)
+
+/--
+info: Entries: [import Init.Notation, import Init.Coe, meta import Lean.Parser.Command]
+Is rev mod use: false
+-/
+#guard_msgs in #eval showExtraModUses
+
+/-!
 Resolved constants from syntax quotations get added (here `List.sum` from Init.Data.List.Basic).
 -/
 
 #eval resetExtraModUses
 
-def test8 : Lean.MacroM Lean.Syntax := `(List.sum)
+def test9 : Lean.MacroM Lean.Syntax := `(List.sum)
 
 /--
 info: Entries: [import Init.Notation, import Init.Coe, import Init.Data.List.Basic]

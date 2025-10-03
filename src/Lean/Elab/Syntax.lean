@@ -94,7 +94,7 @@ def elabParserName? (stx : Syntax.Ident) (checkMeta := true) : TermElabM (Option
   | [n@(.parser parser _)] =>
     if checkMeta && getIRPhases (← getEnv) parser == .runtime then
       throwError m!"Declaration `{.ofConstName parser}` must be marked or imported as `meta` to be used as parser"
-    recordExtraModUseFromDecl (isMeta := checkMeta) parser
+    recordExtraModUseFromDecl (isMeta := true) parser
     addTermInfo' stx (Lean.mkConst parser)
     return n
   | [n@(.alias _)] =>

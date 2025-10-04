@@ -82,7 +82,7 @@ end DateTime
 namespace DateTime
 
 /--
-Gets the current `ZonedDateTime`.
+Gets the current `DateTime`.
 -/
 @[inline]
 def now : IO (DateTime tz) := do

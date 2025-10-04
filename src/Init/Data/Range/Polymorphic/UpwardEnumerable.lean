@@ -102,27 +102,33 @@ class LawfulUpwardEnumerable (α : Type u) [UpwardEnumerable α] where
   The `n + 1`-th successor of `a` is the successor of the `n`-th successor, given that said
   successors actually exist.
   -/
-  succMany?_succ? (n : Nat) (a : α) :
+  succMany?_add_one (n : Nat) (a : α) :
     succMany? (n + 1) a = (succMany? n a).bind succ?
 
 theorem UpwardEnumerable.succMany?_zero [UpwardEnumerable α] [LawfulUpwardEnumerable α] {a : α} :
     succMany? 0 a = some a :=
   LawfulUpwardEnumerable.succMany?_zero a
 
+theorem UpwardEnumerable.succMany?_add_one [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    {n : Nat} {a : α} :
+    succMany? (n + 1) a = (succMany? n a).bind succ? :=
+  LawfulUpwardEnumerable.succMany?_add_one n a
+
+@[deprecated succMany?_add_one (since := "2025-09-03")]
 theorem UpwardEnumerable.succMany?_succ? [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     {n : Nat} {a : α} :
     succMany? (n + 1) a = (succMany? n a).bind succ? :=
-  LawfulUpwardEnumerable.succMany?_succ? n a
+  succMany?_add_one
 
-@[deprecated succMany?_succ? (since := "2025-09-03")]
+@[deprecated succMany?_add_one (since := "2025-09-03")]
 theorem UpwardEnumerable.succMany?_succ [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     {n : Nat} {a : α} :
     succMany? (n + 1) a = (succMany? n a).bind succ? :=
-  succMany?_succ?
+  succMany?_add_one
 
 theorem UpwardEnumerable.succMany?_one [UpwardEnumerable α] [LawfulUpwardEnumerable α] {a : α} :
     succMany? 1 a = succ? a := by
-  simp [succMany?_succ?, succMany?_zero]
+  simp [succMany?_add_one, succMany?_zero]
 
 theorem UpwardEnumerable.succMany?_add [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     {m n : Nat} {a : α} :
@@ -130,25 +136,33 @@ theorem UpwardEnumerable.succMany?_add [UpwardEnumerable α] [LawfulUpwardEnumer
   induction n
   case zero => simp [succMany?_zero]
   case succ n ih =>
-    rw [← Nat.add_assoc, succMany?_succ?, ih, Option.bind_assoc]
-    simp [succMany?_succ?]
+    rw [← Nat.add_assoc, succMany?_add_one, ih, Option.bind_assoc]
+    simp [succMany?_add_one]
 
-theorem UpwardEnumerable.succMany?_succ?_eq_succ?_bind_succMany?
+theorem UpwardEnumerable.succMany?_add_one_eq_succ?_bind_succMany?
     [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     {n : Nat} {a : α} :
     succMany? (n + 1) a = (succ? a).bind (succMany? n ·) := by
   rw [Nat.add_comm]
-  simp [succMany?_add, succMany?_succ?, succMany?_zero]
+  simp [succMany?_add, succMany?_add_one, succMany?_zero]
 
-@[deprecated UpwardEnumerable.succMany?_succ?_eq_succ?_bind_succMany? (since := "2025-09-03")]
+@[deprecated UpwardEnumerable.succMany?_add_one_eq_succ?_bind_succMany? (since := "2025-09-03")]
+theorem UpwardEnumerable.succMany?_succ?_eq_succ?_bind_succMany?
+    [UpwardEnumerable α] [LawfulUpwardEnumerable α]
+    (n : Nat) (a : α) :
+    succMany? (n + 1) a = (succ? a).bind (succMany? n ·) :=
+  UpwardEnumerable.succMany?_add_one_eq_succ?_bind_succMany?
+
+@[deprecated UpwardEnumerable.succMany?_add_one_eq_succ?_bind_succMany? (since := "2025-09-03")]
 theorem LawfulUpwardEnumerable.succMany?_succ_eq_succ?_bind_succMany?
     [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     (n : Nat) (a : α) :
     succMany? (n + 1) a = (succ? a).bind (succMany? n ·) :=
-  UpwardEnumerable.succMany?_succ?_eq_succ?_bind_succMany?
+  UpwardEnumerable.succMany?_add_one_eq_succ?_bind_succMany?
 
-export UpwardEnumerable (succMany?_zero succMany?_succ? succMany?_one succMany?_add
-                         succMany?_succ?_eq_succ?_bind_succMany?)
+export UpwardEnumerable (succMany?_zero succMany?_succ? succMany?_add_one succMany?_one
+                         succMany?_add succMany?_succ?_eq_succ?_bind_succMany?
+                         succMany?_add_one_eq_succ?_bind_succMany?)
 
 protected theorem UpwardEnumerable.le_refl {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] (a : α) : UpwardEnumerable.LE a a :=
@@ -293,7 +307,7 @@ theorem UpwardEnumerable.isSome_succMany? {α : Type u} [UpwardEnumerable α]
   induction n
   · simp [succMany?_zero]
   · rename_i ih
-    simp only [succMany?_succ?]
+    simp only [succMany?_add_one]
     rw [← Option.some_get ih, Option.bind_some]
     apply InfinitelyUpwardEnumerable.isSome_succ?
 
@@ -340,12 +354,12 @@ theorem UpwardEnumerable.succMany_one {α : Type u} [UpwardEnumerable α]
 theorem UpwardEnumerable.succMany_succ {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α] {a : α} :
     succMany (n + 1) a = succ (succMany n a) := by
-  simp [succMany_eq_get, succMany?_succ?]
+  simp [succMany_eq_get, succMany?_add_one]
 
 theorem UpwardEnumerable.succMany_add_one_eq_succMany_succ {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α] {a : α} :
     succMany (n + 1) a = (succMany n (succ a)) := by
-  simp [succMany_eq_get, succMany?_succ?_eq_succ?_bind_succMany?]
+  simp [succMany_eq_get, succMany?_add_one_eq_succ?_bind_succMany?]
 
 theorem UpwardEnumerable.succMany_succ_eq_succ_succMany {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α] {a : α} :

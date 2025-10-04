@@ -43,7 +43,7 @@ instance : LawfulUpwardEnumerableLE Nat where
 
 instance : LawfulUpwardEnumerable Nat where
   succMany?_zero := by simp [UpwardEnumerable.succMany?]
-  succMany?_succ? := by simp [UpwardEnumerable.succMany?, UpwardEnumerable.succ?, Nat.add_assoc]
+  succMany?_add_one := by simp [UpwardEnumerable.succMany?, UpwardEnumerable.succ?, Nat.add_assoc]
   ne_of_lt a b hlt := by
     have hn := hlt.choose_spec
     simp only [UpwardEnumerable.succMany?, Option.some.injEq] at hn
@@ -79,11 +79,10 @@ instance : LinearlyUpwardEnumerable Nat := inferInstance
 
 end PRange
 
--- TODO: Replace the `lit` role with a `module` role?
 /-!
 The following instances are used for the implementation of array slices a.k.a.
 {name (scope := "Init.Data.Array.Subarray")}`Subarray`.
-See also {lit}`Init.Data.Slice.Array`.
+See also {module -checked}`Init.Data.Slice.Array`.
 -/
 
 instance : Roo.HasRcoIntersection Nat where

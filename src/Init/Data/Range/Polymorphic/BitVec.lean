@@ -59,7 +59,7 @@ instance : LawfulUpwardEnumerable (BitVec n) where
     simp +contextual [UpwardEnumerable.LT, ← BitVec.toNat_inj, succMany?] at ⊢
     omega
   succMany?_zero := by simp [UpwardEnumerable.succMany?, BitVec.toNat_lt_twoPow_of_le]
-  succMany?_succ? a b := by
+  succMany?_add_one a b := by
     simp +contextual [← BitVec.toNat_inj, succMany?, succ?]
     split <;> split
     · rename_i h

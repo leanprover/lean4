@@ -189,14 +189,16 @@ def block (x : ETask ε α) : EIO ε α := do
   | .error e => .error e
 
 /--
-Create an `ETask` that resolves to the value of the promise `x`.
+Create an `ETask` that resolves to the value of the promise `x`. If the promise gets dropped then it
+panics.
 -/
 @[inline]
-def ofPromise (x : IO.Promise (Except ε α)) : ETask ε α :=
+def ofPromise! (x : IO.Promise (Except ε α)) : ETask ε α :=
   x.result!
 
 /--
-Create an `ETask` that resolves to the pure value of the promise `x`.
+Create an `ETask` that resolves to the pure value of the promise `x`. If the promise gets dropped then it
+panics.
 -/
 @[inline]
 def ofPurePromise (x : IO.Promise α) : ETask ε α :=
@@ -296,15 +298,19 @@ def block (x : AsyncTask α) : IO α :=
 Create an `AsyncTask` that resolves to the value of `x`.
 -/
 @[inline]
-def ofPromise (x : IO.Promise (Except IO.Error α)) : AsyncTask α :=
-  x.result!
+def ofPromise (x : IO.Promise (Except IO.Error α)) (error : String := "the promise linked to the Async Task was dropped") : AsyncTask α :=
+  x.result?.map fun
+    | none => .error error
+    | some res => res
 
 /--
 Create an `AsyncTask` that resolves to the value of `x`.
 -/
 @[inline]
-def ofPurePromise (x : IO.Promise α) : AsyncTask α :=
-  x.result!.map pure (sync := true)
+def ofPurePromise (x : IO.Promise α) (error : String := "the promise linked to the Async Task was dropped") : AsyncTask α :=
+  x.result?.map (sync := true) fun
+    | none => .error error
+    | some res => pure res
 
 /--
 Obtain the `IO.TaskState` of `x`.
@@ -866,9 +872,11 @@ protected def block (x : Async α) (prio := Task.Priority.default) : IO α :=
 Converts `Promise` into `Async`.
 -/
 @[inline]
-protected def ofPromise (task : IO (IO.Promise (Except IO.Error α))) : Async α := do
+protected def ofPromise (task : IO (IO.Promise (Except IO.Error α))) (error : String := "the promise linked to the Async was dropped") : Async α := do
   match ← task.toBaseIO with
-  | .ok data => pure (f := BaseIO) (MaybeTask.ofTask data.result!)
+  | .ok data => pure (f := BaseIO) <| MaybeTask.ofTask <| data.result?.map fun
+    | none => .error error
+    | some res => res
   | .error err => pure (f := BaseIO) (MaybeTask.pure (.error err))
 
 /--
@@ -905,10 +913,12 @@ protected def ofTask (task : Task α) : Async α := do
 Converts `IO (IO.Promise α)` to `Async`.
 -/
 @[inline]
-protected def ofPurePromise (task : IO (IO.Promise α)) : Async α := do
+protected def ofPurePromise (task : IO (IO.Promise α)) (error : String := "the promise linked to the Async was dropped") : Async α := show BaseIO _ from do
   match ← task.toBaseIO with
-  | .ok data => pure (f := BaseIO) (MaybeTask.ofTask <| data.result!.map (.ok))
-  | .error err => pure (f := BaseIO) (MaybeTask.pure (.error err))
+  | .ok data => pure <| MaybeTask.ofTask <| data.result?.map fun
+    | none => .error error
+    | some res => pure res
+  | .error err => pure (MaybeTask.pure (.error err))
 
 @[default_instance]
 instance : MonadAsync AsyncTask Async :=
@@ -948,7 +958,7 @@ def race [Inhabited α] (x : Async α) (y : Async α)
   BaseIO.chainTask task₁ (liftM ∘ promise.resolve)
   BaseIO.chainTask task₂ (liftM ∘ promise.resolve)
 
-  let result ← MonadAwait.await promise.result!
+  let result ← MonadAwait.await promise
   Async.ofExcept result
 
 /--
@@ -972,7 +982,7 @@ def raceAll [ForM Async c (Async α)] (xs : c) (prio := Task.Priority.default) :
     let task₁ ← MonadAsync.async (t := AsyncTask) (prio := prio) x
     BaseIO.chainTask task₁ (liftM ∘ promise.resolve)
 
-  let result ← MonadAwait.await promise.result!
+  let result ← MonadAwait.await promise
   Async.ofExcept result
 
 end Async

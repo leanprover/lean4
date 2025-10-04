@@ -1288,12 +1288,10 @@ def forEachEqcRoot (f : ENode → GoalM Unit) : GoalM Unit := do
       f n
 
 abbrev Propagator := Expr → GoalM Unit
-abbrev Fallback := GoalM Unit
 
 structure Methods where
   propagateUp   : Propagator := fun _ => return ()
   propagateDown : Propagator := fun _ => return ()
-  fallback      : Fallback := pure ()
   deriving Inhabited
 
 def Methods.toMethodsRef (m : Methods) : MethodsRef :=
@@ -1310,10 +1308,6 @@ def propagateUp (e : Expr) : GoalM Unit := do
 
 def propagateDown (e : Expr) : GoalM Unit := do
   (← getMethods).propagateDown e
-
-def applyFallback : GoalM Unit := do
-  let fallback : GoalM Unit := (← getMethods).fallback
-  fallback
 
 def Goal.getGeneration (goal : Goal) (e : Expr) : Nat :=
   if let some n := goal.getENode? e then

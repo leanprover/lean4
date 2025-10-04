@@ -501,7 +501,7 @@ theorems in a local invocation.
 syntax (name := grindTrace)
   "grind?" optConfig (&" only")?
   (" [" withoutPosition(grindParam,*) "]")?
-  (" => " grindSeq)? : tactic
+  : tactic
 
 /--
 `cutsat` solves linear integer arithmetic goals.

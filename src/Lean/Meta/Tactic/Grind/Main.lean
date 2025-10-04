@@ -48,10 +48,9 @@ def mkParams (config : Grind.Config) : MetaM Params := do
   let symPrios ← getGlobalSymbolPriorities
   return { config, norm, normProcs, symPrios }
 
-def mkMethods (fallback : Fallback) : CoreM Methods := do
+def mkMethods : CoreM Methods := do
   let builtinPropagators ← builtinPropagatorsRef.get
   return {
-    fallback
     propagateUp := fun e => do
       propagateForallPropUp e
       propagateReflCmp e
@@ -79,7 +78,7 @@ private def discharge? (e : Expr) : SimpM (Option Expr) := do
   else
     return none
 
-def GrindM.run (x : GrindM α) (params : Params) (fallback : Fallback) : MetaM α := do
+def GrindM.run (x : GrindM α) (params : Params) : MetaM α := do
   let (falseExpr, scState)  := shareCommonAlpha (mkConst ``False) {}
   let (trueExpr, scState)   := shareCommonAlpha (mkConst ``True) scState
   let (bfalseExpr, scState) := shareCommonAlpha (mkConst ``Bool.false) scState
@@ -92,7 +91,7 @@ def GrindM.run (x : GrindM α) (params : Params) (fallback : Fallback) : MetaM �
   let simp := params.norm
   let config := params.config
   let symPrios := params.symPrios
-  x (← mkMethods fallback).toMethodsRef { config, simpMethods, simp, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr, symPrios }
+  x (← mkMethods).toMethodsRef { config, simpMethods, simp, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr, symPrios }
     |>.run' { scState }
 
 private def mkCleanState (mvarId : MVarId) (params : Params) : MetaM Clean.State := mvarId.withContext do
@@ -207,7 +206,7 @@ private def initCore (mvarId : MVarId) (params : Params) : GrindM Goal := do
   appendTagSuffix mvarId `grind
   mkGoal mvarId params
 
-def main (mvarId : MVarId) (params : Params) (fallback : Fallback) : MetaM Result := do profileitM Exception "grind" (← getOptions) do
+def main (mvarId : MVarId) (params : Params) : MetaM Result := do profileitM Exception "grind" (← getOptions) do
   if debug.terminalTacticsAsSorry.get (← getOptions) then
     mvarId.admit
     return {
@@ -227,6 +226,6 @@ def main (mvarId : MVarId) (params : Params) (fallback : Fallback) : MetaM Resul
         if let some msg ← mkGlobalDiag counters simp splitDiags then
           logInfo msg
     return { failure?, issues, config := params.config, trace, counters, simp, splitDiags }
-  go.run params fallback
+  go.run params
 
 end Lean.Meta.Grind

@@ -12,6 +12,7 @@ public import Lean.Elab.Command
 public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.Tactic.Config
 import Lean.Meta.Tactic.Grind.SimpUtil
+import Lean.Elab.Tactic.Grind.Basic
 import Lean.Elab.MutualDef
 meta import Lean.Meta.Tactic.Grind.Parser
 public section
@@ -215,11 +216,13 @@ def grind
     (mvarId : MVarId) (config : Grind.Config)
     (only : Bool)
     (ps   :  TSyntaxArray ``Parser.Tactic.grindParam)
+    (_seq? : Option (TSyntax `Lean.Parser.Tactic.Grind.grindSeq))
     : TacticM Grind.Trace := do
   mvarId.withContext do
     let params ← mkGrindParams config only ps
     let type ← mvarId.getType
     let mvar' ← mkFreshExprSyntheticOpaqueMVar type
+    -- TODO: use `_seq?`
     let result ← Grind.main mvar'.mvarId! params
     if result.hasFailed then
       throwError "`grind` failed\n{← result.toMessageData}"
@@ -239,14 +242,15 @@ def evalGrindCore
     (ref : Syntax)
     (config : Grind.Config)
     (only : Option Syntax)
-    (params : Option (Syntax.TSepArray `Lean.Parser.Tactic.grindParam ","))
+    (params? : Option (Syntax.TSepArray `Lean.Parser.Tactic.grindParam ","))
+    (seq? : Option (TSyntax `Lean.Parser.Tactic.Grind.grindSeq))
     : TacticM Grind.Trace := do
   let only := only.isSome
-  let params := if let some params := params then params.getElems else #[]
+  let params := if let some params := params? then params.getElems else #[]
   if Grind.grind.warning.get (← getOptions) then
     logWarningAt ref "The `grind` tactic is new and its behavior may change in the future. This project has used `set_option grind.warning true` to discourage its use."
   withMainContext do
-    let result ← grind (← getMainGoal) config only params
+    let result ← grind (← getMainGoal) config only params seq?
     replaceMainGoal []
     return result
 
@@ -324,9 +328,9 @@ def mkGrindOnly
 
 @[builtin_tactic Lean.Parser.Tactic.grind] def evalGrind : Tactic := fun stx => do
   match stx with
-  | `(tactic| grind $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[=> $_seq]?) =>
+  | `(tactic| grind $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[=> $seq]?) =>
     let config ← elabGrindConfig config
-    discard <| evalGrindCore stx config only params
+    discard <| evalGrindCore stx config only params seq
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic Lean.Parser.Tactic.grindTrace] def evalGrindTrace : Tactic := fun stx => do
@@ -334,7 +338,7 @@ def mkGrindOnly
   | `(tactic| grind?%$tk $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]?) =>
     let config ← elabGrindConfig configStx
     let config := { config with trace := true }
-    let trace ← evalGrindCore stx config only params
+    let trace ← evalGrindCore stx config only params none
     let stx ← mkGrindOnly configStx trace
     Tactic.TryThis.addSuggestion tk stx (origSpan? := ← getRef)
   | _ => throwUnsupportedSyntax
@@ -343,14 +347,14 @@ def mkGrindOnly
   match stx with
   | `(tactic| cutsat $config:optConfig) =>
     let config ← elabCutsatConfig config
-    discard <| evalGrindCore stx { config with } none none
+    discard <| evalGrindCore stx { config with } none none none
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic Lean.Parser.Tactic.grobner] def evalGrobner : Tactic := fun stx => do
   match stx with
   | `(tactic| grobner $config:optConfig) =>
     let config ← elabGrobnerConfig config
-    discard <| evalGrindCore stx { config with } none none
+    discard <| evalGrindCore stx { config with } none none none
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic

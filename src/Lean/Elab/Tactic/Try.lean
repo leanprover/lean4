@@ -388,7 +388,7 @@ private def evalSuggestGrindTrace : TryTactic := fun tac => do
     let config ← elabGrindConfig configStx
     let config := { config with trace := (← read).config.only, verbose := false }
     let tac ← grindTraceToGrind tac
-    let trace ← evalGrindCore tac config only params
+    let trace ← evalGrindCore tac config only params none
     trace[try.debug] "`grind` succeeded"
     if (← read).config.only then
       let tac' ← mkGrindOnly configStx trace

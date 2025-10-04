@@ -396,6 +396,19 @@ def insertListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) 
   | .nil => m
   | .cons hd tl => insertListₘ (m.insert hd.1 hd.2) tl
 
+/-- Internal implementation detail of the hash map -/
+def insertListIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) : Raw₀ α β :=
+  match l with
+  | .nil => m
+  | .cons hd tl => insertListIfNewₘ (m.insertIfNew hd.1 hd.2) tl
+
+/-- Internal implementation detail of the hash map -/
+def unionₘ [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
+  if m₁.1.size ≤ m₂.1.size then
+    insertListIfNewₘ m₂ (toListModel m₁.1.buckets)
+  else
+    insertListₘ m₁ (toListModel m₂.1.buckets)
+
 section
 
 variable {β : Type v}
@@ -612,6 +625,20 @@ theorem insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l
   | nil => simp [insertListₘ]
   | cons hd tl ih =>
     simp only [List.foldl_cons, insertListₘ]
+    apply ih
+
+theorem insertManyIfNew_eq_insertListIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) :
+    insertManyIfNew m l = insertListIfNewₘ m l := by
+  simp only [insertManyIfNew, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
+  suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
+    (∀ {m'' : Raw₀ α β} {a : α} {b : β a}, P m'' → P (m''.insertIfNew a b)) → P m → P m' }),
+      (List.foldl (fun m' p => ⟨m'.val.insertIfNew p.1 p.2, fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =
+    t.val.insertListIfNewₘ l from this _
+  intro t
+  induction l generalizing m with
+  | nil => simp [insertListIfNewₘ]
+  | cons hd tl ih =>
+    simp only [List.foldl_cons, insertListIfNewₘ]
     apply ih
 
 section

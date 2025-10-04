@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Tactics
-public meta import Init.Meta
 public section
 namespace Lean.Parser.Tactic.Grind
 
@@ -31,8 +30,5 @@ syntax (name := «have») "have" letDecl : grind
 
 /-- Executes the given tactic block to close the current goal. -/
 syntax (name := nestedTacticCore) "tactic" " => " tacticSeq : grind
-
-/-- `grind` interactive mode -/
-syntax (name := grind) "grind" " => " grindSeq : tactic
 
 end Lean.Parser.Tactic.Grind

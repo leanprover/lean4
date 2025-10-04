@@ -416,6 +416,70 @@ def IterM.Partial.drain {α : Type w} {m : Type w → Type w'} [Monad m] {β : T
     m PUnit :=
   it.fold (γ := PUnit) (fun _ _ => .unit) .unit
 
+set_option doc.verso true in
+/--
+Returns {lean}`ULift.up true` if the monadic predicate {name}`p` returns {lean}`ULift.up true` for
+any element emitted by a the iterator {name}`it`.
+
+{lit}`O(|xs|)`. Short-circuits upon encountering the first match. The elements in {name}`it` are
+examined in order of iteration.
+-/
+@[specialize]
+def IterM.anyM {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [Finite α m]
+    (p : β → m (ULift Bool)) (it : IterM (α := α) m β) : m (ULift Bool) :=
+  ForIn.forIn it (ULift.up false) (fun x _ => do
+    if (← p x).down then
+      return .done (.up true)
+    else
+      return .yield (.up false))
+
+set_option doc.verso true in
+/--
+Returns {lean}`ULift.up true` if the pure predicate {name}`p` returns {lean}`true` for
+any element emitted by a the iterator {name}`it`.
+
+{lit}`O(|xs|)`. Short-circuits upon encountering the first match. The elements in {name}`it` are
+examined in order of iteration.
+-/
+@[inline]
+def IterM.any {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [Finite α m]
+    (p : β → Bool) (it : IterM (α := α) m β) : m (ULift Bool) := do
+  it.anyM (fun x => pure (.up (p x)))
+
+set_option doc.verso true in
+/--
+Returns {lean}`ULift.up true` if the monadic predicate {name}`p` returns {lean}`ULift.up true` for
+all elements emitted by a the iterator {name}`it`.
+
+{lit}`O(|xs|)`. Short-circuits upon encountering the first mismatch. The elements in {name}`it` are
+examined in order of iteration.
+-/
+@[specialize]
+def IterM.allM {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [Finite α m]
+    (p : β → m (ULift Bool)) (it : IterM (α := α) m β) : m (ULift Bool) := do
+  ForIn.forIn it (ULift.up true) (fun x _ => do
+    if (← p x).down then
+      return .yield (.up true)
+    else
+      return .done (.up false))
+
+set_option doc.verso true in
+/--
+Returns {lean}`ULift.up true` if the pure predicate {name}`p` returns {lean}`true` for
+all elements emitted by a the iterator {name}`it`.
+
+{lit}`O(|xs|)`. Short-circuits upon encountering the first mismatch. The elements in {name}`it` are
+examined in order of iteration.
+-/
+@[inline]
+def IterM.all {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [Finite α m]
+    (p : β → Bool) (it : IterM (α := α) m β) : m (ULift Bool) := do
+  it.allM (fun x => pure (.up (p x)))
+
 section Size
 
 /--

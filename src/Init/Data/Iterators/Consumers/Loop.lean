@@ -139,6 +139,70 @@ def Iter.Partial.fold {α : Type w} {β : Type w} {γ : Type x} [Iterator α Id 
     (init : γ) (it : Iter.Partial (α := α) β) : γ :=
   ForIn.forIn (m := Id) it init (fun x acc => ForInStep.yield (f acc x))
 
+set_option doc.verso true in
+/--
+Returns {lean}`true` if the monadic predicate {name}`p` returns {lean}`true` for
+any element emitted by a the iterator {name}`it`.
+
+{lit}`O(|xs|)`. Short-circuits upon encountering the first match. The elements in {name}`it` are
+examined in order of iteration.
+-/
+@[specialize]
+def Iter.anyM {α β : Type w} {m : Type → Type w'} [Monad m]
+    [Iterator α Id β] [IteratorLoop α Id m] [Finite α Id]
+    (p : β → m Bool) (it : Iter (α := α) β) : m Bool :=
+  ForIn.forIn it false (fun x _ => do
+    if ← p x then
+      return .done true
+    else
+      return .yield false)
+
+set_option doc.verso true in
+/--
+Returns {lean}`true` if the pure predicate {name}`p` returns {lean}`true` for
+any element emitted by a the iterator {name}`it`.
+
+{lit}`O(|xs|)`. Short-circuits upon encountering the first match. The elements in {name}`it` are
+examined in order of iteration.
+-/
+@[inline]
+def Iter.any {α β : Type w}
+    [Iterator α Id β] [IteratorLoop α Id Id] [Finite α Id]
+    (p : β → Bool) (it : Iter (α := α) β) : Bool :=
+  (it.anyM (fun x => pure (f := Id) (p x))).run
+
+set_option doc.verso true in
+/--
+Returns {lean}`true` if the monadic predicate {name}`p` returns {lean}`true` for
+all elements emitted by a the iterator {name}`it`.
+
+{lit}`O(|xs|)`. Short-circuits upon encountering the first mismatch. The elements in {name}`it` are
+examined in order of iteration.
+-/
+@[specialize]
+def Iter.allM {α β : Type w} {m : Type → Type w'} [Monad m]
+    [Iterator α Id β] [IteratorLoop α Id m] [Finite α Id]
+    (p : β → m Bool) (it : Iter (α := α) β) : m Bool :=
+  ForIn.forIn it true (fun x _ => do
+    if ← p x then
+      return .yield true
+    else
+      return .done false)
+
+set_option doc.verso true in
+/--
+Returns {lean}`true` if the pure predicate {name}`p` returns {lean}`true` for
+all elements emitted by a the iterator {name}`it`.
+
+{lit}`O(|xs|)`. Short-circuits upon encountering the first mismatch. The elements in {name}`it` are
+examined in order of iteration.
+-/
+@[inline]
+def Iter.all {α β : Type w}
+    [Iterator α Id β] [IteratorLoop α Id Id] [Finite α Id]
+    (p : β → Bool) (it : Iter (α := α) β) : Bool :=
+  (it.allM (fun x => pure (f := Id) (p x))).run
+
 @[always_inline, inline, expose, inherit_doc IterM.size]
 def Iter.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorSize α Id]
     (it : Iter (α := α) β) : Nat :=

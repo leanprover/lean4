@@ -13,6 +13,10 @@ public import Init.Data.Range.Polymorphic.PRange
 public import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic
 
+-- This public import is a workaround for #10652.
+-- Without it, adding the `spec` attribute for `instMonadLiftTOfMonadLift` will fail.
+public import Init.Data.Iterators.Lemmas.Combinators.FilterMap
+
 @[expose] public section
 
 /-!

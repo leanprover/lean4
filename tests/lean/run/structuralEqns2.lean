@@ -12,7 +12,7 @@ def g (i j : Nat) : Nat :=
   | Nat.succ j => g i j
 
 /-- info: (some g.eq_def) -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #eval tst ``g
 #check g.eq_1
 #check g.eq_2

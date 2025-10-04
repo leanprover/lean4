@@ -29,9 +29,9 @@ the literal `5` to the syntax `OfNat.ofNat (α := _) (nat_lit 5)` unless it's pr
 
 Without the following typeclass instances, `(5 : Option Nat)` fails at typeclass inference, even
 though `(OfNat.ofNat (α := Nat) (nat_lit 5) : Option Nat)` would succeed, with the help of a type
-coercion, via the `optionCoe` instance and inserting a type coercion. While these definitions do
-not involve type coercion, they result in Lean behaving more uniformly in the presence of
-`optionCoe`.
+coercion, via the `optionCoe` instance and inserting a type coercion. While these instances do not
+directly involve type coercion, they result in Lean behaving more uniformly in the presence of
+`optionCoe`, so they are added alongside `optionCoe` and likewise banned in `Init` and `Std`.
 -/
 
 /--
@@ -45,6 +45,6 @@ instance {α : Type u} {n : Nat} [OfNat α n] : OfNat (Option α) n where
 If an scientific number can be used as an expression of α via `OfScientific.ofScientific`, then it
 can also be used an expression of type `Option α`.
 -/
-instance scientificOptionCoe {α : Type u} [OfScientific α] : OfScientific (Option α) where
+instance {α : Type u} [OfScientific α] : OfScientific (Option α) where
   ofScientific (mantissa : Nat) (exponentSign : Bool) (decimalExponent : Nat) :=
     some (OfScientific.ofScientific mantissa exponentSign decimalExponent)

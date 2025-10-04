@@ -609,4 +609,55 @@ def tacticCompletion
     }
   return items
 
+private def findEndSectionCompletionCandidates
+    (idComponents : Array String) (scopeNames : Array String) : Array String := Id.run do
+  let mut r := #[]
+  for i in 0...<scopeNames.size do
+    let some partiallyCompletedIdComponent := idComponents[idComponents.size - 1]?
+      | r := r.push <| mkCandidate i
+        continue
+    let some partiallyCompletedScopeName := scopeNames[i + idComponents.size - 1]?
+      | continue
+    if ! partiallyCompletedIdComponent.charactersIn partiallyCompletedScopeName then
+      continue
+    let mut isPrefixMatch := true
+    for j in 0...<idComponents.size - 1 do
+      let some scopeName := scopeNames[i + j]?
+        | isPrefixMatch := false
+          break
+      let idComponent := idComponents[j]!
+      if idComponent != scopeName then
+        isPrefixMatch := false
+        break
+    if isPrefixMatch then
+      r := r.push <| mkCandidate (i + idComponents.size - 1)
+  return r
+where
+  mkCandidate (idx : Nat) : String :=
+    ".".intercalate scopeNames[idx:].toList
+
+def endSectionCompletion
+    (mod               : Name)
+    (pos               : Lsp.Position)
+    (completionInfoPos : Nat)
+    (id?               : Option Name)
+    (danglingDot       : Bool)
+    (scopeNames        : List String)
+    : IO (Array ResolvableCompletionItem) := do
+  let mut idComponents := id?.map (fun id => id.components.toArray.map (·.toString)) |>.getD #[]
+  if danglingDot then
+    idComponents := idComponents.push ""
+  let scopeNames := scopeNames.toArray.pop.takeWhile (! ·.isEmpty) |>.reverse
+  let candidates := findEndSectionCompletionCandidates idComponents scopeNames
+  return candidates.map fun candidate => {
+    label := candidate
+    kind? := CompletionItemKind.module
+    data? := {
+        mod
+        pos
+        cPos? := completionInfoPos
+        id? := none : ResolvableCompletionItemData
+      }
+  }
+
 end Lean.Server.Completion

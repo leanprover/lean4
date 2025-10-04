@@ -1604,10 +1604,12 @@ private def warnUnusedRefs : DocM Unit := do
 /-- Elaborates a sequence of blocks into a document. -/
 public def elabBlocks (blocks : TSyntaxArray `block) :
     DocM (Array (Block ElabInline ElabBlock) × Array (Part ElabInline ElabBlock Empty)) := do
-  let (v, _) ← elabBlocks' 0 |>.run blocks
-  let res ← fixupBlocks v
-  warnUnusedRefs
-  return res
+  -- Users should not need to make import needed for embedded terms public
+  withoutExporting do
+    let (v, _) ← elabBlocks' 0 |>.run blocks
+    let res ← fixupBlocks v
+    warnUnusedRefs
+    return res
 
 /-- Elaborates a sequence of blocks into a module doc snippet. -/
 public def elabModSnippet

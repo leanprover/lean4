@@ -179,7 +179,12 @@ decl_kind decl_tag(decl const & a) { return is_scalar(a.raw()) ? static_cast<dec
 fun_id const & decl_fun_id(decl const & b) { return cnstr_get_ref_t<fun_id>(b, 0); }
 array_ref<param> const & decl_params(decl const & b) { return cnstr_get_ref_t<array_ref<param>>(b, 1); }
 type decl_type(decl const & b) { return cnstr_get_type(b, 2); }
-fn_body const & decl_fun_body(decl const & b) { lean_assert(decl_tag(b) == decl_kind::Fun); return cnstr_get_ref_t<fn_body>(b, 3); }
+fn_body const & decl_fun_body(decl const & b) {
+    if (decl_tag(b) != decl_kind::Fun) {
+        throw exception(sstream() << "(interpreter) IR of declaration '" << decl_fun_id(b) << "' not available; this may point to a missing `meta` check in a metaprogram");
+    }
+    return cnstr_get_ref_t<fn_body>(b, 3);
+}
 
 extern "C" object * lean_ir_find_env_decl(object * env, object * n);
 option_ref<decl> find_ir_decl(elab_environment const & env, name const & n) {
@@ -897,7 +902,6 @@ private:
             throw exception(sstream() << "cannot evaluate `[init]` declaration '" << fn << "' in the same module");
         }
         push_frame(e.m_decl, m_arg_stack.size());
-        lean_always_assert(decl_tag(e.m_decl) == decl_kind::Fun);
         value r = eval_body(decl_fun_body(e.m_decl));
         pop_frame(r, decl_type(e.m_decl));
         if (!type_is_scalar(t)) {

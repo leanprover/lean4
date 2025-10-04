@@ -37,7 +37,8 @@ def getLambdaBody (e : Expr) : Expr :=
   | .lam _ _ b _ => getLambdaBody b
   | _ => e
 
-def isNonTrivialProof (e : Expr) : MetaM Bool :=
+def isNonTrivialProof (e : Expr) : MetaM Bool := do
+  let origEnv ← getEnv
   -- NOTE: this `withoutExporting` is not strictly necessary when considering the Lean elaborator
   -- per se because there `e` is an elaboration result that should have been produced under the same
   -- `Environment.isExporting` setting as the current one, so all referenced constants should be
@@ -57,7 +58,11 @@ def isNonTrivialProof (e : Expr) : MetaM Bool :=
     -- We consider proofs such as `fun x => f x a` as trivial.
     -- For example, we don't want to abstract the body of `def rfl`
     (getLambdaBody e).withApp fun f args =>
-      pure $ !f.isAtomic || args.any fun arg => !arg.isAtomic
+      pure $ !f.isAtomic ||
+        -- Again we may need to re-do an abstraction here for `to_additive` even if in base
+        -- elaborator, this condition should never be fulfilled
+        f.const?.any (!origEnv.contains ·.1) ||
+        args.any fun arg => !arg.isAtomic
 
 structure Context where
   cache    : Bool

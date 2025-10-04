@@ -218,6 +218,9 @@ def grind
     (ps   :  TSyntaxArray ``Parser.Tactic.grindParam)
     (_seq? : Option (TSyntax `Lean.Parser.Tactic.Grind.grindSeq))
     : TacticM Grind.Trace := do
+  if debug.terminalTacticsAsSorry.get (← getOptions) then
+    mvarId.admit
+    return {}
   mvarId.withContext do
     let params ← mkGrindParams config only ps
     let type ← mvarId.getType

@@ -23,9 +23,9 @@ public def main (args : List String) : IO UInt32 := do
   -- Provide access to private scope of target module but no others
   let env ← withImporting do
     let imports := #[{ module := mod, importAll := true, isMeta := true }]
-    let (_, s) ← importModulesCore (globalLevel := .exported) imports |>.run
+    let (_, s) ← importModulesCore (globalLevel := .exported) (arts := setup.importArts) imports |>.run
     let s := { s with moduleNameMap := s.moduleNameMap.modify mod fun mod => { mod with irPhases := .runtime } }
-    finalizeImport (leakEnv := true) (loadExts := true /-TODO?-/) (level := .exported) (arts := setup.importArts)
+    finalizeImport (leakEnv := true) (loadExts := true /-TODO?-/) (level := .exported)
       s imports setup.options.toOptions
   let some modIdx := env.getModuleIdx? mod
     | throw <| IO.userError s!"module '{mod}' not found"

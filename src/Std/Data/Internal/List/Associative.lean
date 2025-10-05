@@ -3445,6 +3445,152 @@ theorem getKey?_insertSmallerList_of_contains_left_of_contains_right_eq_false_la
     List.getKey? k (insertSmallerList l toInsert) = some k := by
   simp only [getKey?_insertSmallerList_of_contains_left_of_contains_right_eq_false not_contains, getKey?_eq_some contains]
 
+theorem insertListIfNew_Perm_self [BEq α] [EquivBEq α]
+    {l : List ((a : α) × β a)}
+    (distinct_l : DistinctKeys l) :
+    l.Perm (insertListIfNew [] l) := by
+  induction l
+  case nil => simp [insertListIfNew]
+  case cons h t ih =>
+    simp only [insertListIfNew, insertEntryIfNew, containsKey_nil, cond_false]
+    have ⟨distinct_t, not_contains⟩ := (@distinctKeys_cons_iff α β _ _ t h.fst h.snd).1 distinct_l
+    specialize ih distinct_t
+    apply getEntry?_ext
+    . exact distinct_l
+    . apply DistinctKeys.insertListIfNew
+      . simp only [distinctKeys_cons_iff, DistinctKeys.nil, containsKey_nil, and_self]
+    . intro a
+      apply Or.elim <| Classical.em (h.fst == a)
+      . intro is_eq
+        simp only [getEntry?_insertListIfNew, getEntry?, is_eq, cond_true, Option.some_or]
+      . intro is_not_eq
+        simp only [getEntry?_insertListIfNew, getEntry?, is_not_eq, cond_false, Option.none_or]
+
+theorem insertListIfNew_perm_replaceEntry_not_contains [BEq α] [EquivBEq α]
+  {t l : List ((a : α) × β a)} (h : (a : α) × β a)
+  (distinct_toInsert : DistinctKeys (h :: t)) :
+  (insertListIfNew (h :: t) l).Perm (insertListIfNew t (h :: l)) := by
+    have ⟨distinct_t, not_contains_t⟩ := (@distinctKeys_cons_iff α β _ _ t h.fst h.snd).1 distinct_toInsert
+    apply getEntry?_ext
+    . simp only [DistinctKeys.insertListIfNew, distinct_toInsert]
+    . simp only [DistinctKeys.insertListIfNew, distinct_t]
+    . intro a
+      simp [getEntry?_insertListIfNew]
+      apply Or.elim <| Classical.em <| h.fst == a
+      . intro are_eq
+        simp only [getEntry?, are_eq, cond_true]
+        have a_not_contains_t : containsKey a t = false := by
+          simp only [←@containsKey_congr α β _ _ t h.fst a are_eq, not_contains_t]
+        have getEntry?_is_none : getEntry? a t = none := by
+          simp [a_not_contains_t]
+        rw [getEntry?_is_none]
+        simp only [Option.some_or, Option.or_some, Option.getD_none]
+      . intro are_not_eq
+        simp only [getEntry?, are_not_eq, cond_false]
+
+theorem insertListIfNew_perm_replaceEntry_contains [BEq α] [EquivBEq α]
+  {t l : List ((a : α) × β a)} (h : (a : α) × β a)
+  (contains : containsKey h.fst l)
+  (distinct_toInsert : DistinctKeys (h :: t)) :
+  (insertListIfNew (h :: t) l).Perm (insertListIfNew t (replaceEntry h.fst h.snd l)) := by
+    have ⟨distinct_t, not_contains⟩ := (@distinctKeys_cons_iff α β _ _ t h.fst h.snd).1 distinct_toInsert
+    apply getEntry?_ext
+    . simp only [DistinctKeys.insertListIfNew, distinct_toInsert]
+    . simp only [DistinctKeys.insertListIfNew, distinct_t]
+    . intro a
+      simp [getEntry?_insertListIfNew]
+      apply Or.elim <| Classical.em <| h.fst == a
+      . intro are_eq
+        simp [are_eq,getEntry?]
+        have t_not_contains_a : containsKey a t = false := by
+          simp only [← @containsKey_congr α β _ _ t h.fst a are_eq, not_contains]
+        have getEntry?_is_none : getEntry? a t = none := by simp only [getEntry?_eq_none, t_not_contains_a]
+        simp only [getEntry?_is_none, Option.none_or, @getEntry?_replaceEntry α β _ _ l a h.fst h.snd, contains, true_and, left_eq_ite_iff, Bool.not_eq_true]
+        intro contra
+        simp only [←Bool.not_eq_true] at contra
+        contradiction
+      . intro are_not_eq
+        simp only [getEntry?, cond_false, getEntry?_replaceEntry, contains, are_not_eq,
+          Bool.false_eq_true, and_false, ↓reduceIte]
+
+theorem insertList_Perm_insertListIfNew [BEq α] [EquivBEq α]
+  {l toInsert : List ((a : α) × β a)}
+  (distinct_l : DistinctKeys l)
+  (distinct_toInsert : DistinctKeys toInsert) :
+  (insertList l toInsert).Perm
+  (insertListIfNew toInsert l) := by
+  induction toInsert generalizing l
+  case nil =>
+    simp only [insertList]
+    apply insertListIfNew_Perm_self distinct_l
+  case cons h t ih =>
+    simp only [insertList]
+    have ⟨distinct_t, not_contains⟩:= (@distinctKeys_cons_iff α β _ _ t h.fst h.snd).1 distinct_toInsert
+    apply Or.elim <| Classical.em <| containsKey h.fst l
+    . intro contains_key
+      simp [insertEntry, contains_key]
+      apply Perm.trans
+      rotate_left
+      . apply Perm.symm
+        . exact @insertListIfNew_perm_replaceEntry_contains α β  _ _ t l h contains_key distinct_toInsert
+      apply ih
+      . apply DistinctKeys.replaceEntry
+        . exact distinct_l
+      . exact distinct_t
+    . intro not_contains_h
+      apply Perm.trans
+      rotate_left
+      . apply Perm.symm
+        exact @insertListIfNew_perm_replaceEntry_not_contains α β _ _ t l h distinct_toInsert
+      . unfold insertEntry
+        simp only [not_contains_h, cond_false]
+        apply ih
+        . simp only [distinctKeys_cons_iff, distinct_l, not_contains_h, and_self]
+        . exact distinct_t
+
+theorem insertList_Perm_insertSmallerList [BEq α] [EquivBEq α]
+  {l toInsert : List ((a : α) × β a)}
+  (distinct_l : DistinctKeys l)
+  (distinct_toInsert : DistinctKeys toInsert) :
+  (insertList l toInsert).Perm
+  (insertSmallerList l toInsert) := by
+    unfold insertSmallerList
+    split
+    . apply insertList_Perm_insertListIfNew
+      . exact distinct_l
+      . exact distinct_toInsert
+    . apply Perm.refl
+
+theorem inserList_insert_right_equiv_union_insert [BEq α] [EquivBEq α]
+  {l toInsert : List ((a : α) × β a)} (p : (a : α) × β a)
+  (distinct_l : DistinctKeys l)
+  (distinct_toInsert : DistinctKeys toInsert) :
+  (insertList l (insertEntry p.fst p.snd toInsert)).Perm
+  (insertEntry p.fst p.snd (insertList l toInsert)) := sorry
+
+theorem insertSmallerList_insert_right_equiv_union_insert [BEq α] [EquivBEq α]
+  {l toInsert : List ((a : α) × β a)} (p : (a : α) × β a)
+  (distinct_l : DistinctKeys l)
+  (distinct_toInsert : DistinctKeys toInsert) :
+  (insertSmallerList l (insertEntry p.fst p.snd toInsert)).Perm
+  (insertEntry p.fst p.snd (insertSmallerList l toInsert)) := by
+  apply Perm.trans ?subgoal1 ?subgoal2
+  case subgoal2 =>
+    apply @insertEntry_of_perm α β _ _ (insertList l toInsert) (insertSmallerList l toInsert) p.fst p.snd
+    . apply DistinctKeys.insertList
+      . exact distinct_l
+    . exact @insertList_Perm_insertSmallerList _ _ _ _ l toInsert distinct_l distinct_toInsert
+  case subgoal1 =>
+    apply Perm.trans
+    . apply Perm.symm
+      . apply insertList_Perm_insertSmallerList
+        . exact distinct_l
+        . apply DistinctKeys.insertEntry
+          . exact distinct_toInsert
+    . apply inserList_insert_right_equiv_union_insert
+      . exact distinct_l
+      . exact distinct_toInsert
+
 section
 
 variable {β : Type v}

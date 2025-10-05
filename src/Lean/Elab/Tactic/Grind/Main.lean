@@ -216,7 +216,7 @@ def grind
     (mvarId : MVarId) (config : Grind.Config)
     (only : Bool)
     (ps   :  TSyntaxArray ``Parser.Tactic.grindParam)
-    (_seq? : Option (TSyntax `Lean.Parser.Tactic.Grind.grindSeq))
+    (seq? : Option (TSyntax `Lean.Parser.Tactic.Grind.grindSeq))
     : TacticM Grind.Trace := do
   if debug.terminalTacticsAsSorry.get (← getOptions) then
     mvarId.admit
@@ -225,21 +225,27 @@ def grind
     let params ← mkGrindParams config only ps
     let type ← mvarId.getType
     let mvar' ← mkFreshExprSyntheticOpaqueMVar type
-    -- TODO: use `_seq?`
-    let result ← Grind.main mvar'.mvarId! params
-    if result.hasFailed then
-      throwError "`grind` failed\n{← result.toMessageData}"
-    trace[grind.debug.proof] "{← instantiateMVars mvar'}"
-    -- `grind` proofs are often big, if `abstractProof` is true, we create an auxiliary theorem.
-    let e ← if !config.abstractProof then
-      instantiateMVarsProfiling mvar'
-    else if (← isProp type) then
-      mkAuxTheorem type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+    let finalize (result : Grind.Result) : TacticM Grind.Trace := do
+      if result.hasFailed then
+        throwError "`grind` failed\n{← result.toMessageData}"
+      trace[grind.debug.proof] "{← instantiateMVars mvar'}"
+      -- `grind` proofs are often big, if `abstractProof` is true, we create an auxiliary theorem.
+      let e ← if !config.abstractProof then
+        instantiateMVarsProfiling mvar'
+      else if (← isProp type) then
+        mkAuxTheorem type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+      else
+        let auxName ← Term.mkAuxName `grind
+        mkAuxDefinition auxName type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+      mvarId.assign e
+      return result.trace
+    if let some seq := seq? then
+      let (_, _state) ← Grind.GrindTacticM.runAtGoal mvar'.mvarId! params do
+        Grind.evalGrindTactic seq
+      throwError "NIY"
     else
-      let auxName ← Term.mkAuxName `grind
-      mkAuxDefinition auxName type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
-    mvarId.assign e
-    return result.trace
+      let result ← Grind.main mvar'.mvarId! params
+      finalize result
 
 def evalGrindCore
     (ref : Syntax)

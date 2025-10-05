@@ -206,21 +206,28 @@ private def initCore (mvarId : MVarId) (params : Params) : GrindM Goal := do
   appendTagSuffix mvarId `grind
   mkGoal mvarId params
 
-def main (mvarId : MVarId) (params : Params) : MetaM Result := do profileitM Exception "grind" (← getOptions) do
-  let go : GrindM Result := withReducible do
-    let goal       ← initCore mvarId params
-    let failure?   ← solve goal
-    let issues     := (← get).issues
-    let trace      := (← get).trace
-    let counters   := (← get).counters
-    let splitDiags := (← get).splitDiags
-    let simp       := { (← get).simp with }
-    if failure?.isNone then
-      -- If there are no failures and diagnostics are enabled, we still report the performance counters.
-      if (← isDiagnosticsEnabled) then
-        if let some msg ← mkGlobalDiag counters simp splitDiags then
-          logInfo msg
-    return { failure?, issues, config := params.config, trace, counters, simp, splitDiags }
+def mkResult (params : Params) (failure? : Option Goal) : GrindM Result := do
+  let issues     := (← get).issues
+  let trace      := (← get).trace
+  let counters   := (← get).counters
+  let splitDiags := (← get).splitDiags
+  let simp       := { (← get).simp with }
+  if failure?.isNone then
+    -- If there are no failures and diagnostics are enabled, we still report the performance counters.
+    if (← isDiagnosticsEnabled) then
+      if let some msg ← mkGlobalDiag counters simp splitDiags then
+        logInfo msg
+  return { failure?, issues, config := params.config, trace, counters, simp, splitDiags }
+
+def GrindM.runAtGoal (mvarId : MVarId) (params : Params) (k : Goal → GrindM α) : MetaM α := do
+  let go : GrindM α := withReducible do
+    let goal ← initCore mvarId params
+    k goal
   go.run params
+
+def main (mvarId : MVarId) (params : Params) : MetaM Result := do profileitM Exception "grind" (← getOptions) do
+  GrindM.runAtGoal mvarId params fun goal => do
+    let failure? ← solve goal
+    mkResult params failure?
 
 end Lean.Meta.Grind

@@ -3566,7 +3566,20 @@ theorem inserList_insert_right_equiv_union_insert [BEq α] [EquivBEq α]
   (distinct_l : DistinctKeys l)
   (distinct_toInsert : DistinctKeys toInsert) :
   (insertList l (insertEntry p.fst p.snd toInsert)).Perm
-  (insertEntry p.fst p.snd (insertList l toInsert)) := sorry
+  (insertEntry p.fst p.snd (insertList l toInsert)) := by
+  apply getEntry?_ext
+  . apply DistinctKeys.insertList
+    . exact distinct_l
+  . apply DistinctKeys.insertEntry
+    . apply DistinctKeys.insertList
+      . exact distinct_l
+  intro a
+  have distinct_toInsert_pairwise := DistinctKeys_impl_Pairwise_distinct <| @DistinctKeys.insertEntry α β  _ _ toInsert p.fst p.snd distinct_toInsert
+  simp only [@getEntry?_insertList α β _ _ l (insertEntry p.fst p.snd toInsert) distinct_l distinct_toInsert_pairwise a]
+  simp only [getEntry?_insertEntry]
+  split
+  . simp only [Option.some_or]
+  . rw [@getEntry?_insertList α β _ _ l toInsert distinct_l (DistinctKeys_impl_Pairwise_distinct distinct_toInsert) a]
 
 theorem insertSmallerList_insert_right_equiv_union_insert [BEq α] [EquivBEq α]
   {l toInsert : List ((a : α) × β a)} (p : (a : α) × β a)

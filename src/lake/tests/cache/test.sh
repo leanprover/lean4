@@ -93,6 +93,18 @@ test_out "Fetched Ignored" -v build +Ignored
 echo "def foo := ()" > Ignored.lean
 test_out "Built Ignored" -v build +Ignored
 
+# Test that repeated switching between different versions
+# of a file works correctly with `restoreAllArtifacts = true`
+test_run resolve-deps -R -KrestoreAll=true
+echo "def bar := ()" > Ignored.lean
+test_out "Built Ignored" -v build +Ignored
+echo "def foo := ()" > Ignored.lean
+test_out "restored artifact from cache" -v build +Ignored
+echo "def bar := ()" > Ignored.lean
+test_out "restored artifact from cache" -v build +Ignored
+test_run -v build Test.ImportIgnored
+test_run resolve-deps -R
+
 # Verify module ileans are restored from the cache
 test_run build +Test --no-build
 test_cmd rm .lake/build/lib/lean/Test.ilean

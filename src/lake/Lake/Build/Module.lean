@@ -700,16 +700,15 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
     let savedTrace ← readTraceFile mod.traceFile
     let cache ← getLakeCache
     let fetchArtsFromCache? restoreAll := do
-      let arts? ← getArtifacts? inputHash mod.traceFile savedTrace cache mod.pkg
-      if let some arts := arts? then
-        if savedTrace.isDifferentFrom inputHash then
-          mod.clearOutputArtifacts
-        if restoreAll then
-          some <$> mod.restoreAllArtifacts arts
-        else
-          some <$> mod.restoreNeededArtifacts arts
+      let some arts ← getArtifacts? inputHash savedTrace cache mod.pkg
+        | return none
+      unless (← savedTrace.replayOrFetchIfUpToDate inputHash) do
+        mod.clearOutputArtifacts
+        writeFetchTrace mod.traceFile inputHash (toJson arts.descrs)
+      if restoreAll then
+        some <$> mod.restoreAllArtifacts arts
       else
-        return none
+        some <$> mod.restoreNeededArtifacts arts
     let arts ← id do
       if (← mod.pkg.isArtifactCacheEnabled) then
         if let some arts ← fetchArtsFromCache? mod.pkg.restoreAllArtifacts then
@@ -720,13 +719,12 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
           let arts ← mod.cacheOutputArtifacts
           cache.writeOutputs mod.pkg.cacheScope inputHash arts.descrs
           return arts
+      else if (← savedTrace.replayIfUpToDate (oldTrace := srcTrace.mtime) mod depTrace) then
+        mod.computeArtifacts setup.isModule
+      else if let some arts ← fetchArtsFromCache? true then
+        return arts
       else
-        if (← savedTrace.replayIfUpToDate (oldTrace := srcTrace.mtime) mod depTrace) then
-          mod.computeArtifacts setup.isModule
-        else if let some arts ← fetchArtsFromCache? true then
-          return arts
-        else
-          mod.buildLean depTrace srcFile setup
+        mod.buildLean depTrace srcFile setup
     if let some ref := mod.pkg.outputsRef? then
       ref.insert inputHash arts.descrs
     return arts

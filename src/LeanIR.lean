@@ -43,6 +43,9 @@ public def main (args : List String) : IO UInt32 := do
       s imports setup.options.toOptions
   let some modIdx := env.getModuleIdx? mod
     | throw <| IO.userError s!"module '{mod}' not found"
+  let some mod := env.header.moduleData[modIdx]? | unreachable!
+  -- Make sure we record the actual IR dependencies, not ourselves
+  let env := { env with base.private.header.imports := mod.imports }
   let res? ← EIO.toBaseIO <| Core.CoreM.run (ctx := { fileName := irFile, fileMap := default, options := setup.options.toOptions })
       (s := { env }) try
     let decls := postponedCompileDeclsExt.getModuleEntries env modIdx

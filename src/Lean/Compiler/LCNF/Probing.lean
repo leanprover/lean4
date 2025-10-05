@@ -174,29 +174,6 @@ def tail (n : Nat) : Probe α α := fun data => return data[(data.size - n)...*]
 @[inline]
 def head (n : Nat) : Probe α α := fun data => return data[*...n]
 
-def runOnDeclsNamed (declNames : Array Name) (probe : Probe Decl β) (phase : Phase := Phase.base): CoreM (Array β) := do
-  let ext := getExt phase
-  let env ← getEnv
-  let decls ← declNames.mapM fun name => do
-    let some decl := getDeclCore? env ext name | throwError "decl `{name}` not found"
-    return decl
-  probe decls |>.run (phase := phase)
-
-def runOnModule (moduleName : Name) (probe : Probe Decl β) (phase : Phase := Phase.base): CoreM (Array β) := do
-  let ext := getExt phase
-  let env ← getEnv
-  let some modIdx := env.getModuleIdx? moduleName | throwError "module `{moduleName}` not found"
-  let decls := ext.getModuleEntries env modIdx
-  probe decls |>.run (phase := phase)
-
-def runGlobally (probe : Probe Decl β) (phase : Phase := Phase.base) : CoreM (Array β) := do
-  let ext := getExt phase
-  let env ← getEnv
-  let mut decls := #[]
-  for modIdx in *...env.allImportedModuleNames.size do
-    decls := decls.append <| ext.getModuleEntries env modIdx
-  probe decls |>.run (phase := phase)
-
 def toPass [ToString β] (probe : Probe Decl β) (phase : Phase) : Pass where
   phase := phase
   name := `probe

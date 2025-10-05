@@ -140,16 +140,15 @@ private def exportIREntries (env : Environment) : Array (Name × Array EnvExtens
 
 @[export lean_ir_find_env_decl]
 def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
-  match env.getModuleIdxFor? declName with
-  | some modIdx =>
-    -- `meta import/import all` and server `#eval`
-    -- This case is important even for codegen because it needs to see IR via `import all` (because
-    -- it can also see the LCNF)
-    findAtSorted? (declMapExt.getModuleIREntries env modIdx) declName <|>
-    -- (closure of) `meta def`; will report `.extern`s for other `def`s so needs to come second
-    findAtSorted? (declMapExt.getModuleEntries env modIdx) declName <|>
-    (declMapExt.getState env |>.find? declName)
-  | none => declMapExt.getState env |>.find? declName
+  Lean.Compiler.LCNF.withCompilerModIdx env declName
+    (fun modIdx =>
+      -- `meta import/import all` and server `#eval`
+      -- This case is important even for codegen because it needs to see IR via `import all` (because
+      -- it can also see the LCNF)
+      findAtSorted? (declMapExt.getModuleIREntries env modIdx) declName <|>
+      -- (closure of) `meta def`; will report `.extern`s for other `def`s so needs to come second
+      findAtSorted? (declMapExt.getModuleEntries env modIdx) declName)
+    (fun _ => declMapExt.getState env |>.find? declName)
 
 /-- Like ``findEnvDecl env (declName ++ `_boxed)`` but with optimized negative lookup. -/
 @[export lean_ir_find_env_decl_boxed]

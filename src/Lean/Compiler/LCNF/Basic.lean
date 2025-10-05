@@ -760,4 +760,10 @@ def instantiateRevRangeArgs (e : Expr) (beginIdx endIdx : Nat) (args : Array Arg
   else
     e.instantiateRevRange beginIdx endIdx (args.map (·.toExpr))
 
+def withCompilerModIdx (env : Environment) (declName : Name)
+    (importedOrLocal : ModuleIdx → Option α) («local» : Unit → Option α) : Option α :=
+  match env.getModuleIdxFor? declName with
+  | some modIdx => importedOrLocal modIdx <|> «local» ()
+  | none        => «local» ()
+
 end Lean.Compiler.LCNF

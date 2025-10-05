@@ -132,9 +132,9 @@ builtin_initialize baseExt : DeclExt ← mkDeclExt .base
 builtin_initialize monoExt : DeclExt ← mkDeclExt .mono
 
 def getDeclCore? (env : Environment) (ext : DeclExt) (declName : Name) : Option Decl :=
-  match env.getModuleIdxFor? declName with
-  | some modIdx => findAtSorted? (ext.getModuleEntries env modIdx) declName <|> (ext.getState env |>.find? declName)
-  | none        => ext.getState env |>.find? declName
+  withCompilerModIdx env declName
+    (fun modIdx => findAtSorted? (ext.getModuleEntries env modIdx) declName)
+    (fun _ => ext.getState env |>.find? declName)
 
 def getBaseDecl? (declName : Name) : CoreM (Option Decl) := do
   return getDeclCore? (← getEnv) baseExt declName
@@ -179,23 +179,5 @@ def getExt (phase : Phase) : DeclExt :=
   match phase with
   | .base => baseExt
   | .mono => monoExt
-
-def forEachDecl (f : Decl → CoreM Unit) (phase := Phase.base) : CoreM Unit := do
-  let ext := getExt phase
-  let env ← getEnv
-  for modIdx in *...env.allImportedModuleNames.size do
-    for decl in ext.getModuleEntries env modIdx do
-      f decl
-  ext.getState env |>.forM fun _ decl => f decl
-
-def forEachModuleDecl (moduleName : Name) (f : Decl → CoreM Unit) (phase := Phase.base) : CoreM Unit := do
-  let ext := getExt phase
-  let env ← getEnv
-  let some modIdx := env.getModuleIdx? moduleName | throwError "module `{moduleName}` not found"
-  for decl in ext.getModuleEntries env modIdx do
-    f decl
-
-def forEachMainModuleDecl (f : Decl → CoreM Unit) (phase := Phase.base) : CoreM Unit := do
-  (getExt phase).getState (← getEnv) |>.forM fun _ decl => f decl
 
 end Lean.Compiler.LCNF

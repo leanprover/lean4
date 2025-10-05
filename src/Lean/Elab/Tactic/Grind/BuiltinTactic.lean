@@ -63,4 +63,7 @@ open Meta Grind
 @[builtin_grind_tactic lia] def evalLIA : GrindTactic := fun _ => do
   liftGoalM <| discard <| Arith.Cutsat.check
 
+@[builtin_grind_tactic ring] def evalRing : GrindTactic := fun _ => do
+  liftGoalM <| discard <| Arith.CommRing.check
+
 end Lean.Elab.Tactic.Grind

@@ -56,7 +56,6 @@ LEAN_EXPORT lean_object* l_Lake_Hash_ofHex_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_computeTextFileHash(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_computeArrayTrace(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_Lake_pureHash___redArg(lean_object*, lean_object*);
-uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 lean_object* lean_io_metadata(lean_object*, lean_object*);
 static lean_object* l_Array_Array_repr___at___Lake_instReprBuildTrace_repr_spec__0___closed__3;
 LEAN_EXPORT lean_object* l_Lake_inhabitedOfNilTrace___redArg___boxed(lean_object*);
@@ -143,6 +142,7 @@ LEAN_EXPORT lean_object* l_Lake_BuildTrace_checkAgainstTime___redArg___boxed(lea
 LEAN_EXPORT lean_object* l_Lake_MTime_instNilTrace;
 LEAN_EXPORT lean_object* l_Lake_instReprHash_repr___boxed(lean_object*, lean_object*);
 uint64_t lean_uint8_to_uint64(uint8_t);
+uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_computeArrayHash___redArg___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lake_Hash_ofDecimal_x3f___boxed(lean_object*);
 static lean_object* l_Lake_Hash_instToJson___closed__0;

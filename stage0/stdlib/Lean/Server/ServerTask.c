@@ -94,6 +94,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_mapTaskCheap(lean_object*,
 static lean_object* l___auto___closed__28____x40_Lean_Server_ServerTask_2118130630____hygCtx___hyg_12_;
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_mapCostly(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_Server_ServerTask_waitAny_spec__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_wait___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___auto____x40_Lean_Server_ServerTask_2118130630____hygCtx___hyg_12_;
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_BaseIO_bindTaskCostly___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_asTask(lean_object*, lean_object*, lean_object*);
@@ -133,6 +134,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_hasFinished___redArg___boxed(l
 static lean_object* l_Lean_Server_ServerTask_join___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_pure___redArg(lean_object*);
 static lean_object* l___auto___closed__11____x40_Lean_Server_ServerTask_2118130630____hygCtx___hyg_12_;
+LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_wait(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l___auto___closed__19____x40_Lean_Server_ServerTask_2118130630____hygCtx___hyg_12_;
 LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedServerTask(lean_object*, lean_object*);
@@ -143,6 +145,7 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_BaseIO_bindTaskCheap___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__41____x40_Lean_Server_ServerTask_2118130630____hygCtx___hyg_12_;
+lean_object* lean_io_wait(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_bindTaskCheap___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__7____x40_Lean_Server_ServerTask_2118130630____hygCtx___hyg_12_;
 lean_object* l_Lean_mkAtom(lean_object*);
@@ -270,6 +273,22 @@ _start:
 lean_object* x_3; 
 x_3 = lean_task_get_own(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_wait___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_io_wait(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_wait(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_io_wait(x_2, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_mapCheap___redArg(lean_object* x_1, lean_object* x_2) {

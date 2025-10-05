@@ -17,6 +17,10 @@ syntax grindSeq1Indented := sepBy1IndentSemicolon(grind)
 syntax grindSeqBracketed := "{" withoutPosition(sepByIndentSemicolon(grind)) "}"
 syntax grindSeq := grindSeqBracketed <|> grindSeq1Indented
 
+/-- `(grindSeq)` runs the `grindSeq` in sequence on the current list of targets.
+This is pure grouping with no added effects. -/
+syntax (name := paren) "(" withoutPosition(grindSeq) ")" : grind
+
 /-- `skip` does nothing. -/
 syntax (name := skip) "skip" : grind
 /-- `lia` linear integer arithmetic. -/

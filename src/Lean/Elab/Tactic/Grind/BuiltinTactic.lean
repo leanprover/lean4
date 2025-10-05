@@ -9,31 +9,19 @@ public import Lean.Elab.Tactic.Grind.Basic
 import Init.Grind.Interactive
 import Lean.Meta.Tactic.Grind.Solve
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search
+import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
 namespace Lean.Elab.Tactic.Grind
-/--
-Evaluates a tactic script in form of a syntax node with alternating tactics and separators as
-children.
--/
-partial def evalSepTactics : GrindTactic :=
-  goEven
-where
-  -- `stx[0]` is the next tactic step, if any
-  goEven stx := do
-    if stx.getNumArgs == 0 then
-      return
-    let tac := stx[0]
-    let stxs := mkNullNode stx.getArgs[1...*]
-    evalGrindTactic tac
-    goOdd stxs
-  -- `stx[0]` is the next separator, if any
-  goOdd stx := do
-    if stx.getNumArgs == 0 then
-      return
-    saveTacticInfoForToken stx[0] -- add `TacticInfo` node for `;`
-    goEven <| mkNullNode stx.getArgs[1...*]
+
+def evalSepTactics (stx : Syntax) : GrindTacticM Unit := do
+  for arg in stx.getArgs, i in *...stx.getArgs.size do
+    if i % 2 == 0 then
+      evalGrindTactic arg
+    else
+      saveTacticInfoForToken arg
 
 @[builtin_grind_tactic grindSeq1Indented]
-def evalGrindSeq1Indented : GrindTactic := evalSepTactics
+def evalGrindSeq1Indented : GrindTactic := fun stx =>
+  evalSepTactics stx[0]
 
 @[builtin_grind_tactic grindSeqBracketed]
 def evalGrindSeqBracketed : GrindTactic := fun stx => do
@@ -52,6 +40,9 @@ def evalGrindSeq : GrindTactic := fun stx =>
 
 @[builtin_grind_tactic skip] def evalSkip : GrindTactic := fun _ =>
   return ()
+
+@[builtin_grind_tactic paren] def evalParen : GrindTactic := fun stx =>
+  evalGrindTactic stx[1]
 
 open Meta Grind
 

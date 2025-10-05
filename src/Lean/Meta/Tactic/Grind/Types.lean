@@ -276,6 +276,9 @@ def getIntExpr : GrindM Expr := do
 def cheapCasesOnly : GrindM Bool :=
   return (← readThe Context).cheapCases
 
+def withCheapCasesOnly (k : GrindM α) : GrindM α :=
+  withTheReader Grind.Context (fun ctx => { ctx with cheapCases := true }) k
+
 def reportMVarInternalization : GrindM Bool :=
   return (← readThe Context).reportMVarIssue
 

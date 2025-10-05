@@ -9,6 +9,8 @@ public import Lean.Elab.Term
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Main
+public import Lean.Meta.Tactic.Grind.SearchM
+import Lean.Meta.Tactic.Grind.Intro
 public section
 namespace Lean.Elab.Tactic.Grind
 open Meta
@@ -318,13 +320,24 @@ def liftGrindM (k : GrindM α) : GrindTacticM α := do
   modify fun s => { s with state }
   return a
 
+def replaceMainGoal (goals : List Goal) : GrindTacticM Unit := do
+  let goals := goals.filter fun goal => !goal.inconsistent
+  let (_ :: goals') ← getGoals | throwNoGoalsToBeSolved
+  modify fun s => { s with goals := goals ++ goals' }
+
 def liftGoalM (k : GoalM α) : GrindTacticM α := do
   let goal ← getMainGoal
   let (a, goal) ← liftGrindM <| k.run goal
-  if goal.inconsistent then
-    modify fun s => { s with goals := s.goals.tail! }
-  else
-    modify fun s => { s with goals := goal :: s.goals.tail! }
+  replaceMainGoal [goal]
+  return a
+
+def liftSearchM (k : SearchM α) : GrindTacticM α := do
+  let goal ← getMainGoal
+  let (a, state) ← liftGrindM <| SearchM.run goal k
+  unless state.choiceStack.isEmpty do
+    -- **TODO**: Convert pending goals into new subgoals.
+    throwError "`grind` internal error, `SearchM` action has pending choices, this is not supported yet."
+  replaceMainGoal [state.goal]
   return a
 
 def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM α) : TacticM (α × State) := do
@@ -332,7 +345,13 @@ def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM
     let methods ← getMethods
     let ctx ← readThe Meta.Grind.Context
     let state ← get
-    pure (methods, ctx, { state, goals := [goal] })
+    -- **Note**: We use `withCheapCasesOnly` to ensure multiple goals are not created.
+    -- We will add support for this case in the future.
+    let (goal, _) ← withCheapCasesOnly <| SearchM.run goal do
+      intros 0
+      getGoal
+    let goals := if goal.inconsistent then [] else [goal]
+    pure (methods, ctx, { state, goals })
   let tctx ← read
   k { tctx with methods, ctx } |>.run state
 

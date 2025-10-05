@@ -240,9 +240,12 @@ def grind
       mvarId.assign e
       return result.trace
     if let some seq := seq? then
-      let (_, _state) ← Grind.GrindTacticM.runAtGoal mvar'.mvarId! params do
+      let (result, _) ← Grind.GrindTacticM.runAtGoal mvar'.mvarId! params do
         Grind.evalGrindTactic seq
-      throwError "NIY"
+        -- **Note**: We are returning only the first goal that could not be solved.
+        let goal? := if let goal :: _ := (← get).goals then some goal else none
+        Grind.liftGrindM <| Grind.mkResult params goal?
+      finalize result
     else
       let result ← Grind.main mvar'.mvarId! params
       finalize result
@@ -337,7 +340,7 @@ def mkGrindOnly
 
 @[builtin_tactic Lean.Parser.Tactic.grind] def evalGrind : Tactic := fun stx => do
   match stx with
-  | `(tactic| grind $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[=> $seq]?) =>
+  | `(tactic| grind $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[=> $seq:grindSeq]?) =>
     let config ← elabGrindConfig config
     discard <| evalGrindCore stx config only params seq
   | _ => throwUnsupportedSyntax

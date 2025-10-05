@@ -7,8 +7,9 @@ module
 prelude
 public import Lean.Elab.Tactic.Grind.Basic
 import Init.Grind.Interactive
+import Lean.Meta.Tactic.Grind.Solve
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search
 namespace Lean.Elab.Tactic.Grind
-
 /--
 Evaluates a tactic script in form of a syntax node with alternating tactics and separators as
 children.
@@ -46,14 +47,20 @@ def evalGrindSeqBracketed : GrindTactic := fun stx => do
 def evalGrindSeq : GrindTactic := fun stx =>
   evalGrindTactic stx[0]
 
-@[builtin_grind_tactic «done»] def evalDone : GrindTactic := fun _ =>
+@[builtin_grind_tactic Parser.Tactic.Grind.«done»] def evalDone : GrindTactic := fun _ =>
   done
 
 @[builtin_grind_tactic skip] def evalSkip : GrindTactic := fun _ =>
   return ()
 
-@[builtin_grind_tactic finish] def evalFinish : GrindTactic := fun _ =>
-  liftGoalM fun _goal =>
-    throwError "finish"
+open Meta Grind
+
+@[builtin_grind_tactic finish] def evalFinish : GrindTactic := fun _ => do
+  let goal ← getMainGoal
+  let goal? ← liftGrindM <| solve goal
+  replaceMainGoal goal?.toList
+
+@[builtin_grind_tactic lia] def evalLIA : GrindTactic := fun _ => do
+  liftGoalM <| discard <| Arith.Cutsat.check
 
 end Lean.Elab.Tactic.Grind

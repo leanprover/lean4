@@ -133,7 +133,7 @@ builtin_initialize monoExt : DeclExt ← mkDeclExt .mono
 
 def getDeclCore? (env : Environment) (ext : DeclExt) (declName : Name) : Option Decl :=
   match env.getModuleIdxFor? declName with
-  | some modIdx => findAtSorted? (ext.getModuleEntries env modIdx) declName
+  | some modIdx => findAtSorted? (ext.getModuleEntries env modIdx) declName <|> (ext.getState env |>.find? declName)
   | none        => ext.getState env |>.find? declName
 
 def getBaseDecl? (declName : Name) : CoreM (Option Decl) := do

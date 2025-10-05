@@ -1804,19 +1804,6 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
     constNames, constants, entries
   }
 
-@[extern "lean_ir_export_entries"]
-private opaque exportIREntries (env : Environment) : Array (Name × Array EnvExtensionEntry)
-
-private def mkIRData (env : Environment) : ModuleData :=
-  -- TODO: should we use a more specific/efficient data format for IR?
-  { env.header with
-    entries := exportIREntries env
-    constants := default
-    constNames := default
-    -- make sure to include all names in case only `.ir` is loaded
-    extraConstNames := getIRExtraConstNames env .private (includeDecls := true)
-  }
-
 def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
   if env.header.isModule then
     let mkPart (level : OLeanLevel) :=

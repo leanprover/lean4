@@ -818,6 +818,7 @@ private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) :
       fileMap := ctx.fileMap
       currRecDepth := ctx.currRecDepth
       currMacroScope := ctx.currMacroScope
+      quotContext? := ctx.quotContext
       ref := ctx.ref
       snap? := none
       cancelTk? := ctx.cancelTk?
@@ -828,7 +829,12 @@ private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) :
       maxRecDepth := ctx.maxRecDepth
       ngen := s.ngen
       auxDeclNGen := s.auxDeclNGen
-      scopes := [{ header := "", opts := ctx.options }]
+      scopes := [{
+        header := ""
+        opts := ctx.options
+        currNamespace := ctx.currNamespace
+        openDecls := ctx.openDecls
+      }]
       infoState.enabled := s.infoState.enabled
     }
   modify fun coreState => { coreState with

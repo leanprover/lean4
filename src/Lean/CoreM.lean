@@ -691,14 +691,19 @@ def traceBlock (tag : String) (t : Task α) : CoreM α := do
     profileitM Exception "blocked" (← getOptions) do
       IO.wait t
 
-builtin_initialize postponedCompileDeclsExt : SimplePersistentEnvExtension Name NameSet ←
+structure PostponedCompileDecl where
+  declName : Name
+  logErrors : Bool
+deriving BEq, Hashable
+
+builtin_initialize postponedCompileDeclsExt : SimplePersistentEnvExtension PostponedCompileDecl (NameMap PostponedCompileDecl) ←
   registerSimplePersistentEnvExtension {
     addImportedFn := fun _ => {}
-    addEntryFn    := fun s n => s.insert n
+    addEntryFn    := fun s e => s.insert e.declName e
     toArrayFn     := fun es => es.toArray
     asyncMode     := .sync
     replay?       := some <| SimplePersistentEnvExtension.replayOfFilter
-      (!·.contains ·) (·.insert)
+      (!·.contains ·.declName) (fun s e => s.insert e.declName e)
   }
 
 -- Forward declaration
@@ -710,7 +715,8 @@ def compileDecls (decls : Array Name) (logErrors := true) (mayPostpone := true) 
   let env ← getEnv
   if mayPostpone && env.header.isModule && !decls.any (isMeta env) then
     for decl in decls do
-      modifyEnv (postponedCompileDeclsExt.addEntry · decl)
+      trace[Compiler.init] "postponing compilation of {decl}"
+      modifyEnv (postponedCompileDeclsExt.addEntry · { declName := decl, logErrors })
     return
 
   -- When inside `realizeConst`, do compilation synchronously so that `_cstage*` constants are found

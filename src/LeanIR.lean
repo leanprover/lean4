@@ -26,6 +26,7 @@ def mkIRData (env : Environment) : IO ModuleData :=
     extraConstNames := getIRExtraConstNames env .private (includeDecls := true)
   }
 
+
 public def main (args : List String) : IO UInt32 := do
   let [setupFile, mod, irFile] := args | do
     IO.println s!"usage: leanir <setup.json> <module> <output.ir>"
@@ -49,18 +50,18 @@ public def main (args : List String) : IO UInt32 := do
   let res? ← EIO.toBaseIO <| Core.CoreM.run (ctx := { fileName := irFile, fileMap := default, options := setup.options.toOptions })
       (s := { env }) try
     let decls := postponedCompileDeclsExt.getModuleEntries env modIdx
-    modifyEnv (postponedCompileDeclsExt.setState · (decls.foldl (·.insert) {}))
+    modifyEnv (postponedCompileDeclsExt.setState · (decls.foldl (fun s e => s.insert e.declName e) {}))
     withOptions (Compiler.compiler.checkMeta.set · false) do
     --withOptions (·.set `trace.Compiler true) do
     --withOptions (·.set `trace.compiler.ir true) do
     for decl in decls do
-      match (← getConstInfo decl) with
+      match (← getConstInfo decl.declName) with
       | .defnInfo info =>
         modifyEnv (postponedCompileDeclsExt.modifyState · fun s => info.all.foldl (·.erase) s)
-        compileDeclsImpl info.all.toArray
+        doCompile (logErrors := decl.logErrors) info.all.toArray
       | _ =>
-        modifyEnv (postponedCompileDeclsExt.modifyState · fun s => s.erase decl)
-        compileDeclsImpl #[decl]
+        modifyEnv (postponedCompileDeclsExt.modifyState · fun s => s.erase decl.declName)
+        doCompile (logErrors := decl.logErrors) #[decl.declName]
   catch e =>
     unless e.isInterrupt do
       logError e.toMessageData
@@ -79,3 +80,11 @@ public def main (args : List String) : IO UInt32 := do
   -- Make sure to change the module name so we derive a different base address
   saveModuleData irFile (env.mainModule ++ `ir) (← mkIRData env)
   return 0
+where doCompile logErrors decls := do
+  let state ← Core.saveState
+  try
+    compileDeclsImpl decls
+  catch e =>
+    state.restore
+    if logErrors then
+      throw e

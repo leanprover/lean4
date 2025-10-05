@@ -1172,7 +1172,6 @@ extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to, lean
     }
     const char* to_str = string_cstr(to);
     if (strlen(to_str) != lean_string_size(to) - 1) {
-        inc(to);
         return mk_embedded_nul_error(to);
     }
 #ifdef LEAN_WINDOWS
@@ -1194,6 +1193,26 @@ extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to, lean
         return io_result_mk_error(decode_io_error(errno, out.raw()));
     }
 #endif
+    return io_result_mk_ok(box(0));
+}
+
+/* hardLink (orig link : FilePath) : IO Unit */
+extern "C" LEAN_EXPORT obj_res lean_io_hard_link(b_obj_arg orig, b_obj_arg link, lean_object * /* w */) {
+    const char* orig_str = string_cstr(orig);
+    if (strlen(orig_str) != lean_string_size(orig) - 1) {
+        return mk_embedded_nul_error(orig);
+    }
+    const char* link_str = string_cstr(link);
+    if (strlen(link_str) != lean_string_size(link) - 1) {
+        return mk_embedded_nul_error(link);
+    }
+    uv_fs_t req;
+    int ret = uv_fs_link(NULL, &req, orig_str, link_str, NULL);
+    if (ret < 0) {
+        return io_result_mk_error(decode_uv_error(ret, orig));
+    } else {
+        uv_fs_req_cleanup(&req);
+    }
     return io_result_mk_ok(box(0));
 }
 

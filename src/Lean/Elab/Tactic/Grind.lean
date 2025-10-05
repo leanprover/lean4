@@ -7,3 +7,4 @@ module
 prelude
 public import Lean.Elab.Tactic.Grind.Main
 public import Lean.Elab.Tactic.Grind.Basic
+public import Lean.Elab.Tactic.Grind.BuiltinTactic

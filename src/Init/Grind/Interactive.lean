@@ -23,6 +23,9 @@ syntax (name := skip) "skip" : grind
 syntax (name := lia) "lia" : grind
 /-- `ring` (commutative) rings and fields. -/
 syntax (name := ring) "ring" : grind
+/-- `done` succeeds iff there are no remaining goals. -/
+syntax (name := done) "done" : grind
+
 /-- `finish` tries to close the current goal using `grind`'s default strategy -/
 syntax (name := finish) "finish" : grind
 

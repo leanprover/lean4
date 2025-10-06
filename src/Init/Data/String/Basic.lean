@@ -497,10 +497,10 @@ instance : LE String.Pos.Raw where
 instance : LT String.Pos.Raw where
   lt p₁ p₂ := p₁.byteIdx < p₂.byteIdx
 
-instance (p₁ p₂ : String.Pos.Raw) : Decidable (LE.le p₁ p₂) :=
+instance (p₁ p₂ : String.Pos.Raw) : Decidable (p₁ ≤ p₂) :=
   inferInstanceAs (Decidable (p₁.byteIdx ≤ p₂.byteIdx))
 
-instance (p₁ p₂ : String.Pos.Raw) : Decidable (LT.lt p₁ p₂) :=
+instance (p₁ p₂ : String.Pos.Raw) : Decidable (p₁ < p₂) :=
   inferInstanceAs (Decidable (p₁.byteIdx < p₂.byteIdx))
 
 instance : Min String.Pos.Raw := minOfLe
@@ -999,14 +999,32 @@ def endValidPos (s : String) : s.ValidPos where
   offset := s.endPos
   isValid := by simp
 
+instance {s : String} : LE s.ValidPos where
+  le l r := l.offset ≤ r.offset
+
+instance {s : String} : LT s.ValidPos where
+  lt l r := l.offset < r.offset
+
+theorem ValidPos.le_iff {s : String} {l r : s.ValidPos} : l ≤ r ↔ l.offset ≤ r.offset :=
+  Iff.rfl
+
+theorem ValidPos.lt_iff {s : String} {l r : s.ValidPos} : l < r ↔ l.offset < r.offset :=
+  Iff.rfl
+
+instance {s : String} (l r : s.ValidPos) : Decidable (l ≤ r) :=
+  decidable_of_iff' _ ValidPos.le_iff
+
+instance {s : String} (l r : s.ValidPos) : Decidable (l < r) :=
+  decidable_of_iff' _ ValidPos.lt_iff
+
 theorem ValidPos.isValidUTF8_extract {s : String} (pos₁ pos₂ : s.ValidPos) :
     (s.bytes.extract pos₁.offset.byteIdx pos₂.offset.byteIdx).IsValidUTF8 := by
-  by_cases h : pos₁.offset ≤ pos₂.offset
+  by_cases h : pos₁ ≤ pos₂
   · exact (Pos.Raw.isValidUTF8_extract_iff _ _   h pos₂.isValid.le_endPos).2 (Or.inr ⟨pos₁.isValid, pos₂.isValid⟩)
   · rw [ByteArray.extract_eq_empty_iff.2]
     · exact ByteArray.isValidUTF8_empty
     · rw [Nat.min_eq_left]
-      · rw [Pos.Raw.le_iff] at h
+      · rw [ValidPos.le_iff, Pos.Raw.le_iff] at h
         omega
       · have := Pos.Raw.le_iff.1 pos₂.isValid.le_endPos
         rwa [size_bytes, ← byteIdx_endPos]
@@ -1029,10 +1047,10 @@ structure Slice where
   /-- The byte position of the end of the string slice. -/
   endExclusive : str.ValidPos
   /-- The slice is not degenerate (but it may be empty). -/
-  startInclusive_le_endExclusive : startInclusive.offset ≤ endExclusive.offset
+  startInclusive_le_endExclusive : startInclusive ≤ endExclusive
 
 instance : Inhabited Slice where
-  default := ⟨"", "".startValidPos, "".startValidPos, by simp [Pos.Raw.le_iff]⟩
+  default := ⟨"", "".startValidPos, "".startValidPos, by simp [ValidPos.le_iff, Pos.Raw.le_iff]⟩
 
 /--
 Returns a slice that contains the entire string.
@@ -1042,7 +1060,7 @@ def toSlice (s : String) : Slice where
   str := s
   startInclusive := s.startValidPos
   endExclusive := s.endValidPos
-  startInclusive_le_endExclusive := by simp [Pos.Raw.le_iff]
+  startInclusive_le_endExclusive := by simp [ValidPos.le_iff, Pos.Raw.le_iff]
 
 /-- The number of bytes of the UTF-8 encoding of the string slice. -/
 @[expose]
@@ -1126,7 +1144,7 @@ theorem Pos.Raw.isValid_copy_iff {s : Slice} {p : Pos.Raw} :
   refine ⟨fun ⟨h₁, h₂⟩ => ⟨?_, ?_⟩, fun ⟨h₁, h₂⟩ => ⟨?_, ?_⟩⟩
   · simpa using h₁
   · have := s.startInclusive_le_endExclusive
-    simp_all only [Slice.endPos_copy, le_iff, Slice.byteIdx_utf8ByteSize]
+    simp_all only [Slice.endPos_copy, ValidPos.le_iff, le_iff, Slice.byteIdx_utf8ByteSize]
     rw [Slice.bytes_copy, ByteArray.extract_extract, Nat.add_zero, Nat.min_eq_left (by omega)] at h₂
     rw [← byteIdx_add, Pos.Raw.isValidUTF8_extract_iff] at h₂
     · rcases h₂ with (h₂|⟨-, h₂⟩)
@@ -1139,7 +1157,7 @@ theorem Pos.Raw.isValid_copy_iff {s : Slice} {p : Pos.Raw} :
       omega
   · simpa using h₁
   · have := s.startInclusive_le_endExclusive
-    simp_all only [le_iff, Slice.byteIdx_utf8ByteSize]
+    simp_all only [ValidPos.le_iff, le_iff, Slice.byteIdx_utf8ByteSize]
     rw [Slice.bytes_copy, ByteArray.extract_extract, Nat.add_zero, Nat.min_eq_left (by omega)]
     rw [← byteIdx_add, Pos.Raw.isValidUTF8_extract_iff]
     · exact Or.inr ⟨s.startInclusive.isValid, h₂⟩
@@ -1176,7 +1194,7 @@ instance {s : Slice} : Inhabited s.Pos where
 theorem Slice.offset_startInclusive_add_utf8ByteSize {s : Slice} :
     s.startInclusive.offset + s.utf8ByteSize = s.endExclusive.offset := by
   have := s.startInclusive_le_endExclusive
-  simp_all [String.Pos.Raw.ext_iff, Pos.Raw.le_iff]
+  simp_all [String.Pos.Raw.ext_iff, ValidPos.le_iff, Pos.Raw.le_iff]
 
 /-- The past-the-end position of `s`, as an `s.Pos`. -/
 @[inline, expose]
@@ -1186,6 +1204,24 @@ def Slice.endPos (s : Slice) : s.Pos where
 
 @[simp]
 theorem ByteString.Slice.offset_endPos {s : Slice} : s.endPos.offset = s.utf8ByteSize := (rfl)
+
+instance {s : Slice} : LE s.Pos where
+  le l r := l.offset ≤ r.offset
+
+instance {s : Slice} : LT s.Pos where
+  lt l r := l.offset < r.offset
+
+theorem Slice.Pos.le_iff {s : Slice} {l r : s.Pos} : l ≤ r ↔ l.offset ≤ r.offset :=
+  Iff.rfl
+
+theorem Slice.Pos.lt_iff {s : Slice} {l r : s.Pos} : l < r ↔ l.offset < r.offset :=
+  Iff.rfl
+
+instance {s : Slice} (l r : s.Pos) : Decidable (l ≤ r) :=
+  decidable_of_iff' _ Slice.Pos.le_iff
+
+instance {s : Slice} (l r : s.Pos) : Decidable (l < r) :=
+  decidable_of_iff' _ Slice.Pos.lt_iff
 
 theorem Pos.Raw.isValidForSlice_iff_isUTF8FirstByte {s : Slice} {p : Pos.Raw} :
     p.IsValidForSlice s ↔ (p = s.utf8ByteSize ∨ (∃ (h : p < s.utf8ByteSize), (s.getUTF8Byte p h).IsUTF8FirstByte)) := by
@@ -1291,7 +1327,8 @@ theorem Slice.Pos.offset_str_le_offset_endExclusive {s : Slice} {pos : s.Pos} :
     pos.str.offset ≤ s.endExclusive.offset := by
   have := pos.isValidForSlice.le_utf8ByteSize
   have := s.startInclusive_le_endExclusive
-  simp only [Pos.Raw.le_iff, byteIdx_utf8ByteSize, offset_str, Pos.Raw.byteIdx_add, ge_iff_le] at *
+  simp only [ValidPos.le_iff, Pos.Raw.le_iff, byteIdx_utf8ByteSize, offset_str, Pos.Raw.byteIdx_add,
+    ge_iff_le] at *
   omega
 
 theorem Slice.Pos.offset_le_offset_str {s : Slice} {pos : s.Pos} :
@@ -1331,7 +1368,7 @@ def Slice.replaceEnd (s : Slice) (pos : s.Pos) : Slice where
   str := s.str
   startInclusive := s.startInclusive
   endExclusive := pos.str
-  startInclusive_le_endExclusive := by simp [String.Pos.Raw.le_iff]
+  startInclusive_le_endExclusive := by simp [ValidPos.le_iff, String.Pos.Raw.le_iff]
 
 @[simp]
 theorem Slice.str_replaceEnd {s : Slice} {pos : s.Pos} :
@@ -1353,7 +1390,7 @@ def Slice.replaceStartEnd (s : Slice) (newStart newEnd : s.Pos)
   str := s.str
   startInclusive := newStart.str
   endExclusive := newEnd.str
-  startInclusive_le_endExclusive := by simpa [Pos.Raw.le_iff] using h
+  startInclusive_le_endExclusive := by simpa [ValidPos.le_iff, Pos.Raw.le_iff] using h
 
 @[simp]
 theorem Slice.str_replaceStartEnd {s : Slice} {newStart newEnd : s.Pos} {h} :
@@ -1779,6 +1816,11 @@ theorem Slice.Pos.byteIdx_offset_next {s : Slice} {pos : s.Pos} {h : pos ≠ s.e
     (pos.next h).offset.byteIdx = pos.offset.byteIdx + (pos.get h).utf8Size := by
   simp [next, utf8ByteSize_byte]
 
+@[simp]
+theorem Slice.Pos.lt_next {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos} :
+    pos < pos.next h := by
+  simp [Pos.lt_iff, Pos.Raw.lt_iff, Char.utf8Size_pos]
+
 /-- Increases the byte offset of the position by `1`. Not to be confused with `ValidPos.next`. -/
 @[inline, expose]
 def Pos.Raw.inc (p : Pos.Raw) : Pos.Raw :=
@@ -2035,6 +2077,10 @@ theorem Slice.Pos.prev_ne_endPos {s : Slice} {p : s.Pos} {h} : p.prev h ≠ s.en
 
 theorem Slice.Pos.offset_prev_lt_offset {s : Slice} {p : s.Pos} {h} : (p.prev h).offset < p.offset := by
   simpa [prev] using prevAux_lt_self
+
+@[simp]
+theorem Slice.Pos.prev_lt {s : Slice} {p : s.Pos} {h} : p.prev h < p :=
+  lt_iff.2 offset_prev_lt_offset
 
 /-- Advances the position `p` `n` times, saturating at `s.endPos` if necessary. -/
 def Slice.Pos.nextn {s : Slice} (p : s.Pos) (n : Nat) : s.Pos :=

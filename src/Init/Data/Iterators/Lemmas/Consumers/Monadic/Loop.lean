@@ -498,4 +498,19 @@ theorem IterM.allM_eq_not_anyM_not {α β : Type w} {m : Type w → Type w'} [It
   · simp [ihs ‹_›]
   · simp
 
+theorem IterM.all_eq_not_any_not {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {p : β → Bool} :
+    it.all p = (fun x => .up !x.down) <$> it.any (! p ·) := by
+  induction it using IterM.inductSteps with | step it ihy ihs =>
+  rw [all_eq_match_step, any_eq_match_step, map_eq_pure_bind, bind_assoc]
+  apply bind_congr; intro step
+  cases step using PlausibleIterStep.casesOn
+  · simp only
+    split
+    · simp [*, ihy ‹_›]
+    · simp [*]
+  · simp [ihs ‹_›]
+  · simp
+
 end Std.Iterators

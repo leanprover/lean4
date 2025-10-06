@@ -425,6 +425,24 @@ any element emitted by a the iterator {name}`it`.
 examined in order of iteration.
 -/
 @[specialize]
+def IterM.anyLiftM {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [Finite α m]
+    (p : β → m (ULift Bool)) (it : IterM (α := α) m β) : m (ULift Bool) :=
+  ForIn.forIn it (ULift.up false) (fun x _ => do
+    if (← p x).down then
+      return .done (.up true)
+    else
+      return .yield (.up false))
+
+set_option doc.verso true in
+/--
+Returns {lean}`ULift.up true` if the monadic predicate {name}`p` returns {lean}`ULift.up true` for
+any element emitted by a the iterator {name}`it`.
+
+{lit}`O(|xs|)`. Short-circuits upon encountering the first match. The elements in {name}`it` are
+examined in order of iteration.
+-/
+@[specialize]
 def IterM.anyM {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] [IteratorLoop α m m] [Finite α m]
     (p : β → m (ULift Bool)) (it : IterM (α := α) m β) : m (ULift Bool) :=

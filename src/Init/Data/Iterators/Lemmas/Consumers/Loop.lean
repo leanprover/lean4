@@ -700,4 +700,33 @@ theorem Iter.all_toArray {α β : Type w} [Iterator α Id β]
     it.toArray.all p = it.all p := by
   simp only [← Iter.toArray_toList, List.all_toArray, all_toList]
 
+theorem Iter.allM_eq_not_anyM_not {α β : Type w} {m : Type → Type w'} [Iterator α Id β]
+    [Finite α Id] [Monad m] [LawfulMonad m] [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
+    {it : Iter (α := α) β} {p : β → m Bool} :
+    it.allM p = (! ·) <$> it.anyM ((! ·) <$> p ·) := by
+  induction it using Iter.inductSteps with | step it ihy ihs =>
+  rw [allM_eq_match_step, anyM_eq_match_step, map_eq_pure_bind]
+  cases it.step using PlausibleIterStep.casesOn
+  · simp only [map_eq_pure_bind, bind_assoc, pure_bind]
+    apply bind_congr; intro px
+    split
+    · simp [*, ihy ‹_›]
+    · simp [*]
+  · simp [ihs ‹_›]
+  · simp
+
+theorem Iter.all_eq_not_any_not {α β : Type w} [Iterator α Id β]
+    [Finite α Id] [Monad m] [LawfulMonad m] [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
+    {it : Iter (α := α) β} {p : β → Bool} :
+    it.all p = ! it.any (! p ·) := by
+  induction it using Iter.inductSteps with | step it ihy ihs =>
+  rw [all_eq_match_step, any_eq_match_step]
+  cases it.step using PlausibleIterStep.casesOn
+  · simp only
+    split
+    · simp [*, ihy ‹_›]
+    · simp [*]
+  · simp [ihs ‹_›]
+  · simp
+
 end Std.Iterators

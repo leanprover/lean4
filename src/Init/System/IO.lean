@@ -859,6 +859,18 @@ function](https://pubs.opengroup.org/onlinepubs/9699919799/functions/rename.html
 @[extern "lean_io_rename"] opaque rename (old new : @& FilePath) : IO Unit
 
 /--
+Creates a new hard link.
+
+The `link` path will be a link pointing to the `orig` path.
+Note that systems often require these two paths to both be located on the same filesystem.
+If `orig` names a symbolic link, it is platform-specific whether the symbolic link is followed.
+
+This function coincides with the [POSIX `link`
+function](https://pubs.opengroup.org/onlinepubs/9699919799/functions/link.html).
+-/
+@[extern "lean_io_hard_link"] opaque hardLink (orig link : @& FilePath) : IO Unit
+
+/--
 Creates a temporary file in the most secure manner possible, returning both a `Handle` to the
 already-opened file and its path.
 

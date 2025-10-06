@@ -27,7 +27,7 @@ namespace Std
 
 /--
 This is an existential wrapper for AsyncStream that is used for the `.ofArray` function
-with `CoeHead` so it's easier and we keep StreamMap on `Type 0`.
+with `CoeDep` so it's easier and we keep StreamMap on `Type 0`.
 -/
 inductive AnyAsyncStream (α : Type) where
   | mk : {t : Type} → [AsyncStream t α] → t → AnyAsyncStream α

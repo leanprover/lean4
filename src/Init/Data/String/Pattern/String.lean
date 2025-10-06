@@ -72,7 +72,7 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
     | .yield it' out =>
       match it.internalState with
       | .empty pos =>
-        (∃ newPos, pos.offset < newPos.offset ∧ it'.internalState = .empty newPos) ∨
+        (∃ newPos, pos < newPos ∧ it'.internalState = .empty newPos) ∨
         it'.internalState = .atEnd
       | .proper needle table stackPos needlePos =>
         (∃ newStackPos newNeedlePos,
@@ -88,7 +88,7 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
     | .empty pos =>
       let res := .matched pos pos
       if h : pos ≠ s.endPos then
-        pure ⟨.yield ⟨.empty (pos.next h)⟩ res, by simp [Char.utf8Size_pos]⟩
+        pure ⟨.yield ⟨.empty (pos.next h)⟩ res, by simp⟩
       else
         pure ⟨.yield ⟨.atEnd⟩ res, by simp⟩
     | .proper needle table stackPos needlePos =>
@@ -177,7 +177,7 @@ private def finitenessRelation :
           apply Prod.Lex.right'
           · simp
           · have haux := np.isValidForSlice.le_utf8ByteSize
-            simp [String.Pos.Raw.le_iff] at h1' haux ⊢
+            simp [Slice.Pos.lt_iff, String.Pos.Raw.le_iff] at h1' haux ⊢
             omega
         · apply Prod.Lex.left
           simp [h']

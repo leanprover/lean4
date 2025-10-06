@@ -24,7 +24,7 @@ instance : LawfulUpwardEnumerable Int where
     simp only [UpwardEnumerable.LT, UpwardEnumerable.succMany?, Option.some.injEq]
     omega
   succMany?_zero := by simp [UpwardEnumerable.succMany?]
-  succMany?_succ? := by
+  succMany?_add_one := by
     simp only [UpwardEnumerable.succMany?, UpwardEnumerable.succ?,
       Option.bind_some, Option.some.injEq]
     omega
@@ -37,7 +37,6 @@ instance : LawfulUpwardEnumerableLE Int where
     simp [UpwardEnumerable.LE, UpwardEnumerable.succMany?, Int.le_def, Int.nonneg_def,
       Int.sub_eq_iff_eq_add', eq_comm (a := y)]
 
-instance : LawfulOrderLT Int := inferInstance
 instance : LawfulUpwardEnumerableLT Int := inferInstance
 instance : LawfulUpwardEnumerableLT Int := inferInstance
 

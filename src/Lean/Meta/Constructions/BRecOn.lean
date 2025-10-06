@@ -274,7 +274,7 @@ private def mkBRecOnFromRec (recName : Name) (nParams : Nat)
       let go_decl ← mkDefinitionValInferringUnsafe brecOnGoName blps type go_val .abbrev
 
       addDecl (.defnDecl go_decl)
-      setReducibleAttribute go_decl.name -- todo: maybe better irreducible? does it matter?
+      setReducibleAttribute go_decl.name
       modifyEnv fun env => addProtected env go_decl.name
 
       -- project out first component

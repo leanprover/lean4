@@ -298,7 +298,7 @@ private def mkBRecOnFromRec (recName : Name) (nParams : Nat)
       let mvar := thm_val.mvarId!
       let cases ← mvar.cases major.fvarId!
       for case in cases do
-        case.mvarId.refl
+        case.mvarId.refl (check := false)
       let thm_val ← instantiateMVars thm_val
       let thm_type ← mkForallFVars below_params thm_type
       let thm_val ← mkLambdaFVars below_params thm_val

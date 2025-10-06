@@ -9,6 +9,7 @@ prelude
 public import Std.Data
 public import Init.System.Promise
 public import Init.Data.Queue
+public import Init.Data.Vector
 public import Std.Sync.Mutex
 public import Std.Internal.Async.Select
 public import Std.Internal.Async.IO

@@ -392,11 +392,16 @@ where
   goWithIncremental (tacSnaps : Array (SnapshotBundle TacticParsedSnapshot)) : TacticM (List MVarId) := withRef tacStx do
     let hasAlts := altStxs?.isSome
     let altStxs := altStxs?.getD #[]
-    let mut alts := alts
-    let mut toAdmit := []
 
     -- initial sanity checks: named cases should be known, wildcards should be last
     checkAltNames alts altStxs
+
+    -- `checkAltNames` may have looked at arbitrary alternatives, so we need to disable incremental
+    -- processing of alternatives if it had any effect lest we end up with stale messages
+    Term.withoutTacticIncrementality (cond := (← MonadLog.hasErrors)) do
+
+    let mut alts := alts
+    let mut toAdmit := []
 
     /-
     First process `altsSyntax` in order, removing covered alternatives from `alts`. Previously we
@@ -418,8 +423,8 @@ where
     first, making partial reuse in `inr` impossible (without support for reuse with position
     adjustments).
 
-    2- The errors are produced in the same order the appear in the code above. This is not super
-    important when using IDEs.
+    2- The errors are produced in the same order the alternatives appear in the code. This is not
+    super important when using IDEs.
     -/
     for h : altStxIdx in *...altStxs.size do
       let altStx := altStxs[altStxIdx]

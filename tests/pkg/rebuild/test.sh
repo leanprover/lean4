@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-source ../../../src/lake/tests/common.sh
+source ../../lake/tests/common.sh
 
 rm -rf .lake/build
 

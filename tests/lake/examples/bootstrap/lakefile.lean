@@ -2,7 +2,7 @@ import Lake
 open System Lake DSL
 
 package lake where
-  srcDir := ".." / ".."
+  srcDir := ".." / ".." / ".." / ".." / "src" / "lake"
 
 lean_lib Lake
 

@@ -1565,7 +1565,7 @@ return x_1;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___Std_Internal_IO_Async_TCP_Socket_Client_recvSelector_spec__1(lean_object* x_1, lean_object* x_2, uint64_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; uint8_t x_49; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; uint8_t x_63; 
 x_7 = lean_ctor_get(x_4, 0);
 x_8 = lean_ctor_get(x_4, 1);
 x_18 = lean_st_ref_take(x_7, x_6);
@@ -1576,21 +1576,21 @@ lean_inc(x_20);
 lean_dec_ref(x_18);
 x_21 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Waiter_race___at___Std_Internal_IO_Async_TCP_Socket_Client_recvSelector_spec__1___lam__0), 1, 0);
 x_22 = l_Std_Internal_IO_Async_Waiter_race___at___Std_Internal_IO_Async_TCP_Socket_Client_recvSelector_spec__1___closed__0;
-x_49 = lean_unbox(x_19);
+x_63 = lean_unbox(x_19);
 lean_dec(x_19);
-if (x_49 == 0)
+if (x_63 == 0)
 {
-uint8_t x_50; 
-x_50 = 1;
-x_23 = x_50;
-goto block_48;
+uint8_t x_64; 
+x_64 = 1;
+x_23 = x_64;
+goto block_62;
 }
 else
 {
-uint8_t x_51; 
-x_51 = 0;
-x_23 = x_51;
-goto block_48;
+uint8_t x_65; 
+x_65 = 0;
+x_23 = x_65;
+goto block_62;
 }
 block_17:
 {
@@ -1617,7 +1617,7 @@ lean_ctor_set(x_16, 1, x_15);
 return x_16;
 }
 }
-block_48:
+block_62:
 {
 uint8_t x_24; lean_object* x_25; lean_object* x_26; 
 x_24 = 1;
@@ -1645,71 +1645,113 @@ lean_dec_ref(x_26);
 x_30 = l_IO_ofExcept___at___Std_Internal_IO_Async_TCP_Socket_Client_recvSelector_spec__0___redArg(x_1, x_29);
 if (lean_obj_tag(x_30) == 0)
 {
-lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
-x_31 = lean_ctor_get(x_30, 1);
-lean_inc(x_31);
-lean_dec_ref(x_30);
-x_32 = lean_unsigned_to_nat(0u);
-x_33 = lean_box_uint64(x_3);
-x_34 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Waiter_race___at___Std_Internal_IO_Async_TCP_Socket_Client_recvSelector_spec__1___lam__2___boxed), 5, 4);
-lean_closure_set(x_34, 0, x_32);
-lean_closure_set(x_34, 1, x_22);
-lean_closure_set(x_34, 2, x_2);
-lean_closure_set(x_34, 3, x_33);
-x_35 = lean_io_as_task(x_34, x_32, x_31);
-x_36 = lean_ctor_get(x_35, 0);
-lean_inc(x_36);
-x_37 = lean_ctor_get(x_35, 1);
-lean_inc(x_37);
-lean_dec_ref(x_35);
-x_38 = lean_task_bind(x_36, x_21, x_32, x_23);
-x_39 = lean_task_get_own(x_38);
-if (lean_obj_tag(x_39) == 0)
+uint8_t x_31; 
+x_31 = !lean_is_exclusive(x_30);
+if (x_31 == 0)
 {
-lean_object* x_40; 
-x_40 = lean_ctor_get(x_39, 0);
-lean_inc(x_40);
-lean_dec_ref(x_39);
-x_9 = x_40;
-x_10 = x_37;
+lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
+x_32 = lean_ctor_get(x_30, 1);
+x_33 = lean_ctor_get(x_30, 0);
+lean_dec(x_33);
+x_34 = lean_unsigned_to_nat(0u);
+x_35 = lean_box_uint64(x_3);
+x_36 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Waiter_race___at___Std_Internal_IO_Async_TCP_Socket_Client_recvSelector_spec__1___lam__2___boxed), 5, 4);
+lean_closure_set(x_36, 0, x_34);
+lean_closure_set(x_36, 1, x_22);
+lean_closure_set(x_36, 2, x_2);
+lean_closure_set(x_36, 3, x_35);
+x_37 = lean_io_as_task(x_36, x_34, x_32);
+x_38 = lean_ctor_get(x_37, 0);
+lean_inc(x_38);
+x_39 = lean_ctor_get(x_37, 1);
+lean_inc(x_39);
+lean_dec_ref(x_37);
+x_40 = lean_task_bind(x_38, x_21, x_34, x_23);
+x_41 = lean_task_get_own(x_40);
+if (lean_obj_tag(x_41) == 0)
+{
+lean_object* x_42; 
+lean_free_object(x_30);
+x_42 = lean_ctor_get(x_41, 0);
+lean_inc(x_42);
+lean_dec_ref(x_41);
+x_9 = x_42;
+x_10 = x_39;
 goto block_17;
 }
 else
 {
-lean_object* x_41; uint8_t x_42; 
-x_41 = lean_io_promise_resolve(x_39, x_8, x_37);
-x_42 = !lean_is_exclusive(x_41);
-if (x_42 == 0)
-{
-return x_41;
-}
-else
-{
 lean_object* x_43; lean_object* x_44; lean_object* x_45; 
-x_43 = lean_ctor_get(x_41, 0);
-x_44 = lean_ctor_get(x_41, 1);
+x_43 = lean_io_promise_resolve(x_41, x_8, x_39);
+x_44 = lean_ctor_get(x_43, 0);
 lean_inc(x_44);
-lean_inc(x_43);
-lean_dec(x_41);
-x_45 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_45, 0, x_43);
-lean_ctor_set(x_45, 1, x_44);
-return x_45;
+x_45 = lean_ctor_get(x_43, 1);
+lean_inc(x_45);
+lean_dec_ref(x_43);
+lean_ctor_set(x_30, 1, x_45);
+lean_ctor_set(x_30, 0, x_44);
+return x_30;
+}
+}
+else
+{
+lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; 
+x_46 = lean_ctor_get(x_30, 1);
+lean_inc(x_46);
+lean_dec(x_30);
+x_47 = lean_unsigned_to_nat(0u);
+x_48 = lean_box_uint64(x_3);
+x_49 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Waiter_race___at___Std_Internal_IO_Async_TCP_Socket_Client_recvSelector_spec__1___lam__2___boxed), 5, 4);
+lean_closure_set(x_49, 0, x_47);
+lean_closure_set(x_49, 1, x_22);
+lean_closure_set(x_49, 2, x_2);
+lean_closure_set(x_49, 3, x_48);
+x_50 = lean_io_as_task(x_49, x_47, x_46);
+x_51 = lean_ctor_get(x_50, 0);
+lean_inc(x_51);
+x_52 = lean_ctor_get(x_50, 1);
+lean_inc(x_52);
+lean_dec_ref(x_50);
+x_53 = lean_task_bind(x_51, x_21, x_47, x_23);
+x_54 = lean_task_get_own(x_53);
+if (lean_obj_tag(x_54) == 0)
+{
+lean_object* x_55; 
+x_55 = lean_ctor_get(x_54, 0);
+lean_inc(x_55);
+lean_dec_ref(x_54);
+x_9 = x_55;
+x_10 = x_52;
+goto block_17;
+}
+else
+{
+lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; 
+x_56 = lean_io_promise_resolve(x_54, x_8, x_52);
+x_57 = lean_ctor_get(x_56, 0);
+lean_inc(x_57);
+x_58 = lean_ctor_get(x_56, 1);
+lean_inc(x_58);
+lean_dec_ref(x_56);
+x_59 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_59, 0, x_57);
+lean_ctor_set(x_59, 1, x_58);
+return x_59;
 }
 }
 }
 else
 {
-lean_object* x_46; lean_object* x_47; 
+lean_object* x_60; lean_object* x_61; 
 lean_dec_ref(x_21);
 lean_dec(x_2);
-x_46 = lean_ctor_get(x_30, 0);
-lean_inc(x_46);
-x_47 = lean_ctor_get(x_30, 1);
-lean_inc(x_47);
+x_60 = lean_ctor_get(x_30, 0);
+lean_inc(x_60);
+x_61 = lean_ctor_get(x_30, 1);
+lean_inc(x_61);
 lean_dec_ref(x_30);
-x_9 = x_46;
-x_10 = x_47;
+x_9 = x_60;
+x_10 = x_61;
 goto block_17;
 }
 }

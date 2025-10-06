@@ -86,7 +86,6 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___Lean_CodeAction_findInfoTree_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_CodeActions_Provider_0__Lean_CodeAction_findTactic_x3f_go___closed__7;
 static lean_object* l_Lean_CodeAction_cmdCodeActionProvider___closed__0;
-lean_object* l_EStateM_instInhabited___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_FindTacticResult_tacticSeq_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_FindTacticResult_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_CodeAction_instInhabitedCommandCodeActions_default;
@@ -163,6 +162,7 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l___private_Lean_Server_CodeActions_Provider_0__Lean_CodeAction_findTactic_x3f_go___closed__5;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Info_stx(lean_object*);
+lean_object* l_instInhabitedEST___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_cmdCodeActionProvider___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at___Lean_CodeAction_cmdCodeActionProvider_spec__0___closed__0;
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lam__0___closed__11;
@@ -2721,21 +2721,21 @@ return x_37;
 block_51:
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
-lean_inc(x_43);
+lean_inc(x_44);
 x_47 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_47, 0, x_43);
+lean_ctor_set(x_47, 0, x_44);
 lean_ctor_set(x_47, 1, x_27);
 lean_inc(x_45);
 x_48 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_48, 0, x_47);
 lean_ctor_set(x_48, 1, x_45);
 x_49 = lean_alloc_ctor(1, 2, 1);
-lean_ctor_set(x_49, 0, x_44);
+lean_ctor_set(x_49, 0, x_43);
 lean_ctor_set(x_49, 1, x_48);
 lean_ctor_set_uint8(x_49, sizeof(void*)*2, x_46);
 x_50 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_50, 0, x_49);
-x_28 = x_43;
+x_28 = x_44;
 x_29 = x_45;
 x_30 = x_50;
 goto block_42;
@@ -2748,8 +2748,8 @@ lean_object* x_60; uint8_t x_61;
 lean_inc_ref(x_1);
 x_60 = lean_apply_1(x_1, x_56);
 x_61 = lean_unbox(x_60);
-x_43 = x_57;
-x_44 = x_59;
+x_43 = x_59;
+x_44 = x_57;
 x_45 = x_58;
 x_46 = x_61;
 goto block_51;
@@ -2757,8 +2757,8 @@ goto block_51;
 else
 {
 lean_dec(x_56);
-x_43 = x_57;
-x_44 = x_59;
+x_43 = x_59;
+x_44 = x_57;
 x_45 = x_58;
 x_46 = x_9;
 goto block_51;
@@ -4510,7 +4510,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = l_panic___at___Lean_CodeAction_cmdCodeActionProvider_spec__0___closed__0;
-x_5 = l_EStateM_instInhabited___redArg(x_4);
+x_5 = l_instInhabitedEST___redArg(x_4);
 x_6 = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(x_6, 0, x_5);
 x_7 = lean_panic_fn(x_6, x_1);

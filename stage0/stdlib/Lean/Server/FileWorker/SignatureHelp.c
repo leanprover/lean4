@@ -1133,9 +1133,14 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_ctorIdx(x_1);
+x_4 = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_noConfusion___redArg___lam__0___boxed), 1, 0);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
@@ -1380,9 +1385,14 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Lean_Server_FileWorker_SignatureHelp_SearchControl_noConfusion___redArg___closed__0;
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorIdx(x_1);
+x_4 = l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = l_Lean_Server_FileWorker_SignatureHelp_SearchControl_noConfusion___redArg___closed__0;
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
@@ -2094,15 +2104,15 @@ lean_dec(x_107);
 lean_dec(x_105);
 if (x_108 == 0)
 {
-x_92 = x_102;
-x_93 = x_103;
+x_92 = x_103;
+x_93 = x_102;
 x_94 = x_97;
 goto block_96;
 }
 else
 {
-x_92 = x_102;
-x_93 = x_103;
+x_92 = x_103;
+x_93 = x_102;
 x_94 = x_101;
 goto block_96;
 }
@@ -2481,9 +2491,9 @@ goto block_10;
 }
 block_96:
 {
-if (x_92 == 0)
-{
 if (x_93 == 0)
+{
+if (x_92 == 0)
 {
 if (x_94 == 0)
 {

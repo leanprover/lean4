@@ -1302,33 +1302,34 @@ return x_7;
 LEAN_EXPORT uint8_t l_BitVec_resRec___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_5 = lean_unsigned_to_nat(0u);
-x_6 = lean_unsigned_to_nat(1u);
-x_7 = lean_nat_sub(x_4, x_6);
-x_8 = lean_nat_dec_eq(x_7, x_5);
-if (x_8 == 1)
-{
-uint8_t x_9; 
-lean_dec(x_7);
-lean_dec(x_4);
-x_9 = l_BitVec_aandRec___redArg(x_1, x_2, x_3, x_6);
-return x_9;
-}
-else
+x_6 = lean_nat_dec_eq(x_4, x_5);
+x_7 = lean_unsigned_to_nat(1u);
+x_8 = lean_nat_sub(x_4, x_7);
+x_9 = lean_nat_dec_eq(x_8, x_5);
+if (x_9 == 1)
 {
 uint8_t x_10; 
-x_10 = l_BitVec_resRec___redArg(x_1, x_2, x_3, x_7);
-if (x_10 == 0)
+lean_dec(x_8);
+lean_dec(x_4);
+x_10 = l_BitVec_aandRec___redArg(x_1, x_2, x_3, x_7);
+return x_10;
+}
+else
 {
 uint8_t x_11; 
-x_11 = l_BitVec_aandRec___redArg(x_1, x_2, x_3, x_4);
-return x_11;
+x_11 = l_BitVec_resRec___redArg(x_1, x_2, x_3, x_8);
+if (x_11 == 0)
+{
+uint8_t x_12; 
+x_12 = l_BitVec_aandRec___redArg(x_1, x_2, x_3, x_4);
+return x_12;
 }
 else
 {
 lean_dec(x_4);
-return x_10;
+return x_11;
 }
 }
 }

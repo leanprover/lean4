@@ -18,5 +18,3 @@ public import Init.Data.List.Nat.BEq
 public import Init.Data.List.Nat.Modify
 public import Init.Data.List.Nat.InsertIdx
 public import Init.Data.List.Nat.Perm
-
-public section

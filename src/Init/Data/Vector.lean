@@ -24,5 +24,3 @@ public import Init.Data.Vector.Perm
 public import Init.Data.Vector.Find
 public import Init.Data.Vector.Algebra
 public import Init.Data.Vector.Stream
-
-public section

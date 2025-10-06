@@ -13,5 +13,3 @@ public import Std.Sync.RecursiveMutex
 public import Std.Sync.Barrier
 public import Std.Sync.SharedMutex
 public import Std.Sync.Notify
-
-@[expose] public section

@@ -8,5 +8,3 @@ module
 prelude
 public import Std.Data.HashSet.Basic
 public import Std.Data.HashSet.Lemmas
-
-@[expose] public section

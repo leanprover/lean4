@@ -9,5 +9,3 @@ prelude
 public import Std.Data.TreeMap.Basic
 public import Std.Data.TreeMap.AdditionalOperations
 public import Std.Data.TreeMap.Lemmas
-
-@[expose] public section

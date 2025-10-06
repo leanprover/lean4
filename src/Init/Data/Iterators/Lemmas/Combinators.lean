@@ -10,5 +10,3 @@ public import Init.Data.Iterators.Lemmas.Combinators.Attach
 public import Init.Data.Iterators.Lemmas.Combinators.Monadic
 public import Init.Data.Iterators.Lemmas.Combinators.FilterMap
 public import Init.Data.Iterators.Lemmas.Combinators.ULift
-
-public section

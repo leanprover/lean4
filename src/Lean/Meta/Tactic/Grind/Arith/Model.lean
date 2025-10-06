@@ -8,5 +8,3 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Offset.Model
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
-
-public section

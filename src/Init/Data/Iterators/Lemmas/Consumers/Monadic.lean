@@ -8,5 +8,3 @@ module
 prelude
 public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
-
-public section

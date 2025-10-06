@@ -9,5 +9,3 @@ prelude
 public import Std.Data.DHashMap.Basic
 public import Std.Data.DHashMap.Lemmas
 public import Std.Data.DHashMap.AdditionalOperations
-
-public section

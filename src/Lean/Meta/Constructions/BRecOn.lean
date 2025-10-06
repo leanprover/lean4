@@ -58,10 +58,8 @@ Constructs the `.below` definition for a inductive predicate.
 
 For example for the `List` type, it constructs,
 ```
-@[reducible] protected def List.below.{u_1, u} : {α : Type u} →
-  {motive : List α → Sort u_1} → List α → Sort (max 1 u_1) :=
-fun {α} {motive} t =>
-  List.rec PUnit (fun head tail tail_ih => PProd (PProd (motive tail) tail_ih) PUnit) t
+@[reducible] protected def List.below.{u} : {a : Type} → {motive : List a → Sort u} → List a → Sort (max 1 u) :=
+fun {a} {motive} t => List.rec PUnit (fun a_1 a a_ih => motive a ×' a_ih) t
 ```
 -/
 private def mkBelowFromRec (recName : Name) (nParams : Nat)
@@ -182,14 +180,18 @@ Constructs the `.brecOn` definition for a inductive predicate.
 
 For example for the `List` type, it constructs,
 ```
-@[reducible] protected def List.brecOn.{u_1, u} : {α : Type u} → {motive : List α → Sort u_1} →
-  (t : List α) → ((t : List α) → List.below t → motive t) → motive t :=
-fun {α} {motive} t (F_1 : (t : List α) → List.below t → motive t) => (
-  @List.rec α (fun t => PProd (motive t) (@List.below α motive t))
-    ⟨F_1 [] PUnit.unit, PUnit.unit⟩
-    (fun head tail tail_ih => ⟨F_1 (head :: tail) ⟨tail_ih, PUnit.unit⟩, ⟨tail_ih, PUnit.unit⟩⟩)
-    t
-  ).1
+@[reducible] protected def List.brecOn.go.{u} : {a : Type} →
+  {motive : List a → Sort u} →
+    (t : List a) → ((t : List a) → List.below t → motive t) → motive t ×' List.below t :=
+fun {a} {motive} t F_1 =>
+  List.rec ⟨F_1 List.nil PUnit.unit, PUnit.unit⟩ (fun a_1 a_2 a_ih => ⟨F_1 (List.cons a_1 a_2) a_ih, a_ih⟩) t
+
+@[reducible] protected def List.brecOn.{u} : {a : Type} →
+  {motive : List a → Sort u} → (t : List a) → ((t : List a) → List.below t → motive t) → motive t :=
+fun {a} {motive} t F_1 => (List.brecOn.go t F_1).1
+
+protected theorem List.brecOn.eq.{u} : ∀ {a : Type} {motive : List a → Sort u} (t : List a)
+  (F_1 : (t : List a) → List.below t → motive t), List.brecOn t F_1 = F_1 t (List.brecOn.go t F_1).2
 ```
 -/
 private def mkBRecOnFromRec (recName : Name) (nParams : Nat)

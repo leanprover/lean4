@@ -8,5 +8,3 @@ module
 prelude
 public import Std.Sat.AIG
 public import Std.Sat.CNF
-
-@[expose] public section

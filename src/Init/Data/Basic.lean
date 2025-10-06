@@ -16,5 +16,3 @@ public import Init.Data.UInt
 public import Init.Data.Repr
 public import Init.Data.ToString.Basic
 public import Init.Data.String.Extra
-
-public section

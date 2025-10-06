@@ -9,5 +9,3 @@ module
 prelude
 public import Lean.Data.Json.FromToJson.Basic
 public import Lean.Data.Json.FromToJson.Extra
-
-public section

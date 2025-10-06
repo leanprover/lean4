@@ -9,5 +9,3 @@ prelude
 public import Std.Data.HashMap.Basic
 public import Std.Data.HashMap.Lemmas
 public import Std.Data.HashMap.AdditionalOperations
-
-@[expose] public section

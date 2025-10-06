@@ -8,5 +8,3 @@ module
 prelude
 public import Init.Data.Iterators.Combinators.Monadic.FilterMap
 public import Init.Data.Iterators.Combinators.Monadic.ULift
-
-public section

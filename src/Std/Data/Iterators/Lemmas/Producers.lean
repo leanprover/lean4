@@ -13,5 +13,3 @@ public import Std.Data.Iterators.Lemmas.Producers.List
 public import Std.Data.Iterators.Lemmas.Producers.Repeat
 public import Std.Data.Iterators.Lemmas.Producers.Range
 public import Std.Data.Iterators.Lemmas.Producers.Slice
-
-@[expose] public section

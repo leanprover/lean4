@@ -560,8 +560,8 @@ def unsubscribe (ch : Broadcast.Receiver α) : IO Unit := do
 Note that if this function is called twice, each message will only arrive at exactly one invocation.
 -/
 partial def forAsync (f : α → BaseIO Unit) (ch : Broadcast.Receiver α)
-  (prio : Task.Priority := .default) : BaseIO (Task Unit) := do
-    ch.inner.forAsync f prio
+    (prio : Task.Priority := .default) : BaseIO (Task Unit) := do
+  ch.inner.forAsync f prio
 
 instance [Inhabited α] : AsyncStream (Broadcast.Receiver α) (Option α) where
   next channel := channel.recvSelector

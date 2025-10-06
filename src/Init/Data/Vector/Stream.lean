@@ -14,7 +14,7 @@ namespace Vector
 /-! ### ToStream instance -/
 
 @[no_expose]
-public instance : ToStream (Vector α n) (Subarray α) where
+public instance : Std.ToStream (Vector α n) (Subarray α) where
   toStream xs := xs.toArray[*...*]
 
 end Vector

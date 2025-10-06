@@ -478,7 +478,7 @@ def consts := ["_private.«external:file:///Users/paul/code/lean4/tests/bench/wo
  "Std.Slice.casesOn",
  "_private.Init.Data.Vector.Lemmas.0.Vector.forall_mem_append._simp_1_2",
  "Std.PRange.forIn'_eq_match.match_3",
- "ToStream.casesOn",
+ "Std.ToStream.casesOn",
  "Lean.Level.PP.Result.leaf.inj",
  "Lean.PrettyPrinter.Parenthesizer.Context._sizeOf_1",
  "Std.Format.tag",

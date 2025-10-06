@@ -1540,9 +1540,9 @@ mutual
         ```
         into
         ```
-        let s := toStream ys
+        let s := Std.toStream ys
         for x in xs do
-          match Stream.next? s with
+          match Std.Stream.next? s with
           | none => break
           | some (y, s') =>
             s := s'
@@ -1560,11 +1560,11 @@ mutual
       withFreshMacroScope do
         /- Recall that `@` (explicit) disables `coeAtOutParam`.
            We used `@` at `Stream` functions to make sure `resultIsOutParamSupport` is not used. -/
-        let toStreamApp ← withRef ys `(@toStream _ _ _ $ys)
+        let toStreamApp ← withRef ys `(@Std.toStream _ _ _ $ys)
         let auxDo ←
           `(do let mut s := $toStreamApp:term
                for $doForDecls:doForDecl,* do
-                 match @Stream.next? _ _ _ s with
+                 match @Std.Stream.next? _ _ _ s with
                  | none => break
                  | some ($y, s') =>
                    s := s'

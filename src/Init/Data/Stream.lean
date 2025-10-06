@@ -13,6 +13,8 @@ import Init.Data.Slice.Array.Basic
 
 public section
 
+namespace Std
+
 /-!
 Remark: we considered using the following alternative design
 ```
@@ -112,3 +114,19 @@ instance : Stream Std.Range Nat where
       some (r.start, { r with start := r.start + r.step })
     else
       none
+
+end Std
+
+@[deprecated Std.Stream (since := "2025-10-01")]
+abbrev Stream := Std.Stream
+
+-- Not deprecated to avoid bootstrapping annoyances
+abbrev Stream.next? {stream : Type u} {value : outParam (Type v)} [self : Std.Stream stream value] :
+    stream → Option (value × stream) := Std.Stream.next?
+
+@[deprecated Std.ToStream (since := "2025-10-01")]
+abbrev ToStream := Std.ToStream
+
+-- Not deprecated to avoid bootstrapping annoyances
+abbrev ToStream.toStream {collection : Type u} {stream : outParam (Type u)}
+  [self : Std.ToStream collection stream] : collection → stream := Std.ToStream.toStream

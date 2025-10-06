@@ -157,7 +157,7 @@ def doForDecl := leading_parser
 `break` and `continue` are supported inside `for` loops.
 `for x in e, x2 in e2, ... do s` iterates of the given collections in parallel,
 until at least one of them is exhausted.
-The types of `e2` etc. must implement the `ToStream` typeclass.
+The types of `e2` etc. must implement the `Std.ToStream` typeclass.
 -/
 @[builtin_doElem_parser] def doFor    := leading_parser
   "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq

@@ -12,6 +12,7 @@ public import Lean.Elab.Command
 public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.Tactic.Config
 import Lean.Meta.Tactic.Grind.SimpUtil
+import Lean.Elab.Tactic.Grind.Basic
 import Lean.Elab.MutualDef
 meta import Lean.Meta.Tactic.Grind.Parser
 public section
@@ -215,58 +216,53 @@ def grind
     (mvarId : MVarId) (config : Grind.Config)
     (only : Bool)
     (ps   :  TSyntaxArray ``Parser.Tactic.grindParam)
-    (fallback : Grind.Fallback) : TacticM Grind.Trace := do
+    (seq? : Option (TSyntax `Lean.Parser.Tactic.Grind.grindSeq))
+    : TacticM Grind.Trace := do
+  if debug.terminalTacticsAsSorry.get (← getOptions) then
+    mvarId.admit
+    return {}
   mvarId.withContext do
     let params ← mkGrindParams config only ps
     let type ← mvarId.getType
     let mvar' ← mkFreshExprSyntheticOpaqueMVar type
-    let result ← Grind.main mvar'.mvarId! params fallback
-    if result.hasFailed then
-      throwError "`grind` failed\n{← result.toMessageData}"
-    trace[grind.debug.proof] "{← instantiateMVars mvar'}"
-    -- `grind` proofs are often big, if `abstractProof` is true, we create an auxiliary theorem.
-    let e ← if !config.abstractProof then
-      instantiateMVarsProfiling mvar'
-    else if (← isProp type) then
-      mkAuxTheorem type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+    let finalize (result : Grind.Result) : TacticM Grind.Trace := do
+      if result.hasFailed then
+        throwError "`grind` failed\n{← result.toMessageData}"
+      trace[grind.debug.proof] "{← instantiateMVars mvar'}"
+      -- `grind` proofs are often big, if `abstractProof` is true, we create an auxiliary theorem.
+      let e ← if !config.abstractProof then
+        instantiateMVarsProfiling mvar'
+      else if (← isProp type) then
+        mkAuxTheorem type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+      else
+        let auxName ← Term.mkAuxName `grind
+        mkAuxDefinition auxName type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+      mvarId.assign e
+      return result.trace
+    if let some seq := seq? then
+      let (result, _) ← Grind.GrindTacticM.runAtGoal mvar'.mvarId! params do
+        Grind.evalGrindTactic seq
+        -- **Note**: We are returning only the first goal that could not be solved.
+        let goal? := if let goal :: _ := (← get).goals then some goal else none
+        Grind.liftGrindM <| Grind.mkResult params goal?
+      finalize result
     else
-      let auxName ← Term.mkAuxName `grind
-      mkAuxDefinition auxName type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
-    mvarId.assign e
-    return result.trace
-
-private def elabFallback (fallback? : Option Term) : TermElabM (Grind.GoalM Unit) := do
-  let some fallback := fallback? | return (pure ())
-  let type := mkApp (mkConst ``Grind.GoalM) (mkConst ``Unit)
-  let value ← withLCtx {} {} do Term.elabTermAndSynthesize fallback type
-  let auxDeclName ← if let .const declName _ := value then
-    pure declName
-  else
-    let auxDeclName ← Term.mkAuxName `_grind_fallback
-    let decl := Declaration.defnDecl {
-      name := auxDeclName
-      levelParams := []
-      type, value, hints := .opaque, safety := .safe
-    }
-    modifyEnv (addMeta · auxDeclName)
-    addAndCompile decl
-    pure auxDeclName
-  unsafe evalConst (Grind.GoalM Unit) auxDeclName
+      let result ← Grind.main mvar'.mvarId! params
+      finalize result
 
 def evalGrindCore
     (ref : Syntax)
     (config : Grind.Config)
     (only : Option Syntax)
-    (params : Option (Syntax.TSepArray `Lean.Parser.Tactic.grindParam ","))
-    (fallback? : Option Term)
+    (params? : Option (Syntax.TSepArray `Lean.Parser.Tactic.grindParam ","))
+    (seq? : Option (TSyntax `Lean.Parser.Tactic.Grind.grindSeq))
     : TacticM Grind.Trace := do
-  let fallback ← elabFallback fallback?
   let only := only.isSome
-  let params := if let some params := params then params.getElems else #[]
+  let params := if let some params := params? then params.getElems else #[]
   if Grind.grind.warning.get (← getOptions) then
     logWarningAt ref "The `grind` tactic is new and its behavior may change in the future. This project has used `set_option grind.warning true` to discourage its use."
   withMainContext do
-    let result ← grind (← getMainGoal) config only params fallback
+    let result ← grind (← getMainGoal) config only params seq?
     replaceMainGoal []
     return result
 
@@ -291,7 +287,6 @@ def getGrindParams (stx : TSyntax `tactic) : Array Syntax :=
 
 def mkGrindOnly
     (config : TSyntax ``Lean.Parser.Tactic.optConfig)
-    (fallback? : Option Term)
     (trace : Grind.Trace)
     : MetaM (TSyntax `tactic) := do
   let mut params := #[]
@@ -340,26 +335,23 @@ def mkGrindOnly
       let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
       let param ← `(Parser.Tactic.grindParam| cases $decl)
       params := params.push param
-  let result ← if let some fallback := fallback? then
-    `(tactic| grind $config:optConfig only on_failure $fallback)
-  else
-    `(tactic| grind $config:optConfig only)
+  let result ← `(tactic| grind $config:optConfig only)
   return setGrindParams result params
 
 @[builtin_tactic Lean.Parser.Tactic.grind] def evalGrind : Tactic := fun stx => do
   match stx with
-  | `(tactic| grind $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?) =>
+  | `(tactic| grind $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[=> $seq:grindSeq]?) =>
     let config ← elabGrindConfig config
-    discard <| evalGrindCore stx config only params fallback?
+    discard <| evalGrindCore stx config only params seq
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic Lean.Parser.Tactic.grindTrace] def evalGrindTrace : Tactic := fun stx => do
   match stx with
-  | `(tactic| grind?%$tk $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?) =>
+  | `(tactic| grind?%$tk $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]?) =>
     let config ← elabGrindConfig configStx
     let config := { config with trace := true }
-    let trace ← evalGrindCore stx config only params fallback?
-    let stx ← mkGrindOnly configStx fallback? trace
+    let trace ← evalGrindCore stx config only params none
+    let stx ← mkGrindOnly configStx trace
     Tactic.TryThis.addSuggestion tk stx (origSpan? := ← getRef)
   | _ => throwUnsupportedSyntax
 

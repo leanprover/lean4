@@ -160,13 +160,14 @@ def testHardLink : IO Unit := do
   let contents := "foo"
   writeFile fn contents
   let linkFn := "io_test/hardLink.txt"
+  if (← System.FilePath.pathExists linkFn) then
+    removeFile linkFn
   hardLink fn linkFn
-  assert! (← System.FilePath.pathExists linkFn)
-  let linkContents ← readFile linkFn
-  check_eq "1" contents linkContents
   removeFile fn
   assert! !(← System.FilePath.pathExists fn)
   assert! (← System.FilePath.pathExists linkFn)
+  let linkContents ← readFile linkFn
+  check_eq "1" contents linkContents
 
 #guard_msgs in
 #eval testHardLink

@@ -12,44 +12,89 @@ namespace Lean.Elab.Tactic.Grind
 open Meta
 
 inductive Filter where
-  | none
-  | ids (declNames : NameSet) (fvarIds : FVarIdSet)
+  | true
+  | const (declName : Name)
+  | fvar (fvarId : FVarId)
+  | gen (pred : Nat → Bool)
+  | or (a b : Filter)
+  | and (a b : Filter)
+  | not (a : Filter)
 
-def elabFilter (filter : TSyntax ``Parser.Tactic.Grind.showFilter) : GrindTacticM Filter := do
-  match filter with
-  | `(Parser.Tactic.Grind.showFilter| $ids:ident,*) =>
-    let mut declNames : NameSet := {}
-    let mut fvarIds : FVarIdSet := {}
-    for id in ids.getElems do
+partial def elabFilter (filter? : Option (TSyntax `show_filter)) : GrindTacticM Filter := do
+  let some filter := filter? | return .true
+  go filter
+where
+  go (filter : TSyntax `show_filter) : GrindTacticM Filter := do
+    match filter with
+    | `(show_filter| $id:ident) =>
       match (← Term.resolveId? id) with
-      | some (.const declName _) => declNames := declNames.insert declName
-      | some (.fvar fvarId) => fvarIds := fvarIds.insert fvarId
+      | some (.const declName _) => return .const declName
+      | some (.fvar fvarId) => return .fvar fvarId
       | _ => throwErrorAt id "invalid identifier"
-    if declNames.isEmpty && fvarIds.isEmpty then
-      return .none
-    else
-      return .ids declNames fvarIds
+    | `(show_filter| $a:show_filter && $b:show_filter) => return .and (← go a) (← go b)
+    | `(show_filter| $a:show_filter || $b:show_filter) => return .or (← go a) (← go b)
+    | `(show_filter| ! $a:show_filter) => return .not (← go a)
+    | `(show_filter| ($a:show_filter)) => go a
+    | `(show_filter| gen = $n:num)  => let n := n.getNat; return .gen fun x => x == n
+    | `(show_filter| gen > $n:num)  => let n := n.getNat; return .gen fun x => x > n
+    | `(show_filter| gen ≥ $n:num)  => let n := n.getNat; return .gen fun x => x ≥ n
+    | `(show_filter| gen >= $n:num) => let n := n.getNat; return .gen fun x => x ≥ n
+    | `(show_filter| gen ≤ $n:num)  => let n := n.getNat; return .gen fun x => x ≤ n
+    | `(show_filter| gen <= $n:num) => let n := n.getNat; return .gen fun x => x ≤ n
+    | `(show_filter| gen < $n:num)  => let n := n.getNat; return .gen fun x => x < n
+    | `(show_filter| gen != $n:num) => let n := n.getNat; return .gen fun x => x != n
+    | _ => throwUnsupportedSyntax
+
+open Meta.Grind
+
+-- **Note**: facts may not have been internalized if they are equalities.
+def getGen (e : Expr) : GoalM Nat := do
+  if (← alreadyInternalized e) then
+    getGeneration e
+  else match_expr e with
+   | Eq _ lhs rhs => return max (← getGeneration lhs) (← getGeneration rhs)
+   | _ => return 0
+
+def Filter.eval (filter : Filter) (e : Expr) : GoalM Bool := do
+  go filter
+where
+  go (filter : Filter) : GoalM Bool := do
+  match filter with
+  | .true => return .true
+  | .and a b => go a <&&> go b
+  | .or a b => go a <||> go b
+  | .not a => return !(← go a)
+  | .const declName => return Option.isSome <| e.find? fun e => e.isConstOf declName
+  | .fvar fvarId => return Option.isSome <| e.find? fun e => e.isFVar && e.fvarId! == fvarId
+  | .gen pred => let gen ← getGen e; return pred gen
+
+@[builtin_grind_tactic showAsserted] def evalShowAsserted : GrindTactic := fun stx => withMainContext do
+  match stx with
+  | `(grind| show_asserted $[$filter?]?) =>
+    let filter ← elabFilter filter?
+    let facts ← liftGoalM do (← get).facts.toArray.filterM fun e => filter.eval e
+    if facts.isEmpty then
+      throwError "no facts"
+    logInfo <| Grind.ppExprArray `facts "Asserted facts" facts (collapsed := false)
   | _ => throwUnsupportedSyntax
 
-def Filter.match (filter : Filter) (e : Expr) : Bool :=
-  match filter with
-  | .none => true
-  | .ids declNames fvarIds =>
-    Option.isSome <| e.find? fun
-      | .const declName _ => declNames.contains declName
-      | .fvar fvarId => fvarIds.contains fvarId
-      | _ => false
+def showProps (filter? : Option (TSyntax `show_filter)) (isTrue : Bool) : GrindTacticM Unit := withMainContext do
+  let filter ← elabFilter filter?
+  let props ← liftGoalM do
+    let eqc ← getEqc (← if isTrue then getTrueExpr else getFalseExpr)
+    eqc.toArray.filterM fun e => return (← filter.eval e) && !e.isTrue && !e.isFalse
+  if props.isEmpty then
+    throwError s!"no {if isTrue then "true" else "false"} propositions"
+  logInfo <| Grind.ppExprArray `props s!"{if isTrue then "True" else "False"} propositions" props (collapsed := false)
 
-@[builtin_grind_tactic showAsserted] def evalShowAsserted : GrindTactic := fun stx => do
+@[builtin_grind_tactic showTrue] def evalShowTrue : GrindTactic := fun stx => do
   match stx with
-  | `(grind| show_asserted $filter:showFilter) =>
-    let goal ← getMainGoal
-    goal.mvarId.withContext do
-      let filter ← elabFilter filter
-      let facts := goal.facts.toArray.filter fun e => filter.match e
-      if facts.isEmpty then
-        throwError "no facts"
-      logInfo <| Grind.ppExprArray `facts "Asserted facts" facts (collapsed := false)
+  | `(grind| show_true $[$filter?]?) => showProps filter? true
+  | _ => throwUnsupportedSyntax
+
+@[builtin_grind_tactic showFalse] def evalShowFalse : GrindTactic := fun stx => do
+  match stx with
+  | `(grind| show_false $[$filter?]?) => showProps filter? false
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Grind

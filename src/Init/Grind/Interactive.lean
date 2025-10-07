@@ -29,10 +29,25 @@ syntax (name := lia) "lia" : grind
 syntax (name := ring) "ring" : grind
 /-- Instantiates theorems using E-matching. -/
 syntax (name := instantiate) "instantiate" : grind
-/--
-Filter for tactics such as `show_true`, and `show_eqc`. It the list is not empty, then
-only terms containing at least one of the given identifiers are displayed. -/
-syntax showFilter := (colGt ident),*
+
+declare_syntax_cat show_filter (behavior := both)
+
+syntax:max ident : show_filter
+syntax:max &"gen" " < "  num  : show_filter
+syntax:max &"gen" " = "  num  : show_filter
+syntax:max &"gen" " != " num  : show_filter
+syntax:max &"gen" " ≤ "  num  : show_filter
+syntax:max &"gen" " <= " num  : show_filter
+syntax:max &"gen" " > "  num  : show_filter
+syntax:max &"gen" " ≥ "  num  : show_filter
+syntax:max &"gen" " >= " num  : show_filter
+syntax:max "(" show_filter ")" : show_filter
+syntax:35 show_filter:35 " && " show_filter:36 : show_filter
+syntax:35 show_filter:35 " || " show_filter:36 : show_filter
+syntax:max "!" show_filter:40 : show_filter
+
+syntax showFilter := (colGt show_filter)?
+
 /-- Shows asserted facts. -/
 syntax (name := showAsserted) "show_asserted " showFilter : grind
 /-- Shows propositions known to be `True`. -/

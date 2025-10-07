@@ -492,6 +492,13 @@ instance : Ord Char where
 instance {n} : Ord (BitVec n) where
   compare x y := compareOfLessAndEq x y
 
+@[always_inline, expose]
+def Option.SomeLtNone.cmp {α} (r : α → β → Ordering) : Option α → Option β → Ordering
+  | none, none => .eq
+  | none, some _ => .gt
+  | some _, none => .lt
+  | some a, some b => r a b
+
 instance [Ord α] : Ord (Option α) where
   compare
   | none,   none   => .eq

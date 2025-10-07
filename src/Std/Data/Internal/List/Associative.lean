@@ -7576,4 +7576,66 @@ end Const
 
 end Max
 
+/-- Internal implementation detail of the hash map -/
+def getKeyGE? [Ord α] (a : α) : List ((a : α) × β a) → Option α
+  | [] => none
+  | ⟨k, _⟩ :: l => bif (compare k a).isGE then some k else getKeyGE? a l
+
+@[simp] theorem getKeyGE?_nil [Ord α] {a : α} :
+    getKeyGE? a ([] : List ((a : α) × β a)) = none := (rfl)
+
+@[simp] theorem getKeyGE?_cons [Ord α] {l : List ((a : α) × β a)} {a : α} {e} :
+    getKeyGE? a (e :: l) = bif (compare e.fst a).isGE then some e.fst else getKeyGE? a l := (rfl)
+
+theorem getKeyGE?_cons_of_isGE [Ord α] {l : List ((a : α) × β a)} {a : α} {e} (h : (compare e.fst a).isGE) :
+    getKeyGE? a (e :: l) = some e.fst := by
+  simp [h]
+
+theorem getKeyGE?_cons_of_eq_lt [Ord α] {l : List ((a : α) × β a)} {a : α} {e}
+    (h : (compare e.fst a) = .lt) : getKeyGE? a (e :: l) = getKeyGE? a l := by
+  simp [h]
+
+/-- Internal implementation detail of the hash map -/
+def getEntryGE? [Ord α] (a : α) : List ((a : α) × β a) → Option ((a : α) × β a)
+  | [] => none
+  | e :: l => bif (compare e.fst a).isGE then some e else getEntryGE? a l
+
+@[simp] theorem getEntryGE?_nil [Ord α] {a : α} :
+    getEntryGE? a ([] : List ((a : α) × β a)) = none := (rfl)
+
+@[simp] theorem getEntryGE?_cons [Ord α] {l : List ((a : α) × β a)} {a : α} {e} :
+    getEntryGE? a (e :: l) = bif (compare e.fst a).isGE then some e else getEntryGE? a l := (rfl)
+
+theorem getEntryGE?_cons_of_isGE [Ord α] {l : List ((a : α) × β a)} {a : α} {e} (h : (compare e.fst a).isGE) :
+    getEntryGE? a (e :: l) = some e := by
+  simp [h]
+
+theorem getEntryGE?_cons_of_eq_lt [Ord α] {l : List ((a : α) × β a)} {a : α} {e}
+    (h : (compare e.fst a) = .lt) : getEntryGE? a (e :: l) = getEntryGE? a l := by
+  simp [h]
+
+theorem getKeyGE?_eq_getEntryGE? [Ord α] {l : List ((a : α) × β a)} {a : α} :
+    getKeyGE? a l = (getEntryGE? a l).map (·.1) := by
+  induction l using assoc_induction
+  · simp
+  next k v l ih =>
+    cases h : (compare k a).isGE
+    · rw [getEntryGE?_cons_of_eq_lt (by simpa using h), getKeyGE?_cons_of_eq_lt (by simpa using h), ih]
+    · rw [getEntryGE?_cons_of_isGE h, getKeyGE?_cons_of_isGE h, Option.map_some]
+
+-- theorem fst_mem_keys_of_mem [BEq α] [EquivBEq α] {a : (a : α) × β a} {l : List ((a : α) × β a)}
+--     (hm : a ∈ l) : a.1 ∈ keys l :=
+--   keys_eq_map ▸ List.mem_map_of_mem hm
+
+theorem getEntryGE?_eq_some_iff [BEq α] [Ord α] [TransOrd α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} {k e} (hd : DistinctKeys l) :
+    getEntryGE? k l = some e ↔
+      (compare e.fst k).isGE ∧ e ∈ l ∧ (∀ k' ∈ keys l, (compare k' k).isGE → (compare k' e.fst).isGE) := by
+  sorry
+
+theorem getKeyGE?_eq_some_iff [BEq α] [Ord α] [TransOrd α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} {k k'} (hd : DistinctKeys l) :
+    getKeyGE? k l = some k' ↔ k == k' ∧ k' ∈ keys l := by
+  sorry
+
 end Std.Internal.List

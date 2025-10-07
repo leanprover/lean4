@@ -918,6 +918,61 @@ theorem getKeyD_eq_of_mem [TransCmp cmp] [LawfulEqCmp cmp] {k fallback : α} (h'
     t.getKeyD k fallback = k :=
   Impl.getKeyD_eq_of_contains t.wf h'
 
+theorem getEntryGE?_eq_some_iff {k e} :
+    t.getEntryGE? k = some e ↔
+      e ∈ t.toList ∧ (cmp k e.fst).isLE ∧ ∀ k' ∈ keys t, (cmp k k').isLE → (cmp e.fst k').isLE := by
+  sorry
+
+theorem getEntryGT?_eq_some_iff {k e} :
+    t.getEntryGT? k = some e ↔
+      e ∈ t.toList ∧ cmp k e.fst = .lt ∧ ∀ k' ∈ keys t, cmp k k' = .lt → (cmp e.fst k').isLE := by
+  sorry
+
+theorem getKeyGE?_eq_some_iff {k k'} :
+    t.getKeyGE? k = some k' ↔
+      k' ∈ keys t ∧ (cmp k k').isLE ∧ ∀ k'' ∈ keys t, (cmp k k'').isLE → (cmp k' k'').isLE := by
+  sorry
+
+theorem getKeyGT?_eq_some_iff {k k'} :
+    t.getKeyGT? k = some k' ↔
+      k' ∈ keys t ∧ cmp k k' = .lt ∧ ∀ k'' ∈ keys t, cmp k k'' = .lt → (cmp k' k'').isLE := by
+  sorry
+
+theorem fst_getEntryGE? {k} :
+    (t.getEntryGE? k).map Sigma.fst = t.getKeyGE? k := by
+  sorry
+
+theorem fst_getEntryGT? {k} :
+    (t.getEntryGT? k).map Sigma.fst = t.getKeyGT? k := by
+  sorry
+
+theorem compare_getKeyGT?_some {k} :
+    haveI : Ord α := ⟨cmp⟩
+    compare (t.getKeyGT? k) (some k) = .gt := by
+  sorry
+
+theorem isSome_getKeyGE?_getKeyGE? (k) :
+    (t.getKeyGE? k).all fun k' => (t.getKeyGE? k').isSome :=
+  sorry
+
+theorem isSome_getEntryGE?_getEntryGE? (k) :
+    (t.getEntryGE? k).all fun e => (t.getEntryGE? e.fst).isSome :=
+  sorry
+
+theorem getEntryGE?_getEntryGE?_eq_some (k) :
+    open Classical in
+    (t.getEntryGE? k).all fun e => t.getEntryGE? e.fst = some e :=
+  sorry
+
+theorem isSome_getEntryGE?_getEntryGT? (k) :
+    (t.getEntryGT? k).all fun e => (t.getEntryGE? e.fst).isSome :=
+  sorry
+
+theorem getEntryGE?_getEntryGT?_eq_some (k) :
+    open Classical in
+    (t.getEntryGT? k).all fun e => t.getEntryGE? e.fst = some e :=
+  sorry
+
 @[simp, grind =]
 theorem isEmpty_insertIfNew [TransCmp cmp] {k : α} {v : β k} :
     (t.insertIfNew k v).isEmpty = false :=

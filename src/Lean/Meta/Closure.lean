@@ -399,7 +399,9 @@ def mkAuxDefinitionFor (name : Name) (value : Expr) (zetaDelta : Bool := false) 
 def mkAuxTheorem (type : Expr) (value : Expr) (zetaDelta : Bool := false) (kind? : Option Name := none) (cache := true) : MetaM Expr := do
   let result ← Closure.mkValueTypeClosure type value zetaDelta
   if result.value.hasFVar then
-    pure <| panic! "Closure.mkValueTypeClosure left a stray fvar; skipping `mkAuxTheorem` and returning the expression unmodified"
+    -- enter BaseIO so that the panic logs rather than throws
+    show BaseIO Unit from
+      panic! "Closure.mkValueTypeClosure left a stray fvar; skipping `mkAuxTheorem` and returning the expression unmodified"
     return value
   let name ← mkAuxLemma (kind? := kind?) (cache := cache) result.levelParams.toList result.type result.value
   return mkAppN (mkConst name result.levelArgs.toList) result.exprArgs

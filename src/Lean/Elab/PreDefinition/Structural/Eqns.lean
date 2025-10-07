@@ -53,6 +53,17 @@ where
             k brecOnApp x (mkAppN x extraArgs)
     throwError "could not find `.brecOn` application in{indentExpr e}"
 
+/--
+Creates the proof of the unfolding theorem for `declName` with type `type`. It
+
+1. unfolds the function on the left to expose the `.brecOn` application
+2. rewrites that using the `.brecOn.eq` theorem, unrolling it once
+3. let-binds the `F` argument of the `brecOn` application, so that the subsequent
+   steps (which may involve `simp`) do not touch it
+4. repeatedly splits `match` statements (because on the left we have `match` statements with extra
+   `.below` arguments, and on the right we have the original `match` statements) until the goal
+   is solved using `rfl` or `contradiction`.
+-/
 partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
   withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} proving:{indentExpr type}") do
     prependError m!"failed to generate equational theorem for `{.ofConstName declName}`" do

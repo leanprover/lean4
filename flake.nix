@@ -24,7 +24,7 @@
           stdenv = pkgs.overrideCC pkgs.stdenv llvmPackages.clang;
         } ({
           buildInputs = with pkgs; [
-            cmake gmp libuv ccache pkg-config
+            cmake gmp libuv ccache pkg-config llvmPackages.lld
             llvmPackages.llvm  # llvm-symbolizer for asan/lsan
             gdb
             tree  # for CI

@@ -30,7 +30,6 @@ open Language
 builtin_initialize
   registerTraceClass `Meta.instantiateMVars
 
--- TODO: this documentation is not shown
 /--
 Makes the bodies of definitions available to importing modules.
 
@@ -38,7 +37,7 @@ This only has an effect if both the module the definition is defined in and the 
 have the module system enabled.
 -/
 @[builtin_doc]
-builtin_initialize
+builtin_initialize initExpose : Unit ←
   registerBuiltinAttribute {
     name := `expose
     descr := "(module system) Make bodies of definitions available to importing modules."
@@ -55,7 +54,7 @@ This only has an effect if both the module the definition is defined in and the 
 have the module system enabled.
 -/
 @[builtin_doc]
-builtin_initialize
+builtin_initialize initNoExpose : Unit ←
   registerBuiltinAttribute {
     name := `no_expose
     descr := "(module system) Negate previous `[expose]` attribute."

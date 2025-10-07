@@ -59,7 +59,6 @@ I.e. `ImplicationOrder.instPartialOrder.rel P Q` becomes
 In the premise of the Park induction principle (`lfp_le_of_le_monotone`) we use a monotone map defining the predicate in the eta expanded form. In such a case, besides desugaring the predicate, we need to perform a weak head reduction.
 The optional parameter `reducePremise` (false by default) indicates whether we need to perform this reduction.
 -/
-
 def unfoldPredRel (predType : Expr) (lhs rhs : Expr) (fixpointType : PartialFixpointType) (reducePremise : Bool := false) : MetaM Expr := do
   guard <| isLatticeTheoretic fixpointType
   forallTelescopeReducing predType fun ts _ => do

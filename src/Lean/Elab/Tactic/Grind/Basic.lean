@@ -343,14 +343,14 @@ def liftSearchM (k : SearchM α) : GrindTacticM α := do
 def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM α) : TacticM (α × State) := do
   let (methods, ctx, state) ← liftMetaM <| GrindM.runAtGoal mvarId params fun goal => do
     let methods ← getMethods
-    let ctx ← readThe Meta.Grind.Context
-    let state ← get
     -- **Note**: We use `withCheapCasesOnly` to ensure multiple goals are not created.
     -- We will add support for this case in the future.
     let (goal, _) ← withCheapCasesOnly <| SearchM.run goal do
       intros 0
       getGoal
     let goals := if goal.inconsistent then [] else [goal]
+    let ctx ← readThe Meta.Grind.Context
+    let state ← get
     pure (methods, ctx, { state, goals })
   let tctx ← read
   k { tctx with methods, ctx } |>.run state

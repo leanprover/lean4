@@ -10,6 +10,8 @@ import Init.Grind.Interactive
 import Lean.Meta.Tactic.Grind.Solve
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search
 import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
+import Lean.Meta.Tactic.Grind.EMatch
+import Lean.Meta.Tactic.Grind.Intro
 namespace Lean.Elab.Tactic.Grind
 
 def evalSepTactics (stx : Syntax) : GrindTacticM Unit := do
@@ -56,5 +58,15 @@ open Meta Grind
 
 @[builtin_grind_tactic ring] def evalRing : GrindTactic := fun _ => do
   liftGoalM <| discard <| Arith.CommRing.check
+
+@[builtin_grind_tactic instantiate] def evalInstantiate : GrindTactic := fun _ => do
+  let progress ← liftGoalM <| ematch
+  unless progress do
+    throwError "`instantiate` tactic failed to instantiate new facts, use `show_patterns` to see active theorems and their patterns."
+  let goal ← getMainGoal
+  let (goal, _) ← liftGrindM <| withCheapCasesOnly <| SearchM.run goal do
+    discard <| assertAll
+    getGoal
+  replaceMainGoal [goal]
 
 end Lean.Elab.Tactic.Grind

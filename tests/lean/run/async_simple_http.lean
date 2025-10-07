@@ -12,7 +12,7 @@ def sendraw (client : Server.Mock.Client) (reqs: Array ByteArray) (onRequest : R
   for req in reqs do
     client.enqueueReceive req
 
-  Std.Http.Server.serveConnection client onRequest (config := { timeoutMilliseconds := 3000 })
+  Std.Http.Server.serveConnection client onRequest (config := { lingeringTimeout := 3000 })
 
   client.getSentData
 
@@ -21,7 +21,7 @@ def sendRequests (client : Server.Mock.Client) (reqs : Array (Request (Array Str
     client.enqueueReceive <| String.toUTF8 <| toString req.head
     for part in req.body do client.enqueueReceive <| part.toUTF8
 
-  Std.Http.Server.serveConnection client onRequest (config := { timeoutMilliseconds := 3000 })
+  Std.Http.Server.serveConnection client onRequest (config := { lingeringTimeout := 3000 })
 
   client.getSentData
 

@@ -2747,9 +2747,7 @@ theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] 
   . apply insertSmallerList_perm_of_perm_second
     simp_to_model [insert]
     . apply insertEntry_of_perm
-      . constructor
-        rw [←Raw.keys_eq_keys_toListModel]
-        exact m₂.distinct_keys h₂
+      . wf_trivial
       . apply List.Perm.refl
     . constructor
       rw [←Raw.keys_eq_keys_toListModel]
@@ -2763,28 +2761,11 @@ theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] 
           exact m₂.distinct_keys h₂
   . apply List.Perm.trans
     . apply insertSmallerList_insert_right_equiv_union_insert
-      . constructor
-        rw [←Raw.keys_eq_keys_toListModel]
-        exact m₁.distinct_keys h₁
-      . constructor
-        rw [←Raw.keys_eq_keys_toListModel]
-        exact m₂.distinct_keys h₂
+      any_goals wf_trivial
     . apply insertEntry_of_perm
-      . apply List.DistinctKeys.insertSmallerList
-        . constructor
-          rw [←Raw.keys_eq_keys_toListModel]
-          exact m₁.distinct_keys h₁
-        . constructor
-          rw [←Raw.keys_eq_keys_toListModel]
-          exact m₂.distinct_keys h₂
+      . apply List.DistinctKeys.insertSmallerList (by wf_trivial) (by wf_trivial)
       . apply List.Perm.symm
-        . apply toListModel_union
-          . wf_trivial
-          . wf_trivial
-
-
-
-
+        . apply toListModel_union (by wf_trivial) (by wf_trivial)
 
 theorem getKey?_union_of_contains_right [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)

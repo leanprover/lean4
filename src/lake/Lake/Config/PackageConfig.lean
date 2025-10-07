@@ -315,7 +315,7 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   -/
   libPrefixOnWindows : Bool := false
 
-  /-
+  /--
   Whether downstream packages can `import all` modules of this package.
 
   If enabled, downstream users will be able to access the `private` internals of modules,

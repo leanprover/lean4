@@ -62,7 +62,7 @@ def PredTrans.Conjunctive.mono (t : PostCond α ps → Assertion ps) (h : PredTr
 structure PredTrans (ps : PostShape) (α : Type u) : Type u where
   /-- Apply the predicate transformer to a postcondition. -/
   apply : PostCond α ps → Assertion ps
-  /-- The predicate transformer is conjunctive: `Q₁ ⊢ₚ Q₂ → x.apply Q₁ ⊢ₛ x.apply Q₂`.
+  /-- The predicate transformer is conjunctive: `t (Q₁ ∧ₚ Q₂) ⊣⊢ₛ t Q₁ ∧ t Q₂`.
   So the stronger the postcondition, the stronger the resulting precondition. -/
   conjunctive : PredTrans.Conjunctive apply
 

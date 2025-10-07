@@ -883,12 +883,12 @@ goto block_37;
 block_14:
 {
 uint8_t x_11; 
-x_11 = lean_nat_dec_eq(x_9, x_8);
-lean_dec(x_8);
+x_11 = lean_nat_dec_eq(x_10, x_9);
 lean_dec(x_9);
+lean_dec(x_10);
 if (x_11 == 0)
 {
-lean_dec(x_10);
+lean_dec(x_8);
 lean_dec_ref(x_4);
 return x_6;
 }
@@ -897,7 +897,7 @@ else
 lean_object* x_12; lean_object* x_13; 
 lean_inc_ref(x_7);
 x_12 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_12, 0, x_10);
+lean_ctor_set(x_12, 0, x_8);
 lean_ctor_set(x_12, 1, x_4);
 lean_ctor_set(x_12, 2, x_7);
 x_13 = lean_array_push(x_6, x_12);
@@ -923,9 +923,9 @@ if (x_23 == 0)
 {
 if (x_15 == 0)
 {
-x_8 = x_22;
-x_9 = x_20;
-x_10 = x_18;
+x_8 = x_18;
+x_9 = x_22;
+x_10 = x_20;
 goto block_14;
 }
 else
@@ -939,9 +939,9 @@ return x_6;
 }
 else
 {
-x_8 = x_22;
-x_9 = x_20;
-x_10 = x_18;
+x_8 = x_18;
+x_9 = x_22;
+x_10 = x_20;
 goto block_14;
 }
 }
@@ -2224,8 +2224,8 @@ return x_5;
 block_12:
 {
 lean_object* x_11; 
-lean_dec(x_8);
-x_11 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at_____private_Lean_Server_Completion_CompletionInfoSelection_0__Lean_Server_Completion_computePrioritizedCompletionPartitions_spec__1___redArg(x_7, x_9, x_10);
+lean_dec(x_7);
+x_11 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at_____private_Lean_Server_Completion_CompletionInfoSelection_0__Lean_Server_Completion_computePrioritizedCompletionPartitions_spec__1___redArg(x_9, x_8, x_10);
 lean_dec(x_10);
 x_2 = x_11;
 goto block_6;
@@ -2239,16 +2239,16 @@ if (x_17 == 0)
 lean_dec(x_13);
 lean_inc(x_16);
 x_7 = x_14;
-x_8 = x_15;
-x_9 = x_16;
+x_8 = x_16;
+x_9 = x_15;
 x_10 = x_16;
 goto block_12;
 }
 else
 {
 x_7 = x_14;
-x_8 = x_15;
-x_9 = x_16;
+x_8 = x_16;
+x_9 = x_15;
 x_10 = x_13;
 goto block_12;
 }
@@ -2269,16 +2269,16 @@ if (x_25 == 0)
 {
 lean_inc(x_24);
 x_13 = x_24;
-x_14 = x_19;
-x_15 = x_20;
+x_14 = x_20;
+x_15 = x_19;
 x_16 = x_24;
 goto block_18;
 }
 else
 {
 x_13 = x_24;
-x_14 = x_19;
-x_15 = x_20;
+x_14 = x_20;
+x_15 = x_19;
 x_16 = x_21;
 goto block_18;
 }

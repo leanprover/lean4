@@ -576,6 +576,7 @@ static lean_object* l_IO_FS_instReprSystemTime_repr___redArg___closed__6;
 static lean_object* l_instMonadEIO___closed__3;
 LEAN_EXPORT lean_object* l___private_Init_System_IO_0__BaseIO_mapTasks_go___redArg___lam__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_FileType_file_elim___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_hardLink___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_DirEntry_ctorIdx(lean_object*);
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__6;
@@ -808,6 +809,7 @@ LEAN_EXPORT lean_object* l_IO_Process_Stdio_piped_elim(lean_object*, uint8_t, le
 LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__9;
 lean_object* lean_io_process_child_kill(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_hard_link(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__38;
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__42;
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__10;
@@ -4882,6 +4884,16 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_io_rename(x_1, x_2, x_3);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_IO_FS_hardLink___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_io_hard_link(x_1, x_2, x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 return x_4;
@@ -10580,8 +10592,8 @@ goto block_19;
 block_7:
 {
 uint32_t x_5; uint32_t x_6; 
-x_5 = lean_uint32_lor(x_2, x_4);
-x_6 = lean_uint32_lor(x_3, x_5);
+x_5 = lean_uint32_lor(x_3, x_4);
+x_6 = lean_uint32_lor(x_2, x_5);
 return x_6;
 }
 block_15:
@@ -10590,8 +10602,8 @@ if (x_10 == 0)
 {
 uint32_t x_13; 
 x_13 = 0;
-x_2 = x_12;
-x_3 = x_11;
+x_2 = x_11;
+x_3 = x_12;
 x_4 = x_13;
 goto block_7;
 }
@@ -10599,8 +10611,8 @@ else
 {
 uint32_t x_14; 
 x_14 = 1;
-x_2 = x_12;
-x_3 = x_11;
+x_2 = x_11;
+x_3 = x_12;
 x_4 = x_14;
 goto block_7;
 }

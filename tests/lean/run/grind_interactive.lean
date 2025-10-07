@@ -59,12 +59,12 @@ trace: [props] True propositions
 ---
 trace: [eqc] Equivalence classes
   [eqc] {bs, as.set i₁ v₁ ⋯}
-  [eqc] {as.size, bs.size, (as.set i₁ v₁ ⋯).size, (bs.set i₂ v₂ ⋯).size}
-  [eqc] {bs[j], (bs.set i₂ v₂ ⋯)[j]}
+  [eqc] {cs, bs.set i₂ v₂ ⋯}
+  [eqc] {as.size, bs.size, cs.size, (as.set i₁ v₁ ⋯).size, (bs.set i₂ v₂ ⋯).size}
+  [eqc] {cs[j], bs[j], (bs.set i₂ v₂ ⋯)[j]}
     [eqc] {if i₂ = j then v₂ else bs[j]}
   [eqc] others
-    [eqc] {bs.set i₂ v₂ ⋯}
-    [eqc] {↑as.size, ↑bs.size, ↑(bs.set i₂ v₂ ⋯).size}
+    [eqc] {↑as.size, ↑bs.size, ↑cs.size, ↑(bs.set i₂ v₂ ⋯).size}
 -/
 #guard_msgs in
 example (as bs cs : Array α) (v₁ v₂ : α)
@@ -131,3 +131,36 @@ h_2 : a * b ≤ 0
 #guard_msgs in
 example {a b : Int} : a > 0 → b > 0 → a*b > 0 := by
   grind => finish
+
+
+/--
+trace: [grind] Grind state
+  [facts] Asserted facts
+    [_] (bs.set i₂ v₂ ⋯).size = bs.size
+    [_] (as.set i₁ v₁ ⋯).size = as.size
+    [_] (bs.set i₂ v₂ ⋯)[j] = if i₂ = j then v₂ else bs[j]
+  [props] True propositions
+    [_] j < (bs.set i₂ v₂ ⋯).size
+    [_] j < bs.size
+  [eqc] Equivalence classes
+    [eqc] {as.size, bs.size, cs.size, (as.set i₁ v₁ ⋯).size, (bs.set i₂ v₂ ⋯).size}
+    [eqc] {cs[j], bs[j], (bs.set i₂ v₂ ⋯)[j]}
+      [eqc] {if i₂ = j then v₂ else bs[j]}
+    [eqc] others
+      [eqc] {↑as.size, ↑bs.size, ↑cs.size, ↑(bs.set i₂ v₂ ⋯).size}
+-/
+#guard_msgs in
+example (as bs cs : Array α) (v₁ v₂ : α)
+        (i₁ i₂ j : Nat)
+        (h₁ : i₁ < as.size)
+        (h₂ : bs = as.set i₁ v₁)
+        (h₃ : i₂ < bs.size)
+        (h₃ : cs = bs.set i₂ v₂)
+        (h₄ : i₁ ≠ j ∧ i₂ ≠ j)
+        (h₅ : j < cs.size)
+        (h₆ : j < as.size)
+        : cs[j] = as[j] := by
+  grind =>
+    instantiate
+    show_state gen > 0
+    instantiate

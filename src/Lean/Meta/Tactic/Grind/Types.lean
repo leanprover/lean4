@@ -217,6 +217,10 @@ structure State where
   if it implements the `ReflCmp` type class.
   -/
   reflCmpMap : PHashMap ExprPtr (Option Expr) := {}
+  /--
+  Cached anchors (aka stable hash codes) for terms in the `grind` state.
+  -/
+  anchors : PHashMap ExprPtr UInt64 := {}
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 def MethodsRef : Type := MethodsRefPointed.type

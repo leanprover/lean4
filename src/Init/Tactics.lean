@@ -4,13 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
 module
-
 prelude
 public import Init.Notation
-
 public section
 set_option linter.missingDocs true -- keep it documented
-
 namespace Lean.Parser.Tactic
 
 /--

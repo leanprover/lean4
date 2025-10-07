@@ -250,21 +250,23 @@ If so, replays the log of the trace if available. -/
     depTrace.checkAgainstTime info
 
 /--
-Replays the saved log from the trace if it exists and is not synthetic.
-Otherwise, writes a new synthetic trace file recording the fetch of the artifact from the cache.
+Returns if the saved trace exists and its hash matches `inputHash`.
+
+If up-to-date, replays the saved log from the trace and sets the current
+build action to `replay`. Otherwise, if the log is empty and trace is synthetic,
+or if the trace is not up-to-date, the build action will be set ot `fetch`.
 -/
-public def SavedTrace.replayOrFetch
-  (traceFile : FilePath) (inputHash : Hash) (outputs : Json) (savedTrace : SavedTrace)
-: JobM Unit := do
-  if let .ok data := savedTrace then
-    if data.synthetic && data.log.isEmpty then
-      updateAction .fetch
-    else
-      updateAction .replay
-      data.log.replay
-  else
-    updateAction .fetch
-    writeFetchTrace traceFile inputHash outputs
+public def SavedTrace.replayOrFetchIfUpToDate (inputHash : Hash) (self : SavedTrace) : JobM Bool := do
+  if let .ok data := self then
+    if data.depHash == inputHash then
+      if data.synthetic && data.log.isEmpty then
+        updateAction .fetch
+      else
+        updateAction .replay
+        data.log.replay
+      return true
+  updateAction .fetch
+  return false
 
 /-- **For internal use only.** -/
 public class ToOutputJson (α : Type u) where
@@ -470,14 +472,13 @@ in either the saved trace file or in the cached input-to-content mapping.
 -/
 @[specialize] public nonrec def getArtifacts?
   [ResolveOutputs JobM α]
-  (inputHash : Hash) (traceFile : FilePath) (savedTrace : SavedTrace)
+  (inputHash : Hash) (savedTrace : SavedTrace)
   (cache : Cache) (pkg : Package)
 : JobM (Option α) := do
   let updateCache ← pkg.isArtifactCacheEnabled
   if let some out ← cache.readOutputs? pkg.cacheScope inputHash then
     match (← resolveOutputs? out) with
     | .ok arts =>
-      savedTrace.replayOrFetch traceFile inputHash out
       return some arts
     | .error e =>
       logWarning s!"\
@@ -489,7 +490,6 @@ in either the saved trace file or in the cached input-to-content mapping.
         if let .ok arts ← resolveOutputs? out then
           if updateCache then
             cache.writeOutputs pkg.cacheScope inputHash out
-          savedTrace.replayOrFetch traceFile inputHash out
           return some arts
   return none
 
@@ -537,10 +537,13 @@ public def buildArtifactUnlessUpToDate
     let cache ← getLakeCache
     let inputHash := depTrace.hash
     let fetchArt? restore := do
-      let some (art : Artifact) ← getArtifacts? inputHash traceFile savedTrace cache pkg
+      let some (art : Artifact) ← getArtifacts? inputHash savedTrace cache pkg
         | return none
+      unless (← savedTrace.replayOrFetchIfUpToDate inputHash) do
+        removeFileIfExists file
+        writeFetchTrace traceFile inputHash (toJson art.descr)
       if restore then
-        if savedTrace.isDifferentFrom inputHash || !(← file.pathExists) then
+        if !(← file.pathExists) then
           logVerbose s!"restored artifact from cache to: {file}"
           createParentDirs file
           copyFile art.path file
@@ -551,33 +554,26 @@ public def buildArtifactUnlessUpToDate
         return some (art.useLocalFile file)
       else
         return some art
-    if (← pkg.isArtifactCacheEnabled) then
-      if let some art ← fetchArt? (restore || pkg.restoreAllArtifacts) then
-        setTrace art.trace
-        if let some outputsRef := pkg.outputsRef? then
-          outputsRef.insert inputHash art.hash
-        return art
-      else
-        unless (← savedTrace.replayIfUpToDate file depTrace) do
-          discard <| doBuild depTrace traceFile
-        let art ← cacheArtifact file ext text exe
-        cache.writeOutputs pkg.cacheScope inputHash art.descr
-        if let some outputsRef := pkg.outputsRef? then
-          outputsRef.insert inputHash art.descr
-        setTrace art.trace
-        return if restore then art.useLocalFile file else art
-    else
-      let art ← id do
-        if (← savedTrace.replayIfUpToDate file depTrace) then
-          computeArtifact file ext
-        else if let some art ← fetchArt? (restore := true) then
+    let art ← id do
+      if (← pkg.isArtifactCacheEnabled) then
+        if let some art ← fetchArt? (restore || pkg.restoreAllArtifacts) then
           return art
         else
-          doBuild depTrace traceFile
-      if let some outputsRef := pkg.outputsRef? then
-        outputsRef.insert inputHash art.descr
-      setTrace art.trace
-      return art
+          unless (← savedTrace.replayIfUpToDate file depTrace) do
+            discard <| doBuild depTrace traceFile
+          let art ← cacheArtifact file ext text exe
+          cache.writeOutputs pkg.cacheScope inputHash art.descr
+          return if restore then art.useLocalFile file else art
+      else if (← savedTrace.replayIfUpToDate file depTrace) then
+        computeArtifact file ext
+      else if let some art ← fetchArt? (restore := true) then
+        return art
+      else
+        doBuild depTrace traceFile
+    if let some outputsRef := pkg.outputsRef? then
+      outputsRef.insert inputHash art.descr
+    setTrace art.trace
+    return art
   else
     let art ←
       if (← savedTrace.replayIfUpToDate file depTrace) then

@@ -122,8 +122,10 @@ unsafe def mkElabAttribute (γ) (attrBuiltinName attrName : Name) (parserNamespa
     evalKey       := fun _ stx => do
       let kind ← syntaxNodeKindOfAttrParam parserNamespace stx
       /- Recall that a `SyntaxNodeKind` is often the name of the parser, but this is not always true, and we must check it. -/
-      if (← getEnv).contains kind && (← getInfoState).enabled then
-        addConstInfo stx[1] kind none
+      if (← getEnv).contains kind then
+        recordExtraModUseFromDecl (isMeta := false) kind
+        if (← getInfoState).enabled then
+          addConstInfo stx[1] kind none
       return kind
     onAdded       := fun builtin declName kind => do
       if builtin then

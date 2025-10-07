@@ -127,6 +127,7 @@ builtin_initialize
       let `(attr| command_code_action $args*) := stx | return
       let args ← args.mapM realizeGlobalConstNoOverloadWithInfo
       if (IR.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
+      args.forM (recordExtraModUseFromDecl (isMeta := false))
       modifyEnv (cmdCodeActionExt.addEntry · (⟨decl, args⟩, ← mkCommandCodeAction decl))
   }
 

@@ -8,7 +8,6 @@ module
 
 prelude
 public meta import Init.Coe
--- public import Init.Data.Stream
 public import Init.Data.Array.Lemmas
 public import Init.Data.Array.MapIdx
 public import Init.Data.Array.InsertIdx

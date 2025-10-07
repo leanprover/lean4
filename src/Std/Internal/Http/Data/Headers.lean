@@ -170,9 +170,12 @@ structure HeaderValue where
   The proof that it's a valid header value
   -/
   validHeaderValue : isValidHeaderValue value
-deriving BEq, Hashable, Repr
+deriving BEq, Repr
 
 namespace HeaderValue
+
+instance : Hashable HeaderValue where
+  hash x := Hashable.hash x.value
 
 instance : Inhabited HeaderValue where default := ⟨"", by decide⟩
 

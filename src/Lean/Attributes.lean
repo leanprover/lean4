@@ -240,26 +240,30 @@ structure ParametricAttribute (α : Type) where
 structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
   getParam : Name → Syntax → AttrM α
   afterSet : Name → α → AttrM Unit := fun _ _ _ => pure ()
-  afterImport : Array (Array (Name × α)) → ImportM Unit := fun _ => pure ()
   /--
   If set, entries are not resorted on export and `getParam?` will fall back to a linear instead of
   binary search insde an imported module's entries.
   -/
   preserveOrder : Bool := false
+  /--
+  Predicate run on each declaration-param pair to check whether it should be exported. By default,
+  only params on public declarations are exported.
+  -/
+  filterExport : Environment → Name → α → Bool := fun env n _ =>
+    env.contains (skipRealize := false) n
 
 def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (ParametricAttribute α) := do
   let ext : PersistentEnvExtension (Name × α) (Name × α) (List Name × NameMap α) ← registerPersistentEnvExtension {
     name            := impl.ref
     mkInitial       := pure ([], {})
-    addImportedFn   := fun s => impl.afterImport s *> pure ([], {})
+    addImportedFn   := fun _ => pure ([], {})
     addEntryFn      := fun (decls, m) (p : Name × α) => (p.1 :: decls, m.insert p.1 p.2)
     exportEntriesFnEx := fun env (decls, m) _ =>
       let r := if impl.preserveOrder then
         decls.toArray.reverse.filterMap (fun n => return (n, ← m.find? n))
       else
         m.foldl (fun a n p => a.push (n, p)) #[]
-        -- Do not export info for private defs
-      let r := r.filter (env.contains (skipRealize := false) ·.1)
+      let r := r.filter (fun ⟨n, a⟩ => impl.filterExport env n a)
       r.qsort (fun a b => Name.quickLt a.1 b.1)
     statsFn         := fun (_, m) => "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format m.size
   }

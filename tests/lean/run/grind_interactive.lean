@@ -86,3 +86,23 @@ example (as bs cs : Array α) (v₁ v₂ : α)
     -- Display equivalence classes with terms that contain `as` or `bs`
     show_eqcs as || bs
     instantiate
+
+example {a b c d e : Nat}
+    : a > 0 → b > 0 → 2*c + e <= 2 → e = d + 1 → a*b + 2 > 2*c + d := by
+  grind =>
+    have : a*b > 0 := Nat.mul_pos h h_1
+    lia
+
+example (as bs cs : Array α) (v₁ v₂ : α)
+        (i₁ i₂ j : Nat)
+        (h₁ : i₁ < as.size)
+        (h₂ : bs = as.set i₁ v₁)
+        (h₃ : i₂ < bs.size)
+        (h₃ : cs = bs.set i₂ v₂)
+        (h₄ : i₁ ≠ j ∧ i₂ ≠ j)
+        (h₅ : j < cs.size)
+        (h₆ : j < as.size)
+        : cs[j] = as[j] := by
+  grind =>
+    have := fun h₁ h₂ => @Array.getElem_set _ bs i₂ h₁ v₂ j h₂
+    instantiate

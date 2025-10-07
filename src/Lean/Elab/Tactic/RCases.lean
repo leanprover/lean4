@@ -6,10 +6,11 @@ Authors: Mario Carneiro, Jacob von Raumer
 module
 
 prelude
-public import Lean.Elab.Tactic.Induction
+public import Lean.Elab.Tactic.ElabTerm
+import Lean.Elab.Tactic.Induction
+import Lean.Elab.Tactic.Generalize
+import Lean.Meta.Tactic.Induction
 import Lean.Meta.Tactic.Replace
-
-public section
 
 namespace Lean.Elab.Tactic.RCases
 open Meta Parser Tactic
@@ -18,7 +19,7 @@ open Meta Parser Tactic
 Enables the 'unused rcases pattern' linter. This will warn when a pattern is ignored by
 `rcases`, `rintro`, `ext` and similar tactics.
 -/
-register_option linter.unusedRCasesPattern : Bool := {
+public register_option linter.unusedRCasesPattern : Bool := {
   defValue := true
   descr := "enable the 'unused rcases pattern' linter"
 }
@@ -59,7 +60,7 @@ the type being destructed, the extra patterns will match on the last element, me
 `p1 | p2 | p3` will act like `p1 | (p2 | p3)` when matching `a1 ∨ a2 ∨ a3`. If matching against a
 type with 3 constructors,  `p1 | (p2 | p3)` will act like `p1 | (p2 | p3) | _` instead.
 -/
-inductive RCasesPatt : Type
+public inductive RCasesPatt : Type
   /-- A parenthesized expression, used for hovers -/
   | paren (ref : Syntax) : RCasesPatt → RCasesPatt
   /-- A named pattern like `foo` -/
@@ -266,7 +267,7 @@ This will match a pattern `pat` against a local hypothesis `e`.
   match, with updated values for `g` , `fs`, `clears`, and `a`.
 -/
 partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e : Expr) (a : α)
-    (pat : RCasesPatt) (cont : MVarId → FVarSubst → Array FVarId → α → TermElabM α) :
+    (pat : RCasesPatt) (cont : MVarId → FVarSubst → Array FVarId → α → Term.TermElabM α) :
     TermElabM α := do
   let asFVar : Expr → MetaM _
     | .fvar e => pure e
@@ -419,7 +420,7 @@ def generalizeExceptFVar (goal : MVarId) (args : Array GeneralizeArg) :
 Given a list of targets of the form `e` or `h : e`, and a pattern, match all the targets
 against the pattern. Returns the list of produced subgoals.
 -/
-def rcases (tgts : Array (Option Ident × Syntax))
+public def rcases (tgts : Array (Option Ident × Syntax))
   (pat : RCasesPatt) (g : MVarId) : TermElabM (List MVarId) := Term.withSynthesize do
   let pats ← match tgts.size with
   | 0 => return [g]
@@ -466,7 +467,7 @@ partial def expandRIntroPat (pat : TSyntax `rintroPat)
   | _ => acc
 
 /-- Expand a list of `rintroPat` into an equivalent list of `rcasesPat` patterns. -/
-partial def expandRIntroPats (pats : Array (TSyntax `rintroPat))
+public partial def expandRIntroPats (pats : Array (TSyntax `rintroPat))
     (acc : Array (TSyntax `rcasesPat) := #[]) (ty? : Option Term := none) :
     Array (TSyntax `rcasesPat) :=
   pats.foldl (fun acc p => expandRIntroPat p acc ty?) acc
@@ -513,7 +514,7 @@ end
 The implementation of the `rintro` tactic. It takes a list of patterns `pats` and
 an optional type ascription `ty?` and introduces the patterns, resulting in zero or more goals.
 -/
-def rintro (pats : TSyntaxArray `rintroPat) (ty? : Option Term)
+public def rintro (pats : TSyntaxArray `rintroPat) (ty? : Option Term)
     (g : MVarId) : TermElabM (List MVarId) := Term.withSynthesize do
   (·.toList) <$> rintroContinue g {} #[] .missing pats ty? #[] finish
 

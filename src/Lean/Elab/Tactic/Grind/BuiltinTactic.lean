@@ -50,8 +50,12 @@ open Meta Grind
 
 @[builtin_grind_tactic finish] def evalFinish : GrindTactic := fun _ => do
   let goal ← getMainGoal
-  let goal? ← liftGrindM <| solve goal
-  replaceMainGoal goal?.toList
+  if let some goal ← liftGrindM <| solve goal then
+    let params := (← read).params
+    let result ← liftGrindM do mkResult params (some goal)
+    throwError "`finish` failed\n{← result.toMessageData}"
+  else
+    replaceMainGoal []
 
 @[builtin_grind_tactic lia] def evalLIA : GrindTactic := fun _ => do
   liftGoalM <| discard <| Arith.Cutsat.check

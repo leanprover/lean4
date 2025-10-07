@@ -58,8 +58,9 @@ Creates the proof of the unfolding theorem for `declName` with type `type`. It
 
 1. unfolds the function on the left to expose the `.brecOn` application
 2. rewrites that using the `.brecOn.eq` theorem, unrolling it once
-3. let-binds the `F` argument of the `brecOn` application, so that the subsequent
-   steps (which may involve `simp`) do not touch it
+3. let-binds the last argument, which should be the `.brecOn.go` call of type `.below …`.
+   This way subsequent steps (which may involve `simp`) do not touch it and do
+   not break the definitional equality with the recursive calls on the RHS.
 4. repeatedly splits `match` statements (because on the left we have `match` statements with extra
    `.below` arguments, and on the right we have the original `match` statements) until the goal
    is solved using `rfl` or `contradiction`.

@@ -88,7 +88,7 @@ example (as bs cs : Array α) (v₁ v₂ : α)
     instantiate
 
 example {a b c d e : Nat}
-    : a > 0 → b > 0 → 2*c + e <= 2 → e = d + 1 → a*b + 2 > 2*c + d := by
+    : a > 0 → b > 0 → c + e <= 1 → e = d → a*b + 2 > 2*c + 2*d := by
   grind =>
     have : a*b > 0 := Nat.mul_pos h h_1
     lia
@@ -106,3 +106,28 @@ example (as bs cs : Array α) (v₁ v₂ : α)
   grind =>
     have := fun h₁ h₂ => @Array.getElem_set _ bs i₂ h₁ v₂ j h₂
     instantiate
+
+/--
+error: `finish` failed
+case grind
+a b : Int
+h : -1 * a + 1 ≤ 0
+h_1 : -1 * b + 1 ≤ 0
+h_2 : a * b ≤ 0
+⊢ False
+[grind] Goal diagnostics
+  [facts] Asserted facts
+    [prop] -1 * a + 1 ≤ 0
+    [prop] -1 * b + 1 ≤ 0
+    [prop] a * b ≤ 0
+  [eqc] True propositions
+    [prop] -1 * a + 1 ≤ 0
+    [prop] -1 * b + 1 ≤ 0
+    [prop] a * b ≤ 0
+  [cutsat] Assignment satisfying linear constraints
+    [assign] a := 1
+    [assign] b := 1
+-/
+#guard_msgs in
+example {a b : Int} : a > 0 → b > 0 → a*b > 0 := by
+  grind => finish

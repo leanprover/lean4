@@ -46,3 +46,43 @@ example [CommRing α] (a b c : α)
     a^3 + b^3 + c^3 = 7 →
     a^4 + b^4 + c^4 = 9 := by
   grind => ring
+
+/--
+trace: [facts] Asserted facts
+  [_] (bs.set i₂ v₂ ⋯).size = bs.size
+  [_] (as.set i₁ v₁ ⋯).size = as.size
+  [_] (bs.set i₂ v₂ ⋯)[j] = if i₂ = j then v₂ else bs[j]
+---
+trace: [props] True propositions
+  [_] j < (bs.set i₂ v₂ ⋯).size
+  [_] j < bs.size
+---
+trace: [eqc] Equivalence classes
+  [eqc] {bs, as.set i₁ v₁ ⋯}
+  [eqc] {as.size, bs.size, (as.set i₁ v₁ ⋯).size, (bs.set i₂ v₂ ⋯).size}
+  [eqc] {bs[j], (bs.set i₂ v₂ ⋯)[j]}
+    [eqc] {if i₂ = j then v₂ else bs[j]}
+  [eqc] others
+    [eqc] {bs.set i₂ v₂ ⋯}
+    [eqc] {↑as.size, ↑bs.size, ↑(bs.set i₂ v₂ ⋯).size}
+-/
+#guard_msgs in
+example (as bs cs : Array α) (v₁ v₂ : α)
+        (i₁ i₂ j : Nat)
+        (h₁ : i₁ < as.size)
+        (h₂ : bs = as.set i₁ v₁)
+        (h₃ : i₂ < bs.size)
+        (h₃ : cs = bs.set i₂ v₂)
+        (h₄ : i₁ ≠ j ∧ i₂ ≠ j)
+        (h₅ : j < cs.size)
+        (h₆ : j < as.size)
+        : cs[j] = as[j] := by
+  grind =>
+    instantiate
+    -- Display asserted facts with `generation > 0`
+    show_asserted gen > 0
+    -- Display propositions known to be `True`, containing `j`, and `generation > 0`
+    show_true j && gen > 0
+    -- Display equivalence classes with terms that contain `as` or `bs`
+    show_eqcs as || bs
+    instantiate

@@ -478,6 +478,10 @@ inductive NewFact where
   | eq (lhs rhs proof : Expr) (isHEq : Bool)
   | fact (prop proof : Expr) (generation : Nat)
 
+def NewFact.toExpr : NewFact → MetaM Expr
+  | .eq lhs rhs _ _ => mkEq lhs rhs
+  | .fact p _ _ => return p
+
 -- This type should be considered opaque outside this module.
 @[expose]  -- for codegen
 def ENodeMap := PHashMap ExprPtr ENode

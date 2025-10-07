@@ -586,14 +586,17 @@ private def getUserGeneralizingFVarIds (stx : Syntax) : TacticM (Array FVarId) :
       getFVarIds vars
 
 -- process `generalizingVars` subterm of induction Syntax `stx`.
-private def generalizeVars (mvarId : MVarId) (stx : Syntax) (targets : Array Expr) : TacticM (Array FVarId × MVarId) :=
+private def generalizeVars (mvarId : MVarId) (stx : Syntax) (targets : Array Expr) (elimExpr : Expr) : TacticM (Array FVarId × MVarId) :=
   mvarId.withContext do
     let userFVarIds ← getUserGeneralizingFVarIds stx
-    let forbidden ← mkGeneralizationForbiddenSet targets
-    let mut s ← getFVarSetToGeneralize targets forbidden
+    let forbidden1 ← mkGeneralizationForbiddenSet targets
+    let forbidden2 ← mkGeneralizationForbiddenSet #[elimExpr]
+    let mut s ← getFVarSetToGeneralize targets (forbidden1.union forbidden2)
     for userFVarId in userFVarIds do
-      if forbidden.contains userFVarId then
+      if forbidden1.contains userFVarId then
         throwError "Variable `{mkFVar userFVarId}` cannot be generalized because the induction target depends on it"
+      if forbidden2.contains userFVarId then
+        throwError "Variable `{mkFVar userFVarId}` cannot be generalized because the induction principle depends on it"
       if s.contains userFVarId then
         throwOrLogError m!"Unnecessary `generalizing` argument: Variable `{mkFVar userFVarId}` is generalized automatically"
       s := s.insert userFVarId
@@ -947,7 +950,7 @@ private def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Ar
   mvarId.withContext do
     checkInductionTargets targets
     let targetFVarIds := targets.map (·.fvarId!)
-    let (generalized, mvarId) ← generalizeVars mvarId stx targets
+    let (generalized, mvarId) ← generalizeVars mvarId stx targets elimInfo.elimExpr
     mvarId.withContext do
       let result ← withRef stx[1] do -- use target position as reference
         ElimApp.mkElimApp elimInfo targets tag

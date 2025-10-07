@@ -432,10 +432,10 @@ where
   doRealize name info type := withOptions (tactic.hygienic.set · false) do
     let value ← mkEqnProof declName type tryRefl
     let (type, value) ← removeUnusedEqnHypotheses type value
-    addDecl <| Declaration.thmDecl {
+    addDecl <| (←mkThmOrUnsafeDef {
       name, type, value
       levelParams := info.levelParams
-    }
+    })
     inferDefEqAttr name
 
 /--

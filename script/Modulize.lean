@@ -37,16 +37,25 @@ def main (args : List String) : IO Unit := do
     -- initial whitespace if empty header
     let startPos := header.raw.getPos? |>.getD parserState.pos
 
-    -- insert section if any trailing text
-    if header.raw.getTrailingTailPos?.all (· < text.endPos) then
-      let insertPos := header.raw.getTailPos? |>.getD startPos  -- empty header
+    let dummyEnv ← mkEmptyEnvironment
+    let (initCmd, parserState', _) :=
+      Parser.parseCommand inputCtx { env := dummyEnv, options := {} } parserState msgs
+
+    -- insert section if any trailing command
+    if !initCmd.isOfKind ``Parser.Command.eoi then
+      let insertPos? :=
+          -- put below initial module docstring if any
+          guard (initCmd.isOfKind ``Parser.Command.moduleDoc) *> initCmd.getTailPos? <|>
+          -- else below header
+          header.raw.getTailPos?
+      let insertPos := insertPos?.getD startPos  -- empty header
       let mut sec := if doMeta then
         "public meta section"
       else
         "@[expose] public section"
       if !imps.isEmpty then
         sec := "\n\n" ++ sec
-      if header.raw.getTailPos?.isNone then
+      if insertPos?.isNone then
         sec := sec ++ "\n\n"
       text := text.extract 0 insertPos ++ sec ++ text.extract insertPos text.endPos
 

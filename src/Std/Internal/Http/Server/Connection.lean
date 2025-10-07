@@ -92,6 +92,9 @@ private def handle
   let mut sentResponse := false
   let mut closing := false
 
+  -- Wait for the first tick that is immediate
+  requestTimer.tick
+
   let mut requestTimerTask ← async requestTimer.tick
   let connectionTimerTask ← async connectionTimer.wait
 

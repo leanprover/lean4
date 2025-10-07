@@ -1926,7 +1926,7 @@ block_26:
 uint8_t x_20; 
 lean_inc(x_19);
 lean_inc(x_2);
-x_20 = l_List_elem___redArg(x_18, x_2, x_19);
+x_20 = l_List_elem___redArg(x_16, x_2, x_19);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; 
@@ -1936,15 +1936,15 @@ lean_closure_set(x_21, 0, x_2);
 lean_closure_set(x_21, 1, x_19);
 lean_closure_set(x_21, 2, x_13);
 x_22 = l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Var_0__Lean_Meta_Grind_Arith_Cutsat_registerNonlinearOcc___closed__0;
-x_23 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_modifyStateImpl___redArg(x_22, x_21, x_16, x_17);
-lean_dec(x_16);
+x_23 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_modifyStateImpl___redArg(x_22, x_21, x_17, x_18);
+lean_dec(x_17);
 return x_23;
 }
 else
 {
 lean_object* x_24; lean_object* x_25; 
 lean_dec(x_19);
-lean_dec(x_16);
+lean_dec(x_17);
 lean_dec(x_13);
 lean_dec(x_2);
 x_24 = lean_box(0);
@@ -1954,7 +1954,7 @@ if (lean_is_scalar(x_15)) {
  x_25 = x_15;
 }
 lean_ctor_set(x_25, 0, x_24);
-lean_ctor_set(x_25, 1, x_17);
+lean_ctor_set(x_25, 1, x_18);
 return x_25;
 }
 }
@@ -1980,9 +1980,9 @@ if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; 
 x_36 = lean_box(0);
-x_16 = x_27;
-x_17 = x_32;
-x_18 = x_34;
+x_16 = x_34;
+x_17 = x_27;
+x_18 = x_32;
 x_19 = x_36;
 goto block_26;
 }
@@ -1992,9 +1992,9 @@ lean_object* x_37;
 x_37 = lean_ctor_get(x_35, 0);
 lean_inc(x_37);
 lean_dec_ref(x_35);
-x_16 = x_27;
-x_17 = x_32;
-x_18 = x_34;
+x_16 = x_34;
+x_17 = x_27;
+x_18 = x_32;
 x_19 = x_37;
 goto block_26;
 }

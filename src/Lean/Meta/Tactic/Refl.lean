@@ -17,10 +17,13 @@ namespace Lean.Meta
 /--
 Close given goal using `Eq.refl`.
 
+With (`check := false`), the elaborator does not check if the goal is actually a definitionaly
+equality.
+
 See `Lean.MVarId.applyRfl` for the variant that also consults `@[refl]` lemmas, and which
 backs the `rfl` tactic.
 -/
-def _root_.Lean.MVarId.refl (mvarId : MVarId) : MetaM Unit := do
+def _root_.Lean.MVarId.refl (mvarId : MVarId) (check := true) : MetaM Unit := do
   mvarId.withContext do
     mvarId.checkNotAssigned `refl
     let targetType ← mvarId.getType'
@@ -28,9 +31,10 @@ def _root_.Lean.MVarId.refl (mvarId : MVarId) : MetaM Unit := do
       throwTacticEx `rfl mvarId m!"equality expected{indentExpr targetType}"
     let lhs ← instantiateMVars targetType.appFn!.appArg!
     let rhs ← instantiateMVars targetType.appArg!
-    let success ← isDefEq lhs rhs
-    unless success do
-      throwTacticEx `rfl mvarId m!"equality lhs{indentExpr lhs}\nis not definitionally equal to rhs{indentExpr rhs}"
+    if check then
+      let success ← isDefEq lhs rhs
+      unless success do
+        throwTacticEx `rfl mvarId m!"equality lhs{indentExpr lhs}\nis not definitionally equal to rhs{indentExpr rhs}"
     let us := targetType.getAppFn.constLevels!
     let α := targetType.appFn!.appFn!.appArg!
     mvarId.assign (mkApp2 (mkConst ``Eq.refl  us) α lhs)

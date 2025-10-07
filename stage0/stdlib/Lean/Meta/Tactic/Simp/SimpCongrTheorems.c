@@ -7287,18 +7287,18 @@ block_38:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; size_t x_25; size_t x_26; lean_object* x_27; 
 x_18 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__15_spec__15___lam__0___closed__0;
-x_19 = l_Lean_Expr_getAppNumArgs(x_11);
+x_19 = l_Lean_Expr_getAppNumArgs(x_12);
 lean_inc(x_19);
 x_20 = lean_mk_array(x_19, x_18);
 x_21 = lean_unsigned_to_nat(1u);
 x_22 = lean_nat_sub(x_19, x_21);
 lean_dec(x_19);
-lean_inc_ref(x_11);
-x_23 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_11, x_20, x_22);
+lean_inc_ref(x_12);
+x_23 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_12, x_20, x_22);
 x_24 = lean_box(0);
 x_25 = lean_array_size(x_23);
 x_26 = 0;
-x_27 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__12(x_1, x_11, x_24, x_23, x_25, x_26, x_24, x_13, x_14, x_15, x_16, x_17);
+x_27 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__12(x_1, x_12, x_24, x_23, x_25, x_26, x_24, x_13, x_14, x_15, x_16, x_17);
 lean_dec(x_16);
 lean_dec_ref(x_15);
 lean_dec(x_14);
@@ -7314,7 +7314,7 @@ lean_object* x_29; lean_object* x_30;
 x_29 = lean_ctor_get(x_27, 0);
 lean_dec(x_29);
 x_30 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_30, 0, x_12);
+lean_ctor_set(x_30, 0, x_11);
 lean_ctor_set(x_27, 0, x_30);
 return x_27;
 }
@@ -7325,7 +7325,7 @@ x_31 = lean_ctor_get(x_27, 1);
 lean_inc(x_31);
 lean_dec(x_27);
 x_32 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_32, 0, x_12);
+lean_ctor_set(x_32, 0, x_11);
 x_33 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_33, 0, x_32);
 lean_ctor_set(x_33, 1, x_31);
@@ -7335,7 +7335,7 @@ return x_33;
 else
 {
 uint8_t x_34; 
-lean_dec_ref(x_12);
+lean_dec_ref(x_11);
 x_34 = !lean_is_exclusive(x_27);
 if (x_34 == 0)
 {
@@ -7365,8 +7365,8 @@ lean_dec(x_2);
 lean_dec(x_46);
 if (x_47 == 0)
 {
-x_11 = x_39;
-x_12 = x_40;
+x_11 = x_40;
+x_12 = x_39;
 x_13 = x_41;
 x_14 = x_42;
 x_15 = x_43;

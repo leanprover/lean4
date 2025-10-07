@@ -264,16 +264,15 @@ def expandMutualElement : Macro := fun stx => do
   for elem in stx[1].getArgs do
     -- Don't trigger the `expandNamespacedDecl` macro, the namespace is handled by the mutual def
     -- elaborator directly instead
-    if elem.isOfKind ``Parser.Command.declaration then
-      continue
-    match (← expandMacro? elem) with
-    | some elemNew =>
-      if elemNew.isOfKind nullKind then
-        elemsNew := elemsNew ++ elemNew.getArgs
-      else
-        elemsNew := elemsNew.push elemNew
-      modified := true
-    | none         => elemsNew := elemsNew.push elem
+    if !elem.isOfKind ``Parser.Command.declaration then
+      if let some elemNew ← expandMacro? elem then
+        if elemNew.isOfKind nullKind then
+          elemsNew := elemsNew ++ elemNew.getArgs
+        else
+          elemsNew := elemsNew.push elemNew
+        modified := true
+        continue
+    elemsNew := elemsNew.push elem
   if modified then
     return stx.setArg 1 (mkNullNode elemsNew)
   else

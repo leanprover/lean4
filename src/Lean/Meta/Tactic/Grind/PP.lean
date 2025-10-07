@@ -87,9 +87,9 @@ private abbrev M := ReaderT Goal (StateT (Array MessageData) MetaM)
 private def pushMsg (m : MessageData) : M Unit :=
   modify fun s => s.push m
 
-def ppExprArray (cls : Name) (header : String) (es : Array Expr) (clsElem : Name := Name.mkSimple "_") : MessageData :=
+def ppExprArray (cls : Name) (header : String) (es : Array Expr) (clsElem : Name := Name.mkSimple "_") (collapsed : Bool := true) : MessageData :=
   let es := es.map (toTraceElem · clsElem)
-  .trace { cls } header es
+  .trace { cls, collapsed } header es
 
 section EqcFilter
 /-!

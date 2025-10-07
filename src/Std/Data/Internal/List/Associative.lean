@@ -3792,7 +3792,7 @@ theorem insertSmallerList_perm_of_perm_second [BEq α] [EquivBEq α] {l1 l2 l : 
           . exact h
         . exact distinct
 
-theorem inserList_insert_right_equiv_union_insert [BEq α] [EquivBEq α]
+theorem insertList_insert_right_equiv_union_insert [BEq α] [EquivBEq α]
   {l toInsert : List ((a : α) × β a)} (p : (a : α) × β a)
   (distinct_l : DistinctKeys l)
   (distinct_toInsert : DistinctKeys toInsert) :
@@ -3825,7 +3825,7 @@ theorem insertSmallerList_insert_right_equiv_union_insert [BEq α] [EquivBEq α]
     . apply Perm.symm
         <| insertList_perm_insertSmallerList distinct_l
           <| DistinctKeys.insertEntry distinct_toInsert
-    . exact inserList_insert_right_equiv_union_insert _ distinct_l distinct_toInsert
+    . exact insertList_insert_right_equiv_union_insert _ distinct_l distinct_toInsert
 
 section
 

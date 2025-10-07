@@ -281,8 +281,7 @@ def deriveInduction (name : Name) (isMutual : Bool) : MetaM Unit := do
     -- Prune unused level parameters, preserving the original order
     let us := infos[0]!.levelParams.filter (params.contains ·)
 
-    addDecl <| Declaration.thmDecl
-      { name := inductName, levelParams := us, type := eTyp, value := e' }
+    addDecl <| (←mkThmOrUnsafeDef { name := inductName, levelParams := us, type := eTyp, value := e' })
 
 def isInductName (env : Environment) (name : Name) : Bool := Id.run do
   let .str p s := name | return false

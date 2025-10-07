@@ -245,3 +245,8 @@ macro "test%" : command => `(command|
 /-- error: Coinductive predicates are not allowed inside of macro scopes -/
 #guard_msgs in
 test%
+
+namespace unsafe_test
+unsafe coinductive infSeq2 (r : α → α → Prop) : α → Prop where
+  | step : r a b → infSeq2 r b → infSeq2 r a
+end unsafe_test

@@ -357,12 +357,12 @@ private def mkIffOfInductivePropImpl (inductVal : InductiveVal) (rel : Name) : M
   toInductive mpr' constrs ((fvars.toList.take params).map .fvar) shape mprFvar
 
   let proof ← instantiateMVars mvar
-  addDecl <| .thmDecl {
+  addDecl <| (←mkThmOrUnsafeDef {
     name := rel
     levelParams := univNames
     type := thmTy
     value := proof
-  }
+  })
 
   addDecl <| .defnDecl (←mkDefinitionValInferringUnsafe
     (inductVal.name ++ `existential) inductVal.levelParams

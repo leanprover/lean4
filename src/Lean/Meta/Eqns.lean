@@ -186,10 +186,10 @@ where doRealize name info := do
     -- Note: if this definition was added using `def`, then `letToHave` has already been applied to the body.
     let type  ← letToHave type
     let value ← mkLambdaFVars xs (← mkEqRefl lhs)
-    addDecl <| Declaration.thmDecl {
+    addDecl <| (←mkThmOrUnsafeDef {
       name, type, value
       levelParams := info.levelParams
-    }
+    })
     inferDefEqAttr name -- should always succeed
 
 /--

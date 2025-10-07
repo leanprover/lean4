@@ -138,7 +138,7 @@ where
 Returns `true` if `e` is a support-like application.
 Recall that equivalence classes that contain only support applications are displayed in the "others" category.
 -/
-private def isSupportApp (e : Expr) : MetaM Bool := do
+def isSupportApp (e : Expr) : MetaM Bool := do
   if isArithOfCastLike e then return true
   let .const declName _ := e.getAppFn | return false
   -- Check whether `e` is the projection of a constructor
@@ -150,7 +150,7 @@ private def isSupportApp (e : Expr) : MetaM Bool := do
 
 end EqcFilter
 
-private def ppEqc (eqc : List Expr) (children : Array MessageData := #[]) : MessageData :=
+def ppEqc (eqc : List Expr) (children : Array MessageData := #[]) : MessageData :=
   .trace { cls := `eqc } (.group ("{" ++ (MessageData.joinSep (eqc.map toMessageData) ("," ++ Format.line)) ++  "}")) children
 
 private def ppEqcs : M Unit := do

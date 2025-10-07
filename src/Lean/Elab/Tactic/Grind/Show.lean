@@ -97,4 +97,38 @@ def showProps (filter? : Option (TSyntax `show_filter)) (isTrue : Bool) : GrindT
   | `(grind| show_false $[$filter?]?) => showProps filter? false
   | _ => throwUnsupportedSyntax
 
+@[builtin_grind_tactic showEqcs] def evalShowEqcs : GrindTactic := fun stx => withMainContext do
+  match stx with
+  | `(grind| show_eqcs $[$filter?]?) =>
+    let filter ← elabFilter filter?
+    let info ← liftGoalM do
+      let mut regularEqcs : Array MessageData := #[]
+      let mut otherEqcs   : Array MessageData := #[]
+      let goal ← get
+      for eqc in goal.getEqcs (sort := true) do
+        if Option.isSome <| eqc.find? (·.isTrue) then
+          pure ()
+        else if Option.isSome <| eqc.find? (·.isFalse) then
+          pure ()
+        else if let e :: _ :: _ := eqc then
+          -- We may want to add a flag to pretty print equivalence classes of nested proofs
+          unless (← isProof e) do
+            let eqc ← eqc.filterM fun e => filter.eval e
+            let mainEqc ← eqc.filterM fun e => return !(← isSupportApp e)
+            if mainEqc.length <= 1 then
+              otherEqcs := otherEqcs.push <| ppEqc eqc
+            else
+              let supportEqc ← eqc.filterM fun e => isSupportApp e
+              if supportEqc.isEmpty then
+                regularEqcs := regularEqcs.push <| ppEqc mainEqc
+              else
+                regularEqcs := regularEqcs.push <| ppEqc mainEqc #[ppEqc supportEqc]
+      unless otherEqcs.isEmpty do
+        regularEqcs := regularEqcs.push <| .trace { cls := `eqc } "others" otherEqcs
+      if regularEqcs.isEmpty then
+        throwError "no equivalence classes"
+      return MessageData.trace { cls := `eqc, collapsed := false } "Equivalence classes" regularEqcs
+    logInfo info
+  | _ => throwUnsupportedSyntax
+
 end Lean.Elab.Tactic.Grind

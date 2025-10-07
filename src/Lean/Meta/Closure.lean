@@ -232,7 +232,7 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
       else
         pure e
     modify fun s => { s with
-      newLocalDeclsForMVars := s.newLocalDeclsForMVars.push $ .cdecl default newFVarId userName type .default .default,
+      newLocalDecls         := s.newLocalDecls.push $ .cdecl default newFVarId userName type .default .default,
       exprVarArgs           := #[e'] ++ s.exprVarArgs
     }
     return mkFVar newFVarId

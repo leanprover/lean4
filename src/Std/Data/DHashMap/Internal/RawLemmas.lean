@@ -2743,8 +2743,20 @@ theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] 
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
     (m₁.union (m₂.insert p.fst p.snd)).1.Equiv ((m₁.union m₂).insert p.fst p.snd).1 := by
   simp_to_model [union, insert]
-  rw [union_eq_unionₘ, insert_eq_insertₘ]
-  sorry
+  rw [union_eq_unionₘ]
+  apply List.Perm.trans
+  . apply insertSmallerList_perm_of_perm_second
+    simp_to_model [insert]
+    . apply insertEntry_of_perm
+      . sorry
+      . apply List.Perm.refl
+    . sorry
+    . sorry
+  . apply List.Perm.trans
+    . sorry
+    . sorry
+    . sorry
+
 
 theorem getKey?_union_of_contains_right [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
@@ -2894,18 +2906,21 @@ theorem getKey!_union_of_mem_left_of_not_mem_right_lawful [LawfulBEq α] [Lawful
   simp_to_model [contains]
   simp only [imp_self]
 
--- this one needs fixing
 theorem getKeyD_union_of_mem_left_of_contains_right_eq_false [EquivBEq α]
     [LawfulHashable α] (h₁ : m₁.val.WF)
-    (h₂ : m₂.val.WF) {k fallback : α} (not_mem : m₂.contains k = false) :
-    (m₁.union m₂).getKeyD k fallback = m₁.getKeyD k fallback := by
-  sorry
+    (h₂ : m₂.val.WF) {k fallback : α} :
+    ((m₁.union m₂).getKeyD k fallback = m₂.getKeyD k fallback) ∨
+    ((m₁.union m₂).getKeyD k fallback = m₁.getKeyD k fallback) := by
+  simp_to_model [union, getKeyD] using List.getKeyD_insertSmallerList_of_mem_left_of_not_mem_right
 
 theorem getKeyD_union_of_mem_left_of_contains_right_eq_false_lawful [LawfulBEq α]
     [LawfulHashable α] (h₁ : m₁.val.WF)
     (h₂ : m₂.val.WF) {k fallback : α} (mem : m₁.contains k) :
     (m₁.union m₂).getKeyD k fallback = k := by
-  sorry
+  simp_to_model [union, getKeyD] using List.getKeyD_insertListIfNew_of_mem_left_of_not_mem_right_lawful
+  revert mem
+  simp_to_model [contains]
+  simp only [imp_self]
 
 theorem size_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
     (h₂ : m₂.val.WF) : (∀ (a : α), m₁.contains a → m₂.contains a = false) →

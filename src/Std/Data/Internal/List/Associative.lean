@@ -3198,6 +3198,20 @@ theorem getEntry?_insertSmallerList [BEq α] [EquivBEq α] {l toInsert : List ((
     case isFalse =>
       exact @getEntry?_insertList α β _ _ l toInsert distinct_l (DistinctKeys_impl_Pairwise_distinct distinct_toInsert) k
 
+theorem insertList_perm_of_perm_second [BEq α] [EquivBEq α] {l1 l2 l : List ((a : α) × β a)}
+    (h : Perm l1 l2) (distinct_l : DistinctKeys l) (distinct : DistinctKeys l1) :
+    Perm (insertList l l1) (insertList l l2) := by
+  apply getEntry?_ext
+  . apply DistinctKeys.insertList distinct_l
+  . apply DistinctKeys.insertList distinct_l
+  intro k
+  rw [@getEntry?_insertList α β _ _ l l1 distinct_l (DistinctKeys_impl_Pairwise_distinct distinct) k]
+  have distinct' := (DistinctKeys.perm (Perm.symm h) distinct)
+  rw [@getEntry?_insertList α β _ _ l l2 distinct_l (DistinctKeys_impl_Pairwise_distinct distinct') k]
+  rw [@getEntry?_of_perm α β _ _ l1 l2 k distinct h]
+
+
+
 theorem getEntry?_insertListIfNew_of_contains_eq_false_right [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)} {k : α}
     (not_contains : containsKey k l = false) :
@@ -3410,16 +3424,16 @@ theorem getKey_insertSmallerList_of_contains_left_of_contains_right_eq_false_law
   intro mem
   simp only [getKey_eq]
 
-theorem getKey!_insertSmallerList_of_mem_left_of_not_mem_right [Inhabited α] [BEq α] [EquivBEq α]
-    {l toInsert : List ((a : α) × β a)} {k : α}
+theorem getKeyD_insertSmallerList_of_mem_left_of_not_mem_right [BEq α] [EquivBEq α]
+    {l toInsert : List ((a : α) × β a)} {k fallback : α}
     (distinct_l : DistinctKeys l)
     (distinct_toInsert : DistinctKeys toInsert) :
-    getKey! k (insertSmallerList l toInsert) = getKey! k toInsert ∨
-    getKey! k (insertSmallerList l toInsert) = getKey! k l := by
+    getKeyD k (insertSmallerList l toInsert) fallback = getKeyD k toInsert fallback ∨
+    getKeyD k (insertSmallerList l toInsert) fallback = getKeyD k l fallback := by
     apply Or.elim <| Classical.em <| containsKey k toInsert
     case left =>
       intro contains
-      exact Or.inl <| getKey!_insertSmallerList_of_mem_right distinct_l distinct_toInsert contains
+      exact Or.inl <| getKeyD_insertSmallerList_of_mem_right distinct_l distinct_toInsert contains
     case right =>
       intro not_contains
       apply Or.inr
@@ -3429,10 +3443,10 @@ theorem getKey!_insertSmallerList_of_mem_left_of_not_mem_right [Inhabited α] [B
         have union_contains : containsKey k (insertSmallerList l toInsert) := by
           rw [containsKey_insertSmallerList]
           simp only [l_contains, Bool.true_or]
-        simp [getKey!_eq_getKey?]
+        simp [getKeyD_eq_getKey?]
         rw [@getKey?_eq_some_getKey _ _ _ l _ l_contains]
         rw [@getKey?_eq_some_getKey _ _ _ (insertSmallerList l toInsert) _ union_contains]
-        simp only [Option.get!_some]
+        simp only [Option.getD_some]
         apply Or.elim <| @getKey_insertSmallerList_of_contains_left_of_contains_right_eq_false α β _ _ l toInsert k union_contains distinct_l distinct_toInsert l_contains
         case left =>
           intro ⟨_, _⟩
@@ -3444,7 +3458,7 @@ theorem getKey!_insertSmallerList_of_mem_left_of_not_mem_right [Inhabited α] [B
         have union_not_contains : containsKey k (insertSmallerList l toInsert) = false := by
            rw [containsKey_insertSmallerList]
            simp only [l_not_contains, not_contains, Bool.or_self]
-        simp only [getKey!_eq_getKey?]
+        simp only [getKeyD_eq_getKey?]
         have union_is_none : getKey? k (insertSmallerList l toInsert) = none := by
           apply (@Option.not_isSome_iff_eq_none _ (getKey? k (insertSmallerList l toInsert))).1
           rw [←containsKey_eq_isSome_getKey?]
@@ -3455,6 +3469,15 @@ theorem getKey!_insertSmallerList_of_mem_left_of_not_mem_right [Inhabited α] [B
           rw [←containsKey_eq_isSome_getKey?]
           simp only [l_not_contains, Bool.false_eq_true, not_false_eq_true]
         simp only [l_is_none]
+
+theorem getKey!_insertSmallerList_of_mem_left_of_not_mem_right [Inhabited α] [BEq α] [EquivBEq α]
+    {l toInsert : List ((a : α) × β a)} {k : α}
+    (distinct_l : DistinctKeys l)
+    (distinct_toInsert : DistinctKeys toInsert) :
+    getKey! k (insertSmallerList l toInsert) = getKey! k toInsert ∨
+    getKey! k (insertSmallerList l toInsert) = getKey! k l := by
+    simp [getKey!_eq_getKeyD_default]
+    apply getKeyD_insertSmallerList_of_mem_left_of_not_mem_right distinct_l distinct_toInsert
 
 theorem getKey!_insertListIfNew_of_mem_left_of_not_mem_right_lawful [Inhabited α] [BEq α] [LawfulBEq α]
     {l toInsert : List ((a : α) × β a)} {k : α} :
@@ -3470,6 +3493,13 @@ theorem getKeyD_insertSmallerList_of_mem_left_of_contains_right_eq_false [BEq α
   intro mem not_mem
   simp only [getKeyD_eq_getKey?]
   rw [@getKey?_insertSmallerList_of_contains_left_of_contains_right_eq_false α β _ _ l toInsert k not_mem]
+
+theorem getKeyD_insertListIfNew_of_mem_left_of_not_mem_right_lawful [BEq α] [LawfulBEq α]
+    {l toInsert : List ((a : α) × β a)} {k fallback : α} :
+    (mem : containsKey k l) →
+    getKeyD k (insertSmallerList l toInsert) fallback = k := by
+  intro mem
+  apply getKeyD_eq_of_containsKey (@contains_insertSmallerList_of_left _ _ _ _ l toInsert k mem)
 
 
 theorem getKeyD_insertListIfNew_of_contains_right_eq_false [BEq α] [EquivBEq α]
@@ -3626,6 +3656,7 @@ theorem length_insertSmallerList [BEq α] [EquivBEq α]
       apply length_insertListIfNew_right distinct_l distinct_toInsert subgoal2
     case isFalse =>
       apply length_insertList distinct_l distinct_toInsert subgoal2
+
 theorem getKey?_insertSmallerList_of_mem_of_not_mem [BEq α] [LawfulBEq α]
     {l toInsert : List ((a : α) × β a)} {k : α}
     (contains : containsKey k l)
@@ -3746,6 +3777,20 @@ theorem insertList_perm_insertSmallerList [BEq α] [EquivBEq α]
     split
     . exact insertList_perm_insertListIfNew distinct_l distinct_toInsert
     . apply Perm.refl
+
+theorem insertSmallerList_perm_of_perm_second [BEq α] [EquivBEq α] {l1 l2 l : List ((a : α) × β a)}
+    (h : Perm l1 l2) (distinct_l : DistinctKeys l) (distinct : DistinctKeys l1) :
+    Perm (insertSmallerList l l1) (insertSmallerList l l2) := by
+  apply Perm.trans
+  . apply Perm.symm
+    . apply insertList_perm_insertSmallerList distinct_l distinct
+  . apply Perm.trans
+    . apply insertList_perm_of_perm_second h distinct_l distinct
+    . apply insertList_perm_insertSmallerList distinct_l
+      . apply DistinctKeys.perm
+        . apply Perm.symm
+          . exact h
+        . exact distinct
 
 theorem inserList_insert_right_equiv_union_insert [BEq α] [EquivBEq α]
   {l toInsert : List ((a : α) × β a)} (p : (a : α) × β a)

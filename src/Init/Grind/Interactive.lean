@@ -27,6 +27,21 @@ syntax (name := skip) "skip" : grind
 syntax (name := lia) "lia" : grind
 /-- `ring` (commutative) rings and fields. -/
 syntax (name := ring) "ring" : grind
+/-- Instantiates theorems using E-matching. -/
+syntax (name := instantiate) "instantiate" : grind
+/--
+Filter for tactics such as `show_true`, and `show_eqc`. It the list is not empty, then
+only terms containing at least one of the given identifiers are displayed. -/
+syntax showFilter := (colGt ident),*
+/-- Shows asserted facts. -/
+syntax (name := showAsserted) "show_asserted " showFilter : grind
+/-- Shows propositions known to be `True`. -/
+syntax (name := showTrue) "show_true " showFilter : grind
+/-- Shows propositions known to be `False`. -/
+syntax (name := showFalse) "show_false " showFilter : grind
+/-- Shows equivalence classes of terms. -/
+syntax (name := showEqcs) "show_eqcs " showFilter : grind
+
 /-- `done` succeeds iff there are no remaining goals. -/
 syntax (name := done) "done" : grind
 

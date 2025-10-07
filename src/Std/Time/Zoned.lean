@@ -78,9 +78,6 @@ Converts a `DateTime` to a `PlainTime`
 def toPlainTime (dt : DateTime tz) : PlainTime :=
   dt.date.get.time
 
-end DateTime
-namespace DateTime
-
 /--
 Gets the current `DateTime`.
 -/

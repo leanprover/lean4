@@ -231,10 +231,10 @@ def testRecvOnEmpty : Async Unit := do
   assert! (← IO.getTaskState recv) == IO.TaskState.waiting
 
   let result ← await (← channel.send 3)
+  let result ← await recv
 
   assert! (← IO.getTaskState recv) == IO.TaskState.finished
-
-  assert! recv.get == some 3
+  assert! result == some 3
 
 #eval testRecvOnEmpty.block
 

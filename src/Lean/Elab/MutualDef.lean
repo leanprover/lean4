@@ -37,8 +37,7 @@ This only has an effect if both the module the definition is defined in and the 
 have the module system enabled.
 -/
 @[builtin_doc]
-builtin_initialize initExpose : Unit ←
-  registerBuiltinAttribute {
+builtin_initialize registerBuiltinAttribute {
     name := `expose
     descr := "(module system) Make bodies of definitions available to importing modules."
     add := fun _ _ _ => do
@@ -54,8 +53,7 @@ This only has an effect if both the module the definition is defined in and the 
 have the module system enabled.
 -/
 @[builtin_doc]
-builtin_initialize initNoExpose : Unit ←
-  registerBuiltinAttribute {
+builtin_initialize registerBuiltinAttribute {
     name := `no_expose
     descr := "(module system) Negate previous `[expose]` attribute."
     add := fun _ _ _ => do

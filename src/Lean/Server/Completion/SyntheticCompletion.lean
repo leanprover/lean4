@@ -100,7 +100,7 @@ private def findSyntheticIdentifierCompletion?
   let tailPos := stx.getTailPos?.get!
   let hoverInfo :=
     if hoverPos < tailPos then
-      HoverInfo.inside (tailPos - hoverPos)
+      HoverInfo.inside (hoverPos.byteDistance tailPos)
     else
       HoverInfo.after
   some { hoverInfo, ctx, info := .id stx id danglingDot info.lctx none }

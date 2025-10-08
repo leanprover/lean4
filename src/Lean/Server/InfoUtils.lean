@@ -238,7 +238,7 @@ def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextI
   let ts := t.deepestNodes fun ctx i _ => if p i then some (ctx, i) else none
 
   let infos := ts.filterMap fun (ci, i) => do
-    let diff := (← i.tailPos?) - (← i.pos?)
+    let diff := (← i.pos?).byteDistance (← i.tailPos?)
     return (diff, ci, i)
 
   infos.toArray.getMax? (fun a b => a.1 > b.1) |>.map fun (_, ci, i) => (ci, i)
@@ -306,7 +306,7 @@ partial def InfoTree.hoverableInfoAtM? [Monad m] (t : InfoTree) (hoverPos : Stri
       return none
     let priority : HoverableInfoPrio := {
       isHoverPosOnStop := r.stop == hoverPos
-      size := r.stop - r.start
+      size := r.start.byteDistance r.stop
       isVariableInfo := info matches .ofTermInfo { expr := .fvar .., .. }
       isPartialTermInfo := info matches .ofPartialTermInfo ..
     }

@@ -652,12 +652,16 @@ namespace DependsOn
 structure State where
   visited : ExprSet := {}
   mctx    : MetavarContext
+  lctx    : LocalContext
 
 private abbrev M := StateM State
 
 private instance : MonadMCtx M where
   getMCtx := return (← get).mctx
   modifyMCtx f := modify fun s => { s with mctx := f s.mctx }
+
+private instance : MonadLCtx M where
+  getLCtx := return (← get).lctx
 
 private def shouldVisit (e : Expr) : M Bool := do
   if !e.hasMVar && !e.hasFVar then
@@ -697,15 +701,26 @@ private def shouldVisit (e : Expr) : M Bool := do
         else
           visitApp e
       | .mvar mvarId     => do
+        let lctx := (← getMCtx).getDecl mvarId |>.lctx
         match (← getExprMVarAssignment? mvarId) with
-        | some a => visit a
+        | some a =>
+          let oldLctx ← getLCtx
+          modify fun s => { s with lctx := lctx }
+          let r ← visit a
+          modify fun s => { s with lctx := oldLctx }
+          return r
         | none   =>
           if pm mvarId then
             return true
           else
-            let lctx := (← getMCtx).getDecl mvarId |>.lctx
             return lctx.any fun decl => pf decl.fvarId
-      | .fvar fvarId     => return pf fvarId
+      | .fvar fvarId     => do
+        let lctx ← getLCtx
+        if let some value := lctx.get! fvarId |>.value? then
+        -- if let some value := lctx.find? fvarId >>= LocalDecl.value? then
+          visit value
+        else
+          return pf fvarId
       | _                    => pure false
   visit e
 
@@ -716,12 +731,12 @@ end DependsOn
 
 /--
   Return `true` iff `e` depends on a free variable `x` s.t. `pf x` is `true`, or an unassigned metavariable `?m` s.t. `pm ?m` is true.
-  For each metavariable `?m` (that does not satisfy `pm` occurring in `x`
+  For each metavariable `?m` (that does not satisfy `pm`) occurring in `x`
   1- If `?m := t`, then we visit `t` looking for `x`
   2- If `?m` is unassigned, then we consider the worst case and check whether `x` is in the local context of `?m`.
      This case is a "may dependency". That is, we may assign a term `t` to `?m` s.t. `t` contains `x`. -/
-@[inline] def findExprDependsOn [Monad m] [MonadMCtx m] (e : Expr) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : m Bool := do
-  let (result, { mctx, .. }) := DependsOn.main pf pm e |>.run { mctx := (← getMCtx) }
+@[inline] def findExprDependsOn [Monad m] [MonadMCtx m] [MonadLCtx m] (e : Expr) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : m Bool := do
+  let (result, { mctx, .. }) := DependsOn.main pf pm e |>.run { mctx := (← getMCtx), lctx := (← getLCtx) }
   setMCtx mctx
   return result
 
@@ -731,22 +746,22 @@ depends on a free variable `x` s.t. `pf x` is `true` or an unassigned metavariab
 - When `generalizeNondepLet := true` (the default), then values of nondependent lets are ignored,
   for computing dependencies from "within" a telescope.
 -/
-@[inline] def findLocalDeclDependsOn [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) (generalizeNondepLet := true) : m Bool := do
+@[inline] def findLocalDeclDependsOn [Monad m] [MonadMCtx m] [MonadLCtx m] (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) (generalizeNondepLet := true) : m Bool := do
   match localDecl with
   | .cdecl (type := t) ..  => findExprDependsOn t pf pm
   | .ldecl (type := t) (value := v) (nondep := nondep) .. =>
     if generalizeNondepLet && nondep then
       findExprDependsOn t pf pm
     else
-      let (result, { mctx, .. }) := (DependsOn.main pf pm t <||> DependsOn.main pf pm v).run { mctx := (← getMCtx) }
+      let (result, { mctx, .. }) := (DependsOn.main pf pm t <||> DependsOn.main pf pm v).run { mctx := (← getMCtx), lctx := (← getLCtx) }
       setMCtx mctx
       return result
 
-def exprDependsOn [Monad m] [MonadMCtx m] (e : Expr) (fvarId : FVarId) : m Bool :=
+def exprDependsOn [Monad m] [MonadMCtx m] [MonadLCtx m] (e : Expr) (fvarId : FVarId) : m Bool :=
   findExprDependsOn e (fvarId == ·)
 
 /-- Return true iff `e` depends on the free variable `fvarId` -/
-def dependsOn [Monad m] [MonadMCtx m] (e : Expr) (fvarId : FVarId) : m Bool :=
+def dependsOn [Monad m] [MonadMCtx m] [MonadLCtx m] (e : Expr) (fvarId : FVarId) : m Bool :=
   exprDependsOn e fvarId
 
 /--
@@ -754,11 +769,11 @@ Returns true iff `localDecl` depends on the free variable `fvarId`
 - When `generalizeNondepLet := true` (the default), then values of nondependent lets are ignored,
   for computing dependencies from "within" a telescope.
 -/
-def localDeclDependsOn [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (fvarId : FVarId) (generalizeNondepLet := true) : m Bool :=
+def localDeclDependsOn [Monad m] [MonadMCtx m] [MonadLCtx m] (localDecl : LocalDecl) (fvarId : FVarId) (generalizeNondepLet := true) : m Bool :=
   findLocalDeclDependsOn localDecl (fvarId == ·) (generalizeNondepLet := generalizeNondepLet)
 
 /-- Similar to `exprDependsOn`, but `x` can be a free variable or an unassigned metavariable. -/
-def exprDependsOn' [Monad m] [MonadMCtx m] (e : Expr) (x : Expr) : m Bool :=
+def exprDependsOn' [Monad m] [MonadMCtx m] [MonadLCtx m](e : Expr) (x : Expr) : m Bool :=
   if x.isFVar then
     findExprDependsOn e (x.fvarId! == ·)
   else if x.isMVar then
@@ -767,7 +782,7 @@ def exprDependsOn' [Monad m] [MonadMCtx m] (e : Expr) (x : Expr) : m Bool :=
     return false
 
 /-- Similar to `localDeclDependsOn`, but `x` can be a free variable or an unassigned metavariable. -/
-def localDeclDependsOn' [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (x : Expr) (generalizeNondepLet := true) : m Bool :=
+def localDeclDependsOn' [Monad m] [MonadMCtx m] [MonadLCtx m] (localDecl : LocalDecl) (x : Expr) (generalizeNondepLet := true) : m Bool :=
   if x.isFVar then
     findLocalDeclDependsOn localDecl (x.fvarId! == ·) (generalizeNondepLet := generalizeNondepLet)
   else if x.isMVar then
@@ -775,12 +790,15 @@ def localDeclDependsOn' [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (x : Exp
   else
     return false
 
-/-- Return true iff `e` depends on a free variable `x` s.t. `pf x`, or an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
-def dependsOnPred [Monad m] [MonadMCtx m] (e : Expr) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : m Bool :=
+/--
+Return true if `e` depends (directly or via local declarations) on a free variable `x` s.t. `pf x`, or
+an unassigned metavariable `?m` s.t. `pm ?m` is true.
+-/
+def dependsOnPred [Monad m] [MonadMCtx m] [MonadLCtx m] (e : Expr) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : m Bool :=
   findExprDependsOn e pf pm
 
 /-- Return true iff the local declaration `localDecl` depends on a free variable `x` s.t. `pf x`, an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
-def localDeclDependsOnPred [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) (generalizeNondepLet := true) : m Bool := do
+def localDeclDependsOnPred [Monad m] [MonadMCtx m]  [MonadLCtx m] (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) (generalizeNondepLet := true) : m Bool := do
   findLocalDeclDependsOn localDecl pf pm (generalizeNondepLet := generalizeNondepLet)
 
 
@@ -953,6 +971,7 @@ structure Context where
   binderInfoForMVars : BinderInfo := BinderInfo.implicit
   /-- Set of unassigned metavariables being abstracted. -/
   mvarIdsToAbstract  : MVarIdSet := {}
+  lctx : LocalContext
 
 abbrev MCore := EStateM Exception State
 abbrev M     := ReaderT Context MCore
@@ -960,6 +979,9 @@ abbrev M     := ReaderT Context MCore
 instance : MonadMCtx M where
   getMCtx := return (← get).mctx
   modifyMCtx f := modify fun s => { s with mctx := f s.mctx }
+
+instance : MonadLCtx M where
+  getLCtx := return (← read).lctx
 
 private def mkFreshBinderName (n : Name := `x) : M Name := do
   let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
@@ -1341,14 +1363,14 @@ structure MkBindingM.Context where
 abbrev MkBindingM := ReaderT MkBindingM.Context MkBinding.MCore
 
 def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool) : MkBindingM Expr := fun ctx =>
-  MkBinding.elimMVarDeps xs e { preserveOrder, quotContext := ctx.quotContext }
+  MkBinding.elimMVarDeps xs e { preserveOrder, quotContext := ctx.quotContext, lctx := ctx.lctx }
 
 def revert (xs : Array Expr) (mvarId : MVarId) (preserveOrder : Bool) : MkBindingM (Expr × Array Expr) := fun ctx =>
-  MkBinding.revert xs mvarId { preserveOrder, quotContext := ctx.quotContext }
+  MkBinding.revert xs mvarId { preserveOrder, quotContext := ctx.quotContext, lctx := ctx.lctx }
 
 def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce := false) (generalizeNondepLet := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr := fun ctx =>
   let mvarIdsToAbstract := xs.foldl (init := {}) fun s x => if x.isMVar then s.insert x.mvarId! else s
-  MkBinding.mkBinding isLambda ctx.lctx xs e usedOnly usedLetOnly etaReduce generalizeNondepLet { preserveOrder := false, binderInfoForMVars, mvarIdsToAbstract, quotContext := ctx.quotContext }
+  MkBinding.mkBinding isLambda ctx.lctx xs e usedOnly usedLetOnly etaReduce generalizeNondepLet { preserveOrder := false, binderInfoForMVars, mvarIdsToAbstract, quotContext := ctx.quotContext , lctx := ctx.lctx }
 
 @[inline] def mkLambda (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce := false) (generalizeNondepLet := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr :=
   mkBinding (isLambda := true) xs e usedOnly usedLetOnly etaReduce generalizeNondepLet binderInfoForMVars
@@ -1357,10 +1379,10 @@ def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool :=
   mkBinding (isLambda := false) xs e usedOnly usedLetOnly false generalizeNondepLet binderInfoForMVars
 
 @[inline] def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MkBindingM Expr := fun ctx =>
-  MkBinding.abstractRange xs n e { preserveOrder := false, quotContext := ctx.quotContext }
+  MkBinding.abstractRange xs n e { preserveOrder := false, quotContext := ctx.quotContext, lctx := ctx.lctx }
 
 @[inline] def collectForwardDeps (toRevert : Array Expr) (preserveOrder : Bool) (generalizeNondepLet := true) : MkBindingM (Array Expr) := fun ctx =>
-  MkBinding.collectForwardDeps ctx.lctx toRevert generalizeNondepLet { preserveOrder, quotContext := ctx.quotContext }
+  MkBinding.collectForwardDeps ctx.lctx toRevert generalizeNondepLet { preserveOrder, quotContext := ctx.quotContext, lctx := ctx.lctx }
 
 /--
   `isWellFormed lctx e` returns true iff

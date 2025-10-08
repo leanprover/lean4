@@ -50,9 +50,10 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
           pure false
         else
           let mvarType ← mvarId.getType
-          if (← exprDependsOn mvarType aFVarId) then pure false
-          else if (← exprDependsOn mvarType hFVarId) then pure false
-          else pure true
+          mvarId.withContext do
+            if (← exprDependsOn mvarType aFVarId) then pure false
+            else if (← exprDependsOn mvarType hFVarId) then pure false
+            else pure true
         if skip then
           if clearH then
             let mvarId ← mvarId.clear hFVarId

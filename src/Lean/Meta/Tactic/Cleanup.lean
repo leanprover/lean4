@@ -44,14 +44,14 @@ where
   /-- We include `p` in the used-set, if `p` is a proposition that contains a `x` that is in the used-set. -/
   collectPropsStep : StateRefT (Bool × FVarIdSet) MetaM Unit := do
     for localDecl in (← getLCtx) do
-      if (← isProp localDecl.type) then
-        let usedSet := (← get).2
-        if (← dependsOnPred localDecl.type usedSet.contains) then
-          addUsedFVar localDecl.fvarId
-      if let some v := localDecl.value? then
-        let usedSet := (← get).2
-        if (← dependsOnPred v usedSet.contains) then
-          addUsedFVar localDecl.fvarId
+      let usedSet := (← get).2
+      unless usedSet.contains localDecl.fvarId do
+        if (← isProp localDecl.type) then
+          if (← dependsOnPred localDecl.type usedSet.contains) then
+            addUsedFVar localDecl.fvarId
+        if let some v := localDecl.value? then
+          if (← dependsOnPred v usedSet.contains) then
+            addUsedFVar localDecl.fvarId
 
   collectProps : StateRefT (Bool × FVarIdSet) MetaM Unit := do
     modify fun s => (false, s.2)

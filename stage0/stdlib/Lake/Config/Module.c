@@ -55,6 +55,7 @@ lean_object* l_System_FilePath_withExtension(lean_object*, lean_object*);
 lean_object* l_IO_FS_DirEntry_path(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_leanOptions(lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Module_allowImportAll___boxed(lean_object*);
 static lean_object* l_Lake_Module_oleanFile___closed__0;
 static lean_object* l_Lake_Module_coNoExportFile___closed__0;
 static lean_object* l_Lake_LeanLib_getModuleArray___closed__0;
@@ -85,6 +86,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_leanFile(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_getMTime(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lake_Module_allowImportAll(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_checkExists(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_LeanLib_getModuleArray_spec__4___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_System_FilePath_isDir(lean_object*, lean_object*);
@@ -2721,6 +2723,37 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lake_Module_backend(x_1);
+lean_dec_ref(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT uint8_t l_Lake_Module_allowImportAll(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; uint8_t x_4; 
+x_2 = lean_ctor_get(x_1, 0);
+x_3 = lean_ctor_get(x_2, 2);
+x_4 = lean_ctor_get_uint8(x_3, sizeof(void*)*9 + 2);
+if (x_4 == 0)
+{
+lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_5 = lean_ctor_get(x_2, 0);
+x_6 = lean_ctor_get(x_5, 4);
+x_7 = lean_ctor_get_uint8(x_6, sizeof(void*)*26 + 6);
+return x_7;
+}
+else
+{
+return x_4;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Module_allowImportAll___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lake_Module_allowImportAll(x_1);
 lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;

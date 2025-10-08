@@ -35041,6 +35041,7 @@ lean_dec(x_76);
 x_78 = lean_array_size(x_77);
 x_79 = 0;
 x_80 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Term_elabRunElab_spec__0___redArg(x_78, x_79, x_77);
+lean_dec(x_80);
 x_81 = l_Lean_Syntax_getArg(x_73, x_13);
 lean_dec(x_73);
 x_82 = l_Lean_Syntax_matchesNull(x_81, x_40);

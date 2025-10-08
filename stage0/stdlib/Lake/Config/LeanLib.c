@@ -56,6 +56,7 @@ LEAN_EXPORT lean_object* l_Lake_LeanLib_plugins(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_LeanLib_libPrefixOnWindows(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lake_Package_leanLibs___closed__2;
+LEAN_EXPORT uint8_t l_Lake_LeanLib_allowImportAll(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_isBuildableModule___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_LeanOptions_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_serverOptions___boxed(lean_object*);
@@ -75,6 +76,7 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_leanLibs___closed__12;
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at___Lake_LeanLib_isPlugin_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_LeanLib_allowImportAll___boxed(lean_object*);
 static lean_object* l_Lake_Package_leanLibs___closed__4;
 LEAN_EXPORT lean_object* l_Lake_LeanLib_weakLeancArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_platformIndependent(lean_object*);
@@ -1171,6 +1173,36 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lake_LeanLib_backend(x_1);
+lean_dec_ref(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT uint8_t l_Lake_LeanLib_allowImportAll(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; uint8_t x_3; 
+x_2 = lean_ctor_get(x_1, 2);
+x_3 = lean_ctor_get_uint8(x_2, sizeof(void*)*9 + 2);
+if (x_3 == 0)
+{
+lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+x_4 = lean_ctor_get(x_1, 0);
+x_5 = lean_ctor_get(x_4, 4);
+x_6 = lean_ctor_get_uint8(x_5, sizeof(void*)*26 + 6);
+return x_6;
+}
+else
+{
+return x_3;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lake_LeanLib_allowImportAll___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lake_LeanLib_allowImportAll(x_1);
 lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;

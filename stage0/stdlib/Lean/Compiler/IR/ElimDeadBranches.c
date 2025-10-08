@@ -8530,7 +8530,7 @@ block_47:
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; 
 lean_inc(x_36);
-x_41 = l_Lean_IR_UnreachableBranches_interpFnBody(x_36, x_38, x_40);
+x_41 = l_Lean_IR_UnreachableBranches_interpFnBody(x_36, x_39, x_40);
 x_42 = lean_ctor_get(x_41, 1);
 lean_inc(x_42);
 lean_dec_ref(x_41);
@@ -8542,7 +8542,7 @@ lean_object* x_45;
 lean_dec(x_33);
 lean_inc(x_1);
 x_45 = l_outOfBounds___redArg(x_1);
-x_14 = x_39;
+x_14 = x_38;
 x_15 = x_42;
 x_16 = x_45;
 goto block_22;
@@ -8554,7 +8554,7 @@ lean_inc_ref(x_43);
 lean_inc(x_1);
 x_46 = l_Lean_PersistentArray_get_x21___redArg(x_1, x_43, x_33);
 lean_dec(x_33);
-x_14 = x_39;
+x_14 = x_38;
 x_15 = x_42;
 x_16 = x_46;
 goto block_22;
@@ -8580,8 +8580,8 @@ x_54 = lean_nat_dec_lt(x_8, x_52);
 if (x_54 == 0)
 {
 lean_dec(x_52);
-x_38 = x_53;
-x_39 = x_48;
+x_38 = x_48;
+x_39 = x_53;
 x_40 = x_7;
 goto block_47;
 }
@@ -8592,8 +8592,8 @@ x_55 = lean_nat_dec_le(x_52, x_52);
 if (x_55 == 0)
 {
 lean_dec(x_52);
-x_38 = x_53;
-x_39 = x_48;
+x_38 = x_48;
+x_39 = x_53;
 x_40 = x_7;
 goto block_47;
 }
@@ -8608,8 +8608,8 @@ x_59 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_
 x_60 = lean_ctor_get(x_59, 1);
 lean_inc(x_60);
 lean_dec_ref(x_59);
-x_38 = x_53;
-x_39 = x_48;
+x_38 = x_48;
+x_39 = x_53;
 x_40 = x_60;
 goto block_47;
 }

@@ -13,8 +13,6 @@ public import Init.Data.Slice
 public import Init.Data.Range.Polymorphic.Basic
 public import Std.Data.DTreeMap.Lemmas
 
-set_option linter.all true
-
 namespace Std.DTreeMap
 open Std.Iterators
 
@@ -131,33 +129,6 @@ private theorem Option.filter_eq_none_iff_all {α} {o : Option α} {p : α → B
     o.filter p = none ↔ o.all (! p ·) := by
   simp [Option.all_eq_true]
 
-public theorem step_rxcIterator_eq_match' {α β} {cmp : α → α → Ordering} [TransCmp cmp] {it : IterM (α := RxcIterator α β cmp) Id _} :
-    it.step = pure (match h : it.internalState.next.filter (fun e => (cmp e.fst it.internalState.bound).isLE) with
-      | some next =>
-        .yield ⟨it.internalState.treeMap, it.internalState.treeMap.getEntryGT? next.fst, it.internalState.bound, (by apply getEntryGE?_getEntryGT?_eq_some)⟩ next
-          (by simpa [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, and_comm (a := (_ = true))] using h)
-      | none =>
-        haveI : ∀ e, it.internalState.next = some e → cmp e.fst it.internalState.bound = .gt := by
-          simpa using h
-        .done (by simpa only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Option.filter_eq_none_iff_all,
-            Ordering.not_isLE_eq_isGT, ← Ordering.isGT_iff_eq_gt, Bool.decide_eq_true] using h)) := by
-  rw [step_rxcIterator_eq_match]
-  sorry
-
-public theorem val_step_rxcIterator_eq_match' {α β} {cmp : α → α → Ordering} [TransCmp cmp] {it : Iter (α := RxcIterator α β cmp) _} :
-    it.step.val = (match it.internalState.next.filter (fun e => (cmp e.fst it.internalState.bound).isLE) with
-      | some next =>
-        .yield ⟨it.internalState.treeMap, it.internalState.treeMap.getEntryGT? next.fst, it.internalState.bound, (by apply getEntryGE?_getEntryGT?_eq_some)⟩ next
-      | none =>
-        .done ) := by
-  sorry
-
--- public theorem RxcIterator.induct {α β} {cmp : α → α → Ordering} [TransCmp cmp]
---     (motive : Iter (α := RxcIterator α β cmp) _ → Sort x)
---     (step : (it : Iter (α := RxcIterator α β cmp) _) →
---         (ih_yield : ))
---     {it : Iter (α := RxcIterator α β cmp) _}
-
 end Rxc
 
 public structure RocSliceData (α : Type u) (β : α → Type v)
@@ -210,29 +181,15 @@ public theorem step_iter_rocSlice_eq_match {α β} {cmp : α → α → Ordering
     split <;> simp_all
 
 public theorem val_step_iter_rocSlice_eq_match {α β} {cmp : α → α → Ordering} [TransCmp cmp] {t : DTreeMap α β cmp} {a b : α} :
-    t[a<...=b].iter.step.val = (match t.getEntryGT? a with
-      | some next =>
-        if (cmp next.fst b).isLE then
-          .yield ⟨t, t.getEntryGT? next.fst, b, (by apply getEntryGE?_getEntryGT?_eq_some)⟩ next
-        else
-          .done
-      | none =>
-        .done) := by
-  rw [step_iter_rocSlice_eq_match]
-  split <;> split <;> simp_all
-
-public theorem val_step_iter_rocSlice_eq_match' {α β} {cmp : α → α → Ordering} [TransCmp cmp] {t : DTreeMap α β cmp} {a b : α} :
     t[a<...=b].iter.step.val = (match (t.getEntryGT? a).filter (fun e => (cmp e.fst b).isLE) with
       | some next =>
         .yield ⟨t, t.getEntryGT? next.fst, b, (by apply getEntryGE?_getEntryGT?_eq_some)⟩ next
       | none =>
         .done) := by
-  rw [val_step_iter_rocSlice_eq_match]
-  split
-  · split <;> simp_all [Option.filter_some]
-  · simp_all
+  rw [step_iter_rocSlice_eq_match]
+  split <;> split <;> simp_all [Option.filter_some]
 
-public theorem filter_toList_eq_match_lt_and_isLE {α β} {cmp : α → α → Ordering} [TransCmp cmp] {t : DTreeMap α β cmp} {a b : α} :
+public theorem filter_toList_lt_and_isLE {α β} {cmp : α → α → Ordering} [TransCmp cmp] {t : DTreeMap α β cmp} {a b : α} :
     t.toList.filter (fun e => cmp a e.fst = .lt ∧ (cmp e.fst b).isLE) = (match (t.getEntryGT? a).filter (fun e => (cmp e.fst b).isLE) with
       | some next =>
         next :: t.toList.filter (fun e => cmp next.fst e.fst = .lt ∧ (cmp e.fst b).isLE)
@@ -247,8 +204,8 @@ public theorem filter_toList_eq_match_lt_and_isLE {α β} {cmp : α → α → O
 public theorem toList_rocSlice_eq_filter_toList {α β} {cmp : α → α → Ordering} [TransCmp cmp]
     {t : DTreeMap α β cmp} {a b : α} :
     t[a<...=b].toList = t.toList.filter (fun e => cmp a e.fst = .lt ∧ (cmp e.fst b).isLE) := by
-  rw [filter_toList_eq_match_lt_and_isLE, Slice.toList_eq_toList_iter, Iter.toList_eq_match_step,
-    val_step_iter_rocSlice_eq_match']
+  rw [filter_toList_lt_and_isLE, Slice.toList_eq_toList_iter, Iter.toList_eq_match_step,
+    val_step_iter_rocSlice_eq_match]
   cases Option.filter (fun e => (cmp e.fst b).isLE) (t.getEntryGT? a)
   · simp
   · rename_i next
@@ -259,89 +216,15 @@ public theorem toList_rocSlice_eq_filter_toList {α β} {cmp : α → α → Ord
 termination_by (t.toList.filter (fun e => cmp a e.fst = .lt ∧ (cmp e.fst b).isLE)).length
 decreasing_by
   rename_i next hnext
-  simp
   simp only [getEntryGT?_eq_some_iff, Option.filter_eq_some_iff] at hnext
   apply List.length_filter_strict_mono (a := next)
-  · simp
+  · simp only [decide_eq_true_eq, and_imp]
     intro e hne heb
     exact ⟨TransCmp.lt_trans hnext.1.2.1 hne, heb⟩
   · exact hnext.1.1
-  · simp [ReflCmp.compare_self]
-  · simp
+  · simp only [ReflCmp.compare_self, reduceCtorEq, false_and, decide_false, not_false_eq_true]
+  · simp only [decide_eq_true_eq]
     exact ⟨hnext.1.2.1, hnext.2⟩
-
-theorem toList_rocSlice_eq_toList_rocSlice {α β} {cmp : α → α → Ordering} [TransCmp cmp] {t t': DTreeMap α β cmp} {a b a' b' : α}
-    (h : ∀ c, (c ∈ t.toList ∧ cmp a c.fst = .lt ∧ (cmp c.fst b).isLE) ↔ (c ∈ t'.toList ∧ cmp a' c.fst = .lt ∧ (cmp c.fst b').isLE)) :
-    t[a<...=b].toList = t'[a'<...=b'].toList := by
-    -- simp only [Slice.toList_eq_toList_iter, Slice.iter_eq_toIteratorIter, ToIterator.iter_eq,
-    --   RccSlice.Internal.iterM, Rcc.Sliceable.mkSlice, IterM.toIter]
-    simp only [Slice.toList_eq_toList_iter]
-    generalize hi : Slice.iter (Roc.Sliceable.mkSlice t a<...=b) = it
-    change Iter (α := RxcIterator α β cmp) _ at it
-    induction it using Iter.inductSteps generalizing a b a' b' with | step it ihy ihs
-    rw [← hi]
-    simp only [Slice.iter_eq_toIteratorIter, ToIterator.iter_eq, RocSlice.Internal.iterM, Roc.Sliceable.mkSlice, IterM.toIter]
-    rw [Iter.toList_eq_match_step, Iter.toList_eq_match_step]
-    rw [val_step_rxcIterator_eq_match', val_step_rxcIterator_eq_match']
-    simp only
-    have : (t.getEntryGT? a).filter (fun e => (cmp e.fst b).isLE) =
-        (t'.getEntryGT? a').filter (fun e => (cmp e.fst b').isLE) := by
-      ext e
-      simp [getEntryGT?_eq_some_iff]
-      specialize h
-      constructor
-      · intro h'
-        have he := (h e).mp ⟨h'.1.1, h'.1.2.1, h'.2⟩
-        refine ⟨⟨he.1, he.2.1, ?_⟩, he.2.2⟩
-        intro k hk hk'
-        by_cases hkb : (cmp k b').isLE
-        · simp only [← map_fst_toList_eq_keys, List.mem_map] at hk
-          obtain ⟨f, hfm, rfl⟩ := hk
-          have hf := (h f).mpr ⟨hfm, hk', hkb⟩
-          apply h'.1.2.2
-          · simpa only [← map_fst_toList_eq_keys] using List.mem_map_of_mem hf.1
-          · exact hf.2.1
-        · refine TransCmp.isLE_trans he.2.2 ?_
-          apply Ordering.isLE_of_eq_lt
-          simpa [OrientedCmp.gt_iff_lt] using hkb
-      · intro h'
-        have he := (h e).mpr ⟨h'.1.1, h'.1.2.1, h'.2⟩
-        refine ⟨⟨he.1, he.2.1, ?_⟩, he.2.2⟩
-        intro k hk hk'
-        by_cases hkb : (cmp k b).isLE
-        · simp only [← map_fst_toList_eq_keys, List.mem_map] at hk
-          obtain ⟨f, hfm, rfl⟩ := hk
-          have hf := (h f).mp ⟨hfm, hk', hkb⟩
-          apply h'.1.2.2
-          · simpa only [← map_fst_toList_eq_keys] using List.mem_map_of_mem hf.1
-          · exact hf.2.1
-        · refine TransCmp.isLE_trans he.2.2 ?_
-          apply Ordering.isLE_of_eq_lt
-          simpa [OrientedCmp.gt_iff_lt] using hkb
-    simp [this]
-    cases heq : Option.filter (fun e => (cmp e.fst b').isLE) (t'.getEntryGT? a')
-    · simp
-    · rename_i out
-      simp
-      simp [Slice.iter_eq_toIteratorIter, ToIterator.iter_eq, RocSlice.Internal.iterM, Roc.Sliceable.mkSlice,
-        ← hi] at ihy
-      apply ihy (a := out.fst) (a' := out.fst) (b := b) (b' := b') (out := out)
-      · simp [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Iter.toIterM,
-        IterM.toIter]
-        rw [← this, Option.filter_eq_some_iff, and_comm] at heq
-        simpa using heq
-      · intro e
-        have heq' := heq
-        rw [← this, Option.filter_eq_some_iff, getEntryGT?_eq_some_iff] at heq'
-        rw [Option.filter_eq_some_iff, getEntryGT?_eq_some_iff] at heq
-        constructor
-        · intro h'
-          have he := (h e).mp ⟨h'.1, TransCmp.lt_trans heq'.1.2.1 h'.2.1, h'.2.2⟩
-          exact ⟨he.1, h'.2.1, he.2.2⟩
-        · intro h'
-          have he := (h e).mpr ⟨h'.1, TransCmp.lt_trans heq.1.2.1 h'.2.1, h'.2.2⟩
-          exact ⟨he.1, h'.2.1, he.2.2⟩
-      · rfl
 
 public structure RccSliceData (α : Type u) (β : α → Type v)
     (cmp : α → α → Ordering := by exact compare) where
@@ -393,136 +276,37 @@ public theorem step_iter_rccSlice_eq_match {α β} {cmp : α → α → Ordering
     split <;> simp_all
 
 public theorem val_step_iter_rccSlice_eq_match {α β} {cmp : α → α → Ordering} [TransCmp cmp] {t : DTreeMap α β cmp} {a b : α} :
-    t[a...=b].iter.step.val = (match t.getEntryGE? a with
-      | some next =>
-        if (cmp next.fst b).isLE then
-          .yield ⟨t, t.getEntryGT? next.fst, b, (by apply getEntryGE?_getEntryGT?_eq_some)⟩ next
-        else
-          .done
-      | none =>
-        .done) := by
-  rw [step_iter_rccSlice_eq_match]
-  split <;> split <;> simp_all
-
-public theorem val_step_iter_rccSlice_eq_match' {α β} {cmp : α → α → Ordering} [TransCmp cmp] {t : DTreeMap α β cmp} {a b : α} :
     t[a...=b].iter.step.val = (match (t.getEntryGE? a).filter (fun e => (cmp e.fst b).isLE) with
       | some next =>
         .yield ⟨t, t.getEntryGT? next.fst, b, (by apply getEntryGE?_getEntryGT?_eq_some)⟩ next
       | none =>
         .done) := by
-  rw [val_step_iter_rccSlice_eq_match]
-  split
-  · split <;> simp_all [Option.filter_some]
-  · simp_all
+  rw [step_iter_rccSlice_eq_match]
+  split <;> split <;> simp_all [Option.filter_some]
 
-public theorem filter_toList_eq_match {α β} {cmp : α → α → Ordering} [TransCmp cmp] {t : DTreeMap α β cmp} {a b : α} :
+public theorem filter_toList_isLE_and_isLE {α β} {cmp : α → α → Ordering} [TransCmp cmp] {t : DTreeMap α β cmp} {a b : α} :
     t.toList.filter (fun e => (cmp a e.fst).isLE ∧ (cmp e.fst b).isLE) = (match (t.getEntryGE? a).filter (fun e => (cmp e.fst b).isLE) with
       | some next =>
         next :: t.toList.filter (fun e => cmp next.fst e.fst = .lt ∧ (cmp e.fst b).isLE)
       | none =>
         []) := by
-  sorry
+  induction hs : t.size
+  · rw [← beq_iff_eq, ← DTreeMap.isEmpty_eq_size_eq_zero] at hs
+    have : t.toList = [] := by simpa [← DTreeMap.isEmpty_toList] using hs
+    simp [getEntryGE?_of_isEmpty hs, this]
+  · sorry
 
-theorem toList_rccSlice_eq_toList_rccSlice {α β} {cmp : α → α → Ordering} [TransCmp cmp] {t t': DTreeMap α β cmp} {a b a' b' : α}
-    (h : ∀ c, (c ∈ t.toList ∧ (cmp a c.fst).isLE ∧ (cmp c.fst b).isLE) ↔ (c ∈ t'.toList ∧ (cmp a' c.fst).isLE ∧ (cmp c.fst b').isLE)) :
-    t[a...=b].toList = t'[a'...=b'].toList := by
-    simp only [Slice.toList_eq_toList_iter]
-    simp only [Slice.iter_eq_toIteratorIter, ToIterator.iter_eq, RccSlice.Internal.iterM, Rcc.Sliceable.mkSlice, IterM.toIter]
-    rw [Iter.toList_eq_match_step, Iter.toList_eq_match_step]
-    rw [val_step_rxcIterator_eq_match', val_step_rxcIterator_eq_match']
-    simp only
-    have : (t.getEntryGE? a).filter (fun e => (cmp e.fst b).isLE) =
-        (t'.getEntryGE? a').filter (fun e => (cmp e.fst b').isLE) := by
-      ext e
-      simp [getEntryGE?_eq_some_iff]
-      specialize h
-      constructor
-      · intro h'
-        have he := (h e).mp ⟨h'.1.1, h'.1.2.1, h'.2⟩
-        refine ⟨⟨he.1, he.2.1, ?_⟩, he.2.2⟩
-        intro k hk hk'
-        by_cases hkb : (cmp k b').isLE
-        · simp only [← map_fst_toList_eq_keys, List.mem_map] at hk
-          obtain ⟨f, hfm, rfl⟩ := hk
-          have hf := (h f).mpr ⟨hfm, hk', hkb⟩
-          apply h'.1.2.2
-          · simpa only [← map_fst_toList_eq_keys] using List.mem_map_of_mem hf.1
-          · exact hf.2.1
-        · refine TransCmp.isLE_trans he.2.2 ?_
-          apply Ordering.isLE_of_eq_lt
-          simpa [OrientedCmp.gt_iff_lt] using hkb
-      · intro h'
-        have he := (h e).mpr ⟨h'.1.1, h'.1.2.1, h'.2⟩
-        refine ⟨⟨he.1, he.2.1, ?_⟩, he.2.2⟩
-        intro k hk hk'
-        by_cases hkb : (cmp k b).isLE
-        · simp only [← map_fst_toList_eq_keys, List.mem_map] at hk
-          obtain ⟨f, hfm, rfl⟩ := hk
-          have hf := (h f).mp ⟨hfm, hk', hkb⟩
-          apply h'.1.2.2
-          · simpa only [← map_fst_toList_eq_keys] using List.mem_map_of_mem hf.1
-          · exact hf.2.1
-        · refine TransCmp.isLE_trans he.2.2 ?_
-          apply Ordering.isLE_of_eq_lt
-          simpa [OrientedCmp.gt_iff_lt] using hkb
-    simp [this]
-    cases heq : Option.filter (fun e => (cmp e.fst b').isLE) (t'.getEntryGE? a')
-    · simp
-    · rename_i out
-      simp
-      have hroc := @toList_rocSlice_eq_toList_rocSlice
-      simp [Slice.toList_eq_toList_iter, Slice.iter_eq_toIteratorIter, ToIterator.iter_eq, RocSlice.Internal.iterM,
-        Roc.Sliceable.mkSlice] at hroc
-      apply hroc
-      · intro e
-        have heq' := heq
-        rw [← this, Option.filter_eq_some_iff, getEntryGE?_eq_some_iff] at heq'
-        rw [Option.filter_eq_some_iff, getEntryGE?_eq_some_iff] at heq
-        constructor
-        · intro h'
-          have he := (h e).mp ⟨h'.1, TransCmp.isLE_trans heq'.1.2.1 (Ordering.isLE_of_eq_lt h'.2.1), h'.2.2⟩
-          exact ⟨he.1, h'.2.1, he.2.2⟩
-        · intro h'
-          have he := (h e).mpr ⟨h'.1, TransCmp.isLE_trans heq.1.2.1 (Ordering.isLE_of_eq_lt h'.2.1), h'.2.2⟩
-          exact ⟨he.1, h'.2.1, he.2.2⟩
-
-theorem rccSlice_toList_eq_filter_toList {α β} {cmp : α → α → Ordering} [TransCmp cmp] {t : DTreeMap α β cmp} {a b : α} :
-    t[a...=b].toList = t.toList.filter (fun e => (cmp a e.fst).isLE ∧ (cmp e.fst b).isLE)
-      := by
-  let n := t.size
-  have hn : t.size ≤ n := by exact Nat.le_refl _
-  clear_value n
-  induction n generalizing t
-  · simp only [length_toList, Nat.le_zero_eq] at hn
-    rw [← beq_iff_eq, ← isEmpty_eq_size_eq_zero, ← isEmpty_toList] at hn
-    -- non-confluence: List.isEmpty_iff, DTreeMap.isEmpty_toList applied to t.toList.isEmpty
-    simp only [List.isEmpty_iff] at hn
-    simp only [Slice.toList_eq_toList_iter]
-    rw [Iter.toList_eq_match_step]
-    simp only [val_step_iter_rccSlice_eq_match]
-    cases h' : t.getEntryGE? a
-    · simp [hn]
-    · simp [getEntryGE?_eq_some_iff, hn] at h'
-  · rename_i n ih
-    by_cases hn : t.size = n + 1; rotate_left
-    · exact ih (by omega)
-    simp [Slice.toList_eq_toList_iter]
-    rw [Iter.toList_eq_match_step]
-    simp [val_step_iter_rccSlice_eq_match]
-    match h : t.getEntryGE? a with
-    | some next =>
-      simp [getEntryGE?_eq_some_iff] at h
-      let t' := t.erase next.fst
-      have : t'.size ≤ n := by
-        simp only [t', size_erase, ← mem_iff_contains, mem_of_mem_toList h.1, ↓reduceIte]
-        omega
-      specialize ih this
-      simp only [Slice.toList_eq_toList_iter, Slice.iter_eq_toIteratorIter, ToIterator.iter_eq,
-        RccSlice.Internal.iterM, Rcc.Sliceable.mkSlice, IterM.toIter] at ih
-      by_cases h' : (cmp next.fst b).isLE
-      · simp [h']
-
-    | none => simp
-
+public theorem toList_rccSlice_eq_filter_toList {α β} {cmp : α → α → Ordering} [TransCmp cmp]
+    {t : DTreeMap α β cmp} {a b : α} :
+    t[a...=b].toList = t.toList.filter (fun e => (cmp a e.fst).isLE ∧ (cmp e.fst b).isLE) := by
+  rw [filter_toList_isLE_and_isLE, Slice.toList_eq_toList_iter, Iter.toList_eq_match_step,
+    val_step_iter_rccSlice_eq_match]
+  cases Option.filter (fun e => (cmp e.fst b).isLE) (t.getEntryGE? a)
+  · simp
+  · rename_i next
+    suffices h : t[next.fst<...=b].toList = t.toList.filter (fun e => cmp next.fst e.fst = .lt ∧ (cmp e.fst b).isLE) by
+      simpa [Slice.toList_eq_toList_iter, Slice.iter_eq_toIteratorIter, ToIterator.iter_eq,
+        RocSlice.Internal.iterM, Roc.Sliceable.mkSlice] using h
+    apply toList_rocSlice_eq_filter_toList
 
 end Std.DTreeMap

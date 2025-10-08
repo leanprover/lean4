@@ -80,4 +80,11 @@ public partial def getAnchor (e : Expr) : GrindM UInt64 := do
   modify fun s => { s with anchors := s.anchors.insert { expr := e } a }
   return a
 
+/--
+Example: `isAnchorPrefix 4 0x0c88 0x0c88ab10ef20206a` returns `true`
+-/
+public def isAnchorPrefix (numHexDigits : Nat) (anchorPrefix : UInt64) (anchor : UInt64) : Bool :=
+  let shift := 64 - numHexDigits.toUInt64*4
+  anchorPrefix == anchor >>> shift
+
 end Lean.Meta.Grind

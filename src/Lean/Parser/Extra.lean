@@ -124,6 +124,17 @@ You can use `TSyntax.getNat` to extract the number from the resulting syntax obj
 @[run_builtin_parser_attribute_hooks, builtin_doc] def numLit : Parser :=
   withAntiquot (mkAntiquot "num" numLitKind) numLitNoAntiquot
 
+/-- The parser `hexnum` parses a hexadecimal numeric literal not containing the `0x` prefix.
+
+It produces a `hexnumKind` node containing an atom with the text of the
+literal. This parser is mainly used for creating atoms such `#<hexnum>`. Recall that `hexnum`
+is not a token and this parser must be prefixed by another parser.
+
+For numerals such as `0xadef100a`, you should use `numLit`.
+-/
+@[builtin_doc] def hexnum : Parser :=
+  withAntiquot (mkAntiquot "hexnum" hexnumKind) hexnumNoAntiquot
+
 /-- The parser `scientific` parses a scientific-notation literal, such as `1.3e-24`.
 
 This parser has arity 1: it produces a `scientificLitKind` node containing an atom with the text

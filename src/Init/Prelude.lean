@@ -4969,8 +4969,16 @@ abbrev strLitKind : SyntaxNodeKind := `str
 /-- `` `char `` is the node kind of character literals like `'A'`. -/
 abbrev charLitKind : SyntaxNodeKind := `char
 
-/-- `` `num `` is the node kind of number literals like `42`. -/
+/-- `` `num `` is the node kind of number literals like `42` and `0xa1` -/
 abbrev numLitKind : SyntaxNodeKind := `num
+
+/--
+`` `hexnum `` is the node kind of hexadecimal numbers like `ea10`
+without the `0x` prefix. Recall that `hexnum` is not a token and must be prefixed.
+For hexadecimal number literals, you should use `num` instead.
+Example: `syntax anchor := "#" noWs hexnum`.
+ -/
+abbrev hexnumKind : SyntaxNodeKind := `hexnum
 
 /-- `` `scientific `` is the node kind of floating point literals like `1.23e-3`. -/
 abbrev scientificLitKind : SyntaxNodeKind := `scientific

@@ -432,12 +432,21 @@ def mkSuggestionsMessage (suggestions : Array Suggestion) (ref : Syntax)
   for suggestion in suggestions do
     let some range := suggestion.span?.getD ref |>.getRange?
       | continue
-    let { info, suggestions := suggestionArr, range := lspRange } ←
-      processSuggestions ref range #[suggestion.toTryThisSuggestion] codeActionPrefix?
+    let edit ← suggestion.processEdit range
+    let suggestionText := edit.newText
+    let ref := Syntax.ofRange <| ref.getRange?.getD range
+    let codeActionTitleOverride? := suggestion.toCodeActionTitle?.map (· suggestionText)
+    let codeActionTitle := codeActionTitleOverride?.getD <| (codeActionPrefix?.getD "Try this: ") ++ suggestionText
+    let info := Info.ofCustomInfo {
+      stx := ref
+      value := Dynamic.mk {
+        edit
+        suggestion := suggestion.toTryThisSuggestion
+        codeActionTitle
+        : TryThisInfo
+      }
+    }
     pushInfoLeaf info
-    -- The following access is safe because
-    -- `suggestionsArr = #[suggestion.toTryThisSuggestion].map ...` (see `processSuggestions`)
-    let suggestionText := suggestionArr[0]!
     let map ← getFileMap
     let rangeContents := map.source.extract range.start range.stop
     let edits ← do
@@ -464,7 +473,7 @@ def mkSuggestionsMessage (suggestions : Array Suggestion) (ref : Syntax)
           id := ``textInsertionWidget
           javascriptHash := textInsertionWidget.javascriptHash
           props := return json% {
-            range: $lspRange,
+            range: $edit.range,
             suggestion: $suggestionText,
             acceptSuggestionProps: {
               kind: "text",
@@ -479,7 +488,7 @@ def mkSuggestionsMessage (suggestions : Array Suggestion) (ref : Syntax)
         let json := json% {
           diff: $diffJson,
           suggestion: $suggestionText,
-          range: $lspRange
+          range: $edit.range
         }
         let diffString :=
           if suggestion.diffGranularity matches .none then

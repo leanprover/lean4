@@ -46,24 +46,17 @@ apply the replacement.
   let doc ← readDoc
   pure <| snap.infoTree.foldInfo (init := #[]) fun _ctx info result => Id.run do
     let .ofCustomInfo { stx, value } := info | result
-    let some { range, suggestionTexts, codeActionPrefix? } :=
+    let some { edit, codeActionTitle, .. } :=
       value.get? TryThisInfo | result
     let some stxRange := stx.getRange? | result
     let stxRange := doc.meta.text.utf8RangeToLspRange stxRange
     unless stxRange.start.line ≤ params.range.end.line do return result
     unless params.range.start.line ≤ stxRange.end.line do return result
-    let mut result := result
-    for h : i in *...suggestionTexts.size do
-      let (newText, title?) := suggestionTexts[i]
-      let title := title?.getD <| (codeActionPrefix?.getD "Try this: ") ++ newText
-      result := result.push {
-        eager.title := title
-        eager.kind? := "quickfix"
-        -- Only make the first option preferred
-        eager.isPreferred? := if i = 0 then true else none
-        eager.edit? := some <| .ofTextEdit doc.versionedIdentifier { range, newText }
-      }
-    result
+    result.push {
+      eager.title := codeActionTitle
+      eager.kind? := "quickfix"
+      eager.edit? := some <| .ofTextEdit doc.versionedIdentifier edit
+    }
 
 /-! # Formatting -/
 

@@ -142,7 +142,14 @@ scoped instance instRxiLawfulHasSize [m : HasModel α β] [Rxi.HasSize β] [Rxi.
     simp only [this, instRxiHasSize]
     apply Rxi.LawfulHasSize.size_eq_succ_of_succ?_eq_some
 
-private theorem general_succ? {α : Type u} [UpwardEnumerable α] [LE α] [LT α] [m : HasModel α (BitVec n)]
+section AuxiliaryLemmas
+
+/-!
+The following lemmas are stated purely in terms of `BitVec n`. Their assumptions and statements
+may seem technical, but they are exactly what is needed in the actual proofs.
+-/
+
+theorem succ?_eq_of_technicalCondition {α : Type u} [UpwardEnumerable α] [LE α] [LT α] [m : HasModel α (BitVec n)]
     {x : α}
     (h : ∀ y, succ? x = some y ↔ ¬ m.encode x + 1#n = BitVec.Signed.intMinSealed n ∧ m.encode x + 1#n = m.encode y) :
     succ? x = (haveI := HasModel.instUpwardEnumerable (α := α); succ? x) := by
@@ -152,17 +159,20 @@ private theorem general_succ? {α : Type u} [UpwardEnumerable α] [LE α] [LT α
   simp [HasModel.encode_decode, ← BitVec.eq_sub_iff_add_eq, rotate_eq_iff,
     ← rotate_neg_eq_intMinSealed_sub, rotate_sub, rotate_rotate]
 
-private theorem general_succMany? {α : Type u} [UpwardEnumerable α] [LE α] [LT α]
+theorem succMany?_eq {α : Type u} [UpwardEnumerable α] [LE α] [LT α]
     [m : HasModel α (BitVec n)] {x : α} {k} :
     haveI := HasModel.instUpwardEnumerable (α := α)
-    succMany? k x = if (m.encode x).toInt + ↑k ≤ (BitVec.Signed.intMaxSealed n).toInt then some (m.decode (BitVec.ofInt n ((m.encode x).toInt + ↑k))) else none := by
+    succMany? k x = if (m.encode x).toInt + ↑k ≤ (BitVec.Signed.intMaxSealed n).toInt then
+      some (m.decode (BitVec.ofInt n ((m.encode x).toInt + ↑k)))
+    else
+      none := by
   by_cases hn : n > 0; rotate_left
   · cases show n = 0 by omega
     simp [succMany?, BitVec.eq_nil (BitVec.Signed.rotate _), BitVec.eq_nil (.ofInt _ _),
       BitVec.eq_nil (encode _), BitVec.eq_nil (BitVec.Signed.intMaxSealed _)]
   have h : ∀ a b c d : Int, a - b + c ≤ d - b ↔ a + c ≤ d := by omega
   simp [UpwardEnumerable.succMany?, BitVec.ofNatLT_eq_ofNat]
-  simp [toInt_eq_ofNat_toNat_rotate_sub' hn, rotate_intMaxSealed, h]
+  simp [toInt_eq_ofNat_toNat_rotate_sub hn, rotate_intMaxSealed, h]
   simp only [← Int.natCast_add]
   congr
   · rw [Nat.lt_iff_add_one_le, Int.ofNat_le, Nat.le_sub_iff_add_le]
@@ -171,7 +181,7 @@ private theorem general_succMany? {α : Type u} [UpwardEnumerable α] [LE α] [L
     simp only [ofNat_eq_rotate_ofInt_sub, rotate_rotate]
     congr; omega
 
-theorem general_rxcSize {lo hi : BitVec n} (h : n > 0) :
+theorem toNat_toInt_add_one_sub_toInt {lo hi : BitVec n} (h : n > 0) :
     (hi.toInt + 1 - lo.toInt).toNat = (rotate hi).toNat + 1 - (rotate lo).toNat := by
   match n with
   | 0 => omega
@@ -180,14 +190,18 @@ theorem general_rxcSize {lo hi : BitVec n} (h : n > 0) :
       show ∀ a b c d : Int, (a - b) + c - (d - b) = a + c - d by omega]
     omega
 
-theorem general_rxiSize {lo : BitVec n} (h : n > 0) :
+theorem toNat_two_pow_sub_one_sub_toInt {lo : BitVec n} (h : n > 0) :
     (2 ^ (n - 1) - lo.toInt).toNat = 2 ^ n - (rotate lo).toNat := by
-  simp only [toInt_eq_ofNat_toNat_rotate_sub h]
-  simp only [Int.sub_eq_add_neg, Int.neg_add, Int.neg_neg, Int.add_comm _ (2 ^ (n - 1)),
-    ← Int.add_assoc,
+  simp only [toInt_eq_ofNat_toNat_rotate_sub h, intMinSealed_def, BitVec.natCast_eq_ofNat,
+    BitVec.toNat_ofNat, Int.natCast_emod, Int.natCast_pow, Int.cast_ofNat_Int]
+  rw [Int.emod_eq_of_lt, Int.sub_eq_add_neg, Int.neg_sub, ← Int.add_sub_assoc]; rotate_left
+  · exact Int.le_of_lt (Int.pow_pos (by omega))
+  · exact Int.pow_lt_pow_of_lt (by omega) (by omega)
+  simp [Int.toNat_sub', Int.toNat_pow_of_nonneg,
     show (2 : Int) ^ (n - 1) + 2 ^ (n - 1) = 2 ^ (n - 1 + 1) by omega,
     show n - 1 + 1 = n by omega]
-  simp [← Int.sub_eq_add_neg, Int.toNat_sub', Int.toNat_pow_of_nonneg]
+
+end AuxiliaryLemmas
 
 end HasModel
 
@@ -239,10 +253,10 @@ theorem instUpwardEnumerable_eq :
     instUpwardEnumerable = HasModel.instUpwardEnumerable := by
   apply UpwardEnumerable.ext
   · apply funext; intro x
-    apply HasModel.general_succ?
+    apply HasModel.succ?_eq_of_technicalCondition
     simp [HasModel.encode, succ?, ← Int8.toBitVec_inj, toBitVec_minValueSealed_eq_intMinSealed]
   · ext
-    simp [HasModel.general_succMany?, instUpwardEnumerable, HasModel.encode, HasModel.decode,
+    simp [HasModel.succMany?_eq, instUpwardEnumerable, HasModel.encode, HasModel.decode,
       ← toInt_toBitVec, toBitVec_maxValueSealed_eq_intMaxSealed, ofIntLE_eq_ofInt]
 
 instance : LawfulUpwardEnumerable Int8 := by
@@ -259,7 +273,7 @@ public instance instRxcHasSize : Rxc.HasSize Int8 where
 theorem instRxcHasSize_eq :
     instRxcHasSize = HasModel.instRxcHasSize := by
   simp only [instRxcHasSize, HasModel.instRxcHasSize, Rxc.HasSize.size, HasModel.encode,
-    ← toInt_toBitVec, HasModel.general_rxcSize (Nat.zero_lt_succ _)]
+    ← toInt_toBitVec, HasModel.toNat_toInt_add_one_sub_toInt (Nat.zero_lt_succ _)]
 
 public instance instRxcLawfulHasSize : Rxc.LawfulHasSize Int8 := by
   simp only [instUpwardEnumerable_eq, instRxcHasSize_eq]
@@ -276,7 +290,7 @@ public instance instRxiHasSize : Rxi.HasSize Int8 where
 theorem instRxiHasSize_eq :
     instRxiHasSize = HasModel.instRxiHasSize := by
   simp only [instRxiHasSize, HasModel.instRxiHasSize, Rxi.HasSize.size, ← toInt_toBitVec,
-    HasModel.encode, HasModel.general_rxiSize (show 8 > 0 by omega)]
+    HasModel.encode, HasModel.toNat_two_pow_sub_one_sub_toInt (show 8 > 0 by omega)]
 
 public instance instRxiLawfulHasSize : Rxi.LawfulHasSize Int8 := by
   simp only [instUpwardEnumerable_eq, instRxiHasSize_eq]
@@ -333,10 +347,10 @@ theorem instUpwardEnumerable_eq :
     instUpwardEnumerable = HasModel.instUpwardEnumerable := by
   apply UpwardEnumerable.ext
   · apply funext; intro x
-    apply HasModel.general_succ?
+    apply HasModel.succ?_eq_of_technicalCondition
     simp [HasModel.encode, succ?, ← Int16.toBitVec_inj, toBitVec_minValueSealed_eq_intMinSealed]
   · ext
-    simp [HasModel.general_succMany?, instUpwardEnumerable, HasModel.encode, HasModel.decode,
+    simp [HasModel.succMany?_eq, instUpwardEnumerable, HasModel.encode, HasModel.decode,
       ← toInt_toBitVec, toBitVec_maxValueSealed_eq_intMaxSealed, ofIntLE_eq_ofInt]
 
 instance : LawfulUpwardEnumerable Int16 := by
@@ -353,7 +367,7 @@ public instance instRxcHasSize : Rxc.HasSize Int16 where
 theorem instRxcHasSize_eq :
     instRxcHasSize = HasModel.instRxcHasSize := by
   simp only [instRxcHasSize, HasModel.instRxcHasSize, Rxc.HasSize.size, HasModel.encode,
-    ← toInt_toBitVec, HasModel.general_rxcSize (Nat.zero_lt_succ _)]
+    ← toInt_toBitVec, HasModel.toNat_toInt_add_one_sub_toInt (Nat.zero_lt_succ _)]
 
 public instance instRxcLawfulHasSize : Rxc.LawfulHasSize Int16 := by
   simp only [instUpwardEnumerable_eq, instRxcHasSize_eq]
@@ -370,7 +384,7 @@ public instance instRxiHasSize : Rxi.HasSize Int16 where
 theorem instRxiHasSize_eq :
     instRxiHasSize = HasModel.instRxiHasSize := by
   simp only [instRxiHasSize, HasModel.instRxiHasSize, Rxi.HasSize.size, ← toInt_toBitVec,
-    HasModel.encode, HasModel.general_rxiSize (show 16 > 0 by omega)]
+    HasModel.encode, HasModel.toNat_two_pow_sub_one_sub_toInt (show 16 > 0 by omega)]
 
 public instance instRxiLawfulHasSize : Rxi.LawfulHasSize Int16 := by
   simp only [instUpwardEnumerable_eq, instRxiHasSize_eq]
@@ -427,10 +441,10 @@ theorem instUpwardEnumerable_eq :
     instUpwardEnumerable = HasModel.instUpwardEnumerable := by
   apply UpwardEnumerable.ext
   · apply funext; intro x
-    apply HasModel.general_succ?
+    apply HasModel.succ?_eq_of_technicalCondition
     simp [HasModel.encode, succ?, ← Int32.toBitVec_inj, toBitVec_minValueSealed_eq_intMinSealed]
   · ext
-    simp [HasModel.general_succMany?, instUpwardEnumerable, HasModel.encode, HasModel.decode,
+    simp [HasModel.succMany?_eq, instUpwardEnumerable, HasModel.encode, HasModel.decode,
       ← toInt_toBitVec, toBitVec_maxValueSealed_eq_intMaxSealed, ofIntLE_eq_ofInt]
 
 instance : LawfulUpwardEnumerable Int32 := by
@@ -447,7 +461,7 @@ public instance instRxcHasSize : Rxc.HasSize Int32 where
 theorem instRxcHasSize_eq :
     instRxcHasSize = HasModel.instRxcHasSize := by
   simp only [instRxcHasSize, HasModel.instRxcHasSize, Rxc.HasSize.size, HasModel.encode,
-    ← toInt_toBitVec, HasModel.general_rxcSize (Nat.zero_lt_succ _)]
+    ← toInt_toBitVec, HasModel.toNat_toInt_add_one_sub_toInt (Nat.zero_lt_succ _)]
 
 public instance instRxcLawfulHasSize : Rxc.LawfulHasSize Int32 := by
   simp only [instUpwardEnumerable_eq, instRxcHasSize_eq]
@@ -464,7 +478,7 @@ public instance instRxiHasSize : Rxi.HasSize Int32 where
 theorem instRxiHasSize_eq :
     instRxiHasSize = HasModel.instRxiHasSize := by
   simp only [instRxiHasSize, HasModel.instRxiHasSize, Rxi.HasSize.size, ← toInt_toBitVec,
-    HasModel.encode, HasModel.general_rxiSize (show 32 > 0 by omega)]
+    HasModel.encode, HasModel.toNat_two_pow_sub_one_sub_toInt (show 32 > 0 by omega)]
 
 public instance instRxiLawfulHasSize : Rxi.LawfulHasSize Int32 := by
   simp only [instUpwardEnumerable_eq, instRxiHasSize_eq]
@@ -521,10 +535,10 @@ theorem instUpwardEnumerable_eq :
     instUpwardEnumerable = HasModel.instUpwardEnumerable := by
   apply UpwardEnumerable.ext
   · apply funext; intro x
-    apply HasModel.general_succ?
+    apply HasModel.succ?_eq_of_technicalCondition
     simp [HasModel.encode, succ?, ← Int64.toBitVec_inj, toBitVec_minValueSealed_eq_intMinSealed]
   · ext
-    simp [HasModel.general_succMany?, instUpwardEnumerable, HasModel.encode, HasModel.decode,
+    simp [HasModel.succMany?_eq, instUpwardEnumerable, HasModel.encode, HasModel.decode,
       ← toInt_toBitVec, toBitVec_maxValueSealed_eq_intMaxSealed, ofIntLE_eq_ofInt]
 
 instance : LawfulUpwardEnumerable Int64 := by
@@ -541,7 +555,7 @@ public instance instRxcHasSize : Rxc.HasSize Int64 where
 theorem instRxcHasSize_eq :
     instRxcHasSize = HasModel.instRxcHasSize := by
   simp only [instRxcHasSize, HasModel.instRxcHasSize, Rxc.HasSize.size, HasModel.encode,
-    ← toInt_toBitVec, HasModel.general_rxcSize (Nat.zero_lt_succ _)]
+    ← toInt_toBitVec, HasModel.toNat_toInt_add_one_sub_toInt (Nat.zero_lt_succ _)]
 
 public instance instRxcLawfulHasSize : Rxc.LawfulHasSize Int64 := by
   simp only [instUpwardEnumerable_eq, instRxcHasSize_eq]
@@ -558,7 +572,7 @@ public instance instRxiHasSize : Rxi.HasSize Int64 where
 theorem instRxiHasSize_eq :
     instRxiHasSize = HasModel.instRxiHasSize := by
   simp only [instRxiHasSize, HasModel.instRxiHasSize, Rxi.HasSize.size, ← toInt_toBitVec,
-    HasModel.encode, HasModel.general_rxiSize (show 64 > 0 by omega)]
+    HasModel.encode, HasModel.toNat_two_pow_sub_one_sub_toInt (show 64 > 0 by omega)]
 
 public instance instRxiLawfulHasSize : Rxi.LawfulHasSize Int64 := by
   simp only [instUpwardEnumerable_eq, instRxiHasSize_eq]
@@ -620,10 +634,10 @@ theorem instUpwardEnumerable_eq :
     instUpwardEnumerable = HasModel.instUpwardEnumerable := by
   apply UpwardEnumerable.ext
   · apply funext; intro x
-    apply HasModel.general_succ?
+    apply HasModel.succ?_eq_of_technicalCondition
     simp [HasModel.encode, succ?, ← ISize.toBitVec_inj, toBitVec_minValueSealed_eq_intMinSealed]
   · ext
-    simp [HasModel.general_succMany?, instUpwardEnumerable, HasModel.encode, HasModel.decode,
+    simp [HasModel.succMany?_eq, instUpwardEnumerable, HasModel.encode, HasModel.decode,
       ← toInt_toBitVec, toBitVec_maxValueSealed_eq_intMaxSealed, ofIntLE_eq_ofInt]
 
 instance : LawfulUpwardEnumerable ISize := by
@@ -640,7 +654,7 @@ public instance instRxcHasSize : Rxc.HasSize ISize where
 theorem instRxcHasSize_eq :
     instRxcHasSize = HasModel.instRxcHasSize := by
   simp only [instRxcHasSize, HasModel.instRxcHasSize, Rxc.HasSize.size, HasModel.encode,
-    ← toInt_toBitVec, HasModel.general_rxcSize System.Platform.numBits_pos]
+    ← toInt_toBitVec, HasModel.toNat_toInt_add_one_sub_toInt System.Platform.numBits_pos]
 
 public instance instRxcLawfulHasSize : Rxc.LawfulHasSize ISize := by
   simp only [instUpwardEnumerable_eq, instRxcHasSize_eq]
@@ -657,7 +671,7 @@ public instance instRxiHasSize : Rxi.HasSize ISize where
 theorem instRxiHasSize_eq :
     instRxiHasSize = HasModel.instRxiHasSize := by
   simp only [instRxiHasSize, HasModel.instRxiHasSize, Rxi.HasSize.size, ← toInt_toBitVec,
-    HasModel.encode, HasModel.general_rxiSize System.Platform.numBits_pos]
+    HasModel.encode, HasModel.toNat_two_pow_sub_one_sub_toInt System.Platform.numBits_pos]
 
 public instance instRxiLawfulHasSize : Rxi.LawfulHasSize ISize := by
   simp only [instUpwardEnumerable_eq, instRxiHasSize_eq]

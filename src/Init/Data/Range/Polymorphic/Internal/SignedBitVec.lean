@@ -95,14 +95,15 @@ theorem succMany?_rotate {x : BitVec n} :
       (haveI := BitVec.instUpwardEnumerable (n := n); rotate <$> succMany? m x) := by
   simp [succMany?, rotate_rotate]
 
--- TODO: clean up
 theorem sle_iff_rotate_le_rotate {x y : BitVec n} :
     x.sle y ↔ rotate x ≤ rotate y := by
   match n with
   | 0 => simp [eq_nil x, eq_nil y]
   | n + 1 =>
-    simp [BitVec.sle_iff_toInt_le, BitVec.toInt, Nat.pow_add, Nat.mul_comm _ 2, rotate, BitVec.le_def,
-      intMinSealed_def]
+    simp only [sle_iff_toInt_le, BitVec.toInt, Nat.pow_add, Nat.pow_one, Nat.mul_comm _ 2,
+      Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.cast_ofNat_Int, Int.natCast_pow,
+      rotate, intMinSealed_def, Nat.add_one_sub_one, natCast_eq_ofNat, le_def, toNat_add,
+      toNat_ofNat, Nat.add_mod_mod]
     split <;> split
     · simp only [Int.ofNat_le]
       rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by omega)]
@@ -116,25 +117,25 @@ theorem sle_iff_rotate_le_rotate {x y : BitVec n} :
         apply Int.not_le_of_gt
         calc _ < 0 := this
              _ ≤ _ := by omega
-      simp [this]
+      simp only [this, false_iff, Nat.not_le, gt_iff_lt]
       rw [Nat.mod_eq_mod_iff (x := y.toNat + 2 ^ n) (y := y.toNat - 2 ^ n) (z := 2 * 2 ^ n) |>.mpr]
-      rotate_left
+      · rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by omega)]
+        omega
       · exact ⟨0, 1, by omega⟩
-      rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by omega)]
-      omega
     · have : (↑x.toNat : Int) - 2 * 2 ^ n ≤ ↑y.toNat := by
         have : x.toNat < 2 * 2 ^ n := by omega
         have : (↑x.toNat : Int) < 2 * 2 ^ n := by simpa [← Int.ofNat_lt] using this
         omega
-      simp [this]
+      simp only [this, true_iff, ge_iff_le]
       rw [Nat.mod_eq_mod_iff (x := x.toNat + 2 ^ n) (y := x.toNat - 2 ^ n) (z := 2 * 2 ^ n) |>.mpr]
-      rotate_left
+      · rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by omega)]
+        omega
       · exact ⟨0, 1, by omega⟩
-      rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by omega)]
-      omega
-    · simp
-      rw [Nat.mod_eq_mod_iff (x := x.toNat + 2 ^ n) (y := x.toNat - 2 ^ n) (z := 2 * 2 ^ n) |>.mpr ⟨0, 1, by omega⟩,
-        Nat.mod_eq_mod_iff (x := y.toNat + 2 ^ n) (y := y.toNat - 2 ^ n) (z := 2 * 2 ^ n) |>.mpr ⟨0, 1, by omega⟩,
+    · simp only [Int.sub_le_sub_right_iff, Int.ofNat_le]
+      rw [Nat.mod_eq_mod_iff (x := x.toNat + 2 ^ n) (y := x.toNat - 2 ^ n) (z := 2 * 2 ^ n)
+          |>.mpr ⟨0, 1, by omega⟩,
+        Nat.mod_eq_mod_iff (x := y.toNat + 2 ^ n) (y := y.toNat - 2 ^ n) (z := 2 * 2 ^ n)
+          |>.mpr ⟨0, 1, by omega⟩,
         Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by omega)]
       omega
 
@@ -148,13 +149,14 @@ theorem rotate_inj {x y : BitVec n} :
 theorem rotate_eq_iff {x y : BitVec n} : rotate x = y ↔ x = rotate y := by
   rw [← rotate_rotate (x := y), rotate_inj, rotate_rotate]
 
--- TODO: simplify
-theorem toInt_eq_ofNat_toNat_rotate_sub' {x : BitVec n} (h : n > 0) :
+theorem toInt_eq_ofNat_toNat_rotate_sub {x : BitVec n} (h : n > 0) :
     x.toInt = (↑(rotate x).toNat : Int) - ↑(intMinSealed n).toNat := by
   match n with
   | 0 => omega
   | n + 1 =>
-    simp [BitVec.toInt, rotate, intMinSealed_def]
+    simp only [BitVec.toInt, Int.natCast_pow, Int.cast_ofNat_Int, rotate, intMinSealed_def,
+      Nat.add_one_sub_one, natCast_eq_ofNat, toNat_add, toNat_ofNat, Nat.add_mod_mod,
+      Int.natCast_emod, Int.natCast_add]
     rw [Int.emod_eq_of_lt (a := 2 ^ n)]; rotate_left
     · exact Int.le_of_lt (Int.pow_pos (by omega))
     · rw [Int.pow_add, Int.pow_succ, Int.pow_zero, Int.one_mul, Int.mul_comm, Int.two_mul]
@@ -167,33 +169,8 @@ theorem toInt_eq_ofNat_toNat_rotate_sub' {x : BitVec n} (h : n > 0) :
       omega
     · rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm _ 2, Nat.mul_lt_mul_left (by omega),
         ← Int.ofNat_lt, Int.natCast_pow, Int.cast_ofNat_Int] at h
-      simp [Int.pow_add, Int.mul_comm _ 2, Int.two_mul, ← Int.sub_sub]
-      rw [eq_comm, Int.emod_eq_iff (by omega)]
-      refine ⟨by omega, ?_, ?_⟩
-      · have := BitVec.toNat_lt_twoPow_of_le (x := x) (Nat.le_refl _)
-        rw [Int.ofNat_natAbs_of_nonneg (by omega)]
-        simp only [Nat.pow_add, Nat.pow_one, ← Int.ofNat_lt, Int.natCast_mul, Int.natCast_pow,
-          Int.cast_ofNat_Int] at this
-        omega
-      · conv => rhs; rw [← Int.sub_sub, Int.sub_sub (b := 2 ^ n), Int.add_comm, ← Int.sub_sub]
-        exact ⟨-1, by omega⟩
-
--- TODO: eliminate
-theorem toInt_eq_ofNat_toNat_rotate_sub {x : BitVec n} (h : n > 0) :
-    x.toInt = (↑(rotate x).toNat : Int) - 2 ^ (n - 1) := by
-  match n with
-  | 0 => omega
-  | n + 1 =>
-    simp [BitVec.toInt, rotate, intMinSealed_def]
-    have : (2 : Int) ^ n > 0 := Int.pow_pos (by omega)
-    split <;> rename_i h
-    · rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm _ 2, Nat.mul_lt_mul_left (by omega),
-        ← Int.ofNat_lt, Int.natCast_pow, Int.cast_ofNat_Int] at h
-      rw [Int.emod_eq_of_lt (by omega) (by omega)]
-      omega
-    · rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm _ 2, Nat.mul_lt_mul_left (by omega),
-        ← Int.ofNat_lt, Int.natCast_pow, Int.cast_ofNat_Int] at h
-      simp [Int.pow_add, Int.mul_comm _ 2, Int.two_mul, ← Int.sub_sub]
+      simp only [Int.pow_add, Int.reducePow, Int.mul_comm _ 2, Int.two_mul, ← Int.sub_sub,
+        Int.sub_left_inj]
       rw [eq_comm, Int.emod_eq_iff (by omega)]
       refine ⟨by omega, ?_, ?_⟩
       · have := BitVec.toNat_lt_twoPow_of_le (x := x) (Nat.le_refl _)

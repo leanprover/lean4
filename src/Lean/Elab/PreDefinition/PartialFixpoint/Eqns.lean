@@ -103,10 +103,13 @@ where
       let type ← mkForallFVars xs type
       let type ← letToHave type
       let value ← mkLambdaFVars xs goal
-      addDecl <| Declaration.thmDecl {
-        name, type, value
+
+      addDecl <| (←mkThmOrUnsafeDef {
+        name := name
         levelParams := info.levelParams
-      }
+        type := type
+        value := value
+      })
 
 def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
   let name := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
@@ -117,7 +120,7 @@ def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if let some info := eqnInfoExt.find? (← getEnv) declName then
-    mkEqns declName info.declNames
+    mkEqns declName info.declNames (tryRefl := false)
   else
     return none
 

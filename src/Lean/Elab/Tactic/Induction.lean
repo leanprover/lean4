@@ -392,11 +392,16 @@ where
   goWithIncremental (tacSnaps : Array (SnapshotBundle TacticParsedSnapshot)) : TacticM (List MVarId) := withRef tacStx do
     let hasAlts := altStxs?.isSome
     let altStxs := altStxs?.getD #[]
-    let mut alts := alts
-    let mut toAdmit := []
 
     -- initial sanity checks: named cases should be known, wildcards should be last
     checkAltNames alts altStxs
+
+    -- `checkAltNames` may have looked at arbitrary alternatives, so we need to disable incremental
+    -- processing of alternatives if it had any effect lest we end up with stale messages
+    Term.withoutTacticIncrementality (cond := (← MonadLog.hasErrors)) do
+
+    let mut alts := alts
+    let mut toAdmit := []
 
     /-
     First process `altsSyntax` in order, removing covered alternatives from `alts`. Previously we
@@ -418,8 +423,8 @@ where
     first, making partial reuse in `inr` impossible (without support for reuse with position
     adjustments).
 
-    2- The errors are produced in the same order the appear in the code above. This is not super
-    important when using IDEs.
+    2- The errors are produced in the same order the alternatives appear in the code. This is not
+    super important when using IDEs.
     -/
     for h : altStxIdx in *...altStxs.size do
       let altStx := altStxs[altStxIdx]
@@ -581,14 +586,17 @@ private def getUserGeneralizingFVarIds (stx : Syntax) : TacticM (Array FVarId) :
       getFVarIds vars
 
 -- process `generalizingVars` subterm of induction Syntax `stx`.
-private def generalizeVars (mvarId : MVarId) (stx : Syntax) (targets : Array Expr) : TacticM (Array FVarId × MVarId) :=
+private def generalizeVars (mvarId : MVarId) (stx : Syntax) (targets : Array Expr) (elimExpr : Expr) : TacticM (Array FVarId × MVarId) :=
   mvarId.withContext do
     let userFVarIds ← getUserGeneralizingFVarIds stx
-    let forbidden ← mkGeneralizationForbiddenSet targets
-    let mut s ← getFVarSetToGeneralize targets forbidden
+    let forbidden1 ← mkGeneralizationForbiddenSet targets
+    let forbidden2 ← mkGeneralizationForbiddenSet #[elimExpr]
+    let mut s ← getFVarSetToGeneralize targets (forbidden1.union forbidden2)
     for userFVarId in userFVarIds do
-      if forbidden.contains userFVarId then
+      if forbidden1.contains userFVarId then
         throwError "Variable `{mkFVar userFVarId}` cannot be generalized because the induction target depends on it"
+      if forbidden2.contains userFVarId then
+        throwError "Variable `{mkFVar userFVarId}` cannot be generalized because the induction principle depends on it"
       if s.contains userFVarId then
         throwOrLogError m!"Unnecessary `generalizing` argument: Variable `{mkFVar userFVarId}` is generalized automatically"
       s := s.insert userFVarId
@@ -942,7 +950,7 @@ private def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Ar
   mvarId.withContext do
     checkInductionTargets targets
     let targetFVarIds := targets.map (·.fvarId!)
-    let (generalized, mvarId) ← generalizeVars mvarId stx targets
+    let (generalized, mvarId) ← generalizeVars mvarId stx targets elimInfo.elimExpr
     mvarId.withContext do
       let result ← withRef stx[1] do -- use target position as reference
         ElimApp.mkElimApp elimInfo targets tag

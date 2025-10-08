@@ -1,3 +1,5 @@
+set_option warn.sorry false
+
 /--
 error: `grind` failed
 case grind
@@ -59,12 +61,12 @@ trace: [props] True propositions
 ---
 trace: [eqc] Equivalence classes
   [eqc] {bs, as.set i₁ v₁ ⋯}
-  [eqc] {as.size, bs.size, (as.set i₁ v₁ ⋯).size, (bs.set i₂ v₂ ⋯).size}
-  [eqc] {bs[j], (bs.set i₂ v₂ ⋯)[j]}
+  [eqc] {cs, bs.set i₂ v₂ ⋯}
+  [eqc] {as.size, bs.size, cs.size, (as.set i₁ v₁ ⋯).size, (bs.set i₂ v₂ ⋯).size}
+  [eqc] {cs[j], bs[j], (bs.set i₂ v₂ ⋯)[j]}
     [eqc] {if i₂ = j then v₂ else bs[j]}
   [eqc] others
-    [eqc] {bs.set i₂ v₂ ⋯}
-    [eqc] {↑as.size, ↑bs.size, ↑(bs.set i₂ v₂ ⋯).size}
+    [eqc] {↑as.size, ↑bs.size, ↑cs.size, ↑(bs.set i₂ v₂ ⋯).size}
 -/
 #guard_msgs in
 example (as bs cs : Array α) (v₁ v₂ : α)
@@ -86,3 +88,119 @@ example (as bs cs : Array α) (v₁ v₂ : α)
     -- Display equivalence classes with terms that contain `as` or `bs`
     show_eqcs as || bs
     instantiate
+
+example {a b c d e : Nat}
+    : a > 0 → b > 0 → c + e <= 1 → e = d → a*b + 2 > 2*c + 2*d := by
+  grind =>
+    have : a*b > 0 := Nat.mul_pos h h_1
+    lia
+
+example (as bs cs : Array α) (v₁ v₂ : α)
+        (i₁ i₂ j : Nat)
+        (h₁ : i₁ < as.size)
+        (h₂ : bs = as.set i₁ v₁)
+        (h₃ : i₂ < bs.size)
+        (h₃ : cs = bs.set i₂ v₂)
+        (h₄ : i₁ ≠ j ∧ i₂ ≠ j)
+        (h₅ : j < cs.size)
+        (h₆ : j < as.size)
+        : cs[j] = as[j] := by
+  grind =>
+    have := fun h₁ h₂ => @Array.getElem_set _ bs i₂ h₁ v₂ j h₂
+    instantiate
+
+/--
+error: `finish` failed
+case grind
+a b : Int
+h : -1 * a + 1 ≤ 0
+h_1 : -1 * b + 1 ≤ 0
+h_2 : a * b ≤ 0
+⊢ False
+[grind] Goal diagnostics
+  [facts] Asserted facts
+    [prop] -1 * a + 1 ≤ 0
+    [prop] -1 * b + 1 ≤ 0
+    [prop] a * b ≤ 0
+  [eqc] True propositions
+    [prop] -1 * a + 1 ≤ 0
+    [prop] -1 * b + 1 ≤ 0
+    [prop] a * b ≤ 0
+  [cutsat] Assignment satisfying linear constraints
+    [assign] a := 1
+    [assign] b := 1
+-/
+#guard_msgs in
+example {a b : Int} : a > 0 → b > 0 → a*b > 0 := by
+  grind => finish
+
+
+/--
+trace: [grind] Grind state
+  [facts] Asserted facts
+    [_] (bs.set i₂ v₂ ⋯).size = bs.size
+    [_] (as.set i₁ v₁ ⋯).size = as.size
+    [_] (bs.set i₂ v₂ ⋯)[j] = if i₂ = j then v₂ else bs[j]
+  [props] True propositions
+    [_] j < (bs.set i₂ v₂ ⋯).size
+    [_] j < bs.size
+  [eqc] Equivalence classes
+    [eqc] {as.size, bs.size, cs.size, (as.set i₁ v₁ ⋯).size, (bs.set i₂ v₂ ⋯).size}
+    [eqc] {cs[j], bs[j], (bs.set i₂ v₂ ⋯)[j]}
+      [eqc] {if i₂ = j then v₂ else bs[j]}
+    [eqc] others
+      [eqc] {↑as.size, ↑bs.size, ↑cs.size, ↑(bs.set i₂ v₂ ⋯).size}
+-/
+#guard_msgs in
+example (as bs cs : Array α) (v₁ v₂ : α)
+        (i₁ i₂ j : Nat)
+        (h₁ : i₁ < as.size)
+        (h₂ : bs = as.set i₁ v₁)
+        (h₃ : i₂ < bs.size)
+        (h₃ : cs = bs.set i₂ v₂)
+        (h₄ : i₁ ≠ j ∧ i₂ ≠ j)
+        (h₅ : j < cs.size)
+        (h₆ : j < as.size)
+        : cs[j] = as[j] := by
+  grind =>
+    instantiate
+    show_state gen > 0
+    instantiate
+
+/--
+trace: [splits] Case split candidates
+  [split] #7a08 := ¬p ∨ ¬q
+  [split] #8212 := ¬p ∨ q
+  [split] #fc16 := p ∨ ¬q
+  [split] #4283 := p ∨ q
+  [split] #0457 := p ∨ r
+-/
+#guard_msgs (trace) in
+example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → False := by
+  grind =>
+    show_splits
+    sorry
+
+def h (as : List Nat) :=
+  match as with
+  | []      => 1
+  | [_]     => 2
+  | _::_::_ => 3
+
+/--
+trace: [splits] Case split candidates
+  [split] #7577 := match bs with
+      | [] => 1
+      | [head] => 2
+      | head :: head_1 :: tail => 3
+  [split] #448c := match as with
+      | [] => 1
+      | [head] => 2
+      | head :: head_1 :: tail => 3
+-/
+#guard_msgs (trace) in
+example : h bs = 1 → h as ≠ 0 := by
+  grind [h.eq_def] =>
+    instantiate
+    show_splits
+    sorry

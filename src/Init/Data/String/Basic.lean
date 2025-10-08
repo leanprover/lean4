@@ -475,9 +475,6 @@ end
 
 namespace String
 
-instance : HSub String.Pos.Raw String.Pos.Raw Nat where
-  hSub p₁ p₂ := p₁.byteIdx - p₂.byteIdx
-
 instance : HSub String.Pos.Raw String String.Pos.Raw where
   hSub p s := { byteIdx := p.byteIdx - s.utf8ByteSize }
 
@@ -486,7 +483,7 @@ instance : HSub String.Pos.Raw Char String.Pos.Raw where
 
 @[export lean_string_pos_sub]
 def Pos.Internal.subImpl : String.Pos.Raw → String.Pos.Raw → String.Pos.Raw :=
-  (⟨· - ·⟩)
+  fun p₁ p₂ => ⟨p₁.byteIdx - p₂.byteIdx⟩
 
 instance : HAdd String.Pos.Raw Char String.Pos.Raw where
   hAdd p c := { byteIdx := p.byteIdx + c.utf8Size }
@@ -722,7 +719,15 @@ theorem Pos.Raw.isValid_singleton {c : Char} {p : Pos.Raw} :
     · exact ⟨0, by simp⟩
     · exact ⟨1, by simp [hi, ← singleton_eq_asString]⟩
 
-theorem Pos.Raw.sub_eq {p₁ p₂ : Pos.Raw} : p₁ - p₂ = p₁.byteIdx - p₂.byteIdx := rfl
+/--
+Returns the size of the byte slice delineated by the positions `lo` and `hi`.
+-/
+@[expose, inline]
+def Pos.Raw.byteDistance (lo hi : Pos.Raw) : Nat :=
+  hi.byteIdx - lo.byteIdx
+
+theorem Pos.Raw.byteDistance_eq {lo hi : Pos.Raw} : lo.byteDistance hi = hi.byteIdx - lo.byteIdx :=
+  (rfl)
 
 @[simp]
 theorem Pos.Raw.byteIdx_sub_char {p : Pos.Raw} {c : Char} : (p - c).byteIdx = p.byteIdx - c.utf8Size := rfl
@@ -1085,7 +1090,7 @@ def toSlice (s : String) : Slice where
 /-- The number of bytes of the UTF-8 encoding of the string slice. -/
 @[expose]
 def Slice.utf8ByteSize (s : Slice) : Nat :=
-  s.endExclusive.offset - s.startInclusive.offset
+  s.startInclusive.offset.byteDistance s.endExclusive.offset
 
 theorem Slice.utf8ByteSize_eq {s : Slice} :
     s.utf8ByteSize = s.endExclusive.offset.byteIdx - s.startInclusive.offset.byteIdx := (rfl)
@@ -1114,7 +1119,12 @@ theorem Slice.byteIdx_rawEndPos {s : Slice} : s.rawEndPos.byteIdx = s.utf8ByteSi
 
 /-- Offsets `p` by `offset` bytes on the left. This is not a `HAdd` instance because it should be a
 relatively rare operation, so we use a name to make accidental use less likely. To offset a position
-by the size of a character character `c` or string `s`, you can use `c + p` resp. `s + p`. -/
+by the size of a character character `c` or string `s`, you can use `c + p` resp. `s + p`.
+
+This should be seen as an operation turning relative positions into absolute positions.
+
+See also `Pos.Raw.increaseBy`, which is an "advancing" operation.
+-/
 @[expose, inline]
 def Pos.Raw.offsetBy (p : Pos.Raw) (offset : Pos.Raw) : Pos.Raw where
   byteIdx := offset.byteIdx + p.byteIdx
@@ -1123,9 +1133,14 @@ def Pos.Raw.offsetBy (p : Pos.Raw) (offset : Pos.Raw) : Pos.Raw where
 theorem Pos.Raw.byteIdx_offsetBy {p : Pos.Raw} {offset : Pos.Raw} :
     (p.offsetBy offset).byteIdx = offset.byteIdx + p.byteIdx := (rfl)
 
-/-- Decreses `p` by `numBytes`. This is not a `HSub` instance because it should be a relatively
+/-- Decreases `p` by `offset`. This is not a `HSub` instance because it should be a relatively
 rare operation, so we use a name to make accidental use less likely. To subtract the size of a
-character `c` or string `s` from a raw position `p`, you can use `p - c` resp. `p - s`. -/
+character `c` or string `s` from a raw position `p`, you can use `p - c` resp. `p - s`.
+
+This should be seen as an operation turning absolute positions into relative positions.
+
+See also `Pos.Raw.decreaseBy`, which is an "unadvancing" operation.
+-/
 @[expose, inline]
 def Pos.Raw.unoffsetBy (p : Pos.Raw) (offset : Pos.Raw) : Pos.Raw where
   byteIdx := p.byteIdx - offset.byteIdx
@@ -1518,8 +1533,8 @@ theorem Slice.rawEndPos_replaceEnd {s : Slice} {pos : s.Pos} :
 
 @[simp]
 theorem Slice.utf8ByteSize_replaceStartEnd {s : Slice} {newStart newEnd : s.Pos} {h} :
-    (s.replaceStartEnd newStart newEnd h).utf8ByteSize = newEnd.offset - newStart.offset := by
-  simp [utf8ByteSize_eq, Pos.Raw.sub_eq]
+    (s.replaceStartEnd newStart newEnd h).utf8ByteSize = newStart.offset.byteDistance newEnd.offset := by
+  simp [utf8ByteSize_eq, Pos.Raw.byteDistance_eq]
   omega
 
 theorem Pos.Raw.offsetBy_assoc {p q r : Pos.Raw} :
@@ -1883,9 +1898,14 @@ theorem Slice.Pos.utf8ByteSize_byte {s : Slice} {pos : s.Pos} {h : pos ≠ s.end
     (pos.byte h).utf8ByteSize pos.isUTF8FirstByte_byte = (pos.get h).utf8Size := by
   simp [getUTF8Byte, byte, String.getUTF8Byte, get_eq_utf8DecodeChar, ByteArray.utf8Size_utf8DecodeChar]
 
-/-- Adds `numBytes` to `p`. This is not a `HAdd` instance because it should be a relatively
+/-- Advances `p` by `n` bytes. This is not a `HAdd` instance because it should be a relatively
 rare operation, so we use a name to make accidental use less likely. To add the size of a
-character `c` or string `s` to a raw position `p`, you can use `p + c` resp. `p + s`. -/
+character `c` or string `s` to a raw position `p`, you can use `p + c` resp. `p + s`.
+
+This should be seen as an "advance" or "skip".
+
+See also `Pos.Raw.offsetBy`, which turns relative positions into absolute positions.
+-/
 @[expose, inline]
 def Pos.Raw.increaseBy (p : Pos.Raw) (n : Nat) : Pos.Raw where
   byteIdx := p.byteIdx + n
@@ -1893,6 +1913,22 @@ def Pos.Raw.increaseBy (p : Pos.Raw) (n : Nat) : Pos.Raw where
 @[simp]
 theorem Pos.Raw.byteIdx_increaseBy {p : Pos.Raw} {n : Nat} :
     (p.increaseBy n).byteIdx = p.byteIdx + n := (rfl)
+
+/-- Unadvances `p` by `n` bytes. This is not a `HAdd` instance because it should be a relatively
+rare operation, so we use a name to make accidental use less likely. To remove the size of a
+character `c` or string `s` to a raw position `p`, you can use `p - c` resp. `p - s`.
+
+This should be seens as an "unadvance".
+
+See also `Pos.Raw.unoffsetBy`, which turns absolute positions into relative positions.
+-/
+@[expose, inline]
+def Pos.Raw.decreaseBy (p : Pos.Raw) (n : Nat) : Pos.Raw where
+  byteIdx := p.byteIdx - n
+
+@[simp]
+theorem Pos.Raw.byteIdx_decreaseBy {p : Pos.Raw} {n : Nat} :
+    (p.decreaseBy n).byteIdx = p.byteIdx - n := (rfl)
 
 theorem Pos.Raw.increaseBy_charUtf8Size {p : Pos.Raw} {c : Char} :
     p.increaseBy c.utf8Size = p + c := by
@@ -2665,12 +2701,12 @@ def splitOnAux (s sep : String) (b : Pos.Raw) (i : Pos.Raw) (j : Pos.Raw) (r : L
       let i := s.next i
       let j := sep.next j
       if sep.atEnd j then
-        splitOnAux s sep i i 0 (s.extract b ⟨i - j⟩::r)
+        splitOnAux s sep i i 0 (s.extract b (i.unoffsetBy j)::r)
       else
         splitOnAux s sep b i j r
     else
-      splitOnAux s sep b (s.next ⟨i - j⟩) 0 r
-termination_by (s.endPos.1 - (i - j), sep.endPos.1 - j.1)
+      splitOnAux s sep b (s.next (i.unoffsetBy j)) 0 r
+termination_by (s.endPos.1 - (j.byteDistance i), sep.endPos.1 - j.1)
 decreasing_by
   focus
     rename_i h _ _
@@ -2679,7 +2715,7 @@ decreasing_by
       (Nat.lt_of_le_of_lt (Nat.sub_le ..) (lt_next s _))
   focus
     rename_i i₀ j₀ _ eq h'
-    rw [show s.next i₀ - sep.next j₀ = i₀ - j₀ by
+    rw [show (sep.next j₀).byteDistance (s.next i₀) = j₀.byteDistance i₀ by
       change (_ + Char.utf8Size _) - (_ + Char.utf8Size _) = _
       rw [(beq_iff_eq ..).1 eq, Nat.add_sub_add_right]; rfl]
     right; exact Nat.sub_lt_sub_left
@@ -3485,14 +3521,14 @@ def splitOn (s : Substring) (sep : String := " ") : List Substring :=
           let i := s.next i
           let j := sep.next j
           if sep.atEnd j then
-            loop i i 0 (s.extract b ⟨i-j⟩ :: r)
+            loop i i 0 (s.extract b (i.unoffsetBy j) :: r)
           else
             loop b i j r
         else
           loop b (s.next i) 0 r
       else
         let r := if sep.atEnd j then
-          "".toSubstring :: s.extract b ⟨i-j⟩ :: r
+          "".toSubstring :: s.extract b (i.unoffsetBy j) :: r
         else
           s.extract b i :: r
         r.reverse

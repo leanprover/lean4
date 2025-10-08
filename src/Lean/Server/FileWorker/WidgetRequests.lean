@@ -255,7 +255,7 @@ private def advanceTaggedTextHighlightState (text : String) (highlighted : α) :
 where
   updateState (text : String) (isHighlighted : Bool) : StateM TaggedTextHighlightState Unit :=
     modify fun s =>
-      let p : String.Pos.Raw := s.p + text
+      let p : String.Pos.Raw := s.p.increaseBy text.utf8ByteSize
       let ms := updateMatches s.query s.ms p
       let anyHighlight := s.anyHighlight || isHighlighted
       { s with p, ms, anyHighlight }

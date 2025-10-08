@@ -689,11 +689,11 @@ mutual
             let info : SourceInfo :=
               match info with
               | .none => .none
-              | .synthetic start stop c => .synthetic (start + ⟨1⟩) (stop - ⟨1⟩) c
+              | .synthetic start stop c => .synthetic (start.offsetBy ⟨1⟩) (stop.unoffsetBy ⟨1⟩) c
               | .original leading start trailing stop =>
                 .original
-                  {leading with stopPos := leading.stopPos + ⟨1⟩} (start + ⟨1⟩)
-                  {trailing with startPos := trailing.startPos - ⟨1⟩} (stop - ⟨1⟩)
+                  {leading with stopPos := leading.stopPos.offsetBy ⟨1⟩} (start.offsetBy ⟨1⟩)
+                  {trailing with startPos := trailing.startPos.unoffsetBy ⟨1⟩} (stop.unoffsetBy ⟨1⟩)
             return s.popSyntax.pushSyntax (.atom info str)
       return s
 

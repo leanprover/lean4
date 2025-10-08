@@ -212,7 +212,7 @@ def Info.contains (i : Info) (pos : String.Pos.Raw) (includeStop := false) : Boo
 def Info.size? (i : Info) : Option String.Pos.Raw := do
   let pos ← i.pos?
   let tailPos ← i.tailPos?
-  return tailPos - pos
+  return tailPos.unoffsetBy pos
 
 -- `Info` without position information are considered to have "infinite" size
 def Info.isSmaller (i₁ i₂ : Info) : Bool :=
@@ -225,7 +225,7 @@ def Info.occursInside? (i : Info) (hoverPos : String.Pos.Raw) : Option String.Po
   let headPos ← i.pos?
   let tailPos ← i.tailPos?
   guard (headPos ≤ hoverPos && hoverPos < tailPos)
-  return hoverPos - headPos
+  return hoverPos.unoffsetBy headPos
 
 def Info.occursInOrOnBoundary (i : Info) (hoverPos : String.Pos.Raw) : Bool := Id.run do
   let some headPos := i.pos?
@@ -306,7 +306,7 @@ partial def InfoTree.hoverableInfoAtM? [Monad m] (t : InfoTree) (hoverPos : Stri
       return none
     let priority : HoverableInfoPrio := {
       isHoverPosOnStop := r.stop == hoverPos
-      size := (r.stop - r.start).byteIdx
+      size := r.stop - r.start
       isVariableInfo := info matches .ofTermInfo { expr := .fvar .., .. }
       isPartialTermInfo := info matches .ofPartialTermInfo ..
     }

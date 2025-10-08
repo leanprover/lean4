@@ -75,7 +75,7 @@ where
     let tailPos := info.tailPos?.get!
     let hoverInfo :=
       if hoverPos < tailPos then
-        HoverInfo.inside (hoverPos - headPos).byteIdx
+        HoverInfo.inside (hoverPos - headPos)
       else
         HoverInfo.after
     let ⟨headPosLine, _⟩ := fileMap.toPosition headPos

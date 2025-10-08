@@ -1,3 +1,5 @@
+set_option warn.sorry false
+
 /--
 error: `grind` failed
 case grind
@@ -164,3 +166,41 @@ example (as bs cs : Array α) (v₁ v₂ : α)
     instantiate
     show_state gen > 0
     instantiate
+
+/--
+trace: [splits] Case split candidates
+  [split] #7a08 := ¬p ∨ ¬q
+  [split] #8212 := ¬p ∨ q
+  [split] #fc16 := p ∨ ¬q
+  [split] #4283 := p ∨ q
+  [split] #0457 := p ∨ r
+-/
+#guard_msgs (trace) in
+example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → False := by
+  grind =>
+    show_splits
+    sorry
+
+def h (as : List Nat) :=
+  match as with
+  | []      => 1
+  | [_]     => 2
+  | _::_::_ => 3
+
+/--
+trace: [splits] Case split candidates
+  [split] #6763 := match bs with
+      | [] => 1
+      | [head] => 2
+      | head :: head_1 :: tail => 3
+  [split] #239b := match as with
+      | [] => 1
+      | [head] => 2
+      | head :: head_1 :: tail => 3
+-/
+#guard_msgs (trace) in
+example : h bs = 1 → h as ≠ 0 := by
+  grind [h.eq_def] =>
+    instantiate
+    show_splits
+    sorry

@@ -8,6 +8,7 @@ prelude
 public import Lean.Elab.Tactic.Grind.Basic
 import Init.Grind.Interactive
 import Lean.Meta.Tactic.Grind.PP
+import Lean.Meta.Tactic.Grind.Anchor
 namespace Lean.Elab.Tactic.Grind
 open Meta
 
@@ -162,6 +163,53 @@ def pushIfSome (msgs : Array MessageData) (msg? : Option MessageData) : Array Me
     let msgs := pushIfSome msgs (← ppProps? filter false (collapsed := true))
     let msgs := pushIfSome msgs (← ppEqcs? filter (collapsed := true))
     logInfo <| MessageData.trace { cls := `grind, collapsed := false } "Grind state" msgs
+  | _ => throwUnsupportedSyntax
+
+def truncateAnchors (es : Array (Expr × UInt64)) : Array (Expr × UInt64) × Nat :=
+  go 4
+where
+  go (numDigits : Nat) : Array (Expr × UInt64) × Nat := Id.run do
+    if 4*numDigits  < 64 then
+      let shift := 64 - 4*numDigits
+      let mut found : Std.HashSet UInt64 := {}
+      let mut result := #[]
+      for (e, a) in es do
+        let a' := a >>> shift.toUInt64
+        if found.contains a' then
+          return (← go (numDigits+1))
+        else
+          found  := found.insert a'
+          result := result.push (e, a')
+      return (result, numDigits)
+    else
+      return (es, numDigits)
+  termination_by 64 - 4*numDigits
+
+def anchorToString (numDigits : Nat) (anchor : UInt64) : String :=
+  let cs := Nat.toDigits 16 anchor.toNat
+  let n := cs.length
+  let zs := List.replicate (numDigits - n) '0'
+  let cs := zs ++ cs
+  cs.asString
+
+@[builtin_grind_tactic showSplits] def evalShowSplits : GrindTactic := fun stx => withMainContext do
+  match stx with
+  | `(grind| show_splits $[$filter?]?) =>
+    let filter ← elabFilter filter?
+    let goal ← getMainGoal
+    let candidates := goal.split.candidates
+    let candidates ← liftGrindM <| candidates.toArray.mapM fun c => do
+      let e := c.getExpr
+      let anchor ← getAnchor e
+      return (e, anchor)
+    let (candidates, numDigits) := truncateAnchors candidates
+    let candidates ← liftGoalM <| candidates.filterM fun (e, _) => filter.eval e
+    if candidates.isEmpty then
+      throwError "no case splits"
+    let msgs := candidates.map fun (e, a) =>
+      .trace { cls := `split } m!"#{anchorToString numDigits a} := {e}" #[]
+    let msg := MessageData.trace { cls := `splits, collapsed := false } "Case split candidates" msgs
+    logInfo msg
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Grind

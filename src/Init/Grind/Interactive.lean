@@ -27,6 +27,9 @@ syntax (name := skip) "skip" : grind
 syntax (name := lia) "lia" : grind
 /-- `ring` (commutative) rings and fields. -/
 syntax (name := ring) "ring" : grind
+/-- The `sorry` tactic is a temporary placeholder for an incomplete tactic proof. -/
+syntax (name := «sorry») "sorry" : grind
+
 /-- Instantiates theorems using E-matching. -/
 syntax (name := instantiate) "instantiate" : grind
 

@@ -1181,6 +1181,11 @@ theorem mem_toList_iff_get?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] {k : α} {v
     ⟨k, v⟩ ∈ t.toList ↔ t.get? k = some v :=
   Impl.mem_toList_iff_get?_eq_some t.wf
 
+@[simp]
+theorem mem_of_mem_toList [TransCmp cmp] {e} (h : e ∈ t.toList) :
+    e.fst ∈ t := by
+  sorry
+
 theorem find?_toList_eq_some_iff_get?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] {k : α} {v : β k} :
     t.toList.find? (cmp ·.1 k == .eq) = some ⟨k, v⟩ ↔ t.get? k = some v :=
   Impl.find?_toList_eq_some_iff_get?_eq_some t.wf

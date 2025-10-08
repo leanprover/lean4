@@ -716,11 +716,12 @@ private def shouldVisit (e : Expr) : M Bool := do
             return lctx.any fun decl => pf decl.fvarId
       | .fvar fvarId     => do
         let lctx ← getLCtx
+        if pf fvarId then
+          return true
         if let some value := lctx.get! fvarId |>.value? then
         -- if let some value := lctx.find? fvarId >>= LocalDecl.value? then
-          visit value
-        else
-          return pf fvarId
+          return ← visit value
+        return false
       | _                    => pure false
   visit e
 
@@ -1043,7 +1044,7 @@ private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) 
   Note that <https://github.com/leanprover/lean/issues/1258> is not an issue in Lean4 because
   we have changed how we compile recursive definitions.
 -/
-def collectForwardDeps (lctx : LocalContext) (toRevert : Array Expr) (generalizeNondepLet := true) : M (Array Expr) := do
+def collectForwardDeps (toRevert : Array Expr) (generalizeNondepLet := true) : M (Array Expr) := do
   if toRevert.size == 0 then
     pure toRevert
   else
@@ -1053,13 +1054,13 @@ def collectForwardDeps (lctx : LocalContext) (toRevert : Array Expr) (generalize
         let fvar := toRevert[i]
         i.forM fun j _ => do
           let prevFVar := toRevert[j]
-          let prevDecl := lctx.getFVar! prevFVar
+          let prevDecl := (← getLCtx).getFVar! prevFVar
           if (← localDeclDependsOn prevDecl fvar.fvarId! (generalizeNondepLet := generalizeNondepLet)) then
-            throw (Exception.revertFailure (← getMCtx) lctx toRevert prevDecl.userName.toString)
+            throw (Exception.revertFailure (← getMCtx) (← getLCtx) toRevert prevDecl.userName.toString)
     let newToRevert      := if (← preserveOrder) then toRevert else Array.mkEmpty toRevert.size
-    let firstDeclToVisit := getLocalDeclWithSmallestIdx lctx toRevert
+    let firstDeclToVisit := getLocalDeclWithSmallestIdx (← getLCtx) toRevert
     let initSize         := newToRevert.size
-    lctx.foldlM (init := newToRevert) (start := firstDeclToVisit.index) fun (newToRevert : Array Expr) decl => do
+    (← getLCtx).foldlM (init := newToRevert) (start := firstDeclToVisit.index) fun (newToRevert : Array Expr) decl => do
       if initSize.any fun i _ => decl.fvarId == newToRevert[i]!.fvarId! then
         return newToRevert
       else if toRevert.any fun x => decl.fvarId == x.fvarId! then
@@ -1129,12 +1130,12 @@ mutual
 
     Note: It is assumed that `xs` is the result of calling `collectForwardDeps` on a subset of variables in `lctx`.
   -/
-  private partial def mkAuxMVarType (lctx : LocalContext) (xs : Array Expr) (kind : MetavarKind) (e : Expr) (usedLetOnly : Bool) : M Expr := do
+  private partial def mkAuxMVarType (xs : Array Expr) (kind : MetavarKind) (e : Expr) (usedLetOnly : Bool) : M Expr := do
     let e ← abstractRangeAux xs xs.size e
     xs.size.foldRevM (init := e) fun i _ e => do
       let x := xs[i]
       if x.isFVar then
-        match lctx.getFVar! x with
+        match (← getLCtx).getFVar! x with
         | LocalDecl.cdecl _ _ n type bi _ =>
           let type := type.headBeta
           let type ← abstractRangeAux xs i type
@@ -1185,6 +1186,7 @@ mutual
   private partial def elimMVar (xs : Array Expr) (mvarId : MVarId) (args : Array Expr) (usedLetOnly : Bool) : M (Expr × Array Expr) := do
     let mvarDecl  := (← getMCtx).getDecl mvarId
     let mvarLCtx  := mvarDecl.lctx
+    withReader (fun c => { c with lctx := mvarLCtx }) <| do
     let toRevert  := getInScope mvarLCtx xs
     if toRevert.size == 0 then
       let args ← args.mapM (visit xs)
@@ -1206,11 +1208,11 @@ mutual
       -- Note that `toRevert` only contains free variables at this point since it is the result of `getInScope`;
       -- after `collectForwardDeps`, this may no longer be the case because it may include metavariables
       -- whose local contexts depend on `toRevert` (i.e. "may dependencies")
-      let toRevert ← collectForwardDeps mvarLCtx toRevert
+      let toRevert ← collectForwardDeps toRevert
       let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert
       let newLocalInsts := mvarDecl.localInstances.filter fun inst => toRevert.all fun x => inst.fvar != x
       -- Remark: we must reset the cache before processing `mkAuxMVarType` because `toRevert` may not be equal to `xs`
-      let newMVarType ← withFreshCache do mkAuxMVarType mvarLCtx toRevert newMVarKind mvarDecl.type usedLetOnly
+      let newMVarType ← withFreshCache do mkAuxMVarType toRevert newMVarKind mvarDecl.type usedLetOnly
       let newMVarId    := { name := (← get).ngen.curr }
       let newMVar      := mkMVar newMVarId
       let result       := mkMVarApp mvarLCtx newMVar toRevert newMVarKind
@@ -1382,7 +1384,7 @@ def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool :=
   MkBinding.abstractRange xs n e { preserveOrder := false, quotContext := ctx.quotContext, lctx := ctx.lctx }
 
 @[inline] def collectForwardDeps (toRevert : Array Expr) (preserveOrder : Bool) (generalizeNondepLet := true) : MkBindingM (Array Expr) := fun ctx =>
-  MkBinding.collectForwardDeps ctx.lctx toRevert generalizeNondepLet { preserveOrder, quotContext := ctx.quotContext, lctx := ctx.lctx }
+  MkBinding.collectForwardDeps toRevert generalizeNondepLet { preserveOrder, quotContext := ctx.quotContext, lctx := ctx.lctx }
 
 /--
   `isWellFormed lctx e` returns true iff

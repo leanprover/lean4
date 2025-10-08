@@ -18,7 +18,7 @@ anchors to reference terms in the `grind` state.
 Hashes names for computing anchors (aka stable hash codes)
 -/
 def hashName (n : Name) : UInt64 :=
-  if n.isInaccessibleUserName || n.isImplementationDetail then
+  if n.hasMacroScopes || n.isInaccessibleUserName || n.isImplementationDetail then
     0
   else
     hash n

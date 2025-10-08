@@ -189,11 +189,11 @@ def h (as : List Nat) :=
 
 /--
 trace: [splits] Case split candidates
-  [split] #6763 := match bs with
+  [split] #7577 := match bs with
       | [] => 1
       | [head] => 2
       | head :: head_1 :: tail => 3
-  [split] #239b := match as with
+  [split] #448c := match as with
       | [] => 1
       | [head] => 2
       | head :: head_1 :: tail => 3

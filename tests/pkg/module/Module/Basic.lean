@@ -457,3 +457,5 @@ info: @[expose] meta def msecexp : Nat :=
 #guard_msgs in
 #with_exporting
 #print msecexp
+
+attribute [simp] f_struct

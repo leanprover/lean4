@@ -6,10 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.CollectFVars
-public import Lean.Meta.Tactic.Clear
-
-public section
+public import Lean.Meta.Basic
+import Lean.Meta.CollectFVars
+import Lean.Meta.Tactic.Clear
 
 namespace Lean.Meta
 
@@ -44,12 +43,13 @@ where
 
   /-- We include `p` in the used-set, if `p` is a proposition that contains a `x` that is in the used-set. -/
   collectPropsStep : StateRefT (Bool × FVarIdSet) MetaM Unit := do
-    let usedSet := (← get).2
     for localDecl in (← getLCtx) do
       if (← isProp localDecl.type) then
+        let usedSet := (← get).2
         if (← dependsOnPred localDecl.type usedSet.contains) then
           addUsedFVar localDecl.fvarId
       if let some v := localDecl.value? then
+        let usedSet := (← get).2
         if (← dependsOnPred v usedSet.contains) then
           addUsedFVar localDecl.fvarId
 
@@ -77,7 +77,7 @@ where
   By default, `toPreserve := #[]` and `indirectProps := true`. These settings are used in the mathlib tactic `extract_goal`
   to give the user more control over which variables to include.
 -/
-@[inline] def _root_.Lean.MVarId.cleanup (mvarId : MVarId) (toPreserve : Array FVarId := #[]) (indirectProps : Bool := true) : MetaM MVarId := do
+@[inline] public def _root_.Lean.MVarId.cleanup (mvarId : MVarId) (toPreserve : Array FVarId := #[]) (indirectProps : Bool := true) : MetaM MVarId := do
   cleanupCore mvarId toPreserve indirectProps
 
 end Lean.Meta

@@ -40,6 +40,11 @@ def evalGrindSeq : GrindTactic := fun stx =>
 @[builtin_grind_tactic Parser.Tactic.Grind.«done»] def evalDone : GrindTactic := fun _ =>
   done
 
+@[builtin_grind_tactic Parser.Tactic.Grind.«sorry»] def evalSorry : GrindTactic := fun _ => do
+  let goal ← getMainGoal
+  goal.mvarId.admit
+  replaceMainGoal []
+
 @[builtin_grind_tactic skip] def evalSkip : GrindTactic := fun _ =>
   return ()
 

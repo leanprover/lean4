@@ -59,6 +59,7 @@ private def escapeAux (acc : String) (c : Char) : String :=
     let d4 := Nat.digitChar (n % 16)
     acc ++ "\\u" |>.push d1 |>.push d2 |>.push d3 |>.push d4
 
+set_option maxRecDepth 10240 in
 private def needEscape (s : String) : Bool :=
   go s 0
 where

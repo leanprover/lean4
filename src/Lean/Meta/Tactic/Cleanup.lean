@@ -49,6 +49,9 @@ where
       if (← isProp localDecl.type) then
         if (← dependsOnPred localDecl.type usedSet.contains) then
           addUsedFVar localDecl.fvarId
+      if let some v := localDecl.value? then
+        if (← dependsOnPred v usedSet.contains) then
+          addUsedFVar localDecl.fvarId
 
   collectProps : StateRefT (Bool × FVarIdSet) MetaM Unit := do
     modify fun s => (false, s.2)
@@ -69,6 +72,7 @@ where
   - It occurs in the target type, or
   - There is a relevant variable `y` that depends on `x`, or
   - If `indirectProps` is true, the type of `x` is a proposition and it depends on a relevant variable `y`.
+  - If `indirectProps` is true, `x` is a local declartation and its value mentions a relevant variable `y`.
 
   By default, `toPreserve := #[]` and `indirectProps := true`. These settings are used in the mathlib tactic `extract_goal`
   to give the user more control over which variables to include.

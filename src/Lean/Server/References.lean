@@ -571,13 +571,13 @@ def updateWorkerImports
     (directImports : Array ImportInfo)
     : IO References := do
   let directImports ← DirectImports.convertImportInfos directImports
-  let some { version := currVersion, .. } := self.workers[name]?
+  let some workerRefs := self.workers[name]?
     | return { self with workers := self.workers.insert name { moduleUri, version, directImports, refs := ∅} }
-  match compare version currVersion with
+  match compare version workerRefs.version with
   | .lt => return self
   | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports, refs := ∅} }
   | .eq =>
-    let refs := self.workers.get? name |>.map (·.refs) |>.getD ∅
+    let refs := workerRefs.refs
     return { self with
       workers := self.workers.insert name { moduleUri, version, directImports, refs }
     }
@@ -594,17 +594,17 @@ def updateWorkerRefs
     (version   : Nat)
     (refs      : Lsp.ModuleRefs)
     : IO References := do
-  let some { version := currVersion, .. } := self.workers[name]?
+  let some workerRefs := self.workers[name]?
     | return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, refs } }
-  match compare version currVersion with
+  let directImports := workerRefs.directImports
+  match compare version workerRefs.version with
   | .lt => return self
-  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, refs } }
+  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports, refs } }
   | .eq =>
-    let current := self.workers.getD name { moduleUri, version, directImports := ∅, refs := Std.TreeMap.empty }
-    let mergedRefs := refs.foldl (init := current.refs) fun m ident info =>
+    let mergedRefs := refs.foldl (init := workerRefs.refs) fun m ident info =>
       m.getD ident Lsp.RefInfo.empty |>.merge info |> m.insert ident
     return { self with
-      workers := self.workers.insert name { moduleUri, version, directImports := current.directImports, refs := mergedRefs }
+      workers := self.workers.insert name { moduleUri, version, directImports, refs := mergedRefs }
     }
 
 /--
@@ -618,13 +618,13 @@ def finalizeWorkerRefs
     (version   : Nat)
     (refs      : Lsp.ModuleRefs)
     : IO References := do
-  let some { version := currVersion, .. } := self.workers[name]?
+  let some workerRefs := self.workers[name]?
     | return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, refs } }
-  match compare version currVersion with
+  let directImports := workerRefs.directImports
+  match compare version workerRefs.version with
   | .lt => return self
-  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, refs} }
+  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports, refs} }
   | .eq =>
-    let directImports := self.workers.get? name |>.map (·.directImports) |>.getD ∅
     return { self with workers := self.workers.insert name { moduleUri, version, directImports, refs } }
 
 /-- Erases all worker references in `self` for the worker managing `name`. -/

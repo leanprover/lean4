@@ -928,6 +928,14 @@ theorem getEntryGT?_eq_some_iff {k e} :
       e ∈ t.toList ∧ cmp k e.fst = .lt ∧ ∀ k' ∈ keys t, cmp k k' = .lt → (cmp e.fst k').isLE := by
   sorry
 
+theorem getEntryGE?_of_isEmpty {k} (h : t.isEmpty) :
+    t.getEntryGE? k = none := by
+  sorry
+
+theorem getEntryGT?_of_isEmpty {k} (h : t.isEmpty) :
+    t.getEntryGT? k = none := by
+  sorry
+
 theorem getKeyGE?_eq_some_iff {k k'} :
     t.getKeyGE? k = some k' ↔
       k' ∈ keys t ∧ (cmp k k').isLE ∧ ∀ k'' ∈ keys t, (cmp k k'').isLE → (cmp k' k'').isLE := by

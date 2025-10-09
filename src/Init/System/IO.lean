@@ -398,7 +398,7 @@ If `nBytes` is `0`, returns immediately with an empty buffer.
 /--
 Pauses execution for the specified number of milliseconds.
 -/
-def sleep (ms : UInt32) : BaseIO Unit :=
+opaque sleep (ms : UInt32) : BaseIO Unit :=
   -- TODO: add a proper primitive for IO.sleep
   fun s => dbgSleep ms fun _ => EStateM.Result.ok () s
 

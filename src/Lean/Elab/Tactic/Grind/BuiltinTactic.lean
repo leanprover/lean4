@@ -12,6 +12,8 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search
 import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
 import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.Intro
+import Lean.Meta.Tactic.Grind.Split
+import Lean.Meta.Tactic.Grind.Anchor
 namespace Lean.Elab.Tactic.Grind
 
 def evalSepTactics (stx : Syntax) : GrindTacticM Unit := do
@@ -77,5 +79,34 @@ open Meta Grind
     discard <| assertAll
     getGoal
   replaceMainGoal [goal]
+
+@[builtin_grind_tactic cases] def evalCases : GrindTactic := fun stx => do
+  match stx with
+  | `(grind| cases #$anchor:hexnum) =>
+    let numDigits := anchor.getHexNumSize
+    let val := anchor.getHexNumVal
+    if val >= UInt64.size then
+      throwError "invalid anchor, value is too big"
+    let val := val.toUInt64
+    let goal ← getMainGoal
+    let candidates := goal.split.candidates
+    let (goals, genNew) ← liftSearchM do
+      for c in candidates do
+        let anchor ← getAnchor c.getExpr
+        if isAnchorPrefix numDigits val anchor then
+          let some result ← split? c
+            | throwError "`cases` tactic failed, case-split is not ready{indentExpr c.getExpr}"
+          return result
+      throwError "`cases` tactic failed, invalid anchor"
+    let goals ← goals.filterMapM fun goal => do
+      let (goal, _) ← liftGrindM <| SearchM.run goal do
+        intros genNew
+        getGoal
+      if goal.inconsistent then
+        return none
+      else
+        return some goal
+    replaceMainGoal goals
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Grind

@@ -214,3 +214,12 @@ example : h bs = 1 → h as ≠ 0 := by
     instantiate
     show_splits
     sorry
+
+example : h bs = 1 → h as ≠ 0 := by
+  grind [h.eq_def] =>
+    instantiate
+    show_splits
+    cases #ec88
+    instantiate
+    instantiate
+    instantiate

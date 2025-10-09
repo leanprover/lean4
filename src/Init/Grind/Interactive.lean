@@ -66,7 +66,7 @@ syntax (name := «showState») "show_state " showFilter : grind
 
 declare_syntax_cat grind_ref (behavior := both)
 
-syntax:max "#" noWs num : grind_ref
+syntax:max "#" noWs hexnum : grind_ref
 syntax term : grind_ref
 
 syntax (name := cases) "cases " grind_ref (" with " (colGt ident)+)? : grind

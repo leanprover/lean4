@@ -7,7 +7,7 @@ extern uint64_t my_length(lean_obj_arg);
 extern void lean_initialize_runtime_module();
 extern void lean_initialize();
 extern void lean_io_mark_end_initialization();
-extern lean_object * initialize_RFFI(uint8_t builtin, lean_object *);
+extern lean_object * initialize_RFFI(uint8_t builtin);
 
 int main() {
   lean_initialize_runtime_module();

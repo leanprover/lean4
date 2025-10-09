@@ -1,6 +1,6 @@
 [Compiler.IR] [result]
     def test2 (x_1 : u32) (x_2 : void) : obj :=
-      let x_3 : obj := foo x_1 x_2;
+      let x_3 : obj := foo x_1 ◾;
       ret x_3
     def test2._boxed (x_1 : tobj) (x_2 : tagged) : obj :=
       let x_3 : u32 := unbox x_1;

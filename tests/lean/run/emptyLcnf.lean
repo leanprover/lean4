@@ -41,7 +41,7 @@ trace: [Compiler.result] size: 5
       let _x.3 := Array.push ◾ _x.2 _x.1;
       return _x.3
 [Compiler.result] size: 8
-    def _eval a.1 a.2 _y.3 : EST.Out Lean.Exception lcAny PUnit :=
+    def _eval a.1 a.2 a.3 : EST.Out Lean.Exception lcAny PUnit :=
       let _x.4 := _eval._closed_0;
       let _x.5 := _eval._closed_1;
       let _x.6 := 1;
@@ -49,7 +49,7 @@ trace: [Compiler.result] size: 5
       let _x.8 := _eval._closed_3;
       let _x.9 := PUnit.unit;
       let _f.10 := _eval._lam_0 _x.8 _x.9;
-      let _x.11 := Lean.Elab.Command.liftTermElabM._redArg _f.10 a.1 a.2 _y.3;
+      let _x.11 := Lean.Elab.Command.liftTermElabM._redArg _f.10 a.1 a.2 a.3;
       return _x.11
 -/
 #guard_msgs in

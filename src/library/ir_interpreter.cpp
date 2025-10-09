@@ -1083,7 +1083,9 @@ public:
         } else { // IO _
             lean_assert(params.size() == 1);
         }
-        object* w = call_boxed("main", call_args.size(), &call_args[0]);
+        object * w = io_mk_world();
+        call_args.push_back(w);
+        w = call_boxed("main", call_args.size(), &call_args[0]);
         if (io_result_is_ok(w)) {
             int ret = 0;
             lean::expr ret_ty = m_env.get("main").get_type();

@@ -62,7 +62,7 @@ trace: [Compiler.result] size: 5
       let _x.3 : Array Lean.Name := Array.push ◾ _x.2 _x.1;
       return _x.3
 [Compiler.result] size: 9
-    def _eval (a.1 : Lean.Elab.Command.Context) (a.2 : lcAny) (_y.3 : lcVoid) : EST.Out Lean.Exception lcAny PUnit :=
+    def _eval (a.1 : Lean.Elab.Command.Context) (a.2 : lcAny) (a.3 : lcVoid) : EST.Out Lean.Exception lcAny PUnit :=
       let _x.4 : String := _eval._closed_0;
       let _x.5 : String := _eval._closed_1;
       let _x.6 : Lean.Name := _eval._closed_2;
@@ -74,7 +74,7 @@ trace: [Compiler.result] size: 5
         lcAny →
           Lean.Meta.Context →
             lcAny → Lean.Core.Context → lcAny → lcVoid → EST.Out Lean.Exception lcAny PUnit := _eval._lam_0 _x.9 _x.10;
-      let _x.12 : EST.Out Lean.Exception lcAny PUnit := Lean.Elab.Command.liftTermElabM._redArg _f.11 a.1 a.2 _y.3;
+      let _x.12 : EST.Out Lean.Exception lcAny PUnit := Lean.Elab.Command.liftTermElabM._redArg _f.11 a.1 a.2 a.3;
       return _x.12
 -/
 #guard_msgs in

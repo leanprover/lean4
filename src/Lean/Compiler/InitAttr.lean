@@ -137,13 +137,15 @@ def hasInitAttr (env : Environment) (fn : Name) : Bool :=
 def setBuiltinInitAttr (env : Environment) (declName : Name) (initFnName : Name := Name.anonymous) : Except String Environment :=
   builtinInitAttr.setParam env declName initFnName
 
-def declareBuiltin (forDecl : Name) (value : Expr) : CoreM Unit := do
-  let name ← mkAuxDeclName (kind := `_regBuiltin ++ forDecl)
-  let type := mkApp (mkConst `IO) (mkConst `Unit)
-  let decl := Declaration.defnDecl { name, levelParams := [], type, value, hints := ReducibilityHints.opaque,
-                                     safety := DefinitionSafety.safe }
-  addAndCompile decl
-  IO.ofExcept (setBuiltinInitAttr (← getEnv) name) >>= setEnv
+def declareBuiltin (forDecl : Name) (value : Expr) : CoreM Unit :=
+  -- can always be private
+  withoutExporting do
+    let name ← mkAuxDeclName (kind := `_regBuiltin ++ forDecl)
+    let type := mkApp (mkConst `IO) (mkConst `Unit)
+    let decl := Declaration.defnDecl { name, levelParams := [], type, value, hints := ReducibilityHints.opaque,
+                                       safety := DefinitionSafety.safe }
+    addAndCompile decl
+    IO.ofExcept (setBuiltinInitAttr (← getEnv) name) >>= setEnv
 
 @[export lean_run_init_attrs]
 private unsafe def runInitAttrs (env : Environment) (opts : Options) : IO Unit := do

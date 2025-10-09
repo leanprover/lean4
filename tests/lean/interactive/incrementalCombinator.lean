@@ -73,3 +73,17 @@ def if : True := by
                 --^ insert: ".5"
   else
     skip
+
+
+/-!
+Removing an extraneous case should not stick around.
+-/
+-- RESET
+example (n : Nat) : n = n := by
+  induction n with
+  | zero => simp
+--v sync
+--v delete: "| one => sorry"
+  | one => simp
+  | succ => simp
+--^ collectDiagnostics

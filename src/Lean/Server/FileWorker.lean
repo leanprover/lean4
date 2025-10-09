@@ -289,10 +289,11 @@ This option can only be set on the command line, not in the lakefile or via `set
     handleFinished (t : SnapshotTask SnapshotTree) :
         StateT ReportSnapshotsState BaseIO (Array (SnapshotTask SnapshotTree)) := do
       if (← IO.hasFinished t.task) then
-        handleNode t.task.get
+        let node ← IO.wait t.task
+        handleNode node
         -- limit children's reported range to that of the parent, if any, to avoid strange
         -- non-monotonic progress updates; replace `inherit` children's ranges with parent's
-        let ts := t.task.get.children.map (fun t' => { t' with reportingRange :=
+        let ts := node.children.map (fun t' => { t' with reportingRange :=
           -- NOTE: as `t.reportingRange?` has already gone through this transformation, it should be
           -- either `some` or `skip` at this point
           match t.reportingRange, t'.reportingRange with
@@ -945,7 +946,7 @@ section MainLoop
       if ← task.hasFinished then
         -- Handler tasks are constructed so that the only possible errors here
         -- are failures of writing a response into the stream.
-        if let Except.error e := task.get then
+        if let Except.error e ← task.wait then
           throwServerError s!"Failed responding to request {id}: {e}"
         pure <| acc.erase id
       else pure acc

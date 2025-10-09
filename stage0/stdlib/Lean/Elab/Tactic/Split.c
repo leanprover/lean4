@@ -3413,15 +3413,15 @@ x_49 = l_Lean_Syntax_getArg(x_44, x_16);
 lean_dec(x_44);
 x_50 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_50, 0, x_49);
-x_23 = x_7;
-x_24 = x_4;
-x_25 = x_8;
-x_26 = x_2;
-x_27 = x_6;
-x_28 = x_5;
-x_29 = x_10;
-x_30 = x_9;
-x_31 = x_3;
+x_23 = x_10;
+x_24 = x_7;
+x_25 = x_4;
+x_26 = x_3;
+x_27 = x_9;
+x_28 = x_8;
+x_29 = x_6;
+x_30 = x_5;
+x_31 = x_2;
 x_32 = x_50;
 goto block_37;
 }
@@ -3432,30 +3432,30 @@ else
 lean_object* x_51; 
 lean_dec(x_39);
 x_51 = lean_box(0);
-x_23 = x_7;
-x_24 = x_4;
-x_25 = x_8;
-x_26 = x_2;
-x_27 = x_6;
-x_28 = x_5;
-x_29 = x_10;
-x_30 = x_9;
-x_31 = x_3;
+x_23 = x_10;
+x_24 = x_7;
+x_25 = x_4;
+x_26 = x_3;
+x_27 = x_9;
+x_28 = x_8;
+x_29 = x_6;
+x_30 = x_5;
+x_31 = x_2;
 x_32 = x_51;
 goto block_37;
 }
 block_37:
 {
 lean_object* x_33; 
+lean_inc(x_27);
+lean_inc_ref(x_28);
+lean_inc(x_24);
+lean_inc_ref(x_29);
 lean_inc(x_30);
 lean_inc_ref(x_25);
-lean_inc(x_23);
-lean_inc_ref(x_27);
-lean_inc(x_28);
-lean_inc_ref(x_24);
-lean_inc(x_31);
-lean_inc_ref(x_26);
-x_33 = l___private_Lean_Elab_Tactic_Split_0__Lean_Elab_Tactic_evalSplit_throwTermUnsupported(x_22, x_32, x_26, x_31, x_24, x_28, x_27, x_23, x_25, x_30, x_29);
+lean_inc(x_26);
+lean_inc_ref(x_31);
+x_33 = l___private_Lean_Elab_Tactic_Split_0__Lean_Elab_Tactic_evalSplit_throwTermUnsupported(x_22, x_32, x_31, x_26, x_25, x_30, x_29, x_24, x_28, x_27, x_23);
 if (lean_obj_tag(x_33) == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; 
@@ -3464,20 +3464,20 @@ lean_inc(x_34);
 x_35 = lean_ctor_get(x_33, 1);
 lean_inc(x_35);
 lean_dec_ref(x_33);
-x_36 = l_Lean_Elab_Tactic_evalSplit___lam__3(x_1, x_11, x_34, x_26, x_31, x_24, x_28, x_27, x_23, x_25, x_30, x_35);
+x_36 = l_Lean_Elab_Tactic_evalSplit___lam__3(x_1, x_11, x_34, x_31, x_26, x_25, x_30, x_29, x_24, x_28, x_27, x_35);
 lean_dec(x_1);
 return x_36;
 }
 else
 {
-lean_dec(x_31);
+lean_dec_ref(x_31);
 lean_dec(x_30);
-lean_dec(x_28);
-lean_dec_ref(x_27);
-lean_dec_ref(x_26);
+lean_dec_ref(x_29);
+lean_dec_ref(x_28);
+lean_dec(x_27);
+lean_dec(x_26);
 lean_dec_ref(x_25);
-lean_dec_ref(x_24);
-lean_dec(x_23);
+lean_dec(x_24);
 lean_dec_ref(x_11);
 lean_dec(x_1);
 return x_33;

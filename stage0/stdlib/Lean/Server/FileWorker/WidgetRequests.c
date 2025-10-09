@@ -684,6 +684,7 @@ static lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Wi
 static lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_makePopup_ppExprForPopup___lam__0___closed__2;
 lean_object* l_Lean_MessageData_formatAux(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAtAux___at___Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__0_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_instImpl____x40_Lean_Message_4238524789____hygCtx___hyg_257_;
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instInhabitedInfoPopup_default;
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -753,7 +754,6 @@ LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket_highlighted____x40_Lea
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Widget_TaggedText_mapM___at___Lean_Server_wrapRpcProcedure___at___Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2__spec__0_spec__3_spec__4_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instInhabitedHighlightedMsgEmbed_default___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Widget_instInhabitedInfoPopup;
-extern lean_object* l_Lean_instImpl____x40_Lean_Message_4238524789____hygCtx___hyg_234_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Array_fromJson_x3f___at___Lean_Widget_instFromJsonTaggedText_fromJson___at___Lean_Widget_instRpcEncodableInfoPopup_dec____x40_Lean_Server_FileWorker_WidgetRequests_2734021171____hygCtx___hyg_1__spec__1_spec__1_spec__1(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_kmpSearch(lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_getInteractiveGoals(lean_object*, lean_object*, lean_object*);
@@ -1051,7 +1051,7 @@ static lean_object* _init_l_Lean_Widget_instRpcEncodableMsgToInteractive_enc___c
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_instImpl____x40_Lean_Message_4238524789____hygCtx___hyg_234_;
+x_1 = l_Lean_instImpl____x40_Lean_Message_4238524789____hygCtx___hyg_257_;
 return x_1;
 }
 }
@@ -12801,7 +12801,7 @@ return x_3;
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; lean_object* x_50; uint8_t x_51; 
+lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; lean_object* x_50; uint8_t x_51; 
 x_28 = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___closed__9;
 x_29 = l_Std_PRange_instUpwardEnumerableNat;
 x_30 = lean_unsigned_to_nat(0u);
@@ -12836,11 +12836,11 @@ goto block_49;
 }
 block_18:
 {
-if (x_7 == 0)
+if (x_8 == 0)
 {
 lean_object* x_10; 
 lean_dec_ref(x_9);
-lean_dec(x_8);
+lean_dec(x_7);
 x_10 = lean_box(0);
 return x_10;
 }
@@ -12854,7 +12854,7 @@ lean_dec(x_11);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
-lean_dec(x_8);
+lean_dec(x_7);
 x_14 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_14, 0, x_9);
 x_15 = lean_alloc_ctor(1, 1, 0);
@@ -12864,8 +12864,8 @@ return x_15;
 else
 {
 lean_object* x_16; lean_object* x_17; 
-x_16 = lean_array_fget(x_9, x_8);
-lean_dec(x_8);
+x_16 = lean_array_fget(x_9, x_7);
+lean_dec(x_7);
 lean_dec_ref(x_9);
 x_17 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
@@ -12883,8 +12883,8 @@ lean_dec(x_21);
 lean_dec_ref(x_2);
 if (lean_obj_tag(x_24) == 0)
 {
-x_7 = x_20;
-x_8 = x_19;
+x_7 = x_19;
+x_8 = x_20;
 x_9 = x_22;
 goto block_18;
 }
@@ -12895,8 +12895,8 @@ x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
 lean_dec_ref(x_24);
 x_26 = lean_array_push(x_22, x_25);
-x_7 = x_20;
-x_8 = x_19;
+x_7 = x_19;
+x_8 = x_20;
 x_9 = x_26;
 goto block_18;
 }
@@ -13649,7 +13649,7 @@ return x_18;
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at_____private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_28; uint8_t x_29; lean_object* x_46; uint8_t x_47; 
+lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_28; uint8_t x_29; lean_object* x_46; uint8_t x_47; 
 x_28 = lean_unsigned_to_nat(0u);
 x_46 = lean_string_utf8_byte_size(x_2);
 x_47 = lean_nat_dec_eq(x_46, x_28);
@@ -13670,11 +13670,11 @@ goto block_45;
 }
 block_18:
 {
-if (x_7 == 0)
+if (x_8 == 0)
 {
 lean_object* x_10; 
 lean_dec_ref(x_9);
-lean_dec(x_8);
+lean_dec(x_7);
 x_10 = lean_box(0);
 return x_10;
 }
@@ -13688,7 +13688,7 @@ lean_dec(x_11);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
-lean_dec(x_8);
+lean_dec(x_7);
 x_14 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_14, 0, x_9);
 x_15 = lean_alloc_ctor(1, 1, 0);
@@ -13698,8 +13698,8 @@ return x_15;
 else
 {
 lean_object* x_16; lean_object* x_17; 
-x_16 = lean_array_fget(x_9, x_8);
-lean_dec(x_8);
+x_16 = lean_array_fget(x_9, x_7);
+lean_dec(x_7);
 lean_dec_ref(x_9);
 x_17 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
@@ -13716,8 +13716,8 @@ lean_dec(x_23);
 lean_dec(x_21);
 if (lean_obj_tag(x_24) == 0)
 {
-x_7 = x_20;
-x_8 = x_19;
+x_7 = x_19;
+x_8 = x_20;
 x_9 = x_22;
 goto block_18;
 }
@@ -13728,8 +13728,8 @@ x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
 lean_dec_ref(x_24);
 x_26 = lean_array_push(x_22, x_25);
-x_7 = x_20;
-x_8 = x_19;
+x_7 = x_19;
+x_8 = x_20;
 x_9 = x_26;
 goto block_18;
 }

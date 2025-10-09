@@ -253,6 +253,10 @@ namespace Package
 @[inline] public def backend (self : Package) : Backend :=
   self.config.backend
 
+/-- The package's `allowImportAll` configuration. -/
+@[inline] public def allowImportAll (self : Package) : Bool :=
+  self.config.allowImportAll
+
 /-- The package's `dynlibs` configuration. -/
 @[inline] public def dynlibs (self : Package) : TargetArray Dynlib :=
   self.config.dynlibs

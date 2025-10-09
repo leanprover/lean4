@@ -40,6 +40,13 @@ def init : Pass where
   phase := .base
   shouldAlwaysRunCheck := true
 
+def checkMeta : Pass where
+  name  := `checkMeta
+  run   := fun decls => do
+    decls.forM LCNF.checkMeta
+    return decls
+  phase := .base
+
 -- Helper pass used for debugging purposes
 def trace (phase := Phase.base) : Pass where
   name  := `trace
@@ -71,6 +78,9 @@ open Pass
 def builtinPassManager : PassManager := {
   basePasses := #[
     init,
+    -- Check meta accesses now before optimizations may obscure references. This check should stay in
+    -- `lean` if some compilation is moved out.
+    Pass.checkMeta,
     pullInstances,
     cse (shouldElimFunDecls := false),
     simp,

@@ -237,6 +237,9 @@ for more information.
 @[builtin_doc] def «inductive» := leading_parser
   "inductive " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >>
   many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving
+@[builtin_doc] def «coinductive» := leading_parser
+  "coinductive " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >>
+  many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving
 def classInductive   := leading_parser
   atomic (group (symbol "class " >> "inductive ")) >>
   recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >>
@@ -278,7 +281,7 @@ def «structure»          := leading_parser
 @[builtin_command_parser] def declaration := leading_parser
   declModifiers false >>
   («abbrev» <|> definition <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|>
-   «inductive» <|> classInductive <|> «structure»)
+   «inductive» <|> «coinductive» <|> classInductive <|> «structure»)
 @[builtin_command_parser] def «deriving»     := leading_parser
   "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover termParser skip) ", "
 def sectionHeader := leading_parser
@@ -317,7 +320,7 @@ corresponding `end <id>` or the end of the file.
 with `end <id>`. The `end` command is optional at the end of a file.
 -/
 @[builtin_command_parser] def «end»          := leading_parser
-  "end" >> optional (ppSpace >> checkColGt >> ident)
+  "end" >> optional (ppSpace >> checkColGt >> identWithPartialTrailingDot)
 
 namespace InternalSyntax
   /-- Disable delimiting of local entries in ScopedEnvExtension within the current scope.

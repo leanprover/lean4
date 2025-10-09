@@ -27,6 +27,9 @@ syntax (name := skip) "skip" : grind
 syntax (name := lia) "lia" : grind
 /-- `ring` (commutative) rings and fields. -/
 syntax (name := ring) "ring" : grind
+/-- The `sorry` tactic is a temporary placeholder for an incomplete tactic proof. -/
+syntax (name := «sorry») "sorry" : grind
+
 /-- Instantiates theorems using E-matching. -/
 syntax (name := instantiate) "instantiate" : grind
 
@@ -56,6 +59,17 @@ syntax (name := showTrue) "show_true " showFilter : grind
 syntax (name := showFalse) "show_false " showFilter : grind
 /-- Shows equivalence classes of terms. -/
 syntax (name := showEqcs) "show_eqcs " showFilter : grind
+/-- Show case-split candidates. -/
+syntax (name := showSplits) "show_splits " showFilter : grind
+/-- Show `grind` state. -/
+syntax (name := «showState») "show_state " showFilter : grind
+
+declare_syntax_cat grind_ref (behavior := both)
+
+syntax:max "#" noWs num : grind_ref
+syntax term : grind_ref
+
+syntax (name := cases) "cases " grind_ref (" with " (colGt ident)+)? : grind
 
 /-- `done` succeeds iff there are no remaining goals. -/
 syntax (name := done) "done" : grind

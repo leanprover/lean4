@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Do.Triple.SpecLemmas
-// Imports: public import Std.Do.Triple.Basic public import Std.Do.WP public import Init.Data.Range.Polymorphic.UpwardEnumerable public import Init.Data.Range.Polymorphic.PRange public import Init.Data.Range.Polymorphic.Iterators import Init.Data.Range.Polymorphic
+// Imports: public import Std.Do.Triple.Basic public import Std.Do.WP public import Init.Data.Range.Polymorphic.UpwardEnumerable public import Init.Data.Range.Polymorphic.PRange public import Init.Data.Range.Polymorphic.Iterators import Init.Data.Range.Polymorphic public import Init.Data.Iterators.Lemmas.Combinators.FilterMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -906,6 +906,7 @@ lean_object* initialize_Init_Data_Range_Polymorphic_UpwardEnumerable(uint8_t bui
 lean_object* initialize_Init_Data_Range_Polymorphic_PRange(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Range_Polymorphic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Do_Triple_SpecLemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -927,6 +928,9 @@ res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin, lean_io_mk_world
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Range_Polymorphic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_List_Cursor_at___redArg___closed__0 = _init_l_List_Cursor_at___redArg___closed__0();

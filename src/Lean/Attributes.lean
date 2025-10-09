@@ -258,12 +258,13 @@ def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (Parame
     mkInitial       := pure ([], {})
     addImportedFn   := fun _ => pure ([], {})
     addEntryFn      := fun (decls, m) (p : Name × α) => (p.1 :: decls, m.insert p.1 p.2)
-    exportEntriesFnEx := fun env (decls, m) _ =>
-      let r := if impl.preserveOrder then
+    exportEntriesFnEx := fun env (decls, m) lvl => Id.run do
+      let mut r := if impl.preserveOrder then
         decls.toArray.reverse.filterMap (fun n => return (n, ← m.find? n))
       else
         m.foldl (fun a n p => a.push (n, p)) #[]
-      let r := r.filter (fun ⟨n, a⟩ => impl.filterExport env n a)
+      if lvl != .private then
+        r := r.filter (fun ⟨n, a⟩ => impl.filterExport env n a)
       r.qsort (fun a b => Name.quickLt a.1 b.1)
     statsFn         := fun (_, m) => "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format m.size
   }

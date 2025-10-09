@@ -66,7 +66,7 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref
     -- Save `meta initialize` in .olean; `initialize`s of any kind will be stored in .ir by
     -- `exportIREntries` analogously to `Lean.IR.declMapExt` so we can run them when meta-imported,
     -- even without the .olean file.
-    filterExport := fun env declName _ => runAfterImport && (!env.header.isModule || isMeta env declName)
+    filterExport := fun env declName _ => runAfterImport && isMeta env declName
   }
 
 @[implemented_by registerInitAttrUnsafe]

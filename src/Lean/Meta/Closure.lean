@@ -109,7 +109,7 @@ namespace Lean.Meta
 namespace Closure
 
 structure ToProcessElement where
-  expr : Expr
+  fvarId : FVarId
   newFVarId : FVarId
   deriving Inhabited
 
@@ -200,12 +200,20 @@ def pushToProcess (elem : ToProcessElement) : ClosureM Unit :=
 partial def collectExprAux (e : Expr) : ClosureM Expr := do
   let collect (e : Expr) := visitExpr collectExprAux e
 
-  if (← read).hasAuxDecls && !e.hasLooseBVars then
+  if (← read).hasAuxDecls && e.isApp && !e.hasLooseBVars then
     if let some fvar := e.getAppFn.fvarId? then
       if let some decl := (← getLCtx).find? fvar then
         if decl.isAuxDecl then
+          -- We don't want to abstract over aux decls separate from their arguments
+          let type ← inferType e
+          let type ← preprocess type
+          let type ← collect type
           let newFVarId ← mkFreshFVarId
-          pushToProcess ⟨e, newFVarId⟩
+          let userName := decl.userName.appendAfter "_app"
+          modify fun s => { s with
+            newLocalDeclsForMVars := s.newLocalDeclsForMVars.push $ .cdecl default newFVarId userName type .default .default,
+            exprMVarArgs          := s.exprMVarArgs.push e
+          }
           return mkFVar newFVarId
 
   match e with
@@ -258,7 +266,7 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
     | true, some value => collect (← preprocess value)
     | _,    _          =>
       let newFVarId ← mkFreshFVarId
-      pushToProcess ⟨.fvar fvarId, newFVarId⟩
+      pushToProcess ⟨fvarId, newFVarId⟩
       return mkFVar newFVarId
   | e => pure e
 
@@ -270,17 +278,12 @@ partial def pickNextToProcessAux (lctx : LocalContext) (i : Nat) (toProcess : Ar
     : ToProcessElement × Array ToProcessElement :=
   if h : i < toProcess.size then
     let elem' := toProcess[i]
-    if better elem.expr elem'.expr then
+    if (lctx.get! elem.fvarId).index < (lctx.get! elem'.fvarId).index then
       pickNextToProcessAux lctx (i+1) (toProcess.set i elem) elem'
     else
       pickNextToProcessAux lctx (i+1) toProcess elem
   else
     (elem, toProcess)
-where
-  better : Expr → Expr → Bool
-    | (.fvar id1), (.fvar id2) => (lctx.get! id1).index < (lctx.get! id2).index
-    | (.fvar id1),   e         => e.hasAnyFVar (· == id1)
-    | _,           _           => false
 
 def pickNextToProcess? : ClosureM (Option ToProcessElement) := do
   let lctx ← getLCtx
@@ -304,45 +307,35 @@ def pushLocalDecl (newFVarId : FVarId) (userName : Name) (type : Expr) (bi := Bi
 partial def process : ClosureM Unit := do
   match (← pickNextToProcess?) with
   | none => pure ()
-  | some ⟨e, newFVarId⟩ =>
-    if let some fvarId := e.fvarId? then
-      match (← fvarId.getDecl) with
-      | .cdecl _ _ userName type bi _ =>
-        pushLocalDecl newFVarId userName type bi
+  | some ⟨fvarId, newFVarId⟩ =>
+    match (← fvarId.getDecl) with
+    | .cdecl _ _ userName type bi _ =>
+      pushLocalDecl newFVarId userName type bi
+      pushFVarArg (mkFVar fvarId)
+      process
+    | .ldecl _ _ userName type val nondep _ =>
+      let zetaDeltaFVarIds ← getZetaDeltaFVarIds
+      -- Note: If `nondep` is true then `zetaDeltaFVarIds.contains fvarId` must be false.
+      if nondep || !zetaDeltaFVarIds.contains fvarId then
+        /- Non-dependent let-decl
+
+            Recall that if `fvarId` is in `zetaDeltaFVarIds`, then we zetaDelta-expanded it
+            during type checking (see `check` at `collectExpr`).
+
+            Our type checker may zetaDelta-expand declarations that are not needed, but this
+            check is conservative, and seems to work well in practice. -/
+        pushLocalDecl newFVarId userName type
         pushFVarArg (mkFVar fvarId)
         process
-      | .ldecl _ _ userName type val nondep _ =>
-        let zetaDeltaFVarIds ← getZetaDeltaFVarIds
-        -- Note: If `nondep` is true then `zetaDeltaFVarIds.contains fvarId` must be false.
-        if nondep || !zetaDeltaFVarIds.contains fvarId then
-          /- Non-dependent let-decl
-
-              Recall that if `fvarId` is in `zetaDeltaFVarIds`, then we zetaDelta-expanded it
-              during type checking (see `check` at `collectExpr`).
-
-              Our type checker may zetaDelta-expand declarations that are not needed, but this
-              check is conservative, and seems to work well in practice. -/
-          pushLocalDecl newFVarId userName type
-          pushFVarArg (mkFVar fvarId)
-          process
-        else
-          /- Dependent let-decl -/
-          let type ← collectExpr type
-          let val  ← collectExpr val
-          modify fun s => { s with newLetDecls := s.newLetDecls.push <| .ldecl default newFVarId userName type val false .default }
-          /- We don't want to interleave let and lambda declarations in our closure. So, we expand any occurrences of newFVarId
-            at `newLocalDecls` -/
-          modify fun s => { s with newLocalDecls := s.newLocalDecls.map (·.replaceFVarId newFVarId val) }
-          process
       else
-        let type ← inferType e
+        /- Dependent let-decl -/
         let type ← collectExpr type
-        let newFVarId ← mkFreshFVarId
-        let userName := (← e.getAppFn.fvarId!.getUserName).appendAfter "_app"
-        modify fun s => { s with
-          newLocalDecls := s.newLocalDecls.push $ .cdecl default newFVarId userName type .default .default,
-          exprFVarArgs  := s.exprFVarArgs.push e
-        }
+        let val  ← collectExpr val
+        modify fun s => { s with newLetDecls := s.newLetDecls.push <| .ldecl default newFVarId userName type val false .default }
+        /- We don't want to interleave let and lambda declarations in our closure. So, we expand any occurrences of newFVarId
+           at `newLocalDecls` -/
+        modify fun s => { s with newLocalDecls := s.newLocalDecls.map (·.replaceFVarId newFVarId val) }
+        process
 
 @[inline] def mkBinding (isLambda : Bool) (decls : Array LocalDecl) (b : Expr) : Expr :=
   let xs := decls.map LocalDecl.toExpr

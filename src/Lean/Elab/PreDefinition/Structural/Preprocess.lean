@@ -40,12 +40,8 @@ Preprocesses the expressions to improve the effectiveness of `elimRecursion`.
     | i+1 => (f x) i
   ```
 
-* Unfold auxiliary definitions abstracting over the function call
-  (typically abstracted) proofs.
-
 -/
 def preprocess (e : Expr) (recFnNames : Array Name) : CoreM Expr := do
-  let e ← unfoldIfArgIsConstOf recFnNames e
   Core.transform e
     (pre := fun e =>
       if shouldBetaReduce e recFnNames then

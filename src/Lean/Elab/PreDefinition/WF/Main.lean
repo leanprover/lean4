@@ -37,9 +37,7 @@ def wfRecursion (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDe
       if varNames.isEmpty then
         throwError "well-founded recursion cannot be used, `{preDef.declName}` does not take any (non-fixed) arguments"
     let argsPacker := { varNamess }
-    let preDefs' ← preDefs.mapM fun preDef => do
-      return { preDef with value := (← unfoldIfArgIsConstOf (preDefs.map (·.declName)) preDef.value) }
-    let unaryPreDef ← packMutual fixedParamPerms argsPacker preDefs'
+    let unaryPreDef ← packMutual fixedParamPerms argsPacker preDefs
     return (fixedParamPerms, argsPacker, unaryPreDef)
   trace[Elab.definition.wf] "unaryPreDef:{indentD unaryPreDef.value}"
 

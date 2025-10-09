@@ -2738,7 +2738,9 @@ theorem get_union_of_contains_right_eq_false [LawfulBEq α] (h₁ : m₁.val.WF)
   revert contains_eq_false
   simp_to_model [union, get, contains]
   intro contains_eq_false
-  apply List.getValue_insertList_of_contains_eq_false contains_eq_false
+  apply List.getValueCast_insertList_of_contains_eq_false
+  . rw [← List.containsKey_eq_contains_map_fst]
+    exact contains_eq_false
 
 theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
@@ -2761,7 +2763,7 @@ theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] 
           rw [←Raw.keys_eq_keys_toListModel]
           exact m₂.distinct_keys h₂
   . apply List.Perm.trans
-    . apply insertList_insert_right_equiv_union_insert
+    . apply insertList_insertEntry_right_equiv_insertEntry_insertList
       any_goals wf_trivial
     . apply insertEntry_of_perm
       . apply List.DistinctKeys.insertList
@@ -2889,8 +2891,29 @@ theorem size_union_le_size_add_size [EquivBEq α] [LawfulHashable α]
 theorem isEmpty_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
     (m₁.union m₂).1.isEmpty = (m₁.1.isEmpty && m₂.1.isEmpty) := by
   simp_to_model [isEmpty, union] using List.isEmpty_insertList
-
 end Union
+
+namespace Const
+
+variable {β : Type v} {m₁ m₂ : Raw₀ α (fun _ => β)}
+
+theorem get?_union_of_contains_right_eq_false [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_eq_false : m₂.contains k = false) :
+    Const.get? (m₁.union m₂) k = Const.get? m₁ k := by
+  revert contains_eq_false
+  simp_to_model [union, Const.get?, contains]
+  intro contains_eq_false
+  apply List.getValue?_insertList_of_contains_eq_false contains_eq_false
+
+theorem get_union_of_contains_right_eq_false [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_eq_false : m₂.contains k = false) {h'} :
+    Const.get (m₁.union m₂) k h' = Const.get m₁ k (contains_of_contains_union_eq_false_right h₁ h₂ h' contains_eq_false) := by
+  revert contains_eq_false
+  simp_to_model [union, Const.get, contains]
+  intro contains_eq_false
+  apply List.getValue_insertList_of_contains_eq_false contains_eq_false
+
+end Const
 
 section Alter
 

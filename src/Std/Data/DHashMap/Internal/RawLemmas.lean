@@ -2913,6 +2913,23 @@ theorem get_union_of_contains_right_eq_false [LawfulBEq α] (h₁ : m₁.val.WF)
   intro contains_eq_false
   apply List.getValue_insertList_of_contains_eq_false contains_eq_false
 
+theorem get?_union_of_contains_left_eq_false [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_eq_false : m₁.contains k = false) :
+    Const.get? (m₁.union m₂) k = Const.get? m₂ k := by
+  revert contains_eq_false
+  simp_to_model [union, contains, Const.get?] using List.getValue?_insertList_of_contains_left_eq_false
+
+theorem union_get? [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} :
+    Const.get? (m₁.union m₂) k = (Const.get? m₂ k).or (Const.get? m₁ k) := by
+  simp_to_model [union, Const.get?] using List.getValue?_of_insertList
+
+theorem get_union_of_contains_left_eq_false [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_eq_false : m₁.contains k = false) {h'} :
+    Const.get (m₁.union m₂) k h' = Const.get m₂ k (contains_of_contains_union_eq_false_left h₁ h₂ h' contains_eq_false) := by
+  revert contains_eq_false
+  simp_to_model [union, contains, Const.get] using List.getValue_insertList_of_contains_left_eq_false
+
 end Const
 
 section Alter

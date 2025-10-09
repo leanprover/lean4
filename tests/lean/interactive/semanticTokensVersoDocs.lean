@@ -34,4 +34,5 @@ def foo2 (x : Nat) := x |>.succ
 -/
 def x := ()
 
+--^ collectDiagnostics
 --^ textDocument/semanticTokens/full

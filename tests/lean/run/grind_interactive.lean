@@ -181,6 +181,16 @@ example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p
     show_splits
     sorry
 
+/--
+trace: [splits] Case split candidates
+  [split] #65fc := p ∨ p₁ = p₂
+  [split] #1460 := p ∨ q ∧ r
+-/
+example (r p q p₁ p₂ : Prop) : (p₁ → q) → p ∨ (q ∧ r) → p ∨ (p₁ ↔ p₂) → False := by
+  grind =>
+    show_splits
+    sorry
+
 def h (as : List Nat) :=
   match as with
   | []      => 1

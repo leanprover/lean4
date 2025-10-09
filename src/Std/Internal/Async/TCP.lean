@@ -80,7 +80,7 @@ def tryAccept (s : Server) : IO (Option Client) := do
   return Client.ofNative <$> socket
 
 /--
-Creates a `Selector` that resolves once `s` has a connetion available. Calling this function
+Creates a `Selector` that resolves once `s` has a connection available. Calling this function
 does not start the connection wait, so it must not be called in parallel with `accept`.
 -/
 def acceptSelector (s : TCP.Socket.Server) : Selector Client :=

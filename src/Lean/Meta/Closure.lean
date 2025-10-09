@@ -96,6 +96,13 @@ let n : Nat := 20;
 
 BTW, this module also provides the `zetaDelta : Bool` flag. When set to true, it
 expands all let-variables occurring in the target expression.
+
+
+When elaborating the body of a recursive function, we have fvars around that “aux decls”,
+used to represent the recursive call. Without any special care, we'd abstract them on their own,
+making termination checking impossible. So we handle applications headed by an aux decl fvar
+specially, abstracting the whole application. We use the `newLocalDeclsForMVars` field of the state
+for that.
 -/
 
 namespace Lean.Meta

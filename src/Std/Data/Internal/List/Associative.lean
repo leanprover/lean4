@@ -3053,14 +3053,14 @@ theorem contains_insertList_iff [BEq α] [EquivBEq α] {l toInsert : List ((a : 
   simp only [containsKey_insertList, Bool.or_eq_true]
   simp only [containsKey_eq_contains_map_fst, List.contains_map, List.any_eq_true]
 
-theorem contains_of_contains_insertList_of_contains_right_eq_false [BEq α] [EquivBEq α] {l toInsert : List ((a : α) × β a)} {k : α}
+theorem contains_of_contains_insertList_eq_false_right [BEq α] [EquivBEq α] {l toInsert : List ((a : α) × β a)} {k : α}
    (h₁ : containsKey k (insertList l toInsert) = true)
    (h₂ : containsKey k toInsert = false) : containsKey k l = true := by
     have := contains_insertList_iff.1 h₁
     simp only [h₂, Bool.false_eq_true, or_false] at this
     exact this
 
-theorem contains_of_contains_insertList_of_contains_left_eq_false [BEq α] [EquivBEq α] {l toInsert : List ((a : α) × β a)} {k : α}
+theorem contains_of_contains_insertList_eq_false_left [BEq α] [EquivBEq α] {l toInsert : List ((a : α) × β a)} {k : α}
    (h₁ : containsKey k (insertList l toInsert) = true)
    (h₂ : containsKey k l = false) : containsKey k toInsert = true := by
     have := contains_insertList_iff.1 h₁
@@ -3111,7 +3111,7 @@ theorem getEntry?_insertList_of_contains_left_eq_false [BEq α] [EquivBEq α]
   . exact distinct_l
   . exact distinct_toInsert
 
-theorem getKey?_insertList_of_contains_right [BEq α] [EquivBEq α]
+theorem getKey?_insertList [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)} {k : α}
     (distinct_l : DistinctKeys l)
     (distinct_toInsert : DistinctKeys toInsert) :
@@ -3134,7 +3134,7 @@ theorem getKey_insertList_of_contains_right [BEq α] [EquivBEq α]
     simp only [getKey?_eq_getEntry?, Option.isSome_map]
     simp only [←@containsKey_eq_isSome_getEntry? α β _ (insertList l toInsert) k, m]
   apply Option.get_congr
-  . rw [@getKey?_insertList_of_contains_right α β _ _ l toInsert k distinct_l distinct_toInsert]
+  . rw [@getKey?_insertList α β _ _ l toInsert k distinct_l distinct_toInsert]
     apply Option.or_of_isSome
     . simp only [getKey?_eq_getEntry?, Option.isSome_map]
       simp only [←@containsKey_eq_isSome_getEntry? α β _ toInsert k, contains]
@@ -3163,7 +3163,7 @@ theorem getKeyD_insertList_of_mem_right [BEq α] [EquivBEq α]
     getKeyD k (insertList l toInsert) fallback = getKeyD k toInsert fallback := by
   intro contains
   simp only [getKeyD_eq_getKey?]
-  rw [@getKey?_insertList_of_contains_right _ _ _ _ l toInsert k distinct_l distinct_toInsert]
+  rw [@getKey?_insertList _ _ _ _ l toInsert k distinct_l distinct_toInsert]
   rw [@getKey?_eq_some_getKey _ _ _ toInsert k contains]
   simp only [Option.some_or, Option.getD_some]
 
@@ -3340,8 +3340,8 @@ theorem getValueCast_insertList_of_contains_left_eq_false [BEq α] [LawfulBEq α
   (distinct_toInsert: DistinctKeys toInsert)
   (contains : containsKey k (insertList l toInsert))
   (not_contains: containsKey k l = false) :
-    getValueCast k (insertList l toInsert) contains = getValueCast k toInsert (contains_of_contains_insertList_of_contains_left_eq_false contains not_contains) := by
-  suffices h : some (getValueCast k (insertList l toInsert) contains) = some (getValueCast k toInsert (contains_of_contains_insertList_of_contains_left_eq_false contains not_contains)) from by
+    getValueCast k (insertList l toInsert) contains = getValueCast k toInsert (contains_of_contains_insertList_eq_false_left contains not_contains) := by
+  suffices h : some (getValueCast k (insertList l toInsert) contains) = some (getValueCast k toInsert (contains_of_contains_insertList_eq_false_left contains not_contains)) from by
     injection h
   rw [← getValueCast?_eq_some_getValueCast, ← getValueCast?_eq_some_getValueCast]
   exact getValueCast?_insertList_of_contains_left_eq_false distinct_l distinct_toInsert not_contains

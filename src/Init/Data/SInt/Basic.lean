@@ -158,6 +158,7 @@ Converts an 8-bit signed integer to a natural number, mapping all negative numbe
 Use `Int8.toBitVec` to obtain the two's complement representation.
 -/
 @[inline] def Int8.toNatClampNeg (i : Int8) : Nat := i.toInt.toNat
+
 /-- Obtains the `Int8` whose 2's complement representation is the given `BitVec 8`. -/
 @[inline] def Int8.ofBitVec (b : BitVec 8) : Int8 := ⟨⟨b⟩⟩
 /--
@@ -510,6 +511,7 @@ Converts a 16-bit signed integer to a natural number, mapping all negative numbe
 Use `Int16.toBitVec` to obtain the two's complement representation.
 -/
 @[inline] def Int16.toNatClampNeg (i : Int16) : Nat := i.toInt.toNat
+
 /-- Obtains the `Int16` whose 2's complement representation is the given `BitVec 16`. -/
 @[inline] def Int16.ofBitVec (b : BitVec 16) : Int16 := ⟨⟨b⟩⟩
 /--
@@ -879,6 +881,7 @@ Converts a 32-bit signed integer to a natural number, mapping all negative numbe
 Use `Int32.toBitVec` to obtain the two's complement representation.
 -/
 @[inline] def Int32.toNatClampNeg (i : Int32) : Nat := i.toInt.toNat
+
 /-- Obtains the `Int32` whose 2's complement representation is the given `BitVec 32`. -/
 @[inline] def Int32.ofBitVec (b : BitVec 32) : Int32 := ⟨⟨b⟩⟩
 /--

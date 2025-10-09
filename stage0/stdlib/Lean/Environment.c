@@ -22549,7 +22549,6 @@ x_17 = lean_nat_dec_lt(x_16, x_4);
 if (x_17 == 0)
 {
 lean_dec(x_16);
-lean_dec(x_14);
 lean_dec(x_13);
 return x_12;
 }
@@ -22592,7 +22591,6 @@ x_18 = lean_nat_dec_lt(x_17, x_4);
 if (x_18 == 0)
 {
 lean_dec(x_17);
-lean_dec(x_15);
 lean_dec(x_14);
 return x_13;
 }

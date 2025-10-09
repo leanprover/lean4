@@ -3948,7 +3948,6 @@ return x_29;
 else
 {
 lean_dec(x_19);
-lean_dec(x_18);
 lean_dec_ref(x_17);
 lean_dec_ref(x_16);
 lean_dec_ref(x_15);
@@ -9335,7 +9334,6 @@ return x_218;
 }
 else
 {
-lean_dec(x_210);
 lean_dec(x_100);
 x_149 = x_208;
 goto block_206;
@@ -10820,7 +10818,6 @@ return x_218;
 }
 else
 {
-lean_dec(x_210);
 lean_dec(x_100);
 x_149 = x_208;
 goto block_206;

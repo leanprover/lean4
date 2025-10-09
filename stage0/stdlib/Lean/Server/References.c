@@ -27608,7 +27608,6 @@ lean_inc(x_20);
 lean_dec(x_8);
 if (lean_obj_tag(x_20) == 0)
 {
-lean_dec(x_13);
 lean_dec(x_12);
 lean_dec_ref(x_7);
 x_14 = x_11;
@@ -27636,7 +27635,6 @@ if (lean_obj_tag(x_26) == 0)
 {
 lean_dec_ref(x_24);
 lean_dec(x_22);
-lean_dec(x_13);
 x_14 = x_11;
 goto block_19;
 }
@@ -27664,7 +27662,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_8);
 lean_dec_ref(x_7);

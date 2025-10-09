@@ -2493,7 +2493,6 @@ x_14 = lean_nat_dec_lt(x_13, x_1);
 if (x_14 == 0)
 {
 lean_dec(x_13);
-lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -2538,7 +2537,6 @@ x_18 = lean_nat_dec_lt(x_17, x_2);
 if (x_18 == 0)
 {
 lean_object* x_19; 
-lean_inc(x_8);
 lean_inc_ref(x_3);
 x_19 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_19, 0, x_3);
@@ -2586,7 +2584,6 @@ x_14 = lean_nat_dec_lt(x_13, x_1);
 lean_dec(x_13);
 if (x_14 == 0)
 {
-lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_7);
 lean_dec_ref(x_6);

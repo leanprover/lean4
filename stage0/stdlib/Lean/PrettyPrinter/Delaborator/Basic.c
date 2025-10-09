@@ -863,7 +863,6 @@ if (x_14 == 0)
 {
 if (lean_obj_tag(x_11) == 0)
 {
-lean_dec(x_12);
 lean_dec_ref(x_11);
 lean_dec(x_8);
 lean_dec_ref(x_7);
@@ -884,7 +883,6 @@ x_16 = l_Lean_instBEqInternalExceptionId_beq(x_13, x_15);
 lean_dec(x_15);
 if (x_16 == 0)
 {
-lean_dec(x_12);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
@@ -906,7 +904,6 @@ return x_18;
 }
 else
 {
-lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_8);
 lean_dec_ref(x_7);
@@ -970,7 +967,6 @@ if (x_15 == 0)
 {
 if (lean_obj_tag(x_12) == 0)
 {
-lean_dec(x_13);
 lean_dec_ref(x_12);
 lean_dec(x_9);
 lean_dec_ref(x_8);
@@ -991,7 +987,6 @@ x_17 = l_Lean_instBEqInternalExceptionId_beq(x_14, x_16);
 lean_dec(x_16);
 if (x_17 == 0)
 {
-lean_dec(x_13);
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);
@@ -1013,7 +1008,6 @@ return x_19;
 }
 else
 {
-lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_9);
 lean_dec_ref(x_8);
@@ -11002,7 +10996,6 @@ return x_40;
 }
 else
 {
-lean_dec(x_33);
 x_15 = x_31;
 goto block_29;
 }
@@ -11197,7 +11190,6 @@ return x_67;
 }
 else
 {
-lean_dec(x_63);
 x_47 = x_61;
 goto block_59;
 }
@@ -11530,7 +11522,6 @@ if (x_16 == 0)
 {
 if (lean_obj_tag(x_13) == 0)
 {
-lean_dec(x_14);
 lean_dec_ref(x_13);
 lean_dec(x_11);
 lean_dec(x_7);
@@ -11551,7 +11542,6 @@ x_18 = l_Lean_instBEqInternalExceptionId_beq(x_15, x_17);
 lean_dec(x_17);
 if (x_18 == 0)
 {
-lean_dec(x_14);
 lean_dec(x_11);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -11572,7 +11562,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_11);
 lean_dec(x_7);
@@ -11660,7 +11649,6 @@ if (lean_obj_tag(x_12) == 0)
 {
 lean_dec_ref(x_12);
 lean_dec(x_10);
-lean_dec(x_9);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
@@ -11681,7 +11669,6 @@ lean_dec(x_14);
 lean_dec(x_10);
 if (x_15 == 0)
 {
-lean_dec(x_9);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
@@ -11725,7 +11712,6 @@ else
 {
 lean_dec_ref(x_12);
 lean_dec(x_10);
-lean_dec(x_9);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
@@ -12085,7 +12071,6 @@ if (x_13 == 0)
 {
 if (lean_obj_tag(x_10) == 0)
 {
-lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -12109,7 +12094,6 @@ lean_dec(x_15);
 if (x_17 == 0)
 {
 lean_free_object(x_10);
-lean_dec(x_11);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
@@ -12175,7 +12159,6 @@ x_31 = l_Lean_instBEqInternalExceptionId_beq(x_12, x_30);
 lean_dec(x_30);
 if (x_31 == 0)
 {
-lean_dec(x_11);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
@@ -12220,7 +12203,6 @@ return x_38;
 }
 else
 {
-lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -12682,7 +12664,6 @@ x_126 = l_Lean_Expr_isMData(x_30);
 lean_dec(x_30);
 if (x_126 == 0)
 {
-lean_dec(x_125);
 x_51 = x_122;
 goto block_115;
 }
@@ -13410,7 +13391,6 @@ x_303 = l_Lean_Expr_isMData(x_30);
 lean_dec(x_30);
 if (x_303 == 0)
 {
-lean_dec(x_302);
 x_255 = x_299;
 goto block_292;
 }
@@ -13957,7 +13937,6 @@ x_434 = l_Lean_Expr_isMData(x_366);
 lean_dec(x_366);
 if (x_434 == 0)
 {
-lean_dec(x_433);
 x_386 = x_430;
 goto block_423;
 }

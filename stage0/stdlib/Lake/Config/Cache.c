@@ -1307,7 +1307,6 @@ x_53 = lean_ctor_get(x_50, 1);
 x_54 = lean_unbox_uint64(x_52);
 lean_dec(x_52);
 x_55 = l_Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0_spec__2___redArg(x_5, x_54, x_53);
-lean_inc(x_8);
 lean_inc_ref(x_55);
 lean_ctor_set(x_50, 1, x_8);
 lean_ctor_set(x_50, 0, x_55);
@@ -1327,7 +1326,6 @@ lean_dec(x_50);
 x_58 = lean_unbox_uint64(x_56);
 lean_dec(x_56);
 x_59 = l_Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0_spec__2___redArg(x_5, x_58, x_57);
-lean_inc(x_8);
 lean_inc_ref(x_59);
 x_60 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_60, 0, x_59);
@@ -1374,7 +1372,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_13);
 lean_dec_ref(x_12);
 lean_dec(x_10);
 lean_dec(x_4);
@@ -1410,7 +1407,6 @@ lean_object* x_32; lean_object* x_33;
 x_32 = lean_ctor_get(x_30, 1);
 x_33 = lean_ctor_get(x_30, 0);
 lean_dec(x_33);
-lean_inc(x_32);
 lean_inc_ref(x_5);
 lean_ctor_set(x_30, 0, x_5);
 x_11 = x_30;
@@ -1424,7 +1420,6 @@ lean_object* x_34; lean_object* x_35;
 x_34 = lean_ctor_get(x_30, 1);
 lean_inc(x_34);
 lean_dec(x_30);
-lean_inc(x_34);
 lean_inc_ref(x_5);
 x_35 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_35, 0, x_5);
@@ -1501,7 +1496,6 @@ x_53 = lean_ctor_get(x_50, 1);
 x_54 = lean_unbox_uint64(x_52);
 lean_dec(x_52);
 x_55 = l_Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0_spec__2___redArg(x_4, x_54, x_53);
-lean_inc(x_8);
 lean_inc_ref(x_55);
 lean_ctor_set(x_50, 1, x_8);
 lean_ctor_set(x_50, 0, x_55);
@@ -1521,7 +1515,6 @@ lean_dec(x_50);
 x_58 = lean_unbox_uint64(x_56);
 lean_dec(x_56);
 x_59 = l_Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0_spec__2___redArg(x_4, x_58, x_57);
-lean_inc(x_8);
 lean_inc_ref(x_59);
 x_60 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_60, 0, x_59);
@@ -1565,7 +1558,6 @@ return x_18;
 }
 else
 {
-lean_dec(x_13);
 lean_dec_ref(x_12);
 lean_dec(x_10);
 lean_dec_ref(x_7);
@@ -1601,7 +1593,6 @@ lean_object* x_32; lean_object* x_33;
 x_32 = lean_ctor_get(x_30, 1);
 x_33 = lean_ctor_get(x_30, 0);
 lean_dec(x_33);
-lean_inc(x_32);
 lean_inc_ref(x_4);
 lean_ctor_set(x_30, 0, x_4);
 x_11 = x_30;
@@ -1615,7 +1606,6 @@ lean_object* x_34; lean_object* x_35;
 x_34 = lean_ctor_get(x_30, 1);
 lean_inc(x_34);
 lean_dec(x_30);
-lean_inc(x_34);
 lean_inc_ref(x_4);
 x_35 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_35, 0, x_4);
@@ -7318,7 +7308,6 @@ lean_inc_ref(x_2);
 x_20 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_20, 0, x_7);
 lean_ctor_set(x_20, 1, x_2);
-lean_inc(x_3);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_3);
@@ -7340,7 +7329,6 @@ lean_inc_ref(x_2);
 x_23 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_23, 0, x_7);
 lean_ctor_set(x_23, 1, x_2);
-lean_inc(x_3);
 x_24 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_24, 0, x_23);
 lean_ctor_set(x_24, 1, x_3);
@@ -7379,7 +7367,6 @@ lean_dec(x_12);
 x_14 = l_instDecidableNot___redArg(x_13);
 if (x_14 == 0)
 {
-lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_8);
 lean_dec(x_5);
@@ -8258,7 +8245,6 @@ if (x_18 == 0)
 lean_dec(x_15);
 lean_free_object(x_10);
 lean_dec(x_13);
-lean_dec(x_11);
 return x_9;
 }
 else
@@ -8305,7 +8291,6 @@ if (x_27 == 0)
 {
 lean_dec(x_24);
 lean_dec(x_23);
-lean_dec(x_11);
 return x_9;
 }
 else

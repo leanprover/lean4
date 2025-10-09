@@ -594,7 +594,6 @@ goto block_18;
 }
 else
 {
-lean_dec(x_28);
 x_13 = x_26;
 goto block_18;
 }

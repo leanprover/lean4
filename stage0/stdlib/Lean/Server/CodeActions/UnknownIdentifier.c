@@ -5437,7 +5437,6 @@ if (x_33 == 0)
 lean_object* x_34; lean_object* x_35; 
 x_34 = lean_ctor_get(x_25, 0);
 x_35 = lean_ctor_get(x_25, 1);
-lean_inc(x_35);
 lean_inc(x_34);
 x_13 = x_25;
 x_14 = x_34;
@@ -5452,7 +5451,6 @@ x_37 = lean_ctor_get(x_25, 1);
 lean_inc(x_37);
 lean_inc(x_36);
 lean_dec(x_25);
-lean_inc(x_37);
 lean_inc(x_36);
 x_38 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_38, 0, x_36);
@@ -5477,7 +5475,6 @@ if (x_39 == 0)
 lean_object* x_40; lean_object* x_41; 
 x_40 = lean_ctor_get(x_19, 0);
 x_41 = lean_ctor_get(x_19, 1);
-lean_inc(x_41);
 lean_inc(x_40);
 x_13 = x_19;
 x_14 = x_40;
@@ -5492,7 +5489,6 @@ x_43 = lean_ctor_get(x_19, 1);
 lean_inc(x_43);
 lean_inc(x_42);
 lean_dec(x_19);
-lean_inc(x_43);
 lean_inc(x_42);
 x_44 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_44, 0, x_42);
@@ -5517,7 +5513,6 @@ return x_11;
 }
 else
 {
-lean_dec(x_8);
 return x_7;
 }
 }
@@ -7080,7 +7075,6 @@ lean_inc(x_15);
 x_16 = l_Array_isEmpty___redArg(x_14);
 if (x_16 == 0)
 {
-lean_dec(x_15);
 lean_dec(x_14);
 lean_dec_ref(x_1);
 return x_13;

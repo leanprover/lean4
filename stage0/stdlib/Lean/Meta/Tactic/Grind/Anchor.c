@@ -1200,7 +1200,6 @@ x_26 = lean_nat_dec_lt(x_25, x_24);
 if (x_26 == 0)
 {
 lean_dec(x_24);
-lean_dec(x_23);
 lean_dec(x_22);
 lean_dec(x_19);
 lean_dec_ref(x_18);
@@ -1390,7 +1389,6 @@ x_26 = lean_nat_dec_lt(x_25, x_24);
 if (x_26 == 0)
 {
 lean_dec(x_24);
-lean_dec(x_23);
 lean_dec(x_22);
 lean_dec(x_19);
 lean_dec_ref(x_18);

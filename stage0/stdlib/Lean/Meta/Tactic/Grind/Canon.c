@@ -1050,7 +1050,6 @@ x_39 = l_Lean_Exception_isRuntime(x_36);
 lean_dec(x_36);
 if (x_39 == 0)
 {
-lean_dec(x_37);
 lean_dec(x_16);
 lean_dec(x_11);
 lean_dec(x_9);
@@ -1429,7 +1428,6 @@ return x_131;
 }
 else
 {
-lean_dec(x_37);
 lean_dec(x_36);
 lean_dec(x_16);
 lean_dec(x_11);

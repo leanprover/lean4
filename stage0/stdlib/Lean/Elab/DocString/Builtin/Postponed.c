@@ -1977,7 +1977,6 @@ return x_79;
 }
 else
 {
-lean_dec(x_47);
 lean_dec(x_46);
 return x_10;
 }

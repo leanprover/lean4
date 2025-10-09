@@ -8201,7 +8201,6 @@ else
 {
 lean_dec(x_12);
 lean_dec(x_11);
-lean_dec(x_10);
 return x_8;
 }
 }

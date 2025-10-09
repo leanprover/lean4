@@ -2730,7 +2730,6 @@ x_17 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps
 x_18 = l_Lean_Option_get___at_____private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps_loop_spec__0(x_16, x_17);
 if (x_18 == 0)
 {
-lean_dec(x_15);
 lean_dec(x_14);
 lean_dec(x_11);
 lean_dec_ref(x_10);
@@ -14508,7 +14507,6 @@ x_19 = lean_nat_dec_lt(x_18, x_5);
 if (x_19 == 0)
 {
 lean_dec(x_18);
-lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_11);
 lean_dec_ref(x_10);
@@ -14674,7 +14672,6 @@ x_20 = lean_nat_dec_lt(x_19, x_5);
 if (x_20 == 0)
 {
 lean_dec(x_19);
-lean_dec(x_17);
 lean_dec(x_16);
 lean_dec(x_12);
 lean_dec_ref(x_11);

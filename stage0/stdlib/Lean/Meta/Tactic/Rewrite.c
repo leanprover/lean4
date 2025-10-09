@@ -2286,7 +2286,6 @@ goto block_201;
 }
 else
 {
-lean_dec(x_209);
 lean_dec_ref(x_206);
 x_152 = x_202;
 x_153 = x_203;

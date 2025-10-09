@@ -1738,7 +1738,6 @@ return x_38;
 }
 else
 {
-lean_dec(x_29);
 lean_dec(x_24);
 lean_dec(x_14);
 lean_dec(x_11);
@@ -1950,7 +1949,6 @@ return x_73;
 }
 else
 {
-lean_dec(x_64);
 lean_dec(x_58);
 lean_dec(x_46);
 lean_dec(x_11);

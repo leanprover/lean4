@@ -2776,7 +2776,6 @@ if (x_50 == 0)
 lean_object* x_51; lean_object* x_52; 
 x_51 = lean_ctor_get(x_41, 0);
 x_52 = lean_ctor_get(x_41, 1);
-lean_inc(x_52);
 lean_inc(x_51);
 x_15 = x_41;
 x_16 = x_51;
@@ -2791,7 +2790,6 @@ x_54 = lean_ctor_get(x_41, 1);
 lean_inc(x_54);
 lean_inc(x_53);
 lean_dec(x_41);
-lean_inc(x_54);
 lean_inc(x_53);
 x_55 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_55, 0, x_53);
@@ -2818,7 +2816,6 @@ if (x_56 == 0)
 lean_object* x_57; lean_object* x_58; 
 x_57 = lean_ctor_get(x_35, 0);
 x_58 = lean_ctor_get(x_35, 1);
-lean_inc(x_58);
 lean_inc(x_57);
 x_15 = x_35;
 x_16 = x_57;
@@ -2833,7 +2830,6 @@ x_60 = lean_ctor_get(x_35, 1);
 lean_inc(x_60);
 lean_inc(x_59);
 lean_dec(x_35);
-lean_inc(x_60);
 lean_inc(x_59);
 x_61 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_61, 0, x_59);
@@ -2859,7 +2855,6 @@ if (x_62 == 0)
 lean_object* x_63; lean_object* x_64; 
 x_63 = lean_ctor_get(x_26, 0);
 x_64 = lean_ctor_get(x_26, 1);
-lean_inc(x_64);
 lean_inc(x_63);
 x_15 = x_26;
 x_16 = x_63;
@@ -2874,7 +2869,6 @@ x_66 = lean_ctor_get(x_26, 1);
 lean_inc(x_66);
 lean_inc(x_65);
 lean_dec(x_26);
-lean_inc(x_66);
 lean_inc(x_65);
 x_67 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_67, 0, x_65);
@@ -3010,7 +3004,6 @@ if (lean_is_exclusive(x_87)) {
  lean_dec_ref(x_87);
  x_98 = lean_box(0);
 }
-lean_inc(x_97);
 lean_inc(x_96);
 if (lean_is_scalar(x_98)) {
  x_99 = lean_alloc_ctor(1, 2, 0);
@@ -3046,7 +3039,6 @@ if (lean_is_exclusive(x_81)) {
  lean_dec_ref(x_81);
  x_102 = lean_box(0);
 }
-lean_inc(x_101);
 lean_inc(x_100);
 if (lean_is_scalar(x_102)) {
  x_103 = lean_alloc_ctor(1, 2, 0);
@@ -3081,7 +3073,6 @@ if (lean_is_exclusive(x_72)) {
  lean_dec_ref(x_72);
  x_106 = lean_box(0);
 }
-lean_inc(x_105);
 lean_inc(x_104);
 if (lean_is_scalar(x_106)) {
  x_107 = lean_alloc_ctor(1, 2, 0);
@@ -3342,7 +3333,6 @@ return x_13;
 }
 else
 {
-lean_dec(x_10);
 return x_9;
 }
 }
@@ -28328,7 +28318,6 @@ return x_39;
 }
 else
 {
-lean_dec(x_26);
 lean_dec(x_25);
 lean_free_object(x_15);
 lean_dec(x_19);
@@ -28392,7 +28381,6 @@ return x_57;
 }
 else
 {
-lean_dec(x_48);
 lean_dec(x_47);
 lean_dec(x_41);
 return x_46;

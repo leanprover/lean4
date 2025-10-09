@@ -3987,7 +3987,6 @@ return x_22;
 }
 else
 {
-lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_8);
 lean_dec(x_5);
@@ -4577,7 +4576,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_24);
 lean_dec(x_22);
 lean_dec(x_19);
 lean_dec(x_9);

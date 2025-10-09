@@ -7333,7 +7333,6 @@ return x_38;
 }
 else
 {
-lean_dec(x_28);
 return x_22;
 }
 }

@@ -1931,7 +1931,6 @@ return x_10;
 }
 else
 {
-lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_4);
 lean_dec_ref(x_3);
@@ -1972,7 +1971,6 @@ return x_11;
 }
 else
 {
-lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_5);
 lean_dec_ref(x_4);
@@ -6015,7 +6013,6 @@ if (x_13 == 0)
 lean_object* x_14; lean_object* x_15; uint8_t x_16; uint8_t x_20; 
 x_14 = lean_ctor_get(x_5, 0);
 x_15 = lean_ctor_get(x_5, 1);
-lean_inc(x_15);
 lean_inc(x_14);
 x_20 = l_Lean_Exception_isInterrupt(x_14);
 if (x_20 == 0)
@@ -6045,7 +6042,6 @@ return x_18;
 }
 else
 {
-lean_dec(x_15);
 lean_dec(x_14);
 return x_5;
 }
@@ -6059,7 +6055,6 @@ x_23 = lean_ctor_get(x_5, 1);
 lean_inc(x_23);
 lean_inc(x_22);
 lean_dec(x_5);
-lean_inc(x_23);
 lean_inc(x_22);
 x_24 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_24, 0, x_22);
@@ -6092,7 +6087,6 @@ return x_27;
 }
 else
 {
-lean_dec(x_23);
 lean_dec(x_22);
 return x_24;
 }
@@ -10683,7 +10677,6 @@ goto block_30;
 }
 else
 {
-lean_dec(x_33);
 lean_dec(x_32);
 lean_free_object(x_1);
 lean_dec(x_12);
@@ -10863,7 +10856,6 @@ goto block_81;
 }
 else
 {
-lean_dec(x_84);
 lean_dec(x_83);
 lean_dec(x_65);
 lean_free_object(x_6);
@@ -11054,7 +11046,6 @@ goto block_118;
 }
 else
 {
-lean_dec(x_121);
 lean_dec(x_120);
 lean_dec(x_102);
 lean_dec(x_101);
@@ -16847,7 +16838,6 @@ goto block_28;
 }
 else
 {
-lean_dec(x_52);
 lean_dec(x_51);
 x_7 = x_50;
 goto block_28;
@@ -16931,7 +16921,6 @@ goto block_28;
 }
 else
 {
-lean_dec(x_78);
 lean_dec(x_77);
 x_7 = x_76;
 goto block_28;
@@ -20677,7 +20666,6 @@ if (x_24 == 0)
 {
 if (lean_obj_tag(x_22) == 0)
 {
-lean_dec(x_23);
 lean_dec_ref(x_22);
 lean_dec(x_17);
 lean_dec(x_5);
@@ -20696,7 +20684,6 @@ x_26 = l_Lean_instBEqInternalExceptionId_beq(x_20, x_25);
 lean_dec(x_25);
 if (x_26 == 0)
 {
-lean_dec(x_23);
 lean_dec(x_17);
 lean_dec(x_5);
 lean_dec_ref(x_4);
@@ -20721,7 +20708,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_23);
 lean_dec_ref(x_22);
 lean_dec(x_17);
 lean_dec(x_5);
@@ -28181,7 +28167,6 @@ return x_9;
 }
 else
 {
-lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_3);
 lean_dec_ref(x_2);

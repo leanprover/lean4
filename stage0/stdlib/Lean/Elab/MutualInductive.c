@@ -6735,14 +6735,12 @@ return x_34;
 }
 else
 {
-lean_dec(x_14);
 lean_dec_ref(x_13);
 return x_12;
 }
 }
 else
 {
-lean_dec(x_14);
 lean_dec(x_13);
 return x_12;
 }
@@ -9240,7 +9238,6 @@ x_16 = lean_nat_dec_lt(x_14, x_15);
 lean_dec(x_15);
 if (x_16 == 0)
 {
-lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_7);
 lean_dec_ref(x_6);

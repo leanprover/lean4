@@ -6691,7 +6691,6 @@ uint8_t x_104;
 x_104 = l_Lean_Expr_hasMVar(x_10);
 if (x_104 == 0)
 {
-lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_7);
 lean_dec_ref(x_6);

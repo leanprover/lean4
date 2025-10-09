@@ -16556,7 +16556,6 @@ return x_136;
 }
 else
 {
-lean_dec(x_113);
 lean_dec(x_112);
 x_51 = x_111;
 goto block_109;
@@ -58041,7 +58040,6 @@ goto block_22;
 }
 else
 {
-lean_dec(x_32);
 lean_dec(x_15);
 lean_dec_ref(x_14);
 lean_dec(x_13);
@@ -63933,7 +63931,6 @@ goto block_22;
 }
 else
 {
-lean_dec(x_32);
 lean_dec(x_15);
 lean_dec_ref(x_14);
 lean_dec(x_13);

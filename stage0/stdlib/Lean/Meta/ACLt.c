@@ -1062,7 +1062,6 @@ return x_17;
 }
 else
 {
-lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -2414,7 +2413,6 @@ else
 lean_dec(x_31);
 lean_dec_ref(x_30);
 lean_dec_ref(x_26);
-lean_dec(x_20);
 lean_dec(x_18);
 lean_dec_ref(x_9);
 lean_dec(x_7);
@@ -2865,7 +2863,6 @@ else
 lean_dec(x_112);
 lean_dec_ref(x_111);
 lean_dec_ref(x_107);
-lean_dec(x_101);
 lean_dec(x_99);
 lean_dec_ref(x_9);
 lean_dec(x_7);

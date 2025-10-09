@@ -6507,7 +6507,6 @@ return x_16;
 }
 else
 {
-lean_dec(x_11);
 lean_dec_ref(x_3);
 return x_9;
 }
@@ -20382,7 +20381,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_8);
 return x_4;
 }
 }

@@ -9107,7 +9107,6 @@ goto block_21;
 }
 else
 {
-lean_dec(x_33);
 lean_dec_ref(x_32);
 lean_dec_ref(x_13);
 lean_dec(x_12);
@@ -9122,7 +9121,6 @@ goto block_47;
 }
 else
 {
-lean_dec(x_33);
 lean_dec_ref(x_32);
 lean_dec_ref(x_13);
 lean_dec(x_12);
@@ -9326,7 +9324,6 @@ goto block_21;
 }
 else
 {
-lean_dec(x_76);
 lean_dec_ref(x_75);
 lean_dec_ref(x_13);
 lean_dec(x_12);
@@ -9341,7 +9338,6 @@ goto block_90;
 }
 else
 {
-lean_dec(x_76);
 lean_dec_ref(x_75);
 lean_dec_ref(x_13);
 lean_dec(x_12);
@@ -9556,7 +9552,6 @@ goto block_22;
 }
 else
 {
-lean_dec(x_34);
 lean_dec_ref(x_33);
 lean_dec_ref(x_14);
 lean_dec(x_13);
@@ -9571,7 +9566,6 @@ goto block_48;
 }
 else
 {
-lean_dec(x_34);
 lean_dec_ref(x_33);
 lean_dec_ref(x_14);
 lean_dec(x_13);
@@ -9775,7 +9769,6 @@ goto block_22;
 }
 else
 {
-lean_dec(x_77);
 lean_dec_ref(x_76);
 lean_dec_ref(x_14);
 lean_dec(x_13);
@@ -9790,7 +9783,6 @@ goto block_91;
 }
 else
 {
-lean_dec(x_77);
 lean_dec_ref(x_76);
 lean_dec_ref(x_14);
 lean_dec(x_13);

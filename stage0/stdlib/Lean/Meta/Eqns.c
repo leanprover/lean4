@@ -8923,7 +8923,6 @@ return x_50;
 else
 {
 lean_dec(x_21);
-lean_dec(x_20);
 lean_dec(x_14);
 lean_free_object(x_8);
 lean_dec(x_6);
@@ -9056,7 +9055,6 @@ return x_78;
 else
 {
 lean_dec(x_62);
-lean_dec(x_61);
 lean_dec(x_55);
 lean_dec(x_6);
 lean_dec_ref(x_5);

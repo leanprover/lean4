@@ -22439,7 +22439,6 @@ uint8_t x_24;
 x_24 = l_Lean_Expr_isHeadBetaTarget(x_1, x_22);
 if (x_24 == 0)
 {
-lean_dec(x_21);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
@@ -22465,7 +22464,6 @@ if (x_31 == 0)
 {
 if (lean_obj_tag(x_28) == 0)
 {
-lean_dec(x_29);
 lean_dec_ref(x_28);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -22495,7 +22493,6 @@ x_37 = l_Lean_instBEqInternalExceptionId_beq(x_33, x_36);
 lean_dec(x_33);
 if (x_37 == 0)
 {
-lean_dec(x_29);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
@@ -22523,7 +22520,6 @@ goto block_27;
 }
 else
 {
-lean_dec(x_29);
 lean_dec_ref(x_28);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -22537,7 +22533,6 @@ goto block_20;
 }
 else
 {
-lean_dec(x_29);
 lean_dec_ref(x_28);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -23464,7 +23459,6 @@ lean_object* x_87; lean_object* x_88; lean_object* x_89; uint8_t x_90;
 x_87 = lean_ctor_get(x_78, 0);
 x_88 = lean_ctor_get(x_78, 1);
 x_89 = l_Lean_Meta_CheckAssignment_throwOutOfScopeFVar___redArg___closed__0;
-lean_inc(x_88);
 lean_inc(x_87);
 x_90 = l_Lean_Exception_isInterrupt(x_87);
 if (x_90 == 0)
@@ -23499,7 +23493,6 @@ lean_inc(x_93);
 lean_inc(x_92);
 lean_dec(x_78);
 x_94 = l_Lean_Meta_CheckAssignment_throwOutOfScopeFVar___redArg___closed__0;
-lean_inc(x_93);
 lean_inc(x_92);
 x_95 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_95, 0, x_92);
@@ -23933,7 +23926,6 @@ if (lean_obj_tag(x_56) == 0)
 lean_dec_ref(x_58);
 lean_dec(x_57);
 lean_dec_ref(x_56);
-lean_dec(x_55);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec(x_8);
@@ -23953,7 +23945,6 @@ if (x_61 == 0)
 {
 lean_dec_ref(x_58);
 lean_dec_ref(x_56);
-lean_dec(x_55);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec(x_8);
@@ -23981,7 +23972,6 @@ else
 {
 lean_dec_ref(x_58);
 lean_dec_ref(x_56);
-lean_dec(x_55);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec(x_8);
@@ -24008,7 +23998,6 @@ else
 lean_dec_ref(x_58);
 lean_dec(x_57);
 lean_dec_ref(x_56);
-lean_dec(x_55);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec(x_8);
@@ -24138,7 +24127,6 @@ lean_object* x_87; lean_object* x_88; lean_object* x_89; uint8_t x_90;
 x_87 = lean_ctor_get(x_78, 0);
 x_88 = lean_ctor_get(x_78, 1);
 x_89 = l_Lean_Meta_CheckAssignment_throwOutOfScopeFVar___redArg___closed__0;
-lean_inc(x_88);
 lean_inc(x_87);
 x_90 = l_Lean_Exception_isInterrupt(x_87);
 if (x_90 == 0)
@@ -24173,7 +24161,6 @@ lean_inc(x_93);
 lean_inc(x_92);
 lean_dec(x_78);
 x_94 = l_Lean_Meta_CheckAssignment_throwOutOfScopeFVar___redArg___closed__0;
-lean_inc(x_93);
 lean_inc(x_92);
 x_95 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_95, 0, x_92);
@@ -24606,7 +24593,6 @@ if (lean_obj_tag(x_56) == 0)
 {
 lean_dec(x_58);
 lean_dec_ref(x_56);
-lean_dec(x_55);
 lean_dec_ref(x_54);
 lean_dec(x_10);
 lean_dec_ref(x_9);
@@ -24626,7 +24612,6 @@ lean_dec(x_58);
 if (x_61 == 0)
 {
 lean_dec_ref(x_56);
-lean_dec(x_55);
 lean_dec_ref(x_54);
 lean_dec(x_10);
 lean_dec_ref(x_9);
@@ -24654,7 +24639,6 @@ goto block_53;
 else
 {
 lean_dec_ref(x_56);
-lean_dec(x_55);
 lean_dec_ref(x_54);
 lean_dec(x_10);
 lean_dec_ref(x_9);
@@ -24681,7 +24665,6 @@ else
 {
 lean_dec(x_58);
 lean_dec_ref(x_56);
-lean_dec(x_55);
 lean_dec_ref(x_54);
 lean_dec(x_10);
 lean_dec_ref(x_9);
@@ -26420,7 +26403,6 @@ if (x_30 == 0)
 {
 lean_dec(x_29);
 lean_dec(x_28);
-lean_dec(x_26);
 lean_dec(x_25);
 lean_dec_ref(x_1);
 return x_24;
@@ -26433,7 +26415,6 @@ if (x_31 == 0)
 {
 lean_dec(x_29);
 lean_dec(x_28);
-lean_dec(x_26);
 lean_dec(x_25);
 lean_dec_ref(x_1);
 return x_24;
@@ -26527,7 +26508,6 @@ x_24 = lean_nat_dec_lt(x_12, x_23);
 if (x_24 == 0)
 {
 lean_dec(x_23);
-lean_dec(x_22);
 lean_dec(x_21);
 lean_dec_ref(x_1);
 return x_20;
@@ -26539,7 +26519,6 @@ x_25 = lean_nat_dec_le(x_23, x_23);
 if (x_25 == 0)
 {
 lean_dec(x_23);
-lean_dec(x_22);
 lean_dec(x_21);
 lean_dec_ref(x_1);
 return x_20;
@@ -26617,7 +26596,6 @@ x_44 = lean_nat_dec_lt(x_12, x_43);
 if (x_44 == 0)
 {
 lean_dec(x_43);
-lean_dec(x_42);
 lean_dec(x_41);
 lean_dec_ref(x_1);
 return x_40;
@@ -26629,7 +26607,6 @@ x_45 = lean_nat_dec_le(x_43, x_43);
 if (x_45 == 0)
 {
 lean_dec(x_43);
-lean_dec(x_42);
 lean_dec(x_41);
 lean_dec_ref(x_1);
 return x_40;
@@ -39060,7 +39037,6 @@ return x_27;
 }
 else
 {
-lean_dec(x_15);
 return x_12;
 }
 }

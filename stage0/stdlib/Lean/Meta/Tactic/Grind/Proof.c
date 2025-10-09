@@ -3940,7 +3940,6 @@ else
 {
 lean_dec_ref(x_21);
 lean_dec_ref(x_20);
-lean_dec(x_19);
 lean_dec_ref(x_15);
 lean_dec(x_10);
 lean_dec_ref(x_9);
@@ -6947,7 +6946,6 @@ goto block_83;
 }
 else
 {
-lean_dec(x_86);
 x_72 = x_84;
 goto block_83;
 }

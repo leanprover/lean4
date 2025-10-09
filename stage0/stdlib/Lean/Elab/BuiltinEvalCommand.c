@@ -2155,7 +2155,6 @@ return x_50;
 }
 else
 {
-lean_dec(x_17);
 lean_dec(x_16);
 lean_dec(x_12);
 lean_dec(x_7);
@@ -7359,7 +7358,6 @@ return x_173;
 }
 else
 {
-lean_dec(x_152);
 lean_dec(x_69);
 lean_dec(x_5);
 lean_dec_ref(x_4);
@@ -7686,7 +7684,6 @@ return x_141;
 else
 {
 lean_dec_ref(x_74);
-lean_dec(x_73);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
@@ -8159,7 +8156,6 @@ if (x_80 == 0)
 lean_object* x_81; lean_object* x_82; 
 x_81 = lean_ctor_get(x_79, 0);
 x_82 = lean_ctor_get(x_79, 1);
-lean_inc(x_82);
 lean_inc(x_81);
 x_65 = x_79;
 x_66 = x_81;
@@ -8174,7 +8170,6 @@ x_84 = lean_ctor_get(x_79, 1);
 lean_inc(x_84);
 lean_inc(x_83);
 lean_dec(x_79);
-lean_inc(x_84);
 lean_inc(x_83);
 x_85 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_85, 0, x_83);
@@ -8385,7 +8380,6 @@ return x_63;
 }
 else
 {
-lean_dec(x_34);
 lean_dec(x_32);
 lean_dec(x_5);
 lean_dec_ref(x_4);
@@ -8571,7 +8565,6 @@ return x_29;
 }
 else
 {
-lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_5);
 lean_dec_ref(x_4);
@@ -11820,7 +11813,6 @@ goto block_89;
 }
 else
 {
-lean_dec(x_152);
 lean_dec_ref(x_151);
 lean_dec_ref(x_90);
 lean_dec_ref(x_4);
@@ -16694,7 +16686,6 @@ goto block_72;
 }
 else
 {
-lean_dec(x_135);
 lean_dec_ref(x_133);
 lean_dec_ref(x_73);
 x_41 = x_134;
@@ -20781,7 +20772,6 @@ if (x_26 == 0)
 lean_object* x_27; lean_object* x_28; 
 x_27 = lean_ctor_get(x_18, 0);
 x_28 = lean_ctor_get(x_18, 1);
-lean_inc(x_28);
 lean_inc(x_27);
 x_5 = x_18;
 x_6 = x_27;
@@ -20796,7 +20786,6 @@ x_30 = lean_ctor_get(x_18, 1);
 lean_inc(x_30);
 lean_inc(x_29);
 lean_dec(x_18);
-lean_inc(x_30);
 lean_inc(x_29);
 x_31 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_31, 0, x_29);
@@ -20862,7 +20851,6 @@ if (lean_is_exclusive(x_34)) {
  lean_dec_ref(x_34);
  x_43 = lean_box(0);
 }
-lean_inc(x_42);
 lean_inc(x_41);
 if (lean_is_scalar(x_43)) {
  x_44 = lean_alloc_ctor(1, 2, 0);
@@ -20889,7 +20877,6 @@ if (x_45 == 0)
 lean_object* x_46; lean_object* x_47; 
 x_46 = lean_ctor_get(x_12, 0);
 x_47 = lean_ctor_get(x_12, 1);
-lean_inc(x_47);
 lean_inc(x_46);
 x_5 = x_12;
 x_6 = x_46;
@@ -20904,7 +20891,6 @@ x_49 = lean_ctor_get(x_12, 1);
 lean_inc(x_49);
 lean_inc(x_48);
 lean_dec(x_12);
-lean_inc(x_49);
 lean_inc(x_48);
 x_50 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_50, 0, x_48);
@@ -20932,7 +20918,6 @@ return x_10;
 }
 else
 {
-lean_dec(x_7);
 lean_dec_ref(x_6);
 return x_5;
 }

@@ -7058,7 +7058,6 @@ goto block_20;
 }
 else
 {
-lean_dec(x_24);
 lean_dec_ref(x_23);
 x_12 = x_21;
 x_13 = x_22;

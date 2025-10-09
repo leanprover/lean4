@@ -26334,7 +26334,6 @@ return x_22;
 }
 else
 {
-lean_dec(x_15);
 return x_13;
 }
 }

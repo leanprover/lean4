@@ -4558,14 +4558,12 @@ return x_26;
 }
 else
 {
-lean_dec(x_9);
 lean_dec_ref(x_8);
 return x_7;
 }
 }
 else
 {
-lean_dec(x_9);
 lean_dec(x_8);
 return x_7;
 }
@@ -4682,14 +4680,12 @@ return x_24;
 }
 else
 {
-lean_dec(x_7);
 lean_dec_ref(x_6);
 return x_5;
 }
 }
 else
 {
-lean_dec(x_7);
 lean_dec(x_6);
 return x_5;
 }

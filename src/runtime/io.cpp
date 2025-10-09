@@ -158,7 +158,7 @@ static FILE * io_get_handle(lean_object * hfile) {
     return static_cast<FILE *>(lean_get_external_data(hfile));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_decode_io_error(int errnum) {
+extern "C" LEAN_EXPORT obj_res lean_decode_io_error(int errnum, b_lean_obj_arg fname) {
     object * details = mk_string(strerror(errnum));
     // Keep in sync with lean_decode_uv_error below
     switch (errnum) {
@@ -255,7 +255,7 @@ extern "C" LEAN_EXPORT obj_res lean_decode_io_error(int errnum) {
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum) {
+extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_lean_obj_arg fname) {
     object * details = mk_string(uv_strerror(errnum));
     // Keep in sync with lean_decode_io_error above
     switch (errnum) {
@@ -896,7 +896,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_random_bytes (size_t nbytes) {
 /* timeit {α : Type} (msg : @& String) (fn : IO α) : IO α */
 extern "C" LEAN_EXPORT obj_res lean_io_timeit(b_obj_arg msg, obj_arg fn) {
     auto start = std::chrono::steady_clock::now();
-    w = apply_1(fn, w);
+    obj_arg w = apply_1(fn, lean_io_mk_world());
     auto end   = std::chrono::steady_clock::now();
     auto diff  = std::chrono::duration<double>(end - start);
     sstream out;
@@ -916,7 +916,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_allocprof(b_obj_arg msg, obj_arg fn) {
     obj_res res;
     {
         allocprof prof(out, string_cstr(msg));
-        res = apply_1(fn, w);
+        res = apply_1(fn, lean_io_mk_world());
     }
     io_eprintln(mk_string(out.str()));
     return res;
@@ -1527,7 +1527,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_as_task(obj_arg act, obj_arg prio) {
 }
 
 /* {α β : Type} (f : α → BaseIO β) (a : α) : β */
-static obj_res lean_io_bind_task_fn(obj_arg f) {
+static obj_res lean_io_bind_task_fn(obj_arg f, obj_arg a) {
     object_ref r(apply_2(f, a, io_mk_world()));
     return object_ref(lean_baseio_out_val(r.raw()), true).steal();
 }

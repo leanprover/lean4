@@ -161,7 +161,7 @@ extern "C" lean_object* lean_mk_metavar_ctx(lean_object*);
 @[export lean_pp_expr]
 def ppExprLegacy (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : IO Format :=
 */
-extern "C" object * lean_pp_expr(object * env, object * mctx, object * lctx, object * opts, object * e, object * w);
+extern "C" object * lean_pp_expr(object * env, object * mctx, object * lctx, object * opts, object * e);
 
 /*
 @[export lean_format_pretty]

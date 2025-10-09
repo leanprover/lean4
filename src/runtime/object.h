@@ -470,7 +470,7 @@ inline obj_res st_mk_ref(obj_arg v) { return lean_st_mk_ref(v); }
 inline obj_res st_ref_get(b_obj_arg r) { return lean_st_ref_get(r); }
 inline obj_res st_ref_set(b_obj_arg r, obj_arg v) { return lean_st_ref_set(r, v); }
 inline obj_res st_ref_reset(b_obj_arg r) { return lean_st_ref_reset(r); }
-inline obj_res st_ref_swap(b_obj_arg r, obj_arg ) { return lean_st_ref_swap(r, v); }
+inline obj_res st_ref_swap(b_obj_arg r, obj_arg v) { return lean_st_ref_swap(r, v); }
 
 obj_res lean_promise_new();
 void lean_promise_resolve(obj_arg value, b_obj_arg promise);

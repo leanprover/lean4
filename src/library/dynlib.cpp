@@ -115,7 +115,7 @@ extern "C" LEAN_EXPORT obj_res lean_dynlib_get(b_obj_arg dynlib, b_obj_arg name)
 
 /* Dynlib.Symbol.runAsInit : {Dynlib} -> Symbol -> IO Unit */
 extern "C" LEAN_EXPORT obj_res lean_dynlib_symbol_run_as_init(b_obj_arg /* dynlib */, b_obj_arg sym) {
-    auto init_fn = reinterpret_cast<object *(*)(uint8_t, object *)>(symbol_ptr(sym));
+    auto init_fn = reinterpret_cast<object *(*)(uint8_t)>(symbol_ptr(sym));
     return init_fn(1 /* builtin */);
 }
 

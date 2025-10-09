@@ -497,7 +497,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket) {
     lean_object* promise = lean_promise_new();
     mark_mt(promise);
 
-    lean_object* client = lean_io_result_take_value(lean_uv_tcp_new(lean_box(0)));
+    lean_object* client = lean_io_result_take_value(lean_uv_tcp_new());
 
     lean_uv_tcp_socket_object* client_socket = lean_to_uv_tcp_socket(client);
 

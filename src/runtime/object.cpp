@@ -1065,7 +1065,7 @@ extern "C" LEAN_EXPORT obj_res lean_task_pure(obj_arg a) {
     return (lean_object*)alloc_task(a);
 }
 
-static obj_res task_map_fn(obj_arg f, obj_arg t) {
+static obj_res task_map_fn(obj_arg f, obj_arg t, obj_arg w) {
     b_obj_res v = lean_to_task(t)->m_value;
     lean_assert(v != nullptr);
     lean_inc(v);

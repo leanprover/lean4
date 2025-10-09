@@ -341,16 +341,16 @@ uint32 run_shell_main(
         json_output,
         error_kinds.to_obj_arg(),
         print_stats,
-        run,
+        run
     ));
 }
 
-extern "C" object* lean_init_search_path(object* w);
+extern "C" object* lean_init_search_path();
 void init_search_path() {
     get_io_scalar_result<unsigned>(lean_init_search_path());
 }
 
-extern "C" object* lean_environment_free_regions(object * env, object * w);
+extern "C" object* lean_environment_free_regions(object * env);
 void environment_free_regions(elab_environment && env) {
     consume_io_result(lean_environment_free_regions(env.steal()));
 }
@@ -363,7 +363,7 @@ void check_optarg(char const * option_name) {
     }
 }
 
-extern "C" object * lean_enable_initializer_execution(object * w);
+extern "C" object * lean_enable_initializer_execution();
 
 namespace lean {
 extern void (*g_lean_report_task_get_blocked_time)(std::chrono::nanoseconds);

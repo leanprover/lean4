@@ -2902,11 +2902,11 @@ LEAN_EXPORT lean_obj_res lean_mk_io_user_error(lean_obj_arg str);
 
 
 /* ST Ref primitives */
-LEAN_EXPORT lean_obj_res lean_st_mk_ref(lean_obj_arg, lean_obj_arg);
-LEAN_EXPORT lean_obj_res lean_st_ref_get(b_lean_obj_arg, lean_obj_arg);
-LEAN_EXPORT lean_obj_res lean_st_ref_set(b_lean_obj_arg, lean_obj_arg, lean_obj_arg);
-LEAN_EXPORT lean_obj_res lean_st_ref_reset(b_lean_obj_arg, lean_obj_arg);
-LEAN_EXPORT lean_obj_res lean_st_ref_swap(b_lean_obj_arg, lean_obj_arg, lean_obj_arg);
+LEAN_EXPORT lean_obj_res lean_st_mk_ref(lean_obj_arg);
+LEAN_EXPORT lean_obj_res lean_st_ref_get(b_lean_obj_arg);
+LEAN_EXPORT lean_obj_res lean_st_ref_set(b_lean_obj_arg, lean_obj_arg);
+LEAN_EXPORT lean_obj_res lean_st_ref_reset(b_lean_obj_arg);
+LEAN_EXPORT lean_obj_res lean_st_ref_swap(b_lean_obj_arg, lean_obj_arg);
 
 /* pointer address unsafe primitive  */
 static inline size_t lean_ptr_addr(b_lean_obj_arg a) { return (size_t)a; }

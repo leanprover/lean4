@@ -1174,7 +1174,7 @@ extern "C" obj_res lean_mk_module_initialization_function_name(obj_arg);
 extern "C" LEAN_EXPORT object * lean_run_mod_init(object * mod, object *) {
     string_ref mangled = string_ref(lean_mk_module_initialization_function_name(mod));
     if (void * init = lookup_symbol_in_cur_exe(mangled.data())) {
-        auto init_fn = reinterpret_cast<object *(*)(uint8_t, object *)>(init);
+        auto init_fn = reinterpret_cast<object *(*)(uint8_t)>(init);
         uint8_t builtin = 0;
         object * r = init_fn(builtin);
         if (io_result_is_ok(r)) {

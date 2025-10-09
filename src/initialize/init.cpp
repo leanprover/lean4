@@ -16,9 +16,9 @@ Author: Leonardo de Moura
 #include "initialize/init.h"
 
 namespace lean {
-extern "C" object* initialize_Init(uint8_t, object* w);
-extern "C" object* initialize_Std(uint8_t, object* w);
-extern "C" object* initialize_Lean(uint8_t, object* w);
+extern "C" object* initialize_Init(uint8_t);
+extern "C" object* initialize_Std(uint8_t);
+extern "C" object* initialize_Lean(uint8_t);
 
 /* Initializes the Lean runtime. Before executing any code which uses the Lean package,
 you must first call this function, and then `lean::io_mark_end_initialization`. In between

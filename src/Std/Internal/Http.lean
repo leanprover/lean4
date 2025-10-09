@@ -32,7 +32,7 @@ library, but it can be customized to use whatever IO library you want, as the pr
 is pure.
 
 If you want to customize how your server handles sockets, you can use `Std.Http.Server.serveConnection`,
-which is a simple function to bind a handler to a `ClientConnection`.
+which is a simple function to bind a handler to a `Transport`.
 
 # Low-Level Protocol Implementation
 

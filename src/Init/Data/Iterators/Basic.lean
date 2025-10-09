@@ -12,10 +12,12 @@ public import Init.Ext
 public import Init.NotationExtra
 public import Init.TacticsExtra
 
+set_option doc.verso true
+
 public section
 
 /-!
-### Definition of iterators
+# Definition of iterators
 
 This module defines iterators and what it means for an iterator to be finite and productive.
 -/
@@ -24,12 +26,30 @@ namespace Std
 
 private opaque Internal.idOpaque {α} : { f : α → α // f = id } := ⟨id, rfl⟩
 
+/--
+Currently, {lean}`Shrink α` is just a wrapper around {lean}`α`.
+
+In the future, {name}`Shrink` should allow shrinking {lean}`α` into a potentially smaller universe,
+given a proof that {name}`α` is actually small, just like Mathlib's {lit}`Shrink`, except that
+the latter's conversion functions are noncomputable. Until then, {lean}`Shrink α` is always in the
+same universe as {name}`α`.
+
+This no-op type exists so that fewer breaking changes will be needed when the
+real {lit}`Shrink` type is available and the iterators will be made more flexible with regard to
+universes.
+
+The conversion functions {name (scope := "Init.Data.Iterators.Basic")}`Shrink.deflate` and
+{name (scope := "Init.Data.Iterators.Basic")}`Shrink.inflate` form an equivalence between
+{name}`α` and {lean}`Shrink α`, but this equivalence is intentionally not definitional.
+-/
 public def Shrink (α : Type u) : Type u := Internal.idOpaque.1 α
 
+/-- Converts elements of {name}`α` into elements of {lean}`Shrink α`. -/
 @[always_inline]
 public def Shrink.deflate {α} (x : α) : Shrink α :=
   cast (by simp [Shrink, Internal.idOpaque.property]) x
 
+/-- Converts elements of {lean}`Shrink α` into elements of {name}`α`. -/
 @[always_inline]
 public def Shrink.inflate {α} (x : Shrink α) : α :=
   cast (by simp [Shrink, Internal.idOpaque.property]) x
@@ -61,6 +81,10 @@ public theorem Shrink.deflate_inj {α} {x y : α} :
     rfl
 
 namespace Iterators
+
+-- It is not fruitful to move the following docstrings to verso right now because there are lots of
+-- forward references that cannot be realized nicely.
+set_option doc.verso false
 
 /--
 An iterator that sequentially emits values of type `β` in the monad `m`. It may be finite

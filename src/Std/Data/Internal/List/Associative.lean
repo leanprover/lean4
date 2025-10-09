@@ -3076,23 +3076,15 @@ theorem contains_insertList_of_right [BEq α] [EquivBEq α] {l toInsert : List (
     rw [containsKey_insertList, ← containsKey_eq_contains_map_fst]
     simp only [contains, Bool.or_true]
 
-theorem length_right_le_length_insertList [BEq α] [EquivBEq α]
-    {l toInsert : List ((a : α) × β a)} :
-    toInsert.length ≤ (List.insertList l toInsert).length := by
-    induction l with
-    | nil => sorry
-    | cons h t ih =>
-      refine Nat.le_trans ih ?_
-      sorry
 
 theorem DistinctKeys_impl_Pairwise_distinct [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} (distinct_l : DistinctKeys l) :
-  List.Pairwise (fun a b => (a.fst == b.fst) = false) l := by
-    cases distinct_l
-    case mk distinct_l =>
-      simp only [keys_eq_map] at distinct_l
-      apply List.Pairwise.of_map
-      case p => exact distinct_l
-      simp only [imp_self, implies_true]
+    List.Pairwise (fun a b => (a.fst == b.fst) = false) l := by
+  cases distinct_l
+  case mk distinct_l =>
+    simp only [keys_eq_map] at distinct_l
+    apply List.Pairwise.of_map
+    case p => exact distinct_l
+    simp only [imp_self, implies_true]
 
 theorem insertList_perm_of_perm_second [BEq α] [EquivBEq α] {l1 l2 l : List ((a : α) × β a)}
     (h : Perm l1 l2) (distinct_l : DistinctKeys l) (distinct : DistinctKeys l1) :
@@ -3415,6 +3407,25 @@ theorem insertList_perm_insertSmallerList [BEq α] [EquivBEq α]
   . apply Perm.symm
     . apply insertListIfNew_perm_insertList distinct_toInsert distinct_l
   . apply Perm.refl
+
+theorem length_left_le_length_insertListIfNew [BEq α] [EquivBEq α]
+   {l toInsert : List ((a : α) × β a)} :
+    l.length ≤ (insertListIfNew l toInsert).length := by
+  induction toInsert generalizing l with
+  | nil => apply Nat.le_refl
+  | cons hd tl ih => exact Nat.le_trans length_le_length_insertEntryIfNew ih
+
+theorem length_right_le_length_insertList [BEq α] [EquivBEq α]
+    {l toInsert : List ((a : α) × β a)}
+    (distinct_l : DistinctKeys l)
+    (distinct_toInsert : DistinctKeys toInsert) :
+    toInsert.length ≤ (List.insertList l toInsert).length := by
+  apply Nat.le_trans
+  case m => exact (insertListIfNew toInsert l).length
+  . apply length_left_le_length_insertListIfNew
+  . apply Nat.le_of_eq
+    . apply Perm.length_eq
+      . exact @insertListIfNew_perm_insertList α β _ _ toInsert l distinct_toInsert distinct_l
 
 theorem insertList_insert_right_equiv_union_insert [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)} (p : (a : α) × β a)

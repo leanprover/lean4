@@ -151,7 +151,10 @@ private def HandleOverlapState.untilToken (st : HandleOverlapState) (nextToken? 
           nonOverlapping := st.nonOverlapping.push curr,
           current? := takeBest st.surrounding |>.map ({ · with pos := curr.tailPos })
         }
-      -- If the current token extends past t's start, then we're done with this loop and ready to handle t
+      -- If the current token extends past the start of the next token, 
+      -- then all remaining surrounding tokens also extend past the start of the next token,
+      -- which are all lower priority than the current token.
+      -- Hence, we are ready to handle the next token.
       else
         break
     else

@@ -24,7 +24,7 @@ Examples:
  * `List.finRange 0 = ([] : List (Fin 0))`
  * `List.finRange 2 = ([0, 1] : List (Fin 2))`
 -/
-def finRange (n : Nat) : List (Fin n) := ofFn fun i => i
+@[expose] def finRange (n : Nat) : List (Fin n) := ofFn fun i => i
 
 @[simp, grind =] theorem length_finRange {n : Nat} : (List.finRange n).length = n := by
   simp [List.finRange]

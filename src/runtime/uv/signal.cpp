@@ -234,7 +234,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_cancel(b_obj_arg obj, obj_arg
             uv_signal_stop(signal->m_uv_signal);
             lean_dec(signal->m_promise);
             signal->m_promise = NULL;
-            signal->m_state = SIGNAL_STATE_FINISHED;
+            signal->m_state = SIGNAL_STATE_INITIAL;
 
             lean_dec(obj);
         }

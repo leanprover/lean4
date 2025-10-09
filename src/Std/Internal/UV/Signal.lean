@@ -81,8 +81,8 @@ opaque stop (signal : @& Signal) : IO Unit
 /--
 This function has different behavior depending on the state of the `Signal`:
 - If it is initial or finished this is a no-op.
-- If it's running then it drops the accept promise and if it's not repeatable it finishes
-  the execution of the signal handler.
+- If it's running then it drops the accept promise and if it's not repeatable it sets
+  the signal handler to the initial state.
 -/
 @[extern "lean_uv_signal_cancel"]
 opaque cancel (signal : @& Signal) : IO Unit

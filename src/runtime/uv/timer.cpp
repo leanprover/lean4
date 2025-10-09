@@ -273,7 +273,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_cancel(b_obj_arg obj, obj_arg 
 
             lean_dec(timer->m_promise);
             timer->m_promise = NULL;
-            timer->m_state = TIMER_STATE_FINISHED;
+            timer->m_state = TIMER_STATE_INITIAL;
 
             // The loop does not need to keep the timer alive anymore.
             lean_dec(obj);

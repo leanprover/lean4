@@ -326,7 +326,15 @@ def helpCacheGet :=
 "Download artifacts from a remote service into the Lake cache
 
 USAGE:
-  lake cache get [<mappings>] [--scope=<remote-scope>] [--max-revs=<n>]
+  lake cache get [<mappings>]
+
+OPTIONS:
+  --max-revs=<n>                  backtrack up to n revisions (default: 100)
+  --rev=<commit-hash>             uses this exact revision to lookup artifacts
+  --repo=<github-repo>            GitHub repository of the package or a fork
+  --platform=<target-triple>      with Reservoir or --repo, sets the platform
+  --toolchain=<name>              with Reservoir or --repo, sets the toolchain
+  --scope=<remote-scope>          scope for a custom endpoint
 
 Downloads artifacts for packages in the workspace from a remote cache service.
 The cache service used can be configured via the environment variables:
@@ -336,16 +344,28 @@ The cache service used can be configured via the environment variables:
 
 If neither of these are set, Lake will use Reservoir instead.
 
-If an input-to-outputs mappings file or a scope is provided, Lake will
-download artifacts for the root package. Otherwise, it will download artifacts
-for each package in the root's dependency tree in order (using Reservoir).
-Non-Reservoir dependencies will be skipped.
+If an input-to-outputs mappings file, `--scope`, or `--repo` is provided,
+Lake will download artifacts for the root package. Otherwise, it will download
+artifacts for each package in the root's dependency tree in order (using
+Reservoir). Non-Reservoir dependencies will be skipped.
 
-To determine the artifacts to download, Lake uses the package's Git revision
-(commit hash) to lookup its input-to-outputs mappings on the cache service.
-Lake will download the artifacts for the most recent commit with available
-mappings. It will backtrack up to `--max-revs`, which defaults to 100.
-If set to 0, Lake will search the repository's whole history.
+To determine the artifacts to download, Lake looks up the input-to-output
+mappings for a given build of the package in the cache service. This mapping
+is identified by a Git revision and prefixed with a scope derived from the
+package's name, GitHub repository, Lean toolchain, and current platform.
+The exact configuration can be customized using options.
+
+For Reservoir, setting `--repo` will make Lake lookup artifacts for the root
+package  by a repository name, rather than the package's. This can be used to
+download artifacts for a fork of the Reservoir package (if such artifacts are
+available). The `--platform` and `--toolchain` options are used to download
+artifacts for a different platform/toolchain configuration then Lake detects.
+For For a custom endpoint, the full prefix Lake uses can be set via  `--scope`.
+
+If `--rev` is not set, Lake uses the package's current revision to lookup
+artifacts. If no mappings are found, Lake will backtrack the Git history up to
+`--max-revs`, looking for a revision with mappings. If `--max-revs` is 0, Lake
+will search the repository's entire history (or as far as Git will allow).
 
 While downloading, Lake will continue on when a download for an artifact
 fails or if the download process for a whole package fails. However, it will
@@ -355,22 +375,35 @@ def helpCachePut :=
 "Upload artifacts from the Lake cache to a remote service
 
 USAGE:
-  lake cache put <mappings> --scope=<remote-scope>
+  lake cache put <mappings> <scope-option>
 
 Uploads the input-to-outputs mappings contained in the specified file along
 with the corresponding output artifacts to a remote cache. The cache service
 used is configured via the environment variables:
 
-  LAKE_CACHE_KEY                authentication key for requests
-  LAKE_CACHE_ARTIFACT_ENDPOINT  base URL for artifact uploads
-  LAKE_CACHE_REVISION_ENDPOINT  base URL for the mapping upload
+  LAKE_CACHE_KEY                  authentication key for requests
+  LAKE_CACHE_ARTIFACT_ENDPOINT    base URL for artifact uploads
+  LAKE_CACHE_REVISION_ENDPOINT    base URL for the mapping upload
 
 Files are uploaded using the AWS Signature Version 4 authentication protocol
 via `curl`. Thus, the service should generally be an S3-compatible bucket.
 
-Artifacts are uploaded to the artifact endpoint under the prefix `scope`
+Since Lake does not currently use cryptographically secure hashes for
+artifacts and outputs, uploads to the cache are prefixed with a scope to avoid
+clashes. This scoped is configured with the following options:
+
+  --scope=<remote-scope>          sets a fixed scope
+  --repo=<github-repo>            uses the repository + toolchain & platform
+  --toolchain=<name>              with --repo, sets the toolchain
+  --platform=<target-triple>      with --repo, sets the platform
+
+At least one of `--scope` or `--repo` must be set. If `--repo` is used, Lake
+will augment this scope with toolchain and platform information as it deems
+necessary. If `--scope` is set, Lake will use that scope verbatim.
+
+Artifacts are uploaded to the artifact endpoint under the repository (or scope)
 with a file name corresponding to their Lake content hash. The mappings file
-is uploaded  to the revision endpoint under the prefix `scope` with a file name
+is uploaded  to the revision endpoint under the full scope with a file name
 corresponding to the package's current Git revision. As such, the command will
 fail if the the work tree currently has changes."
 

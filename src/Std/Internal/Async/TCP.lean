@@ -182,7 +182,7 @@ def recv? (s : Client) (size : UInt64) : Async (Option ByteArray) :=
 
 /--
 Creates a `Selector` that resolves once `s` has data available, up to at most `size` bytes,
-and provides that data. Calling this function starts the data wait, so it must not be called
+and provides that data. Calling this function does not starts the data wait, so it must not be called
 in parallel with `recv?`.
 -/
 def recvSelector (s : TCP.Socket.Client) (size : UInt64) : Selector (Option ByteArray) :=

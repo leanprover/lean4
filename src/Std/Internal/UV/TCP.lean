@@ -97,7 +97,7 @@ Accepts an incoming connection on a listening TCP socket.
 opaque accept (socket : @& Socket) : IO (IO.Promise (Except IO.Error Socket))
 
 /--
-Tries to accepts an incoming connection on a listening TCP socket.
+Tries to accept an incoming connection on a listening TCP socket.
 -/
 @[extern "lean_uv_tcp_try_accept"]
 opaque tryAccept (socket : @& Socket) : IO (Except IO.Error (Option Socket))

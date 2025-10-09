@@ -108,6 +108,7 @@ structure ToProcessElement where
 
 structure Context where
   zetaDelta : Bool
+  hasAuxDecls : Bool
 
 structure State where
   visitedLevel          : LevelMap Level := {}
@@ -191,7 +192,7 @@ def pushToProcess (elem : ToProcessElement) : ClosureM Unit :=
 
 partial def collectExprAux (e : Expr) : ClosureM Expr := do
   let collect (e : Expr) := visitExpr collectExprAux e
-  if !e.hasLooseBVars then
+  if (← read).hasAuxDecls && !e.hasLooseBVars then
     if let some fvar := e.getAppFn.fvarId? then
       if let some decl := (← getLCtx).find? fvar then
         if decl.isAuxDecl then
@@ -369,7 +370,8 @@ def mkValueTypeClosureAux (type : Expr) (value : Expr) : ClosureM (Expr × Expr)
     pure (type, value)
 
 public def mkValueTypeClosure (type : Expr) (value : Expr) (zetaDelta : Bool) : MetaM MkValueTypeClosureResult := do
-  let ((type, value), s) ← ((mkValueTypeClosureAux type value).run { zetaDelta }).run {}
+  let hasAuxDecls := (← getLCtx).any (·.isAuxDecl)
+  let ((type, value), s) ← ((mkValueTypeClosureAux type value).run { zetaDelta , hasAuxDecls}).run {}
   let newLocalDecls := s.newLocalDecls.reverse ++ s.newLocalDeclsForMVars
   let newLetDecls   := s.newLetDecls.reverse
   let type  := mkForall newLocalDecls (mkForall newLetDecls type)

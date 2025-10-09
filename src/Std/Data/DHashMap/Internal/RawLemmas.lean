@@ -2707,7 +2707,6 @@ theorem contains_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
     (m₁.union m₂).contains k = (m₁.contains k || m₂.contains k) := by
   simp_to_model [contains, union] using List.containsKey_insertList_disj_of_containsKey
 
-@[simp]
 theorem contains_union_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
     (h₂ : m₂.val.WF) {k : α} :
     (m₁.union m₂).contains k ↔ m₁.contains k ∨ m₂.contains k := by
@@ -2919,8 +2918,7 @@ theorem get?_union_of_contains_left_eq_false [LawfulBEq α] (h₁ : m₁.val.WF)
   revert contains_eq_false
   simp_to_model [union, contains, Const.get?] using List.getValue?_insertList_of_contains_left_eq_false
 
-theorem union_get? [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
-    {k : α} :
+theorem union_get? [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
     Const.get? (m₁.union m₂) k = (Const.get? m₂ k).or (Const.get? m₁ k) := by
   simp_to_model [union, Const.get?] using List.getValue?_of_insertList
 

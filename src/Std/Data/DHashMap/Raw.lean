@@ -501,9 +501,15 @@ This is mainly useful to implement `HashSet.insertMany`, so if you are consideri
     (Raw₀.Const.insertManyIfNewUnit ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
 
-/-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
+/-- Computes the union of the given hash maps, inserting smaller list into a bigger list. In the case of clashes of keys, entries from the left argument, are replaced with entries from the right argument. -/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
-  m₂.fold (init := m₁) fun acc x => acc.insert x
+  if h₁ : 0 < m₁.buckets.size then
+    if h₂ : 0 < m₂.buckets.size then
+      Raw₀.union ⟨m₁, h₁⟩ ⟨m₂, h₂⟩
+    else
+      m₁
+  else
+    m₂
 
 instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
 

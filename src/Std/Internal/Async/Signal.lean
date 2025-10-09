@@ -241,8 +241,8 @@ def stop (s : Signal.Waiter) : IO Unit :=
 Create a `Selector` that resolves once `s` has received the signal. Note that calling this function starts `s`
 if it hasn't already started.
 -/
-def selector (s : Signal.Waiter) : IO (Selector Unit) := do
-  return {
+def selector (s : Signal.Waiter) : Selector Unit :=
+  {
     tryFn := do
       let signalWaiter : AsyncTask _ ← async s.wait
       if ← IO.hasFinished signalWaiter then

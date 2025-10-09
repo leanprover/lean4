@@ -83,11 +83,14 @@ def tryAccept (s : Server) : Async (Option Client) := do
 Creates a `Selector` that resolves once `s` has a connetion available. Calling this function
 does not starts the connection wait, so it must not be called in parallel with `accept`.
 -/
-def acceptSelector (s : TCP.Socket.Server) : Async (Selector Client) := do
-  return {
-    tryFn := s.tryAccept
+def acceptSelector (s : TCP.Socket.Server) : Selector Client :=
+  {
+    tryFn :=
+      s.tryAccept
+
     registerFn waiter := do
       let task ← s.native.accept
+
       -- If we get cancelled the promise will be dropped so prepare for that
       IO.chainTask (t := task.result?) fun res => do
         match res with
@@ -101,6 +104,7 @@ def acceptSelector (s : TCP.Socket.Server) : Async (Selector Client) := do
             catch e =>
               promise.resolve (.error e)
           waiter.race lose win
+
     unregisterFn := s.native.cancelAccept
   }
 
@@ -181,8 +185,8 @@ Creates a `Selector` that resolves once `s` has data available, up to at most `s
 and provides that data. Calling this function starts the data wait, so it must not be called
 in parallel with `recv?`.
 -/
-def recvSelector (s : TCP.Socket.Client) (size : UInt64) : Async (Selector (Option ByteArray)) := do
-  return {
+def recvSelector (s : TCP.Socket.Client) (size : UInt64) : Selector (Option ByteArray) :=
+  {
     tryFn := do
       let readableWaiter ← s.native.waitReadable
 

@@ -99,13 +99,11 @@ theorem Iter.step_intermediateZip
   case none =>
     simp only [Option.map_eq_map, Option.map_none, PlausibleIterStep.skip, PlausibleIterStep.done,
       Id.run_bind, Option.map_some]
-    obtain ⟨step, h⟩ := it₁.toIterM.step.run
-    cases step <;> simp
+    cases it₁.toIterM.step.run.inflate using PlausibleIterStep.casesOn <;> simp
   case some out₁ =>
     simp only [Option.map_eq_map, Option.map_some, PlausibleIterStep.yield, PlausibleIterStep.skip,
       PlausibleIterStep.done, Id.run_bind, Option.map_none]
-    obtain ⟨step, h⟩ := it₂.toIterM.step.run
-    cases step <;> simp
+    cases it₂.toIterM.step.run.inflate using PlausibleIterStep.casesOn <;> simp
 
 theorem Iter.toList_intermediateZip_of_finite [Iterator α₁ Id β₁] [Iterator α₂ Id β₂]
     {it₁ : Iter (α := α₁) β₁} {memo} {it₂ : Iter (α := α₂) β₂}

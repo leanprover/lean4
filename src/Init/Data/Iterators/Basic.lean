@@ -22,6 +22,44 @@ This module defines iterators and what it means for an iterator to be finite and
 
 namespace Std
 
+private opaque Internal.idOpaque {α} : { f : α → α // f = id } := ⟨id, rfl⟩
+
+public def Shrink (α : Type u) : Type u := Internal.idOpaque.1 α
+
+@[always_inline]
+public def Shrink.deflate {α} (x : α) : Shrink α :=
+  cast (by simp [Shrink, Internal.idOpaque.property]) x
+
+@[always_inline]
+public def Shrink.inflate {α} (x : Shrink α) : α :=
+  cast (by simp [Shrink, Internal.idOpaque.property]) x
+
+@[simp, grind =]
+public theorem Shrink.deflate_inflate {α} {x : Shrink α} :
+    Shrink.deflate x.inflate = x := by
+  simp [deflate, inflate]
+
+@[simp, grind =]
+public theorem Shrink.inflate_deflate {α} {x : α} :
+    (Shrink.deflate x).inflate = x := by
+  simp [deflate, inflate]
+
+public theorem Shrink.inflate_inj {α} {x y : Shrink α} :
+    x.inflate = y.inflate ↔ x = y := by
+  apply Iff.intro
+  · intro h
+    simpa using congrArg Shrink.deflate h
+  · rintro rfl
+    rfl
+
+public theorem Shrink.deflate_inj {α} {x y : α} :
+    Shrink.deflate x = Shrink.deflate y ↔ x = y := by
+  apply Iff.intro
+  · intro h
+    simpa using congrArg Shrink.inflate h
+  · rintro rfl
+    rfl
+
 namespace Iterators
 
 /--
@@ -284,7 +322,7 @@ step object is bundled with a proof that it is a "plausible" step for the given 
 -/
 class Iterator (α : Type w) (m : Type w → Type w') (β : outParam (Type w)) where
   IsPlausibleStep : IterM (α := α) m β → IterStep (IterM (α := α) m β) β → Prop
-  step : (it : IterM (α := α) m β) → m (PlausibleIterStep <| IsPlausibleStep it)
+  step : (it : IterM (α := α) m β) → m (Shrink <| PlausibleIterStep <| IsPlausibleStep it)
 
 section Monadic
 
@@ -358,7 +396,7 @@ the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
 -/
 @[always_inline, inline, expose]
 def IterM.step {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
-    (it : IterM (α := α) m β) : m it.Step :=
+    (it : IterM (α := α) m β) : m (Shrink it.Step) :=
   Iterator.step it
 
 end Monadic
@@ -582,7 +620,7 @@ the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
 -/
 @[always_inline, inline, expose]
 def Iter.step {α β : Type w} [Iterator α Id β] (it : Iter (α := α) β) : it.Step :=
-  it.toIterM.step.run.toPure
+  it.toIterM.step.run.inflate.toPure
 
 end Pure
 

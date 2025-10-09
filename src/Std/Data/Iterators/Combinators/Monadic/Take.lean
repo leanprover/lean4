@@ -80,12 +80,12 @@ instance Take.instIterator [Monad m] [Iterator α m β] : Iterator (Take α m β
   IsPlausibleStep := Take.PlausibleStep
   step it :=
     match h : it.internalState.remaining with
-    | 0 => pure <| .done (.depleted h)
+    | 0 => pure <| .deflate <| .done (.depleted h)
     | k + 1 => do
-      match ← it.internalState.inner.step with
-      | .yield it' out h' => pure <| .yield (it'.take k) out (.yield h' h)
-      | .skip it' h' => pure <| .skip (it'.take (k + 1)) (.skip h' h)
-      | .done h' => pure <| .done (.done h')
+      match (← it.internalState.inner.step).inflate with
+      | .yield it' out h' => pure <| .deflate <| .yield (it'.take k) out (.yield h' h)
+      | .skip it' h' => pure <| .deflate <| .skip (it'.take (k + 1)) (.skip h' h)
+      | .done h' => pure <| .deflate <| .done (.done h')
 
 def Take.Rel (m : Type w → Type w') [Monad m] [Iterator α m β] [Productive α m] :
     IterM (α := Take α m β) m β → IterM (α := Take α m β) m β → Prop :=

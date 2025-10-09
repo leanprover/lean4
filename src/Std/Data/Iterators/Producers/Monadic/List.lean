@@ -47,8 +47,8 @@ instance {α : Type w} [Pure m] : Iterator (ListIterator α) m α where
     | .skip _ => False
     | .done => it.internalState.list = []
   step it := pure (match it with
-        | ⟨⟨[]⟩⟩ => ⟨.done, rfl⟩
-        | ⟨⟨x :: xs⟩⟩ => ⟨.yield (toIterM ⟨xs⟩ m α) x, rfl⟩)
+        | ⟨⟨[]⟩⟩ => .deflate ⟨.done, rfl⟩
+        | ⟨⟨x :: xs⟩⟩ => .deflate ⟨.yield (toIterM ⟨xs⟩ m α) x, rfl⟩)
 
 private def ListIterator.finitenessRelation [Pure m] :
     FinitenessRelation (ListIterator α) m where

@@ -112,7 +112,7 @@ theorem Iter.forIn'_eq_match_step {α β : Type w} [Iterator α Id β]
   simp only [forIn'_eq]
   rw [IterM.DefaultConsumers.forIn'_eq_match_step]
   simp only [bind_map_left, Iter.step]
-  cases it.toIterM.step.run using PlausibleIterStep.casesOn
+  cases it.toIterM.step.run.inflate using PlausibleIterStep.casesOn
   · simp only [IterM.Step.toPure_yield, PlausibleIterStep.yield, toIter_toIterM, toIterM_toIter]
     apply bind_congr
     intro forInStep

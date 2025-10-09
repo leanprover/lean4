@@ -1925,9 +1925,9 @@ theorem Pos.Raw.byteIdx_increaseBy {p : Pos.Raw} {n : Nat} :
     (p.increaseBy n).byteIdx = p.byteIdx + n := (rfl)
 
 /--
-Moves back `p` by `n` bytes. This is not an `HSub` instance because it should be a relatively
-rare operation, so we use a name to make accidental use less likely. To remove the size of a
-character `c` or string `s` from a raw position `p`, you can use `p - c` resp. `p - s`.
+Move the position `p` back by `n` bytes. This is not an `HSub` instance because it should be a
+relatively rare operation, so we use a name to make accidental use less likely. To remove the size
+of a character `c` or string `s` from a raw position `p`, you can use `p - c` resp. `p - s`.
 
 This should be seen as the inverse of an "advance" or "skip".
 

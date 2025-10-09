@@ -2902,11 +2902,81 @@ LEAN_EXPORT lean_obj_res lean_mk_io_user_error(lean_obj_arg str);
 
 
 /* ST Ref primitives */
+
+/*
+  Important: we have added support for initializing global constants
+  at program startup. This feature is particularly useful for
+  initializing `ST.Ref` values. Any `ST.Ref` value created during
+  initialization will be marked as persistent. Thus, to make `ST.Ref`
+  API thread-safe, we must treat persistent `ST.Ref` objects created
+  during initialization as a multi-threaded object. Then, whenever we store
+  a value `val` into a global `ST.Ref`, we have to mark `va`l as a multi-threaded
+  object as we do for multi-threaded `ST.Ref`s. It makes sense since
+  the global `ST.Ref` may be used to communicate data between threads.
+*/
+static inline bool lean_st_ref_maybe_mt(b_lean_obj_arg ref) {
+    return lean_is_mt(ref) || lean_is_persistent(ref);
+}
+
+static inline lean_obj_res lean_st_mk_result(lean_obj_arg a) {
+    return a;
+}
+
 LEAN_EXPORT lean_obj_res lean_st_mk_ref(lean_obj_arg);
-LEAN_EXPORT lean_obj_res lean_st_ref_get(b_lean_obj_arg);
-LEAN_EXPORT lean_obj_res lean_st_ref_set(b_lean_obj_arg, lean_obj_arg);
-LEAN_EXPORT lean_obj_res lean_st_ref_reset(b_lean_obj_arg);
-LEAN_EXPORT lean_obj_res lean_st_ref_swap(b_lean_obj_arg, lean_obj_arg);
+
+LEAN_EXPORT lean_obj_res lean_st_ref_get_mt(b_lean_obj_arg);
+static inline lean_obj_res lean_st_ref_get(b_lean_obj_arg ref) {
+    if (LEAN_UNLIKELY(lean_st_ref_maybe_mt(ref))) {
+        return lean_st_ref_get_mt(ref);
+    } else {
+        lean_object * val = lean_to_ref(ref)->m_value;
+        assert(val != NULL);
+        lean_inc(val);
+        return lean_st_mk_result(val);
+    }
+}
+
+LEAN_EXPORT lean_obj_res lean_st_ref_take_mt(b_lean_obj_arg);
+static inline lean_obj_res lean_st_ref_take(b_lean_obj_arg ref) {
+    if (LEAN_UNLIKELY(lean_st_ref_maybe_mt(ref))) {
+        return lean_st_ref_take_mt(ref);
+    } else {
+        lean_object * val = lean_to_ref(ref)->m_value;
+        assert(val != NULL);
+        lean_to_ref(ref)->m_value = NULL;
+        return lean_st_mk_result(val);
+    }
+}
+
+LEAN_EXPORT lean_obj_res lean_st_ref_set_mt(b_lean_obj_arg, lean_obj_arg);
+static inline lean_obj_res lean_st_ref_set(b_lean_obj_arg ref, lean_obj_arg a) {
+    if (LEAN_UNLIKELY(lean_st_ref_maybe_mt(ref))) {
+        return lean_st_ref_set_mt(ref, a);
+    } else {
+        if (lean_to_ref(ref)->m_value != NULL)
+            lean_dec(lean_to_ref(ref)->m_value);
+        lean_to_ref(ref)->m_value = a;
+        return lean_st_mk_result(lean_box(0));
+    }
+}
+
+LEAN_EXPORT lean_obj_res lean_st_ref_swap_mt(b_lean_obj_arg, lean_obj_arg);
+static inline lean_obj_res lean_st_ref_swap(b_lean_obj_arg ref, lean_obj_arg a) {
+    if (LEAN_UNLIKELY(lean_st_ref_maybe_mt(ref))) {
+        return lean_st_ref_swap_mt(ref, a);
+    } else {
+        lean_object * old_a = lean_to_ref(ref)->m_value;
+        if (old_a == NULL)
+            lean_internal_panic("null reference read");
+        lean_to_ref(ref)->m_value = a;
+        return lean_st_mk_result(old_a);
+    }
+}
+
+static inline uint8_t lean_st_ref_ptr_eq(b_lean_obj_arg ref1, b_lean_obj_arg ref2) {
+    // TODO(Leo): ref_maybe_mt
+    return lean_to_ref(ref1)->m_value == lean_to_ref(ref2)->m_value;
+}
 
 /* pointer address unsafe primitive  */
 static inline size_t lean_ptr_addr(b_lean_obj_arg a) { return (size_t)a; }

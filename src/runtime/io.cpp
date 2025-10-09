@@ -1388,128 +1388,69 @@ extern "C" LEAN_EXPORT obj_res lean_io_current_dir() {
 // ST ref primitives
 
 
-obj_res mk_st_result(obj_arg a) {
-    // TODO: This function needs to become identity after we are done
-    //lean_object * r = lean_alloc_ctor(0, 2, 0);
-    //lean_ctor_set(r, 0, a);
-    //lean_ctor_set(r, 1, lean_box(0));
-    //return r;
-    return a;
-}
-
 extern "C" LEAN_EXPORT obj_res lean_st_mk_ref(obj_arg a) {
     lean_ref_object * o = (lean_ref_object*)lean_alloc_small_object(sizeof(lean_ref_object));
     lean_set_st_header((lean_object*)o, LeanRef, 0);
     o->m_value = a;
-    return mk_st_result((lean_object*)o);
+    return lean_st_mk_result((lean_object*)o);
 }
-
-static object * g_io_error_nullptr_read = nullptr;
 
 static inline atomic<object*> * mt_ref_val_addr(object * o) {
     return reinterpret_cast<atomic<object*> *>(&(lean_to_ref(o)->m_value));
 }
 
-/*
-  Important: we have added support for initializing global constants
-  at program startup. This feature is particularly useful for
-  initializing `ST.Ref` values. Any `ST.Ref` value created during
-  initialization will be marked as persistent. Thus, to make `ST.Ref`
-  API thread-safe, we must treat persistent `ST.Ref` objects created
-  during initialization as a multi-threaded object. Then, whenever we store
-  a value `val` into a global `ST.Ref`, we have to mark `va`l as a multi-threaded
-  object as we do for multi-threaded `ST.Ref`s. It makes sense since
-  the global `ST.Ref` may be used to communicate data between threads.
-*/
-static inline bool ref_maybe_mt(b_obj_arg ref) { return lean_is_mt(ref) || lean_is_persistent(ref); }
-
-extern "C" LEAN_EXPORT obj_res lean_st_ref_get(b_obj_arg ref) {
-    if (ref_maybe_mt(ref)) {
-        atomic<object *> * val_addr = mt_ref_val_addr(ref);
-        while (true) {
-            /*
-              We cannot simply read `val` from the ref and `inc` it like in the `else` branch since someone else could
-              write to the ref in between and remove the last owning reference to the object. Instead, we must take
-              ownership of the RC token in the ref via `exchange`, duplicate it, then put one RC token back. */
-            object * val = val_addr->exchange(nullptr);
-            if (val != nullptr) {
-                inc(val);
-                object * tmp = val_addr->exchange(val);
-                if (tmp != nullptr) {
-                    /* this may happen if another thread wrote `ref` */
-                    dec(tmp);
-                }
-                return mk_st_result(val);
+extern "C" LEAN_EXPORT obj_res lean_st_ref_get_mt(b_obj_arg ref) {
+    atomic<object *> * val_addr = mt_ref_val_addr(ref);
+    while (true) {
+        /*
+          We cannot simply read `val` from the ref and `inc` it like in the `else` branch since someone else could
+          write to the ref in between and remove the last owning reference to the object. Instead, we must take
+          ownership of the RC token in the ref via `exchange`, duplicate it, then put one RC token back. */
+        object * val = val_addr->exchange(nullptr);
+        if (val != nullptr) {
+            inc(val);
+            object * tmp = val_addr->exchange(val);
+            if (tmp != nullptr) {
+                /* this may happen if another thread wrote `ref` */
+                dec(tmp);
             }
+            return lean_st_mk_result(val);
         }
-    } else {
-        object * val = lean_to_ref(ref)->m_value;
-        lean_assert(val != nullptr);
-        inc(val);
-        return mk_st_result(val);
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_st_ref_take(b_obj_arg ref) {
-    if (ref_maybe_mt(ref)) {
-        atomic<object *> * val_addr = mt_ref_val_addr(ref);
-        while (true) {
-            object * val = val_addr->exchange(nullptr);
-            if (val != nullptr)
-                return mk_st_result(val);
-        }
-    } else {
-        object * val = lean_to_ref(ref)->m_value;
-        lean_assert(val != nullptr);
-        lean_to_ref(ref)->m_value = nullptr;
-        return mk_st_result(val);
+extern "C" LEAN_EXPORT obj_res lean_st_ref_take_mt(b_obj_arg ref) {
+    atomic<object *> * val_addr = mt_ref_val_addr(ref);
+    while (true) {
+        object * val = val_addr->exchange(nullptr);
+        if (val != nullptr)
+            return lean_st_mk_result(val);
     }
 }
 
 static_assert(sizeof(atomic<unsigned short>) == sizeof(unsigned short), "`atomic<unsigned short>` and `unsigned short` must have the same size"); // NOLINT
 
-extern "C" LEAN_EXPORT obj_res lean_st_ref_set(b_obj_arg ref, obj_arg a) {
-    if (ref_maybe_mt(ref)) {
-        /* We must mark `a` as multi-threaded if `ref` is marked as multi-threaded.
-           Reason: our runtime relies on the fact that a single-threaded object
-           cannot be reached from a multi-thread object. */
-        mark_mt(a);
-        atomic<object *> * val_addr = mt_ref_val_addr(ref);
+extern "C" LEAN_EXPORT obj_res lean_st_ref_set_mt(b_obj_arg ref, obj_arg a) {
+    /* We must mark `a` as multi-threaded if `ref` is marked as multi-threaded.
+       Reason: our runtime relies on the fact that a single-threaded object
+       cannot be reached from a multi-thread object. */
+    mark_mt(a);
+    atomic<object *> * val_addr = mt_ref_val_addr(ref);
+    object * old_a = val_addr->exchange(a);
+    if (old_a != nullptr)
+        dec(old_a);
+    return lean_st_mk_result(box(0));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_st_ref_swap_mt(b_obj_arg ref, obj_arg a) {
+    /* See io_ref_write */
+    mark_mt(a);
+    atomic<object *> * val_addr = mt_ref_val_addr(ref);
+    while (true) {
         object * old_a = val_addr->exchange(a);
         if (old_a != nullptr)
-            dec(old_a);
-        return mk_st_result(box(0));
-    } else {
-        if (lean_to_ref(ref)->m_value != nullptr)
-            dec(lean_to_ref(ref)->m_value);
-        lean_to_ref(ref)->m_value = a;
-        return mk_st_result(box(0));
+            return lean_st_mk_result(old_a);
     }
-}
-
-extern "C" LEAN_EXPORT obj_res lean_st_ref_swap(b_obj_arg ref, obj_arg a) {
-    if (ref_maybe_mt(ref)) {
-        /* See io_ref_write */
-        mark_mt(a);
-        atomic<object *> * val_addr = mt_ref_val_addr(ref);
-        while (true) {
-            object * old_a = val_addr->exchange(a);
-            if (old_a != nullptr)
-                return mk_st_result(old_a);
-        }
-    } else {
-        object * old_a = lean_to_ref(ref)->m_value;
-        if (old_a == nullptr)
-            return mk_st_result(g_io_error_nullptr_read);
-        lean_to_ref(ref)->m_value = a;
-        return mk_st_result(old_a);
-    }
-}
-
-extern "C" LEAN_EXPORT obj_res lean_st_ref_ptr_eq(b_obj_arg ref1, b_obj_arg ref2) {
-    // TODO(Leo): ref_maybe_mt
-    bool r = lean_to_ref(ref1)->m_value == lean_to_ref(ref2)->m_value;
-    return mk_st_result(box(r));
 }
 
 /* {α : Type} (act : BaseIO α) : α */
@@ -1613,8 +1554,6 @@ extern "C" LEAN_EXPORT obj_res lean_option_get_or_block(obj_arg o_opt) {
 }
 
 void initialize_io() {
-    g_io_error_nullptr_read = lean_mk_io_user_error(mk_ascii_string_unchecked("null reference read"));
-    mark_persistent(g_io_error_nullptr_read);
     g_io_handle_external_class = lean_register_external_class(io_handle_finalizer, io_handle_foreach);
 #if defined(LEAN_WINDOWS)
     _setmode(_fileno(stdout), _O_BINARY);

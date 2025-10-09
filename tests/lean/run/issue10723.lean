@@ -34,7 +34,7 @@ where
     xs.all isEmpty
   | _ => false
 
-private partial def onlyIdent'' : Syntax → Bool
+partial def onlyIdent'' : Syntax → Bool
   | .node _ _ args =>
     let nonEmpty := args.filter (!isEmpty () ·)
     if h : nonEmpty.size = 1 then onlyIdent nonEmpty[0]
@@ -43,6 +43,9 @@ private partial def onlyIdent'' : Syntax → Bool
   | _ => false
 where
   isEmpty : Unit → Syntax → Bool
-  | .node _ _ xs =>
-    xs.all isEmpty
-  | _ => false
+  | _, .node _ _ xs =>
+    xs.all (isEmpty ())
+  | _, _ => false
+
+
+#check onlyIdent''._proof_1

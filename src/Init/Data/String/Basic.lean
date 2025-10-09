@@ -1101,6 +1101,9 @@ instance : HAdd Pos.Raw Slice Pos.Raw where
 instance : HAdd Slice Pos.Raw Pos.Raw where
   hAdd s p := { byteIdx := s.utf8ByteSize + p.byteIdx }
 
+instance : HSub Pos.Raw Slice Pos.Raw where
+  hSub p s := { byteIdx := p.byteIdx - s.utf8ByteSize }
+
 @[simp]
 theorem Pos.Raw.byteIdx_add_slide {p : Pos.Raw} {s : Slice} :
     (p + s).byteIdx = p.byteIdx + s.utf8ByteSize := rfl
@@ -1108,6 +1111,10 @@ theorem Pos.Raw.byteIdx_add_slide {p : Pos.Raw} {s : Slice} :
 @[simp]
 theorem Pos.Raw.byteIdx_slice_add {s : Slice} {p : Pos.Raw} :
     (s + p).byteIdx = s.utf8ByteSize + p.byteIdx := rfl
+
+@[simp]
+theorem Pos.Raw.byteIdx_sub_slice {p : Pos.Raw} {s : Slice} :
+    (p - s).byteIdx = p.byteIdx - s.utf8ByteSize := rfl
 
 /-- The end position of a slice, as a `Pos.Raw`. -/
 @[expose]

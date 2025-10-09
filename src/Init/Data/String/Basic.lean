@@ -1124,7 +1124,8 @@ def Slice.rawEndPos (s : Slice) : Pos.Raw where
 @[simp]
 theorem Slice.byteIdx_rawEndPos {s : Slice} : s.rawEndPos.byteIdx = s.utf8ByteSize := (rfl)
 
-/-- Offsets `p` by `offset` bytes on the left. This is not a `HAdd` instance because it should be a
+/--
+Offsets `p` by `offset` on the left. This is not a `HAdd` instance because it should be a
 relatively rare operation, so we use a name to make accidental use less likely. To offset a position
 by the size of a character character `c` or string `s`, you can use `c + p` resp. `s + p`.
 
@@ -1140,9 +1141,10 @@ def Pos.Raw.offsetBy (p : Pos.Raw) (offset : Pos.Raw) : Pos.Raw where
 theorem Pos.Raw.byteIdx_offsetBy {p : Pos.Raw} {offset : Pos.Raw} :
     (p.offsetBy offset).byteIdx = offset.byteIdx + p.byteIdx := (rfl)
 
-/-- Decreases `p` by `offset`. This is not a `HSub` instance because it should be a relatively
-rare operation, so we use a name to make accidental use less likely. To subtract the size of a
-character `c` or string `s` from a raw position `p`, you can use `p - c` resp. `p - s`.
+/--
+Decreases `p` by `offset`. This is not a `HSub` instance because it should be a relatively
+rare operation, so we use a name to make accidental use less likely. To unoffset a position
+by the size of a character `c` or string `s`, you can use `p - c` resp. `p - s`.
 
 This should be seen as an operation turning absolute positions into relative positions.
 

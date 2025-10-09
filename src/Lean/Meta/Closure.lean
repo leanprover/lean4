@@ -199,7 +199,8 @@ def pushToProcess (elem : ToProcessElement) : ClosureM Unit :=
 
 partial def collectExprAux (e : Expr) : ClosureM Expr := do
   let collect (e : Expr) := visitExpr collectExprAux e
-  if (← read).hasAuxDecls && !e.hasLooseBVars then
+
+  if (← read).hasAuxDecls && e.isApp && !e.hasLooseBVars then
     if let some fvar := e.getAppFn.fvarId? then
       if let some decl := (← getLCtx).find? fvar then
         if decl.isAuxDecl then

@@ -238,8 +238,8 @@ def stop (s : Signal.Waiter) : IO Unit :=
   s.native.stop
 
 /--
-Create a `Selector` that resolves once `s` has received the signal. Note that calling this function starts `s`
-if it hasn't already started.
+Create a `Selector` that resolves once `s` has received the signal. Note that calling this function will
+only be started if used with `Selectable.one` or `Selectable.combine`.
 -/
 def selector (s : Signal.Waiter) : Selector Unit :=
   {
@@ -248,6 +248,7 @@ def selector (s : Signal.Waiter) : Selector Unit :=
       if ← IO.hasFinished signalWaiter then
         return some ()
       else
+        s.native.cancel
         return none
 
     registerFn waiter := do

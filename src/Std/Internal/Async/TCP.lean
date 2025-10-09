@@ -71,17 +71,17 @@ def accept (s : Server) : Async Client := do
   |>.map Client.ofNative
 
 /--
-Tries to accepts an incoming connection.
+Tries to accept an incoming connection.
 -/
 @[inline]
-def tryAccept (s : Server) : Async (Option Client) := do
+def tryAccept (s : Server) : IO (Option Client) := do
   let res ← s.native.tryAccept
-  let socket ← Async.ofExcept res
+  let socket ← IO.ofExcept res
   return Client.ofNative <$> socket
 
 /--
 Creates a `Selector` that resolves once `s` has a connetion available. Calling this function
-does not starts the connection wait, so it must not be called in parallel with `accept`.
+does not start the connection wait, so it must not be called in parallel with `accept`.
 -/
 def acceptSelector (s : TCP.Socket.Server) : Selector Client :=
   {

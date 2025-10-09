@@ -1125,11 +1125,11 @@ def Slice.rawEndPos (s : Slice) : Pos.Raw where
 theorem Slice.byteIdx_rawEndPos {s : Slice} : s.rawEndPos.byteIdx = s.utf8ByteSize := (rfl)
 
 /--
-Offsets `p` by `offset` on the left. This is not a `HAdd` instance because it should be a
+Offsets `p` by `offset` on the left. This is not an `HAdd` instance because it should be a
 relatively rare operation, so we use a name to make accidental use less likely. To offset a position
 by the size of a character character `c` or string `s`, you can use `c + p` resp. `s + p`.
 
-This should be seen as an operation turning relative positions into absolute positions.
+This should be seen as an operation that converts relative positions into absolute positions.
 
 See also `Pos.Raw.increaseBy`, which is an "advancing" operation.
 -/
@@ -1142,11 +1142,11 @@ theorem Pos.Raw.byteIdx_offsetBy {p : Pos.Raw} {offset : Pos.Raw} :
     (p.offsetBy offset).byteIdx = offset.byteIdx + p.byteIdx := (rfl)
 
 /--
-Decreases `p` by `offset`. This is not a `HSub` instance because it should be a relatively
+Decreases `p` by `offset`. This is not an `HSub` instance because it should be a relatively
 rare operation, so we use a name to make accidental use less likely. To unoffset a position
 by the size of a character `c` or string `s`, you can use `p - c` resp. `p - s`.
 
-This should be seen as an operation turning absolute positions into relative positions.
+This should be seen as an operation that converts absolute positions into relative positions.
 
 See also `Pos.Raw.decreaseBy`, which is an "unadvancing" operation.
 -/
@@ -1907,7 +1907,8 @@ theorem Slice.Pos.utf8ByteSize_byte {s : Slice} {pos : s.Pos} {h : pos ≠ s.end
     (pos.byte h).utf8ByteSize pos.isUTF8FirstByte_byte = (pos.get h).utf8Size := by
   simp [getUTF8Byte, byte, String.getUTF8Byte, get_eq_utf8DecodeChar, ByteArray.utf8Size_utf8DecodeChar]
 
-/-- Advances `p` by `n` bytes. This is not a `HAdd` instance because it should be a relatively
+/--
+Advances `p` by `n` bytes. This is not an `HAdd` instance because it should be a relatively
 rare operation, so we use a name to make accidental use less likely. To add the size of a
 character `c` or string `s` to a raw position `p`, you can use `p + c` resp. `p + s`.
 
@@ -1923,11 +1924,12 @@ def Pos.Raw.increaseBy (p : Pos.Raw) (n : Nat) : Pos.Raw where
 theorem Pos.Raw.byteIdx_increaseBy {p : Pos.Raw} {n : Nat} :
     (p.increaseBy n).byteIdx = p.byteIdx + n := (rfl)
 
-/-- Unadvances `p` by `n` bytes. This is not a `HAdd` instance because it should be a relatively
+/--
+Moves back `p` by `n` bytes. This is not an `HSub` instance because it should be a relatively
 rare operation, so we use a name to make accidental use less likely. To remove the size of a
-character `c` or string `s` to a raw position `p`, you can use `p - c` resp. `p - s`.
+character `c` or string `s` from a raw position `p`, you can use `p - c` resp. `p - s`.
 
-This should be seen as an "unadvance".
+This should be seen as the inverse of an "advance" or "skip".
 
 See also `Pos.Raw.unoffsetBy`, which turns absolute positions into relative positions.
 -/

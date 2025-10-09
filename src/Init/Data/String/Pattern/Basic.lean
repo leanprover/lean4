@@ -76,8 +76,8 @@ namespace Internal
 
 @[extern "lean_slice_memcmp"]
 def memcmp (lhs rhs : @& Slice) (lstart : @& String.Pos.Raw) (rstart : @& String.Pos.Raw)
-    (len : @& String.Pos.Raw) (h1 : lstart + len ≤ lhs.utf8ByteSize)
-    (h2 : rstart + len ≤ rhs.utf8ByteSize) : Bool :=
+    (len : @& String.Pos.Raw) (h1 : len.offsetBy lstart ≤ lhs.rawEndPos)
+    (h2 : len.offsetBy rstart ≤ rhs.rawEndPos) : Bool :=
   go 0
 where
   go (curr : String.Pos.Raw) : Bool :=
@@ -88,7 +88,7 @@ where
       have hr := by
         simp [Pos.Raw.le_iff] at h h2 ⊢
         omega
-      if lhs.getUTF8Byte (lstart + curr) hl == rhs.getUTF8Byte (rstart + curr) hr then
+      if lhs.getUTF8Byte (curr.offsetBy lstart) hl == rhs.getUTF8Byte (curr.offsetBy rstart) hr then
         go curr.inc
       else
         false

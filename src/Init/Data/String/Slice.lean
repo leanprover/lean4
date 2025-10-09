@@ -61,7 +61,7 @@ def beq (s1 s2 : Slice) : Bool :=
   if h : s1.utf8ByteSize = s2.utf8ByteSize then
     have h1 := by simp [h, String.Pos.Raw.le_iff]
     have h2 := by simp [h, String.Pos.Raw.le_iff]
-    Internal.memcmp s1 s2 s1.startPos.offset s2.startPos.offset s1.utf8ByteSize h1 h2
+    Internal.memcmp s1 s2 s1.startPos.offset s2.startPos.offset s1.rawEndPos h1 h2
   else
     false
 
@@ -687,7 +687,7 @@ def eqIgnoreAsciiCase (s1 s2 : Slice) : Bool :=
   s1.utf8ByteSize == s2.utf8ByteSize && go s1 s1.startPos.offset s2 s2.startPos.offset
 where
   go (s1 : Slice) (s1Curr : String.Pos.Raw) (s2 : Slice) (s2Curr : String.Pos.Raw) : Bool :=
-    if h : s1Curr < s1.utf8ByteSize ∧ s2Curr < s2.utf8ByteSize then
+    if h : s1Curr < s1.rawEndPos ∧ s2Curr < s2.rawEndPos then
       let c1 := (s1.getUTF8Byte s1Curr h.left).toAsciiLower
       let c2 := (s2.getUTF8Byte s2Curr h.right).toAsciiLower
       if c1 == c2 then
@@ -695,7 +695,7 @@ where
       else
         false
     else
-      s1Curr == s1.utf8ByteSize && s2Curr == s2.utf8ByteSize
+      s1Curr == s1.rawEndPos && s2Curr == s2.rawEndPos
   termination_by s1.endPos.offset.byteIdx - s1Curr.byteIdx
   decreasing_by
     simp at h ⊢
@@ -740,7 +740,7 @@ instance [Pure m] :
 private def finitenessRelation [Pure m] :
     Std.Iterators.FinitenessRelation (PosIterator s) m where
   rel := InvImage WellFoundedRelation.rel
-      (fun it => s.utf8ByteSize.byteIdx - it.internalState.currPos.offset.byteIdx)
+      (fun it => s.utf8ByteSize - it.internalState.currPos.offset.byteIdx)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
@@ -897,14 +897,14 @@ namespace ByteIterator
 instance [Pure m] : Std.Iterators.Iterator ByteIterator m UInt8 where
   IsPlausibleStep it
     | .yield it' out =>
-      ∃ h1 : it.internalState.offset < it.internalState.s.utf8ByteSize,
+      ∃ h1 : it.internalState.offset < it.internalState.s.rawEndPos,
         it.internalState.s = it'.internalState.s ∧
         it'.internalState.offset = it.internalState.offset.inc ∧
         it.internalState.s.getUTF8Byte it.internalState.offset h1 = out
     | .skip _ => False
-    | .done => ¬ it.internalState.offset < it.internalState.s.utf8ByteSize
+    | .done => ¬ it.internalState.offset < it.internalState.s.rawEndPos
   step := fun ⟨s, offset⟩ =>
-    if h : offset < s.utf8ByteSize then
+    if h : offset < s.rawEndPos then
       pure ⟨.yield ⟨s, offset.inc⟩ (s.getUTF8Byte offset h), by simp [h]⟩
     else
       pure ⟨.done, by simp [h]⟩
@@ -912,7 +912,7 @@ instance [Pure m] : Std.Iterators.Iterator ByteIterator m UInt8 where
 private def finitenessRelation [Pure m] :
     Std.Iterators.FinitenessRelation (ByteIterator) m where
   rel := InvImage WellFoundedRelation.rel
-      (fun it => it.internalState.s.utf8ByteSize.byteIdx - it.internalState.offset.byteIdx)
+      (fun it => it.internalState.s.utf8ByteSize - it.internalState.offset.byteIdx)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
@@ -951,7 +951,7 @@ end ByteIterator
 structure RevByteIterator where
   s : Slice
   offset : String.Pos.Raw
-  hinv : offset ≤ s.utf8ByteSize
+  hinv : offset ≤ s.rawEndPos
 
 set_option doc.verso false
 /--
@@ -977,7 +977,7 @@ namespace RevByteIterator
 instance [Pure m] : Std.Iterators.Iterator RevByteIterator m UInt8 where
   IsPlausibleStep it
     | .yield it' out =>
-      ∃ h1 : it.internalState.offset.dec < it.internalState.s.utf8ByteSize,
+      ∃ h1 : it.internalState.offset.dec < it.internalState.s.rawEndPos,
         it.internalState.s = it'.internalState.s ∧
         it.internalState.offset ≠ 0 ∧
         it'.internalState.offset = it.internalState.offset.dec ∧

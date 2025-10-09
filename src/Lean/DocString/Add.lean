@@ -45,7 +45,7 @@ def validateDocComment
   for (⟨start, stop⟩, err) in errs do
     -- Report errors at their actual location if possible
     if let some pos := pos? then
-      let urlStx : Syntax := .atom (.synthetic (pos + start) (pos + stop)) (str.extract start stop)
+      let urlStx : Syntax := .atom (.synthetic (start.offsetBy pos) (stop.offsetBy pos)) (str.extract start stop)
       logErrorAt urlStx err
     else
       logError err

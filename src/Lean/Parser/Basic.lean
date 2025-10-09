@@ -937,7 +937,7 @@ private def isToken (idStartPos idStopPos : String.Pos.Raw) (tk : Option Token) 
   | some tk =>
      -- if a token is both a symbol and a valid identifier (i.e. a keyword),
      -- we want it to be recognized as a symbol
-    tk.endPos ≥ idStopPos - idStartPos
+    tk.utf8ByteSize ≥ idStartPos.byteDistance idStopPos
 
 
 def mkTokenAndFixPos (startPos : String.Pos.Raw) (tk : Option Token) : ParserFn := fun c s =>

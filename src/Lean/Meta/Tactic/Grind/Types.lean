@@ -12,6 +12,7 @@ public import Lean.Meta.Tactic.Grind.Attr
 public import Init.Data.Queue
 import Lean.Meta.Tactic.Grind.ExprPtr
 import Init.Grind.Tactics
+import Init.Grind.Util
 import Std.Data.TreeSet.Basic
 import Lean.HeadIndex
 import Lean.Meta.Tactic.Grind.ExtAttr
@@ -19,6 +20,7 @@ import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Match.MatchEqsExt
 import Lean.PrettyPrinter
 meta import Lean.Parser.Do
+
 public section
 namespace Lean.Meta.Grind
 
@@ -517,7 +519,7 @@ private def congrHash (enodes : ENodeMap) (e : Expr) : UInt64 :=
   if let .forallE _ d b _ := e then
     mixHash (hashRoot enodes d) (hashRoot enodes b)
   else match_expr e with
-  | Grind.nestedProof p _ => hashRoot enodes p
+  | Lean.Grind.nestedProof p _ => hashRoot enodes p
   | Grind.nestedDecidable p _ => mixHash 13 (hashRoot enodes p)
   | Eq _ lhs rhs => goEq lhs rhs
   | _ => go e 17

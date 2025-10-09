@@ -10,9 +10,11 @@ public import Lean.Meta.Transform
 public import Lean.Meta.Tactic.Simp.Simproc
 import Init.Simproc
 import Init.Grind.Tactics
+import Init.Grind.Util
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Clear
+
 public section
 namespace Lean.Meta.Grind
 /--
@@ -212,7 +214,7 @@ We have special support for propagating is truth value.
 See comment at `MatchCond.lean`.
 -/
 def markAsMatchCond (e : Expr) : Expr :=
-  mkApp (mkConst ``Grind.MatchCond) e
+  mkApp (mkConst ``Lean.Grind.MatchCond) e
 
 def isMatchCond (e : Expr) : Bool :=
   e.isAppOfArity ``Grind.MatchCond 1

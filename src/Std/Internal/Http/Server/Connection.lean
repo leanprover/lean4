@@ -9,7 +9,7 @@ prelude
 public import Std.Internal.Async.TCP
 public import Std.Internal.Http.Protocol.H1
 public import Std.Internal.Http.Server.Config
-public import Std.Internal.Http.Server.ClientConnection
+public import Std.Internal.Http.Server.Transport
 
 public section
 
@@ -47,15 +47,15 @@ private inductive Recv
   | bytes (x : Option ByteArray)
   | timeout
 
-private def receiveWithTimeout [ClientConnection α] (socket : α) (expect : UInt64)
+private def receiveWithTimeout [Transport α] (socket : α) (expect : UInt64)
     (timeoutMs : Millisecond.Offset) :
   Async Recv := do
     Selectable.one #[
-      .case (← ClientConnection.recvSelector socket expect) (fun x => pure <| .bytes x),
+      .case (← Transport.recvSelector socket expect) (fun x => pure <| .bytes x),
       .case (← Selector.sleep timeoutMs) (fun _ => pure <| .timeout)]
 
 private def processNeedMoreData
-    [ClientConnection α] (config : Config) (socket : α) (expect : Option Nat) :
+    [Transport α] (config : Config) (socket : α) (expect : Option Nat) :
     Async (Except Protocol.H1.Machine.Error (Option ByteArray)) := do
   try
     let expect := expect
@@ -73,7 +73,7 @@ private def processNeedMoreData
     pure (.error Protocol.H1.Machine.Error.timeout)
 
 private def handle
-    [ClientConnection α]
+    [Transport α]
     (connection : Connection α)
     (config : Config)
     (handler : Request Body → Async (Response Body)) : Async Unit := do
@@ -206,7 +206,7 @@ private def handle
 
       if data.size > 0 then
         try
-          ClientConnection.sendAll socket data.data
+          Transport.sendAll socket data.data
         catch _ =>
           running := false
 
@@ -219,7 +219,7 @@ end Connection
 /--
 This is the entry point of the library. It is used to receive and send requests using an `Async`
 handler for a single connection. It can be used with a `TCP.Socket` or any other type that implements
-`ClientConnection` to create a simple HTTP server capable of handling multiple connections concurrently.
+`Transport` to create a simple HTTP server capable of handling multiple connections concurrently.
 
 # Example
 
@@ -240,7 +240,7 @@ while true do
 ```
 
 -/
-def serveConnection [ClientConnection t] (client : t)
+def serveConnection [Transport t] (client : t)
     (onRequest : Request Body → Async (Response Body)) (config : Config := {}) : Async Unit := do
   Connection.mk client { config := config.toH1Config }
   |>.handle config onRequest

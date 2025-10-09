@@ -19,7 +19,7 @@ open Std Internal IO Async TCP
 /--
 Generic HTTP client interface that abstracts over different transport mechanisms.
 -/
-class ClientConnection (α : Type) where
+class Transport (α : Type) where
   /--
   Receive data from the client connection, up to the expected size.
   Returns None if the connection is closed or no data is available.
@@ -36,7 +36,7 @@ class ClientConnection (α : Type) where
   -/
   recvSelector : α → UInt64 → Async (Selector (Option ByteArray))
 
-instance : ClientConnection Socket.Client where
+instance : Transport Socket.Client where
   recv client expect := client.recv? expect
   sendAll client data := client.sendAll data
   recvSelector client expect := client.recvSelector expect
@@ -256,7 +256,7 @@ def recvSelector (client : Mock.Client) (size : UInt64) : Async (Selector (Optio
         set { st with consumers }
   }
 
-instance : ClientConnection Mock.Client where
+instance : Transport Mock.Client where
   recv := Mock.Client.recv?
   sendAll := Mock.Client.sendAll
   recvSelector := Mock.Client.recvSelector

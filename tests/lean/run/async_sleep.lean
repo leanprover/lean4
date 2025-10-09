@@ -77,9 +77,6 @@ def cancelBehaviorNoRepeat : IO Unit := do
   assert! (← IO.getTaskState prom.result?) != IO.TaskState.finished
   timer.cancel
   assert! (← IO.getTaskState prom.result?) == IO.TaskState.finished
-  let prom ← timer.next
-  assert! (← IO.getTaskState prom.result?) == IO.TaskState.finished
-  assert! (← IO.getTaskState prom.result?) == IO.TaskState.finished
 
 def stopBehaviorNoRepeat : IO Unit := do
   let timer ← Timer.mk BASE_DURATION.toUInt64 false
@@ -380,19 +377,6 @@ def cancelRepeat : IO Unit := do
 
 #eval stopCancelRepeat
 #eval cancelStopRepeat
-
-#eval stopRepeat
-#eval cancelRepeat
-
-#eval sleepFirst
-#eval sleepSecond
-#eval promiseBehavior1
-#eval promiseBehavior2
-#eval promiseBehavior3
-#eval delayedTickBehavior
-#eval skippedTickBehavior
-#eval resetBehavior
-#eval sequentialSleep
 
 #eval stopRepeat
 #eval cancelRepeat

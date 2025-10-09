@@ -182,16 +182,21 @@ and provides that data. Calling this function starts the data wait, so it must n
 in parallel with `recv?`.
 -/
 def recvSelector (s : TCP.Socket.Client) (size : UInt64) : Async (Selector (Option ByteArray)) := do
-  let readableWaiter ← s.native.waitReadable
   return {
     tryFn := do
+      let readableWaiter ← s.native.waitReadable
+
       if ← readableWaiter.isResolved then
         -- We know that this read should not block
         let res ← (s.recv? size).block
         return some res
       else
+        s.native.cancelRecv
         return none
+
     registerFn waiter := do
+      let readableWaiter ← s.native.waitReadable
+
       -- If we get cancelled the promise will be dropped so prepare for that
       discard <| IO.mapTask (t := readableWaiter.result?) fun res => do
         match res with
@@ -207,6 +212,7 @@ def recvSelector (s : TCP.Socket.Client) (size : UInt64) : Async (Selector (Opti
             catch e =>
               promise.resolve (.error e)
           waiter.race lose win
+
     unregisterFn := s.native.cancelRecv
   }
 

@@ -286,7 +286,7 @@ and `endPos` is the position of the end of the header.
 -/
 def parseHeaderFromString (text path : String) :
     IO (System.FilePath × Parser.InputContext ×
-      TSyntaxArray ``Parser.Module.import × String.Pos) := do
+      TSyntaxArray ``Parser.Module.import × String.Pos.Raw) := do
   let inputCtx := Parser.mkInputContext text path
   let (header, parserState, msgs) ← Parser.parseHeader inputCtx
   if !msgs.toList.isEmpty then -- skip this file if there are parse errors
@@ -304,7 +304,7 @@ and `endPos` is the position of the end of the header.
 -/
 def parseHeader (srcSearchPath : SearchPath) (mod : Name) :
     IO (System.FilePath × Parser.InputContext ×
-      TSyntaxArray ``Parser.Module.import × String.Pos) := do
+      TSyntaxArray ``Parser.Module.import × String.Pos.Raw) := do
   -- Parse the input file
   let some path ← srcSearchPath.findModuleWithExt "lean" mod
     | throw <| .userError s!"error: failed to find source file for {mod}"
@@ -326,11 +326,17 @@ def decodeImport : TSyntax ``Parser.Module.import → Import
 * `addOnly`: if true, only add missing imports, do not remove unused ones
 -/
 def visitModule (srcSearchPath : SearchPath)
-    (i : Nat) (needs : Needs) (preserve : Needs) (edits : Edits)
+    (i : Nat) (needs : Needs) (preserve : Needs) (edits : Edits) (imports : TSyntaxArray ``Parser.Module.import)
     (addOnly := false) (githubStyle := false) (explain := false) : StateT State IO Edits := do
   let s ← get
   -- Do transitive reduction of `needs` in `deps`.
   let mut deps := needs
+  for imp in imports do
+    if imp.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep") then
+      let imp := decodeImport imp
+      let j := s.env.getModuleIdx? imp.module |>.get!
+      let k := NeedsKind.ofImport imp
+      deps := deps.union k {j}
   for j in [0:s.mods.size] do
     let transDeps := s.transDeps[j]!
     for k in NeedsKind.all do
@@ -529,33 +535,42 @@ def main (args : List String) : IO UInt32 := do
   let needs := s.mods.mapIdx fun i _ =>
     Task.spawn fun _ => calcNeeds s.env i
 
+  -- Parse headers in parallel
+  let headers ← s.mods.mapIdxM fun i _ =>
+    BaseIO.asTask (parseHeader srcSearchPath s.modNames[i]! |>.toBaseIO)
+
   if args.fix then
     println! "The following changes will be made automatically:"
 
   -- Check all selected modules
   let mut edits : Edits := ∅
   let mut revNeeds : Needs := default
-  for i in [0:s.mods.size], t in needs do
-    edits ← visitModule (addOnly := !pkg.isPrefixOf s.modNames[i]!) srcSearchPath i t.get revNeeds edits args.githubStyle args.explain
-    if isExtraRevModUse s.env i then
-      revNeeds := revNeeds.union .priv {i}
+  for i in [0:s.mods.size], t in needs, header in headers do
+    match header.get with
+    | .ok (_, _, imports, _) =>
+      edits ← visitModule (addOnly := !pkg.isPrefixOf s.modNames[i]!)
+        srcSearchPath i t.get revNeeds edits imports args.githubStyle args.explain
+      if isExtraRevModUse s.env i then
+        revNeeds := revNeeds.union .priv {i}
+    | .error e =>
+      println! e.toString
 
   if !args.fix then
     -- return error if any issues were found
     return if edits.isEmpty then 0 else 1
 
   -- Apply the edits to existing files
-  let count ← edits.foldM (init := 0) fun count mod (remove, add) => do
+  let mut count := 0
+  for mod in s.modNames, header? in headers do
+    let some (remove, add) := edits[mod]? | continue
     let add : Array Import := add.qsortOrd
 
     -- Parse the input file
-    let (path, inputCtx, imports, insertion) ←
-      try parseHeader srcSearchPath mod
-      catch e => println! e.toString; return count
+    let .ok (path, inputCtx, imports, insertion) := header?.get | continue
     let text := inputCtx.fileMap.source
 
     -- Calculate the edit result
-    let mut pos : String.Pos := 0
+    let mut pos : String.Pos.Raw := 0
     let mut out : String := ""
     let mut seen : Std.HashSet Import := {}
     for stx in imports do
@@ -573,7 +588,7 @@ def main (args : List String) : IO UInt32 := do
     out := out ++ text.extract insertion text.endPos
 
     IO.FS.writeFile path out
-    return count + 1
+    count := count + 1
 
   -- Since we throw an error upon encountering issues, we can be sure that everything worked
   -- if we reach this point of the script.

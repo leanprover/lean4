@@ -3130,20 +3130,6 @@ theorem getKey?_insertList_of_contains_right [BEq α] [EquivBEq α]
     . exact distinct_l
     . exact DistinctKeys_impl_Pairwise_distinct distinct_toInsert
 
-theorem getKey?_insertList_of_contains_right_lawful [BEq α] [LawfulBEq α]
-    {l toInsert : List ((a : α) × β a)} {k : α}
-    (distinct_l : DistinctKeys l)
-    (distinct_toInsert : DistinctKeys toInsert)
-    (contains : containsKey k toInsert = true) :
-    getKey? k (insertList l toInsert) = some k := by
-  replace distinct_toInsert := DistinctKeys_impl_Pairwise_distinct distinct_toInsert
-  rw [getKey?_eq_getEntry?]
-  rw [getEntry?_insertList_of_contains_eq_true]
-  . simp [← getKey?_eq_getEntry?, getKey?_eq_some contains]
-  . exact distinct_l
-  . exact distinct_toInsert
-  . exact contains
-
 theorem getKey_insertList_of_contains_right [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)} {k : α}
     (distinct_l : DistinctKeys l)
@@ -3161,13 +3147,6 @@ theorem getKey_insertList_of_contains_right [BEq α] [EquivBEq α]
     . simp only [getKey?_eq_getEntry?, Option.isSome_map]
       simp only [←@containsKey_eq_isSome_getEntry? α β _ toInsert k, contains]
 
-theorem getKey_insertList_of_contains_right_lawful [BEq α] [LawfulBEq α]
-    {l toInsert : List ((a : α) × β a)} {k : α}
-    {m} : containsKey k toInsert = true →
-    getKey k (insertList l toInsert) m = k := by
-  intro contains
-  simp only [getKey_eq]
-
 theorem getKey!_insertList_of_mem_right [Inhabited α] [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)} {k : α}
     (distinct_l : DistinctKeys l)
@@ -3184,15 +3163,6 @@ theorem getKey!_insertList_of_mem_right [Inhabited α] [BEq α] [EquivBEq α]
   . exact distinct_l
   . exact distinct_toInsert
 
-theorem getKey!_insertList_of_mem_right_lawful [Inhabited α] [BEq α] [LawfulBEq α]
-    {l toInsert : List ((a : α) × β a)} {k : α} :
-    containsKey k toInsert →
-    getKey! k (insertList l toInsert) = k := by
-  intro contains
-  unfold getKey!
-  rw [@getKey?_eq_some_getKey _ _ _ (insertList l toInsert) k (contains_insertList_of_right contains)]
-  simp only [getKey_eq, Option.get!_some]
-
 theorem getKeyD_insertList_of_mem_right [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)} {k fallback : α}
     (distinct_l : DistinctKeys l)
@@ -3204,16 +3174,6 @@ theorem getKeyD_insertList_of_mem_right [BEq α] [EquivBEq α]
   rw [@getKey?_insertList_of_contains_right _ _ _ _ l toInsert k distinct_l distinct_toInsert]
   rw [@getKey?_eq_some_getKey _ _ _ toInsert k contains]
   simp only [Option.some_or, Option.getD_some]
-
-theorem getKeyD_insertList_of_mem_right_lawful [BEq α] [LawfulBEq α]
-    {l toInsert : List ((a : α) × β a)} {k fallback : α} :
-    containsKey k toInsert →
-    getKeyD k (insertList l toInsert) fallback = k := by
-  intro contains
-  simp only [getKeyD_eq_getKey?]
-  simp only [@getKey?_eq_some _ _ _ _ (insertList l toInsert) k
-        (contains_insertList_of_right contains),
-    Option.getD_some]
 
 theorem getKey!_insertList_of_contains_right_eq_false [Inhabited α] [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)}  {k : α}
@@ -3257,13 +3217,6 @@ theorem getKey_insertList_of_contains_left_of_contains_right_eq_false [BEq α] [
       injection this
     simp only [← getKey?_eq_some_getKey]
     rw [@getKey?_insertList_of_contains_left_of_contains_right_eq_false α β _ _ l toInsert k (by simp only [toInsert_not_contains_k])]
-
-theorem getKey_insertList_of_contains_left_of_contains_right_eq_false_lawful [BEq α] [LawfulBEq α]
-    {l toInsert : List ((a : α) × β a)} {k : α} {m} :
-    (mem : containsKey k l) →
-    getKey k (insertList l toInsert) m = k := by
-  intro mem
-  simp only [getKey_eq]
 
 theorem getKeyD_insertList_of_mem_left_of_not_mem_right [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)} {k fallback : α}
@@ -3320,20 +3273,6 @@ theorem getKey!_insertList_of_mem_left_of_not_mem_right [Inhabited α] [BEq α] 
     getKey! k (insertList l toInsert) = getKey! k l := by
   simp [getKey!_eq_getKeyD_default]
   apply getKeyD_insertList_of_mem_left_of_not_mem_right distinct_l distinct_toInsert
-
-theorem getKey!_insertList_of_mem_left_of_not_mem_right_lawful [Inhabited α] [BEq α] [LawfulBEq α]
-    {l toInsert : List ((a : α) × β a)} {k : α} :
-    (mem : containsKey k l) →
-    getKey! k (insertList l toInsert) = k := by
-  intro mem
-  apply getKey!_eq_of_containsKey (@contains_insertList_of_left _ _ _ _ l toInsert k mem)
-
-theorem getKeyD_insertList_of_mem_left_of_not_mem_right_lawful [BEq α] [LawfulBEq α]
-    {l toInsert : List ((a : α) × β a)} {k fallback : α} :
-    (mem : containsKey k l) →
-    getKeyD k (insertList l toInsert) fallback = k := by
-  intro mem
-  apply getKeyD_eq_of_containsKey (@contains_insertList_of_left _ _ _ _ l toInsert k mem)
 
 theorem getKeyD_insertList_of_contains_right_eq_false [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)}  {k fallback : α}

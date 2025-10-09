@@ -388,10 +388,10 @@ def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zetaDelta : Bool
   return mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
 
 /-- Similar to `mkAuxDefinition`, but infers the type of `value`. -/
-def mkAuxDefinitionFor (name : Name) (value : Expr) (zetaDelta : Bool := false) : MetaM Expr := do
+def mkAuxDefinitionFor (name : Name) (value : Expr) (zetaDelta : Bool := false) (compile := true) : MetaM Expr := do
   let type ← inferType value
   let type := type.headBeta
-  mkAuxDefinition name type value (zetaDelta := zetaDelta)
+  mkAuxDefinition name type value (zetaDelta := zetaDelta) (compile := compile)
 
 /--
   Create an auxiliary theorem with the given name, type and value. It is similar to `mkAuxDefinition`.

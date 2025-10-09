@@ -9,6 +9,7 @@ prelude
 public import Init.Grind.Util
 public import Lean.Meta.Closure
 public import Lean.Meta.Transform
+import Lean.Meta.InferType
 
 public section
 
@@ -46,7 +47,7 @@ def isNonTrivialProof (e : Expr) : MetaM Bool :=
   -- declarations but the code might still be run under `isExporting = true` in order to create the
   -- new aux decls in the public scope. Thus we always shift to the private scope here.
   withoutExporting do
-  if !(← isProof e) then
+  if !(← Lean.Meta.isProof e) then
     return false
   else if e.isAppOf ``Grind.nestedProof then
     -- Grind.nestedProof is a gadget created by the `grind` tactic.

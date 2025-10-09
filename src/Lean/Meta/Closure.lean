@@ -6,15 +6,13 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.MetavarContext
-public import Lean.Environment
-public import Lean.AddDecl
-public import Lean.Util.FoldConsts
 public import Lean.Meta.Basic
-public import Lean.Meta.Check
-public import Lean.Meta.Tactic.AuxLemma
-
-public section
+import Lean.MetavarContext
+import Lean.Environment
+import Lean.AddDecl
+import Lean.Util.FoldConsts
+import Lean.Meta.Check
+import Lean.Meta.Tactic.AuxLemma
 
 /-!
 
@@ -193,6 +191,22 @@ def pushToProcess (elem : ToProcessElement) : ClosureM Unit :=
 
 partial def collectExprAux (e : Expr) : ClosureM Expr := do
   let collect (e : Expr) := visitExpr collectExprAux e
+  if !e.hasLooseBVars then
+    if let some fvar := e.getAppFn.fvarId? then
+      if let some decl := (← getLCtx).find? fvar then
+        if decl.isAuxDecl then
+          -- We don't want to abstract over aux decls separate from their arguments
+          let type ← inferType e
+          let type ← preprocess type
+          let type ← collect type
+          let newFVarId ← mkFreshFVarId
+          let userName := decl.userName.appendAfter "_app"
+          modify fun s => { s with
+            newLocalDeclsForMVars := s.newLocalDeclsForMVars.push $ .cdecl default newFVarId userName type .default .default,
+            exprMVarArgs          := s.exprMVarArgs.push e
+          }
+          return mkFVar newFVarId
+
   match e with
   | Expr.proj _ _ s      => return e.updateProj! (← collect s)
   | Expr.forallE _ d b _ => return e.updateForallE! (← collect d) (← collect b)
@@ -334,13 +348,13 @@ partial def process : ClosureM Unit := do
       else
         b.lowerLooseBVars 1 1
 
-def mkLambda (decls : Array LocalDecl) (b : Expr) : Expr :=
+public def mkLambda (decls : Array LocalDecl) (b : Expr) : Expr :=
   mkBinding true decls b
 
-def mkForall (decls : Array LocalDecl) (b : Expr) : Expr :=
+public def mkForall (decls : Array LocalDecl) (b : Expr) : Expr :=
   mkBinding false decls b
 
-structure MkValueTypeClosureResult where
+public structure MkValueTypeClosureResult where
   levelParams : Array Name
   type        : Expr
   value       : Expr
@@ -354,7 +368,7 @@ def mkValueTypeClosureAux (type : Expr) (value : Expr) : ClosureM (Expr × Expr)
     process
     pure (type, value)
 
-def mkValueTypeClosure (type : Expr) (value : Expr) (zetaDelta : Bool) : MetaM MkValueTypeClosureResult := do
+public def mkValueTypeClosure (type : Expr) (value : Expr) (zetaDelta : Bool) : MetaM MkValueTypeClosureResult := do
   let ((type, value), s) ← ((mkValueTypeClosureAux type value).run { zetaDelta }).run {}
   let newLocalDecls := s.newLocalDecls.reverse ++ s.newLocalDeclsForMVars
   let newLetDecls   := s.newLetDecls.reverse
@@ -376,7 +390,7 @@ end Closure
   A "closure" is computed, and a term of the form `name.{u_1 ... u_n} t_1 ... t_m` is
   returned where `u_i`s are universe parameters and metavariables `type` and `value` depend on,
   and `t_j`s are free and meta variables `type` and `value` depend on. -/
-def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zetaDelta : Bool := false) (compile : Bool := true) : MetaM Expr := do
+public def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zetaDelta : Bool := false) (compile : Bool := true) : MetaM Expr := do
   let result ← Closure.mkValueTypeClosure type value zetaDelta
   let env ← getEnv
   let hints := ReducibilityHints.regular (getMaxHeight env result.value + 1)
@@ -388,7 +402,7 @@ def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zetaDelta : Bool
   return mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
 
 /-- Similar to `mkAuxDefinition`, but infers the type of `value`. -/
-def mkAuxDefinitionFor (name : Name) (value : Expr) (zetaDelta : Bool := false) : MetaM Expr := do
+public def mkAuxDefinitionFor (name : Name) (value : Expr) (zetaDelta : Bool := false) : MetaM Expr := do
   let type ← inferType value
   let type := type.headBeta
   mkAuxDefinition name type value (zetaDelta := zetaDelta)
@@ -396,7 +410,7 @@ def mkAuxDefinitionFor (name : Name) (value : Expr) (zetaDelta : Bool := false) 
 /--
   Create an auxiliary theorem with the given name, type and value. It is similar to `mkAuxDefinition`.
 -/
-def mkAuxTheorem (type : Expr) (value : Expr) (zetaDelta : Bool := false) (kind? : Option Name := none) (cache := true) : MetaM Expr := do
+public def mkAuxTheorem (type : Expr) (value : Expr) (zetaDelta : Bool := false) (kind? : Option Name := none) (cache := true) : MetaM Expr := do
   let result ← Closure.mkValueTypeClosure type value zetaDelta
   let name ← mkAuxLemma (kind? := kind?) (cache := cache) result.levelParams.toList result.type result.value
   return mkAppN (mkConst name result.levelArgs.toList) result.exprArgs

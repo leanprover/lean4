@@ -98,7 +98,9 @@ private structure HandleOverlapState where
   /-- The non-overlapping tokens that have been definitively produced -/
   nonOverlapping : Array AbsoluteLspSemanticToken
   /--
-  The current interval's token, with its start position suitably adjusted.
+  The current interval's token, with its start position suitably adjusted. The current interval's
+  token always has a priority that's at least as high as all tokens in `surrounding` (they may be
+  equal if overlapping tokens had the same priority, and a tiebreaker such as length was used).
 
   When a token is replaced by a higher-priority token in part of its interval, its start position is
   set to the end position of the overriding token when it is resumed.
@@ -151,7 +153,7 @@ private def HandleOverlapState.untilToken (st : HandleOverlapState) (nextToken? 
           nonOverlapping := st.nonOverlapping.push curr,
           current? := takeBest st.surrounding |>.map ({ · with pos := curr.tailPos })
         }
-      -- If the current token extends past the start of the next token, 
+      -- If the current token extends past the start of the next token,
       -- then all remaining surrounding tokens also extend past the start of the next token,
       -- which are all lower priority than the current token.
       -- Hence, we are ready to handle the next token.
@@ -256,6 +258,8 @@ If two overlapping tokens have the same priority, then ties are broken as follow
 -/
 def handleOverlappingSemanticTokens (tokens : Array AbsoluteLspSemanticToken) :
     Array AbsoluteLspSemanticToken := Id.run do
+  -- `insertionSort` is used because a stable sort is needed here in order to allow the final
+  -- tiebreaker to be position in the input array
   let tokens := tokens.insertionSort fun ⟨pos1, tailPos1, _, _⟩ ⟨pos2, tailPos2, _, _⟩ =>
     pos1 < pos2 || pos1 == pos2 && tailPos1 < tailPos2
   let mut st : HandleOverlapState := {

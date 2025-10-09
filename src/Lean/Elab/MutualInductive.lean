@@ -1049,8 +1049,8 @@ private def mkInductiveDeclCore
   let view0 := views[0]!
   let isCoinductive := views.any (·.isCoinductive)
   if isCoinductive then
-    unless (←rs.allM (forallTelescopeReducing ·.type fun args body => pure body.isProp)) do
-      throwErrorAt view0.declId "`coinductive` keyword can only be used to define predicates"
+    if let some i ← rs.findIdxM? (forallTelescopeReducing ·.type fun _ body => pure !body.isProp) then
+      throwErrorAt views[i]!.declId "`coinductive` keyword can only be used to define predicates"
   let allUserLevelNames := rs[0]!.levelNames
   let isUnsafe          := view0.modifiers.isUnsafe
   let res ← withInductiveLocalDecls rs fun params indFVars => do

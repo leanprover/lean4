@@ -250,3 +250,13 @@ namespace unsafe_test
 unsafe coinductive infSeq2 (r : α → α → Prop) : α → Prop where
   | step : r a b → infSeq2 r b → infSeq2 r a
 end unsafe_test
+
+/-- error: `coinductive` keyword can only be used to define predicates -/
+#guard_msgs in
+mutual
+  coinductive wrong1 : Prop where
+
+  coinductive wrong2  where
+    | zero : my_nat2
+    | succ : wrong1 → my_nat2
+end

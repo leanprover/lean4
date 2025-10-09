@@ -1918,7 +1918,7 @@ theorem Pos.Raw.byteIdx_increaseBy {p : Pos.Raw} {n : Nat} :
 rare operation, so we use a name to make accidental use less likely. To remove the size of a
 character `c` or string `s` to a raw position `p`, you can use `p - c` resp. `p - s`.
 
-This should be seens as an "unadvance".
+This should be seen as an "unadvance".
 
 See also `Pos.Raw.unoffsetBy`, which turns absolute positions into relative positions.
 -/

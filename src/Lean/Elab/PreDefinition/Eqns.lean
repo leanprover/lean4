@@ -7,17 +7,9 @@ module
 
 prelude
 public import Lean.Meta.Basic
-import Lean.Meta.Eqns
-import Lean.Meta.CtorRecognizer
-import Lean.Util.CollectFVars
-import Lean.Util.ForEachExprWhere
 import Lean.Meta.Tactic.Split
-import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Refl
 import Lean.Meta.Match.MatchEqs
-import Lean.DefEqAttrib
 import Lean.Meta.Tactic.SplitIf
-import Lean.Meta.Tactic.Simp.Main
 
 namespace Lean.Elab.Eqns
 open Meta

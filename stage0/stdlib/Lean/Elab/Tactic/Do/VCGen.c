@@ -66432,7 +66432,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Do_elabMVCGen___lam__5___closed__15
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("The `mvcgen` tactic is new and its behavior may change in the future. This project has used `set_option mvcgen.warning true` to discourage its use.", 147, 147);
+x_1 = lean_mk_string_unchecked("The `mvcgen` tactic is experimental and still under development. Avoid using it in production projects.", 103, 103);
 return x_1;
 }
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.WF.Unfold
-// Imports: public import Lean.Elab.PreDefinition.Basic import Lean.Elab.PreDefinition.Eqns import Lean.Meta.Tactic.Apply import Lean.Meta.Tactic.Split public import Lean.Meta.Tactic.Simp.Types import Lean.Meta.Tactic.Simp.Main import Lean.Meta.Tactic.Simp.BuiltinSimprocs import Lean.Meta.Tactic.Delta import Lean.Meta.Tactic.Refl
+// Imports: public import Lean.Elab.PreDefinition.Basic public import Lean.Meta.Tactic.Simp.Types import Lean.Elab.PreDefinition.EqnsUtils import Lean.Meta.Tactic.Apply import Lean.Meta.Tactic.Split import Lean.Meta.Tactic.Simp.Main import Lean.Meta.Tactic.Simp.BuiltinSimprocs import Lean.Meta.Tactic.Delta import Lean.Meta.Tactic.Refl
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17197,7 +17197,7 @@ x_14 = lean_ctor_get(x_1, 1);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_1, 3);
 lean_inc(x_15);
-x_16 = lean_ctor_get(x_1, 6);
+x_16 = lean_ctor_get(x_1, 7);
 lean_inc_ref(x_16);
 lean_dec_ref(x_1);
 x_17 = l_Lean_Elab_WF_mkUnfoldEq___closed__0;
@@ -17292,7 +17292,7 @@ x_42 = lean_ctor_get(x_1, 1);
 lean_inc(x_42);
 x_43 = lean_ctor_get(x_1, 3);
 lean_inc(x_43);
-x_44 = lean_ctor_get(x_1, 6);
+x_44 = lean_ctor_get(x_1, 7);
 lean_inc_ref(x_44);
 lean_dec_ref(x_1);
 x_45 = l_Lean_Elab_WF_mkUnfoldEq___closed__0;
@@ -18700,7 +18700,7 @@ x_17 = lean_ctor_get(x_1, 1);
 lean_inc(x_17);
 x_18 = lean_ctor_get(x_1, 3);
 lean_inc(x_18);
-x_19 = lean_ctor_get(x_1, 6);
+x_19 = lean_ctor_get(x_1, 7);
 lean_inc_ref(x_19);
 lean_dec_ref(x_1);
 x_20 = lean_ctor_get(x_14, 0);
@@ -18801,7 +18801,7 @@ x_46 = lean_ctor_get(x_1, 1);
 lean_inc(x_46);
 x_47 = lean_ctor_get(x_1, 3);
 lean_inc(x_47);
-x_48 = lean_ctor_get(x_1, 6);
+x_48 = lean_ctor_get(x_1, 7);
 lean_inc_ref(x_48);
 lean_dec_ref(x_1);
 x_49 = lean_ctor_get(x_43, 0);
@@ -18920,7 +18920,7 @@ x_80 = lean_ctor_get(x_1, 1);
 lean_inc(x_80);
 x_81 = lean_ctor_get(x_1, 3);
 lean_inc(x_81);
-x_82 = lean_ctor_get(x_1, 6);
+x_82 = lean_ctor_get(x_1, 7);
 lean_inc_ref(x_82);
 lean_dec_ref(x_1);
 x_83 = lean_ctor_get(x_76, 0);
@@ -19209,10 +19209,10 @@ return x_5;
 }
 }
 lean_object* initialize_Lean_Elab_PreDefinition_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_PreDefinition_Eqns(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Simp_Types(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_PreDefinition_EqnsUtils(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Apply(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Split(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Simp_Types(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Simp_Main(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Delta(uint8_t builtin, lean_object*);
@@ -19225,16 +19225,16 @@ _G_initialized = true;
 res = initialize_Lean_Elab_PreDefinition_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_PreDefinition_Eqns(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Simp_Types(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_PreDefinition_EqnsUtils(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Apply(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Split(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Simp_Types(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Simp_Main(builtin, lean_io_mk_world());

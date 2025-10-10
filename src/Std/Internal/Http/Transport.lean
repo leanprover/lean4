@@ -10,11 +10,18 @@ public import Std.Internal.Http.Protocol.H1
 
 public section
 
-namespace Std
-namespace Http
-namespace Server
+/-!
+# Transport
+
+This module exposes a `Transport` type class that is used to represent different transport mechanisms
+that can be used with a HTTP connection.
+-/
+
+namespace Std.Http
 
 open Std Internal IO Async TCP
+
+set_option linter.all true
 
 /--
 Generic HTTP client interface that abstracts over different transport mechanisms.
@@ -42,11 +49,12 @@ instance : Transport Socket.Client where
   recvSelector client expect := client.recvSelector expect
 
 open Internal.IO.Async in
-inductive MockClient.Consumer where
+
+private inductive MockClient.Consumer where
   | normal (promise : IO.Promise (Option ByteArray))
   | select (waiter : Waiter (Option ByteArray))
 
-def MockClient.Consumer.resolve (c : MockClient.Consumer) (data : Option ByteArray) : BaseIO Bool := do
+private def MockClient.Consumer.resolve (c : MockClient.Consumer) (data : Option ByteArray) : BaseIO Bool := do
   match c with
   | .normal promise =>
     promise.resolve data
@@ -58,7 +66,7 @@ def MockClient.Consumer.resolve (c : MockClient.Consumer) (data : Option ByteArr
       return true
     waiter.race lose win
 
-structure MockClient.State where
+private structure MockClient.State where
   /--
   Queue of data to be received by the client.
   -/
@@ -83,10 +91,7 @@ structure MockClient.State where
 Mock client socket for testing HTTP interactions.
 -/
 structure Mock.Client where
-  /--
-  State
-  -/
-  state : Std.Mutex MockClient.State
+  private state : Std.Mutex MockClient.State
 
 namespace Mock.Client
 
@@ -261,7 +266,4 @@ instance : Transport Mock.Client where
   sendAll := Mock.Client.sendAll
   recvSelector := Mock.Client.recvSelector
 
-end Mock.Client
-end Server
-end Http
-end Std
+end Std.Http.Mock.Client

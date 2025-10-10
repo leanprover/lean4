@@ -10,20 +10,26 @@ public import Init.Data.String
 
 public section
 
-namespace Std
-namespace Http
+/-!
+# Version
+
+The 'Version' structure represents an HTTP version with a major and minor number. It includes several
+standard versions of the HTTP protocol, such as HTTP/1.1, HTTP/2.0, and HTTP/3.0.
+
+* Reference: https://httpwg.org/specs/rfc9110.html#protocol.version
+-/
+
+namespace Std.Http
 
 set_option linter.all true
 
 /--
-The 'Version' structure represents an HTTP version with a major and minor number. It includes
-several standard versions of the HTTP protocol, such as HTTP/1.1, HTTP/2.0, and
-HTTP/3.0.
+The 'Version' structure represents an HTTP version with a major and minor number. It includes several
+standard versions of the HTTP protocol, such as HTTP/1.1, HTTP/2.0, and HTTP/3.0.
 
 * Reference: https://httpwg.org/specs/rfc9110.html#protocol.version
 -/
 inductive Version
-
   /--
   `HTTP/1.1`
   -/
@@ -74,3 +80,5 @@ instance : ToString Version where
     | .v11 => "HTTP/1.1"
     | .v20 => "HTTP/2.0"
     | .v30 => "HTTP/3.0"
+
+end Std.Http.Version

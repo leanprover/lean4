@@ -468,6 +468,7 @@ only those mappings where the function returns `some` value.
 
 instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
 
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/

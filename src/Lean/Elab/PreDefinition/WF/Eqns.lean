@@ -46,16 +46,6 @@ public def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Na
           eqnInfoExt.insert env preDef.declName { preDef with
             declNames, declNameNonRec, argsPacker, fixedParamPerms }
 
-def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
-  if let some info := eqnInfoExt.find? (← getEnv) declName then
-    mkEqns declName info.declNames (tryRefl := false)
-  else
-    return none
-
-builtin_initialize
-  registerGetEqnsFn getEqnsFor?
-
-
 /--
 This is a hack to fix fallout from #8519, where a non-exposed wfrec definition `foo`
 in a module would cause `foo.eq_def` to be defined eagerly and privately,

@@ -42,7 +42,10 @@ where
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if (← isRecursiveDefinition declName) then
-    return none
+    let some (.defnInfo info) := (← getEnv).find? declName |
+      throwError "internal error: recursive definition `{declName}` is not a definition"
+    let n ← mkEqns declName info.all.toArray
+    return some n
   if (← getEnv).contains declName then
     if backward.eqns.nonrecursive.get (← getOptions) then
       mkEqns declName #[]

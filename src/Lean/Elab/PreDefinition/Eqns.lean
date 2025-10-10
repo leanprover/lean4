@@ -403,9 +403,6 @@ Generate equations for `declName`.
 This unfolds the function application on the LHS (using an unfold theorem, if present, or else by
 delta-reduction), calculates the types for the equational theorems using `mkEqnTypes`, and then
 proves them using `mkEqnProof`.
-
-This is currently used for non-recursive functions, well-founded recursion and partial_fixpoint,
-but not for structural recursion.
 -/
 public def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true): MetaM (Array Name) := do
   trace[Elab.definition.eqns] "mkEqns: {.ofConstName declName}"

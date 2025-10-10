@@ -151,12 +151,6 @@ public def registerEqnsInfo (preDef : PreDefinition) (declNames : Array Name) (r
   modifyEnv fun env => eqnInfoExt.insert env preDef.declName
     { preDef with recArgPos, declNames, fixedParamPerms }
 
-def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
-  if let some info := eqnInfoExt.find? (← getEnv) declName then
-    mkEqns declName info.declNames
-  else
-    return none
-
 /-- Generate the "unfold" lemma for `declName`. -/
 def mkUnfoldEq (declName : Name) (info : EqnInfo) : MetaM Name := do
   let name := mkEqLikeNameFor (← getEnv) info.declName unfoldThmSuffix
@@ -190,7 +184,6 @@ def getStructuralRecArgPosImp? (declName : Name) : CoreM (Option Nat) := do
 
 
 builtin_initialize
-  registerGetEqnsFn getEqnsFor?
   registerGetUnfoldEqnFn getUnfoldFor?
   registerTraceClass `Elab.definition.structural.eqns
 

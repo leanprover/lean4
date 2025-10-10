@@ -258,10 +258,18 @@ example : h bs = 1 → h as ≠ 0 := by
     next => skip
     all_goals sorry
 
-example : h bs = 1 → h as ≠ 0 := by
-  grind [h.eq_def] =>
+def g (as : List Nat) :=
+  match as with
+  | []      => 1
+  | [_]     => 2
+  | _::_::_ => 3
+
+example : g bs = 1 → g as ≠ 0 := by
+  grind [g.eq_def] =>
     instantiate
     cases #ec88
     next => instantiate
-    next => instantiate
     next => finish
+    tactic =>
+      rw [h_2] at h_1
+      simp [g] at h_1

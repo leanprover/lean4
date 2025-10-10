@@ -14,6 +14,7 @@ import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.Anchor
+import Lean.Elab.Tactic.Basic
 namespace Lean.Elab.Tactic.Grind
 
 def evalSepTactics (stx : Syntax) : GrindTacticM Unit := do
@@ -173,6 +174,15 @@ open Meta Grind
     withCaseRef arr seq <| closeUsingOrAdmit <| withTacticInfoContext (mkNullNode #[nextTk, arr]) <|
       evalGrindTactic stx[2]
     setGoals goals
+  | _ => throwUnsupportedSyntax
+
+@[builtin_grind_tactic nestedTacticCore] def evalNestedTactic : GrindTactic := fun stx => do
+  match stx with
+  | `(grind| tactic%$tacticTk =>%$arr $seq:tacticSeq) => do
+    let goal ← getMainGoal
+    discard <| Tactic.run goal.mvarId <| withCaseRef arr seq <| Tactic.closeUsingOrAdmit
+      <| Tactic.withTacticInfoContext (mkNullNode #[tacticTk, arr]) <| evalTactic seq
+    replaceMainGoal []
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Grind

@@ -83,7 +83,6 @@ but is expected to have type
 #guard_msgs in
 example : foo 0 = 0 := rfl
 
-
 def bar : Nat → Nat
   | 0 => 0
   | n+1 => bar n
@@ -105,48 +104,3 @@ example : foo = bar := rfl
 
 unseal foo bar in
 example : foo = bar := rfl
-
-
--- Attributes on the definition take precedence
-@[semireducible] def baz : Nat → Nat
-  | 0 => 0
-  | n+1 => baz n
-termination_by n => n
-
-example : baz 0 = 0 := rfl
-
-seal baz in
-/--
-error: Type mismatch
-  rfl
-has type
-  ?_ = ?_
-but is expected to have type
-  baz 0 = 0
--/
-#guard_msgs in
-example : baz 0 = 0 := rfl
-
-example : baz 0 = 0 := rfl
-
-@[reducible] def quux : Nat → Nat
-  | 0 => 0
-  | n+1 => quux n
-termination_by n => n
-
-example : quux 0 = 0 := rfl
-
-set_option allowUnsafeReducibility true in
-seal quux in
-/--
-error: Type mismatch
-  rfl
-has type
-  ?_ = ?_
-but is expected to have type
-  quux 0 = 0
--/
-#guard_msgs in
-example : quux 0 = 0 := rfl
-
-example : quux 0 = 0 := rfl

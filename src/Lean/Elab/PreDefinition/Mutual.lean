@@ -18,18 +18,6 @@ well-founded recursion and partial fixed-points, but independent of the details 
 namespace Lean.Elab.Mutual
 open Meta
 
-partial def withCommonTelescope (preDefs : Array PreDefinition) (k : Array Expr → Array Expr → MetaM α) : MetaM α :=
-  go #[] (preDefs.map (·.value))
-where
-  go (fvars : Array Expr) (vals : Array Expr) : MetaM α := do
-    if !(vals.all fun val => val.isLambda) then
-      k fvars vals
-    else if !(← vals.allM fun val => isDefEq val.bindingDomain! vals[0]!.bindingDomain!) then
-      k fvars vals
-    else
-      withLocalDecl vals[0]!.bindingName! vals[0]!.binderInfo vals[0]!.bindingDomain! fun x =>
-        go (fvars.push x) (vals.map fun val => val.bindingBody!.instantiate1 x)
-
 def addPreDefsFromUnary (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDefinition) (preDefsNonrec : Array PreDefinition)
     (unaryPreDefNonRec : PreDefinition) (cacheProofs := true) : TermElabM Unit := do
   /-

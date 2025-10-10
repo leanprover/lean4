@@ -246,8 +246,8 @@ def isNatLtWF (wfRel : Expr) : MetaM (Option Expr) := do
   | _ => return none
 
 def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsPacker)
-    (wfRel : Expr) (funNames : Array Name) (decrTactics : Array (Option DecreasingBy))
-    (opaqueProof : Bool) : TermElabM Expr := do
+    (wfRel : Expr) (funNames : Array Name) (decrTactics : Array (Option DecreasingBy)) :
+    TermElabM Expr := do
   let type ← instantiateForall preDef.type prefixArgs
   let (wfFix, varName) ← forallBoundedTelescope type (some 1) fun x type => do
     let x := x[0]!
@@ -261,7 +261,7 @@ def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsP
     else
       let rel := mkProj ``WellFoundedRelation 0 wfRel
       let wf  := mkProj ``WellFoundedRelation 1 wfRel
-      let wf ← if opaqueProof then mkAppM `Lean.opaqueId #[wf] else pure wf
+      let wf ← mkAppM `Lean.opaqueId #[wf]
       return (mkApp4 (mkConst ``WellFounded.fix [u, v]) α motive rel wf, varName)
   forallBoundedTelescope (← whnf (← inferType wfFix)).bindingDomain! (some 2) fun xs _ => do
     let x   := xs[0]!

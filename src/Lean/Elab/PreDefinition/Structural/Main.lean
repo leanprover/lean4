@@ -23,59 +23,6 @@ namespace Lean.Elab
 namespace Structural
 open Meta
 
-private def getFixedPrefix (declName : Name) (xs : Array Expr) (value : Expr) : MetaM Nat := do
-  let numFixedRef ← IO.mkRef xs.size
-  forEachExpr' value fun e => do
-    if e.isAppOf declName then
-      let args := e.getAppArgs
-      numFixedRef.modify fun numFixed => if args.size < numFixed then args.size else numFixed
-      for arg in args, x in xs do
-        /- We should not use structural equality here. For example, given the definition
-           ```
-           def V.map {α β} f x x_1 :=
-             @V.map.match_1.{1} α (fun x x_2 => V β x) x x_1
-               (fun x x_2 => @V.mk₁ β x (f Bool.true x_2))
-               (fun e => @V.mk₂ β (V.map (fun b => α b) (fun b => β b) f Bool.false e))
-           ```
-           The first three arguments at `V.map (fun b => α b) (fun b => β b) f Bool.false e` are "fixed"
-           modulo definitional equality.
-
-           We disable to proof irrelevance to be able to use structural recursion on inductive predicates.
-           For example, consider the example
-           ```
-           inductive PList (α : Type) : Prop
-           | nil
-           | cons : α → PList α → PList α
-
-           infixr:67 " ::: " => PList.cons
-
-           set_option trace.Elab.definition.structural true in
-           def pmap {α β} (f : α → β) : PList α → PList β
-             | PList.nil => PList.nil
-             | a:::as => f a ::: pmap f as
-           ```
-          The "Fixed" prefix would be 4 since all elements of type `PList α` are definitionally equal.
-        -/
-        if !(← withoutProofIrrelevance <| withReducible <| isDefEq arg x) then
-          -- We continue searching if e's arguments are not a prefix of `xs`
-          return true
-      return false
-    else
-      return true
-  numFixedRef.get
-
-partial def withCommonTelescope (preDefs : Array PreDefinition) (k : Array Expr → Array Expr → M α) : M α :=
-  go #[] (preDefs.map (·.value))
-where
-  go (fvars : Array Expr) (vals : Array Expr) : M α := do
-    if !(vals.all fun val => val.isLambda) then
-      k fvars vals
-    else if !(← vals.allM fun val=> isDefEq val.bindingDomain! vals[0]!.bindingDomain!) then
-      k fvars vals
-    else
-      withLocalDecl vals[0]!.bindingName! vals[0]!.binderInfo vals[0]!.bindingDomain! fun x =>
-        go (fvars.push x) (vals.map fun val => val.bindingBody!.instantiate1 x)
-
 private def elimMutualRecursion (preDefs : Array PreDefinition) (fixedParamPerms : FixedParamPerms)
     (xs : Array Expr) (recArgInfos : Array RecArgInfo) : M (Array PreDefinition) := do
   let values ← preDefs.mapIdxM (fixedParamPerms.perms[·]!.instantiateLambda ·.value xs)
@@ -132,13 +79,13 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (fixedParamPerms
   return preDefs.zipWith (bs := valuesNew) fun preDef valueNew => { preDef with value := valueNew }
 
 private def inferRecArgPos (preDefs : Array PreDefinition) (termMeasure?s : Array (Option TerminationMeasure)) :
-    M (Array Nat × (Array PreDefinition) × FixedParamPerms) := do
+    M (Array Nat × Array PreDefinition × FixedParamPerms) := do
   withoutModifyingEnv do
     preDefs.forM (addAsAxiom ·)
     let fnNames := preDefs.map (·.declName)
+    let numSectionVars := preDefs[0]!.numSectionVars
     let preDefs ← preDefs.mapM fun preDef =>
-      return { preDef with value := (← preprocess preDef.value fnNames) }
-
+      return { preDef with value := (← preprocess preDef.value fnNames numSectionVars) }
     -- The syntactically fixed arguments
     let fixedParamPerms ← getFixedParamPerms preDefs
 

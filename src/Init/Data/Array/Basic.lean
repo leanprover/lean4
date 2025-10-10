@@ -260,7 +260,7 @@ Examples:
 * `#["red", "green", "blue", "brown"].swapIfInBounds 0 4 = #["red", "green", "blue", "brown"]`
 * `#["red", "green", "blue", "brown"].swapIfInBounds 9 2 = #["red", "green", "blue", "brown"]`
 -/
-@[extern "lean_array_swap", grind]
+@[extern "lean_array_swap", expose]
 def swapIfInBounds (xs : Array α) (i j : @& Nat) : Array α :=
   if h₁ : i < xs.size then
   if h₂ : j < xs.size then swap xs i j

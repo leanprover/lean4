@@ -479,7 +479,10 @@ Similar to `mkCongrSimp?`, but uses reserved names to ensure we don't keep creat
 same congruence theorem over and over again.
 -/
 def mkCongrSimpForConst? (declName : Name) (levels : List Level) : MetaM (Option CongrTheorem) := do
-  let thmName := mkPrivateName (← getEnv) <| Name.str declName congrSimpSuffix
+  let mut thmName := Name.str declName congrSimpSuffix
+  if !((← getEnv).setExporting true |>.containsOnBranch thmName) && (← getEnv).isImportedConst declName then
+    -- Keep local to current module unless `declName` is public decl from this module.
+    thmName := mkPrivateName (← getEnv) thmName
   try
     unless (← getEnv).containsOnBranch thmName do
       let _ ← executeReservedNameAction thmName

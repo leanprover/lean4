@@ -2752,14 +2752,14 @@ theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] 
       . wf_trivial
       . apply List.Perm.refl
     . constructor
-      rw [←Raw.keys_eq_keys_toListModel]
+      rw [← Raw.keys_eq_keys_toListModel]
       exact m₁.distinct_keys h₁
     . apply List.DistinctKeys.perm
       . apply toListModel_insert
         . wf_trivial
       . apply List.DistinctKeys.insertEntry
         . constructor
-          rw [←Raw.keys_eq_keys_toListModel]
+          rw [← Raw.keys_eq_keys_toListModel]
           exact m₂.distinct_keys h₂
   . apply List.Perm.trans
     . apply insertList_insertEntry_right_equiv_insertEntry_insertList

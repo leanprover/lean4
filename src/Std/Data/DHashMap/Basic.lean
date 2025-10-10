@@ -311,6 +311,13 @@ This function ensures that the value is used linearly.
     Array α :=
   m.1.keysArray
 
+/-- Computes the union of the given hash maps, inserting smaller hash map into a bigger hash map. In the case of clashes of keys, entries from the left argument, are replaced with entries from the right argument. -/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : DHashMap α β) : DHashMap α β where
+  inner := Raw₀.union ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩
+  wf := Std.DHashMap.Raw.WF.union₀ m₁.2 m₂.2
+
+instance [BEq α] [Hashable α] : Union (DHashMap α β) := ⟨union⟩
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -331,13 +338,6 @@ section Unverified
 @[inline, inherit_doc Raw.valuesArray] def valuesArray {β : Type v}
     (m : DHashMap α (fun _ => β)) : Array β :=
   m.1.valuesArray
-
-/-- Computes the union of the given hash maps, inserting smaller list into a bigger list. In the case of clashes of keys, entries from the left argument, are replaced with entries from the right argument. -/
-@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : DHashMap α β) : DHashMap α β where
-  inner := Raw₀.union ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩
-  wf := Std.DHashMap.Raw.WF.union₀ m₁.2 m₂.2
-
-instance [BEq α] [Hashable α] : Union (DHashMap α β) := ⟨union⟩
 
 @[inline, inherit_doc Raw.Const.unitOfArray] def Const.unitOfArray [BEq α] [Hashable α] (l : Array α) :
     DHashMap α (fun _ => Unit) :=

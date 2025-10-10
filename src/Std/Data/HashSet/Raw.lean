@@ -224,6 +224,12 @@ instance {m : Type v → Type w} : ForIn m (Raw α) α where
 @[inline] def toArray (m : Raw α) : Array α :=
   m.inner.keysArray
 
+/-- Computes the union of the given hash set, inserting smaller hash set into a bigger hash set. -/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α) : Raw α :=
+  ⟨HashMap.Raw.union m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : Union (Raw α) := ⟨union⟩
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -259,12 +265,6 @@ in the collection will be present in the returned hash set.
 -/
 @[inline] def ofArray [BEq α] [Hashable α] (l : Array α) : Raw α :=
   ⟨HashMap.Raw.unitOfArray l⟩
-
-/-- Computes the union of the given hash sets, by traversing `m₂` and inserting its elements into `m₁`. -/
-@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α) : Raw α :=
-  ⟨HashMap.Raw.union m₁.inner m₂.inner⟩
-
-instance [BEq α] [Hashable α] : Union (Raw α) := ⟨union⟩
 
 /--
 Returns the number of buckets in the internal representation of the hash set. This function may

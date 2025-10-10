@@ -235,6 +235,12 @@ appearance.
 @[inline] def toArray (m : HashSet α) : Array α :=
   m.inner.keysArray
 
+/-- Computes the union of the given hash set, inserting smaller hash set into a bigger hash set. -/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : HashSet α) : HashSet α :=
+  ⟨HashMap.union m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : Union (HashSet α) := ⟨union⟩
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -263,12 +269,6 @@ in the collection will be present in the returned hash set.
 -/
 @[inline] def ofArray [BEq α] [Hashable α] (l : Array α) : HashSet α :=
   ⟨HashMap.unitOfArray l⟩
-
-/-- Computes the union of the given hash sets, by traversing `m₂` and inserting its elements into `m₁`. -/
-@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : HashSet α) : HashSet α :=
-  ⟨HashMap.union m₁.inner m₂.inner⟩
-
-instance [BEq α] [Hashable α] : Union (HashSet α) := ⟨union⟩
 
 /--
 Returns the number of buckets in the internal representation of the hash set. This function may

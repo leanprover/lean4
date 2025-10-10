@@ -456,6 +456,18 @@ only those mappings where the function returns `some` value.
 @[inline] def keysArray (m : Raw α β) : Array α :=
   m.fold (fun acc k _ => acc.push k) (.emptyWithCapacity m.size)
 
+/-- Computes the union of the given hash maps, inserting smaller hash map into a bigger hash map. In the case of clashes of keys, entries from the left argument, are replaced with entries from the right argument. -/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
+  if h₁ : 0 < m₁.buckets.size then
+    if h₂ : 0 < m₂.buckets.size then
+      Raw₀.union ⟨m₁, h₁⟩ ⟨m₂, h₂⟩
+    else
+      m₁
+  else
+    m₂
+
+instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -501,18 +513,6 @@ This is mainly useful to implement `HashSet.insertMany`, so if you are consideri
   if h : 0 < m.buckets.size then
     (Raw₀.Const.insertManyIfNewUnit ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
-
-/-- Computes the union of the given hash maps, inserting smaller list into a bigger list. In the case of clashes of keys, entries from the left argument, are replaced with entries from the right argument. -/
-@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
-  if h₁ : 0 < m₁.buckets.size then
-    if h₂ : 0 < m₂.buckets.size then
-      Raw₀.union ⟨m₁, h₁⟩ ⟨m₂, h₂⟩
-    else
-      m₁
-  else
-    m₂
-
-instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
 
 /-- Creates a hash map from an array of keys, associating the value `()` with each key.
 

@@ -51,6 +51,7 @@ syntax:max "!" show_filter:40 : show_filter
 
 syntax showFilter := (colGt show_filter)?
 
+-- **Note**: Should we rename the following tactics to `trace_`?
 /-- Shows asserted facts. -/
 syntax (name := showAsserted) "show_asserted " showFilter : grind
 /-- Shows propositions known to be `True`. -/
@@ -66,7 +67,7 @@ syntax (name := «showState») "show_state " showFilter : grind
 
 declare_syntax_cat grind_ref (behavior := both)
 
-syntax:max "#" noWs num : grind_ref
+syntax:max "#" noWs hexnum : grind_ref
 syntax term : grind_ref
 
 syntax (name := cases) "cases " grind_ref (" with " (colGt ident)+)? : grind
@@ -81,5 +82,45 @@ syntax (name := «have») "have" letDecl : grind
 
 /-- Executes the given tactic block to close the current goal. -/
 syntax (name := nestedTacticCore) "tactic" " => " tacticSeq : grind
+
+/--
+`all_goals tac` runs `tac` on each goal, concatenating the resulting goals.
+If the tactic fails on any goal, the entire `all_goals` tactic fails.
+-/
+syntax (name := allGoals) "all_goals " grindSeq : grind
+
+/--
+`focus tac` focuses on the main goal, suppressing all other goals, and runs `tac` on it.
+Usually `· tac`, which enforces that the goal is closed by `tac`, should be preferred.
+-/
+syntax (name := focus) "focus " grindSeq : grind
+
+syntax (name := next) "next" " => " grindSeq : grind
+
+/--
+`any_goals tac` applies the tactic `tac` to every goal,
+concatenating the resulting goals for successful tactic applications.
+If the tactic fails on all of the goals, the entire `any_goals` tactic fails.
+
+This tactic is like `all_goals try tac` except that it fails if none of the applications of `tac` succeeds.
+-/
+syntax (name := anyGoals) "any_goals " grindSeq : grind
+
+/--
+`with_annotate_state stx t` annotates the lexical range of `stx : Syntax` with
+the initial and final state of running tactic `t`.
+-/
+scoped syntax (name := withAnnotateState)
+  "with_annotate_state " rawStx ppSpace grind : grind
+
+/--
+`tac <;> tac'` runs `tac` on the main goal and `tac'` on each produced goal,
+concatenating all goals produced by `tac'`.
+-/
+macro:1 x:grind tk:" <;> " y:grind:2 : grind => `(grind|
+  focus
+    $x:grind
+    with_annotate_state $tk skip
+    all_goals $y:grind)
 
 end Lean.Parser.Tactic.Grind

@@ -181,6 +181,16 @@ example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p
     show_splits
     sorry
 
+/--
+trace: [splits] Case split candidates
+  [split] #65fc := p ∨ p₁ = p₂
+  [split] #1460 := p ∨ q ∧ r
+-/
+example (r p q p₁ p₂ : Prop) : (p₁ → q) → p ∨ (q ∧ r) → p ∨ (p₁ ↔ p₂) → False := by
+  grind =>
+    show_splits
+    sorry
+
 def h (as : List Nat) :=
   match as with
   | []      => 1
@@ -204,3 +214,62 @@ example : h bs = 1 → h as ≠ 0 := by
     instantiate
     show_splits
     sorry
+
+example : h bs = 1 → h as ≠ 0 := by
+  grind [h.eq_def] =>
+    instantiate
+    show_splits
+    cases #ec88
+    instantiate
+    focus instantiate
+    instantiate
+
+example : h bs = 1 → h as ≠ 0 := by
+  grind [h.eq_def] =>
+    instantiate
+    cases #ec88
+    all_goals instantiate
+
+example : h bs = 1 → h as ≠ 0 := by
+  grind [h.eq_def] =>
+    instantiate
+    cases #ec88 <;> instantiate
+
+example : h bs = 1 → h as ≠ 1 := by
+  grind [h.eq_def] =>
+    instantiate
+    cases #ec88
+    any_goals instantiate
+    sorry
+
+/--
+error: unsolved goals
+bs as : List Nat
+h : _root_.h bs = 1
+h_1 : _root_.h as = 0
+h_2 : as = []
+⊢ False
+-/
+#guard_msgs in
+example : h bs = 1 → h as ≠ 0 := by
+  grind [h.eq_def] =>
+    instantiate
+    cases #ec88
+    next => skip
+    all_goals sorry
+
+def g (as : List Nat) :=
+  match as with
+  | []      => 1
+  | [_]     => 2
+  | _::_::_ => 3
+
+example : g bs = 1 → g as ≠ 0 := by
+  grind [g.eq_def] =>
+    instantiate
+    cases #ec88
+    next => instantiate
+    next => finish
+    tactic =>
+      rw [h_2] at h_1
+      simp [g] at h_1

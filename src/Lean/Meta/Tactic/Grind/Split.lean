@@ -243,19 +243,19 @@ private def casesWithTrace (mvarId : MVarId) (major : Expr) : GoalM (List MVarId
   cases mvarId major
 
 /--
-Selects a case-split from the list of candidates, and adds new choice point
-(aka backtracking point). Returns true if successful.
+Performs a case-split using `c`.
+Remarks:
+- `mvarId` is not necessarily `(← getGoal).mvarId`, `splitNext` creates an auxiliary meta-variable
+  to be able to implement non-chronological backtracking.
+- `numCases` and `isRec` are computed using `checkSplitStatus`.
 -/
-def splitNext : SearchM Bool := withCurrGoalContext do
-  let .some c numCases isRec _ ← selectNextSplit?
-    | return false
+private def splitCore (mvarId : MVarId) (c : SplitInfo) (numCases : Nat) (isRec : Bool) : SearchM (List Goal × Nat) := do
   let cExpr := c.getExpr
   let gen ← getGeneration cExpr
   let genNew := if numCases > 1 || isRec then gen+1 else gen
   saveSplitDiagInfo cExpr genNew numCases c.source
   markCaseSplitAsResolved cExpr
   trace_goal[grind.split] "{cExpr}, generation: {gen}"
-  let mvarId ← mkAuxMVarForCurrGoal
   let mvarIds ← if let .imp e h _ := c then
     casesWithTrace mvarId (mkGrindEM (e.forallDomain h))
   else if (← isMatcherApp cExpr) then
@@ -268,8 +268,28 @@ def splitNext : SearchM Bool := withCurrGoalContext do
     mvarId
     split.trace := { expr := cExpr, i, num := numSubgoals, source := c.source } :: goal.split.trace
   }
+  return (goals, genNew)
+
+/--
+Selects a case-split from the list of candidates, and adds new choice point
+(aka backtracking point). Returns true if successful.
+-/
+def splitNext : SearchM Bool := withCurrGoalContext do
+  let .some c numCases isRec _ ← selectNextSplit?
+    | return false
+  let mvarId ← mkAuxMVarForCurrGoal
+  let (goals, genNew) ← splitCore mvarId c numCases isRec
   mkChoice (mkMVar mvarId) goals genNew
   intros genNew
   return true
+
+/--
+Tries to perform a case-split using `c`. Returns `none` if `c` has already been resolved or
+is not ready.
+-/
+def split? (c : SplitInfo) : SearchM (Option (List Goal × Nat)) := do
+  let .ready numCases isRec ← checkSplitStatus c | return none
+  let mvarId := (← getGoal).mvarId
+  return some (← splitCore mvarId c numCases isRec)
 
 end Lean.Meta.Grind

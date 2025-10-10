@@ -50,6 +50,8 @@ protected theorem pow_ne_zero {n : Int} {m : Nat} : n ≠ 0 → n ^ m ≠ 0 := b
 
 instance {n : Int} {m : Nat} [NeZero n] : NeZero (n ^ m) := ⟨Int.pow_ne_zero (NeZero.ne _)⟩
 
+instance {n : Int} : NeZero (n^0) := ⟨Int.one_ne_zero⟩
+
 -- This can't be removed until the next update-stage0
 @[deprecated Nat.pow_pos (since := "2025-02-17")]
 abbrev _root_.Nat.pos_pow_of_pos := @Nat.pow_pos

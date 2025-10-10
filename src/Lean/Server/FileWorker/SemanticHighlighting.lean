@@ -264,7 +264,7 @@ def handleOverlappingSemanticTokens (tokens : Array AbsoluteLspSemanticToken) :
   -- tiebreaker to be position in the input array
   let count := tokens.size
   let tokens := tokens.toList.mergeSort fun ⟨pos1, tailPos1, _, _⟩ ⟨pos2, tailPos2, _, _⟩ =>
-    pos1 < pos2 || pos1 == pos2 && tailPos1 < tailPos2
+    pos1 < pos2 || pos1 == pos2 && tailPos1 ≤ tailPos2
   let mut st : HandleOverlapState := {
     current? := none
     -- Reserve 10% for overlaps
@@ -524,8 +524,8 @@ def dbgShowTokens (text : FileMap) (toks : Array LeanSemanticToken) : String := 
     if let some ⟨⟨l, c1⟩, ⟨_, c2⟩⟩ := text.lspRangeOfStx? stx then
       byLine := byLine.alter l fun x? => some (x?.getD #[] |>.push (c1, c2, ⟨stx, tok, prio⟩))
   let mut out := ""
-  for (l, vals) in byLine.toList.mergeSort (fun x y => x.1 < y.1) do
-    let vals := vals.toList.mergeSort fun x y => x.1 < y.1
+  for (l, vals) in byLine.toList.mergeSort (fun x y => x.1 ≤ y.1) do
+    let vals := vals.toList.mergeSort fun x y => x.1 ≤ y.1
     out := out ++ s!"{l}:\t{vals.map (fun (c1, c2, ⟨stx, tok, prio⟩) => (c1, c2, stx, toJson tok, prio))}\n"
   out
 

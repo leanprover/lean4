@@ -118,7 +118,7 @@ deriving Inhabited
 Adds a surrounding token to the set. These are tokens whose interval includes the boundaries being
 processed, but are superseded by the current token.
 -/
-private def HandleOverlapState.addSurrounding
+private def HandleOverlapState.insertSurrounding
     (st : HandleOverlapState) (s : AbsoluteLspSemanticToken) : HandleOverlapState :=
   { st with surrounding := go st.surrounding }
 where
@@ -200,12 +200,12 @@ private def HandleOverlapState.token (st : HandleOverlapState) (t : AbsoluteLspS
   if let some curr := st.current? then
     if curr.priority > t.priority then
       -- Insert t into surrounding, continue with current
-      return st.addSurrounding t
+      return st.insertSurrounding t
     -- Tied priorities: make the token that starts later or ends earlier current.
     if curr.priority == t.priority then
       if curr.pos == t.pos then -- if `t` starts later, transition to it. Same start, keep the one that ends first.
         if curr.tailPos < t.tailPos then
-          return st.addSurrounding t
+          return st.insertSurrounding t
 
     -- Transition to t, save current if it's longer than t
     let st := { st with
@@ -220,7 +220,7 @@ private def HandleOverlapState.token (st : HandleOverlapState) (t : AbsoluteLspS
           st.nonOverlapping
     }
     if curr.tailPos > t.tailPos then
-      return st.addSurrounding curr
+      return st.insertSurrounding curr
     else
       return st
   -- If there was no current token, then there's no surrounding tokens either

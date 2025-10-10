@@ -266,7 +266,7 @@ in the collection will be present in the returned hash set.
 
 /-- Computes the union of the given hash sets, by traversing `m₂` and inserting its elements into `m₁`. -/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : HashSet α) : HashSet α :=
-  m₂.fold (init := m₁) fun acc x => acc.insert x
+  ⟨HashMap.union m₁.inner m₂.inner⟩
 
 instance [BEq α] [Hashable α] : Union (HashSet α) := ⟨union⟩
 

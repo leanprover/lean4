@@ -265,7 +265,7 @@ m.inner.values
 
 /-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
-  m₂.fold (init := m₁) fun acc x => acc.insert x
+  ⟨DHashMap.Raw.union m₁.inner m₂.inner⟩
 
 instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
 

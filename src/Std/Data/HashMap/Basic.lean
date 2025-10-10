@@ -273,7 +273,7 @@ section Unverified
 
 /-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : HashMap α β) : HashMap α β :=
-  m₂.fold (init := m₁) fun acc x => acc.insert x
+  ⟨DHashMap.union m₁.inner m₂.inner⟩
 
 instance [BEq α] [Hashable α] : Union (HashMap α β) := ⟨union⟩
 

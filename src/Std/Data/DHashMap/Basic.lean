@@ -332,9 +332,12 @@ section Unverified
     (m : DHashMap α (fun _ => β)) : Array β :=
   m.1.valuesArray
 
-/-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
-@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : DHashMap α β) : DHashMap α β :=
-  m₂.fold (init := m₁) fun acc x => acc.insert x
+/-- Computes the union of the given hash maps, inserting smaller list into a bigger list. In the case of clashes of keys, entries from the left argument, are replaced with entries from the right argument. -/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : DHashMap α β) : DHashMap α β := by
+  refine ⟨Raw₀.union ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩, ?_ ⟩
+  have := @Raw.WF.union α β _ _ m₁.1 m₂.1 m₁.2 m₂.2
+  simp [Std.DHashMap.Raw.union, m₁.2.size_buckets_pos, m₂.2.size_buckets_pos] at this
+  exact this
 
 instance [BEq α] [Hashable α] : Union (DHashMap α β) := ⟨union⟩
 

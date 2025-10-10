@@ -100,6 +100,18 @@ with_cdn_endpoints test_not_out "downloading" cache get --scope='!/test'
 # Test `--force-download`
 with_cdn_endpoints test_out "downloading" cache get --scope='!/test' --force-download
 
+# Test cache put/get with a set platform/toolchain
+with_upload_endpoints test_run cache put .lake/outputs.jsonl \
+  --repo='leanprover/test' --platform=foo --toolchain=bar
+test_cmd rm -rf .lake/build "$LAKE_CACHE_DIR"
+with_cdn_endpoints test_run cache get \
+  --repo='leanprover/test' --platform=foo --toolchain=bar
+test_run build +Test --no-build
+test_cmd rm -rf .lake/build "$LAKE_CACHE_DIR"
+test_run cache get \
+  --repo='leanprover/test' --platform=foo --toolchain=bar
+test_run build +Test --no-build
+
 # Test dirty work tree warnings
 test_cmd touch Ignored.lean
 test_cmd git add -f Ignored.lean

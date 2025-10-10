@@ -257,6 +257,6 @@ mutual
   coinductive wrong1 : Prop where
 
   coinductive wrong2  where
-    | zero : my_nat2
-    | succ : wrong1 → my_nat2
+    | zero : wrong2
+    | succ : wrong1 → wrong2
 end

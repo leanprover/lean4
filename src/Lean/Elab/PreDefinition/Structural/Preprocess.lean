@@ -45,7 +45,7 @@ Preprocesses the expressions to improve the effectiveness of `elimRecursion`.
 
 -/
 def preprocess (e : Expr) (recFnNames : Array Name) : CoreM Expr := do
-  let e ← unfoldIfArgIsConstOf recFnNames e
+  let e ← unfoldIfArgIsAppOf recFnNames e
   Core.transform e
     (pre := fun e =>
       if shouldBetaReduce e recFnNames then

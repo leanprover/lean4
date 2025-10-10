@@ -207,14 +207,15 @@ def unfoldDeclsFrom (biggerEnv : Environment) (e : Expr) : CoreM Expr := do
     Core.transform e (pre := pre)
 
 /--
-Unfolds theorems that are applied to a `.const n` where `n` in the given array.
+Unfolds theorems that are applied to a `f x₁ .. xₙ` where `f` is in the given array.
+
 This is used to undo proof abstraction for termination checking, as otherwise the bare
 occurrence of the recursive function prevents termination checking from succeeding.
 
 This unfolds from the private environment. The resulting definitions are (usually) not
 exposed anyways.
 -/
-def unfoldIfArgIsConstOf (fnNames : Array Name) (e : Expr) : CoreM Expr := withoutExporting do
+def unfoldIfArgIsAppOf (fnNames : Array Name) (e : Expr) : CoreM Expr := withoutExporting do
   let env ← getEnv
   -- Unfold abstracted proofs
   Core.transform e
@@ -233,10 +234,13 @@ def unfoldIfArgIsConstOf (fnNames : Array Name) (e : Expr) : CoreM Expr := witho
         (The code below is restricted to theorems, as otherwise it would unfold
         matchers, which can also abstract over recursive calls without an `mdata` wrapper, #2102.)
         -/
-        if revArgs.any (fun a => a.isConst && a.constName! ∈ fnNames) then
+        if revArgs.any isInterestingArg then
           if let some info@(.thmInfo _) := env.find? f.constName! then
             return .visit <| (← instantiateValueLevelParams info f.constLevels!).betaRev revArgs
       return .continue)
+  where
+    isInterestingArg (a : Expr) : Bool := a.withApp fun af _axs =>
+      af.isConst && fnNames.any fun f => af.constName! == f
 
 
 def eraseInaccessibleAnnotations (e : Expr) : CoreM Expr :=

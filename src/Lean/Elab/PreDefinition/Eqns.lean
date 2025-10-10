@@ -379,9 +379,4 @@ where
     inferDefEqAttr name
 
 
-builtin_initialize
-  registerTraceClass `Elab.definition.unfoldEqn
-  registerTraceClass `Elab.definition.eqns
-
-
 end Lean.Elab.Eqns

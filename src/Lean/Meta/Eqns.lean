@@ -316,4 +316,7 @@ builtin_initialize
             return (← MetaM.run' <| getUnfoldEqnFor? declName (nonRec := true)).isSome
       return false
 
+  registerTraceClass `Elab.definition.eqns
+
+
 end Lean.Meta

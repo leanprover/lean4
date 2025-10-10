@@ -335,7 +335,7 @@ where
         let name := id.map (·.getId.componentsRev) |>.getD [`«»]
         let entry := { name, stx, selection := id.map (·.raw) |>.getD stx, prevSiblings := syms }
         toDocumentSymbols text stxs #[] (entry :: stack)
-      | `(end $(id)?) =>
+      | `(end $[$id $[.$_]?]?) =>
         let rec popStack n syms
           | [] => toDocumentSymbols text stxs syms []
           | entry :: stack =>
@@ -395,7 +395,7 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
         addRanges text ((id.getId.getNumParts, stx.getPos?)::sections) stxs
       | `($_:sectionHeader section $(id)?) =>
         addRanges text ((id.map (·.getId.getNumParts) |>.getD 1, stx.getPos?)::sections) stxs
-      | `(end $(id)?) => do
+      | `(end $[$id $[.$_]?]?) => do
         let rec popRanges n sections := do
           if let (size, start)::rest := sections then
             if size == n then
@@ -476,7 +476,11 @@ partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
   let t ← RequestM.asTask waitLoop
   RequestM.bindTaskCheap t fun doc? => do
     let doc ← liftExcept doc?
-    return doc.reporter.mapCheap (fun _ => pure WaitForDiagnostics.mk)
+    -- We wait on both the reporter and `cmdSnaps` so that all request handlers that use
+    -- `IO.hasFinished` on `doc.cmdSnaps` are guaranteed to have finished when
+    -- `waitForDiagnostics` returns.
+    return doc.reporter.bindCheap (fun _ => doc.cmdSnaps.waitAll)
+      |>.mapCheap fun _ => pure WaitForDiagnostics.mk
 
 builtin_initialize
   registerLspRequestHandler

@@ -506,6 +506,7 @@ def visitAtom (k : SyntaxNodeKind) : Formatter := do
 @[combinator_formatter strLitNoAntiquot, expose] def strLitNoAntiquot.formatter := visitAtom strLitKind
 @[combinator_formatter nameLitNoAntiquot, expose] def nameLitNoAntiquot.formatter := visitAtom nameLitKind
 @[combinator_formatter numLitNoAntiquot, expose] def numLitNoAntiquot.formatter := visitAtom numLitKind
+
 @[combinator_formatter scientificLitNoAntiquot, expose] def scientificLitNoAntiquot.formatter := visitAtom scientificLitKind
 @[combinator_formatter fieldIdx, expose] def fieldIdx.formatter := visitAtom fieldIdxKind
 
@@ -569,6 +570,8 @@ def interpolatedStr.formatter (p : Formatter) : Formatter := do
     match chunk.isLit? interpolatedStrLitKind with
     | some str => push str *> goLeft
     | none     => p
+
+@[combinator_formatter hexnumNoAntiquot, expose] def hexnum.formatter := visitAtom hexnumKind
 
 @[combinator_formatter _root_.ite, expose, macro_inline] def ite {_ : Type} (c : Prop) [Decidable c] (t e : Formatter) : Formatter :=
   if c then t else e

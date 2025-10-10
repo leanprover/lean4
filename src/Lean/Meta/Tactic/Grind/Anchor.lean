@@ -20,6 +20,12 @@ Hashes names for computing anchors (aka stable hash codes)
 def hashName (n : Name) : UInt64 :=
   if n.hasMacroScopes || n.isInaccessibleUserName || n.isImplementationDetail then
     0
+  else if isPrivateName n then
+    hash (privateToUserName n)
+  else if n.isInternal then
+    match n with
+    | .str p _ | .num p _ => hashName p
+    | _ => 0
   else
     hash n
 
@@ -33,7 +39,13 @@ public partial def getAnchor (e : Expr) : GrindM UInt64 := do
   if let some a := (← get).anchors.find? { expr := e } then
     return a
   let a ← match e with
-    | .const declName _ => pure <| hash declName
+    | .const declName _ =>
+      /-
+      **Note**: we skip matcher declaration names because they may introduce some
+      "instability". Recall that `match` auxiliary declarations are reused.
+      -/
+      if (← isMatcher declName) then pure 0
+      else pure <| hash declName
     | .fvar fvarId => pure <| hashName (← fvarId.getDecl).userName
     | .mdata _ b => getAnchor b
     | .letE n v t b _ =>
@@ -67,5 +79,12 @@ public partial def getAnchor (e : Expr) : GrindM UInt64 := do
     | .sort _ | .mvar _ => pure 0
   modify fun s => { s with anchors := s.anchors.insert { expr := e } a }
   return a
+
+/--
+Example: `isAnchorPrefix 4 0x0c88 0x0c88ab10ef20206a` returns `true`
+-/
+public def isAnchorPrefix (numHexDigits : Nat) (anchorPrefix : UInt64) (anchor : UInt64) : Bool :=
+  let shift := 64 - numHexDigits.toUInt64*4
+  anchorPrefix == anchor >>> shift
 
 end Lean.Meta.Grind

@@ -6563,6 +6563,7 @@ else
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_Lean_Lsp_instFromJsonHighlightMatchesOptions_fromJson(x_1);
+lean_dec_ref(x_3);
 x_4 = l_Option_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at___Lean_Lsp_instFromJsonRpcOptions_fromJson_spec__0_spec__0___closed__2;
 return x_4;
 }

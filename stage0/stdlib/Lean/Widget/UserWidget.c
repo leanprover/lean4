@@ -11496,13 +11496,13 @@ lean_object* x_22; size_t x_23; size_t x_24; lean_object* x_25;
 x_22 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_22, 0, x_14);
 lean_ctor_set(x_22, 1, x_21);
-lean_ctor_set(x_22, 2, x_19);
+lean_ctor_set(x_22, 2, x_20);
 x_23 = 1;
 x_24 = lean_usize_add(x_4, x_23);
 x_25 = lean_array_uset(x_18, x_4, x_22);
 x_4 = x_24;
 x_5 = x_25;
-x_10 = x_20;
+x_10 = x_19;
 goto _start;
 }
 block_39:
@@ -11514,8 +11514,8 @@ if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; 
 x_32 = lean_box(0);
-x_19 = x_29;
-x_20 = x_30;
+x_19 = x_30;
+x_20 = x_29;
 x_21 = x_32;
 goto block_27;
 }
@@ -11530,8 +11530,8 @@ x_34 = lean_ctor_get(x_31, 0);
 lean_inc_ref(x_1);
 x_35 = l_String_Range_toLspRange(x_1, x_34);
 lean_ctor_set(x_31, 0, x_35);
-x_19 = x_29;
-x_20 = x_30;
+x_19 = x_30;
+x_20 = x_29;
 x_21 = x_31;
 goto block_27;
 }
@@ -11545,8 +11545,8 @@ lean_inc_ref(x_1);
 x_37 = l_String_Range_toLspRange(x_1, x_36);
 x_38 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_38, 0, x_37);
-x_19 = x_29;
-x_20 = x_30;
+x_19 = x_30;
+x_20 = x_29;
 x_21 = x_38;
 goto block_27;
 }

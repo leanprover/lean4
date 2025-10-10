@@ -34,7 +34,14 @@ if (NOT LEAN_PLATFORM_TARGET)
     OUTPUT_VARIABLE LEAN_PLATFORM_TARGET OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
-set(LEAN_EXTRA_LINKER_FLAGS "" CACHE STRING "Additional flags used by the linker")
+set(LEAN_EXTRA_LINKER_FLAGS_DEFAULT "")
+# Use lld by default, if available
+find_program(LLD_PATH lld)
+if(LLD_PATH)
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS_DEFAULT " -fuse-ld=lld")
+endif()
+
+set(LEAN_EXTRA_LINKER_FLAGS ${LEAN_EXTRA_LINKER_FLAGS_DEFAULT} CACHE STRING "Additional flags used by the linker")
 set(LEAN_EXTRA_CXX_FLAGS "" CACHE STRING "Additional flags used by the C++ compiler")
 set(LEAN_TEST_VARS "LEAN_CC=${CMAKE_C_COMPILER}" CACHE STRING "Additional environment variables used when running tests")
 
@@ -82,6 +89,7 @@ option(USE_MIMALLOC "use mimalloc" ON)
 # development-specific options
 option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" OFF)
 option(USE_LAKE "Use Lake instead of lean.mk for building core libs from language server" ON)
+option(USE_LAKE_CACHE "Use the Lake artifact cache for stage 1 builds (requires USE_LAKE)" OFF)
 
 set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
 set(LEANC_CC              ${CMAKE_C_COMPILER}          CACHE STRING "C compiler to use in `leanc`")
@@ -826,10 +834,13 @@ if(LEAN_INSTALL_PREFIX)
   set(CMAKE_INSTALL_PREFIX "${LEAN_INSTALL_PREFIX}/lean-${LEAN_VERSION_STRING}${LEAN_INSTALL_SUFFIX}")
 endif()
 
-if (STAGE GREATER 1)
+
+if (USE_LAKE_CACHE AND STAGE EQUAL 1)
+  set(LAKE_ARTIFACT_CACHE_TOML "true")
+else()
   # The build of stage2+ may depend on local changes made to src/ that are not reflected by the
   # commit hash in stage1/bin/lean, so we make sure to disable the global cache
-  string(APPEND LEAN_EXTRA_LAKEFILE_TOML "\n\nenableArtifactCache = false")
+  set(LAKE_ARTIFACT_CACHE_TOML "false")
 endif()
 
 # Escape for `make`. Yes, twice.

@@ -153,3 +153,10 @@ info: f_exp_wfrec.induct_unfolding (motive : Nat → Nat → Nat → Prop) (case
 /-- error: Invalid definition `nonMeta`, may not access declaration `pubMeta` marked as `meta` -/
 #guard_msgs in
 def nonMeta := pubMeta
+
+/-! `simp` should not pick up inaccessible definitional equations. -/
+
+/-- error: `simp` made no progress -/
+#guard_msgs in
+theorem f_struct_eq : f_struct 0 = 0 := by
+  simp

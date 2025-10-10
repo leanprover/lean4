@@ -35,6 +35,7 @@ lean_object* l_Lean_LeanOptions_ofArray(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_plugins___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Package_preferReleaseBuild(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_weakLeancArgs___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Lake_Package_allowImportAll(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedPostUpdateHook_default___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_instBEqPackage___lam__0(lean_object*, lean_object*);
 uint8_t l_Lake_LeanLibConfig_isBuildableModule___redArg(lean_object*, lean_object*);
@@ -98,6 +99,7 @@ lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map(lean_obje
 LEAN_EXPORT lean_object* l_Lake_Package_description(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PostUpdateHookDecl_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_relLicenseFiles(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Package_allowImportAll___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_moreLeancArgs(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Array_empty(lean_object*);
@@ -1615,6 +1617,25 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lake_Package_backend(x_1);
+lean_dec_ref(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT uint8_t l_Lake_Package_allowImportAll(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; uint8_t x_3; 
+x_2 = lean_ctor_get(x_1, 4);
+x_3 = lean_ctor_get_uint8(x_2, sizeof(void*)*26 + 6);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Package_allowImportAll___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lake_Package_allowImportAll(x_1);
 lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;

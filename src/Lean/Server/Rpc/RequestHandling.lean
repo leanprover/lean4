@@ -48,7 +48,7 @@ def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) := do
   if let some proc := (← builtinRpcProcedures.get).find? p.method then
     RequestM.asTask do
       let t ← proc.wrapper p.sessionId p.params
-      match t.get with
+      match ← t.wait with
       | .ok r => return r
       | .error err => throw err
   else

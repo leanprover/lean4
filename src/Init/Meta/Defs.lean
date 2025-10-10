@@ -443,6 +443,10 @@ abbrev NumLit := TSyntax numLitKind
 Syntax that represents macro hygiene info.
 -/
 abbrev HygieneInfo := TSyntax hygieneInfoKind
+/--
+Syntax that represent a hexadecimal number without the `0x` prefix.
+-/
+abbrev HexNum := TSyntax hexnumKind
 
 end Syntax
 
@@ -1195,6 +1199,21 @@ Returns `0` if the syntax is malformed.
 -/
 def getNat (s : NumLit) : Nat :=
   s.raw.isNatLit?.getD 0
+
+private def isHexNum? (stx : Syntax) : Option Nat :=
+  match Syntax.isLit? hexnumKind stx with
+  | some val => Syntax.decodeHexLitAux val 0 0
+  | _        => none
+
+/-- Returns the value of the hexadecimal numeral as a natural number. -/
+def getHexNumVal (s : Syntax.HexNum) : Nat :=
+  isHexNum? s.raw |>.getD 0
+
+/-- Returns the number of hexadecimal digits. -/
+def getHexNumSize (s : Syntax.HexNum) : Nat :=
+  match Syntax.isLit? hexnumKind s.raw with
+  | some val => val.utf8ByteSize
+  | _        => 0
 
 /--
 Extracts the parsed name from the syntax of an identifier.

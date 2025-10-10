@@ -320,7 +320,7 @@ corresponding `end <id>` or the end of the file.
 with `end <id>`. The `end` command is optional at the end of a file.
 -/
 @[builtin_command_parser] def «end»          := leading_parser
-  "end" >> optional (ppSpace >> checkColGt >> ident)
+  "end" >> optional (ppSpace >> checkColGt >> identWithPartialTrailingDot)
 
 namespace InternalSyntax
   /-- Disable delimiting of local entries in ScopedEnvExtension within the current scope.

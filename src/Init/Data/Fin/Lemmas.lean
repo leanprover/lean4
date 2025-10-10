@@ -14,7 +14,7 @@ public import Init.Omega
 public import Init.Data.Order.Factories
 import Init.Data.Order.Lemmas
 
-public section
+@[expose] public section
 
 open Std
 

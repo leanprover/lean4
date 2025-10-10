@@ -346,8 +346,7 @@ This unfolds the function application on the LHS (using an unfold theorem, if pr
 delta-reduction), calculates the types for the equational theorems using `mkEqnTypes`, and then
 proves them using `mkEqnProof`.
 -/
-@[export lean_mk_eqns]
-def mkEqnsImpl (declName : Name) (declNames : Array Name) : MetaM (Array Name) := do
+def mkEqns (declName : Name) (declNames : Array Name) : MetaM (Array Name) := do
   trace[Elab.definition.eqns] "mkEqns: {.ofConstName declName}"
   let info ← getConstInfoDefn declName
   let us := info.levelParams.map mkLevelParam
@@ -377,6 +376,25 @@ where
       levelParams := info.levelParams
     })
     inferDefEqAttr name
+
+def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
+  if (← isRecursiveDefinition declName) then
+    let some (.defnInfo info) := (← getEnv).find? declName |
+      throwError "internal error: recursive definition `{declName}` is not a definition"
+    let n ← mkEqns declName info.all.toArray
+    return some n
+  if (← getEnv).contains declName then
+    if backward.eqns.nonrecursive.get (← getOptions) then
+      mkEqns declName #[]
+    else
+      let eq1 := mkEqLikeNameFor (← getEnv) declName eqn1ThmSuffix
+      let o ← mkSimpleEqThm declName eq1
+      return o.map (#[·])
+  else
+    return none
+
+builtin_initialize
+  registerGetEqnsFn getEqnsFor?
 
 
 end Lean.Elab.Eqns

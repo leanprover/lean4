@@ -11,40 +11,42 @@ import Init.Data.String.Basic
 
 namespace String
 
-def mangleAux : Nat → String.Iterator → String → String
-  | 0,   _,  r => r
-  | i+1, it, r =>
-    let c := it.curr
+def digitChar (n : UInt32) (h : n < 16) : Char :=
+  if h' : n < 10 then ⟨n + 48, ?_⟩
+  else ⟨n + 87, ?_⟩
+where finally all_goals
+  simp_all [UInt32.lt_iff_toNat_lt, UInt32.isValidChar, Nat.isValidChar]; omega
+
+def pushHex (n : Nat) (val : UInt32) (s : String) : String :=
+  match n with
+  | 0 => s
+  | k + 1 =>
+    let i := (val >>> (4 * k).toUInt32) &&& 15
+    pushHex k val (s.push (digitChar i ?_))
+where finally
+  have := Nat.and_two_pow_sub_one_eq_mod (n := 4)
+  simp only [Nat.reducePow, Nat.add_one_sub_one] at this
+  simp [i, UInt32.lt_iff_toNat_lt, this]; omega
+
+def mangleAux : Nat → (s : String) → s.ValidPos → String → String
+  | 0,   _, _,   r => r
+  | i+1, s, pos, r =>
+    if h : pos = s.endValidPos then r else
+    let c := pos.get h
+    let pos := pos.next h
     if c.isAlpha || c.isDigit then
-      mangleAux i it.next (r.push c)
+      mangleAux i s pos (r.push c)
     else if c = '_' then
-      mangleAux i it.next (r ++ "__")
+      mangleAux i s pos (r ++ "__")
     else if c.toNat < 0x100 then
-      let n := c.toNat
-      let r := r ++ "_x"
-      let r := r.push <| Nat.digitChar (n / 0x10)
-      let r := r.push <| Nat.digitChar (n % 0x10)
-      mangleAux i it.next r
+      mangleAux i s pos (pushHex 2 c.val (r ++ "_x"))
     else if c.toNat < 0x10000 then
-      let n := c.toNat
-      let r := r ++ "_u"
-      let r := r.push <| Nat.digitChar (n / 0x1000)
-      let n := n % 0x1000
-      let r := r.push <| Nat.digitChar (n / 0x100)
-      let n := n % 0x100
-      let r := r.push <| Nat.digitChar (n / 0x10)
-      let r := r.push <| Nat.digitChar (n % 0x10)
-      mangleAux i it.next r
+      mangleAux i s pos (pushHex 4 c.val (r ++ "_u"))
     else
-      let n := c.toNat
-      let r := r ++ "_U"
-      let ds := Nat.toDigits 16 n
-      let r := Nat.repeat (·.push '0') (8 - ds.length) r
-      let r := ds.foldl (fun r c => r.push c) r
-      mangleAux i it.next r
+      mangleAux i s pos (pushHex 8 c.val (r ++ "_u"))
 
 public def mangle (s : String) : String :=
-  mangleAux s.length s.mkIterator ""
+  mangleAux s.length s s.startValidPos ""
 
 end String
 

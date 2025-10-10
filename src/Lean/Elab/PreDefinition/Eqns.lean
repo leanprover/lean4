@@ -19,9 +19,8 @@ but the code here is no longer cares about that.
 
 -/
 
-namespace Lean.Elab.Nonrec
+namespace Lean.Elab.Eqns
 open Meta
-open Eqns
 
 /--
 Returns the type of the unfold theorem, as the starting point for calculating the equational
@@ -55,7 +54,7 @@ def unfoldLHS (declName : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withC
     -- Else use delta reduction
     deltaLHS mvarId
 
-private partial def mkEqnProof (declName : Name) (type : Expr) (tryRefl : Bool) : MetaM Expr := do
+private partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := do
   withTraceNode `Elab.definition.eqns (return m!"{exceptEmoji ·} proving:{indentExpr type}") do
   withNewMCtxDepth do
     let main ← mkFreshExprSyntheticOpaqueMVar type
@@ -63,11 +62,8 @@ private partial def mkEqnProof (declName : Name) (type : Expr) (tryRefl : Bool) 
 
     -- Try rfl before deltaLHS to avoid `id` checkpoints in the proof, which would make
     -- the lemma ineligible for dsimp
-    -- For well-founded recursion this is disabled: The equation may hold
-    -- definitionally as written, but not embedded in larger proofs
-    if tryRefl then
-      if (← tryURefl mvarId) then
-        return ← instantiateMVars main
+    if (← tryURefl mvarId) then
+      return ← instantiateMVars main
 
     go (← unfoldLHS declName mvarId)
     instantiateMVars main
@@ -350,7 +346,8 @@ This unfolds the function application on the LHS (using an unfold theorem, if pr
 delta-reduction), calculates the types for the equational theorems using `mkEqnTypes`, and then
 proves them using `mkEqnProof`.
 -/
-def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true): MetaM (Array Name) := do
+@[export lean_mk_eqns]
+def mkEqnsImpl (declName : Name) (declNames : Array Name) : MetaM (Array Name) := do
   trace[Elab.definition.eqns] "mkEqns: {.ofConstName declName}"
   let info ← getConstInfoDefn declName
   let us := info.levelParams.map mkLevelParam
@@ -373,7 +370,7 @@ def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true): MetaM (
   return thmNames
 where
   doRealize name info type := withOptions (tactic.hygienic.set · false) do
-    let value ← mkEqnProof declName type tryRefl
+    let value ← mkEqnProof declName type
     let (type, value) ← removeUnusedEqnHypotheses type value
     addDecl <| (←mkThmOrUnsafeDef {
       name, type, value
@@ -381,25 +378,10 @@ where
     })
     inferDefEqAttr name
 
-def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
-  if (← isRecursiveDefinition declName) then
-    let some (.defnInfo info) := (← getEnv).find? declName |
-      throwError "internal error: recursive definition `{declName}` is not a definition"
-    let n ← mkEqns declName info.all.toArray
-    return some n
-  if (← getEnv).contains declName then
-    if backward.eqns.nonrecursive.get (← getOptions) then
-      mkEqns declName #[]
-    else
-      let o ← mkSimpleEqThm declName
-      return o.map (#[·])
-  else
-    return none
 
 builtin_initialize
-  registerGetEqnsFn getEqnsFor?
   registerTraceClass `Elab.definition.unfoldEqn
   registerTraceClass `Elab.definition.eqns
 
 
-end Lean.Elab.Nonrec
+end Lean.Elab.Eqns

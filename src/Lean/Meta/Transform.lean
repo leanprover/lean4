@@ -207,15 +207,21 @@ def unfoldDeclsFrom (biggerEnv : Environment) (e : Expr) : CoreM Expr := do
     Core.transform e (pre := pre)
 
 /--
-Unfolds theorems that are applied to a `f x₁ .. xₙ` where `f` is in the given array.
+Unfolds theorems that are applied to a `f x₁ .. xₙ` where `f` is in the given array, and
+`n ≤ SectionVars`, i.e. an unsaturated application of `f`.
 
-This is used to undo proof abstraction for termination checking, as otherwise the bare
+This is used tounfoldIfArgIsAppOf undo proof abstraction for termination checking, as otherwise the bare
 occurrence of the recursive function prevents termination checking from succeeding.
+
+Usually, the argument is just `f` (the constant), arising from `mkAuxTheorem` abstracting over the
+aux decl representing `f`. If the mutual function is defined within the scope of `variable` commands,
+it is `f x y` where `x y` are the variables in scope, so we use the `numSectionVars` to recognize that
+while avoiding to unfold theorems applied to saturated applications of `f`.
 
 This unfolds from the private environment. The resulting definitions are (usually) not
 exposed anyways.
 -/
-def unfoldIfArgIsAppOf (fnNames : Array Name) (e : Expr) : CoreM Expr := withoutExporting do
+def unfoldIfArgIsAppOf (fnNames : Array Name) (numSectionVars : Nat) (e : Expr) : CoreM Expr := withoutExporting do
   let env ← getEnv
   -- Unfold abstracted proofs
   Core.transform e
@@ -239,8 +245,8 @@ def unfoldIfArgIsAppOf (fnNames : Array Name) (e : Expr) : CoreM Expr := without
             return .visit <| (← instantiateValueLevelParams info f.constLevels!).betaRev revArgs
       return .continue)
   where
-    isInterestingArg (a : Expr) : Bool := a.withApp fun af _axs =>
-      af.isConst && fnNames.any fun f => af.constName! == f
+    isInterestingArg (a : Expr) : Bool := a.withApp fun af axs =>
+      af.isConst && fnNames.any fun f => af.constName! == f && axs.size ≤ numSectionVars
 
 
 def eraseInaccessibleAnnotations (e : Expr) : CoreM Expr :=

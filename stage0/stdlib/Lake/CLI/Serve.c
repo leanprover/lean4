@@ -28,6 +28,7 @@ lean_object* l_Lake_Log_toString(lean_object*);
 static lean_object* l_Lake_setupFile___closed__4;
 LEAN_EXPORT lean_object* l_IO_println___at_____private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__0(lean_object*, lean_object*);
 lean_object* l_Lake_LoggerIO_captureLog___redArg(lean_object*, lean_object*);
+lean_object* l_instMonadST(lean_object*);
 lean_object* lean_io_getenv(lean_object*, lean_object*);
 static lean_object* l_Lake_serve___closed__3;
 lean_object* l_Lake_Env_baseVars(lean_object*);
@@ -44,7 +45,6 @@ static lean_object* l_Lake_setupFile___closed__3;
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lake_resolvePath(lean_object*, lean_object*);
 static lean_object* l_Lake_serve___closed__1;
-lean_object* l_instMonadEIO(lean_object*);
 lean_object* l_Lake_logToStream(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_invalidConfigEnvVar;
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
@@ -148,7 +148,7 @@ static lean_object* _init_l_panic___at_____private_Lake_CLI_Serve_0__Lake_setupF
 _start:
 {
 lean_object* x_1; 
-x_1 = l_instMonadEIO(lean_box(0));
+x_1 = l_instMonadST(lean_box(0));
 return x_1;
 }
 }

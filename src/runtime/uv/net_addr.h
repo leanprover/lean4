@@ -38,7 +38,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_pton_v4(b_obj_arg str_obj);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_ntop_v4(b_obj_arg ipv4_addr);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_pton_v6(b_obj_arg str_obj);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_ntop_v6(b_obj_arg ipv6_addr);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_interface_addresses(obj_arg /* w */);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_interface_addresses();
 
 
 }

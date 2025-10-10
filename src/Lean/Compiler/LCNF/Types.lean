@@ -163,8 +163,8 @@ where
     | .forallE .. => visitForall type #[]
     | .app ..  => type.withApp visitApp
     | .fvar .. => visitApp type #[]
-    | .proj ``Subtype 0 (.const ``IO.RealWorld.nonemptyType []) =>
-      return mkConst ``lcRealWorld
+    | .proj ``Subtype 0 (.app (.const ``Void.nonemptyType []) _) =>
+      return mkConst ``lcVoid
     | _        => return mkConst ``lcAny
 
   whnfEta (type : Expr) : MetaM Expr := do

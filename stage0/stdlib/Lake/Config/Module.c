@@ -3289,7 +3289,6 @@ lean_dec(x_23);
 x_36 = lean_ctor_get(x_32, 1);
 lean_inc_ref(x_36);
 lean_dec(x_32);
-lean_inc(x_33);
 lean_inc_ref(x_36);
 lean_ctor_set(x_30, 0, x_36);
 x_41 = l_IO_FS_instOrdSystemTime_ord(x_34, x_35);
@@ -3326,7 +3325,6 @@ return x_39;
 else
 {
 lean_dec_ref(x_37);
-lean_dec(x_33);
 lean_dec(x_25);
 return x_30;
 }
@@ -3349,7 +3347,6 @@ lean_dec(x_23);
 x_46 = lean_ctor_get(x_42, 1);
 lean_inc_ref(x_46);
 lean_dec(x_42);
-lean_inc(x_43);
 lean_inc_ref(x_46);
 x_47 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_47, 0, x_46);
@@ -3388,7 +3385,6 @@ return x_50;
 else
 {
 lean_dec_ref(x_48);
-lean_dec(x_43);
 lean_dec(x_25);
 return x_47;
 }

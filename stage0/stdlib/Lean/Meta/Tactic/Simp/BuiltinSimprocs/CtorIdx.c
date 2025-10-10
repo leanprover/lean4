@@ -32,7 +32,7 @@ lean_object* l_ReaderT_instMonad___redArg(lean_object*);
 static lean_object* l_Lean_Expr_withAppAux___at___reduceCtorIdx_spec__2___closed__1;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_0____regBuiltin_reduceCtorIdx_declare__5___closed__0____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx_1593573171____hygCtx___hyg_9_;
 static lean_object* l_panic___at___Lean_isInductive_x3f___at___reduceCtorIdx_spec__0_spec__0___closed__4;
-lean_object* l_instMonadEIO(lean_object*);
+lean_object* l_instMonadEST(lean_object*, lean_object*);
 static lean_object* l_reduceCtorIdx___closed__0;
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
@@ -73,7 +73,7 @@ static lean_object* _init_l_panic___at___Lean_isInductive_x3f___at___reduceCtorI
 _start:
 {
 lean_object* x_1; 
-x_1 = l_instMonadEIO(lean_box(0));
+x_1 = l_instMonadEST(lean_box(0), lean_box(0));
 return x_1;
 }
 }

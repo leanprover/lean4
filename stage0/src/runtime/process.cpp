@@ -81,11 +81,11 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_set_current_dir(b_obj_arg path, o
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_get_pid(obj_arg) {
-    return lean_io_result_mk_ok(box_uint32(GetCurrentProcessId()));
+    return lean_mk_baseio_out(box_uint32(GetCurrentProcessId()));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_get_tid(obj_arg) {
-    return lean_io_result_mk_ok(box_uint64(GetCurrentThreadId()));
+    return lean_mk_baseio_out(box_uint64(GetCurrentThreadId()));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
@@ -333,7 +333,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_set_current_dir(b_obj_arg path, o
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_get_pid(obj_arg) {
     static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
-    return lean_io_result_mk_ok(box_uint32(getpid()));
+    return lean_mk_baseio_out(box_uint32(getpid()));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_get_tid(obj_arg) {
@@ -347,7 +347,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_tid(obj_arg) {
     // glibc 2.30 would provide a wrapper
     tid = (pid_t)syscall(SYS_gettid);
 #endif
-    return lean_io_result_mk_ok(box_uint64(tid));
+    return lean_mk_baseio_out(box_uint64(tid));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {

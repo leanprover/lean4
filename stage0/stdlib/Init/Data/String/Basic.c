@@ -20,6 +20,7 @@ LEAN_EXPORT uint8_t l_String_ValidPos_byte___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pos_prevn___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_nextn___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_contains___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Pos_Raw_increaseBy___boxed(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_bang(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_isNat___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_toSlice(lean_object*);
@@ -39,6 +40,7 @@ LEAN_EXPORT lean_object* l_ByteArray_utf8Decode_x3f_go___redArg(lean_object*, le
 LEAN_EXPORT lean_object* l_panic___at___String_Slice_replaceStartEnd_x21_spec__0(lean_object*);
 LEAN_EXPORT uint8_t l_ByteArray_validateUTF8_go___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_firstDiffPos_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_instHSubRawSlice___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_dropWhile(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_instLTRaw;
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
@@ -108,6 +110,7 @@ LEAN_EXPORT lean_object* l_String_pos___boxed(lean_object*, lean_object*, lean_o
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__String_intercalate_go(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_instDecidableLeRaw___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_append___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Pos_Raw_unoffsetBy(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pos_get_x21___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_instDecidableLeValidPos___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_splitAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -127,6 +130,7 @@ LEAN_EXPORT lean_object* lean_substring_prev(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_revPosOf___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t lean_substring_isempty(lean_object*);
 LEAN_EXPORT uint8_t l_String_instDecidableEqValidPos_decEq(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_instHSubRawChar___lam__0___boxed(lean_object*, lean_object*);
 static lean_object* l_String_Slice_replaceStartEnd_x21___closed__2;
 LEAN_EXPORT lean_object* l_String_set___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pos_ofSlice___redArg___boxed(lean_object*);
@@ -144,6 +148,7 @@ LEAN_EXPORT lean_object* l_String_atEnd___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_foldl___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_ValidPos_get_x21___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_take(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Pos_Raw_offsetBy___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_trim(lean_object*);
 LEAN_EXPORT lean_object* l_String_instDecidableLtPos___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_trimRight(lean_object*);
@@ -162,6 +167,7 @@ LEAN_EXPORT uint8_t l_String_contains(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_String_length___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_pos___redArg___boxed(lean_object*);
 LEAN_EXPORT uint8_t lean_substring_all(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_instHAddSliceRaw;
 LEAN_EXPORT lean_object* l_ByteArray_utf8Decode_x3f_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_ValidPos_get___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_posOf(lean_object*, uint32_t);
@@ -209,6 +215,7 @@ static lean_object* l_String_Slice_pos_x21___closed__1;
 LEAN_EXPORT lean_object* l_String_firstDiffPos___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__ByteArray_utf8Decode_x3f_go_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_isNat___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_rawEndPos(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pos_cast(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_stripPrefix(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_pos___redArg(lean_object*);
@@ -240,6 +247,7 @@ LEAN_EXPORT lean_object* l_String_utf8GetAux___boxed(lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l_Substring_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_utf8GetAux_x3f___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_dropPrefix_x3f(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Pos_Raw_decreaseBy___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__String_Iterator_remainingBytes_match__1_splitter(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_String_findLineStart___lam__0(uint32_t);
 LEAN_EXPORT lean_object* l_String_Slice_Pos_ctorIdx___boxed(lean_object*, lean_object*);
@@ -295,6 +303,7 @@ LEAN_EXPORT lean_object* l_String_Slice_Pos_ofReplaceStart___redArg___boxed(lean
 LEAN_EXPORT lean_object* l_Substring_any___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_dropRight(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_string_pos_min(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_instHAddCharRaw;
 LEAN_EXPORT lean_object* l_Substring_trim(lean_object*);
 LEAN_EXPORT lean_object* l_String_intercalate___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_splitOnAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -343,6 +352,7 @@ LEAN_EXPORT lean_object* l_String_instDecidableEqValidPos___redArg___boxed(lean_
 LEAN_EXPORT uint8_t l_String_all(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pos_cast___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__String_utf8ByteSize_x27_go_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Pos_Raw_byteDistance___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_foldr___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_firstDiffPos(lean_object*, lean_object*);
 static lean_object* l_Substring_hasBeq___closed__0;
@@ -390,6 +400,7 @@ LEAN_EXPORT lean_object* l_String_instDecidableLePos___boxed(lean_object*, lean_
 LEAN_EXPORT lean_object* l_String_instHAddRawChar___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_trimRight___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_decodeChar___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_instHAddRawSlice;
 LEAN_EXPORT lean_object* l_Substring_takeRight(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__ByteArray_validateUTF8_go_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_posOfAux(lean_object*, uint32_t, lean_object*, lean_object*);
@@ -412,6 +423,7 @@ LEAN_EXPORT lean_object* l_String_foldl___redArg(lean_object*, lean_object*, lea
 LEAN_EXPORT lean_object* lean_substring_takewhile(lean_object*, lean_object*);
 static lean_object* l_String_Slice_replaceStartEnd_x21___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__Nat_repeat_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_instHSubRawChar;
 LEAN_EXPORT lean_object* l_String_ValidPos_ofCopy(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_offsetOfPosAux(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_String_Slice_Pos_get_x21___closed__2;
@@ -419,6 +431,7 @@ LEAN_EXPORT lean_object* l_String_foldr___redArg(lean_object*, lean_object*, lea
 LEAN_EXPORT lean_object* l_String_takeRight(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t lean_string_isempty(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__Nat_repeat_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_instHAddRawSlice___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_extract_go_u2081(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_endPos(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_findNextPos___redArg___boxed(lean_object*, lean_object*);
@@ -430,6 +443,7 @@ LEAN_EXPORT lean_object* l_Substring_hasBeq;
 LEAN_EXPORT lean_object* l_String_Slice_Pos_next___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_ValidPos_cast(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_String_Pos_Raw_isValidForSlice(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_instHAddSliceRaw___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_copy___boxed(lean_object*);
 static lean_object* l_String_Slice_getUTF8Byte_x21___closed__2;
 LEAN_EXPORT lean_object* l_String_instDecidableLePos___redArg___boxed(lean_object*, lean_object*);
@@ -452,7 +466,9 @@ LEAN_EXPORT lean_object* l_String_instInhabitedValidPos___boxed(lean_object*);
 LEAN_EXPORT lean_object* lean_string_trim(lean_object*);
 LEAN_EXPORT lean_object* l_String_Iterator_prevn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_utf8SetAux(uint32_t, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Pos_Raw_offsetBy(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pos_toReplaceStart(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Pos_Raw_decreaseBy(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__String_replace_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_revPosOfAux(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__String_set_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -547,6 +563,7 @@ LEAN_EXPORT lean_object* l_String_foldl___boxed(lean_object*, lean_object*, lean
 LEAN_EXPORT lean_object* l_String_nextUntil(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_ValidPos_prev___redArg(lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
+LEAN_EXPORT lean_object* l_String_instHAddCharRaw___lam__0(uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_String_all___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Substring_sameAs(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_toLower(lean_object*);
@@ -575,6 +592,7 @@ LEAN_EXPORT lean_object* l_String_foldlAux___at___String_Internal_foldlImpl_spec
 LEAN_EXPORT lean_object* l_String_split___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_map(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_takeWhileAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_instHAddCharRaw___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Iterator_toString(lean_object*);
 LEAN_EXPORT uint32_t l_String_back(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pos_get___boxed(lean_object*, lean_object*, lean_object*);
@@ -589,6 +607,7 @@ LEAN_EXPORT uint8_t l_String_instDecidableLeValidPos(lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l_String_foldr(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_to_utf8(lean_object*);
 LEAN_EXPORT lean_object* l_String_posOfAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_instHAddRawSlice___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_drop(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__String_set_match__1_splitter___redArg(lean_object*, lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_prevn(lean_object*, lean_object*, lean_object*);
@@ -604,6 +623,7 @@ LEAN_EXPORT lean_object* l_String_Slice_instDecidableEqPos___boxed(lean_object*,
 uint32_t lean_uint32_shift_left(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_String_Slice_Pos_prev_x21(lean_object*, lean_object*);
 LEAN_EXPORT uint32_t l_String_Slice_Pos_get(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Pos_Raw_byteDistance(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_dropWhile___boxed(lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
 LEAN_EXPORT uint8_t l_String_substrEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -613,6 +633,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__Substring_commonS
 LEAN_EXPORT lean_object* l_Substring_isNat___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_revFindAux___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_String_Slice_instDecidableEqPos_decEq___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Pos_Raw_unoffsetBy___boxed(lean_object*, lean_object*);
 uint8_t l_instDecidableNot___redArg(uint8_t);
 LEAN_EXPORT lean_object* l_Substring_foldl(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
@@ -623,6 +644,7 @@ LEAN_EXPORT uint32_t l_Substring_front(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__String_utf8ByteSize_x27_go_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__Substring_commonPrefix_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_instAppend;
+LEAN_EXPORT lean_object* l_String_instHAddSliceRaw___lam__0(lean_object*, lean_object*);
 static lean_object* l_String_Slice_Pos_next_x21___closed__1;
 LEAN_EXPORT lean_object* l_String_Pos_Raw_dec(lean_object*);
 static lean_object* l_String_Slice_Pos_next_x21___closed__2;
@@ -670,6 +692,7 @@ lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, 
 uint8_t lean_uint32_dec_lt(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_String_endsWith___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_string_pushn(lean_object*, uint32_t, lean_object*);
+LEAN_EXPORT lean_object* l_String_instHSubRawSlice___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__Substring_splitOn_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_all___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_next___boxed(lean_object*, lean_object*);
@@ -701,10 +724,12 @@ LEAN_EXPORT lean_object* l_String_foldrAux___boxed(lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_Substring_Internal_isEmptyImpl___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_String_anyAux___at___String_Internal_containsImpl_spec__0(uint32_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_trimLeft(lean_object*);
+LEAN_EXPORT lean_object* l_String_instHSubRawChar___lam__0(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* lean_string_drop(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_isEmpty___boxed(lean_object*);
 LEAN_EXPORT uint32_t l_String_ValidPos_get___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_instDecidableEqPos_decEq___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_rawEndPos___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Substring_splitOn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_ValidPos_prev_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_splitOn___boxed(lean_object*, lean_object*);
@@ -728,8 +753,10 @@ LEAN_EXPORT lean_object* l_String_Internal_isPrefixOfImpl___boxed(lean_object*, 
 static lean_object* l___private_Init_Data_String_Basic_0__Substring_splitOn_loop___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__String_set_match__1_splitter(lean_object*, lean_object*, lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pos_next_x3f___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_instHSubRawSlice;
 LEAN_EXPORT lean_object* l_Substring_toString(lean_object*);
 LEAN_EXPORT lean_object* l_String_instDecidableLtPos___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Pos_Raw_increaseBy(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pos_prev___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_extract_go_u2082___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__Substring_nextn_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1969,38 +1996,14 @@ lean_dec(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_String_instHAddRaw___lam__0(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_nat_add(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_String_instHAddRaw() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_instHAddRaw___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_String_instHAddRaw___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_String_instHAddRaw___lam__0(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_String_instHSubRaw___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_nat_sub(x_1, x_2);
-return x_3;
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_string_utf8_byte_size(x_2);
+x_4 = lean_nat_sub(x_1, x_3);
+lean_dec(x_3);
+return x_4;
 }
 }
 static lean_object* _init_l_String_instHSubRaw() {
@@ -2016,9 +2019,38 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_String_instHSubRaw___lam__0(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_String_instHSubRawChar___lam__0(lean_object* x_1, uint32_t x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = l_Char_utf8Size(x_2);
+x_4 = lean_nat_sub(x_1, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_String_instHSubRawChar() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_String_instHSubRawChar___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_String_instHSubRawChar___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint32_t x_3; lean_object* x_4; 
+x_3 = lean_unbox_uint32(x_2);
+lean_dec(x_2);
+x_4 = l_String_instHSubRawChar___lam__0(x_1, x_3);
+lean_dec(x_1);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* lean_string_pos_sub(lean_object* x_1, lean_object* x_2) {
@@ -2058,6 +2090,63 @@ lean_dec(x_2);
 x_4 = l_String_instHAddRawChar___lam__0(x_1, x_3);
 lean_dec(x_1);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_String_instHAddCharRaw___lam__0(uint32_t x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = l_Char_utf8Size(x_1);
+x_4 = lean_nat_add(x_3, x_2);
+lean_dec(x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_String_instHAddCharRaw() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_String_instHAddCharRaw___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_String_instHAddCharRaw___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint32_t x_3; lean_object* x_4; 
+x_3 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_4 = l_String_instHAddCharRaw___lam__0(x_3, x_2);
+lean_dec(x_2);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_String_instHAddRaw___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_string_utf8_byte_size(x_1);
+x_4 = lean_nat_add(x_3, x_2);
+lean_dec(x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_String_instHAddRaw() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_String_instHAddRaw___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_String_instHAddRaw___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_String_instHAddRaw___lam__0(x_1, x_2);
+lean_dec(x_2);
+lean_dec_ref(x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_String_instHAddRaw__1___lam__0(lean_object* x_1, lean_object* x_2) {
@@ -2265,6 +2354,24 @@ _start:
 lean_object* x_2; 
 x_2 = lean_string_data(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_String_Pos_Raw_byteDistance(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_nat_sub(x_2, x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_String_Pos_Raw_byteDistance___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_String_Pos_Raw_byteDistance(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_String_getUTF8Byte___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2645,6 +2752,143 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l_String_instHAddRawSlice___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = l_String_Slice_utf8ByteSize(x_2);
+x_4 = lean_nat_add(x_1, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_String_instHAddRawSlice() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_String_instHAddRawSlice___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_String_instHAddRawSlice___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_String_instHAddRawSlice___lam__0(x_1, x_2);
+lean_dec_ref(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_String_instHAddSliceRaw___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = l_String_Slice_utf8ByteSize(x_1);
+x_4 = lean_nat_add(x_3, x_2);
+lean_dec(x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_String_instHAddSliceRaw() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_String_instHAddSliceRaw___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_String_instHAddSliceRaw___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_String_instHAddSliceRaw___lam__0(x_1, x_2);
+lean_dec(x_2);
+lean_dec_ref(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_String_instHSubRawSlice___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = l_String_Slice_utf8ByteSize(x_2);
+x_4 = lean_nat_sub(x_1, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_String_instHSubRawSlice() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_String_instHSubRawSlice___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_String_instHSubRawSlice___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_String_instHSubRawSlice___lam__0(x_1, x_2);
+lean_dec_ref(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_String_Slice_rawEndPos(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_String_Slice_utf8ByteSize(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_String_Slice_rawEndPos___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_String_Slice_rawEndPos(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_String_Pos_Raw_offsetBy(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_nat_add(x_2, x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_String_Pos_Raw_offsetBy___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_String_Pos_Raw_offsetBy(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_String_Pos_Raw_unoffsetBy(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_nat_sub(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_String_Pos_Raw_unoffsetBy___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_String_Pos_Raw_unoffsetBy(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT uint8_t l_String_Slice_getUTF8Byte___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2722,7 +2966,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_String_Slice_getUTF8Byte_x21___closed__1;
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(1100u);
+x_3 = lean_unsigned_to_nat(1188u);
 x_4 = l_String_Slice_getUTF8Byte_x21___closed__0;
 x_5 = l_String_fromUTF8_x21___closed__1;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3392,7 +3636,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_String_Slice_replaceStartEnd_x21___closed__1;
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(1413u);
+x_3 = lean_unsigned_to_nat(1518u);
 x_4 = l_String_Slice_replaceStartEnd_x21___closed__0;
 x_5 = l_String_fromUTF8_x21___closed__1;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3596,7 +3840,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_String_Slice_Pos_get_x21___closed__1;
 x_2 = lean_unsigned_to_nat(29u);
-x_3 = lean_unsigned_to_nat(1491u);
+x_3 = lean_unsigned_to_nat(1599u);
 x_4 = l_String_Slice_Pos_get_x21___closed__0;
 x_5 = l_String_fromUTF8_x21___closed__1;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3978,6 +4222,42 @@ lean_dec_ref(x_1);
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l_String_Pos_Raw_increaseBy(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_nat_add(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_String_Pos_Raw_increaseBy___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_String_Pos_Raw_increaseBy(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_String_Pos_Raw_decreaseBy(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_nat_sub(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_String_Pos_Raw_decreaseBy___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_String_Pos_Raw_decreaseBy(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_String_Slice_Pos_next___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -4092,7 +4372,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_String_Slice_Pos_next_x21___closed__1;
 x_2 = lean_unsigned_to_nat(29u);
-x_3 = lean_unsigned_to_nat(1812u);
+x_3 = lean_unsigned_to_nat(1972u);
 x_4 = l_String_Slice_Pos_next_x21___closed__0;
 x_5 = l_String_fromUTF8_x21___closed__1;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -4415,7 +4695,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_String_Slice_Pos_prev_x21___closed__1;
 x_2 = lean_unsigned_to_nat(31u);
-x_3 = lean_unsigned_to_nat(1897u);
+x_3 = lean_unsigned_to_nat(2057u);
 x_4 = l_String_Slice_Pos_prev_x21___closed__0;
 x_5 = l_String_fromUTF8_x21___closed__1;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -4540,7 +4820,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_String_Slice_pos_x21___closed__1;
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(1922u);
+x_3 = lean_unsigned_to_nat(2082u);
 x_4 = l_String_Slice_pos_x21___closed__0;
 x_5 = l_String_fromUTF8_x21___closed__1;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -9844,8 +10124,8 @@ goto _start;
 block_32:
 {
 lean_object* x_28; uint8_t x_29; 
-x_28 = lean_nat_add(x_22, x_24);
-lean_dec(x_24);
+x_28 = lean_nat_add(x_22, x_26);
+lean_dec(x_26);
 x_29 = lean_nat_dec_le(x_23, x_28);
 if (x_29 == 0)
 {
@@ -9855,8 +10135,8 @@ x_30 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_30, 0, x_21);
 lean_ctor_set(x_30, 1, x_27);
 lean_ctor_set(x_30, 2, x_28);
-x_15 = x_25;
-x_16 = x_26;
+x_15 = x_24;
+x_16 = x_25;
 x_17 = x_30;
 goto block_20;
 }
@@ -9870,8 +10150,8 @@ x_31 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_31, 0, x_21);
 lean_ctor_set(x_31, 1, x_27);
 lean_ctor_set(x_31, 2, x_23);
-x_15 = x_25;
-x_16 = x_26;
+x_15 = x_24;
+x_16 = x_25;
 x_17 = x_31;
 goto block_20;
 }
@@ -9903,9 +10183,9 @@ lean_dec(x_3);
 x_41 = lean_nat_dec_le(x_23, x_40);
 if (x_41 == 0)
 {
-x_24 = x_38;
-x_25 = x_37;
-x_26 = x_33;
+x_24 = x_37;
+x_25 = x_33;
+x_26 = x_38;
 x_27 = x_40;
 goto block_32;
 }
@@ -9913,9 +10193,9 @@ else
 {
 lean_dec(x_40);
 lean_inc(x_23);
-x_24 = x_38;
-x_25 = x_37;
-x_26 = x_33;
+x_24 = x_37;
+x_25 = x_33;
+x_26 = x_38;
 x_27 = x_23;
 goto block_32;
 }
@@ -12227,12 +12507,16 @@ l_String_fromUTF8_x21___closed__4 = _init_l_String_fromUTF8_x21___closed__4();
 lean_mark_persistent(l_String_fromUTF8_x21___closed__4);
 l_instAppendString = _init_l_instAppendString();
 lean_mark_persistent(l_instAppendString);
-l_String_instHAddRaw = _init_l_String_instHAddRaw();
-lean_mark_persistent(l_String_instHAddRaw);
 l_String_instHSubRaw = _init_l_String_instHSubRaw();
 lean_mark_persistent(l_String_instHSubRaw);
+l_String_instHSubRawChar = _init_l_String_instHSubRawChar();
+lean_mark_persistent(l_String_instHSubRawChar);
 l_String_instHAddRawChar = _init_l_String_instHAddRawChar();
 lean_mark_persistent(l_String_instHAddRawChar);
+l_String_instHAddCharRaw = _init_l_String_instHAddCharRaw();
+lean_mark_persistent(l_String_instHAddCharRaw);
+l_String_instHAddRaw = _init_l_String_instHAddRaw();
+lean_mark_persistent(l_String_instHAddRaw);
 l_String_instHAddRaw__1 = _init_l_String_instHAddRaw__1();
 lean_mark_persistent(l_String_instHAddRaw__1);
 l_String_instLERaw = _init_l_String_instLERaw();
@@ -12251,6 +12535,12 @@ l_String_instInhabitedSlice___closed__0 = _init_l_String_instInhabitedSlice___cl
 lean_mark_persistent(l_String_instInhabitedSlice___closed__0);
 l_String_instInhabitedSlice = _init_l_String_instInhabitedSlice();
 lean_mark_persistent(l_String_instInhabitedSlice);
+l_String_instHAddRawSlice = _init_l_String_instHAddRawSlice();
+lean_mark_persistent(l_String_instHAddRawSlice);
+l_String_instHAddSliceRaw = _init_l_String_instHAddSliceRaw();
+lean_mark_persistent(l_String_instHAddSliceRaw);
+l_String_instHSubRawSlice = _init_l_String_instHSubRawSlice();
+lean_mark_persistent(l_String_instHSubRawSlice);
 l_String_Slice_getUTF8Byte_x21___closed__0 = _init_l_String_Slice_getUTF8Byte_x21___closed__0();
 lean_mark_persistent(l_String_Slice_getUTF8Byte_x21___closed__0);
 l_String_Slice_getUTF8Byte_x21___closed__1 = _init_l_String_Slice_getUTF8Byte_x21___closed__1();

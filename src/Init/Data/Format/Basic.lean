@@ -411,7 +411,6 @@ Renders a `Format` to a string.
 * `column`: begin the first line wrap `column` characters earlier than usual
   (this is useful when the output String will be printed starting at `column`)
 -/
-@[export lean_format_pretty]
 def pretty (f : Format) (width : Nat := defWidth) (indent : Nat := 0) (column := 0) : String :=
   let act : StateM State Unit := prettyM f width indent
   State.out <| act (State.mk "" column) |>.snd

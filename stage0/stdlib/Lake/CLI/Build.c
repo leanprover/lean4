@@ -316,7 +316,6 @@ lean_dec(x_19);
 lean_dec_ref(x_18);
 lean_free_object(x_11);
 lean_dec(x_15);
-lean_dec(x_13);
 lean_dec_ref(x_9);
 lean_dec_ref(x_6);
 return x_10;
@@ -391,7 +390,6 @@ lean_dec(x_41);
 lean_dec_ref(x_40);
 lean_free_object(x_11);
 lean_dec(x_15);
-lean_dec(x_13);
 lean_dec_ref(x_9);
 lean_dec_ref(x_6);
 return x_10;
@@ -477,7 +475,6 @@ lean_dec(x_65);
 lean_dec(x_63);
 lean_dec_ref(x_62);
 lean_dec(x_61);
-lean_dec(x_13);
 lean_dec_ref(x_9);
 lean_dec_ref(x_6);
 return x_10;
@@ -586,7 +583,6 @@ lean_free_object(x_25);
 lean_dec(x_30);
 lean_dec_ref(x_29);
 lean_dec(x_27);
-lean_dec(x_26);
 lean_dec_ref(x_22);
 lean_dec_ref(x_6);
 x_16 = x_23;
@@ -645,7 +641,6 @@ if (x_52 == 0)
 lean_dec(x_48);
 lean_dec_ref(x_47);
 lean_dec(x_27);
-lean_dec(x_26);
 lean_dec_ref(x_22);
 lean_dec_ref(x_6);
 x_16 = x_23;
@@ -1365,7 +1360,6 @@ lean_free_object(x_48);
 lean_dec(x_52);
 lean_dec_ref(x_51);
 lean_dec(x_49);
-lean_dec(x_18);
 lean_dec_ref(x_15);
 x_30 = x_16;
 goto block_47;
@@ -1419,7 +1413,6 @@ if (x_72 == 0)
 lean_dec(x_69);
 lean_dec_ref(x_68);
 lean_dec(x_49);
-lean_dec(x_18);
 lean_dec_ref(x_15);
 x_30 = x_16;
 goto block_47;
@@ -1460,7 +1453,6 @@ goto block_29;
 }
 else
 {
-lean_dec(x_18);
 lean_dec_ref(x_17);
 lean_dec_ref(x_15);
 x_30 = x_16;
@@ -5405,7 +5397,6 @@ x_8 = l_Array_isEmpty___redArg(x_6);
 lean_dec(x_6);
 if (x_8 == 0)
 {
-lean_dec(x_7);
 lean_dec_ref(x_1);
 return x_5;
 }

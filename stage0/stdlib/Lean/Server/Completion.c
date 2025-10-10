@@ -1428,7 +1428,6 @@ x_21 = l_Array_isEmpty___redArg(x_20);
 if (x_21 == 0)
 {
 lean_dec(x_20);
-lean_dec(x_19);
 lean_dec_ref(x_9);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);

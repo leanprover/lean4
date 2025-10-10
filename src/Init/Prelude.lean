@@ -23,6 +23,16 @@ use `PUnit` in the desugaring of `do` notation, or in the pattern match compiler
 
 universe u v w
 
+/-- Marker for information that has been erased by the code generator. -/
+unsafe axiom lcErased : Type
+
+/-- Marker for type dependency that has been erased by the code generator. -/
+unsafe axiom lcAny : Type
+
+/-- Internal representation of `Void` in the compiler. -/
+unsafe axiom lcVoid : Type
+
+
 /--
 The identity function. `id` takes an implicit argument `α : Sort u`
 (a type in any universe), and an argument `a : α`, and returns `a`.
@@ -134,15 +144,6 @@ The only element of the unit type.
 It can be written as an empty tuple: `()`.
 -/
 @[match_pattern] abbrev Unit.unit : Unit := PUnit.unit
-
-/-- Marker for information that has been erased by the code generator. -/
-unsafe axiom lcErased : Type
-
-/-- Marker for type dependency that has been erased by the code generator. -/
-unsafe axiom lcAny : Type
-
-/-- Internal representation of `IO.RealWorld` in the compiler. -/
-unsafe axiom lcRealWorld : Type
 
 /--
 Auxiliary unsafe constant used by the Compiler when erasing proofs from code.

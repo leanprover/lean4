@@ -38,7 +38,7 @@ opaque Dynlib.get? (dynlib : @& Dynlib) (sym : @& String) : Option dynlib.Symbol
 /--
 Runs a module initializer function.
 The symbol should have the signature `(builtin : Bool) → IO Unit`
-(e.g., `initialize_Foo(uint8_t builtin, obj_arg)`).
+(e.g., `initialize_Foo(uint8_t builtin)`).
 
 This function is unsafe because there is no guarantee the symbol has the
 expected signature. An invalid symbol can thus produce undefined behavior.

@@ -514,7 +514,6 @@ lean_inc(x_10);
 x_11 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_toRatValue_x3f(x_1);
 if (lean_obj_tag(x_11) == 0)
 {
-lean_dec(x_10);
 return x_7;
 }
 else

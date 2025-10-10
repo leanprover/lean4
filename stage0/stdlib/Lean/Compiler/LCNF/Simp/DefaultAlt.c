@@ -34,7 +34,7 @@ lean_object* l_Lean_Compiler_LCNF_eraseParams___redArg(lean_object*, lean_object
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Simp_DefaultAlt_0__Lean_Compiler_LCNF_Simp_getMaxOccs_getNumOccsOf(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_Compiler_LCNF_Simp_addDefaultAlt_spec__3(uint8_t, lean_object*, size_t, size_t);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Compiler_LCNF_Simp_addDefaultAlt_spec__1_spec__1___closed__2;
-lean_object* l_instMonadEIO(lean_object*);
+lean_object* l_instMonadEST(lean_object*, lean_object*);
 static lean_object* l_panic___at___Lean_Compiler_LCNF_Simp_addDefaultAlt_spec__0___closed__3;
 static lean_object* l_panic___at___Lean_Compiler_LCNF_Simp_addDefaultAlt_spec__0___closed__4;
 static lean_object* l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__1;
@@ -383,7 +383,7 @@ static lean_object* _init_l_panic___at___Lean_Compiler_LCNF_Simp_addDefaultAlt_s
 _start:
 {
 lean_object* x_1; 
-x_1 = l_instMonadEIO(lean_box(0));
+x_1 = l_instMonadEST(lean_box(0), lean_box(0));
 return x_1;
 }
 }

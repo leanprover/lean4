@@ -166,7 +166,7 @@ Similar to `bind`, however `f` has access to the `EIO` monad. If `f` throws an e
 protected def bindEIO (x : ETask ε α) (f : α → EIO ε (ETask ε β)) (prio := Task.Priority.default) (sync := false) : EIO ε (ETask ε β) :=
   EIO.bindTask x (prio := prio) (sync := sync) fun
     | .ok a => f a
-    | .error e => .error e
+    | .error e => throw e
 
 /--
 Similar to `bind`, however `f` has access to the `EIO` monad. If `f` throws an error, the returned
@@ -176,7 +176,7 @@ Similar to `bind`, however `f` has access to the `EIO` monad. If `f` throws an e
 protected def mapEIO (f : α → EIO ε β) (x : ETask ε α) (prio := Task.Priority.default) (sync := false) : BaseIO (ETask ε β) :=
   EIO.mapTask (t := x) (prio := prio) (sync := sync) fun
     | .ok a => f a
-    | .error e => .error e
+    | .error e => throw e
 
 /--
 Block until the `ETask` in `x` finishes and returns its value. Propagates any error encountered
@@ -186,7 +186,7 @@ during execution.
 def block (x : ETask ε α) : EIO ε α := do
   match x.get with
   | .ok a => return a
-  | .error e => .error e
+  | .error e => throw e
 
 /--
 Create an `ETask` that resolves to the value of the promise `x`. If the promise gets dropped then it
@@ -235,7 +235,7 @@ Similar to `map`, however `f` has access to the `IO` monad. If `f` throws an err
 protected def mapIO (f : α → IO β) (x : AsyncTask α) (prio := Task.Priority.default) (sync := false) : BaseIO (AsyncTask β) :=
   EIO.mapTask (t := x) (prio := prio) (sync := sync) fun
     | .ok a => f a
-    | .error e => .error e
+    | .error e => throw e
 
 /--
 Construct an `AsyncTask` that is already resolved with value `x`.
@@ -274,7 +274,7 @@ Similar to `bind`, however `f` has access to the `IO` monad. If `f` throws an er
 def bindIO (x : AsyncTask α) (f : α → IO (AsyncTask β)) (prio := Task.Priority.default) (sync := false) : BaseIO (AsyncTask β) :=
   IO.bindTask x (prio := prio) (sync := sync) fun
     | .ok a => f a
-    | .error e => .error e
+    | .error e => throw e
 
 /--
 Similar to `map`, however `f` has access to the `IO` monad. If `f` throws an error, the returned
@@ -284,7 +284,7 @@ Similar to `map`, however `f` has access to the `IO` monad. If `f` throws an err
 def mapTaskIO (f : α → IO β) (x : AsyncTask α) (prio := Task.Priority.default) (sync := false) : BaseIO (AsyncTask β) :=
   IO.mapTask (t := x) (prio := prio) (sync := sync) fun
     | .ok a => f a
-    | .error e => .error e
+    | .error e => throw e
 
 /--
 Block until the `AsyncTask` in `x` finishes.
@@ -292,7 +292,7 @@ Block until the `AsyncTask` in `x` finishes.
 def block (x : AsyncTask α) : IO α :=
   match x.get with
   | .ok a => return a
-  | .error e => .error e
+  | .error e => throw e
 
 /--
 Create an `AsyncTask` that resolves to the value of `x`.
@@ -450,7 +450,7 @@ Lifts a `BaseIO` action into a `BaseAsync` computation.
 -/
 @[inline]
 protected def lift (x : BaseIO α) : BaseAsync α :=
-  .mk <| (.pure ∘ .pure) =<< x
+  .mk <| (pure ∘ pure) =<< x
 
 /--
 Waits for the result of the `BaseAsync` computation, blocking if necessary.
@@ -638,7 +638,7 @@ protected def wait (self : EAsync ε α) : EIO ε α := do
   let result ← self |> BaseAsync.wait
   match result with
   | .ok a => return a
-  | .error e => .error e
+  | .error e => throw e
 
 /--
 Lifts an `EAsync` computation into an `ETask` that can be awaited and joined.

@@ -474,7 +474,7 @@ return x_17;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_withNarrowedTacticReuse___at___Lean_Elab_Term_withNarrowedArgTacticReuse___at___Lean_Elab_Tactic_evalClassical_spec__0_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
-lean_object* x_13; uint8_t x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; uint8_t x_20; uint8_t x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; lean_object* x_25; uint8_t x_26; uint8_t x_27; uint8_t x_28; uint8_t x_29; uint8_t x_30; lean_object* x_31; lean_object* x_35; uint8_t x_36; uint8_t x_37; lean_object* x_38; lean_object* x_39; uint8_t x_40; lean_object* x_41; uint8_t x_42; uint8_t x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; uint8_t x_47; lean_object* x_48; uint8_t x_49; uint8_t x_50; uint8_t x_51; uint8_t x_52; uint8_t x_53; lean_object* x_54; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; uint8_t x_64; uint8_t x_65; uint8_t x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; uint8_t x_71; uint8_t x_72; uint8_t x_73; uint8_t x_74; uint8_t x_75; lean_object* x_76; uint8_t x_77; uint8_t x_78; uint8_t x_79; lean_object* x_80; lean_object* x_116; 
+uint8_t x_13; uint8_t x_14; lean_object* x_15; uint8_t x_16; uint8_t x_17; uint8_t x_18; uint8_t x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; lean_object* x_24; uint8_t x_25; uint8_t x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; lean_object* x_30; lean_object* x_31; lean_object* x_35; uint8_t x_36; uint8_t x_37; lean_object* x_38; uint8_t x_39; uint8_t x_40; uint8_t x_41; uint8_t x_42; uint8_t x_43; lean_object* x_44; lean_object* x_45; uint8_t x_46; uint8_t x_47; lean_object* x_48; uint8_t x_49; lean_object* x_50; lean_object* x_51; uint8_t x_52; lean_object* x_53; lean_object* x_54; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; uint8_t x_64; uint8_t x_65; uint8_t x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; uint8_t x_71; uint8_t x_72; uint8_t x_73; uint8_t x_74; uint8_t x_75; lean_object* x_76; uint8_t x_77; uint8_t x_78; uint8_t x_79; lean_object* x_80; lean_object* x_116; 
 lean_inc_ref(x_1);
 x_58 = lean_apply_1(x_1, x_3);
 x_59 = lean_ctor_get(x_58, 0);
@@ -541,25 +541,25 @@ block_34:
 {
 lean_object* x_32; lean_object* x_33; 
 x_32 = lean_alloc_ctor(0, 7, 11);
-lean_ctor_set(x_32, 0, x_17);
-lean_ctor_set(x_32, 1, x_19);
-lean_ctor_set(x_32, 2, x_22);
-lean_ctor_set(x_32, 3, x_25);
-lean_ctor_set(x_32, 4, x_13);
-lean_ctor_set(x_32, 5, x_23);
+lean_ctor_set(x_32, 0, x_27);
+lean_ctor_set(x_32, 1, x_24);
+lean_ctor_set(x_32, 2, x_15);
+lean_ctor_set(x_32, 3, x_21);
+lean_ctor_set(x_32, 4, x_28);
+lean_ctor_set(x_32, 5, x_30);
 lean_ctor_set(x_32, 6, x_31);
-lean_ctor_set_uint8(x_32, sizeof(void*)*7, x_20);
-lean_ctor_set_uint8(x_32, sizeof(void*)*7 + 1, x_27);
-lean_ctor_set_uint8(x_32, sizeof(void*)*7 + 2, x_21);
-lean_ctor_set_uint8(x_32, sizeof(void*)*7 + 3, x_15);
-lean_ctor_set_uint8(x_32, sizeof(void*)*7 + 4, x_24);
-lean_ctor_set_uint8(x_32, sizeof(void*)*7 + 5, x_28);
-lean_ctor_set_uint8(x_32, sizeof(void*)*7 + 6, x_29);
-lean_ctor_set_uint8(x_32, sizeof(void*)*7 + 7, x_26);
-lean_ctor_set_uint8(x_32, sizeof(void*)*7 + 8, x_30);
-lean_ctor_set_uint8(x_32, sizeof(void*)*7 + 9, x_14);
-lean_ctor_set_uint8(x_32, sizeof(void*)*7 + 10, x_18);
-x_33 = lean_apply_9(x_16, x_4, x_5, x_32, x_7, x_8, x_9, x_10, x_11, x_12);
+lean_ctor_set_uint8(x_32, sizeof(void*)*7, x_25);
+lean_ctor_set_uint8(x_32, sizeof(void*)*7 + 1, x_26);
+lean_ctor_set_uint8(x_32, sizeof(void*)*7 + 2, x_13);
+lean_ctor_set_uint8(x_32, sizeof(void*)*7 + 3, x_14);
+lean_ctor_set_uint8(x_32, sizeof(void*)*7 + 4, x_19);
+lean_ctor_set_uint8(x_32, sizeof(void*)*7 + 5, x_20);
+lean_ctor_set_uint8(x_32, sizeof(void*)*7 + 6, x_16);
+lean_ctor_set_uint8(x_32, sizeof(void*)*7 + 7, x_17);
+lean_ctor_set_uint8(x_32, sizeof(void*)*7 + 8, x_23);
+lean_ctor_set_uint8(x_32, sizeof(void*)*7 + 9, x_18);
+lean_ctor_set_uint8(x_32, sizeof(void*)*7 + 10, x_29);
+x_33 = lean_apply_9(x_22, x_4, x_5, x_32, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_33;
 }
 block_57:
@@ -567,25 +567,25 @@ block_57:
 lean_object* x_55; lean_object* x_56; 
 x_55 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_55, 0, x_54);
-lean_ctor_set(x_55, 1, x_44);
+lean_ctor_set(x_55, 1, x_35);
 x_56 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_56, 0, x_55);
-x_13 = x_35;
-x_14 = x_36;
-x_15 = x_37;
-x_16 = x_38;
-x_17 = x_39;
-x_18 = x_40;
-x_19 = x_41;
-x_20 = x_42;
-x_21 = x_43;
+x_13 = x_36;
+x_14 = x_37;
+x_15 = x_38;
+x_16 = x_39;
+x_17 = x_40;
+x_18 = x_41;
+x_19 = x_42;
+x_20 = x_43;
+x_21 = x_44;
 x_22 = x_45;
 x_23 = x_46;
-x_24 = x_47;
-x_25 = x_48;
-x_26 = x_51;
+x_24 = x_48;
+x_25 = x_47;
+x_26 = x_49;
 x_27 = x_50;
-x_28 = x_49;
+x_28 = x_51;
 x_29 = x_52;
 x_30 = x_53;
 x_31 = x_56;
@@ -597,24 +597,24 @@ if (lean_obj_tag(x_76) == 0)
 {
 lean_dec(x_59);
 lean_dec_ref(x_1);
-x_13 = x_69;
-x_14 = x_78;
-x_15 = x_71;
-x_16 = x_80;
-x_17 = x_62;
-x_18 = x_79;
-x_19 = x_63;
-x_20 = x_64;
-x_21 = x_66;
-x_22 = x_67;
-x_23 = x_70;
-x_24 = x_72;
-x_25 = x_68;
-x_26 = x_75;
-x_27 = x_65;
-x_28 = x_73;
-x_29 = x_74;
-x_30 = x_77;
+x_13 = x_66;
+x_14 = x_71;
+x_15 = x_67;
+x_16 = x_74;
+x_17 = x_75;
+x_18 = x_78;
+x_19 = x_72;
+x_20 = x_73;
+x_21 = x_68;
+x_22 = x_80;
+x_23 = x_77;
+x_24 = x_63;
+x_25 = x_64;
+x_26 = x_65;
+x_27 = x_62;
+x_28 = x_69;
+x_29 = x_79;
+x_30 = x_70;
 x_31 = x_76;
 goto block_34;
 }
@@ -634,25 +634,25 @@ lean_dec_ref(x_1);
 x_83 = lean_ctor_get(x_81, 1);
 lean_inc(x_83);
 lean_dec(x_81);
-x_35 = x_69;
-x_36 = x_78;
+x_35 = x_83;
+x_36 = x_66;
 x_37 = x_71;
-x_38 = x_80;
-x_39 = x_62;
-x_40 = x_79;
-x_41 = x_63;
-x_42 = x_64;
-x_43 = x_66;
-x_44 = x_83;
-x_45 = x_67;
-x_46 = x_70;
-x_47 = x_72;
-x_48 = x_68;
-x_49 = x_73;
-x_50 = x_65;
-x_51 = x_75;
-x_52 = x_74;
-x_53 = x_77;
+x_38 = x_67;
+x_39 = x_74;
+x_40 = x_75;
+x_41 = x_78;
+x_42 = x_72;
+x_43 = x_73;
+x_44 = x_68;
+x_45 = x_80;
+x_46 = x_77;
+x_47 = x_64;
+x_48 = x_63;
+x_49 = x_65;
+x_50 = x_62;
+x_51 = x_69;
+x_52 = x_79;
+x_53 = x_70;
 x_54 = x_82;
 goto block_57;
 }
@@ -688,50 +688,50 @@ lean_free_object(x_85);
 lean_dec(x_89);
 lean_free_object(x_82);
 x_94 = lean_box(0);
-x_35 = x_69;
-x_36 = x_78;
+x_35 = x_86;
+x_36 = x_66;
 x_37 = x_71;
-x_38 = x_80;
-x_39 = x_62;
-x_40 = x_79;
-x_41 = x_63;
-x_42 = x_64;
-x_43 = x_66;
-x_44 = x_86;
-x_45 = x_67;
-x_46 = x_70;
-x_47 = x_72;
-x_48 = x_68;
-x_49 = x_73;
-x_50 = x_65;
-x_51 = x_75;
-x_52 = x_74;
-x_53 = x_77;
+x_38 = x_67;
+x_39 = x_74;
+x_40 = x_75;
+x_41 = x_78;
+x_42 = x_72;
+x_43 = x_73;
+x_44 = x_68;
+x_45 = x_80;
+x_46 = x_77;
+x_47 = x_64;
+x_48 = x_63;
+x_49 = x_65;
+x_50 = x_62;
+x_51 = x_69;
+x_52 = x_79;
+x_53 = x_70;
 x_54 = x_94;
 goto block_57;
 }
 else
 {
 lean_ctor_set(x_85, 0, x_92);
-x_35 = x_69;
-x_36 = x_78;
+x_35 = x_86;
+x_36 = x_66;
 x_37 = x_71;
-x_38 = x_80;
-x_39 = x_62;
-x_40 = x_79;
-x_41 = x_63;
-x_42 = x_64;
-x_43 = x_66;
-x_44 = x_86;
-x_45 = x_67;
-x_46 = x_70;
-x_47 = x_72;
-x_48 = x_68;
-x_49 = x_73;
-x_50 = x_65;
-x_51 = x_75;
-x_52 = x_74;
-x_53 = x_77;
+x_38 = x_67;
+x_39 = x_74;
+x_40 = x_75;
+x_41 = x_78;
+x_42 = x_72;
+x_43 = x_73;
+x_44 = x_68;
+x_45 = x_80;
+x_46 = x_77;
+x_47 = x_64;
+x_48 = x_63;
+x_49 = x_65;
+x_50 = x_62;
+x_51 = x_69;
+x_52 = x_79;
+x_53 = x_70;
 x_54 = x_82;
 goto block_57;
 }
@@ -758,25 +758,25 @@ lean_dec(x_99);
 lean_dec(x_96);
 lean_free_object(x_82);
 x_101 = lean_box(0);
-x_35 = x_69;
-x_36 = x_78;
+x_35 = x_86;
+x_36 = x_66;
 x_37 = x_71;
-x_38 = x_80;
-x_39 = x_62;
-x_40 = x_79;
-x_41 = x_63;
-x_42 = x_64;
-x_43 = x_66;
-x_44 = x_86;
-x_45 = x_67;
-x_46 = x_70;
-x_47 = x_72;
-x_48 = x_68;
-x_49 = x_73;
-x_50 = x_65;
-x_51 = x_75;
-x_52 = x_74;
-x_53 = x_77;
+x_38 = x_67;
+x_39 = x_74;
+x_40 = x_75;
+x_41 = x_78;
+x_42 = x_72;
+x_43 = x_73;
+x_44 = x_68;
+x_45 = x_80;
+x_46 = x_77;
+x_47 = x_64;
+x_48 = x_63;
+x_49 = x_65;
+x_50 = x_62;
+x_51 = x_69;
+x_52 = x_79;
+x_53 = x_70;
 x_54 = x_101;
 goto block_57;
 }
@@ -787,25 +787,25 @@ x_102 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_102, 0, x_99);
 lean_ctor_set(x_102, 1, x_96);
 lean_ctor_set(x_82, 0, x_102);
-x_35 = x_69;
-x_36 = x_78;
+x_35 = x_86;
+x_36 = x_66;
 x_37 = x_71;
-x_38 = x_80;
-x_39 = x_62;
-x_40 = x_79;
-x_41 = x_63;
-x_42 = x_64;
-x_43 = x_66;
-x_44 = x_86;
-x_45 = x_67;
-x_46 = x_70;
-x_47 = x_72;
-x_48 = x_68;
-x_49 = x_73;
-x_50 = x_65;
-x_51 = x_75;
-x_52 = x_74;
-x_53 = x_77;
+x_38 = x_67;
+x_39 = x_74;
+x_40 = x_75;
+x_41 = x_78;
+x_42 = x_72;
+x_43 = x_73;
+x_44 = x_68;
+x_45 = x_80;
+x_46 = x_77;
+x_47 = x_64;
+x_48 = x_63;
+x_49 = x_65;
+x_50 = x_62;
+x_51 = x_69;
+x_52 = x_79;
+x_53 = x_70;
 x_54 = x_82;
 goto block_57;
 }
@@ -846,25 +846,25 @@ lean_dec(x_110);
 lean_dec(x_107);
 lean_dec(x_106);
 x_112 = lean_box(0);
-x_35 = x_69;
-x_36 = x_78;
+x_35 = x_104;
+x_36 = x_66;
 x_37 = x_71;
-x_38 = x_80;
-x_39 = x_62;
-x_40 = x_79;
-x_41 = x_63;
-x_42 = x_64;
-x_43 = x_66;
-x_44 = x_104;
-x_45 = x_67;
-x_46 = x_70;
-x_47 = x_72;
-x_48 = x_68;
-x_49 = x_73;
-x_50 = x_65;
-x_51 = x_75;
-x_52 = x_74;
-x_53 = x_77;
+x_38 = x_67;
+x_39 = x_74;
+x_40 = x_75;
+x_41 = x_78;
+x_42 = x_72;
+x_43 = x_73;
+x_44 = x_68;
+x_45 = x_80;
+x_46 = x_77;
+x_47 = x_64;
+x_48 = x_63;
+x_49 = x_65;
+x_50 = x_62;
+x_51 = x_69;
+x_52 = x_79;
+x_53 = x_70;
 x_54 = x_112;
 goto block_57;
 }
@@ -880,25 +880,25 @@ lean_ctor_set(x_113, 0, x_110);
 lean_ctor_set(x_113, 1, x_106);
 x_114 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_114, 0, x_113);
-x_35 = x_69;
-x_36 = x_78;
+x_35 = x_104;
+x_36 = x_66;
 x_37 = x_71;
-x_38 = x_80;
-x_39 = x_62;
-x_40 = x_79;
-x_41 = x_63;
-x_42 = x_64;
-x_43 = x_66;
-x_44 = x_104;
-x_45 = x_67;
-x_46 = x_70;
-x_47 = x_72;
-x_48 = x_68;
-x_49 = x_73;
-x_50 = x_65;
-x_51 = x_75;
-x_52 = x_74;
-x_53 = x_77;
+x_38 = x_67;
+x_39 = x_74;
+x_40 = x_75;
+x_41 = x_78;
+x_42 = x_72;
+x_43 = x_73;
+x_44 = x_68;
+x_45 = x_80;
+x_46 = x_77;
+x_47 = x_64;
+x_48 = x_63;
+x_49 = x_65;
+x_50 = x_62;
+x_51 = x_69;
+x_52 = x_79;
+x_53 = x_70;
 x_54 = x_114;
 goto block_57;
 }
@@ -2158,200 +2158,260 @@ lean_inc(x_1);
 x_18 = l_Lean_PersistentArray_mapM___at_____private_Lean_Elab_InfoTree_Main_0__Lean_Elab_withSavedPartialInfoContext___at___Lean_Elab_withSaveInfoContext___at___Lean_Elab_Tactic_evalClassical_spec__3_spec__5_spec__6(x_15, x_2, x_17, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_1, x_16);
 if (lean_obj_tag(x_18) == 0)
 {
-lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
-x_19 = lean_ctor_get(x_18, 0);
-lean_inc(x_19);
-x_20 = lean_ctor_get(x_18, 1);
-lean_inc(x_20);
-lean_dec_ref(x_18);
-x_21 = lean_st_ref_take(x_1, x_20);
-x_22 = lean_ctor_get(x_21, 0);
-lean_inc(x_22);
-x_23 = lean_ctor_get(x_22, 7);
-lean_inc_ref(x_23);
-x_24 = lean_ctor_get(x_21, 1);
-lean_inc(x_24);
-lean_dec_ref(x_21);
-x_25 = !lean_is_exclusive(x_22);
-if (x_25 == 0)
+uint8_t x_19; 
+x_19 = !lean_is_exclusive(x_18);
+if (x_19 == 0)
 {
-lean_object* x_26; uint8_t x_27; 
-x_26 = lean_ctor_get(x_22, 7);
-lean_dec(x_26);
-x_27 = !lean_is_exclusive(x_23);
-if (x_27 == 0)
+lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; 
+x_20 = lean_ctor_get(x_18, 0);
+x_21 = lean_ctor_get(x_18, 1);
+x_22 = lean_st_ref_take(x_1, x_21);
+x_23 = lean_ctor_get(x_22, 0);
+lean_inc(x_23);
+x_24 = lean_ctor_get(x_23, 7);
+lean_inc_ref(x_24);
+x_25 = lean_ctor_get(x_22, 1);
+lean_inc(x_25);
+lean_dec_ref(x_22);
+x_26 = !lean_is_exclusive(x_23);
+if (x_26 == 0)
 {
-lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; 
-x_28 = lean_ctor_get(x_23, 2);
-lean_dec(x_28);
-x_29 = l_Lean_PersistentArray_append___redArg(x_10, x_19);
-lean_dec(x_19);
-lean_ctor_set(x_23, 2, x_29);
-x_30 = lean_st_ref_set(x_1, x_22, x_24);
+lean_object* x_27; uint8_t x_28; 
+x_27 = lean_ctor_get(x_23, 7);
+lean_dec(x_27);
+x_28 = !lean_is_exclusive(x_24);
+if (x_28 == 0)
+{
+lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
+x_29 = lean_ctor_get(x_24, 2);
+lean_dec(x_29);
+x_30 = l_Lean_PersistentArray_append___redArg(x_10, x_20);
+lean_dec(x_20);
+lean_ctor_set(x_24, 2, x_30);
+x_31 = lean_st_ref_set(x_1, x_23, x_25);
 lean_dec(x_1);
-x_31 = !lean_is_exclusive(x_30);
-if (x_31 == 0)
-{
-lean_object* x_32; lean_object* x_33; 
-x_32 = lean_ctor_get(x_30, 0);
-lean_dec(x_32);
+x_32 = lean_ctor_get(x_31, 1);
+lean_inc(x_32);
+lean_dec_ref(x_31);
 x_33 = lean_box(0);
-lean_ctor_set(x_30, 0, x_33);
-return x_30;
+lean_ctor_set(x_18, 1, x_32);
+lean_ctor_set(x_18, 0, x_33);
+return x_18;
 }
 else
 {
-lean_object* x_34; lean_object* x_35; lean_object* x_36; 
-x_34 = lean_ctor_get(x_30, 1);
-lean_inc(x_34);
-lean_dec(x_30);
-x_35 = lean_box(0);
-x_36 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_36, 0, x_35);
-lean_ctor_set(x_36, 1, x_34);
-return x_36;
-}
-}
-else
-{
-uint8_t x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; 
-x_37 = lean_ctor_get_uint8(x_23, sizeof(void*)*3);
-x_38 = lean_ctor_get(x_23, 0);
-x_39 = lean_ctor_get(x_23, 1);
-lean_inc(x_39);
-lean_inc(x_38);
-lean_dec(x_23);
-x_40 = l_Lean_PersistentArray_append___redArg(x_10, x_19);
-lean_dec(x_19);
-x_41 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_41, 0, x_38);
-lean_ctor_set(x_41, 1, x_39);
-lean_ctor_set(x_41, 2, x_40);
-lean_ctor_set_uint8(x_41, sizeof(void*)*3, x_37);
-lean_ctor_set(x_22, 7, x_41);
-x_42 = lean_st_ref_set(x_1, x_22, x_24);
+uint8_t x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
+x_34 = lean_ctor_get_uint8(x_24, sizeof(void*)*3);
+x_35 = lean_ctor_get(x_24, 0);
+x_36 = lean_ctor_get(x_24, 1);
+lean_inc(x_36);
+lean_inc(x_35);
+lean_dec(x_24);
+x_37 = l_Lean_PersistentArray_append___redArg(x_10, x_20);
+lean_dec(x_20);
+x_38 = lean_alloc_ctor(0, 3, 1);
+lean_ctor_set(x_38, 0, x_35);
+lean_ctor_set(x_38, 1, x_36);
+lean_ctor_set(x_38, 2, x_37);
+lean_ctor_set_uint8(x_38, sizeof(void*)*3, x_34);
+lean_ctor_set(x_23, 7, x_38);
+x_39 = lean_st_ref_set(x_1, x_23, x_25);
 lean_dec(x_1);
-x_43 = lean_ctor_get(x_42, 1);
-lean_inc(x_43);
-if (lean_is_exclusive(x_42)) {
- lean_ctor_release(x_42, 0);
- lean_ctor_release(x_42, 1);
- x_44 = x_42;
-} else {
- lean_dec_ref(x_42);
- x_44 = lean_box(0);
-}
-x_45 = lean_box(0);
-if (lean_is_scalar(x_44)) {
- x_46 = lean_alloc_ctor(0, 2, 0);
-} else {
- x_46 = x_44;
-}
-lean_ctor_set(x_46, 0, x_45);
-lean_ctor_set(x_46, 1, x_43);
-return x_46;
+x_40 = lean_ctor_get(x_39, 1);
+lean_inc(x_40);
+lean_dec_ref(x_39);
+x_41 = lean_box(0);
+lean_ctor_set(x_18, 1, x_40);
+lean_ctor_set(x_18, 0, x_41);
+return x_18;
 }
 }
 else
 {
-lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; uint8_t x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; 
-x_47 = lean_ctor_get(x_22, 0);
-x_48 = lean_ctor_get(x_22, 1);
-x_49 = lean_ctor_get(x_22, 2);
-x_50 = lean_ctor_get(x_22, 3);
-x_51 = lean_ctor_get(x_22, 4);
-x_52 = lean_ctor_get(x_22, 5);
-x_53 = lean_ctor_get(x_22, 6);
-x_54 = lean_ctor_get(x_22, 8);
-lean_inc(x_54);
-lean_inc(x_53);
-lean_inc(x_52);
-lean_inc(x_51);
-lean_inc(x_50);
+lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; uint8_t x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; 
+x_42 = lean_ctor_get(x_23, 0);
+x_43 = lean_ctor_get(x_23, 1);
+x_44 = lean_ctor_get(x_23, 2);
+x_45 = lean_ctor_get(x_23, 3);
+x_46 = lean_ctor_get(x_23, 4);
+x_47 = lean_ctor_get(x_23, 5);
+x_48 = lean_ctor_get(x_23, 6);
+x_49 = lean_ctor_get(x_23, 8);
 lean_inc(x_49);
 lean_inc(x_48);
 lean_inc(x_47);
-lean_dec(x_22);
-x_55 = lean_ctor_get_uint8(x_23, sizeof(void*)*3);
-x_56 = lean_ctor_get(x_23, 0);
-lean_inc_ref(x_56);
-x_57 = lean_ctor_get(x_23, 1);
-lean_inc_ref(x_57);
-if (lean_is_exclusive(x_23)) {
- lean_ctor_release(x_23, 0);
- lean_ctor_release(x_23, 1);
- lean_ctor_release(x_23, 2);
- x_58 = x_23;
+lean_inc(x_46);
+lean_inc(x_45);
+lean_inc(x_44);
+lean_inc(x_43);
+lean_inc(x_42);
+lean_dec(x_23);
+x_50 = lean_ctor_get_uint8(x_24, sizeof(void*)*3);
+x_51 = lean_ctor_get(x_24, 0);
+lean_inc_ref(x_51);
+x_52 = lean_ctor_get(x_24, 1);
+lean_inc_ref(x_52);
+if (lean_is_exclusive(x_24)) {
+ lean_ctor_release(x_24, 0);
+ lean_ctor_release(x_24, 1);
+ lean_ctor_release(x_24, 2);
+ x_53 = x_24;
 } else {
- lean_dec_ref(x_23);
- x_58 = lean_box(0);
+ lean_dec_ref(x_24);
+ x_53 = lean_box(0);
 }
-x_59 = l_Lean_PersistentArray_append___redArg(x_10, x_19);
-lean_dec(x_19);
-if (lean_is_scalar(x_58)) {
- x_60 = lean_alloc_ctor(0, 3, 1);
+x_54 = l_Lean_PersistentArray_append___redArg(x_10, x_20);
+lean_dec(x_20);
+if (lean_is_scalar(x_53)) {
+ x_55 = lean_alloc_ctor(0, 3, 1);
 } else {
- x_60 = x_58;
+ x_55 = x_53;
 }
-lean_ctor_set(x_60, 0, x_56);
-lean_ctor_set(x_60, 1, x_57);
-lean_ctor_set(x_60, 2, x_59);
-lean_ctor_set_uint8(x_60, sizeof(void*)*3, x_55);
-x_61 = lean_alloc_ctor(0, 9, 0);
-lean_ctor_set(x_61, 0, x_47);
-lean_ctor_set(x_61, 1, x_48);
-lean_ctor_set(x_61, 2, x_49);
-lean_ctor_set(x_61, 3, x_50);
-lean_ctor_set(x_61, 4, x_51);
-lean_ctor_set(x_61, 5, x_52);
-lean_ctor_set(x_61, 6, x_53);
-lean_ctor_set(x_61, 7, x_60);
-lean_ctor_set(x_61, 8, x_54);
-x_62 = lean_st_ref_set(x_1, x_61, x_24);
+lean_ctor_set(x_55, 0, x_51);
+lean_ctor_set(x_55, 1, x_52);
+lean_ctor_set(x_55, 2, x_54);
+lean_ctor_set_uint8(x_55, sizeof(void*)*3, x_50);
+x_56 = lean_alloc_ctor(0, 9, 0);
+lean_ctor_set(x_56, 0, x_42);
+lean_ctor_set(x_56, 1, x_43);
+lean_ctor_set(x_56, 2, x_44);
+lean_ctor_set(x_56, 3, x_45);
+lean_ctor_set(x_56, 4, x_46);
+lean_ctor_set(x_56, 5, x_47);
+lean_ctor_set(x_56, 6, x_48);
+lean_ctor_set(x_56, 7, x_55);
+lean_ctor_set(x_56, 8, x_49);
+x_57 = lean_st_ref_set(x_1, x_56, x_25);
 lean_dec(x_1);
-x_63 = lean_ctor_get(x_62, 1);
-lean_inc(x_63);
-if (lean_is_exclusive(x_62)) {
- lean_ctor_release(x_62, 0);
- lean_ctor_release(x_62, 1);
- x_64 = x_62;
-} else {
- lean_dec_ref(x_62);
- x_64 = lean_box(0);
-}
-x_65 = lean_box(0);
-if (lean_is_scalar(x_64)) {
- x_66 = lean_alloc_ctor(0, 2, 0);
-} else {
- x_66 = x_64;
-}
-lean_ctor_set(x_66, 0, x_65);
-lean_ctor_set(x_66, 1, x_63);
-return x_66;
+x_58 = lean_ctor_get(x_57, 1);
+lean_inc(x_58);
+lean_dec_ref(x_57);
+x_59 = lean_box(0);
+lean_ctor_set(x_18, 1, x_58);
+lean_ctor_set(x_18, 0, x_59);
+return x_18;
 }
 }
 else
 {
-uint8_t x_67; 
+lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; uint8_t x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; 
+x_60 = lean_ctor_get(x_18, 0);
+x_61 = lean_ctor_get(x_18, 1);
+lean_inc(x_61);
+lean_inc(x_60);
+lean_dec(x_18);
+x_62 = lean_st_ref_take(x_1, x_61);
+x_63 = lean_ctor_get(x_62, 0);
+lean_inc(x_63);
+x_64 = lean_ctor_get(x_63, 7);
+lean_inc_ref(x_64);
+x_65 = lean_ctor_get(x_62, 1);
+lean_inc(x_65);
+lean_dec_ref(x_62);
+x_66 = lean_ctor_get(x_63, 0);
+lean_inc_ref(x_66);
+x_67 = lean_ctor_get(x_63, 1);
+lean_inc(x_67);
+x_68 = lean_ctor_get(x_63, 2);
+lean_inc_ref(x_68);
+x_69 = lean_ctor_get(x_63, 3);
+lean_inc_ref(x_69);
+x_70 = lean_ctor_get(x_63, 4);
+lean_inc_ref(x_70);
+x_71 = lean_ctor_get(x_63, 5);
+lean_inc_ref(x_71);
+x_72 = lean_ctor_get(x_63, 6);
+lean_inc_ref(x_72);
+x_73 = lean_ctor_get(x_63, 8);
+lean_inc_ref(x_73);
+if (lean_is_exclusive(x_63)) {
+ lean_ctor_release(x_63, 0);
+ lean_ctor_release(x_63, 1);
+ lean_ctor_release(x_63, 2);
+ lean_ctor_release(x_63, 3);
+ lean_ctor_release(x_63, 4);
+ lean_ctor_release(x_63, 5);
+ lean_ctor_release(x_63, 6);
+ lean_ctor_release(x_63, 7);
+ lean_ctor_release(x_63, 8);
+ x_74 = x_63;
+} else {
+ lean_dec_ref(x_63);
+ x_74 = lean_box(0);
+}
+x_75 = lean_ctor_get_uint8(x_64, sizeof(void*)*3);
+x_76 = lean_ctor_get(x_64, 0);
+lean_inc_ref(x_76);
+x_77 = lean_ctor_get(x_64, 1);
+lean_inc_ref(x_77);
+if (lean_is_exclusive(x_64)) {
+ lean_ctor_release(x_64, 0);
+ lean_ctor_release(x_64, 1);
+ lean_ctor_release(x_64, 2);
+ x_78 = x_64;
+} else {
+ lean_dec_ref(x_64);
+ x_78 = lean_box(0);
+}
+x_79 = l_Lean_PersistentArray_append___redArg(x_10, x_60);
+lean_dec(x_60);
+if (lean_is_scalar(x_78)) {
+ x_80 = lean_alloc_ctor(0, 3, 1);
+} else {
+ x_80 = x_78;
+}
+lean_ctor_set(x_80, 0, x_76);
+lean_ctor_set(x_80, 1, x_77);
+lean_ctor_set(x_80, 2, x_79);
+lean_ctor_set_uint8(x_80, sizeof(void*)*3, x_75);
+if (lean_is_scalar(x_74)) {
+ x_81 = lean_alloc_ctor(0, 9, 0);
+} else {
+ x_81 = x_74;
+}
+lean_ctor_set(x_81, 0, x_66);
+lean_ctor_set(x_81, 1, x_67);
+lean_ctor_set(x_81, 2, x_68);
+lean_ctor_set(x_81, 3, x_69);
+lean_ctor_set(x_81, 4, x_70);
+lean_ctor_set(x_81, 5, x_71);
+lean_ctor_set(x_81, 6, x_72);
+lean_ctor_set(x_81, 7, x_80);
+lean_ctor_set(x_81, 8, x_73);
+x_82 = lean_st_ref_set(x_1, x_81, x_65);
+lean_dec(x_1);
+x_83 = lean_ctor_get(x_82, 1);
+lean_inc(x_83);
+lean_dec_ref(x_82);
+x_84 = lean_box(0);
+x_85 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_85, 0, x_84);
+lean_ctor_set(x_85, 1, x_83);
+return x_85;
+}
+}
+else
+{
+uint8_t x_86; 
 lean_dec_ref(x_10);
 lean_dec(x_1);
-x_67 = !lean_is_exclusive(x_18);
-if (x_67 == 0)
+x_86 = !lean_is_exclusive(x_18);
+if (x_86 == 0)
 {
 return x_18;
 }
 else
 {
-lean_object* x_68; lean_object* x_69; lean_object* x_70; 
-x_68 = lean_ctor_get(x_18, 0);
-x_69 = lean_ctor_get(x_18, 1);
-lean_inc(x_69);
-lean_inc(x_68);
+lean_object* x_87; lean_object* x_88; lean_object* x_89; 
+x_87 = lean_ctor_get(x_18, 0);
+x_88 = lean_ctor_get(x_18, 1);
+lean_inc(x_88);
+lean_inc(x_87);
 lean_dec(x_18);
-x_70 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_70, 0, x_68);
-lean_ctor_set(x_70, 1, x_69);
-return x_70;
+x_89 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_89, 0, x_87);
+lean_ctor_set(x_89, 1, x_88);
+return x_89;
 }
 }
 }

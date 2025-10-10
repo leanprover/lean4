@@ -2101,15 +2101,15 @@ lean_dec(x_107);
 lean_dec(x_105);
 if (x_108 == 0)
 {
-x_92 = x_103;
-x_93 = x_102;
+x_92 = x_102;
+x_93 = x_103;
 x_94 = x_97;
 goto block_96;
 }
 else
 {
-x_92 = x_103;
-x_93 = x_102;
+x_92 = x_102;
+x_93 = x_103;
 x_94 = x_101;
 goto block_96;
 }
@@ -2488,9 +2488,9 @@ goto block_10;
 }
 block_96:
 {
-if (x_93 == 0)
-{
 if (x_92 == 0)
+{
+if (x_93 == 0)
 {
 if (x_94 == 0)
 {
@@ -3142,8 +3142,8 @@ x_50 = lean_nat_dec_lt(x_48, x_49);
 if (x_50 == 0)
 {
 lean_dec(x_49);
-x_8 = x_44;
-x_9 = x_47;
+x_8 = x_47;
+x_9 = x_44;
 x_10 = x_7;
 goto block_33;
 }
@@ -3152,8 +3152,8 @@ else
 if (x_50 == 0)
 {
 lean_dec(x_49);
-x_8 = x_44;
-x_9 = x_47;
+x_8 = x_47;
+x_9 = x_44;
 x_10 = x_7;
 goto block_33;
 }
@@ -3164,8 +3164,8 @@ x_51 = 0;
 x_52 = lean_usize_of_nat(x_49);
 lean_dec(x_49);
 x_53 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1(x_47, x_51, x_52);
-x_8 = x_44;
-x_9 = x_47;
+x_8 = x_47;
+x_9 = x_44;
 x_10 = x_53;
 goto block_33;
 }
@@ -3192,10 +3192,10 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; size_t x_14; size_t x_1
 x_11 = lean_box(0);
 x_12 = lean_box(0);
 x_13 = l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___closed__0;
-x_14 = lean_array_size(x_9);
+x_14 = lean_array_size(x_8);
 x_15 = 0;
-x_16 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0(x_4, x_13, x_12, x_10, x_7, x_9, x_14, x_15, x_13, x_8);
-lean_dec_ref(x_9);
+x_16 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0(x_4, x_13, x_12, x_10, x_7, x_8, x_14, x_15, x_13, x_9);
+lean_dec_ref(x_8);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; 

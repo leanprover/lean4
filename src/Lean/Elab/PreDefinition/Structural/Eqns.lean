@@ -53,6 +53,12 @@ where
             k brecOnApp x (mkAppN x extraArgs)
     throwError "could not find `.brecOn` application in{indentExpr e}"
 
+def deltaRHS? (mvarId : MVarId) (declName : Name) : MetaM (Option MVarId) := mvarId.withContext do
+  let target ← mvarId.getType'
+  let some (_, lhs, rhs) := target.eq? | return none
+  let some rhs ← delta? rhs.consumeMData (· == declName) | return none
+  mvarId.replaceTargetDefEq (← mkEq lhs rhs)
+
 /--
 Creates the proof of the unfolding theorem for `declName` with type `type`. It
 

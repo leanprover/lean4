@@ -172,7 +172,7 @@ builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
 /--
 Simple equation theorem for nonrecursive definitions.
 -/
-private def mkSimpleEqThm (declName : Name) : MetaM (Option Name) := do
+def mkSimpleEqThm (declName : Name) : MetaM (Option Name) := do
   if let some (.defnInfo info) := (← getEnv).find? declName then
     let name := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
     realizeConst declName name (doRealize name info)

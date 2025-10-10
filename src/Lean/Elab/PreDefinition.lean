@@ -12,5 +12,5 @@ public import Lean.Elab.PreDefinition.Main
 public import Lean.Elab.PreDefinition.MkInhabitant
 public import Lean.Elab.PreDefinition.WF
 public import Lean.Elab.PreDefinition.Eqns
-public import Lean.Elab.PreDefinition.Nonrec.Eqns
+public import Lean.Elab.PreDefinition.GenEqns
 public import Lean.Elab.PreDefinition.EqUnfold

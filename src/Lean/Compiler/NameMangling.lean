@@ -9,11 +9,9 @@ prelude
 public import Init.Prelude
 import Init.Data.String.Basic
 
-public section
-
 namespace String
 
-private def mangleAux : Nat → String.Iterator → String → String
+def mangleAux : Nat → String.Iterator → String → String
   | 0,   _,  r => r
   | i+1, it, r =>
     let c := it.curr
@@ -45,14 +43,14 @@ private def mangleAux : Nat → String.Iterator → String → String
       let r := ds.foldl (fun r c => r.push c) r
       mangleAux i it.next r
 
-def mangle (s : String) : String :=
+public def mangle (s : String) : String :=
   mangleAux s.length s.mkIterator ""
 
 end String
 
 namespace Lean
 
-private def checkLowerHex : Nat → (s : String) → s.ValidPos → Bool
+def checkLowerHex : Nat → (s : String) → s.ValidPos → Bool
   | 0, _, _ => true
   | k + 1, s, pos =>
     if h : pos = s.endValidPos then
@@ -62,7 +60,7 @@ private def checkLowerHex : Nat → (s : String) → s.ValidPos → Bool
       (ch.isDigit || (ch.val >= 97 && ch.val <= 102)) && -- 0-9a-f
         checkLowerHex k s (pos.next h)
 
-private theorem valid_of_checkLowerHex (h : checkLowerHex n s p) :
+theorem valid_of_checkLowerHex (h : checkLowerHex n s p) :
     (String.Pos.Raw.mk (p.offset.byteIdx + n)).IsValid s := by
   fun_induction checkLowerHex
   · rename_i p
@@ -82,7 +80,7 @@ private theorem valid_of_checkLowerHex (h : checkLowerHex n s p) :
       exact UInt32.le_trans h.2 (by decide)
     · exact UInt32.le_trans h.2 (by decide)
 
-private def parseLowerHex : (n : Nat) → (s : String) → (p : s.ValidPos) →
+def parseLowerHex : (n : Nat) → (s : String) → (p : s.ValidPos) →
     checkLowerHex n s p → Nat → Nat
   | 0, _, _, _, n => n
   | k + 1, s, pos, h, n =>
@@ -98,7 +96,7 @@ private def parseLowerHex : (n : Nat) → (s : String) → (p : s.ValidPos) →
     if ch.isDigit then parseLowerHex k s pos h' (n <<< 4 ||| (ch.val - 48).toNat)
     else parseLowerHex k s pos h' (n <<< 4 ||| (ch.val - 87).toNat)
 
-private def checkDisambiguation : Nat → (s : String) → s.ValidPos → Bool
+def checkDisambiguation : Nat → (s : String) → s.ValidPos → Bool
   | 0, _, _ => true
   | k + 1, s, p =>
     if h : _ then
@@ -116,10 +114,10 @@ private def checkDisambiguation : Nat → (s : String) → s.ValidPos → Bool
       else false
     else true
 
-private def needDisambiguation (prev : String) (next : String) : Bool :=
+def needDisambiguation (prev : String) (next : String) : Bool :=
   prev.endsWith "__" || checkDisambiguation next.utf8ByteSize next next.startValidPos
 
-private def Name.mangleAux : Name → String
+def Name.mangleAux : Name → String
   | Name.anonymous => ""
   | Name.str p s =>
     let m := String.mangle s
@@ -136,15 +134,15 @@ private def Name.mangleAux : Name → String
       mangleAux p ++ "_" ++ n.repr ++ "_"
 
 @[export lean_name_mangle]
-def Name.mangle (n : Name) (pre : String := "l_") : String :=
+public def Name.mangle (n : Name) (pre : String := "l_") : String :=
   pre ++ Name.mangleAux n
 
 @[export lean_mk_module_initialization_function_name]
-def mkModuleInitializationFunctionName (moduleName : Name) : String :=
+public def mkModuleInitializationFunctionName (moduleName : Name) : String :=
   "initialize_" ++ moduleName.mangle ""
 
 -- assumes `s` has been generated `Name.mangle n ""`
-private def Name.unmangleAux (s : String) (p : s.ValidPos) (res : Name)
+def Name.unmangleAux (s : String) (p : s.ValidPos) (res : Name)
     (acc : String) (ucount : Nat) : Nat → Name
   | 0 => res.str (acc.pushn '_' (ucount / 2))
   | k + 1 =>
@@ -200,10 +198,15 @@ where
       else
         unmangleAux s p res (String.singleton ch) 0 k
 
-def Name.unmangle (s : String) : Name :=
+/-- Assuming `s` has been produced by `Name.mangle _ ""`, return the original name. -/
+public def Name.unmangle (s : String) : Name :=
   unmangleAux.nameStart s s.startValidPos .anonymous s.length
 
-def Name.unmangle? (s : String) : Option Name :=
+/--
+Returns the unmangled version of `s`, if it's the result of `Name.mangle _ ""`. Otherwise returns
+`none`.
+-/
+public def Name.unmangle? (s : String) : Option Name :=
   let n := unmangle s
   if mangleAux n = s then some n else none
 

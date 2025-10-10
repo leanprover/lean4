@@ -6,26 +6,20 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Internal.Http.Data
 public import Std.Internal.Http.Server
 
 public section
 
-namespace Std
-namespace Http
-
-set_option linter.all true
-
 /-!
 # Http
 
-A "low-level" HTTP 1.1 implementation for Lean. It is designed to be used with or without the
+A "low-level" HTTP 1.1 Server and Client implementation for Lean. It is designed to be used with or without the
 `Async` library if you want to implement a custom `Connection`.
 
 # Overview
 
 This module of the standard library defines many concepts related to the HTTP protocol
-and its semantics in a Sans-IO format. The main function of this library is `Std.Http.Server.serve`,
+and its semantics in a SANS-IO format. The main function of this library is `Std.Http.Server.serve`,
 located in the module `Std.Internal.Http.Server`. It starts a simple HTTP/1.1 server that
 handles all requests and sends them to a simple handler function. It uses the default `Std.Internal.Async`
 library, but it can be customized to use whatever IO library you want, as the protocol implementation
@@ -62,4 +56,21 @@ def mainAsync : Async Unit := do
 
 def main := mainAsync.block
 ```
+
+# Main Concepts
+
+## Transport
+
+`Std.Http.Server.Transport` is a type class used for describing a way of communication between a `Connection` and outside
+of the `Connection`. It can be a `Mock.Client` that sends and receives byte arrays so it can be used for
+deterministic testing a HTTP connection or a `TCP.Socket.Client` that is how usually it communicated with
+the internet.
+
+## Connection
+
+`Std.Http.Server.Connection` is a structure that stores both a `Transport` and a `Machine`
+the machine right now is only a `Protocol.H1.Machine` that implements a State Machine for parsing request and responses for HTTP/1.1
+
 -/
+
+namespace Std.Http

@@ -6,15 +6,20 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Internal.Http.Encode
 public import Std.Internal.Http.Data.URI.Basic
 public import Std.Internal.Http.Data.URI.Parser
 
 public section
 
-namespace Std
-namespace Http
-namespace RequestTarget
+/-!
+# URI
+
+This module defines the `URI` and `RequestTarget` types that represent and manipulate components of
+URIs as defined by RFC 3986. It provides parsing, rendering, and normalization utilities for working
+with URIs and request targets in HTTP messages.
+-/
+
+namespace Std.Http.RequestTarget
 
 set_option linter.all true
 

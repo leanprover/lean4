@@ -8,18 +8,24 @@ module
 prelude
 public import Init.Data.Slice
 public import Std.Data.HashMap
-public import Std.Data.HashMap
 public import Std.Data.HashSet
-public import Std.Internal.Http.Encode
+public import Std.Internal.Http.Internal
 
 public section
 
-namespace Std
-namespace Http
+/-!
+# Headers
+
+This module defines the `Headers` type, which represents an efficient collection of HTTP header
+name-value pairs. The implementation is optimized for fast lookups and insertions while providing
+a convenient interface for managing HTTP headers in both requests and responses.
+-/
+
+namespace Std.Http
+
+open Std Internal
 
 set_option linter.all true
-
-open Std
 
 /--
 Checks if a character is valid for use in an HTTP header value.
@@ -264,3 +270,5 @@ instance : ToString Headers where
 
 instance : Encode .v11 Headers where
   encode buffer := buffer.writeString ∘ toString
+
+end Std.Http.Headers

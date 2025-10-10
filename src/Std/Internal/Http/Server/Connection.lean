@@ -7,9 +7,9 @@ module
 
 prelude
 public import Std.Internal.Async.TCP
+public import Std.Internal.Http.Transport
 public import Std.Internal.Http.Protocol.H1
 public import Std.Internal.Http.Server.Config
-public import Std.Internal.Http.Server.Transport
 
 public section
 
@@ -21,6 +21,8 @@ open Std Internal IO Async TCP
 open Time
 
 /-!
+# Conncetion
+
 This module defines a `Server.Connection` that is a structure used to handle a single HTTP connection with
 possibly multiple requests.
 -/
@@ -99,7 +101,10 @@ private def handle
   let connectionTimerTask ← async connectionTimer.wait
 
   while running do
-    machine := machine.processRead.processWrite
+
+    machine := machine
+      |> Protocol.H1.Machine.Server.processRead
+      |> Protocol.H1.Machine.Server.processWrite
 
     let (newMachine, events) := machine.takeEvents
     machine := newMachine
@@ -190,7 +195,7 @@ private def handle
             | none => machine := machine.closeWriter
 
     -- Checks for things that can close the connection.
-    if ¬closing then
+    if ¬ closing then
       if (← requestTimerTask.isFinished) ∨ (← connectionTimerTask.isFinished) then
         machine := machine.setFailure .timeout .requestTimeout
         closing := true
@@ -238,9 +243,10 @@ while true do
   -- and handle failures using the provided callbacks and config
   background (serveConnection client onRequest onFailure config)
 ```
-
 -/
 def serveConnection [Transport t] (client : t)
     (onRequest : Request Body → Async (Response Body)) (config : Config := {}) : Async Unit := do
   Connection.mk client { config := config.toH1Config }
   |>.handle config onRequest
+
+end Std.Http.Server

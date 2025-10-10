@@ -7,12 +7,20 @@ module
 
 prelude
 public import Init.Data.Repr
-public import Std.Internal.Http.Encode
+public import Std.Internal.Http.Internal
 
 public section
 
-namespace Std
-namespace Http
+/-!
+# Method
+
+This module provides the `Method` type, that representation HTTP request methods. It defines the
+standard set of HTTP methods (e.g. `GET`, `POST`, `PUT`, `DELETE`).
+-/
+
+namespace Std.Http
+
+open Internal
 
 set_option linter.all true
 

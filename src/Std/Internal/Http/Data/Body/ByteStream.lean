@@ -9,21 +9,23 @@ prelude
 public import Std.Sync
 public import Std.Internal.Async
 public import Std.Internal.Async.IO
-public import Std.Internal.Http.Util.BufferBuilder
+public import Std.Internal.Http.Internal
 
 public section
 
+/-!
+# ByteStream
+
+This module defines the `ByteStream` structure, which represents a channel for reading and
+writing sequences of bytes. It provides utilities for efficiently processing byte arrays
+in a streaming fashion.
+-/
+
+namespace Std.Http.Body
+
 open Std Internal IO Async
 
-namespace Std
-namespace Http
-namespace Body
-
 set_option linter.all true
-
-/-!
-This module defines the `ByteStream` structure that is a channel for byte arrays.
--/
 
 public section
 
@@ -35,7 +37,7 @@ private def ByteStream.Consumer.resolve (c : ByteStream.Consumer α) (b : Bool) 
   c.promise.resolve b
 
 private structure ByteStream.State where
-  buffer : Util.BufferBuilder := .empty
+  buffer : ChunkedBuffer := .empty
   knownSize : Option Nat := none
   closed : Bool := false
   waiting : Queue (ByteStream.Consumer ByteArray) := .empty
@@ -66,7 +68,7 @@ def empty : Async ByteStream :=
 
 private def tryRecvFromBuffer'
   [MonadState State (AtomicT State m)] [MonadLiftT BaseIO m] [Monad m] :
-  AtomicT State m (Option Util.BufferBuilder) := do
+  AtomicT State m (Option ChunkedBuffer) := do
     let state ← get
 
     if state.buffer.isEmpty then
@@ -83,17 +85,16 @@ private def tryRecvFromBuffer'
 
       return some state.buffer
 
-  private def tryRecv' (stream : ByteStream) : Async (Option Util.BufferBuilder) := do
+  private def tryRecv' (stream : ByteStream) : Async (Option ChunkedBuffer) := do
     stream.state.atomically tryRecvFromBuffer'
 
 /--
 Tries to receive all the current available data, it returns `some` when the channel is not closed
 and contains some data.
 -/
-def tryRecv (stream : ByteStream) : Async (Option ByteArray) := do
+def tryRecv (stream : ByteStream) : Async (Option ChunkedBuffer) := do
   stream.state.atomically do
-    let buf ← tryRecvFromBuffer'
-    return Util.BufferBuilder.toByteArray <$> buf
+    tryRecvFromBuffer'
 
 /--
 Receives (reads) all currently available data from the stream, emptying it.
@@ -116,7 +117,7 @@ partial def recv (stream : ByteStream) : Async (Option ByteArray) := do
       return Sum.inr none
 
   match result with
-  | .inr res => return Util.BufferBuilder.toByteArray <$> res
+  | .inr res => return ChunkedBuffer.toByteArray <$> res
   | .inl promise =>
       try
         discard <| await promise
@@ -231,7 +232,7 @@ partial def recvSelector (stream : ByteStream) : Selector (Option ByteArray) whe
       let state ← get
       if ¬ state.buffer.isEmpty ∨ state.closed then
         let val ← tryRecvFromBuffer'
-        return some (Util.BufferBuilder.toByteArray <$> val)
+        return some (ChunkedBuffer.toByteArray <$> val)
       else
         return none
 
@@ -258,7 +259,7 @@ where
 
         let win promise := do
           let val ← tryRecvFromBuffer'
-          promise.resolve (.ok (Util.BufferBuilder.toByteArray <$> val))
+          promise.resolve (.ok (ChunkedBuffer.toByteArray <$> val))
 
         waiter.race lose win
       else

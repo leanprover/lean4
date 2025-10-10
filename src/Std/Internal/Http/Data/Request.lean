@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Internal.Http.Encode
+public import Std.Internal.Http.Internal
 public import Std.Internal.Http.Data.Body
 public import Std.Internal.Http.Data.Headers
 public import Std.Internal.Http.Data.Method
@@ -15,8 +15,14 @@ public import Std.Internal.Http.Data.URI
 
 public section
 
-namespace Std
-namespace Http
+/-!
+# Request
+
+This module provides the `Request` type, which representation a HTTP request. It also defines ways
+to build a `Request` using functiosn that make it easier.
+-/
+
+namespace Std.Http
 
 set_option linter.all true
 
@@ -82,14 +88,16 @@ instance : ToString Head where
     toString req.headers ++ "\r\n\r\n"
 
 /--
-Creates a new HTTP Request builder with default head (method: GET, version: HTTP/1.1, asterisk URI, empty headers)
+Creates a new HTTP Request builder with default head (method: GET, version: HTTP/1.1, asterisk URI,
+empty headers)
 -/
 def new : Builder := { }
 
 namespace Builder
 
 /--
-Creates a new HTTP Request builder with default head (method: GET, version: HTTP/1.1, asterisk URI, empty headers)
+Creates a new HTTP Request builder with default head (method: GET, version: HTTP/1.1, asterisk URI,
+empty headers)
 -/
 def empty : Builder := { }
 
@@ -206,4 +214,4 @@ def patch (uri : RequestTarget) (body : t) : Request t :=
   |>.uri uri
   |>.body body
 
-end Request
+end Std.Http.Request

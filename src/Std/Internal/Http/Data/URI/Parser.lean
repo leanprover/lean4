@@ -12,9 +12,7 @@ public import Std.Internal.Http.Data.URI.Basic
 
 public section
 
-namespace Std
-namespace Http
-namespace Parser
+namespace Std.Http.Parser
 
 set_option linter.all true
 
@@ -334,6 +332,4 @@ public def parseRequestTarget : Parser RequestTarget := do
 
   fail "invalid request target"
 
-end Parser
-end Http
-end Std
+end Std.Http.Parser

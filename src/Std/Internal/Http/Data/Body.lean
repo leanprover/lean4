@@ -11,10 +11,15 @@ public import Std.Internal.Http.Data.Body.ByteStream
 
 public section
 
-open Std Internal IO Async
+/-!
+# Body
 
-namespace Std
-namespace Http
+This module defines the `Body` type, which represents the body of a HTTP request or response.
+-/
+
+namespace Std.Http
+
+open Std Internal IO Async
 
 set_option linter.all true
 
@@ -51,8 +56,8 @@ def getContentLength (body : Body) : Length :=
   | .stream _ => .chunked
 
 /--
-Close the body and release any associated resources. For streaming bodies, this closes the underlying channel.
-For other body types, this is a no-op.
+Close the body and release any associated resources. For streaming bodies, this closes the underlying
+channel. For other body types, this is a no-op.
 -/
 def close (body : Body) : Async Unit :=
   match body with

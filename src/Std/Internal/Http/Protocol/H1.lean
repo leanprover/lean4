@@ -8,20 +8,21 @@ module
 prelude
 public import Std.Time
 public import Std.Internal.Http.Data
-public import Std.Internal.Http.Util
+public import Std.Internal.Http.Internal
 public import Std.Internal.Http.Protocol.H1.Parser
 
 public section
 
-namespace Std
-namespace Http
-namespace Protocol
-namespace H1
+namespace Std.Http.Protocol.H1
 
 open Std Internal Parsec ByteArray
-open Util
+open Internal
 
 namespace Machine
+
+inductive MachineType
+  | request
+  | response
 
 /--
 Connection limits configuration with validation.
@@ -280,7 +281,7 @@ structure Writer where
   /--
   This is all the data that the user is sending that is being accumulated.
   -/
-  userData : BufferBuilder := .empty
+  userData : ChunkedBuffer := .empty
 
   /--
   The chunk headers that are going to be with the chunk
@@ -290,7 +291,7 @@ structure Writer where
   /--
   All the data that is going to get out of the writer.
   -/
-  outputData : BufferBuilder := .empty
+  outputData : ChunkedBuffer := .empty
 
   /--
   The state of the writer machine. It carries if the reader had already read the headers, the size
@@ -355,7 +356,7 @@ private def determineBodySize (writer : Writer) : Body.Length :=
 Add data to the user data buffer
 -/
 @[inline]
-def addUserData (data : Util.BufferBuilder) (writer : Writer) : Writer :=
+def addUserData (data : ChunkedBuffer) (writer : Writer) : Writer :=
   if writer.closed then
     writer
   else
@@ -380,7 +381,7 @@ private def writeFixedBody (writer : Writer) : Writer :=
   else
     let data := writer.userData
     { writer with
-      userData := BufferBuilder.empty
+      userData := ChunkedBuffer.empty
       outputData := writer.outputData.append data
     }
 
@@ -406,7 +407,7 @@ private def writeChunkedBody (writer : Writer) : Writer :=
       chunkHeader ++ ba ++ "\r\n".toUTF8
 
     { writer with
-      userData := BufferBuilder.empty
+      userData := ChunkedBuffer.empty
       chunkExt := writer.chunkExt.drop data.size
       outputData := writer.outputData ++ chunks
     }
@@ -425,7 +426,7 @@ Get the current output data and clear the buffer
 @[inline]
 def takeOutput (writer : Writer) : Option (Writer × ByteArray) :=
   let output := writer.outputData.toByteArray
-  some ({ writer with outputData := BufferBuilder.empty }, output)
+  some ({ writer with outputData := ChunkedBuffer.empty }, output)
 
 /--
 Set the writer state
@@ -706,7 +707,7 @@ def setNow (machine : Machine) : IO Machine := do
 Put some data inside the input of the machine.
 -/
 @[inline]
-def writeUserData (machine : Machine) (data : Util.BufferBuilder) : Machine :=
+def writeUserData (machine : Machine) (data : ChunkedBuffer) : Machine :=
   { machine with writer := machine.writer.addUserData data }
 
 /--
@@ -755,6 +756,31 @@ def isReaderComplete (machine : Machine) : Bool :=
   | .complete => true
   | _ => false
 
+def failed (machine : Machine) : Bool :=
+  match machine.reader.state with
+  | .failed _ => true
+  | _ => false
+
+def shouldFlush (machine : Machine) : Bool :=
+  machine.failed ∨
+  machine.writer.userData.size ≥ machine.config.highMark ∨
+  machine.writer.closed
+
+/--
+Get the current output data and clear the buffer
+-/
+@[inline]
+def takeOutput (machine : Machine) (highMark := 0) : Option (Machine × ChunkedBuffer) :=
+  if machine.writer.outputData.size ≥ highMark ∨
+    machine.writer.state == .complete
+  then
+    let output := machine.writer.outputData
+    some ({ machine with writer := { machine.writer with outputData := .empty } }, output)
+  else
+    none
+
+namespace Server
+
 /--
 Advances the state of the reader.
 -/
@@ -771,7 +797,7 @@ partial def processRead (machine : Machine) : Machine :=
         machine
         |>.modifyReader (.setRequest head)
         |>.setReaderState (.needHeader 0)
-        |>.processRead
+        |> processRead
     else
       machine
 
@@ -787,7 +813,7 @@ partial def processRead (machine : Machine) : Machine :=
             machine
             |>.modifyReader (.addHeader name headerValue)
             |>.setReaderState (.needHeader (headerCount + 1))
-            |>.processRead
+            |> processRead
           else
             machine.setFailure .badRequest .badRequest
         else
@@ -806,7 +832,7 @@ partial def processRead (machine : Machine) : Machine :=
       machine
       |>.setReaderState (.needChunkedBody size)
       |>.setEvent (some ext <&> .chunkExt)
-      |>.processRead
+      |> processRead
     | none =>
       machine
 
@@ -820,12 +846,12 @@ partial def processRead (machine : Machine) : Machine :=
           machine
           |>.setReaderState .needChunkedSize
           |>.addEvent (.gotData false body)
-          |>.processRead
+          |> processRead
         else
           machine
           |>.setReaderState .complete
           |>.addEvent (.gotData true .empty)
-          |>.processRead
+          |> processRead
       | .incomplete body remaining => machine
         |>.setReaderState (.needChunkedBody remaining)
         |>.addEvent (.gotData false body)
@@ -836,7 +862,7 @@ partial def processRead (machine : Machine) : Machine :=
     machine
     |>.setReaderState .complete
     |>.addEvent (.gotData true .empty)
-    |>.processRead
+    |> processRead
 
   | .needFixedBody size =>
     let (machine, result) := parseWith machine (parseFixedSizeData size) (limit := none) (some size)
@@ -847,7 +873,7 @@ partial def processRead (machine : Machine) : Machine :=
         machine
         |>.setReaderState .complete
         |>.addEvent (.gotData true body)
-        |>.processRead
+        |> processRead
       | .incomplete body remaining =>
         machine
         |>.setReaderState (.needFixedBody remaining)
@@ -865,29 +891,6 @@ partial def processRead (machine : Machine) : Machine :=
     |>.setReaderState .complete
     |>.closeConnection
 
-def failed (machine : Machine) : Bool :=
-  match machine.reader.state with
-  | .failed _ => true
-  | _ => false
-
-def shouldFlush (machine : Machine) : Bool :=
-  machine.failed ∨
-  machine.writer.userData.size ≥ machine.config.highMark ∨
-  machine.writer.closed
-
-/--
-Get the current output data and clear the buffer
--/
-@[inline]
-def takeOutput (machine : Machine) (highMark := 0) : Option (Machine × BufferBuilder) :=
-  if machine.writer.outputData.size ≥ highMark ∨
-    machine.writer.state == .complete
-  then
-    let output := machine.writer.outputData
-    some ({ machine with writer := { machine.writer with outputData := .empty } }, output)
-  else
-    none
-
 /--
 Write response data to the machine
 -/
@@ -898,7 +901,7 @@ partial def processWrite (machine : Machine) : Machine :=
 
   | .waitingForFlush =>
     if machine.shouldFlush then
-      machine.setHeaders machine.writer.response |>.processWrite
+      machine.setHeaders machine.writer.response |> processWrite
     else
       machine
 
@@ -906,7 +909,7 @@ partial def processWrite (machine : Machine) : Machine :=
     if machine.writer.userData.size ≥ machine.config.highMark ∨ machine.writer.closed then
       let machine := machine.modifyWriter Writer.writeFixedBody
       if machine.writer.closed then
-        machine.setWriterState .complete |>.processWrite
+        machine.setWriterState .complete |> processWrite
       else
         machine
     else
@@ -914,9 +917,9 @@ partial def processWrite (machine : Machine) : Machine :=
 
   | .writingChunkedBody =>
     if machine.writer.closed then
-      machine.modifyWriter Writer.writeFinalChunk |>.processWrite
+      machine.modifyWriter Writer.writeFinalChunk |> processWrite
     else if machine.writer.userData.size ≥ machine.config.highMark then
-      machine.modifyWriter Writer.writeChunkedBody |>.processWrite
+      machine.modifyWriter Writer.writeChunkedBody |> processWrite
     else
       machine
 
@@ -926,4 +929,5 @@ partial def processWrite (machine : Machine) : Machine :=
   | .writingHeaders =>
     machine
 
+end Server
 end Machine

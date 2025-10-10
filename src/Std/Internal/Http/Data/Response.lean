@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Internal.Http.Encode
 public import Std.Internal.Http.Data.Body
 public import Std.Internal.Http.Data.Status
 public import Std.Internal.Http.Data.Headers
@@ -17,10 +16,16 @@ public section
 namespace Std
 namespace Http
 
+/-!
+# Response
+
+This module provides the `Response` type, which representation a HTTP request. It also defines ways
+to build a `Request` using functiosn that make it easier.
+-/
+
 set_option linter.all true
 
-open Util
-open Lean
+open Internal Lean
 
 /--
 The main parts of a response.

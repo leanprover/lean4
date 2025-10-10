@@ -13,9 +13,13 @@ import Lean.Meta.Tactic.Grind.Arith.Linear.Search
 import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
 import Lean.Meta.Tactic.Grind.AC.Eq
 import Lean.Meta.Tactic.Grind.EMatch
+import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.Anchor
+import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
+import Lean.Meta.Tactic.Grind.Arith.Linear.PP
+import Lean.Meta.Tactic.Grind.AC.PP
 import Lean.Elab.Tactic.Basic
 namespace Lean.Elab.Tactic.Grind
 
@@ -67,17 +71,36 @@ open Meta Grind
   else
     replaceMainGoal []
 
-@[builtin_grind_tactic lia] def evalLIA : GrindTactic := fun _ => do
-  liftGoalM <| discard <| Arith.Cutsat.check
+/--
+Helper function to executing "check" tactics that return a flag indicating
+whether they made progress or not.
+If the goal is not inconsistent and progress has been made,
+`pp?` is executed to produce an info message.
+-/
+def evalCheck (tacticName : Name) (k : GoalM Bool)
+    (pp? : Goal → MetaM (Option MessageData)) : GrindTacticM Unit := do
+  liftGoalM do
+    let progress ← k
+    unless progress do
+      throwError "`{tacticName}` failed"
+    unless (← Grind.getConfig).verbose do
+      return ()
+    if (← get).inconsistent then
+      return ()
+    let some msg ← pp? (← get) | return ()
+    logInfo msg
+
+@[builtin_grind_tactic lia] def evalLIA : GrindTactic := fun _ =>
+  evalCheck `lia Arith.Cutsat.check Arith.Cutsat.pp?
 
 @[builtin_grind_tactic linarith] def evalLinarith : GrindTactic := fun _ => do
-  liftGoalM <| discard <| Arith.Linear.check
+  evalCheck `linarith Arith.Linear.check Arith.Linear.pp?
 
 @[builtin_grind_tactic ring] def evalRing : GrindTactic := fun _ => do
-  liftGoalM <| discard <| Arith.CommRing.check
+  evalCheck `ring Arith.CommRing.check Arith.CommRing.pp?
 
 @[builtin_grind_tactic ac] def evalAC : GrindTactic := fun _ => do
-  liftGoalM <| discard <| AC.check
+  evalCheck `ac AC.check AC.pp?
 
 @[builtin_grind_tactic instantiate] def evalInstantiate : GrindTactic := fun _ => do
   let progress ← liftGoalM <| ematch

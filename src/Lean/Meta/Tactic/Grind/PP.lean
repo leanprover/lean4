@@ -213,31 +213,31 @@ private def ppOffset : M Unit := do
     ms := ms.push <| .trace { cls := `assign } m!"{Arith.quoteIfArithTerm e} := {val}" #[]
   pushMsg <| .trace { cls := `offset } "Assignment satisfying offset constraints" ms
 
-private def ppCutsat : M Unit := do
-  let goal ← read
+def Arith.Cutsat.pp? (goal : Goal) : MetaM (Option MessageData) := do
   let s ← Arith.Cutsat.cutsatExt.getStateCore goal
   let nodes := s.varMap
-  if nodes.isEmpty then return ()
+  if nodes.isEmpty then return none
   let model ← Arith.Cutsat.mkModel goal
-  if model.isEmpty then return ()
+  if model.isEmpty then return none
   let mut ms := #[]
   for (e, val) in model do
     ms := ms.push <| .trace { cls := `assign } m!"{Arith.quoteIfArithTerm e} := {val}" #[]
-  pushMsg <| .trace { cls := `cutsat } "Assignment satisfying linear constraints" ms
+  return some <| .trace { cls := `cutsat } "Assignment satisfying linear constraints" ms
+
+private def ppCutsat : M Unit := do
+  let some msg ← Arith.Cutsat.pp? (← read) | return ()
+  pushMsg msg
 
 private def ppCommRing : M Unit := do
-  let goal ← read
-  let some msg ← Arith.CommRing.pp? goal | return ()
+  let some msg ← Arith.CommRing.pp? (← read) | return ()
   pushMsg msg
 
 private def ppLinarith : M Unit := do
-  let goal ← read
-  let some msg ← Arith.Linear.pp? goal | return ()
+  let some msg ← Arith.Linear.pp? (← read) | return ()
   pushMsg msg
 
 private def ppAC : M Unit := do
-  let goal ← read
-  let some msg ← AC.pp? goal | return ()
+  let some msg ← AC.pp? (← read) | return ()
   pushMsg msg
 
 private def ppThresholds (c : Grind.Config) : M Unit := do

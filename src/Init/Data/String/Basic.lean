@@ -4543,9 +4543,7 @@ theorem zero_addChar_eq (c : Char) : (0 : Pos.Raw) + c = ⟨c.utf8Size⟩ :=
   zero_add_char_eq c
 
 theorem add_char_right_comm (p : Pos.Raw) (c₁ c₂ : Char) : p + c₁ + c₂ = p + c₂ + c₁ := by
-  apply Pos.Raw.ext
-  repeat rw [Pos.Raw.pos_add_char]
-  apply Nat.add_right_comm
+  simpa [Pos.Raw.ext_iff] using Nat.add_right_comm ..
 
 @[deprecated add_char_right_comm (since := "2025-10-10")]
 theorem addChar_right_comm (p : Pos.Raw) (c₁ c₂ : Char) : p + c₁ + c₂ = p + c₂ + c₁ :=

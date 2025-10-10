@@ -7,16 +7,12 @@ module
 
 prelude
 public import Std.Net
-public import Std.Internal.Http.Encode
 
 public section
 
-namespace Std
-namespace Http
+namespace Std.Http.URI
 
 set_option linter.all true
-
-namespace URI
 
 /--
 URI scheme (e.g., "http", "https", "ftp").
@@ -253,7 +249,7 @@ instance : ToString URI.Path where
       if abs then s!"/{core}" else core
 
 /--
-?
+Encodes query params with percent encoding.
 -/
 def encodeQueryParam (key : String) (value : Option String) : String :=
   let encodedKey := String.fromUTF8! (encodeURIComponent key)
@@ -298,5 +294,4 @@ instance : ToString RequestTarget where
     | .authorityForm auth => toString auth
     | .asteriskForm => "*"
 
-end Http
-end Std
+end Std.Http

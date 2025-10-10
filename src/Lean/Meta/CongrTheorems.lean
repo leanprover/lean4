@@ -411,13 +411,17 @@ builtin_initialize congrKindsExt : MapDeclarationExtension (Array CongrArgKind) 
 
 builtin_initialize registerReservedNamePredicate fun env n =>
   match n with
-  | .str p s => (isHCongrReservedNameSuffix s || s == congrSimpSuffix) && env.contains p
+  | .str p s => (isHCongrReservedNameSuffix s || s == congrSimpSuffix) && (env.contains p || (privateToUserName? p |>.any env.contains))
   | _ => false
 
 builtin_initialize
   registerReservedNameAction fun name => do
-    let .str p s := name | return false
-    unless (← getEnv).contains p do return false
+    let mut .str p s := name | return false
+    unless (← getEnv).contains p do
+      if let some p' := privateToUserName? p |>.filter (← getEnv).contains then
+        p := p'
+      else
+        return false
     if isHCongrReservedNameSuffix s then
       let numArgs := (s.drop 7).toNat!
       try MetaM.run' do
@@ -475,7 +479,10 @@ Similar to `mkCongrSimp?`, but uses reserved names to ensure we don't keep creat
 same congruence theorem over and over again.
 -/
 def mkCongrSimpForConst? (declName : Name) (levels : List Level) : MetaM (Option CongrTheorem) := do
-  let thmName := Name.str declName congrSimpSuffix
+  let mut thmName := Name.str declName congrSimpSuffix
+  if !((← getEnv).setExporting true |>.containsOnBranch thmName) && (← getEnv).isImportedConst declName then
+    -- Keep local to current module unless `declName` is public decl from this module.
+    thmName := mkPrivateName (← getEnv) thmName
   try
     unless (← getEnv).containsOnBranch thmName do
       let _ ← executeReservedNameAction thmName

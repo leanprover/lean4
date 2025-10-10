@@ -26,11 +26,6 @@ This file provides the {lit}`flatMap` iterator and variants of it.
 If `it` is any iterator, `it.flatMap f` maps each output of `it` to an iterator using `f`.
 The `flatMap` first emits all outputs of the first iterator, then of the second, and so on.
 In other words, `it` flattens the iterator of iterators obtained by mapping with `f`.
-
-Several variants of `flatMap` are provided:
-
-* `M` suffix: monadic mapping function that can have side effects
-* `D` suffix: dependently typed mapping function
 -/
 
 namespace Std.Iterators

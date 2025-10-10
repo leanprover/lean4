@@ -83,7 +83,7 @@ protected def PostconditionT.map {m : Type w → Type w'} [Functor m] {α : Type
 Given a function `α → PostconditionT m β`, returns a a function
 `PostconditionT m α → PostconditionT m β`, turning `PostconditionT m` into a monad.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 protected def PostconditionT.bind {m : Type w → Type w'} [Monad m] {α : Type w} {β : Type w}
     (x : PostconditionT m α) (f : α → PostconditionT m β) : PostconditionT m β :=
   ⟨fun b => ∃ a, x.Property a ∧ (f a).Property b,

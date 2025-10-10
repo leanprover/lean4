@@ -295,6 +295,16 @@ theorem IterM.InternalConsumers.toList_filterMap {α β γ: Type w} {m : Type w 
   · simp [ihs ‹_›]
   · simp
 
+theorem IterM.toList_map_eq_toList_mapM {α β γ : Type w}
+    {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → γ} {it : IterM (α := α) m β} :
+    (it.map f).toList = (it.mapM fun b => pure (f b)).toList := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [toList_eq_match_step, toList_eq_match_step, step_map, step_mapM, bind_assoc, bind_assoc]
+  apply bind_congr; intro step
+  split <;> simp (discharger := assumption) [ihy, ihs]
+
 theorem IterM.toList_mapM_eq_toList_filterMapM {α β γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
@@ -307,6 +317,14 @@ theorem IterM.toList_mapM_eq_toList_filterMapM {α β γ : Type w}
   rw [toList_eq_match_step, toList_eq_match_step, step_mapM, step_filterMapM, bind_assoc, bind_assoc]
   apply bind_congr; intro step
   split <;> simp (discharger := assumption) [ihy, ihs]
+
+theorem IterM.toList_map_eq_toList_filterMapM {α β γ : Type w}
+    {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → γ} {it : IterM (α := α) m β} :
+    (it.map f).toList = (it.filterMapM fun b => pure (some (f b))).toList := by
+  simp [toList_map_eq_toList_mapM, toList_mapM_eq_toList_filterMapM]
+  congr <;> simp
 
 @[simp]
 theorem IterM.toList_filterMapM_filterMapM {α β γ δ : Type w}
@@ -498,6 +516,30 @@ end ToList
 
 section ToListRev
 
+theorem IterM.toListRev_map_eq_toListRev_mapM {α β γ : Type w}
+    {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → γ} {it : IterM (α := α) m β} :
+    (it.map f).toListRev = (it.mapM fun b => pure (f b)).toListRev := by
+  simp [toListRev_eq, toList_map_eq_toList_mapM]
+
+theorem IterM.toListRev_mapM_eq_toListRev_filterMapM {α β γ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [MonadLiftT m n][LawfulMonadLiftT m n]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m n] [LawfulIteratorCollect α m n]
+    {f : β → n γ} {it : IterM (α := α) m β} :
+    (it.mapM f).toListRev =
+      (it.filterMapM fun b => some <$> f b).toListRev := by
+  simp [toListRev_eq, toList_mapM_eq_toList_filterMapM]
+
+theorem IterM.toListRev_map_eq_toListRev_filterMapM {α β γ : Type w}
+    {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → γ} {it : IterM (α := α) m β} :
+    (it.map f).toListRev = (it.filterMapM fun b => pure (some (f b))).toListRev := by
+  simp [toListRev_eq, toList_map_eq_toList_filterMapM]
+
 theorem IterM.toListRev_filterMap {α β γ : Type w} {m : Type w → Type w'}
     [Monad m] [LawfulMonad m]
     [Iterator α m β] [IteratorCollect α m m] [LawfulIteratorCollect α m m] [Finite α m]
@@ -516,17 +558,6 @@ theorem IterM.toListRev_filter {α β : Type w} {m : Type w → Type w'} [Monad 
     {f : β → Bool} {it : IterM (α := α) m β} :
     (it.filter f).toListRev = List.filter f <$> it.toListRev := by
   simp [toListRev_eq, toList_filter]
-
-theorem IterM.toListRev_mapM_eq_toListRev_filterMapM {α β γ : Type w}
-    {m : Type w → Type w'} {n : Type w → Type w''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
-    [MonadLiftT m n][LawfulMonadLiftT m n]
-    [Iterator α m β] [Finite α m]
-    {f : β → n γ} {it : IterM (α := α) m β} :
-    (it.mapM f).toListRev =
-      (it.filterMapM fun b => some <$> f b).toListRev := by
-  letI : IteratorCollect α m n := .defaultImplementation
-  simp [toListRev_eq, toList_mapM_eq_toList_filterMapM]
 
 @[simp]
 theorem IterM.toListRev_filterMapM_filterMapM {α β γ δ : Type w}
@@ -614,6 +645,29 @@ end ToListRev
 
 section ToArray
 
+theorem IterM.toArray_map_eq_toArray_mapM {α β γ : Type w}
+    {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → γ} {it : IterM (α := α) m β} :
+    (it.map f).toArray = (it.mapM fun b => pure (f b)).toArray := by
+  simp [← toArray_toList, toList_map_eq_toList_mapM]
+
+theorem IterM.toArray_mapM_eq_toArray_filterMapM {α β γ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [MonadLiftT m n][LawfulMonadLiftT m n]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m n] [LawfulIteratorCollect α m n]
+    {f : β → n γ} {it : IterM (α := α) m β} :
+    (it.mapM f).toArray = (it.filterMapM fun b => some <$> f b).toArray := by
+  simp [← toArray_toList, toList_mapM_eq_toList_filterMapM]
+
+theorem IterM.toArray_map_eq_toArray_filterMapM {α β γ : Type w}
+    {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → γ} {it : IterM (α := α) m β} :
+    (it.map f).toArray = (it.filterMapM fun b => pure (some (f b))).toArray := by
+  simp [← toArray_toList, toList_map_eq_toList_filterMapM]
+
 theorem IterM.toArray_filterMap {α β γ : Type w} {m : Type w → Type w'}
     [Monad m] [LawfulMonad m]
     [Iterator α m β] [IteratorCollect α m m] [LawfulIteratorCollect α m m] [Finite α m]
@@ -632,16 +686,6 @@ theorem IterM.toArray_filter {α : Type w} {m : Type w → Type w'} [Monad m] [L
     {f : β → Bool} {it : IterM (α := α) m β} :
     (it.filter f).toArray = Array.filter f <$> it.toArray := by
   simp [← toArray_toList, toList_filter]
-
-theorem IterM.toArray_mapM_eq_toArray_filterMapM {α β γ : Type w}
-    {m : Type w → Type w'} {n : Type w → Type w''}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
-    [MonadLiftT m n][LawfulMonadLiftT m n]
-    [Iterator α m β] [Finite α m] [IteratorCollect α m n] [LawfulIteratorCollect α m n]
-    {f : β → n γ} {it : IterM (α := α) m β} :
-    (it.mapM f).toArray =
-      (it.filterMapM fun b => some <$> f b).toArray := by
-  simp [← toArray_toList, toList_mapM_eq_toList_filterMapM]
 
 @[simp]
 theorem IterM.toArray_filterMapM_filterMapM {α β γ δ : Type w}

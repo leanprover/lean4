@@ -343,3 +343,5 @@ public theorem IterM.toArray_flatMap {α α₂ β γ : Type w} {m : Type w → T
     {it₁ : IterM (α := α) m β} :
     (it₁.flatMap f).toArray = Array.flatten <$> (it₁.mapM fun b => (f b).toArray).toArray := by
   simp [flatMap, toArray_flatMapAfter]
+
+end Std.Iterators

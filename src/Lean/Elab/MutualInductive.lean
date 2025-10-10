@@ -1123,7 +1123,6 @@ Term.withoutSavingRecAppSyntax do
 private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM FinalizeContext :=
   withElaboratedHeaders vars elabs fun vars elabs rs scopeLevelNames => do
     let res ← mkInductiveDeclCore addAndFinalizeInductiveDecl vars elabs rs scopeLevelNames
-    addTermInfoViews <| elabs.map (·.view)
     return res
 
 private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
@@ -1275,9 +1274,11 @@ private def elabInductiveViewsPostprocessing (views : Array InductiveView) (res 
       unless (views.any (·.isCoinductive)) do
         Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
 
+  -- Term info is added here so that docstrings are maximally available in the environment for hovers
+  runTermElabM fun _ => Term.withDeclName view0.declName <| withRef ref <| addTermInfoViews views
+
 private def elabInductiveViewsPostprocessingCoinductive (views : Array InductiveView)
      : CommandElabM Unit := do
-  let views := views.map updateViewRemovingFunctorName
   let view0 := views[0]!
   let ref := view0.ref
 
@@ -1298,6 +1299,9 @@ private def elabInductiveViewsPostprocessingCoinductive (views : Array Inductive
     for view in views do withRef view.declId <|
       unless (views.any (·.isCoinductive)) do
         Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
+
+  -- Term info is added here so that docstrings are maximally available in the environment for hovers
+  runTermElabM fun _ => Term.withDeclName view0.declName <| withRef ref <| addTermInfoViews views
 
 def InductiveViewToCoinductiveElab (e : InductiveElabStep1) : CoinductiveElabData where
   declId := e.view.declId
@@ -1321,7 +1325,6 @@ def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Uni
       elabFlatInductiveViews vars flatElabs
       discard <| flatElabs.mapM fun e => MetaM.run' do mkSumOfProducts e.view.declName
       elabCoinductive (flatElabs.map InductiveViewToCoinductiveElab)
-      addTermInfoViews <| elabs.map (·.view)
     elabInductiveViewsPostprocessingCoinductive (elabs.map (·.view))
   else
     let res ← runTermElabM fun vars => do

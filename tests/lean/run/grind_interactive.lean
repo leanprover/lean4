@@ -224,6 +224,24 @@ example : h bs = 1 → h as ≠ 0 := by
     focus instantiate
     instantiate
 
+/--
+error: Failed here
+case grind
+bs as : List Nat
+h : _root_.h bs = 1
+h_1 : _root_.h as = 0
+⊢ False
+-/
+#guard_msgs in
+example : h bs = 1 → h as ≠ 0 := by
+  grind [h.eq_def] =>
+    skip
+    try fail
+    fail_if_success fail
+    first | fail | done | skip
+    fail "Failed here"
+    done
+
 example : h bs = 1 → h as ≠ 0 := by
   grind [h.eq_def] =>
     instantiate
@@ -273,3 +291,21 @@ example : g bs = 1 → g as ≠ 0 := by
     tactic =>
       rw [h_2] at h_1
       simp [g] at h_1
+
+open Std
+example [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] (a b c : α)
+    : (2:Int) • a + b < c + a + a → b = c → False := by
+  grind => linarith
+
+example {α : Sort u} (op : α → α → α) [Associative op] (a b c : α)
+    : op a (op b b) = c → op c c = op (op c a) (op b b) := by
+  grind => ac
+
+/--
+error: The tactic provided to `fail_if_success` succeeded but was expected to fail:
+  ac
+-/
+#guard_msgs in
+example {α : Sort u} (op : α → α → α) [Associative op] (a b c : α)
+    : op a (op b b) = c → op c c = op (op c a) (op b b) := by
+  grind => fail_if_success ac

@@ -78,7 +78,6 @@ def computeAbsoluteLspSemanticTokens
     let (lspPos, lspTailPos) := (text.utf8PosToLspPos pos, text.utf8PosToLspPos tailPos)
     return { tok with pos := lspPos, tailPos := lspTailPos }
 
-
 /--
 The state used to handle computing non-overlapping semantic tokens. See
 `handleOverlappingSemanticTokens` for a description of the problem.
@@ -121,11 +120,7 @@ processed, but are superseded by the current token.
 -/
 private def HandleOverlapState.addSurrounding
     (st : HandleOverlapState) (s : AbsoluteLspSemanticToken) : HandleOverlapState :=
-  -- Don't save what would be a zero-width token
-  if s.pos ≥ s.tailPos then
-    st
-  else
-    { st with surrounding := go st.surrounding }
+  { st with surrounding := go st.surrounding }
 where
   go
     | [] => [s]
@@ -141,8 +136,9 @@ private def HandleOverlapState.untilToken (st : HandleOverlapState) (nextToken? 
   let mut st := st
   repeat
     if let some curr := st.current? then
-      -- We know that the current token is higher priority than surrounding tokens, so we should
-      -- discard any surrounding tokens that end before it does
+      -- We know that the current token is higher priority (modulo tiebreaking criteria) than
+      -- surrounding tokens, so we should discard any surrounding tokens that end before it does.
+      -- This ensures that the surrounding tokens always end strictly later than the current token.
       st := { st with surrounding := st.surrounding.dropWhile (·.tailPos ≤ curr.tailPos) }
       -- If the current token ends before the next token starts, or if there are no new tokens, then
       -- we end it now
@@ -151,6 +147,8 @@ private def HandleOverlapState.untilToken (st : HandleOverlapState) (nextToken? 
       if endNow then
         st := { st with
           nonOverlapping := st.nonOverlapping.push curr,
+          -- Because all surrounding tokens end later than the current token, the new current token
+          -- is non-empty.
           current? := takeBest st.surrounding |>.map ({ · with pos := curr.tailPos })
         }
       -- If the current token extends past the start of the next token,
@@ -255,6 +253,9 @@ If two overlapping tokens have the same priority, then ties are broken as follow
    the original input array is used.
  * If a new token starts in the middle of an existing one, and they have the same priority, then the
    new token is used.
+
+Callers should ensure that all tokens in `tokens` designate non-empty regions of the file. In other
+words, it should be true that `∀ t ∈ tokens, t.pos < t.tailPos`.
 -/
 def handleOverlappingSemanticTokens (tokens : Array AbsoluteLspSemanticToken) :
     Array AbsoluteLspSemanticToken := Id.run do

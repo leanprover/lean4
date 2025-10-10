@@ -60,7 +60,7 @@ def mangleAux (s : String) (pos : s.ValidPos) (r : String) : String :=
   else if c.toNat < 0x10000 then
     mangleAux s pos (pushHex 4 c.val (r ++ "_u"))
   else
-    mangleAux s pos (pushHex 8 c.val (r ++ "_u"))
+    mangleAux s pos (pushHex 8 c.val (r ++ "_U"))
 termination_by pos.remainingBytes
 decreasing_by all_goals apply ValidPos.remainingBytes_next_lt
 

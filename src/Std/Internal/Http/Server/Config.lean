@@ -11,8 +11,16 @@ public import Std.Internal.Http.Protocol.H1
 
 public section
 
-namespace Std
-namespace Http
+/-!
+# Config
+
+This module exposes the `Config` that is a structure that describes all the timeout, request, headers
+configuration of a HTTP Server.
+-/
+
+namespace Std.Http
+
+set_option linter.all true
 
 /--
 Connection limits configuration with validation.
@@ -86,3 +94,5 @@ def toH1Config (config : Config) : Protocol.H1.Machine.Config :=
     highMark := config.highMark
     serverName := config.serverName
   }
+
+end Std.Http.Config

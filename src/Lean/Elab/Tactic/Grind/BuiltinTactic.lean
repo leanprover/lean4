@@ -9,7 +9,9 @@ public import Lean.Elab.Tactic.Grind.Basic
 import Init.Grind.Interactive
 import Lean.Meta.Tactic.Grind.Solve
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search
+import Lean.Meta.Tactic.Grind.Arith.Linear.Search
 import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
+import Lean.Meta.Tactic.Grind.AC.Eq
 import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.Split
@@ -68,8 +70,14 @@ open Meta Grind
 @[builtin_grind_tactic lia] def evalLIA : GrindTactic := fun _ => do
   liftGoalM <| discard <| Arith.Cutsat.check
 
+@[builtin_grind_tactic linarith] def evalLinarith : GrindTactic := fun _ => do
+  liftGoalM <| discard <| Arith.Linear.check
+
 @[builtin_grind_tactic ring] def evalRing : GrindTactic := fun _ => do
   liftGoalM <| discard <| Arith.CommRing.check
+
+@[builtin_grind_tactic ac] def evalAC : GrindTactic := fun _ => do
+  liftGoalM <| discard <| AC.check
 
 @[builtin_grind_tactic instantiate] def evalInstantiate : GrindTactic := fun _ => do
   let progress ← liftGoalM <| ematch
@@ -180,9 +188,36 @@ open Meta Grind
   match stx with
   | `(grind| tactic%$tacticTk =>%$arr $seq:tacticSeq) => do
     let goal ← getMainGoal
+    let recover := (← read).recover
     discard <| Tactic.run goal.mvarId <| withCaseRef arr seq <| Tactic.closeUsingOrAdmit
-      <| Tactic.withTacticInfoContext (mkNullNode #[tacticTk, arr]) <| evalTactic seq
+      <| Tactic.withTacticInfoContext (mkNullNode #[tacticTk, arr])
+      <| Tactic.withRecover recover <| evalTactic seq
     replaceMainGoal []
+  | _ => throwUnsupportedSyntax
+
+@[builtin_grind_tactic «first»] partial def evalFirst : GrindTactic := fun stx => do
+  let tacs := stx[1].getArgs
+  if tacs.isEmpty then throwUnsupportedSyntax
+  loop tacs 0
+where
+  loop (tacs : Array Syntax) (i : Nat) :=
+    if i == tacs.size - 1 then
+      evalGrindTactic tacs[i]![1]
+    else
+      evalGrindTactic tacs[i]![1] <|> loop tacs (i+1)
+
+@[builtin_grind_tactic failIfSuccess] def evalFailIfSuccess : GrindTactic := fun stx =>
+  Term.withoutErrToSorry <| withoutRecover do
+    let tactic := stx[1]
+    if (← try evalGrindTactic tactic; pure true catch _ => pure false) then
+      throwError "The tactic provided to `fail_if_success` succeeded but was expected to fail:{indentD stx[1]}"
+
+@[builtin_grind_tactic «fail»] def evalFail : GrindTactic := fun stx => do
+  let goals ← getGoals
+  let goalsMsg := MessageData.joinSep (goals.map (MessageData.ofGoal ·.mvarId)) m!"\n\n"
+  match stx with
+  | `(grind| fail)          => throwError "Failed: `fail` tactic was invoked\n{goalsMsg}"
+  | `(grind| fail $msg:str) => throwError "{msg.getString}\n{goalsMsg}"
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Grind

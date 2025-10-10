@@ -27,6 +27,11 @@ syntax (name := skip) "skip" : grind
 syntax (name := lia) "lia" : grind
 /-- `ring` (commutative) rings and fields. -/
 syntax (name := ring) "ring" : grind
+/-- `ac` associativity and commutativity procedure. -/
+syntax (name := ac) "ac" : grind
+/-- `linarith` linear arithmetic. -/
+syntax (name := linarith) "linarith" : grind
+
 /-- The `sorry` tactic is a temporary placeholder for an incomplete tactic proof. -/
 syntax (name := «sorry») "sorry" : grind
 
@@ -122,5 +127,20 @@ macro:1 x:grind tk:" <;> " y:grind:2 : grind => `(grind|
     $x:grind
     with_annotate_state $tk skip
     all_goals $y:grind)
+
+/-- `first | tac | ...` runs each `tac` until one succeeds, or else fails. -/
+syntax (name := first) "first " withPosition((ppDedent(ppLine) colGe "| " grindSeq)+) : grind
+
+/-- `try tac` runs `tac` and succeeds even if `tac` failed. -/
+macro "try " t:grindSeq : grind => `(grind| first | $t | skip)
+
+/-- `fail_if_success t` fails if the tactic `t` succeeds. -/
+syntax (name := failIfSuccess) "fail_if_success " grindSeq : grind
+
+/-- `admit` is a synonym for `sorry`. -/
+macro "admit" : grind => `(grind| sorry)
+
+/-- `fail msg` is a tactic that always fails, and produces an error using the given message. -/
+syntax (name := fail) "fail" (ppSpace str)? : grind
 
 end Lean.Parser.Tactic.Grind

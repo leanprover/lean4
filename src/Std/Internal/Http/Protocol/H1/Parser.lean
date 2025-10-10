@@ -10,16 +10,13 @@ public import Std.Internal.Parsec
 public import Std.Internal.Http.Data
 public import Std.Internal.Parsec.ByteArray
 
-namespace Std
-namespace Http
-namespace Protocol
-namespace H1
-
-open Std Internal Parsec ByteArray Util
-
 /-!
 This module defines a parser for HTTP/1.1 requests. The reference used is https://httpwg.org/specs/rfc9112.html.
 -/
+
+namespace Std.Http.Protocol.H1
+
+open Std Internal Parsec ByteArray Internal
 
 set_option linter.all true
 
@@ -48,7 +45,6 @@ def isObsChar (c : UInt8) : Bool :=
 @[inline]
 def isFieldVChar (c : UInt8) : Bool :=
   isVChar c ∨ isObsChar c ∨ c = ' '.toUInt8 ∨ c = '\t'.toUInt8
-
 
 -- HTAB / SP / %x21 / %x23-5B / %x5D-7E / obs-text
 @[inline]
@@ -253,6 +249,38 @@ public def parseTrailers (headerLimit : Nat) : Parser (Array  (String × String)
   let trailers ← manyItems (parseTrailerHeader headerLimit) 100
   crlf
   return trailers
+
+/--
+Parses HTTP status code (3 digits)
+-/
+def parseStatusCode : Parser Status := do
+  let d1 ← digit
+  let d2 ← digit
+  let d3 ← digit
+  let code := (d1.toNat - 48) * 100 + (d2.toNat - 48) * 10 + (d3.toNat - 48)
+
+  if let some res := Status.ofCode? code.toUInt16 then
+    return res
+  else
+    fail "invalid status code"
+
+/--
+Parses reason phrase (text after status code)
+-/
+def parseReasonPhrase : Parser String := do
+  let bytes ← takeWhileUpTo (fun c => c != '\r'.toUInt8) 512
+  return String.fromUTF8! bytes.toByteArray
+
+/--
+Parses a status line
+
+status-line = HTTP-version SP status-code SP [ reason-phrase ]
+-/
+public def parseStatusLine : Parser Response.Head := do
+  let version ← parseHttpVersion <* rsp
+  let status ← parseStatusCode <* rsp
+  discard <| parseReasonPhrase <* crlf
+  return ⟨status, version, .empty⟩
 
 end H1
 end Protocol

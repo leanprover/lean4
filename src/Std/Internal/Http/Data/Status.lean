@@ -6,12 +6,23 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Internal.Http.Encode
+public import Std.Internal.Http.Internal
 
 public section
 
-namespace Std
-namespace Http
+/-!
+# Status
+
+This module contains `Status` that is a repreesntation of HTTP status codes. Status codes are three-digit
+integer codes that describes the result of a HTTP request. In this implementation we do not treat status
+code as extensible.
+
+* Reference: https://httpwg.org/specs/rfc9110.html#status.codes
+-/
+
+namespace Std.Http
+
+open Internal
 
 set_option linter.all true
 
@@ -20,7 +31,7 @@ HTTP Status codes. Status codes are three-digit integer codes that describes the
 HTTP request. In this implementation we do not treat status code as extensible.
 
 * Reference: https://httpwg.org/specs/rfc9110.html#status.codes
- -/
+-/
 inductive Status where
   /--
   100 Continue
@@ -475,6 +486,75 @@ def toCode : Status -> UInt16
   | networkAuthenticationRequired => 511
 
 /--
+Converts a `Uint16` to `Option Status`
+-/
+def ofCode? : UInt16 -> Option Status
+  | 100 => some .«continue»
+  | 101 => some .switchingProtocols
+  | 102 => some .processing
+  | 103 => some .earlyHints
+  | 200 => some .ok
+  | 201 => some .created
+  | 202 => some .accepted
+  | 203 => some .nonAuthoritativeInformation
+  | 204 => some .noContent
+  | 205 => some .resetContent
+  | 206 => some .partialContent
+  | 207 => some .multiStatus
+  | 208 => some .alreadyReported
+  | 226 => some .imUsed
+  | 300 => some .multipleChoices
+  | 301 => some .movedPermanently
+  | 302 => some .found
+  | 303 => some .seeOther
+  | 304 => some .notModified
+  | 305 => some .useProxy
+  | 306 => some .unused
+  | 307 => some .temporaryRedirect
+  | 308 => some .permanentRedirect
+  | 400 => some .badRequest
+  | 401 => some .unauthorized
+  | 402 => some .paymentRequired
+  | 403 => some .forbidden
+  | 404 => some .notFound
+  | 405 => some .methodNotAllowed
+  | 406 => some .notAcceptable
+  | 407 => some .proxyAuthenticationRequired
+  | 408 => some .requestTimeout
+  | 409 => some .conflict
+  | 410 => some .gone
+  | 411 => some .lengthRequired
+  | 412 => some .preconditionFailed
+  | 413 => some .payloadTooLarge
+  | 414 => some .uriTooLong
+  | 415 => some .unsupportedMediaType
+  | 416 => some .rangeNotSatisfiable
+  | 417 => some .expectationFailed
+  | 418 => some .imATeapot
+  | 421 => some .misdirectedRequest
+  | 422 => some .unprocessableEntity
+  | 423 => some .locked
+  | 424 => some .failedDependency
+  | 425 => some .tooEarly
+  | 426 => some .upgradeRequired
+  | 428 => some .preconditionRequired
+  | 429 => some .tooManyRequests
+  | 431 => some .requestHeaderFieldsTooLarge
+  | 451 => some .unavailableForLegalReasons
+  | 500 => some .internalServerError
+  | 501 => some .notImplemented
+  | 502 => some .badGateway
+  | 503 => some .serviceUnavailable
+  | 504 => some .gatewayTimeout
+  | 505 => some .httpVersionNotSupported
+  | 506 => some .variantAlsoNegotiates
+  | 507 => some .insufficientStorage
+  | 508 => some .loopDetected
+  | 510 => some .notExtended
+  | 511 => some .networkAuthenticationRequired
+  | _ => none
+
+/--
 Converts an `UInt16` to a `Status`.
 -/
 def fromCode? : UInt16 → Option Status
@@ -596,3 +676,5 @@ instance : Encode .v11 Status where
     |>.writeString (toString <| toCode status)
     |>.writeChar ' '
     |>.writeString (toString status)
+
+end Std.Http.Status

@@ -10,9 +10,14 @@ public import Init.Data.Repr
 
 public section
 
-namespace Std
-namespace Http
-namespace Body
+/-!
+# Length
+
+This module defines the `Length` structure, that represents the content-length or transfer-encoding
+of a HTTP Request or response.
+-/
+
+namespace Std.Http.Body
 
 set_option linter.all true
 
@@ -26,8 +31,8 @@ inductive Length
   | chunked
 
   /--
-  Indicates that the HTTP message body has a **fixed, known length**, as specified
-  by the `Content-Length` header.
+  Indicates that the HTTP message body has a **fixed, known length**, as specified by the
+  `Content-Length` header.
   -/
   | fixed (n : Nat)
 deriving Repr, BEq
@@ -41,4 +46,4 @@ def isChunked : Length → Bool
   | .chunked => true
   | _ => false
 
-end Length
+end Std.Http.Body.Length

@@ -8,7 +8,7 @@ structure Result where
   responseSent : Nat
   data : ByteArray
 
-def sendraw (client : Server.Mock.Client) (reqs: Array ByteArray) (onRequest : Request Body → Async (Response Body)) : IO ByteArray := Async.block do
+def sendraw (client : Mock.Client) (reqs: Array ByteArray) (onRequest : Request Body → Async (Response Body)) : IO ByteArray := Async.block do
   for req in reqs do
     client.enqueueReceive req
 
@@ -16,7 +16,7 @@ def sendraw (client : Server.Mock.Client) (reqs: Array ByteArray) (onRequest : R
 
   client.getSentData
 
-def sendRequests (client : Server.Mock.Client) (reqs : Array (Request (Array String))) (onRequest : Request Body → Async (Response Body)) : IO ByteArray := Async.block do
+def sendRequests (client : Mock.Client) (reqs : Array (Request (Array String))) (onRequest : Request Body → Async (Response Body)) : IO ByteArray := Async.block do
   for req in reqs do
     client.enqueueReceive <| String.toUTF8 <| toString req.head
     for part in req.body do client.enqueueReceive <| part.toUTF8
@@ -25,7 +25,7 @@ def sendRequests (client : Server.Mock.Client) (reqs : Array (Request (Array Str
 
   client.getSentData
 
-def testSizeLimit (client : Server.Mock.Client) : IO Unit := do
+def testSizeLimit (client : Mock.Client) : IO Unit := do
   let handler := fun (req : Request Body) => do
     let mut size := 0
     for i in req.body do
@@ -62,10 +62,10 @@ def testSizeLimit (client : Server.Mock.Client) : IO Unit := do
 info: "HTTP/1.1 200 OK\x0d\nContent-Length: 12\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nhello robertHTTP/1.1 413 Request Entity Too Large\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 -/
 #guard_msgs in
-#eval show IO _ from do testSizeLimit (← Server.Mock.Client.new)
+#eval show IO _ from do testSizeLimit (← Mock.Client.new)
 
 def testBasicRequest : IO Unit := do
-  let client ← Server.Mock.Client.new
+  let client ← Mock.Client.new
 
   let handler := fun (_ : Request Body) => do
     return Response.new
@@ -93,7 +93,7 @@ info: "HTTP/1.1 200 OK\x0d\nContent-Length: 11\x0d\nConnection: close\x0d\nCusto
 #guard_msgs in
 #eval show IO _ from do testBasicRequest
 def testPostRequest : IO Unit := do
-  let client ← Server.Mock.Client.new
+  let client ← Mock.Client.new
 
   let handler := fun (req : Request Body) => do
     let mut body := ""
@@ -120,7 +120,7 @@ def testPostRequest : IO Unit := do
   IO.println s!"{responseData.quote}"
 
 def test100Continue : IO Unit := do
-  let client ← Server.Mock.Client.new
+  let client ← Mock.Client.new
 
   let handler := fun (req : Request Body) => do
     let expectHeader := req.head.headers.getLast? "Expect" |>.getD (.new "")
@@ -154,7 +154,7 @@ info: "HTTP/1.1 100 Continue\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0
 #eval show IO _ from do test100Continue
 
 def testMaxRequestSize : IO Unit := do
-  let client ← Server.Mock.Client.new
+  let client ← Mock.Client.new
 
   let handler := fun (req : Request Body) => do
     let mut totalSize := 0
@@ -202,7 +202,7 @@ info: "HTTP/1.1 200 OK\x0d\nContent-Length: 35\x0d\nConnection: close\x0d\nServe
 #eval show IO _ from do testPostRequest
 
 def testContentNegotiation : IO Unit := do
-  let client ← Server.Mock.Client.new
+  let client ← Mock.Client.new
 
   let handler := fun (req : Request Body) => do
     if req.head.headers.hasEntry "Accept" "application/json" then
@@ -249,7 +249,7 @@ info: "HTTP/1.1 202 Accepted\x0d\nContent-Length: 50\x0d\nServer: LeanHTTP/1.1\x
 #eval show IO _ from do testContentNegotiation
 
 def testContentNegotiationError : IO Unit := do
-  let client ← Server.Mock.Client.new
+  let client ← Mock.Client.new
 
   let handler := fun (req : Request Body) => do
     if req.head.headers.hasEntry "Accept" "application/json" then

@@ -48,7 +48,7 @@ abbrev validateUTF8 (a : ByteArray) : Bool :=
 
 theorem Iterator.sizeOf_next_lt_of_hasNext (i : String.Iterator) (h : i.hasNext) : sizeOf i.next < sizeOf i := by
   cases i; rename_i s pos; simp [Iterator.next, Iterator.sizeOf_eq]; simp [Iterator.hasNext] at h
-  exact Nat.sub_lt_sub_left h (String.lt_next s pos)
+  exact Nat.sub_lt_sub_left h (String.Pos.Raw.lt_next s pos)
 
 macro_rules
 | `(tactic| decreasing_trivial) =>
@@ -169,10 +169,10 @@ where
     decreasing_with
       change text.utf8ByteSize - (text.next (text.next pos)).byteIdx < text.utf8ByteSize - pos.byteIdx
       have k := Nat.gt_of_not_le <| mt decide_eq_true h
-      exact Nat.sub_lt_sub_left k (Nat.lt_trans (String.lt_next text pos) (String.lt_next _ _))
+      exact Nat.sub_lt_sub_left k (Nat.lt_trans (String.Pos.Raw.lt_next text pos) (String.Pos.Raw.lt_next _ _))
     decreasing_with
       change text.utf8ByteSize - (text.next pos).byteIdx < text.utf8ByteSize - pos.byteIdx
       have k := Nat.gt_of_not_le <| mt decide_eq_true h
-      exact Nat.sub_lt_sub_left k (String.lt_next _ _)
+      exact Nat.sub_lt_sub_left k (String.Pos.Raw.lt_next _ _)
 
 end String

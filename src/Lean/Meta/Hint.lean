@@ -396,7 +396,7 @@ where
     if h : s.atEnd i then
       (r.push (s.extract b i), ws)
     else
-      have := Nat.sub_lt_sub_left (Nat.gt_of_not_le (mt decide_eq_true h)) (String.lt_next s _)
+      have := Nat.sub_lt_sub_left (Nat.gt_of_not_le (mt decide_eq_true h)) (String.Pos.Raw.lt_next s _)
       if (s.get i).isWhitespace then
         let skipped := (Substring.mk s i s.endPos).takeWhile (·.isWhitespace)
         let i' := skipped.stopPos

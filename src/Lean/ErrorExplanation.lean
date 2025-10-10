@@ -298,7 +298,7 @@ where
   `none` if `line` is not a header of the appropriate form.
   -/
   matchHeader (level : Nat) (title? : Option String) (line : String) : Option String := do
-    let octsEndPos := line.nextWhile (· == '#') 0
+    let octsEndPos := String.Pos.Raw.nextWhile line (· == '#') 0
     guard (octsEndPos.byteIdx == level)
     guard (line.get octsEndPos == ' ')
     let titleStartPos := line.next octsEndPos

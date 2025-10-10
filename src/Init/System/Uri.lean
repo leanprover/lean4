@@ -112,7 +112,7 @@ def fileUriToPath? (uri : String) : Option System.FilePath := Id.run do
     if System.Platform.isWindows && p.length >= 2 &&
         p.get 0 == '/' && (p.get ⟨1⟩).isAlpha && p.get ⟨2⟩ == ':' then
       -- see also `pathToUri`
-      p := p.drop 1 |>.modify 0 .toUpper
+      p := String.Pos.Raw.modify (p.drop 1) 0 .toUpper
     some p
 
 end Uri

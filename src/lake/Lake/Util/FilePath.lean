@@ -69,7 +69,7 @@ where
     if h : i = 0 then
       s.extract 0 e
     else
-      have := String.prev_lt_of_pos s i h
+      have := String.Pos.Raw.prev_lt_of_pos s i h
       let i' := s.prev i
       let c  := s.get i'
       if c == FilePath.pathSeparator then

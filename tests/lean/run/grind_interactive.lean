@@ -221,5 +221,47 @@ example : h bs = 1 → h as ≠ 0 := by
     show_splits
     cases #ec88
     instantiate
+    focus instantiate
     instantiate
+
+example : h bs = 1 → h as ≠ 0 := by
+  grind [h.eq_def] =>
     instantiate
+    cases #ec88
+    all_goals instantiate
+
+example : h bs = 1 → h as ≠ 0 := by
+  grind [h.eq_def] =>
+    instantiate
+    cases #ec88 <;> instantiate
+
+example : h bs = 1 → h as ≠ 1 := by
+  grind [h.eq_def] =>
+    instantiate
+    cases #ec88
+    any_goals instantiate
+    sorry
+
+/--
+error: unsolved goals
+bs as : List Nat
+h : _root_.h bs = 1
+h_1 : _root_.h as = 0
+h_2 : as = []
+⊢ False
+-/
+#guard_msgs in
+example : h bs = 1 → h as ≠ 0 := by
+  grind [h.eq_def] =>
+    instantiate
+    cases #ec88
+    next => skip
+    all_goals sorry
+
+example : h bs = 1 → h as ≠ 0 := by
+  grind [h.eq_def] =>
+    instantiate
+    cases #ec88
+    next => instantiate
+    next => instantiate
+    next => finish

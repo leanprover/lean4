@@ -109,4 +109,70 @@ open Meta Grind
     replaceMainGoal goals
   | _ => throwUnsupportedSyntax
 
+@[builtin_grind_tactic Parser.Tactic.Grind.focus] def evalFocus : GrindTactic := fun stx => do
+  let mkInfo ← mkInitialTacticInfo stx[0]
+  focus do
+    -- show focused state on `focus`
+    withInfoContext (pure ()) mkInfo
+    evalGrindTactic stx[1]
+
+@[builtin_grind_tactic allGoals] def evalAllGoals : GrindTactic := fun stx => do
+  let goals ← getGoals
+  let mut goalsNew := #[]
+  let mut abort := false
+  for goal in goals do
+    unless (← goal.mvarId.isAssigned) do
+      setGoals [goal]
+      let saved ← saveState
+      abort ← Grind.tryCatch
+        (do
+          evalGrindTactic stx[1]
+          pure abort)
+        (fun ex => do
+          if (← read).recover then
+            logException ex
+            let msgLog ← Core.getMessageLog
+            saved.restore
+            Core.setMessageLog msgLog
+            admitGoal goal.mvarId
+            pure true
+          else
+            throw ex)
+      goalsNew := goalsNew ++ (← getUnsolvedGoals)
+  if abort then
+    throwAbortTactic
+  setGoals goalsNew.toList
+
+@[builtin_grind_tactic withAnnotateState] def evalWithAnnotateState : GrindTactic := fun stx =>
+  withTacticInfoContext stx[1] do
+  evalGrindTactic stx[2]
+
+@[builtin_grind_tactic anyGoals] def evalAnyGoals : GrindTactic := fun stx => do
+  let goals ← getGoals
+  let mut goalsNew := #[]
+  let mut succeeded := false
+  for goal in goals do
+    unless (← goal.mvarId.isAssigned) do
+      setGoals [goal]
+      try
+        evalGrindTactic stx[1]
+        goalsNew := goalsNew ++ (← getUnsolvedGoals)
+        succeeded := true
+      catch _ =>
+        goalsNew := goalsNew.push goal
+  unless succeeded do
+    throwError "Tactic failed on all goals:{indentD stx[1]}"
+  setGoals goalsNew.toList
+
+@[builtin_grind_tactic «next»] def evalNext : GrindTactic := fun stx => do
+  match stx with
+  | `(grind| next%$nextTk =>%$arr $seq:grindSeq) => do
+    let goal :: goals ← getUnsolvedGoals | throwNoGoalsToBeSolved
+    setGoals [goal]
+    goal.mvarId.setTag Name.anonymous
+    withCaseRef arr seq <| closeUsingOrAdmit <| withTacticInfoContext (mkNullNode #[nextTk, arr]) <|
+      evalGrindTactic stx[2]
+    setGoals goals
+  | _ => throwUnsupportedSyntax
+
 end Lean.Elab.Tactic.Grind

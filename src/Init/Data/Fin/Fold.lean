@@ -23,7 +23,7 @@ Example:
 -/
 @[inline] def foldl (n) (f : α → Fin n → α) (init : α) : α := loop init 0 where
   /-- Inner loop for `Fin.foldl`. `Fin.foldl.loop n f x i = f (f (f x i) ...) (n-1)`  -/
-  @[semireducible, specialize] loop (x : α) (i : Nat) : α :=
+  @[specialize] loop (x : α) (i : Nat) : α :=
     if h : i < n then loop (f x ⟨i, h⟩) (i+1) else x
   termination_by n - i
 
@@ -65,7 +65,7 @@ Fin.foldlM n f x₀ = do
     pure xₙ
   ```
   -/
-  @[semireducible, specialize] loop (x : α) (i : Nat) : m α := do
+  @[specialize] loop (x : α) (i : Nat) : m α := do
     if h : i < n then f x ⟨i, h⟩ >>= (loop · (i+1)) else pure x
   termination_by n - i
   decreasing_by decreasing_trivial_pre_omega
@@ -96,7 +96,7 @@ Fin.foldrM n f xₙ = do
     pure x₀
   ```
   -/
-  @[semireducible, specialize] loop : {i // i ≤ n} → α → m α
+  @[specialize] loop : {i // i ≤ n} → α → m α
   | ⟨0, _⟩, x => pure x
   | ⟨i+1, h⟩, x => f ⟨i, h⟩ x >>= loop ⟨i, Nat.le_of_lt h⟩
 

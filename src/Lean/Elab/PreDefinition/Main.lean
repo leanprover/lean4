@@ -368,19 +368,23 @@ def addPreDefinitions (docCtx : LocalContext × LocalInstances) (preDefs : Array
                   m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
           catch ex =>
             logException ex
+            let env ← getEnv
+            let missingPreDefs := preDefs.filter (!env.contains ·.declName)
+            if missingPreDefs.isEmpty then
+              continue
             let s ← saveState
             try
               if preDefs.all fun preDef => (preDef.kind matches DefKind.def | DefKind.instance) || preDefs.all fun preDef => preDef.kind == DefKind.abbrev then
                 -- try to add as partial definition
                 withOptions (Elab.async.set · false) do
                   try
-                    addAndCompilePartial docCtx preDefs (useSorry := true)
+                    addAndCompilePartial docCtx missingPreDefs (useSorry := true)
                   catch _ =>
                     -- Compilation failed try again just as axiom
                     s.restore
-                    addSorried docCtx preDefs
-              else if preDefs.all fun preDef => preDef.kind == DefKind.theorem then
-                addSorried docCtx preDefs
+                    addSorried docCtx missingPreDefs
+              else if missingPreDefs.all fun preDef => preDef.kind == DefKind.theorem then
+                addSorried docCtx missingPreDefs
             catch _ => s.restore
 
 builtin_initialize

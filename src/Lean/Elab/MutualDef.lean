@@ -1051,6 +1051,7 @@ def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHea
       kind        := header.kind
       declName    := header.declName
       binders     := header.binders
+      numSectionVars := sectionVars.size
       levelParams := [], -- we set it later
       modifiers   := header.modifiers
       type, value, termination

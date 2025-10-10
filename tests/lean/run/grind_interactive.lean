@@ -309,3 +309,41 @@ error: The tactic provided to `fail_if_success` succeeded but was expected to fa
 example {α : Sort u} (op : α → α → α) [Associative op] (a b c : α)
     : op a (op b b) = c → op c c = op (op c a) (op b b) := by
   grind => fail_if_success ac
+
+example {α : Sort u} (op : α → α → α) [Associative op] (a b c : α)
+    : op a (op b b) = c → op c c = op (op c a) (op b b) := by
+  grind =>
+    fail_if_success linarith
+    ac
+
+/--
+trace: [cutsat] Assignment satisfying linear constraints
+  [assign] y := 3
+  [assign] z := 0
+  [assign] x := 4
+-/
+#guard_msgs in
+example : y > (z+1)*2 → x > y → x > 10 := by
+  grind =>
+    lia
+    sorry
+
+/--
+trace: [ring] Ring `Int`
+  [basis] Basis
+    [_] 2 * (z * x) + 2 * x + -1 = 0
+    [_] y + -2 * z + -2 = 0
+  [diseqs] Disequalities
+    [_] ¬x = 0
+-/
+#guard_msgs in
+example {y z x : Int} : y = (z+1)*2 → x*y = 1 → x = 0 := by
+  grind =>
+    ring
+    sorry
+
+#guard_msgs in
+example {y z x : Int} : y = (z+1)*2 → x*y = 1 → x = 0 := by
+  grind -verbose =>
+    ring
+    sorry

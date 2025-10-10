@@ -6,13 +6,10 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
+import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
+
 public import Init.Data.Iterators.Combinators.Monadic.FlatMap
 import all Init.Data.Iterators.Combinators.Monadic.FlatMap
-public import Init.Data.Iterators.Lemmas.Consumers.Monadic
-public import Init.Data.Iterators.Consumers.Monadic.Collect
-import all Init.Data.Iterators.Consumers.Monadic.Collect
-import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
 
 namespace Std.Iterators
 open Std.Internal

@@ -6,12 +6,7 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
-public import Init.Data.Iterators.Lemmas.Consumers.Monadic
-public import Init.Data.Iterators.Consumers.Monadic.Collect
-import all Init.Data.Iterators.Consumers.Monadic.Collect
 import Init.Data.Iterators.Lemmas.Combinators.FilterMap
-
 public import Init.Data.Iterators.Combinators.FlatMap
 import all Init.Data.Iterators.Combinators.FlatMap
 public import Init.Data.Iterators.Lemmas.Combinators.Monadic.FlatMap

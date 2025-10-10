@@ -6,59 +6,199 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Basic
-public import Init.Data.Iterators.Consumers.Collect
-public import Init.Data.Iterators.Consumers.Loop
 public import Init.Data.Iterators.Combinators.Monadic.FilterMap
-public import Init.Data.Iterators.PostconditionMonad
-public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Option.Lemmas
 
-public import Std.Data.Iterators.Producers.List
-
-set_option doc.verso true
-
 /-!
-# Monadic {lit}`flatMap` combinator
+# Monadic `flatMap` combinator
 
-This file provides the {lit}`flatMap` iterator and variants of it.
+This file provides the `flatMap` iterator combinator and variants of it.
 
-If `it` is any iterator, `it.flatMap f` maps each output of `it` to an iterator using `f`.
-The `flatMap` first emits all outputs of the first iterator, then of the second, and so on.
-In other words, `it` flattens the iterator of iterators obtained by mapping with `f`.
+If `it` is any iterator, `it.flatMap f` maps each output of `it` to an iterator using
+`f`.
+
+`it.flatMap f` first emits all outputs of the first obtained iterator, then of the second,
+and so on. In other words, `it` flattens the iterator of iterators obtained by mapping with
+`f`.
 -/
 
 namespace Std.Iterators
 
+/-- Internal implementation detail of the `flatMap` combinator -/
 @[ext, unbox]
 public structure Flatten (α α₂ β : Type w) (m) where
   it₁ : IterM (α := α) m (IterM (α := α₂) m β)
   it₂ : Option (IterM (α := α₂) m β)
 
+/--
+Internal iterator combinator that is used to implement all `flatMap` variants
+-/
 @[always_inline]
 def IterM.flattenAfter {α α₂ β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
     (it₁ : IterM (α := α) m (IterM (α := α₂) m β)) (it₂ : Option (IterM (α := α₂) m β)) :=
   (toIterM (α := Flatten α α₂ β m) ⟨it₁, it₂⟩ m β : IterM m β)
 
+/--
+Let `it₁` and `it₂` be iterators and `f` a monadic function mapping `it₁`'s outputs to iterators
+of the same type as `it₂`. Then `it₁.flatMapAfterM f it₂` first goes over `it₂` and then over
+`it₁.flatMap f it₂`, emitting all their values.
+
+The main purpose of this combinator is to represent the intermediate state of a `flatMap` iterator
+that is currently iterating over one of the inner iterators.
+
+**Marble diagram (without monadic effects):**
+
+```text
+it₁                            --b      c    --d -⊥
+it₂                      a1-a2⊥
+f b                               b1-b2⊥
+f c                                      c1-c2⊥
+f d                                             ⊥
+it.flatMapAfterM f it₂   a1-a2----b1-b2--c1-c2----⊥
+```
+
+**Termination properties:**
+
+* `Finite` instance: only if `it₁`, `it₂` and the inner iterators are finite
+* `Productive` instance: only if `it₁` is finite and `it₂` and the inner iterators are productive
+
+For certain functions `f`, the resulting iterator will be finite (or productive) even though
+no `Finite` (or `Productive`) instance is provided out of the box. For example, if the outer
+iterator is productive and the inner
+iterators are productive *and provably never empty*, then the resulting iterator is also productive.
+
+**Performance:**
+
+This combinator incurs an additional O(1) cost with each output of `it₁`, `it₂` or an internal
+iterator.
+
+For each value emitted by the outer iterator `it₁`, this combinator calls `f` and matches on the
+returned `Option` value.
+-/
 @[always_inline]
 public def IterM.flatMapAfterM {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β] [Iterator α₂ m γ]
     (f : β → m (IterM (α := α₂) m γ)) (it₁ : IterM (α := α) m β) (it₂ : Option (IterM (α := α₂) m γ)) :=
   ((it₁.mapM f).flattenAfter it₂ : IterM m γ)
 
+/--
+Let `it` be an iterator and `f` a monadic function mapping `it`'s outputs to iterators.
+Then `it.flatMapM f` is an iterator that goes over `it` and for each output, it applies `f` and
+iterates over the resulting iterator. `it.flatMapM f` emits all values obtained from the inner
+iterators -- first, all of the first inner iterator, then all of the second one, and so on.
+
+**Marble diagram (without monadic effects):**
+
+```text
+it                 ---a      --b      c    --d -⊥
+f a                    a1-a2⊥
+f b                             b1-b2⊥
+f c                                    c1-c2⊥
+f d                                           ⊥
+it.flatMapM        ----a1-a2----b1-b2--c1-c2----⊥
+```
+
+**Termination properties:**
+
+* `Finite` instance: only if `it` and the inner iterators are finite
+* `Productive` instance: only if `it` is finite and the inner iterators are productive
+
+For certain functions `f`, the resulting iterator will be finite (or productive) even though
+no `Finite` (or `Productive`) instance is provided out of the box. For example, if the outer
+iterator is productive and the inner
+iterators are productive *and provably never empty*, then the resulting iterator is also productive.
+
+**Performance:**
+
+This combinator incurs an additional O(1) cost with each output of `it` or an internal iterator.
+
+For each value emitted by the outer iterator `it`, this combinator calls `f` and matches on the
+returned `Option` value.
+-/
 @[always_inline, expose]
 public def IterM.flatMapM {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β] [Iterator α₂ m γ]
     (f : β → m (IterM (α := α₂) m γ)) (it : IterM (α := α) m β) :=
   (it.flatMapAfterM f none : IterM m γ)
 
+/--
+Let `it₁` and `it₂` be iterators and `f` a function mapping `it₁`'s outputs to iterators
+of the same type as `it₂`. Then `it₁.flatMapAfter f it₂` first goes over `it₂` and then over
+`it₁.flatMap f it₂`, emitting all their values.
+
+The main purpose of this combinator is to represent the intermediate state of a `flatMap` iterator
+that is currently iterating over one of the inner iterators.
+
+**Marble diagram:**
+
+```text
+it₁                            --b      c    --d -⊥
+it₂                      a1-a2⊥
+f b                               b1-b2⊥
+f c                                      c1-c2⊥
+f d                                             ⊥
+it.flatMapAfter  f it₂   a1-a2----b1-b2--c1-c2----⊥
+```
+
+**Termination properties:**
+
+* `Finite` instance: only if `it₁`, `it₂` and the inner iterators are finite
+* `Productive` instance: only if `it₁` is finite and `it₂` and the inner iterators are productive
+
+For certain functions `f`, the resulting iterator will be finite (or productive) even though
+no `Finite` (or `Productive`) instance is provided out of the box. For example, if the outer
+iterator is productive and the inner
+iterators are productive *and provably never empty*, then the resulting iterator is also productive.
+
+**Performance:**
+
+This combinator incurs an additional O(1) cost with each output of `it₁`, `it₂` or an internal
+iterator.
+
+For each value emitted by the outer iterator `it₁`, this combinator calls `f` and matches on the
+returned `Option` value.
+-/
 @[always_inline]
 public def IterM.flatMapAfter {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β] [Iterator α₂ m γ]
     (f : β → IterM (α := α₂) m γ) (it₁ : IterM (α := α) m β) (it₂ : Option (IterM (α := α₂) m γ)) :=
   ((it₁.map f).flattenAfter it₂ : IterM m γ)
 
+/--
+Let `it` be an iterator and `f` a function mapping `it`'s outputs to iterators.
+Then `it.flatMap f` is an iterator that goes over `it` and for each output, it applies `f` and
+iterates over the resulting iterator. `it.flatMap f` emits all values obtained from the inner
+iterators -- first, all of the first inner iterator, then all of the second one, and so on.
+
+**Marble diagram:**
+
+```text
+it                 ---a      --b      c    --d -⊥
+f a                    a1-a2⊥
+f b                             b1-b2⊥
+f c                                    c1-c2⊥
+f d                                           ⊥
+it.flatMap         ----a1-a2----b1-b2--c1-c2----⊥
+```
+
+**Termination properties:**
+
+* `Finite` instance: only if `it` and the inner iterators are finite
+* `Productive` instance: only if `it` is finite and the inner iterators are productive
+
+For certain functions `f`, the resulting iterator will be finite (or productive) even though
+no `Finite` (or `Productive`) instance is provided out of the box. For example, if the outer
+iterator is productive and the inner
+iterators are productive *and provably never empty*, then the resulting iterator is also productive.
+
+**Performance:**
+
+This combinator incurs an additional O(1) cost with each output of `it` or an internal iterator.
+
+For each value emitted by the outer iterator `it`, this combinator calls `f` and matches on the
+returned `Option` value.
+-/
 @[always_inline, expose]
 public def IterM.flatMap {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β] [Iterator α₂ m γ]
@@ -67,6 +207,7 @@ public def IterM.flatMap {α : Type w} {β : Type w} {α₂ : Type w}
 
 variable {α α₂ β : Type w} {m : Type w → Type w'}
 
+/-- The plausible-step predicate for `Flatten` iterators -/
 public inductive Flatten.IsPlausibleStep [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β] :
     (it : IterM (α := Flatten α α₂ β m) m β) → (step : IterStep (IterM (α := Flatten α α₂ β m) m β) β) → Prop where
   | outerYield : ∀ {it₁ it₁' it₂'}, it₁.IsPlausibleStep (.yield it₁' it₂') →

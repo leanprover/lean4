@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Server.Requests
 import Lean.DocString.Syntax
+import Init.Data.List.Sort
 
 public section
 
@@ -184,7 +185,6 @@ where
           some soFar
 
   better (t soFar : AbsoluteLspSemanticToken) : Bool :=
-    t.pos < t.tailPos &&
     (t.priority > soFar.priority || (t.priority == soFar.priority && t.tailPos < soFar.tailPos))
 
 /--
@@ -197,34 +197,35 @@ starts later or ends earlier is made into the new current token.
 private def HandleOverlapState.token (st : HandleOverlapState) (t : AbsoluteLspSemanticToken) : HandleOverlapState := Id.run do
   let st := st.untilToken (some t)
   -- Now we know that the current token, if present, overlaps with `t`
-  if let some curr := st.current? then
-    if curr.priority > t.priority then
-      -- Insert t into surrounding, continue with current
-      return st.insertSurrounding t
-    -- Tied priorities: make the token that starts later or ends earlier current.
-    if curr.priority == t.priority then
-      if curr.pos == t.pos then -- if `t` starts later, transition to it. Same start, keep the one that ends first.
-        if curr.tailPos < t.tailPos then
-          return st.insertSurrounding t
+  let some curr := st.current?
+    | -- If there was no current token, then there's no surrounding tokens either
+      return { st with current? := some t }
+  if curr.priority > t.priority then
+    -- Insert t into surrounding, continue with current
+    return st.insertSurrounding t
+  -- Tied priorities: make the token that starts later or ends earlier current.
+  if curr.priority == t.priority then
+    if curr.pos == t.pos then -- if `t` starts later, transition to it. Same start, keep the one that ends first.
+      if curr.tailPos < t.tailPos then
+        return st.insertSurrounding t
 
-    -- Transition to t, save current if it's longer than t
-    let st := { st with
-      current? := some t,
-      nonOverlapping :=
-        let curr := { curr with tailPos := t.pos }
-        -- Only save the token if it actually takes up space. This step is what filters out
-        -- actual duplicates.
-        if curr.pos < curr.tailPos then
-          st.nonOverlapping.push curr
-        else
-          st.nonOverlapping
-    }
-    if curr.tailPos > t.tailPos then
-      return st.insertSurrounding curr
-    else
-      return st
-  -- If there was no current token, then there's no surrounding tokens either
-  return { st with current? := some t }
+  -- Transition to t, save current if it's longer than t
+  let st := { st with
+    current? := some t,
+    nonOverlapping :=
+      let curr := { curr with tailPos := t.pos }
+      -- Only save the token if it actually takes up space. This step is what filters out
+      -- actual duplicates.
+      if curr.pos < curr.tailPos then
+        st.nonOverlapping.push curr
+      else
+        st.nonOverlapping
+  }
+  if curr.tailPos > t.tailPos then
+    return st.insertSurrounding curr
+  else
+    return st
+
 
 
 /--
@@ -261,12 +262,13 @@ def handleOverlappingSemanticTokens (tokens : Array AbsoluteLspSemanticToken) :
     Array AbsoluteLspSemanticToken := Id.run do
   -- `insertionSort` is used because a stable sort is needed here in order to allow the final
   -- tiebreaker to be position in the input array
-  let tokens := tokens.insertionSort fun ⟨pos1, tailPos1, _, _⟩ ⟨pos2, tailPos2, _, _⟩ =>
+  let count := tokens.size
+  let tokens := tokens.toList.mergeSort fun ⟨pos1, tailPos1, _, _⟩ ⟨pos2, tailPos2, _, _⟩ =>
     pos1 < pos2 || pos1 == pos2 && tailPos1 < tailPos2
   let mut st : HandleOverlapState := {
     current? := none
     -- Reserve 10% for overlaps
-    nonOverlapping := Array.mkEmpty ((tokens.size * 11) / 10)
+    nonOverlapping := Array.mkEmpty ((count * 11) / 10)
     surrounding := []
   }
   for t in tokens do
@@ -522,8 +524,8 @@ def dbgShowTokens (text : FileMap) (toks : Array LeanSemanticToken) : String := 
     if let some ⟨⟨l, c1⟩, ⟨_, c2⟩⟩ := text.lspRangeOfStx? stx then
       byLine := byLine.alter l fun x? => some (x?.getD #[] |>.push (c1, c2, ⟨stx, tok, prio⟩))
   let mut out := ""
-  for (l, vals) in byLine.toArray.insertionSort (fun x y => x.1 < y.1) do
-    let vals := vals.insertionSort fun x y => x.1 < y.1
+  for (l, vals) in byLine.toList.mergeSort (fun x y => x.1 < y.1) do
+    let vals := vals.toList.mergeSort fun x y => x.1 < y.1
     out := out ++ s!"{l}:\t{vals.map (fun (c1, c2, ⟨stx, tok, prio⟩) => (c1, c2, stx, toJson tok, prio))}\n"
   out
 

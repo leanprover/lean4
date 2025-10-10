@@ -486,16 +486,16 @@ block_12:
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
-lean_dec_ref(x_7);
+lean_dec_ref(x_8);
 x_10 = lean_box(x_9);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
-lean_ctor_set(x_11, 1, x_8);
+lean_ctor_set(x_11, 1, x_7);
 return x_11;
 }
 else
 {
-return x_7;
+return x_8;
 }
 }
 block_74:
@@ -570,16 +570,16 @@ if (x_67 == 0)
 uint8_t x_68; 
 x_68 = l_Lean_Exception_isRuntime(x_65);
 lean_dec(x_65);
-x_7 = x_55;
-x_8 = x_66;
+x_7 = x_66;
+x_8 = x_55;
 x_9 = x_68;
 goto block_12;
 }
 else
 {
 lean_dec(x_65);
-x_7 = x_55;
-x_8 = x_66;
+x_7 = x_66;
+x_8 = x_55;
 x_9 = x_67;
 goto block_12;
 }
@@ -603,16 +603,16 @@ if (x_72 == 0)
 uint8_t x_73; 
 x_73 = l_Lean_Exception_isRuntime(x_69);
 lean_dec(x_69);
-x_7 = x_71;
-x_8 = x_70;
+x_7 = x_70;
+x_8 = x_71;
 x_9 = x_73;
 goto block_12;
 }
 else
 {
 lean_dec(x_69);
-x_7 = x_71;
-x_8 = x_70;
+x_7 = x_70;
+x_8 = x_71;
 x_9 = x_72;
 goto block_12;
 }
@@ -2853,11 +2853,11 @@ lean_dec(x_52);
 lean_dec_ref(x_51);
 lean_dec_ref(x_36);
 lean_dec_ref(x_35);
-x_12 = x_9;
-x_13 = x_7;
-x_14 = x_10;
-x_15 = x_8;
-x_16 = x_11;
+x_12 = x_7;
+x_13 = x_8;
+x_14 = x_11;
+x_15 = x_9;
+x_16 = x_10;
 goto block_25;
 }
 else
@@ -2869,11 +2869,11 @@ if (x_55 == 0)
 {
 lean_dec_ref(x_36);
 lean_dec_ref(x_35);
-x_12 = x_9;
-x_13 = x_7;
-x_14 = x_10;
-x_15 = x_8;
-x_16 = x_11;
+x_12 = x_7;
+x_13 = x_8;
+x_14 = x_11;
+x_15 = x_9;
+x_16 = x_10;
 goto block_25;
 }
 else
@@ -2914,11 +2914,11 @@ x_18 = l_Lean_MessageData_ofExpr(x_1);
 x_19 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_18);
-x_20 = l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Meta_getConstUnfoldEqnFor_x3f_spec__4_spec__4_spec__4_spec__4_spec__4_spec__5_spec__5___redArg(x_19, x_13, x_15, x_12, x_14, x_16);
-lean_dec(x_14);
+x_20 = l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Meta_getConstUnfoldEqnFor_x3f_spec__4_spec__4_spec__4_spec__4_spec__4_spec__5_spec__5___redArg(x_19, x_12, x_13, x_15, x_16, x_14);
+lean_dec(x_16);
+lean_dec_ref(x_15);
+lean_dec(x_13);
 lean_dec_ref(x_12);
-lean_dec(x_15);
-lean_dec_ref(x_13);
 x_21 = !lean_is_exclusive(x_20);
 if (x_21 == 0)
 {

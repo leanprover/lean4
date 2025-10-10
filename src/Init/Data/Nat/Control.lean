@@ -3,10 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Control.Basic
-import Init.Data.Nat.Basic
-import Init.Omega
+public import Init.Control.Basic
+public import Init.Data.Nat.Basic
+public import Init.Omega
+
+public section
 
 set_option linter.missingDocs true
 

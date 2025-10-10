@@ -61,7 +61,7 @@ info: zip.induct.{u_1, u_2} {α : Type u_1} {β : Type u_2} (motive : List α �
 #guard_msgs in
 #check zip.induct
 
-/-- Lets try ot use it! -/
+/-- Let's try to use it! -/
 theorem zip_length {α β} (xs : List α) (ys : List β) :
     (zip xs ys).length = xs.length.min ys.length := by
   induction xs, ys using zip.induct
@@ -89,8 +89,8 @@ termination_by structural n
 
 /--
 info: Finn.min.induct (motive : Bool → {n : Nat} → Nat → Finn n → Finn n → Prop)
-  (case1 : ∀ (x : Bool) (m n : Nat) (x_1 : Finn n), motive x m Finn.fzero x_1)
-  (case2 : ∀ (x : Bool) (m n : Nat) (x_1 : Finn n), (x_1 = Finn.fzero → False) → motive x m x_1 Finn.fzero)
+  (case1 : ∀ (x : Bool) (m n : Nat) (f : Finn n), motive x m Finn.fzero f)
+  (case2 : ∀ (x : Bool) (m n : Nat) (a : Finn n), (a = Finn.fzero → False) → motive x m a Finn.fzero)
   (case3 : ∀ (x : Bool) (m n : Nat) (i j : Finn n), motive (!x) (m + 1) i j → motive x m i.fsucc j.fsucc) (x : Bool)
   {n : Nat} (m : Nat) (a✝ f : Finn n) : motive x m a✝ f
 -/

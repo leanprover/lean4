@@ -1,54 +1,60 @@
-Vec.zip : {α : Type u_1} → {n : Nat} → {β : Type u_2} → Vec α ◾ → Vec β ◾ → Vec (α × β) ◾
-mkConstTuple : {α : Type u_1} → α → Nat → ◾
-Fin.add : {n : Nat} → Fin ◾ → Fin ◾ → Fin ◾
-Vec.cons : {α : Type u} → {n : Nat} → α → Vec α ◾ → Vec α ◾
-Eq.rec : {α : Sort u_1} → {a : α} → {motive : α → ◾ → Sort u} → motive ◾ ◾ → {a : α} → ◾ → motive ◾ ◾
+Vec.zip : {α : Type u_1} → {n : Nat} → {β : Type u_2} → Vec α lcAny → Vec β lcAny → Vec (α × β) lcAny
+mkConstTuple : {α : Type u_1} → α → Nat → lcAny
+Fin.add : {n : Nat} → Fin lcAny → Fin lcAny → Fin lcAny
+Vec.cons : {α : Type u} → {n : Nat} → α → Vec α lcAny → Vec α lcAny
+Eq.rec : {α : Sort u_1} → {a : α} → {motive : α → ◾ → Sort u} → motive lcAny lcAny → {a : α} → ◾ → motive lcAny lcAny
 GetElem.getElem : {coll : Type u} →
   {idx : Type v} →
     {elem : Type w} → {valid : coll → idx → Prop} → [self : GetElem coll idx elem ◾] → coll → idx → ◾ → elem
-Term.constFold : {ctx : List Ty} → {ty : Ty} → _root_.Term ◾ ◾ → _root_.Term ◾ ◾
-Term.denote : {ctx : List Ty} → {ty : Ty} → _root_.Term ◾ ◾ → HList ◾ ◾ → ◾
-HList.get : {α : Type u_1} → {β : α → Type u_2} → {is : List α} → {i : α} → HList β ◾ → Member ◾ ◾ → β ◾
-Member.head : {α : Type u_1} → {a : α} → {as : List α} → Member ◾ ◾
+Term.constFold : {ctx : List Ty} → {ty : Ty} → _root_.Term lcAny lcAny → _root_.Term lcAny lcAny
+Term.denote : {ctx : List Ty} → {ty : Ty} → _root_.Term lcAny lcAny → HList lcAny lcAny → lcAny
+HList.get : {α : Type u_1} → {β : α → Type u_2} → {is : List α} → {i : α} → HList β lcAny → Member lcAny lcAny → β lcAny
+Member.head : {α : Type u_1} → {a : α} → {as : List α} → Member lcAny lcAny
 Ty.denote : Ty → Type
 MonadControl.liftWith : {m : Type u → Type v} →
-  {n : Type u → Type w} → [self : MonadControl m n] → {α : Type u} → (({β : Type u} → n β → m ◾) → m α) → n α
-MonadControl.restoreM : {m : Type u → Type v} → {n : Type u → Type w} → [self : MonadControl m n] → {α : Type u} → m ◾ → n α
-Decidable.casesOn : {p : Prop} → {motive : Decidable ◾ → Sort u} → Decidable ◾ → (◾ → motive ◾) → (◾ → motive ◾) → motive ◾
+  {n : Type u → Type w} → [self : MonadControl m n] → {α : Type u} → (({β : Type u} → n β → m lcAny) → m α) → n α
+MonadControl.restoreM : {m : Type u → Type v} → {n : Type u → Type w} → [self : MonadControl m n] → {α : Type u} → m lcAny → n α
+Decidable.casesOn : {p : Prop} → {motive : Decidable ◾ → Sort u} → Decidable ◾ → (◾ → motive lcAny) → (◾ → motive lcAny) → motive lcAny
 Lean.getConstInfo : {m : Type → Type} → [Monad m] → [MonadEnv m] → [MonadError m] → Name → m ConstantInfo
 Lean.Meta.instMonadMetaM : Monad fun α =>
-  Context → ST.Ref PUnit State → Core.Context → ST.Ref PUnit Core.State → PUnit → EStateM.Result Exception PUnit α
+  Context →
+    ST.Ref lcRealWorld State →
+      Core.Context → ST.Ref lcRealWorld Core.State → lcRealWorld → EStateM.Result Exception lcRealWorld α
 Lean.Meta.inferType : Expr →
-  Context → ST.Ref PUnit State → Core.Context → ST.Ref PUnit Core.State → PUnit → EStateM.Result Exception PUnit Expr
+  Context →
+    ST.Ref lcRealWorld State →
+      Core.Context → ST.Ref lcRealWorld Core.State → lcRealWorld → EStateM.Result Exception lcRealWorld Expr
 Lean.Elab.Term.elabTerm : Syntax →
   Option Expr →
     Bool →
       Bool →
         Elab.Term.Context →
-          ST.Ref PUnit Elab.Term.State →
+          ST.Ref lcRealWorld Elab.Term.State →
             Context →
-              ST.Ref PUnit State → Core.Context → ST.Ref PUnit Core.State → PUnit → EStateM.Result Exception PUnit Expr
+              ST.Ref lcRealWorld State →
+                Core.Context → ST.Ref lcRealWorld Core.State → lcRealWorld → EStateM.Result Exception lcRealWorld Expr
 Nat.add : Nat → Nat → Nat
-Magma.mul : Magma → ◾ → ◾ → ◾
-weird1 : Bool → ◾
-lamAny₁ : Bool → Monad ◾
-lamAny₂ : Bool → Monad ◾
-Term.constFold : List Ty → Ty → _root_.Term lcErased lcErased → _root_.Term lcErased lcErased
-Term.denote : lcErased
-HList.get : lcErased → lcErased → List lcAny → lcAny → HList lcAny lcErased lcErased → Member lcAny lcErased lcErased → lcAny
-Member.head : lcErased → lcAny → List lcAny → Member lcAny lcErased lcErased
+Magma.mul : Magma → lcAny → lcAny → lcAny
+weird1 : Bool → lcAny
+lamAny₁ : Bool → Monad fun α => lcAny
+lamAny₂ : Bool → Monad lcAny
+Term.constFold : {ctx : List Ty} → {ty : Ty} → _root_.Term lcAny lcAny → _root_.Term lcAny lcAny
+Term.denote : {ctx : List Ty} → {ty : Ty} → _root_.Term lcAny lcAny → HList Ty lcAny lcAny → lcAny
+HList.get : {α β : lcErased} → {is : List lcAny} → {i : lcAny} → HList lcAny lcAny lcAny → Member lcAny lcAny lcAny → lcAny
+Member.head : {α : lcErased} → {a : lcAny} → {as : List lcAny} → Member lcAny lcAny lcAny
 Ty.denote : lcErased
-MonadControl.liftWith : lcErased → lcErased → MonadControl lcErased lcErased → lcErased → ((lcErased → lcAny → lcAny) → lcAny) → lcAny
-MonadControl.restoreM : lcErased → lcErased → MonadControl lcErased lcErased → lcErased → lcAny → lcAny
-Decidable.casesOn : lcErased → lcErased → Bool → (lcErased → lcAny) → (lcErased → lcAny) → lcAny
-Lean.getConstInfo : lcErased → Monad lcErased → MonadEnv lcErased → MonadError lcErased → Name → lcAny
-Lean.Meta.instMonadMetaM : Monad lcErased
-Lean.Meta.inferType : Expr → Context → lcErased → Core.Context → lcErased → PUnit → EStateM.Result Exception PUnit Expr
+MonadControl.liftWith : {m n : lcErased} →
+  [self : MonadControl lcAny lcAny] → {α : lcErased} → (({β : lcErased} → lcAny → lcAny) → lcAny) → lcAny
+MonadControl.restoreM : {m n : lcErased} → [self : MonadControl lcAny lcAny] → {α : lcErased} → lcAny → lcAny
+Decidable.casesOn : {p motive : lcErased} → Bool → (lcErased → lcAny) → (lcErased → lcAny) → lcAny
+Lean.getConstInfo : {m : lcErased} → [Monad lcAny] → [MonadEnv lcAny] → [MonadError lcAny] → Name → lcAny
+Lean.Meta.instMonadMetaM : Monad lcAny
+Lean.Meta.inferType : Expr → Context → lcAny → Core.Context → lcAny → lcRealWorld → EStateM.Result Exception lcRealWorld Expr
 Lean.Elab.Term.elabTerm : Syntax →
   Option Expr →
     Bool →
       Bool →
         Elab.Term.Context →
-          lcErased → Context → lcErased → Core.Context → lcErased → PUnit → EStateM.Result Exception PUnit Expr
+          lcAny → Context → lcAny → Core.Context → lcAny → lcRealWorld → EStateM.Result Exception lcRealWorld Expr
 Nat.add : Nat → Nat → Nat
-Fin.add : Nat → Nat → Nat → Nat
+Fin.add : {n : Nat} → Nat → Nat → Nat

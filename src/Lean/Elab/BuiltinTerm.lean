@@ -3,11 +3,18 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Diagnostics
-import Lean.Elab.Open
-import Lean.Elab.SetOption
-import Lean.Elab.Eval
+public import Lean.Meta.Closure
+public import Lean.Meta.Diagnostics
+public import Lean.Elab.Open
+public import Lean.Elab.SetOption
+public import Lean.Elab.Eval
+meta import Lean.Parser.Command
+import Lean.ExtraModUses
+
+public section
 
 namespace Lean.Elab.Term
 open Meta
@@ -37,7 +44,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
   let e ← elabTerm stx[0] none
   unless e.isSorry do
     addDotCompletionInfo stx e expectedType?
-  throwErrorAt stx[1] "invalid field notation, identifier or numeral expected"
+  throwErrorAt stx[1] "Invalid field notation: Identifier or numeral expected"
 
 @[builtin_term_elab «completion»] def elabCompletion : TermElab := fun stx expectedType? => do
   /- `ident.` is ambiguous in Lean, we may try to be completing a declaration name or access a "field". -/
@@ -51,7 +58,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
       addDotCompletionInfo stx e expectedType?
     catch _ =>
       s.restore
-    throwErrorAt stx[1] "invalid field notation, identifier or numeral expected"
+    throwErrorAt stx[1] "Invalid field notation: Identifier or numeral expected"
   else
     elabPipeCompletion stx expectedType?
 
@@ -91,7 +98,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
       | none =>
         if (← mvarId.isDelayedAssigned) then
           -- We can try to improve this case if needed.
-          throwError "synthetic hole has already beend defined and delayed assigned with an incompatible local context"
+          throwError "synthetic hole has already been defined and delayed-assigned with an incompatible local context"
         else if lctx.isSubPrefixOf mvarDecl.lctx then
           let mvarNew ← mkNewHole ()
           mvarId.assign mvarNew
@@ -113,7 +120,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
   match stx with
   | `(let_mvar% ? $n := $e; $b) =>
      match (← getMCtx).findUserName? n.getId with
-     | some _ => throwError "invalid 'let_mvar%', metavariable '?{n.getId}' has already been used"
+     | some _ => throwError "invalid `let_mvar%`, metavariable `?{n.getId}` has already been used"
      | none =>
        let e ← elabTerm e none
        let mvar ← mkFreshExprMVar (← inferType e) MetavarKind.syntheticOpaque n.getId
@@ -124,7 +131,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
 
 private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
   match (← getMCtx).findUserName? ident.getId with
-  | none => throwError "unknown metavariable '?{ident.getId}'"
+  | none => throwError "unknown metavariable `?{ident.getId}`"
   | some mvarId => instantiateMVars (mkMVar mvarId)
 
 
@@ -154,7 +161,10 @@ private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
 @[builtin_term_elab byTactic] def elabByTactic : TermElab := fun stx expectedType? => do
   match expectedType? with
   | some expectedType =>
-    mkTacticMVar expectedType stx .term
+    -- `by` switches from an exported to a private context, so we must disallow unassigned
+    -- metavariables in the goal in this case as they could otherwise leak private data back into
+    -- the exported context.
+    mkTacticMVar expectedType stx .term (delayOnMVars := (← getEnv).isExporting)
   | none =>
     tryPostpone
     throwError ("invalid 'by' tactic, expected type has not been provided")
@@ -228,8 +238,11 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   | some val => pure $ toExpr val
   | none     => throwIllFormedSyntax
 
-@[builtin_term_elab doubleQuotedName] def elabDoubleQuotedName : TermElab := fun stx _ =>
-  return toExpr (← realizeGlobalConstNoOverloadWithInfo stx[2])
+@[builtin_term_elab doubleQuotedName] def elabDoubleQuotedName : TermElab := fun stx _ => do
+  -- Always allow quoting private names.
+  let n ← withoutExporting <| realizeGlobalConstNoOverloadWithInfo stx[2]
+  recordExtraModUseFromDecl (isMeta := false) n
+  return toExpr n
 
 @[builtin_term_elab declName] def elabDeclName : TermElab := adaptExpander fun _ => do
   let some declName ← getDeclName?
@@ -287,6 +300,20 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
   | none     => throwIllFormedSyntax
   | some msg => elabTermEnsuringType stx[2] expectedType? (errorMsgHeader? := msg)
 
+@[builtin_term_elab valueOf] def elabValueOf : TermElab := fun stx _ => do
+  let ident := stx[1]
+  let some e ← Term.resolveId? stx[1] (withInfo := true)
+    | throwUnknownConstantAt ident ident.getId
+  match e with
+  | .const c us => do
+    let cinfo ← getConstInfo c
+    unless cinfo.hasValue do throwErrorAt ident "Constant has no value."
+    return cinfo.instantiateValueLevelParams! us
+  | .fvar fvarId => do
+    let some val ← fvarId.getValue? | throwErrorAt ident "Local declaration has no value."
+    return val
+  | _ => panic! "resolveId? returned an unexpected expression"
+
 @[builtin_term_elab clear] def elabClear : TermElab := fun stx expectedType? => do
   let some (.fvar fvarId) ← isLocalIdent? stx[1]
     | throwErrorAt stx[1] "not in scope"
@@ -342,12 +369,27 @@ private opaque evalFilePath (stx : Syntax) : TermElabM System.FilePath
     let ctx ← readThe Lean.Core.Context
     let srcPath := System.FilePath.mk ctx.fileName
     let some srcDir := srcPath.parent
-      | throwError "cannot compute parent directory of '{srcPath}'"
+      | throwError "cannot compute parent directory of `{srcPath}`"
     let path := srcDir / path
     mkStrLit <$> IO.FS.readFile path
   | _, _ => throwUnsupportedSyntax
 
 @[builtin_term_elab Lean.Parser.Term.namedPattern] def elabNamedPatternErr : TermElab := fun stx _ =>
   throwError "`<identifier>@<term>` is a named pattern and can only be used in pattern matching contexts{indentD stx}"
+
+@[builtin_term_elab «privateDecl»] def elabPrivateDecl : TermElab := fun stx expectedType? => do
+  match stx with
+  | `(Parser.Term.privateDecl| private_decl% $e) =>
+    if (← getEnv).isExporting then
+      let name ← mkAuxDeclName `_private
+      withoutExporting do
+        let e ← elabTermAndSynthesize e expectedType?
+        -- Inline as changing visibility should not affect run time.
+        -- Eventually we would like to be more conscious about inlining of instance fields,
+        -- irrespective of `private` use.
+        mkAuxDefinitionFor name e <* setInlineAttribute name
+    else
+      elabTerm e expectedType?
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Term

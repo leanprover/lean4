@@ -3,9 +3,13 @@ Copyright (c) 2016 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 -/
+module
+
 prelude
-import Init.Data.Int.Lemmas
-import Init.Data.Nat.Lemmas
+public import Init.Data.Int.Lemmas
+public import Init.Data.Nat.Lemmas
+
+public section
 
 namespace Int
 
@@ -17,6 +21,18 @@ protected theorem pow_succ (b : Int) (e : Nat) : b ^ (e+1) = (b ^ e) * b := rfl
 protected theorem pow_succ' (b : Int) (e : Nat) : b ^ (e+1) = b * (b ^ e) := by
   rw [Int.mul_comm, Int.pow_succ]
 
+protected theorem pow_add (a : Int) (m n : Nat) : a ^ (m + n) = a ^ m * a ^ n := by
+  induction n with
+  | zero => rw [Nat.add_zero, Int.pow_zero, Int.mul_one]
+  | succ _ ih => rw [Nat.add_succ, Int.pow_succ, Int.pow_succ, ih, Int.mul_assoc]
+
+protected theorem zero_pow {n : Nat} (h : n ≠ 0) : (0 : Int) ^ n = 0 := by
+  match n, h with
+  | n + 1, _ => simp [Int.pow_succ]
+
+protected theorem one_pow {n : Nat} : (1 : Int) ^ n = 1 := by
+  induction n with simp_all [Int.pow_succ]
+
 protected theorem pow_pos {n : Int} {m : Nat} : 0 < n → 0 < n ^ m := by
   induction m with
   | zero => simp
@@ -27,16 +43,18 @@ protected theorem pow_nonneg {n : Int} {m : Nat} : 0 ≤ n → 0 ≤ n ^ m := by
   | zero => simp
   | succ m ih => exact fun h => Int.mul_nonneg (ih h) h
 
-@[deprecated Nat.pow_le_pow_left (since := "2025-02-17")]
-abbrev pow_le_pow_of_le_left := @Nat.pow_le_pow_left
+protected theorem pow_ne_zero {n : Int} {m : Nat} : n ≠ 0 → n ^ m ≠ 0 := by
+  induction m with
+  | zero => simp
+  | succ m ih => exact fun h => Int.mul_ne_zero (ih h) h
 
-@[deprecated Nat.pow_le_pow_right (since := "2025-02-17")]
-abbrev pow_le_pow_of_le_right := @Nat.pow_le_pow_right
+instance {n : Int} {m : Nat} [NeZero n] : NeZero (n ^ m) := ⟨Int.pow_ne_zero (NeZero.ne _)⟩
 
+-- This can't be removed until the next update-stage0
 @[deprecated Nat.pow_pos (since := "2025-02-17")]
-abbrev pos_pow_of_pos := @Nat.pow_pos
+abbrev _root_.Nat.pos_pow_of_pos := @Nat.pow_pos
 
-@[norm_cast]
+@[simp, norm_cast]
 protected theorem natCast_pow (b n : Nat) : ((b^n : Nat) : Int) = (b : Int) ^ n := by
   match n with
   | 0 => rfl
@@ -54,7 +72,7 @@ protected theorem two_pow_pred_sub_two_pow' {w : Nat} (h : 0 < w) :
     (2 : Int) ^ (w - 1) - (2 : Int) ^ w = - (2 : Int) ^ (w - 1) := by
   norm_cast
   rw [← Nat.two_pow_pred_add_two_pow_pred h]
-  simp [h]
+  simp [h, -Int.natCast_pow]
 
 theorem pow_lt_pow_of_lt {a : Int} {b c : Nat} (ha : 1 < a) (hbc : b < c):
     a ^ b < a ^ c := by
@@ -63,8 +81,14 @@ theorem pow_lt_pow_of_lt {a : Int} {b c : Nat} (ha : 1 < a) (hbc : b < c):
   simp only [Int.ofNat_lt]
   omega
 
-theorem natAbs_pow (n : Int) : (k : Nat) → (n ^ k).natAbs = n.natAbs ^ k
+@[simp] theorem natAbs_pow (n : Int) : (k : Nat) → (n ^ k).natAbs = n.natAbs ^ k
   | 0 => rfl
   | k + 1 => by rw [Int.pow_succ, natAbs_mul, natAbs_pow, Nat.pow_succ]
+
+theorem toNat_pow_of_nonneg {x : Int} (h : 0 ≤ x) (k : Nat) : (x ^ k).toNat = x.toNat ^ k := by
+  induction k with
+  | zero => simp
+  | succ k ih =>
+    rw [Int.pow_succ, Int.toNat_mul (Int.pow_nonneg h) h, ih, Nat.pow_succ]
 
 end Int

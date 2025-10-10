@@ -3,14 +3,18 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.CNF
-import Std.Sat.AIG.RelabelNat
-import Std.Tactic.BVDecide.Bitblast
-import Std.Tactic.BVDecide.Syntax
-import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.SatAtBVLogical
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize
-import Lean.Elab.Tactic.BVDecide.Frontend.LRAT
+public import Std.Sat.AIG.CNF
+public import Std.Sat.AIG.RelabelNat
+public import Std.Tactic.BVDecide.Bitblast
+public import Std.Tactic.BVDecide.Syntax
+public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.SatAtBVLogical
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize
+public import Lean.Elab.Tactic.BVDecide.Frontend.LRAT
+
+public section
 
 /-!
 This module provides the implementation of the `bv_decide` frontend itself.
@@ -37,7 +41,7 @@ expression - pair values.
 def reconstructCounterExample (var2Cnf : Std.HashMap BVBit Nat) (assignment : Array (Bool × Nat))
     (aigSize : Nat) (atomsAssignment : Std.HashMap Nat (Nat × Expr × Bool)) :
     Array (Expr × BVExpr.PackedBitVec) := Id.run do
-  let mut sparseMap : Std.HashMap Nat (RBMap Nat Bool Ord.compare) := {}
+  let mut sparseMap : Std.HashMap Nat (Std.TreeMap Nat Bool) := {}
   let filter bvBit _ :=
     let (_, _, synthetic) := atomsAssignment[bvBit.var]!
     !synthetic
@@ -225,11 +229,11 @@ where
           throwError m!"Value for Int64 was not 64 bit but {value.w} bit"
       | _ =>
         match var with
-        | .app (.const (.str p s) []) arg =>
+        | .app (.const (.str p s) levels) arg =>
           if s == Normalize.enumToBitVecSuffix then
             let .inductInfo inductiveInfo ← getConstInfo p | unreachable!
             let ctors := inductiveInfo.ctors
-            let enumVal := mkConst ctors[value.bv.toNat]!
+            let enumVal := mkConst ctors[value.bv.toNat]! levels
             return (arg, enumVal)
           else
             return (var, toExpr value.bv)
@@ -365,14 +369,15 @@ def reflectBV (g : MVarId) : M ReflectionResult := g.withContext do
     else
       unusedHypotheses := unusedHypotheses.insert hyp
   if h : sats.size = 0 then
-    let mut error := "None of the hypotheses are in the supported BitVec fragment.\n"
-    error := error ++ "There are two potential fixes for this:\n"
+    let mut error := "None of the hypotheses are in the supported BitVec fragment after applying preprocessing.\n"
+    error := error ++ "There are three potential reasons for this:\n"
     error := error ++ "1. If you are using custom BitVec constructs simplify them to built-in ones.\n"
     error := error ++ "2. If your problem is using only built-in ones it might currently be out of reach.\n"
-    error := error ++ "   Consider expressing it in terms of different operations that are better supported."
+    error := error ++ "   Consider expressing it in terms of different operations that are better supported.\n"
+    error := error ++ "3. The original goal was reduced to False and is thus invalid."
     throwError error
   else
-    let sat := sats[1:].foldl (init := sats[0]) SatAtBVLogical.and
+    let sat := sats[1...*].foldl (init := sats[0]) SatAtBVLogical.and
     return {
       bvExpr := ShareCommon.shareCommon sat.bvExpr,
       proveFalse := sat.proveFalse,

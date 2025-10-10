@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <unordered_set>
 #include <algorithm>
 #include <string>
 #include <vector>
@@ -12,6 +11,8 @@ Author: Leonardo de Moura
 #include <lean/lean.h>
 #include "runtime/hash.h"
 #include "runtime/compact.h"
+#include "runtime/exception.h"
+#include "util/alloc.h"
 
 #ifndef LEAN_WINDOWS
 #include <sys/mman.h>
@@ -50,7 +51,7 @@ struct max_sharing_eq {
 
 
 struct object_compactor::max_sharing_table {
-    std::unordered_set<max_sharing_key, max_sharing_hash, max_sharing_eq> m_table;
+    lean::unordered_set<max_sharing_key, max_sharing_hash, max_sharing_eq> m_table;
     max_sharing_table(object_compactor * manager):
         m_table(LEAN_MAX_SHARING_TABLE_INITIAL_SIZE, max_sharing_hash(manager), max_sharing_eq(manager)) {
     }
@@ -339,7 +340,10 @@ tag_counter_manager g_tag_counter_manager;
 void object_compactor::operator()(object * o) {
     lean_assert(m_todo.empty());
     // allocate for root address, see end of function
-    alloc(sizeof(object_offset));
+    // NOTE: we must store an offset instead of the pointer itself as `m_begin` may have been
+    //  reallocated in the meantime
+    size_t root_offset =
+      static_cast<char *>(alloc(sizeof(object_offset))) - static_cast<char *>(m_begin);
     if (!lean_is_scalar(o)) {
         m_todo.push_back(o);
         while (!m_todo.empty()) {
@@ -354,7 +358,7 @@ void object_compactor::operator()(object * o) {
             g_tag_counters[lean_ptr_tag(curr)]++;
 #endif
             switch (lean_ptr_tag(curr)) {
-            case LeanClosure:         lean_internal_panic("closures cannot be compacted. One possible cause of this error is trying to store a function in a persistent environment extension.");
+            case LeanClosure:         throw exception("closures cannot be compacted. One possible cause of this error is trying to store a function in a persistent environment extension.");
             case LeanArray:           r = insert_array(curr); break;
             case LeanScalarArray:     insert_sarray(curr); break;
             case LeanString:          insert_string(curr); break;
@@ -363,7 +367,7 @@ void object_compactor::operator()(object * o) {
             case LeanTask:            r = insert_task(curr); break;
             case LeanPromise:         r = insert_promise(curr); break;
             case LeanRef:             r = insert_ref(curr); break;
-            case LeanExternal:        lean_internal_panic("external objects cannot be compacted");
+            case LeanExternal:        throw exception("external objects cannot be compacted");
             case LeanReserved:        lean_unreachable();
             default:                  r = insert_constructor(curr); break;
             }
@@ -371,10 +375,12 @@ void object_compactor::operator()(object * o) {
         }
         m_tmp.clear();
     }
-    *static_cast<object_offset *>(m_begin) = to_offset(o);
+    object_offset * root = reinterpret_cast<object_offset *>(static_cast<char *>(m_begin) + root_offset);
+    *root = to_offset(o);
 }
 
 compacted_region::compacted_region(size_t sz, void * data, void * base_addr, bool is_mmap, std::function<void()> free_data):
+    m_size(sz),
     m_base_addr(base_addr),
     m_is_mmap(is_mmap),
     m_free_data(free_data),
@@ -383,15 +389,10 @@ compacted_region::compacted_region(size_t sz, void * data, void * base_addr, boo
     m_end(static_cast<char*>(data)+sz) {
 }
 
-compacted_region::compacted_region(object_compactor const & c):
-    m_begin(malloc(c.size())),
-    m_next(m_begin),
-    m_end(static_cast<char*>(m_begin) + c.size()) {
-    memcpy(m_begin, c.data(), c.size());
-}
-
 compacted_region::~compacted_region() {
-    m_free_data();
+    if (m_free_data) {
+        m_free_data();
+    }
 }
 
 inline object * compacted_region::fix_object_ptr(object * o) {
@@ -501,6 +502,10 @@ object * compacted_region::read() {
 
 extern "C" LEAN_EXPORT uint8 lean_compacted_region_is_memory_mapped(usize region) {
     return reinterpret_cast<compacted_region *>(region)->is_memory_mapped();
+}
+
+extern "C" LEAN_EXPORT usize lean_compacted_region_size(usize region) {
+    return reinterpret_cast<compacted_region *>(region)->size();
 }
 
 extern "C" LEAN_EXPORT obj_res lean_compacted_region_free(usize region, object *) {

@@ -1,11 +1,11 @@
-namedHoles.lean:9:12-9:14: error: application type mismatch
-  f ?x ?x
-argument
+namedHoles.lean:9:12-9:14: error: Application type mismatch: The last
   ?x
-has type
-  Nat : Type
+argument has type
+  Nat
 but is expected to have type
-  Bool : Type
+  Bool
+in the application
+  f ?x ?x
 f ?x sorry : Nat
 g ?x ?x : Nat
 20

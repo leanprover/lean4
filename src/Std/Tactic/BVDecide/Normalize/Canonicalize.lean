@@ -3,8 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.BitVec
+public import Init.Data.BitVec.Lemmas
+public import Std.Tactic.BVDecide.Syntax
+
+@[expose] public section
 
 /-!
 This contains theorems responsible for turning both `Bool` and `BitVec` goals into the
@@ -97,6 +102,9 @@ attribute [bv_normalize] BitVec.neg_eq
 attribute [bv_normalize] BitVec.mul_eq
 attribute [bv_normalize] BitVec.udiv_eq
 attribute [bv_normalize] BitVec.umod_eq
+attribute [bv_normalize ←] BitVec.shiftLeft_eq'
+attribute [bv_normalize ←] BitVec.sshiftRight_eq'
+attribute [bv_normalize ←] BitVec.ushiftRight_eq'
 
 end Normalize
 end Std.Tactic.BVDecide

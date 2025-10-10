@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.Relabel
+public import Std.Sat.AIG.Relabel
+
+@[expose] public section
 
 
 namespace Std
@@ -109,7 +113,7 @@ theorem Inv2.property (decls : Array (Decl α)) (idx upper : Nat) (map : HashMap
   induction hinv with
   | empty => omega
   | newAtom ih1 ih2 ih3 ih4 ih5 =>
-    next idx' _ a' _ =>
+    rename_i idx' _ a' _
     replace hidx : idx ≤ idx' := by omega
     rw [HashMap.getElem?_insert]
     match heq2 : a' == a with
@@ -125,7 +129,7 @@ theorem Inv2.property (decls : Array (Decl α)) (idx upper : Nat) (map : HashMap
       exact Option.isSome_iff_exists.mp rfl
   | oldAtom ih1 ih2 ih3 ih4 ih5 =>
     simp_all only [true_implies]
-    next idx' _ _ _ =>
+    rename_i idx' _ _ _
     replace hidx : idx ≤ idx' := by omega
     cases Nat.eq_or_lt_of_le hidx with
     | inl hidxeq =>
@@ -135,13 +139,13 @@ theorem Inv2.property (decls : Array (Decl α)) (idx upper : Nat) (map : HashMap
       assumption
     | inr hlt => apply ih5 <;> assumption
   | false ih1 ih2 ih3 ih4 =>
-    next idx' _ =>
+    rename_i idx' _
     replace hidx : idx ≤ idx' := by omega
     cases Nat.eq_or_lt_of_le hidx with
     | inl hidxeq => simp [hidxeq, ih3] at heq
     | inr hlt => apply ih4 <;> assumption
   | gate ih1 ih2 ih3 ih4 =>
-    next idx' _ _ _ =>
+    rename_i idx' _ _ _
     replace hidx : idx ≤ idx' := by omega
     cases Nat.eq_or_lt_of_le hidx with
     | inl hidxeq => simp [hidxeq, ih3] at heq
@@ -325,30 +329,36 @@ theorem relabelNat'_fst_eq_relabelNat {aig : AIG α} : aig.relabelNat'.fst = aig
 theorem relabelNat_size_eq_size {aig : AIG α} : aig.relabelNat.decls.size = aig.decls.size := by
   simp [relabelNat, relabelNat']
 
-/--
-`relabelNat` preserves unsatisfiablility.
--/
-theorem relabelNat_unsat_iff [Nonempty α] {aig : AIG α} {hidx1} {hidx2} :
+theorem relabelNat_unsat_iff_of_NonEmpty [Nonempty α] {aig : AIG α} {hidx1} {hidx2} :
     (aig.relabelNat).UnsatAt idx invert hidx1 ↔ aig.UnsatAt idx invert hidx2 := by
   dsimp only [relabelNat, relabelNat']
   rw [relabel_unsat_iff]
   intro x y hx hy heq
   split at heq
-  · next hcase1 =>
+  next hcase1 =>
     split at heq
-    · next hcase2 =>
+    next hcase2 =>
       apply RelabelNat.State.ofAIG_find_unique
       · assumption
       · rw [heq]
         assumption
-    · next hcase2 =>
+    next hcase2 =>
       exfalso
       rcases RelabelNat.State.ofAIG_find_some y hy with ⟨n, hn⟩
       simp [hcase2] at hn
-  · next hcase =>
+  next hcase =>
     exfalso
     rcases RelabelNat.State.ofAIG_find_some x hx with ⟨n, hn⟩
     simp [hcase] at hn
+
+/--
+`relabelNat` preserves unsatisfiablility.
+-/
+theorem relabelNat_unsat_iff {aig : AIG α} {hidx1} {hidx2} :
+    (aig.relabelNat).UnsatAt idx invert hidx1 ↔ aig.UnsatAt idx invert hidx2 := by
+  by_cases hNonempty : Nonempty α
+  · apply relabelNat_unsat_iff_of_NonEmpty
+  · apply relabel_unsat_iff_of_not_Nonempty hNonempty
 
 namespace Entrypoint
 
@@ -375,7 +385,7 @@ def relabelNat (entry : Entrypoint α) : Entrypoint Nat :=
 /--
 `relabelNat` preserves unsatisfiablility.
 -/
-theorem relabelNat_unsat_iff {entry : Entrypoint α} [Nonempty α] :
+theorem relabelNat_unsat_iff {entry : Entrypoint α} :
     (entry.relabelNat).Unsat ↔ entry.Unsat:= by
   simp only [Unsat, relabelNat]
   rw [AIG.relabelNat_unsat_iff]

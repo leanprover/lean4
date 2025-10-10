@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: LakeMain
-// Imports: Lake Lake.CLI
+// Imports: public import Init.System.IO import Lake.DSL import Lake.CLI.Main
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -40,21 +40,26 @@ return x_7;
 }
 }
 }
-lean_object* initialize_Lake(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_CLI(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_DSL(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_CLI_Main(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_LakeMain(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake(builtin, lean_io_mk_world());
+res = initialize_Init_System_IO(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_CLI(builtin, lean_io_mk_world());
+res = initialize_Lake_DSL(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_CLI_Main(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
+char ** lean_setup_args(int argc, char ** argv);
 void lean_initialize();
 
   #if defined(WIN32) || defined(_WIN32)
@@ -67,6 +72,7 @@ void lean_initialize();
   SetConsoleOutputCP(CP_UTF8);
   #endif
   lean_object* in; lean_object* res;
+argv = lean_setup_args(argc, argv);
 lean_initialize();
 lean_set_panic_messages(false);
 res = initialize_LakeMain(1 /* builtin */, lean_io_mk_world());

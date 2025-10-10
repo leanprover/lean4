@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.RefVec
-import Std.Sat.AIG.LawfulVecOperator
+public import Std.Sat.AIG.RefVec
+public import Std.Sat.AIG.LawfulVecOperator
+
+@[expose] public section
 
 namespace Std
 namespace Sat
@@ -15,29 +19,12 @@ namespace RefVec
 
 variable {α : Type} [Hashable α] [DecidableEq α] {aig : AIG α}
 
-structure FoldTarget (aig : AIG α) where
-  {len : Nat}
-  vec : RefVec aig len
-  func : (aig : AIG α) → BinaryInput aig → Entrypoint α
-  [lawful : LawfulOperator α BinaryInput func]
-
-attribute [instance] FoldTarget.lawful
-
-@[inline]
-def FoldTarget.mkAnd {aig : AIG α} (vec : RefVec aig w) : FoldTarget aig where
-  vec := vec
-  func := mkAndCached
-
 @[specialize]
-def fold (aig : AIG α) (target : FoldTarget aig) : Entrypoint α :=
-  let res := aig.mkConstCached true
-  let aig := res.aig
-  let acc := res.ref
-  let input := target.vec.cast <| by
-    intros
-    apply LawfulOperator.le_size_of_le_aig_size (f := mkConstCached)
-    omega
-  go aig acc 0 target.len input target.func
+def fold (aig : AIG α) (vec : RefVec aig len)
+    (func : (aig : AIG α) → BinaryInput aig → Entrypoint α) [LawfulOperator α BinaryInput func] :
+    Entrypoint α :=
+  let acc := aig.mkConstCached true
+  go aig acc 0 len vec func
 where
   @[specialize]
   go (aig : AIG α) (acc : Ref aig) (idx : Nat) (len : Nat) (input : RefVec aig len)
@@ -61,19 +48,20 @@ theorem fold.go_le_size {aig : AIG α} (acc : Ref aig) (idx : Nat) (s : RefVec a
     aig.decls.size ≤ (go aig acc idx len s f).1.decls.size := by
   unfold go
   split
-  · next h =>
+  next h =>
     dsimp only
     refine Nat.le_trans ?_ (by apply fold.go_le_size)
     apply LawfulOperator.le_size
   · simp
   termination_by len - idx
 
-theorem fold_le_size {aig : AIG α} (target : FoldTarget aig) :
-    aig.decls.size ≤ (fold aig target).1.decls.size := by
+theorem fold_le_size {aig : AIG α} (vec : RefVec aig len)
+    (func : (aig : AIG α) → BinaryInput aig → Entrypoint α)
+    [LawfulOperator α BinaryInput func] :
+    aig.decls.size ≤ (fold aig vec func).1.decls.size := by
   unfold fold
   dsimp only
-  refine Nat.le_trans ?_ (by apply fold.go_le_size)
-  apply LawfulOperator.le_size (f := mkConstCached)
+  apply fold.go_le_size
 
 theorem fold.go_decl_eq {aig : AIG α} (acc : Ref aig) (i : Nat) (s : RefVec aig len)
     (f : (aig : AIG α) → BinaryInput aig → Entrypoint α) [LawfulOperator α BinaryInput f] :
@@ -94,27 +82,37 @@ theorem fold.go_decl_eq {aig : AIG α} (acc : Ref aig) (i : Nat) (s : RefVec aig
     simp
 termination_by len - i
 
-theorem fold_decl_eq {aig : AIG α} (target : FoldTarget aig) :
+theorem fold_decl_eq {aig : AIG α} (vec : RefVec aig len)
+    (func : (aig : AIG α) → BinaryInput aig → Entrypoint α) [LawfulOperator α BinaryInput func] :
     ∀ idx (h1 : idx < aig.decls.size) (h2),
-      (fold aig target).1.decls[idx]'h2
+      (fold aig vec func).1.decls[idx]'h2
         =
       aig.decls[idx]'h1 := by
   intros
   unfold fold
   dsimp only
   rw [fold.go_decl_eq]
-  rw [LawfulOperator.decl_eq (f := mkConstCached)]
-  apply LawfulOperator.lt_size_of_lt_aig_size (f := mkConstCached)
-  assumption
 
-instance : LawfulOperator α FoldTarget fold where
-  le_size := by intros; apply fold_le_size
-  decl_eq := by intros; apply fold_decl_eq
+theorem fold_lt_size_of_lt_aig_size (aig : AIG α) (vec : RefVec aig len)
+    (func : (aig : AIG α) → BinaryInput aig → Entrypoint α) [LawfulOperator α BinaryInput func]
+    (h : x < aig.decls.size) :
+    x < (fold aig vec func).aig.decls.size := by
+  apply Nat.lt_of_lt_of_le
+  · exact h
+  · apply fold_le_size
+
+theorem fold_le_size_of_le_aig_size (aig : AIG α) (vec : RefVec aig len)
+    (func : (aig : AIG α) → BinaryInput aig → Entrypoint α) [LawfulOperator α BinaryInput func]
+    (h : x ≤ aig.decls.size) :
+    x ≤ (fold aig vec func).aig.decls.size := by
+  apply Nat.le_trans
+  · exact h
+  · apply fold_le_size
 
 namespace fold
 
-theorem denote_go_and {aig : AIG α} (acc : AIG.Ref aig) (curr : Nat) (hcurr : curr ≤ len)
-    (input : RefVec aig len) :
+theorem denote_go_and {aig : AIG α} (acc : AIG.Ref aig) (curr : Nat)
+    (hcurr : curr ≤ len) (input : RefVec aig len) :
     ⟦
       (go aig acc curr len input mkAndCached).aig,
       (go aig acc curr len input mkAndCached).ref,
@@ -168,24 +166,12 @@ end fold
 
 @[simp]
 theorem denote_fold_and {aig : AIG α} (s : RefVec aig len) :
-    ⟦(fold aig (FoldTarget.mkAnd s)), assign⟧
+    ⟦(fold aig s AIG.mkAndCached), assign⟧
       ↔
     (∀ (idx : Nat) (hidx : idx < len), ⟦aig, s.get idx hidx, assign⟧) := by
   unfold fold
-  simp only [FoldTarget.mkAnd]
   rw [fold.denote_go_and]
-  · simp only [denote_projected_entry, mkConstCached_eval_eq_mkConst_eval, denote_mkConst,
-    Nat.zero_le, get_cast, Ref.cast_eq, true_implies, true_and]
-    constructor
-    · intro h idx hidx
-      specialize h idx hidx
-      rw [AIG.LawfulOperator.denote_mem_prefix (f := mkConstCached)] at h
-      rw [← h]
-    · intro h idx hidx
-      specialize h idx hidx
-      rw [AIG.LawfulOperator.denote_mem_prefix (f := mkConstCached)]
-      · simp only [← h]
-      · apply RefVec.hrefs
+  · simp
   · omega
 
 end RefVec

@@ -3,10 +3,14 @@ Copyright (c) 2023 Kyle Miller. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
+module
+
 prelude
-import Lean.Elab.Notation
-import Lean.Util.Diff
-import Lean.Server.CodeActions.Attr
+public import Lean.Elab.Notation
+public import Lean.Util.Diff
+public import Lean.Server.CodeActions.Attr
+
+public section
 
 /-! `#guard_msgs` command for testing commands
 
@@ -17,36 +21,46 @@ See the docstring on the `#guard_msgs` command.
 open Lean Parser.Tactic Elab Command
 
 register_builtin_option guard_msgs.diff : Bool := {
-  defValue := false
+  defValue := true
   descr := "When true, show a diff between expected and actual messages if they don't match. "
 }
 
 
 namespace Lean.Elab.Tactic.GuardMsgs
 
-/-- Gives a string representation of a message without source position information.
-Ensures the message ends with a '\n'. -/
-private def messageToStringWithoutPos (msg : Message) : BaseIO String := do
+/-- Gives a string representation of a message with optional position information. If
+`reportPos? := some line` is provided, the range of `msg` is reported relative to `line`.  -/
+private def messageToString (msg : Message) (reportPos? : Option Nat) :
+    BaseIO String := do
   let mut str ← msg.data.toString
   unless msg.caption == "" do
     str := msg.caption ++ ":\n" ++ str
   if !("\n".isPrefixOf str) then str := " " ++ str
-  match msg.severity with
-  | MessageSeverity.information => str := "info:" ++ str
-  | MessageSeverity.warning     => str := "warning:" ++ str
-  | MessageSeverity.error       => str := "error:" ++ str
+  if msg.isTrace then
+    str := "trace:" ++ str
+  else
+    match msg.severity with
+    | MessageSeverity.information => str := "info:" ++ str
+    | MessageSeverity.warning     => str := "warning:" ++ str
+    | MessageSeverity.error       => str := "error:" ++ str
+  if let some line := reportPos? then
+    let showRelPos (line : Nat) (pos : Position) := s!"+{pos.line - line}:{pos.column}"
+    let showEndPos := msg.endPos.elim "*" fun endPos =>
+      -- Omit ending line if the same as starting line:
+      if endPos.line = msg.pos.line then s!"{endPos.column}" else showRelPos line endPos
+    str := s!"@ {showRelPos line msg.pos}...{showEndPos}\n" ++ str
   if str.isEmpty || str.back != '\n' then
     str := str ++ "\n"
   return str
 
 /-- The decision made by a specification for a message. -/
-inductive SpecResult
+inductive FilterSpec
   /-- Capture the message and check it matches the docstring. -/
   | check
   /-- Drop the message and delete it. -/
   | drop
   /-- Do not capture the message. -/
-  | passthrough
+  | pass
 
 /-- The method to use when normalizing whitespace, after trimming. -/
 inductive WhitespaceMode
@@ -64,39 +78,68 @@ inductive MessageOrdering
   /-- Sort the produced messages. -/
   | sorted
 
-/-- Parses a `guardMsgsSpec`.
+/-- The specification options for `#guard_msgs`. The default field values provide the default
+behavior of `#guard_msgs`. -/
+structure GuardMsgsSpec where
+  /-- Method for deciding whether and how to filter messages; see `FilterSpec`. -/
+  filterFn : Message → FilterSpec := fun _ => .check
+  /-- Method to use when normalizing whitespace, after trimming; see `WhitespaceMode`. -/
+  whitespace : WhitespaceMode := .normalized
+  /-- Method to use when combining multiple messages; see `MessageOrdering`. -/
+  ordering : MessageOrdering := .exact
+  /-- Whether to report position information. -/
+  reportPositions : Bool := false
+
+def parseGuardMsgsFilterAction (action? : Option (TSyntax ``guardMsgsFilterAction)) :
+    CommandElabM FilterSpec := do
+  if let some action := action? then
+    match action with
+    | `(guardMsgsFilterAction| check) => pure .check
+    | `(guardMsgsFilterAction| drop)  => pure .drop
+    | `(guardMsgsFilterAction| pass)  => pure .pass
+    | _ => throwUnsupportedSyntax
+  else
+    pure .check
+
+def parseGuardMsgsFilterSeverity : TSyntax ``guardMsgsFilterSeverity → CommandElabM (Message → Bool)
+  | `(guardMsgsFilterSeverity| trace) => pure fun msg => msg.isTrace
+  | `(guardMsgsFilterSeverity| info)  => pure fun msg => !msg.isTrace && msg.severity == .information
+  | `(guardMsgsFilterSeverity| warning) => pure fun msg => !msg.isTrace && msg.severity == .warning
+  | `(guardMsgsFilterSeverity| error) => pure fun msg => !msg.isTrace && msg.severity == .error
+  | `(guardMsgsFilterSeverity| all)   => pure fun _ => true
+  | _ => throwUnsupportedSyntax
+
+/-- Parses a `GuardMsgsSpec`.
 - No specification: check everything.
 - With a specification: interpret the spec, and if nothing applies pass it through. -/
-def parseGuardMsgsSpec (spec? : Option (TSyntax ``guardMsgsSpec)) :
-    CommandElabM (WhitespaceMode × MessageOrdering × (Message → SpecResult)) := do
-  let elts ←
-    if let some spec := spec? then
-      match spec with
-      | `(guardMsgsSpec| ($[$elts:guardMsgsSpecElt],*)) => pure elts
-      | _ => throwUnsupportedSyntax
+def parseGuardMsgsSpec (spec? : Option (TSyntax ``guardMsgsSpec)) : CommandElabM GuardMsgsSpec := do
+  let cfg : GuardMsgsSpec := {}
+  let some spec := spec? | return cfg
+  let elts ← match spec with
+    | `(guardMsgsSpec| ($[$elts:guardMsgsSpecElt],*)) => pure elts
+    | _ => throwUnsupportedSyntax
+  let defaultFilterFn := cfg.filterFn
+  let mut { whitespace, ordering, reportPositions .. } := cfg
+  let mut p? : Option (Message → FilterSpec) := none
+  let pushP (action : FilterSpec) (msgP : Message → Bool) (p? : Option (Message → FilterSpec))
+      (msg : Message) : FilterSpec :=
+    if msgP msg then
+      action
     else
-      pure #[]
-  let mut whitespace : WhitespaceMode := .normalized
-  let mut ordering : MessageOrdering := .exact
-  let mut p? : Option (Message → SpecResult) := none
-  let pushP (s : MessageSeverity) (drop : Bool) (p? : Option (Message → SpecResult))
-      (msg : Message) : SpecResult :=
-    let p := p?.getD fun _ => .passthrough
-    if msg.severity == s then if drop then .drop else .check
-    else p msg
+      (p?.getD fun _ => .pass) msg
   for elt in elts.reverse do
     match elt with
-    | `(guardMsgsSpecElt| $[drop%$drop?]? info)     => p? := pushP .information drop?.isSome p?
-    | `(guardMsgsSpecElt| $[drop%$drop?]? warning)  => p? := pushP .warning drop?.isSome p?
-    | `(guardMsgsSpecElt| $[drop%$drop?]? error)    => p? := pushP .error drop?.isSome p?
-    | `(guardMsgsSpecElt| $[drop%$drop?]? all)      => p? := some fun _ => if drop?.isSome then .drop else .check
+    | `(guardMsgsSpecElt| $[$action?]? $sev)        => p? := pushP (← parseGuardMsgsFilterAction action?) (← parseGuardMsgsFilterSeverity sev) p?
     | `(guardMsgsSpecElt| whitespace := exact)      => whitespace := .exact
     | `(guardMsgsSpecElt| whitespace := normalized) => whitespace := .normalized
     | `(guardMsgsSpecElt| whitespace := lax)        => whitespace := .lax
     | `(guardMsgsSpecElt| ordering := exact)        => ordering := .exact
     | `(guardMsgsSpecElt| ordering := sorted)       => ordering := .sorted
+    | `(guardMsgsSpecElt| positions := true)        => reportPositions := true
+    | `(guardMsgsSpecElt| positions := false)       => reportPositions := false
     | _ => throwUnsupportedSyntax
-  return (whitespace, ordering, p?.getD fun _ => .check)
+  let filterFn := p?.getD defaultFilterFn
+  return { filterFn, whitespace, ordering, reportPositions }
 
 /-- An info tree node corresponding to a failed `#guard_msgs` invocation,
 used for code action support. -/
@@ -106,7 +149,7 @@ structure GuardMsgFailure where
 deriving TypeName
 
 /--
-Makes trailing whitespace visible and protectes them against trimming by the editor, by appending
+Makes trailing whitespace visible and protects them against trimming by the editor, by appending
 the symbol ⏎ to such a line (and also to any line that ends with such a symbol, to avoid
 ambiguities in the case the message already had that symbol).
 -/
@@ -138,7 +181,7 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
   | `(command| $[$dc?:docComment]? #guard_msgs%$tk $(spec?)? in $cmd) => do
     let expected : String := (← dc?.mapM (getDocStringText ·)).getD ""
         |>.trim |> removeTrailingWhitespaceMarker
-    let (whitespace, ordering, specFn) ← parseGuardMsgsSpec spec?
+    let { whitespace, ordering, filterFn, reportPositions } ← parseGuardMsgsSpec spec?
     let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
     -- do not forward snapshot as we don't want messages assigned to it to leak outside
     withReader ({ · with snap? := none }) do
@@ -154,11 +197,16 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
     for msg in msgs.toList do
       if msg.isSilent then
         continue
-      match specFn msg with
+      match filterFn msg with
       | .check       => toCheck := toCheck.add msg
       | .drop        => pure ()
-      | .passthrough => toPassthrough := toPassthrough.add msg
-    let strings ← toCheck.toList.mapM (messageToStringWithoutPos ·)
+      | .pass => toPassthrough := toPassthrough.add msg
+    let map ← getFileMap
+    let reportPos? :=
+      if reportPositions then
+        tk.getPos?.map (map.toPosition · |>.line)
+      else none
+    let strings ← toCheck.toList.mapM (messageToString · reportPos?)
     let strings := ordering.apply strings
     let res := "---\n".intercalate strings |>.trim
     if whitespace.apply expected == whitespace.apply res then
@@ -168,7 +216,7 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
       -- Failed. Put all the messages back on the message log and add an error
       modify fun st => { st with messages := initMsgs ++ msgs }
       let feedback :=
-        if (← getOptions).getBool `guard_msgs.diff false then
+        if guard_msgs.diff.get (← getOptions) then
           let diff := Diff.diff (expected.split (· == '\n')).toArray (res.split (· == '\n')).toArray
           Diff.linesToString diff
         else res
@@ -187,7 +235,7 @@ def guardMsgsCodeAction : CommandCodeAction := fun _ _ _ node => do
   let some (stx, res) := res | return #[]
   let doc ← readDoc
   let eager := {
-    title := "Update #guard_msgs with tactic output"
+    title := "Update #guard_msgs with generated message"
     kind? := "quickfix"
     isPreferred? := true
   }

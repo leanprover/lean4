@@ -3,10 +3,15 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Grind.EMatchTheorem
-import Lean.Meta.Tactic.Grind.Cases
+public import Lean.Meta.Tactic.Grind.EMatchTheorem
+public import Lean.Meta.Tactic.Grind.Injective
+public import Lean.Meta.Tactic.Grind.Cases
+public import Lean.Meta.Tactic.Grind.ExtAttr
+import Lean.ExtraModUses
 
+public section
 namespace Lean.Meta.Grind
 
 inductive AttrKind where
@@ -14,26 +19,37 @@ inductive AttrKind where
   | cases (eager : Bool)
   | intro
   | infer
+  | ext
+  | symbol (prio : Nat)
+  | inj
 
 /-- Return theorem kind for `stx` of the form `Attr.grindThmMod` -/
 def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   match stx with
-  | `(Parser.Attr.grindMod| =) => return .ematch .eqLhs
-  | `(Parser.Attr.grindMod| →)
-  | `(Parser.Attr.grindMod| ->) => return .ematch .fwd
-  | `(Parser.Attr.grindMod| ←)
-  | `(Parser.Attr.grindMod| <-) => return .ematch .bwd
-  | `(Parser.Attr.grindMod| =_) => return .ematch .eqRhs
-  | `(Parser.Attr.grindMod| _=_) => return .ematch .eqBoth
-  | `(Parser.Attr.grindMod| ←=) => return .ematch .eqBwd
-  | `(Parser.Attr.grindMod| ⇒)
-  | `(Parser.Attr.grindMod| =>) => return .ematch .leftRight
-  | `(Parser.Attr.grindMod| ⇐)
-  | `(Parser.Attr.grindMod| <=) => return .ematch .rightLeft
-  | `(Parser.Attr.grindMod| usr) => return .ematch .user
-  | `(Parser.Attr.grindMod| cases) => return .cases false
-  | `(Parser.Attr.grindMod| cases eager) => return .cases true
-  | `(Parser.Attr.grindMod| intro) => return .intro
+  | `(Parser.Attr.grindMod|=) => return .ematch (.eqLhs false)
+  | `(Parser.Attr.grindMod|.) => return .ematch (.default false)
+  | `(Parser.Attr.grindMod|= gen) => return .ematch (.eqLhs true)
+  | `(Parser.Attr.grindMod|→) => return .ematch .fwd
+  | `(Parser.Attr.grindMod|←) => return .ematch (.bwd false)
+  | `(Parser.Attr.grindMod|. gen) => return .ematch (.default true)
+  | `(Parser.Attr.grindMod|← gen) => return .ematch (.bwd true)
+  | `(Parser.Attr.grindMod|=_) => return .ematch (.eqRhs false)
+  | `(Parser.Attr.grindMod|=_ gen) => return .ematch (.eqRhs true)
+  | `(Parser.Attr.grindMod|_=_) => return .ematch (.eqBoth false)
+  | `(Parser.Attr.grindMod|_=_ gen) => return .ematch (.eqBoth true)
+  | `(Parser.Attr.grindMod|←=) => return .ematch .eqBwd
+  | `(Parser.Attr.grindMod|=>) => return .ematch .leftRight
+  | `(Parser.Attr.grindMod|<=) => return .ematch .rightLeft
+  | `(Parser.Attr.grindMod|usr) => return .ematch .user
+  | `(Parser.Attr.grindMod|gen) => return .ematch (.default true)
+  | `(Parser.Attr.grindMod|cases) => return .cases false
+  | `(Parser.Attr.grindMod|cases eager) => return .cases true
+  | `(Parser.Attr.grindMod|intro) => return .intro
+  | `(Parser.Attr.grindMod|ext) => return .ext
+  | `(Parser.Attr.grindMod|inj) => return .inj
+  | `(Parser.Attr.grindMod|symbol $prio:prio) =>
+    let some prio := prio.raw.isNatLit? | throwErrorAt prio "priority expected"
+    return .symbol prio
   | _ => throwError "unexpected `grind` theorem kind: `{stx}`"
 
 /-- Return theorem kind for `stx` of the form `(Attr.grindMod)?` -/
@@ -46,11 +62,26 @@ def getAttrKindFromOpt (stx : Syntax) : CoreM AttrKind := do
 def throwInvalidUsrModifier : CoreM α :=
   throwError "the modifier `usr` is only relevant in parameters for `grind only`"
 
-builtin_initialize
+/--
+Auxiliary function for registering `grind`, `grind!`, `grind?`, and `grind!?` attributes.
+`grind!` is like `grind` but selects minimal indexable subterms.
+The `grind?` and `grind!?` are aliases for `grind` and `grind!` which displays patterns using `logInfo`.
+It is just a convenience for users.
+-/
+private def registerGrindAttr (minIndexable : Bool) (showInfo : Bool) : IO Unit :=
   registerBuiltinAttribute {
-    name := `grind
+    name := match minIndexable, showInfo with
+      | false, false => `grind
+      | false, true  => `grind?
+      | true,  false => `grind!
+      | true,  true  => `grind!?
     descr :=
-      "The `[grind]` attribute is used to annotate declarations.\
+      let header := match minIndexable, showInfo with
+        | false, false => "The `[grind]` attribute is used to annotate declarations."
+        | false, true  => "The `[grind?]` attribute is identical to the `[grind]` attribute, but displays inferred pattern information."
+        | true,  false => "The `[grind!]` attribute is used to annotate declarations, but selecting minimal indexable subterms."
+        | true,  true  => "The `[grind!?]` attribute is identical to the `[grind!]` attribute, but displays inferred pattern information."
+      header ++ "\
       \
       When applied to an equational theorem, `[grind =]`, `[grind =_]`, or `[grind _=_]`\
       will mark the theorem for use in heuristic instantiations by the `grind` tactic,
@@ -68,16 +99,18 @@ builtin_initialize
       `grind` will add an instance of this theorem to the local context whenever it encounters the pattern `foo (foo x)`."
     applicationTime := .afterCompilation
     add := fun declName stx attrKind => MetaM.run' do
+      recordExtraModUseFromDecl (isMeta := false) declName
       match (← getAttrKindFromOpt stx) with
       | .ematch .user => throwInvalidUsrModifier
-      | .ematch k => addEMatchAttr declName attrKind k
+      | .ematch k => addEMatchAttr declName attrKind k (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
       | .cases eager => addCasesAttr declName eager attrKind
       | .intro =>
         if let some info ← isCasesAttrPredicateCandidate? declName false then
           for ctor in info.ctors do
-            addEMatchAttr ctor attrKind .default
+            addEMatchAttr ctor attrKind (.default false) (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
         else
-          throwError "invalid `[grind intro]`, `{declName}` is not an inductive predicate"
+          throwError "invalid `[grind intro]`, `{.ofConstName declName}` is not an inductive predicate"
+      | .ext => addExtAttr declName attrKind
       | .infer =>
         if let some declName ← isCasesAttrCandidate? declName false then
           addCasesAttr declName false attrKind
@@ -85,14 +118,28 @@ builtin_initialize
             -- If it is an inductive predicate,
             -- we also add the constructors (intro rules) as E-matching rules
             for ctor in info.ctors do
-              addEMatchAttr ctor attrKind .default
+              addEMatchAttr ctor attrKind (.default false) (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
         else
-          addEMatchAttr declName attrKind .default
+          addEMatchAttrAndSuggest stx declName attrKind (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
+      | .symbol prio => addSymbolPriorityAttr declName attrKind prio
+      | .inj => addInjectiveAttr declName attrKind
     erase := fun declName => MetaM.run' do
+      if showInfo then
+        throwError "`[grind?]` is a helper attribute for displaying inferred patterns, if you want to remove the attribute, consider using `[grind]` instead"
       if (← isCasesAttrCandidate declName false) then
         eraseCasesAttr declName
+      else if (← isExtTheorem declName) then
+        eraseExtAttr declName
+      else if (← isInjectiveTheorem declName) then
+        eraseInjectiveAttr declName
       else
         eraseEMatchAttr declName
   }
+
+builtin_initialize
+  registerGrindAttr (minIndexable := false) (showInfo := true)
+  registerGrindAttr (minIndexable := false) (showInfo := false)
+  registerGrindAttr (minIndexable := true) (showInfo := true)
+  registerGrindAttr (minIndexable := true) (showInfo := false)
 
 end Lean.Meta.Grind

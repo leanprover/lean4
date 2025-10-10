@@ -3,31 +3,36 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Conv
-import Lean.Meta.Tactic.Rewrite
-import Lean.Meta.Tactic.Split
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.Eqns
-import Lean.Elab.PreDefinition.FixedParams
+public import Lean.Elab.PreDefinition.Eqns
+public import Lean.Elab.PreDefinition.FixedParams
 import Lean.Meta.ArgsPacker.Basic
 import Init.Data.Array.Basic
 import Init.Internal.Order.Basic
+import Lean.Elab.Tactic.Conv
+import Lean.Meta.Tactic.Rewrite
+import Lean.Meta.Tactic.Split
 
 namespace Lean.Elab.PartialFixpoint
 open Meta
 open Eqns
 
-structure EqnInfo extends EqnInfoCore where
+public structure EqnInfo extends EqnInfoCore where
   declNames       : Array Name
   declNameNonRec  : Name
   fixedParamPerms : FixedParamPerms
+  fixpointType    : Array PartialFixpointType
   deriving Inhabited
 
-builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
+public builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ←
+  mkMapDeclarationExtension (exportEntriesFn := fun env s _ =>
+    -- Do not export for non-exposed defs
+    s.filter (fun n _ => env.find? n |>.any (·.hasValue)) |>.toArray)
 
-def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name)
-    (fixedParamPerms : FixedParamPerms) : MetaM Unit := do
+public def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name)
+    (fixedParamPerms : FixedParamPerms) (fixpointType : Array PartialFixpointType): MetaM Unit := do
   preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
   unless preDefs.all fun p => p.kind.isTheorem do
     unless (← preDefs.allM fun p => isProp p.type) do
@@ -35,7 +40,7 @@ def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name)
       modifyEnv fun env =>
         preDefs.foldl (init := env) fun env preDef =>
           eqnInfoExt.insert env preDef.declName { preDef with
-            declNames, declNameNonRec, fixedParamPerms }
+            declNames, declNameNonRec, fixedParamPerms, fixpointType }
 
 private def deltaLHSUntilFix (declName declNameNonRec : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let target ← mvarId.getType'
@@ -46,6 +51,8 @@ private def deltaLHSUntilFix (declName declNameNonRec : Name) (mvarId : MVarId) 
 partial def rwFixUnder (lhs : Expr) : MetaM Expr := do
   if lhs.isAppOfArity ``Order.fix 4 then
     return mkAppN (mkConst ``Order.fix_eq lhs.getAppFn.constLevels!) lhs.getAppArgs
+  else if lhs.isAppOfArity ``Order.lfp_monotone 4 then
+    return mkAppN (mkConst ``Order.lfp_monotone_fix lhs.getAppFn.constLevels!) lhs.getAppArgs
   else if lhs.isApp then
     let h ← rwFixUnder lhs.appFn!
     mkAppM ``congrFun #[h, lhs.appArg!]
@@ -56,7 +63,7 @@ partial def rwFixUnder (lhs : Expr) : MetaM Expr := do
   else
     throwError "rwFixUnder: unexpected expression {lhs}"
 
-private def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let mut mvarId := mvarId
   let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | unreachable!
@@ -69,7 +76,7 @@ private def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
 
 /-- Generate the "unfold" lemma for `declName`. -/
 def mkUnfoldEq (declName : Name) (info : EqnInfo) : MetaM Name := do
-  let name := Name.str declName unfoldThmSuffix
+  let name := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
   realizeConst declName name (doRealize name)
   return name
 where
@@ -92,16 +99,20 @@ where
           trace[Elab.definition.partialFixpoint] "mkUnfoldEq rfl succeeded"
           instantiateMVars goal
         catch e =>
-          throwError "failed to generate unfold theorem for '{declName}':\n{e.toMessageData}"
+          throwError "failed to generate unfold theorem for `{.ofConstName declName}`:\n{e.toMessageData}"
       let type ← mkForallFVars xs type
+      let type ← letToHave type
       let value ← mkLambdaFVars xs goal
-      addDecl <| Declaration.thmDecl {
-        name, type, value
+
+      addDecl <| (←mkThmOrUnsafeDef {
+        name := name
         levelParams := info.levelParams
-      }
+        type := type
+        value := value
+      })
 
 def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
-  let name := Name.str declName unfoldThmSuffix
+  let name := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
   let env ← getEnv
   if env.contains name then return name
   let some info := eqnInfoExt.find? env declName | return none
@@ -109,7 +120,7 @@ def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if let some info := eqnInfoExt.find? (← getEnv) declName then
-    mkEqns declName info.declNames
+    mkEqns declName info.declNames (tryRefl := false)
   else
     return none
 

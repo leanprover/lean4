@@ -3,13 +3,19 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
+public import Lake.Util.Log
+public import Lake.Load.Config
+public import Lean.Environment
+import Lean.Compiler.IR
 import Lean.Elab.Frontend
 import Lake.DSL.Extensions
 import Lake.DSL.Attributes
 import Lake.Load.Config
 import Lake.Build.Trace
-import Lake.Util.Log
+import Lake.Util.JsonObject
 
 /-! # Lean Configuration Elaborator
 
@@ -21,13 +27,14 @@ open System Lean
 
 namespace Lake
 
-deriving instance BEq, Hashable for Import
-
 /- Cache for the imported header environment of Lake configuration files. -/
-builtin_initialize importEnvCache : IO.Ref (Std.HashMap (Array Import) Environment) ← IO.mkRef {}
+private builtin_initialize importEnvCache :
+  IO.Ref (Std.HashMap (Array Import) Environment) ← IO.mkRef {}
 
 /-- Like `importModules`, but fetch the resulting import state from the cache if possible. -/
-def importModulesUsingCache (imports : Array Import) (opts : Options) (trustLevel : UInt32) : IO Environment := do
+public def importModulesUsingCache
+  (imports : Array Import) (opts : Options) (trustLevel : UInt32)
+: IO Environment := do
   if let some env := (← importEnvCache.get)[imports]? then
     return env
   let env ← importModules (loadExts := true) imports opts trustLevel
@@ -35,22 +42,27 @@ def importModulesUsingCache (imports : Array Import) (opts : Options) (trustLeve
   return env
 
 /-- Like `Lean.Elab.processHeader`, but using `importEnvCache`. -/
-def processHeader (header : Syntax) (opts : Options)
-(inputCtx : Parser.InputContext) : StateT MessageLog IO Environment := do
+-- TODO: Update to incorporate the module system
+private def processHeader
+  (header : TSyntax ``Parser.Module.header) (opts : Options)
+  (inputCtx : Parser.InputContext) : StateT MessageLog IO Environment
+:= do
   try
     let imports := Elab.headerToImports header
     importModulesUsingCache imports opts 1024
   catch e =>
-    let pos := inputCtx.fileMap.toPosition <| header.getPos?.getD 0
+    let pos := inputCtx.fileMap.toPosition <| header.raw.getPos?.getD 0
     modify (·.add { fileName := inputCtx.fileName, data := toString e, pos })
     mkEmptyEnvironment
 
 /-- Main module `Name` of a Lake configuration file. -/
-def configModuleName : Name := `lakefile
+public def configModuleName : Name := `lakefile
 
 /-- Elaborate `configFile` with the given package directory and options. -/
-def elabConfigFile (pkgDir : FilePath) (lakeOpts : NameMap String)
-(leanOpts := Options.empty) (configFile := pkgDir / defaultLeanConfigFile) : LogIO Environment := do
+def elabConfigFile
+  (pkgName : Name) (pkgDir : FilePath) (lakeOpts : NameMap String)
+  (leanOpts := Options.empty) (configFile := pkgDir / defaultLeanConfigFile)
+: LogIO Environment := do
 
   -- Read file and initialize environment
   let input ← IO.FS.readFile configFile
@@ -60,6 +72,7 @@ def elabConfigFile (pkgDir : FilePath) (lakeOpts : NameMap String)
   let env := env.setMainModule configModuleName
 
   -- Configure extensions
+  let env := nameExt.setState env pkgName
   let env := dirExt.setState env pkgDir
   let env := optsExt.setState env lakeOpts
 
@@ -118,7 +131,10 @@ def importConfigFileCore (olean : FilePath) (leanOpts : Options) : IO Environmen
   let env := mod.entries.foldl (init := env) fun env (extName, ents) =>
     if lakeExts.contains extName then
       match extNameIdx[extName]? with
-      | some entryIdx => ents.foldl extDescrs[entryIdx]!.addEntry env
+      | some entryIdx =>
+        -- Use `sync` to avoid `async` checks, which are not relevant here as there is only one
+        -- environment branch.
+        ents.foldl (extDescrs[entryIdx]!.addEntry (asyncMode := .sync)) env
       | none => env
     else
       env
@@ -148,6 +164,7 @@ where
     |>.insert ``IR.declMapExt
 
 structure ConfigTrace where
+  name : Name
   platform : String
   leanHash : String
   configHash : Hash
@@ -159,12 +176,15 @@ Import the `.olean` for the configuration file if `reconfigure` is not set and
 an up-to-date one exists (i.e., one with matching configuration and on the same
 toolchain). Otherwise, elaborate the configuration and save it to the `.olean`.
 -/
-def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
+public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
   let some configName := FilePath.mk <$> cfg.configFile.fileName
     | error "invalid configuration file name"
-  let olean := cfg.lakeDir / configName.withExtension "olean"
-  let traceFile := cfg.lakeDir / configName.withExtension "olean.trace"
-  let lockFile := cfg.lakeDir / configName.withExtension "olean.lock"
+  let pkgName := cfg.pkgName.toString (escape := false)
+  let configDir := cfg.lakeDir / "config" / pkgName
+  IO.FS.createDirAll configDir
+  let olean := configDir / configName.withExtension "olean"
+  let traceFile := configDir / configName.withExtension "olean.trace"
+  let lockFile := configDir / configName.withExtension "olean.lock"
   /-
   Remark:
   To prevent race conditions between the `.olean` and its trace file
@@ -225,9 +245,9 @@ def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
     | .ok _ | .error (.noFileOrDirectory ..) =>
       h.putStrLn <| Json.pretty <| toJson
         {platform := System.Platform.target, leanHash := cfg.lakeEnv.leanGithash,
-          configHash, options := lakeOpts : ConfigTrace}
+          configHash, name := cfg.pkgName, options := lakeOpts : ConfigTrace}
       h.truncate
-      let env ← elabConfigFile cfg.pkgDir lakeOpts cfg.leanOpts cfg.configFile
+      let env ← elabConfigFile cfg.pkgName cfg.pkgDir lakeOpts cfg.leanOpts cfg.configFile
       Lean.writeModule env olean
       h.unlock
       return env
@@ -241,17 +261,28 @@ def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
     else
       h.lock (exclusive := false)
       let contents ← h.readToEnd
-      let .ok (trace : ConfigTrace) := Json.parse contents >>= fromJson?
-        | error "compiled configuration is invalid; run with '-R' to reconfigure"
-      let upToDate :=
-        (← olean.pathExists) ∧ trace.platform = System.Platform.target ∧
-        trace.leanHash = cfg.lakeEnv.leanGithash ∧ trace.configHash = configHash
-      if upToDate then
-        let env ← importConfigFileCore olean cfg.leanOpts
-        h.unlock
-        return env
-      else
-        elabConfig (← acquireTrace h) trace.options
+      let errMsg := "compiled configuration is invalid; run with '-R' to reconfigure"
+      match Json.parse contents with
+      | .ok json =>
+        match fromJson? json with
+        | .ok (trace : ConfigTrace) =>
+          let upToDate :=
+            (← olean.pathExists) ∧ trace.name = cfg.pkgName ∧ trace.configHash = configHash ∧
+            trace.platform = System.Platform.target ∧ trace.leanHash = cfg.lakeEnv.leanGithash
+          if upToDate then
+            let env ← importConfigFileCore olean cfg.leanOpts
+            h.unlock
+            return env
+          else
+            elabConfig (← acquireTrace h) trace.options
+        | .error _ => -- trace has unexpected format, try to just read the one necessary field
+          match JsonObject.fromJson? json >>= (·.get "options") with
+          | .ok (opts : NameMap String) =>
+            elabConfig (← acquireTrace h) opts
+          | .error _ =>
+            error errMsg
+      | .error _ =>
+        error errMsg
   if (← traceFile.pathExists) then
     validateTrace <| ← IO.FS.Handle.mk traceFile .read
   else

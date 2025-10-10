@@ -3,15 +3,20 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Dany Fabian
 -/
+module
+
 prelude
-import Lean.Data.RBMap
-import Init.Data.ToString.Macro
+public import Init.Data.ToString.Macro
+public import Std.Data.TreeMap.Basic
+public import Init.Data.Ord.String
+
+public section
 
 namespace Lean
 namespace Xml
 
-def Attributes := RBMap String String compare
-instance : ToString Attributes := ⟨λ as => as.fold (λ s n v => s ++ s!" {n}=\"{v}\"") ""⟩
+@[expose] def Attributes := Std.TreeMap String String
+instance : ToString Attributes := ⟨λ as => as.foldl (λ s n v => s ++ s!" {n}=\"{v}\"") ""⟩
 
 mutual
 inductive Element
@@ -37,5 +42,5 @@ private partial def cToString : Content → String
 | Content.Character c => c
 
 end
-instance : ToString Element := ⟨eToString⟩
-instance : ToString Content := ⟨cToString⟩
+instance : ToString Element := ⟨private_decl% eToString⟩
+instance : ToString Content := ⟨private_decl% cToString⟩

@@ -3,9 +3,12 @@ Copyright (c) 2023 F. G. Dorais. No rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: F. G. Dorais
 -/
-prelude
-import Init.NotationExtra
+module
 
+prelude
+public import Init.NotationExtra
+
+public section
 
 namespace Bool
 
@@ -430,11 +433,11 @@ theorem and_or_inj_left_iff :
 /--
 Converts `true` to `1` and `false` to `0`.
 -/
-def toNat (b : Bool) : Nat := cond b 1 0
+@[expose] def toNat (b : Bool) : Nat := cond b 1 0
 
-@[simp, bitvec_to_nat] theorem toNat_false : false.toNat = 0 := rfl
+@[simp, bitvec_to_nat, grind =] theorem toNat_false : false.toNat = 0 := rfl
 
-@[simp, bitvec_to_nat] theorem toNat_true : true.toNat = 1 := rfl
+@[simp, bitvec_to_nat, grind =] theorem toNat_true : true.toNat = 1 := rfl
 
 theorem toNat_le (c : Bool) : c.toNat ≤ 1 := by
   cases c <;> trivial
@@ -453,11 +456,11 @@ theorem toNat_lt (b : Bool) : b.toNat < 2 :=
 /--
 Converts `true` to `1` and `false` to `0`.
 -/
-def toInt (b : Bool) : Int := cond b 1 0
+@[expose] def toInt (b : Bool) : Int := cond b 1 0
 
-@[simp] theorem toInt_false : false.toInt = 0 := rfl
+@[simp, grind =] theorem toInt_false : false.toInt = 0 := rfl
 
-@[simp] theorem toInt_true : true.toInt = 1 := rfl
+@[simp, grind =] theorem toInt_true : true.toInt = 1 := rfl
 
 /-! ### ite -/
 
@@ -486,7 +489,7 @@ def toInt (b : Bool) : Int := cond b 1 0
 
 @[simp] theorem ite_eq_true_else_eq_false {q : Prop} :
     (if b = true then q else b = false) ↔ (b = true → q) := by
-  cases b <;> simp [not_eq_self]
+  cases b <;> simp
 
 /-
 `not_ite_eq_true_eq_true` and related theorems below are added for
@@ -685,14 +688,30 @@ def boolPredToPred : Coe (α → Bool) (α  → Prop) where
 This should not be turned on globally as an instance because it degrades performance in Mathlib,
 but may be used locally.
 -/
-def boolRelToRel : Coe (α → α → Bool) (α → α → Prop) where
+@[expose] def boolRelToRel : Coe (α → α → Bool) (α → α → Prop) where
   coe r := fun a b => Eq (r a b) true
 
 /-! ### subtypes -/
 
-@[simp] theorem Subtype.beq_iff {α : Type u} [DecidableEq α] {p : α → Prop} {x y : {a : α // p a}} :
-    (x == y) = (x.1 == y.1) := by
-  cases x
-  cases y
-  rw [Bool.eq_iff_iff]
-  simp [beq_iff_eq]
+@[simp] theorem Subtype.beq_iff {α : Type u} [BEq α] {p : α → Prop} {x y : {a : α // p a}} :
+    (x == y) = (x.1 == y.1) := rfl
+
+/-! ### Proof by reflection support  -/
+
+@[expose] protected noncomputable def Bool.and' (a b : Bool) : Bool :=
+  Bool.rec false b a
+
+@[expose] protected noncomputable def Bool.or' (a b : Bool) : Bool :=
+  Bool.rec b true a
+
+@[expose] protected noncomputable def Bool.not' (a : Bool) : Bool :=
+  Bool.rec true false a
+
+@[simp] theorem Bool.and'_eq_and (a b : Bool) : a.and' b = a.and b := by
+  cases a <;> simp [Bool.and']
+
+@[simp] theorem Bool.or'_eq_or (a b : Bool) : a.or' b = a.or b := by
+  cases a <;> simp [Bool.or']
+
+@[simp] theorem Bool.not'_eq_not (a : Bool) : a.not' = a.not := by
+  cases a <;> simp [Bool.not']

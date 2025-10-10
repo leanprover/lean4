@@ -1,4 +1,4 @@
-import Lean
+import Lean.Elab.Term
 
 open Lean Meta Elab in
 elab "largeGoal%" : term =>
@@ -11,8 +11,8 @@ elab "largeGoal%" : term =>
   withLocalDeclsD decls fun xs => do
     let mut e₁ : Expr := mkNatLit 42
     let mut e₂ : Expr := mkNatLit 23
-    for _ in [:r] do
-      for i in [:xs.size] do
+    for _ in *...r do
+      for i in *...xs.size do
         e₁ := mkAdd (mkMul (mkNatLit i) e₁) xs[i]!
         e₂ := mkAdd xs[i]! (mkMul e₂ (mkNatLit (xs.size - i)))
     let goal ← mkEq e₁ e₂

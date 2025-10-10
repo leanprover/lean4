@@ -3,12 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Init.Data.Nat.Compare
-import Std.Data.DTreeMap.Internal.Def
-import Std.Data.DTreeMap.Internal.Balanced
-import Std.Data.DTreeMap.Internal.Ordered
-import Std.Classes.Ord
+public import Init.Data.Nat.Compare
+public import Std.Data.DTreeMap.Internal.Def
+public import Std.Data.DTreeMap.Internal.Balanced
+public import Std.Data.DTreeMap.Internal.Ordered
+import Init.BinderPredicates
+
+@[expose] public section
 
 /-!
 # Low-level implementation of the size-bounded tree
@@ -19,12 +23,19 @@ This file contains the basic definition implementing the functionality of the si
 set_option autoImplicit false
 set_option linter.all true
 
-universe u v w
+universe u v w w'
 
-variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
+variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w'}
 
 namespace Std.DTreeMap.Internal.Impl
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
+
+/-- Two tree maps are equivalent in the sense of Equiv iff all the keys and values are equal. -/
+structure Equiv (t t' : Impl α β) where
+  /-- Implementation detail of the tree map -/
+  impl : t.toListModel.Perm t'.toListModel
+
+@[inherit_doc] scoped infix:50 " ~m " => Equiv
 
 /-- Returns `true` if the given key is contained in the map. -/
 def contains [Ord α] (k : α) (t : Impl α β) : Bool :=
@@ -40,6 +51,9 @@ instance [Ord α] : Membership α (Impl α β) where
   mem t a := t.contains a
 
 theorem mem_iff_contains {_ : Ord α} {t : Impl α β} {k : α} : k ∈ t ↔ t.contains k :=
+  Iff.rfl
+
+theorem contains_iff_mem {_ : Ord α} {t : Impl α β} {k : α} : t.contains k ↔ k ∈ t :=
   Iff.rfl
 
 instance [Ord α] {m : Impl α β} {a : α} : Decidable (a ∈ m) :=
@@ -197,7 +211,7 @@ def foldlM {m} [Monad m] (f : δ → (a : α) → β a → m δ) (init : δ) : I
 /-- Folds the given function over the mappings in the tree in ascending order. -/
 @[specialize]
 def foldl (f : δ → (a : α) → β a → δ) (init : δ) (t : Impl α β) : δ :=
-  Id.run (t.foldlM f init)
+  Id.run (t.foldlM (pure <| f · · ·) init)
 
 /-- Folds the given function over the mappings in the tree in descending order. -/
 @[specialize]
@@ -211,7 +225,7 @@ def foldrM {m} [Monad m] (f : (a : α) → β a → δ → m δ) (init : δ) : I
 /-- Folds the given function over the mappings in the tree in descending order. -/
 @[inline]
 def foldr (f : (a : α) → β a → δ → δ) (init : δ) (t : Impl α β) : δ :=
-  Id.run (t.foldrM f init)
+  Id.run (t.foldrM (pure <| f · · ·) init)
 
 /-- Applies the given function to the mappings in the tree in ascending order. -/
 @[inline]

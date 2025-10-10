@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.Simp.Config
-// Imports: Init.Core
+// Imports: public import Init.Core
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,9 +13,29 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_Config_ctorIdx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_Config_ctorIdx(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_instInhabitedConfig_default;
+static lean_object* l_Lean_Compiler_LCNF_Simp_instInhabitedConfig_default___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_instInhabitedConfig;
-static lean_object* l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__1;
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__1() {
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_Config_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_Config_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Compiler_LCNF_Simp_Config_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_instInhabitedConfig_default___closed__0() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; 
@@ -28,11 +48,19 @@ lean_ctor_set_uint8(x_2, 3, x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_instInhabitedConfig_default() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Compiler_LCNF_Simp_instInhabitedConfig_default___closed__0;
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_instInhabitedConfig() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__1;
+x_1 = l_Lean_Compiler_LCNF_Simp_instInhabitedConfig_default;
 return x_1;
 }
 }
@@ -45,8 +73,10 @@ _G_initialized = true;
 res = initialize_Init_Core(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__1 = _init_l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__1();
-lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__1);
+l_Lean_Compiler_LCNF_Simp_instInhabitedConfig_default___closed__0 = _init_l_Lean_Compiler_LCNF_Simp_instInhabitedConfig_default___closed__0();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_instInhabitedConfig_default___closed__0);
+l_Lean_Compiler_LCNF_Simp_instInhabitedConfig_default = _init_l_Lean_Compiler_LCNF_Simp_instInhabitedConfig_default();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_instInhabitedConfig_default);
 l_Lean_Compiler_LCNF_Simp_instInhabitedConfig = _init_l_Lean_Compiler_LCNF_Simp_instInhabitedConfig();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_instInhabitedConfig);
 return lean_io_result_mk_ok(lean_box(0));

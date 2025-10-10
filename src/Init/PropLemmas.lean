@@ -6,9 +6,13 @@ Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn, Mario Carneiro
 This provides additional lemmas about propositional types beyond what is
 needed for Core and SimpLemmas.
 -/
+module
+
 prelude
-import Init.Core
-import Init.NotationExtra
+public import Init.Core
+public import Init.NotationExtra
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 /-! ## cast and equality -/
@@ -23,7 +27,7 @@ set_option linter.missingDocs true -- keep it documented
 @[simp] theorem eq_true_eq_id : Eq True = id := by
   funext _; simp only [true_iff, id_def, eq_iff_iff]
 
-theorem proof_irrel_heq {p q : Prop} (hp : p) (hq : q) : HEq hp hq := by
+theorem proof_irrel_heq {p q : Prop} (hp : p) (hq : q) : hp ≍ hq := by
   cases propext (iff_of_true hp hq); rfl
 
 /-! ## not -/
@@ -307,6 +311,10 @@ theorem exists_or : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ ∃ x, q x :=
 
 theorem Exists.nonempty : (∃ x, p x) → Nonempty α | ⟨x, _⟩ => ⟨x⟩
 
+@[deprecated Exists.nonempty (since := "2025-05-19")]
+theorem nonempty_of_exists {α : Sort u} {p : α → Prop} : Exists (fun x => p x) → Nonempty α
+  | ⟨w, _⟩ => ⟨w⟩
+
 theorem not_forall_of_exists_not {p : α → Prop} : (∃ x, ¬p x) → ¬∀ x, p x
   | ⟨x, hn⟩, h => hn (h x)
 
@@ -433,11 +441,11 @@ theorem Decidable.not_or_self (p : Prop) [h : Decidable p] : ¬p ∨ p := by
 theorem Decidable.by_contra [Decidable p] : (¬p → False) → p := of_not_not
 
 /-- Construct a non-Prop by cases on an `Or`, when the left conjunct is decidable. -/
-protected def Or.by_cases [Decidable p] {α : Sort u} (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
+@[expose] protected def Or.by_cases [Decidable p] {α : Sort u} (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
   if hp : p then h₁ hp else h₂ (h.resolve_left hp)
 
 /-- Construct a non-Prop by cases on an `Or`, when the right conjunct is decidable. -/
-protected def Or.by_cases' [Decidable q] {α : Sort u} (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
+@[expose] protected def Or.by_cases' [Decidable q] {α : Sort u} (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
   if hq : q then h₂ hq else h₁ (h.resolve_right hq)
 
 instance exists_prop_decidable {p} (P : p → Prop)
@@ -581,22 +589,22 @@ theorem Decidable.or_congr_right' [Decidable a] (h : ¬a → (b ↔ c)) : a ∨ 
 
 @[simp] theorem Decidable.iff_congr_left {P Q R : Prop} [Decidable P] [Decidable Q] [Decidable R] :
     ((P ↔ R) ↔ (Q ↔ R)) ↔ (P ↔ Q) :=
-  if h : R then by simp_all [Decidable.not_iff_not] else by simp_all [Decidable.not_iff_not]
+  if h : R then by simp_all else by simp_all [Decidable.not_iff_not]
 
 @[simp] theorem Decidable.iff_congr_right {P Q R : Prop} [Decidable P] [Decidable Q] [Decidable R] :
     ((P ↔ Q) ↔ (P ↔ R)) ↔ (Q ↔ R) :=
-  if h : P then by simp_all [Decidable.not_iff_not] else by simp_all [Decidable.not_iff_not]
+  if h : P then by simp_all else by simp_all [Decidable.not_iff_not]
 
 /-- Transfer decidability of `a` to decidability of `b`, if the propositions are equivalent.
 **Important**: this function should be used instead of `rw` on `Decidable b`, because the
 kernel will get stuck reducing the usage of `propext` otherwise,
 and `decide` will not work. -/
-@[inline] def decidable_of_iff (a : Prop) (h : a ↔ b) [Decidable a] : Decidable b :=
+@[inline, expose] def decidable_of_iff (a : Prop) (h : a ↔ b) [Decidable a] : Decidable b :=
   decidable_of_decidable_of_iff h
 
 /-- Transfer decidability of `b` to decidability of `a`, if the propositions are equivalent.
 This is the same as `decidable_of_iff` but the iff is flipped. -/
-@[inline] def decidable_of_iff' (b : Prop) (h : a ↔ b) [Decidable b] : Decidable a :=
+@[inline, expose] def decidable_of_iff' (b : Prop) (h : a ↔ b) [Decidable b] : Decidable a :=
   decidable_of_decidable_of_iff h.symm
 
 instance Decidable.predToBool (p : α → Prop) [DecidablePred p] :
@@ -690,10 +698,22 @@ attribute [local simp] Decidable.imp_iff_left_iff
 @[simp] theorem dite_eq_right_iff {p : Prop} [Decidable p] {x : p → α} {y : α} : (if h : p then x h else y) = y ↔ ∀ h : p, x h = y := by
   split <;> simp_all
 
+@[simp] theorem left_eq_dite_iff {p : Prop} [Decidable p] {x : α} {y : ¬ p → α} : x = (if h : p then x else y h) ↔ ∀ h : ¬ p, x = y h := by
+  split <;> simp_all
+
+@[simp] theorem right_eq_dite_iff {p : Prop} [Decidable p] {x : p → α} {y : α} : y = (if h : p then x h else y) ↔ ∀ h : p, y = x h := by
+  split <;> simp_all
+
 @[simp] theorem dite_iff_left_iff {p : Prop} [Decidable p] {x : Prop} {y : ¬ p → Prop} : ((if h : p then x else y h) ↔ x) ↔ ∀ h : ¬ p, y h ↔ x := by
   split <;> simp_all
 
 @[simp] theorem dite_iff_right_iff {p : Prop} [Decidable p] {x : p → Prop} {y : Prop} : ((if h : p then x h else y) ↔ y) ↔ ∀ h : p, x h ↔ y := by
+  split <;> simp_all
+
+@[simp] theorem left_iff_dite_iff {p : Prop} [Decidable p] {x : Prop} {y : ¬ p → Prop} : (x ↔ (if h : p then x else y h)) ↔ ∀ h : ¬ p, x ↔ y h := by
+  split <;> simp_all
+
+@[simp] theorem right_iff_dite_iff {p : Prop} [Decidable p] {x : p → Prop} {y : Prop} : (y ↔ (if h : p then x h else y)) ↔ ∀ h : p, y ↔ x h := by
   split <;> simp_all
 
 @[simp] theorem ite_eq_left_iff {p : Prop} [Decidable p] {x y : α} : (if p then x else y) = x ↔ ¬ p → y = x := by
@@ -702,10 +722,22 @@ attribute [local simp] Decidable.imp_iff_left_iff
 @[simp] theorem ite_eq_right_iff {p : Prop} [Decidable p] {x y : α} : (if p then x else y) = y ↔ p → x = y := by
   split <;> simp_all
 
+@[simp] theorem left_eq_ite_iff {p : Prop} [Decidable p] {x y : α} : x = (if p then x else y) ↔ ¬ p → x = y := by
+  split <;> simp_all
+
+@[simp] theorem right_eq_ite_iff {p : Prop} [Decidable p] {x y : α} : y = (if p then x else y) ↔ p → y = x := by
+  split <;> simp_all
+
 @[simp] theorem ite_iff_left_iff {p : Prop} [Decidable p] {x y : Prop} : ((if p then x else y) ↔ x) ↔ ¬ p → y = x := by
   split <;> simp_all
 
 @[simp] theorem ite_iff_right_iff {p : Prop} [Decidable p] {x y : Prop} : ((if p then x else y) ↔ y) ↔ p → x = y := by
+  split <;> simp_all
+
+@[simp] theorem left_iff_ite_iff {p : Prop} [Decidable p] {x y : Prop} : (x ↔ (if p then x else y)) ↔ ¬ p → x = y := by
+  split <;> simp_all
+
+@[simp] theorem right_iff_ite_iff {p : Prop} [Decidable p] {x y : Prop} : (y ↔ (if p then x else y)) ↔ p → y = x := by
   split <;> simp_all
 
 @[simp] theorem dite_then_false {p : Prop} [Decidable p] {x : ¬ p → Prop} : (if h : p then False else x h) ↔ ∃ h : ¬ p, x h := by

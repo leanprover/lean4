@@ -3,17 +3,26 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.Options
-import Lean.Compiler.ExternAttr
-import Lean.Compiler.LCNF.PassManager
-import Lean.Compiler.LCNF.Passes
-import Lean.Compiler.LCNF.PrettyPrinter
-import Lean.Compiler.LCNF.ToDecl
-import Lean.Compiler.LCNF.Check
-import Lean.Compiler.LCNF.PullLetDecls
-import Lean.Compiler.LCNF.PhaseExt
-import Lean.Compiler.LCNF.CSE
+public import Lean.Compiler.Options
+public import Lean.Compiler.ExternAttr
+public import Lean.Compiler.IR
+public import Lean.Compiler.IR.Basic
+public import Lean.Compiler.IR.Checker
+public import Lean.Compiler.IR.ToIR
+public import Lean.Compiler.LCNF.PassManager
+public import Lean.Compiler.LCNF.Passes
+public import Lean.Compiler.LCNF.PrettyPrinter
+public import Lean.Compiler.LCNF.ToDecl
+public import Lean.Compiler.LCNF.Check
+public import Lean.Compiler.LCNF.PullLetDecls
+public import Lean.Compiler.LCNF.PhaseExt
+public import Lean.Compiler.LCNF.CSE
+public import Lean.Compiler.LCNF.Visibility
+
+public section
 
 namespace Lean.Compiler.LCNF
 /--
@@ -30,7 +39,9 @@ def shouldGenerateCode (declName : Name) : CoreM Bool := do
   if (← isCompIrrelevant |>.run') then return false
   let env ← getEnv
   if isExtern env declName then return true
-  let some info ← getDeclInfo? declName | return false
+  -- Look up the decl in the kernel environment, since it will appear there
+  -- as an axiom (rather than a definition) in the case of a kernel error.
+  let some info := env.constants.find? declName | return false
   unless info.hasValue (allowOpaque := true) do return false
   if hasMacroInlineAttribute env declName then return false
   if (getImplementedBy? env declName).isSome then return false
@@ -48,46 +59,84 @@ A checkpoint in code generation to print all declarations in between
 compiler passes in order to ease debugging.
 The trace can be viewed with `set_option trace.Compiler.step true`.
 -/
-def checkpoint (stepName : Name) (decls : Array Decl) : CompilerM Unit := do
+def checkpoint (stepName : Name) (decls : Array Decl) (shouldCheck : Bool) : CompilerM Unit := do
   for decl in decls do
     trace[Compiler.stat] "{decl.name} : {decl.size}"
     withOptions (fun opts => opts.setBool `pp.motives.pi false) do
       let clsName := `Compiler ++ stepName
       if (← Lean.isTracingEnabledFor clsName) then
         Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl' decl}"
-      if compiler.check.get (← getOptions) then
+      if shouldCheck then
         decl.check
-  if compiler.check.get (← getOptions) then
+  if shouldCheck then
     checkDeadLocalDecls decls
+
+def isValidMainType (type : Expr) : Bool :=
+  let isValidResultName (name : Name) : Bool :=
+    name == ``UInt32 || name == ``Unit || name == ``PUnit
+  match type with
+  | .forallE _ d b _ =>
+    match d, b with
+    | .app (.const ``List _) (.const ``String _), .app (.const ``IO _) (.const resultName _) =>
+      isValidResultName resultName
+    | _, _ => false
+  | .app (.const ``IO _) (.const resultName _) =>
+    isValidResultName resultName
+  | _ => false
 
 namespace PassManager
 
-def run (declNames : Array Name) : CompilerM (Array Decl) := withAtLeastMaxRecDepth 8192 do
+def run (declNames : Array Name) : CompilerM (Array IR.Decl) := withAtLeastMaxRecDepth 8192 do
   /-
   Note: we need to increase the recursion depth because we currently do to save phase1
   declarations in .olean files. Then, we have to recursively compile all dependencies,
   and it often creates a very deep recursion.
   Moreover, some declarations get very big during simplification.
   -/
+  for declName in declNames do
+    if let some fnName := Compiler.getImplementedBy? (← getEnv) declName then
+      if !isDeclPublic (← getEnv) fnName then
+        if let some decl ← getLocalDeclAt? fnName .base then
+          trace[Compiler.inferVisibility] m!"Marking {fnName} as opaque because it implements {declName}"
+          LCNF.markDeclPublicRec .base decl
+          if let some decl ← getLocalDeclAt? fnName .mono then
+            LCNF.markDeclPublicRec .mono decl
   let declNames ← declNames.filterM (shouldGenerateCode ·)
   if declNames.isEmpty then return #[]
-  let mut decls ← declNames.mapM toDecl
-  decls := markRecDecls decls
+  for declName in declNames do
+    if declName == `main then
+      if let some info ← getDeclInfo? declName then
+        if !(isValidMainType info.type) then
+          throwError "`main` function must have type `(List String →)? IO (UInt32 | Unit | PUnit)`"
+  let decls ← declNames.mapM toDecl
+  let decls := markRecDecls decls
   let manager ← getPassManager
-  for pass in manager.passes do
-    decls ← withTraceNode `Compiler (fun _ => return m!"new compiler phase: {pass.phase}, pass: {pass.name}") do
-      withPhase pass.phase <| pass.run decls
-    withPhase pass.phaseOut <| checkpoint pass.name decls
+  let isCheckEnabled := compiler.check.get (← getOptions)
+  let decls ← profileitM Exception "compilation (LCNF base)" (← getOptions) do
+    let mut decls := decls
+    for pass in manager.basePasses do
+      decls ← withTraceNode `Compiler (fun _ => return m!"compiler phase: {pass.phase}, pass: {pass.name}") do
+        withPhase pass.phase <| pass.run decls
+      withPhase pass.phaseOut <| checkpoint pass.name decls (isCheckEnabled || pass.shouldAlwaysRunCheck)
+    return decls
+  let decls ← profileitM Exception "compilation (LCNF mono)" (← getOptions) do
+    let mut decls := decls
+    for pass in manager.monoPasses do
+      decls ← withTraceNode `Compiler (fun _ => return m!"compiler phase: {pass.phase}, pass: {pass.name}") do
+        withPhase pass.phase <| pass.run decls
+      withPhase pass.phaseOut <| checkpoint pass.name decls (isCheckEnabled || pass.shouldAlwaysRunCheck)
+    return decls
   if (← Lean.isTracingEnabledFor `Compiler.result) then
     for decl in decls do
-      -- We display the declaration saved in the environment because the names have been normalized
-      let some decl' ← getDeclAt? decl.name .mono | unreachable!
-      Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl' decl'}"
-  return decls
+      let decl ← normalizeFVarIds decl
+      Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl' decl}"
+  profileitM Exception "compilation (IR)" (← getOptions) do
+    let irDecls ← IR.toIR decls
+    IR.compile irDecls
 
 end PassManager
 
-def compile (declNames : Array Name) : CoreM (Array Decl) :=
+def compile (declNames : Array Name) : CoreM (Array IR.Decl) :=
   CompilerM.run <| PassManager.run declNames
 
 def showDecl (phase : Phase) (declName : Name) : CoreM Format := do
@@ -95,10 +144,9 @@ def showDecl (phase : Phase) (declName : Name) : CoreM Format := do
   ppDecl' decl
 
 @[export lean_lcnf_compile_decls]
-def main (declNames : List Name) : CoreM Unit := do
-  profileitM Exception "compilation new" (← getOptions) do
-    withTraceNode `Compiler (fun _ => return m!"compiling new: {declNames}") do
-      CompilerM.run <| discard <| PassManager.run declNames.toArray
+def main (declNames : Array Name) : CoreM Unit := do
+  withTraceNode `Compiler (fun _ => return m!"compiling: {declNames}") do
+    CompilerM.run <| discard <| PassManager.run declNames
 
 builtin_initialize
   registerTraceClass `Compiler.init (inherited := true)

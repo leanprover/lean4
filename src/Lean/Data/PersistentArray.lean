@@ -3,12 +3,17 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Nat.Fold
-import Init.Data.Array.Basic
-import Init.NotationExtra
-import Init.Data.ToString.Macro
-import Init.Data.UInt.Basic
+public import Init.Data.Nat.Fold
+public import Init.Data.Array.Basic
+public import Init.NotationExtra
+public import Init.Data.ToString.Macro
+public import Init.Data.UInt.Basic
+import Init.Data.String.Basic
+
+public section
 
 universe u v w
 
@@ -281,10 +286,10 @@ instance : ForIn m (PersistentArray α) α where
 end
 
 @[inline] def foldl (t : PersistentArray α) (f : β → α → β) (init : β) (start : Nat := 0) : β :=
-  Id.run <| t.foldlM f init start
+  Id.run <| t.foldlM (pure <| f · ·) init start
 
 @[inline] def foldr (t : PersistentArray α) (f : α → β → β) (init : β) : β :=
-  Id.run <| t.foldrM f init
+  Id.run <| t.foldrM (pure <| f · ·) init
 
 @[inline] def filter (as : PersistentArray α) (p : α → Bool) : PersistentArray α :=
   as.foldl (init := {}) fun asNew a => if p a then asNew.push a else asNew
@@ -301,10 +306,10 @@ def append (t₁ t₂ : PersistentArray α) : PersistentArray α :=
 instance : Append (PersistentArray α) := ⟨append⟩
 
 @[inline] def findSome? {β} (t : PersistentArray α) (f : α → (Option β)) : Option β :=
-  Id.run $ t.findSomeM? f
+  Id.run $ t.findSomeM? (pure <| f ·)
 
 @[inline] def findSomeRev? {β} (t : PersistentArray α) (f : α → (Option β)) : Option β :=
-  Id.run $ t.findSomeRevM? f
+  Id.run $ t.findSomeRevM? (pure <| f ·)
 
 def toList (t : PersistentArray α) : List α :=
   (t.foldl (init := []) fun xs x => x :: xs).reverse
@@ -325,7 +330,7 @@ variable {m : Type → Type w} [Monad m]
 end
 
 @[inline] def any (a : PersistentArray α) (p : α → Bool) : Bool :=
-  Id.run $ anyM a p
+  Id.run $ anyM a (pure <| p ·)
 
 @[inline] def all (a : PersistentArray α) (p : α → Bool) : Bool :=
   !any a fun v => !p v
@@ -346,7 +351,7 @@ variable {β : Type u}
 end
 
 @[inline] def map {β} (f : α → β) (t : PersistentArray α) : PersistentArray β :=
-  Id.run $ t.mapM f
+  Id.run $ t.mapM (pure <| f ·)
 
 structure Stats where
   numNodes : Nat

@@ -5,9 +5,25 @@ Authors: Sebastian Ullrich
 
 Additional `Task` definitions.
 -/
+module
+
 prelude
-import Init.Core
-import Init.Data.List.Basic
+public import Init.Core
+public import Init.Data.List.Basic
+public import Init.System.Promise
+
+public section
+
+/--
+Waits until any of the tasks in the list has finished, then return its result.
+-/
+@[noinline]
+def IO.waitAny (tasks : @& List (Task α)) (h : tasks.length > 0 := by exact Nat.zero_lt_succ _) :
+    BaseIO α := do
+  have : Nonempty α := ⟨tasks[0].get⟩
+  let promise : IO.Promise α ← IO.Promise.new
+  tasks.forM <| fun t => BaseIO.chainTask (sync := true) t promise.resolve
+  return promise.result!.get
 
 namespace Task
 

@@ -15,12 +15,12 @@ theorem Note.self_containsNote_lowerSemitone_self (n : Note) :
   simp [Note.containsNote, Note.lowerSemitone]
 
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
-  ?_ = ?_ : Prop
+  ?_ = ?_
 but is expected to have type
-  n = n - 1 : Prop
+  n = n - 1
 -/
 #guard_msgs in
 set_option maxRecDepth 100 in

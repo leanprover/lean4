@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Init.System.IO
-import Init.System.Promise
-import Std.Net
+public import Init.System.IO
+public import Init.System.Promise
+public import Std.Net
+
+public section
 
 namespace Std
 namespace Internal
@@ -22,7 +26,7 @@ Represents a UDP socket.
 -/
 def Socket : Type := SocketImpl.type
 
-instance : Nonempty Socket := SocketImpl.property
+instance : Nonempty Socket := by exact SocketImpl.property
 
 namespace Socket
 
@@ -51,14 +55,32 @@ Sends data through an UDP socket. The `addr` parameter specifies the destination
 is `none`, the data is sent to the default peer address set by `connect`.
 -/
 @[extern "lean_uv_udp_send"]
-opaque send (socket : @& Socket) (data : ByteArray) (addr : @& Option SocketAddress) : IO (IO.Promise (Except IO.Error Unit))
+opaque send (socket : @& Socket) (data : Array ByteArray) (addr : @& Option SocketAddress) : IO (IO.Promise (Except IO.Error Unit))
 
 /--
 Receives data from an UDP socket. `size` is for the maximum bytes to receive. The promise
 resolves when some data is available or an error occurs.
+Furthermore calling this function in parallel with `waitReadable` is not supported.
 -/
 @[extern "lean_uv_udp_recv"]
 opaque recv (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Error (ByteArray × Option SocketAddress)))
+
+/--
+Returns an `IO.Promise` that resolves once `socket` has data available for reading. Calling this
+function twice on the same `Socket` or in parallel with `recv` is not supported.
+-/
+@[extern "lean_uv_udp_wait_readable"]
+opaque waitReadable (socket : @& Socket) : IO (IO.Promise (Except IO.Error Unit))
+
+/--
+Cancels a receive operation in the form of `recv` or `waitReadable` if there is currently one
+pending. This resolves their returned `IO.Promise` to `none`. This function is considered dangerous,
+as improper use can cause data loss, and is therefore not exposed to the top-level API.
+Note that this function is idempotent and as such can be called multiple times on the same socket
+without causing errors, in particular also without a receive running in the first place.
+-/
+@[extern "lean_uv_udp_cancel_recv"]
+opaque cancelRecv (socket : @& Socket) : IO Unit
 
 /--
 Receives data from an UDP socket. `size` is for the maximum bytes to receive. The promise resolves

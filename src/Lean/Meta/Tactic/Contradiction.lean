@@ -3,11 +3,16 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.MatchUtil
-import Lean.Meta.Tactic.Assumption
-import Lean.Meta.Tactic.Cases
-import Lean.Meta.Tactic.Apply
+public import Lean.Meta.MatchUtil
+public import Lean.Meta.Tactic.Assumption
+public import Lean.Meta.Tactic.Cases
+public import Lean.Meta.Tactic.Apply
+import Lean.Meta.Tactic.Simp.Main
+
+public section
 
 namespace Lean.Meta
 
@@ -178,7 +183,7 @@ def _root_.Lean.MVarId.contradictionCore (mvarId : MVarId) (config : Contradicti
             mvarId.assign (← mkNoConfusion (← mvarId.getType) localDecl.toExpr)
             return true
         let mut isHEq := false
-        -- (h : HEq (ctor₁ ...) (ctor₂ ...))
+        -- (h : ctor₁ ... ≍ ctor₂ ...)
         if let some (α, lhs, β, rhs) ← matchHEq? localDecl.type then
           isHEq := true
           if let some lhsCtor ← matchConstructorApp? lhs then

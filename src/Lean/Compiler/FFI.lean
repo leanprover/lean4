@@ -3,9 +3,14 @@ Copyright (c) 2021 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Init.Data.Array.Basic
-import Init.System.FilePath
+public import Init.Data.Array.Basic
+public import Init.System.FilePath
+import Init.Data.String.Basic
+
+public section
 
 open System
 
@@ -17,9 +22,16 @@ private opaque getLeancExtraFlags : Unit → String
 private def flagsStringToArray (s : String) : Array String :=
   s.splitOn.toArray |>.filter (· ≠ "")
 
+/--
+Return C compiler flags for including Lean's headers.
+Unlike `getCFlags`, this does not contain the Lean include directory.
+-/
+def getCFlags' : Array String :=
+  flagsStringToArray (getLeancExtraFlags ())
+
 /-- Return C compiler flags for including Lean's headers. -/
 def getCFlags (leanSysroot : FilePath) : Array String :=
-  #["-I", (leanSysroot / "include").toString] ++ flagsStringToArray (getLeancExtraFlags ())
+  #["-I", (leanSysroot / "include").toString] ++ getCFlags'
 
 @[extern "lean_get_leanc_internal_flags"]
 private opaque getLeancInternalFlags : Unit → String
@@ -31,9 +43,16 @@ def getInternalCFlags (leanSysroot : FilePath) : Array String :=
 @[extern "lean_get_linker_flags"]
 private opaque getBuiltinLinkerFlags (linkStatic : Bool) : String
 
+/--
+Return linker flags for linking against Lean's libraries.
+Unlike `getLinkerFlags`, this does not contain the Lean library directory.
+-/
+def getLinkerFlags' (linkStatic := true) : Array String :=
+  flagsStringToArray (getBuiltinLinkerFlags linkStatic)
+
 /-- Return linker flags for linking against Lean's libraries. -/
 def getLinkerFlags (leanSysroot : FilePath) (linkStatic := true) : Array String :=
-  #["-L", (leanSysroot / "lib" / "lean").toString] ++ flagsStringToArray (getBuiltinLinkerFlags linkStatic)
+  #["-L", (leanSysroot / "lib" / "lean").toString] ++ getLinkerFlags' linkStatic
 
 @[extern "lean_get_internal_linker_flags"]
 private opaque getBuiltinInternalLinkerFlags : Unit → String

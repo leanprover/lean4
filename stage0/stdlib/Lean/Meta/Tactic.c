@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic
-// Imports: Lean.Meta.Tactic.Intro Lean.Meta.Tactic.Assumption Lean.Meta.Tactic.Contradiction Lean.Meta.Tactic.Apply Lean.Meta.Tactic.Revert Lean.Meta.Tactic.Clear Lean.Meta.Tactic.Assert Lean.Meta.Tactic.Rewrite Lean.Meta.Tactic.Generalize Lean.Meta.Tactic.Replace Lean.Meta.Tactic.Induction Lean.Meta.Tactic.Cases Lean.Meta.Tactic.ElimInfo Lean.Meta.Tactic.Delta Lean.Meta.Tactic.Constructor Lean.Meta.Tactic.Simp Lean.Meta.Tactic.AuxLemma Lean.Meta.Tactic.SplitIf Lean.Meta.Tactic.Split Lean.Meta.Tactic.TryThis Lean.Meta.Tactic.Cleanup Lean.Meta.Tactic.Unfold Lean.Meta.Tactic.Rename Lean.Meta.Tactic.AC Lean.Meta.Tactic.Refl Lean.Meta.Tactic.Congr Lean.Meta.Tactic.Repeat Lean.Meta.Tactic.NormCast Lean.Meta.Tactic.IndependentOf Lean.Meta.Tactic.Symm Lean.Meta.Tactic.Backtrack Lean.Meta.Tactic.SolveByElim Lean.Meta.Tactic.FunInd Lean.Meta.Tactic.Rfl Lean.Meta.Tactic.Rewrites Lean.Meta.Tactic.Grind Lean.Meta.Tactic.Ext Lean.Meta.Tactic.Try
+// Imports: public import Lean.Meta.Tactic.Intro public import Lean.Meta.Tactic.Assumption public import Lean.Meta.Tactic.Contradiction public import Lean.Meta.Tactic.Apply public import Lean.Meta.Tactic.Revert public import Lean.Meta.Tactic.Clear public import Lean.Meta.Tactic.Assert public import Lean.Meta.Tactic.Rewrite public import Lean.Meta.Tactic.Generalize public import Lean.Meta.Tactic.Replace public import Lean.Meta.Tactic.Lets public import Lean.Meta.Tactic.Induction public import Lean.Meta.Tactic.Cases public import Lean.Meta.Tactic.ElimInfo public import Lean.Meta.Tactic.Delta public import Lean.Meta.Tactic.Constructor public import Lean.Meta.Tactic.Simp public import Lean.Meta.Tactic.AuxLemma public import Lean.Meta.Tactic.SplitIf public import Lean.Meta.Tactic.Split public import Lean.Meta.Tactic.TryThis public import Lean.Meta.Tactic.Cleanup public import Lean.Meta.Tactic.Unfold public import Lean.Meta.Tactic.Rename public import Lean.Meta.Tactic.AC public import Lean.Meta.Tactic.Refl public import Lean.Meta.Tactic.Congr public import Lean.Meta.Tactic.Repeat public import Lean.Meta.Tactic.NormCast public import Lean.Meta.Tactic.IndependentOf public import Lean.Meta.Tactic.Symm public import Lean.Meta.Tactic.Backtrack public import Lean.Meta.Tactic.SolveByElim public import Lean.Meta.Tactic.FunInd public import Lean.Meta.Tactic.Rfl public import Lean.Meta.Tactic.Rewrites public import Lean.Meta.Tactic.Grind public import Lean.Meta.Tactic.Ext public import Lean.Meta.Tactic.Try
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -23,6 +23,7 @@ lean_object* initialize_Lean_Meta_Tactic_Assert(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Rewrite(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Generalize(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Replace(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Lets(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Induction(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Cases(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_ElimInfo(uint8_t builtin, lean_object*);
@@ -84,6 +85,9 @@ res = initialize_Lean_Meta_Tactic_Generalize(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Replace(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Lets(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Induction(builtin, lean_io_mk_world());

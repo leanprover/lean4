@@ -3,10 +3,16 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone, Siddharth Bhat
 -/
+module
+
 prelude
+public import Lean.Setup
+public import Lake.Util.Log
+import Lean.Data.Json
 import Lake.Config.Dynlib
 import Lake.Util.Proc
 import Lake.Util.NativeLib
+import Lake.Util.FilePath
 import Lake.Util.IO
 
 /-! # Common Build Actions
@@ -18,31 +24,30 @@ open Lean hiding SearchPath
 
 namespace Lake
 
-def compileLeanModule
-  (leanFile : FilePath)
-  (oleanFile? ileanFile? cFile? bcFile?: Option FilePath)
-  (leanPath : SearchPath := []) (rootDir : FilePath := ".")
-  (dynlibs plugins : Array Dynlib := #[])
-  (leanArgs : Array String := #[]) (lean : FilePath := "lean")
+public def compileLeanModule
+  (leanFile relLeanFile : FilePath)
+  (setup : ModuleSetup) (setupFile : FilePath)
+  (arts : ModuleArtifacts)
+  (leanArgs : Array String := #[])
+  (leanPath : SearchPath := [])
+  (lean : FilePath := "lean")
 : LogIO Unit := do
-  let mut args := leanArgs ++
-    #[leanFile.toString, "-R", rootDir.toString]
-  if let some oleanFile := oleanFile? then
+  let mut args := leanArgs.push leanFile.toString
+  if let some oleanFile := arts.olean? then
     createParentDirs oleanFile
     args := args ++ #["-o", oleanFile.toString]
-  if let some ileanFile := ileanFile? then
+  if let some ileanFile := arts.ilean? then
     createParentDirs ileanFile
     args := args ++ #["-i", ileanFile.toString]
-  if let some cFile := cFile? then
+  if let some cFile := arts.c? then
     createParentDirs cFile
     args := args ++ #["-c", cFile.toString]
-  if let some bcFile := bcFile? then
+  if let some bcFile := arts.bc? then
     createParentDirs bcFile
     args := args ++ #["-b", bcFile.toString]
-  for dynlib in dynlibs do
-    args := args ++ #["--load-dynlib", dynlib.path.toString]
-  for plugin in plugins do
-    args := args ++ #["--plugin", plugin.path.toString]
+  createParentDirs setupFile
+  IO.FS.writeFile setupFile (toJson setup).pretty
+  args := args ++ #["--setup", setupFile.toString]
   args := args.push "--json"
   withLogErrorPos do
   let out ← rawProc {
@@ -57,6 +62,7 @@ def compileLeanModule
       if let .ok (msg : SerialMessage) := Json.parse ln >>= fromJson? then
         unless txt.isEmpty do
           logInfo s!"stdout:\n{txt}"
+        let msg := {msg with fileName := mkRelPathString relLeanFile}
         logSerialMessage msg
         return txt
       else if txt.isEmpty && ln.isEmpty then
@@ -70,7 +76,7 @@ def compileLeanModule
   if out.exitCode ≠ 0 then
     error s!"Lean exited with code {out.exitCode}"
 
-def compileO
+public def compileO
   (oFile srcFile : FilePath)
   (moreArgs : Array String := #[]) (compiler : FilePath := "cc")
 : LogIO Unit := do
@@ -80,7 +86,7 @@ def compileO
     args := #["-c", "-o", oFile.toString, srcFile.toString] ++ moreArgs
   }
 
-def mkArgs (basePath : FilePath) (args : Array String) : LogIO (Array String) := do
+public def mkArgs (basePath : FilePath) (args : Array String) : LogIO (Array String) := do
   if Platform.isWindows then
     -- Use response file to avoid potentially exceeding CLI length limits.
     let rspFile := basePath.addExtension "rsp"
@@ -97,11 +103,13 @@ def mkArgs (basePath : FilePath) (args : Array String) : LogIO (Array String) :=
   else
     return args
 
-def compileStaticLib
+public def compileStaticLib
   (libFile : FilePath) (oFiles : Array FilePath)
   (ar : FilePath := "ar") (thin := false)
 : LogIO Unit := do
   createParentDirs libFile
+  -- `ar rcs` does not remove old files from the archive, so it must be deleted first
+  removeFileIfExists libFile
   let args := #["rcs"]
   let args := if thin then args.push "--thin" else args
   let args := args.push libFile.toString ++ (← mkArgs libFile <| oFiles.map toString)
@@ -118,7 +126,7 @@ private def getMacOSXDeploymentEnv : BaseIO (Array (String × Option String)) :=
   else
     return #[]
 
-def compileSharedLib
+public def compileSharedLib
   (libFile : FilePath) (linkArgs : Array String) (linker : FilePath := "cc")
 : LogIO Unit := do
   createParentDirs libFile
@@ -128,7 +136,7 @@ def compileSharedLib
     env := ← getMacOSXDeploymentEnv
   }
 
-def compileExe
+public def compileExe
   (binFile : FilePath) (linkArgs : Array String) (linker : FilePath := "cc")
 : LogIO Unit := do
   createParentDirs binFile
@@ -139,7 +147,7 @@ def compileExe
   }
 
 /-- Download a file using `curl`, clobbering any existing file. -/
-def download
+public def download
   (url : String) (file : FilePath) (headers : Array String := #[])
 : LogIO PUnit := do
   if (← file.pathExists) then
@@ -151,7 +159,7 @@ def download
   proc (quiet := true) {cmd := "curl", args}
 
 /-- Unpack an archive `file` using `tar` into the directory `dir`. -/
-def untar (file : FilePath) (dir : FilePath) (gzip := true) : LogIO PUnit := do
+public def untar (file : FilePath) (dir : FilePath) (gzip := true) : LogIO PUnit := do
   IO.FS.createDirAll dir
   let mut opts := "-xvv"
   if gzip then
@@ -162,7 +170,7 @@ def untar (file : FilePath) (dir : FilePath) (gzip := true) : LogIO PUnit := do
   }
 
 /-- Pack a directory `dir` using `tar` into the archive `file`. -/
-def tar
+public def tar
   (dir : FilePath) (file : FilePath)
   (gzip := true) (excludePaths : Array FilePath := #[])
 : LogIO PUnit := do

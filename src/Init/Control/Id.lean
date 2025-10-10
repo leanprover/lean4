@@ -5,8 +5,12 @@ Authors: Sebastian Ullrich
 
 The identity Monad.
 -/
+module
+
 prelude
-import Init.Core
+public import Init.Core
+
+public section
 
 universe u
 
@@ -32,7 +36,7 @@ def containsFive (xs : List Nat) : Bool := Id.run do
 true
 ```
 -/
-def Id (type : Type u) : Type u := type
+@[expose] def Id (type : Type u) : Type u := type
 
 namespace Id
 
@@ -54,10 +58,13 @@ Runs a computation in the identity monad.
 This function is the identity function. Because its parameter has type `Id α`, it causes
 `do`-notation in its arguments to use the `Monad Id` instance.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 protected def run (x : Id α) : α := x
 
 instance [OfNat α n] : OfNat (Id α) n :=
   inferInstanceAs (OfNat α n)
+
+instance {m : Type u → Type v} [Pure m] : MonadLiftT Id m where
+  monadLift x := pure x.run
 
 end Id

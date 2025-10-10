@@ -9,13 +9,16 @@ Author: Sofia Rodrigues
 #include "runtime/uv/net_addr.h"
 #include "runtime/object_ref.h"
 
+#ifndef LEAN_EMSCRIPTEN
+#include <uv.h>
+#endif
+
 namespace lean {
 
 static lean_external_class* g_uv_tcp_socket_external_class = NULL;
 void initialize_libuv_tcp_socket();
 
 #ifndef LEAN_EMSCRIPTEN
-#include <uv.h>
 
 // Structure for managing a single TCP socket object, including promise handling,
 // connection state, and read/write buffers.
@@ -40,8 +43,10 @@ static inline lean_uv_tcp_socket_object* lean_to_uv_tcp_socket(lean_object* o) {
 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new(obj_arg /* w */);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_arg addr, obj_arg /* w */);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg data, obj_arg /* w */);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg data_array, obj_arg /* w */);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t buffer_size, obj_arg /* w */);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket, obj_arg /* w */);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_recv(b_obj_arg socket, obj_arg /* w */);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_bind(b_obj_arg socket, b_obj_arg addr, obj_arg /* w */);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t backlog, obj_arg /* w */);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket, obj_arg /* w */);

@@ -18,7 +18,7 @@ def withNode (cls : Name) (msg : MessageData) (k : CoreM Unit) (collapsed := tru
     oldTraces.push { ref, msg }
 
 /--
-info: [test] top-level leaf
+trace: [test] top-level leaf
 [test] top-level leaf
 [test] node with single leaf
   [test] leaf

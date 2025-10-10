@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Normalize.BitVec
-// Imports: Init.Data.BitVec.Bitblast Init.Data.AC Std.Tactic.BVDecide.Normalize.Bool Std.Tactic.BVDecide.Normalize.Canonicalize Init.Data.SInt.Basic
+// Imports: public import Init.Data.BitVec.Bitblast public import Init.Data.AC public import Std.Tactic.BVDecide.Normalize.Bool public import Std.Tactic.BVDecide.Normalize.Canonicalize public import Init.Data.SInt.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

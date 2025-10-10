@@ -3,10 +3,14 @@ Copyright (c) 2023 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.ToExpr
-import Lean.Meta.LitValues
-import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
+public import Lean.ToExpr
+public import Lean.Meta.LitValues
+public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
+
+public section
 
 namespace Fin
 open Lean Meta Simp
@@ -102,15 +106,15 @@ builtin_dsimproc [simp, seval] reduceFinMk (Fin.mk _ _)  := fun e => do
   let some v ← getNatValue? v | return .continue
   if h : n ≠ 0 then
     have : NeZero n := ⟨h⟩
-    return .done <| toExpr (Fin.ofNat' n v)
+    return .done <| toExpr (Fin.ofNat n v)
   else
     return .continue
 
-builtin_dsimproc [simp, seval] reduceOfNat' (Fin.ofNat' _ _) := fun e => do
-  unless e.isAppOfArity ``Fin.ofNat' 3 do return .continue
+builtin_dsimproc [simp, seval] reduceOfNat (Fin.ofNat _ _) := fun e => do
+  unless e.isAppOfArity ``Fin.ofNat 3 do return .continue
   let some (n + 1) ← getNatValue? e.appFn!.appFn!.appArg! | return .continue
   let some k ← getNatValue? e.appArg! | return .continue
-  return .done <| toExpr (Fin.ofNat' (n + 1) k)
+  return .done <| toExpr (Fin.ofNat (n + 1) k)
 
 builtin_dsimproc [simp, seval] reduceCastSucc (Fin.castSucc _) := fun e => do
   unless e.isAppOfArity ``Fin.castSucc 2 do return .continue

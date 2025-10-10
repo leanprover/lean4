@@ -3,11 +3,17 @@ Copyright (c) 2023 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro
 -/
+module
+
 prelude
-import Lean.Elab.BuiltinTerm
-import Lean.Elab.BuiltinNotation
-import Lean.Server.InfoUtils
-import Lean.Server.CodeActions.Attr
+public import Std.Data.Iterators.Producers.Range
+public import Std.Data.Iterators.Combinators.StepSize
+public import Lean.Elab.BuiltinTerm
+public import Lean.Elab.BuiltinNotation
+public import Lean.Server.InfoUtils
+public import Lean.Server.CodeActions.Attr
+
+public section
 
 /-!
 # Initial setup for code actions
@@ -74,12 +80,12 @@ This is a pure syntax pass, without regard to elaboration information.
 
 The return value is either a selected tactic, or a selected point in a tactic sequence.
 -/
-partial def findTactic? (preferred : String.Pos → Bool) (range : String.Range)
+partial def findTactic? (preferred : String.Pos.Raw → Bool) (range : String.Range)
     (root : Syntax) : Option FindTacticResult := do _ ← visit root; ← go [] root
 where
   /-- Returns `none` if we should not visit this syntax at all, and `some false` if we only
   want to visit it in "extended" mode (where we include trailing characters). -/
-  visit (stx : Syntax) (prev? : Option String.Pos := none) : Option Bool := do
+  visit (stx : Syntax) (prev? : Option String.Pos.Raw := none) : Option Bool := do
     let left ← stx.getPos? true
     guard <| prev?.getD left ≤ range.start
     let .original (endPos := right) (trailing := trailing) .. := stx.getTailInfo | none
@@ -96,7 +102,7 @@ where
   /-- Main recursion for `findTactic?`. This takes a `stack` context and a root syntax `stx`,
   and returns the best `FindTacticResult` it can find. It returns `none` (abort) if two or more
   results are found, and `some none` (none yet) if no results are found. -/
-  go (stack : Syntax.Stack) (stx : Syntax) (prev? : Option String.Pos := none) :
+  go (stack : Syntax.Stack) (stx : Syntax) (prev? : Option String.Pos.Raw := none) :
       Option (Option FindTacticResult) := do
     if stx.getKind == ``Parser.Tactic.tacticSeq then
       -- TODO: this implementation is a bit too strict about the beginning of tacticSeqs.
@@ -111,14 +117,14 @@ where
       let (stack, stx) := ((stx[0], argIdx) :: (stx, 0) :: stack, stx[0][argIdx])
       let mainRes := stx[0].getPos?.map fun pos =>
         let i := Id.run do
-          for i in [0:stx.getNumArgs] do
+          for i in *...stx.getNumArgs do
             if let some pos' := stx[2*i].getPos? then
               if range.stop < pos' then
                 return i
           (stx.getNumArgs + 1) / 2
         .tacticSeq (bracket || preferred pos) i ((stx, 0) :: stack)
       let mut childRes := none
-      for i in [0:stx.getNumArgs:2] do
+      for i in (*...stx.getNumArgs).iter.stepSize 2 do
         if let some inner := visit stx[i] then
           let stack := (stx, i) :: stack
           if let some child := (← go stack stx[i]) <|>
@@ -130,7 +136,7 @@ where
     else
       let mut childRes := none
       let mut prev? := prev?
-      for i in [0:stx.getNumArgs] do
+      for i in *...stx.getNumArgs do
         if let some _ := visit stx[i] prev? then
           if let some child ← go ((stx, i) :: stack) stx[i] prev? then
             if childRes.isSome then failure

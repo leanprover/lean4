@@ -3,8 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Init.Data.Ord
+public import Init.Data.Order.Ord
+import Init.RCases
+
+@[expose] public section
 
 set_option autoImplicit false
 
@@ -34,5 +39,25 @@ theorem IsStrictCut.lt_of_isLE_of_lt [IsStrictCut cmp cut] {k k' : α} :
   | gt => rintro ⟨⟩
   | lt => exact fun _ => IsCut.lt h₁
   | eq => exact fun h₂ h₃ => by rw [← h₃, IsStrictCut.eq (cmp := cmp) k h₁]
+
+instance [Ord α] [TransOrd α] {k : α} : IsStrictCut compare (compare k) where
+  lt := TransCmp.lt_trans
+  gt h₁ h₂ := OrientedCmp.gt_of_lt (TransCmp.lt_trans (OrientedCmp.lt_of_gt h₂)
+    (OrientedCmp.lt_of_gt h₁))
+  eq _ _ := TransCmp.congr_left
+
+instance [Ord α] : IsStrictCut (compare : α → α → Ordering) (fun _ => .lt) where
+  lt := by simp
+  gt := by simp
+  eq := by simp
+
+instance [Ord α] [TransOrd α] {k : α} : IsStrictCut compare fun k' => (compare k k').then .gt where
+  lt {_ _} := by simpa [Ordering.then_eq_lt] using TransCmp.lt_trans
+  eq {_ _} := by simp [Ordering.then_eq_eq]
+  gt h h' := by
+    simp only [Ordering.then_eq_gt, and_true] at h ⊢
+    rcases h with (h | h)
+    · exact .inl (TransCmp.gt_trans h h')
+    · exact .inl (TransCmp.gt_of_eq_of_gt h h')
 
 end Std.Internal

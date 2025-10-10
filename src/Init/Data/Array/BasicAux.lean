@@ -3,10 +3,15 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Array.Basic
-import Init.Data.Nat.Linear
-import Init.NotationExtra
+public import Init.Data.Array.Basic
+import all Init.Data.Array.Basic
+public import Init.Data.Nat.Linear
+public import Init.NotationExtra
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -86,4 +91,4 @@ pointer equality, and does not allocate a new array if the result of each functi
 pointer-equal to its argument.
 -/
 @[inline] def Array.mapMono (as : Array α) (f : α → α) : Array α :=
-  Id.run <| as.mapMonoM f
+  Id.run <| as.mapMonoM (pure <| f ·)

@@ -3,14 +3,18 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich and Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.ImportingFlag
-import Lean.Data.KVMap
-import Lean.Data.NameMap
+public import Lean.ImportingFlag
+public import Lean.Data.KVMap
+public import Lean.Data.NameMap.Basic
+
+public section
 
 namespace Lean
 
-def Options := KVMap
+@[expose] def Options := KVMap
 
 def Options.empty : Options  := {}
 instance : Inhabited Options where
@@ -26,7 +30,7 @@ structure OptionDecl where
   descr    : String := ""
   deriving Inhabited
 
-def OptionDecls := NameMap OptionDecl
+@[expose] def OptionDecls := NameMap OptionDecl
 
 instance : Inhabited OptionDecls := ⟨({} : NameMap OptionDecl)⟩
 
@@ -35,10 +39,10 @@ private builtin_initialize optionDeclsRef : IO.Ref OptionDecls ← IO.mkRef (mkN
 @[export lean_register_option]
 def registerOption (name : Name) (decl : OptionDecl) : IO Unit := do
   unless (← initializing) do
-    throw (IO.userError "failed to register option, options can only be registered during initialization")
+    throw (IO.userError "Failed to register option: Options can only be registered during initialization")
   let decls ← optionDeclsRef.get
   if decls.contains name then
-    throw $ IO.userError s!"invalid option declaration '{name}', option already exists"
+    throw $ IO.userError s!"Invalid option declaration `{name}`: Option already exists"
   optionDeclsRef.set $ decls.insert name decl
 
 def getOptionDecls : IO OptionDecls := optionDeclsRef.get
@@ -46,13 +50,13 @@ def getOptionDecls : IO OptionDecls := optionDeclsRef.get
 @[export lean_get_option_decls_array]
 def getOptionDeclsArray : IO (Array (Name × OptionDecl)) := do
   let decls ← getOptionDecls
-  pure $ decls.fold
+  return decls.foldl
    (fun (r : Array (Name × OptionDecl)) k v => r.push (k, v))
    #[]
 
 def getOptionDecl (name : Name) : IO OptionDecl := do
   let decls ← getOptionDecls
-  let (some decl) ← pure (decls.find? name) | throw $ IO.userError s!"unknown option '{name}'"
+  let (some decl) ← pure (decls.find? name) | throw $ IO.userError s!"Unknown option `{name}`"
   pure decl
 
 def getOptionDefaultValue (name : Name) : IO DataValue := do
@@ -133,11 +137,11 @@ protected def register [KVMap.Value α] (name : Name) (decl : Lean.Option.Decl �
   }
   return { name := name, defValue := decl.defValue }
 
-macro (name := registerBuiltinOption) doc?:(docComment)? "register_builtin_option" name:ident " : " type:term " := " decl:term : command =>
-  `($[$doc?]? builtin_initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
+macro (name := registerBuiltinOption) doc?:(docComment)? vis?:(visibility)? "register_builtin_option" name:ident " : " type:term " := " decl:term : command =>
+  `($[$doc?]? $[$vis?:visibility]? builtin_initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
 
-macro (name := registerOption) doc?:(docComment)? "register_option" name:ident " : " type:term " := " decl:term : command =>
-  `($[$doc?]? initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
+macro (name := registerOption) mods:declModifiers "register_option" name:ident " : " type:term " := " decl:term : command =>
+  `($mods:declModifiers initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
 
 end Option
 

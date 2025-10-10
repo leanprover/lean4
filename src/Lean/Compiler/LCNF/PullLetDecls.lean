@@ -3,11 +3,15 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.DependsOn
-import Lean.Compiler.LCNF.Types
-import Lean.Compiler.LCNF.PassManager
+public import Lean.Compiler.LCNF.CompilerM
+public import Lean.Compiler.LCNF.DependsOn
+public import Lean.Compiler.LCNF.Types
+public import Lean.Compiler.LCNF.PassManager
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace PullLetDecls
@@ -69,9 +73,14 @@ mutual
   partial def pullDecls (code : Code) : PullM Code := do
     match code with
     | .cases c =>
-      withCheckpoint do
-        let alts ← c.alts.mapMonoM pullAlt
-        return code.updateAlts! alts
+      -- At the present time, we can't correctly enforce the dependencies required for lifting
+      -- out of a cases expression on Decidable, so we disable this optimization.
+      if c.typeName == ``Decidable then
+        return code
+      else
+        withCheckpoint do
+          let alts ← c.alts.mapMonoM pullAlt
+          return code.updateAlts! alts
     | .let decl k =>
       if (← shouldPull decl) then
         pullDecls k
@@ -102,6 +111,11 @@ def Decl.pullLetDecls (decl : Decl) (isCandidateFn : LetDecl → FVarIdSet → C
 
 def Decl.pullInstances (decl : Decl) : CompilerM Decl :=
   decl.pullLetDecls fun letDecl candidates => do
+    -- TODO: Correctly represent these dependencies so this check isn't required.
+    if let .const _ _ args := letDecl.value then
+      if args.any (· == .erased) then return false
+    if let .fvar _ args := letDecl.value then
+      if args.any (· == .erased) then return false
     if (← isClass? letDecl.type).isSome then
       return true
     else if let .proj _ _ fvarId := letDecl.value then

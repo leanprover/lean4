@@ -3,10 +3,14 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Init.Data.Option.Basic
-import Init.Control.Basic
-import Init.Control.Except
+public import Init.Data.Option.Basic
+public import Init.Control.Basic
+public import Init.Control.Except
+
+public section
 
 set_option linter.missingDocs true
 
@@ -18,7 +22,7 @@ instance : ToBool (Option α) := ⟨Option.isSome⟩
 Adds the ability to fail to a monad. Unlike ordinary exceptions, there is no way to signal why a
 failure occurred.
 -/
-def OptionT (m : Type u → Type v) (α : Type u) : Type v :=
+@[expose] def OptionT (m : Type u → Type v) (α : Type u) : Type v :=
   m (Option α)
 
 /--
@@ -35,13 +39,14 @@ variable {m : Type u → Type v} [Monad m] {α β : Type u}
 Converts an action that returns an `Option` into one that might fail, with `none` indicating
 failure.
 -/
+@[always_inline, inline, expose]
 protected def mk (x : m (Option α)) : OptionT m α :=
   x
 
 /--
 Sequences two potentially-failing actions. The second action is run only if the first succeeds.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 protected def bind (x : OptionT m α) (f : α → OptionT m β) : OptionT m β := OptionT.mk do
   match (← x) with
   | some a => f a
@@ -50,7 +55,7 @@ protected def bind (x : OptionT m α) (f : α → OptionT m β) : OptionT m β :
 /--
 Succeeds with the provided value.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 protected def pure (a : α) : OptionT m α := OptionT.mk do
   pure (some a)
 
@@ -58,6 +63,9 @@ protected def pure (a : α) : OptionT m α := OptionT.mk do
 instance : Monad (OptionT m) where
   pure := OptionT.pure
   bind := OptionT.bind
+
+instance {m : Type u → Type v} [Pure m] : Inhabited (OptionT m α) where
+  default := pure (f:=m) default
 
 /--
 Recovers from failures. Typically used via the `<|>` operator.
@@ -95,7 +103,7 @@ Handles failures by treating them as exceptions of type `Unit`.
 -/
 @[always_inline, inline] protected def tryCatch (x : OptionT m α) (handle : Unit → OptionT m α) : OptionT m α := OptionT.mk do
   let some a ← x | handle ()
-  pure a
+  pure <| some a
 
 instance : MonadExceptOf Unit (OptionT m) where
   throw    := fun _ => OptionT.fail

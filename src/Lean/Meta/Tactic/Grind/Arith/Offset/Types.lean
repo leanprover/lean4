@@ -3,13 +3,13 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Data.AssocList
-import Lean.Data.PersistentArray
-import Lean.Meta.Tactic.Grind.ENodeKey
-import Lean.Meta.Tactic.Grind.Arith.Util
-import Lean.Meta.Tactic.Grind.Arith.Offset.Util
-
+public import Lean.Data.AssocList
+public import Lean.Data.PersistentArray
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Arith.Offset.Util
+public section
 namespace Lean.Meta.Grind.Arith.Offset
 
 abbrev NodeId := Nat
@@ -43,9 +43,9 @@ structure State where
   /-- Mapping from `NodeId` to the `Expr` represented by the node. -/
   nodes    : PArray Expr := {}
   /-- Mapping from `Expr` to a node representing it. -/
-  nodeMap  : PHashMap ENodeKey NodeId := {}
-  /-- Mapping from `Expr` representing inequalites to constraints. -/
-  cnstrs   : PHashMap ENodeKey (Cnstr NodeId) := {}
+  nodeMap  : PHashMap ExprPtr NodeId := {}
+  /-- Mapping from `Expr` representing inequalities to constraints. -/
+  cnstrs   : PHashMap ExprPtr (Cnstr NodeId) := {}
   /--
   Mapping from pairs `(u, v)` to a list of offset constraints on `u` and `v`.
   We use this mapping to implement exhaustive constraint propagation.
@@ -71,5 +71,7 @@ structure State where
   /-- Truth values and equalities to propagate to core. -/
   propagate : List ToPropagate := []
   deriving Inhabited
+
+builtin_initialize offsetExt : SolverExtension State ← registerSolverExtension (return {})
 
 end Lean.Meta.Grind.Arith.Offset

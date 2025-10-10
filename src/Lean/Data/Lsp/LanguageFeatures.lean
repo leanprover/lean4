@@ -4,9 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Data.Json
-import Lean.Data.Lsp.Basic
+public import Lean.Data.Json.FromToJson.Basic
+public import Lean.Data.Lsp.Basic
+meta import Lean.Data.Json
+public import Lean.Expr
+
+public section
 
 namespace Lean
 namespace Lsp
@@ -28,7 +34,7 @@ inductive CompletionItemKind where
   deriving Inhabited, DecidableEq, Repr, Hashable
 
 instance : ToJson CompletionItemKind where
-  toJson a := toJson (a.toCtorIdx + 1)
+  toJson a := toJson (a.ctorIdx + 1)
 
 instance : FromJson CompletionItemKind where
   fromJson? v := do
@@ -46,7 +52,7 @@ inductive CompletionItemTag where
   deriving Inhabited, DecidableEq, Repr, Hashable
 
 instance : ToJson CompletionItemTag where
-  toJson t := toJson (t.toCtorIdx + 1)
+  toJson t := toJson (t.ctorIdx + 1)
 
 instance : FromJson CompletionItemTag where
   fromJson? v := do
@@ -54,6 +60,10 @@ instance : FromJson CompletionItemTag where
     return CompletionItemTag.ofNat (i-1)
 
 structure CompletionItem where
+  -- When adjusting this type, make sure to adjust `ResolvableCompletionList.compressFast`
+  -- as well, which is our `(toJson l).compress` fast path.
+  -- (Completion downstream of Mathlib can output gigantic JSON,
+  -- so we want to avoid all redundant allocs)
   label          : String
   detail?        : Option String := none
   documentation? : Option MarkupContent := none
@@ -78,6 +88,112 @@ structure CompletionItem where
 structure CompletionList where
   isIncomplete : Bool
   items        : Array CompletionItem
+  deriving FromJson, ToJson
+
+/--
+Identifier that is sent from the server to the client as part of the `CompletionItem.data?` field.
+Needed to resolve the `CompletionItem` when the client sends a `completionItem/resolve` request
+for that item, again containing the `data?` field provided by the server.
+-/
+inductive CompletionIdentifier where
+  | const (declName : Name)
+  | fvar (id : Lean.FVarId)
+  deriving BEq, Hashable
+
+instance : ToJson CompletionIdentifier where
+  toJson
+  | .const declName =>
+    .str s!"c{toString declName}"
+  | .fvar id =>
+    .str s!"f{toString id.name}"
+
+instance : FromJson CompletionIdentifier where
+  fromJson?
+    | .str s =>
+      let c := s.get 0
+      if c == 'c' then
+        let declName := s.extract ⟨1⟩ s.endPos |>.toName
+        .ok <| .const declName
+      else if c == 'f' then
+        let id := ⟨s.extract ⟨1⟩ s.endPos |>.toName⟩
+        .ok <| .fvar id
+      else
+        .error "Expected string with prefix `c` or `f` in `FromJson` instance of `CompletionIdentifier`."
+    | _ => .error "Expected string in `FromJson` instance of `CompletionIdentifier`."
+
+structure ResolvableCompletionItemData where
+  mod   : Name
+  pos   : Position
+  /-- Position of the completion info that this completion item was created from. -/
+  cPos? : Option Nat := none
+  id?   : Option CompletionIdentifier := none
+  deriving BEq, Hashable
+
+instance : ToJson ResolvableCompletionItemData where
+  toJson d := Id.run do
+    let mut arr : Array Json := #[
+      toJson d.mod,
+      d.pos.line,
+      d.pos.character,
+    ]
+    if let some cPos := d.cPos? then
+      arr := arr.push <| toJson cPos
+    if let some id := d.id? then
+      arr := arr.push <| toJson id
+    Json.arr arr
+
+instance : FromJson ResolvableCompletionItemData where
+  fromJson?
+    | .arr elems => do
+      if elems.size < 3 then
+        .error "Expected array of size 3 in `FromJson` instance of `ResolvableCompletionItemData"
+      let mod : Name ← fromJson? elems[0]!
+      let line : Nat ← fromJson? elems[1]!
+      let character : Nat ← fromJson? elems[2]!
+      let mut cPos? : Option Nat := none
+      let mut id? : Option CompletionIdentifier := none
+      if let .ok (some cPos) := elems[3]?.mapM fromJson? then
+        cPos? := some cPos
+      if let .ok (some id) := elems[3]?.mapM fromJson? then
+        id? := some id
+      if let .ok (some cPos) := elems[4]?.mapM fromJson? then
+        cPos? := some cPos
+      if let .ok (some id) := elems[4]?.mapM fromJson? then
+        id? := some id
+      let pos := { line, character }
+      return {
+        mod
+        pos
+        cPos?
+        id?
+      }
+    | _ => .error "Expected array in `FromJson` instance of `ResolvableCompletionItemData`"
+
+structure ResolvableCompletionItem where
+  label          : String
+  detail?        : Option String := none
+  documentation? : Option MarkupContent := none
+  kind?          : Option CompletionItemKind := none
+  textEdit?      : Option InsertReplaceEdit := none
+  sortText?      : Option String := none
+  data?          : Option ResolvableCompletionItemData := none
+  tags?          : Option (Array CompletionItemTag) := none
+  /-
+  deprecated? : boolean
+  preselect? : boolean
+  filterText? : string
+  insertText? : string
+  insertTextFormat? : InsertTextFormat
+  insertTextMode? : InsertTextMode
+  additionalTextEdits? : TextEdit[]
+  commitCharacters? : string[]
+  command? : Command
+  -/
+  deriving FromJson, ToJson, Inhabited, BEq, Hashable
+
+structure ResolvableCompletionList where
+  isIncomplete : Bool
+  items        : Array ResolvableCompletionItem
   deriving FromJson, ToJson
 
 structure CompletionParams extends TextDocumentPositionParams where
@@ -347,7 +463,7 @@ def SemanticTokenType.names : Array String :=
     "regexp", "operator", "decorator", "leanSorryLike"]
 
 def SemanticTokenType.toNat (tokenType : SemanticTokenType) : Nat :=
-  tokenType.toCtorIdx
+  tokenType.ctorIdx
 
 -- sanity check
 example {v : SemanticTokenType} : open SemanticTokenType in
@@ -378,7 +494,7 @@ def SemanticTokenModifier.names : Array String :=
     "async", "modification", "documentation", "defaultLibrary"]
 
 def SemanticTokenModifier.toNat (modifier : SemanticTokenModifier) : Nat :=
-  modifier.toCtorIdx
+  modifier.ctorIdx
 
 -- sanity check
 example {v : SemanticTokenModifier} : open SemanticTokenModifier in
@@ -519,6 +635,74 @@ structure InlayHintClientCapabilities where
 
 structure InlayHintOptions extends WorkDoneProgressOptions where
   resolveProvider? : Option Bool := none
+  deriving FromJson, ToJson
+
+inductive ParameterInformationLabel
+  | name (name : String)
+  | range (startUtf16Offset endUtf16Offset : Nat)
+
+instance : FromJson ParameterInformationLabel where
+  fromJson?
+    | .str name => .ok <| .name name
+    | .arr #[startUtf16OffsetJson, endUtf16OffsetJson] => do
+      return .range (← fromJson? startUtf16OffsetJson) (← fromJson? endUtf16OffsetJson)
+    | _ => .error "unexpected JSON for `ParameterInformationLabel`"
+
+instance : ToJson ParameterInformationLabel where
+  toJson
+    | .name name => .str name
+    | .range startUtf16Offset endUtf16Offset => .arr #[startUtf16Offset, endUtf16Offset]
+
+structure ParameterInformation where
+  label : ParameterInformationLabel
+  documentation? : Option MarkupContent := none
+  deriving FromJson, ToJson
+
+structure SignatureInformation where
+  label : String
+  documentation? : Option MarkupContent := none
+  parameters? : Option (Array ParameterInformation) := none
+  activeParameter? : Option Nat := none
+  deriving FromJson, ToJson
+
+structure SignatureHelp where
+  signatures : Array SignatureInformation
+  activeSignature? : Option Nat := none
+  activeParameter? : Option Nat := none
+  deriving FromJson, ToJson
+
+inductive SignatureHelpTriggerKind where
+  | invoked
+  | triggerCharacter
+  | contentChange
+
+instance : FromJson SignatureHelpTriggerKind where
+  fromJson?
+    | (1 : Nat) => .ok .invoked
+    | (2 : Nat) => .ok .triggerCharacter
+    | (3 : Nat) => .ok .contentChange
+    | _ => .error "Unexpected JSON in `SignatureHelpTriggerKind`"
+
+instance : ToJson SignatureHelpTriggerKind where
+  toJson
+    | .invoked => 1
+    | .triggerCharacter => 2
+    | .contentChange => 3
+
+structure SignatureHelpContext where
+  triggerKind : SignatureHelpTriggerKind
+  triggerCharacter? : Option String := none
+  isRetrigger : Bool
+  activeSignatureHelp? : Option SignatureHelp := none
+  deriving FromJson, ToJson
+
+structure SignatureHelpParams extends TextDocumentPositionParams, WorkDoneProgressParams where
+  context? : Option SignatureHelpContext := none
+  deriving FromJson, ToJson
+
+structure SignatureHelpOptions extends WorkDoneProgressOptions where
+  triggerCharacters? : Option (Array String) := none
+  retriggerCharacters? : Option (Array String) := none
   deriving FromJson, ToJson
 
 end Lsp

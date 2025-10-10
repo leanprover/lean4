@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.TreeMap
-// Imports: Std.Data.TreeMap.Basic Std.Data.TreeMap.AdditionalOperations
+// Imports: public import Std.Data.TreeMap.Basic public import Std.Data.TreeMap.AdditionalOperations public import Std.Data.TreeMap.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* initialize_Std_Data_TreeMap_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_TreeMap_AdditionalOperations(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_TreeMap_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_TreeMap(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -24,6 +25,9 @@ res = initialize_Std_Data_TreeMap_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_TreeMap_AdditionalOperations(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_TreeMap_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

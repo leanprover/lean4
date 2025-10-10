@@ -3,9 +3,13 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Data.Int.DivMod.Lemmas
-import Init.Data.Int.Gcd
+public import Init.Data.Int.DivMod.Lemmas
+public import Init.Data.Int.Gcd
+
+public section
 
 /-!
 ## Cooper resolution: small solutions to boundedness and divisibility constraints.
@@ -92,7 +96,7 @@ def resolve_left' (a c d p x : Int) (h₁ : p ≤ a * x) : Nat := (add_of_le h�
 
 @[simp] theorem resolve_left_eq (a c d p x : Int) (h₁ : p ≤ a * x) :
     resolve_left a c d p x = resolve_left' a c d p x h₁ := by
-  simp only [resolve_left, resolve_left', add_of_le, ofNat_emod, ofNat_toNat]
+  simp only [resolve_left, resolve_left', add_of_le, natCast_emod, ofNat_toNat]
   rw [Int.max_eq_left]
   omega
 
@@ -106,7 +110,7 @@ theorem resolve_left_lt_lcm (a c d p x : Int) (a_pos : 0 < a) (d_pos : 0 < d) (h
     resolve_left a c d p x < lcm a (a * d / gcd (a * d) c) := by
   simp only [h₁, resolve_left_eq, resolve_left', add_of_le, Int.ofNat_lt]
   exact Nat.mod_lt _ (Nat.pos_of_ne_zero (lcm_ne_zero (Int.ne_of_gt a_pos)
-    (Int.ne_of_gt (Int.ediv_pos_of_pos_of_dvd (Int.mul_pos a_pos d_pos) (Int.ofNat_nonneg _)
+    (Int.ne_of_gt (Int.ediv_pos_of_pos_of_dvd (Int.mul_pos a_pos d_pos) (Int.natCast_nonneg _)
       (gcd_dvd_left _ _)))))
 
 theorem resolve_left_ineq (a c d p x : Int) (a_pos : 0 < a) (b_pos : 0 < b)
@@ -127,14 +131,14 @@ theorem resolve_left_dvd₁ (a c d p x : Int) (h₁ : p ≤ a * x) :
     a ∣ resolve_left a c d p x + p := by
   simp only [h₁, resolve_left_eq, resolve_left']
   obtain ⟨k', w⟩ := add_of_le h₁
-  exact Int.ofNat_emod _ _ ▸ dvd_emod_add_of_dvd_add (x := k') ⟨x, by rw [w, Int.add_comm]⟩ (dvd_lcm_left ..)
+  exact Int.natCast_emod _ _ ▸ dvd_emod_add_of_dvd_add (x := k') ⟨x, by rw [w, Int.add_comm]⟩ (dvd_lcm_left ..)
 
 theorem resolve_left_dvd₂ (a c d p x : Int)
     (h₁ : p ≤ a * x) (h₃ : d ∣ c * x + s) :
     a * d ∣ c * resolve_left a c d p x + c * p + a * s := by
   simp only [h₁, resolve_left_eq, resolve_left']
   obtain ⟨k', w⟩ := add_of_le h₁
-  simp only [Int.add_assoc, ofNat_emod]
+  simp only [Int.add_assoc, natCast_emod]
   apply dvd_mul_emod_add_of_dvd_mul_add
   · obtain ⟨z, r⟩ := h₃
     refine ⟨z, ?_⟩

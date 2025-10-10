@@ -1,32 +1,42 @@
 /--
-info: Option.map.fun_cases.{u_1, u_2} (motive : {α : Type u_1} → {β : Type u_2} → (α → β) → Option α → Prop)
-  (case1 : ∀ {α : Type u_1} {β : Type u_2} (f : α → β) (x : α), motive f (some x))
-  (case2 : ∀ {α : Type u_1} {β : Type u_2} (f : α → β), motive f none) {α : Type u_1} {β : Type u_2} (f : α → β)
-  (x✝ : Option α) : motive f x✝
+info: Option.map.fun_cases.{u_1} {α : Type u_1} (motive : Option α → Prop) (case1 : ∀ (x : α), motive (some x))
+  (case2 : motive none) (x✝ : Option α) : motive x✝
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check Option.map.fun_cases
 
 example (x : Option Nat) (f : Nat → Nat) : (x.map f).isSome = x.isSome := by
-  cases f, x using Option.map.fun_cases
-  case case1 x => simp [-Option.isSome_map']
-  case case2 =>   simp [-Option.isSome_map']
+  cases x using Option.map.fun_cases
+  case case1 x => simp
+  case case2 =>   simp
 
 /--
-info: List.map.fun_cases.{u, v} (motive : {α : Type u} → {β : Type v} → (α → β) → List α → Prop)
-  (case1 : ∀ {α : Type u} {β : Type v} (f : α → β), motive f [])
-  (case2 : ∀ {α : Type u} {β : Type v} (f : α → β) (a : α) (as : List α), motive f (a :: as)) {α : Type u} {β : Type v}
-  (f : α → β) (x✝ : List α) : motive f x✝
+info: List.map.fun_cases.{u_1} {α : Type u_1} (motive : List α → Prop) (case1 : motive [])
+  (case2 : ∀ (head : α) (as : List α), motive (head :: as)) (x✝ : List α) : motive x✝
 -/
 #guard_msgs in
 #check List.map.fun_cases
 
 /--
-info: List.find?.fun_cases.{u} (motive : {α : Type u} → (α → Bool) → List α → Prop)
-  (case1 : ∀ {α : Type u} (p : α → Bool), motive p [])
-  (case2 : ∀ {α : Type u} (p : α → Bool) (a : α) (as : List α), p a = true → motive p (a :: as))
-  (case3 : ∀ {α : Type u} (p : α → Bool) (a : α) (as : List α), p a = false → motive p (a :: as)) {α : Type u}
-  (p : α → Bool) (x✝ : List α) : motive p x✝
+info: List.find?.fun_cases.{u} {α : Type u} (p : α → Bool) (motive : List α → Prop) (case1 : motive [])
+  (case2 : ∀ (a : α) (as : List α), p a = true → motive (a :: as))
+  (case3 : ∀ (a : α) (as : List α), p a = false → motive (a :: as)) (x✝ : List α) : motive x✝
 -/
 #guard_msgs in
 #check List.find?.fun_cases
+
+
+-- This tests shows that its not so easy to post-hoc recognize that `x` could be a parameter, but
+-- `y` should be a target of the `fun_cases` principle (or the other way around)
+def areTheseTargetsUnchanged (x y : Nat) : Bool :=
+  if _ : x = y then
+    true
+  else
+    false
+
+/--
+info: areTheseTargetsUnchanged.fun_cases (x y : Nat) (motive : Prop) (case1 : x = y → motive) (case2 : ¬x = y → motive) :
+  motive
+-/
+#guard_msgs in
+#check areTheseTargetsUnchanged.fun_cases

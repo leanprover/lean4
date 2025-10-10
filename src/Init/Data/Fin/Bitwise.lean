@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Init.Data.Nat.Bitwise
-import Init.Data.Fin.Basic
+public import Init.Data.Nat.Bitwise
+public import Init.Data.Fin.Basic
+
+public section
 
 namespace Fin
 

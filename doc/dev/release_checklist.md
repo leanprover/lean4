@@ -50,7 +50,7 @@ We'll use `v4.6.0` as the intended release version as a running example.
     - Re-running `script/release_checklist.py` will then create the tag `v4.6.0` from `master`/`main` and push it (unless `toolchain-tag: false` in the `release_repos.yml` file)
     - `script/release_checklist.py` will then merge the tag `v4.6.0` into the `stable` branch and push it (unless `stable-branch: false` in the `release_repos.yml` file).
   - Special notes on repositories with exceptional requirements:
-    - `doc-gen4` has addition dependencies which we do not update at each toolchain release, although occasionally these break and need to be updated manually.
+    - `doc-gen4` has additional dependencies which we do not update at each toolchain release, although occasionally these break and need to be updated manually.
     - `verso`:
       - The `subverso` dependency is unusual in that it needs to be compatible with _every_ Lean release simultaneously.
         Usually you don't need to do anything.
@@ -69,7 +69,7 @@ We'll use `v4.6.0` as the intended release version as a running example.
     - `repl`:
       There are two copies of `lean-toolchain`/`lakefile.lean`:
       in the root, and in `test/Mathlib/`. Edit both, and run `lake update` in both directories.
-- An awkward situtation that sometimes occurs (e.g. with Verso) is that the `master`/`main` branch has already been moved
+- An awkward situation that sometimes occurs (e.g. with Verso) is that the `master`/`main` branch has already been moved
   to a nightly toolchain that comes *after* the stable toolchain we are
   targeting. In this case it is necessary to create a branch `releases/v4.6.0` from the last commit which was on
   an earlier toolchain, move that branch to the stable toolchain, and create the toolchain tag from that branch.
@@ -94,6 +94,8 @@ We'll use `v4.6.0` as the intended release version as a running example.
 
 This checklist walks you through creating the first release candidate for a version of Lean.
 
+For subsequent release candidates, the process is essentially the same, but we start out with the `releases/v4.7.0` branch already created.
+
 We'll use `v4.7.0-rc1` as the intended release version in this example.
 
 - Decide which nightly release you want to turn into a release candidate.
@@ -112,7 +114,7 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
     git fetch nightly tag nightly-2024-02-29
     git checkout nightly-2024-02-29
     git checkout -b releases/v4.7.0
-    git push --set-upstream origin releases/v4.18.0
+    git push --set-upstream origin releases/v4.7.0
     ```
 - In `src/CMakeLists.txt`,
   - verify that you see `set(LEAN_VERSION_MINOR 7)` (for whichever `7` is appropriate); this should already have been updated when the development cycle began.
@@ -144,6 +146,10 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
     - Run `script/release_steps.py v4.7.0-rc1 <repo>` (e.g. replacing `<repo>` with `batteries`), which will walk you through the following steps:
       - Create a new branch off `master`/`main` (as specified in the `branch` field), called `bump_to_v4.7.0-rc1`.
       - Merge `origin/bump/v4.7.0` if relevant (i.e. `bump-branch: true` appears in `release_repos.yml`).
+      - Otherwise, you *may* need to merge `origin/nightly-testing`.
+      - Note that for `verso` and `reference-manual` development happens on `nightly-testing`, so
+        we will merge that branch into `bump_to_v4.7.0-rc1`, but it is essential in the GitHub interface that we do a rebase merge,
+        in order to preserve the history.
       - Update the contents of `lean-toolchain` to `leanprover/lean4:v4.7.0-rc1`.
       - In the `lakefile.toml` or `lakefile.lean`, if there are dependencies on `nightly-testing`, `bump/v4.7.0`, or specific version tags, update them to the new tag.
         If they depend on `main` or `master`, don't change this; you've just updated the dependency, so `lake update` will take care of modifying the manifest.
@@ -151,7 +157,7 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
       - Run `lake build && if lake check-test; then lake test; fi` to check things are working.
       - Commit the changes as `chore: bump toolchain to v4.7.0-rc1` and push.
       - Create a PR with title "chore: bump toolchain to v4.7.0-rc1".
-    - Merge the PR once CI completes.
+    - Merge the PR once CI completes. (Recall: for `verso` and `reference-manual` you will need to do a rebase merge.)
     - Re-running `script/release_checklist.py` will then create the tag `v4.7.0-rc1` from `master`/`main` and push it (unless `toolchain-tag: false` in the `release_repos.yml` file)
   - We do this for the same list of repositories as for stable releases, see above for notes about special cases.
     As above, there are dependencies between these, and so the process above is iterative.

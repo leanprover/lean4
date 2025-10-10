@@ -10,6 +10,10 @@ def enumFromTR' (n : Nat) (l : List α) : List (Nat × α) :=
   let arr := l.toArray
   (arr.foldr (fun a (n, acc) => (n-1, (n-1, a) :: acc)) (n + arr.size, [])).2
 
+def enumFrom : Nat → List α → List (Nat × α)
+  | _, [] => []
+  | n, x :: xs   => (n, x) :: enumFrom (n + 1) xs
+
 open List in
 theorem enumFrom_eq_enumFromTR' : @enumFrom = @enumFromTR' := by
   funext α n l; simp only [enumFromTR']

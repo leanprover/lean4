@@ -8,6 +8,10 @@ Author: Sofia Rodrigues, Henrik Böving
 #include <lean/lean.h>
 #include "runtime/uv/event_loop.h"
 
+#ifndef LEAN_EMSCRIPTEN
+#include <uv.h>
+#endif
+
 namespace lean {
 
 static lean_external_class * g_uv_timer_external_class = NULL;
@@ -15,7 +19,6 @@ void initialize_libuv_timer();
 
 #ifndef LEAN_EMSCRIPTEN
 using namespace std;
-#include <uv.h>
 
 enum uv_timer_state {
     TIMER_STATE_INITIAL,
@@ -48,6 +51,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t r
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg timer, obj_arg /* w */);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_reset(b_obj_arg timer, obj_arg /* w */);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg timer, obj_arg /* w */);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_cancel(b_obj_arg timer, obj_arg /* w */);
 
 #endif
 

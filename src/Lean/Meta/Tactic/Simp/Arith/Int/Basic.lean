@@ -3,15 +3,19 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Int.Linear
-import Lean.Util.SortExprs
-import Lean.Meta.Check
-import Lean.Meta.Offset
-import Lean.Meta.IntInstTesters
-import Lean.Meta.AppBuilder
-import Lean.Meta.KExprMap
-import Lean.Data.RArray
+public import Init.Data.Int.Linear
+public import Lean.Util.SortExprs
+public import Lean.Meta.Check
+public import Lean.Meta.Offset
+public import Lean.Meta.IntInstTesters
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.KExprMap
+public import Lean.Data.RArray
+
+public section
 
 namespace Int.Linear
 
@@ -245,7 +249,7 @@ def dvdCnstr? (e : Expr) : MetaM (Option (Int × Int.Linear.Expr × Array Expr))
     let e := e.applyPerm perm
     return some (d, e, atoms)
 
-def toContextExpr (ctx : Array Expr) : Expr :=
+def toContextExpr (ctx : Array Expr) : MetaM Expr :=
   if h : 0 < ctx.size then
     RArray.toExpr (mkConst ``Int) id (RArray.ofArray ctx h)
   else

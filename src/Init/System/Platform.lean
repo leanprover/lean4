@@ -3,9 +3,13 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Nat.Basic
-import Init.Data.String.Basic
+public import Init.Data.Nat.Basic
+public import Init.Data.String.Bootstrap
+
+public section
 
 namespace System
 namespace Platform

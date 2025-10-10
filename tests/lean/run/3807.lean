@@ -87,27 +87,6 @@ class PartialOrder (α : Type u) extends Preorder α where
 
 end Mathlib.Init.Order.Defs
 
-section Mathlib.Init.Function
-
-universe u₁ u₂
-
-namespace Function
-
-variable {α : Sort u₁} {β : Sort u₂}
-
-def Injective (f : α → β) : Prop :=
-  ∀ ⦃a₁ a₂⦄, f a₁ = f a₂ → a₁ = a₂
-
-def LeftInverse (g : β → α) (f : α → β) : Prop :=
-  ∀ x, g (f x) = x
-
-def HasLeftInverse (f : α → β) : Prop :=
-  ∃ finv : β → α, LeftInverse finv f
-
-end Function
-
-end Mathlib.Init.Function
-
 section Mathlib.Init.Set
 
 set_option autoImplicit true
@@ -751,25 +730,7 @@ universe u v w
 
 open Function
 
-class HSMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  hSMul : α → β → γ
-
-class SMul (M : Type u) (α : Type v) where
-  smul : M → α → α
-
-infixr:73 " • " => HSMul.hSMul
-
-macro_rules | `($x • $y) => `(leftact% HSMul.hSMul $x $y)
-
-instance instHSMul {α β} [SMul α β] : HSMul α β β where
-  hSMul := SMul.smul
-
 variable {G : Type _}
-
-class Inv (α : Type u) where
-  inv : α → α
-
-postfix:max "⁻¹" => Inv.inv
 
 class Semigroup (G : Type u) extends Mul G where
   protected mul_assoc : ∀ a b c : G, a * b * c = a * (b * c)
@@ -795,24 +756,6 @@ class MulOneClass (M : Type u) extends One M, Mul M where
 class AddZeroClass (M : Type u) extends Zero M, Add M where
   protected zero_add : ∀ a : M, 0 + a = a
   protected add_zero : ∀ a : M, a + 0 = a
-
-section
-
-variable {M : Type u}
-
-/-- The fundamental power operation in a monoid. `npowRec n a = a*a*...*a` n times.
-Use instead `a ^ n`, which has better definitional behavior. -/
-def npowRec [One M] [Mul M] : Nat → M → M
-  | 0, _ => 1
-  | n + 1, a => npowRec n a * a
-
-/-- The fundamental scalar multiplication in an additive monoid. `nsmulRec n a = a+a+...+a` n
-times. Use instead `n • a`, which has better definitional behavior. -/
-def nsmulRec [Zero M] [Add M] : Nat → M → M
-  | 0, _ => 0
-  | n + 1, a => nsmulRec n a + a
-
-end
 
 class AddMonoid (M : Type u) extends AddSemigroup M, AddZeroClass M where
   protected nsmul : Nat → M → M

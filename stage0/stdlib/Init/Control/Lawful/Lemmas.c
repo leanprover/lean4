@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Lawful.Lemmas
-// Imports: Init.Control.Lawful.Basic Init.RCases Init.ByCases
+// Imports: public import Init.Control.Lawful.Basic public import Init.RCases public import Init.ByCases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

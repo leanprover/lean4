@@ -3,9 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Dany Fabian
 -/
+module
+
 prelude
-import Std.Internal.Parsec
-import Lean.Data.Xml.Basic
+public import Std.Internal.Parsec
+public import Lean.Data.Xml.Basic
+
+public section
 
 open System
 open Lean
@@ -411,7 +415,7 @@ protected def elementPrefix : Parser (Array Content → Element) := do
   let name ← Name
   let attributes ← many (attempt <| S *> Attribute)
   optional S *> pure ()
-  return Element.Element name (RBMap.fromList attributes.toList compare)
+  return Element.Element name (Std.TreeMap.ofList attributes.toList compare)
 
 /-- https://www.w3.org/TR/xml/#NT-EmptyElemTag -/
 def EmptyElemTag (elem : Array Content → Element) : Parser Element := do

@@ -94,7 +94,7 @@ end
 Rewrote forall, remains a forall, since domain is `Nat`.
 -/
 /--
-info: P : Nat → Prop
+trace: P : Nat → Prop
 q : Prop
 h : ∀ (n : Nat), P n = q
 hq : q
@@ -111,7 +111,7 @@ example (P : Nat → Prop) (q : Prop) (h : ∀ n, P n = q) (hq : q) :
 When `pp.foralls` is false, uses non-dependent `→`.
 -/
 /--
-info: P : Nat → Prop
+trace: P : Nat → Prop
 q : Prop
 h : (n : Nat) → P n = q
 hq : q
@@ -129,7 +129,7 @@ example (P : Nat → Prop) (q : Prop) (h : ∀ n, P n = q) (hq : q) :
 Rewrote forall, turns into an implication, since domain is a proposition.
 -/
 /--
-info: p : Prop
+trace: p : Prop
 P : p → Prop
 q : Prop
 h : ∀ (n : p), P n = q

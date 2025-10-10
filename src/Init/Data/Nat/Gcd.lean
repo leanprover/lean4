@@ -3,10 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Avigad, Leonardo de Moura, Mario Carneiro, Markus Himmel
 -/
+module
+
 prelude
-import Init.Data.Nat.Dvd
-import Init.NotationExtra
-import Init.RCases
+public import Init.Data.Nat.Dvd
+public import Init.NotationExtra
+public import Init.RCases
+
+public section
 
 namespace Nat
 
@@ -52,7 +56,7 @@ theorem gcd_def (x y : Nat) : gcd x y = if x = 0 then y else gcd (y % x) x := by
 
 @[simp] theorem gcd_zero_right (n : Nat) : gcd n 0 = n := by
   cases n with
-  | zero => simp [gcd_succ]
+  | zero => simp
   | succ n =>
     -- `simp [gcd_succ]` produces an invalid term unless `gcd_succ` is proved with `id rfl` instead
     rw [gcd_succ]

@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.Bool
-import Init.Data.BitVec
+public import Init.Data.Bool
+public import Init.Data.BitVec.Lemmas
+
+@[expose] public section
 
 /-!
 This module contains the equality simplifying part of the `bv_normalize` simp set.
@@ -13,10 +17,6 @@ This module contains the equality simplifying part of the `bv_normalize` simp se
 
 namespace Std.Tactic.BVDecide
 namespace Frontend.Normalize
-
-attribute [bv_normalize] eq_self
-attribute [bv_normalize] beq_self_eq_true
-attribute [bv_normalize] beq_self_eq_true'
 
 @[bv_normalize]
 theorem Bool.not_beq_not : ∀ (a b : Bool), ((!a) == (!b)) = (a == b) := by

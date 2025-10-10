@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.UInt.Basic
+public import Init.Data.UInt.Basic
+
+@[expose] public section
 
 set_option linter.missingDocs true
 
@@ -19,7 +23,7 @@ Signed 8-bit integers.
 This type has special support in the compiler so it can be represented by an unboxed 8-bit value.
 -/
 structure Int8 where
-  private ofUInt8 ::
+  ofUInt8 ::
   /--
   Converts an 8-bit signed integer into the 8-bit unsigned integer that is its two's complement
   encoding.
@@ -32,7 +36,7 @@ Signed 16-bit integers.
 This type has special support in the compiler so it can be represented by an unboxed 16-bit value.
 -/
 structure Int16 where
-  private ofUInt16 ::
+  ofUInt16 ::
   /--
   Converts an 16-bit signed integer into the 16-bit unsigned integer that is its two's complement
   encoding.
@@ -45,7 +49,7 @@ Signed 32-bit integers.
 This type has special support in the compiler so it can be represented by an unboxed 32-bit value.
 -/
 structure Int32 where
-  private ofUInt32 ::
+  ofUInt32 ::
   /--
   Converts an 32-bit signed integer into the 32-bit unsigned integer that is its two's complement
   encoding.
@@ -58,7 +62,7 @@ Signed 64-bit integers.
 This type has special support in the compiler so it can be represented by an unboxed 64-bit value.
 -/
 structure Int64 where
-  private ofUInt64 ::
+  ofUInt64 ::
   /--
   Converts an 64-bit signed integer into the 64-bit unsigned integer that is its two's complement
   encoding.
@@ -72,7 +76,7 @@ On a 32-bit architecture, `ISize` is equivalent to `Int32`. On a 64-bit machine,
 `Int64`. This type has special support in the compiler so it can be represented by an unboxed value.
 -/
 structure ISize where
-  private ofUSize ::
+  ofUSize ::
   /--
   Converts a word-sized signed integer into the word-sized unsigned integer that is its two's
   complement encoding.
@@ -92,8 +96,7 @@ theorem Int8.toBitVec.inj : {x y : Int8} → x.toBitVec = y.toBitVec → x = y
 
 /-- Obtains the `Int8` that is 2's complement equivalent to the `UInt8`. -/
 @[inline] def UInt8.toInt8 (i : UInt8) : Int8 := Int8.ofUInt8 i
-@[inline, deprecated UInt8.toInt8 (since := "2025-02-13"), inherit_doc UInt8.toInt8]
-def Int8.mk (i : UInt8) : Int8 := UInt8.toInt8 i
+
 /--
 Converts an arbitrary-precision integer to an 8-bit integer, wrapping on overflow or underflow.
 
@@ -155,8 +158,7 @@ Converts an 8-bit signed integer to a natural number, mapping all negative numbe
 Use `Int8.toBitVec` to obtain the two's complement representation.
 -/
 @[inline] def Int8.toNatClampNeg (i : Int8) : Nat := i.toInt.toNat
-@[inline, deprecated Int8.toNatClampNeg (since := "2025-02-13"), inherit_doc Int8.toNatClampNeg]
-def Int8.toNat (i : Int8) : Nat := i.toInt.toNat
+
 /-- Obtains the `Int8` whose 2's complement representation is the given `BitVec 8`. -/
 @[inline] def Int8.ofBitVec (b : BitVec 8) : Int8 := ⟨⟨b⟩⟩
 /--
@@ -385,7 +387,7 @@ instance : LE Int8          := ⟨Int8.le⟩
 instance : Complement Int8  := ⟨Int8.complement⟩
 instance : AndOp Int8       := ⟨Int8.land⟩
 instance : OrOp Int8        := ⟨Int8.lor⟩
-instance : Xor Int8         := ⟨Int8.xor⟩
+instance : XorOp Int8         := ⟨Int8.xor⟩
 instance : ShiftLeft Int8   := ⟨Int8.shiftLeft⟩
 instance : ShiftRight Int8  := ⟨Int8.shiftRight⟩
 instance : DecidableEq Int8 := Int8.decEq
@@ -427,8 +429,8 @@ Examples:
 def Int8.decLe (a b : Int8) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec.sle b.toBitVec))
 
-instance (a b : Int8) : Decidable (a < b) := Int8.decLt a b
-instance (a b : Int8) : Decidable (a ≤ b) := Int8.decLe a b
+attribute [instance] Int8.decLt Int8.decLe
+
 instance : Max Int8 := maxOfLe
 instance : Min Int8 := minOfLe
 
@@ -445,8 +447,7 @@ theorem Int16.toBitVec.inj : {x y : Int16} → x.toBitVec = y.toBitVec → x = y
 
 /-- Obtains the `Int16` that is 2's complement equivalent to the `UInt16`. -/
 @[inline] def UInt16.toInt16 (i : UInt16) : Int16 := Int16.ofUInt16 i
-@[inline, deprecated UInt16.toInt16 (since := "2025-02-13"), inherit_doc UInt16.toInt16]
-def Int16.mk (i : UInt16) : Int16 := UInt16.toInt16 i
+
 /--
 Converts an arbitrary-precision integer to a 16-bit signed integer, wrapping on overflow or underflow.
 
@@ -510,8 +511,7 @@ Converts a 16-bit signed integer to a natural number, mapping all negative numbe
 Use `Int16.toBitVec` to obtain the two's complement representation.
 -/
 @[inline] def Int16.toNatClampNeg (i : Int16) : Nat := i.toInt.toNat
-@[inline, deprecated Int16.toNatClampNeg (since := "2025-02-13"), inherit_doc Int16.toNatClampNeg]
-def Int16.toNat (i : Int16) : Nat := i.toInt.toNat
+
 /-- Obtains the `Int16` whose 2's complement representation is the given `BitVec 16`. -/
 @[inline] def Int16.ofBitVec (b : BitVec 16) : Int16 := ⟨⟨b⟩⟩
 /--
@@ -756,7 +756,7 @@ instance : LE Int16          := ⟨Int16.le⟩
 instance : Complement Int16  := ⟨Int16.complement⟩
 instance : AndOp Int16       := ⟨Int16.land⟩
 instance : OrOp Int16        := ⟨Int16.lor⟩
-instance : Xor Int16         := ⟨Int16.xor⟩
+instance : XorOp Int16       := ⟨Int16.xor⟩
 instance : ShiftLeft Int16   := ⟨Int16.shiftLeft⟩
 instance : ShiftRight Int16  := ⟨Int16.shiftRight⟩
 instance : DecidableEq Int16 := Int16.decEq
@@ -798,8 +798,8 @@ Examples:
 def Int16.decLe (a b : Int16) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec.sle b.toBitVec))
 
-instance (a b : Int16) : Decidable (a < b) := Int16.decLt a b
-instance (a b : Int16) : Decidable (a ≤ b) := Int16.decLe a b
+attribute [instance] Int16.decLt Int16.decLe
+
 instance : Max Int16 := maxOfLe
 instance : Min Int16 := minOfLe
 
@@ -816,8 +816,7 @@ theorem Int32.toBitVec.inj : {x y : Int32} → x.toBitVec = y.toBitVec → x = y
 
 /-- Obtains the `Int32` that is 2's complement equivalent to the `UInt32`. -/
 @[inline] def UInt32.toInt32 (i : UInt32) : Int32 := Int32.ofUInt32 i
-@[inline, deprecated UInt32.toInt32 (since := "2025-02-13"), inherit_doc UInt32.toInt32]
-def Int32.mk (i : UInt32) : Int32 := UInt32.toInt32 i
+
 /--
 Converts an arbitrary-precision integer to a 32-bit integer, wrapping on overflow or underflow.
 
@@ -882,8 +881,7 @@ Converts a 32-bit signed integer to a natural number, mapping all negative numbe
 Use `Int32.toBitVec` to obtain the two's complement representation.
 -/
 @[inline] def Int32.toNatClampNeg (i : Int32) : Nat := i.toInt.toNat
-@[inline, deprecated Int32.toNatClampNeg (since := "2025-02-13"), inherit_doc Int32.toNatClampNeg]
-def Int32.toNat (i : Int32) : Nat := i.toInt.toNat
+
 /-- Obtains the `Int32` whose 2's complement representation is the given `BitVec 32`. -/
 @[inline] def Int32.ofBitVec (b : BitVec 32) : Int32 := ⟨⟨b⟩⟩
 /--
@@ -1143,7 +1141,7 @@ instance : LE Int32          := ⟨Int32.le⟩
 instance : Complement Int32  := ⟨Int32.complement⟩
 instance : AndOp Int32       := ⟨Int32.land⟩
 instance : OrOp Int32        := ⟨Int32.lor⟩
-instance : Xor Int32         := ⟨Int32.xor⟩
+instance : XorOp Int32         := ⟨Int32.xor⟩
 instance : ShiftLeft Int32   := ⟨Int32.shiftLeft⟩
 instance : ShiftRight Int32  := ⟨Int32.shiftRight⟩
 instance : DecidableEq Int32 := Int32.decEq
@@ -1185,8 +1183,8 @@ Examples:
 def Int32.decLe (a b : Int32) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec.sle b.toBitVec))
 
-instance (a b : Int32) : Decidable (a < b) := Int32.decLt a b
-instance (a b : Int32) : Decidable (a ≤ b) := Int32.decLe a b
+attribute [instance] Int32.decLt Int32.decLe
+
 instance : Max Int32 := maxOfLe
 instance : Min Int32 := minOfLe
 
@@ -1203,8 +1201,7 @@ theorem Int64.toBitVec.inj : {x y : Int64} → x.toBitVec = y.toBitVec → x = y
 
 /-- Obtains the `Int64` that is 2's complement equivalent to the `UInt64`. -/
 @[inline] def UInt64.toInt64 (i : UInt64) : Int64 := Int64.ofUInt64 i
-@[inline, deprecated UInt64.toInt64 (since := "2025-02-13"), inherit_doc UInt64.toInt64]
-def Int64.mk (i : UInt64) : Int64 := UInt64.toInt64 i
+
 /--
 Converts an arbitrary-precision integer to a 64-bit integer, wrapping on overflow or underflow.
 
@@ -1274,8 +1271,7 @@ Converts a 64-bit signed integer to a natural number, mapping all negative numbe
 Use `Int64.toBitVec` to obtain the two's complement representation.
 -/
 @[inline] def Int64.toNatClampNeg (i : Int64) : Nat := i.toInt.toNat
-@[inline, deprecated Int64.toNatClampNeg (since := "2025-02-13"), inherit_doc Int64.toNatClampNeg]
-def Int64.toNat (i : Int64) : Nat := i.toInt.toNat
+
 /-- Obtains the `Int64` whose 2's complement representation is the given `BitVec 64`. -/
 @[inline] def Int64.ofBitVec (b : BitVec 64) : Int64 := ⟨⟨b⟩⟩
 /--
@@ -1550,7 +1546,7 @@ instance : LE Int64          := ⟨Int64.le⟩
 instance : Complement Int64  := ⟨Int64.complement⟩
 instance : AndOp Int64       := ⟨Int64.land⟩
 instance : OrOp Int64        := ⟨Int64.lor⟩
-instance : Xor Int64         := ⟨Int64.xor⟩
+instance : XorOp Int64         := ⟨Int64.xor⟩
 instance : ShiftLeft Int64   := ⟨Int64.shiftLeft⟩
 instance : ShiftRight Int64  := ⟨Int64.shiftRight⟩
 instance : DecidableEq Int64 := Int64.decEq
@@ -1591,8 +1587,8 @@ Examples:
 def Int64.decLe (a b : Int64) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec.sle b.toBitVec))
 
-instance (a b : Int64) : Decidable (a < b) := Int64.decLt a b
-instance (a b : Int64) : Decidable (a ≤ b) := Int64.decLe a b
+attribute [instance] Int64.decLt Int64.decLe
+
 instance : Max Int64 := maxOfLe
 instance : Min Int64 := minOfLe
 
@@ -1609,8 +1605,7 @@ theorem ISize.toBitVec.inj : {x y : ISize} → x.toBitVec = y.toBitVec → x = y
 
 /-- Obtains the `ISize` that is 2's complement equivalent to the `USize`. -/
 @[inline] def USize.toISize (i : USize) : ISize := ISize.ofUSize i
-@[inline, deprecated USize.toISize (since := "2025-02-13"), inherit_doc USize.toISize]
-def ISize.mk (i : USize) : ISize := USize.toISize i
+
 /--
 Converts an arbitrary-precision integer to a word-sized signed integer, wrapping around on over- or
 underflow.
@@ -1643,8 +1638,7 @@ Converts a word-sized signed integer to a natural number, mapping all negative n
 Use `ISize.toBitVec` to obtain the two's complement representation.
 -/
 @[inline] def ISize.toNatClampNeg (i : ISize) : Nat := i.toInt.toNat
-@[inline, deprecated ISize.toNatClampNeg (since := "2025-02-13"), inherit_doc ISize.toNatClampNeg]
-def ISize.toNat (i : ISize) : Nat := i.toInt.toNat
+
 /-- Obtains the `ISize` whose 2's complement representation is the given `BitVec`. -/
 @[inline] def ISize.ofBitVec (b : BitVec System.Platform.numBits) : ISize := ⟨⟨b⟩⟩
 /--
@@ -1942,7 +1936,7 @@ instance : LE ISize          := ⟨ISize.le⟩
 instance : Complement ISize  := ⟨ISize.complement⟩
 instance : AndOp ISize       := ⟨ISize.land⟩
 instance : OrOp ISize        := ⟨ISize.lor⟩
-instance : Xor ISize         := ⟨ISize.xor⟩
+instance : XorOp ISize         := ⟨ISize.xor⟩
 instance : ShiftLeft ISize   := ⟨ISize.shiftLeft⟩
 instance : ShiftRight ISize  := ⟨ISize.shiftRight⟩
 instance : DecidableEq ISize := ISize.decEq
@@ -1984,7 +1978,7 @@ Examples:
 def ISize.decLe (a b : ISize) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec.sle b.toBitVec))
 
-instance (a b : ISize) : Decidable (a < b) := ISize.decLt a b
-instance (a b : ISize) : Decidable (a ≤ b) := ISize.decLe a b
+attribute [instance] ISize.decLt ISize.decLe
+
 instance : Max ISize := maxOfLe
 instance : Min ISize := minOfLe

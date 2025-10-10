@@ -3,10 +3,13 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
+public import Init.Prelude
 import Lake.Config.Package
 import Lake.DSL.Attributes
-import Lake.DSL.DeclUtil
+import Lake.DSL.Syntax
 
 /-! # Script Declarations
 DSL definitions to define a Lake script for a package.
@@ -14,27 +17,6 @@ DSL definitions to define a Lake script for a package.
 
 namespace Lake.DSL
 open Lean Parser Command
-
-syntax scriptDeclSpec :=
-  identOrStr (ppSpace simpleBinder)? (declValSimple <|> declValDo)
-
-/--
-Define a new Lake script for the package.
-
-**Example**
-
-```
-/-- Display a greeting -/
-script «script-name» (args) do
-  if h : 0 < args.length then
-    IO.println s!"Hello, {args[0]'h}!"
-  else
-    IO.println "Hello, world!"
-  return 0
-```
--/
-scoped syntax (name := scriptDecl)
-(docComment)?  optional(Term.attributes) "script " scriptDeclSpec : command
 
 @[builtin_macro scriptDecl]
 def expandScriptDecl : Macro

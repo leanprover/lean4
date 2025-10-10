@@ -3,11 +3,17 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Init.Data.Array.TakeDrop
-import Std.Data.DHashMap.Basic
-import Std.Data.DHashMap.Internal.HashesTo
-import Std.Data.DHashMap.Internal.AssocList.Lemmas
+public import Init.Data.Array.TakeDrop
+public import Std.Data.DHashMap.Basic
+public import Std.Data.DHashMap.Internal.Defs
+import all Std.Data.DHashMap.Internal.Defs
+public import Std.Data.DHashMap.Internal.HashesTo
+public import Std.Data.DHashMap.Internal.AssocList.Lemmas
+
+@[expose] public section
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on
@@ -211,7 +217,7 @@ theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β →
   rintro l l' l'' h
   induction l generalizing l' l''
   · simpa using h.symm
-  · next l t ih =>
+  next l t ih =>
     simp only [List.foldl_cons]
     apply ih
     exact hg.trans (Perm.append h hfg.symm)
@@ -236,7 +242,7 @@ theorem uset [BEq α] [Hashable α] {m : Array (AssocList α β)} {i : USize} {h
   refine ⟨fun j hj => ?_⟩
   simp only [Array.uset, Array.getElem_set, Array.size_set]
   split
-  · next hij => exact hij ▸ (hd (hm.hashes_to _ _))
+  next hij => exact hij ▸ (hd (hm.hashes_to _ _))
   · exact hm.hashes_to j (by simpa using hj)
 
 /-- This is the general theorem to show that modification operations preserve well-formedness of
@@ -430,13 +436,13 @@ end
 
 theorem reinsertAux_eq [Hashable α] (data : { d : Array (AssocList α β) // 0 < d.size }) (a : α)
     (b : β a) :
-    (reinsertAux hash data a b).1 = updateBucket data.1 data.2 a (fun l => l.cons a b) := rfl
+    (reinsertAux hash data a b).1 = updateBucket data.1 data.2 a (fun l => l.cons a b) := (rfl)
 
 theorem get?_eq_get?ₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
-    get? m a = get?ₘ m a := rfl
+    get? m a = get?ₘ m a := (rfl)
 
 theorem get_eq_getₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) (h : m.contains a) :
-    get m a h = getₘ m a h := rfl
+    get m a h = getₘ m a (by exact h) := (rfl)
 
 theorem getD_eq_getDₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : β a) :
     getD m a fallback = getDₘ m a fallback := by
@@ -447,10 +453,10 @@ theorem get!_eq_get!ₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β)
   simp [get!, get!ₘ, get?ₘ, List.getValueCast!_eq_getValueCast?, bucket]
 
 theorem getKey?_eq_getKey?ₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
-    getKey? m a = getKey?ₘ m a := rfl
+    getKey? m a = getKey?ₘ m a := (rfl)
 
 theorem getKey_eq_getKeyₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (h : m.contains a) :
-    getKey m a h = getKeyₘ m a h := rfl
+    getKey m a h = getKeyₘ m a (by exact h) := (rfl)
 
 theorem getKeyD_eq_getKeyDₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a fallback : α) :
     getKeyD m a fallback = getKeyDₘ m a fallback := by
@@ -461,7 +467,7 @@ theorem getKey!_eq_getKey!ₘ [BEq α] [Hashable α] [Inhabited α] (m : Raw₀ 
   simp [getKey!, getKey!ₘ, getKey?ₘ, List.getKey!_eq_getKey?, bucket]
 
 theorem contains_eq_containsₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
-    m.contains a = m.containsₘ a := rfl
+    m.contains a = m.containsₘ a := (rfl)
 
 theorem insert_eq_insertₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) :
     m.insert a b = m.insertₘ a b := by
@@ -488,9 +494,9 @@ theorem modify_eq_alter [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β)
   split
   · dsimp
     split
-    · next h =>
+    next h =>
       simp only [AssocList.contains_eq] at h
-      simp only [AssocList.modify_eq_alter, Array.set_set, AssocList.contains_eq,
+      simp only [AssocList.modify_eq_alter, AssocList.contains_eq,
         containsKey_of_perm AssocList.toList_alter, ← modifyKey_eq_alterKey,
         containsKey_modifyKey, h, reduceIte]
     · rfl
@@ -518,9 +524,9 @@ theorem modify_eq_alter [BEq α] [Hashable α] [EquivBEq α] (m : Raw₀ α (fun
   split
   · dsimp
     split
-    · next h =>
+    next h =>
       simp only [AssocList.contains_eq] at h
-      simp only [AssocList.Const.modify_eq_alter, Array.set_set, AssocList.contains_eq,
+      simp only [AssocList.Const.modify_eq_alter, AssocList.contains_eq,
         containsKey_of_perm AssocList.Const.toList_alter, ← Const.modifyKey_eq_alterKey,
         Const.containsKey_modifyKey, h, reduceIte]
     · rfl
@@ -552,7 +558,7 @@ theorem containsThenInsertIfNew_eq_insertIfNewₘ [BEq α] [Hashable α] (m : Ra
   rw [containsThenInsertIfNew, insertIfNewₘ, containsₘ, bucket]
   dsimp only [Array.ugetElem_eq_getElem, Array.uset]
   split
-  · simp only [replaceₘ, Subtype.mk.injEq, Raw.mk.injEq, true_and]
+  · simp only
   · rfl
 
 theorem containsThenInsertIfNew_eq_containsₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) :
@@ -562,7 +568,7 @@ theorem containsThenInsertIfNew_eq_containsₘ [BEq α] [Hashable α] (m : Raw�
   split <;> simp_all
 
 theorem insertIfNew_eq_insertIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) :
-    m.insertIfNew a b = m.insertIfNewₘ a b := rfl
+    m.insertIfNew a b = m.insertIfNewₘ a b := (rfl)
 
 theorem getThenInsertIfNew?_eq_insertIfNewₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β)
     (a : α) (b : β a) : (m.getThenInsertIfNew? a b).2 = m.insertIfNewₘ a b := by
@@ -587,16 +593,16 @@ theorem erase_eq_eraseₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
   · rfl
 
 theorem filterMap_eq_filterMapₘ (m : Raw₀ α β) (f : (a : α) → β a → Option (δ a)) :
-    m.filterMap f = m.filterMapₘ f := rfl
+    m.filterMap f = m.filterMapₘ f := (rfl)
 
 theorem map_eq_mapₘ (m : Raw₀ α β) (f : (a : α) → β a → δ a) :
-    m.map f = m.mapₘ f := rfl
+    m.map f = m.mapₘ f := (rfl)
 
 theorem filter_eq_filterₘ (m : Raw₀ α β) (f : (a : α) → β a → Bool) :
-    m.filter f = m.filterₘ f := rfl
+    m.filter f = m.filterₘ f := (rfl)
 
-theorem insertMany_eq_insertListₘ [BEq α] [Hashable α](m : Raw₀ α β) (l : List ((a : α) × β a)) : insertMany m l = insertListₘ m l := by
-  simp only [insertMany, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl]
+theorem insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) : insertMany m l = insertListₘ m l := by
+  simp only [insertMany, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
     (∀ {m'' : Raw₀ α β} {a : α} {b : β a}, P m'' → P (m''.insert a b)) → P m → P m' }),
       (List.foldl (fun m' p => ⟨m'.val.insert p.1 p.2, fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =
@@ -613,10 +619,10 @@ section
 variable {β : Type v}
 
 theorem Const.get?_eq_get?ₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α) :
-    Const.get? m a = Const.get?ₘ m a := rfl
+    Const.get? m a = Const.get?ₘ m a := (rfl)
 
 theorem Const.get_eq_getₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α)
-    (h : m.contains a) : Const.get m a h = Const.getₘ m a h := rfl
+    (h : m.contains a) : Const.get m a h = Const.getₘ m a (by exact h) := (rfl)
 
 theorem Const.getD_eq_getDₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α) (fallback : β) :
     Const.getD m a fallback = Const.getDₘ m a fallback := by
@@ -630,7 +636,7 @@ theorem Const.getThenInsertIfNew?_eq_insertIfNewₘ [BEq α] [Hashable α] (m : 
     (a : α) (b : β) : (Const.getThenInsertIfNew? m a b).2 = m.insertIfNewₘ a b := by
   rw [getThenInsertIfNew?, insertIfNewₘ, containsₘ, bucket]
   dsimp only [Array.ugetElem_eq_getElem, Array.uset]
-  split <;> simp_all [consₘ, updateBucket, List.containsKey_eq_isSome_getValue?, -Option.not_isSome]
+  split <;> simp_all [consₘ, updateBucket, List.containsKey_eq_isSome_getValue?, -Option.isSome_eq_false_iff]
 
 theorem Const.getThenInsertIfNew?_eq_get?ₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α)
     (b : β) : (Const.getThenInsertIfNew? m a b).1 = Const.get?ₘ m a := by
@@ -639,9 +645,9 @@ theorem Const.getThenInsertIfNew?_eq_get?ₘ [BEq α] [Hashable α] (m : Raw₀ 
   split <;> simp_all [-getValue?_eq_none]
 
 theorem Const.insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β))
-    (l: List (α × β)):
+    (l : List (α × β)) :
     (Const.insertMany m l).1 = Const.insertListₘ m l := by
-  simp only [insertMany, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl]
+  simp only [insertMany, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α (fun _ => β) → Prop),
     (∀ {m'' : Raw₀ α (fun _ => β)} {a : α} {b : β}, P m'' → P (m''.insert a b)) → P m → P m' }),
       (List.foldl (fun m' p => ⟨m'.val.insert p.1 p.2, fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =
@@ -656,7 +662,7 @@ theorem Const.insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α 
 theorem Const.insertManyIfNewUnit_eq_insertListIfNewUnitₘ [BEq α] [Hashable α]
     (m : Raw₀ α (fun _ => Unit)) (l: List α):
     (Const.insertManyIfNewUnit m l).1 = Const.insertListIfNewUnitₘ m l := by
-  simp only [insertManyIfNewUnit, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl]
+  simp only [insertManyIfNewUnit, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α (fun _ => Unit) → Prop),
       (∀ {m'' a b}, P m'' → P (m''.insertIfNew a b)) → P m → P m'}),
       (List.foldl (fun m' p => ⟨m'.val.insertIfNew p (), fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =

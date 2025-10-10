@@ -3,15 +3,19 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.HashMap.Basic
+public import Std.Data.HashMap.Basic
+
+@[expose] public section
 
 /-!
 # Hash sets
 
-This module develops the type `Std.Data.HashSet` of dependent hash sets.
+This module develops the type `Std.HashSet` of hash sets.
 
-Lemmas about the operations on `Std.Data.HashSet` are available in the
+Lemmas about the operations on `Std.HashSet` are available in the
 module `Std.Data.HashSet.Lemmas`.
 
 See the module `Std.Data.HashSet.Raw` for a variant of this type which is safe to use in
@@ -21,7 +25,7 @@ nested inductive types.
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v
+universe u v w
 
 variable {α : Type u} {_ : BEq α} {_ : Hashable α}
 
@@ -186,7 +190,7 @@ in the collection will be present in the returned hash set.
 Monadically computes a value by folding the given function over the elements in the hash set in some
 order.
 -/
-@[inline] def foldM {m : Type v → Type v} [Monad m] {β : Type v}
+@[inline] def foldM {m : Type v → Type w} [Monad m] {β : Type v}
     (f : β → α → m β) (init : β) (b : HashSet α) : m β :=
   b.inner.foldM (fun b a _ => f b a) init
 
@@ -196,28 +200,44 @@ order.
   m.inner.fold (fun b a _ => f b a) init
 
 /-- Carries out a monadic action on each element in the hash set in some order. -/
-@[inline] def forM {m : Type v → Type v} [Monad m] (f : α → m PUnit)
+@[inline] def forM {m : Type v → Type w} [Monad m] (f : α → m PUnit)
     (b : HashSet α) : m PUnit :=
   b.inner.forM (fun a _ => f a)
 
 /-- Support for the `for` loop construct in `do` blocks. -/
-@[inline] def forIn {m : Type v → Type v} [Monad m] {β : Type v}
+@[inline] def forIn {m : Type v → Type w} [Monad m] {β : Type v}
     (f : α → β → m (ForInStep β)) (init : β) (b : HashSet α) : m β :=
   b.inner.forIn (fun a _ acc => f a acc) init
 
-instance [BEq α] [Hashable α] {m : Type v → Type v} : ForM m (HashSet α) α where
+instance [BEq α] [Hashable α] {m : Type v → Type w} : ForM m (HashSet α) α where
   forM m f := m.forM f
 
-instance [BEq α] [Hashable α] {m : Type v → Type v} : ForIn m (HashSet α) α where
+instance [BEq α] [Hashable α] {m : Type v → Type w} : ForIn m (HashSet α) α where
   forIn m init f := m.forIn f init
-
-section Unverified
-
-/-! We currently do not provide lemmas for the functions below. -/
 
 /-- Removes all elements from the hash set for which the given function returns `false`. -/
 @[inline] def filter (f : α → Bool) (m : HashSet α) : HashSet α :=
   ⟨m.inner.filter fun a _ => f a⟩
+
+/--
+Inserts multiple mappings into the hash set by iterating over the given collection and calling
+`insert`. If the same key appears multiple times, the first occurrence takes precedence.
+
+Note: this precedence behavior is true for `HashSet` and `HashSet.Raw`. The `insertMany` function on
+`HashMap`, `DHashMap`, `HashMap.Raw` and `DHashMap.Raw` behaves differently: it will prefer the last
+appearance.
+-/
+@[inline] def insertMany {ρ : Type v} [ForIn Id ρ α] (m : HashSet α) (l : ρ) :
+    HashSet α :=
+  ⟨m.inner.insertManyIfNewUnit l⟩
+
+/-- Transforms the hash set into an array of elements in some order. -/
+@[inline] def toArray (m : HashSet α) : Array α :=
+  m.inner.keysArray
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
 
 /-- Partition a hashset into two hashsets based on a predicate. -/
 @[inline] def partition (f : α → Bool) (m : HashSet α) : HashSet α × HashSet α :=
@@ -235,23 +255,6 @@ section Unverified
   for a in m do
     if p a then return true
   return false
-
-
-/-- Transforms the hash set into an array of elements in some order. -/
-@[inline] def toArray (m : HashSet α) : Array α :=
-  m.inner.keysArray
-
-/--
-Inserts multiple mappings into the hash set by iterating over the given collection and calling
-`insert`. If the same key appears multiple times, the first occurrence takes precedence.
-
-Note: this precedence behavior is true for `HashSet` and `HashSet.Raw`. The `insertMany` function on
-`HashMap`, `DHashMap`, `HashMap.Raw` and `DHashMap.Raw` behaves differently: it will prefer the last
-appearance.
--/
-@[inline] def insertMany {ρ : Type v} [ForIn Id ρ α] (m : HashSet α) (l : ρ) :
-    HashSet α :=
-  ⟨m.inner.insertManyIfNewUnit l⟩
 
 /--
 Creates a hash set from an array of elements. Note that unlike repeatedly calling `insert`, if the

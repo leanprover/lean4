@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Constructions
-// Imports: Lean.Meta.Constructions.CasesOn Lean.Meta.Constructions.NoConfusion Lean.Meta.Constructions.RecOn Lean.Meta.Constructions.BRecOn
+// Imports: public import Lean.Meta.Constructions.CasesOn public import Lean.Meta.Constructions.NoConfusion public import Lean.Meta.Constructions.RecOn public import Lean.Meta.Constructions.BRecOn public import Lean.Meta.Constructions.CasesOnSameCtor
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,6 +17,7 @@ lean_object* initialize_Lean_Meta_Constructions_CasesOn(uint8_t builtin, lean_ob
 lean_object* initialize_Lean_Meta_Constructions_NoConfusion(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Constructions_RecOn(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Constructions_BRecOn(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Constructions_CasesOnSameCtor(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Constructions(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -32,6 +33,9 @@ res = initialize_Lean_Meta_Constructions_RecOn(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Constructions_BRecOn(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Constructions_CasesOnSameCtor(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

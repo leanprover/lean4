@@ -3,15 +3,17 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Init.Try
-import Lean.Meta.Tactic.LibrarySearch
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Grind.Cases
-import Lean.Meta.Tactic.Grind.EMatchTheorem
-import Lean.Meta.Tactic.FunIndInfo
-import Lean.Meta.Tactic.FunIndCollect
-
+public import Init.Try
+public import Lean.Meta.Tactic.LibrarySearch
+public import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.Grind.Cases
+public import Lean.Meta.Tactic.Grind.EMatchTheorem
+public import Lean.Meta.Tactic.FunIndInfo
+public import Lean.Meta.Tactic.FunIndCollect
+import Lean.Meta.Eqns
+public section
 namespace Lean.Meta.Try.Collector
 
 structure InductionCandidate where
@@ -100,9 +102,10 @@ def visitConst (declName : Name) : M Unit := do
 
 def saveFunInd (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
   if (← isEligible declName) then
-    let sc := (← get).funIndCandidates
-    let sc' ← sc.push e declName args
-    modify fun s => { s with funIndCandidates := sc' }
+    if let some funIndInfo ← getFunIndInfo? (cases := false) (unfolding := true) declName then
+      let sc := (← get).funIndCandidates
+      let sc' ← sc.push e funIndInfo args
+      modify fun s => { s with funIndCandidates := sc' }
 
 open LibrarySearch in
 def saveLibSearchCandidates (e : Expr) : M Unit := do
@@ -110,7 +113,7 @@ def saveLibSearchCandidates (e : Expr) : M Unit := do
     for (declName, declMod) in (← libSearchFindDecls e) do
       unless (← Grind.isEMatchTheorem declName) do
         let kind := match declMod with
-          | .none => .default
+          | .none => (.default false)
           | .mp => .leftRight
           | .mpr => .rightLeft
         modify fun s => { s with libSearchResults := s.libSearchResults.insert (declName, kind) }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.HashSet.RawLemmas
-// Imports: Std.Data.HashMap.RawLemmas Std.Data.HashSet.Raw
+// Imports: public import Std.Data.HashMap.RawLemmas public import Std.Data.HashSet.Raw
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,6 +13,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Std_HashSet_Raw_Equiv_instTrans(lean_object*);
+LEAN_EXPORT lean_object* l_Std_HashSet_Raw_Equiv_instTrans(lean_object* x_1) {
+_start:
+{
+return lean_box(0);
+}
+}
 lean_object* initialize_Std_Data_HashMap_RawLemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_HashSet_Raw(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;

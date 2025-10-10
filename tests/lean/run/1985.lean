@@ -1,7 +1,10 @@
 import Lean.Data.Json
 open Lean
 
-deriving instance BEq for Except
+instance [BEq α] [BEq β] : BEq (Except α β) where
+  beq | .ok a, .ok b => BEq.beq a b
+      | .error a, .error b => BEq.beq a b
+      | _, _ => false
 
 example : Json.parse "\"\\u7406\\u79d1\"" == .ok "理科" := by native_decide
 example : Json.parse "\"\\u7406\\u79D1\"" == .ok "理科" := by native_decide

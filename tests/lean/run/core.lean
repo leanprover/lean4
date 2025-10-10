@@ -29,7 +29,7 @@ testing...
 ---
 info: 10
 ---
-info: [Elab] trace message
+trace: [Elab] trace message
 -/
 #guard_msgs in
 #eval f

@@ -3,9 +3,13 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joe Hendrix, Kim Morrison
 -/
+module
+
 prelude
-import Lean.Meta.CompletionName
-import Lean.Meta.DiscrTree
+public import Lean.Meta.CompletionName
+public import Lean.Meta.DiscrTree
+
+public section
 
 /-!
 # Lazy Discrimination Tree
@@ -16,7 +20,7 @@ initialization strategy.
 
 The discrimination tree can be created through
 `createImportedDiscrTree`. This creates a discrimination tree from all
-imported modules in an environment using a callback that provides the
+public imported modules in an environment using a callback that provides the
 entries as `InitEntry` values.
 
 The function `getMatch` can be used to get the values that match the
@@ -57,8 +61,8 @@ end Key
 -- This namespace contains definitions copied from Lean.Meta.DiscrTree.
 namespace MatchClone
 
-private def tmpMVarId : MVarId := { name := `_discr_tree_tmp }
-private def tmpStar := mkMVar tmpMVarId
+def tmpMVarId : MVarId := { name := `_discr_tree_tmp }
+def tmpStar := mkMVar tmpMVarId
 
 /--
   Returns true iff the argument should be treated as a "wildcard" by the
@@ -71,7 +75,7 @@ private def tmpStar := mkMVar tmpMVarId
   avoid coupling between `DiscrTree` and `LazyDiscrTree` while both are
   potentially subject to independent changes.
 -/
-private def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Bool := do
+def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Bool := do
   if h : i < infos.size then
     let info := infos[i]
     if info.isInstImplicit then
@@ -83,7 +87,7 @@ private def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Boo
   else
     isProof a
 
-private partial def pushArgsAux (infos : Array ParamInfo) : Nat → Expr → Array Expr → MetaM (Array Expr)
+partial def pushArgsAux (infos : Array ParamInfo) : Nat → Expr → Array Expr → MetaM (Array Expr)
   | i, .app f a, todo => do
     if (← ignoreArg a i infos) then
       pushArgsAux infos (i-1) f (todo.push tmpStar)
@@ -97,7 +101,7 @@ private partial def pushArgsAux (infos : Array ParamInfo) : Nat → Expr → Arr
   - `Nat.zero`
   - `Nat.succ x` where `isNumeral x`
   - `OfNat.ofNat _ x _` where `isNumeral x` -/
-private partial def isNumeral (e : Expr) : Bool :=
+partial def isNumeral (e : Expr) : Bool :=
   if e.isRawNatLit then true
   else
     let f := e.getAppFn
@@ -109,7 +113,7 @@ private partial def isNumeral (e : Expr) : Bool :=
       else if fName == ``Nat.zero && e.getAppNumArgs == 0 then true
       else false
 
-private partial def toNatLit? (e : Expr) : Option Literal :=
+partial def toNatLit? (e : Expr) : Option Literal :=
   if isNumeral e then
     if let some n := loop e then
       some (.natVal n)
@@ -134,7 +138,7 @@ where
         failure
     | _ => failure
 
-private def isNatType (e : Expr) : MetaM Bool :=
+def isNatType (e : Expr) : MetaM Bool :=
   return (← whnf e).isConstOf ``Nat
 
 /--
@@ -145,7 +149,7 @@ private def isNatType (e : Expr) : MetaM Bool :=
   - `Nat.succ _`
   This function assumes `e.isAppOf fName`
 -/
-private def isNatOffset (fName : Name) (e : Expr) : MetaM Bool := do
+def isNatOffset (fName : Name) (e : Expr) : MetaM Bool := do
   if fName == ``Nat.add && e.getAppNumArgs == 2 then
     return isNumeral e.appArg!
   else if fName == ``Add.add && e.getAppNumArgs == 4 then
@@ -160,21 +164,21 @@ This is a hook to determine if we should add an expression as a wildcard pattern
 
 Clone of `Lean.Meta.DiscrTree.shouldAddAsStar`.  See it for more discussion.
 -/
-private def shouldAddAsStar (fName : Name) (e : Expr) : MetaM Bool := do
+def shouldAddAsStar (fName : Name) (e : Expr) : MetaM Bool := do
   isNatOffset fName e
 
 /--
 Eliminate loose bound variables via beta-reduction.
 
 This is primarily used to reduce pi-terms `∀(x : P), T` into
-non-dependend functions `P → T`.  The latter has a more specific
+non-dependent functions `P → T`.  The latter has a more specific
 discrimination tree key `.arrow..` and this improves the accuracy of the
 discrimination tree.
 
 Clone of `Lean.Meta.DiscrTree.elimLooseBVarsByBeta`.  See it for more
 discussion.
 -/
-private def elimLooseBVarsByBeta (e : Expr) : CoreM Expr :=
+def elimLooseBVarsByBeta (e : Expr) : CoreM Expr :=
   Core.transform e
     (pre := fun e => do
       if !e.hasLooseBVars then
@@ -184,7 +188,7 @@ private def elimLooseBVarsByBeta (e : Expr) : CoreM Expr :=
       else
         return .continue)
 
-private def getKeyArgs (e : Expr) (isMatch root : Bool) :
+def getKeyArgs (e : Expr) (isMatch root : Bool) :
     MetaM (Key × Array Expr) := do
   let e ← DiscrTree.reduceDT e root
   unless root do
@@ -206,7 +210,7 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) :
         -- A matcher application is stuck if one of the discriminants has a metavariable
         let args := e.getAppArgs
         let start := matcherInfo.getFirstDiscrPos
-        for arg in args[ start : start + matcherInfo.numDiscrs ] do
+        for arg in args[start...(start + matcherInfo.numDiscrs)] do
           if arg.hasExprMVar then
             Meta.throwIsDefEqStuck
       else if (← isRec c) then
@@ -259,7 +263,7 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) :
 /-
 Given an expression we are looking for patterns that match, return the key and sub-expressions.
 -/
-private abbrev getMatchKeyArgs (e : Expr) (root : Bool) :
+abbrev getMatchKeyArgs (e : Expr) (root : Bool) :
     MetaM (Key × Array Expr) :=
   getKeyArgs e (isMatch := true) (root := root)
 
@@ -268,18 +272,18 @@ end MatchClone
 /--
 An unprocessed entry in the lazy discrimination tree.
 -/
-private abbrev LazyEntry α := Array Expr × ((LocalContext × LocalInstances) × α)
+abbrev LazyEntry α := Array Expr × ((LocalContext × LocalInstances) × α)
 
 /--
 Index identifying trie in a discrimination tree.
 -/
-@[reducible]
-private def TrieIndex := Nat
+@[reducible, expose]
+def TrieIndex := Nat
 
 /--
 Discrimination tree trie. See `LazyDiscrTree`.
 -/
-private structure Trie (α : Type) where
+structure Trie (α : Type) where
   node ::
     /-- Values for matches ending at this trie. -/
     values : Array α
@@ -294,7 +298,7 @@ private structure Trie (α : Type) where
 instance : EmptyCollection (Trie α) := ⟨.node #[] 0 {} #[]⟩
 
 /-- Push lazy entry to trie. -/
-private def Trie.pushPending : Trie α → LazyEntry α → Trie α
+def Trie.pushPending : Trie α → LazyEntry α → Trie α
 | .node vs star cs p, e => .node vs star cs (p.push e)
 
 end LazyDiscrTree
@@ -330,7 +334,7 @@ open Lean.Meta.DiscrTree (mkNoindexAnnotation hasNoindexAnnotation reduceDT)
 /--
 Specialization of Lean.Meta.DiscrTree.pushArgs
 -/
-private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) :
+def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) :
     MetaM (Key × Array Expr) := do
   if hasNoindexAnnotation e then
     return (.star, todo)
@@ -382,15 +386,15 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) :
       return (.other, todo)
 
 /-- Initial capacity for key and todo vector. -/
-private def initCapacity := 8
+def initCapacity := 8
 
 /--
 Get the root key and rest of terms of an expression using the specified config.
 -/
-private def rootKey (e : Expr) : MetaM (Key × Array Expr) :=
+def rootKey (e : Expr) : MetaM (Key × Array Expr) :=
   pushArgs true (Array.mkEmpty initCapacity) e
 
-private partial def buildPath (op : Bool → Array Expr → Expr → MetaM (Key × Array Expr)) (root : Bool) (todo : Array Expr) (keys : Array Key) : MetaM (Array Key) := do
+partial def buildPath (op : Bool → Array Expr → Expr → MetaM (Key × Array Expr)) (root : Bool) (todo : Array Expr) (keys : Array Key) : MetaM (Array Key) := do
   if todo.isEmpty then
     return keys
   else
@@ -423,26 +427,26 @@ def targetPath (e : Expr) : MetaM (Array Key) := do
   buildPath op (root := true) (todo.push e) (.mkEmpty initCapacity)
 
 /- Monad for finding matches while resolving deferred patterns. -/
-@[reducible]
-private def MatchM α := StateRefT (Array (Trie α)) MetaM
+@[reducible, expose /- for codegen -/]
+def MatchM α := StateRefT (Array (Trie α)) MetaM
 
-private def runMatch (d : LazyDiscrTree α) (m : MatchM α β)  : MetaM (β × LazyDiscrTree α) := do
+def runMatch (d : LazyDiscrTree α) (m : MatchM α β)  : MetaM (β × LazyDiscrTree α) := do
   let { tries := a, roots := r } := d
   let (result, a) ← withReducible <| m.run a
   return (result, { tries := a, roots := r})
 
-private def setTrie (i : TrieIndex) (v : Trie α) : MatchM α Unit :=
+def setTrie (i : TrieIndex) (v : Trie α) : MatchM α Unit :=
   modify (·.set! i v)
 
 /-- Create a new trie with the given lazy entry. -/
-private def newTrie [Monad m] [MonadState (Array (Trie α)) m] (e : LazyEntry α) : m TrieIndex := do
+def newTrie [Monad m] [MonadState (Array (Trie α)) m] (e : LazyEntry α) : m TrieIndex := do
   modifyGet fun a => let sz := a.size; (sz, a.push (.node #[] 0 {} #[e]))
 
 /-- Add a lazy entry to an existing trie. -/
-private def addLazyEntryToTrie (i:TrieIndex) (e : LazyEntry α) : MatchM α Unit :=
+def addLazyEntryToTrie (i:TrieIndex) (e : LazyEntry α) : MatchM α Unit :=
   modify (·.modify i (·.pushPending e))
 
-private def evalLazyEntry
+def evalLazyEntry
     (p : Array α × TrieIndex × Std.HashMap Key TrieIndex)
     (entry : LazyEntry α)
     : MatchM α (Array α × TrieIndex × Std.HashMap Key TrieIndex) := do
@@ -475,7 +479,7 @@ private def evalLazyEntry
 This evaluates all lazy entries in a trie and updates `values`, `starIdx`, and `children`
 accordingly.
 -/
-private partial def evalLazyEntries
+partial def evalLazyEntries
     (values : Array α) (starIdx : TrieIndex) (children : Std.HashMap Key TrieIndex)
     (entries : Array (LazyEntry α)) :
     MatchM α (Array α × TrieIndex × Std.HashMap Key TrieIndex) := do
@@ -484,7 +488,7 @@ private partial def evalLazyEntries
   let mut children := children
   entries.foldlM (init := (values, starIdx, children)) evalLazyEntry
 
-private def evalNode (c : TrieIndex) :
+def evalNode (c : TrieIndex) :
     MatchM α (Array α × TrieIndex × Std.HashMap Key TrieIndex) := do
   let .node vs star cs pending := (←get)[c]!
   if pending.size = 0 then
@@ -539,7 +543,7 @@ structure MatchResult (α : Type) where
 
 namespace MatchResult
 
-private def push (r : MatchResult α) (score : Nat) (e : Array α) : MatchResult α :=
+def push (r : MatchResult α) (score : Nat) (e : Array α) : MatchResult α :=
   if e.isEmpty then
     r
   else if score < r.elts.size then
@@ -601,7 +605,7 @@ multiple partial matches to explore next, to ensure the order of results matches
 user expectations, this code must add paths we want to prioritize and return
 results earlier are added last.
 -/
-private partial def getMatchLoop (cases : Array PartialMatch) (result : MatchResult α) : MatchM α (MatchResult α) := do
+partial def getMatchLoop (cases : Array PartialMatch) (result : MatchResult α) : MatchM α (MatchResult α) := do
   if cases.isEmpty then
     pure result
   else do
@@ -647,7 +651,7 @@ private partial def getMatchLoop (cases : Array PartialMatch) (result : MatchRes
           cases |> pushNonStar k args
       getMatchLoop cases result
 
-private def getStarResult (root : Std.HashMap Key TrieIndex) : MatchM α (MatchResult α) :=
+def getStarResult (root : Std.HashMap Key TrieIndex) : MatchM α (MatchResult α) :=
   match root[Key.star]? with
   | none =>
     pure <| {}
@@ -658,7 +662,7 @@ private def getStarResult (root : Std.HashMap Key TrieIndex) : MatchM α (MatchR
 /-
 Add partial match to cases if discriminator tree root map has potential matches.
 -/
-private def pushRootCase (r : Std.HashMap Key TrieIndex) (k : Key) (args : Array Expr)
+def pushRootCase (r : Std.HashMap Key TrieIndex) (k : Key) (args : Array Expr)
     (cases : Array PartialMatch) : Array PartialMatch :=
   match r[k]? with
   | none => cases
@@ -667,7 +671,7 @@ private def pushRootCase (r : Std.HashMap Key TrieIndex) (k : Key) (args : Array
 /--
   Find values that match `e` in `root`.
 -/
-private def getMatchCore (root : Std.HashMap Key TrieIndex) (e : Expr) :
+def getMatchCore (root : Std.HashMap Key TrieIndex) (e : Expr) :
     MatchM α (MatchResult α) := do
   let result ← getStarResult root
   let (k, args) ← MatchClone.getMatchKeyArgs e (root := true) (← read)
@@ -696,7 +700,7 @@ def getMatch (d : LazyDiscrTree α) (e : Expr) : MetaM (MatchResult α × LazyDi
 Structure for quickly initializing a lazy discrimination tree with a large number
 of elements using concurrent functions for generating entries.
 -/
-private structure PreDiscrTree (α : Type) where
+structure PreDiscrTree (α : Type) where
   /-- Maps keys to index in tries array. -/
   roots : Std.HashMap Key Nat := {}
   /-- Lazy entries for root of trie. -/
@@ -705,7 +709,7 @@ private structure PreDiscrTree (α : Type) where
 
 namespace PreDiscrTree
 
-private def modifyAt (d : PreDiscrTree α) (k : Key)
+def modifyAt (d : PreDiscrTree α) (k : Key)
     (f : Array (LazyEntry α) → Array (LazyEntry α)) : PreDiscrTree α :=
   let { roots, tries } := d
   match roots[k]? with
@@ -716,11 +720,11 @@ private def modifyAt (d : PreDiscrTree α) (k : Key)
     { roots, tries := tries.modify i f }
 
 /-- Add an entry to the pre-discrimination tree.-/
-private def push (d : PreDiscrTree α) (k : Key) (e : LazyEntry α) : PreDiscrTree α :=
+def push (d : PreDiscrTree α) (k : Key) (e : LazyEntry α) : PreDiscrTree α :=
   d.modifyAt k (·.push e)
 
 /-- Convert a pre-discrimination tree to a lazy discrimination tree. -/
-private def toLazy (d : PreDiscrTree α) : LazyDiscrTree α :=
+def toLazy (d : PreDiscrTree α) : LazyDiscrTree α :=
   let { roots, tries } := d
   -- Adjust trie indices so the first value is reserved (so 0 is never a valid trie index)
   let roots := roots.fold (init := roots) (fun m k n => m.insert k (n+1))
@@ -775,7 +779,7 @@ def mkSubEntry (e : InitEntry α) (idx : Nat) (value : α) :
 end InitEntry
 
 /-- Information about a failed import. -/
-private structure ImportFailure where
+structure ImportFailure where
   /-- Module with constant that import failed on. -/
   module  : Name
   /-- Constant that import failed on. -/
@@ -784,19 +788,19 @@ private structure ImportFailure where
   exception : Exception
 
 /-- Information generation from imported modules. -/
-private structure ImportData where
+structure ImportData where
   errors : IO.Ref (Array ImportFailure)
 
-private def ImportData.new : BaseIO ImportData := do
+def ImportData.new : BaseIO ImportData := do
   let errors ← IO.mkRef #[]
   pure { errors }
 
 structure Cache where
   ngen : NameGenerator
   core : Lean.Core.Cache
-  meta : Lean.Meta.Cache
+  «meta» : Lean.Meta.Cache
 
-def Cache.empty (ngen : NameGenerator) : Cache := { ngen := ngen, core := {}, meta := {} }
+def Cache.empty (ngen : NameGenerator) : Cache := { ngen := ngen, core := {}, «meta» := {} }
 
 def blacklistInsertion (env : Environment) (declName : Name) : Bool :=
   !allowCompletion env declName
@@ -805,7 +809,7 @@ def blacklistInsertion (env : Environment) (declName : Name) : Bool :=
   || (declName matches .str _ "inj")
   || (declName matches .str _ "noConfusionType")
 
-private def addConstImportData
+def addConstImportData
     (cctx : Core.Context)
     (env : Environment)
     (modName : Name)
@@ -816,15 +820,15 @@ private def addConstImportData
     (name : Name) (constInfo : ConstantInfo) : BaseIO (PreDiscrTree α) := do
   if constInfo.isUnsafe then return tree
   if blacklistInsertion env name then return tree
-  let { ngen, core := core_cache, meta := meta_cache } ← cacheRef.get
+  let { ngen, core := core_cache, «meta» := meta_cache } ← cacheRef.get
   let mstate : Meta.State := { cache := meta_cache }
   cacheRef.set (Cache.empty ngen)
-  let ctx : Meta.Context := { config := { transparency := .reducible } }
+  let ctx : Meta.Context := { keyedConfig := Config.toConfigWithKey { transparency := .reducible } }
   let cm := (act name constInfo).run ctx mstate
   let cstate : Core.State := {env, cache := core_cache, ngen}
   match ←(cm.run cctx cstate).toBaseIO with
   | .ok ((a, ms), cs) =>
-    cacheRef.set { ngen := cs.ngen, core := cs.cache, meta := ms.cache }
+    cacheRef.set { ngen := cs.ngen, core := cs.cache, «meta» := ms.cache }
     pure <| a.foldl (fun t e => t.push e.key e.entry) tree
   | .error e =>
     let i : ImportFailure := {
@@ -839,7 +843,7 @@ private def addConstImportData
 Contains the pre discrimination tree and any errors occurring during initialization of
 the library search tree.
 -/
-private structure InitResults (α : Type) where
+structure InitResults (α : Type) where
   tree  : PreDiscrTree α := {}
   errors : Array ImportFailure := #[]
 
@@ -859,12 +863,12 @@ instance : Append (InitResults α) where
 
 end InitResults
 
-private def toFlat (d : ImportData) (tree : PreDiscrTree α) :
+def toFlat (d : ImportData) (tree : PreDiscrTree α) :
     BaseIO (InitResults α) := do
   let de ← d.errors.swap #[]
   pure ⟨tree, de⟩
 
-private partial def loadImportedModule
+partial def loadImportedModule
     (cctx : Core.Context)
     (env : Environment)
     (act : Name → ConstantInfo → MetaM (Array (InitEntry α)))
@@ -882,7 +886,7 @@ private partial def loadImportedModule
   else
     pure tree
 
-private def createImportedEnvironmentSeq (cctx : Core.Context) (ngen : NameGenerator) (env : Environment)
+def createImportedEnvironmentSeq (cctx : Core.Context) (ngen : NameGenerator) (env : Environment)
     (act : Name → ConstantInfo → MetaM (Array (InitEntry α)))
     (start stop : Nat) : BaseIO (InitResults α) := do
       let cacheRef ← IO.mkRef (Cache.empty ngen)
@@ -898,7 +902,7 @@ private def createImportedEnvironmentSeq (cctx : Core.Context) (ngen : NameGener
     termination_by stop - start
 
 /-- Get the results of each task and merge using combining function -/
-private def combineGet [Append α] (z : α) (tasks : Array (Task α)) : α :=
+def combineGet [Append α] (z : α) (tasks : Array (Task α)) : α :=
   tasks.foldl (fun x t => x ++ t.get) (init := z)
 
 def getChildNgen [Monad M] [MonadNameGenerator M] : M NameGenerator := do
@@ -960,7 +964,7 @@ def createImportedDiscrTree [Monad m] [MonadLog m] [AddMessageContext m] [MonadO
   pure <| r.tree.toLazy
 
 /-- Creates the core context used for initializing a tree using the current context. -/
-private def createTreeCtx (ctx : Core.Context) : Core.Context := {
+def createTreeCtx (ctx : Core.Context) : Core.Context := {
     fileName := ctx.fileName
     fileMap := ctx.fileMap
     options := ctx.options

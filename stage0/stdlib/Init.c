@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init
-// Imports: Init.Prelude Init.Notation Init.Tactics Init.TacticsExtra Init.ByCases Init.RCases Init.Core Init.Control Init.Data.Basic Init.WF Init.WFTactics Init.Data Init.System Init.Util Init.Dynamic Init.ShareCommon Init.MetaTypes Init.Meta Init.NotationExtra Init.SimpLemmas Init.PropLemmas Init.Hints Init.Conv Init.Guard Init.Simproc Init.SizeOfLemmas Init.BinderPredicates Init.Ext Init.Omega Init.MacroTrace Init.Grind Init.While Init.Syntax Init.Internal Init.Try Init.BinderNameHint Init.Task
+// Imports: public import Init.Prelude public import Init.Notation public import Init.Tactics public import Init.TacticsExtra public import Init.ByCases public import Init.RCases public import Init.Core public import Init.Control public import Init.Data.Basic public import Init.WF public import Init.WFTactics public import Init.Data public import Init.System public import Init.Util public import Init.Dynamic public import Init.ShareCommon public import Init.MetaTypes public import Init.Meta public import Init.NotationExtra public import Init.SimpLemmas public import Init.PropLemmas public import Init.Hints public import Init.Conv public import Init.Guard public import Init.Simproc public import Init.SizeOfLemmas public import Init.BinderPredicates public import Init.Ext public import Init.Omega public import Init.MacroTrace public import Init.Grind public import Init.GrindInstances public import Init.While public import Init.Syntax public import Init.Internal public import Init.Try public meta import Init.Try public import Init.BinderNameHint public import Init.Task public import Init.MethodSpecsSimp public import Init.LawfulBEqTactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -44,12 +44,16 @@ lean_object* initialize_Init_Ext(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Omega(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_MacroTrace(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_GrindInstances(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_While(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Syntax(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Internal(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Try(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Try(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_BinderNameHint(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Task(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_MethodSpecsSimp(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_LawfulBEqTactics(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -148,6 +152,9 @@ lean_dec_ref(res);
 res = initialize_Init_Grind(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_GrindInstances(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_While(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -160,10 +167,19 @@ lean_dec_ref(res);
 res = initialize_Init_Try(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Try(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_BinderNameHint(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Task(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_MethodSpecsSimp(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_LawfulBEqTactics(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

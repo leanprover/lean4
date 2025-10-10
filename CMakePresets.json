@@ -24,9 +24,9 @@
     },
     {
       "name": "reldebug",
-      "displayName": "Release with debug info build config",
+      "displayName": "Release with assertions enabled",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+        "CMAKE_BUILD_TYPE": "RelWithAssert"
       },
       "generator": "Unix Makefiles",
       "binaryDir": "${sourceDir}/build/reldebug"

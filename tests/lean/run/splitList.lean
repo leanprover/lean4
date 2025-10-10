@@ -26,7 +26,7 @@ def len : List α → Nat
     match h₂ : splitList l with
     | ListSplit.split fst snd =>
       -- Remark: `match` refined `h₁`s type to `h₁ : fst ++ snd = a :: b :: as`
-      -- h₂ : HEq (splitList l) (ListSplit.split fst snd)
+      -- h₂ : splitList l ≍ ListSplit.split fst snd
       have := splitList_length (fst ++ snd) (by simp +arith [h₁]) h₁
       -- The following two proofs ase used to justify the recursive applications `len fst` and `len snd`
       have dec₁ : fst.length < as.length + 2 := by subst l; simp +arith [eq_of_heq h₂] at this |- ; simp [this]

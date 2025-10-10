@@ -55,7 +55,7 @@ theorem bar_decide_4 (t : Three) : Q := by
 -- Check if messages from dischargers still appear
 
 /--
-info: case simp.discharger
+trace: case simp.discharger
 ⊢ 1 + 1 = 2
 -/
 #guard_msgs in

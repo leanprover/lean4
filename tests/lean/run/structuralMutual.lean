@@ -73,7 +73,7 @@ theorem B_size_eq3 : B.empty.size = 0  := rfl
 -- Smart unfolding works
 
 /--
-info: a : A
+trace: a : A
 h : (B.other a).size = 1
 ⊢ a.size = 0
 -/
@@ -249,7 +249,7 @@ theorem eq_true_of_not_eq_false {b : Bool} : (! b) = false → b = true := by si
 theorem eq_false_of_not_eq_true {b : Bool} : (! b) = true → b = false := by simp
 
 /--
-info: n : Nat
+trace: n : Nat
 h : isOdd (n + 1) = false
 ⊢ isEven n = true
 -/

@@ -3,17 +3,21 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.Basic
+public import Lean.Compiler.LCNF.Basic
+
+public section
 
 namespace Lean.Compiler.LCNF
 
 namespace ToExpr
 
-private abbrev LevelMap := FVarIdMap Nat
+abbrev LevelMap := FVarIdMap Nat
 
 private def _root_.Lean.FVarId.toExpr (offset : Nat) (m : LevelMap) (fvarId : FVarId) : Expr :=
-  match m.find? fvarId with
+  match m.get? fvarId with
   | some level => .bvar (offset - level - 1)
   | none => .fvar fvarId
 
@@ -33,7 +37,7 @@ where
 
 abbrev ToExprM := ReaderT Nat $ StateM LevelMap
 
-abbrev mkLambdaM (params : Array Param) (e : Expr) : ToExprM Expr :=
+@[inline] def mkLambdaM (params : Array Param) (e : Expr) : ToExprM Expr :=
   return go (← read) (← get) params.size e
 where
   go (offset : Nat) (m : LevelMap) (i : Nat) (e : Expr) : Expr :=
@@ -47,7 +51,7 @@ where
 private abbrev _root_.Lean.FVarId.toExprM (fvarId : FVarId) : ToExprM Expr :=
   return fvarId.toExpr (← read) (← get)
 
-abbrev abstractM (e : Expr) : ToExprM Expr :=
+@[inline] def abstractM (e : Expr) : ToExprM Expr :=
   return e.abstract' (← read) (← get)
 
 @[inline] def withFVar (fvarId : FVarId) (k : ToExprM α) : ToExprM α := do
@@ -79,7 +83,7 @@ private def Arg.toExprM (arg : Arg) : ToExprM Expr :=
   return arg.toExpr.abstract' (← read) (← get)
 
 mutual
-partial def FunDeclCore.toExprM (decl : FunDecl) : ToExprM Expr :=
+partial def FunDecl.toExprM (decl : FunDecl) : ToExprM Expr :=
   withParams decl.params do mkLambdaM decl.params (← decl.value.toExprM)
 
 partial def Code.toExprM (code : Code) : ToExprM Expr := do
@@ -99,15 +103,17 @@ partial def Code.toExprM (code : Code) : ToExprM Expr := do
   | .unreach type => return mkApp (mkConst ``lcUnreachable) (← abstractM type)
   | .cases c =>
     let alts ← c.alts.mapM fun
-      | .alt _ params k => withParams params do mkLambdaM params (← k.toExprM)
+      | .alt ctorName params k => do
+        let body ← withParams params do mkLambdaM params (← k.toExprM)
+        return mkApp (mkConst ctorName) body
       | .default k => k.toExprM
     return mkAppN (mkConst `cases) (#[← c.discr.toExprM] ++ alts)
 end
 
-def Code.toExpr (code : Code) (xs : Array FVarId := #[]) : Expr :=
+public def Code.toExpr (code : Code) (xs : Array FVarId := #[]) : Expr :=
   run' code.toExprM xs
 
-def FunDeclCore.toExpr (decl : FunDecl) (xs : Array FVarId := #[]) : Expr :=
+public def FunDecl.toExpr (decl : FunDecl) (xs : Array FVarId := #[]) : Expr :=
   run' decl.toExprM xs
 
 end Lean.Compiler.LCNF

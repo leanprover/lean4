@@ -3,11 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Control.Basic
-import Init.Control.Id
-import Init.Control.Lawful
-import Init.Data.List.Basic
+public import Init.Control.Basic
+public import Init.Control.Id
+public import Init.Control.Lawful
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -53,7 +56,7 @@ This implementation is tail recursive. `List.mapM'` is a a non-tail-recursive va
 more convenient to reason about. `List.forM` is the variant that discards the results and
 `List.mapA` is the variant that works with `Applicative`.
 -/
-@[inline]
+@[inline, expose]
 def mapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m β) (as : List α) : m (List β) :=
   let rec @[specialize] loop
     | [],      bs => pure bs.reverse
@@ -82,7 +85,7 @@ Applies the monadic action `f` to every element in the list, in order.
 `List.mapM` is a variant that collects results. `List.forA` is a variant that works on any
 `Applicative`.
 -/
-@[specialize]
+@[specialize, expose]
 protected def forM {m : Type u → Type v} [Monad m] {α : Type w} (as : List α) (f : α → m PUnit) : m PUnit :=
   match as with
   | []      => pure ⟨⟩
@@ -101,6 +104,20 @@ def forA {m : Type u → Type v} [Applicative m] {α : Type w} (as : List α) (f
   | []      => pure ⟨⟩
   | a :: as => f a *> forA as f
 
+/--
+Applies the monadic action `f` to the corresponding elements of two lists, left-to-right, stopping
+at the end of the shorter list. `zipWithM f as bs` is equivalent to `mapM id (zipWith f as bs)`
+for lawful `Monad` instances.
+
+This implementation is tail recursive. `List.zipWithM'` is a a non-tail-recursive variant that may
+be more convenient to reason about.
+-/
+@[inline, expose]
+def zipWithM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type x} {γ : Type u} (f : α → β → m γ) (as : List α) (bs : List β) : m (List γ) :=
+  let rec @[specialize] loop
+    | a::as, b::bs, acc => do loop as bs (acc.push (← f a b))
+    | _, _, acc => pure acc.toList
+  loop as bs #[]
 
 @[specialize]
 def filterAuxM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) : List α → List α → m (List α)
@@ -190,7 +207,7 @@ Examining 7
 [10, 14, 14]
 ```
 -/
-@[inline]
+@[inline, expose]
 def filterMapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m (Option β)) (as : List α) : m (List β) :=
   let rec @[specialize] loop
     | [],     bs => pure bs.reverse
@@ -204,7 +221,7 @@ def filterMapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f 
 Applies a monadic function that returns a list to each element of a list, from left to right, and
 concatenates the resulting lists.
 -/
-@[inline]
+@[inline, expose]
 def flatMapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m (List β)) (as : List α) : m (List β) :=
   let rec @[specialize] loop
     | [],     bs => pure bs.reverse.flatten
@@ -229,15 +246,15 @@ example [Monad m] (f : α → β → m α) :
   := by rfl
 ```
 -/
-@[specialize]
+@[specialize, expose]
 def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : s → α → m s) → (init : s) → List α → m s
   | _, s, []      => pure s
   | f, s, a :: as => do
     let s' ← f s a
     List.foldlM f s' as
 
-@[simp] theorem foldlM_nil [Monad m] {f : β → α → m β} {b : β} : [].foldlM f b = pure b := rfl
-@[simp] theorem foldlM_cons [Monad m] {f : β → α → m β} {b : β} {a : α} {l : List α} :
+@[simp, grind =] theorem foldlM_nil [Monad m] {f : β → α → m β} {b : β} : [].foldlM f b = pure b := rfl
+@[simp, grind =] theorem foldlM_cons [Monad m] {f : β → α → m β} {b : β} {a : α} {l : List α} :
     (a :: l).foldlM f b = f b a >>= l.foldlM f := by
   simp [List.foldlM]
 
@@ -256,11 +273,11 @@ example [Monad m] (f : α → β → m β) :
   := by rfl
 ```
 -/
-@[inline]
+@[inline, expose]
 def foldrM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} (f : α → s → m s) (init : s) (l : List α) : m s :=
   l.reverse.foldlM (fun s a => f a s) init
 
-@[simp] theorem foldrM_nil [Monad m] {f : α → β → m β} {b : β} : [].foldrM f b = pure b := rfl
+@[simp, grind =] theorem foldrM_nil [Monad m] {f : α → β → m β} {b : β} : [].foldrM f b = pure b := rfl
 
 /--
 Maps `f` over the list and collects the results with `<|>`. The result for the end of the list is
@@ -339,16 +356,23 @@ def findM? {m : Type → Type u} [Monad m] {α : Type} (p : α → m Bool) : Lis
 theorem findM?_pure {m} [Monad m] [LawfulMonad m] (p : α → Bool) (as : List α) :
     findM? (m := m) (pure <| p ·) as = pure (as.find? p) := by
   induction as with
-  | nil => rfl
+  | nil => simp [findM?, find?_nil]
   | cons a as ih =>
-    simp only [findM?, find?]
+    simp only [findM?, find?_cons]
     cases p a with
     | true  => simp
     | false => simp [ih]
 
-@[simp]
-theorem findM?_id (p : α → Bool) (as : List α) : findM? (m := Id) p as = as.find? p :=
+@[simp, grind =]
+theorem idRun_findM? (p : α → Id Bool) (as : List α) :
+    (findM? p as).run = as.find? (p · |>.run) :=
   findM?_pure _ _
+
+@[deprecated idRun_findM? (since := "2025-05-21")]
+theorem findM?_id (p : α → Id Bool) (as : List α) :
+    findM? (m := Id) p as = as.find? p :=
+  findM?_pure _ _
+
 
 /--
 Returns the first non-`none` result of applying the monadic function `f` to each element of the
@@ -392,8 +416,14 @@ theorem findSomeM?_pure [Monad m] [LawfulMonad m] {f : α → Option β} {as : L
     | some b => simp
     | none   => simp [ih]
 
-@[simp]
-theorem findSomeM?_id {f : α → Option β} {as : List α} : findSomeM? (m := Id) f as = as.findSome? f :=
+@[simp, grind =]
+theorem idRun_findSomeM? (f : α → Id (Option β)) (as : List α) :
+    (findSomeM? f as).run = as.findSome? (f · |>.run) :=
+  findSomeM?_pure
+
+@[deprecated idRun_findSomeM? (since := "2025-05-21")]
+theorem findSomeM?_id (f : α → Id (Option β)) (as : List α) :
+    findSomeM? (m := Id) f as = as.findSome? f :=
   findSomeM?_pure
 
 theorem findM?_eq_findSomeM? [Monad m] [LawfulMonad m] {p : α → m Bool} {as : List α} :
@@ -408,7 +438,7 @@ theorem findM?_eq_findSomeM? [Monad m] [LawfulMonad m] {p : α → m Bool} {as :
     intro b
     cases b <;> simp
 
-@[inline] protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
+@[inline, expose] protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
   let rec @[specialize] loop : (as' : List α) → (b : β) → Exists (fun bs => bs ++ as' = as) → m β
     | [], b, _    => pure b
     | a::as', b, h => do
@@ -430,23 +460,23 @@ instance : ForIn' m (List α) α inferInstance where
 -- No separate `ForIn` instance is required because it can be derived from `ForIn'`.
 
 -- We simplify `List.forIn'` to `forIn'`.
-@[simp] theorem forIn'_eq_forIn' [Monad m] : @List.forIn' α β m _ = forIn' := rfl
+@[simp, grind =] theorem forIn'_eq_forIn' [Monad m] : @List.forIn' α β m _ = forIn' := rfl
 
-@[simp] theorem forIn'_nil [Monad m] {f : (a : α) → a ∈ [] → β → m (ForInStep β)} {b : β} : forIn' [] b f = pure b :=
+@[simp, grind =] theorem forIn'_nil [Monad m] {f : (a : α) → a ∈ [] → β → m (ForInStep β)} {b : β} : forIn' [] b f = pure b :=
   rfl
 
-@[simp] theorem forIn_nil [Monad m] {f : α → β → m (ForInStep β)} {b : β} : forIn [] b f = pure b :=
+@[simp, grind =] theorem forIn_nil [Monad m] {f : α → β → m (ForInStep β)} {b : β} : forIn [] b f = pure b :=
   rfl
 
 instance : ForM m (List α) α where
   forM := List.forM
 
 -- We simplify `List.forM` to `forM`.
-@[simp] theorem forM_eq_forM [Monad m] : @List.forM m _ α = forM := rfl
+@[simp, grind =] theorem forM_eq_forM [Monad m] : @List.forM m _ α = forM := rfl
 
-@[simp] theorem forM_nil [Monad m] {f : α → m PUnit} : forM [] f = pure ⟨⟩ :=
+@[simp, grind =] theorem forM_nil [Monad m] {f : α → m PUnit} : forM [] f = pure ⟨⟩ :=
   rfl
-@[simp] theorem forM_cons [Monad m] {f : α → m PUnit} {a : α} {as : List α} : forM (a::as) f = f a >>= fun _ => forM as f :=
+@[simp, grind =] theorem forM_cons [Monad m] {f : α → m PUnit} {a : α} {as : List α} : forM (a::as) f = f a >>= fun _ => forM as f :=
   rfl
 
 instance : Functor List where

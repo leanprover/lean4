@@ -3,10 +3,17 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.ByCases
-import Init.Data.Prod
-import Init.Data.RArray
+public import Init.ByCases
+public import Init.Data.Prod
+public import Init.Data.RArray
+import Init.LawfulBEqTactics
+
+public section
+
+@[expose] section
 
 namespace Nat.Linear
 
@@ -132,21 +139,7 @@ structure PolyCnstr  where
   eq  : Bool
   lhs : Poly
   rhs : Poly
-  deriving BEq
-
--- TODO: implement LawfulBEq generator companion for BEq
-instance : LawfulBEq PolyCnstr where
-  eq_of_beq {a b} h := by
-    cases a; rename_i eq₁ lhs₁ rhs₁
-    cases b; rename_i eq₂ lhs₂ rhs₂
-    have h : eq₁ == eq₂ && (lhs₁ == lhs₂ && rhs₁ == rhs₂) := h
-    simp at h
-    have ⟨h₁, h₂, h₃⟩ := h
-    rw [h₁, h₂, h₃]
-  rfl {a} := by
-    cases a; rename_i eq lhs rhs
-    show (eq == eq && (lhs == lhs && rhs == rhs)) = true
-    simp [LawfulBEq.rfl]
+  deriving BEq, ReflBEq, LawfulBEq
 
 structure ExprCnstr where
   eq  : Bool
@@ -222,7 +215,7 @@ theorem Poly.denote_insert (ctx : Context) (k : Nat) (v : Var) (p : Poly) :
     · by_cases h₂ : Nat.beq v v'
       · simp only [insert, h₁, h₂, cond_false, cond_true]
         simp [Nat.eq_of_beq_eq_true h₂]
-      · simp only [insert, h₁, h₂, cond_false, cond_true]
+      · simp only [insert, h₁, h₂, cond_false]
         simp [denote_insert]
 
 attribute [local simp] Poly.denote_insert
@@ -249,19 +242,12 @@ attribute [local simp] Poly.denote_append
 theorem Poly.denote_cons (ctx : Context) (k : Nat) (v : Var) (p : Poly) : denote ctx ((k, v) :: p) = k * v.denote ctx + p.denote ctx := by
   match p with
   | []     => simp
-  | _ :: m => simp [denote_cons]
+  | _ :: m => simp
 
 attribute [local simp] Poly.denote_cons
 
-theorem Poly.denote_reverseAux (ctx : Context) (p q : Poly) : denote ctx (List.reverseAux p q) = denote ctx (p ++ q) := by
-  match p with
-  | [] => simp [List.reverseAux]
-  | (k, v) :: p => simp [List.reverseAux, denote_reverseAux]
-
-attribute [local simp] Poly.denote_reverseAux
-
 theorem Poly.denote_reverse (ctx : Context) (p : Poly) : denote ctx (List.reverse p) = denote ctx p := by
-  simp [List.reverse]
+  induction p <;> simp [*]
 
 attribute [local simp] Poly.denote_reverse
 
@@ -437,13 +423,13 @@ theorem Expr.denote_toPoly_go (ctx : Context) (e : Expr) :
     simp [toPoly.go, h, Var.denote]
   | case3 k i => simp [toPoly.go]
   | case4 k a b iha ihb => simp [toPoly.go, iha, ihb]
-  | case5 k k' a h => simp [toPoly.go, h, eq_of_beq h]
+  | case5 k k' a h => simp [toPoly.go, eq_of_beq h]
   | case6 k a k' h ih =>
     simp only [toPoly.go, denote, mul_eq]
     simp [h, cond_false, ih, Nat.mul_assoc]
   | case7 k a k' h =>
     simp only [toPoly.go, denote, mul_eq]
-    simp [h, eq_of_beq h]
+    simp [eq_of_beq h]
   | case8 k a k' h ih =>
     simp only [toPoly.go, denote, mul_eq]
     simp [h, cond_false, ih, Nat.mul_assoc]

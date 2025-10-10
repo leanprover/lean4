@@ -1,0 +1,9 @@
+name = "test"
+
+[[require]]
+name = "a"
+path = "dep"
+
+[[require]]
+name = "b"
+path = "dep"

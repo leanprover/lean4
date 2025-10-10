@@ -27,7 +27,7 @@ set_option pp.mvars false
 set_option trace.Meta.debug true
 
 /--
-info: [Meta.debug] ?_
+trace: [Meta.debug] ?_
 [Meta.debug] fun y =>
       let x := 0;
       ?_

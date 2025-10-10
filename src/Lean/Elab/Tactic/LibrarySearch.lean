@@ -3,10 +3,14 @@ Copyright (c) 2021-2024 Gabriel Ebner and Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Joe Hendrix, Kim Morrison
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.LibrarySearch
-import Lean.Meta.Tactic.TryThis
-import Lean.Elab.Tactic.ElabTerm
+public import Lean.Meta.Tactic.LibrarySearch
+public import Lean.Meta.Tactic.TryThis
+public import Lean.Elab.Tactic.ElabTerm
+
+public section
 
 namespace Lean.Elab.LibrarySearch
 
@@ -48,7 +52,7 @@ def exact? (ref : Syntax) (required : Option (Array (TSyntax `term))) (requireCl
           addExactSuggestion ref (← instantiateMVars (mkMVar mvar)).headBeta
             (checkState? := initialState) (addSubgoalsMsg := true) (tacticErrorAsInfo := true)
       if suggestions.isEmpty then logError "apply? didn't find any relevant lemmas"
-      admitGoal goal
+      admitGoal goal (synthetic := false)
 
 @[builtin_tactic Lean.Parser.Tactic.exact?]
 def evalExact : Tactic := fun stx => do

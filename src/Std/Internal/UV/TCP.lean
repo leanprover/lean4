@@ -3,11 +3,15 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving, Sofia Rodrigues
 -/
+module
+
 prelude
-import Init.System.IO
-import Init.System.Promise
-import Init.Data.SInt
-import Std.Net
+public import Init.System.IO
+public import Init.System.Promise
+public import Init.Data.SInt
+public import Std.Net
+
+public section
 
 namespace Std
 namespace Internal
@@ -23,7 +27,7 @@ Represents a TCP socket.
 -/
 def Socket : Type := SocketImpl.type
 
-instance : Nonempty Socket := SocketImpl.property
+instance : Nonempty Socket := by exact SocketImpl.property
 
 namespace Socket
 
@@ -43,16 +47,36 @@ opaque connect (socket : @& Socket) (addr : @& SocketAddress) : IO (IO.Promise (
 Sends data through a TCP socket.
 -/
 @[extern "lean_uv_tcp_send"]
-opaque send (socket : @& Socket) (data : ByteArray) : IO (IO.Promise (Except IO.Error Unit))
+opaque send (socket : @& Socket) (data : Array ByteArray) : IO (IO.Promise (Except IO.Error Unit))
 
 /--
 Receives data from a TCP socket with a maximum size of size bytes. The promise resolves when data is
 available or an error occurs. If data is received, it’s wrapped in .some. If EOF is reached, the
 result is .none, indicating no more data is available. Receiving data in parallel on the same
 socket is not supported. Instead, we recommend binding multiple sockets to the same address.
+Furthermore calling this function in parallel with `waitReadable` is not supported.
 -/
 @[extern "lean_uv_tcp_recv"]
 opaque recv? (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Error (Option ByteArray)))
+
+/--
+Returns an `IO.Promise` that resolves to `true` once `socket` has data available for reading,
+or to `false` if `socket` is closed before that. Calling this function twice on the same `Socket`
+or in parallel with `recv?` is not supported.
+-/
+@[extern "lean_uv_tcp_wait_readable"]
+opaque waitReadable (socket : @& Socket) : IO (IO.Promise (Except IO.Error Bool))
+
+/--
+Cancels a receive operation in the form of `recv?` or `waitReadable` if there is currently one
+pending. This resolves their returned `IO.Promise` to `none`. This function is considered dangerous,
+as improper use can cause data loss, and is therefore not exposed to the top-level API.
+
+Note that this function is idempotent and as such can be called multiple times on the same socket
+without causing errors, in particular also without a receive running in the first place.
+-/
+@[extern "lean_uv_tcp_cancel_recv"]
+opaque cancelRecv (socket : @& Socket) : IO Unit
 
 /--
 Binds a TCP socket to a specific address.

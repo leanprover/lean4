@@ -3,12 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.BitVec.Bitblast
-import Init.Data.AC
-import Std.Tactic.BVDecide.Normalize.Bool
-import Std.Tactic.BVDecide.Normalize.Canonicalize
-import Init.Data.SInt.Basic
+public import Init.Data.BitVec.Bitblast
+public import Init.Data.AC
+public import Std.Tactic.BVDecide.Normalize.Bool
+public import Std.Tactic.BVDecide.Normalize.Canonicalize
+public import Init.Data.SInt.Basic
+
+@[expose] public section
 
 /-!
 This module contains the `BitVec` simplifying part of the `bv_normalize` simp set.
@@ -40,6 +44,7 @@ theorem BitVec.ge_ule (x y : BitVec w) : x ≥ y ↔ ((!x.ult y) = true) := by
 
 attribute [bv_normalize] BitVec.zeroExtend_eq_setWidth
 attribute [bv_normalize] BitVec.truncate_eq_setWidth
+attribute [bv_normalize] BitVec.setWidth'_eq
 
 attribute [bv_normalize] BitVec.extractLsb
 attribute [bv_normalize] BitVec.msb_eq_getLsbD_last
@@ -58,7 +63,7 @@ attribute [bv_normalize] BitVec.ofNat_eq_ofNat
 
 @[bv_normalize]
 theorem BitVec.ofNatLT_reduce (n : Nat) (h) : BitVec.ofNatLT n h = BitVec.ofNat w n := by
-  simp [BitVec.ofNatLT, BitVec.ofNat, Fin.ofNat', Nat.mod_eq_of_lt h]
+  simp [BitVec.ofNatLT, BitVec.ofNat, Fin.ofNat, Nat.mod_eq_of_lt h]
 
 @[bv_normalize]
 theorem BitVec.ofBool_eq_if (b : Bool) : BitVec.ofBool b = bif b then 1#1 else 0#1 := by
@@ -140,7 +145,7 @@ attribute [bv_normalize] BitVec.twoPow_eq
 @[bv_normalize]
 theorem BitVec.getElem_eq_getLsbD (a : BitVec w) (i : Nat) (h : i < w) :
     a[i]'h = a.getLsbD i := by
-  simp [BitVec.getLsbD_eq_getElem?_getD, BitVec.getElem?_eq, h]
+  simp [h]
 
 -- The side condition about being in bounds gets resolved if i and w are constant.
 attribute [bv_normalize] BitVec.getMsbD_eq_getLsbD
@@ -185,35 +190,27 @@ theorem BitVec.and_ones (a : BitVec w) : a &&& (-1#w) = a := by
 theorem BitVec.one_plus_not_eq_not_plus_one (x : BitVec w) : (1#w + ~~~x) = (~~~x + 1#w) := by
   rw [BitVec.add_comm]
 
-attribute [bv_normalize] BitVec.and_self
-
-@[bv_normalize]
 theorem BitVec.and_contra (a : BitVec w) : a &&& ~~~a = 0#w := by
   ext i h
-  simp [h]
+  simp
 
-@[bv_normalize]
 theorem BitVec.and_contra' (a : BitVec w) : ~~~a &&& a = 0#w := by
   ext i h
-  simp [h]
+  simp
 
-@[bv_normalize]
 theorem BitVec.add_not (a : BitVec w) : a + ~~~a = (-1#w) := by
   ext
   simp [BitVec.neg_one_eq_allOnes]
 
-@[bv_normalize]
 theorem BitVec.not_add (a : BitVec w) : ~~~a + a = (-1#w) := by
   rw [BitVec.add_comm]
   rw [BitVec.add_not]
 
-@[bv_normalize]
 theorem BitVec.add_neg (a : BitVec w) : a + (~~~a + 1#w) = 0#w := by
   rw [← BitVec.neg_eq_not_add]
   rw [← BitVec.sub_eq_add_neg]
   rw [BitVec.sub_self]
 
-@[bv_normalize]
 theorem BitVec.neg_add (a : BitVec w) : (~~~a + 1#w) + a = 0#w := by
   rw [← BitVec.neg_eq_not_add]
   rw [BitVec.add_comm]
@@ -236,7 +233,6 @@ theorem BitVec.not_neg'' (x : BitVec w) : ~~~(1#w + x) = ~~~x + -1#w := by
   rw [BitVec.add_comm 1#w x]
   rw [BitVec.not_neg']
 
-@[bv_normalize]
 theorem BitVec.add_same (a : BitVec w) : a + a = a * 2#w := by
   rw [BitVec.mul_two]
 
@@ -302,7 +298,6 @@ theorem BitVec.ushiftRight_zero' (n : BitVec w) : n >>> 0#w' = n := by
   simp only [(· >>> ·)]
   simp
 
-@[bv_normalize]
 theorem BitVec.ushiftRight_self (n : BitVec w) : n >>> n = 0#w := by
   simp
 
@@ -342,7 +337,7 @@ theorem BitVec.ult_max' (a : BitVec w) : (BitVec.ult a (-1#w)) = (!(a == -1#w)) 
   rw [lt_ult, ← BitVec.neg_one_eq_allOnes] at this
   by_cases (a.ult (-1#w)) <;> simp_all
 
-attribute [bv_normalize] BitVec.replicate_zero_eq
+attribute [bv_normalize] BitVec.replicate_zero
 attribute [bv_normalize] BitVec.add_eq_xor
 attribute [bv_normalize] BitVec.mul_eq_and
 
@@ -362,6 +357,12 @@ attribute [bv_normalize] BitVec.umulOverflow_eq
 attribute [bv_normalize] BitVec.smulOverflow_eq
 attribute [bv_normalize] BitVec.usubOverflow_eq
 attribute [bv_normalize] BitVec.ssubOverflow_eq
+attribute [bv_normalize] BitVec.sdivOverflow_eq
+attribute [bv_normalize] BitVec.ctz
+
+
+attribute [bv_normalize] BitVec.append_zero_add_zero_append
+attribute [bv_normalize] BitVec.zero_append_add_append_zero
 
 /-- `x / (BitVec.ofNat n)` where `n = 2^k` is the same as shifting `x` right by `k`. -/
 theorem BitVec.udiv_ofNat_eq_of_lt (w : Nat) (x : BitVec w) (n : Nat) (k : Nat) (hk : 2 ^ k = n) (hlt : k < w) :
@@ -373,11 +374,9 @@ attribute [bv_normalize] BitVec.extractLsb'_and
 attribute [bv_normalize] BitVec.extractLsb'_xor
 
 @[bv_normalize]
-theorem BitVec.exctractLsb'_if {x y : BitVec w} (s l : Nat) :
+theorem BitVec.extractLsb'_if {x y : BitVec w} (s l : Nat) :
     BitVec.extractLsb' s l (bif c then x else y) = bif c then (BitVec.extractLsb' s l x) else (BitVec.extractLsb' s l y) := by
   cases c <;> simp
-
-attribute [bv_normalize] BitVec.extractLsb'_eq_self
 
 -- Used in simproc because of - normalization
 theorem BitVec.ones_mul (a : BitVec w) : -1#w * a = -a := by
@@ -462,19 +461,15 @@ theorem BitVec.signExtend_elim' {v : Nat} {x : BitVec v} {w : Nat} (h : w ≤ v)
     BitVec.signExtend w x = BitVec.extractLsb' 0 w x := by
   rw [BitVec.signExtend_eq_setWidth_of_le _ h, BitVec.setWidth_eq_extractLsb' h]
 
-@[bv_normalize]
 theorem BitVec.add_neg_mul {x y : BitVec w} : ~~~(x + x * y) + 1#w = x * ~~~y := by
   rw [← BitVec.neg_eq_not_add, BitVec.neg_add_mul_eq_mul_not]
 
-@[bv_normalize]
 theorem BitVec.add_neg_mul' {x y : BitVec w} : ~~~(x + y * x) + 1#w = ~~~y * x := by
   rw [BitVec.mul_comm y x, BitVec.mul_comm (~~~y) x, BitVec.add_neg_mul]
 
-@[bv_normalize]
 theorem BitVec.add_neg_mul'' {x y : BitVec w} : ~~~(x * y + x) + 1#w = x * ~~~y := by
   rw [BitVec.add_comm (x * y) x, BitVec.add_neg_mul]
 
-@[bv_normalize]
 theorem BitVec.add_neg_mul''' {x y : BitVec w} : ~~~(y * x + x) + 1#w = ~~~y * x := by
   rw [BitVec.mul_comm y x, BitVec.mul_comm (~~~y) x,BitVec.add_neg_mul'']
 
@@ -597,6 +592,37 @@ theorem Int64.toBitVec_ite [Decidable c] :
 theorem ISize.toBitVec_ite [Decidable c] :
     ISize.toBitVec (if c then t else e) = if c then t.toBitVec else e.toBitVec := by
   rw [apply_ite ISize.toBitVec]
+
+@[int_toBitVec]
+theorem UInt8.beq_eq_decide_eq {a b : UInt8} : (a == b) = decide (a = b) := Bool.beq_eq_decide_eq ..
+
+@[int_toBitVec]
+theorem UInt16.beq_eq_decide_eq {a b : UInt16} : (a == b) = decide (a = b) := Bool.beq_eq_decide_eq ..
+
+@[int_toBitVec]
+theorem UInt32.beq_eq_decide_eq {a b : UInt32} : (a == b) = decide (a = b) := Bool.beq_eq_decide_eq ..
+
+@[int_toBitVec]
+theorem UInt64.beq_eq_decide_eq {a b : UInt64} : (a == b) = decide (a = b) := Bool.beq_eq_decide_eq ..
+
+@[int_toBitVec]
+theorem USize.beq_eq_decide_eq {a b : USize} : (a == b) = decide (a = b) := Bool.beq_eq_decide_eq ..
+
+@[int_toBitVec]
+theorem Int8.beq_eq_decide_eq {a b : Int8} : (a == b) = decide (a = b) := Bool.beq_eq_decide_eq ..
+
+@[int_toBitVec]
+theorem Int16.beq_eq_decide_eq {a b : Int16} : (a == b) = decide (a = b) := Bool.beq_eq_decide_eq ..
+
+@[int_toBitVec]
+theorem Int32.beq_eq_decide_eq {a b : Int32} : (a == b) = decide (a = b) := Bool.beq_eq_decide_eq ..
+
+@[int_toBitVec]
+theorem Int64.beq_eq_decide_eq {a b : Int64} : (a == b) = decide (a = b) := Bool.beq_eq_decide_eq ..
+
+@[int_toBitVec]
+theorem ISize.beq_eq_decide_eq {a b : ISize} : (a == b) = decide (a = b) := Bool.beq_eq_decide_eq ..
+
 
 end Normalize
 end Std.Tactic.BVDecide

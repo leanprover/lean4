@@ -3,10 +3,15 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Format.Basic
-import Init.Data.Array.Basic
-import Init.Data.ToString.Basic
+public import Init.Data.Format.Basic
+public import Init.Data.Array.Basic
+public import Init.Data.ToString.Basic
+import Init.Data.String.Basic
+
+public section
 
 open Std
 
@@ -46,5 +51,5 @@ Converts a string to a pretty-printer document, replacing newlines in the string
 def String.toFormat (s : String) : Std.Format :=
   Std.Format.joinSep (s.splitOn "\n") Std.Format.line
 
-instance : ToFormat String.Pos where
+instance : ToFormat String.Pos.Raw where
   format p := format p.byteIdx

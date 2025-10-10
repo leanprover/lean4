@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DTreeMap.Raw.WF
-// Imports: Std.Data.DTreeMap.Internal.Lemmas Std.Data.DTreeMap.Raw.AdditionalOperations Std.Data.DTreeMap.Raw.Basic
+// Imports: import Std.Data.DTreeMap.Internal.Lemmas public import Std.Data.DTreeMap.Raw.AdditionalOperations public import Std.Data.DTreeMap.Raw.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,8 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Raw_WF_0__Std_DTreeMap_Raw_WF_instCoeTypeForall(lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Raw_WF_0__Std_DTreeMap_Raw_WF_instCoeTypeForall(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_WF_instCoeTypeForall(lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_WF_instCoeTypeForall(lean_object* x_1) {
 _start:
 {
 return lean_box(0);

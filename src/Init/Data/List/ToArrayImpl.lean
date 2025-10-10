@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.List.Basic
+public import Init.Data.List.Basic
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -27,6 +31,6 @@ both `List.toArray` and `Array.mk`.
 -/
 -- This function is exported to C, where it is called by `Array.mk`
 -- (the constructor) to implement this functionality.
-@[inline, match_pattern, pp_nodot, export lean_list_to_array]
+@[inline, expose, match_pattern, pp_nodot, export lean_list_to_array]
 def List.toArrayImpl (xs : List α) : Array α :=
   xs.toArrayAux (Array.mkEmpty xs.length)

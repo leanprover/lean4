@@ -3,10 +3,16 @@ Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.SizeOf
-import Init.BinderNameHint
-import Init.Data.Nat.Basic
+public import Init.SizeOf
+public import Init.BinderNameHint
+public import Init.Data.Nat.Basic
+
+public section
+
+@[expose] section
 
 universe u v
 
@@ -71,6 +77,7 @@ class WellFoundedRelation (α : Sort u) where
   wf  : WellFounded rel
 
 namespace WellFounded
+
 theorem apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) : Acc r a :=
   wf.rec (fun p => p) a
 
@@ -151,14 +158,8 @@ end Subrelation
 namespace InvImage
 variable {α : Sort u} {β : Sort v} {r : β → β → Prop}
 
-private def accAux (f : α → β) {b : β} (ac : Acc r b) : (x : α) → f x = b → Acc (InvImage r f) x := by
-  induction ac with
-  | intro x acx ih =>
-    intro z e
-    apply Acc.intro
-    intro y lt
-    subst x
-    apply ih (f y) lt y rfl
+theorem accAux (f : α → β) {b : β} (ac : Acc r b) : (x : α) → f x = b → Acc (InvImage r f) x :=
+  Acc.recOn ac fun _ _ ih => fun _ e => Acc.intro _ (fun y lt => ih (f y) (e ▸ lt) y rfl)
 
 theorem accessible {a : α} (f : α → β) (ac : Acc r (f a)) : Acc (InvImage r f) a :=
   accAux f ac a rfl
@@ -247,8 +248,7 @@ abbrev measure {α : Sort u} (f : α → Nat) : WellFoundedRelation α :=
 abbrev sizeOfWFRel {α : Sort u} [SizeOf α] : WellFoundedRelation α :=
   measure sizeOf
 
-instance (priority := low) [SizeOf α] : WellFoundedRelation α :=
-  sizeOfWFRel
+attribute [instance low] sizeOfWFRel
 
 namespace Prod
 open WellFounded
@@ -272,6 +272,7 @@ protected inductive Lex : α × β → α × β → Prop where
   -/
   | right (a) {b₁ b₂} (h : rb b₁ b₂)         : Prod.Lex (a, b₁)  (a, b₂)
 
+@[grind =]
 theorem lex_def {r : α → α → Prop} {s : β → β → Prop} {p q : α × β} :
     Prod.Lex r s p q ↔ r p.1 q.1 ∨ p.1 = q.1 ∧ s p.2 q.2 :=
   ⟨fun h => by cases h <;> simp [*], fun h =>
@@ -484,5 +485,4 @@ Reverse direction of `dite_eq_ite`. Used by the well-founded definition preproce
 context of a termination proof inside `if-then-else` with the condition.
 -/
 @[wf_preprocess] theorem ite_eq_dite [Decidable P] :
-    ite P a b = (dite P (fun h => binderNameHint h () a) (fun h => binderNameHint h () b)) := by
-  rfl
+    ite P a b = (dite P (fun h => binderNameHint h () a) (fun h => binderNameHint h () b)) := rfl

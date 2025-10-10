@@ -5,16 +5,18 @@ option(USE_MIMALLOC "use mimalloc" ON)
 # store all variables passed on the command line into CL_ARGS so we can pass them to the stage builds
 # https://stackoverflow.com/a/48555098/161659
 # MUST be done before call to 'project'
-# Use standard release build (discarding LEAN_CXX_EXTRA_FLAGS etc.) for stage0 by default since it is assumed to be "good", but still pass through CMake platform arguments (compiler, toolchain file, ..).
+# Use standard release build (discarding LEAN_EXTRA_CXX_FLAGS etc.) for stage0 by default since it is assumed to be "good", but still pass through CMake platform arguments (compiler, toolchain file, ..).
 # Use `STAGE0_` prefix to pass variables to stage0 explicitly.
 get_cmake_property(vars CACHE_VARIABLES)
 foreach(var ${vars})
   get_property(currentHelpString CACHE "${var}" PROPERTY HELPSTRING)
   if("${var}" MATCHES "STAGE0_(.*)")
     list(APPEND STAGE0_ARGS "-D${CMAKE_MATCH_1}=${${var}}")
+  elseif("${var}" MATCHES "STAGE1_(.*)")
+    list(APPEND STAGE1_ARGS "-D${CMAKE_MATCH_1}=${${var}}")
   elseif("${currentHelpString}" MATCHES "No help, variable specified on the command line." OR "${currentHelpString}" STREQUAL "")
     list(APPEND CL_ARGS "-D${var}=${${var}}")
-    if("${var}" MATCHES "USE_GMP|CHECK_OLEAN_VERSION")
+    if("${var}" MATCHES "USE_GMP|CHECK_OLEAN_VERSION|LEAN_VERSION_.*|LEAN_SPECIAL_VERSION_DESC")
       # must forward options that generate incompatible .olean format
       list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
     elseif("${var}" MATCHES "LLVM*|PKG_CONFIG|USE_LAKE|USE_MIMALLOC")
@@ -37,10 +39,14 @@ endif()
 
 # Don't do anything with cadical on wasm
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  # On CI Linux, we source cadical from Nix instead; see flake.nix
   find_program(CADICAL cadical)
   if(NOT CADICAL)
     set(CADICAL_CXX c++)
+    if (CADICAL_USE_CUSTOM_CXX)
+      set(CADICAL_CXX ${CMAKE_CXX_COMPILER})
+      set(CADICAL_CXXFLAGS "${LEAN_EXTRA_CXX_FLAGS}")
+      set(CADICAL_LDFLAGS "-Wl,-rpath=\\$$ORIGIN/../lib")
+    endif()
     find_program(CCACHE ccache)
     if(CCACHE)
       set(CADICAL_CXX "${CCACHE} ${CADICAL_CXX}")
@@ -55,8 +61,11 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
       GIT_REPOSITORY https://github.com/arminbiere/cadical
       GIT_TAG rel-2.1.2
       CONFIGURE_COMMAND ""
-      # https://github.com/arminbiere/cadical/blob/master/BUILD.md#manual-build
-      BUILD_COMMAND $(MAKE) -f ${CMAKE_SOURCE_DIR}/src/cadical.mk CMAKE_EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX} CXX=${CADICAL_CXX} CXXFLAGS=${CADICAL_CXXFLAGS}
+      BUILD_COMMAND $(MAKE) -f ${CMAKE_SOURCE_DIR}/src/cadical.mk
+        CMAKE_EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX}
+        CXX=${CADICAL_CXX}
+        CXXFLAGS=${CADICAL_CXXFLAGS}
+        LDFLAGS=${CADICAL_LDFLAGS}
       BUILD_IN_SOURCE ON
       INSTALL_COMMAND "")
     set(CADICAL ${CMAKE_BINARY_DIR}/cadical/cadical${CMAKE_EXECUTABLE_SUFFIX} CACHE FILEPATH "path to cadical binary" FORCE)
@@ -77,26 +86,29 @@ if (USE_MIMALLOC)
   list(APPEND EXTRA_DEPENDS mimalloc)
 endif()
 
-ExternalProject_add(stage0
-  SOURCE_DIR "${LEAN_SOURCE_DIR}/stage0"
-  SOURCE_SUBDIR src
-  BINARY_DIR stage0
-  # do not rebuild stage0 when git hash changes; it's not from this commit anyway
-  # (however, CI will override this as we need to embed the githash into the stage 1 library built
-  # by stage 0)
-  CMAKE_ARGS -DSTAGE=0 -DUSE_GITHASH=OFF ${PLATFORM_ARGS} ${STAGE0_ARGS}
-  BUILD_ALWAYS ON  # cmake doesn't auto-detect changes without a download method
-  INSTALL_COMMAND ""  # skip install
-  DEPENDS ${EXTRA_DEPENDS}
-)
+if (NOT STAGE1_PREV_STAGE)
+  ExternalProject_add(stage0
+    SOURCE_DIR "${LEAN_SOURCE_DIR}/stage0"
+    SOURCE_SUBDIR src
+    BINARY_DIR stage0
+    # do not rebuild stage0 when git hash changes; it's not from this commit anyway
+    # (however, CI will override this as we need to embed the githash into the stage 1 library built
+    # by stage 0)
+    CMAKE_ARGS -DSTAGE=0 -DUSE_GITHASH=OFF ${PLATFORM_ARGS} ${STAGE0_ARGS}
+    BUILD_ALWAYS ON  # cmake doesn't auto-detect changes without a download method
+    INSTALL_COMMAND ""  # skip install
+    DEPENDS ${EXTRA_DEPENDS}
+  )
+  list(APPEND EXTRA_DEPENDS stage0)
+endif()
 ExternalProject_add(stage1
   SOURCE_DIR "${LEAN_SOURCE_DIR}"
   SOURCE_SUBDIR src
   BINARY_DIR stage1
-  CMAKE_ARGS -DSTAGE=1 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage0 -DPREV_STAGE_CMAKE_EXECUTABLE_SUFFIX=${STAGE0_CMAKE_EXECUTABLE_SUFFIX} ${CL_ARGS}
+  CMAKE_ARGS -DSTAGE=1 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage0 -DPREV_STAGE_CMAKE_EXECUTABLE_SUFFIX=${STAGE0_CMAKE_EXECUTABLE_SUFFIX} ${CL_ARGS} ${STAGE1_ARGS}
   BUILD_ALWAYS ON
   INSTALL_COMMAND ""
-  DEPENDS stage0
+  DEPENDS ${EXTRA_DEPENDS}
   STEP_TARGETS configure
 )
 ExternalProject_add(stage2
@@ -108,6 +120,7 @@ ExternalProject_add(stage2
   INSTALL_COMMAND ""
   DEPENDS stage1
   EXCLUDE_FROM_ALL ON
+  STEP_TARGETS configure
 )
 ExternalProject_add(stage3
   SOURCE_DIR "${LEAN_SOURCE_DIR}"
@@ -132,6 +145,10 @@ add_custom_target(update-stage0-commit
 
 add_custom_target(test
   COMMAND $(MAKE) -C stage1 test
+  DEPENDS stage1)
+
+add_custom_target(clean-stdlib
+  COMMAND $(MAKE) -C stage1 clean-stdlib
   DEPENDS stage1)
 
 install(CODE "execute_process(COMMAND make -C stage1 install)")

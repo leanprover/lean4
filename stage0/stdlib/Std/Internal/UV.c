@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.UV
-// Imports: Init.System.IO Init.System.Promise Std.Internal.UV.Loop Std.Internal.UV.Timer Std.Internal.UV.TCP Std.Internal.UV.UDP
+// Imports: public import Init.System.IO public import Init.System.Promise public import Std.Internal.UV.Loop public import Std.Internal.UV.Timer public import Std.Internal.UV.TCP public import Std.Internal.UV.UDP public import Std.Internal.UV.System public import Std.Internal.UV.DNS public import Std.Internal.UV.Signal
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,6 +19,9 @@ lean_object* initialize_Std_Internal_UV_Loop(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Internal_UV_Timer(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Internal_UV_TCP(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Internal_UV_UDP(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Internal_UV_System(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Internal_UV_DNS(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Internal_UV_Signal(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_UV(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -40,6 +43,15 @@ res = initialize_Std_Internal_UV_TCP(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Internal_UV_UDP(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Internal_UV_System(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Internal_UV_DNS(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Internal_UV_Signal(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

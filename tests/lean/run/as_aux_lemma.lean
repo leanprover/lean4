@@ -11,18 +11,19 @@ open Lean Meta
 
 abbrev testProp := ∀ n : Nat, n = 0 + n
 
-def thmUsingTactic : testProp := by as_aux_lemma =>
-  intro n
-  induction n
-  · rfl
-  · next ih =>
-    rw [← Nat.succ_eq_add_one, Nat.add_succ, ← ih]
+def thmUsingTactic : testProp := by
+  as_aux_lemma =>
+    intro n
+    induction n
+    · rfl
+    next ih =>
+      rw [← Nat.succ_eq_add_one, Nat.add_succ, ← ih]
 
 def thmWithoutTactic : testProp := by
   intro n
   induction n
   · rfl
-  · next ih =>
+  next ih =>
     rw [← Nat.succ_eq_add_one, Nat.add_succ, ← ih]
 
 open Lean

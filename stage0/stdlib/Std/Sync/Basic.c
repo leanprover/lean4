@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sync.Basic
-// Imports: Init.System.IO Init.Control.StateRef
+// Imports: public import Init.System.IO public import Init.Control.StateRef
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

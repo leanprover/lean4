@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.System
-// Imports: Init.System.IO Init.System.Platform Init.System.Uri Init.System.Mutex Init.System.Promise
+// Imports: public import Init.System.IO public import Init.System.Platform public import Init.System.Uri public import Init.System.Promise
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,7 +16,6 @@ extern "C" {
 lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_System_Platform(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_System_Uri(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_System_Mutex(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_System_Promise(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_System(uint8_t builtin, lean_object* w) {
@@ -30,9 +29,6 @@ res = initialize_Init_System_Platform(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_System_Uri(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_System_Mutex(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_System_Promise(builtin, lean_io_mk_world());

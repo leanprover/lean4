@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sat.AIG.LawfulVecOperator
-// Imports: Std.Sat.AIG.LawfulOperator Std.Sat.AIG.RefVec
+// Imports: public import Std.Sat.AIG.LawfulOperator public import Std.Sat.AIG.RefVec
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

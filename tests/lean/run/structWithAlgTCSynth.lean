@@ -101,22 +101,6 @@ end Mathlib.Logic.Function.Basic
 
 section Mathlib.Algebra.Group.Defs
 
-class HSMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  hSMul : α → β → γ
-
-class SMul (M : Type _) (α : Type _) where
-  smul : M → α → α
-
-infixr:73 " • " => HSMul.hSMul
-
-instance instHSMul [SMul α β] : HSMul α β β where
-  hSMul := SMul.smul
-
-class Inv (α : Type u) where
-  inv : α → α
-
-postfix:max "⁻¹" => Inv.inv
-
 class Semigroup (G : Type u) extends Mul G where
   mul_assoc : ∀ a b c : G, a * b * c = a * (b * c)
 
@@ -137,18 +121,10 @@ class AddZeroClass (M : Type u) extends Zero M, Add M where
   zero_add : ∀ a : M, 0 + a = a
   add_zero : ∀ a : M, a + 0 = a
 
-def npowRec [One M] [Mul M] : Nat → M → M
-  | 0, _ => 1
-  | n + 1, a => a * npowRec n a
-
-def nsmulRec [Zero M] [Add M] : Nat → M → M
-  | 0, _ => 0
-  | n + 1, a => a + nsmulRec n a
-
 class AddMonoid (M : Type u) extends AddSemigroup M, AddZeroClass M where
   nsmul : Nat → M → M := nsmulRec
   nsmul_zero : ∀ x, nsmul 0 x = 0 := by intros; rfl
-  nsmul_succ : ∀ (n : Nat) (x), nsmul (n + 1) x = x + nsmul n x := by intros; rfl
+  nsmul_succ : ∀ (n : Nat) (x), nsmul (n + 1) x = nsmul n x + x := by intros; rfl
 
 attribute [instance 150] AddSemigroup.toAdd
 attribute [instance 50] AddZeroClass.toAdd
@@ -156,7 +132,7 @@ attribute [instance 50] AddZeroClass.toAdd
 class Monoid (M : Type u) extends Semigroup M, MulOneClass M where
   npow : Nat → M → M := npowRec
   npow_zero : ∀ x, npow 0 x = 1 := by intros; rfl
-  npow_succ : ∀ (n : Nat) (x), npow (n + 1) x = x * npow n x := by intros; rfl
+  npow_succ : ∀ (n : Nat) (x), npow (n + 1) x = npow n x * x := by intros; rfl
 
 @[default_instance high] instance Monoid.Pow {M : Type _} [Monoid M] : Pow M Nat :=
   ⟨fun x n ↦ Monoid.npow n x⟩
@@ -204,7 +180,7 @@ class SubNegMonoid (G : Type u) extends AddMonoid G, Neg G, Sub G where
   sub_eq_add_neg : ∀ a b : G, a - b = a + -b := by intros; rfl
   zsmul : Int → G → G := zsmulRec
   zsmul_zero' : ∀ a : G, zsmul 0 a = 0 := by intros; rfl
-  zsmul_succ' (n : Nat) (a : G) : zsmul (Int.ofNat n.succ) a = a + zsmul (Int.ofNat n) a := by
+  zsmul_succ' (n : Nat) (a : G) : zsmul (Int.ofNat n.succ) a = zsmul (Int.ofNat n) a + a := by
     intros; rfl
   zsmul_neg' (n : Nat) (a : G) : zsmul (Int.negSucc n) a = -zsmul n.succ a := by intros; rfl
 

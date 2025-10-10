@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data
-// Imports: Init.Data.Basic Init.Data.Nat Init.Data.Bool Init.Data.BitVec Init.Data.Cast Init.Data.Char Init.Data.String Init.Data.List Init.Data.Int Init.Data.Array Init.Data.Array.Subarray.Split Init.Data.ByteArray Init.Data.FloatArray Init.Data.Fin Init.Data.UInt Init.Data.SInt Init.Data.Float Init.Data.Float32 Init.Data.Option Init.Data.Ord Init.Data.Random Init.Data.ToString Init.Data.Range Init.Data.Hashable Init.Data.OfScientific Init.Data.Format Init.Data.Stream Init.Data.Prod Init.Data.AC Init.Data.Queue Init.Data.Channel Init.Data.Sum Init.Data.BEq Init.Data.Subtype Init.Data.ULift Init.Data.PLift Init.Data.Zero Init.Data.NeZero Init.Data.Function Init.Data.RArray Init.Data.Vector
+// Imports: public import Init.Data.Basic public import Init.Data.Nat public import Init.Data.Bool public import Init.Data.BitVec public import Init.Data.Cast public import Init.Data.Char public import Init.Data.String public import Init.Data.List public import Init.Data.Int public import Init.Data.Array public import Init.Data.Array.Subarray.Split public import Init.Data.ByteArray public import Init.Data.FloatArray public import Init.Data.Fin public import Init.Data.UInt public import Init.Data.SInt public import Init.Data.Float public import Init.Data.Float32 public import Init.Data.Option public import Init.Data.Ord public import Init.Data.Random public import Init.Data.ToString public import Init.Data.Range public import Init.Data.Hashable public import Init.Data.LawfulHashable public import Init.Data.OfScientific public import Init.Data.Format public import Init.Data.Stream public import Init.Data.Prod public import Init.Data.AC public import Init.Data.Queue public import Init.Data.Sum public import Init.Data.BEq public import Init.Data.Subtype public import Init.Data.ULift public import Init.Data.PLift public import Init.Data.Zero public import Init.Data.NeZero public import Init.Data.Function public import Init.Data.RArray public import Init.Data.Vector public import Init.Data.Iterators public import Init.Data.Range.Polymorphic public import Init.Data.Slice public import Init.Data.Order public import Init.Data.Rat public import Init.Data.Dyadic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -37,13 +37,13 @@ lean_object* initialize_Init_Data_Random(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_ToString(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Range(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Hashable(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_LawfulHashable(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_OfScientific(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Format(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Stream(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Prod(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_AC(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Queue(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Channel(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Sum(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BEq(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Subtype(uint8_t builtin, lean_object*);
@@ -54,6 +54,12 @@ lean_object* initialize_Init_Data_NeZero(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Function(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_RArray(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Vector(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Iterators(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Range_Polymorphic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Slice(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Order(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Rat(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Dyadic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -131,6 +137,9 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Hashable(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_LawfulHashable(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_OfScientific(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -147,9 +156,6 @@ res = initialize_Init_Data_AC(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Queue(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Channel(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Sum(builtin, lean_io_mk_world());
@@ -180,6 +186,24 @@ res = initialize_Init_Data_RArray(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Vector(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Slice(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Order(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Rat(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Dyadic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

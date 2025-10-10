@@ -3,14 +3,16 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
+module
 prelude
-import Init.Data.List.Erase
-import Init.Data.Array.Lemmas
-import Std.Data.HashMap
-import Std.Sat.CNF.Basic
-import Std.Tactic.BVDecide.LRAT.Internal.PosFin
-import Std.Tactic.BVDecide.LRAT.Internal.Assignment
-
+public import Init.Data.List.Erase
+public import Init.Data.Array.Lemmas
+public import Std.Data.HashMap
+public import Std.Sat.CNF.Basic
+public import Std.Tactic.BVDecide.LRAT.Internal.PosFin
+public import Std.Tactic.BVDecide.LRAT.Internal.Assignment
+public import Init.Grind
+@[expose] public section
 
 namespace Std.Tactic.BVDecide
 namespace LRAT
@@ -55,6 +57,11 @@ class Clause (α : outParam (Type u)) (β : Type v) where
 
 namespace Clause
 
+grind_pattern empty_eq => toList (empty : β)
+grind_pattern unit_eq => @toList _ _ self (unit l)
+attribute [grind =] isUnit_iff negate_eq delete_iff
+attribute [grind ←] contains_iff
+
 instance : Entails α (Literal α) where
   eval := fun p l => p l.1 = l.2
 
@@ -89,8 +96,8 @@ that it was needed.
 -/
 @[ext] structure DefaultClause (numVarsSucc : Nat) where
   clause : CNF.Clause (PosFin numVarsSucc)
-  nodupkey : ∀ l : PosFin numVarsSucc, (l, true) ∉ clause ∨ (l, false) ∉ clause
-  nodup : List.Nodup clause
+  nodupkey : ∀ l : PosFin numVarsSucc, (l, true) ∉ clause ∨ (l, false) ∉ clause := by grind
+  nodup : List.Nodup clause := by grind
   deriving BEq
 
 instance : ToString (DefaultClause n) where
@@ -98,45 +105,23 @@ instance : ToString (DefaultClause n) where
 
 namespace DefaultClause
 
-def toList (c : DefaultClause n) : CNF.Clause (PosFin n) := c.clause
+@[grind] def toList (c : DefaultClause n) : CNF.Clause (PosFin n) := c.clause
+
+attribute [local grind! ←] DefaultClause.nodup DefaultClause.nodupkey
 
 theorem not_tautology (c : DefaultClause n) (l : Literal (PosFin n)) :
     l ∉ toList c ∨ ¬Literal.negate l ∈ toList c := by
-  simp only [toList, Literal.negate]
-  have h := c.nodupkey l.1
-  by_cases hl : l.2
-  · simp only [hl, Bool.not_true]
-    rwa [← hl] at h
-  · simp only [Bool.not_eq_true] at hl
-    simp only [hl, Bool.not_false]
-    apply Or.symm
-    rwa [← hl] at h
+  grind [cases Bool]
 
 @[inline]
-def empty : DefaultClause n :=
-  let clause := []
-  have nodupkey := by
-    simp only [clause, List.find?, List.not_mem_nil, not_false_eq_true, or_self, implies_true]
-  have nodup := by
-    simp only [clause, List.nodup_nil]
-  ⟨clause, nodupkey, nodup⟩
+def empty : DefaultClause n where
+  clause := []
 
 theorem empty_eq : toList (empty : DefaultClause n) = [] := rfl
 
 @[inline]
-def unit (l : Literal (PosFin n)) : DefaultClause n :=
-  let clause := [l]
-  have nodupkey : ∀ (l : PosFin n), ¬(l, true) ∈ clause ∨ ¬(l, false) ∈ clause := by
-    intro l'
-    by_cases l.2
-    · apply Or.inr
-      cases l
-      simp_all [clause]
-    · apply Or.inl
-      cases l
-      simp_all [clause]
-  have nodup : List.Nodup clause:= by simp [clause]
-  ⟨clause, nodupkey, nodup⟩
+def unit (l : Literal (PosFin n)) : DefaultClause n where
+  clause := [l]
 
 theorem unit_eq (l : Literal (PosFin n)) : toList (unit l) = [l] := rfl
 
@@ -148,54 +133,14 @@ def isUnit (c : DefaultClause n) : Option (Literal (PosFin n)) :=
 
 theorem isUnit_iff (c : DefaultClause n) (l : Literal (PosFin n)) :
     isUnit c = some l ↔ toList c = [l] := by
-  simp only [isUnit, toList]
-  split
-  · next l' heq => simp [heq]
-  · next hne =>
-    simp
-    apply hne
+  grind [isUnit]
 
 @[inline]
 def negate (c : DefaultClause n) : CNF.Clause (PosFin n) := c.clause.map Literal.negate
 
 theorem negate_eq (c : DefaultClause n) : negate c = (toList c).map Literal.negate := rfl
 
-def ofArray (ls : Array (Literal (PosFin n))) : Option (DefaultClause n) :=
-  let mapOption := ls.foldl folder (some (HashMap.emptyWithCapacity ls.size))
-  match mapOption with
-  | none => none
-  | some map =>
-   have mapnodup := map.distinct_keys
-    have nodupkey : ∀ (l : PosFin n), ¬(l, true) ∈ map.toList ∨ ¬(l, false) ∈ map.toList := by
-      intro l
-      apply Classical.byContradiction
-      simp_all
-    have nodup : map.toList.Nodup := by
-      rw [List.Nodup, List.pairwise_iff_forall_sublist]
-      simp only [ne_eq, Prod.forall, Bool.forall_bool, Prod.mk.injEq, not_and, Bool.not_eq_false,
-        Bool.not_eq_true, Bool.false_eq_true, imp_false, implies_true, and_true, Bool.true_eq_false,
-        true_and]
-      intro l1
-      constructor
-      . intros l2 h hl
-        rw [List.pairwise_iff_forall_sublist] at mapnodup
-        replace h : [l1, l2].Sublist map.keys := by
-          rw [← HashMap.map_fst_toList_eq_keys, List.sublist_map_iff]
-          apply Exists.intro [(l1, false), (l2, false)]
-          simp [h]
-        specialize mapnodup h
-        simp [hl] at mapnodup
-      . intros l2 h hl
-        rw [List.pairwise_iff_forall_sublist] at mapnodup
-        replace h : [l1, l2].Sublist map.keys := by
-          rw [← HashMap.map_fst_toList_eq_keys, List.sublist_map_iff]
-          apply Exists.intro [(l1, true), (l2, true)]
-          simp [h]
-        specialize mapnodup h
-        simp [hl] at mapnodup
-    some ⟨map.toList, nodupkey, nodup⟩
-where
-  folder (acc : Option (Std.HashMap (PosFin n) Bool)) (l : Literal (PosFin n)) :
+@[irreducible] def ofArray.folder (acc : Option (Std.HashMap (PosFin n) Bool)) (l : Literal (PosFin n)) :
       Option (Std.HashMap (PosFin n) Bool) :=
     match acc with
     | none => none
@@ -209,119 +154,58 @@ where
       else
         some map
 
+-- Recall `@[local grind]` doesn't work for theorems in namespaces,
+-- so we add the attribute after the fact.
+attribute [local grind] DefaultClause.ofArray.folder
+
+-- This isn't a good global `grind` lemma, because it can cause a loop with `Pairwise.sublist`.
+attribute [local grind =] List.pairwise_iff_forall_sublist
+
+def ofArray (ls : Array (Literal (PosFin n))) : Option (DefaultClause n) :=
+  let mapOption := ls.foldl ofArray.folder (some (HashMap.emptyWithCapacity ls.size))
+  match mapOption with
+  | none => none
+  | some map =>
+    have mapnodup := map.distinct_keys
+    some { clause := map.toList }
+
 @[simp]
 theorem ofArray.foldl_folder_none_eq_none : List.foldl ofArray.folder none ls = none := by
-  apply List.foldlRecOn (motive := (· = none))
-  · simp
-  · intro b hb a ha
-    unfold DefaultClause.ofArray.folder
-    simp [hb]
+  apply List.foldlRecOn (motive := (· = none)) <;> grind
+
+attribute [local grind =] ofArray.foldl_folder_none_eq_none
 
 theorem ofArray.mem_of_mem_of_foldl_folder_eq_some
-    (h : List.foldl DefaultClause.ofArray.folder (some acc) ls = some acc') :
-    ∀ l ∈ acc.toList, l ∈ acc'.toList := by
-  intro l hl
-  induction ls generalizing acc with
-  | nil => simp_all
-  | cons x xs ih =>
-    rcases l with ⟨var, pol⟩
-    rw [List.foldl_cons, DefaultClause.ofArray.folder.eq_def] at h
-    split at h
-    · contradiction
-    · simp only [HashMap.getThenInsertIfNew?_fst, HashMap.get?_eq_getElem?, bne_iff_ne, ne_eq,
-        HashMap.getThenInsertIfNew?_snd, ite_not] at h
-      split at h
-      · split at h
-        · apply ih
-          · exact h
-          · rw [Std.HashMap.mem_toList_iff_getElem?_eq_some, Std.HashMap.getElem?_insertIfNew]
-            rename_i map _ _ _ _ _
-            have : x.fst ∈ map := by
-              apply Classical.byContradiction
-              intro h2
-              have := Std.HashMap.getElem?_eq_none h2
-              simp_all
-            simp [this]
-            rw [Std.HashMap.mem_toList_iff_getElem?_eq_some] at hl
-            simp_all
-        · simp at h
-      · apply ih
-        · exact h
-        · rw [Std.HashMap.mem_toList_iff_getElem?_eq_some, Std.HashMap.getElem?_insertIfNew]
-          simp_all
-          intros
-          cases pol <;> simp_all
+    (h : List.foldl DefaultClause.ofArray.folder (some acc) ls = some acc') (l) (h : l ∈ acc.toList) :
+      l ∈ acc'.toList := by
+  induction ls generalizing acc with grind
+
+grind_pattern ofArray.mem_of_mem_of_foldl_folder_eq_some => l ∈ acc'.toList, List.foldl ofArray.folder (some acc) ls
 
 theorem ofArray.folder_foldl_mem_of_mem
     (h : List.foldl DefaultClause.ofArray.folder acc ls = some map) :
     ∀ l ∈ ls, l ∈ map.toList := by
   intro l hl
   induction ls generalizing acc with
-  | nil => simp at hl
+  | nil => grind
   | cons x xs ih =>
     simp at hl h
-    rcases hl with hl | hl
-    · rw [DefaultClause.ofArray.folder.eq_def] at h
-      simp at h
-      split at h
-      · simp at h
-      · split at h
-        · split at h
-          · apply mem_of_mem_of_foldl_folder_eq_some
-            · exact h
-            · rw [Std.HashMap.mem_toList_iff_getElem?_eq_some]
-              rw [Std.HashMap.getElem?_insertIfNew]
-              simp_all
-          · simp at h
-        · apply mem_of_mem_of_foldl_folder_eq_some
-          · exact h
-          · next hfoo =>
-            rw [hl]
-            cases x
-            simp [Std.HashMap.getElem?_insertIfNew]
-            intro hbar
-            exfalso
-            apply hfoo
-            rw [Std.HashMap.getElem?_eq_some_getElem! hbar]
-    · exact ih h hl
+    rcases hl <;> grind [DefaultClause.ofArray.folder.eq_def]
 
-@[inline]
-def delete (c : DefaultClause n) (l : Literal (PosFin n)) : DefaultClause n :=
-  let clause := c.clause.erase l
-  let nodupkey : ∀ (l : PosFin n), ¬(l, true) ∈ clause ∨ ¬(l, false) ∈ clause := by
-    intro l'
-    simp only [clause]
-    rcases c.nodupkey l' with ih | ih
-    · apply Or.inl
-      intro h
-      exact ih <| List.mem_of_mem_erase h
-    · apply Or.inr
-      intro h
-      exact ih <| List.mem_of_mem_erase h
-  have nodup := by
-    simp only [clause]
-    exact List.Nodup.erase l c.nodup
-  ⟨clause, nodupkey, nodup⟩
+@[inline, local grind]
+def delete (c : DefaultClause n) (l : Literal (PosFin n)) : DefaultClause n where
+  clause := c.clause.erase l
 
 theorem delete_iff (c : DefaultClause n) (l l' : Literal (PosFin n)) :
     l' ∈ toList (delete c l) ↔ l' ≠ l ∧ l' ∈ toList c := by
-  simp only [toList, delete, ne_eq]
-  by_cases hl : l' = l
-  · simp only [hl, not_true, false_and, iff_false]
-    exact List.Nodup.not_mem_erase c.nodup
-  · simp only [hl, not_false_eq_true, true_and]
-    exact List.mem_erase_of_ne hl
+  grind
 
 @[inline]
 def contains (c : DefaultClause n) (l : Literal (PosFin n)) : Bool := c.clause.contains l
 
 theorem contains_iff :
     ∀ (c : DefaultClause n) (l : Literal (PosFin n)), contains c l = true ↔ l ∈ toList c := by
-  intro c l
-  simp only [contains, List.contains]
-  constructor
-  · exact List.mem_of_elem_eq_true
-  · exact List.elem_eq_true_of_mem
+  grind [contains]
 
 def reduce_fold_fn (assignments : Array Assignment) (acc : ReduceResult (PosFin n))
     (l : Literal (PosFin n)) :

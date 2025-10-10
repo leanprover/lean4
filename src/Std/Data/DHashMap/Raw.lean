@@ -3,31 +3,35 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
-prelude
-import Init.Data.BEq
-import Init.Data.Hashable
-import Std.Data.DHashMap.Internal.Defs
+module
 
-/-
+prelude
+public import Init.Data.BEq
+public import Init.Data.LawfulHashable
+public import Std.Data.DHashMap.Internal.Defs
+
+public section
+
+/-!
 # Dependent hash maps with unbundled well-formedness invariant
 
 This file develops the type `Std.DHashMap.Raw` of dependent hash
 maps with unbundled well-formedness invariant.
 
 This version is safe to use in nested inductive types. The well-formedness predicate is
-available as `Std.Data.DHashMap.Raw.WF` and we prove in this file that all operations preserve
+available as `Std.DHashMap.Raw.WF` and we prove in this file that all operations preserve
 well-formedness. When in doubt, prefer `DHashMap` over `DHashMap.Raw`.
 
-Lemmas about the operations on `Std.Data.DHashMap.Raw` are available in the module
+Lemmas about the operations on `Std.DHashMap.Raw` are available in the module
 `Std.Data.DHashMap.RawLemmas`.
 -/
 
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v w
+universe u v w w'
 
-variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w} [Monad m]
+variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w'} [Monad m]
 
 namespace Std
 
@@ -357,7 +361,7 @@ map in some order.
 
 /-- Folds the given function over the mappings in the hash map in some order. -/
 @[inline] def fold (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
-  Id.run (b.foldM f init)
+  Id.run (b.foldM (pure <| f · · ·) init)
 
 namespace Internal
 
@@ -376,7 +380,7 @@ Internal implementation detail of the hash map.
 Folds the given function over the mappings in the hash map in the reverse order used
 by `foldM`. -/
 @[inline] def foldRev (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
-  Id.run (foldRevM f init b)
+  Id.run (foldRevM (pure <| f · · ·) init b)
 
 end Internal
 
@@ -395,7 +399,7 @@ by `foldM`. -/
 @[inline, deprecated "Deprecated without replacement. If the order does not matter, use fold."
   (since := "2025-03-07")]
 def foldRev (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
-  Id.run (Internal.foldRevM f init b)
+  Id.run (Internal.foldRevM (pure <| f · · ·) init b)
 
 /-- Carries out a monadic action on each mapping in the hash map in some order. -/
 @[inline] def forM (f : (a : α) → β a → m PUnit) (b : Raw α β) : m PUnit :=
@@ -431,10 +435,6 @@ define the `ForM` and `ForIn` instances for `HashMap.Raw`.
 
 end Const
 
-section Unverified
-
-/-! We currently do not provide lemmas for the functions below. -/
-
 /--
 Updates the values of the hash map by applying the given function to all mappings, keeping
 only those mappings where the function returns `some` value.
@@ -468,6 +468,10 @@ only those mappings where the function returns `some` value.
 /-- Returns an array of all keys present in the hash map in some order. -/
 @[inline] def keysArray (m : Raw α β) : Array α :=
   m.fold (fun acc k _ => acc.push k) (.emptyWithCapacity m.size)
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
 
 /-- Returns a list of all values present in the hash map in some order. -/
 @[inline] def values {β : Type v} (m : Raw α (fun _ => β)) : List β :=

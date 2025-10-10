@@ -4,8 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Simon Hudon
 -/
 
+module
+
 prelude
-import Init.Data.ToString.Basic
+public import Init.Data.ToString.Basic
+import Init.Data.String.Basic
+
+public section
 
 /--
 Exceptions that may be thrown in the `IO` monad.
@@ -266,29 +271,29 @@ diagnose the issue.
 @[export lean_io_error_to_string]
 def toString : IO.Error → String
   | unexpectedEof                            => "end of file"
-  | inappropriateType (some fn) code details => fopenErrorToString "inappropriate type" fn code details
-  | inappropriateType none code details      => otherErrorToString "inappropriate type" code details
-  | interrupted fn code details              => fopenErrorToString "interrupted system call" fn code details
-  | invalidArgument (some fn) code details   => fopenErrorToString "invalid argument" fn code details
-  | invalidArgument none code details        => otherErrorToString "invalid argument" code details
+  | inappropriateType (some fn) code details => fopenErrorToString "inappropriate type" fn code (some details)
+  | inappropriateType none code details      => otherErrorToString "inappropriate type" code (some details)
+  | interrupted fn code details              => fopenErrorToString "interrupted system call" fn code (some details)
+  | invalidArgument (some fn) code details   => fopenErrorToString "invalid argument" fn code (some details)
+  | invalidArgument none code details        => otherErrorToString "invalid argument" code (some details)
   | noFileOrDirectory fn code _              => fopenErrorToString "no such file or directory" fn code none
-  | noSuchThing (some fn) code details       => fopenErrorToString "no such thing" fn code details
-  | noSuchThing none code details            => otherErrorToString "no such thing" code details
+  | noSuchThing (some fn) code details       => fopenErrorToString "no such thing" fn code (some details)
+  | noSuchThing none code details            => otherErrorToString "no such thing" code (some details)
   | permissionDenied (some fn) code details  => fopenErrorToString details fn code none
   | permissionDenied none code details       => otherErrorToString details code none
-  | resourceExhausted (some fn) code details => fopenErrorToString "resource exhausted" fn code details
-  | resourceExhausted none code details      => otherErrorToString "resource exhausted" code details
-  | alreadyExists none code details          => otherErrorToString "already exists" code details
-  | alreadyExists (some fn) code details     => fopenErrorToString "already exists" fn code details
+  | resourceExhausted (some fn) code details => fopenErrorToString "resource exhausted" fn code (some details)
+  | resourceExhausted none code details      => otherErrorToString "resource exhausted" code (some details)
+  | alreadyExists none code details          => otherErrorToString "already exists" code (some details)
+  | alreadyExists (some fn) code details     => fopenErrorToString "already exists" fn code (some details)
   | otherError code details                  => otherErrorToString details code none
-  | resourceBusy code details                => otherErrorToString "resource busy" code details
-  | resourceVanished code details            => otherErrorToString "resource vanished" code details
+  | resourceBusy code details                => otherErrorToString "resource busy" code (some details)
+  | resourceVanished code details            => otherErrorToString "resource vanished" code (some details)
   | hardwareFault code _                     => otherErrorToString "hardware fault" code none
-  | illegalOperation code details            => otherErrorToString "illegal operation" code details
-  | protocolError code details               => otherErrorToString "protocol error" code details
-  | timeExpired code details                 => otherErrorToString "time expired" code details
+  | illegalOperation code details            => otherErrorToString "illegal operation" code (some details)
+  | protocolError code details               => otherErrorToString "protocol error" code (some details)
+  | timeExpired code details                 => otherErrorToString "time expired" code (some details)
   | unsatisfiedConstraints code _            => otherErrorToString "directory not empty" code none
-  | unsupportedOperation code details        => otherErrorToString "unsupported operation" code details
+  | unsupportedOperation code details        => otherErrorToString "unsupported operation" code (some details)
   | userError msg                            => msg
 
 instance : ToString IO.Error := ⟨ IO.Error.toString ⟩

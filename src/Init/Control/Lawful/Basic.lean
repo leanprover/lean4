@@ -3,9 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Leonardo de Moura, Mario Carneiro
 -/
+module
+
 prelude
-import Init.SimpLemmas
-import Init.Meta
+public import Init.Ext
+public import Init.SimpLemmas
+public import Init.Meta
+
+public section
 
 open Function
 
@@ -47,7 +52,7 @@ attribute [simp] id_map
   (comp_map _ _ _).symm
 
 theorem Functor.map_unit [Functor f] [LawfulFunctor f] {a : f PUnit} : (fun _ => PUnit.unit) <$> a = a := by
-  simp [map]
+  simp
 
 /--
 An applicative functor satisfies the laws of an applicative functor.
@@ -142,9 +147,10 @@ class LawfulMonad (m : Type u → Type v) [Monad m] : Prop extends LawfulApplica
 
 export LawfulMonad (bind_pure_comp bind_map pure_bind bind_assoc)
 attribute [simp] pure_bind bind_assoc bind_pure_comp
+attribute [grind <=] pure_bind
 
 @[simp] theorem bind_pure [Monad m] [LawfulMonad m] (x : m α) : x >>= pure = x := by
-  show x >>= (fun a => pure (id a)) = x
+  change x >>= (fun a => pure (id a)) = x
   rw [bind_pure_comp, id_map]
 
 /--
@@ -238,12 +244,22 @@ theorem LawfulMonad.mk' (m : Type u → Type v) [Monad m]
 
 namespace Id
 
-@[simp] theorem map_eq (x : Id α) (f : α → β) : f <$> x = f x := rfl
-@[simp] theorem bind_eq (x : Id α) (f : α → id β) : x >>= f = f x := rfl
-@[simp] theorem pure_eq (a : α) : (pure a : Id α) = a := rfl
+@[ext] theorem ext {x y : Id α} (h : x.run = y.run) : x = y := h
 
 instance : LawfulMonad Id := by
   refine LawfulMonad.mk' _ ?_ ?_ ?_ <;> intros <;> rfl
+
+@[simp] theorem run_map (x : Id α) (f : α → β) : (f <$> x).run = f x.run := rfl
+@[simp] theorem run_bind (x : Id α) (f : α → Id β) : (x >>= f).run = (f x.run).run := rfl
+@[simp] theorem run_pure (a : α) : (pure a : Id α).run = a := rfl
+@[simp] theorem run_seqRight (x y : Id α) : (x *> y).run = y.run := rfl
+@[simp] theorem run_seqLeft (x y : Id α) : (x <* y).run = x.run := rfl
+@[simp] theorem run_seq (f : Id (α → β)) (x : Id α) : (f <*> x).run = f.run x.run := rfl
+
+-- These lemmas are bad as they abuse the defeq of `Id α` and `α`
+@[deprecated run_map (since := "2025-03-05")] theorem map_eq (x : Id α) (f : α → β) : f <$> x = f x := rfl
+@[deprecated run_bind (since := "2025-03-05")] theorem bind_eq (x : Id α) (f : α → id β) : x >>= f = f x := rfl
+@[deprecated run_pure (since := "2025-03-05")] theorem pure_eq (a : α) : (pure a : Id α) = a := rfl
 
 end Id
 

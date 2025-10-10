@@ -3,10 +3,15 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Omega
-import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Simproc
+public import Init.Omega
+public import Init.Data.Nat.Lemmas
+public import Init.Data.Nat.Simproc
+import Init.TacticsExtra
+
+public section
 
 /-!
 # Further lemmas about `Nat.div` and `Nat.mod`, with the convenience of having `omega` available.
@@ -78,11 +83,15 @@ theorem lt_div_mul_self (h : 0 < k) (w : k ≤ x) : x - k < x / k * k := by
 theorem div_pos (hba : b ≤ a) (hb : 0 < b) : 0 < a / b := by
   cases b
   · contradiction
-  · simp [Nat.pos_iff_ne_zero, div_eq_zero_iff_lt, hba]
+  · simp [Nat.pos_iff_ne_zero, hba]
 
 theorem div_le_div_left (hcb : c ≤ b) (hc : 0 < c) : a / b ≤ a / c :=
   (Nat.le_div_iff_mul_le hc).2 <|
     Nat.le_trans (Nat.mul_le_mul_left _ hcb) (Nat.div_mul_le_self a b)
+
+protected theorem div_le_div {a b c d : Nat} (h1 : a ≤ b) (h2 : d ≤ c) (h3 : d ≠ 0) : a / c ≤ b / d :=
+  calc a / c ≤ b / c := Nat.div_le_div_right h1
+    _ ≤ b / d := Nat.div_le_div_left h2 (Nat.pos_of_ne_zero h3)
 
 theorem div_add_le_right {z : Nat} (h : 0 < z) (x y : Nat) :
     x / (y + z) ≤ x / z :=
@@ -104,7 +113,7 @@ theorem succ_div_of_dvd {a b : Nat} (h : b ∣ a + 1) :
           Nat.add_right_cancel_iff] at h
         subst h
         rw [Nat.add_sub_cancel, ← Nat.add_one_mul, mul_div_right _ (zero_lt_succ _), Nat.add_comm,
-          Nat.add_mul_div_left _ _ (zero_lt_succ _), Nat.self_eq_add_left, div_eq_of_lt le.refl]
+          Nat.add_mul_div_left _ _ (zero_lt_succ _), Nat.right_eq_add, div_eq_of_lt le.refl]
     · simp only [Nat.not_le] at h'
       replace h' : a + 1 < b + 1 := Nat.add_lt_add_right h' 1
       rw [Nat.mod_eq_of_lt h'] at h
@@ -203,5 +212,20 @@ theorem mod_mod_eq_mod_mod_mod_of_dvd {a b c : Nat} (hb : b ∣ c) :
   refine Or.elim (Nat.eq_zero_or_pos c) (by rintro rfl; simp) (fun hc => ?_)
   have : b < c := Nat.lt_of_le_of_ne (Nat.le_of_dvd hc hb) hb'
   rw [Nat.mod_mod_of_dvd' hb, Nat.mod_eq_of_lt this, Nat.mod_mod_of_dvd _ hb]
+
+theorem mod_eq_mod_iff {x y z : Nat} :
+    x % z = y % z ↔ ∃ k₁ k₂, x + k₁ * z = y + k₂ * z := by
+  constructor
+  · rw [Nat.mod_def, Nat.mod_def]
+    rw [Nat.sub_eq_iff_eq_add, Nat.add_comm, ← Nat.add_sub_assoc, eq_comm, Nat.sub_eq_iff_eq_add, eq_comm]
+    · intro h
+      refine ⟨(y / z), (x / z), ?_⟩
+      rwa [Nat.mul_comm z, Nat.add_comm _ y, Nat.mul_comm z] at h
+    · exact le_add_left_of_le (mul_div_le y z)
+    · exact mul_div_le y z
+    · exact mul_div_le x z
+  · rintro ⟨k₁, k₂, h⟩
+    replace h := congrArg (· % z) h
+    simpa using h
 
 end Nat

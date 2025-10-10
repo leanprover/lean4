@@ -3,14 +3,19 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-prelude
-import Init.Data.ToString
-import Init.System.FilePath
+module
 
-namespace Lake
+prelude
+public import Init.Data.ToString
+public import Init.System.FilePath
+import Init.Meta
+import Init.Data.ToString.Name
+
 open Lean (Name)
 
-inductive CliError
+namespace Lake
+
+public inductive CliError
 /- CLI Errors -/
 | missingCommand
 | unknownCommand (cmd : String)
@@ -26,6 +31,7 @@ inductive CliError
 | unknownConfigLang (spec : String)
 /- Build CLI Errors -/
 | unknownModule (mod : Name)
+| unknownModulePath (path : System.FilePath)
 | unknownPackage (spec : String)
 | unknownFacet (type : String) (facet : Name)
 | unknownTarget (target : Name)
@@ -52,7 +58,7 @@ deriving Inhabited, Repr
 
 namespace CliError
 
-protected def toString : CliError → String
+public protected def toString : CliError → String
 | missingCommand          => "missing command"
 | unknownCommand cmd      => s!"unknown command '{cmd}'"
 | missingArg arg          => s!"missing {arg}"
@@ -67,18 +73,19 @@ protected def toString : CliError → String
 | unknownTemplate spec    => s!"unknown package template `{spec}`"
 | unknownConfigLang spec  => s!"unknown configuration language `{spec}`"
 | unknownModule mod       => s!"unknown module `{mod.toString false}`"
+| unknownModulePath p     => s!"unknown module source path `{p}`"
 | unknownPackage spec     => s!"unknown package `{spec}`"
 | unknownFacet ty f       => s!"unknown {ty} facet `{f.toString false}`"
 | unknownTarget t         => s!"unknown target `{t.toString false}`"
 | missingModule pkg mod   => s!"package '{pkg.toString false}' has no module '{mod.toString false}'"
 | missingTarget pkg spec  => s!"package '{pkg.toString false}' has no target '{spec}'"
 | invalidBuildTarget t    => s!"'{t}' is not a build target (perhaps you meant 'lake query'?)"
-| invalidTargetSpec s c   => s!"invalid script spec '{s}' (too many '{c}')"
+| invalidTargetSpec s c   => s!"invalid target specifier '{s}' (too many '{c}')"
 | invalidFacet t f        => s!"invalid facet `{f.toString false}`; target {t.toString false} has no facets"
 | unknownExe s            => s!"unknown executable {s}"
 | unknownScript s         => s!"unknown script {s}"
 | missingScriptDoc s      => s!"no documentation provided for `{s}`"
-| invalidScriptSpec s     => s!"invalid script spec '{s}' (too many '/')"
+| invalidScriptSpec s     => s!"invalid script specifier '{s}' (too many '/')"
 | outputConfigExists f    => s!"output configuration file already exists: {f}"
 | unknownLeanInstall      => "could not detect a Lean installation"
 | unknownLakeInstall      => "could not detect the configuration of the Lake installation"
@@ -86,4 +93,4 @@ protected def toString : CliError → String
 | invalidEnv msg          => msg
 | missingRootDir p        => s!"workspace directory not found: {p}"
 
-instance : ToString CliError := ⟨CliError.toString⟩
+public instance : ToString CliError := ⟨CliError.toString⟩

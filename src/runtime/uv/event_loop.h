@@ -9,13 +9,16 @@ Author: Sofia Rodrigues
 #include "runtime/io.h"
 #include "runtime/object.h"
 
+#ifndef LEAN_EMSCRIPTEN
+#include <uv.h>
+#endif
+
 namespace lean {
 
 void initialize_libuv_loop();
 
 #ifndef LEAN_EMSCRIPTEN
 using namespace std;
-#include <uv.h>
 
 // Event loop structure for managing asynchronous events and synchronization across multiple threads.
 typedef struct {

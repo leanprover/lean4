@@ -52,7 +52,7 @@ instance : Friend Nat where
 def _root_.Bool.f (b : Friend.friend Nat) := !b
 
 variable (a : Bool)
-/-- info: Bool.f a : Bool -/
+/-- info: a.f : Bool -/
 #guard_msgs in #check a.f
 
 -- Semireducible definitions are not unfolded however.
@@ -61,7 +61,9 @@ def semifriend (α : Type) [Friend α] := Friend.friend α
 def _root_.Bool.g (b : semifriend Nat) := !b
 
 /--
-error: invalid field notation, function 'Bool.g' does not have argument with type (Bool ...) that can be used, it must be explicit or implicit with a unique name
+error: Invalid field notation: Function `Bool.g` does not have a usable parameter of type `Bool` for which to substitute `a`
+
+Note: Such a parameter must be explicit, or implicit with a unique name, to be used by field notation
 -/
 #guard_msgs in #check a.g
 

@@ -3,9 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Init.Data.Array.Lemmas
-import Init.Data.List.Nat.TakeDrop
+public import Init.Data.Array.Basic
+import all Init.Data.Array.Basic
+public import Init.Data.Array.Lemmas
+public import Init.Data.List.Nat.TakeDrop
+
+public section
 
 /-!
 These lemmas are used in the internals of HashMap.

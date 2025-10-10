@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.HashSet
-// Imports: Std.Data.HashSet.Basic Std.Data.HashSet.Lemmas
+// Imports: public import Std.Data.HashSet.Basic public import Std.Data.HashSet.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

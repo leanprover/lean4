@@ -10,7 +10,7 @@ def w : Array Nat :=
 #check @Array.casesOn
 
 def f : Fin w.size → Nat :=
-  fun i => w.get i i.isLt
+  fun i => w[i]'(i.isLt)
 
 def arraySum (a : Array Nat) : Nat :=
 a.foldl Nat.add 0
@@ -30,11 +30,11 @@ a.foldl Nat.add 0
 axiom axLt {a b : Nat} : a < b
 
 
-#guard #[1, 2, 3].insertAt 0 10 == #[10, 1, 2, 3]
-#guard #[1, 2, 3].insertAt 1 10 == #[1, 10, 2, 3]
-#guard #[1, 2, 3].insertAt 2 10 == #[1, 2, 10, 3]
-#guard #[1, 2, 3].insertAt 3 10 == #[1, 2, 3, 10]
-#guard #[].insertAt 0 10 == #[10]
+#guard #[1, 2, 3].insertIdx 0 10 == #[10, 1, 2, 3]
+#guard #[1, 2, 3].insertIdx 1 10 == #[1, 10, 2, 3]
+#guard #[1, 2, 3].insertIdx 2 10 == #[1, 2, 10, 3]
+#guard #[1, 2, 3].insertIdx 3 10 == #[1, 2, 3, 10]
+#guard #[].insertIdx 0 10 == #[10]
 
 def tst1 : IO Unit :=
 #[1, 2, 3, 4].forRevM IO.println

@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "tests"
+		},
+		{
+			"path": "script"
 		}
 	],
 	"settings": {
@@ -35,6 +38,15 @@
 				"group": {
 					"kind": "build",
 					"isDefault": true
+				}
+			},
+			{
+				"label": "build-old",
+				"type": "shell",
+				"command": "make -C build/release -j$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4) LAKE_EXTRA_ARGS=--old",
+				"problemMatcher": [],
+				"group": {
+					"kind": "build"
 				}
 			},
 			{

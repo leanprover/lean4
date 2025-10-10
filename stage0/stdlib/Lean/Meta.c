@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta
-// Imports: Lean.Meta.Basic Lean.Meta.LevelDefEq Lean.Meta.WHNF Lean.Meta.InferType Lean.Meta.FunInfo Lean.Meta.ExprDefEq Lean.Meta.DecLevel Lean.Meta.DiscrTree Lean.Meta.Reduce Lean.Meta.Instances Lean.Meta.AbstractMVars Lean.Meta.SynthInstance Lean.Meta.AppBuilder Lean.Meta.Sorry Lean.Meta.Tactic Lean.Meta.KAbstract Lean.Meta.RecursorInfo Lean.Meta.GeneralizeTelescope Lean.Meta.Match Lean.Meta.ReduceEval Lean.Meta.Closure Lean.Meta.AbstractNestedProofs Lean.Meta.ForEachExpr Lean.Meta.Transform Lean.Meta.PPGoal Lean.Meta.UnificationHint Lean.Meta.Inductive Lean.Meta.SizeOf Lean.Meta.IndPredBelow Lean.Meta.Coe Lean.Meta.CollectFVars Lean.Meta.GeneralizeVars Lean.Meta.Injective Lean.Meta.Structure Lean.Meta.Constructions Lean.Meta.CongrTheorems Lean.Meta.Eqns Lean.Meta.ExprLens Lean.Meta.ExprTraverse Lean.Meta.Eval Lean.Meta.CoeAttr Lean.Meta.Iterator Lean.Meta.LazyDiscrTree Lean.Meta.LitValues Lean.Meta.CheckTactic Lean.Meta.Canonicalizer Lean.Meta.Diagnostics Lean.Meta.BinderNameHint
+// Imports: public import Lean.Meta.Basic public import Lean.Meta.LevelDefEq public import Lean.Meta.WHNF public import Lean.Meta.InferType public import Lean.Meta.FunInfo public import Lean.Meta.ExprDefEq public import Lean.Meta.DecLevel public import Lean.Meta.DiscrTree public import Lean.Meta.Reduce public import Lean.Meta.Instances public import Lean.Meta.AbstractMVars public import Lean.Meta.SynthInstance public import Lean.Meta.AppBuilder public import Lean.Meta.Sorry public import Lean.Meta.Tactic public import Lean.Meta.KAbstract public import Lean.Meta.RecursorInfo public import Lean.Meta.GeneralizeTelescope public import Lean.Meta.Match public import Lean.Meta.ReduceEval public import Lean.Meta.Closure public import Lean.Meta.AbstractNestedProofs public import Lean.Meta.LetToHave public import Lean.Meta.ForEachExpr public import Lean.Meta.Transform public import Lean.Meta.PPGoal public import Lean.Meta.UnificationHint public import Lean.Meta.Inductive public import Lean.Meta.SizeOf public import Lean.Meta.IndPredBelow public import Lean.Meta.Coe public import Lean.Meta.CollectFVars public import Lean.Meta.GeneralizeVars public import Lean.Meta.Injective public import Lean.Meta.Structure public import Lean.Meta.Constructions public import Lean.Meta.CongrTheorems public import Lean.Meta.Eqns public import Lean.Meta.ExprLens public import Lean.Meta.ExprTraverse public import Lean.Meta.Eval public import Lean.Meta.CoeAttr public import Lean.Meta.Iterator public import Lean.Meta.LazyDiscrTree public import Lean.Meta.LitValues public import Lean.Meta.CheckTactic public import Lean.Meta.Canonicalizer public import Lean.Meta.Diagnostics public import Lean.Meta.BinderNameHint public import Lean.Meta.TryThis public import Lean.Meta.Hint public import Lean.Meta.MethodSpecs
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -35,6 +35,7 @@ lean_object* initialize_Lean_Meta_Match(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_ReduceEval(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Closure(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_AbstractNestedProofs(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_LetToHave(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_ForEachExpr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Transform(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_PPGoal(uint8_t builtin, lean_object*);
@@ -61,6 +62,9 @@ lean_object* initialize_Lean_Meta_CheckTactic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Canonicalizer(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Diagnostics(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_BinderNameHint(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_TryThis(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Hint(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_MethodSpecs(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -130,6 +134,9 @@ res = initialize_Lean_Meta_Closure(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_AbstractNestedProofs(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_LetToHave(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_ForEachExpr(builtin, lean_io_mk_world());
@@ -208,6 +215,15 @@ res = initialize_Lean_Meta_Diagnostics(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_BinderNameHint(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_TryThis(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Hint(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_MethodSpecs(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -1,5 +1,3 @@
-import Lean
-
 namespace Ex1
 
 variable (P : Nat → Prop)
@@ -11,24 +9,24 @@ def ackermann : (Nat × Nat) → Nat
 termination_by p => p
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : Nat → Prop
 m✝ : Nat
-⊢ P (ackermann (0, m✝))
+⊢ P (m✝ + 1)
 
 case case2
 P : Nat → Prop
 n✝ : Nat
 ih1✝ : P (ackermann (n✝, 1))
-⊢ P (ackermann (n✝.succ, 0))
+⊢ P (ackermann (n✝, 1))
 
 case case3
 P : Nat → Prop
 n✝ m✝ : Nat
 ih2✝ : P (ackermann (n✝ + 1, m✝))
 ih1✝ : P (ackermann (n✝, ackermann (n✝ + 1, m✝)))
-⊢ P (ackermann (n✝.succ, m✝.succ))
+⊢ P (ackermann (n✝, ackermann (n✝ + 1, m✝)))
 -/
 #guard_msgs in
 example : P (ackermann p) := by
@@ -36,21 +34,21 @@ example : P (ackermann p) := by
   fail
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : Nat → Prop
 m✝ : Nat
-⊢ P (ackermann (0, m✝))
+⊢ P (m✝ + 1)
 
 case case2
 P : Nat → Prop
 n✝ : Nat
-⊢ P (ackermann (n✝.succ, 0))
+⊢ P (ackermann (n✝, 1))
 
 case case3
 P : Nat → Prop
 n✝ m✝ : Nat
-⊢ P (ackermann (n✝.succ, m✝.succ))
+⊢ P (ackermann (n✝, ackermann (n✝ + 1, m✝)))
 -/
 #guard_msgs in
 example : P (ackermann p) := by
@@ -62,20 +60,20 @@ error: unsolved goals
 case case1
 P : Nat → Prop
 n m m✝ : Nat
-⊢ P (ackermann (0, m✝))
+⊢ P (m✝ + 1)
 
 case case2
 P : Nat → Prop
 n m n✝ : Nat
 ih1✝ : P (ackermann (n✝, 1))
-⊢ P (ackermann (n✝.succ, 0))
+⊢ P (ackermann (n✝, 1))
 
 case case3
 P : Nat → Prop
 n m n✝ m✝ : Nat
 ih2✝ : P (ackermann (n✝ + 1, m✝))
 ih1✝ : P (ackermann (n✝, ackermann (n✝ + 1, m✝)))
-⊢ P (ackermann (n✝.succ, m✝.succ))
+⊢ P (ackermann (n✝, ackermann (n✝ + 1, m✝)))
 -/
 #guard_msgs in
 example : P (ackermann (n, m)) := by
@@ -86,17 +84,17 @@ error: unsolved goals
 case case1
 P : Nat → Prop
 n m m✝ : Nat
-⊢ P (ackermann (0, m✝))
+⊢ P (m✝ + 1)
 
 case case2
 P : Nat → Prop
 n m n✝ : Nat
-⊢ P (ackermann (n✝.succ, 0))
+⊢ P (ackermann (n✝, 1))
 
 case case3
 P : Nat → Prop
 n m n✝ m✝ : Nat
-⊢ P (ackermann (n✝.succ, m✝.succ))
+⊢ P (ackermann (n✝, ackermann (n✝ + 1, m✝)))
 -/
 #guard_msgs in
 example : P (ackermann (n, m)) := by
@@ -142,27 +140,27 @@ error: unsolved goals
 case case1
 P : Nat → Prop
 m✝ : Nat
-⊢ P (ackermann 0 m✝)
+⊢ P (m✝ + 1)
 
 case case2
 P : Nat → Prop
 n✝ : Nat
 ih1✝ : P (ackermann n✝ 1)
-⊢ P (ackermann n✝.succ 0)
+⊢ P (ackermann n✝ 1)
 
 case case3
 P : Nat → Prop
 n✝ m✝ : Nat
 ih2✝ : P (ackermann (n✝ + 1) m✝)
 ih1✝ : P (ackermann n✝ (ackermann (n✝ + 1) m✝))
-⊢ P (ackermann n✝.succ m✝.succ)
+⊢ P (ackermann n✝ (ackermann (n✝ + 1) m✝))
 -/
 #guard_msgs in
 example : P (ackermann n m) := by
   fun_induction ackermann n m
 
 /--
-error: Expected fully applied application of 'ackermann' with 2 arguments, but found 1 arguments
+error: Expected fully applied application of `ackermann` with 2 arguments, but found 1 arguments
 -/
 #guard_msgs in
 example : P (ackermann n m) := by
@@ -186,7 +184,7 @@ case case1
 α : Type u_1
 P : List α → Prop
 inc ms✝ : List α
-⊢ P (ackermann inc [] ms✝)
+⊢ P (ms✝ ++ inc)
 
 case case2
 α : Type u_1
@@ -195,7 +193,7 @@ inc : List α
 head✝ : α
 ns✝ : List α
 ih1✝ : P (ackermann inc ns✝ inc)
-⊢ P (ackermann inc (head✝ :: ns✝) [])
+⊢ P (ackermann inc ns✝ inc)
 
 case case3
 α : Type u_1
@@ -207,21 +205,21 @@ head✝ : α
 ms✝ : List α
 ih2✝ : P (ackermann inc (n✝ :: ns✝) ms✝)
 ih1✝ : P (ackermann inc ns✝ (ackermann inc (n✝ :: ns✝) ms✝))
-⊢ P (ackermann inc (n✝ :: ns✝) (head✝ :: ms✝))
+⊢ P (ackermann inc ns✝ (ackermann inc (n✝ :: ns✝) ms✝))
 -/
 #guard_msgs in
 example : P (ackermann inc n m) := by
   fun_induction ackermann inc n m
 
 /--
-error: Expected fully applied application of 'ackermann' with 4 arguments, but found 3 arguments
+error: Expected fully applied application of `ackermann` with 4 arguments, but found 3 arguments
 -/
 #guard_msgs in
 example : P (ackermann inc n m) := by
   fun_induction ackermann inc n
 
 /--
-error: Expected fully applied application of 'ackermann' with 4 arguments, but found 2 arguments
+error: Expected fully applied application of `ackermann` with 4 arguments, but found 2 arguments
 -/
 #guard_msgs in
 example : P (ackermann inc n m) := by
@@ -240,21 +238,21 @@ def fib : Nat → Nat
 termination_by structural x => x
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : Nat → Prop
-⊢ P (fib 0)
+⊢ P 0
 
 case case2
 P : Nat → Prop
-⊢ P (fib 1)
+⊢ P 1
 
 case case3
 P : Nat → Prop
 n✝ : Nat
 ih2✝ : P (fib n✝)
 ih1✝ : P (fib (n✝ + 1))
-⊢ P (fib n✝.succ.succ)
+⊢ P (fib n✝ + fib (n✝ + 1))
 -/
 #guard_msgs in
 example : P (fib n) := by
@@ -294,7 +292,7 @@ info: StructuralWithOmittedParam.fib.induct (motive : Nat → Prop) (case1 : mot
 #check fib.induct -- NB: No inc showing up
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : Nat → Prop
 inc : Nat
@@ -318,23 +316,23 @@ example : P (fib 2 n) := by
   fail
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : Nat → Prop
 inc : Nat
-⊢ P (fib 2 0)
+⊢ P 0
 
 case case2
 P : Nat → Prop
 inc : Nat
-⊢ P (fib 2 1)
+⊢ P 2
 
 case case3
 P : Nat → Prop
 inc n✝ : Nat
 ih2✝ : P (fib 2 n✝)
 ih1✝ : P (fib 2 (n✝ + 1))
-⊢ P (fib 2 n✝.succ.succ)
+⊢ P (fib 2 n✝ + fib 2 (n✝ + 1))
 -/
 #guard_msgs in
 example : P (fib 2 n) := by
@@ -391,7 +389,7 @@ namespace Nonrec
 
 def foo := 1
 
-/-- error: no functional cases theorem for 'foo', or function is mutually recursive -/
+/-- error: No functional induction theorem for `foo`, or function is mutually recursive -/
 #guard_msgs in
 example : True := by
   fun_induction foo
@@ -415,7 +413,7 @@ def Tree.size_aux : List (Tree α) → Nat
   | t :: ts => size t + size_aux ts
 end
 
-/-- error: no functional cases theorem for 'Tree.size', or function is mutually recursive -/
+/-- error: No functional induction theorem for `Tree.size`, or function is mutually recursive -/
 #guard_msgs in
 example (t : Tree α) : True := by
   fun_induction Tree.size t

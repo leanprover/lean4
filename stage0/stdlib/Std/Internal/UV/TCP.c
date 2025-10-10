@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.UV.TCP
-// Imports: Init.System.IO Init.System.Promise Init.Data.SInt Std.Net
+// Imports: public import Init.System.IO public import Init.System.Promise public import Init.Data.SInt public import Std.Net
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_keepAlive___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_uv_tcp_bind(lean_object*, lean_object*, lean_object*);
 lean_object* lean_uv_tcp_getsockname(lean_object*, lean_object*);
+lean_object* lean_uv_tcp_cancel_recv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_UV_TCP_0__Std_Internal_UV_TCP_SocketImpl;
 lean_object* lean_uv_tcp_connect(lean_object*, lean_object*, lean_object*);
 lean_object* lean_uv_tcp_getpeername(lean_object*, lean_object*);
@@ -27,15 +28,18 @@ lean_object* lean_uv_tcp_new(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_getPeerName___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_tcp_listen(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_new___boxed(lean_object*);
+lean_object* lean_uv_tcp_wait_readable(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_bind___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_uv_tcp_accept(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_listen___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_uv_tcp_keepalive(lean_object*, uint8_t, uint32_t, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_waitReadable___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_getSockName___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_accept___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_tcp_recv(lean_object*, uint64_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_send___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_noDelay___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_cancelRecv___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_tcp_shutdown(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_shutdown___boxed(lean_object*, lean_object*);
 static lean_object* _init_l___private_Std_Internal_UV_TCP_0__Std_Internal_UV_TCP_SocketImpl() {
@@ -57,7 +61,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_uv_tcp_connect(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_4;
 }
@@ -82,12 +86,30 @@ lean_dec(x_1);
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_waitReadable___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_uv_tcp_wait_readable(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_cancelRecv___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_uv_tcp_cancel_recv(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_bind___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
 x_4 = lean_uv_tcp_bind(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_4;
 }
@@ -153,7 +175,6 @@ _start:
 {
 uint8_t x_5; uint32_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox_uint32(x_3);
 lean_dec(x_3);
 x_7 = lean_uv_tcp_keepalive(x_1, x_5, x_6, x_4);

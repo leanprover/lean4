@@ -6,14 +6,14 @@
 If the body of a `have` fails to elaborate, the tactic completes with a `sorry` for the proof.
 -/
 /--
-error: type mismatch
+error: Type mismatch
   False.elim
 has type
-  False → ?m.6 : Sort ?u.5
+  False → ?m.2
 but is expected to have type
-  True : Prop
+  True
 ---
-info: h : True
+trace: h : True
 ⊢ True
 -/
 #guard_msgs in

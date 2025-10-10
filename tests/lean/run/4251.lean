@@ -1,5 +1,6 @@
 /--
-info: Try this: simp only [ha, Nat.reduceEqDiff, imp_self]
+info: Try this:
+  simp only [ha, Nat.reduceEqDiff, imp_self]
 -/
 #guard_msgs in
 theorem foo₁ (a : Nat) (ha : a = 37) :

@@ -142,7 +142,7 @@ def Iter.Partial.fold {α : Type w} {β : Type w} {γ : Type x} [Iterator α Id 
 set_option doc.verso true in
 /--
 Returns {lean}`true` if the monadic predicate {name}`p` returns {lean}`true` for
-any element emitted by a the iterator {name}`it`.
+any element emitted by the iterator {name}`it`.
 
 {lit}`O(|xs|)`. Short-circuits upon encountering the first match. The elements in {name}`it` are
 examined in order of iteration.
@@ -160,7 +160,7 @@ def Iter.anyM {α β : Type w} {m : Type → Type w'} [Monad m]
 set_option doc.verso true in
 /--
 Returns {lean}`true` if the pure predicate {name}`p` returns {lean}`true` for
-any element emitted by a the iterator {name}`it`.
+any element emitted by the iterator {name}`it`.
 
 {lit}`O(|xs|)`. Short-circuits upon encountering the first match. The elements in {name}`it` are
 examined in order of iteration.
@@ -174,7 +174,7 @@ def Iter.any {α β : Type w}
 set_option doc.verso true in
 /--
 Returns {lean}`true` if the monadic predicate {name}`p` returns {lean}`true` for
-all elements emitted by a the iterator {name}`it`.
+all elements emitted by the iterator {name}`it`.
 
 {lit}`O(|xs|)`. Short-circuits upon encountering the first mismatch. The elements in {name}`it` are
 examined in order of iteration.
@@ -192,7 +192,7 @@ def Iter.allM {α β : Type w} {m : Type → Type w'} [Monad m]
 set_option doc.verso true in
 /--
 Returns {lean}`true` if the pure predicate {name}`p` returns {lean}`true` for
-all elements emitted by a the iterator {name}`it`.
+all elements emitted by the iterator {name}`it`.
 
 {lit}`O(|xs|)`. Short-circuits upon encountering the first mismatch. The elements in {name}`it` are
 examined in order of iteration.

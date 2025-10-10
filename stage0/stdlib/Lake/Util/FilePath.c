@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.FilePath
-// Imports: Lean.Data.Json
+// Imports: public import Lean.Data.Json
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,7 @@ uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* l_String_stripSuffix(lean_object*, lean_object*);
 lean_object* l_System_FilePath_join(lean_object*, lean_object*);
 lean_object* l_System_FilePath_normalize(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instHDivFilePathString__lake___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToJsonFilePath__lake;
 LEAN_EXPORT lean_object* l_Lake_instHDivFilePathString__lake___lam__0(lean_object*, lean_object*);
 lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
@@ -35,6 +36,7 @@ lean_object* l_System_FilePath_components(lean_object*);
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_joinRelative___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___Lake_modOfFilePath_spec__0(lean_object*, lean_object*);
 extern uint32_t l_System_FilePath_pathSeparator;
 lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
@@ -203,21 +205,30 @@ return x_6;
 else
 {
 lean_dec_ref(x_1);
+lean_inc_ref(x_2);
 return x_2;
 }
 }
 else
 {
-lean_dec_ref(x_2);
 return x_1;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lake_joinRelative___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lake_joinRelative(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lake_instDivFilePath__lake___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_joinRelative), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lake_joinRelative___boxed), 2, 0);
 return x_1;
 }
 }
@@ -241,8 +252,17 @@ static lean_object* _init_l_Lake_instHDivFilePathString__lake() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_instHDivFilePathString__lake___lam__0), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lake_instHDivFilePathString__lake___lam__0___boxed), 2, 0);
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instHDivFilePathString__lake___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lake_instHDivFilePathString__lake___lam__0(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
 }
 }
 static uint32_t _init_l___private_Lake_Util_FilePath_0__Lake_modOfFilePath_removeExts___closed__0() {

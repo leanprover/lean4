@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Dyadic.Instances
-// Imports: Init.Data.Dyadic.Basic Init.Grind.Ring.Basic Init.Grind.Ordered.Ring
+// Imports: public import Init.Data.Dyadic.Basic public import Init.Grind.Ring.Basic public import Init.Grind.Ordered.Ring
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

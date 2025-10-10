@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Simp.BuiltinSimprocs
-// Imports: Lean.Meta.Tactic.Simp.BuiltinSimprocs.Core Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat Lean.Meta.Tactic.Simp.BuiltinSimprocs.Fin Lean.Meta.Tactic.Simp.BuiltinSimprocs.UInt Lean.Meta.Tactic.Simp.BuiltinSimprocs.SInt Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int Lean.Meta.Tactic.Simp.BuiltinSimprocs.Char Lean.Meta.Tactic.Simp.BuiltinSimprocs.String Lean.Meta.Tactic.Simp.BuiltinSimprocs.BitVec Lean.Meta.Tactic.Simp.BuiltinSimprocs.List Lean.Meta.Tactic.Simp.BuiltinSimprocs.Array Lean.Meta.Tactic.Simp.BuiltinSimprocs.MethodSpecs Lean.Meta.Tactic.Simp.BuiltinSimprocs.CtorIdx
+// Imports: public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Core public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Fin public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.UInt public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.SInt public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Char public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.String public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.BitVec public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.List public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Array public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.MethodSpecs public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.CtorIdx
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

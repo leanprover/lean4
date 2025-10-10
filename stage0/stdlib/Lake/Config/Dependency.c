@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Dependency
-// Imports: Init.Dynamic Init.System.FilePath Lean.Data.NameMap.Basic Init.Data.ToString.Name
+// Imports: public import Init.Dynamic public import Init.System.FilePath public import Lean.Data.NameMap.Basic import Init.Data.ToString.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -734,6 +734,7 @@ x_5 = lean_string_append(x_3, x_4);
 x_6 = 1;
 x_7 = l_Lean_Name_toString(x_2, x_6);
 x_8 = lean_string_append(x_5, x_7);
+lean_dec_ref(x_7);
 return x_8;
 }
 }

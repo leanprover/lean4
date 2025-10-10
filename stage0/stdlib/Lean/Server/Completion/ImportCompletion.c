@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Completion.ImportCompletion
-// Imports: Lean.Data.NameTrie Lean.Util.LakePath Lean.Data.Lsp Lean.Parser.Module Lean.Parser.Module
+// Imports: public import Lean.Data.NameTrie public import Lean.Util.LakePath public import Lean.Data.Lsp public import Lean.Parser.Module meta import Lean.Parser.Module
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2280,7 +2280,6 @@ x_17 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_17, 0, x_14);
 lean_ctor_set(x_17, 1, x_15);
 lean_ctor_set(x_17, 2, x_16);
-lean_inc_ref(x_2);
 x_18 = lean_string_length(x_2);
 x_19 = l_Substring_nextn(x_17, x_18, x_15);
 lean_dec_ref(x_17);
@@ -2445,16 +2444,16 @@ if (x_26 == 0)
 {
 lean_inc(x_25);
 x_6 = x_22;
-x_7 = x_23;
-x_8 = x_25;
+x_7 = x_25;
+x_8 = x_23;
 x_9 = x_25;
 goto block_13;
 }
 else
 {
 x_6 = x_22;
-x_7 = x_23;
-x_8 = x_25;
+x_7 = x_25;
+x_8 = x_23;
 x_9 = x_20;
 goto block_13;
 }
@@ -2654,12 +2653,12 @@ return x_4;
 block_13:
 {
 uint8_t x_10; 
-lean_dec(x_7);
-x_10 = lean_nat_dec_le(x_9, x_8);
+lean_dec(x_8);
+x_10 = lean_nat_dec_le(x_9, x_7);
 if (x_10 == 0)
 {
 lean_object* x_11; 
-lean_dec(x_8);
+lean_dec(x_7);
 lean_inc(x_9);
 x_11 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___ImportCompletion_computePartialImportCompletions_spec__0___redArg(x_6, x_9, x_9);
 lean_dec(x_9);
@@ -2668,8 +2667,8 @@ return x_11;
 else
 {
 lean_object* x_12; 
-x_12 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___ImportCompletion_computePartialImportCompletions_spec__0___redArg(x_6, x_9, x_8);
-lean_dec(x_8);
+x_12 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___ImportCompletion_computePartialImportCompletions_spec__0___redArg(x_6, x_9, x_7);
+lean_dec(x_7);
 return x_12;
 }
 }
@@ -3133,6 +3132,7 @@ x_6 = l_Array_fromJson_x3f___at___ImportCompletion_collectAvailableImportsFromLa
 x_7 = lean_unsigned_to_nat(80u);
 x_8 = l_Lean_Json_pretty(x_1, x_7);
 x_9 = lean_string_append(x_6, x_8);
+lean_dec_ref(x_8);
 x_10 = l_Array_fromJson_x3f___at___ImportCompletion_collectAvailableImportsFromLake_spec__2___closed__1;
 x_11 = lean_string_append(x_9, x_10);
 x_12 = lean_alloc_ctor(0, 1, 0);
@@ -3343,6 +3343,7 @@ block_37:
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 x_33 = l_ImportCompletion_collectAvailableImportsFromLake___closed__5;
 x_34 = lean_string_append(x_33, x_32);
+lean_dec_ref(x_32);
 x_35 = lean_mk_io_user_error(x_34);
 if (lean_is_scalar(x_24)) {
  x_36 = lean_alloc_ctor(1, 2, 0);
@@ -3483,6 +3484,7 @@ block_66:
 lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; 
 x_62 = l_ImportCompletion_collectAvailableImportsFromLake___closed__5;
 x_63 = lean_string_append(x_62, x_61);
+lean_dec_ref(x_61);
 x_64 = lean_mk_io_user_error(x_63);
 if (lean_is_scalar(x_53)) {
  x_65 = lean_alloc_ctor(1, 2, 0);
@@ -4664,6 +4666,7 @@ x_8 = lean_array_uset(x_4, x_3, x_7);
 x_9 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___ImportCompletion_find_spec__1___closed__0;
 x_10 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_6, x_1);
 x_11 = lean_string_append(x_9, x_10);
+lean_dec_ref(x_10);
 x_12 = lean_box(0);
 x_13 = lean_alloc_ctor(0, 8, 0);
 lean_ctor_set(x_13, 0, x_11);

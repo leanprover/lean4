@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Polymorphic
-// Imports: Init.Data.Range.Polymorphic.Basic Init.Data.Range.Polymorphic.Iterators Init.Data.Range.Polymorphic.Stream Init.Data.Range.Polymorphic.Lemmas Init.Data.Range.Polymorphic.Nat Init.Data.Range.Polymorphic.Int Init.Data.Range.Polymorphic.BitVec Init.Data.Range.Polymorphic.UInt Init.Data.Range.Polymorphic.NatLemmas Init.Data.Range.Polymorphic.GetElemTactic
+// Imports: public import Init.Data.Range.Polymorphic.Basic public import Init.Data.Range.Polymorphic.Iterators public import Init.Data.Range.Polymorphic.Stream public import Init.Data.Range.Polymorphic.Lemmas public import Init.Data.Range.Polymorphic.Nat public import Init.Data.Range.Polymorphic.Int public import Init.Data.Range.Polymorphic.BitVec public import Init.Data.Range.Polymorphic.UInt public import Init.Data.Range.Polymorphic.NatLemmas public import Init.Data.Range.Polymorphic.GetElemTactic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -25,6 +25,7 @@
         } ({
           buildInputs = with pkgs; [
             cmake gmp libuv ccache pkg-config
+            llvmPackages.bintools  # wrapped lld
             llvmPackages.llvm  # llvm-symbolizer for asan/lsan
             gdb
             tree  # for CI

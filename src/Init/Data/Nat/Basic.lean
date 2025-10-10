@@ -19,12 +19,12 @@ namespace Nat
 
 /-- Compiled version of `Nat.rec` so that we can define `Nat.recAux` to be defeq to `Nat.rec`.
 This is working around the fact that the compiler does not currently support recursors. -/
-private def recCompiled {motive : Nat → Sort u} (zero : motive zero) (succ : (n : Nat) → motive n → motive (Nat.succ n)) : (t : Nat) → motive t
+def recCompiled {motive : Nat → Sort u} (zero : motive zero) (succ : (n : Nat) → motive n → motive (Nat.succ n)) : (t : Nat) → motive t
   | .zero => zero
   | .succ n => succ n (recCompiled zero succ n)
 
 @[csimp]
-private theorem rec_eq_recCompiled : @Nat.rec = @Nat.recCompiled :=
+theorem rec_eq_recCompiled : @Nat.rec = @Nat.recCompiled :=
   funext fun _ => funext fun _ => funext fun succ => funext fun t =>
     Nat.recOn t rfl (fun n ih => congrArg (succ n) ih)
 

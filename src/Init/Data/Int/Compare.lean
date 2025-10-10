@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Ord.Basic
 import all Init.Data.Ord.Basic
 public import Init.Data.Int.Order
+import Init.Omega
 
 public section
 

@@ -235,7 +235,7 @@ theorem fib_triple : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n�
   if h : n = 0 then simp [h] else
   simp only [h, reduceIte]
   mspec -- Spec.pure
-  mspec Spec.forIn_range (⇓ ⟨xs, a, b⟩ => ⌜a = fib_spec xs.prefix.length ∧ b = fib_spec (xs.prefix.length + 1)⌝) ?step
+  mspec Spec.forIn_range (⇓ ⟨xs, a, b⟩ => ⌜a = fib_spec xs.pos ∧ b = fib_spec (xs.pos + 1)⌝) ?step
   case step => intros; mintro _; simp_all
   simp_all [Nat.sub_one_add_one]
 
@@ -246,7 +246,7 @@ theorem fib_triple_cases : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_sp
   mintro -
   simp only [fib_impl, h, reduceIte]
   mspec
-  mspec Spec.forIn_range (⇓ ⟨xs, a, b⟩ => ⌜a = fib_spec xs.prefix.length ∧ b = fib_spec (xs.prefix.length + 1)⌝) ?step
+  mspec Spec.forIn_range (⇓ ⟨xs, a, b⟩ => ⌜a = fib_spec xs.pos ∧ b = fib_spec (xs.pos + 1)⌝) ?step
   case step => intros; mintro _; mspec; mspec; simp_all
   simp_all [Nat.sub_one_add_one]
 
@@ -279,7 +279,7 @@ theorem fib_impl_vcs
 
 theorem fib_triple_vcs : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n⌝⦄ := by
   apply fib_impl_vcs
-  case I => intro n hn; exact (⇓ ⟨xs, a, b⟩ => ⌜a = fib_spec xs.prefix.length ∧ b = fib_spec (xs.prefix.length + 1)⌝)
+  case I => intro n hn; exact (⇓ ⟨xs, a, b⟩ => ⌜a = fib_spec xs.pos ∧ b = fib_spec (xs.pos + 1)⌝)
   case ret => mpure_intro; rfl
   case loop_pre => intros; mpure_intro; trivial
   case loop_post => simp_all [Nat.sub_one_add_one]
@@ -291,6 +291,24 @@ theorem fib_correct {n} : (fib_impl n).run = fib_spec n := by
   apply fib_triple
 
 end fib
+
+section regressions
+
+def mySum (l : Array Nat) : Nat := Id.run do
+  let mut out := 0
+  for i in l do
+    out := out + i
+  return out
+
+theorem mySum_correct (l : Array Nat) : mySum l = l.sum := by
+  generalize h : mySum l = x
+  apply Id.of_wp_run_eq h
+  -- This tests that `mspec` properly replaces the main goal.
+  -- Previously, we would get `No goals to be solved` here.
+  mspec
+  all_goals admit
+
+end regressions
 
 section WeNeedAProofMode
 
@@ -347,14 +365,14 @@ theorem fib_triple : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n�
   unfold fib_impl
   mvcgen
   case inv1 => exact ⇓ (xs, ⟨a, b⟩) =>
-    ⌜a = fib_spec xs.prefix.length ∧ b = fib_spec (xs.prefix.length + 1)⌝
+    ⌜a = fib_spec xs.pos ∧ b = fib_spec (xs.pos + 1)⌝
   all_goals simp_all +zetaDelta [Nat.sub_one_add_one]
 
 theorem fib_triple_step : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n⌝⦄ := by
   unfold fib_impl
   mvcgen (stepLimit := some 14) -- 13 still has a wp⟦·⟧
   case inv1 => exact ⇓ ⟨xs, a, b⟩ =>
-    ⌜a = fib_spec xs.prefix.length ∧ b = fib_spec (xs.prefix.length + 1)⌝
+    ⌜a = fib_spec xs.pos ∧ b = fib_spec (xs.pos + 1)⌝
   all_goals simp_all +zetaDelta [Nat.sub_one_add_one]
 
 attribute [local spec] fib_triple in
@@ -656,7 +674,7 @@ def max_and_sum (xs : Array Nat) : Id (Nat × Nat) := do
 theorem max_and_sum_spec (xs : Array Nat) :
     ⦃⌜∀ i, (h : i < xs.size) → xs[i] ≥ 0⌝⦄ max_and_sum xs ⦃⇓ (m, s) => ⌜s ≤ m * xs.size⌝⦄ := by
   mvcgen [max_and_sum]
-  case inv1 => exact (⇓ ⟨xs, m, s⟩ => ⌜s ≤ m * xs.prefix.length⌝)
+  case inv1 => exact (⇓ ⟨xs, m, s⟩ => ⌜s ≤ m * xs.pos⌝)
   all_goals simp_all
   · rw [Nat.left_distrib]
     simp +zetaDelta only [Nat.mul_one, Nat.add_le_add_iff_right]
@@ -803,14 +821,14 @@ theorem naive_expo_correct (x n : Nat) : naive_expo x n = x^n := by
   generalize h : naive_expo x n = r
   apply Id.of_wp_run_eq h
   mvcgen
-  case inv1 => exact ⇓⟨xs, r⟩ => ⌜r = x^xs.prefix.length⌝
+  case inv1 => exact ⇓⟨xs, r⟩ => ⌜r = x^xs.pos⌝
   all_goals simp_all [Nat.pow_add_one]
 
 theorem fast_expo_correct (x n : Nat) : fast_expo x n = x^n := by
   generalize h : fast_expo x n = r
   apply Id.of_wp_run_eq h
   mvcgen
-  case inv1 => exact ⇓⟨xs, e, x', y⟩ => ⌜x' ^ e * y = x ^ n ∧ e ≤ n - xs.prefix.length⌝
+  case inv1 => exact ⇓⟨xs, e, x', y⟩ => ⌜x' ^ e * y = x ^ n ∧ e ≤ n - xs.pos⌝
   all_goals simp_all
   case vc1 b _ _ _ _ _ _ ih =>
     obtain ⟨e, y, x'⟩ := b

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Linter
-// Imports: Lean.Linter.Util Lean.Linter.Builtin Lean.Linter.ConstructorAsVariable Lean.Linter.Deprecated Lean.Linter.DocsOnAlt Lean.Linter.UnusedVariables Lean.Linter.MissingDocs Lean.Linter.Omit Lean.Linter.List Lean.Linter.Sets Lean.Linter.UnusedSimpArgs
+// Imports: public import Lean.Linter.Util public import Lean.Linter.Builtin public import Lean.Linter.ConstructorAsVariable public import Lean.Linter.Deprecated public import Lean.Linter.DocsOnAlt public import Lean.Linter.UnusedVariables public import Lean.Linter.MissingDocs public import Lean.Linter.Omit public import Lean.Linter.List public import Lean.Linter.Sets public import Lean.Linter.UnusedSimpArgs
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

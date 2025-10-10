@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Notation
-// Imports: Init.Coe
+// Imports: public import Init.Coe
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

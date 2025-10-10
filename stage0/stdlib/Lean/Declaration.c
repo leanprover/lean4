@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Declaration
-// Imports: Lean.Expr
+// Imports: public import Lean.Expr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1546,9 +1546,14 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_DefinitionSafety_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_DefinitionSafety_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Lean_DefinitionSafety_ctorIdx(x_1);
+x_4 = l_Lean_DefinitionSafety_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = lean_alloc_closure((void*)(l_Lean_DefinitionSafety_noConfusion___redArg___lam__0___boxed), 1, 0);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_DefinitionSafety_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
@@ -5167,9 +5172,14 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_QuotKind_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Lean_QuotKind_noConfusion___redArg___closed__0;
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Lean_QuotKind_ctorIdx(x_1);
+x_4 = l_Lean_QuotKind_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = l_Lean_QuotKind_noConfusion___redArg___closed__0;
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_QuotKind_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
@@ -6019,6 +6029,7 @@ x_16 = l_Lean_ConstantInfo_name(x_1);
 x_17 = 1;
 x_18 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_16, x_17);
 x_19 = lean_string_append(x_15, x_18);
+lean_dec_ref(x_18);
 x_20 = l_Lean_ConstantInfo_value_x21___closed__4;
 x_21 = lean_string_append(x_19, x_20);
 x_22 = l_mkPanicMessageWithDecl(x_11, x_12, x_13, x_14, x_21);

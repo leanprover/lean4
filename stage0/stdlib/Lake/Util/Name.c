@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Name
-// Imports: Lean.Data.Json Lean.Data.NameMap.Basic Lake.Util.RBArray Init.Data.Ord.String Init.Data.Ord.UInt Init.Prelude Lean.Data.Name
+// Imports: public import Lean.Data.Json public import Lean.Data.NameMap.Basic public import Lake.Util.RBArray import Init.Data.Ord.String import Init.Data.Ord.UInt import all Init.Prelude import all Lean.Data.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

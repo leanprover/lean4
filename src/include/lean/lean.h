@@ -1155,6 +1155,9 @@ static inline uint8_t lean_string_dec_eq(b_lean_obj_arg s1, b_lean_obj_arg s2) {
 static inline uint8_t lean_string_dec_lt(b_lean_obj_arg s1, b_lean_obj_arg s2) { return lean_string_lt(s1, s2); }
 LEAN_EXPORT uint64_t lean_string_hash(b_lean_obj_arg);
 LEAN_EXPORT lean_obj_res lean_string_of_usize(size_t);
+LEAN_EXPORT uint8_t lean_slice_memcmp(b_lean_obj_arg s1, b_lean_obj_arg s2, b_lean_obj_arg lstart, b_lean_obj_arg rstart, b_lean_obj_arg len);
+LEAN_EXPORT uint64_t lean_slice_hash(b_lean_obj_arg);
+LEAN_EXPORT uint8_t lean_slice_dec_lt(b_lean_obj_arg s1, b_lean_obj_arg s2);
 
 /* Thunks */
 

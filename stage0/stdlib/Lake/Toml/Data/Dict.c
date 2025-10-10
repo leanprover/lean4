@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Toml.Data.Dict
-// Imports: Lean.Data.NameMap.Basic Init.Data.Nat.Fold
+// Imports: public import Lean.Data.NameMap.Basic import Init.Data.Nat.Fold
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

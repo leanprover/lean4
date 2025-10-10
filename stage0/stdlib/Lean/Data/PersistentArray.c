@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.PersistentArray
-// Imports: Init.Data.Nat.Fold Init.Data.Array.Basic Init.NotationExtra Init.Data.ToString.Macro Init.Data.UInt.Basic Init.Data.String.Basic
+// Imports: public import Init.Data.Nat.Fold public import Init.Data.Array.Basic public import Init.NotationExtra public import Init.Data.ToString.Macro public import Init.Data.UInt.Basic import Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -7397,14 +7397,17 @@ lean_dec_ref(x_1);
 x_5 = l_Lean_PersistentArray_Stats_toString___closed__0;
 x_6 = l_Nat_reprFast(x_2);
 x_7 = lean_string_append(x_5, x_6);
+lean_dec_ref(x_6);
 x_8 = l_Lean_PersistentArray_Stats_toString___closed__1;
 x_9 = lean_string_append(x_7, x_8);
 x_10 = l_Nat_reprFast(x_3);
 x_11 = lean_string_append(x_9, x_10);
+lean_dec_ref(x_10);
 x_12 = l_Lean_PersistentArray_Stats_toString___closed__2;
 x_13 = lean_string_append(x_11, x_12);
 x_14 = l_Nat_reprFast(x_4);
 x_15 = lean_string_append(x_13, x_14);
+lean_dec_ref(x_14);
 x_16 = l_Lean_PersistentArray_Stats_toString___closed__3;
 x_17 = lean_string_append(x_15, x_16);
 return x_17;

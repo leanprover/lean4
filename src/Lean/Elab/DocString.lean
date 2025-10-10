@@ -1171,23 +1171,21 @@ register_builtin_option doc.verso.suggestions : Bool := {
 -- during bootstrapping, the names in question may not yet be defined, so builtin
 -- names need special handling.
 private def suggestionName (name : Name) : TermElabM Name := do
-  try
-    if (← getEnv).contains name then
-      unresolveNameGlobalAvoidingLocals name
-    else
-      builtinFallback
-  catch
-    | _ => builtinFallback
-where
-  builtinFallback := do
-    let name' ←
-      if (← builtinDocRoles.get).contains name then pure (some name)
-      else if (← builtinDocCodeBlocks.get).contains name then pure (some name)
-      else pure none
-    match name' with
-      | some (.str _ s) => return .str .anonymous s
-      | some n => return n
-      | none => return name
+  let name' ←
+    -- Builtin expander names never need namespacing
+    if (← builtinDocRoles.get).contains name then pure (some name)
+    else if (← builtinDocCodeBlocks.get).contains name then pure (some name)
+    else pure none
+  match name' with
+    | some (.str _ s) => return .str .anonymous s
+    | some n => return n
+    | none =>
+      -- If it exists, unresolve it
+      if (← getEnv).contains name then
+        unresolveNameGlobalAvoidingLocals name
+      else
+        -- Fall back to doing nothing
+        pure name
 
 private def sortSuggestions (ss : Array Meta.Hint.Suggestion) : Array Meta.Hint.Suggestion :=
   let cmp : (x y : Meta.Tactic.TryThis.SuggestionText) → Bool
@@ -1606,10 +1604,12 @@ private def warnUnusedRefs : DocM Unit := do
 /-- Elaborates a sequence of blocks into a document. -/
 public def elabBlocks (blocks : TSyntaxArray `block) :
     DocM (Array (Block ElabInline ElabBlock) × Array (Part ElabInline ElabBlock Empty)) := do
-  let (v, _) ← elabBlocks' 0 |>.run blocks
-  let res ← fixupBlocks v
-  warnUnusedRefs
-  return res
+  -- Users should not need to make import needed for embedded terms public
+  withoutExporting do
+    let (v, _) ← elabBlocks' 0 |>.run blocks
+    let res ← fixupBlocks v
+    warnUnusedRefs
+    return res
 
 /-- Elaborates a sequence of blocks into a module doc snippet. -/
 public def elabModSnippet

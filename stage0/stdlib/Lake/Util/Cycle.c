@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Cycle
-// Imports: Init.Control.Except Init.Data.ToString Init.Data.String.Basic
+// Imports: public import Init.Control.Except public import Init.Data.ToString import Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -84,6 +84,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_3 = l_Lake_formatCycle___redArg___lam__0___closed__0;
 x_4 = lean_apply_1(x_1, x_2);
 x_5 = lean_string_append(x_3, x_4);
+lean_dec_ref(x_4);
 return x_5;
 }
 }

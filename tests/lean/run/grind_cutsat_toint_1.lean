@@ -90,7 +90,7 @@ example (a b : Fin 3) : a > 0 → a ≠ b → a + b ≠ 0 → a + b ≠ 1 → Fa
   grind
 
 -- We use `↑a` when pretty printing `ToInt.toInt a`
-/-- trace: [grind.debug.ring.basis] ↑a + ↑b + -3 * ((↑a + ↑b) / 3) + -1 * ((↑a + ↑b) % 3) = 0 -/
+/-- trace: [grind.debug.ring.basis] (↑a + ↑b) % 3 + -1 * ↑a + -1 * ↑b + 3 * ((↑a + ↑b) / 3) = 0 -/
 #guard_msgs (drop error, trace) in
 set_option trace.grind.debug.ring.basis true in
 example (a b : Fin 3) : a > 0 → a ≠ b → a + b ≠ 0 → a + b ≠ 1 → False := by

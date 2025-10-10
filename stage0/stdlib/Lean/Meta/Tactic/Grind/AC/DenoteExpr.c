@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.AC.DenoteExpr
-// Imports: Lean.Meta.Tactic.Grind.AC.Util Lean.Meta.AppBuilder
+// Imports: public import Lean.Meta.Tactic.Grind.AC.Util import Lean.Meta.AppBuilder
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

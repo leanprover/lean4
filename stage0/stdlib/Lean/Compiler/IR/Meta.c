@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.Meta
-// Imports: Lean.Compiler.IR.CompilerM Lean.Compiler.MetaAttr
+// Imports: public import Lean.Compiler.IR.CompilerM public import Lean.Compiler.MetaAttr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3072,7 +3072,7 @@ lean_inc_ref(x_9);
 lean_dec(x_7);
 x_10 = l_Lean_Environment_header(x_9);
 lean_dec_ref(x_9);
-x_11 = lean_ctor_get_uint8(x_10, sizeof(void*)*5 + 4);
+x_11 = lean_ctor_get_uint8(x_10, sizeof(void*)*6 + 4);
 lean_dec_ref(x_10);
 if (x_11 == 0)
 {
@@ -3132,7 +3132,7 @@ lean_inc_ref(x_23);
 lean_dec(x_21);
 x_24 = l_Lean_Environment_header(x_23);
 lean_dec_ref(x_23);
-x_25 = lean_ctor_get_uint8(x_24, sizeof(void*)*5 + 4);
+x_25 = lean_ctor_get_uint8(x_24, sizeof(void*)*6 + 4);
 lean_dec_ref(x_24);
 if (x_25 == 0)
 {

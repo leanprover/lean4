@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.ExtHashMap.Basic
-// Imports: Std.Data.ExtDHashMap.Basic
+// Imports: public import Std.Data.ExtDHashMap.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.ShareCommon
-// Imports: Init.ShareCommon Std.Data.HashSet.Basic Std.Data.HashMap.Basic Lean.Data.PersistentHashMap Lean.Data.PersistentHashSet
+// Imports: public import Init.ShareCommon public import Std.Data.HashSet.Basic public import Std.Data.HashMap.Basic public import Lean.Data.PersistentHashMap public import Lean.Data.PersistentHashSet
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

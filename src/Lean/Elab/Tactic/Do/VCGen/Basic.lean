@@ -92,17 +92,25 @@ def ifOutOfFuel (x : VCGenM α) (k : VCGenM α) : VCGenM α := do
   | _ => k
 
 def addSubGoalAsVC (goal : MVarId) : VCGenM PUnit := do
+  goal.freshenLCtxUserNamesSinceIdx (← read).initialCtxSize
   let ty ← goal.getType
+  if ty.isAppOf ``Std.Do.PostCond || ty.isAppOf ``Std.Do.SPred then
+    -- Here we make `mvar` a synthetic opaque goal upon discharge failure.
+    -- This is the right call for (previously natural) holes such as loop invariants, which
+    -- would otherwise lead to spurious instantiations and unwanted renamings (when leaving the
+    -- scope of a local).
+    -- But it's wrong for, e.g., schematic variables. The latter should never be PostConds,
+    -- Invariants or SPreds, hence the condition.
+    goal.setKind .syntheticOpaque
   if ty.isAppOf ``Std.Do.Invariant then
     modify fun s => { s with invariants := s.invariants.push goal }
   else
     modify fun s => { s with vcs := s.vcs.push goal }
 
 def emitVC (subGoal : Expr) (name : Name) : VCGenM Expr := do
-  withFreshUserNamesSinceIdx (← read).initialCtxSize do
-    let m ← liftM <| mkFreshExprSyntheticOpaqueMVar subGoal (tag := name)
-    addSubGoalAsVC m.mvarId!
-    return m
+  let m ← liftM <| mkFreshExprSyntheticOpaqueMVar subGoal (tag := name)
+  addSubGoalAsVC m.mvarId!
+  return m
 
 def liftSimpM (x : SimpM α) : VCGenM α := do
   let ctx ← read

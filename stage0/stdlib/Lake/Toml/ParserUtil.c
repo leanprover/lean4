@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Toml.ParserUtil
-// Imports: Lean.PrettyPrinter.Formatter Lean.PrettyPrinter.Parenthesizer Lean.Parser
+// Imports: public import Lean.PrettyPrinter.Formatter public import Lean.PrettyPrinter.Parenthesizer import Lean.Parser
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -731,6 +731,7 @@ x_5 = l_Lake_Toml_mkUnexpectedCharError___closed__0;
 x_6 = l_Lake_Toml_mkUnexpectedCharError___closed__1;
 x_7 = lean_string_push(x_6, x_2);
 x_8 = lean_string_append(x_5, x_7);
+lean_dec_ref(x_7);
 x_9 = l_Lake_Toml_mkUnexpectedCharError___closed__2;
 x_10 = lean_string_append(x_8, x_9);
 x_11 = l_Lean_Parser_ParserState_mkUnexpectedError(x_1, x_10, x_3, x_4);
@@ -1186,6 +1187,7 @@ x_18 = l_Lake_Toml_sepByChar1Fn___closed__0;
 x_19 = l_Lake_Toml_mkUnexpectedCharError___closed__1;
 x_20 = lean_string_push(x_19, x_10);
 x_21 = lean_string_append(x_18, x_20);
+lean_dec_ref(x_20);
 x_22 = l_Lake_Toml_mkUnexpectedCharError___closed__2;
 x_23 = lean_string_append(x_21, x_22);
 x_24 = l_Lean_Parser_ParserState_mkUnexpectedError(x_11, x_23, x_3, x_15);
@@ -3183,6 +3185,7 @@ _start:
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
 x_7 = l_Lake_Toml_litWithAntiquot(x_1, x_2, x_3, x_4, x_6);
+lean_dec_ref(x_1);
 return x_7;
 }
 }
@@ -3942,6 +3945,7 @@ _start:
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_4);
 x_7 = l___private_Lake_Toml_ParserUtil_0__Lake_Toml_recNodeWithAntiquot_go(x_1, x_2, x_3, x_6, x_5);
+lean_dec_ref(x_1);
 return x_7;
 }
 }
@@ -4021,7 +4025,6 @@ _start:
 uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_5 = 1;
 lean_inc(x_2);
-lean_inc_ref(x_1);
 x_6 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_4, x_5);
 x_7 = lean_box(x_4);
 lean_inc(x_2);

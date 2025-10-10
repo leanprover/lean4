@@ -65,10 +65,6 @@ namespace OptionT
 variable [Monad m] [LawfulMonad m]
 
 @[simp]
-theorem lift_pure {α : Type u} (a : α) : OptionT.lift (pure a : m α) = pure a := by
-  simp only [OptionT.lift, OptionT.mk, bind_pure_comp, map_pure, pure, OptionT.pure]
-
-@[simp]
 theorem lift_bind {α β : Type u} (ma : m α) (f : α → m β) :
     OptionT.lift (ma >>= f) = OptionT.lift ma >>= (fun a => OptionT.lift (f a)) := by
   simp only [instMonad, OptionT.bind, OptionT.mk, OptionT.lift, bind_pure_comp, bind_map_left,

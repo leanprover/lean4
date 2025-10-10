@@ -169,7 +169,7 @@ def mkFileProgressNotification (m : DocumentMeta) (processing : Array LeanFilePr
   }
 
 /-- Constructs a `$/lean/fileProgress` notification from the given position onwards. -/
-def mkFileProgressAtPosNotification (m : DocumentMeta) (pos : String.Pos)
+def mkFileProgressAtPosNotification (m : DocumentMeta) (pos : String.Pos.Raw)
   (kind : LeanFileProgressKind := LeanFileProgressKind.processing) :
     JsonRpc.Notification Lsp.LeanFileProgressParams :=
   mkFileProgressNotification m #[{ range := ⟨m.text.utf8PosToLspPos pos, m.text.utf8PosToLspPos m.text.source.endPos⟩, kind := kind }]

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.CompilerM
-// Imports: Lean.CoreM Lean.Compiler.LCNF.Basic Lean.Compiler.LCNF.LCtx Lean.Compiler.LCNF.ConfigOptions
+// Imports: public import Lean.CoreM public import Lean.Compiler.LCNF.Basic public import Lean.Compiler.LCNF.LCtx public import Lean.Compiler.LCNF.ConfigOptions
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -683,9 +683,14 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Phase_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_Phase_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Lean_Compiler_LCNF_Phase_ctorIdx(x_1);
+x_4 = l_Lean_Compiler_LCNF_Phase_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_Phase_noConfusion___redArg___lam__0___boxed), 1, 0);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Phase_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
@@ -9231,21 +9236,21 @@ if (x_12 == 0)
 lean_object* x_13; lean_object* x_14; 
 lean_dec_ref(x_2);
 x_13 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_13, 0, x_10);
+lean_ctor_set(x_13, 0, x_9);
 lean_ctor_set(x_13, 1, x_11);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_9);
+lean_ctor_set(x_14, 1, x_10);
 return x_14;
 }
 else
 {
 lean_object* x_15; 
 lean_dec_ref(x_11);
-lean_dec_ref(x_10);
+lean_dec_ref(x_9);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_2);
-lean_ctor_set(x_15, 1, x_9);
+lean_ctor_set(x_15, 1, x_10);
 return x_15;
 }
 }
@@ -9256,21 +9261,21 @@ if (x_20 == 0)
 lean_object* x_21; lean_object* x_22; 
 lean_dec_ref(x_2);
 x_21 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_21, 0, x_18);
+lean_ctor_set(x_21, 0, x_17);
 lean_ctor_set(x_21, 1, x_19);
 x_22 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_22, 0, x_21);
-lean_ctor_set(x_22, 1, x_17);
+lean_ctor_set(x_22, 1, x_18);
 return x_22;
 }
 else
 {
 lean_object* x_23; 
 lean_dec_ref(x_19);
-lean_dec_ref(x_18);
+lean_dec_ref(x_17);
 x_23 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_23, 0, x_2);
-lean_ctor_set(x_23, 1, x_17);
+lean_ctor_set(x_23, 1, x_18);
 return x_23;
 }
 }
@@ -9300,8 +9305,8 @@ x_42 = lean_ptr_addr(x_37);
 x_43 = lean_usize_dec_eq(x_41, x_42);
 if (x_43 == 0)
 {
-x_9 = x_38;
-x_10 = x_34;
+x_9 = x_34;
+x_10 = x_38;
 x_11 = x_37;
 x_12 = x_43;
 goto block_16;
@@ -9312,8 +9317,8 @@ size_t x_44; size_t x_45; uint8_t x_46;
 x_44 = lean_ptr_addr(x_39);
 x_45 = lean_ptr_addr(x_34);
 x_46 = lean_usize_dec_eq(x_44, x_45);
-x_9 = x_38;
-x_10 = x_34;
+x_9 = x_34;
+x_10 = x_38;
 x_11 = x_37;
 x_12 = x_46;
 goto block_16;
@@ -9334,8 +9339,8 @@ x_52 = lean_ptr_addr(x_47);
 x_53 = lean_usize_dec_eq(x_51, x_52);
 if (x_53 == 0)
 {
-x_17 = x_48;
-x_18 = x_34;
+x_17 = x_34;
+x_18 = x_48;
 x_19 = x_47;
 x_20 = x_53;
 goto block_24;
@@ -9346,8 +9351,8 @@ size_t x_54; size_t x_55; uint8_t x_56;
 x_54 = lean_ptr_addr(x_49);
 x_55 = lean_ptr_addr(x_34);
 x_56 = lean_usize_dec_eq(x_54, x_55);
-x_17 = x_48;
-x_18 = x_34;
+x_17 = x_34;
+x_18 = x_48;
 x_19 = x_47;
 x_20 = x_56;
 goto block_24;

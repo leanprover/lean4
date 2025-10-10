@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.LambdaLifting
-// Imports: Lean.Meta.Instances Lean.Compiler.InlineAttrs Lean.Compiler.LCNF.Closure Lean.Compiler.LCNF.Types Lean.Compiler.LCNF.MonadScope Lean.Compiler.LCNF.Internalize Lean.Compiler.LCNF.Level Lean.Compiler.LCNF.AuxDeclCache
+// Imports: public import Lean.Meta.Instances public import Lean.Compiler.InlineAttrs public import Lean.Compiler.LCNF.Closure public import Lean.Compiler.LCNF.Types public import Lean.Compiler.LCNF.MonadScope public import Lean.Compiler.LCNF.Internalize public import Lean.Compiler.LCNF.Level public import Lean.Compiler.LCNF.AuxDeclCache
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

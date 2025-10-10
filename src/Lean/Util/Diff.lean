@@ -12,6 +12,7 @@ public import Init.Data.Range
 public import Std.Data.HashMap.Basic
 public import Init.Omega
 import Init.Data.Iterators.Combinators.ULift  -- TODO: necessary because of codegen issue
+public import Init.Data.String.Basic
 
 public section
 
@@ -139,9 +140,9 @@ partial def lcs (left right : Subarray α) : Array α := Id.run do
   let (left, right, suff) := matchSuffix left right
   let mut hist : Histogram α left.size right.size := (∅ : Std.HashMap ..)
   for h : i in *...left.size do
-    hist := hist.addLeft ⟨i, Std.PRange.Internal.get_elem_helper_upper_open h rfl⟩ left[i]
+    hist := hist.addLeft ⟨i, Std.Rio.Internal.get_elem_helper_upper_open h rfl⟩ left[i]
   for h : i in *...right.size do
-    hist := hist.addRight ⟨i, Std.PRange.Internal.get_elem_helper_upper_open h rfl⟩ right[i]
+    hist := hist.addRight ⟨i, Std.Rio.Internal.get_elem_helper_upper_open h rfl⟩ right[i]
   let mut best := none
   for (k, v) in hist.toList do
     if let {leftCount := lc, leftIndex := some li, rightCount := rc, rightIndex := some ri, ..} := v then

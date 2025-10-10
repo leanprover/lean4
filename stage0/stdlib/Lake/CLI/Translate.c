@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.CLI.Translate
-// Imports: Lake.Config.Lang Lake.Config.Package Lean.PrettyPrinter Lake.CLI.Translate.Toml Lake.CLI.Translate.Lean Lake.Load.Lean.Elab
+// Imports: public import Lake.Config.Lang public import Lake.Config.Package import Lean.PrettyPrinter import Lake.CLI.Translate.Toml import Lake.CLI.Translate.Lean import Lake.Load.Lean.Elab
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1067,6 +1067,7 @@ lean_dec_ref(x_104);
 x_113 = l_Lake_Package_mkConfigString___closed__31;
 x_114 = l_Nat_reprFast(x_112);
 x_115 = lean_string_append(x_113, x_114);
+lean_dec_ref(x_114);
 x_116 = lean_mk_io_user_error(x_115);
 x_5 = x_116;
 x_6 = x_111;
@@ -1223,6 +1224,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object*
 x_7 = l_Lake_Package_mkConfigString___closed__0;
 x_8 = lean_io_error_to_string(x_5);
 x_9 = lean_string_append(x_7, x_8);
+lean_dec_ref(x_8);
 x_10 = 3;
 x_11 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_11, 0, x_9);

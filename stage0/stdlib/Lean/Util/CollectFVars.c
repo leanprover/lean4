@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.CollectFVars
-// Imports: Lean.Expr Lean.LocalContext
+// Imports: public import Lean.Expr public import Lean.LocalContext
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

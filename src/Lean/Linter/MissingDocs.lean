@@ -95,6 +95,7 @@ builtin_initialize
       let decl ← getConstInfo declName
       let fnNameStx ← Attribute.Builtin.getIdent stx
       let key ← Elab.realizeGlobalConstNoOverloadWithInfo fnNameStx
+      recordExtraModUseFromDecl (isMeta := false) key
       unless decl.levelParams.isEmpty && (decl.type == .const ``Handler [] || decl.type == .const ``SimpleHandler []) do
         throwError m!"Unexpected type for missing docs handler: Expected `{.ofConstName ``Handler}` or \
           `{.ofConstName ``SimpleHandler}`, but `{declName}` has type{indentExpr decl.type}"
@@ -164,7 +165,7 @@ def checkDecl : SimpleHandler := fun stx => do
           lintField rest[1][0] stx[1] "computed field"
   else if rest.getKind == ``«structure» then
     unless rest[4][2].isNone do
-      let redecls : Std.HashSet String.Pos :=
+      let redecls : Std.HashSet String.Pos.Raw :=
         (← get).infoState.trees.foldl (init := {}) fun s tree =>
           tree.foldInfo (init := s) fun _ info s =>
             if let .ofFieldRedeclInfo info := info then
@@ -209,9 +210,9 @@ def checkSyntax : SimpleHandler := fun stx => do
     if stx[5].isNone then lint stx[3] "syntax"
     else lintNamed stx[5][0][3] "syntax"
 
-def mkSimpleHandler (name : String) : SimpleHandler := fun stx => do
+def mkSimpleHandler (name : String) (declNameStxIdx := 2) : SimpleHandler := fun stx => do
   if stx[0].isNone then
-    lintNamed stx[2] name
+    lintNamed stx[declNameStxIdx] name
 
 @[builtin_missing_docs_handler syntaxAbbrev]
 def checkSyntaxAbbrev : SimpleHandler := mkSimpleHandler "syntax"
@@ -240,10 +241,12 @@ def checkClassAbbrev : SimpleHandler := fun stx => do
 def checkSimpLike : SimpleHandler := mkSimpleHandler "simp-like tactic"
 
 @[builtin_missing_docs_handler Option.registerBuiltinOption]
-def checkRegisterBuiltinOption : SimpleHandler := mkSimpleHandler "option"
+def checkRegisterBuiltinOption : SimpleHandler := mkSimpleHandler (declNameStxIdx := 3) "option"
 
 @[builtin_missing_docs_handler Option.registerOption]
-def checkRegisterOption : SimpleHandler := mkSimpleHandler "option"
+def checkRegisterOption : SimpleHandler := fun stx => do
+  if (← declModifiersPubNoDoc stx[0]) then
+    lintNamed stx[2] "option"
 
 @[builtin_missing_docs_handler registerSimpAttr]
 def checkRegisterSimpAttr : SimpleHandler := mkSimpleHandler "simp attr"

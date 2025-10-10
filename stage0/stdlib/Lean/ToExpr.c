@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.ToExpr
-// Imports: Lean.Expr Lean.ToLevel Init.Data.BitVec.Basic Init.Data.SInt.Basic
+// Imports: public import Lean.Expr public import Lean.ToLevel public import Init.Data.BitVec.Basic public import Init.Data.SInt.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2632,6 +2632,7 @@ x_4 = l___private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr___closed__2;
 x_5 = l___private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr___closed__3;
 x_6 = l_Nat_reprFast(x_2);
 x_7 = lean_string_append(x_5, x_6);
+lean_dec_ref(x_6);
 x_8 = l_Lean_Name_str___override(x_4, x_7);
 x_9 = lean_box(0);
 x_10 = l_Lean_mkConst(x_8, x_9);

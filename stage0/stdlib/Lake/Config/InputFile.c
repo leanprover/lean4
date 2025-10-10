@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.InputFile
-// Imports: Lake.Config.ConfigTarget
+// Imports: public import Lake.Config.ConfigTarget
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -31,13 +31,14 @@ lean_inc_ref(x_2);
 x_3 = lean_ctor_get(x_1, 2);
 lean_inc(x_3);
 lean_dec_ref(x_1);
-x_4 = lean_ctor_get(x_2, 1);
+x_4 = lean_ctor_get(x_2, 2);
 lean_inc_ref(x_4);
 lean_dec_ref(x_2);
 x_5 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_5);
 lean_dec(x_3);
 x_6 = l_Lake_joinRelative(x_4, x_5);
+lean_dec_ref(x_5);
 return x_6;
 }
 }
@@ -69,13 +70,14 @@ lean_inc_ref(x_2);
 x_3 = lean_ctor_get(x_1, 2);
 lean_inc(x_3);
 lean_dec_ref(x_1);
-x_4 = lean_ctor_get(x_2, 1);
+x_4 = lean_ctor_get(x_2, 2);
 lean_inc_ref(x_4);
 lean_dec_ref(x_2);
 x_5 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_5);
 lean_dec(x_3);
 x_6 = l_Lake_joinRelative(x_4, x_5);
+lean_dec_ref(x_5);
 return x_6;
 }
 }

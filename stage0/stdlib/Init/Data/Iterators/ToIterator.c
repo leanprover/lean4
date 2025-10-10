@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.ToIterator
-// Imports: Init.Data.Iterators.Consumers.Collect Init.Data.Iterators.Consumers.Loop
+// Imports: public import Init.Data.Iterators.Consumers.Collect public import Init.Data.Iterators.Consumers.Loop
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

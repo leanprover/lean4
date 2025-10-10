@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Json.FromToJson.Extra
-// Imports: Lean.Data.Json.FromToJson.Basic Std.Data.TreeMap.AdditionalOperations
+// Imports: public import Lean.Data.Json.FromToJson.Basic public import Std.Data.TreeMap.AdditionalOperations
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

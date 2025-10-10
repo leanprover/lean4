@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Do.ProofMode.Assumption
-// Imports: Std.Tactic.Do.Syntax Lean.Elab.Tactic.Do.ProofMode.Basic Lean.Elab.Tactic.Do.ProofMode.Exact Lean.Elab.Tactic.Do.ProofMode.Focus Lean.Meta.Tactic.Assumption
+// Imports: public import Std.Tactic.Do.Syntax public import Lean.Elab.Tactic.Do.ProofMode.Basic public import Lean.Elab.Tactic.Do.ProofMode.Exact public import Lean.Elab.Tactic.Do.ProofMode.Focus import Lean.Meta.Tactic.Assumption
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -535,6 +535,7 @@ x_19 = l_Lean_Elab_Tactic_Do_ProofMode_MGoal_assumption___closed__2;
 x_20 = lean_expr_dbg_to_string(x_9);
 lean_dec_ref(x_9);
 x_21 = lean_string_append(x_19, x_20);
+lean_dec_ref(x_20);
 x_22 = l_mkPanicMessageWithDecl(x_15, x_16, x_17, x_18, x_21);
 lean_dec_ref(x_21);
 x_23 = l_panic___at___Lean_Elab_Tactic_Do_ProofMode_MGoal_assumption_spec__0(x_22, x_2, x_3, x_4, x_5, x_6);

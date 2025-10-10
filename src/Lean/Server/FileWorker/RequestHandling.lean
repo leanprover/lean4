@@ -29,7 +29,7 @@ open Lean.Parser.Tactic.Doc (alternativeOfTactic getTacticExtensionString)
 
 def findCompletionCmdDataAtPos
     (doc : EditableDocument)
-    (pos : String.Pos)
+    (pos : String.Pos.Raw)
     : ServerTask (Option (Syntax × Elab.InfoTree)) :=
   -- `findCmdDataAtPos` may produce an incorrect snapshot when `pos` is in whitespace.
   -- However, most completions don't need trailing whitespace at the term level;
@@ -142,7 +142,7 @@ def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
       locationLinksOfInfo doc.meta kind info snap.infoTree
 
 open Language in
-def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : ServerTask (Option (List Elab.GoalsAtResult)) :=
+def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos.Raw) : ServerTask (Option (List Elab.GoalsAtResult)) :=
   let text := doc.meta.text
   findCmdParsedSnap doc hoverPos |>.bindCostly fun
     | some cmdParsed =>
@@ -178,7 +178,7 @@ def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : ServerTask (
     | none =>
       .pure none
 where
-  getPositions (stx : Syntax) : Option (String.Pos × String.Pos × String.Pos) := do
+  getPositions (stx : Syntax) : Option (String.Pos.Raw × String.Pos.Raw × String.Pos.Raw) := do
     let pos ← stx.getPos? (canonicalOnly := true)
     let tailPos ← stx.getTailPos? (canonicalOnly := true)
     let trailingPos? ← stx.getTrailingTailPos? (canonicalOnly := true)
@@ -335,7 +335,7 @@ where
         let name := id.map (·.getId.componentsRev) |>.getD [`«»]
         let entry := { name, stx, selection := id.map (·.raw) |>.getD stx, prevSiblings := syms }
         toDocumentSymbols text stxs #[] (entry :: stack)
-      | `(end $(id)?) =>
+      | `(end $[$id $[.$_]?]?) =>
         let rec popStack n syms
           | [] => toDocumentSymbols text stxs syms []
           | entry :: stack =>
@@ -395,7 +395,7 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
         addRanges text ((id.getId.getNumParts, stx.getPos?)::sections) stxs
       | `($_:sectionHeader section $(id)?) =>
         addRanges text ((id.map (·.getId.getNumParts) |>.getD 1, stx.getPos?)::sections) stxs
-      | `(end $(id)?) => do
+      | `(end $[$id $[.$_]?]?) => do
         let rec popRanges n sections := do
           if let (size, start)::rest := sections then
             if size == n then
@@ -476,7 +476,11 @@ partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
   let t ← RequestM.asTask waitLoop
   RequestM.bindTaskCheap t fun doc? => do
     let doc ← liftExcept doc?
-    return doc.reporter.mapCheap (fun _ => pure WaitForDiagnostics.mk)
+    -- We wait on both the reporter and `cmdSnaps` so that all request handlers that use
+    -- `IO.hasFinished` on `doc.cmdSnaps` are guaranteed to have finished when
+    -- `waitForDiagnostics` returns.
+    return doc.reporter.bindCheap (fun _ => doc.cmdSnaps.waitAll)
+      |>.mapCheap fun _ => pure WaitForDiagnostics.mk
 
 builtin_initialize
   registerLspRequestHandler

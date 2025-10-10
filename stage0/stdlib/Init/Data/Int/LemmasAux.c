@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.LemmasAux
-// Imports: Init.Data.Int.Order Init.Data.Int.Pow Init.Data.Int.DivMod.Lemmas Init.Omega
+// Imports: public import Init.Data.Int.Order public import Init.Data.Int.Pow public import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -86,7 +86,6 @@ return x_5;
 }
 lean_object* initialize_Init_Data_Int_Order(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_Pow(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Omega(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin, lean_object* w) {
@@ -97,9 +96,6 @@ res = initialize_Init_Data_Int_Order(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Int_Pow(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Int_DivMod_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Omega(builtin, lean_io_mk_world());

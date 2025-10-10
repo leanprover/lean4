@@ -95,7 +95,7 @@ def elabMRevert : Tactic
     return m)
   replaceMainGoal (← goals.get)
   | `(tactic| mrevert ∀ $[$n]?) => do
-  let (mvar, goal) ← mStartMVar (← getMainGoal)
+  let (mvar, goal) ← mStartMainGoal
   mvar.withContext do
   let n := ((·.getNat) <$> n).getD 1
   let goals ← IO.mkRef []

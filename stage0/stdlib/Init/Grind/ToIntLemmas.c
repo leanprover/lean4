@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.ToIntLemmas
-// Imports: Init.Grind.ToInt Init.Grind.ToInt
+// Imports: public import Init.Grind.ToInt import all Init.Grind.ToInt
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

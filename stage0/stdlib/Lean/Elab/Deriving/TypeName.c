@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Deriving.TypeName
-// Imports: Lean.Elab.Deriving.Basic
+// Imports: public import Lean.Elab.Deriving.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

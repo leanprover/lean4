@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.OtherDecl
-// Imports: Lean.Compiler.LCNF.BaseTypes Lean.Compiler.LCNF.MonoTypes
+// Imports: public import Lean.Compiler.LCNF.BaseTypes public import Lean.Compiler.LCNF.MonoTypes
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

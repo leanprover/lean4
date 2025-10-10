@@ -45,7 +45,7 @@ def validateDocComment
   for (⟨start, stop⟩, err) in errs do
     -- Report errors at their actual location if possible
     if let some pos := pos? then
-      let urlStx : Syntax := .atom (.synthetic (pos + start) (pos + stop)) (str.extract start stop)
+      let urlStx : Syntax := .atom (.synthetic (start.offsetBy pos) (stop.offsetBy pos)) (str.extract start stop)
       logErrorAt urlStx err
     else
       logError err
@@ -206,10 +206,12 @@ Adds an elaborated Verso docstring to the environment.
 -/
 def addVersoDocStringCore [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] [MonadError m]
     (declName : Name) (docs : VersoDocString) : m Unit := do
-  let throwImported {α} : m α :=
-    throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
+  -- The decl name can be anonymous due to attempts to elaborate incomplete syntax. If the name is
+  -- anonymous, the `MapDeclarationExtension.insert` panics due to not being on the right async
+  -- branch. Better to just do nothing.
+  if declName.isAnonymous then return
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
-    throwImported
+    throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
   modifyEnv fun env =>
     versoDocStringExt.insert env declName docs
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal
-// Imports: Std.Internal.Async Std.Internal.Parsec Std.Internal.UV
+// Imports: public import Std.Internal.Async public import Std.Internal.Parsec public import Std.Internal.UV
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.JoinPoints
-// Imports: Lean.Compiler.LCNF.CompilerM Lean.Compiler.LCNF.PassManager Lean.Compiler.LCNF.PullFunDecls Lean.Compiler.LCNF.FVarUtil Lean.Compiler.LCNF.ScopeM Lean.Compiler.LCNF.InferType
+// Imports: public import Lean.Compiler.LCNF.CompilerM public import Lean.Compiler.LCNF.PassManager public import Lean.Compiler.LCNF.PullFunDecls public import Lean.Compiler.LCNF.FVarUtil public import Lean.Compiler.LCNF.ScopeM public import Lean.Compiler.LCNF.InferType
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -12378,7 +12378,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___Lean_Compiler_LCNF_JoinPointCommonArgs_isInJpScope_spec__0___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(13u);
-x_3 = lean_unsigned_to_nat(182u);
+x_3 = lean_unsigned_to_nat(183u);
 x_4 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___Lean_Compiler_LCNF_JoinPointCommonArgs_isInJpScope_spec__0___redArg___closed__1;
 x_5 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___Lean_Compiler_LCNF_JoinPointCommonArgs_isInJpScope_spec__0___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -16034,8 +16034,8 @@ x_89 = lean_usize_dec_eq(x_87, x_88);
 if (x_89 == 0)
 {
 x_8 = x_85;
-x_9 = x_82;
-x_10 = x_86;
+x_9 = x_86;
+x_10 = x_82;
 x_11 = x_89;
 goto block_15;
 }
@@ -16046,8 +16046,8 @@ x_90 = lean_ptr_addr(x_70);
 x_91 = lean_ptr_addr(x_85);
 x_92 = lean_usize_dec_eq(x_90, x_91);
 x_8 = x_85;
-x_9 = x_82;
-x_10 = x_86;
+x_9 = x_86;
+x_10 = x_82;
 x_11 = x_92;
 goto block_15;
 }
@@ -16430,20 +16430,20 @@ lean_object* x_12; lean_object* x_13;
 lean_dec_ref(x_1);
 x_12 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_12, 0, x_8);
-lean_ctor_set(x_12, 1, x_9);
+lean_ctor_set(x_12, 1, x_10);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
-lean_ctor_set(x_13, 1, x_10);
+lean_ctor_set(x_13, 1, x_9);
 return x_13;
 }
 else
 {
 lean_object* x_14; 
-lean_dec_ref(x_9);
+lean_dec_ref(x_10);
 lean_dec_ref(x_8);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_1);
-lean_ctor_set(x_14, 1, x_10);
+lean_ctor_set(x_14, 1, x_9);
 return x_14;
 }
 }

@@ -1,3 +1,3 @@
 def veryLongNameForCompletion := Nat
-                    --v textDocument/completion
+                    --v completion
 def f (x : veryLongNam) := x

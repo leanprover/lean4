@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Basic
-// Imports: Init.Core Init.BinderNameHint
+// Imports: public import Init.Core public import Init.BinderNameHint
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.ByteSlice
-// Imports: Init.Core Init.GetElem Init.Data.ByteArray Init.Data.Slice.Basic Init.Data.Slice.Notation Init.Data.Range.Polymorphic.Nat
+// Imports: public import Init.Core public import Init.GetElem public import Init.Data.ByteArray public import Init.Data.Slice.Basic public import Init.Data.Slice.Notation public import Init.Data.Range.Polymorphic.Nat
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,47 +15,73 @@ extern "C" {
 #endif
 static lean_object* l_ByteSlice_foldr___redArg___closed__0;
 LEAN_EXPORT lean_object* l_ByteSlice_start(lean_object*);
-LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSliceOfClosedOpenIntersection___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__5___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__6___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__3___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__1;
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__7___lam__0___boxed(lean_object*, lean_object*);
 lean_object* lean_byte_array_mk(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 uint8_t lean_byte_array_fget(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSliceOfClosedOpenIntersection___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__7;
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__8___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__4___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice;
 LEAN_EXPORT lean_object* l_ByteSlice_foldr___redArg___lam__0(lean_object*, uint8_t, lean_object*);
 static lean_object* l_ByteSlice_foldr___redArg___closed__4;
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__8___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__2___lam__0(lean_object*, lean_object*);
 static lean_object* l_ByteSlice_foldr___redArg___closed__9;
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__2;
 LEAN_EXPORT lean_object* l___private_Std_Data_ByteSlice_0__ByteSlice_foldrM_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_byteArray(lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__4;
 LEAN_EXPORT lean_object* l___private_Std_Data_ByteSlice_0__ByteSlice_contains_loop___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_ByteArray_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_stop___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_instSliceableByteSliceNatOfClosedOpenIntersection___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_instSliceableByteSliceNatOfClosedOpenIntersection(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_ByteSlice_0__ByteSlice_forM_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_ByteSlice_0__ByteSlice_forM_loop___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_Internal_ByteSliceData_ctorIdx(lean_object*);
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_getD___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__6___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_byteArray___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_foldrM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_foldr(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_foldrM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__6___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_get_x21___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_size(lean_object*);
 static lean_object* l_ByteSlice_foldr___redArg___closed__3;
 LEAN_EXPORT lean_object* l___private_Std_Data_ByteSlice_0__ByteSlice_foldrM_loop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_forM(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_get___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__4___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__3;
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__7;
 LEAN_EXPORT lean_object* l_ByteSlice_start___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_instGetElemNatUInt8LtSize;
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_ByteSlice_0__ByteSlice_foldrM_loop___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_instEmptyCollection;
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__1___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__7___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__2;
 static lean_object* l_ByteSlice_empty___closed__1;
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_ByteSlice_contains(lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSliceOfClosedOpenIntersection___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__5;
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__2___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__1;
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__7___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__4;
 LEAN_EXPORT uint8_t l_ByteSlice_instGetElemNatUInt8LtSize___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__5___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_size___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_Internal_ByteSliceData_ctorIdx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__3___lam__0(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Std_Data_ByteSlice_0__ByteSlice_contains_loop(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT uint8_t l_ByteSlice_get_x21(lean_object*, lean_object*);
@@ -65,44 +91,57 @@ static lean_object* l_ByteSlice_foldr___redArg___closed__5;
 static lean_object* l_ByteSlice_foldr___redArg___closed__1;
 static lean_object* l_ByteSlice_empty___closed__2;
 LEAN_EXPORT lean_object* l_ByteSlice_ofByteArray(lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__1___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat;
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__3___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__1___lam__0(lean_object*, lean_object*);
 static lean_object* l_ByteSlice_foldr___redArg___closed__6;
 static lean_object* l_ByteSlice_empty___closed__0;
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__4___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__5___lam__0___boxed(lean_object*, lean_object*);
 uint8_t lean_byteslice_beq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_ByteSlice_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_slice(lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__6;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__5;
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__8___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__3___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__8;
 LEAN_EXPORT lean_object* l_ByteSlice_stop(lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_contains___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_ByteSlice_0__ByteSlice_forM_loop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_slice___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_ByteSlice_getD(lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSliceOfClosedOpenIntersection(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_foldr___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__6___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__8;
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_empty;
 static lean_object* l_ByteSlice_instBEq___closed__0;
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__3;
 LEAN_EXPORT lean_object* l_ByteSlice_toByteArray(lean_object*);
-LEAN_EXPORT lean_object* l_instSliceableByteSliceNatOfClosedOpenIntersection___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_ByteSlice_0__ByteSlice_foldrM_loop___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_ByteSlice_foldr___redArg___closed__2;
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instSliceableByteSliceNatOfClosedOpenIntersection___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_forM___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__2___lam__0(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_instInhabited;
 LEAN_EXPORT lean_object* l_ByteArray_toByteSlice(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instSliceableByteSliceNatOfClosedOpenIntersection___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_ByteSlice_foldr___redArg___closed__8;
 lean_object* lean_byte_array_size(lean_object*);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l___private_Std_Data_ByteSlice_0__ByteSlice_forM_loop___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__5___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteSlice_instGetElemNatUInt8LtSize___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_ByteSlice_foldr___redArg___closed__7;
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__6;
 LEAN_EXPORT lean_object* l_Std_Slice_Internal_ByteSliceData_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -971,101 +1010,829 @@ return x_11;
 }
 }
 }
-LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSliceOfClosedOpenIntersection___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = lean_byte_array_size(x_2);
-x_6 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_6, 0, x_4);
-lean_ctor_set(x_6, 1, x_5);
-x_7 = lean_apply_2(x_1, x_3, x_6);
-x_8 = lean_ctor_get(x_7, 0);
-lean_inc(x_8);
-x_9 = lean_ctor_get(x_7, 1);
-lean_inc(x_9);
-lean_dec_ref(x_7);
-x_10 = l_ByteArray_toByteSlice(x_2, x_8, x_9);
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_14; 
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_2, 1);
+lean_inc(x_4);
+lean_dec_ref(x_2);
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = lean_byte_array_size(x_1);
+x_14 = lean_nat_dec_le(x_3, x_5);
+if (x_14 == 0)
+{
+x_7 = x_3;
+goto block_13;
+}
+else
+{
+lean_dec(x_3);
+x_7 = x_5;
+goto block_13;
+}
+block_13:
+{
+lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_8 = lean_unsigned_to_nat(1u);
+x_9 = lean_nat_add(x_4, x_8);
+lean_dec(x_4);
+x_10 = lean_nat_dec_le(x_9, x_6);
+if (x_10 == 0)
+{
+lean_object* x_11; 
+lean_dec(x_9);
+x_11 = l_ByteArray_toByteSlice(x_1, x_7, x_6);
+return x_11;
+}
+else
+{
+lean_object* x_12; 
+lean_dec(x_6);
+x_12 = l_ByteArray_toByteSlice(x_1, x_7, x_9);
+return x_12;
+}
+}
+}
+}
+static lean_object* _init_l_instSliceableByteArrayNatByteSlice() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableByteArrayNatByteSlice___lam__0), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__1___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_12; 
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_2, 1);
+lean_inc(x_4);
+lean_dec_ref(x_2);
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = lean_byte_array_size(x_1);
+x_12 = lean_nat_dec_le(x_3, x_5);
+if (x_12 == 0)
+{
+x_7 = x_3;
+goto block_11;
+}
+else
+{
+lean_dec(x_3);
+x_7 = x_5;
+goto block_11;
+}
+block_11:
+{
+uint8_t x_8; 
+x_8 = lean_nat_dec_le(x_4, x_6);
+if (x_8 == 0)
+{
+lean_object* x_9; 
+lean_dec(x_4);
+x_9 = l_ByteArray_toByteSlice(x_1, x_7, x_6);
+return x_9;
+}
+else
+{
+lean_object* x_10; 
+lean_dec(x_6);
+x_10 = l_ByteArray_toByteSlice(x_1, x_7, x_4);
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSliceOfClosedOpenIntersection___redArg(lean_object* x_1) {
+}
+}
+static lean_object* _init_l_instSliceableByteArrayNatByteSlice__1() {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSliceableByteArrayNatByteSliceOfClosedOpenIntersection___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableByteArrayNatByteSlice__1___lam__0), 2, 0);
+return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSliceOfClosedOpenIntersection(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__2___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = lean_byte_array_size(x_1);
+x_5 = lean_nat_dec_le(x_2, x_3);
+if (x_5 == 0)
+{
+lean_object* x_6; 
+x_6 = l_ByteArray_toByteSlice(x_1, x_2, x_4);
+return x_6;
+}
+else
+{
+lean_object* x_7; 
+lean_dec(x_2);
+x_7 = l_ByteArray_toByteSlice(x_1, x_3, x_4);
+return x_7;
+}
+}
+}
+static lean_object* _init_l_instSliceableByteArrayNatByteSlice__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableByteArrayNatByteSlice__2___lam__0), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__3___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_14; uint8_t x_15; 
+x_3 = lean_ctor_get(x_2, 0);
+x_4 = lean_ctor_get(x_2, 1);
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = lean_byte_array_size(x_1);
+x_7 = lean_unsigned_to_nat(1u);
+x_14 = lean_nat_add(x_3, x_7);
+x_15 = lean_nat_dec_le(x_14, x_5);
+if (x_15 == 0)
+{
+x_8 = x_14;
+goto block_13;
+}
+else
+{
+lean_dec(x_14);
+x_8 = x_5;
+goto block_13;
+}
+block_13:
+{
+lean_object* x_9; uint8_t x_10; 
+x_9 = lean_nat_add(x_4, x_7);
+x_10 = lean_nat_dec_le(x_9, x_6);
+if (x_10 == 0)
+{
+lean_object* x_11; 
+lean_dec(x_9);
+x_11 = l_ByteArray_toByteSlice(x_1, x_8, x_6);
+return x_11;
+}
+else
+{
+lean_object* x_12; 
+lean_dec(x_6);
+x_12 = l_ByteArray_toByteSlice(x_1, x_8, x_9);
+return x_12;
+}
+}
+}
+}
+static lean_object* _init_l_instSliceableByteArrayNatByteSlice__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableByteArrayNatByteSlice__3___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__3___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_instSliceableByteArrayNatByteSliceOfClosedOpenIntersection___redArg(x_2);
+x_3 = l_instSliceableByteArrayNatByteSlice__3___lam__0(x_1, x_2);
+lean_dec_ref(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSliceOfClosedOpenIntersection___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__4___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_2, 1);
+lean_inc(x_4);
+lean_dec_ref(x_2);
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = lean_byte_array_size(x_1);
+x_12 = lean_unsigned_to_nat(1u);
+x_13 = lean_nat_add(x_3, x_12);
+lean_dec(x_3);
+x_14 = lean_nat_dec_le(x_13, x_5);
+if (x_14 == 0)
+{
+x_7 = x_13;
+goto block_11;
+}
+else
+{
+lean_dec(x_13);
+x_7 = x_5;
+goto block_11;
+}
+block_11:
+{
+uint8_t x_8; 
+x_8 = lean_nat_dec_le(x_4, x_6);
+if (x_8 == 0)
+{
+lean_object* x_9; 
+lean_dec(x_4);
+x_9 = l_ByteArray_toByteSlice(x_1, x_7, x_6);
+return x_9;
+}
+else
+{
+lean_object* x_10; 
+lean_dec(x_6);
+x_10 = l_ByteArray_toByteSlice(x_1, x_7, x_4);
+return x_10;
+}
+}
+}
+}
+static lean_object* _init_l_instSliceableByteArrayNatByteSlice__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableByteArrayNatByteSlice__4___lam__0), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__5___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = lean_byte_array_size(x_1);
+x_5 = lean_unsigned_to_nat(1u);
+x_6 = lean_nat_add(x_2, x_5);
+x_7 = lean_nat_dec_le(x_6, x_3);
+if (x_7 == 0)
+{
+lean_object* x_8; 
+x_8 = l_ByteArray_toByteSlice(x_1, x_6, x_4);
+return x_8;
+}
+else
+{
+lean_object* x_9; 
+lean_dec(x_6);
+x_9 = l_ByteArray_toByteSlice(x_1, x_3, x_4);
+return x_9;
+}
+}
+}
+static lean_object* _init_l_instSliceableByteArrayNatByteSlice__5() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableByteArrayNatByteSlice__5___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__5___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_instSliceableByteArrayNatByteSliceOfClosedOpenIntersection(x_1, x_2);
+x_3 = l_instSliceableByteArrayNatByteSlice__5___lam__0(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__6___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = lean_byte_array_size(x_1);
+x_5 = lean_unsigned_to_nat(1u);
+x_6 = lean_nat_add(x_2, x_5);
+x_7 = lean_nat_dec_le(x_6, x_4);
+if (x_7 == 0)
+{
+lean_object* x_8; 
+lean_dec(x_6);
+x_8 = l_ByteArray_toByteSlice(x_1, x_3, x_4);
+return x_8;
+}
+else
+{
+lean_object* x_9; 
+lean_dec(x_4);
+x_9 = l_ByteArray_toByteSlice(x_1, x_3, x_6);
+return x_9;
+}
+}
+}
+static lean_object* _init_l_instSliceableByteArrayNatByteSlice__6() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableByteArrayNatByteSlice__6___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__6___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_instSliceableByteArrayNatByteSlice__6___lam__0(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__7___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = lean_byte_array_size(x_1);
+x_5 = lean_nat_dec_le(x_2, x_4);
+if (x_5 == 0)
+{
+lean_object* x_6; 
+lean_dec(x_2);
+x_6 = l_ByteArray_toByteSlice(x_1, x_3, x_4);
+return x_6;
+}
+else
+{
+lean_object* x_7; 
+lean_dec(x_4);
+x_7 = l_ByteArray_toByteSlice(x_1, x_3, x_2);
+return x_7;
+}
+}
+}
+static lean_object* _init_l_instSliceableByteArrayNatByteSlice__7() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableByteArrayNatByteSlice__7___lam__0), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__8___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = lean_byte_array_size(x_1);
+x_5 = l_ByteArray_toByteSlice(x_1, x_3, x_4);
+return x_5;
+}
+}
+static lean_object* _init_l_instSliceableByteArrayNatByteSlice__8() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableByteArrayNatByteSlice__8___lam__0), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_14; 
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_2, 1);
+lean_inc(x_4);
+lean_dec_ref(x_2);
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = l_ByteSlice_size(x_1);
+x_14 = lean_nat_dec_le(x_3, x_5);
+if (x_14 == 0)
+{
+x_7 = x_3;
+goto block_13;
+}
+else
+{
+lean_dec(x_3);
+x_7 = x_5;
+goto block_13;
+}
+block_13:
+{
+lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_8 = lean_unsigned_to_nat(1u);
+x_9 = lean_nat_add(x_4, x_8);
+lean_dec(x_4);
+x_10 = lean_nat_dec_le(x_9, x_6);
+if (x_10 == 0)
+{
+lean_object* x_11; 
+lean_dec(x_9);
+x_11 = l_ByteSlice_slice(x_1, x_7, x_6);
+return x_11;
+}
+else
+{
+lean_object* x_12; 
+lean_dec(x_6);
+x_12 = l_ByteSlice_slice(x_1, x_7, x_9);
+return x_12;
+}
+}
+}
+}
+static lean_object* _init_l_instSliceableByteSliceNat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableByteSliceNat___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_instSliceableByteSliceNat___lam__0(x_1, x_2);
 lean_dec_ref(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_instSliceableByteSliceNatOfClosedOpenIntersection___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__1___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = l_ByteSlice_size(x_2);
-x_6 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_6, 0, x_4);
-lean_ctor_set(x_6, 1, x_5);
-x_7 = lean_apply_2(x_1, x_3, x_6);
-x_8 = lean_ctor_get(x_7, 0);
-lean_inc(x_8);
-x_9 = lean_ctor_get(x_7, 1);
-lean_inc(x_9);
-lean_dec_ref(x_7);
-x_10 = l_ByteSlice_slice(x_2, x_8, x_9);
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_12; 
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_2, 1);
+lean_inc(x_4);
+lean_dec_ref(x_2);
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = l_ByteSlice_size(x_1);
+x_12 = lean_nat_dec_le(x_3, x_5);
+if (x_12 == 0)
+{
+x_7 = x_3;
+goto block_11;
+}
+else
+{
+lean_dec(x_3);
+x_7 = x_5;
+goto block_11;
+}
+block_11:
+{
+uint8_t x_8; 
+x_8 = lean_nat_dec_le(x_4, x_6);
+if (x_8 == 0)
+{
+lean_object* x_9; 
+lean_dec(x_4);
+x_9 = l_ByteSlice_slice(x_1, x_7, x_6);
+return x_9;
+}
+else
+{
+lean_object* x_10; 
+lean_dec(x_6);
+x_10 = l_ByteSlice_slice(x_1, x_7, x_4);
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_instSliceableByteSliceNatOfClosedOpenIntersection___redArg(lean_object* x_1) {
+}
+}
+static lean_object* _init_l_instSliceableByteSliceNat__1() {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSliceableByteSliceNatOfClosedOpenIntersection___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableByteSliceNat__1___lam__0___boxed), 2, 0);
+return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_instSliceableByteSliceNatOfClosedOpenIntersection(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__1___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_instSliceableByteSliceNatOfClosedOpenIntersection___redArg(x_2);
+x_3 = l_instSliceableByteSliceNat__1___lam__0(x_1, x_2);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_instSliceableByteSliceNatOfClosedOpenIntersection___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__2___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_4; 
-x_4 = l_instSliceableByteSliceNatOfClosedOpenIntersection___redArg___lam__0(x_1, x_2, x_3);
-lean_dec_ref(x_2);
-return x_4;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = l_ByteSlice_size(x_1);
+x_5 = lean_nat_dec_le(x_2, x_3);
+if (x_5 == 0)
+{
+lean_object* x_6; 
+x_6 = l_ByteSlice_slice(x_1, x_2, x_4);
+return x_6;
+}
+else
+{
+lean_object* x_7; 
+lean_dec(x_2);
+x_7 = l_ByteSlice_slice(x_1, x_3, x_4);
+return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_instSliceableByteSliceNatOfClosedOpenIntersection___boxed(lean_object* x_1, lean_object* x_2) {
+}
+static lean_object* _init_l_instSliceableByteSliceNat__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableByteSliceNat__2___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__2___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_instSliceableByteSliceNatOfClosedOpenIntersection(x_1, x_2);
+x_3 = l_instSliceableByteSliceNat__2___lam__0(x_1, x_2);
+lean_dec_ref(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__3___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_14; uint8_t x_15; 
+x_3 = lean_ctor_get(x_2, 0);
+x_4 = lean_ctor_get(x_2, 1);
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = l_ByteSlice_size(x_1);
+x_7 = lean_unsigned_to_nat(1u);
+x_14 = lean_nat_add(x_3, x_7);
+x_15 = lean_nat_dec_le(x_14, x_5);
+if (x_15 == 0)
+{
+x_8 = x_14;
+goto block_13;
+}
+else
+{
+lean_dec(x_14);
+x_8 = x_5;
+goto block_13;
+}
+block_13:
+{
+lean_object* x_9; uint8_t x_10; 
+x_9 = lean_nat_add(x_4, x_7);
+x_10 = lean_nat_dec_le(x_9, x_6);
+if (x_10 == 0)
+{
+lean_object* x_11; 
+lean_dec(x_9);
+x_11 = l_ByteSlice_slice(x_1, x_8, x_6);
+return x_11;
+}
+else
+{
+lean_object* x_12; 
+lean_dec(x_6);
+x_12 = l_ByteSlice_slice(x_1, x_8, x_9);
+return x_12;
+}
+}
+}
+}
+static lean_object* _init_l_instSliceableByteSliceNat__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableByteSliceNat__3___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__3___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_instSliceableByteSliceNat__3___lam__0(x_1, x_2);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__4___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_2, 1);
+lean_inc(x_4);
+lean_dec_ref(x_2);
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = l_ByteSlice_size(x_1);
+x_12 = lean_unsigned_to_nat(1u);
+x_13 = lean_nat_add(x_3, x_12);
+lean_dec(x_3);
+x_14 = lean_nat_dec_le(x_13, x_5);
+if (x_14 == 0)
+{
+x_7 = x_13;
+goto block_11;
+}
+else
+{
+lean_dec(x_13);
+x_7 = x_5;
+goto block_11;
+}
+block_11:
+{
+uint8_t x_8; 
+x_8 = lean_nat_dec_le(x_4, x_6);
+if (x_8 == 0)
+{
+lean_object* x_9; 
+lean_dec(x_4);
+x_9 = l_ByteSlice_slice(x_1, x_7, x_6);
+return x_9;
+}
+else
+{
+lean_object* x_10; 
+lean_dec(x_6);
+x_10 = l_ByteSlice_slice(x_1, x_7, x_4);
+return x_10;
+}
+}
+}
+}
+static lean_object* _init_l_instSliceableByteSliceNat__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableByteSliceNat__4___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__4___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_instSliceableByteSliceNat__4___lam__0(x_1, x_2);
+lean_dec_ref(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__5___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = l_ByteSlice_size(x_1);
+x_5 = lean_unsigned_to_nat(1u);
+x_6 = lean_nat_add(x_2, x_5);
+x_7 = lean_nat_dec_le(x_6, x_3);
+if (x_7 == 0)
+{
+lean_object* x_8; 
+x_8 = l_ByteSlice_slice(x_1, x_6, x_4);
+return x_8;
+}
+else
+{
+lean_object* x_9; 
+lean_dec(x_6);
+x_9 = l_ByteSlice_slice(x_1, x_3, x_4);
+return x_9;
+}
+}
+}
+static lean_object* _init_l_instSliceableByteSliceNat__5() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableByteSliceNat__5___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__5___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_instSliceableByteSliceNat__5___lam__0(x_1, x_2);
+lean_dec(x_2);
+lean_dec_ref(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__6___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = l_ByteSlice_size(x_1);
+x_5 = lean_unsigned_to_nat(1u);
+x_6 = lean_nat_add(x_2, x_5);
+x_7 = lean_nat_dec_le(x_6, x_4);
+if (x_7 == 0)
+{
+lean_object* x_8; 
+lean_dec(x_6);
+x_8 = l_ByteSlice_slice(x_1, x_3, x_4);
+return x_8;
+}
+else
+{
+lean_object* x_9; 
+lean_dec(x_4);
+x_9 = l_ByteSlice_slice(x_1, x_3, x_6);
+return x_9;
+}
+}
+}
+static lean_object* _init_l_instSliceableByteSliceNat__6() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableByteSliceNat__6___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__6___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_instSliceableByteSliceNat__6___lam__0(x_1, x_2);
+lean_dec(x_2);
+lean_dec_ref(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__7___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = l_ByteSlice_size(x_1);
+x_5 = lean_nat_dec_le(x_2, x_4);
+if (x_5 == 0)
+{
+lean_object* x_6; 
+lean_dec(x_2);
+x_6 = l_ByteSlice_slice(x_1, x_3, x_4);
+return x_6;
+}
+else
+{
+lean_object* x_7; 
+lean_dec(x_4);
+x_7 = l_ByteSlice_slice(x_1, x_3, x_2);
+return x_7;
+}
+}
+}
+static lean_object* _init_l_instSliceableByteSliceNat__7() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableByteSliceNat__7___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__7___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_instSliceableByteSliceNat__7___lam__0(x_1, x_2);
+lean_dec_ref(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__8___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = l_ByteSlice_size(x_1);
+x_5 = l_ByteSlice_slice(x_1, x_3, x_4);
+return x_5;
+}
+}
+static lean_object* _init_l_instSliceableByteSliceNat__8() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableByteSliceNat__8___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__8___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_instSliceableByteSliceNat__8___lam__0(x_1, x_2);
 lean_dec_ref(x_1);
 return x_3;
 }
@@ -1137,6 +1904,42 @@ l_ByteSlice_foldr___redArg___closed__8 = _init_l_ByteSlice_foldr___redArg___clos
 lean_mark_persistent(l_ByteSlice_foldr___redArg___closed__8);
 l_ByteSlice_foldr___redArg___closed__9 = _init_l_ByteSlice_foldr___redArg___closed__9();
 lean_mark_persistent(l_ByteSlice_foldr___redArg___closed__9);
+l_instSliceableByteArrayNatByteSlice = _init_l_instSliceableByteArrayNatByteSlice();
+lean_mark_persistent(l_instSliceableByteArrayNatByteSlice);
+l_instSliceableByteArrayNatByteSlice__1 = _init_l_instSliceableByteArrayNatByteSlice__1();
+lean_mark_persistent(l_instSliceableByteArrayNatByteSlice__1);
+l_instSliceableByteArrayNatByteSlice__2 = _init_l_instSliceableByteArrayNatByteSlice__2();
+lean_mark_persistent(l_instSliceableByteArrayNatByteSlice__2);
+l_instSliceableByteArrayNatByteSlice__3 = _init_l_instSliceableByteArrayNatByteSlice__3();
+lean_mark_persistent(l_instSliceableByteArrayNatByteSlice__3);
+l_instSliceableByteArrayNatByteSlice__4 = _init_l_instSliceableByteArrayNatByteSlice__4();
+lean_mark_persistent(l_instSliceableByteArrayNatByteSlice__4);
+l_instSliceableByteArrayNatByteSlice__5 = _init_l_instSliceableByteArrayNatByteSlice__5();
+lean_mark_persistent(l_instSliceableByteArrayNatByteSlice__5);
+l_instSliceableByteArrayNatByteSlice__6 = _init_l_instSliceableByteArrayNatByteSlice__6();
+lean_mark_persistent(l_instSliceableByteArrayNatByteSlice__6);
+l_instSliceableByteArrayNatByteSlice__7 = _init_l_instSliceableByteArrayNatByteSlice__7();
+lean_mark_persistent(l_instSliceableByteArrayNatByteSlice__7);
+l_instSliceableByteArrayNatByteSlice__8 = _init_l_instSliceableByteArrayNatByteSlice__8();
+lean_mark_persistent(l_instSliceableByteArrayNatByteSlice__8);
+l_instSliceableByteSliceNat = _init_l_instSliceableByteSliceNat();
+lean_mark_persistent(l_instSliceableByteSliceNat);
+l_instSliceableByteSliceNat__1 = _init_l_instSliceableByteSliceNat__1();
+lean_mark_persistent(l_instSliceableByteSliceNat__1);
+l_instSliceableByteSliceNat__2 = _init_l_instSliceableByteSliceNat__2();
+lean_mark_persistent(l_instSliceableByteSliceNat__2);
+l_instSliceableByteSliceNat__3 = _init_l_instSliceableByteSliceNat__3();
+lean_mark_persistent(l_instSliceableByteSliceNat__3);
+l_instSliceableByteSliceNat__4 = _init_l_instSliceableByteSliceNat__4();
+lean_mark_persistent(l_instSliceableByteSliceNat__4);
+l_instSliceableByteSliceNat__5 = _init_l_instSliceableByteSliceNat__5();
+lean_mark_persistent(l_instSliceableByteSliceNat__5);
+l_instSliceableByteSliceNat__6 = _init_l_instSliceableByteSliceNat__6();
+lean_mark_persistent(l_instSliceableByteSliceNat__6);
+l_instSliceableByteSliceNat__7 = _init_l_instSliceableByteSliceNat__7();
+lean_mark_persistent(l_instSliceableByteSliceNat__7);
+l_instSliceableByteSliceNat__8 = _init_l_instSliceableByteSliceNat__8();
+lean_mark_persistent(l_instSliceableByteSliceNat__8);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

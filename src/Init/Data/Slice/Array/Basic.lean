@@ -20,10 +20,49 @@ for those slices.
 
 open Std Slice PRange
 
-variable {shape : RangeShape} {α : Type u}
+variable {α : Type u}
 
-instance [ClosedOpenIntersection shape Nat] :
-    Sliceable shape (Array α) Nat (Subarray α) where
+instance : Rcc.Sliceable (Array α) Nat (Subarray α) where
   mkSlice xs range :=
-    let halfOpenRange := ClosedOpenIntersection.intersection range 0...<xs.size
+    let halfOpenRange := Rcc.HasRcoIntersection.intersection range 0...<xs.size
+    (xs.toSubarray halfOpenRange.lower halfOpenRange.upper)
+
+instance : Rco.Sliceable (Array α) Nat (Subarray α) where
+  mkSlice xs range :=
+    let halfOpenRange := Rco.HasRcoIntersection.intersection range 0...<xs.size
+    (xs.toSubarray halfOpenRange.lower halfOpenRange.upper)
+
+instance : Rci.Sliceable (Array α) Nat (Subarray α) where
+  mkSlice xs range :=
+    let halfOpenRange := Rci.HasRcoIntersection.intersection range 0...<xs.size
+    (xs.toSubarray halfOpenRange.lower halfOpenRange.upper)
+
+instance : Roc.Sliceable (Array α) Nat (Subarray α) where
+  mkSlice xs range :=
+    let halfOpenRange := Roc.HasRcoIntersection.intersection range 0...<xs.size
+    (xs.toSubarray halfOpenRange.lower halfOpenRange.upper)
+
+instance : Roo.Sliceable (Array α) Nat (Subarray α) where
+  mkSlice xs range :=
+    let halfOpenRange := Roo.HasRcoIntersection.intersection range 0...<xs.size
+    (xs.toSubarray halfOpenRange.lower halfOpenRange.upper)
+
+instance : Roi.Sliceable (Array α) Nat (Subarray α) where
+  mkSlice xs range :=
+    let halfOpenRange := Roi.HasRcoIntersection.intersection range 0...<xs.size
+    (xs.toSubarray halfOpenRange.lower halfOpenRange.upper)
+
+instance : Ric.Sliceable (Array α) Nat (Subarray α) where
+  mkSlice xs range :=
+    let halfOpenRange := Ric.HasRcoIntersection.intersection range 0...<xs.size
+    (xs.toSubarray halfOpenRange.lower halfOpenRange.upper)
+
+instance : Rio.Sliceable (Array α) Nat (Subarray α) where
+  mkSlice xs range :=
+    let halfOpenRange := Rio.HasRcoIntersection.intersection range 0...<xs.size
+    (xs.toSubarray halfOpenRange.lower halfOpenRange.upper)
+
+instance : Rii.Sliceable (Array α) Nat (Subarray α) where
+  mkSlice xs _ :=
+    let halfOpenRange := 0...<xs.size
     (xs.toSubarray halfOpenRange.lower halfOpenRange.upper)

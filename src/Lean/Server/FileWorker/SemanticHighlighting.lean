@@ -64,8 +64,8 @@ LSP position information for each token.
 -/
 def computeAbsoluteLspSemanticTokens
     (text     : FileMap)
-    (beginPos : String.Pos)
-    (endPos?  : Option String.Pos)
+    (beginPos : String.Pos.Raw)
+    (endPos?  : Option String.Pos.Raw)
     (tokens   : Array LeanSemanticToken)
     : Array AbsoluteLspSemanticToken :=
   tokens.filterMap fun ⟨stx, tokenType⟩ => do
@@ -278,8 +278,8 @@ def collectInfoBasedSemanticTokens (i : Elab.InfoTree) : Array LeanSemanticToken
       return ⟨ti.stx, SemanticTokenType.property⟩
     none
 
-def computeSemanticTokens  (doc : EditableDocument) (beginPos : String.Pos)
-    (endPos? : Option String.Pos) (snaps : List Snapshots.Snapshot) : RequestM SemanticTokens := do
+def computeSemanticTokens  (doc : EditableDocument) (beginPos : String.Pos.Raw)
+    (endPos? : Option String.Pos.Raw) (snaps : List Snapshots.Snapshot) : RequestM SemanticTokens := do
   let mut leanSemanticTokens := #[]
   for s in snaps do
     if s.endPos <= beginPos then

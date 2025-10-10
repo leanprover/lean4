@@ -124,7 +124,7 @@ private def closeLastPending (falseProof : Expr) : SearchM Unit := do
     resetChoiceStack
 
 /--
-Auxliary function for implementing `nextGoal`.
+Auxiliary function for implementing `nextGoal`.
 It is similar to `nextGoal`, but uses chronological backtracking.
 We use it when we cannot extract a proof of `False` from proof used to close the current goal.
 Returns `some gen` if a new goal was found for a choice point with generation `gen`,

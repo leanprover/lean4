@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Slice.Array.Iterator
-// Imports: Init.Core Init.Data.Slice.Array.Basic Init.Data.Iterators.Combinators.Attach Init.Data.Iterators.Combinators.FilterMap Init.Data.Iterators.Combinators.ULift Init.Data.Iterators.Consumers.Collect Init.Data.Iterators.Consumers.Loop Init.Data.Range.Polymorphic.Basic Init.Data.Range.Polymorphic.Basic Init.Data.Range.Polymorphic.Nat Init.Data.Range.Polymorphic.Iterators Init.Data.Slice.Operations Init.Omega
+// Imports: public import Init.Core public import Init.Data.Slice.Array.Basic import Init.Data.Iterators.Combinators.Attach import Init.Data.Iterators.Combinators.FilterMap public import Init.Data.Iterators.Combinators.ULift public import Init.Data.Iterators.Consumers.Collect public import Init.Data.Iterators.Consumers.Loop public import Init.Data.Range.Polymorphic.Basic import all Init.Data.Range.Polymorphic.Basic public import Init.Data.Range.Polymorphic.Nat public import Init.Data.Range.Polymorphic.Iterators public import Init.Data.Slice.Operations import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -21,6 +21,7 @@ static lean_object* l_instIteratorStateSubarrayId___redArg___closed__6;
 LEAN_EXPORT lean_object* l_Array_instCoeSubarray(lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_toArray___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_instReprSubarray___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Rxo_instIteratorIteratorIdOfUpwardEnumerableOfDecidableLT___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_foldl___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instIteratorLoopPartialStateSubarrayIdOfMonad___redArg(lean_object*, lean_object*);
 lean_object* l_Std_Iterators_Map_instIteratorLoopPartial___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -29,7 +30,6 @@ LEAN_EXPORT lean_object* l_Subarray_foldlM(lean_object*, lean_object*, lean_obje
 static lean_object* l_Array_instToStringSubarray___redArg___lam__3___closed__0;
 LEAN_EXPORT lean_object* l_Array_Subarray_repr___redArg(lean_object*, lean_object*);
 lean_object* l_Nat_decLt___boxed(lean_object*, lean_object*);
-lean_object* l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_instForInSubarray___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Std_Iterators_Types_ULiftIterator_instIterator___redArg(lean_object*, lean_object*, lean_object*);
@@ -73,7 +73,6 @@ lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instForInSubarray(lean_object*, lean_object*);
 static lean_object* l_instIteratorCollectStateSubarrayId___redArg___closed__0;
 LEAN_EXPORT lean_object* l_instIteratorSizePartialStateSubarrayId___boxed(lean_object*, lean_object*);
-static lean_object* l_instIteratorStateSubarrayId___redArg___closed__13;
 LEAN_EXPORT lean_object* l_Array_ofSubarray(lean_object*, lean_object*);
 static lean_object* l_instIteratorStateSubarrayId___redArg___closed__9;
 LEAN_EXPORT lean_object* l_Array_instToStringSubarray(lean_object*, lean_object*);
@@ -101,6 +100,7 @@ LEAN_EXPORT lean_object* l_instIteratorCollectStateSubarrayId(lean_object*, lean
 lean_object* l_Std_Iterators_Types_ULiftIterator_instIteratorCollect___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instIteratorStateSubarrayId___redArg___lam__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___Array_ofSubarray_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Array_instCoeSubarray___closed__0;
 LEAN_EXPORT lean_object* l_instIteratorSizePartialStateSubarrayId(lean_object*, lean_object*);
 static lean_object* l_instIteratorStateSubarrayId___redArg___closed__3;
@@ -128,7 +128,6 @@ static lean_object* l_instIteratorStateSubarrayId___redArg___closed__5;
 static lean_object* l_Subarray_foldlM___redArg___closed__0;
 LEAN_EXPORT lean_object* l_instIteratorCollectPartialStateSubarrayId___redArg(lean_object*);
 lean_object* l_Std_Iterators_Types_ULiftIterator_instIteratorSize___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_PRange_instIteratorRangeIteratorIdOfUpwardEnumerableOfSupportsUpperBound___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_instReprSubarray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToIteratorSubarrayId___redArg(lean_object*);
 lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -312,29 +311,20 @@ return x_1;
 static lean_object* _init_l_instIteratorStateSubarrayId___redArg___closed__11() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_instIteratorStateSubarrayId___redArg___closed__10;
-x_2 = l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(x_1);
-return x_2;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Std_PRange_instUpwardEnumerableNat;
+x_2 = l_instIteratorStateSubarrayId___redArg___closed__10;
+x_3 = lean_alloc_closure((void*)(l_Std_Rxo_instIteratorIteratorIdOfUpwardEnumerableOfDecidableLT___redArg___lam__0), 3, 2);
+lean_closure_set(x_3, 0, x_2);
+lean_closure_set(x_3, 1, x_1);
+return x_3;
 }
 }
 static lean_object* _init_l_instIteratorStateSubarrayId___redArg___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_PRange_instUpwardEnumerableNat;
-x_2 = l_instIteratorStateSubarrayId___redArg___closed__11;
-x_3 = lean_alloc_closure((void*)(l_Std_PRange_instIteratorRangeIteratorIdOfUpwardEnumerableOfSupportsUpperBound___redArg___lam__0), 3, 2);
-lean_closure_set(x_3, 0, x_2);
-lean_closure_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_instIteratorStateSubarrayId___redArg___closed__13() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_instIteratorStateSubarrayId___redArg___closed__12;
+x_1 = l_instIteratorStateSubarrayId___redArg___closed__11;
 x_2 = l_instIteratorStateSubarrayId___redArg___closed__9;
 x_3 = l_Std_Iterators_Types_Attach_instIterator___redArg(x_2, x_1);
 return x_3;
@@ -348,7 +338,7 @@ x_2 = lean_alloc_closure((void*)(l_instIteratorStateSubarrayId___redArg___lam__0
 x_3 = lean_alloc_closure((void*)(l_instIteratorStateSubarrayId___redArg___lam__2___boxed), 2, 1);
 lean_closure_set(x_3, 0, x_1);
 x_4 = l_instIteratorStateSubarrayId___redArg___closed__9;
-x_5 = l_instIteratorStateSubarrayId___redArg___closed__13;
+x_5 = l_instIteratorStateSubarrayId___redArg___closed__12;
 lean_inc_ref(x_2);
 x_6 = l_Std_Iterators_Types_ULiftIterator_instIterator___redArg(x_2, x_5, x_4);
 x_7 = l_Std_Iterators_instIteratorMap___redArg(x_4, x_6, x_2, x_3);
@@ -394,7 +384,7 @@ static lean_object* _init_l_instIteratorCollectStateSubarrayId___redArg___closed
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_instIteratorStateSubarrayId___redArg___closed__13;
+x_1 = l_instIteratorStateSubarrayId___redArg___closed__12;
 x_2 = l_instIteratorStateSubarrayId___redArg___closed__9;
 x_3 = l_instIteratorCollectStateSubarrayId___redArg___closed__0;
 x_4 = l_Std_Iterators_Types_ULiftIterator_instIteratorCollect___redArg(x_3, x_2, x_2, x_1);
@@ -426,7 +416,7 @@ static lean_object* _init_l_instIteratorCollectPartialStateSubarrayId___redArg__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_instIteratorStateSubarrayId___redArg___closed__13;
+x_1 = l_instIteratorStateSubarrayId___redArg___closed__12;
 x_2 = l_instIteratorStateSubarrayId___redArg___closed__9;
 x_3 = l_instIteratorCollectStateSubarrayId___redArg___closed__0;
 x_4 = l_Std_Iterators_Types_ULiftIterator_instIteratorCollectPartial___redArg(x_3, x_2, x_2, x_1);
@@ -459,7 +449,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_instIteratorStateSubarrayId___redArg___closed__9;
-x_2 = l_instIteratorStateSubarrayId___redArg___closed__13;
+x_2 = l_instIteratorStateSubarrayId___redArg___closed__12;
 x_3 = l_instIteratorCollectStateSubarrayId___redArg___closed__0;
 x_4 = l_Std_Iterators_Types_ULiftIterator_instIterator___redArg(x_3, x_2, x_1);
 return x_4;
@@ -511,7 +501,7 @@ static lean_object* _init_l_instIteratorSizeStateSubarrayId___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_instIteratorStateSubarrayId___redArg___closed__13;
+x_1 = l_instIteratorStateSubarrayId___redArg___closed__12;
 x_2 = l_instIteratorStateSubarrayId___redArg___closed__9;
 x_3 = l_instIteratorCollectStateSubarrayId___redArg___closed__0;
 x_4 = l_Std_Iterators_Types_ULiftIterator_instIteratorSize___redArg(x_3, x_2, x_1);
@@ -549,7 +539,7 @@ static lean_object* _init_l_instIteratorSizePartialStateSubarrayId___closed__0()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_instIteratorStateSubarrayId___redArg___closed__13;
+x_1 = l_instIteratorStateSubarrayId___redArg___closed__12;
 x_2 = l_instIteratorStateSubarrayId___redArg___closed__9;
 x_3 = l_instIteratorCollectStateSubarrayId___redArg___closed__0;
 x_4 = l_Std_Iterators_Types_ULiftIterator_instIteratorSizePartial___redArg(x_3, x_2, x_1);
@@ -640,7 +630,7 @@ lean_ctor_set(x_17, 0, x_11);
 x_18 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_18, 0, x_17);
 lean_ctor_set(x_18, 1, x_12);
-x_19 = l_instIteratorStateSubarrayId___redArg___closed__13;
+x_19 = l_instIteratorStateSubarrayId___redArg___closed__12;
 x_20 = l_Std_Iterators_Types_ULiftIterator_instIterator___redArg(x_1, x_19, x_13);
 x_21 = l_Std_Iterators_instIteratorMap___redArg(x_13, x_20, x_2, x_16);
 lean_inc_ref(x_15);
@@ -961,15 +951,10 @@ lean_dec(x_7);
 x_8 = !lean_is_exclusive(x_4);
 if (x_8 == 0)
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+lean_object* x_9; uint8_t x_10; 
 x_9 = lean_ctor_get(x_4, 0);
-x_10 = l_instIteratorStateSubarrayId___redArg___closed__10;
-x_11 = l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(x_10);
-lean_inc(x_9);
-lean_inc(x_6);
-x_12 = lean_apply_2(x_11, x_6, x_9);
-x_13 = lean_unbox(x_12);
-if (x_13 == 0)
+x_10 = lean_nat_dec_lt(x_9, x_6);
+if (x_10 == 0)
 {
 lean_free_object(x_4);
 lean_dec(x_9);
@@ -979,105 +964,95 @@ return x_3;
 }
 else
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_14 = lean_ctor_get(x_1, 0);
-x_15 = lean_unsigned_to_nat(1u);
-x_16 = lean_nat_add(x_9, x_15);
-lean_ctor_set(x_4, 0, x_16);
-x_17 = lean_array_fget_borrowed(x_14, x_9);
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_11 = lean_ctor_get(x_1, 0);
+x_12 = lean_unsigned_to_nat(1u);
+x_13 = lean_nat_add(x_9, x_12);
+lean_ctor_set(x_4, 0, x_13);
+x_14 = lean_array_fget_borrowed(x_11, x_9);
 lean_dec(x_9);
-lean_inc(x_17);
-x_18 = lean_array_push(x_3, x_17);
-x_3 = x_18;
+lean_inc(x_14);
+x_15 = lean_array_push(x_3, x_14);
+x_3 = x_15;
 goto _start;
 }
 }
 else
 {
-lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
-x_20 = lean_ctor_get(x_4, 0);
-lean_inc(x_20);
+lean_object* x_17; uint8_t x_18; 
+x_17 = lean_ctor_get(x_4, 0);
+lean_inc(x_17);
 lean_dec(x_4);
-x_21 = l_instIteratorStateSubarrayId___redArg___closed__10;
-x_22 = l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(x_21);
-lean_inc(x_20);
-lean_inc(x_6);
-x_23 = lean_apply_2(x_22, x_6, x_20);
-x_24 = lean_unbox(x_23);
-if (x_24 == 0)
+x_18 = lean_nat_dec_lt(x_17, x_6);
+if (x_18 == 0)
 {
-lean_dec(x_20);
+lean_dec(x_17);
 lean_free_object(x_2);
 lean_dec(x_6);
 return x_3;
 }
 else
 {
-lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
-x_25 = lean_ctor_get(x_1, 0);
-x_26 = lean_unsigned_to_nat(1u);
-x_27 = lean_nat_add(x_20, x_26);
-x_28 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_28, 0, x_27);
-lean_ctor_set(x_2, 0, x_28);
-x_29 = lean_array_fget_borrowed(x_25, x_20);
-lean_dec(x_20);
-lean_inc(x_29);
-x_30 = lean_array_push(x_3, x_29);
-x_3 = x_30;
+lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+x_19 = lean_ctor_get(x_1, 0);
+x_20 = lean_unsigned_to_nat(1u);
+x_21 = lean_nat_add(x_17, x_20);
+x_22 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_22, 0, x_21);
+lean_ctor_set(x_2, 0, x_22);
+x_23 = lean_array_fget_borrowed(x_19, x_17);
+lean_dec(x_17);
+lean_inc(x_23);
+x_24 = lean_array_push(x_3, x_23);
+x_3 = x_24;
 goto _start;
 }
 }
 }
 else
 {
-lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; uint8_t x_38; 
-x_32 = lean_ctor_get(x_2, 1);
-lean_inc(x_32);
+lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; 
+x_26 = lean_ctor_get(x_2, 1);
+lean_inc(x_26);
 lean_dec(x_2);
-x_33 = lean_ctor_get(x_4, 0);
-lean_inc(x_33);
+x_27 = lean_ctor_get(x_4, 0);
+lean_inc(x_27);
 if (lean_is_exclusive(x_4)) {
  lean_ctor_release(x_4, 0);
- x_34 = x_4;
+ x_28 = x_4;
 } else {
  lean_dec_ref(x_4);
- x_34 = lean_box(0);
+ x_28 = lean_box(0);
 }
-x_35 = l_instIteratorStateSubarrayId___redArg___closed__10;
-x_36 = l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(x_35);
-lean_inc(x_33);
-lean_inc(x_32);
-x_37 = lean_apply_2(x_36, x_32, x_33);
-x_38 = lean_unbox(x_37);
-if (x_38 == 0)
+x_29 = lean_nat_dec_lt(x_27, x_26);
+if (x_29 == 0)
 {
-lean_dec(x_34);
-lean_dec(x_33);
-lean_dec(x_32);
+lean_dec(x_28);
+lean_dec(x_27);
+lean_dec(x_26);
 return x_3;
 }
 else
 {
-lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; 
-x_39 = lean_ctor_get(x_1, 0);
-x_40 = lean_unsigned_to_nat(1u);
-x_41 = lean_nat_add(x_33, x_40);
-if (lean_is_scalar(x_34)) {
- x_42 = lean_alloc_ctor(1, 1, 0);
+lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
+x_30 = lean_ctor_get(x_1, 0);
+x_31 = lean_unsigned_to_nat(1u);
+x_32 = lean_nat_add(x_27, x_31);
+if (lean_is_scalar(x_28)) {
+ x_33 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_42 = x_34;
+ x_33 = x_28;
 }
-lean_ctor_set(x_42, 0, x_41);
-x_43 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_43, 0, x_42);
-lean_ctor_set(x_43, 1, x_32);
-x_44 = lean_array_fget_borrowed(x_39, x_33);
-lean_dec(x_33);
-lean_inc(x_44);
-x_45 = lean_array_push(x_3, x_44);
-x_2 = x_43;
-x_3 = x_45;
+lean_ctor_set(x_33, 0, x_32);
+x_34 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_34, 0, x_33);
+lean_ctor_set(x_34, 1, x_26);
+x_35 = lean_array_fget_borrowed(x_30, x_27);
+lean_dec(x_27);
+lean_inc(x_35);
+x_36 = lean_array_push(x_3, x_35);
+x_2 = x_34;
+x_3 = x_36;
 goto _start;
 }
 }
@@ -1215,7 +1190,7 @@ lean_ctor_set(x_15, 0, x_8);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_9);
-x_17 = l_instIteratorStateSubarrayId___redArg___closed__13;
+x_17 = l_instIteratorStateSubarrayId___redArg___closed__12;
 x_18 = l_Std_Iterators_Types_ULiftIterator_instIterator___redArg(x_1, x_17, x_10);
 x_19 = lean_unsigned_to_nat(0u);
 x_20 = l_Array_ofSubarray___redArg___closed__0;
@@ -1377,7 +1352,7 @@ x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_7);
 x_11 = l_instIteratorStateSubarrayId___redArg___closed__9;
-x_12 = l_instIteratorStateSubarrayId___redArg___closed__13;
+x_12 = l_instIteratorStateSubarrayId___redArg___closed__12;
 x_13 = l_Std_Iterators_Types_ULiftIterator_instIterator___redArg(x_1, x_12, x_11);
 x_14 = l_Array_ofSubarray___redArg___closed__0;
 x_15 = l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___redArg(x_13, x_2, x_8, x_11, x_10, x_14);
@@ -1526,8 +1501,6 @@ l_instIteratorStateSubarrayId___redArg___closed__11 = _init_l_instIteratorStateS
 lean_mark_persistent(l_instIteratorStateSubarrayId___redArg___closed__11);
 l_instIteratorStateSubarrayId___redArg___closed__12 = _init_l_instIteratorStateSubarrayId___redArg___closed__12();
 lean_mark_persistent(l_instIteratorStateSubarrayId___redArg___closed__12);
-l_instIteratorStateSubarrayId___redArg___closed__13 = _init_l_instIteratorStateSubarrayId___redArg___closed__13();
-lean_mark_persistent(l_instIteratorStateSubarrayId___redArg___closed__13);
 l_instIteratorCollectStateSubarrayId___redArg___closed__0 = _init_l_instIteratorCollectStateSubarrayId___redArg___closed__0();
 lean_mark_persistent(l_instIteratorCollectStateSubarrayId___redArg___closed__0);
 l_instIteratorCollectStateSubarrayId___redArg___closed__1 = _init_l_instIteratorCollectStateSubarrayId___redArg___closed__1();

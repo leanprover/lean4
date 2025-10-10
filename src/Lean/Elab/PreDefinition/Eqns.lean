@@ -101,10 +101,11 @@ partial def splitMatch? (mvarId : MVarId) (declNames : Array Name) : MetaM (Opti
                                        target declNames badCases then
       try
         Meta.Split.splitMatch mvarId e
-      catch _ =>
+      catch ex =>
+        trace[Elab.definition.eqns] "cannot split {e}\n{ex.toMessageData}"
         go (badCases.insert e)
     else
-      trace[Meta.Tactic.split] "did not find term to split\n{MessageData.ofGoal mvarId}"
+      trace[Elab.definition.eqns] "did not find term to split\n{MessageData.ofGoal mvarId}"
       return none
   go {}
 
@@ -288,7 +289,7 @@ public def deltaLHS (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let some lhs ← delta? lhs | throwTacticEx `deltaLHS mvarId "failed to delta reduce lhs"
   mvarId.replaceTargetDefEq (← mkEq lhs rhs)
 
-def deltaRHS? (mvarId : MVarId) (declName : Name) : MetaM (Option MVarId) := mvarId.withContext do
+public def deltaRHS? (mvarId : MVarId) (declName : Name) : MetaM (Option MVarId) := mvarId.withContext do
   let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | return none
   let some rhs ← delta? rhs.consumeMData (· == declName) | return none
@@ -347,7 +348,7 @@ private def unfoldLHS (declName : Name) (mvarId : MVarId) : MetaM MVarId := mvar
     deltaLHS mvarId
 
 private partial def mkEqnProof (declName : Name) (type : Expr) (tryRefl : Bool) : MetaM Expr := do
-  trace[Elab.definition.eqns] "proving: {type}"
+  withTraceNode `Elab.definition.eqns (return m!"{exceptEmoji ·} proving:{indentExpr type}") do
   withNewMCtxDepth do
     let main ← mkFreshExprSyntheticOpaqueMVar type
     let (_, mvarId) ← main.mvarId!.intros
@@ -357,7 +358,7 @@ private partial def mkEqnProof (declName : Name) (type : Expr) (tryRefl : Bool) 
     -- For well-founded recursion this is disabled: The equation may hold
     -- definitionally as written, but not embedded in larger proofs
     if tryRefl then
-      if (← withAtLeastTransparency .all (tryURefl mvarId)) then
+      if (← tryURefl mvarId) then
         return ← instantiateMVars main
 
     go (← unfoldLHS declName mvarId)
@@ -371,8 +372,8 @@ private partial def mkEqnProof (declName : Name) (type : Expr) (tryRefl : Bool) 
   recursion and structural recursion can and should use this too.
   -/
   go (mvarId : MVarId) : MetaM Unit := do
-    trace[Elab.definition.eqns] "step\n{MessageData.ofGoal mvarId}"
-    if ← withAtLeastTransparency .all (tryURefl mvarId) then
+    withTraceNode `Elab.definition.eqns (return m!"{exceptEmoji ·} step:\n{MessageData.ofGoal mvarId}") do
+    if (← tryURefl mvarId) then
       return ()
     else if (← tryContradiction mvarId) then
       return ()
@@ -431,10 +432,10 @@ where
   doRealize name info type := withOptions (tactic.hygienic.set · false) do
     let value ← mkEqnProof declName type tryRefl
     let (type, value) ← removeUnusedEqnHypotheses type value
-    addDecl <| Declaration.thmDecl {
+    addDecl <| (←mkThmOrUnsafeDef {
       name, type, value
       levelParams := info.levelParams
-    }
+    })
     inferDefEqAttr name
 
 /--

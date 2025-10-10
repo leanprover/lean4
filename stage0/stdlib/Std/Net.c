@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Net
-// Imports: Std.Net.Addr
+// Imports: public import Std.Net.Addr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

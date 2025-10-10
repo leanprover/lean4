@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.AC
-// Imports: Init.Classical Init.ByCases
+// Imports: public import Init.Classical public import Init.ByCases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

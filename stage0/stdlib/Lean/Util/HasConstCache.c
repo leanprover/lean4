@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.HasConstCache
-// Imports: Lean.Expr Std.Data.HashMap.Raw
+// Imports: public import Lean.Expr public import Std.Data.HashMap.Raw
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

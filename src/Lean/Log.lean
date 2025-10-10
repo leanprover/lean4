@@ -44,9 +44,9 @@ instance (m n) [MonadLift m n] [MonadLog m] : MonadLog n where
 variable [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
 
 /--
-Return the position (as `String.pos`) associated with the current reference syntax (i.e., the syntax object returned by `getRef`.)
+Return the position (as `String.Pos.Raw`) associated with the current reference syntax (i.e., the syntax object returned by `getRef`.)
 -/
-def getRefPos : m String.Pos := do
+def getRefPos : m String.Pos.Raw := do
   let ref ← MonadLog.getRef
   return ref.getPos?.getD 0
 

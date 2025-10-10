@@ -13,6 +13,8 @@ public import Init.Data.Nat.Log2
 import all Init.Data.Nat.Log2
 public import Init.Data.Nat.Power2
 public import Init.Data.Nat.Mod
+import Init.TacticsExtra
+import Init.BinderPredicates
 
 public section
 
@@ -1796,13 +1798,3 @@ instance decidableExistsFin (P : Fin n → Prop) [DecidablePred P] : Decidable (
   decidable_of_iff (∃ k, k < n ∧ ((h: k < n) → P ⟨k, h⟩))
     ⟨fun ⟨k, a⟩ => Exists.intro ⟨k, a.left⟩ (a.right a.left),
     fun ⟨i, e⟩ => Exists.intro i.val ⟨i.isLt, fun _ => e⟩⟩
-
-
-/-! ### Results about `List.sum` specialized to `Nat` -/
-
-protected theorem sum_pos_iff_exists_pos {l : List Nat} : 0 < l.sum ↔ ∃ x ∈ l, 0 < x := by
-  induction l with
-  | nil => simp
-  | cons x xs ih =>
-    simp [← ih]
-    omega

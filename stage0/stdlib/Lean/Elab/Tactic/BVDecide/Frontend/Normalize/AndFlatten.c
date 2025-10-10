@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AndFlatten
-// Imports: Std.Tactic.BVDecide.Normalize.Bool Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic Lean.Meta.Tactic.Assert
+// Imports: public import Std.Tactic.BVDecide.Normalize.Bool public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic public import Lean.Meta.Tactic.Assert
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

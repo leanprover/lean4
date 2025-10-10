@@ -1172,7 +1172,6 @@ extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to, lean
     }
     const char* to_str = string_cstr(to);
     if (strlen(to_str) != lean_string_size(to) - 1) {
-        inc(to);
         return mk_embedded_nul_error(to);
     }
 #ifdef LEAN_WINDOWS
@@ -1195,6 +1194,26 @@ extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to, lean
     }
 #endif
     return io_result_mk_ok(box(0));
+}
+
+/* hardLink (orig link : @& FilePath) : IO Unit */
+extern "C" LEAN_EXPORT obj_res lean_io_hard_link(b_obj_arg orig, b_obj_arg link, lean_object * /* w */) {
+    const char* orig_str = string_cstr(orig);
+    if (strlen(orig_str) != lean_string_size(orig) - 1) {
+        return mk_embedded_nul_error(orig);
+    }
+    const char* link_str = string_cstr(link);
+    if (strlen(link_str) != lean_string_size(link) - 1) {
+        return mk_embedded_nul_error(link);
+    }
+    uv_fs_t req;
+    int ret = uv_fs_link(NULL, &req, orig_str, link_str, NULL);
+    uv_fs_req_cleanup(&req);
+    if (ret < 0) {
+        return io_result_mk_error(decode_uv_error(ret, orig));
+    } else {
+        return io_result_mk_ok(box(0));
+    }
 }
 
 /* createTempFile : IO (Handle × FilePath) */
@@ -1232,6 +1251,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
     // Differences from lean_io_create_tempdir start here
     ret = uv_fs_mkstemp(NULL, &req, path, NULL);
     if (ret < 0) {
+        uv_fs_req_cleanup(&req);
         // If mkstemp throws an error we cannot rely on path to contain a proper file name.
         return io_result_mk_error(decode_uv_error(ret, nullptr));
     } else {
@@ -1277,6 +1297,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempdir(lean_object * /* w */) {
     // Differences from lean_io_create_tempfile start here
     ret = uv_fs_mkdtemp(NULL, &req, path, NULL);
     if (ret < 0) {
+        uv_fs_req_cleanup(&req);
         // If mkdtemp throws an error we cannot rely on path to contain a proper file name.
         return io_result_mk_error(decode_uv_error(ret, nullptr));
     } else {
@@ -1537,6 +1558,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_wait(obj_arg t, obj_arg) {
 
 extern "C" LEAN_EXPORT obj_res lean_io_exit(uint8_t code, obj_arg /* w */) {
     exit(code);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_force_exit(uint8_t code, obj_arg /* w */) {
+    std::_Exit((int)code);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_runtime_mark_multi_threaded(obj_arg a, obj_arg /* w */) {

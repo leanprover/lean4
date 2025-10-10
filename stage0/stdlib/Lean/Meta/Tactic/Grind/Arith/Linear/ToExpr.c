@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Linear.ToExpr
-// Imports: Init.Grind.Ordered.Linarith Lean.ToExpr
+// Imports: public import Init.Grind.Ordered.Linarith public import Lean.ToExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

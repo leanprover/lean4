@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Lcm
-// Imports: Init.Data.Nat.Gcd Init.Data.Nat.Lemmas
+// Imports: public import Init.Data.Nat.Gcd public import Init.Data.Nat.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

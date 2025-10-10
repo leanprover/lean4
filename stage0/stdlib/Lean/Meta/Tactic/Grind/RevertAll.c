@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.RevertAll
-// Imports: Lean.Meta.Tactic.Revert
+// Imports: public import Lean.Meta.Tactic.Revert
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

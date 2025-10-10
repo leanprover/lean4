@@ -9,355 +9,410 @@ prelude
 public import Init.Core
 public import Init.Data.Range.Polymorphic.UpwardEnumerable
 
+set_option doc.verso true
+
 public section
 
-namespace Std.PRange
+namespace Std
+
+open PRange
 
 /--
-The shape of a range's upper or lower bound: `open`, `closed` or `unbounded`.
--/
-inductive BoundShape where
-  /--
-  An open upper (or lower) bound of this shape requires elements of a range to be less than
-  (or greater than) the bound, excluding the bound itself.
-  -/
-  | «open» : BoundShape
-  /--
-  A closed upper (or lower) bound of this shape requires elements of a range to be less than or equal
-  (or greater than or equal) to the bound.
-  -/
-  | closed : BoundShape
-  /--
-  This bound shape signifies the absence of a range bound, so that the range is unbounded in at
-  least one direction.
-  -/
-  | unbounded : BoundShape
+A range of elements of {given}`α` with closed lower and upper bounds.
 
-/-- The shape of a range, consisting of the shape of its upper and lower bounds. -/
-structure RangeShape where
-  /-- The shape of the range's lower bound. -/
-  lower : BoundShape
-  /-- The shape of the range's upper bound. -/
-  upper : BoundShape
+{lit}`a...=b` is the range of all values greater than or equal to {given}`a : α` and less than or
+equal to {given}`b : α`. This is notation for {lean}`Rcc.mk a b`.
+-/
+structure Rcc (α : Type u) where
+  lower : α
+  upper : α
 
 /--
-An upper or lower bound in `α` of the given shape.
+A range of elements of {given}`α` with a closed lower bound and an open upper bound.
+
+{lit}`a...b` or {lit}`a...<b` is the range of all values greater than or equal to {given}`a : α` and
+less than {given}`b : α`. This is notation for {lean}`Rco.mk a b`.
 -/
-abbrev Bound (shape : BoundShape) (α : Type u) : Type u :=
-  match shape with
-  | .open | .closed => α
-  | .unbounded => PUnit
+structure Rco (α : Type u) where
+  lower : α
+  upper : α
 
 /--
-A range of elements of some type `α`. It is characterized by its upper and lower bounds, which
-may be inclusive, exclusive or absent.
+An upward-unbounded range of elements of {given}`α` with a closed lower bound.
 
-* `a...=b` is the range of elements greater than or equal to `a` and less than or equal to `b`.
-* `a...b` or `a...<b` is the range of elements greater than or equal to `a` and less than `b`.
-* `a...*` is the range of elements greater than or equal to `a`.
-* `a<...=b` is the range of elements greater than `a` and less than or equal to `b`.
-* `a<...b` or `a<...<b` is the range of elements greater than `a` and less than `b`.
-* `a<...*` is the range of elements greater than `a`.
-* `*...=b` is the range of elements less than or equal to `b`.
-* `*...b` or `*...<b` is the range of elements less than `b`.
-* `*...*` contains all elements of `α`.
-
-The recommended spelling for these ranges can be found in the `PRange.mk` constructor's docstring.
+{lit}`a...*` is the range of all values greater than or equal to {given}`a : α`.
+This is notation for {lean}`Rci.mk a`.
 -/
-structure _root_.Std.PRange (shape : RangeShape) (α : Type u) where
-  /-- The lower bound of the range. -/
-  lower : Bound shape.lower α
-  /-- The upper bound of the range. -/
-  upper : Bound shape.upper α
+structure Rci (α : Type u) where
+  lower : α
 
 /--
-Creates a new range. For more information about ranges, see `Std.PRange`.
+A range of elements of {given}`α` with an open lower bound and a closed upper bound.
 
-The implicit `shape` parameter specifies the shape of the explicitly given
-lower and upper bounds.
+{lit}`a<...=b` is the range of all values greater than {given}`a : α` and less than or equal to
+{given}`b : α`. This is notation for {lean}`Roc.mk a b`.
 -/
-add_decl_doc _root_.Std.PRange.mk
+structure Roc (α : Type u) where
+  lower : α
+  upper : α
 
-/-- `a...*` is the range of elements greater than or equal to `a`. See also `Std.PRange`. -/
+/--
+A range of elements of {given}`α` with an open lower and upper bounds.
+
+{lit}`a<...b` or {lit}`a<...<b` is the range of all values greater than {given}`a : α` and less than
+{given}`b : α`. This is notation for {lean}`Roo.mk a b`.
+-/
+structure Roo (α : Type u) where
+  lower : α
+  upper : α
+
+/--
+An upward-unbounded range of elements of {given}`α` with an open lower bound.
+
+{lit}`a<...*` is the range of all values greater than {given}`a : α`.
+This is notation for {lean}`Roi.mk a`.
+-/
+structure Roi (α : Type u) where
+  lower : α
+
+/--
+A downward-unbounded range of elements of {given}`α` with a closed upper bound.
+
+{lit}`*...=b` is the range of all values less than or equal to {given}`b : α`.
+This is notation for {lean}`Ric.mk b`.
+-/
+structure Ric (α : Type u) where
+  upper : α
+
+/--
+A downward-unbounded range of elements of {given}`α` with an open upper bound.
+
+{lit}`*...b` or {lit}`*...<b` is the range of all values less than {given}`b : α`.
+This is notation for {lean}`Rio.mk b`.
+-/
+structure Rio (α : Type u) where
+  upper : α
+
+/--
+A full range of all elements of {lit}`α`. Its only inhabitant is the range {lit}`*...*`, which is
+notation for {lean}`Rii.mk`.
+-/
+structure Rii (α : Type u) where
+
+/-- `a...*` is the range of elements greater than or equal to {lit}`a`. See also {name}`Std.Rci`. -/
 syntax:max (term "...*") : term
-/-- `*...*` is the range that is unbounded in both directions. See also `Std.PRange`. -/
+/-- `*...*` is the range that is unbounded in both directions. See also {lean}`Std.Rii`. -/
 syntax:max ("*...*") : term
-/-- `a<...*` is the range of elements greater than `a`. See also `Std.PRange`. -/
+/-- `a<...*` is the range of elements greater than {lit}`a`. See also {lean}`Std.Roi`. -/
 syntax:max (term "<...*") : term
 /--
-`a...<b` is the range of elements greater than or equal to `a` and less than `b`.
-See also `Std.PRange`.
+`a...<b` is the range of elements greater than or equal to {lit}`a` and less than {lit}`b`.
+See also {lean}`Std.Rco`.
 -/
 syntax:max (term "...<" term) : term
 /--
-`a...b` is the range of elements greater than or equal to `a` and less than `b`.
-See also `Std.PRange`.
+`a...b` is the range of elements greater than or equal to {lit}`a` and less than {lit}`b`.
+See also {lean}`Std.Rco`.
 -/
 syntax:max (term "..." term) : term
-/-- `*...<b` is the range of elements less than `b`. See also `Std.PRange`. -/
+/-- `*...<b` is the range of elements less than {lit}`b`. See also {lean}`Std.Rio`. -/
 syntax:max ("*...<" term) : term
-/-- `*...b` is the range of elements less than `b`. See also `Std.PRange`. -/
+/-- `*...b` is the range of elements less than {lit}`b`. See also {lean}`Std.Rio`. -/
 syntax:max ("*..." term) : term
 /--
-`a<...<b` is the range of elements greater than `a` and less than `b`.
-See also `Std.PRange`.
+`a<...<b` is the range of elements greater than {lit}`a` and less than {lit}`b`.
+See also {lean}`Std.Roo`.
 -/
 syntax:max (term "<...<" term) : term
 /--
-`a<...b` is the range of elements greater than `a` and less than `b`.
-See also `Std.PRange`.
+`a<...b` is the range of elements greater than {lit}`a` and less than {lit}`b`.
+See also {lean}`Std.Roo`.
 -/
 syntax:max (term "<..." term) : term
 /--
-`a...=b` is the range of elements greater than or equal to `a` and less than or equal to `b`.
-See also `Std.PRange`.
+`a...=b` is the range of elements greater than or equal to {lit}`a` and less than or equal to
+{lit}`b`. See also {lean}`Std.Rcc`.
 -/
 syntax:max (term "...=" term) : term
-/-- `*...=b` is the range of elements less than or equal to `b`. See also `Std.PRange`. -/
+/-- `*...=b` is the range of elements less than or equal to {lit}`b`. See also {lean}`Std.Ric`. -/
 syntax:max ("*...=" term) : term
 /--
-`a<...=b` is the range of elements greater than `a` and less than or equal to `b`.
-See also `Std.PRange`.
+`a<...=b` is the range of elements greater than {lit}`a` and less than or equal to {lit}`b`.
+See also {lean}`Std.Roc`.
 -/
 syntax:max (term "<...=" term) : term
 
 macro_rules
-  | `($a...=$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.closed) $a $b)
-  | `(*...=$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.closed) PUnit.unit $b)
-  | `($a...*) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.unbounded) $a PUnit.unit)
-  | `(*...*) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.unbounded) PUnit.unit PUnit.unit)
-  | `($a<...=$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.closed) $a $b)
-  | `($a<...*) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.unbounded) $a PUnit.unit)
-  | `($a...<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.open) $a $b)
-  | `($a...$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.closed BoundShape.open) $a $b)
-  | `(*...<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.open) PUnit.unit $b)
-  | `(*...$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.unbounded BoundShape.open) PUnit.unit $b)
-  | `($a<...<$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.open) $a $b)
-  | `($a<...$b) => ``(PRange.mk (shape := RangeShape.mk BoundShape.open BoundShape.open) $a $b)
-
-recommended_spelling "Rcc" for "a...=b" in [PRange.mk, «term_...=_»]
-recommended_spelling "Rco" for "a...b" in [PRange.mk, «term_..._», «term_...<_»]
-recommended_spelling "Rco" for "a...<b" in [«term_...<_»]
-recommended_spelling "Rci" for "a...*" in [PRange.mk, «term_...*»]
-recommended_spelling "Roc" for "a<...=b" in [PRange.mk, «term_<...=_»]
-recommended_spelling "Roo" for "a<...b" in [PRange.mk, «term_<..._», «term_<...<_»]
-recommended_spelling "Roo" for "a<...<b" in [«term_<...<_»]
-recommended_spelling "Roi" for "a<...*" in [PRange.mk, «term_<...*»]
-recommended_spelling "Ric" for "*...=b" in [PRange.mk, «term*...=_»]
-recommended_spelling "Rio" for "*...b" in [PRange.mk, «term*..._», «term*...<_»]
-recommended_spelling "Rio" for "*...<b" in [«term*...<_»]
-recommended_spelling "Rii" for "*...*" in [PRange.mk, «term*...*»]
-
-recommended_spelling "Rcx" for "PRange.mk .closed ub" in [PRange.mk]
-recommended_spelling "Rox" for "PRange.mk .open ub" in [PRange.mk]
-recommended_spelling "Rix" for "PRange.mk .unbounded ub" in [PRange.mk]
-recommended_spelling "Rxc" for "PRange.mk lb .closed" in [PRange.mk]
-recommended_spelling "Rxo" for "PRange.mk lb .open" in [PRange.mk]
-recommended_spelling "Rxi" for "PRange.mk lb .unbounded" in [PRange.mk]
-recommended_spelling "Rxx" for "PRange.mk lb ub" in [PRange.mk]
+  | `($a...=$b) => ``(Rcc.mk $a $b)
+  | `(*...=$b) => ``(Ric.mk $b)
+  | `($a...*) => ``(Rci.mk $a)
+  | `(*...*) => ``(Rii.mk)
+  | `($a<...=$b) => ``(Roc.mk $a $b)
+  | `($a<...*) => ``(Roi.mk $a)
+  | `($a...<$b) => ``(Rco.mk $a $b)
+  | `($a...$b) => ``(Rco.mk $a $b)
+  | `(*...<$b) => ``(Rio.mk $b)
+  | `(*...$b) => ``(Rio.mk $b)
+  | `($a<...<$b) => ``(Roo.mk $a $b)
+  | `($a<...$b) => ``(Roo.mk $a $b)
 
 /--
-This typeclass provides decidable lower bound checks of the given shape.
-
-Instances are automatically provided in the following cases:
-
-* `shape` is `open` and there is an `LT α` instance
-* `shape` is `closed` and there is an `LE α` instance
-* `shape` is `.unbounded`
+This type class ensures that right-closed ranges (i.e., for bounds {given}`a` and {given}`b`,
+{lean}`a...=b`, {lean}`a<...=b` and {lean}`*...=b`) are always finite.
+This is a prerequisite for many functions and instances, such as
+{name (scope := "Init.Data.Range.Polymorphic.Iterators")}`Rcc.toList` or {name}`ForIn'`.
 -/
-class SupportsLowerBound (shape : BoundShape) (α : Type u) where
-  IsSatisfied : Bound shape α → α → Prop
-  decidableSatisfiesLowerBound : DecidableRel IsSatisfied := by infer_instance
-
-attribute [simp] SupportsLowerBound.IsSatisfied
-
-instance : SupportsLowerBound .unbounded α where
-  IsSatisfied _ _ := True
+class Rxc.IsAlwaysFinite (α : Type u) [UpwardEnumerable α] [LE α] : Prop where
+  finite (init : α) (hi : α) :
+    ∃ n, (UpwardEnumerable.succMany? n init).elim True (¬ · ≤ hi)
 
 /--
-This typeclass provides decidable upper bound checks of the given shape.
-
-Instances are automatically provided in the following cases:
-
-* `shape` is `open` and there is an `LT α` instance
-* `shape` is `closed` and there is an `LE α` instance
-* `shape` is `.unbounded`
+This type class ensures that right-open ranges (i.e., for bounds {given}`a` and {given}`b`,
+{lean}`a...b`, {lean}`a<...b` and {lean}`*...b`) are always finite.
+This is a prerequisite for many functions and instances, such as
+{name (scope := "Init.Data.Range.Polymorphic.Iterators")}`Rco.toList` or {name}`ForIn'`.
 -/
-class SupportsUpperBound (shape : BoundShape) (α : Type u) where
-  IsSatisfied : Bound shape α → α → Prop
-  decidableSatisfiesUpperBound : DecidableRel IsSatisfied := by infer_instance
-
-attribute [simp] SupportsUpperBound.IsSatisfied
-
-instance {α} : SupportsUpperBound .unbounded α where
-  IsSatisfied _ _ := True
-
-instance {shape α} [i : SupportsLowerBound shape α] : DecidableRel i.IsSatisfied :=
-  i.decidableSatisfiesLowerBound
-
-instance {shape α} [i : SupportsUpperBound shape α] : DecidableRel i.IsSatisfied :=
-  i.decidableSatisfiesUpperBound
-
-instance {sl su α} [SupportsLowerBound sl α] [SupportsUpperBound su α] :
-    Membership α (PRange ⟨sl, su⟩ α) where
-  mem r a := SupportsLowerBound.IsSatisfied r.lower a ∧ SupportsUpperBound.IsSatisfied r.upper a
-
-instance {sl su α a} [SupportsLowerBound sl α] [SupportsUpperBound su α] (r : PRange ⟨sl, su⟩ α) :
-    Decidable (a ∈ r) :=
-  inferInstanceAs <| Decidable (_ ∧ _)
+class Rxo.IsAlwaysFinite (α : Type u) [UpwardEnumerable α] [LT α] : Prop where
+  finite (init : α) (hi : α) :
+    ∃ n, (UpwardEnumerable.succMany? n init).elim True (¬ · < hi)
 
 /--
-This typeclass ensures that ranges with the given shape of upper bounds are always finite.
-This is a prerequisite for many functions and instances, such as `PRange.toList` or `ForIn'`.
+This type class ensures that right-unbounded ranges (i.e., for a bound {given}`a`,
+{lean}`a...*`, {lean}`a<...*` and {lean}`*...*`) are always finite.
+This is a prerequisite for many functions and instances, such as
+{name (scope := "Init.Data.Range.Polymorphic.Iterators")}`Rci.toList` or {name}`ForIn'`.
 -/
-class HasFiniteRanges (shape α) [UpwardEnumerable α] [SupportsUpperBound shape α] : Prop where
-  finite (init : α) (u : Bound shape α) :
-    ∃ n, (UpwardEnumerable.succMany? n init).elim True (¬ SupportsUpperBound.IsSatisfied u ·)
+class Rxi.IsAlwaysFinite (α : Type u) [UpwardEnumerable α] : Prop where
+  finite (init : α) : ∃ n, UpwardEnumerable.succMany? n init = none
+
+namespace Rcc
+
+variable {α : Type u} {r : Rcc α} {a : α}
+
+instance [LE α] : Membership α (Rcc α) where
+  mem r a := r.lower ≤ a ∧ a ≤ r.upper
+
+instance [LE α] [DecidableLE α] : Decidable (a ∈ r) := inferInstanceAs (Decidable (_ ∧ _))
+
+end Rcc
+
+namespace Rco
+
+variable {α : Type u} {r : Rco α} {a : α}
+
+instance [LE α] [LT α] : Membership α (Rco α) where
+  mem r a := r.lower ≤ a ∧ a < r.upper
+
+instance [LE α] [DecidableLE α] [LT α] [DecidableLT α] :
+    Decidable (a ∈ r) := inferInstanceAs (Decidable (_ ∧ _))
+
+end Rco
+
+namespace Rci
+
+variable {α : Type u} {r : Rci α} {a : α}
+
+instance [LE α] : Membership α (Rci α) where
+  mem r a := r.lower ≤ a
+
+instance [LE α] [DecidableLE α] :
+    Decidable (a ∈ r) := inferInstanceAs (Decidable (_ ≤ _))
+
+end Rci
+
+namespace Roc
+
+variable {α : Type u} {r : Roc α} {a : α}
+
+instance [LE α] [LT α] : Membership α (Roc α) where
+  mem r a := r.lower < a ∧ a ≤ r.upper
+
+instance [LE α] [DecidableLE α] [LT α] [DecidableLT α] : Decidable (a ∈ r) :=
+  inferInstanceAs (Decidable (_ ∧ _))
+
+end Roc
+
+namespace Roo
+
+variable {α : Type u} {r : Roo α} {a : α}
+
+instance [LT α] : Membership α (Roo α) where
+  mem r a := r.lower < a ∧ a < r.upper
+
+instance [LT α] [DecidableLT α] : Decidable (a ∈ r) := inferInstanceAs (Decidable (_ ∧ _))
+
+end Roo
+
+namespace Roi
+
+variable {α : Type u} {r : Roi α} {a : α}
+
+instance [LT α] : Membership α (Roi α) where
+  mem r a := r.lower < a
+
+instance [LT α] [DecidableLT α] : Decidable (a ∈ r) := inferInstanceAs (Decidable (_ < _))
+
+end Roi
+
+namespace Ric
+
+variable {α : Type u} {r : Ric α} {a : α}
+
+instance [LE α] : Membership α (Ric α) where
+  mem r a := a ≤ r.upper
+
+instance [LE α] [DecidableLE α] : Decidable (a ∈ r) := inferInstanceAs (Decidable (_ ≤ _))
+
+end Ric
+
+namespace Rio
+
+variable {α : Type u} {r : Rio α} {a : α}
+
+instance [LT α] : Membership α (Rio α) where
+  mem r a := a < r.upper
+
+instance [LT α] [DecidableLT α] : Decidable (a ∈ r) := inferInstanceAs (Decidable (_ < _))
+
+end Rio
+
+namespace Rii
+
+variable {α : Type u} {r : Rii α} {a : α}
+
+instance : Membership α (Rii α) where
+  mem _ _ := True
+
+instance : Decidable (a ∈ r) := inferInstanceAs (Decidable True)
+
+end Rii
 
 /--
-This typeclass will usually be used together with `UpwardEnumerable α`. It provides the starting
-point from which to enumerate all the values above the given lower bound.
-
-Instances are automatically generated in the following cases:
-
-* `lowerBoundShape` is `.closed`
-* `lowerBoundShape` is `.open` and there is an `UpwardEnumerable α` instance
-* `lowerBoundShape` is `.unbounded` and there is a `Least? α` instance
+This type class allows taking the intersection of a closed range with a
+left-closed right-open range, resulting in another left-closed right-open range.
 -/
-class BoundedUpwardEnumerable (lowerBoundShape : BoundShape) (α : Type u) where
-  init? : Bound lowerBoundShape α → Option α
-
-attribute [simp] BoundedUpwardEnumerable.init?
-export BoundedUpwardEnumerable (init?)
+class Rcc.HasRcoIntersection (α : Type w) where
+  intersection : Rcc α → Rco α → Rco α
 
 /--
-This typeclass ensures that the lower bound predicate from `SupportsLowerBound sl α`
-can be characterized in terms of `UpwardEnumerable α` and `BoundedUpwardEnumerable sl α`.
--/
-class LawfulUpwardEnumerableLowerBound (sl α) [UpwardEnumerable α]
-    [SupportsLowerBound sl α] [BoundedUpwardEnumerable sl α] where
-  /--
-  An element `a` satisfies the lower bound `l` if and only if it is
-  `init? l` or one of its transitive successors.
-  -/
-  isSatisfied_iff (a : α) (l : Bound sl α) :
-    SupportsLowerBound.IsSatisfied l a ↔ ∃ init, init? l = some init ∧ UpwardEnumerable.LE init a
-
-/--
-This typeclass ensures that if `b` is a transitive successor of `a` and `b` satisfies an upper bound
-of the given shape, then `a` also satisfies the upper bound.
--/
-class LawfulUpwardEnumerableUpperBound (su α) [UpwardEnumerable α] [SupportsUpperBound su α] where
-  /--
-  If `b` is a transitive successor of `a` and `b` satisfies a certain upper bound, then
-  `a` also satisfies the upper bound.
-  -/
-  isSatisfied_of_le (u : Bound su α) (a b : α) :
-    SupportsUpperBound.IsSatisfied u b → UpwardEnumerable.LE a b → SupportsUpperBound.IsSatisfied u a
-
-theorem LawfulUpwardEnumerableLowerBound.isSatisfied_of_le [SupportsLowerBound sl α]
-    [UpwardEnumerable α] [LawfulUpwardEnumerable α]
-    [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerableLowerBound sl α]
-    (l : Bound sl α) (a b : α)
-    (ha : SupportsLowerBound.IsSatisfied l a) (hle : UpwardEnumerable.LE a b) :
-    SupportsLowerBound.IsSatisfied l b := by
-  rw [LawfulUpwardEnumerableLowerBound.isSatisfied_iff] at ⊢ ha
-  obtain ⟨init, hi, ha⟩ := ha
-  exact ⟨init, hi, UpwardEnumerable.le_trans ha hle⟩
-
-/--
-This typeclass ensures that `SupportsUpperBound .closed α` and `UpwardEnumerable α` instances
-are compatible.
--/
-class LawfulClosedUpperBound (α : Type w) [SupportsUpperBound .closed α]
-    [UpwardEnumerable α] where
-  /--
-  A closed upper bound is satisfied for `a` if and only if it is greater than or equal to `a`
-  according to `UpwardEnumerable.LE`.
-  -/
-  isSatisfied_iff_le (u : Bound .closed α) (a : α) :
-    SupportsUpperBound.IsSatisfied u a ↔ UpwardEnumerable.LE a u
-
-/--
-This typeclass ensures that `SupportsUpperBound .open α` and `UpwardEnumerable α` instances
-are compatible.
--/
-class LawfulOpenUpperBound (α : Type w) [SupportsUpperBound .open α]
-    [UpwardEnumerable α] where
-  /--
-  An open upper bound is satisfied for `a` if and only if it is greater than to `a`
-  according to `UpwardEnumerable.LT`.
-  -/
-  isSatisfied_iff_le (u : Bound .open α) (a : α) :
-    SupportsUpperBound.IsSatisfied u a ↔ UpwardEnumerable.LT a u
-
-/--
-This typeclass ensures that according to `SupportsUpperBound .unbounded α`, every element is
-in bounds.
--/
-class LawfulUnboundedUpperBound (α : Type w) [SupportsUpperBound .unbounded α] where
-  /--
-  An unbounded upper bound is satisfied for every element.
-  -/
-  isSatisfied (u : Bound .unbounded α) (a : α) :
-    SupportsUpperBound.IsSatisfied u a
-
-instance {α} [LT α] [DecidableLT α] : SupportsLowerBound .open α where
-  IsSatisfied bound a := bound < a
-
-instance {α} [LT α] [DecidableLT α] : SupportsUpperBound .open α where
-  IsSatisfied bound a := a < bound
-
-instance {α} [LE α] [DecidableLE α] : SupportsLowerBound .closed α where
-  IsSatisfied bound a := bound ≤ a
-
-instance {α} [LE α] [DecidableLE α] : SupportsUpperBound .closed α where
-  IsSatisfied bound a := a ≤ bound
-
-instance {α} [Least? α] : BoundedUpwardEnumerable .unbounded α where
-  init? _ := Least?.least?
-
-instance {α} [UpwardEnumerable α] : BoundedUpwardEnumerable .open α where
-  init? lower := UpwardEnumerable.succ? lower
-
-instance {α} : BoundedUpwardEnumerable .closed α where
-  init? lower := some lower
-
-instance {α} [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerableLE α] :
-    LawfulClosedUpperBound α where
-  isSatisfied_iff_le u a := by simp [SupportsUpperBound.IsSatisfied, LawfulUpwardEnumerableLE.le_iff]
-
-instance {α} [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerableLT α] :
-    LawfulOpenUpperBound α where
-  isSatisfied_iff_le u a := by simp [SupportsUpperBound.IsSatisfied, LawfulUpwardEnumerableLT.lt_iff]
-
-instance {α} [UpwardEnumerable α] : LawfulUnboundedUpperBound α where
-  isSatisfied u a := by simp [SupportsUpperBound.IsSatisfied]
-
-/--
-This typeclass allows taking the intersection of ranges of the given shape and half-open ranges.
-
-An element should be contained in the intersection if and only if it is contained in both ranges.
-This is encoded in `LawfulClosedOpenIntersection`.
--/
-class ClosedOpenIntersection (shape : RangeShape) (α : Type w) where
-  intersection : PRange shape α → PRange ⟨.closed, .open⟩ α → PRange ⟨.closed, .open⟩ α
-
-/--
-This typeclass ensures that the intersection according to `ClosedOpenIntersection shape α`
+This type class ensures that the intersection according to {name}`Rcc.HasRcoIntersection`
 of two ranges contains exactly those elements that are contained in both ranges.
 -/
-class LawfulClosedOpenIntersection (shape : RangeShape) (α : Type w)
-    [ClosedOpenIntersection shape α]
-    [SupportsLowerBound shape.lower α] [SupportsUpperBound shape.upper α]
-    [SupportsLowerBound .closed α]
-    [SupportsUpperBound .open α] where
-  /--
-  The intersection according to `ClosedOpenIntersection shape α` of two ranges contains exactly
-  those elements that are contained in both ranges.
-  -/
-  mem_intersection_iff {a : α} {r : PRange ⟨shape.lower, shape.upper⟩ α}
-      {s : PRange ⟨.closed, .open⟩ α} :
-    a ∈ ClosedOpenIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s
+class Rcc.LawfulRcoIntersection (α : Type w) [LT α] [LE α]
+    [HasRcoIntersection α] where
+  mem_intersection_iff {a : α} {r : Rcc α} {s : Rco α} :
+    a ∈ HasRcoIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s
 
-end Std.PRange
+/--
+This type class allows taking the intersection of two left-closed right-open ranges, resulting in
+another left-closed right-open range.
+-/
+class Rco.HasRcoIntersection (α : Type w) where
+  intersection : Rco α → Rco α → Rco α
+
+/--
+This type class ensures that the intersection according to {name}`Rco.HasRcoIntersection`
+of two ranges contains exactly those elements that are contained in both ranges.
+-/
+class Rco.LawfulRcoIntersection (α : Type w) [LT α] [LE α]
+    [HasRcoIntersection α] where
+  mem_intersection_iff {a : α} {r : Rco α} {s : Rco α} :
+    a ∈ HasRcoIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s
+
+/--
+This type class allows taking the intersection of a left-closed right-unbounded range with a
+left-closed right-open range, resulting in another left-closed right-open range.
+-/
+class Rci.HasRcoIntersection (α : Type w) where
+  intersection : Rci α → Rco α → Rco α
+
+/--
+This type class ensures that the intersection according to {name}`Rci.HasRcoIntersection`
+of two ranges contains exactly those elements that are contained in both ranges.
+-/
+class Rci.LawfulRcoIntersection (α : Type w) [LT α] [LE α]
+    [HasRcoIntersection α] where
+  mem_intersection_iff {a : α} {r : Rci α} {s : Rco α} :
+    a ∈ HasRcoIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s
+
+/--
+This type class allows taking the intersection of a left-open right-closed range with a
+left-closed right-open range, resulting in another left-closed right-open range.
+-/
+class Roc.HasRcoIntersection (α : Type w) where
+  intersection : Roc α → Rco α → Rco α
+
+/--
+This type class ensures that the intersection according to {name}`Roc.HasRcoIntersection`
+of two ranges contains exactly those elements that are contained in both ranges.
+-/
+class Roc.LawfulRcoIntersection (α : Type w) [LT α] [LE α]
+    [HasRcoIntersection α] where
+  mem_intersection_iff {a : α} {r : Roc α} {s : Rco α} :
+    a ∈ HasRcoIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s
+
+/--
+This type class allows taking the intersection of an open range with a
+left-closed right-open range, resulting in another left-closed right-open range.
+-/
+class Roo.HasRcoIntersection (α : Type w) where
+  intersection : Roo α → Rco α → Rco α
+
+/--
+This type class ensures that the intersection according to {name}`Roo.HasRcoIntersection`
+of two ranges contains exactly those elements that are contained in both ranges.
+-/
+class Roo.LawfulRcoIntersection (α : Type w) [LT α] [LE α]
+    [HasRcoIntersection α] where
+  mem_intersection_iff {a : α} {r : Roo α} {s : Rco α} :
+    a ∈ HasRcoIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s
+
+/--
+This type class allows taking the intersection of a left-open right-unbounded range with a
+left-closed right-open range, resulting in another left-closed right-open range.
+-/
+class Roi.HasRcoIntersection (α : Type w) where
+  intersection : Roi α → Rco α → Rco α
+
+/--
+This type class ensures that the intersection according to {name}`Roi.HasRcoIntersection`
+of two ranges contains exactly those elements that are contained in both ranges.
+-/
+class Roi.LawfulRcoIntersection (α : Type w) [LT α] [LE α]
+    [HasRcoIntersection α] where
+  mem_intersection_iff {a : α} {r : Roi α} {s : Rco α} :
+    a ∈ HasRcoIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s
+
+/--
+This type class allows taking the intersection of a left-unbounded right-closed range with a
+left-closed right-open range, resulting in another left-closed right-open range.
+-/
+class Ric.HasRcoIntersection (α : Type w) where
+  intersection : Ric α → Rco α → Rco α
+
+/--
+This type class ensures that the intersection according to {name}`Ric.HasRcoIntersection`
+of two ranges contains exactly those elements that are contained in both ranges.
+-/
+class Ric.LawfulRcoIntersection (α : Type w) [LT α] [LE α]
+    [HasRcoIntersection α] where
+  mem_intersection_iff {a : α} {r : Ric α} {s : Rco α} :
+    a ∈ HasRcoIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s
+
+/--
+This type class allows taking the intersection of a left-unbounded right-open range with a
+left-closed right-open range, resulting in another left-closed right-open range.
+-/
+class Rio.HasRcoIntersection (α : Type w) where
+  intersection : Rio α → Rco α → Rco α
+
+/--
+This type class ensures that the intersection according to {name}`Rio.HasRcoIntersection`
+of two ranges contains exactly those elements that are contained in both ranges.
+-/
+class Rio.LawfulRcoIntersection (α : Type w) [LT α] [LE α]
+    [HasRcoIntersection α] where
+  mem_intersection_iff {a : α} {r : Rio α} {s : Rco α} :
+    a ∈ HasRcoIntersection.intersection r s ↔ a ∈ r ∧ a ∈ s
+
+end Std

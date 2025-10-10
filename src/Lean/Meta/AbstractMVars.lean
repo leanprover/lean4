@@ -67,6 +67,9 @@ private partial def abstractLevelMVars (u : Level) : M Level := do
           modify fun s => { s with nextParamIdx := s.nextParamIdx + 1, lmap := s.lmap.insert mvarId u, paramNames := s.paramNames.push paramId }
           return u
 
+/--
+Abstracts metavariables in `e`. Assumes `instantiateMVars` has been applied to `e`.
+-/
 partial def abstractExprMVars (e : Expr) : M Expr := do
   if !e.hasMVar then
     return e
@@ -88,28 +91,24 @@ partial def abstractExprMVars (e : Expr) : M Expr := do
       if decl.depth != (← getMCtx).depth then
         return e
       else
-        let eNew ← instantiateMVars e
-        if e != eNew then
-          abstractExprMVars eNew
-        else
-          match (← get).emap[mvarId]? with
-          | some e =>
-            return e
-          | none   =>
-            let type   ← abstractExprMVars decl.type
-            let fvarId ← mkFreshFVarId
-            let fvar := mkFVar fvarId;
-            let userName ← if decl.userName.isAnonymous then
-              pure <| (`x).appendIndexAfter (← get).fvars.size
-            else
-              pure decl.userName
-            modify fun s => {
-              s with
-              emap  := s.emap.insert mvarId fvar
-              fvars := s.fvars.push fvar
-              mvars := s.mvars.push e
-              lctx  := s.lctx.mkLocalDecl fvarId userName type }
-            return fvar
+        match (← get).emap[mvarId]? with
+        | some e =>
+          return e
+        | none   =>
+          let type   ← abstractExprMVars (← instantiateMVars decl.type)
+          let fvarId ← mkFreshFVarId
+          let fvar := mkFVar fvarId;
+          let userName ← if decl.userName.isAnonymous then
+            pure <| (`x).appendIndexAfter (← get).fvars.size
+          else
+            pure decl.userName
+          modify fun s => {
+            s with
+            emap  := s.emap.insert mvarId fvar
+            fvars := s.fvars.push fvar
+            mvars := s.mvars.push e
+            lctx  := s.lctx.mkLocalDecl fvarId userName type }
+          return fvar
 
 end AbstractMVars
 

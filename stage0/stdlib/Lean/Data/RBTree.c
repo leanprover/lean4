@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.RBTree
-// Imports: Lean.Data.RBMap
+// Imports: public import Lean.Data.RBMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

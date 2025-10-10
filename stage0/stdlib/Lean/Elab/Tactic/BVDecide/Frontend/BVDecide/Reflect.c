@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.Reflect
-// Imports: Std.Data.HashMap Std.Tactic.BVDecide.Bitblast.BVExpr.Basic Lean.Meta.AppBuilder Lean.ToExpr Lean.Data.RArray
+// Imports: public import Std.Data.HashMap public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic public import Lean.Meta.AppBuilder public import Lean.ToExpr public import Lean.Data.RArray
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4450,7 +4450,7 @@ block_18:
 {
 lean_object* x_17; 
 lean_dec(x_14);
-x_17 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Elab_Tactic_BVDecide_Frontend_M_atoms_spec__1___redArg(x_13, x_15, x_16);
+x_17 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Elab_Tactic_BVDecide_Frontend_M_atoms_spec__1___redArg(x_15, x_13, x_16);
 lean_dec(x_16);
 x_7 = x_17;
 goto block_12;
@@ -4463,17 +4463,17 @@ if (x_23 == 0)
 {
 lean_dec(x_19);
 lean_inc(x_22);
-x_13 = x_20;
-x_14 = x_21;
-x_15 = x_22;
+x_13 = x_22;
+x_14 = x_20;
+x_15 = x_21;
 x_16 = x_22;
 goto block_18;
 }
 else
 {
-x_13 = x_20;
-x_14 = x_21;
-x_15 = x_22;
+x_13 = x_22;
+x_14 = x_20;
+x_15 = x_21;
 x_16 = x_19;
 goto block_18;
 }
@@ -4494,16 +4494,16 @@ if (x_31 == 0)
 {
 lean_inc(x_30);
 x_19 = x_30;
-x_20 = x_25;
-x_21 = x_26;
+x_20 = x_26;
+x_21 = x_25;
 x_22 = x_30;
 goto block_24;
 }
 else
 {
 x_19 = x_30;
-x_20 = x_25;
-x_21 = x_26;
+x_20 = x_26;
+x_21 = x_25;
 x_22 = x_27;
 goto block_24;
 }

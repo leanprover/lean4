@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.Boxing
-// Imports: Lean.Runtime Lean.Compiler.ClosedTermCache Lean.Compiler.ExternAttr Lean.Compiler.IR.Basic Lean.Compiler.IR.CompilerM Lean.Compiler.IR.FreeVars Lean.Compiler.IR.ElimDeadVars Lean.Compiler.IR.ToIRType Lean.Data.AssocList
+// Imports: public import Lean.Runtime public import Lean.Compiler.ClosedTermCache public import Lean.Compiler.ExternAttr public import Lean.Compiler.IR.Basic public import Lean.Compiler.IR.CompilerM public import Lean.Compiler.IR.FreeVars public import Lean.Compiler.IR.ElimDeadVars public import Lean.Compiler.IR.ToIRType public import Lean.Data.AssocList
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

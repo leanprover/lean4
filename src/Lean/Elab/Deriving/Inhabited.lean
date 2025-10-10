@@ -84,7 +84,7 @@ where
     let ctx ← mkContext ``Inhabited "default" inductiveTypeName
     let auxFunName := ctx.auxFunNames[0]!
     `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type := $val
-      instance $binders:bracketedBinder* : Inhabited $type := ⟨$(mkIdent auxFunName)⟩)
+      instance $(mkIdent ctx.instName):ident $binders:bracketedBinder* : Inhabited $type := ⟨$(mkIdent auxFunName)⟩)
 
 
   mkInstanceCmd? : TermElabM (Option Syntax) := do

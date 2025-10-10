@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Internal.List.Associative
-// Imports: Init.Data.BEq Init.Data.Nat.Simproc Init.Data.Option.Attach Init.Data.List.Perm Init.Data.List.Find Init.Data.List.MinMax Init.Data.List.Monadic Std.Data.Internal.List.Defs Std.Data.Internal.List.Defs Init.Data.Order.Ord Init.Data.Subtype.Order Init.Data.Order.Lemmas
+// Imports: public import Init.Data.BEq public import Init.Data.Nat.Simproc public import Init.Data.Option.Attach public import Init.Data.List.Perm public import Init.Data.List.Find public import Init.Data.List.MinMax public import Init.Data.List.Monadic public import Std.Data.Internal.List.Defs import all Std.Data.Internal.List.Defs public import Init.Data.Order.Ord import Init.Data.Subtype.Order import Init.Data.Order.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

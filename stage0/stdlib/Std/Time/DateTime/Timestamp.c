@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.DateTime.Timestamp
-// Imports: Std.Time.Internal Init.System.IO Std.Time.Time Std.Time.Date Std.Time.Duration
+// Imports: public import Std.Time.Internal public import Init.System.IO public import Std.Time.Time public import Std.Time.Date public import Std.Time.Duration
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -454,6 +454,7 @@ block_25:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_9 = lean_string_append(x_7, x_8);
+lean_dec_ref(x_8);
 x_10 = l_Std_Time_instReprTimestamp_repr___redArg___closed__8;
 x_11 = lean_string_append(x_9, x_10);
 x_12 = l_String_quote(x_11);
@@ -494,8 +495,10 @@ return x_24;
 block_32:
 {
 lean_object* x_30; lean_object* x_31; 
-x_30 = l_Std_Time_instToStringDuration_leftPad(x_26, x_29);
-x_31 = lean_string_append(x_28, x_30);
+x_30 = l_Std_Time_instToStringDuration_leftPad(x_28, x_29);
+lean_dec_ref(x_29);
+x_31 = lean_string_append(x_26, x_30);
+lean_dec_ref(x_30);
 x_7 = x_27;
 x_8 = x_31;
 goto block_25;
@@ -506,6 +509,7 @@ lean_object* x_36; lean_object* x_37; lean_object* x_38; uint8_t x_39;
 x_36 = l_Std_Time_Internal_UnitVal_instToString___lam__0(x_34);
 lean_dec(x_34);
 x_37 = lean_string_append(x_33, x_36);
+lean_dec_ref(x_36);
 x_38 = l_Std_Time_instReprTimestamp_repr___redArg___closed__14;
 x_39 = lean_int_dec_eq(x_3, x_38);
 lean_dec(x_3);
@@ -521,9 +525,9 @@ lean_object* x_43; lean_object* x_44;
 x_43 = lean_nat_abs(x_35);
 lean_dec(x_35);
 x_44 = l_Nat_reprFast(x_43);
-x_26 = x_41;
+x_26 = x_40;
 x_27 = x_37;
-x_28 = x_40;
+x_28 = x_41;
 x_29 = x_44;
 goto block_32;
 }
@@ -541,9 +545,9 @@ lean_dec(x_47);
 x_50 = l_Nat_reprFast(x_49);
 x_51 = lean_string_append(x_48, x_50);
 lean_dec_ref(x_50);
-x_26 = x_41;
+x_26 = x_40;
 x_27 = x_37;
-x_28 = x_40;
+x_28 = x_41;
 x_29 = x_51;
 goto block_32;
 }

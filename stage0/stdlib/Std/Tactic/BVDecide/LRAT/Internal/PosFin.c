@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.LRAT.Internal.PosFin
-// Imports: Init.NotationExtra Init.Data.Hashable
+// Imports: public import Init.NotationExtra public import Init.Data.Hashable
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

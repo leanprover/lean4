@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Format
-// Imports: Std.Time.Notation.Spec Std.Time.Format.Basic Std.Time.Format.Basic Std.Time.Internal.Bounded
+// Imports: public import Std.Time.Notation.Spec public import Std.Time.Format.Basic import all Std.Time.Format.Basic public import Std.Time.Internal.Bounded
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3966,6 +3966,7 @@ lean_inc(x_5);
 lean_dec_ref(x_4);
 x_6 = l_Std_Time_PlainDate_format___closed__0;
 x_7 = lean_string_append(x_6, x_5);
+lean_dec(x_5);
 return x_7;
 }
 else
@@ -4666,6 +4667,7 @@ lean_inc(x_5);
 lean_dec_ref(x_4);
 x_6 = l_Std_Time_PlainDate_format___closed__0;
 x_7 = lean_string_append(x_6, x_5);
+lean_dec(x_5);
 return x_7;
 }
 else
@@ -5087,6 +5089,7 @@ lean_inc(x_5);
 lean_dec_ref(x_4);
 x_6 = l_Std_Time_PlainDate_format___closed__0;
 x_7 = lean_string_append(x_6, x_5);
+lean_dec(x_5);
 return x_7;
 }
 else
@@ -6360,6 +6363,7 @@ lean_inc(x_5);
 lean_dec_ref(x_4);
 x_6 = l_Std_Time_PlainDate_format___closed__0;
 x_7 = lean_string_append(x_6, x_5);
+lean_dec(x_5);
 return x_7;
 }
 else
@@ -6953,6 +6957,7 @@ lean_inc(x_6);
 lean_dec_ref(x_5);
 x_7 = l_Std_Time_PlainDate_format___closed__0;
 x_8 = lean_string_append(x_7, x_6);
+lean_dec(x_6);
 return x_8;
 }
 else

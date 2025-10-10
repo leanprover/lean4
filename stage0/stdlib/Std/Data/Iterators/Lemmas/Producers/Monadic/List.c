@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Lemmas.Producers.Monadic.List
-// Imports: Init.Data.Iterators.Consumers Init.Data.Iterators.Lemmas.Consumers.Monadic Init.Data.Iterators.Internal.LawfulMonadLiftFunction Std.Data.Iterators.Producers.Monadic.List Std.Data.Iterators.Lemmas.Equivalence.Basic
+// Imports: public import Init.Data.Iterators.Consumers public import Init.Data.Iterators.Lemmas.Consumers.Monadic public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction public import Std.Data.Iterators.Producers.Monadic.List public import Std.Data.Iterators.Lemmas.Equivalence.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

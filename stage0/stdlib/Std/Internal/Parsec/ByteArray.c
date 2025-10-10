@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Parsec.ByteArray
-// Imports: Std.Internal.Parsec.Basic Init.Data.ByteArray.Basic Init.Data.String.Extra Std.Data.ByteSlice
+// Imports: public import Std.Internal.Parsec.Basic public import Init.Data.ByteArray.Basic public import Init.Data.String.Extra public import Std.Data.ByteSlice
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -392,6 +392,7 @@ x_13 = l_Std_Internal_Parsec_ByteArray_Parser_run___redArg___closed__1;
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_format_pretty(x_12, x_13, x_14, x_14);
 x_16 = lean_string_append(x_10, x_15);
+lean_dec_ref(x_15);
 x_17 = l_Std_Internal_Parsec_ByteArray_Parser_run___redArg___closed__2;
 x_18 = lean_string_append(x_16, x_17);
 if (lean_obj_tag(x_8) == 0)
@@ -414,6 +415,7 @@ block_22:
 {
 lean_object* x_20; lean_object* x_21; 
 x_20 = lean_string_append(x_18, x_19);
+lean_dec_ref(x_19);
 x_21 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_21, 0, x_20);
 return x_21;
@@ -475,6 +477,7 @@ x_11 = l_Std_Internal_Parsec_ByteArray_pbyte___closed__0;
 x_12 = lean_uint8_to_nat(x_1);
 x_13 = l_Nat_reprFast(x_12);
 x_14 = lean_string_append(x_11, x_13);
+lean_dec_ref(x_13);
 x_15 = l_Std_Internal_Parsec_ByteArray_pbyte___closed__1;
 x_16 = lean_string_append(x_14, x_15);
 x_17 = lean_alloc_ctor(1, 1, 0);
@@ -566,6 +569,7 @@ x_11 = l_Std_Internal_Parsec_ByteArray_pbyte___closed__0;
 x_12 = lean_uint8_to_nat(x_1);
 x_13 = l_Nat_reprFast(x_12);
 x_14 = lean_string_append(x_11, x_13);
+lean_dec_ref(x_13);
 x_15 = l_Std_Internal_Parsec_ByteArray_pbyte___closed__1;
 x_16 = lean_string_append(x_14, x_15);
 x_17 = lean_alloc_ctor(1, 1, 0);
@@ -670,6 +674,7 @@ x_18 = l_Std_Internal_Parsec_ByteArray_pbyte___closed__0;
 x_19 = lean_uint8_to_nat(x_15);
 x_20 = l_Nat_reprFast(x_19);
 x_21 = lean_string_append(x_18, x_20);
+lean_dec_ref(x_20);
 x_22 = l_Std_Internal_Parsec_ByteArray_pbyte___closed__1;
 x_23 = lean_string_append(x_21, x_22);
 x_24 = lean_alloc_ctor(1, 1, 0);
@@ -936,6 +941,7 @@ x_12 = l_Std_Internal_Parsec_ByteArray_pbyte___closed__0;
 x_13 = l_Std_Internal_Parsec_ByteArray_pByteChar___closed__0;
 x_14 = lean_string_push(x_13, x_1);
 x_15 = lean_string_append(x_12, x_14);
+lean_dec_ref(x_14);
 x_16 = l_Std_Internal_Parsec_ByteArray_pbyte___closed__1;
 x_17 = lean_string_append(x_15, x_16);
 x_18 = lean_alloc_ctor(1, 1, 0);
@@ -1029,6 +1035,7 @@ x_12 = l_Std_Internal_Parsec_ByteArray_pbyte___closed__0;
 x_13 = lean_uint8_to_nat(x_9);
 x_14 = l_Nat_reprFast(x_13);
 x_15 = lean_string_append(x_12, x_14);
+lean_dec_ref(x_14);
 x_16 = l_Std_Internal_Parsec_ByteArray_pbyte___closed__1;
 x_17 = lean_string_append(x_15, x_16);
 x_18 = lean_alloc_ctor(1, 1, 0);

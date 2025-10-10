@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Index
-// Imports: Lake.Build.Fetch Lake.Config.Monad Lake.Build.Topological Lake.Util.StoreInsts
+// Imports: public import Lake.Build.Fetch import Lake.Config.Monad import Lake.Build.Topological import Lake.Util.StoreInsts
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -260,9 +260,9 @@ goto block_52;
 block_44:
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; 
-x_41 = lean_nat_add(x_39, x_40);
+x_41 = lean_nat_add(x_38, x_40);
 lean_dec(x_40);
-lean_dec(x_39);
+lean_dec(x_38);
 if (lean_is_scalar(x_35)) {
  x_42 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -281,7 +281,7 @@ if (lean_is_scalar(x_25)) {
 lean_ctor_set(x_43, 0, x_37);
 lean_ctor_set(x_43, 1, x_28);
 lean_ctor_set(x_43, 2, x_29);
-lean_ctor_set(x_43, 3, x_38);
+lean_ctor_set(x_43, 3, x_39);
 lean_ctor_set(x_43, 4, x_42);
 return x_43;
 }
@@ -307,8 +307,8 @@ if (lean_obj_tag(x_31) == 0)
 lean_object* x_50; 
 x_50 = lean_ctor_get(x_31, 0);
 lean_inc(x_50);
-x_38 = x_48;
-x_39 = x_49;
+x_38 = x_49;
+x_39 = x_48;
 x_40 = x_50;
 goto block_44;
 }
@@ -316,8 +316,8 @@ else
 {
 lean_object* x_51; 
 x_51 = lean_unsigned_to_nat(0u);
-x_38 = x_48;
-x_39 = x_49;
+x_38 = x_49;
+x_39 = x_48;
 x_40 = x_51;
 goto block_44;
 }
@@ -734,9 +734,9 @@ goto block_154;
 block_147:
 {
 lean_object* x_144; lean_object* x_145; lean_object* x_146; 
-x_144 = lean_nat_add(x_141, x_143);
+x_144 = lean_nat_add(x_142, x_143);
 lean_dec(x_143);
-lean_dec(x_141);
+lean_dec(x_142);
 if (lean_is_scalar(x_138)) {
  x_145 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -755,7 +755,7 @@ if (lean_is_scalar(x_128)) {
 lean_ctor_set(x_146, 0, x_140);
 lean_ctor_set(x_146, 1, x_130);
 lean_ctor_set(x_146, 2, x_131);
-lean_ctor_set(x_146, 3, x_142);
+lean_ctor_set(x_146, 3, x_141);
 lean_ctor_set(x_146, 4, x_145);
 return x_146;
 }
@@ -781,8 +781,8 @@ if (lean_obj_tag(x_133) == 0)
 lean_object* x_152; 
 x_152 = lean_ctor_get(x_133, 0);
 lean_inc(x_152);
-x_141 = x_151;
-x_142 = x_150;
+x_141 = x_150;
+x_142 = x_151;
 x_143 = x_152;
 goto block_147;
 }
@@ -790,8 +790,8 @@ else
 {
 lean_object* x_153; 
 x_153 = lean_unsigned_to_nat(0u);
-x_141 = x_151;
-x_142 = x_150;
+x_141 = x_150;
+x_142 = x_151;
 x_143 = x_153;
 goto block_147;
 }
@@ -1220,6 +1220,7 @@ x_12 = l___private_Lake_Build_Index_0__Lake_recBuildWithIndex___closed__0;
 x_13 = l_Lake_BuildInfo_key(x_1);
 x_14 = l_Lake_BuildKey_toString(x_13);
 x_15 = lean_string_append(x_12, x_14);
+lean_dec_ref(x_14);
 x_16 = l___private_Lake_Build_Index_0__Lake_recBuildWithIndex___closed__1;
 x_17 = lean_string_append(x_15, x_16);
 x_18 = 3;
@@ -1659,11 +1660,13 @@ x_123 = l___private_Lake_Build_Index_0__Lake_recBuildWithIndex___closed__0;
 x_124 = l_Lake_BuildInfo_key(x_1);
 x_125 = l_Lake_BuildKey_toString(x_124);
 x_126 = lean_string_append(x_123, x_125);
+lean_dec_ref(x_125);
 x_127 = l___private_Lake_Build_Index_0__Lake_recBuildWithIndex___closed__7;
 x_128 = lean_string_append(x_126, x_127);
 x_129 = 1;
 x_130 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_120, x_129);
 x_131 = lean_string_append(x_128, x_130);
+lean_dec_ref(x_130);
 x_132 = l___private_Lake_Build_Index_0__Lake_recBuildWithIndex___closed__8;
 x_133 = lean_string_append(x_131, x_132);
 x_134 = 3;
@@ -1707,15 +1710,18 @@ x_145 = l___private_Lake_Build_Index_0__Lake_recBuildWithIndex___closed__0;
 x_146 = l_Lake_BuildInfo_key(x_1);
 x_147 = l_Lake_BuildKey_toString(x_146);
 x_148 = lean_string_append(x_145, x_147);
+lean_dec_ref(x_147);
 x_149 = l___private_Lake_Build_Index_0__Lake_recBuildWithIndex___closed__9;
 x_150 = lean_string_append(x_148, x_149);
 x_151 = 1;
 x_152 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_118, x_151);
 x_153 = lean_string_append(x_150, x_152);
+lean_dec_ref(x_152);
 x_154 = l___private_Lake_Build_Index_0__Lake_recBuildWithIndex___closed__10;
 x_155 = lean_string_append(x_153, x_154);
 x_156 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_141, x_151);
 x_157 = lean_string_append(x_155, x_156);
+lean_dec_ref(x_156);
 x_158 = l___private_Lake_Build_Index_0__Lake_recBuildWithIndex___closed__8;
 x_159 = lean_string_append(x_157, x_158);
 x_160 = 3;

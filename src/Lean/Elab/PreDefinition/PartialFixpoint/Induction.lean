@@ -61,7 +61,7 @@ The optional parameter `reducePremise` (false by default) indicates whether we n
 -/
 def unfoldPredRel (predType : Expr) (lhs rhs : Expr) (fixpointType : PartialFixpointType) (reducePremise : Bool := false) : MetaM Expr := do
   guard <| isLatticeTheoretic fixpointType
-  forallTelescope predType fun ts _ => do
+  forallTelescopeReducing predType fun ts _ => do
     let mut lhs : Expr := mkAppN lhs ts
     let rhs : Expr := mkAppN rhs ts
     if reducePremise then
@@ -281,8 +281,7 @@ def deriveInduction (name : Name) (isMutual : Bool) : MetaM Unit := do
     -- Prune unused level parameters, preserving the original order
     let us := infos[0]!.levelParams.filter (params.contains ·)
 
-    addDecl <| Declaration.thmDecl
-      { name := inductName, levelParams := us, type := eTyp, value := e' }
+    addDecl <| (←mkThmOrUnsafeDef { name := inductName, levelParams := us, type := eTyp, value := e' })
 
 def isInductName (env : Environment) (name : Name) : Bool := Id.run do
   let .str p s := name | return false

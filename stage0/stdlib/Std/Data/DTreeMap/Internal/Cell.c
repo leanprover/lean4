@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DTreeMap.Internal.Cell
-// Imports: Std.Data.Internal.List.Associative
+// Imports: public import Std.Data.Internal.List.Associative
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

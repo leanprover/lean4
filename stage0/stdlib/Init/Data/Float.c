@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Float
-// Imports: Init.Core Init.Data.Int.Basic Init.Data.ToString.Basic
+// Imports: public import Init.Core public import Init.Data.Int.Basic public import Init.Data.ToString.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

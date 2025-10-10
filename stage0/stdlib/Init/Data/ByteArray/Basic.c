@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.ByteArray.Basic
-// Imports: Init.Data.Array.DecidableEq Init.Data.UInt.Basic Init.Data.UInt.BasicAux Init.Data.UInt.BasicAux Init.Data.Option.Basic Init.Data.Array.Extract
+// Imports: public import Init.Data.Array.DecidableEq public import Init.Data.UInt.Basic public import Init.Data.UInt.BasicAux import all Init.Data.UInt.BasicAux public import Init.Data.Option.Basic public import Init.Data.Array.Extract
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -953,75 +953,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; uint8_t x_5; 
-x_4 = lean_byte_array_size(x_1);
-x_5 = lean_nat_dec_lt(x_3, x_4);
-lean_dec(x_4);
-if (x_5 == 0)
-{
-lean_object* x_6; 
-lean_dec(x_3);
-lean_dec_ref(x_2);
-x_6 = lean_box(0);
-return x_6;
-}
-else
-{
-uint8_t x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
-x_7 = lean_byte_array_fget(x_1, x_3);
-x_8 = lean_box(x_7);
-lean_inc_ref(x_2);
-x_9 = lean_apply_1(x_2, x_8);
-x_10 = lean_unbox(x_9);
-if (x_10 == 0)
-{
-lean_object* x_11; lean_object* x_12; 
-x_11 = lean_unsigned_to_nat(1u);
-x_12 = lean_nat_add(x_3, x_11);
-lean_dec(x_3);
-x_3 = x_12;
-goto _start;
-}
-else
-{
-lean_object* x_14; 
-lean_dec_ref(x_2);
-x_14 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_14, 0, x_3);
-return x_14;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_ByteArray_findIdx_x3f_loop(x_1, x_2, x_3);
-lean_dec_ref(x_1);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_ByteArray_findIdx_x3f_loop(x_1, x_2, x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_ByteArray_findIdx_x3f(x_1, x_2, x_3);
-lean_dec_ref(x_1);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_ByteArray_findFinIdx_x3f_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1087,6 +1018,75 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_ByteArray_findFinIdx_x3f(x_1, x_2, x_3);
+lean_dec_ref(x_1);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_byte_array_size(x_1);
+x_5 = lean_nat_dec_lt(x_3, x_4);
+lean_dec(x_4);
+if (x_5 == 0)
+{
+lean_object* x_6; 
+lean_dec(x_3);
+lean_dec_ref(x_2);
+x_6 = lean_box(0);
+return x_6;
+}
+else
+{
+uint8_t x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_7 = lean_byte_array_fget(x_1, x_3);
+x_8 = lean_box(x_7);
+lean_inc_ref(x_2);
+x_9 = lean_apply_1(x_2, x_8);
+x_10 = lean_unbox(x_9);
+if (x_10 == 0)
+{
+lean_object* x_11; lean_object* x_12; 
+x_11 = lean_unsigned_to_nat(1u);
+x_12 = lean_nat_add(x_3, x_11);
+lean_dec(x_3);
+x_3 = x_12;
+goto _start;
+}
+else
+{
+lean_object* x_14; 
+lean_dec_ref(x_2);
+x_14 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_14, 0, x_3);
+return x_14;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_ByteArray_findIdx_x3f_loop(x_1, x_2, x_3);
+lean_dec_ref(x_1);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_ByteArray_findIdx_x3f_loop(x_1, x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_ByteArray_findIdx_x3f(x_1, x_2, x_3);
 lean_dec_ref(x_1);
 return x_4;
 }
@@ -2039,6 +2039,28 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
+LEAN_EXPORT uint8_t l_ByteArray_Iterator_atEnd(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_2 = lean_ctor_get(x_1, 0);
+x_3 = lean_ctor_get(x_1, 1);
+x_4 = lean_byte_array_size(x_2);
+x_5 = lean_nat_dec_le(x_4, x_3);
+lean_dec(x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_ByteArray_Iterator_atEnd___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_ByteArray_Iterator_atEnd(x_1);
+lean_dec_ref(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
 static uint8_t _init_l_ByteArray_Iterator_curr___closed__0() {
 _start:
 {
@@ -2145,28 +2167,6 @@ lean_ctor_set(x_10, 0, x_6);
 lean_ctor_set(x_10, 1, x_9);
 return x_10;
 }
-}
-}
-LEAN_EXPORT uint8_t l_ByteArray_Iterator_atEnd(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_2 = lean_ctor_get(x_1, 0);
-x_3 = lean_ctor_get(x_1, 1);
-x_4 = lean_byte_array_size(x_2);
-x_5 = lean_nat_dec_le(x_4, x_3);
-lean_dec(x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_ByteArray_Iterator_atEnd___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_ByteArray_Iterator_atEnd(x_1);
-lean_dec_ref(x_1);
-x_3 = lean_box(x_2);
-return x_3;
 }
 }
 LEAN_EXPORT uint8_t l_ByteArray_Iterator_hasNext(lean_object* x_1) {

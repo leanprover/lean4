@@ -74,3 +74,16 @@ n 1.5
 i 0
 i 1
 i 1.5
+{"version": 2,
+ "uri": "file:///incrementalCombinator.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 1, "character": 0}, "end": {"line": 2, "character": 0}},
+   "message": "Goals accomplished!",
+   "leanTags": [2],
+   "isSilent": true,
+   "fullRange":
+   {"start": {"line": 1, "character": 0},
+    "end": {"line": 6, "character": 18}}}]}

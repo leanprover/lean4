@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.PremiseSelection
-// Imports: Lean.PremiseSelection.Basic Lean.PremiseSelection.MePo
+// Imports: import Lean.PremiseSelection.Basic import Lean.PremiseSelection.MePo
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

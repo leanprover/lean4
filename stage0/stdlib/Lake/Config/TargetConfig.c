@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.TargetConfig
-// Imports: Lake.Build.Fetch Lake.Config.OutFormat Lake.Util.OpaqueType
+// Imports: public import Lake.Build.Fetch public import Lake.Config.OutFormat meta import all Lake.Util.OpaqueType
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -546,7 +546,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_findTargetConfig_x3f(lean_object* x_1, l
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = lean_ctor_get(x_2, 11);
+x_3 = lean_ctor_get(x_2, 12);
 x_4 = l_Std_DTreeMap_Internal_Impl_get_x3f___at___Lake_Package_findTargetConfig_x3f_spec__0___redArg(x_3, x_1);
 if (lean_obj_tag(x_4) == 0)
 {

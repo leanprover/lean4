@@ -127,7 +127,7 @@ def elabLiteralString (x : TSyntax ``literalString) : CoreM String := do
 def decodeHexDigits (s : Substring) : Nat :=
   s.foldl (init := 0) fun n c => n*16 + decodeHexDigit c
 
-partial def elabBasicStringCore (lit : String) (i : String.Pos := 0) (out := "") : CoreM String := do
+partial def elabBasicStringCore (lit : String) (i : String.Pos.Raw := 0) (out := "") : CoreM String := do
   if h : lit.atEnd i then
     return out
   else

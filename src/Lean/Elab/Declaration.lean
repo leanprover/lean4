@@ -174,11 +174,14 @@ def elabDeclaration : CommandElab := fun stx => do
     -- use hash of declaration name, if any, as stable quot context; `elabMutualDef` has its own
     -- handling
     withInitQuotContext (getDeclName? stx |>.map hash) do
-    let modifiers ← elabModifiers modifiers
+    let mut modifiers ← elabModifiers modifiers
+    if (← getScope).isMeta && modifiers.computeKind == .regular then
+      modifiers := { modifiers with computeKind := .meta }
     withExporting (isExporting := modifiers.isInferredPublic (← getEnv)) do
       if declKind == ``Lean.Parser.Command.«axiom» then
         elabAxiom modifiers decl
       else if declKind == ``Lean.Parser.Command.«inductive»
+          || declKind == ``Lean.Parser.Command.«coinductive»
           || declKind == ``Lean.Parser.Command.classInductive
           || declKind == ``Lean.Parser.Command.«structure» then
         elabInductive modifiers decl
@@ -262,16 +265,15 @@ def expandMutualElement : Macro := fun stx => do
   for elem in stx[1].getArgs do
     -- Don't trigger the `expandNamespacedDecl` macro, the namespace is handled by the mutual def
     -- elaborator directly instead
-    if elem.isOfKind ``Parser.Command.declaration then
-      continue
-    match (← expandMacro? elem) with
-    | some elemNew =>
-      if elemNew.isOfKind nullKind then
-        elemsNew := elemsNew ++ elemNew.getArgs
-      else
-        elemsNew := elemsNew.push elemNew
-      modified := true
-    | none         => elemsNew := elemsNew.push elem
+    if !elem.isOfKind ``Parser.Command.declaration then
+      if let some elemNew ← expandMacro? elem then
+        if elemNew.isOfKind nullKind then
+          elemsNew := elemsNew ++ elemNew.getArgs
+        else
+          elemsNew := elemsNew.push elemNew
+        modified := true
+        continue
+    elemsNew := elemsNew.push elem
   if modified then
     return stx.setArg 1 (mkNullNode elemsNew)
   else
@@ -333,6 +335,11 @@ def elabMutual : CommandElab := fun stx => do
     Term.applyAttributes declName attrs
     for attrName in toErase do
       Attribute.erase declName attrName
+    if (← getEnv).isImportedConst declName && attrs.any (·.kind == .global) then
+      -- If an imported declaration is marked with a global attribute, there is no good way to track
+      -- its use generally and so Shake should conservatively preserve imports of the current
+      -- module.
+      recordExtraRevUseOfCurrentModule
 
 @[builtin_command_elab Lean.Parser.Command.«initialize»] def elabInitialize : CommandElab
   | stx@`($declModifiers:declModifiers $kw:initializeKeyword $[$id? : $type? ←]? $doSeq) => do

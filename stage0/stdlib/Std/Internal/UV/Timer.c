@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.UV.Timer
-// Imports: Init.System.IO Init.System.Promise
+// Imports: public import Init.System.IO public import Init.System.Promise
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,10 +17,12 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_Timer_reset___boxed(lean_object*, lea
 lean_object* lean_uv_timer_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_Timer_next___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_Timer_mk___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_uv_timer_cancel(lean_object*, lean_object*);
 lean_object* lean_uv_timer_stop(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_UV_Timer_0__Std_Internal_UV_TimerImpl;
 lean_object* lean_uv_timer_reset(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_Timer_stop___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_Timer_cancel___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_timer_mk(uint64_t, uint8_t, lean_object*);
 static lean_object* _init_l___private_Std_Internal_UV_Timer_0__Std_Internal_UV_TimerImpl() {
 _start:
@@ -62,6 +64,15 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_uv_timer_stop(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_Timer_cancel___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_uv_timer_cancel(x_1, x_2);
 lean_dec(x_1);
 return x_3;
 }

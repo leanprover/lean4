@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Nat.Pairwise
-// Imports: Init.Data.Fin.Lemmas Init.Data.List.Nat.TakeDrop Init.Data.List.Pairwise
+// Imports: public import Init.Data.Fin.Lemmas public import Init.Data.List.Nat.TakeDrop public import Init.Data.List.Pairwise
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

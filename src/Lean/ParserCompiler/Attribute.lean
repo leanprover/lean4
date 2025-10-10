@@ -9,6 +9,7 @@ prelude
 public import Lean.Attributes
 public import Lean.Compiler.InitAttr
 public import Lean.ToExpr
+import Lean.ExtraModUses
 
 public section
 
@@ -35,6 +36,7 @@ def registerCombinatorAttribute (name : Name) (descr : String) (ref : Name := by
     add   := fun decl stx _ => do
       let env ← getEnv
       let parserDeclName ← Elab.realizeGlobalConstNoOverloadWithInfo (← Attribute.Builtin.getIdent stx)
+      recordExtraModUseFromDecl (isMeta := false) parserDeclName
       setEnv <| ext.addEntry env (parserDeclName, decl)
   }
   registerBuiltinAttribute attrImpl

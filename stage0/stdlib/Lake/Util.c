@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util
-// Imports: Lake.Util.Binder Lake.Util.Casing Lake.Util.Cli Lake.Util.Cycle Lake.Util.Date Lake.Util.EquipT Lake.Util.Error Lake.Util.EStateT Lake.Util.Exit Lake.Util.Family Lake.Util.FilePath Lake.Util.Git Lake.Util.IO Lake.Util.JsonObject Lake.Util.Lift Lake.Util.Lock Lake.Util.Log Lake.Util.MainM Lake.Util.Message Lake.Util.Name Lake.Util.NativeLib Lake.Util.Opaque Lake.Util.OrderedTagAttribute Lake.Util.OrdHashSet Lake.Util.Proc Lake.Util.RBArray Lake.Util.Store Lake.Util.StoreInsts Lake.Util.Task Lake.Util.Version
+// Imports: public import Lake.Util.Binder public import Lake.Util.Casing public import Lake.Util.Cli public import Lake.Util.Cycle public import Lake.Util.Date public import Lake.Util.EquipT public import Lake.Util.Error public import Lake.Util.EStateT public import Lake.Util.Exit public import Lake.Util.Family public import Lake.Util.FilePath public import Lake.Util.Git public import Lake.Util.IO public import Lake.Util.JsonObject public import Lake.Util.Lift public import Lake.Util.Lock public import Lake.Util.Log public import Lake.Util.MainM public import Lake.Util.Message public import Lake.Util.Name public import Lake.Util.NativeLib public import Lake.Util.Opaque public import Lake.Util.OrderedTagAttribute public import Lake.Util.OrdHashSet public import Lake.Util.Proc public import Lake.Util.RBArray public import Lake.Util.Reservoir public import Lake.Util.Store public import Lake.Util.StoreInsts public import Lake.Util.String public import Lake.Util.Task public import Lake.Util.Url public import Lake.Util.Version
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -39,9 +39,12 @@ lean_object* initialize_Lake_Util_OrderedTagAttribute(uint8_t builtin, lean_obje
 lean_object* initialize_Lake_Util_OrdHashSet(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Proc(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_RBArray(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Util_Reservoir(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Store(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_StoreInsts(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Util_String(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Task(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Util_Url(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Version(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Util(uint8_t builtin, lean_object* w) {
@@ -126,13 +129,22 @@ lean_dec_ref(res);
 res = initialize_Lake_Util_RBArray(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Lake_Util_Reservoir(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lake_Util_Store(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Util_StoreInsts(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Lake_Util_String(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lake_Util_Task(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Util_Url(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Util_Version(builtin, lean_io_mk_world());

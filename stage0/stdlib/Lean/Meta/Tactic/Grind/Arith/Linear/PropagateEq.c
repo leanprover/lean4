@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Linear.PropagateEq
-// Imports: Lean.Meta.Tactic.Grind.Arith.Linear.LinearM Init.Grind.Ring.CommSolver Lean.Meta.Tactic.Grind.Arith.CommRing.Reify Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr Lean.Meta.Tactic.Grind.Arith.Linear.Var Lean.Meta.Tactic.Grind.Arith.Linear.Util Lean.Meta.Tactic.Grind.Arith.Linear.StructId Lean.Meta.Tactic.Grind.Arith.Linear.Reify Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr Lean.Meta.Tactic.Grind.Arith.Linear.Proof Lean.Meta.Tactic.Grind.Arith.Linear.OfNatModule
+// Imports: public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM import Init.Grind.Ring.CommSolver import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr import Lean.Meta.Tactic.Grind.Arith.Linear.Var import Lean.Meta.Tactic.Grind.Arith.Linear.Util import Lean.Meta.Tactic.Grind.Arith.Linear.StructId import Lean.Meta.Tactic.Grind.Arith.Linear.Reify import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr import Lean.Meta.Tactic.Grind.Arith.Linear.Proof import Lean.Meta.Tactic.Grind.Arith.Linear.OfNatModule
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4568,8 +4568,8 @@ if (x_44 == 0)
 lean_free_object(x_39);
 lean_free_object(x_35);
 lean_dec(x_25);
-x_12 = x_41;
-x_13 = x_42;
+x_12 = x_42;
+x_13 = x_41;
 x_14 = x_24;
 x_15 = x_23;
 goto block_20;
@@ -4583,8 +4583,8 @@ lean_ctor_set_tag(x_35, 3);
 lean_ctor_set(x_35, 0, x_24);
 lean_ctor_set(x_39, 1, x_35);
 lean_ctor_set(x_39, 0, x_46);
-x_12 = x_41;
-x_13 = x_42;
+x_12 = x_42;
+x_13 = x_41;
 x_14 = x_39;
 x_15 = x_23;
 goto block_20;
@@ -4604,8 +4604,8 @@ if (x_50 == 0)
 {
 lean_free_object(x_35);
 lean_dec(x_25);
-x_12 = x_47;
-x_13 = x_48;
+x_12 = x_48;
+x_13 = x_47;
 x_14 = x_24;
 x_15 = x_23;
 goto block_20;
@@ -4620,8 +4620,8 @@ lean_ctor_set(x_35, 0, x_24);
 x_53 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_53, 0, x_52);
 lean_ctor_set(x_53, 1, x_35);
-x_12 = x_47;
-x_13 = x_48;
+x_12 = x_48;
+x_13 = x_47;
 x_14 = x_53;
 x_15 = x_23;
 goto block_20;
@@ -4652,8 +4652,8 @@ if (x_59 == 0)
 {
 lean_dec(x_57);
 lean_dec(x_25);
-x_12 = x_55;
-x_13 = x_56;
+x_12 = x_56;
+x_13 = x_55;
 x_14 = x_24;
 x_15 = x_23;
 goto block_20;
@@ -4672,8 +4672,8 @@ if (lean_is_scalar(x_57)) {
 }
 lean_ctor_set(x_63, 0, x_61);
 lean_ctor_set(x_63, 1, x_62);
-x_12 = x_55;
-x_13 = x_56;
+x_12 = x_56;
+x_13 = x_55;
 x_14 = x_63;
 x_15 = x_23;
 goto block_20;
@@ -4717,10 +4717,10 @@ return x_78;
 block_20:
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_16 = lean_nat_abs(x_12);
-lean_dec(x_12);
+x_16 = lean_nat_abs(x_13);
+lean_dec(x_13);
 x_17 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_17, 0, x_13);
+lean_ctor_set(x_17, 0, x_12);
 lean_ctor_set(x_17, 1, x_14);
 x_18 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_18, 0, x_16);
@@ -11761,7 +11761,7 @@ block_73:
 {
 lean_object* x_46; 
 lean_inc(x_36);
-x_46 = l_Lean_Grind_Linarith_Poly_updateOccs(x_33, x_36, x_37, x_38, x_39, x_40, x_41, x_42, x_43, x_44, x_45);
+x_46 = l_Lean_Grind_Linarith_Poly_updateOccs(x_35, x_36, x_37, x_38, x_39, x_40, x_41, x_42, x_43, x_44, x_45);
 if (lean_obj_tag(x_46) == 0)
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
@@ -11771,9 +11771,9 @@ lean_dec_ref(x_46);
 lean_inc(x_36);
 x_48 = lean_alloc_closure((void*)(l___private_Lean_Meta_Tactic_Grind_Arith_Linear_PropagateEq_0__Lean_Meta_Grind_Arith_Linear_DiseqCnstr_assert___lam__0___boxed), 5, 4);
 lean_closure_set(x_48, 0, x_36);
-lean_closure_set(x_48, 1, x_32);
+lean_closure_set(x_48, 1, x_31);
 lean_closure_set(x_48, 2, x_30);
-lean_closure_set(x_48, 3, x_31);
+lean_closure_set(x_48, 3, x_32);
 x_49 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_PropagateEq_0__Lean_Meta_Grind_Arith_Linear_updateLowers___closed__0;
 x_50 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_modifyStateImpl___redArg(x_49, x_48, x_37, x_47);
 if (lean_obj_tag(x_50) == 0)
@@ -11782,7 +11782,7 @@ lean_object* x_51; lean_object* x_52;
 x_51 = lean_ctor_get(x_50, 1);
 lean_inc(x_51);
 lean_dec_ref(x_50);
-x_52 = l_Lean_Meta_Grind_Arith_Linear_DiseqCnstr_satisfied(x_35, x_36, x_37, x_38, x_39, x_40, x_41, x_42, x_43, x_44, x_51);
+x_52 = l_Lean_Meta_Grind_Arith_Linear_DiseqCnstr_satisfied(x_33, x_36, x_37, x_38, x_39, x_40, x_41, x_42, x_43, x_44, x_51);
 lean_dec(x_44);
 lean_dec_ref(x_43);
 lean_dec(x_42);
@@ -11892,8 +11892,8 @@ lean_dec_ref(x_39);
 lean_dec(x_38);
 lean_dec(x_37);
 lean_dec(x_36);
-lean_dec_ref(x_35);
 lean_dec(x_34);
+lean_dec_ref(x_33);
 return x_50;
 }
 }
@@ -11908,10 +11908,10 @@ lean_dec_ref(x_39);
 lean_dec(x_38);
 lean_dec(x_37);
 lean_dec(x_36);
-lean_dec_ref(x_35);
 lean_dec(x_34);
-lean_dec_ref(x_32);
-lean_dec(x_31);
+lean_dec_ref(x_33);
+lean_dec(x_32);
+lean_dec_ref(x_31);
 return x_46;
 }
 }
@@ -12087,13 +12087,13 @@ lean_object* x_117;
 x_117 = lean_ctor_get(x_114, 1);
 lean_inc(x_117);
 lean_dec_ref(x_114);
-lean_inc(x_92);
 lean_inc(x_112);
-x_31 = x_112;
-x_32 = x_92;
-x_33 = x_93;
+lean_inc(x_92);
+x_31 = x_92;
+x_32 = x_112;
+x_33 = x_92;
 x_34 = x_112;
-x_35 = x_92;
+x_35 = x_93;
 x_36 = x_74;
 x_37 = x_75;
 x_38 = x_76;
@@ -12126,13 +12126,13 @@ x_123 = l_Lean_addTrace___at_____private_Lean_Meta_Tactic_Grind_Arith_Linear_Pro
 x_124 = lean_ctor_get(x_123, 1);
 lean_inc(x_124);
 lean_dec_ref(x_123);
-lean_inc(x_92);
 lean_inc(x_112);
-x_31 = x_112;
-x_32 = x_92;
-x_33 = x_93;
+lean_inc(x_92);
+x_31 = x_92;
+x_32 = x_112;
+x_33 = x_92;
 x_34 = x_112;
-x_35 = x_92;
+x_35 = x_93;
 x_36 = x_74;
 x_37 = x_75;
 x_38 = x_76;
@@ -16228,7 +16228,7 @@ lean_object* x_34; lean_object* x_35;
 x_34 = lean_ctor_get(x_33, 1);
 lean_inc(x_34);
 lean_dec_ref(x_33);
-x_35 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_PropagateEq_0__Lean_Meta_Grind_Arith_Linear_updateOccs(x_19, x_18, x_20, x_21, x_22, x_23, x_24, x_25, x_26, x_27, x_28, x_29, x_34);
+x_35 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_PropagateEq_0__Lean_Meta_Grind_Arith_Linear_updateOccs(x_18, x_19, x_20, x_21, x_22, x_23, x_24, x_25, x_26, x_27, x_28, x_29, x_34);
 return x_35;
 }
 else
@@ -16425,8 +16425,8 @@ lean_inc(x_94);
 lean_inc(x_93);
 x_37 = x_93;
 x_38 = x_94;
-x_39 = x_93;
-x_40 = x_90;
+x_39 = x_90;
+x_40 = x_93;
 x_41 = x_94;
 x_42 = x_69;
 x_43 = x_70;
@@ -16489,8 +16489,8 @@ lean_inc(x_94);
 lean_inc(x_93);
 x_37 = x_93;
 x_38 = x_94;
-x_39 = x_93;
-x_40 = x_90;
+x_39 = x_90;
+x_40 = x_93;
 x_41 = x_94;
 x_42 = x_69;
 x_43 = x_70;
@@ -16626,8 +16626,8 @@ lean_inc(x_94);
 lean_inc(x_93);
 x_37 = x_93;
 x_38 = x_94;
-x_39 = x_93;
-x_40 = x_90;
+x_39 = x_90;
+x_40 = x_93;
 x_41 = x_94;
 x_42 = x_69;
 x_43 = x_70;
@@ -16747,8 +16747,8 @@ lean_inc(x_146);
 lean_inc(x_145);
 x_37 = x_145;
 x_38 = x_146;
-x_39 = x_145;
-x_40 = x_90;
+x_39 = x_90;
+x_40 = x_145;
 x_41 = x_146;
 x_42 = x_69;
 x_43 = x_70;
@@ -16819,8 +16819,8 @@ lean_inc(x_146);
 lean_inc(x_145);
 x_37 = x_145;
 x_38 = x_146;
-x_39 = x_145;
-x_40 = x_90;
+x_39 = x_90;
+x_40 = x_145;
 x_41 = x_146;
 x_42 = x_69;
 x_43 = x_70;
@@ -16950,8 +16950,8 @@ lean_inc(x_178);
 lean_inc(x_177);
 x_37 = x_177;
 x_38 = x_178;
-x_39 = x_177;
-x_40 = x_176;
+x_39 = x_176;
+x_40 = x_177;
 x_41 = x_178;
 x_42 = x_69;
 x_43 = x_70;
@@ -17027,8 +17027,8 @@ lean_inc(x_178);
 lean_inc(x_177);
 x_37 = x_177;
 x_38 = x_178;
-x_39 = x_177;
-x_40 = x_176;
+x_39 = x_176;
+x_40 = x_177;
 x_41 = x_178;
 x_42 = x_69;
 x_43 = x_70;

@@ -1267,7 +1267,7 @@ def getRevArg!' : Expr → Nat → Expr
   getRevArg! e (n - i - 1)
 
 /-- Similar to `getArg!`, but skips mdata -/
-@[inline] def getArg!' (e : Expr) (i : Nat) (n := e.getAppNumArgs) : Expr :=
+@[inline] def getArg!' (e : Expr) (i : Nat) (n := e.getAppNumArgs') : Expr :=
   getRevArg!' e (n - i - 1)
 
 /-- Given `f a₀ a₁ ... aₙ`, returns the `i`th argument or returns `v₀` if out of bounds. -/
@@ -2375,6 +2375,13 @@ private def intLEPred : Expr :=
 /-- Given `a b : Int`, returns `a ≤ b` -/
 def mkIntLE (a b : Expr) : Expr :=
   mkApp2 intLEPred a b
+
+private def intLTPred : Expr :=
+  mkApp2 (mkConst ``LT.lt [0]) Int.mkType Int.mkInstLT
+
+/-- Given `a b : Int`, returns `a < b` -/
+def mkIntLT (a b : Expr) : Expr :=
+  mkApp2 intLTPred a b
 
 private def intEqPred : Expr :=
   mkApp (mkConst ``Eq [1]) Int.mkType

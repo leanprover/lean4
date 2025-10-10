@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector.Perm
-// Imports: Init.Data.Array.Basic Init.Data.Array.Basic Init.Data.Array.Perm Init.Data.Vector.Basic Init.Data.Vector.Basic Init.Data.Vector.Lemmas
+// Imports: public import Init.Data.Array.Basic import all Init.Data.Array.Basic public import Init.Data.Array.Perm public import Init.Data.Vector.Basic import all Init.Data.Vector.Basic public import Init.Data.Vector.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

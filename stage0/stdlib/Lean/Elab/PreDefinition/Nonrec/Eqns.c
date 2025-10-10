@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.Nonrec.Eqns
-// Imports: Lean.Meta.Tactic.Rewrite Lean.Meta.Tactic.Split Lean.Elab.PreDefinition.Basic Lean.Elab.PreDefinition.Eqns Lean.Meta.ArgsPacker.Basic Init.Data.Array.Basic
+// Imports: import Lean.Meta.Tactic.Rewrite import Lean.Meta.Tactic.Split import Lean.Elab.PreDefinition.Basic import Lean.Elab.PreDefinition.Eqns import Lean.Meta.ArgsPacker.Basic import Init.Data.Array.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -80,7 +80,7 @@ lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* l_Lean_Elab_Eqns_mkEqns(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkLevelParam(lean_object*);
 lean_object* l_Lean_Meta_isRecursiveDefinition___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_addDecl(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_addDecl(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_____private_Lean_Elab_PreDefinition_Nonrec_Eqns_0__Lean_Elab_Nonrec_mkSimpleEqThm_doRealize_spec__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -281,7 +281,7 @@ x_35 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_35, 0, x_34);
 lean_inc(x_8);
 lean_inc_ref(x_7);
-x_36 = l_Lean_addDecl(x_35, x_7, x_8, x_32);
+x_36 = l_Lean_addDecl(x_35, x_21, x_7, x_8, x_32);
 if (lean_obj_tag(x_36) == 0)
 {
 lean_object* x_37; lean_object* x_38; 
@@ -503,7 +503,7 @@ x_79 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_79, 0, x_78);
 lean_inc(x_8);
 lean_inc_ref(x_7);
-x_80 = l_Lean_addDecl(x_79, x_7, x_8, x_75);
+x_80 = l_Lean_addDecl(x_79, x_64, x_7, x_8, x_75);
 if (lean_obj_tag(x_80) == 0)
 {
 lean_object* x_81; lean_object* x_82; 

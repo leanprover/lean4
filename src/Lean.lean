@@ -47,3 +47,4 @@ public import Lean.ErrorExplanation
 public import Lean.ErrorExplanations
 public import Lean.DefEqAttrib
 public import Lean.Shell
+public import Lean.ExtraModUses

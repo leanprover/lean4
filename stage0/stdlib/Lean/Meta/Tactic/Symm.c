@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Symm
-// Imports: Lean.Meta.Reduce Lean.Meta.Tactic.Assert Lean.Meta.DiscrTree Lean.Meta.AppBuilder
+// Imports: public import Lean.Meta.Reduce public import Lean.Meta.Tactic.Assert public import Lean.Meta.DiscrTree import Lean.Meta.AppBuilder
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5917,8 +5917,8 @@ block_27:
 if (x_19 == 0)
 {
 lean_object* x_20; 
-lean_dec_ref(x_18);
-x_20 = l_Lean_Meta_SavedState_restore___redArg(x_15, x_6, x_8, x_17);
+lean_dec_ref(x_17);
+x_20 = l_Lean_Meta_SavedState_restore___redArg(x_15, x_6, x_8, x_18);
 lean_dec(x_15);
 if (lean_obj_tag(x_20) == 0)
 {
@@ -5970,7 +5970,7 @@ lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
-return x_18;
+return x_17;
 }
 }
 block_33:
@@ -5982,16 +5982,16 @@ if (x_31 == 0)
 uint8_t x_32; 
 x_32 = l_Lean_Exception_isRuntime(x_29);
 lean_dec_ref(x_29);
-x_17 = x_30;
-x_18 = x_28;
+x_17 = x_28;
+x_18 = x_30;
 x_19 = x_32;
 goto block_27;
 }
 else
 {
 lean_dec_ref(x_29);
-x_17 = x_30;
-x_18 = x_28;
+x_17 = x_28;
+x_18 = x_30;
 x_19 = x_31;
 goto block_27;
 }
@@ -8680,8 +8680,8 @@ block_26:
 if (x_18 == 0)
 {
 lean_object* x_19; 
-lean_dec_ref(x_16);
-x_19 = l_Lean_Meta_SavedState_restore___redArg(x_14, x_5, x_7, x_17);
+lean_dec_ref(x_17);
+x_19 = l_Lean_Meta_SavedState_restore___redArg(x_14, x_5, x_7, x_16);
 lean_dec(x_14);
 if (lean_obj_tag(x_19) == 0)
 {
@@ -8733,7 +8733,7 @@ lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_2);
 lean_dec(x_1);
-return x_16;
+return x_17;
 }
 }
 block_32:
@@ -8745,16 +8745,16 @@ if (x_30 == 0)
 uint8_t x_31; 
 x_31 = l_Lean_Exception_isRuntime(x_28);
 lean_dec_ref(x_28);
-x_16 = x_27;
-x_17 = x_29;
+x_16 = x_29;
+x_17 = x_27;
 x_18 = x_31;
 goto block_26;
 }
 else
 {
 lean_dec_ref(x_28);
-x_16 = x_27;
-x_17 = x_29;
+x_16 = x_29;
+x_17 = x_27;
 x_18 = x_30;
 goto block_26;
 }
@@ -11571,9 +11571,9 @@ block_21:
 {
 if (x_19 == 0)
 {
-lean_dec_ref(x_18);
+lean_dec_ref(x_17);
 x_11 = x_5;
-x_12 = x_17;
+x_12 = x_18;
 goto block_16;
 }
 else
@@ -11585,8 +11585,8 @@ lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 x_20 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_20, 0, x_18);
-lean_ctor_set(x_20, 1, x_17);
+lean_ctor_set(x_20, 0, x_17);
+lean_ctor_set(x_20, 1, x_18);
 return x_20;
 }
 }
@@ -11598,15 +11598,15 @@ if (x_24 == 0)
 {
 uint8_t x_25; 
 x_25 = l_Lean_Exception_isRuntime(x_22);
-x_17 = x_23;
-x_18 = x_22;
+x_17 = x_22;
+x_18 = x_23;
 x_19 = x_25;
 goto block_21;
 }
 else
 {
-x_17 = x_23;
-x_18 = x_22;
+x_17 = x_22;
+x_18 = x_23;
 x_19 = x_24;
 goto block_21;
 }

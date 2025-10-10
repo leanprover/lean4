@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Cli
-// Imports: Init.Control.State Init.Data.Array.Basic Init.Data.String.Basic
+// Imports: public import Init.Control.State import Init.Data.Array.Basic public import Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1556,7 +1556,6 @@ LEAN_EXPORT lean_object* l_Lake_shortOption___redArg(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-lean_inc_ref(x_5);
 x_6 = lean_string_length(x_5);
 x_7 = lean_unsigned_to_nat(2u);
 x_8 = lean_nat_dec_eq(x_6, x_7);
@@ -1758,7 +1757,6 @@ LEAN_EXPORT lean_object* l_Lake_shortOption(lean_object* x_1, lean_object* x_2, 
 _start:
 {
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
-lean_inc_ref(x_7);
 x_8 = lean_string_length(x_7);
 x_9 = lean_unsigned_to_nat(2u);
 x_10 = lean_nat_dec_eq(x_8, x_9);
@@ -2053,7 +2051,6 @@ lean_inc(x_9);
 x_10 = lean_ctor_get(x_3, 2);
 lean_inc(x_10);
 lean_dec_ref(x_3);
-lean_inc_ref(x_4);
 x_11 = lean_string_length(x_4);
 x_12 = lean_unsigned_to_nat(2u);
 x_13 = lean_nat_dec_eq(x_11, x_12);
@@ -2356,7 +2353,6 @@ lean_inc(x_11);
 x_12 = lean_ctor_get(x_5, 2);
 lean_inc(x_12);
 lean_dec_ref(x_5);
-lean_inc_ref(x_6);
 x_13 = lean_string_length(x_6);
 x_14 = lean_unsigned_to_nat(2u);
 x_15 = lean_nat_dec_eq(x_13, x_14);
@@ -2719,7 +2715,6 @@ x_10 = lean_alloc_closure((void*)(l_Lake_processLeadingOption___redArg___lam__0)
 lean_closure_set(x_10, 0, x_2);
 lean_closure_set(x_10, 1, x_8);
 x_17 = lean_unsigned_to_nat(1u);
-lean_inc(x_8);
 x_18 = lean_string_length(x_8);
 x_19 = lean_nat_dec_lt(x_17, x_18);
 lean_dec(x_18);
@@ -2847,7 +2842,6 @@ lean_closure_set(x_12, 0, x_2);
 lean_closure_set(x_12, 1, x_10);
 lean_closure_set(x_12, 2, x_3);
 lean_closure_set(x_12, 3, x_4);
-lean_inc(x_10);
 x_13 = lean_string_length(x_10);
 x_24 = lean_unsigned_to_nat(1u);
 x_25 = lean_nat_dec_lt(x_24, x_13);
@@ -3023,7 +3017,6 @@ lean_dec(x_1);
 x_10 = lean_ctor_get(x_8, 0);
 lean_inc(x_10);
 lean_dec_ref(x_8);
-lean_inc(x_10);
 x_11 = lean_string_length(x_10);
 x_21 = lean_unsigned_to_nat(1u);
 x_22 = lean_nat_dec_lt(x_21, x_11);

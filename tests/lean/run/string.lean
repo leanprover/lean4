@@ -38,16 +38,16 @@ Examples from documentation (added in https://github.com/leanprover/lean4/pull/4
 #test "".toList = []
 #test "\n".toList = ['\n']
 
--- Pos.isValid
-#test String.Pos.isValid "abc" ⟨0⟩ = true
-#test String.Pos.isValid "abc" ⟨1⟩ = true
-#test String.Pos.isValid "abc" ⟨3⟩ = true
-#test String.Pos.isValid "abc" ⟨4⟩ = false
-#test String.Pos.isValid "𝒫(A)" ⟨0⟩ = true
-#test String.Pos.isValid "𝒫(A)" ⟨1⟩ = false
-#test String.Pos.isValid "𝒫(A)" ⟨2⟩ = false
-#test String.Pos.isValid "𝒫(A)" ⟨3⟩ = false
-#test String.Pos.isValid "𝒫(A)" ⟨4⟩ = true
+-- Pos.Raw.isValid
+#test String.Pos.Raw.isValid "abc" ⟨0⟩ = true
+#test String.Pos.Raw.isValid "abc" ⟨1⟩ = true
+#test String.Pos.Raw.isValid "abc" ⟨3⟩ = true
+#test String.Pos.Raw.isValid "abc" ⟨4⟩ = false
+#test String.Pos.Raw.isValid "𝒫(A)" ⟨0⟩ = true
+#test String.Pos.Raw.isValid "𝒫(A)" ⟨1⟩ = false
+#test String.Pos.Raw.isValid "𝒫(A)" ⟨2⟩ = false
+#test String.Pos.Raw.isValid "𝒫(A)" ⟨3⟩ = false
+#test String.Pos.Raw.isValid "𝒫(A)" ⟨4⟩ = true
 
 -- get
 #test "abc".get ⟨1⟩ = 'b'
@@ -101,7 +101,7 @@ Examples from documentation (added in https://github.com/leanprover/lean4/pull/4
 #test lean.atEnd ⟨8⟩ = true
 
 -- get'
-def getInBounds? (s : String) (p : String.Pos) : Option Char :=
+def getInBounds? (s : String) (p : String.Pos.Raw) : Option Char :=
   if h : s.atEnd p then none else some (s.get' p h)
 
 #test "L∃∀N".get' ⟨2⟩ (by decide) = (default : Char)
@@ -113,7 +113,7 @@ def getInBounds? (s : String) (p : String.Pos) : Option Char :=
 #test getInBounds? lean ⟨4⟩ = some '∀'
 
 -- next'
-def next? (s : String) (p : String.Pos) : Option Char :=
+def next? (s : String) (p : String.Pos.Raw) : Option Char :=
   if h : s.atEnd p then none else s.get (s.next' p h)
 
 #test let abc := "abc"; abc.get (abc.next' 0 (by decide)) = 'b'

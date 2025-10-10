@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Format.Instances
-// Imports: Init.Data.Format.Basic Init.Data.Array.Basic Init.Data.ToString.Basic Init.Data.String.Basic
+// Imports: public import Init.Data.Format.Basic public import Init.Data.Array.Basic public import Init.Data.ToString.Basic import Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,7 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_instToFormatArray___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_String_toFormat___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_instToFormatPos;
 LEAN_EXPORT lean_object* l_instToFormatProd___redArg(lean_object*, lean_object*);
 static lean_object* l_instToFormatProd___redArg___lam__0___closed__3;
 static lean_object* l_Option_format___redArg___closed__0;
@@ -23,7 +22,6 @@ static lean_object* l_List_format___redArg___closed__10;
 static lean_object* l_instToFormatProd___redArg___lam__0___closed__4;
 static lean_object* l_List_format___redArg___closed__9;
 static lean_object* l_instToFormatProd___redArg___lam__0___closed__5;
-LEAN_EXPORT lean_object* l_instToFormatPos___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_String_toFormat(lean_object*);
 static lean_object* l_Option_format___redArg___closed__2;
 static lean_object* l_List_format___redArg___closed__0;
@@ -54,7 +52,9 @@ LEAN_EXPORT lean_object* l_instToFormatOfToString___redArg(lean_object*);
 static lean_object* l_List_format___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___String_toFormat_spec__0(lean_object*, lean_object*);
 static lean_object* l_Option_format___redArg___closed__1;
+LEAN_EXPORT lean_object* l_instToFormatRaw___lam__0(lean_object*);
 static lean_object* l_List_format___redArg___closed__3;
+LEAN_EXPORT lean_object* l_instToFormatRaw;
 static lean_object* l_instToFormatProd___redArg___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_instToFormatArray(lean_object*, lean_object*);
 static lean_object* l_List_format___redArg___closed__2;
@@ -678,7 +678,7 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_instToFormatPos___lam__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_instToFormatRaw___lam__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -688,11 +688,11 @@ lean_ctor_set(x_3, 0, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_instToFormatPos() {
+static lean_object* _init_l_instToFormatRaw() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instToFormatPos___lam__0), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_instToFormatRaw___lam__0), 1, 0);
 return x_1;
 }
 }
@@ -765,8 +765,8 @@ l_instToFormatProd___redArg___lam__0___closed__5 = _init_l_instToFormatProd___re
 lean_mark_persistent(l_instToFormatProd___redArg___lam__0___closed__5);
 l_String_toFormat___closed__0 = _init_l_String_toFormat___closed__0();
 lean_mark_persistent(l_String_toFormat___closed__0);
-l_instToFormatPos = _init_l_instToFormatPos();
-lean_mark_persistent(l_instToFormatPos);
+l_instToFormatRaw = _init_l_instToFormatRaw();
+lean_mark_persistent(l_instToFormatRaw);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

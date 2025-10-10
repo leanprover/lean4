@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Async
-// Imports: Std.Internal.Async.Basic Std.Internal.Async.Timer Std.Internal.Async.TCP Std.Internal.Async.UDP Std.Internal.Async.DNS Std.Internal.Async.Select Std.Internal.Async.Process Std.Internal.Async.System Std.Internal.Async.Signal Std.Internal.Async.IO
+// Imports: public import Std.Internal.Async.Basic public import Std.Internal.Async.Timer public import Std.Internal.Async.TCP public import Std.Internal.Async.UDP public import Std.Internal.Async.DNS public import Std.Internal.Async.Select public import Std.Internal.Async.Process public import Std.Internal.Async.System public import Std.Internal.Async.Signal public import Std.Internal.Async.IO
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

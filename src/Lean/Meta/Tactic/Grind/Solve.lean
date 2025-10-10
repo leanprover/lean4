@@ -13,16 +13,6 @@ import Lean.Meta.Tactic.Grind.Lookahead
 import Lean.Meta.Tactic.Grind.Intro
 public section
 namespace Lean.Meta.Grind
-def tryFallback : GoalM Bool := do
-  (← getMethods).fallback
-  if (← isInconsistent)  then
-    return true
-  if (← (← get).mvarId.isAssigned) then
-    -- User-provided fallback may not have properly set `inconsistent` flag.
-    modify fun s => { s with inconsistent := true }
-    return true
-  return false
-
 /--
 Try to solve/close the given goal.
 Returns `some goal` if this subgoal failed to be closed,
@@ -50,7 +40,7 @@ where
         else
           break
       if (← assertAll <||> Solvers.check <||> ematch <||> lookahead <||> splitNext
-           <||> Solvers.mbtc <||> tryFallback) then
+           <||> Solvers.mbtc) then
         continue
       return some (← getGoal) -- failed
     return none -- solved

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.ExceptCps
-// Imports: Init.Control.Lawful.Basic
+// Imports: public import Init.Control.Lawful.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

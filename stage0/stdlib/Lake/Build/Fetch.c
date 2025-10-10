@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Fetch
-// Imports: Lake.Build.Info Lake.Build.Store Lake.Build.Context Lake.Config.Module Lake.Util.EquipT Lake.Util.Cycle Lake.Build.Infos
+// Imports: public import Lake.Build.Info public import Lake.Build.Store public import Lake.Build.Context public import Lake.Config.Module public import Lake.Util.EquipT public import Lake.Util.Cycle import Lake.Build.Infos
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -208,6 +208,7 @@ x_6 = lean_ctor_get(x_1, 1);
 x_7 = l_List_mapTR_loop___at___Lake_buildCycleError_spec__0___closed__0;
 x_8 = l_Lake_BuildKey_toString(x_5);
 x_9 = lean_string_append(x_7, x_8);
+lean_dec_ref(x_8);
 lean_ctor_set(x_1, 1, x_2);
 lean_ctor_set(x_1, 0, x_9);
 {
@@ -229,6 +230,7 @@ lean_dec(x_1);
 x_13 = l_List_mapTR_loop___at___Lake_buildCycleError_spec__0___closed__0;
 x_14 = l_Lake_BuildKey_toString(x_11);
 x_15 = lean_string_append(x_13, x_14);
+lean_dec_ref(x_14);
 x_16 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_2);
@@ -265,6 +267,7 @@ x_4 = lean_box(0);
 x_5 = l_List_mapTR_loop___at___Lake_buildCycleError_spec__0(x_1, x_4);
 x_6 = l_String_intercalate(x_3, x_5);
 x_7 = lean_string_append(x_2, x_6);
+lean_dec_ref(x_6);
 return x_7;
 }
 }

@@ -19,6 +19,7 @@ import Lean.Message
 import Lean.Meta.Tactic.FVarSubst
 import Lean.Meta.Match.Basic
 import Lean.Meta.Tactic.TryThis
+import Lean.ExtraModUses
 public section
 namespace Lean.Meta.Grind
 /--
@@ -235,6 +236,9 @@ pbind (Grind.genPattern h x (some a)) f = f a h
 ```
 -/
 private def detectGeneralizedPatterns? (type : Expr) : MetaM Expr := do
+  -- `genPattern` is not necessarily referenced in the result but always importing it for `grind`
+  -- uses is a solid approximation.
+  recordExtraModUseFromDecl (isMeta := false) ``Grind.genPattern
   forallTelescopeReducing type fun hs resultType => do
     let isTarget? (lhs : Expr) (rhs : Expr) (s : FVarSubst) : Option (FVarId × Expr) := Id.run do
       let .fvar fvarId := lhs | return none

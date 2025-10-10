@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Date.Unit.Year
-// Imports: Std.Time.Internal Std.Time.Date.Unit.Day Std.Time.Date.Unit.Month
+// Imports: public import Std.Time.Internal public import Std.Time.Date.Unit.Day public import Std.Time.Date.Unit.Month
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -91,6 +91,7 @@ static lean_object* l_Std_Time_Year_instNegOffset___closed__0;
 static lean_object* l_Std_Time_Year_instAddOffset___closed__0;
 static lean_object* l_Std_Time_Year_Offset_isLeap___closed__3;
 lean_object* lean_int_mul(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Year_instReprEra_repr___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_Year_instInhabitedEra;
 static lean_object* l_Std_Time_Year_Offset_weeks___closed__0;
@@ -287,9 +288,14 @@ return x_1;
 LEAN_EXPORT lean_object* l_Std_Time_Year_Era_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_Time_Year_Era_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Std_Time_Year_Era_ctorIdx(x_1);
+x_4 = l_Std_Time_Year_Era_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = lean_alloc_closure((void*)(l_Std_Time_Year_Era_noConfusion___redArg___lam__0___boxed), 1, 0);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_Year_Era_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {

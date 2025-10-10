@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sync.Notify
-// Imports: Init.System.Promise Init.Data.Queue Std.Sync.Mutex Std.Internal.Async.Select
+// Imports: public import Init.System.Promise public import Init.Data.Queue public import Std.Sync.Mutex public import Std.Internal.Async.Select
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

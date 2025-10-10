@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Toml.Load
-// Imports: Lean.Message Lean.Parser.Types Lake.Toml.Data.Value Lean.Parser Lake.Toml.Elab Lake.Util.Message
+// Imports: public import Lean.Message public import Lean.Parser.Types public import Lake.Toml.Data.Value import Lean.Parser import Lake.Toml.Elab import Lake.Util.Message
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

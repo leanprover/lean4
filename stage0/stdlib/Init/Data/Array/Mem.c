@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Mem
-// Imports: Init.Data.Array.Basic Init.Data.Nat.Linear Init.Data.List.BasicAux
+// Imports: public import Init.Data.Array.Basic public import Init.Data.Nat.Linear public import Init.Data.List.BasicAux
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

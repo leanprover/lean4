@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Widget.Types
-// Imports: Lean.Server.Rpc.Basic
+// Imports: public import Lean.Server.Rpc.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -31,6 +31,7 @@ lean_object* l_UInt64_fromJson_x3f(lean_object*);
 static lean_object* l_Lean_Widget_instRpcEncodableWidgetInstance___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodableWidgetInstance_dec___redArg___lam__0____x40_Lean_Widget_Types_2243429567____hygCtx___hyg_1_(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValD(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Widget_instFromJsonRpcEncodablePacket_fromJson____x40_Lean_Widget_Types_3328362917____hygCtx___hyg_33__spec__0___boxed(lean_object*, lean_object*);
 lean_object* lean_uint64_to_nat(uint64_t);
 lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instToJsonRpcEncodablePacket_toJson____x40_Lean_Widget_Types_3328362917____hygCtx___hyg_51_(lean_object*);
@@ -167,6 +168,15 @@ x_15 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_15, 0, x_14);
 return x_15;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Widget_instFromJsonRpcEncodablePacket_fromJson____x40_Lean_Widget_Types_3328362917____hygCtx___hyg_33__spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Json_getObjValAs_x3f___at___Lean_Widget_instFromJsonRpcEncodablePacket_fromJson____x40_Lean_Widget_Types_3328362917____hygCtx___hyg_33__spec__0(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Widget_instFromJsonRpcEncodablePacket___closed__0____x40_Lean_Widget_Types_3328362917____hygCtx___hyg_33_() {

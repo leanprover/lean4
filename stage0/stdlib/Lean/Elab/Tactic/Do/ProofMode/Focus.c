@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Do.ProofMode.Focus
-// Imports: Lean.Elab.Tactic.Do.ProofMode.MGoal
+// Imports: public import Lean.Elab.Tactic.Do.ProofMode.MGoal
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -326,6 +326,7 @@ x_12 = l_Lean_Elab_Tactic_Do_ProofMode_focusHyp___closed__2;
 x_13 = lean_expr_dbg_to_string(x_3);
 lean_dec_ref(x_3);
 x_14 = lean_string_append(x_12, x_13);
+lean_dec_ref(x_13);
 x_15 = l_mkPanicMessageWithDecl(x_8, x_9, x_10, x_11, x_14);
 lean_dec_ref(x_14);
 x_16 = l_panic___at___Lean_Elab_Tactic_Do_ProofMode_focusHyp_spec__0(x_15);

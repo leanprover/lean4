@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.CtorRecognizer
-// Imports: Lean.Meta.LitValues Lean.Meta.Offset
+// Imports: public import Lean.Meta.LitValues public import Lean.Meta.Offset
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1511,14 +1511,14 @@ block_19:
 if (x_16 == 0)
 {
 lean_object* x_17; 
-lean_dec_ref(x_15);
+lean_dec_ref(x_14);
 if (lean_is_scalar(x_10)) {
  x_17 = lean_alloc_ctor(0, 2, 0);
 } else {
  x_17 = x_10;
 }
 lean_ctor_set(x_17, 0, x_12);
-lean_ctor_set(x_17, 1, x_14);
+lean_ctor_set(x_17, 1, x_15);
 return x_17;
 }
 else
@@ -1531,8 +1531,8 @@ if (lean_is_scalar(x_10)) {
  x_18 = x_10;
  lean_ctor_set_tag(x_18, 1);
 }
-lean_ctor_set(x_18, 0, x_15);
-lean_ctor_set(x_18, 1, x_14);
+lean_ctor_set(x_18, 0, x_14);
+lean_ctor_set(x_18, 1, x_15);
 return x_18;
 }
 }
@@ -1544,15 +1544,15 @@ if (x_22 == 0)
 {
 uint8_t x_23; 
 x_23 = l_Lean_Exception_isRuntime(x_20);
-x_14 = x_21;
-x_15 = x_20;
+x_14 = x_20;
+x_15 = x_21;
 x_16 = x_23;
 goto block_19;
 }
 else
 {
-x_14 = x_21;
-x_15 = x_20;
+x_14 = x_20;
+x_15 = x_21;
 x_16 = x_22;
 goto block_19;
 }
@@ -2828,14 +2828,14 @@ block_19:
 if (x_16 == 0)
 {
 lean_object* x_17; 
-lean_dec_ref(x_14);
+lean_dec_ref(x_15);
 if (lean_is_scalar(x_10)) {
  x_17 = lean_alloc_ctor(0, 2, 0);
 } else {
  x_17 = x_10;
 }
 lean_ctor_set(x_17, 0, x_12);
-lean_ctor_set(x_17, 1, x_15);
+lean_ctor_set(x_17, 1, x_14);
 return x_17;
 }
 else
@@ -2848,8 +2848,8 @@ if (lean_is_scalar(x_10)) {
  x_18 = x_10;
  lean_ctor_set_tag(x_18, 1);
 }
-lean_ctor_set(x_18, 0, x_14);
-lean_ctor_set(x_18, 1, x_15);
+lean_ctor_set(x_18, 0, x_15);
+lean_ctor_set(x_18, 1, x_14);
 return x_18;
 }
 }
@@ -2861,15 +2861,15 @@ if (x_22 == 0)
 {
 uint8_t x_23; 
 x_23 = l_Lean_Exception_isRuntime(x_20);
-x_14 = x_20;
-x_15 = x_21;
+x_14 = x_21;
+x_15 = x_20;
 x_16 = x_23;
 goto block_19;
 }
 else
 {
-x_14 = x_20;
-x_15 = x_21;
+x_14 = x_21;
+x_15 = x_20;
 x_16 = x_22;
 goto block_19;
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Format
-// Imports: Init.Data.Format.Basic Init.Data.Format.Macro Init.Data.Format.Instances Init.Data.Format.Syntax
+// Imports: public import Init.Data.Format.Basic public import Init.Data.Format.Macro public import Init.Data.Format.Instances public import Init.Data.Format.Syntax
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

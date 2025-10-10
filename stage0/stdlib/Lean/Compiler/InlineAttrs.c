@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.InlineAttrs
-// Imports: Lean.Attributes
+// Imports: public import Lean.Attributes
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -522,9 +522,14 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_InlineAttributeKind_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_Compiler_InlineAttributeKind_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Lean_Compiler_InlineAttributeKind_ctorIdx(x_1);
+x_4 = l_Lean_Compiler_InlineAttributeKind_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = lean_alloc_closure((void*)(l_Lean_Compiler_InlineAttributeKind_noConfusion___redArg___lam__0___boxed), 1, 0);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Compiler_InlineAttributeKind_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
@@ -2814,9 +2819,11 @@ x_44 = lean_ctor_get(x_42, 0);
 x_45 = l_Lean_Compiler_initFn___lam__1___closed__4____x40_Lean_Compiler_InlineAttrs_3606020009____hygCtx___hyg_2_;
 x_46 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_InlineAttributeKind_toAttrString(x_2);
 x_47 = lean_string_append(x_45, x_46);
+lean_dec_ref(x_46);
 x_48 = l_Lean_Compiler_initFn___lam__1___closed__5____x40_Lean_Compiler_InlineAttrs_3606020009____hygCtx___hyg_2_;
 x_49 = lean_string_append(x_47, x_48);
 x_50 = lean_string_append(x_49, x_44);
+lean_dec(x_44);
 lean_ctor_set(x_42, 0, x_50);
 x_12 = x_42;
 goto block_41;
@@ -2830,9 +2837,11 @@ lean_dec(x_42);
 x_52 = l_Lean_Compiler_initFn___lam__1___closed__4____x40_Lean_Compiler_InlineAttrs_3606020009____hygCtx___hyg_2_;
 x_53 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_InlineAttributeKind_toAttrString(x_2);
 x_54 = lean_string_append(x_52, x_53);
+lean_dec_ref(x_53);
 x_55 = l_Lean_Compiler_initFn___lam__1___closed__5____x40_Lean_Compiler_InlineAttrs_3606020009____hygCtx___hyg_2_;
 x_56 = lean_string_append(x_54, x_55);
 x_57 = lean_string_append(x_56, x_51);
+lean_dec(x_51);
 x_58 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_58, 0, x_57);
 x_12 = x_58;

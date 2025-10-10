@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.Basic
-// Imports: Init.Core Init.Classical Init.Ext Init.NotationExtra Init.TacticsExtra
+// Imports: public import Init.Core public import Init.Classical public import Init.Ext public import Init.NotationExtra public import Init.TacticsExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

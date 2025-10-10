@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.AuxDeclCache
-// Imports: Lean.Compiler.LCNF.CompilerM Lean.Compiler.LCNF.DeclHash Lean.Compiler.LCNF.Internalize
+// Imports: public import Lean.Compiler.LCNF.CompilerM public import Lean.Compiler.LCNF.DeclHash public import Lean.Compiler.LCNF.Internalize
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

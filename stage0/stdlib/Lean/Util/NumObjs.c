@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.NumObjs
-// Imports: Lean.Expr Lean.Util.PtrSet
+// Imports: public import Lean.Expr public import Lean.Util.PtrSet
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -8,11 +8,12 @@ module
 prelude
 public import Init.Data.Range
 public import Init.Data.Array.Subarray
-public import Init.Data.String.Basic
 
 import Init.Data.Slice.Array.Basic
 
 public section
+
+namespace Std
 
 /-!
 Remark: we considered using the following alternative design
@@ -114,9 +115,18 @@ instance : Stream Std.Range Nat where
     else
       none
 
-instance : Stream Substring Char where
-  next? s :=
-    if s.startPos < s.stopPos then
-      some (s.str.get s.startPos, { s with startPos := s.str.next s.startPos })
-    else
-      none
+end Std
+
+@[deprecated Std.Stream (since := "2025-10-01")]
+abbrev Stream := Std.Stream
+
+-- Not deprecated to avoid bootstrapping annoyances
+abbrev Stream.next? {stream : Type u} {value : outParam (Type v)} [self : Std.Stream stream value] :
+    stream → Option (value × stream) := Std.Stream.next?
+
+@[deprecated Std.ToStream (since := "2025-10-01")]
+abbrev ToStream := Std.ToStream
+
+-- Not deprecated to avoid bootstrapping annoyances
+abbrev ToStream.toStream {collection : Type u} {stream : outParam (Type u)}
+  [self : Std.ToStream collection stream] : collection → stream := Std.ToStream.toStream

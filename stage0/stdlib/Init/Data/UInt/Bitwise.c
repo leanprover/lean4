@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.UInt.Bitwise
-// Imports: Init.Data.BitVec.Basic Init.Data.BitVec.Basic Init.Data.UInt.Basic Init.Data.UInt.Basic Init.Data.UInt.Lemmas Init.Data.Fin.Bitwise
+// Imports: public import Init.Data.BitVec.Basic import all Init.Data.BitVec.Basic public import Init.Data.UInt.Basic import all Init.Data.UInt.Basic public import Init.Data.UInt.Lemmas public import Init.Data.Fin.Bitwise
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2840,6 +2840,7 @@ lean_ctor_set(x_317, 0, x_14);
 lean_ctor_set(x_317, 1, x_315);
 lean_ctor_set(x_317, 2, x_316);
 lean_ctor_set(x_317, 3, x_40);
+lean_inc_ref(x_23);
 lean_inc(x_14);
 x_318 = l_Lean_Syntax_node2(x_14, x_58, x_317, x_23);
 lean_inc(x_14);
@@ -2863,7 +2864,7 @@ x_328 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_328, 0, x_14);
 lean_ctor_set(x_328, 1, x_326);
 lean_inc(x_14);
-x_329 = l_Lean_Syntax_node1(x_14, x_15, x_10);
+x_329 = l_Lean_Syntax_node2(x_14, x_15, x_10, x_23);
 lean_inc(x_14);
 x_330 = l_Lean_Syntax_node2(x_14, x_327, x_328, x_329);
 x_331 = l___aux__Init__Data__UInt__Bitwise______macroRules__commandDeclare__bitwise__uint__theorems______1___closed__178;

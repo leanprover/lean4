@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Target.Basic
-// Imports: Lake.Build.Key
+// Imports: public import Lake.Build.Key
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

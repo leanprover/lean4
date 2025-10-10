@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Ord.Basic
-// Imports: Init.Data.String.Basic Init.Data.Array.Basic Init.Data.SInt.Basic Init.Data.Vector.Basic Init.Data.Vector.Basic
+// Imports: public import Init.Data.Repr import Init.TacticsExtra import Init.RCases import Init.Classical import Init.ByCases import Init.Ext public import Init.PropLemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,12 +15,9 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Ordering_lt_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Ord_lex_x27(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_instOrdUInt32___lam__0(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Ord_toBEq___redArg(lean_object*);
 static lean_object* l_instReprOrdering_repr___closed__3;
-uint8_t lean_uint8_dec_lt(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_instOrdFin___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Vector_compareLex___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_isEq___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instOrdChar;
 static lean_object* l_instReprOrdering___closed__0;
@@ -29,16 +26,13 @@ LEAN_EXPORT uint8_t l_instDecidableEqOrdering(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Ord_toLE___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__List_compareLex_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableRelLe___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instOrdUSize___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ord_opposite___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instInhabitedOrdering;
 LEAN_EXPORT lean_object* l_instOrdOrdering___lam__0___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_compareOn___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprOrdering_repr(uint8_t, lean_object*);
 LEAN_EXPORT uint8_t l_Ord_opposite___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_instOrdInt8___lam__0(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_compareOfLessAndBEq___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_uint16_dec_lt(uint16_t, uint16_t);
 LEAN_EXPORT lean_object* l_ltOfOrd___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instOrdNat___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_ofNat___boxed(lean_object*);
@@ -48,17 +42,9 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__Ordering_then_match_
 LEAN_EXPORT uint8_t l_Ordering_instDecidableExistsOfDecidablePred___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_instDecidableExistsOfDecidablePred___redArg___boxed(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_compareLex___at___Vector_compareLex_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instOrdISize___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instOrdString___lam__0___boxed(lean_object*, lean_object*);
-uint8_t lean_uint64_dec_lt(uint64_t, uint64_t);
-uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Ordering_eq_elim___redArg(lean_object*);
 static lean_object* l_instReprOrdering_repr___closed__5;
-LEAN_EXPORT lean_object* l_Array_compareLex___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_beqOfOrd(lean_object*, lean_object*);
-uint8_t lean_int8_dec_eq(uint8_t, uint8_t);
-LEAN_EXPORT uint8_t l_instOrdString___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_compareLex(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_gt_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_compareLex___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -66,38 +52,25 @@ LEAN_EXPORT lean_object* l_leOfOrd(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_noConfusion___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_compareOfLessAndEq___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ord_lex_x27___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableEqOrdering___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_gt_elim___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Array_instOrd(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instOrdUInt32;
 LEAN_EXPORT lean_object* l_Ordering_noConfusion___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_eq_elim(lean_object*, uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instOrdUInt8;
-uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ord_toLT(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instOrdBitVec(lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_lt_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_compareOfLessAndBEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_beqOfOrd___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_instReprOrdering_repr___closed__6;
-LEAN_EXPORT lean_object* l_Array_compareLex___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__Ordering_swap_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Vector_compareLex___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instDecidableRelLt(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Ord_lex_x27___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_compareOn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instOrdInt32;
 LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__Ordering_swap_match__1_splitter___redArg(uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_lt_elim(lean_object*, uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Init_Data_Ord_Basic_0__Array_compareLex_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_int32_dec_lt(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_instOrdOrdering___lam__0(uint8_t);
-uint8_t lean_string_dec_lt(lean_object*, lean_object*);
-uint8_t lean_int64_dec_lt(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Ord_lex(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprOrdering;
-LEAN_EXPORT uint8_t l_instOrdUInt8___lam__0(uint8_t, uint8_t);
 LEAN_EXPORT uint8_t l_instDecidableRelLt___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Ordering_isLT(uint8_t);
 LEAN_EXPORT lean_object* l_beqOfOrd___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -115,10 +88,9 @@ LEAN_EXPORT lean_object* l_instOrdOption___redArg(lean_object*);
 LEAN_EXPORT uint8_t l_instDecidableRelLe(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_compareOfLessAndEq(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_toCtorIdx___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_instOrdUInt64___lam__0(uint64_t, uint64_t);
+LEAN_EXPORT lean_object* l_instOrdChar___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_leOfOrd___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Ordering_swap(uint8_t);
-LEAN_EXPORT lean_object* l_instOrdUInt16___lam__0___boxed(lean_object*, lean_object*);
 static lean_object* l_instReprOrdering_repr___closed__4;
 LEAN_EXPORT lean_object* l_instOrdOption(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_isLT___boxed(lean_object*);
@@ -128,26 +100,16 @@ LEAN_EXPORT lean_object* l_Ordering_ctorElim___boxed(lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l_Ordering_isNe___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_swap___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Ord_lex___redArg(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Vector_compareLex(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_noConfusion___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__Array_compareLex_go___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__Ordering_then_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instOrdUInt32___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__List_compareLex_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_instOrdUSize___lam__0(size_t, size_t);
 LEAN_EXPORT lean_object* l_instOrdBitVec___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_isGE___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__instReprOrdering_repr_match__1_splitter(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Array_compareLex___at___Vector_compareLex_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_gt_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ord_opposite___redArg(lean_object*);
-uint8_t lean_int64_dec_eq(uint64_t, uint64_t);
-uint8_t lean_uint16_dec_eq(uint16_t, uint16_t);
-LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__instReprOrdering_repr_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Array_compareLex(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_isize_dec_eq(size_t, size_t);
 LEAN_EXPORT uint8_t l_compareOn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_instOrdChar___lam__0(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Ordering_ctorElim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_instOrd(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_instDecidableForallOfDecidablePred___boxed(lean_object*, lean_object*);
@@ -155,8 +117,6 @@ LEAN_EXPORT lean_object* l_Ordering_isGT___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instOrdOrdering;
 LEAN_EXPORT uint8_t l_instDecidableRelLe___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Ord_on___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instOrdUInt16;
-LEAN_EXPORT lean_object* l_instOrdInt8;
 LEAN_EXPORT lean_object* l_Ordering_isLE___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Ord_toBEq(lean_object*, lean_object*);
 static lean_object* l_instReprOrdering_repr___closed__2;
@@ -167,107 +127,68 @@ LEAN_EXPORT lean_object* l_instDecidableRelLt___boxed(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Ord_opposite(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_compareOn___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_compareLex___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instOrdInt8___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_lt_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_ctorElim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_lexOrd___redArg___lam__1(lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_eq_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableRelLt___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_ctorIdx(uint8_t);
-LEAN_EXPORT uint8_t l_instOrdInt64___lam__0(uint64_t, uint64_t);
 static lean_object* l_instReprOrdering_repr___closed__1;
-LEAN_EXPORT uint8_t l_instOrdInt32___lam__0(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_instReprOrdering_repr___boxed(lean_object*, lean_object*);
-uint8_t lean_int8_dec_lt(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Ord_lex_x27___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_compareOfLessAndEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Array_compareLex___at___Vector_compareLex_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_noConfusion___redArg(uint8_t, uint8_t);
 LEAN_EXPORT uint8_t l_instOrdOption___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_compareLex___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_int16_dec_eq(uint16_t, uint16_t);
 LEAN_EXPORT lean_object* l_Ordering_instDecidableExistsOfDecidablePred___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_lexOrd___redArg___lam__0(lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-LEAN_EXPORT uint8_t l_Array_compareLex___at___Vector_compareLex_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instOrdInt;
 LEAN_EXPORT lean_object* l_Ord_on___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instOrdOption___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Ordering_isGT(uint8_t);
-LEAN_EXPORT lean_object* l_Vector_instOrd(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__instReprOrdering_repr_match__1_splitter___redArg(uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_lexOrd___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_eq_elim___redArg___boxed(lean_object*);
-static lean_object* l_instOrdChar___closed__0;
 LEAN_EXPORT lean_object* l_lexOrd___redArg___lam__1___boxed(lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Ordering_isGE(uint8_t);
-LEAN_EXPORT lean_object* l_instOrdISize;
 LEAN_EXPORT uint8_t l_instOrdBool___lam__0(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_instOrdBool;
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_instOrdInt16___lam__0(uint16_t, uint16_t);
 LEAN_EXPORT lean_object* l_Ord_toLE(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_instOrd___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Array_instOrd___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_instOrdInt___lam__0___boxed(lean_object*, lean_object*);
-uint8_t lean_int16_dec_lt(uint16_t, uint16_t);
 LEAN_EXPORT uint8_t l_List_compareLex___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ord_toLT___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_compareOfLessAndBEq(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
-uint8_t lean_isize_dec_lt(size_t, size_t);
 LEAN_EXPORT uint8_t l_Ordering_instDecidableForallOfDecidablePred(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instOrdNat;
 LEAN_EXPORT lean_object* l_Ord_on(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
-LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__instReprOrdering_repr_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_compareLex(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_toCtorIdx(uint8_t);
-LEAN_EXPORT lean_object* l_instOrdUInt64;
 LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__List_compareLex_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint32_dec_lt(uint32_t, uint32_t);
-LEAN_EXPORT lean_object* l_instOrdUInt8___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Ordering_isLE(uint8_t);
 LEAN_EXPORT lean_object* l_Ord_ctorIdx(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_instOrdISize___lam__0(size_t, size_t);
 LEAN_EXPORT lean_object* l_lexOrd(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instOrdInt64___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_instOrdUInt16___lam__0(uint16_t, uint16_t);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ord_on___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instOrdInt32___lam__0___boxed(lean_object*, lean_object*);
 static lean_object* l_instReprOrdering_repr___closed__7;
-uint8_t lean_int32_dec_eq(uint32_t, uint32_t);
 static lean_object* l_instOrdFin___closed__0;
-LEAN_EXPORT lean_object* l_instOrdInt16;
-lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_beqOfOrd___redArg(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instOrdString;
-LEAN_EXPORT lean_object* l_Vector_instOrd___redArg(lean_object*, lean_object*);
-uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_instOrdFin(lean_object*);
-LEAN_EXPORT uint8_t l_Array_compareLex___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Ordering_ofNat(lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableRelLe___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instOrdInt64;
 LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__Ordering_then_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_compareOfLessAndEq___redArg(lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT uint8_t l_instInhabitedOrdering_default;
 LEAN_EXPORT lean_object* l_instOrdNat___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Vector_compareLex___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Ordering_instDecidableExistsOfDecidablePred(lean_object*, lean_object*);
-uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
-LEAN_EXPORT lean_object* l_instOrdUInt64___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instOrdUSize;
-LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__Array_compareLex_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_compareLex___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instOrdInt16___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Init_Data_Ord_Basic_0__Array_compareLex_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__List_compareLex_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_ctorIdx(uint8_t x_1) {
@@ -464,9 +385,14 @@ return x_1;
 LEAN_EXPORT lean_object* l_Ordering_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Ordering_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Ordering_ctorIdx(x_1);
+x_4 = l_Ordering_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = lean_alloc_closure((void*)(l_Ordering_noConfusion___redArg___lam__0___boxed), 1, 0);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Ordering_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
@@ -1623,55 +1549,6 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-LEAN_EXPORT uint8_t l_instOrdString___lam__0(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lean_string_dec_lt(x_1, x_2);
-if (x_3 == 0)
-{
-uint8_t x_4; 
-x_4 = lean_string_dec_eq(x_1, x_2);
-if (x_4 == 0)
-{
-uint8_t x_5; 
-x_5 = 2;
-return x_5;
-}
-else
-{
-uint8_t x_6; 
-x_6 = 1;
-return x_6;
-}
-}
-else
-{
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
-}
-}
-}
-static lean_object* _init_l_instOrdString() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instOrdString___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_instOrdString___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_instOrdString___lam__0(x_1, x_2);
-lean_dec_ref(x_2);
-lean_dec_ref(x_1);
-x_4 = lean_box(x_3);
-return x_4;
-}
-}
 static lean_object* _init_l_instOrdFin___closed__0() {
 _start:
 {
@@ -1697,105 +1574,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT uint8_t l_instOrdUInt8___lam__0(uint8_t x_1, uint8_t x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lean_uint8_dec_lt(x_1, x_2);
-if (x_3 == 0)
-{
-uint8_t x_4; 
-x_4 = lean_uint8_dec_eq(x_1, x_2);
-if (x_4 == 0)
-{
-uint8_t x_5; 
-x_5 = 2;
-return x_5;
-}
-else
-{
-uint8_t x_6; 
-x_6 = 1;
-return x_6;
-}
-}
-else
-{
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
-}
-}
-}
-static lean_object* _init_l_instOrdUInt8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instOrdUInt8___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_instOrdUInt8___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox(x_1);
-x_4 = lean_unbox(x_2);
-x_5 = l_instOrdUInt8___lam__0(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT uint8_t l_instOrdUInt16___lam__0(uint16_t x_1, uint16_t x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lean_uint16_dec_lt(x_1, x_2);
-if (x_3 == 0)
-{
-uint8_t x_4; 
-x_4 = lean_uint16_dec_eq(x_1, x_2);
-if (x_4 == 0)
-{
-uint8_t x_5; 
-x_5 = 2;
-return x_5;
-}
-else
-{
-uint8_t x_6; 
-x_6 = 1;
-return x_6;
-}
-}
-else
-{
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
-}
-}
-}
-static lean_object* _init_l_instOrdUInt16() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instOrdUInt16___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_instOrdUInt16___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint16_t x_3; uint16_t x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox(x_1);
-x_4 = lean_unbox(x_2);
-x_5 = l_instOrdUInt16___lam__0(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT uint8_t l_instOrdUInt32___lam__0(uint32_t x_1, uint32_t x_2) {
+LEAN_EXPORT uint8_t l_instOrdChar___lam__0(uint32_t x_1, uint32_t x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -1825,282 +1604,15 @@ return x_7;
 }
 }
 }
-static lean_object* _init_l_instOrdUInt32() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instOrdUInt32___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_instOrdUInt32___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint32_t x_3; uint32_t x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox_uint32(x_1);
-lean_dec(x_1);
-x_4 = lean_unbox_uint32(x_2);
-lean_dec(x_2);
-x_5 = l_instOrdUInt32___lam__0(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT uint8_t l_instOrdUInt64___lam__0(uint64_t x_1, uint64_t x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lean_uint64_dec_lt(x_1, x_2);
-if (x_3 == 0)
-{
-uint8_t x_4; 
-x_4 = lean_uint64_dec_eq(x_1, x_2);
-if (x_4 == 0)
-{
-uint8_t x_5; 
-x_5 = 2;
-return x_5;
-}
-else
-{
-uint8_t x_6; 
-x_6 = 1;
-return x_6;
-}
-}
-else
-{
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
-}
-}
-}
-static lean_object* _init_l_instOrdUInt64() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instOrdUInt64___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_instOrdUInt64___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint64_t x_3; uint64_t x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
-x_4 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
-x_5 = l_instOrdUInt64___lam__0(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT uint8_t l_instOrdUSize___lam__0(size_t x_1, size_t x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lean_usize_dec_lt(x_1, x_2);
-if (x_3 == 0)
-{
-uint8_t x_4; 
-x_4 = lean_usize_dec_eq(x_1, x_2);
-if (x_4 == 0)
-{
-uint8_t x_5; 
-x_5 = 2;
-return x_5;
-}
-else
-{
-uint8_t x_6; 
-x_6 = 1;
-return x_6;
-}
-}
-else
-{
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
-}
-}
-}
-static lean_object* _init_l_instOrdUSize() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instOrdUSize___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_instOrdUSize___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-size_t x_3; size_t x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox_usize(x_1);
-lean_dec(x_1);
-x_4 = lean_unbox_usize(x_2);
-lean_dec(x_2);
-x_5 = l_instOrdUSize___lam__0(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-static lean_object* _init_l_instOrdChar___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instOrdUInt32___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 static lean_object* _init_l_instOrdChar() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_instOrdChar___closed__0;
+x_1 = lean_alloc_closure((void*)(l_instOrdChar___lam__0___boxed), 2, 0);
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_instOrdInt8___lam__0(uint8_t x_1, uint8_t x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lean_int8_dec_lt(x_1, x_2);
-if (x_3 == 0)
-{
-uint8_t x_4; 
-x_4 = lean_int8_dec_eq(x_1, x_2);
-if (x_4 == 0)
-{
-uint8_t x_5; 
-x_5 = 2;
-return x_5;
-}
-else
-{
-uint8_t x_6; 
-x_6 = 1;
-return x_6;
-}
-}
-else
-{
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
-}
-}
-}
-static lean_object* _init_l_instOrdInt8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instOrdInt8___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_instOrdInt8___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox(x_1);
-x_4 = lean_unbox(x_2);
-x_5 = l_instOrdInt8___lam__0(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT uint8_t l_instOrdInt16___lam__0(uint16_t x_1, uint16_t x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lean_int16_dec_lt(x_1, x_2);
-if (x_3 == 0)
-{
-uint8_t x_4; 
-x_4 = lean_int16_dec_eq(x_1, x_2);
-if (x_4 == 0)
-{
-uint8_t x_5; 
-x_5 = 2;
-return x_5;
-}
-else
-{
-uint8_t x_6; 
-x_6 = 1;
-return x_6;
-}
-}
-else
-{
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
-}
-}
-}
-static lean_object* _init_l_instOrdInt16() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instOrdInt16___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_instOrdInt16___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint16_t x_3; uint16_t x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox(x_1);
-x_4 = lean_unbox(x_2);
-x_5 = l_instOrdInt16___lam__0(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT uint8_t l_instOrdInt32___lam__0(uint32_t x_1, uint32_t x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lean_int32_dec_lt(x_1, x_2);
-if (x_3 == 0)
-{
-uint8_t x_4; 
-x_4 = lean_int32_dec_eq(x_1, x_2);
-if (x_4 == 0)
-{
-uint8_t x_5; 
-x_5 = 2;
-return x_5;
-}
-else
-{
-uint8_t x_6; 
-x_6 = 1;
-return x_6;
-}
-}
-else
-{
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
-}
-}
-}
-static lean_object* _init_l_instOrdInt32() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instOrdInt32___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_instOrdInt32___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_instOrdChar___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint32_t x_3; uint32_t x_4; uint8_t x_5; lean_object* x_6; 
@@ -2108,109 +1620,7 @@ x_3 = lean_unbox_uint32(x_1);
 lean_dec(x_1);
 x_4 = lean_unbox_uint32(x_2);
 lean_dec(x_2);
-x_5 = l_instOrdInt32___lam__0(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT uint8_t l_instOrdInt64___lam__0(uint64_t x_1, uint64_t x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lean_int64_dec_lt(x_1, x_2);
-if (x_3 == 0)
-{
-uint8_t x_4; 
-x_4 = lean_int64_dec_eq(x_1, x_2);
-if (x_4 == 0)
-{
-uint8_t x_5; 
-x_5 = 2;
-return x_5;
-}
-else
-{
-uint8_t x_6; 
-x_6 = 1;
-return x_6;
-}
-}
-else
-{
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
-}
-}
-}
-static lean_object* _init_l_instOrdInt64() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instOrdInt64___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_instOrdInt64___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint64_t x_3; uint64_t x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
-x_4 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
-x_5 = l_instOrdInt64___lam__0(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT uint8_t l_instOrdISize___lam__0(size_t x_1, size_t x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lean_isize_dec_lt(x_1, x_2);
-if (x_3 == 0)
-{
-uint8_t x_4; 
-x_4 = lean_isize_dec_eq(x_1, x_2);
-if (x_4 == 0)
-{
-uint8_t x_5; 
-x_5 = 2;
-return x_5;
-}
-else
-{
-uint8_t x_6; 
-x_6 = 1;
-return x_6;
-}
-}
-else
-{
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
-}
-}
-}
-static lean_object* _init_l_instOrdISize() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instOrdISize___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_instOrdISize___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-size_t x_3; size_t x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox_usize(x_1);
-lean_dec(x_1);
-x_4 = lean_unbox_usize(x_2);
-lean_dec(x_2);
-x_5 = l_instOrdISize___lam__0(x_3, x_4);
+x_5 = l_instOrdChar___lam__0(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -2588,336 +1998,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 return x_7;
-}
-}
-LEAN_EXPORT uint8_t l___private_Init_Data_Ord_Basic_0__Array_compareLex_go___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; uint8_t x_6; 
-x_5 = lean_array_get_size(x_2);
-x_6 = lean_nat_dec_le(x_5, x_4);
-lean_dec(x_5);
-if (x_6 == 0)
-{
-lean_object* x_7; uint8_t x_8; 
-x_7 = lean_array_get_size(x_3);
-x_8 = lean_nat_dec_le(x_7, x_4);
-lean_dec(x_7);
-if (x_8 == 0)
-{
-lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-x_9 = lean_array_fget_borrowed(x_2, x_4);
-x_10 = lean_array_fget_borrowed(x_3, x_4);
-lean_inc_ref(x_1);
-lean_inc(x_10);
-lean_inc(x_9);
-x_11 = lean_apply_2(x_1, x_9, x_10);
-x_12 = lean_unbox(x_11);
-if (x_12 == 1)
-{
-lean_object* x_13; lean_object* x_14; 
-x_13 = lean_unsigned_to_nat(1u);
-x_14 = lean_nat_add(x_4, x_13);
-lean_dec(x_4);
-x_4 = x_14;
-goto _start;
-}
-else
-{
-uint8_t x_16; 
-lean_dec(x_4);
-lean_dec_ref(x_1);
-x_16 = lean_unbox(x_11);
-return x_16;
-}
-}
-else
-{
-uint8_t x_17; 
-lean_dec(x_4);
-lean_dec_ref(x_1);
-x_17 = 2;
-return x_17;
-}
-}
-else
-{
-lean_object* x_18; uint8_t x_19; 
-lean_dec_ref(x_1);
-x_18 = lean_array_get_size(x_3);
-x_19 = lean_nat_dec_le(x_18, x_4);
-lean_dec(x_4);
-lean_dec(x_18);
-if (x_19 == 0)
-{
-uint8_t x_20; 
-x_20 = 0;
-return x_20;
-}
-else
-{
-uint8_t x_21; 
-x_21 = 1;
-return x_21;
-}
-}
-}
-}
-LEAN_EXPORT uint8_t l___private_Init_Data_Ord_Basic_0__Array_compareLex_go(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-uint8_t x_6; 
-x_6 = l___private_Init_Data_Ord_Basic_0__Array_compareLex_go___redArg(x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__Array_compareLex_go___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; lean_object* x_6; 
-x_5 = l___private_Init_Data_Ord_Basic_0__Array_compareLex_go___redArg(x_1, x_2, x_3, x_4);
-lean_dec_ref(x_3);
-lean_dec_ref(x_2);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__Array_compareLex_go___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-uint8_t x_6; lean_object* x_7; 
-x_6 = l___private_Init_Data_Ord_Basic_0__Array_compareLex_go(x_1, x_2, x_3, x_4, x_5);
-lean_dec_ref(x_4);
-lean_dec_ref(x_3);
-x_7 = lean_box(x_6);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__instReprOrdering_repr_match__1_splitter___redArg(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-switch (x_1) {
-case 0:
-{
-lean_inc(x_2);
-return x_2;
-}
-case 1:
-{
-lean_inc(x_3);
-return x_3;
-}
-default: 
-{
-lean_inc(x_4);
-return x_4;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__instReprOrdering_repr_match__1_splitter(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-switch (x_2) {
-case 0:
-{
-lean_inc(x_3);
-return x_3;
-}
-case 1:
-{
-lean_inc(x_4);
-return x_4;
-}
-default: 
-{
-lean_inc(x_5);
-return x_5;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__instReprOrdering_repr_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; lean_object* x_6; 
-x_5 = lean_unbox(x_1);
-x_6 = l___private_Init_Data_Ord_Basic_0__instReprOrdering_repr_match__1_splitter___redArg(x_5, x_2, x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Ord_Basic_0__instReprOrdering_repr_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-uint8_t x_6; lean_object* x_7; 
-x_6 = lean_unbox(x_2);
-x_7 = l___private_Init_Data_Ord_Basic_0__instReprOrdering_repr_match__1_splitter(x_1, x_6, x_3, x_4, x_5);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-return x_7;
-}
-}
-LEAN_EXPORT uint8_t l_Array_compareLex___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; uint8_t x_5; 
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = l___private_Init_Data_Ord_Basic_0__Array_compareLex_go___redArg(x_1, x_2, x_3, x_4);
-return x_5;
-}
-}
-LEAN_EXPORT uint8_t l_Array_compareLex(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; 
-x_5 = l_Array_compareLex___redArg(x_2, x_3, x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Array_compareLex___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Array_compareLex___redArg(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-lean_dec_ref(x_2);
-x_5 = lean_box(x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Array_compareLex___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; lean_object* x_6; 
-x_5 = l_Array_compareLex(x_1, x_2, x_3, x_4);
-lean_dec_ref(x_4);
-lean_dec_ref(x_3);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Array_instOrd___redArg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Array_compareLex___boxed), 4, 2);
-lean_closure_set(x_2, 0, lean_box(0));
-lean_closure_set(x_2, 1, x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Array_instOrd(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Array_compareLex___boxed), 4, 2);
-lean_closure_set(x_3, 0, lean_box(0));
-lean_closure_set(x_3, 1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT uint8_t l_Array_compareLex___at___Vector_compareLex_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; uint8_t x_5; 
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = l___private_Init_Data_Ord_Basic_0__Array_compareLex_go___redArg(x_1, x_2, x_3, x_4);
-return x_5;
-}
-}
-LEAN_EXPORT uint8_t l_Array_compareLex___at___Vector_compareLex_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; 
-x_5 = l_Array_compareLex___at___Vector_compareLex_spec__0___redArg(x_2, x_3, x_4);
-return x_5;
-}
-}
-LEAN_EXPORT uint8_t l_Vector_compareLex___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; 
-x_4 = l_Array_compareLex___at___Vector_compareLex_spec__0___redArg(x_1, x_2, x_3);
-return x_4;
-}
-}
-LEAN_EXPORT uint8_t l_Vector_compareLex(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-uint8_t x_6; 
-x_6 = l_Array_compareLex___at___Vector_compareLex_spec__0___redArg(x_3, x_4, x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Array_compareLex___at___Vector_compareLex_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Array_compareLex___at___Vector_compareLex_spec__0___redArg(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-lean_dec_ref(x_2);
-x_5 = lean_box(x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Array_compareLex___at___Vector_compareLex_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; lean_object* x_6; 
-x_5 = l_Array_compareLex___at___Vector_compareLex_spec__0(x_1, x_2, x_3, x_4);
-lean_dec_ref(x_4);
-lean_dec_ref(x_3);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Vector_compareLex___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Vector_compareLex___redArg(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-lean_dec_ref(x_2);
-x_5 = lean_box(x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Vector_compareLex___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-uint8_t x_6; lean_object* x_7; 
-x_6 = l_Vector_compareLex(x_1, x_2, x_3, x_4, x_5);
-lean_dec_ref(x_5);
-lean_dec_ref(x_4);
-lean_dec(x_2);
-x_7 = lean_box(x_6);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Vector_instOrd___redArg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Vector_compareLex___boxed), 5, 3);
-lean_closure_set(x_3, 0, lean_box(0));
-lean_closure_set(x_3, 1, x_1);
-lean_closure_set(x_3, 2, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Vector_instOrd(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Vector_compareLex___boxed), 5, 3);
-lean_closure_set(x_4, 0, lean_box(0));
-lean_closure_set(x_4, 1, x_2);
-lean_closure_set(x_4, 2, x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_lexOrd___redArg___lam__0(lean_object* x_1) {
@@ -3379,29 +2459,37 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Repr(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_TacticsExtra(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_RCases(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Classical(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_ByCases(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Ext(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_PropLemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Repr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_TacticsExtra(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_SInt_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_RCases(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Classical(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_ByCases(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Ext(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_PropLemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_instInhabitedOrdering_default = _init_l_instInhabitedOrdering_default();
@@ -3432,34 +2520,10 @@ l_instOrdInt = _init_l_instOrdInt();
 lean_mark_persistent(l_instOrdInt);
 l_instOrdBool = _init_l_instOrdBool();
 lean_mark_persistent(l_instOrdBool);
-l_instOrdString = _init_l_instOrdString();
-lean_mark_persistent(l_instOrdString);
 l_instOrdFin___closed__0 = _init_l_instOrdFin___closed__0();
 lean_mark_persistent(l_instOrdFin___closed__0);
-l_instOrdUInt8 = _init_l_instOrdUInt8();
-lean_mark_persistent(l_instOrdUInt8);
-l_instOrdUInt16 = _init_l_instOrdUInt16();
-lean_mark_persistent(l_instOrdUInt16);
-l_instOrdUInt32 = _init_l_instOrdUInt32();
-lean_mark_persistent(l_instOrdUInt32);
-l_instOrdUInt64 = _init_l_instOrdUInt64();
-lean_mark_persistent(l_instOrdUInt64);
-l_instOrdUSize = _init_l_instOrdUSize();
-lean_mark_persistent(l_instOrdUSize);
-l_instOrdChar___closed__0 = _init_l_instOrdChar___closed__0();
-lean_mark_persistent(l_instOrdChar___closed__0);
 l_instOrdChar = _init_l_instOrdChar();
 lean_mark_persistent(l_instOrdChar);
-l_instOrdInt8 = _init_l_instOrdInt8();
-lean_mark_persistent(l_instOrdInt8);
-l_instOrdInt16 = _init_l_instOrdInt16();
-lean_mark_persistent(l_instOrdInt16);
-l_instOrdInt32 = _init_l_instOrdInt32();
-lean_mark_persistent(l_instOrdInt32);
-l_instOrdInt64 = _init_l_instOrdInt64();
-lean_mark_persistent(l_instOrdInt64);
-l_instOrdISize = _init_l_instOrdISize();
-lean_mark_persistent(l_instOrdISize);
 l_instOrdOrdering = _init_l_instOrdOrdering();
 lean_mark_persistent(l_instOrdOrdering);
 return lean_io_result_mk_ok(lean_box(0));

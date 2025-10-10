@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.CompletionName
-// Imports: Lean.Meta.Basic Lean.Meta.Match.MatcherInfo
+// Imports: public import Lean.Meta.Basic public import Lean.Meta.Match.MatcherInfo
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

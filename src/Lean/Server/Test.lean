@@ -9,5 +9,4 @@ module
 prelude
 public import Lean.Server.Test.Cancel
 public import Lean.Server.Test.Runner
-
-public section
+public import Lean.Server.Test.Refs

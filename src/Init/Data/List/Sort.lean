@@ -9,5 +9,3 @@ prelude
 public import Init.Data.List.Sort.Basic
 public import Init.Data.List.Sort.Impl
 public import Init.Data.List.Sort.Lemmas
-
-public section

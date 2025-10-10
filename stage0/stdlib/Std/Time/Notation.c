@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Notation
-// Imports: Std.Time.Date Std.Time.Time Std.Time.Zoned Std.Time.DateTime Std.Time.Format Std.Time.Format
+// Imports: public import Std.Time.Date public import Std.Time.Time public meta import Std.Time.Zoned public import Std.Time.DateTime public import Std.Time.Format public meta import Std.Time.Format
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13074,6 +13074,7 @@ lean_inc(x_17);
 lean_dec_ref(x_16);
 x_18 = l_Std_Time___aux__Std__Time__Notation______macroRules__Std__Time__termZoned_x28___x29__1___closed__0;
 x_19 = lean_string_append(x_18, x_17);
+lean_dec(x_17);
 x_20 = l_Lean_Macro_throwErrorAt___redArg(x_9, x_19, x_2, x_3);
 lean_dec(x_9);
 return x_20;
@@ -13191,6 +13192,7 @@ lean_inc(x_16);
 lean_dec_ref(x_15);
 x_17 = l_Std_Time___aux__Std__Time__Notation______macroRules__Std__Time__termZoned_x28___x29__1___closed__0;
 x_18 = lean_string_append(x_17, x_16);
+lean_dec(x_16);
 x_19 = l_Lean_Macro_throwErrorAt___redArg(x_9, x_18, x_2, x_3);
 lean_dec(x_9);
 return x_19;
@@ -13337,6 +13339,7 @@ lean_inc(x_16);
 lean_dec_ref(x_15);
 x_17 = l_Std_Time___aux__Std__Time__Notation______macroRules__Std__Time__termZoned_x28___x29__1___closed__0;
 x_18 = lean_string_append(x_17, x_16);
+lean_dec(x_16);
 x_19 = l_Lean_Macro_throwErrorAt___redArg(x_9, x_18, x_2, x_3);
 lean_dec(x_9);
 return x_19;
@@ -13423,6 +13426,7 @@ lean_inc(x_16);
 lean_dec_ref(x_15);
 x_17 = l_Std_Time___aux__Std__Time__Notation______macroRules__Std__Time__termZoned_x28___x29__1___closed__0;
 x_18 = lean_string_append(x_17, x_16);
+lean_dec(x_16);
 x_19 = l_Lean_Macro_throwErrorAt___redArg(x_9, x_18, x_2, x_3);
 lean_dec(x_9);
 return x_19;
@@ -13510,6 +13514,7 @@ lean_inc(x_16);
 lean_dec_ref(x_15);
 x_17 = l_Std_Time___aux__Std__Time__Notation______macroRules__Std__Time__termZoned_x28___x29__1___closed__0;
 x_18 = lean_string_append(x_17, x_16);
+lean_dec(x_16);
 x_19 = l_Lean_Macro_throwErrorAt___redArg(x_9, x_18, x_2, x_3);
 lean_dec(x_9);
 return x_19;
@@ -13596,6 +13601,7 @@ lean_inc(x_16);
 lean_dec_ref(x_15);
 x_17 = l_Std_Time___aux__Std__Time__Notation______macroRules__Std__Time__termZoned_x28___x29__1___closed__0;
 x_18 = lean_string_append(x_17, x_16);
+lean_dec(x_16);
 x_19 = l_Lean_Macro_throwErrorAt___redArg(x_9, x_18, x_2, x_3);
 lean_dec(x_9);
 return x_19;
@@ -13683,6 +13689,7 @@ lean_inc(x_16);
 lean_dec_ref(x_15);
 x_17 = l_Std_Time___aux__Std__Time__Notation______macroRules__Std__Time__termZoned_x28___x29__1___closed__0;
 x_18 = lean_string_append(x_17, x_16);
+lean_dec(x_16);
 x_19 = l_Lean_Macro_throwErrorAt___redArg(x_9, x_18, x_2, x_3);
 lean_dec(x_9);
 return x_19;

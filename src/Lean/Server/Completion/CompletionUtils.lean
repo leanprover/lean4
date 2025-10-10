@@ -14,7 +14,7 @@ public section
 partial def String.charactersIn (a b : String) : Bool :=
   go ⟨0⟩ ⟨0⟩
 where
-  go (aPos bPos : String.Pos) : Bool :=
+  go (aPos bPos : String.Pos.Raw) : Bool :=
     if ha : a.atEnd aPos then
       true
     else if hb : b.atEnd bPos then
@@ -41,7 +41,7 @@ structure ContextualizedCompletionInfo where
   ctx       : ContextInfo
   info      : CompletionInfo
 
-partial def minimizeGlobalIdentifierInContext (currNamespace : Name) (openDecls : List OpenDecl) (id : Name)
+def minimizeGlobalIdentifierInContext (currNamespace : Name) (openDecls : List OpenDecl) (id : Name)
     : Name := Id.run do
   let mut minimized := shortenIn id currNamespace
   for openDecl in openDecls do
@@ -68,7 +68,7 @@ where
     else if contextNamespace.isPrefixOf id then
       id.replacePrefix contextNamespace .anonymous
     else
-      shortenIn id contextNamespace.getPrefix
+      id
 
 def unfoldDefinitionGuarded? (e : Expr) : MetaM (Option Expr) :=
   try Lean.Meta.unfoldDefinition? e catch _ => pure none

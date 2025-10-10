@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.LeanExe
-// Imports: Lake.Config.Module
+// Imports: public import Lake.Config.Module
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -264,7 +264,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_leanExes(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_2 = lean_ctor_get(x_1, 10);
+x_2 = lean_ctor_get(x_1, 11);
 lean_inc_ref(x_2);
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = l_Lake_Package_leanExes___closed__0;
@@ -500,7 +500,7 @@ lean_inc_ref(x_5);
 lean_inc_ref(x_4);
 lean_inc_ref(x_3);
 lean_inc_ref(x_2);
-x_14 = lean_alloc_ctor(0, 9, 2);
+x_14 = lean_alloc_ctor(0, 9, 3);
 lean_ctor_set(x_14, 0, x_2);
 lean_ctor_set(x_14, 1, x_3);
 lean_ctor_set(x_14, 2, x_8);
@@ -512,6 +512,7 @@ lean_ctor_set(x_14, 7, x_13);
 lean_ctor_set(x_14, 8, x_7);
 lean_ctor_set_uint8(x_14, sizeof(void*)*9, x_12);
 lean_ctor_set_uint8(x_14, sizeof(void*)*9 + 1, x_12);
+lean_ctor_set_uint8(x_14, sizeof(void*)*9 + 2, x_12);
 return x_14;
 }
 }
@@ -781,7 +782,7 @@ x_5 = !lean_is_exclusive(x_2);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
-x_6 = lean_ctor_get(x_4, 3);
+x_6 = lean_ctor_get(x_4, 4);
 x_7 = lean_ctor_get(x_2, 1);
 x_8 = lean_ctor_get(x_2, 2);
 lean_dec(x_8);
@@ -791,7 +792,7 @@ x_10 = lean_ctor_get(x_3, 2);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_4, 0);
 lean_inc(x_11);
-x_12 = lean_ctor_get(x_4, 1);
+x_12 = lean_ctor_get(x_4, 2);
 x_13 = lean_ctor_get(x_6, 5);
 x_14 = l_Lake_LeanExeConfig_toLeanLibConfig___redArg(x_3);
 lean_dec(x_3);
@@ -803,9 +804,10 @@ lean_inc_ref(x_13);
 x_18 = l_System_FilePath_normalize(x_13);
 lean_inc_ref(x_12);
 x_19 = l_Lake_joinRelative(x_12, x_18);
+lean_dec_ref(x_18);
 x_20 = l_System_FilePath_normalize(x_15);
 x_21 = l_Lake_joinRelative(x_19, x_20);
-lean_inc(x_10);
+lean_dec_ref(x_20);
 x_22 = l_Lean_modToFilePath(x_21, x_10, x_16);
 lean_dec_ref(x_21);
 x_23 = lean_string_dec_eq(x_17, x_22);
@@ -841,7 +843,7 @@ return x_27;
 else
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; uint8_t x_43; 
-x_28 = lean_ctor_get(x_4, 3);
+x_28 = lean_ctor_get(x_4, 4);
 x_29 = lean_ctor_get(x_2, 1);
 lean_inc(x_29);
 lean_dec(x_2);
@@ -849,7 +851,7 @@ x_30 = lean_ctor_get(x_3, 2);
 lean_inc(x_30);
 x_31 = lean_ctor_get(x_4, 0);
 lean_inc(x_31);
-x_32 = lean_ctor_get(x_4, 1);
+x_32 = lean_ctor_get(x_4, 2);
 x_33 = lean_ctor_get(x_28, 5);
 x_34 = l_Lake_LeanExeConfig_toLeanLibConfig___redArg(x_3);
 lean_dec(x_3);
@@ -861,9 +863,10 @@ lean_inc_ref(x_33);
 x_38 = l_System_FilePath_normalize(x_33);
 lean_inc_ref(x_32);
 x_39 = l_Lake_joinRelative(x_32, x_38);
+lean_dec_ref(x_38);
 x_40 = l_System_FilePath_normalize(x_35);
 x_41 = l_Lake_joinRelative(x_39, x_40);
-lean_inc(x_30);
+lean_dec_ref(x_40);
 x_42 = l_Lean_modToFilePath(x_41, x_30, x_36);
 lean_dec_ref(x_41);
 x_43 = lean_string_dec_eq(x_37, x_42);
@@ -929,12 +932,12 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_2);
-x_3 = lean_ctor_get(x_2, 3);
+x_3 = lean_ctor_get(x_2, 4);
 lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_1, 2);
 lean_inc(x_4);
 lean_dec_ref(x_1);
-x_5 = lean_ctor_get(x_2, 1);
+x_5 = lean_ctor_get(x_2, 2);
 lean_inc_ref(x_5);
 lean_dec_ref(x_2);
 x_6 = lean_ctor_get(x_3, 6);
@@ -947,11 +950,14 @@ lean_inc_ref(x_8);
 lean_dec(x_4);
 x_9 = l_System_FilePath_normalize(x_6);
 x_10 = l_Lake_joinRelative(x_5, x_9);
+lean_dec_ref(x_9);
 x_11 = l_System_FilePath_normalize(x_7);
 x_12 = l_Lake_joinRelative(x_10, x_11);
+lean_dec_ref(x_11);
 x_13 = l_Lake_LeanExe_fileName___closed__0;
 x_14 = l_System_FilePath_addExtension(x_8, x_13);
 x_15 = l_Lake_joinRelative(x_12, x_14);
+lean_dec_ref(x_14);
 return x_15;
 }
 }
@@ -1077,7 +1083,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; 
 x_2 = lean_ctor_get(x_1, 0);
-x_3 = lean_ctor_get(x_2, 3);
+x_3 = lean_ctor_get(x_2, 4);
 x_4 = lean_ctor_get(x_3, 1);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 2);
@@ -1160,7 +1166,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_2 = lean_ctor_get(x_1, 0);
-x_3 = lean_ctor_get(x_2, 3);
+x_3 = lean_ctor_get(x_2, 4);
 x_4 = lean_ctor_get(x_3, 1);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 2);
@@ -1281,7 +1287,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_findTargetModule_x3f(lean_object* x_1, l
 _start:
 {
 lean_object* x_3; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-x_8 = lean_ctor_get(x_2, 10);
+x_8 = lean_ctor_get(x_2, 11);
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = l_Lake_Package_leanExes___closed__0;
 x_11 = lean_array_get_size(x_8);
@@ -1483,7 +1489,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_findModuleBySrc_x3f(lean_object* x_1, le
 _start:
 {
 lean_object* x_3; lean_object* x_7; lean_object* x_8; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
-x_7 = lean_ctor_get(x_2, 10);
+x_7 = lean_ctor_get(x_2, 11);
 lean_inc_ref(x_7);
 x_21 = lean_unsigned_to_nat(0u);
 x_22 = l_Lake_Package_leanExes___closed__0;

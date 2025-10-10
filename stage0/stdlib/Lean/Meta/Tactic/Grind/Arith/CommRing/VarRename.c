@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
-// Imports: Init.Grind.Ring.CommSolver Init.Grind.Ring.CommSemiringAdapter Lean.Meta.Tactic.Grind.VarRename
+// Imports: public import Init.Grind.Ring.CommSolver public import Init.Grind.Ring.CommSemiringAdapter public import Lean.Meta.Tactic.Grind.VarRename
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

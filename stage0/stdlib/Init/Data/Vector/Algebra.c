@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector.Algebra
-// Imports: Init.Data.Vector.Lemmas Init.Grind
+// Imports: public import Init.Data.Vector.Lemmas public import Init.Grind
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

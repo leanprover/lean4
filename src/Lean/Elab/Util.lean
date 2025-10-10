@@ -11,6 +11,8 @@ meta import Lean.Parser.Command
 public import Lean.KeyedDeclsAttribute
 public import Lean.Elab.Exception
 import Lean.BuiltinDocAttr
+public import Lean.ExtraModUses
+import all Init.Prelude  -- for `Lean.Macro.State.expandedMacroDecls` access
 
 public section
 
@@ -120,8 +122,10 @@ unsafe def mkElabAttribute (γ) (attrBuiltinName attrName : Name) (parserNamespa
     evalKey       := fun _ stx => do
       let kind ← syntaxNodeKindOfAttrParam parserNamespace stx
       /- Recall that a `SyntaxNodeKind` is often the name of the parser, but this is not always true, and we must check it. -/
-      if (← getEnv).contains kind && (← getInfoState).enabled then
-        addConstInfo stx[1] kind none
+      if (← getEnv).contains kind then
+        recordExtraModUseFromDecl (isMeta := false) kind
+        if (← getInfoState).enabled then
+          addConstInfo stx[1] kind none
       return kind
     onAdded       := fun builtin declName kind => do
       if builtin then
@@ -155,6 +159,8 @@ def expandMacroImpl? (env : Environment) : Syntax → MacroM (Option (Name × Ex
   for e in macroAttribute.getEntries env stx.getKind do
     try
       let stx' ← withFreshMacroScope (e.value stx)
+      if !e.isBuiltin then
+        modify fun st => { st with expandedMacroDecls := e.declName :: st.expandedMacroDecls }
       return (e.declName, Except.ok stx')
     catch
       | Macro.Exception.unsupportedSyntax => pure ()
@@ -201,6 +207,8 @@ def liftMacroM [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [M
     else
       throwErrorAt ref msg
   | EStateM.Result.ok a s =>
+    for n in s.expandedMacroDecls do
+      recordExtraModUseFromDecl (isMeta := true) n
     MonadMacroAdapter.setNextMacroScope s.macroScope
     s.traceMsgs.reverse.forM fun (clsName, msg) => trace clsName fun _ => msg
     return a

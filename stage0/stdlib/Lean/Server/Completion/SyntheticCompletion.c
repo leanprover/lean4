@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Completion.SyntheticCompletion
-// Imports: Lean.Server.InfoUtils Lean.Server.Completion.CompletionUtils Lean.Parser.Term
+// Imports: public import Lean.Server.InfoUtils public import Lean.Server.Completion.CompletionUtils meta import Lean.Parser.Term
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -878,12 +878,12 @@ block_12:
 {
 if (x_11 == 0)
 {
-x_5 = x_10;
+x_5 = x_9;
 goto block_8;
 }
 else
 {
-return x_9;
+return x_10;
 }
 }
 block_19:
@@ -892,8 +892,8 @@ uint8_t x_16;
 x_16 = 1;
 if (x_14 == 0)
 {
-x_9 = x_15;
-x_10 = x_16;
+x_9 = x_16;
+x_10 = x_15;
 x_11 = x_14;
 goto block_12;
 }
@@ -904,8 +904,8 @@ x_17 = l_Lean_Elab_Info_lctx(x_4);
 x_18 = lean_local_ctx_is_empty(x_17);
 if (x_18 == 0)
 {
-x_9 = x_15;
-x_10 = x_16;
+x_9 = x_16;
+x_10 = x_15;
 x_11 = x_14;
 goto block_12;
 }
@@ -1308,7 +1308,7 @@ return x_18;
 }
 else
 {
-lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; lean_object* x_23; lean_object* x_24; lean_object* x_31; uint8_t x_32; lean_object* x_33; lean_object* x_39; uint8_t x_40; lean_object* x_41; uint8_t x_42; 
+lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; lean_object* x_24; lean_object* x_31; uint8_t x_32; lean_object* x_33; lean_object* x_39; uint8_t x_40; lean_object* x_41; uint8_t x_42; 
 x_19 = lean_ctor_get(x_17, 0);
 lean_inc(x_19);
 if (lean_is_exclusive(x_17)) {
@@ -1407,10 +1407,10 @@ lean_dec(x_7);
 x_26 = lean_box(0);
 x_27 = lean_alloc_ctor(1, 4, 1);
 lean_ctor_set(x_27, 0, x_21);
-lean_ctor_set(x_27, 1, x_23);
+lean_ctor_set(x_27, 1, x_22);
 lean_ctor_set(x_27, 2, x_25);
 lean_ctor_set(x_27, 3, x_26);
-lean_ctor_set_uint8(x_27, sizeof(void*)*4, x_22);
+lean_ctor_set_uint8(x_27, sizeof(void*)*4, x_23);
 x_28 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_28, 0, x_24);
 lean_ctor_set(x_28, 1, x_6);
@@ -1434,8 +1434,8 @@ lean_dec(x_33);
 lean_dec(x_14);
 lean_dec(x_1);
 x_35 = lean_box(0);
-x_22 = x_32;
-x_23 = x_31;
+x_22 = x_31;
+x_23 = x_32;
 x_24 = x_35;
 goto block_30;
 }
@@ -1451,8 +1451,8 @@ if (lean_is_scalar(x_14)) {
  x_37 = x_14;
 }
 lean_ctor_set(x_37, 0, x_36);
-x_22 = x_32;
-x_23 = x_31;
+x_22 = x_31;
+x_23 = x_32;
 x_24 = x_37;
 goto block_30;
 }

@@ -203,8 +203,8 @@ private def evalSuggestAtomic (tac : TSyntax `tactic) : TacticM (TSyntax `tactic
 
 private def grindTraceToGrind (tac : TSyntax `tactic) : TacticM (TSyntax `tactic) := do
   match tac with
-  | `(tactic| grind? $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?) =>
-    `(tactic| grind $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?)
+  | `(tactic| grind? $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]?) =>
+    `(tactic| grind $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]?)
   | _ => throwUnsupportedSyntax
 
 private def simpTraceToSimp (tac : TSyntax `tactic) : TacticM (TSyntax `tactic) := do
@@ -384,14 +384,14 @@ where
 
 private def evalSuggestGrindTrace : TryTactic := fun tac => do
   match tac with
-  | `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?) =>
+  | `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]?) =>
     let config ← elabGrindConfig configStx
     let config := { config with trace := (← read).config.only, verbose := false }
     let tac ← grindTraceToGrind tac
-    let trace ← evalGrindCore tac config only params fallback?
+    let trace ← evalGrindCore tac config only params none
     trace[try.debug] "`grind` succeeded"
     if (← read).config.only then
-      let tac' ← mkGrindOnly configStx fallback? trace
+      let tac' ← mkGrindOnly configStx trace
       mkTrySuggestions #[tac, tac']
     else
       return tac

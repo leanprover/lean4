@@ -84,7 +84,7 @@ inductive SearchControl where
   /-- Stop the search through a syntax stack. -/
   | stop
 
-private def lineCommentPosition? (s : String) : Option String.Pos := Id.run do
+private def lineCommentPosition? (s : String) : Option String.Pos.Raw := Id.run do
   let mut it := s.mkIterator
   while h : it.hasNext do
     let pos := it.pos
@@ -98,18 +98,18 @@ private def lineCommentPosition? (s : String) : Option String.Pos := Id.run do
           return some pos
   return none
 
-private def isPositionInLineComment (text : FileMap) (pos : String.Pos) : Bool := Id.run do
+private def isPositionInLineComment (text : FileMap) (pos : String.Pos.Raw) : Bool := Id.run do
   let requestedLineNumber := text.toPosition pos |>.line
   let lineStartPos := text.lineStart requestedLineNumber
   let lineEndPos := text.lineStart (requestedLineNumber + 1)
   let line := text.source.extract lineStartPos lineEndPos
   let some lineCommentPos := lineCommentPosition? line
     | return false
-  return pos >= lineStartPos + lineCommentPos
+  return pos >= lineCommentPos.offsetBy lineStartPos
 
 open CandidateKind in
 def findSignatureHelp? (text : FileMap) (ctx? : Option Lsp.SignatureHelpContext) (cmdStx : Syntax)
-    (tree : Elab.InfoTree) (requestedPos : String.Pos) : IO (Option Lsp.SignatureHelp) := do
+    (tree : Elab.InfoTree) (requestedPos : String.Pos.Raw) : IO (Option Lsp.SignatureHelp) := do
   -- HACK: Since comments are whitespace, the signature help can trigger on comments.
   -- This is especially annoying on end-of-line comments, as the signature help will trigger on
   -- every space in the comment.

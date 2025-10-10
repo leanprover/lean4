@@ -46,9 +46,9 @@ instance : LawfulUpwardEnumerable UInt8 where
   succMany?_zero x := by
     cases x
     simpa [succMany?_ofBitVec] using succMany?_zero
-  succMany?_succ? n x := by
+  succMany?_add_one n x := by
     cases x
-    simp [succMany?_ofBitVec, succMany?_succ?, Option.bind_map, Function.comp_def,
+    simp [succMany?_ofBitVec, succMany?_add_one, Option.bind_map, Function.comp_def,
       succ?_ofBitVec]
 
 instance : LawfulUpwardEnumerableLE UInt8 where
@@ -57,35 +57,52 @@ instance : LawfulUpwardEnumerableLE UInt8 where
     simpa [upwardEnumerableLE_ofBitVec, UInt8.le_iff_toBitVec_le] using
       LawfulUpwardEnumerableLE.le_iff _ _
 
-instance : LawfulOrderLT UInt8 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt8 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt8 := inferInstance
-instance : LawfulUpwardEnumerableLowerBound .closed UInt8 := inferInstance
-instance : LawfulUpwardEnumerableUpperBound .closed UInt8 := inferInstance
-instance : LawfulUpwardEnumerableLowerBound .open UInt8 := inferInstance
-instance : LawfulUpwardEnumerableUpperBound .open UInt8 := inferInstance
 
-instance : RangeSize .closed UInt8 where
-  size bound a := bound.toNat + 1 - a.toNat
+instance : Rxc.HasSize UInt8 where
+  size lo hi := hi.toNat + 1 - lo.toNat
 
-theorem rangeSizeSize_eq_toBitVec {bound : Bound .closed UInt8} {x : BitVec 8} :
-    RangeSize.size bound (UInt8.ofBitVec x) = RangeSize.size (shape := .closed) bound.toBitVec x := by
-  simp [RangeSize.size]
+theorem rxcHasSize_eq_toBitVec :
+    Rxc.HasSize.size (UInt8.ofBitVec lo) hi = Rxc.HasSize.size lo hi.toBitVec := by
+  simp [Rxc.HasSize.size]
 
-instance : LawfulRangeSize .closed UInt8 where
-  size_eq_zero_of_not_isSatisfied bound x := by
-    simpa [rangeSizeSize_eq_toBitVec, UInt8.lt_iff_toBitVec_lt] using
-      LawfulRangeSize.size_eq_zero_of_not_isSatisfied (su := .closed) (α := BitVec 8) _ _
-  size_eq_one_of_succ?_eq_none bound x := by
-    cases x
-    simpa [rangeSizeSize_eq_toBitVec, UInt8.le_iff_toBitVec_le, succ?_ofBitVec] using
-      LawfulRangeSize.size_eq_one_of_succ?_eq_none (su := .closed) (α := BitVec 8) _ _
-  size_eq_succ_of_succ?_eq_some bound init x := by
-    simpa [rangeSizeSize_eq_toBitVec, UInt8.le_iff_toBitVec_le, ← UInt8.toBitVec_inj, succ?] using
-      LawfulRangeSize.size_eq_succ_of_succ?_eq_some (su := .closed) (α := BitVec 8) _ _ _
+instance : Rxc.LawfulHasSize UInt8 where
+  size_eq_zero_of_not_le lo hi := by
+    cases lo
+    simpa [rxcHasSize_eq_toBitVec, UInt8.lt_iff_toBitVec_lt] using
+      Rxc.LawfulHasSize.size_eq_zero_of_not_le (α := BitVec 8) _ _
+  size_eq_one_of_succ?_eq_none lo hi := by
+    cases lo
+    simpa [rxcHasSize_eq_toBitVec, UInt8.le_iff_toBitVec_le, succ?_ofBitVec] using
+      Rxc.LawfulHasSize.size_eq_one_of_succ?_eq_none (α := BitVec 8) _ _
+  size_eq_succ_of_succ?_eq_some lo hi x := by
+    cases lo; cases x
+    simpa [rxcHasSize_eq_toBitVec, UInt8.le_iff_toBitVec_le, ← UInt8.toBitVec_inj, succ?] using
+      Rxc.LawfulHasSize.size_eq_succ_of_succ?_eq_some (α := BitVec 8) _ _ _
 
-instance : RangeSize .open UInt8 := RangeSize.openOfClosed
-instance : LawfulRangeSize .open UInt8 := inferInstance
+instance : Rxc.IsAlwaysFinite UInt8 := inferInstance
+
+instance : Rxo.HasSize UInt8 := .ofClosed
+instance : Rxo.LawfulHasSize UInt8 := inferInstance
+instance : Rxo.IsAlwaysFinite UInt8 := inferInstance
+
+instance : Rxi.HasSize UInt8 where
+  size lo := 2 ^ 8 - lo.toNat
+
+theorem rxiHasSize_eq_toBitVec :
+    Rxi.HasSize.size (UInt8.ofBitVec lo) = Rxi.HasSize.size lo := by
+  simp [Rxi.HasSize.size]
+
+instance : Rxi.LawfulHasSize UInt8 where
+  size_eq_one_of_succ?_eq_none lo := by
+    cases lo
+    simpa [rxiHasSize_eq_toBitVec, succ?_ofBitVec] using
+      Rxi.LawfulHasSize.size_eq_one_of_succ?_eq_none (α := BitVec 8) _
+  size_eq_succ_of_succ?_eq_some lo lo' := by
+    cases lo; cases lo'
+    simpa [rxiHasSize_eq_toBitVec, succ?_ofBitVec] using
+      Rxi.LawfulHasSize.size_eq_succ_of_succ?_eq_some (α := BitVec 8) _ _
 
 end UInt8
 
@@ -119,9 +136,9 @@ instance : LawfulUpwardEnumerable UInt16 where
   succMany?_zero x := by
     cases x
     simpa [succMany?_ofBitVec] using succMany?_zero
-  succMany?_succ? n x := by
+  succMany?_add_one n x := by
     cases x
-    simp [succMany?_ofBitVec, succMany?_succ?, Option.bind_map, Function.comp_def,
+    simp [succMany?_ofBitVec, succMany?_add_one, Option.bind_map, Function.comp_def,
       succ?_ofBitVec]
 
 instance : LawfulUpwardEnumerableLE UInt16 where
@@ -130,35 +147,52 @@ instance : LawfulUpwardEnumerableLE UInt16 where
     simpa [upwardEnumerableLE_ofBitVec, UInt16.le_iff_toBitVec_le] using
       LawfulUpwardEnumerableLE.le_iff _ _
 
-instance : LawfulOrderLT UInt16 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt16 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt16 := inferInstance
-instance : LawfulUpwardEnumerableLowerBound .closed UInt16 := inferInstance
-instance : LawfulUpwardEnumerableUpperBound .closed UInt16 := inferInstance
-instance : LawfulUpwardEnumerableLowerBound .open UInt16 := inferInstance
-instance : LawfulUpwardEnumerableUpperBound .open UInt16 := inferInstance
 
-instance : RangeSize .closed UInt16 where
-  size bound a := bound.toNat + 1 - a.toNat
+instance : Rxc.HasSize UInt16 where
+  size lo hi := hi.toNat + 1 - lo.toNat
 
-theorem rangeSizeSize_eq_toBitVec {bound : Bound .closed UInt16} {x : BitVec 16} :
-    RangeSize.size bound (UInt16.ofBitVec x) = RangeSize.size (shape := .closed) bound.toBitVec x := by
-  simp [RangeSize.size]
+theorem rxcHasSize_eq_toBitVec :
+    Rxc.HasSize.size (UInt16.ofBitVec lo) hi = Rxc.HasSize.size lo hi.toBitVec := by
+  simp [Rxc.HasSize.size]
 
-instance : LawfulRangeSize .closed UInt16 where
-  size_eq_zero_of_not_isSatisfied bound x := by
-    simpa [rangeSizeSize_eq_toBitVec, UInt16.lt_iff_toBitVec_lt] using
-      LawfulRangeSize.size_eq_zero_of_not_isSatisfied (su := .closed) (α := BitVec 16) _ _
-  size_eq_one_of_succ?_eq_none bound x := by
-    cases x
-    simpa [rangeSizeSize_eq_toBitVec, UInt16.le_iff_toBitVec_le, succ?_ofBitVec] using
-      LawfulRangeSize.size_eq_one_of_succ?_eq_none (su := .closed) (α := BitVec 16) _ _
-  size_eq_succ_of_succ?_eq_some bound init x := by
-    simpa [rangeSizeSize_eq_toBitVec, UInt16.le_iff_toBitVec_le, ← UInt16.toBitVec_inj, succ?] using
-      LawfulRangeSize.size_eq_succ_of_succ?_eq_some (su := .closed) (α := BitVec 16) _ _ _
+instance : Rxc.LawfulHasSize UInt16 where
+  size_eq_zero_of_not_le lo hi := by
+    cases lo
+    simpa [rxcHasSize_eq_toBitVec, UInt16.lt_iff_toBitVec_lt] using
+      Rxc.LawfulHasSize.size_eq_zero_of_not_le (α := BitVec 16) _ _
+  size_eq_one_of_succ?_eq_none lo hi := by
+    cases lo
+    simpa [rxcHasSize_eq_toBitVec, UInt16.le_iff_toBitVec_le, succ?_ofBitVec] using
+      Rxc.LawfulHasSize.size_eq_one_of_succ?_eq_none (α := BitVec 16) _ _
+  size_eq_succ_of_succ?_eq_some lo hi x := by
+    cases lo; cases x
+    simpa [rxcHasSize_eq_toBitVec, UInt16.le_iff_toBitVec_le, ← UInt16.toBitVec_inj, succ?] using
+      Rxc.LawfulHasSize.size_eq_succ_of_succ?_eq_some (α := BitVec 16) _ _ _
 
-instance : RangeSize .open UInt16 := RangeSize.openOfClosed
-instance : LawfulRangeSize .open UInt16 := inferInstance
+instance : Rxc.IsAlwaysFinite UInt16 := inferInstance
+
+instance : Rxo.HasSize UInt16 := .ofClosed
+instance : Rxo.LawfulHasSize UInt16 := inferInstance
+instance : Rxo.IsAlwaysFinite UInt16 := inferInstance
+
+instance : Rxi.HasSize UInt16 where
+  size lo := 2 ^ 16 - lo.toNat
+
+theorem rxiHasSize_eq_toBitVec :
+    Rxi.HasSize.size (UInt16.ofBitVec lo) = Rxi.HasSize.size lo := by
+  simp [Rxi.HasSize.size]
+
+instance : Rxi.LawfulHasSize UInt16 where
+  size_eq_one_of_succ?_eq_none lo := by
+    cases lo
+    simpa [rxiHasSize_eq_toBitVec, succ?_ofBitVec] using
+      Rxi.LawfulHasSize.size_eq_one_of_succ?_eq_none (α := BitVec 16) _
+  size_eq_succ_of_succ?_eq_some lo lo' := by
+    cases lo; cases lo'
+    simpa [rxiHasSize_eq_toBitVec, succ?_ofBitVec] using
+      Rxi.LawfulHasSize.size_eq_succ_of_succ?_eq_some (α := BitVec 16) _ _
 
 end UInt16
 
@@ -192,9 +226,9 @@ instance : LawfulUpwardEnumerable UInt32 where
   succMany?_zero x := by
     cases x
     simpa [succMany?_ofBitVec] using succMany?_zero
-  succMany?_succ? n x := by
+  succMany?_add_one n x := by
     cases x
-    simp [succMany?_ofBitVec, succMany?_succ?, Option.bind_map, Function.comp_def,
+    simp [succMany?_ofBitVec, succMany?_add_one, Option.bind_map, Function.comp_def,
       succ?_ofBitVec]
 
 instance : LawfulUpwardEnumerableLE UInt32 where
@@ -203,35 +237,52 @@ instance : LawfulUpwardEnumerableLE UInt32 where
     simpa [upwardEnumerableLE_ofBitVec, UInt32.le_iff_toBitVec_le] using
       LawfulUpwardEnumerableLE.le_iff _ _
 
-instance : LawfulOrderLT UInt32 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt32 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt32 := inferInstance
-instance : LawfulUpwardEnumerableLowerBound .closed UInt32 := inferInstance
-instance : LawfulUpwardEnumerableUpperBound .closed UInt32 := inferInstance
-instance : LawfulUpwardEnumerableLowerBound .open UInt32 := inferInstance
-instance : LawfulUpwardEnumerableUpperBound .open UInt32 := inferInstance
 
-instance : RangeSize .closed UInt32 where
-  size bound a := bound.toNat + 1 - a.toNat
+instance : Rxc.HasSize UInt32 where
+  size lo hi := hi.toNat + 1 - lo.toNat
 
-theorem rangeSizeSize_eq_toBitVec {bound : Bound .closed UInt32} {x : BitVec 32} :
-    RangeSize.size bound (UInt32.ofBitVec x) = RangeSize.size (shape := .closed) bound.toBitVec x := by
-  simp [RangeSize.size]
+theorem rxcHasSize_eq_toBitVec :
+    Rxc.HasSize.size (UInt32.ofBitVec lo) hi = Rxc.HasSize.size lo hi.toBitVec := by
+  simp [Rxc.HasSize.size]
 
-instance : LawfulRangeSize .closed UInt32 where
-  size_eq_zero_of_not_isSatisfied bound x := by
-    simpa [rangeSizeSize_eq_toBitVec, UInt32.lt_iff_toBitVec_lt] using
-      LawfulRangeSize.size_eq_zero_of_not_isSatisfied (su := .closed) (α := BitVec 32) _ _
-  size_eq_one_of_succ?_eq_none bound x := by
-    cases x
-    simpa [rangeSizeSize_eq_toBitVec, UInt32.le_iff_toBitVec_le, succ?_ofBitVec] using
-      LawfulRangeSize.size_eq_one_of_succ?_eq_none (su := .closed) (α := BitVec 32) _ _
-  size_eq_succ_of_succ?_eq_some bound init x := by
-    simpa [rangeSizeSize_eq_toBitVec, UInt32.le_iff_toBitVec_le, ← UInt32.toBitVec_inj, succ?] using
-      LawfulRangeSize.size_eq_succ_of_succ?_eq_some (su := .closed) (α := BitVec 32) _ _ _
+instance : Rxc.LawfulHasSize UInt32 where
+  size_eq_zero_of_not_le lo hi := by
+    cases lo
+    simpa [rxcHasSize_eq_toBitVec, UInt32.lt_iff_toBitVec_lt] using
+      Rxc.LawfulHasSize.size_eq_zero_of_not_le (α := BitVec 32) _ _
+  size_eq_one_of_succ?_eq_none lo hi := by
+    cases lo
+    simpa [rxcHasSize_eq_toBitVec, UInt32.le_iff_toBitVec_le, succ?_ofBitVec] using
+      Rxc.LawfulHasSize.size_eq_one_of_succ?_eq_none (α := BitVec 32) _ _
+  size_eq_succ_of_succ?_eq_some lo hi x := by
+    cases lo; cases x
+    simpa [rxcHasSize_eq_toBitVec, UInt32.le_iff_toBitVec_le, ← UInt32.toBitVec_inj, succ?] using
+      Rxc.LawfulHasSize.size_eq_succ_of_succ?_eq_some (α := BitVec 32) _ _ _
 
-instance : RangeSize .open UInt32 := RangeSize.openOfClosed
-instance : LawfulRangeSize .open UInt32 := inferInstance
+instance : Rxc.IsAlwaysFinite UInt32 := inferInstance
+
+instance : Rxo.HasSize UInt32 := .ofClosed
+instance : Rxo.LawfulHasSize UInt32 := inferInstance
+instance : Rxo.IsAlwaysFinite UInt32 := inferInstance
+
+instance : Rxi.HasSize UInt32 where
+  size lo := 2 ^ 32 - lo.toNat
+
+theorem rxiHasSize_eq_toBitVec :
+    Rxi.HasSize.size (UInt32.ofBitVec lo) = Rxi.HasSize.size lo := by
+  simp [Rxi.HasSize.size]
+
+instance : Rxi.LawfulHasSize UInt32 where
+  size_eq_one_of_succ?_eq_none lo := by
+    cases lo
+    simpa [rxiHasSize_eq_toBitVec, succ?_ofBitVec] using
+      Rxi.LawfulHasSize.size_eq_one_of_succ?_eq_none (α := BitVec 32) _
+  size_eq_succ_of_succ?_eq_some lo lo' := by
+    cases lo; cases lo'
+    simpa [rxiHasSize_eq_toBitVec, succ?_ofBitVec] using
+      Rxi.LawfulHasSize.size_eq_succ_of_succ?_eq_some (α := BitVec 32) _ _
 
 end UInt32
 
@@ -265,9 +316,9 @@ instance : LawfulUpwardEnumerable UInt64 where
   succMany?_zero x := by
     cases x
     simpa [succMany?_ofBitVec] using succMany?_zero
-  succMany?_succ? n x := by
+  succMany?_add_one n x := by
     cases x
-    simp [succMany?_ofBitVec, succMany?_succ?, Option.bind_map, Function.comp_def,
+    simp [succMany?_ofBitVec, succMany?_add_one, Option.bind_map, Function.comp_def,
       succ?_ofBitVec]
 
 instance : LawfulUpwardEnumerableLE UInt64 where
@@ -276,35 +327,52 @@ instance : LawfulUpwardEnumerableLE UInt64 where
     simpa [upwardEnumerableLE_ofBitVec, UInt64.le_iff_toBitVec_le] using
       LawfulUpwardEnumerableLE.le_iff _ _
 
-instance : LawfulOrderLT UInt64 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt64 := inferInstance
 instance : LawfulUpwardEnumerableLT UInt64 := inferInstance
-instance : LawfulUpwardEnumerableLowerBound .closed UInt64 := inferInstance
-instance : LawfulUpwardEnumerableUpperBound .closed UInt64 := inferInstance
-instance : LawfulUpwardEnumerableLowerBound .open UInt64 := inferInstance
-instance : LawfulUpwardEnumerableUpperBound .open UInt64 := inferInstance
 
-instance : RangeSize .closed UInt64 where
-  size bound a := bound.toNat + 1 - a.toNat
+instance : Rxc.HasSize UInt64 where
+  size lo hi := hi.toNat + 1 - lo.toNat
 
-theorem rangeSizeSize_eq_toBitVec {bound : Bound .closed UInt64} {x : BitVec 64} :
-    RangeSize.size bound (UInt64.ofBitVec x) = RangeSize.size (shape := .closed) bound.toBitVec x := by
-  simp [RangeSize.size]
+theorem rxcHasSize_eq_toBitVec :
+    Rxc.HasSize.size (UInt64.ofBitVec lo) hi = Rxc.HasSize.size lo hi.toBitVec := by
+  simp [Rxc.HasSize.size]
 
-instance : LawfulRangeSize .closed UInt64 where
-  size_eq_zero_of_not_isSatisfied bound x := by
-    simpa [rangeSizeSize_eq_toBitVec, UInt64.lt_iff_toBitVec_lt] using
-      LawfulRangeSize.size_eq_zero_of_not_isSatisfied (su := .closed) (α := BitVec 64) _ _
-  size_eq_one_of_succ?_eq_none bound x := by
-    cases x
-    simpa [rangeSizeSize_eq_toBitVec, UInt64.le_iff_toBitVec_le, succ?_ofBitVec] using
-      LawfulRangeSize.size_eq_one_of_succ?_eq_none (su := .closed) (α := BitVec 64) _ _
-  size_eq_succ_of_succ?_eq_some bound init x := by
-    simpa [rangeSizeSize_eq_toBitVec, UInt64.le_iff_toBitVec_le, ← UInt64.toBitVec_inj, succ?] using
-      LawfulRangeSize.size_eq_succ_of_succ?_eq_some (su := .closed) (α := BitVec 64) _ _ _
+instance : Rxc.LawfulHasSize UInt64 where
+  size_eq_zero_of_not_le lo hi := by
+    cases lo
+    simpa [rxcHasSize_eq_toBitVec, UInt64.lt_iff_toBitVec_lt] using
+      Rxc.LawfulHasSize.size_eq_zero_of_not_le (α := BitVec 64) _ _
+  size_eq_one_of_succ?_eq_none lo hi := by
+    cases lo
+    simpa [rxcHasSize_eq_toBitVec, UInt64.le_iff_toBitVec_le, succ?_ofBitVec] using
+      Rxc.LawfulHasSize.size_eq_one_of_succ?_eq_none (α := BitVec 64) _ _
+  size_eq_succ_of_succ?_eq_some lo hi x := by
+    cases lo; cases x
+    simpa [rxcHasSize_eq_toBitVec, UInt64.le_iff_toBitVec_le, ← UInt64.toBitVec_inj, succ?] using
+      Rxc.LawfulHasSize.size_eq_succ_of_succ?_eq_some (α := BitVec 64) _ _ _
 
-instance : RangeSize .open UInt64 := RangeSize.openOfClosed
-instance : LawfulRangeSize .open UInt64 := inferInstance
+instance : Rxc.IsAlwaysFinite UInt64 := inferInstance
+
+instance : Rxo.HasSize UInt64 := .ofClosed
+instance : Rxo.LawfulHasSize UInt64 := inferInstance
+instance : Rxo.IsAlwaysFinite UInt64 := inferInstance
+
+instance : Rxi.HasSize UInt64 where
+  size lo := 2 ^ 64 - lo.toNat
+
+theorem rxiHasSize_eq_toBitVec :
+    Rxi.HasSize.size (UInt64.ofBitVec lo) = Rxi.HasSize.size lo := by
+  simp [Rxi.HasSize.size]
+
+instance : Rxi.LawfulHasSize UInt64 where
+  size_eq_one_of_succ?_eq_none lo := by
+    cases lo
+    simpa [rxiHasSize_eq_toBitVec, succ?_ofBitVec] using
+      Rxi.LawfulHasSize.size_eq_one_of_succ?_eq_none (α := BitVec 64) _
+  size_eq_succ_of_succ?_eq_some lo lo' := by
+    cases lo; cases lo'
+    simpa [rxiHasSize_eq_toBitVec, succ?_ofBitVec] using
+      Rxi.LawfulHasSize.size_eq_succ_of_succ?_eq_some (α := BitVec 64) _ _
 
 end UInt64
 
@@ -338,9 +406,9 @@ instance : LawfulUpwardEnumerable USize where
   succMany?_zero x := by
     cases x
     simpa [succMany?_ofBitVec] using succMany?_zero
-  succMany?_succ? n x := by
+  succMany?_add_one n x := by
     cases x
-    simp [succMany?_ofBitVec, succMany?_succ?, Option.bind_map, Function.comp_def,
+    simp [succMany?_ofBitVec, succMany?_add_one, Option.bind_map, Function.comp_def,
       succ?_ofBitVec]
 
 instance : LawfulUpwardEnumerableLE USize where
@@ -349,34 +417,51 @@ instance : LawfulUpwardEnumerableLE USize where
     simpa [upwardEnumerableLE_ofBitVec, USize.le_iff_toBitVec_le] using
       LawfulUpwardEnumerableLE.le_iff _ _
 
-instance : LawfulOrderLT USize := inferInstance
 instance : LawfulUpwardEnumerableLT USize := inferInstance
 instance : LawfulUpwardEnumerableLT USize := inferInstance
-instance : LawfulUpwardEnumerableLowerBound .closed USize := inferInstance
-instance : LawfulUpwardEnumerableUpperBound .closed USize := inferInstance
-instance : LawfulUpwardEnumerableLowerBound .open USize := inferInstance
-instance : LawfulUpwardEnumerableUpperBound .open USize := inferInstance
 
-instance : RangeSize .closed USize where
-  size bound a := bound.toNat + 1 - a.toNat
+instance : Rxc.HasSize USize where
+  size lo hi := hi.toNat + 1 - lo.toNat
 
-theorem rangeSizeSize_eq_toBitVec {bound : Bound .closed USize} {x : BitVec System.Platform.numBits} :
-    RangeSize.size bound (USize.ofBitVec x) = RangeSize.size (shape := .closed) bound.toBitVec x := by
-  simp [RangeSize.size]
+theorem rxcHasSize_eq_toBitVec :
+    Rxc.HasSize.size (USize.ofBitVec lo) hi = Rxc.HasSize.size lo hi.toBitVec := by
+  simp [Rxc.HasSize.size]
 
-instance : LawfulRangeSize .closed USize where
-  size_eq_zero_of_not_isSatisfied bound x := by
-    simpa [rangeSizeSize_eq_toBitVec, USize.lt_iff_toBitVec_lt] using
-      LawfulRangeSize.size_eq_zero_of_not_isSatisfied (su := .closed) (α := BitVec System.Platform.numBits) _ _
-  size_eq_one_of_succ?_eq_none bound x := by
-    cases x
-    simpa [rangeSizeSize_eq_toBitVec, USize.le_iff_toBitVec_le, succ?_ofBitVec] using
-      LawfulRangeSize.size_eq_one_of_succ?_eq_none (su := .closed) (α := BitVec System.Platform.numBits) _ _
-  size_eq_succ_of_succ?_eq_some bound init x := by
-    simpa [rangeSizeSize_eq_toBitVec, USize.le_iff_toBitVec_le, ← USize.toBitVec_inj, succ?] using
-      LawfulRangeSize.size_eq_succ_of_succ?_eq_some (su := .closed) (α := BitVec System.Platform.numBits) _ _ _
+instance : Rxc.LawfulHasSize USize where
+  size_eq_zero_of_not_le lo hi := by
+    cases lo
+    simpa [rxcHasSize_eq_toBitVec, USize.lt_iff_toBitVec_lt] using
+      Rxc.LawfulHasSize.size_eq_zero_of_not_le (α := BitVec System.Platform.numBits) _ _
+  size_eq_one_of_succ?_eq_none lo hi := by
+    cases lo
+    simpa [rxcHasSize_eq_toBitVec, USize.le_iff_toBitVec_le, succ?_ofBitVec] using
+      Rxc.LawfulHasSize.size_eq_one_of_succ?_eq_none (α := BitVec System.Platform.numBits) _ _
+  size_eq_succ_of_succ?_eq_some lo hi x := by
+    cases lo; cases x
+    simpa [rxcHasSize_eq_toBitVec, USize.le_iff_toBitVec_le, ← USize.toBitVec_inj, succ?] using
+      Rxc.LawfulHasSize.size_eq_succ_of_succ?_eq_some (α := BitVec System.Platform.numBits) _ _ _
 
-instance : RangeSize .open USize := RangeSize.openOfClosed
-instance : LawfulRangeSize .open USize := inferInstance
+instance : Rxc.IsAlwaysFinite USize := inferInstance
+
+instance : Rxo.HasSize USize := .ofClosed
+instance : Rxo.LawfulHasSize USize := inferInstance
+instance : Rxo.IsAlwaysFinite USize := inferInstance
+
+instance : Rxi.HasSize USize where
+  size lo := 2 ^ System.Platform.numBits - lo.toNat
+
+theorem rxiHasSize_eq_toBitVec :
+    Rxi.HasSize.size (USize.ofBitVec lo) = Rxi.HasSize.size lo := by
+  simp [Rxi.HasSize.size]
+
+instance : Rxi.LawfulHasSize USize where
+  size_eq_one_of_succ?_eq_none lo := by
+    cases lo
+    simpa [rxiHasSize_eq_toBitVec, succ?_ofBitVec] using
+      Rxi.LawfulHasSize.size_eq_one_of_succ?_eq_none (α := BitVec System.Platform.numBits) _
+  size_eq_succ_of_succ?_eq_some lo lo' := by
+    cases lo; cases lo'
+    simpa [rxiHasSize_eq_toBitVec, succ?_ofBitVec] using
+      Rxi.LawfulHasSize.size_eq_succ_of_succ?_eq_some (α := BitVec System.Platform.numBits) _ _
 
 end USize

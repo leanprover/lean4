@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Perm
-// Imports: Init.Data.List.Pairwise Init.Data.List.Erase Init.Data.List.Find Init.Data.List.Attach Init.Data.List.Attach
+// Imports: public import Init.Data.List.Pairwise public import Init.Data.List.Erase public import Init.Data.List.Find public import Init.Data.List.Attach import all Init.Data.List.Attach
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

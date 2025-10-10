@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.ClosedTermCache
-// Imports: Lean.Environment
+// Imports: public import Lean.Environment
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

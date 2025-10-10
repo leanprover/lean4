@@ -10,6 +10,7 @@ public import Init.System.IOError
 public import Init.System.FilePath
 public import Init.System.ST
 public import Init.Data.Ord.Basic
+public import Init.Data.Ord.UInt
 public import Init.Data.String.Extra
 
 public section
@@ -397,7 +398,7 @@ If `nBytes` is `0`, returns immediately with an empty buffer.
 /--
 Pauses execution for the specified number of milliseconds.
 -/
-def sleep (ms : UInt32) : BaseIO Unit :=
+opaque sleep (ms : UInt32) : BaseIO Unit :=
   -- TODO: add a proper primitive for IO.sleep
   fun s => dbgSleep ms fun _ => EStateM.Result.ok () s
 
@@ -856,6 +857,18 @@ This function coincides with the [POSIX `rename`
 function](https://pubs.opengroup.org/onlinepubs/9699919799/functions/rename.html).
 -/
 @[extern "lean_io_rename"] opaque rename (old new : @& FilePath) : IO Unit
+
+/--
+Creates a new hard link.
+
+The `link` path will be a link pointing to the `orig` path.
+Note that systems often require these two paths to both be located on the same filesystem.
+If `orig` names a symbolic link, it is platform-specific whether the symbolic link is followed.
+
+This function coincides with the [POSIX `link`
+function](https://pubs.opengroup.org/onlinepubs/9699919799/functions/link.html).
+-/
+@[extern "lean_io_hard_link"] opaque hardLink (orig link : @& FilePath) : IO Unit
 
 /--
 Creates a temporary file in the most secure manner possible, returning both a `Handle` to the

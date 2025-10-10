@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.MetaClasses
-// Imports: Lean.Data.NameMap.Basic
+// Imports: public import Lean.Data.NameMap.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

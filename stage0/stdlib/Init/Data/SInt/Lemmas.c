@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.SInt.Lemmas
-// Imports: Init.Data.Nat.Bitwise.Basic Init.Data.Nat.Bitwise.Basic Init.Data.SInt.Basic Init.Data.SInt.Basic Init.Data.BitVec.Basic Init.Data.BitVec.Basic Init.Data.BitVec.Lemmas Init.Data.BitVec.Bitblast Init.Data.Int.LemmasAux Init.Data.UInt.Basic Init.Data.UInt.Basic Init.Data.UInt.Lemmas Init.System.Platform Init.Data.Order.Lemmas
+// Imports: public import Init.Data.Nat.Bitwise.Basic import all Init.Data.Nat.Bitwise.Basic public import Init.Data.SInt.Basic import all Init.Data.SInt.Basic public import Init.Data.BitVec.Basic import all Init.Data.BitVec.Basic public import Init.Data.BitVec.Lemmas public import Init.Data.BitVec.Bitblast public import Init.Data.Int.LemmasAux public import Init.Data.UInt.Basic import all Init.Data.UInt.Basic public import Init.Data.UInt.Lemmas public import Init.System.Platform import Init.Data.Order.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3363,6 +3363,7 @@ lean_ctor_set(x_361, 0, x_12);
 lean_ctor_set(x_361, 1, x_359);
 lean_ctor_set(x_361, 2, x_360);
 lean_ctor_set(x_361, 3, x_31);
+lean_inc_ref(x_21);
 lean_inc(x_12);
 x_362 = l_Lean_Syntax_node2(x_12, x_44, x_361, x_21);
 x_363 = l___aux__Init__Data__SInt__Lemmas______macroRules__commandDeclare__int__theorems______1___closed__213;
@@ -3404,7 +3405,7 @@ x_380 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_380, 0, x_12);
 lean_ctor_set(x_380, 1, x_378);
 lean_inc(x_12);
-x_381 = l_Lean_Syntax_node1(x_12, x_13, x_10);
+x_381 = l_Lean_Syntax_node2(x_12, x_13, x_10, x_21);
 lean_inc(x_12);
 x_382 = l_Lean_Syntax_node2(x_12, x_379, x_380, x_381);
 x_383 = l___aux__Init__Data__SInt__Lemmas______macroRules__commandDeclare__int__theorems______1___closed__221;

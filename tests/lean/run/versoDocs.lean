@@ -123,7 +123,8 @@ To prove that a relation {name}`P` holds universally for the natural numbers (th
 
 : Inductive step
 
-  {lean}`P` relates non-zero {given}`m` to {given}`n` if it relates {lean}`n % m` to {lean}`m`.
+  {lean}`P` relates non-zero {given (type :="Nat")}`m` to {given}`n` if it relates {lean}`n % m` to
+  {lean}`m`.
 
 This follows the computational behavior of {name}`gcd`.
 -/
@@ -199,7 +200,12 @@ def a := "a"
 def b := "b"
 end A
 
-/-- error: Unknown constant `a` -/
+/--
+error: Unknown constant `a`
+
+Hint: Insert a fully-qualified name:
+  {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲A̲.̲a̲)̲}`a`
+-/
 #guard_msgs in
 /--
 role {name}`a` here
@@ -223,7 +229,13 @@ def testDef' := 15
 -/
 def testDef'' := 15
 
-/-- error: Unknown constant `b` -/
+/--
+error: Unknown constant `b`
+
+Hint: Insert a fully-qualified name:
+  • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲A̲.̲b̲)̲}`b`
+  • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲M̲e̲t̲a̲.̲G̲r̲i̲n̲d̲.̲A̲r̲i̲t̲h̲.̲C̲u̲t̲s̲a̲t̲.̲D̲v̲d̲S̲o̲l̲u̲t̲i̲o̲n̲.̲b̲)̲}`b`
+-/
 #guard_msgs in
 /--
 {open A only:=a}
@@ -283,6 +295,46 @@ Examples:
  * {attr}`init`
 -/
 def somethingElse := ()
+
+/--
+error: Unknown attribute `int`
+
+Hint: Use a known attribute:
+  • ini̲t
+  • i̵n̵e̲x̲t
+---
+error: Unknown attribute `samp`
+
+Hint: Use a known attribute:
+  • s̵a̵m̵p̵s̲i̲m̲p̲
+  • s̵a̵m̵p̵s̲y̲m̲m̲
+  • s̵a̵m̵p̵c̲s̲i̲m̲p̲
+---
+error: Unknown attribute `inlone`
+
+Hint: Use a known attribute:
+  • i̵n̵l̵o̵n̵e̵i̲n̲l̲i̲n̲e̲
+  • inl̵o̵n̵e̵i̲t̲
+-/
+#guard_msgs in
+/--
+Suggestions are as well.
+ * {attr}`int`
+ * {attr}`@[samp, inlone]`
+-/
+def otherAttr := ()
+
+/--
+error: Unknown constant `Constraint.add`
+
+Hint: Insert a fully-qualified name:
+  {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲O̲m̲e̲g̲a̲.̲C̲o̲n̲s̲t̲r̲a̲i̲n̲t̲.̲a̲d̲d̲)̲}`Constraint.add`
+-/
+#guard_msgs in
+/--
+{name}`Constraint.add`
+-/
+def nameErrSuggestions := ()
 
 /--
 Options control Lean.
@@ -449,6 +501,33 @@ Hint: Insert a role to document it:
 `Lean.Data.Json.Basic`
 -/
 def moduleSuggestionTest := ()
+
+/-!
+These are tests for the current workarounds for intra-module forward references.
+-/
+
+-- Saves the docs as text, then causes them to be elaborated later:
+set_option doc.verso false
+/--
+Less than {name}`seven`.
+-/
+def five : Nat := 5
+set_option doc.verso true
+
+-- For this one, the docs are just added later.
+def four : Nat := 4
+
+/--
+More than {name}`five`.
+-/
+def seven : Nat := 7
+
+docs_to_verso five
+
+/--
+Less than {name}`seven`.
+-/
+add_decl_doc four
 
 /-
 TODO test:

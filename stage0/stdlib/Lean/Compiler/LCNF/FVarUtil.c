@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.FVarUtil
-// Imports: Lean.Expr Lean.Compiler.LCNF.Basic Lean.Compiler.LCNF.CompilerM
+// Imports: public import Lean.Expr public import Lean.Compiler.LCNF.Basic public import Lean.Compiler.LCNF.CompilerM
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

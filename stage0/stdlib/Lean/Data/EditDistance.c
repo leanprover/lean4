@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.EditDistance
-// Imports: Init
+// Imports: public import Init
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1559,9 +1559,7 @@ LEAN_EXPORT lean_object* l_Lean_EditDistance_levenshtein(lean_object* x_1, lean_
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_33; uint8_t x_36; 
-lean_inc_ref(x_1);
 x_4 = lean_string_length(x_1);
-lean_inc_ref(x_2);
 x_5 = lean_string_length(x_2);
 x_36 = lean_nat_dec_le(x_4, x_5);
 if (x_36 == 0)

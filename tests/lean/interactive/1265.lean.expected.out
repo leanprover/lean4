@@ -15,12 +15,20 @@
   {"label": "getName",
    "kind": 3,
    "data": ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.getName"]},
+  {"label": "getHexNumVal",
+   "kind": 3,
+   "data":
+   ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.getHexNumVal"]},
   {"label": "getChar",
    "kind": 3,
    "data": ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.getChar"]},
   {"label": "raw",
    "kind": 5,
    "data": ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.raw"]},
+  {"label": "getHexNumSize",
+   "kind": 3,
+   "data":
+   ["«external:file:///1265.lean»", 0, 51, 1, "cLean.TSyntax.getHexNumSize"]},
   {"label": "getDocString",
    "kind": 3,
    "data":
@@ -58,12 +66,20 @@
   {"label": "getName",
    "kind": 3,
    "data": ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.getName"]},
+  {"label": "getHexNumVal",
+   "kind": 3,
+   "data":
+   ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.getHexNumVal"]},
   {"label": "getChar",
    "kind": 3,
    "data": ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.getChar"]},
   {"label": "raw",
    "kind": 5,
    "data": ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.raw"]},
+  {"label": "getHexNumSize",
+   "kind": 3,
+   "data":
+   ["«external:file:///1265.lean»", 2, 53, 1, "cLean.TSyntax.getHexNumSize"]},
   {"label": "getDocString",
    "kind": 3,
    "data":

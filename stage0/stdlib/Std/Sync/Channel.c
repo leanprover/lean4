@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sync.Channel
-// Imports: Init.System.Promise Init.Data.Queue Std.Sync.Mutex Std.Internal.Async.Select Std.Internal.Async.IO
+// Imports: public import Init.System.Promise public import Init.Data.Queue public import Std.Sync.Mutex public import Std.Internal.Async.Select public import Std.Internal.Async.IO import Init.Data.Vector.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -798,9 +798,14 @@ return x_1;
 LEAN_EXPORT lean_object* l_Std_CloseableChannel_Error_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_CloseableChannel_Error_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Std_CloseableChannel_Error_ctorIdx(x_1);
+x_4 = l_Std_CloseableChannel_Error_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = lean_alloc_closure((void*)(l_Std_CloseableChannel_Error_noConfusion___redArg___lam__0___boxed), 1, 0);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Std_CloseableChannel_Error_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
@@ -16075,7 +16080,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_Channel_send___redArg___lam__0___closed__2;
 x_2 = lean_unsigned_to_nat(21u);
-x_3 = lean_unsigned_to_nat(868u);
+x_3 = lean_unsigned_to_nat(869u);
 x_4 = l_Std_Channel_send___redArg___lam__0___closed__1;
 x_5 = l_Std_Channel_send___redArg___lam__0___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -16167,7 +16172,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_Channel_send___redArg___lam__0___closed__2;
 x_2 = lean_unsigned_to_nat(16u);
-x_3 = lean_unsigned_to_nat(879u);
+x_3 = lean_unsigned_to_nat(880u);
 x_4 = l_Std_Channel_recv___redArg___lam__0___closed__0;
 x_5 = l_Std_Channel_send___redArg___lam__0___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -17281,6 +17286,7 @@ lean_object* initialize_Init_Data_Queue(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Sync_Mutex(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Internal_Async_Select(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Internal_Async_IO(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Sync_Channel(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -17299,6 +17305,9 @@ res = initialize_Std_Internal_Async_Select(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Internal_Async_IO(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Vector_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_CloseableChannel_instReprError_repr___closed__0 = _init_l_Std_CloseableChannel_instReprError_repr___closed__0();

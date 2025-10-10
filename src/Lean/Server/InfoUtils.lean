@@ -197,22 +197,22 @@ def Info.lctx : Info → LocalContext
   | .ofCompletionInfo i     => i.lctx
   | _                       => LocalContext.empty
 
-def Info.pos? (i : Info) : Option String.Pos :=
+def Info.pos? (i : Info) : Option String.Pos.Raw :=
   i.stx.getPos? (canonicalOnly := true)
 
-def Info.tailPos? (i : Info) : Option String.Pos :=
+def Info.tailPos? (i : Info) : Option String.Pos.Raw :=
   i.stx.getTailPos? (canonicalOnly := true)
 
 def Info.range? (i : Info) : Option String.Range :=
   i.stx.getRange? (canonicalOnly := true)
 
-def Info.contains (i : Info) (pos : String.Pos) (includeStop := false) : Bool :=
+def Info.contains (i : Info) (pos : String.Pos.Raw) (includeStop := false) : Bool :=
   i.range?.any (·.contains pos includeStop)
 
-def Info.size? (i : Info) : Option String.Pos := do
+def Info.size? (i : Info) : Option String.Pos.Raw := do
   let pos ← i.pos?
   let tailPos ← i.tailPos?
-  return tailPos - pos
+  return tailPos.unoffsetBy pos
 
 -- `Info` without position information are considered to have "infinite" size
 def Info.isSmaller (i₁ i₂ : Info) : Bool :=
@@ -221,13 +221,13 @@ def Info.isSmaller (i₁ i₂ : Info) : Bool :=
   | some _, none => true
   | _, _ => false
 
-def Info.occursInside? (i : Info) (hoverPos : String.Pos) : Option String.Pos := do
+def Info.occursInside? (i : Info) (hoverPos : String.Pos.Raw) : Option String.Pos.Raw := do
   let headPos ← i.pos?
   let tailPos ← i.tailPos?
   guard (headPos ≤ hoverPos && hoverPos < tailPos)
-  return hoverPos - headPos
+  return hoverPos.unoffsetBy headPos
 
-def Info.occursInOrOnBoundary (i : Info) (hoverPos : String.Pos) : Bool := Id.run do
+def Info.occursInOrOnBoundary (i : Info) (hoverPos : String.Pos.Raw) : Bool := Id.run do
   let some headPos := i.pos?
     | return false
   let some tailPos := i.tailPos?
@@ -238,7 +238,7 @@ def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextI
   let ts := t.deepestNodes fun ctx i _ => if p i then some (ctx, i) else none
 
   let infos := ts.filterMap fun (ci, i) => do
-    let diff := (← i.tailPos?) - (← i.pos?)
+    let diff := (← i.pos?).byteDistance (← i.tailPos?)
     return (diff, ci, i)
 
   infos.toArray.getMax? (fun a b => a.1 > b.1) |>.map fun (_, ci, i) => (ci, i)
@@ -281,7 +281,7 @@ instance : LE HoverableInfoPrio := leOfOrd
 instance : Max HoverableInfoPrio := maxOfLe
 
 /-- Find an info node, if any, which should be shown on hover/cursor at position `hoverPos`. -/
-partial def InfoTree.hoverableInfoAtM? [Monad m] (t : InfoTree) (hoverPos : String.Pos) (includeStop := false)
+partial def InfoTree.hoverableInfoAtM? [Monad m] (t : InfoTree) (hoverPos : String.Pos.Raw) (includeStop := false)
     (filter : (ctx : ContextInfo) → (info : Info) → (children : PersistentArray InfoTree) →
       (results : List (HoverableInfoPrio × InfoWithCtx)) →
       m (List (HoverableInfoPrio × InfoWithCtx)) := fun _ _ _ results => pure results) :
@@ -306,7 +306,7 @@ partial def InfoTree.hoverableInfoAtM? [Monad m] (t : InfoTree) (hoverPos : Stri
       return none
     let priority : HoverableInfoPrio := {
       isHoverPosOnStop := r.stop == hoverPos
-      size := (r.stop - r.start).byteIdx
+      size := r.start.byteDistance r.stop
       isVariableInfo := info matches .ofTermInfo { expr := .fvar .., .. }
       isPartialTermInfo := info matches .ofPartialTermInfo ..
     }
@@ -442,7 +442,7 @@ structure GoalsAtResult where
   - the hover position is after the info's start position *and*
   - there is no nested tactic info after the hover position (tactic combinators should decide for themselves
     where to show intermediate states by calling `withTacticInfoContext`) -/
-partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List GoalsAtResult :=
+partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos.Raw) : List GoalsAtResult :=
   let gs := t.collectNodesBottomUp fun ctx i cs gs => Id.run do
     let Info.ofTacticInfo ti := i
       | return gs
@@ -488,7 +488,7 @@ where
     stx.getNumArgs == 2 && stx[0].isToken "by" && stx[1].getNumArgs == 1 && stx[1][0].isMissing
 
 
-partial def InfoTree.termGoalAt? (t : InfoTree) (hoverPos : String.Pos) : Option InfoWithCtx :=
+partial def InfoTree.termGoalAt? (t : InfoTree) (hoverPos : String.Pos.Raw) : Option InfoWithCtx :=
   -- In the case `f a b`, where `f` is an identifier, the term goal at `f` should be the goal for the full application `f a b`.
   let filter ctx info children results :=
     if info.stx.isOfKind ``Parser.Term.app && info.stx[0].isIdent then

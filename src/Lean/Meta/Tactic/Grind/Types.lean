@@ -217,6 +217,10 @@ structure State where
   if it implements the `ReflCmp` type class.
   -/
   reflCmpMap : PHashMap ExprPtr (Option Expr) := {}
+  /--
+  Cached anchors (aka stable hash codes) for terms in the `grind` state.
+  -/
+  anchors : PHashMap ExprPtr UInt64 := {}
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 def MethodsRef : Type := MethodsRefPointed.type
@@ -275,6 +279,9 @@ def getIntExpr : GrindM Expr := do
 
 def cheapCasesOnly : GrindM Bool :=
   return (← readThe Context).cheapCases
+
+def withCheapCasesOnly (k : GrindM α) : GrindM α :=
+  withTheReader Grind.Context (fun ctx => { ctx with cheapCases := true }) k
 
 def reportMVarInternalization : GrindM Bool :=
   return (← readThe Context).reportMVarIssue
@@ -474,6 +481,10 @@ def ENode.isCongrRoot (n : ENode) :=
 inductive NewFact where
   | eq (lhs rhs proof : Expr) (isHEq : Bool)
   | fact (prop proof : Expr) (generation : Nat)
+
+def NewFact.toExpr : NewFact → MetaM Expr
+  | .eq lhs rhs _ _ => mkEq lhs rhs
+  | .fact p _ _ => return p
 
 -- This type should be considered opaque outside this module.
 @[expose]  -- for codegen
@@ -1288,12 +1299,10 @@ def forEachEqcRoot (f : ENode → GoalM Unit) : GoalM Unit := do
       f n
 
 abbrev Propagator := Expr → GoalM Unit
-abbrev Fallback := GoalM Unit
 
 structure Methods where
   propagateUp   : Propagator := fun _ => return ()
   propagateDown : Propagator := fun _ => return ()
-  fallback      : Fallback := pure ()
   deriving Inhabited
 
 def Methods.toMethodsRef (m : Methods) : MethodsRef :=
@@ -1310,10 +1319,6 @@ def propagateUp (e : Expr) : GoalM Unit := do
 
 def propagateDown (e : Expr) : GoalM Unit := do
   (← getMethods).propagateDown e
-
-def applyFallback : GoalM Unit := do
-  let fallback : GoalM Unit := (← getMethods).fallback
-  fallback
 
 def Goal.getGeneration (goal : Goal) (e : Expr) : Nat :=
   if let some n := goal.getENode? e then

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Internal.Order
-// Imports: Init.Internal.Order.Basic Init.Internal.Order.Lemmas Init.Internal.Order.Tactic
+// Imports: public import Init.Internal.Order.Basic public import Init.Internal.Order.Lemmas public import Init.Internal.Order.Tactic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

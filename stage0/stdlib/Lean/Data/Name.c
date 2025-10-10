@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Name
-// Imports: Init.Data.Ord.Basic
+// Imports: public import Init.Data.Ord.Basic import Init.Data.String.Basic import Init.Data.Ord.String import Init.Data.Ord.UInt
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -210,7 +210,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Name_getString_x21___closed__2;
 x_2 = lean_unsigned_to_nat(15u);
-x_3 = lean_unsigned_to_nat(26u);
+x_3 = lean_unsigned_to_nat(29u);
 x_4 = l_Lean_Name_getString_x21___closed__1;
 x_5 = l_Lean_Name_getString_x21___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -1075,7 +1075,6 @@ x_5 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_3);
 lean_ctor_set(x_5, 2, x_4);
-lean_inc_ref(x_2);
 x_6 = lean_string_length(x_2);
 x_7 = l_Substring_nextn(x_5, x_6, x_3);
 lean_dec_ref(x_5);
@@ -1769,12 +1768,24 @@ return x_3;
 }
 }
 lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Ord_String(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Ord_UInt(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_Name(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_Ord_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Ord_String(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Ord_UInt(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_panic___at___Lean_Name_getString_x21_spec__0___closed__0 = _init_l_panic___at___Lean_Name_getString_x21_spec__0___closed__0();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector.Zip
-// Imports: Init.Data.Array.Basic Init.Data.Array.Basic Init.Data.Array.Zip Init.Data.Vector.Basic Init.Data.Vector.Basic Init.Data.Vector.Lemmas
+// Imports: public import Init.Data.Array.Basic import all Init.Data.Array.Basic public import Init.Data.Array.Zip public import Init.Data.Vector.Basic import all Init.Data.Vector.Basic public import Init.Data.Vector.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

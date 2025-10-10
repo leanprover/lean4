@@ -6,8 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Elab.PreDefinition.Eqns
 public import Lean.Elab.PreDefinition.FixedParams
+import Lean.Elab.PreDefinition.EqnsUtils
 import Lean.Meta.ArgsPacker.Basic
 import Init.Data.Array.Basic
 import Init.Internal.Order.Basic
@@ -19,7 +19,11 @@ namespace Lean.Elab.PartialFixpoint
 open Meta
 open Eqns
 
-public structure EqnInfo extends EqnInfoCore where
+public structure EqnInfo where
+  declName    : Name
+  levelParams : List Name
+  type        : Expr
+  value       : Expr
   declNames       : Array Name
   declNameNonRec  : Name
   fixedParamPerms : FixedParamPerms

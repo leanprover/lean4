@@ -6,9 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Elab.PreDefinition.Eqns
 public import Lean.Elab.PreDefinition.FixedParams
 public import Lean.Meta.ArgsPacker.Basic
+import Lean.Elab.PreDefinition.EqnsUtils
 import Lean.Meta.Tactic.Rewrite
 import Lean.Meta.Tactic.Split
 import Lean.Elab.PreDefinition.Basic
@@ -18,7 +18,11 @@ namespace Lean.Elab.WF
 open Meta
 open Eqns
 
-public structure EqnInfo extends EqnInfoCore where
+public structure EqnInfo where
+  declName    : Name
+  levelParams : List Name
+  type        : Expr
+  value       : Expr
   declNames       : Array Name
   declNameNonRec  : Name
   argsPacker      : ArgsPacker

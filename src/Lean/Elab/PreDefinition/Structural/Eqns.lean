@@ -7,8 +7,8 @@ module
 
 prelude
 public import Lean.Meta.Basic
-public import Lean.Elab.PreDefinition.Eqns
 public import Lean.Elab.PreDefinition.FixedParams
+import Lean.Elab.PreDefinition.EqnsUtils
 import Lean.Meta.Eqns
 import Lean.Meta.Tactic.Split
 import Lean.Meta.Tactic.Simp.Main
@@ -24,7 +24,11 @@ open Eqns
 
 namespace Structural
 
-public structure EqnInfo extends EqnInfoCore where
+public structure EqnInfo where
+  declName    : Name
+  levelParams : List Name
+  type        : Expr
+  value       : Expr
   recArgPos : Nat
   declNames : Array Name
   fixedParamPerms : FixedParamPerms

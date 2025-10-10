@@ -13,6 +13,9 @@ public import Init.Core
 public section
 set_option linter.missingDocs true -- keep it documented
 
+realize_const ite.congr_simp
+realize_const Decidable.decide.congr_simp
+
 theorem of_eq_true (h : p = True) : p := h ▸ trivial
 theorem of_eq_false (h : p = False) : ¬ p := fun hp => False.elim (h.mp hp)
 

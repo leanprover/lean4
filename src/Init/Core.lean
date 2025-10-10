@@ -2548,3 +2548,4 @@ class Irrefl (r : α → α → Prop) : Prop where
   irrefl : ∀ a, ¬r a a
 
 end Std
+#print ite.congr_simp

@@ -629,6 +629,7 @@ structure Subtype {α : Sort u} (p : α → Prop) where
   The proof that `val` satisfies the predicate `p`.
   -/
   property : p val
+realize_const Subtype.mk.congr_simp
 
 set_option linter.unusedVariables.funArgs false in
 /--
@@ -1052,6 +1053,7 @@ or derive `i < arr.size` from some other proposition that we are checking in the
 -/
 @[macro_inline] def dite {α : Sort u} (c : Prop) [h : Decidable c] (t : c → α) (e : Not c → α) : α :=
   h.casesOn e t
+realize_const dite.congr_simp
 
 /-! # if-then-else -/
 
@@ -2261,6 +2263,7 @@ structure Fin (n : Nat) where
   The number `val` is strictly less than the bound `n`.
   -/
   isLt : LT.lt val n
+realize_const Fin.mk.congr_simp
 
 attribute [coe] Fin.val
 

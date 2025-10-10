@@ -258,17 +258,16 @@ If so, replays the log of the trace if available.
   (info : ι) (depTrace : BuildTrace) (savedTrace : SavedTrace)
   (oldTrace := depTrace.mtime)
 : JobM OutputStatus := do
-  match savedTrace with
-  | .ok data =>
+  if let .ok data := savedTrace then
     let status ← checkHashUpToDate' info depTrace data.depHash oldTrace
     if status.isUpToDate then
       updateAction .replay
       replay data.log
     return status
-  | .invalid =>
-    return .ofMTimeCheck <| (← getIsOldMode) && (← oldTrace.checkUpToDate info)
-  | .missing =>
-    .ofMTimeCheck <$> depTrace.checkAgainstTime info
+  else if (← getIsOldMode) then
+    .ofMTimeCheck <$> oldTrace.checkUpToDate info
+  else
+    return .outOfDate
 where replay log := log.replay -- specializes `replay` to `JobM`
 
 /--

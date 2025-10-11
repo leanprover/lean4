@@ -131,10 +131,11 @@ structure State where
   `transDeps[i]` is the (non-reflexive) transitive closure of `mods[i].imports`. More specifically,
   * `j ∈ transDeps[i].pub` if `i -(public import)->+ j`
   * `j ∈ transDeps[i].priv` if `i -(import ...)-> _ -(public import)->* j`
-  * `j ∈ transDeps[i].priv` if `i -(import all)->+ -(public import ...)-> _ -(public import)->* j`
-  * `j ∈ transDeps[i].metaPub` if `i -(public (meta)? import)->* _ -(public meta import)-> _ -(public (meta)? import ...)->* j`
-  * `j ∈ transDeps[i].metaPriv` if `i -(meta import ...)-> _ -(public (meta)? import ...)->* j`
-  * `j ∈ transDeps[i].metaPriv` if `i -(import all)->+ -(public meta import ...)-> _ -(public (meta)? import ...)->* j`
+  * `j ∈ transDeps[i].priv` if `i -(import all)->+ i'` and `j ∈ transDeps[i'].pub/priv`
+  * `j ∈ transDeps[i].metaPub` if `i -(public (meta)? import)->* _ -(public meta import)-> _ -(public (meta)? import)->* j`
+  * `j ∈ transDeps[i].metaPriv` if `i -(meta import ...)-> _ -(public (meta)? import)->* j`
+  * `j ∈ transDeps[i].metaPriv` if `i -(import ...)-> i'` and `j ∈ transDeps[i'].metaPub`
+  * `j ∈ transDeps[i].metaPriv` if `i -(import all)->+ i'` and `j ∈ transDeps[i'].metaPub/metaPriv`
   -/
   transDeps : Array Needs := #[]
   /--
@@ -162,10 +163,10 @@ def addTransitiveImps (transImps : Needs) (imp : Import) (j : Nat) (impTransImps
     -- `j ∈ transDeps[i].priv` if `i -(import ...)-> _ -(public import)->* j`
     transImps := transImps.union .priv {j} |>.union .priv (impTransImps.get .pub)
     if imp.importAll then
-      -- `j ∈ transDeps[i].priv` if `i -(import all)->+ -(public import ...)-> _ -(public import)->* j`
-      transImps := transImps.union .priv (impTransImps.get .pub)
+      -- `j ∈ transDeps[i].priv` if `i -(import all)->+ i'` and `j ∈ transDeps[i'].pub/priv`
+      transImps := transImps.union .priv (impTransImps.get .pub ∪ impTransImps.get .priv)
 
-  -- `j ∈ transDeps[i].metaPub` if `i -(public (meta)? import)->* _ -(public meta import)-> _ -(public (meta)? import ...)->* j`
+  -- `j ∈ transDeps[i].metaPub` if `i -(public (meta)? import)->* _ -(public meta import)-> _ -(public (meta)? import)->* j`
   if imp.isExported then
     transImps := transImps.union .metaPub (impTransImps.get .metaPub)
     if imp.isMeta then
@@ -173,10 +174,13 @@ def addTransitiveImps (transImps : Needs) (imp : Import) (j : Nat) (impTransImps
 
   if !imp.isExported then
     if imp.isMeta then
-      -- `j ∈ transDeps[i].metaPriv` if `i -(meta import ...)-> _ -(public (meta)? import ...)->* j`
+      -- `j ∈ transDeps[i].metaPriv` if `i -(meta import ...)-> _ -(public (meta)? import)->* j`
       transImps := transImps.union .metaPriv {j} |>.union .metaPriv (impTransImps.get .pub ∪ impTransImps.get .metaPub)
     if imp.importAll then
-      -- `j ∈ transDeps[i].metaPriv` if `i -(import all)->+ -(public meta import ...)-> _ -(public (meta)? import ...)->* j`
+      -- `j ∈ transDeps[i].metaPriv` if `i -(import all)->+ i'` and `j ∈ transDeps[i'].metaPub/metaPriv`
+      transImps := transImps.union .metaPriv (impTransImps.get .metaPub ∪ impTransImps.get .metaPriv)
+    else
+      -- `j ∈ transDeps[i].metaPriv` if `i -(import ...)-> i'` and `j ∈ transDeps[i'].metaPub`
       transImps := transImps.union .metaPriv (impTransImps.get .metaPub)
 
   transImps

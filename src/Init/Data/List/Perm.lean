@@ -494,7 +494,7 @@ theorem Perm.pairwise {R : α → α → Prop} {l l' : List α} (hl : l ~ l') (h
 If two lists are sorted by an antisymmetric relation, and permutations of each other,
 they must be equal.
 -/
-theorem Perm.eq_of_sorted : ∀ {l₁ l₂ : List α}
+theorem Perm.eq_of_pairwise : ∀ {l₁ l₂ : List α}
     (_ : ∀ a b, a ∈ l₁ → b ∈ l₂ → le a b → le b a → a = b)
     (_ : l₁.Pairwise le) (_ : l₂.Pairwise le) (_ : l₁ ~ l₂), l₁ = l₂
   | [], [], _, _, _, _ => rfl
@@ -514,7 +514,7 @@ theorem Perm.eq_of_sorted : ∀ {l₁ l₂ : List α}
             (rel_of_pairwise_cons h₁ bm) (rel_of_pairwise_cons h₂ am)
     subst ab
     simp only [perm_cons] at h
-    have := Perm.eq_of_sorted
+    have := Perm.eq_of_pairwise
       (fun x y hx hy => w x y (mem_cons_of_mem a hx) (mem_cons_of_mem a hy))
       h₁.tail h₂.tail h
     simp_all

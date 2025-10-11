@@ -185,7 +185,8 @@ def addTransitiveImps (transImps : Needs) (imp : Import) (j : Nat) (impTransImps
 def calcNeeds (env : Environment) (i : ModuleIdx) : Needs := Id.run do
   let mut needs := default
   for ci in env.header.moduleData[i]!.constants do
-    let pubCI? := env.setExporting true |>.find? ci.name
+    -- Added guard for cases like `structure` that are still exported even if private
+    let pubCI? := guard (!isPrivateName ci.name) *> (env.setExporting true).find? ci.name
     let k := { isExported := pubCI?.isSome, isMeta := isMeta env ci.name }
     needs := visitExpr k ci.type needs
     if let some e := ci.value? (allowOpaque := true) then
@@ -216,7 +217,8 @@ def getExplanations (env : Environment) (i : ModuleIdx) :
     Std.HashMap (ModuleIdx × NeedsKind) (Option (Name × Name)) := Id.run do
   let mut deps := default
   for ci in env.header.moduleData[i]!.constants do
-    let pubCI? := env.setExporting true |>.find? ci.name
+    -- Added guard for cases like `structure` that are still exported even if private
+    let pubCI? := guard (!isPrivateName ci.name) *> (env.setExporting true).find? ci.name
     let k := { isExported := pubCI?.isSome, isMeta := isMeta env ci.name }
     deps := visitExpr k ci.name ci.type deps
     if let some e := ci.value? (allowOpaque := true) then

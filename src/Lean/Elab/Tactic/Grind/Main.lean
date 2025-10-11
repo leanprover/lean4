@@ -321,6 +321,8 @@ private def elabGrindConfig' (config : TSyntax ``Lean.Parser.Tactic.optConfig) (
     elabGrindConfig config
 
 @[builtin_tactic Lean.Parser.Tactic.grind] def evalGrind : Tactic := fun stx => do
+  -- Preserve this import in core; all others import `Init` anyway
+  recordExtraModUse (isMeta := false) `Init.Grind.Tactics
   match stx with
   | `(tactic| grind $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[=> $seq:grindSeq]?) =>
     let interactive := seq.isSome

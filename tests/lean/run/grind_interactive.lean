@@ -375,3 +375,15 @@ example (as bs cs : Array α) (v₁ v₂ : α)
   grind =>
     instantiate = Array.getElem_set
     instantiate ← Array.getElem_set
+
+opaque p : Nat → Prop
+opaque q : Nat → Prop
+opaque f : Nat → Nat
+opaque finv : Nat → Nat
+
+axiom pq : p x → q x
+axiom fInj : finv (f x) = x
+
+example : f x = f y → p x → q y := by
+  grind =>
+    instantiate →pq, !fInj

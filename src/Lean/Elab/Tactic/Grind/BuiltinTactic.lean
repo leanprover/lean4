@@ -120,7 +120,7 @@ def ematchThms (thms : Array EMatchTheorem) : GrindTacticM Unit := do
       match thmRef with
       | `(Parser.Tactic.Grind.thm| #$n:hexnum) => throwError "NIY anchor {n}"
       | `(Parser.Tactic.Grind.thm| $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id false)
-      | `(Parser.Tactic.Grind.thm| ! $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id false)
+      | `(Parser.Tactic.Grind.thm| ! $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id true)
       | _ => throwErrorAt thmRef "unexpected theorem reference"
     ematchThms thms
   | _ => throwUnsupportedSyntax

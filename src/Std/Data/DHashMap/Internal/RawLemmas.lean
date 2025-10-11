@@ -2934,14 +2934,14 @@ theorem getKey!_union [EquivBEq α] [LawfulHashable α] [Inhabited α]
     (m₁.union m₂).getKey! k = m₂.getKeyD k (m₁.getKey! k) := by
   simp_to_model [union, getKey!, getKeyD] using List.getKeyD_insertList
 
-theorem getKey!_union_of_contains_left_eq_false [Inhabited α]
+theorem getKey!_union_of_contains_eq_false_left [Inhabited α]
     [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α}
     (h' : m₁.contains k = false) :
     (m₁.union m₂).getKey! k = m₂.getKey! k := by
   revert h'
   simp_to_model [getKey!, contains, union] using List.getKeyD_insertList_of_contains_eq_false_left
 
-theorem getKey!_union_of_contains_right_eq_false [Inhabited α]
+theorem getKey!_union_of_contains_eq_false_right [Inhabited α]
     [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α}
     (h' : m₂.contains k = false) :
     (m₁.union m₂).getKey! k = m₁.getKey! k := by

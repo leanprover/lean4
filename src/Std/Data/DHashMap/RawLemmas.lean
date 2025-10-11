@@ -2112,7 +2112,7 @@ theorem getKey!_union_of_contains_left_eq_false [Inhabited α]
     (m₁ ∪ m₂).getKey! k = m₂.getKey! k := by
   revert h'
   simp only [Union.union]
-  simp_to_raw using Raw₀.getKey!_union_of_contains_left_eq_false
+  simp_to_raw using getKey!_union_of_contains_eq_false_left
 
 theorem getKey!_union_of_contains_right_eq_false [Inhabited α]
     [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α}
@@ -2120,7 +2120,7 @@ theorem getKey!_union_of_contains_right_eq_false [Inhabited α]
     (m₁ ∪ m₂).getKey! k = m₁.getKey! k := by
   revert h'
   simp only [Union.union]
-  simp_to_raw using Raw₀.getKey!_union_of_contains_right_eq_false
+  simp_to_raw using getKey!_union_of_contains_eq_false_right
 
 /- size -/
 theorem size_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)

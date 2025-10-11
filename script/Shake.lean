@@ -294,7 +294,7 @@ def parseHeaderFromString (text path : String) :
     throw <| .userError "parse errors in file"
   -- the insertion point for `add` is the first newline after the imports
   let insertion := header.raw.getTailPos?.getD parserState.pos
-  let insertion := text.findAux (· == '\n') text.endPos insertion + ⟨1⟩
+  let insertion := text.findAux (· == '\n') text.endPos insertion + '\n'
   pure (path, inputCtx, .mk header.raw[2].getArgs, insertion)
 
 /-- Parse a source file to extract the location of the import lines, for edits and error messages.
@@ -332,7 +332,7 @@ def visitModule (srcSearchPath : SearchPath)
   -- Do transitive reduction of `needs` in `deps`.
   let mut deps := needs
   for imp in imports do
-    if imp.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep") then
+    if addOnly || imp.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep") then
       let imp := decodeImport imp
       let j := s.env.getModuleIdx? imp.module |>.get!
       let k := NeedsKind.ofImport imp
@@ -360,7 +360,7 @@ def visitModule (srcSearchPath : SearchPath)
       newDeps := addTransitiveImps newDeps imp j s.transDeps[j]!
     else
       let k := NeedsKind.ofImport imp
-      if !addOnly && !deps.has k j && !deps.has { k with isExported := false } j then
+      if !deps.has k j && !deps.has { k with isExported := false } j then
         toRemove := toRemove.push imp
       else
         newDeps := addTransitiveImps newDeps imp j s.transDeps[j]!
@@ -578,7 +578,7 @@ def main (args : List String) : IO UInt32 := do
       if remove.contains mod || seen.contains mod then
         out := out ++ text.extract pos stx.raw.getPos?.get!
         -- We use the end position of the syntax, but include whitespace up to the first newline
-        pos := text.findAux (· == '\n') text.endPos stx.raw.getTailPos?.get! + ⟨1⟩
+        pos := text.findAux (· == '\n') text.endPos stx.raw.getTailPos?.get! + '\n'
       seen := seen.insert mod
     out := out ++ text.extract pos insertion
     for mod in add do

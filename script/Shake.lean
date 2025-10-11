@@ -360,7 +360,8 @@ def visitModule (srcSearchPath : SearchPath)
       newDeps := addTransitiveImps newDeps imp j s.transDeps[j]!
     else
       let k := NeedsKind.ofImport imp
-      if !deps.has k j && !deps.has { k with isExported := false } j then
+      -- A private import should also be removed if the public version is needed
+      if !deps.has k j || !k.isExported && deps.has { k with isExported := true } j then
         toRemove := toRemove.push imp
       else
         newDeps := addTransitiveImps newDeps imp j s.transDeps[j]!

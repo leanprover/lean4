@@ -43,7 +43,7 @@ TEST_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 export LAKE_CACHE_DIR="$TEST_DIR/.lake/cache"
 
 # Ensure that Lake is run without a toolchain name
-# (so it does not end up in the cache)
+# (so toolchain does not end up in the cache)
 export ELAN_TOOLCHAIN=
 
 echo "# TESTS"
@@ -53,6 +53,10 @@ test_err "must contain exactly one '/'" cache get --repo='invalid'
 test_err 'invalid characters in repository name' cache get --repo='!/invalid'
 
 # Test `cache get` command errors for bad configurations
+test_err 'the `--platform` and `--toolchain` options do nothing' \
+  cache get bogus.jsonl --scope='bogus' --platform='bogus' --wfail
+test_err 'the `--platform` and `--toolchain` options do nothing' \
+  cache get bogus.jsonl --scope='bogus' --toolchain='bogus' --wfail
 test_err 'a custom endpoint must be set (not Reservoir)' cache get --scope='bogus'
 with_cdn_endpoints test_err 'the `--scope` or `--repo` option must be set' cache get
 LAKE_CACHE_ARTIFACT_ENDPOINT=bogus test_err 'both environment variables must be set' cache get
@@ -116,7 +120,7 @@ test_run build +Test --no-build
 test_cmd touch Ignored.lean
 test_cmd git add -f Ignored.lean
 with_upload_endpoints test_err "package has changes" --wfail \
-  cache put .lake/outputs.jsonl  --repo='leanprover/bogus'
+  cache put .lake/outputs.jsonl --repo='leanprover/bogus'
 test_err "package has changes" --wfail cache get --repo='leanprover/bogus'
 test_cmd git commit -m "v2"
 

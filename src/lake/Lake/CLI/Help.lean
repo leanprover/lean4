@@ -342,34 +342,34 @@ The cache service used can be configured via the environment variables:
   LAKE_CACHE_ARTIFACT_ENDPOINT  base URL for artifact downloads
   LAKE_CACHE_REVISION_ENDPOINT  base URL for the mapping download
 
-If neither of these are set, Lake will use Reservoir instead.
+If neither of these are set, Lake will use Reservoir.
 
 If an input-to-outputs mappings file, `--scope`, or `--repo` is provided,
-Lake will download artifacts for the root package. Otherwise, it will download
-artifacts for each package in the root's dependency tree in order (using
-Reservoir). Non-Reservoir dependencies will be skipped.
+Lake will download artifacts for the root package. Otherwise, it will use
+Reservoir to download artifacts for each dependency in workspace (in order).
+Non-Reservoir dependencies will be skipped.
 
-To determine the artifacts to download, Lake looks up the input-to-output
-mappings for a given build of the package in the cache service. This mapping
+To determine the artifacts to download, Lake searches for input-to-output
+mappings for a given build of the package via the cache service. This mapping
 is identified by a Git revision and prefixed with a scope derived from the
 package's name, GitHub repository, Lean toolchain, and current platform.
 The exact configuration can be customized using options.
 
 For Reservoir, setting `--repo` will make Lake lookup artifacts for the root
-package  by a repository name, rather than the package's. This can be used to
+package by a repository name, rather than the package's. This can be used to
 download artifacts for a fork of the Reservoir package (if such artifacts are
-available). The `--platform` and `--toolchain` options are used to download
-artifacts for a different platform/toolchain configuration then Lake detects.
-For For a custom endpoint, the full prefix Lake uses can be set via  `--scope`.
+available). The `--platform` and `--toolchain` options can be used to download
+artifacts for a different platform/toolchain configuration than Lake detects.
+For a custom endpoint, the full prefix Lake uses can be set via  `--scope`.
 
 If `--rev` is not set, Lake uses the package's current revision to lookup
 artifacts. If no mappings are found, Lake will backtrack the Git history up to
 `--max-revs`, looking for a revision with mappings. If `--max-revs` is 0, Lake
 will search the repository's entire history (or as far as Git will allow).
 
-While downloading, Lake will continue on when a download for an artifact
-fails or if the download process for a whole package fails. However, it will
-report this and exit with a nonzero status code in such cases."
+If a download for an artifact fails or the download process for a whole
+package fails, Lake will report this and continue on to the next. Once done,
+if any download failed, Lake will exit with a nonzero status code."
 
 def helpCachePut :=
 "Upload artifacts from the Lake cache to a remote service
@@ -398,14 +398,16 @@ clashes. This scoped is configured with the following options:
   --platform=<target-triple>      with --repo, sets the platform
 
 At least one of `--scope` or `--repo` must be set. If `--repo` is used, Lake
-will augment this scope with toolchain and platform information as it deems
-necessary. If `--scope` is set, Lake will use that scope verbatim.
+will produce a scope by augmenting the repository with toolchain and platform
+information as it deems necessary. If `--scope` is set, Lake will use the
+specified scope verbatim.
 
-Artifacts are uploaded to the artifact endpoint under the repository (or scope)
-with a file name corresponding to their Lake content hash. The mappings file
-is uploaded  to the revision endpoint under the full scope with a file name
-corresponding to the package's current Git revision. As such, the command will
-fail if the the work tree currently has changes."
+Artifacts are uploaded to the artifact endpoint with a file name derived
+from their Lake content hash (and prefixed by the repository or scope).
+The mappings file is uploaded to the revision endpoint with a file name
+derived from the package's current Git revision (and prefixed by the
+full scope). As such, the command will warn if the the work tree currently
+has changes."
 
 def helpScriptCli :=
 "Manage Lake scripts

@@ -200,7 +200,7 @@ public def ble (a b : ToolchainVer) : Bool :=
   | .nightly d1, .nightly d2 => d1 ≤ d2
   | .pr n1, .pr n2 => n1 = n2
   | .other v1, .other v2 => v1 = v2
-  | _, _ => False
+  | _, _ => false
 
 public instance : LE ToolchainVer := ⟨(·.ble ·)⟩
 public instance decLe (a b : ToolchainVer) : Decidable (a ≤ b) :=

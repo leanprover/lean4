@@ -376,11 +376,15 @@ protected def get : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let mappings? ← takeArg?
-  noArgsRem  do
+  noArgsRem do
   let cfg ← mkLoadConfig opts
   let ws ← loadWorkspace cfg
   let cache := ws.lakeCache
-  if let some file := mappings? then
+  if let some file := mappings? then liftM (m := LoggerIO) do
+    if opts.platform?.isSome || opts.toolchain?.isSome then
+      logWarning "the `--platform` and `--toolchain` options do nothing for `cache get` with a mappings file"
+      if .warning ≤ opts.failLv then
+        failure
     let some remoteScope := opts.scope?
       | error "to use `cache get` with a mappings file, `--scope` or `--repo` must be set"
     let service : CacheService :=

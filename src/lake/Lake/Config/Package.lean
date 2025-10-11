@@ -213,6 +213,10 @@ namespace Package
 @[inline] public def platformIndependent (self : Package) : Option Bool :=
   self.config.platformIndependent
 
+/-- Whether the package's  has been configured with `platformIndependent = true`. -/
+@[inline] public def isPlatformIndependent (self : Package) : Bool :=
+  self.config.platformIndependent == some true
+
 /-- The package's `releaseRepo`/`releaseRepo?` configuration. -/
 @[inline] public def releaseRepo? (self : Package) : Option String :=
   self.config.releaseRepo

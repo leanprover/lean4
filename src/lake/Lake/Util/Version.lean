@@ -12,7 +12,6 @@ public import Lake.Util.Date
 /-! # Version
 
 This module contains useful definitions for manipulating versions.
-It also defines a `v!"<ver>"` syntax for version literals.
 -/
 
 open System Lean
@@ -111,20 +110,34 @@ public instance : ToString StdVer := ⟨StdVer.toString⟩
 public instance : ToJson StdVer := ⟨(·.toString)⟩
 public instance : FromJson StdVer := ⟨(do StdVer.parse <| ← fromJson? ·)⟩
 
-/-- A Lean toolchain version. -/
-public inductive ToolchainVer
-| release (ver : LeanVer)
-| nightly (date : Date)
-| pr (no : Nat)
-| other (name : String)
-deriving Repr, DecidableEq
-
-public instance : Coe LeanVer ToolchainVer := ⟨ToolchainVer.release⟩
+/-- The `elan` toolchain file name (i.e., `lean-toolchain`). -/
+public def toolchainFileName : FilePath := "lean-toolchain"
 
 public def ToolchainVer.defaultOrigin := "leanprover/lean4"
 public def ToolchainVer.prOrigin := "leanprover/lean4-pr-releases"
 
-public def ToolchainVer.ofString (ver : String) : ToolchainVer := Id.run do
+public section -- for `@[computed_field]`
+open ToolchainVer in
+/-- A Lean toolchain version. -/
+inductive ToolchainVer
+| release (ver : LeanVer)
+| nightly (date : Date)
+| pr (n : Nat)
+| other (v : String)
+with
+  @[computed_field] toString : ToolchainVer → String
+    | .release ver => s!"{defaultOrigin}:v{ver}"
+    | .nightly date => s!"{defaultOrigin}:nightly-{date}"
+    | .pr n => s!"{prOrigin}:pr-release-{n}"
+    | .other v => v
+deriving Repr, DecidableEq
+end
+
+namespace ToolchainVer
+
+public instance : Coe LeanVer ToolchainVer := ⟨ToolchainVer.release⟩
+
+public def ofString (ver : String) : ToolchainVer := Id.run do
   let colonPos := ver.posOf ':'
   let (origin, tag) :=
     if h : colonPos < ver.endPos then
@@ -132,27 +145,29 @@ public def ToolchainVer.ofString (ver : String) : ToolchainVer := Id.run do
       (ver.extract 0 colonPos, ver.extract pos ver.endPos)
     else
       ("", ver)
+  let noOrigin := origin.isEmpty
   if tag.startsWith "v" then
     if let .ok ver := StdVer.parse (tag.drop 1) then
-      if origin.isEmpty || origin == defaultOrigin then
+      if noOrigin|| origin == defaultOrigin then
         return .release ver
-    return .other ver
-  else if tag.startsWith "nightly-" then
-    if let some date := Date.ofString? (tag.drop "nightly-".length) then
-      if origin.isEmpty || origin == defaultOrigin then
+  else if let some date := tag.dropPrefix? "nightly-" then
+    if let some date := Date.ofString? date.toString then
+      if noOrigin then
         return .nightly date
-  else if tag.startsWith "pr-release-" then
-    if let some n := (tag.drop "pr-release-".length).toNat? then
-      if origin.isEmpty || origin == prOrigin then
+      else if let some suffix := origin.dropPrefix? defaultOrigin then
+        if suffix.isEmpty || suffix == "-nightly".toSubstring then
+          return .nightly date
+  else if let some n := tag.dropPrefix?  "pr-release-" then
+    if let some n := n.toNat? then
+      if noOrigin || origin == prOrigin then
         return .pr n
-  else
-    if let .ok ver := StdVer.parse ver then
-      if origin.isEmpty || origin == defaultOrigin then
-        return .release ver
+  else if let .ok ver := StdVer.parse ver then
+    if noOrigin || origin == defaultOrigin then
+      return .release ver
   return .other ver
 
 /-- Parse a toolchain from a `lean-toolchain` file. -/
-public def ToolchainVer.ofFile? (toolchainFile : FilePath) : IO (Option ToolchainVer) := do
+public def ofFile? (toolchainFile : FilePath) : IO (Option ToolchainVer) := do
   try
     let toolchainString ← IO.FS.readFile toolchainFile
     return some <| ToolchainVer.ofString toolchainString.trim
@@ -161,61 +176,41 @@ public def ToolchainVer.ofFile? (toolchainFile : FilePath) : IO (Option Toolchai
       return none
     | e => throw e
 
-/-- The `elan` toolchain file name (i.e., `lean-toolchain`). -/
-public def toolchainFileName : FilePath := "lean-toolchain"
-
 /-- Parse a toolchain from the `lean-toolchain` file of the directory `dir`. -/
-@[inline] public def ToolchainVer.ofDir? (dir : FilePath) : IO (Option ToolchainVer) :=
+@[inline] public def ofDir? (dir : FilePath) : IO (Option ToolchainVer) :=
   ToolchainVer.ofFile? (dir / toolchainFileName)
-
-public protected def ToolchainVer.toString (ver : ToolchainVer) : String :=
-  match ver with
-  | .release ver => s!"{defaultOrigin}:v{ver}"
-  | .nightly date => s!"{defaultOrigin}:nightly-{date}"
-  | .pr n => s!"{prOrigin}:pr-release-{n}"
-  | .other s => s
 
 public instance : ToString ToolchainVer := ⟨ToolchainVer.toString⟩
 public instance : ToJson ToolchainVer := ⟨(·.toString)⟩
 public instance : FromJson ToolchainVer := ⟨(ToolchainVer.ofString <$> fromJson? ·)⟩
 
-@[expose] public def ToolchainVer.lt (a b : ToolchainVer) : Prop :=
+public def blt (a b : ToolchainVer) : Bool :=
   match a, b with
   | .release v1, .release v2 => v1 < v2
   | .nightly d1, .nightly d2 => d1 < d2
-  | _, _ => False
+  | _, _ => false
 
-public instance : LT ToolchainVer := ⟨ToolchainVer.lt⟩
+public instance : LT ToolchainVer := ⟨(·.blt ·)⟩
+public instance decLt (a b : ToolchainVer) : Decidable (a < b) :=
+  decidable_of_bool (a.blt b) Iff.rfl
 
-public instance ToolchainVer.decLt (a b : ToolchainVer) : Decidable (a < b) :=
-  match a, b with
-  | .release v1, .release v2 => inferInstanceAs (Decidable (v1 < v2))
-  | .nightly d1, .nightly d2 => inferInstanceAs (Decidable (d1 < d2))
-  | .release _, .pr _ | .release _, .nightly _ | .release _, .other _
-  | .nightly _, .release _ | .nightly _, .pr _ | .nightly _, .other _
-  | .pr _, _ | .other _, _ => .isFalse (by simp [LT.lt, ToolchainVer.lt])
-
-@[expose] public def ToolchainVer.le (a b : ToolchainVer) : Prop :=
+public def ble (a b : ToolchainVer) : Bool :=
   match a, b with
   | .release v1, .release v2 => v1 ≤ v2
   | .nightly d1, .nightly d2 => d1 ≤ d2
   | .pr n1, .pr n2 => n1 = n2
   | .other v1, .other v2 => v1 = v2
-  | _, _ => False
+  | _, _ => false
 
-public instance : LE ToolchainVer := ⟨ToolchainVer.le⟩
+public instance : LE ToolchainVer := ⟨(·.ble ·)⟩
+public instance decLe (a b : ToolchainVer) : Decidable (a ≤ b) :=
+  decidable_of_bool (a.ble b) Iff.rfl
 
-public instance ToolchainVer.decLe (a b : ToolchainVer) : Decidable (a ≤ b) :=
-  match a, b with
-  | .release v1, .release v2 => inferInstanceAs (Decidable (v1 ≤ v2))
-  | .nightly d1, .nightly d2 => inferInstanceAs (Decidable (d1 ≤ d2))
-  | .pr n1, .pr n2 => inferInstanceAs (Decidable (n1 = n2))
-  | .other v1, .other v2 => inferInstanceAs (Decidable (v1 = v2))
-  | .release _, .pr _ | .release _, .nightly _ | .release _, .other _
-  | .nightly _, .release _ | .nightly _, .pr _ | .nightly _, other _
-  | .pr _, .release _ | .pr _, .nightly _ |  .pr _, .other _
-  | .other _, .release _ | .other _, .nightly _ | .other _, .pr _ =>
-    .isFalse (by simp [LE.le, ToolchainVer.le])
+end ToolchainVer
+
+/-- Converts a toolchain version to its normal form (e.g., with an origin). -/
+public def normalizeToolchain (s : String) : String :=
+  ToolchainVer.ofString s |>.toString
 
 /-- Parses a version from a string. -/
 public class DecodeVersion (α : Type u) where

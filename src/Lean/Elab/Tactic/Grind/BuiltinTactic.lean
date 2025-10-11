@@ -102,8 +102,8 @@ def evalCheck (tacticName : Name) (k : GoalM Bool)
 @[builtin_grind_tactic ac] def evalAC : GrindTactic := fun _ => do
   evalCheck `ac AC.check AC.pp?
 
-@[builtin_grind_tactic instantiate] def evalInstantiate : GrindTactic := fun _ => do
-  let progress ← liftGoalM <| ematch
+def ematchThms (thms : Array EMatchTheorem) : GrindTacticM Unit := do
+  let progress ← liftGoalM <| if thms.isEmpty then ematch else ematchTheorems thms
   unless progress do
     throwError "`instantiate` tactic failed to instantiate new facts, use `show_patterns` to see active theorems and their patterns."
   let goal ← getMainGoal
@@ -111,6 +111,78 @@ def evalCheck (tacticName : Name) (k : GoalM Bool)
     discard <| assertAll
     getGoal
   replaceMainGoal [goal]
+
+@[builtin_grind_tactic instantiate] def evalInstantiate : GrindTactic := fun stx => do
+  match stx with
+  | `(grind| instantiate $[$thmRefs:thm],*) =>
+    let mut thms := #[]
+    for thmRef in thmRefs do
+      match thmRef with
+      | `(Parser.Tactic.Grind.thm| #$n:hexnum) => throwError "NIY anchor {n}"
+      | `(Parser.Tactic.Grind.thm| $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id false)
+      | `(Parser.Tactic.Grind.thm| ! $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id false)
+      | _ => throwErrorAt thmRef "unexpected theorem reference"
+    ematchThms thms
+  | _ => throwUnsupportedSyntax
+where
+  ensureNoMinIndexable (minIndexable : Bool) : MetaM Unit := do
+    if minIndexable then
+      throwError "redundant modifier `!` in `grind` parameter"
+
+  addEMatchTheorem (declName : Name) (kind : Grind.EMatchTheoremKind) (minIndexable : Bool) : GrindTacticM (Array EMatchTheorem) := do
+    let params := (← read).params
+    let info ← getAsyncConstInfo declName
+    match info.kind with
+    | .thm | .axiom | .ctor =>
+      match kind with
+      | .eqBoth gen =>
+        ensureNoMinIndexable minIndexable
+        let thm₁ ← Grind.mkEMatchTheoremForDecl declName (.eqLhs gen) params.symPrios
+        let thm₂ ← Grind.mkEMatchTheoremForDecl declName (.eqRhs gen) params.symPrios
+        return #[thm₁, thm₂]
+      | _ =>
+        if kind matches .eqLhs _ | .eqRhs _ then
+          ensureNoMinIndexable minIndexable
+        let thm ← Grind.mkEMatchTheoremForDecl declName kind params.symPrios (minIndexable := minIndexable)
+        return #[thm]
+    | .defn =>
+      if (← isReducible declName) then
+        throwError "`{.ofConstName declName}` is a reducible definition, `grind` automatically unfolds them"
+      if !kind.isEqLhs && !kind.isDefault then
+        throwError "invalid `grind` parameter, `{.ofConstName declName}` is a definition, the only acceptable (and redundant) modifier is '='"
+      ensureNoMinIndexable minIndexable
+      let some thms ← Grind.mkEMatchEqTheoremsForDef? declName
+        | throwError "failed to generate equation theorems for `{.ofConstName declName}`"
+      return thms
+    | _ =>
+      throwError "invalid `grind` parameter, `{.ofConstName declName}` is not a theorem, definition, or inductive type"
+
+  elabThm
+      (mod? : Option (TSyntax `Lean.Parser.Attr.grindMod))
+      (id : TSyntax `ident)
+      (minIndexable : Bool) : GrindTacticM (Array EMatchTheorem) := do
+    let declName ← realizeGlobalConstNoOverloadWithInfo id
+    let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
+    match kind with
+    | .ematch .user =>
+      ensureNoMinIndexable minIndexable
+      let s ← Grind.getEMatchTheorems
+      let thms := s.find (.decl declName)
+      let thms := thms.filter fun thm => thm.kind == .user
+      if thms.isEmpty then
+        throwError "invalid use of `usr` modifier, `{.ofConstName declName}` does not have patterns specified with the command `grind_pattern`"
+      return thms.toArray
+    | .ematch kind =>
+      addEMatchTheorem declName kind minIndexable
+    | .infer =>
+      let goal ← getMainGoal
+      let thms := goal.ematch.thmMap.find (.decl declName)
+      if thms.isEmpty then
+        addEMatchTheorem declName (.default false) minIndexable
+      else
+        return thms.toArray
+    | .cases _ | .intro | .inj | .ext | .symbol _ =>
+      throwError "invalid modifier"
 
 @[builtin_grind_tactic cases] def evalCases : GrindTactic := fun stx => do
   match stx with

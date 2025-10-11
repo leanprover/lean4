@@ -160,9 +160,9 @@ def pushIfSome (msgs : Array MessageData) (msg? : Option MessageData) : Array Me
     let filter ← elabFilter filter?
     let msgs := #[]
     let msgs := pushIfSome msgs (← ppAsserted? filter (collapsed := true))
-    let msgs := pushIfSome msgs (← ppProps? filter true (collapsed := true))
-    let msgs := pushIfSome msgs (← ppProps? filter false (collapsed := true))
-    let msgs := pushIfSome msgs (← ppEqcs? filter (collapsed := true))
+    let msgs := pushIfSome msgs (← ppProps? filter true (collapsed := false))
+    let msgs := pushIfSome msgs (← ppProps? filter false (collapsed := false))
+    let msgs := pushIfSome msgs (← ppEqcs? filter (collapsed := false))
     logInfo <| MessageData.trace { cls := `grind, collapsed := false } "Grind state" msgs
   | _ => throwUnsupportedSyntax
 

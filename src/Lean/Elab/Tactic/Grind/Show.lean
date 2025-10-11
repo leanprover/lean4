@@ -166,21 +166,21 @@ def pushIfSome (msgs : Array MessageData) (msg? : Option MessageData) : Array Me
     logInfo <| MessageData.trace { cls := `grind, collapsed := false } "Grind state" msgs
   | _ => throwUnsupportedSyntax
 
-def truncateAnchors (es : Array (Expr × UInt64)) : Array (Expr × UInt64) × Nat :=
+def truncateAnchors (es : Array (UInt64 × α)) : Array (UInt64 × α) × Nat :=
   go 4
 where
-  go (numDigits : Nat) : Array (Expr × UInt64) × Nat := Id.run do
+  go (numDigits : Nat) : Array (UInt64 × α) × Nat := Id.run do
     if 4*numDigits  < 64 then
       let shift := 64 - 4*numDigits
       let mut found : Std.HashSet UInt64 := {}
       let mut result := #[]
-      for (e, a) in es do
+      for (a, e) in es do
         let a' := a >>> shift.toUInt64
         if found.contains a' then
           return (← go (numDigits+1))
         else
           found  := found.insert a'
-          result := result.push (e, a')
+          result := result.push (a', e)
       return (result, numDigits)
     else
       return (es, numDigits)
@@ -211,14 +211,41 @@ def anchorToString (numDigits : Nat) (anchor : UInt64) : String :=
       filter.eval e
     -- **TODO**: Add an option for including propositions that are only considered when using `+splitImp`
     -- **TODO**: Add an option for including terms whose type is an inductive predicate or type
-    let candidates := candidates.map fun (e, _, anchor) => (e, anchor)
+    let candidates := candidates.map fun (e, _, anchor) => (anchor, e)
     let (candidates, numDigits) := truncateAnchors candidates
     if candidates.isEmpty then
       throwError "no case splits"
-    let msgs := candidates.map fun (e, a) =>
+    let msgs := candidates.map fun (a, e) =>
       .trace { cls := `split } m!"#{anchorToString numDigits a} := {e}" #[]
     let msg := MessageData.trace { cls := `splits, collapsed := false } "Case split candidates" msgs
     logInfo msg
   | _ => throwUnsupportedSyntax
+
+@[builtin_grind_tactic showThms] def evalShowThms : GrindTactic := fun _ => withMainContext do
+  let goal ← getMainGoal
+  let entries ← liftGrindM do
+    let (found, entries) ← go {} {} goal.ematch.thms
+    let (_, entries) ← go found entries goal.ematch.newThms
+    pure entries
+  let (entries, numDigits) := truncateAnchors entries
+  let msgs := entries.map fun (a, e) =>
+    .trace { cls := `thm } m!"#{anchorToString numDigits a} := {e}" #[]
+  let msg := MessageData.trace { cls := `thms, collapsed := false } "Local theorems" msgs
+  logInfo msg
+where
+  go (found : Std.HashSet Grind.Origin) (result : Array (UInt64 × Expr)) (thms : PArray EMatchTheorem)
+      : GrindM (Std.HashSet Grind.Origin × Array (UInt64 × Expr)) := do
+    let mut found := found
+    let mut result := result
+    for thm in thms do
+      -- **Note**: we only display local theorems
+      if thm.origin matches .local _ | .fvar _ then
+      unless found.contains thm.origin do
+        found := found.insert thm.origin
+        let type ← inferType thm.proof
+        let anchor ← getAnchor type
+        result := result.push (anchor, type)
+        pure ()
+    return (found, result)
 
 end Lean.Elab.Tactic.Grind

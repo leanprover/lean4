@@ -71,17 +71,19 @@ syntax showFilter := (colGt show_filter)?
 
 -- **Note**: Should we rename the following tactics to `trace_`?
 /-- Shows asserted facts. -/
-syntax (name := showAsserted) "show_asserted " showFilter : grind
+syntax (name := showAsserted) "show_asserted" ppSpace showFilter : grind
 /-- Shows propositions known to be `True`. -/
-syntax (name := showTrue) "show_true " showFilter : grind
+syntax (name := showTrue) "show_true" ppSpace showFilter : grind
 /-- Shows propositions known to be `False`. -/
-syntax (name := showFalse) "show_false " showFilter : grind
+syntax (name := showFalse) "show_false" ppSpace showFilter : grind
 /-- Shows equivalence classes of terms. -/
-syntax (name := showEqcs) "show_eqcs " showFilter : grind
+syntax (name := showEqcs) "show_eqcs" ppSpace showFilter : grind
 /-- Show case-split candidates. -/
-syntax (name := showSplits) "show_splits " showFilter : grind
+syntax (name := showSplits) "show_splits" ppSpace showFilter : grind
 /-- Show `grind` state. -/
-syntax (name := «showState») "show_state " showFilter : grind
+syntax (name := «showState») "show_state" ppSpace showFilter : grind
+/-- Show active local theorems and their anchors for heuristic instantiation. -/
+syntax (name := showThms) "show_thms" : grind
 
 declare_syntax_cat grind_ref (behavior := both)
 

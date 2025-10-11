@@ -102,8 +102,8 @@ def evalCheck (tacticName : Name) (k : GoalM Bool)
 @[builtin_grind_tactic ac] def evalAC : GrindTactic := fun _ => do
   evalCheck `ac AC.check AC.pp?
 
-@[builtin_grind_tactic instantiate] def evalInstantiate : GrindTactic := fun _ => do
-  let progress ← liftGoalM <| ematch
+def ematchThms (thms : Array EMatchTheorem) : GrindTacticM Unit := do
+  let progress ← liftGoalM <| if thms.isEmpty then ematch else ematchTheorems thms
   unless progress do
     throwError "`instantiate` tactic failed to instantiate new facts, use `show_patterns` to see active theorems and their patterns."
   let goal ← getMainGoal
@@ -112,14 +112,110 @@ def evalCheck (tacticName : Name) (k : GoalM Bool)
     getGoal
   replaceMainGoal [goal]
 
+def elabAnchor (anchor : TSyntax `hexnum) : CoreM (Nat × UInt64) := do
+  let numDigits := anchor.getHexNumSize
+  let val := anchor.getHexNumVal
+  if val >= UInt64.size then
+    throwError "invalid anchor, value is too big"
+  let val := val.toUInt64
+  return (numDigits, val)
+
+@[builtin_grind_tactic instantiate] def evalInstantiate : GrindTactic := fun stx => withMainContext do
+  match stx with
+  | `(grind| instantiate $[$thmRefs:thm],*) =>
+    let mut thms := #[]
+    for thmRef in thmRefs do
+      match thmRef with
+      | `(Parser.Tactic.Grind.thm| #$anchor:hexnum) => thms := thms ++ (← withRef thmRef <| elabLocalEMatchTheorem anchor)
+      | `(Parser.Tactic.Grind.thm| $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id false)
+      | `(Parser.Tactic.Grind.thm| ! $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id true)
+      | _ => throwErrorAt thmRef "unexpected theorem reference"
+    ematchThms thms
+  | _ => throwUnsupportedSyntax
+where
+  collectThms (numDigits : Nat) (anchorPrefix : UInt64) (thms : PArray EMatchTheorem) : StateT (Array EMatchTheorem) GrindM Unit := do
+    for thm in thms do
+      -- **Note**: `anchors` are cached using pointer addresses, if this is a performance issue, we should
+      -- cache the theorem types.
+      let type ← inferType thm.proof
+      let anchor ← getAnchor type
+      if isAnchorPrefix numDigits anchorPrefix anchor then
+        modify (·.push thm)
+
+  elabLocalEMatchTheorem (anchor : TSyntax `hexnum) : GrindTacticM (Array EMatchTheorem) := do
+    let (numDigits, anchorPrefix) ← elabAnchor anchor
+    let goal ← getMainGoal
+    let thms ← liftGrindM do StateT.run' (s := #[]) do
+      collectThms numDigits anchorPrefix goal.ematch.thms
+      collectThms numDigits anchorPrefix goal.ematch.newThms
+      get
+    if thms.isEmpty then
+      throwError "no local theorems"
+    return thms
+
+  ensureNoMinIndexable (minIndexable : Bool) : MetaM Unit := do
+    if minIndexable then
+      throwError "redundant modifier `!` in `grind` parameter"
+
+  elabEMatchTheorem (declName : Name) (kind : Grind.EMatchTheoremKind) (minIndexable : Bool) : GrindTacticM (Array EMatchTheorem) := do
+    let params := (← read).params
+    let info ← getAsyncConstInfo declName
+    match info.kind with
+    | .thm | .axiom | .ctor =>
+      match kind with
+      | .eqBoth gen =>
+        ensureNoMinIndexable minIndexable
+        let thm₁ ← Grind.mkEMatchTheoremForDecl declName (.eqLhs gen) params.symPrios
+        let thm₂ ← Grind.mkEMatchTheoremForDecl declName (.eqRhs gen) params.symPrios
+        return #[thm₁, thm₂]
+      | _ =>
+        if kind matches .eqLhs _ | .eqRhs _ then
+          ensureNoMinIndexable minIndexable
+        let thm ← Grind.mkEMatchTheoremForDecl declName kind params.symPrios (minIndexable := minIndexable)
+        return #[thm]
+    | .defn =>
+      if (← isReducible declName) then
+        throwError "`{.ofConstName declName}` is a reducible definition, `grind` automatically unfolds them"
+      if !kind.isEqLhs && !kind.isDefault then
+        throwError "invalid `grind` parameter, `{.ofConstName declName}` is a definition, the only acceptable (and redundant) modifier is '='"
+      ensureNoMinIndexable minIndexable
+      let some thms ← Grind.mkEMatchEqTheoremsForDef? declName
+        | throwError "failed to generate equation theorems for `{.ofConstName declName}`"
+      return thms
+    | _ =>
+      throwError "invalid `grind` parameter, `{.ofConstName declName}` is not a theorem, definition, or inductive type"
+
+  elabThm
+      (mod? : Option (TSyntax `Lean.Parser.Attr.grindMod))
+      (id : TSyntax `ident)
+      (minIndexable : Bool) : GrindTacticM (Array EMatchTheorem) := do
+    let declName ← realizeGlobalConstNoOverloadWithInfo id
+    let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
+    match kind with
+    | .ematch .user =>
+      ensureNoMinIndexable minIndexable
+      let s ← Grind.getEMatchTheorems
+      let thms := s.find (.decl declName)
+      let thms := thms.filter fun thm => thm.kind == .user
+      if thms.isEmpty then
+        throwError "invalid use of `usr` modifier, `{.ofConstName declName}` does not have patterns specified with the command `grind_pattern`"
+      return thms.toArray
+    | .ematch kind =>
+      elabEMatchTheorem declName kind minIndexable
+    | .infer =>
+      let goal ← getMainGoal
+      let thms := goal.ematch.thmMap.find (.decl declName)
+      if thms.isEmpty then
+        elabEMatchTheorem declName (.default false) minIndexable
+      else
+        return thms.toArray
+    | .cases _ | .intro | .inj | .ext | .symbol _ =>
+      throwError "invalid modifier"
+
 @[builtin_grind_tactic cases] def evalCases : GrindTactic := fun stx => do
   match stx with
   | `(grind| cases #$anchor:hexnum) =>
-    let numDigits := anchor.getHexNumSize
-    let val := anchor.getHexNumVal
-    if val >= UInt64.size then
-      throwError "invalid anchor, value is too big"
-    let val := val.toUInt64
+    let (numDigits, val) ← elabAnchor anchor
     let goal ← getMainGoal
     let candidates := goal.split.candidates
     let (goals, genNew) ← liftSearchM do

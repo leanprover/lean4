@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Core
-public import Init.Grind.Attr
 public import Init.Grind.Interactive
 public section
 namespace Lean.Grind
@@ -209,14 +208,11 @@ namespace Lean.Parser.Tactic
 /-!
 `grind` tactic and related tactics.
 -/
-
 syntax grindErase    := "-" ident
-syntax grindLemma    := ppGroup((Attr.grindMod ppSpace)? ident)
 /--
 The `!` modifier instructs `grind` to consider only minimal indexable subexpressions
 when selecting patterns.
 -/
-syntax grindLemmaMin := ppGroup("!" (Attr.grindMod ppSpace)? ident)
 syntax grindParam    := grindErase <|> grindLemma <|> grindLemmaMin
 
 open Parser.Tactic.Grind

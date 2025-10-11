@@ -6,8 +6,18 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Tactics
+public import Init.Grind.Attr
 public section
-namespace Lean.Parser.Tactic.Grind
+namespace Lean.Parser.Tactic
+
+syntax grindLemma    := ppGroup((Attr.grindMod ppSpace)? ident)
+/--
+The `!` modifier instructs `grind` to consider only minimal indexable subexpressions
+when selecting patterns.
+-/
+syntax grindLemmaMin := ppGroup("!" (Attr.grindMod ppSpace)? ident)
+
+namespace Grind
 
 /-- `grind` is the syntax category for a "grind interactive tactic".
 A `grind` tactic is a program which receives a `grind` goal. -/
@@ -35,8 +45,11 @@ syntax (name := linarith) "linarith" : grind
 /-- The `sorry` tactic is a temporary placeholder for an incomplete tactic proof. -/
 syntax (name := «sorry») "sorry" : grind
 
+syntax anchor := "#" noWs hexnum
+syntax thm := anchor <|> grindLemma <|> grindLemmaMin
+
 /-- Instantiates theorems using E-matching. -/
-syntax (name := instantiate) "instantiate" : grind
+syntax (name := instantiate) "instantiate" (colGt thm),* : grind
 
 declare_syntax_cat show_filter (behavior := both)
 
@@ -58,21 +71,23 @@ syntax showFilter := (colGt show_filter)?
 
 -- **Note**: Should we rename the following tactics to `trace_`?
 /-- Shows asserted facts. -/
-syntax (name := showAsserted) "show_asserted " showFilter : grind
+syntax (name := showAsserted) "show_asserted" ppSpace showFilter : grind
 /-- Shows propositions known to be `True`. -/
-syntax (name := showTrue) "show_true " showFilter : grind
+syntax (name := showTrue) "show_true" ppSpace showFilter : grind
 /-- Shows propositions known to be `False`. -/
-syntax (name := showFalse) "show_false " showFilter : grind
+syntax (name := showFalse) "show_false" ppSpace showFilter : grind
 /-- Shows equivalence classes of terms. -/
-syntax (name := showEqcs) "show_eqcs " showFilter : grind
+syntax (name := showEqcs) "show_eqcs" ppSpace showFilter : grind
 /-- Show case-split candidates. -/
-syntax (name := showSplits) "show_splits " showFilter : grind
+syntax (name := showSplits) "show_splits" ppSpace showFilter : grind
 /-- Show `grind` state. -/
-syntax (name := «showState») "show_state " showFilter : grind
+syntax (name := «showState») "show_state" ppSpace showFilter : grind
+/-- Show active local theorems and their anchors for heuristic instantiation. -/
+syntax (name := showThms) "show_thms" : grind
 
 declare_syntax_cat grind_ref (behavior := both)
 
-syntax:max "#" noWs hexnum : grind_ref
+syntax:max anchor : grind_ref
 syntax term : grind_ref
 
 syntax (name := cases) "cases " grind_ref (" with " (colGt ident)+)? : grind
@@ -143,4 +158,5 @@ macro "admit" : grind => `(grind| sorry)
 /-- `fail msg` is a tactic that always fails, and produces an error using the given message. -/
 syntax (name := fail) "fail" (ppSpace str)? : grind
 
-end Lean.Parser.Tactic.Grind
+end Grind
+end Lean.Parser.Tactic

@@ -347,3 +347,60 @@ example {y z x : Int} : y = (z+1)*2 → x*y = 1 → x = 0 := by
   grind -verbose =>
     ring
     sorry
+
+example (as bs cs : Array α) (v₁ v₂ : α)
+        (i₁ i₂ j : Nat)
+        (h₁ : i₁ < as.size)
+        (h₂ : bs = as.set i₁ v₁)
+        (h₃ : i₂ < bs.size)
+        (h₃ : cs = bs.set i₂ v₂)
+        (h₄ : i₁ ≠ j ∧ i₂ ≠ j)
+        (h₅ : j < cs.size)
+        (h₆ : j < as.size)
+        : cs[j] = as[j] := by
+  grind =>
+    instantiate Array.getElem_set
+    instantiate Array.getElem_set
+
+example (as bs cs : Array α) (v₁ v₂ : α)
+        (i₁ i₂ j : Nat)
+        (h₁ : i₁ < as.size)
+        (h₂ : bs = as.set i₁ v₁)
+        (h₃ : i₂ < bs.size)
+        (h₃ : cs = bs.set i₂ v₂)
+        (h₄ : i₁ ≠ j ∧ i₂ ≠ j)
+        (h₅ : j < cs.size)
+        (h₆ : j < as.size)
+        : cs[j] = as[j] := by
+  grind =>
+    instantiate = Array.getElem_set
+    instantiate ← Array.getElem_set
+
+opaque p : Nat → Prop
+opaque q : Nat → Prop
+opaque f : Nat → Nat
+opaque finv : Nat → Nat
+
+axiom pq : p x → q x
+axiom fInj : finv (f x) = x
+
+example : f x = f y → p x → q y := by
+  grind =>
+    instantiate →pq, !fInj
+
+/--
+trace: [thms] Local theorems
+  [thm] #c5bb := ∀ (x : Nat), q x
+  [thm] #bfb8 := ∀ (x : Nat), p x → p (f x)
+-/
+#guard_msgs in
+example : (∀ x, q x) → (∀ x, p x → p (f x)) → p x → p (f (f x)) := by
+  grind =>
+    show_thms
+    instantiate #bfb8
+
+/-- error: no local theorems -/
+#guard_msgs in
+example : (∀ x, q x) → (∀ x, p x → p (f x)) → p x → p (f (f x)) := by
+  grind =>
+    instantiate #abcd

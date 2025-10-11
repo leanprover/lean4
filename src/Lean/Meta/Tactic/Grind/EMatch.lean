@@ -727,4 +727,16 @@ def ematch : GoalM Bool := do
   ematchCore
   return (← get).ematch.numInstances != numInstances
 
+/-- Performs one round of E-matching using the giving theorems, and returns `true` if new instances were generated. -/
+def ematchTheorems (thms : Array EMatchTheorem) : GoalM Bool := do
+  let numInstances := (← get).ematch.numInstances
+  go |>.run'
+  return (← get).ematch.numInstances != numInstances
+where
+  go : EMatch.M Unit := do profileitM Exception "grind ematch" (← getOptions) do
+    withReader (fun ctx => { ctx with useMT := false }) do
+      if (← checkMaxInstancesExceeded <||> checkMaxEmatchExceeded) then
+        return ()
+      thms.forM ematchTheorem
+
 end Lean.Meta.Grind

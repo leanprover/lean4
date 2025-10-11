@@ -387,3 +387,20 @@ axiom fInj : finv (f x) = x
 example : f x = f y → p x → q y := by
   grind =>
     instantiate →pq, !fInj
+
+/--
+trace: [thms] Local theorems
+  [thm] #c5bb := ∀ (x : Nat), q x
+  [thm] #bfb8 := ∀ (x : Nat), p x → p (f x)
+-/
+#guard_msgs in
+example : (∀ x, q x) → (∀ x, p x → p (f x)) → p x → p (f (f x)) := by
+  grind =>
+    show_thms
+    instantiate #bfb8
+
+/-- error: no local theorems -/
+#guard_msgs in
+example : (∀ x, q x) → (∀ x, p x → p (f x)) → p x → p (f (f x)) := by
+  grind =>
+    instantiate #abcd

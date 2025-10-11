@@ -238,11 +238,12 @@ where
     let mut found := found
     let mut result := result
     for thm in thms do
-      -- **Note**: we only display local theorems
+      -- **Note**: We only display local theorems
       if thm.origin matches .local _ | .fvar _ then
       unless found.contains thm.origin do
         found := found.insert thm.origin
         let type ← inferType thm.proof
+        -- **Note**: Evaluate how stable these anchors are.
         let anchor ← getAnchor type
         result := result.push (anchor, type)
         pure ()

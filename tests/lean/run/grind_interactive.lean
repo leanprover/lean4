@@ -376,6 +376,19 @@ example (as bs cs : Array α) (v₁ v₂ : α)
     instantiate = Array.getElem_set
     instantiate ← Array.getElem_set
 
+example (as bs cs : Array α) (v₁ v₂ : α)
+        (i₁ i₂ j : Nat)
+        (h₁ : i₁ < as.size)
+        (h₂ : bs = as.set i₁ v₁)
+        (h₃ : i₂ < bs.size)
+        (h₃ : cs = bs.set i₂ v₂)
+        (h₄ : i₁ ≠ j ∧ i₂ ≠ j)
+        (h₅ : j < cs.size)
+        (h₆ : j < as.size)
+        : cs[j] = as[j] := by
+  grind =>
+    repeat instantiate =Array.getElem_set
+
 opaque p : Nat → Prop
 opaque q : Nat → Prop
 opaque f : Nat → Nat

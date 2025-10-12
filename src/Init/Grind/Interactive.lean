@@ -158,5 +158,16 @@ macro "admit" : grind => `(grind| sorry)
 /-- `fail msg` is a tactic that always fails, and produces an error using the given message. -/
 syntax (name := fail) "fail" (ppSpace str)? : grind
 
+/--
+`repeat tac` repeatedly applies `tac` so long as it succeeds.
+The tactic `tac` may be a tactic sequence, and if `tac` fails at any point in its execution,
+`repeat` will revert any partial changes that `tac` made to the tactic state.
+The tactic `tac` should eventually fail, otherwise `repeat tac` will run indefinitely.
+-/
+syntax "repeat " grindSeq : grind
+
+macro_rules
+  | `(grind| repeat $seq) => `(grind| first | ($seq); repeat $seq | skip)
+
 end Grind
 end Lean.Parser.Tactic

@@ -1461,6 +1461,7 @@ structure SolverExtension (σ : Type) where private mk ::
   mbtc        : GoalM Bool
   check       : GoalM Bool
   checkInv    : GoalM Unit
+  name        : Name
   deriving Inhabited
 
 private builtin_initialize solverExtensionsRef : IO.Ref (Array (SolverExtension SolverExtensionState)) ← IO.mkRef #[]
@@ -1470,13 +1471,13 @@ Registers a new solver extension for `grind`.
 Solver extensions can only be registered during initialization.
 Reason: We do not use any synchronization primitive to access `solverExtensionsRef`.
 -/
-def registerSolverExtension {σ : Type} (mkInitial   : IO σ) : IO (SolverExtension σ) := do
+def registerSolverExtension {σ : Type} (name : Name) (mkInitial : IO σ) : IO (SolverExtension σ) := do
   unless (← initializing) do
     throw (IO.userError "failed to register `grind` solver, extensions can only be registered during initialization")
   let exts ← solverExtensionsRef.get
   let id := exts.size
   let ext : SolverExtension σ := {
-    id, mkInitial
+    id, name, mkInitial
     internalize := fun _ _ => return ()
     newEq := fun _ _ => return ()
     newDiseq := fun _ _ => return ()

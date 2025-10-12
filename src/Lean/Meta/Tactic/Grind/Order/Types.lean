@@ -144,7 +144,7 @@ structure State where
   cnstrsMapInv : PHashMap ExprPtr (Expr × Expr) := {}
   deriving Inhabited
 
-builtin_initialize orderExt : SolverExtension State ← registerSolverExtension (return {})
+builtin_initialize orderExt : SolverExtension State ← registerSolverExtension `order (return {})
 
 def get' : GoalM State := do
   orderExt.getState

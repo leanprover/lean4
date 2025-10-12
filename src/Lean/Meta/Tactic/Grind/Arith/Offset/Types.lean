@@ -72,6 +72,6 @@ structure State where
   propagate : List ToPropagate := []
   deriving Inhabited
 
-builtin_initialize offsetExt : SolverExtension State ← registerSolverExtension (return {})
+builtin_initialize offsetExt : SolverExtension State ← registerSolverExtension `offset (return {})
 
 end Lean.Meta.Grind.Arith.Offset

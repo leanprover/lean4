@@ -128,6 +128,6 @@ structure State where
   steps := 0
   deriving Inhabited
 
-builtin_initialize acExt : SolverExtension State ← registerSolverExtension (return {})
+builtin_initialize acExt : SolverExtension State ← registerSolverExtension `ac (return {})
 
 end Lean.Meta.Grind.AC

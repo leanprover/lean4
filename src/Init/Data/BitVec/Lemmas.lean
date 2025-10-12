@@ -3753,6 +3753,9 @@ theorem neg_add {x y : BitVec w} : - (x + y) = - x - y := by
   apply eq_of_toInt_eq
   simp [toInt_neg, toInt_add, Int.neg_add, Int.add_neg_eq_sub]
 
+theorem sub_sub (a b c : BitVec n) : a - b - c = a - (b + c) := by
+  simp [BitVec.sub_eq_add_neg, BitVec.add_assoc, BitVec.neg_add]
+
 theorem add_neg_eq_sub {x y : BitVec w} : x + - y = (x - y) := by
   apply eq_of_toInt_eq
   simp [toInt_neg, Int.sub_eq_add_neg]

@@ -105,7 +105,7 @@ private def isPositionInLineComment (text : FileMap) (pos : String.Pos.Raw) : Bo
   let line := text.source.extract lineStartPos lineEndPos
   let some lineCommentPos := lineCommentPosition? line
     | return false
-  return pos >= lineStartPos + lineCommentPos
+  return pos >= lineCommentPos.offsetBy lineStartPos
 
 open CandidateKind in
 def findSignatureHelp? (text : FileMap) (ctx? : Option Lsp.SignatureHelpContext) (cmdStx : Syntax)

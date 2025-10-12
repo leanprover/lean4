@@ -160,7 +160,7 @@ theorem IterM.step_mapM {γ : Type w} {f : β → n γ}
   match step with
   | .yield it' out h =>
     simp only [bind_pure_comp]
-    simp only [PostconditionT.lift, Functor.map]
+    simp only [PostconditionT.lift]
     simp only [PostconditionT.operation_map, Functor.map_map, PlausibleIterStep.skip,
       PlausibleIterStep.yield, bind_map_left, bind_pure_comp]
     rfl
@@ -413,5 +413,482 @@ theorem IterM.toArray_filter {α : Type w} {m : Type w → Type w'} [Monad m] [L
   simp [← toArray_toList, toList_filter]
 
 end ToArray
+
+section Fold
+
+theorem IterM.foldM_filterMapM {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Iterator α m β] [Finite α m]
+    [Monad m] [Monad n] [Monad o] [LawfulMonad m] [LawfulMonad n] [LawfulMonad o]
+    [IteratorLoop α m n] [IteratorLoop α m o]
+    [LawfulIteratorLoop α m n] [LawfulIteratorLoop α m o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    {f : β → n (Option γ)} {g : δ → γ → o δ} {init : δ} {it : IterM (α := α) m β} :
+    haveI : MonadLift n o := ⟨MonadLiftT.monadLift⟩
+    (it.filterMapM f).foldM (init := init) g =
+      it.foldM (init := init) (fun d b => do
+          let some c ← f b | pure d
+          g d c) := by
+  letI : MonadLift n o := ⟨MonadLiftT.monadLift⟩
+  induction it using IterM.inductSteps generalizing init with | step it ihy ihs
+  rw [foldM_eq_match_step, foldM_eq_match_step, step_filterMapM, liftM_bind, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · simp only [PlausibleIterStep.skip, PlausibleIterStep.yield, liftM_bind, bind_assoc]
+    apply bind_congr; intro c?
+    split <;> simp [ihy ‹_›]
+  · simp [ihs ‹_›]
+  · simp
+
+theorem IterM.foldM_mapM {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Iterator α m β] [Finite α m]
+    [Monad m] [Monad n] [Monad o] [LawfulMonad m] [LawfulMonad n] [LawfulMonad o]
+    [IteratorLoop α m n] [IteratorLoop α m o]
+    [LawfulIteratorLoop α m n] [LawfulIteratorLoop α m o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    {f : β → n γ} {g : δ → γ → o δ} {init : δ} {it : IterM (α := α) m β} :
+    haveI : MonadLift n o := ⟨MonadLiftT.monadLift⟩
+    (it.mapM f).foldM (init := init) g =
+      it.foldM (init := init) (fun d b => do let c ← f b; g d c) := by
+  letI : MonadLift n o := ⟨MonadLiftT.monadLift⟩
+  induction it using IterM.inductSteps generalizing init with | step it ihy ihs
+  rw [foldM_eq_match_step, foldM_eq_match_step, step_mapM, liftM_bind, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · simp [ihy ‹_›]
+  · simp [ihs ‹_›]
+  · simp
+
+theorem IterM.foldM_filterMap {α β γ δ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [LawfulMonad m] [LawfulMonad n]
+    [IteratorLoop α m m] [IteratorLoop α m n]
+    [LawfulIteratorLoop α m m] [LawfulIteratorLoop α m n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : β → Option γ} {g : δ → γ → n δ} {init : δ} {it : IterM (α := α) m β} :
+    (it.filterMap f).foldM (init := init) g =
+      it.foldM (init := init) (fun d b => do
+          let some c := f b | pure d
+          g d c) := by
+  induction it using IterM.inductSteps generalizing init with | step it ihy ihs
+  rw [foldM_eq_match_step, foldM_eq_match_step, step_filterMap, liftM_bind, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · split <;> simp [ihy ‹_›, *]
+  · simp [ihs ‹_›]
+  · simp
+
+theorem IterM.foldM_map {α β γ δ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [LawfulMonad m] [LawfulMonad n]
+    [IteratorLoop α m m] [IteratorLoop α m n]
+    [LawfulIteratorLoop α m m] [LawfulIteratorLoop α m n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : β → γ} {g : δ → γ → n δ} {init : δ} {it : IterM (α := α) m β} :
+    (it.map f).foldM (init := init) g =
+      it.foldM (init := init) (fun d b => do g d (f b)) := by
+  induction it using IterM.inductSteps generalizing init with | step it ihy ihs
+  rw [foldM_eq_match_step, foldM_eq_match_step, step_map, liftM_bind, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · simp [ihy ‹_›]
+  · simp [ihs ‹_›]
+  · simp
+
+theorem IterM.fold_filterMapM {α β γ δ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [LawfulMonad m] [LawfulMonad n]
+    [IteratorLoop α m m] [IteratorLoop α m n]
+    [LawfulIteratorLoop α m m] [LawfulIteratorLoop α m n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : β → n (Option γ)} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β} :
+    (it.filterMapM f).fold (init := init) g =
+      it.foldM (init := init) (fun d b => do
+          let some c ← f b | pure d
+          return g d c) := by
+  simp [fold_eq_foldM, foldM_filterMapM]
+
+theorem IterM.fold_mapM {α β γ δ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [LawfulMonad m] [LawfulMonad n]
+    [IteratorLoop α m m] [IteratorLoop α m n]
+    [LawfulIteratorLoop α m m] [LawfulIteratorLoop α m n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : β → n γ} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β} :
+    (it.mapM f).fold (init := init) g =
+      it.foldM (init := init) (fun d b => do let c ← f b; return g d c) := by
+  simp [fold_eq_foldM, foldM_mapM]
+
+theorem IterM.fold_filterMap {α β γ δ : Type w} {m : Type w → Type w'}
+    [Iterator α m β] [Finite α m] [Monad m] [LawfulMonad m]
+    [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {f : β → Option γ} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β} :
+    (it.filterMap f).fold (init := init) g =
+      it.fold (init := init) (fun d b =>
+          match f b with
+          | some c => g d c
+          | _ => d) := by
+  simp [fold_eq_foldM, foldM_filterMap]
+  congr; ext
+  split <;> simp
+
+theorem IterM.fold_map {α β γ δ : Type w} {m : Type w → Type w'}
+    [Iterator α m β] [Finite α m] [Monad m] [LawfulMonad m]
+    [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {f : β → γ} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β} :
+    (it.map f).fold (init := init) g =
+      it.fold (init := init) (fun d b => g d (f b)) := by
+  simp [fold_eq_foldM, foldM_map]
+
+end Fold
+
+section AnyAll
+
+theorem IterM.anyM_filterMapM {α β β' : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [MonadLiftT m n]
+    [LawfulMonad m] [LawfulMonad n]
+    {it : IterM (α := α) m β} {f : β → n (Option β')} {p : β' → n (ULift Bool)} :
+    (it.filterMapM f).anyM p = (it.mapM (pure (f := n))).anyM (fun x => do
+      match ← f x with
+      | some fx => p fx
+      | none => return .up false) := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [anyM_eq_match_step, anyM_eq_match_step, step_filterMapM, step_mapM, bind_assoc, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · simp only [bind_assoc, pure_bind]
+    apply bind_congr; intro fx
+    split
+    · simp [ihy ‹_›]
+    · simp only [PlausibleIterStep.yield, pure_bind]
+      apply bind_congr; intro px
+      split <;> simp [ihy ‹_›]
+  · simp only [PlausibleIterStep.skip, pure_bind, bind_assoc]
+    simp [ihs ‹_›]
+  · simp
+
+theorem IterM.anyM_mapM {α β β' : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [MonadLiftT m n]
+    [LawfulMonad m] [LawfulMonad n]
+    {it : IterM (α := α) m β} {f : β → n β'} {p : β' → n (ULift Bool)} :
+    (it.mapM f).anyM p = (it.mapM (pure (f := n))).anyM (fun x => do p (← f x)) := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [anyM_eq_match_step, anyM_eq_match_step, step_mapM, step_mapM, bind_assoc, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · simp only [bind_assoc, pure_bind]
+    apply bind_congr; intro fx
+    simp [ihy ‹_›]
+  · simp only [PlausibleIterStep.skip, pure_bind, bind_assoc]
+    simp [ihs ‹_›]
+  · simp
+
+theorem IterM.anyM_filterM {α β : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [MonadLiftT m n]
+    [LawfulMonad m] [LawfulMonad n]
+    {it : IterM (α := α) m β} {f : β → n (ULift Bool)} {p : β → n (ULift Bool)} :
+    (it.filterM f).anyM p = (it.mapM (pure (f := n))).anyM (fun x => do
+        if (← f x).down then
+          p x
+        else
+          return .up false) := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [anyM_eq_match_step, anyM_eq_match_step, step_mapM, step_filterM, bind_assoc, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · simp only [bind_assoc, pure_bind]
+    apply bind_congr; intro fx
+    split <;> simp [ihy ‹_›]
+  · simp only [PlausibleIterStep.skip, pure_bind, bind_assoc]
+    simp [ihs ‹_›]
+  · simp
+
+theorem IterM.anyM_filterMap {α β β' : Type w} {m : Type w → Type w'}
+    [Iterator α m β] [Finite α m] [Monad m] [IteratorLoop α m m]
+    [LawfulMonad m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → Option β'} {p : β' → m (ULift Bool)} :
+    (it.filterMap f).anyM p = it.anyM (fun x => do
+      match f x with
+      | some fx => p fx
+      | none => return .up false) := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [anyM_eq_match_step, anyM_eq_match_step, step_filterMap, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · split
+    · simp [*, ihy ‹_›]
+    · simp only [*, PlausibleIterStep.yield, pure_bind]
+      apply bind_congr; intro px
+      split <;> simp [ihy ‹_›]
+  · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]
+  · simp
+
+theorem IterM.anyM_map {α β β' : Type w} {m : Type w → Type w'}
+    [Iterator α m β] [Finite α m] [Monad m] [IteratorLoop α m m]
+    [LawfulMonad m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → β'} {p : β' → m (ULift Bool)} :
+    (it.map f).anyM p = it.anyM (fun x => p (f x)) := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [anyM_eq_match_step, anyM_eq_match_step, step_map, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · simp only [pure_bind]
+    apply bind_congr; intro fx
+    simp [ihy ‹_›]
+  · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]
+  · simp
+
+theorem IterM.anyM_filter {α β : Type w} {m : Type w → Type w'}
+    [Iterator α m β] [Finite α m] [Monad m][IteratorLoop α m m]
+    [LawfulMonad m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → Bool} {p : β → m (ULift Bool)} :
+    (it.filter f).anyM p = it.anyM (fun x => do
+        if f x then
+          p x
+        else
+          return .up false) := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [anyM_eq_match_step, anyM_eq_match_step, step_filter, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · simp only
+    split <;> simp [ihy ‹_›]
+  · simp only [PlausibleIterStep.skip, pure_bind]
+    simp [ihs ‹_›]
+  · simp
+
+theorem IterM.any_filterMapM {α β β' : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [MonadLiftT m n] [IteratorLoop α m m]
+    [LawfulMonad m] [LawfulMonad n] [LawfulMonadLiftT m n] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → n (Option β')} {p : β' → Bool} :
+    (it.filterMapM f).any p = (it.mapM (pure (f := n))).anyM (fun x => do
+      match ← f x with
+      | some fx => return .up (p fx)
+      | none => return .up false) := by
+  simp [any_eq_anyM, anyM_filterMapM]
+
+theorem IterM.any_mapM {α β β' : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [MonadLiftT m n] [IteratorLoop α m m]
+    [LawfulMonad m] [LawfulMonad n] [LawfulMonadLiftT m n] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → n β'} {p : β' → Bool} :
+    (it.mapM f).any p = (it.mapM (pure (f := n))).anyM (fun x => (.up <| p ·) <$> (f x)) := by
+  simp [any_eq_anyM, anyM_mapM]
+
+theorem IterM.any_filterM {α β : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [MonadLiftT m n] [IteratorLoop α m m]
+    [LawfulMonad m] [LawfulMonad n] [LawfulMonadLiftT m n] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → n (ULift Bool)} {p : β → Bool} :
+    (it.filterM f).any p = (it.mapM (pure (f := n))).anyM (fun x => do
+        if (← f x).down then
+          return .up (p x)
+        else
+          return .up false) := by
+  simp [any_eq_anyM, anyM_filterM]
+
+theorem IterM.any_filterMap {α β β' : Type w} {m : Type w → Type w'}
+    [Iterator α m β] [Finite α m] [Monad m] [IteratorLoop α m m]
+    [LawfulMonad m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → Option β'} {p : β' → Bool} :
+    (it.filterMap f).any p = it.any (fun x =>
+      match f x with
+      | some fx => (p fx)
+      | none => false) := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [any_eq_match_step, any_eq_match_step, step_filterMap, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · split
+    · simp [*, ihy ‹_›]
+    · simp only [*, PlausibleIterStep.yield, pure_bind]
+      split <;> simp [ihy ‹_›]
+  · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]
+  · simp
+
+theorem IterM.any_map {α β β' : Type w} {m : Type w → Type w'}
+    [Iterator α m β] [Finite α m] [Monad m] [IteratorLoop α m m]
+    [LawfulMonad m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → β'} {p : β' → Bool} :
+    (it.map f).any p = it.any (fun x => p (f x)) := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [any_eq_match_step, any_eq_match_step, step_map, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · simp only [pure_bind]
+    simp [ihy ‹_›]
+  · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]
+  · simp
+
+theorem IterM.allM_filterMapM {α β β' : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [MonadLiftT m n]
+    [LawfulMonad m] [LawfulMonad n] [LawfulMonadLiftT m n]
+    {it : IterM (α := α) m β} {f : β → n (Option β')} {p : β' → n (ULift Bool)} :
+    (it.filterMapM f).allM p = (it.mapM (pure (f := n))).allM (fun x => do
+      match ← f x with
+      | some fx => p fx
+      | none => return .up true) := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [allM_eq_match_step, allM_eq_match_step, step_filterMapM, step_mapM, bind_assoc, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · simp only [bind_assoc, pure_bind]
+    apply bind_congr; intro fx
+    split
+    · simp [ihy ‹_›]
+    · simp only [PlausibleIterStep.yield, pure_bind]
+      apply bind_congr; intro px
+      split <;> simp [ihy ‹_›]
+  · simp only [PlausibleIterStep.skip, pure_bind, bind_assoc]
+    simp [ihs ‹_›]
+  · simp
+
+theorem IterM.allM_mapM {α β β' : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [MonadLiftT m n]
+    [LawfulMonad m] [LawfulMonad n] [LawfulMonadLiftT m n]
+    {it : IterM (α := α) m β} {f : β → n β'} {p : β' → n (ULift Bool)} :
+    (it.mapM f).allM p = (it.mapM (pure (f := n))).allM (fun x => do p (← f x)) := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [allM_eq_match_step, allM_eq_match_step, step_mapM, step_mapM, bind_assoc, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · simp only [bind_assoc, pure_bind]
+    apply bind_congr; intro fx
+    simp [ihy ‹_›]
+  · simp only [PlausibleIterStep.skip, pure_bind, bind_assoc]
+    simp [ihs ‹_›]
+  · simp
+
+theorem IterM.allM_filterM {α β : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [MonadLiftT m n]
+    [LawfulMonad m] [LawfulMonad n] [LawfulMonadLiftT m n]
+    {it : IterM (α := α) m β} {f : β → n (ULift Bool)} {p : β → n (ULift Bool)} :
+    (it.filterM f).allM p = (it.mapM (pure (f := n))).allM (fun x => do
+        if (← f x).down then
+          p x
+        else
+          return .up true) := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [allM_eq_match_step, allM_eq_match_step, step_mapM, step_filterM, bind_assoc, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · simp only [bind_assoc, pure_bind]
+    apply bind_congr; intro fx
+    split <;> simp [ihy ‹_›]
+  · simp only [PlausibleIterStep.skip, pure_bind, bind_assoc]
+    simp [ihs ‹_›]
+  · simp
+
+theorem IterM.allM_filterMap {α β β' : Type w} {m : Type w → Type w'}
+    [Iterator α m β] [Finite α m] [Monad m] [IteratorLoop α m m]
+    [LawfulMonad m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → Option β'} {p : β' → m (ULift Bool)} :
+    (it.filterMap f).allM p = it.allM (fun x => do
+      match f x with
+      | some fx => p fx
+      | none => return .up true) := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [allM_eq_match_step, allM_eq_match_step, step_filterMap, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · split
+    · simp [*, ihy ‹_›]
+    · simp only [*, PlausibleIterStep.yield, pure_bind]
+      apply bind_congr; intro px
+      split <;> simp [ihy ‹_›]
+  · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]
+  · simp
+
+theorem IterM.allM_map {α β β' : Type w} {m : Type w → Type w'}
+    [Iterator α m β] [Finite α m] [Monad m] [IteratorLoop α m m]
+    [LawfulMonad m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → β'} {p : β' → m (ULift Bool)} :
+    (it.map f).allM p = it.allM (fun x => p (f x)) := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [allM_eq_match_step, allM_eq_match_step, step_map, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · simp only [pure_bind]
+    apply bind_congr; intro fx
+    simp [ihy ‹_›]
+  · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]
+  · simp
+
+theorem IterM.allM_filter {α β : Type w} {m : Type w → Type w'}
+    [Iterator α m β] [Finite α m] [Monad m][IteratorLoop α m m]
+    [LawfulMonad m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → Bool} {p : β → m (ULift Bool)} :
+    (it.filter f).allM p = it.allM (fun x => do
+        if f x then
+          p x
+        else
+          return .up true) := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [allM_eq_match_step, allM_eq_match_step, step_filter, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · simp only
+    split <;> simp [ihy ‹_›]
+  · simp only [PlausibleIterStep.skip, pure_bind]
+    simp [ihs ‹_›]
+  · simp
+
+theorem IterM.all_filterMapM {α β β' : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [MonadLiftT m n] [IteratorLoop α m m]
+    [LawfulMonad m] [LawfulMonad n] [LawfulMonadLiftT m n] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → n (Option β')} {p : β' → Bool} :
+    (it.filterMapM f).all p = (it.mapM (pure (f := n))).allM (fun x => do
+      match ← f x with
+      | some fx => return .up (p fx)
+      | none => return .up true) := by
+  simp [all_eq_allM, allM_filterMapM]
+
+theorem IterM.all_mapM {α β β' : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [MonadLiftT m n] [IteratorLoop α m m]
+    [LawfulMonad m] [LawfulMonad n] [LawfulMonadLiftT m n] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → n β'} {p : β' → Bool} :
+    (it.mapM f).all p = (it.mapM (pure (f := n))).allM (fun x => (.up <| p ·) <$> (f x)) := by
+  simp [all_eq_allM, allM_mapM]
+
+theorem IterM.all_filterM {α β : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [MonadLiftT m n] [IteratorLoop α m m]
+    [LawfulMonad m] [LawfulMonad n] [LawfulMonadLiftT m n] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → n (ULift Bool)} {p : β → Bool} :
+    (it.filterM f).all p = (it.mapM (pure (f := n))).allM (fun x => do
+        if (← f x).down then
+          return .up (p x)
+        else
+          return .up true) := by
+  simp [all_eq_allM, allM_filterM]
+
+theorem IterM.all_filterMap {α β β' : Type w} {m : Type w → Type w'}
+    [Iterator α m β] [Finite α m] [Monad m] [IteratorLoop α m m]
+    [LawfulMonad m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → Option β'} {p : β' → Bool} :
+    (it.filterMap f).all p = it.all (fun x =>
+      match f x with
+      | some fx => (p fx)
+      | none => true) := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [all_eq_match_step, all_eq_match_step, step_filterMap, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · split
+    · simp [*, ihy ‹_›]
+    · simp only [*, PlausibleIterStep.yield, pure_bind]
+      split <;> simp [ihy ‹_›]
+  · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]
+  · simp
+
+theorem IterM.all_map {α β β' : Type w} {m : Type w → Type w'}
+    [Iterator α m β] [Finite α m] [Monad m] [IteratorLoop α m m]
+    [LawfulMonad m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → β'} {p : β' → Bool} :
+    (it.map f).all p = it.all (fun x => p (f x)) := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [all_eq_match_step, all_eq_match_step, step_map, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · simp only [pure_bind]
+    simp [ihy ‹_›]
+  · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]
+  · simp
+
+end AnyAll
 
 end Std.Iterators

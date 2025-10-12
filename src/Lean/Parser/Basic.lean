@@ -893,9 +893,9 @@ def octalNumberFn (startPos : String.Pos.Raw) (includeWhitespace := true) : Pars
 private def isHexDigit (c : Char) : Bool :=
   ('0' ≤ c && c ≤ '9') || ('a' ≤ c && c ≤ 'f') || ('A' ≤ c && c ≤ 'F')
 
-def hexNumberFn (startPos : String.Pos.Raw) (includeWhitespace := true) : ParserFn := fun c s =>
+def hexNumberFn (startPos : String.Pos.Raw) (includeWhitespace := true) (kind := numLitKind) : ParserFn := fun c s =>
   let s := takeDigitsFn isHexDigit "hexadecimal number" true c s
-  mkNodeToken numLitKind startPos includeWhitespace c s
+  mkNodeToken kind startPos includeWhitespace c s
 
 def numberFnAux (includeWhitespace := true) : ParserFn := fun c s =>
   let startPos := s.pos
@@ -910,7 +910,7 @@ def numberFnAux (includeWhitespace := true) : ParserFn := fun c s =>
       else if curr == 'o' || curr == 'O' then
         octalNumberFn startPos includeWhitespace c (s.next c i)
       else if curr == 'x' || curr == 'X' then
-        hexNumberFn startPos includeWhitespace c (s.next c i)
+        hexNumberFn startPos includeWhitespace numLitKind c (s.next c i)
       else
         decimalNumberFn startPos includeWhitespace c (s.setPos i)
     else if curr.isDigit then
@@ -937,7 +937,7 @@ private def isToken (idStartPos idStopPos : String.Pos.Raw) (tk : Option Token) 
   | some tk =>
      -- if a token is both a symbol and a valid identifier (i.e. a keyword),
      -- we want it to be recognized as a symbol
-    tk.endPos ≥ idStopPos - idStartPos
+    tk.utf8ByteSize ≥ idStartPos.byteDistance idStopPos
 
 
 def mkTokenAndFixPos (startPos : String.Pos.Raw) (tk : Option Token) : ParserFn := fun c s =>
@@ -1256,6 +1256,15 @@ def numLitFn : ParserFn := expectTokenFn numLitKind "numeral"
 def numLitNoAntiquot : Parser := {
   fn   := numLitFn
   info := mkAtomicInfo "num"
+}
+
+/-- Parses an hexadecimal numeral without the `0x` prefix. It is not a literal. -/
+def hexnumFn : ParserFn := fun ctx s =>
+  hexNumberFn s.pos true hexnumKind ctx s
+
+def hexnumNoAntiquot : Parser := {
+  fn   := hexnumFn
+  info := mkAtomicInfo "hexnum"
 }
 
 def scientificLitFn : ParserFn := expectTokenFn scientificLitKind "scientific number"

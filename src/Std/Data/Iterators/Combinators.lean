@@ -13,5 +13,3 @@ public import Std.Data.Iterators.Combinators.Drop
 public import Std.Data.Iterators.Combinators.DropWhile
 public import Std.Data.Iterators.Combinators.StepSize
 public import Std.Data.Iterators.Combinators.Zip
-
-@[expose] public section

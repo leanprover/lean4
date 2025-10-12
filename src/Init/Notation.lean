@@ -6,13 +6,10 @@ Authors: Leonardo de Moura, Mario Carneiro
 Notation for operators defined at Prelude.lean
 -/
 module
-
 prelude
 public import Init.Coe
-
 public section
 set_option linter.missingDocs true -- keep it documented
-
 namespace Lean
 
 /--
@@ -405,6 +402,7 @@ recommended_spelling "ge" for "≥" in [GE.ge, «term_≥_»]
 recommended_spelling "ge" for ">=" in [GE.ge, «term_>=_»]
 recommended_spelling "eq" for "=" in [Eq, «term_=_»]
 recommended_spelling "beq" for "==" in [BEq.beq, «term_==_»]
+recommended_spelling "heq" for "≍" in [HEq, «term_≍_»]
 
 @[inherit_doc] infixr:35 " /\\ " => And
 @[inherit_doc] infixr:35 " ∧ "   => And

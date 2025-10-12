@@ -365,7 +365,7 @@ private def fetchImportInfo
       return .error
     let some mod ← findModule? imp.module
       | return s
-    if imp.importAll && pkgName != mod.pkg.name then
+    if imp.importAll && !mod.allowImportAll && pkgName != mod.pkg.name then
       logError s!"{fileName}: cannot 'import all' across packages"
       return .error
     let importJob ← mod.exportInfo.fetch
@@ -577,21 +577,23 @@ instance
 : ResolveOutputs m ModuleOutputArtifacts := ⟨resolveModuleOutputs?⟩
 
 /-- Save module build artifacts to the local Lake cache. Requires the artifact cache to be enabled. -/
-private def Module.cacheOutputArtifacts (mod : Module) : JobM ModuleOutputArtifacts := do
+private def Module.cacheOutputArtifacts
+  (mod : Module)  (isModule : Bool) (useLocalFile : Bool)
+: JobM ModuleOutputArtifacts := do
   return {
-    olean := ← cacheArtifact mod.oleanFile "olean"
-    oleanServer? := ← cacheIfExists? mod.oleanServerFile "olean.server"
-    oleanPrivate? := ← cacheIfExists? mod.oleanPrivateFile "olean.private"
-    ir? := ← cacheIfExists? mod.irFile "ir"
-    ilean := ← cacheArtifact mod.ileanFile "ilean"
-    c := ← cacheArtifact mod.cFile "c"
+    olean := ← cache mod.oleanFile "olean"
+    oleanServer? := ← cacheIf? isModule mod.oleanServerFile "olean.server"
+    oleanPrivate? := ← cacheIf? isModule mod.oleanPrivateFile "olean.private"
+    ir? := ← cacheIf? isModule mod.irFile "ir"
+    ilean := ← cache mod.ileanFile "ilean"
+    c := ← cache mod.cFile "c"
     bc? := ← cacheIf? (Lean.Internal.hasLLVMBackend ()) mod.bcFile "bc"
   }
 where
+  @[inline] cache file ext := do
+    cacheArtifact file ext (useLocalFile := useLocalFile)
   @[inline] cacheIf? c art ext := do
-    if c then return some (← cacheArtifact art ext) else return none
-  @[inline] cacheIfExists? art ext := do
-    cacheIf? (← art.pathExists) art ext
+    if c then return some (← cache art ext) else return none
 
 private def restoreModuleArtifact (file : FilePath) (art : Artifact) : JobM Artifact := do
   unless (← file.pathExists) do
@@ -700,33 +702,35 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
     let savedTrace ← readTraceFile mod.traceFile
     let cache ← getLakeCache
     let fetchArtsFromCache? restoreAll := do
-      let arts? ← getArtifacts? inputHash mod.traceFile savedTrace cache mod.pkg
-      if let some arts := arts? then
-        if savedTrace.isDifferentFrom inputHash then
-          mod.clearOutputArtifacts
-        if restoreAll then
-          some <$> mod.restoreAllArtifacts arts
-        else
-          some <$> mod.restoreNeededArtifacts arts
+      let some arts ← getArtifacts? inputHash savedTrace cache mod.pkg
+        | return none
+      unless (← savedTrace.replayOrFetchIfUpToDate inputHash) do
+        mod.clearOutputArtifacts
+        writeFetchTrace mod.traceFile inputHash (toJson arts.descrs)
+      if restoreAll then
+        some <$> mod.restoreAllArtifacts arts
       else
-        return none
+        some <$> mod.restoreNeededArtifacts arts
     let arts ← id do
       if (← mod.pkg.isArtifactCacheEnabled) then
         if let some arts ← fetchArtsFromCache? mod.pkg.restoreAllArtifacts then
           return arts
         else
-          unless (← savedTrace.replayIfUpToDate (oldTrace := srcTrace.mtime) mod depTrace) do
+          let status ← savedTrace.replayIfUpToDate' (oldTrace := srcTrace.mtime) mod depTrace
+          unless status.isUpToDate do
             discard <| mod.buildLean depTrace srcFile setup
-          let arts ← mod.cacheOutputArtifacts
-          cache.writeOutputs mod.pkg.cacheScope inputHash arts.descrs
-          return arts
+          if status.isCacheable then
+            let arts ← mod.cacheOutputArtifacts setup.isModule mod.pkg.restoreAllArtifacts
+            cache.writeOutputs mod.pkg.cacheScope inputHash arts.descrs
+            return arts
+          else
+            mod.computeArtifacts setup.isModule
+      else if (← savedTrace.replayIfUpToDate (oldTrace := srcTrace.mtime) mod depTrace) then
+        mod.computeArtifacts setup.isModule
+      else if let some arts ← fetchArtsFromCache? true then
+        return arts
       else
-        if (← savedTrace.replayIfUpToDate (oldTrace := srcTrace.mtime) mod depTrace) then
-          mod.computeArtifacts setup.isModule
-        else if let some arts ← fetchArtsFromCache? true then
-          return arts
-        else
-          mod.buildLean depTrace srcFile setup
+        mod.buildLean depTrace srcFile setup
     if let some ref := mod.pkg.outputsRef? then
       ref.insert inputHash arts.descrs
     return arts

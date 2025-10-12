@@ -481,9 +481,37 @@ theorem allM_eq_not_anyM_not [Monad m] [LawfulMonad m] {p : α → m Bool} {as :
     simp only [anyM, ih, pure_bind]
     split <;> simp_all
 
+@[simp] theorem anyM_nil [Monad m] {p : α → m Bool} :
+    ([] : List α).anyM p = pure false :=
+  (rfl)
+
+@[simp] theorem anyM_cons [Monad m] {p : α → m Bool} {x : α} {xs : List α} :
+    (x :: xs).anyM p = (do
+      if (← p x) then
+        return true
+      else
+        xs.anyM p) := by
+  rw [anyM]
+  apply bind_congr; intro px
+  split <;> simp
+
 @[simp] theorem allM_pure [Monad m] [LawfulMonad m] {p : α → Bool} {as : List α} :
     as.allM (m := m) (pure <| p ·) = pure (as.all p) := by
   simp [allM_eq_not_anyM_not, all_eq_not_any_not]
+
+@[simp] theorem allM_nil [Monad m] {p : α → m Bool} :
+    ([] : List α).allM p = pure true :=
+  (rfl)
+
+@[simp] theorem allM_cons [Monad m] {p : α → m Bool} {x : α} {xs : List α} :
+    (x :: xs).allM p = (do
+      if (← p x) then
+        xs.allM p
+      else
+        return false) := by
+  rw [allM]
+  apply bind_congr; intro px
+  split <;> simp
 
 /-! ### Recognizing higher order functions using a function that only depends on the value. -/
 

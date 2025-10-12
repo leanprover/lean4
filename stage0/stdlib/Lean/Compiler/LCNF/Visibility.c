@@ -5081,16 +5081,16 @@ block_44:
 {
 if (x_23 == 0)
 {
-lean_dec(x_22);
-lean_dec_ref(x_19);
-lean_dec_ref(x_18);
-lean_dec(x_17);
+lean_dec(x_21);
+lean_dec_ref(x_20);
+lean_dec(x_19);
+lean_dec_ref(x_17);
 lean_dec(x_14);
 {
 lean_object* _tmp_5 = x_1;
 lean_object* _tmp_6 = x_16;
-lean_object* _tmp_7 = x_20;
-lean_object* _tmp_12 = x_21;
+lean_object* _tmp_7 = x_22;
+lean_object* _tmp_12 = x_18;
 x_6 = _tmp_5;
 x_7 = _tmp_6;
 x_8 = _tmp_7;
@@ -5101,7 +5101,7 @@ goto _start;
 else
 {
 lean_object* x_25; 
-x_25 = l_Lean_Compiler_LCNF_getLocalDecl_x3f___redArg(x_14, x_19, x_17, x_21);
+x_25 = l_Lean_Compiler_LCNF_getLocalDecl_x3f___redArg(x_14, x_20, x_19, x_18);
 lean_dec(x_14);
 if (lean_obj_tag(x_25) == 0)
 {
@@ -5111,17 +5111,17 @@ lean_inc(x_26);
 if (lean_obj_tag(x_26) == 0)
 {
 lean_object* x_27; 
-lean_dec(x_22);
-lean_dec_ref(x_19);
-lean_dec_ref(x_18);
-lean_dec(x_17);
+lean_dec(x_21);
+lean_dec_ref(x_20);
+lean_dec(x_19);
+lean_dec_ref(x_17);
 x_27 = lean_ctor_get(x_25, 1);
 lean_inc(x_27);
 lean_dec_ref(x_25);
 {
 lean_object* _tmp_5 = x_1;
 lean_object* _tmp_6 = x_16;
-lean_object* _tmp_7 = x_20;
+lean_object* _tmp_7 = x_22;
 lean_object* _tmp_12 = x_27;
 x_6 = _tmp_5;
 x_7 = _tmp_6;
@@ -5140,7 +5140,7 @@ x_30 = lean_ctor_get(x_26, 0);
 lean_inc(x_30);
 lean_dec_ref(x_26);
 lean_inc_ref(x_2);
-x_31 = l___private_Lean_Compiler_LCNF_Visibility_0__Lean_Compiler_LCNF_checkMeta_go(x_2, x_3, x_4, x_30, x_20, x_19, x_22, x_18, x_17, x_29);
+x_31 = l___private_Lean_Compiler_LCNF_Visibility_0__Lean_Compiler_LCNF_checkMeta_go(x_2, x_3, x_4, x_30, x_22, x_20, x_21, x_17, x_19, x_29);
 if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; 
@@ -5199,10 +5199,10 @@ else
 {
 uint8_t x_40; 
 lean_dec(x_22);
-lean_dec(x_20);
-lean_dec_ref(x_19);
-lean_dec_ref(x_18);
-lean_dec(x_17);
+lean_dec(x_21);
+lean_dec_ref(x_20);
+lean_dec(x_19);
+lean_dec_ref(x_17);
 lean_dec(x_16);
 lean_dec(x_12);
 lean_dec_ref(x_11);
@@ -5261,24 +5261,24 @@ else
 {
 uint8_t x_55; 
 x_55 = l_Lean_isPrivateName(x_14);
-x_17 = x_50;
-x_18 = x_49;
-x_19 = x_47;
-x_20 = x_46;
-x_21 = x_51;
-x_22 = x_48;
+x_17 = x_49;
+x_18 = x_51;
+x_19 = x_50;
+x_20 = x_47;
+x_21 = x_48;
+x_22 = x_46;
 x_23 = x_55;
 goto block_44;
 }
 }
 else
 {
-x_17 = x_50;
-x_18 = x_49;
-x_19 = x_47;
-x_20 = x_46;
-x_21 = x_51;
-x_22 = x_48;
+x_17 = x_49;
+x_18 = x_51;
+x_19 = x_50;
+x_20 = x_47;
+x_21 = x_48;
+x_22 = x_46;
 x_23 = x_53;
 goto block_44;
 }

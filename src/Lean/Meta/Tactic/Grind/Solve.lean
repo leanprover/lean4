@@ -13,15 +13,35 @@ import Lean.Meta.Tactic.Grind.Lookahead
 import Lean.Meta.Tactic.Grind.Intro
 public section
 namespace Lean.Meta.Grind
-def tryFallback : GoalM Bool := do
-  (← getMethods).fallback
-  if (← isInconsistent)  then
+
+def checkSolvers : SearchM Bool := do
+  if (← getConfig).trace then
+    let some solverIds ← Solvers.check? | return false
+    modify fun s => { s with steps := s.steps ++ solverIds.map (.solver ·) }
     return true
-  if (← (← get).mvarId.isAssigned) then
-    -- User-provided fallback may not have properly set `inconsistent` flag.
-    modify fun s => { s with inconsistent := true }
+  else
+    Solvers.check
+
+def ematchStep : SearchM Bool := do
+  if (← getConfig).trace then
+    let .true ← ematch | return false
+    -- TODO: Collect instances
+    modify fun s => { s with steps := s.steps.push <| .instantiate [] [] }
     return true
-  return false
+  else
+    ematch
+
+def mbtcStep : SearchM Bool := do
+  let .true ← Solvers.mbtc | return false
+  if (← getConfig).trace then
+    modify fun s => { s with steps := s.steps.push .mbtc }
+  return true
+
+def lookaheadStep : SearchM Bool := do
+  let .true ← lookahead | return false
+  if (← getConfig).trace then
+    modify fun s => { s with steps := s.steps.push .lookahead }
+  return true
 
 /--
 Try to solve/close the given goal.
@@ -49,8 +69,8 @@ where
           intros gen
         else
           break
-      if (← assertAll <||> Solvers.check <||> ematch <||> lookahead <||> splitNext
-           <||> Solvers.mbtc <||> tryFallback) then
+      if (← assertAll <||> checkSolvers <||> ematchStep <||> lookaheadStep <||> splitNext
+           <||> mbtcStep) then
         continue
       return some (← getGoal) -- failed
     return none -- solved

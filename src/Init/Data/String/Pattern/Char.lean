@@ -61,7 +61,7 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardCharSearcher s) Id (Search
 
 def finitenessRelation : Std.Iterators.FinitenessRelation (ForwardCharSearcher s) Id where
   rel := InvImage WellFoundedRelation.rel
-      (fun it => s.utf8ByteSize.byteIdx - it.internalState.currPos.offset.byteIdx)
+      (fun it => s.utf8ByteSize - it.internalState.currPos.offset.byteIdx)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf

@@ -1,5 +1,6 @@
 module
 public meta import Lean.Meta.Tactic.Grind
+#exit -- TODO: reenable after we add support for running code in interactive mode
 public section
 set_option grind.debug true
 

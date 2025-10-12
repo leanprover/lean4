@@ -13,6 +13,7 @@ public import Lean.KeyedDeclsAttribute
 public import Lean.ParserCompiler.Attribute
 public import Lean.PrettyPrinter.Basic
 public import Lean.PrettyPrinter.Delaborator.Options
+import Lean.ExtraModUses
 
 public section
 
@@ -84,8 +85,10 @@ unsafe builtin_initialize formatterAttribute : KeyedDeclsAttribute Formatter ←
       -- synthesize a formatter for it immediately, so we just check for a declaration in this case
       unless (builtin && (env.find? id).isSome) || Parser.isValidSyntaxNodeKind env id do
         throwError "Invalid `[formatter]` argument: Unknown syntax kind `{id}`"
-      if (← getEnv).contains id && (← Elab.getInfoState).enabled then
-        Elab.addConstInfo stx id none
+      if (← getEnv).contains id then
+        recordExtraModUseFromDecl (isMeta := false) id
+        if (← Elab.getInfoState).enabled then
+          Elab.addConstInfo stx id none
       pure id
   }
 
@@ -503,6 +506,7 @@ def visitAtom (k : SyntaxNodeKind) : Formatter := do
 @[combinator_formatter strLitNoAntiquot, expose] def strLitNoAntiquot.formatter := visitAtom strLitKind
 @[combinator_formatter nameLitNoAntiquot, expose] def nameLitNoAntiquot.formatter := visitAtom nameLitKind
 @[combinator_formatter numLitNoAntiquot, expose] def numLitNoAntiquot.formatter := visitAtom numLitKind
+
 @[combinator_formatter scientificLitNoAntiquot, expose] def scientificLitNoAntiquot.formatter := visitAtom scientificLitKind
 @[combinator_formatter fieldIdx, expose] def fieldIdx.formatter := visitAtom fieldIdxKind
 
@@ -566,6 +570,8 @@ def interpolatedStr.formatter (p : Formatter) : Formatter := do
     match chunk.isLit? interpolatedStrLitKind with
     | some str => push str *> goLeft
     | none     => p
+
+@[combinator_formatter hexnumNoAntiquot, expose] def hexnum.formatter := visitAtom hexnumKind
 
 @[combinator_formatter _root_.ite, expose, macro_inline] def ite {_ : Type} (c : Prop) [Decidable c] (t e : Formatter) : Formatter :=
   if c then t else e

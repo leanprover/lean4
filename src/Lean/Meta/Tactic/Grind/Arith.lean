@@ -13,4 +13,3 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing
 public import Lean.Meta.Tactic.Grind.Arith.Linear
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat
 public import Lean.Meta.Tactic.Grind.Arith.Simproc
-public section

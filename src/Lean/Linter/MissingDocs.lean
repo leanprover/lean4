@@ -95,6 +95,7 @@ builtin_initialize
       let decl ← getConstInfo declName
       let fnNameStx ← Attribute.Builtin.getIdent stx
       let key ← Elab.realizeGlobalConstNoOverloadWithInfo fnNameStx
+      recordExtraModUseFromDecl (isMeta := false) key
       unless decl.levelParams.isEmpty && (decl.type == .const ``Handler [] || decl.type == .const ``SimpleHandler []) do
         throwError m!"Unexpected type for missing docs handler: Expected `{.ofConstName ``Handler}` or \
           `{.ofConstName ``SimpleHandler}`, but `{declName}` has type{indentExpr decl.type}"
@@ -243,7 +244,9 @@ def checkSimpLike : SimpleHandler := mkSimpleHandler "simp-like tactic"
 def checkRegisterBuiltinOption : SimpleHandler := mkSimpleHandler (declNameStxIdx := 3) "option"
 
 @[builtin_missing_docs_handler Option.registerOption]
-def checkRegisterOption : SimpleHandler := mkSimpleHandler (declNameStxIdx := 3) "option"
+def checkRegisterOption : SimpleHandler := fun stx => do
+  if (← declModifiersPubNoDoc stx[0]) then
+    lintNamed stx[2] "option"
 
 @[builtin_missing_docs_handler registerSimpAttr]
 def checkRegisterSimpAttr : SimpleHandler := mkSimpleHandler "simp attr"

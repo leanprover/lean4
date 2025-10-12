@@ -16,6 +16,10 @@ buildType = "${CMAKE_BUILD_TYPE_TOML}"
 # The root of all the compiler output directories
 buildDir = "${CMAKE_BINARY_DIR}"
 
+# Enables the Lake artifact cache if configured via CMake
+# (i.e., for stage 1 when the CMake `USE_LAKE_CACHE` option is set).
+enableArtifactCache = ${LAKE_ARTIFACT_CACHE_TOML}
+
 # Ensure build artifacts end up in the build directory even when the Lake
 # local artifact cache is enabled. This is necessary because subsequent stages
 # will expect the previous stage's artifacts to be in the build directory.

@@ -101,7 +101,7 @@ inductive CompletionInfo where
   | namespaceId (stx : Syntax)
   | option (stx : Syntax)
   | errorName (stx partialId : Syntax)
-  | endSection (stx : Syntax) (scopeNames : List String)
+  | endSection (stx : Syntax) (id? : Option Name) (danglingDot : Bool) (scopeNames : List String)
   | tactic (stx : Syntax)
 
 /-- Info for an option reference (e.g. in `set_option`). -/

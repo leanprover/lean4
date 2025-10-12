@@ -5,10 +5,9 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Grind.Attr
 public import Init.Core
+public import Init.Grind.Interactive
 public section
-
 namespace Lean.Grind
 /--
 The configuration for `grind`.
@@ -209,15 +208,14 @@ namespace Lean.Parser.Tactic
 /-!
 `grind` tactic and related tactics.
 -/
-
 syntax grindErase    := "-" ident
-syntax grindLemma    := ppGroup((Attr.grindMod ppSpace)? ident)
 /--
 The `!` modifier instructs `grind` to consider only minimal indexable subexpressions
 when selecting patterns.
 -/
-syntax grindLemmaMin := ppGroup("!" (Attr.grindMod ppSpace)? ident)
 syntax grindParam    := grindErase <|> grindLemma <|> grindLemmaMin
+
+open Parser.Tactic.Grind
 
 /--
 `grind` is a tactic inspired by modern SMT solvers. **Picture a virtual whiteboard**:
@@ -489,7 +487,7 @@ example (as : Array α) (lo hi i j : Nat) :
 syntax (name := grind)
   "grind" optConfig (&" only")?
   (" [" withoutPosition(grindParam,*) "]")?
-  (&" on_failure " term)? : tactic
+  (" => " grindSeq)? : tactic
 
 /--
 `grind?` takes the same arguments as `grind`, but reports an equivalent call to `grind only`
@@ -499,7 +497,7 @@ theorems in a local invocation.
 syntax (name := grindTrace)
   "grind?" optConfig (&" only")?
   (" [" withoutPosition(grindParam,*) "]")?
-  (&" on_failure " term)? : tactic
+  : tactic
 
 /--
 `cutsat` solves linear integer arithmetic goals.

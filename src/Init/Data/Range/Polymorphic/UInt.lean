@@ -22,6 +22,12 @@ instance : UpwardEnumerable UInt8 where
   succ? i := if i + 1 = 0 then none else some (i + 1)
   succMany? n i := if h : i.toNat + n < UInt8.size then some (.ofNatLT _ h) else none
 
+instance : Least? UInt8 where
+  least? := some 0
+
+instance : LawfulUpwardEnumerableLeast? UInt8 where
+  least?_le a := ⟨0, rfl, a.toNat, by simpa [succMany?] using UInt8.toNat_lt a⟩
+
 theorem succ?_ofBitVec {x : BitVec 8} :
     UpwardEnumerable.succ? (UInt8.ofBitVec x) = UInt8.ofBitVec <$> UpwardEnumerable.succ? x := by
   simp only [succ?, BitVec.ofNat_eq_ofNat, Option.map_eq_map, ← UInt8.toBitVec_inj]
@@ -46,9 +52,9 @@ instance : LawfulUpwardEnumerable UInt8 where
   succMany?_zero x := by
     cases x
     simpa [succMany?_ofBitVec] using succMany?_zero
-  succMany?_succ? n x := by
+  succMany?_add_one n x := by
     cases x
-    simp [succMany?_ofBitVec, succMany?_succ?, Option.bind_map, Function.comp_def,
+    simp [succMany?_ofBitVec, succMany?_add_one, Option.bind_map, Function.comp_def,
       succ?_ofBitVec]
 
 instance : LawfulUpwardEnumerableLE UInt8 where
@@ -112,6 +118,12 @@ instance : UpwardEnumerable UInt16 where
   succ? i := if i + 1 = 0 then none else some (i + 1)
   succMany? n i := if h : i.toNat + n < UInt16.size then some (.ofNatLT _ h) else none
 
+instance : Least? UInt16 where
+  least? := some 0
+
+instance : LawfulUpwardEnumerableLeast? UInt16 where
+  least?_le a := ⟨0, rfl, a.toNat, by simpa [succMany?] using UInt16.toNat_lt a⟩
+
 theorem succ?_ofBitVec {x : BitVec 16} :
     UpwardEnumerable.succ? (UInt16.ofBitVec x) = UInt16.ofBitVec <$> UpwardEnumerable.succ? x := by
   simp only [succ?, BitVec.ofNat_eq_ofNat, Option.map_eq_map, ← UInt16.toBitVec_inj]
@@ -136,9 +148,9 @@ instance : LawfulUpwardEnumerable UInt16 where
   succMany?_zero x := by
     cases x
     simpa [succMany?_ofBitVec] using succMany?_zero
-  succMany?_succ? n x := by
+  succMany?_add_one n x := by
     cases x
-    simp [succMany?_ofBitVec, succMany?_succ?, Option.bind_map, Function.comp_def,
+    simp [succMany?_ofBitVec, succMany?_add_one, Option.bind_map, Function.comp_def,
       succ?_ofBitVec]
 
 instance : LawfulUpwardEnumerableLE UInt16 where
@@ -202,6 +214,12 @@ instance : UpwardEnumerable UInt32 where
   succ? i := if i + 1 = 0 then none else some (i + 1)
   succMany? n i := if h : i.toNat + n < UInt32.size then some (.ofNatLT _ h) else none
 
+instance : Least? UInt32 where
+  least? := some 0
+
+instance : LawfulUpwardEnumerableLeast? UInt32 where
+  least?_le a := ⟨0, rfl, a.toNat, by simpa [succMany?] using UInt32.toNat_lt a⟩
+
 theorem succ?_ofBitVec {x : BitVec 32} :
     UpwardEnumerable.succ? (UInt32.ofBitVec x) = UInt32.ofBitVec <$> UpwardEnumerable.succ? x := by
   simp only [succ?, BitVec.ofNat_eq_ofNat, Option.map_eq_map, ← UInt32.toBitVec_inj]
@@ -226,9 +244,9 @@ instance : LawfulUpwardEnumerable UInt32 where
   succMany?_zero x := by
     cases x
     simpa [succMany?_ofBitVec] using succMany?_zero
-  succMany?_succ? n x := by
+  succMany?_add_one n x := by
     cases x
-    simp [succMany?_ofBitVec, succMany?_succ?, Option.bind_map, Function.comp_def,
+    simp [succMany?_ofBitVec, succMany?_add_one, Option.bind_map, Function.comp_def,
       succ?_ofBitVec]
 
 instance : LawfulUpwardEnumerableLE UInt32 where
@@ -292,6 +310,12 @@ instance : UpwardEnumerable UInt64 where
   succ? i := if i + 1 = 0 then none else some (i + 1)
   succMany? n i := if h : i.toNat + n < UInt64.size then some (.ofNatLT _ h) else none
 
+instance : Least? UInt64 where
+  least? := some 0
+
+instance : LawfulUpwardEnumerableLeast? UInt64 where
+  least?_le a := ⟨0, rfl, a.toNat, by simpa [succMany?] using UInt64.toNat_lt a⟩
+
 theorem succ?_ofBitVec {x : BitVec 64} :
     UpwardEnumerable.succ? (UInt64.ofBitVec x) = UInt64.ofBitVec <$> UpwardEnumerable.succ? x := by
   simp only [succ?, BitVec.ofNat_eq_ofNat, Option.map_eq_map, ← UInt64.toBitVec_inj]
@@ -316,9 +340,9 @@ instance : LawfulUpwardEnumerable UInt64 where
   succMany?_zero x := by
     cases x
     simpa [succMany?_ofBitVec] using succMany?_zero
-  succMany?_succ? n x := by
+  succMany?_add_one n x := by
     cases x
-    simp [succMany?_ofBitVec, succMany?_succ?, Option.bind_map, Function.comp_def,
+    simp [succMany?_ofBitVec, succMany?_add_one, Option.bind_map, Function.comp_def,
       succ?_ofBitVec]
 
 instance : LawfulUpwardEnumerableLE UInt64 where
@@ -382,6 +406,12 @@ instance : UpwardEnumerable USize where
   succ? i := if i + 1 = 0 then none else some (i + 1)
   succMany? n i := if h : i.toNat + n < USize.size then some (.ofNatLT _ h) else none
 
+instance : Least? USize where
+  least? := some 0
+
+instance : LawfulUpwardEnumerableLeast? USize where
+  least?_le a := ⟨0, rfl, a.toNat, by simpa [succMany?] using USize.toNat_lt_size a⟩
+
 theorem succ?_ofBitVec {x : BitVec System.Platform.numBits} :
     UpwardEnumerable.succ? (USize.ofBitVec x) = USize.ofBitVec <$> UpwardEnumerable.succ? x := by
   simp only [succ?, BitVec.ofNat_eq_ofNat, Option.map_eq_map, ← USize.toBitVec_inj]
@@ -406,9 +436,9 @@ instance : LawfulUpwardEnumerable USize where
   succMany?_zero x := by
     cases x
     simpa [succMany?_ofBitVec] using succMany?_zero
-  succMany?_succ? n x := by
+  succMany?_add_one n x := by
     cases x
-    simp [succMany?_ofBitVec, succMany?_succ?, Option.bind_map, Function.comp_def,
+    simp [succMany?_ofBitVec, succMany?_add_one, Option.bind_map, Function.comp_def,
       succ?_ofBitVec]
 
 instance : LawfulUpwardEnumerableLE USize where

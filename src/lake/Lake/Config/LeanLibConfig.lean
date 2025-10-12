@@ -99,6 +99,18 @@ public configuration LeanLibConfig (name : Name) extends LeanConfig where
   nativeFacets (shouldExport : Bool) : Array (ModuleFacet FilePath) :=
     #[if shouldExport then Module.oExportFacet else Module.oFacet]
 
+  /--
+  Whether downstream packages can `import all` modules of this library.
+
+  If enabled, downstream users will be able to access the `private` internals of modules,
+  including definition bodies not marked as `@[expose]`.
+  This may also, in the future, prevent compiler optimization which rely on `private`
+  definitions being inaccessible outside their own package.
+
+  Defaults to `false`.
+  -/
+  allowImportAll : Bool := false
+
 deriving Inhabited
 
 namespace LeanLibConfig

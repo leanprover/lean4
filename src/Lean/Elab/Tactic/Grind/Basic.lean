@@ -8,18 +8,22 @@ prelude
 public import Lean.Elab.Term
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Main
+public import Lean.Meta.Tactic.Grind.SearchM
+import Lean.Meta.Tactic.Grind.Intro
 public section
 namespace Lean.Elab.Tactic.Grind
 open Meta
 
 structure Context extends Tactic.Context where
-  ctx    : Grind.Context
-  methods: Grind.Methods
+  ctx     : Meta.Grind.Context
+  methods : Grind.Methods
+  params  : Grind.Params
 
 open Meta.Grind (Goal)
 
 structure State where
-  state : Grind.State
+  state : Meta.Grind.State
   goals : List Goal
 
 structure SavedState where
@@ -174,6 +178,44 @@ instance : MonadBacktrack SavedState GrindTacticM where
   restoreState b := b.restore
 
 /--
+Runs `x` with only the first unsolved goal as the goal.
+Fails if there are no goal to be solved.
+-/
+def focus (k : GrindTacticM α) : GrindTacticM α := do
+  let mvarId :: mvarIds ← getUnsolvedGoals
+    | throwNoGoalsToBeSolved
+  setGoals [mvarId]
+  let a ← k
+  let mvarIds' ← getUnsolvedGoals
+  setGoals (mvarIds' ++ mvarIds)
+  pure a
+
+/--
+Runs `tactic` with only the first unsolved goal as the goal, and expects it leave no goals.
+Fails if there are no goal to be solved.
+-/
+def focusAndDone (tactic : GrindTacticM α) : GrindTacticM α :=
+  focus do
+    let a ← tactic
+    done
+    pure a
+
+/-- Close the main goal using the given tactic. If it fails, log the error and `admit` -/
+def closeUsingOrAdmit (tac : GrindTacticM Unit) : GrindTacticM Unit := do
+  /- Important: we must define `closeUsingOrAdmit` before we define
+     the instance `MonadExcept` for `GrindTacticM` since it backtracks the state including error messages. -/
+  let goal :: goals ← getUnsolvedGoals | throwNoGoalsToBeSolved
+  tryCatchRuntimeEx
+    (focusAndDone tac)
+    fun ex => do
+      if (← read).recover then
+        logException ex
+        admitGoal goal.mvarId
+        setGoals goals
+      else
+        throw ex
+
+/--
 Non-backtracking `try`/`catch`.
 -/
 @[inline] protected def tryCatch {α} (x : GrindTacticM α) (h : Exception → GrindTacticM α) : GrindTacticM α := do
@@ -269,5 +311,49 @@ def tryTactic (tac : GrindTacticM α) : GrindTacticM Bool := do
     pure true
   catch _ =>
     pure false
+
+open Grind
+
+def liftGrindM (k : GrindM α) : GrindTacticM α := do
+  let ctx ← read
+  let s ← get
+  let (a, state) ← liftMetaM <| k ctx.methods.toMethodsRef ctx.ctx |>.run s.state
+  modify fun s => { s with state }
+  return a
+
+def replaceMainGoal (goals : List Goal) : GrindTacticM Unit := do
+  let goals := goals.filter fun goal => !goal.inconsistent
+  let (_ :: goals') ← getGoals | throwNoGoalsToBeSolved
+  modify fun s => { s with goals := goals ++ goals' }
+
+def liftGoalM (k : GoalM α) : GrindTacticM α := do
+  let goal ← getMainGoal
+  let (a, goal) ← liftGrindM <| k.run goal
+  replaceMainGoal [goal]
+  return a
+
+def liftSearchM (k : SearchM α) : GrindTacticM α := do
+  let goal ← getMainGoal
+  let (a, state) ← liftGrindM <| SearchM.run goal k
+  unless state.choiceStack.isEmpty do
+    -- **TODO**: Convert pending goals into new subgoals.
+    throwError "`grind` internal error, `SearchM` action has pending choices, this is not supported yet."
+  replaceMainGoal [state.goal]
+  return a
+
+def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM α) : TacticM (α × State) := do
+  let (methods, ctx, state) ← liftMetaM <| GrindM.runAtGoal mvarId params fun goal => do
+    let methods ← getMethods
+    -- **Note**: We use `withCheapCasesOnly` to ensure multiple goals are not created.
+    -- We will add support for this case in the future.
+    let (goal, _) ← withCheapCasesOnly <| SearchM.run goal do
+      intros 0
+      getGoal
+    let goals := if goal.inconsistent then [] else [goal]
+    let ctx ← readThe Meta.Grind.Context
+    let state ← get
+    pure (methods, ctx, { state, goals })
+  let tctx ← read
+  k { tctx with methods, ctx, params } |>.run state
 
 end Lean.Elab.Tactic.Grind

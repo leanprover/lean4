@@ -35,6 +35,16 @@ set_option linter.missingDocs true
 
 public section
 
+/--
+As elaboration results are not added to the environment as part of constants, manually record
+references so that `shake` keeps their imports.
+-/
+private def elabExtraTerm (stx : Syntax) (expectedType? : Option Expr := none) : TermElabM Expr := do
+  let e ← elabTermAndSynthesize stx expectedType?
+  for c in e.getUsedConstants do
+    recordExtraModUseFromDecl (isMeta := false) c
+  return e
+
 /-- Create an identifier while directly copying info -/
 private def mkIdentFrom' (src : Syntax) (val : Name) : Ident :=
   ⟨Syntax.ident src.getHeadInfo (toString val).toSubstring val []⟩
@@ -134,6 +144,8 @@ meta def checkNameExists : PostponedCheckHandler := fun _ info => do
   discard <| realizeGlobalConstNoOverload (mkIdent name)
 
 private def getQualified (x : Name) : DocM (Array Name) := do
+  -- We don't want to check whether the empty name is a suffix of names
+  if x.isAnonymous then return #[]
   let names := (← getEnv).constants.toList
   let names := names.filterMap fun (y, _) => if !isPrivateName y && x.isSuffixOf y then some y else none
   names.toArray.mapM fun y => do
@@ -150,6 +162,26 @@ def name (full : Option Ident := none) (scope : DocScope := .local)
     (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   let x := s.getString.toName
+  if x.isAnonymous then
+    let h ←
+      if s.getString != s.getString.trim && !s.getString.trim.isEmpty then
+        -- Like Markdown, Verso code elements that start and end with a space will strip the space,
+        -- to allow code with leading or trailing backticks. But our suggestions shouldn't prefer
+        -- that form here. Thus, the suggestion uses the delimiter positions instead of the string
+        -- literal.
+        let text ← getFileMap
+        let ref? := do
+          let stx ← (xs : Array Syntax)[0]?
+          let `(inline|code(%$tk1 $_ )%$tk2) := stx
+            | none
+          let ⟨_, pos⟩ ← tk1.getRange?
+          let ⟨tailPos, _⟩ ← tk2.getRange?
+          pure <| Syntax.mkStrLit (text.source.extract pos tailPos) (info := .synthetic pos tailPos)
+        if let some ref := ref? then
+            m!"Remove surrounding whitespace:".hint #[s.getString.trim] (ref? := some ref)
+        else pure m!""
+      else pure m!""
+    throwErrorAt s "Not a valid name.{h}"
   let n := mkIdentFrom' s x
   if let some r := full then
     unless x.isSuffixOf r.getId do
@@ -556,7 +588,7 @@ def given (type : Option StrLit := none) (typeIsMeta : flag false) («show» : f
     let val : Option Expr ← do
       let valStx := stx[1][1]
       if valStx.isMissing then pure none
-      else some <$> elabTerm valStx (some ty')
+      else some <$> elabExtraTerm valStx (some ty')
     let fv ← mkFreshFVarId
     lctx :=
       if let some v := val then
@@ -933,7 +965,7 @@ def leanRole (type : Option StrLit := none) (xs : TSyntaxArray `inline) : DocM (
         if let some t := type then
           logErrorAt t m!"Ignoring `{s.getString}` in favor of type provided after colon"
         some <$> elabType stx[1][1]
-    withoutErrToSorry <| discard <| elabTerm stx[0] ty?
+    withoutErrToSorry <| discard <| elabExtraTerm stx[0] ty?
   let trees := (← getInfoTrees)
   if h : trees.size > 0 then
     let tree := trees[trees.size - 1]
@@ -956,7 +988,7 @@ def leanTerm (code : StrLit) : DocM (Block ElabInline ElabBlock) := do
         pure none
       else -- type after colon
         some <$> elabType stx[1][1]
-    withoutErrToSorry <| discard <| elabTerm stx[0] ty?
+    withoutErrToSorry <| discard <| elabExtraTerm stx[0] ty?
   -- The last info tree is the one we want
   let trees := (← getInfoTrees)
   if h : trees.size > 0 then
@@ -1064,8 +1096,8 @@ def assert' (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
       pure none
     else -- type after colon
       some <$> elabType stx[3][1]
-  let lhs ← elabTerm stx[0] ty?
-  let rhs ← elabTerm stx[2] ty?
+  let lhs ← elabExtraTerm stx[0] ty?
+  let rhs ← elabExtraTerm stx[2] ty?
   unless ← Meta.withTransparency .all <| Meta.isDefEq lhs rhs do
     throwErrorAt stx m!"Expected {lhs} = {rhs}, which is {← Meta.whnf lhs} = {← Meta.whnf rhs}, reducing to {← Meta.reduceAll lhs} = {← Meta.reduceAll rhs} but they are not equal."
   pure (.code s.getString)
@@ -1186,7 +1218,7 @@ def suggestLean (code : StrLit) : DocM (Array CodeSuggestion) := do
         withoutErrToSorry <|
         if stx[1][1].isMissing then pure none
         else some <$> elabType stx[1][1]
-      let tm ← withoutErrToSorry <| elabTerm stx[0] ty?
+      let tm ← withoutErrToSorry <| elabExtraTerm stx[0] ty?
     return #[.mk ``lean none none]
 
   catch | _ => return #[]
@@ -1205,7 +1237,7 @@ def suggestLeanTermBlock (code : StrLit) : DocM (Array CodeBlockSuggestion) := d
         withoutErrToSorry <|
         if stx[1][1].isMissing then pure none
         else some <$> elabType stx[1][1]
-      discard <| withoutErrToSorry <| elabTerm stx[0] ty?
+      discard <| withoutErrToSorry <| elabExtraTerm stx[0] ty?
     return #[.mk ``leanTerm none none]
   catch | _ => return #[]
 

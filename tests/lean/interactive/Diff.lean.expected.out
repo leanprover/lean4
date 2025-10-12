@@ -31,260 +31,256 @@
 {"goals":
  [{"type":
    {"tag":
-    [{"subexprPos": "/", "info": {"p": "8"}},
+    [{"subexprPos": "/", "info": {"p": "1"}},
      {"append":
       [{"tag":
-        [{"subexprPos": "/0", "info": {"p": "9"}, "diffStatus": "willDelete"},
+        [{"subexprPos": "/0", "info": {"p": "2"}, "diffStatus": "willDelete"},
          {"append":
           [{"tag":
-            [{"subexprPos": "/0/0/1", "info": {"p": "10"}}, {"text": "x"}]},
+            [{"subexprPos": "/0/0/1", "info": {"p": "3"}}, {"text": "x"}]},
            {"text": " = "},
            {"tag":
-            [{"subexprPos": "/0/1", "info": {"p": "11"}}, {"text": "x"}]}]}]},
+            [{"subexprPos": "/0/1", "info": {"p": "4"}}, {"text": "x"}]}]}]},
        {"text": " → "},
        {"tag":
-        [{"subexprPos": "/1", "info": {"p": "12"}}, {"text": "True"}]}]}]},
+        [{"subexprPos": "/1", "info": {"p": "5"}}, {"text": "True"}]}]}]},
    "mvarId": "[anonymous]",
    "isInserted": false,
    "hyps":
    [{"type":
-     {"tag": [{"subexprPos": "/", "info": {"p": "7"}}, {"text": "Nat"}]},
+     {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "Nat"}]},
      "names": ["x"],
      "fvarIds": []}],
    "goalPrefix": "⊢ ",
-   "ctx": {"p": "13"}}]}
+   "ctx": {"p": "6"}}]}
 {"textDocument": {"uri": "file:///Diff.lean"},
  "position": {"line": 9, "character": 2}}
 {"goals":
  [{"type":
    {"tag":
-    [{"subexprPos": "/", "info": {"p": "14"}},
+    [{"subexprPos": "/", "info": {"p": "0"}},
      {"append":
       [{"text": "∀ ("},
-       {"tag": [{"subexprPos": "/", "info": {"p": "15"}}, {"text": "x"}]},
+       {"tag": [{"subexprPos": "/", "info": {"p": "1"}}, {"text": "x"}]},
        {"text": " : "},
        {"tag":
-        [{"subexprPos": "/0", "info": {"p": "16"}, "diffStatus": "willDelete"},
+        [{"subexprPos": "/0", "info": {"p": "2"}, "diffStatus": "willDelete"},
          {"text": "Nat"}]},
        {"text": "), "},
        {"tag":
-        [{"subexprPos": "/1", "info": {"p": "17"}},
+        [{"subexprPos": "/1", "info": {"p": "3"}},
          {"append":
           [{"tag":
             [{"subexprPos": "/1/0",
-              "info": {"p": "18"},
+              "info": {"p": "4"},
               "diffStatus": "willDelete"},
              {"append":
               [{"tag":
-                [{"subexprPos": "/1/0/0/1", "info": {"p": "19"}},
+                [{"subexprPos": "/1/0/0/1", "info": {"p": "5"}},
                  {"text": "x"}]},
                {"text": " = "},
                {"tag":
-                [{"subexprPos": "/1/0/1", "info": {"p": "20"}},
+                [{"subexprPos": "/1/0/1", "info": {"p": "6"}},
                  {"text": "x"}]}]}]},
            {"text": " → "},
            {"tag":
-            [{"subexprPos": "/1/1", "info": {"p": "21"}},
+            [{"subexprPos": "/1/1", "info": {"p": "7"}},
              {"text": "True"}]}]}]}]}]},
    "mvarId": "[anonymous]",
    "isInserted": false,
    "hyps": [],
    "goalPrefix": "⊢ ",
-   "ctx": {"p": "22"}}]}
+   "ctx": {"p": "8"}}]}
 {"textDocument": {"uri": "file:///Diff.lean"},
  "position": {"line": 15, "character": 5}}
 {"goals":
  [{"type":
-   {"tag": [{"subexprPos": "/", "info": {"p": "34"}}, {"text": "True"}]},
+   {"tag": [{"subexprPos": "/", "info": {"p": "11"}}, {"text": "True"}]},
    "mvarId": "[anonymous]",
    "isInserted": false,
    "hyps":
    [{"type":
-     {"tag": [{"subexprPos": "/", "info": {"p": "23"}}, {"text": "Sort u_1"}]},
+     {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "Sort u_1"}]},
      "names": ["α"],
      "isType": true,
      "fvarIds": []},
     {"type":
-     {"tag": [{"subexprPos": "/", "info": {"p": "24"}}, {"text": "Nat"}]},
+     {"tag": [{"subexprPos": "/", "info": {"p": "1"}}, {"text": "Nat"}]},
      "names": ["x", "y"],
      "fvarIds": []},
     {"type":
      {"tag":
-      [{"subexprPos": "/", "info": {"p": "25"}},
+      [{"subexprPos": "/", "info": {"p": "2"}},
        {"append":
         [{"text": "∀ ("},
-         {"tag": [{"subexprPos": "/", "info": {"p": "26"}}, {"text": "a"}]},
+         {"tag": [{"subexprPos": "/", "info": {"p": "3"}}, {"text": "a"}]},
          {"text": " : "},
-         {"tag": [{"subexprPos": "/0", "info": {"p": "27"}}, {"text": "α"}]},
+         {"tag": [{"subexprPos": "/0", "info": {"p": "4"}}, {"text": "α"}]},
          {"text": "), "},
          {"tag":
-          [{"subexprPos": "/1", "info": {"p": "28"}},
+          [{"subexprPos": "/1", "info": {"p": "5"}},
            {"append":
             [{"tag":
-              [{"subexprPos": "/1/0/1", "info": {"p": "29"}}, {"text": "x"}]},
+              [{"subexprPos": "/1/0/1", "info": {"p": "6"}}, {"text": "x"}]},
              {"text": " = "},
              {"tag":
               [{"subexprPos": "/1/1",
-                "info": {"p": "30"},
+                "info": {"p": "7"},
                 "diffStatus": "willChange"},
                {"text": "y"}]}]}]}]}]},
      "names": ["f"],
      "fvarIds": []},
     {"type":
      {"tag":
-      [{"subexprPos": "/", "info": {"p": "31"}},
+      [{"subexprPos": "/", "info": {"p": "8"}},
        {"append":
-        [{"tag": [{"subexprPos": "/0/1", "info": {"p": "32"}}, {"text": "y"}]},
+        [{"tag": [{"subexprPos": "/0/1", "info": {"p": "9"}}, {"text": "y"}]},
          {"text": " = "},
          {"tag":
-          [{"subexprPos": "/1", "info": {"p": "33"}}, {"text": "x"}]}]}]},
+          [{"subexprPos": "/1", "info": {"p": "10"}}, {"text": "x"}]}]}]},
      "names": ["h"],
      "fvarIds": []}],
    "goalPrefix": "⊢ ",
-   "ctx": {"p": "35"}}]}
+   "ctx": {"p": "12"}}]}
 {"textDocument": {"uri": "file:///Diff.lean"},
  "position": {"line": 20, "character": 9}}
 {"goals":
  [{"type":
-   {"tag": [{"subexprPos": "/", "info": {"p": "47"}}, {"text": "True"}]},
+   {"tag": [{"subexprPos": "/", "info": {"p": "11"}}, {"text": "True"}]},
    "mvarId": "[anonymous]",
    "isInserted": false,
    "hyps":
    [{"type":
-     {"tag": [{"subexprPos": "/", "info": {"p": "36"}}, {"text": "Sort u_1"}]},
+     {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "Sort u_1"}]},
      "names": ["α"],
      "isType": true,
      "fvarIds": []},
     {"type":
-     {"tag": [{"subexprPos": "/", "info": {"p": "37"}}, {"text": "Nat"}]},
+     {"tag": [{"subexprPos": "/", "info": {"p": "1"}}, {"text": "Nat"}]},
      "names": ["x", "y"],
      "fvarIds": []},
     {"type":
      {"tag":
-      [{"subexprPos": "/", "info": {"p": "38"}},
+      [{"subexprPos": "/", "info": {"p": "2"}},
        {"append":
         [{"text": "∀ ("},
-         {"tag": [{"subexprPos": "/", "info": {"p": "39"}}, {"text": "a"}]},
+         {"tag": [{"subexprPos": "/", "info": {"p": "3"}}, {"text": "a"}]},
          {"text": " : "},
-         {"tag": [{"subexprPos": "/0", "info": {"p": "40"}}, {"text": "α"}]},
+         {"tag": [{"subexprPos": "/0", "info": {"p": "4"}}, {"text": "α"}]},
          {"text": "), "},
          {"tag":
-          [{"subexprPos": "/1", "info": {"p": "41"}},
+          [{"subexprPos": "/1", "info": {"p": "5"}},
            {"append":
             [{"tag":
-              [{"subexprPos": "/1/0/1", "info": {"p": "42"}}, {"text": "x"}]},
+              [{"subexprPos": "/1/0/1", "info": {"p": "6"}}, {"text": "x"}]},
              {"text": " = "},
              {"tag":
               [{"subexprPos": "/1/1",
-                "info": {"p": "43"},
+                "info": {"p": "7"},
                 "diffStatus": "wasChanged"},
                {"text": "x"}]}]}]}]}]},
      "names": ["f"],
      "fvarIds": []},
     {"type":
      {"tag":
-      [{"subexprPos": "/", "info": {"p": "44"}},
+      [{"subexprPos": "/", "info": {"p": "8"}},
        {"append":
-        [{"tag": [{"subexprPos": "/0/1", "info": {"p": "45"}}, {"text": "y"}]},
+        [{"tag": [{"subexprPos": "/0/1", "info": {"p": "9"}}, {"text": "y"}]},
          {"text": " = "},
          {"tag":
-          [{"subexprPos": "/1", "info": {"p": "46"}}, {"text": "x"}]}]}]},
+          [{"subexprPos": "/1", "info": {"p": "10"}}, {"text": "x"}]}]}]},
      "names": ["h"],
      "fvarIds": []}],
    "goalPrefix": "⊢ ",
-   "ctx": {"p": "48"}}]}
+   "ctx": {"p": "12"}}]}
 {"textDocument": {"uri": "file:///Diff.lean"},
  "position": {"line": 25, "character": 2}}
 {"goals":
  [{"type":
    {"tag":
-    [{"subexprPos": "/", "info": {"p": "49"}, "diffStatus": "willChange"},
+    [{"subexprPos": "/", "info": {"p": "0"}, "diffStatus": "willChange"},
      {"append":
-      [{"tag": [{"subexprPos": "/0/1", "info": {"p": "50"}}, {"text": "True"}]},
+      [{"tag": [{"subexprPos": "/0/1", "info": {"p": "1"}}, {"text": "True"}]},
        {"text": " ∧ "},
        {"tag":
-        [{"subexprPos": "/1", "info": {"p": "51"}}, {"text": "True"}]}]}]},
+        [{"subexprPos": "/1", "info": {"p": "2"}}, {"text": "True"}]}]}]},
    "mvarId": "[anonymous]",
    "isInserted": false,
    "hyps": [],
    "goalPrefix": "⊢ ",
-   "ctx": {"p": "52"}}]}
+   "ctx": {"p": "3"}}]}
 {"textDocument": {"uri": "file:///Diff.lean"},
  "position": {"line": 27, "character": 2}}
 {"goals":
  [{"userName": "left",
-   "type":
-   {"tag": [{"subexprPos": "/", "info": {"p": "53"}}, {"text": "True"}]},
+   "type": {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "True"}]},
    "mvarId": "[anonymous]",
    "isRemoved": true,
    "hyps": [],
    "goalPrefix": "⊢ ",
-   "ctx": {"p": "54"}},
+   "ctx": {"p": "1"}},
   {"userName": "right",
-   "type":
-   {"tag": [{"subexprPos": "/", "info": {"p": "55"}}, {"text": "True"}]},
+   "type": {"tag": [{"subexprPos": "/", "info": {"p": "2"}}, {"text": "True"}]},
    "mvarId": "[anonymous]",
    "hyps": [],
    "goalPrefix": "⊢ ",
-   "ctx": {"p": "56"}}]}
+   "ctx": {"p": "3"}}]}
 {"textDocument": {"uri": "file:///Diff.lean"},
  "position": {"line": 29, "character": 2}}
 {"goals":
  [{"userName": "right",
-   "type":
-   {"tag": [{"subexprPos": "/", "info": {"p": "57"}}, {"text": "True"}]},
+   "type": {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "True"}]},
    "mvarId": "[anonymous]",
    "isRemoved": true,
    "hyps": [],
    "goalPrefix": "⊢ ",
-   "ctx": {"p": "58"}}]}
+   "ctx": {"p": "1"}}]}
 {"textDocument": {"uri": "file:///Diff.lean"},
  "position": {"line": 33, "character": 6}}
 {"goals":
  [{"type":
    {"tag":
-    [{"subexprPos": "/", "info": {"p": "63"}},
+    [{"subexprPos": "/", "info": {"p": "4"}},
      {"append":
       [{"tag":
-        [{"subexprPos": "/0/1", "info": {"p": "64"}},
+        [{"subexprPos": "/0/1", "info": {"p": "5"}},
          {"append":
           [{"tag":
             [{"subexprPos": "/0/1/0/1",
-              "info": {"p": "65"},
+              "info": {"p": "6"},
               "diffStatus": "willChange"},
              {"text": "x"}]},
            {"text": " + "},
            {"tag":
             [{"subexprPos": "/0/1/1",
-              "info": {"p": "66"},
+              "info": {"p": "7"},
               "diffStatus": "willChange"},
              {"text": "z"}]}]}]},
        {"text": " = "},
        {"tag":
-        [{"subexprPos": "/1", "info": {"p": "67"}},
+        [{"subexprPos": "/1", "info": {"p": "8"}},
          {"append":
           [{"tag":
-            [{"subexprPos": "/1/0/1", "info": {"p": "68"}}, {"text": "z"}]},
+            [{"subexprPos": "/1/0/1", "info": {"p": "9"}}, {"text": "z"}]},
            {"text": " + "},
            {"tag":
-            [{"subexprPos": "/1/1", "info": {"p": "69"}},
+            [{"subexprPos": "/1/1", "info": {"p": "10"}},
              {"text": "y"}]}]}]}]}]},
    "mvarId": "[anonymous]",
    "isInserted": false,
    "hyps":
    [{"type":
-     {"tag": [{"subexprPos": "/", "info": {"p": "59"}}, {"text": "Nat"}]},
+     {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "Nat"}]},
      "names": ["x", "y", "z"],
      "fvarIds": []},
     {"type":
      {"tag":
-      [{"subexprPos": "/", "info": {"p": "60"}},
+      [{"subexprPos": "/", "info": {"p": "1"}},
        {"append":
-        [{"tag": [{"subexprPos": "/0/1", "info": {"p": "61"}}, {"text": "y"}]},
+        [{"tag": [{"subexprPos": "/0/1", "info": {"p": "2"}}, {"text": "y"}]},
          {"text": " = "},
-         {"tag":
-          [{"subexprPos": "/1", "info": {"p": "62"}}, {"text": "x"}]}]}]},
+         {"tag": [{"subexprPos": "/1", "info": {"p": "3"}}, {"text": "x"}]}]}]},
      "names": ["h"],
      "fvarIds": []}],
    "goalPrefix": "⊢ ",
-   "ctx": {"p": "70"}}]}
+   "ctx": {"p": "11"}}]}

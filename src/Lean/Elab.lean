@@ -62,5 +62,3 @@ public import Lean.Elab.InfoTrees
 public import Lean.Elab.ErrorExplanation
 public import Lean.Elab.DocString
 public import Lean.Elab.DocString.Builtin
-
-public section

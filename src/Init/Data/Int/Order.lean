@@ -605,6 +605,9 @@ theorem natAbs_of_nonneg {a : Int} (H : 0 ≤ a) : (natAbs a : Int) = a :=
   match a, eq_ofNat_of_zero_le H with
   | _, ⟨_, rfl⟩ => rfl
 
+theorem ofNat_natAbs_of_nonneg {a : Int} (h : 0 ≤ a) : (natAbs a : Int) = a :=
+  natAbs_of_nonneg h
+
 theorem ofNat_natAbs_of_nonpos {a : Int} (H : a ≤ 0) : (natAbs a : Int) = -a := by
   rw [← natAbs_neg, natAbs_of_nonneg (Int.neg_nonneg_of_nonpos H)]
 

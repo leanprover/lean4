@@ -217,6 +217,10 @@ structure State where
   if it implements the `ReflCmp` type class.
   -/
   reflCmpMap : PHashMap ExprPtr (Option Expr) := {}
+  /--
+  Cached anchors (aka stable hash codes) for terms in the `grind` state.
+  -/
+  anchors : PHashMap ExprPtr UInt64 := {}
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 def MethodsRef : Type := MethodsRefPointed.type
@@ -275,6 +279,9 @@ def getIntExpr : GrindM Expr := do
 
 def cheapCasesOnly : GrindM Bool :=
   return (← readThe Context).cheapCases
+
+def withCheapCasesOnly (k : GrindM α) : GrindM α :=
+  withTheReader Grind.Context (fun ctx => { ctx with cheapCases := true }) k
 
 def reportMVarInternalization : GrindM Bool :=
   return (← readThe Context).reportMVarIssue
@@ -474,6 +481,10 @@ def ENode.isCongrRoot (n : ENode) :=
 inductive NewFact where
   | eq (lhs rhs proof : Expr) (isHEq : Bool)
   | fact (prop proof : Expr) (generation : Nat)
+
+def NewFact.toExpr : NewFact → MetaM Expr
+  | .eq lhs rhs _ _ => mkEq lhs rhs
+  | .fact p _ _ => return p
 
 -- This type should be considered opaque outside this module.
 @[expose]  -- for codegen
@@ -1288,12 +1299,10 @@ def forEachEqcRoot (f : ENode → GoalM Unit) : GoalM Unit := do
       f n
 
 abbrev Propagator := Expr → GoalM Unit
-abbrev Fallback := GoalM Unit
 
 structure Methods where
   propagateUp   : Propagator := fun _ => return ()
   propagateDown : Propagator := fun _ => return ()
-  fallback      : Fallback := pure ()
   deriving Inhabited
 
 def Methods.toMethodsRef (m : Methods) : MethodsRef :=
@@ -1310,10 +1319,6 @@ def propagateUp (e : Expr) : GoalM Unit := do
 
 def propagateDown (e : Expr) : GoalM Unit := do
   (← getMethods).propagateDown e
-
-def applyFallback : GoalM Unit := do
-  let fallback : GoalM Unit := (← getMethods).fallback
-  fallback
 
 def Goal.getGeneration (goal : Goal) (e : Expr) : Nat :=
   if let some n := goal.getENode? e then
@@ -1456,6 +1461,7 @@ structure SolverExtension (σ : Type) where private mk ::
   mbtc        : GoalM Bool
   check       : GoalM Bool
   checkInv    : GoalM Unit
+  mkTactic?   : CoreM (Option (TSyntax `grind))
   deriving Inhabited
 
 private builtin_initialize solverExtensionsRef : IO.Ref (Array (SolverExtension SolverExtensionState)) ← IO.mkRef #[]
@@ -1465,7 +1471,7 @@ Registers a new solver extension for `grind`.
 Solver extensions can only be registered during initialization.
 Reason: We do not use any synchronization primitive to access `solverExtensionsRef`.
 -/
-def registerSolverExtension {σ : Type} (mkInitial   : IO σ) : IO (SolverExtension σ) := do
+def registerSolverExtension {σ : Type} (mkInitial : IO σ) : IO (SolverExtension σ) := do
   unless (← initializing) do
     throw (IO.userError "failed to register `grind` solver, extensions can only be registered during initialization")
   let exts ← solverExtensionsRef.get
@@ -1478,6 +1484,7 @@ def registerSolverExtension {σ : Type} (mkInitial   : IO σ) : IO (SolverExtens
     check := fun _ _ => return false
     checkInv := fun _ _ => return ()
     mbtc := fun _ _ => return false
+    mkTactic? := return none
   }
   solverExtensionsRef.modify fun exts => exts.push (unsafe unsafeCast ext)
   return ext
@@ -1493,13 +1500,15 @@ def SolverExtension.setMethods (ext : SolverExtension σ)
     (newDiseq    : Expr → Expr → GoalM Unit := fun _ _ => return ())
     (mbtc        : GoalM Bool := return false)
     (check       : GoalM Bool := return false)
-    (checkInv    : GoalM Unit := return ()) : IO Unit := do
+    (checkInv    : GoalM Unit := return ())
+    (mkTactic?   : CoreM (Option (TSyntax `grind)) := return none)
+    : IO Unit := do
   unless (← initializing) do
     throw (IO.userError "failed to register `grind` solver, extensions can only be registered during initialization")
   unless ext.id < (← solverExtensionsRef.get).size do
     throw (IO.userError "failed to register `grind` solver methods, invalid solver id")
   solverExtensionsRef.modify fun exts => exts.modify ext.id fun s => { s with
-    internalize, newEq, newDiseq, mbtc, check, checkInv
+    internalize, newEq, newDiseq, mbtc, check, checkInv, mkTactic?
   }
 
 /-- Returns initial state for registered solvers. -/
@@ -1535,17 +1544,25 @@ def Solvers.internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
 def Solvers.checkInvariants : GoalM Unit := do
   (← solverExtensionsRef.get).forM fun ext => ext.checkInv
 
-/-- Performs (expensive) satisfiability checks in all registered solvers. -/
-def Solvers.check : GoalM Bool := do
-  let mut result := false
+/--
+Performs (expensive) satisfiability checks in all registered solvers,
+and returns the solver ids that made progress.
+-/
+def Solvers.check? : GoalM (Option (Array Nat)) := do
+  let mut result := #[]
   for ext in (← solverExtensionsRef.get) do
     if (← isInconsistent) then
-      return true
+      return some result
     if (← ext.check) then
-      result := true
-  if result then
+      result := result.push ext.id
+  if !result.isEmpty then
     processNewFacts
-  return result
+    return some result
+  else
+    return none
+
+def Solvers.check : GoalM Bool := do
+  return !(← check?).isNone
 
 /-- Invokes model-based theory combination extensions in all registered solvers. -/
 def Solvers.mbtc : GoalM Bool := do

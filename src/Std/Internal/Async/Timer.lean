@@ -73,19 +73,24 @@ Create a `Selector` that resolves once `s` has finished. Note that calling this 
 if it hasn't already started.
 -/
 def selector (s : Sleep) : Async (Selector Unit) := do
-  let sleepWaiter ← s.wait.asTask
   return {
     tryFn := do
-      if ← IO.hasFinished sleepWaiter then
+      let sleepWaiter ← s.native.next
+      if ← sleepWaiter.isResolved then
         return some ()
       else
         return none
     registerFn waiter := do
-      discard <| AsyncTask.mapIO (x := sleepWaiter) fun _ => do
-        let lose := return ()
-        let win promise := promise.resolve (.ok ())
-        waiter.race lose win
-    unregisterFn := pure ()
+      let sleepWaiter ← s.native.next
+      BaseIO.chainTask sleepWaiter.result? fun
+        | none => do
+          return ()
+        | some _ =>
+          let lose := return ()
+          let win promise := promise.resolve (.ok ())
+          waiter.race lose win
+
+    unregisterFn := s.native.cancel
   }
 
 end Sleep

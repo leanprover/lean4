@@ -9,5 +9,3 @@ prelude
 public import Init.Data.Slice.Array.Basic
 public import Init.Data.Slice.Array.Iterator
 public import Init.Data.Slice.Array.Lemmas
-
-public section

@@ -109,9 +109,6 @@ def run (declNames : Array Name) : CompilerM (Array IR.Decl) := withAtLeastMaxRe
         if !(isValidMainType info.type) then
           throwError "`main` function must have type `(List String →)? IO (UInt32 | Unit | PUnit)`"
   let decls ← declNames.mapM toDecl
-  -- Check meta accesses now before optimizations may obscure references.
-  for decl in decls do
-    checkMeta decl
 
   for decl in decls do
     decl.value.forCodeM fun code => code.forM fun

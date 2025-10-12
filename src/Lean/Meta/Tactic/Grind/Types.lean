@@ -1542,16 +1542,21 @@ def Solvers.checkInvariants : GoalM Unit := do
   (← solverExtensionsRef.get).forM fun ext => ext.checkInv
 
 /-- Performs (expensive) satisfiability checks in all registered solvers. -/
-def Solvers.check : GoalM Bool := do
-  let mut result := false
+def Solvers.check? : GoalM (Option (Array Name)) := do
+  let mut result := #[]
   for ext in (← solverExtensionsRef.get) do
     if (← isInconsistent) then
-      return true
+      return some result
     if (← ext.check) then
-      result := true
-  if result then
+      result := result.push ext.name
+  if !result.isEmpty then
     processNewFacts
-  return result
+    return some result
+  else
+    return none
+
+def Solvers.check : GoalM Bool := do
+  return !(← check?).isNone
 
 /-- Invokes model-based theory combination extensions in all registered solvers. -/
 def Solvers.mbtc : GoalM Bool := do

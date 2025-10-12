@@ -1461,7 +1461,7 @@ structure SolverExtension (σ : Type) where private mk ::
   mbtc        : GoalM Bool
   check       : GoalM Bool
   checkInv    : GoalM Unit
-  name        : Name
+  mkTactic?   : CoreM (Option (TSyntax `grind))
   deriving Inhabited
 
 private builtin_initialize solverExtensionsRef : IO.Ref (Array (SolverExtension SolverExtensionState)) ← IO.mkRef #[]
@@ -1471,19 +1471,20 @@ Registers a new solver extension for `grind`.
 Solver extensions can only be registered during initialization.
 Reason: We do not use any synchronization primitive to access `solverExtensionsRef`.
 -/
-def registerSolverExtension {σ : Type} (name : Name) (mkInitial : IO σ) : IO (SolverExtension σ) := do
+def registerSolverExtension {σ : Type} (mkInitial : IO σ) : IO (SolverExtension σ) := do
   unless (← initializing) do
     throw (IO.userError "failed to register `grind` solver, extensions can only be registered during initialization")
   let exts ← solverExtensionsRef.get
   let id := exts.size
   let ext : SolverExtension σ := {
-    id, name, mkInitial
+    id, mkInitial
     internalize := fun _ _ => return ()
     newEq := fun _ _ => return ()
     newDiseq := fun _ _ => return ()
     check := fun _ _ => return false
     checkInv := fun _ _ => return ()
     mbtc := fun _ _ => return false
+    mkTactic? := return none
   }
   solverExtensionsRef.modify fun exts => exts.push (unsafe unsafeCast ext)
   return ext
@@ -1499,13 +1500,15 @@ def SolverExtension.setMethods (ext : SolverExtension σ)
     (newDiseq    : Expr → Expr → GoalM Unit := fun _ _ => return ())
     (mbtc        : GoalM Bool := return false)
     (check       : GoalM Bool := return false)
-    (checkInv    : GoalM Unit := return ()) : IO Unit := do
+    (checkInv    : GoalM Unit := return ())
+    (mkTactic?   : CoreM (Option (TSyntax `grind)) := return none)
+    : IO Unit := do
   unless (← initializing) do
     throw (IO.userError "failed to register `grind` solver, extensions can only be registered during initialization")
   unless ext.id < (← solverExtensionsRef.get).size do
     throw (IO.userError "failed to register `grind` solver methods, invalid solver id")
   solverExtensionsRef.modify fun exts => exts.modify ext.id fun s => { s with
-    internalize, newEq, newDiseq, mbtc, check, checkInv
+    internalize, newEq, newDiseq, mbtc, check, checkInv, mkTactic?
   }
 
 /-- Returns initial state for registered solvers. -/
@@ -1541,14 +1544,17 @@ def Solvers.internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
 def Solvers.checkInvariants : GoalM Unit := do
   (← solverExtensionsRef.get).forM fun ext => ext.checkInv
 
-/-- Performs (expensive) satisfiability checks in all registered solvers. -/
-def Solvers.check? : GoalM (Option (Array Name)) := do
+/--
+Performs (expensive) satisfiability checks in all registered solvers,
+and returns the solver ids that made progress.
+-/
+def Solvers.check? : GoalM (Option (Array Nat)) := do
   let mut result := #[]
   for ext in (← solverExtensionsRef.get) do
     if (← isInconsistent) then
       return some result
     if (← ext.check) then
-      result := result.push ext.name
+      result := result.push ext.id
   if !result.isEmpty then
     processNewFacts
     return some result

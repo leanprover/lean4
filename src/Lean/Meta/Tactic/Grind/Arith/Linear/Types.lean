@@ -263,6 +263,6 @@ structure State where
   exprToNatStructId : PHashMap ExprPtr Nat := {}
   deriving Inhabited
 
-builtin_initialize linearExt : SolverExtension State ← registerSolverExtension `linarith (return {})
+builtin_initialize linearExt : SolverExtension State ← registerSolverExtension (return {})
 
 end Lean.Meta.Grind.Arith.Linear

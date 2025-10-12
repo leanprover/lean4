@@ -372,6 +372,6 @@ structure State where
   nonlinearOccs : PHashMap Var (List Var) := {}
   deriving Inhabited
 
-builtin_initialize cutsatExt : SolverExtension State ← registerSolverExtension `lia (return {})
+builtin_initialize cutsatExt : SolverExtension State ← registerSolverExtension (return {})
 
 end Lean.Meta.Grind.Arith.Cutsat

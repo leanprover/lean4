@@ -310,7 +310,7 @@ structure State where
   steps := 0
   deriving Inhabited
 
-builtin_initialize ringExt : SolverExtension State ← registerSolverExtension `ring (return {})
+builtin_initialize ringExt : SolverExtension State ← registerSolverExtension (return {})
 
 def get' : GoalM State := do
   ringExt.getState

@@ -6,11 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.MetavarContext
-public import Lean.Environment
-public import Lean.AddDecl
-public import Lean.Util.FoldConsts
-public import Lean.Meta.Basic
 public import Lean.Meta.Check
 public import Lean.Meta.Tactic.AuxLemma
 

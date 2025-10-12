@@ -5,21 +5,11 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Basic
 public import Lean.Meta.Tactic.Grind.Theorems
 import Init.Grind.Util
-import Init.Grind.Tactics
-import Lean.Util.FoldConsts
-import Lean.Util.CollectFVars
-import Lean.Meta.Basic
-import Lean.Meta.InferType
-import Lean.Meta.Eqns
 import Lean.Meta.Tactic.Grind.Util
-import Lean.Message
-import Lean.Meta.Tactic.FVarSubst
 import Lean.Meta.Match.Basic
 import Lean.Meta.Tactic.TryThis
-import Lean.ExtraModUses
 public section
 namespace Lean.Meta.Grind
 /--

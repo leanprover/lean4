@@ -6,11 +6,8 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Lean.Util.ForEachExprWhere
-public import Lean.Meta.CtorRecognizer
 public import Lean.Meta.Match.Match
 public import Lean.Meta.GeneralizeVars
-public import Lean.Meta.ForEachExpr
 public import Lean.Elab.BindersUtil
 public import Lean.Elab.PatternVar
 public import Lean.Elab.Quotation.Precheck

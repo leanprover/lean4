@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Control.Option
 public import Lean.Data.LBool
 public import Lean.Meta.Basic
 import Lean.Meta.NatInstTesters

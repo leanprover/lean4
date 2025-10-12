@@ -8,7 +8,6 @@ module
 
 prelude
 public import Lean.Data.JsonRpc
-public import Lean.Data.Lsp.TextSync
 public import Lean.Data.Lsp.LanguageFeatures
 public import Lean.Data.Lsp.CodeActions
 public import Lean.Data.Lsp.Extra

@@ -6,17 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Util.CollectLevelParams
-public import Lean.Util.CollectAxioms
 public import Lean.Meta.Reduce
-public import Lean.Elab.DeclarationRange
 public import Lean.Elab.Eval
 public import Lean.Elab.Command
 public import Lean.Elab.Open
-public import Lean.Elab.SetOption
-public import Init.System.Platform
-public import Lean.Meta.Hint
-public import Lean.Parser.Command
 
 public section
 

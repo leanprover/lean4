@@ -6,8 +6,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Data.OpenDecl
-public import Lean.Hygiene
 public import Lean.Modifiers
 public import Lean.Exception
 public import Lean.Namespace

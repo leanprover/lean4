@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Util.Trace
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search

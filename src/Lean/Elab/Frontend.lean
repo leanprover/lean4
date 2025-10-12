@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Language.Lean
-public import Lean.Util.Profile
 public import Lean.Server.References
 public import Lean.Util.Profiler
 

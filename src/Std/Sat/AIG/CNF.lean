@@ -7,7 +7,6 @@ module
 
 prelude
 public import Std.Sat.CNF
-public import Std.Sat.AIG.Basic
 public import Std.Sat.AIG.Lemmas
 
 public section

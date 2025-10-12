@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Closure
 public import Lean.Meta.Diagnostics
 public import Lean.Elab.Open
 public import Lean.Elab.SetOption

@@ -7,9 +7,6 @@ module
 
 prelude
 public import Init.Data.Nat.Fold
-public import Init.Data.Array.Basic
-public import Init.NotationExtra
-public import Init.Data.ToString.Macro
 public import Init.Data.UInt.Basic
 import Init.Data.String.Basic
 

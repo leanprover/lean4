@@ -10,13 +10,11 @@ import Init.Grind.Util
 import Init.Grind.Injective
 import Init.Grind.PP
 import Lean.Meta.Tactic.Grind.Arith.Model
-import Lean.Meta.Tactic.Grind.Arith.Offset.Types
 import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
 import Lean.Meta.Tactic.Grind.Arith.Linear.PP
 import Lean.Meta.Tactic.Grind.AC.PP
 import Lean.Meta.Tactic.Grind.CastLike
 import Lean.PrettyPrinter
-import Lean.Meta.CtorRecognizer
 public section
 
 namespace Lean.Meta.Grind

@@ -7,14 +7,7 @@ Authors: Cameron Zwarich
 module
 
 prelude
-public import Lean.CoreM
-public import Lean.Compiler.BorrowedAnnotation
-public import Lean.Compiler.ExternAttr
-public import Lean.Compiler.IR.Basic
 public import Lean.Compiler.IR.Boxing
-public import Lean.Compiler.IR.CompilerM
-public import Lean.Compiler.IR.ToIRType
-public import Lean.Compiler.LCNF.MonoTypes
 
 public section
 

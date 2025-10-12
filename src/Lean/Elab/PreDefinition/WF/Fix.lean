@@ -9,9 +9,7 @@ prelude
 public import Lean.Data.Array
 public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.WF.Basic
-public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.ArgsPacker
-public import Lean.Meta.ForEachExpr
 public import Lean.Meta.Match.MatcherApp.Transform
 public import Lean.Meta.Tactic.Cleanup
 public import Lean.Util.HasConstCache

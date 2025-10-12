@@ -7,12 +7,7 @@ module
 
 prelude
 public import Init.Data.Hashable
-public import Init.Data.Int.Basic
-public import Lean.Data.KVMap
-public import Lean.Data.SMap
 public import Lean.Level
-public import Std.Data.HashSet.Basic
-public import Std.Data.TreeSet.Basic
 
 public section
 

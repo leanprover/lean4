@@ -6,9 +6,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone, Siddharth Bhat
 module
 
 prelude
-public import Lean.Setup
 public import Lake.Util.Log
-import Lean.Data.Json
 import Lake.Config.Dynlib
 import Lake.Util.Proc
 import Lake.Util.NativeLib

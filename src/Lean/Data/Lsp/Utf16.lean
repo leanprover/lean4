@@ -9,7 +9,6 @@ module
 prelude
 public import Init.Data.String
 public import Lean.Data.Lsp.BasicAux
-public import Lean.Data.Position
 public import Lean.DeclarationRange
 
 public section

@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.EMatchTheorem
 public import Lean.Meta.Tactic.Grind.Injective
 public import Lean.Meta.Tactic.Grind.Cases
 public import Lean.Meta.Tactic.Grind.ExtAttr

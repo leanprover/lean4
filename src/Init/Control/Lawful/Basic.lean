@@ -7,8 +7,6 @@ module
 
 prelude
 public import Init.Ext
-public import Init.SimpLemmas
-public import Init.Meta
 
 public section
 

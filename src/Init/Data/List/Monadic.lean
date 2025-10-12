@@ -6,11 +6,9 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.TakeDrop
 public import Init.Data.List.Attach
 public import Init.Data.List.OfFn
 public import Init.Data.Array.Bootstrap
-public import Init.Data.List.Control
 import all Init.Data.List.Control
 
 public section

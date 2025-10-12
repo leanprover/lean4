@@ -5,9 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Util
 public import Lean.Meta.Tactic.Grind.Types
-import Init.Grind.Lemmas
 import Lean.PrettyPrinter
 import Lean.Meta.Tactic.ExposeNames
 import Lean.Meta.Tactic.Simp.Diagnostics
@@ -24,7 +22,6 @@ import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.Solve
 import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.SimpUtil
-import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.LawfulEqCmp
 import Lean.Meta.Tactic.Grind.ReflCmp
 import Lean.Meta.Tactic.Grind.PP

@@ -9,7 +9,6 @@ module
 prelude
 public import Lean.DocString
 public import Lean.PrettyPrinter
-public import Lean.Parser.Tactic.Doc
 meta import Lean.Parser.Term
 
 public section

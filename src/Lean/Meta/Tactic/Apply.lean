@@ -6,9 +6,6 @@ Authors: Leonardo de Moura, Siddhartha Gadgil
 module
 
 prelude
-public import Lean.Util.FindMVar
-public import Lean.Meta.SynthInstance
-public import Lean.Meta.CollectMVars
 public import Lean.Meta.Tactic.Util
 public import Lean.PrettyPrinter
 import Lean.Meta.AppBuilder

@@ -14,7 +14,6 @@ public import Std.Data.HashSet.Iterator
 import all Std.Data.HashSet.Iterator
 import Std.Data.HashSet.RawLemmas
 import Std.Data.HashSet.Lemmas
-import Std.Data.DHashMap.Internal.WF
 import all Std.Data.DHashMap.Basic
 
 namespace Std.HashSet.Raw

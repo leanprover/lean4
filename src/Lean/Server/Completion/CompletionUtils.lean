@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Marc Huisinga
 module
 
 prelude
-public import Init.Prelude
 public import Lean.Meta.WHNF
 
 public section

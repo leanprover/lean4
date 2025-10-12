@@ -6,8 +6,6 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Lean.Data.Name
-public import Lean.Data.Options
 public import Lean.Data.Format
 
 public section

@@ -6,7 +6,6 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Init.Data.BEq
 public import Init.Data.LawfulHashable
 public import Std.Data.DHashMap.Internal.Defs
 import all Std.Data.DHashMap.Internal.Defs

@@ -6,10 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.InferType
 public import Lean.Compiler.LCNF.Util
 public import Lean.Compiler.LCNF.BaseTypes
-public import Lean.Compiler.LCNF.CompilerM
 
 public section
 

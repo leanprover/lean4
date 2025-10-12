@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.PremiseSelection.Basic
-import Lean.Util.FoldConsts
 import Lean.Meta.Basic
 
 /-!

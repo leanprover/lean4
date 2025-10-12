@@ -6,8 +6,6 @@ Authors: Kyle Miller
 module
 
 prelude
-public import Lean.Util.CollectAxioms
-public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.MutualDef
 import Lean.Compiler.Options
 

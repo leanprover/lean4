@@ -6,19 +6,15 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.SemiringM
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommSemiringM
-import Init.Grind.Ring.CommSemiringAdapter
 import Lean.Data.RArray
 import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.ProofUtil
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
 import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
-import Lean.Meta.Tactic.Grind.VarRename
 import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 /--

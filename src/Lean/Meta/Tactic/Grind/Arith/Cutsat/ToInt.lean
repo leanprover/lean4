@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Init.Grind.ToIntLemmas
 import Lean.Meta.Tactic.Grind.SynthInstance

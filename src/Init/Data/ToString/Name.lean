@@ -6,7 +6,6 @@ Authors: Leonardo de Moura and Sebastian Ullrich
 module
 
 prelude
-public import Init.Meta
 public import Init.Data.String.Extra
 
 /-!

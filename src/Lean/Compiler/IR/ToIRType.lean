@@ -6,11 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Environment
 public import Lean.Compiler.IR.Format
-public import Lean.Compiler.LCNF.CompilerM
 public import Lean.Compiler.LCNF.MonoTypes
-public import Lean.Compiler.LCNF.Types
 
 public section
 

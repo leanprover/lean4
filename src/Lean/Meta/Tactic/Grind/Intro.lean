@@ -6,14 +6,11 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Grind.Lemmas
-public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.SearchM
 public import Lean.Meta.Tactic.Grind.Action
-import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Util
-import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core

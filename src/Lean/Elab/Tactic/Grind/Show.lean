@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Elab.Tactic.Grind.Basic
-import Init.Grind.Interactive
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Anchor
 import Lean.Meta.Tactic.Grind.Split

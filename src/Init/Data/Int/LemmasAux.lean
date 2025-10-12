@@ -6,9 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Int.Order
 public import Init.Data.Int.Pow
-public import Init.Omega
 
 public section
 

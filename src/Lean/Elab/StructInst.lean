@@ -6,13 +6,9 @@ Authors: Leonardo de Moura, Kyle Miller
 module
 
 prelude
-public import Lean.Util.FindExpr
-public import Lean.Parser.Term
 public import Lean.Meta.Structure
 public import Lean.Elab.App
-public import Lean.Elab.Binders
 public import Lean.Elab.StructInstHint
-public import Lean.PrettyPrinter
 
 public section
 

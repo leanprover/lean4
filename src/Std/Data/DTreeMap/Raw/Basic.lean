@@ -6,7 +6,6 @@ Authors: Markus Himmel, Paul Reichert
 module
 
 prelude
-public import Std.Data.DTreeMap.Internal.WF.Defs
 public import Std.Data.DTreeMap.Basic
 
 @[expose] public section

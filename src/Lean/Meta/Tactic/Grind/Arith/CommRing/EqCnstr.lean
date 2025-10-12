@@ -14,7 +14,6 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Inv
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 /-- Returns `some ringId` if `a` and `b` are elements of the same ring. -/

@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Parser.Basic
 public import Lean.Parser.Extra
 
 public section

@@ -13,7 +13,6 @@ public import Std.Data.HashMap.Iterator
 import all Std.Data.HashMap.Iterator
 import Std.Data.HashMap.RawLemmas
 import Std.Data.HashMap.Lemmas
-import Std.Data.DHashMap.Internal.WF
 import all Std.Data.DHashMap.Basic
 
 namespace Std.HashMap.Raw

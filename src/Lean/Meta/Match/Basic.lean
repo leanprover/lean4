@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Check
 public import Lean.Meta.CollectFVars
-public import Lean.Meta.Match.MatcherInfo
 public import Lean.Meta.Match.CaseArraySizes
 
 public section

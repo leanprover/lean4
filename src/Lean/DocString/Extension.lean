@@ -7,11 +7,6 @@ module
 
 prelude
 public import Lean.DeclarationRange
-public import Lean.Data.Options
-public import Lean.DocString.Links
-public import Lean.MonadEnv
-public import Init.Data.String.Extra
-public import Lean.DocString.Types
 public import Lean.DocString.Markdown
 
 public section

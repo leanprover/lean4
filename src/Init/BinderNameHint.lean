@@ -7,7 +7,6 @@ Authors: Joachim Breitner
 module
 
 prelude
-public import Init.Prelude
 public import Init.Tactics
 
 public section

@@ -6,11 +6,8 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Array.DecidableEq
 public import Init.Data.UInt.Basic
-public import Init.Data.UInt.BasicAux
 import all Init.Data.UInt.BasicAux
-public import Init.Data.Option.Basic
 public import Init.Data.Array.Extract
 
 set_option doc.verso true

@@ -9,8 +9,6 @@ module
 prelude
 public import Lean.Elab.Eval
 public import Lean.Server.Rpc.RequestHandling
-public import Lean.Widget.Types
-meta import Lean.Parser.Term
 meta import Lean.Elab.Command
 
 public section

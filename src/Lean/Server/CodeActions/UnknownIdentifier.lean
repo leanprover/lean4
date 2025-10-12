@@ -6,12 +6,8 @@ Authors: Marc Huisinga
 module
 
 prelude
-public import Lean.Server.FileWorker.Utils
-public import Lean.Data.Lsp.Internal
-public import Lean.Server.Requests
 public import Lean.Server.Completion.CompletionInfoSelection
 public import Lean.Server.CodeActions.Basic
-public import Lean.Server.Completion.CompletionUtils
 
 public section
 

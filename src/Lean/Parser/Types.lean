@@ -7,8 +7,6 @@ module
 
 prelude
 public import Lean.Data.Trie
-public import Lean.Syntax
-public import Lean.Message
 public import Lean.DocString.Extension
 
 public section

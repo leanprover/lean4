@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Elab.Tactic.Grind.Basic
-import Init.Grind.Interactive
 import Lean.Meta.Tactic.Grind.Solve
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search
 import Lean.Meta.Tactic.Grind.Arith.Linear.Search

@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Util.Trace
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId

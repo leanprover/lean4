@@ -6,14 +6,11 @@ Authors: Leonardo de Moura and Sebastian Ullrich
 Additional goodies for writing macros
 -/
 module
-
 prelude
 public import Init.Meta.Defs
 public meta import Init.Meta.Defs
 public import Init.Tactics
-
 public section
-
 namespace Lean
 
 macro_rules

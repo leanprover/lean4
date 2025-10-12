@@ -55,5 +55,6 @@ builtin_initialize
     (newDiseq    := CommRing.processNewDiseq)
     (check       := CommRing.check)
     (checkInv    := CommRing.checkInvariants)
+    (mkTactic?   := return some (← `(grind| ring)))
 
 end Lean.Meta.Grind.Arith.CommRing

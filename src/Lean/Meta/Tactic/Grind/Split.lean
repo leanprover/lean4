@@ -275,11 +275,11 @@ Selects a case-split from the list of candidates, and adds new choice point
 (aka backtracking point). Returns true if successful.
 -/
 def splitNext : SearchM Bool := withCurrGoalContext do
-  let .some c numCases isRec _ ← selectNextSplit?
+  let .some info numCases isRec _ ← selectNextSplit?
     | return false
   let mvarId ← mkAuxMVarForCurrGoal
-  let (goals, genNew) ← splitCore mvarId c numCases isRec
-  mkChoice (mkMVar mvarId) goals genNew
+  let (goals, genNew) ← splitCore mvarId info numCases isRec
+  mkChoice (mkMVar mvarId) goals genNew (info? := some info)
   intros genNew
   return true
 

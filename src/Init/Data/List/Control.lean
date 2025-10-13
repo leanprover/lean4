@@ -444,6 +444,25 @@ theorem findM?_eq_findSomeM? [Monad m] [LawfulMonad m] {p : α → m Bool} {as :
     intro b
     cases b <;> simp
 
+@[specialize, expose]
+def newForIn (l : List α) (b : β) (kcons : α → (β → γ) → β → γ) (knil : β → γ) : γ :=
+  match l with
+  | []     => knil b
+  | a :: l => kcons a (l.newForIn · kcons knil) b
+
+instance : ForInNew m (List α) α where
+  forIn := newForIn
+
+@[specialize, expose]
+def newForIn' (l : List α) (b : β) (kcons : (a : α) → a ∈ l → (β → γ) → β → γ) (knil : β → γ) : γ := go l id b
+where
+  go (l' : List α) (inj : ∀ {a}, a ∈ l' → a ∈ l) (b : β) : γ := match l' with
+  | []     => knil b
+  | a :: l => kcons a (inj (.head l)) (go l (inj ∘ (.tail a))) b
+
+instance : ForInNew' m (List α) α Membership.mem where
+  forIn' := newForIn'
+
 @[inline, expose] protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
   let rec @[specialize] loop : (as' : List α) → (b : β) → Exists (fun bs => bs ++ as' = as) → m β
     | [], b, _    => pure b

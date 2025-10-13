@@ -267,3 +267,6 @@ def mkSpecContext (optConfig : Syntax) (lemmas : Syntax) (ignoreStarArg := false
     simprocs := res.simprocs
     initialCtxSize := (← getLCtx).numIndices
   }
+
+def elabLiftMethod : Term.TermElab := fun stx _ =>
+  throwErrorAt stx "Not implemented"

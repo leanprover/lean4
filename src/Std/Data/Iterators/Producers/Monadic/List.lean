@@ -34,6 +34,13 @@ structure ListIterator (α : Type w) where
 /--
 Returns a finite iterator for the given list.
 The iterator yields the elements of the list in order and then terminates.
+
+The non-monadic version of this iterator is `List.iter`.
+
+**Termination properties:**
+
+* `Finite` instance: always
+* `Productive` instance: always
 -/
 @[always_inline, inline]
 def _root_.List.iterM {α : Type w} (l : List α) (m : Type w → Type w') [Pure m] :

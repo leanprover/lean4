@@ -66,7 +66,7 @@ protected partial def Stream.forIn [Stream ρ α] [Monad m] (s : ρ) (b : β) (f
     | none => return b
   visit s b
 
-instance (priority := low) [Stream ρ α] : ForIn m ρ α where
+instance (priority := low) [Monad m] [Stream ρ α] : ForIn m ρ α where
   forIn := Stream.forIn
 
 instance : ToStream (List α) (List α) where

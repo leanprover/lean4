@@ -2741,8 +2741,7 @@ def get' (s : @& String) (p : @& Pos.Raw) (h : ¬ s.atEnd p) : Char :=
   match s with
   | s => Pos.Raw.utf8GetAux s.data 0 p
 
-@[simp]
-theorem get'_eq {s : String} {p : Pos.Raw} {h} : s.get' p h = p.get' s h := rfl
+theorem get'_eq_get' {s : String} {p : Pos.Raw} {h} : s.get' p h = p.get' s h := rfl
 
 /--
 Returns the next position in a string after position `p`. The result is unspecified if `p` is not a
@@ -2775,7 +2774,7 @@ def next' (s : @& String) (p : @& Pos.Raw) (h : ¬ s.atEnd p) : Pos.Raw :=
   p + c
 
 @[simp]
-theorem next'_eq {s : String} {p : Pos.Raw} {h} : s.next' p h = p.next' s h := rfl
+theorem next'_eq_next' {s : String} {p : Pos.Raw} {h} : s.next' p h = p.next' s h := rfl
 
 @[deprecated Pos.Raw.lt_iff (since := "2025-10-10")]
 theorem pos_lt_eq (p₁ p₂ : Pos.Raw) : (p₁ < p₂) = (p₁.1 < p₂.1) :=

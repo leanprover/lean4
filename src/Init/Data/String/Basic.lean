@@ -3204,7 +3204,7 @@ A run-time bounds check is performed. Use `String.Iterator.curr'` to avoid redun
 If the position is invalid, returns `(default : Char)`.
 -/
 @[inline] def curr : Iterator → Char
-  | ⟨s, i⟩ => get s i
+  | ⟨s, i⟩ => i.get s
 
 /--
 Moves the iterator's position forward by one character, unconditionally.
@@ -3213,7 +3213,7 @@ It is only valid to call this function if the iterator is not at the end of the 
 if `Iterator.atEnd` is `false`); otherwise, the resulting iterator will be invalid.
 -/
 @[inline] def next : Iterator → Iterator
-  | ⟨s, i⟩ => ⟨s, s.next i⟩
+  | ⟨s, i⟩ => ⟨s, i.next s⟩
 
 /--
 Moves the iterator's position backward by one character, unconditionally.
@@ -3221,7 +3221,7 @@ Moves the iterator's position backward by one character, unconditionally.
 The position is not changed if the iterator is at the beginning of the string.
 -/
 @[inline] def prev : Iterator → Iterator
-  | ⟨s, i⟩ => ⟨s, s.prev i⟩
+  | ⟨s, i⟩ => ⟨s, i.prev s⟩
 
 /--
 Checks whether the iterator is past its string's last character.
@@ -3249,7 +3249,7 @@ function is faster that `String.Iterator.curr` due to avoiding a run-time bounds
 -/
 @[inline] def curr' (it : Iterator) (h : it.hasNext) : Char :=
   match it with
-  | ⟨s, i⟩ => get' s i (by simpa only [hasNext, endPos, decide_eq_true_eq, String.atEnd, ge_iff_le, Nat.not_le] using h)
+  | ⟨s, i⟩ => i.get' s (by simpa only [hasNext, endPos, decide_eq_true_eq, Pos.Raw.atEnd, ge_iff_le, Nat.not_le] using h)
 
 /--
 Moves the iterator's position forward by one character, unconditionally.
@@ -3259,7 +3259,7 @@ This function is faster that `String.Iterator.next` due to avoiding a run-time b
 -/
 @[inline] def next' (it : Iterator) (h : it.hasNext) : Iterator :=
   match it with
-  | ⟨s, i⟩ => ⟨s, s.next' i (by simpa only [hasNext, endPos, decide_eq_true_eq, String.atEnd, ge_iff_le, Nat.not_le] using h)⟩
+  | ⟨s, i⟩ => ⟨s, i.next' s (by simpa only [hasNext, endPos, decide_eq_true_eq, Pos.Raw.atEnd, ge_iff_le, Nat.not_le] using h)⟩
 
 /--
 Replaces the current character in the string.
@@ -3269,7 +3269,7 @@ replaced character are 7-bit ASCII characters and the string is not shared, then
 in-place and not copied.
 -/
 @[inline] def setCurr : Iterator → Char → Iterator
-  | ⟨s, i⟩, c => ⟨s.set i c, i⟩
+  | ⟨s, i⟩, c => ⟨i.set s c, i⟩
 
 /--
 Moves the iterator's position to the end of the string, just past the last character.
@@ -3287,7 +3287,7 @@ iterator is past the position of the second iterator.
 @[inline] def extract : Iterator → Iterator → String
   | ⟨s₁, b⟩, ⟨s₂, e⟩ =>
     if s₁ ≠ s₂ || b > e then ""
-    else s₁.extract b e
+    else b.extract s₁ e
 
 /--
 Moves the iterator's position forward by the specified number of characters.
@@ -3303,7 +3303,7 @@ def forward : Iterator → Nat → Iterator
 The remaining characters in an iterator, as a string.
 -/
 @[inline] def remainingToString : Iterator → String
-  | ⟨s, i⟩ => s.extract i s.endPos
+  | ⟨s, i⟩ => i.extract s s.endPos
 
 @[inherit_doc forward]
 def nextn : Iterator → Nat → Iterator
@@ -3322,11 +3322,11 @@ end Iterator
 
 def offsetOfPosAux (s : String) (pos : Pos.Raw) (i : Pos.Raw) (offset : Nat) : Nat :=
   if i >= pos then offset
-  else if h : s.atEnd i then
+  else if h : i.atEnd s then
     offset
   else
     have := Nat.sub_lt_sub_left (Nat.gt_of_not_le (mt decide_eq_true h)) (Pos.Raw.lt_next s _)
-    offsetOfPosAux s pos (s.next i) (offset+1)
+    offsetOfPosAux s pos (i.next s) (offset+1)
 termination_by s.endPos.1 - i.1
 
 /--
@@ -3355,7 +3355,7 @@ def Internal.offsetOfPosImpl (s : String) (pos : Pos.Raw) : Nat :=
 @[specialize] def foldlAux {α : Type u} (f : α → Char → α) (s : String) (stopPos : Pos.Raw) (i : Pos.Raw) (a : α) : α :=
   if h : i < stopPos then
     have := Nat.sub_lt_sub_left h (Pos.Raw.lt_next s i)
-    foldlAux f s stopPos (s.next i) (f a (s.get i))
+    foldlAux f s stopPos (i.next s) (f a (i.get s))
   else a
 termination_by stopPos.1 - i.1
 
@@ -3379,8 +3379,8 @@ def Internal.foldlImpl (f : String → Char → String) (init : String) (s : Str
   if h : begPos < i then
     have := Pos.Raw.prev_lt_of_pos s i <| mt (congrArg String.Pos.Raw.byteIdx) <|
       Ne.symm <| Nat.ne_of_lt <| Nat.lt_of_le_of_lt (Nat.zero_le _) h
-    let i := s.prev i
-    let a := f (s.get i) a
+    let i := i.prev s
+    let a := f (i.get s) a
     foldrAux f a s i begPos
   else a
 termination_by i.1
@@ -3399,10 +3399,10 @@ Examples:
 
 @[specialize] def anyAux (s : String) (stopPos : Pos.Raw) (p : Char → Bool) (i : Pos.Raw) : Bool :=
   if h : i < stopPos then
-    if p (s.get i) then true
+    if p (i.get s) then true
     else
       have := Nat.sub_lt_sub_left h (Pos.Raw.lt_next s i)
-      anyAux s stopPos p (s.next i)
+      anyAux s stopPos p (i.next s)
   else false
 termination_by stopPos.1 - i.1
 
@@ -3459,9 +3459,9 @@ theorem Pos.Raw.utf8SetAux_of_gt (c' : Char) : ∀ (cs : List Char) {i p : Pos.R
     exact Nat.lt_of_lt_of_le h (Nat.le_add_right ..)
 
 theorem set_next_add (s : String) (i : Pos.Raw) (c : Char) (b₁ b₂)
-    (h : (s.next i).1 + b₁ = s.endPos.1 + b₂) :
-    ((s.set i c).next i).1 + b₁ = (s.set i c).endPos.1 + b₂ := by
-  simp [next, get, set, endPos, ← utf8ByteSize'_eq, utf8ByteSize'] at h ⊢
+    (h : (i.next s).1 + b₁ = s.endPos.1 + b₂) :
+  (i.next (i.set s c)).1 + b₁ = (i.set s c).endPos.1 + b₂ := by
+  simp [Pos.Raw.next, Pos.Raw.get, Pos.Raw.set, endPos, ← utf8ByteSize'_eq, utf8ByteSize'] at h ⊢
   rw [Nat.add_comm i.1, Nat.add_assoc] at h ⊢
   let rec foo : ∀ cs a b₁ b₂,
     (Pos.Raw.utf8GetAux cs a i).utf8Size + b₁ = utf8ByteSize'.go cs + b₂ →
@@ -3479,12 +3479,12 @@ theorem set_next_add (s : String) (i : Pos.Raw) (c : Char) (b₁ b₂)
   exact foo s.data 0 _ _ h
 
 theorem mapAux_lemma (s : String) (i : Pos.Raw) (c : Char) (h : ¬s.atEnd i) :
-    (s.set i c).endPos.1 - ((s.set i c).next i).1 < s.endPos.1 - i.1 := by
-  suffices (s.set i c).endPos.1 - ((s.set i c).next i).1 = s.endPos.1 - (s.next i).1 by
+    (i.set s c).endPos.1 - (i.next (i.set s c)).1 < s.endPos.1 - i.1 := by
+  suffices (i.set s c).endPos.1 - (i.next (i.set s c)).1 = s.endPos.1 - (i.next s).1 by
     rw [this]
     apply Nat.sub_lt_sub_left (Nat.gt_of_not_le (mt decide_eq_true h)) (Pos.Raw.lt_next ..)
-  have := set_next_add s i c (s.endPos.byteIdx - (s.next i).byteIdx) 0
-  have := set_next_add s i c 0 ((s.next i).byteIdx - s.endPos.byteIdx)
+  have := set_next_add s i c (s.endPos.byteIdx - (i.next s).byteIdx) 0
+  have := set_next_add s i c 0 ((i.next s).byteIdx - s.endPos.byteIdx)
   omega
 
 @[specialize] def mapAux (f : Char → Char) (i : Pos.Raw) (s : String) : String :=
@@ -3492,8 +3492,8 @@ theorem mapAux_lemma (s : String) (i : Pos.Raw) (c : Char) (h : ¬s.atEnd i) :
   else
     let c := f (s.get i)
     have := mapAux_lemma s i c h
-    let s := s.set i c
-    mapAux f (s.next i) s
+    let s := i.set s c
+    mapAux f (i.next s) s
 termination_by s.endPos.1 - i.1
 
 /--
@@ -3568,8 +3568,8 @@ def Pos.Raw.substrEq (s1 : String) (pos1 : String.Pos.Raw) (s2 : String) (pos2 :
 where
   loop (off1 off2 stop1 : Pos.Raw) :=
     if _h : off1.byteIdx < stop1.byteIdx then
-      let c₁ := s1.get off1
-      let c₂ := s2.get off2
+      let c₁ := off1.get s1
+      let c₂ := off2.get s2
       c₁ == c₂ && loop (off1 + c₁) (off2 + c₂) stop1
     else true
   termination_by stop1.1 - off1.1
@@ -3620,7 +3620,7 @@ def replace (s pattern replacement : String) : String :=
           loop (acc ++ s.extract accStop pos ++ replacement) (pos + pattern) (pos + pattern)
         else
           have := Nat.sub_lt_sub_left this (Pos.Raw.lt_next s pos)
-          loop acc accStop (s.next pos)
+          loop acc accStop (pos.next s)
       termination_by s.endPos.1 - pos.1
     loop "" 0 0
 
@@ -3694,7 +3694,7 @@ position, not the underlying string.
 @[inline] def next : Substring → String.Pos.Raw → String.Pos.Raw
   | ⟨s, b, e⟩, p =>
     let absP := p.offsetBy b
-    if absP = e then p else { byteIdx := (s.next absP).byteIdx - b.byteIdx }
+    if absP = e then p else { byteIdx := (absP.next s).byteIdx - b.byteIdx }
 
 theorem lt_next (s : Substring) (i : String.Pos.Raw) (h : i.1 < s.bsize) :
     i.1 < (s.next i).1 := by
@@ -3715,7 +3715,7 @@ position, not the underlying string.
 @[inline] def prev : Substring → String.Pos.Raw → String.Pos.Raw
   | ⟨s, b, _⟩, p =>
     let absP := p.offsetBy b
-    if absP = b then p else { byteIdx := (s.prev absP).byteIdx - b.byteIdx }
+    if absP = b then p else { byteIdx := (absP.prev s).byteIdx - b.byteIdx }
 
 @[export lean_substring_prev]
 def Internal.prevImpl : Substring → String.Pos.Raw → String.Pos.Raw :=
@@ -3909,9 +3909,9 @@ Checks whether a substring contains the specified character.
 
 @[specialize] def takeWhileAux (s : String) (stopPos : String.Pos.Raw) (p : Char → Bool) (i : String.Pos.Raw) : String.Pos.Raw :=
   if h : i < stopPos then
-    if p (s.get i) then
+    if p (i.get s) then
       have := Nat.sub_lt_sub_left h (String.Pos.Raw.lt_next s i)
-      takeWhileAux s stopPos p (s.next i)
+      takeWhileAux s stopPos p (i.next s)
     else i
   else i
 termination_by stopPos.1 - i.1
@@ -3944,8 +3944,8 @@ the predicate always returns `true`.
   if h : begPos < i then
     have := String.Pos.Raw.prev_lt_of_pos s i <| mt (congrArg String.Pos.Raw.byteIdx) <|
       Ne.symm <| Nat.ne_of_lt <| Nat.lt_of_le_of_lt (Nat.zero_le _) h
-    let i' := s.prev i
-    let c  := s.get i'
+    let i' := i.prev s
+    let c  := i'.get s
     if !p c then i
     else takeRightWhileAux s begPos p i'
   else i
@@ -4081,9 +4081,9 @@ where
   /-- Returns the ending position of the common prefix, working up from `spos, tpos`. -/
   loop spos tpos :=
     if h : spos < s.stopPos ∧ tpos < t.stopPos then
-      if s.str.get spos == t.str.get tpos then
+      if spos.get s.str == tpos.get t.str then
         have := Nat.sub_lt_sub_left h.1 (String.Pos.Raw.lt_next s.str spos)
-        loop (s.str.next spos) (t.str.next tpos)
+        loop (spos.next s.str) (tpos.next t.str)
       else
         spos
     else
@@ -4101,9 +4101,9 @@ where
   /-- Returns the starting position of the common prefix, working down from `spos, tpos`. -/
   loop spos tpos :=
     if h : s.startPos < spos ∧ t.startPos < tpos then
-      let spos' := s.str.prev spos
-      let tpos' := t.str.prev tpos
-      if s.str.get spos' == t.str.get tpos' then
+      let spos' := spos.prev s.str
+      let tpos' := tpos.prev t.str
+      if spos'.get s.str == tpos'.get t.str then
         have : spos' < spos := String.Pos.Raw.prev_lt_of_pos s.str spos (String.Pos.Raw.ne_zero_of_lt h.1)
         loop spos' tpos'
       else

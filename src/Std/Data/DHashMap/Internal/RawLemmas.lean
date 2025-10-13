@@ -2724,7 +2724,7 @@ theorem contains_of_contains_union_of_contains_eq_false_left [EquivBEq α]
   simp_to_model [union, contains] using List.contains_of_contains_insertList_of_contains_eq_false_left
 
 /- Equiv -/
-theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
+theorem union_insert_right_equiv_insert_union [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
     (m₁.union (m₂.insert p.fst p.snd)).1.Equiv ((m₁.union m₂).insert p.fst p.snd).1 := by
   simp_to_model [union, insert]

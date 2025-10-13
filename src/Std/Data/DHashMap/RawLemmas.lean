@@ -1869,7 +1869,7 @@ variable (m₁ m₂ : Raw α β)
 variable {m₁ m₂}
 
 @[simp]
-theorem union_simp : m₁.union m₂ = m₁ ∪ m₂ := by
+theorem union_eq : m₁.union m₂ = m₁ ∪ m₂ := by
   simp only [Union.union]
 
 /- contains -/
@@ -1919,7 +1919,7 @@ theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] 
     (h₁ : m₁.WF) (h₂ : m₂.WF) :
     (m₁ ∪ (m₂.insert p.fst p.snd)).Equiv ((m₁ ∪ m₂).insert p.fst p.snd) := by
   simp only [Union.union]
-  simp_to_raw using Raw₀.union_insert_right_equiv_union_insert
+  simp_to_raw using Raw₀.union_insert_right_equiv_insert_union
 
 /- get? -/
 theorem get?_union [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)

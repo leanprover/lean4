@@ -1773,7 +1773,7 @@ variable (m₁ m₂ : DHashMap α β)
 variable {m₁ m₂}
 
 @[simp]
-theorem union_simp : m₁.union m₂ = m₁ ∪ m₂ := by
+theorem union_eq : m₁.union m₂ = m₁ ∪ m₂ := by
   simp only [Union.union]
 
 theorem contains_union_of_left [EquivBEq α] [LawfulHashable α] {k : α} :
@@ -1807,7 +1807,7 @@ theorem contains_of_contains_union_of_contains_eq_false_left [EquivBEq α]
 /- Equiv -/
 theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a} :
     (m₁ ∪ (m₂.insert p.fst p.snd)) ~m ((m₁ ∪ m₂).insert p.fst p.snd) :=
-  ⟨@Raw₀.union_insert_right_equiv_union_insert _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ p m₁.2 m₂.2⟩
+  ⟨@Raw₀.union_insert_right_equiv_insert_union _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ p m₁.2 m₂.2⟩
 
 /- get? -/
 theorem get?_union [LawfulBEq α] {k : α} :

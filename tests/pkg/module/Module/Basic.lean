@@ -1,6 +1,7 @@
 module
 
 meta import Init.Dynamic
+meta import Init.System.IO
 
 public axiom testSorry : α
 
@@ -172,6 +173,7 @@ is not definitionally equal to the right-hand side
 #guard_msgs in
 @[defeq] public theorem not_rfl : f = 2 := testSorry
 
+/-- A private definition. -/
 def priv := 2
 
 /-! Private decls should not be accessible in exported contexts. -/
@@ -459,3 +461,11 @@ info: @[expose] meta def msecexp : Nat :=
 #print msecexp
 
 attribute [simp] f_struct
+
+/-! `[inherit_doc]` should work independently of visibility. -/
+
+@[inherit_doc priv] public def pubInheritDoc := 1
+
+/-! `initialize` should be run even if imported IR-only. -/
+
+public initialize initialized : Nat ← pure 5

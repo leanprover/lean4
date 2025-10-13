@@ -7,5 +7,6 @@ module
 
 prelude
 public import Lean.Elab.Do.Basic
+public import Lean.Elab.Do.Control
 public import Lean.Elab.Do.Switch
 public import Lean.Elab.Do.Legacy

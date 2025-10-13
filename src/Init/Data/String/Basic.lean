@@ -2311,6 +2311,9 @@ def Pos.Raw.get (s : @& String) (p : @& Pos.Raw) : Char :=
 def get (s : @& String) (p : @& Pos.Raw) : Char :=
   Pos.Raw.utf8GetAux s.data 0 p
 
+@[simp]
+theorem get_eq {s : String} {p : Pos.Raw} : s.get p = p.get s := rfl
+
 @[expose]
 def Pos.Raw.utf8GetAux? : List Char → Pos.Raw → Pos.Raw → Option Char
   | [],    _, _ => none
@@ -2343,6 +2346,9 @@ def Pos.Raw.get? : (@& String) → (@& Pos.Raw) → Option Char
 def get? : (@& String) → (@& Pos.Raw) → Option Char
   | s, p => Pos.Raw.utf8GetAux? s.data 0 p
 
+@[simp]
+theorem get?_eq {s : String} {p : Pos.Raw} : s.get? p = p.get? s := rfl
+
 /--
 Returns the character at position `p` of a string. Panics if `p` is not a valid position.
 
@@ -2366,6 +2372,9 @@ def Pos.Raw.get! (s : @& String) (p : @& Pos.Raw) : Char :=
 def get! (s : @& String) (p : @& Pos.Raw) : Char :=
   match s with
   | s => Pos.Raw.utf8GetAux s.data 0 p
+
+@[simp]
+theorem get!_eq {s : String} {p : Pos.Raw} : s.get! p = p.get! s := rfl
 
 @[expose]
 def Pos.Raw.utf8SetAux (c' : Char) : List Char → Pos.Raw → Pos.Raw → List Char
@@ -2551,6 +2560,10 @@ def Pos.Raw.set : String → (@& Pos.Raw) → Char → String
 def set : String → (@& Pos.Raw) → Char → String
   | s, i, c => (Pos.Raw.utf8SetAux c s.data 0 i).asString
 
+@[simp]
+theorem set_eq {s : String} {p : Pos.Raw} {c : Char} :
+    s.set p c = p.set s c := rfl
+
 /--
 Replaces the character at position `p` in the string `s` with the result of applying `f` to that
 character. If `p` is an invalid position, the string is returned unchanged.
@@ -2602,6 +2615,9 @@ def next (s : @& String) (p : @& Pos.Raw) : Pos.Raw :=
   let c := get s p
   p + c
 
+@[simp]
+theorem next_eq {s : String} {p : Pos.Raw} : s.next p = p.next s := rfl
+
 @[expose]
 def Pos.Raw.utf8PrevAux : List Char → Pos.Raw → Pos.Raw → Pos.Raw
   | [],    _, p => ⟨p.byteIdx - 1⟩
@@ -2637,6 +2653,9 @@ def Pos.Raw.prev : (@& String) → (@& Pos.Raw) → Pos.Raw
 def prev : (@& String) → (@& Pos.Raw) → Pos.Raw
   | s, p => Pos.Raw.utf8PrevAux s.data 0 p
 
+@[simp]
+theorem prev_eq {s : String} {p : Pos.Raw} : s.prev p = p.prev s := rfl
+
 /--
 Returns the first character in `s`. If `s = ""`, returns `(default : Char)`.
 
@@ -2651,6 +2670,8 @@ Examples:
 def Internal.frontImpl (s : String) : Char :=
   String.front s
 
+theorem front_eq {s : String} : s.front = (0 : Pos.Raw).get s := rfl
+
 /--
 Returns the last character in `s`. If `s = ""`, returns `(default : Char)`.
 
@@ -2660,6 +2681,8 @@ Examples:
 -/
 @[inline, expose] def back (s : String) : Char :=
   get s (prev s s.endPos)
+
+theorem back_eq {s : String} : s.back = (s.endPos.prev s).get s := rfl
 
 /--
 Returns `true` if a specified byte position is greater than or equal to the position which points to
@@ -2681,6 +2704,9 @@ def Pos.Raw.atEnd : (@& String) → (@& Pos.Raw) → Bool
 @[extern "lean_string_utf8_at_end", expose, inherit_doc Pos.Raw.atEnd]
 def atEnd : (@& String) → (@& Pos.Raw) → Bool
   | s, p => p.byteIdx ≥ utf8ByteSize s
+
+@[simp]
+theorem atEnd_eq {s : String} {p : Pos.Raw} : s.atEnd p = p.atEnd s := rfl
 
 /--
 Returns the character at position `p` of a string. Returns `(default : Char)`, which is `'A'`, if
@@ -2706,7 +2732,7 @@ Examples:
 * `let lean := "L∃∀N"; lean.get' (0 |> lean.next |> lean.next) (by decide) = '∀'`
 -/
 @[extern "lean_string_utf8_get_fast", expose]
-def Pos.Raw.get' (s : @& String) (p : @& Pos.Raw) (h : ¬ s.atEnd p) : Char :=
+def Pos.Raw.get' (s : @& String) (p : @& Pos.Raw) (h : ¬ p.atEnd s) : Char :=
   match s with
   | s => Pos.Raw.utf8GetAux s.data 0 p
 
@@ -2714,6 +2740,9 @@ def Pos.Raw.get' (s : @& String) (p : @& Pos.Raw) (h : ¬ s.atEnd p) : Char :=
 def get' (s : @& String) (p : @& Pos.Raw) (h : ¬ s.atEnd p) : Char :=
   match s with
   | s => Pos.Raw.utf8GetAux s.data 0 p
+
+@[simp]
+theorem get'_eq {s : String} {p : Pos.Raw} {h} : s.get' p h = p.get' s h := rfl
 
 /--
 Returns the next position in a string after position `p`. The result is unspecified if `p` is not a
@@ -2736,7 +2765,7 @@ Example:
 * `let abc := "abc"; abc.get (abc.next' 0 (by decide)) = 'b'`
 -/
 @[extern "lean_string_utf8_next_fast", expose]
-def Pos.Raw.next' (s : @& String) (p : @& Pos.Raw) (h : ¬ s.atEnd p) : Pos.Raw :=
+def Pos.Raw.next' (s : @& String) (p : @& Pos.Raw) (h : ¬ p.atEnd s) : Pos.Raw :=
   let c := get s p
   p + c
 
@@ -2744,6 +2773,9 @@ def Pos.Raw.next' (s : @& String) (p : @& Pos.Raw) (h : ¬ s.atEnd p) : Pos.Raw 
 def next' (s : @& String) (p : @& Pos.Raw) (h : ¬ s.atEnd p) : Pos.Raw :=
   let c := get s p
   p + c
+
+@[simp]
+theorem next'_eq {s : String} {p : Pos.Raw} {h} : s.next' p h = p.next' s h := rfl
 
 @[deprecated Pos.Raw.lt_iff (since := "2025-10-10")]
 theorem pos_lt_eq (p₁ p₂ : Pos.Raw) : (p₁ < p₂) = (p₁.1 < p₂.1) :=
@@ -2940,6 +2972,10 @@ where
 @[extern "lean_string_utf8_extract", expose]
 def extract : (@& String) → (@& Pos.Raw) → (@& Pos.Raw) → String
   | s, b, e => Pos.Raw.extract s b e
+
+@[simp]
+theorem extract_eq {s : String} {b e : Pos.Raw} :
+    s.extract b e = b.extract s e := rfl
 
 @[specialize] def splitAux (s : String) (p : Char → Bool) (b : Pos.Raw) (i : Pos.Raw) (r : List String) : List String :=
   if h : s.atEnd i then

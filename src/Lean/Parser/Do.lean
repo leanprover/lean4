@@ -49,6 +49,14 @@ builtin_initialize
   register_parser_alias doSeq
   register_parser_alias termBeforeDo
 
+def getDoElems (doSeq : TSyntax ``doSeq) : Array (TSyntax `doElem) :=
+  if doSeq.raw.getKind == ``Parser.Term.doSeqBracketed then
+    doSeq.raw[1].getArgs.map fun arg => ⟨arg[0]⟩
+  else if doSeq.raw.getKind == ``Parser.Term.doSeqIndent then
+    doSeq.raw[0].getArgs.map fun arg => ⟨arg[0]⟩
+  else
+    #[]
+
 def notFollowedByRedefinedTermToken :=
   -- Remark: we don't currently support `open` and `set_option` in `do`-blocks,
   -- but we include them in the following list to fix the ambiguity where

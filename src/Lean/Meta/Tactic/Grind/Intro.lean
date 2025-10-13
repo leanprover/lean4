@@ -208,9 +208,9 @@ private def applyCases? (fvarId : FVarId) (generation : Nat) : SearchM Bool := w
         return false
     if let .const declName _ := type.getAppFn then
       saveCases declName true
-    let mvarId ← mkAuxMVarForCurrGoal
-    let mvarIds ← cases mvarId (mkFVar fvarId)
     let goal ← getGoal
+    let mvarId ← goal.mkAuxMVar
+    let mvarIds ← cases mvarId (mkFVar fvarId)
     let goals := mvarIds.map fun mvarId => { goal with mvarId }
     mkChoice (mkMVar mvarId) goals generation
     return true

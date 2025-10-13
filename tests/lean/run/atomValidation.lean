@@ -44,8 +44,6 @@ macro_rules
 # No Empty Atoms
 -/
 
-/-- info: All rejected -/
-#guard_msgs in
 #test_invalid [""]
 
 

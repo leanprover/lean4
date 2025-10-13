@@ -80,6 +80,16 @@ Note: A private declaration `fpriv` (from the current module) exists but would n
 #guard_msgs in
 public theorem tpriv : fpriv = 1 := rfl
 
+/-! Type inference should not be able to smuggle out private references. -/
+
+/--
+error: Unknown constant `_private.Module.Basic.0.fpriv`
+
+Note: A private declaration `fpriv` (from the current module) exists but would need to be public to access here.
+-/
+#guard_msgs in
+public def inferredPrivRef := (rfl : fpriv = 1)
+
 public class X
 
 /-- A local instance of a public class. -/

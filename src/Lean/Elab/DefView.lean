@@ -201,14 +201,18 @@ def mkDefViewOfOpaque (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefV
     docString? := modifiers.docString?
   }
 
-def mkDefViewOfExample (modifiers : Modifiers) (stx : Syntax) : DefView :=
+def mkDefViewOfExample (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
   -- leading_parser "example " >> declSig >> declVal
   let (binders, type) := expandOptDeclSig stx[1]
-  let id              := mkIdentFrom stx[0] `_example (canonical := true)
+  let mut n           := `_example
+  if !modifiers.isPublic then
+    n := mkPrivateName (← getEnv) `_example
+  let id              := mkIdentFrom stx[0] n (canonical := true)
   let declId          := mkNode ``Parser.Command.declId #[id, mkNullNode]
-  { ref := stx, headerRef := mkNullNode stx.getArgs[*...2], kind := DefKind.example, modifiers := modifiers,
+  return {
+    ref := stx, headerRef := mkNullNode stx.getArgs[*...2], kind := DefKind.example, modifiers := modifiers,
     declId := declId, binders := binders, type? := type, value := stx[2],
-     docString? := modifiers.docString? }
+    docString? := modifiers.docString? }
 
 def isDefLike (stx : Syntax) : Bool :=
   let declKind := stx.getKind
@@ -236,7 +240,7 @@ def mkDefView (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := d
   else if declKind == ``Parser.Command.instance then
     mkDefViewOfInstance modifiers stx
   else if declKind == ``Parser.Command.example then
-    return mkDefViewOfExample modifiers stx
+    mkDefViewOfExample modifiers stx
   else
     throwError "unexpected kind of definition"
 

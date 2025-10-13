@@ -220,7 +220,7 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
     match preDef.modifiers.computeKind with
     -- Tags may have been added by `elabMutualDef` already, but that is not the only caller
     | .meta          => if !isMeta (← getEnv) preDef.declName then modifyEnv (addMeta · preDef.declName)
-    | .noncomputable => if !isMeta (← getEnv) preDef.declName then modifyEnv (addNoncomputable · preDef.declName)
+    | .noncomputable => if !isNoncomputable (← getEnv) preDef.declName then modifyEnv (addNoncomputable · preDef.declName)
     | _              =>
       if !preDef.kind.isTheorem then
         modifyEnv (addNotMeta · preDef.declName)

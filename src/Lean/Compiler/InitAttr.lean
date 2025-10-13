@@ -138,7 +138,7 @@ def setBuiltinInitAttr (env : Environment) (declName : Name) (initFnName : Name 
   builtinInitAttr.setParam env declName initFnName
 
 def declareBuiltin (forDecl : Name) (value : Expr) : CoreM Unit :=
-  -- can always be private
+  -- can always be private, not referenced directly except through emitted C code
   withoutExporting do
     let name ← mkAuxDeclName (kind := `_regBuiltin ++ forDecl)
     let type := mkApp (mkConst `IO) (mkConst `Unit)

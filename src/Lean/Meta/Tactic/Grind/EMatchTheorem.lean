@@ -401,7 +401,7 @@ private builtin_initialize ematchTheoremsExt : SimpleScopedEnvExtension EMatchTh
     addEntry     := Theorems.insert
     initial      := {}
     exportEntry? := fun lvl e => do
-      -- export only annotations on public decls
+      -- export only annotations on public decls, like simp
       let declName := match e.origin with
         | .decl n => n
         | _ => unreachable!  -- used only for tactic-local entries

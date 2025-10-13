@@ -758,6 +758,7 @@ variable {m₁ m₂}
 theorem union_eq : m₁.union m₂ = m₁ ∪ m₂ := by
   simp only [Union.union]
 
+/- contains -/
 theorem contains_union_of_left [EquivBEq α] [LawfulHashable α] {k : α} :
     m₁.contains k → (m₁ ∪ m₂).contains k :=
   @HashMap.contains_union_of_left _ _ _ _ m₁.inner m₂.inner _ _ k
@@ -785,6 +786,30 @@ theorem contains_of_contains_union_of_contains_eq_false_left [EquivBEq α]
     [LawfulHashable α] {k : α} :
     (m₁ ∪ m₂).contains k → m₁.contains k = false → m₂.contains k :=
   @HashMap.contains_of_contains_union_of_contains_eq_false_left _ _ _ _ m₁.inner m₂.inner _ _  k
+
+/- mem -/
+theorem mem_union_of_left [EquivBEq α] [LawfulHashable α] {k : α} :
+    k ∈ m₁ → k ∈ m₁ ∪ m₂:=
+  @HashMap.mem_union_of_left _ _ _ _ m₁.inner m₂.inner _ _ k
+
+theorem mem_union_of_right [EquivBEq α] [LawfulHashable α] {k : α} :
+    k ∈ m₂ → k ∈ m₁ ∪ m₂:=
+  @HashMap.contains_union_of_right _ _ _ _ m₁.inner m₂.inner _ _  k
+
+@[simp]
+theorem mem_union_iff [EquivBEq α] [LawfulHashable α] {k : α} :
+    k ∈ m₁ ∪ m₂ ↔ k ∈ m₁ ∨ k ∈ m₂ :=
+  @HashMap.mem_union_iff _ _ _ _ m₁.inner m₂.inner _ _  k
+
+theorem mem_of_mem_union_of_mem_eq_false_right [EquivBEq α]
+    [LawfulHashable α] {k : α} :
+    k ∈ m₁ ∪ m₂ → ¬k ∈ m₂ → k ∈ m₁ :=
+  @HashMap.mem_of_mem_union_of_mem_eq_false_right _ _ _ _ m₁.inner m₂.inner _ _  k
+
+theorem mem_of_mem_union_of_mem_eq_false_left [EquivBEq α]
+    [LawfulHashable α] {k : α} :
+    k ∈ m₁ ∪ m₂ → ¬k ∈ m₁ → k ∈ m₂ :=
+  @HashMap.mem_of_mem_union_of_mem_eq_false_left _ _ _ _ m₁.inner m₂.inner _ _  k
 
 /- getKey? -/
 theorem get?_union [EquivBEq α] [LawfulHashable α] {k : α} :

@@ -1914,6 +1914,48 @@ theorem contains_of_contains_union_of_contains_eq_false_left [EquivBEq α]
   apply Raw₀.contains_of_contains_union_of_contains_eq_false_left
   all_goals wf_trivial
 
+/- mem -/
+theorem mem_union_of_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} :
+    k ∈ m₁ → k ∈ m₁ ∪ m₂ := by
+  simp only [Union.union, Membership.mem]
+  simp_to_raw using Raw₀.contains_union_of_left
+
+theorem mem_union_of_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} :
+    k ∈ m₂ → k ∈ m₁ ∪ m₂ := by
+  simp only [Union.union, Membership.mem]
+  simp_to_raw using Raw₀.contains_union_of_right
+
+@[simp]
+theorem contains_mem_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} :
+    k ∈ m₁ ∪ m₂ ↔ k ∈ m₁ ∨ k ∈ m₂ := by
+  simp only [Union.union, Membership.mem]
+  simp_to_raw using Raw₀.contains_union_iff
+
+theorem mem_of_mem_union_of_mem_eq_false_right [EquivBEq α]
+    [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
+    k ∈ m₁ ∪ m₂ → ¬k ∈ m₂ → k ∈ m₁ := by
+  simp only [Union.union, Membership.mem]
+  intro h₃ h₄
+  have h₄ : m₂.contains k = false := by simp only [h₄]
+  revert h₃ h₄
+  simp_to_raw
+  apply Raw₀.contains_of_contains_union_of_contains_eq_false_right
+  all_goals wf_trivial
+
+theorem mem_of_mem_union_of_mem_eq_false_left [EquivBEq α]
+    [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
+    k ∈ m₁ ∪ m₂ → ¬k ∈ m₁ → k ∈ m₂ := by
+  simp only [Union.union, Membership.mem]
+  intro h₃ h₄
+  have h₄ : m₁.contains k = false := by simp only [h₄]
+  revert h₃ h₄
+  simp_to_raw
+  apply Raw₀.contains_of_contains_union_of_contains_eq_false_left
+  all_goals wf_trivial
+
 /- Equiv -/
 theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
     (h₁ : m₁.WF) (h₂ : m₂.WF) :

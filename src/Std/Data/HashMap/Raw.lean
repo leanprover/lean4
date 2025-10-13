@@ -228,6 +228,12 @@ instance {m : Type w → Type w'} : ForM m (Raw α β) (α × β) where
 instance {m : Type w → Type w'} : ForIn m (Raw α β) (α × β) where
   forIn m init f := m.forIn (fun a b acc => f (a, b) acc) init
 
+@[inline, inherit_doc DHashMap.Raw.all] def all (m : Raw α β) (p : α → β → Bool) : Bool :=
+  m.inner.all p
+
+@[inline, inherit_doc DHashMap.Raw.any] def any (m : Raw α β) (p : α → β → Bool) : Bool :=
+  m.inner.any p
+
 section Unverified
 
 @[inline, inherit_doc DHashMap.Raw.filterMap] def filterMap {γ : Type w} (f : α → β → Option γ)

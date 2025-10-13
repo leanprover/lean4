@@ -89,7 +89,7 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 
 /-- info: #[2, 4, 6] -/
 #guard_msgs in
-#eval DHashMap.Raw.Const.valuesIter m |>.toArray
+#eval m.valuesIter.toArray
 
 /-- info: [⟨16, 9⟩, ⟨1, 2⟩, ⟨2, 4⟩, ⟨3, 6⟩] -/
 #guard_msgs in
@@ -191,7 +191,7 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 
 /-- info: #[2, 4, 6] -/
 #guard_msgs in
-#eval DHashMap.Const.valuesIter m |>.toArray
+#eval m.valuesIter.toArray
 
 /-- info: [⟨16, 9⟩, ⟨1, 2⟩, ⟨2, 4⟩, ⟨3, 6⟩] -/
 #guard_msgs in

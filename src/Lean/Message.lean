@@ -615,6 +615,9 @@ def errorsToInfos (log : MessageLog) : MessageLog :=
 def getInfoMessages (log : MessageLog) : MessageLog :=
   { unreported := log.unreported.filter fun m => match m.severity with | MessageSeverity.information => true | _ => false }
 
+def getWarningMessages (log : MessageLog) : MessageLog :=
+  { unreported := log.unreported.filter fun m => match m.severity with | MessageSeverity.warning => true | _ => false }
+
 def forM {m : Type → Type} [Monad m] (log : MessageLog) (f : Message → m Unit) : m Unit :=
   log.unreported.forM f
 
@@ -774,7 +777,7 @@ def toMessageData (e : Kernel.Exception) (opts : Options) : MessageData :=
     | Declaration.thmDecl { name := n, type := type, .. }  => process n type
     | _ => "(kernel) declaration type mismatch" -- TODO fix type checker, type mismatch for mutual decls does not have enough information
   | declHasMVars env constName _        => mkCtx env {} opts m!"(kernel) declaration has metavariables '{.ofConstName constName true}'"
-  | declHasFVars env constName _        => mkCtx env {} opts m!"(kernel) declaration has free variables '{.ofConstName constName true}'"
+  | declHasFVars env constName e        => mkCtx env {} opts m!"(kernel) declaration has free variables '{.ofConstName constName true}', expression: {indentExpr e}"
   | funExpected env lctx e              => mkCtx env lctx opts m!"(kernel) function expected{indentExpr e}"
   | typeExpected env lctx e             => mkCtx env lctx opts m!"(kernel) type expected{indentExpr e}"
   | letTypeMismatch  env lctx n _ _     => mkCtx env lctx opts m!"(kernel) let-declaration type mismatch '{n}'"

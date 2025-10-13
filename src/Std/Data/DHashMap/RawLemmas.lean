@@ -2213,7 +2213,7 @@ theorem getD_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m�
 
 theorem getD_union_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
     {k : α} {fallback : β} (contains_eq_false : m₁.contains k = false) :
-    Const.getD (m₁ ∪ m₂) k fallback = Const.getD m₂ k fallback  := by
+    Const.getD (m₁ ∪ m₂) k fallback = Const.getD m₂ k fallback := by
   revert contains_eq_false
   simp only [Union.union]
   simp_to_raw using Raw₀.Const.getD_union_of_contains_eq_false_left
@@ -2233,7 +2233,7 @@ theorem get!_union [EquivBEq α] [LawfulHashable α] [Inhabited β] (h₁ : m₁
 
 theorem get!_union_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α] [Inhabited β] (h₁ : m₁.WF) (h₂ : m₂.WF)
     {k : α} (contains_eq_false : m₁.contains k = false) :
-    Const.get! (m₁ ∪ m₂) k = Const.get! m₂ k  := by
+    Const.get! (m₁ ∪ m₂) k = Const.get! m₂ k := by
   revert contains_eq_false
   simp only [Union.union]
   simp_to_raw using Raw₀.Const.get!_union_of_contains_eq_false_left

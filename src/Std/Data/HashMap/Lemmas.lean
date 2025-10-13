@@ -1394,7 +1394,7 @@ theorem getD_union_of_contains_eq_false_left [LawfulBEq α]
 theorem getD_union_of_contains_eq_false_right [LawfulBEq α]
     {k : α} {fallback : β} (contains_eq_false : m₂.contains k = false)  :
     (m₁ ∪ m₂).getD k fallback = m₁.getD k fallback :=
-  @DHashMap.getD_union_of_contains_eq_false_right _ _ _ _ m₁.inner m₂.inner _ _ k fallback contains_eq_false
+  @DHashMap.Const.getD_union_of_contains_eq_false_right _ _ _ _ m₁.inner m₂.inner _ _ k fallback contains_eq_false
 
 /- get! -/
 theorem get!_union [LawfulBEq α] {k : α} [Inhabited β] :

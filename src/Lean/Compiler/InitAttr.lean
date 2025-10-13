@@ -166,7 +166,8 @@ private unsafe def runInitAttrs (env : Environment) (opts : Options) : IO Unit :
       -- so deduplicate (these lists should be very short)
       let modEntries := modEntries ++ (regularInitAttr.ext.getModuleIREntries env modIdx).filter (!modEntries.contains ·)
       for (decl, initDecl) in modEntries do
-        if getIRPhases env decl == .runtime then
+        -- Skip initializers we do not have IR for; they should not be reachable by interpretation.
+        if !Elab.inServer.get opts && getIRPhases env decl == .runtime then
           continue
         if initDecl.isAnonymous then
           let initFn ← IO.ofExcept <| env.evalConst (IO Unit) opts decl

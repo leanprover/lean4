@@ -229,21 +229,21 @@ public instance Flatten.instIterator [Monad m] [Iterator α m (IterM (α := α�
   step it :=
     match it with
     | ⟨it₁, none⟩ => do
-      match ← it₁.step with
+      match (← it₁.step).inflate with
       | .yield it₁' it₂' h =>
-          pure <| .skip ⟨it₁', some it₂'⟩ (.outerYield h)
+          pure <| .deflate <| .skip ⟨it₁', some it₂'⟩ (.outerYield h)
       | .skip it₁' h =>
-          pure <| .skip ⟨it₁', none⟩ (.outerSkip h)
+          pure <| .deflate <| .skip ⟨it₁', none⟩ (.outerSkip h)
       | .done h =>
-          pure <| .done (.outerDone h)
+          pure <| .deflate <| .done (.outerDone h)
     | ⟨it₁, some it₂⟩ => do
-      match ← it₂.step with
+      match (← it₂.step).inflate with
       | .yield it₂' c h =>
-          pure <| .yield ⟨it₁, some it₂'⟩ c (.innerYield h)
+          pure <| .deflate <| .yield ⟨it₁, some it₂'⟩ c (.innerYield h)
       | .skip it₂' h =>
-          pure <| .skip ⟨it₁, some it₂'⟩ (.innerSkip h)
+          pure <| .deflate <| .skip ⟨it₁, some it₂'⟩ (.innerSkip h)
       | .done h =>
-          pure <| .skip ⟨it₁, none⟩ (.innerDone h)
+          pure <| .deflate <| .skip ⟨it₁, none⟩ (.innerDone h)
 
 section Finite
 

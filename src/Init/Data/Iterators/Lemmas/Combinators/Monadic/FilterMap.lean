@@ -555,11 +555,11 @@ theorem IterM.anyM_filterMapM {α β β' : Type w} {m : Type w → Type w'} {n :
   rw [anyM_eq_match_step, anyM_eq_match_step, step_filterMapM, step_mapM, bind_assoc, bind_assoc]
   apply bind_congr; intro step
   split
-  · simp only [bind_assoc, pure_bind]
+  · simp only [bind_assoc, pure_bind, Shrink.inflate_deflate]
     apply bind_congr; intro fx
     split
     · simp [ihy ‹_›]
-    · simp only [PlausibleIterStep.yield, pure_bind]
+    · simp only [PlausibleIterStep.yield, pure_bind, Shrink.inflate_deflate]
       apply bind_congr; intro px
       split <;> simp [ihy ‹_›]
   · simp only [PlausibleIterStep.skip, pure_bind, bind_assoc]
@@ -575,7 +575,7 @@ theorem IterM.anyM_mapM {α β β' : Type w} {m : Type w → Type w'} {n : Type 
   rw [anyM_eq_match_step, anyM_eq_match_step, step_mapM, step_mapM, bind_assoc, bind_assoc]
   apply bind_congr; intro step
   split
-  · simp only [bind_assoc, pure_bind]
+  · simp only [bind_assoc, pure_bind, Shrink.inflate_deflate]
     apply bind_congr; intro fx
     simp [ihy ‹_›]
   · simp only [PlausibleIterStep.skip, pure_bind, bind_assoc]
@@ -595,7 +595,7 @@ theorem IterM.anyM_filterM {α β : Type w} {m : Type w → Type w'} {n : Type w
   rw [anyM_eq_match_step, anyM_eq_match_step, step_mapM, step_filterM, bind_assoc, bind_assoc]
   apply bind_congr; intro step
   split
-  · simp only [bind_assoc, pure_bind]
+  · simp only [bind_assoc, pure_bind, Shrink.inflate_deflate]
     apply bind_congr; intro fx
     split <;> simp [ihy ‹_›]
   · simp only [PlausibleIterStep.skip, pure_bind, bind_assoc]
@@ -613,10 +613,11 @@ theorem IterM.anyM_filterMap {α β β' : Type w} {m : Type w → Type w'}
   induction it using IterM.inductSteps with | step it ihy ihs
   rw [anyM_eq_match_step, anyM_eq_match_step, step_filterMap, bind_assoc]
   apply bind_congr; intro step
-  split
-  · split
+  cases step.inflate using PlausibleIterStep.casesOn
+  · simp only
+    split
     · simp [*, ihy ‹_›]
-    · simp only [*, PlausibleIterStep.yield, pure_bind]
+    · simp only [*, PlausibleIterStep.yield, pure_bind, Shrink.inflate_deflate]
       apply bind_congr; intro px
       split <;> simp [ihy ‹_›]
   · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]
@@ -630,8 +631,8 @@ theorem IterM.anyM_map {α β β' : Type w} {m : Type w → Type w'}
   induction it using IterM.inductSteps with | step it ihy ihs
   rw [anyM_eq_match_step, anyM_eq_match_step, step_map, bind_assoc]
   apply bind_congr; intro step
-  split
-  · simp only [pure_bind]
+  cases step.inflate using PlausibleIterStep.casesOn
+  · simp only [pure_bind, Shrink.inflate_deflate]
     apply bind_congr; intro fx
     simp [ihy ‹_›]
   · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]
@@ -649,7 +650,7 @@ theorem IterM.anyM_filter {α β : Type w} {m : Type w → Type w'}
   induction it using IterM.inductSteps with | step it ihy ihs
   rw [anyM_eq_match_step, anyM_eq_match_step, step_filter, bind_assoc]
   apply bind_congr; intro step
-  split
+  cases step.inflate using PlausibleIterStep.casesOn
   · simp only
     split <;> simp [ihy ‹_›]
   · simp only [PlausibleIterStep.skip, pure_bind]
@@ -695,10 +696,11 @@ theorem IterM.any_filterMap {α β β' : Type w} {m : Type w → Type w'}
   induction it using IterM.inductSteps with | step it ihy ihs
   rw [any_eq_match_step, any_eq_match_step, step_filterMap, bind_assoc]
   apply bind_congr; intro step
-  split
-  · split
+  cases step.inflate using PlausibleIterStep.casesOn
+  · simp only
+    split
     · simp [*, ihy ‹_›]
-    · simp only [*, PlausibleIterStep.yield, pure_bind]
+    · simp only [*, PlausibleIterStep.yield, pure_bind, Shrink.inflate_deflate]
       split <;> simp [ihy ‹_›]
   · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]
   · simp
@@ -711,7 +713,7 @@ theorem IterM.any_map {α β β' : Type w} {m : Type w → Type w'}
   induction it using IterM.inductSteps with | step it ihy ihs
   rw [any_eq_match_step, any_eq_match_step, step_map, bind_assoc]
   apply bind_congr; intro step
-  split
+  cases step.inflate using PlausibleIterStep.casesOn
   · simp only [pure_bind]
     simp [ihy ‹_›]
   · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]
@@ -729,11 +731,11 @@ theorem IterM.allM_filterMapM {α β β' : Type w} {m : Type w → Type w'} {n :
   rw [allM_eq_match_step, allM_eq_match_step, step_filterMapM, step_mapM, bind_assoc, bind_assoc]
   apply bind_congr; intro step
   split
-  · simp only [bind_assoc, pure_bind]
+  · simp only [bind_assoc, pure_bind, Shrink.inflate_deflate]
     apply bind_congr; intro fx
     split
     · simp [ihy ‹_›]
-    · simp only [PlausibleIterStep.yield, pure_bind]
+    · simp only [PlausibleIterStep.yield, pure_bind, Shrink.inflate_deflate]
       apply bind_congr; intro px
       split <;> simp [ihy ‹_›]
   · simp only [PlausibleIterStep.skip, pure_bind, bind_assoc]
@@ -749,7 +751,7 @@ theorem IterM.allM_mapM {α β β' : Type w} {m : Type w → Type w'} {n : Type 
   rw [allM_eq_match_step, allM_eq_match_step, step_mapM, step_mapM, bind_assoc, bind_assoc]
   apply bind_congr; intro step
   split
-  · simp only [bind_assoc, pure_bind]
+  · simp only [bind_assoc, pure_bind, Shrink.inflate_deflate]
     apply bind_congr; intro fx
     simp [ihy ‹_›]
   · simp only [PlausibleIterStep.skip, pure_bind, bind_assoc]
@@ -769,7 +771,7 @@ theorem IterM.allM_filterM {α β : Type w} {m : Type w → Type w'} {n : Type w
   rw [allM_eq_match_step, allM_eq_match_step, step_mapM, step_filterM, bind_assoc, bind_assoc]
   apply bind_congr; intro step
   split
-  · simp only [bind_assoc, pure_bind]
+  · simp only [bind_assoc, pure_bind, Shrink.inflate_deflate]
     apply bind_congr; intro fx
     split <;> simp [ihy ‹_›]
   · simp only [PlausibleIterStep.skip, pure_bind, bind_assoc]
@@ -787,10 +789,11 @@ theorem IterM.allM_filterMap {α β β' : Type w} {m : Type w → Type w'}
   induction it using IterM.inductSteps with | step it ihy ihs
   rw [allM_eq_match_step, allM_eq_match_step, step_filterMap, bind_assoc]
   apply bind_congr; intro step
-  split
-  · split
+  cases step.inflate using PlausibleIterStep.casesOn
+  · simp only
+    split
     · simp [*, ihy ‹_›]
-    · simp only [*, PlausibleIterStep.yield, pure_bind]
+    · simp only [*, PlausibleIterStep.yield, pure_bind, Shrink.inflate_deflate]
       apply bind_congr; intro px
       split <;> simp [ihy ‹_›]
   · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]
@@ -804,8 +807,8 @@ theorem IterM.allM_map {α β β' : Type w} {m : Type w → Type w'}
   induction it using IterM.inductSteps with | step it ihy ihs
   rw [allM_eq_match_step, allM_eq_match_step, step_map, bind_assoc]
   apply bind_congr; intro step
-  split
-  · simp only [pure_bind]
+  cases step.inflate using PlausibleIterStep.casesOn
+  · simp only [pure_bind, Shrink.inflate_deflate]
     apply bind_congr; intro fx
     simp [ihy ‹_›]
   · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]
@@ -823,7 +826,7 @@ theorem IterM.allM_filter {α β : Type w} {m : Type w → Type w'}
   induction it using IterM.inductSteps with | step it ihy ihs
   rw [allM_eq_match_step, allM_eq_match_step, step_filter, bind_assoc]
   apply bind_congr; intro step
-  split
+  cases step.inflate using PlausibleIterStep.casesOn
   · simp only
     split <;> simp [ihy ‹_›]
   · simp only [PlausibleIterStep.skip, pure_bind]
@@ -869,10 +872,11 @@ theorem IterM.all_filterMap {α β β' : Type w} {m : Type w → Type w'}
   induction it using IterM.inductSteps with | step it ihy ihs
   rw [all_eq_match_step, all_eq_match_step, step_filterMap, bind_assoc]
   apply bind_congr; intro step
-  split
-  · split
+  cases step.inflate using PlausibleIterStep.casesOn
+  · simp only
+    split
     · simp [*, ihy ‹_›]
-    · simp only [*, PlausibleIterStep.yield, pure_bind]
+    · simp only [*, PlausibleIterStep.yield, pure_bind, Shrink.inflate_deflate]
       split <;> simp [ihy ‹_›]
   · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]
   · simp
@@ -885,7 +889,7 @@ theorem IterM.all_map {α β β' : Type w} {m : Type w → Type w'}
   induction it using IterM.inductSteps with | step it ihy ihs
   rw [all_eq_match_step, all_eq_match_step, step_map, bind_assoc]
   apply bind_congr; intro step
-  split
+  cases step.inflate using PlausibleIterStep.casesOn
   · simp only [pure_bind]
     simp [ihy ‹_›]
   · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]

@@ -283,7 +283,7 @@ def Iter.val_step_filter {f : β → Bool} :
         .done := by
   simp only [filter_eq_toIter_filter_toIterM, step, toIterM_toIter, IterM.step_filter, Id.run_bind]
   generalize it.toIterM.step.run = step
-  cases step using PlausibleIterStep.casesOn
+  cases step.inflate using PlausibleIterStep.casesOn
   · simp only
     split <;> simp [*]
   · simp
@@ -490,7 +490,7 @@ theorem Iter.anyM_eq_anyM_mapM_pure {α β : Type} {m : Type → Type w'} [Itera
   induction it using Iter.inductSteps with | step it ihy ihs =>
   rw [forIn_eq_match_step, IterM.forIn_eq_match_step, bind_assoc, step_mapM]
   cases it.step using PlausibleIterStep.casesOn
-  · simp only [bind_assoc, liftM_pure, pure_bind, map_eq_pure_bind]
+  · simp only [bind_assoc, liftM_pure, pure_bind, map_eq_pure_bind, Shrink.inflate_deflate]
     apply bind_congr; intro px
     split
     · simp
@@ -646,7 +646,7 @@ theorem Iter.allM_eq_allM_mapM_pure {α β : Type} {m : Type → Type w'} [Itera
   induction it using Iter.inductSteps with | step it ihy ihs =>
   rw [forIn_eq_match_step, IterM.forIn_eq_match_step, bind_assoc, step_mapM]
   cases it.step using PlausibleIterStep.casesOn
-  · simp only [bind_assoc, liftM_pure, pure_bind, map_eq_pure_bind]
+  · simp only [bind_assoc, liftM_pure, pure_bind, map_eq_pure_bind, Shrink.inflate_deflate]
     apply bind_congr; intro px
     split
     · simp [ihy ‹_›]

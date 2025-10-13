@@ -235,12 +235,6 @@ appearance.
 @[inline] def toArray (m : HashSet α) : Array α :=
   m.inner.keysArray
 
-/-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
-@[inline] def all (m : HashSet α) (p : α → Bool) : Bool := m.inner.all (fun x _ => p x)
-
-/-- Check if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
-@[inline] def any (m : HashSet α) (p : α → Bool) : Bool := m.inner.any (fun x _ => p x)
-
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -249,6 +243,18 @@ section Unverified
 @[inline] def partition (f : α → Bool) (m : HashSet α) : HashSet α × HashSet α :=
   let ⟨l, r⟩ := m.inner.partition fun a _ => f a
   ⟨⟨l⟩, ⟨r⟩⟩
+
+/-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
+@[inline] def all (m : HashSet α) (p : α → Bool) : Bool := Id.run do
+  for a in m do
+    if ¬ p a then return false
+  return true
+
+/-- Check if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
+@[inline] def any (m : HashSet α) (p : α → Bool) : Bool := Id.run do
+  for a in m do
+    if p a then return true
+  return false
 
 /--
 Creates a hash set from an array of elements. Note that unlike repeatedly calling `insert`, if the

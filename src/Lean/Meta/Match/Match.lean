@@ -761,9 +761,36 @@ private def moveToFront (p : Problem) (i : Nat) : Problem :=
   else
     p
 
+def Pattern.isRefutable : Pattern → Bool
+  | .var _           => false
+  | .inaccessible _  => false
+  | .as _ p _        => p.isRefutable
+  | .arrayLit ..     => true
+  | .ctor ..         => true
+  | .val ..          => true
+
+private def firstRefutablePattern (p : Problem) : Option Nat :=
+  match p.alts with
+  | alt:: _ => alt.patterns.findIdx? (·.isRefutable)
+  | _ => none
+
 private partial def process (p : Problem) : StateRefT State MetaM Unit := do
   traceState p
   let isInductive ← isCurrVarInductive p
+  match firstRefutablePattern p with
+  | some i =>
+    if i > 0 then
+      traceStep ("move var to front")
+      process (moveToFront p i)
+      return
+  | none =>
+    if 1 < p.alts.length then
+      traceStep ("drop all but first alt")
+      -- all patterns are irrefutable, we can drop all other alts
+      let p := { p with alts := p.alts.take 1 }
+      process p
+      return
+
   if isDone p then
     traceStep ("leaf")
     processLeaf p

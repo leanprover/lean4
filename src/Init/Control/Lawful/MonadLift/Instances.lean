@@ -10,6 +10,8 @@ import all Init.Control.Option
 import all Init.Control.Except
 public import Init.Control.ExceptCps
 import all Init.Control.ExceptCps
+public import Init.Control.OptionCps
+import all Init.Control.OptionCps
 import all Init.Control.StateRef
 public import Init.Control.StateCps
 import all Init.Control.StateCps
@@ -136,6 +138,20 @@ instance {ε : Type u} [Monad m] [LawfulMonad m] : LawfulMonadLift m (ExceptCpsT
     simp only [bind_assoc]
 
 end ExceptCpsT
+
+namespace OptionCpsT
+
+instance [Monad m] [LawfulMonad m] : LawfulMonadLift m (OptionCpsT m) where
+  monadLift_pure _ := by
+    simp only [MonadLift.monadLift, pure]
+    unfold OptionCpsT.lift
+    simp only [pure_bind]
+  monadLift_bind _ _ := by
+    simp only [MonadLift.monadLift, bind]
+    unfold OptionCpsT.lift
+    simp only [bind_assoc]
+
+end OptionCpsT
 
 namespace Id
 

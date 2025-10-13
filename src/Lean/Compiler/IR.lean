@@ -45,8 +45,8 @@ register_builtin_option compiler.reuse : Bool := {
 def compile (decls : Array Decl) : CompilerM (Array Decl) := do
   logDecls `init decls
   checkDecls decls
-  let mut decls ← elimDeadBranches decls
-  logDecls `elim_dead_branches decls
+  let mut decls := decls--← elimDeadBranches decls
+  --logDecls `elim_dead_branches decls
   decls := decls.map Decl.pushProj
   logDecls `push_proj decls
   if compiler.reuse.get (← getOptions) then

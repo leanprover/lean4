@@ -29,7 +29,7 @@ namespace Lean.Elab.Command
   match stx[1] with
   | Syntax.atom _ val =>
     if getVersoModuleDocs (← getEnv) |>.isEmpty then
-      let doc := val.extract 0 (val.endPos - ⟨2⟩)
+      let doc := val.extract 0 (val.endPos.unoffsetBy ⟨2⟩)
       modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
     else
       throwError m!"Can't add Markdown-format module docs because there is already Verso-format content present."
@@ -233,7 +233,10 @@ private def throwUnnecessaryScopeName (header : Name) : CommandElabM Unit := do
   throwError m!"Unexpected name `{header}` after `end`: The current section is unnamed" ++ hint
 
 @[builtin_command_elab «end»] def elabEnd : CommandElab := fun stx => do
-  let header? := (stx.getArg 1).getOptionalIdent?
+  let `(end $[$header? $[.%$trailingDotTk?$_]?]?) := stx
+    | throwUnsupportedSyntax
+  let header? := header?.map (·.getId)
+  let danglingDot := trailingDotTk?.join.isSome
   let endSize : Nat := match header? with
     | none   => 1
     | some n => n.getNumParts
@@ -243,12 +246,14 @@ private def throwUnnecessaryScopeName (header : Name) : CommandElabM Unit := do
     throwNoScope
   match header? with
   | none        =>
+    addCompletionInfo <| .endSection stx none false <| scopes.map (·.header)
     if let some name := innermostScopeName? scopes then
       throwMissingName name
   | some header =>
     if endSize >= numScopes then
       throwTooManyScopeComponents header scopes
     else
+      addCompletionInfo <| .endSection stx header danglingDot <| scopes.map (·.header)
       let scopesName := nameOfScopes scopes endSize
       if scopesName != header then
         if scopesName == .anonymous then

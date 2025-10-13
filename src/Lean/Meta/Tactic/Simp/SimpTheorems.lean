@@ -670,6 +670,16 @@ def mkSimpExt (name : Name := by exact decl_name%) : IO SimpExtension :=
     name     := name
     initial  := {}
     addEntry := fun d e => d.addSimpEntry e
+    exportEntry? := fun lvl e => do
+      -- export only annotations on public decls
+      let declName := match e with
+        | .thm t => match t.origin with
+          | .decl n _ _ => n
+          | _ => unreachable!
+        | .toUnfold n => n
+        | .toUnfoldThms n _ => n
+      guard (lvl == .private || !isPrivateName declName)
+      return e
   }
 
 abbrev SimpExtensionMap := Std.HashMap Name SimpExtension

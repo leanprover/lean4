@@ -294,6 +294,7 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   the `LAKE_ARTIFACT_CACHE` environment variable is set to true.
   -/
   enableArtifactCache?, enableArtifactCache : Option Bool := none
+
   /--
   Whether, when the local artifact cache is enabled, Lake should copy all cached
   artifacts into the build directory. This ensures the build results are available
@@ -302,6 +303,7 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   Defaults to `false`.
   -/
   restoreAllArtifacts : Bool := false
+
   /--
   Whether native libraries (of this package) should be prefixed with `lib` on Windows.
 
@@ -312,6 +314,19 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   Defaults to `false`.
   -/
   libPrefixOnWindows : Bool := false
+
+  /--
+  Whether downstream packages can `import all` modules of this package.
+
+  If enabled, downstream users will be able to access the `private` internals of modules,
+  including definition bodies not marked as `@[expose]`.
+  This may also, in the future, prevent compiler optimization which rely on `private`
+  definitions being inaccessible outside their own package.
+
+  Defaults to `false`.
+  -/
+  allowImportAll : Bool := false
+
 deriving Inhabited
 
 /-- The package's name as specified by the author. -/

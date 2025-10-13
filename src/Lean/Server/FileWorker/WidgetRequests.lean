@@ -192,7 +192,7 @@ private def contains (query text : String) : Bool :=
   ! (kmpSearch query text).isEmpty
 
 private def matchEndPos (query : String) (startPos : String.Pos.Raw) : String.Pos.Raw :=
-  startPos + ⟨query.utf8ByteSize⟩
+  startPos + query
 
 @[specialize]
 private def hightlightStringMatches? (query text : String) (matchPositions : Array String.Pos.Raw)
@@ -208,13 +208,13 @@ private def hightlightStringMatches? (query text : String) (matchPositions : Arr
       break
     let i := mapIdx i
     let globalMatchPos := matchPositions[i]!
-    let matchPos := globalMatchPos - offset
+    let matchPos := globalMatchPos.unoffsetBy offset
     if matchPos >= text.endPos then
       break
     if let some nonMatch := nonMatch? p matchPos then
       r := r.push nonMatch
     let globalMatchEndPos := matchEndPos query globalMatchPos
-    let matchEndPos := globalMatchEndPos - offset
+    let matchEndPos := globalMatchEndPos.unoffsetBy offset
     let «match» := text.extract matchPos matchEndPos
     r := r.push <| .tag highlight (.text «match»)
     p := matchEndPos
@@ -255,7 +255,7 @@ private def advanceTaggedTextHighlightState (text : String) (highlighted : α) :
 where
   updateState (text : String) (isHighlighted : Bool) : StateM TaggedTextHighlightState Unit :=
     modify fun s =>
-      let p : String.Pos.Raw := s.p + ⟨text.utf8ByteSize⟩
+      let p : String.Pos.Raw := s.p.increaseBy text.utf8ByteSize
       let ms := updateMatches s.query s.ms p
       let anyHighlight := s.anyHighlight || isHighlighted
       { s with p, ms, anyHighlight }

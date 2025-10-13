@@ -463,7 +463,7 @@ For each value emitted by the base iterator `it`, this combinator calls `f`.
 @[inline, expose]
 def IterM.mapM {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} [Iterator α m β]
     [Monad n] [MonadLiftT m n] (f : β → n γ) (it : IterM (α := α) m β) :=
-  (it.filterMapWithPostcondition (fun b => some <$> PostconditionT.lift (f b)) : IterM n γ)
+  (it.mapWithPostcondition (fun b => PostconditionT.lift (f b)) : IterM n γ)
 
 /--
 If `it` is an iterator, then `it.filterM f` is another iterator that applies a monadic

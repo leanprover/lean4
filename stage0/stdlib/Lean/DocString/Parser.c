@@ -9890,12 +9890,12 @@ x_38 = lean_ctor_get(x_31, 0);
 x_39 = lean_ctor_get(x_31, 1);
 x_40 = lean_ctor_get(x_31, 2);
 x_41 = lean_unsigned_to_nat(1u);
-x_42 = lean_nat_add(x_37, x_41);
+x_42 = lean_nat_add(x_41, x_37);
 lean_dec(x_37);
 lean_ctor_set(x_31, 2, x_42);
 lean_ctor_set(x_31, 1, x_36);
 lean_ctor_set(x_31, 0, x_35);
-x_43 = lean_nat_add(x_33, x_41);
+x_43 = lean_nat_add(x_41, x_33);
 lean_dec(x_33);
 x_44 = lean_nat_sub(x_39, x_41);
 lean_dec(x_39);
@@ -9928,13 +9928,13 @@ lean_inc(x_52);
 lean_inc(x_51);
 lean_dec(x_31);
 x_54 = lean_unsigned_to_nat(1u);
-x_55 = lean_nat_add(x_50, x_54);
+x_55 = lean_nat_add(x_54, x_50);
 lean_dec(x_50);
 x_56 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_56, 0, x_48);
 lean_ctor_set(x_56, 1, x_49);
 lean_ctor_set(x_56, 2, x_55);
-x_57 = lean_nat_add(x_46, x_54);
+x_57 = lean_nat_add(x_54, x_46);
 lean_dec(x_46);
 x_58 = lean_nat_sub(x_52, x_54);
 lean_dec(x_52);
@@ -9981,7 +9981,7 @@ if (lean_is_exclusive(x_60)) {
  x_69 = lean_box(0);
 }
 x_70 = lean_unsigned_to_nat(1u);
-x_71 = lean_nat_add(x_65, x_70);
+x_71 = lean_nat_add(x_70, x_65);
 lean_dec(x_65);
 if (lean_is_scalar(x_69)) {
  x_72 = lean_alloc_ctor(0, 3, 0);
@@ -9991,7 +9991,7 @@ if (lean_is_scalar(x_69)) {
 lean_ctor_set(x_72, 0, x_63);
 lean_ctor_set(x_72, 1, x_64);
 lean_ctor_set(x_72, 2, x_71);
-x_73 = lean_nat_add(x_61, x_70);
+x_73 = lean_nat_add(x_70, x_61);
 lean_dec(x_61);
 x_74 = lean_nat_sub(x_67, x_70);
 lean_dec(x_67);
@@ -10053,7 +10053,7 @@ if (lean_is_exclusive(x_78)) {
  x_88 = lean_box(0);
 }
 x_89 = lean_unsigned_to_nat(1u);
-x_90 = lean_nat_add(x_83, x_89);
+x_90 = lean_nat_add(x_89, x_83);
 lean_dec(x_83);
 if (lean_is_scalar(x_88)) {
  x_91 = lean_alloc_ctor(0, 3, 0);
@@ -10063,7 +10063,7 @@ if (lean_is_scalar(x_88)) {
 lean_ctor_set(x_91, 0, x_81);
 lean_ctor_set(x_91, 1, x_82);
 lean_ctor_set(x_91, 2, x_90);
-x_92 = lean_nat_add(x_79, x_89);
+x_92 = lean_nat_add(x_89, x_79);
 lean_dec(x_79);
 x_93 = lean_nat_sub(x_86, x_89);
 lean_dec(x_86);
@@ -10097,7 +10097,7 @@ lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; le
 x_98 = lean_ctor_get(x_10, 0);
 x_99 = lean_ctor_get(x_10, 1);
 x_100 = lean_unsigned_to_nat(1u);
-x_101 = lean_nat_add(x_98, x_100);
+x_101 = lean_nat_add(x_100, x_98);
 lean_dec(x_98);
 x_102 = lean_nat_sub(x_99, x_100);
 lean_dec(x_99);
@@ -10117,7 +10117,7 @@ lean_inc(x_104);
 lean_inc(x_103);
 lean_dec(x_10);
 x_106 = lean_unsigned_to_nat(1u);
-x_107 = lean_nat_add(x_103, x_106);
+x_107 = lean_nat_add(x_106, x_103);
 lean_dec(x_103);
 x_108 = lean_nat_sub(x_104, x_106);
 lean_dec(x_104);

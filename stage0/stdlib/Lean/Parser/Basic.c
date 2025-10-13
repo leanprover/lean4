@@ -160,6 +160,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_checkWsBeforeFn(lean_object*, lean_object
 static lean_object* l_Lean_Parser_fieldIdx___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parser_sepBy1NoAntiquot(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Parser_checkNoImmediateColon___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Parser_hexnumNoAntiquot;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 static lean_object* l_Lean_Parser_tokenAntiquotFn___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Parser_sepBy1NoAntiquot___boxed(lean_object*, lean_object*, lean_object*);
@@ -215,6 +216,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_sepByInfo(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Basic_0__Lean_Parser_lookahead___regBuiltin_Lean_Parser_lookahead_docString__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_mkAntiquotSplice(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_indexed(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+static lean_object* l_Lean_Parser_hexnumFn___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_errorAtSavedPosFn___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_instReprRecoveryContext_repr___redArg___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Parser_trailingNodeAux(lean_object*, lean_object*);
@@ -286,10 +288,12 @@ LEAN_EXPORT lean_object* l_Lean_Parser_checkLinebreakBeforeFn___redArg(lean_obje
 LEAN_EXPORT lean_object* l_Lean_Parser_symbol___boxed(lean_object*);
 static lean_object* l___private_Lean_Parser_Basic_0__Lean_Parser_decimalNumberFn_parseScientific___closed__0;
 static lean_object* l_Lean_Parser_instReprLeadingIdentBehavior___closed__0;
+static lean_object* l_Lean_Parser_hexnumNoAntiquot___closed__1;
 static lean_object* l_Lean_Parser_checkNoImmediateColon___lam__0___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Parser_hexNumberFn(lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Parser_hexNumberFn(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Basic_0__Lean_Parser_checkColGt___regBuiltin_Lean_Parser_checkColGt_docString__1(lean_object*);
 static lean_object* l_Lean_Parser_rawIdentNoAntiquot___closed__1;
+static lean_object* l_Lean_Parser_hexnumNoAntiquot___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Parser_instReprRecoveryContext_repr(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_antiquotNestedExpr___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Parser_checkWsBeforeFn___boxed(lean_object*, lean_object*, lean_object*);
@@ -440,7 +444,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Basic_367397207
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_sepBy1(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Parser_hygieneInfoFn___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Parser_hexNumberFn___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Parser_hexNumberFn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_notFollowedBy(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_dbgTraceStateFn___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_takeWhileFn___boxed(lean_object*, lean_object*, lean_object*);
@@ -465,6 +469,7 @@ uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Basic_0__Lean_Parser_strAux_parse___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_instReprRecoveryContext_repr___redArg___closed__14;
 lean_object* l_Lean_Parser_ParserState_mkUnexpectedTokenErrors(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Parser_hexnumFn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_checkNoImmediateColon;
 LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___Lean_Parser_andthenFn_spec__0(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_SyntaxStack_toSubarray(lean_object*);
@@ -787,6 +792,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_instReprLeadingIdentBehavior_repr(uint8_t
 LEAN_EXPORT lean_object* l_Lean_Parser_takeDigitsFn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_unicodeSymbolFnAux___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+static lean_object* l_Lean_Parser_hexnumFn___closed__0;
 static lean_object* l_Lean_Parser_quotedCharCoreFn___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_notFollowedByFn___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_withForbidden___lam__0(lean_object*, lean_object*);
@@ -8302,16 +8308,15 @@ x_1 = lean_mk_string_unchecked("hexadecimal number", 18, 18);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Parser_hexNumberFn(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_Parser_hexNumberFn(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_5 = lean_alloc_closure((void*)(l_Lean_Parser_hexNumberFn___lam__0___boxed), 1, 0);
-x_6 = l_Lean_Parser_hexNumberFn___closed__0;
-x_7 = 1;
-x_8 = l_Lean_Parser_takeDigitsFn(x_5, x_6, x_7, x_3, x_4);
-x_9 = l_Lean_Parser_decimalNumberFn___closed__1;
-x_10 = l_Lean_Parser_mkNodeToken(x_9, x_1, x_2, x_3, x_8);
+lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; 
+x_6 = lean_alloc_closure((void*)(l_Lean_Parser_hexNumberFn___lam__0___boxed), 1, 0);
+x_7 = l_Lean_Parser_hexNumberFn___closed__0;
+x_8 = 1;
+x_9 = l_Lean_Parser_takeDigitsFn(x_6, x_7, x_8, x_4, x_5);
+x_10 = l_Lean_Parser_mkNodeToken(x_3, x_1, x_2, x_4, x_9);
 return x_10;
 }
 }
@@ -8326,13 +8331,13 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Parser_hexNumberFn___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_Parser_hexNumberFn___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-uint8_t x_5; lean_object* x_6; 
-x_5 = lean_unbox(x_2);
-x_6 = l_Lean_Parser_hexNumberFn(x_1, x_5, x_3, x_4);
-return x_6;
+uint8_t x_6; lean_object* x_7; 
+x_6 = lean_unbox(x_2);
+x_7 = l_Lean_Parser_hexNumberFn(x_1, x_6, x_3, x_4, x_5);
+return x_7;
 }
 }
 static lean_object* _init_l_Lean_Parser_numberFnAux___closed__0() {
@@ -8377,106 +8382,107 @@ goto block_10;
 }
 else
 {
-lean_object* x_20; uint32_t x_30; uint32_t x_31; uint8_t x_32; 
+lean_object* x_20; uint32_t x_31; uint32_t x_32; uint8_t x_33; 
 lean_inc(x_4);
 x_20 = lean_string_utf8_next_fast(x_13, x_4);
-x_30 = lean_string_utf8_get(x_13, x_20);
-x_31 = 98;
-x_32 = lean_uint32_dec_eq(x_30, x_31);
-if (x_32 == 0)
+x_31 = lean_string_utf8_get(x_13, x_20);
+x_32 = 98;
+x_33 = lean_uint32_dec_eq(x_31, x_32);
+if (x_33 == 0)
 {
-uint32_t x_33; uint8_t x_34; 
-x_33 = 66;
-x_34 = lean_uint32_dec_eq(x_30, x_33);
-if (x_34 == 0)
+uint32_t x_34; uint8_t x_35; 
+x_34 = 66;
+x_35 = lean_uint32_dec_eq(x_31, x_34);
+if (x_35 == 0)
 {
-uint32_t x_35; uint8_t x_36; 
-x_35 = 111;
-x_36 = lean_uint32_dec_eq(x_30, x_35);
-if (x_36 == 0)
+uint32_t x_36; uint8_t x_37; 
+x_36 = 111;
+x_37 = lean_uint32_dec_eq(x_31, x_36);
+if (x_37 == 0)
 {
-uint32_t x_37; uint8_t x_38; 
-x_37 = 79;
-x_38 = lean_uint32_dec_eq(x_30, x_37);
-if (x_38 == 0)
+uint32_t x_38; uint8_t x_39; 
+x_38 = 79;
+x_39 = lean_uint32_dec_eq(x_31, x_38);
+if (x_39 == 0)
 {
-uint32_t x_39; uint8_t x_40; 
-x_39 = 120;
-x_40 = lean_uint32_dec_eq(x_30, x_39);
-if (x_40 == 0)
+uint32_t x_40; uint8_t x_41; 
+x_40 = 120;
+x_41 = lean_uint32_dec_eq(x_31, x_40);
+if (x_41 == 0)
 {
-uint32_t x_41; uint8_t x_42; 
-x_41 = 88;
-x_42 = lean_uint32_dec_eq(x_30, x_41);
-if (x_42 == 0)
+uint32_t x_42; uint8_t x_43; 
+x_42 = 88;
+x_43 = lean_uint32_dec_eq(x_31, x_42);
+if (x_43 == 0)
 {
-lean_object* x_43; lean_object* x_44; 
-x_43 = l_Lean_Parser_ParserState_setPos(x_3, x_20);
-x_44 = l_Lean_Parser_decimalNumberFn(x_4, x_1, x_2, x_43);
-return x_44;
+lean_object* x_44; lean_object* x_45; 
+x_44 = l_Lean_Parser_ParserState_setPos(x_3, x_20);
+x_45 = l_Lean_Parser_decimalNumberFn(x_4, x_1, x_2, x_44);
+return x_45;
 }
 else
 {
-goto block_23;
-}
-}
-else
-{
-goto block_23;
+goto block_24;
 }
 }
 else
 {
-goto block_26;
+goto block_24;
 }
 }
 else
 {
-goto block_26;
+goto block_27;
 }
 }
 else
 {
-goto block_29;
+goto block_27;
 }
 }
 else
 {
-goto block_29;
+goto block_30;
 }
-block_23:
+}
+else
 {
-lean_object* x_21; lean_object* x_22; 
-x_21 = l_Lean_Parser_ParserState_next(x_3, x_2, x_20);
+goto block_30;
+}
+block_24:
+{
+lean_object* x_21; lean_object* x_22; lean_object* x_23; 
+x_21 = l_Lean_Parser_decimalNumberFn___closed__1;
+x_22 = l_Lean_Parser_ParserState_next(x_3, x_2, x_20);
 lean_dec(x_20);
-x_22 = l_Lean_Parser_hexNumberFn(x_4, x_1, x_2, x_21);
-return x_22;
+x_23 = l_Lean_Parser_hexNumberFn(x_4, x_1, x_21, x_2, x_22);
+return x_23;
 }
-block_26:
+block_27:
 {
-lean_object* x_24; lean_object* x_25; 
-x_24 = l_Lean_Parser_ParserState_next(x_3, x_2, x_20);
+lean_object* x_25; lean_object* x_26; 
+x_25 = l_Lean_Parser_ParserState_next(x_3, x_2, x_20);
 lean_dec(x_20);
-x_25 = l_Lean_Parser_octalNumberFn(x_4, x_1, x_2, x_24);
-return x_25;
+x_26 = l_Lean_Parser_octalNumberFn(x_4, x_1, x_2, x_25);
+return x_26;
 }
-block_29:
+block_30:
 {
-lean_object* x_27; lean_object* x_28; 
-x_27 = l_Lean_Parser_ParserState_next(x_3, x_2, x_20);
+lean_object* x_28; lean_object* x_29; 
+x_28 = l_Lean_Parser_ParserState_next(x_3, x_2, x_20);
 lean_dec(x_20);
-x_28 = l_Lean_Parser_binNumberFn(x_4, x_1, x_2, x_27);
-return x_28;
+x_29 = l_Lean_Parser_binNumberFn(x_4, x_1, x_2, x_28);
+return x_29;
 }
 }
 }
 else
 {
-lean_object* x_45; lean_object* x_46; 
+lean_object* x_46; lean_object* x_47; 
 lean_dec_ref(x_2);
-x_45 = lean_box(0);
-x_46 = l_Lean_Parser_ParserState_mkEOIError(x_3, x_45);
-return x_46;
+x_46 = lean_box(0);
+x_47 = l_Lean_Parser_ParserState_mkEOIError(x_3, x_46);
+return x_47;
 }
 block_10:
 {
@@ -8907,9 +8913,9 @@ x_26 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_26, 0, x_19);
 lean_ctor_set(x_26, 1, x_7);
 lean_ctor_set(x_26, 2, x_20);
-x_8 = x_22;
-x_9 = x_21;
-x_10 = x_24;
+x_8 = x_21;
+x_9 = x_24;
+x_10 = x_22;
 x_11 = x_26;
 goto block_16;
 }
@@ -8922,9 +8928,9 @@ x_27 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_27, 0, x_19);
 lean_ctor_set(x_27, 1, x_7);
 lean_ctor_set(x_27, 2, x_23);
-x_8 = x_22;
-x_9 = x_21;
-x_10 = x_24;
+x_8 = x_21;
+x_9 = x_24;
+x_10 = x_22;
 x_11 = x_27;
 goto block_16;
 }
@@ -8964,17 +8970,17 @@ block_16:
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_12, 0, x_10);
+lean_ctor_set(x_12, 0, x_9);
 lean_ctor_set(x_12, 1, x_1);
 lean_ctor_set(x_12, 2, x_11);
 lean_ctor_set(x_12, 3, x_7);
 x_13 = lean_box(0);
 x_14 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_14, 0, x_12);
-lean_ctor_set(x_14, 1, x_9);
+lean_ctor_set(x_14, 1, x_8);
 lean_ctor_set(x_14, 2, x_3);
 lean_ctor_set(x_14, 3, x_13);
-x_15 = l_Lean_Parser_ParserState_pushSyntax(x_8, x_14);
+x_15 = l_Lean_Parser_ParserState_pushSyntax(x_10, x_14);
 return x_15;
 }
 }
@@ -11525,6 +11531,64 @@ x_1 = l_Lean_Parser_numLitNoAntiquot___closed__1;
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_Parser_hexnumFn___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("hexnum", 6, 6);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_hexnumFn___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Parser_hexnumFn___closed__0;
+x_2 = l_Lean_Name_mkStr1(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Parser_hexnumFn(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
+x_3 = lean_ctor_get(x_2, 2);
+lean_inc(x_3);
+x_4 = 1;
+x_5 = l_Lean_Parser_hexnumFn___closed__1;
+x_6 = l_Lean_Parser_hexNumberFn(x_3, x_4, x_5, x_1, x_2);
+return x_6;
+}
+}
+static lean_object* _init_l_Lean_Parser_hexnumNoAntiquot___closed__0() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Parser_hexnumFn___closed__0;
+x_2 = l_Lean_Parser_mkAtomicInfo(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Parser_hexnumNoAntiquot___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Parser_hexnumFn), 2, 0);
+x_2 = l_Lean_Parser_hexnumNoAntiquot___closed__0;
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_hexnumNoAntiquot() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Parser_hexnumNoAntiquot___closed__1;
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_Parser_scientificLitFn___closed__0() {
 _start:
 {
@@ -12422,8 +12486,8 @@ goto block_35;
 block_11:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_8 = l_Lean_Parser_ParserState_shrinkStack(x_7, x_6);
-lean_dec(x_6);
+x_8 = l_Lean_Parser_ParserState_shrinkStack(x_6, x_7);
+lean_dec(x_7);
 x_9 = lean_box(0);
 x_10 = l_Lean_Parser_ParserState_pushSyntax(x_8, x_9);
 return x_10;
@@ -12447,8 +12511,8 @@ x_20 = lean_box(0);
 x_21 = l_Option_instBEq_beq___at___Lean_Parser_andthenFn_spec__0(x_19, x_20);
 if (x_21 == 0)
 {
-x_6 = x_12;
-x_7 = x_14;
+x_6 = x_14;
+x_7 = x_12;
 goto block_11;
 }
 else
@@ -12462,8 +12526,8 @@ return x_22;
 }
 else
 {
-x_6 = x_12;
-x_7 = x_14;
+x_6 = x_14;
+x_7 = x_12;
 goto block_11;
 }
 }
@@ -14679,9 +14743,9 @@ goto block_154;
 block_147:
 {
 lean_object* x_144; lean_object* x_145; lean_object* x_146; 
-x_144 = lean_nat_add(x_142, x_143);
+x_144 = lean_nat_add(x_141, x_143);
 lean_dec(x_143);
-lean_dec(x_142);
+lean_dec(x_141);
 if (lean_is_scalar(x_138)) {
  x_145 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -14700,7 +14764,7 @@ if (lean_is_scalar(x_128)) {
 lean_ctor_set(x_146, 0, x_140);
 lean_ctor_set(x_146, 1, x_130);
 lean_ctor_set(x_146, 2, x_131);
-lean_ctor_set(x_146, 3, x_141);
+lean_ctor_set(x_146, 3, x_142);
 lean_ctor_set(x_146, 4, x_145);
 return x_146;
 }
@@ -14726,8 +14790,8 @@ if (lean_obj_tag(x_133) == 0)
 lean_object* x_152; 
 x_152 = lean_ctor_get(x_133, 0);
 lean_inc(x_152);
-x_141 = x_150;
-x_142 = x_151;
+x_141 = x_151;
+x_142 = x_150;
 x_143 = x_152;
 goto block_147;
 }
@@ -14735,8 +14799,8 @@ else
 {
 lean_object* x_153; 
 x_153 = lean_unsigned_to_nat(0u);
-x_141 = x_150;
-x_142 = x_151;
+x_141 = x_151;
+x_142 = x_150;
 x_143 = x_153;
 goto block_147;
 }
@@ -19148,6 +19212,16 @@ l_Lean_Parser_numLitNoAntiquot___closed__1 = _init_l_Lean_Parser_numLitNoAntiquo
 lean_mark_persistent(l_Lean_Parser_numLitNoAntiquot___closed__1);
 l_Lean_Parser_numLitNoAntiquot = _init_l_Lean_Parser_numLitNoAntiquot();
 lean_mark_persistent(l_Lean_Parser_numLitNoAntiquot);
+l_Lean_Parser_hexnumFn___closed__0 = _init_l_Lean_Parser_hexnumFn___closed__0();
+lean_mark_persistent(l_Lean_Parser_hexnumFn___closed__0);
+l_Lean_Parser_hexnumFn___closed__1 = _init_l_Lean_Parser_hexnumFn___closed__1();
+lean_mark_persistent(l_Lean_Parser_hexnumFn___closed__1);
+l_Lean_Parser_hexnumNoAntiquot___closed__0 = _init_l_Lean_Parser_hexnumNoAntiquot___closed__0();
+lean_mark_persistent(l_Lean_Parser_hexnumNoAntiquot___closed__0);
+l_Lean_Parser_hexnumNoAntiquot___closed__1 = _init_l_Lean_Parser_hexnumNoAntiquot___closed__1();
+lean_mark_persistent(l_Lean_Parser_hexnumNoAntiquot___closed__1);
+l_Lean_Parser_hexnumNoAntiquot = _init_l_Lean_Parser_hexnumNoAntiquot();
+lean_mark_persistent(l_Lean_Parser_hexnumNoAntiquot);
 l_Lean_Parser_scientificLitFn___closed__0 = _init_l_Lean_Parser_scientificLitFn___closed__0();
 lean_mark_persistent(l_Lean_Parser_scientificLitFn___closed__0);
 l_Lean_Parser_scientificLitNoAntiquot___closed__0 = _init_l_Lean_Parser_scientificLitNoAntiquot___closed__0();

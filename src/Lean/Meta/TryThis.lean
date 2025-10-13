@@ -188,7 +188,7 @@ column `range` starts at in that line. -/
 def getIndentAndColumn (map : FileMap) (range : String.Range) : Nat × Nat :=
   let start := map.source.findLineStart range.start
   let body := map.source.findAux (· ≠ ' ') range.start start
-  ((body - start).1, (range.start - start).1)
+  (start.byteDistance body, start.byteDistance range.start)
 
 /--
 An option allowing the user to customize the ideal input width. Defaults to 100.

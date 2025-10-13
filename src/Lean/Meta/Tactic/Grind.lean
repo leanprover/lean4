@@ -41,6 +41,7 @@ public import Lean.Meta.Tactic.Grind.VarRename
 public import Lean.Meta.Tactic.Grind.ProofUtil
 public import Lean.Meta.Tactic.Grind.PropagateInj
 public import Lean.Meta.Tactic.Grind.Order
+public import Lean.Meta.Tactic.Grind.Anchor
 
 public section
 

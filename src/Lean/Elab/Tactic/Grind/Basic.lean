@@ -16,8 +16,9 @@ namespace Lean.Elab.Tactic.Grind
 open Meta
 
 structure Context extends Tactic.Context where
-  ctx    : Meta.Grind.Context
-  methods: Grind.Methods
+  ctx     : Meta.Grind.Context
+  methods : Grind.Methods
+  params  : Grind.Params
 
 open Meta.Grind (Goal)
 
@@ -353,6 +354,6 @@ def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM
     let state ← get
     pure (methods, ctx, { state, goals })
   let tctx ← read
-  k { tctx with methods, ctx } |>.run state
+  k { tctx with methods, ctx, params } |>.run state
 
 end Lean.Elab.Tactic.Grind

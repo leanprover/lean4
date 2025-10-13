@@ -213,6 +213,10 @@ namespace Package
 @[inline] public def platformIndependent (self : Package) : Option Bool :=
   self.config.platformIndependent
 
+/-- Whether the package's  has been configured with `platformIndependent = true`. -/
+@[inline] public def isPlatformIndependent (self : Package) : Bool :=
+  self.config.platformIndependent == some true
+
 /-- The package's `releaseRepo`/`releaseRepo?` configuration. -/
 @[inline] public def releaseRepo? (self : Package) : Option String :=
   self.config.releaseRepo
@@ -252,6 +256,10 @@ namespace Package
 /-- The package's `backend` configuration. -/
 @[inline] public def backend (self : Package) : Backend :=
   self.config.backend
+
+/-- The package's `allowImportAll` configuration. -/
+@[inline] public def allowImportAll (self : Package) : Bool :=
+  self.config.allowImportAll
 
 /-- The package's `dynlibs` configuration. -/
 @[inline] public def dynlibs (self : Package) : TargetArray Dynlib :=

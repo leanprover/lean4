@@ -11,11 +11,11 @@ public import Init.Data.Order.Lemmas
 public import Init.Data.UInt
 import Init.Omega
 
-public section
-
 open Std Std.PRange
 
 namespace BitVec
+
+public section
 
 variable {n : Nat}
 
@@ -81,12 +81,11 @@ instance : LawfulUpwardEnumerableLE (BitVec n) where
       simp [BitVec.ofNatLT]
 
 instance : LawfulUpwardEnumerableLT (BitVec n) := inferInstance
-instance : LawfulUpwardEnumerableLT (BitVec n) := inferInstance
 
-instance : Rxc.HasSize (BitVec n) where
+instance instRxcHasSize : Rxc.HasSize (BitVec n) where
   size lo hi := hi.toNat + 1 - lo.toNat
 
-instance : Rxc.LawfulHasSize (BitVec n) where
+instance instRxcLawfulHasSize : Rxc.LawfulHasSize (BitVec n) where
   size_eq_zero_of_not_le bound x := by
     simp only [BitVec.not_le, Rxc.HasSize.size, BitVec.lt_def]
     omega
@@ -98,16 +97,16 @@ instance : Rxc.LawfulHasSize (BitVec n) where
     simp only [succ?_eq_some, Rxc.HasSize.size, BitVec.le_def]
     omega
 
-instance : Rxc.IsAlwaysFinite (BitVec n) := inferInstance
+instance instRxcIsAlwaysFinite : Rxc.IsAlwaysFinite (BitVec n) := inferInstance
 
-instance : Rxo.HasSize (BitVec n) := .ofClosed
-instance : Rxo.LawfulHasSize (BitVec n) := inferInstance
-instance : Rxo.IsAlwaysFinite (BitVec n) := inferInstance
+instance instRxoHasSize : Rxo.HasSize (BitVec n) := .ofClosed
+instance instRxoLawfulHasSize : Rxo.LawfulHasSize (BitVec n) := inferInstance
+instance instRxoIsAlwaysFinite : Rxo.IsAlwaysFinite (BitVec n) := inferInstance
 
-instance : Rxi.HasSize (BitVec n) where
+instance instRxiHasSize : Rxi.HasSize (BitVec n) where
   size lo := 2 ^ n - lo.toNat
 
-instance : Rxi.LawfulHasSize (BitVec n) where
+instance instRxiLawfulHasSize : Rxi.LawfulHasSize (BitVec n) where
   size_eq_one_of_succ?_eq_none x := by
     simp only [succ?_eq_none, Rxi.HasSize.size]
     omega
@@ -115,6 +114,7 @@ instance : Rxi.LawfulHasSize (BitVec n) where
     simp only [succ?_eq_some, Rxi.HasSize.size]
     omega
 
-instance : Rxi.IsAlwaysFinite (BitVec n) := inferInstance
+instance instRxiIsAlwaysFinite : Rxi.IsAlwaysFinite (BitVec n) := inferInstance
 
+end
 end BitVec

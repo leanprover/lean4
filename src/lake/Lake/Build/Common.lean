@@ -203,51 +203,82 @@ public def BuildMetadata.writeFile (path : FilePath) (data : BuildMetadata) : IO
 @[deprecated writeBuildTrace (since := "2025-06-28")]
 public abbrev writeTraceFile := @writeBuildTrace
 
+/-- Indicator of whether a build's output(s) are up-to-date. -/
+public inductive OutputStatus
+| /-- Needs rebuild -/ outOfDate
+| /-- Up-to-date by modification time -/ mtimeUpToDate
+| /-- Up-to-date by hash -/ hashUpToDate
+deriving DecidableEq
+
+/-- Constructs an `OutputStatus` from a hash check. -/
+@[inline] public def OutputStatus.ofHashCheck (upToDate : Bool) : OutputStatus :=
+  if upToDate then .hashUpToDate else .outOfDate
+
+/-- Constructs an `OutputStatus` from a modification time check. -/
+@[inline] public def OutputStatus.ofMTimeCheck (upToDate : Bool) : OutputStatus :=
+  if upToDate then .mtimeUpToDate else .outOfDate
+
+/-- Whether the build should be considered up-to-date for rebuilding. -/
+@[inline] public def OutputStatus.isUpToDate (status : OutputStatus) : Bool :=
+  status != .outOfDate
+
+/-- Whether the build or rebuild should be considered up-to-date for caching. -/
+@[inline] public def OutputStatus.isCacheable (status : OutputStatus) : Bool :=
+  status != .mtimeUpToDate
+
+@[specialize] private def checkHashUpToDate'
+  [CheckExists ι] [GetMTime ι]
+  (info : ι) (depTrace : BuildTrace) (depHash : Option Hash)
+  (oldTrace := depTrace.mtime)
+: JobM OutputStatus := do
+  if depTrace.hash == depHash then
+    .ofHashCheck <$> checkExists info
+  else if (← getIsOldMode) then
+    .ofMTimeCheck <$> oldTrace.checkUpToDate info
+  else
+    return .outOfDate
+
 /--
 Checks if the `info` is up-to-date by comparing `depTrace` with `depHash`.
 If old mode is enabled (e.g., `--old`), uses the `oldTrace` modification time
 as the point of comparison instead.
 -/
-@[specialize] public def checkHashUpToDate
+@[inline] public def checkHashUpToDate
   [CheckExists ι] [GetMTime ι]
   (info : ι) (depTrace : BuildTrace) (depHash : Option Hash)
   (oldTrace := depTrace.mtime)
-: JobM Bool := do
-  if depTrace.hash == depHash then
-    checkExists info
-  else if (← getIsOldMode) then
-    oldTrace.checkUpToDate info
-  else
-    return false
-
-/-- Returns whether the hash does not match the trace's dependency hash. -/
-public def SavedTrace.isDifferentFrom  (hash : Hash) (self : SavedTrace) : Bool :=
-  match self with
-  | .ok data =>
-    hash != data.depHash
-  | _ =>
-    true
+: JobM Bool := (·.isUpToDate) <$> checkHashUpToDate' info depTrace depHash oldTrace
 
 /--
 Checks whether `info` is up-to-date with the trace.
-If so, replays the log of the trace if available. -/
-@[specialize] public def SavedTrace.replayIfUpToDate
+If so, replays the log of the trace if available.
+-/
+@[specialize] public def SavedTrace.replayIfUpToDate'
   [CheckExists ι] [GetMTime ι]
   (info : ι) (depTrace : BuildTrace) (savedTrace : SavedTrace)
   (oldTrace := depTrace.mtime)
-: JobM Bool := do
-  match savedTrace with
-  | .ok data =>
-    if (← inline <| checkHashUpToDate info depTrace data.depHash oldTrace) then
+: JobM OutputStatus := do
+  if let .ok data := savedTrace then
+    let status ← checkHashUpToDate' info depTrace data.depHash oldTrace
+    if status.isUpToDate then
       updateAction .replay
-      data.log.replay
-      return true
-    else
-      return false
-  | .invalid =>
-    return (← getIsOldMode) && (← oldTrace.checkUpToDate info)
-  | .missing =>
-    depTrace.checkAgainstTime info
+      replay data.log
+    return status
+  else if (← getIsOldMode) then
+    .ofMTimeCheck <$> oldTrace.checkUpToDate info
+  else
+    return .outOfDate
+where replay log := log.replay -- specializes `replay` to `JobM`
+
+/--
+Checks whether `info` is up-to-date with the trace.
+If so, replays the log of the trace if available.
+-/
+@[inline] public def SavedTrace.replayIfUpToDate
+  [CheckExists ι] [GetMTime ι]
+  (info : ι) (depTrace : BuildTrace) (savedTrace : SavedTrace)
+  (oldTrace := depTrace.mtime)
+: JobM Bool := (·.isUpToDate) <$> savedTrace.replayIfUpToDate' info depTrace oldTrace
 
 /--
 Returns if the saved trace exists and its hash matches `inputHash`.
@@ -420,43 +451,47 @@ public def buildFileUnlessUpToDate'
 Copies `file` to the Lake cache with the file extension `ext`, and
 saves its hash in its `.hash` file.
 
-If `text := true`, `file` contents are hashed as a text file rather than a binary file.
-
-If the Lake cache is disabled, the behavior of this function is undefined.
+**Additional Options:**
+* `text`: the contents of `file` are hashed as text rather than as a binary blob.
+* `exe`: the cached file will be executable.
+* `useLocalFile`: the resulting artifact will use `file`'s path instead of path to
+the file in the cache.
 -/
 public def Cache.saveArtifact
-  (cache : Cache) (file : FilePath) (ext := "art") (text := false) (exe := false)
+  (cache : Cache) (file : FilePath) (ext := "art") (text exe useLocalFile := false)
 : IO Artifact := do
   if text then
     let contents ← IO.FS.readFile file
     let normalized := contents.crlfToLf
     let hash := Hash.ofString normalized
     let descr := artifactWithExt hash ext
-    let path := cache.artifactDir / descr.relPath
-    createParentDirs path
-    IO.FS.writeFile path normalized
+    let cacheFile := cache.artifactDir / descr.relPath
+    createParentDirs cacheFile
+    IO.FS.writeFile cacheFile normalized
     writeFileHash file hash
-    let mtime := (← getMTime path |>.toBaseIO).toOption.getD 0
+    let mtime := (← getMTime cacheFile |>.toBaseIO).toOption.getD 0
+    let path := if useLocalFile then file else cacheFile
     return {descr, name := file.toString, path, mtime}
   else
     let contents ← IO.FS.readBinFile file
     let hash := Hash.ofByteArray contents
     let descr := artifactWithExt hash ext
-    let path := cache.artifactDir / descr.relPath
-    createParentDirs path
-    IO.FS.writeBinFile path contents
+    let cacheFile := cache.artifactDir / descr.relPath
+    createParentDirs cacheFile
+    IO.FS.writeBinFile cacheFile contents
     if exe then
       let r := ⟨true, true, true⟩
-      IO.setAccessRights path ⟨r, r, r⟩ -- 777
+      IO.setAccessRights cacheFile ⟨r, r, r⟩ -- 777
     writeFileHash file hash
-    let mtime := (← getMTime path |>.toBaseIO).toOption.getD 0
+    let mtime := (← getMTime cacheFile |>.toBaseIO).toOption.getD 0
+    let path := if useLocalFile then file else cacheFile
     return {descr, name := file.toString, path, mtime}
 
 @[inline,  inherit_doc Cache.saveArtifact]
 public def cacheArtifact
   [MonadWorkspace m] [MonadLiftT IO m] [Monad m]
-  (file : FilePath) (ext := "art") (text := false) (exe := false)
-: m Artifact := do (← getLakeCache).saveArtifact file ext text exe
+  (file : FilePath) (ext := "art") (text exe useLocalFile := false)
+: m Artifact := do (← getLakeCache).saveArtifact file ext text exe useLocalFile
 
 /-- **For internal use only.** -/
 public class ResolveOutputs (m : Type v → Type w) (α : Type v) where
@@ -556,14 +591,19 @@ public def buildArtifactUnlessUpToDate
         return some art
     let art ← id do
       if (← pkg.isArtifactCacheEnabled) then
-        if let some art ← fetchArt? (restore || pkg.restoreAllArtifacts) then
+        let restore := restore || pkg.restoreAllArtifacts
+        if let some art ← fetchArt? restore then
           return art
         else
-          unless (← savedTrace.replayIfUpToDate file depTrace) do
+          let status ← savedTrace.replayIfUpToDate' file depTrace
+          unless status.isUpToDate do
             discard <| doBuild depTrace traceFile
-          let art ← cacheArtifact file ext text exe
-          cache.writeOutputs pkg.cacheScope inputHash art.descr
-          return if restore then art.useLocalFile file else art
+          if status.isCacheable then
+            let art ← cacheArtifact file ext text exe restore
+            cache.writeOutputs pkg.cacheScope inputHash art.descr
+            return art
+          else
+            computeArtifact file ext text
       else if (← savedTrace.replayIfUpToDate file depTrace) then
         computeArtifact file ext
       else if let some art ← fetchArt? (restore := true) then

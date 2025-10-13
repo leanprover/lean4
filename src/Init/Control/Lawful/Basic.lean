@@ -252,6 +252,7 @@ instance : LawfulMonad Id := by
 @[simp] theorem run_map (x : Id α) (f : α → β) : (f <$> x).run = f x.run := rfl
 @[simp] theorem run_bind (x : Id α) (f : α → Id β) : (x >>= f).run = (f x.run).run := rfl
 @[simp] theorem run_pure (a : α) : (pure a : Id α).run = a := rfl
+@[simp] theorem pure_run (a : Id α) : pure a.run = a := rfl
 @[simp] theorem run_seqRight (x y : Id α) : (x *> y).run = y.run := rfl
 @[simp] theorem run_seqLeft (x y : Id α) : (x <* y).run = x.run := rfl
 @[simp] theorem run_seq (f : Id (α → β)) (x : Id α) : (f <*> x).run = f.run x.run := rfl

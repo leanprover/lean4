@@ -247,7 +247,7 @@ private def updateInfo : SourceInfo → String.Pos.Raw → String.Pos.Raw → So
   | info, _, _ => info
 
 private def chooseNiceTrailStop (trail : Substring) : String.Pos.Raw :=
-trail.startPos + trail.posOf '\n'
+  (trail.posOf '\n').offsetBy trail.startPos
 
 /-- Remark: the State `String.Pos` is the `SourceInfo.trailing.stopPos` of the previous token,
    or the beginning of the String. -/
@@ -318,10 +318,10 @@ def identComponents (stx : Syntax) (nFields? : Option Nat := none) : List Syntax
           rawComps
       if nameComps.length == rawComps.length then
         return nameComps.zip rawComps |>.map fun (id, ss) =>
-          let off := ss.startPos - rawStr.startPos
+          let off := ss.startPos.unoffsetBy rawStr.startPos
           let lead := if off == 0 then lead else "".toSubstring
           let trail := if ss.stopPos == rawStr.stopPos then trail else "".toSubstring
-          let info := original lead (pos + off) trail (pos + off + ⟨ss.bsize⟩)
+          let info := original lead (pos.offsetBy off) trail (pos.offsetBy off |>.offsetBy ⟨ss.bsize⟩)
           ident info ss id []
     -- if re-parsing failed, just give them all the same span
     nameComps.map fun n => ident si n.toString.toSubstring n []

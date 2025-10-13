@@ -100,7 +100,7 @@ private def findSyntheticIdentifierCompletion?
   let tailPos := stx.getTailPos?.get!
   let hoverInfo :=
     if hoverPos < tailPos then
-      HoverInfo.inside (tailPos - hoverPos).byteIdx
+      HoverInfo.inside (hoverPos.byteDistance tailPos)
     else
       HoverInfo.after
   some { hoverInfo, ctx, info := .id stx id danglingDot info.lctx none }
@@ -110,7 +110,7 @@ private partial def isCursorOnWhitespace (fileMap : FileMap) (hoverPos : String.
 
 private partial def isCursorInProperWhitespace (fileMap : FileMap) (hoverPos : String.Pos.Raw) : Bool :=
   (fileMap.source.atEnd hoverPos || (fileMap.source.get hoverPos).isWhitespace)
-    && (fileMap.source.get (hoverPos - ⟨1⟩)).isWhitespace
+    && (fileMap.source.get (hoverPos.unoffsetBy ⟨1⟩)).isWhitespace
 
 private partial def isSyntheticTacticCompletion
     (fileMap  : FileMap)

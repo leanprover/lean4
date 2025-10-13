@@ -142,6 +142,13 @@ then the default (which is C for now).
   Backend.orPreferLeft self.config.backend self.pkg.backend
 
 /--
+Whether downstream packages can `import all` modules of this library.
+Enabled if either the library or the package enables it.
+-/
+@[inline] public def allowImportAll (self : LeanLib) : Bool :=
+  self.config.allowImportAll || self.pkg.allowImportAll
+
+/--
 The dynamic libraries to load for modules of this library.
 The targets of the package plus the targets of the library (in that order).
 -/

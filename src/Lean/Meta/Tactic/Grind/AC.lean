@@ -34,9 +34,10 @@ builtin_initialize registerTraceClass `grind.debug.ac.eq
 builtin_initialize
   acExt.setMethods
     (internalize := AC.internalize)
-    (newEq := AC.processNewEq)
-    (newDiseq := AC.processNewDiseq)
-    (check := AC.check)
-    (checkInv := AC.checkInvariants)
+    (newEq       := AC.processNewEq)
+    (newDiseq    := AC.processNewDiseq)
+    (check       := AC.check)
+    (checkInv    := AC.checkInvariants)
+    (mkTactic?   := return some (← `(grind| ac)))
 
 end Lean.Meta.Grind.AC

@@ -334,4 +334,183 @@ theorem IterM.drain_eq_map_toArray {α β : Type w} {m : Type w → Type w'} [It
     it.drain = (fun _ => .unit) <$> it.toList := by
   simp [IterM.drain_eq_map_toList]
 
+theorem IterM.anyM_eq_forIn {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {p : β → m (ULift Bool)} :
+    it.anyM p = (ForIn.forIn it (.up false) (fun x _ => do
+        if (← p x).down then
+          return .done (.up true)
+        else
+          return .yield (.up false))) := by
+  rfl
+
+theorem IterM.anyM_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {p : β → m (ULift Bool)} :
+    it.anyM p = (do
+      match (← it.step).val with
+      | .yield it' x =>
+        if (← p x).down then
+          return .up true
+        else
+          it'.anyM p
+      | .skip it' => it'.anyM p
+      | .done => return .up false) := by
+  rw [anyM_eq_forIn, forIn_eq_match_step]
+  simp only [monadLift_self, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · apply bind_congr; intro px
+    split
+    · simp
+    · simp [anyM_eq_forIn]
+  · simp [anyM_eq_forIn]
+  · simp
+
+theorem IterM.any_eq_anyM {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {p : β → Bool} :
+    it.any p = it.anyM (fun x => pure (.up (p x))) := by
+  rfl
+
+theorem IterM.anyM_pure {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {p : β → ULift Bool} :
+    it.anyM (fun x => pure (p x)) = it.any (fun x => (p x).down) := by
+  simp [any_eq_anyM]
+
+theorem IterM.any_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {p : β → Bool} :
+    it.any p = (do
+      match (← it.step).val with
+      | .yield it' x =>
+        if p x then
+          return .up true
+        else
+          it'.any p
+      | .skip it' => it'.any p
+      | .done => return .up false) := by
+  rw [any_eq_anyM, anyM_eq_match_step]
+  apply bind_congr; intro step
+  split
+  · simp [any_eq_anyM]
+  · simp [any_eq_anyM]
+  · simp
+
+theorem IterM.any_eq_forIn {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {p : β → Bool} :
+    it.any p = (ForIn.forIn it (.up false) (fun x _ => do
+        if p x then
+          return .done (.up true)
+        else
+          return .yield (.up false))) := by
+  simp [any_eq_anyM, anyM_eq_forIn]
+
+theorem IterM.allM_eq_forIn {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {p : β → m (ULift Bool)} :
+    it.allM p = (ForIn.forIn it (.up true) (fun x _ => do
+        if (← p x).down then
+          return .yield (.up true)
+        else
+          return .done (.up false))) := by
+  rfl
+
+theorem IterM.allM_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {p : β → m (ULift Bool)} :
+    it.allM p = (do
+      match (← it.step).val with
+      | .yield it' x =>
+        if (← p x).down then
+          it'.allM p
+        else
+          return .up false
+      | .skip it' => it'.allM p
+      | .done => return .up true) := by
+  rw [allM_eq_forIn, forIn_eq_match_step]
+  simp only [monadLift_self, bind_assoc]
+  apply bind_congr; intro step
+  split
+  · apply bind_congr; intro px
+    split
+    · simp [allM_eq_forIn]
+    · simp
+  · simp [allM_eq_forIn]
+  · simp
+
+theorem IterM.all_eq_allM {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {p : β → Bool} :
+    it.all p = it.allM (fun x => pure (.up (p x))) := by
+  rfl
+
+theorem IterM.allM_pure {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {p : β → ULift Bool} :
+    it.allM (fun x => pure (p x)) = it.all (fun x => (p x).down) := by
+  simp [all_eq_allM]
+
+theorem IterM.all_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {p : β → Bool} :
+    it.all p = (do
+      match (← it.step).val with
+      | .yield it' x =>
+        if p x then
+          it'.all p
+        else
+          return .up false
+      | .skip it' => it'.all p
+      | .done => return .up true) := by
+  rw [all_eq_allM, allM_eq_match_step]
+  apply bind_congr; intro step
+  split
+  · simp [all_eq_allM]
+  · simp [all_eq_allM]
+  · simp
+
+theorem IterM.all_eq_forIn {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {p : β → Bool} :
+    it.all p = (ForIn.forIn it (.up true) (fun x _ => do
+        if p x then
+          return .yield (.up true)
+        else
+          return .done (.up false))) := by
+  simp [all_eq_allM, allM_eq_forIn]
+
+theorem IterM.allM_eq_not_anyM_not {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {p : β → m (ULift Bool)} :
+    it.allM p = (fun x => .up !x.down) <$> it.anyM ((fun x => .up !x.down) <$> p ·) := by
+  induction it using IterM.inductSteps with | step it ihy ihs =>
+  rw [allM_eq_match_step, anyM_eq_match_step, map_eq_pure_bind, bind_assoc]
+  apply bind_congr; intro step
+  cases step using PlausibleIterStep.casesOn
+  · simp only [map_eq_pure_bind, bind_assoc, pure_bind]
+    apply bind_congr; intro px
+    split
+    · simp [*, ihy ‹_›]
+    · simp [*]
+  · simp [ihs ‹_›]
+  · simp
+
+theorem IterM.all_eq_not_any_not {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {p : β → Bool} :
+    it.all p = (fun x => .up !x.down) <$> it.any (! p ·) := by
+  induction it using IterM.inductSteps with | step it ihy ihs =>
+  rw [all_eq_match_step, any_eq_match_step, map_eq_pure_bind, bind_assoc]
+  apply bind_congr; intro step
+  cases step using PlausibleIterStep.casesOn
+  · simp only
+    split
+    · simp [*, ihy ‹_›]
+    · simp [*]
+  · simp [ihs ‹_›]
+  · simp
+
 end Std.Iterators

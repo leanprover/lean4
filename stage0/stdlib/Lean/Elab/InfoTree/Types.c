@@ -754,23 +754,27 @@ return x_25;
 }
 case 7:
 {
-lean_object* x_26; lean_object* x_27; lean_object* x_28; 
+lean_object* x_26; lean_object* x_27; uint8_t x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 x_26 = lean_ctor_get(x_1, 0);
 lean_inc(x_26);
 x_27 = lean_ctor_get(x_1, 1);
 lean_inc(x_27);
+x_28 = lean_ctor_get_uint8(x_1, sizeof(void*)*3);
+x_29 = lean_ctor_get(x_1, 2);
+lean_inc(x_29);
 lean_dec_ref(x_1);
-x_28 = lean_apply_2(x_2, x_26, x_27);
-return x_28;
+x_30 = lean_box(x_28);
+x_31 = lean_apply_4(x_2, x_26, x_27, x_30, x_29);
+return x_31;
 }
 default: 
 {
-lean_object* x_29; lean_object* x_30; 
-x_29 = lean_ctor_get(x_1, 0);
-lean_inc(x_29);
+lean_object* x_32; lean_object* x_33; 
+x_32 = lean_ctor_get(x_1, 0);
+lean_inc(x_32);
 lean_dec_ref(x_1);
-x_30 = lean_apply_1(x_2, x_29);
-return x_30;
+x_33 = lean_apply_1(x_2, x_32);
+return x_33;
 }
 }
 }

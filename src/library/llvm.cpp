@@ -284,7 +284,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_module_to_string(size_t ctx, size_
                   "the LLVM backend function."));
 #else
     char *str = LLVMPrintModuleToString(lean_to_Module(mod));
-    lean_object *out =  lean_mk_string(str);
+    lean_object *out = lean_mk_string(str);
     free(str);
     return out;
 #endif  // LEAN_LLVM

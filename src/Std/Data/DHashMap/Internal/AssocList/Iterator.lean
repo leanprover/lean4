@@ -13,10 +13,15 @@ import Init.Data.Iterators.Internal.Termination
 
 public import Std.Data.DHashMap.Internal.AssocList.Basic
 
+/-!
+# Iterators on associative lists
+-/
+
 namespace Std.DHashMap.Internal.AssocList
 
 open Std.Iterators
 
+/-- Internal implementation detail of the hash map -/
 @[ext, unbox]
 public structure AssocListIterator (α : Type u) (β : α → Type v) where
   l : AssocList α β
@@ -64,6 +69,9 @@ public instance : IteratorSize (AssocListIterator α β) Id :=
 public instance : IteratorSizePartial (AssocListIterator α β) Id :=
   .defaultImplementation
 
+/--
+Internal implementation detail of the hash map. Returns a finite iterator on an associative list.
+-/
 @[expose]
 public def iter {α : Type u} {β : α → Type v} (l : AssocList α β) :
     Iter (α := AssocListIterator α β) ((a : α) × β a) :=

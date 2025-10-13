@@ -83,7 +83,7 @@ private def mkProj' (n : Name) (i : Nat) (Q : Expr) : MetaM Expr := do
   return (← projectCore? Q i).getD (mkProj n i Q)
 
 mutual
-partial def dischargePostEntails (α : Expr) (ps : Expr) (Q : Expr) (Q' : Expr) (goalTag : Name) : n Expr := do
+partial def dischargePostEntails (α : Expr) (ps : Expr) (Q : Expr) (Q' : Expr) : n Expr := do
   -- Often, Q' is fully instantiated while Q contains metavariables. Try refl
   let u ← liftMetaM <| getLevel α >>= decLevel
   if (← withDefault <| isDefEqGuarded Q Q') then
@@ -92,7 +92,7 @@ partial def dischargePostEntails (α : Expr) (ps : Expr) (Q : Expr) (Q' : Expr) 
   let Q' ← whnfR Q'
   -- If Q (postcond of the spec) is just an fvar, we do not decompose further
   if let some _fvarId := Q.fvarId? then
-    return ← mkFreshExprSyntheticOpaqueMVar (mkApp4 (mkConst ``PostCond.entails [u]) α ps Q Q') (goalTag ++ `post)
+    return ← mkFreshExprSyntheticOpaqueMVar (mkApp4 (mkConst ``PostCond.entails [u]) α ps Q Q')
   -- Otherwise decompose the conjunction
   let prf₁ ← withLocalDeclD (← liftMetaM <| mkFreshUserName `r) α fun a => do
     let Q1a := (← mkProj' ``Prod 0 Q).betaRev #[a]
@@ -101,11 +101,11 @@ partial def dischargePostEntails (α : Expr) (ps : Expr) (Q : Expr) (Q' : Expr) 
     let uniq ← liftMetaM mkFreshId
     let name ← liftMetaM <| mkFreshUserName `h
     let goal := MGoal.mk u σs (Hyp.mk name uniq Q1a).toExpr Q'1a
-    mkLambdaFVars #[a] (← mkFreshExprSyntheticOpaqueMVar goal.toExpr (goalTag ++ `success))
-  let prf₂ ← dischargeFailEntails u ps (← mkProj' ``Prod 1 Q) (← mkProj' ``Prod 1 Q') (goalTag ++ `except)
+    mkLambdaFVars #[a] (← mkFreshExprSyntheticOpaqueMVar goal.toExpr)
+  let prf₂ ← dischargeFailEntails u ps (← mkProj' ``Prod 1 Q) (← mkProj' ``Prod 1 Q')
   mkAppM ``And.intro #[prf₁, prf₂]
 
-partial def dischargeFailEntails (u : Level) (ps : Expr) (Q : Expr) (Q' : Expr) (goalTag : Name) : n Expr := do
+partial def dischargeFailEntails (u : Level) (ps : Expr) (Q : Expr) (Q' : Expr) : n Expr := do
   if ps.isAppOf ``PostShape.pure then
     return mkConst ``True.intro
   if ← withDefault <| isDefEqGuarded Q Q' then
@@ -116,7 +116,7 @@ partial def dischargeFailEntails (u : Level) (ps : Expr) (Q : Expr) (Q' : Expr) 
     return mkApp2 (mkConst ``ExceptConds.entails_true [u]) ps Q
   -- the remaining cases are recursive.
   if let some (_σ, ps) := ps.app2? ``PostShape.arg then
-    return ← dischargeFailEntails u ps Q Q' goalTag
+    return ← dischargeFailEntails u ps Q Q'
   if let some (ε, ps) := ps.app2? ``PostShape.except then
     let Q ← whnfR Q
     let Q' ← whnfR Q'
@@ -126,14 +126,14 @@ partial def dischargeFailEntails (u : Level) (ps : Expr) (Q : Expr) (Q' : Expr) 
       let σs := mkApp (mkConst ``PostShape.args [u]) ps
       let uniq ← liftMetaM mkFreshId
       let goal := MGoal.mk u σs (Hyp.mk (← liftMetaM <| mkFreshUserName `h) uniq Q1e).toExpr Q'1e
-      mkLambdaFVars #[e] (← mkFreshExprSyntheticOpaqueMVar goal.toExpr (goalTag ++ `handle))
-    let prf₂ ← dischargeFailEntails u ps (← mkProj' ``Prod 1 Q) (← mkProj' ``Prod 1 Q') (goalTag ++ `except)
+      mkLambdaFVars #[e] (← mkFreshExprSyntheticOpaqueMVar goal.toExpr)
+    let prf₂ ← dischargeFailEntails u ps (← mkProj' ``Prod 1 Q) (← mkProj' ``Prod 1 Q')
     return ← mkAppM ``And.intro #[prf₁, prf₂] -- This is just a bit too painful to construct by hand
   -- This case happens when decomposing with unknown `ps : PostShape`
-  mkFreshExprSyntheticOpaqueMVar (mkApp3 (mkConst ``ExceptConds.entails [u]) ps Q Q') goalTag
+  mkFreshExprSyntheticOpaqueMVar (mkApp3 (mkConst ``ExceptConds.entails [u]) ps Q Q')
 end
 
-def dischargeMGoal (goal : MGoal) (goalTag : Name) (tryTrivial : Bool) : n Expr := do
+def dischargeMGoal (goal : MGoal) (tryTrivial : Bool) : n Expr := do
   liftMetaM <| do trace[Elab.Tactic.Do.spec] "dischargeMGoal: {goal.target}"
   -- simply try one of the assumptions for now. Later on we might want to decompose conjunctions etc; full xsimpl
   -- The `withDefault` ensures that a hyp `⌜s = 4⌝` can be used to discharge `⌜s = 4⌝ s`.
@@ -151,14 +151,14 @@ def dischargeMGoal (goal : MGoal) (goalTag : Name) (tryTrivial : Bool) : n Expr 
         goal.pureTrivial <|> goal.assumption <|> goal.assumptionPure
       else
         goal.pureRflAndAndIntro
-    | mkFreshExprSyntheticOpaqueMVar goal.toExpr goalTag
+    | mkFreshExprSyntheticOpaqueMVar goal.toExpr
   liftMetaM <| do trace[Elab.Tactic.Do.spec] "proof: {prf}"
   return prf
 
 /--
   Returns the proof and the list of new unassigned MVars.
 -/
-public def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name) (tryTrivial : Bool := true) : n Expr := do
+public def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (tryTrivial : Bool := true) : n Expr := do
   -- First instantiate `fun s => ...` in the target via repeated `mintro ∀s`.
   mIntroForallN goal goal.target.consumeMData.getNumHeadLambdas fun goal => do
   -- Elaborate the spec for the wp⟦e⟧ app in the target
@@ -174,7 +174,6 @@ public def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag
   mIntroForallN goal residualEta fun goal => do
 
   -- Compute a frame of `P` that we duplicate into the pure context using `Spec.frame`
-  -- For now, frame = `P` or nothing at all
   mTryFrame goal fun goal => do
 
   -- Fully instantiate the specThm without instantiating its MVars to `wp` yet
@@ -187,7 +186,7 @@ public def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag
   -- To prevent accidental instantiation, we mark all `Invariant` MVars as synthetic opaque.
   for mvar in mvars do
     let ty ← mvar.mvarId!.getType
-    if ty.isAppOf ``Invariant then mvar.mvarId!.setKind .syntheticOpaque
+    if ty.isAppOf ``Invariant || ty.isAppOf ``InvariantNew then mvar.mvarId!.setKind .syntheticOpaque
 
   -- Apply the spec to the excess arguments of the `wp⟦e⟧ Q` application
   let T := goal.target.consumeMData
@@ -233,18 +232,16 @@ public def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag
   if !HPRfl then
     -- let P := (← reduceProjBeta? P).getD P
     -- Try to avoid creating a longer name if the postcondition does not need to create a goal
-    let tag := if !QQ'Rfl then goalTag ++ `pre else goalTag
-    let HPPrf ← dischargeMGoal { goal with target := P } tag tryTrivial
+    let HPPrf ← dischargeMGoal { goal with target := P } tryTrivial
     prePrf := mkApp6 (mkConst ``SPred.entails.trans [u]) goal.σs goal.hyps P goal.target HPPrf
 
   -- Discharge the entailment on postconditions if not rfl
   let mut postPrf : Expr → Expr := id
   if !QQ'Rfl then
     -- Try to avoid creating a longer name if the precondition does not need to create a goal
-    let tag := if !HPRfl then goalTag ++ `post else goalTag
     let wpApplyQ  := mkApp4 (mkConst ``PredTrans.apply [u]) ps α wp Q  -- wp⟦x⟧.apply Q; that is, T without excess args
     let wpApplyQ' := mkApp4 (mkConst ``PredTrans.apply [u]) ps α wp Q' -- wp⟦x⟧.apply Q'
-    let QQ' ← dischargePostEntails α ps Q Q' tag
+    let QQ' ← dischargePostEntails α ps Q Q'
     let QQ'mono := mkApp6 (mkConst ``PredTrans.mono [u]) ps α wp Q Q' QQ'
     postPrf := fun h =>
       mkApp6 (mkConst ``SPred.entails.trans [u]) goal.σs P (wpApplyQ.betaRev excessArgs) (wpApplyQ'.betaRev excessArgs)
@@ -258,7 +255,26 @@ def elabMSpecNoBind : Tactic
   | `(tactic| mspec_no_bind $[$spec]?) => do
     let (mvar, goal) ← mStartMainGoal
     mvar.withContext do
-    let (prf, goals) ← collectFreshMVars <| mSpec goal (elabSpec spec) (← mvar.getTag)
+    let (prf, goals) ← collectFreshMVars <| mSpec goal (elabSpec spec)
     mvar.assign prf
+    let baseTag ← mvar.getTag
+    let mut invs := 0
+    let mut vcs := 0
+    let mut singleVC := none
+    for goal in goals do
+      let target ← goal.getType
+      if target.isAppOf ``Invariant || target.isAppOf ``InvariantNew then
+        invs := invs + 1
+        goal.setTag (baseTag ++ Name.mkSimple ("inv" ++ toString invs))
+      else if (← isProp target) then
+        vcs := vcs + 1
+        goal.setTag (baseTag ++ Name.mkSimple ("vc" ++ toString vcs))
+        if singleVC.isNone && vcs = 1 then
+          singleVC := some goal
+        else
+          singleVC := none
+    -- If there was only one VC, reuse the tag of the main goal
+    if let some vc := singleVC then
+      vc.setTag baseTag
     replaceMainGoal goals.toList
   | _ => throwUnsupportedSyntax

@@ -959,6 +959,14 @@ def matchExprAlts (rhsParser : Parser) :=
   leading_parser withPosition $
     many (ppLine >> checkColGe "irrelevant" >> notFollowedBy (symbol "| " >> " _ ") "irrelevant" >> matchExprAlt rhsParser)
     >> (ppLine >> checkColGe "else-alternative for `match_expr`, i.e., `| _ => ...`" >> matchExprElseAlt rhsParser)
+/--
+  Useful for syntax quotations. Note that generic patterns such as `` `(matchExprAltExpr| | ... => $rhs) `` should also
+  work with other `rhsParser`s (of arity 1). -/
+def matchExprAltExpr := matchExprAlt termParser
+
+instance : Coe (TSyntax ``matchExprAltExpr) (TSyntax ``matchExprAlt) where
+  coe stx := ⟨stx.raw⟩
+
 @[builtin_term_parser] def matchExpr := leading_parser:leadPrec
   "match_expr " >> termParser >> " with" >> ppDedent (matchExprAlts termParser)
 

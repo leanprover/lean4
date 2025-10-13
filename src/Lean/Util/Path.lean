@@ -12,6 +12,7 @@ module
 
 prelude
 public import Init.System.IO
+import Init.Control.Do
 import Init.Data.ToString.Name
 import Init.Data.String.TakeDrop
 

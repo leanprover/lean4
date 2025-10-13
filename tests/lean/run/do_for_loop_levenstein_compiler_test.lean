@@ -1,4 +1,4 @@
-@[inline] unsafe def Array.forInNew'Unsafe {α : Type u} {σ β : Type v} {m : Type v → Type w}
+@[inline] unsafe def forInNew'UnsafeArray {α : Type u} {σ β : Type v} {m : Type v → Type w}
     (as : Array α) (s : σ) (kcons : (a : α) → (h : a ∈ as) → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
   let sz := as.usize
   let rec @[specialize] loop (i : USize) (s : σ) : m β :=
@@ -9,7 +9,7 @@
       knil s
   loop 0 s
 
-@[inline] protected def Std.Legacy.Range.forInNew' {m : Type u → Type v} {σ β} (range : Range) (init : σ)
+@[inline] def forInNew'Range {m : Type u → Type v} {σ β} (range : Std.Legacy.Range) (init : σ)
     (kcons : (i : Nat) → i ∈ range → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
   have := range.step_pos
   let rec @[specialize] loop (i : Nat)
@@ -57,7 +57,7 @@ trace: [Compiler.saveMono] size: 13
           let _x.6 := Array.anyMUnsafe.any._at_.Array.contains._at_.deletions.spec_0.spec_0.2 a as _x.4 _x.5;
           return _x.6
 [Compiler.saveMono] size: 19
-    def Array.forInNew'Unsafe.loop._at_.deletions.spec_2 as sz i s : Array String :=
+    def forInNew'UnsafeArray.loop._at_.deletions.spec_2 as sz i s : Array String :=
       let _x.1 := USize.decLt i sz;
       cases _x.1 : Array String
       | Bool.false =>
@@ -75,56 +75,20 @@ trace: [Compiler.saveMono] size: 13
           let _x.8 := String.length a;
           let _x.9 := 1;
           let _x.10 := Std.Legacy.Range.mk _x.4 _x.8 _x.9 ◾;
-          let _x.11 := Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._at_.Array.forInNew'Unsafe.loop._at_.deletions.spec_2.spec_4._redArg as sz _x.7 a _x.9 _x.5 _x.10 _x.4 s;
+          let _x.11 := forInNew'Range.loop._at_.deletions.spec_1._at_.forInNew'UnsafeArray.loop._at_.deletions.spec_2.spec_4._redArg as sz _x.7 a _x.9 _x.5 _x.10 _x.4 s;
           return _x.11
         | Bool.true =>
           let _x.12 := Array.reverse._redArg s;
           return _x.12
 [Compiler.saveMono] size: 29
-    def Std.Legacy.Range.forInNew'.loop._at_.Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._at_.Array.forInNew'Unsafe.loop._at_.deletions.spec_2.spec_4.spec_4._redArg s' _x.1 _x.2 as sz _x.3 range i a.4 : Array
+    def forInNew'Range.loop._at_.deletions.spec_1._at_.forInNew'UnsafeArray.loop._at_.deletions.spec_2.spec_4._redArg as sz _x.1 s' _x.2 _x.3 range i a.4 : Array
       String :=
       cases range : Array String
       | Std.Legacy.Range.mk start stop step step_pos =>
         let _x.5 := Nat.decLt i stop;
         cases _x.5 : Array String
         | Bool.false =>
-          let _x.6 := Array.forInNew'Unsafe.loop._at_.deletions.spec_2 as sz _x.3 a.4;
-          return _x.6
-        | Bool.true =>
-          let _x.7 := Nat.add i step;
-          let _x.8 := 0;
-          let _x.9 := String.utf8ByteSize s';
-          let _x.10 := String.Slice.mk s' _x.8 _x.9 ◾;
-          let _x.11 := @String.Slice.Pos.nextn _x.10 _x.8 i;
-          let _x.12 := @String.extract s' _x.8 _x.11;
-          let _x.13 := Nat.add i _x.1;
-          let _x.14 := @String.Slice.Pos.nextn _x.10 _x.8 _x.13;
-          let _x.15 := @String.extract s' _x.14 _x.9;
-          let d := String.append _x.12 _x.15;
-          jp _jp.16 : Array String :=
-            let out := Array.push ◾ a.4 d;
-            let _x.17 := Std.Legacy.Range.forInNew'.loop._at_.Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._at_.Array.forInNew'Unsafe.loop._at_.deletions.spec_2.spec_4.spec_4._redArg s' _x.1 _x.2 as sz _x.3 range _x.7 out;
-            return _x.17;
-          let _x.18 := Array.contains._at_.deletions.spec_0 a.4 d;
-          cases _x.18 : Array String
-          | Bool.false =>
-            goto _jp.16
-          | Bool.true =>
-            cases _x.2 : Array String
-            | Bool.false =>
-              let _x.19 := Std.Legacy.Range.forInNew'.loop._at_.Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._at_.Array.forInNew'Unsafe.loop._at_.deletions.spec_2.spec_4.spec_4._redArg s' _x.1 _x.2 as sz _x.3 range _x.7 a.4;
-              return _x.19
-            | Bool.true =>
-              goto _jp.16
-[Compiler.saveMono] size: 29
-    def Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._at_.Array.forInNew'Unsafe.loop._at_.deletions.spec_2.spec_4._redArg as sz _x.1 s' _x.2 _x.3 range i a.4 : Array
-      String :=
-      cases range : Array String
-      | Std.Legacy.Range.mk start stop step step_pos =>
-        let _x.5 := Nat.decLt i stop;
-        cases _x.5 : Array String
-        | Bool.false =>
-          let _x.6 := Array.forInNew'Unsafe.loop._at_.deletions.spec_2 as sz _x.1 a.4;
+          let _x.6 := forInNew'UnsafeArray.loop._at_.deletions.spec_2 as sz _x.1 a.4;
           return _x.6
         | Bool.true =>
           let _x.7 := Nat.add i step;
@@ -139,7 +103,7 @@ trace: [Compiler.saveMono] size: 13
           let d := String.append _x.12 _x.15;
           jp _jp.16 : Array String :=
             let out := Array.push ◾ a.4 d;
-            let _x.17 := Std.Legacy.Range.forInNew'.loop._at_.Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._at_.Array.forInNew'Unsafe.loop._at_.deletions.spec_2.spec_4.spec_4._redArg s' _x.2 _x.3 as sz _x.1 range _x.7 out;
+            let _x.17 := forInNew'Range.loop._at_.forInNew'Range.loop._at_.deletions.spec_1._at_.forInNew'UnsafeArray.loop._at_.deletions.spec_2.spec_4.spec_4._redArg s' _x.2 _x.3 as sz _x.1 range _x.7 out;
             return _x.17;
           let _x.18 := Array.contains._at_.deletions.spec_0 a.4 d;
           cases _x.18 : Array String
@@ -148,7 +112,43 @@ trace: [Compiler.saveMono] size: 13
           | Bool.true =>
             cases _x.3 : Array String
             | Bool.false =>
-              let _x.19 := Std.Legacy.Range.forInNew'.loop._at_.Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._at_.Array.forInNew'Unsafe.loop._at_.deletions.spec_2.spec_4.spec_4._redArg s' _x.2 _x.3 as sz _x.1 range _x.7 a.4;
+              let _x.19 := forInNew'Range.loop._at_.forInNew'Range.loop._at_.deletions.spec_1._at_.forInNew'UnsafeArray.loop._at_.deletions.spec_2.spec_4.spec_4._redArg s' _x.2 _x.3 as sz _x.1 range _x.7 a.4;
+              return _x.19
+            | Bool.true =>
+              goto _jp.16
+[Compiler.saveMono] size: 29
+    def forInNew'Range.loop._at_.forInNew'Range.loop._at_.deletions.spec_1._at_.forInNew'UnsafeArray.loop._at_.deletions.spec_2.spec_4.spec_4._redArg s' _x.1 _x.2 as sz _x.3 range i a.4 : Array
+      String :=
+      cases range : Array String
+      | Std.Legacy.Range.mk start stop step step_pos =>
+        let _x.5 := Nat.decLt i stop;
+        cases _x.5 : Array String
+        | Bool.false =>
+          let _x.6 := forInNew'UnsafeArray.loop._at_.deletions.spec_2 as sz _x.3 a.4;
+          return _x.6
+        | Bool.true =>
+          let _x.7 := Nat.add i step;
+          let _x.8 := 0;
+          let _x.9 := String.utf8ByteSize s';
+          let _x.10 := String.Slice.mk s' _x.8 _x.9 ◾;
+          let _x.11 := @String.Slice.Pos.nextn _x.10 _x.8 i;
+          let _x.12 := @String.extract s' _x.8 _x.11;
+          let _x.13 := Nat.add i _x.1;
+          let _x.14 := @String.Slice.Pos.nextn _x.10 _x.8 _x.13;
+          let _x.15 := @String.extract s' _x.14 _x.9;
+          let d := String.append _x.12 _x.15;
+          jp _jp.16 : Array String :=
+            let out := Array.push ◾ a.4 d;
+            let _x.17 := forInNew'Range.loop._at_.forInNew'Range.loop._at_.deletions.spec_1._at_.forInNew'UnsafeArray.loop._at_.deletions.spec_2.spec_4.spec_4._redArg s' _x.1 _x.2 as sz _x.3 range _x.7 out;
+            return _x.17;
+          let _x.18 := Array.contains._at_.deletions.spec_0 a.4 d;
+          cases _x.18 : Array String
+          | Bool.false =>
+            goto _jp.16
+          | Bool.true =>
+            cases _x.2 : Array String
+            | Bool.false =>
+              let _x.19 := forInNew'Range.loop._at_.forInNew'Range.loop._at_.deletions.spec_1._at_.forInNew'UnsafeArray.loop._at_.deletions.spec_2.spec_4.spec_4._redArg s' _x.1 _x.2 as sz _x.3 range _x.7 a.4;
               return _x.19
             | Bool.true =>
               goto _jp.16
@@ -169,11 +169,10 @@ trace: [Compiler.saveMono] size: 13
         let _x.5 := deletions n.4 s;
         let sz := Array.usize ◾ _x.5;
         let _x.6 := 0;
-        let _x.7 := Array.forInNew'Unsafe.loop._at_.deletions.spec_2 _x.5 sz _x.6 out;
+        let _x.7 := forInNew'UnsafeArray.loop._at_.deletions.spec_2 _x.5 sz _x.6 out;
         return _x.7
 [Compiler.saveMono] size: 29
-    def Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._redArg s' _x.1 _x.2 kcontinue range i a.3 : Array
-      String :=
+    def forInNew'Range.loop._at_.deletions.spec_1._redArg s' _x.1 _x.2 kcontinue range i a.3 : Array String :=
       cases range : Array String
       | Std.Legacy.Range.mk start stop step step_pos =>
         let _x.4 := Nat.decLt i stop;
@@ -194,7 +193,7 @@ trace: [Compiler.saveMono] size: 13
           let d := String.append _x.11 _x.14;
           jp _jp.15 : Array String :=
             let out := Array.push ◾ a.3 d;
-            let _x.16 := Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._redArg s' _x.1 _x.2 kcontinue range _x.6 out;
+            let _x.16 := forInNew'Range.loop._at_.deletions.spec_1._redArg s' _x.1 _x.2 kcontinue range _x.6 out;
             return _x.16;
           let _x.17 := Array.contains._at_.deletions.spec_0 a.3 d;
           cases _x.17 : Array String
@@ -203,24 +202,23 @@ trace: [Compiler.saveMono] size: 13
           | Bool.true =>
             cases _x.2 : Array String
             | Bool.false =>
-              let _x.18 := Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._redArg s' _x.1 _x.2 kcontinue range _x.6 a.3;
+              let _x.18 := forInNew'Range.loop._at_.deletions.spec_1._redArg s' _x.1 _x.2 kcontinue range _x.6 a.3;
               return _x.18
             | Bool.true =>
               goto _jp.15
 [Compiler.saveMono] size: 1
-    def Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1 s' _x.1 _x.2 kcontinue range this i hs hl a.3 : Array
-      String :=
-      let _x.4 := Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._redArg s' _x.1 _x.2 kcontinue range i a.3;
+    def forInNew'Range.loop._at_.deletions.spec_1 s' _x.1 _x.2 kcontinue range this i hs hl a.3 : Array String :=
+      let _x.4 := forInNew'Range.loop._at_.deletions.spec_1._redArg s' _x.1 _x.2 kcontinue range i a.3;
       return _x.4
 [Compiler.saveMono] size: 1
-    def Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._at_.Array.forInNew'Unsafe.loop._at_.deletions.spec_2.spec_4 as sz _x.1 s' _x.2 _x.3 range this i hs hl a.4 : Array
+    def forInNew'Range.loop._at_.deletions.spec_1._at_.forInNew'UnsafeArray.loop._at_.deletions.spec_2.spec_4 as sz _x.1 s' _x.2 _x.3 range this i hs hl a.4 : Array
       String :=
-      let _x.5 := Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._at_.Array.forInNew'Unsafe.loop._at_.deletions.spec_2.spec_4._redArg as sz _x.1 s' _x.2 _x.3 range i a.4;
+      let _x.5 := forInNew'Range.loop._at_.deletions.spec_1._at_.forInNew'UnsafeArray.loop._at_.deletions.spec_2.spec_4._redArg as sz _x.1 s' _x.2 _x.3 range i a.4;
       return _x.5
 [Compiler.saveMono] size: 1
-    def Std.Legacy.Range.forInNew'.loop._at_.Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._at_.Array.forInNew'Unsafe.loop._at_.deletions.spec_2.spec_4.spec_4 s' _x.1 _x.2 as sz _x.3 range this i hs hl a.4 : Array
+    def forInNew'Range.loop._at_.forInNew'Range.loop._at_.deletions.spec_1._at_.forInNew'UnsafeArray.loop._at_.deletions.spec_2.spec_4.spec_4 s' _x.1 _x.2 as sz _x.3 range this i hs hl a.4 : Array
       String :=
-      let _x.5 := Std.Legacy.Range.forInNew'.loop._at_.Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._at_.Array.forInNew'Unsafe.loop._at_.deletions.spec_2.spec_4.spec_4._redArg s' _x.1 _x.2 as sz _x.3 range i a.4;
+      let _x.5 := forInNew'Range.loop._at_.forInNew'Range.loop._at_.deletions.spec_1._at_.forInNew'UnsafeArray.loop._at_.deletions.spec_2.spec_4.spec_4._redArg s' _x.1 _x.2 as sz _x.3 range i a.4;
       return _x.5
 -/
 #guard_msgs in
@@ -233,12 +231,12 @@ unsafe def deletions (n : Nat) (s : String) : Array String :=
     have kbreak := fun (s : Array String) =>
       let out := s;
       pure out.reverse;
-    (deletions n' s).forInNew'Unsafe out
+    forInNew'UnsafeArray (deletions n' s) out
       (fun s' _ kcontinue s =>
         let out := s;
         if s'.isEmpty = true then kbreak out
         else
-          [:s'.length].forInNew' out
+          forInNew'Range [:s'.length] out
             (fun i _ kcontinue s =>
               let out := s;
               let d := (s'.take i).copy ++ s'.drop (i + 1);

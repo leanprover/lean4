@@ -17,7 +17,7 @@ case refine'_4
 ⊢ ?refine'_1
 
 case refine'_5
-⊢ ¬(fun x => ?m.9) ?refine'_3 = (fun x => ?m.9) ?refine'_4
+⊢ ¬(fun x => sorry) ?refine'_3 = (fun x => sorry) ?refine'_4
 -/
 #guard_msgs in
 example : False := by

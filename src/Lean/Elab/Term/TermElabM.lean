@@ -796,18 +796,21 @@ def withMacroExpansion [Monad n] [MonadControlT TermElabM n] (beforeStx afterStx
 Node kind for the `Lean.Elab.Term.elabToSyntax` functionality.
 It is an implementation detail of `Lean.Elab.Term.elabToSyntax`.
 -/
-protected def _root_.Lean.Parser.Term.elabToSyntax : Unit := ()
-
-builtin_initialize Lean.Parser.registerBuiltinNodeKind ``Lean.Parser.Term.elabToSyntax
+@[builtin_term_parser] protected def _root_.Lean.Parser.Term.elabToSyntax : Lean.Parser.Parser := leading_parser
+  "elabToSyntax% " >> Parser.numLit
 
 /-- Refer to the given term elaborator by a scoped `Syntax` object. -/
-def elabToSyntax (fixedTermElab : FixedTermElab) (k : Term → TermElabM α) : TermElabM α := do
+def elabToSyntax (fixedTermElab : FixedTermElab) (k : Term → TermElabM α) (hint? : Option MessageData := none) (ref : Syntax := .missing) : TermElabM α := do
   let ctx ← read
+  let fixedTermElab : FixedTermElab := fun ty? => do
+    if let some hint := hint? then
+      trace[Elab.step] "elabToSyntax hint: {hint}"
+    fixedTermElab ty?
   withReader (fun ctx => { ctx with fixedTermElabs := ctx.fixedTermElabs.push fixedTermElab.toFixedTermElabRef }) do
-    k ⟨mkNode ``Lean.Parser.Term.elabToSyntax #[Syntax.mkNatLit ctx.fixedTermElabs.size]⟩
+    k ⟨Syntax.node (.fromRef ref) ``Lean.Parser.Term.elabToSyntax #[mkAtom "elabToSyntax% ", Syntax.mkNatLit ctx.fixedTermElabs.size]⟩
 
 @[builtin_term_elab Lean.Parser.Term.elabToSyntax] def elabFixedTermElab : TermElab := fun stx expectedType? => do
-  let some idx := stx[0].isNatLit? | throwUnsupportedSyntax
+  let some idx := stx[1].isNatLit? | throwUnsupportedSyntax
   let some fixedTermElab := (← read).fixedTermElabs[idx]?
     | throwError "Fixed term elaborator {idx} not found. There were only {(← read).fixedTermElabs.size} fixed term elaborators registered."
   fixedTermElab.toFixedTermElab expectedType?
@@ -972,7 +975,7 @@ def withoutPostponing (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with mayPostpone := false }) x
 
 /-- Creates syntax for `(` <ident> `:` <type> `)` -/
-def mkExplicitBinder (ident : Syntax) (type : Syntax) : Syntax :=
+def mkExplicitBinder (ident : TSyntax [`ident, ``Parser.Term.hole]) (type : Term) : Syntax :=
   mkNode ``Lean.Parser.Term.explicitBinder #[mkAtom "(", mkNullNode #[ident], mkNullNode #[mkAtom ":", type], mkNullNode, mkAtom ")"]
 
 /--
@@ -1341,12 +1344,12 @@ def withExpectedType (expectedType? : Option Expr) (x : Expr → TermElabM Expr)
 -/
 def saveContext : TermElabM SavedContext :=
   return {
-    macroStack := (← read).macroStack
-    declName?  := (← read).declName?
-    options    := (← getOptions)
-    openDecls  := (← getOpenDecls)
-    errToSorry := (← read).errToSorry
-    levelNames := (← get).levelNames
+    macroStack     := (← read).macroStack
+    declName?      := (← read).declName?
+    options        := (← getOptions)
+    openDecls      := (← getOpenDecls)
+    errToSorry     := (← read).errToSorry
+    levelNames     := (← get).levelNames
     fixedTermElabs := (← read).fixedTermElabs
   }
 
@@ -1354,7 +1357,12 @@ def saveContext : TermElabM SavedContext :=
   Execute `x` with the context saved using `saveContext`.
 -/
 def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α := do
-  withReader (fun ctx => { ctx with declName? := savedCtx.declName?, macroStack := savedCtx.macroStack, errToSorry := savedCtx.errToSorry }) <|
+  withReader (fun ctx => { ctx with
+        declName? := savedCtx.declName?,
+        macroStack := savedCtx.macroStack,
+        errToSorry := savedCtx.errToSorry,
+        fixedTermElabs := savedCtx.fixedTermElabs,
+      }) <|
     withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls }) <|
       withLevelNames savedCtx.levelNames x
 
@@ -2140,9 +2148,10 @@ def TermElabM.toIO (x : TermElabM α)
   Execute `x` and then tries to solve pending universe constraints.
   Note that, stuck constraints will not be discarded.
 -/
-def universeConstraintsCheckpoint (x : TermElabM α) : TermElabM α := do
+@[specialize]
+def universeConstraintsCheckpoint [Monad m] [MonadLiftT TermElabM m] (x : m α) : m α := do
   let a ← x
-  discard <| processPostponed (mayPostpone := true) (exceptionOnFailure := true)
+  discard <| liftM (m:=TermElabM) (processPostponed (mayPostpone := true) (exceptionOnFailure := true))
   return a
 
 /--

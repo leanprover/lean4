@@ -2171,11 +2171,15 @@ macro (name := mintroMacro) (priority:=low) "mintro" : tactic =>
 
 /--
 `mspec` is an `apply`-like tactic that applies a Hoare triple specification to the target of the
-stateful goal.
+stateful main goal.
 
-Given a stateful goal `H ⊢ₛ wp⟦prog⟧ Q'`, `mspec foo_spec` will instantiate
+Given a stateful main goal `H ⊢ₛ wp⟦prog⟧ Q'`, `mspec foo_spec` will instantiate
 `foo_spec : ... → ⦃P⦄ foo ⦃Q⦄`, match `foo` against `prog` and produce subgoals for
-the verification conditions `?pre : H ⊢ₛ P` and `?post : Q ⊢ₚ Q'`.
+any universally quantified ("schematic") variables in `foo_spec` and the `bind` verification
+conditions `?pre : H ⊢ₛ P` and `?post : Q ⊢ₚ Q'`.
+Subsequently, `Prop`-valued goals are named `goal.vc*`, where `goal` is the
+case tag of the current main goal, and `Invariant`-valued goals are named `goal.inv*`.
+If there's only a single VC `goal.vc1`, it will be named `goal` instead.
 
 * If `prog = x >>= f`, then `mspec Specs.bind` is tried first so that `foo` is matched against `x`
   instead. Tactic `mspec_no_bind` does not attempt to do this decomposition.

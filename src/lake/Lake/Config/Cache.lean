@@ -6,6 +6,7 @@ Authors: Mac Malone
 module
 
 prelude
+import Init.Control.Do
 public import Lake.Util.Log
 public import Lake.Config.Artifact
 import Lake.Config.InstallPath

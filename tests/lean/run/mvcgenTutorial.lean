@@ -24,10 +24,8 @@ theorem nodup_correct (l : List Int) : nodup l ↔ l.Nodup := by
   apply Id.of_wp_run_eq h
   mvcgen
   case inv1 =>
-    exact Invariant.withEarlyReturn
-      (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
-      (onContinue := fun traversalState seen =>
-        ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
+    exact fun traversalState seen =>
+      ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝
   all_goals mleave; grind
 
 theorem nodup_correct_directly (l : List Int) : nodup l ↔ l.Nodup := by
@@ -62,7 +60,7 @@ theorem mkFreshN_correct (n : Nat) : ((mkFreshN n).run' s).Nodup := by
   generalize h : (mkFreshN n).run' s = x
   apply StateM.of_wp_run'_eq h
   mvcgen [mkFreshN, mkFresh]
-  case inv1 => exact ⇓⟨xs, acc⟩ state => ⌜(∀ x ∈ acc, x < state.counter) ∧ acc.toList.Nodup⌝
+  case inv1 => exact fun xs acc state => ⌜(∀ x ∈ acc, x < state.counter) ∧ acc.toList.Nodup⌝
   all_goals mleave; grind
 
 theorem mkFreshN_correct_directly (n : Nat) : ((mkFreshN n).run' s).run.Nodup := by
@@ -85,8 +83,8 @@ theorem mkFresh_spec (c : Nat) : ⦃fun state => ⌜state.counter = c⌝⦄ mkFr
 @[spec]
 theorem mkFreshN_spec (n : Nat) : ⦃⌜True⌝⦄ mkFreshN n ⦃⇓ r => ⌜r.Nodup⌝⦄ := by
   mvcgen [mkFreshN]
-  case inv1 => exact ⇓⟨xs, acc⟩ state => ⌜(∀ x ∈ acc, x < state.counter) ∧ acc.toList.Nodup⌝
-  all_goals mleave; grind
+  case inv1 => exact fun xs acc state => ⌜(∀ x ∈ acc, x < state.counter) ∧ acc.toList.Nodup⌝
+  all_goals mleave <;> grind
 
 theorem mkFreshN_correct (n : Nat) : ((mkFreshN n).run' s).Nodup :=
   mkFreshN_spec n s True.intro
@@ -117,7 +115,7 @@ def mkFreshN (n : Nat) : AppM (List Nat) := do
 
 theorem mkFreshN_spec_noncompositional (n : Nat) : ⦃⌜True⌝⦄ mkFreshN n ⦃⇓ r => ⌜r.Nodup⌝⦄ := by
   mvcgen [mkFreshN, mkFresh, liftCounterM]
-  case inv1 => exact ⇓⟨xs, acc⟩ _ state => ⌜(∀ n ∈ acc, n < state.counter) ∧ acc.toList.Nodup⌝
+  case inv1 => exact fun xs acc _ state => ⌜(∀ n ∈ acc, n < state.counter) ∧ acc.toList.Nodup⌝
   all_goals mleave; grind
 
 @[spec]
@@ -129,7 +127,7 @@ theorem mkFresh_spec [Monad m] [WPMonad m ps] (c : Nat) :
 @[spec]
 theorem mkFreshN_spec (n : Nat) : ⦃⌜True⌝⦄ mkFreshN n ⦃⇓ r => ⌜r.Nodup⌝⦄ := by
   mvcgen [mkFreshN, liftCounterM]
-  case inv1 => exact ⇓⟨xs, acc⟩ _ state => ⌜(∀ n ∈ acc, n < state.counter) ∧ acc.toList.Nodup⌝
+  case inv1 => exact fun xs acc _ state => ⌜(∀ n ∈ acc, n < state.counter) ∧ acc.toList.Nodup⌝
   all_goals mleave; grind
 
 theorem mkFreshN_correct (n : Nat) : (((StateT.run' (mkFreshN n) b).run' c).run' s).Nodup :=
@@ -174,8 +172,7 @@ theorem mkFreshN_spec (n : Nat) :
     mkFreshN n
     ⦃post⟨fun r => ⌜r.Nodup⌝, fun _msg state => ⌜state.counter = state.limit⌝⟩⦄ := by
   mvcgen [mkFreshN]
-  case inv1 => exact post⟨fun ⟨xs, acc⟩ state => ⌜(∀ n ∈ acc, n < state.counter) ∧ acc.toList.Nodup⌝,
-                          fun _msg state => ⌜state.counter = state.limit⌝⟩
+  case inv1 => exact fun xs acc state => ⌜(∀ n ∈ acc, n < state.counter) ∧ acc.toList.Nodup⌝
   all_goals mleave; try grind
 
 theorem mkFreshN_correct (n : Nat) :
@@ -258,7 +255,7 @@ example :
      return x
   ⦃⇓ r => ⌜r.toNat = 24⌝⦄ := by
   mvcgen
-  case inv1 => exact ⇓⟨xs, x⟩ => ⌜x.toNat = 4 + 5 * xs.prefix.length⌝
+  case inv1 => exact fun xs x => ⌜x.toNat = 4 + 5 * xs.prefix.length⌝
   all_goals simp_all [UInt32.size]; try grind
 
 end Aeneas

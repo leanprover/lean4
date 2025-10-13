@@ -240,12 +240,13 @@ private partial def elabBindersAux (binders : Array Syntax) (k : Array (Syntax �
   `elabBinders(Ex)` automatically adds binder info nodes for the produced fvars, but storing the syntax nodes
   might be necessary when later adding the same binders back to the local context so that info nodes can
   manually be added for the new fvars; see `MutualDef` for an example. -/
-def elabBindersEx (binders : Array Syntax) (k : Array (Syntax × Expr) → TermElabM α) : TermElabM α :=
+@[specialize]
+def elabBindersEx [Monad m] [MonadLiftT TermElabM m] [MonadControlT TermElabM m] (binders : Array Syntax) (k : Array (Syntax × Expr) → m α) : m α :=
   universeConstraintsCheckpoint do
     if binders.isEmpty then
       k #[]
     else
-      elabBindersAux binders k
+      controlAt TermElabM fun runInBase => elabBindersAux binders <| (runInBase ∘ k)
 
 /--
   Elaborate the given binders (i.e., `Syntax` objects for `bracketedBinder`),
@@ -575,7 +576,7 @@ private def checkMatchAltPatternCounts (matchAlts : Syntax) (numDiscrs : Nat) (e
   let sepPats (pats : List Syntax) := MessageData.joinSep (pats.map toMessageData) ", "
   let maxDiscrs? ← forallTelescopeReducing expectedType fun xs e =>
     if e.getAppFn.isMVar then pure none else pure (some xs.size)
-  let matchAltViews := matchAlts[0].getArgs.filterMap getMatchAlt
+  let matchAltViews := matchAlts[0].getArgs.filterMap (getMatchAlt `term)
   let numPatternsStr (n : Nat) := s!"{n} {if n == 1 then "pattern" else "patterns"}"
   if h : matchAltViews.size > 0 then
     if let some maxDiscrs := maxDiscrs? then
@@ -743,12 +744,10 @@ The default elaboration order is `binders`, `typeStx`, `valStx`, and `body`.
 If `config.postponeValue == true`, then we use the order `binders`, `typeStx`, `body`, and `valStx`.
 If `config.generalize == true`, then the value is abstracted from the expected type when elaborating the body.
 -/
-def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (valStx : Syntax) (body : Syntax)
-    (expectedType? : Option Expr) (config : LetConfig) : TermElabM Expr := do
-  if config.generalize then
-    if config.postponeValue then
-      throwError "`+postponeValue` and `+generalize` are incompatible"
-    tryPostponeIfNoneOrMVar expectedType?
+def withElabLetDeclAux (config : LetConfig) (id : Syntax) (binders : Array Syntax)
+    (typeStx : Syntax) (valStx : Syntax) (k : (x val : Expr) → TermElabM α) : TermElabM α := do
+  if config.postponeValue && config.generalize then
+    throwError "`+postponeValue` and `+generalize` are incompatible"
   let (type, val, binders) ← elabBindersEx binders fun xs => do
     let (binders, fvars) := xs.unzip
     /-
@@ -807,45 +806,8 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
   trace[Elab.let.decl] "{id.getId} : {type} := {val}"
   let result ←
     withLetDecl id.getId (kind := kind) type val (nondep := config.nondep) fun x => do
-      let elabBody : TermElabM Expr := do
-        let mut expectedType? := expectedType?
-        if config.generalize then
-          let throwNoType := throwError "failed to elaborate with `+generalize`, expected type is not available"
-          let some expectedType := expectedType? | throwNoType
-          let expectedType ← instantiateMVars expectedType
-          if expectedType.getAppFn.isMVar then throwNoType
-          let motiveBody ← kabstract expectedType (← instantiateMVars val)
-          let motive := motiveBody.instantiate1 x
-          -- When `config.nondep` is false, then `motive` will be definitionally equal to `expectedType`.
-          -- Type correctness only needs to be checked in the `nondep` case:
-          if config.nondep then
-            unless (← isTypeCorrect motive) do
-              throwError "failed to elaborate with `+generalize`, generalized expected type is not type correct:{indentD motive}"
-          expectedType? := motive
-        elabTermEnsuringType body expectedType? >>= instantiateMVars
       addLocalVarInfo id x
-      match config.eq? with
-      | none =>
-        let body ← elabBody
-        if config.zeta then
-          pure <| (← body.abstractM #[x]).instantiate1 val
-        else
-          mkLetFVars #[x] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
-      | some h =>
-        let hTy ← mkEq x val
-        withLetDecl h.getId hTy (← mkEqRefl x) (nondep := true) fun h' => do
-          addLocalVarInfo h h'
-          let body ← elabBody
-          if config.zeta then
-            pure <| (← body.abstractM #[x, h']).instantiateRev #[val, ← mkEqRefl val]
-          else if config.nondep then
-            -- TODO(kmill): Think more about how to encode this case.
-            -- Currently we produce `(fun (x : α) (h : x = val) => b) val rfl`.
-            -- N.B. the nondep lets become lambdas here.
-            let f ← mkLambdaFVars #[x, h'] body
-            return mkApp2 f val (← mkEqRefl val)
-          else
-            mkLetFVars #[x, h'] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
+      k x val
   if config.postponeValue then
     forallBoundedTelescope type binders.size (cleanupAnnotations := true) fun xs type => do
       -- the original `fvars` from above are gone, so add back info manually
@@ -856,6 +818,55 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
       unless (← isDefEq val valResult) do
         throwError "unexpected error when elaborating 'let'"
   pure result
+
+/--
+The default elaboration order is `binders`, `typeStx`, `valStx`, and `body`.
+If `config.postponeValue == true`, then we use the order `binders`, `typeStx`, `body`, and `valStx`.
+If `config.generalize == true`, then the value is abstracted from the expected type when elaborating the body.
+-/
+def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (valStx : Syntax) (body : Syntax)
+    (expectedType? : Option Expr) (config : LetConfig) : TermElabM Expr := do
+  if config.generalize then
+    tryPostponeIfNoneOrMVar expectedType?
+  withElabLetDeclAux config id binders typeStx valStx fun x val => do
+    let elabBody : TermElabM Expr := do
+      let mut expectedType? := expectedType?
+      if config.generalize then
+        let throwNoType := throwError "failed to elaborate with `+generalize`, expected type is not available"
+        let some expectedType := expectedType? | throwNoType
+        let expectedType ← instantiateMVars expectedType
+        if expectedType.getAppFn.isMVar then throwNoType
+        let motiveBody ← kabstract expectedType (← instantiateMVars val)
+        let motive := motiveBody.instantiate1 x
+        -- When `config.nondep` is false, then `motive` will be definitionally equal to `expectedType`.
+        -- Type correctness only needs to be checked in the `nondep` case:
+        if config.nondep then
+          unless (← isTypeCorrect motive) do
+            throwError "failed to elaborate with `+generalize`, generalized expected type is not type correct:{indentD motive}"
+        expectedType? := motive
+      elabTermEnsuringType body expectedType? >>= instantiateMVars
+    match config.eq? with
+    | none =>
+      let body ← elabBody
+      if config.zeta then
+        pure <| (← body.abstractM #[x]).instantiate1 val
+      else
+        mkLetFVars #[x] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
+    | some h =>
+      let hTy ← mkEq x val
+      withLetDecl h.getId hTy (← mkEqRefl x) (nondep := true) fun h' => do
+        addLocalVarInfo h h'
+        let body ← elabBody
+        if config.zeta then
+          pure <| (← body.abstractM #[x, h']).instantiateRev #[val, ← mkEqRefl val]
+        else if config.nondep then
+          -- TODO(kmill): Think more about how to encode this case.
+          -- Currently we produce `(fun (x : α) (h : x = val) => b) val rfl`.
+          -- N.B. the nondep lets become lambdas here.
+          let f ← mkLambdaFVars #[x, h'] body
+          return mkApp2 f val (← mkEqRefl val)
+        else
+          mkLetFVars #[x, h'] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
 
 structure LetIdDeclView where
   id      : Syntax

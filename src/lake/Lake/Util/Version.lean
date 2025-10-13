@@ -12,6 +12,7 @@ import Init.Data.String.Slice
 import Init.Data.String.TakeDrop
 import Lean.Data.Trie
 import Init.Data.String.Search
+import Init.Control.Do
 
 /-! # Version
 

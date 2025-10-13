@@ -22,14 +22,11 @@ theorem parseAll1.eq_1 : ∀ {α : Type} (x : M1 α),
   parseAll1 x = do
     let __do_lift ← read
     let __do_lift_1 ← get
-    have __do_jp : PUnit → M1 (List α) := fun y => do
-      let val ← x
-      let list ← parseAll1 x
-      pure (val :: list)
     if String.Pos.Raw.atEnd __do_lift __do_lift_1 = true then pure []
       else do
-        let y ← pure PUnit.unit
-        __do_jp y
+        let val ← x
+        let list ← parseAll1 x
+        pure (val :: list)
 -/
 #guard_msgs in #print equations parseAll1
 
@@ -53,13 +50,10 @@ theorem parseAll2.eq_1 : ∀ {α : Type} (x : M2 α),
   parseAll2 x = do
     let __do_lift ← read
     let __do_lift_1 ← get
-    have __do_jp : PUnit → M2 (List α) := fun y => do
-      let val ← x
-      let list ← parseAll2 x
-      pure (val :: list)
     if String.Pos.Raw.atEnd __do_lift __do_lift_1 = true then pure []
       else do
-        let y ← pure PUnit.unit
-        __do_jp y
+        let val ← x
+        let list ← parseAll2 x
+        pure (val :: list)
 -/
 #guard_msgs in #print equations parseAll2

@@ -1,16 +1,12 @@
-elseifDoErrorPos.lean:4:10-4:11: error: Application type mismatch: The argument
+elseifDoErrorPos.lean:4:10-4:11: error: Type mismatch
   x
 has type
   Nat
 but is expected to have type
   Prop
-in the application
-  @ite ?m x
-elseifDoErrorPos.lean:7:11-7:14: error: Application type mismatch: The argument
+elseifDoErrorPos.lean:7:11-7:14: error: Type mismatch
   "a"
 has type
   String
 but is expected to have type
   Nat
-in the application
-  pure "a"

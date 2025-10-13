@@ -413,7 +413,7 @@ where
       else
         throwCtorExpected (some fId)
 
-def main (alt : MatchAltView) : M MatchAltView := do
+def main (alt : MatchAltView k) : M (MatchAltView k) := do
   let patterns ← alt.patterns.mapM fun p => do
     trace[Elab.match] "collecting variables at pattern: {p}"
     collect p
@@ -425,7 +425,7 @@ end CollectPatternVars
 Collect pattern variables occurring in the `match`-alternative object views.
 It also returns the updated views.
 -/
-def collectPatternVars (alt : MatchAltView) : TermElabM (Array PatternVar × MatchAltView) := do
+def collectPatternVars (alt : MatchAltView k) : TermElabM (Array PatternVar × MatchAltView k) := do
   let (alt, s) ← (CollectPatternVars.main alt).run {}
   return (s.vars, alt)
 

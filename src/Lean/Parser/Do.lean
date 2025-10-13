@@ -70,15 +70,15 @@ def notFollowedByRedefinedTermToken :=
   "let " >> optional "mut " >> letDecl
 @[builtin_doElem_parser] def doLetElse  := leading_parser
   "let " >> optional "mut " >> termParser >> " := " >> termParser >>
-  checkColGt >> " | " >> doSeq
+  (checkColGt >> " | " >> doSeqIndent) >> optional doSeqIndent
 
 @[builtin_doElem_parser] def doLetExpr  := leading_parser
   "let_expr " >> matchExprPat >> " := " >> termParser >>
-  checkColGt >> " | " >> doSeq
+  (checkColGt >> " | " >> doSeqIndent) >> optional doSeqIndent
 
 @[builtin_doElem_parser] def doLetMetaExpr  := leading_parser
   "let_expr " >> matchExprPat >> leftArrow >> termParser >>
-  checkColGt >> " | " >> doSeq
+  (checkColGt >> " | " >> doSeqIndent) >> optional doSeqIndent
 
 @[builtin_doElem_parser] def doLetRec   := leading_parser
   group ("let " >> nonReservedSymbol "rec ") >> letRecDecls
@@ -87,7 +87,7 @@ def doIdDecl   := leading_parser
   doElemParser
 def doPatDecl  := leading_parser
   atomic (termParser >> ppSpace >> leftArrow) >>
-  doElemParser >> optional (checkColGt >> " | " >> doSeq)
+  doElemParser >> optional ((checkColGt >> " | " >> doSeqIndent) >> optional doSeqIndent)
 @[builtin_doElem_parser] def doLetArrow      := leading_parser
   withPosition ("let " >> optional "mut " >> (doIdDecl <|> doPatDecl))
 
@@ -103,6 +103,14 @@ def letIdDeclNoBinders := node ``letIdDecl <|
 
 @[builtin_doElem_parser] def doReassign      := leading_parser
   notFollowedByRedefinedTermToken >> (letIdDeclNoBinders <|> letPatDecl)
+
+-- `doReassignElse` clashes with the `doMatch` parser in
+--   `do match e with | x := x | none => pure ()`
+-- So we do not define it for back compat reasons.
+-- @[builtin_doElem_parser] def doReassignElse      := leading_parser
+--   notFollowedByRedefinedTermToken >>
+--     (termParser >> " := " >> termParser >> (checkColGt >> " | " >> doSeqIndent) >> optional doSeqIndent)
+
 @[builtin_doElem_parser] def doReassignArrow := leading_parser
   notFollowedByRedefinedTermToken >> (doIdDecl <|> doPatDecl)
 @[builtin_doElem_parser] def doHave     := leading_parser
@@ -144,7 +152,7 @@ def doIfLetBind := leading_parser leftArrow >> termParser
 def doIfLet     := leading_parser (withAnonymousAntiquot := false)
   "let " >> termParser >> (doIfLetPure <|> doIfLetBind)
 def doIfProp    := leading_parser (withAnonymousAntiquot := false)
-  optIdent >> termParser
+  optional (atomic (binderIdent >> " : ")) >> termParser
 def doIfCond    :=
   withAntiquot (mkAntiquot "doIfCond" decl_name% (anonymous := false) (isPseudoKind := true)) <|
     doIfLet <|> doIfProp

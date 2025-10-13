@@ -301,7 +301,6 @@ class HasFrame (P : SPred σs) (P' : outParam (SPred σs)) (φ : outParam Prop) 
 instance (σs) (P P' Q QP : SPred σs) [HasFrame P Q φ] [SimpAnd Q P' QP]: HasFrame (σs:=σs) spred(P ∧ P') QP φ where reassoc := ((and_congr_l HasFrame.reassoc).trans and_right_comm).trans (and_congr_l SimpAnd.simp_and)
 instance (σs) (P P' Q' PQ : SPred σs) [HasFrame P' Q' φ] [SimpAnd P Q' PQ]: HasFrame (σs:=σs) spred(P ∧ P') PQ φ where reassoc := ((and_congr_r HasFrame.reassoc).trans and_assoc.symm).trans (and_congr_l SimpAnd.simp_and)
 instance (σs) (P P' : Prop) (Q : SPred σs) [HasFrame spred(⌜P⌝ ∧ ⌜P'⌝) Q φ] : HasFrame (σs:=σs) ⌜P ∧ P'⌝ Q φ where reassoc := pure_and.symm.trans HasFrame.reassoc
-instance (σs) (P P' : SVal.StateTuple σs → Prop) (Q : SPred σs) [HasFrame spred(SVal.curry (fun t => ⟨P t⟩) ∧ SVal.curry (fun t => ⟨P' t⟩)) Q φ] : HasFrame (σs:=σs) (SVal.curry fun t => ⟨P t ∧ P' t⟩) Q φ where reassoc := and_curry.symm.trans HasFrame.reassoc
 instance (σs) (P : SPred σs) : HasFrame (σs:=σs) spred(⌜φ⌝ ∧ P) P φ where reassoc := and_comm
 instance (σs) (P : SPred σs) : HasFrame (σs:=σs) spred(P ∧ ⌜φ⌝) P φ where reassoc := .rfl
 instance (σs) (P P' Q Q' QQ : SPred σs) [HasFrame P Q φ] [HasFrame P' Q' ψ] [SimpAnd Q Q' QQ]: HasFrame (σs:=σs) spred(P ∧ P') QQ (φ ∧ ψ) where
@@ -328,7 +327,7 @@ instance (σs) (P Q : SPred σs) [HasFrame P Q ψ] : HasFrame (σs:=σs) spred(P
 -- The following instance comes last so that it gets the highest priority.
 -- It's the most efficient and best solution if valid
 instance (σs) : HasFrame (σs:=σs) ⌜φ⌝ ⌜True⌝ φ where reassoc := true_and.symm
-instance {P : SPred []} : HasFrame (σs:=[]) P ⌜True⌝ P.down where reassoc := true_and.symm
+instance (priority := high) {P : SPred []} : HasFrame (σs:=[]) P ⌜True⌝ P.down where reassoc := true_and.symm
 
 theorem Frame.frame {P Q T : SPred σs} {φ : Prop} [HasFrame P Q φ]
   (h : φ → Q ⊢ₛ T) : P ⊢ₛ T := by

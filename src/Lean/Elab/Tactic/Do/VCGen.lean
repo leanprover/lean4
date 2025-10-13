@@ -61,9 +61,9 @@ where
 
   tryGoal (mvar : MVarId) : OptionT VCGenM Expr := mvar.withContext do
     -- The type might contain more `P ⊢ₛ wp⟦prog⟧ Q` apps. Try and prove it!
-    forallTelescope (← mvar.getType) fun xs body => do
+    forallTelescope (← mvar.getType) fun xs body => withLocalSpecs xs do
       let res ← try mStart body catch _ => OptionT.fail
-      -- trace[Elab.Tactic.Do.vcgen] "an MGoal: {res.goal.toExpr}"
+      -- trace[Elab.Tactic.Do.vcgen] "an MGoal: {res.goal.toExpr}, {xs}"
       let mut prf ← onGoal res.goal (← mvar.getTag)
       -- res.goal.checkProof prf
       if let some proof := res.proof? then
@@ -113,7 +113,7 @@ where
       return ← withLetDeclShared (← mkFreshUserName x) ty val fun shared fv leave => do
       let e' := (body.instantiate1 fv).betaRev e.getAppRevArgs
       let info? ← getSplitInfo? e'
-      if shared && isJP x && ctx.config.jp && info?.isSome then
+      if shared && isJP x && (← read).config.jp && info?.isSome then
         leave (← onJoinPoint fv val (goal.withNewProg e') info?.get! name)
       else
         leave (← onWPApp (goal.withNewProg e') name)
@@ -135,17 +135,17 @@ where
 
     -- delta-unfold definitions according to reducibility and spec attributes,
     -- apply specifications
-    if f.isConst then
+    if f.isConst || f.isFVar then
       burnOne
       -- Now try looking up and applying a spec
       let (prf, specHoles) ← try
-        let specThm ← findSpec ctx.specThms wp
-        trace[Elab.Tactic.Do.vcgen] "Candidate spec for {f.constName!}: {specThm.proof}"
+        let specThm ← findSpec (← read).specThms wp
+        trace[Elab.Tactic.Do.vcgen] "Candidate spec for {f}: {specThm.proof}"
         -- We eta-expand as far here as goal.σs permits.
         -- This is so that `mSpec` can frame hypotheses involving uninstantiated loop invariants.
         -- It is absolutely crucial that we do not lose these hypotheses in the inductive step.
         collectFreshMVars <| mIntroForallN goal (← TypeList.length goal.σs) fun goal =>
-          mSpec goal (fun _wp  => return specThm) name (tryTrivial := false)
+          mSpec goal (fun _wp  => return specThm) (tryTrivial := false)
       catch ex =>
         trace[Elab.Tactic.Do.vcgen] "Failed to find spec for {wp}. Trying simp. Reason: {ex.toMessageData}"
         -- Last resort: Simp and try again

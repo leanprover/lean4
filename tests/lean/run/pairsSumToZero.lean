@@ -28,16 +28,16 @@ theorem existsPair_iff_not_pairwise {P : α → α → Prop} {l : List α} :
     l.ExistsPair P ↔ ¬l.Pairwise (fun x y => ¬P x y) := by
   grind [ExistsPair]
 
-@[simp, grind]
+@[simp, grind .]
 theorem not_existsPair_nil {P : α → α → Prop} : ¬[].ExistsPair P := by
   simp [existsPair_iff_not_pairwise]
 
-@[simp, grind]
+@[simp, grind =]
 theorem existsPair_cons {P : α → α → Prop} {x : α} {xs : List α} :
     (x::xs).ExistsPair P  ↔ (∃ y ∈ xs, P x y) ∨ xs.ExistsPair P := by
   grind [List.existsPair_iff_not_pairwise, pairwise_iff_forall_sublist]
 
-@[simp, grind]
+@[simp, grind =]
 theorem existsPair_append {P : α → α → Prop} {xs ys : List α} :
     (xs ++ ys).ExistsPair P ↔ xs.ExistsPair P ∨ ys.ExistsPair P ∨ (∃ x ∈ xs, ∃ y ∈ ys, P x y) := by
   grind [List.existsPair_iff_not_pairwise]
@@ -72,21 +72,15 @@ theorem pairsSumToZero_correct (l : List Int) : pairsSumToZero l ↔ l.ExistsPai
   mvcgen
 
   case inv1 =>
-    exact Invariant.withEarlyReturn
-      (onReturn := fun r b => ⌜r = true ∧ l.ExistsPair (fun a b => a + b = 0)⌝)
-      (onContinue := fun traversalState seen =>
-        ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ ¬traversalState.prefix.ExistsPair (fun a b => a + b = 0)⌝)
+    exact fun traversalState seen =>
+      ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ ¬traversalState.prefix.ExistsPair (fun a b => a + b = 0)⌝
 
   all_goals simp_all <;> grind
 
 /--
 trace: l : List Int
-⊢ (match
-          (forIn l ⟨none, ∅⟩ fun x r =>
-                if -x ∈ r.snd then pure (ForInStep.done ⟨some true, r.snd⟩)
-                else pure (ForInStep.yield ⟨none, r.snd.insert x⟩)).run.fst with
-        | none => pure false
-        | some a => pure a).run =
+⊢ (forInNew l ∅ (fun x __kcontinue __s => if -x ∈ __s then pure true else __kcontinue (__s.insert x)) fun __s =>
+          pure false).run =
       true ↔
     List.ExistsPair (fun a b => a + b = 0) l
 ---

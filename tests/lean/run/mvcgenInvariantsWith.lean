@@ -19,30 +19,24 @@ theorem nodup_correct_vanilla (l : List Int) : nodup l ↔ l.Nodup := by
   apply Id.of_wp_run_eq h
   mvcgen
   case inv1 =>
-    exact Invariant.withEarlyReturn
-      (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
-      (onContinue := fun traversalState seen =>
-        ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
+    exact fun traversalState seen =>
+        ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝
   all_goals mleave; grind
 
 theorem nodup_correct_invariants (l : List Int) : nodup l ↔ l.Nodup := by
   generalize h : nodup l = r
   apply Id.of_wp_run_eq h
   mvcgen invariants
-  · Invariant.withEarlyReturn
-   (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝) -- minimal indentation here is part of the test
-   (onContinue := fun traversalState seen =>
-   ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
+  · fun traversalState seen =>
+      ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝
   all_goals grind
 
 theorem nodup_correct_invariants_with_pretac (l : List Int) : nodup l ↔ l.Nodup := by
   generalize h : nodup l = r
   apply Id.of_wp_run_eq h
   mvcgen invariants
-  · Invariant.withEarlyReturn
-      (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
-      (onContinue := fun traversalState seen =>
-        ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
+  · fun traversalState seen =>
+      ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝
   with grind
 
 theorem nodup_correct_invariants_with_cases (l : List Int) : nodup l ↔ l.Nodup := by
@@ -50,44 +44,35 @@ theorem nodup_correct_invariants_with_cases (l : List Int) : nodup l ↔ l.Nodup
   apply Id.of_wp_run_eq h
   mvcgen
   invariants
-  · Invariant.withEarlyReturn
-      (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
-      (onContinue := fun traversalState seen =>
-        ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
+  · fun traversalState seen =>
+      ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝
   with
   | vc1 => grind
   | vc2 => grind
   | vc3 => grind
   | vc4 => grind
-  | vc5 => grind
 
 theorem nodup_correct_invariants_with_pretac_cases (l : List Int) : nodup l ↔ l.Nodup := by
   generalize h : nodup l = r
   apply Id.of_wp_run_eq h
   mvcgen
   invariants
-  · Invariant.withEarlyReturn
-      (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
-      (onContinue := fun traversalState seen =>
-        ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
+  · fun traversalState seen =>
+      ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝
   with mleave -- mleave is a no-op here, but we are just testing the grammar
   | vc1 => grind
   | vc2 | vc3 | vc4 => grind
-  | vc5 => grind
 
 theorem nodup_correct_invariants_with_cases_error (l : List Int) : nodup l ↔ l.Nodup := by
   generalize h : nodup l = r
   apply Id.of_wp_run_eq h
   mvcgen
   invariants
-  · Invariant.withEarlyReturn
-      (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
-      (onContinue := fun traversalState seen =>
-        ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
+  · fun traversalState seen =>
+      ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝
   with mleave -- mleave is a no-op here, but we are just testing the grammar
   | vc1 => grind
   | vc2 | vc3 | vc4 => grind
-  | vc5 => grind
 
 theorem test_with_pretac {m : Option Nat} (h : m = some 4) :
   ⦃⌜True⌝⦄
@@ -137,14 +122,10 @@ theorem nodup_twice_correct_invariants_with (l : List Int) : nodup_twice l ↔ l
   apply Id.of_wp_run_eq h
   mvcgen
   invariants
-  · Invariant.withEarlyReturn
-      (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
-      (onContinue := fun traversalState seen =>
-        ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
-  · Invariant.withEarlyReturn
-      (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
-      (onContinue := fun traversalState seen =>
-        ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
+  · fun traversalState seen =>
+      ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝
+  · fun traversalState ⟨seen, seen2⟩ =>
+      ⌜(∀ x, x ∈ seen2 ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝
   with grind
 
 theorem nodup_twice_correct_invariants_multiple_with (l : List Int) : nodup_twice l ↔ l.Nodup := by
@@ -152,20 +133,16 @@ theorem nodup_twice_correct_invariants_multiple_with (l : List Int) : nodup_twic
   apply Id.of_wp_run_eq h
   mvcgen
   invariants
-  · Invariant.withEarlyReturn
-      (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
-      (onContinue := fun traversalState seen =>
-        ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
-  · Invariant.withEarlyReturn
-      (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
-      (onContinue := fun traversalState seen =>
-        ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
+  · fun traversalState seen =>
+      ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝
+  · fun traversalState ⟨seen, seen2⟩ =>
+      ⌜(∀ x, x ∈ seen2 ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝
   with grind
 
 /--
 error: Lacking definitions for the following invariants.
 
-  Invariant l (MProd (Option Bool) (HashSet Int)) PostShape.pure
+  InvariantNew l (HashSet Int × HashSet Int) PostShape.pure
 -/
 #guard_msgs in
 theorem nodup_twice_missing_one_invariant (l : List Int) : nodup_twice l ↔ l.Nodup := by
@@ -173,18 +150,16 @@ theorem nodup_twice_missing_one_invariant (l : List Int) : nodup_twice l ↔ l.N
   apply Id.of_wp_run_eq h
   mvcgen
   invariants
-  · Invariant.withEarlyReturn
-      (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
-      (onContinue := fun traversalState seen =>
-        ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝)
+  · fun traversalState seen =>
+      ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝
   with grind
 
 /--
 error: Lacking definitions for the following invariants.
 
-  Invariant l (MProd (Option Bool) (HashSet Int)) PostShape.pure
+  InvariantNew l (HashSet Int) PostShape.pure
   ⏎
-  Invariant l (MProd (Option Bool) (HashSet Int)) PostShape.pure
+  InvariantNew l (HashSet Int × HashSet Int) PostShape.pure
 -/
 #guard_msgs in
 theorem nodup_twice_missing_two_invariants (l : List Int) : nodup_twice l ↔ l.Nodup := by
@@ -203,19 +178,19 @@ def copy (l : List Nat) : Id (Array Nat) := do
 set_option warn.sorry false in
 theorem copy_labelled_invariants (l : List Nat) : ⦃⌜True⌝⦄ copy l ⦃⇓ r => ⌜r = l.toArray⌝⦄ := by
   mvcgen [copy] invariants
-  | inv1 acc => ⇓ ⟨xs, letMuts⟩ => ⌜acc = l.toArray⌝
+  | inv1 acc => fun xs letMuts => ⌜acc = l.toArray⌝
   with admit
 
 set_option warn.sorry false in
 theorem copy_labelled_invariants_noname (l : List Nat) : ⦃⌜True⌝⦄ copy l ⦃⇓ r => ⌜r = l.toArray⌝⦄ := by
   mvcgen [copy] invariants
-  | _ acc => ⇓ ⟨xs, letMuts⟩ => ⌜acc = l.toArray⌝
+  | _ acc => fun xs letMuts => ⌜acc = l.toArray⌝
   with admit
 
 /-- error: Alternation between labelled and bulleted invariants is not supported. -/
 #guard_msgs in
 theorem copy_labelled_invariants_dontmix (l : List Nat) : ⦃⌜True⌝⦄ copy l ⦃⇓ r => ⌜r = l.toArray⌝⦄ := by
   mvcgen [copy] invariants
-  · ⇓ ⟨xs, letMuts⟩ => ⌜True⌝
-  | _ acc => ⇓ ⟨xs, letMuts⟩ => ⌜acc = l.toArray⌝
+  · fun xs letMuts => ⌜True⌝
+  | _ acc => fun xs letMuts => ⌜acc = l.toArray⌝
   with admit

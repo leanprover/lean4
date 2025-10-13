@@ -255,6 +255,12 @@ instance [BEq α] [Hashable α] {m : Type w → Type w'} : ForIn m (HashMap α �
     Array α :=
   m.inner.keysArray
 
+@[inline, inherit_doc DHashMap.all] def all (m : HashMap α β) (p : α → β → Bool) : Bool :=
+  m.inner.all p
+
+@[inline, inherit_doc DHashMap.any] def any (m : HashMap α β) (p : α → β → Bool) : Bool :=
+  m.inner.any p
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/

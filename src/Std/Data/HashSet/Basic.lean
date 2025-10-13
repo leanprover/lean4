@@ -245,16 +245,10 @@ section Unverified
   ⟨⟨l⟩, ⟨r⟩⟩
 
 /-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
-@[inline] def all (m : HashSet α) (p : α → Bool) : Bool := Id.run do
-  for a in m do
-    if ¬ p a then return false
-  return true
+@[inline] def all (m : HashSet α) (p : α → Bool) : Bool := m.inner.all (fun a _ => p a)
 
 /-- Check if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
-@[inline] def any (m : HashSet α) (p : α → Bool) : Bool := Id.run do
-  for a in m do
-    if p a then return true
-  return false
+@[inline] def any (m : HashSet α) (p : α → Bool) : Bool := m.inner.any (fun a _ => p a)
 
 /--
 Creates a hash set from an array of elements. Note that unlike repeatedly calling `insert`, if the

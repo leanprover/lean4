@@ -311,6 +311,12 @@ This function ensures that the value is used linearly.
     Array α :=
   m.1.keysArray
 
+@[inline, inherit_doc Raw.all] def all (m : DHashMap α β) (p : (a : α) → β a → Bool) : Bool :=
+  m.1.all p
+
+@[inline, inherit_doc Raw.any] def any (m : DHashMap α β) (p : (a : α) → β a → Bool) : Bool :=
+  m.1.any p
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/

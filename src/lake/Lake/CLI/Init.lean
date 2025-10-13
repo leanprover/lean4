@@ -171,7 +171,6 @@ package {repr pkgName} where
   keywords := #[\"math\"]
   leanOptions := #[
     ⟨`pp.unicode.fun, true⟩, -- pretty-prints `fun a ↦ b`
-    ⟨`autoImplicit, false⟩,
     ⟨`relaxedAutoImplicit, false⟩,
     ⟨`maxSynthPendingDepth, .ofNat 3⟩,
     ⟨`weak.linter.mathlibStandardSet, true⟩,

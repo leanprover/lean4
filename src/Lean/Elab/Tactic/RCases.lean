@@ -24,13 +24,13 @@ public register_option linter.unusedRCasesPattern : Bool := {
   descr := "enable the 'unused rcases pattern' linter"
 }
 
-instance : Coe Ident (TSyntax `rcasesPat) where
+public instance : Coe Ident (TSyntax `rcasesPat) where
   coe stx := Unhygienic.run `(rcasesPat| $stx:ident)
-instance : Coe (TSyntax `rcasesPat) (TSyntax ``rcasesPatMed) where
+public instance : Coe (TSyntax `rcasesPat) (TSyntax ``rcasesPatMed) where
   coe stx := Unhygienic.run `(rcasesPatMed| $stx:rcasesPat)
-instance : Coe (TSyntax ``rcasesPatMed) (TSyntax ``rcasesPatLo) where
+public instance : Coe (TSyntax ``rcasesPatMed) (TSyntax ``rcasesPatLo) where
   coe stx := Unhygienic.run `(rcasesPatLo| $stx:rcasesPatMed)
-instance : Coe (TSyntax `rcasesPat) (TSyntax `rintroPat) where
+public instance : Coe (TSyntax `rcasesPat) (TSyntax `rintroPat) where
   coe stx := Unhygienic.run `(rintroPat| $stx:rcasesPat)
 
 -- These frequently cause bootstrapping issues. Commented out for now, using `List/-Σ-/` and `List/-Π-/` instead.

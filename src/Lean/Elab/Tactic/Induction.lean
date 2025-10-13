@@ -1036,7 +1036,7 @@ def elabFunTarget (cases : Bool) (stx : Syntax) : TacticM (ElimInfo × Array Exp
       | .param => params := params.push a
       | .target => targets := targets.push a
     if cases then
-      trace[Elab.cases] "us: {us}\nparams: {params}\ntargets: {targets}"Ok
+      trace[Elab.cases] "us: {us}\nparams: {params}\ntargets: {targets}"
     else
       trace[Elab.induction] "us: {us}\nparams: {params}\ntargets: {targets}"
 

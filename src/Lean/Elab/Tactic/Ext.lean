@@ -246,7 +246,6 @@ def applyExtTheoremAt (goal : MVarId) : MetaM (List MVarId) := goal.withContext 
 @[builtin_tactic applyExtTheorem] def evalApplyExtTheorem : Tactic := fun _ => do
   liftMetaTactic applyExtTheoremAt
 
-open TSyntax.Compat in
 /--
 Postprocessor for `withExt` which runs `rintro` with the given patterns when the target is a
 pi type.

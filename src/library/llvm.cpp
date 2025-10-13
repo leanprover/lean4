@@ -61,7 +61,7 @@ extern "C" LEAN_EXPORT lean_object* lean_llvm_initialize_target_info() {
     LLVMInitializeAllAsmPrinters();
 #endif
 
-    return lean_mk_baseio_out(lean_box(0));
+    return lean_box(0);
 }
 
 #ifdef LEAN_LLVM
@@ -273,7 +273,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_write_bitcode_to_file(size_t ctx,
     const int err =
         LLVMWriteBitcodeToFile(lean_to_Module(mod), lean_string_cstr(filepath));
     lean_always_assert(!err && "unable to write bitcode");
-    return lean_mk_baseio_out(lean_box(0));  // IO Unit
+    return lean_box(0);  // IO Unit
 #endif  // LEAN_LLVM
 };
 
@@ -284,7 +284,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_module_to_string(size_t ctx, size_
                   "the LLVM backend function."));
 #else
     char *str = LLVMPrintModuleToString(lean_to_Module(mod));
-    lean_object *out =  lean_mk_baseio_out(lean_mk_string(str));
+    lean_object *out =  lean_mk_string(str);
     free(str);
     return out;
 #endif  // LEAN_LLVM
@@ -312,9 +312,9 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_get_named_function(
 #else
     LLVMValueRef f =
         LLVMGetNamedFunction(lean_to_Module(mod), lean_string_cstr(name));
-    return lean_mk_baseio_out(
+    return
         f ? lean::mk_option_some(lean_box_usize(Value_to_lean(f)))
-          : lean::mk_option_none());
+          : lean::mk_option_none();
 #endif  // LEAN_LLVM
 }
 
@@ -341,9 +341,9 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_get_named_global(
 #else
     LLVMValueRef g =
         LLVMGetNamedGlobal(lean_to_Module(mod), lean_string_cstr(name));
-    return lean_mk_baseio_out(
+    return
         g ? lean::mk_option_some(lean_box_usize(Value_to_lean(g)))
-          : lean::mk_option_none());
+          : lean::mk_option_none();
 #endif  // LEAN_LLVM
 }
 
@@ -380,7 +380,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_set_initializer(
                   "the LLVM backend function."));
 #else
     LLVMSetInitializer(lean_to_Value(global), lean_to_Value(initializer));
-    return lean_mk_baseio_out(lean_box(0));
+    return lean_box(0);
 #endif  // LEAN_LLVM
 }
 
@@ -505,7 +505,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_position_builder_at_end(
                   "the LLVM backend function."));
 #else
     LLVMPositionBuilderAtEnd(lean_to_Builder(builder), lean_to_BasicBlock(bb));
-    return lean_mk_baseio_out(lean_box(0));
+    return lean_box(0);
 #endif  // LEAN_LLVM
 }
 
@@ -516,7 +516,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_clear_insertion_position(size_t ct
                   "the LLVM backend function."));
 #else
     LLVMClearInsertionPosition(lean_to_Builder(builder));
-    return lean_mk_baseio_out(lean_box(0));
+    return lean_box(0);
 #endif  // LEAN_LLVM
 }
 
@@ -574,7 +574,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_store(size_t ctx,
 #else
     LLVMValueRef out = LLVMBuildStore(lean_to_Builder(builder),
                                       lean_to_Value(v), lean_to_Value(slot));
-    return lean_mk_baseio_out(lean_box(0));
+    return lean_box(0);
 #endif  // LEAN_LLVM
 }
 
@@ -850,7 +850,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_add_case(size_t ctx, size_t switch
 #else
     LLVMAddCase(lean_to_Value(switch_), lean_to_Value(onVal),
                 lean_to_BasicBlock(destbb));
-    return lean_mk_baseio_out(lean_box(0));
+    return lean_box(0);
 #endif  // LEAN_LLVM
 }
 
@@ -894,7 +894,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_print_module_to_string(size_t ctx,
                   "the LLVM backend function."));
 #else
     const char *s = LLVMPrintModuleToString(lean_to_Module(mod));
-    return lean_mk_baseio_out(lean::mk_string(s));
+    return lean::mk_string(s);
 #endif  // LEAN_LLVM
 }
 
@@ -915,7 +915,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_print_module_to_file(size_t ctx,
 
     lean_always_assert(!is_error && "failed to print module to file");
     lean_always_assert (err_str == NULL);
-    return lean_mk_baseio_out(lean_box(0));
+    return lean_box(0);
 #endif  // LEAN_LLVM
 }
 
@@ -1007,7 +1007,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_set_tail_call(
                   "the LLVM backend function."));
 #else
     LLVMSetTailCall(lean_to_Value(fnval), isTail);
-    return lean_mk_baseio_out(lean_box(0));
+    return lean_box(0);
 #endif  // LEAN_LLVM
 }
 
@@ -1069,7 +1069,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_link_modules(size_t ctx,
         fprintf(stderr, "%20s ERROR: unable to link modules\n", __FUNCTION__);
     }
     lean_always_assert(!is_error && "failed to link modules");
-    return lean_mk_baseio_out(lean_box(0));
+    return lean_box(0);
 #endif
 }
 
@@ -1127,7 +1127,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_get_default_target_triple() {
     char *triple = LLVMGetDefaultTargetTriple();
     lean_object *out = lean::mk_string(triple);
     free(triple);
-    return lean_mk_baseio_out(out);
+    return out;
 #endif  // LEAN_LLVM
 }
 
@@ -1150,7 +1150,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_target_machine_emit_to_file(size_t
         lean_to_TargetMachine(target_machine), lean_to_Module(module),
         filepath_c_str, LLVMCodeGenFileType(codegenType), &err_msg);
 
-    return lean_mk_baseio_out(lean_box(0));
+    return lean_box(0);
 #endif  // LEAN_LLVM
 }
 
@@ -1173,7 +1173,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_target_machine_emit_to_file(size_t
 //                  "the LLVM backend function."));
 //#else
 //    int is_error = LLVMRunPassManager(lean_to_PassManager(pm), lean_to_Module(mod));
-//    return lean_mk_baseio_out(lean_box(0));
+//    return lean_box(0);
 //#endif  // LEAN_LLVM
 //}
 //
@@ -1185,7 +1185,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_target_machine_emit_to_file(size_t
 //                  "the LLVM backend function."));
 //#else
 //    LLVMDisposePassManager(lean_to_PassManager(pm));
-//    return lean_mk_baseio_out(lean_box(0));
+//    return lean_box(0);
 //#endif  // LEAN_LLVM
 //}
 //
@@ -1209,7 +1209,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_target_machine_emit_to_file(size_t
 //                  "the LLVM backend function."));
 //#else
 //    LLVMPassManagerBuilderDispose(lean_to_PassManagerBuilder(pmb));
-//    return lean_mk_baseio_out(lean_box(0));
+//    return lean_box(0);
 //#endif  // LEAN_LLVM
 //}
 //
@@ -1222,7 +1222,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_target_machine_emit_to_file(size_t
 //                  "the LLVM backend function."));
 //#else
 //    LLVMPassManagerBuilderSetOptLevel(lean_to_PassManagerBuilder(pmb), opt_level);
-//    return lean_mk_baseio_out(lean_box(0));
+//    return lean_box(0);
 //#endif  // LEAN_LLVM
 //}
 //
@@ -1235,7 +1235,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_target_machine_emit_to_file(size_t
 //                  "the LLVM backend function."));
 //#else
 //    LLVMPassManagerBuilderPopulateModulePassManager(lean_to_PassManagerBuilder(pmb), lean_to_PassManager(pm));
-//    return lean_mk_baseio_out(lean_box(0));
+//    return lean_box(0);
 //#endif  // LEAN_LLVM
 //}
 
@@ -1246,7 +1246,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_dispose_target_machine(size_t ctx,
                   "the LLVM backend function."));
 #else
     LLVMDisposeTargetMachine(lean_to_TargetMachine(tm));
-    return lean_mk_baseio_out(lean_box(0));
+    return lean_box(0);
 #endif  // LEAN_LLVM
 }
 
@@ -1257,7 +1257,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_dispose_module(size_t ctx, size_t 
                   "the LLVM backend function."));
 #else
     LLVMDisposeModule(lean_to_Module(mod));
-    return lean_mk_baseio_out(lean_box(0));
+    return lean_box(0);
 #endif  // LEAN_LLVM
 }
 
@@ -1268,7 +1268,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_set_visibility(size_t ctx, size_t 
                   "the LLVM backend function."));
 #else
     LLVMSetVisibility(lean_to_Value(value), LLVMVisibility(vis));
-    return lean_mk_baseio_out(lean_box(0));
+    return lean_box(0);
 #endif  // LEAN_LLVM
 }
 
@@ -1279,7 +1279,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_set_dll_storage_class(size_t ctx, 
                   "the LLVM backend function."));
 #else
     LLVMSetDLLStorageClass(lean_to_Value(value), LLVMDLLStorageClass(cls));
-    return lean_mk_baseio_out(lean_box(0));
+    return lean_box(0);
 #endif  // LEAN_LLVM
 }
 
@@ -1301,7 +1301,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_add_attribute_at_index(size_t ctx,
                   "the LLVM backend function."));
 #else
     LLVMAddAttributeAtIndex(lean_to_Value(fn), idx, lean_to_Attribute(attr));
-    return lean_mk_baseio_out(lean_box(0));
+    return lean_box(0);
 #endif  // LEAN_LLVM
 }
 
@@ -1357,7 +1357,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_set_linkage(size_t ctx, size_t val
                   "the LLVM backend function."));
 #else
     LLVMSetLinkage(lean_to_Value(value), LLVMLinkage(linkage));
-    return lean_mk_baseio_out(lean_box(0));
+    return lean_box(0);
 #endif  // LEAN_LLVM
 }
 
@@ -1369,7 +1369,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_get_value_name2(size_t ctx, size_t
 #else
     size_t len;
     const char *name = LLVMGetValueName2(lean_to_Value(value), &len);
-    return lean_mk_baseio_out(lean::mk_string(name));
+    return lean::mk_string(name);
 #endif  // LEAN_LLVM
 }
 
@@ -1380,7 +1380,7 @@ extern "C" LEAN_EXPORT lean_object *llvm_is_declaration(size_t ctx, size_t globa
                   "the LLVM backend function."));
 #else
 	uint8_t is_bool = LLVMIsDeclaration(lean_to_Value(global));
-	return lean_mk_baseio_out(lean_box(is_bool));
+	return lean_box(is_bool);
 #endif  // LEAN_LLVM
 }
 
@@ -1393,9 +1393,9 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_verify_module(size_t ctx, size_t m
     char* msg = NULL;
     LLVMBool broken = LLVMVerifyModule(lean_to_Module(mod), LLVMReturnStatusAction, &msg);
     if (broken) {
-      return lean_mk_baseio_out(lean::mk_option_some(lean_mk_string(msg)));
+      return lean::mk_option_some(lean_mk_string(msg));
     } else {
-      return lean_mk_baseio_out(lean::mk_option_none());
+      return lean::mk_option_none();
     }
 #endif  // LEAN_LLVM
 }
@@ -1432,9 +1432,9 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_get_first_instruction(size_t ctx, 
     LLVMBasicBlockRef bb_ref = lean_to_BasicBlock(bb);
     LLVMValueRef instr_ref = LLVMGetFirstInstruction(bb_ref);
     if (instr_ref == NULL) {
-       return lean_mk_baseio_out(lean::mk_option_none());
+       return lean::mk_option_none();
     } else {
-       return lean_mk_baseio_out(lean::mk_option_some(lean_box_usize(Value_to_lean(instr_ref))));
+       return lean::mk_option_some(lean_box_usize(Value_to_lean(instr_ref)));
     }
 #endif  // LEAN_LLVM
 }
@@ -1447,6 +1447,6 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_position_builder_before(
                   "the LLVM backend function."));
 #else
     LLVMPositionBuilderBefore(lean_to_Builder(builder), lean_to_Value(instr));
-    return lean_mk_baseio_out(lean_box(0));
+    return lean_box(0);
 #endif  // LEAN_LLVM
 }

@@ -1190,12 +1190,12 @@ void lean_promise_resolve(obj_arg value, b_obj_arg promise) {
 
 extern "C" LEAN_EXPORT obj_res lean_io_promise_new() {
     lean_object * o = lean_promise_new();
-    return lean_mk_baseio_out(o);
+    return o;
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg promise) {
     lean_promise_resolve(value, promise);
-    return lean_mk_baseio_out(box(0));
+    return box(0);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_promise_result_opt(b_obj_arg promise) {

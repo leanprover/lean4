@@ -122,7 +122,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
 
     event_loop_unlock(&global_ev);
 
-    return lean_mk_baseio_out(lean_box(0));
+    return lean_box(0);
 }
 
 /* Std.Internal.UV.Loop.alive : BaseIO Bool */

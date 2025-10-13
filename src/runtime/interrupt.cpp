@@ -32,7 +32,7 @@ void set_max_heartbeat(size_t max) { g_max_heartbeat = max; }
 
 extern "C" LEAN_EXPORT obj_res lean_internal_set_max_heartbeat(usize max) {
     set_max_heartbeat(max);
-    return lean_mk_baseio_out(lean_box(0));
+    return lean_box(0);
 }
 
 size_t get_max_heartbeat() { return g_max_heartbeat; }

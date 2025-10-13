@@ -2670,7 +2670,7 @@ Examples:
 def Internal.frontImpl (s : String) : Char :=
   String.front s
 
-theorem front_eq {s : String} : s.front = (0 : Pos.Raw).get s := rfl
+theorem front_eq_get {s : String} : s.front = (0 : Pos.Raw).get s := rfl
 
 /--
 Returns the last character in `s`. If `s = ""`, returns `(default : Char)`.
@@ -2682,7 +2682,7 @@ Examples:
 @[inline, expose] def back (s : String) : Char :=
   get s (prev s s.endPos)
 
-theorem back_eq {s : String} : s.back = (s.endPos.prev s).get s := rfl
+theorem back_eq_get_prev_endPos {s : String} : s.back = (s.endPos.prev s).get s := rfl
 
 /--
 Returns `true` if a specified byte position is greater than or equal to the position which points to

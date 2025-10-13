@@ -664,6 +664,8 @@ end Std.Do
 
 namespace Std.Do
 
+attribute [spec] Option.elim -- unconditionally unfold `Option.elim`; it occurs when elaborating `for`
+
 universe u₁ u₂ v
 variable {α : Type u₁} {β : Type (max u₁ u₂)} {m : Type (max u₁ u₂) → Type v} {ps : PostShape.{max u₁ u₂}}
 variable [Monad m] [WPMonad m ps]

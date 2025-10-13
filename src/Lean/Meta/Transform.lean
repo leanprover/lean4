@@ -201,10 +201,10 @@ def zetaReduce (e : Expr) : MetaM Expr := do
 Zeta-reduces only the specified free variables, applying beta reduction after substitution.
 For example, if `x` has value `fun y => y + 1` and appears as `x 2`, the result is `2 + 1`.
 -/
-def zetaDeltaFVars (e : Expr) (fvars : Array FVarId) : MetaM Expr :=
+def zetaDeltaFVars (e : Expr) (fvars : Array FVarId) (allowNondep : Bool := false) : MetaM Expr :=
   let unfold? (fvarId : FVarId) : MetaM (Option Expr) := do
     if fvars.contains fvarId then
-      fvarId.getValue?
+      fvarId.getValue? (allowNondep := allowNondep)
     else
       return none
   let pre (e : Expr) : MetaM TransformStep := do

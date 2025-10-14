@@ -1879,14 +1879,16 @@ theorem union_eq : m₁.union m₂ = m₁ ∪ m₂ := by
 /- contains -/
 theorem contains_union_of_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
     (h₂ : m₂.WF) {k : α} :
-    m₁.contains k → (m₁ ∪ m₂).contains k := by
+    k ∈ m₁ → (m₁ ∪ m₂).contains k := by
   simp only [Union.union]
+  rw [mem_iff_contains]
   simp_to_raw using Raw₀.contains_union_of_left
 
 theorem contains_union_of_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
     (h₂ : m₂.WF) {k : α} :
-    m₂.contains k → (m₁ ∪ m₂).contains k := by
+    k ∈ m₂ → (m₁ ∪ m₂).contains k := by
   simp only [Union.union]
+  rw [mem_iff_contains]
   simp_to_raw using Raw₀.contains_union_of_right
 
 @[simp]
@@ -1898,16 +1900,20 @@ theorem contains_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
 
 theorem contains_of_contains_union_of_contains_eq_false_right [EquivBEq α]
     [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
-    (m₁ ∪ m₂).contains k → m₂.contains k = false → m₁.contains k := by
+    k ∈ m₁ ∪ m₂ → ¬k ∈ m₂ → m₁.contains k := by
   simp only [Union.union]
+  rw [← contains_eq_false_iff_not_mem]
+  simp only [mem_iff_contains]
   simp_to_raw
   apply Raw₀.contains_of_contains_union_of_contains_eq_false_right
   all_goals wf_trivial
 
 theorem contains_of_contains_union_of_contains_eq_false_left [EquivBEq α]
     [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
-    (m₁ ∪ m₂).contains k → m₁.contains k = false → m₂.contains k := by
+    k ∈ m₁ ∪ m₂ → ¬k ∈ m₁ → m₂.contains k := by
   simp only [Union.union]
+  rw [← contains_eq_false_iff_not_mem]
+  simp only [mem_iff_contains]
   simp_to_raw
   apply Raw₀.contains_of_contains_union_of_contains_eq_false_left
   all_goals wf_trivial
@@ -1956,19 +1962,21 @@ theorem get?_union [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
   simp_to_raw using Raw₀.get?_union
 
 theorem get?_union_of_contains_eq_false_left [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (contains_eq_false : m₁.contains k = false) :
+    {k : α} (contains_eq_false : ¬k ∈ m₁) :
     (m₁ ∪ m₂).get? k = m₂.get? k := by
   revert contains_eq_false
   simp only [Union.union]
+  rw [← contains_eq_false_iff_not_mem]
   simp_to_raw
   apply Raw₀.get?_union_of_contains_eq_false_left
   all_goals wf_trivial
 
 theorem get?_union_of_contains_eq_false_right [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (contains_eq_false : m₂.contains k = false) :
+    {k : α} (contains_eq_false : ¬k ∈ m₂) :
     (m₁ ∪ m₂).get? k = m₁.get? k := by
   revert contains_eq_false
   simp only [Union.union]
+  rw [← contains_eq_false_iff_not_mem]
   simp_to_raw
   apply Raw₀.get?_union_of_contains_eq_false_right
   all_goals wf_trivial
@@ -1984,8 +1992,9 @@ theorem get_union_of_contains_right [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂
   all_goals wf_trivial
 
 theorem get_union_of_contains_eq_false_left [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (contains_eq_false : m₁.contains k = false) {h'} :
+    {k : α} (contains_eq_false : ¬k ∈ m₁) {h'} :
     (m₁ ∪ m₂).get k h' = m₂.get k (contains_of_contains_union_of_contains_eq_false_left h₁ h₂ h' contains_eq_false) := by
+  rw [← contains_eq_false_iff_not_mem] at contains_eq_false
   revert contains_eq_false
   simp only [Union.union]
   simp_to_raw
@@ -1994,8 +2003,9 @@ theorem get_union_of_contains_eq_false_left [LawfulBEq α] (h₁ : m₁.WF) (h�
   all_goals wf_trivial
 
 theorem get_union_of_contains_eq_false_right [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (contains_eq_false : m₂.contains k = false) {h'} :
+    {k : α} (contains_eq_false : ¬k ∈ m₂) {h'} :
     (m₁ ∪ m₂).get k h' = m₁.get k (contains_of_contains_union_of_contains_eq_false_right h₁ h₂ h' contains_eq_false) := by
+  rw [← contains_eq_false_iff_not_mem] at contains_eq_false
   revert contains_eq_false
   simp only [Union.union]
   simp_to_raw
@@ -2011,15 +2021,17 @@ theorem getD_union [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
   simp_to_raw using Raw₀.getD_union
 
 theorem getD_union_of_contains_eq_false_left [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} {fallback : β k} (contains_eq_false : m₁.contains k = false) :
+    {k : α} {fallback : β k} (contains_eq_false : ¬k ∈ m₁) :
     (m₁ ∪ m₂).getD k fallback = m₂.getD k fallback := by
+  rw [← contains_eq_false_iff_not_mem] at contains_eq_false
   revert contains_eq_false
   simp only [Union.union]
   simp_to_raw using Raw₀.getD_union_of_contains_eq_false_left
 
 theorem getD_union_of_contains_eq_false_right [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} {fallback : β k} (contains_eq_false : m₂.contains k = false)  :
+    {k : α} {fallback : β k} (contains_eq_false : ¬k ∈ m₂)  :
     (m₁ ∪ m₂).getD k fallback = m₁.getD k fallback := by
+  rw [← contains_eq_false_iff_not_mem] at contains_eq_false
   revert contains_eq_false
   simp only [Union.union]
   simp_to_raw using Raw₀.getD_union_of_contains_eq_false_right
@@ -2032,15 +2044,17 @@ theorem get!_union [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
   simp_to_raw using Raw₀.get!_union
 
 theorem get!_union_of_contains_eq_false_left [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} [Inhabited (β k)] (contains_eq_false : m₁.contains k = false) :
+    {k : α} [Inhabited (β k)] (contains_eq_false : ¬k ∈ m₁) :
     (m₁ ∪ m₂).get! k = m₂.get! k := by
+  rw [← contains_eq_false_iff_not_mem] at contains_eq_false
   revert contains_eq_false
   simp only [Union.union]
   simp_to_raw using Raw₀.get!_union_of_contains_eq_false_left
 
 theorem get!_union_of_contains_eq_false_right [LawfulBEq α]  (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} [Inhabited (β k)] (contains_eq_false : m₂.contains k = false)  :
+    {k : α} [Inhabited (β k)] (contains_eq_false : ¬k ∈ m₂)  :
     (m₁ ∪ m₂).get! k = m₁.get! k := by
+  rw [← contains_eq_false_iff_not_mem] at contains_eq_false
   revert contains_eq_false
   simp only [Union.union]
   simp_to_raw using Raw₀.get!_union_of_contains_eq_false_right
@@ -2055,16 +2069,18 @@ theorem getKey?_union [EquivBEq α] [LawfulHashable α]
 
 theorem getKey?_union_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (not_mem : m₁.contains k = false) :
+    {k : α} (not_mem : ¬k ∈ m₁) :
     (m₁ ∪ m₂).getKey? k = m₂.getKey? k := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
   revert not_mem
   simp only [Union.union]
   simp_to_raw using Raw₀.getKey?_union_of_contains_eq_false_left
 
 theorem getKey?_union_of_contains_eq_false_right [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (not_mem : m₂.contains k = false) :
+    {k : α} (not_mem : ¬k ∈ m₂) :
     (m₁ ∪ m₂).getKey? k = m₁.getKey? k := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
   revert not_mem
   simp only [Union.union]
   simp_to_raw using Raw₀.getKey?_union_of_contains_eq_false_right
@@ -2078,8 +2094,9 @@ theorem getKey_union_of_contains_right [EquivBEq α] [LawfulHashable α] (h₁ :
   simp_to_raw using Raw₀.getKey_union_of_contains_right
 
 theorem getKey_union_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (contains_eq_false : m₁.contains k = false) {h'} :
+    {k : α} (contains_eq_false : ¬k ∈ m₁) {h'} :
     (m₁ ∪ m₂).getKey k h' = m₂.getKey k (contains_of_contains_union_of_contains_eq_false_left h₁ h₂ h' contains_eq_false) := by
+  rw [← contains_eq_false_iff_not_mem] at contains_eq_false
   revert contains_eq_false
   simp only [Union.union]
   simp_to_raw
@@ -2088,8 +2105,9 @@ theorem getKey_union_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α]
   all_goals wf_trivial
 
 theorem getKey_union_of_contains_eq_false_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (contains_eq_false : m₂.contains k = false) {h'} :
+    {k : α} (contains_eq_false : ¬k ∈ m₂) {h'} :
     (m₁ ∪ m₂).getKey k h' = m₁.getKey k (contains_of_contains_union_of_contains_eq_false_right h₁ h₂ h' contains_eq_false) := by
+  rw [← contains_eq_false_iff_not_mem] at contains_eq_false
   revert contains_eq_false
   simp only [Union.union]
   simp_to_raw
@@ -2106,8 +2124,9 @@ theorem getKeyD_union [EquivBEq α]
   simp_to_raw using Raw₀.getKeyD_union
 
 theorem getKeyD_union_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
-    (h₂ : m₂.WF) {k fallback : α} (h' : m₁.contains k = false) :
+    (h₂ : m₂.WF) {k fallback : α} (h' : ¬k ∈ m₁) :
     (m₁ ∪ m₂).getKeyD k fallback = m₂.getKeyD k fallback := by
+  rw [← contains_eq_false_iff_not_mem] at h'
   revert h'
   simp only [Union.union]
   simp_to_raw
@@ -2116,8 +2135,9 @@ theorem getKeyD_union_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α
   all_goals wf_trivial
 
 theorem getKeyD_union_of_contains_eq_false_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
-    (h₂ : m₂.WF) {k fallback : α} (h' : m₂.contains k = false) :
+    (h₂ : m₂.WF) {k fallback : α} (h' : ¬k ∈ m₂) :
     (m₁ ∪ m₂).getKeyD k fallback = m₁.getKeyD k fallback := by
+  rw [← contains_eq_false_iff_not_mem] at h'
   revert h'
   simp only [Union.union]
   simp_to_raw
@@ -2135,16 +2155,18 @@ theorem getKey!_union [EquivBEq α] [LawfulHashable α] [Inhabited α]
 
 theorem getKey!_union_of_contains_left_eq_false [Inhabited α]
     [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α}
-    (h' : m₁.contains k = false) :
+    (h' : ¬k ∈ m₁) :
     (m₁ ∪ m₂).getKey! k = m₂.getKey! k := by
+  rw [← contains_eq_false_iff_not_mem] at h'
   revert h'
   simp only [Union.union]
   simp_to_raw using getKey!_union_of_contains_eq_false_left
 
 theorem getKey!_union_of_contains_right_eq_false [Inhabited α]
     [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α}
-    (h' : m₂.contains k = false) :
+    (h' : ¬k ∈ m₂) :
     (m₁ ∪ m₂).getKey! k = m₁.getKey! k := by
+  rw [← contains_eq_false_iff_not_mem] at h'
   revert h'
   simp only [Union.union]
   simp_to_raw using getKey!_union_of_contains_eq_false_right
@@ -2191,15 +2213,17 @@ theorem get?_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m�
   simp_to_raw using Raw₀.Const.get?_union
 
 theorem get?_union_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (contains_eq_false : m₁.contains k = false) :
+    {k : α} (contains_eq_false : ¬k ∈ m₁) :
     Const.get? (m₁ ∪ m₂) k = Const.get? m₂ k := by
+  rw [← contains_eq_false_iff_not_mem] at contains_eq_false
   revert contains_eq_false
   simp only [Union.union]
   simp_to_raw using Raw₀.Const.get?_union_of_contains_eq_false_left
 
 theorem get?_union_of_contains_eq_false_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (contains_eq_false : m₂.contains k = false) :
+    {k : α} (contains_eq_false : ¬k ∈ m₂) :
     Const.get? (m₁ ∪ m₂) k = Const.get? m₁ k := by
+  rw [← contains_eq_false_iff_not_mem] at contains_eq_false
   revert contains_eq_false
   simp only [Union.union]
   simp_to_raw using Raw₀.Const.get?_union_of_contains_eq_false_right
@@ -2213,8 +2237,9 @@ theorem get_union_of_contains_right [EquivBEq α] [LawfulHashable α] (h₁ : m�
   simp_to_raw using Raw₀.Const.get_union_of_contains_right
 
 theorem get_union_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (contains_eq_false : m₁.contains k = false) {h'} :
+    {k : α} (contains_eq_false : ¬k ∈ m₁) {h'} :
     Const.get (m₁ ∪ m₂) k h' = Const.get m₂ k (contains_of_contains_union_of_contains_eq_false_left h₁ h₂ h' contains_eq_false) := by
+  rw [← contains_eq_false_iff_not_mem] at contains_eq_false
   revert contains_eq_false
   simp only [Union.union]
   simp_to_raw
@@ -2223,8 +2248,9 @@ theorem get_union_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α] (h
   all_goals wf_trivial
 
 theorem get_union_of_contains_eq_false_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (contains_eq_false : m₂.contains k = false) {h'} :
+    {k : α} (contains_eq_false : ¬k ∈ m₂) {h'} :
     Const.get (m₁ ∪ m₂) k h' = Const.get m₁ k (contains_of_contains_union_of_contains_eq_false_right h₁ h₂ h' contains_eq_false) := by
+  rw [← contains_eq_false_iff_not_mem] at contains_eq_false
   revert contains_eq_false
   simp only [Union.union]
   simp_to_raw
@@ -2239,15 +2265,17 @@ theorem getD_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m�
   simp_to_raw using Raw₀.Const.getD_union
 
 theorem getD_union_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} {fallback : β} (contains_eq_false : m₁.contains k = false) :
+    {k : α} {fallback : β} (contains_eq_false : ¬k ∈ m₁) :
     Const.getD (m₁ ∪ m₂) k fallback = Const.getD m₂ k fallback := by
+  rw [← contains_eq_false_iff_not_mem] at contains_eq_false
   revert contains_eq_false
   simp only [Union.union]
   simp_to_raw using Raw₀.Const.getD_union_of_contains_eq_false_left
 
 theorem getD_union_of_contains_eq_false_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} {fallback : β} (contains_eq_false : m₂.contains k = false) :
+    {k : α} {fallback : β} (contains_eq_false : ¬k ∈ m₂) :
     Const.getD (m₁ ∪ m₂) k fallback = Const.getD m₁ k fallback := by
+  rw [← contains_eq_false_iff_not_mem] at contains_eq_false
   revert contains_eq_false
   simp only [Union.union]
   simp_to_raw using Raw₀.Const.getD_union_of_contains_eq_false_right
@@ -2259,15 +2287,17 @@ theorem get!_union [EquivBEq α] [LawfulHashable α] [Inhabited β] (h₁ : m₁
   simp_to_raw using Raw₀.Const.get!_union
 
 theorem get!_union_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α] [Inhabited β] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (contains_eq_false : m₁.contains k = false) :
+    {k : α} (contains_eq_false : ¬k ∈ m₁) :
     Const.get! (m₁ ∪ m₂) k = Const.get! m₂ k := by
+  rw [← contains_eq_false_iff_not_mem] at contains_eq_false
   revert contains_eq_false
   simp only [Union.union]
   simp_to_raw using Raw₀.Const.get!_union_of_contains_eq_false_left
 
 theorem get!_union_of_contains_eq_false_right [EquivBEq α] [LawfulHashable α] [Inhabited β] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (contains_eq_false : m₂.contains k = false) :
+    {k : α} (contains_eq_false : ¬k ∈ m₂) :
     Const.get! (m₁ ∪ m₂) k = Const.get! m₁ k := by
+  rw [← contains_eq_false_iff_not_mem ] at contains_eq_false
   revert contains_eq_false
   simp only [Union.union]
   simp_to_raw using Raw₀.Const.get!_union_of_contains_eq_false_right

@@ -37,7 +37,7 @@ Correctly deals with names like `_private.<SomeNamespace>.0.<SomeType>._sizeOf_1
 `SomeType`, which `n.isInternal && !isPrivateName n` does not.
 -/
 private def isInternalNameModuloPrivate : Name → Bool
-  | n@(.str p s) => s.get 0 == '_' && n != privateHeader || isInternalNameModuloPrivate p
+  | n@(.str p s) => s.front == '_' && n != privateHeader || isInternalNameModuloPrivate p
   | .num p _ => isInternalNameModuloPrivate p
   | _       => false
 

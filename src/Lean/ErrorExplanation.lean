@@ -300,8 +300,8 @@ where
   matchHeader (level : Nat) (title? : Option String) (line : String) : Option String := do
     let octsEndPos := String.Pos.Raw.nextWhile line (· == '#') 0
     guard (octsEndPos.byteIdx == level)
-    guard (line.get octsEndPos == ' ')
-    let titleStartPos := line.next octsEndPos
+    guard (octsEndPos.get line == ' ')
+    let titleStartPos := octsEndPos.next line
     let title := Substring.mk line titleStartPos line.endPos |>.toString
     let titleMatches : Bool := match title? with
       | some expectedTitle => title == expectedTitle

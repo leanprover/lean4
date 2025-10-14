@@ -169,7 +169,7 @@ The `lean-manual` URL scheme is used to link to the version of the Lean referenc
 corresponds to this version of Lean. Errors occurred while processing the links in this documentation
 comment:
 "# ++
-      String.join (errs.toList.map (fun (⟨s, e⟩, msg) => s!" * ```{docString.extract s e}```: {msg}\n\n"))
+      String.join (errs.toList.map (fun (⟨s, e⟩, msg) => s!" * ```{String.Pos.Raw.extract docString s e}```: {msg}\n\n"))
     return str ++ "\n\n" ++ errReport
   return str
 
@@ -187,4 +187,4 @@ def validateBuiltinDocString (docString : String) : IO Unit := do
   if !errs.isEmpty then
     throw <| IO.userError <|
       s!"Errors in builtin documentation comment:\n" ++
-      String.join (errs.toList.map fun (⟨s, e⟩, msg) => s!" * {repr <| docString.extract s e}:\n    {msg}\n")
+      String.join (errs.toList.map fun (⟨s, e⟩, msg) => s!" * {repr <| String.Pos.Raw.extract docString s e}:\n    {msg}\n")

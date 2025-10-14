@@ -1246,6 +1246,24 @@ def _root_.Lean.MVarId.assignFalseProof (mvarId : MVarId) (falseProof : Expr) : 
     mvarId.assign (← mkFalseElim target falseProof)
 
 /--
+`goal.withContext x` executes `x` using the given metavariable `LocalContext` and `LocalInstances`.
+The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
+different from the current ones. -/
+@[inline] def Goal.withContext [MonadControlT MetaM m] [Monad m] (goal : Goal) : m α → m α :=
+  goal.mvarId.withContext
+
+/--
+Creates an auxiliary metavariable with the same type and context of `goal.mvarId`.
+We use this function to perform `cases` on the current goal without eagerly assigning it.
+-/
+def Goal.mkAuxMVar (goal : Goal) : MetaM MVarId := goal.withContext do
+  let mvarId := goal.mvarId
+  let tag ← mvarId.getTag
+  let type ← mvarId.getType
+  let mvarNew ← mkFreshExprSyntheticOpaqueMVar type tag
+  return mvarNew.mvarId!
+
+/--
 Closes the current goal using the given proof of `False` and
 marks it as inconsistent if it is not already marked so.
 -/

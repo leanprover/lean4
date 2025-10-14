@@ -22,9 +22,9 @@ code as extensible.
 
 namespace Std.Http
 
-open Internal
-
 set_option linter.all true
+
+open Internal
 
 /--
 HTTP Status codes. Status codes are three-digit integer codes that describes the result of a

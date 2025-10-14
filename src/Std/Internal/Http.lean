@@ -6,6 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
+public import Std.Internal.Http.Client
 public import Std.Internal.Http.Server
 
 public section

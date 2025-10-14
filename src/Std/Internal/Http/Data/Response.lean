@@ -13,15 +13,14 @@ public import Std.Internal.Http.Data.Version
 
 public section
 
-namespace Std
-namespace Http
-
 /-!
 # Response
 
 This module provides the `Response` type, which representation a HTTP request. It also defines ways
 to build a `Request` using functiosn that make it easier.
 -/
+
+namespace Std.Http
 
 set_option linter.all true
 

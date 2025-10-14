@@ -41,18 +41,18 @@ def testSizeLimit (client : Mock.Client) : IO Unit := do
       |>.uri! "/ata/po"
       |>.header "Content-Length" (.new "4")
       |>.header "Host" (.new ".")
-      |>.body #["debg"],
+      |>.body #["test"],
     Request.new
       |>.uri! "/ata/po"
       |>.header "Content-Length" (.new "13")
       |>.header "Connection" (.new "close")
       |>.header "Host" (.new ".")
-      |>.body #["debgadsadsads"],
+      |>.body #["testtesttests"],
      Request.new
       |>.uri! "/ata/po"
       |>.header "Content-Length" (.new "4")
       |>.header "Host" (.new ".")
-      |>.body #["debg"],
+      |>.body #["test"],
   ] handler
 
   let responseData := String.fromUTF8! response

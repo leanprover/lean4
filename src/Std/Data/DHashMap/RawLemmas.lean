@@ -2179,11 +2179,11 @@ theorem getKey!_union_of_contains_right_eq_false [Inhabited α]
   simp_to_raw using getKey!_union_of_contains_eq_false_right
 
 /- size -/
-theorem size_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
+theorem size_union_of_not_mem [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
     (h₂ : m₂.WF) : (∀ (a : α), m₁.contains a → m₂.contains a = false) →
     (m₁ ∪ m₂).size = m₁.size + m₂.size := by
   simp only [Union.union]
-  simp_to_raw using Raw₀.size_union
+  simp_to_raw using Raw₀.size_union_of_not_mem
 
 theorem size_left_le_size_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
     (h₂ : m₂.WF) : m₁.size ≤ (m₁ ∪ m₂).size := by

@@ -1499,10 +1499,10 @@ theorem getKey!_union_of_contains_eq_false_right [Inhabited α]
   @DHashMap.getKey!_union_of_contains_eq_false_right _ _ _ _ m₁.inner m₂.inner _ _ _  k h'
 
 /- size -/
-theorem size_union [EquivBEq α] [LawfulHashable α] :
+theorem size_union_of_not_mem [EquivBEq α] [LawfulHashable α] :
     (∀ (a : α), m₁.contains a → m₂.contains a = false) →
     (m₁ ∪ m₂).size = m₁.size + m₂.size :=
-  @DHashMap.size_union _ _ _ _ m₁.inner m₂.inner _ _
+  @DHashMap.size_union_of_not_mem _ _ _ _ m₁.inner m₂.inner _ _
 
 theorem size_left_le_size_union [EquivBEq α] [LawfulHashable α] : m₁.size ≤ (m₁ ∪ m₂).size :=
   @DHashMap.size_left_le_size_union _ _ _ _ m₁.inner m₂.inner _ _

@@ -912,10 +912,10 @@ theorem get!_union_of_contains_right_eq_false [Inhabited α]
    @HashMap.Raw.getKey!_union_of_contains_right_eq_false _ _ _ _ m₁.inner m₂.inner _ _ _ h₁.out h₂.out k h'
 
 /- size -/
-theorem size_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
+theorem size_union_of_not_mem [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
     (h₂ : m₂.WF) : (∀ (a : α), m₁.contains a → m₂.contains a = false) →
     (m₁ ∪ m₂).size = m₁.size + m₂.size :=
-  @HashMap.Raw.size_union _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out
+  @HashMap.Raw.size_union_of_not_mem _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out
 
 theorem size_left_le_size_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
     (h₂ : m₂.WF) : m₁.size ≤ (m₁ ∪ m₂).size :=

@@ -2949,7 +2949,7 @@ theorem getKey!_union_of_contains_eq_false_right [Inhabited α]
   simp_to_model [contains, union, getKey!] using List.getKeyD_insertList_of_contains_eq_false_right
 
 /- size -/
-theorem size_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+theorem size_union_of_not_mem [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
     (h₂ : m₂.val.WF) : (∀ (a : α), m₁.contains a → m₂.contains a = false) →
     (m₁.union m₂).1.size = m₁.1.size + m₂.1.size := by
   simp_to_model [union, size, contains] using List.length_insertList_distinct

@@ -2655,52 +2655,6 @@ theorem addVec_eq (validNodes : Nat) (nodes : BitVec (validNodes * w)) (hw : 1 <
       · exact mul_le_mul_right w (by omega)
     · exact mul_le_mul_right w (by omega)
 
-
-
-
-/--
-extract bitvectors from an `n * w` bitvector into a set of bitvectors.
-This will be used to explain at the logical level what `parPrefixSum` and `addVec` does.
--/
-def scatter (xs : BitVec (n * w)) : List (BitVec w) :=
-  List.map (fun i => xs.extractLsb' (i * w) w) (List.range n)
-
-@[simp]
-theorem scatter_of_one (xs : BitVec (1 * w)) :
-    xs.scatter = [BitVec.cast (by omega) xs] := by
-  simp [scatter]
-  ext j hj
-  simp only [getElem_extractLsb', Nat.zero_add, getElem_cast]
-  rw [getLsbD_eq_getElem]
-
-@[simp]
-theorem scatter_of_zero (xs : BitVec (0 * w)) :
-    xs.scatter = [ ] := by
-  simp [scatter]
-
-@[simp]
-theorem scatter_of_len_zero (xs : BitVec (k * w)) (hk : k = 0) :
-    xs.scatter = [ ] := by
-  simp [scatter, hk]
-
-
-theorem scatter_eq_of_eq_one (xs : BitVec (v * w)) (hv : v = 1) :
-    xs.scatter = [xs.cast (by rw [hv]; omega)] := by
-  subst hv
-  apply scatter_of_one
-
-/--
-Add a collection of bitvectors into a single bitvectors.
--/
-def sumVecs (xs : List (BitVec w)) : BitVec w :=
-  xs.foldl (fun acc x => acc + x) 0#w
-
-@[simp]
-theorem sumVecs_of_len_one :
-    sumVecs [x0] = x0 := by
-  unfold sumVecs
-  simp
-
 theorem append_extractLsb'_self (x : BitVec (w + 1)) :
     x = (extractLsb' 1 w x).append (extractLsb' 0 1 x) := by
   simp
@@ -2719,23 +2673,31 @@ theorem popCount_eq {w : Nat} (x : BitVec w) :
 Sums a collection of packed bitvectors, resulting into a single bitvectors.
 -/
 def sumPackedVec (xs : BitVec (n * w)) : BitVec w :=
-  sumVecs (scatter xs)
+  match n with
+  | 0 => 0#w
+  | n' + 1 => xs.extractLsb' (n' * w) w + sumPackedVec (xs.setWidth (n' * w))
+
+theorem sumPackedVec_length_succ_eq (xs : BitVec ((n + 1) * w)) :
+    xs.sumPackedVec = xs.extractLsb' (n * w) w + sumPackedVec (xs.setWidth (n * w)) := by rfl
 
 @[simp]
 theorem sumPackedVec_length_zero_eq (xs : BitVec (0 * w)) :
-  sumPackedVec xs = 0#w := by
-  unfold sumPackedVec
-  simp [scatter, sumVecs]
+    sumPackedVec xs = 0#w := by
+  simp [sumPackedVec]
 
 @[simp]
 theorem sumPackedVec_length_one_eq (xs : BitVec (1 * w)) :
   sumPackedVec xs = xs.cast (by omega) := by
   unfold sumPackedVec
-  simp [scatter_of_one, sumVecs_of_len_one]
+  simp only [Nat.reduceAdd, Nat.zero_mul, sumPackedVec_length_zero_eq, BitVec.add_zero]
+  ext
+  simp only [getElem_extractLsb', Nat.zero_add, getElem_cast]
+  rw [getLsbD_eq_getElem]
 
 theorem sumPackedVec_eq_of_eq_one (xs : BitVec (v * w)) (hv : v = 1) :
     sumPackedVec xs = BitVec.cast (by simp [hv]) xs := by
-  simp [sumPackedVec, scatter_eq_of_eq_one (hv := hv)]
+  subst hv
+  simp
 
 @[simp]
 theorem popCount_of_length_zero (x : BitVec 0) :
@@ -2986,79 +2948,6 @@ theorem eq_append (x : BitVec ((k + 1) * w)) :
     simp [show w + (j - w) = j by omega]
     rw [getLsbD_eq_getElem]
 
-theorem append_scatter_eq_scatter_append {x : BitVec (k  * w)} {y : BitVec (l * w)} :
-    ((x ++ y).cast (m := (k + l) * w) (by rw [Nat.add_mul])).scatter =
-    (x.scatter ++ y.scatter) := by
- sorry
-
-
-@[simp]
-theorem scatter_of_add_one (xs : BitVec ((k + 1) * w)) :
-    xs.scatter = (xs.extractLsb' 0 (k * w)).scatter ++ [(xs.extractLsb' (k * w) w)] := by
-  induction k
-  · case zero =>
-    simp
-    ext j hj
-    simp
-    rw [getLsbD_eq_getElem]
-  · case _ k' ihk' =>
-    conv =>
-      lhs
-      rw [eq_append (x := xs)]
-
-    sorry
-
-
-theorem scatter_of_len_zero' (xs : BitVec (k * w)) (hw : w = 0) :
-    xs.scatter = List.replicate k 0#w := by
-  induction k
-  · simp
-  · case succ k ihk =>
-    simp
-
-    sorry
-
-
-theorem sumVecs_scatter_of_zero (x : BitVec ((0 + 1) * w)):
-    sumVecs (BitVec.cast hcast (extractLsb' w (0 * w) x ++ extractLsb' 0 w x)).scatter =
-    extractLsb' 0 w x + extractLsb' 0 w (extractLsb' w (1 * w) x) := by
-  rcases w with _|w
-  · simp
-    rw [scatter_of_len_zero (w := 0)]
-    sorry
-    ·
-      sorry
-  · have hsub :  0 * (w + 1) = 0 := by omega
-    rw [hsub] at *
-    rename_i w' hcast' x'
-    have := extractLsb'_zero_of_le (x := x') (w := (0 + 1) * (w + 1)) (len := (1 * (w + 1))) (n := w + 1) (by omega)
-    rw [this]
-    simp
-    have := extractLsb'_zero_of_le (x := x') (w := (0 + 1) * (w + 1)) (len := (0 * (w + 1))) (n := w + 1) (by omega)
-    rw [this]
-    have : 0#(0 * (w + 1)) ++ extractLsb' 0 (w + 1) x' = (extractLsb' 0 (w + 1) x').cast (by omega) := by sorry
-    rw [this]
-    simp
-    rw [scatter_eq_of_eq_one]
-    · sorry
-    · simp at hcast
-      rcases w with _|w
-      · sorry
-      sorry
-
-theorem sumVecs_eq_add_scatter (x : BitVec ((k + 1) * w)) :
-    let heq : k * w + w = (k + 1) * w := by simp [Nat.add_comm, Nat.add_mul]
-    sumVecs ((extractLsb' w (k * w) x ++ extractLsb' 0 w x).cast hcast).scatter =
-    extractLsb' 0 w x + sumVecs (extractLsb' w ((k + 1) * w) x).scatter := by
-  simp
-  induction k generalizing w
-  · case zero k' =>
-    simp
-    rw [sumVecs_scatter_of_zero]
-  ·
-    sorry
-
-
 
 theorem sumPackedVec_eq_add_tail {x : BitVec ((k + 1) * w)} :
     x.sumPackedVec = (x.extractLsb' 0 w) + (x.extractLsb' w ((k + 1)* w)).sumPackedVec := by
@@ -3066,11 +2955,19 @@ theorem sumPackedVec_eq_add_tail {x : BitVec ((k + 1) * w)} :
     lhs
     rw [eq_append (x := x)]
   unfold sumPackedVec
-  rw [sumVecs_eq_add_scatter]
+  sorry
 
 theorem sumpackedVec_of_extractAndExtendPopulate_tail_eq (x : BitVec (w' + 1)) :
- setWidth (w' + 1) (extractLsb' 1 w' x).extractAndExtendPopulate.sumPackedVec =
-  (extractLsb' (w' + 1) ((w' + 1) * (w' + 1)) x.extractAndExtendPopulate).sumPackedVec := by sorry
+    setWidth (w' + 1) (extractLsb' 1 w' x).extractAndExtendPopulate.sumPackedVec =
+    (extractLsb' (w' + 1) ((w' + 1) * (w' + 1)) x.extractAndExtendPopulate).sumPackedVec := by
+  induction w'
+  · ext
+    simp
+  · case succ n' ihn' =>
+    rw [sumPackedVec_length_succ_eq, sumPackedVec_length_succ_eq]
+    rw [extractLsb'_extractAndExtendPopulate_eq]
+
+    sorry
 
 theorem extractAndExtendPopulate_sumPackedVec_eq_add (x : BitVec (w' + 1)):
   setWidth (w' + 1) (extractLsb' 0 1 x) + setWidth (w' + 1) (extractLsb' 1 w' x).extractAndExtendPopulate.sumPackedVec =

@@ -209,7 +209,7 @@ private def useNCB? (oldNumIndices : Nat) (subgoal : Goal) : MetaM (Option Expr)
 /--
 Helper functions for implementing tactics that perform case-splits
 -/
-def splitCore (goal : Goal) (anchor : Nat × UInt64) (s : MVarId → GrindM (List MVarId)) (kp : ActionCont) : GrindM ActionResult := do
+def splitCore (goal : Goal) (anchor? : Option (Nat × UInt64)) (s : MVarId → GrindM (List MVarId)) (kp : ActionCont) : GrindM ActionResult := do
   let mvarDecl ← goal.mvarId.getDecl
   let numIndices := mvarDecl.lctx.numIndices
   let mvarId ← goal.mkAuxMVar
@@ -236,13 +236,18 @@ def splitCore (goal : Goal) (anchor : Nat × UInt64) (s : MVarId → GrindM (Lis
         pure seqNew[0]
       else
         seqNew.toList.mapM fun s => mkGrindNext s
-      let hexnum := mkNode `hexnum #[mkAtom (anchorToString anchor.1 anchor.2)]
-      -- *TODO*: We need to distinguish between user-facing `cases` which `intros` new hypotheses
-      -- automatically, and auto-generated `cases` produced by `grind?` and `finish?` which does not
-      -- `intros` automatically. Each branch provides includes its own `intros`
-      -- *TODO*: We need a `cases`-variant that performs `cases` on the most system hypothesis
-      let cases ← `(grind| cases #$hexnum)
-      return .closed (cases :: seqListNew)
+      let mut seqListNew := seqListNew
+      if let some anchor := anchor? then
+        let hexnum := mkNode `hexnum #[mkAtom (anchorToString anchor.1 anchor.2)]
+        /-
+        *TODO*: We need to distinguish between user-facing `cases` which `intros` new hypotheses
+        automatically, and auto-generated `cases` produced by `grind?` and `finish?` which does not
+        `intros` automatically. Each branch provides includes its own `intros`.
+        *Current strategy*: Use only one `cases` (`intros`) automatically and add `rename_i`.
+        -/
+        let cases ← `(grind| cases #$hexnum)
+        seqListNew := cases :: seqListNew
+      return .closed seqListNew
     else
       return .closed []
   else

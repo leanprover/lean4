@@ -8,6 +8,7 @@ prelude
 public import Init.Grind.Lemmas
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.SearchM
+public import Lean.Meta.Tactic.Grind.Action
 import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Grind.Simp
@@ -195,6 +196,9 @@ private def exfalsoIfNotProp (goal : Goal) : MetaM Goal := goal.mvarId.withConte
     return goal
   else
     return { goal with mvarId := (← goal.mvarId.exfalso) }
+
+def Goal.lastDecl? (goal : Goal) : MetaM (Option LocalDecl) := do
+  return (← goal.mvarId.getDecl).lctx.lastDecl
 
 private def applyCases? (fvarId : FVarId) (generation : Nat) : SearchM Bool := withCurrGoalContext do
   /-

@@ -14,8 +14,6 @@ namespace Std.Http.URI
 
 set_option linter.all true
 
-namespace URI
-
 /--
 URI scheme (e.g., "http", "https", "ftp").
 -/

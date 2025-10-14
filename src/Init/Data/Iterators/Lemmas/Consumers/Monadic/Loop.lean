@@ -555,6 +555,20 @@ theorem IterM.findSome?_eq_match_step {α β γ : Type w} {m : Type w → Type w
   apply bind_congr; intro step
   split <;> simp [findSome?_eq_findSomeM?]
 
+theorem IterM.findSomeM?_pure {α β γ : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m]
+    [LawfulMonad m] [Finite α m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → Option γ} :
+    it.findSomeM? (pure <| f ·) = it.findSome? f := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [findSomeM?_eq_match_step, findSome?_eq_match_step]
+  apply bind_congr; intro step
+  cases step using PlausibleIterStep.casesOn
+  · simp only [pure_bind]
+    split <;> simp [ihy ‹_›]
+  · simp [ihs ‹_›]
+  · simp
+
 theorem IterM.findM?_eq_findSomeM? {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] [IteratorLoop α m m] [Finite α m]
     {it : IterM (α := α) m β} {f : β → m (ULift Bool)} :
@@ -604,6 +618,22 @@ theorem IterM.find?_eq_match_step {α β : Type w} {m : Type w → Type w'} [Mon
   · simp only [pure_bind]
     split <;> simp [find?_eq_findM?]
   · simp [find?_eq_findM?]
+  · simp
+
+theorem IterM.findM?_pure {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m]
+    [LawfulMonad m] [Finite α m] [LawfulIteratorLoop α m m]
+    {it : IterM (α := α) m β} {f : β → ULift Bool} :
+    it.findM? (pure (f := m) <| f ·) = it.find? (ULift.down <| f ·) := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [findM?_eq_match_step, find?_eq_match_step]
+  apply bind_congr; intro step
+  cases step using PlausibleIterStep.casesOn
+  · simp only [pure_bind]
+    split
+    · simp
+    · simp [ihy ‹_›]
+  · simp [ihs ‹_›]
   · simp
 
 end Std.Iterators

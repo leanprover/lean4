@@ -748,6 +748,20 @@ theorem Iter.findSomeM?_eq_match_step {α β : Type w} {γ : Type x} {m : Type x
   · simp [findSomeM?]
   · simp
 
+theorem Iter.findSomeM?_toList {α β : Type w} {γ : Type x} {m : Type x → Type w'} [Monad m]
+    [Iterator α Id β] [IteratorLoop α Id m] [IteratorCollect α Id Id]
+    [LawfulMonad m] [Finite α Id] [LawfulIteratorLoop α Id m] [LawfulIteratorCollect α Id Id]
+    {it : Iter (α := α) β} {f : β → m (Option γ)} :
+    it.toList.findSomeM? f = it.findSomeM? f := by
+  induction it using Iter.inductSteps with | step it ihy ihs
+  rw [it.findSomeM?_eq_match_step, it.toList_eq_match_step]
+  cases it.step using PlausibleIterStep.casesOn
+  · simp only [List.findSomeM?_cons]
+    apply bind_congr; intro fx
+    split <;> simp [ihy ‹_›]
+  · simp [ihs ‹_›]
+  · simp
+
 theorem Iter.findSome?_eq_findSomeM? {α β : Type w} {γ : Type x}
     [Iterator α Id β] [IteratorLoop α Id Id] [Finite α Id]
     {it : Iter (α := α) β} {f : β → Option γ} :
@@ -761,7 +775,7 @@ theorem Iter.findSome?_eq_findSome?_toIterM {α β γ : Type w}
   (rfl)
 
 theorem Iter.findSome?_eq_match_step {α β : Type w} {γ : Type x}
-    [Iterator α Id β] [IteratorLoop α Id Id] [LawfulMonad Id] [Finite α Id]
+    [Iterator α Id β] [IteratorLoop α Id Id] [Finite α Id]
     [LawfulIteratorLoop α Id Id] {it : Iter (α := α) β} {f : β → Option γ} :
     it.findSome? f = (match it.step.val with
       | .yield it' out =>
@@ -776,6 +790,21 @@ theorem Iter.findSome?_eq_match_step {α β : Type w} {γ : Type x}
     split <;> simp
   · simp [findSome?_eq_findSomeM?]
   · simp
+
+theorem Iter.findSome?_toList {α β : Type w} {γ : Type x}
+    [Iterator α Id β] [IteratorLoop α Id Id] [IteratorCollect α Id Id]
+    [Finite α Id] [LawfulIteratorLoop α Id Id] [LawfulIteratorCollect α Id Id]
+    {it : Iter (α := α) β} {f : β → Option γ} :
+    it.toList.findSome? f = it.findSome? f := by
+  simp [findSome?_eq_findSomeM?, List.findSome?_eq_findSomeM?, findSomeM?_toList]
+
+theorem Iter.findSomeM?_pure {α β : Type w} {γ : Type x} {m : Type x → Type w'} [Monad m]
+    [Iterator α Id β] [IteratorLoop α Id m] [IteratorLoop α Id Id]
+    [LawfulMonad m] [Finite α Id] [LawfulIteratorLoop α Id m] [LawfulIteratorLoop α Id Id]
+    {it : Iter (α := α) β} {f : β → Option γ} :
+    it.findSomeM? (pure <| f ·) = pure (f := m) (it.findSome? f) := by
+  letI : IteratorCollect α Id Id := .defaultImplementation
+  simp [← findSomeM?_toList, ← findSome?_toList, List.findSomeM?_pure]
 
 theorem Iter.findM?_eq_findSomeM? {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α Id β] [IteratorLoop α Id m] [Finite α Id]
@@ -799,6 +828,20 @@ theorem Iter.findM?_eq_match_step {α β : Type w} {m : Type w → Type w'} [Mon
     split <;> simp [findM?_eq_findSomeM?]
   · simp [findM?_eq_findSomeM?]
   · simp
+
+theorem Iter.findM?_toList {α β : Type} {m : Type → Type w'} [Monad m]
+    [Iterator α Id β] [IteratorLoop α Id m] [IteratorCollect α Id Id]
+    [LawfulMonad m] [Finite α Id] [LawfulIteratorLoop α Id m] [LawfulIteratorCollect α Id Id]
+    {it : Iter (α := α) β} {f : β → m Bool} :
+    it.toList.findM? f = it.findM? (.up <$> f ·) := by
+  simp [findM?_eq_findSomeM?, List.findM?_eq_findSomeM?, findSomeM?_toList]
+
+theorem Iter.findM?_eq_findM?_toList {α β : Type} {m : Type → Type w'} [Monad m]
+    [Iterator α Id β] [IteratorLoop α Id m] [IteratorCollect α Id Id]
+    [LawfulMonad m] [Finite α Id] [LawfulIteratorLoop α Id m] [LawfulIteratorCollect α Id Id]
+    {it : Iter (α := α) β} {f : β → m (ULift Bool)} :
+    it.findM? f = it.toList.findM? (ULift.down <$> f ·) := by
+  simp [findM?_toList]
 
 theorem Iter.find?_eq_findM? {α β : Type w} [Iterator α Id β]
     [IteratorLoop α Id Id] [Finite α Id] {it : Iter (α := α) β} {f : β → Bool} :
@@ -828,6 +871,28 @@ theorem Iter.find?_eq_match_step {α β : Type w}
   · simp only [pure_bind]
     split <;> simp [find?_eq_findM?]
   · simp [find?_eq_findM?]
+  · simp
+
+theorem Iter.find?_toList {α β : Type w}
+    [Iterator α Id β] [IteratorLoop α Id Id] [IteratorCollect α Id Id]
+    [Finite α Id] [LawfulIteratorLoop α Id Id] [LawfulIteratorCollect α Id Id]
+    {it : Iter (α := α) β} {f : β → Bool} :
+    it.toList.find? f = it.find? f := by
+  simp [find?_eq_findSome?, List.find?_eq_findSome?_guard, findSome?_toList, Option.guard_def]
+
+theorem Iter.findM?_pure {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α Id β] [IteratorLoop α Id m] [IteratorLoop α Id Id]
+    [LawfulMonad m] [Finite α Id] [LawfulIteratorLoop α Id m] [LawfulIteratorLoop α Id Id]
+    {it : Iter (α := α) β} {f : β → ULift Bool} :
+    it.findM? (pure (f := m) <| f ·) = pure (f := m) (it.find? (ULift.down <| f ·)) := by
+  induction it using Iter.inductSteps with | step it ihy ihs
+  rw [findM?_eq_match_step, find?_eq_match_step]
+  cases it.step using PlausibleIterStep.casesOn
+  · simp only [pure_bind]
+    split
+    · simp
+    · simp [ihy ‹_›]
+  · simp [ihs ‹_›]
   · simp
 
 end Std.Iterators

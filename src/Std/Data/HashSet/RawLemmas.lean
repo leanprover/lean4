@@ -1213,6 +1213,7 @@ theorem get_filter [EquivBEq α] [LawfulHashable α]
 
 end filter
 
+attribute [simp] contains_eq_false_iff_not_mem
 end Raw
 
 end Std.HashSet

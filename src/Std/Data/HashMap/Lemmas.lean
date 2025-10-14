@@ -2995,5 +2995,5 @@ theorem getKeyD_map [EquivBEq α] [LawfulHashable α]
   DHashMap.getKeyD_map
 
 end map
-
+attribute [simp] contains_eq_false_iff_not_mem
 end Std.HashMap

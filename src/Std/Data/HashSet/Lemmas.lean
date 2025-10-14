@@ -1190,5 +1190,5 @@ theorem getD_filter [EquivBEq α] [LawfulHashable α]
   HashMap.getKeyD_filter_key
 
 end filter
-
+attribute [simp] contains_eq_false_iff_not_mem
 end Std.HashSet

@@ -1928,24 +1928,18 @@ theorem mem_union_of_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
 theorem mem_of_mem_union_of_mem_eq_false_right [EquivBEq α]
     [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
     k ∈ m₁ ∪ m₂ → ¬k ∈ m₂ → k ∈ m₁ := by
-  simp only [Union.union, Membership.mem]
-  intro h₃ h₄
-  have h₄ : m₂.contains k = false := by simp only [h₄]
-  revert h₃ h₄
-  simp_to_raw
-  apply Raw₀.contains_of_contains_union_of_contains_eq_false_right
-  all_goals wf_trivial
+  simp only [Union.union]
+  rw [← contains_eq_false_iff_not_mem]
+  simp only [mem_iff_contains]
+  simp_to_raw using Raw₀.contains_of_contains_union_of_contains_eq_false_right
 
 theorem mem_of_mem_union_of_mem_eq_false_left [EquivBEq α]
     [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
     k ∈ m₁ ∪ m₂ → ¬k ∈ m₁ → k ∈ m₂ := by
-  simp only [Union.union, Membership.mem]
-  intro h₃ h₄
-  have h₄ : m₁.contains k = false := by simp only [h₄]
-  revert h₃ h₄
-  simp_to_raw
-  apply Raw₀.contains_of_contains_union_of_contains_eq_false_left
-  all_goals wf_trivial
+  simp only [Union.union]
+  rw [← contains_eq_false_iff_not_mem]
+  simp only [mem_iff_contains]
+  simp_to_raw using Raw₀.contains_of_contains_union_of_contains_eq_false_left
 
 /- Equiv -/
 theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
@@ -4928,6 +4922,6 @@ end Const
 
 end map
 
+attribute [simp] contains_eq_false_iff_not_mem
 end Raw
-
 end Std.DHashMap

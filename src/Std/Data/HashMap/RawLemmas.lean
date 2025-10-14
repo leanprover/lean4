@@ -3080,7 +3080,7 @@ theorem getD_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
   DHashMap.Raw.Const.getD_map_of_getKey?_eq_some h.out h'
 
 end map
-
+attribute [simp] contains_eq_false_iff_not_mem
 end Raw
 
 end Std.HashMap

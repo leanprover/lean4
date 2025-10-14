@@ -1818,22 +1818,15 @@ theorem mem_of_mem_union_of_mem_eq_false_right [EquivBEq α]
     [LawfulHashable α] {k : α} :
     k ∈ m₁ ∪ m₂ → ¬k ∈ m₂ → k ∈ m₁ := by
   intro h₁ h₂
-  apply @Raw₀.contains_of_contains_union_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k h₁
-  . unfold Membership.mem at h₂
-    unfold instMembership at h₂
-    simp only at h₂
-    have h₂ : m₂.contains k = false := by simp only [h₂]
-    exact h₂
+  rw [← contains_eq_false_iff_not_mem] at h₂
+  exact @Raw₀.contains_of_contains_union_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k h₁ h₂
 
 theorem mem_of_mem_union_of_mem_eq_false_left [EquivBEq α]
     [LawfulHashable α] {k : α} :
     k ∈ m₁ ∪ m₂ → ¬k ∈ m₁ → k ∈ m₂ := by
   intro h₁ h₂
-  apply @Raw₀.contains_of_contains_union_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _ m₁.2 m₂.2 k h₁
-  . unfold instMembership at h₂
-    simp only at h₂
-    have h₂ : m₁.contains k = false := by simp only [h₂]
-    exact h₂
+  rw [← contains_eq_false_iff_not_mem] at h₂
+  exact @Raw₀.contains_of_contains_union_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _ m₁.2 m₂.2 k h₁ h₂
 
 /- Equiv -/
 theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a} :
@@ -4563,5 +4556,5 @@ theorem toList_map {m : DHashMap α fun _ => β}
 end Const
 
 end map
-
+attribute [simp] contains_eq_false_iff_not_mem
 end Std.DHashMap

@@ -25,7 +25,8 @@ It returns an `ActionResult`:
 - `.closed seq`: the goal was fully solved, and `seq` is the sequence of tactics
 that, if replayed, closes the goal.
 
-- `.stuck g`: search ran and got stuck at goal `g` (the first unsolved goal).
+- `.stuck gs`: search ran and got stuck at goals `gs`. Remark: actions such as `splitNext` can decide
+  whether they stop at the first failure or not.
 
 ## Why CPS?
 
@@ -76,13 +77,13 @@ inductive ActionResult where
     closed (seq : List (TSyntax `grind))
   | /--
     The action could not make further progress.
-    `g` is a subgoal that could not be closed. It is used for producing error messages.
+    `gs` are subgoals that could not be closed. They are used for producing error messages.
     -/
-    stuck (g : Goal)
+    stuck (gs : List Goal)
 
 def ActionResult.toMessageData : ActionResult → MessageData
   | .closed seq => m!"closed {seq}"
-  | .stuck goal => m!"stuck {goal.mvarId}"
+  | .stuck goals => m!"stuck {goals.map (·.mvarId)}"
 
 instance : ToMessageData ActionResult where
   toMessageData := ActionResult.toMessageData
@@ -139,8 +140,8 @@ def loop (n : Nat) (x : Action) : Action := fun goal _ kp =>
 Runs action `a` on the given `goal`.
 -/
 def run (goal : Goal) (a : Action) : GrindM ActionResult := do
-  a goal (fun goal => return .stuck goal) fun goal =>
-    if goal.inconsistent then return .closed [] else return .stuck goal
+  let k := fun goal => if goal.inconsistent then return .closed [] else return .stuck [goal]
+  a goal k k
 
 /--
 Executes `x`, but behaves like a `skip` if it is not applicable.
@@ -172,6 +173,9 @@ example (a : Action) : (notApplicable <|> a) = a := by
   funext; simp
 
 example (a : Action) : (skip <|> a) = skip := by
+  funext; simp
+
+example (a b : Action) : (a.skipIfNA <|> b) = a.skipIfNA := by
   funext; simp
 
 example : notApplicable.loop n = skip := by

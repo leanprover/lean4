@@ -169,5 +169,8 @@ syntax "repeat " grindSeq : grind
 macro_rules
   | `(grind| repeat $seq) => `(grind| first | ($seq); repeat $seq | skip)
 
+/-- `rename_i x_1 ... x_n` renames the last `n` inaccessible names using the given names. -/
+syntax (name := renameI) "rename_i" (ppSpace colGt binderIdent)+ : grind
+
 end Grind
 end Lean.Parser.Tactic

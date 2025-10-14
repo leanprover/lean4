@@ -21,6 +21,7 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
 import Lean.Meta.Tactic.Grind.Arith.Linear.PP
 import Lean.Meta.Tactic.Grind.AC.PP
 import Lean.Elab.Tactic.Basic
+import Lean.Elab.Tactic.RenameInaccessibles
 namespace Lean.Elab.Tactic.Grind
 
 def evalSepTactics (stx : Syntax) : GrindTacticM Unit := do
@@ -337,6 +338,13 @@ where
   match stx with
   | `(grind| fail)          => throwError "Failed: `fail` tactic was invoked\n{goalsMsg}"
   | `(grind| fail $msg:str) => throwError "{msg.getString}\n{goalsMsg}"
+  | _ => throwUnsupportedSyntax
+
+@[builtin_grind_tactic «renameI»] def evalRenameInaccessibles : GrindTactic
+  | `(grind| rename_i $hs*) => do
+    let goal ← getMainGoal
+    let mvarId ← renameInaccessibles goal.mvarId hs
+    replaceMainGoal [{ goal with mvarId }]
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Grind

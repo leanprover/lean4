@@ -58,6 +58,9 @@ theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
 theorem contains_iff_mem {a : α} : m.contains a ↔ a ∈ m :=
   HashMap.contains_iff_mem
 
+theorem contains_eq_false_iff_not_mem {k : α} : m.contains k = false ↔ ¬k ∈ m :=
+  HashMap.contains_eq_false_iff_not_mem
+
 theorem contains_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) :
     m.contains a = m.contains b :=
   HashMap.contains_congr hab
@@ -791,11 +794,6 @@ theorem mem_union_of_left [EquivBEq α] [LawfulHashable α] {k : α} :
 theorem mem_union_of_right [EquivBEq α] [LawfulHashable α] {k : α} :
     k ∈ m₂ → k ∈ m₁ ∪ m₂:=
   @HashMap.contains_union_of_right _ _ _ _ m₁.inner m₂.inner _ _  k
-
-@[simp]
-theorem mem_union_iff [EquivBEq α] [LawfulHashable α] {k : α} :
-    k ∈ m₁ ∪ m₂ ↔ k ∈ m₁ ∨ k ∈ m₂ :=
-  @HashMap.mem_union_iff _ _ _ _ m₁.inner m₂.inner _ _  k
 
 theorem mem_of_mem_union_of_mem_eq_false_right [EquivBEq α]
     [LawfulHashable α] {k : α} :

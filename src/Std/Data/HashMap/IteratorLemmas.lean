@@ -28,18 +28,18 @@ theorem toList_inner :
   simp [toList, DHashMap.Internal.Raw.Const.toList_eq_toListModel_map,
     ← DHashMap.Internal.Raw.toList_eq_toListModel, Function.comp_def]
 
-public theorem toList_entriesIter :
-    m.entriesIter.toList = m.toList := by
-  simp [Raw.entriesIter, Iter.toList_map, DHashMap.Raw.toList_entriesIter, toList_inner,
+public theorem toList_iter :
+    m.iter.toList = m.toList := by
+  simp [Raw.iter, Iter.toList_map, DHashMap.Raw.toList_iter, toList_inner,
     Function.comp_def]
 
-public theorem toListRev_entriesIter :
-    m.entriesIter.toListRev = m.toList.reverse := by
-  simp [Iter.toListRev_eq, toList_entriesIter]
+public theorem toListRev_iter :
+    m.iter.toListRev = m.toList.reverse := by
+  simp [Iter.toListRev_eq, toList_iter]
 
-public theorem toArray_entriesIter [BEq α] [Hashable α] (h : m.WF) :
-    m.entriesIter.toArray = m.toArray := by
-  simp [← Iter.toArray_toList, ← Raw.toArray_toList h, toList_entriesIter]
+public theorem toArray_iter [BEq α] [Hashable α] (h : m.WF) :
+    m.iter.toArray = m.toArray := by
+  simp [← Iter.toArray_toList, ← Raw.toArray_toList h, toList_iter]
 
 end EntriesIter
 
@@ -100,17 +100,17 @@ theorem toList_inner :
   simp [toList, DHashMap.Const.toList, DHashMap.Internal.Raw.Const.toList_eq_toListModel_map,
     Function.comp_def, DHashMap.toList, DHashMap.Internal.Raw.toList_eq_toListModel]
 
-public theorem toList_entriesIter :
-    m.entriesIter.toList = m.toList := by
-  simp [entriesIter, DHashMap.toList_entriesIter, toList_inner, Function.comp_def]
+public theorem toList_iter :
+    m.iter.toList = m.toList := by
+  simp [iter, DHashMap.toList_iter, toList_inner, Function.comp_def]
 
-public theorem toListRev_entriesIter :
-    m.entriesIter.toListRev = m.toList.reverse := by
-  simp [Iter.toListRev_eq, toList_entriesIter]
+public theorem toListRev_iter :
+    m.iter.toListRev = m.toList.reverse := by
+  simp [Iter.toListRev_eq, toList_iter]
 
-public theorem toArray_entriesIter :
-    m.entriesIter.toArray = m.toArray := by
-  simp [← Iter.toArray_toList, toList_entriesIter]
+public theorem toArray_iter :
+    m.iter.toArray = m.toArray := by
+  simp [← Iter.toArray_toList, toList_iter]
 
 end EntriesIter
 

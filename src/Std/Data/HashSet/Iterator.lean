@@ -27,7 +27,7 @@ The iterator yields the elements of the set in order and then terminates.
 -/
 @[inline]
 public def iter {α : Type u} (m : Raw α) :=
-  (m.inner.inner.entriesIter.map fun e => e.1 : Iter α)
+  (m.inner.inner.iter.map fun e => e.1 : Iter α)
 
 end Std.HashSet.Raw
 
@@ -35,6 +35,6 @@ namespace Std.HashSet
 
 @[inline, inherit_doc Raw.iter]
 public def iter {α : Type u} [BEq α] [Hashable α] (m : HashSet α) :=
-  (m.inner.inner.entriesIter.map fun e => e.1 : Iter α)
+  (m.inner.inner.iter.map fun e => e.1 : Iter α)
 
 end Std.HashSet

@@ -47,18 +47,21 @@ section EntriesIter
 
 variable {α : Type u} {β : α → Type v} {m : Raw α β}
 
-public theorem toList_entriesIter :
-    m.entriesIter.toList = m.toList := by
-  simp [Raw.entriesIter, Iter.toList_flatMap, Iter.toList_map, Internal.toListModel, List.flatMap,
+@[simp]
+public theorem toList_iter :
+    m.iter.toList = m.toList := by
+  simp [Raw.iter, Iter.toList_flatMap, Iter.toList_map, Internal.toListModel, List.flatMap,
     Internal.Raw.toList_eq_toListModel]
 
-public theorem toListRev_entriesIter :
-    m.entriesIter.toListRev = m.toList.reverse := by
-  simp [Iter.toListRev_eq, toList_entriesIter]
+@[simp]
+public theorem toListRev_iter :
+    m.iter.toListRev = m.toList.reverse := by
+  simp [Iter.toListRev_eq, toList_iter]
 
-public theorem toArray_entriesIter [BEq α] [Hashable α] (h : m.WF) :
-    m.entriesIter.toArray = m.toArray := by
-  simp [← Iter.toArray_toList, ← Raw.toArray_toList h, toList_entriesIter]
+@[simp]
+public theorem toArray_iter [BEq α] [Hashable α] (h : m.WF) :
+    m.iter.toArray = m.toArray := by
+  simp [← Iter.toArray_toList, ← Raw.toArray_toList h, toList_iter]
 
 end EntriesIter
 
@@ -66,14 +69,17 @@ section KeysIter
 
 variable {α : Type u} {β : α → Type u} {m : Raw α β}
 
+@[simp]
 public theorem toList_keysIter [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.keysIter.toList = m.keys := by
-  simp [keysIter, ← map_fst_toList_eq_keys h, toList_entriesIter]
+  simp [keysIter, ← map_fst_toList_eq_keys h, toList_iter]
 
+@[simp]
 public theorem toListRev_keysIter [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.keysIter.toListRev = m.keys.reverse := by
   simp [Iter.toListRev_eq, toList_keysIter h]
 
+@[simp]
 public theorem toArray_keysIter [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.keysIter.toArray = m.keysArray := by
   simp [← Iter.toArray_toList, ← Raw.toArray_keys h, toList_keysIter h]
@@ -84,14 +90,17 @@ section ValuesIter
 
 variable {α β : Type u} {m : Raw α (fun _ => β)}
 
+@[simp]
 public theorem toList_valuesIter_eq_toList_map_snd :
     m.valuesIter.toList = m.toList.map Sigma.snd := by
-  simp [valuesIter, toList_entriesIter]
+  simp [valuesIter, toList_iter]
 
+@[simp]
 public theorem toListRev_valuesIter :
     m.valuesIter.toListRev = (m.toList.map Sigma.snd).reverse := by
   simp [Iter.toListRev_eq, toList_valuesIter_eq_toList_map_snd]
 
+@[simp]
 public theorem toArray_valuesIter :
     m.valuesIter.toArray = (m.toList.map Sigma.snd).toArray := by
   simp [← Iter.toArray_toList, toList_valuesIter_eq_toList_map_snd]
@@ -111,17 +120,20 @@ theorem toList_inner :
     m.inner.toList = m.toList :=
   rfl
 
-public theorem toList_entriesIter :
-    m.entriesIter.toList = m.toList := by
-  simp [entriesIter, Raw.toList_entriesIter, toList_inner]
+@[simp]
+public theorem toList_iter :
+    m.iter.toList = m.toList := by
+  simp [iter, Raw.toList_iter, toList_inner]
 
-public theorem toListRev_entriesIter :
-    m.entriesIter.toListRev = m.toList.reverse := by
-  simp [Iter.toListRev_eq, toList_entriesIter]
+@[simp]
+public theorem toListRev_iter :
+    m.iter.toListRev = m.toList.reverse := by
+  simp [Iter.toListRev_eq, toList_iter]
 
-public theorem toArray_entriesIter :
-    m.entriesIter.toArray = m.toArray := by
-  simp [← Iter.toArray_toList, ← toArray_toList, toList_entriesIter]
+@[simp]
+public theorem toArray_iter :
+    m.iter.toArray = m.toArray := by
+  simp [← Iter.toArray_toList, ← toArray_toList, toList_iter]
 
 end EntriesIter
 
@@ -133,14 +145,17 @@ theorem keys_inner :
     m.inner.keys = m.keys :=
   rfl
 
+@[simp]
 public theorem toList_keysIter [EquivBEq α] [LawfulHashable α] :
     m.keysIter.toList = m.keys := by
   simp [keysIter, Raw.toList_keysIter m.wf, keys_inner]
 
+@[simp]
 public theorem toListRev_keysIter [EquivBEq α] [LawfulHashable α] :
     m.keysIter.toListRev = m.keys.reverse := by
   simp [Iter.toListRev_eq, toList_keysIter]
 
+@[simp]
 public theorem toArray_keysIter [EquivBEq α] [LawfulHashable α] :
     m.keysIter.toArray = m.keysArray := by
   simp [← Iter.toArray_toList, ← toArray_keys, toList_keysIter]
@@ -151,14 +166,17 @@ section ValuesIter
 
 variable {α : Type u} {β : Type u} [BEq α] [Hashable α] {m : DHashMap α (fun _ => β)}
 
+@[simp]
 public theorem toList_valuesIter_eq_toList_map_snd :
     m.valuesIter.toList = m.toList.map Sigma.snd := by
-  simp [valuesIter, toList_entriesIter]
+  simp [valuesIter, toList_iter]
 
+@[simp]
 public theorem toListRev_valuesIter :
     m.valuesIter.toListRev = (m.toList.map Sigma.snd).reverse := by
   simp [Iter.toListRev_eq, toList_valuesIter_eq_toList_map_snd]
 
+@[simp]
 public theorem toArray_valuesIter :
     m.valuesIter.toArray = (m.toList.map Sigma.snd).toArray := by
   simp [← Iter.toArray_toList, toList_valuesIter_eq_toList_map_snd]

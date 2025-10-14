@@ -27,7 +27,7 @@ The iterator yields the elements of the map in order and then terminates.
 * `Productive` instance: always
 -/
 @[inline]
-public def entriesIter {α : Type u} {β : α → Type v} (m : Raw α β) :=
+public def iter {α : Type u} {β : α → Type v} (m : Raw α β) :=
   (m.buckets.iter.flatMap fun b => b.iter : Iter ((a : α) × β a))
 
 /--
@@ -43,7 +43,7 @@ The key and value types must live in the same universe.
 -/
 @[inline]
 public def keysIter {α : Type u} {β : α → Type u} (m : Raw α β) :=
-  (m.entriesIter.map fun e => e.1)
+  (m.iter.map fun e => e.1 : Iter α)
 
 /--
 Returns a finite iterator over the values of a hash map.
@@ -58,15 +58,15 @@ The key and value types must live in the same universe.
 -/
 @[inline]
 public def valuesIter {α : Type u} {β : Type u} (m : Raw α (fun _ => β)) :=
-  (m.entriesIter.map fun e => e.2 : Iter β)
+  (m.iter.map fun e => e.2 : Iter β)
 
 end Std.DHashMap.Raw
 
 namespace Std.DHashMap
 
-@[inline, inherit_doc Raw.entriesIter]
-public def entriesIter {α : Type u} {β : α → Type v} [BEq α] [Hashable α] (m : DHashMap α β) :=
-  (m.1.entriesIter : Iter ((a : α) × β a))
+@[inline, inherit_doc Raw.iter]
+public def iter {α : Type u} {β : α → Type v} [BEq α] [Hashable α] (m : DHashMap α β) :=
+  (m.1.iter : Iter ((a : α) × β a))
 
 @[inline, inherit_doc Raw.keysIter]
 public def keysIter {α : Type u} {β : α → Type u} [BEq α] [Hashable α] (m : DHashMap α β) :=
@@ -75,6 +75,6 @@ public def keysIter {α : Type u} {β : α → Type u} [BEq α] [Hashable α] (m
 @[inline, inherit_doc Raw.valuesIter]
 public def valuesIter {α : Type u} {β : Type u} [BEq α] [Hashable α]
     (m : DHashMap α (fun _ => β)) :=
-  (m.entriesIter.map fun e => e.2 : Iter β)
+  (m.iter.map fun e => e.2 : Iter β)
 
 end Std.DHashMap

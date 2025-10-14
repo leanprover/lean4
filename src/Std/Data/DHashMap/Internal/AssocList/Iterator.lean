@@ -45,7 +45,7 @@ def AssocListIterator.finitenessRelation :
     cases step <;> simp_all [IterStep.successor, IterM.IsPlausibleStep, Iterator.IsPlausibleStep]
 
 public instance : Finite (AssocListIterator α β) Id :=
-  by exact Finite.of_finitenessRelation AssocListIterator.finitenessRelation
+  Finite.of_finitenessRelation AssocListIterator.finitenessRelation
 
 public instance {α : Type u} {β : α → Type v} {m : Type (max u v) → Type w''} [Monad m] :
     IteratorCollect (AssocListIterator α β) Id m :=

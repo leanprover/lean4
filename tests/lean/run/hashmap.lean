@@ -61,7 +61,7 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 
 /-- info: #[⟨1, 2⟩, ⟨2, 4⟩, ⟨3, 6⟩] -/
 #guard_msgs in
-#eval m.entriesIter.toArray
+#eval m.iter.toArray
 
 /-- info: [(1, 2), (2, 4), (3, 6)] -/
 #guard_msgs in
@@ -163,7 +163,7 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 
 /-- info: #[⟨1, 2⟩, ⟨2, 4⟩, ⟨3, 6⟩] -/
 #guard_msgs in
-#eval m.entriesIter.toArray
+#eval m.iter.toArray
 
 /-- info: [(1, 2), (2, 4), (3, 6)] -/
 #guard_msgs in
@@ -265,7 +265,7 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 
 /-- info: #[(1, 2), (2, 4), (3, 6)] -/
 #guard_msgs in
-#eval m.entriesIter.toArray
+#eval m.iter.toArray
 
 /-- info: [1, 2, 3] -/
 #guard_msgs in
@@ -351,7 +351,7 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 
 /-- info: #[(1, 2), (2, 4), (3, 6)] -/
 #guard_msgs in
-#eval m.entriesIter.toArray
+#eval m.iter.toArray
 
 /-- info: [1, 2, 3] -/
 #guard_msgs in

@@ -26,8 +26,8 @@ The iterator yields the elements of the map in order and then terminates.
 * `Productive` instance: always
 -/
 @[inline]
-public def entriesIter {α : Type u} {β : Type v} (m : Raw α β) :=
-  (m.inner.entriesIter.map fun e => (e.1, e.2) : Iter (α × β))
+public def iter {α : Type u} {β : Type v} (m : Raw α β) :=
+  (m.inner.iter.map fun e => (e.1, e.2) : Iter (α × β))
 
 /--
 Returns a finite iterator over the keys of a hash map.
@@ -63,15 +63,15 @@ end Std.HashMap.Raw
 
 namespace Std.HashMap
 
-@[inline, inherit_doc Raw.entriesIter]
-public def entriesIter {α : Type u} {β : Type v} [BEq α] [Hashable α] (m : HashMap α β) :=
-  (m.inner.entriesIter.map fun e => (e.1, e.2) : Iter (α × β))
+@[inline, inherit_doc Raw.iter]
+public def iter {α : Type u} {β : Type v} [BEq α] [Hashable α] (m : HashMap α β) :=
+  (m.inner.iter.map fun e => (e.1, e.2) : Iter (α × β))
 
-@[inline, inherit_doc Raw.entriesIter]
+@[inline, inherit_doc Raw.iter]
 public def keysIter {α : Type u} {β : Type u} [BEq α] [Hashable α] (m : HashMap α β) :=
   (m.1.keysIter : Iter α)
 
-@[inline, inherit_doc Raw.entriesIter]
+@[inline, inherit_doc Raw.iter]
 public def valuesIter {α : Type u} {β : Type u} [BEq α] [Hashable α] (m : HashMap α β) :=
   (m.inner.valuesIter : Iter β)
 

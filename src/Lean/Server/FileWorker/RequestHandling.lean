@@ -482,6 +482,16 @@ partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
     return doc.reporter.bindCheap (fun _ => doc.cmdSnaps.waitAll)
       |>.mapCheap fun _ => pure WaitForDiagnostics.mk
 
+def handleDocumentColor (_ : DocumentColorParams) :
+    RequestM (RequestTask (Array ColorInformation)) :=
+  -- By default, if no document color provider is registered, VS Code itself provides
+  -- a color picker decoration for all parts of the file that look like CSS colors.
+  -- Disabling this setting on the client-side is not possible because of
+  -- https://github.com/microsoft/vscode/issues/91533,
+  -- so we just provide an empty document color provider here that overrides the
+  -- VS Code one.
+  return .pure #[]
+
 builtin_initialize
   registerLspRequestHandler
     "textDocument/waitForDiagnostics"
@@ -539,6 +549,11 @@ builtin_initialize
     SignatureHelpParams
     (Option SignatureHelp)
     handleSignatureHelp
+  registerLspRequestHandler
+    "textDocument/documentColor"
+    DocumentColorParams
+    (Array ColorInformation)
+    handleDocumentColor
   registerLspRequestHandler
     "$/lean/plainGoal"
     PlainGoalParams

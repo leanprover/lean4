@@ -2280,6 +2280,22 @@ Examples:
 * `"L∃∀N".get ⟨2⟩ = (default : Char)` because byte `2` is in the middle of `'∃'`.
 -/
 @[extern "lean_string_utf8_get", expose]
+def Pos.Raw.get (s : @& String) (p : @& Pos.Raw) : Char :=
+  utf8GetAux s.data 0 p
+
+/--
+Returns the character at position `p` of a string. If `p` is not a valid position, returns the
+fallback value `(default : Char)`, which is `'A'`, but does not panic.
+
+This function is overridden with an efficient implementation in runtime code. See
+`String.utf8GetAux` for the reference implementation.
+
+Examples:
+* `"abc".get ⟨1⟩ = 'b'`
+* `"abc".get ⟨3⟩ = (default : Char)` because byte `3` is at the end of the string.
+* `"L∃∀N".get ⟨2⟩ = (default : Char)` because byte `2` is in the middle of `'∃'`.
+-/
+@[extern "lean_string_utf8_get", expose]
 def get (s : @& String) (p : @& Pos.Raw) : Char :=
   utf8GetAux s.data 0 p
 
@@ -2288,6 +2304,21 @@ def utf8GetAux? : List Char → Pos.Raw → Pos.Raw → Option Char
   | [],    _, _ => none
   | c::cs, i, p => if i = p then some c else utf8GetAux? cs (i + c) p
 
+/--
+Returns the character at position `p` of a string. If `p` is not a valid position, returns `none`.
+
+This function is overridden with an efficient implementation in runtime code. See
+`String.utf8GetAux?` for the reference implementation.
+
+Examples:
+* `"abc".get? ⟨1⟩ = some 'b'`
+* `"abc".get? ⟨3⟩ = none`
+* `"L∃∀N".get? ⟨1⟩ = some '∃'`
+* `"L∃∀N".get? ⟨2⟩ = none`
+-/
+@[extern "lean_string_utf8_get_opt", expose]
+def Pos.Raw.get? : (@& String) → (@& Pos.Raw) → Option Char
+  | s, p => utf8GetAux? s.data 0 p
 
 /--
 Returns the character at position `p` of a string. If `p` is not a valid position, returns `none`.
@@ -2317,6 +2348,22 @@ Examples
 * `"abc".get! ⟨1⟩ = 'b'`
 -/
 @[extern "lean_string_utf8_get_bang", expose]
+def Pos.Raw.get! (s : @& String) (p : @& Pos.Raw) : Char :=
+  match s with
+  | s => utf8GetAux s.data 0 p
+
+/--
+Returns the character at position `p` of a string. Panics if `p` is not a valid position.
+
+See `String.get?` for a safer alternative.
+
+This function is overridden with an efficient implementation in runtime code. See
+`String.utf8GetAux` for the reference implementation.
+
+Examples
+* `"abc".get! ⟨1⟩ = 'b'`
+-/
+@[extern "lean_string_utf8_get_bang", expose]
 def get! (s : @& String) (p : @& Pos.Raw) : Char :=
   match s with
   | s => utf8GetAux s.data 0 p
@@ -2326,6 +2373,24 @@ def utf8SetAux (c' : Char) : List Char → Pos.Raw → Pos.Raw → List Char
   | [],    _, _ => []
   | c::cs, i, p =>
     if i = p then (c'::cs) else c::(utf8SetAux c' cs (i + c) p)
+
+/--
+Replaces the character at a specified position in a string with a new character. If the position is
+invalid, the string is returned unchanged.
+
+If both the replacement character and the replaced character are 7-bit ASCII characters and the
+string is not shared, then it is updated in-place and not copied.
+
+Examples:
+* `"abc".set ⟨1⟩ 'B' = "aBc"`
+* `"abc".set ⟨3⟩ 'D' = "abc"`
+* `"L∃∀N".set ⟨4⟩ 'X' = "L∃XN"`
+* `"L∃∀N".set ⟨2⟩ 'X' = "L∃∀N"` because `'∃'` is a multi-byte character, so the byte index `2` is an
+  invalid position.
+-/
+@[extern "lean_string_utf8_set", expose]
+def Pos.Raw.set : String → (@& Pos.Raw) → Char → String
+  | s, i, c => (utf8SetAux c s.data 0 i).asString
 
 /--
 Replaces the character at a specified position in a string with a new character. If the position is
@@ -2376,6 +2441,26 @@ Examples:
 * `"L∃∀N".get (0 |> "L∃∀N".next |> "L∃∀N".next) = '∀'`
 -/
 @[extern "lean_string_utf8_next", expose]
+def Pos.Raw.next (s : @& String) (p : @& Pos.Raw) : Pos.Raw :=
+  let c := get s p
+  p + c
+
+/--
+Returns the next position in a string after position `p`. If `p` is not a valid position or
+`p = s.endPos`, returns the position one byte after `p`.
+
+A run-time bounds check is performed to determine whether `p` is at the end of the string. If a
+bounds check has already been performed, use `String.next'` to avoid a repeated check.
+
+Some examples of edge cases:
+* `"abc".next ⟨3⟩ = ⟨4⟩`, since `3 = "abc".endPos`
+* `"L∃∀N".next ⟨2⟩ = ⟨3⟩`, since `2` points into the middle of a multi-byte UTF-8 character
+
+Examples:
+* `"abc".get ("abc".next 0) = 'b'`
+* `"L∃∀N".get (0 |> "L∃∀N".next |> "L∃∀N".next) = '∀'`
+-/
+@[extern "lean_string_utf8_next", expose]
 def next (s : @& String) (p : @& Pos.Raw) : Pos.Raw :=
   let c := get s p
   p + c
@@ -2386,6 +2471,22 @@ def utf8PrevAux : List Char → Pos.Raw → Pos.Raw → Pos.Raw
   | c::cs, i, p =>
     let i' := i + c
     if p ≤ i' then i else utf8PrevAux cs i' p
+
+/--
+Returns the position in a string before a specified position, `p`. If `p = ⟨0⟩`, returns `0`. If `p`
+is greater than `endPos`, returns the position one byte before `p`. Otherwise, if `p` occurs in the
+middle of a multi-byte character, returns the beginning position of that character.
+
+For example, `"L∃∀N".prev ⟨3⟩` is `⟨1⟩`, since byte 3 occurs in the middle of the multi-byte
+character `'∃'` that starts at byte 1.
+
+Examples:
+* `"abc".get ("abc".endPos |> "abc".prev) = 'c'`
+* `"L∃∀N".get ("L∃∀N".endPos |> "L∃∀N".prev |> "L∃∀N".prev |> "L∃∀N".prev) = '∃'`
+-/
+@[extern "lean_string_utf8_prev", expose]
+def Pos.Raw.prev : (@& String) → (@& Pos.Raw) → Pos.Raw
+  | s, p => utf8PrevAux s.data 0 p
 
 /--
 Returns the position in a string before a specified position, `p`. If `p = ⟨0⟩`, returns `0`. If `p`
@@ -2441,8 +2542,50 @@ Examples:
 * `"L∃∀N".atEnd ⟨8⟩ = true`
 -/
 @[extern "lean_string_utf8_at_end", expose]
+def Pos.Raw.atEnd : (@& String) → (@& Pos.Raw) → Bool
+  | s, p => p.byteIdx ≥ utf8ByteSize s
+
+/--
+Returns `true` if a specified byte position is greater than or equal to the position which points to
+the end of a string. Otherwise, returns `false`.
+
+Examples:
+* `(0 |> "abc".next |> "abc".next |> "abc".atEnd) = false`
+* `(0 |> "abc".next |> "abc".next |> "abc".next |> "abc".next |> "abc".atEnd) = true`
+* `(0 |> "L∃∀N".next |> "L∃∀N".next |> "L∃∀N".next |> "L∃∀N".atEnd) = false`
+* `(0 |> "L∃∀N".next |> "L∃∀N".next |> "L∃∀N".next |> "L∃∀N".next |> "L∃∀N".atEnd) = true`
+* `"abc".atEnd ⟨4⟩ = true`
+* `"L∃∀N".atEnd ⟨7⟩ = false`
+* `"L∃∀N".atEnd ⟨8⟩ = true`
+-/
+@[extern "lean_string_utf8_at_end", expose]
 def atEnd : (@& String) → (@& Pos.Raw) → Bool
   | s, p => p.byteIdx ≥ utf8ByteSize s
+
+/--
+Returns the character at position `p` of a string. Returns `(default : Char)`, which is `'A'`, if
+`p` is not a valid position.
+
+Requires evidence, `h`, that `p` is within bounds instead of performing a run-time bounds check as
+in `String.get`.
+
+A typical pattern combines `get'` with a dependent `if`-expression to avoid the overhead of an
+additional bounds check. For example:
+```
+def getInBounds? (s : String) (p : String.Pos) : Option Char :=
+  if h : s.atEnd p then none else some (s.get' p h)
+```
+Even with evidence of `¬ s.atEnd p`, `p` may be invalid if a byte index points into the middle of a
+multi-byte UTF-8 character. For example, `"L∃∀N".get' ⟨2⟩ (by decide) = (default : Char)`.
+
+Examples:
+* `"abc".get' 0 (by decide) = 'a'`
+* `let lean := "L∃∀N"; lean.get' (0 |> lean.next |> lean.next) (by decide) = '∀'`
+-/
+@[extern "lean_string_utf8_get_fast", expose]
+def Pos.Raw.get' (s : @& String) (p : @& Pos.Raw) (h : ¬ s.atEnd p) : Char :=
+  match s with
+  | s => utf8GetAux s.data 0 p
 
 /--
 Returns the character at position `p` of a string. Returns `(default : Char)`, which is `'A'`, if
@@ -2468,6 +2611,28 @@ Examples:
 def get' (s : @& String) (p : @& Pos.Raw) (h : ¬ s.atEnd p) : Char :=
   match s with
   | s => utf8GetAux s.data 0 p
+
+/--
+Returns the next position in a string after position `p`. The result is unspecified if `p` is not a
+valid position.
+
+Requires evidence, `h`, that `p` is within bounds. No run-time bounds check is performed, as in
+`String.next`.
+
+A typical pattern combines `String.next'` with a dependent `if`-expression to avoid the overhead of
+an additional bounds check. For example:
+```
+def next? (s : String) (p : String.Pos) : Option Char :=
+  if h : s.atEnd p then none else s.get (s.next' p h)
+```
+
+Example:
+* `let abc := "abc"; abc.get (abc.next' 0 (by decide)) = 'b'`
+-/
+@[extern "lean_string_utf8_next_fast", expose]
+def Pos.Raw.next' (s : @& String) (p : @& Pos.Raw) (h : ¬ s.atEnd p) : Pos.Raw :=
+  let c := get s p
+  p + c
 
 /--
 Returns the next position in a string after position `p`. The result is unspecified if `p` is not a
@@ -2638,6 +2803,33 @@ def firstDiffPos (a b : String) : Pos.Raw :=
     else i
     termination_by stopPos.1 - i.1
   loop 0
+
+/--
+Creates a new string that consists of the region of the input string delimited by the two positions.
+
+The result is `""` if the start position is greater than or equal to the end position or if the
+start position is at the end of the string. If either position is invalid (that is, if either points
+at the middle of a multi-byte UTF-8 character) then the result is unspecified.
+
+Examples:
+* `"red green blue".extract ⟨0⟩ ⟨3⟩ = "red"`
+* `"red green blue".extract ⟨3⟩ ⟨0⟩ = ""`
+* `"red green blue".extract ⟨0⟩ ⟨100⟩ = "red green blue"`
+* `"red green blue".extract ⟨4⟩ ⟨100⟩ = "green blue"`
+* `"L∃∀N".extract ⟨1⟩ ⟨2⟩ = "∃∀N"`
+* `"L∃∀N".extract ⟨2⟩ ⟨100⟩ = ""`
+-/
+@[extern "lean_string_utf8_extract", expose]
+def Pos.Raw.extract : (@& String) → (@& Pos.Raw) → (@& Pos.Raw) → String
+  | s, b, e => if b.byteIdx ≥ e.byteIdx then "" else (go₁ s.data 0 b e).asString
+where
+  go₁ : List Char → Pos.Raw → Pos.Raw → Pos.Raw → List Char
+    | [],        _, _, _ => []
+    | s@(c::cs), i, b, e => if i = b then go₂ s i e else go₁ cs (i + c) b e
+
+  go₂ : List Char → Pos.Raw → Pos.Raw → List Char
+    | [],    _, _ => []
+    | c::cs, i, e => if i = e then [] else c :: go₂ cs (i + c) e
 
 /--
 Creates a new string that consists of the region of the input string delimited by the two positions.

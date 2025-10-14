@@ -705,5 +705,24 @@ structure SignatureHelpOptions extends WorkDoneProgressOptions where
   retriggerCharacters? : Option (Array String) := none
   deriving FromJson, ToJson
 
+structure DocumentColorParams extends WorkDoneProgressParams, PartialResultParams where
+  textDocument : TextDocumentIdentifier
+  deriving FromJson, ToJson
+
+structure Color where
+  red : Float
+  green : Float
+  blue : Float
+  alpha : Float
+  deriving FromJson, ToJson
+
+structure ColorInformation where
+  range : Range
+  color : Color
+  deriving FromJson, ToJson
+
+structure DocumentColorOptions extends WorkDoneProgressOptions where
+  deriving FromJson, ToJson
+
 end Lsp
 end Lean

@@ -1,6 +1,6 @@
 /--
 info: Try this:
-  termination_by xs.length / 2 - i
+  [apply] termination_by xs.length / 2 - i
 -/
 #guard_msgs in
 def foo (xs : String) (i : Nat) (a b : String.Iterator) : Bool :=
@@ -14,7 +14,7 @@ termination_by?
 
 /--
 info: Try this:
-  termination_by xs.length / 2 - i
+  [apply] termination_by xs.length / 2 - i
 -/
 #guard_msgs in
 def bar (xs : String) (i : Nat) (a b : String.Iterator) : Bool :=
@@ -30,7 +30,7 @@ termination_by?
 
 /--
 info: Try this:
-  termination_by xs.length / 2 - i
+  [apply] termination_by xs.length / 2 - i
 -/
 #guard_msgs in
 def baz (xs : String) (i : Nat) (a b : String.Iterator) : Bool :=

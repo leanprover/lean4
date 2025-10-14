@@ -12,17 +12,79 @@ public import Init.Ext
 public import Init.NotationExtra
 public import Init.TacticsExtra
 
+set_option doc.verso true
+
 public section
 
 /-!
-### Definition of iterators
+# Definition of iterators
 
 This module defines iterators and what it means for an iterator to be finite and productive.
 -/
 
 namespace Std
 
+private opaque Internal.idOpaque {α} : { f : α → α // f = id } := ⟨id, rfl⟩
+
+/--
+Currently, {lean}`Shrink α` is just a wrapper around {lean}`α`.
+
+In the future, {name}`Shrink` should allow shrinking {lean}`α` into a potentially smaller universe,
+given a proof that {name}`α` is actually small, just like Mathlib's {lit}`Shrink`, except that
+the latter's conversion functions are noncomputable. Until then, {lean}`Shrink α` is always in the
+same universe as {name}`α`.
+
+This no-op type exists so that fewer breaking changes will be needed when the
+real {lit}`Shrink` type is available and the iterators will be made more flexible with regard to
+universes.
+
+The conversion functions {name (scope := "Init.Data.Iterators.Basic")}`Shrink.deflate` and
+{name (scope := "Init.Data.Iterators.Basic")}`Shrink.inflate` form an equivalence between
+{name}`α` and {lean}`Shrink α`, but this equivalence is intentionally not definitional.
+-/
+public def Shrink (α : Type u) : Type u := Internal.idOpaque.1 α
+
+/-- Converts elements of {name}`α` into elements of {lean}`Shrink α`. -/
+@[always_inline]
+public def Shrink.deflate {α} (x : α) : Shrink α :=
+  cast (by simp [Shrink, Internal.idOpaque.property]) x
+
+/-- Converts elements of {lean}`Shrink α` into elements of {name}`α`. -/
+@[always_inline]
+public def Shrink.inflate {α} (x : Shrink α) : α :=
+  cast (by simp [Shrink, Internal.idOpaque.property]) x
+
+@[simp, grind =]
+public theorem Shrink.deflate_inflate {α} {x : Shrink α} :
+    Shrink.deflate x.inflate = x := by
+  simp [deflate, inflate]
+
+@[simp, grind =]
+public theorem Shrink.inflate_deflate {α} {x : α} :
+    (Shrink.deflate x).inflate = x := by
+  simp [deflate, inflate]
+
+public theorem Shrink.inflate_inj {α} {x y : Shrink α} :
+    x.inflate = y.inflate ↔ x = y := by
+  apply Iff.intro
+  · intro h
+    simpa using congrArg Shrink.deflate h
+  · rintro rfl
+    rfl
+
+public theorem Shrink.deflate_inj {α} {x y : α} :
+    Shrink.deflate x = Shrink.deflate y ↔ x = y := by
+  apply Iff.intro
+  · intro h
+    simpa using congrArg Shrink.inflate h
+  · rintro rfl
+    rfl
+
 namespace Iterators
+
+-- It is not fruitful to move the following docstrings to verso right now because there are lots of
+-- forward references that cannot be realized nicely.
+set_option doc.verso false
 
 /--
 An iterator that sequentially emits values of type `β` in the monad `m`. It may be finite
@@ -284,7 +346,7 @@ step object is bundled with a proof that it is a "plausible" step for the given 
 -/
 class Iterator (α : Type w) (m : Type w → Type w') (β : outParam (Type w)) where
   IsPlausibleStep : IterM (α := α) m β → IterStep (IterM (α := α) m β) β → Prop
-  step : (it : IterM (α := α) m β) → m (PlausibleIterStep <| IsPlausibleStep it)
+  step : (it : IterM (α := α) m β) → m (Shrink <| PlausibleIterStep <| IsPlausibleStep it)
 
 section Monadic
 
@@ -358,7 +420,7 @@ the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
 -/
 @[always_inline, inline, expose]
 def IterM.step {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
-    (it : IterM (α := α) m β) : m it.Step :=
+    (it : IterM (α := α) m β) : m (Shrink it.Step) :=
   Iterator.step it
 
 end Monadic
@@ -582,7 +644,7 @@ the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
 -/
 @[always_inline, inline, expose]
 def Iter.step {α β : Type w} [Iterator α Id β] (it : Iter (α := α) β) : it.Step :=
-  it.toIterM.step.run.toPure
+  it.toIterM.step.run.inflate.toPure
 
 end Pure
 

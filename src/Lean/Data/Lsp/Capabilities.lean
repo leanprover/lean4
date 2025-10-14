@@ -111,6 +111,7 @@ structure ServerCapabilities where
   codeActionProvider?       : Option CodeActionOptions       := none
   inlayHintProvider?        : Option InlayHintOptions        := none
   signatureHelpProvider?    : Option SignatureHelpOptions    := none
+  colorProvider?            : Option DocumentColorOptions    := none
   experimental?             : Option LeanServerCapabilities  := none
   deriving ToJson, FromJson
 

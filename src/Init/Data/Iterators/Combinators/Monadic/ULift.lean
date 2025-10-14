@@ -90,9 +90,9 @@ instance Types.ULiftIterator.instIterator [Iterator α m β] [Monad n] :
       step = ULiftIterator.Monadic.modifyStep step'
   step it := do
     let step := (← (lift it.internalState.inner.step).run).down
-    return ⟨Monadic.modifyStep step.val, ?hp⟩
+    return .deflate ⟨Monadic.modifyStep step.inflate.val, ?hp⟩
   where finally
-    case hp => exact ⟨step.val, step.property, rfl⟩
+    case hp => exact ⟨step.inflate.val, step.inflate.property, rfl⟩
 
 def Types.ULiftIterator.instFinitenessRelation [Iterator α m β] [Finite α m] [Monad n] :
     FinitenessRelation (ULiftIterator α m n β lift) n where

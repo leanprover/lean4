@@ -27,12 +27,13 @@ variable {β : Type w}
 @[simp]
 theorem _root_.List.step_iter_nil :
     (([] : List β).iter).step = ⟨.done, rfl⟩ := by
-  simp only [Iter.step, IterM.step, Iterator.step]; rfl
+  simp [Iter.step, IterM.step, Iterator.step, List.iter, List.iterM, toIterM]
 
 @[simp]
 theorem _root_.List.step_iter_cons {x : β} {xs : List β} :
     ((x :: xs).iter).step = ⟨.yield xs.iter x, rfl⟩ := by
-  simp only [List.iter, List.iterM]; rfl
+  simp [List.iter, List.iterM, toIterM, IterM.toIter, Iter.step, Iter.toIterM, IterM.step,
+    Iterator.step]
 
 @[simp]
 theorem _root_.List.toArray_iter {l : List β} :

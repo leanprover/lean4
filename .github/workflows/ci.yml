@@ -187,7 +187,6 @@ jobs:
                 "name": "Linux Lake",
                 "os": large ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
                 "check-level": 0,
-                "test": true,
                 "check-rebootstrap": level >= 1,
                 "check-stage3": level >= 2,
                 // NOTE: `test-speedcenter` currently seems to be broken on `ubuntu-latest`
@@ -215,6 +214,7 @@ jobs:
                 "name": "macOS",
                 "os": "macos-15-intel",
                 "release": true,
+                "test": false,  // Tier 2 platform
                 "check-level": 2,
                 "shell": "bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-apple-darwin.tar.zst",

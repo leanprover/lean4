@@ -787,31 +787,11 @@ theorem union_eq : m₁.union m₂ = m₁ ∪ m₂ := by
   simp only [Union.union]
 
 /- contains -/
-theorem contains_union_of_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
-    (h₂ : m₂.WF) {k : α} :
-    k ∈ m₁ → (m₁ ∪ m₂).contains k :=
-  @HashMap.Raw.contains_union_of_left _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k
-
-theorem contains_union_of_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
-    (h₂ : m₂.WF) {k : α} :
-    k ∈ m₂ → (m₁ ∪ m₂).contains k :=
-  @HashMap.Raw.contains_union_of_right _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k
-
 @[simp]
 theorem contains_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
     (h₂ : m₂.WF) {k : α} :
     (m₁ ∪ m₂).contains k = (m₁.contains k || m₂.contains k) :=
   @HashMap.Raw.contains_union _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k
-
-theorem contains_of_contains_union_of_contains_eq_false_right [EquivBEq α]
-    [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
-    k ∈ m₁ ∪ m₂ → ¬k ∈ m₂ → m₁.contains k :=
-  @HashMap.Raw.contains_of_contains_union_of_contains_eq_false_right _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k
-
-theorem contains_of_contains_union_of_contains_eq_false_left [EquivBEq α]
-    [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
-    k ∈ m₁ ∪ m₂ → ¬k ∈ m₁ → m₂.contains k :=
-  @HashMap.Raw.contains_of_contains_union_of_contains_eq_false_left _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k
 
 /- mem -/
 theorem mem_union_of_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
@@ -830,15 +810,15 @@ theorem mem_union_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
     k ∈ m₁ ∪ m₂ ↔ k ∈ m₁ ∨ k ∈ m₂ :=
   @HashMap.Raw.mem_union_iff _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k
 
-theorem mem_of_mem_union_of_mem_eq_false_right [EquivBEq α]
+theorem mem_of_mem_union_of_not_mem_right [EquivBEq α]
     [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
     k ∈ m₁ ∪ m₂ → ¬k ∈ m₂ → k ∈ m₁ :=
-  @HashMap.Raw.mem_of_mem_union_of_mem_eq_false_right _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k
+  @HashMap.Raw.mem_of_mem_union_of_not_mem_right _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k
 
-theorem mem_of_mem_union_of_mem_eq_false_left [EquivBEq α]
+theorem mem_of_mem_union_of_not_mem_left [EquivBEq α]
     [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
     k ∈ m₁ ∪ m₂ → ¬k ∈ m₁ → k ∈ m₂ :=
-  @HashMap.Raw.mem_of_mem_union_of_mem_eq_false_left _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k
+  @HashMap.Raw.mem_of_mem_union_of_not_mem_left _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k
 
 /- get? -/
 theorem get?_union [EquivBEq α] [LawfulHashable α]
@@ -847,33 +827,33 @@ theorem get?_union [EquivBEq α] [LawfulHashable α]
     (m₁ ∪ m₂).get? k = (m₂.get? k).or (m₁.get? k) :=
   @HashMap.Raw.getKey?_union _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k
 
-theorem get?_union_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α]
+theorem get?_union_of_not_mem_left [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.WF) (h₂ : m₂.WF)
     {k : α} (not_mem : ¬k ∈ m₁) :
     (m₁ ∪ m₂).get? k = m₂.get? k :=
-  @HashMap.Raw.getKey?_union_of_contains_eq_false_left _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k not_mem
+  @HashMap.Raw.getKey?_union_of_not_mem_left _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k not_mem
 
-theorem get?_union_of_contains_eq_false_right [EquivBEq α] [LawfulHashable α]
+theorem get?_union_of_not_mem_right [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.WF) (h₂ : m₂.WF)
     {k : α} (not_mem : ¬k ∈ m₂) :
     (m₁ ∪ m₂).get? k = m₁.get? k :=
-  @HashMap.Raw.getKey?_union_of_contains_eq_false_right _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k not_mem
+  @HashMap.Raw.getKey?_union_of_not_mem_right _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k not_mem
 
 /- get -/
-theorem get_union_of_contains_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (mem : m₂.contains k) :
-    (m₁ ∪ m₂).get k (contains_union_of_right h₁ h₂ mem) = m₂.get k mem :=
-  @HashMap.Raw.getKey_union_of_contains_right _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k mem
+theorem get_union_of_mem_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (mem : k ∈ m₂) :
+    (m₁ ∪ m₂).get k (mem_union_of_right h₁ h₂ mem) = m₂.get k mem :=
+  @HashMap.Raw.getKey_union_of_mem_right _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k mem
 
-theorem get_union_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (contains_eq_false : ¬k ∈ m₁) {h'} :
-    (m₁ ∪ m₂).get k h' = m₂.get k (contains_of_contains_union_of_contains_eq_false_left h₁ h₂ h' contains_eq_false) :=
-  @HashMap.Raw.getKey_union_of_contains_eq_false_left _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k contains_eq_false h'
+theorem get_union_of_not_mem_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (not_mem : ¬k ∈ m₁) {h'} :
+    (m₁ ∪ m₂).get k h' = m₂.get k (mem_of_mem_union_of_not_mem_left h₁ h₂ h' not_mem) :=
+  @HashMap.Raw.getKey_union_of_not_mem_left _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k not_mem h'
 
-theorem get_union_of_contains_eq_false_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (contains_eq_false : ¬k ∈ m₂) {h'} :
-    (m₁ ∪ m₂).get k h' = m₁.get k (contains_of_contains_union_of_contains_eq_false_right h₁ h₂ h' contains_eq_false) :=
-  @HashMap.Raw.getKey_union_of_contains_eq_false_right _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k contains_eq_false h'
+theorem get_union_of_not_mem_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (not_mem : ¬k ∈ m₂) {h'} :
+    (m₁ ∪ m₂).get k h' = m₁.get k (mem_of_mem_union_of_not_mem_right h₁ h₂ h' not_mem) :=
+  @HashMap.Raw.getKey_union_of_not_mem_right _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k not_mem h'
 
 /- getD -/
 theorem getD_union [EquivBEq α]
@@ -882,15 +862,15 @@ theorem getD_union [EquivBEq α]
     (m₁ ∪ m₂).getD k fallback = m₂.getD k (m₁.getD k fallback) :=
   @HashMap.Raw.getKeyD_union _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k fallback
 
-theorem getD_union_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
-    (h₂ : m₂.WF) {k fallback : α} (h' : ¬k ∈ m₁) :
+theorem getD_union_of_not_mem_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k fallback : α} (not_mem : ¬k ∈ m₁) :
     (m₁ ∪ m₂).getD k fallback = m₂.getD k fallback :=
-  @HashMap.Raw.getKeyD_union_of_contains_eq_false_left _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k fallback h'
+  @HashMap.Raw.getKeyD_union_of_not_mem_left _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k fallback not_mem
 
-theorem getD_union_of_contains_eq_false_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
-    (h₂ : m₂.WF) {k fallback : α} (h' : ¬k ∈ m₂) :
+theorem getD_union_of_not_mem_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k fallback : α} (not_mem : ¬k ∈ m₂) :
     (m₁ ∪ m₂).getD k fallback = m₁.getD k fallback :=
-  @HashMap.Raw.getKeyD_union_of_contains_eq_false_right _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k fallback h'
+  @HashMap.Raw.getKeyD_union_of_not_mem_right _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k fallback not_mem
 
 /- get! -/
 theorem get!_union [EquivBEq α] [LawfulHashable α] [Inhabited α]
@@ -899,17 +879,17 @@ theorem get!_union [EquivBEq α] [LawfulHashable α] [Inhabited α]
     (m₁ ∪ m₂).get! k = m₂.getD k (m₁.get! k) :=
   @HashMap.Raw.getKey!_union _ _ _ _ m₁.inner m₂.inner _ _ _ h₁.out h₂.out k
 
-theorem get!_union_of_contains_left_eq_false [Inhabited α]
+theorem get!_union_of_not_mem_left [Inhabited α]
     [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α}
-    (h' : ¬k ∈ m₁) :
+    (not_mem : ¬k ∈ m₁) :
     (m₁ ∪ m₂).get! k = m₂.get! k :=
-   @HashMap.Raw.getKey!_union_of_contains_left_eq_false _ _ _ _ m₁.inner m₂.inner _ _ _ h₁.out h₂.out k h'
+  @HashMap.Raw.getKey!_union_of_not_mem_left _ _ _ _ m₁.inner m₂.inner _ _ _ h₁.out h₂.out k not_mem
 
-theorem get!_union_of_contains_right_eq_false [Inhabited α]
+theorem get!_union_of_not_mem_right [Inhabited α]
     [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α}
-    (h' : ¬k ∈ m₂) :
+    (not_mem : ¬k ∈ m₂) :
     (m₁ ∪ m₂).get! k = m₁.get! k :=
-   @HashMap.Raw.getKey!_union_of_contains_right_eq_false _ _ _ _ m₁.inner m₂.inner _ _ _ h₁.out h₂.out k h'
+   @HashMap.Raw.getKey!_union_of_not_mem_right _ _ _ _ m₁.inner m₂.inner _ _ _ h₁.out h₂.out k not_mem
 
 /- size -/
 theorem size_union_of_not_mem [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)

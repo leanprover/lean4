@@ -50,3 +50,7 @@ fun motive a b h_1 h_2 h_3 =>
   Bool.casesOn b (List.casesOn a (h_2 false) fun head tail => h_3 (head :: tail) false) (h_1 a)
 -/
 #guard_msgs in #print test3.match_1
+
+set_option maxHeartbeats 100 in
+example (P : Nat → Prop) (x : Nat) (h : x = 12345) (hP : P 12345) : P x :=
+  match x, h with | _, rfl => hP

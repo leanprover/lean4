@@ -1301,11 +1301,6 @@ theorem contains_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
     (m₁ ∪ m₂).contains k = (m₁.contains k || m₂.contains k) :=
   @DHashMap.Raw.contains_union _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k
 
-theorem contains_union_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
-    (h₂ : m₂.WF) {k : α} :
-    (m₁ ∪ m₂).contains k ↔ m₁.contains k ∨ m₂.contains k :=
-  @DHashMap.Raw.contains_union_iff _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k
-
 theorem contains_of_contains_union_of_contains_eq_false_right [EquivBEq α]
     [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
     (m₁ ∪ m₂).contains k → m₂.contains k = false → m₁.contains k :=
@@ -1326,12 +1321,6 @@ theorem mem_union_of_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
     (h₂ : m₂.WF) {k : α} :
     k ∈ m₂ → k ∈ m₁ ∪ m₂ :=
   @DHashMap.Raw.mem_union_of_right _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k
-
-@[simp]
-theorem mem_union_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
-    (h₂ : m₂.WF) {k : α} :
-    k ∈ m₁ ∪ m₂ ↔ k ∈ m₁ ∨ k ∈ m₂ :=
-  @DHashMap.Raw.contains_union_iff _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out k
 
 theorem mem_of_mem_union_of_mem_eq_false_right [EquivBEq α]
     [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :

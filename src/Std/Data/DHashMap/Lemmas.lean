@@ -1791,10 +1791,6 @@ theorem contains_union [EquivBEq α] [LawfulHashable α]
     (m₁ ∪ m₂).contains k = (m₁.contains k || m₂.contains k) :=
   @Raw₀.contains_union _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k
 
-theorem contains_union_iff [EquivBEq α] [LawfulHashable α] {k : α} :
-    (m₁ ∪ m₂).contains k ↔ m₁.contains k ∨ m₂.contains k :=
-  @Raw₀.contains_union_iff _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _ m₁.2 m₂.2 k
-
 theorem contains_of_contains_union_of_contains_eq_false_right [EquivBEq α]
     [LawfulHashable α] {k : α} :
     (m₁ ∪ m₂).contains k → m₂.contains k = false → m₁.contains k :=
@@ -1813,11 +1809,6 @@ theorem mem_union_of_left [EquivBEq α] [LawfulHashable α] {k : α} :
 theorem mem_union_of_right [EquivBEq α] [LawfulHashable α] {k : α} :
     k ∈ m₂ → k ∈ m₁ ∪ m₂ :=
   @Raw₀.contains_union_of_right _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _ m₁.2 m₂.2 k
-
-@[simp]
-theorem mem_union_iff [EquivBEq α] [LawfulHashable α] {k : α} :
-    k ∈ m₁ ∪ m₂ ↔ k ∈ m₁ ∨ k ∈ m₂ :=
-  @Raw₀.contains_union_iff _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _ m₁.2 m₂.2 k
 
 theorem mem_of_mem_union_of_mem_eq_false_right [EquivBEq α]
     [LawfulHashable α] {k : α} :

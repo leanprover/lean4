@@ -773,10 +773,6 @@ theorem contains_union [EquivBEq α] [LawfulHashable α]
     (m₁ ∪ m₂).contains k = (m₁.contains k || m₂.contains k) :=
   @HashMap.contains_union _ _ _ _ m₁.inner m₂.inner _ _  k
 
-theorem contains_union_iff [EquivBEq α] [LawfulHashable α] {k : α} :
-    (m₁ ∪ m₂).contains k ↔ m₁.contains k ∨ m₂.contains k :=
-  @HashMap.contains_union_iff _ _ _ _ m₁.inner m₂.inner _ _  k
-
 theorem contains_of_contains_union_of_contains_eq_false_right [EquivBEq α]
     [LawfulHashable α] {k : α} :
     (m₁ ∪ m₂).contains k → m₂.contains k = false → m₁.contains k :=

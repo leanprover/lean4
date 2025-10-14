@@ -112,6 +112,7 @@ theorem mem_iff_contains {m : Raw α β} {a : α} :
 theorem contains_iff_mem {m : Raw α β} {a : α} :
     m.contains a ↔ a ∈ m := Iff.rfl
 
+-- The following lemma becomes a simp lemma at the bottom of the file.
 theorem contains_eq_false_iff_not_mem {k : α} : m.contains k = false ↔ ¬k ∈ m := by
   rw [← Bool.not_eq_true]
   simp only [contains_iff_mem]

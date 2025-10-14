@@ -456,7 +456,13 @@ only those mappings where the function returns `some` value.
 @[inline] def keysArray (m : Raw α β) : Array α :=
   m.fold (fun acc k _ => acc.push k) (.emptyWithCapacity m.size)
 
-/-- Computes the union of the given hash maps, inserting smaller hash map into a bigger hash map. In the case of clashes of keys, entries from the left argument, are replaced with entries from the right argument. -/
+/--
+Computes the union of the given hash maps. If a key appears in both maps, the entry contains in
+the second argument will appear in the result.
+
+This function always merges the smaller map into the larger map, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
   if h₁ : 0 < m₁.buckets.size then
     if h₂ : 0 < m₂.buckets.size then
@@ -716,7 +722,7 @@ theorem WF.union₀ [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.
 theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.union m₂ : Raw α β).WF := by
   simp [Std.DHashMap.Raw.union, h₁.size_buckets_pos, h₂.size_buckets_pos]
   exact WF.union₀ h₁ h₂
-  
+
 end WF
 
 end Raw

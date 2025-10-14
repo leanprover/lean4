@@ -255,7 +255,13 @@ instance [BEq α] [Hashable α] {m : Type w → Type w'} : ForIn m (HashMap α �
     Array α :=
   m.inner.keysArray
 
-/-- Computes the union of the given hash maps, inserting smaller hash map into a bigger hash map. In the case of clashes of keys, entries from the left argument, are replaced with entries from the right argument. -/
+/--
+Computes the union of the given hash maps. If a key appears in both maps, the entry contains in
+the second argument will appear in the result.
+
+This function always merges the smaller map into the larger map, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : HashMap α β) : HashMap α β :=
   ⟨DHashMap.union m₁.inner m₂.inner⟩
 

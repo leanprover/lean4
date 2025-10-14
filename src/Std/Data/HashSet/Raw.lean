@@ -224,7 +224,12 @@ instance {m : Type v → Type w} : ForIn m (Raw α) α where
 @[inline] def toArray (m : Raw α) : Array α :=
   m.inner.keysArray
 
-/-- Computes the union of the given hash set, inserting smaller hash set into a bigger hash set. -/
+/--
+Computes the union of the given hash sets.
+
+This function always merges the smaller set into the larger set, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α) : Raw α :=
   ⟨HashMap.Raw.union m₁.inner m₂.inner⟩
 

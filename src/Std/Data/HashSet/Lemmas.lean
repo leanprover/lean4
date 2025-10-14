@@ -58,6 +58,7 @@ theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
 theorem contains_iff_mem {a : α} : m.contains a ↔ a ∈ m :=
   HashMap.contains_iff_mem
 
+-- The following lemma becomes a simp lemma at the bottom of the file.
 theorem contains_eq_false_iff_not_mem {k : α} : m.contains k = false ↔ ¬k ∈ m :=
   HashMap.contains_eq_false_iff_not_mem
 

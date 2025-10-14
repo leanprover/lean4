@@ -235,7 +235,12 @@ appearance.
 @[inline] def toArray (m : HashSet α) : Array α :=
   m.inner.keysArray
 
-/-- Computes the union of the given hash set, inserting smaller hash set into a bigger hash set. -/
+/--
+Computes the union of the given hash sets.
+
+This function always merges the smaller set into the larger set, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : HashSet α) : HashSet α :=
   ⟨HashMap.union m₁.inner m₂.inner⟩
 

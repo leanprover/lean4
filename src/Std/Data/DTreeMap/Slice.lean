@@ -22,28 +22,28 @@ inductive MapIterator (α : Type u) (β : α → Type v) where
   | done
   | cons (k : α) (v : β k) (tree : Internal.Impl α β) (next : MapIterator α β)
 
+def treeSize : Internal.Impl α β → Nat
+| .leaf => 0
+| .inner _ _ _ l r => 1 + treeSize l + treeSize r
+
 def MapIterator.size : MapIterator α β → Nat
 | .done => 0
-| .cons _ _ tree next => 1 + tree.size + next.size
+| .cons _ _ tree next => 1 + treeSize (tree) + next.size
 
 def MapIterator.prependMap : Internal.Impl α β → MapIterator α β → MapIterator α β
   | .leaf, it => it
   | .inner _ k v l r, it => prependMap l (.cons k v r it)
 
 variable (α : Type u) (β : α → Type v)
-theorem prependMap_size  (t : Internal.Impl α β) (it : MapIterator α β) : (MapIterator.prependMap t it).size = t.size + it.size := by
+theorem prependMap_size  (t : Internal.Impl α β) (it : MapIterator α β) : (MapIterator.prependMap t it).size = treeSize t + it.size := by
   fun_induction MapIterator.prependMap
   case case1 =>
-   simp [Internal.Impl.size]
+   simp [treeSize]
   case case2 size k v l r it ih =>
-    induction l
-    case leaf =>
-      simp [MapIterator.prependMap]
-      simp [MapIterator.size]
-      sorry
-
-
-
+    rw [ih]
+    simp [treeSize, MapIterator.size]
+    rw [←Nat.add_assoc]
+    sorry
 
 
 structure RxcIterator (cmp : α → α → Ordering) where
@@ -65,8 +65,6 @@ instance : Iterator (RxcIterator α β cmp) Id ((a : α) × β a) where
   IsPlausibleStep it step := it.internalState.step = step
   step it := ⟨it.internalState.step, rfl⟩
 
-
-
 def RxC_finite : FinitenessRelation (RxcIterator α β cmp) Id where
   rel t' t := t'.internalState.iter.size < t.internalState.iter.size
   wf := by
@@ -78,11 +76,11 @@ def RxC_finite : FinitenessRelation (RxcIterator α β cmp) Id where
     cases w
     case skip it'' =>
       cases h
-      simp [RxcIterator.step] at h'
+      simp only [RxcIterator.step] at h'
       split at h'
       any_goals contradiction
-      split at h'
-      any_goals contradiction
+      . split at h'
+        all_goals contradiction
     case done =>
       cases h
     case yield it'' out =>
@@ -96,19 +94,9 @@ def RxC_finite : FinitenessRelation (RxcIterator α β cmp) Id where
         case isFalse =>
           contradiction
         case isTrue heq =>
-          simp [h2]
           simp at h'
-          have := h'.1
-          rw [← this]
-          simp
-          simp [MapIterator.size]
-          sorry
-
-
-
-
-
-
+          simp only [h2, ← h'.1, prependMap_size, MapIterator.size, Nat.add_lt_add_iff_right,
+            Nat.lt_add_left_iff_pos, Nat.lt_add_one]
 
 section Rxc
 end Rxc

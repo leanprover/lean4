@@ -581,6 +581,33 @@ def IterM.Partial.all {α β : Type w} {m : Type w → Type w'} [Monad m]
     (p : β → Bool) (it : IterM.Partial (α := α) m β) : m (ULift Bool) := do
   it.allM (fun x => pure (.up (p x)))
 
+@[inline]
+def IterM.findSomeM? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] [Finite α m] (it : IterM (α := α) m β) (f : β → m (Option γ)) :
+    m (Option γ) :=
+  ForIn.forIn it none (fun x _ => do
+    match ← f x with
+    | none => return .yield none
+    | some fx => return .done (some fx))
+
+@[inline]
+def IterM.findSome? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] [Finite α m] (it : IterM (α := α) m β) (f : β → Option γ) :
+    m (Option γ) :=
+  it.findSomeM? (pure <| f ·)
+
+@[inline]
+def IterM.findM? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] [Finite α m] (it : IterM (α := α) m β) (f : β → m (ULift Bool)) :
+    m (Option β) :=
+  it.findSomeM? (fun x => return if (← f x).down then some x else none)
+
+@[inline]
+def IterM.find? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] [Finite α m] (it : IterM (α := α) m β) (f : β → Bool) :
+    m (Option β) :=
+  it.findM? (pure <| .up <| f ·)
+
 section Size
 
 /--

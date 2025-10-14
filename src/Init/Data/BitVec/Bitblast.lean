@@ -2388,6 +2388,26 @@ theorem fastUmulOverflow (x y : BitVec w) :
 /-! ## Auxilliary lemmas for popcount -/
 
 /-- Recursively extract one bit at a time and extend it to width `w`. `hlen` emulates the behaviour of Vector to simplify proving the correctness of the circuit. -/
+def extractAndExtendPopulateAux' (k len : Nat) (x : BitVec w) (acc : BitVec (k * len)) (hlt : k ≤ w) :
+    BitVec (w * len) :=
+  match hwi : w - k with
+  | 0 => acc.cast (by simp [show w = k by omega])
+  | n' + 1 =>
+    let acc := BitVec.zeroExtend len (BitVec.extractLsb' k 1 x) ++ acc
+    extractAndExtendPopulateAux' (k + 1) len x (acc.cast (by simp [Nat.add_mul]; omega)) (by omega)
+
+def extractAndExtendPopulate' (len : Nat) (x : BitVec w) : BitVec (w * len) :=
+    extractAndExtendPopulateAux' 0 len x ((0#0).cast (by simp)) (by omega)
+
+theorem extractLsb'_extractAndExtendPopulate'_eq (i len : Nat) (x : BitVec w) :
+    (extractAndExtendPopulate' len x).extractLsb' (i * len) len =
+    BitVec.zeroExtend len (BitVec.extractLsb' i 1 x) := by
+  sorry
+
+
+
+
+
 def extractAndExtendPopulateAux (idx : Nat) (x : BitVec w) (acc : BitVec (w * idx)) (hlt : idx ≤ w)
   (hacc : ∀ i (_ : i < idx),
         ∀ j (_ : j < w),
@@ -2502,13 +2522,6 @@ theorem extractLsb'_extractAndExtendPopulate_zero_eq (x : BitVec w) :
     (extractAndExtendPopulate x).extractLsb' 0 w = BitVec.zeroExtend w (BitVec.extractLsb' 0 1 x) := by
   rw [show 0 = 0 * w by omega, extractLsb'_extractAndExtendPopulate_eq (i := 0)]
   simp
-
-/-- Recursively add `len`-long portions of the bitvector -/
-def foldAdd (x : BitVec (validNodes * w)) (validNodes currNode : Nat) (r : BitVec w) : BitVec w :=
-  if _ : currNode < validNodes then
-    foldAdd x validNodes (currNode + 1) (r + (x.extractLsb' currNode w))
-  else
-    r
 
 
 /-- Given a list of `BitVec w`, we recursively construct the parallel prefix sum for each couple of elements in the initial input. -/
@@ -2627,7 +2640,6 @@ theorem extractLsb'_zero_of_le (x : BitVec w) (n : Nat) (len : Nat) (hn : w ≤ 
   simp
   apply getLsbD_of_ge
   omega
-
 
 /-- TODO: addVec adds adjacent vectors together.  -/
 theorem addVec_eq (validNodes : Nat) (nodes : BitVec (validNodes * w)) (hw : 1 < w) (hval : validNodes ≤ w) :

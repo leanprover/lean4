@@ -23,6 +23,103 @@ namespace Lean.Meta.Hint
 open Elab Tactic PrettyPrinter TryThis
 
 /--
+A widget for a clickable link (or icon) that inserts text into the document at a given position.
+
+The props to this widget are of the following form:
+```json
+{
+  "range": {
+    "start": {"line": 100, "character": 0},
+    "end":   {"line": 100, "character": 5}
+  },
+  "suggestion": "hi",
+  "acceptSuggestionProps": {
+    "kind": "text",
+    "hoverText": "Displayed on hover",
+    "linkText": "Displayed as the text of the link"
+  }
+}
+```
+... or the following form, where `codiconName` is one of the icons at
+https://microsoft.github.io/vscode-codicons/dist/codicon.html and `gaps` determines
+whether there are clickable spaces surrounding the icon:
+```json
+{
+  "range": {
+    "start": {"line": 100, "character": 0},
+    "end":   {"line": 100, "character": 5}
+  },
+  "suggestion": "hi",
+  "acceptSuggestionProps": {
+    "kind": "icon",
+    "hoverText": "Displayed on hover",
+    "codiconName": "search",
+    "gaps": true
+  }
+}
+```
+
+Note: we cannot add the `builtin_widget_module` attribute here because that would require importing
+`Lean.Widget.UserWidget`, which in turn imports much of `Lean.Elab` -- the module where we want to
+be able to use this widget. Instead, we register the attribute post-hoc when we declare the regular
+"Try This" widget in `Lean.Meta.Tactic.TryThis`.
+-/
+def textInsertionWidget : Widget.Module where
+  javascript := "
+import * as React from 'react';
+import { EditorContext, EnvPosContext } from '@leanprover/infoview';
+
+const e = React.createElement;
+export default function ({ range, suggestion, acceptSuggestionProps }) {
+  const pos = React.useContext(EnvPosContext)
+  const editorConnection = React.useContext(EditorContext)
+  function onClick() {
+    editorConnection.api.applyEdit({
+      changes: { [pos.uri]: [{ range, newText: suggestion }] }
+    })
+  }
+
+  if (acceptSuggestionProps.kind === 'text') {
+    return e('span', {
+        onClick,
+        title: acceptSuggestionProps.hoverText,
+        className: 'link pointer dim font-code',
+        style: { color: 'var(--vscode-textLink-foreground)' }
+      },
+      acceptSuggestionProps.linkText)
+  } else if (acceptSuggestionProps.kind === 'icon') {
+    if (acceptSuggestionProps.gaps) {
+      const icon = e('span', {
+        className: `codicon codicon-${acceptSuggestionProps.codiconName}`,
+        style: {
+          verticalAlign: 'sub',
+          fontSize: 'var(--vscode-editor-font-size)'
+        }
+      })
+      return e('span', {
+        onClick,
+        title: acceptSuggestionProps.hoverText,
+        className: `link pointer dim font-code`,
+        style: { color: 'var(--vscode-textLink-foreground)' }
+      }, ' ', icon, ' ')
+    } else {
+      return e('span', {
+        onClick,
+        title: acceptSuggestionProps.hoverText,
+        className: `link pointer dim font-code codicon codicon-${acceptSuggestionProps.codiconName}`,
+        style: {
+          color: 'var(--vscode-textLink-foreground)',
+          verticalAlign: 'sub',
+          fontSize: 'var(--vscode-editor-font-size)'
+        }
+      })
+    }
+
+  }
+  throw new Error('Unexpected `acceptSuggestionProps` kind: ' + acceptSuggestionProps.kind)
+}"
+
+/--
 A widget for rendering code action suggestions in error messages. Generally, this widget should not
 be used directly; instead, use `MessageData.hint`. Note that this widget is intended only for use
 within message data; it may not display line breaks properly if rendered as a panel widget.
@@ -333,52 +430,82 @@ def mkSuggestionsMessage (suggestions : Array Suggestion) (ref : Syntax)
     (codeActionPrefix? : Option String) (forceList : Bool) : CoreM MessageData := do
   let mut msg := m!""
   for suggestion in suggestions do
-    if let some range := (suggestion.span?.getD ref).getRange? then
-      let { info, suggestions := suggestionArr, range := lspRange } ←
-        processSuggestions ref range #[suggestion.toTryThisSuggestion] codeActionPrefix?
-      pushInfoLeaf info
-      -- The following access is safe because
-      -- `suggestionsArr = #[suggestion.toTryThisSuggestion].map ...` (see `processSuggestions`)
-      let suggestionText := suggestionArr[0]!.2.1
-      let map ← getFileMap
-      let rangeContents := map.source.extract range.start range.stop
-      let edits ← do
-        if let some msgData := suggestion.messageData? then
-          pure #[(.insert, toString <| ← msgData.format)]
-        else
-          pure <| readableDiff rangeContents suggestionText suggestion.diffGranularity
-      let mut edits := edits
-      if let some previewRange := suggestion.previewSpan? >>= Syntax.getRange? then
-        if previewRange.includes range then
-          let map ← getFileMap
-          if previewRange.start < range.start then
-            edits := #[(.skip, (map.source.extract previewRange.start range.start))] ++ edits
-          if range.stop < previewRange.stop then
-            edits := edits.push (.skip, (map.source.extract range.stop previewRange.stop))
-      let diffJson := mkDiffJson edits
-      let json := json% {
-        diff: $diffJson,
-        suggestion: $suggestionText,
-        range: $lspRange
+    let some range := suggestion.span?.getD ref |>.getRange?
+      | continue
+    let edit ← suggestion.processEdit range
+    let suggestionText := edit.newText
+    let ref := Syntax.ofRange <| ref.getRange?.getD range
+    let codeActionTitleOverride? := suggestion.toCodeActionTitle?.map (· suggestionText)
+    let codeActionTitle := codeActionTitleOverride?.getD <| (codeActionPrefix?.getD "Try this: ") ++ suggestionText
+    let info := Info.ofCustomInfo {
+      stx := ref
+      value := Dynamic.mk {
+        edit
+        suggestion := suggestion.toTryThisSuggestion
+        codeActionTitle
+        : TryThisInfo
       }
-      let preInfo := suggestion.preInfo?.getD ""
-      let postInfo := suggestion.postInfo?.getD ""
-      let diffString :=
-        if suggestion.diffGranularity matches .none then
-          edits.foldl (· ++ ·.2) ""
-        else
-          mkDiffString edits
-      let widget := MessageData.ofWidget {
-          id := ``tryThisDiffWidget
-          javascriptHash := tryThisDiffWidget.javascriptHash
-          props := return json
-        } diffString
-      let widgetMsg := m!"{preInfo}{widget}{postInfo}"
-      let suggestionMsg := if suggestions.size == 1 && !forceList then
-        m!"\n{widgetMsg}"
+    }
+    pushInfoLeaf info
+    let map ← getFileMap
+    let rangeContents := map.source.extract range.start range.stop
+    let edits ← do
+      if let some msgData := suggestion.messageData? then
+        pure #[(.insert, toString <| ← msgData.format)]
       else
-        m!"\n" ++ MessageData.nest 2 m!"• {widgetMsg}"
-      msg := msg ++ MessageData.nestD suggestionMsg
+        pure <| readableDiff rangeContents suggestionText suggestion.diffGranularity
+    let mut edits := edits
+    if let some previewRange := suggestion.previewSpan? >>= Syntax.getRange? then
+      if previewRange.includes range then
+        let map ← getFileMap
+        if previewRange.start < range.start then
+          edits := #[(.skip, (map.source.extract previewRange.start range.start))] ++ edits
+        if range.stop < previewRange.stop then
+          edits := edits.push (.skip, (map.source.extract range.stop previewRange.stop))
+    let preInfo := suggestion.preInfo?.getD ""
+    let postInfo := suggestion.postInfo?.getD ""
+    let isDiffSuggestion :=
+      ! (suggestion.diffGranularity matches .none) && suggestion.messageData?.isNone
+        || suggestion.previewSpan?.isSome
+    let suggestionMsg :=
+      if ! isDiffSuggestion then
+        let applyButton := MessageData.ofWidget {
+          id := ``textInsertionWidget
+          javascriptHash := textInsertionWidget.javascriptHash
+          props := return json% {
+            range: $edit.range,
+            suggestion: $suggestionText,
+            acceptSuggestionProps: {
+              kind: "text",
+              hoverText: "Apply suggestion",
+              linkText: "[apply]"
+            }
+          }
+        } "[apply]"
+        m!"\n{applyButton} {preInfo}{toMessageData suggestion}{postInfo}"
+      else
+        let diffJson := mkDiffJson edits
+        let json := json% {
+          diff: $diffJson,
+          suggestion: $suggestionText,
+          range: $edit.range
+        }
+        let diffString :=
+          if suggestion.diffGranularity matches .none then
+            edits.foldl (· ++ ·.2) ""
+          else
+            mkDiffString edits
+        let diffWidget := MessageData.ofWidget {
+            id := ``tryThisDiffWidget
+            javascriptHash := tryThisDiffWidget.javascriptHash
+            props := return json
+          } diffString
+        let msg := m!"{preInfo}{diffWidget}{postInfo}"
+        if suggestions.size == 1 && !forceList then
+          m!"\n{msg}"
+        else
+          m!"\n" ++ MessageData.nest 2 m!"• {msg}"
+    msg := msg ++ MessageData.nestD suggestionMsg
   return msg
 
 /--

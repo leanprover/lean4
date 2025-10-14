@@ -31,8 +31,7 @@ theorem Iter.step_drop {α β} [Iterator α Id β] {n : Nat}
     | .done h => .done (.done h)) := by
   simp only [drop_eq, step, toIterM_toIter, IterM.step_drop, Id.run_bind]
   generalize it.toIterM.step.run = step
-  obtain ⟨step, h⟩ := step
-  cases step <;> cases n <;>
+  cases step.inflate using PlausibleIterStep.casesOn <;> cases n <;>
     simp [PlausibleIterStep.yield, PlausibleIterStep.skip, PlausibleIterStep.done]
 
 theorem Iter.atIdxSlow?_drop {α β}

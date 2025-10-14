@@ -91,7 +91,7 @@ def IterM.DefaultConsumers.toArrayMapped {α β : Type w} {m : Type w → Type w
 where
   @[specialize]
   go [Monad n] [Finite α m] (it : IterM (α := α) m β) a := letI : MonadLift m n := ⟨lift (α := _)⟩; do
-    match ← it.step with
+    match (← it.step).inflate with
     | .yield it' b _ => go it' (a.push (← f b))
     | .skip it' _ => go it' a
     | .done _ => return a
@@ -150,7 +150,7 @@ partial def IterM.DefaultConsumers.toArrayMappedPartial {α β : Type w} {m : Ty
 where
   @[specialize]
   go [Monad n] (it : IterM (α := α) m β) a := letI : MonadLift m n := ⟨lift⟩; do
-    match ← it.step with
+    match (← it.step).inflate with
     | .yield it' b _ => go it' (a.push (← f b))
     | .skip it' _ => go it' a
     | .done _ => return a
@@ -209,7 +209,7 @@ def IterM.toListRev {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type 
   go it []
 where
   go [Finite α m] it bs := do
-    match ← it.step with
+    match (← it.step).inflate with
     | .yield it' b _ => go it' (b :: bs)
     | .skip it' _ => go it' bs
     | .done _ => return bs
@@ -229,7 +229,7 @@ partial def IterM.Partial.toListRev {α : Type w} {m : Type w → Type w'} [Mona
 where
   @[specialize]
   go it bs := do
-    match ← it.step with
+    match (← it.step).inflate with
     | .yield it' b _ => go it' (b :: bs)
     | .skip it' _ => go it' bs
     | .done _ => return bs

@@ -227,21 +227,21 @@ instance DropWhile.instIterator [Monad m] [Iterator α m β] {P} :
     Iterator (DropWhile α m β P) m β where
   IsPlausibleStep := DropWhile.PlausibleStep
   step it := do
-    match ← it.internalState.inner.step with
+    match (← it.internalState.inner.step).inflate with
     | .yield it' out h =>
       if h' : it.internalState.dropping = true then
         match ← (P out).operation with
         | ⟨.up true, h''⟩ =>
-          return .skip (IterM.Intermediate.dropWhileWithPostcondition P true it') (.dropped h h' h'')
+          return .deflate <| .skip (IterM.Intermediate.dropWhileWithPostcondition P true it') (.dropped h h' h'')
         | ⟨.up false, h''⟩ =>
-          return .yield (IterM.Intermediate.dropWhileWithPostcondition P false it') out (.start h h' h'')
+          return .deflate <| .yield (IterM.Intermediate.dropWhileWithPostcondition P false it') out (.start h h' h'')
       else
-        return .yield (IterM.Intermediate.dropWhileWithPostcondition P false it') out
+        return .deflate <| .yield (IterM.Intermediate.dropWhileWithPostcondition P false it') out
             (.yield h (Bool.not_eq_true _ ▸ h'))
     | .skip it' h =>
-      return .skip (IterM.Intermediate.dropWhileWithPostcondition P it.internalState.dropping it') (.skip h)
+      return .deflate <| .skip (IterM.Intermediate.dropWhileWithPostcondition P it.internalState.dropping it') (.skip h)
     | .done h =>
-      return .done (.done h)
+      return .deflate <| .done (.done h)
 
 private def DropWhile.instFinitenessRelation [Monad m] [Iterator α m β]
     [Finite α m] {P} :

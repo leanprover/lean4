@@ -88,9 +88,9 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
     | .empty pos =>
       let res := .matched pos pos
       if h : pos ≠ s.endPos then
-        pure ⟨.yield ⟨.empty (pos.next h)⟩ res, by simp⟩
+        pure (.deflate ⟨.yield ⟨.empty (pos.next h)⟩ res, by simp⟩)
       else
-        pure ⟨.yield ⟨.atEnd⟩ res, by simp⟩
+        pure (.deflate ⟨.yield ⟨.atEnd⟩ res, by simp⟩)
     | .proper needle table stackPos needlePos =>
       let rec findNext (startPos : String.Pos.Raw)
           (currStackPos : String.Pos.Raw) (needlePos : String.Pos.Raw) (h : stackPos ≤ currStackPos) :=
@@ -112,7 +112,7 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
                 omega
               · apply Pos.Raw.IsValidForSlice.le_utf8ByteSize
                 apply Pos.isValidForSlice
-            ⟨.yield ⟨.proper needle table nextStackPos needlePos⟩ res, hiter⟩
+            .deflate ⟨.yield ⟨.proper needle table nextStackPos needlePos⟩ res, hiter⟩
           else
             let needlePos := needlePos.inc
             if needlePos == needle.rawEndPos then
@@ -128,7 +128,7 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
                   omega
                 · simp [String.Pos.Raw.le_iff] at h1 ⊢
                   omega
-              ⟨.yield ⟨.proper needle table nextStackPos 0⟩ res, hiter⟩
+              .deflate ⟨.yield ⟨.proper needle table nextStackPos 0⟩ res, hiter⟩
             else
               have hinv := by
                 simp [String.Pos.Raw.le_iff] at h ⊢
@@ -137,16 +137,16 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
         else
           if startPos != s.rawEndPos then
             let res := .rejected (s.pos! startPos) (s.pos! currStackPos)
-            ⟨.yield ⟨.atEnd⟩ res, by simp⟩
+            .deflate ⟨.yield ⟨.atEnd⟩ res, by simp⟩
           else
-            ⟨.done, by simp⟩
+            .deflate ⟨.done, by simp⟩
         termination_by s.utf8ByteSize - currStackPos.byteIdx
         decreasing_by
           simp at h1 ⊢
           omega
 
       findNext stackPos stackPos needlePos (by simp)
-    | .atEnd => pure ⟨.done, by simp⟩
+    | .atEnd => pure (.deflate ⟨.done, by simp⟩)
 
 private def toPair : ForwardSliceSearcher s → (Nat × Nat)
   | .empty pos => (1, s.utf8ByteSize - pos.offset.byteIdx)

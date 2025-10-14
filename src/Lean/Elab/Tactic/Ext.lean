@@ -6,16 +6,13 @@ Authors: Gabriel Ebner, Mario Carneiro
 module
 
 prelude
-public import Init.Ext
-public import Lean.Meta.Tactic.Ext
-public import Lean.Elab.DeclarationRange
-public import Lean.Elab.Tactic.RCases
-public import Lean.Elab.Tactic.Repeat
-public import Lean.Elab.Tactic.BuiltinTactic
-public import Lean.Elab.Command
-public import Lean.Linter.Basic
-
-public section
+import Lean.Meta.Tactic.Ext
+import Lean.Elab.DeclarationRange
+import Lean.Elab.Tactic.RCases
+import Lean.Elab.Tactic.Repeat
+import Lean.Elab.Tactic.BuiltinTactic
+import Lean.Elab.Command
+import Lean.Linter.Basic
 
 /-!
 # Implementation of the `@[ext]` attribute

@@ -31,7 +31,7 @@ theorem _root_.Array.iterM_eq_iterFromIdxM {array : Array β} :
   rfl
 
 theorem _root_.Array.step_iterFromIdxM {array : Array β} {pos : Nat} :
-    (array.iterFromIdxM m pos).step = (pure <| if h : pos < array.size then
+    (array.iterFromIdxM m pos).step = (pure <| .deflate <| if h : pos < array.size then
         .yield
           (array.iterFromIdxM m (pos + 1))
           array[pos]
@@ -41,7 +41,7 @@ theorem _root_.Array.step_iterFromIdxM {array : Array β} {pos : Nat} :
   rfl
 
 theorem _root_.Array.step_iterM {array : Array β} :
-    (array.iterM m).step = (pure <| if h : 0 < array.size then
+    (array.iterM m).step = (pure <| .deflate <| if h : 0 < array.size then
         .yield
           (array.iterFromIdxM m 1)
           array[0]

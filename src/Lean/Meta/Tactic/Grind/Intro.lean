@@ -68,25 +68,36 @@ private def mkBaseName (name : Name) (type : Expr) : MetaM Name := do
   if (← isProp type) then return `h else return `x
 
 private def mkCleanName (name : Name) (type : Expr) : GoalM Name := do
-  unless (← getConfig).clean do
+  if (← getConfig).clean then
+    let mut name := name
+    if name.hasMacroScopes then
+      name := name.eraseMacroScopes
+      if name == `x || name == `a then
+        if (← isProp type) then
+          name := `h
+    if (← get).clean.used.contains name then
+      let base ← mkBaseName name type
+      let mut i := if let some i := (← get).clean.next.find? base then i else 1
+      repeat
+        name := base.appendIndexAfter i
+        i := i + 1
+        unless (← get).clean.used.contains name do
+          break
+      modify fun s => { s with clean.next := s.clean.next.insert base i }
+    modify fun s => { s with clean.used := s.clean.used.insert name }
     return name
-  let mut name := name
-  if name.hasMacroScopes then
-    name := name.eraseMacroScopes
-    if name == `x || name == `a then
+  else if name.hasMacroScopes then
+    let name' := name.eraseMacroScopes
+    if name' == `x || name' == `a then
       if (← isProp type) then
-        name := `h
-  if (← get).clean.used.contains name then
-    let base ← mkBaseName name type
-    let mut i := if let some i := (← get).clean.next.find? base then i else 1
-    repeat
-      name := base.appendIndexAfter i
-      i := i + 1
-      unless (← get).clean.used.contains name do
-        break
-    modify fun s => { s with clean.next := s.clean.next.insert base i }
-  modify fun s => { s with clean.used := s.clean.used.insert name }
-  return name
+        return (← mkFreshUserName `h)
+    return name
+  else if (← get).clean.used.contains name then
+    let name ← mkFreshUserName name
+    return name
+  else
+    modify fun s => { s with clean.used := s.clean.used.insert name }
+    return name
 
 private def intro1 : GoalM FVarId := do
   let target ← (← get).mvarId.getType

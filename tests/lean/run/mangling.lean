@@ -11,8 +11,8 @@ import all Init.Data.Nat.Basic
 def checkMangle (n : Lean.Name) (s : String) : IO Unit := do
   if n.mangle "" ≠ s then
     throw <| .userError s!"failed: {n} mangles to {n.mangle ""} but expected {s}"
-  if .unmangle s ≠ n then
-    throw <| .userError s!"failed: {s} unmangles to {Lean.Name.unmangle s} but expected {n}"
+  if .demangle s ≠ n then
+    throw <| .userError s!"failed: {s} demangles to {Lean.Name.demangle s} but expected {n}"
 
 /-!
 Mangling simple identifiers with optional number components and preceding underscores.
@@ -1023,20 +1023,20 @@ theorem prependStr_prependStr (n : Name) :
   fun_induction prependStr s n <;> simp_all [String.append_assoc, prependStr]
 
 @[simp]
-theorem unmangleAux_cast {s t : String} (h : s = t) {p : s.ValidPos}
+theorem demangleAux_cast {s t : String} (h : s = t) {p : s.ValidPos}
     {res : Name} {acc : String} {ucount : Nat} :
-    unmangleAux t (p.cast h) res acc ucount = unmangleAux s p res acc ucount := by
+    demangleAux t (p.cast h) res acc ucount = demangleAux s p res acc ucount := by
   cases h; rfl
 
 @[simp]
-theorem unmangleAux_nameStart_cast {s t : String} (h : s = t) {p : s.ValidPos} {res : Name} :
-    unmangleAux.nameStart t (p.cast h) res = unmangleAux.nameStart s p res := by
+theorem demangleAux_nameStart_cast {s t : String} (h : s = t) {p : s.ValidPos} {res : Name} :
+    demangleAux.nameStart t (p.cast h) res = demangleAux.nameStart s p res := by
   cases h; rfl
 
 @[simp]
-theorem unmangleAux_decodeNum_cast {s t : String} (h : s = t) {p : s.ValidPos}
+theorem demangleAux_decodeNum_cast {s t : String} (h : s = t) {p : s.ValidPos}
     {res : Name} {n : Nat} :
-    unmangleAux.decodeNum t (p.cast h) res n = unmangleAux.decodeNum s p res n := by
+    demangleAux.decodeNum t (p.cast h) res n = demangleAux.decodeNum s p res n := by
   cases h; rfl
 
 macro "term_tactic" : tactic =>
@@ -1048,80 +1048,80 @@ macro "term_tactic" : tactic =>
       | with_reducible apply String.ValidPos.lt_next _
       | apply Nat.lt_add_of_pos_right (by decide))
 
-/-theorem unmangleAux_normalize2 {s : String} {p : s.ValidPos}
+/-theorem demangleAux_normalize2 {s : String} {p : s.ValidPos}
     (res : Name) (acc : String) {ucount : Nat} :
-    unmangleAux s p res acc (ucount + 2) = res +-+ (unmangleAux s p .anonymous "" ucount).prependStr acc := by-/
+    demangleAux s p res acc (ucount + 2) = res +-+ (demangleAux s p .anonymous "" ucount).prependStr acc := by-/
 
 mutual
 
-theorem unmangleAux_normalize {s : String} {p : s.ValidPos}
+theorem demangleAux_normalize {s : String} {p : s.ValidPos}
     (res : Name) (acc : String) {ucount : Nat} :
-    unmangleAux s p res acc ucount = res +-+ (unmangleAux s p .anonymous "" ucount).prependStr acc := by
-  fun_cases unmangleAux s p res acc ucount
-  · rw [unmangleAux, dif_pos ‹_›, prependStr, extend, extend, String.pushn_normalize]
-  · conv => rhs; rw [unmangleAux, dif_neg ‹_›, if_pos ‹_›]
-    rw [unmangleAux_normalize]
-  · conv => rhs; rw [unmangleAux, dif_neg ‹_›, if_neg ‹_›, if_pos ‹_›]
-    conv => lhs; rw [unmangleAux_normalize]
-    conv => rhs; rw [unmangleAux_normalize]
+    demangleAux s p res acc ucount = res +-+ (demangleAux s p .anonymous "" ucount).prependStr acc := by
+  fun_cases demangleAux s p res acc ucount
+  · rw [demangleAux, dif_pos ‹_›, prependStr, extend, extend, String.pushn_normalize]
+  · conv => rhs; rw [demangleAux, dif_neg ‹_›, if_pos ‹_›]
+    rw [demangleAux_normalize]
+  · conv => rhs; rw [demangleAux, dif_neg ‹_›, if_neg ‹_›, if_pos ‹_›]
+    conv => lhs; rw [demangleAux_normalize]
+    conv => rhs; rw [demangleAux_normalize]
     rw [anonymous_extend, String.pushn_normalize, prependStr_prependStr, String.append_push]
-  · conv => rhs; rw [unmangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg ‹_›, if_pos ‹_›, dif_pos ‹_›]
-    conv => lhs; rw [unmangleAux_normalize]
-    conv => rhs; rw [unmangleAux_normalize]
+  · conv => rhs; rw [demangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg ‹_›, if_pos ‹_›, dif_pos ‹_›]
+    conv => lhs; rw [demangleAux_normalize]
+    conv => rhs; rw [demangleAux_normalize]
     rw [prependStr_empty, prependStr_str_anonymous_extend, ← extend_assoc, extend, extend,
       ← String.pushn_normalize]
-  · conv => rhs; rw [unmangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg ‹_›, if_pos ‹_›, dif_neg ‹_›]
-    conv => lhs; rw [unmangleAux_decodeNum_normalize]
-    conv => rhs; rw [unmangleAux_decodeNum_normalize]
+  · conv => rhs; rw [demangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg ‹_›, if_pos ‹_›, dif_neg ‹_›]
+    conv => lhs; rw [demangleAux_decodeNum_normalize]
+    conv => rhs; rw [demangleAux_decodeNum_normalize]
     rw [prependStr_str_anonymous_extend, ← String.pushn_normalize, ← extend_assoc, extend, extend]
-  · conv => rhs; rw [unmangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg ‹_›, if_neg ‹_›, dif_pos ‹_›]
-    conv => lhs; rw [unmangleAux_normalize]
-    conv => rhs; rw [unmangleAux_normalize]
+  · conv => rhs; rw [demangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg ‹_›, if_neg ‹_›, dif_pos ‹_›]
+    conv => lhs; rw [demangleAux_normalize]
+    conv => rhs; rw [demangleAux_normalize]
     rw [anonymous_extend, prependStr_prependStr, String.append_push, ← String.pushn_normalize]
-  · conv => rhs; rw [unmangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg ‹_›, if_neg ‹_›, dif_neg ‹_›, dif_pos ‹_›]
-    conv => lhs; rw [unmangleAux_normalize]
-    conv => rhs; rw [unmangleAux_normalize]
+  · conv => rhs; rw [demangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg ‹_›, if_neg ‹_›, dif_neg ‹_›, dif_pos ‹_›]
+    conv => lhs; rw [demangleAux_normalize]
+    conv => rhs; rw [demangleAux_normalize]
     rw [anonymous_extend, prependStr_prependStr, String.append_push, ← String.pushn_normalize]
-  · conv => rhs; rw [unmangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg ‹_›, if_neg ‹_›, dif_neg ‹_›, dif_neg ‹_›, dif_pos ‹_›]
-    conv => lhs; rw [unmangleAux_normalize]
-    conv => rhs; rw [unmangleAux_normalize]
+  · conv => rhs; rw [demangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg ‹_›, if_neg ‹_›, dif_neg ‹_›, dif_neg ‹_›, dif_pos ‹_›]
+    conv => lhs; rw [demangleAux_normalize]
+    conv => rhs; rw [demangleAux_normalize]
     rw [anonymous_extend, prependStr_prependStr, String.append_push, ← String.pushn_normalize]
-  · conv => rhs; rw [unmangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg ‹_›, if_neg ‹_›, dif_neg ‹_›, dif_neg ‹_›, dif_neg ‹_›]
-    conv => lhs; rw [unmangleAux_normalize]
-    conv => rhs; rw [unmangleAux_normalize]
+  · conv => rhs; rw [demangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg ‹_›, if_neg ‹_›, dif_neg ‹_›, dif_neg ‹_›, dif_neg ‹_›]
+    conv => lhs; rw [demangleAux_normalize]
+    conv => rhs; rw [demangleAux_normalize]
     rw [prependStr_str_anonymous_extend, String.append_empty, ← extend_assoc, extend, extend]
 termination_by p.remainingBytes
 decreasing_by term_tactic
 
-theorem unmangleAux_decodeNum_normalize {s : String} {p : s.ValidPos} (res : Name) {i : Nat} :
-    unmangleAux.decodeNum s p res i = res +-+ unmangleAux.decodeNum s p .anonymous i := by
-  fun_cases unmangleAux.decodeNum s p res i
-  · rw [unmangleAux.decodeNum, dif_pos ‹_›, extend, extend]
-  · rw [unmangleAux.decodeNum.eq_def _ _ anonymous, dif_neg ‹_›, if_pos ‹_›]
-    rw [unmangleAux_decodeNum_normalize]
-  · rw [unmangleAux.decodeNum, dif_neg ‹_›, if_neg ‹_›, dif_pos ‹_›]
+theorem demangleAux_decodeNum_normalize {s : String} {p : s.ValidPos} (res : Name) {i : Nat} :
+    demangleAux.decodeNum s p res i = res +-+ demangleAux.decodeNum s p .anonymous i := by
+  fun_cases demangleAux.decodeNum s p res i
+  · rw [demangleAux.decodeNum, dif_pos ‹_›, extend, extend]
+  · rw [demangleAux.decodeNum.eq_def _ _ anonymous, dif_neg ‹_›, if_pos ‹_›]
+    rw [demangleAux_decodeNum_normalize]
+  · rw [demangleAux.decodeNum, dif_neg ‹_›, if_neg ‹_›, dif_pos ‹_›]
     rfl
-  · rw [unmangleAux.decodeNum, dif_neg ‹_›, if_neg ‹_›, dif_neg ‹_›]
-    conv => lhs; rw [unmangleAux_nameStart_normalize]
-    conv => rhs; rw [unmangleAux_nameStart_normalize]
+  · rw [demangleAux.decodeNum, dif_neg ‹_›, if_neg ‹_›, dif_neg ‹_›]
+    conv => lhs; rw [demangleAux_nameStart_normalize]
+    conv => rhs; rw [demangleAux_nameStart_normalize]
     rw [← extend_assoc]
     rfl
 termination_by p.remainingBytes
 decreasing_by term_tactic
 
-theorem unmangleAux_nameStart_normalize {s : String} {p : s.ValidPos} (res : Name) :
-    unmangleAux.nameStart s p res = res +-+ unmangleAux.nameStart s p .anonymous := by
-  fun_cases unmangleAux.nameStart s p res
-  · rw [unmangleAux.nameStart, dif_pos ‹_›, extend]
-  · rw [unmangleAux.nameStart, dif_neg ‹_›, if_pos ‹_›, dif_pos ‹_›]
-    rw [unmangleAux_normalize, prependStr_empty]
-  · rw [unmangleAux.nameStart, dif_neg ‹_›, if_pos ‹_›, dif_neg ‹_›]
-    rw [unmangleAux_decodeNum_normalize]
-  · rw [unmangleAux.nameStart, dif_neg ‹_›, if_neg ‹_›, if_pos ‹_›]
-    rw [unmangleAux_normalize, prependStr_empty]
-  · rw [unmangleAux.nameStart, dif_neg ‹_›, if_neg ‹_›, if_neg ‹_›]
-    conv => lhs; rw [unmangleAux_normalize]
-    conv => rhs; rw [unmangleAux_normalize]
+theorem demangleAux_nameStart_normalize {s : String} {p : s.ValidPos} (res : Name) :
+    demangleAux.nameStart s p res = res +-+ demangleAux.nameStart s p .anonymous := by
+  fun_cases demangleAux.nameStart s p res
+  · rw [demangleAux.nameStart, dif_pos ‹_›, extend]
+  · rw [demangleAux.nameStart, dif_neg ‹_›, if_pos ‹_›, dif_pos ‹_›]
+    rw [demangleAux_normalize, prependStr_empty]
+  · rw [demangleAux.nameStart, dif_neg ‹_›, if_pos ‹_›, dif_neg ‹_›]
+    rw [demangleAux_decodeNum_normalize]
+  · rw [demangleAux.nameStart, dif_neg ‹_›, if_neg ‹_›, if_pos ‹_›]
+    rw [demangleAux_normalize, prependStr_empty]
+  · rw [demangleAux.nameStart, dif_neg ‹_›, if_neg ‹_›, if_neg ‹_›]
+    conv => lhs; rw [demangleAux_normalize]
+    conv => rhs; rw [demangleAux_normalize]
     rw [anonymous_extend]
 termination_by p.remainingBytes
 decreasing_by term_tactic
@@ -1545,7 +1545,7 @@ theorem of_mangle_append_mangleSuffix_eq_pushn_even_append (htc : tc ≠ '_')
     · simp [checkLowerHex_append_mangleSuffix_imp hdis, *]
     · simp [*]
 
-theorem unmangleAux_ucount_reduction (hc : c ≠ '_')
+theorem demangleAux_ucount_reduction (hc : c ≠ '_')
     (h : part.mangle ++ mangleSuffix (b || tailUnderscore part) nm =
       "".pushn '_' (2 * ucount) ++ (String.singleton c ++ t)) :
     ∃ p2 : String, ∃ b, p2.mangle ++ mangleSuffix (b || tailUnderscore p2) nm = t ∧
@@ -1583,13 +1583,13 @@ theorem unmangleAux_ucount_reduction (hc : c ≠ '_')
       refine ⟨hp2, ?_⟩
       rw [hsp2, String.pushn_empty_succ, h.1, String.append_assoc]
 
-theorem unmangleAux_nameStart_normal_str {s s' t : String} {n res : Name}
+theorem demangleAux_nameStart_normal_str {s s' t : String} {n res : Name}
     (ht : t = s'.mangle ++ mangleSuffix (tailUnderscore s') n)
     (h : checkDisambiguation s'.mangle s'.mangle.startValidPos = false)
-    (unmangleAux_thm : ∀ part nm {acc ucount ss tt}, 2 * tt.length + ucount < 2 * t.length →
+    (demangleAux_thm : ∀ part nm {acc ucount ss tt}, 2 * tt.length + ucount < 2 * t.length →
       part.mangle ++ mangleSuffix (tailUnderscore part) nm = "".pushn '_' ucount ++ tt →
-      unmangleAux (ss ++ tt) (ss.posBetween tt) res acc ucount = str res (acc ++ part) +-+! nm) :
-    unmangleAux.nameStart _ (s.posBetween t) res = str res s' +-+! n := by
+      demangleAux (ss ++ tt) (ss.posBetween tt) res acc ucount = str res (acc ++ part) +-+! nm) :
+    demangleAux.nameStart _ (s.posBetween t) res = str res s' +-+! n := by
   generalize hm : s'.mangle = m at h ht
   obtain rfl | ⟨c, s, rfl⟩ := s'.singleton_append_cases
   · simp only [String.mangle_empty] at hm
@@ -1604,26 +1604,26 @@ theorem unmangleAux_nameStart_normal_str {s s' t : String} {n res : Name}
   rw [String.append_assoc]
   fun_cases Char.mangle
   · rintro rfl
-    rw [unmangleAux.nameStart, dif_neg (by simp)]
+    rw [demangleAux.nameStart, dif_neg (by simp)]
     simp only [String.get_posBetween_singleton_append,
       String.next_posBetween_singleton_append, String.ValidPos.get_cast, ne_eq,
       String.ValidPos.cast_eq_endValidPos, String.posBetween_eq_endValidPos_iff,
-      String.ValidPos.next_cast, unmangleAux_cast, unmangleAux_decodeNum_cast]
+      String.ValidPos.next_cast, demangleAux_cast, demangleAux_decodeNum_cast]
     split
     · simp [checkDisambiguation_singleton_append_of_isDigit ‹_›] at h
     split
     · simp_all
-    · rw [unmangleAux_thm s n]
+    · rw [demangleAux_thm s n]
       · simp
       · simp only [String.pushn_zero, String.empty_append, String.append_right_inj]
         congr 1
         rw [tailUnderscore_singleton_append ‹_›]
   · rintro rfl
-    rw [unmangleAux.nameStart, dif_neg (by simp)]
+    rw [demangleAux.nameStart, dif_neg (by simp)]
     simp only [String.get_posBetween_mk_cons_append, Char.reduceIsDigit,
       Bool.false_eq_true, ↓reduceIte, String.next_posBetween_mk_cons_append, String.reduceMk,
-      unmangleAux_cast]
-    rw [unmangleAux_thm (String.singleton '_' ++ s) n, String.empty_append, ‹c = '_'›]
+      demangleAux_cast]
+    rw [demangleAux_thm (String.singleton '_' ++ s) n, String.empty_append, ‹c = '_'›]
     · simp +arith [*, String.length_mk, Char.mangle]
     · simp [Char.mangle, show "__" = String.singleton '_' ++ "_" by rfl, String.append_assoc,
         ‹c = '_'›]
@@ -1664,7 +1664,7 @@ u : Nat
 hu : (2 * (u + 1) + 1) % 2 = 1
 h : pt.mangle ++ mangleSuffix (b || tailUnderscore (String.singleton pc ++ pt)) nm =
   "".pushn '_' (2 * u + 1) ++ (String.singleton tc ++ t')
-⊢ Lean.Name.unmangleAux✝ (s ++ (String.singleton tc ++ t')) (s.posBetween (String.singleton tc ++ t')) res acc
+⊢ Lean.Name.demangleAux✝ (s ++ (String.singleton tc ++ t')) (s.posBetween (String.singleton tc ++ t')) res acc
     (2 * u + 2 + 1) =
   res.str (acc ++ (String.singleton pc ++ pt)) +-+! nm
 -/
@@ -1723,31 +1723,31 @@ theorem checkDisambiguation_of_mangle_append_mangleSuffix_eq
       · simp [hc, Nat.mul_add, String.pushn_empty_succ, String.append_assoc] at h
 termination_by u
 
-theorem unmangleAux_ucount_output (hc : c ≠ '_')
+theorem demangleAux_ucount_output (hc : c ≠ '_')
     (h : pt.mangle ++ mangleSuffix (b || tailUnderscore ("_" ++ pt)) nm =
       "".pushn '_' (2 * u + 1) ++ (String.singleton c ++ t)) :
-    unmangleAux _ (String.posBetween s (String.singleton c ++ t)) res acc (2 * u + 3) =
-      unmangleAux _ (String.posBetween s (String.singleton c ++ t)) res (acc.push '_') (2 * u + 1) := by
-  fun_cases Lean.Name.unmangleAux _ _ _ acc _
-  · rw [unmangleAux, dif_pos ‹_›]
+    demangleAux _ (String.posBetween s (String.singleton c ++ t)) res acc (2 * u + 3) =
+      demangleAux _ (String.posBetween s (String.singleton c ++ t)) res (acc.push '_') (2 * u + 1) := by
+  fun_cases Lean.Name.demangleAux _ _ _ acc _
+  · rw [demangleAux, dif_pos ‹_›]
     simp [Nat.mul_add_div, String.pushn_succ']
   · rename_i ch _ hch
     simp [hc, ch] at hch
   · simp_all
-  · conv => rhs; rw [unmangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg (by simp), if_pos ‹_›, dif_pos ‹_›]
+  · conv => rhs; rw [demangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg (by simp), if_pos ‹_›, dif_pos ‹_›]
     rename_i p _ _ _ res _
     simp [res, p, Nat.mul_add_div, String.pushn_succ']
-  · conv => rhs; rw [unmangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg (by simp), if_pos ‹_›, dif_neg ‹_›]
+  · conv => rhs; rw [demangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg (by simp), if_pos ‹_›, dif_neg ‹_›]
     rename_i ch p _ _ _ res _
     simp [res, p, ch, Nat.mul_add_div, String.pushn_succ']
-  · conv => rhs; rw [unmangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg (by simp), if_neg ‹_›, dif_pos ‹_›]
+  · conv => rhs; rw [demangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg (by simp), if_neg ‹_›, dif_pos ‹_›]
     rename_i ch p _ _ _ _ acc
     simp [acc, p, Nat.mul_add_div, String.pushn_succ']
-  · conv => rhs; rw [unmangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg (by simp), if_neg ‹_›,
+  · conv => rhs; rw [demangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg (by simp), if_neg ‹_›,
       dif_neg ‹_›, dif_pos ‹_›]
     rename_i ch p _ _ _ _ _ acc
     simp [acc, p, Nat.mul_add_div, String.pushn_succ']
-  · conv => rhs; rw [unmangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg (by simp), if_neg ‹_›,
+  · conv => rhs; rw [demangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg (by simp), if_neg ‹_›,
       dif_neg ‹_›, dif_neg ‹_›, dif_pos ‹_›]
     rename_i ch p _ _ _ _ _ _ acc
     simp [acc, p, Nat.mul_add_div, String.pushn_succ']
@@ -1763,31 +1763,31 @@ theorem unmangleAux_ucount_output (hc : c ≠ '_')
 
 mutual
 
-theorem unmangleAux_thm (part nm b)
+theorem demangleAux_thm (part nm b)
     (ht : part.mangle ++ mangleSuffix (b || tailUnderscore part) nm = "".pushn '_' ucount ++ t) :
-    unmangleAux (s ++ t) (s.posBetween t) res acc ucount = str res (acc ++ part) +-+! nm := by
+    demangleAux (s ++ t) (s.posBetween t) res acc ucount = str res (acc ++ part) +-+! nm := by
   obtain rfl | ⟨tc, t', htc⟩ := t.singleton_append_cases
-  · rw [unmangleAux]
+  · rw [demangleAux]
     simp only [String.posBetween_eq_endValidPos_iff, ↓reduceDIte]
     rw [String.append_empty] at ht
     obtain ⟨hdvd, rfl, rfl⟩ := of_mangle_append_mangleSuffix_eq_pushn ht
     rw [← String.pushn_normalize, extendRev]
   by_cases htc1 : tc = '_'
-  · rw [htc, htc1, unmangleAux]
+  · rw [htc, htc1, demangleAux]
     simp only [String.posBetween_eq_endValidPos_iff, String.append_eq_empty_iff,
       String.singleton_ne_empty, false_and, ↓reduceDIte, String.get_posBetween_singleton_append,
-      ↓reduceIte, String.next_posBetween_singleton_append, unmangleAux_cast]
-    apply unmangleAux_thm
+      ↓reduceIte, String.next_posBetween_singleton_append, demangleAux_cast]
+    apply demangleAux_thm
     rw [String.pushn_succ, String.push_append]
     rwa [htc, htc1] at ht
   by_cases hu : 2 ∣ ucount
   · obtain ⟨ucount, rfl⟩ := hu
     rw [htc]
-    suffices unmangleAux (s.push tc ++ t') ((s.push tc).posBetween t') res ((acc.pushn '_' ucount).push tc) 0 =
-        res.str (acc ++ part) +-+! nm by as_aux_lemma => rw [unmangleAux]; simpa [htc1]
+    suffices demangleAux (s.push tc ++ t') ((s.push tc).posBetween t') res ((acc.pushn '_' ucount).push tc) 0 =
+        res.str (acc ++ part) +-+! nm by as_aux_lemma => rw [demangleAux]; simpa [htc1]
     rw [htc] at ht
-    obtain ⟨p2, b, hb, hpart⟩ := unmangleAux_ucount_reduction htc1 ht
-    rw [unmangleAux_thm p2 nm b (by simpa), hpart, ← String.append_assoc, ← String.pushn_normalize,
+    obtain ⟨p2, b, hb, hpart⟩ := demangleAux_ucount_reduction htc1 ht
+    rw [demangleAux_thm p2 nm b (by simpa), hpart, ← String.append_assoc, ← String.pushn_normalize,
       String.push_append]
   simp only [Nat.dvd_iff_mod_eq_zero, Nat.mod_two_not_eq_zero] at hu
   rcases (⟨ucount / 2, hu ▸ Nat.div_add_mod ucount 2⟩ : ∃ u, 2 * u + 1 = ucount) with ⟨u, hu⟩
@@ -1808,24 +1808,24 @@ theorem unmangleAux_thm (part nm b)
         simp only [Nat.mul_zero, String.pushn_zero, String.empty_append,
           String.singleton_append_inj] at ht
         rw [htc, ← ht.1, ← ht.2]
-        suffices unmangleAux _ (((s.push '0').push '0').posBetween ("" ++ (ss.mangle ++ mangleSuffix (tailUnderscore ss) nm)))
+        suffices demangleAux _ (((s.push '0').push '0').posBetween ("" ++ (ss.mangle ++ mangleSuffix (tailUnderscore ss) nm)))
             (res.str acc) "" 0 = (res.str acc).str ss +-+! nm by
-          as_aux_lemma => rw [unmangleAux]; simpa
+          as_aux_lemma => rw [demangleAux]; simpa
         have : ss.mangle.length + (mangleSuffix (tailUnderscore ss) nm).length < t.length := by
           simp +arith [htc, ← ht.2]
-        rw [String.empty_append, unmangleAux_thm ss nm false, String.empty_append]
+        rw [String.empty_append, demangleAux_thm ss nm false, String.empty_append]
         simp
       · rename_i hdis; simp only [not_or, Bool.not_eq_true] at hdis; replace hdis := hdis.2
         rw [show "_" = .singleton '_' by rfl, String.append_assoc, String.append_right_inj] at ht
         rw [String.startValidPos_eq_posBetween', checkDisambiguation_cast] at hdis
         have thing := of_mangle_append_mangleSuffix_eq_pushn_even_append htc1 id ht hdis (sll := s.push tc)
         rw [htc]
-        suffices unmangleAux (s.push tc ++ t') ((s.push tc).posBetween t') (res.str acc)
+        suffices demangleAux (s.push tc ++ t') ((s.push tc).posBetween t') (res.str acc)
             (("".pushn '_' ((2 * u + 1) / 2)).push tc) 0 = (res.str acc).str ss +-+! nm by
-          as_aux_lemma => rw [unmangleAux]; simpa [htc1, thing]
+          as_aux_lemma => rw [demangleAux]; simpa [htc1, thing]
         simp only [Nat.zero_lt_succ, Nat.mul_add_div, Nat.reduceDiv, Nat.add_zero]
-        obtain ⟨p2, b, hb, hpart⟩ := unmangleAux_ucount_reduction (b := false) htc1 ht
-        rw [unmangleAux_thm p2 nm b (by simpa), hpart, ← String.append_assoc,
+        obtain ⟨p2, b, hb, hpart⟩ := demangleAux_ucount_reduction (b := false) htc1 ht
+        rw [demangleAux_thm p2 nm b (by simpa), hpart, ← String.append_assoc,
           String.push_append, String.append_assoc]
     · rw [mangleSuffix, show "_" = .singleton '_' from rfl, String.append_assoc,
         String.append_assoc, String.append_right_inj] at ht
@@ -1845,9 +1845,9 @@ theorem unmangleAux_thm (part nm b)
         rw [not_and]; rintro rfl; cases (hds' rfl).2
         simp only [digitsToString, String.empty_append, true_and] at ht
         simp [String.posBetween_congr rfl ht.symm]
-      suffices unmangleAux.decodeNum (s.push (adigit d) ++ t') ((s.push (adigit d)).posBetween t') (res.str acc) ↑d =
+      suffices demangleAux.decodeNum (s.push (adigit d) ++ t') ((s.push (adigit d)).posBetween t') (res.str acc) ↑d =
           (res.str acc).num ii +-+! nm by
-        as_aux_lemma => rw [unmangleAux]; simpa [thing]
+        as_aux_lemma => rw [demangleAux]; simpa [thing]
       rw [← hdsval, digitsToNat, Nat.zero_mul, Nat.zero_add, decodeNum_thm]
       exact ht.2.symm
   · simp only [String.mangle_singleton_append, String.pushn_empty_succ, String.append_assoc] at ht
@@ -1863,10 +1863,10 @@ theorem unmangleAux_thm (part nm b)
           String.append_assoc, String.append_right_inj]
         intro h
         rw [‹pc = _›] at h
-        rw [unmangleAux_ucount_output htc1 h]
+        rw [demangleAux_ucount_output htc1 h]
         have : 2 * (1 + t'.length) + (2 * u + 1) < 2 * t.length + ucount := by
           simp +arith [← hu, htc]
-        rw [unmangleAux_thm pt nm (b || tailUnderscore (String.singleton '_' ++ pt)), ‹pc = _›,
+        rw [demangleAux_thm pt nm (b || tailUnderscore (String.singleton '_' ++ pt)), ‹pc = _›,
           String.push_append]
         simp [h]
     · rw [pushHex_eq_encodeHex (by decide), show "_x" = .singleton '_' ++ .singleton 'x' by rfl,
@@ -1876,17 +1876,17 @@ theorem unmangleAux_thm (part nm b)
       | zero => ?_
       simp only [Nat.mul_zero, String.pushn_zero, String.empty_append, Nat.zero_add]
       intro ht; rw [← ht]
-      suffices unmangleAux _
+      suffices demangleAux _
           ((s.push 'x' ++ encodeHex 2 pc.val.toNat).posBetween
             (pt.mangle ++ mangleSuffix (b || tailUnderscore (String.singleton pc ++ pt)) nm))
           res (acc.push (Char.ofNat (pc.val.toNat % 256))) 0 =
           res.str (acc ++ (String.singleton pc ++ pt)) +-+! nm by
-        as_aux_lemma => rw [unmangleAux]; simpa [checkLowerHex_encodeHex, parseLowerHex_encodeHex, encodeHex_thing,
+        as_aux_lemma => rw [demangleAux]; simpa [checkLowerHex_encodeHex, parseLowerHex_encodeHex, encodeHex_thing,
           String.push_append]
       have : pt.mangle.length + (mangleSuffix (b || tailUnderscore (String.singleton pc ++ pt)) nm).length < t.length := by
         simp +arith [← ht]
       rw [Nat.mod_eq_of_lt ‹_›, ← Char.toNat, Char.ofNat_toNat,
-        unmangleAux_thm pt nm (b || tailUnderscore (String.singleton pc ++ pt)), String.push_append]
+        demangleAux_thm pt nm (b || tailUnderscore (String.singleton pc ++ pt)), String.push_append]
       simp
     · rw [pushHex_eq_encodeHex (by decide), show "_u" = .singleton '_' ++ .singleton 'u' by rfl,
         String.append_assoc, String.append_assoc, String.append_right_inj]
@@ -1895,17 +1895,17 @@ theorem unmangleAux_thm (part nm b)
       | zero => ?_
       simp only [Nat.mul_zero, String.pushn_zero, String.empty_append, Nat.zero_add]
       intro ht; rw [← ht]
-      suffices unmangleAux _
+      suffices demangleAux _
           ((s.push 'u' ++ encodeHex 4 pc.val.toNat).posBetween
             (pt.mangle ++ mangleSuffix (b || tailUnderscore (String.singleton pc ++ pt)) nm))
           res (acc.push (Char.ofNat (pc.val.toNat % 65536))) 0 =
           res.str (acc ++ (String.singleton pc ++ pt)) +-+! nm by
-        as_aux_lemma => rw [unmangleAux]; simpa [checkLowerHex_encodeHex, parseLowerHex_encodeHex, encodeHex_thing,
+        as_aux_lemma => rw [demangleAux]; simpa [checkLowerHex_encodeHex, parseLowerHex_encodeHex, encodeHex_thing,
           String.push_append]
       have : pt.mangle.length + (mangleSuffix (b || tailUnderscore (String.singleton pc ++ pt)) nm).length < t.length := by
         simp +arith [← ht]
       rw [Nat.mod_eq_of_lt ‹_›, ← Char.toNat, Char.ofNat_toNat,
-        unmangleAux_thm pt nm (b || tailUnderscore (String.singleton pc ++ pt)), String.push_append]
+        demangleAux_thm pt nm (b || tailUnderscore (String.singleton pc ++ pt)), String.push_append]
       simp
     · rw [pushHex_eq_encodeHex (by decide), show "_U" = .singleton '_' ++ .singleton 'U' by rfl,
         String.append_assoc, String.append_assoc, String.append_right_inj]
@@ -1914,44 +1914,44 @@ theorem unmangleAux_thm (part nm b)
       | zero => ?_
       simp only [Nat.mul_zero, String.pushn_zero, String.empty_append, Nat.zero_add]
       intro ht; rw [← ht]
-      suffices unmangleAux _
+      suffices demangleAux _
           ((s.push 'U' ++ encodeHex 8 pc.val.toNat).posBetween
             (pt.mangle ++ mangleSuffix (b || tailUnderscore (String.singleton pc ++ pt)) nm))
           res (acc.push (Char.ofNat pc.val.toNat)) 0 =
           res.str (acc ++ (String.singleton pc ++ pt)) +-+! nm by
-        as_aux_lemma => rw [unmangleAux]; simpa [checkLowerHex_encodeHex, parseLowerHex_encodeHex, encodeHex_thing,
+        as_aux_lemma => rw [demangleAux]; simpa [checkLowerHex_encodeHex, parseLowerHex_encodeHex, encodeHex_thing,
           String.push_append]
       have : pt.mangle.length + (mangleSuffix (b || tailUnderscore (String.singleton pc ++ pt)) nm).length < t.length := by
         simp +arith [← ht]
       rw [← Char.toNat, Char.ofNat_toNat,
-        unmangleAux_thm pt nm (b || tailUnderscore (String.singleton pc ++ pt)), String.push_append]
+        demangleAux_thm pt nm (b || tailUnderscore (String.singleton pc ++ pt)), String.push_append]
       simp
 termination_by 2 * t.length + ucount
 
 theorem decodeNum_thm (h : t = digitsToString l ++ ("_" ++ mangleSuffix false nm)) :
-    unmangleAux.decodeNum (s ++ t) (s.posBetween t) res acc =
+    demangleAux.decodeNum (s ++ t) (s.posBetween t) res acc =
       num res (digitsToNat l acc) +-+! nm := by
   subst h
   rcases hl_eq : l with _ | ⟨c, l⟩
   · rw [digitsToString, digitsToNat, String.empty_append]
     suffices (if h : nm = anonymous then res.num acc
         else
-          unmangleAux.nameStart (s.push '_' ++ ("" ++ mangleSuffix false nm))
+          demangleAux.nameStart (s.push '_' ++ ("" ++ mangleSuffix false nm))
             (((s.push '_').posBetween ("" ++ mangleSuffix false nm)).next (by simpa)) (res.num acc)) =
         res.num acc +-+! nm by
-      as_aux_lemma => rw [unmangleAux.decodeNum]; simpa [-String.String.mk_eq_asString]
+      as_aux_lemma => rw [demangleAux.decodeNum]; simpa [-String.String.mk_eq_asString]
     split
     · simp [*]
     · obtain ⟨t, ht⟩ := exists_mangleSuffix_eq_append (b := false) ‹_›
       conv => enter [1, 2, 1]; apply String.posBetween_congr rfl; rw [ht, String.empty_append]
       simp only [String.ValidPos.next_cast, String.next_posBetween_mk_cons_append,
-        String.reduceMk, String.ValidPos.cast_cast, unmangleAux_nameStart_cast]
+        String.reduceMk, String.ValidPos.cast_cast, demangleAux_nameStart_cast]
       rw [String.empty_append, nameStart_thm ht]
   · rw [digitsToString, digitsToNat, String.append_assoc]
-    suffices unmangleAux.decodeNum (s.push (adigit c) ++ (digitsToString l ++ ("_" ++ mangleSuffix false nm)))
+    suffices demangleAux.decodeNum (s.push (adigit c) ++ (digitsToString l ++ ("_" ++ mangleSuffix false nm)))
         ((s.push (adigit c)).posBetween (digitsToString l ++ ("_" ++ mangleSuffix false nm))) res (acc * 10 + ↑c) =
         res.num (digitsToNat l (acc * 10 + ↑c)) +-+! nm by
-      as_aux_lemma => rw [unmangleAux.decodeNum]; simpa
+      as_aux_lemma => rw [demangleAux.decodeNum]; simpa
     rw [decodeNum_thm rfl]
 termination_by 2 * t.length
 decreasing_by
@@ -1964,7 +1964,7 @@ decreasing_by
     simp [digitsToString]
 
 theorem nameStart_thm (h : mangleSuffix b nm = "_" ++ t) :
-    unmangleAux.nameStart (s ++ t) (s.posBetween t) res = res +-+! nm := by
+    demangleAux.nameStart (s ++ t) (s.posBetween t) res = res +-+! nm := by
   revert h; fun_cases mangleSuffix
   · simp
   split
@@ -1973,19 +1973,19 @@ theorem nameStart_thm (h : mangleSuffix b nm = "_" ++ t) :
       String.append_right_inj, String.append_assoc] at ht
     subst ht
     rename_i n' s' m hm
-    suffices Lean.Name.unmangleAux _
+    suffices Lean.Name.demangleAux _
         (((s.push '0').push '0').posBetween ("" ++ (m ++ mangleSuffix (tailUnderscore s') n')))
         res "" 0 = res.str s' +-+! n' by
-      simpa [unmangleAux.nameStart, -String.String.mk_eq_asString]
-    rw [String.posBetween_congr rfl ((by conv => lhs; simp)), unmangleAux_cast]
-    rw [unmangleAux_thm s' n' false rfl, String.empty_append]
+      simpa [demangleAux.nameStart, -String.String.mk_eq_asString]
+    rw [String.posBetween_congr rfl ((by conv => lhs; simp)), demangleAux_cast]
+    rw [demangleAux_thm s' n' false rfl, String.empty_append]
   · intro ht
     rw [String.append_assoc, String.append_right_inj] at ht
     rename_i h
     simp only [not_or, Bool.not_eq_true] at h
-    rw [extendRev, unmangleAux_nameStart_normal_str ht.symm h.2]
+    rw [extendRev, demangleAux_nameStart_normal_str ht.symm h.2]
     intros
-    rw [unmangleAux_thm _ _ false]
+    rw [demangleAux_thm _ _ false]
     assumption
   · intro ht
     rw [String.append_assoc, String.append_assoc, String.append_right_inj] at ht
@@ -1997,11 +1997,11 @@ theorem nameStart_thm (h : mangleSuffix b nm = "_" ++ t) :
     rw [← lnum, ← hr]
     obtain ⟨d, ds, rfl⟩ := List.ne_nil_iff_exists_cons.mp lds.1
     rw [digitsToString]
-    rw [String.append_assoc, unmangleAux.nameStart]
+    rw [String.append_assoc, demangleAux.nameStart]
     rw [dif_neg (by simp), if_pos (by simp)]
     rw [dif_neg]
     · simp only [String.next_posBetween_singleton_append, String.get_posBetween_singleton_append,
-        unmangleAux_decodeNum_cast, extendRev]
+        demangleAux_decodeNum_cast, extendRev]
       simp only [val_adigit, UInt32.add_sub_cancel, UInt32.toNat_ofNatLT]
       rw [decodeNum_thm rfl, digitsToNat, Nat.zero_mul, Nat.zero_add]
     · suffices d = 0 → ¬((s.push (adigit d)).posBetween
@@ -2085,11 +2085,11 @@ theorem mangleSuffix_eq_mangleAux (n : Name) (hn : n ≠ anonymous) :
       rw [extendRev_eq_extend]
       simp [ih hpre, mangleAux, mangleSuffix, String.append_assoc]
 
-theorem unmangle_mangleAux (n : Name) : unmangle n.mangleAux = n := by
+theorem demangle_mangleAux (n : Name) : demangle n.mangleAux = n := by
   by_cases hn : n = anonymous
   · rw [hn]
-    simp [unmangle, unmangleAux.nameStart]
-  · rw [unmangle, String.startValidPos_eq_posBetween', unmangleAux_nameStart_cast,
+    simp [demangle, demangleAux.nameStart]
+  · rw [demangle, String.startValidPos_eq_posBetween', demangleAux_nameStart_cast,
       nameStart_thm (mangleSuffix_eq_mangleAux n hn)]
     simp [extendRev_extendRev]
 
@@ -2097,5 +2097,5 @@ theorem mangle_inj {n n' : Name} : n.mangle = n'.mangle ↔ n = n' := by
   simp only [mangle, String.append_right_inj]
   constructor
   · intro h
-    simpa [unmangle_mangleAux] using congrArg unmangle h
+    simpa [demangle_mangleAux] using congrArg demangle h
   · exact congrArg mangleAux

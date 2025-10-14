@@ -165,31 +165,31 @@ public def mkModuleInitializationFunctionName (moduleName : Name) : String :=
   "initialize_" ++ moduleName.mangle ""
 
 -- assumes `s` has been generated `Name.mangle n ""`
-def Name.unmangleAux (s : String) (p : s.ValidPos) (res : Name)
+def Name.demangleAux (s : String) (p : s.ValidPos) (res : Name)
     (acc : String) (ucount : Nat) : Name :=
   if h : p = s.endValidPos then res.str (acc.pushn '_' (ucount / 2)) else
   let ch := p.get h
   let p := p.next h
-  if ch = '_' then unmangleAux s p res acc (ucount + 1) else
+  if ch = '_' then demangleAux s p res acc (ucount + 1) else
   if ucount % 2 = 0 then
-    unmangleAux s p res (acc.pushn '_' (ucount / 2) |>.push ch) 0
+    demangleAux s p res (acc.pushn '_' (ucount / 2) |>.push ch) 0
   else if ch.isDigit then
     let res := res.str (acc.pushn '_' (ucount / 2))
     if h : ch = '0' ∧ ∃ h : p ≠ s.endValidPos, p.get h = '0' then
-      unmangleAux s (p.next h.2.1) res "" 0
+      demangleAux s (p.next h.2.1) res "" 0
     else
       decodeNum s p res (ch.val - 48).toNat
   else if h : ch = 'x' ∧ checkLowerHex 2 s p then
     let acc := acc.pushn '_' (ucount / 2)
-    unmangleAux s ⟨_, valid_of_checkLowerHex h.2⟩ res (acc.push (Char.ofNat (parseLowerHex 2 s p h.2 0))) 0
+    demangleAux s ⟨_, valid_of_checkLowerHex h.2⟩ res (acc.push (Char.ofNat (parseLowerHex 2 s p h.2 0))) 0
   else if h : ch = 'u' ∧ checkLowerHex 4 s p then
     let acc := acc.pushn '_' (ucount / 2)
-    unmangleAux s ⟨_, valid_of_checkLowerHex h.2⟩ res (acc.push (Char.ofNat (parseLowerHex 4 s p h.2 0))) 0
+    demangleAux s ⟨_, valid_of_checkLowerHex h.2⟩ res (acc.push (Char.ofNat (parseLowerHex 4 s p h.2 0))) 0
   else if h : ch = 'U' ∧ checkLowerHex 8 s p then
     let acc := acc.pushn '_' (ucount / 2)
-    unmangleAux s ⟨_, valid_of_checkLowerHex h.2⟩ res (acc.push (Char.ofNat (parseLowerHex 8 s p h.2 0))) 0
+    demangleAux s ⟨_, valid_of_checkLowerHex h.2⟩ res (acc.push (Char.ofNat (parseLowerHex 8 s p h.2 0))) 0
   else
-    unmangleAux s p (res.str acc) ("".pushn '_' (ucount / 2) |>.push ch) 0
+    demangleAux s p (res.str acc) ("".pushn '_' (ucount / 2) |>.push ch) 0
 termination_by p.remainingBytes
 decreasing_by
   · apply String.ValidPos.remainingBytes_next_lt
@@ -226,13 +226,13 @@ where
     let p := p.next h
     if ch.isDigit then
       if h : ch = '0' ∧ ∃ h : p ≠ s.endValidPos, p.get h = '0' then
-        unmangleAux s (p.next h.2.1) res "" 0
+        demangleAux s (p.next h.2.1) res "" 0
       else
         decodeNum s p res (ch.val - 48).toNat
     else if ch = '_' then
-      unmangleAux s p res "" 1
+      demangleAux s p res "" 1
     else
-      unmangleAux s p res (String.singleton ch) 0
+      demangleAux s p res (String.singleton ch) 0
   termination_by p.remainingBytes
   decreasing_by
     · apply String.ValidPos.remainingBytes_next_lt_of_lt
@@ -240,15 +240,15 @@ where
     all_goals apply String.ValidPos.remainingBytes_next_lt
 
 /-- Assuming `s` has been produced by `Name.mangle _ ""`, return the original name. -/
-public def Name.unmangle (s : String) : Name :=
-  unmangleAux.nameStart s s.startValidPos .anonymous
+public def Name.demangle (s : String) : Name :=
+  demangleAux.nameStart s s.startValidPos .anonymous
 
 /--
-Returns the unmangled version of `s`, if it's the result of `Name.mangle _ ""`. Otherwise returns
+Returns the demangled version of `s`, if it's the result of `Name.mangle _ ""`. Otherwise returns
 `none`.
 -/
-public def Name.unmangle? (s : String) : Option Name :=
-  let n := unmangle s
+public def Name.demangle? (s : String) : Option Name :=
+  let n := demangle s
   if mangleAux n = s then some n else none
 
 end Lean

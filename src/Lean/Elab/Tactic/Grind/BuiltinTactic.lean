@@ -345,6 +345,7 @@ where
     let goal ← getMainGoal
     let mvarId ← renameInaccessibles goal.mvarId hs
     replaceMainGoal [{ goal with mvarId }]
+    liftGrindM <| resetAnchors
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Grind

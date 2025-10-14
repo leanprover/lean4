@@ -277,6 +277,9 @@ def getOrderingEqExpr : GrindM Expr := do
 def getIntExpr : GrindM Expr := do
   return (← readThe Context).intExpr
 
+def resetAnchors : GrindM Unit := do
+  modify fun s => { s with anchors := {} }
+
 def cheapCasesOnly : GrindM Bool :=
   return (← readThe Context).cheapCases
 

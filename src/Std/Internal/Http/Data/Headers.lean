@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Slice
 public import Std.Data.HashMap
-public import Std.Data.HashMap
 public import Std.Data.HashSet
 public import Std.Internal.Http.Internal
 
@@ -27,116 +26,6 @@ namespace Std.Http
 open Std Internal
 
 set_option linter.all true
-
-/--
-Checks if a character is valid for use in an HTTP header value.
-Valid characters include:
-- Characters with values > 0x7F (extended ASCII)
-- Tab character (0x09)
-- Space character (0x20)
-- Printable ASCII characters (0x21 to 0x7E)
--/
-@[expose]
-def isValidHeaderCharNode (c : Char) : Bool :=
-  (0x21 ≤  c.val ∧  c.val ≤ 0x7E) ∨ c.val = 0x09 ∨ c.val = 0x20
-
-/--
-Proposition that asserts all characters in a string are valid for HTTP header values.
--/
-@[expose]
-abbrev isValidHeaderValue (s : String) : Prop :=
-  s.data.all isValidHeaderCharNode
-
-/--
-A validated HTTP header value that ensures all characters conform to HTTP standards.
--/
-structure HeaderValue where
-  /--
-  The string data
-  -/
-  value : String
-
-  /--
-  The proof that it's a valid header value
-  -/
-  validHeaderValue : isValidHeaderValue value
-deriving BEq, Repr
-
-namespace HeaderValue
-
-instance : Hashable HeaderValue where
-  hash x := Hashable.hash x.value
-
-instance : Inhabited HeaderValue where default := ⟨"", by decide⟩
-
-/--
-Creates a new `HeaderValue` from a string with an optional proof of validity.
-If no proof is provided, it attempts to prove validity automatically.
--/
-@[expose]
-def new (s : String) (h : s.data.all isValidHeaderCharNode := by decide) : HeaderValue :=
-  ⟨s, h⟩
-
-/--
-Attempts to create a `HeaderValue` from a `String`, returning `none` if the string
-contains invalid characters for HTTP header values.
--/
-@[expose]
-def ofString? (s : String) : Option HeaderValue :=
-  if h : s.data.all isValidHeaderCharNode then
-    some ⟨s, h⟩
-  else
-    none
-
-/--
-Creates a `HeaderValue` from a string, panicking with an error message if the
-string contains invalid characters for HTTP header values.
--/
-@[expose]
-def ofString! (s : String) : HeaderValue :=
-  if h : s.data.all isValidHeaderCharNode then
-    ⟨s, h⟩
-  else
-    panic! s!"invalid header value: {s.quote}"
-
-/--
-Performs a case-insensitive comparison between a `HeaderValue` and a `String`.
-Returns `true` if they match.
--/
-@[expose]
-def is (s : HeaderValue) (h : String) : Bool :=
-  s.value.toLower == h.toLower
-
-/--
-Concatenates two `HeaderValue` instances, preserving the validity guarantee.
--/
-def append (l : HeaderValue) (r : HeaderValue) : HeaderValue := by
-  refine ⟨l.value ++ r.value, ?_⟩
-  unfold isValidHeaderValue
-  rw [String.data_append]
-  rw [List.all_append]
-  rw [Bool.and_eq_true]
-  constructor
-  · exact l.validHeaderValue
-  · exact r.validHeaderValue
-
-instance : HAppend HeaderValue HeaderValue HeaderValue where
-  hAppend := HeaderValue.append
-
-/--
-Joins an array of `HeaderValue` instances with comma-space separation.
-Returns a single `HeaderValue` containing all values joined together.
-If the array is empty, returns an empty `HeaderValue`.
--/
-def joinCommaSep (x : Array HeaderValue) : HeaderValue :=
-  if h : 0 < x.size then
-    let first := x[0]'h
-    let rest := x[1...*]
-    rest.foldl (· ++ HeaderValue.new ", " ++ ·) first
-  else
-    .new ""
-
-end HeaderValue
 
 /--
 Checks if a character is valid for use in an HTTP header value.

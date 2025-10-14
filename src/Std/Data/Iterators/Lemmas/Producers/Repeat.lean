@@ -21,7 +21,7 @@ variable {α : Type w} {f : α → α} {init : α}
 
 theorem Iter.step_repeat :
     (Iter.repeat f init).step = .yield (Iter.repeat f (f init)) init ⟨rfl, rfl⟩ := by
-  rfl
+  simp [«repeat», Iter.step, Iter.toIterM, IterM.step, Iterator.step, IterM.toIter]
 
 theorem Iter.atIdxSlow?_zero_repeat :
     (Iter.repeat f init).atIdxSlow? 0 = some init := by

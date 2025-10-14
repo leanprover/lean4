@@ -25,14 +25,15 @@ theorem IterM.Equiv.toListRev_eq [Monad m] [LawfulMonad m]
   apply h.lift_step_bind_congr
   intro s₁ s₂ h
   simp only [IterStep.bundledQuotient] at h
-  cases s₁ using PlausibleIterStep.casesOn <;> cases s₂ using PlausibleIterStep.casesOn
+  cases h₁ : s₁.inflate using PlausibleIterStep.casesOn <;>
+    cases h₂ : s₂.inflate using PlausibleIterStep.casesOn
   all_goals try exfalso; simp_all; done
-  · simp only [IterStep.mapIterator_yield, Function.comp_apply, IterStep.yield.injEq] at h
+  · simp only [h₁, h₂, IterStep.mapIterator_yield, Function.comp_apply, IterStep.yield.injEq] at h
     simp_all only [bind_pure_comp, List.append_cancel_right_eq, implies_true,
       map_inj_right_of_nonempty]
     apply ihy ‹_›
     exact BundledIterM.Equiv.exact _ _ h.1
-  · simp only [IterStep.mapIterator_skip, Function.comp_apply, IterStep.skip.injEq] at ⊢ h
+  · simp only [h₁, h₂, IterStep.mapIterator_skip, Function.comp_apply, IterStep.skip.injEq] at ⊢ h
     apply ihs ‹_›
     exact BundledIterM.Equiv.exact _ _ h
   · simp

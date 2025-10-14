@@ -166,6 +166,9 @@ example (a : Action) : (a >> notApplicable) = a := by
 example (a : Action) : (skip >> a) = a.skipIfNA := by
   funext; simp
 
+example (a b : Action) : (a.skipIfNA >> b) = a.skipIfNA >> b.skipIfNA := by
+  funext goal kna kp; simp
+
 example (a : Action) : (notApplicable >> a) = notApplicable := by
   funext; simp
 

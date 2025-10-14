@@ -2388,138 +2388,26 @@ theorem fastUmulOverflow (x y : BitVec w) :
 /-! ## Auxilliary lemmas for popcount -/
 
 /-- Recursively extract one bit at a time and extend it to width `w`. `hlen` emulates the behaviour of Vector to simplify proving the correctness of the circuit. -/
-def extractAndExtendPopulateAux' (k len : Nat) (x : BitVec w) (acc : BitVec (k * len)) (hlt : k ≤ w) :
+def extractAndExtendPopulateAux (k len : Nat) (x : BitVec w) (acc : BitVec (k * len)) (hlt : k ≤ w) :
     BitVec (w * len) :=
   match hwi : w - k with
   | 0 => acc.cast (by simp [show w = k by omega])
   | n' + 1 =>
     let acc := BitVec.zeroExtend len (BitVec.extractLsb' k 1 x) ++ acc
-    extractAndExtendPopulateAux' (k + 1) len x (acc.cast (by simp [Nat.add_mul]; omega)) (by omega)
+    extractAndExtendPopulateAux (k + 1) len x (acc.cast (by simp [Nat.add_mul]; omega)) (by omega)
 
-def extractAndExtendPopulate' (len : Nat) (x : BitVec w) : BitVec (w * len) :=
-    extractAndExtendPopulateAux' 0 len x ((0#0).cast (by simp)) (by omega)
+def extractAndExtendPopulate (len : Nat) (x : BitVec w) : BitVec (w * len) :=
+    extractAndExtendPopulateAux 0 len x ((0#0).cast (by simp)) (by omega)
 
-theorem extractLsb'_extractAndExtendPopulate'_eq (i len : Nat) (x : BitVec w) :
-    (extractAndExtendPopulate' len x).extractLsb' (i * len) len =
+theorem extractLsb'_extractAndExtendPopulate_eq (i len : Nat) (x : BitVec w) :
+    (extractAndExtendPopulate len x).extractLsb' (i * len) len =
     BitVec.zeroExtend len (BitVec.extractLsb' i 1 x) := by
   sorry
 
 
 
-
-
-def extractAndExtendPopulateAux (idx : Nat) (x : BitVec w) (acc : BitVec (w * idx)) (hlt : idx ≤ w)
-  (hacc : ∀ i (_ : i < idx),
-        ∀ j (_ : j < w),
-          acc.getLsbD (w * i + j) = (BitVec.zeroExtend w (BitVec.extractLsb' i 1 x)).getLsbD j)
-  : { l : BitVec (w * w) //
-      ∀ i (_ : i < w), ∀ j (_ : j < w),
-        l.getLsbD (w * i + j) = (BitVec.zeroExtend w (BitVec.extractLsb' i 1 x)).getLsbD j} :=
-  match hwi : w - idx with
-  | 0 =>
-    have hcast : w * idx = w * w := by rw [show idx = w by omega]
-    ⟨BitVec.cast hcast acc, by
-      intros i hi j hj
-      specialize hacc i (by omega) j hj
-      have heqcast : (BitVec.cast hcast acc).getLsbD (w * i + j) = (acc).getLsbD (w * i + j) := by simp
-      rw [heqcast]
-      simp [hacc]
-      ⟩
-  | i + 1 =>
-    have hcast : w + w * idx = w * (idx + 1) := by simp [Nat.mul_add]; omega
-    let bv := BitVec.zeroExtend w (BitVec.extractLsb' idx 1 x)
-    let ⟨res,proof⟩ := extractAndExtendPopulateAux (idx + 1) x (BitVec.cast hcast (bv ++ acc)) (by omega)
-                        (by
-                          intros i hi j hj
-                          simp [hj]
-                          by_cases hj0 : j = 0
-                          · simp [hj0, getLsbD_append]
-                            have := Nat.mul_lt_mul_left (a := w) (b := i) (c := idx) (by omega)
-                            by_cases hlt : w * i < w * idx
-                            · simp [hlt] at this
-                              simp [hlt]
-                              specialize hacc i (by omega) 0 (by omega)
-                              simp at hacc
-                              rw [getLsbD_eq_getElem (by omega)] at hacc
-                              simp [hacc]
-                              intros
-                              omega
-                            · simp [hlt]
-                              simp only [bv]
-                              simp [hlt] at this
-                              have : i = idx := by omega
-                              rw [this]
-                              simp
-                              intros
-                              omega
-                          · rw [getLsbD_append]
-                            have := Nat.mul_lt_mul_left (a := w) (b := i) (c := idx) (by omega)
-                            by_cases hlt : w * i + j < w * idx
-                            · simp [hlt]
-                              specialize hacc i (by omega) j hj
-                              rw [getLsbD_eq_getElem (by omega)] at hacc
-                              simp [hacc]
-                              intros hj hj0
-                              omega
-                            · simp [hlt]
-                              simp only [bv]
-                              simp only [zeroExtend, getLsbD_setWidth]
-                              by_cases hc : w * i + j - w * idx < w
-                              · simp only [hj0, decide_false,
-                                Bool.false_and, and_eq_false_imp, decide_eq_true_eq]
-                                intros hp
-                                simp [getLsbD_extractLsb']
-                                intros hz
-                                simp at *
-                                simp_all
-                                have : j = w * idx - w * i := by omega
-                                have : j = w * (idx - i) := by simp [Nat.mul_sub]; omega
-                                have hdiv : j / w = (idx - i) := by exact Nat.div_eq_of_eq_mul_right hc this
-                                have hzero := Nat.div_eq_zero_iff_lt (k := w) (x := j) (by omega)
-                                simp only [hj] at hzero
-                                simp [show j / w = 0 by simp [hzero]] at hdiv
-                                have : idx = i := by omega
-                                simp [this] at *
-                                omega
-                              · simp [hc]
-                                intros
-                                omega
-                            )
-    ⟨res,proof⟩
-
-
-/-- zero extend each of the bits `x[i]`, and produce a packed bitvector. -/
-def extractAndExtendPopulate (x : BitVec w) : BitVec (w * w) :=
-  let res := extractAndExtendPopulateAux 0 x 0#0 (by omega) (by intros; omega)
-  res
-
-/-- The bitvector at index `i*w` of length `w` is the bit at `x[i]`, zero-extended. -/
-theorem extractLsb'_extractAndExtendPopulate_eq (x : BitVec w) (i : Nat) :
-    (extractAndExtendPopulate x).extractLsb' (i * w) w = BitVec.zeroExtend w (BitVec.extractLsb' i 1 x) := by
-  unfold extractAndExtendPopulate
-  let ⟨res, proof⟩ := extractAndExtendPopulateAux 0 x 0#0 (by omega) (by intros; omega)
-  simp
-  specialize proof i
-  by_cases hilt : i < w
-  · specialize proof hilt
-    ext j hj
-    specialize proof j hj
-    rw [Nat.mul_comm i w]
-    simp [proof]
-    intros
-    exact hj
-  · ext k hk
-    have : w * w ≤ i * w := by refine mul_le_mul_right w (by omega)
-    have : w * w ≤ i * w + k := by omega
-    simp
-    rw [getLsbD_of_ge]
-    · rw [getLsbD_of_ge]
-      · simp
-      · omega
-    · omega
-
 theorem extractLsb'_extractAndExtendPopulate_zero_eq (x : BitVec w) :
-    (extractAndExtendPopulate x).extractLsb' 0 w = BitVec.zeroExtend w (BitVec.extractLsb' 0 1 x) := by
+    (extractAndExtendPopulate w x).extractLsb' 0 w = BitVec.zeroExtend w (BitVec.extractLsb' 0 1 x) := by
   rw [show 0 = 0 * w by omega, extractLsb'_extractAndExtendPopulate_eq (i := 0)]
   simp
 
@@ -2970,34 +2858,34 @@ theorem sumPackedVec_eq_add_tail {x : BitVec ((k + 1) * w)} :
   sorry
 
 theorem sumpackedVec_of_extractAndExtendPopulate_tail_eq (x : BitVec (w' + 1)) :
-    setWidth (w' + 1) (extractLsb' 1 w' x).extractAndExtendPopulate.sumPackedVec =
-    (extractLsb' (w' + 1) ((w' + 1) * (w' + 1)) x.extractAndExtendPopulate).sumPackedVec := by
+    setWidth (w' + 1) ((extractLsb' 1 w' x).extractAndExtendPopulate w).sumPackedVec =
+    (extractLsb' (w' + 1) ((w' + 1) * (w' + 1)) (x.extractAndExtendPopulate w)).sumPackedVec := by
   induction w'
-  · ext
-    simp
+  · sorry
   · case succ n' ihn' =>
     rw [sumPackedVec_length_succ_eq, sumPackedVec_length_succ_eq]
     rw [extractLsb'_extractAndExtendPopulate_eq]
 
+
     sorry
 
 theorem extractAndExtendPopulate_sumPackedVec_eq_add (x : BitVec (w' + 1)):
-  setWidth (w' + 1) (extractLsb' 0 1 x) + setWidth (w' + 1) (extractLsb' 1 w' x).extractAndExtendPopulate.sumPackedVec =
-  x.extractAndExtendPopulate.sumPackedVec := by
+  setWidth (w' + 1) (extractLsb' 0 1 x) + setWidth (w' + 1) ((extractLsb' 1 w' x).extractAndExtendPopulate w').sumPackedVec =
+  (x.extractAndExtendPopulate (w' + 1)).sumPackedVec := by
   conv =>
     rhs
-    rw [sumPackedVec_eq_add_tail (x := x.extractAndExtendPopulate)]
+    rw [sumPackedVec_eq_add_tail (x := x.extractAndExtendPopulate (w' + 1))]
     rw [extractLsb'_extractAndExtendPopulate_zero_eq]
   simp
   -- the width taken by extractandextendpopulate should not be w*w, should be w * v where v remains constant
-  rw [sumpackedVec_of_extractAndExtendPopulate_tail_eq]
+  sorry
 
 --  setWidth (w' + 1) (extractLsb' 0 1 x) + setWidth (w' + 1) (extractLsb' 1 w' x).popCount =
 --   (extractLsb' 1 w' x ++ extractLsb' 0 1 x).extractAndExtendPopulate.sumPackedVec
 -- need lemma to push extractandextend populate inside the appned afer whichb sumpackedvec simp lemmas should just rewrite, we finish the goal by usign ih
 -- the popcount equals the result of summing the packed vector.
 theorem popCount_eq_sumPackedVec (x : BitVec w) :
-  x.popCount = sumPackedVec (extractAndExtendPopulate x) := by
+  x.popCount = sumPackedVec (extractAndExtendPopulate w x) := by
   induction w
   · case zero => simp
   · case succ w' ihw' =>
@@ -3005,6 +2893,14 @@ theorem popCount_eq_sumPackedVec (x : BitVec w) :
     simp
     rw [ihw']
     apply extractAndExtendPopulate_sumPackedVec_eq_add
+
+/-!
+  we should keep the proof strategy intact and not delete written proofs, we should fix the defs correctly
+  so thatproofs that are not about EEP gothrough while proofs about EEP we can sorry and this is bc the new def
+  is strictly more general than the old one, hence the old strategy should go through unharmed.
+  it it does not, we fucked up in generalizing the def and we should go back to fix it OR we fucked up the
+  generalization of the lemma characterizing the new def and we should therefore go back and fix it.
+-/
 
 /-- one round of 'addVec' does not change the sum of the bitvector. -/
 @[simp]
@@ -3040,10 +2936,7 @@ def parPrefixSum
       (validNodes : Nat) (parSum : BitVec (validNodes * w))
       (hin : 0 < w) (hval : validNodes ≤ w) (hval' : 0 < validNodes)
       :
-      {
-      l : BitVec w //
-      parSum.sumPackedVec = l
-      }
+      { l : BitVec w // parSum.sumPackedVec = l}
       :=
   if hlt : 1 < validNodes then
     let initAcc := 0#0
@@ -3082,7 +2975,7 @@ def popCountParSum {x : BitVec w} : BitVec w :=
   if hw : 1 < w then
     let initAcc := 0#0
     -- let res := extractAndExtendPopulateAux 0 x initAcc (by omega) (by intros; omega)
-    let res := extractAndExtendPopulate x
+    let res := extractAndExtendPopulate w x
     parPrefixSum w res (by omega) (by omega) (by omega)
   else
     if hw' : 0 < w then x

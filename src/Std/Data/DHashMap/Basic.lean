@@ -311,7 +311,13 @@ This function ensures that the value is used linearly.
     Array α :=
   m.1.keysArray
 
-/-- Computes the union of the given hash maps, inserting smaller hash map into a bigger hash map. In the case of clashes of keys, entries from the left argument, are replaced with entries from the right argument. -/
+/--
+Computes the union of the given hash maps. If a key appears in both maps, the entry contains in
+the second argument will appear in the result.
+
+This function always merges the smaller map into the larger map, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : DHashMap α β) : DHashMap α β where
   inner := Raw₀.union ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩
   wf := Std.DHashMap.Raw.WF.union₀ m₁.2 m₂.2

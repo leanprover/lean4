@@ -87,12 +87,12 @@ namespace Config
 Converts to HTTP 1.1 config
 -/
 def toH1Config (config : Config) : Protocol.H1.Machine.Config :=
-  { maxRequests := config.maxRequests
+  { maxMessages := config.maxRequests
     maxHeaders := config.maxHeaders
     maxHeaderSize := config.maxHeaderSize
     enableKeepAlive := config.enableKeepAlive
     highMark := config.highMark
-    serverName := config.serverName
+    identityHeader := config.serverName
   }
 
 end Std.Http.Config

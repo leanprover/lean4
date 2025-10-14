@@ -1732,4 +1732,11 @@ where
       forEachDiseq parentSet (propagateDiseqOf solverId)
       go rest
 
+def anchorToString (numDigits : Nat) (anchor : UInt64) : String :=
+  let cs := Nat.toDigits 16 anchor.toNat
+  let n := cs.length
+  let zs := List.replicate (numDigits - n) '0'
+  let cs := zs ++ cs
+  cs.asString
+
 end Lean.Meta.Grind

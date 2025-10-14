@@ -2307,12 +2307,9 @@ Examples:
 def Pos.Raw.get (s : @& String) (p : @& Pos.Raw) : Char :=
   utf8GetAux s.data 0 p
 
-@[extern "lean_string_utf8_get", expose, inherit_doc Pos.Raw.get]
+@[extern "lean_string_utf8_get", expose, deprecated Pos.Raw.get (since := "2025-10-14")]
 def get (s : @& String) (p : @& Pos.Raw) : Char :=
   Pos.Raw.utf8GetAux s.data 0 p
-
-@[simp]
-theorem get_eq {s : String} {p : Pos.Raw} : s.get p = p.get s := rfl
 
 @[expose]
 def Pos.Raw.utf8GetAux? : List Char → Pos.Raw → Pos.Raw → Option Char
@@ -2342,12 +2339,9 @@ Examples:
 def Pos.Raw.get? : (@& String) → (@& Pos.Raw) → Option Char
   | s, p => utf8GetAux? s.data 0 p
 
-@[extern "lean_string_utf8_get_opt", expose, inherit_doc Pos.Raw.get?]
+@[extern "lean_string_utf8_get_opt", expose, deprecated Pos.Raw.get? (since := "2025-10-14")]
 def get? : (@& String) → (@& Pos.Raw) → Option Char
   | s, p => Pos.Raw.utf8GetAux? s.data 0 p
-
-@[simp]
-theorem get?_eq {s : String} {p : Pos.Raw} : s.get? p = p.get? s := rfl
 
 /--
 Returns the character at position `p` of a string. Panics if `p` is not a valid position.
@@ -2368,13 +2362,10 @@ def Pos.Raw.get! (s : @& String) (p : @& Pos.Raw) : Char :=
   match s with
   | s => Pos.Raw.utf8GetAux s.data 0 p
 
-@[extern "lean_string_utf8_get_bang", expose, inherit_doc Pos.Raw.get!]
+@[extern "lean_string_utf8_get_bang", expose, deprecated Pos.Raw.get! (since := "2025-10-14")]
 def get! (s : @& String) (p : @& Pos.Raw) : Char :=
   match s with
   | s => Pos.Raw.utf8GetAux s.data 0 p
-
-@[simp]
-theorem get!_eq {s : String} {p : Pos.Raw} : s.get! p = p.get! s := rfl
 
 @[expose]
 def Pos.Raw.utf8SetAux (c' : Char) : List Char → Pos.Raw → Pos.Raw → List Char
@@ -2556,13 +2547,9 @@ Examples:
 def Pos.Raw.set : String → (@& Pos.Raw) → Char → String
   | s, i, c => (Pos.Raw.utf8SetAux c s.data 0 i).asString
 
-@[extern "lean_string_utf8_set", expose, inherit_doc Pos.Raw.set]
+@[extern "lean_string_utf8_set", expose, deprecated Pos.Raw.set (since := "2025-10-14")]
 def set : String → (@& Pos.Raw) → Char → String
   | s, i, c => (Pos.Raw.utf8SetAux c s.data 0 i).asString
-
-@[simp]
-theorem set_eq {s : String} {p : Pos.Raw} {c : Char} :
-    s.set p c = p.set s c := rfl
 
 /--
 Replaces the character at position `p` in the string `s` with the result of applying `f` to that
@@ -2610,13 +2597,10 @@ def Pos.Raw.next (s : @& String) (p : @& Pos.Raw) : Pos.Raw :=
   let c := get s p
   p + c
 
-@[extern "lean_string_utf8_next", expose, inherit_doc Pos.Raw.next]
+@[extern "lean_string_utf8_next", expose, deprecated Pos.Raw.next (since := "2025-10-14")]
 def next (s : @& String) (p : @& Pos.Raw) : Pos.Raw :=
-  let c := get s p
+  let c := p.get s
   p + c
-
-@[simp]
-theorem next_eq {s : String} {p : Pos.Raw} : s.next p = p.next s := rfl
 
 @[expose]
 def Pos.Raw.utf8PrevAux : List Char → Pos.Raw → Pos.Raw → Pos.Raw
@@ -2649,12 +2633,9 @@ Examples:
 def Pos.Raw.prev : (@& String) → (@& Pos.Raw) → Pos.Raw
   | s, p => utf8PrevAux s.data 0 p
 
-@[extern "lean_string_utf8_prev", expose]
+@[extern "lean_string_utf8_prev", expose, deprecated Pos.Raw.prev (since := "2025-10-14")]
 def prev : (@& String) → (@& Pos.Raw) → Pos.Raw
   | s, p => Pos.Raw.utf8PrevAux s.data 0 p
-
-@[simp]
-theorem prev_eq {s : String} {p : Pos.Raw} : s.prev p = p.prev s := rfl
 
 /--
 Returns the first character in `s`. If `s = ""`, returns `(default : Char)`.
@@ -2664,7 +2645,7 @@ Examples:
 * `"".front = (default : Char)`
 -/
 @[inline, expose] def front (s : String) : Char :=
-  get s 0
+  Pos.Raw.get s 0
 
 @[export lean_string_front]
 def Internal.frontImpl (s : String) : Char :=
@@ -2680,7 +2661,7 @@ Examples:
 * `"".back = (default : Char)`
 -/
 @[inline, expose] def back (s : String) : Char :=
-  get s (prev s s.endPos)
+  (s.endPos.prev s).get s
 
 theorem back_eq_get_prev_endPos {s : String} : s.back = (s.endPos.prev s).get s := rfl
 
@@ -2701,12 +2682,9 @@ Examples:
 def Pos.Raw.atEnd : (@& String) → (@& Pos.Raw) → Bool
   | s, p => p.byteIdx ≥ utf8ByteSize s
 
-@[extern "lean_string_utf8_at_end", expose, inherit_doc Pos.Raw.atEnd]
+@[extern "lean_string_utf8_at_end", expose, deprecated Pos.Raw.atEnd (since := "2025-10-14")]
 def atEnd : (@& String) → (@& Pos.Raw) → Bool
   | s, p => p.byteIdx ≥ utf8ByteSize s
-
-@[simp]
-theorem atEnd_eq {s : String} {p : Pos.Raw} : s.atEnd p = p.atEnd s := rfl
 
 /--
 Returns the character at position `p` of a string. Returns `(default : Char)`, which is `'A'`, if
@@ -2736,12 +2714,10 @@ def Pos.Raw.get' (s : @& String) (p : @& Pos.Raw) (h : ¬ p.atEnd s) : Char :=
   match s with
   | s => Pos.Raw.utf8GetAux s.data 0 p
 
-@[extern "lean_string_utf8_get_fast", expose, inherit_doc Pos.Raw.get']
-def get' (s : @& String) (p : @& Pos.Raw) (h : ¬ s.atEnd p) : Char :=
+@[extern "lean_string_utf8_get_fast", expose, deprecated Pos.Raw.get' (since := "2025-10-14")]
+def get' (s : @& String) (p : @& Pos.Raw) (h : ¬ p.atEnd s) : Char :=
   match s with
   | s => Pos.Raw.utf8GetAux s.data 0 p
-
-theorem get'_eq_get' {s : String} {p : Pos.Raw} {h} : s.get' p h = p.get' s h := rfl
 
 /--
 Returns the next position in a string after position `p`. The result is unspecified if `p` is not a
@@ -2765,16 +2741,13 @@ Example:
 -/
 @[extern "lean_string_utf8_next_fast", expose]
 def Pos.Raw.next' (s : @& String) (p : @& Pos.Raw) (h : ¬ p.atEnd s) : Pos.Raw :=
-  let c := get s p
+  let c := p.get s
   p + c
 
-@[extern "lean_string_utf8_next_fast", expose, inherit_doc Pos.Raw.next']
-def next' (s : @& String) (p : @& Pos.Raw) (h : ¬ s.atEnd p) : Pos.Raw :=
-  let c := get s p
+@[extern "lean_string_utf8_next_fast", expose, deprecated Pos.Raw.next' (since := "2025-10-14")]
+def next' (s : @& String) (p : @& Pos.Raw) (h : ¬ p.atEnd s) : Pos.Raw :=
+  let c := p.get s
   p + c
-
-@[simp]
-theorem next'_eq_next' {s : String} {p : Pos.Raw} {h} : s.next' p h = p.next' s h := rfl
 
 @[deprecated Pos.Raw.lt_iff (since := "2025-10-10")]
 theorem pos_lt_eq (p₁ p₂ : Pos.Raw) : (p₁ < p₂) = (p₁.1 < p₂.1) :=
@@ -2794,7 +2767,7 @@ theorem Pos.Raw.byteIdx_lt_byteIdx_next (s : String) (i : Pos.Raw) : i.1 < (i.ne
   lt_iff.1 (i.lt_next s)
 
 @[deprecated Pos.Raw.byteIdx_lt_byteIdx_next (since := "2025-10-10")]
-theorem lt_next (s : String) (i : Pos.Raw) : i.1 < (s.next i).1 :=
+theorem lt_next (s : String) (i : Pos.Raw) : i.1 < (i.next s).1 :=
   Pos.Raw.lt_next s i
 
 theorem Pos.Raw.utf8PrevAux_lt_of_pos : ∀ (cs : List Char) (i p : Pos.Raw), i < p → p ≠ 0 →
@@ -2806,19 +2779,19 @@ theorem Pos.Raw.utf8PrevAux_lt_of_pos : ∀ (cs : List Char) (i p : Pos.Raw), i 
     next => exact h
     next => exact utf8PrevAux_lt_of_pos _ _ _ (Nat.lt_of_not_le h'') h'
 
-theorem Pos.Raw.prev_lt_of_pos (s : String) (i : Pos.Raw) (h : i ≠ 0) : (s.prev i).1 < i.1 :=
+theorem Pos.Raw.prev_lt_of_pos (s : String) (i : Pos.Raw) (h : i ≠ 0) : (i.prev s).1 < i.1 :=
   utf8PrevAux_lt_of_pos _ _ _ (Nat.zero_lt_of_ne_zero (mt (congrArg Pos.Raw.mk) h)) h
 
 @[deprecated Pos.Raw.prev_lt_of_pos (since := "2025-10-10")]
-theorem prev_lt_of_pos (s : String) (i : Pos.Raw) (h : i ≠ 0) : (s.prev i).1 < i.1 :=
+theorem prev_lt_of_pos (s : String) (i : Pos.Raw) (h : i ≠ 0) : (i.prev s).1 < i.1 :=
   Pos.Raw.prev_lt_of_pos s i h
 
 def posOfAux (s : String) (c : Char) (stopPos : Pos.Raw) (pos : Pos.Raw) : Pos.Raw :=
   if h : pos < stopPos then
-    if s.get pos == c then pos
+    if pos.get s == c then pos
     else
       have := Nat.sub_lt_sub_left h (Pos.Raw.lt_next s pos)
-      posOfAux s c stopPos (s.next pos)
+      posOfAux s c stopPos (pos.next s)
   else pos
 termination_by stopPos.1 - pos.1
 
@@ -2842,8 +2815,8 @@ def revPosOfAux (s : String) (c : Char) (pos : Pos.Raw) : Option Pos.Raw :=
   if h : pos = 0 then none
   else
     have := Pos.Raw.prev_lt_of_pos s pos h
-    let pos := s.prev pos
-    if s.get pos == c then some pos
+    let pos := pos.prev s
+    if pos.get s == c then some pos
     else revPosOfAux s c pos
 termination_by pos.1
 
@@ -2861,10 +2834,10 @@ Examples:
 
 def findAux (s : String) (p : Char → Bool) (stopPos : Pos.Raw) (pos : Pos.Raw) : Pos.Raw :=
   if h : pos < stopPos then
-    if p (s.get pos) then pos
+    if p (pos.get s) then pos
     else
       have := Nat.sub_lt_sub_left h (Pos.Raw.lt_next s pos)
-      findAux s p stopPos (s.next pos)
+      findAux s p stopPos (pos.next s)
   else pos
 termination_by stopPos.1 - pos.1
 
@@ -2885,8 +2858,8 @@ def revFindAux (s : String) (p : Char → Bool) (pos : Pos.Raw) : Option Pos.Raw
   if h : pos = 0 then none
   else
     have := Pos.Raw.prev_lt_of_pos s pos h
-    let pos := s.prev pos
-    if p (s.get pos) then some pos
+    let pos := pos.prev s
+    if p (pos.get s) then some pos
     else revFindAux s p pos
 termination_by pos.1
 
@@ -2929,10 +2902,10 @@ def firstDiffPos (a b : String) : Pos.Raw :=
   let stopPos := a.endPos.min b.endPos
   let rec loop (i : Pos.Raw) : Pos.Raw :=
     if h : i < stopPos then
-      if a.get i != b.get i then i
+      if i.get a != i.get b then i
       else
         have := Nat.sub_lt_sub_left h (Pos.Raw.lt_next a i)
-        loop (a.next i)
+        loop (i.next a)
     else i
     termination_by stopPos.1 - i.1
   loop 0
@@ -2968,25 +2941,21 @@ where
     | [],    _, _ => []
     | c::cs, i, e => if i = e then [] else c :: go₂ cs (i + c) e
 
-@[extern "lean_string_utf8_extract", expose]
+@[extern "lean_string_utf8_extract", expose, deprecated Pos.Raw.extract (since := "2025-10-14")]
 def extract : (@& String) → (@& Pos.Raw) → (@& Pos.Raw) → String
   | s, b, e => Pos.Raw.extract s b e
 
-@[simp]
-theorem extract_eq {s : String} {b e : Pos.Raw} :
-    s.extract b e = b.extract s e := rfl
-
 @[specialize] def splitAux (s : String) (p : Char → Bool) (b : Pos.Raw) (i : Pos.Raw) (r : List String) : List String :=
-  if h : s.atEnd i then
-    let r := (s.extract b i)::r
+  if h : i.atEnd s then
+    let r := (b.extract s i)::r
     r.reverse
   else
     have := Nat.sub_lt_sub_left (Nat.gt_of_not_le (mt decide_eq_true h)) (Pos.Raw.lt_next s _)
-    if p (s.get i) then
-      let i' := s.next i
-      splitAux s p i' i' (s.extract b i :: r)
+    if p (i.get s) then
+      let i' := i.next s
+      splitAux s p i' i' (b.extract s i :: r)
     else
-      splitAux s p b (s.next i) r
+      splitAux s p b (i.next s) r
 termination_by s.endPos.1 - i.1
 
 /--
@@ -3014,19 +2983,19 @@ It represents the state where we have currently parsed some split parts into `r`
 of `sep` match the bytes `i-j .. i` of `s`.
 -/
 def splitOnAux (s sep : String) (b : Pos.Raw) (i : Pos.Raw) (j : Pos.Raw) (r : List String) : List String :=
-  if s.atEnd i then
-    let r := (s.extract b i)::r
+  if i.atEnd s then
+    let r := (b.extract s i)::r
     r.reverse
   else
-    if s.get i == sep.get j then
-      let i := s.next i
-      let j := sep.next j
-      if sep.atEnd j then
-        splitOnAux s sep i i 0 (s.extract b (i.unoffsetBy j)::r)
+    if i.get s == j.get sep then
+      let i := i.next s
+      let j := j.next sep
+      if j.atEnd sep then
+        splitOnAux s sep i i 0 (b.extract s (i.unoffsetBy j)::r)
       else
         splitOnAux s sep b i j r
     else
-      splitOnAux s sep b (s.next (i.unoffsetBy j)) 0 r
+      splitOnAux s sep b ((i.unoffsetBy j).next s) 0 r
 termination_by (s.endPos.1 - (j.byteDistance i), sep.endPos.1 - j.1)
 decreasing_by
   focus
@@ -3036,7 +3005,7 @@ decreasing_by
       (Nat.lt_of_le_of_lt (Nat.sub_le ..) (Pos.Raw.lt_next s _))
   focus
     rename_i i₀ j₀ _ eq h'
-    rw [show (sep.next j₀).byteDistance (s.next i₀) = j₀.byteDistance i₀ by
+    rw [show (j₀.next sep).byteDistance (i₀.next s) = j₀.byteDistance i₀ by
       change (_ + Char.utf8Size _) - (_ + Char.utf8Size _) = _
       rw [(beq_iff_eq ..).1 eq, Nat.add_sub_add_right]; rfl]
     right; exact Nat.sub_lt_sub_left
@@ -3478,7 +3447,7 @@ theorem set_next_add (s : String) (i : Pos.Raw) (c : Char) (b₁ b₂)
       refine foo cs (a + c') b₁ (c'.utf8Size + b₂) h
   exact foo s.data 0 _ _ h
 
-theorem mapAux_lemma (s : String) (i : Pos.Raw) (c : Char) (h : ¬s.atEnd i) :
+theorem mapAux_lemma (s : String) (i : Pos.Raw) (c : Char) (h : ¬i.atEnd s) :
     (i.set s c).endPos.1 - (i.next (i.set s c)).1 < s.endPos.1 - i.1 := by
   suffices (i.set s c).endPos.1 - (i.next (i.set s c)).1 = s.endPos.1 - (i.next s).1 by
     rw [this]
@@ -3488,9 +3457,9 @@ theorem mapAux_lemma (s : String) (i : Pos.Raw) (c : Char) (h : ¬s.atEnd i) :
   omega
 
 @[specialize] def mapAux (f : Char → Char) (i : Pos.Raw) (s : String) : String :=
-  if h : s.atEnd i then s
+  if h : i.atEnd s then s
   else
-    let c := f (s.get i)
+    let c := f (i.get s)
     have := mapAux_lemma s i c h
     let s := i.set s c
     mapAux f (i.next s) s
@@ -3612,12 +3581,12 @@ def replace (s pattern replacement : String) : String :=
     have hPatt := Nat.zero_lt_of_ne_zero h
     let rec loop (acc : String) (accStop pos : String.Pos.Raw) :=
       if h : pos.byteIdx + pattern.endPos.byteIdx > s.endPos.byteIdx then
-        acc ++ s.extract accStop s.endPos
+        acc ++ accStop.extract s s.endPos
       else
         have := Nat.lt_of_lt_of_le (Nat.add_lt_add_left hPatt _) (Nat.ge_of_not_lt h)
         if Pos.Raw.substrEq s pos pattern 0 pattern.endPos.byteIdx then
           have := Nat.sub_lt_sub_left this (Nat.add_lt_add_left hPatt _)
-          loop (acc ++ s.extract accStop pos ++ replacement) (pos + pattern) (pos + pattern)
+          loop (acc ++ accStop.extract s pos ++ replacement) (pos + pattern) (pos + pattern)
         else
           have := Nat.sub_lt_sub_left this (Pos.Raw.lt_next s pos)
           loop acc accStop (pos.next s)
@@ -3655,7 +3624,7 @@ def Internal.isEmptyImpl (ss : Substring) : Bool :=
 Copies the region of the underlying string pointed to by a substring into a fresh string.
 -/
 @[inline] def toString : Substring → String
-  | ⟨s, b, e⟩ => s.extract b e
+  | ⟨s, b, e⟩ => b.extract s e
 
 @[export lean_substring_tostring]
 def Internal.toStringImpl : Substring → String :=
@@ -3678,7 +3647,7 @@ position in the underlying string, the fallback value `(default : Char)`, which 
 returned.  Does not panic.
 -/
 @[inline] def get : Substring → String.Pos.Raw → Char
-  | ⟨s, b, _⟩, p => s.get (p.offsetBy b)
+  | ⟨s, b, _⟩, p => (p.offsetBy b).get s
 
 @[export lean_substring_get]
 def Internal.getImpl : Substring → String.Pos.Raw → Char :=
@@ -3846,17 +3815,17 @@ def splitOn (s : Substring) (sep : String := " ") : List Substring :=
     let rec loop (b i j : String.Pos.Raw) (r : List Substring) : List Substring :=
       if h : i.byteIdx < s.bsize then
         have := Nat.sub_lt_sub_left h (lt_next s i h)
-        if s.get i == sep.get j then
+        if s.get i == j.get sep then
           let i := s.next i
-          let j := sep.next j
-          if sep.atEnd j then
+          let j := j.next sep
+          if j.atEnd sep then
             loop i i 0 (s.extract b (i.unoffsetBy j) :: r)
           else
             loop b i j r
         else
           loop b (s.next i) 0 r
       else
-        let r := if sep.atEnd j then
+        let r := if j.atEnd sep then
           "".toSubstring :: s.extract b (i.unoffsetBy j) :: r
         else
           s.extract b i :: r
@@ -4408,7 +4377,7 @@ Examples:
 * `"".capitalize = ""`
 -/
 @[inline] def capitalize (s : String) : String :=
-  s.set 0 <| s.get 0 |>.toUpper
+  (0 : Pos.Raw).set s <| (0 : Pos.Raw).get s |>.toUpper
 
 @[export lean_string_capitalize]
 def Internal.capitalizeImpl (s : String) : String :=
@@ -4426,7 +4395,7 @@ Examples:
 * `"".decapitalize = ""`
 -/
 @[inline] def decapitalize (s : String) :=
-  s.set 0 <| s.get 0 |>.toLower
+  (0 : Pos.Raw).set s <| (0 : Pos.Raw).get s |>.toLower
 
 /--
 If `pre` is a prefix of `s`, returns the remainder. Returns `none` otherwise.
@@ -4503,7 +4472,7 @@ theorem ext {s₁ s₂ : String} (h : s₁.data = s₂.data) : s₁ = s₂ :=
 @[simp] theorem default_eq : default = "" := rfl
 
 @[simp]
-theorem String.mk_eq_asString (s : List Char) : String.mk s = List.asString s := rfl
+theorem mk_eq_asString (s : List Char) : String.mk s = List.asString s := rfl
 
 @[simp] theorem length_empty : "".length = 0 := by simp [← length_data, data_empty]
 
@@ -4616,12 +4585,19 @@ theorem zero_addString_eq (s : String) : (0 : Pos.Raw) + s = ⟨s.utf8ByteSize�
 
 @[simp] theorem mk_lt_mk {i₁ i₂ : Nat} : Pos.Raw.mk i₁ < Pos.Raw.mk i₂ ↔ i₁ < i₂ := .rfl
 
+@[simp] theorem get!_eq_get (s : String) (p : Pos.Raw) : p.get! s = p.get s := rfl
+
+@[simp] theorem get'_eq (s : String) (p : Pos.Raw) (h) : get' s p h = get s p := rfl
+
+@[simp] theorem next'_eq (s : String) (p : Pos.Raw) (h) : next' s p h = next s p := rfl
+
 end Pos.Raw
 
-@[simp] theorem get!_eq_get (s : String) (p : Pos.Raw) : get! s p = get s p := rfl
+@[deprecated Pos.Raw.get!_eq_get (since := "2025-10-14")]
+theorem get!_eq_get (s : String) (p : Pos.Raw) : p.get! s = p.get s := rfl
 
 @[deprecated Pos.Raw.lt_next (since := "2025-10-10")]
-theorem lt_next' (s : String) (p : Pos.Raw) : p < next s p :=
+theorem lt_next' (s : String) (p : Pos.Raw) : p < p.next s :=
   Pos.Raw.lt_next s p
 
 @[simp] theorem Pos.Raw.prev_zero (s : String) : Pos.Raw.prev s 0 = 0 := by
@@ -4629,12 +4605,14 @@ theorem lt_next' (s : String) (p : Pos.Raw) : p < next s p :=
   cases s.data <;> simp [utf8PrevAux, Pos.Raw.le_iff]
 
 @[deprecated Pos.Raw.prev_zero (since := "2025-10-10")]
-theorem prev_zero (s : String) : prev s 0 = 0 := by
+theorem prev_zero (s : String) : (0 : Pos.Raw).prev s = 0 := by
   exact Pos.Raw.prev_zero s
 
-@[simp] theorem get'_eq (s : String) (p : Pos.Raw) (h) : get' s p h = get s p := rfl
+@[deprecated Pos.Raw.get'_eq (since := "2025-10-14")]
+theorem get'_eq (s : String) (p : Pos.Raw) (h) : p.get' s h = p.get s := rfl
 
-@[simp] theorem next'_eq (s : String) (p : Pos.Raw) (h) : next' s p h = next s p := rfl
+@[deprecated Pos.Raw.next'_eq (since := "2025-10-14")]
+theorem next'_eq (s : String) (p : Pos.Raw) (h) : p.next' s h = p.next s := rfl
 
 -- `toSubstring'` is just a synonym for `toSubstring` without the `@[inline]` attribute
 -- so for proving can be unfolded.

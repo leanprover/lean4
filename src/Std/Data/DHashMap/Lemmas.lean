@@ -1821,7 +1821,7 @@ theorem mem_union_iff [EquivBEq α] [LawfulHashable α] {k : α} :
 
 theorem mem_of_mem_union_of_mem_eq_false_right [EquivBEq α]
     [LawfulHashable α] {k : α} :
-    k ∈ m₁ ∪ m₂→ ¬k ∈ m₂ → k ∈ m₁ := by
+    k ∈ m₁ ∪ m₂ → ¬k ∈ m₂ → k ∈ m₁ := by
   intro h₁ h₂
   apply @Raw₀.contains_of_contains_union_of_contains_eq_false_right _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 k h₁
   . unfold Membership.mem at h₂

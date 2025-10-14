@@ -1931,6 +1931,13 @@ theorem mem_union_of_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
   simp only [Union.union, Membership.mem]
   simp_to_raw using Raw₀.contains_union_of_right
 
+@[simp]
+theorem mem_union_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} :
+    k ∈ m₁ ∪ m₂ ↔ k ∈ m₁ ∨ k ∈ m₂ := by
+  simp only [Union.union, Membership.mem]
+  simp_to_raw using Raw₀.contains_union_iff
+
 theorem mem_of_mem_union_of_mem_eq_false_right [EquivBEq α]
     [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
     k ∈ m₁ ∪ m₂ → ¬k ∈ m₂ → k ∈ m₁ := by

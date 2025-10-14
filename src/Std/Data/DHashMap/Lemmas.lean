@@ -1818,6 +1818,11 @@ theorem mem_union_of_right [EquivBEq α] [LawfulHashable α] {k : α} :
     k ∈ m₂ → k ∈ m₁ ∪ m₂ :=
   @Raw₀.contains_union_of_right _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _ m₁.2 m₂.2 k
 
+@[simp]
+theorem mem_union_iff [EquivBEq α] [LawfulHashable α] {k : α} :
+    k ∈ m₁ ∪ m₂ ↔ k ∈ m₁ ∨ k ∈ m₂ :=
+  @Raw₀.contains_union_iff _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _ m₁.2 m₂.2 k
+
 theorem mem_of_mem_union_of_mem_eq_false_right [EquivBEq α]
     [LawfulHashable α] {k : α} :
     k ∈ m₁ ∪ m₂ → ¬k ∈ m₂ → k ∈ m₁ := by

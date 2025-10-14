@@ -2708,6 +2708,11 @@ theorem contains_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
     (m₁.union m₂).contains k = (m₁.contains k || m₂.contains k) := by
   simp_to_model [contains, union] using List.containsKey_insertList_disj_of_containsKey
 
+theorem contains_union_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k : α} :
+    (m₁.union m₂).contains k ↔ m₁.contains k ∨ m₂.contains k := by
+  simp_to_model [union, contains] using List.contains_insertList_iff
+
 theorem contains_of_contains_union_of_contains_eq_false_right [EquivBEq α]
     [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
     (m₁.union m₂).contains k → m₂.contains k = false → m₁.contains k := by

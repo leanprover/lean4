@@ -809,10 +809,10 @@ theorem get?_union_of_not_mem_right [EquivBEq α] [LawfulHashable α]
   @HashMap.getKey?_union_of_not_mem_right _ _ _ _ m₁.inner m₂.inner _ _  k not_mem
 
 /- get -/
-theorem get_union_of_contains_right [EquivBEq α] [LawfulHashable α]
+theorem get_union_of_mem_right [EquivBEq α] [LawfulHashable α]
     {k : α} (mem : k ∈ m₂) :
     (m₁ ∪ m₂).get k (mem_union_of_right mem) = m₂.get k mem :=
-  @HashMap.getKey_union_of_contains_right _ _ _ _ m₁.inner m₂.inner _ _  k mem
+  @HashMap.getKey_union_of_mem_right _ _ _ _ m₁.inner m₂.inner _ _  k mem
 
 theorem get_union_of_not_mem_left [EquivBEq α] [LawfulHashable α]
     {k : α} (not_mem : ¬k ∈ m₁) {h'} :

@@ -532,19 +532,6 @@ theorem checkLowerHex_encodeHex :
     generalize val / 16 ^ k % 16 = c at h''
     decide +revert
 
-/-
-{
-      offset :=
-        {
-          byteIdx :=
-            ((s.push 'x').posBetween
-                    (encodeHex 2 pc.val.toNat ++
-                      (pt.mangle ++
-                        mangleSuffix (b || tailUnderscore (String.singleton pc ++ pt)) nm))).offset.byteIdx +
-              2 },
-      isValid := ⋯ }
--/
-
 @[simp]
 theorem utf8ByteSize_encodeHex {n val : Nat} :
     (encodeHex n val).utf8ByteSize = n := by
@@ -1038,95 +1025,6 @@ theorem demangleAux_decodeNum_cast {s t : String} (h : s = t) {p : s.ValidPos}
     {res : Name} {n : Nat} :
     demangleAux.decodeNum t (p.cast h) res n = demangleAux.decodeNum s p res n := by
   cases h; rfl
-
-macro "term_tactic" : tactic =>
-  `(tactic| all_goals first
-    | with_reducible apply String.ValidPos.remainingBytes_next_lt
-    | apply String.ValidPos.remainingBytes_next_lt_of_lt
-      apply String.ValidPos.lt_trans (String.ValidPos.lt_next _)
-      first
-      | with_reducible apply String.ValidPos.lt_next _
-      | apply Nat.lt_add_of_pos_right (by decide))
-
-/-theorem demangleAux_normalize2 {s : String} {p : s.ValidPos}
-    (res : Name) (acc : String) {ucount : Nat} :
-    demangleAux s p res acc (ucount + 2) = res +-+ (demangleAux s p .anonymous "" ucount).prependStr acc := by-/
-
-mutual
-
-theorem demangleAux_normalize {s : String} {p : s.ValidPos}
-    (res : Name) (acc : String) {ucount : Nat} :
-    demangleAux s p res acc ucount = res +-+ (demangleAux s p .anonymous "" ucount).prependStr acc := by
-  fun_cases demangleAux s p res acc ucount
-  · rw [demangleAux, dif_pos ‹_›, prependStr, extend, extend, String.pushn_normalize]
-  · conv => rhs; rw [demangleAux, dif_neg ‹_›, if_pos ‹_›]
-    rw [demangleAux_normalize]
-  · conv => rhs; rw [demangleAux, dif_neg ‹_›, if_neg ‹_›, if_pos ‹_›]
-    conv => lhs; rw [demangleAux_normalize]
-    conv => rhs; rw [demangleAux_normalize]
-    rw [anonymous_extend, String.pushn_normalize, prependStr_prependStr, String.append_push]
-  · conv => rhs; rw [demangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg ‹_›, if_pos ‹_›, dif_pos ‹_›]
-    conv => lhs; rw [demangleAux_normalize]
-    conv => rhs; rw [demangleAux_normalize]
-    rw [prependStr_empty, prependStr_str_anonymous_extend, ← extend_assoc, extend, extend,
-      ← String.pushn_normalize]
-  · conv => rhs; rw [demangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg ‹_›, if_pos ‹_›, dif_neg ‹_›]
-    conv => lhs; rw [demangleAux_decodeNum_normalize]
-    conv => rhs; rw [demangleAux_decodeNum_normalize]
-    rw [prependStr_str_anonymous_extend, ← String.pushn_normalize, ← extend_assoc, extend, extend]
-  · conv => rhs; rw [demangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg ‹_›, if_neg ‹_›, dif_pos ‹_›]
-    conv => lhs; rw [demangleAux_normalize]
-    conv => rhs; rw [demangleAux_normalize]
-    rw [anonymous_extend, prependStr_prependStr, String.append_push, ← String.pushn_normalize]
-  · conv => rhs; rw [demangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg ‹_›, if_neg ‹_›, dif_neg ‹_›, dif_pos ‹_›]
-    conv => lhs; rw [demangleAux_normalize]
-    conv => rhs; rw [demangleAux_normalize]
-    rw [anonymous_extend, prependStr_prependStr, String.append_push, ← String.pushn_normalize]
-  · conv => rhs; rw [demangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg ‹_›, if_neg ‹_›, dif_neg ‹_›, dif_neg ‹_›, dif_pos ‹_›]
-    conv => lhs; rw [demangleAux_normalize]
-    conv => rhs; rw [demangleAux_normalize]
-    rw [anonymous_extend, prependStr_prependStr, String.append_push, ← String.pushn_normalize]
-  · conv => rhs; rw [demangleAux, dif_neg ‹_›, if_neg ‹_›, if_neg ‹_›, if_neg ‹_›, dif_neg ‹_›, dif_neg ‹_›, dif_neg ‹_›]
-    conv => lhs; rw [demangleAux_normalize]
-    conv => rhs; rw [demangleAux_normalize]
-    rw [prependStr_str_anonymous_extend, String.append_empty, ← extend_assoc, extend, extend]
-termination_by p.remainingBytes
-decreasing_by term_tactic
-
-theorem demangleAux_decodeNum_normalize {s : String} {p : s.ValidPos} (res : Name) {i : Nat} :
-    demangleAux.decodeNum s p res i = res +-+ demangleAux.decodeNum s p .anonymous i := by
-  fun_cases demangleAux.decodeNum s p res i
-  · rw [demangleAux.decodeNum, dif_pos ‹_›, extend, extend]
-  · rw [demangleAux.decodeNum.eq_def _ _ anonymous, dif_neg ‹_›, if_pos ‹_›]
-    rw [demangleAux_decodeNum_normalize]
-  · rw [demangleAux.decodeNum, dif_neg ‹_›, if_neg ‹_›, dif_pos ‹_›]
-    rfl
-  · rw [demangleAux.decodeNum, dif_neg ‹_›, if_neg ‹_›, dif_neg ‹_›]
-    conv => lhs; rw [demangleAux_nameStart_normalize]
-    conv => rhs; rw [demangleAux_nameStart_normalize]
-    rw [← extend_assoc]
-    rfl
-termination_by p.remainingBytes
-decreasing_by term_tactic
-
-theorem demangleAux_nameStart_normalize {s : String} {p : s.ValidPos} (res : Name) :
-    demangleAux.nameStart s p res = res +-+ demangleAux.nameStart s p .anonymous := by
-  fun_cases demangleAux.nameStart s p res
-  · rw [demangleAux.nameStart, dif_pos ‹_›, extend]
-  · rw [demangleAux.nameStart, dif_neg ‹_›, if_pos ‹_›, dif_pos ‹_›]
-    rw [demangleAux_normalize, prependStr_empty]
-  · rw [demangleAux.nameStart, dif_neg ‹_›, if_pos ‹_›, dif_neg ‹_›]
-    rw [demangleAux_decodeNum_normalize]
-  · rw [demangleAux.nameStart, dif_neg ‹_›, if_neg ‹_›, if_pos ‹_›]
-    rw [demangleAux_normalize, prependStr_empty]
-  · rw [demangleAux.nameStart, dif_neg ‹_›, if_neg ‹_›, if_neg ‹_›]
-    conv => lhs; rw [demangleAux_normalize]
-    conv => rhs; rw [demangleAux_normalize]
-    rw [anonymous_extend]
-termination_by p.remainingBytes
-decreasing_by term_tactic
-
-end
 
 def tailUnderscore (s : String) : Bool :=
   ∃ h, (s.endValidPos.prev h).get (by simp) = '_'
@@ -1634,10 +1532,6 @@ theorem demangleAux_nameStart_normal_str {s s' t : String} {n res : Name}
   · rintro rfl
     simp only [checkDisambiguation_pushHex__U, Bool.true_eq_false] at h
 
-/-macro_rules
-  | `(tactic| induction $[using $t]? $[generalizing $g*]? $(alts?)?) =>
-    `(tactic| induction $(⟨#[]⟩):elimTarget,* $[using $t:term]? $[generalizing $g*]? $(alts?)?)-/
-
 @[simp]
 theorem tailUnderscore_or (b : Bool) (pc : Char) (pt : String) :
     (b || tailUnderscore (String.singleton pc ++ pt) || tailUnderscore pt) =
@@ -1645,29 +1539,6 @@ theorem tailUnderscore_or (b : Bool) (pc : Char) (pt : String) :
   simp only [Bool.or_eq_left_iff_imp, Bool.or_eq_true, tailUnderscore_def]
   rintro ⟨t, rfl⟩
   exact .inr ⟨String.singleton pc ++ t, String.append_push _⟩
-
-/-
-t s : String
-res : Name
-acc : String
-nm : Name
-b : Bool
-tc : Char
-t' : String
-htc : t = String.singleton tc ++ t'
-htc1 : ¬tc = '_'
-pc : Char
-pt : String
-h✝¹ : ¬(pc.isAlpha || pc.isDigit) = true
-h✝ : pc = '_'
-u : Nat
-hu : (2 * (u + 1) + 1) % 2 = 1
-h : pt.mangle ++ mangleSuffix (b || tailUnderscore (String.singleton pc ++ pt)) nm =
-  "".pushn '_' (2 * u + 1) ++ (String.singleton tc ++ t')
-⊢ Lean.Name.demangleAux✝ (s ++ (String.singleton tc ++ t')) (s.posBetween (String.singleton tc ++ t')) res acc
-    (2 * u + 2 + 1) =
-  res.str (acc ++ (String.singleton pc ++ pt)) +-+! nm
--/
 
 theorem checkDisambiguation_of_mangle_append_mangleSuffix_eq
     (h : pt.mangle ++ mangleSuffix b nm =
@@ -1754,7 +1625,7 @@ theorem demangleAux_ucount_output (hc : c ≠ '_')
   · exfalso
     replace h := checkDisambiguation_of_mangle_append_mangleSuffix_eq (sl := s) h (by simpa using Or.inr) hc rfl
     rename_i ch p hu _ hds h_x h_u h_U
-    simp only [String.get_posBetween_singleton_append, ↓Char.isValue, Bool.not_eq_true,
+    simp only [String.get_posBetween_singleton_append, Bool.not_eq_true,
       String.next_posBetween_singleton_append, checkLowerHex_cast, not_and, ch, p]
       at hu hds h_x h_u h_U
     rw [Bool.eq_false_iff, ne_eq, Char.isDigit, ← Bool.decide_and, decide_eq_true_eq, ge_iff_le] at hds

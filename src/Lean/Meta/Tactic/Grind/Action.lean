@@ -8,7 +8,6 @@ prelude
 public import Lean.Meta.Tactic.Grind.Types
 public section
 namespace Lean.Meta.Grind
-namespace Lean.Meta.Grind
 /-!
 # `Action`
 

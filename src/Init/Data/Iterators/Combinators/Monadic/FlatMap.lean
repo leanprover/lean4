@@ -73,8 +73,7 @@ iterators are productive *and provably never empty*, then the resulting iterator
 This combinator incurs an additional O(1) cost with each output of `it₁`, `it₂` or an internal
 iterator.
 
-For each value emitted by the outer iterator `it₁`, this combinator calls `f` and matches on the
-returned `Option` value.
+For each value emitted by the outer iterator `it₁`, this combinator calls `f`.
 -/
 @[always_inline]
 public def IterM.flatMapAfterM {α : Type w} {β : Type w} {α₂ : Type w}
@@ -113,8 +112,7 @@ iterators are productive *and provably never empty*, then the resulting iterator
 
 This combinator incurs an additional O(1) cost with each output of `it` or an internal iterator.
 
-For each value emitted by the outer iterator `it`, this combinator calls `f` and matches on the
-returned `Option` value.
+For each value emitted by the outer iterator `it`, this combinator calls `f`.
 -/
 @[always_inline, expose]
 public def IterM.flatMapM {α : Type w} {β : Type w} {α₂ : Type w}
@@ -156,8 +154,7 @@ iterators are productive *and provably never empty*, then the resulting iterator
 This combinator incurs an additional O(1) cost with each output of `it₁`, `it₂` or an internal
 iterator.
 
-For each value emitted by the outer iterator `it₁`, this combinator calls `f` and matches on the
-returned `Option` value.
+For each value emitted by the outer iterator `it₁`, this combinator calls `f`.
 -/
 @[always_inline]
 public def IterM.flatMapAfter {α : Type w} {β : Type w} {α₂ : Type w}
@@ -196,8 +193,7 @@ iterators are productive *and provably never empty*, then the resulting iterator
 
 This combinator incurs an additional O(1) cost with each output of `it` or an internal iterator.
 
-For each value emitted by the outer iterator `it`, this combinator calls `f` and matches on the
-returned `Option` value.
+For each value emitted by the outer iterator `it`, this combinator calls `f`.
 -/
 @[always_inline, expose]
 public def IterM.flatMap {α : Type w} {β : Type w} {α₂ : Type w}

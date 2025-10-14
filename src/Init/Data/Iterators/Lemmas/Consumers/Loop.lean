@@ -729,4 +729,105 @@ theorem Iter.all_eq_not_any_not {α β : Type w} [Iterator α Id β]
   · simp [ihs ‹_›]
   · simp
 
+theorem Iter.findSomeM?_eq_match_step {α β : Type w} {γ : Type x} {m : Type x → Type w'} [Monad m]
+    [Iterator α Id β] [IteratorLoop α Id m] [LawfulMonad m] [Finite α Id] [LawfulIteratorLoop α Id m]
+    {it : Iter (α := α) β} {f : β → m (Option γ)} :
+    it.findSomeM? f = (do
+      match it.step.val with
+      | .yield it' out =>
+        match ← f out with
+        | none => it'.findSomeM? f
+        | some fx => return (some fx)
+      | .skip it' => it'.findSomeM? f
+      | .done => return none) := by
+  rw [findSomeM?, forIn_eq_match_step]
+  cases it.step using PlausibleIterStep.casesOn
+  · simp only [bind_assoc]
+    apply bind_congr; intro fx
+    split <;> simp [findSomeM?]
+  · simp [findSomeM?]
+  · simp
+
+theorem Iter.findSome?_eq_findSomeM? {α β : Type w} {γ : Type x}
+    [Iterator α Id β] [IteratorLoop α Id Id] [Finite α Id]
+    {it : Iter (α := α) β} {f : β → Option γ} :
+    it.findSome? f = Id.run (it.findSomeM? (pure <| f ·)) :=
+  (rfl)
+
+theorem Iter.findSome?_eq_findSome?_toIterM {α β γ : Type w}
+    [Iterator α Id β] [IteratorLoop α Id Id.{w}] [Finite α Id]
+    {it : Iter (α := α) β} {f : β → Option γ} :
+    it.findSome? f = (it.toIterM.findSome? f).run :=
+  (rfl)
+
+theorem Iter.findSome?_eq_match_step {α β : Type w} {γ : Type x}
+    [Iterator α Id β] [IteratorLoop α Id Id] [LawfulMonad Id] [Finite α Id]
+    [LawfulIteratorLoop α Id Id] {it : Iter (α := α) β} {f : β → Option γ} :
+    it.findSome? f = (match it.step.val with
+      | .yield it' out =>
+        match f out with
+        | none => it'.findSome? f
+        | some fx => some fx
+      | .skip it' => it'.findSome? f
+      | .done => none) := by
+  rw [findSome?_eq_findSomeM?, findSomeM?_eq_match_step]
+  split
+  · simp only [pure_bind, findSome?_eq_findSomeM?]
+    split <;> simp
+  · simp [findSome?_eq_findSomeM?]
+  · simp
+
+theorem Iter.findM?_eq_findSomeM? {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α Id β] [IteratorLoop α Id m] [Finite α Id]
+    {it : Iter (α := α) β} {f : β → m (ULift Bool)} :
+    it.findM? f = it.findSomeM? (fun x => return if (← f x).down then some x else none) :=
+  (rfl)
+
+theorem Iter.findM?_eq_match_step {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α Id β] [IteratorLoop α Id m] [LawfulMonad m] [Finite α Id] [LawfulIteratorLoop α Id m]
+    {it : Iter (α := α) β} {f : β → m (ULift Bool)} :
+    it.findM? f = (do
+      match it.step.val with
+      | .yield it' out =>
+        if (← f out).down then return (some out) else it'.findM? f
+      | .skip it' => it'.findM? f
+      | .done => return none) := by
+  rw [findM?_eq_findSomeM?, findSomeM?_eq_match_step]
+  split
+  · simp only [bind_assoc]
+    apply bind_congr; intro fx
+    split <;> simp [findM?_eq_findSomeM?]
+  · simp [findM?_eq_findSomeM?]
+  · simp
+
+theorem Iter.find?_eq_findM? {α β : Type w} [Iterator α Id β]
+    [IteratorLoop α Id Id] [Finite α Id] {it : Iter (α := α) β} {f : β → Bool} :
+    it.find? f = Id.run (it.findM? (pure <| .up <| f ·)) :=
+  (rfl)
+
+theorem Iter.find?_eq_find?_toIterM {α β : Type w} [Iterator α Id β]
+    [IteratorLoop α Id Id] [Finite α Id] {it : Iter (α := α) β} {f : β → Bool} :
+    it.find? f = (it.toIterM.find? f).run :=
+  (rfl)
+
+theorem Iter.find?_eq_findSome? {α β : Type w} [Iterator α Id β]
+    [IteratorLoop α Id Id] [Finite α Id] {it : Iter (α := α) β} {f : β → Bool} :
+    it.find? f = it.findSome? (fun x => if f x then some x else none) := by
+  simp [find?_eq_findM?, findSome?_eq_findSomeM?, findM?_eq_findSomeM?]
+
+theorem Iter.find?_eq_match_step {α β : Type w}
+    [Iterator α Id β] [IteratorLoop α Id Id] [Finite α Id] [LawfulIteratorLoop α Id Id]
+    {it : Iter (α := α) β} {f : β → Bool} :
+    it.find? f = (match it.step.val with
+      | .yield it' out =>
+        if f out then some out else it'.find? f
+      | .skip it' => it'.find? f
+      | .done => none) := by
+  rw [find?_eq_findM?, findM?_eq_match_step]
+  split
+  · simp only [pure_bind]
+    split <;> simp [find?_eq_findM?]
+  · simp [find?_eq_findM?]
+  · simp
+
 end Std.Iterators

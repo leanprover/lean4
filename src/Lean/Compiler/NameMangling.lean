@@ -21,7 +21,7 @@ def pushHex (n : Nat) (val : UInt32) (s : String) : String :=
   match n with
   | 0 => s
   | k + 1 =>
-    let i := (val >>> (4 * k).toUInt32) &&& 15
+    let i := (val >>> (4 * k.toUInt32)) &&& 15
     pushHex k val (s.push (digitChar i ?_))
 where finally
   have := Nat.and_two_pow_sub_one_eq_mod (n := 4)
@@ -135,8 +135,10 @@ def checkDisambiguation (s : String) (p : s.ValidPos) : Bool :=
 termination_by p.remainingBytes
 decreasing_by apply p.remainingBytes_next_lt
 
-def needDisambiguation (prev : String) (next : String) : Bool :=
-  prev.endsWith "__" || checkDisambiguation next next.startValidPos
+def needDisambiguation (prev : Name) (next : String) : Bool :=
+  (match prev with
+    | .str _ s => ∃ h, (s.endValidPos.prev h).get (by simp) = '_'
+    | _ => false) || checkDisambiguation next next.startValidPos
 
 def Name.mangleAux : Name → String
   | Name.anonymous => ""
@@ -147,7 +149,7 @@ def Name.mangleAux : Name → String
       if checkDisambiguation m m.startValidPos then "00" ++ m else m
     | p              =>
       let m1 := mangleAux p
-      m1 ++ (if needDisambiguation m1 m then "_00" else "_") ++ m
+      m1 ++ (if needDisambiguation p m then "_00" else "_") ++ m
   | Name.num p n =>
     match p with
     | Name.anonymous => n.repr ++ "_"

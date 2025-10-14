@@ -2072,8 +2072,13 @@ theorem Slice.Pos.prevAux_lt_utf8ByteSize {s : Slice} {p : s.Pos} {h} : p.prevAu
 theorem Pos.Raw.ne_of_lt {a b : Pos.Raw} : a < b → a ≠ b := by
   simpa [lt_iff, Pos.Raw.ext_iff] using Nat.ne_of_lt
 
+@[simp]
 theorem Slice.Pos.prev_ne_endPos {s : Slice} {p : s.Pos} {h} : p.prev h ≠ s.endPos := by
   simpa [Pos.ext_iff, prev] using Pos.Raw.ne_of_lt prevAux_lt_utf8ByteSize
+
+@[simp]
+theorem ValidPos.prev_ne_endValidPos {s : String} {p : s.ValidPos} {h} : p.prev h ≠ s.endValidPos :=
+  mt (congrArg (·.toSlice)) (Slice.Pos.prev_ne_endPos (h := mt (congrArg (·.ofSlice)) h))
 
 theorem Slice.Pos.offset_prev_lt_offset {s : Slice} {p : s.Pos} {h} : (p.prev h).offset < p.offset := by
   simpa [prev] using prevAux_lt_self

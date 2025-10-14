@@ -32,8 +32,8 @@ public instance : Iterator (α := AssocListIterator α β) Id ((a : α) × β a)
     | .skip _ => False
     | .done => it.internalState.l = .nil
   step it := pure (match it with
-        | ⟨⟨.nil⟩⟩ => ⟨.done, rfl⟩
-        | ⟨⟨.cons k v l⟩⟩ => ⟨.yield (toIterM ⟨l⟩ Id _) ⟨k, v⟩, rfl⟩)
+        | ⟨⟨.nil⟩⟩ => .deflate ⟨.done, rfl⟩
+        | ⟨⟨.cons k v l⟩⟩ => .deflate ⟨.yield (toIterM ⟨l⟩ Id _) ⟨k, v⟩, rfl⟩)
 
 def AssocListIterator.finitenessRelation :
     FinitenessRelation (AssocListIterator α β) Id where

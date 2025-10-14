@@ -293,14 +293,21 @@ where
     throwError "Tactic failed on all goals:{indentD stx[1]}"
   setGoals goalsNew.toList
 
+public def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIdent) : GrindTacticM MVarId := do
+  let mvarId ← Tactic.renameInaccessibles mvarId hs
+  unless hs.isEmpty do liftGrindM <| resetAnchors
+  return mvarId
+
 @[builtin_grind_tactic «next»] def evalNext : GrindTactic := fun stx => do
   match stx with
-  | `(grind| next%$nextTk =>%$arr $seq:grindSeq) => do
+  | `(grind| next%$nextTk $hs* =>%$arr $seq:grindSeq) => do
     let goal :: goals ← getUnsolvedGoals | throwNoGoalsToBeSolved
+    let mvarId ← renameInaccessibles goal.mvarId hs
+    let goal := { goal with mvarId }
     setGoals [goal]
     goal.mvarId.setTag Name.anonymous
     withCaseRef arr seq <| closeUsingOrAdmit <| withTacticInfoContext (mkNullNode #[nextTk, arr]) <|
-      evalGrindTactic stx[2]
+      evalGrindTactic stx[3]
     setGoals goals
   | _ => throwUnsupportedSyntax
 
@@ -345,7 +352,6 @@ where
     let goal ← getMainGoal
     let mvarId ← renameInaccessibles goal.mvarId hs
     replaceMainGoal [{ goal with mvarId }]
-    liftGrindM <| resetAnchors
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Grind

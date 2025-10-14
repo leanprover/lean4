@@ -115,7 +115,7 @@ Usually `· tac`, which enforces that the goal is closed by `tac`, should be pre
 -/
 syntax (name := focus) "focus " grindSeq : grind
 
-syntax (name := next) "next" " => " grindSeq : grind
+syntax (name := next) "next " binderIdent* " => " grindSeq : grind
 
 /--
 `any_goals tac` applies the tactic `tac` to every goal,

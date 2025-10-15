@@ -1088,5 +1088,7 @@ def workerMain (opts : Options) : IO UInt32 := do
   catch err =>
     e.putStrLn err.toString
     IO.Process.forceExit 1 -- Terminate all tasks of this process
+  finally
+    IO.Process.forceExit (α := UInt32) 1
 
 end Lean.Server.FileWorker

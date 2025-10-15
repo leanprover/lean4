@@ -1804,5 +1804,7 @@ def watchdogMain (args : List String) : IO UInt32 := do
   catch err =>
     e.putStrLn s!"Watchdog error: {err}"
     IO.Process.forceExit 1 -- Terminate all tasks of this process
+  finally
+    IO.Process.forceExit (α := UInt32) 1
 
 end Lean.Server.Watchdog

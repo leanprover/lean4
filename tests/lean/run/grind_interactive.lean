@@ -473,4 +473,10 @@ example : (a : Point Nat) → p a → x ≠ y → False := by
     cases #e2a6
     all_goals sorry
 
+example : (a : Point Nat) → p a → x ≠ y → False := by
+  grind =>
+    expose_names
+    cases #6ccb
+    sorry
+
 end Ex1

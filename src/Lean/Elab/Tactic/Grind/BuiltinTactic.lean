@@ -20,6 +20,7 @@ import Lean.Meta.Tactic.Grind.Anchor
 import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
 import Lean.Meta.Tactic.Grind.Arith.Linear.PP
 import Lean.Meta.Tactic.Grind.AC.PP
+import Lean.Meta.Tactic.ExposeNames
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.RenameInaccessibles
 namespace Lean.Elab.Tactic.Grind
@@ -353,5 +354,11 @@ where
     let mvarId ← renameInaccessibles goal.mvarId hs
     replaceMainGoal [{ goal with mvarId }]
   | _ => throwUnsupportedSyntax
+
+@[builtin_grind_tactic exposeNames] def evalExposeNames : GrindTactic := fun _ => do
+  let goal ← getMainGoal
+  let mvarId ← goal.mvarId.exposeNames
+  liftGrindM <| resetAnchors
+  replaceMainGoal [{ goal with mvarId }]
 
 end Lean.Elab.Tactic.Grind

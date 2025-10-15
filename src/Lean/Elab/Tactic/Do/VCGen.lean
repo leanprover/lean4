@@ -478,3 +478,12 @@ def elabMVCGen : Tactic := fun stx => withMainContext do
   trace[Elab.Tactic.Do.vcgen] "before replacing main goal {← (invariants ++ vcs).mapM fun m => m.getTag}"
   replaceMainGoal (invariants ++ vcs).toList
   -- trace[Elab.Tactic.Do.vcgen] "replaced main goal, new: {← getGoals}"
+
+@[builtin_tactic Lean.Parser.Tactic.mvcgenHint]
+def elabMVCGenHint : Tactic := fun stx => withMainContext do
+  let stx' : TSyntax ``mvcgen := TSyntax.mk <| stx
+    |>.setKind ``Lean.Parser.Tactic.mvcgen
+    |>.modifyArgs (·.set! 0 (mkAtom "mvcgen") |>.push (mkNullNode #[← `(invariantAlts| invariants?)]) |>.push mkNullNode)
+  -- logInfo m!"{stx}\n{toString stx}\n{repr stx}"
+  -- logInfo m!"{stx'}\n{toString stx'}\n{repr stx'}"
+  Lean.Meta.Tactic.TryThis.addSuggestion stx stx'

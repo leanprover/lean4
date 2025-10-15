@@ -40,7 +40,7 @@ def registerBuiltinDownwardPropagator (declName : Name) (proc : Propagator) : IO
   registerBuiltinPropagatorCore declName false proc
 
 private def addBuiltin (propagatorName : Name) (stx : Syntax) : AttrM Unit := do
-  let go : MetaM Unit := do
+  let go : MetaM Unit := withoutExporting do  -- result will be private anyway
     let up := stx[1].getKind == ``Lean.Parser.Tactic.simpPost
     let addDeclName := if up then
       ``registerBuiltinUpwardPropagator

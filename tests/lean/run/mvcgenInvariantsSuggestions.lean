@@ -26,6 +26,29 @@ theorem mySum_suggest_invariant (l : List Nat) : mySum l = l.sum := by
   mvcgen invariants?
   all_goals admit
 
+/--
+info: Try this:
+  [apply] mvcgen invariants?
+---
+info: Try this:
+  [apply] mvcgen [mySum] invariants?
+---
+info: Try this:
+  [apply] mvcgen +elimLets invariants?
+---
+info: Try this:
+  [apply] mvcgen +elimLets [mySum] invariants?
+-/
+#guard_msgs (info) in
+theorem mySum_suggest_invariant_short (l : List Nat) : mySum l = l.sum := by
+  generalize h : mySum l = r
+  apply Id.of_wp_run_eq h
+  mvcgen?
+  mvcgen? [mySum]
+  mvcgen? +elimLets
+  mvcgen? +elimLets [mySum]
+  all_goals admit
+
 def mySum2 (l : List Nat) : Nat := Id.run do
   let mut acc := 0
   let mut acc2 := 0

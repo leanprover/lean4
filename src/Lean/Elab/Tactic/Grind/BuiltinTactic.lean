@@ -104,6 +104,10 @@ def evalCheck (tacticName : Name) (k : GoalM Bool)
 @[builtin_grind_tactic ac] def evalAC : GrindTactic := fun _ => do
   evalCheck `ac AC.check AC.pp?
 
+def logTheoremAnchor (proof : Expr) : TermElabM Unit := do
+  let stx ← getRef
+  Term.addTermInfo' stx proof
+
 def ematchThms (thms : Array EMatchTheorem) : GrindTacticM Unit := do
   let progress ← liftGoalM <| if thms.isEmpty then ematch else ematchTheorems thms
   unless progress do
@@ -135,19 +139,24 @@ def elabAnchor (anchor : TSyntax `hexnum) : CoreM (Nat × UInt64) := do
     ematchThms thms
   | _ => throwUnsupportedSyntax
 where
-  collectThms (numDigits : Nat) (anchorPrefix : UInt64) (thms : PArray EMatchTheorem) : StateT (Array EMatchTheorem) GrindM Unit := do
+  collectThms (numDigits : Nat) (anchorPrefix : UInt64) (thms : PArray EMatchTheorem) : StateT (Array EMatchTheorem) GrindTacticM Unit := do
+    let mut found : Std.HashSet Expr := {}
     for thm in thms do
       -- **Note**: `anchors` are cached using pointer addresses, if this is a performance issue, we should
       -- cache the theorem types.
       let type ← inferType thm.proof
-      let anchor ← getAnchor type
+      let anchor ← liftGrindM <| getAnchor type
       if isAnchorPrefix numDigits anchorPrefix anchor then
+        -- **Note**: We display the anchor term at most once.
+        unless found.contains type do
+          logTheoremAnchor thm.proof
+          found := found.insert type
         modify (·.push thm)
 
-  elabLocalEMatchTheorem (anchor : TSyntax `hexnum) : GrindTacticM (Array EMatchTheorem) := do
+  elabLocalEMatchTheorem (anchor : TSyntax `hexnum) : GrindTacticM (Array EMatchTheorem) := withRef anchor do
     let (numDigits, anchorPrefix) ← elabAnchor anchor
     let goal ← getMainGoal
-    let thms ← liftGrindM do StateT.run' (s := #[]) do
+    let thms ← StateT.run' (s := #[]) do
       collectThms numDigits anchorPrefix goal.ematch.thms
       collectThms numDigits anchorPrefix goal.ematch.newThms
       get

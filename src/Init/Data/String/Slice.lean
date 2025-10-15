@@ -142,9 +142,6 @@ instance [Pure m] : Std.Iterators.Iterator (SplitIterator ρ) m Slice where
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (SplitIterator ρ) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial (SplitIterator ρ) m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (SplitIterator ρ) m n :=
   .defaultImplementation
 
@@ -162,11 +159,11 @@ multiple subslices in a row match the pattern, the resulting list will contain e
 This function is generic over all currently supported patterns.
 
 Examples:
- * {lean}`("coffee tea water".toSlice.split Char.isWhitespace).allowNontermination.toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]`
- * {lean}`("coffee tea water".toSlice.split ' ').allowNontermination.toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]`
- * {lean}`("coffee tea water".toSlice.split " tea ").allowNontermination.toList == ["coffee".toSlice, "water".toSlice]`
- * {lean}`("ababababa".toSlice.split "aba").allowNontermination.toList == ["coffee".toSlice, "water".toSlice]`
- * {lean}`("baaab".toSlice.split "aa").allowNontermination.toList == ["b".toSlice, "ab".toSlice]`
+ * {lean}`("coffee tea water".toSlice.split Char.isWhitespace).toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]`
+ * {lean}`("coffee tea water".toSlice.split ' ').toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]`
+ * {lean}`("coffee tea water".toSlice.split " tea ").toList == ["coffee".toSlice, "water".toSlice]`
+ * {lean}`("ababababa".toSlice.split "aba").toList == ["coffee".toSlice, "water".toSlice]`
+ * {lean}`("baaab".toSlice.split "aa").toList == ["b".toSlice, "ab".toSlice]`
 -/
 @[specialize pat]
 def split [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) : Std.Iter (α := SplitIterator ρ) Slice :=
@@ -206,10 +203,6 @@ instance [Monad m] [Monad n] :
   .defaultImplementation
 
 instance [Monad m] [Monad n] :
-    Std.Iterators.IteratorCollectPartial (SplitInclusiveIterator ρ) m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] :
     Std.Iterators.IteratorLoop (SplitInclusiveIterator ρ) m n :=
   .defaultImplementation
 
@@ -226,10 +219,10 @@ matched subslices are included at the end of each subslice.
 This function is generic over all currently supported patterns.
 
 Examples:
- * {lean}`("coffee tea water".toSlice.splitInclusive Char.isWhitespace).allowNontermination.toList == ["coffee ".toSlice, "tea ".toSlice, "water".toSlice]`
- * {lean}`("coffee tea water".toSlice.splitInclusive ' ').allowNontermination.toList == ["coffee ".toSlice, "tea ".toSlice, "water".toSlice]`
- * {lean}`("coffee tea water".toSlice.splitInclusive " tea ").allowNontermination.toList == ["coffee tea ".toSlice, "water".toSlice]`
- * {lean}`("baaab".toSlice.splitInclusive "aa").allowNontermination.toList == ["baa".toSlice, "ab".toSlice]`
+ * {lean}`("coffee tea water".toSlice.splitInclusive Char.isWhitespace).toList == ["coffee ".toSlice, "tea ".toSlice, "water".toSlice]`
+ * {lean}`("coffee tea water".toSlice.splitInclusive ' ').toList == ["coffee ".toSlice, "tea ".toSlice, "water".toSlice]`
+ * {lean}`("coffee tea water".toSlice.splitInclusive " tea ").toList == ["coffee tea ".toSlice, "water".toSlice]`
+ * {lean}`("baaab".toSlice.splitInclusive "aa").toList == ["baa".toSlice, "ab".toSlice]`
 -/
 @[specialize pat]
 def splitInclusive [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) :
@@ -478,10 +471,6 @@ instance [Pure m] : Std.Iterators.Iterator (RevSplitIterator ρ) m Slice where
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (RevSplitIterator ρ) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] :
-    Std.Iterators.IteratorCollectPartial (RevSplitIterator ρ) m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (RevSplitIterator ρ) m n :=
   .defaultImplementation
 
@@ -501,8 +490,8 @@ This function is generic over all currently supported patterns except
 {name}`String`/{name}`String.Slice`.
 
 Examples:
- * {lean}`("coffee tea water".toSlice.revSplit Char.isWhitespace).allowNontermination.toList == ["water".toSlice, "tea".toSlice, "coffee".toSlice]`
- * {lean}`("coffee tea water".toSlice.revSplit ' ').allowNontermination.toList == ["water".toSlice, "tea".toSlice, "coffee".toSlice]`
+ * {lean}`("coffee tea water".toSlice.revSplit Char.isWhitespace).toList == ["water".toSlice, "tea".toSlice, "coffee".toSlice]`
+ * {lean}`("coffee tea water".toSlice.revSplit ' ').toList == ["water".toSlice, "tea".toSlice, "coffee".toSlice]`
 -/
 @[specialize pat]
 def revSplit [ToBackwardSearcher ρ σ] (s : Slice) (pat : ρ) :
@@ -762,9 +751,6 @@ instance [Pure m] : Std.Iterators.Finite (PosIterator s) m :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (PosIterator s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial (PosIterator s) m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (PosIterator s) m n :=
   .defaultImplementation
 
@@ -848,10 +834,6 @@ instance [Pure m] : Std.Iterators.Finite (RevPosIterator s) m :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (RevPosIterator s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] :
-    Std.Iterators.IteratorCollectPartial (RevPosIterator s) m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (RevPosIterator s) m n :=
   .defaultImplementation
 
@@ -933,9 +915,6 @@ instance [Pure m] : Std.Iterators.Finite ByteIterator m :=
   .of_finitenessRelation finitenessRelation
 
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect ByteIterator m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial ByteIterator m n :=
   .defaultImplementation
 
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop ByteIterator m n :=
@@ -1022,9 +1001,6 @@ instance [Pure m] : Std.Iterators.Finite RevByteIterator m :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect RevByteIterator m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial RevByteIterator m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop RevByteIterator m n :=
   .defaultImplementation
 
@@ -1049,9 +1025,9 @@ Creates an iterator over all lines in {name}`s` with the line ending characters 
 stripped.
 
 Examples:
- * {lean}`"foo\r\nbar\n\nbaz\n".toSlice.lines.allowNontermination.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz".toSlice]`
- * {lean}`"foo\r\nbar\n\nbaz".toSlice.lines.allowNontermination.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz".toSlice]`
- * {lean}`"foo\r\nbar\n\nbaz\r".toSlice.lines.allowNontermination.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz\r".toSlice]`
+ * {lean}`"foo\r\nbar\n\nbaz\n".toSlice.lines.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz".toSlice]`
+ * {lean}`"foo\r\nbar\n\nbaz".toSlice.lines.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz".toSlice]`
+ * {lean}`"foo\r\nbar\n\nbaz\r".toSlice.lines.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz\r".toSlice]`
 -/
 def lines (s : Slice) :=
   s.splitInclusive '\n' |>.map lines.lineMap

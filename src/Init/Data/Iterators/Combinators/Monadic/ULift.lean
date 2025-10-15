@@ -137,10 +137,6 @@ instance Types.ULiftIterator.instIteratorCollect [Monad n] [Monad o] [Iterator �
     IteratorCollect (ULiftIterator α m n β lift) n o :=
   .defaultImplementation
 
-instance Types.ULiftIterator.instIteratorCollectPartial {o} [Monad n] [Monad o] [Iterator α m β] :
-    IteratorCollectPartial (ULiftIterator α m n β lift) n o :=
-  .defaultImplementation
-
 instance Types.ULiftIterator.instIteratorSize [Monad n] [Iterator α m β] [IteratorSize α m]
     [Finite (ULiftIterator α m n β lift) n] :
     IteratorSize (ULiftIterator α m n β lift) n :=

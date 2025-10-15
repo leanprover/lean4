@@ -1146,10 +1146,6 @@ def updateViewWithFunctorName (view : InductiveView) : InductiveView :=
   let newCtors := view.ctors.map (fun ctor => {ctor with declName := ctor.declName.updatePrefix (addFunctorPostfix ctor.declName.getPrefix)})
   {view with declName := addFunctorPostfix view.declName, ctors := newCtors}
 
-def updateViewRemovingFunctorName (view : InductiveView) : InductiveView :=
-  let newCtors := view.ctors.map (fun ctor => {ctor with declName := ctor.declName.updatePrefix (removeFunctorPostfix ctor.declName.getPrefix)})
-  {view with declName := addFunctorPostfix view.declName, ctors := newCtors}
-
 private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM FinalizeContext := do
   let view0 := elabs[0]!.view
   let ref := view0.ref

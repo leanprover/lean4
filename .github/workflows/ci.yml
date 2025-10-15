@@ -189,6 +189,8 @@ jobs:
                 "check-level": 0,
                 "check-rebootstrap": level >= 1,
                 "check-stage3": level >= 2,
+                // only check-level >= 1 opts into tests implicitly. TODO: Clean up this logic.
+                "test": true,
                 // NOTE: `test-speedcenter` currently seems to be broken on `ubuntu-latest`
                 "test-speedcenter": large && level >= 2,
                 // made explicit until it can be assumed to have propagated to PRs

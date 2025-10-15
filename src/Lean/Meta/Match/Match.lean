@@ -291,10 +291,10 @@ where
 Solve pending alternative constraints. If all constraints can be solved perform assignment
 `mvarId := alt.rhs`, and return true.
 -/
-private partial def solveCnstrs (mvarId : MVarId) (alt : Alt) : StateRefT State MetaM Bool := do
+private partial def solveCnstrs (mvarId : MVarId) (alt : Alt) : StateRefT State MetaM Unit := do
   go (reorientCnstrs alt)
 where
-  go (alt : Alt) : StateRefT State MetaM Bool := do
+  go (alt : Alt) : StateRefT State MetaM Unit := do
     match (← solveSomeLocalFVarIdCnstr? alt) with
     | some alt => go alt
     | none =>
@@ -307,10 +307,12 @@ where
           throwErrorAt alt.ref "Dependent elimination failed: Type mismatch when solving this alternative: it {← mkHasTypeButIsExpectedMsg eType targetType}"
         mvarId.assign alt.rhs
         modify fun s => { s with used := s.used.insert alt.idx }
-        return true
       else
         trace[Meta.Match.match] "alt has unsolved cnstrs:\n{← alt.toMessageData}"
-        return false
+        let mut msg := m!"Dependent match elimination failed: Could not solve constraints"
+        for (lhs, rhs) in alt.cnstrs do
+          msg := msg ++ m!"\n  {lhs} ≋ {rhs}"
+        throwErrorAt alt.ref msg
 
 /--
 Try to solve the problem by using the first alternative whose pending constraints can be resolved.
@@ -329,8 +331,7 @@ where
         p.mvarId.admit
         modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
     | alt :: _ =>
-      unless (← solveCnstrs p.mvarId alt) do
-        throwErrorAt alt.ref "Dependent match elimination failed: Could not solve constraints"
+      solveCnstrs p.mvarId alt
 
 private def processAsPattern (p : Problem) : MetaM Problem := withGoalOf p do
   let x :: _ := p.vars | unreachable!
@@ -414,6 +415,7 @@ private def inLocalDecls (localDecls : List LocalDecl) (fvarId : FVarId) : Bool 
 
 private def expandVarIntoCtor? (alt : Alt) (ctorName : Name) : MetaM Alt := do
   let .var fvarId :: ps := alt.patterns | unreachable!
+  let alt := { alt with patterns := ps}
   withExistingLocalDecls alt.fvarDecls do
     trace[Meta.Match.unify] "expandVarIntoCtor? fvarId: {mkFVar fvarId}, ctorName: {ctorName}, alt:\n{← alt.toMessageData}"
     let expectedType ← inferType (mkFVar fvarId)
@@ -431,7 +433,7 @@ private def expandVarIntoCtor? (alt : Alt) (ctorName : Name) : MetaM Alt := do
          cnstrs := (resultType, expectedType) :: cnstrs
       trace[Meta.Match.unify] "expandVarIntoCtor? {mkFVar fvarId} : {expectedType}, ctor: {ctor}"
       let ctorFieldPatterns := ctorFieldDecls.toList.map fun decl => Pattern.var decl.fvarId
-      return { alt with fvarDecls := newAltDecls, patterns := ctorFieldPatterns ++ ps, cnstrs }
+      return { alt with fvarDecls := newAltDecls, patterns := ctorFieldPatterns ++ alt.patterns, cnstrs }
 
 private def expandInaccessibleIntoVar (alt : Alt) : MetaM Alt := do
   let .inaccessible e :: ps := alt.patterns | unreachable!

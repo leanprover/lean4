@@ -25,20 +25,20 @@ variable {α β β' : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
 theorem IterM.step_filterMapWithPostcondition {f : β → PostconditionT n (Option β')}
     [Monad n] [LawfulMonad n] [MonadLiftT m n] :
   (it.filterMapWithPostcondition f).step = (do
-    match ← it.step with
+    match (← it.step).inflate with
     | .yield it' out h => do
       match ← (f out).operation with
       | ⟨none, h'⟩ =>
-        pure <| .skip (it'.filterMapWithPostcondition f) (.yieldNone (out := out) h h')
+        pure <| .deflate <| .skip (it'.filterMapWithPostcondition f) (.yieldNone (out := out) h h')
       | ⟨some out', h'⟩ =>
-        pure <| .yield (it'.filterMapWithPostcondition f) out' (.yieldSome (out := out) h h')
+        pure <| .deflate <| .yield (it'.filterMapWithPostcondition f) out' (.yieldSome (out := out) h h')
     | .skip it' h =>
-      pure <| .skip (it'.filterMapWithPostcondition f) (.skip h)
+      pure <| .deflate <| .skip (it'.filterMapWithPostcondition f) (.skip h)
     | .done h =>
-      pure <| .done (by exact .done h)) := by
+      pure <| .deflate <| .done (by exact .done h)) := by
   apply bind_congr
   intro step
-  match step with
+  match step.inflate with
   | .yield it' out h =>
     simp only [PlausibleIterStep.skip, PlausibleIterStep.yield]
     apply bind_congr
@@ -50,20 +50,20 @@ theorem IterM.step_filterMapWithPostcondition {f : β → PostconditionT n (Opti
 theorem IterM.step_filterWithPostcondition {f : β → PostconditionT n (ULift Bool)}
     [Monad n] [LawfulMonad n] [MonadLiftT m n] :
   (it.filterWithPostcondition f).step = (do
-    match ← it.step with
+    match (← it.step).inflate with
     | .yield it' out h => do
       match ← (f out).operation with
       | ⟨.up false, h'⟩ =>
-        pure <| .skip (it'.filterWithPostcondition f) (.yieldNone (out := out) h ⟨⟨_, h'⟩, rfl⟩)
+        pure <| .deflate <| .skip (it'.filterWithPostcondition f) (.yieldNone (out := out) h ⟨⟨_, h'⟩, rfl⟩)
       | ⟨.up true, h'⟩ =>
-        pure <| .yield (it'.filterWithPostcondition f) out (by exact .yieldSome (out := out) h ⟨⟨_, h'⟩, rfl⟩)
+        pure <| .deflate <| .yield (it'.filterWithPostcondition f) out (by exact .yieldSome (out := out) h ⟨⟨_, h'⟩, rfl⟩)
     | .skip it' h =>
-      pure <| .skip (it'.filterWithPostcondition f) (by exact .skip h)
+      pure <| .deflate <| .skip (it'.filterWithPostcondition f) (by exact .skip h)
     | .done h =>
-      pure <| .done (by exact .done h)) := by
+      pure <| .deflate <| .done (by exact .done h)) := by
   apply bind_congr
   intro step
-  match step with
+  match step.inflate with
   | .yield it' out h =>
     simp only [PostconditionT.operation_map, PlausibleIterStep.skip, PlausibleIterStep.yield,
       bind_map_left]
@@ -76,17 +76,17 @@ theorem IterM.step_filterWithPostcondition {f : β → PostconditionT n (ULift B
 theorem IterM.step_mapWithPostcondition {γ : Type w} {f : β → PostconditionT n γ}
     [Monad n] [LawfulMonad n] [MonadLiftT m n] :
   (it.mapWithPostcondition f).step = (do
-    match ← it.step with
+    match (← it.step).inflate with
     | .yield it' out h => do
       let out' ← (f out).operation
-      pure <| .yield (it'.mapWithPostcondition f) out'.1 (.yieldSome h ⟨out', rfl⟩)
+      pure <| .deflate <| .yield (it'.mapWithPostcondition f) out'.1 (.yieldSome h ⟨out', rfl⟩)
     | .skip it' h =>
-      pure <| .skip (it'.mapWithPostcondition f) (.skip h)
+      pure <| .deflate <| .skip (it'.mapWithPostcondition f) (.skip h)
     | .done h =>
-      pure <| .done (.done h)) := by
+      pure <| .deflate <| .done (.done h)) := by
   apply bind_congr
   intro step
-  match step with
+  match step.inflate with
   | .yield it' out h =>
     simp only [PostconditionT.operation_map, bind_map_left, bind_pure_comp]
     rfl
@@ -96,20 +96,20 @@ theorem IterM.step_mapWithPostcondition {γ : Type w} {f : β → PostconditionT
 theorem IterM.step_filterMapM {f : β → n (Option β')}
     [Monad n] [LawfulMonad n] [MonadLiftT m n] :
   (it.filterMapM f).step = (do
-    match ← it.step with
+    match (← it.step).inflate with
     | .yield it' out h => do
       match ← f out with
       | none =>
-        pure <| .skip (it'.filterMapM f) (.yieldNone (out := out) h .intro)
+        pure <| .deflate <| .skip (it'.filterMapM f) (.yieldNone (out := out) h .intro)
       | some out' =>
-        pure <| .yield (it'.filterMapM f) out' (.yieldSome (out := out) h .intro)
+        pure <| .deflate <| .yield (it'.filterMapM f) out' (.yieldSome (out := out) h .intro)
     | .skip it' h =>
-      pure <| .skip (it'.filterMapM f) (.skip h)
+      pure <| .deflate <| .skip (it'.filterMapM f) (.skip h)
     | .done h =>
-      pure <| .done (.done h)) := by
+      pure <| .deflate <| .done (.done h)) := by
   apply bind_congr
   intro step
-  match step with
+  match step.inflate with
   | .yield it' out h =>
     simp only [PostconditionT.lift, bind_map_left]
     apply bind_congr
@@ -121,20 +121,20 @@ theorem IterM.step_filterMapM {f : β → n (Option β')}
 theorem IterM.step_filterM {f : β → n (ULift Bool)}
     [Monad n] [LawfulMonad n] [MonadLiftT m n] :
   (it.filterM f).step = (do
-    match ← it.step with
+    match (← it.step).inflate with
     | .yield it' out h => do
       match ← f out with
       | .up false =>
-        pure <| .skip (it'.filterM f) (.yieldNone (out := out) h ⟨⟨.up false, .intro⟩, rfl⟩)
+        pure <| .deflate <| .skip (it'.filterM f) (.yieldNone (out := out) h ⟨⟨.up false, .intro⟩, rfl⟩)
       | .up true =>
-        pure <| .yield (it'.filterM f) out (.yieldSome (out := out) h ⟨⟨.up true, .intro⟩, rfl⟩)
+        pure <| .deflate <| .yield (it'.filterM f) out (.yieldSome (out := out) h ⟨⟨.up true, .intro⟩, rfl⟩)
     | .skip it' h =>
-      pure <| .skip (it'.filterM f) (.skip h)
+      pure <| .deflate <| .skip (it'.filterM f) (.skip h)
     | .done h =>
-      pure <| .done (.done h)) := by
+      pure <| .deflate <| .done (.done h)) := by
   apply bind_congr
   intro step
-  match step with
+  match step.inflate with
   | .yield it' out h =>
     simp only [PostconditionT.lift, PostconditionT.operation_map, Functor.map_map,
       PlausibleIterStep.skip, PlausibleIterStep.yield, bind_map_left]
@@ -147,17 +147,17 @@ theorem IterM.step_filterM {f : β → n (ULift Bool)}
 theorem IterM.step_mapM {γ : Type w} {f : β → n γ}
     [Monad n] [LawfulMonad n] [MonadLiftT m n] :
   (it.mapM f).step = (do
-    match ← it.step with
+    match (← it.step).inflate with
     | .yield it' out h => do
       let out' ← f out
-      pure <| .yield (it'.mapM f) out' (.yieldSome h ⟨⟨out', True.intro⟩, rfl⟩)
+      pure <| .deflate <| .yield (it'.mapM f) out' (.yieldSome h ⟨⟨out', True.intro⟩, rfl⟩)
     | .skip it' h =>
-      pure <| .skip (it'.mapM f) (.skip h)
+      pure <| .deflate <| .skip (it'.mapM f) (.skip h)
     | .done h =>
-      pure <| .done (.done h)) := by
+      pure <| .deflate <| .done (.done h)) := by
   apply bind_congr
   intro step
-  match step with
+  match step.inflate with
   | .yield it' out h =>
     simp only [bind_pure_comp]
     simp only [PostconditionT.lift]
@@ -169,17 +169,17 @@ theorem IterM.step_mapM {γ : Type w} {f : β → n γ}
 
 theorem IterM.step_filterMap [Monad m] [LawfulMonad m] {f : β → Option β'} :
   (it.filterMap f).step = (do
-    match ← it.step with
+    match (← it.step).inflate with
     | .yield it' out h => do
       match h' : f out with
       | none =>
-        pure <| .skip (it'.filterMap f) (.yieldNone h h')
+        pure <| .deflate <| .skip (it'.filterMap f) (.yieldNone h h')
       | some out' =>
-        pure <| .yield (it'.filterMap f) out' (.yieldSome h h')
+        pure <| .deflate <| .yield (it'.filterMap f) out' (.yieldSome h h')
     | .skip it' h =>
-      pure <| .skip (it'.filterMap f) (.skip h)
+      pure <| .deflate <| .skip (it'.filterMap f) (.skip h)
     | .done h =>
-      pure <| .done (.done h)) := by
+      pure <| .deflate <| .done (.done h)) := by
   simp only [IterM.filterMap, step_filterMapWithPostcondition, pure]
   apply bind_congr
   intro step
@@ -191,13 +191,13 @@ theorem IterM.step_filterMap [Monad m] [LawfulMonad m] {f : β → Option β'} :
 
 theorem IterM.step_map [Monad m] [LawfulMonad m] {f : β → β'} :
   (it.map f).step = (do
-    match ← it.step with
+    match (← it.step).inflate with
     | .yield it' out h =>
       let out' := f out
-      pure <| .yield (it'.map f) out' (.yieldSome h ⟨⟨out', rfl⟩, rfl⟩)
+      pure <| .deflate <| .yield (it'.map f) out' (.yieldSome h ⟨⟨out', rfl⟩, rfl⟩)
     | .skip it' h =>
-      pure <| .skip (it'.map f) (.skip h)
-    | .done h => pure <| .done (.done h)) := by
+      pure <| .deflate <| .skip (it'.map f) (.skip h)
+    | .done h => pure <| .deflate <| .done (.done h)) := by
   simp only [map, IterM.step_mapWithPostcondition]
   apply bind_congr
   intro step
@@ -208,15 +208,15 @@ theorem IterM.step_map [Monad m] [LawfulMonad m] {f : β → β'} :
 
 theorem IterM.step_filter [Monad m] [LawfulMonad m] {f : β → Bool} :
   (it.filter f).step = (do
-    match ← it.step with
+    match (← it.step).inflate with
     | .yield it' out h =>
       if h' : f out = true then
-        pure <| .yield (it'.filter f) out (.yieldSome h (by simp [h']))
+        pure <| .deflate <| .yield (it'.filter f) out (.yieldSome h (by simp [h']))
       else
-        pure <| .skip (it'.filter f) (.yieldNone h (by simp [h']))
+        pure <| .deflate <| .skip (it'.filter f) (.yieldNone h (by simp [h']))
     | .skip it' h =>
-      pure <| .skip (it'.filter f) (.skip h)
-    | .done h => pure <| .done (.done h)) := by
+      pure <| .deflate <| .skip (it'.filter f) (.skip h)
+    | .done h => pure <| .deflate <| .done (.done h)) := by
   simp only [filter, IterM.step_filterMap]
   apply bind_congr
   intro step
@@ -260,14 +260,15 @@ instance {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} 
     simp only [liftM_bind (m := n) (n := o), bind_assoc]
     apply bind_congr
     intro step
-    cases step using PlausibleIterStep.casesOn
+    cases step.inflate using PlausibleIterStep.casesOn
     · simp only [bind_pure_comp]
       simp only [liftM_map, bind_map_left]
       apply bind_congr
       intro out'
-      simp only [← ih_yield ‹_›]
+      simp only [Shrink.inflate_deflate, ← ih_yield ‹_›]
       rfl
-    · simp only [bind_pure_comp, pure_bind, liftM_pure, pure_bind, ← ih_skip ‹_›]
+    · simp only [bind_pure_comp, pure_bind, liftM_pure, pure_bind, ← ih_skip ‹_›,
+        Shrink.inflate_deflate]
       simp only [IterM.mapWithPostcondition, IterM.InternalCombinators.map, internalState_toIterM]
     · simp
 
@@ -288,20 +289,165 @@ theorem IterM.InternalConsumers.toList_filterMap {α β γ: Type w} {m : Type w 
   simp only [bind_assoc, IterM.step, map_eq_pure_bind]
   apply bind_congr
   intro step
-  split
+  cases step.inflate using PlausibleIterStep.casesOn
   · simp only [List.filterMap_cons, bind_assoc, pure_bind]
-    split
-    · split
-      · simp only [bind_pure_comp, pure_bind]
-        exact ihy ‹_›
-      · simp_all
-    · split
-      · simp_all
-      · simp_all [ihy ‹_›]
-  · simp only [bind_pure_comp, pure_bind]
-    apply ihs
-    assumption
+    split <;> simp (discharger := assumption) [*]
+  · simp [ihs ‹_›]
   · simp
+
+theorem IterM.toList_map_eq_toList_mapM {α β γ : Type w}
+    {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → γ} {it : IterM (α := α) m β} :
+    (it.map f).toList = (it.mapM fun b => pure (f b)).toList := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [toList_eq_match_step, toList_eq_match_step, step_map, step_mapM, bind_assoc, bind_assoc]
+  apply bind_congr; intro step
+  split <;> simp (discharger := assumption) [ihy, ihs]
+
+theorem IterM.toList_mapM_eq_toList_filterMapM {α β γ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [MonadLiftT m n][LawfulMonadLiftT m n]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m n] [LawfulIteratorCollect α m n]
+    {f : β → n γ} {it : IterM (α := α) m β} :
+    (it.mapM f).toList =
+      (it.filterMapM fun b => some <$> f b).toList := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [toList_eq_match_step, toList_eq_match_step, step_mapM, step_filterMapM, bind_assoc, bind_assoc]
+  apply bind_congr; intro step
+  split <;> simp (discharger := assumption) [ihy, ihs]
+
+theorem IterM.toList_map_eq_toList_filterMapM {α β γ : Type w}
+    {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → γ} {it : IterM (α := α) m β} :
+    (it.map f).toList = (it.filterMapM fun b => pure (some (f b))).toList := by
+  simp [toList_map_eq_toList_mapM, toList_mapM_eq_toList_filterMapM]
+  congr <;> simp
+
+@[simp]
+theorem IterM.toList_filterMapM_filterMapM {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → n (Option γ)} {g : γ → o (Option δ)}
+    {it : IterM (α := α) m β} :
+    haveI : MonadLift n o := ⟨monadLift⟩
+    ((it.filterMapM f).filterMapM g).toList =
+      (it.filterMapM (n := o) (fun b => do
+        match ← f b with
+        | none => return none
+        | some fb => g fb)).toList := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  letI : MonadLift n o := ⟨monadLift⟩
+  haveI : LawfulMonadLift n o := ⟨by simp [this], by simp [this]⟩
+  rw [toList_eq_match_step, toList_eq_match_step, step_filterMapM,
+    bind_assoc, step_filterMapM, step_filterMapM]
+  simp only [bind_assoc, liftM_bind]
+  apply bind_congr; intro step
+  split
+  · simp only [bind_assoc, liftM_bind]
+    apply bind_congr; intro fx
+    split
+    · simp [ihy ‹_›]
+    · simp only [liftM_pure, PlausibleIterStep.skip, pure_bind, bind_assoc, Shrink.inflate_deflate]
+      apply bind_congr; intro gx
+      split <;> simp [ihy ‹_›]
+  · simp [ihs ‹_›]
+  · simp
+
+@[simp]
+theorem IterM.toList_filterMapM_mapM {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m]
+    {f : β → n γ} {g : γ → o (Option δ)}
+    {it : IterM (α := α) m β} :
+    haveI : MonadLift n o := ⟨monadLift⟩
+    ((it.mapM f).filterMapM g).toList =
+      (it.filterMapM (n := o) (fun b => do g (← f b))).toList := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  letI : MonadLift n o := ⟨monadLift⟩
+  haveI : LawfulMonadLift n o := ⟨by simp [this], by simp [this]⟩
+  rw [toList_eq_match_step, toList_eq_match_step, step_filterMapM,
+    bind_assoc, step_filterMapM, step_mapM]
+  simp only [bind_assoc, liftM_bind]
+  apply bind_congr; intro step
+  split
+  · simp only [bind_assoc, liftM_bind]
+    apply bind_congr; intro fx
+    simp only [liftM_pure, pure_bind, bind_assoc, Shrink.inflate_deflate]
+    apply bind_congr; intro gx
+    split <;> simp [ihy ‹_›]
+  · simp [ihs ‹_›]
+  · simp
+
+@[simp]
+theorem IterM.toList_filterMapM_map {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    [Iterator α m β] [Finite α m]
+    {f : β → γ} {g : γ → n (Option δ)}
+    {it : IterM (α := α) m β} :
+    ((it.map f).filterMapM g).toList =
+      (it.filterMapM (n := n) (fun b => g (f b))).toList := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  rw [toList_eq_match_step, toList_eq_match_step, step_filterMapM,
+    bind_assoc, step_filterMapM, step_map]
+  simp only [bind_assoc, liftM_bind]
+  apply bind_congr; intro step
+  split
+  · simp only [bind_assoc, liftM_pure, pure_bind, Shrink.inflate_deflate]
+    apply bind_congr; intro fx
+    split <;> simp [ihy ‹_›]
+  · simp [ihs ‹_›]
+  · simp
+
+@[simp]
+theorem IterM.toList_mapM_filterMapM {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → n (Option γ)} {g : γ → o δ}
+    {it : IterM (α := α) m β} :
+    haveI : MonadLift n o := ⟨monadLift⟩
+    ((it.filterMapM f).mapM g).toList =
+      (it.filterMapM (n := o) (fun b => do
+        match ← f b with
+        | none => return none
+        | some fb => some <$> g fb)).toList := by
+  simp [toList_mapM_eq_toList_filterMapM, toList_filterMapM_filterMapM]
+
+@[simp]
+theorem IterM.toList_mapM_mapM {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m o] [LawfulIteratorCollect α m o]
+    {f : β → n γ} {g : γ → o δ}
+    {it : IterM (α := α) m β} :
+    haveI : MonadLift n o := ⟨monadLift⟩
+    ((it.mapM f).mapM g).toList =
+      (it.mapM (n := o) (fun b => do g (← f b))).toList := by
+  simp only [toList_mapM_eq_toList_filterMapM, toList_filterMapM_mapM]
+  congr <;> simp
+
+@[simp]
+theorem IterM.toList_mapM_map {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m n] [LawfulIteratorCollect α m n]
+    {f : β → γ} {g : γ → n δ}
+    {it : IterM (α := α) m β} :
+    ((it.map f).mapM g).toList =
+      (it.mapM (n := n) (fun b => g (f b))).toList := by
+  simp [toList_mapM_eq_toList_filterMapM]
 
 theorem IterM.toList_filterMap {α β γ : Type w} {m : Type w → Type w'}
     [Monad m] [LawfulMonad m]
@@ -316,17 +462,17 @@ theorem IterM.toList_filterMap {α β γ : Type w} {m : Type w → Type w'}
   simp only [bind_assoc, IterM.step, map_eq_pure_bind]
   apply bind_congr
   intro step
-  split
+  cases step.inflate using PlausibleIterStep.casesOn
   · simp only [List.filterMap_cons, bind_assoc, pure_bind]
     split
     · split
-      · simp only [bind_pure_comp, pure_bind]
+      · simp only [bind_pure_comp, pure_bind, Shrink.inflate_deflate]
         exact ihy ‹_›
       · simp_all
     · split
       · simp_all
       · simp_all [ihy ‹_›]
-  · simp only [bind_pure_comp, pure_bind]
+  · simp only [bind_pure_comp, pure_bind, Shrink.inflate_deflate]
     apply ihs
     assumption
   · simp
@@ -370,6 +516,30 @@ end ToList
 
 section ToListRev
 
+theorem IterM.toListRev_map_eq_toListRev_mapM {α β γ : Type w}
+    {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → γ} {it : IterM (α := α) m β} :
+    (it.map f).toListRev = (it.mapM fun b => pure (f b)).toListRev := by
+  simp [toListRev_eq, toList_map_eq_toList_mapM]
+
+theorem IterM.toListRev_mapM_eq_toListRev_filterMapM {α β γ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [MonadLiftT m n][LawfulMonadLiftT m n]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m n] [LawfulIteratorCollect α m n]
+    {f : β → n γ} {it : IterM (α := α) m β} :
+    (it.mapM f).toListRev =
+      (it.filterMapM fun b => some <$> f b).toListRev := by
+  simp [toListRev_eq, toList_mapM_eq_toList_filterMapM]
+
+theorem IterM.toListRev_map_eq_toListRev_filterMapM {α β γ : Type w}
+    {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → γ} {it : IterM (α := α) m β} :
+    (it.map f).toListRev = (it.filterMapM fun b => pure (some (f b))).toListRev := by
+  simp [toListRev_eq, toList_map_eq_toList_filterMapM]
+
 theorem IterM.toListRev_filterMap {α β γ : Type w} {m : Type w → Type w'}
     [Monad m] [LawfulMonad m]
     [Iterator α m β] [IteratorCollect α m m] [LawfulIteratorCollect α m m] [Finite α m]
@@ -389,9 +559,114 @@ theorem IterM.toListRev_filter {α β : Type w} {m : Type w → Type w'} [Monad 
     (it.filter f).toListRev = List.filter f <$> it.toListRev := by
   simp [toListRev_eq, toList_filter]
 
+@[simp]
+theorem IterM.toListRev_filterMapM_filterMapM {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → n (Option γ)} {g : γ → o (Option δ)}
+    {it : IterM (α := α) m β} :
+    haveI : MonadLift n o := ⟨monadLift⟩
+    ((it.filterMapM f).filterMapM g).toListRev =
+      (it.filterMapM (n := o) (fun b => do
+        match ← f b with
+        | none => return none
+        | some fb => g fb)).toListRev := by
+  simp [toListRev_eq]
+
+@[simp]
+theorem IterM.toListRev_filterMapM_mapM {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → n γ} {g : γ → o (Option δ)}
+    {it : IterM (α := α) m β} :
+    haveI : MonadLift n o := ⟨monadLift⟩
+    ((it.mapM f).filterMapM g).toListRev =
+      (it.filterMapM (n := o) (fun b => do g (← f b))).toListRev := by
+  simp [toListRev_eq]
+
+@[simp]
+theorem IterM.toListRev_filterMapM_map {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → γ} {g : γ → n (Option δ)}
+    {it : IterM (α := α) m β} :
+    ((it.map f).filterMapM g).toListRev =
+      (it.filterMapM (n := n) (fun b => g (f b))).toListRev := by
+  simp [toListRev_eq]
+
+@[simp]
+theorem IterM.toListRev_mapM_filterMapM {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → n (Option γ)} {g : γ → o δ}
+    {it : IterM (α := α) m β} :
+    haveI : MonadLift n o := ⟨monadLift⟩
+    ((it.filterMapM f).mapM g).toListRev =
+      (it.filterMapM (n := o) (fun b => do
+        match ← f b with
+        | none => return none
+        | some fb => some <$> g fb)).toListRev := by
+  simp [toListRev_eq]
+
+@[simp]
+theorem IterM.toListRev_mapM_mapM {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m]
+    {f : β → n γ} {g : γ → o δ}
+    {it : IterM (α := α) m β} :
+    haveI : MonadLift n o := ⟨monadLift⟩
+    ((it.mapM f).mapM g).toListRev =
+      (it.mapM (n := o) (fun b => do g (← f b))).toListRev := by
+  letI : IteratorCollect α m o := .defaultImplementation
+  simp [toListRev_eq]
+
+@[simp]
+theorem IterM.toListRev_mapM_map {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    [Iterator α m β] [Finite α m] {f : β → γ} {g : γ → n δ} {it : IterM (α := α) m β} :
+    ((it.map f).mapM g).toListRev =
+      (it.mapM (n := n) (fun b => g (f b))).toListRev := by
+  letI : IteratorCollect α m n := .defaultImplementation
+  simp [toListRev_eq]
+
 end ToListRev
 
 section ToArray
+
+theorem IterM.toArray_map_eq_toArray_mapM {α β γ : Type w}
+    {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → γ} {it : IterM (α := α) m β} :
+    (it.map f).toArray = (it.mapM fun b => pure (f b)).toArray := by
+  simp [← toArray_toList, toList_map_eq_toList_mapM]
+
+theorem IterM.toArray_mapM_eq_toArray_filterMapM {α β γ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [MonadLiftT m n][LawfulMonadLiftT m n]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m n] [LawfulIteratorCollect α m n]
+    {f : β → n γ} {it : IterM (α := α) m β} :
+    (it.mapM f).toArray = (it.filterMapM fun b => some <$> f b).toArray := by
+  simp [← toArray_toList, toList_mapM_eq_toList_filterMapM]
+
+theorem IterM.toArray_map_eq_toArray_filterMapM {α β γ : Type w}
+    {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → γ} {it : IterM (α := α) m β} :
+    (it.map f).toArray = (it.filterMapM fun b => pure (some (f b))).toArray := by
+  simp [← toArray_toList, toList_map_eq_toList_filterMapM]
 
 theorem IterM.toArray_filterMap {α β γ : Type w} {m : Type w → Type w'}
     [Monad m] [LawfulMonad m]
@@ -411,6 +686,88 @@ theorem IterM.toArray_filter {α : Type w} {m : Type w → Type w'} [Monad m] [L
     {f : β → Bool} {it : IterM (α := α) m β} :
     (it.filter f).toArray = Array.filter f <$> it.toArray := by
   simp [← toArray_toList, toList_filter]
+
+@[simp]
+theorem IterM.toArray_filterMapM_filterMapM {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → n (Option γ)} {g : γ → o (Option δ)}
+    {it : IterM (α := α) m β} :
+    haveI : MonadLift n o := ⟨monadLift⟩
+    ((it.filterMapM f).filterMapM g).toArray =
+      (it.filterMapM (n := o) (fun b => do
+        match ← f b with
+        | none => return none
+        | some fb => g fb)).toArray := by
+  simp [← toArray_toList]
+
+@[simp]
+theorem IterM.toArray_filterMapM_mapM {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → n γ} {g : γ → o (Option δ)}
+    {it : IterM (α := α) m β} :
+    haveI : MonadLift n o := ⟨monadLift⟩
+    ((it.mapM f).filterMapM g).toArray =
+      (it.filterMapM (n := o) (fun b => do g (← f b))).toArray := by
+  simp [← toArray_toList]
+
+@[simp]
+theorem IterM.toArray_filterMapM_map {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → γ} {g : γ → n (Option δ)}
+    {it : IterM (α := α) m β} :
+    ((it.map f).filterMapM g).toArray =
+      (it.filterMapM (n := n) (fun b => g (f b))).toArray := by
+  simp [← toArray_toList]
+
+@[simp]
+theorem IterM.toArray_mapM_filterMapM {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → n (Option γ)} {g : γ → o δ}
+    {it : IterM (α := α) m β} :
+    haveI : MonadLift n o := ⟨monadLift⟩
+    ((it.filterMapM f).mapM g).toArray =
+      (it.filterMapM (n := o) (fun b => do
+        match ← f b with
+        | none => return none
+        | some fb => some <$> g fb)).toArray := by
+  simp [← toArray_toList]
+
+@[simp]
+theorem IterM.toArray_mapM_mapM {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m o] [LawfulIteratorCollect α m o]
+    {f : β → n γ} {g : γ → o δ}
+    {it : IterM (α := α) m β} :
+    haveI : MonadLift n o := ⟨monadLift⟩
+    ((it.mapM f).mapM g).toArray =
+      (it.mapM (n := o) (fun b => do g (← f b))).toArray := by
+  simp [← toArray_toList]
+
+@[simp]
+theorem IterM.toArray_mapM_map {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m n] [LawfulIteratorCollect α m n]
+    {f : β → γ} {g : γ → n δ}
+    {it : IterM (α := α) m β} :
+    ((it.map f).mapM g).toArray =
+      (it.mapM (n := n) (fun b => g (f b))).toArray := by
+  simp [← toArray_toList]
 
 end ToArray
 
@@ -433,7 +790,7 @@ theorem IterM.foldM_filterMapM {α β γ δ : Type w}
   induction it using IterM.inductSteps generalizing init with | step it ihy ihs
   rw [foldM_eq_match_step, foldM_eq_match_step, step_filterMapM, liftM_bind, bind_assoc]
   apply bind_congr; intro step
-  split
+  cases step.inflate using PlausibleIterStep.casesOn
   · simp only [PlausibleIterStep.skip, PlausibleIterStep.yield, liftM_bind, bind_assoc]
     apply bind_congr; intro c?
     split <;> simp [ihy ‹_›]
@@ -455,7 +812,7 @@ theorem IterM.foldM_mapM {α β γ δ : Type w}
   induction it using IterM.inductSteps generalizing init with | step it ihy ihs
   rw [foldM_eq_match_step, foldM_eq_match_step, step_mapM, liftM_bind, bind_assoc]
   apply bind_congr; intro step
-  split
+  cases step.inflate using PlausibleIterStep.casesOn
   · simp [ihy ‹_›]
   · simp [ihs ‹_›]
   · simp
@@ -473,8 +830,9 @@ theorem IterM.foldM_filterMap {α β γ δ : Type w} {m : Type w → Type w'} {n
   induction it using IterM.inductSteps generalizing init with | step it ihy ihs
   rw [foldM_eq_match_step, foldM_eq_match_step, step_filterMap, liftM_bind, bind_assoc]
   apply bind_congr; intro step
-  split
-  · split <;> simp [ihy ‹_›, *]
+  cases step.inflate using PlausibleIterStep.casesOn
+  · simp only [PlausibleIterStep.skip, PlausibleIterStep.yield]
+    split <;> simp [ihy ‹_›, *]
   · simp [ihs ‹_›]
   · simp
 
@@ -489,7 +847,7 @@ theorem IterM.foldM_map {α β γ δ : Type w} {m : Type w → Type w'} {n : Typ
   induction it using IterM.inductSteps generalizing init with | step it ihy ihs
   rw [foldM_eq_match_step, foldM_eq_match_step, step_map, liftM_bind, bind_assoc]
   apply bind_congr; intro step
-  split
+  cases step.inflate using PlausibleIterStep.casesOn
   · simp [ihy ‹_›]
   · simp [ihs ‹_›]
   · simp
@@ -553,11 +911,11 @@ theorem IterM.anyM_filterMapM {α β β' : Type w} {m : Type w → Type w'} {n :
   rw [anyM_eq_match_step, anyM_eq_match_step, step_filterMapM, step_mapM, bind_assoc, bind_assoc]
   apply bind_congr; intro step
   split
-  · simp only [bind_assoc, pure_bind]
+  · simp only [bind_assoc, pure_bind, Shrink.inflate_deflate]
     apply bind_congr; intro fx
     split
     · simp [ihy ‹_›]
-    · simp only [PlausibleIterStep.yield, pure_bind]
+    · simp only [PlausibleIterStep.yield, pure_bind, Shrink.inflate_deflate]
       apply bind_congr; intro px
       split <;> simp [ihy ‹_›]
   · simp only [PlausibleIterStep.skip, pure_bind, bind_assoc]
@@ -573,7 +931,7 @@ theorem IterM.anyM_mapM {α β β' : Type w} {m : Type w → Type w'} {n : Type 
   rw [anyM_eq_match_step, anyM_eq_match_step, step_mapM, step_mapM, bind_assoc, bind_assoc]
   apply bind_congr; intro step
   split
-  · simp only [bind_assoc, pure_bind]
+  · simp only [bind_assoc, pure_bind, Shrink.inflate_deflate]
     apply bind_congr; intro fx
     simp [ihy ‹_›]
   · simp only [PlausibleIterStep.skip, pure_bind, bind_assoc]
@@ -593,7 +951,7 @@ theorem IterM.anyM_filterM {α β : Type w} {m : Type w → Type w'} {n : Type w
   rw [anyM_eq_match_step, anyM_eq_match_step, step_mapM, step_filterM, bind_assoc, bind_assoc]
   apply bind_congr; intro step
   split
-  · simp only [bind_assoc, pure_bind]
+  · simp only [bind_assoc, pure_bind, Shrink.inflate_deflate]
     apply bind_congr; intro fx
     split <;> simp [ihy ‹_›]
   · simp only [PlausibleIterStep.skip, pure_bind, bind_assoc]
@@ -611,10 +969,11 @@ theorem IterM.anyM_filterMap {α β β' : Type w} {m : Type w → Type w'}
   induction it using IterM.inductSteps with | step it ihy ihs
   rw [anyM_eq_match_step, anyM_eq_match_step, step_filterMap, bind_assoc]
   apply bind_congr; intro step
-  split
-  · split
+  cases step.inflate using PlausibleIterStep.casesOn
+  · simp only
+    split
     · simp [*, ihy ‹_›]
-    · simp only [*, PlausibleIterStep.yield, pure_bind]
+    · simp only [*, PlausibleIterStep.yield, pure_bind, Shrink.inflate_deflate]
       apply bind_congr; intro px
       split <;> simp [ihy ‹_›]
   · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]
@@ -628,8 +987,8 @@ theorem IterM.anyM_map {α β β' : Type w} {m : Type w → Type w'}
   induction it using IterM.inductSteps with | step it ihy ihs
   rw [anyM_eq_match_step, anyM_eq_match_step, step_map, bind_assoc]
   apply bind_congr; intro step
-  split
-  · simp only [pure_bind]
+  cases step.inflate using PlausibleIterStep.casesOn
+  · simp only [pure_bind, Shrink.inflate_deflate]
     apply bind_congr; intro fx
     simp [ihy ‹_›]
   · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]
@@ -647,7 +1006,7 @@ theorem IterM.anyM_filter {α β : Type w} {m : Type w → Type w'}
   induction it using IterM.inductSteps with | step it ihy ihs
   rw [anyM_eq_match_step, anyM_eq_match_step, step_filter, bind_assoc]
   apply bind_congr; intro step
-  split
+  cases step.inflate using PlausibleIterStep.casesOn
   · simp only
     split <;> simp [ihy ‹_›]
   · simp only [PlausibleIterStep.skip, pure_bind]
@@ -693,10 +1052,11 @@ theorem IterM.any_filterMap {α β β' : Type w} {m : Type w → Type w'}
   induction it using IterM.inductSteps with | step it ihy ihs
   rw [any_eq_match_step, any_eq_match_step, step_filterMap, bind_assoc]
   apply bind_congr; intro step
-  split
-  · split
+  cases step.inflate using PlausibleIterStep.casesOn
+  · simp only
+    split
     · simp [*, ihy ‹_›]
-    · simp only [*, PlausibleIterStep.yield, pure_bind]
+    · simp only [*, PlausibleIterStep.yield, pure_bind, Shrink.inflate_deflate]
       split <;> simp [ihy ‹_›]
   · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]
   · simp
@@ -709,7 +1069,7 @@ theorem IterM.any_map {α β β' : Type w} {m : Type w → Type w'}
   induction it using IterM.inductSteps with | step it ihy ihs
   rw [any_eq_match_step, any_eq_match_step, step_map, bind_assoc]
   apply bind_congr; intro step
-  split
+  cases step.inflate using PlausibleIterStep.casesOn
   · simp only [pure_bind]
     simp [ihy ‹_›]
   · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]
@@ -727,11 +1087,11 @@ theorem IterM.allM_filterMapM {α β β' : Type w} {m : Type w → Type w'} {n :
   rw [allM_eq_match_step, allM_eq_match_step, step_filterMapM, step_mapM, bind_assoc, bind_assoc]
   apply bind_congr; intro step
   split
-  · simp only [bind_assoc, pure_bind]
+  · simp only [bind_assoc, pure_bind, Shrink.inflate_deflate]
     apply bind_congr; intro fx
     split
     · simp [ihy ‹_›]
-    · simp only [PlausibleIterStep.yield, pure_bind]
+    · simp only [PlausibleIterStep.yield, pure_bind, Shrink.inflate_deflate]
       apply bind_congr; intro px
       split <;> simp [ihy ‹_›]
   · simp only [PlausibleIterStep.skip, pure_bind, bind_assoc]
@@ -747,7 +1107,7 @@ theorem IterM.allM_mapM {α β β' : Type w} {m : Type w → Type w'} {n : Type 
   rw [allM_eq_match_step, allM_eq_match_step, step_mapM, step_mapM, bind_assoc, bind_assoc]
   apply bind_congr; intro step
   split
-  · simp only [bind_assoc, pure_bind]
+  · simp only [bind_assoc, pure_bind, Shrink.inflate_deflate]
     apply bind_congr; intro fx
     simp [ihy ‹_›]
   · simp only [PlausibleIterStep.skip, pure_bind, bind_assoc]
@@ -767,7 +1127,7 @@ theorem IterM.allM_filterM {α β : Type w} {m : Type w → Type w'} {n : Type w
   rw [allM_eq_match_step, allM_eq_match_step, step_mapM, step_filterM, bind_assoc, bind_assoc]
   apply bind_congr; intro step
   split
-  · simp only [bind_assoc, pure_bind]
+  · simp only [bind_assoc, pure_bind, Shrink.inflate_deflate]
     apply bind_congr; intro fx
     split <;> simp [ihy ‹_›]
   · simp only [PlausibleIterStep.skip, pure_bind, bind_assoc]
@@ -785,10 +1145,11 @@ theorem IterM.allM_filterMap {α β β' : Type w} {m : Type w → Type w'}
   induction it using IterM.inductSteps with | step it ihy ihs
   rw [allM_eq_match_step, allM_eq_match_step, step_filterMap, bind_assoc]
   apply bind_congr; intro step
-  split
-  · split
+  cases step.inflate using PlausibleIterStep.casesOn
+  · simp only
+    split
     · simp [*, ihy ‹_›]
-    · simp only [*, PlausibleIterStep.yield, pure_bind]
+    · simp only [*, PlausibleIterStep.yield, pure_bind, Shrink.inflate_deflate]
       apply bind_congr; intro px
       split <;> simp [ihy ‹_›]
   · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]
@@ -802,8 +1163,8 @@ theorem IterM.allM_map {α β β' : Type w} {m : Type w → Type w'}
   induction it using IterM.inductSteps with | step it ihy ihs
   rw [allM_eq_match_step, allM_eq_match_step, step_map, bind_assoc]
   apply bind_congr; intro step
-  split
-  · simp only [pure_bind]
+  cases step.inflate using PlausibleIterStep.casesOn
+  · simp only [pure_bind, Shrink.inflate_deflate]
     apply bind_congr; intro fx
     simp [ihy ‹_›]
   · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]
@@ -821,7 +1182,7 @@ theorem IterM.allM_filter {α β : Type w} {m : Type w → Type w'}
   induction it using IterM.inductSteps with | step it ihy ihs
   rw [allM_eq_match_step, allM_eq_match_step, step_filter, bind_assoc]
   apply bind_congr; intro step
-  split
+  cases step.inflate using PlausibleIterStep.casesOn
   · simp only
     split <;> simp [ihy ‹_›]
   · simp only [PlausibleIterStep.skip, pure_bind]
@@ -867,10 +1228,11 @@ theorem IterM.all_filterMap {α β β' : Type w} {m : Type w → Type w'}
   induction it using IterM.inductSteps with | step it ihy ihs
   rw [all_eq_match_step, all_eq_match_step, step_filterMap, bind_assoc]
   apply bind_congr; intro step
-  split
-  · split
+  cases step.inflate using PlausibleIterStep.casesOn
+  · simp only
+    split
     · simp [*, ihy ‹_›]
-    · simp only [*, PlausibleIterStep.yield, pure_bind]
+    · simp only [*, PlausibleIterStep.yield, pure_bind, Shrink.inflate_deflate]
       split <;> simp [ihy ‹_›]
   · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]
   · simp
@@ -883,7 +1245,7 @@ theorem IterM.all_map {α β β' : Type w} {m : Type w → Type w'}
   induction it using IterM.inductSteps with | step it ihy ihs
   rw [all_eq_match_step, all_eq_match_step, step_map, bind_assoc]
   apply bind_congr; intro step
-  split
+  cases step.inflate using PlausibleIterStep.casesOn
   · simp only [pure_bind]
     simp [ihy ‹_›]
   · simp [PlausibleIterStep.skip, pure_bind, ihs ‹_›]

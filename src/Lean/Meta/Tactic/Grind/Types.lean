@@ -277,6 +277,9 @@ def getOrderingEqExpr : GrindM Expr := do
 def getIntExpr : GrindM Expr := do
   return (← readThe Context).intExpr
 
+def resetAnchors : GrindM Unit := do
+  modify fun s => { s with anchors := {} }
+
 def cheapCasesOnly : GrindM Bool :=
   return (← readThe Context).cheapCases
 
@@ -1246,6 +1249,24 @@ def _root_.Lean.MVarId.assignFalseProof (mvarId : MVarId) (falseProof : Expr) : 
     mvarId.assign (← mkFalseElim target falseProof)
 
 /--
+`goal.withContext x` executes `x` using the given metavariable `LocalContext` and `LocalInstances`.
+The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
+different from the current ones. -/
+@[inline] def Goal.withContext [MonadControlT MetaM m] [Monad m] (goal : Goal) : m α → m α :=
+  goal.mvarId.withContext
+
+/--
+Creates an auxiliary metavariable with the same type and context of `goal.mvarId`.
+We use this function to perform `cases` on the current goal without eagerly assigning it.
+-/
+def Goal.mkAuxMVar (goal : Goal) : MetaM MVarId := goal.withContext do
+  let mvarId := goal.mvarId
+  let tag ← mvarId.getTag
+  let type ← mvarId.getType
+  let mvarNew ← mkFreshExprSyntheticOpaqueMVar type tag
+  return mvarNew.mvarId!
+
+/--
 Closes the current goal using the given proof of `False` and
 marks it as inconsistent if it is not already marked so.
 -/
@@ -1713,5 +1734,12 @@ where
     | .diseqs solverId parentSet rest =>
       forEachDiseq parentSet (propagateDiseqOf solverId)
       go rest
+
+def anchorToString (numDigits : Nat) (anchor : UInt64) : String :=
+  let cs := Nat.toDigits 16 anchor.toNat
+  let n := cs.length
+  let zs := List.replicate (numDigits - n) '0'
+  let cs := zs ++ cs
+  cs.asString
 
 end Lean.Meta.Grind

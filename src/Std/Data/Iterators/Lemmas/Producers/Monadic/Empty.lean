@@ -16,7 +16,7 @@ namespace Std.Iterators
 
 @[simp]
 theorem IterM.step_empty {m β} [Monad m] :
-    (IterM.empty m β).step = pure ⟨.done, rfl⟩ :=
+    (IterM.empty m β).step = pure (.deflate ⟨.done, rfl⟩) :=
   rfl
 
 @[simp]

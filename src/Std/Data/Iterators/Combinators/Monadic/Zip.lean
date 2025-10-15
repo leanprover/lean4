@@ -70,21 +70,21 @@ instance Zip.instIterator [Monad m] :
   step it :=
     match hm : it.internalState.memoizedLeft with
     | none => do
-      match ← it.internalState.left.step with
+      match (← it.internalState.left.step).inflate with
       | .yield it₁' out hp =>
-          pure <| .skip ⟨⟨it₁', (some ⟨out, _, _, hp⟩), it.internalState.right⟩⟩ (.yieldLeft hm hp)
+          pure <| .deflate <| .skip ⟨⟨it₁', (some ⟨out, _, _, hp⟩), it.internalState.right⟩⟩ (.yieldLeft hm hp)
       | .skip it₁' hp =>
-          pure <| .skip ⟨⟨it₁', none, it.internalState.right⟩⟩ (.skipLeft hm hp)
+          pure <| .deflate <| .skip ⟨⟨it₁', none, it.internalState.right⟩⟩ (.skipLeft hm hp)
       | .done hp =>
-          pure <| .done (.doneLeft hm hp)
+          pure <| .deflate <| .done (.doneLeft hm hp)
     | some out₁ => do
-      match ← it.internalState.right.step with
+      match (← it.internalState.right.step).inflate with
       | .yield it₂' out₂ hp =>
-          pure <| .yield ⟨⟨it.internalState.left, none, it₂'⟩⟩ (out₁, out₂) (.yieldRight hm hp)
+          pure <| .deflate <| .yield ⟨⟨it.internalState.left, none, it₂'⟩⟩ (out₁, out₂) (.yieldRight hm hp)
       | .skip it₂' hp =>
-          pure <| .skip ⟨⟨it.internalState.left, (some out₁), it₂'⟩⟩ (.skipRight hm hp)
+          pure <| .deflate <| .skip ⟨⟨it.internalState.left, (some out₁), it₂'⟩⟩ (.skipRight hm hp)
       | .done hp =>
-          pure <| .done (.doneRight hm hp)
+          pure <| .deflate <| .done (.doneRight hm hp)
 
 /--
 Given two iterators `left` and `right`, `left.zip right` is an iterator that yields pairs of

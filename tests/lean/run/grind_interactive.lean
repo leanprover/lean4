@@ -5,10 +5,10 @@ error: `grind` failed
 case grind
 α : Type u
 op : α → α → α
-inst : Std.Associative op
+inst✝ : Std.Associative op
 a b c d : α
-h : d = op b c
-h_1 : ¬op a d = op (op a b) c
+h✝¹ : d = op b c
+h✝ : ¬op a d = op (op a b) c
 ⊢ False
 [grind] Goal diagnostics
   [facts] Asserted facts
@@ -92,7 +92,8 @@ example (as bs cs : Array α) (v₁ v₂ : α)
 example {a b c d e : Nat}
     : a > 0 → b > 0 → c + e <= 1 → e = d → a*b + 2 > 2*c + 2*d := by
   grind =>
-    have : a*b > 0 := Nat.mul_pos h h_1
+    rename_i h1 h2 _ _ _
+    have : a*b > 0 := Nat.mul_pos h1 h2
     lia
 
 example (as bs cs : Array α) (v₁ v₂ : α)
@@ -113,9 +114,9 @@ example (as bs cs : Array α) (v₁ v₂ : α)
 error: `finish` failed
 case grind
 a b : Int
-h : -1 * a + 1 ≤ 0
-h_1 : -1 * b + 1 ≤ 0
-h_2 : a * b ≤ 0
+h✝² : -1 * a + 1 ≤ 0
+h✝¹ : -1 * b + 1 ≤ 0
+h✝ : a * b ≤ 0
 ⊢ False
 [grind] Goal diagnostics
   [facts] Asserted facts
@@ -228,8 +229,8 @@ example : h bs = 1 → h as ≠ 0 := by
 error: Failed here
 case grind
 bs as : List Nat
-h : _root_.h bs = 1
-h_1 : _root_.h as = 0
+h✝¹ : h bs = 1
+h✝ : h as = 0
 ⊢ False
 -/
 #guard_msgs in
@@ -263,9 +264,9 @@ example : h bs = 1 → h as ≠ 1 := by
 /--
 error: unsolved goals
 bs as : List Nat
-h : _root_.h bs = 1
-h_1 : _root_.h as = 0
-h_2 : as = []
+h✝² : h bs = 1
+h✝¹ : h as = 0
+h✝ : as = []
 ⊢ False
 -/
 #guard_msgs in
@@ -289,6 +290,7 @@ example : g bs = 1 → g as ≠ 0 := by
     next => instantiate
     next => finish
     tactic =>
+      rename_i h_1 _ _ _ h_2
       rw [h_2] at h_1
       simp [g] at h_1
 
@@ -412,8 +414,74 @@ example : (∀ x, q x) → (∀ x, p x → p (f x)) → p x → p (f (f x)) := b
     show_thms
     instantiate #bfb8
 
+example : (∀ x, q x) → (∀ x, p x → p (f x)) → p x → p (f (f x)) := by
+  grind =>
+    show_thms
+    instantiate #bfb8
+
 /-- error: no local theorems -/
 #guard_msgs in
 example : (∀ x, q x) → (∀ x, p x → p (f x)) → p x → p (f (f x)) := by
   grind =>
     instantiate #abcd
+
+/--
+error: unsolved goals
+case grind
+r p q : Prop
+h✝² : p ∨ r
+h1 : p ∨ q
+h✝¹ : p ∨ ¬q
+h2 : ¬p ∨ q
+h✝ : ¬p ∨ ¬q
+⊢ False
+---
+error: unsolved goals
+r p q : Prop
+⊢ p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → False
+-/
+#guard_msgs in
+example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → False := by
+  grind =>
+    rename_i h1 _ h2 _
+    done
+
+namespace Ex1
+@[grind cases]
+structure Point (α : Type) where
+  x : α
+  y : α
+
+opaque p : Point Nat → Prop
+
+@[grind =] theorem pax : p { x, y } ↔ (x < y ∨ x > y) := by sorry
+
+example : (a : Point Nat) → p a → x ≠ y → False := by
+  intro a
+  grind =>
+    cases #6ccb
+    instantiate pax
+    show_splits
+    rename_i y w _ -- Must reset cached anchors
+    show_splits
+    cases #e2a6
+    all_goals sorry
+
+example : (a : Point Nat) → p a → x ≠ y → False := by
+  intro a
+  grind =>
+    cases #6ccb
+    instantiate pax
+    show_splits
+    next y w _ =>
+    show_splits
+    cases #e2a6
+    all_goals sorry
+
+example : (a : Point Nat) → p a → x ≠ y → False := by
+  grind =>
+    expose_names
+    cases #6ccb
+    sorry
+
+end Ex1

@@ -102,18 +102,6 @@ def mkChoice (proof : Expr) (subgoals : List Goal) (generation : Nat) (info? : O
     }
 
 /--
-Create an auxiliary metavariable with the same type and tag of the metavariable
-associated with the current goal.
-We use this function to perform `cases` on the current goal without eagerly assigning it.
--/
-def mkAuxMVarForCurrGoal : SearchM MVarId := withCurrGoalContext do
-  let mvarId := (← getGoal).mvarId
-  let tag ← mvarId.getTag
-  let type ← mvarId.getType
-  let mvarNew ← mkFreshExprSyntheticOpaqueMVar type tag
-  return mvarNew.mvarId!
-
-/--
 Returns the maximum free variable id occurring in `e`
 -/
 private def findMaxFVarIdx? (e : Expr) : MetaM (Option Nat) := do

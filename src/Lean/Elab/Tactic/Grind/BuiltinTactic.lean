@@ -20,7 +20,9 @@ import Lean.Meta.Tactic.Grind.Anchor
 import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
 import Lean.Meta.Tactic.Grind.Arith.Linear.PP
 import Lean.Meta.Tactic.Grind.AC.PP
+import Lean.Meta.Tactic.ExposeNames
 import Lean.Elab.Tactic.Basic
+import Lean.Elab.Tactic.RenameInaccessibles
 namespace Lean.Elab.Tactic.Grind
 
 def evalSepTactics (stx : Syntax) : GrindTacticM Unit := do
@@ -102,6 +104,10 @@ def evalCheck (tacticName : Name) (k : GoalM Bool)
 @[builtin_grind_tactic ac] def evalAC : GrindTactic := fun _ => do
   evalCheck `ac AC.check AC.pp?
 
+def logTheoremAnchor (proof : Expr) : TermElabM Unit := do
+  let stx ← getRef
+  Term.addTermInfo' stx proof
+
 def ematchThms (thms : Array EMatchTheorem) : GrindTacticM Unit := do
   let progress ← liftGoalM <| if thms.isEmpty then ematch else ematchTheorems thms
   unless progress do
@@ -133,19 +139,24 @@ def elabAnchor (anchor : TSyntax `hexnum) : CoreM (Nat × UInt64) := do
     ematchThms thms
   | _ => throwUnsupportedSyntax
 where
-  collectThms (numDigits : Nat) (anchorPrefix : UInt64) (thms : PArray EMatchTheorem) : StateT (Array EMatchTheorem) GrindM Unit := do
+  collectThms (numDigits : Nat) (anchorPrefix : UInt64) (thms : PArray EMatchTheorem) : StateT (Array EMatchTheorem) GrindTacticM Unit := do
+    let mut found : Std.HashSet Expr := {}
     for thm in thms do
       -- **Note**: `anchors` are cached using pointer addresses, if this is a performance issue, we should
       -- cache the theorem types.
       let type ← inferType thm.proof
-      let anchor ← getAnchor type
+      let anchor ← liftGrindM <| getAnchor type
       if isAnchorPrefix numDigits anchorPrefix anchor then
+        -- **Note**: We display the anchor term at most once.
+        unless found.contains type do
+          logTheoremAnchor thm.proof
+          found := found.insert type
         modify (·.push thm)
 
-  elabLocalEMatchTheorem (anchor : TSyntax `hexnum) : GrindTacticM (Array EMatchTheorem) := do
+  elabLocalEMatchTheorem (anchor : TSyntax `hexnum) : GrindTacticM (Array EMatchTheorem) := withRef anchor do
     let (numDigits, anchorPrefix) ← elabAnchor anchor
     let goal ← getMainGoal
-    let thms ← liftGrindM do StateT.run' (s := #[]) do
+    let thms ← StateT.run' (s := #[]) do
       collectThms numDigits anchorPrefix goal.ematch.thms
       collectThms numDigits anchorPrefix goal.ematch.newThms
       get
@@ -212,20 +223,47 @@ where
     | .cases _ | .intro | .inj | .ext | .symbol _ =>
       throwError "invalid modifier"
 
+def logAnchor (numDigits : Nat) (anchorPrefix : UInt64) (e : Expr) : TermElabM Unit := do
+  let stx ← getRef
+  if e.isFVar || e.isConst then
+    /-
+    **Note**: When `e` is a constant or free variable, the hover displays `e`
+    -/
+    Term.addTermInfo' stx e
+  else if (← isType e) then
+    /-
+    **Note**: If `e` is a type, we create a fake `sorry` to force `e` to be displayed
+    when we hover over the anchor.
+    We wrap the `sorry` with `id` to ensure the hover will not display `sorry : e`
+    -/
+    let e ← mkSorry e (synthetic := false)
+    let e ← mkId e
+    Term.addTermInfo' stx e
+  else
+    /-
+    **Note**: only the `e`s type is displayed when hovering over the anchor.
+    We add a silent info with the anchor declaration.
+    -/
+    Term.addTermInfo' stx e
+    logAt (severity := .information) (isSilent := true) stx
+       m!"#{anchorToString numDigits anchorPrefix} := {e}"
+
 @[builtin_grind_tactic cases] def evalCases : GrindTactic := fun stx => do
   match stx with
   | `(grind| cases #$anchor:hexnum) =>
     let (numDigits, val) ← elabAnchor anchor
     let goal ← getMainGoal
     let candidates := goal.split.candidates
-    let (goals, genNew) ← liftSearchM do
+    let (e, goals, genNew) ← liftSearchM do
       for c in candidates do
+        let e := c.getExpr
         let anchor ← getAnchor c.getExpr
         if isAnchorPrefix numDigits val anchor then
           let some result ← split? c
             | throwError "`cases` tactic failed, case-split is not ready{indentExpr c.getExpr}"
-          return result
+          return (e, result)
       throwError "`cases` tactic failed, invalid anchor"
+    goal.withContext <| withRef anchor <| logAnchor numDigits val e
     let goals ← goals.filterMapM fun goal => do
       let (goal, _) ← liftGrindM <| SearchM.run goal do
         intros genNew
@@ -292,14 +330,21 @@ where
     throwError "Tactic failed on all goals:{indentD stx[1]}"
   setGoals goalsNew.toList
 
+public def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIdent) : GrindTacticM MVarId := do
+  let mvarId ← Tactic.renameInaccessibles mvarId hs
+  unless hs.isEmpty do liftGrindM <| resetAnchors
+  return mvarId
+
 @[builtin_grind_tactic «next»] def evalNext : GrindTactic := fun stx => do
   match stx with
-  | `(grind| next%$nextTk =>%$arr $seq:grindSeq) => do
+  | `(grind| next%$nextTk $hs* =>%$arr $seq:grindSeq) => do
     let goal :: goals ← getUnsolvedGoals | throwNoGoalsToBeSolved
+    let mvarId ← renameInaccessibles goal.mvarId hs
+    let goal := { goal with mvarId }
     setGoals [goal]
     goal.mvarId.setTag Name.anonymous
     withCaseRef arr seq <| closeUsingOrAdmit <| withTacticInfoContext (mkNullNode #[nextTk, arr]) <|
-      evalGrindTactic stx[2]
+      evalGrindTactic stx[3]
     setGoals goals
   | _ => throwUnsupportedSyntax
 
@@ -338,5 +383,18 @@ where
   | `(grind| fail)          => throwError "Failed: `fail` tactic was invoked\n{goalsMsg}"
   | `(grind| fail $msg:str) => throwError "{msg.getString}\n{goalsMsg}"
   | _ => throwUnsupportedSyntax
+
+@[builtin_grind_tactic «renameI»] def evalRenameInaccessibles : GrindTactic
+  | `(grind| rename_i $hs*) => do
+    let goal ← getMainGoal
+    let mvarId ← renameInaccessibles goal.mvarId hs
+    replaceMainGoal [{ goal with mvarId }]
+  | _ => throwUnsupportedSyntax
+
+@[builtin_grind_tactic exposeNames] def evalExposeNames : GrindTactic := fun _ => do
+  let goal ← getMainGoal
+  let mvarId ← goal.mvarId.exposeNames
+  liftGrindM <| resetAnchors
+  replaceMainGoal [{ goal with mvarId }]
 
 end Lean.Elab.Tactic.Grind

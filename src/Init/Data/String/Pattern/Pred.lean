@@ -51,14 +51,14 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardCharPredSearcher s) Id (Se
     | .done => it.internalState.currPos = s.endPos
   step := fun ⟨currPos, needle⟩ =>
     if h1 : currPos = s.endPos then
-      pure ⟨.done, by simp [h1]⟩
+      pure (.deflate ⟨.done, by simp [h1]⟩)
     else
       let nextPos := currPos.next h1
       let nextIt := ⟨nextPos, needle⟩
       if h2 : needle <| currPos.get h1 then
-        pure ⟨.yield nextIt (.matched currPos nextPos), by simp [h1, h2, nextPos, nextIt]⟩
+        pure (.deflate ⟨.yield nextIt (.matched currPos nextPos), by simp [h1, h2, nextPos, nextIt]⟩)
       else
-        pure ⟨.yield nextIt (.rejected currPos nextPos), by simp [h1, h2, nextPos, nextIt]⟩
+        pure (.deflate ⟨.yield nextIt (.rejected currPos nextPos), by simp [h1, h2, nextPos, nextIt]⟩)
 
 
 def finitenessRelation : Std.Iterators.FinitenessRelation (ForwardCharPredSearcher s) Id where
@@ -121,14 +121,14 @@ instance (s : Slice) : Std.Iterators.Iterator (BackwardCharPredSearcher s) Id (S
     | .done => it.internalState.currPos = s.startPos
   step := fun ⟨currPos, needle⟩ =>
     if h1 : currPos = s.startPos then
-      pure ⟨.done, by simp [h1]⟩
+      pure (.deflate ⟨.done, by simp [h1]⟩)
     else
       let nextPos := currPos.prev h1
       let nextIt := ⟨nextPos, needle⟩
       if h2 : needle <| nextPos.get Pos.prev_ne_endPos then
-        pure ⟨.yield nextIt (.matched nextPos currPos), by simp [h1, h2, nextIt, nextPos]⟩
+        pure (.deflate ⟨.yield nextIt (.matched nextPos currPos), by simp [h1, h2, nextIt, nextPos]⟩)
       else
-        pure ⟨.yield nextIt (.rejected nextPos currPos), by simp [h1, h2, nextIt, nextPos]⟩
+        pure (.deflate ⟨.yield nextIt (.rejected nextPos currPos), by simp [h1, h2, nextIt, nextPos]⟩)
 
 def finitenessRelation : Std.Iterators.FinitenessRelation (BackwardCharPredSearcher s) Id where
   rel := InvImage WellFoundedRelation.rel

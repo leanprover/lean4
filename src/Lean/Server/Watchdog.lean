@@ -1600,6 +1600,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
   signatureHelpProvider? := some {
     triggerCharacters? := some #[" "]
   }
+  colorProvider? := some {}
   experimental? := some {
     moduleHierarchyProvider? := some {}
     rpcProvider? := some {

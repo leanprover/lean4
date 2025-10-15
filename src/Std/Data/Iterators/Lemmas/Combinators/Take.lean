@@ -35,7 +35,7 @@ theorem Iter.step_take {α β} [Iterator α Id β] {n : Nat}
   case succ k =>
     simp only [Id.run_bind]
     generalize it.toIterM.step.run = step
-    cases step using PlausibleIterStep.casesOn <;>
+    cases step.inflate using PlausibleIterStep.casesOn <;>
       simp [PlausibleIterStep.yield, PlausibleIterStep.skip, PlausibleIterStep.done]
 
 theorem Iter.atIdxSlow?_take {α β}

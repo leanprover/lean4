@@ -165,7 +165,7 @@ def getMatchAlt : Syntax → Option MatchAltView
   | alt@`(matchAltExpr| | $patterns,* => $rhs) => some {
           ref      := alt,
           patterns := patterns,
-          lhs      := alt[1],
+          lhs      := alt[1], -- this is the ref `$patterns,*`
           rhs      := rhs
         }
   | _ => none

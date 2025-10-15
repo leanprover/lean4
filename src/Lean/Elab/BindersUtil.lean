@@ -44,17 +44,18 @@ def getMatchAltsNumPatterns (matchAlts : Syntax) : Nat :=
   let pats := alt0[1][0].getSepArgs
   pats.size
 
+open TSyntax.Compat in
 /--
   Expand a match alternative such as `| 0 | 1 => rhs` to an array containing `| 0 => rhs` and `| 1 => rhs`.
 -/
 def expandMatchAlt (stx : TSyntax ``matchAlt) : MacroM (Array (TSyntax ``matchAlt)) :=
-  match stx with
-  | `(matchAltExpr| | $[$patss,*]|* => $rhs) =>
-     if patss.size ≤ 1 then
-       return #[stx]
-     else
-       patss.mapM fun pats => `(matchAltExpr| | $pats,* => $rhs)
-  | _ => return #[stx]
+  -- Not using syntax quotations here to keep source location
+  -- of the pattern sequence (`$term,*`) intact
+  let patss := stx.raw[1].getSepArgs
+  if patss.size ≤ 1 then
+    return #[stx]
+  else
+    return patss.map fun pats => stx.raw.setArg 1 (mkNullNode #[pats])
 
 def shouldExpandMatchAlt : TSyntax ``matchAlt → Bool
   | `(matchAltExpr| | $[$patss,*]|* => $_) => patss.size > 1

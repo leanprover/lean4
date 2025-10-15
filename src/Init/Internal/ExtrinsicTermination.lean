@@ -31,7 +31,7 @@ variable {α : Sort _} {β : α → Sort _} {C : α → Sort _} {C₂ : (a : α)
 
 namespace Std.Internal
 
-@[always_inline]
+@[specialize]
 public partial def opaqueFix [∀ x, Nonempty (C x)] (F : (x : α) → ((y : α) → C y) → C x) (x : α) : C x :=
   F x (opaqueFix F)
 
@@ -61,7 +61,7 @@ public def extrinsicFix_eq [∀ x, Nonempty (C x)] {F : (x : α) → ((y : α) �
   rw [WellFounded.fix_eq, show (extrinsicFix F) = (fun y => extrinsicFix F y) by rfl]
   simp only [extrinsicFix, dif_pos h, h.choose_spec.choose_spec.2]
 
-@[always_inline]
+@[specialize]
 public partial def opaqueFix₂ [∀ a b, Nonempty (C₂ a b)]
     (F : (a : α) → (b : β a) → ((a' : α) → (b' : β a') → C₂ a' b') → C₂ a b) (a : α) (b : β a) :
     C₂ a b :=

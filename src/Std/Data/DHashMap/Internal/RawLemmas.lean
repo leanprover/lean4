@@ -1445,6 +1445,52 @@ end Const
 
 end monadic
 
+omit [Hashable α] [BEq α] in
+theorem any_eq_toList_any {p : (a : α) → β a → Bool} :
+    m.1.any p = m.1.toList.any (fun x => p x.1 x.2) := by
+  simp only [Raw.any, ForIn.forIn, bind_pure_comp, map_pure, Id.run_bind]
+  rw [forIn_eq_forIn_toList, forIn_eq_forIn']
+  induction m.val.toList with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [List.forIn'_cons, Id.run_bind, List.any_cons]
+    by_cases h : p hd.fst hd.snd = true
+    · simp [h]
+    · simp at ih
+      simp [h, ih]
+
+theorem any_eq_true [LawfulBEq α] {p : (a : α) → β a → Bool} (h : m.1.WF) :
+    m.1.any p = true ↔ ∃ (a : α) (h : m.contains a), p a (m.get a h) := by
+  simp [any_eq_toList_any]
+  constructor
+  · intro h'
+    rcases h' with ⟨a, h', hp⟩
+    rw [mem_toList_iff_get?_eq_some _ h, get?_eq_some_iff _ h] at h'
+    rcases h' with ⟨h', ha⟩
+    exists a.1
+    exists h'
+    simp [ha, hp]
+  · intro h'
+    rcases h' with ⟨a, h', hp⟩
+    exists ⟨a, m.get a h'⟩
+    simp [hp, mem_toList_iff_get?_eq_some, h, get?_eq_some_iff, h']
+
+theorem any_eq_false [LawfulBEq α] {p : (a : α) → β a → Bool} (h : m.1.WF) :
+    m.1.any p = false ↔ ∀ (a : α) (h : m.contains a), p a (m.get a h) = false := by
+  simp [any_eq_toList_any]
+  constructor
+  · intro h' k hk
+    specialize h' ⟨k, m.get k hk⟩
+    simp [mem_toList_iff_get?_eq_some, h, ] at h'
+    apply h'
+    rw [get?_eq_some_iff _ h]
+    exists hk
+  · intro h' x hx
+    rw [mem_toList_iff_get?_eq_some _ h, get?_eq_some_iff _ h] at hx
+    rcases hx with ⟨h₂, hx⟩
+    rw [← hx]
+    exact h' x.1 h₂
+
 section insertMany
 
 variable {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]

@@ -328,9 +328,9 @@ where
         trace[Meta.Match.match] "missing alternative"
         p.mvarId.admit
         modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
-    | alt :: alts =>
+    | alt :: _ =>
       unless (← solveCnstrs p.mvarId alt) do
-        go alts
+        throwErrorAt alt.ref "Dependent match elimination failed: Could not solve constraints"
 
 private def processAsPattern (p : Problem) : MetaM Problem := withGoalOf p do
   let x :: _ := p.vars | unreachable!

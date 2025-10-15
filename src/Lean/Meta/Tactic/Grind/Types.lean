@@ -923,10 +923,15 @@ def Goal.getENode (goal : Goal) (e : Expr) : CoreM ENode := do
 def getENode (e : Expr) : GoalM ENode := do
   (← get).getENode e
 
+def Goal.getGeneration (goal : Goal) (e : Expr) : Nat :=
+  if let some n := goal.getENode? e then
+    n.generation
+  else
+    0
+
 /-- Returns the generation of the given term. Is assumes it has been internalized -/
-def getGeneration (e : Expr) : GoalM Nat := do
-  let some n ← getENode? e | return 0
-  return n.generation
+def getGeneration (e : Expr) : GoalM Nat :=
+  return (← get).getGeneration e
 
 /-- Returns `true` if `e` is in the equivalence class of `True`. -/
 def isEqTrue (e : Expr) : GoalM Bool := do
@@ -1340,12 +1345,6 @@ def propagateUp (e : Expr) : GoalM Unit := do
 
 def propagateDown (e : Expr) : GoalM Unit := do
   (← getMethods).propagateDown e
-
-def Goal.getGeneration (goal : Goal) (e : Expr) : Nat :=
-  if let some n := goal.getENode? e then
-    n.generation
-  else
-    0
 
 /-- Returns expressions in the given expression equivalence class. -/
 partial def Goal.getEqc (goal : Goal) (e : Expr) (sort := false) : List Expr :=

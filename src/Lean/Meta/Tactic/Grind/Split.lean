@@ -7,11 +7,13 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.SearchM
+public import Lean.Meta.Tactic.Grind.Action
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Internalize
+import Lean.Meta.Tactic.Grind.Anchor
 public section
 namespace Lean.Meta.Grind
 
@@ -241,6 +243,139 @@ private def casesWithTrace (mvarId : MVarId) (major : Expr) : GoalM (List MVarId
     if let .const declName _ := (← whnfD (← inferType major)).getAppFn then
       saveCases declName false
   cases mvarId major
+
+namespace Action
+
+private def isTargetFalse (mvarId : MVarId) : MetaM Bool := do
+  return (← mvarId.getType).isFalse
+
+private def getFalseProof? (mvarId : MVarId) : MetaM (Option Expr) := mvarId.withContext do
+  let proof ← instantiateMVars (mkMVar mvarId)
+  if (← isTargetFalse mvarId) then
+    return some proof
+  else if proof.isAppOfArity ``False.elim 2 || proof.isAppOfArity ``False.casesOn 2 then
+    return some proof.appArg!
+  else
+    return none
+
+/--
+Returns the maximum free variable id occurring in `e`
+-/
+private def findMaxFVarIdx? (e : Expr) : MetaM (Option Nat) := do
+  let go (e : Expr) : StateT (Option Nat) MetaM Bool := do
+    unless e.hasFVar do return false
+    let .fvar fvarId := e | return true
+    let localDecl ← fvarId.getDecl
+    modify fun
+      | none => some localDecl.index
+      | some index => some (max index localDecl.index)
+    return false
+  let (_, s?) ← e.forEach' go |>.run none
+  return s?
+
+/--
+Returns `some falseProof` if we can use non-chronological backtracking with `subgoal`.
+That is, `subgoal` was closed using `falseProof`, but its proof does not use any of the
+new hypotheses. A hypothesis is new if its `index >= oldNumIndices`.
+-/
+private def useNCB? (oldNumIndices : Nat) (subgoal : Goal) : MetaM (Option Expr) := do
+  let some falseProof ← getFalseProof? subgoal.mvarId
+    | return none
+  let some max ← subgoal.withContext <| findMaxFVarIdx? falseProof
+    | return some falseProof -- Proof actually closes any pending split
+  if max < oldNumIndices then
+    return some falseProof
+  else
+    return none
+
+/--
+Performs a case-split using `c`.
+Remark: `numCases` and `isRec` are computed using `checkSplitStatus`.
+-/
+private def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool) (stopAtFirstFailure : Bool) : Action := fun goal _ kp => do
+  let mvarDecl ← goal.mvarId.getDecl
+  let numIndices := mvarDecl.lctx.numIndices
+  let mvarId ← goal.mkAuxMVar
+  let cExpr := c.getExpr
+  let (mvarIds, goal) ← GoalM.run goal do
+    let gen ← getGeneration cExpr
+    let genNew := if numCases > 1 || isRec then gen+1 else gen
+    saveSplitDiagInfo cExpr genNew numCases c.source
+    markCaseSplitAsResolved cExpr
+    trace_goal[grind.split] "{cExpr}, generation: {gen}"
+    let mvarIds ← if let .imp e h _ := c then
+      casesWithTrace mvarId (mkGrindEM (e.forallDomain h))
+    else if (← isMatcherApp cExpr) then
+      casesMatch mvarId cExpr
+    else
+      casesWithTrace mvarId (← mkCasesMajor cExpr)
+  let subgoals := mvarIds.map fun mvarId => { goal with mvarId }
+  let traceEnabled := (← getConfig).trace
+  let mut seqNew : Array (List (TSyntax `grind)) := #[]
+  let mut stuckNew : Array Goal := #[]
+  for subgoal in subgoals do
+    match (← kp subgoal) with
+    | .stuck gs =>
+      if stopAtFirstFailure then
+        /-
+        **Note**: We don't need to assign `goal.mvarId` when `stopAtFirstFailure = true`
+        because the caller will not be able to process the all failure/stuck goals anyway.
+        -/
+        return .stuck gs
+      else
+        stuckNew := stuckNew ++ gs
+    | .closed seq =>
+      if let some falseProof ← useNCB? numIndices subgoal then
+        goal.mvarId.assignFalseProof falseProof
+        return .closed seq
+      else
+        seqNew := seqNew.push seq
+  goal.mvarId.assign (← instantiateMVars (mkMVar mvarId))
+  if stuckNew.isEmpty then
+    if traceEnabled then
+      let seqListNew ← if h : seqNew.size = 1 then
+        pure seqNew[0]
+      else
+        seqNew.toList.mapM fun s => mkGrindNext s
+      let mut seqListNew := seqListNew
+      let anchor ← goal.withContext <| getAnchor cExpr
+      -- **TODO**: compute the exact number of digits
+      let numDigits := 4
+      let anchorPrefix := anchor >>> (64 - 16)
+      let hexnum := mkNode `hexnum #[mkAtom (anchorToString numDigits anchorPrefix)]
+      let cases ← `(grind| cases #$hexnum)
+      seqListNew := cases :: seqListNew
+      return .closed seqListNew
+    else
+      return .closed []
+  else
+    return .stuck stuckNew.toList
+
+/--
+Selects a case-split from the list of candidates, performs the split and applies
+continuation to all subgoals.
+If a subgoal is solved without using new hypotheses, closes the original goal using this proof. That is,
+it performs non-chronological backtracking.
+If `stopsAtFirstFailure = true`, it stops the search as soon as the given continuation cannot solve a subgoal.
+-/
+def splitNext (stopAtFirstFailure := true) : Action := fun goal kna kp => do
+  let (r, goal) ← GoalM.run goal selectNextSplit?
+  let .some c numCases isRec _ := r
+    | kna goal
+  let cExpr := c.getExpr
+  let gen := goal.getGeneration cExpr
+  let x : Action := splitCore c numCases isRec stopAtFirstFailure >> intros gen
+  x goal kna kp
+
+end Action
+
+/-!
+**------------------------------------------**
+**------------------------------------------**
+**TODO** Delete rest of the file
+**------------------------------------------**
+**------------------------------------------**
+-/
 
 /--
 Performs a case-split using `c`.

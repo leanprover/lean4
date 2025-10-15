@@ -325,6 +325,9 @@ theorem WF.ofList [BEq α] [Hashable α] {l : List α} :
     (ofList l : Raw α).WF :=
   ⟨HashMap.Raw.WF.unitOfList⟩
 
+theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.union m₂).WF :=
+  ⟨HashMap.Raw.WF.union h₁.out h₂.out⟩
+
 end Raw
 
 end HashSet

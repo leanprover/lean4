@@ -20,6 +20,7 @@ namespace Lean.Elab.Tactic
 open Meta
 
 declare_config_elab elabGrindConfig Grind.Config
+declare_config_elab elabGrindConfigInteractive Grind.ConfigInteractive
 declare_config_elab elabCutsatConfig Grind.CutsatConfig
 declare_config_elab elabGrobnerConfig Grind.GrobnerConfig
 
@@ -338,10 +339,17 @@ def mkGrindOnly
   let result ← `(tactic| grind $config:optConfig only)
   return setGrindParams result params
 
+private def elabGrindConfig' (config : TSyntax ``Lean.Parser.Tactic.optConfig) (interactive : Bool) : TacticM Grind.Config := do
+  if interactive then
+    return (← elabGrindConfigInteractive config).toConfig
+  else
+    elabGrindConfig config
+
 @[builtin_tactic Lean.Parser.Tactic.grind] def evalGrind : Tactic := fun stx => do
   match stx with
   | `(tactic| grind $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[=> $seq:grindSeq]?) =>
-    let config ← elabGrindConfig config
+    let interactive := seq.isSome
+    let config ← elabGrindConfig' config interactive
     discard <| evalGrindCore stx config only params seq
   | _ => throwUnsupportedSyntax
 

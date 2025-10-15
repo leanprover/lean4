@@ -115,7 +115,7 @@ Usually `· tac`, which enforces that the goal is closed by `tac`, should be pre
 -/
 syntax (name := focus) "focus " grindSeq : grind
 
-syntax (name := next) "next" " => " grindSeq : grind
+syntax (name := next) "next " binderIdent* " => " grindSeq : grind
 
 /--
 `any_goals tac` applies the tactic `tac` to every goal,
@@ -168,6 +168,17 @@ syntax "repeat " grindSeq : grind
 
 macro_rules
   | `(grind| repeat $seq) => `(grind| first | ($seq); repeat $seq | skip)
+
+/-- `rename_i x_1 ... x_n` renames the last `n` inaccessible names using the given names. -/
+syntax (name := renameI) "rename_i" (ppSpace colGt binderIdent)+ : grind
+
+/--
+`expose_names` renames all inaccessible variables with accessible names, making them available
+for reference in generated tactics. However, this renaming introduces machine-generated names
+that are not fully under user control. `expose_names` is primarily intended as a preamble for
+generated `grind` tactic scripts.
+-/
+syntax (name := exposeNames) "expose_names" : grind
 
 end Grind
 end Lean.Parser.Tactic

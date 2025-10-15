@@ -8,6 +8,7 @@ prelude
 public import Init.Grind.Lemmas
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.SearchM
+public import Lean.Meta.Tactic.Grind.Action
 import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Grind.Simp
@@ -16,6 +17,7 @@ import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
+import Lean.Meta.Tactic.Grind.RevertAll
 public section
 namespace Lean.Meta.Grind
 
@@ -67,25 +69,34 @@ private def mkBaseName (name : Name) (type : Expr) : MetaM Name := do
   if (← isProp type) then return `h else return `x
 
 private def mkCleanName (name : Name) (type : Expr) : GoalM Name := do
-  unless (← getConfig).clean do
+  if (← getConfig).clean then
+    let mut name := name
+    if name.hasMacroScopes then
+      name := name.eraseMacroScopes
+      if name == `x || name == `a then
+        if (← isProp type) then
+          name := `h
+    if (← get).clean.used.contains name then
+      let base ← mkBaseName name type
+      let mut i := if let some i := (← get).clean.next.find? base then i else 1
+      repeat
+        name := base.appendIndexAfter i
+        i := i + 1
+        unless (← get).clean.used.contains name do
+          break
+      modify fun s => { s with clean.next := s.clean.next.insert base i }
+    modify fun s => { s with clean.used := s.clean.used.insert name }
     return name
-  let mut name := name
-  if name.hasMacroScopes then
-    name := name.eraseMacroScopes
-    if name == `x || name == `a then
+  else if let some originalName := getOriginalName? name then
+    return originalName
+  else if name.hasMacroScopes then
+    let name' := name.eraseMacroScopes
+    if name' == `x || name' == `a then
       if (← isProp type) then
-        name := `h
-  if (← get).clean.used.contains name then
-    let base ← mkBaseName name type
-    let mut i := if let some i := (← get).clean.next.find? base then i else 1
-    repeat
-      name := base.appendIndexAfter i
-      i := i + 1
-      unless (← get).clean.used.contains name do
-        break
-    modify fun s => { s with clean.next := s.clean.next.insert base i }
-  modify fun s => { s with clean.used := s.clean.used.insert name }
-  return name
+        return (← mkFreshUserName `h)
+    return name
+  else
+    mkFreshUserName name
 
 private def intro1 : GoalM FVarId := do
   let target ← (← get).mvarId.getType
@@ -195,6 +206,9 @@ private def exfalsoIfNotProp (goal : Goal) : MetaM Goal := goal.mvarId.withConte
     return goal
   else
     return { goal with mvarId := (← goal.mvarId.exfalso) }
+
+def Goal.lastDecl? (goal : Goal) : MetaM (Option LocalDecl) := do
+  return (← goal.mvarId.getDecl).lctx.lastDecl
 
 private def applyCases? (fvarId : FVarId) (generation : Nat) : SearchM Bool := withCurrGoalContext do
   /-

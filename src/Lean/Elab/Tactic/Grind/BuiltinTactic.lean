@@ -20,7 +20,9 @@ import Lean.Meta.Tactic.Grind.Anchor
 import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
 import Lean.Meta.Tactic.Grind.Arith.Linear.PP
 import Lean.Meta.Tactic.Grind.AC.PP
+import Lean.Meta.Tactic.ExposeNames
 import Lean.Elab.Tactic.Basic
+import Lean.Elab.Tactic.RenameInaccessibles
 namespace Lean.Elab.Tactic.Grind
 
 def evalSepTactics (stx : Syntax) : GrindTacticM Unit := do
@@ -292,14 +294,21 @@ where
     throwError "Tactic failed on all goals:{indentD stx[1]}"
   setGoals goalsNew.toList
 
+public def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIdent) : GrindTacticM MVarId := do
+  let mvarId ← Tactic.renameInaccessibles mvarId hs
+  unless hs.isEmpty do liftGrindM <| resetAnchors
+  return mvarId
+
 @[builtin_grind_tactic «next»] def evalNext : GrindTactic := fun stx => do
   match stx with
-  | `(grind| next%$nextTk =>%$arr $seq:grindSeq) => do
+  | `(grind| next%$nextTk $hs* =>%$arr $seq:grindSeq) => do
     let goal :: goals ← getUnsolvedGoals | throwNoGoalsToBeSolved
+    let mvarId ← renameInaccessibles goal.mvarId hs
+    let goal := { goal with mvarId }
     setGoals [goal]
     goal.mvarId.setTag Name.anonymous
     withCaseRef arr seq <| closeUsingOrAdmit <| withTacticInfoContext (mkNullNode #[nextTk, arr]) <|
-      evalGrindTactic stx[2]
+      evalGrindTactic stx[3]
     setGoals goals
   | _ => throwUnsupportedSyntax
 
@@ -338,5 +347,18 @@ where
   | `(grind| fail)          => throwError "Failed: `fail` tactic was invoked\n{goalsMsg}"
   | `(grind| fail $msg:str) => throwError "{msg.getString}\n{goalsMsg}"
   | _ => throwUnsupportedSyntax
+
+@[builtin_grind_tactic «renameI»] def evalRenameInaccessibles : GrindTactic
+  | `(grind| rename_i $hs*) => do
+    let goal ← getMainGoal
+    let mvarId ← renameInaccessibles goal.mvarId hs
+    replaceMainGoal [{ goal with mvarId }]
+  | _ => throwUnsupportedSyntax
+
+@[builtin_grind_tactic exposeNames] def evalExposeNames : GrindTactic := fun _ => do
+  let goal ← getMainGoal
+  let mvarId ← goal.mvarId.exposeNames
+  liftGrindM <| resetAnchors
+  replaceMainGoal [{ goal with mvarId }]
 
 end Lean.Elab.Tactic.Grind

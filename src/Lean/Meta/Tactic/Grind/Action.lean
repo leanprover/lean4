@@ -8,7 +8,6 @@ prelude
 public import Lean.Meta.Tactic.Grind.Types
 public section
 namespace Lean.Meta.Grind
-namespace Lean.Meta.Grind
 /-!
 # `Action`
 
@@ -88,8 +87,11 @@ def ActionResult.toMessageData : ActionResult → MessageData
 instance : ToMessageData ActionResult where
   toMessageData := ActionResult.toMessageData
 
+abbrev ActionCont : Type :=
+  Goal → GrindM ActionResult
+
 abbrev Action : Type :=
-  Goal → (kna : Goal → GrindM ActionResult) → (kp : Goal → GrindM ActionResult) → GrindM ActionResult
+  Goal → (kna : ActionCont) → (kp : ActionCont) → GrindM ActionResult
 
 namespace Action
 
@@ -148,6 +150,108 @@ Executes `x`, but behaves like a `skip` if it is not applicable.
 -/
 def skipIfNA (x : Action) : Action := fun goal _ kp =>
   x goal kp kp
+
+private def isTargetFalse (mvarId : MVarId) : MetaM Bool := do
+  return (← mvarId.getType).isFalse
+
+private def getFalseProof? (mvarId : MVarId) : MetaM (Option Expr) := mvarId.withContext do
+  let proof ← instantiateMVars (mkMVar mvarId)
+  if (← isTargetFalse mvarId) then
+    return some proof
+  else if proof.isAppOfArity ``False.elim 2 || proof.isAppOfArity ``False.casesOn 2 then
+    return some proof.appArg!
+  else
+    return none
+
+/--
+Returns the maximum free variable id occurring in `e`
+-/
+private def findMaxFVarIdx? (e : Expr) : MetaM (Option Nat) := do
+  let go (e : Expr) : StateT (Option Nat) MetaM Bool := do
+    unless e.hasFVar do return false
+    let .fvar fvarId := e | return true
+    let localDecl ← fvarId.getDecl
+    modify fun
+      | none => some localDecl.index
+      | some index => some (max index localDecl.index)
+    return false
+  let (_, s?) ← e.forEach' go |>.run none
+  return s?
+
+private def mkGrindSeq (s : List (TSyntax `grind)) : TSyntax ``Parser.Tactic.Grind.grindSeq :=
+  let s := s.map (·.raw)
+  let s := s.intersperse (mkNullNode #[])
+  mkNode ``Parser.Tactic.Grind.grindSeq #[
+  mkNode ``Parser.Tactic.Grind.grindSeq1Indented #[
+  mkNullNode s.toArray
+  ]]
+
+private def mkGrindNext (s : List (TSyntax `grind)) : CoreM (TSyntax `grind) := do
+  let s ← if s == [] then pure [← `(grind| done)] else pure s
+  let s := mkGrindSeq s
+  `(grind| next => $s:grindSeq)
+
+/--
+Returns `some falseProof` if we can use non-chronological backtracking with `subgoal`.
+That is, `subgoal` was closed using `falseProof`, but its proof does not use any of the
+new hypotheses. A hypothesis is new if its `index >= oldNumIndices`.
+-/
+private def useNCB? (oldNumIndices : Nat) (subgoal : Goal) : MetaM (Option Expr) := do
+  let some falseProof ← getFalseProof? subgoal.mvarId
+    | return none
+  let some max ← subgoal.mvarId.withContext <| findMaxFVarIdx? falseProof
+    | return some falseProof -- Proof actually closes any pending split
+  if max < oldNumIndices then
+    return some falseProof
+  else
+    return none
+
+/--
+Helper functions for implementing tactics that perform case-splits
+-/
+def splitCore (goal : Goal) (anchor? : Option (Nat × UInt64)) (s : MVarId → GrindM (List MVarId)) (kp : ActionCont) : GrindM ActionResult := do
+  let mvarDecl ← goal.mvarId.getDecl
+  let numIndices := mvarDecl.lctx.numIndices
+  let mvarId ← goal.mkAuxMVar
+  let mvarIds ← s mvarId
+  let subgoals := mvarIds.map fun mvarId => { goal with mvarId }
+  let traceEnabled := (← getConfig).trace
+  let mut seqNew : Array (List (TSyntax `grind)) := #[]
+  let mut stuckNew : Array Goal := #[]
+  for subgoal in subgoals do
+    match (← kp subgoal) with
+    | .stuck gs =>
+      -- *TODO*: Add support for saving multiple failures
+      return .stuck gs
+    | .closed seq =>
+      if let some falseProof ← useNCB? numIndices subgoal then
+        goal.mvarId.assignFalseProof falseProof
+        return .closed seq
+      else
+        seqNew := seqNew.push seq
+  if stuckNew.isEmpty then
+    goal.mvarId.assign (← instantiateMVars (mkMVar mvarId))
+    if traceEnabled then
+      let seqListNew ← if h : seqNew.size = 1 then
+        pure seqNew[0]
+      else
+        seqNew.toList.mapM fun s => mkGrindNext s
+      let mut seqListNew := seqListNew
+      if let some anchor := anchor? then
+        let hexnum := mkNode `hexnum #[mkAtom (anchorToString anchor.1 anchor.2)]
+        /-
+        *TODO*: We need to distinguish between user-facing `cases` which `intros` new hypotheses
+        automatically, and auto-generated `cases` produced by `grind?` and `finish?` which does not
+        `intros` automatically. Each branch provides includes its own `intros`.
+        *Current strategy*: Use only one `cases` (`intros`) automatically and add `rename_i`.
+        -/
+        let cases ← `(grind| cases #$hexnum)
+        seqListNew := cases :: seqListNew
+      return .closed seqListNew
+    else
+      return .closed []
+  else
+    return .stuck stuckNew.toList
 
 section
 /-!

@@ -487,13 +487,8 @@ theorem IterM.toList_map {α β β' : Type w} {m : Type w → Type w'} [Monad m]
   · simp [instIteratorMap, inferInstanceAs]
     congr
     simp
-  · refine heq_of_eqRec_eq ?_ rfl
-    congr
+  · congr
     simp only [Map, PostconditionT.map_pure, Function.comp_apply]
-    simp only [instIteratorMap, inferInstanceAs, Function.comp_apply]
-    congr
-    simp
-  · simp [Map]
   · simp only [instIteratorMap, inferInstanceAs, Function.comp_apply]
     congr
     simp

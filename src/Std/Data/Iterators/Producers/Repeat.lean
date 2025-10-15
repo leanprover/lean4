@@ -80,8 +80,4 @@ instance RepeatIterator.instIteratorCollect {α : Type w} {f : α → α} {n : T
     [Monad n] : IteratorCollect (RepeatIterator α f) Id n :=
   .defaultImplementation
 
-instance RepeatIterator.instIteratorCollectPartial {α : Type w} {f : α → α} {n : Type w → Type w'}
-    [Monad n] : IteratorCollectPartial (RepeatIterator α f) Id n :=
-  .defaultImplementation
-
 end Std.Iterators

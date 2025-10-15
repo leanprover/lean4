@@ -136,10 +136,6 @@ instance Types.ULiftIterator.instIteratorCollect [Monad n] [Monad o] [Iterator �
     IteratorCollect (ULiftIterator α m n β lift) n o :=
   .defaultImplementation
 
-instance Types.ULiftIterator.instIteratorCollectPartial {o} [Monad n] [Monad o] [Iterator α m β] :
-    IteratorCollectPartial (ULiftIterator α m n β lift) n o :=
-  .defaultImplementation
-
 /--
 Transforms an `m`-monadic iterator with values in `β` into an `n`-monadic iterator with
 values in `ULift β`. Requires a `MonadLift m (ULiftT n)` instance.

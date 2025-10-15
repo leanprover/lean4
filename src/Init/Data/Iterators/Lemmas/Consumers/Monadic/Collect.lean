@@ -14,25 +14,53 @@ import all Init.Data.Iterators.Consumers.Monadic.Collect
 public section
 
 namespace Std.Iterators
+open Std.Internal
 
 variable {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
   {lift : ⦃δ : Type w⦄ → m δ → n δ} {f : β → n γ} {it : IterM (α := α) m β}
 
-theorem IterM.DefaultConsumers.toArrayMapped.go.aux₁ [Monad n] [LawfulMonad n] [Iterator α m β]
-    [Finite α m] {b : γ} {bs : Array γ} :
+private theorem IterM.DefaultConsumers.toArrayMapped.go_eq [Monad n] [Iterator α m β]
+    [Finite α m] {acc : Array γ} :
+    letI : MonadLift m n := ⟨lift (δ := _)⟩
+    go lift f it acc (m := m) = (do
+      match (← it.step).inflate.val with
+      | .yield it' out => go lift f it' (acc.push (← f out))
+      | .skip it' => go lift f it' acc
+      | .done => return acc) := by
+  letI : MonadLift m n := ⟨lift (δ := _)⟩
+  rw [toArrayMapped.go, extrinsicFix₂_eq]
+  · apply bind_congr; intro step
+    cases step.inflate using PlausibleIterStep.casesOn
+    · simp only
+      apply bind_congr; intro fx
+      simp [go]
+    · simp [go]
+    · simp
+  · refine ⟨?r, ?F, ?wf, ?h⟩
+    · exact InvImage WellFoundedRelation.rel (fun x => x.1.finitelyManySteps)
+    · exact fun it acc G => (do
+        match (← it.step).inflate with
+        | .yield it' out h => G it' (acc.push (← f out)) (TerminationMeasures.Finite.rel_of_yield h)
+        | .skip it' h => G it' acc (TerminationMeasures.Finite.rel_of_skip h)
+        | .done _ => return acc)
+    · apply InvImage.wf
+      exact WellFoundedRelation.wf
+    · intro it acc G
+      simp only
+      apply bind_congr; intro step
+      cases step.inflate using PlausibleIterStep.casesOn <;> simp
+
+private theorem IterM.DefaultConsumers.toArrayMapped.go.aux₁ [Monad n] [LawfulMonad n]
+    [Iterator α m β] [Finite α m] {b : γ} {bs : Array γ} :
     IterM.DefaultConsumers.toArrayMapped.go lift f it (#[b] ++ bs) (m := m) =
       (#[b] ++ ·) <$> IterM.DefaultConsumers.toArrayMapped.go lift f it bs (m := m) := by
-  induction it, bs using IterM.DefaultConsumers.toArrayMapped.go.induct with | _ it bs ih₁ ih₂
-  rw [go, map_eq_pure_bind, go, bind_assoc]
-  apply bind_congr
-  intro step
-  split
-  · simp [ih₁ _ _ ‹_›]
-  · simp [ih₂ _ ‹_›]
-  · simp
+  induction it using IterM.inductSteps generalizing bs with | step it ihy ihs
+  rw [go_eq, map_eq_pure_bind, go_eq, bind_assoc]
+  apply bind_congr; intro step
+  cases step.inflate using PlausibleIterStep.casesOn <;> simp (discharger := assumption) [ihy, ihs]
 
-theorem IterM.DefaultConsumers.toArrayMapped.go.aux₂ [Monad n] [LawfulMonad n] [Iterator α m β]
-    [Finite α m] {acc : Array γ} :
+private theorem IterM.DefaultConsumers.toArrayMapped.go.aux₂ [Monad n] [LawfulMonad n]
+    [Iterator α m β] [Finite α m] {acc : Array γ} :
     IterM.DefaultConsumers.toArrayMapped.go lift f it acc (m := m) =
       (acc ++ ·) <$> IterM.DefaultConsumers.toArrayMapped lift f it (m := m) := by
   rw [← Array.toArray_toList (xs := acc)]
@@ -51,7 +79,7 @@ theorem IterM.DefaultConsumers.toArrayMapped_eq_match_step [Monad n] [LawfulMona
         return #[← f out] ++ (← IterM.DefaultConsumers.toArrayMapped lift f it' (m := m))
       | .skip it' => IterM.DefaultConsumers.toArrayMapped lift f it' (m := m)
       | .done => return #[]) := by
-  rw [IterM.DefaultConsumers.toArrayMapped, IterM.DefaultConsumers.toArrayMapped.go]
+  rw [IterM.DefaultConsumers.toArrayMapped, IterM.DefaultConsumers.toArrayMapped.go_eq]
   apply bind_congr
   intro step
   cases step.inflate using PlausibleIterStep.casesOn <;>

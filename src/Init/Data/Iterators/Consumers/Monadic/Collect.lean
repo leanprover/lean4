@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Iterators.Consumers.Monadic.Partial
 public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
+public import Init.Internal.ExtrinsicTermination
 
 @[expose] public section
 
@@ -51,25 +52,7 @@ class IteratorCollect (α : Type w) (m : Type w → Type w') (n : Type w → Typ
   Maps the emitted values of an iterator using the given function and collects the results in an
   `Array`. This is an internal implementation detail. Consider using `it.map f |>.toArray` instead.
   -/
-  toArrayMapped [Finite α m] :
-    (lift : ⦃δ : Type w⦄ → m δ → n δ) → {γ : Type w} → (β → n γ) → IterM (α := α) m β → n (Array γ)
-
-/--
-`IteratorCollectPartial α m` provides efficient implementations of collectors for `α`-based
-iterators. Right now, it is limited to a potentially optimized partial `toArray` implementation.
-
-This class is experimental and users of the iterator API should not explicitly depend on it.
-They can, however, assume that consumers that require an instance will work for all iterators
-provided by the standard library.
--/
-class IteratorCollectPartial (α : Type w) (m : Type w → Type w') (n : Type w → Type w'')
-    {β : Type w} [Iterator α m β] where
-  /--
-  Maps the emitted values of an iterator using the given function and collects the results in an
-  `Array`. This is an internal implementation detail.
-  Consider using `it.map f |>.allowNontermination.toArray` instead.
-  -/
-  toArrayMappedPartial :
+  toArrayMapped :
     (lift : ⦃δ : Type w⦄ → m δ → n δ) → {γ : Type w} → (β → n γ) → IterM (α := α) m β → n (Array γ)
 
 end Typeclasses
@@ -82,20 +65,21 @@ This is an internal function used in `IteratorCollect.defaultImplementation`.
 It iterates over an iterator and applies `f` whenever a value is emitted before inserting the result
 of `f` into an array.
 -/
-@[always_inline, inline]
+@[always_inline, inline, no_expose]
 def IterM.DefaultConsumers.toArrayMapped {α β : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β] [Finite α m]
+    {n : Type w → Type w''} [Monad n] [Iterator α m β]
     (lift : ⦃α : Type w⦄ → m α → n α) {γ : Type w} (f : β → n γ)
     (it : IterM (α := α) m β) : n (Array γ) :=
+  letI : MonadLift m n := ⟨lift (α := _)⟩
   go it #[]
 where
-  @[specialize]
-  go [Monad n] [Finite α m] (it : IterM (α := α) m β) a := letI : MonadLift m n := ⟨lift (α := _)⟩; do
-    match (← it.step).inflate with
-    | .yield it' b _ => go it' (a.push (← f b))
-    | .skip it' _ => go it' a
-    | .done _ => return a
-  termination_by it.finitelyManySteps
+  go it (acc : Array γ) : n (Array γ) :=
+    letI : MonadLift m n := ⟨lift (α := _)⟩
+    extrinsicFix₂ (C₂ := fun _ _ => n (Array γ)) (fun it acc recur => do
+      match (← it.step).inflate.val with
+      | .yield it' out => recur it' (acc.push (← f out))
+      | .skip it' => recur it' acc
+      | .done => return acc) it acc
 
 /--
 This is the default implementation of the `IteratorLoop` class.
@@ -110,7 +94,8 @@ def IteratorCollect.defaultImplementation {α β : Type w} {m : Type w → Type 
   toArrayMapped := IterM.DefaultConsumers.toArrayMapped
 
 /--
-Asserts that a given `IteratorCollect` instance is equal to `IteratorCollect.defaultImplementation`.
+Asserts that a given `IteratorCollect` instance is equal to `IteratorCollect.defaultImplementation`
+*if the underlying iterator is finite*.
 (Even though equal, the given instance might be vastly more efficient.)
 -/
 class LawfulIteratorCollect (α : Type w) (m : Type w → Type w') (n : Type w → Type w'')
@@ -136,64 +121,26 @@ instance (α β : Type w) (m : Type w → Type w') (n : Type w → Type w'') [Mo
   ⟨fun _ => rfl⟩
 
 /--
-This is an internal function used in `IteratorCollectPartial.defaultImplementation`.
-
-It iterates over an iterator and applies `f` whenever a value is emitted before inserting the result
-of `f` into an array.
--/
-@[always_inline, inline]
-partial def IterM.DefaultConsumers.toArrayMappedPartial {α β : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β]
-    (lift : {α : Type w} → m α → n α) {γ : Type w} (f : β → n γ)
-    (it : IterM (α := α) m β) : n (Array γ) :=
-  go it #[]
-where
-  @[specialize]
-  go [Monad n] (it : IterM (α := α) m β) a := letI : MonadLift m n := ⟨lift⟩; do
-    match (← it.step).inflate with
-    | .yield it' b _ => go it' (a.push (← f b))
-    | .skip it' _ => go it' a
-    | .done _ => return a
-
-/--
-This is the default implementation of the `IteratorLoopPartial` class.
-It simply iterates through the iterator using `IterM.step`, incrementally building up the desired
-data structure. For certain iterators, more efficient implementations are possible and should be
-used instead.
--/
-@[always_inline, inline]
-def IteratorCollectPartial.defaultImplementation {α β : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β] :
-    IteratorCollectPartial α m n where
-  toArrayMappedPartial := IterM.DefaultConsumers.toArrayMappedPartial
-
-/--
 Traverses the given iterator and stores the emitted values in an array.
-
-This function requires a `Finite` instance proving that the iterator will finish after a finite
-number of steps. If the iterator is not finite or such an instance is not available, consider using
-`it.allowNontermination.toArray` instead of `it.toArray`. However, it is not possible to formally
-verify the behavior of the partial variant.
 -/
 @[always_inline, inline]
-def IterM.toArray {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Iterator α m β] [Finite α m] [IteratorCollect α m m]
-    (it : IterM (α := α) m β) : m (Array β) :=
+def IterM.toArray {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorCollect α m m] (it : IterM (α := α) m β) : m (Array β) :=
   IteratorCollect.toArrayMapped (fun ⦃_⦄ => id) pure it
 
 /--
 Traverses the given iterator and stores the emitted values in an array.
 
-This is a partial, potentially nonterminating, function. It is not possible to formally verify
-its behavior. If the iterator has a `Finite` instance, consider using `IterM.toArray` instead.
+This function is deprecated. Instead of `it.allowNontermination.toArray`, use `it.toArray`.
 -/
-@[always_inline, inline]
+@[always_inline, inline, deprecated IterM.toArray (since := "2025-10-15")]
 def IterM.Partial.toArray {α : Type w} {m : Type w → Type w'} {β : Type w} [Monad m]
-    [Iterator α m β] (it : IterM.Partial (α := α) m β) [IteratorCollectPartial α m m] : m (Array β) :=
-  IteratorCollectPartial.toArrayMappedPartial (fun ⦃_⦄ => id) pure it.it
+    [Iterator α m β] (it : IterM.Partial (α := α) m β) [IteratorCollect α m m] : m (Array β) :=
+  it.it.toArray
 
 end ToArray
 
+-- TODO:
 /--
 Traverses the given iterator and stores the emitted values in reverse order in a list. Because
 lists are prepend-only, this `toListRev` is usually more efficient that `toList`.
@@ -237,28 +184,22 @@ where
 /--
 Traverses the given iterator and stores the emitted values in a list. Because
 lists are prepend-only, `toListRev` is usually more efficient that `toList`.
-
-This function requires a `Finite` instance proving that the iterator will finish after a finite
-number of steps. If the iterator is not finite or such an instance is not available, consider using
-`it.allowNontermination.toList` instead of `it.toList`. However, it is not possible to
-formally verify the behavior of the partial variant.
 -/
 @[always_inline, inline]
 def IterM.toList {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
-    [Iterator α m β] [Finite α m] [IteratorCollect α m m] (it : IterM (α := α) m β) : m (List β) :=
+    [Iterator α m β] [IteratorCollect α m m] (it : IterM (α := α) m β) : m (List β) :=
   Array.toList <$> IterM.toArray it
 
 /--
 Traverses the given iterator and stores the emitted values in a list. Because
 lists are prepend-only, `toListRev` is usually more efficient that `toList`.
 
-This is a partial, potentially nonterminating, function. It is not possible to formally verify
-its behavior. If the iterator has a `Finite` instance, consider using `IterM.toList` instead.
+This function is deprecated. Instead of `it.allowNontermination.toList`, use `it.toList`.
 -/
-@[always_inline, inline]
+@[always_inline, inline, deprecated IterM.toList (since := "2025-10-15")]
 def IterM.Partial.toList {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
-    [Iterator α m β] (it : IterM.Partial (α := α) m β) [IteratorCollectPartial α m m] :
+    [Iterator α m β] (it : IterM.Partial (α := α) m β) [IteratorCollect α m m] :
     m (List β) :=
-  Array.toList <$> it.toArray
+  Array.toList <$> it.it.toArray
 
 end Std.Iterators

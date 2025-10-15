@@ -139,11 +139,6 @@ instance Types.StepSizeIterator.instIteratorCollect {m n} [Iterator α m β]
     IteratorCollect (Types.StepSizeIterator α m β) m n :=
   .defaultImplementation
 
-instance Types.StepSizeIterator.instIteratorCollectPartial {m n} [Iterator α m β]
-    [IteratorAccess α m] [Monad m] [Monad n] :
-    IteratorCollectPartial (Types.StepSizeIterator α m β) m n :=
-  .defaultImplementation
-
 instance Types.StepSizeIterator.instIteratorLoop {m n} [Iterator α m β]
     [IteratorAccess α m] [Monad m] [Monad n] :
     IteratorLoop (Types.StepSizeIterator α m β) m n :=

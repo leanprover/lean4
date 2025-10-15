@@ -72,11 +72,11 @@ structure MonadInfo where
 private meta partial def extractBind (expectedType? : Option Expr) : TermElabM (MonadInfo × Expr) := do
   let some expectedType := expectedType? | mkUnknownMonadResult
   let extractStep? (type : Expr) : TermElabM (Option (MonadInfo × Expr)) := do
-    let .app m returnType := type.consumeMData | return none
-    unless ← isType returnType do return none
-    let .succ u ← getLevel returnType | return none
+    let .app m resultType := type.consumeMData | return none
+    unless ← isType resultType do return none
+    let .succ u ← getLevel resultType | return none
     let .succ v ← getLevel type | return none
-    return some ({ m, u, v }, returnType)
+    return some ({ m, u, v }, resultType)
   let rec extract? (type : Expr) : TermElabM (Option (MonadInfo × Expr)) := do
     match (← extractStep? type) with
     | some r => return r
@@ -99,8 +99,8 @@ where
     let u ← mkFreshLevelMVar
     let v ← mkFreshLevelMVar
     let m ← mkFreshExprMVar (← mkArrow (mkSort (mkLevelSucc u)) (mkSort (mkLevelSucc v))) (userName := `m)
-    let returnType ← mkFreshExprMVar (mkSort (mkLevelSucc u)) (userName := `α)
-    return ({ m, u, v }, returnType)
+    let resultType ← mkFreshExprMVar (mkSort (mkLevelSucc u)) (userName := `α)
+    return ({ m, u, v }, resultType)
 
 /--
 Information about a success, `return`, `break` or `continue` continuation that will be filled in
@@ -124,36 +124,14 @@ structure Context where
   monadInfo : MonadInfo
   /-- The mutable variables in declaration order. -/
   mutVars : Array Name := #[]
-  /--
-  The current definition for each mutable variable. A definition is either a `FVarId` or a closed,
-  atomic `Expr` (e.g. `PUnit.unit`).
-  -/
-  mutVarDefs : Std.HashMap Name Expr := {}
---  /--
---  The mutable variables that have been reassigned since this field has last been restoreLCtx.
---  Recall that `elabElem1` uses CPS, so previous `do` elems will have populated this field with their
---  reassigned mut vars before calling the continuation.
---  -/
---  reassignedMutVars : Std.HashSet Name := {}
   /-- The expected type of `e` in `return e`. -/
   earlyReturnType : Expr
   /-- The continuation for an early `return`. -/
   -- returnCont : ContInfo
 
 meta def mkContext (expectedType? : Option Expr) : TermElabM Context := do
-  let (monadInfo, returnType) ← extractBind expectedType?
-  return { monadInfo, earlyReturnType := returnType }
-
-abbrev MVarUses := Std.HashMap MVarId Lean.Elab.Tactic.Do.Uses
-
-def MVarUses.add (a b : MVarUses) : MVarUses :=
-  a.fold (init := b) fun acc k v => acc.alter k fun
-    | none => some v
-    | some v' => some (v + v')
-
-namespace CollectMVarUses
-
-end CollectMVarUses
+  let (monadInfo, resultType) ← extractBind expectedType?
+  return { monadInfo, earlyReturnType := resultType }
 
 structure MonadInstanceCache where
   /-- The inferred `Pure` instance of `(← read).monadInfo.m`. -/
@@ -165,18 +143,40 @@ structure MonadInstanceCache where
   /-- The cached `Bind.bind` expression. -/
   cachedBind : Option Expr := none
 
+/--
+Information about a jump to a join point that has been emitted.
+-/
+structure Jump where
+  /--
+  The current definition of mutable variables at the jump location.
+  Any definition that was reassigned wrt. the join point scope need to be passed to the join point.
+  Different jump locations have different reassignments in scope, so this array is only a subset of
+  parameters that need to be passed to the join point.
+  -/
+  reassignedMutVars : Array Name
+  /--
+  The expression capturing the result of the last monadic action before the jump.
+  It ends up as the last parameter of the join point.
+  -/
+  r : Expr
+  /--
+  The metavariable to be assigned with the jump to the join point.
+  Conveniently, its captured local context is that of the jump, in which the new mutable variable
+  definitions and `r` are in scope.
+  -/
+  mv : Expr
+  /-- A reference for error reporting. -/
+  ref : Syntax
+deriving Inhabited
+
 structure State where
   monadInstanceCache : MonadInstanceCache := {}
-  jumpLabelOccs : MVarUses := {}
-  jumps : Std.HashMap FVarId (Array (Array LocalDecl × Expr × Expr)) := {}
-
-instance : Add MVarUses where
-  add := MVarUses.add
+  jumps : Std.HashMap FVarId (Array Jump) := {}
 
 abbrev DoElabM := ReaderT Context <| StateRefT State TermElabM
 
-meta def mkMonadicType (returnType : Expr) : DoElabM Expr := do
-  return mkApp (← read).monadInfo.m returnType
+meta def mkMonadicType (resultType : Expr) : DoElabM Expr := do
+  return mkApp (← read).monadInfo.m resultType
 
 meta def mkPUnit : DoElabM Expr := do
   return (← read).monadInfo.cachedPUnit
@@ -194,9 +194,10 @@ meta def mkPureApp (ref : Syntax) (α e : Expr) : DoElabM Expr := withRef ref do
   set { s with monadInstanceCache := { s.monadInstanceCache with cachedPure := some cachedPure } }
   return mkApp2 cachedPure α e
 
-meta def mkBindApp (α β e k : Expr) : DoElabM Expr := do
+meta def mkBindApp (ref : Syntax) (α β e k : Expr) : DoElabM Expr := withRef ref do
   let mα ← mkMonadicType α
   let e ← Term.ensureHasType mα e
+  let k ← Term.ensureHasType (← mkArrow α (← mkMonadicType β)) k
   let s ← get
   if let some cachedBind := s.monadInstanceCache.cachedBind then return mkApp4 cachedBind α β e k
   let info := (← read).monadInfo
@@ -205,37 +206,34 @@ meta def mkBindApp (α β e k : Expr) : DoElabM Expr := do
   set { s with monadInstanceCache := { s.monadInstanceCache with cachedBind := some cachedBind } }
   return mkApp4 cachedBind α β e k
 
-meta def declareMutVar (x : Name) (defn : Expr) : DoElabM α → DoElabM α :=
-  withReader fun ctx =>
-    { ctx with mutVars := ctx.mutVars.push x, mutVarDefs := ctx.mutVarDefs.insert x defn }
+meta def declareMutVar (x : Name) : DoElabM α → DoElabM α :=
+  withReader fun ctx => { ctx with mutVars := ctx.mutVars.push x }
 
-meta def declareMutVar? (mutTk? : Option Syntax) (x : Name) (defn : Expr) (k : DoElabM α) : DoElabM α :=
-  if mutTk?.isSome then declareMutVar x defn k else k
+meta def declareMutVar? (mutTk? : Option Syntax) (x : Name) (k : DoElabM α) : DoElabM α :=
+  if mutTk?.isSome then declareMutVar x k else k
 
-meta def reassignMutVar (ref : Syntax) (x : Name) (defn : Expr) (k : DoElabM α) : DoElabM α := do
-  unless (← read).mutVarDefs.contains x do
+meta def throwUnlessMutVarDeclared (ref : Syntax) (x : Name) : DoElabM Unit := do
+  unless (← read).mutVars.contains x do
     throwErrorAt ref "mutable variable `{x}` is not declared"
-  withReader (fun ctx => { ctx with
-    mutVarDefs := ctx.mutVarDefs.insert x defn,
-  }) k
 
 meta def checkMutVarsForShadowing (ref : Syntax) (x : Name) : DoElabM Unit := do
-  if (← read).mutVarDefs.contains x then
+  if (← read).mutVars.contains x then
     throwErrorAt ref "mutable variable `{x.simpMacroScopes}` cannot be shadowed"
 
 meta def mkLetThen (x : Name) (ty : Expr) (rhs : Expr) (k : Expr → DoElabM Expr) : DoElabM Expr := do
-  withLetDecl x ty (← Term.ensureHasType ty rhs) fun x => do
-    mkLetFVars (usedLetOnly := false) #[x] (← k x)
+  withLetDecl x ty rhs fun x => do mkLetFVars (usedLetOnly := false) #[x] (← k x)
 
-meta def mkFreshReturnType : DoElabM Expr := do
+meta def mkFreshResultType : DoElabM Expr := do
   mkFreshExprMVar (mkSort (mkLevelSucc (← read).monadInfo.u)) (userName := `α)
 
-meta def mkAndThen (x : Name) (eReturnTy e : Expr) (k : Expr → DoElabM Expr) : DoElabM Expr := do
-  let k ← withLocalDeclD x eReturnTy (fun x => do mkLambdaFVars #[x] (← k x))
-  let e ← Term.ensureHasType (← mkMonadicType eReturnTy) e
-  let kReturnTy ← mkFreshReturnType
-  let k ← Term.ensureHasType (← mkArrow eReturnTy (← mkMonadicType kReturnTy)) k
-  mkBindApp eReturnTy kReturnTy e k
+meta def mkAndThen (ref : Syntax) (x : Name) (eResultTy e : Expr) (k : Expr → DoElabM Expr) : DoElabM Expr := do
+  let (k, kResultTy) ← withLocalDeclD x eResultTy fun x => do
+    let body ← k x
+    let bodyTy ← inferType body
+    let .app _m kResultTy := bodyTy
+      | throwError "Expected some monadic type for{indentExpr body}\nbut got{indentExpr bodyTy}"
+    return (← mkLambdaFVars #[x] body, kResultTy)
+  mkBindApp ref eResultTy kResultTy e k
 
 meta def mkPureUnit (ref : Syntax) : DoElabM Expr := do
   mkPureApp ref (← mkPUnit) (← mkPUnitUnit)
@@ -250,6 +248,12 @@ meta def elabType (ty? : Option (TSyntax `term)) (freshLevel := false) : DoElabM
   match ty? with
   | none => mkFreshExprMVar sort
   | some ty => Term.elabTermEnsuringType ty sort
+
+meta def addJump (jp : FVarId) (jump : Jump) : DoElabM Unit :=
+  modify fun s => { s with jumps := s.jumps.alter jp (fun arr => arr.getD #[] |>.push jump) }
+
+meta def getAndClearJumps (jp : FVarId) : DoElabM (Array Jump) :=
+  modifyGet fun s => (s.jumps.get? jp |>.getD #[], { s with jumps := s.jumps.erase jp })
 
 /--
 This data type communicates to `do` element elaborators whether they are the last element of the
@@ -277,7 +281,7 @@ inductive DoElemCont where
   /--
   The `do` element under elaboration is the last of its `do` block and has the given return type.
   -/
-  | last : (returnType : Expr) → DoElemCont
+  | last : (resultType : Expr) → DoElemCont
 
   /--
   The `do` element under elaboration is followed by other elements in the `do` block,
@@ -295,67 +299,118 @@ inductive DoElemCont where
   Another way to think about this: User level binding constructs such as `let $x ← $doElem` are
   *syntax*, but the notion of "result of previous element" in `DoElemCont` is a *semantic* concept.
   -/
-  | cont : (resultName : Name) → (k : (r : Expr) → DoElabM Expr) → DoElemCont
+  | cont : (resultName : Name) → (resultType : Expr) → (k : (r : Expr) → DoElabM Expr) → DoElemCont
 
-meta def DoElemCont.mkThenUnlessLast (k : DoElemCont) (e : Expr) : DoElabM Expr :=
-  if let .cont resultName k := k then do
-    mkAndThen resultName (← mkFreshReturnType) e k
+meta def DoElemCont.resultType (k : DoElemCont) : Expr :=
+  match k with
+  | .last resultType => resultType
+  | .cont _ resultType _ => resultType
+
+meta def DoElemCont.mkThenUnlessLast (ref : Syntax) (k : DoElemCont) (e : Expr) : DoElabM Expr :=
+  if let .cont resultName resultType k := k then do
+    mkAndThen ref resultName resultType e k
   else
     return e
 
-meta def DoElemCont.continueWithUnit (ref : Syntax) (k : DoElemCont) : DoElabM Expr := do
+meta def DoElemCont.continueWithUnit (ref : Syntax) (k : DoElemCont) : DoElabM Expr := withRef ref do
+  let unit ← mkPUnitUnit
+  discard <| Term.ensureHasType k.resultType unit
   match k with
-  | .cont _ k => k (← mkPUnitUnit)
-  | .last ty => discard <| Term.ensureHasType ty (← mkPUnitUnit); mkPureUnit ref
+  | .cont n resultType k => do withLetDecl n resultType unit fun x => do
+    let e ← k x
+    let e ← elimMVarDeps #[x] e
+    return e.replaceFVar x unit
+  | .last _ => mkPureUnit ref
 
-meta def DoElemCont.mkReturnTypeForThisElem (k : DoElemCont) : DoElabM Expr :=
-  if let .last returnType := k then do pure returnType else mkFreshReturnType
+meta def filterReassigned (mutVars : Array Name) (oldCtx newCtx : LocalContext) : MetaM (Array Name) := do
+  let get ctx name := match ctx.findFromUserName? name with
+    | some d => return d
+    | none   => throwError "Could not find mutable variable `{name}`"
+  let oldDefs ← mutVars.mapM (get oldCtx)
+  let newDefs ← mutVars.mapM (get newCtx)
+  return oldDefs.zip newDefs
+    |>.filter (Function.uncurry (·.toExpr != ·.toExpr))
+    |>.map (·.1.userName)
 
-meta def updatedMutVarDef? (mutVarDefsOrig : Std.HashMap Name Expr) (mutVarDefs : Std.HashMap Name Expr) (x : Name) : Option Expr :=
-  let fv := mutVarDefs.get! x
-  if fv == mutVarDefsOrig.get! x then none else some fv
-
-/-
-Challenges:
-
-* De-nesting the RHS of a `letArrow` requires passing `.cont` instead of `.last` and then resetting
-  the LCtx, adding any reassignments.
-* Control-flow constructs such as `if` need join points
-* (Reassignments in the RHS of a `letArrow` need join points) No, not per se! Denesting and adjusting LCtx is enough.
-
-So `letArrow` just denests. Often no join points are needed. But it appears that join point creation
-is just as complicated as denesting, in that join point creation also needs to fumble with the LCtx.
--/
-
-meta def captureLCtxAndMutVarDefs (k : (Expr → (Array LocalDecl → DoElabM Expr) → DoElabM Expr) → DoElabM Expr) : DoElabM Expr := do
-  let mutVarsOrig := (← read).mutVars
-  let mutVarDefsOrig := (← read).mutVarDefs
+meta def captureLCtxAndMutVarDefs (k : (Expr → (Array Name → DoElabM Expr) → DoElabM Expr) → DoElabM Expr) : DoElabM Expr := do
+  let mutVars := (← read).mutVars
   let lctx ← getLCtx
   k <| fun r k => do
-    -- logInfo m!"old context {lctx.decls.toArray.filterMap (·.map fun decl => (decl.toExpr, decl.fvarId.name))}"
-    -- logInfo m!"new context {(← getLCtx).decls.toArray.filterMap (·.map fun decl => (decl.toExpr, decl.fvarId.name))}"
-    -- NB: Callers may pass closed atomic expressions such as `()` as `r`, so it's not always an
-    -- `FVarId`.
-    -- Need to account for that below:
-    -- * We don't push non-FVars as tunnel decls (there are no definitions), so the join point
-    --   won't abstract over them.
-    -- * But in return, we need to introduce a `let r := ();` in the join point LCtx so that
-    --   `x.getId` has a definition to refer to.
-    let mutVarDefs := (← read).mutVarDefs
-    let tunnelDecls ← mutVarsOrig
-      |>.filterMap (updatedMutVarDef? mutVarDefsOrig mutVarDefs)
+    -- Find the subset of mut vars that are reassigned.
+    let reassignedMutVars ← filterReassigned mutVars lctx (← getLCtx)
+    let reassignedMutVarDefs ← reassignedMutVars.mapM (getFVarFromUserName ·)
+    -- Tunnel mut vars and result into the outer context:
+    let tunnelDecls ← reassignedMutVarDefs
       |>.push r
-      |>.filterMapM (·.fvarId?.mapM (·.getDecl)) -- NB: this filters out any non-FVar definitions
-    -- Forget the value of every ldecl
+      |>.mapM (·.fvarId!.getDecl)
+    -- Forget the value of every ldecl.
     let tunnelDecls := tunnelDecls.map fun decl =>
       .cdecl 0 decl.fvarId decl.userName decl.type decl.binderInfo decl.kind
-    -- logInfo m!"tunnelDecls {tunnelDecls.map (·.toExpr)}"
-    let mutVarDefs := mutVarDefs.filter fun k _ => mutVarDefsOrig.contains k
     withLCtx' lctx do
     withExistingLocalDecls tunnelDecls.toList do
-    withReader (fun ctx => { ctx with mutVars := mutVarsOrig, mutVarDefs }) do
-    let reassignments := if (·.toExpr) <$> tunnelDecls.back? == r then tunnelDecls.pop else tunnelDecls
-    k reassignments
+    withReader (fun ctx => { ctx with mutVars }) do
+    k reassignedMutVars
+
+meta def DoElemCont.withDuplicableCont (dec : DoElemCont) (caller : DoElemCont → DoElabM Expr) : DoElabM Expr := do
+  let .cont rName resultType nondupK := dec | caller dec -- assumption: .last continuations are always duplicable
+  let mα ← mkMonadicType (← read).earlyReturnType
+  let joinTy ← mkFreshExprMVar (mkSort (mkLevelSucc (← read).monadInfo.v)) (userName := `joinTy)
+  let joinRhs ← mkFreshExprMVar joinTy (userName := `joinRhs)
+  withLetDecl (← mkFreshUserName `__do_jp) joinTy joinRhs (kind := .implDetail) fun jp => do
+  captureLCtxAndMutVarDefs fun restoreLCtx => do
+    let duplicableDec := DoElemCont.cont rName resultType fun r => restoreLCtx r fun reassignedMutVars => do
+      let mv ← mkFreshExprMVar mα (userName := `jumpPlaceholder)
+      addJump jp.fvarId! { reassignedMutVars, r, mv, ref := (← getRef) }
+      return mv
+    let e ← caller duplicableDec
+
+    -- Now determine whether we need to realize the join point.
+    let jumps ← getAndClearJumps jp.fvarId!
+    if jumps.isEmpty then
+      -- Do nothing. No MVar needs to be assigned.
+      pure ()
+    else if let #[j] := jumps then
+      -- Linear use of the continuation. Do not introduce a join point; just emit the continuation
+      -- directly.
+      j.mv.mvarId!.withContext do withRef j.ref do
+      let res ← nondupK j.r
+      discard <| isDefEq j.mv res
+    else -- jumps.size > 1
+      -- Non-linear use of the continuation. Introduce a join point and fill all MVars with jumps to
+      -- it.
+      --
+      -- First compute the union of all reassigned mut vars. These + `r` constitute the parameters
+      -- of the join point. We take a little care to preserve the declaration order that is manifest
+      -- in the array `(← read).mutVars`.
+      let reassignedMutVars := Std.HashSet.ofArray (jumps.flatMap (·.reassignedMutVars))
+      let ctx ← read
+      let reassignedMutVars := ctx.mutVars.filter reassignedMutVars.contains
+
+      -- Assign the `joinTy` based on the types of the reassigned mut vars and the result type.
+      let reassignedDecls ← reassignedMutVars.mapM (getLocalDeclFromUserName ·)
+      let reassignedTys := reassignedDecls.map (·.type)
+      let resTy ← do
+        let j := jumps[0]!
+        j.mv.mvarId!.withContext (inferType j.r)
+      discard <| isDefEq joinTy (← mkArrowN (reassignedTys.push resTy) mα)
+
+      -- Assign the `joinRhs` with the result of the continuation.
+      let rhs ← joinRhs.mvarId!.withContext do
+        withLocalDeclsDND (reassignedDecls.map (fun d => (d.userName, d.type)) |>.push (rName, resTy)) fun xs => do
+          mkLambdaFVars xs (← nondupK xs.back!)
+      discard <| isDefEq joinRhs rhs
+
+      -- Finally, assign the MVars with the jump to `jp`.
+      for j in jumps do
+        j.mv.mvarId!.withContext do withRef j.ref do
+        let mut jump := jp
+        for name in reassignedMutVars do
+          let newDefn ← getLocalDeclFromUserName name
+          jump := mkApp jump newDefn.toExpr
+        jump := mkApp jump (← Term.ensureHasType resTy j.r "Mismatched result type for match arm. It")
+        discard <| isDefEq j.mv jump
+
+    mkLetFVars #[jp] (usedLetOnly := true) (← Term.ensureHasType mα e)
 
 /-
 One hand, we want to elaborate `do foo a b c` in terminal position simply as `foo a b c`.
@@ -383,32 +438,32 @@ mutual
   meta def elabElem (dooElem : TSyntax `dooElem) (k : DoElemCont) : DoElabM Expr := withRef dooElem do
     match dooElem with
     | `(dooElem| return $e) =>
-      -- NB: The `earlyReturnType` can be different than `returnType` when `return` is not the last
+      -- NB: The `earlyReturnType` can be different than `resultType` when `return` is not the last
       -- element of the block
       let e ← Term.elabTermEnsuringType e (← read).earlyReturnType
       mkPureApp dooElem (← read).earlyReturnType e
       -- NB: discard continuation `k?`, unconditionally
     | `(dooElem| $e:term) =>
-      let mα ← mkMonadicType (← k.mkReturnTypeForThisElem)
+      let mα ← mkMonadicType k.resultType
       -- We cannot use `Term.elabTermEnsuringType` directly here, because it seems to force
       -- synthesis of `Pure` and `Bind` instances when `#check`-ing a `do` block without expected
       -- type. So instead we elaborate and then only do `ensureHasType` if `?m` is not ultimately an
       -- MVar.
-      let e ← Term.elabTerm e none
-      -- logInfo m!"e: {e}, mα: {mα}, isMVarApp: {← Term.isMVarApp mα}"
-      let e ← if ← Term.isMVarApp mα then pure e else Term.ensureHasType mα e
-      k.mkThenUnlessLast e
+      let e ← Term.elabTerm e mα
+      logInfo m!"e: {e}, mα: {mα}, isMVarApp: {← Term.isMVarApp mα}"
+      let e ← Term.ensureHasType mα e
+      k.mkThenUnlessLast dooElem e
     | `(dooElem| let $[mut%$mutTk?]? $x:ident $[: $xType?]? ← $rhs) =>
       checkMutVarsForShadowing dooElem x.getId
       let xType ← elabType xType?
       captureLCtxAndMutVarDefs fun restoreLCtx =>
-        elabElem rhs <| .cont x.getId fun xdefn => restoreLCtx xdefn fun _reassignments => do
-          declareMutVar? mutTk? x.getId (← Term.ensureHasType xType xdefn) (k.continueWithUnit x)
+        elabElem rhs <| .cont x.getId xType fun xdefn => restoreLCtx xdefn fun _reassignments => do
+          declareMutVar? mutTk? x.getId (k.continueWithUnit x)
     | `(dooElem| $x:ident ← $rhs) =>
-      let decl ← getLocalDeclFromUserName x.getId
+      let xType := (← getLocalDeclFromUserName x.getId).type
       captureLCtxAndMutVarDefs fun restoreLCtx =>
-        elabElem rhs <| .cont x.getId fun xdefn => restoreLCtx xdefn fun _reassignments => do
-          reassignMutVar dooElem x.getId (← Term.ensureHasType decl.type xdefn) (k.continueWithUnit x)
+        elabElem rhs <| .cont x.getId xType fun xdefn => restoreLCtx xdefn fun _reassignments =>
+          k.continueWithUnit x
     | `(dooElem| let $[mut%$mutTk?]? $x:ident $[: $xType?]? := $rhs) =>
       checkMutVarsForShadowing dooElem x.getId
       -- We want to allow `do let foo : Nat = Nat := rfl; pure (foo ▸ 23)`. Note that the type of
@@ -416,79 +471,20 @@ mutual
       -- Hence `freshLevel := true` (yes, even for `mut` vars; why not?).
       let xType ← elabType xType? (freshLevel := true)
       let rhs ← Term.elabTermEnsuringType rhs xType
-      mkLetThen x.getId xType rhs fun xdefn => do
-        declareMutVar? mutTk? x.getId xdefn (k.continueWithUnit x)
+      mkLetThen x.getId xType rhs fun _xdefn => declareMutVar? mutTk? x.getId (k.continueWithUnit x)
     | `(dooElem| $x:ident := $rhs) =>
-      let decl ← getLocalDeclFromUserName x.getId
-      let rhs ← Term.elabTermEnsuringType rhs decl.type
-      mkLetThen x.getId decl.type rhs fun xdefn => do
-        reassignMutVar dooElem x.getId xdefn (k.continueWithUnit x)
+      let xType := (← getLocalDeclFromUserName x.getId).type
+      let rhs ← Term.elabTermEnsuringType rhs xType
+      mkLetThen x.getId xType rhs fun _xdefn => k.continueWithUnit x
     | `(dooElem| if $cond then $thenDooSeq $[else $elseDooSeq?]?) =>
-      let α ← mkFreshReturnType
-      let mα ← mkMonadicType α
-      let joinTy ← mkFreshExprMVar (mkSort (mkLevelSucc (← read).monadInfo.v)) (userName := `joinTy)
-      let joinRhs ← mkFreshExprMVar joinTy (userName := `joinRhs)
-      withLetDecl `__do_jp joinTy joinRhs (kind := .implDetail) fun jp => do
-      mkLetFVars #[jp] (usedLetOnly := true) (← captureLCtxAndMutVarDefs fun restoreLCtx => do
-        let rName ← mkFreshUserName `r
-        let duplicableCont := DoElemCont.cont rName fun r => restoreLCtx r fun tunnelDecls => do
-          let s ← get
-          let mv ← mkFreshExprMVar mα (userName := `thenJump)
-          let s := { s with jumps := s.jumps.alter jp.fvarId! (fun arr => arr.getD #[] |>.push (tunnelDecls, r, mv))}
-          set s
-          return mv
-
-        let then_ ← elabElems1 (getDooElems thenDooSeq) duplicableCont
+      k.withDuplicableCont fun k => do
+        let then_ ← elabElems1 (getDooElems thenDooSeq) k
         let else_ ← match elseDooSeq? with
           | none => k.continueWithUnit dooElem
-          | some elseDooSeq => elabElems1 (getDooElems elseDooSeq) duplicableCont
-        let s ← get
-        let jumps := s.jumps.get? jp.fvarId! |>.getD #[]
-        logInfo m!"jumps to {jp}: {jumps.map (fun (decls, ret) => (decls.map LocalDecl.toExpr, ret))}"
-        let reassignedVars := Std.HashSet.ofArray (jumps.flatMap (fun (decls, _) => decls.map LocalDecl.userName))
-        let ctx ← read
-        let reassignments := ctx.mutVars.filter reassignedVars.contains |>.map (fun n => (n, ctx.mutVarDefs.get! n))
-        logInfo m!"reassignments: {reassignments}"
-        if jumps.size > 1 && k matches .cont _ _ then
-          let .cont name k := k | unreachable!
-          let tys ← liftMetaM <| reassignments.mapM (inferType ·.2)
-          let resTy ← jumps[0]!.2.2.mvarId!.withContext (inferType jumps[0]!.2.1)
-          joinTy.mvarId!.assign (← mkArrowN (tys.push resTy) mα)
-          let joinRhs := joinRhs.mvarId!
-          let rhs ← joinRhs.withContext do
-            withLocalDeclsDND (reassignments.map (·.1) |>.zip tys |>.push (name, resTy)) fun xs => do
-              mkLambdaFVars xs (← k xs.back!)
-          joinRhs.assign rhs
-          logInfo m!"join point {jp} has type {joinTy} and definition {rhs}"
-          for (decls, r, mv) in jumps do
-            let mv := mv.mvarId!
-            mv.withContext do
-            let mut jump := jp
-            for (name, oldDefn) in reassignments do
-              let newDefn ← getLocalDeclFromUserName name
-              jump := mkApp jump newDefn.toExpr
-            jump := mkApp jump r
-            -- logInfo m!"assigning {mkMVar mv} with {jump}"
-            discard <| isDefEq (mkMVar mv) jump
-        else if jumps.size == 1 || k matches .last _ then
-          logInfo m!"no join point needed for {jumps.map (fun (decls, ret) => (decls.map LocalDecl.toExpr, ret))}"
-          for (decls, r, mv) in jumps do
-            let mv := mv.mvarId!
-            mv.withContext do
-            let res ←
-              withReader (fun ctx => { ctx with mutVarDefs := decls.foldr (init := ctx.mutVarDefs) (fun decl acc => acc.insert decl.userName decl.toExpr)  }) do
-              match k with
-              | .last returnType => mkPureApp dooElem returnType r
-              | .cont name k => k r -- TODO name?
-            -- logInfo m!"assigning {mkMVar mv} with {res}"
-            discard <| isDefEq (mkMVar mv) res
-
-        logInfo m!"then {← instantiateMVars then_} else {← instantiateMVars else_}"
+          | some elseDooSeq => elabElems1 (getDooElems elseDooSeq) k
         let then_ ← Term.exprToSyntax then_
         let else_ ← Term.exprToSyntax else_
-        logInfo m!"then {then_} else {else_}"
-        Term.elabTermEnsuringType (← `(if $cond then $then_ else $else_)) mα
-          )
+        Term.elabTerm (← `(if $cond then $then_ else $else_)) none
     | `(dooElem| break) | `(dooElem| continue) =>
       throwErrorAt dooElem "`return`, `break`, or `continue` must be the last element of a do block"
     | _ => throwErrorAt dooElem "unexpected do element {dooElem}"
@@ -497,8 +493,8 @@ mutual
     let last := dooElems.back!
     let init := dooElems.pop
     let unit ← mkPUnit
-    init.foldr (init := elabElem last k) fun el k =>
-      elabElem el (.cont `_ (fun r => do discard <| Term.ensureHasType unit r; k))
+    let r ← mkFreshUserName `r
+    init.foldr (init := elabElem last k) fun el k => elabElem el <| .cont r unit fun _ => k
 
 end
 
@@ -507,7 +503,7 @@ meta def elabDooBlock (dooSeq : TSyntax `dooSeq) (expectedType? : Expr) : TermEl
   Term.tryPostponeIfNoneOrMVar expectedType?
   let ctx ← mkContext expectedType?
   let res ← elabElems1 (getDooElems dooSeq) (.last ctx.earlyReturnType) |>.run ctx |>.run' {}
-  logInfo m!"res: {res}"
+  -- logInfo m!"res: {res}"
   pure res
 
 elab_rules : term <= expectedType?
@@ -575,6 +571,218 @@ example : (Id.run doo let mut x ← pure 42; let y ← if true then {pure 3} els
         = (Id.run  do let mut x ← pure 42; let y ← if true then {pure 3} else {pure 4}; x := x + y; return x) := by rfl
 example : Nat := Id.run doo let mut foo : Nat = Nat := rfl; pure (foo ▸ 23)
 
+-- Additional comprehensive tests
+
+-- Test: Nested if-then-else with multiple mutable variables
+example : (Id.run doo
+  let mut x := 0
+  let mut y := 1
+  if true then
+    if false then
+      x := 10
+      y := 20
+    else
+      x := 5
+      y := 15
+  else
+    x := 100
+  return x + y)
+= (Id.run do
+  let mut x := 0
+  let mut y := 1
+  if true then
+    if false then
+      x := 10
+      y := 20
+    else
+      x := 5
+      y := 15
+  else
+    x := 100
+  return x + y) := by rfl
+
+-- Test: Multiple reassignments in sequence
+example : (Id.run doo
+  let mut x := 10
+  x := x + 1
+  x := x * 2
+  x := x - 3
+  return x)
+= (Id.run do
+  let mut x := 10
+  x := x + 1
+  x := x * 2
+  x := x - 3
+  return x) := by rfl
+
+-- Test: Monadic bind with complex RHS
+example : (Id.run doo
+  let x ← (do let y := 5; pure (y + 3))
+  return x * 2)
+= (Id.run do
+  let x ← (do let y := 5; pure (y + 3))
+  return x * 2) := by rfl
+#print Eq.casesOn
+
+-- Test: Mutable variable reassignment through monadic bind
+set_option trace.Meta.isDefEq true in
+example : (Id.run doo
+  let mut x := 1
+  x ← pure (x + 10)
+  x ← pure (x * 2)
+  return x)
+= (Id.run do
+  let mut x := 1
+  x ← pure (x + 10)
+  x ← pure (x * 2)
+  return x) := by rfl
+
+-- Test: Multiple mutable variables with different reassignment patterns
+example : (Id.run doo
+  let mut a := 1
+  let mut b := 2
+  let mut c := 3
+  if true then
+    a := a + 1
+  else
+    b := b + 1
+  c := a + b
+  return (a, b, c))
+= (Id.run do
+  let mut a := 1
+  let mut b := 2
+  let mut c := 3
+  if true then
+    a := a + 1
+  else
+    b := b + 1
+  c := a + b
+  return (a, b, c)) := by rfl
+
+-- Test: Let binding followed by mutable reassignment
+example : (Id.run doo
+  let x := 5
+  let mut y := x
+  y := y * 2
+  return (x, y))
+= (Id.run do
+  let x := 5
+  let mut y := x
+  y := y * 2
+  return (x, y)) := by rfl
+
+-- Test: Early return in else branch
+example : (Id.run doo
+  let mut x := 0
+  if false then
+    x := 10
+  else
+    return 42
+  x := 20
+  return x)
+= (Id.run do
+  let mut x := 0
+  if false then
+    x := 10
+  else
+    return 42
+  x := 20
+  return x) := by rfl
+
+-- Test: Both branches return
+example : (Id.run doo
+  let mut x := 0
+  if true then
+    return 1
+  else
+    return 2)
+= (Id.run do
+  let mut x := 0
+  if true then
+    return 1
+  else
+    return 2) := by rfl
+
+-- Test: Three-level nested if with mutable variables
+example : (Id.run doo
+  let mut x := 0
+  if true then
+    if true then
+      if false then
+        x := 1
+      else
+        x := 2
+    else
+      x := 3
+  else
+    x := 4
+  return x)
+= (Id.run do
+  let mut x := 0
+  if true then
+    if true then
+      if false then
+        x := 1
+      else
+        x := 2
+    else
+      x := 3
+  else
+    x := 4
+  return x) := by rfl
+
+-- Test: Mutable variable used in condition
+example : (Id.run doo
+  let mut x := 5
+  if x > 3 then
+    x := x * 2
+  else
+    x := x + 1
+  return x)
+= (Id.run do
+  let mut x := 5
+  if x > 3 then
+    x := x * 2
+  else
+    x := x + 1
+  return x) := by rfl
+
+-- Test: Multiple monadic binds in sequence
+example : (Id.run doo
+  let a ← pure 1
+  let b ← pure (a + 1)
+  let c ← pure (a + b)
+  return (a + b + c))
+= (Id.run do
+  let a ← pure 1
+  let b ← pure (a + 1)
+  let c ← pure (a + b)
+  return (a + b + c)) := by rfl
+
+-- Test: Mutable bind in if condition position
+example : (Id.run doo
+  let mut x := 0
+  let y ← if x == 0 then pure 1 else pure 2
+  x := y
+  return x)
+= (Id.run do
+  let mut x := 0
+  let y ← if x == 0 then pure 1 else pure 2
+  x := y
+  return x) := by rfl
+
+-- Test: Empty else branch behavior
+example : (Id.run doo
+  let mut x := 5
+  if false then
+    x := 10
+  return x)
+= (Id.run do
+  let mut x := 5
+  if false then
+    x := 10
+  return x) := by rfl
+
 /-
 Postponing Monad instance resolution appropriately
 -/
@@ -587,7 +795,7 @@ error: typeclass instance problem is stuck, it is often due to metavariables
 example := doo return 42
 /--
 error: typeclass instance problem is stuck, it is often due to metavariables
-  Bind ?m.16
+  Bind ?m.11
 -/
 #guard_msgs (error) in
 example := doo let x <- ?z; ?y
@@ -618,30 +826,109 @@ example := Id.run doo let mut x : Nat := 0; if true then {x := x + 1} else {pure
 example := (Id.run doo let mut x := 42; x := x - 7; let x := x + 4; return x + 13)
 
 /--
-error: Type mismatch
-  pure true
+error: Application type mismatch: The argument
+  true
 has type
-  Id Bool
+  Bool
 but is expected to have type
-  Id PUnit
+  PUnit
+in the application
+  pure true
 -/
 #guard_msgs (error) in
 example := (Id.run doo pure true; pure ())
 
 /--
-error: Type mismatch
-  pure true
+error: Application type mismatch: The argument
+  true
 has type
-  Id Bool
+  Bool
 but is expected to have type
-  Id PUnit
+  PUnit
+in the application
+  pure true
+---
+error: Application type mismatch: The argument
+  false
+has type
+  Bool
+but is expected to have type
+  PUnit
+in the application
+  pure false
 -/
 #guard_msgs (error) in
 example := (Id.run doo if true then {pure true} else {pure false}; pure ())
 
+/--
+error: Application type mismatch: The argument
+  false
+has type
+  Bool
+but is expected to have type
+  PUnit
+in the application
+  pure false
+-/
+#guard_msgs (error) in
+example := (Id.run doo if true then {pure ()} else {pure false}; pure ())
+
+-- Additional error tests
+
+/-- error: unknown local declaration `foo` -/
+#guard_msgs (error) in
+example := (Id.run doo foo := 42; pure ())
+
+/-- error: mutable variable `x` cannot be shadowed -/
+#guard_msgs (error) in
+example := (Id.run doo let mut x := 1; if true then {let mut x := 2; pure ()} else {pure ()}; pure x)
+
 -- Regression test cases of what's currently broken in the do elaborator:
 example : Unit := (Id.run do  let n ← if true then pure 3 else pure 42)
 example : Unit := (Id.run doo let n ← if true then pure 3 else pure 42)
+
+/--
+info: let x := 0;
+let y := 0;
+if true = true then pure 3
+else
+  let x := x + 5;
+  let y_1 := 3;
+  pure (x + y) : ?m Nat
+-/
+#guard_msgs (info) in
+#check doo
+  let mut x : Nat := 0
+  let y := 0
+  if true then
+    return 3
+  else
+    x := x + 5
+    let y := 3
+  return x + y
+
+/--
+info: let x := 0;
+let y := 0;
+let __do_jp := fun x r => pure (x + y);
+if true = true then
+  let x := x + 7;
+  let y := 3;
+  __do_jp x PUnit.unit
+else
+  let x := x + 5;
+  __do_jp x PUnit.unit : ?m Nat
+-/
+#guard_msgs (info) in
+#check doo
+  let mut x : Nat := 0
+  let y := 0
+  if true then
+    x := x + 7
+    let y := 3
+  else
+    x := x + 5
+  return x + y
 
 /-
 import Std.Data.Iterators

@@ -547,6 +547,14 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
               -- leads to more section variables being included than necessary
               instantiateMVarsProfiling val
         let val ← mkLambdaFVars xs val
+        if header.type?.isNone && (← getEnv).header.isModule && !(← getEnv).isExporting &&
+            !isPrivateName header.declName && header.kind != .example then
+          -- If the type of a non-exposed definition was elided, we need to check after the fact
+          -- whether it is in fact well-formed.
+          withRef header.declId do
+          withExporting do
+            let type ← instantiateMVars type
+            Meta.check type
         if linter.unusedSectionVars.get (← getOptions) && !header.type.hasSorry && !val.hasSorry then
           let unusedVars ← vars.filterMapM fun var => do
             let varDecl ← var.fvarId!.getDecl
@@ -1194,6 +1202,8 @@ where
       Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
     withExporting (isExporting :=
       -- `example`s are always private unless explicitly marked `public`
+      -- (it would be more consistent to give them a private name as well but that exposes that
+      -- encoded name in e.g. kernel errors where it's hard to replace it)
       views.any (fun view => view.kind != .example || view.modifiers.isPublic) &&
       expandedDeclIds.any (!isPrivateName ·.declName)) do
     let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises

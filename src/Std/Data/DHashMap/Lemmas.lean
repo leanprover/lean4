@@ -1965,9 +1965,10 @@ theorem getKey!_union_of_not_mem_right [Inhabited α]
 
 /- size -/
 theorem size_union_of_not_mem [EquivBEq α] [LawfulHashable α] :
-    (∀ (a : α), m₁.contains a → m₂.contains a = false) →
-    (m₁ ∪ m₂).size = m₁.size + m₂.size :=
-  @Raw₀.size_union_of_not_mem _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2
+    (∀ (a : α), a ∈ m₁ → ¬a ∈ m₂) →
+    (m₁ ∪ m₂).size = m₁.size + m₂.size := by
+  simp only [← contains_eq_false_iff_not_mem]
+  exact @Raw₀.size_union_of_not_mem _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2
 
 theorem size_left_le_size_union [EquivBEq α] [LawfulHashable α] : m₁.size ≤ (m₁ ∪ m₂).size :=
   @Raw₀.size_left_le_size_union α β _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2

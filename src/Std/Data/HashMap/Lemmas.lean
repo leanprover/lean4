@@ -1482,7 +1482,7 @@ theorem getKey!_union_of_not_mem_right [Inhabited α]
 
 /- size -/
 theorem size_union_of_not_mem [EquivBEq α] [LawfulHashable α] :
-    (∀ (a : α), m₁.contains a → m₂.contains a = false) →
+   (∀ (a : α), a ∈ m₁ → ¬a ∈ m₂) →
     (m₁ ∪ m₂).size = m₁.size + m₂.size :=
   @DHashMap.size_union_of_not_mem _ _ _ _ m₁.inner m₂.inner _ _
 

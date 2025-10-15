@@ -2149,8 +2149,15 @@ theorem getKey!_union_of_not_mem_right [Inhabited α]
 
 /- size -/
 theorem size_union_of_not_mem [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF)
-    (h₂ : m₂.WF) : (∀ (a : α), m₁.contains a → m₂.contains a = false) →
+    (h₂ : m₂.WF) : (∀ (a : α), a ∈ m₁ → ¬a ∈ m₂) →
     (m₁ ∪ m₂).size = m₁.size + m₂.size := by
+  intro hyp
+  conv at hyp =>
+    ext
+    lhs
+    rw [mem_iff_contains]
+  simp only [← contains_eq_false_iff_not_mem] at hyp
+  revert hyp
   simp only [Union.union]
   simp_to_raw using Raw₀.size_union_of_not_mem
 

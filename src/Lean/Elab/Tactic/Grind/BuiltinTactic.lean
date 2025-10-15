@@ -223,20 +223,47 @@ where
     | .cases _ | .intro | .inj | .ext | .symbol _ =>
       throwError "invalid modifier"
 
+def logAnchor (numDigits : Nat) (anchorPrefix : UInt64) (e : Expr) : TermElabM Unit := do
+  let stx ← getRef
+  if e.isFVar || e.isConst then
+    /-
+    **Note**: When `e` is a constant or free variable, the hover displays `e`
+    -/
+    Term.addTermInfo' stx e
+  else if (← isType e) then
+    /-
+    **Note**: If `e` is a type, we create a fake `sorry` to force `e` to be displayed
+    when we hover over the anchor.
+    We wrap the `sorry` with `id` to ensure the hover will not display `sorry : e`
+    -/
+    let e ← mkSorry e (synthetic := false)
+    let e ← mkId e
+    Term.addTermInfo' stx e
+  else
+    /-
+    **Note**: only the `e`s type is displayed when hovering over the anchor.
+    We add a silent info with the anchor declaration.
+    -/
+    Term.addTermInfo' stx e
+    logAt (severity := .information) (isSilent := true) stx
+       m!"#{anchorToString numDigits anchorPrefix} := {e}"
+
 @[builtin_grind_tactic cases] def evalCases : GrindTactic := fun stx => do
   match stx with
   | `(grind| cases #$anchor:hexnum) =>
     let (numDigits, val) ← elabAnchor anchor
     let goal ← getMainGoal
     let candidates := goal.split.candidates
-    let (goals, genNew) ← liftSearchM do
+    let (e, goals, genNew) ← liftSearchM do
       for c in candidates do
+        let e := c.getExpr
         let anchor ← getAnchor c.getExpr
         if isAnchorPrefix numDigits val anchor then
           let some result ← split? c
             | throwError "`cases` tactic failed, case-split is not ready{indentExpr c.getExpr}"
-          return result
+          return (e, result)
       throwError "`cases` tactic failed, invalid anchor"
+    goal.withContext <| withRef anchor <| logAnchor numDigits val e
     let goals ← goals.filterMapM fun goal => do
       let (goal, _) ← liftGrindM <| SearchM.run goal do
         intros genNew

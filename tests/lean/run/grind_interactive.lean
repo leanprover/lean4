@@ -414,6 +414,11 @@ example : (∀ x, q x) → (∀ x, p x → p (f x)) → p x → p (f (f x)) := b
     show_thms
     instantiate #bfb8
 
+example : (∀ x, q x) → (∀ x, p x → p (f x)) → p x → p (f (f x)) := by
+  grind =>
+    show_thms
+    instantiate #bfb8
+
 /-- error: no local theorems -/
 #guard_msgs in
 example : (∀ x, q x) → (∀ x, p x → p (f x)) → p x → p (f (f x)) := by

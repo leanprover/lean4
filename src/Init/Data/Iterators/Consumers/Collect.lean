@@ -29,14 +29,15 @@ namespace Std.Iterators
 
 @[always_inline, inline, inherit_doc IterM.toArray]
 def Iter.toArray {α : Type w} {β : Type w}
-    [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id] (it : Iter (α := α) β) : Array β :=
+    [Iterator α Id β] [IteratorCollect α Id Id] (it : Iter (α := α) β) : Array β :=
   it.toIterM.toArray.run
 
-@[always_inline, inline, inherit_doc IterM.Partial.toArray]
+@[always_inline, inline, inherit_doc IterM.Partial.toArray, deprecated Iter.toArray (since := "2025-10-15")]
 def Iter.Partial.toArray {α : Type w} {β : Type w}
-    [Iterator α Id β] [IteratorCollectPartial α Id Id] (it : Iter.Partial (α := α) β) : Array β :=
-  it.it.toIterM.allowNontermination.toArray.run
+    [Iterator α Id β] [IteratorCollect α Id Id] (it : Iter.Partial (α := α) β) : Array β :=
+  it.it.toIterM.toArray.run
 
+-- TODO:
 @[always_inline, inline, inherit_doc IterM.toListRev]
 def Iter.toListRev {α : Type w} {β : Type w}
     [Iterator α Id β] [Finite α Id] (it : Iter (α := α) β) : List β :=
@@ -49,12 +50,12 @@ def Iter.Partial.toListRev {α : Type w} {β : Type w}
 
 @[always_inline, inline, inherit_doc IterM.toList]
 def Iter.toList {α : Type w} {β : Type w}
-    [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id] (it : Iter (α := α) β) : List β :=
+    [Iterator α Id β] [IteratorCollect α Id Id] (it : Iter (α := α) β) : List β :=
   it.toIterM.toList.run
 
-@[always_inline, inline, inherit_doc IterM.Partial.toList]
+@[always_inline, inline, inherit_doc IterM.Partial.toList, deprecated Iter.toList (since := "2025-10-15")]
 def Iter.Partial.toList {α : Type w} {β : Type w}
-    [Iterator α Id β] [IteratorCollectPartial α Id Id] (it : Iter.Partial (α := α) β) : List β :=
-  it.it.toIterM.allowNontermination.toList.run
+    [Iterator α Id β] [IteratorCollect α Id Id] (it : Iter.Partial (α := α) β) : List β :=
+  it.it.toIterM.toList.run
 
 end Std.Iterators

@@ -187,9 +187,6 @@ instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (SplitIterator 
 instance [Monad n] : Std.Iterators.IteratorCollect (SplitIterator ρ s) Id n :=
   .defaultImplementation
 
-instance [Monad n] : Std.Iterators.IteratorCollectPartial (SplitIterator ρ s) Id n :=
-  .defaultImplementation
-
 instance [Monad n] : Std.Iterators.IteratorLoop (SplitIterator ρ s) Id n :=
   .defaultImplementation
 
@@ -287,10 +284,6 @@ instance [Std.Iterators.Finite (σ s) Id] :
 
 instance [Monad n] {s} :
     Std.Iterators.IteratorCollect (SplitInclusiveIterator ρ s) Id n :=
-  .defaultImplementation
-
-instance [Monad n] {s} :
-    Std.Iterators.IteratorCollectPartial (SplitInclusiveIterator ρ s) Id n :=
   .defaultImplementation
 
 instance [Monad n] {s} :
@@ -620,10 +613,6 @@ instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (RevSplitIterat
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (RevSplitIterator ρ s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] :
-    Std.Iterators.IteratorCollectPartial (RevSplitIterator ρ s) m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (RevSplitIterator ρ s) m n :=
   .defaultImplementation
 
@@ -902,9 +891,6 @@ instance [Pure m] : Std.Iterators.Finite (PosIterator s) m :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (PosIterator s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial (PosIterator s) m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (PosIterator s) m n :=
   .defaultImplementation
 
@@ -986,10 +972,6 @@ instance [Pure m] : Std.Iterators.Finite (RevPosIterator s) m :=
   .of_finitenessRelation finitenessRelation
 
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (RevPosIterator s) m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] :
-    Std.Iterators.IteratorCollectPartial (RevPosIterator s) m n :=
   .defaultImplementation
 
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (RevPosIterator s) m n :=
@@ -1075,9 +1057,6 @@ instance [Pure m] : Std.Iterators.Finite ByteIterator m :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect ByteIterator m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial ByteIterator m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop ByteIterator m n :=
   .defaultImplementation
 
@@ -1160,9 +1139,6 @@ instance [Pure m] : Std.Iterators.Finite RevByteIterator m :=
   .of_finitenessRelation finitenessRelation
 
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect RevByteIterator m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial RevByteIterator m n :=
   .defaultImplementation
 
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop RevByteIterator m n :=

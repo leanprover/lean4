@@ -4,5 +4,5 @@ inductive Vec (α : Type) : Nat → Type where
 
 -- set_option trace.Meta.Match.match true
 
-def test : Vec Unit 10000 → Nat
+def test : Vec Unit 100000000000 → Nat
   | Vec.cons () _ => 1

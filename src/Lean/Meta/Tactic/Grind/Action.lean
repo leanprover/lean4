@@ -186,17 +186,62 @@ private def mkGrindSeq (s : List (TSyntax `grind)) : TSyntax ``Parser.Tactic.Gri
   mkNullNode s.toArray
   ]]
 
-private def mkGrindNext (s : List (TSyntax `grind)) : CoreM (TSyntax `grind) := do
+/--
+Given `[t₁, ..., tₙ]`, returns
+```
+next =>
+  t₁
+  ...
+  tₙ
+```
+If the list is empty, it returns `next => done`.
+-/
+def mkGrindNext (s : List (TSyntax `grind)) : CoreM (TSyntax `grind) := do
   let s ← if s == [] then pure [← `(grind| done)] else pure s
   let s := mkGrindSeq s
   `(grind| next => $s:grindSeq)
+
+/--
+If tracing is enabled and continuation produced `.closed [t₁, ..., tₙ]`,
+returns the singleton sequence `[t]` where `t` is
+```
+next =>
+  t₁
+  ...
+  tₙ
+```
+-/
+def group : Action := fun goal _ kp => do
+  let r ← kp goal
+  if (← getConfig).trace then
+    match r with
+    | .closed seq => return .closed [← mkGrindNext seq]
+    | _ => return r
+  else
+    return r
+
+/--
+If tracing is enabled and continuation produced `.closed [(next => t₁; ...; tₙ)]`,
+returns `.close [t₁, ... tₙ]`
+-/
+def ungroup : Action := fun goal _ kp => do
+  let r ← kp goal
+  if (← getConfig).trace then
+    match r with
+    | .closed [tac] =>
+      match tac with
+      | `(grind| next => $seq;*) => return .closed seq.getElems.toList
+      | _ => return r
+    | _ => return r
+  else
+    return r
 
 /--
 Returns `some falseProof` if we can use non-chronological backtracking with `subgoal`.
 That is, `subgoal` was closed using `falseProof`, but its proof does not use any of the
 new hypotheses. A hypothesis is new if its `index >= oldNumIndices`.
 -/
-private def useNCB? (oldNumIndices : Nat) (subgoal : Goal) : MetaM (Option Expr) := do
+def useNCB? (oldNumIndices : Nat) (subgoal : Goal) : MetaM (Option Expr) := do
   let some falseProof ← getFalseProof? subgoal.mvarId
     | return none
   let some max ← subgoal.mvarId.withContext <| findMaxFVarIdx? falseProof
@@ -207,9 +252,14 @@ private def useNCB? (oldNumIndices : Nat) (subgoal : Goal) : MetaM (Option Expr)
     return none
 
 /--
-Helper functions for implementing tactics that perform case-splits
+Helper function for implementing tactics that perform case-splits
+**Note**: We will probably delete this function.
 -/
-def splitCore (goal : Goal) (anchor? : Option (Nat × UInt64)) (s : MVarId → GrindM (List MVarId)) (kp : ActionCont) : GrindM ActionResult := do
+def splitCore
+    (goal : Goal)
+    (anchor? : Option (Nat × UInt64))
+    (s : MVarId → GrindM (List MVarId))
+    (kp : ActionCont) : GrindM ActionResult := do
   let mvarDecl ← goal.mvarId.getDecl
   let numIndices := mvarDecl.lctx.numIndices
   let mvarId ← goal.mkAuxMVar

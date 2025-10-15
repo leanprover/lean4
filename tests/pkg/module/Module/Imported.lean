@@ -2,6 +2,7 @@ module
 
 prelude
 public import Module.Basic
+import Lean.DocString
 
 /-! Definitions should be exported without their bodies by default -/
 
@@ -160,3 +161,10 @@ def nonMeta := pubMeta
 #guard_msgs in
 theorem f_struct_eq : f_struct 0 = 0 := by
   simp
+
+/-! `[inherit_doc]` should work independently of visibility. -/
+
+/-- info: some "A private definition. " -/
+#guard_msgs in
+open Lean in
+#eval show CoreM _ from do findDocString? (← getEnv) ``pubInheritDoc

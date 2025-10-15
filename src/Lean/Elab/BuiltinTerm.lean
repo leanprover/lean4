@@ -13,6 +13,7 @@ public import Lean.Elab.SetOption
 public import Lean.Elab.Eval
 meta import Lean.Parser.Command
 import Lean.ExtraModUses
+import Lean.Compiler.NoncomputableAttr
 
 public section
 
@@ -384,10 +385,12 @@ private opaque evalFilePath (stx : Syntax) : TermElabM System.FilePath
       let name ← mkAuxDeclName `_private
       withoutExporting do
         let e ← elabTermAndSynthesize e expectedType?
-        -- Inline as changing visibility should not affect run time.
-        -- Eventually we would like to be more conscious about inlining of instance fields,
-        -- irrespective of `private` use.
-        mkAuxDefinitionFor name e <* setInlineAttribute name
+        let compile := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))
+        let e ← mkAuxDefinitionFor (compile := compile) name e
+        if compile then
+          -- Inline as changing visibility should not affect run time.
+          setInlineAttribute name
+        return e
     else
       elabTerm e expectedType?
   | _ => throwUnsupportedSyntax

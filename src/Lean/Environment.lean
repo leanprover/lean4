@@ -1875,6 +1875,9 @@ private def setImportedEntries (states : Array EnvExtensionState) (mods : Array 
 /-- "Forward declaration" for retrieving the number of builtin attributes. -/
 @[extern "lean_get_num_attributes"] opaque getNumBuiltinAttributes : IO Nat
 
+@[extern "lean_run_init_attrs"]
+private opaque runInitAttrs (env : Environment) (opts : Options) : IO Unit
+
 private def ensureExtensionsArraySize (env : Environment) : IO Environment := do
   let exts ← EnvExtension.ensureExtensionsArraySize env.base.private.extensions
   return env.modifyCheckedAsync ({ · with extensions := exts })
@@ -1894,6 +1897,11 @@ where
       let prevAttrSize ← getNumBuiltinAttributes
       let newState ← extDescr.addImportedFn s.importedEntries { env := env, opts := opts }
       let mut env := extDescr.toEnvExtension.setState (asyncMode := .sync) env { s with state := newState }
+      if extDescr.name == `Lean.regularInitAttr then
+        -- Run `[init]` attributes now. We do this after `setState` so `runInitAttrs` can access
+        -- `getModule(IR)Entries` but we should also do it before attempting to run user-defined
+        -- extensions further down in `pExtDescrs` so they can access initialized declarations.
+        runInitAttrs env opts
       env ← ensureExtensionsArraySize env
       if (← persistentEnvExtensionsRef.get).size > prevSize || (← getNumBuiltinAttributes) > prevAttrSize then
         -- This branch is executed when `pExtDescrs[i]` is the extension associated with the `init` attribute, and

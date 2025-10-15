@@ -940,6 +940,8 @@ private def applyAttributesCore
     return
   withDeclName declName do
     for attr in attrs do
+      -- Use same visibility as for other signature elements, independent of call site
+      withExporting (isExporting := attr.kind != .local && !isPrivateName declName) do
       withTraceNode `Elab.attribute (fun _ => pure m!"applying [{attr.stx}]") do
       withRef attr.stx do withLogging do
       let env ← getEnv

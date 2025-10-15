@@ -555,17 +555,10 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
       | _                         => unreachable!
     return { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
 
-private def altsAreCtorLike (p : Problem) : MetaM Bool := withGoalOf p do
-  pure (hasCtorPattern p) <&&>
-  p.alts.allM fun alt => do match alt.patterns with
-    | .ctor .. :: _ => return true
-    | .inaccessible e :: _ => isConstructorApp e
-    | _ => return false
-
 private def processNonVariable (p : Problem) : MetaM Problem := withGoalOf p do
   let x :: xs := p.vars | unreachable!
   if let some (ctorVal, xArgs) ← withTransparency .default <| constructorApp'? x then
-    if (← altsAreCtorLike p) then
+    if hasCtorPattern p then
       let alts ← p.alts.filterMapM fun alt => do
         match alt.patterns with
         | .ctor ctorName _ _ fields :: ps   =>
@@ -574,6 +567,7 @@ private def processNonVariable (p : Problem) : MetaM Problem := withGoalOf p do
           else
             return some { alt with patterns := fields ++ ps }
         | .inaccessible _ :: _ => processInaccessibleAsCtor alt ctorVal.name
+        | .var _ :: _          => expandVarIntoCtor? alt ctorVal.name
         | _ => unreachable!
       let xFields := xArgs.extract ctorVal.numParams xArgs.size
       return { p with alts := alts, vars := xFields.toList ++ xs }

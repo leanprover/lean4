@@ -10,7 +10,9 @@ public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Main
 public import Lean.Meta.Tactic.Grind.SearchM
+import Lean.CoreM
 import Lean.Meta.Tactic.Grind.Intro
+import Lean.Meta.Tactic.Grind.PP
 public section
 namespace Lean.Elab.Tactic.Grind
 open Meta
@@ -87,6 +89,19 @@ def mkTacticInfo (mctxBefore : MetavarContext) (goalsBefore : List MVarId) (stx 
 def mkInitialTacticInfo (stx : Syntax) : GrindTacticM (GrindTacticM Info) := do
   let mctxBefore  ← getMCtx
   let goalsBefore ← getUnsolvedGoalMVarIds
+  /-
+  **Note**: We only display the grind state if there is exactly one goal.
+  This is a hack because we currently use a silent info to display the grind state, and we cannot attach it after each goal.
+  We claim this is not a big deal since the user will probably use `next =>` to focus on subgoals.
+  -/
+  if let [goal]  ← getGoals then goal.withContext do
+    let config := (← read).params.config
+    let msg := MessageData.lazy fun ctx => do
+      let .ok msg ← EIO.toBaseIO <| ctx.runMetaM
+          <| Grind.goalDiagToMessageData goal config (header := "Grind state") (collapsedMain := false)
+        | return "Grind state could not be generated"
+      return msg
+    logAt (severity := .information) (isSilent := true) stx msg
   return mkTacticInfo mctxBefore goalsBefore stx
 
 @[inline] def withTacticInfoContext (stx : Syntax) (x : GrindTacticM α) : GrindTacticM α := do

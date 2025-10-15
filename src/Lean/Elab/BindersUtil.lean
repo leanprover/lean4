@@ -41,7 +41,7 @@ open Lean.Parser.Term
 /-- Helper function for `expandEqnsIntoMatch` -/
 def getMatchAltsNumPatterns (matchAlts : Syntax) : Nat :=
   let alt0 := matchAlts[0][0]
-  let pats := alt0[1][0].getSepArgs
+  let pats := alt0[1][0][0].getSepArgs
   pats.size
 
 /--
@@ -49,15 +49,15 @@ def getMatchAltsNumPatterns (matchAlts : Syntax) : Nat :=
 -/
 def expandMatchAlt (stx : TSyntax ``matchAlt) : MacroM (Array (TSyntax ``matchAlt)) :=
   match stx with
-  | `(matchAltExpr| | $[$patss,*]|* => $rhs) =>
+  | `(matchAltExpr| | $[$patss:matchAltPats]|* => $rhs) => do
      if patss.size ≤ 1 then
        return #[stx]
      else
-       patss.mapM fun pats => `(matchAltExpr| | $pats,* => $rhs)
+       patss.mapM fun pats => `(matchAltExpr| | $pats => $rhs)
   | _ => return #[stx]
 
 def shouldExpandMatchAlt : TSyntax ``matchAlt → Bool
-  | `(matchAltExpr| | $[$patss,*]|* => $_) => patss.size > 1
+  | `(matchAltExpr| | $[$patss:matchAltPats]|* => $_) => patss.size > 1
   | _ => false
 
 def expandMatchAlts? (stx : Syntax) : MacroM (Option Syntax) := do

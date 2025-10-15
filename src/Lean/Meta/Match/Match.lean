@@ -412,7 +412,8 @@ alternative `cnstrs` field.
 private def inLocalDecls (localDecls : List LocalDecl) (fvarId : FVarId) : Bool :=
   localDecls.any fun d => d.fvarId == fvarId
 
-private def expandVarIntoCtor? (alt : Alt) (fvarId : FVarId) (ctorName : Name) : MetaM (Option Alt) :=
+private def expandVarIntoCtor? (alt : Alt) (ctorName : Name) : MetaM Alt := do
+  let .var fvarId :: ps := alt.patterns | unreachable!
   withExistingLocalDecls alt.fvarDecls do
     trace[Meta.Match.unify] "expandVarIntoCtor? fvarId: {mkFVar fvarId}, ctorName: {ctorName}, alt:\n{← alt.toMessageData}"
     let expectedType ← inferType (mkFVar fvarId)
@@ -430,7 +431,19 @@ private def expandVarIntoCtor? (alt : Alt) (fvarId : FVarId) (ctorName : Name) :
          cnstrs := (resultType, expectedType) :: cnstrs
       trace[Meta.Match.unify] "expandVarIntoCtor? {mkFVar fvarId} : {expectedType}, ctor: {ctor}"
       let ctorFieldPatterns := ctorFieldDecls.toList.map fun decl => Pattern.var decl.fvarId
-      return some { alt with fvarDecls := newAltDecls, patterns := ctorFieldPatterns ++ alt.patterns, cnstrs }
+      return { alt with fvarDecls := newAltDecls, patterns := ctorFieldPatterns ++ ps, cnstrs }
+
+private def expandInaccessibleIntoVar (alt : Alt) : MetaM Alt := do
+  let .inaccessible e :: ps := alt.patterns | unreachable!
+  withExistingLocalDecls alt.fvarDecls do
+    let type ← inferType e
+    withLocalDeclD `x type fun x => do
+      trace[Meta.Match.unify] "expandInaccessibleIntoVar {x} : {type} := {e}"
+      return { alt with
+        fvarDecls := (← x.fvarId!.getDecl) :: alt.fvarDecls
+        patterns := .var x.fvarId! :: ps
+        cnstrs := (x, e) :: alt.cnstrs
+      }
 
 private def getInductiveVal? (x : Expr) : MetaM (Option InductiveVal) := do
   let xType ← inferType x
@@ -453,24 +466,25 @@ private def hasRecursiveType (x : Expr) : MetaM Bool := do
    If it is not a constructor, throw an error.
    Otherwise, if it is a constructor application of `ctorName`,
    update the next patterns with the fields of the constructor.
-   Otherwise, return none. -/
-def processInaccessibleAsCtor (alt : Alt) (ctorName : Name) : MetaM (Option Alt) := do
-  match alt.patterns with
-  | p@(.inaccessible e) :: ps =>
-    trace[Meta.Match.match] "inaccessible in ctor step {e}"
-    withExistingLocalDecls alt.fvarDecls do
-      -- Try to push inaccessible annotations.
-      let e ← whnfD e
-      match (← constructorApp? e) with
-      | some (ctorVal, ctorArgs) =>
-        if ctorVal.name == ctorName then
-          let fields := ctorArgs.extract ctorVal.numParams ctorArgs.size
-          let fields := fields.toList.map .inaccessible
-          return some { alt with patterns := fields ++ ps }
-        else
-          return none
-      | _ => throwErrorAt alt.ref "Dependent match elimination failed: Expected a constructor, but found the inaccessible pattern{indentD p.toMessageData}"
-  | _ => unreachable!
+   Otherwise, move it to contraints, so that we fail unless some later step
+   eliminates this alternative.
+-/
+def processInaccessibleAsCtor (alt : Alt) (ctorName : Name) : MetaM Alt := do
+  let p@(.inaccessible e) :: ps := alt.patterns | unreachable!
+  trace[Meta.Match.match] "inaccessible in ctor step {e}"
+  withExistingLocalDecls alt.fvarDecls do
+    -- Try to push inaccessible annotations.
+    let e ← whnfD e
+    match (← constructorApp? e) with
+    | some (ctorVal, ctorArgs) =>
+      if ctorVal.name == ctorName then
+        let fields := ctorArgs.extract ctorVal.numParams ctorArgs.size
+        let fields := fields.toList.map .inaccessible
+        return { alt with patterns := fields ++ ps }
+      else
+        let alt' ← expandInaccessibleIntoVar alt
+        expandVarIntoCtor? alt' ctorName
+    | _ => throwErrorAt alt.ref "Dependent match elimination failed: Expected a constructor, but found the inaccessible pattern{indentD p.toMessageData}"
 
 private def hasNonTrivialExample (p : Problem) : Bool :=
   p.examples.any fun | Example.underscore => false | _ => true
@@ -531,10 +545,10 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
       | .inaccessible _ :: _  => true
       | _                     => false
     let newAlts  := newAlts.map fun alt => alt.applyFVarSubst subst
-    let newAlts ← newAlts.filterMapM fun alt => do
+    let newAlts ← newAlts.mapM fun alt => do
       match alt.patterns with
-      | .ctor _ _ _ fields :: ps  => return some { alt with patterns := fields ++ ps }
-      | .var fvarId :: ps         => expandVarIntoCtor? { alt with patterns := ps } fvarId subgoal.ctorName
+      | .ctor _ _ _ fields :: ps  => return { alt with patterns := fields ++ ps }
+      | .var _ :: _               => expandVarIntoCtor? alt subgoal.ctorName
       | .inaccessible _ :: _      => processInaccessibleAsCtor alt subgoal.ctorName
       | _                         => unreachable!
     return { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }

@@ -153,7 +153,7 @@ end EqcFilter
 def ppEqc (eqc : List Expr) (children : Array MessageData := #[]) : MessageData :=
   .trace { cls := `eqc } (.group ("{" ++ (MessageData.joinSep (eqc.map toMessageData) ("," ++ Format.line)) ++  "}")) children
 
-private def ppEqcs : M Unit := do
+private def ppEqcs (collapsedProps := true) : M Unit := do
    let mut trueEqc?  : Option MessageData := none
    let mut falseEqc? : Option MessageData := none
    let mut regularEqcs : Array MessageData := #[]
@@ -163,11 +163,11 @@ private def ppEqcs : M Unit := do
      if Option.isSome <| eqc.find? (·.isTrue) then
        let eqc := eqc.filter fun e => !e.isTrue
        unless eqc.isEmpty do
-         trueEqc? := ppExprArray `eqc  "True propositions" eqc.toArray `prop
+         trueEqc? := ppExprArray `eqc  "True propositions" eqc.toArray `prop (collapsed := collapsedProps)
      else if Option.isSome <| eqc.find? (·.isFalse) then
        let eqc := eqc.filter fun e => !e.isFalse
        unless eqc.isEmpty do
-         falseEqc? := ppExprArray `eqc "False propositions" eqc.toArray `prop
+         falseEqc? := ppExprArray `eqc "False propositions" eqc.toArray `prop (collapsed := collapsedProps)
      else if let e :: _ :: _ := eqc then
        -- We may want to add a flag to pretty print equivalence classes of nested proofs
        unless (← isProof e) do
@@ -270,18 +270,15 @@ private def ppCasesTrace : M Unit := do
       ]
     pushMsg <| .trace { cls := `cases } "Case analyses" msgs
 
-def goalToMessageData (goal : Goal) (config : Grind.Config) : MetaM MessageData := goal.mvarId.withContext do
-  if config.verbose then
-    let (_, m) ← go goal |>.run #[]
-    let gm := MessageData.trace { cls := `grind, collapsed := false } "Goal diagnostics" m
-    let r := m!"{.ofGoal goal.mvarId}\n{gm}"
-    addMessageContextFull r
-  else
-    return .ofGoal goal.mvarId
+def goalDiagToMessageData (goal : Goal) (config : Grind.Config) (header := "Goal diagnostics") (collapsedMain := true)
+     : MetaM MessageData := do
+  let (_, m) ← go goal |>.run #[]
+  let gm := MessageData.trace { cls := `grind, collapsed := false } header m
+  return gm
 where
   go : M Unit := do
-    pushMsg <| ppExprArray `facts "Asserted facts" goal.facts.toArray `prop
-    ppEqcs
+    pushMsg <| ppExprArray `facts "Asserted facts" goal.facts.toArray `prop (collapsed := collapsedMain)
+    ppEqcs (collapsedProps := collapsedMain)
     ppCasesTrace
     ppActiveTheoremPatterns
     ppOffset
@@ -290,5 +287,13 @@ where
     ppCommRing
     ppAC
     ppThresholds config
+
+def goalToMessageData (goal : Goal) (config : Grind.Config) : MetaM MessageData := goal.withContext do
+  if config.verbose then
+    let gm ← goalDiagToMessageData goal config
+    let r := m!"{.ofGoal goal.mvarId}\n{gm}"
+    addMessageContextFull r
+  else
+    return .ofGoal goal.mvarId
 
 end Lean.Meta.Grind

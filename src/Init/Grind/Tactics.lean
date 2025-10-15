@@ -156,6 +156,13 @@ structure Config where
   deriving Inhabited, BEq
 
 /--
+Configuration for interactive mode.
+We disable `clean := false`.
+-/
+structure ConfigInteractive extends Config where
+  clean := false
+
+/--
 A minimal configuration, with ematching and splitting disabled, and all solver modules turned off.
 `grind` will not do anything in this configuration,
 which can be used a starting point for minimal configurations.

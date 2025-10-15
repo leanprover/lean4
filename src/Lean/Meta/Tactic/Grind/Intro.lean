@@ -17,6 +17,7 @@ import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
+import Lean.Meta.Tactic.Grind.RevertAll
 public section
 namespace Lean.Meta.Grind
 
@@ -86,18 +87,16 @@ private def mkCleanName (name : Name) (type : Expr) : GoalM Name := do
       modify fun s => { s with clean.next := s.clean.next.insert base i }
     modify fun s => { s with clean.used := s.clean.used.insert name }
     return name
+  else if let some originalName := getOriginalName? name then
+    return originalName
   else if name.hasMacroScopes then
     let name' := name.eraseMacroScopes
     if name' == `x || name' == `a then
       if (← isProp type) then
         return (← mkFreshUserName `h)
     return name
-  else if (← get).clean.used.contains name then
-    let name ← mkFreshUserName name
-    return name
   else
-    modify fun s => { s with clean.used := s.clean.used.insert name }
-    return name
+    mkFreshUserName name
 
 private def intro1 : GoalM FVarId := do
   let target ← (← get).mvarId.getType

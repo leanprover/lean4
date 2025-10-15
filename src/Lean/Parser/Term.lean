@@ -259,13 +259,10 @@ def «forall» := leading_parser:leadPrec
   many1 (ppSpace >> (binderIdent <|> bracketedBinder)) >>
   optType >> ", " >> termParser
 
-def matchAltPats : Parser := leading_parser
-  sepBy1 termParser ", "
-
 def matchAlt (rhsParser : Parser := termParser) : Parser :=
   leading_parser (withAnonymousAntiquot := false)
     "| " >> ppIndent (
-      sepBy1 matchAltPats " | " >> darrow >>
+      sepBy1 (sepBy1 termParser ", ") " | " >> darrow >>
       checkColGe "alternative right-hand-side to start in a column greater than or equal to the corresponding '|'" >>
       rhsParser)
 /--

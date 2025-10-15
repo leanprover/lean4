@@ -25,7 +25,7 @@ inductive RequestID where
   | str (s : String)
   | num (n : JsonNumber)
   | null
-  deriving Inhabited, BEq, Ord
+  deriving Inhabited, BEq, Hashable, Ord
 
 instance : OfNat RequestID n := ⟨RequestID.num n⟩
 
@@ -306,6 +306,12 @@ inductive MessageMetaData where
   | response (id : RequestID)
   | responseError (id : RequestID) (code : ErrorCode) (message : String) (data? : Option Json)
   deriving Inhabited
+
+def Message.metaData : Message → MessageMetaData
+  | .request id method .. => .request id method
+  | .notification method .. => .notification method
+  | .response id .. => .response id
+  | .responseError id code message data? => .responseError id code message data?
 
 def MessageMetaData.toMessage : MessageMetaData → Message
   | .request id method => .request id method none

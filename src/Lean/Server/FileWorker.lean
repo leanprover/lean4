@@ -1040,8 +1040,6 @@ where
     return false
 
 def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO Unit := do
-  let i ← maybeTee "fwIn.txt" false i
-  let o ← maybeTee "fwOut.txt" true o
   let initParams ← i.readLspRequestAs "initialize" InitializeParams
   let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" LeanDidOpenTextDocumentParams
   let doc := param.textDocument

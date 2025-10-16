@@ -178,6 +178,7 @@ instance (m n) [MonadLift m n] [MonadQuotation n] [MonadMacroAdapter m] : MonadM
 
 def liftMacroM [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLiftT IO m] (x : MacroM α) : m α := do
   let env  ← getEnv
+  let opts ← getOptions
   let currNamespace ← getCurrNamespace
   let openDecls ← getOpenDecls
   let methods := Macro.mkMethods {
@@ -189,7 +190,7 @@ def liftMacroM [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [M
     hasDecl          := fun declName => return env.contains declName
     getCurrNamespace := return currNamespace
     resolveNamespace := fun n => return ResolveName.resolveNamespace env currNamespace openDecls n
-    resolveGlobalName := fun n => return ResolveName.resolveGlobalName env currNamespace openDecls n
+    resolveGlobalName := fun n => return ResolveName.resolveGlobalName env opts currNamespace openDecls n
   }
   match x { methods        := methods
             ref            := ← getRef

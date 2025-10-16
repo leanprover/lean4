@@ -1267,7 +1267,9 @@ private partial def findMethod? (structName fieldName : Name) : MetaM (Option (N
   let find? structName' : MetaM (Option (Name × Name)) := do
     let fullName := privateToUserName structName' ++ fieldName
     -- We do not want to make use of the current namespace for resolution.
-    let candidates := ResolveName.resolveGlobalName (← getEnv) Name.anonymous (← getOpenDecls) fullName
+    let candidates :=
+      (← withTheReader Core.Context ({ · with currNamespace := .anonymous }) do
+        resolveGlobalName fullName)
       |>.filter (fun (_, fieldList) => fieldList.isEmpty)
       |>.map Prod.fst
     match candidates with
@@ -1737,7 +1739,7 @@ where
         -- Recall that the namespace for private declarations is non-private.
         let fullName := privateToUserName declName ++ id
         -- Resolve the name without making use of the current namespace, like in `findMethod?`.
-        let candidates := ResolveName.resolveGlobalName env Name.anonymous (← getOpenDecls) fullName
+        let candidates := ResolveName.resolveGlobalName env (← getOptions) Name.anonymous (← getOpenDecls) fullName
           |>.filter (fun (_, fieldList) => fieldList.isEmpty)
           |>.map Prod.fst
         if !candidates.isEmpty then

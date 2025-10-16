@@ -1971,7 +1971,7 @@ where
     let env ← getEnv
     -- check for scope errors before trying auto implicits
     if env.isExporting then
-      if let [(npriv, _)] ← withEnv (env.setExporting false) <| resolveGlobalName n then
+      if let [(npriv, _)] ← withEnv (env.setExporting false) <| resolveGlobalName (enableLog := false) n then
         throwUnknownIdentifierAt (declHint := npriv) stx m!"Unknown identifier `{.ofConstName n}`"
     if (← read).autoBoundImplicit &&
           !(← read).autoBoundImplicitForbidden n &&

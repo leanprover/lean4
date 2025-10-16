@@ -33,7 +33,7 @@ instance : MonadResolveName (M (m := m)) where
   getCurrNamespace   := return (← get).currNamespace
   getOpenDecls       := return (← get).openDecls
 
-def resolveId [MonadResolveName m] (ns : Name) (idStx : Syntax) : m Name := do
+def resolveId [MonadOptions m] [MonadResolveName m] (ns : Name) (idStx : Syntax) : m Name := do
   let declName := ns ++ idStx.getId
   if (← getEnv).contains declName then
     return declName
@@ -48,7 +48,7 @@ Uniquely resolves the identifier `idStx` in the provided namespaces `nss`.
 
 If the identifier does not indicate a name in exactly one of the namespaces, an exception is thrown.
 -/
-def resolveNameUsingNamespacesCore [MonadResolveName m]
+def resolveNameUsingNamespacesCore [MonadOptions m] [MonadResolveName m]
     (nss : List Name) (idStx : Syntax) : m Name := do
   let mut exs := #[]
   let mut result := #[]
@@ -69,7 +69,7 @@ def resolveNameUsingNamespacesCore [MonadResolveName m]
   else
     withRef idStx do throwError "ambiguous identifier `{idStx.getId}`, possible interpretations: {result.map mkConst}"
 
-def elabOpenDecl [MonadResolveName m] [MonadInfoTree m] (stx : TSyntax ``Parser.Command.openDecl) : m (List OpenDecl) := do
+def elabOpenDecl [MonadOptions m] [MonadResolveName m] [MonadInfoTree m] (stx : TSyntax ``Parser.Command.openDecl) : m (List OpenDecl) := do
   StateRefT'.run' (s := { openDecls := (← getOpenDecls), currNamespace := (← getCurrNamespace) }) do
     match stx with
     | `(Parser.Command.openDecl| $nss*) =>
@@ -108,7 +108,7 @@ def elabOpenDecl [MonadResolveName m] [MonadInfoTree m] (stx : TSyntax ``Parser.
     | _ => throwUnsupportedSyntax
     return (← get).openDecls
 
-def resolveNameUsingNamespaces [MonadResolveName m] (nss : List Name) (idStx : Ident) : m Name := do
+def resolveNameUsingNamespaces [MonadOptions m] [MonadResolveName m] (nss : List Name) (idStx : Ident) : m Name := do
   StateRefT'.run' (s := { openDecls := (← getOpenDecls), currNamespace := (← getCurrNamespace) }) do
     resolveNameUsingNamespacesCore (m := M) nss idStx
 

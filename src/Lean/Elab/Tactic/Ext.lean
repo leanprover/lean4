@@ -178,8 +178,7 @@ def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
 ### Attribute
 -/
 
-abbrev extExtension := Meta.Ext.extExtension
-abbrev getExtTheorems := Meta.Ext.getExtTheorems
+open Ext
 
 builtin_initialize registerBuiltinAttribute {
   name := `ext
@@ -220,7 +219,8 @@ builtin_initialize registerBuiltinAttribute {
 -/
 
 /-- Apply a single extensionality theorem to `goal`. -/
-def applyExtTheoremAt (goal : MVarId) : MetaM (List MVarId) := goal.withContext do
+-- Tis is public for now as it is used internally in `aesop`.
+public def applyExtTheoremAt (goal : MVarId) : MetaM (List MVarId) := goal.withContext do
   let tgt ← goal.getType'
   unless tgt.isAppOfArity ``Eq 3 do
     throwError "This extensionality tactic only applies to equalities, not{indentExpr tgt}"

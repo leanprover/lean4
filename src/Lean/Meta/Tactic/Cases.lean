@@ -14,6 +14,7 @@ public import Lean.Meta.Tactic.Subst
 public import Lean.Meta.Tactic.Acyclic
 public import Lean.Meta.Tactic.UnifyEq
 import Lean.Meta.Constructions.SparseCasesOn
+import Lean.Meta.Constructions.CtorIdx
 
 public section
 
@@ -263,19 +264,23 @@ private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenName
   let majorType ← inferType (mkFVar majorFVarId)
   let (us, params) ← getInductiveUniverseAndParams majorType
   let numIndices := ctx.majorTypeIndices.size
+
+  -- We can only create a sparse casesOn if we have `ctorIdx` (in particular, if it is a type)
+  let hasCtorIdx := (← getEnv).contains (mkCtorIdxName ctx.inductiveVal.name)
   if let some interestingCtors := interestingCtors? then
-    let casesOn ← Lean.Meta.mkSparseCasesOn ctx.inductiveVal.name interestingCtors
-    let s ← mvarId.induction majorFVarId casesOn givenNames
-    return toCasesSubgoals s interestingCtors majorFVarId us params numIndices
-  else
-    let casesOn :=
-      if useNatCasesAuxOn && ctx.inductiveVal.name == ``Nat && (← getEnv).contains ``Nat.casesAuxOn then
-        ``Nat.casesAuxOn
-      else
-        mkCasesOnName ctx.inductiveVal.name
-    let ctors   := ctx.inductiveVal.ctors.toArray
-    let s ← mvarId.induction majorFVarId casesOn givenNames
-    return toCasesSubgoals s ctors majorFVarId us params numIndices
+    if hasCtorIdx && !interestingCtors.isEmpty then
+      let casesOn ← Lean.Meta.mkSparseCasesOn ctx.inductiveVal.name interestingCtors
+      let s ← mvarId.induction majorFVarId casesOn givenNames
+      return toCasesSubgoals s interestingCtors majorFVarId us params numIndices
+
+  let casesOn :=
+    if useNatCasesAuxOn && ctx.inductiveVal.name == ``Nat && (← getEnv).contains ``Nat.casesAuxOn then
+      ``Nat.casesAuxOn
+    else
+      mkCasesOnName ctx.inductiveVal.name
+  let ctors   := ctx.inductiveVal.ctors.toArray
+  let s ← mvarId.induction majorFVarId casesOn givenNames
+  return toCasesSubgoals s ctors majorFVarId us params numIndices
 
 def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[])
     (useNatCasesAuxOn : Bool := false) (interestingCtors? : Option (Array Name) := none) : MetaM (Array CasesSubgoal) := do

@@ -20,6 +20,9 @@ namespace Lean.Meta
 private structure SparseCasesOnKey where
   indName : Name
   ctors   : Array Name
+  -- When this is created in a private context and thus may contain private references, we must
+  -- not reuse it in an exported context.
+  isPrivate : Bool
 deriving BEq, Hashable
 
 private builtin_initialize sparseCasesOnExt : EnvExtension (PHashMap SparseCasesOnKey Name) ←
@@ -42,7 +45,7 @@ internally by branching on the constructor index.
 -/
 public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name := do
   let env ← getEnv
-  let key := { indName, ctors }
+  let key := { indName, ctors , isPrivate := env.header.isModule && !env.isExporting}
   if let some name := (sparseCasesOnExt.getState env).find? key then
     return name
 
@@ -56,7 +59,9 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name :=
   let casesOnName := mkCasesOnName indName
   let casesOnInfo ← getConstInfo casesOnName
   let ctorIdxName := mkCtorIdxName indName
-  -- TODO: may not eliminiate into sort
+
+  unless casesOnInfo.levelParams.length = indInfo.levelParams.length + 1 do
+    throwError "mkSparseCasesOn: unexpected number of universe parameters in `{.ofConstName casesOnName}`"
   let l::lps := casesOnInfo.levelParams |
     throwError "mkSparseCasesOn: unexpected number of universe parameters in `{.ofConstName casesOnName}`"
   let u := mkLevelParam l

@@ -487,13 +487,20 @@ private def throwCasesException (p : Problem) (ex : Exception) : MetaM α := do
               "- <constructor> = <constructor>, examples: List.cons x xs = List.cons y ys, and List.cons x xs = List.nil"
   | _ => throw ex
 
+private def collectCtors (p : Problem) : Array Name :=
+  p.alts.foldl (init := #[]) fun ctors alt =>
+    match alt.patterns with
+    | .ctor n _ _ _ :: _ => if ctors.contains n then ctors else ctors.push n
+    | _                  => ctors
+
 private def processConstructor (p : Problem) : MetaM (Array Problem) := do
   trace[Meta.Match.match] "constructor step"
   let x :: xs := p.vars | unreachable!
+  let interestingCtors := collectCtors p
   let subgoals? ← commitWhenSome? do
      let subgoals ←
        try
-         p.mvarId.cases x.fvarId!
+         p.mvarId.cases x.fvarId! (interestingCtors := interestingCtors)
        catch ex =>
          if p.alts.isEmpty then
            /- If we have no alternatives and dependent pattern matching fails, then a "missing cases" error is better than a "stuck" error message. -/

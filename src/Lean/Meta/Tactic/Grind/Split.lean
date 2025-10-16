@@ -275,13 +275,58 @@ where
       if b.hasLooseBVars then return none
       go b
 
+/-- Returns `true` if the given list can be compressed using `<;>` at `splitCore` -/
+private def isCompressibleSeq (seq : List (TSyntax `grind)) : Bool :=
+  seq.all fun tac => match tac with
+    | `(grind| next $_* => $_:grindSeq) => false
+    | _ => true
+
+/--
+Given `[t₁, ..., tₙ]`, returns `t₁ <;> ... <;> tₙ`
+-/
+private def mkAndThenSeq (seq : List (TSyntax `grind)) : CoreM (TSyntax `grind) := do
+  match seq with
+  | [] => `(grind| done)
+  | [tac] => return tac
+  | tac :: seq =>
+    let seq ← mkAndThenSeq seq
+    `(grind| $tac:grind <;> $seq:grind)
+
+private def mkCasesAndThen (cases : TSyntax `grind) (seq : List (TSyntax `grind)) : CoreM (TSyntax `grind) := do
+  match seq with
+  | [] => return cases
+  | seq =>
+    let seq ← mkAndThenSeq seq
+    `(grind| $cases:grind <;> $seq:grind)
+
+private def isCompressibleAlts (alts : Array (List (TSyntax `grind))) : Bool :=
+  if _ : alts.size > 0 then
+    let alt := alts[0]
+    isCompressibleSeq alt && alts.all (· == alt)
+  else
+    true
+
+private def mkCasesResultSeq (cases : TSyntax `grind) (alts : Array (List (TSyntax `grind)))
+    (compress : Bool) : CoreM (List (TSyntax `grind)) := do
+  if compress && isCompressibleAlts alts then
+    if h : alts.size > 0 then
+      return [(← mkCasesAndThen cases alts[0]!)]
+    else
+      return [cases]
+  else
+    let seq ← if h : alts.size = 1 then
+      pure alts[0]
+    else
+      alts.toList.mapM fun s => mkGrindNext s
+    return cases :: seq
+
 /--
 Performs a case-split using `c`.
 Remark: `numCases` and `isRec` are computed using `checkSplitStatus`.
 -/
-private def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool) (stopAtFirstFailure : Bool) : Action := fun goal _ kp => do
-  let mvarDecl ← goal.mvarId.getDecl
-  let numIndices := mvarDecl.lctx.numIndices
+private def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
+    (stopAtFirstFailure : Bool)
+    (compress : Bool) : Action := fun goal _ kp => do
   let mvarId ← goal.mkAuxMVar
   let cExpr := c.getExpr
   let (mvarIds, goal) ← GoalM.run goal do
@@ -325,19 +370,13 @@ private def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool) (stopAtFir
     goal.mvarId.assign (← instantiateMVars (mkMVar mvarId))
   if stuckNew.isEmpty then
     if traceEnabled then
-      let seqListNew ← if h : seqNew.size = 1 then
-        pure seqNew[0]
-      else
-        seqNew.toList.mapM fun s => mkGrindNext s
-      let mut seqListNew := seqListNew
       let anchor ← goal.withContext <| getAnchor cExpr
       -- **TODO**: compute the exact number of digits
       let numDigits := 4
       let anchorPrefix := anchor >>> (64 - 16)
       let hexnum := mkNode `hexnum #[mkAtom (anchorToString numDigits anchorPrefix)]
       let cases ← `(grind| cases #$hexnum)
-      seqListNew := cases :: seqListNew
-      return .closed seqListNew
+      return .closed (← mkCasesResultSeq cases seqNew compress)
     else
       return .closed []
   else
@@ -348,15 +387,25 @@ Selects a case-split from the list of candidates, performs the split and applies
 continuation to all subgoals.
 If a subgoal is solved without using new hypotheses, closes the original goal using this proof. That is,
 it performs non-chronological backtracking.
+
 If `stopsAtFirstFailure = true`, it stops the search as soon as the given continuation cannot solve a subgoal.
+
+If `compress = true`, then it uses `<;>` to generate the resulting tactic sequence if all subgoal sequences are
+identical. For example, suppose that the following sequence is generated with `compress = false`
+```
+cases #50fc
+next => lia
+next => lia
+```
+Then with `compress = true` it generates `cases #50fc <;> lia`
 -/
-def splitNext (stopAtFirstFailure := true) : Action := fun goal kna kp => do
+def splitNext (stopAtFirstFailure := true) (compress := true) : Action := fun goal kna kp => do
   let (r, goal) ← GoalM.run goal selectNextSplit?
   let .some c numCases isRec _ := r
     | kna goal
   let cExpr := c.getExpr
   let gen := goal.getGeneration cExpr
-  let x : Action := splitCore c numCases isRec stopAtFirstFailure >> intros gen
+  let x : Action := splitCore c numCases isRec stopAtFirstFailure compress >> intros gen
   x goal kna kp
 
 end Action

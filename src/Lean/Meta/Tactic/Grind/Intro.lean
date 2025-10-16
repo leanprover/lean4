@@ -127,7 +127,7 @@ private partial def introNext (goal : Goal) (generation : Nat) : GrindM IntroRes
         let lctx := (← getLCtx).mkLocalDecl fvarId (← mkCleanName target.bindingName! r.expr) r.expr target.bindingInfo!
         let mut localInsts ← getLocalInstances
         if let some className ← isClass? r.expr then
-          localInsts := localInsts.push { className, fvar }
+          localInsts ← localInsts.addInstance className fvar fvar.fvarId!
         match r.proof? with
         | some he =>
           if target.isArrow then

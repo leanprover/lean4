@@ -451,7 +451,7 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) (i : Nat
       let s := { s with lctx }
       match ← isClass? type, kind with
       | some className, .default =>
-        let localInsts := s.localInsts.push { className, fvar := mkFVar fvarId }
+        let localInsts ← s.localInsts.addInstance className (.fvar fvarId) fvarId
         elabFunBinderViews binderViews (i+1) { s with localInsts }
       | _, _ => elabFunBinderViews binderViews (i+1) s
   else

@@ -8,7 +8,7 @@ module
 prelude
 public import Lean.Data.LOption
 public import Lean.Environment
-public import Lean.Class
+public import Lean.ClassAbbrev
 public import Lean.ReducibilityAttrs
 public import Lean.Util.ReplaceExpr
 public import Lean.Util.MonadBacktrack
@@ -1342,24 +1342,38 @@ private partial def isClassQuick? : Expr → MetaM (LOption Name)
       | _ => return .undef
     | _            => return .none
 
-private def withNewLocalInstanceImp (className : Name) (fvar : Expr) (k : MetaM α) : MetaM α := do
-  let localDecl ← getFVarLocalDecl fvar
-  if localDecl.isImplementationDetail then
-    k
-  else
-    withReader (fun ctx => { ctx with localInstances := ctx.localInstances.push { className := className, fvar := fvar } }) k
-
-/-- Add entry `{ className := className, fvar := fvar }` to localInstances,
-    and then execute continuation `k`. -/
-def withNewLocalInstance (className : Name) (fvar : Expr) : n α → n α :=
-  mapMetaM <| withNewLocalInstanceImp className fvar
-
 private def fvarsSizeLtMaxFVars (fvars : Array Expr) (maxFVars? : Option Nat) : Bool :=
   match maxFVars? with
   | some maxFVars => fvars.size < maxFVars
   | none          => true
 
 mutual
+
+  partial def _root_.Lean.LocalInstances.addInstance (className : Name) (val : Expr)
+      (fvarId : FVarId) (localInsts : LocalInstances) : MetaM LocalInstances := do
+    let localInsts := localInsts.push { className, fvarId, val }
+    if let some projFuns := getClassAbbrevProjs? (← getEnv) className then
+      forallTelescopeReducingAux (← inferType val) none (cleanupAnnotations := false) (whnfType := true) fun xs type => do
+        let type ← whnf type
+        let .const _ us := type.getAppFn | panic! s!"'{type}' is not a constant application"
+        let params := type.getAppArgs
+        projFuns.foldlM (init := localInsts) fun localInsts projFun => do
+          let val := mkAppN val xs
+          let projType := (← getConstInfo projFun).type
+          let some projClass ← isClassImp? projType | panic! s!"projection '{projFun}' doesn't projection into a class"
+          let projVal ← mkLambdaFVars xs (.app (mkAppN (.const projFun us) params) val)
+          localInsts.addInstance projClass projVal fvarId
+    else
+      return localInsts
+
+  private partial def withNewLocalInstanceImp (className : Name) (fvar : Expr) (k : MetaM α) : MetaM α := do
+    let localDecl ← getFVarLocalDecl fvar
+    if localDecl.isImplementationDetail then
+      k
+    else
+    let localInstances ← (← read).localInstances.addInstance className fvar fvar.fvarId!
+    withReader (fun ctx => { ctx with localInstances }) k
+
   /--
     `withNewLocalInstances isClassExpensive fvars j k` updates the vector or local instances
     using free variables `fvars[j] ... fvars.back`, and execute `k`.
@@ -1376,8 +1390,8 @@ mutual
       | .undef  =>
         match (← isClassExpensive? decl.type) with
         | none   => withNewLocalInstancesImp fvars (i+1) k
-        | some c => withNewLocalInstance c fvar <| withNewLocalInstancesImp fvars (i+1) k
-      | .some c => withNewLocalInstance c fvar <| withNewLocalInstancesImp fvars (i+1) k
+        | some c => withNewLocalInstanceImp c fvar <| withNewLocalInstancesImp fvars (i+1) k
+      | .some c => withNewLocalInstanceImp c fvar <| withNewLocalInstancesImp fvars (i+1) k
     else
       k
 
@@ -1503,6 +1517,12 @@ end
 -/
 def isClass? (type : Expr) : MetaM (Option Name) :=
   try isClassImp? type catch _ => return none
+
+/-- Add entry `{ className := className, fvar := fvar }` to localInstances,
+    and then execute continuation `k`. -/
+partial def withNewLocalInstance (className : Name) (fvar : Expr) : n α → n α :=
+  mapMetaM <| withNewLocalInstanceImp className fvar
+
 
 private def withNewLocalInstancesImpAux (fvars : Array Expr) (j : Nat) : n α → n α :=
   mapMetaM <| withNewLocalInstancesImp fvars j
@@ -1878,8 +1898,8 @@ def withLocalInstancesImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := 
     unless decl.isImplementationDetail do
       if let some className ← isClass? decl.type then
         -- Ensure we don't add the same local instance multiple times.
-        unless localInsts.any fun localInst => localInst.fvar.fvarId! == decl.fvarId do
-          localInsts := localInsts.push { className, fvar := decl.toExpr }
+        unless localInsts.any fun localInst => localInst.fvarId == decl.fvarId do
+          localInsts ← localInsts.addInstance className decl.toExpr decl.fvarId
   if localInsts.size == size then
     k
   else
@@ -1962,7 +1982,7 @@ def withErasedFVars [MonadLCtx n] [MonadLiftT MetaM n] (fvarIds : Array FVarId) 
   let lctx ← getLCtx
   let localInsts ← getLocalInstances
   let lctx' := fvarIds.foldl (·.erase ·) lctx
-  let localInsts' := localInsts.filter (!fvarIds.contains ·.fvar.fvarId!)
+  let localInsts' := localInsts.filter (!fvarIds.contains ·.fvarId)
   withLCtx lctx' localInsts' k
 
 /--

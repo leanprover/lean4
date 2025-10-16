@@ -232,14 +232,14 @@ def getInstances (type : Expr) : MetaM (Array Instance) := do
         | _ => panic! "global instance is not a constant"
       for linst in localInstances do
         if linst.className == className then
-          let synthOrder ← forallTelescopeReducing (← inferType linst.fvar) fun xs _ => do
+          let synthOrder ← forallTelescopeReducing (← inferType linst.val) fun xs _ => do
             if xs.isEmpty then return #[]
             let mut order := #[]
             for i in *...xs.size, x in xs do
               if (← getFVarLocalDecl x).binderInfo == .instImplicit then
                 order := order.push i
             return order
-          result := result.push { val := linst.fvar, synthOrder }
+          result := result.push { val := linst.val, synthOrder }
       trace[Meta.synthInstance.instances] result.map (·.val)
       return result
 

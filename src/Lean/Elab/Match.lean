@@ -783,7 +783,7 @@ private def withToClear (toClear : Array FVarId) (type : Expr) (k : TermElabM α
       if !(← dependsOn type fvarId) then
         if !(← lctx.anyM fun localDecl => pure (localDecl.fvarId != fvarId) <&&> localDeclDependsOn localDecl fvarId) then
           lctx := lctx.erase fvarId
-          localInsts := localInsts.filter fun localInst => localInst.fvar.fvarId! != fvarId
+          localInsts := localInsts.filter fun localInst => localInst.fvarId != fvarId
     withLCtx lctx localInsts k
 
 /--

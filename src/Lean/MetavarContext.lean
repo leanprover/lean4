@@ -253,20 +253,21 @@ this information, since typeclasses are entirely eliminated during elaboration.
 -/
 structure LocalInstance where
   className : Name
-  fvar      : Expr
+  val       : Expr
+  fvarId    : FVarId
   deriving Inhabited
 
 abbrev LocalInstances := Array LocalInstance
 
 instance : BEq LocalInstance where
-  beq i₁ i₂ := i₁.fvar == i₂.fvar
+  beq i₁ i₂ := i₁.val == i₂.val
 
 instance : Hashable LocalInstance where
-  hash i := hash i.fvar
+  hash i := hash i.val
 
-/-- Remove local instance with the given `fvarId`. Do nothing if `localInsts` does not contain any free variable with id `fvarId`. -/
+/-- Remove local instances coming from the given `fvarId`. Do nothing if `localInsts` does not contain any free variable with id `fvarId`. -/
 def LocalInstances.erase (localInsts : LocalInstances) (fvarId : FVarId) : LocalInstances :=
-  localInsts.eraseP (fun inst => inst.fvar.fvarId! == fvarId)
+  if localInsts.any (·.fvarId == fvarId) then localInsts.filter (·.fvarId != fvarId) else localInsts
 
 /-- A kind for the metavariable that determines its unification behaviour.
 For more information see the large comment at the beginning of this file. -/
@@ -1186,7 +1187,7 @@ mutual
       -- whose local contexts depend on `toRevert` (i.e. "may dependencies")
       let toRevert ← collectForwardDeps mvarLCtx toRevert
       let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert
-      let newLocalInsts := mvarDecl.localInstances.filter fun inst => toRevert.all fun x => inst.fvar != x
+      let newLocalInsts := mvarDecl.localInstances.filter fun inst => toRevert.all fun x => inst.fvarId != x.fvarId!
       -- Remark: we must reset the cache before processing `mkAuxMVarType` because `toRevert` may not be equal to `xs`
       let newMVarType ← withFreshCache do mkAuxMVarType mvarLCtx toRevert newMVarKind mvarDecl.type usedLetOnly
       let newMVarId    := { name := (← get).ngen.curr }

@@ -21,41 +21,39 @@ Concretely, the following operations are provided:
 * `Iter.toListRev`, collecting the values in a list in reverse order but more efficiently
 * `Iter.toArray`, collecting the values in an array
 
-Some operations are implemented using the `IteratorCollect` and `IteratorCollectPartial`
-typeclasses.
+Some operations are implemented using the `IteratorCollect` type class.
 -/
 
 namespace Std.Iterators
 
-@[always_inline, inline, inherit_doc IterM.toArray]
+@[always_inline, inherit_doc IterM.toArray]
 def Iter.toArray {α : Type w} {β : Type w}
     [Iterator α Id β] [IteratorCollect α Id Id] (it : Iter (α := α) β) : Array β :=
   it.toIterM.toArray.run
 
-@[always_inline, inline, inherit_doc IterM.Partial.toArray, deprecated Iter.toArray (since := "2025-10-15")]
+@[always_inline, inherit_doc IterM.Partial.toArray, deprecated Iter.toArray (since := "2025-10-15")]
 def Iter.Partial.toArray {α : Type w} {β : Type w}
     [Iterator α Id β] [IteratorCollect α Id Id] (it : Iter.Partial (α := α) β) : Array β :=
-  it.it.toIterM.toArray.run
+  it.it.toArray
 
--- TODO:
-@[always_inline, inline, inherit_doc IterM.toListRev]
+@[always_inline, inherit_doc IterM.toListRev]
 def Iter.toListRev {α : Type w} {β : Type w}
-    [Iterator α Id β] [Finite α Id] (it : Iter (α := α) β) : List β :=
+    [Iterator α Id β] (it : Iter (α := α) β) : List β :=
   it.toIterM.toListRev.run
 
-@[always_inline, inline, inherit_doc IterM.Partial.toListRev]
+@[always_inline, inherit_doc IterM.Partial.toListRev, deprecated Iter.toListRev (since := "2025-10-16")]
 def Iter.Partial.toListRev {α : Type w} {β : Type w}
     [Iterator α Id β] (it : Iter.Partial (α := α) β) : List β :=
-  it.it.toIterM.allowNontermination.toListRev.run
+  it.it.toListRev
 
-@[always_inline, inline, inherit_doc IterM.toList]
+@[always_inline, inherit_doc IterM.toList]
 def Iter.toList {α : Type w} {β : Type w}
     [Iterator α Id β] [IteratorCollect α Id Id] (it : Iter (α := α) β) : List β :=
   it.toIterM.toList.run
 
-@[always_inline, inline, inherit_doc IterM.Partial.toList, deprecated Iter.toList (since := "2025-10-15")]
+@[always_inline, inherit_doc IterM.Partial.toList, deprecated Iter.toList (since := "2025-10-15")]
 def Iter.Partial.toList {α : Type w} {β : Type w}
     [Iterator α Id β] [IteratorCollect α Id Id] (it : Iter.Partial (α := α) β) : List β :=
-  it.it.toIterM.toList.run
+  it.it.toList
 
 end Std.Iterators

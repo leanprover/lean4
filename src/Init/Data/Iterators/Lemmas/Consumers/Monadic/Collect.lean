@@ -121,15 +121,42 @@ theorem IterM.toList_eq_match_step [Monad m] [LawfulMonad m] [Iterator α m β] 
   intro step
   split <;> simp
 
+theorem IterM.toListRev.go_eq [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
+    {it : IterM (α := α) m β} {bs : List β} :
+    go it bs = (do
+      match (← it.step).inflate.val with
+      | .yield it' out => go it' (out :: bs)
+      | .skip it' => go it' bs
+      | .done => return bs) := by
+  rw [go, extrinsicFix₂_eq]
+  · apply bind_congr; intro step
+    cases step.inflate using PlausibleIterStep.casesOn <;> simp [go]
+  · refine ⟨?r, ?F, ?wf, ?_⟩
+    · exact InvImage WellFoundedRelation.rel (fun x => x.1.finitelyManySteps)
+    · exact fun it acc G => (do
+        match (← it.step).inflate with
+        | .yield it' out h => G it' (out :: acc) (TerminationMeasures.Finite.rel_of_yield h)
+        | .skip it' h => G it' acc (TerminationMeasures.Finite.rel_of_skip h)
+        | .done _ => return acc)
+    · apply InvImage.wf
+      exact WellFoundedRelation.wf
+    · intro it acc G
+      simp only
+      apply bind_congr; intro step
+      cases step.inflate using PlausibleIterStep.casesOn <;> simp
+
 theorem IterM.toListRev.go.aux₁ [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
     {it : IterM (α := α) m β} {b : β} {bs : List β} :
     IterM.toListRev.go it (bs ++ [b]) = (· ++ [b]) <$> IterM.toListRev.go it bs:= by
-  induction it, bs using IterM.toListRev.go.induct with | _ it bs ih₁ ih₂
-  rw [go, go, map_eq_pure_bind, bind_assoc]
+  induction it using IterM.inductSteps generalizing bs with | step it ihy ihs
+  rw [go_eq, go_eq, map_eq_pure_bind, bind_assoc]
   apply bind_congr
   intro step
-  simp only [List.cons_append] at ih₁
-  split <;> simp [*]
+  cases step.inflate using PlausibleIterStep.casesOn
+  · simpa using ihy ‹_› (bs := _ :: bs)
+  · simpa using ihs ‹_›
+  · simp
+
 
 theorem IterM.toListRev.go.aux₂ [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
     {it : IterM (α := α) m β} {acc : List β} :
@@ -148,7 +175,7 @@ theorem IterM.toListRev_eq_match_step [Monad m] [LawfulMonad m] [Iterator α m �
       | .skip it' => it'.toListRev
       | .done => return []) := by
   simp [IterM.toListRev]
-  rw [toListRev.go]
+  rw [toListRev.go_eq]
   apply bind_congr
   intro step
   cases step.inflate using PlausibleIterStep.casesOn <;> simp [IterM.toListRev.go.aux₂]

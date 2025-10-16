@@ -324,7 +324,7 @@ where
     match alts with
     | [] =>
       /- TODO: allow users to configure which tactic is used to close leaves. -/
-      unless (← p.mvarId.contradictionCore {}) do
+      unless (← p.mvarId.contradictionCore {splitCtorIdx := true}) do
         trace[Meta.Match.match] "missing alternative"
         p.mvarId.admit
         modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
@@ -552,7 +552,9 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
       -- A catch-all case
       -- The fields are the indices, the major argument and the `t.ctorIdx ≠ 23` assumptions
       let subst    := subgoal.subst
+      let newVars  := xs.map fun x => x.applyFVarSubst subst
       let subex    := Example.underscore -- todo: improve
+      let major    := subst.get x.fvarId!
       let examples := p.examples.map <| Example.replaceFVarId x.fvarId! subex
       let examples := examples.map <| Example.applyFVarSubst subst
       let newAlts  := p.alts.filter fun alt => match alt.patterns with
@@ -563,10 +565,10 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
       let newAlts  := newAlts.map fun alt => alt.applyFVarSubst subst
       let newAlts ← newAlts.filterMapM fun alt => do
         match alt.patterns with
-        | .var _ :: ps            => return some { alt with patterns := ps }
+        | .var fvarId :: ps       => return { alt with patterns := ps }.replaceFVarId fvarId major
         | .inaccessible _ :: _    => throwError "TODO2"
         | _                       => unreachable!
-      return { mvarId := subgoal.mvarId, vars := xs, alts := newAlts, examples := examples }
+      return { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
 
 private def altsAreCtorLike (p : Problem) : MetaM Bool := withGoalOf p do
   p.alts.allM fun alt => do match alt.patterns with
@@ -796,7 +798,12 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
     process p
   else if isInductive && isConstructorTransition p then
     let ps ← processConstructor p
-    ps.forM process
+    let _ ← ps.mapIdxM fun i p =>
+      if ps.size > 1 then
+        withTraceNode `Meta.Match.match (msg := (return m!"{exceptEmoji ·} subgoal {i+1}/{ps.size}")) do
+          process p
+      else
+        process p
   else if isVariableTransition p then
     traceStep ("variable")
     let p ← processVariable p

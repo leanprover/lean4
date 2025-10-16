@@ -404,20 +404,12 @@ mutual
   meta def elabElem (dooElem : TSyntax `dooElem) (k : DoElemCont) : DoElabM Expr := withRef dooElem do
     match dooElem with
     | `(dooElem| return $e) =>
-      -- NB: The `earlyReturnType` can be different than `resultType` when `return` is not the last
-      -- element of the block
       let e ← Term.elabTermEnsuringType e (← read).earlyReturnType
       mkPureApp dooElem (← read).earlyReturnType e
       -- NB: discard continuation `k?`, unconditionally
     | `(dooElem| $e:term) =>
       let mα ← mkMonadicType k.resultType
-      -- We cannot use `Term.elabTermEnsuringType` directly here, because it seems to force
-      -- synthesis of `Pure` and `Bind` instances when `#check`-ing a `do` block without expected
-      -- type. So instead we elaborate and then only do `ensureHasType` if `?m` is not ultimately an
-      -- MVar.
-      let e ← Term.elabTerm e mα
-      logInfo m!"e: {e}, mα: {mα}, isMVarApp: {← Term.isMVarApp mα}"
-      let e ← Term.ensureHasType mα e
+      let e ← Term.elabTermEnsuringType e mα
       k.mkThenUnlessLast dooElem e
     | `(dooElem| let $[mut%$mutTk?]? $x:ident $[: $xType?]? ← $rhs) =>
       checkMutVarsForShadowing dooElem x.getId
@@ -453,6 +445,7 @@ mutual
         let then_ ← Term.exprToSyntax then_
         let else_ ← Term.exprToSyntax else_
         Term.elabTerm (← `(if $cond then $then_ else $else_)) none
+    | `(dooElem| doo $dooSeq) => elabElems1 (getDooElems dooSeq) k
     | `(dooElem| break) | `(dooElem| continue) =>
       throwErrorAt dooElem "`return`, `break`, or `continue` must be the last element of a do block"
     | _ => throwErrorAt dooElem "unexpected do element {dooElem}"
@@ -494,6 +487,7 @@ set_option trace.Elab.step false in
 set_option trace.Elab.do true in
 set_option trace.Elab.postpone true in
 set_option pp.raw false in
+#check doo return 42
 #check doo pure (); return 42
 #check doo let mut x : Nat := 0; if true then {x := x + 1} else {pure ()}; pure x
 #check doo let mut x : Nat := 0; if true then {pure ()} else {pure ()}; pure 13
@@ -537,9 +531,9 @@ example : (Id.run doo let mut x ← pure 42; let mut z := 0; z ← if true then 
         = (Id.run  do let mut x ← pure 42; let mut z := 0; z ← if true then {x := x + 1; return z} else {x := x + 2; pure 4}; x := x + z; return x) := by rfl
 example : (Id.run doo let mut x ← pure 42; let y ← if true then {pure 3} else {pure 4}; x := x + y; return x)
         = (Id.run  do let mut x ← pure 42; let y ← if true then {pure 3} else {pure 4}; x := x + y; return x) := by rfl
+example : (Id.run doo let mut x ← pure 42; let y ← if true then {pure 3} else {pure 4}; x := x + y; return x)
+        = (Id.run  do let mut x ← pure 42; let y ← if true then {pure 3} else {pure 4}; x := x + y; return x) := by rfl
 example : Nat := Id.run doo let mut foo : Nat = Nat := rfl; pure (foo ▸ 23)
-
--- Additional comprehensive tests
 
 -- Test: Nested if-then-else with multiple mutable variables
 example : (Id.run doo
@@ -751,7 +745,27 @@ example : (Id.run doo
     x := 10
   return x) := by rfl
 
-/-
+-- Test: Nested doo with if and early return
+example : (Id.run doo
+  let mut x := 10
+  let y ← doo
+    if true then
+      x := x + 3
+      pure 42
+    else
+      return 13
+  return x + y)
+= (Id.run do
+  let mut x := 10
+  let y ← do
+    if true then
+      x := x + 3
+      pure 42
+    else
+      return 13
+  return x + y) := by rfl
+
+/-!
 Postponing Monad instance resolution appropriately
 -/
 
@@ -854,6 +868,8 @@ example := (Id.run doo let mut x := 1; if true then {let mut x := 2; pure ()} el
 -- Regression test cases of what's currently broken in the do elaborator:
 example : Unit := (Id.run do  let n ← if true then pure 3 else pure 42)
 example : Unit := (Id.run doo let n ← if true then pure 3 else pure 42)
+example := (Id.run do  let mut x := 0; x ← return 10)
+example := (Id.run doo let mut x := 0; x ← return 10)
 
 /--
 info: let x := 0;

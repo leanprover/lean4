@@ -49,13 +49,12 @@ void handle_signal_event(uv_signal_t* handle, int signum) {
     lean_assert(signal->m_state == SIGNAL_STATE_RUNNING);
 
     if (signal->m_repeating) {
-        if (signal->m_promise != NULL && !signal_promise_is_finished(signal)) {
+        if (!signal_promise_is_finished(signal)) {
             lean_object* res = lean_io_promise_resolve(lean_box(signum), signal->m_promise, lean_io_mk_world());
             lean_dec(res);
         }
     } else {
         if (signal->m_promise != NULL) {
-            lean_assert(!signal_promise_is_finished(signal));
             lean_object* res = lean_io_promise_resolve(lean_box(signum), signal->m_promise, lean_io_mk_world());
             lean_dec(res);
         }
@@ -155,7 +154,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj, obj_arg /
                 }
             case SIGNAL_STATE_RUNNING:
                 {
-                    if (signal->m_promise == NULL || signal_promise_is_finished(signal)) {
+                    if (signal_promise_is_finished(signal)) {
                          if (signal->m_promise != NULL) {
                             lean_dec(signal->m_promise);
                         }

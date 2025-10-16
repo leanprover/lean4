@@ -315,7 +315,8 @@ private def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool) (stopAtFir
       if let some falseProof ← getFalseProof? subgoal.mvarId then
         goal.mvarId.assignFalseProof falseProof
         return .closed seq
-      else
+      else if !seq.isEmpty then
+        /- **Note**: if the sequence is empty, it means the user will never see this goal. -/
         seqNew := seqNew.push seq
   if (← goal.mvarId.getType).isFalse then
     /- **Note**: We add the marker to assist `getFalseExpr?` -/

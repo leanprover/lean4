@@ -1249,7 +1249,7 @@ If type of `mvarId` is not `False`, then use `False.elim`.
 def _root_.Lean.MVarId.assignFalseProof (mvarId : MVarId) (falseProof : Expr) : MetaM Unit := mvarId.withContext do
   let target ← mvarId.getType
   if target.isFalse then
-    mvarId.assign falseProof
+    mvarId.assign (mkExpectedPropHint falseProof (mkConst ``False))
   else
     mvarId.assign (← mkFalseElim target falseProof)
 

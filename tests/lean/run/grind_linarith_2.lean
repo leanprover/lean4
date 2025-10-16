@@ -8,17 +8,18 @@ example [IntModule α] [LE α] [LT α] [IsPreorder α] [OrderedAdd α] (a b : α
 
 /--
 trace: [grind.debug.proof] Classical.byContradiction fun h =>
-      let ctx := RArray.leaf One.one;
-      let p_1 := Poly.nil;
-      let e_1 := Expr.zero;
-      let e_2 := Expr.intMul 0 (Expr.var 0);
-      let rctx := RArray.branch 1 (RArray.leaf a) (RArray.leaf b);
-      let rp_1 := CommRing.Poly.num 0;
-      let re_1 := (CommRing.Expr.var 0).add (CommRing.Expr.var 1);
-      let re_2 := (CommRing.Expr.var 1).add (CommRing.Expr.var 0);
-      diseq_unsat ctx
-        (diseq_norm ctx e_2 e_1 p_1 (eagerReduce (Eq.refl true))
-          (CommRing.diseq_norm rctx re_1 re_2 rp_1 (eagerReduce (Eq.refl true)) h))
+      id
+        (let ctx := RArray.leaf One.one;
+        let p_1 := Poly.nil;
+        let e_1 := Expr.zero;
+        let e_2 := Expr.intMul 0 (Expr.var 0);
+        let rctx := RArray.branch 1 (RArray.leaf a) (RArray.leaf b);
+        let rp_1 := CommRing.Poly.num 0;
+        let re_1 := (CommRing.Expr.var 0).add (CommRing.Expr.var 1);
+        let re_2 := (CommRing.Expr.var 1).add (CommRing.Expr.var 0);
+        diseq_unsat ctx
+          (diseq_norm ctx e_2 e_1 p_1 (eagerReduce (Eq.refl true))
+            (CommRing.diseq_norm rctx re_1 re_2 rp_1 (eagerReduce (Eq.refl true)) h)))
 -/
 #guard_msgs in
 open Linarith in

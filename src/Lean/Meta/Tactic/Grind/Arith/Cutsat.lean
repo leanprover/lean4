@@ -20,6 +20,7 @@ public import Lean.Meta.Tactic.Grind.Arith.Cutsat.MBTC
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.VarRename
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Action
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 builtin_initialize registerTraceClass `grind.cutsat

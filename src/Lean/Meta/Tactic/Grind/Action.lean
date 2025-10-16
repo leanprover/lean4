@@ -209,6 +209,21 @@ def ungroup : Action := fun goal _ kp => do
   else
     return r
 
+/--
+Appends a new tactic syntax to a successful result.
+Used by leaf actions to record the tactic that produced progress.
+If `(← getConfig).trace` is `false`, it just returns `r`.
+-/
+def concatTactic (r : ActionResult) (mk : GrindM (TSyntax `grind)) : GrindM ActionResult := do
+  if (← getConfig).trace then
+    match r with
+    | .closed seq =>
+      let tac ← mk
+      return .closed (tac :: seq)
+    | r => return r
+  else
+    return r
+
 section
 /-!
 Some sanity check properties.

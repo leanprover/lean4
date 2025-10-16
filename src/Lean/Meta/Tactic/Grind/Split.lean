@@ -246,47 +246,34 @@ private def casesWithTrace (mvarId : MVarId) (major : Expr) : GoalM (List MVarId
 
 namespace Action
 
-private def isTargetFalse (mvarId : MVarId) : MetaM Bool := do
-  return (← mvarId.getType).isFalse
-
+/--
+Given a `mvarId` associated with a subgoal created by `splitCore`, inspects the
+proof term assigned to `mvarId` and tries to extract the proof of `False` that does not
+depend on hypotheses introduced in the subgoal.
+For example: suppose the subgoal is of the form `p → q → False` where `p` and `q` are new
+hypotheses introduced during case analysis. If the proof is of the form `fun _ _ => h`, returns
+`some h`.
+-/
 private def getFalseProof? (mvarId : MVarId) : MetaM (Option Expr) := mvarId.withContext do
   let proof ← instantiateMVars (mkMVar mvarId)
-  if (← isTargetFalse mvarId) then
-    return some proof
-  else if proof.isAppOfArity ``False.elim 2 || proof.isAppOfArity ``False.casesOn 2 then
-    return some proof.appArg!
-  else
-    return none
-
-/--
-Returns the maximum free variable id occurring in `e`
--/
-private def findMaxFVarIdx? (e : Expr) : MetaM (Option Nat) := do
-  let go (e : Expr) : StateT (Option Nat) MetaM Bool := do
-    unless e.hasFVar do return false
-    let .fvar fvarId := e | return true
-    let localDecl ← fvarId.getDecl
-    modify fun
-      | none => some localDecl.index
-      | some index => some (max index localDecl.index)
-    return false
-  let (_, s?) ← e.forEach' go |>.run none
-  return s?
-
-/--
-Returns `some falseProof` if we can use non-chronological backtracking with `subgoal`.
-That is, `subgoal` was closed using `falseProof`, but its proof does not use any of the
-new hypotheses. A hypothesis is new if its `index >= oldNumIndices`.
--/
-private def useNCB? (oldNumIndices : Nat) (subgoal : Goal) : MetaM (Option Expr) := do
-  let some falseProof ← getFalseProof? subgoal.mvarId
-    | return none
-  let some max ← subgoal.withContext <| findMaxFVarIdx? falseProof
-    | return some falseProof -- Proof actually closes any pending split
-  if max < oldNumIndices then
-    return some falseProof
-  else
-    return none
+  go proof
+where
+  go (proof : Expr) : MetaM (Option Expr) := do
+    match_expr proof with
+    | False.elim _ p => return some p
+    | False.casesOn _ p => return some p
+    | id α p => if α.isFalse then return some p else return none
+    | _ =>
+      /-
+      **Note**: `intros` tactics may hide the `False` proof behind a `casesOn`
+      For example: suppose the subgoal has a type of the form `p₁ → q₁ ∧ q₂ → p₂ → False`
+      The proof will be of the form `fun _ h => h.casesOn (fun _ _ => hf)` where `hf` is the proof
+      of `False` we are looking for.
+      Non-chronological backtracking currently fails in this kind of example.
+      -/
+      let .lam _ _ b _ := proof | return none
+      if b.hasLooseBVars then return none
+      go b
 
 /--
 Performs a case-split using `c`.
@@ -325,12 +312,16 @@ private def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool) (stopAtFir
       else
         stuckNew := stuckNew ++ gs
     | .closed seq =>
-      if let some falseProof ← useNCB? numIndices subgoal then
+      if let some falseProof ← getFalseProof? subgoal.mvarId then
         goal.mvarId.assignFalseProof falseProof
         return .closed seq
       else
         seqNew := seqNew.push seq
-  goal.mvarId.assign (← instantiateMVars (mkMVar mvarId))
+  if (← goal.mvarId.getType).isFalse then
+    /- **Note**: We add the marker to assist `getFalseExpr?` -/
+    goal.mvarId.assign (mkExpectedPropHint (← instantiateMVars (mkMVar mvarId)) (mkConst ``False))
+  else
+    goal.mvarId.assign (← instantiateMVars (mkMVar mvarId))
   if stuckNew.isEmpty then
     if traceEnabled then
       let seqListNew ← if h : seqNew.size = 1 then

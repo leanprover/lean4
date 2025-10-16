@@ -10,10 +10,15 @@ prelude
 public import Lean.Meta.Basic
 import Lean.AddDecl
 import Lean.Meta.Constructions.CtorIdx
+import Lean.Meta.AppBuilder
 
 /-!  See `mkSparseCasesOn` below.  -/
 
 namespace Lean.Meta
+
+def mkNatNe (n m : Nat) : Expr :=
+  mkApp3 (mkConst ``Nat.ne_of_beq_eq_false)
+    (mkNatLit n) (mkNatLit m) (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Bool) (mkConst ``Bool.false))
 
 /--
 This module creates sparse variants of `casesOn` that have arms only for some of the constructors,
@@ -77,19 +82,20 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) (declName : Nam
           return  minors'[idx]!
         else
           let ctorInfo ← getConstInfoCtor ctor
+          let idx := ctorInfo.cidx
           forallTelescope (← inferType (minors[ctorInfo.cidx]!)) fun fields _ => do
             let ctorApp := mkAppN (mkConst ctor us) (params ++ fields)
             let ctorAppType ← whnfD (← inferType ctorApp)
             let idxs := ctorAppType.getAppArgs[indInfo.numParams:]
             let e := mkAppN elseMinor (idxs ++ #[ctorApp])
-            let neTys ← inferArgumentTypesN ctors.size e
-            let neProofs ← neTys.mapM fun neTy =>
-              mkSorry neTy true
-            let e := mkAppN e neProofs
+            let e := mkAppN e <| ← ctors.mapM fun ctor => do
+              let ctorInfo' ← getConstInfoCtor ctor
+              let otherIdx := ctorInfo'.cidx
+              return mkNatNe idx otherIdx
             mkLambdaFVars fields e
-      mkForallFVars (params ++ #[motive] ++ indices ++ #[major] ++ minors' ++ #[elseMinor]) e
+      mkLambdaFVars (params ++ #[motive] ++ indices ++ #[major] ++ minors' ++ #[elseMinor]) e
 
-  logInfo m!"mkSparseCasesOn {declName} : {value}"
+  -- logInfo m!"mkSparseCasesOn {declName} : {value}"
   let decl ← mkDefinitionValInferringUnsafe
     (name        := declName)
     (levelParams := casesOnInfo.levelParams)
@@ -99,9 +105,3 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) (declName : Nam
   addAndCompile (.defnDecl decl)
 
 end Lean.Meta
-
-
-run_meta
-  Lean.Meta.mkSparseCasesOn ``Lean.Expr #[``Lean.Expr.fvar, ``Lean.Expr.sort] `justATest
-
-#print justATest

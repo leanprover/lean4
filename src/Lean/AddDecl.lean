@@ -130,7 +130,7 @@ def addDecl (decl : Declaration) (forceExpose := false) : CoreM Unit := do
     | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
     | _ => return (← doAdd)
 
-  if decl.getTopLevelNames.all isPrivateName then
+  if decl.getTopLevelNames.all isPrivateName && !(← ResolveName.backward.privateInPublic.getM) then
     exportedInfo? := none
   else
     -- preserve original constant kind in extension if different from exported one

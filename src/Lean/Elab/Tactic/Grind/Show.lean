@@ -165,33 +165,6 @@ def pushIfSome (msgs : Array MessageData) (msg? : Option MessageData) : Array Me
     logInfo <| MessageData.trace { cls := `grind, collapsed := false } "Grind state" msgs
   | _ => throwUnsupportedSyntax
 
-def truncateAnchors (es : Array (UInt64 × α)) : Array (UInt64 × α) × Nat :=
-  go 4
-where
-  go (numDigits : Nat) : Array (UInt64 × α) × Nat := Id.run do
-    if 4*numDigits  < 64 then
-      let shift := 64 - 4*numDigits
-      let mut found : Std.HashSet UInt64 := {}
-      let mut result := #[]
-      for (a, e) in es do
-        let a' := a >>> shift.toUInt64
-        if found.contains a' then
-          return (← go (numDigits+1))
-        else
-          found  := found.insert a'
-          result := result.push (a', e)
-      return (result, numDigits)
-    else
-      return (es, numDigits)
-  termination_by 64 - 4*numDigits
-
-def anchorToString (numDigits : Nat) (anchor : UInt64) : String :=
-  let cs := Nat.toDigits 16 anchor.toNat
-  let n := cs.length
-  let zs := List.replicate (numDigits - n) '0'
-  let cs := zs ++ cs
-  cs.asString
-
 @[builtin_grind_tactic showSplits] def evalShowSplits : GrindTactic := fun stx => withMainContext do
   match stx with
   | `(grind| show_splits $[$filter?]?) =>

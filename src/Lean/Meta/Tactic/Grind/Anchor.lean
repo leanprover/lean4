@@ -87,4 +87,24 @@ public def isAnchorPrefix (numHexDigits : Nat) (anchorPrefix : UInt64) (anchor :
   let shift := 64 - numHexDigits.toUInt64*4
   anchorPrefix == anchor >>> shift
 
+public def truncateAnchors (es : Array (UInt64 × α)) : Array (UInt64 × α) × Nat :=
+  go 4
+where
+  go (numDigits : Nat) : Array (UInt64 × α) × Nat := Id.run do
+    if 4*numDigits  < 64 then
+      let shift := 64 - 4*numDigits
+      let mut found : Std.HashSet UInt64 := {}
+      let mut result := #[]
+      for (a, e) in es do
+        let a' := a >>> shift.toUInt64
+        if found.contains a' then
+          return (← go (numDigits+1))
+        else
+          found  := found.insert a'
+          result := result.push (a', e)
+      return (result, numDigits)
+    else
+      return (es, numDigits)
+  termination_by 64 - 4*numDigits
+
 end Lean.Meta.Grind

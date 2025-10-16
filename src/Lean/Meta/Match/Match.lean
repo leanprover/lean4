@@ -540,6 +540,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
     return { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
 
 private def altsAreCtorLike (p : Problem) : MetaM Bool := withGoalOf p do
+  pure (hasCtorPattern p) <&&>
   p.alts.allM fun alt => do match alt.patterns with
     | .ctor .. :: _ => return true
     | .inaccessible e :: _ => isConstructorApp e

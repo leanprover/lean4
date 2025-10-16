@@ -31,34 +31,16 @@ public def Zipper.toList : Zipper α β → List ((a : α) × β a)
 | .done => []
 | .cons k v tree next => ⟨k,v⟩ :: tree.toList ++ next.toList
 
-public def Zipper.keys : Zipper α β → List α
-| .done => []
-| .cons k _ tree next => k :: tree.keys ++ next.keys
+public def Zipper.Ordered [Ord α] (t : Zipper α β) : Prop :=
+  t.toList.Pairwise (fun a b => compare a.1 b.1 = .lt)
 
 def Zipper.size : Zipper α β → Nat
 | .done => 0
 | .cons _ _ tree next => 1 + tree.treeSize + next.size
 
-public def Zipper.WF [Ord α] : Zipper α β → Prop
-| .done => True
-| .cons k _ tree next => tree.keys.all (fun key => (compare key k).isLE) ∧ next.keys.all (fun key => (compare key k).isLE)
-
 public def Zipper.prependMap : Internal.Impl α β → Zipper α β → Zipper α β
   | .leaf, it => it
   | .inner _ k v l r, it => prependMap l (.cons k v r it)
-
-theorem prependMap_WF_inv [Ord α] [TransOrd α] {t : Internal.Impl α β} {wf : Internal.Impl.WF t} {z : Zipper α β} {z_wf : Zipper.WF z} : Zipper.WF (Zipper.prependMap t z) := by
-  induction t generalizing z
-  case leaf =>
-    simp [Zipper.prependMap]
-    exact z_wf
-  case inner _ k v l r l_ih r_ih =>
-    simp [Zipper.prependMap]
-    apply l_ih
-    . sorry
-    . constructor
-      sorry
-      sorry
 
 public theorem Zipper.prependMap_to_list (t : Internal.Impl α β) (it : Zipper α β) : (Zipper.prependMap t it).toList = t.toList ++ it.toList := by
   induction t generalizing it
@@ -70,6 +52,62 @@ public theorem Zipper.prependMap_to_list (t : Internal.Impl α β) (it : Zipper 
     rw [l_ih]
     simp [toList, Internal.Impl.toList_eq_toListModel]
 
+theorem Zipper.prependMap_invariant [Ord α] [TransOrd α] {t : Internal.Impl α β}
+    {ord_t : t.Ordered} {z : Zipper α β} {ord_z : z.Ordered}
+    (hyp : ∀ k ∈ z.toList, ∀ k' ∈ t.toListModel, compare k'.1 k.1 = .lt ) :
+    (Zipper.prependMap t z).Ordered := by
+  induction t generalizing z
+  case leaf =>
+    simp [Zipper.prependMap]
+    exact ord_z
+  case inner _ k v l r l_ih r_ih =>
+    simp [prependMap]
+    apply l_ih
+    . exact Internal.Impl.Ordered.left ord_t
+    . simp [Zipper.Ordered]
+      simp only [Zipper.toList]
+      simp
+      apply And.intro
+      . intro a hyp
+        cases hyp
+        . rename_i in_r
+          rw [Internal.Impl.toList_eq_toListModel] at in_r
+          exact @Internal.Impl.Ordered.compare_right α β _ _ k v l r ord_t a in_r
+        . rename_i in_r
+          specialize hyp a in_r ⟨k,v⟩
+          simp at hyp
+          exact hyp
+      . have := @r_ih (Internal.Impl.Ordered.right ord_t) z ord_z
+        simp [Zipper.Ordered] at this
+        simp [Zipper.prependMap_to_list] at this
+        . apply this
+          intro k₁ mem₁ k₂ mem₂
+          specialize hyp k₁ mem₁ k₂ (by simp [mem₂])
+          exact hyp
+    . intro k₁ mem₁ k₂ mem₂
+      simp only [toList, List.cons_append, List.mem_cons, List.mem_append] at mem₁
+      apply Or.elim mem₁
+      . intro eq_key
+        rw [eq_key]
+        exact @Internal.Impl.Ordered.compare_left α β _ _ k v l r ord_t k₂ mem₂
+      . intro hyp₂
+        apply Or.elim hyp₂
+        . intro in_r
+          apply TransCmp.lt_trans
+          . exact @Internal.Impl.Ordered.compare_left α β _ _ k v l r ord_t k₂ mem₂
+          . rw [Internal.Impl.toList_eq_toListModel] at in_r
+            exact @Internal.Impl.Ordered.compare_right α β _ _ k v l r ord_t k₁ in_r
+        . intro in_z
+          specialize hyp k₁ in_z k₂ (by simp [mem₂])
+          exact hyp
+
+public theorem Zipper.ordered_of_cons_ordered [Ord α] [TransOrd α] {t : Internal.Impl α β}
+    {z : Zipper α β} : (Zipper.cons k v t z).Ordered → z.Ordered := by
+  intro hyp
+  simp only [Zipper.Ordered, Zipper.toList] at hyp
+  simp [Zipper.Ordered]
+  exact List.Pairwise.sublist (List.sublist_append_right (⟨k, v⟩ :: t.toList) z.toList) hyp
+
 theorem Zipper.prependMap_size (t : Internal.Impl α β) (it : Zipper α β) : (Zipper.prependMap t it).size = t.treeSize + it.size := by
   fun_induction Zipper.prependMap
   case case1 =>
@@ -78,6 +116,90 @@ theorem Zipper.prependMap_size (t : Internal.Impl α β) (it : Zipper α β) : (
     simp only [ih, Zipper.size, Internal.Impl.treeSize, ← Nat.add_assoc, Nat.add_comm]
 
 end MapIterator
+
+section ZipperIterator
+variable {α : Type u} {β : α → Type v}
+
+public def Zipper.step : Zipper α β → IterStep (IterM (α := Zipper α β) Id ((a : α) × β a)) ((a : α) × β a)
+  | .done => .done
+  | .cons k v t it=>
+      .yield ⟨it.prependMap t⟩ ⟨k, v⟩
+
+public instance : Iterator (Zipper α β ) Id ((a : α) × β a) where
+  IsPlausibleStep it step := it.internalState.step = step
+  step it := ⟨it.internalState.step, rfl⟩
+
+public instance : IteratorCollect (Zipper α β) Id Id := .defaultImplementation
+
+public instance : IteratorCollectPartial (Zipper α β) Id Id := .defaultImplementation
+
+def Zipper.instFinitenessRelation : FinitenessRelation (Zipper α β) Id where
+  rel t' t := t'.internalState.size < t.internalState.size
+  wf := by
+    apply InvImage.wf
+    exact Nat.lt_wfRel.wf
+  subrelation {it it'} h := by
+    obtain ⟨w, h, h'⟩ := h
+    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep] at h'
+    cases w
+    case skip it'' =>
+      cases h
+      simp only [Zipper.step] at h'
+      split at h'
+      any_goals contradiction
+    case done =>
+      cases h
+    case yield it'' out =>
+      cases h
+      simp [Zipper.step] at h'
+      split at h'
+      case h_1 =>
+        contradiction
+      case h_2 h2 =>
+          simp at h'
+          simp only [h2, ← h'.1, Zipper.prependMap_size, Zipper.size, Nat.add_lt_add_iff_right,
+            Nat.lt_add_left_iff_pos, Nat.lt_add_one]
+
+@[no_expose]
+public instance Zipper.instFinite : Finite (Zipper α β) Id :=
+  .of_finitenessRelation Zipper.instFinitenessRelation
+
+@[always_inline]
+public def Zipper.iter (t : Zipper α β) : Iter (α := Zipper α β) ((a : α) × β a) :=
+  ⟨t⟩
+
+@[always_inline]
+public def Zipper.iter_of_tree (t : Internal.Impl α β) : Iter (α := Zipper α β) ((a : α) × β a) :=
+  Zipper.iter <| Zipper.done.prependMap t
+
+public instance { z : Zipper α β} : ToIterator z Id ((a : α) × β a) where
+  State := Zipper α β
+  iterMInternal := Iter.toIterM <| Zipper.iter z
+
+public theorem correctness_lemma {α β}
+    {z : Zipper α β} :
+    (Zipper.iter z).toList = z.toList := by
+  induction z
+  case done =>
+    sorry
+  case cons k v tree next next_ih =>
+    induction tree generalizing next
+    case leaf =>
+      simp [Zipper.toList]
+      simp [Zipper.iter]
+      rw [Iter.toList_eq_match_step]
+      simp [Iter.step]
+      simp [Id.run]
+      simp [Iter.toIterM]
+      simp [IterM.step]
+      simp [Iterator.step]
+      simp [Zipper.step]
+      simp [Zipper.prependMap]
+      simp [Id.run]
+      sorry
+    case inner _ k v l r l_ih r_ih =>
+      sorry
+end ZipperIterator
 
 section Rxc
 
@@ -151,16 +273,29 @@ public theorem toList_lemma {it : Iter (α := RxcIterator α β cmp) ((a : α) �
   sorry
 
 public theorem step_rxcIterator_eq_match {cmp : α → α → Ordering} {it : IterM (α := RxcIterator α β cmp) Id ((a : α) × β a)} :
-    it.step = ⟨match it.internalState with
-    | { iter := Zipper.done, upper := _ } => IterStep.done
-    | { iter := Zipper.cons k v t it, upper := upper } =>
-      if (cmp k upper).isLE = true then
-        IterStep.yield { internalState := { iter := Zipper.prependMap t it, upper := upper } } ⟨k, v⟩
+    it.step = ⟨match it.internalState.iter with
+    | Zipper.done => IterStep.done
+    | Zipper.cons k v t z =>
+      if (cmp k it.internalState.upper).isLE = true then
+        IterStep.yield { internalState := { iter := Zipper.prependMap t z, upper := it.internalState.upper } } ⟨k, v⟩
       else IterStep.done,
     (by simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, RxcIterator.step]; split; all_goals (rename_i heq; simp only [heq]))⟩ := by
   simp [IterM.step, Iterator.step, RxcIterator.step]
   ext
   congr 1
+  congr 1
+  cases it
+  next =>
+    rename_i internalState
+    simp
+    cases internalState
+    case mk iter upper =>
+      simp
+      cases iter
+      case done =>
+        simp only
+      case cons k v tree next =>
+        simp only
 
 public structure RicSliceData (α : Type u) (β : α → Type v) (cmp : α → α → Ordering := by exact compare) where
   treeMap : DTreeMap.Raw α β cmp
@@ -181,152 +316,74 @@ public instance {s : RicSlice α β cmp} : ToIterator s Id ((a : α) × β a) wh
 
 def test : DTreeMap.Raw Nat (fun _ => Nat) compare := .ofList [⟨0, 0⟩, ⟨1, 1⟩, ⟨100, 3⟩, ⟨101, 4⟩]
 
--- RxcIterator α β cmp
-public theorem step_iter_ricSlice_eq_match {α β} {cmp : α → α → Ordering} {t : DTreeMap.Raw α β cmp} {a b : α} :
-    t[*...=b].iter.step = ⟨match ({ iter := Zipper.prependMap t.inner Zipper.done, upper := b } : RxcIterator α β cmp) with
-        | { iter := Zipper.done, upper := upper } => IterStep.done
-        | { iter := Zipper.cons k v t it, upper := upper } =>
-          if (cmp k upper).isLE = true then
-            IterStep.yield { internalState := { iter := Zipper.prependMap t it, upper := upper } } ⟨k, v⟩
-          else IterStep.done, (sorry)⟩ := by
-  rw [Slice.iter_eq_toIteratorIter]
-  simp only [Ric.Sliceable.mkSlice, instSliceableRawRicSlice, RicSlice.Internal.iterM, ToIterator.iter_eq, IterM.toIter, Iter.step]
+public theorem val_step_rxcIterator_eq_match {α β} [Ord α]
+    {it : Iter (α := RxcIterator α β compare) (Sigma β)} :
+    it.step.val =
+        match it.internalState.iter with
+        | Zipper.done => IterStep.done
+        | Zipper.cons k v t it' =>
+          if (compare k it.internalState.upper).isLE = true then
+            IterStep.yield { internalState := { iter := Zipper.prependMap t it', upper := it.internalState.upper } } ⟨k, v⟩
+          else IterStep.done := by
+  rcases it with ⟨z, upper⟩
+  rw [Iter.step]
   rw [step_rxcIterator_eq_match]
   simp only [Iter.toIterM]
-  simp only [IterM.Step.toPure, IterStep.mapIterator, Id.run]
-  congr
   split
-  case h_1 =>
-    rename_i heq
-    split at heq
-    any_goals contradiction
-    . rename_i heq2
-      simp at heq2
-      split at heq
-      . simp at heq
-        rename_i heq3
-        simp [heq3, ← heq.1, heq.2, IterM.toIter]
-      . contradiction
-  case h_2 =>
-    rename_i heq
-    split at heq
-    any_goals contradiction
-    . rename_i heq
-      split at heq
-      . contradiction
-      . contradiction
-  case h_3 =>
-    rename_i heq
-    split at heq
-    any_goals trivial
-    split at heq
-    . contradiction
-    . rename_i heq2
-      simp [heq2]
+  · simp [IterM.Step.toPure, IterStep.mapIterator, Id.run]
+  · split <;> simp [IterM.Step.toPure, IterStep.mapIterator, Id.run, IterM.toIter]
 
-public theorem toList_rocSlice_eq_filter_toList {α β} {cmp : α → α → Ordering}
-    {t : DTreeMap.Raw α β cmp} (h : t.WF) {bound : α} :
-    t[*...=bound].toList = t.toList.filter (fun e => (cmp e.fst bound).isLE) := by
-      simp only [Slice.toList_eq_toList_iter]
-      rw [Iter.toList_eq_match_step]
-      rw [step_iter_ricSlice_eq_match]
-      split
-      case h_1 x it' out heq =>
-        split at heq
-        any_goals contradiction
-        rename_i x' k v t it upper heq2
-        simp at heq2
-        split at heq
-        any_goals contradiction
-        simp at heq
-        rename_i isLE
-        rename_i t'
-        have ⟨heq₁, heq₂⟩ := heq
-        rw [← heq₂]
-        have := @Zipper.prependMap_to_list α β t'.inner .done
-        rw [heq2.1] at this
-        simp [Zipper.toList] at this
-        rw [← heq₁]
-        have toList_lemma := @toList_lemma α β cmp bound { internalState := { iter := Zipper.prependMap t it, upper := upper } }
-        simp at toList_lemma
-        rw [toList_lemma]
-        simp only [Raw.toList]
-        rw [← this]
-        simp only [List.filter, isLE, heq2.2]
-        congr
-        simp [Zipper.prependMap_to_list]
-      case h_2 =>
-        rename_i heq
-        split at heq
-        any_goals contradiction
-        . split at heq
-          any_goals contradiction
-      case h_3 x heq =>
-        split at heq
-        case h_1 it upper heq2 =>
-          simp at heq2
-          unfold Zipper.prependMap at heq2
-          split at heq2
-          . rename_i eq_empty
-            simp only [Raw.toList]
-            rw [eq_empty]
-            rw [Internal.Impl.toList_eq_toListModel]
-            simp only [Internal.Impl.toListModel_leaf, List.filter_nil]
-          . rename_i t₁ t₂ _ k v l r heq3
-            replace heq2 := heq2.1
-            sorry
-        case h_2 x' k v t it upper heq2 =>
-          split at heq
-          . contradiction
-          . rename_i t' notLE
-            simp at heq2
-            have ⟨heq2₁, heq2₂⟩ := heq2
-            clear heq2
-            have prependMap_to_List := @Zipper.prependMap_to_list α β t'.inner Zipper.done
-            simp [heq2₁, Zipper.toList] at prependMap_to_List
-            simp only [Raw.toList]
-            rw [← prependMap_to_List]
-            simp only [List.filter]
-            rw [← heq2₂] at notLE
-            simp only [notLE]
+public theorem toList_rxcIter {α β} {_ : Ord α}
+    {z : Zipper α β} {bound : α} :
+    (⟨RxcIterator.mk (cmp := compare) z bound⟩ : Iter (Sigma β)).toList =
+      z.toList.takeWhile (fun e => (compare e.fst bound).isLE) := by
+  rw [Iter.toList_eq_match_step]
+  generalize hit : (⟨RxcIterator.mk (cmp := compare) z bound⟩ : Iter (Sigma β)).step.val = step
+  rw [val_step_rxcIterator_eq_match] at hit
+  simp only at hit
+  split at hit <;> rename_i heq
+  · simp [← hit, Zipper.toList]
+  · split at hit
+    · simp [← hit, Zipper.toList]
+      rw [List.takeWhile_cons_of_pos ‹_›]
+      simp
+      rw [toList_rxcIter, Zipper.prependMap_to_list]
+    · simp [← hit, Zipper.toList]
+      rw [List.takeWhile_cons_of_neg ‹_›]
+termination_by z.size
+decreasing_by
+  simp_all [Zipper.size, Zipper.prependMap_size]
 
-            sorry
-      exact bound
+public theorem toList_eq_takeWhile_list {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {bound : α} {l : List ((a : α) × β a)}
+    {l_ordered : l.Pairwise (fun a b => compare a.1 b.1 = .lt)} :
+  l.takeWhile (fun e => (compare e.fst bound).isLE) = l.filter (fun e => (compare e.fst bound).isLE) := by
+    induction l
+    case nil =>
+      simp
+    case cons h t t_ih =>
+      simp [List.filter, List.takeWhile]
+      generalize heq : (compare h.fst bound).isLE = x
+      cases x
+      case true =>
+        simp
+        apply t_ih
+        simp at l_ordered
+        exact l_ordered.2
+      case false =>
+        simp_all
+        intro a mem
+        have := l_ordered.1 a mem
+        rw [← Ordering.swap_eq_gt] at this
+        apply TransCmp.gt_of_gt_of_gt
+        . rw [← OrientedOrd.eq_swap] at this
+          . exact this
+        . exact heq
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#eval test[*...=1].toList
-
+public theorem toList_eq_takeWhile {α β} [Ord α] [TransOrd α] {z : Zipper α β} {bound : α} {z_ord : z.Ordered} :
+    z.toList.takeWhile (fun e => (compare e.fst bound).isLE) = z.toList.filter (fun e => (compare e.fst bound).isLE) := by
+  simp [Zipper.Ordered] at z_ord
+  apply toList_eq_takeWhile_list
+  exact z_ord
 
 end Rxc
 end Std.DTreeMap

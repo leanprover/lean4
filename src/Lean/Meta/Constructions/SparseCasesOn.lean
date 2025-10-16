@@ -121,6 +121,7 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name :=
   addAndCompile (.defnDecl decl)
   modifyEnv fun env => sparseCasesOnExt.modifyState env fun s => s.insert key declName
   setReducibleAttribute declName
+  modifyEnv fun env => markAuxRecursor env declName
   pure declName
 
 end Lean.Meta

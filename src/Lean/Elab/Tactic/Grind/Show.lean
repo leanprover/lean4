@@ -169,22 +169,7 @@ def pushIfSome (msgs : Array MessageData) (msg? : Option MessageData) : Array Me
   match stx with
   | `(grind| show_splits $[$filter?]?) =>
     let filter ← elabFilter filter?
-    let goal ← getMainGoal
-    let candidates := goal.split.candidates
-    let candidates ← liftGoalM <| candidates.toArray.mapM fun c => do
-      let e := c.getExpr
-      let anchor ← getAnchor e
-      let status ← checkSplitStatus c
-      return (e, status, anchor)
-    let candidates ← liftGoalM <| candidates.filterM fun (e, status, _) => do
-      -- **Note**: we ignore case-splits that are not ready or have already been resolved.
-      -- We may consider adding an option for including "not-ready" splits in the future.
-      if status matches .resolved | .notReady then return false
-      filter.eval e
-    -- **TODO**: Add an option for including propositions that are only considered when using `+splitImp`
-    -- **TODO**: Add an option for including terms whose type is an inductive predicate or type
-    let candidates := candidates.map fun (e, _, anchor) => (anchor, e)
-    let (candidates, numDigits) := truncateAnchors candidates
+    let { candidates, numDigits } ← liftGoalM <| getSplitCandidateAnchors filter.eval
     if candidates.isEmpty then
       throwError "no case splits"
     let msgs := candidates.map fun (a, e) =>

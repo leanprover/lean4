@@ -242,6 +242,34 @@ private def casesWithTrace (mvarId : MVarId) (major : Expr) : GoalM (List MVarId
       saveCases declName false
   cases mvarId major
 
+structure SplitCandidateAnchors where
+  /-- Pairs `(anchor, split)` -/
+  candidates : Array (UInt64 × Expr)
+  /-- Number of digits (≥ 4) sufficient for distinguishing anchors. We usually display only the first `numDigits`. -/
+  numDigits  : Nat
+
+/--
+Returns case-split candidates. Case-splits that are tagged as `.resolved` or `.notReady` are skipped.
+Applies additional `filter` if provided.
+-/
+def getSplitCandidateAnchors (filter : Expr → GoalM Bool := fun _ => return true) : GoalM SplitCandidateAnchors := do
+  let candidates := (← get).split.candidates
+  let candidates ← candidates.toArray.mapM fun c => do
+    let e := c.getExpr
+    let anchor ← getAnchor e
+    let status ← checkSplitStatus c
+    return (e, status, anchor)
+  let candidates ← candidates.filterM fun (e, status, _) => do
+    -- **Note**: we ignore case-splits that are not ready or have already been resolved.
+    -- We may consider adding an option for including "not-ready" splits in the future.
+    if status matches .resolved | .notReady then return false
+    filter e
+  -- **TODO**: Add an option for including propositions that are only considered when using `+splitImp`
+  -- **TODO**: Add an option for including terms whose type is an inductive predicate or type
+  let candidates := candidates.map fun (e, _, anchor) => (anchor, e)
+  let (candidates, numDigits) := truncateAnchors candidates
+  return { candidates, numDigits }
+
 namespace Action
 
 /--
@@ -325,9 +353,10 @@ Remark: `numCases` and `isRec` are computed using `checkSplitStatus`.
 private def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
     (stopAtFirstFailure : Bool)
     (compress : Bool) : Action := fun goal _ kp => do
+  let traceEnabled := (← getConfig).trace
   let mvarId ← goal.mkAuxMVar
   let cExpr := c.getExpr
-  let (mvarIds, goal) ← GoalM.run goal do
+  let ((mvarIds, numDigits), goal) ← GoalM.run goal do
     let gen ← getGeneration cExpr
     let genNew := if numCases > 1 || isRec then gen+1 else gen
     saveSplitDiagInfo cExpr genNew numCases c.source
@@ -339,8 +368,12 @@ private def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
       casesMatch mvarId cExpr
     else
       casesWithTrace mvarId (← mkCasesMajor cExpr)
+    let numDigits ← if traceEnabled then
+      pure (← getSplitCandidateAnchors).numDigits
+    else
+      pure 0
+    return (mvarIds, numDigits)
   let subgoals := mvarIds.map fun mvarId => { goal with mvarId }
-  let traceEnabled := (← getConfig).trace
   let mut seqNew : Array (List (TSyntax `grind)) := #[]
   let mut stuckNew : Array Goal := #[]
   for subgoal in subgoals do
@@ -369,9 +402,7 @@ private def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
   if stuckNew.isEmpty then
     if traceEnabled then
       let anchor ← goal.withContext <| getAnchor cExpr
-      -- **TODO**: compute the exact number of digits
-      let numDigits := 4
-      let anchorPrefix := anchor >>> (64 - 16)
+      let anchorPrefix := anchor >>> (64 - 4*numDigits.toUInt64)
       let hexnum := mkNode `hexnum #[mkAtom (anchorToString numDigits anchorPrefix)]
       let cases ← `(grind| cases #$hexnum)
       return .closed (← mkCasesResultSeq cases seqNew compress)

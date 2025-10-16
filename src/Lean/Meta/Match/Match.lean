@@ -523,6 +523,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
          return some subgoals
   let some subgoals := subgoals? | return #[{ p with vars := xs }]
   subgoals.mapM fun subgoal => subgoal.mvarId.withContext do
+    -- withTraceNode `Meta.Match.match (msg := (return m!"{exceptEmoji ·} case {subgoal.ctorName}")) do
     if let some ctorName := subgoal.ctorName then
       -- A normal constructor case
       let subst    := subgoal.subst
@@ -550,21 +551,21 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
     else
       -- A catch-all case
       -- The fields are the indices, the major argument and the `t.ctorIdx ≠ 23` assumptions
-      assert! subgoal.subst.isEmpty
+      let subst    := subgoal.subst
       let subex    := Example.underscore -- todo: improve
       let examples := p.examples.map <| Example.replaceFVarId x.fvarId! subex
+      let examples := examples.map <| Example.applyFVarSubst subst
       let newAlts  := p.alts.filter fun alt => match alt.patterns with
-        | .ctor n .. :: _       => assert! (interestingCtors.contains n)
-                                   false
+        | .ctor .. :: _         => false
         | .var _ :: _           => true
         | .inaccessible _ :: _  => true
         | _                     => false
+      let newAlts  := newAlts.map fun alt => alt.applyFVarSubst subst
       let newAlts ← newAlts.filterMapM fun alt => do
         match alt.patterns with
-        | .var fvarId :: ps       => let alt := { alt with patterns := ps }
-                                     pure <| alt.replaceFVarId fvarId subgoal.fields[0]! -- TODO
-        | .inaccessible _ :: _      => throwError "TODO2"
-        | _                         => unreachable!
+        | .var _ :: ps            => return some { alt with patterns := ps }
+        | .inaccessible _ :: _    => throwError "TODO2"
+        | _                       => unreachable!
       return { mvarId := subgoal.mvarId, vars := xs, alts := newAlts, examples := examples }
 
 private def altsAreCtorLike (p : Problem) : MetaM Bool := withGoalOf p do

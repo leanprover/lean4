@@ -223,15 +223,18 @@ private def elimAuxIndices (s₁ : GeneralizeIndicesSubgoal) (s₂ : Array Cases
 /--
   Convert `s` into an array of `CasesSubgoal`, by attaching the corresponding constructor name,
   and adding the substitution `majorFVarId -> ctor_i us params fields` into each subgoal. -/
-private def toCasesSubgoals (s : Array InductionSubgoal) (ctorNames : Array Name) (majorFVarId : FVarId) (us : List Level) (params : Array Expr)
+private def toCasesSubgoals (s : Array InductionSubgoal) (ctorNames : Array Name) (majorFVarId : FVarId) (us : List Level) (params : Array Expr) (numIndices : Nat)
     : Array CasesSubgoal :=
   s.mapIdx fun i s =>
     if _ : i < ctorNames.size then
       let ctorName := ctorNames[i]
       let ctorApp  := mkAppN (mkAppN (mkConst ctorName us) params) s.fields
-      { s with ctorName := ctorName, subst := s.subst.insert majorFVarId ctorApp}
+      let subst := s.subst.insert majorFVarId ctorApp
+      { s with ctorName := ctorName, subst}
     else
-      { s with ctorName := none }
+      let major := s.fields[numIndices]!
+      let subst := s.subst.insert majorFVarId major
+      { s with ctorName := none, subst}
 
 partial def unifyEqs? (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) (caseName? : Option Name := none): MetaM (Option (MVarId × FVarSubst)) := withIncRecDepth do
   if numEqs == 0 then
@@ -259,10 +262,11 @@ private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenName
     MetaM (Array CasesSubgoal) := mvarId.withContext do
   let majorType ← inferType (mkFVar majorFVarId)
   let (us, params) ← getInductiveUniverseAndParams majorType
+  let numIndices := ctx.majorTypeIndices.size
   if let some interestingCtors := interestingCtors? then
     let casesOn ← Lean.Meta.mkSparseCasesOn ctx.inductiveVal.name interestingCtors
     let s ← mvarId.induction majorFVarId casesOn givenNames
-    return toCasesSubgoals s interestingCtors majorFVarId us params
+    return toCasesSubgoals s interestingCtors majorFVarId us params numIndices
   else
     let casesOn :=
       if useNatCasesAuxOn && ctx.inductiveVal.name == ``Nat && (← getEnv).contains ``Nat.casesAuxOn then
@@ -271,7 +275,7 @@ private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenName
         mkCasesOnName ctx.inductiveVal.name
     let ctors   := ctx.inductiveVal.ctors.toArray
     let s ← mvarId.induction majorFVarId casesOn givenNames
-    return toCasesSubgoals s ctors majorFVarId us params
+    return toCasesSubgoals s ctors majorFVarId us params numIndices
 
 def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[])
     (useNatCasesAuxOn : Bool := false) (interestingCtors? : Option (Array Name) := none) : MetaM (Array CasesSubgoal) := do

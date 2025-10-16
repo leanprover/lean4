@@ -109,7 +109,11 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name :=
               let otherIdx := ctorInfo'.cidx
               return mkNatNe idx otherIdx
             mkLambdaFVars fields e
-      mkLambdaFVars (params ++ #[motive] ++ indices ++ #[major] ++ minors' ++ #[elseMinor]) e
+      let e ← if ctors.size < indInfo.ctors.length then
+        mkLambdaFVars #[elseMinor] e
+      else
+        pure e
+      mkLambdaFVars (params ++ #[motive] ++ indices ++ #[major] ++ minors') e
 
   -- logInfo m!"mkSparseCasesOn {declName} : {value}"
   let decl ← mkDefinitionValInferringUnsafe

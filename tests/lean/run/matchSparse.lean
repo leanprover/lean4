@@ -1,5 +1,3 @@
-
-
 import Lean
 open Lean Expr Level -- just for shorter outpt
 

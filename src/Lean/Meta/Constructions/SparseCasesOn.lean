@@ -16,6 +16,15 @@ import Lean.Meta.AppBuilder
 
 namespace Lean.Meta
 
+
+private structure SparseCasesOnKey where
+  indName : Name
+  ctors   : Array Name
+deriving BEq, Hashable
+
+private builtin_initialize sparseCasesOnExt : EnvExtension (PHashMap SparseCasesOnKey Name) ←
+  registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache, keep it local
+
 def mkNatNe (n m : Nat) : Expr :=
   mkApp3 (mkConst ``Nat.ne_of_beq_eq_false)
     (mkNatLit n) (mkNatLit m) (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Bool) (mkConst ``Bool.false))
@@ -31,7 +40,14 @@ The catch-all provides `x.ctorIdx ≠ i` hypotheses for each constructor `i` tha
 This is (or rather will be, currently it's doing the naive thing to get off the ground) implemented
 internally by branching on the constructor index.
 -/
-public def mkSparseCasesOn (indName : Name) (ctors : Array Name) (declName : Name) : MetaM Unit := do
+public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name := do
+  let env ← getEnv
+  let key := { indName, ctors }
+  if let some name := (sparseCasesOnExt.getState env).find? key then
+    return name
+
+  let declName ← mkAuxDeclName (kind := `_sparseCasesOn)
+
   let indInfo ← getConstInfoInduct indName
   for ctor in ctors do
     unless indInfo.ctors.contains ctor do
@@ -103,5 +119,8 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) (declName : Nam
     (value       := value)
     (hints       := ReducibilityHints.abbrev)
   addAndCompile (.defnDecl decl)
+  modifyEnv fun env => sparseCasesOnExt.modifyState env fun s => s.insert key declName
+  setReducibleAttribute declName
+  pure declName
 
 end Lean.Meta

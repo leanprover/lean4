@@ -260,8 +260,7 @@ private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenName
   let majorType ← inferType (mkFVar majorFVarId)
   let (us, params) ← getInductiveUniverseAndParams majorType
   if let some interestingCtors := interestingCtors? then
-    let casesOn ← mkAuxDeclName (kind := `_sparseCasesOn)
-    Lean.Meta.mkSparseCasesOn ctx.inductiveVal.name interestingCtors casesOn
+    let casesOn ← Lean.Meta.mkSparseCasesOn ctx.inductiveVal.name interestingCtors
     let s ← mvarId.induction majorFVarId casesOn givenNames
     return toCasesSubgoals s interestingCtors majorFVarId us params
   else

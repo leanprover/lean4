@@ -29,6 +29,15 @@ public def Internal.Impl.prune_LE {α β} [Ord α] (t : Internal.Impl α β) (or
     | .eq => .inner sz k v .leaf r
     | .gt => r.prune_LE (Internal.Impl.Ordered.right ord_t) lower_bound
 
+public def Internal.Impl.prune_LT {α β} [Ord α] (t : Internal.Impl α β) (ord_t : t.Ordered) (lower_bound : α) : Internal.Impl α β :=
+  match t with
+  | .leaf => .leaf
+  | .inner sz k v l r =>
+    match compare lower_bound k with
+    | .lt => .inner sz k v (l.prune_LT (Internal.Impl.Ordered.left ord_t) lower_bound) r
+    | .eq => r
+    | .gt => r.prune_LT (Internal.Impl.Ordered.right ord_t) lower_bound
+
 theorem Internal.Impl.prune_LE_filter {α β} [Ord α] [TransOrd α] (t : Internal.Impl α β) (ord_t : t.Ordered) (lower_bound : α) :
     (t.prune_LE ord_t lower_bound).toList = t.toList.filter (fun e => (compare e.fst lower_bound).isGE) := by
   induction t
@@ -90,6 +99,44 @@ theorem Internal.Impl.prune_LE_filter {α β} [Ord α] [TransOrd α] (t : Intern
       apply TransCmp.lt_trans ?_ heq
       exact Internal.Impl.Ordered.compare_left ord_t mem
 
+theorem Internal.Impl.prune_LT_filter {α β} [Ord α] [TransOrd α] (t : Internal.Impl α β) (ord_t : t.Ordered) (lower_bound : α) :
+    (t.prune_LT ord_t lower_bound).toList = t.toList.filter (fun e => (compare e.fst lower_bound).isGT) := by
+  induction t
+  case leaf =>
+    simp [toList_eq_toListModel, prune_LT]
+  case inner _ k v l r l_ih r_ih =>
+    simp [toList_eq_toListModel, prune_LT]
+    generalize heq : compare lower_bound k = x
+    cases x
+    case lt =>
+      simp
+      specialize l_ih (Internal.Impl.Ordered.left ord_t)
+      rw [toList_eq_toListModel] at l_ih
+      simp [l_ih, toList_eq_toListModel]
+      simp [List.filter]
+      rw [OrientedOrd.eq_swap] at heq
+      rw [Ordering.swap_eq_lt] at heq
+      simp [heq]
+      symm
+      apply List.filter_eq_self.2
+      intro a mem
+      simp
+      apply TransCmp.gt_trans ?_ heq
+      rw [OrientedOrd.eq_swap]
+      rw [Ordering.swap_eq_gt]
+      exact Internal.Impl.Ordered.compare_right ord_t mem
+    case eq =>
+      simp [List.filter]
+      rw [OrientedCmp.eq_comm] at heq
+      simp [heq]
+      sorry
+    case gt =>
+      simp [List.filter]
+      rw [OrientedOrd.eq_swap] at heq
+      rw [Ordering.swap_eq_gt] at heq
+      simp [heq]
+      sorry
+
 section MapIterator
 public inductive Zipper (α : Type u) (β : α → Type v) where
   | done
@@ -121,6 +168,15 @@ def Zipper.prependMapGE [Ord α] (t : Internal.Impl α β) (lower_bound : α) (i
     | .eq => .cons k v r it
     | .gt => prependMapGE r lower_bound it
 
+def Zipper.prependMapGT [Ord α] (t : Internal.Impl α β) (lower_bound : α) (it : Zipper α β) : Zipper α β :=
+  match t with
+  | .leaf => it
+  | .inner _ k v l r =>
+    match compare lower_bound k with
+    | .lt => prependMapGT l lower_bound (Zipper.cons k v r it)
+    | .eq => prependMapGT r lower_bound it
+    | .gt => prependMapGT r lower_bound it
+
 theorem prepend_eq_prependGE [Ord α] (t : Internal.Impl α β) (ord_t : t.Ordered) (z : Zipper α β) (lower_bound : α) :
     z.prependMap (t.prune_LE ord_t lower_bound) = z.prependMapGE t lower_bound := by
   induction t generalizing z
@@ -138,6 +194,56 @@ theorem prepend_eq_prependGE [Ord α] (t : Internal.Impl α β) (ord_t : t.Order
       apply l_ih
     case eq =>
       simp [Zipper.prependMap]
+    case gt =>
+      simp
+      apply r_ih
+
+theorem prepend_eq_prependGT_self [Ord α] [TransOrd α] (r : Internal.Impl α β)
+    (z : Zipper α β) (lower_bound : α) (ord_r : r.Ordered)
+    (hyp : ∀ e ∈ r.toList, compare lower_bound e.fst = .lt) :
+    Zipper.prependMap r z = Zipper.prependMapGT r lower_bound z := by
+  induction r generalizing z
+  case leaf =>
+    trivial
+  case inner _ k v l r l_ih r_ih =>
+    simp [Zipper.prependMap]
+    simp [Zipper.prependMapGT]
+    have hyp' := hyp ⟨k,v⟩ (by simp [Internal.Impl.toList_eq_toListModel])
+    simp at hyp'
+    simp [hyp']
+    apply l_ih
+    . exact (Internal.Impl.Ordered.left ord_r)
+    . intro e mem
+      apply hyp e
+      simp [Internal.Impl.toList_eq_toListModel]
+      apply Or.inl
+      . rw [Internal.Impl.toList_eq_toListModel] at mem
+        exact mem
+
+theorem prepend_eq_prependGT [Ord α] [TransOrd α] (t : Internal.Impl α β) (ord_t : t.Ordered) (z : Zipper α β) (lower_bound : α) :
+    z.prependMap (t.prune_LT ord_t lower_bound) = z.prependMapGT t lower_bound := by
+  induction t generalizing z
+  case leaf =>
+    simp [Internal.Impl.prune_LT]
+    simp [Zipper.prependMap]
+    simp [Zipper.prependMapGT]
+  case inner _ k v l r l_ih r_ih =>
+    simp [Zipper.prependMapGT]
+    simp [Internal.Impl.prune_LT]
+    generalize heq : compare lower_bound k = x
+    cases x
+    case lt =>
+      simp [Zipper.prependMap]
+      apply l_ih
+    case eq =>
+      simp only
+      apply prepend_eq_prependGT_self
+      . exact Internal.Impl.Ordered.right ord_t
+      . intro e mem
+        apply TransCmp.lt_of_eq_of_lt heq
+        apply Internal.Impl.Ordered.compare_right ord_t
+        rw [← Internal.Impl.toList_eq_toListModel]
+        exact mem
     case gt =>
       simp
       apply r_ih
@@ -284,9 +390,10 @@ public instance {z : Zipper α β} : ToIterator z Id ((a : α) × β a) where
   State := Zipper α β
   iterMInternal := Iter.toIterM <| Zipper.iter z
 
-def test : (DTreeMap.Raw Nat (fun _ => Nat) compare) := .ofList [⟨0, 0⟩, ⟨1, 1⟩, ⟨100, 3⟩, ⟨101, 4⟩]
+def test : (DTreeMap.Raw Nat (fun _ => Nat) compare) := .ofList [⟨0, 0⟩, ⟨1, 1⟩, ⟨100, 3⟩, ⟨101, 4⟩, ⟨102, 4⟩, ⟨103, 4⟩]
 
-#eval! (Zipper.iter_of_tree (test.inner.prune_LE sorry 0)).toList
+#eval! (Zipper.iter_of_tree (test.inner.prune_LT sorry 1)).toList
+#eval (Zipper.iter (Zipper.prependMapGT test.inner 1 .done)).toList
 
 public theorem step_Zipper_eq_match {it : IterM (α := Zipper α β) Id ((a : α) × β a)} :
     it.step = ⟨match it.internalState.iter with

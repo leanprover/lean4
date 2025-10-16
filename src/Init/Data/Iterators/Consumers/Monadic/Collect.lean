@@ -73,7 +73,7 @@ def IterM.DefaultConsumers.toArrayMapped {α β : Type w} {m : Type w → Type w
   letI : MonadLift m n := ⟨lift (α := _)⟩
   go it #[]
 where
-  @[specialize lift f]
+  @[always_inline]
   go it (acc : Array γ) : n (Array γ) :=
     letI : MonadLift m n := ⟨lift (α := _)⟩
     extrinsicFix₂ (C₂ := fun _ _ => n (Array γ)) (fun it acc recur => do

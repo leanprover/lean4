@@ -13,6 +13,7 @@ public import Lean.Meta.Tactic.Assert
 public import Lean.Meta.Tactic.Subst
 public import Lean.Meta.Tactic.Acyclic
 public import Lean.Meta.Tactic.UnifyEq
+import Lean.Meta.Constructions.SparseCasesOn
 
 public section
 
@@ -153,7 +154,8 @@ def generalizeIndices (mvarId : MVarId) (fvarId : FVarId) : MetaM GeneralizeIndi
     generalizeIndices' mvarId fvarDecl.toExpr fvarDecl.userName
 
 structure CasesSubgoal extends InductionSubgoal where
-  ctorName : Name
+  /-- The constructor of this subgoal. Is `none` in the catch-all of a sparse case match -/
+  ctorName : Option Name
 
 namespace Cases
 
@@ -224,11 +226,12 @@ private def elimAuxIndices (s₁ : GeneralizeIndicesSubgoal) (s₂ : Array Cases
 private def toCasesSubgoals (s : Array InductionSubgoal) (ctorNames : Array Name) (majorFVarId : FVarId) (us : List Level) (params : Array Expr)
     : Array CasesSubgoal :=
   s.mapIdx fun i s =>
-    let ctorName := ctorNames[i]!
-    let ctorApp  := mkAppN (mkAppN (mkConst ctorName us) params) s.fields
-    let s        := { s with subst := s.subst.insert majorFVarId ctorApp }
-    { ctorName           := ctorName,
-      toInductionSubgoal := s }
+    if _ : i < ctorNames.size then
+      let ctorName := ctorNames[i]
+      let ctorApp  := mkAppN (mkAppN (mkConst ctorName us) params) s.fields
+      { s with ctorName := ctorName, subst := s.subst.insert majorFVarId ctorApp}
+    else
+      { s with ctorName := none }
 
 partial def unifyEqs? (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) (caseName? : Option Name := none): MetaM (Option (MVarId × FVarSubst)) := withIncRecDepth do
   if numEqs == 0 then
@@ -252,19 +255,27 @@ private def unifyCasesEqs (numEqs : Nat) (subgoals : Array CasesSubgoal) : MetaM
       }
 
 private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames) (ctx : Context)
-    (useNatCasesAuxOn : Bool := false) (interestingCtors : Option (Array Name) := none) :
+    (useNatCasesAuxOn : Bool := false) (interestingCtors? : Option (Array Name) := none) :
     MetaM (Array CasesSubgoal) := mvarId.withContext do
   let majorType ← inferType (mkFVar majorFVarId)
   let (us, params) ← getInductiveUniverseAndParams majorType
-  let mut casesOn := mkCasesOnName ctx.inductiveVal.name
-  if useNatCasesAuxOn && ctx.inductiveVal.name == ``Nat && (← getEnv).contains ``Nat.casesAuxOn then
-    casesOn := ``Nat.casesAuxOn
-  let ctors   := ctx.inductiveVal.ctors.toArray
-  let s ← mvarId.induction majorFVarId casesOn givenNames
-  return toCasesSubgoals s ctors majorFVarId us params
+  if let some interestingCtors := interestingCtors? then
+    let casesOn ← mkAuxDeclName (kind := `_sparseCasesOn)
+    Lean.Meta.mkSparseCasesOn ctx.inductiveVal.name interestingCtors casesOn
+    let s ← mvarId.induction majorFVarId casesOn givenNames
+    return toCasesSubgoals s interestingCtors majorFVarId us params
+  else
+    let casesOn :=
+      if useNatCasesAuxOn && ctx.inductiveVal.name == ``Nat && (← getEnv).contains ``Nat.casesAuxOn then
+        ``Nat.casesAuxOn
+      else
+        mkCasesOnName ctx.inductiveVal.name
+    let ctors   := ctx.inductiveVal.ctors.toArray
+    let s ← mvarId.induction majorFVarId casesOn givenNames
+    return toCasesSubgoals s ctors majorFVarId us params
 
 def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[])
-    (useNatCasesAuxOn : Bool := false) (interestingCtors : Option (Array Name) := none) : MetaM (Array CasesSubgoal) := do
+    (useNatCasesAuxOn : Bool := false) (interestingCtors? : Option (Array Name) := none) : MetaM (Array CasesSubgoal) := do
   try
     mvarId.withContext do
       mvarId.checkNotAssigned `cases
@@ -278,11 +289,11 @@ def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNam
         if ctx.inductiveVal.numIndices == 0 then
           -- Simple case
           inductionCasesOn mvarId majorFVarId givenNames ctx (useNatCasesAuxOn := useNatCasesAuxOn)
-            (interestingCtors := interestingCtors)
+            (interestingCtors? := interestingCtors?)
         else
           let s₁ ← generalizeIndices mvarId majorFVarId
           trace[Meta.Tactic.cases] "after generalizeIndices\n{MessageData.ofGoal s₁.mvarId}"
-          let s₂ ← inductionCasesOn s₁.mvarId s₁.fvarId givenNames ctx (interestingCtors := interestingCtors)
+          let s₂ ← inductionCasesOn s₁.mvarId s₁.fvarId givenNames ctx (interestingCtors? := interestingCtors?)
           let s₂ ← elimAuxIndices s₁ s₂
           unifyCasesEqs s₁.numEqs s₂
   catch ex =>
@@ -300,8 +311,8 @@ Apply `casesOn` using the free variable `majorFVarId` as the major premise (aka 
   which causes case splits on `n : Nat` to be represented as `0` and `n' + 1` rather than as `Nat.zero` and `Nat.succ n'`.
 -/
 def _root_.Lean.MVarId.cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) (useNatCasesAuxOn : Bool := false)
-  (interestingCtors : Option (Array Name) := none) : MetaM (Array CasesSubgoal) :=
-  Cases.cases mvarId majorFVarId givenNames (useNatCasesAuxOn := useNatCasesAuxOn) (interestingCtors := interestingCtors)
+  (interestingCtors? : Option (Array Name) := none) : MetaM (Array CasesSubgoal) :=
+  Cases.cases mvarId majorFVarId givenNames (useNatCasesAuxOn := useNatCasesAuxOn) (interestingCtors? := interestingCtors?)
 
 /--
 Keep applying `cases` on any hypothesis that satisfies `p`.

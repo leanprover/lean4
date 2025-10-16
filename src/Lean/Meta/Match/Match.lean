@@ -500,7 +500,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
   let subgoals? ← commitWhenSome? do
      let subgoals ←
        try
-         p.mvarId.cases x.fvarId! (interestingCtors := interestingCtors)
+         p.mvarId.cases x.fvarId! (interestingCtors? := some interestingCtors)
        catch ex =>
          if p.alts.isEmpty then
            /- If we have no alternatives and dependent pattern matching fails, then a "missing cases" error is better than a "stuck" error message. -/
@@ -523,28 +523,49 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
          return some subgoals
   let some subgoals := subgoals? | return #[{ p with vars := xs }]
   subgoals.mapM fun subgoal => subgoal.mvarId.withContext do
-    let subst    := subgoal.subst
-    let fields   := subgoal.fields.toList
-    let newVars  := fields ++ xs
-    let newVars  := newVars.map fun x => x.applyFVarSubst subst
-    let subex    := Example.ctor subgoal.ctorName <| fields.map fun field => match field with
-      | .fvar fvarId => Example.var fvarId
-      | _            => Example.underscore -- This case can happen due to dependent elimination
-    let examples := p.examples.map <| Example.replaceFVarId x.fvarId! subex
-    let examples := examples.map <| Example.applyFVarSubst subst
-    let newAlts  := p.alts.filter fun alt => match alt.patterns with
-      | .ctor n .. :: _       => n == subgoal.ctorName
-      | .var _ :: _           => true
-      | .inaccessible _ :: _  => true
-      | _                     => false
-    let newAlts  := newAlts.map fun alt => alt.applyFVarSubst subst
-    let newAlts ← newAlts.filterMapM fun alt => do
-      match alt.patterns with
-      | .ctor _ _ _ fields :: ps  => return some { alt with patterns := fields ++ ps }
-      | .var fvarId :: ps         => expandVarIntoCtor? { alt with patterns := ps } fvarId subgoal.ctorName
-      | .inaccessible _ :: _      => processInaccessibleAsCtor alt subgoal.ctorName
-      | _                         => unreachable!
-    return { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
+    if let some ctorName := subgoal.ctorName then
+      -- A normal constructor case
+      let subst    := subgoal.subst
+      let fields   := subgoal.fields.toList
+      let newVars  := fields ++ xs
+      let newVars  := newVars.map fun x => x.applyFVarSubst subst
+      let subex    := Example.ctor ctorName <| fields.map fun field => match field with
+        | .fvar fvarId => Example.var fvarId
+        | _            => Example.underscore -- This case can happen due to dependent elimination
+      let examples := p.examples.map <| Example.replaceFVarId x.fvarId! subex
+      let examples := examples.map <| Example.applyFVarSubst subst
+      let newAlts  := p.alts.filter fun alt => match alt.patterns with
+        | .ctor n .. :: _       => n == subgoal.ctorName
+        | .var _ :: _           => true
+        | .inaccessible _ :: _  => true
+        | _                     => false
+      let newAlts  := newAlts.map fun alt => alt.applyFVarSubst subst
+      let newAlts ← newAlts.filterMapM fun alt => do
+        match alt.patterns with
+        | .ctor _ _ _ fields :: ps  => return some { alt with patterns := fields ++ ps }
+        | .var fvarId :: ps         => expandVarIntoCtor? { alt with patterns := ps } fvarId ctorName
+        | .inaccessible _ :: _      => processInaccessibleAsCtor alt ctorName
+        | _                         => unreachable!
+      return { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
+    else
+      -- A catch-all case
+      -- The fields are the indices, the major argument and the `t.ctorIdx ≠ 23` assumptions
+      assert! subgoal.subst.isEmpty
+      let subex    := Example.underscore -- todo: improve
+      let examples := p.examples.map <| Example.replaceFVarId x.fvarId! subex
+      let newAlts  := p.alts.filter fun alt => match alt.patterns with
+        | .ctor n .. :: _       => assert! (interestingCtors.contains n)
+                                   false
+        | .var _ :: _           => true
+        | .inaccessible _ :: _  => true
+        | _                     => false
+      let newAlts ← newAlts.filterMapM fun alt => do
+        match alt.patterns with
+        | .var fvarId :: ps       => let alt := { alt with patterns := ps }
+                                     pure <| alt.replaceFVarId fvarId subgoal.fields[0]! -- TODO
+        | .inaccessible _ :: _      => throwError "TODO2"
+        | _                         => unreachable!
+      return { mvarId := subgoal.mvarId, vars := xs, alts := newAlts, examples := examples }
 
 private def altsAreCtorLike (p : Problem) : MetaM Bool := withGoalOf p do
   p.alts.allM fun alt => do match alt.patterns with

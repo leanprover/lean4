@@ -23,6 +23,17 @@ import Lean.Elab.App
 import Lean.Elab.Match
 import Lean.Elab.Tactic.Generalize
 
+public section
+
+register_builtin_option tactic.customEliminators : Bool := {
+  defValue := true
+  group    := "tactic"
+  descr    := "enable using custom eliminators in the 'induction' and 'cases' tactics \
+    defined using the '@[induction_eliminator]' and '@[cases_eliminator]' attributes"
+}
+
+end
+
 namespace Lean.Elab.Tactic
 open Meta
 
@@ -775,13 +786,6 @@ def elabTermForElim (stx : Syntax) : TermElabM Expr := do
       return r.expr
     else
       return e
-
-register_builtin_option tactic.customEliminators : Bool := {
-  defValue := true
-  group    := "tactic"
-  descr    := "enable using custom eliminators in the 'induction' and 'cases' tactics \
-    defined using the '@[induction_eliminator]' and '@[cases_eliminator]' attributes"
-}
 
 -- `optElimId` is of the form `("using" term)?`
 def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (induction : Bool) : TacticM ElimInfo := do

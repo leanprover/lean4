@@ -13,6 +13,9 @@ import Lean.Elab.Tactic.Repeat
 import Lean.Elab.Tactic.BuiltinTactic
 import Lean.Elab.Command
 import Lean.Linter.Basic
+-- These public imports are needed because for now we make `extCore` public.
+public import Lean.Expr
+public import Lean.Elab.Term.TermElabM
 
 /-!
 # Implementation of the `@[ext]` attribute
@@ -296,7 +299,8 @@ in extensionality theorems like `funext`. Returns a list of subgoals.
 This is built on top of `withExtN`, running in `TermElabM` to build the list of new subgoals.
 (And, for each goal, the patterns consumed.)
 -/
-def extCore (g : MVarId) (pats : List (TSyntax `rcasesPat))
+-- This is public as it is used in the implementation of `rcongr` in Batteries.
+public def extCore (g : MVarId) (pats : List (TSyntax `rcasesPat))
     (depth := 100) (failIfUnchanged := true) :
     TermElabM (Nat × Array (MVarId × List (TSyntax `rcasesPat))) := do
   StateT.run (m := TermElabM) (s := #[])

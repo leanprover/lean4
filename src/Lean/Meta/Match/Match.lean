@@ -324,7 +324,7 @@ where
     match alts with
     | [] =>
       /- TODO: allow users to configure which tactic is used to close leaves. -/
-      unless (← p.mvarId.contradictionCore {splitCtorIdx := true}) do
+      unless (← p.mvarId.contradictionCore {}) do
         trace[Meta.Match.match] "missing alternative"
         p.mvarId.admit
         modify fun s => { s with counterExamples := p.examples :: s.counterExamples }

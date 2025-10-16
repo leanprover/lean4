@@ -28,8 +28,6 @@ structure Contradiction.Config where
      ```
      This kind of hypotheses appear when proving conditional equation theorems for match expressions. -/
   genDiseq : Bool := false
-  /-- For `h : x.ctorIdx ≠ _`, run `cases h` -/
-  splitCtorIdx : Bool := false
 
 /--
   Try to close the current goal by looking for a proof of `False` nested in a `False.Elim` application in the target.
@@ -153,22 +151,6 @@ private def processGenDiseq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM Bo
   else
     return false
 
-private abbrev isCtorIdxIneq (e : Expr) : Bool :=
-  if let some (_, lhs, _rhs) := e.ne? then
-    lhs.isApp &&
-    lhs.getAppFn.isConst &&
-    (`ctorIdx).isSuffixOf lhs.getAppFn.constName! && -- This should be an env extension maybe
-    lhs.appArg!.isFVar
-  else
-    false
-
-
-private def processCtorIdxIneq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM (Array MVarId) := do
-  assert! isCtorIdxIneq localDecl.type
-  let fvarId := localDecl.type.appFn!.appArg!.appArg!.fvarId!
-  let subgoals ← mvarId.cases fvarId
-  return subgoals.map (·.mvarId)
-
 /--
 Return `true` if goal `mvarId` has contradictory hypotheses.
 See `MVarId.contradiction` for the list of tests performed by this method.
@@ -233,9 +215,6 @@ def _root_.Lean.MVarId.contradictionCore (mvarId : MVarId) (config : Contradicti
           -- when `(h : 10000 = 10001)`. TODO: `cases` add a threshold at `cases`
           if (← elimEmptyInductive mvarId localDecl.fvarId config.searchFuel) then
             return true
-        if config.splitCtorIdx && isCtorIdxIneq localDecl.type then
-          let subgoals ← processCtorIdxIneq mvarId localDecl
-          subgoals.allM (contradictionCore · config)
     return false
 
 /--

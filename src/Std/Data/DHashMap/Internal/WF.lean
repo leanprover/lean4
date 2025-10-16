@@ -8,11 +8,9 @@ module
 prelude
 import all Std.Data.Internal.List.Associative
 import all Std.Data.DHashMap.Raw
-public import Std.Data.DHashMap.Basic
 import all Std.Data.DHashMap.Internal.Defs
 public import Std.Data.DHashMap.Internal.Model
 import all Std.Data.DHashMap.Internal.AssocList.Basic
-public import Std.Data.DHashMap.Internal.AssocList.Lemmas
 import all Std.Data.DHashMap.RawDef
 
 public section

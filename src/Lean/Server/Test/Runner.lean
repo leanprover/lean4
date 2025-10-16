@@ -7,7 +7,6 @@ Authors: Sebastian Ullrich, Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Data.Lsp
 public import Lean.Widget
 import Lean.Server.FileWorker.WidgetRequests
 public import Lean.Server.GoTo

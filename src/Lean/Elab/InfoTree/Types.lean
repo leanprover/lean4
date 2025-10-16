@@ -11,8 +11,6 @@ public import Lean.Data.DeclarationRange
 public import Lean.Data.OpenDecl
 public import Lean.MetavarContext
 public import Lean.Environment
-public import Lean.Data.Json.Basic
-public import Lean.Server.Rpc.Basic
 public import Lean.Widget.Types
 
 public section

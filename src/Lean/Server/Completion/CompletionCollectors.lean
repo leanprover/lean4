@@ -11,7 +11,6 @@ public import Lean.Elab.Tactic.Doc
 public import Lean.Server.Completion.CompletionResolution
 public import Lean.Server.Completion.EligibleHeaderDecls
 public import Lean.Server.RequestCancellation
-public import Lean.Server.Completion.CompletionUtils
 
 public section
 

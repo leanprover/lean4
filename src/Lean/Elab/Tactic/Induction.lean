@@ -6,21 +6,10 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Meta.Basic
 public import Lean.Meta.Tactic.ElimInfo
 public import Lean.Elab.Tactic.ElabTerm
-import Lean.Util.CollectFVars
-import Lean.AuxRecursor
-import Lean.Parser.Term
-import Lean.Meta.RecursorInfo
-import Lean.Meta.CollectMVars
-import Lean.Meta.Tactic.FunIndInfo
-import Lean.Meta.Tactic.Induction
-import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.FunIndCollect
-import Lean.Meta.GeneralizeVars
 import Lean.Elab.App
-import Lean.Elab.Match
 import Lean.Elab.Tactic.Generalize
 
 public section

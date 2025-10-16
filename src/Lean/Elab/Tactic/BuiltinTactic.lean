@@ -6,16 +6,11 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Diagnostics
-public import Lean.Meta.Hint
-public import Lean.Meta.Tactic.Apply
-public import Lean.Meta.Tactic.Assumption
-public import Lean.Meta.Tactic.Contradiction
 public import Lean.Meta.Tactic.Refl
 public import Lean.Elab.Binders
 public import Lean.Elab.Open
 public import Lean.Elab.Eval
 public import Lean.Elab.SetOption
-public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.Tactic.ElabTerm
 public import Lean.Elab.Do
 import Lean.Meta.Tactic.Replace

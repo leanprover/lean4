@@ -6,11 +6,7 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Option.Lemmas
 public import Std.Data.Iterators.Producers.Repeat
-public import Init.Data.Iterators.Consumers.Access
-public import Init.Data.Iterators.Consumers.Collect
-public import Std.Data.Iterators.Combinators.Take
 public import Std.Data.Iterators.Lemmas.Combinators.Take
 
 @[expose] public section

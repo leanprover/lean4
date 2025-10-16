@@ -8,7 +8,6 @@ module
 prelude
 public import Std.Tactic.BVDecide.Normalize.Bool
 public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
-public import Lean.Meta.Tactic.Simp
 
 public section
 

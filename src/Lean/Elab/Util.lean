@@ -9,7 +9,6 @@ prelude
 public import Lean.Parser.Extension
 meta import Lean.Parser.Command
 public import Lean.KeyedDeclsAttribute
-public import Lean.Elab.Exception
 import Lean.BuiltinDocAttr
 public import Lean.ExtraModUses
 import all Init.Prelude  -- for `Lean.Macro.State.expandedMacroDecls` access

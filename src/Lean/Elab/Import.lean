@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Parser.Module
-public import Lean.CoreM
 meta import Lean.Parser.Module
 
 public section

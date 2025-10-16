@@ -7,20 +7,10 @@ module
 
 prelude
 public import Lean.Compiler.Options
-public import Lean.Compiler.ExternAttr
 public import Lean.Compiler.IR
-public import Lean.Compiler.IR.Basic
-public import Lean.Compiler.IR.Checker
-public import Lean.Compiler.IR.ToIR
-public import Lean.Compiler.LCNF.PassManager
 public import Lean.Compiler.LCNF.Passes
-public import Lean.Compiler.LCNF.PrettyPrinter
 public import Lean.Compiler.LCNF.ToDecl
 public import Lean.Compiler.LCNF.Check
-public import Lean.Compiler.LCNF.PullLetDecls
-public import Lean.Compiler.LCNF.PhaseExt
-public import Lean.Compiler.LCNF.CSE
-public import Lean.Compiler.LCNF.Visibility
 
 public section
 

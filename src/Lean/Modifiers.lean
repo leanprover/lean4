@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.EnvExtension
-public import Lean.PrivateName
 
 public section
 

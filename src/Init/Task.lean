@@ -8,8 +8,6 @@ Additional `Task` definitions.
 module
 
 prelude
-public import Init.Core
-public import Init.Data.List.Basic
 public import Init.System.Promise
 
 public section

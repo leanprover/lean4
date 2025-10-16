@@ -6,7 +6,6 @@ Authors: Paul-Nicolas Madelaine, Robert Y. Lewis, Mario Carneiro, Gabriel Ebner
 module
 
 prelude
-public import Lean.Meta.CongrTheorems
 public import Lean.Meta.Tactic.Simp.Attr
 public import Lean.Meta.CoeAttr
 

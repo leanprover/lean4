@@ -6,18 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Util.FindMVar
-public import Lean.Util.CollectFVars
-public import Lean.Parser.Term
-public import Lean.Meta.Hint
-public import Lean.Meta.KAbstract
 public import Lean.Meta.Tactic.ElimInfo
-public import Lean.Elab.Term
 public import Lean.Elab.Binders
-public import Lean.Elab.SyntheticMVars
-public import Lean.Elab.Arg
 public import Lean.Elab.RecAppSyntax
-public import Lean.Meta.Hint
 
 public section
 

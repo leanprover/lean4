@@ -6,8 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Lean.Compiler.LCNF.CompilerM
-public import Lean.Compiler.LCNF.PassManager
 public import Lean.Compiler.LCNF.PullFunDecls
 public import Lean.Compiler.LCNF.FVarUtil
 public import Lean.Compiler.LCNF.ScopeM

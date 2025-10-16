@@ -6,18 +6,12 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Init.Data.BEq
-public import Init.Data.Nat.Simproc
 public import Init.Data.Option.Attach
 public import Init.Data.List.Perm
-public import Init.Data.List.Find
-public import Init.Data.List.MinMax
-public import Init.Data.List.Monadic
 public import Std.Data.Internal.List.Defs
 import all Std.Data.Internal.List.Defs
 public import Init.Data.Order.Ord
 import Init.Data.Subtype.Order
-import Init.Data.Order.Lemmas
 
 public section
 

@@ -6,18 +6,13 @@ Authors: Sebastian Graf
 module
 
 prelude
-import Std.Do.Triple
 import Lean.Elab.Tactic.Do.VCGen.Split
 import Lean.Elab.Tactic.Simp
-import Lean.Elab.Tactic.Do.ProofMode.Basic
-import Lean.Elab.Tactic.Do.ProofMode.Intro
 import Lean.Elab.Tactic.Do.ProofMode.Revert
 import Lean.Elab.Tactic.Do.ProofMode.Cases
 import Lean.Elab.Tactic.Do.ProofMode.Specialize
-import Lean.Elab.Tactic.Do.ProofMode.Pure
 import Lean.Elab.Tactic.Do.LetElim
 import Lean.Elab.Tactic.Do.Spec
-import Lean.Elab.Tactic.Do.Attr
 import Lean.Elab.Tactic.Do.Syntax
 import Lean.Elab.Tactic.Induction
 import Lean.Meta.Tactic.TryThis

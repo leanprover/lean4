@@ -6,7 +6,6 @@ Authors: Mac Malone
 module
 
 prelude
-public import Init.Control.State
 import Init.Data.Array.Basic
 public import Init.Data.String.Basic
 

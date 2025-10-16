@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Tactics
 public import Init.Grind.Attr
 public section
 namespace Lean.Parser.Tactic

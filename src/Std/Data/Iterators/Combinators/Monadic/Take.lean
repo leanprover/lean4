@@ -7,8 +7,6 @@ module
 
 prelude
 public import Init.Data.Nat.Lemmas
-public import Init.RCases
-public import Init.Data.Iterators.Basic
 public import Init.Data.Iterators.Consumers.Monadic.Collect
 public import Init.Data.Iterators.Consumers.Monadic.Loop
 public import Init.Data.Iterators.Internal.Termination

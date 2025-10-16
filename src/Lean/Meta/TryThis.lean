@@ -6,9 +6,6 @@ Authors: Gabriel Ebner, Mario Carneiro, Thomas Murrills
 module
 
 prelude
-public import Lean.CoreM
-public import Lean.Message
-public import Lean.Elab.InfoTree.Types
 public import Lean.Data.Lsp.Basic
 public import Lean.PrettyPrinter
 

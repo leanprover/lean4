@@ -6,11 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Runtime
 public import Lean.Compiler.NameMangling
-public import Lean.Compiler.ExportAttr
-public import Lean.Compiler.InitAttr
-public import Lean.Compiler.IR.CompilerM
 public import Lean.Compiler.IR.EmitUtil
 public import Lean.Compiler.IR.NormIds
 public import Lean.Compiler.IR.SimpCase

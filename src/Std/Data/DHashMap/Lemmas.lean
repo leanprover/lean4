@@ -6,7 +6,6 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Std.Data.DHashMap.Internal.Raw
 public import Std.Data.DHashMap.Internal.RawLemmas
 import all Std.Data.DHashMap.Basic
 public import Std.Data.DHashMap.AdditionalOperations

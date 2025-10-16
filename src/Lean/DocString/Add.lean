@@ -7,15 +7,8 @@ Authors: David Thrane Christiansen
 module
 
 prelude
-import Lean.Environment
-import Lean.Exception
-import Lean.Log
 import Lean.Elab.DocString
-import Lean.DocString.Extension
-import Lean.DocString.Links
-import Lean.Parser.Types
 public import Lean.DocString.Parser
-import Lean.ResolveName
 public import Lean.Elab.Term.TermElabM
 import Std.Data.HashMap
 

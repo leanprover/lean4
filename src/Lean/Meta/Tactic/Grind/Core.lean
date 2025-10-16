@@ -6,8 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-import Init.Grind.Util
-import Lean.Meta.LitValues
 import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Ctor

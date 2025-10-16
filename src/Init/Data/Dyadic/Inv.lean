@@ -5,7 +5,6 @@ Authors: Kim Morrison
 -/
 module
 prelude
-import Init.Data.Dyadic.Basic
 import Init.Data.Dyadic.Round
 import Init.Grind.Ordered.Ring
 

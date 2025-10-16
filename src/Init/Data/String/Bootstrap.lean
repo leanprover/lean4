@@ -6,7 +6,6 @@ Author: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Data.List.Basic
 public import Init.Data.Char.Basic
 public import Init.Data.ByteArray.Bootstrap
 

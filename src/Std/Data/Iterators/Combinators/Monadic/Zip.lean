@@ -7,8 +7,6 @@ module
 
 prelude
 public import Init.Data.Option.Lemmas
-public import Init.Data.Iterators.Basic
-public import Init.Data.Iterators.Consumers.Collect
 public import Init.Data.Iterators.Consumers.Loop
 public import Init.Data.Iterators.Internal.Termination
 

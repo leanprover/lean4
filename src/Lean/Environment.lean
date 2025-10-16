@@ -6,15 +6,11 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Control.StateRef
 public import Init.Data.Array.BinSearch
 public import Init.Data.Stream
 public import Init.System.Promise
-public import Lean.ImportingFlag
 public import Lean.Data.NameTrie
-public import Lean.Data.SMap
 public import Lean.Setup
-public import Lean.Declaration
 public import Lean.LocalContext
 public import Lean.Util.Path
 public import Lean.Util.FindExpr

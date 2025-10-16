@@ -10,7 +10,6 @@ public import Init.Data.Iterators.Lemmas.Basic
 public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 public import Init.Data.Iterators.Consumers.Access
 import all Init.Data.Iterators.Consumers.Access
-public import Init.Data.Iterators.Consumers.Collect
 import all Init.Data.Iterators.Consumers.Collect
 
 public section

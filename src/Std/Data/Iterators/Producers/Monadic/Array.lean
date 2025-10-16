@@ -6,8 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Nat.Lemmas
-public import Init.RCases
 public import Init.Data.Iterators.Consumers
 public import Init.Data.Iterators.Internal.Termination
 

@@ -7,7 +7,6 @@ module
 
 prelude
 import Lean.Meta.Tactic.Ext
-import Lean.Elab.DeclarationRange
 import Lean.Elab.Tactic.RCases
 import Lean.Elab.Tactic.Repeat
 import Lean.Elab.Tactic.BuiltinTactic

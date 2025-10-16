@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Attributes
 public import Lean.ScopedEnvExtension
 
 public section

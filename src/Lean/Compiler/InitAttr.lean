@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.AddDecl
-public import Lean.MonadEnv
 public import Lean.Elab.InfoTree.Main
 import Init.Data.Range.Polymorphic.Stream
 

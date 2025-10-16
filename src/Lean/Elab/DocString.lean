@@ -5,14 +5,11 @@ Authors: David Thrane Christiansen
 -/
 module
 prelude
-public import Lean.ScopedEnvExtension
 import Std.Data.HashMap
-public import Lean.DocString.Types
 public import Lean.Elab.Term.TermElabM
 public import Lean.Elab.Command.Scope
 import Lean.DocString.Syntax
 import Lean.Meta.Hint
-import Lean.DocString.Markdown
 import Lean.BuiltinDocAttr
 
 set_option linter.missingDocs true

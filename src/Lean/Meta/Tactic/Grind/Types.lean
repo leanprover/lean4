@@ -5,14 +5,11 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.EMatchTheorem
 public import Lean.Meta.Tactic.Simp.Types
 public import Lean.Meta.Tactic.Grind.AlphaShareCommon
 public import Lean.Meta.Tactic.Grind.Attr
 public import Init.Data.Queue
 import Lean.Meta.Tactic.Grind.ExprPtr
-import Init.Grind.Tactics
-import Std.Data.TreeSet.Basic
 import Lean.HeadIndex
 import Lean.Meta.Tactic.Grind.ExtAttr
 import Lean.Meta.AbstractNestedProofs

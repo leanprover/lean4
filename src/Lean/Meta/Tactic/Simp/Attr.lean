@@ -6,8 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Tactic.Simp.Types
-public import Lean.Meta.Tactic.Simp.SimpTheorems
 public import Lean.Meta.Tactic.Simp.Simproc
 
 public section

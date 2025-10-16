@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Parser.Basic
 public import Lean.ScopedEnvExtension
-import Lean.PrivateName
 import Lean.BuiltinDocAttr
 
 public section

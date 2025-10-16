@@ -7,12 +7,7 @@ module
 
 prelude
 public import Lean.Util.RecDepth
-public import Lean.Util.Trace
-public import Lean.Log
 public import Lean.ResolveName
-public import Lean.Elab.InfoTree.Types
-public import Lean.MonadEnv
-public import Lean.Elab.Exception
 public import Lean.Language.Basic
 
 public section

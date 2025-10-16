@@ -6,24 +6,12 @@ Authors: Leonardo de Moura, Kyle Miller
 module
 
 prelude
-public import Lean.Util.ForEachExprWhere
-public import Lean.Util.ReplaceLevel
-public import Lean.Util.ReplaceExpr
-public import Lean.Util.CollectLevelParams
 public import Lean.Meta.Constructions
-public import Lean.Meta.CollectFVars
 public import Lean.Meta.SizeOf
-public import Lean.Meta.Injective
 public import Lean.Meta.MkIffOfInductiveProp
-public import Lean.Elab.Command
 public import Lean.Elab.Coinductive
-public import Lean.Elab.DefView
-public import Lean.Elab.DeclUtil
 public import Lean.Elab.Deriving.Basic
-public import Lean.Elab.DeclarationRange
-public import Lean.Parser.Command
 import Lean.Elab.ComputedFields
-import Lean.DocString.Extension
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CtorElim
 import Lean.Meta.IndPredBelow

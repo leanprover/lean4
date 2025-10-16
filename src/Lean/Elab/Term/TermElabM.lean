@@ -6,9 +6,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.ReservedNameAction
-public import Lean.Meta.AppBuilder
-public import Lean.Meta.CollectMVars
 public import Lean.Meta.Coe
 public import Lean.Util.CollectLevelMVars
 public import Lean.Linter.Deprecated
@@ -18,8 +15,6 @@ public import Lean.Elab.Level
 public import Lean.Elab.PreDefinition.TerminationHint
 public import Lean.Elab.DeclarationRange
 public import Lean.Elab.WhereFinally
-public import Lean.Elab.Util
-public import Lean.Language.Basic
 public import Lean.Elab.InfoTree.InlayHints
 public meta import Lean.Parser.Term
 

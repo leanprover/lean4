@@ -6,10 +6,8 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Lean.CoreM
 public import Lean.Parser.Extension
 public import Lean.Parser.StrInterpolation
-public import Lean.KeyedDeclsAttribute
 public import Lean.ParserCompiler.Attribute
 public import Lean.PrettyPrinter.Basic
 public import Lean.PrettyPrinter.Delaborator.Options

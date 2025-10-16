@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.ByteArray.Basic
-public import Init.Data.Array.Extract
 
 public section
 

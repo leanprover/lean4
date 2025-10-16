@@ -6,13 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Transform
 public import Lean.Meta.Tactic.Replace
-public import Lean.Meta.Tactic.UnifyEq
 public import Lean.Meta.Tactic.Simp.Rewrite
 public import Lean.Meta.Tactic.Simp.Diagnostics
 public import Lean.Meta.Match.Value
-public import Lean.Meta.LetToHave
 public import Lean.Util.CollectLooseBVars
 import Lean.PrettyPrinter
 

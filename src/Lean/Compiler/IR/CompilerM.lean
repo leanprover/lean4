@@ -6,11 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.CoreM
-public import Lean.Environment
-public import Lean.Compiler.IR.Basic
 public import Lean.Compiler.IR.Format
-public import Lean.Compiler.MetaAttr
 public import Lean.Compiler.ExportAttr
 public import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.InitAttr

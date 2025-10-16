@@ -6,14 +6,10 @@ Authors: Sebastian Ullrich, Leonardo de Moura, Gabriel Ebner, Mario Carneiro
 module
 
 prelude
-public import Lean.PrettyPrinter.Delaborator.Attributes
 public import Lean.PrettyPrinter.Delaborator.Basic
-public import Lean.PrettyPrinter.Delaborator.SubExpr
-public import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
 public import Lean.Meta.CoeAttr
 public import Lean.Meta.Structure
 import Lean.Parser.Command
-meta import Lean.Parser.Do
 meta import Lean.Parser.Command
 
 public section

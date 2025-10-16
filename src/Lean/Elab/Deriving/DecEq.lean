@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Data.Options
-import Lean.Meta.Transform
 import Lean.Meta.Inductive
 import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util

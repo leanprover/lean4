@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.CoreM
 public import Lean.Meta.Sorry
-public import Lean.Namespace
 public import Lean.Util.CollectAxioms
 
 public section

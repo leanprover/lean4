@@ -8,7 +8,6 @@ module
 prelude
 public import Lake.Util.Log
 public import Lake.Config.Artifact
-public import Lake.Build.Trace
 import Lake.Config.InstallPath
 import Lake.Build.Actions
 import Lake.Util.Url

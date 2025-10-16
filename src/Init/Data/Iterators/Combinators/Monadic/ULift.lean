@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Basic
 public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.Consumers.Monadic
 

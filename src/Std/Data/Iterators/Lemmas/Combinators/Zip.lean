@@ -6,12 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Std.Data.Iterators.Combinators.Take
 public import Std.Data.Iterators.Combinators.Zip
-public import Init.Data.Iterators.Consumers.Access
 public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Zip
 public import Std.Data.Iterators.Lemmas.Combinators.Take
-public import Init.Data.Iterators.Lemmas.Consumers
 
 @[expose] public section
 

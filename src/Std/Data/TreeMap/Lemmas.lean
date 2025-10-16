@@ -7,7 +7,6 @@ module
 
 prelude
 import Std.Data.DTreeMap.Lemmas
-public import Std.Data.TreeMap.Basic
 public import Std.Data.TreeMap.AdditionalOperations
 
 @[expose] public section

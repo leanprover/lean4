@@ -6,9 +6,6 @@ Authors: Mac Malone
 module
 
 prelude
-public import Init.System.IO
-public import Init.Data.Repr
-public import Init.Data.Ord.Basic
 public import Lean.Data.Json
 public import Lake.Util.Error
 public import Lake.Util.EStateT

@@ -12,7 +12,6 @@ import all Std.Data.DHashMap.Basic
 import all Std.Data.DHashMap.Raw
 import all Std.Data.DHashMap.Iterator
 import Init.Data.Iterators.Lemmas.Combinators
-import Std.Data.DHashMap.Internal.WF
 import all Std.Data.DHashMap.Internal.Defs
 import Std.Data.DHashMap.RawLemmas
 import Std.Data.DHashMap.Lemmas

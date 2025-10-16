@@ -8,10 +8,8 @@ prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind.Propagator
 import Init.Grind.Injective
-import Lean.Meta.Tactic.Grind.Proof
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Injective
 namespace Lean.Meta.Grind
 /--
 If `e` is an application of the form `f a` where `f` is an injective function

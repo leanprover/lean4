@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Data.Format
 public import Lean.Data.Json.FromToJson.Basic
 public import Lean.ToExpr
 

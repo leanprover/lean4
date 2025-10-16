@@ -7,9 +7,7 @@ Authors: Joseph Rotella
 module
 
 prelude
-public import Lean.Parser.Term
 public import Lean.Meta.Hint
-public import Lean.PrettyPrinter
 
 public section
 

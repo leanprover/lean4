@@ -856,7 +856,9 @@ Returns
 
 Modifies the current goal when generalizing.
 -/
-def elabElimTargets (targets : Array Syntax) : TacticM (Array Expr × Array (Ident × FVarId)) :=
+-- This is public for now as it is used in Mathlib's `induction'` and `cases'` tactics,
+-- which are no longer used in Mathlib, but are still prevalent in downstream projects.
+public def elabElimTargets (targets : Array Syntax) : TacticM (Array Expr × Array (Ident × FVarId)) :=
   withMainContext do
     let infos : Array ElimTargetInfo ← targets.mapM fun target => do
       let view ← mkTargetView target
@@ -910,7 +912,9 @@ def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
           result := result.push expr
       return (result, [mvarId])
 
-def checkInductionTargets (targets : Array Expr) : MetaM Unit := do
+-- This is public for now as it is used in Mathlib's `induction'` tactic,
+-- which is no longer used in Mathlib, but still prevalent in downstream projects.
+public def checkInductionTargets (targets : Array Expr) : MetaM Unit := do
   let mut foundFVars : FVarIdSet := {}
   for target in targets do
     unless target.isFVar do

@@ -172,35 +172,96 @@ public def Zipper.iter (t : Zipper α β) : Iter (α := Zipper α β) ((a : α) 
 public def Zipper.iter_of_tree (t : Internal.Impl α β) : Iter (α := Zipper α β) ((a : α) × β a) :=
   Zipper.iter <| Zipper.done.prependMap t
 
-public instance { z : Zipper α β} : ToIterator z Id ((a : α) × β a) where
+public instance {z : Zipper α β} : ToIterator z Id ((a : α) × β a) where
   State := Zipper α β
   iterMInternal := Iter.toIterM <| Zipper.iter z
 
-public theorem correctness_lemma {α β}
-    {z : Zipper α β} :
-    (Zipper.iter z).toList = z.toList := by
-  induction z
-  case done =>
-    sorry
-  case cons k v tree next next_ih =>
-    induction tree generalizing next
-    case leaf =>
-      simp [Zipper.toList]
-      simp [Zipper.iter]
-      rw [Iter.toList_eq_match_step]
-      simp [Iter.step]
-      simp [Id.run]
-      simp [Iter.toIterM]
-      simp [IterM.step]
-      simp [Iterator.step]
-      simp [Zipper.step]
-      simp [Zipper.prependMap]
-      simp [Id.run]
-      sorry
-    case inner _ k v l r l_ih r_ih =>
-      sorry
-end ZipperIterator
+public theorem step_Zipper_eq_match {it : IterM (α := Zipper α β) Id ((a : α) × β a)} :
+    it.step = ⟨match it.internalState.iter with
+    | ⟨Zipper.done⟩ => IterStep.done
+    | ⟨Zipper.cons k v t z⟩ => IterStep.yield { internalState := Zipper.prependMap t z } ⟨k, v⟩,
+    (by
+      simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Zipper.step]; split; all_goals (rename_i heq; simp [heq, Zipper.iter]))⟩ := by
+  simp [IterM.step, Iterator.step, Zipper.step]
+  ext
+  congr 1
+  congr 1
+  cases it
+  next =>
+    rename_i internalState
+    simp
+    congr 1
+    cases internalState
+    case done =>
+      simp only [Zipper.iter]
+    case cons k v tree next =>
+      simp only [Zipper.iter]
 
+public theorem val_step_Zipper_eq_match {α β}
+    {it : Iter (α := Zipper α β) (Sigma β)} :
+    it.step.val =
+        match it.internalState.iter with
+        | ⟨Zipper.done⟩ => IterStep.done
+        | ⟨Zipper.cons k v t it'⟩ =>
+            IterStep.yield { internalState := Zipper.prependMap t it'  } ⟨k, v⟩
+        := by
+  rcases it with ⟨z, upper⟩
+  rw [Iter.step]
+  rw [step_Zipper_eq_match]
+  simp only [Iter.toIterM]
+  split
+  · simp [Zipper.iter, IterM.Step.toPure, IterStep.mapIterator, Id.run]
+  · rename_i heq
+    simp [Zipper.iter] at heq
+  . split
+    case h_1 =>
+      rename_i heq
+      simp [Zipper.iter] at heq
+    case h_2 k v tree next x k v t it' heq =>
+      simp only [Zipper.iter] at heq
+      injections
+      rename_i k_eq v_eq tree_eq next_eq
+      simp [Iter.step, Iter.toIterM, IterM.step, Id.run, Iterator.step, Zipper.step, IterM.toIter]
+      simp_all
+
+public theorem toList_Zipper {α β}
+    {z : Zipper α β}:
+    (⟨z⟩ : Iter (Sigma β)).toList =
+      z.toList := by
+  rw [Iter.toList_eq_match_step]
+  generalize hit : (⟨z⟩ : Iter (Sigma β)).step.val = step
+  rw [val_step_Zipper_eq_match] at hit
+  simp only at hit
+  split at hit <;> rename_i heq
+  · simp [← hit]
+    cases z
+    . simp [Zipper.toList]
+    . simp [Zipper.iter] at heq
+  . rename_i x k v t it'
+    simp [← hit]
+    rw [toList_Zipper]
+    . generalize heq2 : Zipper.cons k v t it' = y
+      rw [heq2] at heq
+      simp [Zipper.iter] at heq
+      rw [heq]
+      rw [← heq2]
+      simp [Zipper.toList]
+      rw [Zipper.prependMap_to_list]
+termination_by z.size
+decreasing_by
+  simp_all
+  rename_i t _ _ heq
+  simp [Zipper.iter] at heq
+  rw [heq]
+  simp [Zipper.size]
+  induction t
+  case leaf =>
+    simp [Zipper.prependMap]
+    simp [Internal.Impl.treeSize]
+  case inner =>
+    rw [Zipper.prependMap_size]
+    simp [Internal.Impl.treeSize]
+end ZipperIterator
 section Rxc
 
 public structure RxcIterator (α : Type u) (β : α → Type v) (cmp : α → α → Ordering) where
@@ -264,13 +325,6 @@ def instFinitenessRelation : FinitenessRelation (RxcIterator α β cmp) Id where
 @[no_expose]
 public instance instFinite : Finite (RxcIterator α β cmp) Id :=
   .of_finitenessRelation instFinitenessRelation
-
-public theorem toList_lemma {it : Iter (α := RxcIterator α β cmp) ((a : α) × β a)} : it.toList = it.internalState.iter.toList.filter (fun e => (cmp e.fst bound).isLE) := by
-  unfold Iter.toList
-  simp [Iter.toIterM]
-  unfold Iter.internalState
-  simp [instIteratorCollectRxcIteratorIdSigma]
-  sorry
 
 public theorem step_rxcIterator_eq_match {cmp : α → α → Ordering} {it : IterM (α := RxcIterator α β cmp) Id ((a : α) × β a)} :
     it.step = ⟨match it.internalState.iter with

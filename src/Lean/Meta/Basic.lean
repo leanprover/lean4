@@ -984,8 +984,7 @@ def _root_.Lean.MVarId.setUserName (mvarId : MVarId) (newUserName : Name) : Meta
 /--
 Throw an exception saying `fvarId` is not declared in the current local context.
 -/
-def _root_.Lean.FVarId.throwUnknown (fvarId : FVarId) : CoreM α := do
-  unreachable!
+def _root_.Lean.FVarId.throwUnknown (fvarId : FVarId) : CoreM α :=
   throwError "unknown free variable `{mkFVar fvarId}`"
 
 /--

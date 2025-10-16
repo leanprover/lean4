@@ -312,6 +312,31 @@ where
         trace[Meta.Match.match] "alt has unsolved cnstrs:\n{← alt.toMessageData}"
         return false
 
+private abbrev isCtorIdxIneq? (e : Expr) : Option FVarId := do
+  if let some (_, lhs, _rhs) := e.ne? then
+    if
+      lhs.isApp &&
+      lhs.getAppFn.isConst &&
+      (`ctorIdx).isSuffixOf lhs.getAppFn.constName! && -- This should be an env extension maybe
+      lhs.appArg!.isFVar
+    then
+      return lhs.appArg!.fvarId!
+  none
+
+private partial def contradiction (mvarId : MVarId) : MetaM Bool := do
+  trace[Meta.Match.match] "match contradiction:\n{mvarId}"
+  if (← mvarId.contradictionCore {}) then
+    return true
+  else
+    -- Try harder by splitting `ctorIdx x ≠ 23` assumptions
+    for localDecl in (← getLCtx) do
+      if let some fvarId := isCtorIdxIneq? localDecl.type then
+        trace[Meta.Match.match] "splitting ctorIdx assumption {localDecl.type}"
+        let subgoals ← mvarId.cases fvarId
+        return ← subgoals.allM (contradiction ·.mvarId)
+
+    return false
+
 /--
 Try to solve the problem by using the first alternative whose pending constraints can be resolved.
 -/
@@ -323,10 +348,11 @@ where
   go (alts : List Alt) : StateRefT State MetaM Unit := do
     match alts with
     | [] =>
+      let mvarId ← p.mvarId.exfalso
       /- TODO: allow users to configure which tactic is used to close leaves. -/
-      unless (← p.mvarId.contradictionCore {}) do
-        trace[Meta.Match.match] "missing alternative"
-        p.mvarId.admit
+      unless (← contradiction mvarId) do
+        trace[Meta.Match.match] "contradiction failed, missing alternative"
+        mvarId.admit
         modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
     | alt :: alts =>
       unless (← solveCnstrs p.mvarId alt) do

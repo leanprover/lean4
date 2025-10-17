@@ -224,7 +224,7 @@ private def elimAuxIndices (s₁ : GeneralizeIndicesSubgoal) (s₂ : Array Cases
 /--
   Convert `s` into an array of `CasesSubgoal`, by attaching the corresponding constructor name,
   and adding the substitution `majorFVarId -> ctor_i us params fields` into each subgoal. -/
-private def toCasesSubgoals (s : Array InductionSubgoal) (ctorNames : Array Name) (majorFVarId : FVarId) (us : List Level) (params : Array Expr) (numIndices : Nat)
+private def toCasesSubgoals (s : Array InductionSubgoal) (ctorNames : Array Name) (majorFVarId : FVarId) (us : List Level) (params : Array Expr)
     : Array CasesSubgoal :=
   s.mapIdx fun i s =>
     if _ : i < ctorNames.size then
@@ -262,7 +262,6 @@ private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenName
     MetaM (Array CasesSubgoal) := mvarId.withContext do
   let majorType ← inferType (mkFVar majorFVarId)
   let (us, params) ← getInductiveUniverseAndParams majorType
-  let numIndices := ctx.majorTypeIndices.size
 
   -- We can only create a sparse casesOn if we have `ctorIdx` (in particular, if it is a type)
   let hasCtorIdx := (← getEnv).contains (mkCtorIdxName ctx.inductiveVal.name)
@@ -270,7 +269,7 @@ private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenName
     if hasCtorIdx && !interestingCtors.isEmpty then
       let casesOn ← Lean.Meta.mkSparseCasesOn ctx.inductiveVal.name interestingCtors
       let s ← mvarId.induction majorFVarId casesOn givenNames
-      return toCasesSubgoals s interestingCtors majorFVarId us params numIndices
+      return toCasesSubgoals s interestingCtors majorFVarId us params
 
   let casesOn :=
     if useNatCasesAuxOn && ctx.inductiveVal.name == ``Nat && (← getEnv).contains ``Nat.casesAuxOn then
@@ -279,7 +278,7 @@ private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenName
       mkCasesOnName ctx.inductiveVal.name
   let ctors   := ctx.inductiveVal.ctors.toArray
   let s ← mvarId.induction majorFVarId casesOn givenNames
-  return toCasesSubgoals s ctors majorFVarId us params numIndices
+  return toCasesSubgoals s ctors majorFVarId us params
 
 def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[])
     (useNatCasesAuxOn : Bool := false) (interestingCtors? : Option (Array Name) := none) : MetaM (Array CasesSubgoal) := do

@@ -164,10 +164,8 @@ def expandOptDocComment? [Monad m] [MonadError m] (optDocComment : Syntax) : m (
 
 section Methods
 
-variable [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadFinally m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadInfoTree m] [MonadLiftT IO m]
-
 /-- Elaborate declaration modifiers (i.e., attributes, `partial`, `private`, `protected`, `unsafe`, `meta`, `noncomputable`, doc string)-/
-def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers := do
+def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : CoreM Modifiers := do
   let docCommentStx := stx.raw[0]
   let attrsStx      := stx.raw[1]
   let visibilityStx := stx.raw[2]
@@ -209,7 +207,7 @@ Ensure the function has not already been declared, and apply the given visibilit
 If `private`, return the updated name using our internal encoding for private names.
 If `protected`, register `declName` as protected in the environment.
 -/
-def applyVisibility (modifiers : Modifiers) (declName : Name) : m Name := do
+def applyVisibility (modifiers : Modifiers) (declName : Name) : CoreM Name := do
   let mut declName := declName
   if !modifiers.visibility.isInferredPublic (← getEnv) then
     declName := mkPrivateName (← getEnv) declName
@@ -218,7 +216,7 @@ def applyVisibility (modifiers : Modifiers) (declName : Name) : m Name := do
     modifyEnv fun env => addProtected env declName
   pure declName
 
-def checkIfShadowingStructureField (declName : Name) : m Unit := do
+def checkIfShadowingStructureField (declName : Name) : CoreM Unit := do
   match declName with
   | Name.str pre .. =>
     if isStructure (← getEnv) pre then
@@ -228,7 +226,7 @@ def checkIfShadowingStructureField (declName : Name) : m Unit := do
           throwError "invalid declaration name `{.ofConstName declName}`, structure `{pre}` has field `{fieldName}`"
   | _ => pure ()
 
-def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (shortName : Name) : m (Name × Name) := do
+def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (shortName : Name) : CoreM (Name × Name) := do
   let mut shortName := shortName
   let mut currNamespace := currNamespace
   let view := extractMacroScopes shortName

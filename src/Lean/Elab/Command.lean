@@ -446,10 +446,6 @@ def withMacroExpansion (beforeStx afterStx : Syntax) (x : CommandElabM α) : Com
   withInfoContext (mkInfo := pure <| .ofMacroExpansionInfo { stx := beforeStx, output := afterStx, lctx := .empty }) do
     withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
-instance : MonadMacroAdapter CommandElabM where
-  getNextMacroScope := return (← get).nextMacroScope
-  setNextMacroScope next := modify fun s => { s with nextMacroScope := next }
-
 instance : MonadRecDepth CommandElabM where
   withRecDepth d x := withReader (fun ctx => { ctx with currRecDepth := d }) x
   getRecDepth      := return (← read).currRecDepth

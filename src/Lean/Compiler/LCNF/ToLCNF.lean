@@ -526,10 +526,13 @@ where
   Visit a `matcher`/`casesOn` alternative.
   -/
   visitAlt (casesAltInfo : CasesAltInfo) (e : Expr) : M (Expr × Alt) := do
-    match casesAltInfo with
-    | .default .. => throwError "visitAlt: default TODO"
-    | .ctor ctorName numParams =>
     withNewScope do
+    match casesAltInfo with
+    | .default numHyps =>
+      let c ← toCode (← visit (mkAppN e (Array.replicate numHyps erasedExpr)))
+      let altType ← c.inferType
+      return (altType, .default c)
+    | .ctor ctorName numParams =>
       let mut (ps, e) ← visitBoundedLambda e numParams
       if ps.size < numParams then
         e ← etaExpandN e (numParams - ps.size)

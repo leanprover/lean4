@@ -13,7 +13,6 @@ def expensive : Lean.Expr → Lean.Expr → Bool
   | .app (.app (.sort 1) (.sort 1)) (.sort 1), .app (.app (.sort 1) (.sort 1)) (.sort 1) => false
   | _, _ => true
 
-
 /-- info: false -/
 #guard_msgs in
 #eval expensive (.app (.app (.sort 1) (.sort 1)) (.sort 1)) (.app (.app (.sort 1) (.sort 1)) (.sort 1))

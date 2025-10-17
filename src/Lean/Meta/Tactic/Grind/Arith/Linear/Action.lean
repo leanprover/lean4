@@ -6,11 +6,11 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Action
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search
+import Lean.Meta.Tactic.Grind.Arith.Linear.Search
 namespace Lean.Meta.Grind.Action
 
-/-- Linear integer arithmetic action. -/
-public def lia : Action :=
-  terminalAction Arith.Cutsat.check `(grind| lia)
+/-- Linear arithmetic action. -/
+public def linarith : Action :=
+  terminalAction Arith.Linear.check `(grind| linarith)
 
 end Lean.Meta.Grind.Action

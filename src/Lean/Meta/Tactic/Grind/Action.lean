@@ -224,6 +224,27 @@ def concatTactic (r : ActionResult) (mk : GrindM (TSyntax `grind)) : GrindM Acti
   else
     return r
 
+/--
+A terminal action which closes the goal or not.
+This kind of action may make progress, but we only include `mkTac` into the resulting tactic sequence
+if it closed the goal.
+-/
+public def terminalAction (check : GoalM Bool) (mkTac : GrindM (TSyntax `grind)) : Action := fun goal kna kp => do
+  let (progress, goal') ← GoalM.run goal check
+  if progress then
+    let r ← kp goal'
+    /-
+    **Note**: terminal actions may make progress by computing a valid assignment satisfying all constraints.
+    That said, unless it closed the goal, it is pointless to include the tactic in the resulting
+    sequence because no information has been communicated to the other solvers.
+    -/
+    if goal'.inconsistent then
+      concatTactic r mkTac
+    else
+      return r
+  else
+    kna goal'
+
 section
 /-!
 Some sanity check properties.

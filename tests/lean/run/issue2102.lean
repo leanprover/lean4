@@ -37,7 +37,8 @@ head✝ : T✝
 tl : List T✝
 x✝ :
   (y : (T : Type) ×' List T) →
-    (invImage (fun x => PSigma.casesOn x fun T ls => sizeOf ls) sizeOfWFRel).1 y ⟨T✝, head✝ :: tl⟩ → Option (List y.1)
+    InvImage (fun x1 x2 => x1 < x2) (fun x => PSigma.casesOn x fun T ls => sizeOf ls) y ⟨T✝, head✝ :: tl⟩ →
+      Option (List y.1)
 res : Option { x // x✝ ⟨T✝, tl⟩ ⋯ = some x } := (x✝ ⟨T✝, tl⟩ ⋯).attach
 T : Type
 ls : List T
@@ -61,7 +62,8 @@ head✝ : T✝
 tl : List T✝
 x✝ :
   (y : (T : Type) ×' List T) →
-    (invImage (fun x => PSigma.casesOn x fun T ls => sizeOf ls) sizeOfWFRel).1 y ⟨T✝, head✝ :: tl⟩ → Option (List y.1)
+    InvImage (fun x1 x2 => x1 < x2) (fun x => PSigma.casesOn x fun T ls => sizeOf ls) y ⟨T✝, head✝ :: tl⟩ →
+      Option (List y.1)
 res : Option { x // x✝ ⟨T✝, tl⟩ ⋯ = some x } := (x✝ ⟨T✝, tl⟩ ⋯).attach
 T : Type
 ls : List T

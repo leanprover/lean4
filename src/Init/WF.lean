@@ -442,6 +442,36 @@ end
 
 end PSigma
 
+namespace WellFounded
+
+variable {α : Sort u}
+variable {motive : α → Sort v}
+variable (h : α → Nat)
+variable (F : (x : α) → ((y : α) → InvImage (· < ·) h y x → motive y) → motive x)
+
+def Nat.fix : (x : α) → motive x :=
+  let rec go : ∀ (fuel : Nat) (x : α), (h x < fuel) → motive x :=
+    Nat.rec
+      (fun _ hfuel => (Nat.not_succ_le_zero _ hfuel).elim)
+      (fun _ ih x hfuel => F x (fun y hy => ih y (Nat.lt_of_lt_of_le hy (Nat.le_of_lt_add_one hfuel))))
+  fun x => go (h x + 1) x (Nat.lt_add_one _)
+
+protected theorem Nat.fix.go_congr (x : α) (fuel₁ fuel₂ : Nat) (h₁ : h x < fuel₁) (h₂ : h x < fuel₂) :
+    Nat.fix.go h F fuel₁ x h₁ = Nat.fix.go h F fuel₂ x h₂ := by
+  induction fuel₁ generalizing x fuel₂ with
+  | zero => contradiction
+  | succ fuel₁ ih =>
+    cases fuel₂ with
+    | zero => contradiction
+    | succ fuel₂ =>
+      exact congrArg (F x) (funext fun y => funext fun hy => ih y fuel₂ _ _ )
+
+theorem Nat.fix_eq (x : α) :
+    Nat.fix h F x = F x (fun y _ => Nat.fix h F y) :=
+  congrArg (F x) (funext fun _ => funext fun _ => Nat.fix.go_congr ..)
+
+end WellFounded
+
 /--
 The `wfParam` gadget is used internally during the construction of recursive functions by
 wellfounded recursion, to keep track of the parameter for which the automatic introduction

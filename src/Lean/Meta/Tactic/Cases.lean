@@ -266,7 +266,8 @@ private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenName
   -- We can only create a sparse casesOn if we have `ctorIdx` (in particular, if it is a type)
   let hasCtorIdx := (← getEnv).contains (mkCtorIdxName ctx.inductiveVal.name)
   if let some interestingCtors := interestingCtors? then
-    if hasCtorIdx && !interestingCtors.isEmpty then
+    if hasCtorIdx && !interestingCtors.isEmpty &&
+      interestingCtors.size < ctx.inductiveVal.ctors.length then
       let casesOn ← Lean.Meta.mkSparseCasesOn ctx.inductiveVal.name interestingCtors
       let s ← mvarId.induction majorFVarId casesOn givenNames
       return toCasesSubgoals s interestingCtors majorFVarId us params

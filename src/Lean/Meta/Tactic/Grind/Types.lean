@@ -1742,6 +1742,6 @@ def anchorPrefixToString (numDigits : Nat) (anchorPrefix : UInt64) : String :=
   cs.asString
 
 def anchorToString (numDigits : Nat) (anchor : UInt64) : String :=
-  anchorPrefixToString numDigits (anchor >>> 64 - 4*numDigits.toUInt64)
+  anchorPrefixToString numDigits (anchor >>> (64 - 4*numDigits.toUInt64))
 
 end Lean.Meta.Grind

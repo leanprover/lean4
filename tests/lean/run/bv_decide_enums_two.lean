@@ -4,6 +4,7 @@ inductive State : Type
 | A : State
 | B : State
 
+set_option match.use_sparse_cases false
 
 def myFunc (s : State) : Bool :=
   match s with

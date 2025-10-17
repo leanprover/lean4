@@ -330,8 +330,10 @@ private abbrev isCtorIdxIneq? (e : Expr) : Option FVarId := do
 
 private partial def contradiction (mvarId : MVarId) : MetaM Bool := do
   mvarId.withContext do
-    trace[Meta.Match.match] "match contradiction:\n{mvarId}"
+    withTraceNode `Meta.Match.match (msg := (return m!"{exceptBoolEmoji ·} Match.contradiction")) do
+    trace[Meta.Match.match] m!"Match.contradiction:\n{mvarId}"
     if (← mvarId.contradictionCore {}) then
+      trace[Meta.Match.match] "Contradiction found!"
       return true
     else
       -- Try harder by splitting `ctorIdx x ≠ 23` assumptions
@@ -587,7 +589,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
     else
       -- A catch-all case
       let subst := subgoal.subst
-      trace[Meta.Match.match] "constructor catch-all case. subst: {subst.map.toList.map fun p => (mkFVar p.1, p.2)}"
+      trace[Meta.Match.match] "constructor catch-all case"
       let examples := p.examples.map <| Example.applyFVarSubst subst
       let newVars := p.vars.map fun x => x.applyFVarSubst subst
       let newAlts := p.alts.filter fun alt => match alt.patterns with

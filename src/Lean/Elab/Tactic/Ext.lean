@@ -149,7 +149,7 @@ def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
       let info ← getConstInfo extName
       Elab.Command.liftTermElabM <| withoutErrToSorry <| withDeclName extIffName do
         let type ← mkExtIffType extName
-        let pf ← withSynthesize do
+        let pf ← withoutExporting <| withSynthesize do
           Elab.Term.elabTermEnsuringType (expectedType? := type) <| ← `(by
             intros
             refine ⟨?_, ?_⟩

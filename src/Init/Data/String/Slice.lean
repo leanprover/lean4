@@ -171,8 +171,8 @@ Examples:
 def split [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) : Std.Iter (α := SplitIterator ρ) Slice :=
   { internalState := .operating s s.startPos (ToForwardSearcher.toSearcher s pat) }
 
-inductive SplitInclusiveIterator (ρ : Type) [ToForwardSearcher ρ σ] where
-  | operating (s : Slice) (currPos : s.Pos) (searcher : Std.Iter (α := σ s) (SearchStep s))
+inductive SplitInclusiveIterator (ρ : Type) (s : Slice) [ToForwardSearcher ρ σ] where
+  | operating (currPos : s.Pos) (searcher : Std.Iter (α := σ s) (SearchStep s))
   | atEnd
 deriving Inhabited
 
@@ -180,16 +180,25 @@ namespace SplitInclusiveIterator
 
 variable [ToForwardSearcher ρ σ]
 
-instance [Pure m] : Std.Iterators.Iterator (SplitInclusiveIterator ρ) m Slice where
-  IsPlausibleStep := fun _ _ => True
+instance [Pure m] : Std.Iterators.Iterator (SplitInclusiveIterator ρ s) m Slice where
+  IsPlausibleStep it
+    | .yield it' out =>
+      match it.internalState, it'.internalState with
+      | .operating _ searcher, .operating _ searcher' =>
+          searcher'.finitelyManySteps.Rel searcher.finitelyManySteps
+      | .operating _ searcher, .atEnd => True
+      | .atEnd, _ => False
+    | .skip _ => False
+    | .done => True
   step := fun ⟨iter⟩ =>
     match iter with
-    | .operating s currPos searcher =>
-      match Internal.nextMatch searcher with
+    | .operating currPos searcher =>
+      match h : Internal.nextMatch searcher with
       | some (searcher, _, endPos) =>
         let slice := s.replaceStartEnd! currPos endPos
-        let nextIt := ⟨.operating s endPos searcher⟩
-        pure (.deflate ⟨.yield nextIt slice, by simp⟩)
+        let nextIt := ⟨.operating endPos searcher⟩
+        pure (.deflate ⟨.yield nextIt slice,
+          by simpa [nextIt] using Pattern.Internal.finitelyManySteps_rel_nextMatch h⟩)
       | none =>
         if currPos != s.endPos then
           let slice := s.replaceStart currPos
@@ -198,22 +207,57 @@ instance [Pure m] : Std.Iterators.Iterator (SplitInclusiveIterator ρ) m Slice w
           pure (.deflate ⟨.done, by simp⟩)
     | .atEnd => pure (.deflate ⟨.done, by simp⟩)
 
+private def toOption : SplitInclusiveIterator ρ s → Option (Std.Iter (α := σ s) (SearchStep s))
+  | .operating _ s => some s
+  | .atEnd => none
+
+private instance {s} [Std.Iterators.Finite (σ s) Id] : WellFoundedRelation (SplitInclusiveIterator ρ s) where
+  rel := InvImage (Option.lt (InvImage Std.Iterators.IterM.TerminationMeasures.Finite.Rel Std.Iterators.Iter.finitelyManySteps)) SplitInclusiveIterator.toOption
+  wf := by
+    apply InvImage.wf
+    apply Option.wellFounded_lt
+    apply InvImage.wf
+    exact WellFoundedRelation.wf
+
+private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
+    Std.Iterators.FinitenessRelation (SplitInclusiveIterator ρ s) Id where
+  rel := InvImage WellFoundedRelation.rel (fun it => it.internalState)
+  wf := InvImage.wf _ WellFoundedRelation.wf
+  subrelation {it it'} h := by
+    simp_wf
+    obtain ⟨step, h, h'⟩ := h
+    match step with
+    | .yield it'' out =>
+      obtain rfl : it' = it'' := by simpa [Std.Iterators.IterStep.successor] using h.symm
+      simp only [Std.Iterators.IterM.IsPlausibleStep, Std.Iterators.Iterator.IsPlausibleStep] at h'
+      revert h'
+      match it.internalState, it'.internalState with
+      | .operating _ searcher, .operating _ searcher' =>
+        simp [SplitInclusiveIterator.toOption, Option.lt]
+      | .operating _ searcher, .atEnd =>
+        simp [SplitInclusiveIterator.toOption, Option.lt]
+      | .atEnd, _ => simp
+
+@[no_expose]
+instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (SplitInclusiveIterator ρ s) Id :=
+  .of_finitenessRelation finitenessRelation
+
 -- TODO: Finiteness after we have a notion of lawful searcher
 
-instance [Monad m] [Monad n] :
-    Std.Iterators.IteratorCollect (SplitInclusiveIterator ρ) m n :=
+instance [Monad m] [Monad n] {s} :
+    Std.Iterators.IteratorCollect (SplitInclusiveIterator ρ s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] :
-    Std.Iterators.IteratorCollectPartial (SplitInclusiveIterator ρ) m n :=
+instance [Monad m] [Monad n] {s} :
+    Std.Iterators.IteratorCollectPartial (SplitInclusiveIterator ρ s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] :
-    Std.Iterators.IteratorLoop (SplitInclusiveIterator ρ) m n :=
+instance [Monad m] [Monad n] {s} :
+    Std.Iterators.IteratorLoop (SplitInclusiveIterator ρ s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] :
-    Std.Iterators.IteratorLoopPartial (SplitInclusiveIterator ρ) m n :=
+instance [Monad m] [Monad n] {s} :
+    Std.Iterators.IteratorLoopPartial (SplitInclusiveIterator ρ s) m n :=
   .defaultImplementation
 
 end SplitInclusiveIterator
@@ -232,8 +276,8 @@ Examples:
 -/
 @[specialize pat]
 def splitInclusive [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) :
-    Std.Iter (α := SplitInclusiveIterator ρ) Slice :=
-  { internalState := .operating s s.startPos (ToForwardSearcher.toSearcher s pat) }
+    Std.Iter (α := SplitInclusiveIterator ρ s) Slice :=
+  { internalState := .operating s.startPos (ToForwardSearcher.toSearcher s pat) }
 
 /--
 If {name}`pat` matches a prefix of {name}`s`, returns the remainder. Returns {name}`none` otherwise.

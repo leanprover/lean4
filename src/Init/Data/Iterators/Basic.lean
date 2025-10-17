@@ -705,6 +705,12 @@ theorem IterM.TerminationMeasures.Finite.rel_of_skip
     Rel ⟨it'⟩ ⟨it⟩ := by
   exact .single ⟨_, rfl, h⟩
 
+theorem IterM.TerminationMeasures.Finite.rel_trans
+    {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+    {it it' it'' : TerminationMeasures.Finite α m} :
+    it.Rel it' → it'.Rel it'' → it.Rel it'' :=
+  .trans
+
 macro_rules | `(tactic| decreasing_trivial) => `(tactic|
   first
   | exact IterM.TerminationMeasures.Finite.rel_of_yield ‹_›

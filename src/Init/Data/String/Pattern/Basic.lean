@@ -120,6 +120,24 @@ where
     | .done .. => none
   termination_by Std.Iterators.Iter.finitelyManySteps searcher
 
+theorem finitelyManySteps_rel_nextMatch {s : Slice} {searcher : Std.Iter (α := σ s) (SearchStep s)}
+    {next : Std.Iter (α := σ s) (SearchStep s)} {p q : s.Pos} :
+    nextMatch searcher = some (next, p, q) →
+    next.finitelyManySteps.Rel searcher.finitelyManySteps := by
+  rw [nextMatch]
+  fun_induction nextMatch.go with
+  | case1 start middle p' q' hstart hstep =>
+    simp only [Option.some.injEq, Prod.mk.injEq, and_imp]
+    rintro rfl rfl rfl
+    exact Std.Iterators.Iter.TerminationMeasures.Finite.rel_of_yield hstart
+  | case2 start middle p' q' hstart hstep ih =>
+    refine (Std.Iterators.IterM.TerminationMeasures.Finite.rel_trans · ?_) ∘ ih
+    exact Std.Iterators.Iter.TerminationMeasures.Finite.rel_of_yield hstart
+  | case3 start middle hstart hstep ih =>
+    refine (Std.Iterators.IterM.TerminationMeasures.Finite.rel_trans · ?_) ∘ ih
+    exact Std.Iterators.Iter.TerminationMeasures.Finite.rel_of_skip hstart
+  | case4 => simp_all
+
 /--
 Tries to skip the {name}`searcher` until the next {name}`SearchStep.rejected` and return it. If no
 reject is found until the end returns {name}`none`.

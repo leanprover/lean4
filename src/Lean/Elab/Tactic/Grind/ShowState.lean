@@ -92,15 +92,18 @@ def ppEqcs? (filter : Filter) (collapsed := false) : GrindTacticM (Option Messag
 def pushIfSome (msgs : Array MessageData) (msg? : Option MessageData) : Array MessageData :=
   if let some msg := msg? then msgs.push msg else msgs
 
-@[builtin_grind_tactic showState] def evalShowState : GrindTactic := fun stx => withMainContext do
-  let `(grind| show_state $[$filter?]?) := stx | throwUnsupportedSyntax
+public def showState (filter? : Option (TSyntax `grind_filter)) (silent := false) : GrindTacticM Unit := do
   let filter ← elabFilter filter?
   let msgs := #[]
   let msgs := pushIfSome msgs (← ppAsserted? filter (collapsed := true))
   let msgs := pushIfSome msgs (← ppProps? filter true (collapsed := false))
   let msgs := pushIfSome msgs (← ppProps? filter false (collapsed := false))
   let msgs := pushIfSome msgs (← ppEqcs? filter (collapsed := false))
-  logInfo <| MessageData.trace { cls := `grind, collapsed := false } "Grind state" msgs
+  logAt (← getRef) (severity := .information) (isSilent := silent) <| MessageData.trace { cls := `grind, collapsed := false } "Grind state" msgs
+
+@[builtin_grind_tactic Parser.Tactic.Grind.showState] def evalShowState : GrindTactic := fun stx => withMainContext do
+  let `(grind| show_state $[$filter?]?) := stx | throwUnsupportedSyntax
+  showState filter?
 
 @[builtin_grind_tactic showCases] def evalShowCases : GrindTactic := fun stx => withMainContext do
   let `(grind| show_cases $[$filter?]?) := stx | throwUnsupportedSyntax

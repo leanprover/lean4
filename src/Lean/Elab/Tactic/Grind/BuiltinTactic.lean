@@ -24,13 +24,17 @@ import Lean.Meta.Tactic.ExposeNames
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.RenameInaccessibles
 import Lean.Elab.Tactic.Grind.Filter
+import Lean.Elab.Tactic.Grind.ShowState
 namespace Lean.Elab.Tactic.Grind
 
 def evalSepTactics (stx : Syntax) : GrindTacticM Unit := do
   for arg in stx.getArgs, i in *...stx.getArgs.size do
     if i % 2 == 0 then
-      let `(Parser.Tactic.Grind.grindStep| $tac:grind $[|> $_]?) := arg | throwUnsupportedSyntax
+      let `(Parser.Tactic.Grind.grindStep| $tac:grind $[|> $[$filter??]?]?) := arg | throwUnsupportedSyntax
       evalGrindTactic tac
+      if let some filter? := filter?? then
+        if let goal :: _ ← getGoals then
+          withRef stx <| goal.withContext <| showState filter? (silent := true)
     else
       saveTacticInfoForToken arg
 

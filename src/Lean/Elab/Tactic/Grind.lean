@@ -8,5 +8,5 @@ prelude
 public import Lean.Elab.Tactic.Grind.Main
 public import Lean.Elab.Tactic.Grind.Basic
 public import Lean.Elab.Tactic.Grind.BuiltinTactic
-public import Lean.Elab.Tactic.Grind.Show
+public import Lean.Elab.Tactic.Grind.ShowState
 public import Lean.Elab.Tactic.Grind.Have

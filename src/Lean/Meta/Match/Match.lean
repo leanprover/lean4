@@ -21,6 +21,11 @@ public section
 
 namespace Lean.Meta.Match
 
+register_builtin_option match.use_sparse_cases : Bool := {
+  defValue := true
+  descr := "if true, generate and use sparse cases on constructs"
+}
+
 private def mkIncorrectNumberOfPatternsMsg [ToMessageData α]
     (discrepancyKind : String) (expected actual : Nat) (pats : List α) :=
   let patternsMsg := MessageData.joinSep (pats.map toMessageData) ", "
@@ -523,11 +528,15 @@ private def collectCtors (p : Problem) : Array Name :=
 private def processConstructor (p : Problem) : MetaM (Array Problem) := do
   trace[Meta.Match.match] "constructor step"
   let x :: xs := p.vars | unreachable!
-  let interestingCtors := collectCtors p
+  let interestingCtors? :=
+    if match.use_sparse_cases.get (← getOptions) then
+      some (collectCtors p)
+    else
+      none
   let subgoals? ← commitWhenSome? do
      let subgoals ←
        try
-         p.mvarId.cases x.fvarId! (interestingCtors? := some interestingCtors)
+         p.mvarId.cases x.fvarId! (interestingCtors? := interestingCtors?)
        catch ex =>
          if p.alts.isEmpty then
            /- If we have no alternatives and dependent pattern matching fails, then a "missing cases" error is better than a "stuck" error message. -/

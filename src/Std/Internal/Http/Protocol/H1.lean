@@ -65,6 +65,14 @@ def MessageHead.headers (m : MessageHead ty) : Headers :=
   | .response => Response.Head.headers m
 
 /--
+Swap machine type
+-/
+def MessageHead.version (m : MessageHead ty) : Version :=
+  match ty with
+  | .request => Request.Head.version m
+  | .response => Response.Head.version m
+
+/--
 Connection limits configuration with validation.
 -/
 structure Config where
@@ -280,10 +288,15 @@ inductive Writer.State
   -/
   | writingChunkedBody
 
-  /--
+/--
   State when message is fully sent and ready for the next message.
   -/
   | complete : State
+
+  /--
+  State when the writer is closed and no more messages can be sent.
+  -/
+  | closed : State
 deriving BEq, Repr
 
 structure Reader (ty : MachineType) where
@@ -591,7 +604,7 @@ private def setError (machine : Machine ty) (error : Machine.Error) : Machine ty
   { machine with error := some error }
 
 @[inline]
-private def closeConnection (machine : Machine ty) : Machine ty :=
+private def disableKeepAlive (machine : Machine ty) : Machine ty :=
   { machine with keepAlive := false }
 
 @[inline]
@@ -604,20 +617,36 @@ private def setReaderState (machine : Machine ty) (state : Reader.State ty) : Ma
 
 @[inline]
 def setFailure (machine : Machine ty) (error : H1.Machine.Error) : Machine ty :=
-  machine
+  let machine := machine
   |>.addEvent (.failed error)
   |>.setReaderState (.failed error)
   |>.setError error
 
+ if machine.connectionClosedByPeer then
+    machine.addEvent .close
+  else
+    machine
+
+
 /--
 Marks that the connection has been closed by the peer.
 This should be called when the underlying connection is closed (e.g., socket closed).
-After calling this, any parsing that requires more data will fail with connectionClosed
-instead of emitting needMoreData events.
+After calling this:
+- Any parsing that requires more data will fail with connectionClosed instead of needMoreData
+- No more data can be written to the output
+- Connection will be closed (no keep-alive)
+- No more messages can be processed on this connection
 -/
 @[inline]
 public def closePeerConnection (machine : Machine ty) : Machine ty :=
-  { machine with connectionClosedByPeer := true }
+  if machine.connectionClosedByPeer then
+    machine
+  else
+    { machine with
+      connectionClosedByPeer := true
+      keepAlive := false
+      writer := { machine.writer with state := .closed, closed := true }
+    }
 
 private def parseWith (machine : Machine ty) (parser : Parser α) (limit : Option Nat) (expect : Option Nat := none) : (Machine ty × Option α) :=
   let remaining := machine.reader.input.remainingBytes
@@ -634,8 +663,7 @@ private def parseWith (machine : Machine ty) (parser : Parser α) (limit : Optio
         then (machine.setFailure .badMessage, none)
         else (machine.addEvent (.needMoreData expect), none)
     else (machine.addEvent (.needMoreData expect), none)
-  | .error _ _ =>
-    (machine.setFailure .badMessage, none)
+  | .error _ _ => (machine.setFailure .badMessage, none)
 
 /--
 Set a known size for the message body
@@ -678,9 +706,7 @@ private def resetForNextMessage (machine : Machine ty) : Machine ty :=
 -- Validation of message
 
 private def determineKeepAlive (machine : Machine ty) : Bool :=
-  let headers := match ty with
-    | .request => machine.reader.messageHead.headers
-    | .response => machine.reader.messageHead.headers
+  let headers := machine.reader.messageHead.headers
   let connectionHeader := headers.getLast? "Connection" |>.getD (.new "keep-alive")
   let explicitClose := connectionHeader.is "close"
   let explicitKeepAlive := connectionHeader.is "keep-alive"
@@ -836,6 +862,11 @@ def isWaitingMessage (machine : Machine ty) : Bool :=
   | .waitingHeaders => true
   | _ => false
 
+def isWriterClosed (machine : Machine ty) : Bool :=
+  match machine.writer.state with
+  | .closed => true
+  | _ => false
+
 /--
 Sends the outgoing message
 -/
@@ -848,7 +879,7 @@ def sendMessage {ty : MachineType} (machine : Machine ty) (messageHead : Message
 
     if conn.is "close" then
       machine
-      |>.closeConnection
+      |>.disableKeepAlive
       |>.setReaderState .complete
     else
       machine
@@ -884,27 +915,34 @@ def takeOutput (machine : Machine ty) (highMark := 0) : Option (Machine ty × Ch
   else
     none
 
-namespace Server
-
 /--
 Advances the state of the reader (for server/request mode).
 -/
-partial def processRead (machine : Machine .request) : Machine .request :=
+partial def processRead (machine : Machine ty) : Machine ty :=
   match machine.reader.state with
   | .needStartLine =>
-    let (machine, result) := parseWith machine parseRequestLine (limit := some 8192)
+    if machine.reader.input.atEnd ∧ machine.connectionClosedByPeer then
+      machine
+      |>.setReaderState .complete
+      |>.addEvent .close
 
-    if let some head := result then
-      if head.version != .v11 then
-        machine
-        |>.setFailure .unsupportedVersion
+    else
+      let (machine, result) : Machine ty × Option (MessageHead ty) :=
+        match ty with
+        | .request => parseWith machine parseRequestLine (limit := some 8192)
+        | .response => parseWith machine parseStatusLine (limit := some 8192)
+
+      if let some head := result then
+        if head.version != .v11 then
+          machine
+          |>.setFailure .unsupportedVersion
+        else
+          machine
+          |>.modifyReader (.setMessageHead head)
+          |>.setReaderState (.needHeader 0)
+          |> processRead
       else
         machine
-        |>.modifyReader (.setMessageHead head)
-        |>.setReaderState (.needHeader 0)
-        |> processRead
-    else
-      machine
 
   | .needHeader headerCount =>
     let (machine, result) := parseWith machine (parseSingleHeader machine.config.maxHeaderSize) (limit := none)
@@ -990,16 +1028,20 @@ partial def processRead (machine : Machine .request) : Machine .request :=
     machine
 
   | .failed _err =>
+    let machine : Machine ty :=
+      match ty, machine with
+      | .request, machine => machine |>.sendMessage { status := .badRequest }
+      | .response, machine => machine
+
     machine
-    |>.sendMessage { status := .badRequest }
     |>.resetAndClose
     |>.setReaderState .complete
-    |>.closeConnection
+    |>.disableKeepAlive
 
 /--
 Write message data to the machine (for server/response mode)
 -/
-partial def processWrite (machine : Machine .request) : Machine .request :=
+partial def processWrite (machine : Machine ty) : Machine ty :=
   match machine.writer.state with
   | .waitingHeaders =>
     machine
@@ -1027,166 +1069,20 @@ partial def processWrite (machine : Machine .request) : Machine .request :=
       machine.modifyWriter Writer.writeChunkedBody |> processWrite
     else
       machine
-
-  | .complete =>
-    resetForNextMessage machine
 
   | .writingHeaders =>
     machine
-
-end Server
-
-namespace Client
-
-/--
-Advances the state of the reader (for client/response mode).
--/
-partial def processRead (machine : Machine .response) : Machine .response :=
-  match machine.reader.state with
-  | .needStartLine =>
-    let (machine, result) := parseWith machine parseStatusLine (limit := some 8192)
-
-    if let some head := result then
-      if head.version != .v11 then
-        machine
-        |>.setFailure .unsupportedVersion
-      else
-        machine
-        |>.modifyReader (.setMessageHead head)
-        |>.setReaderState (.needHeader 0)
-        |> processRead
-    else
-      machine
-
-  | .needHeader headerCount =>
-    let (machine, result) := parseWith machine (parseSingleHeader machine.config.maxHeaderSize) (limit := none)
-
-    if headerCount > machine.config.maxHeaders then
-      machine |>.setFailure .badMessage
-    else
-      if let some result := result then
-        if let some (name, value) := result then
-          if let some headerValue := HeaderValue.ofString? value then
-            machine
-            |>.modifyReader (.addHeader name headerValue)
-            |>.setReaderState (.needHeader (headerCount + 1))
-            |> processRead
-          else
-            machine.setFailure .badMessage
-        else
-          processHeaders machine
-      else
-        machine
-
-  | .requireOutgoing _ =>
-    machine
-
-  | .needChunkedSize =>
-    let (machine, result) := parseWith machine parseChunkSize (limit := some 128)
-
-    match result with
-    | some (size, ext) =>
-      machine
-      |>.setReaderState (.needChunkedBody size)
-      |>.setEvent (some ext <&> .chunkExt)
-      |> processRead
-    | none =>
-      machine
-
-  | .needChunkedBody size =>
-    let (machine, result) := parseWith machine (parseChunkedSizedData size) (limit := none) (some size)
-
-    if let some body := result then
-      match body with
-      | .complete body =>
-        if size ≠ 0 then
-          machine
-          |>.setReaderState .needChunkedSize
-          |>.addEvent (.gotData false body)
-          |> processRead
-        else
-          machine
-          |>.setReaderState .complete
-          |>.addEvent (.gotData true .empty)
-          |> processRead
-      | .incomplete body remaining => machine
-        |>.setReaderState (.needChunkedBody remaining)
-        |>.addEvent (.gotData false body)
-    else
-      machine
-
-  | .needFixedBody 0 =>
-    machine
-    |>.setReaderState .complete
-    |>.addEvent (.gotData true .empty)
-    |> processRead
-
-  | .needFixedBody size =>
-    let (machine, result) := parseWith machine (parseFixedSizeData size) (limit := none) (some size)
-
-    if let some body := result then
-      match body with
-      | .complete body =>
-        machine
-        |>.setReaderState .complete
-        |>.addEvent (.gotData true body)
-        |> processRead
-      | .incomplete body remaining =>
-        machine
-        |>.setReaderState (.needFixedBody remaining)
-        |>.addEvent (.gotData false body)
-    else
-      machine
-
-  | .complete =>
-    machine
-
-  | .failed _ =>
-    machine
-    |>.resetAndClose
-    |>.setReaderState .complete
-    |>.closeConnection
-
-/--
-Write message data to the machine (for client/request mode)
--/
-partial def processWrite (machine : Machine .response) : Machine .response :=
-  match machine.writer.state with
-  | .waitingHeaders =>
-    machine
-
-  | .waitingForFlush =>
-    if machine.shouldFlush then
-      machine.setHeaders machine.writer.messageHead |> processWrite
-    else
-      machine
-
-  | .writingFixedData =>
-    if machine.writer.userData.size ≥ machine.config.highMark ∨ machine.writer.closed then
-      let machine := machine.modifyWriter Writer.writeFixedBody
-      if machine.writer.closed then
-        machine.setWriterState .complete |> processWrite
-      else
-        machine
-    else
-      machine
-
-  | .writingChunkedBody =>
-    if machine.writer.closed then
-      machine.modifyWriter Writer.writeFinalChunk |> processWrite
-    else if machine.writer.userData.size ≥ machine.config.highMark then
-      machine.modifyWriter Writer.writeChunkedBody |> processWrite
-    else
-      machine
 
   | .complete =>
     if machine.isReaderComplete then
-      resetForNextMessage machine
+      if machine.keepAlive then
+        resetForNextMessage machine
+      else
+        machine.setWriterState .closed
+        |>.addEvent .close
     else
       machine
-
-  | .writingHeaders =>
+  | .closed =>
     machine
 
-end Client
 end Machine

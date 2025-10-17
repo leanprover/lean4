@@ -78,11 +78,11 @@ syntax (name := showFalse) "show_false" ppSpace grindFilter : grind
 /-- Shows equivalence classes of terms. -/
 syntax (name := showEqcs) "show_eqcs" ppSpace grindFilter : grind
 /-- Show case-split candidates. -/
-syntax (name := showSplits) "show_splits" ppSpace grindFilter : grind
+syntax (name := showCases) "show_cases" ppSpace grindFilter : grind
 /-- Show `grind` state. -/
 syntax (name := «showState») "show_state" ppSpace grindFilter : grind
 /-- Show active local theorems and their anchors for heuristic instantiation. -/
-syntax (name := showThms) "show_thms" : grind
+syntax (name := showLocalThms) "show_local_thms" : grind
 
 declare_syntax_cat grind_ref (behavior := both)
 

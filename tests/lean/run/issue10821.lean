@@ -39,3 +39,14 @@ warning: `Nat.inc'` has been deprecated: Use `Nat.inc` instead
 #guard_msgs (positions := true) in
 example (n : Nat) : Nat :=
   n.inc'
+
+/--
+@ +2:2...8
+error: Invalid field `incc`: The environment does not contain `Nat.incc`
+  n
+has type
+  Nat
+-/
+#guard_msgs (positions := true) in
+example (n : Nat) : Nat :=
+  n.incc

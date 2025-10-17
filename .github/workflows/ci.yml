@@ -116,6 +116,7 @@ jobs:
         # rerun the workflow run after setting the `release-ci`/`merge-ci` labels.
         run: |
           check_level=0
+          fast=false
 
           if [[ -n "${{ steps.set-nightly.outputs.nightly }}" || -n "${{ steps.set-release.outputs.RELEASE_TAG }}" || -n "${{ steps.set-release-custom.outputs.RELEASE_TAG }}" ]]; then
             check_level=2
@@ -128,9 +129,13 @@ jobs:
             elif echo "$labels" | grep -q "merge-ci"; then
               check_level=1
             fi
+            if echo "$labels" | grep -q "fast-ci"; then
+              fast=true
+            fi
           fi
 
           echo "check-level=$check_level" >> "$GITHUB_OUTPUT"
+          echo "fast=$fast" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -140,7 +145,8 @@ jobs:
         with:
           script: |
             const level = ${{ steps.set-level.outputs.check-level }};
-            console.log(`level: ${level}`);
+            const fast = ${{ steps.set-level.outputs.fast }};
+            console.log(`level: ${level}, fast: ${fast}`);
             // use large runners where available (original repo)
             let large = ${{ github.repository == 'leanprover/lean4' }};
             const isPr = "${{ github.event_name }}" == "pull_request";
@@ -165,7 +171,8 @@ jobs:
               {
                 // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",
-                "os": "ubuntu-latest",
+                // usually not a bottleneck so make exclusive to `fast-ci`
+                "os": large && fast ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
                 "release": true,
                 // Special handling for release jobs. We want:
                 // 1. To run it in PRs so developers get PR toolchains (so secondary without tests is sufficient)
@@ -230,7 +237,7 @@ jobs:
               {
                 "name": "macOS aarch64",
                 // standard GH runner only comes with 7GB so use large runner if possible when running tests
-                "os": large && level >= 1 ? "nscloud-macos-sequoia-arm64-6x14" : "macos-15",
+                "os": large && (fast || level >= 1) ? "nscloud-macos-sequoia-arm64-6x14" : "macos-15",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "release": true,
                 "shell": "bash -euxo pipefail {0}",
@@ -245,7 +252,7 @@ jobs:
               },
               {
                 "name": "Windows",
-                "os": large && level == 2 ? "namespace-profile-windows-amd64-4x16" : "windows-2022",
+                "os": large && (fast || level == 2) ? "namespace-profile-windows-amd64-4x16" : "windows-2022",
                 "release": true,
                 "enabled": level >= 2,
                 "test": true,

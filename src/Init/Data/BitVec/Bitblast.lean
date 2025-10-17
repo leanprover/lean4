@@ -2424,35 +2424,42 @@ def extractAndExtendPopulateAux (k len : Nat) (x : BitVec w) (acc : BitVec (k * 
           simp [setWidth_eq_extractLsb']
         · have h1 := Nat.mul_lt_mul_right (a := len) (b := j) (c := k) (by omega)
           have := Nat.mul_le_mul_right (k := len) (n := j + 1) (m := k) (by omega)
-          simp [hj'] at h1
-          simp [extractLsb'_append_eq_ite, h1, show j * len + len ≤ k * len by rw [show j * len + len = j * len + 1 * len by omega, ← Nat.add_mul]; omega]
+          simp only [hj', iff_true] at h1
+          simp only [extractLsb'_append_eq_ite, h1, ↓reduceDIte,
+            show j * len + len ≤ k * len by
+                rw [show j * len + len = j * len + 1 * len by omega, ← Nat.add_mul]; omega]
           apply hacc
           omega
-      · simp [acc']
+      · simp only [truncate_eq_setWidth, acc']
         ext l hl
         have : j = k := by omega
         subst this
-        simp [getLsbD_append]
+        simp only [getElem_extractLsb', getLsbD_cast, getLsbD_append, le_add_right, getLsbD_of_ge,
+          Nat.add_sub_cancel_left, getLsbD_setWidth, getLsbD_extractLsb', Nat.lt_one_iff,
+          Bool.if_false_left, getElem_setWidth]
         by_cases hl0 : l = 0
-        · simp [hl0]
+        · simp only [hl0, Nat.add_zero, Nat.lt_irrefl, decide_false, Bool.not_false, decide_true,
+          Bool.true_and, and_eq_right_iff_imp, decide_eq_true_eq]
           intros
           omega
-        · simp [hl0]
+        · simp only [hl0, decide_false, Bool.false_and, Bool.and_false]
         )
     ⟨res, proof⟩
 
 
-theorem extractAndExtendPopulateAux_zero_eq (k len : Nat) (x : BitVec w) (acc : BitVec (k * len)) (heq : k = w):
-    (extractAndExtendPopulateAux k len x acc (by omega)) = acc.cast (by simp [heq]):= by
+theorem extractAndExtendPopulateAux_zero_eq (k len : Nat) (x : BitVec w) (acc : BitVec (k * len)) (heq : k = w)
+    (hacc : ∀ i (_ : i < k), acc.extractLsb' (i * len) len = (x.extractLsb' i 1).setWidth len) :
+    (extractAndExtendPopulateAux k len x acc (by omega) hacc).val = acc.cast (by simp [heq]):= by
   unfold extractAndExtendPopulateAux
   split
   · simp
   · omega
 
-theorem extractAndExtendPopulateAux_succ_eq (k len : Nat) (x : BitVec w) (acc : BitVec (k * len)) (hlt : k < w):
-    (extractAndExtendPopulateAux k len x acc (by omega)) =
+theorem extractAndExtendPopulateAux_succ_eq (k len : Nat) (x : BitVec w) (acc : BitVec (k * len)) (hlt : k < w)
+    (hacc : ∀ i (_ : i < k), acc.extractLsb' (i * len) len = (x.extractLsb' i 1).setWidth len) :
+    (extractAndExtendPopulateAux k len x acc (by omega) hacc) =
       let acc := BitVec.zeroExtend len (BitVec.extractLsb' k 1 x) ++ acc
-      extractAndExtendPopulateAux (k + 1) len x (acc.cast (by simp [Nat.add_mul]; omega)) (by omega) := by
+      extractAndExtendPopulateAux (k + 1) len x (acc.cast (by simp [Nat.add_mul]; omega) ) (by omega) (by sorry) := by
   conv => lhs
           unfold extractAndExtendPopulateAux
   split
@@ -2461,12 +2468,12 @@ theorem extractAndExtendPopulateAux_succ_eq (k len : Nat) (x : BitVec w) (acc : 
 
 @[simp]
 theorem extractAndExtendPopulateAux_of_length_zero (len : Nat) (x : BitVec 0) :
-    extractAndExtendPopulateAux 0 len x (0#(0 * len)) (by omega) = (0#0).cast (by simp) := by
+    (extractAndExtendPopulateAux 0 len x (0#(0 * len)) (by omega) (by intros; omega)).val = (0#0).cast (by simp) := by
   simp [extractAndExtendPopulateAux]
 
 /-- We instantiate `extractAndExtendPopulateAux` to extend each bit to `len`. -/
 def extractAndExtendPopulate (len : Nat) (x : BitVec w) : BitVec (w * len) :=
-    extractAndExtendPopulateAux 0 len x ((0#0).cast (by simp)) (by omega)
+    extractAndExtendPopulateAux 0 len x ((0#0).cast (by simp)) (by omega) (by intros; omega)
 
 @[simp]
 theorem extractAndExtendPopulate_of_length_zero (len : Nat) (x : BitVec 0) :
@@ -2517,9 +2524,7 @@ theorem extractLsb'_extractAndExtendPopulate_eq (i len : Nat) (x : BitVec w) :
               (setWidth len' (extractLsb' 0 1 x)).cast (by simp) := by
           ext k hk
           simp [getElem_append]
-        rw [this]
-        simp
-
+        simp [this]
 
         sorry
       · simp [hj0]

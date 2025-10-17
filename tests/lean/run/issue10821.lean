@@ -1,3 +1,5 @@
+set_option linter.deprecated true
+
 /-!
 Checks that deprecated names in projection notation cause just
 the name to be marked, not the whole expression.

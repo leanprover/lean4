@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.System.Promise
+public meta import Lean.Elab.Term
 
 public section
 
@@ -306,11 +307,21 @@ def block (x : AsyncTask α) : IO α :=
   | .ok a => return a
   | .error e => throw e
 
+syntax "currFunctionError%" : term
+
+elab_rules : term
+| `(currFunctionError%) => do
+  let declName? ← Lean.Elab.Term.getDeclName?
+  let fnName := match declName? with
+    | some name => s!"the promise linked to `{name}` was dropped"
+    | none => "the promise linked to the Async was dropped"
+  Lean.Elab.Term.elabTerm (← `($(Lean.quote fnName))) none
+
 /--
 Create an `AsyncTask` that resolves to the value of `x`.
 -/
 @[inline]
-def ofPromise (x : IO.Promise (Except IO.Error α)) (error : String := "the promise linked to the Async Task was dropped") : AsyncTask α :=
+def ofPromise (x : IO.Promise (Except IO.Error α)) (error : String := by exact currFunctionError%) : AsyncTask α :=
   x.result?.map fun
     | none => .error error
     | some res => res
@@ -319,7 +330,7 @@ def ofPromise (x : IO.Promise (Except IO.Error α)) (error : String := "the prom
 Create an `AsyncTask` that resolves to the value of `x`.
 -/
 @[inline]
-def ofPurePromise (x : IO.Promise α) (error : String := "the promise linked to the Async Task was dropped") : AsyncTask α :=
+def ofPurePromise (x : IO.Promise α) (error : String := by exact currFunctionError%) : AsyncTask α :=
   x.result?.map (sync := true) fun
     | none => .error error
     | some res => pure res
@@ -884,7 +895,7 @@ protected def block (x : Async α) (prio := Task.Priority.default) : IO α :=
 Converts `Promise` into `Async`.
 -/
 @[inline]
-protected def ofPromise (task : IO (IO.Promise (Except IO.Error α))) (error : String := "the promise linked to the Async was dropped") : Async α := do
+protected def ofPromise (task : IO (IO.Promise (Except IO.Error α))) (error : String := by exact currFunctionError%) : Async α := do
   match ← task.toBaseIO with
   | .ok data => pure (f := BaseIO) <| MaybeTask.ofTask <| data.result?.map fun
     | none => .error error
@@ -925,7 +936,7 @@ protected def ofTask (task : Task α) : Async α := do
 Converts `IO (IO.Promise α)` to `Async`.
 -/
 @[inline]
-protected def ofPurePromise (task : IO (IO.Promise α)) (error : String := "the promise linked to the Async was dropped") : Async α := show BaseIO _ from do
+protected def ofPurePromise (task : IO (IO.Promise α)) (error : String := by exact currFunctionError%) : Async α := show BaseIO _ from do
   match ← task.toBaseIO with
   | .ok data => pure <| MaybeTask.ofTask <| data.result?.map fun
     | none => .error error

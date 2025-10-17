@@ -149,7 +149,7 @@ private def handle
       | .chunkExt _ =>
         pure ()
 
-      | .failed =>
+      | .failed _=>
         pure ()
 
       | .close =>

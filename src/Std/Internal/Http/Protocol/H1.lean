@@ -138,6 +138,11 @@ inductive Error
   | invalidChunk
 
   /--
+  Connection Closed
+  -/
+  | connectionClosed
+
+  /--
   Bad request/response
   -/
   | badMessage
@@ -147,6 +152,20 @@ inductive Error
   -/
   | other (message : String)
 deriving Repr, BEq
+
+instance : ToString Error where
+  toString
+    | .invalidStatusLine => "Invalid status line"
+    | .invalidHeader => "Invalid header"
+    | .timeout => "Timeout"
+    | .entityTooLarge => "Entity too large"
+    | .unsupportedMethod => "Unsupported method"
+    | .unsupportedVersion => "Unsupported version"
+    | .invalidChunk => "Invalid chunk"
+    | .connectionClosed => "Connection closed"
+    | .badMessage => "Bad message"
+    | .other msg => s!"Other error: {msg}"
+
 
 instance : Repr ByteSlice where
   reprPrec x := reprPrec x.toByteArray.data
@@ -179,7 +198,7 @@ inductive Event (ty : MachineType)
   /--
   Event received when parsing or processing fails with an error message.
   -/
-  | failed
+  | failed (err : Error)
 
   /--
   Event received when connection should be closed.
@@ -580,7 +599,7 @@ private def setReaderState (machine : Machine ty) (state : Reader.State ty) : Ma
 @[inline]
 def setFailure (machine : Machine ty) (error : H1.Machine.Error) : Machine ty :=
   machine
-  |>.addEvent .failed
+  |>.addEvent (.failed error)
   |>.setReaderState (.failed error)
   |>.setError error
 

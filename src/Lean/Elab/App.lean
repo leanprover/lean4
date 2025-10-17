@@ -1327,7 +1327,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       m!"Invalid field `{fieldName}`: The environment does not contain `{fullName}`"
   if eType.isForall then
     match lval with
-    | LVal.fieldName _ fieldName suffix? fullRef =>
+    | LVal.fieldName ref fieldName suffix? _fullRef =>
       let fullName := Name.str `Function fieldName
       if (← getEnv).contains fullName then
         return LValResolution.const `Function `Function fullName
@@ -1336,7 +1336,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
            been a field in the `Function` namespace, so we needn't wait to check if this is actually
            a constant. If `suffix?` is non-`none`, we prefer to throw the "unknown constant" error
            (because of monad namespaces like `IO` and auxiliary declarations like `mutual_induct`) -/
-        throwInvalidFieldAt fullRef fieldName fullName
+        throwInvalidFieldAt ref fieldName fullName
     | .fieldIdx .. =>
       throwLValError e eType "Invalid projection: Projections cannot be used on functions"
   else if eType.getAppFn.isMVar then
@@ -1373,7 +1373,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
         throwError m!"Invalid projection: Index `{idx}` is invalid for this structure; {bounds}"
           ++ .note m!"The expression{inlineExpr e}has type{inlineExpr eType}which has only {numFields} {fields}"
           ++ tupleHint
-  | some structName, LVal.fieldName _ fieldName _ fullRef =>
+  | some structName, LVal.fieldName ref fieldName _ fullRef => withRef ref do
     let env ← getEnv
     if isStructure env structName then
       if let some baseStructName := findField? env structName (Name.mkSimple fieldName) then

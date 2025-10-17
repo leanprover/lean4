@@ -129,7 +129,7 @@ def pushIfSome (msgs : Array MessageData) (msg? : Option MessageData) : Array Me
     let (found, entries) ← go {} {} goal.ematch.thms
     let (_, entries) ← go found entries goal.ematch.newThms
     pure entries
-  let (entries, numDigits) := truncateAnchors entries
+  let numDigits := getNumDigitsForAnchors entries
   let msgs := entries.map fun { anchor, e } =>
     .trace { cls := `thm } m!"#{anchorToString numDigits anchor} := {e}" #[]
   let msg := MessageData.trace { cls := `thms, collapsed := false } "Local theorems" msgs

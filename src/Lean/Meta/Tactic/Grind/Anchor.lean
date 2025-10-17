@@ -89,16 +89,17 @@ public def isAnchorPrefix (numHexDigits : Nat) (anchorPrefix : UInt64) (anchor :
 
 public class HasAnchor (α : Type u) where
   getAnchor : α → UInt64
-  setAnchor : α → UInt64 → α
 
-public def truncateAnchors [HasAnchor α] (es : Array α) : Array α × Nat :=
+/--
+Returns the number of digits needed to distinguish the anchors in `es`
+-/
+public def getNumDigitsForAnchors [HasAnchor α] (es : Array α) : Nat :=
   go 4
 where
-  go (numDigits : Nat) : Array α × Nat := Id.run do
+  go (numDigits : Nat) : Nat := Id.run do
     if 4*numDigits  < 64 then
       let shift := 64 - 4*numDigits
       let mut found : Std.HashSet UInt64 := {}
-      let mut result := #[]
       for e in es do
         let a := HasAnchor.getAnchor e
         let a' := a >>> shift.toUInt64
@@ -106,10 +107,9 @@ where
           return (← go (numDigits+1))
         else
           found  := found.insert a'
-          result := result.push (HasAnchor.setAnchor e a')
-      return (result, numDigits)
+      return numDigits
     else
-      return (es, numDigits)
+      return numDigits
   termination_by 64 - 4*numDigits
 
 public structure ExprWithAnchor where
@@ -118,11 +118,13 @@ public structure ExprWithAnchor where
 
 public instance : HasAnchor ExprWithAnchor where
   getAnchor e := e.anchor
-  setAnchor e anchor := { e with anchor }
+
+public def mkAnchorSyntaxFromPrefix (numDigits : Nat) (anchorPrefix : UInt64) : CoreM (TSyntax ``Parser.Tactic.Grind.anchor) := do
+  let hexnum := mkNode `hexnum #[mkAtom (anchorPrefixToString numDigits anchorPrefix)]
+  `(Parser.Tactic.Grind.anchor| #$hexnum)
 
 public def mkAnchorSyntax (numDigits : Nat) (anchor : UInt64) : CoreM (TSyntax ``Parser.Tactic.Grind.anchor) := do
   let anchorPrefix := anchor >>> (64 - 4*numDigits.toUInt64)
-  let hexnum := mkNode `hexnum #[mkAtom (anchorToString numDigits anchorPrefix)]
-  `(Parser.Tactic.Grind.anchor| #$hexnum)
+  mkAnchorSyntaxFromPrefix numDigits anchorPrefix
 
 end Lean.Meta.Grind

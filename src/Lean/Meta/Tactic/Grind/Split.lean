@@ -251,7 +251,6 @@ structure SplitCandidateWithAnchor where
 
 instance : HasAnchor SplitCandidateWithAnchor where
   getAnchor e := e.anchor
-  setAnchor e anchor := { e with anchor }
 
 structure SplitCandidateAnchors where
   /-- Pairs `(anchor, split)` -/
@@ -280,7 +279,7 @@ def getSplitCandidateAnchors (filter : Expr → GoalM Bool := fun _ => return tr
         return none
   -- **TODO**: Add an option for including propositions that are only considered when using `+splitImp`
   -- **TODO**: Add an option for including terms whose type is an inductive predicate or type
-  let (candidates, numDigits) := truncateAnchors candidates
+  let numDigits := getNumDigitsForAnchors candidates
   return { candidates, numDigits }
 
 namespace Action

@@ -247,15 +247,20 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
       if recLvls.length != recVal.levelParams.length then
         failK ()
       else
-        let rhs := rule.rhs.instantiateLevelParams recVal.levelParams recLvls
         -- Apply parameters, motives and minor premises from recursor application.
-        let rhs := mkAppRange rhs 0 (recVal.numParams+recVal.numMotives+recVal.numMinors) recArgs
+        let rhsArgs := recArgs.take (recVal.numParams+recVal.numMotives+recVal.numMinors)
         /- The number of parameters in the constructor is not necessarily
            equal to the number of parameters in the recursor when we have
            nested inductive types. -/
-        let nparams := majorArgs.size - rule.nfields
-        let rhs := mkAppRange rhs nparams majorArgs.size majorArgs
-        let rhs := mkAppRange rhs (majorIdx + 1) recArgs.size recArgs
+        let rhsArgs := rhsArgs ++ majorArgs.drop (majorArgs.size - rule.nfields)
+        let mut rhs := rule.rhs
+        -- The RHS rule is always constructed with lambdas for these
+        for i in [:rhsArgs.size] do
+          rhs := rhs.bindingBody!
+        rhs := rhs.instantiateLevelParams recVal.levelParams recLvls
+        rhs := rhs.instantiateRev rhsArgs
+        -- Extra argument
+        rhs := mkAppRange rhs (majorIdx + 1) recArgs.size recArgs
         successK rhs
     | none => failK ()
   else

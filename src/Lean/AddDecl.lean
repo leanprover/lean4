@@ -137,9 +137,13 @@ def addDecl (decl : Declaration) (forceExpose := false) : CoreM Unit :=
       trace[addDecl] "no matching async adding rules, adding synchronously"
       return (← doAdd)
 
-  if decl.getTopLevelNames.all isPrivateName && !(← ResolveName.backward.privateInPublic.getM) then
-    trace[addDecl] "not exporting private declaration at all"
-    exportedInfo? := none
+  if decl.getTopLevelNames.all isPrivateName then
+    if (← ResolveName.backward.privateInPublic.getM) then
+      trace[addDecl] "private decl under `privateInPublic`, exporting as is"
+      exportedInfo? := some info
+    else
+      trace[addDecl] "not exporting private declaration at all"
+      exportedInfo? := none
   else
     -- preserve original constant kind in extension if different from exported one
     if exportedInfo?.isSome then

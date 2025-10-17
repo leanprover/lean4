@@ -9,7 +9,7 @@ public import Lean.Meta.Tactic.Grind.Action
 import Lean.Meta.Tactic.Grind.AC.Eq
 namespace Lean.Meta.Grind.Action
 
-/-- Linear integer arithmetic action. -/
+/-- Associative-Commutative solver action. -/
 public def ac : Action := fun goal kna kp => do
   let (result, goal') ← GoalM.run goal AC.check
   match result with

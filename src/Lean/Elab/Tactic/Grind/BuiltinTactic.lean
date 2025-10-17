@@ -22,6 +22,7 @@ import Lean.Meta.Tactic.Grind.AC.PP
 import Lean.Meta.Tactic.ExposeNames
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.RenameInaccessibles
+import Lean.Elab.Tactic.Grind.Filter
 namespace Lean.Elab.Tactic.Grind
 
 def evalSepTactics (stx : Syntax) : GrindTacticM Unit := do
@@ -269,6 +270,13 @@ def logAnchor (numDigits : Nat) (anchorPrefix : UInt64) (e : Expr) : TermElabM U
     else
       return some goal
   replaceMainGoal goals
+
+@[builtin_grind_tactic casesTrace] def evalCasesTrace : GrindTactic := fun stx => do
+  let `(grind| cases? $[$filter?]?) := stx | throwUnsupportedSyntax
+  let filter ← elabFilter filter?
+  let { candidates, numDigits } ← liftGoalM <| getSplitCandidateAnchors
+
+  return ()
 
 @[builtin_grind_tactic Parser.Tactic.Grind.focus] def evalFocus : GrindTactic := fun stx => do
   let mkInfo ← mkInitialTacticInfo stx[0]

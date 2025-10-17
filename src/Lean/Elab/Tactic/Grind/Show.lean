@@ -117,8 +117,8 @@ def pushIfSome (msgs : Array MessageData) (msg? : Option MessageData) : Array Me
     let { candidates, numDigits } ← liftGoalM <| getSplitCandidateAnchors filter.eval
     if candidates.isEmpty then
       throwError "no case splits"
-    let msgs := candidates.map fun (a, e) =>
-      .trace { cls := `split } m!"#{anchorToString numDigits a} := {e}" #[]
+    let msgs := candidates.map fun { anchor,  e, .. } =>
+      .trace { cls := `split } m!"#{anchorToString numDigits anchor} := {e}" #[]
     let msg := MessageData.trace { cls := `splits, collapsed := false } "Case split candidates" msgs
     logInfo msg
   | _ => throwUnsupportedSyntax
@@ -130,13 +130,13 @@ def pushIfSome (msgs : Array MessageData) (msg? : Option MessageData) : Array Me
     let (_, entries) ← go found entries goal.ematch.newThms
     pure entries
   let (entries, numDigits) := truncateAnchors entries
-  let msgs := entries.map fun (a, e) =>
-    .trace { cls := `thm } m!"#{anchorToString numDigits a} := {e}" #[]
+  let msgs := entries.map fun { anchor, e } =>
+    .trace { cls := `thm } m!"#{anchorToString numDigits anchor} := {e}" #[]
   let msg := MessageData.trace { cls := `thms, collapsed := false } "Local theorems" msgs
   logInfo msg
 where
-  go (found : Std.HashSet Grind.Origin) (result : Array (UInt64 × Expr)) (thms : PArray EMatchTheorem)
-      : GrindM (Std.HashSet Grind.Origin × Array (UInt64 × Expr)) := do
+  go (found : Std.HashSet Grind.Origin) (result : Array ExprWithAnchor) (thms : PArray EMatchTheorem)
+      : GrindM (Std.HashSet Grind.Origin × Array ExprWithAnchor) := do
     let mut found := found
     let mut result := result
     for thm in thms do
@@ -147,7 +147,7 @@ where
         let type ← inferType thm.proof
         -- **Note**: Evaluate how stable these anchors are.
         let anchor ← getAnchor type
-        result := result.push (anchor, type)
+        result := result.push { anchor, e := type }
         pure ()
     return (found, result)
 

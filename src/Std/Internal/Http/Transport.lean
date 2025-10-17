@@ -41,7 +41,7 @@ class Transport (α : Type) where
   /--
   Get a selector for receiving data asynchronously.
   -/
-  recvSelector : α → UInt64 → Async (Selector (Option ByteArray))
+  recvSelector : α → UInt64 → Selector (Option ByteArray)
 
 instance : Transport Socket.Client where
   recv client expect := client.recv? expect
@@ -236,8 +236,8 @@ def sendAll (client : Mock.Client) (data : Array ByteArray) : Async Unit := do
 /--
 Create a selector for receiving data asynchronously.
 -/
-def recvSelector (client : Mock.Client) (size : UInt64) : Async (Selector (Option ByteArray)) := do
-  return {
+def recvSelector (client : Mock.Client) (size : UInt64) : Selector (Option ByteArray) :=
+  {
     tryFn := do
       client.state.atomically do
         if ← recvReady' then

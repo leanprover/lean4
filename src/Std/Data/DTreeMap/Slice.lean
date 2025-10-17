@@ -308,17 +308,17 @@ theorem Zipper.prependMap_invariant [Ord α] [TransOrd α] {t : Internal.Impl α
       apply Or.elim mem₁
       . intro eq_key
         rw [eq_key]
-        exact @Internal.Impl.Ordered.compare_left α β _ _ k v l r ord_t k₂ mem₂
+        exact Internal.Impl.Ordered.compare_left ord_t mem₂
       . intro hyp₂
         apply Or.elim hyp₂
         . intro in_r
           apply TransCmp.lt_trans
-          . exact @Internal.Impl.Ordered.compare_left α β _ _ k v l r ord_t k₂ mem₂
+          . exact Internal.Impl.Ordered.compare_left ord_t mem₂
           . rw [Internal.Impl.toList_eq_toListModel] at in_r
-            exact @Internal.Impl.Ordered.compare_right α β _ _ k v l r ord_t k₁ in_r
+            exact Internal.Impl.Ordered.compare_right ord_t in_r
         . intro in_z
-          specialize hyp k₁ in_z k₂ (by simp [mem₂])
-          exact hyp
+          apply hyp k₁ in_z k₂
+          simp [mem₂]
 
 theorem Zipper.prependMap_done_invariant [Ord α] [TransOrd α] {t : Internal.Impl α β}
     {ord_t : t.Ordered} :
@@ -685,4 +685,43 @@ public theorem toList_rcxIter {α β} [Ord α] [TransOrd α]
   exact t_ord
 
 end Rcx
+
+section Rcc
+
+@[always_inline]
+
+public def Rcc [Ord α] (t : Internal.Impl α β) (lower_bound : α) (upper_bound : α)  : Iter (α := RxcIterator α β compare) ((a : α) × β a) :=
+  ⟨RxcIterator.mk (Zipper.prependMapGE t lower_bound .done) upper_bound⟩
+
+public theorem toList_rccIter {α β} [Ord α] [TransOrd α]
+    {t : Internal.Impl α β} {t_ord : t.Ordered} {lower_bound upper_bound : α} :
+    (Rcc t lower_bound upper_bound : Iter (Sigma β)).toList =
+      t.toList.filter (fun e => (compare e.fst lower_bound).isGE ∧ (compare e.fst upper_bound).isLE) := by
+  simp [Rcc]
+  rw [toList_rxcIter]
+  rw [toList_eq_takeWhile_list]
+  . conv =>
+      rhs
+      lhs
+      ext x
+      rw [Bool.and_comm]
+    rw [← List.filter_filter]
+    congr 1
+    rw [← prepend_eq_prependGE]
+    . rw [Zipper.prependMap_to_list]
+      rw [Internal.Impl.prune_LE_filter]
+      simp [Zipper.toList]
+    . exact t_ord
+  . rw [← prepend_eq_prependGE]
+    . simp [Zipper.prependMap_to_list]
+      simp [Zipper.toList]
+      rw [Internal.Impl.prune_LE_filter]
+      apply List.Pairwise.filter
+      simp [Internal.Impl.Ordered] at t_ord
+      rw [Internal.Impl.toList_eq_toListModel]
+      exact t_ord
+    . exact t_ord
+
+end Rcc
+
 end Std.DTreeMap

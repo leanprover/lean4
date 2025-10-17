@@ -81,10 +81,10 @@ theorem Internal.Impl.prune_LE_filter {α β} [Ord α] [TransOrd α] (t : Intern
     case gt =>
       simp only [List.filter]
       rw [OrientedOrd.eq_swap, Ordering.swap_eq_gt] at heq
-      simp [heq]
+      rw [heq]
       suffices new_goal : List.filter (fun e => (compare e.fst lower_bound).isGE) l.toListModel = [] from by
-        simp [new_goal]
-        simp [toList_eq_toListModel] at r_ih
+        simp only [new_goal, Ordering.isGE_lt, List.nil_append]
+        simp only [toList_eq_toListModel] at r_ih
         apply r_ih
       rw [List.filter_eq_nil_iff]
       intro a mem
@@ -95,39 +95,37 @@ theorem Internal.Impl.prune_LT_filter {α β} [Ord α] [TransOrd α] (t : Intern
     (t.prune_LT ord_t lower_bound).toList = t.toList.filter (fun e => (compare e.fst lower_bound).isGT) := by
   induction t
   case leaf =>
-    simp [toList_eq_toListModel, prune_LT]
+    simp only [prune_LT, toList_eq_toListModel, toListModel_leaf, List.filter_nil]
   case inner _ k v l r l_ih r_ih =>
-    simp [toList_eq_toListModel, prune_LT]
+    simp only [prune_LT, toList_eq_toListModel, toListModel_inner, List.filter_append]
     generalize heq : compare lower_bound k = x
     cases x
     case lt =>
       simp
       specialize l_ih (Internal.Impl.Ordered.left ord_t)
       rw [toList_eq_toListModel] at l_ih
-      simp [l_ih, toList_eq_toListModel]
-      simp [List.filter]
+      simp only [l_ih, toList_eq_toListModel, List.filter, List.append_cancel_left_eq]
       rw [OrientedOrd.eq_swap] at heq
       rw [Ordering.swap_eq_lt] at heq
-      simp [heq]
+      simp only [heq, Ordering.isGT_gt, List.cons.injEq, true_and]
       symm
       apply List.filter_eq_self.2
       intro a mem
-      simp
+      rw [Ordering.isGT_iff_eq_gt]
       apply TransCmp.gt_trans ?_ heq
-      rw [OrientedOrd.eq_swap]
-      rw [Ordering.swap_eq_gt]
+      rw [OrientedOrd.eq_swap, Ordering.swap_eq_gt]
       exact Internal.Impl.Ordered.compare_right ord_t mem
     case eq =>
-      simp [List.filter]
+      simp only [List.filter]
       rw [OrientedCmp.eq_comm] at heq
-      simp [heq]
+      rw [heq]
       suffices new_goal : List.filter (fun e => (compare e.fst lower_bound).isGT) l.toListModel = [] ∧
           List.filter (fun e => (compare e.fst lower_bound).isGT) r.toListModel = r.toListModel from by
-        simp [new_goal]
+        simp only [new_goal, Ordering.isGT_eq, List.nil_append]
       apply And.intro
       . rw [List.filter_eq_nil_iff]
         intro a mem
-        simp [← Ordering.isLE_iff_ne_gt]
+        simp only [Ordering.isGT_iff_eq_gt, ← Ordering.isLE_iff_ne_gt]
         apply TransOrd.isLE_trans _ (Ordering.isLE_of_eq_eq heq)
         apply Ordering.isLE_of_eq_lt
         exact Internal.Impl.Ordered.compare_left ord_t mem
@@ -138,13 +136,14 @@ theorem Internal.Impl.prune_LT_filter {α β} [Ord α] [TransOrd α] (t : Intern
         rw [OrientedOrd.eq_swap, Ordering.swap_eq_gt]
         exact Internal.Impl.Ordered.compare_right ord_t mem
     case gt =>
-      simp [List.filter]
+      simp only [List.filter]
       rw [OrientedOrd.eq_swap] at heq
       rw [Ordering.swap_eq_gt] at heq
-      simp [heq]
+      simp only [heq, Ordering.isGT_lt]
       specialize r_ih (Ordered.right ord_t)
       rw [toList_eq_toListModel] at r_ih
-      simp [r_ih, toList_eq_toListModel]
+      simp only [r_ih, toList_eq_toListModel, List.self_eq_append_left, List.filter_eq_nil_iff,
+        Ordering.isGT_iff_eq_gt]
       intro a mem
       rw [← Ordering.isLE_iff_ne_gt]
       apply Ordering.isLE_of_eq_lt
@@ -194,21 +193,18 @@ theorem prepend_eq_prependGE [Ord α] (t : Internal.Impl α β) (ord_t : t.Order
     z.prependMap (t.prune_LE ord_t lower_bound) = z.prependMapGE t lower_bound := by
   induction t generalizing z
   case leaf =>
-    simp [Internal.Impl.prune_LE]
-    simp [Zipper.prependMap]
-    simp [Zipper.prependMapGE]
+    simp only [Internal.Impl.prune_LE, Zipper.prependMap, Zipper.prependMapGE]
   case inner _ k v l r l_ih r_ih =>
-    simp [Zipper.prependMapGE]
-    simp [Internal.Impl.prune_LE]
+    simp only [Internal.Impl.prune_LE, Zipper.prependMapGE]
     generalize heq : compare lower_bound k = x
     cases x
     case lt =>
-      simp
+      simp only
       apply l_ih
     case eq =>
-      simp [Zipper.prependMap]
+      simp only [Zipper.prependMap]
     case gt =>
-      simp
+      simp only
       apply r_ih
 
 theorem prepend_eq_prependGT_self [Ord α] [TransOrd α] (r : Internal.Impl α β)
@@ -219,16 +215,17 @@ theorem prepend_eq_prependGT_self [Ord α] [TransOrd α] (r : Internal.Impl α �
   case leaf =>
     trivial
   case inner _ k v l r l_ih r_ih =>
-    simp [Zipper.prependMap]
-    simp [Zipper.prependMapGT]
-    have hyp' := hyp ⟨k,v⟩ (by simp [Internal.Impl.toList_eq_toListModel])
+    simp only [Zipper.prependMap, Zipper.prependMapGT]
+    have hyp' := hyp ⟨k,v⟩ (by simp only [Internal.Impl.toList_eq_toListModel,
+      Internal.Impl.toListModel_inner, List.mem_append, List.mem_cons, true_or, or_true])
     simp at hyp'
-    simp [hyp']
+    rw [hyp']
     apply l_ih
     . exact (Internal.Impl.Ordered.left ord_r)
     . intro e mem
       apply hyp e
-      simp [Internal.Impl.toList_eq_toListModel]
+      simp only [Internal.Impl.toList_eq_toListModel, Internal.Impl.toListModel_inner,
+        List.mem_append, List.mem_cons]
       apply Or.inl
       . rw [Internal.Impl.toList_eq_toListModel] at mem
         exact mem
@@ -237,16 +234,13 @@ theorem prepend_eq_prependGT [Ord α] [TransOrd α] (t : Internal.Impl α β) (o
     z.prependMap (t.prune_LT ord_t lower_bound) = z.prependMapGT t lower_bound := by
   induction t generalizing z
   case leaf =>
-    simp [Internal.Impl.prune_LT]
-    simp [Zipper.prependMap]
-    simp [Zipper.prependMapGT]
+    simp only [Internal.Impl.prune_LT, Zipper.prependMap, Zipper.prependMapGT]
   case inner _ k v l r l_ih r_ih =>
-    simp [Zipper.prependMapGT]
-    simp [Internal.Impl.prune_LT]
+    simp only [Internal.Impl.prune_LT, Zipper.prependMapGT]
     generalize heq : compare lower_bound k = x
     cases x
     case lt =>
-      simp [Zipper.prependMap]
+      simp only [Zipper.prependMap]
       apply l_ih
     case eq =>
       simp only
@@ -264,12 +258,14 @@ theorem prepend_eq_prependGT [Ord α] [TransOrd α] (t : Internal.Impl α β) (o
 public theorem Zipper.prependMap_to_list (t : Internal.Impl α β) (it : Zipper α β) : (Zipper.prependMap t it).toList = t.toList ++ it.toList := by
   induction t generalizing it
   case leaf =>
-    simp [prependMap, Internal.Impl.toList_eq_toListModel]
+    simp only [prependMap, Internal.Impl.toList_eq_toListModel, Internal.Impl.toListModel_leaf,
+      List.nil_append]
   case inner _ k v l r l_ih r_ih =>
     simp only [Zipper.prependMap]
     specialize l_ih (Zipper.cons k v r it)
     rw [l_ih]
-    simp [toList, Internal.Impl.toList_eq_toListModel]
+    simp only [Internal.Impl.toList_eq_toListModel, toList, List.cons_append,
+      Internal.Impl.toListModel_inner, List.append_assoc]
 
 theorem Zipper.prependMap_invariant [Ord α] [TransOrd α] {t : Internal.Impl α β}
     {ord_t : t.Ordered} {z : Zipper α β} {ord_z : z.Ordered}
@@ -277,13 +273,13 @@ theorem Zipper.prependMap_invariant [Ord α] [TransOrd α] {t : Internal.Impl α
     (Zipper.prependMap t z).Ordered := by
   induction t generalizing z
   case leaf =>
-    simp [Zipper.prependMap]
+    rw [prependMap]
     exact ord_z
   case inner _ k v l r l_ih r_ih =>
-    simp [prependMap]
+    rw [prependMap]
     apply l_ih
     . exact Internal.Impl.Ordered.left ord_t
-    . simp [Zipper.Ordered]
+    . rw [Zipper.Ordered]
       simp only [Zipper.toList]
       simp
       apply And.intro
@@ -297,11 +293,11 @@ theorem Zipper.prependMap_invariant [Ord α] [TransOrd α] {t : Internal.Impl α
           simp at hyp
           exact hyp
       . have := @r_ih (Internal.Impl.Ordered.right ord_t) z ord_z
-        simp [Zipper.Ordered] at this
-        simp [Zipper.prependMap_to_list] at this
+        simp only [Ordered, prependMap_to_list] at this
         . apply this
           intro k₁ mem₁ k₂ mem₂
-          specialize hyp k₁ mem₁ k₂ (by simp [mem₂])
+          specialize hyp k₁ mem₁ k₂ (by simp only [Internal.Impl.toListModel_inner,
+            List.mem_append, List.mem_cons, mem₂, or_true])
           exact hyp
     . intro k₁ mem₁ k₂ mem₂
       simp only [toList, List.cons_append, List.mem_cons, List.mem_append] at mem₁
@@ -318,21 +314,21 @@ theorem Zipper.prependMap_invariant [Ord α] [TransOrd α] {t : Internal.Impl α
             exact Internal.Impl.Ordered.compare_right ord_t in_r
         . intro in_z
           apply hyp k₁ in_z k₂
-          simp [mem₂]
+          simp only [Internal.Impl.toListModel_inner, List.mem_append, mem₂, List.mem_cons, true_or]
 
 theorem Zipper.prependMap_done_invariant [Ord α] [TransOrd α] {t : Internal.Impl α β}
     {ord_t : t.Ordered} :
     (Zipper.prependMap t .done).Ordered := by
   apply Zipper.prependMap_invariant
   . exact ord_t
-  . simp [Ordered, Zipper.toList]
-  simp [Zipper.toList]
+  . simp only [Ordered, toList, List.Pairwise.nil]
+  simp only [toList, List.not_mem_nil, false_implies, implies_true]
 
 public theorem Zipper.ordered_of_cons_ordered [Ord α] [TransOrd α] {t : Internal.Impl α β}
     {z : Zipper α β} : (Zipper.cons k v t z).Ordered → z.Ordered := by
   intro hyp
   simp only [Zipper.Ordered, Zipper.toList] at hyp
-  simp [Zipper.Ordered]
+  simp only [Ordered]
   exact List.Pairwise.sublist (List.sublist_append_right (⟨k, v⟩ :: t.toList) z.toList) hyp
 
 theorem Zipper.prependMap_size (t : Internal.Impl α β) (it : Zipper α β) : (Zipper.prependMap t it).size = t.treeSize + it.size := by
@@ -378,7 +374,7 @@ def Zipper.instFinitenessRelation : FinitenessRelation (Zipper α β) Id where
       cases h
     case yield it'' out =>
       cases h
-      simp [Zipper.step] at h'
+      simp only [step] at h'
       split at h'
       case h_1 =>
         contradiction
@@ -403,18 +399,15 @@ public instance {z : Zipper α β} : ToIterator z Id ((a : α) × β a) where
   State := Zipper α β
   iterMInternal := Iter.toIterM <| Zipper.iter z
 
-def test : (DTreeMap.Raw Nat (fun _ => Nat) compare) := .ofList [⟨0, 0⟩, ⟨1, 1⟩, ⟨100, 3⟩, ⟨101, 4⟩, ⟨102, 4⟩, ⟨103, 4⟩]
-
-#eval! (Zipper.iter_of_tree (test.inner.prune_LT sorry 1)).toList
-#eval (Zipper.iter (Zipper.prependMapGT test.inner 1 .done)).toList
 
 public theorem step_Zipper_eq_match {it : IterM (α := Zipper α β) Id ((a : α) × β a)} :
     it.step = ⟨match it.internalState.iter with
     | ⟨Zipper.done⟩ => IterStep.done
     | ⟨Zipper.cons k v t z⟩ => IterStep.yield { internalState := Zipper.prependMap t z } ⟨k, v⟩,
     (by
-      simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Zipper.step]; split; all_goals (rename_i heq; simp [heq, Zipper.iter]))⟩ := by
-  simp [IterM.step, Iterator.step, Zipper.step]
+      simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Zipper.step]; split; all_goals (rename_i heq; simp only [Zipper.iter,
+        heq]))⟩ := by
+  simp only [IterM.step, Iterator.step, Zipper.step]
   ext
   congr 1
   congr 1
@@ -442,18 +435,20 @@ public theorem val_step_Zipper_eq_match {α β}
   rw [step_Zipper_eq_match]
   simp only [Iter.toIterM]
   split
-  · simp [Zipper.iter, IterM.Step.toPure, IterStep.mapIterator, Id.run]
+  · simp only [IterM.Step.toPure, IterStep.mapIterator, Id.run, Zipper.iter]
   · rename_i heq
-    simp [Zipper.iter] at heq
+    simp only [Zipper.iter, Iter.mk.injEq, reduceCtorEq] at heq
   . split
     case h_1 =>
       rename_i heq
-      simp [Zipper.iter] at heq
+      simp only [Zipper.iter, Iter.mk.injEq, reduceCtorEq] at heq
     case h_2 k v tree next x k v t it' heq =>
       simp only [Zipper.iter] at heq
       injections
       rename_i k_eq v_eq tree_eq next_eq
-      simp [Iter.step, Iter.toIterM, IterM.step, Id.run, Iterator.step, Zipper.step, IterM.toIter]
+      simp only [Iter.step, Iter.toIterM, Id.run, IterM.step, Iterator.step, Zipper.step,
+        IterM.Step.toPure_yield, PlausibleIterStep.yield, IterM.toIter, IterStep.yield.injEq,
+        Iter.mk.injEq, Sigma.mk.injEq]
       simp_all
 
 public theorem toList_Zipper {α β}
@@ -465,34 +460,34 @@ public theorem toList_Zipper {α β}
   rw [val_step_Zipper_eq_match] at hit
   simp only at hit
   split at hit <;> rename_i heq
-  · simp [← hit]
+  · simp only [← hit, List.nil_eq]
     cases z
-    . simp [Zipper.toList]
-    . simp [Zipper.iter] at heq
+    . rw [Zipper.toList]
+    . simp only [Zipper.iter, Iter.mk.injEq, reduceCtorEq] at heq
   . rename_i x k v t it'
-    simp [← hit]
+    simp only [← hit]
     rw [toList_Zipper]
     . generalize heq2 : Zipper.cons k v t it' = y
       rw [heq2] at heq
-      simp [Zipper.iter] at heq
+      simp only [Zipper.iter, Iter.mk.injEq] at heq
       rw [heq]
       rw [← heq2]
-      simp [Zipper.toList]
+      simp only [Zipper.toList, List.cons_append, List.cons.injEq, true_and]
       rw [Zipper.prependMap_to_list]
 termination_by z.size
 decreasing_by
   simp_all
   rename_i t _ _ heq
-  simp [Zipper.iter] at heq
+  simp only [Zipper.iter, Iter.mk.injEq] at heq
   rw [heq]
-  simp [Zipper.size]
+  simp only [Zipper.size]
   induction t
   case leaf =>
-    simp [Zipper.prependMap]
-    simp [Internal.Impl.treeSize]
+    simp only [Zipper.prependMap, Internal.Impl.treeSize, Nat.add_zero, Nat.lt_add_left_iff_pos,
+      Nat.lt_add_one]
   case inner =>
-    rw [Zipper.prependMap_size]
-    simp [Internal.Impl.treeSize]
+    simp only [Zipper.prependMap_size, Internal.Impl.treeSize, Nat.add_lt_add_iff_right, Nat.lt_add_left_iff_pos,
+      Nat.lt_add_one]
 end ZipperIterator
 section Rxc
 
@@ -538,7 +533,7 @@ def instFinitenessRelation : FinitenessRelation (RxcIterator α β cmp) Id where
       cases h
     case yield it'' out =>
       cases h
-      simp [RxcIterator.step] at h'
+      simp only [RxcIterator.step] at h'
       split at h'
       case h_1 =>
         contradiction
@@ -563,7 +558,7 @@ public theorem step_rxcIterator_eq_match {cmp : α → α → Ordering} {it : It
         IterStep.yield { internalState := { iter := Zipper.prependMap t z, upper := it.internalState.upper } } ⟨k, v⟩
       else IterStep.done,
     (by simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, RxcIterator.step]; split; all_goals (rename_i heq; simp only [heq]))⟩ := by
-  simp [IterM.step, Iterator.step, RxcIterator.step]
+  simp only [IterM.step, Iterator.step, RxcIterator.step]
   ext
   congr 1
   congr 1
@@ -611,8 +606,8 @@ public theorem val_step_rxcIterator_eq_match {α β} [Ord α]
   rw [step_rxcIterator_eq_match]
   simp only [Iter.toIterM]
   split
-  · simp [IterM.Step.toPure, IterStep.mapIterator, Id.run]
-  · split <;> simp [IterM.Step.toPure, IterStep.mapIterator, Id.run, IterM.toIter]
+  · simp only [IterM.Step.toPure, IterStep.mapIterator, Id.run]
+  · split <;> simp only [IterM.Step.toPure, IterM.toIter, IterStep.mapIterator, Id.run]
 
 public theorem toList_rxcIter {α β} [Ord α]
     {z : Zipper α β} {bound : α} :
@@ -623,13 +618,13 @@ public theorem toList_rxcIter {α β} [Ord α]
   rw [val_step_rxcIterator_eq_match] at hit
   simp only at hit
   split at hit <;> rename_i heq
-  · simp [← hit, Zipper.toList]
+  · simp only [← hit, Zipper.toList, List.takeWhile_nil]
   · split at hit
-    · simp [← hit, Zipper.toList]
+    · simp only [← hit, Zipper.toList, List.cons_append]
       rw [List.takeWhile_cons_of_pos ‹_›]
       simp
       rw [toList_rxcIter, Zipper.prependMap_to_list]
-    · simp [← hit, Zipper.toList]
+    · simp only [← hit, Zipper.toList, List.cons_append, List.nil_eq]
       rw [List.takeWhile_cons_of_neg ‹_›]
 termination_by z.size
 decreasing_by
@@ -642,7 +637,7 @@ public theorem toList_eq_takeWhile_list {α : Type u} {β : α → Type v} [Ord 
     case nil =>
       simp
     case cons h t t_ih =>
-      simp [List.filter, List.takeWhile]
+      simp only [List.takeWhile, List.filter]
       generalize heq : (compare h.fst bound).isLE = x
       cases x
       case true =>
@@ -662,7 +657,7 @@ public theorem toList_eq_takeWhile_list {α : Type u} {β : α → Type v} [Ord 
 
 public theorem toList_eq_takeWhile {α β} [Ord α] [TransOrd α] {z : Zipper α β} {bound : α} {z_ord : z.Ordered} :
     z.toList.takeWhile (fun e => (compare e.fst bound).isLE) = z.toList.filter (fun e => (compare e.fst bound).isLE) := by
-  simp [Zipper.Ordered] at z_ord
+  simp only [Zipper.Ordered] at z_ord
   apply toList_eq_takeWhile_list
   exact z_ord
 end Rxc
@@ -677,10 +672,10 @@ public theorem toList_rcxIter {α β} [Ord α] [TransOrd α]
     {t : Internal.Impl α β} {t_ord : t.Ordered} {lower_bound : α} :
     (Rcx t lower_bound : Iter (Sigma β)).toList =
       t.toList.filter (fun e => (compare e.fst lower_bound).isGE) := by
-  simp [Rcx]
-  simp [toList_Zipper]
+  simp only [Rcx]
+  simp only [toList_Zipper]
   rw [← prepend_eq_prependGE]
-  simp [Zipper.prependMap_to_list, Zipper.toList]
+  simp only [Zipper.prependMap_to_list, Zipper.toList, List.append_nil]
   apply Internal.Impl.prune_LE_filter
   exact t_ord
 
@@ -697,9 +692,8 @@ public theorem toList_rccIter {α β} [Ord α] [TransOrd α]
     {t : Internal.Impl α β} {t_ord : t.Ordered} {lower_bound upper_bound : α} :
     (Rcc t lower_bound upper_bound : Iter (Sigma β)).toList =
       t.toList.filter (fun e => (compare e.fst lower_bound).isGE ∧ (compare e.fst upper_bound).isLE) := by
-  simp [Rcc]
-  rw [toList_rxcIter]
-  rw [toList_eq_takeWhile_list]
+  simp only [Rcc, Bool.decide_and, Bool.decide_eq_true]
+  rw [toList_rxcIter, toList_eq_takeWhile_list]
   . conv =>
       rhs
       lhs
@@ -708,16 +702,14 @@ public theorem toList_rccIter {α β} [Ord α] [TransOrd α]
     rw [← List.filter_filter]
     congr 1
     rw [← prepend_eq_prependGE]
-    . rw [Zipper.prependMap_to_list]
-      rw [Internal.Impl.prune_LE_filter]
-      simp [Zipper.toList]
+    . rw [Zipper.prependMap_to_list, Internal.Impl.prune_LE_filter]
+      simp only [Zipper.toList, List.append_nil]
     . exact t_ord
   . rw [← prepend_eq_prependGE]
-    . simp [Zipper.prependMap_to_list]
-      simp [Zipper.toList]
+    . simp only [Zipper.prependMap_to_list, Zipper.toList, List.append_nil]
       rw [Internal.Impl.prune_LE_filter]
       apply List.Pairwise.filter
-      simp [Internal.Impl.Ordered] at t_ord
+      simp only [Internal.Impl.Ordered] at t_ord
       rw [Internal.Impl.toList_eq_toListModel]
       exact t_ord
     . exact t_ord

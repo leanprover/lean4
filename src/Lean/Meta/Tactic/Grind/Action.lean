@@ -68,12 +68,15 @@ use `callCC` here.
 
 -/
 
+abbrev TGrind := TSyntax `grind
+abbrev TGrindStep := TSyntax ``Parser.Tactic.Grind.grindStep
+
 /-- Result type for a `grind` Action -/
 inductive ActionResult where
   | /--
     The goal has been closed, and you can use `seq` to close the goal efficiently.
     -/
-    closed (seq : List (TSyntax `grind))
+    closed (seq : List TGrind)
   | /--
     The action could not make further progress.
     `gs` are subgoals that could not be closed. They are used for producing error messages.
@@ -151,8 +154,16 @@ Executes `x`, but behaves like a `skip` if it is not applicable.
 def skipIfNA (x : Action) : Action := fun goal _ kp =>
   x goal kp kp
 
-def mkGrindSeq (s : List (TSyntax `grind)) : TSyntax ``Parser.Tactic.Grind.grindSeq :=
-  let s := s.map (·.raw)
+/-- ``TSyntax `grind`` => ``TSyntax `Lean.Parser.Tactic.Grind.grindStep`` -/
+def mkGrindStep (t : TGrind) : TGrindStep :=
+  mkNode ``Parser.Tactic.Grind.grindStep #[ t, mkNullNode ]
+
+def TGrindStep.getTactic : TGrindStep → TGrind
+  | `(Parser.Tactic.Grind.grindStep| $tac:grind $[| $_]?) => tac
+  | _ => ⟨mkNullNode⟩
+
+def mkGrindSeq (s : List TGrind) : TSyntax ``Parser.Tactic.Grind.grindSeq :=
+  let s := s.map fun tac => (mkGrindStep tac).raw
   let s := s.intersperse (mkNullNode #[])
   mkNode ``Parser.Tactic.Grind.grindSeq #[
   mkNode ``Parser.Tactic.Grind.grindSeq1Indented #[
@@ -169,7 +180,7 @@ next =>
 ```
 If the list is empty, it returns `next => done`.
 -/
-def mkGrindNext (s : List (TSyntax `grind)) : CoreM (TSyntax `grind) := do
+def mkGrindNext (s : List TGrind) : CoreM TGrind := do
   let s ← if s == [] then pure [← `(grind| done)] else pure s
   let s := mkGrindSeq s
   `(grind| next => $s:grindSeq)
@@ -203,7 +214,7 @@ def ungroup : Action := fun goal _ kp => do
     match r with
     | .closed [tac] =>
       match tac with
-      | `(grind| next => $seq;*) => return .closed seq.getElems.toList
+      | `(grind| next => $seq;*) => return .closed <| seq.getElems.toList.map TGrindStep.getTactic
       | _ => return r
     | _ => return r
   else

@@ -239,13 +239,13 @@ example : h bs = 1 → h as ≠ 0 := by
     skip
     try fail
     fail_if_success fail
-    first | fail | done | skip
+    first (fail) (done) (skip)
     fail "Failed here"
     done
 
 example : h bs = 1 → h as ≠ 0 := by
   grind [h.eq_def] =>
-    instantiate
+    instantiate | as
     cases #ec88
     all_goals instantiate
 
@@ -263,6 +263,12 @@ info: Try these:
     p ∨ r
 -/
 #guard_msgs in
+example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → False := by
+  grind =>
+    cases?
+    sorry
+
+set_option trace.Meta.debug true in
 example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → False := by
   grind =>
     cases?
@@ -395,7 +401,7 @@ example (as bs cs : Array α) (v₁ v₂ : α)
         (h₆ : j < as.size)
         : cs[j] = as[j] := by
   grind =>
-    instantiate Array.getElem_set
+    instantiate Array.getElem_set | gen > 0
     instantiate Array.getElem_set
 
 example (as bs cs : Array α) (v₁ v₂ : α)

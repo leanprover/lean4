@@ -24,12 +24,26 @@ import Lean.Meta.Tactic.ExposeNames
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.RenameInaccessibles
 import Lean.Elab.Tactic.Grind.Filter
+import Lean.Elab.Tactic.Grind.ShowState
 namespace Lean.Elab.Tactic.Grind
+
+def showStateAt (ref : Syntax) (filter : Filter) : GrindTacticM Unit := do
+  if let goalBefore :: _ := (← getGoals) then
+    withRef ref <| goalBefore.withContext <| showState filter (isSilent := true)
+  else
+    logAt ref (severity := .information) (isSilent := true) "no grind state"
 
 def evalSepTactics (stx : Syntax) : GrindTacticM Unit := do
   for arg in stx.getArgs, i in *...stx.getArgs.size do
     if i % 2 == 0 then
-      evalGrindTactic arg
+      match arg with
+      | `(Parser.Tactic.Grind.grindStep| $tac:grind) => evalGrindTactic tac
+      | `(Parser.Tactic.Grind.grindStep| $tac:grind | $[$filter?]?) =>
+        let filter ← elabFilter filter?
+        showStateAt arg filter
+        evalGrindTactic tac
+        showStateAt arg[1] filter
+      | _ => throwUnsupportedSyntax
     else
       saveTacticInfoForToken arg
 
@@ -371,15 +385,14 @@ public def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIden
   replaceMainGoal []
 
 @[builtin_grind_tactic «first»] partial def evalFirst : GrindTactic := fun stx => do
-  let tacs := stx[1].getArgs
-  if tacs.isEmpty then throwUnsupportedSyntax
-  loop tacs 0
+  let `(grind| first $[($s:grindSeq)]*) := stx | throwUnsupportedSyntax
+  loop s 0
 where
-  loop (tacs : Array Syntax) (i : Nat) :=
-    if i == tacs.size - 1 then
-      evalGrindTactic tacs[i]![1]
+  loop (s : Array (TSyntax ``Parser.Tactic.Grind.grindSeq)) (i : Nat) :=
+    if i == s.size - 1 then
+      evalGrindTactic s[i]!
     else
-      evalGrindTactic tacs[i]![1] <|> loop tacs (i+1)
+      evalGrindTactic s[i]! <|> loop s (i+1)
 
 @[builtin_grind_tactic failIfSuccess] def evalFailIfSuccess : GrindTactic := fun stx =>
   Term.withoutErrToSorry <| withoutRecover do

@@ -194,9 +194,7 @@ private def handle [Transport α] (connection : Connection α) (config : Client.
         running := false
         continue
 
-    machine := machine
-      |> Protocol.H1.Machine.Client.processRead
-      |> Protocol.H1.Machine.Client.processWrite
+    machine := machine.processRead.processWrite
 
     let (newMachine, events) := machine.takeEvents
     machine := newMachine
@@ -293,6 +291,16 @@ private def handle [Transport α] (connection : Connection α) (config : Client.
   connectionTimer.stop
   requestTimer.stop
 
+  requestChannel.close
+
+  while true do
+    if let some x ← requestChannel.tryRecv then
+      x.onError (.userError "connection closed, cannot send more requests")
+    else
+      break
+
+
+
 end Connection
 
 /--
@@ -324,6 +332,11 @@ def createPersistentConnection [Transport t] (client : t) (config : Client.Confi
   let connection := Connection.mk client { config := config.toH1Config }
   let shutdown ← IO.Promise.new
 
-  pure { connection, requestChannel, shutdown }
+  let conn := { connection, requestChannel, shutdown }
+
+  background (Connection.handle connection config requestChannel)
+
+  return conn
+
 
 end Std.Http.Client

@@ -16,10 +16,15 @@ def sendraw (client : Mock.Client) (reqs: Array ByteArray) (onRequest : Request 
 
   client.getSentData
 
-def sendRequests (client : Mock.Client) (reqs : Array (Request (Array String))) (onRequest : Request Body → Async (Response Body)) : IO ByteArray := Async.block do
+def sendRequests (client : Mock.Client) (reqs : Array (Request (Array String))) (onRequest : Request Body → Async (Response Body)) (maximum : Nat := 99999) : IO ByteArray := Async.block do
+  let mut data := .empty
+
   for req in reqs do
-    client.enqueueReceive <| String.toUTF8 <| toString req.head
-    for part in req.body do client.enqueueReceive <| part.toUTF8
+    data := data ++ (String.toUTF8 <| toString req.head)
+    for part in req.body do
+      data := data ++ part.toUTF8
+
+  client.enqueueReceive (data.extract 0 maximum)
 
   Std.Http.Server.serveConnection client onRequest (config := { lingeringTimeout := 3000 })
 
@@ -195,6 +200,53 @@ info: "HTTP/1.1 413 Request Entity Too Large\x0d\nContent-Length: 48\x0d\nConnec
 #guard_msgs in
 #eval show IO _ from do testMaxRequestSize
 
+def testCut : IO Unit := do
+  let client ← Mock.Client.new
+
+  let handler := fun (req : Request Body) => do
+    if req.head.headers.hasEntry "Accept" "application/json" then
+      return Response.new
+        |>.status .accepted
+        |>.header "Content-Type" (.new "application/json")
+        |>.body "{\"message\": \"JSON response\", \"status\": \"accepted\"}"
+    else if req.head.headers.hasEntry "Accept" "text/xml" then
+      return Response.new
+        |>.status .ok
+        |>.header "Content-Type" (.new "application/xml")
+        |>.body "<?xml version=\"1.0\"?><response><message>XML response</message></response>"
+    else
+      return Response.new
+        |>.status .ok
+        |>.header "Content-Type" (.new "text/plain")
+        |>.body "Plain text response"
+
+  let response ← sendRequests (maximum := 140) client #[
+    Request.new
+      |>.uri! "/api/content"
+      |>.method .post
+      |>.header "Host" (.new "localhost")
+      |>.header "Accept" (.new "application/json")
+      |>.header "Content-Type" (.new "application/json")
+      |>.header "Content-Length" (.new "18")
+      |>.body #["{\"request\": \"data\"}"],
+    Request.new
+      |>.uri! "/api/content"
+      |>.method .get
+      |>.header "Host" (.new "localhost")
+      |>.header "Accept" (.new "text/xml")
+      |>.header "Content-Length" (.new "1")
+      |>.body #["a"]
+  ] handler
+
+  let responseData := String.fromUTF8! response
+  IO.println s!"{responseData.quote}"
+
+/--
+info: "HTTP/1.1 202 Accepted\x0d\nContent-Length: 50\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: application/json\x0d\n\x0d\n{\"message\": \"JSON response\", \"status\": \"accepted\"}HTTP/1.1 400 Bad Request\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+-/
+#guard_msgs in
+#eval show IO _ from do testCut
+
 /--
 info: "HTTP/1.1 200 OK\x0d\nContent-Length: 35\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: application/json\x0d\n\x0d\nReceived: {\"name\": \"test\", \"id\": 1}"
 -/
@@ -221,7 +273,7 @@ def testContentNegotiation : IO Unit := do
         |>.header "Content-Type" (.new "text/plain")
         |>.body "Plain text response"
 
-  let response ← sendRequests client #[
+  let response ← sendRequests (maximum := 240) client #[
     Request.new
       |>.uri! "/api/content"
       |>.method .post
@@ -268,7 +320,7 @@ def testContentNegotiationError : IO Unit := do
         |>.header "Content-Type" (.new "text/plain")
         |>.body "Plain text response"
 
-  let response ← sendRequests client #[
+  let response ← sendRequests (maximum := 140) client #[
     Request.new
       |>.uri! "/api/content"
       |>.method .post

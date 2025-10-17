@@ -103,9 +103,7 @@ private def handle
 
   while running do
 
-    machine := machine
-      |> Protocol.H1.Machine.Server.processRead
-      |> Protocol.H1.Machine.Server.processWrite
+    machine := machine.processRead.processWrite
 
     let (newMachine, events) := machine.takeEvents
     machine := newMachine
@@ -119,8 +117,7 @@ private def handle
           | .ok (some bs) =>
             machine := machine.feed bs
           | .ok none =>
-            running := false;
-            break
+            machine := machine.closePeerConnection
           | .error _ => do
             if let .needStartLine := machine.reader.state then
               running := false; break

@@ -31,6 +31,10 @@ structure State where
   snapshotTasks  : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
   deriving Nonempty
 
+structure DerivedState extends State where
+  private coreCtx : Core.Context
+  private coreState : Core.State
+
 structure Context where
   fileName       : String
   fileMap        : FileMap
@@ -59,7 +63,7 @@ structure Context where
   -/
   suppressElabErrors : Bool := false
 
-abbrev CommandElabM := ReaderT Context $ StateRefT State $ EIO Exception
+abbrev CommandElabM := ReaderT Context $ StateRefT DerivedState $ EIO Exception
 abbrev CommandElab  := Syntax → CommandElabM Unit
 structure Linter where
   run : Syntax → CommandElabM Unit
@@ -73,6 +77,70 @@ Remark: see comment at TermElabM
 -/
 @[always_inline]
 instance : Monad CommandElabM := let i := inferInstanceAs (Monad CommandElabM); { pure := i.pure, bind := i.bind }
+
+private def DerivedState.derive (ctx : Context) (s : State) : DerivedState where
+  toState := s
+  coreCtx := {
+    fileName           := ctx.fileName
+    fileMap            := ctx.fileMap
+    currRecDepth       := ctx.currRecDepth
+    maxRecDepth        := s.maxRecDepth
+    ref                := ctx.ref
+    currNamespace      := scope.currNamespace
+    openDecls          := scope.openDecls
+    initHeartbeats     := 0
+    quotContext        := ctx.quotContext?.getD s.env.mainModule
+    currMacroScope     := ctx.currMacroScope
+    options            := scope.opts
+    cancelTk?          := ctx.cancelTk?
+    suppressElabErrors := ctx.suppressElabErrors }
+  coreState := {
+    env := s.env
+    ngen := s.ngen
+    auxDeclNGen := s.auxDeclNGen
+    nextMacroScope := s.nextMacroScope
+    infoState := s.infoState
+    traceState := s.traceState
+    snapshotTasks := s.snapshotTasks
+    messages := s.messages
+  }
+where
+  scope := s.scopes.head!
+
+private def State.updateCore (s : State) (coreS : Core.State) : State :=
+  { s with
+    env                      := coreS.env
+    nextMacroScope           := coreS.nextMacroScope
+    ngen                     := coreS.ngen
+    auxDeclNGen              := coreS.auxDeclNGen
+    infoState                := coreS.infoState
+    traceState               := coreS.traceState
+    snapshotTasks            := coreS.snapshotTasks
+    messages                 := coreS.messages }
+
+instance : MonadStateOf State CommandElabM where
+  get := return (← getThe DerivedState).toState
+  set s := private do set (DerivedState.derive (← read) s)
+  modifyGet f := private do
+    let ctx ← read
+    modifyGetThe DerivedState fun ds =>
+      let (a, s') := f ds.toState
+      (a, DerivedState.derive ctx s')
+
+instance : MonadLift CoreM CommandElabM where
+  monadLift x := private do
+    let ds ← getThe DerivedState
+    let (a, coreS) ← x.run ds.coreCtx ds.coreState
+    modify fun s => s.updateCore coreS
+    return a
+
+protected nonrec def CommandElabM.run (ctx : Context) (s : State) (x : CommandElabM α) : EIO Exception (α × State) := do
+  let ds := DerivedState.derive ctx s
+  let (a, ds') ← x.run ctx |>.run ds
+  return (a, ds'.toState)
+
+protected def CommandElabM.run' (ctx : Context) (s : State) (x : CommandElabM α) : EIO Exception α := do
+  (·.1) <$> x.run ctx s
 
 /--
 Like `Core.tryCatchRuntimeEx`; runtime errors are generally used to abort term elaboration, so we do
@@ -161,49 +229,15 @@ instance : MonadQuotation CommandElabM where
   withFreshMacroScope := Command.withFreshMacroScope
 
 private def runCore (x : CoreM α) : CommandElabM α := do
-  let s ← get
+  let s ← getThe DerivedState
   let ctx ← read
   let heartbeats ← IO.getNumHeartbeats
   let env := Kernel.resetDiag s.env
-  let scope := s.scopes.head!
-  let coreCtx : Core.Context := {
-    fileName           := ctx.fileName
-    fileMap            := ctx.fileMap
-    currRecDepth       := ctx.currRecDepth
-    maxRecDepth        := s.maxRecDepth
-    ref                := ctx.ref
-    currNamespace      := scope.currNamespace
-    openDecls          := scope.openDecls
-    initHeartbeats     := heartbeats
-    quotContext        := (← MonadQuotation.getMainModule)
-    currMacroScope     := ctx.currMacroScope
-    options            := scope.opts
-    cancelTk?          := ctx.cancelTk?
-    suppressElabErrors := ctx.suppressElabErrors }
-  let x : EIO _ _ := x.run coreCtx {
-    env
-    ngen := s.ngen
-    auxDeclNGen := s.auxDeclNGen
-    nextMacroScope := s.nextMacroScope
-    infoState.enabled := s.infoState.enabled
-    -- accumulate lazy assignments from all `CoreM` lifts
-    infoState.lazyAssignment := s.infoState.lazyAssignment
-    traceState := s.traceState
-    snapshotTasks := s.snapshotTasks
-  }
+  let coreCtx : Core.Context := { s.coreCtx with initHeartbeats := heartbeats }
+  let x : EIO _ _ := x.run coreCtx { s.coreState with env }
   let (ea, coreS) ← liftM x
-  modify fun s => { s with
-    env                      := coreS.env
-    nextMacroScope           := coreS.nextMacroScope
-    ngen                     := coreS.ngen
-    auxDeclNGen              := coreS.auxDeclNGen
-    infoState.trees          := s.infoState.trees.append coreS.infoState.trees
-    -- we assume substitution of `assignment` has already happened, but for lazy assignments we only
-    -- do it at the very end
-    infoState.lazyAssignment := coreS.infoState.lazyAssignment
+  modify fun s => s.updateCore { coreS with
     traceState.traces        := coreS.traceState.traces.map fun t => { t with ref := replaceRef t.ref ctx.ref }
-    snapshotTasks            := coreS.snapshotTasks
-    messages                 := s.messages ++ coreS.messages
   }
   return ea
 
@@ -278,7 +312,7 @@ def wrapAsync {α β : Type} (act : α → CommandElabM β) (cancelTk? : Option 
   setDeclNGen parentNGen
   let st ← get
   let st := { st with auxDeclNGen := childNGen }
-  return (act · |>.run ctx |>.run' st)
+  return (act · |>.run' ctx st)
 
 open Language in
 @[inherit_doc Core.wrapAsyncAsSnapshot]
@@ -598,8 +632,13 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
   -- initialize quotation context using hash of input string
   let ss? := stx.getSubstring? (withLeading := false) (withTrailing := false)
   withInitQuotContext (ss?.map (hash ·.toString.trim)) do
-  -- Reset messages and info state, which are both per-command
-  modify fun st => { st with messages := {}, infoState := { enabled := st.infoState.enabled } }
+  -- Reset per-command state
+  modify fun st => { st with
+    messages := {}
+    infoState := { enabled := st.infoState.enabled }
+    traceState := {}
+    snapshotTasks := #[]
+  }
   try
     -- We should *not* factor out `elabCommand`'s `withLogging` to here since it would make its error
     -- recovery more coarse. In particular, if `c` in `set_option ... in $c` fails, the remaining
@@ -801,8 +840,8 @@ open Elab Command MonadRecDepth
 private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) : CoreM α := do
   let s : Core.State ← get
   let ctx : Core.Context ← read
-  let (a, commandState) ←
-    cmd.run {
+  let (a, commandState) ← do
+    let cmdCtx := {
       fileName := ctx.fileName
       fileMap := ctx.fileMap
       currRecDepth := ctx.currRecDepth
@@ -811,7 +850,8 @@ private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) :
       snap? := none
       cancelTk? := ctx.cancelTk?
       suppressElabErrors := ctx.suppressElabErrors
-    } |>.run {
+    }
+    cmd.run cmdCtx {
       env := s.env
       nextMacroScope := s.nextMacroScope
       maxRecDepth := ctx.maxRecDepth

@@ -55,7 +55,7 @@ public def ofValid? (year month day : Nat) : Option Date := do
   return {year, month, day}
 
 public def ofString? (t : String) : Option Date := do
-  match t.split (· == '-') with
+  match t.splitToList (· == '-') with
   | [y,m,d] =>
     ofValid? (← y.toNat?) (← m.toNat?) (← d.toNat?)
   | _ => none

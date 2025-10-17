@@ -32,7 +32,7 @@ public instance : Max SemVerCore := maxOfLe
 
 public def SemVerCore.parse (ver : String) : Except String SemVerCore := do
   try
-    match ver.split (· == '.') with
+    match ver.splitToList (· == '.') with
     | [major, minor, patch] =>
         let parseNat (v : String) (what : String) := do
           let some v := v.toNat?

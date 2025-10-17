@@ -272,7 +272,7 @@ Separates the entries in the `$PATH` (or `%PATH%`) environment variable by the c
 platform-dependent separator character.
 -/
 def parse (s : String) : SearchPath :=
-  s.split (fun c => SearchPath.separator == c) |>.map FilePath.mk
+  s.splitToList (fun c => SearchPath.separator == c) |>.map FilePath.mk
 
 /--
 Joins a list of paths into a suitable value for the current platform's `$PATH` (or `%PATH%`)

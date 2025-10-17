@@ -330,7 +330,7 @@ private def withAtoms (cat : Name) (atoms : List String) : TermElabM (Array Name
 private def kwImpl (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .anonymous)
     (suggest : Bool)
     (s : StrLit) : TermElabM (Inline ElabInline) := do
-  let atoms := s.getString |>.split (·.isWhitespace)
+  let atoms := s.getString |>.splitToList (·.isWhitespace)
   let env ← getEnv
   let parsers := Lean.Parser.parserExtension.getState env
   let cat' := cat.getId
@@ -495,7 +495,7 @@ Suggests the `kw` role, if applicable.
 -/
 @[builtin_doc_code_suggestions]
 public def suggestKw (code : StrLit) : DocM (Array CodeSuggestion) := do
-  let atoms := code.getString |>.split (·.isWhitespace)
+  let atoms := code.getString |>.splitToList (·.isWhitespace)
   let env ← getEnv
   let parsers := Lean.Parser.parserExtension.getState env
   let cats := parsers.categories.toArray

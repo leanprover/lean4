@@ -703,7 +703,7 @@ class ToMessageData (α : Type) where
 export ToMessageData (toMessageData)
 
 def stringToMessageData (str : String) : MessageData :=
-  let lines := str.split (· == '\n')
+  let lines := str.splitToList (· == '\n')
   let lines := lines.map (MessageData.ofFormat ∘ format)
   MessageData.joinSep lines (MessageData.ofFormat Format.line)
 

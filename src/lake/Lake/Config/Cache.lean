@@ -369,7 +369,7 @@ toolchain and platform information in a manner similar to Reservoir.
 public def artifactContentType : String := "application/vnd.reservoir.artifact"
 
 private def appendScope (endpoint : String) (scope : String) : String :=
-  scope.split (· == '/') |>.foldl (init := endpoint) fun s component =>
+  scope.splitToList (· == '/') |>.foldl (init := endpoint) fun s component =>
     uriEncode component s |>.push '/'
 
 private def s3ArtifactUrl (contentHash : Hash) (service : CacheService) (scope : String)  : String :=

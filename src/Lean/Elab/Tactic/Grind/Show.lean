@@ -6,68 +6,13 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Elab.Tactic.Grind.Basic
+import Lean.Elab.Tactic.Grind.Filter
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Anchor
 import Lean.Meta.Tactic.Grind.Split
 namespace Lean.Elab.Tactic.Grind
 open Meta
-
-inductive Filter where
-  | true
-  | const (declName : Name)
-  | fvar (fvarId : FVarId)
-  | gen (pred : Nat → Bool)
-  | or (a b : Filter)
-  | and (a b : Filter)
-  | not (a : Filter)
-
-partial def elabFilter (filter? : Option (TSyntax `show_filter)) : GrindTacticM Filter := do
-  let some filter := filter? | return .true
-  go filter
-where
-  go (filter : TSyntax `show_filter) : GrindTacticM Filter := do
-    match filter with
-    | `(show_filter| $id:ident) =>
-      match (← Term.resolveId? id) with
-      | some (.const declName _) => return .const declName
-      | some (.fvar fvarId) => return .fvar fvarId
-      | _ => throwErrorAt id "invalid identifier"
-    | `(show_filter| $a:show_filter && $b:show_filter) => return .and (← go a) (← go b)
-    | `(show_filter| $a:show_filter || $b:show_filter) => return .or (← go a) (← go b)
-    | `(show_filter| ! $a:show_filter) => return .not (← go a)
-    | `(show_filter| ($a:show_filter)) => go a
-    | `(show_filter| gen = $n:num)  => let n := n.getNat; return .gen fun x => x == n
-    | `(show_filter| gen > $n:num)  => let n := n.getNat; return .gen fun x => x > n
-    | `(show_filter| gen ≥ $n:num)  => let n := n.getNat; return .gen fun x => x ≥ n
-    | `(show_filter| gen >= $n:num) => let n := n.getNat; return .gen fun x => x ≥ n
-    | `(show_filter| gen ≤ $n:num)  => let n := n.getNat; return .gen fun x => x ≤ n
-    | `(show_filter| gen <= $n:num) => let n := n.getNat; return .gen fun x => x ≤ n
-    | `(show_filter| gen < $n:num)  => let n := n.getNat; return .gen fun x => x < n
-    | `(show_filter| gen != $n:num) => let n := n.getNat; return .gen fun x => x != n
-    | _ => throwUnsupportedSyntax
-
 open Meta.Grind
-
--- **Note**: facts may not have been internalized if they are equalities.
-def getGen (e : Expr) : GoalM Nat := do
-  if (← alreadyInternalized e) then
-    getGeneration e
-  else match_expr e with
-   | Eq _ lhs rhs => return max (← getGeneration lhs) (← getGeneration rhs)
-   | _ => return 0
-
-def Filter.eval (filter : Filter) (e : Expr) : GoalM Bool := do
-  go filter
-where
-  go (filter : Filter) : GoalM Bool := do
-  match filter with
-  | .true => return .true
-  | .and a b => go a <&&> go b
-  | .or a b => go a <||> go b
-  | .not a => return !(← go a)
-  | .const declName => return Option.isSome <| e.find? fun e => e.isConstOf declName
-  | .fvar fvarId => return Option.isSome <| e.find? fun e => e.isFVar && e.fvarId! == fvarId
-  | .gen pred => let gen ← getGen e; return pred gen
 
 def ppAsserted? (filter : Filter) (collapsed := false) : GrindTacticM (Option MessageData) := do
     let facts ← liftGoalM do (← get).facts.toArray.filterM fun e => filter.eval e
@@ -76,12 +21,10 @@ def ppAsserted? (filter : Filter) (collapsed := false) : GrindTacticM (Option Me
     return some <| Grind.ppExprArray `facts "Asserted facts" facts (collapsed := collapsed)
 
 @[builtin_grind_tactic showAsserted] def evalShowAsserted : GrindTactic := fun stx => withMainContext do
-  match stx with
-  | `(grind| show_asserted $[$filter?]?) =>
-    let filter ← elabFilter filter?
-    let some msg ← ppAsserted? filter | throwError "no facts"
-    logInfo msg
-  | _ => throwUnsupportedSyntax
+  let `(grind| show_asserted $[$filter?]?) := stx | throwUnsupportedSyntax
+  let filter ← elabFilter filter?
+  let some msg ← ppAsserted? filter | throwError "no facts"
+  logInfo msg
 
 def ppProps? (filter : Filter) (isTrue : Bool) (collapsed := false) : GrindTacticM (Option MessageData) := do
   let props ← liftGoalM do
@@ -91,21 +34,19 @@ def ppProps? (filter : Filter) (isTrue : Bool) (collapsed := false) : GrindTacti
     return none
   return some <| Grind.ppExprArray `props s!"{if isTrue then "True" else "False"} propositions" props (collapsed := collapsed)
 
-def showProps (filter? : Option (TSyntax `show_filter)) (isTrue : Bool) : GrindTacticM Unit := withMainContext do
+def showProps (filter? : Option (TSyntax `grind_filter)) (isTrue : Bool) : GrindTacticM Unit := withMainContext do
   let filter ← elabFilter filter?
   let some msg ← ppProps? filter isTrue
     | throwError s!"no {if isTrue then "true" else "false"} propositions"
   logInfo msg
 
 @[builtin_grind_tactic showTrue] def evalShowTrue : GrindTactic := fun stx => do
-  match stx with
-  | `(grind| show_true $[$filter?]?) => showProps filter? true
-  | _ => throwUnsupportedSyntax
+  let `(grind| show_true $[$filter?]?) := stx | throwUnsupportedSyntax
+  showProps filter? true
 
 @[builtin_grind_tactic showFalse] def evalShowFalse : GrindTactic := fun stx => do
-  match stx with
-  | `(grind| show_false $[$filter?]?) => showProps filter? false
-  | _ => throwUnsupportedSyntax
+  let `(grind| show_false $[$filter?]?) := stx | throwUnsupportedSyntax
+  showProps filter? false
 
 def ppEqcs? (filter : Filter) (collapsed := false) : GrindTacticM (Option MessageData) := liftGoalM do
   let mut regularEqcs : Array MessageData := #[]
@@ -143,55 +84,49 @@ def ppEqcs? (filter : Filter) (collapsed := false) : GrindTacticM (Option Messag
     return MessageData.trace { cls := `eqc, collapsed } "Equivalence classes" regularEqcs
 
 @[builtin_grind_tactic showEqcs] def evalShowEqcs : GrindTactic := fun stx => withMainContext do
-  match stx with
-  | `(grind| show_eqcs $[$filter?]?) =>
-    let filter ← elabFilter filter?
-    let some msg ← ppEqcs? filter | throwError "no equivalence classes"
-    logInfo msg
-  | _ => throwUnsupportedSyntax
+  let `(grind| show_eqcs $[$filter?]?) := stx | throwUnsupportedSyntax
+  let filter ← elabFilter filter?
+  let some msg ← ppEqcs? filter | throwError "no equivalence classes"
+  logInfo msg
 
 def pushIfSome (msgs : Array MessageData) (msg? : Option MessageData) : Array MessageData :=
   if let some msg := msg? then msgs.push msg else msgs
 
 @[builtin_grind_tactic showState] def evalShowState : GrindTactic := fun stx => withMainContext do
-  match stx with
-  | `(grind| show_state $[$filter?]?) =>
-    let filter ← elabFilter filter?
-    let msgs := #[]
-    let msgs := pushIfSome msgs (← ppAsserted? filter (collapsed := true))
-    let msgs := pushIfSome msgs (← ppProps? filter true (collapsed := false))
-    let msgs := pushIfSome msgs (← ppProps? filter false (collapsed := false))
-    let msgs := pushIfSome msgs (← ppEqcs? filter (collapsed := false))
-    logInfo <| MessageData.trace { cls := `grind, collapsed := false } "Grind state" msgs
-  | _ => throwUnsupportedSyntax
+  let `(grind| show_state $[$filter?]?) := stx | throwUnsupportedSyntax
+  let filter ← elabFilter filter?
+  let msgs := #[]
+  let msgs := pushIfSome msgs (← ppAsserted? filter (collapsed := true))
+  let msgs := pushIfSome msgs (← ppProps? filter true (collapsed := false))
+  let msgs := pushIfSome msgs (← ppProps? filter false (collapsed := false))
+  let msgs := pushIfSome msgs (← ppEqcs? filter (collapsed := false))
+  logInfo <| MessageData.trace { cls := `grind, collapsed := false } "Grind state" msgs
 
-@[builtin_grind_tactic showSplits] def evalShowSplits : GrindTactic := fun stx => withMainContext do
-  match stx with
-  | `(grind| show_splits $[$filter?]?) =>
-    let filter ← elabFilter filter?
-    let { candidates, numDigits } ← liftGoalM <| getSplitCandidateAnchors filter.eval
-    if candidates.isEmpty then
-      throwError "no case splits"
-    let msgs := candidates.map fun (a, e) =>
-      .trace { cls := `split } m!"#{anchorToString numDigits a} := {e}" #[]
-    let msg := MessageData.trace { cls := `splits, collapsed := false } "Case split candidates" msgs
-    logInfo msg
-  | _ => throwUnsupportedSyntax
+@[builtin_grind_tactic showCases] def evalShowCases : GrindTactic := fun stx => withMainContext do
+  let `(grind| show_cases $[$filter?]?) := stx | throwUnsupportedSyntax
+  let filter ← elabFilter filter?
+  let { candidates, numDigits } ← liftGoalM <| getSplitCandidateAnchors filter.eval
+  if candidates.isEmpty then
+    throwError "no case splits"
+  let msgs := candidates.map fun { anchor,  e, .. } =>
+    .trace { cls := `split } m!"#{anchorToString numDigits anchor} := {e}" #[]
+  let msg := MessageData.trace { cls := `splits, collapsed := false } "Case split candidates" msgs
+  logInfo msg
 
-@[builtin_grind_tactic showThms] def evalShowThms : GrindTactic := fun _ => withMainContext do
+@[builtin_grind_tactic showLocalThms] def evalShowLocalThms : GrindTactic := fun _ => withMainContext do
   let goal ← getMainGoal
   let entries ← liftGrindM do
     let (found, entries) ← go {} {} goal.ematch.thms
     let (_, entries) ← go found entries goal.ematch.newThms
     pure entries
-  let (entries, numDigits) := truncateAnchors entries
-  let msgs := entries.map fun (a, e) =>
-    .trace { cls := `thm } m!"#{anchorToString numDigits a} := {e}" #[]
+  let numDigits := getNumDigitsForAnchors entries
+  let msgs := entries.map fun { anchor, e } =>
+    .trace { cls := `thm } m!"#{anchorToString numDigits anchor} := {e}" #[]
   let msg := MessageData.trace { cls := `thms, collapsed := false } "Local theorems" msgs
   logInfo msg
 where
-  go (found : Std.HashSet Grind.Origin) (result : Array (UInt64 × Expr)) (thms : PArray EMatchTheorem)
-      : GrindM (Std.HashSet Grind.Origin × Array (UInt64 × Expr)) := do
+  go (found : Std.HashSet Grind.Origin) (result : Array ExprWithAnchor) (thms : PArray EMatchTheorem)
+      : GrindM (Std.HashSet Grind.Origin × Array ExprWithAnchor) := do
     let mut found := found
     let mut result := result
     for thm in thms do
@@ -202,7 +137,7 @@ where
         let type ← inferType thm.proof
         -- **Note**: Evaluate how stable these anchors are.
         let anchor ← getAnchor type
-        result := result.push (anchor, type)
+        result := result.push { anchor, e := type }
         pure ()
     return (found, result)
 

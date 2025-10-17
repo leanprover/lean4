@@ -2388,23 +2388,143 @@ theorem fastUmulOverflow (x y : BitVec w) :
 /-! ## Auxilliary lemmas for popcount -/
 
 /-- Recursively extract one bit at a time and extend it to width `w`. `hlen` emulates the behaviour of Vector to simplify proving the correctness of the circuit. -/
-def extractAndExtendPopulateAux (k len : Nat) (x : BitVec w) (acc : BitVec (k * len)) (hlt : k ≤ w) :
-    BitVec (w * len) :=
+def extractAndExtendPopulateAux (k len : Nat) (x : BitVec w) (acc : BitVec (k * len)) (hle : k ≤ w)
+    (hacc : ∀ i (_ : i < k), acc.extractLsb' (i * len) len = (x.extractLsb' i 1).setWidth len)
+    :
+   {l: BitVec (w * len) //
+    ∀ i, l.extractLsb' (i * len) len = (x.extractLsb' i 1).setWidth len
+   } :=
   match hwi : w - k with
-  | 0 => acc.cast (by simp [show w = k by omega])
+  | 0 =>
+    ⟨acc.cast (by simp [show w = k by omega]),
+      by
+        intros j
+        have : k = w := by omega
+        by_cases hj : j < k
+        · specialize hacc j hj
+          exact hacc
+        · ext l hl
+          have := mul_le_mul_right (k := len) (n := w) (m := j)
+          simp [show w ≤ j + l by omega, show w * len ≤ j * len + l by omega]
+    ⟩
   | n' + 1 =>
-    let acc := BitVec.zeroExtend len (BitVec.extractLsb' k 1 x) ++ acc
-    extractAndExtendPopulateAux (k + 1) len x (acc.cast (by simp [Nat.add_mul]; omega)) (by omega)
+    let acc' := BitVec.zeroExtend len (BitVec.extractLsb' k 1 x) ++ acc
+    let ⟨res, proof⟩ := extractAndExtendPopulateAux (k + 1) len x (acc'.cast (by simp [Nat.add_mul]; omega)) (by  omega)
+      (by
+      intros j hj
+      by_cases hj' : j < k
+      · have hproof : len + k * len = (k + 1) * len := by simp [Nat.add_mul, Nat.add_comm len (k * len)]
+        have : extractLsb' (j * len) len (BitVec.cast hproof (setWidth len (extractLsb' k 1 x) ++ acc)) =
+            extractLsb' (j * len) len (setWidth len (extractLsb' k 1 x) ++ acc) := by
+            ext l hl
+            simp
+        simp only [truncate_eq_setWidth, acc', this]
+        by_cases hlen0 : len = 0
+        · subst hlen0
+          simp [setWidth_eq_extractLsb']
+        · have h1 := Nat.mul_lt_mul_right (a := len) (b := j) (c := k) (by omega)
+          have := Nat.mul_le_mul_right (k := len) (n := j + 1) (m := k) (by omega)
+          simp [hj'] at h1
+          simp [extractLsb'_append_eq_ite, h1, show j * len + len ≤ k * len by rw [show j * len + len = j * len + 1 * len by omega, ← Nat.add_mul]; omega]
+          apply hacc
+          omega
+      · simp [acc']
+        ext l hl
+        have : j = k := by omega
+        subst this
+        simp [getLsbD_append]
+        by_cases hl0 : l = 0
+        · simp [hl0]
+          intros
+          omega
+        · simp [hl0]
+        )
+    ⟨res, proof⟩
 
+
+theorem extractAndExtendPopulateAux_zero_eq (k len : Nat) (x : BitVec w) (acc : BitVec (k * len)) (heq : k = w):
+    (extractAndExtendPopulateAux k len x acc (by omega)) = acc.cast (by simp [heq]):= by
+  unfold extractAndExtendPopulateAux
+  split
+  · simp
+  · omega
+
+theorem extractAndExtendPopulateAux_succ_eq (k len : Nat) (x : BitVec w) (acc : BitVec (k * len)) (hlt : k < w):
+    (extractAndExtendPopulateAux k len x acc (by omega)) =
+      let acc := BitVec.zeroExtend len (BitVec.extractLsb' k 1 x) ++ acc
+      extractAndExtendPopulateAux (k + 1) len x (acc.cast (by simp [Nat.add_mul]; omega)) (by omega) := by
+  conv => lhs
+          unfold extractAndExtendPopulateAux
+  split
+  · omega
+  · simp
+
+@[simp]
+theorem extractAndExtendPopulateAux_of_length_zero (len : Nat) (x : BitVec 0) :
+    extractAndExtendPopulateAux 0 len x (0#(0 * len)) (by omega) = (0#0).cast (by simp) := by
+  simp [extractAndExtendPopulateAux]
+
+/-- We instantiate `extractAndExtendPopulateAux` to extend each bit to `len`. -/
 def extractAndExtendPopulate (len : Nat) (x : BitVec w) : BitVec (w * len) :=
     extractAndExtendPopulateAux 0 len x ((0#0).cast (by simp)) (by omega)
+
+@[simp]
+theorem extractAndExtendPopulate_of_length_zero (len : Nat) (x : BitVec 0) :
+    extractAndExtendPopulate len x = (0#0).cast (by simp)  := by
+  simp [extractAndExtendPopulate]
 
 theorem extractLsb'_extractAndExtendPopulate_eq (i len : Nat) (x : BitVec w) :
     (extractAndExtendPopulate len x).extractLsb' (i * len) len =
     BitVec.zeroExtend len (BitVec.extractLsb' i 1 x) := by
-  sorry
+  have hw : w = 0 ∨ w = 1 ∨ 1 < w := by omega
+  rcases hw with hw|hw|hw
+  · subst hw
+    simp [of_length_zero]
+  · subst hw
+    simp [extractAndExtendPopulate]
+    simp [extractAndExtendPopulateAux]
+    have hx : x = 0#1 ∨ x = 1#1 := by exact eq_zero_or_eq_one x
+    rcases hx with hx|hx
+    · subst hx
+      simp
+    · subst hx
+      ext j hj
+      simp
+      rw [show 0 * len = 0 by omega]
+      by_cases hj : j = 0 <;> by_cases hi : i = 0
+      · simp [hi, hj]
+        omega
+      · simp [hi, hj]
+        intros
+        refine Nat.mul_ne_zero hi (by omega)
+      · simp [hi, hj]
+      · simp [hi, hj]
+  · simp [extractAndExtendPopulate]
+    induction len using Nat.strongRecOn
+    case _ len' ihlen' =>
+    unfold extractAndExtendPopulateAux
+    split
+    · case _ heq =>
+      omega
+    · case _ n' hsucc =>
+      simp
+      ext j hj
+      rw [getElem_extractLsb']
+      simp
+      by_cases hj0 : j = 0
+      · simp [hj0]
+        have : (setWidth len' (extractLsb' 0 1 x) ++ 0#(0 * len')) =
+              (setWidth len' (extractLsb' 0 1 x)).cast (by simp) := by
+          ext k hk
+          simp [getElem_append]
+        rw [this]
+        simp
 
 
+        sorry
+      · simp [hj0]
+
+        sorry
 
 theorem extractLsb'_extractAndExtendPopulate_zero_eq (x : BitVec w) :
     (extractAndExtendPopulate w x).extractLsb' 0 w = BitVec.zeroExtend w (BitVec.extractLsb' 0 1 x) := by
@@ -2877,7 +2997,7 @@ theorem extractAndExtendPopulate_sumPackedVec_eq_add (x : BitVec (w' + 1)):
     rw [sumPackedVec_eq_add_tail (x := x.extractAndExtendPopulate (w' + 1))]
     rw [extractLsb'_extractAndExtendPopulate_zero_eq]
   simp
-  -- the width taken by extractandextendpopulate should not be w*w, should be w * v where v remains constant
+
   sorry
 
 --  setWidth (w' + 1) (extractLsb' 0 1 x) + setWidth (w' + 1) (extractLsb' 1 w' x).popCount =

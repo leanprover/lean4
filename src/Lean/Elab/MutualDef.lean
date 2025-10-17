@@ -1222,7 +1222,9 @@ where
     assert! view.kind.isTheorem
     let env ← getEnv
     let async ← env.addConstAsync declId.declName .thm
-      (exportedKind? := guard (!isPrivateName declId.declName) *> some .axiom)
+      (exportedKind? :=
+        guard (!isPrivateName declId.declName || (← ResolveName.backward.privateInPublic.getM)) *>
+        some .axiom)
     setEnv async.mainEnv
 
     -- TODO: parallelize header elaboration as well? Would have to refactor auto implicits catch,

@@ -64,7 +64,7 @@ declaration mk_cases_on(environment const & env, name const & n) {
     while (is_pi(rec_type)) {
         expr local = lctx.mk_local_decl(ngen, binding_name(rec_type), binding_domain(rec_type), binding_info(rec_type));
         rec_type   = instantiate(binding_body(rec_type), local);
-        rec_fvars.push_back(local);
+        rec_fvars.push_back(std::move(local));
     }
     /* Remark `rec_fvars` free variables represent the recursor:
        - Type parameters `As` (size == `num_params`)
@@ -137,7 +137,7 @@ declaration mk_cases_on(environment const & env, name const & n) {
                 } else {
                     expr new_local = lctx.mk_local_decl(ngen, binding_name(minor_type), mk_pi_unit(curr_type, unit),
                                                         binding_info(minor_type));
-                    minor_params.push_back(new_local);
+                    minor_params.push_back(std::move(new_local));
                 }
             } else {
                 minor_params.push_back(local);

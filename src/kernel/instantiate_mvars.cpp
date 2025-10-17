@@ -78,7 +78,7 @@ public:
                         after we update `mctx`. This is necessary because `m_cache`
                         may contain references to its subterms.
                         */
-                        m_saved.push_back(a);
+                        m_saved.push_back(std::move(a));
                         assign_lmvar(m_mctx, mvar_id(l), a_new);
                     }
                     return a_new;
@@ -169,7 +169,7 @@ class instantiate_mvars_fn {
         } else {
             expr a(r.get_val());
             if (!has_mvar(a) || m_already_normalized.contains(mid)) {
-                return optional<expr>(a);
+                return optional<expr>(std::move(a));
             } else {
                 m_already_normalized.insert(mid);
                 expr a_new = visit(a);
@@ -179,10 +179,10 @@ class instantiate_mvars_fn {
                     after we update `mctx`. This is necessary because `m_cache`
                     may contain references to its subterms.
                     */
-                    m_saved.push_back(a);
+                    m_saved.push_back(std::move(a));
                     assign_mvar(m_mctx, mid, a_new);
                 }
-                return optional<expr>(a_new);
+                return optional<expr>(std::move(a_new));
             }
         }
     }

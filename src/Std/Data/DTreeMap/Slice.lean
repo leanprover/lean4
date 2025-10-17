@@ -42,52 +42,45 @@ theorem Internal.Impl.prune_LE_filter {α β} [Ord α] [TransOrd α] (t : Intern
     (t.prune_LE ord_t lower_bound).toList = t.toList.filter (fun e => (compare e.fst lower_bound).isGE) := by
   induction t
   case leaf =>
-    simp [toList_eq_toListModel, prune_LE]
+    simp only [prune_LE, toList_eq_toListModel, toListModel_leaf, List.filter_nil]
   case inner _ k v l r l_ih r_ih =>
-    simp [toList_eq_toListModel, prune_LE]
+    simp only [prune_LE, toList_eq_toListModel, toListModel_inner, List.filter_append]
     generalize heq : compare lower_bound k = x
     cases x
     case lt =>
-      simp
+      simp only [toListModel_inner]
       specialize l_ih (Internal.Impl.Ordered.left ord_t)
       rw [toList_eq_toListModel] at l_ih
-      simp [l_ih, toList_eq_toListModel]
-      simp [List.filter]
-      rw [OrientedOrd.eq_swap] at heq
-      rw [Ordering.swap_eq_lt] at heq
-      simp [heq]
+      simp only [l_ih, toList_eq_toListModel, List.filter, List.append_cancel_left_eq]
+      rw [OrientedOrd.eq_swap, Ordering.swap_eq_lt] at heq
+      simp only [heq, Ordering.isGE_gt, List.cons.injEq, true_and]
       symm
       apply List.filter_eq_self.2
       intro a mem
       apply Ordering.isGE_of_eq_gt
       apply TransCmp.gt_trans ?_ heq
-      rw [OrientedOrd.eq_swap]
-      rw [Ordering.swap_eq_gt]
+      rw [OrientedOrd.eq_swap, Ordering.swap_eq_gt]
       exact Internal.Impl.Ordered.compare_right ord_t mem
     case eq =>
-      simp [List.filter]
+      simp only [toListModel_inner, toListModel_leaf, List.nil_append, List.filter]
       rw [OrientedCmp.eq_comm] at heq
-      simp [heq]
+      simp only [heq, Ordering.isGE_eq]
       suffices new_goal : List.filter (fun e => (compare e.fst lower_bound).isGE) l.toListModel = [] from by
-        simp [new_goal]
+        simp only [new_goal, List.nil_append, List.cons.injEq, true_and]
         symm
         apply List.filter_eq_self.2
         intro a mem
         apply Ordering.isGE_of_eq_gt
         apply TransCmp.gt_of_gt_of_eq ?_ heq
-        rw [OrientedOrd.eq_swap]
-        rw [Ordering.swap_eq_gt]
+        rw [OrientedOrd.eq_swap, Ordering.swap_eq_gt]
         apply Internal.Impl.Ordered.compare_right ord_t mem
       rw [List.filter_eq_nil_iff]
       intro a mem
-      simp
-      apply TransCmp.lt_of_lt_of_eq
-      exact Internal.Impl.Ordered.compare_left ord_t mem
-      exact heq
+      simp only [Bool.not_eq_true, Ordering.isGE_eq_false]
+      exact TransCmp.lt_of_lt_of_eq (Internal.Impl.Ordered.compare_left ord_t mem) heq
     case gt =>
-      simp [List.filter]
-      rw [OrientedOrd.eq_swap] at heq
-      rw [Ordering.swap_eq_gt] at heq
+      simp only [List.filter]
+      rw [OrientedOrd.eq_swap, Ordering.swap_eq_gt] at heq
       simp [heq]
       suffices new_goal : List.filter (fun e => (compare e.fst lower_bound).isGE) l.toListModel = [] from by
         simp [new_goal]
@@ -95,9 +88,8 @@ theorem Internal.Impl.prune_LE_filter {α β} [Ord α] [TransOrd α] (t : Intern
         apply r_ih
       rw [List.filter_eq_nil_iff]
       intro a mem
-      simp
-      apply TransCmp.lt_trans ?_ heq
-      exact Internal.Impl.Ordered.compare_left ord_t mem
+      simp only [Bool.not_eq_true, Ordering.isGE_eq_false]
+      exact TransCmp.lt_trans (Internal.Impl.Ordered.compare_left ord_t mem) heq
 
 theorem Internal.Impl.prune_LT_filter {α β} [Ord α] [TransOrd α] (t : Internal.Impl α β) (ord_t : t.Ordered) (lower_bound : α) :
     (t.prune_LT ord_t lower_bound).toList = t.toList.filter (fun e => (compare e.fst lower_bound).isGT) := by
@@ -129,13 +121,34 @@ theorem Internal.Impl.prune_LT_filter {α β} [Ord α] [TransOrd α] (t : Intern
       simp [List.filter]
       rw [OrientedCmp.eq_comm] at heq
       simp [heq]
-      sorry
+      suffices new_goal : List.filter (fun e => (compare e.fst lower_bound).isGT) l.toListModel = [] ∧
+          List.filter (fun e => (compare e.fst lower_bound).isGT) r.toListModel = r.toListModel from by
+        simp [new_goal]
+      apply And.intro
+      . rw [List.filter_eq_nil_iff]
+        intro a mem
+        simp [← Ordering.isLE_iff_ne_gt]
+        apply TransOrd.isLE_trans _ (Ordering.isLE_of_eq_eq heq)
+        apply Ordering.isLE_of_eq_lt
+        exact Internal.Impl.Ordered.compare_left ord_t mem
+      . apply List.filter_eq_self.2
+        intro a mem
+        rw [Ordering.isGT_iff_eq_gt]
+        apply TransCmp.gt_of_gt_of_eq ?_ heq
+        rw [OrientedOrd.eq_swap, Ordering.swap_eq_gt]
+        exact Internal.Impl.Ordered.compare_right ord_t mem
     case gt =>
       simp [List.filter]
       rw [OrientedOrd.eq_swap] at heq
       rw [Ordering.swap_eq_gt] at heq
       simp [heq]
-      sorry
+      specialize r_ih (Ordered.right ord_t)
+      rw [toList_eq_toListModel] at r_ih
+      simp [r_ih, toList_eq_toListModel]
+      intro a mem
+      rw [← Ordering.isLE_iff_ne_gt]
+      apply Ordering.isLE_of_eq_lt
+      exact TransCmp.lt_trans (Internal.Impl.Ordered.compare_left ord_t mem) heq
 
 section MapIterator
 public inductive Zipper (α : Type u) (β : α → Type v) where

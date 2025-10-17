@@ -1602,7 +1602,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
       let some info := getFieldInfo? (← getEnv) baseStructName fieldName | unreachable!
       if isInaccessiblePrivateName (← getEnv) info.projFn then
         throwError "Field `{fieldName}` from structure `{structName}` is private"
-      let projFn ← mkConst info.projFn
+      let projFn ← withRef lval.getRef <| mkConst info.projFn
       let projFn ← addProjTermInfo lval.getRef projFn
       if lvals.isEmpty then
         let namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f, suppressDeps := true }
@@ -1612,7 +1612,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
         loop f lvals
     | LValResolution.const baseStructName structName constName =>
       let f ← if baseStructName != structName then mkBaseProjections baseStructName structName f else pure f
-      let projFn ← mkConst constName
+      let projFn ← withRef lval.getRef <| mkConst constName
       let projFn ← addProjTermInfo lval.getRef projFn
       if lvals.isEmpty then
         let (args, namedArgs) ← addLValArg baseStructName f args namedArgs projFn explicit

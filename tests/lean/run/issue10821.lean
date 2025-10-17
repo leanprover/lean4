@@ -8,7 +8,7 @@ def Nat.inc (n : Nat) : Nat := n + 1
 def Nat.inc' (n : Nat) : Nat := n + 1
 
 /--
-@ +2:2...+3:9
+@ +3:5...9
 warning: `Nat.inc'` has been deprecated: Use `Nat.inc` instead
 -/
 #guard_msgs (positions := true) in
@@ -17,7 +17,7 @@ example (n : Nat) : Nat :=
   |>.inc'
 
 /--
-@ +2:2...11
+@ +2:7...11
 warning: `Nat.inc'` has been deprecated: Use `Nat.inc` instead
 -/
 #guard_msgs (positions := true) in
@@ -25,7 +25,7 @@ example (n : Nat) : Nat :=
   n |>.inc'
 
 /--
-@ +2:2...10
+@ +2:6...10
 warning: `Nat.inc'` has been deprecated: Use `Nat.inc` instead
 -/
 #guard_msgs (positions := true) in
@@ -33,7 +33,7 @@ example (n : Nat) : Nat :=
   (n).inc'
 
 /--
-@ +2:2...8
+@ +2:4...8
 warning: `Nat.inc'` has been deprecated: Use `Nat.inc` instead
 -/
 #guard_msgs (positions := true) in

@@ -34,7 +34,7 @@ def isLcCast? (e : Expr) : Option Expr :=
 
 inductive CasesAltInfo where
   | ctor (ctorName : Name) (numFields : Nat) : CasesAltInfo
-  | default (numIndices : Nat) (numHyps : Nat) : CasesAltInfo
+  | default (numHyps : Nat) : CasesAltInfo
 deriving Inhabited
 
 /--
@@ -74,28 +74,28 @@ def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
 open Meta in
 def getSparseCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
   unless isSparseCasesOn (← getEnv) declName do return none
-  let fail {α} : MetaM α := throwError "getSparseCasesInfo?: Unexpected type of {.ofConstName declName}"
   -- We could store the information in the sparseCasesOnExt, but we might as well recompute it from
   -- the declaration type
   let info ← getConstVal declName
   MetaM.run' <|
     forallTelescope info.type fun xs r => do
       let arity := xs.size
-      unless r.isApp do fail
-      let numIndices := r.getAppNumArgs - 1
-      let some discrPos := xs.idxOf? r.appArg! | fail
-      let some indName := (← inferType xs[discrPos]!).getAppFn.constName? | fail
+      assert! r.isApp
+      assert! r.appArg!.isFVar
+      let some discrPos := xs.idxOf? r.appArg! | unreachable!
+      let some indName := (← inferType xs[discrPos]!).getAppFn.constName? | unreachable!
       let altsRange := (discrPos + 1)...arity
       let altNumParams ← altsRange.toArray.mapM fun idx => do
-        forallTelescope (← inferType xs[idx]!) fun ys r => do
-          unless r.isApp do fail
-          let motiveArg := r.appArg!
+        forallTelescope (← inferType xs[idx]!) fun ys mr => do
+          assert! mr.isApp
+          let motiveArg := mr.appArg!
           if motiveArg.isFVar then
+            assert! motiveArg == xs[discrPos]!
             -- This is a catch-all case
-            return .default numIndices (ys.size - numIndices - 1)
+            return .default ys.size
           else
-            let some ctorName := (← inferType motiveArg).getAppFn.constName? | fail
-            let .ctorInfo ctorVal ← getConstInfo ctorName | fail
+            let some ctorName := motiveArg.getAppFn.constName? | unreachable!
+            let ctorVal ← getConstInfoCtor ctorName
             return .ctor ctorName ctorVal.numFields
       return some { declName, indName, arity, discrPos, altsRange, altNumParams }
 

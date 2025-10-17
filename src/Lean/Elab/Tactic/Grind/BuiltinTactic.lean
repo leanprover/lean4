@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Elab.Tactic.Grind.Basic
+import Lean.Meta.Tactic.TryThis
 import Lean.Meta.Tactic.Grind.Solve
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search
 import Lean.Meta.Tactic.Grind.Arith.Linear.Search
@@ -271,11 +272,22 @@ def logAnchor (numDigits : Nat) (anchorPrefix : UInt64) (e : Expr) : TermElabM U
       return some goal
   replaceMainGoal goals
 
-@[builtin_grind_tactic casesTrace] def evalCasesTrace : GrindTactic := fun stx => do
+def mkCasesSuggestions (candidates : Array SplitCandidateWithAnchor) (numDigits : Nat) : MetaM (Array Tactic.TryThis.Suggestion) := do
+  candidates.mapM fun { anchor, e, .. } => do
+    let anchorStx ← mkAnchorSyntax numDigits anchor
+    let tac ← `(grind| cases $anchorStx:anchor)
+    let msg ← addMessageContext m!"{tac} for{indentExpr e}"
+    return {
+      suggestion   := .tsyntax tac
+      messageData? := some msg
+    }
+
+@[builtin_grind_tactic casesTrace] def evalCasesTrace : GrindTactic := fun stx => withMainContext do
   let `(grind| cases? $[$filter?]?) := stx | throwUnsupportedSyntax
   let filter ← elabFilter filter?
-  let { candidates, numDigits } ← liftGoalM <| getSplitCandidateAnchors
-
+  let { candidates, numDigits } ← liftGoalM <| getSplitCandidateAnchors filter.eval
+  let suggestions ← mkCasesSuggestions candidates numDigits
+  Tactic.TryThis.addSuggestions stx suggestions
   return ()
 
 @[builtin_grind_tactic Parser.Tactic.Grind.focus] def evalFocus : GrindTactic := fun stx => do

@@ -249,6 +249,40 @@ example : h bs = 1 → h as ≠ 0 := by
     cases #ec88
     all_goals instantiate
 
+/--
+info: Try these:
+  [apply] cases #7a08 for
+    ¬p ∨ ¬q
+  [apply] cases #8212 for
+    ¬p ∨ q
+  [apply] cases #fc16 for
+    p ∨ ¬q
+  [apply] cases #4283 for
+    p ∨ q
+  [apply] cases #0457 for
+    p ∨ r
+-/
+#guard_msgs in
+example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → False := by
+  grind =>
+    cases?
+    sorry
+
+/--
+info: Try these:
+  [apply] cases #7a08 for
+    ¬p ∨ ¬q
+  [apply] cases #8212 for
+    ¬p ∨ q
+  [apply] cases #fc16 for
+    p ∨ ¬q
+-/
+#guard_msgs in
+example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → False := by
+  grind =>
+    cases? p && Not
+    sorry
+
 example : h bs = 1 → h as ≠ 0 := by
   grind [h.eq_def] =>
     instantiate

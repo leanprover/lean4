@@ -87,7 +87,7 @@ private partial def finalize
         match recursorType with
         | Expr.forallE n d _ c =>
           let d := d.headBeta
-          let tag' := if numMinors == 1 then tag else tag ++ n
+          let tag' := if numMinors == 1 then tag else tag ++ n.eraseMacroScopes
           -- Remark is givenNames is not empty, then user provided explicit alternatives for each minor premise
           if c.isInstImplicit && givenNames.isEmpty then
             match (← synthInstance? d) with

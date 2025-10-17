@@ -24,6 +24,7 @@ public import Lean.Meta.Tactic.Grind.Arith.Linear.Inv
 public import Lean.Meta.Tactic.Grind.Arith.Linear.MBTC
 public import Lean.Meta.Tactic.Grind.Arith.Linear.VarRename
 public import Lean.Meta.Tactic.Grind.Arith.Linear.OfNatModule
+public import Lean.Meta.Tactic.Grind.Arith.Linear.Action
 public section
 namespace Lean.Meta.Grind.Arith.Linear
 builtin_initialize registerTraceClass `grind.linarith

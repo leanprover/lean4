@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.AC.Util
+public import Lean.Meta.Tactic.Grind.CheckResult
 import Lean.Meta.Tactic.Grind.AC.DenoteExpr
 import Lean.Meta.Tactic.Grind.AC.Proof
 import Lean.Meta.Tactic.Grind.AC.Seq
@@ -445,60 +446,65 @@ def mkEqData (e : Expr) (r : AC.Expr) : ACM EqData := do
 
 abbrev PropagateEqMap := Std.HashMap AC.Seq EqData
 
-private def propagateEqs : ACM Unit := do
-  if (← isInconsistent) then return ()
+private def propagateEqs : ACM Bool := do
+  if (← isInconsistent) then return false
   /-
   This is a very simple procedure that does not use any indexing data-structure.
   We don't even cache the simplified expressions.
   TODO: optimize
   -/
-  let mut map : PropagateEqMap := {}
-  for e in (← getStruct).vars do
-    if (← checkMaxSteps) then return ()
-    let r ← asACExpr e
-    map ← process map e r
-  for (e, r) in (← getStruct).denoteEntries do
-    if (← checkMaxSteps) then return ()
-    map ← process map e r
+  let go : StateT (Bool × PropagateEqMap) ACM Unit := do
+    for e in (← getStruct).vars do
+      if (← checkMaxSteps) then return
+      let r ← asACExpr e
+      process e r
+    for (e, r) in (← getStruct).denoteEntries do
+      if (← checkMaxSteps) then return
+      process e r
+  let (_, (propagated, _)) ← go.run (false, {})
+  return propagated
 where
-  process (map : PropagateEqMap) (e : Expr) (r : AC.Expr) : ACM PropagateEqMap := do
+  process (e : Expr) (r : AC.Expr) : StateT (Bool × PropagateEqMap) ACM Unit := do
     let d ← mkEqData e r
     let s := d.c.rhs
     trace[grind.debug.ac.eq] "{e}, s: {← s.denoteExpr}"
-    if let some d' := map[s]? then
+    if let some d' := (← get).2[s]? then
       trace[grind.debug.ac.eq] "found [{← isEqv d.e d'.e}]: {d.e}, {d'.e}"
       unless (← isEqv d.e d'.e) do
         propagateEq d.e d'.e d.r d'.r d.c d'.c
-      return map
+        modify fun s => (true, s.2)
     else
-      return map.insert s d
+      modify fun (propagated, map) => (propagated, map.insert s d)
 
-private def checkStruct : ACM Bool := do
-  unless (← needCheck) do return false
+private def checkStruct : ACM CheckResult := do
+  unless (← needCheck) do return .none
   trace_goal[grind.debug.ac.check] "{(← getStruct).op}"
   repeat
     checkSystem "ac"
     let some c ← getNext? | break
     trace_goal[grind.debug.ac.check] "{← c.denoteExpr}"
     c.addToBasis
-    if (← isInconsistent) then return true
-    if (← checkMaxSteps) then return true
+    if (← isInconsistent) then return .closed
+    if (← checkMaxSteps) then return .progress
   checkDiseqs
-  propagateEqs
   modifyStruct fun s => { s with recheck := false }
-  return true
+  if (← propagateEqs) then return .propagated
+  return .progress
 
-def check : GoalM Bool := do profileitM Exception "grind ac" (← getOptions) do
-  if (← checkMaxSteps) then return false
-  let mut progress := false
+def check : GoalM CheckResult := do profileitM Exception "grind ac" (← getOptions) do
+  if (← checkMaxSteps) then return .none
+  let mut result : CheckResult := .none
   checkInvariants
   try
     for opId in *...(← get').structs.size do
       let r ← ACM.run opId checkStruct
-      progress := progress || r
-      if (← isInconsistent) then return true
-    return progress
+      result := result.join r
+      if (← isInconsistent) then return .closed
+    return result
   finally
     checkInvariants
+
+def check' : GoalM Bool :=
+  return (← check) != .none
 
 end Lean.Meta.Grind.AC

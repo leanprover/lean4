@@ -151,7 +151,7 @@ Executes `x`, but behaves like a `skip` if it is not applicable.
 def skipIfNA (x : Action) : Action := fun goal _ kp =>
   x goal kp kp
 
-private def mkGrindSeq (s : List (TSyntax `grind)) : TSyntax ``Parser.Tactic.Grind.grindSeq :=
+def mkGrindSeq (s : List (TSyntax `grind)) : TSyntax ``Parser.Tactic.Grind.grindSeq :=
   let s := s.map (·.raw)
   let s := s.intersperse (mkNullNode #[])
   mkNode ``Parser.Tactic.Grind.grindSeq #[
@@ -208,6 +208,43 @@ def ungroup : Action := fun goal _ kp => do
     | _ => return r
   else
     return r
+
+/--
+Appends a new tactic syntax to a successful result.
+Used by leaf actions to record the tactic that produced progress.
+If `(← getConfig).trace` is `false`, it just returns `r`.
+-/
+def concatTactic (r : ActionResult) (mk : GrindM (TSyntax `grind)) : GrindM ActionResult := do
+  if (← getConfig).trace then
+    match r with
+    | .closed seq =>
+      let tac ← mk
+      return .closed (tac :: seq)
+    | r => return r
+  else
+    return r
+
+/-- Returns `.closed [← mk]` if tracing is enabled, and `.closed []` otherwise. -/
+def closeWith (mk : GrindM (TSyntax `grind)) : GrindM ActionResult := do
+  if (← getConfig).trace then
+    return .closed [(← mk)]
+  else
+    return .closed []
+
+/--
+A terminal action which closes the goal or not.
+This kind of action may make progress, but we only include `mkTac` into the resulting tactic sequence
+if it closed the goal.
+-/
+public def terminalAction (check : GoalM Bool) (mkTac : GrindM (TSyntax `grind)) : Action := fun goal kna kp => do
+  let (progress, goal') ← GoalM.run goal check
+  if progress then
+    if goal'.inconsistent then
+      closeWith mkTac
+    else
+      kp goal'
+  else
+    kna goal'
 
 section
 /-!

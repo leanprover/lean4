@@ -50,37 +50,37 @@ syntax thm := anchor <|> grindLemma <|> grindLemmaMin
 /-- Instantiates theorems using E-matching. -/
 syntax (name := instantiate) "instantiate" (colGt thm),* : grind
 
-declare_syntax_cat show_filter (behavior := both)
+declare_syntax_cat grind_filter (behavior := both)
 
-syntax:max ident : show_filter
-syntax:max &"gen" " < "  num  : show_filter
-syntax:max &"gen" " = "  num  : show_filter
-syntax:max &"gen" " != " num  : show_filter
-syntax:max &"gen" " ≤ "  num  : show_filter
-syntax:max &"gen" " <= " num  : show_filter
-syntax:max &"gen" " > "  num  : show_filter
-syntax:max &"gen" " ≥ "  num  : show_filter
-syntax:max &"gen" " >= " num  : show_filter
-syntax:max "(" show_filter ")" : show_filter
-syntax:35 show_filter:35 " && " show_filter:36 : show_filter
-syntax:35 show_filter:35 " || " show_filter:36 : show_filter
-syntax:max "!" show_filter:40 : show_filter
+syntax:max ident : grind_filter
+syntax:max &"gen" " < "  num  : grind_filter
+syntax:max &"gen" " = "  num  : grind_filter
+syntax:max &"gen" " != " num  : grind_filter
+syntax:max &"gen" " ≤ "  num  : grind_filter
+syntax:max &"gen" " <= " num  : grind_filter
+syntax:max &"gen" " > "  num  : grind_filter
+syntax:max &"gen" " ≥ "  num  : grind_filter
+syntax:max &"gen" " >= " num  : grind_filter
+syntax:max "(" grind_filter ")" : grind_filter
+syntax:35 grind_filter:35 " && " grind_filter:36 : grind_filter
+syntax:35 grind_filter:35 " || " grind_filter:36 : grind_filter
+syntax:max "!" grind_filter:40 : grind_filter
 
-syntax showFilter := (colGt show_filter)?
+syntax grindFilter := (colGt grind_filter)?
 
 -- **Note**: Should we rename the following tactics to `trace_`?
 /-- Shows asserted facts. -/
-syntax (name := showAsserted) "show_asserted" ppSpace showFilter : grind
+syntax (name := showAsserted) "show_asserted" ppSpace grindFilter : grind
 /-- Shows propositions known to be `True`. -/
-syntax (name := showTrue) "show_true" ppSpace showFilter : grind
+syntax (name := showTrue) "show_true" ppSpace grindFilter : grind
 /-- Shows propositions known to be `False`. -/
-syntax (name := showFalse) "show_false" ppSpace showFilter : grind
+syntax (name := showFalse) "show_false" ppSpace grindFilter : grind
 /-- Shows equivalence classes of terms. -/
-syntax (name := showEqcs) "show_eqcs" ppSpace showFilter : grind
+syntax (name := showEqcs) "show_eqcs" ppSpace grindFilter : grind
 /-- Show case-split candidates. -/
-syntax (name := showSplits) "show_splits" ppSpace showFilter : grind
+syntax (name := showSplits) "show_splits" ppSpace grindFilter : grind
 /-- Show `grind` state. -/
-syntax (name := «showState») "show_state" ppSpace showFilter : grind
+syntax (name := «showState») "show_state" ppSpace grindFilter : grind
 /-- Show active local theorems and their anchors for heuristic instantiation. -/
 syntax (name := showThms) "show_thms" : grind
 
@@ -89,7 +89,9 @@ declare_syntax_cat grind_ref (behavior := both)
 syntax:max anchor : grind_ref
 syntax term : grind_ref
 
-syntax (name := cases) "cases " grind_ref (" with " (colGt ident)+)? : grind
+syntax (name := cases) "cases " grind_ref : grind
+
+syntax (name := casesTrace) "cases?" grindFilter : grind
 
 /-- `done` succeeds iff there are no remaining goals. -/
 syntax (name := done) "done" : grind

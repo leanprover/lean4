@@ -6,68 +6,13 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Elab.Tactic.Grind.Basic
+import Lean.Elab.Tactic.Grind.Filter
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Anchor
 import Lean.Meta.Tactic.Grind.Split
 namespace Lean.Elab.Tactic.Grind
 open Meta
-
-inductive Filter where
-  | true
-  | const (declName : Name)
-  | fvar (fvarId : FVarId)
-  | gen (pred : Nat → Bool)
-  | or (a b : Filter)
-  | and (a b : Filter)
-  | not (a : Filter)
-
-partial def elabFilter (filter? : Option (TSyntax `show_filter)) : GrindTacticM Filter := do
-  let some filter := filter? | return .true
-  go filter
-where
-  go (filter : TSyntax `show_filter) : GrindTacticM Filter := do
-    match filter with
-    | `(show_filter| $id:ident) =>
-      match (← Term.resolveId? id) with
-      | some (.const declName _) => return .const declName
-      | some (.fvar fvarId) => return .fvar fvarId
-      | _ => throwErrorAt id "invalid identifier"
-    | `(show_filter| $a:show_filter && $b:show_filter) => return .and (← go a) (← go b)
-    | `(show_filter| $a:show_filter || $b:show_filter) => return .or (← go a) (← go b)
-    | `(show_filter| ! $a:show_filter) => return .not (← go a)
-    | `(show_filter| ($a:show_filter)) => go a
-    | `(show_filter| gen = $n:num)  => let n := n.getNat; return .gen fun x => x == n
-    | `(show_filter| gen > $n:num)  => let n := n.getNat; return .gen fun x => x > n
-    | `(show_filter| gen ≥ $n:num)  => let n := n.getNat; return .gen fun x => x ≥ n
-    | `(show_filter| gen >= $n:num) => let n := n.getNat; return .gen fun x => x ≥ n
-    | `(show_filter| gen ≤ $n:num)  => let n := n.getNat; return .gen fun x => x ≤ n
-    | `(show_filter| gen <= $n:num) => let n := n.getNat; return .gen fun x => x ≤ n
-    | `(show_filter| gen < $n:num)  => let n := n.getNat; return .gen fun x => x < n
-    | `(show_filter| gen != $n:num) => let n := n.getNat; return .gen fun x => x != n
-    | _ => throwUnsupportedSyntax
-
 open Meta.Grind
-
--- **Note**: facts may not have been internalized if they are equalities.
-def getGen (e : Expr) : GoalM Nat := do
-  if (← alreadyInternalized e) then
-    getGeneration e
-  else match_expr e with
-   | Eq _ lhs rhs => return max (← getGeneration lhs) (← getGeneration rhs)
-   | _ => return 0
-
-def Filter.eval (filter : Filter) (e : Expr) : GoalM Bool := do
-  go filter
-where
-  go (filter : Filter) : GoalM Bool := do
-  match filter with
-  | .true => return .true
-  | .and a b => go a <&&> go b
-  | .or a b => go a <||> go b
-  | .not a => return !(← go a)
-  | .const declName => return Option.isSome <| e.find? fun e => e.isConstOf declName
-  | .fvar fvarId => return Option.isSome <| e.find? fun e => e.isFVar && e.fvarId! == fvarId
-  | .gen pred => let gen ← getGen e; return pred gen
 
 def ppAsserted? (filter : Filter) (collapsed := false) : GrindTacticM (Option MessageData) := do
     let facts ← liftGoalM do (← get).facts.toArray.filterM fun e => filter.eval e
@@ -91,7 +36,7 @@ def ppProps? (filter : Filter) (isTrue : Bool) (collapsed := false) : GrindTacti
     return none
   return some <| Grind.ppExprArray `props s!"{if isTrue then "True" else "False"} propositions" props (collapsed := collapsed)
 
-def showProps (filter? : Option (TSyntax `show_filter)) (isTrue : Bool) : GrindTacticM Unit := withMainContext do
+def showProps (filter? : Option (TSyntax `grind_filter)) (isTrue : Bool) : GrindTacticM Unit := withMainContext do
   let filter ← elabFilter filter?
   let some msg ← ppProps? filter isTrue
     | throwError s!"no {if isTrue then "true" else "false"} propositions"

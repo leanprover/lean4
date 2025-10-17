@@ -238,8 +238,8 @@ def stop (s : Signal.Waiter) : IO Unit :=
   s.native.stop
 
 /--
-Create a `Selector` that resolves once `s` has received the signal. Note that calling this function will
-only be started if used with `Selectable.one` or `Selectable.combine`.
+Create a `Selector` that resolves once `s` has received the signal. Note that calling this function
+does not start the signal waiter.
 -/
 def selector (s : Signal.Waiter) : Selector Unit :=
   {

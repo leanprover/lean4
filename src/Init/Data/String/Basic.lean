@@ -2878,10 +2878,10 @@ Examples:
 * `"coffee  tea  water".split (·.isWhitespace) = ["coffee", "", "tea", "", "water"]`
 * `"fun x =>\n  x + 1\n".split (· == '\n') = ["fun x =>", "  x + 1", ""]`
 -/
-@[specialize] def splitToList (s : String) (p : Char → Bool) : List String :=
+@[inline] def splitToList (s : String) (p : Char → Bool) : List String :=
   splitAux s p 0 0 []
 
-@[specialize, deprecated splitToList (since := "2025-10-17")]
+@[inline, deprecated splitToList (since := "2025-10-17")]
 def split (s : String) (p : Char → Bool) : List String :=
   splitToList s p
 

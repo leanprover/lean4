@@ -151,7 +151,7 @@ Executes `x`, but behaves like a `skip` if it is not applicable.
 def skipIfNA (x : Action) : Action := fun goal _ kp =>
   x goal kp kp
 
-private def mkGrindSeq (s : List (TSyntax `grind)) : TSyntax ``Parser.Tactic.Grind.grindSeq :=
+def mkGrindSeq (s : List (TSyntax `grind)) : TSyntax ``Parser.Tactic.Grind.grindSeq :=
   let s := s.map (·.raw)
   let s := s.intersperse (mkNullNode #[])
   mkNode ``Parser.Tactic.Grind.grindSeq #[

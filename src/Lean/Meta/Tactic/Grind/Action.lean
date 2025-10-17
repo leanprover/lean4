@@ -159,7 +159,7 @@ def mkGrindStep (t : TGrind) : TGrindStep :=
   mkNode ``Parser.Tactic.Grind.grindStep #[ t, mkNullNode ]
 
 def TGrindStep.getTactic : TGrindStep → TGrind
-  | `(Parser.Tactic.Grind.grindStep| $tac:grind $[|> $_]?) => tac
+  | `(Parser.Tactic.Grind.grindStep| $tac:grind $[| $_]?) => tac
   | _ => ⟨mkNullNode⟩
 
 def mkGrindSeq (s : List TGrind) : TSyntax ``Parser.Tactic.Grind.grindSeq :=

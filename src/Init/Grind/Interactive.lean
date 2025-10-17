@@ -39,7 +39,7 @@ syntax grindFilter := (colGt grind_filter)?
 A `grind` tactic is a program which receives a `grind` goal. -/
 declare_syntax_cat grind (behavior := both)
 
-syntax grindStep := grind ("|>" (colGt ppSpace grind_filter)?)?
+syntax grindStep := grind ("|" (colGt ppSpace grind_filter)?)?
 
 syntax grindSeq1Indented := sepBy1IndentSemicolon(grindStep)
 syntax grindSeqBracketed := "{" withoutPosition(sepByIndentSemicolon(grindStep)) "}"
@@ -146,10 +146,10 @@ macro:1 x:grind tk:" <;> " y:grind:2 : grind => `(grind|
     all_goals $y:grind)
 
 /-- `first | tac | ...` runs each `tac` until one succeeds, or else fails. -/
-syntax (name := first) "first " withPosition((ppDedent(ppLine) colGe "| " grindSeq)+) : grind
+syntax (name := first) "first " withPosition((ppDedent(ppLine) colGe "(" grindSeq ")")+) : grind
 
 /-- `try tac` runs `tac` and succeeds even if `tac` failed. -/
-macro "try " t:grindSeq : grind => `(grind| first | $t:grindSeq | skip)
+macro "try " t:grindSeq : grind => `(grind| first ($t:grindSeq) (skip))
 
 /-- `fail_if_success t` fails if the tactic `t` succeeds. -/
 syntax (name := failIfSuccess) "fail_if_success " grindSeq : grind
@@ -169,7 +169,7 @@ The tactic `tac` should eventually fail, otherwise `repeat tac` will run indefin
 syntax "repeat " grindSeq : grind
 
 macro_rules
-  | `(grind| repeat $seq:grindSeq) => `(grind| first | ($seq); repeat $seq:grindSeq | skip)
+  | `(grind| repeat $seq:grindSeq) => `(grind| first (($seq); repeat $seq:grindSeq) (skip))
 
 /-- `rename_i x_1 ... x_n` renames the last `n` inaccessible names using the given names. -/
 syntax (name := renameI) "rename_i" (ppSpace colGt binderIdent)+ : grind

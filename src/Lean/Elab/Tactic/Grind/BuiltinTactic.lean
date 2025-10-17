@@ -29,7 +29,8 @@ namespace Lean.Elab.Tactic.Grind
 def evalSepTactics (stx : Syntax) : GrindTacticM Unit := do
   for arg in stx.getArgs, i in *...stx.getArgs.size do
     if i % 2 == 0 then
-      evalGrindTactic arg
+      let `(Parser.Tactic.Grind.grindStep| $tac:grind $[|> $_]?) := arg | throwUnsupportedSyntax
+      evalGrindTactic tac
     else
       saveTacticInfoForToken arg
 

@@ -17,13 +17,32 @@ when selecting patterns.
 syntax grindLemmaMin := ppGroup("!" (Attr.grindMod ppSpace)? ident)
 
 namespace Grind
+declare_syntax_cat grind_filter (behavior := both)
+
+syntax:max ident : grind_filter
+syntax:max &"gen" " < "  num  : grind_filter
+syntax:max &"gen" " = "  num  : grind_filter
+syntax:max &"gen" " != " num  : grind_filter
+syntax:max &"gen" " ≤ "  num  : grind_filter
+syntax:max &"gen" " <= " num  : grind_filter
+syntax:max &"gen" " > "  num  : grind_filter
+syntax:max &"gen" " ≥ "  num  : grind_filter
+syntax:max &"gen" " >= " num  : grind_filter
+syntax:max "(" grind_filter ")" : grind_filter
+syntax:35 grind_filter:35 " && " grind_filter:36 : grind_filter
+syntax:35 grind_filter:35 " || " grind_filter:36 : grind_filter
+syntax:max "!" grind_filter:40 : grind_filter
+
+syntax grindFilter := (colGt grind_filter)?
 
 /-- `grind` is the syntax category for a "grind interactive tactic".
 A `grind` tactic is a program which receives a `grind` goal. -/
 declare_syntax_cat grind (behavior := both)
 
-syntax grindSeq1Indented := sepBy1IndentSemicolon(grind)
-syntax grindSeqBracketed := "{" withoutPosition(sepByIndentSemicolon(grind)) "}"
+syntax grindStep := grind ("|>" (colGt ppSpace grind_filter)?)?
+
+syntax grindSeq1Indented := sepBy1IndentSemicolon(grindStep)
+syntax grindSeqBracketed := "{" withoutPosition(sepByIndentSemicolon(grindStep)) "}"
 syntax grindSeq := grindSeqBracketed <|> grindSeq1Indented
 
 /-- `(grindSeq)` runs the `grindSeq` in sequence on the current list of targets.
@@ -49,24 +68,6 @@ syntax thm := anchor <|> grindLemma <|> grindLemmaMin
 
 /-- Instantiates theorems using E-matching. -/
 syntax (name := instantiate) "instantiate" (colGt thm),* : grind
-
-declare_syntax_cat grind_filter (behavior := both)
-
-syntax:max ident : grind_filter
-syntax:max &"gen" " < "  num  : grind_filter
-syntax:max &"gen" " = "  num  : grind_filter
-syntax:max &"gen" " != " num  : grind_filter
-syntax:max &"gen" " ≤ "  num  : grind_filter
-syntax:max &"gen" " <= " num  : grind_filter
-syntax:max &"gen" " > "  num  : grind_filter
-syntax:max &"gen" " ≥ "  num  : grind_filter
-syntax:max &"gen" " >= " num  : grind_filter
-syntax:max "(" grind_filter ")" : grind_filter
-syntax:35 grind_filter:35 " && " grind_filter:36 : grind_filter
-syntax:35 grind_filter:35 " || " grind_filter:36 : grind_filter
-syntax:max "!" grind_filter:40 : grind_filter
-
-syntax grindFilter := (colGt grind_filter)?
 
 -- **Note**: Should we rename the following tactics to `trace_`?
 /-- Shows asserted facts. -/
@@ -148,7 +149,7 @@ macro:1 x:grind tk:" <;> " y:grind:2 : grind => `(grind|
 syntax (name := first) "first " withPosition((ppDedent(ppLine) colGe "| " grindSeq)+) : grind
 
 /-- `try tac` runs `tac` and succeeds even if `tac` failed. -/
-macro "try " t:grindSeq : grind => `(grind| first | $t | skip)
+macro "try " t:grindSeq : grind => `(grind| first | $t:grindSeq | skip)
 
 /-- `fail_if_success t` fails if the tactic `t` succeeds. -/
 syntax (name := failIfSuccess) "fail_if_success " grindSeq : grind
@@ -168,7 +169,7 @@ The tactic `tac` should eventually fail, otherwise `repeat tac` will run indefin
 syntax "repeat " grindSeq : grind
 
 macro_rules
-  | `(grind| repeat $seq) => `(grind| first | ($seq); repeat $seq | skip)
+  | `(grind| repeat $seq:grindSeq) => `(grind| first | ($seq); repeat $seq:grindSeq | skip)
 
 /-- `rename_i x_1 ... x_n` renames the last `n` inaccessible names using the given names. -/
 syntax (name := renameI) "rename_i" (ppSpace colGt binderIdent)+ : grind

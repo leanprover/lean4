@@ -1800,19 +1800,6 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
     constNames, constants, entries
   }
 
-@[extern "lean_ir_export_entries"]
-private opaque exportIREntries (env : Environment) : Array (Name × Array EnvExtensionEntry)
-
-private def mkIRData (env : Environment) : ModuleData :=
-  -- TODO: should we use a more specific/efficient data format for IR?
-  { env.header with
-    entries := exportIREntries env
-    constants := default
-    constNames := default
-    -- make sure to include all names in case only `.ir` is loaded
-    extraConstNames := getIRExtraConstNames env .private (includeDecls := true)
-  }
-
 def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
   if env.header.isModule then
     let mkPart (level : OLeanLevel) :=
@@ -1821,8 +1808,6 @@ def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
       (← mkPart .exported),
       (← mkPart .server),
       (← mkPart .private)]
-    -- Make sure to change the module name so we derive a different base address
-    saveModuleData (fname.withExtension "ir") (env.mainModule ++ `ir) (mkIRData env)
   else
     saveModuleData fname env.mainModule (← mkModuleData env)
 
@@ -1947,7 +1932,7 @@ private def ImportedModule.serverData? (self : ImportedModule) (level : OLeanLev
   self.getData? (if level ≥ .server then level else .exported)
 
 /-- The module data that should be used for accessing IR for interpretation. -/
-private def ImportedModule.interpData? (self : ImportedModule) (level : OLeanLevel) :
+private def ImportedModule.interpData? (self : ImportedModule) (level : OLeanLevel)  :
     Option ModuleData :=
   if (level < .server && self.irPhases == .runtime) || !self.mainModule?.any (·.isModule) then
     self.mainModule?

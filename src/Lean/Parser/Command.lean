@@ -6,10 +6,8 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Parser.Term
 public import Lean.Parser.Do
 import Lean.DocString.Parser
-public import Lean.DocString.Formatter
 meta import Lean.Parser.Basic
 
 public section

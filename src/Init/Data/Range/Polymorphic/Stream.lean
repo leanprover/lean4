@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Range.Polymorphic.Iterators
 public import Init.Data.Iterators.Consumers.Stream
-public import Init.Data.Stream
 
 public section
 

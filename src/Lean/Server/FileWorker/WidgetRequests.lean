@@ -7,10 +7,6 @@ Authors: Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Widget.Basic
-public import Lean.Widget.InteractiveCode
-public import Lean.Widget.InteractiveGoal
-public import Lean.Widget.InteractiveDiagnostic
 
 public import Lean.Server.Rpc.RequestHandling
 public import Lean.Server.FileWorker.RequestHandling

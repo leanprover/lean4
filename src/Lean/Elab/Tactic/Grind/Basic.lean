@@ -5,9 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Elab.Term
 public import Lean.Elab.Tactic.Basic
-public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Main
 public import Lean.Meta.Tactic.Grind.SearchM
 import Lean.CoreM

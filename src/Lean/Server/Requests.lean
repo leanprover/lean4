@@ -7,19 +7,13 @@ Authors: Wojciech Nawrocki, Marc Huisinga
 module
 
 prelude
-public import Lean.DeclarationRange
 
-public import Lean.Data.Json.Basic
-public import Lean.Data.Lsp
-public import Lean.Elab.Command
 
 public import Lean.Server.RequestCancellation
-public import Lean.Server.ServerTask
 
 public import Lean.Server.FileSource
 public import Lean.Server.FileWorker.Utils
 
-public import Lean.Server.Rpc.Basic
 
 public import Std.Sync.Mutex
 

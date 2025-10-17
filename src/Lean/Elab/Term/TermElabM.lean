@@ -6,9 +6,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.ReservedNameAction
-public import Lean.Meta.AppBuilder
-public import Lean.Meta.CollectMVars
 public import Lean.Meta.Coe
 public import Lean.Util.CollectLevelMVars
 public import Lean.Linter.Deprecated
@@ -18,8 +15,6 @@ public import Lean.Elab.Level
 public import Lean.Elab.PreDefinition.TerminationHint
 public import Lean.Elab.DeclarationRange
 public import Lean.Elab.WhereFinally
-public import Lean.Elab.Util
-public import Lean.Language.Basic
 public import Lean.Elab.InfoTree.InlayHints
 public meta import Lean.Parser.Term
 
@@ -1976,7 +1971,7 @@ where
     let env ← getEnv
     -- check for scope errors before trying auto implicits
     if env.isExporting then
-      if let [(npriv, _)] ← withEnv (env.setExporting false) <| resolveGlobalName n then
+      if let [(npriv, _)] ← withEnv (env.setExporting false) <| resolveGlobalName (enableLog := false) n then
         throwUnknownIdentifierAt (declHint := npriv) stx m!"Unknown identifier `{.ofConstName n}`"
     if (← read).autoBoundImplicit &&
           !(← read).autoBoundImplicitForbidden n &&

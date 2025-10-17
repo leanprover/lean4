@@ -6,19 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Parser.Term
-public import Lean.Meta.Closure
-public import Lean.Meta.Check
-public import Lean.Meta.Transform
-public import Lean.PrettyPrinter.Delaborator.Options
-public import Lean.Elab.Command
-public import Lean.Elab.Match
-public import Lean.Elab.DefView
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.PreDefinition.Main
-public import Lean.Elab.PreDefinition.TerminationHint
-public import Lean.Elab.DeclarationRange
-public import Lean.Elab.WhereFinally
 
 public section
 

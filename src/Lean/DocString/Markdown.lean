@@ -8,7 +8,6 @@ module
 
 prelude
 
-import Init.Data.Repr
 import Init.Data.Ord
 public import Lean.DocString.Types
 

@@ -8,13 +8,8 @@ module
 
 prelude
 
-public import Lean.CoreM
-public import Lean.Data.Lsp.Utf16
-public import Lean.Message
 public import Lean.Meta.TryThis
 public import Lean.Util.Diff
-public import Lean.Widget.Types
-public import Lean.PrettyPrinter
 
 public section
 

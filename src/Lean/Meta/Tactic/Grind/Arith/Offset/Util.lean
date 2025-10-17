@@ -6,8 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Expr
-public import Lean.Message
 public import Lean.Meta.Tactic.Grind.Arith.Util
 
 public section

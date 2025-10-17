@@ -7,7 +7,6 @@ module
 
 prelude
 public import Std.Do
-public import Init.NotationExtra
 public import Std.Tactic.Do.ProofMode -- For (meta) importing `mgoalStx`; otherwise users might experience
                                       -- a broken goal view due to the builtin delaborator for `MGoalEntails`
 

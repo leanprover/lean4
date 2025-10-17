@@ -17,6 +17,7 @@ public import Lean.Meta.Tactic.Grind.AC.ToExpr
 public import Lean.Meta.Tactic.Grind.AC.VarRename
 public import Lean.Meta.Tactic.Grind.AC.PP
 public import Lean.Meta.Tactic.Grind.AC.Inv
+public import Lean.Meta.Tactic.Grind.AC.Action
 public section
 namespace Lean.Meta.Grind.AC
 builtin_initialize registerTraceClass `grind.ac
@@ -36,7 +37,7 @@ builtin_initialize
     (internalize := AC.internalize)
     (newEq       := AC.processNewEq)
     (newDiseq    := AC.processNewDiseq)
-    (check       := AC.check)
+    (check       := AC.check')
     (checkInv    := AC.checkInvariants)
     (mkTactic?   := return some (← `(grind| ac)))
 

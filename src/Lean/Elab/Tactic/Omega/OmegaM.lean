@@ -6,14 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Omega.LinearCombo
-public import Init.Omega.Int
-public import Init.Omega.Logic
-public import Init.Data.BitVec.Basic
 public import Lean.Meta.AppBuilder
 public import Lean.Meta.Canonicalizer
-public import Std.Data.HashMap.Basic
-public import Std.Data.HashSet.Basic
 
 public section
 

@@ -9,7 +9,6 @@ prelude
 public import Lean.Elab.PreDefinition.Basic
 public import Lean.Meta.Tactic.Simp.Types
 import Lean.Elab.PreDefinition.EqnsUtils
-import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Split
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs

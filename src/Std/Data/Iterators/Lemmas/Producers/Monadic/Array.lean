@@ -6,12 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
-public import Init.Data.Iterators.Consumers
 public import Std.Data.Iterators.Producers.Monadic.Array
 public import Std.Data.Iterators.Lemmas.Consumers.Monadic
 public import Std.Data.Iterators.Lemmas.Producers.Monadic.List
-public import Std.Data.Iterators.Lemmas.Equivalence.Basic
 
 @[expose] public section
 

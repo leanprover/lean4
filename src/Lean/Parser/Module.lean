@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Message
 public import Lean.Parser.Command
 meta import Lean.Parser.Extra
 

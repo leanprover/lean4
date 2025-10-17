@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Util.Trace
-public import Lean.Data.Options
 
 public section
 

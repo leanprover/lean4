@@ -6,11 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.LitValues
-public import Lean.Meta.Check
 public import Lean.Meta.Closure
-public import Lean.Meta.CtorRecognizer
-public import Lean.Meta.Tactic.Cases
 public import Lean.Meta.Tactic.Contradiction
 public import Lean.Meta.GeneralizeTelescope
 public import Lean.Meta.Match.Basic

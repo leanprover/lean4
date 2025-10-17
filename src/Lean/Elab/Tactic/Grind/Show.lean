@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Elab.Tactic.Grind.Basic
-import Init.Grind.Interactive
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Anchor
 import Lean.Meta.Tactic.Grind.Split
@@ -166,53 +165,11 @@ def pushIfSome (msgs : Array MessageData) (msg? : Option MessageData) : Array Me
     logInfo <| MessageData.trace { cls := `grind, collapsed := false } "Grind state" msgs
   | _ => throwUnsupportedSyntax
 
-def truncateAnchors (es : Array (UInt64 × α)) : Array (UInt64 × α) × Nat :=
-  go 4
-where
-  go (numDigits : Nat) : Array (UInt64 × α) × Nat := Id.run do
-    if 4*numDigits  < 64 then
-      let shift := 64 - 4*numDigits
-      let mut found : Std.HashSet UInt64 := {}
-      let mut result := #[]
-      for (a, e) in es do
-        let a' := a >>> shift.toUInt64
-        if found.contains a' then
-          return (← go (numDigits+1))
-        else
-          found  := found.insert a'
-          result := result.push (a', e)
-      return (result, numDigits)
-    else
-      return (es, numDigits)
-  termination_by 64 - 4*numDigits
-
-def anchorToString (numDigits : Nat) (anchor : UInt64) : String :=
-  let cs := Nat.toDigits 16 anchor.toNat
-  let n := cs.length
-  let zs := List.replicate (numDigits - n) '0'
-  let cs := zs ++ cs
-  cs.asString
-
 @[builtin_grind_tactic showSplits] def evalShowSplits : GrindTactic := fun stx => withMainContext do
   match stx with
   | `(grind| show_splits $[$filter?]?) =>
     let filter ← elabFilter filter?
-    let goal ← getMainGoal
-    let candidates := goal.split.candidates
-    let candidates ← liftGoalM <| candidates.toArray.mapM fun c => do
-      let e := c.getExpr
-      let anchor ← getAnchor e
-      let status ← checkSplitStatus c
-      return (e, status, anchor)
-    let candidates ← liftGoalM <| candidates.filterM fun (e, status, _) => do
-      -- **Note**: we ignore case-splits that are not ready or have already been resolved.
-      -- We may consider adding an option for including "not-ready" splits in the future.
-      if status matches .resolved | .notReady then return false
-      filter.eval e
-    -- **TODO**: Add an option for including propositions that are only considered when using `+splitImp`
-    -- **TODO**: Add an option for including terms whose type is an inductive predicate or type
-    let candidates := candidates.map fun (e, _, anchor) => (anchor, e)
-    let (candidates, numDigits) := truncateAnchors candidates
+    let { candidates, numDigits } ← liftGoalM <| getSplitCandidateAnchors filter.eval
     if candidates.isEmpty then
       throwError "no case splits"
     let msgs := candidates.map fun (a, e) =>

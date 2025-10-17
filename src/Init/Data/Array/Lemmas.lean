@@ -6,17 +6,10 @@ Authors: Mario Carneiro, Kim Morrison
 module
 
 prelude
-public import Init.Data.Nat.Lemmas
-public import Init.Data.List.Range
-public import Init.Data.List.Nat.TakeDrop
-public import Init.Data.List.Nat.Modify
 public import Init.Data.List.Nat.Basic
-public import Init.Data.List.Monadic
-public import Init.Data.List.OfFn
 public import Init.Data.Array.Mem
 public import Init.Data.Array.DecidableEq
 public import Init.Data.Range.Lemmas
-public import Init.TacticsExtra
 public import Init.Data.List.ToArray
 import all Init.Data.List.Control
 import all Init.Data.Array.Basic
@@ -3761,7 +3754,7 @@ theorem contains_iff_exists_mem_beq [BEq α] {xs : Array α} {a : α} :
 -- With `LawfulBEq α`, it would be better to use `contains_iff_mem` directly.
 grind_pattern contains_iff_exists_mem_beq => xs.contains a
 
-@[grind _=_]
+@[grind =]
 theorem contains_iff_mem [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
     xs.contains a ↔ a ∈ xs := by
   simp

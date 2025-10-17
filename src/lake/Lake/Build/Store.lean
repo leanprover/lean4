@@ -8,7 +8,6 @@ module
 prelude
 public import Lake.Util.Store
 public import Lake.Build.Job.Basic
-public import Lake.Build.Key
 import Lake.Util.StoreInsts
 import Lake.Build.Data
 

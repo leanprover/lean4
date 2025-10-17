@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Meta.Basic
-import Lean.Meta.Instances
 import Lean.PrettyPrinter
 
 public section

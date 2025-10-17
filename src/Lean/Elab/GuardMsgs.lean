@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Elab.Notation
-public import Lean.Util.Diff
 public import Lean.Server.CodeActions.Attr
 
 public section

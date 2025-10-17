@@ -6,14 +6,11 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Grind.Lemmas
-public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.SearchM
 public import Lean.Meta.Tactic.Grind.Action
-import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Util
-import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
@@ -209,6 +206,107 @@ private def exfalsoIfNotProp (goal : Goal) : MetaM Goal := goal.mvarId.withConte
 
 def Goal.lastDecl? (goal : Goal) : MetaM (Option LocalDecl) := do
   return (← goal.mvarId.getDecl).lctx.lastDecl
+
+namespace Action
+
+private def applyCases? (goal : Goal) (fvarId : FVarId) (kp : ActionCont) : GrindM (Option ActionResult) := goal.withContext do
+  /-
+  Remark: we used to use `whnfD`. This was a mistake, we don't want to unfold user-defined abstractions.
+  Example: `a ∣ b` is defined as `∃ x, b = a * x`
+  -/
+  let type ← whnf (← fvarId.getType)
+  unless isEagerCasesCandidate goal type do return none
+  if (← cheapCasesOnly) then
+    unless (← isCheapInductive type) do return none
+  if let .const declName _ := type.getAppFn then
+    saveCases declName true
+  let mvarIds ← cases goal.mvarId (mkFVar fvarId)
+  let subgoals := mvarIds.map fun mvarId => { goal with mvarId }
+  let mut seqNew : Array (TSyntax `grind) := #[]
+  let mut stuckNew : Array Goal := #[]
+  for subgoal in subgoals do
+    match (← kp subgoal) with
+    | .stuck gs => stuckNew := stuckNew ++ gs
+    | .closed seq => seqNew := seqNew ++ seq
+  if stuckNew.isEmpty then
+    return some (.closed seqNew.toList)
+  else
+    return some (.stuck stuckNew.toList)
+
+def intro (generation : Nat) : Action := fun goal kna kp => do
+  if goal.inconsistent then return .closed []
+  let target ← goal.mvarId.getType
+  if target.isFalse then
+    kna goal
+  else match (← introNext goal generation) with
+    | .done goal =>
+      let goal ← exfalsoIfNotProp goal
+      if let some mvarId ← goal.mvarId.byContra? then
+        kp { goal with mvarId }
+      else
+        kp goal
+    | .newDepHyp goal =>
+      kp goal
+    | .newLocal fvarId goal =>
+      if let some result ← applyCases? goal fvarId kp then
+        return result
+      else
+        kp goal
+    | .newHyp fvarId goal =>
+      if let some goal ← applyInjection? goal fvarId then
+        kp goal
+      else if let some result ← applyCases? goal fvarId kp then
+        return result
+      else
+        let goal ← GoalM.run' goal <| addHypothesis fvarId generation
+        kp goal
+
+private def hugeNumber := 1000000
+
+def intros (generation : Nat) : Action :=
+  ungroup >> (intro generation).loop hugeNumber >> group
+
+/-- Asserts a new fact `prop` with proof `proof` to the given `goal`. -/
+private def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : Action := fun goal kna kp => do
+  if isEagerCasesCandidate goal prop then
+    let mvarId ← goal.mvarId.assert (← mkFreshUserName `h) prop proof
+    intros generation { goal with mvarId } kna kp
+  else goal.withContext do
+    let goal ← GoalM.run' goal do
+      let r ← preprocess prop
+      let prop' := r.expr
+      let proof' := mkApp4 (mkConst ``Eq.mp [levelZero]) prop r.expr (← r.getProof) proof
+      add prop' proof' generation
+    kp goal
+
+/--
+Asserts next fact in the `goal` fact queue.
+Returns `true` if the queue was not empty and `false` otherwise.
+-/
+def assertNext : Action := fun goal kna kp => do
+  if goal.inconsistent then return .closed []
+  let some (fact, newRawFacts) := goal.newRawFacts.dequeue?
+    | kna goal
+  let goal := { goal with newRawFacts }
+  withSplitSource fact.splitSource do
+    assertAt fact.proof fact.prop fact.generation goal kna kp
+
+/--
+Asserts all facts in the `goal` fact queue.
+Returns `true` if the queue was not empty and `false` otherwise.
+-/
+def assertAll : Action :=
+  assertNext.loop hugeNumber
+
+end Action
+
+/-!
+**------------------------------------------**
+**------------------------------------------**
+**TODO** Delete rest of the file
+**------------------------------------------**
+**------------------------------------------**
+-/
 
 private def applyCases? (fvarId : FVarId) (generation : Nat) : SearchM Bool := withCurrGoalContext do
   /-

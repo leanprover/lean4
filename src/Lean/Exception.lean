@@ -6,10 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Message
 public import Lean.InternalExceptionId
-public import Lean.Data.Options
-public import Lean.Util.MonadCache
 -- This import is necessary to ensure that any users of the `throwNamedError` macros have access to
 -- all declared explanations:
 public import Lean.ErrorExplanations

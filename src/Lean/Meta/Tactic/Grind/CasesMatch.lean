@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Util
-import Lean.Meta.Tactic.Cases
 import Lean.Meta.Match.MatcherApp
 import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Grind.Simp

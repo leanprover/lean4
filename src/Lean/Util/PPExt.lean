@@ -6,9 +6,6 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Lean.Environment
-public import Lean.MetavarContext
-public import Lean.Data.OpenDecl
 public import Lean.Elab.InfoTree.Types
 
 public section

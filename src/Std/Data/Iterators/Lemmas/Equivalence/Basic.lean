@@ -6,12 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Control.Lawful.Basic
-public import Init.Ext
 public import Init.Internal.Order
-public import Init.Core
 public import Init.Data.Iterators.Basic
-public import Init.Data.Iterators.PostconditionMonad
 public import Std.Data.Iterators.Lemmas.Equivalence.HetT
 
 @[expose] public section

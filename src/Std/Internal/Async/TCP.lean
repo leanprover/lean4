@@ -9,7 +9,6 @@ prelude
 public import Std.Time
 public import Std.Internal.UV.TCP
 public import Std.Internal.Async.Select
-public import Std.Net.Addr
 
 public section
 

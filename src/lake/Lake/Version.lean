@@ -8,8 +8,6 @@ module
 prelude
 public import Init.Prelude
 import Init.Data.ToString
-import Init.Meta
-import Init.Data.String.Basic
 
 namespace Lake
 

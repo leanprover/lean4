@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Meta.Basic
-public import Init.Control.Option
 
 public section
 

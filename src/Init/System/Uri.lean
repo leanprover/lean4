@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.String.Extra
-public import Init.Data.Nat.Linear
 public import Init.System.FilePath
 
 public section

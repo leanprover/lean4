@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.CoreM
-public import Lean.MonadEnv
 public import Lean.Compiler.MetaAttr
 
 public section

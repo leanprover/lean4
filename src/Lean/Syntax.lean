@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Slice
 public import Init.Data.Hashable
-public import Lean.Data.Name
 public import Lean.Data.Format
 public import Init.Data.Option.Coe
 

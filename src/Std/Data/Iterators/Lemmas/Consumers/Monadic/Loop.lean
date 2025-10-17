@@ -6,13 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Control.Lawful.Basic
-public import Init.Data.Iterators.Consumers.Monadic.Collect
-public import Init.Data.Iterators.Consumers.Monadic.Loop
-public import Init.Data.Iterators.Lemmas.Monadic.Basic
 public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 public import Std.Data.Iterators.Lemmas.Consumers.Monadic.Collect
-public import Std.Data.Iterators.Lemmas.Equivalence.StepCongr
 
 @[expose] public section
 

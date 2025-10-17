@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.String.Pattern
-public import Init.Data.Iterators.Consumers.Monadic.Collect
 public import Init.Data.Ord.Basic
 public import Init.Data.Iterators.Combinators.FilterMap
 

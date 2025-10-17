@@ -11,10 +11,8 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Lean.Language.Basic
 public import Lean.Language.Util
 public import Lean.Language.Lean.Types
-public import Lean.Parser.Module
 public import Lean.Elab.Import
 
 public section

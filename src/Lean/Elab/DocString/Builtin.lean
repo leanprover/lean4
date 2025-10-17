@@ -6,23 +6,15 @@ Author: David Thrane Christiansen
 
 module
 prelude
-public import Lean.Elab.DocString
 import Lean.Elab.DocString.Builtin.Parsing
 public import Lean.Elab.DocString.Builtin.Scopes
 public import Lean.Elab.DocString.Builtin.Postponed
-import Lean.DocString.Links
-public import Lean.DocString.Syntax
-public import Lean.Elab.InfoTree
-public meta import Lean.Elab.Term.TermElabM
 import Lean.Elab.Open
-public import Lean.Parser
-import Lean.Meta.Hint
 import Lean.Meta.Reduce
 import Lean.Elab.Tactic.Doc
 import Lean.Data.EditDistance
 public import Lean.Elab.DocString.Builtin.Keywords
 import Lean.Server.InfoUtils
-import Lean.Meta.Hint
 
 
 namespace Lean.Doc

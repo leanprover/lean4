@@ -5,13 +5,13 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.SearchM
+public import Lean.Meta.Tactic.Grind.Action
 import Lean.Meta.Tactic.Grind.Intro
-import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Internalize
+import Lean.Meta.Tactic.Grind.Anchor
 public section
 namespace Lean.Meta.Grind
 
@@ -241,6 +241,211 @@ private def casesWithTrace (mvarId : MVarId) (major : Expr) : GoalM (List MVarId
     if let .const declName _ := (← whnfD (← inferType major)).getAppFn then
       saveCases declName false
   cases mvarId major
+
+structure SplitCandidateAnchors where
+  /-- Pairs `(anchor, split)` -/
+  candidates : Array (UInt64 × Expr)
+  /-- Number of digits (≥ 4) sufficient for distinguishing anchors. We usually display only the first `numDigits`. -/
+  numDigits  : Nat
+
+/--
+Returns case-split candidates. Case-splits that are tagged as `.resolved` or `.notReady` are skipped.
+Applies additional `filter` if provided.
+-/
+def getSplitCandidateAnchors (filter : Expr → GoalM Bool := fun _ => return true) : GoalM SplitCandidateAnchors := do
+  let candidates := (← get).split.candidates
+  let candidates ← candidates.toArray.mapM fun c => do
+    let e := c.getExpr
+    let anchor ← getAnchor e
+    let status ← checkSplitStatus c
+    return (e, status, anchor)
+  let candidates ← candidates.filterM fun (e, status, _) => do
+    -- **Note**: we ignore case-splits that are not ready or have already been resolved.
+    -- We may consider adding an option for including "not-ready" splits in the future.
+    if status matches .resolved | .notReady then return false
+    filter e
+  -- **TODO**: Add an option for including propositions that are only considered when using `+splitImp`
+  -- **TODO**: Add an option for including terms whose type is an inductive predicate or type
+  let candidates := candidates.map fun (e, _, anchor) => (anchor, e)
+  let (candidates, numDigits) := truncateAnchors candidates
+  return { candidates, numDigits }
+
+namespace Action
+
+/--
+Given a `mvarId` associated with a subgoal created by `splitCore`, inspects the
+proof term assigned to `mvarId` and tries to extract the proof of `False` that does not
+depend on hypotheses introduced in the subgoal.
+For example: suppose the subgoal is of the form `p → q → False` where `p` and `q` are new
+hypotheses introduced during case analysis. If the proof is of the form `fun _ _ => h`, returns
+`some h`.
+-/
+private def getFalseProof? (mvarId : MVarId) : MetaM (Option Expr) := mvarId.withContext do
+  let proof ← instantiateMVars (mkMVar mvarId)
+  go proof
+where
+  go (proof : Expr) : MetaM (Option Expr) := do
+    match_expr proof with
+    | False.elim _ p => return some p
+    | False.casesOn _ p => return some p
+    | id α p => if α.isFalse then return some p else return none
+    | _ =>
+      /-
+      **Note**: `intros` tactics may hide the `False` proof behind a `casesOn`
+      For example: suppose the subgoal has a type of the form `p₁ → q₁ ∧ q₂ → p₂ → False`
+      The proof will be of the form `fun _ h => h.casesOn (fun _ _ => hf)` where `hf` is the proof
+      of `False` we are looking for.
+      Non-chronological backtracking currently fails in this kind of example.
+      -/
+      let .lam _ _ b _ := proof | return none
+      if b.hasLooseBVars then return none
+      go b
+
+/-- Returns `true` if the given list can be compressed using `<;>` at `splitCore` -/
+private def isCompressibleSeq (seq : List (TSyntax `grind)) : Bool :=
+  seq.all fun tac => match tac with
+    | `(grind| next $_* => $_:grindSeq) => false
+    | _ => true
+
+/--
+Given `[t₁, ..., tₙ]`, returns `t₁ <;> ... <;> tₙ`
+-/
+private def mkAndThenSeq (seq : List (TSyntax `grind)) : CoreM (TSyntax `grind) := do
+  match seq with
+  | [] => `(grind| done)
+  | [tac] => return tac
+  | tac :: seq =>
+    let seq ← mkAndThenSeq seq
+    `(grind| $tac:grind <;> $seq:grind)
+
+private def mkCasesAndThen (cases : TSyntax `grind) (seq : List (TSyntax `grind)) : CoreM (TSyntax `grind) := do
+  match seq with
+  | [] => return cases
+  | seq =>
+    let seq ← mkAndThenSeq seq
+    `(grind| $cases:grind <;> $seq:grind)
+
+private def isCompressibleAlts (alts : Array (List (TSyntax `grind))) : Bool :=
+  if _ : alts.size > 0 then
+    let alt := alts[0]
+    isCompressibleSeq alt && alts.all (· == alt)
+  else
+    true
+
+private def mkCasesResultSeq (cases : TSyntax `grind) (alts : Array (List (TSyntax `grind)))
+    (compress : Bool) : CoreM (List (TSyntax `grind)) := do
+  if compress && isCompressibleAlts alts then
+    if h : alts.size > 0 then
+      return [(← mkCasesAndThen cases alts[0]!)]
+    else
+      return [cases]
+  else
+    let seq ← if h : alts.size = 1 then
+      pure alts[0]
+    else
+      alts.toList.mapM fun s => mkGrindNext s
+    return cases :: seq
+
+/--
+Performs a case-split using `c`.
+Remark: `numCases` and `isRec` are computed using `checkSplitStatus`.
+-/
+private def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
+    (stopAtFirstFailure : Bool)
+    (compress : Bool) : Action := fun goal _ kp => do
+  let traceEnabled := (← getConfig).trace
+  let mvarId ← goal.mkAuxMVar
+  let cExpr := c.getExpr
+  let ((mvarIds, numDigits), goal) ← GoalM.run goal do
+    let gen ← getGeneration cExpr
+    let genNew := if numCases > 1 || isRec then gen+1 else gen
+    saveSplitDiagInfo cExpr genNew numCases c.source
+    markCaseSplitAsResolved cExpr
+    trace_goal[grind.split] "{cExpr}, generation: {gen}"
+    let mvarIds ← if let .imp e h _ := c then
+      casesWithTrace mvarId (mkGrindEM (e.forallDomain h))
+    else if (← isMatcherApp cExpr) then
+      casesMatch mvarId cExpr
+    else
+      casesWithTrace mvarId (← mkCasesMajor cExpr)
+    let numDigits ← if traceEnabled then
+      pure (← getSplitCandidateAnchors).numDigits
+    else
+      pure 0
+    return (mvarIds, numDigits)
+  let subgoals := mvarIds.map fun mvarId => { goal with mvarId }
+  let mut seqNew : Array (List (TSyntax `grind)) := #[]
+  let mut stuckNew : Array Goal := #[]
+  for subgoal in subgoals do
+    match (← kp subgoal) with
+    | .stuck gs =>
+      if stopAtFirstFailure then
+        /-
+        **Note**: We don't need to assign `goal.mvarId` when `stopAtFirstFailure = true`
+        because the caller will not be able to process the all failure/stuck goals anyway.
+        -/
+        return .stuck gs
+      else
+        stuckNew := stuckNew ++ gs
+    | .closed seq =>
+      if let some falseProof ← getFalseProof? subgoal.mvarId then
+        goal.mvarId.assignFalseProof falseProof
+        return .closed seq
+      else if !seq.isEmpty then
+        /- **Note**: if the sequence is empty, it means the user will never see this goal. -/
+        seqNew := seqNew.push seq
+  if (← goal.mvarId.getType).isFalse then
+    /- **Note**: We add the marker to assist `getFalseExpr?` -/
+    goal.mvarId.assign (mkExpectedPropHint (← instantiateMVars (mkMVar mvarId)) (mkConst ``False))
+  else
+    goal.mvarId.assign (← instantiateMVars (mkMVar mvarId))
+  if stuckNew.isEmpty then
+    if traceEnabled then
+      let anchor ← goal.withContext <| getAnchor cExpr
+      let anchorPrefix := anchor >>> (64 - 4*numDigits.toUInt64)
+      let hexnum := mkNode `hexnum #[mkAtom (anchorToString numDigits anchorPrefix)]
+      let cases ← `(grind| cases #$hexnum)
+      return .closed (← mkCasesResultSeq cases seqNew compress)
+    else
+      return .closed []
+  else
+    return .stuck stuckNew.toList
+
+/--
+Selects a case-split from the list of candidates, performs the split and applies
+continuation to all subgoals.
+If a subgoal is solved without using new hypotheses, closes the original goal using this proof. That is,
+it performs non-chronological backtracking.
+
+If `stopsAtFirstFailure = true`, it stops the search as soon as the given continuation cannot solve a subgoal.
+
+If `compress = true`, then it uses `<;>` to generate the resulting tactic sequence if all subgoal sequences are
+identical. For example, suppose that the following sequence is generated with `compress = false`
+```
+cases #50fc
+next => lia
+next => lia
+```
+Then with `compress = true` it generates `cases #50fc <;> lia`
+-/
+def splitNext (stopAtFirstFailure := true) (compress := true) : Action := fun goal kna kp => do
+  let (r, goal) ← GoalM.run goal selectNextSplit?
+  let .some c numCases isRec _ := r
+    | kna goal
+  let cExpr := c.getExpr
+  let gen := goal.getGeneration cExpr
+  let x : Action := splitCore c numCases isRec stopAtFirstFailure compress >> intros gen
+  x goal kna kp
+
+end Action
+
+/-!
+**------------------------------------------**
+**------------------------------------------**
+**TODO** Delete rest of the file
+**------------------------------------------**
+**------------------------------------------**
+-/
 
 /--
 Performs a case-split using `c`.

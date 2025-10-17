@@ -6,10 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Elab.Tactic.Grind.Basic
-import Init.Grind.Interactive
-import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.Grind.Intro
-import Lean.Meta.Tactic.Grind.SearchM
 import Lean.Elab.SyntheticMVars
 namespace Lean.Elab.Tactic.Grind
 open Meta Grind

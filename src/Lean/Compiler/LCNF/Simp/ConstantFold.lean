@@ -7,9 +7,7 @@ module
 
 prelude
 public import Init.Data.UInt.Log2
-public import Lean.Compiler.LCNF.CompilerM
 public import Lean.Compiler.LCNF.InferType
-public import Lean.Compiler.LCNF.PassManager
 
 public section
 

@@ -6,9 +6,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 module
 
 prelude
-public import Init.System.IO
 public import Init.Data.ToString
-public import Lake.Util.Log
 public import Lake.Util.Proc
 
 open System

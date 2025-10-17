@@ -5,14 +5,11 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.EMatchTheorem
 public import Lean.Meta.Tactic.Simp.Types
 public import Lean.Meta.Tactic.Grind.AlphaShareCommon
 public import Lean.Meta.Tactic.Grind.Attr
 public import Init.Data.Queue
 import Lean.Meta.Tactic.Grind.ExprPtr
-import Init.Grind.Tactics
-import Std.Data.TreeSet.Basic
 import Lean.HeadIndex
 import Lean.Meta.Tactic.Grind.ExtAttr
 import Lean.Meta.AbstractNestedProofs
@@ -923,10 +920,15 @@ def Goal.getENode (goal : Goal) (e : Expr) : CoreM ENode := do
 def getENode (e : Expr) : GoalM ENode := do
   (← get).getENode e
 
+def Goal.getGeneration (goal : Goal) (e : Expr) : Nat :=
+  if let some n := goal.getENode? e then
+    n.generation
+  else
+    0
+
 /-- Returns the generation of the given term. Is assumes it has been internalized -/
-def getGeneration (e : Expr) : GoalM Nat := do
-  let some n ← getENode? e | return 0
-  return n.generation
+def getGeneration (e : Expr) : GoalM Nat :=
+  return (← get).getGeneration e
 
 /-- Returns `true` if `e` is in the equivalence class of `True`. -/
 def isEqTrue (e : Expr) : GoalM Bool := do
@@ -1244,7 +1246,10 @@ If type of `mvarId` is not `False`, then use `False.elim`.
 def _root_.Lean.MVarId.assignFalseProof (mvarId : MVarId) (falseProof : Expr) : MetaM Unit := mvarId.withContext do
   let target ← mvarId.getType
   if target.isFalse then
-    mvarId.assign falseProof
+    /-
+    **Note**: We add the marker to assist `getFalseExpr?` used to implement
+    non-chronological backtracking. -/
+    mvarId.assign (mkExpectedPropHint falseProof (mkConst ``False))
   else
     mvarId.assign (← mkFalseElim target falseProof)
 
@@ -1340,12 +1345,6 @@ def propagateUp (e : Expr) : GoalM Unit := do
 
 def propagateDown (e : Expr) : GoalM Unit := do
   (← getMethods).propagateDown e
-
-def Goal.getGeneration (goal : Goal) (e : Expr) : Nat :=
-  if let some n := goal.getENode? e then
-    n.generation
-  else
-    0
 
 /-- Returns expressions in the given expression equivalence class. -/
 partial def Goal.getEqc (goal : Goal) (e : Expr) (sort := false) : List Expr :=

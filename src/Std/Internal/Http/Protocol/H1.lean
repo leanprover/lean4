@@ -547,6 +547,12 @@ structure Machine (ty : Machine.MachineType) where
   -/
   keepAlive : Bool := false
 
+  /--
+  If the connection has been closed (no more data will arrive).
+  When true, EOF during parsing triggers connectionClosed instead of needMoreData.
+  -/
+  connectionClosedByPeer : Bool := false
+
 namespace Machine
 
 private def shouldBreakConnection (c : Status) : Bool :=
@@ -603,6 +609,16 @@ def setFailure (machine : Machine ty) (error : H1.Machine.Error) : Machine ty :=
   |>.setReaderState (.failed error)
   |>.setError error
 
+/--
+Marks that the connection has been closed by the peer.
+This should be called when the underlying connection is closed (e.g., socket closed).
+After calling this, any parsing that requires more data will fail with connectionClosed
+instead of emitting needMoreData events.
+-/
+@[inline]
+public def closePeerConnection (machine : Machine ty) : Machine ty :=
+  { machine with connectionClosedByPeer := true }
+
 private def parseWith (machine : Machine ty) (parser : Parser α) (limit : Option Nat) (expect : Option Nat := none) : (Machine ty × Option α) :=
   let remaining := machine.reader.input.remainingBytes
     match parser machine.reader.input with
@@ -610,7 +626,10 @@ private def parseWith (machine : Machine ty) (parser : Parser α) (limit : Optio
   | .error it .eof =>
     let usedBytesUntilFailure := remaining - it.remainingBytes
 
-    if let some limit := limit then
+    -- If connection is closed by peer, trigger connectionClosed error instead of needMoreData
+    if machine.connectionClosedByPeer then
+      (machine.setFailure .connectionClosed, none)
+    else if let some limit := limit then
       if usedBytesUntilFailure ≥ limit
         then (machine.setFailure .badMessage, none)
         else (machine.addEvent (.needMoreData expect), none)

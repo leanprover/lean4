@@ -404,6 +404,7 @@ jobs:
         with:
           # needed for tagging
           fetch-depth: 0
+          filter: tree:0
           token: ${{ secrets.PUSH_NIGHTLY_TOKEN }}
       - uses: actions/download-artifact@v5
         with:

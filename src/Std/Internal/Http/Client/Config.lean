@@ -29,32 +29,32 @@ structure Config where
   /--
   Maximum number of requests per connection (for keep-alive).
   -/
-  maxRequestsPerConnection : Nat := 100
+  maxRequestsPerConnection : Nat := 1000
 
   /--
   Maximum number of headers allowed per response.
   -/
-  maxResponseHeaders : Nat := 50
+  maxResponseHeaders : Nat := 200
 
   /--
   Maximum size of a single header value in bytes.
   -/
-  maxHeaderValueSize : Nat := 8192
+  maxHeaderValueSize : Nat := 16384
 
   /--
   Maximum waiting time for additional data before timing out.
   -/
-  readTimeout : Time.Millisecond.Offset := 5000
+  readTimeout : Time.Millisecond.Offset := 30000
 
   /--
   Timeout duration for keep-alive connections.
   -/
-  keepAliveTimeout : { x : Time.Millisecond.Offset // 0 < x } := ⟨45000, by decide⟩
+  keepAliveTimeout : { x : Time.Millisecond.Offset // 0 < x } := ⟨60000, by decide⟩
 
   /--
   Timeout for the entire request lifecycle (connect + read + write).
   -/
-  requestTimeout : { x : Time.Millisecond.Offset // 0 < x } := ⟨10000, by decide⟩
+  requestTimeout : { x : Time.Millisecond.Offset // 0 < x } := ⟨120000, by decide⟩
 
   /--
   Whether to enable keep-alive connections.
@@ -69,17 +69,17 @@ structure Config where
   /--
   Maximum number of bytes to receive in a single read call.
   -/
-  maxRecvChunkSize : Nat := 8192
+  maxRecvChunkSize : Nat := 16384
 
   /--
   Default buffer size for request payloads.
   -/
-  defaultRequestBufferSize : Nat := 8192
+  defaultRequestBufferSize : Nat := 16384
 
   /--
   The user-agent string to send by default.
   -/
-  userAgent : Option HeaderValue := some (.new "LeanHTTPClient/1.1")
+  userAgent : Option HeaderValue := some (.new "lean-http/1.1")
 
 namespace Config
 

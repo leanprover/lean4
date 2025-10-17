@@ -1373,7 +1373,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
         throwError m!"Invalid projection: Index `{idx}` is invalid for this structure; {bounds}"
           ++ .note m!"The expression{inlineExpr e}has type{inlineExpr eType}which has only {numFields} {fields}"
           ++ tupleHint
-  | some structName, LVal.fieldName ref fieldName _ fullRef => withRef ref do
+  | some structName, LVal.fieldName ref fieldName _ _ => withRef ref do
     let env ← getEnv
     if isStructure env structName then
       if let some baseStructName := findField? env structName (Name.mkSimple fieldName) then
@@ -1389,12 +1389,12 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     -- Then search the environment
     if let some (baseStructName, fullName) ← findMethod? structName (.mkSimple fieldName) then
       return LValResolution.const baseStructName structName fullName
-    throwInvalidFieldAt fullRef fieldName fullName
-  | none, LVal.fieldName _ _ (some suffix) fullRef =>
+    throwInvalidFieldAt ref fieldName fullName
+  | none, LVal.fieldName ref _ (some suffix) _fullRef =>
     -- This may be a function constant whose implicit arguments have already been filled in:
     let c := e.getAppFn
     if c.isConst then
-      throwUnknownConstantAt fullRef (c.constName! ++ suffix)
+      throwUnknownConstantAt ref (c.constName! ++ suffix)
     else
       throwInvalidFieldNotation e eType
   | _, _ => throwInvalidFieldNotation e eType

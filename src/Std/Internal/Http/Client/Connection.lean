@@ -1,8 +1,3 @@
-/-
-Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Sofia Rodrigues
--/
 module
 
 prelude
@@ -43,6 +38,85 @@ public structure Connection (α : Type) where
   -/
   machine : Protocol.H1.Machine .response
 
+/--
+A request packet to be sent through the persistent connection channel.
+-/
+structure RequestPacket where
+
+  /--
+  ?
+  -/
+  request : Request Body
+
+  /--
+  ?
+  -/
+  responsePromise : IO.Promise (Except IO.Error (Response Body))
+
+  /--
+  ?
+  -/
+  cancellationToken : Std.CancellationToken
+
+namespace RequestPacket
+
+/--
+Resolve the response promise with an error.
+-/
+def onError (packet : RequestPacket) (error : IO.Error) : IO Unit :=
+  packet.responsePromise.resolve (.error error)
+
+/--
+Resolve the response promise with a successful response.
+-/
+def onResponse (packet : RequestPacket) (response : Response Body) : IO Unit :=
+  packet.responsePromise.resolve (.ok response)
+
+end RequestPacket
+
+/--
+A persistent HTTP client connection that handles multiple sequential requests.
+-/
+public structure PersistentConnection (α : Type) where
+  /--
+  The underlying connection.
+  -/
+  connection : Connection α
+
+  /--
+  Channel for sending new requests.
+  -/
+  requestChannel : CloseableChannel RequestPacket
+
+  /--
+  Shutdown Promise, resolves when the connection shuts down.
+  -/
+  shutdown : IO.Promise Unit
+
+namespace PersistentConnection
+
+/--
+Send a request through the persistent connection.
+-/
+def send [Transport α] (pc : PersistentConnection α) (request : Request Body) : Async (Response Body) := do
+  let responsePromise ← IO.Promise.new
+  let cancellationToken ← Std.CancellationToken.new
+
+  let task ← pc.requestChannel.send { request, responsePromise, cancellationToken }
+
+  let .ok _ ← await task
+    | throw (.userError "connection closed, cannot send more requests")
+
+  Async.ofPromise (pure responsePromise)
+
+/--
+Close the persistent connection by closing the request channel.
+-/
+def close (pc : PersistentConnection α) : Async Unit := do
+  pc.requestChannel.close
+
+end PersistentConnection
+
 namespace Connection
 
 private inductive Recv
@@ -74,13 +148,8 @@ private def processNeedMoreData
   catch _ =>
     pure (.error Protocol.H1.Machine.Error.timeout)
 
-private def handle
-    [Transport α]
-    (connection : Connection α)
-    (config : Client.Config)
-    (request : Request Body)
-    (responseHandler : Response Body → Async Unit)
-    (breakAfterFirst := false) : Async Unit := do
+private def handle [Transport α] (connection : Connection α) (config : Client.Config)
+    (requestChannel : CloseableChannel RequestPacket) : Async Unit := do
 
   let mut machine := connection.machine
   let mut running := true
@@ -90,10 +159,10 @@ private def handle
   let mut requestTimer ← Interval.mk config.requestTimeout.val config.requestTimeout.property
   let mut connectionTimer ← Sleep.mk config.keepAliveTimeout
 
+  let mut currentRequest : Option RequestPacket := none
   let mut receivedResponse := false
   let mut reqStream := none
-  let mut sentRequest := false
-  let mut closing := false
+  let mut waitingForRequest := true
 
   -- Wait for the first tick that is immediate
   requestTimer.tick
@@ -101,18 +170,29 @@ private def handle
   let mut requestTimerTask ← async requestTimer.tick
   let connectionTimerTask ← async connectionTimer.wait
 
-  -- Send the request immediately
-  machine := machine.sendMessage request.head
-
-  match request.body with
-  | .bytes data => machine := machine.writeUserData data |>.closeWriter
-  | .zero => machine := machine.closeWriter
-  | .stream stream => do
-    if let some size ← stream.getKnownSize then
-      machine := machine.setKnownSize size
-    reqStream := some stream
-
   while running do
+
+    if waitingForRequest then
+      match ← await (← requestChannel.recv) with
+      | some packet =>
+        currentRequest := some packet
+        waitingForRequest := false
+
+        machine := machine.sendMessage packet.request.head
+
+        match packet.request.body with
+        | .bytes data => machine := machine.writeUserData data |>.closeWriter
+        | .zero => machine := machine.closeWriter
+        | .stream stream => do
+          if let some size ← stream.getKnownSize then
+            machine := machine.setKnownSize size
+          reqStream := some stream
+
+        requestTimer.reset
+
+      | none =>
+        running := false
+        continue
 
     machine := machine
       |> Protocol.H1.Machine.Client.processRead
@@ -128,7 +208,9 @@ private def handle
       if data.size > 0 then
         try
           Transport.sendAll socket data.data
-        catch _ =>
+        catch e =>
+          if let some packet := currentRequest then
+            packet.onError e
           running := false
 
     for event in events do
@@ -139,15 +221,12 @@ private def handle
           | .ok (some bs) =>
             machine := machine.feed bs
           | .ok none =>
-            running := false
-            break
+            machine := machine.setFailure .connectionClosed
           | .error _ => do
-            if let .needStartLine := machine.reader.state then
-              running := false
-              break
-            else
-              machine := machine.setFailure .timeout
-        catch _ =>
+            machine := machine.setFailure .timeout
+        catch e =>
+          if let some packet := currentRequest then
+            packet.onError e
           running := false
 
       | .endHeaders head => do
@@ -156,8 +235,9 @@ private def handle
 
         receivedResponse := true
 
-        let response := { head := machine.reader.messageHead, body := some (.stream responseStream) }
-        responseHandler response
+        if let some packet := currentRequest then
+          let response := { head := machine.reader.messageHead, body := some (.stream responseStream) }
+          packet.onResponse response
 
       | .gotData final data =>
         discard <| responseStream.send data.toByteArray
@@ -168,22 +248,22 @@ private def handle
       | .chunkExt _ =>
         pure ()
 
-      | .failed =>
+      | .failed e =>
+        if let some packet := currentRequest then
+          packet.onError (.userError (toString e))
         pure ()
 
       | .close =>
         running := false
 
       | .next =>
+        -- Request/response cycle complete, ready for next request
         requestTimer.reset
         responseStream ← Body.ByteStream.emptyWithCapacity
         reqStream := none
-        sentRequest := false
         receivedResponse := false
-
-        if breakAfterFirst then
-          closing := true
-          break
+        currentRequest := none
+        waitingForRequest := true
 
     -- Sends data from the request body.
     if let some stream := reqStream then
@@ -202,10 +282,12 @@ private def handle
             | none => machine := machine.closeWriter
 
     -- Checks for things that can close the connection.
-    if ¬ closing then
+    if ¬ waitingForRequest then
       if (← requestTimerTask.isFinished) ∨ (← connectionTimerTask.isFinished) then
         machine := machine.setFailure .timeout
-        closing := true
+        if let some packet := currentRequest then
+          packet.onError (.userError "timeout")
+        running := false
 
   -- End of the connection
   connectionTimer.stop
@@ -214,9 +296,7 @@ private def handle
 end Connection
 
 /--
-This is the client entry point. It is used to send requests and receive responses using an `Async`
-handler for a single connection. It can be used with a `TCP.Socket` or any other type that implements
-`Transport` to create a simple HTTP client capable of handling multiple requests concurrently.
+Create a persistent connection that can handle multiple sequential requests.
 
 # Example
 
@@ -225,33 +305,25 @@ handler for a single connection. It can be used with a `TCP.Socket` or any other
 let socket ← Socket.mk
 socket.connect serverAddr
 
--- Send a request and handle the response
-let request : Request Body := {
-  head := {
-    method := .get,
-    target := "/api/data",
-    version := .v11,
-    headers := Headers.empty.insert "Host" (.new "example.com")
-  },
-  body := none
-}
+-- Create persistent connection
+let pc ← createPersistentConnection socket config
 
-sendRequest socket request (fun response => do
-  -- Process the response
-  IO.println s!"Status: {response.head.status}"
-  pure ()
-) config
+-- Spawn the connection handler
+async (pc.connection.handlePersistent pc.config pc.requestChannel)
+
+-- Send multiple requests
+pc.send request1 (fun response => IO.println s!"Response 1: {response.head.status}")
+pc.send request2 (fun response => IO.println s!"Response 2: {response.head.status}")
+
+-- Close when done
+pc.close
 ```
 -/
-def sendRequest [Transport t] (client : t)
-    (request : Request Body)
-    (config : Client.Config := {}) : Async (Response Body) := do
+def createPersistentConnection [Transport t] (client : t) (config : Client.Config := {}) : Async (PersistentConnection t) := do
+  let requestChannel ← CloseableChannel.new
+  let connection := Connection.mk client { config := config.toH1Config }
+  let shutdown ← IO.Promise.new
 
-  let result ← IO.Promise.new
-
-  Connection.mk client { config := config.toH1Config }
-  |>.handle config request (breakAfterFirst := true) fun r => result.resolve (.ok r)
-
-  Async.ofPromise (pure result)
+  pure { connection, requestChannel, shutdown }
 
 end Std.Http.Client

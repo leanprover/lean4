@@ -1252,8 +1252,11 @@ inductive LValResolution where
   The `baseName` is the base name of the type to search for in the parameter list. -/
   | localRec (baseName : Name) (fvar : Expr)
 
+private def mkLValError (e : Expr) (eType : Expr) (msg : MessageData) : MessageData :=
+  m!"{msg}{indentExpr e}\nhas type{indentExpr eType}"
+
 private def throwLValErrorAt (ref : Syntax) (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
-  throwErrorAt ref "{msg}{indentExpr e}\nhas type{indentExpr eType}"
+  throwErrorAt ref (mkLValError e eType msg)
 
 private def throwLValError (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α := do
   throwLValErrorAt (← getRef) e eType msg
@@ -1322,9 +1325,19 @@ where
     | some (_, p2) => prodArity p2 + 1
 
 private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM LValResolution := do
-  let throwInvalidFieldAt {α : Type} (ref : Syntax) (fieldName : String) (fullName : Name) : TermElabM α := do
-    throwLValErrorAt ref e eType <| ← mkUnknownIdentifierMessage (declHint := fullName)
-      m!"Invalid field `{fieldName}`: The environment does not contain `{fullName}`"
+  let throwInvalidFieldAt {α : Type} (ref : Syntax) (fieldName : String) (fullName : Name)
+      (declHint := Name.anonymous) : TermElabM α := do
+    let msg ←
+      -- ordering: put decl hint, if any, last
+      mkUnknownIdentifierMessage (declHint := declHint)
+        (mkLValError e eType
+          m!"Invalid field `{fieldName}`: The environment does not contain `{fullName}`")
+    -- HACK: Simulate previous embedding of tagged `mkUnknownIdentifierMessage`.
+    -- The "import unknown identifier" code action requires the tag to be present somewhere in the
+    -- message. But if it is at the root, the tag will also be shown to the user even though the
+    -- current help page does not address field notation, which should likely get its own help page
+    -- (if any).
+    throwErrorAt ref m!"{msg}{.nil}"
   if eType.isForall then
     match lval with
     | LVal.fieldName ref fieldName suffix? _fullRef =>
@@ -1390,6 +1403,9 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     if let some (baseStructName, fullName) ← findMethod? structName (.mkSimple fieldName) then
       return LValResolution.const baseStructName structName fullName
     throwInvalidFieldAt ref fieldName fullName
+      -- Suggest a potential unreachable private name as hint. This does not cover structure
+      -- inheritance, nor `import all`.
+      (declHint := (mkPrivateName env structName).mkStr fieldName)
   | none, LVal.fieldName ref _ (some suffix) _fullRef =>
     -- This may be a function constant whose implicit arguments have already been filled in:
     let c := e.getAppFn

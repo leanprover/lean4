@@ -70,6 +70,44 @@ def accept (s : Server) : Async Client := do
   |>.map Client.ofNative
 
 /--
+Tries to accept an incoming connection.
+-/
+@[inline]
+def tryAccept (s : Server) : IO (Option Client) := do
+  let res ← s.native.tryAccept
+  let socket ← IO.ofExcept res
+  return Client.ofNative <$> socket
+
+/--
+Creates a `Selector` that resolves once `s` has a connection available. Calling this function
+does not start the connection wait, so it must not be called in parallel with `accept`.
+-/
+def acceptSelector (s : TCP.Socket.Server) : Selector Client :=
+  {
+    tryFn :=
+      s.tryAccept
+
+    registerFn waiter := do
+      let task ← s.native.accept
+
+      -- If we get cancelled the promise will be dropped so prepare for that
+      IO.chainTask (t := task.result?) fun res => do
+        match res with
+        | none => return ()
+        | some res =>
+          let lose := return ()
+          let win promise := do
+            try
+              let result ← IO.ofExcept res
+              promise.resolve (.ok (Client.ofNative result))
+            catch e =>
+              promise.resolve (.error e)
+          waiter.race lose win
+
+    unregisterFn := s.native.cancelAccept
+  }
+
+/--
 Gets the local address of the server socket.
 -/
 @[inline]
@@ -143,20 +181,25 @@ def recv? (s : Client) (size : UInt64) : Async (Option ByteArray) :=
 
 /--
 Creates a `Selector` that resolves once `s` has data available, up to at most `size` bytes,
-and provides that data. Calling this function starts the data wait, so it must not be called
+and provides that data. Calling this function does not starts the data wait, so it must not be called
 in parallel with `recv?`.
 -/
-def recvSelector (s : TCP.Socket.Client) (size : UInt64) : Async (Selector (Option ByteArray)) := do
-  let readableWaiter ← s.native.waitReadable
-  return {
+def recvSelector (s : TCP.Socket.Client) (size : UInt64) : Selector (Option ByteArray) :=
+  {
     tryFn := do
+      let readableWaiter ← s.native.waitReadable
+
       if ← readableWaiter.isResolved then
         -- We know that this read should not block
         let res ← (s.recv? size).block
         return some res
       else
+        s.native.cancelRecv
         return none
+
     registerFn waiter := do
+      let readableWaiter ← s.native.waitReadable
+
       -- If we get cancelled the promise will be dropped so prepare for that
       discard <| IO.mapTask (t := readableWaiter.result?) fun res => do
         match res with
@@ -172,6 +215,7 @@ def recvSelector (s : TCP.Socket.Client) (size : UInt64) : Async (Selector (Opti
             catch e =>
               promise.resolve (.error e)
           waiter.race lose win
+
     unregisterFn := s.native.cancelRecv
   }
 

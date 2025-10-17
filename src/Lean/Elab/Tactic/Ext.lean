@@ -112,7 +112,7 @@ def realizeExtTheorem (structName : Name) (flat : Bool) : Elab.Command.CommandEl
     try
       Elab.Command.liftTermElabM <| withoutErrToSorry <| withDeclName extName do
         let type ← mkExtType structName flat
-        let pf ← withSynthesize do
+        let pf ← withoutExporting <| withSynthesize do
           let indVal ← getConstInfoInduct structName
           let params := Array.replicate indVal.numParams (← `(_))
           Elab.Term.elabTermEnsuringType (expectedType? := type) (implicitLambda := false)

@@ -8,7 +8,6 @@ open Lean Expr Level -- just for shorter outpt
 def simple : Lean.Expr → Bool
   | .sort _ => true
   | _      => false
-#exit
 
 def expensive : Lean.Expr → Lean.Expr → Bool
   | .app (.app (.sort 1) (.sort 1)) (.sort 1), .app (.app (.sort 1) (.sort 1)) (.sort 1) => false

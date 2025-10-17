@@ -101,7 +101,7 @@ def evalCheck (tacticName : Name) (k : GoalM Bool)
   evalCheck `ring Arith.CommRing.check Arith.CommRing.pp?
 
 @[builtin_grind_tactic ac] def evalAC : GrindTactic := fun _ => do
-  evalCheck `ac AC.check AC.pp?
+  evalCheck `ac AC.check' AC.pp?
 
 def logTheoremAnchor (proof : Expr) : TermElabM Unit := do
   let stx ← getRef

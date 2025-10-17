@@ -39,7 +39,7 @@ void initialize_libuv_signal() {
 }
 
 static bool signal_promise_is_finished(lean_uv_signal_object * signal) {
-    return lean_io_get_task_state_core((lean_object *)lean_to_promise(signal->m_promise)->m_result) == 2;
+    return signal->m_promise == NULL || lean_io_get_task_state_core((lean_object *)lean_to_promise(signal->m_promise)->m_result) == 2;
 }
 
 void handle_signal_event(uv_signal_t* handle, int signum) {
@@ -47,7 +47,6 @@ void handle_signal_event(uv_signal_t* handle, int signum) {
     lean_uv_signal_object * signal = lean_to_uv_signal(obj);
 
     lean_assert(signal->m_state == SIGNAL_STATE_RUNNING);
-    lean_assert(signal->m_promise != NULL);
 
     if (signal->m_repeating) {
         if (!signal_promise_is_finished(signal)) {
@@ -55,12 +54,13 @@ void handle_signal_event(uv_signal_t* handle, int signum) {
             lean_dec(res);
         }
     } else {
-        lean_assert(!signal_promise_is_finished(signal));
+        if (signal->m_promise != NULL) {
+            lean_object* res = lean_io_promise_resolve(lean_box(signum), signal->m_promise, lean_io_mk_world());
+            lean_dec(res);
+        }
+
         uv_signal_stop(signal->m_uv_signal);
         signal->m_state = SIGNAL_STATE_FINISHED;
-
-        lean_object* res = lean_io_promise_resolve(lean_box(signum), signal->m_promise, lean_io_mk_world());
-        lean_dec(res);
 
         lean_dec(obj);
     }
@@ -154,21 +154,24 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj, obj_arg /
                 }
             case SIGNAL_STATE_RUNNING:
                 {
-                    lean_assert(signal->m_promise != NULL);
-                    // 2 indicates finished
                     if (signal_promise_is_finished(signal)) {
-                        lean_dec(signal->m_promise);
+                         if (signal->m_promise != NULL) {
+                            lean_dec(signal->m_promise);
+                        }
+
                         signal->m_promise = create_promise();
-                        lean_inc(signal->m_promise);
-                        return lean_io_result_mk_ok(signal->m_promise);
-                    } else {
-                        lean_inc(signal->m_promise);
-                        return lean_io_result_mk_ok(signal->m_promise);
                     }
+
+                    lean_inc(signal->m_promise);
+                    return lean_io_result_mk_ok(signal->m_promise);
                 }
             case SIGNAL_STATE_FINISHED:
                 {
-                    lean_assert(signal->m_promise != NULL);
+                    if (signal->m_promise == NULL) {
+                        lean_object* finished_promise = create_promise();
+                        return lean_io_result_mk_ok(finished_promise);
+                    }
+
                     lean_inc(signal->m_promise);
                     return lean_io_result_mk_ok(signal->m_promise);
                 }
@@ -176,11 +179,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj, obj_arg /
     } else {
         if (signal->m_state == SIGNAL_STATE_INITIAL) {
             return setup_signal();
-        } else {
-            lean_assert(signal->m_promise != NULL);
-
+        } else if (signal->m_promise != NULL) {
             lean_inc(signal->m_promise);
             return lean_io_result_mk_ok(signal->m_promise);
+        } else {
+            lean_object* finished_promise = create_promise();
+            return lean_io_result_mk_ok(finished_promise);
         }
     }
 }
@@ -190,11 +194,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj, obj_arg /
     lean_uv_signal_object * signal = lean_to_uv_signal(obj);
 
     if (signal->m_state == SIGNAL_STATE_RUNNING) {
-        lean_assert(signal->m_promise != NULL);
-
         event_loop_lock(&global_ev);
         int result = uv_signal_stop(signal->m_uv_signal);
         event_loop_unlock(&global_ev);
+
+        if  (signal->m_promise != NULL) {
+            lean_dec(signal->m_promise);
+            signal->m_promise = NULL;
+        }
 
         signal->m_state = SIGNAL_STATE_FINISHED;
 
@@ -211,6 +218,30 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj, obj_arg /
     }
 }
 
+/* Std.Internal.UV.Signal.cancel (signal : @& Signal) : IO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_cancel(b_obj_arg obj, obj_arg /* w */) {
+    lean_uv_signal_object * signal = lean_to_uv_signal(obj);
+
+    // It's locking here to avoid changing the state during other operations.
+    event_loop_lock(&global_ev);
+
+    if (signal->m_state == SIGNAL_STATE_RUNNING && signal->m_promise != NULL) {
+        if (signal->m_repeating) {
+            lean_dec(signal->m_promise);
+            signal->m_promise = NULL;
+        } else {
+            uv_signal_stop(signal->m_uv_signal);
+            lean_dec(signal->m_promise);
+            signal->m_promise = NULL;
+            signal->m_state = SIGNAL_STATE_INITIAL;
+
+            lean_dec(obj);
+        }
+    }
+
+    event_loop_unlock(&global_ev);
+    return lean_io_result_mk_ok(lean_box(0));
+}
 
 #else
 
@@ -230,6 +261,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg signal, obj_ar
 
 /* Std.Internal.UV.Signal.stop (signal : @& Signal) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg signal, obj_arg /* w */) {
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
+}
+
+/* Std.Internal.UV.Signal.cancel (signal : @& Signal) : IO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_cancel(b_obj_arg obj, obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );

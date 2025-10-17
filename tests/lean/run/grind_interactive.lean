@@ -401,7 +401,7 @@ example (as bs cs : Array α) (v₁ v₂ : α)
         (h₆ : j < as.size)
         : cs[j] = as[j] := by
   grind =>
-    instantiate Array.getElem_set
+    instantiate Array.getElem_set | gen > 0
     instantiate Array.getElem_set
 
 example (as bs cs : Array α) (v₁ v₂ : α)

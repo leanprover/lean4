@@ -27,14 +27,23 @@ import Lean.Elab.Tactic.Grind.Filter
 import Lean.Elab.Tactic.Grind.ShowState
 namespace Lean.Elab.Tactic.Grind
 
+def showStateAt (ref : Syntax) (filter : Filter) : GrindTacticM Unit := do
+  if let goalBefore :: _ := (← getGoals) then
+    withRef ref <| goalBefore.withContext <| showState filter (isSilent := true)
+  else
+    logAt ref (severity := .information) (isSilent := true) "no grind state"
+
 def evalSepTactics (stx : Syntax) : GrindTacticM Unit := do
   for arg in stx.getArgs, i in *...stx.getArgs.size do
     if i % 2 == 0 then
-      let `(Parser.Tactic.Grind.grindStep| $tac:grind $[| $[$filter??]?]?) := arg | throwUnsupportedSyntax
-      evalGrindTactic tac
-      if let some filter? := filter?? then
-        if let goal :: _ ← getGoals then
-          withRef stx <| goal.withContext <| showState filter? (silent := true)
+      match arg with
+      | `(Parser.Tactic.Grind.grindStep| $tac:grind) => evalGrindTactic tac
+      | `(Parser.Tactic.Grind.grindStep| $tac:grind | $[$filter?]?) =>
+        let filter ← elabFilter filter?
+        showStateAt arg filter
+        evalGrindTactic tac
+        showStateAt arg[1] filter
+      | _ => throwUnsupportedSyntax
     else
       saveTacticInfoForToken arg
 

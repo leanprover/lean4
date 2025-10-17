@@ -233,7 +233,6 @@ jobs:
                 "os": large && level >= 1 ? "nscloud-macos-sequoia-arm64-6x14" : "macos-15",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "release": true,
-                "test": true,
                 "shell": "bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-aarch64-apple-darwin.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
@@ -241,6 +240,7 @@ jobs:
                 "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
                 // See "Linux release" for release job levels; Grove is not a concern here
                 "enabled": isPr || level != 1,
+                "test": level >= 1,
                 "secondary": level == 0,
               },
               {

@@ -3,6 +3,43 @@ import Lean.Elab.Tactic.Do.LetElim
 
 open Lean Parser Meta Elab
 
+class Foldable (ρ : Type u) (α : outParam (Type v)) where
+  foldr : (α → β → β) → β → ρ → β
+
+def Foldable.toList [Foldable ρ α] (xs : ρ) : List α :=
+  Foldable.foldr List.cons List.nil xs
+
+instance : Foldable (List α) α where
+  foldr := List.foldr
+
+instance : Foldable (Array α) α where
+  foldr := Array.foldr
+
+def traverse_ [Applicative m] [Foldable ρ α] (f : α → m PUnit) (xs : ρ) : m PUnit :=
+  Foldable.foldr (fun x acc => f x *> acc) (pure PUnit.unit) xs
+
+def for_ [Applicative m] [Foldable ρ α] (xs : ρ) (f : α → m PUnit) : m PUnit :=
+  traverse_ f xs
+
+class LawfulFoldable (ρ : Type u) (α : outParam (Type v)) [Foldable ρ α] : Prop where
+  foldr_eq_foldr_toList (xs : ρ) (k : α → β → β) (z : β) :
+    Foldable.foldr k z xs = List.foldr k z (Foldable.toList xs)
+
+instance : LawfulFoldable (List α) α where
+  foldr_eq_foldr_toList xs k z := by simp [Foldable.foldr, Foldable.toList]
+
+class Traversable (ρ : Type u) (α : outParam (Type v)) where
+  traverse [Applicative m] : (α → m β) → ρ → m (List β)
+
+instance : Foldable (List α) α where
+  foldr := List.foldr
+
+instance : Foldable (Array α) α where
+  foldr := Array.foldr
+
+instance : Foldable (Array α) α where
+  foldr := Array.foldr
+
 declare_syntax_cat dooElem
 
 meta def dooElemParser (rbp : Nat := 0) : Parser :=
@@ -29,7 +66,10 @@ syntax (name := dooBreak) &"break" : dooElem
 syntax (name := dooContinue) &"continue" : dooElem
 syntax (name := dooLet) "let " &"mut "? letDecl : dooElem
 syntax (name := dooLetArrow) "let " &"mut "? dooIdDecl : dooElem
-syntax (name := dooNestedParser) "doo" dooSeq : dooElem
+syntax (name := dooNested) "doo" dooSeq : dooElem
+meta def dooForDecl := leading_parser
+  termParser >> " in " >> withForbidden "doo" termParser
+syntax (name := dooFor) "for " dooForDecl,+ "doo " dooSeq : dooElem
 
 @[dooElem_parser]
 meta def dooReassign      := leading_parser
@@ -446,8 +486,25 @@ mutual
         let else_ ← Term.exprToSyntax else_
         Term.elabTerm (← `(if $cond then $then_ else $else_)) none
     | `(dooElem| doo $dooSeq) => elabElems1 (getDooElems dooSeq) k
+    | `(dooElem| for $x:ident in $xs doo $dooSeq) =>
+      let uα ← mkFreshLevelMVar
+      let uρ ← mkFreshLevelMVar
+      let α ← mkFreshExprMVar (mkSort (mkLevelSucc uα)) (userName := `α)
+      let ρ ← mkFreshExprMVar (mkSort (mkLevelSucc uρ)) (userName := `ρ)
+      let xs ← Term.elabTermEnsuringType xs ρ
+      let mi := (← read).monadInfo
+      let us := [uρ, uα, mi.u, mi.v]
+      let forInType := mkApp3 (mkConst ``ForIn us) mi.m ρ α
+      let instForIn ← Term.mkInstMVar forInType
+      let instMonad ← Term.mkInstMVar (mkApp (mkConst ``Monad [mi.u, mi.v]) mi.m)
+      let β ← mkPUnit
+      let b ← mkPUnitUnit
+      let body ← withLocalDeclsDND #[(x.getId, α), (← mkFreshUserName `u, β)] fun xs => do
+        mkLambdaFVars xs (← elabElems1 (getDooElems dooSeq) (.last (← mkPUnit)))
+      let res := mkApp9 (mkConst ``ForIn.forIn us) mi.m ρ α instForIn β instMonad xs b body
+      k.mkThenUnlessLast dooElem res
     | `(dooElem| break) | `(dooElem| continue) =>
-      throwErrorAt dooElem "`return`, `break`, or `continue` must be the last element of a do block"
+      throwErrorAt dooElem "`break`, or `continue` must be the last element of a do block"
     | _ => throwErrorAt dooElem "unexpected do element {dooElem}"
 
   meta def elabElems1 (dooElems : Array (TSyntax `dooElem)) (k : DoElemCont) : DoElabM Expr := do
@@ -765,6 +822,26 @@ example : (Id.run doo
       return 13
   return x + y) := by rfl
 
+#check (Id.run doo
+  let mut x := 42
+  for y in [1,2,3] doo
+    x := x + y
+  return x)
+set_option trace.Meta.synthInstance true in
+set_option trace.Meta.isDefEq true in
+set_option pp.universes true in
+example :
+  (Id.run doo
+  let mut x := 42
+  for y in [1,2,3] doo
+    x := x + y
+  return x)
+= (Id.run do
+  let mut x := 42
+  for y in [1,2,3] do
+    x := x + y
+  return x) := by rfl
+
 /-!
 Postponing Monad instance resolution appropriately
 -/
@@ -914,13 +991,6 @@ else
     x := x + 5
   return x + y
 
-/-
-import Std.Data.Iterators
-import Std.Tactic.Do
-
-open Std.Iterators
-open Std.Do
-
 def SRel : List Type → Type
 | [] => Prop
 | t :: ts => t → t → SRel ts
@@ -940,19 +1010,49 @@ example (measure : Nat → Bool → Nat) : SRel [Nat, Bool] :=
 class WPAdequacy (m : Type u → Type v) (ps : PostShape.{u}) where
   elim :
     ⦃⌜True⌝⦄ prog ⦃⇓r => ⌜p r⌝⦄ →
-    ∃ (prog' : m (Subtype p)), prog' = Subtype.val <$> prog := sorry
+    ∃ (prog' : m (Subtype p)), prog = Subtype.val <$> prog' := sorry
 
 structure Loop' (β : Type u) where
   wf : WellFoundedRelation β
 
+def DecStateT (σ : Type u) (rel : σ → σ → Prop) (m : Type u → Type v) (α : Type u): Type (max u v) :=
+  (s : σ) → m (α × { s' : σ // rel s' s })
+
+instance (σ : Type u) (rel : σ → σ → Prop) (m : Type u → Type v) [Std.Refl rel] [Pure m] : Pure (DecStateT σ rel m) where
+  pure a := fun s => pure (a, ⟨s, Std.Refl.refl s⟩)
+
+instance (σ : Type u) (rel : σ → σ → Prop) (m : Type u → Type v) [Trans rel rel rel] [Bind m] [Pure m] : Bind (DecStateT σ rel m) where
+  bind x f := fun s => do
+    let (a, ⟨s', h₁⟩) ← x s
+    let (b, ⟨s'', h₂⟩) ← f a s'
+    pure (b, ⟨s'', Trans.trans h₂ h₁⟩)
+
+instance : Monad (DecStateT σ rel m) where
+  pure a := fun s => pure (a, s)
+  bind := fun x f => fun s => do
+    let (a, s') ← x s
+    f a s'
+
 @[inline]
-def Loop'.forIn {β : Type u} {m : Type u → Type v} [Monad m] (l : Loop' β) (init : β) (f : Unit → β → m β) : m β :=
+def Loop'.forIn {β : Type u} {m : Type u → Type v} [Monad m] (l : Loop' β) (init : β) (f : Unit → (b : β) → m { b' : β // l.wf.rel b' b }) : m β :=
   let rec @[specialize] loop (b : β) (acc : Acc l.wf.rel b) : m β := do
-    blub fun decreaseHere => do
     f () b >>= fun b' (h : l.wf.rel.rel b' b) =>
     match h : acc with
-      | .intro b h' => decreaseHere (loop b' (h' b' _))
+      | .intro b h' => loop b' (h' b' _)
   loop init (l.wf.wf.apply init)
+
+class Iter (m : Type u → Type v) where
+  iter : (PUnit → OptionT m PUnit) → m PUnit
+
+instance : Iter (DecStateT σ rel m) where
+  iter : (PUnit → OptionT m PUnit) → m PUnit
+
+/-
+import Std.Data.Iterators
+import Std.Tactic.Do
+
+open Std.Iterators
+open Std.Do
 
 
 def Iterator.step

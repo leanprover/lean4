@@ -10,6 +10,7 @@ public import Init.Data.FloatArray.Basic
 public import Lean.CoreM
 public import Lean.MonadEnv
 public import Lean.Util.Recognizers
+import Lean.Meta.Basic
 
 public section
 
@@ -31,6 +32,11 @@ def isLcCast? (e : Expr) : Option Expr :=
   else
     none
 
+inductive CasesAltInfo where
+  | ctor (ctorName : Name) (numFields : Nat) : CasesAltInfo
+  | default (numIndices : Nat) (numHyps : Nat) : CasesAltInfo
+deriving Inhabited
+
 /--
 Store information about `casesOn` declarations.
 
@@ -38,12 +44,11 @@ We treat them uniformly in the code generator.
 -/
 structure CasesInfo where
   declName     : Name
+  indName      : Name
   arity        : Nat
-  numParams    : Nat
   discrPos     : Nat
   altsRange    : Std.Rco Nat
-  altNumParams : Array Nat
-  motivePos    : Nat
+  altNumParams : Array CasesAltInfo
 
 def CasesInfo.numAlts (c : CasesInfo) : Nat :=
   c.altNumParams.size
@@ -55,24 +60,45 @@ private def getCasesOnInductiveVal? (declName : Name) : CoreM (Option InductiveV
 
 def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
   let some val ← getCasesOnInductiveVal? declName | return none
+  let indName := val.name
   let numParams    := val.numParams
-  let motivePos    := numParams
   let arity        := numParams + 1 /- motive -/ + val.numIndices + 1 /- major -/ + val.numCtors
   let discrPos     := numParams + 1 /- motive -/ + val.numIndices
   -- We view indices as discriminants
   let altsRange    := (discrPos + 1)...arity
   let altNumParams ← val.ctors.toArray.mapM fun ctor => do
     let .ctorInfo ctorVal ← getConstInfo ctor | unreachable!
-    return ctorVal.numFields
-  return some { declName, numParams, motivePos, arity, discrPos, altsRange, altNumParams }
+    return .ctor ctor ctorVal.numFields
+  return some { declName, indName, arity, discrPos, altsRange, altNumParams }
 
-def isCasesApp? (e : Expr) : CoreM (Option CasesInfo) := do
-  let .const declName _ := e.getAppFn | return none
-  if let some info ← getCasesInfo? declName then
-    assert! info.arity == e.getAppNumArgs
-    return some info
-  else
-    return none
+open Meta in
+def getSparseCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
+  unless isSparseCasesOn (← getEnv) declName do return none
+  let fail {α} : MetaM α := throwError "getSparseCasesInfo?: Unexpected type of {.ofConstName declName}"
+  -- We could store the information in the sparseCasesOnExt, but we might as well recompute it from
+  -- the declaration type
+  let info ← getConstVal declName
+  MetaM.run' <|
+    forallTelescope info.type fun xs r => do
+      let arity := xs.size
+      unless r.isApp do fail
+      let numIndices := r.getAppNumArgs - 1
+      let some discrPos := xs.idxOf? r.appArg! | fail
+      let some indName := (← inferType xs[discrPos]!).getAppFn.constName? | fail
+      let altsRange := (discrPos + 1)...arity
+      let altNumParams ← altsRange.toArray.mapM fun idx => do
+        forallTelescope (← inferType xs[idx]!) fun ys r => do
+          unless r.isApp do fail
+          let motiveArg := r.appArg!
+          if motiveArg.isFVar then
+            -- This is a catch-all case
+            return .default numIndices (ys.size - numIndices - 1)
+          else
+            let some ctorName := (← inferType motiveArg).getAppFn.constName? | fail
+            let .ctorInfo ctorVal ← getConstInfo ctorName | fail
+            return .ctor ctorName ctorVal.numFields
+      return some { declName, indName, arity, discrPos, altsRange, altNumParams }
+
 
 def getCtorArity? (declName : Name) : CoreM (Option Nat) := do
   let .ctorInfo val ← getConstInfo declName | return none

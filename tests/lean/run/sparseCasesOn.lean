@@ -9,12 +9,11 @@ run_meta
 
 /--
 info: test._sparseCasesOn_1.{u} {motive : Lean.Expr → Sort u} (t : Lean.Expr)
-  (fvar : (fvarId : Lean.FVarId) → motive (Lean.Expr.fvar fvarId)) (sort : (u : Lean.Level) → motive (Lean.Expr.sort u))
-  («else» : (t : Lean.Expr) → t.ctorIdx ≠ 1 → t.ctorIdx ≠ 3 → motive t) : motive t
+  (fvar : (fvarId : Lean.FVarId) → motive (Lean.Expr.fvar fvarId))
+  (sort : (u : Lean.Level) → motive (Lean.Expr.sort u)) : (t.ctorIdx ≠ 1 → t.ctorIdx ≠ 3 → motive t) → motive t
 -/
 #guard_msgs in
 #check test._sparseCasesOn_1
-
 
 /-- error: mkSparseCasesOn: unexpected number of universe parameters in `Or.casesOn` -/
 #guard_msgs in

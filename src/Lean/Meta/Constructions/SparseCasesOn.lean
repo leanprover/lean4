@@ -25,7 +25,7 @@ private structure SparseCasesOnKey where
   isPrivate : Bool
 deriving BEq, Hashable
 
-private builtin_initialize sparseCasesOnExt : EnvExtension (PHashMap SparseCasesOnKey Name) ←
+private builtin_initialize sparseCasesOnCacheExt : EnvExtension (PHashMap SparseCasesOnKey Name) ←
   registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache, keep it local
 
 def mkNatNe (n m : Nat) : Expr :=
@@ -46,7 +46,7 @@ internally by branching on the constructor index.
 public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name := do
   let env ← getEnv
   let key := { indName, ctors , isPrivate := env.header.isModule && !env.isExporting}
-  if let some name := (sparseCasesOnExt.getState env).find? key then
+  if let some name := (sparseCasesOnCacheExt.getState env).find? key then
     return name
 
   let declName ← mkAuxDeclName (kind := `_sparseCasesOn)
@@ -55,6 +55,9 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name :=
   for ctor in ctors do
     unless indInfo.ctors.contains ctor do
       throwError "mkSparseCasesOn: constructor {ctor} is not a constructor of {indName}"
+  if ctors.size = indInfo.ctors.length then
+      throwError "mkSparseCasesOn: requested casesOn combinator is not sparse"
+
 
   let casesOnName := mkCasesOnName indName
   let casesOnInfo ← getConstInfo casesOnName
@@ -74,6 +77,7 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name :=
     let motive := xs[indInfo.numParams]!
     let indices := xs[indInfo.numParams+1:indInfo.numParams+1+indInfo.numIndices]
     let major := xs[indInfo.numParams+1+indInfo.numIndices]!
+    let ism := indices ++ #[major]
     let minors := xs[indInfo.numParams+1+indInfo.numIndices+1:]
 
     let minors' ← ctors.mapM fun ctor => do
@@ -90,35 +94,31 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name :=
         let name := (`h).appendIndexAfter i
         pure (name, neq)
       withLocalDeclsDND overlapTypes fun hs =>
-        mkForallFVars (indices ++ #[major] ++ hs) (mkAppN motive (indices ++ #[major]))
+        mkForallFVars hs (mkAppN motive ism)
 
-    withLocalDeclD `else catchAllType fun elseMinor => do
-      let e := mkConst casesOnInfo.name (u :: us)
-      let e := mkAppN e params
-      let e := mkApp e motive
-      let e := mkAppN e indices
-      let e := mkApp e major
-      let e := mkAppN e <| ← indInfo.ctors.toArray.mapM fun ctor => do
+    let e := mkConst casesOnInfo.name (u :: us)
+    let e := mkAppN e params
+    let motive' ← id do
+      mkLambdaFVars ism (← mkArrow catchAllType (mkAppN motive ism))
+    let e := mkApp e motive'
+    let e := mkAppN e indices
+    let e := mkApp e major
+    let altTypes ← inferArgumentTypesN indInfo.ctors.length e
+    let e := mkAppN e <| ← indInfo.ctors.toArray.zipWithM (bs := altTypes) fun ctor t =>
+      forallTelescope t fun ys _ => do
+        let fields := ys.pop
+        let elseMinor := ys.back!
         if let some idx := ctors.idxOf? ctor then
-          return  minors'[idx]!
+          mkLambdaFVars ys (mkAppN minors'[idx]! fields)
         else
           let ctorInfo ← getConstInfoCtor ctor
           let idx := ctorInfo.cidx
-          forallTelescope (← inferType (minors[ctorInfo.cidx]!)) fun fields _ => do
-            let ctorApp := mkAppN (mkConst ctor us) (params ++ fields)
-            let ctorAppType ← whnfD (← inferType ctorApp)
-            let idxs := ctorAppType.getAppArgs[indInfo.numParams:]
-            let e := mkAppN elseMinor (idxs ++ #[ctorApp])
-            let e := mkAppN e <| ← ctors.mapM fun ctor => do
-              let ctorInfo' ← getConstInfoCtor ctor
-              let otherIdx := ctorInfo'.cidx
-              return mkNatNe idx otherIdx
-            mkLambdaFVars fields e
-      let e ← if ctors.size < indInfo.ctors.length then
-        mkLambdaFVars #[elseMinor] e
-      else
-        pure e
-      mkLambdaFVars (params ++ #[motive] ++ indices ++ #[major] ++ minors') e
+          let e := mkAppN elseMinor <| ← ctors.mapM fun ctor => do
+            let ctorInfo' ← getConstInfoCtor ctor
+            let otherIdx := ctorInfo'.cidx
+            return mkNatNe idx otherIdx
+          mkLambdaFVars ys e
+    mkLambdaFVars (params ++ #[motive] ++ indices ++ #[major] ++ minors') e
 
   -- logInfo m!"mkSparseCasesOn {declName} : {value}"
   let decl ← mkDefinitionValInferringUnsafe
@@ -127,10 +127,11 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name :=
     (type        := (← inferType value))
     (value       := value)
     (hints       := ReducibilityHints.abbrev)
-  addAndCompile (.defnDecl decl)
-  modifyEnv fun env => sparseCasesOnExt.modifyState env fun s => s.insert key declName
+  addDecl (.defnDecl decl)
+  modifyEnv fun env => sparseCasesOnCacheExt.modifyState env fun s => s.insert key declName
   setReducibleAttribute declName
-  modifyEnv fun env => markAuxRecursor env declName
+  modifyEnv fun env => markAuxRecursor env declName -- TODO: is this right?
+  modifyEnv fun env => markSparseCasesOn env declName
   pure declName
 
 end Lean.Meta

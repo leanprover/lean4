@@ -586,25 +586,15 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
       return { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
     else
       -- A catch-all case
-      -- The fields are the indices, the major argument and the `t.ctorIdx ≠ 23` assumptions
-      let subst    := subgoal.subst
-      let newVars  := xs.map fun x => x.applyFVarSubst subst
-      let subex    := Example.underscore -- todo: improve
-      let major    := subst.get x.fvarId!
-      let examples := p.examples.map <| Example.replaceFVarId x.fvarId! subex
-      let examples := examples.map <| Example.applyFVarSubst subst
-      let newAlts  := p.alts.filter fun alt => match alt.patterns with
-        | .ctor .. :: _         => false
-        | .var _ :: _           => true
-        | .inaccessible _ :: _  => true
-        | _                     => false
-      let newAlts  := newAlts.map fun alt => alt.applyFVarSubst subst
-      let newAlts ← newAlts.filterMapM fun alt => do
-        match alt.patterns with
-        | .var fvarId :: ps       => return { alt with patterns := ps }.replaceFVarId fvarId major
-        | .inaccessible _ :: _    => throwError "TODO2"
-        | _                       => unreachable!
-      return { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
+      let subst := subgoal.subst
+      trace[Meta.Match.match] "constructor catch-all case. subst: {subst.map.toList.map fun p => (mkFVar p.1, p.2)}"
+      let examples := p.examples.map <| Example.applyFVarSubst subst
+      let newVars := p.vars.map fun x => x.applyFVarSubst subst
+      let newAlts := p.alts.filter fun alt => match alt.patterns with
+        | .ctor .. :: _ => false
+        | _             => true
+      let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst
+      return { mvarId := subgoal.mvarId, alts := newAlts, vars := newVars, examples := examples }
 
 private def altsAreCtorLike (p : Problem) : MetaM Bool := withGoalOf p do
   p.alts.allM fun alt => do match alt.patterns with

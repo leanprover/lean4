@@ -1,6 +1,14 @@
 import Lean
 open Lean Expr Level -- just for shorter outpt
 
+-- set_option trace.Meta.Match.match true
+-- set_option trace.Meta.Match.debug true
+-- set_option trace.Meta.Tactic.induction true
+
+def simple : Lean.Expr → Bool
+  | .sort _ => true
+  | _      => false
+
 def expensive : Lean.Expr → Lean.Expr → Bool
   | .app (.app (.sort 1) (.sort 1)) (.sort 1), .app (.app (.sort 1) (.sort 1)) (.sort 1) => false
   | _, _ => true

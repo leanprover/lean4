@@ -44,6 +44,9 @@ structure InductionSubgoal where
   mvarId : MVarId
   fields : Array Expr := #[]
   subst  : FVarSubst := {}
+  /- The major fvar after reintroduction. Usually cleaned, but useful in the catch-all
+     case of a sparse caseseOn -/
+  major  : Expr
   deriving Inhabited
 
 private def getTypeBody (mvarId : MVarId) (type : Expr) (x : Expr) : MetaM Expr := do
@@ -75,7 +78,8 @@ private partial def finalize
           pure (recursor, recursorType)
         let recursor := mkApp recursor major
         let recursorType ← getTypeBody mvarId recursorType major
-        loop (pos+1+indices.size) minorIdx recursor recursorType true subgoals
+        let consumedMajor := true
+        loop (pos+1+indices.size) minorIdx recursor recursorType consumedMajor subgoals
       else
         -- consume motive
         let tag ← mvarId.getTag
@@ -96,7 +100,7 @@ private partial def finalize
               let mvar ← mkFreshExprSyntheticOpaqueMVar d tag'
               let recursor := mkApp recursor mvar
               let recursorType ← getTypeBody mvarId recursorType mvar
-              loop (pos+1) (minorIdx+1) recursor recursorType consumedMajor (subgoals.push { mvarId := mvar.mvarId! })
+              loop (pos+1) (minorIdx+1) recursor recursorType consumedMajor (subgoals.push { mvarId := mvar.mvarId!, major })
           else
             let arity := getTargetArity d
             if arity < initialArity then throwTacticEx `induction mvarId "ill-formed recursor"
@@ -107,6 +111,7 @@ private partial def finalize
             let recursor := mkApp recursor mvar
             let recursorType ← getTypeBody mvarId recursorType mvar
             -- Try to clear major premise from new goal
+            trace[Meta.Tactic.induction] "name of major premise: {major.fvarId!.name}"
             let mvarId' ← mvar.mvarId!.tryClear major.fvarId!
             let (fields, mvarId') ←  mvarId'.introN nparams minorGivenNames.varNames (useNamesForExplicitOnly := !minorGivenNames.explicit)
             let (extra,  mvarId') ← mvarId'.introNP nextra
@@ -117,11 +122,12 @@ private partial def finalize
                 let newFVarId      := extra[i - indices.size - 1]!
                 subst.insert revertedFVarId (mkFVar newFVarId)
             let fields := fields.map mkFVar
-            loop (pos+1) (minorIdx+1) recursor recursorType consumedMajor (subgoals.push { mvarId := mvarId', fields := fields, subst := subst })
+            loop (pos+1) (minorIdx+1) recursor recursorType consumedMajor (subgoals.push { mvarId := mvarId', fields, subst, major })
         | _ => unreachable!
     else
       unless consumedMajor do throwTacticEx `induction mvarId "ill-formed recursor"
       mvarId.assign recursor
+      trace[Meta.Tactic.induction] "finalize loop is done, {subgoals.size} subgoals"
       pure subgoals
   loop (recursorInfo.paramsPos.length + 1) 0 recursor recursorType false #[]
 

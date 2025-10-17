@@ -382,7 +382,9 @@ def mustEtaExpand (env : Environment) (e : Expr) : Bool :=
   if let .const declName _ := e.getAppFn then
     match env.find? declName with
     | some (.recInfo ..) | some (.ctorInfo ..) | some (.quotInfo ..) => true
-    | _ => isCasesOnRecursor env declName || isNoConfusion env declName || env.isProjectionFn declName || declName == ``Eq.ndrec
+    | _ => isCasesOnRecursor env declName || isNoConfusion env declName ||
+           env.isProjectionFn declName || declName == ``Eq.ndrec ||
+           isSparseCasesOn env declName
   else
     false
 
@@ -523,7 +525,10 @@ where
   /--
   Visit a `matcher`/`casesOn` alternative.
   -/
-  visitAlt (ctorName : Name) (numParams : Nat) (e : Expr) : M (Expr × Alt) := do
+  visitAlt (casesAltInfo : CasesAltInfo) (e : Expr) : M (Expr × Alt) := do
+    match casesAltInfo with
+    | .default .. => throwError "visitAlt: default TODO"
+    | .ctor ctorName numParams =>
     withNewScope do
       let mut (ps, e) ← visitBoundedLambda e numParams
       if ps.size < numParams then
@@ -556,7 +561,7 @@ where
     etaIfUnderApplied e casesInfo.arity do
       let args := e.getAppArgs
       let mut resultType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN e.getAppFn args[*...casesInfo.arity]))
-      let typeName := casesInfo.declName.getPrefix
+      let typeName := casesInfo.indName
       let .inductInfo indVal ← getConstInfo typeName | unreachable!
       if casesInfo.numAlts == 0 then
         /- `casesOn` of an empty type. -/
@@ -566,7 +571,7 @@ where
         let numParams := indVal.numParams
         let numIndices := indVal.numIndices
         let .ctorInfo ctorVal ← getConstInfo indVal.ctors[0]! | unreachable!
-        let numCtorFields := casesInfo.altNumParams[0]!
+        let .ctor _ numCtorFields := casesInfo.altNumParams[0]! | unreachable!
         let fieldArgs : Array Expr ←
           Meta.MetaM.run' <| Meta.forallTelescope ctorVal.type fun params indApp => do
             let ⟨indAppF, indAppArgs⟩ := indApp.getAppFnArgs
@@ -593,8 +598,8 @@ where
         let discrFVarId ← match discr with
           | .fvar discrFVarId => pure discrFVarId
           | .erased | .type .. => mkAuxLetDecl .erased
-        for i in casesInfo.altsRange, numParams in casesInfo.altNumParams, ctorName in indVal.ctors do
-          let (altType, alt) ← visitAlt ctorName numParams args[i]!
+        for i in casesInfo.altsRange, numParams in casesInfo.altNumParams do
+          let (altType, alt) ← visitAlt numParams args[i]!
           resultType := joinTypes altType resultType
           alts := alts.push alt
         let cases : Cases := { typeName, discr := discrFVarId, resultType, alts }
@@ -731,6 +736,8 @@ where
       else if declName == ``lcUnreachable then
         visitLcUnreachable e
       else if let some casesInfo ← getCasesInfo? declName then
+        visitCases casesInfo e
+      else if let some casesInfo ← getSparseCasesInfo? declName then
         visitCases casesInfo e
       else if let some arity ← getCtorArity? declName then
         visitCtor arity e

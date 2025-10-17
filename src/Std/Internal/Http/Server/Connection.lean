@@ -54,7 +54,7 @@ private def receiveWithTimeout [Transport α] (socket : α) (expect : UInt64)
     (timeoutMs : Millisecond.Offset) :
   Async Recv := do
     Selectable.one #[
-      .case (← Transport.recvSelector socket expect) (fun x => pure <| .bytes x),
+      .case (Transport.recvSelector socket expect) (fun x => pure <| .bytes x),
       .case (← Selector.sleep timeoutMs) (fun _ => pure <| .timeout)]
 
 private def processNeedMoreData

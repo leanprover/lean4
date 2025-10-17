@@ -105,8 +105,7 @@ theorem Internal.Impl.prune_LT_filter {α β} [Ord α] [TransOrd α] (t : Intern
       specialize l_ih (Internal.Impl.Ordered.left ord_t)
       rw [toList_eq_toListModel] at l_ih
       simp only [l_ih, toList_eq_toListModel, List.filter, List.append_cancel_left_eq]
-      rw [OrientedOrd.eq_swap] at heq
-      rw [Ordering.swap_eq_lt] at heq
+      rw [OrientedOrd.eq_swap, Ordering.swap_eq_lt] at heq
       simp only [heq, Ordering.isGT_gt, List.cons.injEq, true_and]
       symm
       apply List.filter_eq_self.2
@@ -399,7 +398,6 @@ public instance {z : Zipper α β} : ToIterator z Id ((a : α) × β a) where
   State := Zipper α β
   iterMInternal := Iter.toIterM <| Zipper.iter z
 
-
 public theorem step_Zipper_eq_match {it : IterM (α := Zipper α β) Id ((a : α) × β a)} :
     it.step = ⟨match it.internalState.iter with
     | ⟨Zipper.done⟩ => IterStep.done
@@ -408,8 +406,6 @@ public theorem step_Zipper_eq_match {it : IterM (α := Zipper α β) Id ((a : α
       simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Zipper.step]; split; all_goals (rename_i heq; simp only [Zipper.iter,
         heq]))⟩ := by
   simp only [IterM.step, Iterator.step, Zipper.step]
-  ext
-  congr 1
   congr 1
   cases it
   next =>
@@ -489,6 +485,7 @@ decreasing_by
     simp only [Zipper.prependMap_size, Internal.Impl.treeSize, Nat.add_lt_add_iff_right, Nat.lt_add_left_iff_pos,
       Nat.lt_add_one]
 end ZipperIterator
+
 section Rxc
 
 public structure RxcIterator (α : Type u) (β : α → Type v) (cmp : α → α → Ordering) where
@@ -663,7 +660,6 @@ public theorem toList_eq_takeWhile {α β} [Ord α] [TransOrd α] {z : Zipper α
 end Rxc
 
 section Rcx
-
 @[always_inline]
 public def Rcx [Ord α] (t : Internal.Impl α β) (lower_bound : α) : Iter (α := Zipper α β) ((a : α) × β a) :=
   ⟨Zipper.prependMapGE t lower_bound .done⟩
@@ -715,5 +711,89 @@ public theorem toList_rccIter {α β} [Ord α] [TransOrd α]
     . exact t_ord
 
 end Rcc
+
+section Rxo
+
+public structure RxoIterator (α : Type u) (β : α → Type v) (cmp : α → α → Ordering) where
+  iter : Zipper α β
+  upper : α
+
+variable {α : Type u} {β : α → Type v}
+
+public def RxoIterator.step {cmp : α → α → Ordering} : RxoIterator α β cmp → IterStep (IterM (α := RxoIterator α β cmp) Id ((a : α) × β a)) ((a : α) × β a)
+  | ⟨.done, _⟩ => .done
+  | ⟨.cons k v t it, upper⟩ =>
+    if (cmp k upper).isLT then
+      .yield ⟨it.prependMap t, upper⟩ ⟨k, v⟩
+    else
+      .done
+
+public instance : Iterator (RxoIterator α β cmp) Id ((a : α) × β a) where
+  IsPlausibleStep it step := it.internalState.step = step
+  step it := ⟨it.internalState.step, rfl⟩
+
+def RxoIterator.instFinitenessRelation : FinitenessRelation (RxoIterator α β cmp) Id where
+  rel t' t := t'.internalState.iter.size < t.internalState.iter.size
+  wf := by
+    apply InvImage.wf
+    exact Nat.lt_wfRel.wf
+  subrelation {it it'} h := by
+    obtain ⟨w, h, h'⟩ := h
+    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep] at h'
+    cases w
+    case skip it'' =>
+      cases h
+      simp only [RxoIterator.step] at h'
+      split at h'
+      any_goals contradiction
+      . split at h'
+        all_goals contradiction
+    case done =>
+      cases h
+    case yield it'' out =>
+      cases h
+      simp only [RxoIterator.step] at h'
+      split at h'
+      case h_1 =>
+        contradiction
+      case h_2 h2 =>
+        split at h'
+        case isFalse =>
+          contradiction
+        case isTrue heq =>
+          simp at h'
+          simp only [h2, ← h'.1, Zipper.prependMap_size, Zipper.size, Nat.add_lt_add_iff_right,
+            Nat.lt_add_left_iff_pos, Nat.lt_add_one]
+
+@[no_expose]
+public instance Rxo.instFinite : Finite (RxcIterator α β cmp) Id :=
+  .of_finitenessRelation instFinitenessRelation
+
+public theorem step_rxoIterator_eq_match {cmp : α → α → Ordering} {it : IterM (α := RxoIterator α β cmp) Id ((a : α) × β a)} :
+    it.step = ⟨match it.internalState.iter with
+    | Zipper.done => IterStep.done
+    | Zipper.cons k v t z =>
+      if (cmp k it.internalState.upper).isLT = true then
+        IterStep.yield { internalState := { iter := Zipper.prependMap t z, upper := it.internalState.upper } } ⟨k, v⟩
+      else IterStep.done,
+    (by simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, RxoIterator.step]; split; all_goals (rename_i heq; simp only [heq]))⟩ := by
+  simp only [IterM.step, Iterator.step, RxoIterator.step]
+  ext
+  congr 1
+  congr 1
+  cases it
+  next =>
+    rename_i internalState
+    simp
+    cases internalState
+    case mk iter upper =>
+      simp
+      cases iter
+      case done =>
+        simp only
+      case cons k v tree next =>
+        simp only
+
+end Rxo
 
 end Std.DTreeMap

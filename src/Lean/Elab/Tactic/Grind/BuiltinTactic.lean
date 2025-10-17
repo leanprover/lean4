@@ -126,17 +126,15 @@ def elabAnchor (anchor : TSyntax `hexnum) : CoreM (Nat × UInt64) := do
   return (numDigits, val)
 
 @[builtin_grind_tactic instantiate] def evalInstantiate : GrindTactic := fun stx => withMainContext do
-  match stx with
-  | `(grind| instantiate $[$thmRefs:thm],*) =>
-    let mut thms := #[]
-    for thmRef in thmRefs do
-      match thmRef with
-      | `(Parser.Tactic.Grind.thm| #$anchor:hexnum) => thms := thms ++ (← withRef thmRef <| elabLocalEMatchTheorem anchor)
-      | `(Parser.Tactic.Grind.thm| $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id false)
-      | `(Parser.Tactic.Grind.thm| ! $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id true)
-      | _ => throwErrorAt thmRef "unexpected theorem reference"
-    ematchThms thms
-  | _ => throwUnsupportedSyntax
+  let `(grind| instantiate $[$thmRefs:thm],*) := stx | throwUnsupportedSyntax
+  let mut thms := #[]
+  for thmRef in thmRefs do
+    match thmRef with
+    | `(Parser.Tactic.Grind.thm| #$anchor:hexnum) => thms := thms ++ (← withRef thmRef <| elabLocalEMatchTheorem anchor)
+    | `(Parser.Tactic.Grind.thm| $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id false)
+    | `(Parser.Tactic.Grind.thm| ! $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id true)
+    | _ => throwErrorAt thmRef "unexpected theorem reference"
+  ematchThms thms
 where
   collectThms (numDigits : Nat) (anchorPrefix : UInt64) (thms : PArray EMatchTheorem) : StateT (Array EMatchTheorem) GrindTacticM Unit := do
     let mut found : Std.HashSet Expr := {}
@@ -248,31 +246,29 @@ def logAnchor (numDigits : Nat) (anchorPrefix : UInt64) (e : Expr) : TermElabM U
        m!"#{anchorToString numDigits anchorPrefix} := {e}"
 
 @[builtin_grind_tactic cases] def evalCases : GrindTactic := fun stx => do
-  match stx with
-  | `(grind| cases #$anchor:hexnum) =>
-    let (numDigits, val) ← elabAnchor anchor
-    let goal ← getMainGoal
-    let candidates := goal.split.candidates
-    let (e, goals, genNew) ← liftSearchM do
-      for c in candidates do
-        let e := c.getExpr
-        let anchor ← getAnchor c.getExpr
-        if isAnchorPrefix numDigits val anchor then
-          let some result ← split? c
-            | throwError "`cases` tactic failed, case-split is not ready{indentExpr c.getExpr}"
-          return (e, result)
-      throwError "`cases` tactic failed, invalid anchor"
-    goal.withContext <| withRef anchor <| logAnchor numDigits val e
-    let goals ← goals.filterMapM fun goal => do
-      let (goal, _) ← liftGrindM <| SearchM.run goal do
-        intros genNew
-        getGoal
-      if goal.inconsistent then
-        return none
-      else
-        return some goal
-    replaceMainGoal goals
-  | _ => throwUnsupportedSyntax
+  let `(grind| cases #$anchor:hexnum) := stx | throwUnsupportedSyntax
+  let (numDigits, val) ← elabAnchor anchor
+  let goal ← getMainGoal
+  let candidates := goal.split.candidates
+  let (e, goals, genNew) ← liftSearchM do
+    for c in candidates do
+      let e := c.getExpr
+      let anchor ← getAnchor c.getExpr
+      if isAnchorPrefix numDigits val anchor then
+        let some result ← split? c
+          | throwError "`cases` tactic failed, case-split is not ready{indentExpr c.getExpr}"
+        return (e, result)
+    throwError "`cases` tactic failed, invalid anchor"
+  goal.withContext <| withRef anchor <| logAnchor numDigits val e
+  let goals ← goals.filterMapM fun goal => do
+    let (goal, _) ← liftGrindM <| SearchM.run goal do
+      intros genNew
+      getGoal
+    if goal.inconsistent then
+      return none
+    else
+      return some goal
+  replaceMainGoal goals
 
 @[builtin_grind_tactic Parser.Tactic.Grind.focus] def evalFocus : GrindTactic := fun stx => do
   let mkInfo ← mkInitialTacticInfo stx[0]
@@ -335,28 +331,24 @@ public def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIden
   return mvarId
 
 @[builtin_grind_tactic «next»] def evalNext : GrindTactic := fun stx => do
-  match stx with
-  | `(grind| next%$nextTk $hs* =>%$arr $seq:grindSeq) => do
-    let goal :: goals ← getUnsolvedGoals | throwNoGoalsToBeSolved
-    let mvarId ← renameInaccessibles goal.mvarId hs
-    let goal := { goal with mvarId }
-    setGoals [goal]
-    goal.mvarId.setTag Name.anonymous
-    withCaseRef arr seq <| closeUsingOrAdmit <| withTacticInfoContext (mkNullNode #[nextTk, arr]) <|
-      evalGrindTactic stx[3]
-    setGoals goals
-  | _ => throwUnsupportedSyntax
+  let `(grind| next%$nextTk $hs* =>%$arr $seq:grindSeq) := stx | throwUnsupportedSyntax
+  let goal :: goals ← getUnsolvedGoals | throwNoGoalsToBeSolved
+  let mvarId ← renameInaccessibles goal.mvarId hs
+  let goal := { goal with mvarId }
+  setGoals [goal]
+  goal.mvarId.setTag Name.anonymous
+  withCaseRef arr seq <| closeUsingOrAdmit <| withTacticInfoContext (mkNullNode #[nextTk, arr]) <|
+    evalGrindTactic stx[3]
+  setGoals goals
 
 @[builtin_grind_tactic nestedTacticCore] def evalNestedTactic : GrindTactic := fun stx => do
-  match stx with
-  | `(grind| tactic%$tacticTk =>%$arr $seq:tacticSeq) => do
-    let goal ← getMainGoal
-    let recover := (← read).recover
-    discard <| Tactic.run goal.mvarId <| withCaseRef arr seq <| Tactic.closeUsingOrAdmit
-      <| Tactic.withTacticInfoContext (mkNullNode #[tacticTk, arr])
-      <| Tactic.withRecover recover <| evalTactic seq
-    replaceMainGoal []
-  | _ => throwUnsupportedSyntax
+  let `(grind| tactic%$tacticTk =>%$arr $seq:tacticSeq) := stx | throwUnsupportedSyntax
+  let goal ← getMainGoal
+  let recover := (← read).recover
+  discard <| Tactic.run goal.mvarId <| withCaseRef arr seq <| Tactic.closeUsingOrAdmit
+    <| Tactic.withTacticInfoContext (mkNullNode #[tacticTk, arr])
+    <| Tactic.withRecover recover <| evalTactic seq
+  replaceMainGoal []
 
 @[builtin_grind_tactic «first»] partial def evalFirst : GrindTactic := fun stx => do
   let tacs := stx[1].getArgs
@@ -383,12 +375,11 @@ where
   | `(grind| fail $msg:str) => throwError "{msg.getString}\n{goalsMsg}"
   | _ => throwUnsupportedSyntax
 
-@[builtin_grind_tactic «renameI»] def evalRenameInaccessibles : GrindTactic
-  | `(grind| rename_i $hs*) => do
-    let goal ← getMainGoal
-    let mvarId ← renameInaccessibles goal.mvarId hs
-    replaceMainGoal [{ goal with mvarId }]
-  | _ => throwUnsupportedSyntax
+@[builtin_grind_tactic «renameI»] def evalRenameInaccessibles : GrindTactic := fun stx => do
+  let `(grind| rename_i $hs*) := stx | throwUnsupportedSyntax
+  let goal ← getMainGoal
+  let mvarId ← renameInaccessibles goal.mvarId hs
+  replaceMainGoal [{ goal with mvarId }]
 
 @[builtin_grind_tactic exposeNames] def evalExposeNames : GrindTactic := fun _ => do
   let goal ← getMainGoal

@@ -611,7 +611,7 @@ def withInitQuotContext (hint? : Option UInt64) (act : CommandElabM Unit) : Comm
   finally
     modify ({ · with nextMacroScope })
 
-private partial def recordUsedSyntaxKinds (stx : Syntax) : CommandElabM Unit := do
+private partial def recordUsedSyntaxKinds (stx : Syntax) : CoreM Unit := do
   if let .node _ k .. := stx then
     -- do not record builtin parsers, they do not have to be imported
     if !(← Parser.builtinSyntaxNodeKindSetRef.get).contains k then

@@ -131,7 +131,7 @@ instance : MonadLift CoreM CommandElabM where
   monadLift x := private do
     let ds ← getThe DerivedState
     let (a, coreS) ← x.run ds.coreCtx ds.coreState
-    modify fun s => s.updateCore coreS
+    set { ds with toState := ds.toState.updateCore coreS, coreState := coreS }
     return a
 
 protected nonrec def CommandElabM.run (ctx : Context) (s : State) (x : CommandElabM α) : EIO Exception (α × State) := do

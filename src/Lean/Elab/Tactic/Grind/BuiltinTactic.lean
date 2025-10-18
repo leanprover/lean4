@@ -114,7 +114,7 @@ def evalCheck (tacticName : Name) (k : GoalM Bool)
   evalCheck `linarith Arith.Linear.check Arith.Linear.pp?
 
 @[builtin_grind_tactic ring] def evalRing : GrindTactic := fun _ => do
-  evalCheck `ring Arith.CommRing.check Arith.CommRing.pp?
+  evalCheck `ring Arith.CommRing.check' Arith.CommRing.pp?
 
 @[builtin_grind_tactic ac] def evalAC : GrindTactic := fun _ => do
   evalCheck `ac AC.check' AC.pp?

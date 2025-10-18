@@ -25,6 +25,7 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadCanon
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadSemiring
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Action
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 builtin_initialize registerTraceClass `grind.ring
@@ -52,7 +53,7 @@ builtin_initialize
     (internalize := CommRing.internalize)
     (newEq       := CommRing.processNewEq)
     (newDiseq    := CommRing.processNewDiseq)
-    (check       := CommRing.check)
+    (check       := CommRing.check')
     (checkInv    := CommRing.checkInvariants)
     (mkTactic?   := return some (← `(grind| ring)))
 

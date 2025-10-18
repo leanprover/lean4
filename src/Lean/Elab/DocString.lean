@@ -1207,9 +1207,9 @@ private def mkSuggestion
     let pre := text.source.extract 0 b
     let post := text.source.extract e text.source.endPos
     let edits := newStrings.map fun (s, _, _) =>
-      let lines := text.source.split (· == '\n') |>.toArray
+      let lines := text.source.splitToList (· == '\n') |>.toArray
       let s' := pre ++ s ++ post
-      let lines' := s'.split (· == '\n') |>.toArray
+      let lines' := s'.splitToList (· == '\n') |>.toArray
       let d := diff lines lines'
       toMessageData <| Diff.linesToString <| d.filter (·.1 != Action.skip)
     pure m!"\n\nHint: {hintTitle}\n{indentD <| m!"\n".joinSep edits.toList}"

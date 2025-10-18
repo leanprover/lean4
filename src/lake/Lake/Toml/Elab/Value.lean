@@ -67,7 +67,7 @@ def decodeMantissa (s : String) : Nat × Nat :=
   (m, if e ≥ s.length then 0 else e)
 
 def decodeFrExp (s : String) : Nat × Int :=
-  match s.split (fun c => c == 'E' || c == 'e') with
+  match s.splitToList (fun c => c == 'E' || c == 'e') with
   | [m, exp] =>
     let exp := decodeDecInt exp
     let (m, dotExp) := decodeMantissa m

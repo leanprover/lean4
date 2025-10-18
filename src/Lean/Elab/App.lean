@@ -1590,14 +1590,15 @@ where
 
 /-- Adds the `TermInfo` for the field of a projection. See `Lean.Parser.Term.identProjKind`. -/
 private def addProjTermInfo
-    (stx            : Syntax)
-    (e              : Expr)
-    (expectedType?  : Option Expr := none)
-    (lctx?          : Option LocalContext := none)
-    (elaborator     : Name := Name.anonymous)
-    (isBinder force : Bool := false)
+    (stx               : Syntax)
+    (e                 : Expr)
+    (expectedType?     : Option Expr := none)
+    (lctx?             : Option LocalContext := none)
+    (elaborator        : Name := Name.anonymous)
+    (isBinder force    : Bool := false)
+    (isDisplayableTerm : Bool := false)
     : TermElabM Expr :=
-  addTermInfo (Syntax.node .none Parser.Term.identProjKind #[stx]) e expectedType? lctx? elaborator isBinder force
+  addTermInfo (Syntax.node .none Parser.Term.identProjKind #[stx]) e expectedType? lctx? elaborator isBinder force isDisplayableTerm
 
 private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis : Bool)
     (f : Expr) (lvals : List LVal) : TermElabM Expr :=

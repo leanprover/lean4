@@ -2758,7 +2758,8 @@ def runCoreM {α : Type} (ppCtx : PPContext) (x : CoreM α) : IO α :=
                       { env := ppCtx.env, ngen := { namePrefix := `_pp_uniq } }
 
 def runMetaM {α : Type} (ppCtx : PPContext) (x : MetaM α) : IO α :=
-  ppCtx.runCoreM <| x.run' { lctx := ppCtx.lctx } { mctx := ppCtx.mctx }
+  ppCtx.runCoreM <|
+    (withPopulatingLocalInstances x).run' { lctx := ppCtx.lctx } { mctx := ppCtx.mctx }
 
 end PPContext
 

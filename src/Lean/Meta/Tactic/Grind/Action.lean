@@ -247,7 +247,7 @@ A terminal action which closes the goal or not.
 This kind of action may make progress, but we only include `mkTac` into the resulting tactic sequence
 if it closed the goal.
 -/
-public def terminalAction (check : GoalM Bool) (mkTac : GrindM (TSyntax `grind)) : Action := fun goal kna kp => do
+def terminalAction (check : GoalM Bool) (mkTac : GrindM (TSyntax `grind)) : Action := fun goal kna kp => do
   let (progress, goal') ← GoalM.run goal check
   if progress then
     if goal'.inconsistent then
@@ -256,6 +256,24 @@ public def terminalAction (check : GoalM Bool) (mkTac : GrindM (TSyntax `grind))
       kp goal'
   else
     kna goal'
+
+/--
+Helper action that checks whether the resulting tactic script produced by its continuation
+can close the original goal.
+-/
+def checkTactic : Action := fun goal _ kp => do
+  let s ← saveState
+  let r ← kp goal
+  match r with
+  | .closed seq =>
+    let tac ← mkGrindNext seq
+    Lean.withoutModifyingState do
+      s.restore
+      let subgoals ← evalTactic goal tac
+      unless subgoals.isEmpty do
+        throwError "generated tactic cannot close the goal{indentD tac}\nInitial goal\n{goal.mvarId}\nPending subgoals\n{subgoals.map (·.mvarId)}"
+    return r
+  | _ => return r
 
 section
 /-!

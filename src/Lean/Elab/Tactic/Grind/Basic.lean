@@ -344,8 +344,7 @@ def liftSearchM (k : SearchM α) : GrindTacticM α := do
 def GrindTacticM.run (x : GrindTacticM α) (ctx : Context) (s : State) : TermElabM (α × State) :=
   x ctx |>.run s
 
-def mkEvalTactic (params : Params) : TacticM (Goal → TSyntax `grind → GrindM (List Goal)) := do
-  let elaborator := (← read).elaborator
+def mkEvalTactic' (elaborator : Name) (params : Params) : TermElabM (Goal → TSyntax `grind → GrindM (List Goal)) := do
   let termState ← getThe Term.State
   let termCtx ← readThe Term.Context
   let eval (goal : Goal) (stx : TSyntax `grind) : GrindM (List Goal) := do
@@ -363,6 +362,9 @@ def mkEvalTactic (params : Params) : TacticM (Goal → TSyntax `grind → GrindM
     set grindState'
     return subgoals
   return eval
+
+def mkEvalTactic (params : Params) : TacticM (Goal → TSyntax `grind → GrindM (List Goal)) := do
+  mkEvalTactic' (← read).elaborator params
 
 def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM α) : TacticM (α × State) := do
   let evalTactic ← mkEvalTactic params

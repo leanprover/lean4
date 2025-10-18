@@ -31,10 +31,6 @@ structure State where
   snapshotTasks  : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
   deriving Nonempty
 
-structure DerivedState extends State where
-  private coreCtx : Core.Context
-  private coreState : Core.State
-
 structure Context where
   fileName       : String
   fileMap        : FileMap
@@ -63,7 +59,7 @@ structure Context where
   -/
   suppressElabErrors : Bool := false
 
-abbrev CommandElabM := ReaderT Context $ StateRefT DerivedState $ EIO Exception
+abbrev CommandElabM := ReaderT Context $ StateRefT State $ EIO Exception
 abbrev CommandElab  := Syntax → CommandElabM Unit
 structure Linter where
   run : Syntax → CommandElabM Unit
@@ -78,9 +74,22 @@ Remark: see comment at TermElabM
 @[always_inline]
 instance : Monad CommandElabM := let i := inferInstanceAs (Monad CommandElabM); { pure := i.pure, bind := i.bind }
 
-private def DerivedState.derive (ctx : Context) (s : State) : DerivedState where
-  toState := s
-  coreCtx := {
+private def State.updateCore (s : State) (coreS : Core.State) : State :=
+  { s with
+    env                      := coreS.env
+    nextMacroScope           := coreS.nextMacroScope
+    ngen                     := coreS.ngen
+    auxDeclNGen              := coreS.auxDeclNGen
+    infoState                := coreS.infoState
+    traceState               := coreS.traceState
+    snapshotTasks            := coreS.snapshotTasks
+    messages                 := coreS.messages }
+
+private def liftCoreMDirect (x : CoreM α) : CommandElabM α := do
+  let ctx ← read
+  let s ← get
+  let scope := s.scopes.head!
+  let coreCtx := {
     fileName           := ctx.fileName
     fileMap            := ctx.fileMap
     currRecDepth       := ctx.currRecDepth
@@ -94,7 +103,7 @@ private def DerivedState.derive (ctx : Context) (s : State) : DerivedState where
     options            := scope.opts
     cancelTk?          := ctx.cancelTk?
     suppressElabErrors := ctx.suppressElabErrors }
-  coreState := {
+  let coreState := {
     env := s.env
     ngen := s.ngen
     auxDeclNGen := s.auxDeclNGen
@@ -104,40 +113,17 @@ private def DerivedState.derive (ctx : Context) (s : State) : DerivedState where
     snapshotTasks := s.snapshotTasks
     messages := s.messages
   }
-where
-  scope := s.scopes.head!
-
-private def State.updateCore (s : State) (coreS : Core.State) : State :=
-  { s with
-    env                      := coreS.env
-    nextMacroScope           := coreS.nextMacroScope
-    ngen                     := coreS.ngen
-    auxDeclNGen              := coreS.auxDeclNGen
-    infoState                := coreS.infoState
-    traceState               := coreS.traceState
-    snapshotTasks            := coreS.snapshotTasks
-    messages                 := coreS.messages }
-
-instance : MonadStateOf State CommandElabM where
-  get := return (← getThe DerivedState).toState
-  set s := private do set (DerivedState.derive (← read) s)
-  modifyGet f := private do
-    let ctx ← read
-    modifyGetThe DerivedState fun ds =>
-      let (a, s') := f ds.toState
-      (a, DerivedState.derive ctx s')
+  let (a, coreS) ← x.run coreCtx coreState
+  modify (·.updateCore coreS)
+  return a
 
 instance : MonadLift CoreM CommandElabM where
-  monadLift x := private do
-    let ds ← getThe DerivedState
-    let (a, coreS) ← x.run ds.coreCtx ds.coreState
-    set { ds with toState := ds.toState.updateCore coreS, coreState := coreS }
-    return a
+  monadLift := private liftCoreMDirect
+
+instance : MonadStateOf State CommandElabM := inferInstance
 
 protected nonrec def CommandElabM.run (ctx : Context) (s : State) (x : CommandElabM α) : EIO Exception (α × State) := do
-  let ds := DerivedState.derive ctx s
-  let (a, ds') ← x.run ctx |>.run ds
-  return (a, ds'.toState)
+  x.run ctx |>.run s
 
 protected def CommandElabM.run' (ctx : Context) (s : State) (x : CommandElabM α) : EIO Exception α := do
   (·.1) <$> x.run ctx s
@@ -229,17 +215,17 @@ instance : MonadQuotation CommandElabM where
   withFreshMacroScope := Command.withFreshMacroScope
 
 private def runCore (x : CoreM α) : CommandElabM α := do
-  let s ← getThe DerivedState
   let ctx ← read
   let heartbeats ← IO.getNumHeartbeats
-  let env := Kernel.resetDiag s.env
-  let coreCtx : Core.Context := { s.coreCtx with initHeartbeats := heartbeats }
-  let x : EIO _ _ := x.run coreCtx { s.coreState with env }
-  let (ea, coreS) ← liftM x
-  modify fun s => s.updateCore { coreS with
-    traceState.traces        := coreS.traceState.traces.map fun t => { t with ref := replaceRef t.ref ctx.ref }
-  }
-  return ea
+  let env := Kernel.resetDiag (← getEnv)
+  liftM (m := CoreM) do
+    withReader ({ · with initHeartbeats := heartbeats }) do
+      modify ({ · with env })
+      let a ← x
+      modify fun s => { s with
+        traceState.traces        := s.traceState.traces.map fun t => { t with ref := replaceRef t.ref ctx.ref }
+      }
+      return a
 
 def liftCoreM (x : CoreM α) : CommandElabM α := do
   MonadExcept.ofExcept (← runCore (observing x))

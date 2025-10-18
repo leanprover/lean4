@@ -207,7 +207,7 @@ struct print_expr_fn {
         if (!is_nil(ls)) {
             out() << ".{";
             bool first = true;
-            for (auto l : ls) {
+            for (auto const & l : ls) {
                 if (first) first = false; else out() << ", ";
                 out() << l;
             }

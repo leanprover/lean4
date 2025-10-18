@@ -19,16 +19,16 @@ Tests for `String.Slice` functions
 #guard "red green blue".toSlice.startsWith 'r' = true
 #guard "red green blue".toSlice.startsWith Char.isLower = true
 
-#guard ("coffee tea water".toSlice.split Char.isWhitespace).allowNontermination.toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]
-#guard ("coffee tea water".toSlice.split ' ').allowNontermination.toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]
-#guard ("coffee tea water".toSlice.split " tea ").allowNontermination.toList == ["coffee".toSlice, "water".toSlice]
-#guard ("baaab".toSlice.split "aa").allowNontermination.toList == ["b".toSlice, "ab".toSlice]
+#guard ("coffee tea water".toSlice.split Char.isWhitespace).toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]
+#guard ("coffee tea water".toSlice.split ' ').toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]
+#guard ("coffee tea water".toSlice.split " tea ").toList == ["coffee".toSlice, "water".toSlice]
+#guard ("baaab".toSlice.split "aa").toList == ["b".toSlice, "ab".toSlice]
 
-#guard ("coffee tea water".toSlice.splitInclusive Char.isWhitespace).allowNontermination.toList == ["coffee ".toSlice, "tea ".toSlice, "water".toSlice]
-#guard ("coffee tea water".toSlice.splitInclusive ' ').allowNontermination.toList == ["coffee ".toSlice, "tea ".toSlice, "water".toSlice]
-#guard ("coffee tea water".toSlice.splitInclusive " tea ").allowNontermination.toList == ["coffee tea ".toSlice, "water".toSlice]
-#guard ("a".toSlice.splitInclusive (fun (_ : Char) => true)).allowNontermination.toList == ["a".toSlice]
-#guard ("baaab".toSlice.splitInclusive "aa").allowNontermination.toList == ["baa".toSlice, "ab".toSlice]
+#guard ("coffee tea water".toSlice.splitInclusive Char.isWhitespace).toList == ["coffee ".toSlice, "tea ".toSlice, "water".toSlice]
+#guard ("coffee tea water".toSlice.splitInclusive ' ').toList == ["coffee ".toSlice, "tea ".toSlice, "water".toSlice]
+#guard ("coffee tea water".toSlice.splitInclusive " tea ").toList == ["coffee tea ".toSlice, "water".toSlice]
+#guard ("a".toSlice.splitInclusive (fun (_ : Char) => true)).toList == ["a".toSlice]
+#guard ("baaab".toSlice.splitInclusive "aa").toList == ["baa".toSlice, "ab".toSlice]
 
 #guard "red green blue".toSlice.drop 4 == "green blue".toSlice
 #guard "red green blue".toSlice.drop 10 == "blue".toSlice

@@ -403,6 +403,21 @@ def findSomeM? {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f 
     | some b => pure (some b)
     | none   => findSomeM? f as
 
+@[simp, grind =]
+theorem findSomeM?_nil [Monad m] {α : Type w} {β : Type u}
+    {f : α → m (Option β)} :
+    ([] : List α).findSomeM? f = pure none :=
+  (rfl)
+
+@[grind =]
+theorem findSomeM?_cons [Monad m] {α : Type w} {β : Type u}
+    {f : α → m (Option β)} {a : α} {as : List α} :
+    (a::as).findSomeM? f = (do
+      match ← f a with
+      | some b => return some b
+      | none => as.findSomeM? f) :=
+  (rfl)
+
 @[simp]
 theorem findSomeM?_pure [Monad m] [LawfulMonad m] {f : α → Option β} {as : List α} :
     findSomeM? (m := m) (pure <| f ·) as = pure (as.findSome? f) := by
@@ -423,6 +438,10 @@ theorem idRun_findSomeM? (f : α → Id (Option β)) (as : List α) :
 theorem findSomeM?_id (f : α → Id (Option β)) (as : List α) :
     findSomeM? (m := Id) f as = as.findSome? f :=
   findSomeM?_pure
+
+theorem findSome?_eq_findSomeM? {f : α → Option β} {as : List α} :
+    as.findSome? f = (as.findSomeM? (pure (f := Id) <| f ·)).run := by
+  simp
 
 theorem findM?_eq_findSomeM? [Monad m] [LawfulMonad m] {p : α → m Bool} {as : List α} :
     as.findM? p = as.findSomeM? fun a => return if (← p a) then some a else none := by

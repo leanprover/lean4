@@ -219,6 +219,9 @@ structure State where
   -/
   anchors : PHashMap ExprPtr UInt64 := {}
 
+instance : Nonempty State :=
+  .intro {}
+
 private opaque MethodsRefPointed : NonemptyType.{0}
 def MethodsRef : Type := MethodsRefPointed.type
 instance : Nonempty MethodsRef := by exact MethodsRefPointed.property
@@ -227,6 +230,26 @@ abbrev GrindM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
 
 @[inline] def mapGrindM [MonadControlT GrindM m] [Monad m] (f : {α : Type} → GrindM α → GrindM α) {α} (x : m α) : m α :=
   controlAt GrindM fun runInBase => f <| runInBase x
+
+/--
+Backtrackable state for the `GrindM` monad.
+-/
+structure SavedState where
+  «meta» : Meta.SavedState
+  grind  : State
+  deriving Nonempty
+
+protected def saveState : GrindM SavedState :=
+  return { «meta» := (← Meta.saveState), grind := (← get) }
+
+/-- Restore backtrackable parts of the state. -/
+def SavedState.restore (b : SavedState) : GrindM Unit := do
+  b.meta.restore
+  set b.grind
+
+instance : MonadBacktrack SavedState GrindM where
+  saveState      := Grind.saveState
+  restoreState s := s.restore
 
 /--
 `withoutReportingMVarIssues x` executes `x` without reporting metavariables found during internalization.

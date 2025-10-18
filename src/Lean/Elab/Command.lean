@@ -17,18 +17,10 @@ public section
 
 namespace Lean.Elab.Command
 
-structure State where
-  env            : Environment
-  messages       : MessageLog := {}
+structure State extends Core.State where
   scopes         : List Scope := [{ header := "" }]
   usedQuotCtxts  : NameSet := {}
-  nextMacroScope : Nat := firstFrontendMacroScope + 1
   maxRecDepth    : Nat
-  ngen           : NameGenerator := {}
-  auxDeclNGen    : DeclNameGenerator := .ofPrefix .anonymous
-  infoState      : InfoState := {}
-  traceState     : TraceState := {}
-  snapshotTasks  : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
   deriving Nonempty
 
 structure Context where
@@ -74,17 +66,6 @@ Remark: see comment at TermElabM
 @[always_inline]
 instance : Monad CommandElabM := let i := inferInstanceAs (Monad CommandElabM); { pure := i.pure, bind := i.bind }
 
-private def State.updateCore (s : State) (coreS : Core.State) : State :=
-  { s with
-    env                      := coreS.env
-    nextMacroScope           := coreS.nextMacroScope
-    ngen                     := coreS.ngen
-    auxDeclNGen              := coreS.auxDeclNGen
-    infoState                := coreS.infoState
-    traceState               := coreS.traceState
-    snapshotTasks            := coreS.snapshotTasks
-    messages                 := coreS.messages }
-
 private def liftCoreMDirect (x : CoreM α) : CommandElabM α := do
   let ctx ← read
   let s ← get
@@ -103,18 +84,8 @@ private def liftCoreMDirect (x : CoreM α) : CommandElabM α := do
     options            := scope.opts
     cancelTk?          := ctx.cancelTk?
     suppressElabErrors := ctx.suppressElabErrors }
-  let coreState := {
-    env := s.env
-    ngen := s.ngen
-    auxDeclNGen := s.auxDeclNGen
-    nextMacroScope := s.nextMacroScope
-    infoState := s.infoState
-    traceState := s.traceState
-    snapshotTasks := s.snapshotTasks
-    messages := s.messages
-  }
-  let (a, coreS) ← x.run coreCtx coreState
-  modify (·.updateCore coreS)
+  let (a, coreS) ← x.run coreCtx s.toState
+  modify ({ · with toState := coreS })
   return a
 
 instance : MonadLift CoreM CommandElabM where

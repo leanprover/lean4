@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.CheckResult
 public section
 namespace Lean.Meta.Grind
 /-!
@@ -256,6 +257,22 @@ def terminalAction (check : GoalM Bool) (mkTac : GrindM (TSyntax `grind)) : Acti
       kp goal'
   else
     kna goal'
+
+/--
+Helper action for satellite solvers that use `CheckResult`.
+-/
+def solverAction (check : GoalM CheckResult) (mkTac : GrindM (TSyntax `grind)) : Action := fun goal kna kp => do
+  let (result, goal') ← GoalM.run goal check
+  match result with
+  | .none       => kna goal'
+  | .progress   => kp goal'
+  | .propagated =>
+    let goal' ← GoalM.run' goal' processNewFacts
+    if goal'.inconsistent then
+      closeWith mkTac
+    else
+      concatTactic (← kp goal') mkTac
+  | .closed     => closeWith mkTac
 
 /--
 Helper action that checks whether the resulting tactic script produced by its continuation

@@ -47,15 +47,27 @@ instance Trace.hasToJson : ToJson Trace :=
   | Trace.messages => "messages"
   | Trace.verbose => "verbose"⟩
 
+local instance [BEq α] [Hashable α] [ToJson α] : ToJson (Std.HashSet α) where
+  toJson s := .arr <| s.toArray.map toJson
+
+local instance [BEq α] [Hashable α] [FromJson α] : FromJson (Std.HashSet α) where
+  fromJson?
+    | .arr a => return Std.HashSet.ofArray <| ← a.mapM fromJson?
+    | _ => throw "Expected array when converting JSON to Std.HashSet"
+
+structure LogConfig where
+  logDir? : Option System.FilePath
+  allowedMethods? : Option (Std.HashSet String)
+  disallowedMethods? : Option (Std.HashSet String)
+  deriving FromJson, ToJson
+
 /-- Lean-specific initialization options. -/
 structure InitializationOptions where
-  /-- Time (in milliseconds) which must pass since latest edit until elaboration begins. Lower
-  values may make editors feel faster at the cost of higher CPU usage. Defaults to 200ms. -/
-  editDelay? : Option Nat
   /-- Whether the client supports interactive widgets. When true, in order to improve performance
   the server may cease including information which can be retrieved interactively in some standard
   LSP messages. Defaults to false. -/
   hasWidgets? : Option Bool
+  logCfg? : Option LogConfig
   deriving ToJson, FromJson
 
 structure InitializeParams where
@@ -70,9 +82,6 @@ structure InitializeParams where
   trace : Trace := Trace.off
   workspaceFolders? : Option (Array WorkspaceFolder) := none
   deriving ToJson
-
-def InitializeParams.editDelay (params : InitializeParams) : Nat :=
-  params.initializationOptions? |>.bind (·.editDelay?) |>.getD 200
 
 instance : FromJson InitializeParams where
   fromJson? j := do

@@ -19,7 +19,7 @@ public:
     explicit options(obj_arg o):m_value(o) {}
     options(b_obj_arg o, bool v):m_value(o, v) {}
     options(options const & o):m_value(o.m_value) {}
-    options(options && o):m_value(std::move(o.m_value)) {}
+    options(options && o) noexcept:m_value(std::move(o.m_value)) {}
     options(name const & n, bool v) { *this = update(n, v); }
     options & operator=(options const & o) { m_value = o.m_value; return *this; }
 

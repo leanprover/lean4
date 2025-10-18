@@ -20,7 +20,7 @@ public:
     explicit object_ref(obj_arg o):m_obj(o) {}
     object_ref(b_obj_arg o, bool):m_obj(o) { inc(o); }
     object_ref(object_ref const & s):m_obj(s.m_obj) { inc(m_obj); }
-    object_ref(object_ref && s):m_obj(s.m_obj) { s.m_obj = box(0); }
+    object_ref(object_ref && s) noexcept :m_obj(s.m_obj) { s.m_obj = box(0); }
     ~object_ref() { dec(m_obj); }
     object_ref & operator=(object_ref const & s) {
         inc(s.m_obj);
@@ -29,7 +29,7 @@ public:
         m_obj = new_obj;
         return *this;
     }
-    object_ref & operator=(object_ref && s) {
+    object_ref & operator=(object_ref && s) noexcept {
         dec(m_obj);
         m_obj   = s.m_obj;
         s.m_obj = box(0);

@@ -746,9 +746,58 @@ private def checkNextPatternTypes (p : Problem) : MetaM Unit := do
           unless (← isDefEq xType eType) do
             throwError "Type mismatch in pattern: Pattern{indentExpr e}\n{← mkHasTypeButIsExpectedMsg eType xType}"
 
+private def List.moveToFront [Inhabited α] (as : List α) (i : Nat) : List α :=
+  let rec loop : (as : List α) → (i : Nat) → α × List α
+    | [],    _   => unreachable!
+    | a::as, 0   => (a, as)
+    | a::as, i+1 =>
+      let (b, bs) := loop as i
+      (b, a::bs)
+  let (b, bs) := loop as i
+  b :: bs
+
+/-- Move variable `#i` to the beginning of the to-do list `p.vars`. -/
+private def moveToFront (p : Problem) (i : Nat) : Problem :=
+  if i == 0 then
+    p
+  else if i < p.vars.length then
+    { p with
+      vars := List.moveToFront p.vars i
+      alts := p.alts.map fun alt => { alt with patterns := List.moveToFront alt.patterns i }
+    }
+  else
+    p
+
+def Pattern.isRefutable : Pattern → Bool
+  | .var _           => false
+  | .inaccessible _  => false
+  | .as _ p _        => p.isRefutable
+  | .arrayLit ..     => true
+  | .ctor ..         => true
+  | .val ..          => true
+
+private def firstRefutablePattern (p : Problem) : Option Nat :=
+  match p.alts with
+  | alt:: _ => alt.patterns.findIdx? (·.isRefutable)
+  | _ => none
+
 private partial def process (p : Problem) : StateRefT State MetaM Unit := do
   traceState p
   let isInductive ← isCurrVarInductive p
+  match firstRefutablePattern p with
+  | some i =>
+    if i > 0 then
+      traceStep ("move var to front")
+      process (moveToFront p i)
+      return
+  | none =>
+    if 1 < p.alts.length then
+      traceStep ("drop all but first alt")
+      -- all patterns are irrefutable, we can drop all other alts
+      let p := { p with alts := p.alts.take 1 }
+      process p
+      return
+
   if isDone p then
     traceStep ("leaf")
     processLeaf p

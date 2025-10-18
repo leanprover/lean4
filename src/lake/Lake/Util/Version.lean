@@ -91,11 +91,11 @@ public instance : Max StdVer := maxOfLe
 
 public def StdVer.parse (ver : String) : Except String StdVer := do
   let sepPos := ver.find (· == '-')
-  if h : ver.atEnd sepPos then
+  if h : sepPos.atEnd ver then
     SemVerCore.parse ver
   else
-    let core ← SemVerCore.parse <| ver.extract 0 sepPos
-    let specialDescr := ver.extract (ver.next' sepPos h) ver.endPos
+    let core ← SemVerCore.parse <| String.Pos.Raw.extract ver 0 sepPos
+    let specialDescr := String.Pos.Raw.extract ver (sepPos.next' ver h) ver.endPos
     if specialDescr.isEmpty then
       throw "invalid version: '-' suffix cannot be empty"
     return {toSemVerCore := core, specialDescr}
@@ -141,8 +141,8 @@ public def ofString (ver : String) : ToolchainVer := Id.run do
   let colonPos := ver.posOf ':'
   let (origin, tag) :=
     if h : colonPos < ver.endPos then
-      let pos := ver.next' colonPos (by simp_all [String.endPos, String.atEnd])
-      (ver.extract 0 colonPos, ver.extract pos ver.endPos)
+      let pos := colonPos.next' ver (by simp_all [String.endPos, String.Pos.Raw.atEnd, String.Pos.Raw.lt_iff])
+      (String.Pos.Raw.extract ver 0 colonPos, String.Pos.Raw.extract ver pos ver.endPos)
     else
       ("", ver)
   let noOrigin := origin.isEmpty

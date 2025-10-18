@@ -413,7 +413,7 @@ where
         (mkNullNode (#[name] ++ args)).getRange?
       | _ => none
     if let some ⟨b, e⟩ := range? then
-      let str := (← getFileMap).source.extract b e
+      let str := String.Pos.Raw.extract (← getFileMap).source b e
       let str := if str.startsWith "kw?" then "kw" ++ str.drop 3 else str
       let stx := Syntax.mkStrLit str (info := .synthetic b e (canonical := true))
       let suggs := suggestions.map (fun (s : String) => {suggestion := str ++ s})

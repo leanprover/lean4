@@ -50,14 +50,14 @@ public instance : ToJson ArtifactDescr := ⟨(toJson ·.relPath)⟩
 public def ofFilePath? (path : FilePath) : Except String ArtifactDescr := do
   let s := path.toString
   let pos := s.posOf '.'
-  if h : s.atEnd pos then
+  if h : pos.atEnd s then
     let some hash := Hash.ofString? s
       | throw "expected artifact file name to be a content hash"
     return {hash, ext := ""}
   else
-    let some hash := Hash.ofString? <| s.extract 0 pos
+    let some hash := Hash.ofString? <| String.Pos.Raw.extract s 0 pos
       | throw "expected artifact file name to be a content hash"
-    let ext := s.extract (s.next' pos h) s.endPos
+    let ext := String.Pos.Raw.extract s (pos.next' s h) s.endPos
     return {hash, ext}
 
 public protected def fromJson? (data : Json) : Except String ArtifactDescr := do

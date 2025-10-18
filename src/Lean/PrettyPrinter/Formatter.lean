@@ -613,7 +613,7 @@ instance : Std.Format.MonadPrettyFormat M where
   pushOutput s := do
     let lineEnd := s.find (· == '\n')
     if lineEnd < s.endPos then
-      let s := (s.extract 0 lineEnd).trimRight ++ continuation
+      let s := (String.Pos.Raw.extract s 0 lineEnd).trimRight ++ continuation
       modify fun st => { st with line := st.line.append s }
       throw ()
     else

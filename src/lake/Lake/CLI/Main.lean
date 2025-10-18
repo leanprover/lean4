@@ -195,7 +195,7 @@ def setConfigOpt (kvPair : String) : CliM PUnit :=
     if pos = kvPair.endPos then
       (kvPair.toName, "")
     else
-      (kvPair.extract 0 pos |>.toName, kvPair.extract (kvPair.next pos) kvPair.endPos)
+      (String.Pos.Raw.extract kvPair 0 pos |>.toName, String.Pos.Raw.extract kvPair (pos.next kvPair) kvPair.endPos)
   modifyThe LakeOptions fun opts =>
     {opts with configOpts := opts.configOpts.insert key val}
 

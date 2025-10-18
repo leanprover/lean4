@@ -47,7 +47,7 @@ def checkSchemaVersion (inputName : String) (line : String) : LogIO Unit := do
 public partial def parse (inputName : String) (contents : String) : LoggerIO CacheMap := do
   let rec loop (i : Nat) (cache : CacheMap) (stopPos pos : String.Pos.Raw) := do
     let lfPos := contents.posOfAux '\n' stopPos pos
-    let line := contents.extract pos lfPos
+    let line := String.Pos.Raw.extract contents pos lfPos
     if line.trim.isEmpty then
       return cache
     let cache ← id do
@@ -57,17 +57,17 @@ public partial def parse (inputName : String) (contents : String) : LoggerIO Cac
       | .error e =>
         logWarning s!"{inputName}: invalid JSON on line {i}: {e}"
         return cache
-    if h : contents.atEnd lfPos then
+    if h : lfPos.atEnd contents then
       return cache
     else
-      loop (i+1) cache stopPos (contents.next' lfPos h)
+      loop (i+1) cache stopPos (lfPos.next' contents h)
   let lfPos := contents.posOfAux '\n' contents.endPos 0
-  let line := contents.extract 0 lfPos
+  let line := String.Pos.Raw.extract contents 0 lfPos
   checkSchemaVersion inputName line.trim
-  if h : contents.atEnd lfPos then
+  if h : lfPos.atEnd contents then
     return {}
   else
-    loop 2 {} contents.endPos (contents.next' lfPos h)
+    loop 2 {} contents.endPos (lfPos.next' contents h)
 
 @[inline] private partial def loadCore
   (h : IO.FS.Handle) (fileName : String)

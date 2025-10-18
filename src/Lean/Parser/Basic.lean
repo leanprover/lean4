@@ -1160,12 +1160,12 @@ def nonReservedSymbolNoAntiquot (sym : String) (includeIdent := false) : Parser 
 
 partial def strAux (sym : String) (errorMsg : String) (j : String.Pos.Raw) :ParserFn :=
   let rec parse (j c s) :=
-    if h₁ : sym.atEnd j then s
+    if h₁ : j.atEnd sym then s
     else
       let i := s.pos
       if h₂ : c.atEnd i then s.mkError errorMsg
-      else if sym.get' j h₁ != c.get' i h₂ then s.mkError errorMsg
-      else parse (sym.next' j h₁) c (s.next' c i h₂)
+      else if j.get' sym h₁ != c.get' i h₂ then s.mkError errorMsg
+      else parse (j.next' sym h₁) c (s.next' c i h₂)
   parse j
 
 def checkTailWs (prev : Syntax) : Bool :=

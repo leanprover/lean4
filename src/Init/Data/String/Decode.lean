@@ -134,19 +134,19 @@ public theorem String.utf8EncodeChar_eq_utf8EncodeCharFast : @utf8EncodeChar = @
   cases Decidable.em (c.val ≤ 0x7ff) <;> simp [*]
   cases Decidable.em (c.val ≤ 0xffff) <;> simp [*]
 
-theorem String.utf8EncodeChar_eq_singleton {c : Char} : c.utf8Size = 1 →
+public theorem String.utf8EncodeChar_eq_singleton {c : Char} : c.utf8Size = 1 →
     String.utf8EncodeChar c = [c.val.toUInt8] := by
   rw [← length_utf8EncodeChar]
   fun_cases utf8EncodeChar
   all_goals simp_all; try rfl
 
-theorem String.utf8EncodeChar_eq_cons_cons {c : Char} : c.utf8Size = 2 →
+public theorem String.utf8EncodeChar_eq_cons_cons {c : Char} : c.utf8Size = 2 →
     String.utf8EncodeChar c = [(c.val >>>  6).toUInt8 &&& 0x1f ||| 0xc0, c.val.toUInt8 &&& 0x3f ||| 0x80] := by
   rw [← length_utf8EncodeChar, utf8EncodeChar_eq_utf8EncodeCharFast]
   fun_cases utf8EncodeCharFast
   all_goals simp_all <;> (repeat' apply And.intro) <;> rfl
 
-theorem String.utf8EncodeChar_eq_cons_cons_cons {c : Char} : c.utf8Size = 3 →
+public theorem String.utf8EncodeChar_eq_cons_cons_cons {c : Char} : c.utf8Size = 3 →
     String.utf8EncodeChar c =
     [(c.val >>> 12).toUInt8 &&& 0x0f ||| 0xe0,
      (c.val >>>  6).toUInt8 &&& 0x3f ||| 0x80,
@@ -155,7 +155,7 @@ theorem String.utf8EncodeChar_eq_cons_cons_cons {c : Char} : c.utf8Size = 3 →
   fun_cases utf8EncodeCharFast
   all_goals simp_all <;> (repeat' apply And.intro) <;> rfl
 
-theorem String.utf8EncodeChar_eq_cons_cons_cons_cons {c : Char} : c.utf8Size = 4 →
+public theorem String.utf8EncodeChar_eq_cons_cons_cons_cons {c : Char} : c.utf8Size = 4 →
     String.utf8EncodeChar c =
     [(c.val >>> 18).toUInt8 &&& 0x07 ||| 0xf0,
      (c.val >>> 12).toUInt8 &&& 0x3f ||| 0x80,

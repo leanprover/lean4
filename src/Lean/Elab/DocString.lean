@@ -1204,8 +1204,8 @@ private def mkSuggestion
     let some ⟨b, e⟩ := ref.getRange?
       | pure m!""
     let text ← getFileMap
-    let pre := text.source.extract 0 b
-    let post := text.source.extract e text.source.endPos
+    let pre := String.Pos.Raw.extract text.source 0 b
+    let post := String.Pos.Raw.extract text.source e text.source.endPos
     let edits := newStrings.map fun (s, _, _) =>
       let lines := text.source.splitToList (· == '\n') |>.toArray
       let s' := pre ++ s ++ post
@@ -1255,7 +1255,7 @@ public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline)
           catch | _ => pure ()
         unless suggestions.isEmpty do
           let text ← getFileMap
-          let str := text.source.extract b e
+          let str := String.Pos.Raw.extract text.source b e
           let ss : Array (String × Option String × Option String) ←
             suggestions.mapM fun {role, args, moreInfo} => do
               pure {
@@ -1373,7 +1373,7 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
           catch | _ => pure ()
         unless suggestions.isEmpty do
           let text ← getFileMap
-          let str := text.source.extract b e
+          let str := String.Pos.Raw.extract text.source b e
           let ss : Array (String × Option String × Option String) ←
             suggestions.mapM fun {name, args, moreInfo} => do
               pure {

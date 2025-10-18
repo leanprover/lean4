@@ -45,22 +45,22 @@ private def projInfo (c : Name) : MetaM (Option (Name × Nat × Bool × Bool × 
 /--
 Checks that `e` is an application of a constant that equals `baseName`, taking into consideration private name mangling.
 -/
-private def isAppOfBaseName (env : Environment) (e : Expr) (baseName : Name) : Bool :=
+private def isAppOfBaseName (e : Expr) (baseName : Name) : MetaM Bool := do
   if let some c := e.cleanupAnnotations.getAppFn.constName? then
-    privateToUserName c == baseName && !isInaccessiblePrivateName env c
+    return privateToUserName c == baseName && !(← isInaccessiblePrivateName c)
   else
-    false
+    return false
 
 /--
 Like `Lean.Elab.Term.typeMatchesBaseName` but does not use `Function` for pi types.
 -/
 private partial def typeMatchesBaseName (type : Expr) (baseName : Name) : MetaM Bool := do
   withReducibleAndInstances do
-    if isAppOfBaseName (← getEnv) type baseName then
+    if (← isAppOfBaseName type baseName) then
       return true
     else
       let type ← whnfCore type
-      if isAppOfBaseName (← getEnv) type baseName then
+      if (← isAppOfBaseName type baseName) then
         return true
       else
         match ← unfoldDefinition? type with
@@ -94,7 +94,7 @@ private def generalizedFieldInfo (c : Name) (args : Array Expr) : MetaM (Name ×
         -- We require an exact match for the base name.
         -- While `Lean.Elab.Term.resolveLValLoop` is able to unfold the type and iterate, we do not attempt to exploit this feature.
         -- (To get it right, we would need to check that each relevant namespace does not contain a declaration named `field`.)
-        guard <| isAppOfBaseName (← getEnv) (← instantiateMVars <| ← inferType args[i]!) baseName
+        guard (← isAppOfBaseName (← instantiateMVars <| ← inferType args[i]!) baseName)
         return (field, i)
       else
         -- We only use the first explicit argument for field notation.
@@ -114,7 +114,7 @@ returns the field name to use and the argument index for the object of the field
 def fieldNotationCandidate? (f : Expr) (args : Array Expr) (useGeneralizedFieldNotation : Bool) : MetaM (Option (Name × Nat)) := do
   let env ← getEnv
   let .const c .. := f.consumeMData | return none
-  if isInaccessiblePrivateName (← getEnv) c then
+  if (← isInaccessiblePrivateName c) then
     return none
   if c.getPrefix.isAnonymous then return none
   -- If there is `pp_nodot` on this function, then don't use field notation for it.

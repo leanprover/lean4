@@ -27,6 +27,23 @@ Note: The following definitions were not unfolded because their definition is no
 #guard_msgs in
 example : f = 1 := rfl
 
+/--
+error: Tactic `apply` failed: could not unify the conclusion of `@rfl`
+  ?a = ?a
+with the goal
+  f = 1
+
+Note: The full type of `@rfl` is
+  ∀ {α : Sort ?u.115} {a : α}, a = a
+
+Note: The following definitions were not unfolded because their definition is not exposed:
+  f ↦ 1
+
+⊢ f = 1
+-/
+#guard_msgs in
+example : f = 1 := by apply rfl
+
 /-! Theorems should be exported without their bodies -/
 
 /--

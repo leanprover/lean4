@@ -275,6 +275,23 @@ def checkPrivateInPublic (id : Name) : m Unit := do
       this is allowed only because the `backward.privateInPublic` option is enabled. \n\n\
       Disable `backward.privateInPublic.warn` to silence this warning."
 
+def isInaccessiblePrivateName [Monad m] [MonadEnv m] [MonadOptions m] (n : Name) : m Bool := do
+  if !isPrivateName n then
+    return false
+  let env ← getEnv
+  -- All private names are inaccessible from the public scope
+  if env.isExporting && !(← ResolveName.backward.privateInPublic.getM) then
+    return true
+  checkPrivateInPublic n
+  -- In the private scope, ...
+  match env.getModuleIdxFor? n with
+  | some modIdx =>
+    -- ... allow access through `import all`
+    return !env.header.isModule || !env.header.modules[modIdx]?.any (·.importAll)
+  | none =>
+    -- ... allow all accesses in the current module
+    return false
+
 /--
 Given a name `n`, return a list of possible interpretations.
 Each interpretation is a pair `(declName, fieldList)`, where `declName`

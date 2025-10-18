@@ -96,13 +96,17 @@ def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
         -- This case should not happen, but it ensures a warning will get logged no matter what.
         logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
 
+builtin_initialize
+  registerTraceClass `addDecl
+
 /--
 Adds the given declaration to the environment's private scope, deriving a suitable presentation in
 the public scope if under the module system and if the declaration is not private. If `forceExpose`
 is true, exposes the declaration body, i.e. preserves the full representation in the public scope,
 independently of `Environment.isExporting` and even for theorems.
 -/
-def addDecl (decl : Declaration) (forceExpose := false) : CoreM Unit := do
+def addDecl (decl : Declaration) (forceExpose := false) : CoreM Unit :=
+  withTraceNode `addDecl (fun _ => return m!"adding declarations {decl.getNames}") do
   -- register namespaces for newly added constants; this used to be done by the kernel itself
   -- but that is incompatible with moving it to a separate task
   -- NOTE: we do not use `getTopLevelNames` here so that inductive types are registered as
@@ -115,26 +119,37 @@ def addDecl (decl : Declaration) (forceExpose := false) : CoreM Unit := do
   let (name, info, kind) ← match decl with
     | .thmDecl thm =>
       if !forceExpose && (← getEnv).header.isModule then
+        trace[addDecl] "exporting theorem {thm.name} as axiom"
         exportedInfo? := some <| .axiomInfo { thm with isUnsafe := false }
       pure (thm.name, .thmInfo thm, .thm)
     | .defnDecl defn | .mutualDefnDecl [defn] =>
       if !forceExpose && (← getEnv).header.isModule && !(← getEnv).isExporting then
+        trace[addDecl] "exporting definition {defn.name} as axiom"
         exportedInfo? := some <| .axiomInfo { defn with isUnsafe := defn.safety == .unsafe }
       pure (defn.name, .defnInfo defn, .defn)
     | .opaqueDecl op =>
       if !forceExpose && (← getEnv).header.isModule && !(← getEnv).isExporting then
+        trace[addDecl] "exporting opaque {op.name} as axiom"
         exportedInfo? := some <| .axiomInfo { op with }
       pure (op.name, .opaqueInfo op, .opaque)
     | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
-    | _ => return (← doAdd)
+    | _ =>
+      trace[addDecl] "no matching async adding rules, adding synchronously"
+      return (← doAdd)
 
-  if decl.getTopLevelNames.all isPrivateName && !(← ResolveName.backward.privateInPublic.getM) then
-    exportedInfo? := none
+  if decl.getTopLevelNames.all isPrivateName then
+    if (← ResolveName.backward.privateInPublic.getM) then
+      trace[addDecl] "private decl under `privateInPublic`, exporting as is"
+      exportedInfo? := some info
+    else
+      trace[addDecl] "not exporting private declaration at all"
+      exportedInfo? := none
   else
     -- preserve original constant kind in extension if different from exported one
     if exportedInfo?.isSome then
       modifyEnv (privateConstKindsExt.insert · name kind)
     else
+      trace[addDecl] "no matching exporting rules, exporting as is"
       exportedInfo? := some info
 
   -- no environment extension changes to report after kernel checking; ensures we do not

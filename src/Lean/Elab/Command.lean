@@ -769,16 +769,16 @@ def runTermElabM (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
   liftTermElabM <|
     Term.withAutoBoundImplicit <|
       Term.elabBinders scope.varDecls fun xs => do
+        let msgs ← Core.getMessageLog
         -- We need to synthesize postponed terms because this is a checkpoint for the auto-bound implicit feature
         -- If we don't use this checkpoint here, then auto-bound implicits in the postponed terms will not be handled correctly.
         Term.synthesizeSyntheticMVarsNoPostponing
+        -- We don't want to store messages produced when elaborating `(getVarDecls s)` because they have already been saved when we elaborated the `variable`(s) command.
+        Core.setMessageLog msgs
         let mut sectionFVars := {}
         for uid in scope.varUIds, x in xs do
           sectionFVars := sectionFVars.insert uid x
         withReader ({ · with sectionFVars := sectionFVars }) do
-          -- We don't want to store messages produced when elaborating `(getVarDecls s)` because they have already been saved when we elaborated the `variable`(s) command.
-          -- So, we use `Core.resetMessageLog`.
-          Core.resetMessageLog
           let xs ← Term.addAutoBoundImplicits xs none
           if xs.all (·.isFVar) then
             Term.withoutAutoBoundImplicit <| elabFn xs

@@ -543,10 +543,6 @@ open Lean.Parser.Command.InternalSyntax in
     -- TODO: this really shouldn't have to re-elaborate section vars... they should come
     -- pre-elaborated
     let omittedVars ← runTermElabM fun vars => do
-      Term.synthesizeSyntheticMVarsNoPostponing
-      -- We don't want to store messages produced when elaborating `(getVarDecls s)` because they have already been saved when we elaborated the `variable`(s) command.
-      -- So, we use `Core.resetMessageLog`.
-      Core.resetMessageLog
       -- resolve each omit to variable user name or type pattern
       let elaboratedOmits : Array (Sum Name Expr) ← omits.mapM fun
         | `(ident| $id:ident) => pure <| Sum.inl id.getId

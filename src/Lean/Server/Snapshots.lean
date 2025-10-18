@@ -61,7 +61,7 @@ def runCommandElabM (snap : Snapshot) (doc : DocumentMeta) (c : CommandElabM α)
     snap? := none
     cancelTk? := none
   }
-  c.run ctx |>.run' snap.cmdState
+  c.run' ctx snap.cmdState
 
 /-- Run a `CoreM` computation using the data in the given snapshot.-/
 def runCoreM (snap : Snapshot) (doc : DocumentMeta) (c : CoreM α) : EIO Exception α :=

@@ -696,7 +696,7 @@ where
       (cctx : Command.Context) (cmdState : Command.State) :
       DocM Command.State := do
     let (output, cmdState) ←
-      match (← liftM <| IO.FS.withIsolatedStreams <| EIO.toIO' <| (act.run cctx).run cmdState) with
+      match (← liftM <| IO.FS.withIsolatedStreams <| EIO.toIO' <| act.run cctx cmdState) with
       | (output, .error e) => Lean.logError e.toMessageData; pure (output, cmdState)
       | (output, .ok ((), cmdState)) => pure (output, cmdState)
 
@@ -706,7 +706,7 @@ where
       if let some tok := firstToken? stx then logInfoAt tok
       else logInfo
 
-    match (← liftM <| EIO.toIO' <| ((log output).run cctx).run cmdState) with
+    match (← liftM <| EIO.toIO' <| (log output).run cctx cmdState) with
     | .error _ => pure cmdState
     | .ok ((), cmdState) => pure cmdState
 

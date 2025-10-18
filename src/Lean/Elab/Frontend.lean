@@ -39,7 +39,7 @@ def setCommandState (commandState : Command.State) : FrontendM Unit :=
     snap?        := none
     cancelTk?    := none
   }
-  match (← liftM <| EIO.toIO' <| (x cmdCtx).run s.commandState) with
+  match (← liftM <| EIO.toIO' <| x.run cmdCtx s.commandState) with
   | Except.error e      => throw <| IO.Error.userError s!"unexpected internal error: {← e.toMessageData.toString}"
   | Except.ok (a, sNew) => setCommandState sNew; return a
 

@@ -746,21 +746,17 @@ where
       LeanProcessingM Command.State := do
     let ctx ← read
     let scope := cmdState.scopes.head!
-    -- reset per-command state
-    let cmdStateRef ← IO.mkRef { cmdState with
-      messages := .empty, traceState := {}, snapshotTasks := #[] }
     let cmdCtx : Elab.Command.Context := { ctx with
       cmdPos       := beginPos
       snap?        := if internal.cmdlineSnapshots.get scope.opts then none else snap
       cancelTk?    := some cancelTk
     }
-    let (output, _) ←
+    let (output, .ok ((), cmdState)) ←
       IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get scope.opts) do
-        EIO.toBaseIO do
+        EIO.toBaseIO <| CommandElabM.run cmdCtx cmdState do
           withLoggingExceptions
             (getResetInfoTrees *> Elab.Command.elabCommandTopLevel stx)
-            cmdCtx cmdStateRef
-    let cmdState ← cmdStateRef.get
+      | let _ : Inhabited Command.State := ⟨cmdState⟩; unreachable!
     let mut messages := cmdState.messages
     if !output.isEmpty then
       messages := messages.add {

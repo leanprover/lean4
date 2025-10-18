@@ -341,8 +341,32 @@ def liftSearchM (k : SearchM α) : GrindTacticM α := do
   replaceMainGoal [state.goal]
   return a
 
+def GrindTacticM.run (x : GrindTacticM α) (ctx : Context) (s : State) : TermElabM (α × State) :=
+  x ctx |>.run s
+
+def mkEvalTactic (params : Params) : TacticM (Goal → TSyntax `grind → GrindM (List Goal)) := do
+  let elaborator := (← read).elaborator
+  let termState ← getThe Term.State
+  let termCtx ← readThe Term.Context
+  let eval (goal : Goal) (stx : TSyntax `grind) : GrindM (List Goal) := do
+    let methods ← getMethods
+    let grindCtx ← readThe Meta.Grind.Context
+    let grindState ← get
+    -- **Note**: we discard changes to `Term.State`
+    let (subgoals, grindState') ← Term.TermElabM.run' (ctx := termCtx) (s := termState) do
+      let (_, s) ← GrindTacticM.run
+            (ctx := { methods, ctx := grindCtx, params, elaborator })
+            (s := { state := grindState, goals := [goal] }) do
+        evalGrindTactic stx.raw
+        pruneSolvedGoals
+      return (s.goals, s.state)
+    set grindState'
+    return subgoals
+  return eval
+
 def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM α) : TacticM (α × State) := do
-  let (methods, ctx, state) ← liftMetaM <| GrindM.runAtGoal mvarId params fun goal => do
+  let evalTactic ← mkEvalTactic params
+  let (methods, ctx, state) ← liftMetaM <| GrindM.runAtGoal mvarId params (evalTactic? := some evalTactic) fun goal => do
     let methods ← getMethods
     -- **Note**: We use `withCheapCasesOnly` to ensure multiple goals are not created.
     -- We will add support for this case in the future.

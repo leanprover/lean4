@@ -1325,10 +1325,13 @@ def forEachEqcRoot (f : ENode → GoalM Unit) : GoalM Unit := do
       f n
 
 abbrev Propagator := Expr → GoalM Unit
+abbrev EvalTactic := Goal → TSyntax `grind → GrindM (List Goal)
+def EvalTactic.skip : EvalTactic := fun goal _ => return [goal]
 
 structure Methods where
   propagateUp   : Propagator := fun _ => return ()
   propagateDown : Propagator := fun _ => return ()
+  evalTactic    : EvalTactic := EvalTactic.skip
   deriving Inhabited
 
 def Methods.toMethodsRef (m : Methods) : MethodsRef :=
@@ -1345,6 +1348,9 @@ def propagateUp (e : Expr) : GoalM Unit := do
 
 def propagateDown (e : Expr) : GoalM Unit := do
   (← getMethods).propagateDown e
+
+def evalTactic (goal : Goal) (stx : TSyntax `grind) : GrindM (List Goal) := do
+  (← getMethods).evalTactic goal stx
 
 /-- Returns expressions in the given expression equivalence class. -/
 partial def Goal.getEqc (goal : Goal) (e : Expr) (sort := false) : List Expr :=

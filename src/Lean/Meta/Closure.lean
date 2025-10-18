@@ -113,11 +113,9 @@ structure State where
   nextLevelIdx          : Nat := 1
   levelArgs             : Array Level := #[]
   newLocalDecls         : Array LocalDecl := #[]
-  newLocalDeclsForMVars : Array LocalDecl := #[]
   newLetDecls           : Array LocalDecl := #[]
   nextExprIdx           : Nat := 1
-  exprMVarArgs          : Array Expr := #[]
-  exprFVarArgs          : Array Expr := #[]
+  exprVarArgs           : Array Expr := #[]
   toProcess             : Array ToProcessElement := #[]
 
 abbrev ClosureM := ReaderT Context $ StateRefT State MetaM
@@ -209,7 +207,7 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
     This assumption is used in `lean::instantiate_mvars_fn::visit_app` for example, where there's a comment
     about how under-applied delayed assignments are an error.
 
-    If we were to collect the delayed assignment metavariable itself and push it onto the `exprMVarArgs` list,
+    If we were to collect the delayed assignment metavariable itself and push it onto the `exprVarArgs` list,
     then `exprArgs` returned by `Lean.Meta.Closure.mkValueTypeClosure` would contain underapplied delayed assignment metavariables.
     This leads to kernel 'declaration has metavariables' errors, as reported in https://github.com/leanprover/lean4/issues/6354
 
@@ -229,8 +227,8 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
       else
         pure e
     modify fun s => { s with
-      newLocalDeclsForMVars := s.newLocalDeclsForMVars.push $ .cdecl default newFVarId userName type .default .default,
-      exprMVarArgs          := s.exprMVarArgs.push e'
+      newLocalDecls         := s.newLocalDecls.push $ .cdecl default newFVarId userName type .default .default,
+      exprVarArgs           := #[e'] ++ s.exprVarArgs
     }
     return mkFVar newFVarId
   | Expr.fvar fvarId =>
@@ -269,8 +267,8 @@ def pickNextToProcess? : ClosureM (Option ToProcessElement) := do
       let (elem, toProcess) := pickNextToProcessAux lctx 0 toProcess elem
       (some elem, { s with toProcess := toProcess })
 
-def pushFVarArg (e : Expr) : ClosureM Unit :=
-  modify fun s => { s with exprFVarArgs := s.exprFVarArgs.push e }
+def pushVarArg (e : Expr) : ClosureM Unit :=
+  modify fun s => { s with exprVarArgs := s.exprVarArgs.push e }
 
 def pushLocalDecl (newFVarId : FVarId) (userName : Name) (type : Expr) (bi := BinderInfo.default) : ClosureM Unit := do
   let type ← collectExpr type
@@ -283,7 +281,7 @@ partial def process : ClosureM Unit := do
     match (← fvarId.getDecl) with
     | .cdecl _ _ userName type bi _ =>
       pushLocalDecl newFVarId userName type bi
-      pushFVarArg (mkFVar fvarId)
+      pushVarArg (mkFVar fvarId)
       process
     | .ldecl _ _ userName type val nondep _ =>
       let zetaDeltaFVarIds ← getZetaDeltaFVarIds
@@ -297,7 +295,7 @@ partial def process : ClosureM Unit := do
             Our type checker may zetaDelta-expand declarations that are not needed, but this
             check is conservative, and seems to work well in practice. -/
         pushLocalDecl newFVarId userName type
-        pushFVarArg (mkFVar fvarId)
+        pushVarArg (mkFVar fvarId)
         process
       else
         /- Dependent let-decl -/
@@ -351,7 +349,7 @@ def mkValueTypeClosureAux (type : Expr) (value : Expr) : ClosureM (Expr × Expr)
 
 def mkValueTypeClosure (type : Expr) (value : Expr) (zetaDelta : Bool) : MetaM MkValueTypeClosureResult := do
   let ((type, value), s) ← ((mkValueTypeClosureAux type value).run { zetaDelta }).run {}
-  let newLocalDecls := s.newLocalDecls.reverse ++ s.newLocalDeclsForMVars
+  let newLocalDecls := s.newLocalDecls.reverse
   let newLetDecls   := s.newLetDecls.reverse
   let type  := mkForall newLocalDecls (mkForall newLetDecls type)
   let value := mkLambda newLocalDecls (mkLambda newLetDecls value)
@@ -360,7 +358,7 @@ def mkValueTypeClosure (type : Expr) (value : Expr) (zetaDelta : Bool) : MetaM M
     value       := value,
     levelParams := s.levelParams,
     levelArgs   := s.levelArgs,
-    exprArgs    := s.exprFVarArgs.reverse ++ s.exprMVarArgs
+    exprArgs    := s.exprVarArgs.reverse
   }
 
 end Closure

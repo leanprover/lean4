@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Simp.Types
 public import Lean.Meta.Tactic.Grind.AlphaShareCommon
 public import Lean.Meta.Tactic.Grind.Attr
+public import Lean.Meta.Tactic.Grind.CheckResult
 public import Init.Data.Queue
 import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.HeadIndex

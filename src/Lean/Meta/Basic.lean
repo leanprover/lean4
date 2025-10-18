@@ -1904,7 +1904,7 @@ def mapLetDeclZeta [MonadLiftT MetaM n] (name : Name) (type rhs : Expr) (k : Exp
     let e ← elimMVarDeps #[x] (← k x)
     return e.replaceFVar x rhs
 
-def mkLocalInstances (lctx : LocalContext) : MetaM LocalInstances := do
+def toLocalInstances (lctx : LocalContext) : MetaM LocalInstances := do
   let mut localInstances := #[]
   for decl in lctx do
     unless decl.isImplementationDetail do
@@ -1913,7 +1913,7 @@ def mkLocalInstances (lctx : LocalContext) : MetaM LocalInstances := do
   return localInstances
 
 def withPopulatingLocalInstances {α} (k : MetaM α) : MetaM α := do
-  let localInstances ← mkLocalInstances (← getLCtx)
+  let localInstances ← toLocalInstances (← getLCtx)
   withReader ({ · with localInstances }) k
 
 def withLocalInstancesImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := do

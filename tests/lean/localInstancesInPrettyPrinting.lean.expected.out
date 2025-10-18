@@ -1,0 +1,13 @@
+localInstancesInPrettyPrinting.lean:40:0-40:6: ⟪
+  synthBar := true,
+  lctx := [Bar],
+  localInstanceNames := [Bar]
+  ⟫ : True
+
+localInstancesInPrettyPrinting.lean:47:7-47:17: ⟪
+  synthBar := true,
+  lctx := [Bar],
+  localInstanceNames := [Bar]
+  ⟫ : True
+
+localInstancesInPrettyPrinting.lean:47:0-47:6: () : Unit

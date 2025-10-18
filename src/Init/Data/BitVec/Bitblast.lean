@@ -2956,13 +2956,29 @@ theorem sumPackedVec_setWidth {x : BitVec ((k + 1) * w)} :
         rw [BitVec.add_comm]
         rw [BitVec.add_sub_cancel]
 
-
-
-theorem extractAndExtendPopulate_sumPackedVec_eq_add (x : BitVec (w' + 1)):
-  setWidth (w' + 1) (extractLsb' 0 1 x) + setWidth (w' + 1) ((extractLsb' 1 w' x).extractAndExtendPopulate w').sumPackedVec =
-  (x.extractAndExtendPopulate (w' + 1)).sumPackedVec := by
-
+theorem sumPackedVec_eq_add_head {x : BitVec ((k + 1) * w)} :
+    x.sumPackedVec = extractLsb' 0 w x + (extractLsb' w (k * w) x).sumPackedVec := by
+  simp [sumPackedVec]
   sorry
+
+theorem extractAndExtendPopulate_sumPackedVec_extractLsb' (x : BitVec (w + 1)):
+  ((extractLsb' 1 w x).extractAndExtendPopulate w).sumPackedVec =
+  (((extractLsb' 1 w x).zeroExtend (w + 1)).extractAndExtendPopulate w).sumPackedVec := by sorry
+
+
+theorem extractAndExtendPopulate_sumPackedVec_eq_add (x : BitVec (w + 1)):
+    setWidth (w + 1) (extractLsb' 0 1 x) + setWidth (w + 1) ((extractLsb' 1 w x).extractAndExtendPopulate w).sumPackedVec =
+    (x.extractAndExtendPopulate (w + 1)).sumPackedVec := by
+  induction w
+  · case zero => simp [extractAndExtendPopulate, extractAndExtendPopulateAux]
+  · case succ w ihw =>
+    rw [extractAndExtendPopulate_sumPackedVec_extractLsb']
+    simp
+    simp [extractAndExtendPopulate]
+    let ⟨res1, proof1⟩ := extractAndExtendPopulateAux 0 (w + 1 + 1) x 0#(0 * (w + 1 + 1)) (by omega) (by omega)
+    let ⟨res2, proof2⟩ := extractAndExtendPopulateAux 0 (w + 1) (extractLsb' 1 (w + 1) x) 0#(0 * (w + 1)) (by omega) (by omega)
+    sorry
+
 
 --  setWidth (w' + 1) (extractLsb' 0 1 x) + setWidth (w' + 1) (extractLsb' 1 w' x).popCount =
 --   (extractLsb' 1 w' x ++ extractLsb' 0 1 x).extractAndExtendPopulate.sumPackedVec

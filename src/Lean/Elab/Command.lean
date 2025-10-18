@@ -723,10 +723,10 @@ variable (n : Nat)
 -/
 def runTermElabM (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
   let scope ← getScope
+  let msgs ← Core.getMessageLog
   liftTermElabM <|
     Term.withAutoBoundImplicit <|
       Term.elabBinders scope.varDecls fun xs => do
-        let msgs ← Core.getMessageLog
         -- We need to synthesize postponed terms because this is a checkpoint for the auto-bound implicit feature
         -- If we don't use this checkpoint here, then auto-bound implicits in the postponed terms will not be handled correctly.
         Term.synthesizeSyntheticMVarsNoPostponing

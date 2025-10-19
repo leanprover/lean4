@@ -67,16 +67,45 @@ structure Context where
   initApp : Expr := default
   deriving Inhabited
 
+/--
+A mapping `uniqueId ↦ thm`, where `uniqueId` is an auxiliary marker used to wrap a theorem instantiation proof of `thm`
+using a `Expr.mdata`. The `uniqueId`s are created using `mkFreshId`.
+-/
+abbrev InstanceProofMap := Std.HashMap Name EMatchTheorem
+
+private def thmInstanceKey := `_grind_thm_instance
+
+private def markTheoremInstanceProof (proof : Expr) (uniqueId : Name) : Expr :=
+  Expr.mdata (KVMap.empty.insert thmInstanceKey uniqueId) proof
+
+/-- Returns `some uniqueId` if `proof` was marked using `markTheoremInstanceProof` -/
+def isTheoremInstanceProof? (proof : Expr) : Option Name :=
+  match proof with
+  | .mdata d _ =>
+    match d.find thmInstanceKey with
+    | some (DataValue.ofName uniqueId) => some uniqueId
+    | _ => none
+  | _ => none
+
 /-- State for the E-matching monad -/
 structure SearchState where
   /-- Choices that still have to be processed. -/
   choiceStack  : List Choice := []
+  /--
+  When tracing is enabled, entries of the form `proof ↦ thm` are stored in `instancesMap`.
+  This mapping is later used to determine which theorem instantiations were actually
+  used in the final proof term. Here, `proof` refers to the proof of the theorem instantiation.
+  -/
+  instanceProofMap : InstanceProofMap := {}
   deriving Inhabited
 
 abbrev M := ReaderT Context $ StateRefT SearchState GoalM
 
 def M.run' (x : M α) : GoalM α :=
   x {} |>.run' {}
+
+def M.run (x : M α) : GoalM (α × SearchState) :=
+  x {} |>.run {}
 
 @[inline] private abbrev withInitApp (e : Expr) (x : M α) : M α :=
   withReader (fun ctx => { ctx with initApp := e }) x
@@ -453,6 +482,10 @@ where
   go (proof prop : Expr) : M Unit := do
     let mut proof := proof
     let mut prop := prop
+    if (← getConfig).trace then
+      let uniqueId ← mkFreshId
+      proof := markTheoremInstanceProof proof uniqueId
+      modify fun s => { s with instanceProofMap := s.instanceProofMap.insert uniqueId thm }
     if (← isMatchEqLikeDeclName thm.origin.key) then
       prop ← annotateMatchEqnType prop (← read).initApp
       -- We must add a hint here because `annotateMatchEqnType` introduces `simpMatchDiscrsOnly` and
@@ -706,26 +739,36 @@ end EMatch
 open EMatch
 
 /-- Performs one round of E-matching, and returns new instances. -/
-private def ematchCore : GoalM Unit := do profileitM Exception "grind ematch" (← getOptions) do
+private def ematchCore : GoalM InstanceProofMap := do profileitM Exception "grind ematch" (← getOptions) do
   let go (thms newThms : PArray EMatchTheorem) : EMatch.M Unit := do
     withReader (fun ctx => { ctx with useMT := true }) <| ematchTheorems thms
     withReader (fun ctx => { ctx with useMT := false }) <| ematchTheorems newThms
   if (← checkMaxInstancesExceeded <||> checkMaxEmatchExceeded) then
-    return ()
+    return {}
   else
-    go (← get).ematch.thms (← get).ematch.newThms |>.run'
+    let (_, s) ← go (← get).ematch.thms (← get).ematch.newThms |>.run
     modify fun s => { s with
       ematch.thms      := s.ematch.thms ++ s.ematch.newThms
       ematch.newThms   := {}
       ematch.gmt       := s.ematch.gmt + 1
       ematch.num       := s.ematch.num + 1
     }
+    return s.instanceProofMap
 
-/-- Performs one round of E-matching, and returns `true` if new instances were generated. -/
-def ematch : GoalM Bool := do
+/--
+Performs one round of E-matching, and returns `true` if new instances were generated.
+Recall that the mapping is nonempty only if tracing is enabled.
+-/
+def ematch' : GoalM (Bool × InstanceProofMap) := do
   let numInstances := (← get).ematch.numInstances
-  ematchCore
-  return (← get).ematch.numInstances != numInstances
+  let map ← ematchCore
+  return ((← get).ematch.numInstances != numInstances, map)
+
+/--
+Performs one round of E-matching, and returns `true` if new instances were generated.
+-/
+def ematch : GoalM Bool :=
+  return (← ematch').1
 
 /-- Performs one round of E-matching using the giving theorems, and returns `true` if new instances were generated. -/
 def ematchTheorems (thms : Array EMatchTheorem) : GoalM Bool := do

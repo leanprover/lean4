@@ -251,21 +251,34 @@ def solverAction (check : GoalM CheckResult) (mkTac : GrindM (TSyntax `grind)) :
       concatTactic (← kp goal') mkTac
   | .closed     => closeWith mkTac
 
+def saveStateIfTracing : GrindM (Option SavedState) := do
+  if (← getConfig).trace then
+    return some (← saveState)
+  else
+    return none
+/--
+Returns `true` if the tactic sequence `seq` closes `goal` starting at saved state `s?`.
+If `s?` is `none` just returns `true`.
+-/
+def checkSeqAt (s? : Option SavedState) (goal : Goal) (seq : List TGrind) : GrindM Bool := do
+  let some s := s? | return true
+  let tac ← mkGrindNext seq
+  Lean.withoutModifyingState do
+    s.restore
+    let subgoals ← evalTactic goal tac
+    return subgoals.isEmpty
+
 /--
 Helper action that checks whether the resulting tactic script produced by its continuation
 can close the original goal.
 -/
 def checkTactic : Action := fun goal _ kp => do
-  let s ← saveState
+  let s ← saveStateIfTracing
   let r ← kp goal
   match r with
   | .closed seq =>
-    let tac ← mkGrindNext seq
-    Lean.withoutModifyingState do
-      s.restore
-      let subgoals ← evalTactic goal tac
-      unless subgoals.isEmpty do
-        throwError "generated tactic cannot close the goal{indentD tac}\nInitial goal\n{goal.mvarId}\nPending subgoals\n{subgoals.map (·.mvarId)}"
+    unless (← checkSeqAt s goal seq) do
+      throwError "generated tactic cannot close the goal{indentD (← mkGrindNext seq)}\nInitial goal\n{goal.mvarId}"
     return r
   | _ => return r
 

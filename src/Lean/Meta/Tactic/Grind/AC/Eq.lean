@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.AC.Util
-public import Lean.Meta.Tactic.Grind.CheckResult
 import Lean.Meta.Tactic.Grind.AC.DenoteExpr
 import Lean.Meta.Tactic.Grind.AC.Proof
 import Lean.Meta.Tactic.Grind.AC.Seq

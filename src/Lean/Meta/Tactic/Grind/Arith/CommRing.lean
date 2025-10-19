@@ -53,8 +53,8 @@ builtin_initialize
     (internalize := CommRing.internalize)
     (newEq       := CommRing.processNewEq)
     (newDiseq    := CommRing.processNewDiseq)
+    (action      := Action.ring)
     (check       := CommRing.check')
     (checkInv    := CommRing.checkInvariants)
-    (mkTactic?   := return some (← `(grind| ring)))
 
 end Lean.Meta.Grind.Arith.CommRing

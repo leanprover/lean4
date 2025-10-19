@@ -281,8 +281,11 @@ def checkSeqAt (s? : Option SavedState) (goal : Goal) (seq : List TGrind) : Grin
     s.restore
     -- **Note**: Ensure tracing is disabled.
     withTheReader Grind.Context (fun ctx => { ctx with config.trace := false }) do
-      let subgoals ← evalTactic goal tac
-      return subgoals.isEmpty
+      try
+        let subgoals ← evalTactic goal tac
+        return subgoals.isEmpty
+      catch _  =>
+        return false
 
 /--
 Helper action that checks whether the resulting tactic script produced by its continuation

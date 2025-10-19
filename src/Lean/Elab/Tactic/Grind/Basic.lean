@@ -354,7 +354,7 @@ def mkEvalTactic' (elaborator : Name) (params : Params) : TermElabM (Goal → TS
     -- **Note**: we discard changes to `Term.State`
     let (subgoals, grindState') ← Term.TermElabM.run' (ctx := termCtx) (s := termState) do
       let (_, s) ← GrindTacticM.run
-            (ctx := { methods, ctx := grindCtx, params, elaborator })
+            (ctx := { recover := false, methods, ctx := grindCtx, params, elaborator })
             (s := { state := grindState, goals := [goal] }) do
         evalGrindTactic stx.raw
         pruneSolvedGoals

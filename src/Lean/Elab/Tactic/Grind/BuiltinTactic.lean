@@ -123,8 +123,8 @@ def logTheoremAnchor (proof : Expr) : TermElabM Unit := do
   let stx ← getRef
   Term.addTermInfo' stx proof
 
-def ematchThms (thms : Array EMatchTheorem) : GrindTacticM Unit := do
-  let progress ← liftGoalM <| if thms.isEmpty then ematch else ematchTheorems thms
+def ematchThms (only : Bool) (thms : Array EMatchTheorem) : GrindTacticM Unit := do
+  let progress ← liftGoalM <| if only then ematchOnly thms else ematch thms
   unless progress do
     throwError "`instantiate` tactic failed to instantiate new facts, use `show_patterns` to see active theorems and their patterns."
   let goal ← getMainGoal
@@ -142,15 +142,17 @@ def elabAnchor (anchor : TSyntax `hexnum) : CoreM (Nat × UInt64) := do
   return (numDigits, val)
 
 @[builtin_grind_tactic instantiate] def evalInstantiate : GrindTactic := fun stx => withMainContext do
-  let `(grind| instantiate $[$thmRefs:thm],*) := stx | throwUnsupportedSyntax
+  let `(grind| instantiate $[ only%$only ]? $[ [ $[$thmRefs?:thm],* ] ]?) := stx | throwUnsupportedSyntax
+  let only := only.isSome
   let mut thms := #[]
-  for thmRef in thmRefs do
-    match thmRef with
-    | `(Parser.Tactic.Grind.thm| #$anchor:hexnum) => thms := thms ++ (← withRef thmRef <| elabLocalEMatchTheorem anchor)
-    | `(Parser.Tactic.Grind.thm| $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id false)
-    | `(Parser.Tactic.Grind.thm| ! $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id true)
-    | _ => throwErrorAt thmRef "unexpected theorem reference"
-  ematchThms thms
+  if let some thmRefs := thmRefs? then
+    for thmRef in thmRefs do
+      match thmRef with
+      | `(Parser.Tactic.Grind.thm| #$anchor:hexnum) => thms := thms ++ (← withRef thmRef <| elabLocalEMatchTheorem anchor)
+      | `(Parser.Tactic.Grind.thm| $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id false)
+      | `(Parser.Tactic.Grind.thm| ! $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id true)
+      | _ => throwErrorAt thmRef "unexpected theorem reference"
+  ematchThms only thms
 where
   collectThms (numDigits : Nat) (anchorPrefix : UInt64) (thms : PArray EMatchTheorem) : StateT (Array EMatchTheorem) GrindTacticM Unit := do
     let mut found : Std.HashSet Expr := {}

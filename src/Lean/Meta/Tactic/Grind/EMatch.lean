@@ -739,10 +739,12 @@ end EMatch
 open EMatch
 
 /-- Performs one round of E-matching, and returns new instances. -/
-private def ematchCore : GoalM InstanceProofMap := do profileitM Exception "grind ematch" (← getOptions) do
+private def ematchCore (extraThms : Array EMatchTheorem) : GoalM InstanceProofMap := do profileitM Exception "grind ematch" (← getOptions) do
   let go (thms newThms : PArray EMatchTheorem) : EMatch.M Unit := do
     withReader (fun ctx => { ctx with useMT := true }) <| ematchTheorems thms
-    withReader (fun ctx => { ctx with useMT := false }) <| ematchTheorems newThms
+    withReader (fun ctx => { ctx with useMT := false }) do
+      ematchTheorems newThms
+      extraThms.forM ematchTheorem
   if (← checkMaxInstancesExceeded <||> checkMaxEmatchExceeded) then
     return {}
   else
@@ -759,19 +761,19 @@ private def ematchCore : GoalM InstanceProofMap := do profileitM Exception "grin
 Performs one round of E-matching, and returns `true` if new instances were generated.
 Recall that the mapping is nonempty only if tracing is enabled.
 -/
-def ematch' : GoalM (Bool × InstanceProofMap) := do
+def ematch' (extraThms : Array EMatchTheorem := #[]) : GoalM (Bool × InstanceProofMap) := do
   let numInstances := (← get).ematch.numInstances
-  let map ← ematchCore
+  let map ← ematchCore extraThms
   return ((← get).ematch.numInstances != numInstances, map)
 
 /--
 Performs one round of E-matching, and returns `true` if new instances were generated.
 -/
-def ematch : GoalM Bool :=
-  return (← ematch').1
+def ematch (extraThms : Array EMatchTheorem := #[]) : GoalM Bool :=
+  return (← ematch' extraThms).1
 
 /-- Performs one round of E-matching using the giving theorems, and returns `true` if new instances were generated. -/
-def ematchTheorems (thms : Array EMatchTheorem) : GoalM Bool := do
+def ematchOnly (thms : Array EMatchTheorem) : GoalM Bool := do
   let numInstances := (← get).ematch.numInstances
   go |>.run'
   return (← get).ematch.numInstances != numInstances

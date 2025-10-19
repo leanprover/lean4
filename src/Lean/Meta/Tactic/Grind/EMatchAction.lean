@@ -63,7 +63,7 @@ def mkInstantiateTactic (goal : Goal) (usedThms : Array EMatchTheorem) : GrindM 
       let anchor ← getAnchor (← inferType thm.proof)
       let param ← `(Parser.Tactic.Grind.thm| $(← mkAnchorSyntax numDigits anchor):anchor)
       params := params.push param
-  `(grind| instantiate $params,*)
+  `(grind| instantiate only [$params,*])
 
 public def instantiate' : Action := fun goal kna kp => do
   let s ← saveStateIfTracing

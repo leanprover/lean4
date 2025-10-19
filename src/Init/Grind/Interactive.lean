@@ -67,7 +67,7 @@ syntax anchor := "#" noWs hexnum
 syntax thm := anchor <|> grindLemma <|> grindLemmaMin
 
 /-- Instantiates theorems using E-matching. -/
-syntax (name := instantiate) "instantiate" (colGt thm),* : grind
+syntax (name := instantiate) "instantiate" (&" only")? (" [" withoutPosition(thm,*,?) "]")? : grind
 
 -- **Note**: Should we rename the following tactics to `trace_`?
 /-- Shows asserted facts. -/

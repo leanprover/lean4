@@ -9,6 +9,7 @@ public import Lean.Meta.Tactic.Grind.Action
 public import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.EMatchTheoremParam
+import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 namespace Lean.Meta.Grind.Action
 
 structure CollectState where
@@ -21,6 +22,12 @@ def collect (e : Expr) (map : EMatch.InstanceMap) : Array EMatchTheorem :=
   s.thms
 where
   go (e : Expr) : StateM CollectState Unit := do
+    if isMarkedSubsingletonApp e then
+      /-
+      **Note**: We can ignore nested proofs and decidable instances.
+      They are not part of current `grind` proof.
+      -/
+      return ()
     if (← get).visited.contains { expr := e } then
       return ()
     modify fun s => { s with visited := s.visited.insert { expr := e } }

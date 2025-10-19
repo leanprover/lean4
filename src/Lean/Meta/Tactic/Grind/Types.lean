@@ -1495,6 +1495,38 @@ def withoutModifyingState (x : GoalM α) : GoalM α := do
 opaque canon (e : Expr) : GoalM Expr
 
 /-!
+`Action` is the *control interface* for `grind`’s search steps. It is defined in
+Continuation-Passing Style (CPS).
+See `Grind/Action.lean` for additional details.
+-/
+
+abbrev TGrind := TSyntax `grind
+
+/-- Result type for a `grind` Action -/
+inductive ActionResult where
+  | /--
+    The goal has been closed, and you can use `seq` to close the goal efficiently.
+    -/
+    closed (seq : List TGrind)
+  | /--
+    The action could not make further progress.
+    `gs` are subgoals that could not be closed. They are used for producing error messages.
+    -/
+    stuck (gs : List Goal)
+
+abbrev ActionCont : Type :=
+  Goal → GrindM ActionResult
+
+abbrev Action : Type :=
+  Goal → (kna : ActionCont) → (kp : ActionCont) → GrindM ActionResult
+
+@[expose] def Action.notApplicable : Action := fun goal kna _ =>
+  kna goal
+
+instance : Inhabited Action where
+  default := Action.notApplicable
+
+/-!
 Solver Extensions
 -/
 
@@ -1509,7 +1541,8 @@ structure SolverExtension (σ : Type) where private mk ::
   newEq       : Expr → Expr → GoalM Unit
   newDiseq    : Expr → Expr → GoalM Unit
   mbtc        : GoalM Bool
-  check       : GoalM Bool
+  action      : Action
+  check       : GoalM Bool -- **TODO**: Consider deleting `check` in the future.
   checkInv    : GoalM Unit
   mkTactic?   : CoreM (Option (TSyntax `grind))
   deriving Inhabited
@@ -1531,6 +1564,7 @@ def registerSolverExtension {σ : Type} (mkInitial : IO σ) : IO (SolverExtensio
     internalize := fun _ _ => return ()
     newEq := fun _ _ => return ()
     newDiseq := fun _ _ => return ()
+    action := Action.notApplicable
     check := fun _ _ => return false
     checkInv := fun _ _ => return ()
     mbtc := fun _ _ => return false
@@ -1549,6 +1583,7 @@ def SolverExtension.setMethods (ext : SolverExtension σ)
     (newEq       : Expr → Expr → GoalM Unit := fun _ _ => return ())
     (newDiseq    : Expr → Expr → GoalM Unit := fun _ _ => return ())
     (mbtc        : GoalM Bool := return false)
+    (action      : Action := Action.notApplicable)
     (check       : GoalM Bool := return false)
     (checkInv    : GoalM Unit := return ())
     (mkTactic?   : CoreM (Option (TSyntax `grind)) := return none)
@@ -1558,7 +1593,7 @@ def SolverExtension.setMethods (ext : SolverExtension σ)
   unless ext.id < (← solverExtensionsRef.get).size do
     throw (IO.userError "failed to register `grind` solver methods, invalid solver id")
   solverExtensionsRef.modify fun exts => exts.modify ext.id fun s => { s with
-    internalize, newEq, newDiseq, mbtc, check, checkInv, mkTactic?
+    internalize, newEq, newDiseq, mbtc, action, check, checkInv, mkTactic?
   }
 
 /-- Returns initial state for registered solvers. -/

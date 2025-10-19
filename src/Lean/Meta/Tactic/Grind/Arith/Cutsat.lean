@@ -49,6 +49,7 @@ builtin_initialize
     (internalize := Cutsat.internalize)
     (newEq       := Cutsat.processNewEq)
     (newDiseq    := Cutsat.processNewDiseq)
+    (action      := Action.lia)
     (check       := Cutsat.check)
     (checkInv    := Cutsat.checkInvariants)
     (mbtc        := Cutsat.mbtc)

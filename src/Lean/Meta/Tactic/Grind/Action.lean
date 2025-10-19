@@ -68,20 +68,7 @@ use `callCC` here.
 
 -/
 
-abbrev TGrind := TSyntax `grind
 abbrev TGrindStep := TSyntax ``Parser.Tactic.Grind.grindStep
-
-/-- Result type for a `grind` Action -/
-inductive ActionResult where
-  | /--
-    The goal has been closed, and you can use `seq` to close the goal efficiently.
-    -/
-    closed (seq : List TGrind)
-  | /--
-    The action could not make further progress.
-    `gs` are subgoals that could not be closed. They are used for producing error messages.
-    -/
-    stuck (gs : List Goal)
 
 def ActionResult.toMessageData : ActionResult → MessageData
   | .closed seq => m!"closed {seq}"
@@ -90,19 +77,10 @@ def ActionResult.toMessageData : ActionResult → MessageData
 instance : ToMessageData ActionResult where
   toMessageData := ActionResult.toMessageData
 
-abbrev ActionCont : Type :=
-  Goal → GrindM ActionResult
-
-abbrev Action : Type :=
-  Goal → (kna : ActionCont) → (kp : ActionCont) → GrindM ActionResult
-
 namespace Action
 
 def skip : Action := fun goal _ kp =>
   kp goal
-
-def notApplicable : Action := fun goal kna _ =>
-  kna goal
 
 /--
 If the `goal` is already inconsistent, returns `.closed []`. Otherwise, executes

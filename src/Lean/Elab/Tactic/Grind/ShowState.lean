@@ -8,6 +8,7 @@ prelude
 public import Lean.Elab.Tactic.Grind.Basic
 public import Lean.Elab.Tactic.Grind.Filter
 import Lean.Meta.Tactic.Grind.PP
+import Lean.Meta.Tactic.Grind.EMatchTheoremParam
 import Lean.Meta.Tactic.Grind.Anchor
 import Lean.Meta.Tactic.Grind.Split
 namespace Lean.Elab.Tactic.Grind
@@ -118,30 +119,11 @@ public def showState (filter : Filter) (isSilent := false) : GrindTacticM Unit :
 
 @[builtin_grind_tactic showLocalThms] def evalShowLocalThms : GrindTactic := fun _ => withMainContext do
   let goal ← getMainGoal
-  let entries ← liftGrindM do
-    let (found, entries) ← go {} {} goal.ematch.thms
-    let (_, entries) ← go found entries goal.ematch.newThms
-    pure entries
+  let entries ← liftGrindM <| getLocalTheoremAnchors goal
   let numDigits := getNumDigitsForAnchors entries
   let msgs := entries.map fun { anchor, e } =>
     .trace { cls := `thm } m!"#{anchorToString numDigits anchor} := {e}" #[]
   let msg := MessageData.trace { cls := `thms, collapsed := false } "Local theorems" msgs
   logInfo msg
-where
-  go (found : Std.HashSet Grind.Origin) (result : Array ExprWithAnchor) (thms : PArray EMatchTheorem)
-      : GrindM (Std.HashSet Grind.Origin × Array ExprWithAnchor) := do
-    let mut found := found
-    let mut result := result
-    for thm in thms do
-      -- **Note**: We only display local theorems
-      if thm.origin matches .local _ | .fvar _ then
-      unless found.contains thm.origin do
-        found := found.insert thm.origin
-        let type ← inferType thm.proof
-        -- **Note**: Evaluate how stable these anchors are.
-        let anchor ← getAnchor type
-        result := result.push { anchor, e := type }
-        pure ()
-    return (found, result)
 
 end Lean.Elab.Tactic.Grind

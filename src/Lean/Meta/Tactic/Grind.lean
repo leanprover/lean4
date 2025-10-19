@@ -43,6 +43,7 @@ public import Lean.Meta.Tactic.Grind.PropagateInj
 public import Lean.Meta.Tactic.Grind.Order
 public import Lean.Meta.Tactic.Grind.Anchor
 public import Lean.Meta.Tactic.Grind.Action
+public import Lean.Meta.Tactic.Grind.EMatchTheoremParam
 public import Lean.Meta.Tactic.Grind.EMatchAction
 public section
 namespace Lean

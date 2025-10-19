@@ -401,8 +401,8 @@ example (as bs cs : Array α) (v₁ v₂ : α)
         (h₆ : j < as.size)
         : cs[j] = as[j] := by
   grind =>
-    instantiate Array.getElem_set | gen > 0
-    instantiate Array.getElem_set
+    instantiate only [Array.getElem_set] | gen > 0
+    instantiate only [Array.getElem_set]
 
 example (as bs cs : Array α) (v₁ v₂ : α)
         (i₁ i₂ j : Nat)
@@ -415,8 +415,8 @@ example (as bs cs : Array α) (v₁ v₂ : α)
         (h₆ : j < as.size)
         : cs[j] = as[j] := by
   grind =>
-    instantiate = Array.getElem_set
-    instantiate ← Array.getElem_set
+    instantiate only [= Array.getElem_set]
+    instantiate only [← Array.getElem_set]
 
 example (as bs cs : Array α) (v₁ v₂ : α)
         (i₁ i₂ j : Nat)
@@ -429,7 +429,7 @@ example (as bs cs : Array α) (v₁ v₂ : α)
         (h₆ : j < as.size)
         : cs[j] = as[j] := by
   grind =>
-    repeat instantiate =Array.getElem_set
+    repeat instantiate only [= Array.getElem_set]
 
 opaque p : Nat → Prop
 opaque q : Nat → Prop
@@ -441,7 +441,7 @@ axiom fInj : finv (f x) = x
 
 example : f x = f y → p x → q y := by
   grind =>
-    instantiate →pq, !fInj
+    instantiate only [→pq, !fInj]
 
 /--
 trace: [thms] Local theorems
@@ -452,18 +452,18 @@ trace: [thms] Local theorems
 example : (∀ x, q x) → (∀ x, p x → p (f x)) → p x → p (f (f x)) := by
   grind =>
     show_local_thms
-    instantiate #bfb8
+    instantiate only [#bfb8]
 
 example : (∀ x, q x) → (∀ x, p x → p (f x)) → p x → p (f (f x)) := by
   grind =>
     show_local_thms
-    instantiate #bfb8
+    instantiate only [#bfb8]
 
 /-- error: no local theorems -/
 #guard_msgs in
 example : (∀ x, q x) → (∀ x, p x → p (f x)) → p x → p (f (f x)) := by
   grind =>
-    instantiate #abcd
+    instantiate only [#abcd]
 
 /--
 error: unsolved goals
@@ -500,7 +500,7 @@ example : (a : Point Nat) → p a → x ≠ y → False := by
   intro a
   grind =>
     cases #6ccb
-    instantiate pax
+    instantiate only [pax]
     show_cases
     rename_i y w _ -- Must reset cached anchors
     show_cases
@@ -511,7 +511,7 @@ example : (a : Point Nat) → p a → x ≠ y → False := by
   intro a
   grind =>
     cases #6ccb
-    instantiate pax
+    instantiate only [pax]
     show_cases
     next y w _ =>
     show_cases

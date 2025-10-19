@@ -45,8 +45,8 @@ example {α : Type} (op : α → α → α) [Std.Associative op] [Std.Commutativ
 /--
 info: Try this:
   [apply] ⏎
-    instantiate
-    instantiate
+    instantiate only [= Array.getElem_set]
+    instantiate only [= Array.getElem_set]
 -/
 #guard_msgs in
 example (as bs cs : Array α) (v₁ v₂ : α)

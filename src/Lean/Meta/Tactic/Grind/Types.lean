@@ -1831,4 +1831,17 @@ def anchorPrefixToString (numDigits : Nat) (anchorPrefix : UInt64) : String :=
 def anchorToString (numDigits : Nat) (anchor : UInt64) : String :=
   anchorPrefixToString numDigits (anchor >>> (64 - 4*numDigits.toUInt64))
 
+/--
+Returns activated `match`-declaration equations.
+Recall that in tactics such as `instantiate only [...]`, `match`-declarations are always instantiated.
+-/
+def Goal.getActiveMatchEqTheorems (goal : Goal) : CoreM (Array EMatchTheorem) := do
+  let k (thms : Array EMatchTheorem) (thm : EMatchTheorem) : CoreM (Array EMatchTheorem) := do
+    if (← isMatchEqLikeDeclName thm.origin.key) then
+      return thms.push thm
+    else
+      return thms
+  let result ← goal.ematch.newThms.foldlM k #[]
+  goal.ematch.thms.foldlM k result
+
 end Lean.Meta.Grind

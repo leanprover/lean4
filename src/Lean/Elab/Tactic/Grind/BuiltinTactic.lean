@@ -143,8 +143,10 @@ def elabAnchor (anchor : TSyntax `hexnum) : CoreM (Nat × UInt64) := do
 
 @[builtin_grind_tactic instantiate] def evalInstantiate : GrindTactic := fun stx => withMainContext do
   let `(grind| instantiate $[ only%$only ]? $[ [ $[$thmRefs?:thm],* ] ]?) := stx | throwUnsupportedSyntax
+  let goal ← getMainGoal
   let only := only.isSome
-  let mut thms := #[]
+  let initThms ← if only then goal.getActiveMatchEqTheorems else pure #[]
+  let mut thms := initThms
   if let some thmRefs := thmRefs? then
     for thmRef in thmRefs do
       match thmRef with

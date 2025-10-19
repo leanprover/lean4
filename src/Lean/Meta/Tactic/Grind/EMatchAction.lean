@@ -40,7 +40,6 @@ where
 
 /--
 Creates an `instantiate` tactic that takes the `usedThms` as parameters.
-Remark: assumes `usedThms` is not empty.
 -/
 def mkInstantiateTactic (goal : Goal) (usedThms : Array EMatchTheorem) : GrindM TGrind := goal.withContext do
   let numDigits ← getNumDigitsForLocalTheoremAnchors goal
@@ -48,22 +47,26 @@ def mkInstantiateTactic (goal : Goal) (usedThms : Array EMatchTheorem) : GrindM 
   let mut foundFns : NameSet := {}
   let mut foundLocals : Std.HashSet Grind.Origin := {}
   for thm in usedThms do
-    match thm.origin with
-    | .decl declName =>
-      if let some fnName ← isEqnThm? declName then
-        unless foundFns.contains fnName do
-          foundFns := foundFns.insert fnName
+    unless (← isMatchEqLikeDeclName thm.origin.key) do
+      match thm.origin with
+      | .decl declName =>
+        if let some fnName ← isEqnThm? declName then
+          unless foundFns.contains fnName do
+            foundFns := foundFns.insert fnName
+            let param ← Grind.globalDeclToInstantiateParamSyntax declName thm.kind thm.minIndexable
+            params := params.push param
+        else
           let param ← Grind.globalDeclToInstantiateParamSyntax declName thm.kind thm.minIndexable
           params := params.push param
-      else
-        let param ← Grind.globalDeclToInstantiateParamSyntax declName thm.kind thm.minIndexable
+      | _ => unless foundLocals.contains thm.origin do
+        foundLocals := foundLocals.insert thm.origin
+        let anchor ← getAnchor (← inferType thm.proof)
+        let param ← `(Parser.Tactic.Grind.thm| $(← mkAnchorSyntax numDigits anchor):anchor)
         params := params.push param
-    | _ => unless foundLocals.contains thm.origin do
-      foundLocals := foundLocals.insert thm.origin
-      let anchor ← getAnchor (← inferType thm.proof)
-      let param ← `(Parser.Tactic.Grind.thm| $(← mkAnchorSyntax numDigits anchor):anchor)
-      params := params.push param
-  `(grind| instantiate only [$params,*])
+  if params.isEmpty then
+    `(grind| instantiate only)
+  else
+    `(grind| instantiate only [$params,*])
 
 public def instantiate' : Action := fun goal kna kp => do
   let s ← saveStateIfTracing

@@ -164,6 +164,20 @@ def mkGrindNext (s : List TGrind) : CoreM TGrind := do
   `(grind| next => $s:grindSeq)
 
 /--
+Given `[t₁, ..., tₙ]`, returns
+```
+(t₁
+ ...
+ tₙ)
+```
+If the list is empty, it returns `(skip)`.
+-/
+private def mkGrindParen (s : List TGrind) : CoreM TGrind := do
+  let s ← if s == [] then pure [← `(grind| skip)] else pure s
+  let s := mkGrindSeq s
+  `(grind| ($s:grindSeq))
+
+/--
 If tracing is enabled and continuation produced `.closed [t₁, ..., tₙ]`,
 returns the singleton sequence `[t]` where `t` is
 ```
@@ -262,11 +276,13 @@ If `s?` is `none` just returns `true`.
 -/
 def checkSeqAt (s? : Option SavedState) (goal : Goal) (seq : List TGrind) : GrindM Bool := do
   let some s := s? | return true
-  let tac ← mkGrindNext seq
+  let tac ← mkGrindParen seq
   Lean.withoutModifyingState do
     s.restore
-    let subgoals ← evalTactic goal tac
-    return subgoals.isEmpty
+    -- **Note**: Ensure tracing is disabled.
+    withTheReader Grind.Context (fun ctx => { ctx with config.trace := false }) do
+      let subgoals ← evalTactic goal tac
+      return subgoals.isEmpty
 
 /--
 Helper action that checks whether the resulting tactic script produced by its continuation

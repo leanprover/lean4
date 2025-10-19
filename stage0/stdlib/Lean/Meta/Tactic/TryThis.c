@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.TryThis
-// Imports: public import Lean.Meta.TryThis public import Lean.Elab.Tactic.Basic import Lean.Server.CodeActions import Lean.Widget.UserWidget import Lean.Data.Json.Elab import Lean.Data.Lsp.Utf16 import Lean.Meta.CollectFVars import Lean.Meta.Tactic.ExposeNames meta import Lean.Meta.Hint public import Lean.Meta.Hint
+// Imports: public import Lean.Elab.Tactic.Basic import Lean.Server.CodeActions import Lean.Widget.UserWidget import Lean.Meta.Tactic.ExposeNames meta import Lean.Meta.Hint public import Lean.Meta.Hint
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -12051,13 +12051,9 @@ x_11 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Met
 return x_11;
 }
 }
-lean_object* initialize_Lean_Meta_TryThis(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_CodeActions(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Widget_UserWidget(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Json_Elab(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Lsp_Utf16(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_CollectFVars(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_ExposeNames(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Hint(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Hint(uint8_t builtin, lean_object*);
@@ -12066,9 +12062,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_TryThis(uint8_t builtin, le
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_TryThis(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -12076,15 +12069,6 @@ res = initialize_Lean_Server_CodeActions(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Widget_UserWidget(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_Json_Elab(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_Utf16(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_CollectFVars(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_ExposeNames(builtin, lean_io_mk_world());

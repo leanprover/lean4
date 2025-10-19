@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Parser.Extra
-// Imports: public import Lean.Parser.Extension public import Lean.PrettyPrinter.Formatter public import Lean.PrettyPrinter.Parenthesizer meta import Lean.Hygiene import all Lean.Parser.Types import all Lean.Parser.Basic import all Lean.Parser.Extension
+// Imports: public import Lean.PrettyPrinter.Formatter public import Lean.PrettyPrinter.Parenthesizer meta import Lean.Hygiene import all Lean.Parser.Types import all Lean.Parser.Basic import all Lean.Parser.Extension
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20,7 +20,6 @@ static lean_object* l_Lean_Parser_numLit_parenthesizer___closed__0;
 lean_object* l_Lean_PrettyPrinter_Formatter_setLhsPrec_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_termRegister__parser__alias_x28Kind_x3a_x3d___x29_______________closed__33;
 LEAN_EXPORT lean_object* l_Lean_Parser_ppHardSpace_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_nameLit___closed__0;
 static lean_object* l_Lean___aux__Lean__Parser__Extra______macroRules__Lean__termRegister__parser__alias_x28Kind_x3a_x3d___x29______________1___closed__16;
 lean_object* l_Lean_PrettyPrinter_Formatter_withAntiquotSuffixSplice_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -399,6 +398,7 @@ static lean_object* l___private_Lean_Parser_Extra_0__Lean_Parser_optional___regB
 lean_object* l_Lean_PrettyPrinter_Formatter_notFollowedBy_formatter___redArg(lean_object*);
 static lean_object* l_Lean_Parser_mkAntiquotSplice_formatter___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parser_symbol_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Extra_0__Lean_Parser_ppLine___regBuiltin_Lean_Parser_ppLine_docString__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_unicodeSymbol_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_withResetCache_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10501,7 +10501,6 @@ lean_dec_ref(x_1);
 return x_6;
 }
 }
-lean_object* initialize_Lean_Parser_Extension(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_PrettyPrinter_Formatter(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_PrettyPrinter_Parenthesizer(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Hygiene(uint8_t builtin, lean_object*);
@@ -10513,9 +10512,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Parser_Extra(uint8_t builtin, lean_obje
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Parser_Extension(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_PrettyPrinter_Formatter(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

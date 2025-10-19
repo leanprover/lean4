@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Simpa
-// Imports: public import Lean.Meta.Tactic.Assumption public import Lean.Meta.Tactic.TryThis public import Lean.Elab.Tactic.Simp public import Lean.Elab.App public import Lean.Linter.Basic
+// Imports: public import Lean.Meta.Tactic.TryThis public import Lean.Elab.Tactic.Simp public import Lean.Elab.App
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -8993,7 +8993,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__8___closed__14;
 x_2 = lean_unsigned_to_nat(15u);
-x_3 = lean_unsigned_to_nat(118u);
+x_3 = lean_unsigned_to_nat(116u);
 x_4 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__8___closed__13;
 x_5 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__8___closed__12;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -12496,19 +12496,14 @@ x_4 = l_Lean_addBuiltinDeclarationRanges(x_2, x_3, x_1);
 return x_4;
 }
 }
-lean_object* initialize_Lean_Meta_Tactic_Assumption(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_TryThis(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Simp(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_App(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Linter_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Simpa(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_Tactic_Assumption(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_TryThis(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -12516,9 +12511,6 @@ res = initialize_Lean_Elab_Tactic_Simp(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_App(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Linter_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_initFn___closed__0____x40_Lean_Elab_Tactic_Simpa_363244304____hygCtx___hyg_4_ = _init_l_initFn___closed__0____x40_Lean_Elab_Tactic_Simpa_363244304____hygCtx___hyg_4_();

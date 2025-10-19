@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Watchdog
-// Imports: public import Init.System.IO public import Std.Sync.Mutex public import Init.Data.ByteArray public import Lean.Data.FuzzyMatching public import Lean.Data.Lsp public import Lean.Server.Utils public import Lean.Server.Requests public import Lean.Server.References public import Lean.Server.ServerTask public import Lean.Server.Completion.CompletionUtils public import Init.Data.List.Sort
+// Imports: public import Lean.Data.FuzzyMatching public import Lean.Server.Requests public import Lean.Server.References public import Lean.Server.Completion.CompletionUtils public import Init.Data.List.Sort
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18378,7 +18378,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___Lean_Server_Watchdog_ImportData_update_spec__3___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(13u);
-x_3 = lean_unsigned_to_nat(183u);
+x_3 = lean_unsigned_to_nat(182u);
 x_4 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___Lean_Server_Watchdog_ImportData_update_spec__3___redArg___closed__1;
 x_5 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___Lean_Server_Watchdog_ImportData_update_spec__3___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -38703,7 +38703,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Server_Watchdog_handleModuleHierarchyImports_spec__2___closed__2;
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(23u);
+x_3 = lean_unsigned_to_nat(22u);
 x_4 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Server_Watchdog_handleModuleHierarchyImports_spec__2___closed__1;
 x_5 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Server_Watchdog_handleModuleHierarchyImports_spec__2___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -57528,15 +57528,9 @@ return x_24;
 }
 }
 }
-lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Sync_Mutex(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_ByteArray(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_FuzzyMatching(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Lsp(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Server_Utils(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_Requests(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_References(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Server_ServerTask(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_Completion_CompletionUtils(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Sort(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -57544,31 +57538,13 @@ LEAN_EXPORT lean_object* initialize_Lean_Server_Watchdog(uint8_t builtin, lean_o
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_System_IO(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Sync_Mutex(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_ByteArray(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Data_FuzzyMatching(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Server_Utils(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Server_Requests(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Server_References(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Server_ServerTask(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Server_Completion_CompletionUtils(builtin, lean_io_mk_world());

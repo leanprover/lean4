@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Lsp.LanguageFeatures
-// Imports: public import Lean.Data.Json.FromToJson.Basic public import Lean.Data.Lsp.Basic meta import Lean.Data.Json public import Lean.Expr
+// Imports: public import Lean.Data.Lsp.Basic meta import Lean.Data.Json public import Lean.Expr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -37,7 +37,6 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_instHashableCallHierarchyItem;
 static lean_object* l_Lean_Lsp_instFromJsonSignatureHelpParams_fromJson___closed__9;
 static lean_object* l_Lean_Lsp_instFromJsonCompletionParams_fromJson___closed__5;
 static lean_object* l_Lean_Lsp_instFromJsonDocumentColorParams_fromJson___closed__9;
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_instFromJsonInsertReplaceEdit_fromJson_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_SemanticTokenType_typeParameter_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonInlayHintClientCapabilities_fromJson___closed__2;
@@ -101,7 +100,6 @@ static lean_object* l_Lean_Lsp_instReprCompletionItemKind_repr___closed__28;
 static lean_object* l_Lean_Lsp_instFromJsonResolvableCompletionItem_fromJson___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_instFromJsonSymbolInformation_fromJson_spec__4(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonSemanticTokenType_fromJson___lam__19(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonSymbolKind___lam__0___closed__35;
 static lean_object* l_Lean_Lsp_instFromJsonCompletionOptions_fromJson___closed__23;
 static lean_object* l_Lean_Lsp_instFromJsonSignatureHelpContext_fromJson___closed__3;
@@ -1243,6 +1241,7 @@ static lean_object* l_Lean_Lsp_instToJsonCompletionItem___closed__0;
 static lean_object* l_Lean_Lsp_SemanticTokenType_names___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonSemanticTokenType_fromJson___lam__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonPrepareRenameParams_fromJson___closed__2;
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_CompletionItemKind_event_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_SemanticTokenModifier_declaration_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_DocumentColorParams_ctorIdx(lean_object*);
@@ -1832,6 +1831,7 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_SemanticTokenModifier_abstract_elim___redArg
 static lean_object* l_Lean_Lsp_instFromJsonCompletionOptions_fromJson___closed__18;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonDocumentColorParams;
 LEAN_EXPORT lean_object* l_Lean_Lsp_CompletionItemKind_enumMember_elim(lean_object*, uint8_t, lean_object*, lean_object*);
+uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonPrepareRenameParams_fromJson___closed__0;
 static lean_object* l_Lean_Lsp_instFromJsonSymbolKind___lam__0___closed__9;
 static lean_object* l_Lean_Lsp_instFromJsonColorInformation_fromJson___closed__9;
@@ -55286,7 +55286,6 @@ x_1 = l_Lean_Lsp_instToJsonDocumentColorOptions___closed__0;
 return x_1;
 }
 }
-lean_object* initialize_Lean_Data_Json_FromToJson_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Expr(uint8_t builtin, lean_object*);
@@ -55295,9 +55294,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Data_Lsp_LanguageFeatures(uint8_t built
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Data_Json_FromToJson_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Data_Lsp_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

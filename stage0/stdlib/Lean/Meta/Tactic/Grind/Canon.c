@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Canon
-// Imports: public import Lean.Meta.Tactic.Grind.Types import Init.Grind.Util import Lean.Meta.Basic import Lean.Meta.FunInfo import Lean.Util.FVarSubset import Lean.Util.PtrSet import Lean.Util.FVarSubset import Lean.Meta.IntInstTesters import Lean.Meta.NatInstTesters
+// Imports: public import Lean.Meta.Tactic.Grind.Types import Init.Grind.Util import Lean.Meta.FunInfo import Lean.Util.FVarSubset import Lean.Meta.IntInstTesters import Lean.Meta.NatInstTesters
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18913,7 +18913,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Meta_Tactic_Grind_Canon_0__Lean_Meta_Grind_Canon_canonImpl_visit___closed__5;
 x_2 = lean_unsigned_to_nat(13u);
-x_3 = lean_unsigned_to_nat(291u);
+x_3 = lean_unsigned_to_nat(288u);
 x_4 = l___private_Lean_Meta_Tactic_Grind_Canon_0__Lean_Meta_Grind_Canon_canonImpl_visit___closed__4;
 x_5 = l___private_Lean_Meta_Tactic_Grind_Canon_0__Lean_Meta_Grind_Canon_canonImpl_visit___closed__3;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -20347,10 +20347,7 @@ return x_15;
 }
 lean_object* initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Util(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_FunInfo(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Util_FVarSubset(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Util_PtrSet(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_FVarSubset(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_IntInstTesters(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_NatInstTesters(uint8_t builtin, lean_object*);
@@ -20365,16 +20362,7 @@ lean_dec_ref(res);
 res = initialize_Init_Grind_Util(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_FunInfo(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Util_FVarSubset(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Util_PtrSet(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Util_FVarSubset(builtin, lean_io_mk_world());

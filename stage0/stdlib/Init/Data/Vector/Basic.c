@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector.Basic
-// Imports: public meta import Init.Coe public import Init.Data.Array.Lemmas public import Init.Data.Array.MapIdx public import Init.Data.Array.InsertIdx public import Init.Data.Array.Range public import Init.Data.Range public import Init.Data.Slice.Array.Iterator
+// Imports: public import Init.Data.Array.InsertIdx public import Init.Data.Array.Range public import Init.Data.Range public import Init.Data.Slice.Array.Iterator
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4803,7 +4803,7 @@ lean_ctor_set(x_6, 0, x_3);
 lean_ctor_set(x_6, 1, x_1);
 x_7 = l_Vector_swapAt_x21___redArg___closed__0;
 x_8 = l_Vector_swapAt_x21___redArg___closed__1;
-x_9 = lean_unsigned_to_nat(437u);
+x_9 = lean_unsigned_to_nat(433u);
 x_10 = lean_unsigned_to_nat(4u);
 x_11 = l_Vector_swapAt_x21___redArg___closed__2;
 x_12 = l_Nat_reprFast(x_2);
@@ -4861,7 +4861,7 @@ lean_ctor_set(x_8, 0, x_5);
 lean_ctor_set(x_8, 1, x_3);
 x_9 = l_Vector_swapAt_x21___redArg___closed__0;
 x_10 = l_Vector_swapAt_x21___redArg___closed__1;
-x_11 = lean_unsigned_to_nat(437u);
+x_11 = lean_unsigned_to_nat(433u);
 x_12 = lean_unsigned_to_nat(4u);
 x_13 = l_Vector_swapAt_x21___redArg___closed__2;
 x_14 = l_Nat_reprFast(x_4);
@@ -5112,7 +5112,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Vector_eraseIdx_x21___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(400u);
+x_3 = lean_unsigned_to_nat(397u);
 x_4 = l_Vector_eraseIdx_x21___redArg___closed__1;
 x_5 = l_Vector_eraseIdx_x21___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -5242,7 +5242,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Vector_eraseIdx_x21___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(413u);
+x_3 = lean_unsigned_to_nat(410u);
 x_4 = l_Vector_insertIdx_x21___redArg___closed__0;
 x_5 = l_Vector_eraseIdx_x21___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -8154,9 +8154,6 @@ x_8 = lean_box(x_7);
 return x_8;
 }
 }
-lean_object* initialize_Init_Coe(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_MapIdx(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_InsertIdx(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Range(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Range(uint8_t builtin, lean_object*);
@@ -8166,15 +8163,6 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin, lean
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Coe(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Array_Lemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Array_MapIdx(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Array_InsertIdx(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

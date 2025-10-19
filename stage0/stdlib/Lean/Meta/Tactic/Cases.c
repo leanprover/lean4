@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Cases
-// Imports: public import Lean.Meta.AppBuilder public import Lean.Meta.Tactic.Induction public import Lean.Meta.Tactic.Injection public import Lean.Meta.Tactic.Assert public import Lean.Meta.Tactic.Subst public import Lean.Meta.Tactic.Acyclic public import Lean.Meta.Tactic.UnifyEq
+// Imports: public import Lean.Meta.Tactic.Induction public import Lean.Meta.Tactic.Acyclic public import Lean.Meta.Tactic.UnifyEq
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16777,11 +16777,7 @@ x_5 = l_Lean_registerTraceClass(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Induction(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Injection(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Assert(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Subst(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Acyclic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_UnifyEq(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -16789,19 +16785,7 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Cases(uint8_t builtin, lean
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_AppBuilder(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Induction(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Injection(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Assert(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Subst(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Acyclic(builtin, lean_io_mk_world());

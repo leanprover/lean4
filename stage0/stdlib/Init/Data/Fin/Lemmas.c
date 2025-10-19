@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Fin.Lemmas
-// Imports: public import Init.Data.Nat.Lemmas public import Init.Ext public import Init.ByCases public import Init.Conv public import Init.Omega public import Init.Data.Order.Factories import Init.Data.Order.Lemmas
+// Imports: public import Init.Data.Nat.Lemmas public import Init.Ext import Init.Data.Order.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -719,10 +719,6 @@ return x_7;
 }
 lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Ext(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_ByCases(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Conv(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Omega(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Order_Factories(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Fin_Lemmas(uint8_t builtin, lean_object* w) {
@@ -733,18 +729,6 @@ res = initialize_Init_Data_Nat_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Ext(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_ByCases(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Conv(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Omega(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Order_Factories(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Order_Lemmas(builtin, lean_io_mk_world());

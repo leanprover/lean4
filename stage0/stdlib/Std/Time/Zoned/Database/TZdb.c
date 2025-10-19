@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Zoned.Database.TZdb
-// Imports: public import Std.Time.DateTime public import Std.Time.Zoned.TimeZone public import Std.Time.Zoned.ZoneRules public import Std.Time.Zoned.Database.Basic
+// Imports: public import Std.Time.Zoned.Database.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,11 +14,9 @@
 extern "C" {
 #endif
 lean_object* l_Std_Time_TimeZone_TZif_parse(lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_inst___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___Std_Time_Database_TZdb_idFromPath_spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_ctorIdx___boxed(lean_object*);
-uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_inst___lam__2___closed__2;
 lean_object* l_System_FilePath_join(lean_object*, lean_object*);
@@ -39,7 +37,6 @@ LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___Std_Time_Database_
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_inst;
 static lean_object* l_Std_Time_Database_TZdb_parseTZIfFromDisk___closed__2;
 static lean_object* l_Std_Time_Database_TZdb_inst___lam__2___closed__0;
-lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_idFromPath___closed__0;
 static lean_object* l_Std_Time_Database_TZdb_parseTZIfFromDisk___closed__1;
 lean_object* l_instMonadEIO(lean_object*);
@@ -48,12 +45,12 @@ static lean_object* l_Std_Time_Database_TZdb_default___closed__4;
 lean_object* l_Std_Time_TimeZone_convertTZif(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_inst___lam__0(lean_object*, lean_object*);
 lean_object* l_System_FilePath_components(lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_parseTZIfFromDisk___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_default___closed__10;
 lean_object* lean_mk_io_user_error(lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_parseTZif___closed__0;
 static lean_object* l_Std_Time_Database_TZdb_default___closed__7;
-lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_parseTZIfFromDisk(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_default;
 static lean_object* l_Std_Time_Database_TZdb_default___closed__1;
@@ -61,6 +58,7 @@ static lean_object* l_Std_Time_Database_TZdb_default___closed__8;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_localRules___closed__1;
 LEAN_EXPORT lean_object* l_IO_ofExcept___at___Std_Time_Database_TZdb_parseTZIfFromDisk_spec__0___redArg(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 static lean_object* l_Std_Time_Database_TZdb_inst___closed__0;
@@ -70,6 +68,8 @@ LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___Std_Time_Database_TZdb_
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_idFromPath(lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_default___closed__5;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_inst___lam__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_default___closed__2;
@@ -1145,24 +1145,12 @@ lean_dec_ref(x_6);
 return x_8;
 }
 }
-lean_object* initialize_Std_Time_DateTime(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Time_Zoned_TimeZone(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Time_Zoned_ZoneRules(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time_Zoned_Database_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Time_Zoned_Database_TZdb(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Time_DateTime(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Time_Zoned_TimeZone(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Time_Zoned_ZoneRules(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Std_Time_Zoned_Database_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

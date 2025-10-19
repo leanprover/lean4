@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sync.Notify
-// Imports: public import Init.System.Promise public import Init.Data.Queue public import Std.Sync.Mutex public import Std.Internal.Async.Select
+// Imports: public import Init.Data.Queue public import Std.Sync.Mutex public import Std.Internal.Async.Select
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2280,7 +2280,6 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* initialize_Init_System_Promise(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Queue(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Sync_Mutex(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Internal_Async_Select(uint8_t builtin, lean_object*);
@@ -2289,9 +2288,6 @@ LEAN_EXPORT lean_object* initialize_Std_Sync_Notify(uint8_t builtin, lean_object
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_System_Promise(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Queue(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

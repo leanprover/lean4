@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Polymorphic.Nat
-// Imports: import Init.Data.Nat.Lemmas public import Init.Data.Nat.Order public import Init.Data.Range.Polymorphic.Instances public import Init.Data.Order.Classes public import Init.Data.Order.Lemmas
+// Imports: import Init.Data.Nat.Lemmas public import Init.Data.Nat.Order public import Init.Data.Range.Polymorphic.Instances public import Init.Data.Order.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -768,7 +768,6 @@ return x_3;
 lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Order(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Range_Polymorphic_Instances(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Order_Classes(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Range_Polymorphic_Nat(uint8_t builtin, lean_object* w) {
@@ -782,9 +781,6 @@ res = initialize_Init_Data_Nat_Order(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Range_Polymorphic_Instances(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Order_Classes(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Order_Lemmas(builtin, lean_io_mk_world());

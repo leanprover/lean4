@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Position
-// Imports: public import Lean.Data.Format public import Lean.Data.Json.FromToJson.Basic public import Lean.ToExpr
+// Imports: public import Lean.Data.Json.FromToJson.Basic public import Lean.ToExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,7 +19,6 @@ static lean_object* l_Lean_instReprPosition_repr___redArg___closed__17;
 static lean_object* l_Lean_Position_instToExpr___closed__0;
 lean_object* l_Lean_mkNatLit(lean_object*);
 static lean_object* l_Lean_instFromJsonPosition_fromJson___closed__2;
-uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 static lean_object* l_Lean_FileMap_ofString___closed__1;
 static lean_object* l_Lean_Position_lt___closed__0;
 static lean_object* l_Lean_instReprPosition_repr___redArg___closed__14;
@@ -71,7 +70,6 @@ static lean_object* l_Lean_instFromJsonPosition_fromJson___closed__3;
 static lean_object* l_Lean_instFromJsonPosition_fromJson___closed__5;
 static lean_object* l_Lean_instFromJsonPosition_fromJson___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Position_instToString;
-lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 static lean_object* l_Lean_instToJsonPosition_toJson___closed__0;
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Array_empty(lean_object*);
@@ -89,7 +87,6 @@ LEAN_EXPORT uint8_t l_Lean_instDecidableEqPosition_decEq(lean_object*, lean_obje
 lean_object* l_Array_back_x3f___redArg(lean_object*);
 static lean_object* l_Lean_Position_instToFormat___lam__0___closed__3;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
-uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedFileMap;
 LEAN_EXPORT lean_object* l_Lean_FileMap_lineStart(lean_object*, lean_object*);
 static lean_object* l_Lean_Position_instToExpr___lam__0___closed__3;
@@ -102,6 +99,7 @@ LEAN_EXPORT lean_object* l_Lean_instInhabitedPosition_default;
 static lean_object* l_Lean_instInhabitedFileMap_default___closed__0;
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Position_instToExpr___lam__0(lean_object*);
+uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 uint8_t l_Prod_lexLtDec___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Position_0__Lean_FileMap_toPosition_toColumn(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(lean_object*, uint8_t);
@@ -120,6 +118,7 @@ LEAN_EXPORT lean_object* l_Lean_FileMap_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_getLastLine(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_instReprPosition_repr___redArg___closed__16;
+uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 static lean_object* l_Lean_instReprPosition_repr___redArg___closed__2;
@@ -131,6 +130,7 @@ static lean_object* l_Lean_Position_instToExpr___lam__0___closed__2;
 static lean_object* l_Lean_Position_instToFormat___lam__0___closed__5;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getNat_x3f(lean_object*);
+lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 static lean_object* l_Lean_instFromJsonPosition_fromJson___closed__7;
 static lean_object* l_Lean_instFromJsonPosition_fromJson___closed__0;
 static lean_object* l_Lean_instFromJsonPosition_fromJson___closed__8;
@@ -1964,7 +1964,6 @@ x_2 = l_Lean_FileMap_ofString(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Lean_Data_Format(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json_FromToJson_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_ToExpr(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -1972,9 +1971,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Data_Position(uint8_t builtin, lean_obj
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Data_Format(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Data_Json_FromToJson_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -13,11 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint32_t lean_string_utf8_get(lean_object*, lean_object*);
-lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instStreamSubstringChar___lam__0(lean_object*);
+uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instStreamSubstringChar;
+lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instStreamSubstringChar___lam__0(lean_object* x_1) {
 _start:
 {

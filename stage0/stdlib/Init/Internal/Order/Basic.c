@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Internal.Order.Basic
-// Imports: public import Init.ByCases public import Init.RCases public import Init.Control.Except public import Init.Control.StateRef public import Init.Control.Option public import Init.System.IO import all Init.Control.Except import all Init.Control.StateRef import all Init.Control.Option import all Init.System.IO
+// Imports: public import Init.System.IO import all Init.Control.Except import all Init.Control.StateRef import all Init.Control.Option import all Init.System.IO
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1493,11 +1493,6 @@ return x_9;
 }
 }
 }
-lean_object* initialize_Init_ByCases(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_RCases(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Control_Except(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Control_StateRef(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Control_Option(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Control_Except(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Control_StateRef(uint8_t builtin, lean_object*);
@@ -1508,21 +1503,6 @@ LEAN_EXPORT lean_object* initialize_Init_Internal_Order_Basic(uint8_t builtin, l
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_ByCases(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_RCases(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_Except(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_StateRef(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_Option(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_System_IO(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

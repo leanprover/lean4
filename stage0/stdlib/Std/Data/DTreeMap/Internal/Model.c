@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DTreeMap.Internal.Model
-// Imports: public import Std.Data.DTreeMap.Internal.WF.Defs public import Std.Data.DTreeMap.Internal.Cell public import Std.Data.Internal.Cut
+// Imports: public import Std.Data.DTreeMap.Internal.WF.Defs public import Std.Data.DTreeMap.Internal.Cell
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1405,7 +1405,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_get_x21_u2098___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(23u);
+x_3 = lean_unsigned_to_nat(22u);
 x_4 = l_Std_DTreeMap_Internal_Impl_get_x21_u2098___redArg___closed__1;
 x_5 = l_Std_DTreeMap_Internal_Impl_get_x21_u2098___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -5487,7 +5487,6 @@ return x_11;
 }
 lean_object* initialize_Std_Data_DTreeMap_Internal_WF_Defs(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_DTreeMap_Internal_Cell(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_Internal_Cut(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_DTreeMap_Internal_Model(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -5497,9 +5496,6 @@ res = initialize_Std_Data_DTreeMap_Internal_WF_Defs(builtin, lean_io_mk_world())
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_DTreeMap_Internal_Cell(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Data_Internal_Cut(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_DTreeMap_Internal_Impl_explore___redArg___closed__0 = _init_l_Std_DTreeMap_Internal_Impl_explore___redArg___closed__0();

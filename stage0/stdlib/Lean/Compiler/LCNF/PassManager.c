@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.PassManager
-// Imports: public import Lean.Attributes public import Lean.Environment public import Lean.Meta.Basic public import Lean.Compiler.LCNF.CompilerM
+// Imports: public import Lean.Compiler.LCNF.CompilerM
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2388,7 +2388,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_Rxc_Iterator_instIteratorLoop_loop___at___Std_Rxc_Iterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_PassInstaller_withEachOccurrence_spec__1_spec__1___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(8u);
-x_3 = lean_unsigned_to_nat(151u);
+x_3 = lean_unsigned_to_nat(148u);
 x_4 = l_Std_Rxc_Iterator_instIteratorLoop_loop___at___Std_Rxc_Iterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_PassInstaller_withEachOccurrence_spec__1_spec__1___redArg___closed__1;
 x_5 = l_Std_Rxc_Iterator_instIteratorLoop_loop___at___Std_Rxc_Iterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_PassInstaller_withEachOccurrence_spec__1_spec__1___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3991,24 +3991,12 @@ return x_24;
 }
 }
 }
-lean_object* initialize_Lean_Attributes(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Environment(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_CompilerM(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_PassManager(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Attributes(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Environment(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_CompilerM(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

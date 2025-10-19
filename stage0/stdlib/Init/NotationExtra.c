@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.NotationExtra
-// Imports: public import Init.Data.ToString.Basic public import Init.Conv public import Init.Meta public import Init.While public meta import Init.Data.Option.Basic
+// Imports: public import Init.Conv public import Init.Meta public import Init.While
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16468,19 +16468,14 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* initialize_Init_Data_ToString_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Conv(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Meta(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_While(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Option_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_NotationExtra(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_ToString_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Conv(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -16488,9 +16483,6 @@ res = initialize_Init_Meta(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_While(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Option_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_unbracketedExplicitBinders___closed__0 = _init_l_Lean_unbracketedExplicitBinders___closed__0();

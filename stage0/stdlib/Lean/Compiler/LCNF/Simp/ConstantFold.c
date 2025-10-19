@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.Simp.ConstantFold
-// Imports: public import Init.Data.UInt.Log2 public import Lean.Compiler.LCNF.CompilerM public import Lean.Compiler.LCNF.InferType public import Lean.Compiler.LCNF.PassManager
+// Imports: public import Init.Data.UInt.Log2 public import Lean.Compiler.LCNF.InferType
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -52746,9 +52746,7 @@ return x_10;
 }
 }
 lean_object* initialize_Init_Data_UInt_Log2(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_LCNF_CompilerM(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_InferType(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_LCNF_PassManager(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_Simp_ConstantFold(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -52757,13 +52755,7 @@ _G_initialized = true;
 res = initialize_Init_Data_UInt_Log2(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_CompilerM(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_InferType(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_PassManager(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Compiler_LCNF_Simp_ConstantFold_instLiteralNat___closed__0 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_instLiteralNat___closed__0();

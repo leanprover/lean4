@@ -24,7 +24,6 @@ public import Lean.Meta.Tactic.Grind.Ctor
 public import Lean.Meta.Tactic.Grind.Parser
 public import Lean.Meta.Tactic.Grind.EMatchTheorem
 public import Lean.Meta.Tactic.Grind.EMatch
-public import Lean.Meta.Tactic.Grind.EMatchAction
 public import Lean.Meta.Tactic.Grind.Main
 public import Lean.Meta.Tactic.Grind.CasesMatch
 public import Lean.Meta.Tactic.Grind.Arith
@@ -44,9 +43,8 @@ public import Lean.Meta.Tactic.Grind.PropagateInj
 public import Lean.Meta.Tactic.Grind.Order
 public import Lean.Meta.Tactic.Grind.Anchor
 public import Lean.Meta.Tactic.Grind.Action
-
+public import Lean.Meta.Tactic.Grind.EMatchAction
 public section
-
 namespace Lean
 
 /-! Trace options for `grind` users -/

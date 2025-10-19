@@ -6,15 +6,20 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Action
+public import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.EMatch
+public section
 namespace Lean.Meta.Grind.Action
 
-def Action.instantiate : Action := fun goal kna kp => do
+def instantiate' : Action := fun goal kna kp => do
   let (progress, goal') ← GoalM.run goal ematch
   -- **TODO**: filter relevant instances
   if progress then
     concatTactic (← kp goal') `(grind| instantiate)
   else
     kna goal
+
+def instantiate : Action :=
+  instantiate' >> assertAll
 
 end Lean.Meta.Grind.Action

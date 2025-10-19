@@ -53,6 +53,5 @@ builtin_initialize
     (check       := Cutsat.check)
     (checkInv    := Cutsat.checkInvariants)
     (mbtc        := Cutsat.mbtc)
-    (mkTactic?   := return some (← `(grind| lia)))
 
 end Lean.Meta.Grind.Arith.Cutsat

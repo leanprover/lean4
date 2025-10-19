@@ -52,6 +52,5 @@ builtin_initialize
     (check       := Linear.check)
     (checkInv    := Linear.checkInvariants)
     (mbtc        := Linear.mbtc)
-    (mkTactic?   := return some (← `(grind| linarith)))
 
 end Lean.Meta.Grind.Arith.Linear

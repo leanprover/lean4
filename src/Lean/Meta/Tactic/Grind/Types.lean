@@ -1544,7 +1544,6 @@ structure SolverExtension (σ : Type) where private mk ::
   action      : Action
   check       : GoalM Bool -- **TODO**: Consider deleting `check` in the future.
   checkInv    : GoalM Unit
-  mkTactic?   : CoreM (Option (TSyntax `grind))
   deriving Inhabited
 
 private builtin_initialize solverExtensionsRef : IO.Ref (Array (SolverExtension SolverExtensionState)) ← IO.mkRef #[]
@@ -1568,7 +1567,6 @@ def registerSolverExtension {σ : Type} (mkInitial : IO σ) : IO (SolverExtensio
     check := fun _ _ => return false
     checkInv := fun _ _ => return ()
     mbtc := fun _ _ => return false
-    mkTactic? := return none
   }
   solverExtensionsRef.modify fun exts => exts.push (unsafe unsafeCast ext)
   return ext
@@ -1586,14 +1584,13 @@ def SolverExtension.setMethods (ext : SolverExtension σ)
     (action      : Action := Action.notApplicable)
     (check       : GoalM Bool := return false)
     (checkInv    : GoalM Unit := return ())
-    (mkTactic?   : CoreM (Option (TSyntax `grind)) := return none)
     : IO Unit := do
   unless (← initializing) do
     throw (IO.userError "failed to register `grind` solver, extensions can only be registered during initialization")
   unless ext.id < (← solverExtensionsRef.get).size do
     throw (IO.userError "failed to register `grind` solver methods, invalid solver id")
   solverExtensionsRef.modify fun exts => exts.modify ext.id fun s => { s with
-    internalize, newEq, newDiseq, mbtc, action, check, checkInv, mkTactic?
+    internalize, newEq, newDiseq, mbtc, action, check, checkInv
   }
 
 /-- Returns initial state for registered solvers. -/

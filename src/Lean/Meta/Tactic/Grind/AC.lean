@@ -40,6 +40,5 @@ builtin_initialize
     (action      := Action.ac)
     (check       := AC.check')
     (checkInv    := AC.checkInvariants)
-    (mkTactic?   := return some (← `(grind| ac)))
 
 end Lean.Meta.Grind.AC

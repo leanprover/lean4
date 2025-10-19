@@ -56,6 +56,5 @@ builtin_initialize
     (action      := Action.ring)
     (check       := CommRing.check')
     (checkInv    := CommRing.checkInvariants)
-    (mkTactic?   := return some (← `(grind| ring)))
 
 end Lean.Meta.Grind.Arith.CommRing

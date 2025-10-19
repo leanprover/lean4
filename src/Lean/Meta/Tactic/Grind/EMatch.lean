@@ -71,7 +71,7 @@ structure Context where
 A mapping `uniqueId ↦ thm`, where `uniqueId` is an auxiliary marker used to wrap a theorem instantiation proof of `thm`
 using a `Expr.mdata`. The `uniqueId`s are created using `mkFreshId`.
 -/
-abbrev InstanceProofMap := Std.HashMap Name EMatchTheorem
+abbrev InstanceMap := Std.HashMap Name EMatchTheorem
 
 private def thmInstanceKey := `_grind_thm_instance
 
@@ -92,11 +92,9 @@ structure SearchState where
   /-- Choices that still have to be processed. -/
   choiceStack  : List Choice := []
   /--
-  When tracing is enabled, entries of the form `proof ↦ thm` are stored in `instancesMap`.
-  This mapping is later used to determine which theorem instantiations were actually
-  used in the final proof term. Here, `proof` refers to the proof of the theorem instantiation.
+  When tracing is enabled track instances here. See comment at `InstanceMap`
   -/
-  instanceProofMap : InstanceProofMap := {}
+  instanceMap : InstanceMap := {}
   deriving Inhabited
 
 abbrev M := ReaderT Context $ StateRefT SearchState GoalM
@@ -485,7 +483,7 @@ where
     if (← getConfig).trace then
       let uniqueId ← mkFreshId
       proof := markTheoremInstanceProof proof uniqueId
-      modify fun s => { s with instanceProofMap := s.instanceProofMap.insert uniqueId thm }
+      modify fun s => { s with instanceMap := s.instanceMap.insert uniqueId thm }
     if (← isMatchEqLikeDeclName thm.origin.key) then
       prop ← annotateMatchEqnType prop (← read).initApp
       -- We must add a hint here because `annotateMatchEqnType` introduces `simpMatchDiscrsOnly` and
@@ -739,7 +737,7 @@ end EMatch
 open EMatch
 
 /-- Performs one round of E-matching, and returns new instances. -/
-private def ematchCore (extraThms : Array EMatchTheorem) : GoalM InstanceProofMap := do profileitM Exception "grind ematch" (← getOptions) do
+private def ematchCore (extraThms : Array EMatchTheorem) : GoalM InstanceMap := do profileitM Exception "grind ematch" (← getOptions) do
   let go (thms newThms : PArray EMatchTheorem) : EMatch.M Unit := do
     withReader (fun ctx => { ctx with useMT := true }) <| ematchTheorems thms
     withReader (fun ctx => { ctx with useMT := false }) do
@@ -755,13 +753,13 @@ private def ematchCore (extraThms : Array EMatchTheorem) : GoalM InstanceProofMa
       ematch.gmt       := s.ematch.gmt + 1
       ematch.num       := s.ematch.num + 1
     }
-    return s.instanceProofMap
+    return s.instanceMap
 
 /--
 Performs one round of E-matching, and returns `true` if new instances were generated.
 Recall that the mapping is nonempty only if tracing is enabled.
 -/
-def ematch' (extraThms : Array EMatchTheorem := #[]) : GoalM (Bool × InstanceProofMap) := do
+def ematch' (extraThms : Array EMatchTheorem := #[]) : GoalM (Bool × InstanceMap) := do
   let numInstances := (← get).ematch.numInstances
   let map ← ematchCore extraThms
   return ((← get).ematch.numInstances != numInstances, map)

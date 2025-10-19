@@ -66,8 +66,12 @@ syntax (name := «sorry») "sorry" : grind
 syntax anchor := "#" noWs hexnum
 syntax thm := anchor <|> grindLemma <|> grindLemmaMin
 
-/-- Instantiates theorems using E-matching. -/
-syntax (name := instantiate) "instantiate" (&" only")? (" [" withoutPosition(thm,*,?) "]")? : grind
+/--
+Instantiates theorems using E-matching.
+The `approx` modifier is just a marker for users to easily identify automatically generated `instantiate` tactics
+that may have redundant arguments.
+-/
+syntax (name := instantiate) "instantiate" (&" only")? (&" approx")? (" [" withoutPosition(thm,*,?) "]")? : grind
 
 -- **Note**: Should we rename the following tactics to `trace_`?
 /-- Shows asserted facts. -/

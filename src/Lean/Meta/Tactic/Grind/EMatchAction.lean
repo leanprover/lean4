@@ -16,7 +16,7 @@ structure CollectState where
   collectedThms : Std.HashSet (Origin × EMatchTheoremKind) := {}
   thms          : Array EMatchTheorem := #[]
 
-def collect (e : Expr) (map : EMatch.InstanceProofMap) : Array EMatchTheorem :=
+def collect (e : Expr) (map : EMatch.InstanceMap) : Array EMatchTheorem :=
   let (_, s) := go e |>.run {}
   s.thms
 where
@@ -41,7 +41,7 @@ where
 /--
 Creates an `instantiate` tactic that takes the `usedThms` as parameters.
 -/
-def mkInstantiateTactic (goal : Goal) (usedThms : Array EMatchTheorem) : GrindM TGrind := goal.withContext do
+def mkInstantiateTactic (goal : Goal) (usedThms : Array EMatchTheorem) (approx : Bool) : GrindM TGrind := goal.withContext do
   let numDigits ← getNumDigitsForLocalTheoremAnchors goal
   let mut params : Array (TSyntax ``Parser.Tactic.Grind.thm) := #[]
   let mut foundFns : NameSet := {}
@@ -63,10 +63,20 @@ def mkInstantiateTactic (goal : Goal) (usedThms : Array EMatchTheorem) : GrindM 
         let anchor ← getAnchor (← inferType thm.proof)
         let param ← `(Parser.Tactic.Grind.thm| $(← mkAnchorSyntax numDigits anchor):anchor)
         params := params.push param
-  if params.isEmpty then
-    `(grind| instantiate only)
+  match params.isEmpty, approx with
+  | true,  false => `(grind| instantiate only)
+  | false, false => `(grind| instantiate only [$params,*])
+  | true,  true  => `(grind| instantiate approx)
+  | false, true  => `(grind| instantiate approx [$params,*])
+
+def mkNewSeq (goal : Goal) (thms : Array EMatchTheorem) (seq : List TGrind) (approx : Bool) : GrindM (List TGrind) := do
+  if thms.isEmpty then
+    return seq
   else
-    `(grind| instantiate only [$params,*])
+    return ((← mkInstantiateTactic goal thms approx) :: seq)
+
+def getAllTheorems (map : EMatch.InstanceMap) : Array EMatchTheorem :=
+  map.toArray.map (·.2)
 
 public def instantiate' : Action := fun goal kna kp => do
   let s ← saveStateIfTracing
@@ -77,15 +87,13 @@ public def instantiate' : Action := fun goal kna kp => do
       if (← getConfig).trace then
         let proof ← instantiateMVars (mkMVar goal.mvarId)
         let usedThms := collect proof map
-        let newSeq ← if usedThms.isEmpty then
-          pure seq
-        else
-          pure ((← mkInstantiateTactic goal usedThms) :: seq)
+        let newSeq ← mkNewSeq goal usedThms seq (approx := false)
         if (← checkSeqAt s goal newSeq) then
           return .closed newSeq
         else
-          let tac ← `(grind| instantiate)
-          return .closed (tac :: seq)
+          let allThms := getAllTheorems map
+          let newSeq ← mkNewSeq goal allThms seq (approx := true)
+          return .closed newSeq
       else
         return .closed []
     | r => return r

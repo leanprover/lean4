@@ -1655,6 +1655,31 @@ def Solvers.mbtc : GoalM Bool := do
   return result
 
 /--
+Sequential conjunction: executes both `x` and `y`.
+
+- Runs `x` and always runs `y` afterward, regardless of whether `x` made progress.
+- It is not applicable only if both `x` and `y` are not applicable.
+-/
+def Action.andAlso (x y : Action) : Action := fun goal kna kp => do
+  x goal (fun goal => y goal kna kp) (fun goal => y goal kp kp)
+
+/-
+Creates an action that tries all solver extensions. It uses the `Action.andAlso`
+to combine them.
+-/
+def Solvers.mkAction : IO Action := do
+  let exts ← solverExtensionsRef.get
+  let rec go (i : Nat) (acc : Action) : Action :=
+    if h : i < exts.size then
+      go (i+1) (acc.andAlso exts[i].action)
+    else
+      acc
+  if h : 0 < exts.size then
+    return go 1 exts[0].action
+  else
+    return Action.notApplicable
+
+/--
 Given a new disequality `lhs ≠ rhs`, propagates it to relevant theories.
 -/
 def Solvers.propagateDiseqs (lhs rhs : Expr) : GoalM Unit := do

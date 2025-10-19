@@ -112,15 +112,6 @@ instance : OrElse Action where
   orElse x y := Action.orElse x (y ())
 
 /--
-Sequential conjunction: executes both `x` and `y`.
-
-- Runs `x` and always runs `y` afterward, regardless of whether `x` made progress.
-- It is not applicable only if both `x` and `y` are not applicable.
--/
-protected def andAlso (x y : Action) : Action := fun goal kna kp => do
-  x goal (fun goal => y goal kna kp) (fun goal => y goal kp kp)
-
-/--
 Repeats `x` up to `n` times while it remains applicable.
 -/
 def loop (n : Nat) (x : Action) : Action := fun goal _ kp =>

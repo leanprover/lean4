@@ -24,6 +24,7 @@ public import Lean.Meta.Tactic.Grind.Ctor
 public import Lean.Meta.Tactic.Grind.Parser
 public import Lean.Meta.Tactic.Grind.EMatchTheorem
 public import Lean.Meta.Tactic.Grind.EMatch
+public import Lean.Meta.Tactic.Grind.EMatchAction
 public import Lean.Meta.Tactic.Grind.Main
 public import Lean.Meta.Tactic.Grind.CasesMatch
 public import Lean.Meta.Tactic.Grind.Arith

@@ -100,6 +100,9 @@ syntax (name := done) "done" : grind
 /-- `finish` tries to close the current goal using `grind`'s default strategy -/
 syntax (name := finish) "finish" : grind
 
+/-- `finish?` tries to close the current goal using `grind`'s default strategy and suggests a tactic script. -/
+syntax (name := finishTrace) "finish?" : grind
+
 syntax (name := «have») "have" letDecl : grind
 
 /-- Executes the given tactic block to close the current goal. -/

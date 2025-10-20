@@ -189,5 +189,10 @@ generated `grind` tactic scripts.
 -/
 syntax (name := exposeNames) "expose_names" : grind
 
+/--
+`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,
+but it sets the option only within the tactics `tacs`. -/
+syntax (name := setOption) "set_option " ident ppSpace optionValue " in " grindSeq : grind
+
 end Grind
 end Lean.Parser.Tactic

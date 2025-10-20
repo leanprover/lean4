@@ -25,6 +25,7 @@ import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.RenameInaccessibles
 import Lean.Elab.Tactic.Grind.Filter
 import Lean.Elab.Tactic.Grind.ShowState
+import Lean.Elab.SetOption
 namespace Lean.Elab.Tactic.Grind
 
 def showStateAt (ref : Syntax) (filter : Filter) : GrindTacticM Unit := do
@@ -423,5 +424,9 @@ where
   let mvarId ← goal.mvarId.exposeNames
   liftGrindM <| resetAnchors
   replaceMainGoal [{ goal with mvarId }]
+
+@[builtin_grind_tactic setOption] def elabSetOption : GrindTactic := fun stx => do
+  let options ← Elab.elabSetOption stx[1] stx[2]
+  withOptions (fun _ => options) do evalGrindTactic stx[4]
 
 end Lean.Elab.Tactic.Grind

@@ -431,6 +431,25 @@ example (as bs cs : Array α) (v₁ v₂ : α)
   grind =>
     repeat instantiate only [= Array.getElem_set]
 
+/--
+trace: [grind.ematch.instance] Array.getElem_set: (as.set i₁ v₁ ⋯)[j] = if i₁ = j then v₁ else as[j]
+-/
+#guard_msgs in
+example (as bs cs : Array α) (v₁ v₂ : α)
+        (i₁ i₂ j : Nat)
+        (h₁ : i₁ < as.size)
+        (h₂ : bs = as.set i₁ v₁)
+        (h₃ : i₂ < bs.size)
+        (h₃ : cs = bs.set i₂ v₂)
+        (h₄ : i₁ ≠ j ∧ i₂ ≠ j)
+        (h₅ : j < cs.size)
+        (h₆ : j < as.size)
+        : cs[j] = as[j] := by
+  grind =>
+    instantiate
+    set_option trace.grind.ematch.instance true in
+    instantiate
+
 opaque p : Nat → Prop
 opaque q : Nat → Prop
 opaque f : Nat → Nat

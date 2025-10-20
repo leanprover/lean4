@@ -56,7 +56,7 @@ structure Config where
   /--
   The maximum number of suggestions to return.
   -/
-  maxSuggestions? : Option Nat := none
+  maxSuggestions : Nat := 100
   /--
   The tactic that is calling the premise selection, e.g. `simp`, `grind`, or `aesop`.
   This may be used to adjust the score of the suggestions
@@ -78,9 +78,6 @@ structure Config where
   We may later split these use cases into separate fields if necessary.
   -/
   hint : Option String := none
-
-def Config.maxSuggestions (c : Config) : Nat :=
-  c.maxSuggestions?.getD 100
 
 abbrev Selector : Type := MVarId → Config → MetaM (Array Suggestion)
 
@@ -109,9 +106,7 @@ the `maxSuggestions` field in `Config` is respected, post-hoc.
 -/
 def maxSuggestions (selector : Selector) : Selector := fun g c => do
   let suggestions ← selector g c
-  match c.maxSuggestions? with
-  | none => return suggestions
-  | some max => return suggestions.take max
+  return suggestions.take c.maxSuggestions
 
 /-- Combine two premise selectors, returning the best suggestions. -/
 def combine (selector₁ : Selector) (selector₂ : Selector) : Selector := fun g c => do
@@ -129,9 +124,7 @@ def combine (selector₁ : Selector) (selector₂ : Selector) : Selector := fun 
   let deduped := dedupMap.valuesArray
   let sorted := deduped.qsort (fun s₁ s₂ => s₁.score > s₂.score)
 
-  match c.maxSuggestions? with
-  | none => return sorted
-  | some max => return sorted.take max
+  return sorted.take c.maxSuggestions
 
 end Selector
 

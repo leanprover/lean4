@@ -24,9 +24,10 @@ namespace Lean.PremiseSelection.MePo
 
 def symbolFrequency (env : Environment) : NameMap Nat := Id.run do
   let mut map := {}
-  for (_, ci) in env.constants do
-    for n' in ci.type.getUsedConstantsAsSet do
-      map := map.alter n' fun i? => some (i?.getD 0 + 1)
+  for (n, ci) in env.constants do
+    if !isDeniedPremise env n then
+      map := ci.type.foldConsts map fun n' map =>
+        map.alter n' fun i? => some (i?.getD 0 + 1)
   return map
 
 def weightedScore (weight : Name → Float) (relevant candidate : NameSet) : Float :=
@@ -44,7 +45,8 @@ def frequencyScore (frequency : Name → Nat) (relevant candidate : NameSet) : F
 
 def unweightedScore (relevant candidate : NameSet) : Float := weightedScore (fun _ => 1) relevant candidate
 
-def mepo (initialRelevant : NameSet) (score : NameSet → NameSet → Float) (accept : ConstantInfo → CoreM Bool) (p : Float) (c : Float) : CoreM (Array (Name × Float)) := do
+def mepo (initialRelevant : NameSet) (score : NameSet → NameSet → Float) (accept : ConstantInfo → CoreM Bool)
+    (maxSuggestions : Nat) (p : Float) (c : Float) : CoreM (Array (Name × Float)) := do
   let env ← getEnv
   let mut p := p
   let mut candidates := #[]
@@ -53,7 +55,7 @@ def mepo (initialRelevant : NameSet) (score : NameSet → NameSet → Float) (ac
   for (n, ci) in env.constants do
     if ← accept ci then
       candidates := candidates.push (n, ci.type.getUsedConstantsAsSet)
-  while candidates.size > 0 do
+  while candidates.size > 0 && accepted.size < maxSuggestions do
     let (newAccepted, candidates') := candidates.map (fun (n, c) => (n, c, score relevant c)) |>.partition fun (_, _, s) => p ≤ s
     if newAccepted.isEmpty then return accepted
     accepted := newAccepted.foldl (fun acc (n, _, s) => acc.push (n, s)) accepted
@@ -84,10 +86,8 @@ public def mepoSelector (useRarity : Bool) (p : Float := 0.6) (c : Float := 2.4)
   else
     unweightedScore
   let accept := fun ci => return !isDeniedPremise env ci.name
-  let suggestions ← mepo constants score accept p c
+  let suggestions ← mepo constants score accept config.maxSuggestions p c
   let suggestions := suggestions
     |>.map (fun (n, s) => { name := n, score := s })
     |>.reverse  -- we favor constants that appear at the end of `env.constants`
-  match config.maxSuggestions? with
-  | none => return suggestions
-  | some k => return suggestions.take k
+  return suggestions.take config.maxSuggestions

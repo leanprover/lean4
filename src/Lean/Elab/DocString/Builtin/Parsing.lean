@@ -25,7 +25,7 @@ def parseStrLit (p : ParserFn) (s : StrLit) : m Syntax := do
   let text ← getFileMap
   let env ← getEnv
   let ⟨pos, endPos⟩ ← strLitRange s
-  let endPos := if endPos ≤ text.source.endPos then endPos else text.source.endPos
+  let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
   let ictx :=
     mkInputContext text.source (← getFileName)
       (endPos := endPos) (endPos_valid := by simp only [endPos]; split <;> simp [*])
@@ -101,7 +101,7 @@ def parseStrLit' (p : ParserFn) (s : StrLit) : m (Syntax × Bool) := do
   let text ← getFileMap
   let env ← getEnv
   let endPos := s.raw.getTailPos? true |>.get!
-  let endPos := if endPos ≤ text.source.endPos then endPos else text.source.endPos
+  let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
   let ictx :=
     mkInputContext text.source (← getFileName)
       (endPos := endPos) (endPos_valid := by simp only [endPos]; split <;> simp [*])

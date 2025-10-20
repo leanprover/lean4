@@ -57,7 +57,7 @@ public def ofFilePath? (path : FilePath) : Except String ArtifactDescr := do
   else
     let some hash := Hash.ofString? <| String.Pos.Raw.extract s 0 pos
       | throw "expected artifact file name to be a content hash"
-    let ext := String.Pos.Raw.extract s (pos.next' s h) s.endPos
+    let ext := String.Pos.Raw.extract s (pos.next' s h) s.rawEndPos
     return {hash, ext}
 
 public protected def fromJson? (data : Json) : Except String ArtifactDescr := do

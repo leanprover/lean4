@@ -61,13 +61,13 @@ public partial def parse (inputName : String) (contents : String) : LoggerIO Cac
       return cache
     else
       loop (i+1) cache stopPos (lfPos.next' contents h)
-  let lfPos := contents.posOfAux '\n' contents.endPos 0
+  let lfPos := contents.posOfAux '\n' contents.rawEndPos 0
   let line := String.Pos.Raw.extract contents 0 lfPos
   checkSchemaVersion inputName line.trim
   if h : lfPos.atEnd contents then
     return {}
   else
-    loop 2 {} contents.endPos (lfPos.next' contents h)
+    loop 2 {} contents.rawEndPos (lfPos.next' contents h)
 
 @[inline] private partial def loadCore
   (h : IO.FS.Handle) (fileName : String)

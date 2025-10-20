@@ -3441,7 +3441,7 @@ Character positions (counting the Unicode code points rather than bytes) are rep
 `Nat`s. Indexing a `String` by a `String.Pos.Raw` takes constant time, while character positions need to
 be translated internally to byte positions, which takes linear time.
 
-A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.endPos` and `p` lies on a UTF-8
+A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.rawEndPos` and `p` lies on a UTF-8
 character boundary, see `String.Pos.IsValid`.
 
 There is another type, `String.ValidPos`, which bundles the validity predicate. Using `String.ValidPos`
@@ -3501,8 +3501,8 @@ def String.utf8ByteSize (s : @& String) : Nat :=
 /--
 A UTF-8 byte position that points at the end of a string, just after the last character.
 
-* `"abc".endPos = ⟨3⟩`
-* `"L∃∀N".endPos = ⟨8⟩`
+* `"abc".rawEndPos = ⟨3⟩`
+* `"L∃∀N".rawEndPos = ⟨8⟩`
 -/
 @[inline] def String.rawEndPos (s : String) : String.Pos.Raw where
   byteIdx := utf8ByteSize s
@@ -4718,7 +4718,7 @@ inductive SourceInfo where
   The `leading` whitespace is inferred after parsing by `Syntax.updateLeading`. This is because the
   “preceding token” is not well-defined during parsing, especially in the presence of backtracking.
   -/
-  | original (leading : Substring) (pos : String.Pos.Raw) (trailing : Substring) (endPos : String.Pos.Raw)
+  | original (leading : Substring) (pos : String.Pos.Raw) (trailing : Substring) (rawEndPos : String.Pos.Raw)
   /--
   Synthetic syntax is syntax that was produced by a metaprogram or by Lean itself (e.g. by a
   quotation). Synthetic syntax is annotated with a source span from the original syntax, which
@@ -4742,7 +4742,7 @@ inductive SourceInfo where
   ```
   In these cases, if the user hovers over `h` they will see information about both binding sites.
   -/
-  | synthetic (pos : String.Pos.Raw) (endPos : String.Pos.Raw) (canonical := false)
+  | synthetic (pos : String.Pos.Raw) (rawEndPos : String.Pos.Raw) (canonical := false)
   /-- A synthesized token without position information. -/
   | protected none
 
@@ -4769,9 +4769,9 @@ will also return `none`.
 -/
 def getTailPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos.Raw :=
   match info, canonicalOnly with
-  | original (endPos := endPos) ..,  _
-  | synthetic (endPos := endPos) (canonical := true) .., _
-  | synthetic (endPos := endPos) .., false => some endPos
+  | original (rawEndPos := rawEndPos) ..,  _
+  | synthetic (rawEndPos := rawEndPos) (canonical := true) .., _
+  | synthetic (rawEndPos := rawEndPos) .., false => some rawEndPos
   | _,                               _     => none
 
 /--
@@ -5152,15 +5152,15 @@ position information.
 -/
 partial def getTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.Pos.Raw :=
   match stx, canonicalOnly with
-  | atom (SourceInfo.original (endPos := pos) ..) .., _
-  | atom (SourceInfo.synthetic (endPos := pos) (canonical := true) ..) _, _
-  | atom (SourceInfo.synthetic (endPos := pos) ..) _,  false
-  | ident (SourceInfo.original (endPos := pos) ..) .., _
-  | ident (SourceInfo.synthetic (endPos := pos) (canonical := true) ..) .., _
-  | ident (SourceInfo.synthetic (endPos := pos) ..) .., false
-  | node (SourceInfo.original (endPos := pos) ..) .., _
-  | node (SourceInfo.synthetic (endPos := pos) (canonical := true) ..) .., _
-  | node (SourceInfo.synthetic (endPos := pos) ..) .., false => some pos
+  | atom (SourceInfo.original (rawEndPos := pos) ..) .., _
+  | atom (SourceInfo.synthetic (rawEndPos := pos) (canonical := true) ..) _, _
+  | atom (SourceInfo.synthetic (rawEndPos := pos) ..) _,  false
+  | ident (SourceInfo.original (rawEndPos := pos) ..) .., _
+  | ident (SourceInfo.synthetic (rawEndPos := pos) (canonical := true) ..) .., _
+  | ident (SourceInfo.synthetic (rawEndPos := pos) ..) .., false
+  | node (SourceInfo.original (rawEndPos := pos) ..) .., _
+  | node (SourceInfo.synthetic (rawEndPos := pos) (canonical := true) ..) .., _
+  | node (SourceInfo.synthetic (rawEndPos := pos) ..) .., false => some pos
   | node _ _ args, _ =>
     let rec loop (i : Nat) : Option String.Pos.Raw :=
       match decide (LT.lt i args.size) with

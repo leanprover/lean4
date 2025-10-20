@@ -47,10 +47,10 @@ Registers the job for the top-level build monitor,
 public def ensureJob
   [OptDataKind α] (x : FetchM (Job α))
 : FetchM (Job α) := .ofFn fun fetch pkg? stack store ctx log => do
-  let iniPos := log.endPos
+  let iniPos := log.rawEndPos
   match (← (withLoggedIO x).toFn fetch pkg? stack store ctx log) with
   | .ok job log =>
-    if iniPos < log.endPos then
+    if iniPos < log.rawEndPos then
       let (log, jobLog) := log.split iniPos
       let job := job.mapResult (sync := true) (·.prependLog jobLog)
       return .ok job log

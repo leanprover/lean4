@@ -1038,9 +1038,9 @@ private def tokenFnAux : ParserFn := fun c s =>
   else if curr == 'r' && isRawStrLitStart c (c.next i) then
     rawStrLitFnAux i c (s.next c i)
   else
-    let tk := c.tokens.matchPrefix c.inputString i c.endPos.byteIdx <| by
-      have := c.endPos_valid
-      rw [String.endPos] at this
+    let tk := c.tokens.matchPrefix c.inputString i c.rawEndPos.byteIdx <| by
+      have := c.rawEndPos_valid
+      rw [String.rawEndPos] at this
       omega
     identFnAux i tk .anonymous (includeWhitespace := true) c s
 

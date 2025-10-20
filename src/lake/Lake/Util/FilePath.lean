@@ -65,7 +65,7 @@ public def modOfFilePath (path : FilePath) : Name :=
   let path := path.stripSuffix FilePath.pathSeparator.toString
   FilePath.components path |>.foldl .str .anonymous
 where
-  removeExts (s : String) (i := s.endPos) (e := s.endPos) :=
+  removeExts (s : String) (i := s.rawEndPos) (e := s.rawEndPos) :=
     if h : i = 0 then
       String.Pos.Raw.extract s 0 e
     else

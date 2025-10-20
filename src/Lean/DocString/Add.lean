@@ -66,8 +66,8 @@ def parseVersoDocString
 
   -- Skip trailing `-/`
   let endPos := String.Pos.Raw.prev text.source <| endPos.prev text.source
-  let endPos := if endPos ≤ text.source.endPos then endPos else text.source.endPos
-  have endPos_valid : endPos ≤ text.source.endPos := by
+  let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
+  have endPos_valid : endPos ≤ text.source.rawEndPos := by
     unfold endPos
     split <;> simp [*]
 

@@ -302,7 +302,7 @@ where
     guard (octsEndPos.byteIdx == level)
     guard (octsEndPos.get line == ' ')
     let titleStartPos := octsEndPos.next line
-    let title := Substring.mk line titleStartPos line.endPos |>.toString
+    let title := Substring.mk line titleStartPos line.rawEndPos |>.toString
     let titleMatches : Bool := match title? with
       | some expectedTitle => title == expectedTitle
       | none => true

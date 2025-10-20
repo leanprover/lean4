@@ -449,7 +449,7 @@ partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String
       | return gs
     let trailSize := i.stx.getTrailingSize
     -- show info at EOF even if strictly outside token + trail
-    let atEOF := tailPos.byteIdx + trailSize == text.source.endPos.byteIdx
+    let atEOF := tailPos.byteIdx + trailSize == text.source.rawEndPos.byteIdx
     -- include at least one trailing character (see also `priority` below)
     if pos ≤ hoverPos ∧ (hoverPos.byteIdx < tailPos.byteIdx + max 1 trailSize || atEOF) then
       -- overwrite bottom-up results according to "innermost" heuristics documented above

@@ -152,7 +152,7 @@ where
   Returns `true` if `goal` is a prefix of the string at the position pointed to by `iter`.
   -/
   lookingAt (goal : String) (iter : String.Iterator) : Bool :=
-    String.Pos.Raw.substrEq iter.s iter.i goal 0 goal.endPos.byteIdx
+    String.Pos.Raw.substrEq iter.s iter.i goal 0 goal.rawEndPos.byteIdx
 
 /--
 Rewrites Lean reference manual links in `docstring` to point at the reference manual.

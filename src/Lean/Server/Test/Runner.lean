@@ -640,9 +640,9 @@ def processDirective (ws directive : String) (directiveTargetLineNo : Nat) : Run
   let colon := directive.posOf ':'
   let method := String.Pos.Raw.extract directive 0 colon |>.trim
   -- TODO: correctly compute in presence of Unicode
-  let directiveTargetColumn := ws.endPos + "--"
+  let directiveTargetColumn := ws.rawEndPos + "--"
   let pos : Lsp.Position := { line := directiveTargetLineNo, character := directiveTargetColumn.byteIdx }
-  let params := if colon < directive.endPos then String.Pos.Raw.extract directive (colon + ':') directive.endPos |>.trim else "{}"
+  let params := if colon < directive.rawEndPos then String.Pos.Raw.extract directive (colon + ':') directive.rawEndPos |>.trim else "{}"
   modify fun s => { s with pos, method, params }
   match method with
   -- `delete: "foo"` deletes the given string's number of characters at the given position.

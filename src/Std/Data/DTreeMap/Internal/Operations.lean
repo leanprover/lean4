@@ -512,6 +512,38 @@ def insertMany! [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Imp
     r := ⟨r.val.insert! a b, fun h₀ h₁ => h₁ _ _ _ (r.2 h₀ h₁)⟩
   return r
 
+/-!
+## Operations for verification of iterators and slices
+-/
+
+/--
+  Removes all elements with key less than or equal to `lower_bound`.
+  Does not modify size information stored in the tree.
+-/
+def prune_LE {α β} [Ord α] (t : Internal.Impl α β)
+    (ord_t : t.Ordered) (lower_bound : α) : Internal.Impl α β :=
+  match t with
+  | .leaf => .leaf
+  | .inner sz k v l r =>
+    match compare lower_bound k with
+    | .lt => .inner sz k v (l.prune_LE (Internal.Impl.Ordered.left ord_t) lower_bound) r
+    | .eq => .inner sz k v .leaf r
+    | .gt => r.prune_LE (Internal.Impl.Ordered.right ord_t) lower_bound
+
+/--
+  Removes all elements with key less than to `lower_bound`.
+  Does not modify size information stored in the tree.
+-/
+def prune_LT {α β} [Ord α] (t : Internal.Impl α β)
+    (ord_t : t.Ordered) (lower_bound : α) : Internal.Impl α β :=
+  match t with
+  | .leaf => .leaf
+  | .inner sz k v l r =>
+    match compare lower_bound k with
+    | .lt => .inner sz k v (l.prune_LT (Internal.Impl.Ordered.left ord_t) lower_bound) r
+    | .eq => r
+    | .gt => r.prune_LT (Internal.Impl.Ordered.right ord_t) lower_bound
+
 namespace Const
 
 variable {β : Type v}

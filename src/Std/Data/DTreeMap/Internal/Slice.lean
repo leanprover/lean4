@@ -213,7 +213,6 @@ theorem Zipper.prependMap_size (t : Impl α β) (it : Zipper α β) : (Zipper.pr
   case case2 size k v l r it ih =>
     simp only [ih, Zipper.size, Impl.treeSize, ← Nat.add_assoc, Nat.add_comm]
 
-
 public def Zipper.step : Zipper α β → IterStep (IterM (α := Zipper α β) Id ((a : α) × β a)) ((a : α) × β a)
   | .done => .done
   | .cons k v t it=>
@@ -363,6 +362,23 @@ decreasing_by
   case inner =>
     simp only [Zipper.prependMap_size, Impl.treeSize, Nat.add_lt_add_iff_right, Nat.lt_add_left_iff_pos,
       Nat.lt_add_one]
+
+def Zipper.instProductivenessRelation : ProductivenessRelation (Zipper α β) Id where
+  rel x x' := x.1.size < x'.1.size
+  wf := by
+    apply InvImage.wf
+    exact Nat.lt_wfRel.wf
+  subrelation {it it'} h := by
+    simp [IterM.IsPlausibleSkipSuccessorOf, IterM.IsPlausibleStep, Iterator.IsPlausibleStep] at h
+    have := @Zipper.step_eq_match α β ⟨it.1⟩
+    simp [IterM.step, Iterator.step] at this
+    injections val_eq
+    rw [h] at val_eq
+    split at val_eq <;> contradiction
+
+@[no_expose]
+public instance instProductive : Productive (Zipper α β) Id :=
+  .of_productivenessRelation Zipper.instProductivenessRelation
 
 public theorem Zipper.val_step_map_Zipper_eq_match {α β γ} {f : (a : α) × β a → γ}
     {it : Iter (α := Zipper α β) (Sigma β)} :

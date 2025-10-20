@@ -101,11 +101,11 @@ instance : MonadFunctor m (OptionT m) := ⟨fun f x => f x⟩
 /--
 Handles failures by treating them as exceptions of type `Unit`.
 -/
-@[always_inline, inline, expose] protected def tryCatch (x : OptionT m α) (handle : Unit → OptionT m α) : OptionT m α := OptionT.mk do
-  let some a ← x | handle ()
+@[always_inline, inline, expose] protected def tryCatch (x : OptionT m α) (handle : PUnit → OptionT m α) : OptionT m α := OptionT.mk do
+  let some a ← x | handle ⟨⟩
   pure <| some a
 
-instance : MonadExceptOf Unit (OptionT m) where
+instance : MonadExceptOf PUnit (OptionT m) where
   throw    := fun _ => OptionT.fail
   tryCatch := OptionT.tryCatch
 

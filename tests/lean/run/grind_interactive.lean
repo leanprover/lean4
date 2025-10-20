@@ -200,11 +200,11 @@ def h (as : List Nat) :=
 
 /--
 trace: [splits] Case split candidates
-  [split] #4615 := match bs with
+  [split] #829a := match bs with
       | [] => 1
       | [head] => 2
       | head :: head_1 :: tail => 3
-  [split] #ec88 := match as with
+  [split] #dce6 := match as with
       | [] => 1
       | [head] => 2
       | head :: head_1 :: tail => 3
@@ -220,7 +220,7 @@ example : h bs = 1 → h as ≠ 0 := by
   grind [h.eq_def] =>
     instantiate
     show_cases
-    cases #ec88
+    cases #dce6
     instantiate
     focus instantiate
     instantiate
@@ -246,7 +246,7 @@ example : h bs = 1 → h as ≠ 0 := by
 example : h bs = 1 → h as ≠ 0 := by
   grind [h.eq_def] =>
     instantiate | as
-    cases #ec88
+    cases #dce6
     all_goals instantiate
 
 /--
@@ -292,12 +292,12 @@ example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p
 example : h bs = 1 → h as ≠ 0 := by
   grind [h.eq_def] =>
     instantiate
-    cases #ec88 <;> instantiate
+    cases #dce6 <;> instantiate
 
 example : h bs = 1 → h as ≠ 1 := by
   grind [h.eq_def] =>
     instantiate
-    cases #ec88
+    cases #dce6
     any_goals instantiate
     sorry
 
@@ -313,7 +313,7 @@ h✝ : as = []
 example : h bs = 1 → h as ≠ 0 := by
   grind [h.eq_def] =>
     instantiate
-    cases #ec88
+    cases #dce6
     next => skip
     all_goals sorry
 
@@ -326,7 +326,7 @@ def g (as : List Nat) :=
 example : g bs = 1 → g as ≠ 0 := by
   grind [g.eq_def] =>
     instantiate
-    cases #ec88
+    cases #dce6
     next => instantiate
     next => finish
     tactic =>

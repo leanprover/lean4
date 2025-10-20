@@ -22,11 +22,18 @@ open Lean
 
 namespace Lean.PremiseSelection.MePo
 
-public builtin_initialize symbolFrequencyExt : PersistentEnvExtension (NameMap Nat) Empty (Array (Array (NameMap Nat))) ←
+builtin_initialize registerTraceClass `mepo
+
+local instance : Zero (NameMap Nat) := ⟨∅⟩
+local instance : Add (NameMap Nat) where
+  add x y := y.foldl (init := x) fun x' n c => x'.insert n (x'.getD n 0 + c)
+
+public builtin_initialize symbolFrequencyExt : PersistentEnvExtension (NameMap Nat) Empty (NameMap Nat) ←
   registerPersistentEnvExtension {
     name            := `symbolFrequency
-    mkInitial       := pure #[]
-    addImportedFn   := fun maps _ => pure maps
+    mkInitial       := pure ∅
+    addImportedFn   := fun mapss _ => pure <|
+      mapss.foldl (init := 0) fun acc maps => maps.foldl (init := acc) fun acc map => acc + map
     addEntryFn      := nofun
     exportEntriesFnEx := fun env _ _ =>
       let r := env.constants.map₂.foldl (init := (∅ : NameMap Nat)) (fun acc n ci =>
@@ -39,14 +46,14 @@ public builtin_initialize symbolFrequencyExt : PersistentEnvExtension (NameMap N
   }
 
 public def symbolFrequency (env : Environment) (n : Name) : Nat :=
-  symbolFrequencyExt.getState env |>.foldl (init := 0) (fun acc maps => maps.foldl (init := acc) fun acc map => acc + map.getD n 0)
+  symbolFrequencyExt.getState env |>.getD n 0
 
 def weightedScore (weight : Name → Float) (relevant candidate : NameSet) : Float :=
   let S := candidate
   let R := relevant ∩ S
-  let R' := S \ R
+  let R' := (S \ R).size.toFloat
   let M := R.foldl (fun acc n => acc + weight n) 0
-  M / (M + R'.size.toFloat)
+  M / (M + R')
 
 -- This function is taken from the MePo paper and needs to be tuned.
 def weightFunction (n : Nat) := 1.0 + 2.0 / (n.log2.toFloat + 1.0)
@@ -57,23 +64,28 @@ def frequencyScore (frequency : Name → Nat) (relevant candidate : NameSet) : F
 def unweightedScore (relevant candidate : NameSet) : Float := weightedScore (fun _ => 1) relevant candidate
 
 def mepo (initialRelevant : NameSet) (score : NameSet → NameSet → Float) (accept : ConstantInfo → CoreM Bool)
-    (maxSuggestions : Nat) (p : Float) (c : Float) : CoreM (Array (Name × Float)) := do
+    (maxSuggestions : Nat) (p : Float) (c : Float) : CoreM (Array Suggestion) := do
   let env ← getEnv
   let mut p := p
   let mut candidates := #[]
   let mut relevant := initialRelevant
-  let mut accepted : Array (Name × Float) := {}
+  let mut accepted : Array Suggestion := {}
   for (n, ci) in env.constants do
     if ← accept ci then
       candidates := candidates.push (n, ci.type.getUsedConstantsAsSet)
   while candidates.size > 0 && accepted.size < maxSuggestions do
-    let (newAccepted, candidates') := candidates.map (fun (n, c) => (n, c, score relevant c)) |>.partition fun (_, _, s) => p ≤ s
+    trace[mepo] m!"Considering candidates with threshold {p}."
+    trace[mepo] m!"Current relevant set: {relevant.toList}."
+    let (newAccepted, candidates') := candidates.map
+      (fun (n, c) => (n, c, score relevant c))
+      |>.partition fun (_, _, s) => p ≤ s
     if newAccepted.isEmpty then return accepted
-    accepted := newAccepted.foldl (fun acc (n, _, s) => acc.push (n, s)) accepted
+    trace[mepo] m!"Accepted {newAccepted.map fun (n, _, s) => (n, s)}."
+    accepted := newAccepted.foldl (fun acc (n, _, s) => acc.push { name := n, score := s }) accepted
     candidates := candidates'.map fun (n, c, _) => (n, c)
     relevant := newAccepted.foldl (fun acc (_, ns, _) => acc ++ ns) relevant
     p := p + (1 - p) / c
-  return accepted
+  return accepted.qsort (fun a b => a.score > b.score)
 
 open Lean Meta MVarId in
 def _root_.Lean.MVarId.getConstants (g : MVarId) : MetaM NameSet := withContext g do
@@ -87,18 +99,15 @@ end MePo
 open MePo
 
 -- The values of p := 0.6 and c := 2.4 are taken from the MePo paper, and need to be tuned.
--- When retrieving ≤32 premises for use by downstream automation, Thomas Zhu suggests that c := 0.5 is optimal.
 public def mepoSelector (useRarity : Bool) (p : Float := 0.6) (c : Float := 2.4) : Selector := fun g config => do
   let constants ← g.getConstants
   let env ← getEnv
   let score := if useRarity then
-    let frequency := symbolFrequency env
-    frequencyScore frequency
+    frequencyScore (symbolFrequency env)
   else
     unweightedScore
   let accept := fun ci => return !isDeniedPremise env ci.name
   let suggestions ← mepo constants score accept config.maxSuggestions p c
   let suggestions := suggestions
-    |>.map (fun (n, s) => { name := n, score := s })
     |>.reverse  -- we favor constants that appear at the end of `env.constants`
   return suggestions.take config.maxSuggestions

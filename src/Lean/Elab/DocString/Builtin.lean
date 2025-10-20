@@ -122,7 +122,7 @@ private def onlyCode [Monad m] [MonadError m] (xs : TSyntaxArray `inline) : m St
   else
     throwError "Expected precisely 1 code argument"
 
-private def strLitRange [Monad m] [MonadFileMap m] (s : StrLit) : m String.Range := do
+private def strLitRange [Monad m] [MonadFileMap m] (s : StrLit) : m Lean.Syntax.Range := do
   let pos := (s.raw.getPos? (canonicalOnly := true)).get!
   let endPos := s.raw.getTailPos? true |>.get!
   return ⟨pos, endPos⟩

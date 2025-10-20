@@ -100,7 +100,7 @@ environment variable. If this environment variable is not set, a manual root pro
 built is used (typically this is the version corresponding to the current release). If no such root
 is available, the latest version of the manual is used.
 -/
-def rewriteManualLinksCore (s : String) : BaseIO (Array (String.Range × String) × String) := do
+def rewriteManualLinksCore (s : String) : BaseIO (Array (Lean.Syntax.Range × String) × String) := do
   let scheme := "lean-manual://"
   let mut out := ""
   let mut errors := #[]

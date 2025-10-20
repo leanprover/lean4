@@ -218,8 +218,8 @@ def moduleFromDocumentUri (uri : DocumentUri) : IO Name := do
 end Lean.Server
 
 /--
-Converts an UTF-8-based `String.range` in `text` to an equivalent LSP UTF-16-based `Lsp.Range`
+Converts an UTF-8-based `Lean.Syntax.Range` in `text` to an equivalent LSP UTF-16-based `Lsp.Range`
 in `text`.
 -/
-def String.Range.toLspRange (text : Lean.FileMap) (r : String.Range) : Lean.Lsp.Range :=
+def Lean.Syntax.Range.toLspRange (text : Lean.FileMap) (r : Lean.Syntax.Range) : Lean.Lsp.Range :=
   ⟨text.utf8PosToLspPos r.start, text.utf8PosToLspPos r.stop⟩

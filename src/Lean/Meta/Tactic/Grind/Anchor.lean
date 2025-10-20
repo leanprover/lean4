@@ -45,7 +45,7 @@ public partial def getAnchor (e : Expr) : GrindM UInt64 := do
       "instability". Recall that `match` auxiliary declarations are reused.
       -/
       if (← isMatcher declName) then pure 0
-      else pure <| hash declName
+      else pure <| hashName declName
     | .fvar fvarId => pure <| hashName (← fvarId.getDecl).userName
     | .mdata _ b => getAnchor b
     | .letE n v t b _ =>

@@ -3703,7 +3703,7 @@ When thinking about `f` as potential side effects, `*>` evaluates first the left
 argument for their side effects, discarding the value of the left argument and returning the value
 of the right argument.
 
-For most applications, `Applicative` or `Monad` should be used rather than `SeqLeft` itself.
+For most applications, `Applicative` or `Monad` should be used rather than `SeqRight` itself.
 -/
 class SeqRight (f : Type u → Type v) : Type (max (u+1) v) where
   /--

@@ -17,7 +17,7 @@ public import Std.Data.DTreeMap.Internal.Lemmas
 namespace Std.DTreeMap.Internal
 open Std.Iterators
 
-section MapIterator
+section Zipper
 public inductive Zipper (α : Type u) (β : α → Type v) where
   | done
   | cons (k : α) (v : β k) (tree : Impl α β) (next : Zipper α β)
@@ -213,10 +213,6 @@ theorem Zipper.prependMap_size (t : Impl α β) (it : Zipper α β) : (Zipper.pr
   case case2 size k v l r it ih =>
     simp only [ih, Zipper.size, Impl.treeSize, ← Nat.add_assoc, Nat.add_comm]
 
-end MapIterator
-
-section ZipperIterator
-variable {α : Type u} {β : α → Type v}
 
 public def Zipper.step : Zipper α β → IterStep (IterM (α := Zipper α β) Id ((a : α) × β a)) ((a : α) × β a)
   | .done => .done
@@ -270,7 +266,6 @@ public def Zipper.iter (t : Zipper α β) : Iter (α := Zipper α β) ((a : α) 
 public def Zipper.iter_of_tree (t : Impl α β) : Iter (α := Zipper α β) ((a : α) × β a) :=
   Zipper.iter <| Zipper.done.prependMap t
 
-
 public theorem Zipper.iter_of_tree_toList_eq_zipper_prependMap_toList (t : Impl α β) :
     (Zipper.iter_of_tree t).internalState.toList = t.toList := by
   unfold iter_of_tree
@@ -301,7 +296,6 @@ public theorem step_Zipper_eq_match {it : IterM (α := Zipper α β) Id ((a : α
       simp only [Zipper.iter]
     case cons k v tree next =>
       simp only [Zipper.iter]
-
 
 public theorem val_step_Zipper_eq_match {α β}
     {it : Iter (α := Zipper α β) (Sigma β)} :
@@ -370,8 +364,6 @@ decreasing_by
     simp only [Zipper.prependMap_size, Impl.treeSize, Nat.add_lt_add_iff_right, Nat.lt_add_left_iff_pos,
       Nat.lt_add_one]
 
-end ZipperIterator
-
 public theorem val_step_map_Zipper_eq_match {α β γ} {f : (a : α) × β a → γ}
     {it : Iter (α := Zipper α β) (Sigma β)} :
     (it.map f).step.val =
@@ -435,8 +427,9 @@ public theorem iter_of_tree_internal_state_eq :
     (Internal.Zipper.iter_of_tree m).internalState = Zipper.prependMap m .done := by
   simp [Zipper.iter_of_tree, Zipper.iter]
 
-section Rxc
+end Zipper
 
+section Rxc
 public structure RxcIterator (α : Type u) (β : α → Type v) (cmp : α → α → Ordering) where
   iter : Zipper α β
   upper : α
@@ -606,6 +599,27 @@ public theorem toList_eq_takeWhile {α β} [Ord α] [TransOrd α] {z : Zipper α
   simp only [Zipper.Ordered] at z_ord
   apply toList_eq_takeWhile_list
   exact z_ord
+
+def instProductivenessRelation : ProductivenessRelation (RxcIterator α β cmp) Id where
+  rel t' t := t'.internalState.iter.size < t.internalState.iter.size
+  wf := by
+    apply InvImage.wf
+    exact Nat.lt_wfRel.wf
+  subrelation {it it'} h := by
+    simp [IterM.IsPlausibleSkipSuccessorOf, IterM.IsPlausibleStep, Iterator.IsPlausibleStep] at h
+    have := @step_rxcIterator_eq_match α β cmp ⟨it.1⟩
+    simp [IterM.step, Iterator.step] at this
+    injections val_eq
+    rw [h] at val_eq
+    split at val_eq
+    case h_1 => contradiction
+    case h_2 =>
+      split at val_eq <;> contradiction
+
+@[no_expose]
+public instance instProductive : Productive (RxcIterator α β cmp) Id :=
+  .of_productivenessRelation instProductivenessRelation
+
 end Rxc
 
 section Rcx

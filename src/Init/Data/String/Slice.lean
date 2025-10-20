@@ -462,9 +462,7 @@ Examples:
 @[specialize pat]
 def find? [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) : Option s.Pos :=
   let searcher := ToForwardSearcher.toSearcher s pat
-  match Internal.nextMatch searcher with
-  | some (_, startPos, _) => some startPos
-  | none => none
+  searcher.findSome? (fun | .matched startPos _ => some startPos | .rejected .. => none)
 
 /--
 Checks whether a slice has a match of the pattern {name}`pat` anywhere.
@@ -774,9 +772,7 @@ Examples:
 @[specialize pat]
 def revFind? [ToBackwardSearcher ρ σ] (s : Slice) (pat : ρ) : Option s.Pos :=
   let searcher := ToBackwardSearcher.toSearcher s pat
-  match Internal.nextMatch searcher with
-  | some (_, startPos, _) => some startPos
-  | none => none
+  searcher.findSome? (fun | .matched startPos _ => some startPos | .rejected .. => none)
 
 end BackwardPatternUsers
 

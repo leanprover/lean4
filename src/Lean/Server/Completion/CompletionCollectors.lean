@@ -185,7 +185,7 @@ section IdCompletionUtils
           if len' ≤ newLen then
             (id, len')
           else
-            (Name.mkStr p (s.extract 0 ⟨newLen - optDot - len⟩), newLen)
+            (Name.mkStr p (String.Pos.Raw.extract s 0 ⟨newLen - optDot - len⟩), newLen)
     (go id).1
 
   private def bestLabelForDecl? (ctx : ContextInfo) (declName : Name) (id : Name) (danglingDot : Bool) :
@@ -515,7 +515,7 @@ private def trailingDotCompletion [ForIn Id Coll (Name × α)]
     match stx.getSubstring? (withLeading := false) (withTrailing := false) with
     | none => ("", false)  -- the `ident` is `missing`, list all options
     | some ss =>
-      if !ss.str.atEnd ss.stopPos && ss.str.get ss.stopPos == '.' then
+      if !ss.stopPos.atEnd ss.str && ss.stopPos.get ss.str == '.' then
         -- include trailing dot, which is not parsed by `ident`
         (ss.toString ++ ".", true)
       else

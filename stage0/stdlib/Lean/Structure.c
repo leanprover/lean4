@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Structure
-// Imports: public import Init.Control.Option public import Lean.Environment public import Lean.ProjFns public import Lean.Exception
+// Imports: public import Lean.ProjFns public import Lean.Exception
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3914,7 +3914,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_getStructureInfo___closed__2;
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(139u);
+x_3 = lean_unsigned_to_nat(137u);
 x_4 = l_Lean_getStructureInfo___closed__1;
 x_5 = l_Lean_getStructureInfo___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3974,7 +3974,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_getStructureInfo___closed__2;
 x_2 = lean_unsigned_to_nat(9u);
-x_3 = lean_unsigned_to_nat(155u);
+x_3 = lean_unsigned_to_nat(153u);
 x_4 = l_Lean_getStructureCtor___closed__0;
 x_5 = l_Lean_getStructureInfo___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3995,7 +3995,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_getStructureCtor___closed__2;
 x_2 = lean_unsigned_to_nat(11u);
-x_3 = lean_unsigned_to_nat(154u);
+x_3 = lean_unsigned_to_nat(152u);
 x_4 = l_Lean_getStructureCtor___closed__0;
 x_5 = l_Lean_getStructureInfo___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -5872,7 +5872,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_getStructureCtor___closed__2;
 x_2 = lean_unsigned_to_nat(11u);
-x_3 = lean_unsigned_to_nat(375u);
+x_3 = lean_unsigned_to_nat(373u);
 x_4 = l_Lean_getStructureLikeCtor_x3f___closed__0;
 x_5 = l_Lean_getStructureInfo___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -8666,8 +8666,6 @@ x_5 = l_Lean_getAllParentStructures___redArg(x_2, x_3, x_4);
 return x_5;
 }
 }
-lean_object* initialize_Init_Control_Option(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Environment(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_ProjFns(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Exception(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -8675,12 +8673,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Structure(uint8_t builtin, lean_object*
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_Option(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Environment(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_ProjFns(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

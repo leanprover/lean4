@@ -34,7 +34,7 @@ def utf16Length (s : String) : Nat :=
 
 private def codepointPosToUtf16PosFromAux (s : String) : Nat → Pos.Raw → Nat → Nat
   | 0,    _,       utf16pos => utf16pos
-  | cp+1, utf8pos, utf16pos => codepointPosToUtf16PosFromAux s cp (s.next utf8pos) (utf16pos + csize16 (s.get utf8pos))
+  | cp+1, utf8pos, utf16pos => codepointPosToUtf16PosFromAux s cp (utf8pos.next s) (utf16pos + csize16 (utf8pos.get s))
 
 /-- Computes the UTF-16 offset of the `n`-th Unicode codepoint
 in the substring of `s` starting at UTF-8 offset `off`.
@@ -47,7 +47,7 @@ def codepointPosToUtf16Pos (s : String) (pos : Nat) : Nat :=
 
 private partial def utf16PosToCodepointPosFromAux (s : String) : Nat → Pos.Raw → Nat → Nat
   | 0,        _,       cp => cp
-  | utf16pos, utf8pos, cp => utf16PosToCodepointPosFromAux s (utf16pos - csize16 (s.get utf8pos)) (s.next utf8pos) (cp + 1)
+  | utf16pos, utf8pos, cp => utf16PosToCodepointPosFromAux s (utf16pos - csize16 (utf8pos.get s)) (utf8pos.next s) (cp + 1)
 
 /-- Computes the position of the Unicode codepoint at UTF-16 offset
 `utf16pos` in the substring of `s` starting at UTF-8 offset `off`. -/
@@ -60,7 +60,7 @@ def utf16PosToCodepointPos (s : String) (pos : Nat) : Nat :=
 /-- Starting at `utf8pos`, finds the UTF-8 offset of the `p`-th codepoint. -/
 def codepointPosToUtf8PosFrom (s : String) : String.Pos.Raw → Nat → String.Pos.Raw
   | utf8pos, 0 => utf8pos
-  | utf8pos, p+1 => codepointPosToUtf8PosFrom s (s.next utf8pos) p
+  | utf8pos, p+1 => codepointPosToUtf8PosFrom s (utf8pos.next s) p
 
 end String
 

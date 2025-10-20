@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.Consumers.Loop
-// Imports: public import Init.Data.Iterators.Consumers.Collect public import Init.Data.Iterators.Consumers.Monadic.Loop public import Init.Data.Iterators.Consumers.Partial
+// Imports: public import Init.Data.Iterators.Consumers.Collect public import Init.Data.Iterators.Consumers.Monadic.Loop
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -199,7 +199,7 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Std_Iterators_Iter_instForIn_x27(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 lean_dec_ref(x_4);
 return x_8;
 }
@@ -247,7 +247,7 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Std_Iterators_instForInIterOfMonadOfFiniteOfIteratorLoopId(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 lean_dec_ref(x_4);
 return x_8;
 }
@@ -306,7 +306,7 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Std_Iterators_Iter_Partial_instForIn_x27(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 lean_dec_ref(x_4);
 return x_7;
 }
@@ -336,7 +336,7 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Std_Iterators_instForInPartialOfMonadOfIteratorLoopPartialId(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 lean_dec_ref(x_4);
 return x_7;
 }
@@ -434,7 +434,7 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Std_Iterators_instForMIterOfFiniteOfIteratorLoopId(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 return x_7;
 }
 }
@@ -495,7 +495,7 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Std_Iterators_instForMPartialOfFiniteOfIteratorLoopPartialId(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 return x_7;
 }
 }
@@ -571,7 +571,7 @@ _start:
 {
 lean_object* x_12; 
 x_12 = l_Std_Iterators_Iter_foldM(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 return x_12;
 }
 }
@@ -640,7 +640,7 @@ _start:
 {
 lean_object* x_11; 
 x_11 = l_Std_Iterators_Iter_Partial_foldM(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 return x_11;
 }
 }
@@ -681,7 +681,7 @@ _start:
 {
 lean_object* x_10; 
 x_10 = l_Std_Iterators_Iter_fold(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 return x_10;
 }
 }
@@ -712,7 +712,7 @@ _start:
 {
 lean_object* x_9; 
 x_9 = l_Std_Iterators_Iter_Partial_fold(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 return x_9;
 }
 }
@@ -832,7 +832,7 @@ _start:
 {
 lean_object* x_10; 
 x_10 = l_Std_Iterators_Iter_anyM(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 return x_10;
 }
 }
@@ -990,7 +990,7 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = l_Std_Iterators_Iter_any(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_9 = lean_box(x_8);
 return x_9;
 }
@@ -1081,7 +1081,7 @@ _start:
 {
 lean_object* x_10; 
 x_10 = l_Std_Iterators_Iter_allM(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 return x_10;
 }
 }
@@ -1123,7 +1123,7 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = l_Std_Iterators_Iter_all(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_9 = lean_box(x_8);
 return x_9;
 }
@@ -1149,7 +1149,7 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Std_Iterators_Iter_size(x_1, x_2, x_3, x_4, x_5);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 return x_6;
 }
 }
@@ -1174,13 +1174,12 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Std_Iterators_Iter_Partial_size(x_1, x_2, x_3, x_4, x_5);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 return x_6;
 }
 }
 lean_object* initialize_Init_Data_Iterators_Consumers_Collect(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Consumers_Monadic_Loop(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Consumers_Partial(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_Consumers_Loop(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1190,9 +1189,6 @@ res = initialize_Init_Data_Iterators_Consumers_Collect(builtin, lean_io_mk_world
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Consumers_Monadic_Loop(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers_Partial(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Iterators_instForInIterOfMonadOfFiniteOfIteratorLoopId___redArg___closed__0 = _init_l_Std_Iterators_instForInIterOfMonadOfFiniteOfIteratorLoopId___redArg___closed__0();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.Boxing
-// Imports: public import Lean.Runtime public import Lean.Compiler.ClosedTermCache public import Lean.Compiler.ExternAttr public import Lean.Compiler.IR.Basic public import Lean.Compiler.IR.CompilerM public import Lean.Compiler.IR.FreeVars public import Lean.Compiler.IR.ElimDeadVars public import Lean.Compiler.IR.ToIRType public import Lean.Data.AssocList
+// Imports: public import Lean.Runtime public import Lean.Compiler.ClosedTermCache public import Lean.Compiler.IR.CompilerM public import Lean.Compiler.IR.ElimDeadVars public import Lean.Compiler.IR.ToIRType public import Lean.Data.AssocList
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5635,10 +5635,7 @@ return x_5;
 }
 lean_object* initialize_Lean_Runtime(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_ClosedTermCache(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_ExternAttr(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_IR_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_IR_CompilerM(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_IR_FreeVars(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_IR_ElimDeadVars(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_IR_ToIRType(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_AssocList(uint8_t builtin, lean_object*);
@@ -5653,16 +5650,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_ClosedTermCache(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_ExternAttr(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Compiler_IR_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_CompilerM(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Compiler_IR_FreeVars(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_ElimDeadVars(builtin, lean_io_mk_world());

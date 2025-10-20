@@ -96,6 +96,18 @@ Accepts an incoming connection on a listening TCP socket.
 opaque accept (socket : @& Socket) : IO (IO.Promise (Except IO.Error Socket))
 
 /--
+Tries to accept an incoming connection on a listening TCP socket.
+-/
+@[extern "lean_uv_tcp_try_accept"]
+opaque tryAccept (socket : @& Socket) : IO (Except IO.Error (Option Socket))
+
+/--
+Cancels the accept request of a socket.
+-/
+@[extern "lean_uv_tcp_cancel_accept"]
+opaque cancelAccept (socket : @& Socket) : IO Unit
+
+/--
 Shuts down an incoming connection on a listening TCP socket.
 -/
 @[extern "lean_uv_tcp_shutdown"]

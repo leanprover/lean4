@@ -397,6 +397,7 @@ where
 
     -- `checkAltNames` may have looked at arbitrary alternatives, so we need to disable incremental
     -- processing of alternatives if it had any effect lest we end up with stale messages
+    let tacSnaps := if (← MonadLog.hasErrors) then #[] else tacSnaps
     Term.withoutTacticIncrementality (cond := (← MonadLog.hasErrors)) do
 
     let mut alts := alts

@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_List_lengthTR___redArg(lean_object*);
-uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 LEAN_EXPORT lean_object* l_List_foldl___at_____private_Lean_Compiler_NameMangling_0__String_mangleAux_spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
@@ -23,7 +22,6 @@ lean_object* lean_string_push(lean_object*, uint32_t);
 static lean_object* l___private_Lean_Compiler_NameMangling_0__String_mangleAux___closed__2;
 lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Lean_mkModuleInitializationFunctionName___closed__0;
-lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 uint32_t l_Nat_digitChar(lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 static lean_object* l___private_Lean_Compiler_NameMangling_0__String_mangleAux___closed__1;
@@ -35,10 +33,12 @@ lean_object* l_Nat_toDigits(lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux(lean_object*);
+uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__String_mangleAux(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_____private_Lean_Compiler_NameMangling_0__String_mangleAux_spec__1(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);

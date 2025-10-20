@@ -45,9 +45,11 @@ def mkParams (config : Grind.Config) : MetaM Params := do
   let symPrios ← getGlobalSymbolPriorities
   return { config, norm, normProcs, symPrios }
 
-def mkMethods : CoreM Methods := do
+def mkMethods (evalTactic? : Option EvalTactic := none) : CoreM Methods := do
   let builtinPropagators ← builtinPropagatorsRef.get
+  let evalTactic : EvalTactic := evalTactic?.getD EvalTactic.skip
   return {
+    evalTactic
     propagateUp := fun e => do
       propagateForallPropUp e
       propagateReflCmp e
@@ -75,7 +77,7 @@ private def discharge? (e : Expr) : SimpM (Option Expr) := do
   else
     return none
 
-def GrindM.run (x : GrindM α) (params : Params) : MetaM α := do
+def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTactic := none) : MetaM α := do
   let (falseExpr, scState)  := shareCommonAlpha (mkConst ``False) {}
   let (trueExpr, scState)   := shareCommonAlpha (mkConst ``True) scState
   let (bfalseExpr, scState) := shareCommonAlpha (mkConst ``Bool.false) scState
@@ -88,7 +90,7 @@ def GrindM.run (x : GrindM α) (params : Params) : MetaM α := do
   let simp := params.norm
   let config := params.config
   let symPrios := params.symPrios
-  x (← mkMethods).toMethodsRef { config, simpMethods, simp, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr, symPrios }
+  x (← mkMethods evalTactic?).toMethodsRef { config, simpMethods, simp, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr, symPrios }
     |>.run' { scState }
 
 private def mkCleanState (mvarId : MVarId) (params : Params) : MetaM Clean.State := mvarId.withContext do
@@ -217,11 +219,11 @@ def mkResult (params : Params) (failure? : Option Goal) : GrindM Result := do
         logInfo msg
   return { failure?, issues, config := params.config, trace, counters, simp, splitDiags }
 
-def GrindM.runAtGoal (mvarId : MVarId) (params : Params) (k : Goal → GrindM α) : MetaM α := do
+def GrindM.runAtGoal (mvarId : MVarId) (params : Params) (k : Goal → GrindM α) (evalTactic? : Option EvalTactic := none) : MetaM α := do
   let go : GrindM α := withReducible do
     let goal ← initCore mvarId params
     k goal
-  go.run params
+  go.run params (evalTactic? := evalTactic?)
 
 def main (mvarId : MVarId) (params : Params) : MetaM Result := do profileitM Exception "grind" (← getOptions) do
   GrindM.runAtGoal mvarId params fun goal => do

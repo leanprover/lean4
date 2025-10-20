@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.MapIdx
-// Imports: public import Init.Data.Array.Basic import all Init.Data.Array.Basic public import Init.Data.Array.Lemmas public import Init.Data.Array.Attach public import Init.Data.Array.OfFn public import Init.Data.List.MapIdx import all Init.Data.List.MapIdx
+// Imports: import all Init.Data.Array.Basic public import Init.Data.Array.OfFn public import Init.Data.List.MapIdx import all Init.Data.List.MapIdx
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -150,9 +150,6 @@ return x_8;
 }
 }
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Attach(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_OfFn(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_MapIdx(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_MapIdx(uint8_t builtin, lean_object*);
@@ -162,15 +159,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Array_Lemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Array_Attach(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_OfFn(builtin, lean_io_mk_world());

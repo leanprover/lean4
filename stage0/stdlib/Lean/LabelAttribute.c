@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.LabelAttribute
-// Imports: public import Lean.ScopedEnvExtension public import Lean.DocString public meta import Init.Data.String.Extra meta import Init.Data.ToString.Name
+// Imports: public import Lean.DocString public meta import Init.Data.String.Extra meta import Init.Data.ToString.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3375,7 +3375,6 @@ lean_dec_ref(x_2);
 return x_5;
 }
 }
-lean_object* initialize_Lean_ScopedEnvExtension(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_DocString(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_String_Extra(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_ToString_Name(uint8_t builtin, lean_object*);
@@ -3384,9 +3383,6 @@ LEAN_EXPORT lean_object* initialize_Lean_LabelAttribute(uint8_t builtin, lean_ob
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_ScopedEnvExtension(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_DocString(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

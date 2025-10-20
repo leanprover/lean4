@@ -166,7 +166,7 @@ def WhitespaceMode.apply (mode : WhitespaceMode) (s : String) : String :=
   match mode with
   | .exact => s
   | .normalized => s.replace "\n" " "
-  | .lax => String.intercalate " " <| (s.split Char.isWhitespace).filter (!·.isEmpty)
+  | .lax => String.intercalate " " <| (s.splitToList Char.isWhitespace).filter (!·.isEmpty)
 
 /--
 Applies a message ordering mode.
@@ -215,7 +215,7 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
       modify fun st => { st with messages := msgs }
       let feedback :=
         if guard_msgs.diff.get (← getOptions) then
-          let diff := Diff.diff (expected.split (· == '\n')).toArray (res.split (· == '\n')).toArray
+          let diff := Diff.diff (expected.splitToList (· == '\n')).toArray (res.splitToList (· == '\n')).toArray
           Diff.linesToString diff
         else res
       logErrorAt tk m!"❌️ Docstring on `#guard_msgs` does not match generated message:\n\n{feedback}"

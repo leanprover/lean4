@@ -39,7 +39,7 @@ Examples:
  * `"0xff".toInt? = none`
 -/
 def String.toInt? (s : String) : Option Int := do
-  if s.get 0 = '-' then do
+  if s.front = '-' then do
     let v ← (s.toSubstring.drop 1).toNat?;
     pure <| - Int.ofNat v
   else
@@ -67,7 +67,7 @@ Examples:
  * `"0xff".isInt = false`
 -/
 def String.isInt (s : String) : Bool :=
-  if s.get 0 = '-' then
+  if s.front = '-' then
     (s.toSubstring.drop 1).isNat
   else
     s.isNat

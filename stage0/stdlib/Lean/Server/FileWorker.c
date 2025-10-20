@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.FileWorker
-// Imports: public import Init.System.IO public import Std.Sync.Channel public import Lean.Environment public import Lean.Data.Lsp public import Lean.Data.Json.FromToJson.Basic public import Lean.LoadDynlib public import Lean.Language.Lean public import Lean.Server.Utils public import Lean.Server.AsyncList public import Lean.Server.References public import Lean.Server.FileWorker.Utils public import Lean.Server.FileWorker.RequestHandling public import Lean.Server.FileWorker.WidgetRequests public import Lean.Server.FileWorker.SetupFile public import Lean.Server.Rpc.Basic public import Lean.Widget.InteractiveDiagnostic public import Lean.Server.Completion.ImportCompletion public import Lean.Server.CodeActions.UnknownIdentifier
+// Imports: public import Std.Sync.Channel public import Lean.Language.Lean public import Lean.Server.FileWorker.Utils public import Lean.Server.FileWorker.RequestHandling public import Lean.Server.FileWorker.WidgetRequests public import Lean.Server.FileWorker.SetupFile public import Lean.Server.Completion.ImportCompletion public import Lean.Server.CodeActions.UnknownIdentifier
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2194,7 +2194,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___Lean_Server_FileWorker_WorkerContext_modifyGetPartialHandler_spec__0___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(13u);
-x_3 = lean_unsigned_to_nat(183u);
+x_3 = lean_unsigned_to_nat(182u);
 x_4 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___Lean_Server_FileWorker_WorkerContext_modifyGetPartialHandler_spec__0___redArg___closed__1;
 x_5 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___Lean_Server_FileWorker_WorkerContext_modifyGetPartialHandler_spec__0___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -34004,22 +34004,12 @@ return x_22;
 }
 }
 }
-lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Sync_Channel(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Environment(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Lsp(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Json_FromToJson_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_LoadDynlib(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Language_Lean(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Server_Utils(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Server_AsyncList(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Server_References(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_FileWorker_Utils(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_FileWorker_RequestHandling(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_FileWorker_WidgetRequests(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_FileWorker_SetupFile(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Server_Rpc_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Widget_InteractiveDiagnostic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_Completion_ImportCompletion(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_CodeActions_UnknownIdentifier(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -34027,34 +34017,10 @@ LEAN_EXPORT lean_object* initialize_Lean_Server_FileWorker(uint8_t builtin, lean
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_System_IO(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Std_Sync_Channel(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Environment(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_Json_FromToJson_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_LoadDynlib(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Language_Lean(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Server_Utils(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Server_AsyncList(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Server_References(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Server_FileWorker_Utils(builtin, lean_io_mk_world());
@@ -34067,12 +34033,6 @@ res = initialize_Lean_Server_FileWorker_WidgetRequests(builtin, lean_io_mk_world
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Server_FileWorker_SetupFile(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Server_Rpc_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Widget_InteractiveDiagnostic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Server_Completion_ImportCompletion(builtin, lean_io_mk_world());

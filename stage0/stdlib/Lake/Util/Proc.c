@@ -13,9 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_rawProc___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_logOutput___redArg___lam__1(lean_object*, lean_object*);
 lean_object* l_Substring_takeRightWhileAux(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
@@ -41,7 +39,6 @@ lean_object* lean_io_process_child_wait(lean_object*, lean_object*, lean_object*
 lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Lake_logOutput___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lake_captureProc_x3f(lean_object*, lean_object*);
-lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_proc___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_rawProc___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lake_captureProc_x27___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -50,11 +47,11 @@ LEAN_EXPORT lean_object* l_Lake_mkCmdLog(lean_object*);
 static lean_object* l_List_mapTR_loop___at___Lake_mkCmdLog_spec__0___closed__1;
 lean_object* l_Char_isWhitespace___boxed(lean_object*);
 lean_object* lean_array_to_list(lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_process_spawn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_captureProc(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_Process_output(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_logOutput___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_captureProc_x27(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___Lake_mkCmdLog_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_testProc(lean_object*, lean_object*);
@@ -63,11 +60,14 @@ LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___Lake_proc_spec__1_
 static lean_object* l_List_mapTR_loop___at___Lake_mkCmdLog_spec__0___closed__2;
 LEAN_EXPORT lean_object* l_Lake_rawProc(lean_object*, uint8_t, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* l_List_reverse___redArg(lean_object*);
 uint8_t l_instDecidableNot___redArg(uint8_t);
+lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_proc(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_rawProc___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 static lean_object* l_Lake_logOutput___redArg___lam__0___closed__1;

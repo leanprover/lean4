@@ -48,17 +48,17 @@ jobs:
           git -C lean4.git remote add origin https://github.com/${{ github.repository_owner }}/lean4.git
           git -C lean4.git fetch -n origin master
           git -C lean4.git fetch -n origin "${{ steps.workflow-info.outputs.sourceHeadSha }}"
-          
+
           # Create both the original tag and the SHA-suffixed tag
           SHORT_SHA="${{ steps.workflow-info.outputs.sourceHeadSha }}"
           SHORT_SHA="${SHORT_SHA:0:7}"
-          
+
           # Export the short SHA for use in subsequent steps
           echo "SHORT_SHA=${SHORT_SHA}" >> "$GITHUB_ENV"
 
           git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }} "${{ steps.workflow-info.outputs.sourceHeadSha }}"
           git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}" "${{ steps.workflow-info.outputs.sourceHeadSha }}"
-          
+
           git -C lean4.git remote add pr-releases https://foo:'${{ secrets.PR_RELEASES_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-pr-releases.git
           git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
           git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}"
@@ -200,7 +200,7 @@ jobs:
                           -H "Accept: application/vnd.github.v3+json" \
                           "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/labels" \
                           | jq -r '.[].name')"
-            
+
             if echo "$LABELS" | grep -q "^force-mathlib-ci$"; then
               echo "force-mathlib-ci label detected, forcing CI despite issues"
               MESSAGE="Forcing Mathlib CI because the \`force-mathlib-ci\` label is present, despite problem: $MESSAGE"
@@ -301,7 +301,7 @@ jobs:
                           -H "Accept: application/vnd.github.v3+json" \
                           "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/labels" \
                           | jq -r '.[].name')"
-            
+
             if echo "$LABELS" | grep -q "^force-manual-ci$"; then
               echo "force-manual-ci label detected, forcing CI despite issues"
               MESSAGE="Forcing reference manual CI because the \`force-manual-ci\` label is present, despite problem: $MESSAGE"
@@ -401,6 +401,7 @@ jobs:
           token: ${{ secrets.MATHLIB4_BOT }}
           ref: nightly-testing
           fetch-depth: 0 # This ensures we check out all tags and branches.
+          filter: tree:0
 
       - name: Check if tag exists
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
@@ -460,6 +461,7 @@ jobs:
           token: ${{ secrets.MATHLIB4_BOT }}
           ref: nightly-testing
           fetch-depth: 0 # This ensures we check out all tags and branches.
+          filter: tree:0
 
       - name: install elan
         run: |
@@ -530,6 +532,7 @@ jobs:
           token: ${{ secrets.MANUAL_PR_BOT }}
           ref: nightly-testing
           fetch-depth: 0 # This ensures we check out all tags and branches.
+          filter: tree:0
 
       - name: Check if tag in reference manual exists
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.reference-manual-ready.outputs.manual_ready == 'true'

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Normalize.Bool
-// Imports: public import Init.SimpLemmas public import Init.Data.Bool public import Init.Data.BitVec.Lemmas public import Init.Data.BitVec.Decidable import Init.Data.BEq
+// Imports: public import Init.Data.BitVec.Lemmas public import Init.Data.BitVec.Decidable import Init.Data.BEq
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,8 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Init_SimpLemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Bool(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BitVec_Decidable(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BEq(uint8_t builtin, lean_object*);
@@ -23,12 +21,6 @@ LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_Normalize_Bool(uint8_t b
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_SimpLemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Bool(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_BitVec_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

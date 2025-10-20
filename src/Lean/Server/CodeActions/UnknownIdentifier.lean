@@ -153,7 +153,7 @@ def computeDotQuery?
   if typeNames.isEmpty then
     return none
   return some {
-    identifier := text.source.extract pos tailPos
+    identifier := String.Pos.Raw.extract text.source pos tailPos
     openNamespaces := typeNames.map (.allExcept · #[])
     env := ctx.env
     determineInsertion decl :=

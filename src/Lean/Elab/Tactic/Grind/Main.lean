@@ -10,6 +10,7 @@ public import Lean.Meta.Tactic.TryThis
 public import Lean.Elab.Command
 public import Lean.Elab.Tactic.Config
 import Lean.Meta.Tactic.Grind.SimpUtil
+import Lean.Meta.Tactic.Grind.EMatchTheoremParam
 import Lean.Elab.Tactic.Grind.Basic
 import Lean.Elab.MutualDef
 meta import Lean.Meta.Tactic.Grind.Parser
@@ -292,37 +293,13 @@ def mkGrindOnly
   let mut foundFns : NameSet := {}
   for { origin, kind, minIndexable } in trace.thms.toList do
     if let .decl declName := origin then
-      if let some declName ← isEqnThm? declName then
-        unless foundFns.contains declName do
-          foundFns := foundFns.insert declName
-          let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
-          let param ← `(Parser.Tactic.grindParam| $decl:ident)
+      if let some fnName ← isEqnThm? declName then
+        unless foundFns.contains fnName do
+          foundFns := foundFns.insert fnName
+          let param ← Grind.globalDeclToGrindParamSyntax declName kind minIndexable
           params := params.push param
       else
-        let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
-        let param ← match kind, minIndexable with
-          | .eqLhs false,   _     => `(Parser.Tactic.grindParam| = $decl:ident)
-          | .eqLhs true,    _     => `(Parser.Tactic.grindParam| = gen $decl:ident)
-          | .eqRhs false,   _     => `(Parser.Tactic.grindParam| =_ $decl:ident)
-          | .eqRhs true,    _     => `(Parser.Tactic.grindParam| =_ gen $decl:ident)
-          | .eqBoth false,  _     => `(Parser.Tactic.grindParam| _=_ $decl:ident)
-          | .eqBoth true,   _     => `(Parser.Tactic.grindParam| _=_ gen $decl:ident)
-          | .eqBwd,         _     => `(Parser.Tactic.grindParam| ←= $decl:ident)
-          | .user,          _     => `(Parser.Tactic.grindParam| usr $decl:ident)
-          | .bwd false,     false => `(Parser.Tactic.grindParam| ← $decl:ident)
-          | .bwd true,      false => `(Parser.Tactic.grindParam| ← gen $decl:ident)
-          | .fwd,           false => `(Parser.Tactic.grindParam| → $decl:ident)
-          | .leftRight,     false => `(Parser.Tactic.grindParam| => $decl:ident)
-          | .rightLeft,     false => `(Parser.Tactic.grindParam| <= $decl:ident)
-          | .default false, false => `(Parser.Tactic.grindParam| $decl:ident)
-          | .default true,  false => `(Parser.Tactic.grindParam| gen $decl:ident)
-          | .bwd false,     true  => `(Parser.Tactic.grindParam| ! ← $decl:ident)
-          | .bwd true,      true  => `(Parser.Tactic.grindParam| ! ← gen $decl:ident)
-          | .fwd,           true  => `(Parser.Tactic.grindParam| ! → $decl:ident)
-          | .leftRight,     true  => `(Parser.Tactic.grindParam| ! => $decl:ident)
-          | .rightLeft,     true  => `(Parser.Tactic.grindParam| ! <= $decl:ident)
-          | .default false, true  => `(Parser.Tactic.grindParam| ! $decl:ident)
-          | .default true,  true  => `(Parser.Tactic.grindParam| ! gen $decl:ident)
+        let param ← Grind.globalDeclToGrindParamSyntax declName kind minIndexable
         params := params.push param
   for declName in trace.eagerCases.toList do
     unless Grind.isBuiltinEagerCases declName do

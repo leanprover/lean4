@@ -43,7 +43,7 @@ def versoCommentBodyFn : ParserFn := fun c s =>
         let trailing := c.mkEmptySubstringAt endPos
         let s :=
           s.pushSyntax <|
-          .atom (.original leading startPos trailing endPos) (c.inputString.extract startPos endPos)
+          .atom (.original leading startPos trailing endPos) (String.Pos.Raw.extract c.inputString startPos endPos)
         let s := s.mkNode `Lean.Doc.Syntax.parseFailure iniSz
         {s with recoveredErrors := #[]}
       else s

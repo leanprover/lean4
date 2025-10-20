@@ -77,31 +77,20 @@ instance : Coe Body.ByteStream Body where
 
 /--
 Iterate over the body content in chunks, processing each ByteArray chunk with the given step function.
-This allows for memory-efficient processing of large bodies without loading everything into memory at once.
 -/
 @[inline]
 protected partial def forIn
   {β : Type} (body : Body) (acc : β)
-  (step : ByteArray → β → Async (ForInStep β)) :
+  (step : Chunk → β → Async (ForInStep β)) :
   Async β := do
-    let rec @[specialize] loop (stream : ByteStream) (acc : β) : Async β := do
-      if let some data ← stream.recv then
-        match ← step data acc with
-        | .done res => pure res
-        | .yield res => loop stream res
-      else
-        return acc
-
     match body with
     | .zero => pure acc
-    | .bytes data =>
-      match ← step data acc with
-      | .done x => pure x
-      | .yield x => pure x
-    | .stream strea => loop strea acc
+    | .bytes data => return (← step (Chunk.mk data #[]) acc).value
+    | .stream stream' => ByteStream.forIn stream' acc step
 
-instance : ForIn Async Body ByteArray where
+instance : ForIn Async Body Chunk where
   forIn := Body.forIn
+
 
 /--
 Collect all data from the body into a single `ByteArray`. This reads the entire body content into memory,
@@ -109,7 +98,7 @@ so use with caution for large bodies as it may consume significant memory.
 -/
 def collectByteArray (body : Body) : Async ByteArray := do
   let mut result := .empty
-  for x in body do result := result ++ x
+  for x in body do result := result ++ x.data
   return result
 
 /--
@@ -119,5 +108,5 @@ then it will return `some` otherwise `none`.
 -/
 def collectString (body : Body) : Async (Option String) := do
   let mut result := .empty
-  for x in body do result := result ++ x
+  for x in body do result := result ++ x.data
   return String.fromUTF8? result

@@ -6,6 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
+public import Std.Internal.Async
 public import Std.Internal.Http.Data.Body
 public import Std.Internal.Http.Data.Status
 public import Std.Internal.Http.Data.Headers
@@ -24,6 +25,7 @@ namespace Std.Http
 
 set_option linter.all true
 
+open Std.Internal.IO.Async
 open Internal Lean
 
 /--
@@ -116,6 +118,14 @@ Builds and returns the final HTTP Response with the specified body
 -/
 def body (builder : Builder) (body : t) : Response t :=
   { head := builder.head, body := some body }
+
+/--
+Builds and returns the final HTTP Response with a stream builder
+-/
+def stream (builder : Builder) (body : Body.ByteStream → Async Unit) : Async (Response Body) := do
+  let stream ← Body.ByteStream.empty
+  background (body stream)
+  return { head := builder.head, body := some stream }
 
 /--
 Builds and returns the final HTTP Response.

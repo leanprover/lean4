@@ -79,32 +79,32 @@ structure Config where
   /--
   Maximum number of messages per connection.
   -/
-  maxMessages : Nat := 100
+  maxMessages : Nat
 
   /--
   Maximum number of headers allowed per message.
   -/
-  maxHeaders : Nat := 50
+  maxHeaders : Nat
 
   /--
   Maximum size of a single header value.
   -/
-  maxHeaderSize : Nat := 8192
+  maxHeaderSize : Nat
 
   /--
   Whether to enable keep-alive connections by default.
   -/
-  enableKeepAlive : Bool := true
+  enableKeepAlive : Bool
 
   /--
   Size threshold for flushing output buffer.
   -/
-  highMark : Nat := 4096
+  highMark : Nat := 1
 
   /--
   The server name (for response mode) or user agent (for request mode)
   -/
-  identityHeader : Option HeaderValue := some (.new "LeanHTTP/1.1")
+  identityHeader : Option HeaderValue
 
 /--
 Specific HTTP processing errors with detailed information.
@@ -297,6 +297,11 @@ inductive Writer.State
   State when the writer is closed and no more messages can be sent.
   -/
   | closed : State
+
+  /--
+  Gracefully shutting down - flush remaining data then close
+  -/
+  | shuttingDown : State
 deriving BEq, Repr
 
 structure Reader (ty : MachineType) where
@@ -356,12 +361,7 @@ structure Writer (ty : MachineType) where
   /--
   This is all the data that the user is sending that is being accumulated.
   -/
-  userData : ChunkedBuffer := .empty
-
-  /--
-  The chunk headers that are going to be with the chunk
-  -/
-  chunkExt : Array (Array (String × Option String)) := .empty
+  userData : Array Chunk := .empty
 
   /--
   All the data that is going to get out of the writer.
@@ -433,21 +433,11 @@ private def determineBodySize (writer : Writer ty) : Body.Length :=
 Add data to the user data buffer
 -/
 @[inline]
-def addUserData (data : ChunkedBuffer) (writer : Writer ty) : Writer ty :=
+def addUserData (data : Array Chunk) (writer : Writer ty) : Writer ty :=
   if writer.closed then
     writer
   else
-    { writer with userData := writer.userData.append data }
-
-/--
-Add data to the user chunk ext buffer
--/
-@[inline]
-def addChunkExt (data : Array (String × Option String)) (writer : Writer ty) : Writer ty :=
-  if writer.closed then
-    writer
-  else
-    {  writer with chunkExt := writer.chunkExt.push data }
+    { writer with userData := writer.userData ++ data }
 
 /--
 Write fixed-size body data
@@ -456,11 +446,9 @@ private def writeFixedBody (writer : Writer ty) : Writer ty :=
   if writer.userData.size = 0 then
     writer
   else
-    let data := writer.userData
-    { writer with
-      userData := ChunkedBuffer.empty
-      outputData := writer.outputData.append data
-    }
+    -- We ignore the extensions in a fixed body
+    let outputData := writer.outputData.append (writer.userData.map Chunk.data)
+    { writer with userData := #[], outputData }
 
 /--
 Write chunked body data
@@ -470,24 +458,7 @@ private def writeChunkedBody (writer : Writer ty) : Writer ty :=
     writer
   else
     let data := writer.userData
-
-    let ext : Array String := writer.chunkExt.take data.size |>.map (Array.foldl
-      (fun acc (name, value)  => acc ++ ";" ++ name ++ (value.map (fun x => "=" ++ x) |>.getD ""))
-      "")
-
-    let chunks := data.data.mapIdx fun idx ba =>
-      let chunkLen := ba.size
-      let chunkHeader :=
-        (Nat.toDigits 16 chunkLen |>.toArray |>.map Char.toUInt8 |> ByteArray.mk)
-        ++ (ext[idx]? |>.map String.toUTF8 |>.getD .empty)
-        ++ "\r\n".toUTF8
-      chunkHeader ++ ba ++ "\r\n".toUTF8
-
-    { writer with
-      userData := ChunkedBuffer.empty
-      chunkExt := writer.chunkExt.drop data.size
-      outputData := writer.outputData ++ chunks
-    }
+    { writer with userData := #[], outputData := data.foldl (Encode.encode .v11) writer.outputData }
 
 private def writeFinalChunk (writer : Writer ty) : Writer ty :=
   let writer := writer.writeChunkedBody
@@ -538,7 +509,7 @@ structure Machine (ty : Machine.MachineType) where
   /--
   The configuration of the machine.
   -/
-  config : Machine.Config := {}
+  config : Machine.Config
 
   /--
   Events that happened during reading and writing.
@@ -689,7 +660,6 @@ private def resetForNextMessage (machine : Machine ty) : Machine ty :=
       },
       writer := {
         userData := .empty,
-        chunkExt := .empty,
         outputData := machine.writer.outputData,
         state := .waitingHeaders,
         closed := false,
@@ -837,15 +807,8 @@ def setNow (machine : Machine ty) : IO (Machine ty) := do
 Put some data to be written.
 -/
 @[inline]
-def writeUserData (machine : Machine ty) (data : ChunkedBuffer) : Machine ty :=
+def writeUserData (machine : Machine ty) (data : Array Chunk) : Machine ty :=
   { machine with writer := machine.writer.addUserData data }
-
-/--
-Put chunk extensions to be written.
--/
-@[inline]
-def writeChunkExt (machine : Machine ty) (chunkExt : Array (String × Option String)) : Machine ty :=
-  { machine with writer := machine.writer.addChunkExt chunkExt }
 
 /--
 Close the writer.
@@ -914,6 +877,121 @@ def takeOutput (machine : Machine ty) (highMark := 0) : Option (Machine ty × Ch
     some ({ machine with writer := { machine.writer with outputData := .empty } }, output)
   else
     none
+
+/--
+Initiates a graceful shutdown of the machine.
+This will:
+- Prevent new messages from being sent
+- Flush any remaining user data
+- Close the connection cleanly once all data is written
+- Not generate error events
+
+Use this when you want to close the connection cleanly without errors,
+but need to ensure all buffered data is sent first.
+-/
+@[inline]
+def initiateGracefulShutdown (machine : Machine ty) : Machine ty :=
+  match machine.reader.state, machine.writer.state with
+  -- Reader is idle and writer is waiting - perfect time to shutdown
+  | .needStartLine, .waitingHeaders =>
+    if machine.writer.userData.isEmpty then
+      -- No data to flush, close immediately
+      machine
+      |>.setWriterState .closed
+      |>.addEvent .close
+      |>.disableKeepAlive
+    else
+      -- Has data to flush, enter shutdown mode
+      { machine with
+        writer := { machine.writer with state := .shuttingDown, closed := true }
+        keepAlive := false
+      }
+  | _, .writingFixedData | _, .writingChunkedBody | _, .waitingForFlush =>
+    { machine with
+      writer := { machine.writer with closed := true }
+      keepAlive := false
+    }
+
+  | _, .complete | _, .closed =>
+    machine
+    |>.setWriterState .closed
+    |>.addEvent .close
+    |>.disableKeepAlive
+
+  | _, _ =>
+    -- Other states, mark for closure
+    { machine with
+      writer := { machine.writer with closed := true }
+      keepAlive := false
+    }
+
+/--
+Forcefully terminates the machine connection.
+If the machine is idle (reader at needStartLine, no active processing):
+  - Performs graceful shutdown (flushes remaining data)
+If the machine is in the middle of processing a request/response:
+  - Generates a timeout error
+  - Discards any buffered data
+  - Closes connection immediately
+
+Use this when you need to force-close a connection (e.g., server shutdown, timeout),
+and you want to be graceful when possible but forceful when necessary.
+-/
+@[inline]
+def forcefullyTerminate (machine : Machine ty) : Machine ty :=
+  match machine.reader.state, machine.writer.state with
+  -- Completely idle - graceful shutdown
+  | .needStartLine, .waitingHeaders =>
+    initiateGracefulShutdown machine
+
+  -- Reader is processing or has processed but writer hasn't finished - timeout
+  | .needHeader _, _ | .needChunkedSize, _ | .needChunkedBody _, _ | .needFixedBody _, _ | .requireOutgoing _, _ =>
+    machine
+    |>.setFailure .timeout
+    |>.setReaderState .complete
+    |>.setWriterState .closed
+    |>.disableKeepAlive
+
+  -- Reader is complete but writer is still working - depends on writer state
+  | .complete, .writingFixedData | .complete, .writingChunkedBody | .complete, .writingHeaders =>
+    -- In the middle of writing - timeout
+    machine
+    |>.setFailure .timeout
+    |>.setWriterState .closed
+    |>.disableKeepAlive
+
+  | .complete, .waitingForFlush =>
+    -- Writer hasn't started yet, can gracefully shutdown
+    initiateGracefulShutdown machine
+
+  -- Already failed or complete - just close
+  | .complete, .complete
+  | .failed _, _
+  | .complete, .closed
+  | .complete, .waitingHeaders =>
+    machine
+    |>.setWriterState .closed
+    |>.addEvent .close
+    |>.disableKeepAlive
+
+  -- Any other state - timeout
+  | _, _ =>
+    machine
+    |>.setFailure .timeout
+    |>.setReaderState .complete
+    |>.setWriterState .closed
+    |>.disableKeepAlive
+
+def isFullyShutDown (machine : Machine ty) : Bool :=
+  let writerClosed := match machine.writer.state with
+    | .closed => true
+    | _ => false
+
+  let readerDone := match machine.reader.state with
+    | .complete | .failed _ => true
+    | _ => false
+
+  writerClosed && readerDone
 
 /--
 Advances the state of the reader (for server/request mode).
@@ -1082,6 +1160,24 @@ partial def processWrite (machine : Machine ty) : Machine ty :=
         |>.addEvent .close
     else
       machine
+  | .shuttingDown =>
+    if machine.writer.userData.isEmpty then
+      machine
+      |>.setWriterState .closed
+      |>.addEvent .close
+    else
+      let bodyLength := Writer.determineBodySize machine.writer
+      let machine := machine.setHeaders machine.writer.messageHead
+
+      match bodyLength with
+      | .chunked =>
+        let machine := machine.modifyWriter Writer.writeFinalChunk
+        machine.setWriterState .closed |> processWrite
+      | .fixed _ =>
+        let machine := machine.modifyWriter Writer.writeFixedBody
+        machine.setWriterState .closed |> processWrite
+
+
   | .closed =>
     machine
 

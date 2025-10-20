@@ -186,7 +186,7 @@ private def handle [Transport α] (connection : Connection α) (config : Client.
         machine := machine.sendMessage packet.request.head
 
         match packet.request.body with
-        | .bytes data => machine := machine.writeUserData data |>.closeWriter
+        | .bytes data => machine := machine.writeUserData #[Chunk.mk data #[]] |>.closeWriter
         | .zero => machine := machine.closeWriter
         | .stream stream => do
           if let some size ← stream.getKnownSize then
@@ -243,7 +243,7 @@ private def handle [Transport α] (connection : Connection α) (config : Client.
           packet.onResponse response
 
       | .gotData final data =>
-        discard <| responseStream.send data.toByteArray
+        discard <| responseStream.write data.toByteArray
 
         if final then
           responseStream.close

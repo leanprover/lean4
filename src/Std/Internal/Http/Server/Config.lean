@@ -64,7 +64,7 @@ structure Config where
   /--
   Size threshold for flushing output buffer.
   -/
-  highMark : Nat := 4096
+  highMark : Nat := 1
 
   /--
   The maximum size that the connection can receive in a single recv call.

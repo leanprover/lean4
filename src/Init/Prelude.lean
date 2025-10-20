@@ -3504,7 +3504,7 @@ A UTF-8 byte position that points at the end of a string, just after the last ch
 * `"abc".endPos = ⟨3⟩`
 * `"L∃∀N".endPos = ⟨8⟩`
 -/
-@[inline] def String.endPos (s : String) : String.Pos.Raw where
+@[inline] def String.rawEndPos (s : String) : String.Pos.Raw where
   byteIdx := utf8ByteSize s
 
 /--
@@ -3513,7 +3513,7 @@ Converts a `String` into a `Substring` that denotes the entire string.
 @[inline] def String.toSubstring (s : String) : Substring where
   str      := s
   startPos := {}
-  stopPos  := s.endPos
+  stopPos  := s.rawEndPos
 
 /--
 Converts a `String` into a `Substring` that denotes the entire string.

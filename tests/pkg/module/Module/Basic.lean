@@ -496,3 +496,7 @@ Note: A private declaration `S.s` (from the current module) exists but would nee
 -/
 #guard_msgs in
 @[expose] public def useS (s : S) := s.s
+
+noncomputable section
+meta def m := S.s
+end

@@ -22,13 +22,24 @@ open Lean
 
 namespace Lean.PremiseSelection.MePo
 
-def symbolFrequency (env : Environment) : NameMap Nat := Id.run do
-  let mut map := {}
-  for (n, ci) in env.constants do
-    if !isDeniedPremise env n then
-      map := ci.type.foldConsts map fun n' map =>
-        map.alter n' fun i? => some (i?.getD 0 + 1)
-  return map
+public builtin_initialize symbolFrequencyExt : PersistentEnvExtension (NameMap Nat) Empty (Array (Array (NameMap Nat))) ←
+  registerPersistentEnvExtension {
+    name            := `symbolFrequency
+    mkInitial       := pure #[]
+    addImportedFn   := fun maps _ => pure maps
+    addEntryFn      := nofun
+    exportEntriesFnEx := fun env _ _ =>
+      let r := env.constants.map₂.foldl (init := (∅ : NameMap Nat)) (fun acc n ci =>
+        if n.isInternalDetail then
+          acc
+        else
+          ci.type.foldConsts (init := acc) fun n' acc => acc.alter n' fun i? => some (i?.getD 0 + 1))
+      #[r]
+    statsFn         := fun _ => "symbol frequency extension"
+  }
+
+public def symbolFrequency (env : Environment) (n : Name) : Nat :=
+  symbolFrequencyExt.getState env |>.foldl (init := 0) (fun acc maps => maps.foldl (init := acc) fun acc map => acc + map.getD n 0)
 
 def weightedScore (weight : Name → Float) (relevant candidate : NameSet) : Float :=
   let S := candidate
@@ -82,7 +93,7 @@ public def mepoSelector (useRarity : Bool) (p : Float := 0.6) (c : Float := 2.4)
   let env ← getEnv
   let score := if useRarity then
     let frequency := symbolFrequency env
-    frequencyScore (frequency.getD · 0)
+    frequencyScore frequency
   else
     unweightedScore
   let accept := fun ci => return !isDeniedPremise env ci.name

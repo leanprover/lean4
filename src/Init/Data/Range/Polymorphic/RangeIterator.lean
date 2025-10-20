@@ -484,7 +484,7 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LE α] [DecidableLE α
     case hle'' =>
       exact UpwardEnumerable.le_iff.mpr (UpwardEnumerable.le_refl _)
 
-noncomputable def Iterator.instIteratorLoop.loop.wf [UpwardEnumerable α] [LE α] [DecidableLE α]
+private noncomputable def Iterator.instIteratorLoop.loop.wf [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     {n : Type u → Type w} [Monad n] (γ : Type u)
     (Pl : α → γ → ForInStep γ → Prop)
@@ -512,7 +512,7 @@ where finally
     refine ⟨1, ?_⟩
     simpa [succMany?_one] using hs
 
-theorem Iterator.instIteratorLoop.loop_eq_loopWf [UpwardEnumerable α] [LE α] [DecidableLE α]
+private theorem Iterator.instIteratorLoop.loop_eq_loopWf [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Monad n] [LawfulMonad n]
     {γ LargeEnough hl upperBound} {next hn} {acc} (Pl wf f) :
     loop γ LargeEnough hl upperBound acc next hn (fun out h₁ h₂ acc => Subtype.val <$> f out h₁ h₂ acc) =
@@ -553,7 +553,7 @@ theorem Iterator.instIteratorLoop.loop_eq_loopWf [UpwardEnumerable α] [LE α] [
     · rw [WellFounded.fix_eq]
       simp_all
 
-theorem Iterator.instIteratorLoop.loopWf_eq [UpwardEnumerable α] [LE α] [DecidableLE α]
+private theorem Iterator.instIteratorLoop.loopWf_eq [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     {n : Type u → Type w} [Monad n] [LawfulMonad n] (γ : Type u)
     {lift} [instLawfulMonadLiftFunction : Std.Internal.LawfulMonadLiftBindFunction (m := Id) (n := n) lift]
@@ -586,8 +586,7 @@ theorem Iterator.instIteratorLoop.loopWf_eq [UpwardEnumerable α] [LE α] [Decid
   congr 1; ext hu
   apply bind_congr; intro forInStep
   split
-  · simp only
-    split
+  · split
     · simp only [bind_pure_comp]
       rw [loopWf_eq (lift := lift) _ Pl wf]
       rw [IterM.DefaultConsumers.forIn'_eq_match_step (lift := lift) Pl wf _ (by intros; rfl)]; rotate_left

@@ -976,7 +976,7 @@ static lean_object* _init_l_List_forIn_x27_loop___at___Lean_Language_Lean_repars
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'\n\nIf the option is defined in this library, use '-D", 52, 52);
+x_1 = lean_mk_string_unchecked("'\n\nIf the option is defined in a library, use '-D", 49, 49);
 return x_1;
 }
 }

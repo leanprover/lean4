@@ -10592,8 +10592,8 @@ goto block_19;
 block_7:
 {
 uint32_t x_5; uint32_t x_6; 
-x_5 = lean_uint32_lor(x_2, x_4);
-x_6 = lean_uint32_lor(x_3, x_5);
+x_5 = lean_uint32_lor(x_3, x_4);
+x_6 = lean_uint32_lor(x_2, x_5);
 return x_6;
 }
 block_15:
@@ -10602,8 +10602,8 @@ if (x_10 == 0)
 {
 uint32_t x_13; 
 x_13 = 0;
-x_2 = x_12;
-x_3 = x_11;
+x_2 = x_11;
+x_3 = x_12;
 x_4 = x_13;
 goto block_7;
 }
@@ -10611,8 +10611,8 @@ else
 {
 uint32_t x_14; 
 x_14 = 1;
-x_2 = x_12;
-x_3 = x_11;
+x_2 = x_11;
+x_3 = x_12;
 x_4 = x_14;
 goto block_7;
 }

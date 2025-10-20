@@ -19,6 +19,7 @@ uint8_t lean_usize_dec_le(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNode___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___elabAsAuxLemma_spec__3_spec__3_spec__3_spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 uint8_t l_Lean_instBEqMVarId_beq(lean_object*, lean_object*);
+static lean_object* l_elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__0;
 extern lean_object* l_Lean_Elab_Tactic_tacticElabAttribute;
 static lean_object* l_elabAsAuxLemma___closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -35,12 +36,14 @@ LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_Persist
 lean_object* l_Lean_Elab_Tactic_run(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_elabAsAuxLemma___closed__2;
 LEAN_EXPORT lean_object* l_Lean_MVarId_assign___at___elabAsAuxLemma_spec__3___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1(lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 static lean_object* l_elabAsAuxLemma___closed__3;
 lean_object* l_Lean_Elab_Tactic_getMainGoal___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_elabAsAuxLemma___closed__4;
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_throwError___at___elabAsAuxLemma_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__2;
 lean_object* l_Lean_MVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_throwError___at___elabAsAuxLemma_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___elabAsAuxLemma_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -57,7 +60,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___elabAsAuxLemma_spec__0___redAr
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___elabAsAuxLemma_spec__3_spec__3_spec__3_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static size_t l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___elabAsAuxLemma_spec__3_spec__3_spec__3___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at___Lean_PersistentHashMap_insertAtCollisionNode___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___elabAsAuxLemma_spec__3_spec__3_spec__3_spec__3_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lean_Elab_Tactic_AsAuxLemma_0__elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__1;
 lean_object* lean_usize_to_nat(size_t);
 static lean_object* l_elabAsAuxLemma___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___elabAsAuxLemma_spec__3_spec__3_spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
@@ -71,12 +73,10 @@ lean_object* l_Lean_PersistentHashMap_mkCollisionNode___redArg(lean_object*, lea
 lean_object* l_Lean_Elab_Tactic_withMainContext___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint64_t l_Lean_instHashableMVarId_hash(lean_object*);
-static lean_object* l___private_Lean_Elab_Tactic_AsAuxLemma_0__elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__0;
 LEAN_EXPORT lean_object* l_elabAsAuxLemma___lam__0(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntries(lean_object*, lean_object*);
 static lean_object* l_elabAsAuxLemma___closed__6;
 static lean_object* l_elabAsAuxLemma___closed__5;
-LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_AsAuxLemma_0__elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___elabAsAuxLemma_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___elabAsAuxLemma_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static size_t l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___elabAsAuxLemma_spec__3_spec__3_spec__3___redArg___closed__1;
@@ -88,8 +88,8 @@ static lean_object* l_elabAsAuxLemma___closed__0;
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_elabAsAuxLemma(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkMVar(lean_object*);
+static lean_object* l_elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__1;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lean_Elab_Tactic_AsAuxLemma_0__elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__2;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 static lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___elabAsAuxLemma_spec__3_spec__3_spec__3___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___elabAsAuxLemma_spec__3_spec__3_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1524,7 +1524,7 @@ lean_dec_ref(x_3);
 return x_13;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_Tactic_AsAuxLemma_0__elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__0() {
+static lean_object* _init_l_elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -1532,7 +1532,7 @@ x_1 = l_Lean_Elab_Tactic_tacticElabAttribute;
 return x_1;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_Tactic_AsAuxLemma_0__elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__1() {
+static lean_object* _init_l_elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1540,22 +1540,22 @@ x_1 = lean_mk_string_unchecked("elabAsAuxLemma", 14, 14);
 return x_1;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_Tactic_AsAuxLemma_0__elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__2() {
+static lean_object* _init_l_elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_Elab_Tactic_AsAuxLemma_0__elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__1;
+x_1 = l_elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__1;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_AsAuxLemma_0__elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l___private_Lean_Elab_Tactic_AsAuxLemma_0__elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__0;
+x_2 = l_elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__0;
 x_3 = l_elabAsAuxLemma___closed__4;
-x_4 = l___private_Lean_Elab_Tactic_AsAuxLemma_0__elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__2;
+x_4 = l_elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__2;
 x_5 = lean_alloc_closure((void*)(l_elabAsAuxLemma), 10, 0);
 x_6 = l_Lean_KeyedDeclsAttribute_addBuiltin___redArg(x_2, x_3, x_4, x_5, x_1);
 return x_6;
@@ -1592,13 +1592,13 @@ l_elabAsAuxLemma___closed__5 = _init_l_elabAsAuxLemma___closed__5();
 lean_mark_persistent(l_elabAsAuxLemma___closed__5);
 l_elabAsAuxLemma___closed__6 = _init_l_elabAsAuxLemma___closed__6();
 lean_mark_persistent(l_elabAsAuxLemma___closed__6);
-l___private_Lean_Elab_Tactic_AsAuxLemma_0__elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__0 = _init_l___private_Lean_Elab_Tactic_AsAuxLemma_0__elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__0();
-lean_mark_persistent(l___private_Lean_Elab_Tactic_AsAuxLemma_0__elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__0);
-l___private_Lean_Elab_Tactic_AsAuxLemma_0__elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__1 = _init_l___private_Lean_Elab_Tactic_AsAuxLemma_0__elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__1();
-lean_mark_persistent(l___private_Lean_Elab_Tactic_AsAuxLemma_0__elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__1);
-l___private_Lean_Elab_Tactic_AsAuxLemma_0__elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__2 = _init_l___private_Lean_Elab_Tactic_AsAuxLemma_0__elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__2();
-lean_mark_persistent(l___private_Lean_Elab_Tactic_AsAuxLemma_0__elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__2);
-if (builtin) {res = l___private_Lean_Elab_Tactic_AsAuxLemma_0__elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1(lean_io_mk_world());
+l_elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__0 = _init_l_elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__0();
+lean_mark_persistent(l_elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__0);
+l_elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__1 = _init_l_elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__1();
+lean_mark_persistent(l_elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__1);
+l_elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__2 = _init_l_elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__2();
+lean_mark_persistent(l_elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__2);
+if (builtin) {res = l_elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }return lean_io_result_mk_ok(lean_box(0));

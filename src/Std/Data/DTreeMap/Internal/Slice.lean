@@ -633,7 +633,7 @@ def instProductivenessRelation : ProductivenessRelation (RxcIterator α β cmp) 
       split at val_eq <;> contradiction
 
 @[no_expose]
-public instance instProductive : Productive (RxcIterator α β cmp) Id :=
+public instance RxcIterator.instProductive : Productive (RxcIterator α β cmp) Id :=
   .of_productivenessRelation instProductivenessRelation
 
 end Rxc

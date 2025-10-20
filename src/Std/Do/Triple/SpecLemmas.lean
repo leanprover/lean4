@@ -165,6 +165,13 @@ theorem Spec.monadLift_ExceptT [Monad m] [WPMonad m ps] (x : m α) (Q : PostCond
     (wp⟦x⟧ (fun a => Q.1 a, Q.2.2))
     Q := by simp [Triple, SPred.entails.refl]
 
+@[spec]
+theorem Spec.monadLift_OptionT [Monad m] [WPMonad m ps] (x : m α) (Q : PostCond α (.except PUnit ps)) :
+  Triple (ps:=.except PUnit ps)
+    (MonadLift.monadLift x : OptionT m α)
+    (wp⟦x⟧ (fun a => Q.1 a, Q.2.2))
+    Q := by simp [Triple, SPred.entails.refl]
+
 /-! # `MonadLiftT` -/
 
 attribute [spec] liftM instMonadLiftTOfMonadLift instMonadLiftT
@@ -186,8 +193,16 @@ theorem Spec.monadMap_ExceptT [Monad m] [WP m ps]
     (f : ∀{β}, m β → m β) {α} (x : ExceptT ε m α) (Q : PostCond α (.except ε ps)) :
   Triple (ps:=.except ε ps)
     (MonadFunctor.monadMap (m:=m) f x)
-    (wp⟦f x.run⟧ (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2))
-    Q := by simp only [Triple, WP.monadMap_ExceptT]; rfl
+    (wp⟦f x.run⟧ (fun e => e.casesOn Q.2.1 Q.1, Q.2.2))
+    Q := by simp [Triple]
+
+@[spec]
+theorem Spec.monadMap_OptionT [Monad m] [WP m ps]
+    (f : ∀{β}, m β → m β) {α} (x : OptionT m α) (Q : PostCond α (.except PUnit ps)) :
+  Triple (ps:=.except PUnit ps)
+    (MonadFunctor.monadMap (m:=m) f x)
+    (wp⟦f x.run⟧ (fun o => o.casesOn (Q.2.1 ⟨⟩) Q.1, Q.2.2))
+    Q := by simp [Triple]
 
 /-! # `MonadFunctorT` -/
 
@@ -229,6 +244,14 @@ theorem Spec.liftWith_ExceptT [Monad m] [WPMonad m ps]
       Q := by simp [Triple]
 
 @[spec]
+theorem Spec.liftWith_OptionT [Monad m] [WPMonad m ps]
+  (f : (∀{β}, OptionT m β → m (Option β)) → m α) :
+    Triple (ps := .except PUnit ps)
+      (MonadControl.liftWith (m:=m) f)
+      (wp⟦f (fun x => x.run)⟧ (Q.1, Q.2.2))
+      Q := by simp [Triple]
+
+@[spec]
 theorem Spec.restoreM_StateT [Monad m] [WPMonad m ps] (x : m (α × σ)) :
     Triple
       (MonadControl.restoreM x : StateT σ m α)
@@ -246,8 +269,15 @@ theorem Spec.restoreM_ReaderT [Monad m] [WPMonad m ps] (x : m α) :
 theorem Spec.restoreM_ExceptT [Monad m] [WPMonad m ps] (x : m (Except ε α)) :
     Triple (ps := .except ε ps)
       (MonadControl.restoreM x : ExceptT ε m α)
-      (wp⟦x⟧ (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2))
-      Q := by simp [Triple]; rfl
+      (wp⟦x⟧ (fun e => e.casesOn Q.2.1 Q.1, Q.2.2))
+      Q := by simp [Triple]
+
+@[spec]
+theorem Spec.restoreM_OptionT [Monad m] [WPMonad m ps] (x : m (Option α)) :
+    Triple (ps := .except PUnit ps)
+      (MonadControl.restoreM x : OptionT m α)
+      (wp⟦x⟧ (fun e => e.casesOn (Q.2.1 ⟨⟩) Q.1, Q.2.2))
+      Q := by simp [Triple]
 
 /-! # `MonadControlT` -/
 
@@ -362,6 +392,46 @@ theorem Spec.orElse_Except (Q : PostCond α (.except ε .pure)) :
     Triple (OrElse.orElse x h : Except ε α) (spred(wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2))) spred(Q) := by
   simp [Triple]
 
+/-! # `OptionT` -/
+
+@[spec]
+theorem Spec.run_OptionT [WP m ps] (x : OptionT m α) :
+  Triple (ps:=ps)
+    (x.run : m (Option α))
+    (wp⟦x⟧ (fun a => Q.1 (.some a), fun _ => Q.1 .none, Q.2))
+    Q := by simp [Triple]
+
+@[spec]
+theorem Spec.throw_OptionT [Monad m] [WPMonad m ps] :
+    Triple (MonadExceptOf.throw e : OptionT m α) (spred(Q.2.1 e)) spred(Q) := by
+  simp [Triple]
+
+@[spec]
+theorem Spec.tryCatch_OptionT [Monad m] [WPMonad m ps] (Q : PostCond α (.except PUnit ps)) :
+    Triple (MonadExceptOf.tryCatch x h : OptionT m α) (spred(wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2))) spred(Q) := by
+  simp [Triple]
+
+@[spec]
+theorem Spec.orElse_OptionT [Monad m] [WPMonad m ps] (Q : PostCond α (.except PUnit ps)) :
+    Triple (OrElse.orElse x h : OptionT m α) (spred(wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2))) spred(Q) := by
+  simp [Triple]
+
+/-! # `Option` -/
+
+@[spec]
+theorem Spec.throw_Option [Monad m] [WPMonad m ps] :
+  Triple (MonadExceptOf.throw e : Option α) (spred(Q.2.1 e)) spred(Q) := SPred.entails.rfl
+
+@[spec]
+theorem Spec.tryCatch_Option (Q : PostCond α (.except PUnit .pure)) :
+    Triple (MonadExceptOf.tryCatch x h : Option α) (spred(wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2))) spred(Q) := by
+  simp [Triple]
+
+@[spec]
+theorem Spec.orElse_Option (Q : PostCond α (.except PUnit .pure)) :
+    Triple (OrElse.orElse x h : Option α) (spred(wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2))) spred(Q) := by
+  simp [Triple]
+
 /-! # `EStateM` -/
 
 @[spec]
@@ -431,7 +501,19 @@ theorem Spec.throw_StateT [WP m ps] [Monad m] [MonadExceptOf ε m] (Q : PostCond
 theorem Spec.throw_ExceptT_lift [WP m ps] [MonadExceptOf ε m] (Q : PostCond α (.except ε' ps)) :
   Triple (ps:=.except ε' ps)
     (MonadExceptOf.throw e : ExceptT ε' m α)
-    (wp⟦MonadExceptOf.throw (ε:=ε) e : m (Except ε' α)⟧ (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2))
+    (wp⟦MonadExceptOf.throw (ε:=ε) e : m (Except ε' α)⟧ (fun e => e.casesOn Q.2.1 Q.1, Q.2.2))
+    Q := by
+  simp [Triple]
+  apply (wp _).mono
+  simp
+  intro x
+  split <;> rfl
+
+@[spec]
+theorem Spec.throw_Option_lift [WP m ps] [MonadExceptOf ε m] (Q : PostCond α (.except PUnit ps)) :
+  Triple (ps:=.except PUnit ps)
+    (MonadExceptOf.throw e : OptionT m α)
+    (wp⟦MonadExceptOf.throw (ε:=ε) e : m (Option α)⟧ (fun o => o.casesOn (Q.2.1 ⟨⟩) Q.1, Q.2.2))
     Q := by
   simp [Triple]
   apply (wp _).mono
@@ -452,7 +534,20 @@ theorem Spec.tryCatch_ExceptT_lift [WP m ps] [MonadExceptOf ε m] (Q : PostCond 
     Triple
       (ps:=.except ε' ps)
       (MonadExceptOf.tryCatch x h : ExceptT ε' m α)
-      (wp⟦MonadExceptOf.tryCatch (ε:=ε) x h : m (Except ε' α)⟧ (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2))
+      (wp⟦MonadExceptOf.tryCatch (ε:=ε) x h : m (Except ε' α)⟧ (fun e => e.casesOn Q.2.1 Q.1, Q.2.2))
+      Q := by
+  simp only [Triple]
+  apply (wp _).mono
+  simp
+  intro x
+  split <;> rfl
+
+@[spec]
+theorem Spec.tryCatch_OptionT_lift [WP m ps] [MonadExceptOf ε m] (Q : PostCond α (.except PUnit ps)) :
+    Triple
+      (ps:=.except PUnit ps)
+      (MonadExceptOf.tryCatch x h : OptionT m α)
+      (wp⟦MonadExceptOf.tryCatch (ε:=ε) x h : m (Option α)⟧ (fun o => o.casesOn (Q.2.1 ⟨⟩) Q.1, Q.2.2))
       Q := by
   simp only [Triple]
   apply (wp _).mono

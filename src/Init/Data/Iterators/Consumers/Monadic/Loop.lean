@@ -568,6 +568,9 @@ def IterM.Partial.all {α β : Type w} {m : Type w → Type w'} [Monad m]
     (p : β → Bool) (it : IterM.Partial (α := α) m β) : m (ULift Bool) := do
   it.allM (fun x => pure (.up (p x)))
 
+/--
+TODO!
+-/
 @[inline]
 def IterM.findSomeM? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
     [IteratorLoop α m m] (it : IterM (α := α) m β) (f : β → m (Option γ)) :

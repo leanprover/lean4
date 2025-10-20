@@ -71,6 +71,29 @@ def new (config : Std.Http.Config := {}) : IO Server := do
 
   return { cancellation, activeConnections, shutdownPromise, config }
 
+/--
+Triggers the cancellation of all the requests and the accept loop in the server.
+-/
+@[inline]
+def shutdown (s : Server) : Async Unit :=
+  s.cancellation.cancel
+
+/--
+Waits for the server to shutdown.
+-/
+@[inline]
+def waitShutdown (s : Server) : Async Unit := do
+  Async.ofAsyncTask (s.shutdownPromise.result?.map (Option.map Except.ok · |>.getD (.error "promise dropped at server shutdown task")))
+
+/--
+Triggers the cancellation of all the requests and the accept loop in the server and wait for the server
+to be cancelled.
+-/
+@[inline]
+def shutdownAndWait (s : Server) : Async Unit := do
+  s.cancellation.cancel
+  s.waitShutdown
+
 @[inline]
 private def frameCancellation (s : Server) (action : Async α) : Async α := do
   s.activeConnections.atomically (modify (· + 1))

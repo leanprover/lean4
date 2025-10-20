@@ -1,25 +1,31 @@
 import Lean
 import Lean.Elab.Tactic.Do.LetElim
+import Std.Tactic.Do
 
 open Lean Parser Meta Elab
 
 class Foldable (ρ : Type u) (α : outParam (Type v)) where
   foldr : (α → β → β) → β → ρ → β
 
-def Foldable.toList [Foldable ρ α] (xs : ρ) : List α :=
-  Foldable.foldr List.cons List.nil xs
-
 instance : Foldable (List α) α where
   foldr := List.foldr
 
-instance : Foldable (Array α) α where
-  foldr := Array.foldr
+class ForBreak (m : Type u → Type v) (ρ : Sort w) (α : outParam (Type v)) where
+  forBreak_ (xs : ρ)  (f : α → OptionT m PUnit) : m PUnit
 
-def traverse_ [Applicative m] [Foldable ρ α] (f : α → m PUnit) (xs : ρ) : m PUnit :=
-  Foldable.foldr (fun x acc => f x *> acc) (pure PUnit.unit) xs
+instance [Foldable ρ α] [Monad m] : ForBreak m ρ α where
+  forBreak_ xs f :=
+    Foldable.foldr (fun x acc _ => SeqRight.seqRight (f x) (liftM ∘ acc) |>.run |> discard) pure xs ()
 
-def for_ [Applicative m] [Foldable ρ α] (xs : ρ) (f : α → m PUnit) : m PUnit :=
-  traverse_ f xs
+def forBreak_ [Monad m] [Foldable ρ α] (xs : ρ) (f : α → OptionT m PUnit) : m PUnit :=
+  -- `Monad` could be `Applicative` if the `OptionT` definitions were written more carefully
+  Foldable.foldr (fun x acc _ => SeqRight.seqRight (f x) (liftM ∘ acc) |>.run |> discard) pure xs ()
+  -- The following definition seems simpler, but it retains `acc` as `Unit → OptionT m PUnit` rather
+  -- than `Unit → m PUnit`:
+  -- Foldable.foldr (fun x acc _ => SeqRight.seqRight (f x) acc) pure xs () |>.run |> discard
+
+def Foldable.toList [Foldable ρ α] (xs : ρ) : List α :=
+  Foldable.foldr List.cons List.nil xs
 
 class LawfulFoldable (ρ : Type u) (α : outParam (Type v)) [Foldable ρ α] : Prop where
   foldr_eq_foldr_toList (xs : ρ) (k : α → β → β) (z : β) :
@@ -991,61 +997,368 @@ else
     x := x + 5
   return x + y
 
-def SRel : List Type → Type
-| [] => Prop
-| t :: ts => t → t → SRel ts
+open Std.Do
+class WPAttach (m : Type u → Type v) (ps : outParam (PostShape.{u})) [Monad m] extends WP m ps where
+  attach (prog : m α) (p : α → Prop) (h : ⦃⌜True⌝⦄ prog ⦃⇓r => ⌜p r⌝⦄) : ∃ (prog' : m (Subtype p)), prog = Subtype.val <$> prog'
 
-#reduce (types := true) SRel [Nat, Bool]
+instance : WPAttach Id .pure where
+  attach prog _ h := ⟨⟨prog, h .intro⟩, rfl⟩
 
-example (measure : Nat → Bool → Nat) : SRel [Nat, Bool] :=
-  fun n1 n2 b1 b2 => measure n1 b1 < measure n2 b2
+instance [Monad m] [LawfulMonad m] [WPAttach m ps] : WPAttach (StateT σ m) (.arg σ ps) where
+  attach prog p h := by
+    let f (s : σ) := WPAttach.attach (prog s) (fun (a, s') => p a) (h s)
+    exists fun s => (fun ⟨⟨a, s'⟩, h⟩ => ⟨⟨a, h⟩, s'⟩) <$> (f s).choose
+    ext s
+    simp [Functor.map, StateT.map, StateT.run]
+    conv => lhs; rw [(f s).choose_spec]
 
---example [Monad m] [WPMonad m ps]
---  (rel : SRel (PostShape.args ps)) (f : Unit → m (Except Unit Unit)) :
---  ⦃⦄ f () ⦃⇓r =>
---    match r with
---    | ForInStep.done _ => ⌜True⌝
---    | ForInStep.yield _ => rel⦄ := sorry
+instance [Monad m] [WPAttach m ps] : WPAttach (ReaderT ρ m) (.arg ρ ps) where
+  attach prog p h := by
+    let f (r : ρ) := WPAttach.attach (prog r) p (h r)
+    exists fun r => (f r).choose
+    ext r
+    simp [Functor.map, ReaderT.run]
+    conv => lhs; rw [(f r).choose_spec]
 
-class WPAdequacy (m : Type u → Type v) (ps : PostShape.{u}) where
-  elim :
-    ⦃⌜True⌝⦄ prog ⦃⇓r => ⌜p r⌝⦄ →
-    ∃ (prog' : m (Subtype p)), prog = Subtype.val <$> prog' := sorry
+instance [Monad m] [LawfulMonad m] [WPAttach m ps] : WPAttach (ExceptT ε m) (.except ε ps) where
+  attach prog p h := by
+    have h'  : ∃ prog', prog.run = Subtype.val <$> prog' := WPAttach.attach (ps:=ps) prog.run (fun | .ok a => p a | _ => False) <| by
+      simp [Triple, WP.wp] at h
+      simp [Triple, ExceptT.run]
+      apply SPred.entails.trans h
+      apply SPred.bientails.mp
+      apply SPred.bientails.of_eq
+      congr; ext x; split <;> rfl
+    exists ExceptT.mk <| (fun | ⟨.ok a, h⟩ => Except.ok ⟨a, h⟩ | ⟨.error e, _⟩ => Except.error e) <$> h'.choose
+    ext
+    conv => lhs; rw [h'.choose_spec]
+    simp [ExceptT.mk, ExceptT.run, Functor.map, ExceptT.map]
+    rw [map_eq_pure_bind]
+    congr
+    ext x
+    match x with
+    | .mk a h =>
+    cases a <;> rfl
 
-structure Loop' (β : Type u) where
-  wf : WellFoundedRelation β
+instance [Monad m] [LawfulMonad m] [WPAttach m ps] : WPAttach (OptionT m) (.except PUnit ps) where
+  attach prog p h := by
+    have h'  : ∃ prog', prog.run = Subtype.val <$> prog' := WPAttach.attach (ps:=ps) prog.run (fun | .some a => p a | _ => False) <| by
+      simp [Triple, WP.wp] at h
+      simp [Triple]
+      apply SPred.entails.trans h
+      apply SPred.bientails.mp
+      apply SPred.bientails.of_eq
+      congr; ext x; split <;> rfl
+    exists OptionT.mk <| (fun | ⟨.some a, h⟩ => Option.some ⟨a, h⟩ | ⟨.none, _⟩ => Option.none) <$> h'.choose
+    ext
+    conv => lhs; rw [h'.choose_spec]
+    simp [OptionT.mk, OptionT.run, Functor.map, OptionT.bind, OptionT.pure]
+    rw [map_eq_pure_bind]
+    congr
+    ext x
+    match x with
+    | .mk a h =>
+    cases a <;> rfl
 
-def DecStateT (σ : Type u) (rel : σ → σ → Prop) (m : Type u → Type v) (α : Type u): Type (max u v) :=
-  (s : σ) → m (α × { s' : σ // rel s' s })
+class Foldable (ρ : Type u) (α : outParam (Type v)) where
+  foldr : (α → β → β) → β → ρ → β
 
-instance (σ : Type u) (rel : σ → σ → Prop) (m : Type u → Type v) [Std.Refl rel] [Pure m] : Pure (DecStateT σ rel m) where
-  pure a := fun s => pure (a, ⟨s, Std.Refl.refl s⟩)
+instance : Foldable (List α) α where
+  foldr := List.foldr
 
-instance (σ : Type u) (rel : σ → σ → Prop) (m : Type u → Type v) [Trans rel rel rel] [Bind m] [Pure m] : Bind (DecStateT σ rel m) where
-  bind x f := fun s => do
-    let (a, ⟨s', h₁⟩) ← x s
-    let (b, ⟨s'', h₂⟩) ← f a s'
-    pure (b, ⟨s'', Trans.trans h₂ h₁⟩)
+class ForBreak (m : Type u → Type v) (ρ : Sort w) (α : outParam (Type v)) where
+  forBreak_ (f : α → OptionT m PUnit) (xs : ρ) : m PUnit
 
-instance : Monad (DecStateT σ rel m) where
-  pure a := fun s => pure (a, s)
-  bind := fun x f => fun s => do
-    let (a, s') ← x s
-    f a s'
+instance [Foldable ρ α] [Monad m] : ForBreak m ρ α where
+  forBreak_ f xs :=
+    Foldable.foldr (fun x acc _ => SeqRight.seqRight (f x) (liftM ∘ acc) |>.run |> discard) pure xs ()
 
-@[inline]
-def Loop'.forIn {β : Type u} {m : Type u → Type v} [Monad m] (l : Loop' β) (init : β) (f : Unit → (b : β) → m { b' : β // l.wf.rel b' b }) : m β :=
-  let rec @[specialize] loop (b : β) (acc : Acc l.wf.rel b) : m β := do
-    f () b >>= fun b' (h : l.wf.rel.rel b' b) =>
-    match h : acc with
-      | .intro b h' => loop b' (h' b' _)
-  loop init (l.wf.wf.apply init)
 
-class Iter (m : Type u → Type v) where
-  iter : (PUnit → OptionT m PUnit) → m PUnit
+/--
+A proof that the given loop body `prog` either breaks (i.e., returns `none`) or decreases according
+to the well-founded relation `rel` when run on the initial state `s`.
+-/
+def DecreasesOn {σ m α} (rel : α → σ → σ → Prop) [Monad m] (prog : OptionT (StateT σ m) α) (s : σ) :=
+  ∃ prog' : m { p // p.1.casesOn True (fun a => rel a p.2 s) },
+    prog s = Subtype.val <$> prog'
 
-instance : Iter (DecStateT σ rel m) where
-  iter : (PUnit → OptionT m PUnit) → m PUnit
+/--
+A proof that the `body` of a while loop terminates according to the well-founded relation `rel`.
+-/
+structure LoopUntilBreak (rel : σ → σ → Prop) [Monad m]
+    (body : PUnit → OptionT (StateT σ m) PUnit) : Prop where
+  wf : WellFounded rel
+  bodyDecreases : ∀ s, DecreasesOn (fun _ => rel) (body ⟨⟩) s
+
+-- The usual `partial def`-implementation-for-`WellFounded.fix`-definition dance
+
+
+namespace Std.Internal
+
+variable {α : Sort _} {β : α → Sort _} {C : α → Sort _} {C₂ : (a : α) → β a → Sort _}
+
+@[specialize]
+public partial def opaqueFix [∀ x, Nonempty (C x)] (F : (x : α) → ((y : α) → C y) → C x) (x : α) : C x :=
+  F x (opaqueFix F)
+
+@[expose]
+public def TerminatesTotally (F : (x : α) → ((y : α) → C y) → C x) : Prop :=
+  ∃ (r : α → α → Prop) (F' : (x : α) → ((y : α) → r y x → C y) → C x), WellFounded r ∧ ∀ x G, F x G = F' x (fun x _ => G x)
+
+/-
+SAFE assuming that the code generated by iteration over `F` is compatible
+with the kernel semantics of iteration over `F' : (x : α) → ((y : α) → r y x → C y) → C x`
+for all `F'` as in `TerminatesTotally`.
+-/
+@[implemented_by opaqueFix]
+public def extrinsicFix [∀ x, Nonempty (C x)] (F : (x : α) → ((y : α) → C y) → C x) (x : α) : C x :=
+  open scoped Classical in
+  if h : TerminatesTotally F then
+    let F' := h.choose_spec.choose
+    let h := h.choose_spec.choose_spec
+    h.1.fix F' x
+  else
+    opaqueFix F x
+
+public def extrinsicFix_eq [∀ x, Nonempty (C x)] {F : (x : α) → ((y : α) → C y) → C x}
+    (h : TerminatesTotally F) {x : α} :
+    extrinsicFix F x = F x (extrinsicFix F) := by
+  simp only [extrinsicFix, dif_pos h]
+  rw [WellFounded.fix_eq, show (extrinsicFix F) = (fun y => extrinsicFix F y) by rfl]
+  simp only [extrinsicFix, dif_pos h, h.choose_spec.choose_spec.2]
+
+end Std.Internal
+
+/--
+Iterate a loop body `body : PUnit → OptionT (StateT σ m) PUnit` until it breaks (i.e., returns `none`).
+Every iteration must decrease in the state `σ` according to the well-founded relation `rel`.
+
+It is `loopUntilBreak body dw = discard (do body ⟨⟩; liftM (loopUntilBreak body dw)).run`.
+-/
+def extrinsicLoopUntilBreak {σ : Type u} {m : Type u → Type v} [Monad m]
+    (body : PUnit.{max u v + 1} → OptionT (StateT σ m) PUnit)
+    : StateT σ m PUnit :=
+  @Std.Internal.extrinsicFix _ _ (fun s => ⟨pure (PUnit.unit, s)⟩) F
+where
+  F (s : σ) (recur : (s' : σ) → m (PUnit × σ)) : m (PUnit × σ) := do
+    let (u?, s') ← (body ⟨⟩).run s
+    match u? with
+    | none => pure (⟨⟩, s')
+    | some _ => recur s'
+
+/--
+Iterate a loop body `body : PUnit → OptionT (StateT σ m) PUnit` until it breaks (i.e., returns `none`).
+Every iteration must decrease in the state `σ` according to the well-founded relation `rel`.
+
+It is `loopUntilBreak body dw = discard (do body ⟨⟩; liftM (loopUntilBreak body dw)).run`.
+-/
+def intrinsicLoopUntilBreak {σ : Type u} {m : Type u → Type v} {rel : σ → σ → Prop} [Monad m]
+    (body : PUnit.{max u v + 1} → OptionT (StateT σ m) PUnit)
+    (dw : LoopUntilBreak rel body) : StateT σ m PUnit :=
+  extrinsicLoopUntilBreak body
+
+theorem Std.Internal.TerminatesTotally.ofLoopUntilBreak {σ : Type u} {m : Type u → Type v} {rel : σ → σ → Prop}
+    [Monad m] [LawfulMonad m]
+    (body : PUnit.{max u v + 1} → OptionT (StateT σ m) PUnit)
+    (dw : LoopUntilBreak rel body) : TerminatesTotally (extrinsicLoopUntilBreak.F body) := by
+  exists rel
+  exists fun s recur => do
+    let ⟨⟨u?, s'⟩, h⟩ ← (dw.bodyDecreases s).choose
+    match _ : u? with
+    | none => pure (⟨⟩, s')
+    | some _ => recur s' h
+  constructor
+  · exact dw.wf
+  · intro s _
+    unfold extrinsicLoopUntilBreak.F; rw [OptionT.run, (dw.bodyDecreases s).choose_spec]
+    simp
+    congr
+    ext sub
+    cases sub with | mk p h =>
+    cases p with | mk a s =>
+    cases a <;> rfl
+
+/--
+Loop unrolling lemma for `extrinsicLoopUntilBreak`.
+-/
+noncomputable def extrinsicLoopUntilBreak_eq {σ : Type u} {m : Type u → Type v} {rel : σ → σ → Prop}
+    [Monad m] [LawfulMonad m]
+    (body : PUnit → OptionT (StateT σ m) PUnit)
+    (dw : LoopUntilBreak rel body)
+    : extrinsicLoopUntilBreak body = discard (do body ⟨⟩; liftM (extrinsicLoopUntilBreak body)).run := by
+  open Std.Internal in
+  ext s
+  unfold extrinsicLoopUntilBreak
+  simp only [StateT.run, bind_pure_comp, discard, Functor.mapConst, OptionT.run,
+    bind, OptionT.bind, OptionT.mk, Function.comp_apply, StateT.map, StateT.bind,
+    Function.const_apply, map_bind]
+  let inst (s : σ) : Nonempty (m (PUnit × σ)) := ⟨pure (PUnit.unit, s)⟩
+  let prf := Std.Internal.TerminatesTotally.ofLoopUntilBreak body dw
+  conv => lhs; rw [@Std.Internal.extrinsicFix_eq _ _ (fun s => ⟨pure (PUnit.unit, s)⟩) _ prf]
+  unfold extrinsicLoopUntilBreak.F
+  congr
+  ext p
+  cases p with | mk a s =>
+  cases a
+  · simp [pure, StateT.pure]
+  · simp [liftM, monadLift, MonadLift.monadLift, OptionT.lift, OptionT.mk, Functor.map, StateT.map]
+
+/--
+Loop unrolling lemma for `intrinsicLoopUntilBreak`.
+-/
+noncomputable def loopUntilBreak_eq {σ : Type u} {m : Type u → Type v} {rel : σ → σ → Prop}
+    [Monad m] [LawfulMonad m]
+    (body : PUnit → OptionT (StateT σ m) PUnit)
+    (dw : LoopUntilBreak rel body)
+    : intrinsicLoopUntilBreak body dw = discard (do body ⟨⟩; liftM (intrinsicLoopUntilBreak body dw)).run :=
+  extrinsicLoopUntilBreak_eq body dw
+
+/--
+Construct a `LoopUntilBreak` proof from a measure function and a
+-/
+def LoopUntilBreak.ofMeasure [Monad m] {body : PUnit → OptionT (StateT σ m) PUnit}
+    (f : σ → Nat) (bodyDecreases : ∀ s, DecreasesOn (fun _ => (measure f).rel) (body ⟨⟩) s)
+    : LoopUntilBreak (measure f).rel body where
+  wf := (measure f).wf
+  bodyDecreases := bodyDecreases
+
+theorem DecreasesOn.of_WP {σ m α} {rel : α → σ → σ → Prop} [Monad m] [WPAttach m ps] {prog : OptionT (StateT σ m) α}
+    (h : ∀ s, ⦃fun preS => ⌜preS = s⌝⦄ prog ⦃(fun a s' => ⌜rel a s' s⌝, fun _ => ⌜True⌝, ExceptConds.false)⦄) :
+    ∀ s, DecreasesOn rel prog s := by
+  intro s
+  apply WPAttach.attach
+  have h := h s s
+  simp [WP.wp] at h
+  apply SPred.entails.trans h
+  apply SPred.bientails.mp
+  apply SPred.bientails.of_eq
+  congr; ext x
+  cases x with
+  | mk a s =>
+  cases a <;> grind
+
+def sqrtBinary (x : Nat) : Nat := Id.run do
+  let mut l := 0
+  let mut r := x + 1
+  -- Elaboration of `while 1 < r - l decreasing r - l do ...`
+  -- `decreasing r - l` elaborates to the `decreasingMeasure` binding below.
+  -- ?prf is an obligation to be solved by the user/automation.
+  (_, (l, r)) ← flip StateT.run (l, r) do
+    intrinsicLoopUntilBreak (fun _ => do
+      let mut (l, r) ← get
+      if r - l ≤ 1 then failure -- failure = break
+      let m := (l + r) / 2
+      if m * m > x then
+        r := m
+      else
+        l := m
+      set (l, r)) (LoopUntilBreak.ofMeasure (fun (l, r) => r - l) ?prf)
+  return l
+where finally
+  case prf =>
+    apply DecreasesOn.of_WP
+    intro (l, r)
+    mvcgen with (simp_wf; decreasing_tactic)
+
+/-- info: 6 -/
+#guard_msgs (info) in
+#eval sqrtBinary 42
+
+example : sqrtBinary 42 = 6 := by
+  unfold sqrtBinary
+  rw [loopUntilBreak_eq]
+  rw [loopUntilBreak_eq]
+  rw [loopUntilBreak_eq]
+  rw [loopUntilBreak_eq]
+  rw [loopUntilBreak_eq]
+  rw [loopUntilBreak_eq]
+  rfl
+
+/-
+def sqrtBinaryIdealized (x : Nat) : Nat := Id.run do
+  let mut l := 0
+  let mut r := x + 1
+  while 1 < r - l
+  decreasing r - l do
+    if r - l ≤ 1 then break
+    let m := (l + r) / 2
+    if m * m > x then
+      r := m
+    else
+      l := m
+  return l
+-/
+where finally
+  case prf =>
+    apply DecreasesOn.of_WP
+    intro (l, r)
+    mvcgen
+    case vc1 => simp only [WellFoundedRelation.rel, InvImage, Nat.lt_wfRel]; grind
+    case vc2 => simp only [WellFoundedRelation.rel, InvImage, Nat.lt_wfRel]; grind
+
+    /-
+    dsimp
+    intro s
+    apply DecreasesOn.ite
+    · apply DecreasesOn.bind_left DecreasesOn.failure
+    · apply DecreasesOn.bind_right
+      intro _ s
+      apply DecreasesOn.get_then
+      apply DecreasesOn.ite
+      · apply DecreasesOn.bind_right
+        intro _ _
+        apply DecreasesOn.set
+        apply Relation.TransGen.single _
+        grind
+
+      intro (l, r)
+      apply DecreasesOn.ite
+      · apply DecreasesOn.bind_right
+        intro _
+
+
+    have app_ite {m} {α σ} {c : Prop} [Decidable c] {t e : OptionT (StateT σ m) α} {s : σ} : (ite c t e) s = ite c (t s) (e s) := by split <;> rfl
+    simp [Bind.bind, Pure.pure, Functor.map, OptionT.bind, OptionT.pure, OptionT.mk, StateT.bind, StateT.pure, StateT.get, StateT.set, app_ite]
+    exists ?f'
+    rotate_left
+    intro l r
+    simp [ite_apply]
+-/
+theorem DecreasesOn.ite [Decidable c] [Monad m] (ht : DecreasesOn rel t s) (he : DecreasesOn rel e s) :
+    DecreasesOn (m:=m) rel (if c then t else e) s := by
+  split <;> assumption
+
+theorem DecreasesOn.bind_left {b : α → OptionT (StateT σ m) β} [Monad m] [LawfulMonad m]
+    (h : DecreasesOn rel a s) : DecreasesOn (m:=m) rel (do let x ← a; b x) s := sorry
+
+theorem DecreasesOn.bind_congr_right {b : α → OptionT (StateT σ m) β} {c : α → β → OptionT (StateT σ m) γ} [Monad m] [LawfulMonad m]
+    (h : ∀ y, DecreasesOn (m:=m) rel (do let x ← a; c x y) s) : DecreasesOn (m:=m) rel (do let x ← a; let y ← b x; c x y) s := sorry
+
+theorem DecreasesOn.bind_right {b : α → OptionT (StateT σ m) β} [Monad m] [LawfulMonad m]
+    (h : ∀ x s', DecreasesOn rel (b x) s') : DecreasesOn (m:=m) rel (do let x ← a; b x) s := sorry
+
+theorem DecreasesOn.failure [Monad m] [LawfulMonad m] :
+    DecreasesOn (α := α) (m:=m) rel failure s := by
+  exists pure (Subtype.mk (none, s) (by simp))
+  simp [Alternative.failure, OptionT.fail, OptionT.mk, Pure.pure, StateT.pure]
+
+theorem DecreasesOn.modify [Monad m] [LawfulMonad m] {rel : σ → σ → Prop} {f : σ → σ} (h : rel (f s) s) :
+    DecreasesOn (m:=m) rel (modify f) s := by
+  exists pure (Subtype.mk (some ⟨⟩, f s) (.inr (.single h)))
+  simp only [_root_.modify, modifyGet, MonadStateOf.modifyGet, monadLift, MonadLift.monadLift,
+    OptionT.lift, OptionT.mk, bind, StateT.bind, StateT.modifyGet, pure, StateT.pure,
+    bind_pure_comp, map_pure]
+
+theorem DecreasesOn.get_then [Monad m] [LawfulMonad m] {rel : σ → σ → Prop}
+    {k : σ → OptionT (StateT σ m) α}
+    (h : DecreasesOn rel (k s) s) : DecreasesOn (m:=m) rel (do let s ← get; k s) s:= by
+  sorry
+
+theorem DecreasesOn.set [Monad m] [LawfulMonad m] {rel : σ → σ → Prop} (h : rel s' s) :
+    DecreasesOn (m:=m) rel (set s') s := by
+  exists pure (Subtype.mk (some ⟨⟩, s') (.inr (.single h)))
+  simp only [MonadStateOf.set, liftM, monadLift, MonadLift.monadLift, OptionT.lift, OptionT.mk,
+    bind, StateT.bind, StateT.set, pure, StateT.pure, bind_pure_comp, map_pure]
 
 /-
 import Std.Data.Iterators

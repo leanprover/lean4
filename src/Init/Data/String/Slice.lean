@@ -121,77 +121,72 @@ namespace SplitIterator
 
 variable [ToForwardSearcher ρ σ]
 
-instance [Pure m] : Std.Iterators.Iterator (SplitIterator ρ s) m Slice where
-  IsPlausibleStep it
-    | .yield it' out =>
-      match it.internalState, it'.internalState with
-      | .operating _ searcher, .operating _ searcher' =>
-          searcher'.finitelyManySteps.Rel searcher.finitelyManySteps
-      | .operating _ searcher, .atEnd => True
-      | .atEnd, _ => False
-    | .skip _ => False
-    | .done => True
-  step := fun ⟨iter⟩ =>
-    match iter with
-    | .operating currPos searcher =>
-      match h : Internal.nextMatch searcher with
-      | some (searcher, startPos, endPos) =>
+inductive PlausibleStep
+
+instance : Std.Iterators.Iterator (SplitIterator ρ s) Id Slice where
+  IsPlausibleStep
+    | ⟨.operating _ s⟩, .yield ⟨.operating _ s'⟩ _ => s'.IsPlausibleSuccessorOf s
+    | ⟨.operating _ s⟩, .yield ⟨.atEnd ..⟩ _ => True
+    | ⟨.operating _ s⟩, .skip ⟨.operating _ s'⟩ => s'.IsPlausibleSuccessorOf s
+    | ⟨.operating _ s⟩, .skip ⟨.atEnd ..⟩ => False
+    | ⟨.operating _ s⟩, .done => True
+    | ⟨.atEnd⟩, .yield .. => False
+    | ⟨.atEnd⟩, .skip _ => False
+    | ⟨.atEnd⟩, .done => True
+  step
+    | ⟨.operating currPos searcher⟩ =>
+      match h : searcher.step with
+      | ⟨.yield searcher' (.matched startPos endPos), hps⟩ =>
         let slice := s.replaceStartEnd! currPos startPos
-        let nextIt := ⟨.operating endPos searcher⟩
-        pure (.deflate ⟨.yield nextIt slice,
-          by simpa [nextIt] using Pattern.Internal.finitelyManySteps_rel_nextMatch h⟩)
-      | none =>
+        let nextIt := ⟨.operating endPos searcher'⟩
+        pure (.deflate ⟨.yield nextIt slice, by simp [nextIt, hps.isPlausibleSuccessor_of_yield]⟩)
+      | ⟨.yield searcher' (.rejected ..), hps⟩ =>
+        pure (.deflate ⟨.skip ⟨.operating currPos searcher'⟩,
+          by simp [hps.isPlausibleSuccessor_of_yield]⟩)
+      | ⟨.skip searcher', hps⟩ =>
+        pure (.deflate ⟨.skip ⟨.operating currPos searcher'⟩,
+          by simp [hps.isPlausibleSuccessor_of_skip]⟩)
+      | ⟨.done, _⟩ =>
         let slice := s.replaceStart currPos
         pure (.deflate ⟨.yield ⟨.atEnd⟩ slice, by simp⟩)
-    | .atEnd => pure (.deflate ⟨.done, by simp⟩)
+    | ⟨.atEnd⟩ => pure (.deflate ⟨.done, by simp⟩)
 
 private def toOption : SplitIterator ρ s → Option (Std.Iter (α := σ s) (SearchStep s))
   | .operating _ s => some s
   | .atEnd => none
 
-private instance {s} [Std.Iterators.Finite (σ s) Id] :
-    WellFoundedRelation (SplitIterator ρ s) where
-  rel := InvImage (Option.lt (InvImage Std.Iterators.IterM.TerminationMeasures.Finite.Rel
-    Std.Iterators.Iter.finitelyManySteps)) SplitIterator.toOption
-  wf := by
-    apply InvImage.wf
-    apply Option.wellFounded_lt
-    apply InvImage.wf
-    exact WellFoundedRelation.wf
-
 private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
     Std.Iterators.FinitenessRelation (SplitIterator ρ s) Id where
-  rel := InvImage WellFoundedRelation.rel (fun it => it.internalState)
-  wf := InvImage.wf _ WellFoundedRelation.wf
+  rel := InvImage (Option.lt Std.Iterators.Iter.IsPlausibleSuccessorOf)
+    (SplitIterator.toOption ∘ Std.Iterators.IterM.internalState)
+  wf := InvImage.wf _ (Option.wellFounded_lt Std.Iterators.Finite.wf_of_id)
   subrelation {it it'} h := by
     simp_wf
     obtain ⟨step, h, h'⟩ := h
     match step with
-    | .yield it'' out =>
-      obtain rfl : it' = it'' := by simpa [Std.Iterators.IterStep.successor] using h.symm
+    | .yield it'' out | .skip it'' =>
+      obtain rfl : it' = it'' := by simpa using h.symm
       simp only [Std.Iterators.IterM.IsPlausibleStep, Std.Iterators.Iterator.IsPlausibleStep] at h'
       revert h'
-      match it.internalState, it'.internalState with
-      | .operating _ searcher, .operating _ searcher' =>
-        simp [SplitIterator.toOption, Option.lt]
-      | .operating _ searcher, .atEnd =>
-        simp [SplitIterator.toOption, Option.lt]
-      | .atEnd, _ => simp
+      match it, it' with
+      | ⟨.operating _ searcher⟩, ⟨.operating _ searcher'⟩ => simp [SplitIterator.toOption, Option.lt]
+      | ⟨.operating _ searcher⟩, ⟨.atEnd⟩ => simp [SplitIterator.toOption, Option.lt]
+      | ⟨.atEnd⟩, _ => simp
 
 @[no_expose]
 instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (SplitIterator ρ s) Id :=
   .of_finitenessRelation finitenessRelation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (SplitIterator ρ s) m n :=
+instance [Monad n] : Std.Iterators.IteratorCollect (SplitIterator ρ s) Id n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial (SplitIterator ρ s) m n :=
+instance [Monad n] : Std.Iterators.IteratorCollectPartial (SplitIterator ρ s) Id n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (SplitIterator ρ s) m n :=
+instance [Monad n] : Std.Iterators.IteratorLoop (SplitIterator ρ s) Id n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (SplitIterator ρ s) m n :=
+instance [Monad n] : Std.Iterators.IteratorLoopPartial (SplitIterator ρ s) Id n :=
   .defaultImplementation
 
 end SplitIterator
@@ -224,85 +219,79 @@ namespace SplitInclusiveIterator
 
 variable [ToForwardSearcher ρ σ]
 
-instance [Pure m] : Std.Iterators.Iterator (SplitInclusiveIterator ρ s) m Slice where
-  IsPlausibleStep it
-    | .yield it' out =>
-      match it.internalState, it'.internalState with
-      | .operating _ searcher, .operating _ searcher' =>
-          searcher'.finitelyManySteps.Rel searcher.finitelyManySteps
-      | .operating _ searcher, .atEnd => True
-      | .atEnd, _ => False
-    | .skip _ => False
-    | .done => True
-  step := fun ⟨iter⟩ =>
-    match iter with
-    | .operating currPos searcher =>
-      match h : Internal.nextMatch searcher with
-      | some (searcher, _, endPos) =>
+instance : Std.Iterators.Iterator (SplitInclusiveIterator ρ s) Id Slice where
+  IsPlausibleStep
+    | ⟨.operating _ s⟩, .yield ⟨.operating _ s'⟩ _ => s'.IsPlausibleSuccessorOf s
+    | ⟨.operating _ s⟩, .yield ⟨.atEnd ..⟩ _ => True
+    | ⟨.operating _ s⟩, .skip ⟨.operating _ s'⟩ => s'.IsPlausibleSuccessorOf s
+    | ⟨.operating _ s⟩, .skip ⟨.atEnd ..⟩ => False
+    | ⟨.operating _ s⟩, .done => True
+    | ⟨.atEnd⟩, .yield .. => False
+    | ⟨.atEnd⟩, .skip _ => False
+    | ⟨.atEnd⟩, .done => True
+  step
+    | ⟨.operating currPos searcher⟩ =>
+      match h : searcher.step with
+      | ⟨.yield searcher' (.matched _ endPos), hps⟩ =>
         let slice := s.replaceStartEnd! currPos endPos
-        let nextIt := ⟨.operating endPos searcher⟩
+        let nextIt := ⟨.operating endPos searcher'⟩
         pure (.deflate ⟨.yield nextIt slice,
-          by simpa [nextIt] using Pattern.Internal.finitelyManySteps_rel_nextMatch h⟩)
-      | none =>
+          by simp [nextIt, hps.isPlausibleSuccessor_of_yield]⟩)
+      | ⟨.yield searcher' (.rejected ..), hps⟩ =>
+        pure (.deflate ⟨.skip ⟨.operating currPos searcher'⟩,
+          by simp [hps.isPlausibleSuccessor_of_yield]⟩)
+      | ⟨.skip searcher', hps⟩ =>
+        pure (.deflate ⟨.skip ⟨.operating currPos searcher'⟩,
+          by simp [hps.isPlausibleSuccessor_of_skip]⟩)
+      | ⟨.done, _⟩ =>
         if currPos != s.endPos then
           let slice := s.replaceStart currPos
           pure (.deflate ⟨.yield ⟨.atEnd⟩ slice, by simp⟩)
         else
           pure (.deflate ⟨.done, by simp⟩)
-    | .atEnd => pure (.deflate ⟨.done, by simp⟩)
+    | ⟨.atEnd⟩ => pure (.deflate ⟨.done, by simp⟩)
 
 private def toOption : SplitInclusiveIterator ρ s → Option (Std.Iter (α := σ s) (SearchStep s))
   | .operating _ s => some s
   | .atEnd => none
 
-private instance {s} [Std.Iterators.Finite (σ s) Id] :
-    WellFoundedRelation (SplitInclusiveIterator ρ s) where
-  rel := InvImage (Option.lt (InvImage Std.Iterators.IterM.TerminationMeasures.Finite.Rel
-    Std.Iterators.Iter.finitelyManySteps)) SplitInclusiveIterator.toOption
-  wf := by
-    apply InvImage.wf
-    apply Option.wellFounded_lt
-    apply InvImage.wf
-    exact WellFoundedRelation.wf
-
 private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
     Std.Iterators.FinitenessRelation (SplitInclusiveIterator ρ s) Id where
-  rel := InvImage WellFoundedRelation.rel (fun it => it.internalState)
-  wf := InvImage.wf _ WellFoundedRelation.wf
+  rel := InvImage (Option.lt Std.Iterators.Iter.IsPlausibleSuccessorOf)
+    (SplitInclusiveIterator.toOption ∘ Std.Iterators.IterM.internalState)
+  wf := InvImage.wf _ (Option.wellFounded_lt Std.Iterators.Finite.wf_of_id)
   subrelation {it it'} h := by
     simp_wf
     obtain ⟨step, h, h'⟩ := h
     match step with
-    | .yield it'' out =>
-      obtain rfl : it' = it'' := by simpa [Std.Iterators.IterStep.successor] using h.symm
+    | .yield it'' out | .skip it'' =>
+      obtain rfl : it' = it'' := by simpa using h.symm
       simp only [Std.Iterators.IterM.IsPlausibleStep, Std.Iterators.Iterator.IsPlausibleStep] at h'
       revert h'
-      match it.internalState, it'.internalState with
-      | .operating _ searcher, .operating _ searcher' =>
-        simp [SplitInclusiveIterator.toOption, Option.lt]
-      | .operating _ searcher, .atEnd =>
-        simp [SplitInclusiveIterator.toOption, Option.lt]
-      | .atEnd, _ => simp
+      match it, it' with
+      | ⟨.operating _ searcher⟩, ⟨.operating _ searcher'⟩ => simp [SplitInclusiveIterator.toOption, Option.lt]
+      | ⟨.operating _ searcher⟩, ⟨.atEnd⟩ => simp [SplitInclusiveIterator.toOption, Option.lt]
+      | ⟨.atEnd⟩, _ => simp
 
 @[no_expose]
 instance [Std.Iterators.Finite (σ s) Id] :
     Std.Iterators.Finite (SplitInclusiveIterator ρ s) Id :=
   .of_finitenessRelation finitenessRelation
 
-instance [Monad m] [Monad n] {s} :
-    Std.Iterators.IteratorCollect (SplitInclusiveIterator ρ s) m n :=
+instance [Monad n] {s} :
+    Std.Iterators.IteratorCollect (SplitInclusiveIterator ρ s) Id n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] {s} :
-    Std.Iterators.IteratorCollectPartial (SplitInclusiveIterator ρ s) m n :=
+instance [Monad n] {s} :
+    Std.Iterators.IteratorCollectPartial (SplitInclusiveIterator ρ s) Id n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] {s} :
-    Std.Iterators.IteratorLoop (SplitInclusiveIterator ρ s) m n :=
+instance [Monad n] {s} :
+    Std.Iterators.IteratorLoop (SplitInclusiveIterator ρ s) Id n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] {s} :
-    Std.Iterators.IteratorLoopPartial (SplitInclusiveIterator ρ s) m n :=
+instance [Monad n] {s} :
+    Std.Iterators.IteratorLoopPartial (SplitInclusiveIterator ρ s) Id n :=
   .defaultImplementation
 
 end SplitInclusiveIterator
@@ -490,7 +479,7 @@ Examples:
 @[specialize pat]
 def contains [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) : Bool :=
   let searcher := ToForwardSearcher.toSearcher s pat
-  Internal.nextMatch searcher |>.isSome
+  searcher.any (· matches .matched ..)
 
 /--
 Checks whether a slice only consists of matches of the pattern {name}`pat` anywhere.
@@ -504,6 +493,7 @@ Examples:
  * {lean}`"brown and orange".toSlice.all Char.isLower = false`
  * {lean}`"aaaaaa".toSlice.all 'a' = true`
  * {lean}`"aaaaaa".toSlice.all "aa" = true`
+ * {lean}`"aaaaaaa".toSlice.all "aa" = false`
 -/
 @[inline]
 def all [ForwardPattern ρ] (s : Slice) (pat : ρ) : Bool :=
@@ -544,71 +534,61 @@ namespace RevSplitIterator
 variable [ToBackwardSearcher ρ σ]
 
 instance [Pure m] : Std.Iterators.Iterator (RevSplitIterator ρ s) m Slice where
-  IsPlausibleStep it
-    | .yield it' out =>
-      match it.internalState, it'.internalState with
-      | .operating _ searcher, .operating _ searcher' =>
-          searcher'.finitelyManySteps.Rel searcher.finitelyManySteps
-      | .operating _ searcher, .atEnd => True
-      | .atEnd, _ => False
-    | .skip _ => False
-    | .done => True
-  step := fun ⟨iter⟩ =>
-    match iter with
-    | .operating currPos searcher =>
-      match h : Internal.nextMatch searcher with
-      | some (searcher, startPos, endPos) =>
+  IsPlausibleStep
+    | ⟨.operating _ s⟩, .yield ⟨.operating _ s'⟩ _ => s'.IsPlausibleSuccessorOf s
+    | ⟨.operating _ s⟩, .yield ⟨.atEnd ..⟩ _ => True
+    | ⟨.operating _ s⟩, .skip ⟨.operating _ s'⟩ => s'.IsPlausibleSuccessorOf s
+    | ⟨.operating _ s⟩, .skip ⟨.atEnd ..⟩ => False
+    | ⟨.operating _ s⟩, .done => True
+    | ⟨.atEnd⟩, .yield .. => False
+    | ⟨.atEnd⟩, .skip _ => False
+    | ⟨.atEnd⟩, .done => True
+  step
+    | ⟨.operating currPos searcher⟩ =>
+      match h : searcher.step with
+      | ⟨.yield searcher' (.matched startPos endPos), hps⟩ =>
         let slice := s.replaceStartEnd! endPos currPos
-        let nextIt := ⟨.operating startPos searcher⟩
-        pure (.deflate ⟨.yield nextIt slice,
-          by simpa [nextIt] using Pattern.Internal.finitelyManySteps_rel_nextMatch h⟩)
-      | none =>
+        let nextIt := ⟨.operating startPos searcher'⟩
+        pure (.deflate ⟨.yield nextIt slice, by simp [nextIt, hps.isPlausibleSuccessor_of_yield]⟩)
+      | ⟨.yield searcher' (.rejected ..), hps⟩ =>
+        pure (.deflate ⟨.skip ⟨.operating currPos searcher'⟩,
+          by simp [hps.isPlausibleSuccessor_of_yield]⟩)
+      | ⟨.skip searcher', hps⟩ =>
+        pure (.deflate ⟨.skip ⟨.operating currPos searcher'⟩,
+          by simp [hps.isPlausibleSuccessor_of_skip]⟩)
+      | ⟨.done, _⟩ =>
         if currPos ≠ s.startPos then
           let slice := s.replaceEnd currPos
           pure (.deflate ⟨.yield ⟨.atEnd⟩ slice, by simp⟩)
         else
           pure (.deflate ⟨.done, by simp⟩)
-    | .atEnd => pure (.deflate ⟨.done, by simp⟩)
+    | ⟨.atEnd⟩ => pure (.deflate ⟨.done, by simp⟩)
 
 private def toOption : RevSplitIterator ρ s → Option (Std.Iter (α := σ s) (SearchStep s))
   | .operating _ s => some s
   | .atEnd => none
 
-private instance {s} [Std.Iterators.Finite (σ s) Id] :
-    WellFoundedRelation (RevSplitIterator ρ s) where
-  rel := InvImage (Option.lt (InvImage Std.Iterators.IterM.TerminationMeasures.Finite.Rel
-    Std.Iterators.Iter.finitelyManySteps)) RevSplitIterator.toOption
-  wf := by
-    apply InvImage.wf
-    apply Option.wellFounded_lt
-    apply InvImage.wf
-    exact WellFoundedRelation.wf
-
 private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
     Std.Iterators.FinitenessRelation (RevSplitIterator ρ s) Id where
-  rel := InvImage WellFoundedRelation.rel (fun it => it.internalState)
-  wf := InvImage.wf _ WellFoundedRelation.wf
+  rel := InvImage (Option.lt Std.Iterators.Iter.IsPlausibleSuccessorOf)
+    (RevSplitIterator.toOption ∘ Std.Iterators.IterM.internalState)
+  wf := InvImage.wf _ (Option.wellFounded_lt Std.Iterators.Finite.wf_of_id)
   subrelation {it it'} h := by
     simp_wf
     obtain ⟨step, h, h'⟩ := h
     match step with
-    | .yield it'' out =>
-      obtain rfl : it' = it'' := by simpa [Std.Iterators.IterStep.successor] using h.symm
+    | .yield it'' out | .skip it'' =>
+      obtain rfl : it' = it'' := by simpa using h.symm
       simp only [Std.Iterators.IterM.IsPlausibleStep, Std.Iterators.Iterator.IsPlausibleStep] at h'
       revert h'
-      match it.internalState, it'.internalState with
-      | .operating _ searcher, .operating _ searcher' =>
-        simp [RevSplitIterator.toOption, Option.lt]
-      | .operating _ searcher, .atEnd =>
-        simp [RevSplitIterator.toOption, Option.lt]
-      | .atEnd, _ => simp
+      match it, it' with
+      | ⟨.operating _ searcher⟩, ⟨.operating _ searcher'⟩ => simp [RevSplitIterator.toOption, Option.lt]
+      | ⟨.operating _ searcher⟩, ⟨.atEnd⟩ => simp [RevSplitIterator.toOption, Option.lt]
+      | ⟨.atEnd⟩, _ => simp
 
 @[no_expose]
-instance [Std.Iterators.Finite (σ s) Id] :
-    Std.Iterators.Finite (RevSplitIterator ρ s) Id :=
+instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (RevSplitIterator ρ s) Id :=
   .of_finitenessRelation finitenessRelation
-
--- TODO: Finiteness after we have a notion of lawful searcher
 
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (RevSplitIterator ρ s) m n :=
   .defaultImplementation
@@ -636,8 +616,8 @@ This function is generic over all currently supported patterns except
 {name}`String`/{name}`String.Slice`.
 
 Examples:
- * {lean}`("coffee tea water".toSlice.revSplit Char.isWhitespace).allowNontermination.toList == ["water".toSlice, "tea".toSlice, "coffee".toSlice]`
- * {lean}`("coffee tea water".toSlice.revSplit ' ').allowNontermination.toList == ["water".toSlice, "tea".toSlice, "coffee".toSlice]`
+ * {lean}`("coffee tea water".toSlice.revSplit Char.isWhitespace).toList == ["water".toSlice, "tea".toSlice, "coffee".toSlice]`
+ * {lean}`("coffee tea water".toSlice.revSplit ' ').toList == ["water".toSlice, "tea".toSlice, "coffee".toSlice]`
 -/
 @[specialize pat]
 def revSplit [ToBackwardSearcher ρ σ] (s : Slice) (pat : ρ) :
@@ -1184,9 +1164,9 @@ Creates an iterator over all lines in {name}`s` with the line ending characters 
 stripped.
 
 Examples:
- * {lean}`"foo\r\nbar\n\nbaz\n".toSlice.lines.allowNontermination.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz".toSlice]`
- * {lean}`"foo\r\nbar\n\nbaz".toSlice.lines.allowNontermination.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz".toSlice]`
- * {lean}`"foo\r\nbar\n\nbaz\r".toSlice.lines.allowNontermination.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz\r".toSlice]`
+ * {lean}`"foo\r\nbar\n\nbaz\n".toSlice.lines.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz".toSlice]`
+ * {lean}`"foo\r\nbar\n\nbaz".toSlice.lines.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz".toSlice]`
+ * {lean}`"foo\r\nbar\n\nbaz\r".toSlice.lines.toList  == ["foo".toSlice, "bar".toSlice, "".toSlice, "baz\r".toSlice]`
 -/
 def lines (s : Slice) :=
   s.splitInclusive '\n' |>.map lines.lineMap

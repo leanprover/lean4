@@ -241,6 +241,16 @@ def IterStep.successor : IterStep α β → Option α
   | .skip it => some it
   | .done => none
 
+@[simp]
+theorem IterStep.successor_yield {it : α} {out : β} :
+  (IterStep.yield it out).successor = some it := rfl
+
+@[simp]
+theorem IterStep.successor_skip {it : α} : (IterStep.skip (β := β) it).successor = some it := rfl
+
+@[simp]
+theorem IterStep.successor_done : (IterStep.done (α := α) (β := β)).successor = none := rfl
+
 /--
 If present, applies `f` to the iterator of an `IterStep` and replaces the iterator
 with the result of the application of `f`.
@@ -543,6 +553,10 @@ def Iter.IsPlausibleSuccessorOf {α : Type w} {β : Type w} [Iterator α Id β]
     (it' it : Iter (α := α) β) : Prop :=
   it'.toIterM.IsPlausibleSuccessorOf it.toIterM
 
+theorem Iter.isPlausibleSuccessorOf_eq_invImage {α : Type w} {β : Type w} [Iterator α Id β] :
+    IsPlausibleSuccessorOf (α := α) (β := β) =
+      InvImage (IterM.IsPlausibleSuccessorOf (α := α) (β := β) (m := Id)) Iter.toIterM := rfl
+
 theorem Iter.isPlausibleSuccessorOf_iff_exists {α : Type w} {β : Type w} [Iterator α Id β]
     {it' it : Iter (α := α) β} :
     it'.IsPlausibleSuccessorOf it ↔ ∃ step, step.successor = some it' ∧ it.IsPlausibleStep step := by
@@ -554,6 +568,16 @@ theorem Iter.isPlausibleSuccessorOf_iff_exists {α : Type w} {β : Type w} [Iter
   · rintro ⟨step, h₁, h₂⟩
     exact ⟨step.mapIterator Iter.toIterM,
       by cases step <;> simp_all [IterStep.successor, Iter.IsPlausibleStep]⟩
+
+theorem Iter.IsPlausibleStep.isPlausibleSuccessor_of_yield {α : Type w} {β : Type w}
+    [Iterator α Id β] {it' it : Iter (α := α) β} {out : β}
+    (h : it.IsPlausibleStep (.yield it' out)) : it'.IsPlausibleSuccessorOf it := by
+  simpa [isPlausibleSuccessorOf_iff_exists] using ⟨.yield it' out, by simp [h]⟩
+
+theorem Iter.IsPlausibleStep.isPlausibleSuccessor_of_skip {α : Type w} {β : Type w}
+    [Iterator α Id β] {it' it : Iter (α := α) β} (h : it.IsPlausibleStep (.skip it')) :
+    it'.IsPlausibleSuccessorOf it := by
+  simpa [isPlausibleSuccessorOf_iff_exists] using ⟨.skip it', by simp [h]⟩
 
 /--
 Asserts that a certain iterator `it` could plausibly yield the value `out` after an arbitrary
@@ -655,6 +679,10 @@ Given this typeclass, termination proofs for well-founded recursion over an iter
 -/
 class Finite (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] : Prop where
   wf : WellFounded (IterM.IsPlausibleSuccessorOf (α := α) (m := m))
+
+theorem Finite.wf_of_id {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] :
+    WellFounded (Iter.IsPlausibleSuccessorOf (α := α)) := by
+  simpa [Iter.isPlausibleSuccessorOf_eq_invImage] using InvImage.wf _ Finite.wf
 
 /--
 This type is a wrapper around `IterM` so that it becomes a useful termination measure for

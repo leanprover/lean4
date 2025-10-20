@@ -251,4 +251,6 @@ public def Name.demangle? (s : String) : Option Name :=
   let n := demangle s
   if mangleAux n = s then some n else none
 
+-- For correctness of mangle/demangle, see https://gist.github.com/Rob23oba/5ddef42a1743858e9334461ca57c4be8
+
 end Lean

@@ -34,7 +34,7 @@ A single HTTP client connection.
 -/
 public structure Connection (α : Type) where
   /--
-  The server connection.
+  The server connection
   -/
   socket : α
 
@@ -44,22 +44,22 @@ public structure Connection (α : Type) where
   machine : Protocol.H1.Machine .response
 
 /--
-A request packet to be sent through the persistent connection channel.
+A request packet to be sent through the persistent connection channel
 -/
 structure RequestPacket where
 
   /--
-  ?
+  The HTTP request to be sent
   -/
   request : Request Body
 
   /--
-  ?
+  A promise that resolves to the HTTP response once received
   -/
   responsePromise : IO.Promise (Except IO.Error (Response Body))
 
   /--
-  ?
+  A token used to cancel the request if needed
   -/
   cancellationToken : Std.CancellationToken
 

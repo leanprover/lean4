@@ -102,7 +102,6 @@ private def handle
   let connectionTimerTask ← async connectionTimer.wait
 
   while running do
-
     machine := machine.processRead.processWrite
 
     let (newMachine, events) := machine.takeEvents
@@ -117,10 +116,10 @@ private def handle
           | .ok (some bs) =>
             machine := machine.feed bs
           | .ok none =>
-            machine := machine.closePeerConnection
+            machine := machine.forcefullyTerminate
           | .error _ => do
             if let .needStartLine := machine.reader.state then
-              running := false; break
+              continue
             else
               machine := machine.setFailure .timeout
         catch _ =>
@@ -138,7 +137,7 @@ private def handle
           | .ok res => response.resolve res
 
       | .gotData final data =>
-        discard <| requestStream.send data.toByteArray
+        discard <| requestStream.write data.toByteArray
 
         if final then
           requestStream.close
@@ -146,11 +145,11 @@ private def handle
       | .chunkExt _ =>
         pure ()
 
-      | .failed _=>
+      | .failed _ =>
         pure ()
 
       | .close =>
-        running := false
+        machine := machine.forcefullyTerminate
 
       | .next =>
         requestTimer.reset
@@ -168,7 +167,7 @@ private def handle
       if machine.isWaitingMessage then
         machine := machine.sendMessage res.head
         match res.body with
-        | some (.bytes data) => machine := machine.writeUserData data |>.closeWriter
+        | some (.bytes data) => machine := machine.writeUserData #[Chunk.mk data #[]] |>.closeWriter
         | some ( .zero) | none => machine := machine.closeWriter
         | some (.stream res) => do
           if let some size ← res.getKnownSize then
@@ -188,14 +187,17 @@ private def handle
           if ← stream.isClosed then
             pure ()
           else
-            match ← stream.tryRecv with
-            | some res => machine := machine.writeUserData res
-            | none => machine := machine.closeWriter
+            if let some res ← stream.tryRecv then
+              machine := machine.writeUserData res
+            else if ← stream.isClosed then
+               machine := machine.closeWriter
+
 
     -- Checks for things that can close the connection.
     if ¬ closing then
       if (← requestTimerTask.isFinished) ∨ (← connectionTimerTask.isFinished) then
-        machine := machine.setFailure .timeout
+        machine := machine.forcefullyTerminate
+
         closing := true
 
       if ← errored.isResolved then
@@ -212,6 +214,8 @@ private def handle
           Transport.sendAll socket data.data
         catch _ =>
           running := false
+
+    running := running && ¬machine.isFullyShutDown
 
   -- End of the connection
   connectionTimer.stop
@@ -243,7 +247,7 @@ while true do
 ```
 -/
 def serveConnection [Transport t] (client : t)
-    (onRequest : Request Body → Async (Response Body)) (config : Config := {}) : Async Unit := do
+    (onRequest : Request Body → Async (Response Body)) (config : Config) : Async Unit := do
   Connection.mk client { config := config.toH1Config }
   |>.handle config onRequest
 

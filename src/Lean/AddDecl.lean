@@ -35,7 +35,7 @@ private def isNamespaceName : Name → Bool
 private def registerNamePrefixes (env : Environment) (name : Name) : Environment :=
   match name with
     | .str _ s =>
-      if s.get 0 == '_' then
+      if s.front == '_' then
         -- Do not register namespaces that only contain internal declarations.
         env
       else

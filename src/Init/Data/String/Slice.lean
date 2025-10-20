@@ -697,7 +697,7 @@ where
       s1Curr == s1.rawEndPos && s2Curr == s2.rawEndPos
   termination_by s1.endPos.offset.byteIdx - s1Curr.byteIdx
   decreasing_by
-    simp at h ⊢
+    simp [String.Pos.Raw.lt_iff] at h ⊢
     omega
 
 structure PosIterator (s : Slice) where
@@ -835,7 +835,7 @@ private def finitenessRelation [Pure m] :
     · cases h
       obtain ⟨h1, h2, _⟩ := h'
       have h3 := Pos.offset_prev_lt_offset (h := h1)
-      simp [Pos.ext_iff, String.Pos.Raw.ext_iff] at h2 h3
+      simp [Pos.ext_iff, String.Pos.Raw.ext_iff, String.Pos.Raw.lt_iff] at h2 h3
       omega
     · cases h'
     · cases h
@@ -922,7 +922,7 @@ private def finitenessRelation [Pure m] :
       clear h4
       generalize it'.internalState.s = s at *
       cases h2
-      simp [String.Pos.Raw.ext_iff] at h1 h3
+      simp [String.Pos.Raw.ext_iff, String.Pos.Raw.lt_iff] at h1 h3
       omega
     · cases h'
     · cases h
@@ -987,7 +987,7 @@ instance [Pure m] : Std.Iterators.Iterator RevByteIterator m UInt8 where
     if h : offset ≠ 0 then
       let nextOffset := offset.dec
       have hbound := by
-        simp [String.Pos.Raw.le_iff, nextOffset] at h hinv ⊢
+        simp [String.Pos.Raw.le_iff, nextOffset, String.Pos.Raw.lt_iff] at h hinv ⊢
         omega
       have hinv := by
         simp [String.Pos.Raw.le_iff, nextOffset] at hinv ⊢

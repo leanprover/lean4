@@ -168,7 +168,7 @@ def name (full : Option Ident := none) (scope : DocScope := .local)
             | none
           let ⟨_, pos⟩ ← tk1.getRange?
           let ⟨tailPos, _⟩ ← tk2.getRange?
-          pure <| Syntax.mkStrLit (text.source.extract pos tailPos) (info := .synthetic pos tailPos)
+          pure <| Syntax.mkStrLit (String.Pos.Raw.extract text.source pos tailPos) (info := .synthetic pos tailPos)
         if let some ref := ref? then
             m!"Remove surrounding whitespace:".hint #[s.getString.trim] (ref? := some ref)
         else pure m!""
@@ -264,7 +264,7 @@ def module (checked : flag true) (xs : TSyntaxArray `inline) : DocM (Inline Elab
           let some e := tk2.getPos?
             | pure none
           pure <| some {
-            span? := some (Syntax.mkStrLit ((← getFileMap).source.extract b e) (info := .synthetic b e)),
+            span? := some (Syntax.mkStrLit (String.Pos.Raw.extract (← getFileMap).source b e) (info := .synthetic b e)),
             previewSpan? := some ref,
             suggestion := "" : Meta.Hint.Suggestion
           }
@@ -598,8 +598,8 @@ def given (type : Option StrLit := none) (typeIsMeta : flag false) («show» : f
       let thisStr ←
         if let some ⟨b, e⟩ := stx[0].getRange? then
           if let some ⟨b', e'⟩ := stx[2][1].getRange? then
-            pure <| s!"{text.source.extract b e} : {text.source.extract b' e'}"
-          else pure <| text.source.extract b e
+            pure <| s!"{String.Pos.Raw.extract text.source b e} : {String.Pos.Raw.extract text.source b' e'}"
+          else pure <| String.Pos.Raw.extract text.source b e
         else
           failed := true
           break
@@ -673,8 +673,8 @@ def lean (name : Option Ident := none) (error warning «show» : flag false) (co
   let mut output := #[]
   for msg in cmdState.messages.toArray do
     let b := text.ofPosition msg.pos
-    let e := msg.endPos |>.map text.ofPosition |>.getD (text.source.next b)
-    let msgStr := text.source.extract b e
+    let e := msg.endPos |>.map text.ofPosition |>.getD (b.next text.source)
+    let msgStr := String.Pos.Raw.extract text.source b e
     let msgStx := Syntax.mkStrLit msgStr (info := .synthetic b e (canonical := true))
     unless msg.isSilent do
       if name.isSome then output := output.push (msg.severity, ← msg.data.toString)
@@ -719,7 +719,7 @@ where
         (mkNullNode (#[name] ++ args)).getRange?
       | _ => none
     if let some ⟨b, e⟩ := range? then
-      let str := (← getFileMap).source.extract b e
+      let str := String.Pos.Raw.extract (← getFileMap).source b e
       let str := if str.startsWith "kw?" then "kw" ++ str.drop 3 else str
       let stx := Syntax.mkStrLit str (info := .synthetic b e (canonical := true))
       let suggs := suggestions.map (fun (s : String) => {suggestion := str ++ s})

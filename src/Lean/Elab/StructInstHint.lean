@@ -87,8 +87,8 @@ def mkMissingFieldsHint (fields : Array (Name × Option Expr)) (stx : Syntax) : 
   let interveningLineEndPos? :=
     if leaderLine + 1 ≥ (fileMap.utf8PosToLspPos view.closingPos).line then none else
       let leaderLineEnd := findLineEnd fileMap.source view.leaderTailPos
-      let indentPos := (indent + 1).fold (init := leaderLineEnd) (fun _ _ p => fileMap.source.next p)
-      let interveningLineEnd := findLineEnd fileMap.source (fileMap.source.next leaderLineEnd)
+      let indentPos := (indent + 1).fold (init := leaderLineEnd) (fun _ _ p => p.next fileMap.source)
+      let interveningLineEnd := findLineEnd fileMap.source (leaderLineEnd.next fileMap.source)
       let nextTwoLines := Substring.mk fileMap.source view.leaderTailPos interveningLineEnd
       if nextTwoLines.all (·.isWhitespace) then some (min indentPos nextTwoLines.stopPos) else none
 

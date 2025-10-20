@@ -48,7 +48,7 @@ abbrev validateUTF8 (a : ByteArray) : Bool :=
 
 theorem Iterator.sizeOf_next_lt_of_hasNext (i : String.Iterator) (h : i.hasNext) : sizeOf i.next < sizeOf i := by
   cases i; rename_i s pos; simp [Iterator.next, Iterator.sizeOf_eq]; simp [Iterator.hasNext] at h
-  exact Nat.sub_lt_sub_left h (String.lt_next s pos)
+  exact Nat.sub_lt_sub_left h (String.Pos.Raw.lt_next s pos)
 
 macro_rules
 | `(tactic| decreasing_trivial) =>
@@ -153,26 +153,26 @@ def crlfToLf (text : String) : String :=
   go "" 0 0
 where
   go (acc : String) (accStop pos : String.Pos.Raw) : String :=
-    if h : text.atEnd pos then
+    if h : pos.atEnd text then
       -- note: if accStop = 0 then acc is empty
-      if accStop = 0 then text else acc ++ text.extract accStop pos
+      if accStop = 0 then text else acc ++ accStop.extract text pos
     else
-      let c := text.get' pos h
-      let pos' := text.next' pos h
-      if h' : ¬ text.atEnd pos' ∧ c == '\r' ∧ text.get pos' == '\n' then
-        let acc := acc ++ text.extract accStop pos
-        go acc pos' (text.next' pos' h'.1)
+      let c := pos.get' text h
+      let pos' := pos.next' text h
+      if h' : ¬ pos'.atEnd text ∧ c == '\r' ∧ pos'.get text == '\n' then
+        let acc := acc ++ accStop.extract text pos
+        go acc pos' (pos'.next' text h'.1)
       else
         go acc accStop pos'
   termination_by text.utf8ByteSize - pos.byteIdx
   decreasing_by
     decreasing_with
-      change text.utf8ByteSize - (text.next (text.next pos)).byteIdx < text.utf8ByteSize - pos.byteIdx
+      change text.utf8ByteSize - ((pos.next text).next text).byteIdx < text.utf8ByteSize - pos.byteIdx
       have k := Nat.gt_of_not_le <| mt decide_eq_true h
-      exact Nat.sub_lt_sub_left k (Nat.lt_trans (String.lt_next text pos) (String.lt_next _ _))
+      exact Nat.sub_lt_sub_left k (Nat.lt_trans (String.Pos.Raw.lt_next text pos) (String.Pos.Raw.lt_next _ _))
     decreasing_with
-      change text.utf8ByteSize - (text.next pos).byteIdx < text.utf8ByteSize - pos.byteIdx
+      change text.utf8ByteSize - (pos.next text).byteIdx < text.utf8ByteSize - pos.byteIdx
       have k := Nat.gt_of_not_le <| mt decide_eq_true h
-      exact Nat.sub_lt_sub_left k (String.lt_next _ _)
+      exact Nat.sub_lt_sub_left k (String.Pos.Raw.lt_next _ _)
 
 end String

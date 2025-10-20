@@ -366,7 +366,7 @@ private def expandWhereStructInst : Macro := fun whereStx => do
   let endOfStructureTkInfo : SourceInfo :=
     match structureStxTailInfo with
     | some (SourceInfo.original _ _ trailing _) =>
-      let tokenPos := trailing.str.prev trailing.stopPos
+      let tokenPos := trailing.stopPos.prev trailing.str
       let tokenEndPos := trailing.stopPos
       .synthetic tokenPos tokenEndPos true
     | _ => .none

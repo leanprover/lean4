@@ -179,7 +179,7 @@ trace: [splits] Case split candidates
 #guard_msgs (trace) in
 example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → False := by
   grind =>
-    show_splits
+    show_cases
     sorry
 
 /--
@@ -189,7 +189,7 @@ trace: [splits] Case split candidates
 -/
 example (r p q p₁ p₂ : Prop) : (p₁ → q) → p ∨ (q ∧ r) → p ∨ (p₁ ↔ p₂) → False := by
   grind =>
-    show_splits
+    show_cases
     sorry
 
 def h (as : List Nat) :=
@@ -213,13 +213,13 @@ trace: [splits] Case split candidates
 example : h bs = 1 → h as ≠ 0 := by
   grind [h.eq_def] =>
     instantiate
-    show_splits
+    show_cases
     sorry
 
 example : h bs = 1 → h as ≠ 0 := by
   grind [h.eq_def] =>
     instantiate
-    show_splits
+    show_cases
     cases #ec88
     instantiate
     focus instantiate
@@ -239,15 +239,55 @@ example : h bs = 1 → h as ≠ 0 := by
     skip
     try fail
     fail_if_success fail
-    first | fail | done | skip
+    first (fail) (done) (skip)
     fail "Failed here"
     done
 
 example : h bs = 1 → h as ≠ 0 := by
   grind [h.eq_def] =>
-    instantiate
+    instantiate | as
     cases #ec88
     all_goals instantiate
+
+/--
+info: Try these:
+  [apply] cases #7a08 for
+    ¬p ∨ ¬q
+  [apply] cases #8212 for
+    ¬p ∨ q
+  [apply] cases #fc16 for
+    p ∨ ¬q
+  [apply] cases #4283 for
+    p ∨ q
+  [apply] cases #0457 for
+    p ∨ r
+-/
+#guard_msgs in
+example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → False := by
+  grind =>
+    cases?
+    sorry
+
+set_option trace.Meta.debug true in
+example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → False := by
+  grind =>
+    cases?
+    sorry
+
+/--
+info: Try these:
+  [apply] cases #7a08 for
+    ¬p ∨ ¬q
+  [apply] cases #8212 for
+    ¬p ∨ q
+  [apply] cases #fc16 for
+    p ∨ ¬q
+-/
+#guard_msgs in
+example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → False := by
+  grind =>
+    cases? p && Not
+    sorry
 
 example : h bs = 1 → h as ≠ 0 := by
   grind [h.eq_def] =>
@@ -361,7 +401,7 @@ example (as bs cs : Array α) (v₁ v₂ : α)
         (h₆ : j < as.size)
         : cs[j] = as[j] := by
   grind =>
-    instantiate Array.getElem_set
+    instantiate Array.getElem_set | gen > 0
     instantiate Array.getElem_set
 
 example (as bs cs : Array α) (v₁ v₂ : α)
@@ -411,12 +451,12 @@ trace: [thms] Local theorems
 #guard_msgs in
 example : (∀ x, q x) → (∀ x, p x → p (f x)) → p x → p (f (f x)) := by
   grind =>
-    show_thms
+    show_local_thms
     instantiate #bfb8
 
 example : (∀ x, q x) → (∀ x, p x → p (f x)) → p x → p (f (f x)) := by
   grind =>
-    show_thms
+    show_local_thms
     instantiate #bfb8
 
 /-- error: no local theorems -/
@@ -461,9 +501,9 @@ example : (a : Point Nat) → p a → x ≠ y → False := by
   grind =>
     cases #6ccb
     instantiate pax
-    show_splits
+    show_cases
     rename_i y w _ -- Must reset cached anchors
-    show_splits
+    show_cases
     cases #e2a6
     all_goals sorry
 
@@ -472,9 +512,9 @@ example : (a : Point Nat) → p a → x ≠ y → False := by
   grind =>
     cases #6ccb
     instantiate pax
-    show_splits
+    show_cases
     next y w _ =>
-    show_splits
+    show_cases
     cases #e2a6
     all_goals sorry
 

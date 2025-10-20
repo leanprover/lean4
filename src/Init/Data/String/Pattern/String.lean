@@ -105,10 +105,10 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
               left
               exists nextStackPos
               have haux := lt_offset_findNextPos h1
-              simp only [pos_lt_eq, proper.injEq, true_and, exists_and_left, exists_eq', and_true,
+              simp only [String.Pos.Raw.lt_iff, proper.injEq, true_and, exists_and_left, exists_eq', and_true,
                 nextStackPos]
               constructor
-              · simp [String.Pos.Raw.le_iff] at h haux ⊢
+              · simp [String.Pos.Raw.le_iff, String.Pos.Raw.lt_iff] at h haux ⊢
                 omega
               · apply Pos.Raw.IsValidForSlice.le_utf8ByteSize
                 apply Pos.isValidForSlice
@@ -121,12 +121,12 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
               have hiter := by
                 left
                 exists nextStackPos
-                simp only [pos_lt_eq, Pos.Raw.byteIdx_inc, proper.injEq, true_and, exists_and_left,
-                  exists_eq', and_true, nextStackPos]
+                simp only [Pos.Raw.byteIdx_inc, proper.injEq, true_and, exists_and_left,
+                  exists_eq', and_true, nextStackPos, String.Pos.Raw.lt_iff]
                 constructor
                 · simp [String.Pos.Raw.le_iff] at h ⊢
                   omega
-                · simp [String.Pos.Raw.le_iff] at h1 ⊢
+                · simp [String.Pos.Raw.le_iff, String.Pos.Raw.lt_iff] at h1 ⊢
                   omega
               .deflate ⟨.yield ⟨.proper needle table nextStackPos 0⟩ res, hiter⟩
             else
@@ -142,7 +142,7 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
             .deflate ⟨.done, by simp⟩
         termination_by s.utf8ByteSize - currStackPos.byteIdx
         decreasing_by
-          simp at h1 ⊢
+          simp [String.Pos.Raw.lt_iff] at h1 ⊢
           omega
 
       findNext stackPos stackPos needlePos (by simp)
@@ -177,7 +177,7 @@ private def finitenessRelation :
           apply Prod.Lex.right'
           · simp
           · have haux := np.isValidForSlice.le_utf8ByteSize
-            simp [Slice.Pos.lt_iff, String.Pos.Raw.le_iff] at h1' haux ⊢
+            simp [Slice.Pos.lt_iff, String.Pos.Raw.le_iff, String.Pos.Raw.lt_iff] at h1' haux ⊢
             omega
         · apply Prod.Lex.left
           simp [h']
@@ -187,7 +187,7 @@ private def finitenessRelation :
         · rw [h3']
           apply Prod.Lex.right'
           · simp
-          · simp [String.Pos.Raw.le_iff] at h1' h2' ⊢
+          · simp [String.Pos.Raw.le_iff, String.Pos.Raw.lt_iff] at h1' h2' ⊢
             omega
         · apply Prod.Lex.left
           simp [h']

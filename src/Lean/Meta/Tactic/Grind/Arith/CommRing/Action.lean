@@ -6,11 +6,11 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Action
-import Lean.Meta.Tactic.Grind.AC.Eq
+import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
 namespace Lean.Meta.Grind.Action
 
-/-- Associative-Commutative solver action. -/
-public def ac : Action :=
-  solverAction AC.check `(grind| ac)
+/-- Ring solver action. -/
+public def ring : Action :=
+  solverAction Arith.CommRing.check `(grind| ring)
 
 end Lean.Meta.Grind.Action

@@ -629,7 +629,6 @@ end Rcx
 section Rcc
 
 @[always_inline]
-
 public def Rcc [Ord α] (t : Impl α β) (lower_bound : α) (upper_bound : α)  : Iter (α := RxcIterator α β compare) ((a : α) × β a) :=
   ⟨RxcIterator.mk (Zipper.prependMapGE t lower_bound .done) upper_bound⟩
 

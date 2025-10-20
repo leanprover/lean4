@@ -276,9 +276,9 @@ If `s?` is `none` just returns `true`.
 -/
 def checkSeqAt (s? : Option SavedState) (goal : Goal) (seq : List TGrind) : GrindM Bool := do
   let some s := s? | return true
-  let tac ← mkGrindParen seq
   Lean.withoutModifyingState do
     s.restore
+    let tac ← mkGrindParen seq
     -- **Note**: Ensure tracing is disabled.
     withTheReader Grind.Context (fun ctx => { ctx with config.trace := false }) do
       try

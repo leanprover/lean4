@@ -264,7 +264,7 @@ def logAnchor (numDigits : Nat) (anchorPrefix : UInt64) (e : Expr) : TermElabM U
     -/
     Term.addTermInfo' stx e
     logAt (severity := .information) (isSilent := true) stx
-       m!"#{anchorToString numDigits anchorPrefix} := {e}"
+       m!"#{anchorPrefixToString numDigits anchorPrefix} := {e}"
 
 @[builtin_grind_tactic cases] def evalCases : GrindTactic := fun stx => do
   let `(grind| cases #$anchor:hexnum) := stx | throwUnsupportedSyntax

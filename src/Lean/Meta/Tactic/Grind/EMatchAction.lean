@@ -86,7 +86,7 @@ def getAllTheorems (map : EMatch.InstanceMap) : Array EMatchTheorem :=
   map.toArray.map (·.2)
 
 public def instantiate' : Action := fun goal kna kp => do
-  let s ← saveStateIfTracing
+  let saved? ← saveStateIfTracing
   let ((progress, map), goal') ← GoalM.run goal ematch'
   if progress then
     match (← kp goal') with
@@ -95,7 +95,7 @@ public def instantiate' : Action := fun goal kna kp => do
         let proof ← instantiateMVars (mkMVar goal.mvarId)
         let usedThms := collect proof map
         let newSeq ← mkNewSeq goal usedThms seq (approx := false)
-        if (← checkSeqAt s goal newSeq) then
+        if (← checkSeqAt saved? goal newSeq) then
           return .closed newSeq
         else
           let allThms := getAllTheorems map

@@ -481,7 +481,12 @@ where
     let mut proof := proof
     let mut prop := prop
     if (← getConfig).trace then
-      let uniqueId ← mkFreshId
+      /-
+      **Note**: It is incorrect to use `mkFreshId` here because we use `withFreshNGen` at
+      `instantiateTheorem`. So, we generate an unique id by using the number of instances generated so far.
+      The code relies on the fact that `addTheoremInstance` bumps this counter.
+      -/
+      let uniqueId := Name.num `_grind_inst (← getNumTheoremInstances)
       proof := markTheoremInstanceProof proof uniqueId
       modify fun s => { s with instanceMap := s.instanceMap.insert uniqueId thm }
     if (← isMatchEqLikeDeclName thm.origin.key) then

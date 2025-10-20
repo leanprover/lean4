@@ -902,6 +902,10 @@ def addNewRawFact (proof : Expr) (prop : Expr) (generation : Nat) (splitSource :
         which is not definitionally equal with `reducible` transparency setting}"
   modify fun s => { s with newRawFacts := s.newRawFacts.enqueue { proof, prop, generation, splitSource } }
 
+/-- Returns the number of theorem instances generated so far. -/
+def getNumTheoremInstances : GoalM Nat := do
+  return (← get).ematch.numInstances
+
 /-- Adds a new theorem instance produced using E-matching. -/
 def addTheoremInstance (thm : EMatchTheorem) (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
   saveEMatchTheorem thm

@@ -1098,7 +1098,6 @@ until `c` is known.
         | Or.inl h => hp h
         | Or.inr h => hq h
 
-@[inline]
 instance [dp : Decidable p] : Decidable (Not p) :=
   match dp with
   | isTrue hp  => isFalse (absurd hp)

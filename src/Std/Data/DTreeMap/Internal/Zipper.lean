@@ -446,29 +446,29 @@ public theorem Zipper.iter_of_tree_internal_state_eq {m : Impl α β} :
 end Zipper
 
 section Rxc
-public structure RxcIterator (α : Type u) (β : α → Type v) (cmp : α → α → Ordering) where
+public structure RxcIterator (α : Type u) (β : α → Type v) [Ord α] where
   iter : Zipper α β
   upper : α
 
 variable {α : Type u} {β : α → Type v}
 
-public def RxcIterator.step {cmp : α → α → Ordering} : RxcIterator α β cmp → IterStep (IterM (α := RxcIterator α β cmp) Id ((a : α) × β a)) ((a : α) × β a)
+public def RxcIterator.step [Ord α] : RxcIterator α β → IterStep (IterM (α := RxcIterator α β) Id ((a : α) × β a)) ((a : α) × β a)
   | ⟨.done, _⟩ => .done
   | ⟨.cons k v t it, upper⟩ =>
-    if (cmp k upper).isLE then
+    if (compare k upper).isLE then
       .yield ⟨it.prependMap t, upper⟩ ⟨k, v⟩
     else
       .done
 
-public instance : Iterator (RxcIterator α β cmp) Id ((a : α) × β a) where
+public instance [Ord α]: Iterator (RxcIterator α β) Id ((a : α) × β a) where
   IsPlausibleStep it step := it.internalState.step = step
   step it := ⟨it.internalState.step, rfl⟩
 
-public instance : IteratorCollect (RxcIterator α β cmp) Id Id := .defaultImplementation
+public instance [Ord α]: IteratorCollect (RxcIterator α β) Id Id := .defaultImplementation
 
-public instance : IteratorCollectPartial (RxcIterator α β cmp) Id Id := .defaultImplementation
+public instance [Ord α]: IteratorCollectPartial (RxcIterator α β) Id Id := .defaultImplementation
 
-def instFinitenessRelation : FinitenessRelation (RxcIterator α β cmp) Id where
+def instFinitenessRelation [Ord α] : FinitenessRelation (RxcIterator α β) Id where
   rel t' t := t'.internalState.iter.size < t.internalState.iter.size
   wf := by
     apply InvImage.wf
@@ -502,14 +502,14 @@ def instFinitenessRelation : FinitenessRelation (RxcIterator α β cmp) Id where
             Nat.lt_add_left_iff_pos, Nat.lt_add_one]
 
 @[no_expose]
-public instance instFinite : Finite (RxcIterator α β cmp) Id :=
+public instance instFinite [Ord α] : Finite (RxcIterator α β) Id :=
   .of_finitenessRelation instFinitenessRelation
 
-public theorem step_rxcIterator_eq_match {cmp : α → α → Ordering} {it : IterM (α := RxcIterator α β cmp) Id ((a : α) × β a)} :
+public theorem step_rxcIterator_eq_match [Ord α] {it : IterM (α := RxcIterator α β) Id ((a : α) × β a)} :
     it.step = ⟨match it.internalState.iter with
     | Zipper.done => IterStep.done
     | Zipper.cons k v t z =>
-      if (cmp k it.internalState.upper).isLE = true then
+      if (compare k it.internalState.upper).isLE = true then
         IterStep.yield { internalState := { iter := Zipper.prependMap t z, upper := it.internalState.upper } } ⟨k, v⟩
       else IterStep.done,
     (by simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, RxcIterator.step]; split; all_goals (rename_i heq; simp only [heq]))⟩ := by
@@ -530,25 +530,8 @@ public theorem step_rxcIterator_eq_match {cmp : α → α → Ordering} {it : It
       case cons k v tree next =>
         simp only
 
-public structure RicSliceData (α : Type u) (β : α → Type v) (cmp : α → α → Ordering := by exact compare) where
-  treeMap : DTreeMap.Raw α β cmp
-  range : Ric α
-
-public abbrev RicSlice α β cmp := Slice (RicSliceData α β cmp)
-
-public instance : Ric.Sliceable (DTreeMap.Raw α β cmp) α (RicSlice α β cmp) where
-  mkSlice carrier range := ⟨carrier, range⟩
-
-@[always_inline]
-public def RicSlice.iterM (s : RicSlice α β cmp) : IterM (α := RxcIterator α β cmp) Id ((a : α) × β a) :=
-  ⟨⟨Zipper.done.prependMap s.1.treeMap.inner, s.1.range.upper⟩⟩
-
-public instance {s : RicSlice α β cmp} : ToIterator s Id ((a : α) × β a) where
-  State := RxcIterator α β cmp
-  iterMInternal := RicSlice.iterM s
-
 public theorem val_step_rxcIterator_eq_match {α β} [Ord α]
-    {it : Iter (α := RxcIterator α β compare) (Sigma β)} :
+    {it : Iter (α := RxcIterator α β) (Sigma β)} :
     it.step.val =
         match it.internalState.iter with
         | Zipper.done => IterStep.done
@@ -566,10 +549,10 @@ public theorem val_step_rxcIterator_eq_match {α β} [Ord α]
 
 public theorem toList_rxcIter {α β} [Ord α]
     {z : Zipper α β} {bound : α} :
-    (⟨RxcIterator.mk (cmp := compare) z bound⟩ : Iter (Sigma β)).toList =
+    (⟨RxcIterator.mk z bound⟩ : Iter (Sigma β)).toList =
       z.toList.takeWhile (fun e => (compare e.fst bound).isLE) := by
   rw [Iter.toList_eq_match_step]
-  generalize hit : (⟨RxcIterator.mk (cmp := compare) z bound⟩ : Iter (Sigma β)).step.val = step
+  generalize hit : (⟨RxcIterator.mk z bound⟩ : Iter (Sigma β)).step.val = step
   rw [val_step_rxcIterator_eq_match] at hit
   simp only at hit
   split at hit <;> rename_i heq
@@ -616,14 +599,14 @@ public theorem toList_eq_takeWhile {α β} [Ord α] [TransOrd α] {z : Zipper α
   apply toList_eq_takeWhile_list
   exact z_ord
 
-def instProductivenessRelation : ProductivenessRelation (RxcIterator α β cmp) Id where
+def instProductivenessRelation [Ord α]: ProductivenessRelation (RxcIterator α β) Id where
   rel t' t := t'.internalState.iter.size < t.internalState.iter.size
   wf := by
     apply InvImage.wf
     exact Nat.lt_wfRel.wf
   subrelation {it it'} h := by
     simp [IterM.IsPlausibleSkipSuccessorOf, IterM.IsPlausibleStep, Iterator.IsPlausibleStep] at h
-    have := @step_rxcIterator_eq_match α β cmp ⟨it.1⟩
+    have := @step_rxcIterator_eq_match α β _ ⟨it.1⟩
     simp [IterM.step, Iterator.step] at this
     injections val_eq
     rw [h] at val_eq
@@ -633,32 +616,36 @@ def instProductivenessRelation : ProductivenessRelation (RxcIterator α β cmp) 
       split at val_eq <;> contradiction
 
 @[no_expose]
-public instance RxcIterator.instProductive : Productive (RxcIterator α β cmp) Id :=
+public instance RxcIterator.instProductive [Ord α] : Productive (RxcIterator α β) Id :=
   .of_productivenessRelation instProductivenessRelation
 
 end Rxc
 
 section Rxo
 
-public structure RxoIterator (α : Type u) (β : α → Type v) (cmp : α → α → Ordering) where
+public structure RxoIterator (α : Type u) (β : α → Type v) [Ord α] where
   iter : Zipper α β
   upper : α
 
 variable {α : Type u} {β : α → Type v}
 
-public def RxoIterator.step {cmp : α → α → Ordering} : RxoIterator α β cmp → IterStep (IterM (α := RxoIterator α β cmp) Id ((a : α) × β a)) ((a : α) × β a)
+public def RxoIterator.step [Ord α] : RxoIterator α β → IterStep (IterM (α := RxoIterator α β) Id ((a : α) × β a)) ((a : α) × β a)
   | ⟨.done, _⟩ => .done
   | ⟨.cons k v t it, upper⟩ =>
-    if (cmp k upper).isLT then
+    if (compare k upper).isLT then
       .yield ⟨it.prependMap t, upper⟩ ⟨k, v⟩
     else
       .done
 
-public instance : Iterator (RxoIterator α β cmp) Id ((a : α) × β a) where
+public instance [Ord α]: Iterator (RxoIterator α β) Id ((a : α) × β a) where
   IsPlausibleStep it step := it.internalState.step = step
   step it := ⟨it.internalState.step, rfl⟩
 
-def RxoIterator.instFinitenessRelation : FinitenessRelation (RxoIterator α β cmp) Id where
+public instance [Ord α]: IteratorCollect (RxoIterator α β) Id Id := .defaultImplementation
+
+public instance [Ord α]: IteratorCollectPartial (RxoIterator α β) Id Id := .defaultImplementation
+
+def RxoIterator.instFinitenessRelation [Ord α]: FinitenessRelation (RxoIterator α β) Id where
   rel t' t := t'.internalState.iter.size < t.internalState.iter.size
   wf := by
     apply InvImage.wf
@@ -692,14 +679,14 @@ def RxoIterator.instFinitenessRelation : FinitenessRelation (RxoIterator α β c
             Nat.lt_add_left_iff_pos, Nat.lt_add_one]
 
 @[no_expose]
-public instance Rxo.instFinite : Finite (RxcIterator α β cmp) Id :=
-  .of_finitenessRelation instFinitenessRelation
+public instance Rxo.instFinite [Ord α]: Finite (RxoIterator α β) Id :=
+  .of_finitenessRelation RxoIterator.instFinitenessRelation
 
-public theorem step_rxoIterator_eq_match {cmp : α → α → Ordering} {it : IterM (α := RxoIterator α β cmp) Id ((a : α) × β a)} :
+public theorem step_rxoIterator_eq_match [Ord α] {it : IterM (α := RxoIterator α β) Id ((a : α) × β a)} :
     it.step = ⟨match it.internalState.iter with
     | Zipper.done => IterStep.done
     | Zipper.cons k v t z =>
-      if (cmp k it.internalState.upper).isLT = true then
+      if (compare k it.internalState.upper).isLT = true then
         IterStep.yield { internalState := { iter := Zipper.prependMap t z, upper := it.internalState.upper } } ⟨k, v⟩
       else IterStep.done,
     (by simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, RxoIterator.step]; split; all_goals (rename_i heq; simp only [heq]))⟩ := by
@@ -719,6 +706,77 @@ public theorem step_rxoIterator_eq_match {cmp : α → α → Ordering} {it : It
         simp only
       case cons k v tree next =>
         simp only
+
+public theorem val_step_rxoIterator_eq_match {α β} [Ord α]
+    {it : Iter (α := RxoIterator α β) (Sigma β)} :
+    it.step.val =
+        match it.internalState.iter with
+        | Zipper.done => IterStep.done
+        | Zipper.cons k v t it' =>
+          if (compare k it.internalState.upper).isLT = true then
+            IterStep.yield { internalState := { iter := Zipper.prependMap t it', upper := it.internalState.upper } } ⟨k, v⟩
+          else IterStep.done := by
+  rcases it with ⟨z, upper⟩
+  rw [Iter.step]
+  rw [step_rxoIterator_eq_match]
+  simp only [Iter.toIterM]
+  split
+  · simp only [IterM.Step.toPure, IterStep.mapIterator, Id.run]
+  · split <;> simp only [IterM.Step.toPure, IterM.toIter, IterStep.mapIterator, Id.run]
+
+public theorem toList_rxoIter {α β} [Ord α]
+    {z : Zipper α β} {bound : α} :
+    (⟨RxoIterator.mk z bound⟩ : Iter (Sigma β)).toList =
+      z.toList.takeWhile (fun e => (compare e.fst bound).isLT) := by
+  rw [Iter.toList_eq_match_step]
+  generalize hit : (⟨RxoIterator.mk z bound⟩ : Iter (Sigma β)).step.val = step
+  rw [val_step_rxoIterator_eq_match] at hit
+  simp only at hit
+  split at hit <;> rename_i heq
+  · simp only [← hit, Zipper.toList, List.takeWhile_nil]
+  · split at hit
+    · simp only [← hit, Zipper.toList, List.cons_append]
+      rw [List.takeWhile_cons_of_pos ‹_›]
+      simp
+      rw [toList_rxoIter, Zipper.prependMap_toList_eq_concat_toList]
+    · simp only [← hit, Zipper.toList, List.cons_append, List.nil_eq]
+      rw [List.takeWhile_cons_of_neg ‹_›]
+termination_by z.size
+decreasing_by
+  simp_all [Zipper.size, Zipper.prependMap_size]
+
+public theorem toList_eq_takeWhile_list_LT {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {bound : α} {l : List ((a : α) × β a)}
+    {l_ordered : l.Pairwise (fun a b => compare a.1 b.1 = .lt)} :
+  l.takeWhile (fun e => (compare e.fst bound).isLT) = l.filter (fun e => (compare e.fst bound).isLT) := by
+    induction l
+    case nil =>
+      simp
+    case cons h t t_ih =>
+      simp only [List.takeWhile, List.filter]
+      generalize heq : (compare h.fst bound).isLT = x
+      cases x
+      case true =>
+        simp
+        apply t_ih
+        simp at l_ordered
+        exact l_ordered.2
+      case false =>
+        simp_all
+        intro a mem
+        have := l_ordered.1 a mem
+        rw [← Ordering.swap_eq_gt, ← OrientedOrd.eq_swap] at this
+        rw [Ordering.ne_lt_iff_isGE]
+        simp only [Bool.eq_false_iff, ne_eq, Ordering.isLT_iff_eq_lt] at heq
+        rw [Ordering.ne_lt_iff_isGE] at heq
+        apply TransOrd.isGE_trans
+        . apply Ordering.isGE_of_eq_gt this
+        . exact heq
+
+public theorem toList_eq_takeWhile_LT {α β} [Ord α] [TransOrd α] {z : Zipper α β} {bound : α} {z_ord : z.Ordered} :
+    z.toList.takeWhile (fun e => (compare e.fst bound).isLT) = z.toList.filter (fun e => (compare e.fst bound).isLT) := by
+  simp only [Zipper.Ordered] at z_ord
+  apply toList_eq_takeWhile_list_LT
+  exact z_ord
 
 end Rxo
 
@@ -740,10 +798,90 @@ public theorem toList_rcxIter {α β} [Ord α] [TransOrd α]
 
 end Rcx
 
+-- section Rii
+-- public structure RiiSliceData (α : Type u) (β : α → Type v) [Ord α] where
+--   treeMap : Impl α β
+
+-- public abbrev RiiSlice α β [Ord α] := Slice (RiiSliceData α β)
+
+-- public instance {α : Type u} {β : α → Type v} [Ord α] : Rii.Sliceable (Impl α β) α (RiiSliceData α β) where
+--   mkSlice carrier _ := ⟨carrier⟩
+
+-- public instance [Ord α] {s : RiiSlice α β} : ToIterator s Id ((a : α) × β a) :=
+--   ToIterator.of (Zipper α β) (Zipper.iter_of_tree s.1.treeMap)
+
+-- def test : Impl Nat fun _ => Nat :=
+--   .ofList [⟨1, 2⟩, ⟨5, 4⟩, ⟨3, 1⟩, ⟨2, 8⟩, ⟨7, 9⟩, ⟨10, 5⟩]
+
+-- #check (test[*...*]).toList
+
+-- theorem Rii.correct {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] (t : Impl α β)
+--     (ordered : t.Ordered) (bound : α) : t[*...*].toList = t.toList := by
+--   sorry
+--   -- simp only [Ric.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+--   --   Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
+--   --   Iter.toIter_toIterM]
+--   -- rw [toList_rxcIter, toList_eq_takeWhile_list]
+--   -- . rw [Zipper.prependMap_toList_eq_concat_toList]
+--   --   simp [Zipper.toList]
+--   -- . exact @Zipper.prependMap_done_invariant _ _ _ _ t ordered
+
+-- end Rii
+
+section Ric
+public structure RicSliceData (α : Type u) (β : α → Type v) [Ord α] where
+  treeMap : Impl α β
+  range : Ric α
+
+public abbrev RicSlice α β [Ord α] := Slice (RicSliceData α β)
+
+public instance {α : Type u} {β : α → Type v} [Ord α] : Ric.Sliceable (Impl α β) α (RicSlice α β) where
+  mkSlice carrier range := ⟨carrier, range⟩
+
+public instance [Ord α] {s : RicSlice α β} : ToIterator s Id ((a : α) × β a) :=
+  ToIterator.of (RxcIterator α β) ⟨RxcIterator.mk (Zipper.prependMap s.1.treeMap Zipper.done) s.1.range.upper⟩
+
+theorem Ric.correct {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] (t : Impl α β)
+    (ordered : t.Ordered) (bound : α) : t[*...=bound].toList = t.toList.filter (fun e => (compare e.fst bound).isLE) := by
+  simp only [Ric.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+    Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
+    Iter.toIter_toIterM]
+  rw [toList_rxcIter, toList_eq_takeWhile_list]
+  . rw [Zipper.prependMap_toList_eq_concat_toList]
+    simp [Zipper.toList]
+  . exact @Zipper.prependMap_done_invariant _ _ _ _ t ordered
+
+end Ric
+
+section Rio
+public structure RioSliceData (α : Type u) (β : α → Type v) [Ord α] where
+  treeMap : Impl α β
+  range : Rio α
+
+public abbrev RioSlice α β [Ord α] := Slice (RioSliceData α β)
+
+public instance {α : Type u} {β : α → Type v} [Ord α] : Rio.Sliceable (Impl α β) α (RioSlice α β) where
+  mkSlice carrier range := ⟨carrier, range⟩
+
+public instance [Ord α] {s : RioSlice α β} : ToIterator s Id ((a : α) × β a) :=
+  ToIterator.of (RxoIterator α β) ⟨RxoIterator.mk (Zipper.prependMap s.1.treeMap Zipper.done) s.1.range.upper⟩
+
+theorem Rio.correct {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] (t : Impl α β)
+    (ordered : t.Ordered) (bound : α) : t[*...bound].toList = t.toList.filter (fun e => (compare e.fst bound).isLT) := by
+  simp only [Rio.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+    Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
+    Iter.toIter_toIterM]
+  rw [toList_rxoIter, toList_eq_takeWhile_list_LT]
+  . rw [Zipper.prependMap_toList_eq_concat_toList]
+    simp [Zipper.toList]
+  . exact @Zipper.prependMap_done_invariant _ _ _ _ t ordered
+
+end Rio
+
 section Rcc
 
 @[always_inline]
-public def Rcc [Ord α] (t : Impl α β) (lower_bound : α) (upper_bound : α)  : Iter (α := RxcIterator α β compare) ((a : α) × β a) :=
+public def Rcc [Ord α] (t : Impl α β) (lower_bound : α) (upper_bound : α)  : Iter (α := RxcIterator α β) ((a : α) × β a) :=
   ⟨RxcIterator.mk (Zipper.prependMapGE t lower_bound .done) upper_bound⟩
 
 public theorem toList_rccIter {α β} [Ord α] [TransOrd α]

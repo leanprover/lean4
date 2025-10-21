@@ -6,7 +6,7 @@ Authors: Wojciech Różowski
 module
 
 prelude
-public import Std.Data.DTreeMap.Internal.Slice
+public import Std.Data.DTreeMap.Internal.Zipper
 
 namespace Std.DTreeMap.Raw
 open Std.Iterators

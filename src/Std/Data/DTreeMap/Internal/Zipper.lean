@@ -1083,4 +1083,42 @@ theorem Rci.correct {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] (t
 
 end Rci
 
+section Roi
+@[always_inline]
+public def RoiIterator [Ord α] (t : Impl α β) (lower_bound : α) : Iter (α := Zipper α β) ((a : α) × β a) :=
+  ⟨Zipper.prependMapGT t lower_bound .done⟩
+
+public theorem toList_roiIter {α β} [Ord α] [TransOrd α]
+    {t : Impl α β} {t_ord : t.Ordered} {lower_bound : α} :
+    (RoiIterator t lower_bound : Iter (Sigma β)).toList =
+      t.toList.filter (fun e => (compare e.fst lower_bound).isGT) := by
+  simp only [RoiIterator]
+  simp only [Zipper.toList_Zipper]
+  rw [← Zipper.prepend_prune_LT_eq_prependMapGT]
+  simp only [Zipper.prependMap_toList_eq_concat_toList, Zipper.toList, List.append_nil]
+  apply Impl.prune_LT_eq_filter
+  exact t_ord
+
+public structure RoiSliceData (α : Type u) (β : α → Type v) [Ord α] where
+  treeMap : Impl α β
+  range : Roi α
+
+public abbrev RoiSlice α β [Ord α] := Slice (RoiSliceData α β)
+
+public instance {α : Type u} {β : α → Type v} [Ord α] : Roi.Sliceable (Impl α β) α (RoiSlice α β) where
+  mkSlice carrier range := ⟨carrier, range⟩
+
+public instance [Ord α] {s : RoiSlice α β} : ToIterator s Id ((a : α) × β a) :=
+  ToIterator.of (Zipper α β) (RoiIterator s.1.treeMap s.1.range.lower)
+
+theorem Roi.correct {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] (t : Impl α β)
+    (ordered : t.Ordered) (lower_bound : α) : t[lower_bound<...*].toList = t.toList.filter (fun e => (compare e.fst lower_bound).isGT) := by
+  simp only [Roi.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+    Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
+    Iter.toIter_toIterM]
+  rw [toList_roiIter]
+  . exact ordered
+
+end Roi
+
 end Std.DTreeMap.Internal

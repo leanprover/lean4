@@ -25,19 +25,4 @@ def mkPrivateName (env : Environment) (n : Name) : Name :=
   -- is private to *this* module.
   mkPrivateNameCore env.mainModule <| privateToUserName n
 
-def isInaccessiblePrivateName (env : Environment) (n : Name) : Bool := Id.run do
-  if !isPrivateName n then
-    return false
-  -- All private names are inaccessible from the public scope
-  if env.isExporting then
-    return true
-  -- In the private scope, ...
-  match env.getModuleIdxFor? n with
-  | some modIdx =>
-    -- ... allow access through `import all`
-    !env.header.isModule || !env.header.modules[modIdx]?.any (·.importAll)
-  | none =>
-    -- ... allow all accesses in the current module
-    false
-
 end Lean

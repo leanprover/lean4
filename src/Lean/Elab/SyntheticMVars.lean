@@ -340,6 +340,13 @@ private def TacticMVarKind.maybeWithoutRecovery (kind : TacticMVarKind) (m : Tac
   else
     m
 
+register_builtin_option backward.proofsInPublic : Bool := {
+  defValue := false
+  descr    := "(module system) Do not abstract proofs used in the public scope into auxiliary \
+    theorems. Enabling this option may lead to failures or, when `backward.privateInPublic` and \
+    its `warn` sub-option are enabled, additional warnings from private accesses."
+}
+
 mutual
 
   /--
@@ -352,7 +359,7 @@ mutual
   partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) (kind : TacticMVarKind) (report := true) : TermElabM Unit := withoutAutoBoundImplicit do
     let wasExporting := (← getEnv).isExporting
     -- exit exporting context if entering proof
-    let isNoLongerExporting ← pure wasExporting <&&> do
+    let isNoLongerExporting ← pure (wasExporting && !(← backward.proofsInPublic.getM)) <&&> do
       mvarId.withContext do
         isProp (← mvarId.getType)
     instantiateMVarDeclMVars mvarId

@@ -195,6 +195,10 @@ where
   visitApp (f : Expr) (args : Array Expr) := do
     let fNew ← match f with
       | .const declName us =>
+        if (← getEnv).isExporting && isPrivateName declName then
+          -- This branch can happen under `backward.privateInPublic`; restore original behavior of
+          -- failing here, which is caught and ignored above by `observing`.
+          throwError "internal compiler error: private in public"
         let .inductInfo _ ← getConstInfo declName | return anyExpr
         pure <| .const declName us
       | .fvar .. => pure f

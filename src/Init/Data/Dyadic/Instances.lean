@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Dyadic.Basic
-public import Init.Grind.Ring.Basic
 public import Init.Grind.Ordered.Ring
 
 /-! # Internal `grind` algebra instances for `Dyadic`. -/

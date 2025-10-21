@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Notation.Spec
-// Imports: public import Std.Time.Date public import Std.Time.Time public import Std.Time.Zoned public import Std.Time.DateTime public import Std.Time.Format.Basic public meta import Std.Time.Format.Basic
+// Imports: public import Std.Time.Format.Basic public meta import Std.Time.Format.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -10262,10 +10262,6 @@ return x_25;
 }
 }
 }
-lean_object* initialize_Std_Time_Date(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Time_Time(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Time_Zoned(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Time_DateTime(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time_Format_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time_Format_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -10273,18 +10269,6 @@ LEAN_EXPORT lean_object* initialize_Std_Time_Notation_Spec(uint8_t builtin, lean
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Time_Date(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Time_Time(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Time_Zoned(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Time_DateTime(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Std_Time_Format_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

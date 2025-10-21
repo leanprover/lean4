@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.InferType
 public import Lean.Meta.Sorry
 import Lean.AddDecl
 

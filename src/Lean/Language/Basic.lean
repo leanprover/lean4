@@ -11,7 +11,6 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Init.System.Promise
 public import Lean.Parser.Types
 public import Lean.Util.Trace
 

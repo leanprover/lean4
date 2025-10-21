@@ -83,10 +83,10 @@ where
   go (curr : String.Pos.Raw) : Bool :=
     if h : curr < len then
       have hl := by
-        simp [Pos.Raw.le_iff] at h h1 ⊢
+        simp [Pos.Raw.le_iff, Pos.Raw.lt_iff] at h h1 ⊢
         omega
       have hr := by
-        simp [Pos.Raw.le_iff] at h h2 ⊢
+        simp [Pos.Raw.le_iff, Pos.Raw.lt_iff] at h h2 ⊢
         omega
       if lhs.getUTF8Byte (curr.offsetBy lstart) hl == rhs.getUTF8Byte (curr.offsetBy rstart) hr then
         go curr.inc
@@ -96,7 +96,7 @@ where
       true
   termination_by len.byteIdx - curr.byteIdx
   decreasing_by
-    simp at h ⊢
+    simp [Pos.Raw.lt_iff] at h ⊢
     omega
 
 variable {ρ : Type} {σ : Slice → Type}

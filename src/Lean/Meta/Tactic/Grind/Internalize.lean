@@ -7,13 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
-import Init.Grind.Util
-import Init.Grind.Lemmas
-import Lean.Meta.LitValues
-import Lean.Meta.Match.MatcherInfo
-import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.Match.MatchEqs
-import Lean.Util.CollectLevelParams
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Beta
 import Lean.Meta.Tactic.Grind.MatchCond

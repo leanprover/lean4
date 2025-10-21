@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_rewriteManualLinks_spec__0(lean_object*, lean_object*, lean_object*);
 lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_manualLink___closed__2;
@@ -82,6 +81,7 @@ LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at____
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Std_DHashMap_Internal_Raw_u2080_Const_insertMany___at_____private_Lean_DocString_Links_0__Lean_domainMap_spec__0_spec__0_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___List_toString___at_____private_Lean_DocString_Links_0__Lean_rw_spec__0_spec__0(lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_manualLink___closed__4;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___Lean_manualLink_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_toString___at_____private_Lean_DocString_Links_0__Lean_rw_spec__0___closed__1;
@@ -98,9 +98,7 @@ static lean_object* l_List_mapTR_loop___at___Lean_rewriteManualLinks_spec__0___c
 static lean_object* l___private_Lean_DocString_Links_0__Lean_rw___closed__2;
 static lean_object* l_Lean_initFn___closed__5____x40_Lean_DocString_Links_3730308748____hygCtx___hyg_2_;
 static lean_object* l___private_Lean_DocString_Links_0__Lean_domainMap___closed__9;
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 static lean_object* l_Lean_errorExplanationManualDomain___closed__0;
-lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 static lean_object* l___private_Lean_DocString_Links_0__Lean_fallbackManualRoot___closed__0;
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_manualLink___closed__0;
@@ -135,9 +133,9 @@ LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashM
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Init_While_0__Lean_Loop_forIn_loop___at___Lean_rewriteManualLinksCore_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Substring_prevn(lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
+uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
-uint8_t l_String_substrEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__0;
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_rewriteManualLinks_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_instDecidableNot___redArg(uint8_t);
@@ -146,11 +144,12 @@ LEAN_EXPORT lean_object* l___private_Lean_DocString_Links_0__Lean_rw___boxed(lea
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l___private_Lean_DocString_Links_0__Lean_domainMap___closed__1;
 lean_object* l_Nat_nextPowerOfTwo(lean_object*);
+lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldrM___at___Lean_manualLink_spec__3(lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Std_DHashMap_Internal_Raw_u2080_Const_insertMany___at_____private_Lean_DocString_Links_0__Lean_domainMap_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___Lean_manualLink_spec__0___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_List_mapTR_loop___at___Lean_manualLink_spec__2___closed__0;
+lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 static lean_object* l___private_Lean_DocString_Links_0__Lean_rw___closed__5;
 size_t lean_usize_sub(size_t, size_t);
@@ -172,6 +171,7 @@ static lean_object* l___private_Lean_DocString_Links_0__Lean_domainMap___closed_
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l___private_Lean_DocString_Links_0__Lean_domainMap___closed__5;
 LEAN_EXPORT lean_object* l_Lean_rewriteManualLinks(lean_object*, lean_object*);
+uint8_t l_String_Pos_Raw_substrEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldrM___at___Lean_manualDomains_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___Lean_manualLink_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_mapTR_loop___at___Lean_validateBuiltinDocString_spec__0___closed__2;
@@ -2205,7 +2205,7 @@ lean_inc(x_4);
 lean_dec_ref(x_2);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_string_utf8_byte_size(x_1);
-x_7 = l_String_substrEq(x_3, x_4, x_1, x_5, x_6);
+x_7 = l_String_Pos_Raw_substrEq(x_3, x_4, x_1, x_5, x_6);
 lean_dec(x_6);
 lean_dec_ref(x_3);
 return x_7;
@@ -2459,15 +2459,15 @@ block_62:
 if (x_59 == 0)
 {
 lean_object* x_60; 
-x_60 = lean_string_utf8_extract(x_56, x_58, x_57);
-lean_dec(x_57);
+x_60 = lean_string_utf8_extract(x_56, x_57, x_58);
+lean_dec(x_58);
 x_27 = x_60;
 goto block_55;
 }
 else
 {
 lean_object* x_61; 
-lean_dec(x_57);
+lean_dec(x_58);
 x_61 = l___private_Lean_DocString_Links_0__Lean_rw___closed__6;
 x_27 = x_61;
 goto block_55;
@@ -2486,16 +2486,16 @@ if (x_67 == 0)
 uint8_t x_68; 
 x_68 = lean_nat_dec_lt(x_65, x_64);
 x_56 = x_63;
-x_57 = x_65;
-x_58 = x_64;
+x_57 = x_64;
+x_58 = x_65;
 x_59 = x_68;
 goto block_62;
 }
 else
 {
 x_56 = x_63;
-x_57 = x_65;
-x_58 = x_64;
+x_57 = x_64;
+x_58 = x_65;
 x_59 = x_67;
 goto block_62;
 }
@@ -2673,15 +2673,15 @@ block_113:
 if (x_110 == 0)
 {
 lean_object* x_111; 
-x_111 = lean_string_utf8_extract(x_107, x_109, x_108);
-lean_dec(x_108);
+x_111 = lean_string_utf8_extract(x_107, x_108, x_109);
+lean_dec(x_109);
 x_81 = x_111;
 goto block_106;
 }
 else
 {
 lean_object* x_112; 
-lean_dec(x_108);
+lean_dec(x_109);
 x_112 = l___private_Lean_DocString_Links_0__Lean_rw___closed__6;
 x_81 = x_112;
 goto block_106;
@@ -2700,16 +2700,16 @@ if (x_118 == 0)
 uint8_t x_119; 
 x_119 = lean_nat_dec_lt(x_116, x_115);
 x_107 = x_114;
-x_108 = x_116;
-x_109 = x_115;
+x_108 = x_115;
+x_109 = x_116;
 x_110 = x_119;
 goto block_113;
 }
 else
 {
 x_107 = x_114;
-x_108 = x_116;
-x_109 = x_115;
+x_108 = x_115;
+x_109 = x_116;
 x_110 = x_118;
 goto block_113;
 }

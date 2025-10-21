@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.ScopedEnvExtension
 public import Lean.Compiler.InitAttr
-public import Lean.Meta.DiscrTree
 public import Lean.Meta.Tactic.Simp.Types
 
 public section

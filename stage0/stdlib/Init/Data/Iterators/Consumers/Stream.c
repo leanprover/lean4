@@ -84,7 +84,7 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Std_Iterators_instStreamIterOfProductiveOfIteratorAccessId(x_1, x_2, x_3, x_4, x_5);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 return x_6;
 }
 }

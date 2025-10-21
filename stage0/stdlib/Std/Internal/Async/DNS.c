@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Async.DNS
-// Imports: public import Std.Time public import Std.Internal.UV public import Std.Internal.Async.Basic public import Std.Net.Addr
+// Imports: public import Std.Time public import Std.Internal.UV public import Std.Internal.Async.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -669,7 +669,6 @@ return x_3;
 lean_object* initialize_Std_Time(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Internal_UV(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Internal_Async_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Net_Addr(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_Async_DNS(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -682,9 +681,6 @@ res = initialize_Std_Internal_UV(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Internal_Async_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Net_Addr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__0 = _init_l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__0();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Lemmas
-// Imports: public import Init.Data.Nat.Lemmas public import Init.Data.List.Range public import Init.Data.List.Nat.TakeDrop public import Init.Data.List.Nat.Modify public import Init.Data.List.Nat.Basic public import Init.Data.List.Monadic public import Init.Data.List.OfFn public import Init.Data.Array.Mem public import Init.Data.Array.DecidableEq public import Init.Data.Range.Lemmas public import Init.TacticsExtra public import Init.Data.List.ToArray import all Init.Data.List.Control import all Init.Data.Array.Basic import all Init.Data.Array.Bootstrap
+// Imports: public import Init.Data.List.Nat.Basic public import Init.Data.Array.Mem public import Init.Data.Array.DecidableEq public import Init.Data.Range.Lemmas public import Init.Data.List.ToArray import all Init.Data.List.Control import all Init.Data.Array.Basic import all Init.Data.Array.Bootstrap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1657,17 +1657,10 @@ lean_dec(x_5);
 return x_6;
 }
 }
-lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Range(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Nat_Modify(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Nat_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Monadic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_OfFn(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Mem(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_DecidableEq(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Range_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_TacticsExtra(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_ToArray(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Control(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
@@ -1677,25 +1670,7 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin, lean
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Nat_Lemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_List_Range(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_List_Nat_TakeDrop(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_List_Nat_Modify(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_List_Nat_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_List_Monadic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_List_OfFn(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_Mem(builtin, lean_io_mk_world());
@@ -1705,9 +1680,6 @@ res = initialize_Init_Data_Array_DecidableEq(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Range_Lemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_TacticsExtra(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_ToArray(builtin, lean_io_mk_world());

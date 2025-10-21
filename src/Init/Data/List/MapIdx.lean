@@ -7,10 +7,7 @@ Authors: Kim Morrison, Mario Carneiro
 module
 
 prelude
-public import Init.Data.Array.Lemmas
 public import Init.Data.List.Nat.Range
-public import Init.Data.List.OfFn
-public import Init.Data.Fin.Lemmas
 public import Init.Data.Option.Attach
 
 public section

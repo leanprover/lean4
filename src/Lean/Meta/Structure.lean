@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.AddDecl
-public import Lean.Structure
 public import Lean.Meta.AppBuilder
 
 public section

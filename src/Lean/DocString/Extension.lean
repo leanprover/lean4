@@ -7,11 +7,6 @@ module
 
 prelude
 public import Lean.DeclarationRange
-public import Lean.Data.Options
-public import Lean.DocString.Links
-public import Lean.MonadEnv
-public import Init.Data.String.Extra
-public import Lean.DocString.Types
 public import Lean.DocString.Markdown
 
 public section
@@ -215,11 +210,11 @@ def getModuleDoc? (env : Environment) (moduleName : Name) : Option (Array Module
 def getDocStringText [Monad m] [MonadError m] (stx : TSyntax `Lean.Parser.Command.docComment) : m String :=
   match stx.raw[1] with
   | Syntax.atom _ val =>
-    return val.extract 0 (val.endPos.unoffsetBy ⟨2⟩)
+    return String.Pos.Raw.extract val 0 (val.endPos.unoffsetBy ⟨2⟩)
   | Syntax.node _ `Lean.Parser.Command.versoCommentBody _ =>
     match stx.raw[1][0] with
     | Syntax.atom _ val =>
-      return val.extract 0 (val.endPos.unoffsetBy ⟨2⟩)
+      return String.Pos.Raw.extract val 0 (val.endPos.unoffsetBy ⟨2⟩)
     | _ =>
       throwErrorAt stx "unexpected doc string{indentD stx}"
   | _ =>

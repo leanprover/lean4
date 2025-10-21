@@ -6,10 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Control.Lawful.Basic
-public import Init.Data.Subtype.Basic
-public import Init.PropLemmas
-public import Init.Classical
 public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 public import Init.Data.Iterators.PostconditionMonad
 

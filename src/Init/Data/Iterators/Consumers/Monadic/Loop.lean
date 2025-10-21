@@ -6,8 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.RCases
-public import Init.Data.Iterators.Basic
 public import Init.Data.Iterators.Consumers.Monadic.Partial
 public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 
@@ -142,7 +140,8 @@ def IterM.DefaultConsumers.forIn' {m : Type w → Type w'} {α : Type w} {β : T
     (P : β → Prop) (hP : ∀ b, it.IsPlausibleIndirectOutput b → P b)
     (f : (b : β) → P b → (c : γ) → n (Subtype (plausible_forInStep b c))) : n γ :=
   haveI : WellFounded _ := wf
-  (lift _ _ · it.step) fun
+  (lift _ _ · it.step) fun s =>
+    match s.inflate with
     | .yield it' out h => do
       match ← f out (hP _ <| .direct ⟨_, h⟩) init with
       | ⟨.yield c, _⟩ =>
@@ -220,7 +219,8 @@ partial def IterM.DefaultConsumers.forInPartial {m : Type w → Type w'} {α : T
     (lift : ∀ γ δ, (γ → n δ) → m γ → n δ) (γ : Type x)
     (it : IterM (α := α) m β) (init : γ)
     (f : (b : β) → it.IsPlausibleIndirectOutput b → (c : γ) → n (ForInStep γ)) : n γ :=
-  (lift _ _ · it.step) fun
+  (lift _ _ · it.step) fun s =>
+      match s.inflate with
       | .yield it' out h => do
         match ← f out (.direct ⟨_, h⟩) init with
         | .yield c =>

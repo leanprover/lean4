@@ -10,7 +10,6 @@ public import Init.Data.Array.Subarray.Split
 public import Init.Data.Slice.Array.Iterator
 public import Init.Data.Range
 public import Std.Data.HashMap.Basic
-public import Init.Omega
 import Init.Data.Iterators.Combinators.ULift  -- TODO: necessary because of codegen issue
 public import Init.Data.String.Basic
 

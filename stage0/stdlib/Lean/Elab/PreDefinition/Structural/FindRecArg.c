@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.Structural.FindRecArg
-// Imports: public import Lean.Elab.PreDefinition.TerminationMeasure public import Lean.Elab.PreDefinition.FixedParams public import Lean.Elab.PreDefinition.Structural.Basic public import Lean.Elab.PreDefinition.Structural.RecArgInfo
+// Imports: public import Lean.Elab.PreDefinition.TerminationMeasure public import Lean.Elab.PreDefinition.Structural.Basic public import Lean.Elab.PreDefinition.Structural.RecArgInfo
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4056,7 +4056,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Structural_getRecArgInfo_spec__9_spec__9___closed__2;
 x_2 = lean_unsigned_to_nat(107u);
-x_3 = lean_unsigned_to_nat(96u);
+x_3 = lean_unsigned_to_nat(95u);
 x_4 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Structural_getRecArgInfo_spec__9_spec__9___closed__1;
 x_5 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Structural_getRecArgInfo_spec__9_spec__9___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -4261,7 +4261,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Structural_getRecArgInfo___closed__6;
 x_2 = lean_unsigned_to_nat(59u);
-x_3 = lean_unsigned_to_nat(95u);
+x_3 = lean_unsigned_to_nat(94u);
 x_4 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Structural_getRecArgInfo_spec__9_spec__9___closed__1;
 x_5 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Structural_getRecArgInfo_spec__9_spec__9___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -4418,7 +4418,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Structural_getRecArgInfo___closed__24;
 x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(67u);
+x_3 = lean_unsigned_to_nat(66u);
 x_4 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Structural_getRecArgInfo_spec__9_spec__9___closed__1;
 x_5 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Structural_getRecArgInfo_spec__9_spec__9___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -8617,7 +8617,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Structural_getRecArgInfo_spec__9_spec__9___closed__2;
 x_2 = lean_unsigned_to_nat(113u);
-x_3 = lean_unsigned_to_nat(214u);
+x_3 = lean_unsigned_to_nat(213u);
 x_4 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Structural_argsInGroup_spec__2_spec__2___closed__0;
 x_5 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Structural_getRecArgInfo_spec__9_spec__9___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -16395,7 +16395,7 @@ lean_inc(x_14);
 lean_inc_ref(x_13);
 lean_inc_ref(x_4);
 lean_inc_ref(x_3);
-x_34 = l_Lean_Elab_Structural_prettyParameterSet(x_2, x_3, x_4, x_30, x_13, x_14, x_15, x_16, x_32);
+x_34 = l_Lean_Elab_Structural_prettyParameterSet(x_2, x_3, x_4, x_30, x_13, x_14, x_15, x_16, x_31);
 if (lean_obj_tag(x_34) == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; 
@@ -16412,7 +16412,7 @@ x_39 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___Lean_Elab_Structural_getR
 x_40 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_40, 0, x_38);
 lean_ctor_set(x_40, 1, x_39);
-x_41 = l_Lean_Exception_toMessageData(x_31);
+x_41 = l_Lean_Exception_toMessageData(x_32);
 x_42 = l_Lean_indentD(x_41);
 x_43 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_43, 0, x_40);
@@ -16431,7 +16431,7 @@ goto block_24;
 else
 {
 uint8_t x_47; 
-lean_dec_ref(x_31);
+lean_dec_ref(x_32);
 lean_dec(x_27);
 lean_dec(x_16);
 lean_dec_ref(x_15);
@@ -16481,8 +16481,8 @@ lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec(x_1);
 x_51 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_51, 0, x_31);
-lean_ctor_set(x_51, 1, x_32);
+lean_ctor_set(x_51, 0, x_32);
+lean_ctor_set(x_51, 1, x_31);
 return x_51;
 }
 }
@@ -16494,15 +16494,15 @@ if (x_55 == 0)
 {
 uint8_t x_56; 
 x_56 = l_Lean_Exception_isRuntime(x_53);
-x_31 = x_53;
-x_32 = x_54;
+x_31 = x_54;
+x_32 = x_53;
 x_33 = x_56;
 goto block_52;
 }
 else
 {
-x_31 = x_53;
-x_32 = x_54;
+x_31 = x_54;
+x_32 = x_53;
 x_33 = x_55;
 goto block_52;
 }
@@ -19051,11 +19051,11 @@ goto block_109;
 block_160:
 {
 lean_object* x_130; 
-lean_inc(x_123);
-lean_inc_ref(x_126);
-lean_inc(x_125);
+lean_inc(x_128);
 lean_inc_ref(x_127);
-x_130 = l_Lean_Elab_Structural_inductiveGroups(x_129, x_127, x_125, x_126, x_123, x_122);
+lean_inc(x_122);
+lean_inc_ref(x_123);
+x_130 = l_Lean_Elab_Structural_inductiveGroups(x_129, x_123, x_122, x_127, x_128, x_125);
 if (lean_obj_tag(x_130) == 0)
 {
 lean_object* x_131; lean_object* x_132; lean_object* x_133; lean_object* x_134; uint8_t x_135; 
@@ -19064,7 +19064,7 @@ lean_inc(x_131);
 x_132 = lean_ctor_get(x_130, 1);
 lean_inc(x_132);
 lean_dec_ref(x_130);
-x_133 = l_Lean_isTracingEnabledFor___at___Lean_Elab_Structural_tryAllArgs_spec__1___redArg(x_38, x_126, x_132);
+x_133 = l_Lean_isTracingEnabledFor___at___Lean_Elab_Structural_tryAllArgs_spec__1___redArg(x_38, x_127, x_132);
 x_134 = lean_ctor_get(x_133, 0);
 lean_inc(x_134);
 x_135 = lean_unbox(x_134);
@@ -19077,11 +19077,11 @@ lean_inc(x_136);
 lean_dec_ref(x_133);
 x_110 = x_131;
 x_111 = x_124;
-x_112 = x_128;
-x_113 = x_127;
-x_114 = x_125;
-x_115 = x_126;
-x_116 = x_123;
+x_112 = x_126;
+x_113 = x_123;
+x_114 = x_122;
+x_115 = x_127;
+x_116 = x_128;
 x_117 = x_136;
 goto block_121;
 }
@@ -19104,17 +19104,17 @@ x_144 = l_Lean_MessageData_ofList(x_143);
 lean_ctor_set_tag(x_133, 7);
 lean_ctor_set(x_133, 1, x_144);
 lean_ctor_set(x_133, 0, x_140);
-x_145 = l_Lean_addTrace___at___Lean_Elab_Structural_tryAllArgs_spec__3___redArg(x_38, x_133, x_127, x_125, x_126, x_123, x_138);
+x_145 = l_Lean_addTrace___at___Lean_Elab_Structural_tryAllArgs_spec__3___redArg(x_38, x_133, x_123, x_122, x_127, x_128, x_138);
 x_146 = lean_ctor_get(x_145, 1);
 lean_inc(x_146);
 lean_dec_ref(x_145);
 x_110 = x_131;
 x_111 = x_124;
-x_112 = x_128;
-x_113 = x_127;
-x_114 = x_125;
-x_115 = x_126;
-x_116 = x_123;
+x_112 = x_126;
+x_113 = x_123;
+x_114 = x_122;
+x_115 = x_127;
+x_116 = x_128;
 x_117 = x_146;
 goto block_121;
 }
@@ -19133,17 +19133,17 @@ x_152 = l_Lean_MessageData_ofList(x_151);
 x_153 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_153, 0, x_148);
 lean_ctor_set(x_153, 1, x_152);
-x_154 = l_Lean_addTrace___at___Lean_Elab_Structural_tryAllArgs_spec__3___redArg(x_38, x_153, x_127, x_125, x_126, x_123, x_147);
+x_154 = l_Lean_addTrace___at___Lean_Elab_Structural_tryAllArgs_spec__3___redArg(x_38, x_153, x_123, x_122, x_127, x_128, x_147);
 x_155 = lean_ctor_get(x_154, 1);
 lean_inc(x_155);
 lean_dec_ref(x_154);
 x_110 = x_131;
 x_111 = x_124;
-x_112 = x_128;
-x_113 = x_127;
-x_114 = x_125;
-x_115 = x_126;
-x_116 = x_123;
+x_112 = x_126;
+x_113 = x_123;
+x_114 = x_122;
+x_115 = x_127;
+x_116 = x_128;
 x_117 = x_155;
 goto block_121;
 }
@@ -19154,10 +19154,10 @@ else
 uint8_t x_156; 
 lean_dec(x_128);
 lean_dec_ref(x_127);
-lean_dec_ref(x_126);
-lean_dec(x_125);
+lean_dec(x_126);
 lean_dec_ref(x_124);
-lean_dec(x_123);
+lean_dec_ref(x_123);
+lean_dec(x_122);
 lean_dec_ref(x_45);
 lean_dec(x_42);
 lean_dec(x_37);
@@ -19193,13 +19193,13 @@ x_170 = lean_nat_dec_lt(x_14, x_169);
 if (x_170 == 0)
 {
 lean_dec(x_169);
-x_122 = x_167;
-x_123 = x_166;
+x_122 = x_164;
+x_123 = x_163;
 x_124 = x_161;
-x_125 = x_164;
-x_126 = x_165;
-x_127 = x_163;
-x_128 = x_162;
+x_125 = x_167;
+x_126 = x_162;
+x_127 = x_165;
+x_128 = x_166;
 x_129 = x_168;
 goto block_160;
 }
@@ -19210,13 +19210,13 @@ x_171 = lean_nat_dec_le(x_169, x_169);
 if (x_171 == 0)
 {
 lean_dec(x_169);
-x_122 = x_167;
-x_123 = x_166;
+x_122 = x_164;
+x_123 = x_163;
 x_124 = x_161;
-x_125 = x_164;
-x_126 = x_165;
-x_127 = x_163;
-x_128 = x_162;
+x_125 = x_167;
+x_126 = x_162;
+x_127 = x_165;
+x_128 = x_166;
 x_129 = x_168;
 goto block_160;
 }
@@ -19226,13 +19226,13 @@ size_t x_172; lean_object* x_173;
 x_172 = lean_usize_of_nat(x_169);
 lean_dec(x_169);
 x_173 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Elab_Structural_tryAllArgs_spec__11(x_45, x_27, x_172, x_168);
-x_122 = x_167;
-x_123 = x_166;
+x_122 = x_164;
+x_123 = x_163;
 x_124 = x_161;
-x_125 = x_164;
-x_126 = x_165;
-x_127 = x_163;
-x_128 = x_162;
+x_125 = x_167;
+x_126 = x_162;
+x_127 = x_165;
+x_128 = x_166;
 x_129 = x_173;
 goto block_160;
 }
@@ -19680,7 +19680,6 @@ return x_14;
 }
 }
 lean_object* initialize_Lean_Elab_PreDefinition_TerminationMeasure(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_PreDefinition_FixedParams(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_Structural_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_Structural_RecArgInfo(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -19689,9 +19688,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Elab_PreDefinition_TerminationMeasure(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_PreDefinition_FixedParams(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_PreDefinition_Structural_Basic(builtin, lean_io_mk_world());

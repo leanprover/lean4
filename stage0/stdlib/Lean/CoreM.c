@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.CoreM
-// Imports: public import Lean.Util.RecDepth public import Lean.Util.Trace public import Lean.Log public import Lean.ResolveName public import Lean.Elab.InfoTree.Types public import Lean.MonadEnv public import Lean.Elab.Exception public import Lean.Language.Basic
+// Imports: public import Lean.Util.RecDepth public import Lean.ResolveName public import Lean.Language.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -21151,7 +21151,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_IO_FS_withIsolatedStreams___at___Lean_Core_wrapAsyncAsSnapshot_spec__30___redArg___closed__3;
 x_2 = lean_unsigned_to_nat(46u);
-x_3 = lean_unsigned_to_nat(239u);
+x_3 = lean_unsigned_to_nat(243u);
 x_4 = l_IO_FS_withIsolatedStreams___at___Lean_Core_wrapAsyncAsSnapshot_spec__30___redArg___closed__2;
 x_5 = l_IO_FS_withIsolatedStreams___at___Lean_Core_wrapAsyncAsSnapshot_spec__30___redArg___closed__1;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -26860,12 +26860,7 @@ return x_5;
 }
 }
 lean_object* initialize_Lean_Util_RecDepth(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Util_Trace(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Log(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_ResolveName(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_InfoTree_Types(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_MonadEnv(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Exception(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Language_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_CoreM(uint8_t builtin, lean_object* w) {
@@ -26875,22 +26870,7 @@ _G_initialized = true;
 res = initialize_Lean_Util_RecDepth(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_Trace(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Log(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_ResolveName(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_InfoTree_Types(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_MonadEnv(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_Exception(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Language_Basic(builtin, lean_io_mk_world());

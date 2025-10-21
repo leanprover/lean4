@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Polymorphic.Lemmas
-// Imports: public import Init.Data.Iterators.Lemmas.Consumers.Loop import Init.Data.Iterators.Lemmas.Consumers.Collect public import Init.Data.Range.Polymorphic.Basic import all Init.Data.Range.Polymorphic.Basic public import Init.Data.Range.Polymorphic.RangeIterator import all Init.Data.Range.Polymorphic.RangeIterator public import Init.Data.Range.Polymorphic.Iterators import all Init.Data.Range.Polymorphic.Iterators public import Init.Data.Iterators.Consumers.Loop import all Init.Data.Iterators.Consumers.Loop import Init.Data.Array.Monadic
+// Imports: public import Init.Data.Iterators.Lemmas.Consumers.Loop import Init.Data.Iterators.Lemmas.Consumers.Collect import all Init.Data.Range.Polymorphic.Basic import all Init.Data.Range.Polymorphic.RangeIterator public import Init.Data.Range.Polymorphic.Iterators import all Init.Data.Range.Polymorphic.Iterators import all Init.Data.Iterators.Consumers.Loop import Init.Data.Array.Monadic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -326,7 +326,7 @@ _start:
 lean_object* x_10; 
 x_10 = l___private_Init_Data_Range_Polymorphic_Lemmas_0__Std_Iterators_Iter_forIn_x27__eq__match__step_match__3_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_4);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 return x_10;
 }
 }
@@ -429,12 +429,9 @@ return x_6;
 lean_object* initialize_Init_Data_Iterators_Lemmas_Consumers_Loop(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Range_Polymorphic_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Range_Polymorphic_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Range_Polymorphic_RangeIterator(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Range_Polymorphic_RangeIterator(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Consumers_Loop(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Consumers_Loop(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Monadic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -451,12 +448,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Range_Polymorphic_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_RangeIterator(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Range_Polymorphic_RangeIterator(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -464,9 +455,6 @@ res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin, lean_io_mk_world
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers_Loop(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Consumers_Loop(builtin, lean_io_mk_world());

@@ -10,9 +10,7 @@ import all Init.Data.Array.Lex.Basic
 public import Init.Data.Array.Lex.Basic
 public import Init.Data.Array.Lemmas
 public import Init.Data.List.Lex
-import Init.Data.Range.Polymorphic.Lemmas
 import Init.Data.Range.Polymorphic.NatLemmas
-import Init.Data.Order.Lemmas
 
 public section
 

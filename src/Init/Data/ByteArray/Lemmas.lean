@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.ByteArray.Basic
-public import Init.Data.Array.Extract
 
 public section
 
@@ -257,3 +256,19 @@ theorem ByteArray.copySlice_eq_append {src : ByteArray} {srcOff : Nat} {dest : B
       dest.extract 0 destOff ++ src.extract srcOff (srcOff +len) ++ dest.extract (destOff + min len (src.data.size - srcOff)) dest.data.size := by
   ext1
   simp [copySlice]
+
+@[simp]
+theorem ByteArray.data_set {as : ByteArray} {i : Nat} {h : i < as.size} {a : UInt8} :
+    (as.set i a h).data = as.data.set i a (by simpa) := by
+  simp [set]
+
+theorem ByteArray.set_eq_push_extract_append_extract {as : ByteArray} {i : Nat} (h : i < as.size) {a : UInt8} :
+    as.set i a h = (as.extract 0 i).push a ++ as.extract (i + 1) as.size := by
+  ext1
+  simpa using Array.set_eq_push_extract_append_extract _
+
+@[simp]
+theorem ByteArray.append_toByteArray_singleton {as : ByteArray} {a : UInt8} :
+    as ++ [a].toByteArray = as.push a := by
+  ext1
+  simp

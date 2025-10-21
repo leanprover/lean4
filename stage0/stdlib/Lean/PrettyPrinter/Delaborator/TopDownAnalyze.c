@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.PrettyPrinter.Delaborator.TopDownAnalyze
-// Imports: public import Lean.Meta.SynthInstance public import Lean.Meta.CtorRecognizer public import Lean.Util.FindMVar public import Lean.Util.FindLevelMVar public import Lean.Util.CollectLevelParams public import Lean.Util.ReplaceLevel public import Lean.PrettyPrinter.Delaborator.FieldNotation public import Lean.PrettyPrinter.Delaborator.Options public import Lean.PrettyPrinter.Delaborator.SubExpr public import Lean.Elab.Config
+// Imports: public import Lean.Meta.SynthInstance public import Lean.Util.FindMVar public import Lean.Util.FindLevelMVar public import Lean.Util.CollectLevelParams public import Lean.Util.ReplaceLevel public import Lean.PrettyPrinter.Delaborator.FieldNotation public import Lean.PrettyPrinter.Delaborator.SubExpr public import Lean.Elab.Config
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17129,7 +17129,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst___closed__5;
 x_2 = lean_unsigned_to_nat(41u);
-x_3 = lean_unsigned_to_nat(444u);
+x_3 = lean_unsigned_to_nat(442u);
 x_4 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst___closed__4;
 x_5 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst___closed__3;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -19237,7 +19237,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst___closed__5;
 x_2 = lean_unsigned_to_nat(43u);
-x_3 = lean_unsigned_to_nat(127u);
+x_3 = lean_unsigned_to_nat(126u);
 x_4 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetBody___at_____private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet_spec__0___redArg___closed__1;
 x_5 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetBody___at_____private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet_spec__0___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -19312,7 +19312,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst___closed__5;
 x_2 = lean_unsigned_to_nat(38u);
-x_3 = lean_unsigned_to_nat(119u);
+x_3 = lean_unsigned_to_nat(118u);
 x_4 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetVarType___at_____private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet_spec__3___redArg___closed__0;
 x_5 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetBody___at_____private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet_spec__0___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -19377,7 +19377,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst___closed__5;
 x_2 = lean_unsigned_to_nat(38u);
-x_3 = lean_unsigned_to_nat(123u);
+x_3 = lean_unsigned_to_nat(122u);
 x_4 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetValue___at_____private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet_spec__4___redArg___closed__0;
 x_5 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetBody___at_____private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet_spec__0___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -19442,7 +19442,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst___closed__5;
 x_2 = lean_unsigned_to_nat(46u);
-x_3 = lean_unsigned_to_nat(461u);
+x_3 = lean_unsigned_to_nat(459u);
 x_4 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___closed__0;
 x_5 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst___closed__3;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -19693,7 +19693,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst___closed__5;
 x_2 = lean_unsigned_to_nat(33u);
-x_3 = lean_unsigned_to_nat(115u);
+x_3 = lean_unsigned_to_nat(114u);
 x_4 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr___at_____private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeMData_spec__0___redArg___closed__0;
 x_5 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetBody___at_____private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet_spec__0___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -19834,7 +19834,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst___closed__5;
 x_2 = lean_unsigned_to_nat(34u);
-x_3 = lean_unsigned_to_nat(111u);
+x_3 = lean_unsigned_to_nat(110u);
 x_4 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___at_____private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeProj_spec__0___redArg___closed__0;
 x_5 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetBody___at_____private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet_spec__0___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -28077,13 +28077,11 @@ return x_5;
 }
 }
 lean_object* initialize_Lean_Meta_SynthInstance(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_CtorRecognizer(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_FindMVar(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_FindLevelMVar(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_CollectLevelParams(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_ReplaceLevel(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_PrettyPrinter_Delaborator_FieldNotation(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_PrettyPrinter_Delaborator_Options(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_PrettyPrinter_Delaborator_SubExpr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Config(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -28092,9 +28090,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Meta_SynthInstance(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_CtorRecognizer(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Util_FindMVar(builtin, lean_io_mk_world());
@@ -28110,9 +28105,6 @@ res = initialize_Lean_Util_ReplaceLevel(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_PrettyPrinter_Delaborator_FieldNotation(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_PrettyPrinter_Delaborator_Options(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_PrettyPrinter_Delaborator_SubExpr(builtin, lean_io_mk_world());

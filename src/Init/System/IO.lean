@@ -8,8 +8,6 @@ module
 prelude
 public import Init.System.IOError
 public import Init.System.FilePath
-public import Init.System.ST
-public import Init.Data.Ord.Basic
 public import Init.Data.Ord.UInt
 public import Init.Data.String.Extra
 

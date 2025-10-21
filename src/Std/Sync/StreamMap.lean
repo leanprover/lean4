@@ -7,11 +7,8 @@ module
 
 prelude
 public import Std.Data
-public import Init.System.Promise
 public import Init.Data.Queue
 public import Std.Internal.Async.IO
-public import Std.Internal.Async.Select
-public import Std.Internal.Async.Basic
 
 public section
 

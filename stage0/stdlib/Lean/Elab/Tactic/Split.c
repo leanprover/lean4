@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Split
-// Imports: public import Lean.Meta.Hint public import Lean.Meta.Tactic.Split public import Lean.Elab.Tactic.Basic public import Lean.Elab.Tactic.Location
+// Imports: public import Lean.Meta.Hint public import Lean.Meta.Tactic.Split public import Lean.Elab.Tactic.Location
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3698,7 +3698,6 @@ return x_4;
 }
 lean_object* initialize_Lean_Meta_Hint(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Split(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Location(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Split(uint8_t builtin, lean_object* w) {
@@ -3709,9 +3708,6 @@ res = initialize_Lean_Meta_Hint(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Split(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Location(builtin, lean_io_mk_world());

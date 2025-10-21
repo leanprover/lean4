@@ -88,9 +88,9 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
     | .empty pos =>
       let res := .matched pos pos
       if h : pos ≠ s.endPos then
-        pure ⟨.yield ⟨.empty (pos.next h)⟩ res, by simp⟩
+        pure (.deflate ⟨.yield ⟨.empty (pos.next h)⟩ res, by simp⟩)
       else
-        pure ⟨.yield ⟨.atEnd⟩ res, by simp⟩
+        pure (.deflate ⟨.yield ⟨.atEnd⟩ res, by simp⟩)
     | .proper needle table stackPos needlePos =>
       let rec findNext (startPos : String.Pos.Raw)
           (currStackPos : String.Pos.Raw) (needlePos : String.Pos.Raw) (h : stackPos ≤ currStackPos) :=
@@ -105,14 +105,14 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
               left
               exists nextStackPos
               have haux := lt_offset_findNextPos h1
-              simp only [pos_lt_eq, proper.injEq, true_and, exists_and_left, exists_eq', and_true,
+              simp only [String.Pos.Raw.lt_iff, proper.injEq, true_and, exists_and_left, exists_eq', and_true,
                 nextStackPos]
               constructor
-              · simp [String.Pos.Raw.le_iff] at h haux ⊢
+              · simp [String.Pos.Raw.le_iff, String.Pos.Raw.lt_iff] at h haux ⊢
                 omega
               · apply Pos.Raw.IsValidForSlice.le_utf8ByteSize
                 apply Pos.isValidForSlice
-            ⟨.yield ⟨.proper needle table nextStackPos needlePos⟩ res, hiter⟩
+            .deflate ⟨.yield ⟨.proper needle table nextStackPos needlePos⟩ res, hiter⟩
           else
             let needlePos := needlePos.inc
             if needlePos == needle.rawEndPos then
@@ -121,14 +121,14 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
               have hiter := by
                 left
                 exists nextStackPos
-                simp only [pos_lt_eq, Pos.Raw.byteIdx_inc, proper.injEq, true_and, exists_and_left,
-                  exists_eq', and_true, nextStackPos]
+                simp only [Pos.Raw.byteIdx_inc, proper.injEq, true_and, exists_and_left,
+                  exists_eq', and_true, nextStackPos, String.Pos.Raw.lt_iff]
                 constructor
                 · simp [String.Pos.Raw.le_iff] at h ⊢
                   omega
-                · simp [String.Pos.Raw.le_iff] at h1 ⊢
+                · simp [String.Pos.Raw.le_iff, String.Pos.Raw.lt_iff] at h1 ⊢
                   omega
-              ⟨.yield ⟨.proper needle table nextStackPos 0⟩ res, hiter⟩
+              .deflate ⟨.yield ⟨.proper needle table nextStackPos 0⟩ res, hiter⟩
             else
               have hinv := by
                 simp [String.Pos.Raw.le_iff] at h ⊢
@@ -137,16 +137,16 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (Searc
         else
           if startPos != s.rawEndPos then
             let res := .rejected (s.pos! startPos) (s.pos! currStackPos)
-            ⟨.yield ⟨.atEnd⟩ res, by simp⟩
+            .deflate ⟨.yield ⟨.atEnd⟩ res, by simp⟩
           else
-            ⟨.done, by simp⟩
+            .deflate ⟨.done, by simp⟩
         termination_by s.utf8ByteSize - currStackPos.byteIdx
         decreasing_by
-          simp at h1 ⊢
+          simp [String.Pos.Raw.lt_iff] at h1 ⊢
           omega
 
       findNext stackPos stackPos needlePos (by simp)
-    | .atEnd => pure ⟨.done, by simp⟩
+    | .atEnd => pure (.deflate ⟨.done, by simp⟩)
 
 private def toPair : ForwardSliceSearcher s → (Nat × Nat)
   | .empty pos => (1, s.utf8ByteSize - pos.offset.byteIdx)
@@ -177,7 +177,7 @@ private def finitenessRelation :
           apply Prod.Lex.right'
           · simp
           · have haux := np.isValidForSlice.le_utf8ByteSize
-            simp [Slice.Pos.lt_iff, String.Pos.Raw.le_iff] at h1' haux ⊢
+            simp [Slice.Pos.lt_iff, String.Pos.Raw.le_iff, String.Pos.Raw.lt_iff] at h1' haux ⊢
             omega
         · apply Prod.Lex.left
           simp [h']
@@ -187,7 +187,7 @@ private def finitenessRelation :
         · rw [h3']
           apply Prod.Lex.right'
           · simp
-          · simp [String.Pos.Raw.le_iff] at h1' h2' ⊢
+          · simp [String.Pos.Raw.le_iff, String.Pos.Raw.lt_iff] at h1' h2' ⊢
             omega
         · apply Prod.Lex.left
           simp [h']

@@ -6,13 +6,10 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Control.Lawful.MonadLift.Instances
 public import Init.Data.Iterators.Lemmas.Consumers.Collect
 public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 import all Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
-public import Init.Data.Iterators.Consumers.Loop
 import all Init.Data.Iterators.Consumers.Loop
-public import Init.Data.Iterators.Consumers.Monadic.Collect
 import all Init.Data.Iterators.Consumers.Monadic.Collect
 import Init.Data.Array.Monadic
 
@@ -112,7 +109,7 @@ theorem Iter.forIn'_eq_match_step {α β : Type w} [Iterator α Id β]
   simp only [forIn'_eq]
   rw [IterM.DefaultConsumers.forIn'_eq_match_step]
   simp only [bind_map_left, Iter.step]
-  cases it.toIterM.step.run using PlausibleIterStep.casesOn
+  cases it.toIterM.step.run.inflate using PlausibleIterStep.casesOn
   · simp only [IterM.Step.toPure_yield, PlausibleIterStep.yield, toIter_toIterM, toIterM_toIter]
     apply bind_congr
     intro forInStep

@@ -6,8 +6,6 @@ Authors: Henrik Böving, Sofia Rodrigues, Mac Malone
 module
 
 prelude
-public import Init.Core
-public import Init.System.IO
 public import Init.System.Promise
 
 public section

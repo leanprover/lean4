@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.DocString.Extension
-// Imports: public import Lean.DeclarationRange public import Lean.Data.Options public import Lean.DocString.Links public import Lean.MonadEnv public import Init.Data.String.Extra public import Lean.DocString.Types public import Lean.DocString.Markdown
+// Imports: public import Lean.DeclarationRange public import Lean.DocString.Markdown
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,7 +17,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM
 static lean_object* l_Lean_initFn___closed__1____x40_Lean_DocString_Extension_1505119820____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_Doc_instToMarkdownPartOfMarkdownInlineOfMarkdownBlock___private__1___at_____private_Lean_DocString_Extension_0__Lean_findSimpleDocString_x3f_toMarkdown_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getModuleDoc_x3f___closed__0;
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_instReprInline_repr___at___Array_Array_repr___at___Lean_Doc_instReprBlock_repr___at___Array_Array_repr___at___Lean_VersoModuleDocs_instReprSnippet_repr_spec__0_spec__0_spec__0_spec__0___closed__19;
 static lean_object* l_Lean_getDocStringText___redArg___closed__1;
 lean_object* l_Lean_Name_reprPrec(lean_object*, lean_object*);
@@ -317,6 +316,7 @@ lean_object* l_Array_back_x3f___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn___lam__0____x40_Lean_DocString_Extension_152104186____hygCtx___hyg_2_(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at_____private_Lean_DocString_Extension_0__Lean_initFn____x40_Lean_DocString_Extension_177922276____hygCtx___hyg_2__spec__0_spec__0(lean_object*, lean_object*);
 static lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___closed__1____x40_Lean_DocString_Extension_71268105____hygCtx___hyg_2_;
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateT_instMonad___redArg___lam__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_instReprBlock_repr___at___Array_Array_repr___at___Lean_VersoModuleDocs_instReprSnippet_repr_spec__0_spec__0___closed__14;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_DocString_Extension_152104186____hygCtx___hyg_2_(lean_object*);
@@ -11653,13 +11653,13 @@ lean_ctor_set(x_54, 0, x_51);
 lean_ctor_set(x_54, 1, x_53);
 x_55 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_55, 0, x_54);
-lean_ctor_set(x_55, 1, x_52);
+lean_ctor_set(x_55, 1, x_50);
 x_56 = l_Array_Array_repr___at___Lean_Doc_instReprBlock_repr___at___Array_Array_repr___at___Lean_VersoModuleDocs_instReprSnippet_repr_spec__0_spec__0_spec__7(x_48);
 x_57 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_57, 0, x_55);
 lean_ctor_set(x_57, 1, x_56);
 x_58 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_58, 0, x_50);
+lean_ctor_set(x_58, 0, x_52);
 lean_ctor_set(x_58, 1, x_57);
 x_59 = 0;
 x_60 = lean_alloc_ctor(6, 1, 1);
@@ -11682,9 +11682,9 @@ x_68 = l_Int_repr(x_47);
 lean_dec(x_47);
 x_69 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_69, 0, x_68);
-x_50 = x_63;
+x_50 = x_64;
 x_51 = x_65;
-x_52 = x_64;
+x_52 = x_63;
 x_53 = x_69;
 goto block_62;
 }
@@ -11697,9 +11697,9 @@ lean_dec(x_47);
 x_72 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_72, 0, x_71);
 x_73 = l_Repr_addAppParen(x_72, x_70);
-x_50 = x_63;
+x_50 = x_64;
 x_51 = x_65;
-x_52 = x_64;
+x_52 = x_63;
 x_53 = x_73;
 goto block_62;
 }
@@ -14391,7 +14391,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_VersoModuleDocs_add___closed__0;
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(335u);
+x_3 = lean_unsigned_to_nat(330u);
 x_4 = l_Lean_VersoModuleDocs_add_x21___closed__1;
 x_5 = l_Lean_VersoModuleDocs_add_x21___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -16954,11 +16954,6 @@ return x_25;
 }
 }
 lean_object* initialize_Lean_DeclarationRange(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Options(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_DocString_Links(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_MonadEnv(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_String_Extra(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_DocString_Types(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_DocString_Markdown(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_DocString_Extension(uint8_t builtin, lean_object* w) {
@@ -16966,21 +16961,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_DeclarationRange(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_Options(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_DocString_Links(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_MonadEnv(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_String_Extra(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_DocString_Types(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_DocString_Markdown(builtin, lean_io_mk_world());

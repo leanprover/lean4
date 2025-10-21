@@ -7,10 +7,6 @@ Authors: Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Widget.Basic
-public import Lean.Widget.InteractiveCode
-public import Lean.Widget.InteractiveGoal
-public import Lean.Widget.InteractiveDiagnostic
 
 public import Lean.Server.Rpc.RequestHandling
 public import Lean.Server.FileWorker.RequestHandling
@@ -215,7 +211,7 @@ private def hightlightStringMatches? (query text : String) (matchPositions : Arr
       r := r.push nonMatch
     let globalMatchEndPos := matchEndPos query globalMatchPos
     let matchEndPos := globalMatchEndPos.unoffsetBy offset
-    let «match» := text.extract matchPos matchEndPos
+    let «match» := String.Pos.Raw.extract text matchPos matchEndPos
     r := r.push <| .tag highlight (.text «match»)
     p := matchEndPos
     anyMatch := true
@@ -229,7 +225,7 @@ private def hightlightStringMatches? (query text : String) (matchPositions : Arr
 where
   nonMatch? (p matchPosition : String.Pos.Raw) : Option (TaggedText α) := do
     guard <| p < matchPosition
-    let nonMatch := text.extract p matchPosition
+    let nonMatch := String.Pos.Raw.extract text p matchPosition
     return .text nonMatch
 
 private def findTaggedTextMatches (query : String) (tt : TaggedText α) (toText : α → String) :

@@ -6,8 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time.Date.Unit.Day
-public import Std.Time.Date.Unit.Month
 public import Std.Time.Date.Unit.Year
 public import Std.Time.Date.Unit.Weekday
 public import Std.Time.Date.Unit.Week

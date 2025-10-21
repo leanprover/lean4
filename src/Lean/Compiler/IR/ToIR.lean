@@ -6,14 +6,8 @@ Authors: Cameron Zwarich
 module
 
 prelude
-public import Lean.Compiler.LCNF.Basic
-public import Lean.Compiler.LCNF.CompilerM
-public import Lean.Compiler.LCNF.PhaseExt
-public import Lean.Compiler.IR.Basic
 public import Lean.Compiler.IR.CompilerM
 public import Lean.Compiler.IR.ToIRType
-public import Lean.CoreM
-public import Lean.Environment
 
 public section
 

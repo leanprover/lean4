@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.String.Pattern
-public import Init.Data.Iterators.Consumers.Monadic.Collect
 public import Init.Data.Ord.Basic
 public import Init.Data.Iterators.Combinators.FilterMap
 
@@ -131,11 +130,11 @@ instance [Pure m] : Std.Iterators.Iterator (SplitIterator ρ) m Slice where
       | some (searcher, startPos, endPos) =>
         let slice := s.replaceStartEnd! currPos startPos
         let nextIt := ⟨.operating s endPos searcher⟩
-        pure ⟨.yield nextIt slice, by simp⟩
+        pure (.deflate ⟨.yield nextIt slice, by simp⟩)
       | none =>
         let slice := s.replaceStart currPos
-        pure ⟨.yield ⟨.atEnd⟩ slice, by simp⟩
-    | .atEnd => pure ⟨.done, by simp⟩
+        pure (.deflate ⟨.yield ⟨.atEnd⟩ slice, by simp⟩)
+    | .atEnd => pure (.deflate ⟨.done, by simp⟩)
 
 -- TODO: Finiteness after we have a notion of lawful searcher
 
@@ -190,14 +189,14 @@ instance [Pure m] : Std.Iterators.Iterator (SplitInclusiveIterator ρ) m Slice w
       | some (searcher, _, endPos) =>
         let slice := s.replaceStartEnd! currPos endPos
         let nextIt := ⟨.operating s endPos searcher⟩
-        pure ⟨.yield nextIt slice, by simp⟩
+        pure (.deflate ⟨.yield nextIt slice, by simp⟩)
       | none =>
         if currPos != s.endPos then
           let slice := s.replaceStart currPos
-          pure ⟨.yield ⟨.atEnd⟩ slice, by simp⟩
+          pure (.deflate ⟨.yield ⟨.atEnd⟩ slice, by simp⟩)
         else
-          pure ⟨.done, by simp⟩
-    | .atEnd => pure ⟨.done, by simp⟩
+          pure (.deflate ⟨.done, by simp⟩)
+    | .atEnd => pure (.deflate ⟨.done, by simp⟩)
 
 -- TODO: Finiteness after we have a notion of lawful searcher
 
@@ -464,14 +463,14 @@ instance [Pure m] : Std.Iterators.Iterator (RevSplitIterator ρ) m Slice where
       | some (searcher, startPos, endPos) =>
         let slice := s.replaceStartEnd! endPos currPos
         let nextIt := ⟨.operating s startPos searcher⟩
-        pure ⟨.yield nextIt slice, by simp⟩
+        pure (.deflate ⟨.yield nextIt slice, by simp⟩)
       | none =>
         if currPos ≠ s.startPos then
           let slice := s.replaceEnd currPos
-          pure ⟨.yield ⟨.atEnd⟩ slice, by simp⟩
+          pure (.deflate ⟨.yield ⟨.atEnd⟩ slice, by simp⟩)
         else
-          pure ⟨.done, by simp⟩
-    | .atEnd => pure ⟨.done, by simp⟩
+          pure (.deflate ⟨.done, by simp⟩)
+    | .atEnd => pure (.deflate ⟨.done, by simp⟩)
 
 -- TODO: Finiteness after we have a notion of lawful searcher
 
@@ -698,7 +697,7 @@ where
       s1Curr == s1.rawEndPos && s2Curr == s2.rawEndPos
   termination_by s1.endPos.offset.byteIdx - s1Curr.byteIdx
   decreasing_by
-    simp at h ⊢
+    simp [String.Pos.Raw.lt_iff] at h ⊢
     omega
 
 structure PosIterator (s : Slice) where
@@ -733,9 +732,9 @@ instance [Pure m] :
     | .done => it.internalState.currPos = s.endPos
   step := fun ⟨⟨currPos⟩⟩ =>
     if h : currPos = s.endPos then
-      pure ⟨.done, by simp [h]⟩
+      pure (.deflate ⟨.done, by simp [h]⟩)
     else
-      pure ⟨.yield ⟨⟨currPos.next h⟩⟩ ⟨currPos, h⟩, by simp [h]⟩
+      pure (.deflate ⟨.yield ⟨⟨currPos.next h⟩⟩ ⟨currPos, h⟩, by simp [h]⟩)
 
 private def finitenessRelation [Pure m] :
     Std.Iterators.FinitenessRelation (PosIterator s) m where
@@ -819,10 +818,10 @@ instance [Pure m] :
     | .done => it.internalState.currPos = s.startPos
   step := fun ⟨⟨currPos⟩⟩ =>
     if h : currPos = s.startPos then
-      pure ⟨.done, by simp [h]⟩
+      pure (.deflate ⟨.done, by simp [h]⟩)
     else
       let prevPos := currPos.prev h
-      pure ⟨.yield ⟨⟨prevPos⟩⟩ ⟨prevPos, Pos.prev_ne_endPos⟩, by simp [h, prevPos]⟩
+      pure (.deflate ⟨.yield ⟨⟨prevPos⟩⟩ ⟨prevPos, Pos.prev_ne_endPos⟩, by simp [h, prevPos]⟩)
 
 private def finitenessRelation [Pure m] :
     Std.Iterators.FinitenessRelation (RevPosIterator s) m where
@@ -836,7 +835,7 @@ private def finitenessRelation [Pure m] :
     · cases h
       obtain ⟨h1, h2, _⟩ := h'
       have h3 := Pos.offset_prev_lt_offset (h := h1)
-      simp [Pos.ext_iff, String.Pos.Raw.ext_iff] at h2 h3
+      simp [Pos.ext_iff, String.Pos.Raw.ext_iff, String.Pos.Raw.lt_iff] at h2 h3
       omega
     · cases h'
     · cases h
@@ -905,9 +904,9 @@ instance [Pure m] : Std.Iterators.Iterator ByteIterator m UInt8 where
     | .done => ¬ it.internalState.offset < it.internalState.s.rawEndPos
   step := fun ⟨s, offset⟩ =>
     if h : offset < s.rawEndPos then
-      pure ⟨.yield ⟨s, offset.inc⟩ (s.getUTF8Byte offset h), by simp [h]⟩
+      pure (.deflate ⟨.yield ⟨s, offset.inc⟩ (s.getUTF8Byte offset h), by simp [h]⟩)
     else
-      pure ⟨.done, by simp [h]⟩
+      pure (.deflate ⟨.done, by simp [h]⟩)
 
 private def finitenessRelation [Pure m] :
     Std.Iterators.FinitenessRelation (ByteIterator) m where
@@ -923,7 +922,7 @@ private def finitenessRelation [Pure m] :
       clear h4
       generalize it'.internalState.s = s at *
       cases h2
-      simp [String.Pos.Raw.ext_iff] at h1 h3
+      simp [String.Pos.Raw.ext_iff, String.Pos.Raw.lt_iff] at h1 h3
       omega
     · cases h'
     · cases h
@@ -988,15 +987,15 @@ instance [Pure m] : Std.Iterators.Iterator RevByteIterator m UInt8 where
     if h : offset ≠ 0 then
       let nextOffset := offset.dec
       have hbound := by
-        simp [String.Pos.Raw.le_iff, nextOffset] at h hinv ⊢
+        simp [String.Pos.Raw.le_iff, nextOffset, String.Pos.Raw.lt_iff] at h hinv ⊢
         omega
       have hinv := by
         simp [String.Pos.Raw.le_iff, nextOffset] at hinv ⊢
         omega
       have hiter := by simp [nextOffset, hbound, h]
-      pure ⟨.yield ⟨s, nextOffset, hinv⟩ (s.getUTF8Byte nextOffset hbound), hiter⟩
+      pure (.deflate ⟨.yield ⟨s, nextOffset, hinv⟩ (s.getUTF8Byte nextOffset hbound), hiter⟩)
     else
-      pure ⟨.done, by simpa using h⟩
+      pure (.deflate ⟨.done, by simpa using h⟩)
 
 private def finitenessRelation [Pure m] :
     Std.Iterators.FinitenessRelation (RevByteIterator) m where

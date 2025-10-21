@@ -6,12 +6,8 @@ Authors: Marc Huisinga
 module
 
 prelude
-public import Lean.Server.FileWorker.Utils
-public import Lean.Data.Lsp.Internal
-public import Lean.Server.Requests
 public import Lean.Server.Completion.CompletionInfoSelection
 public import Lean.Server.CodeActions.Basic
-public import Lean.Server.Completion.CompletionUtils
 
 public section
 
@@ -157,7 +153,7 @@ def computeDotQuery?
   if typeNames.isEmpty then
     return none
   return some {
-    identifier := text.source.extract pos tailPos
+    identifier := String.Pos.Raw.extract text.source pos tailPos
     openNamespaces := typeNames.map (.allExcept · #[])
     env := ctx.env
     determineInsertion decl :=

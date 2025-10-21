@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Omega.Core
-// Imports: public import Init.Omega.Constraint public import Lean.Elab.Tactic.Omega.OmegaM public import Lean.Elab.Tactic.Omega.MinNatAbs
+// Imports: public import Lean.Elab.Tactic.Omega.OmegaM public import Lean.Elab.Tactic.Omega.MinNatAbs
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13302,8 +13302,8 @@ return x_12;
 block_51:
 {
 lean_object* x_22; lean_object* x_23; uint8_t x_24; 
-lean_inc(x_16);
-x_22 = l_Lean_isTracingEnabledFor___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__0___redArg(x_16, x_18, x_21);
+lean_inc(x_15);
+x_22 = l_Lean_isTracingEnabledFor___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__0___redArg(x_15, x_19, x_21);
 x_23 = lean_ctor_get(x_22, 0);
 lean_inc(x_23);
 x_24 = lean_unbox(x_23);
@@ -13311,12 +13311,12 @@ lean_dec(x_23);
 if (x_24 == 0)
 {
 lean_object* x_25; 
-lean_dec(x_16);
+lean_dec(x_15);
 x_25 = lean_ctor_get(x_22, 1);
 lean_inc(x_25);
 lean_dec_ref(x_22);
 x_8 = x_20;
-x_9 = x_17;
+x_9 = x_16;
 x_10 = x_25;
 goto block_13;
 }
@@ -13330,7 +13330,7 @@ lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean
 x_27 = lean_ctor_get(x_22, 1);
 x_28 = lean_ctor_get(x_22, 0);
 lean_dec(x_28);
-x_29 = lean_array_get_borrowed(x_7, x_17, x_20);
+x_29 = lean_array_get_borrowed(x_7, x_16, x_20);
 x_30 = lean_ctor_get(x_29, 0);
 x_31 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___Std_Rxo_Iterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__2_spec__2___redArg___closed__1;
 lean_inc(x_30);
@@ -13345,12 +13345,12 @@ x_35 = l_Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect___closed__1;
 x_36 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_36, 0, x_22);
 lean_ctor_set(x_36, 1, x_35);
-x_37 = l_Lean_addTrace___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__1(x_16, x_36, x_19, x_15, x_18, x_14, x_27);
+x_37 = l_Lean_addTrace___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__1(x_15, x_36, x_17, x_14, x_19, x_18, x_27);
 x_38 = lean_ctor_get(x_37, 1);
 lean_inc(x_38);
 lean_dec_ref(x_37);
 x_8 = x_20;
-x_9 = x_17;
+x_9 = x_16;
 x_10 = x_38;
 goto block_13;
 }
@@ -13360,7 +13360,7 @@ lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean
 x_39 = lean_ctor_get(x_22, 1);
 lean_inc(x_39);
 lean_dec(x_22);
-x_40 = lean_array_get_borrowed(x_7, x_17, x_20);
+x_40 = lean_array_get_borrowed(x_7, x_16, x_20);
 x_41 = lean_ctor_get(x_40, 0);
 x_42 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___Std_Rxo_Iterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__2_spec__2___redArg___closed__1;
 lean_inc(x_41);
@@ -13375,12 +13375,12 @@ x_47 = l_Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect___closed__1;
 x_48 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_48, 0, x_46);
 lean_ctor_set(x_48, 1, x_47);
-x_49 = l_Lean_addTrace___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__1(x_16, x_48, x_19, x_15, x_18, x_14, x_39);
+x_49 = l_Lean_addTrace___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__1(x_15, x_48, x_17, x_14, x_19, x_18, x_39);
 x_50 = lean_ctor_get(x_49, 1);
 lean_inc(x_50);
 lean_dec_ref(x_49);
 x_8 = x_20;
-x_9 = x_17;
+x_9 = x_16;
 x_10 = x_50;
 goto block_13;
 }
@@ -13402,12 +13402,12 @@ if (x_65 == 0)
 {
 lean_dec(x_64);
 lean_dec(x_61);
-x_14 = x_58;
-x_15 = x_56;
-x_16 = x_53;
-x_17 = x_54;
-x_18 = x_57;
-x_19 = x_55;
+x_14 = x_56;
+x_15 = x_53;
+x_16 = x_54;
+x_17 = x_55;
+x_18 = x_58;
+x_19 = x_57;
 x_20 = x_52;
 x_21 = x_59;
 goto block_51;
@@ -13447,12 +13447,12 @@ lean_dec_ref(x_72);
 x_78 = lean_ctor_get(x_75, 0);
 lean_inc(x_78);
 lean_dec(x_75);
-x_14 = x_58;
-x_15 = x_56;
-x_16 = x_53;
-x_17 = x_54;
-x_18 = x_57;
-x_19 = x_55;
+x_14 = x_56;
+x_15 = x_53;
+x_16 = x_54;
+x_17 = x_55;
+x_18 = x_58;
+x_19 = x_57;
 x_20 = x_78;
 x_21 = x_77;
 goto block_51;
@@ -15264,7 +15264,6 @@ lean_dec(x_2);
 return x_13;
 }
 }
-lean_object* initialize_Init_Omega_Constraint(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Omega_OmegaM(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Omega_MinNatAbs(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -15272,9 +15271,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Omega_Core(uint8_t builtin,
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Omega_Constraint(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Omega_OmegaM(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

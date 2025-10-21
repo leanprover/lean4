@@ -9,7 +9,6 @@ prelude
 public import Lean.Parser.Syntax
 public import Lean.Meta.Tactic.Simp.RegisterCommand
 public import Lean.Elab.Command
-public import Lean.Elab.SetOption
 public import Lean.Linter.Util
 
 public section

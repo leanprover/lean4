@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Dyadic.Basic
 import all Init.Data.Dyadic.Instances
-import Init.Data.Int.Bitwise.Lemmas
 import Init.Grind.Ordered.Rat
 import Init.Grind.Ordered.Field
 

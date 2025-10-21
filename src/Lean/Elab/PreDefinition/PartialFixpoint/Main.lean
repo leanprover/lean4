@@ -10,8 +10,6 @@ public import Lean.Elab.PreDefinition.MkInhabitant
 public import Lean.Elab.PreDefinition.Mutual
 public import Lean.Elab.PreDefinition.PartialFixpoint.Eqns
 public import Lean.Elab.Tactic.Monotonicity
-public import Init.Internal.Order.Basic
-public import Lean.Meta.PProdN
 public import Lean.Meta.Order
 
 public section

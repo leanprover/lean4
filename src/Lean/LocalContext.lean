@@ -9,7 +9,6 @@ prelude
 public import Init.Data.Nat.Control
 public import Lean.Data.PersistentArray
 public import Lean.Expr
-public import Lean.Hygiene
 
 public section
 

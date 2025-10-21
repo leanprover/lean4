@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Simp.Arith.Nat.Basic
-// Imports: public import Lean.Util.SortExprs public import Lean.Meta.KExprMap import Lean.Meta.Offset import Lean.Data.RArray import Lean.Meta.AppBuilder import Lean.Meta.NatInstTesters
+// Imports: public import Lean.Util.SortExprs public import Lean.Meta.KExprMap import Lean.Data.RArray import Lean.Meta.AppBuilder import Lean.Meta.NatInstTesters
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -6844,7 +6844,6 @@ return x_2;
 }
 lean_object* initialize_Lean_Util_SortExprs(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_KExprMap(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Offset(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_RArray(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_NatInstTesters(uint8_t builtin, lean_object*);
@@ -6857,9 +6856,6 @@ res = initialize_Lean_Util_SortExprs(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_KExprMap(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Offset(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_RArray(builtin, lean_io_mk_world());

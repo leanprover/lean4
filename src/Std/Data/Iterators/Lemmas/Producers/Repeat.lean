@@ -6,11 +6,7 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Option.Lemmas
 public import Std.Data.Iterators.Producers.Repeat
-public import Init.Data.Iterators.Consumers.Access
-public import Init.Data.Iterators.Consumers.Collect
-public import Std.Data.Iterators.Combinators.Take
 public import Std.Data.Iterators.Lemmas.Combinators.Take
 
 @[expose] public section
@@ -21,7 +17,7 @@ variable {α : Type w} {f : α → α} {init : α}
 
 theorem Iter.step_repeat :
     (Iter.repeat f init).step = .yield (Iter.repeat f (f init)) init ⟨rfl, rfl⟩ := by
-  rfl
+  simp [«repeat», Iter.step, Iter.toIterM, IterM.step, Iterator.step, IterM.toIter]
 
 theorem Iter.atIdxSlow?_zero_repeat :
     (Iter.repeat f init).atIdxSlow? 0 = some init := by

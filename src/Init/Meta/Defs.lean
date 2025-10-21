@@ -8,9 +8,7 @@ Additional goodies for writing macros
 module
 
 prelude
-public import Init.Prelude
 import all Init.Prelude -- for unfolding `Name.beq`
-public import Init.MetaTypes
 public import Init.Syntax
 public import Init.Data.Array.GetLit
 public import Init.Data.Option.BasicAux
@@ -1210,10 +1208,16 @@ def getHexNumVal (s : Syntax.HexNum) : Nat :=
   isHexNum? s.raw |>.getD 0
 
 /-- Returns the number of hexadecimal digits. -/
-def getHexNumSize (s : Syntax.HexNum) : Nat :=
+partial def getHexNumSize (s : Syntax.HexNum) : Nat :=
   match Syntax.isLit? hexnumKind s.raw with
-  | some val => val.utf8ByteSize
+  | some val => go val 0 0
   | _        => 0
+where
+  go (s : String) (p : String.Pos.Raw) (n : Nat) : Nat :=
+    if String.Internal.atEnd s p then
+      n
+    else
+      go s (String.Internal.next s p) (if String.Internal.get s p = '_' then n else n + 1)
 
 /--
 Extracts the parsed name from the syntax of an identifier.

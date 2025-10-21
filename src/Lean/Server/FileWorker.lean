@@ -7,27 +7,17 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 module
 
 prelude
-public import Init.System.IO
 public import Std.Sync.Channel
 
-public import Lean.Environment
 
-public import Lean.Data.Lsp
-public import Lean.Data.Json.FromToJson.Basic
 
-public import Lean.LoadDynlib
 public import Lean.Language.Lean
 
-public import Lean.Server.Utils
-public import Lean.Server.AsyncList
-public import Lean.Server.References
 
 public import Lean.Server.FileWorker.Utils
 public import Lean.Server.FileWorker.RequestHandling
 public import Lean.Server.FileWorker.WidgetRequests
 public import Lean.Server.FileWorker.SetupFile
-public import Lean.Server.Rpc.Basic
-public import Lean.Widget.InteractiveDiagnostic
 public import Lean.Server.Completion.ImportCompletion
 public import Lean.Server.CodeActions.UnknownIdentifier
 

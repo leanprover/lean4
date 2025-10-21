@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Polymorphic.RangeIterator
-// Imports: public import Init.Data.Iterators.Internal.Termination public import Init.Data.Iterators.Consumers.Access public import Init.Data.Iterators.Consumers.Loop public import Init.Data.Iterators.Consumers.Collect public import Init.Data.Range.Polymorphic.PRange public import Init.Data.List.Sublist
+// Imports: public import Init.Data.Iterators.Internal.Termination public import Init.Data.Iterators.Consumers.Access public import Init.Data.Range.Polymorphic.PRange public import Init.Data.List.Sublist
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4276,8 +4276,6 @@ return x_11;
 }
 lean_object* initialize_Init_Data_Iterators_Internal_Termination(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Consumers_Access(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Consumers_Loop(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Consumers_Collect(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Range_Polymorphic_PRange(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Sublist(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -4289,12 +4287,6 @@ res = initialize_Init_Data_Iterators_Internal_Termination(builtin, lean_io_mk_wo
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Consumers_Access(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers_Loop(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers_Collect(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Range_Polymorphic_PRange(builtin, lean_io_mk_world());

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.Lemmas.Combinators.Attach
-// Imports: public import Init.Data.Iterators.Combinators.Attach import all Init.Data.Iterators.Combinators.Attach public import Init.Data.Iterators.Combinators.Monadic.Attach import all Init.Data.Iterators.Combinators.Monadic.Attach public import Init.Data.Iterators.Lemmas.Combinators.Monadic.Attach public import Init.Data.Iterators.Lemmas.Consumers.Collect public import Init.Data.Array.Attach
+// Imports: public import Init.Data.Iterators.Combinators.Attach import all Init.Data.Iterators.Combinators.Attach import all Init.Data.Iterators.Combinators.Monadic.Attach public import Init.Data.Iterators.Lemmas.Combinators.Monadic.Attach public import Init.Data.Iterators.Lemmas.Consumers.Collect public import Init.Data.Array.Attach
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,7 +16,6 @@ extern "C" {
 lean_object* initialize_Init_Data_Iterators_Combinators_Attach(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Combinators_Attach(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Combinators_Monadic_Attach(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Combinators_Monadic_Attach(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_Monadic_Attach(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Attach(uint8_t builtin, lean_object*);
@@ -29,9 +28,6 @@ res = initialize_Init_Data_Iterators_Combinators_Attach(builtin, lean_io_mk_worl
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Combinators_Attach(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Combinators_Monadic_Attach(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Combinators_Monadic_Attach(builtin, lean_io_mk_world());

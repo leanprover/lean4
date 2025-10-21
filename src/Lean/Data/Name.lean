@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Ord.Basic
-import Init.Data.String.Basic
 import Init.Data.Ord.String
 import Init.Data.Ord.UInt
 
@@ -112,7 +111,7 @@ def hasNum : Name → Bool
 /-- The frontend does not allow user declarations to start with `_` in any of its parts.
    We use name parts starting with `_` internally to create auxiliary names (e.g., `_private`). -/
 def isInternal : Name → Bool
-  | str p s => s.get 0 == '_' || isInternal p
+  | str p s => s.front == '_' || isInternal p
   | num p _ => isInternal p
   | _       => false
 
@@ -123,7 +122,7 @@ We use name parts starting with `_` internally to create auxiliary names (e.g., 
 This function checks if any component of the name starts with `_`, or is numeric.
 -/
 def isInternalOrNum : Name → Bool
-  | .str p s => s.get 0 == '_' || isInternalOrNum p
+  | .str p s => s.front == '_' || isInternalOrNum p
   | .num _ _ => true
   | _       => false
 

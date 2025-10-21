@@ -7,7 +7,6 @@ Authors: Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Data.Json.FromToJson.Basic
 public import Lean.Data.Lsp.Basic
 meta import Lean.Data.Json
 public import Lean.Expr
@@ -110,12 +109,12 @@ instance : ToJson CompletionIdentifier where
 instance : FromJson CompletionIdentifier where
   fromJson?
     | .str s =>
-      let c := s.get 0
+      let c := s.front
       if c == 'c' then
-        let declName := s.extract ⟨1⟩ s.endPos |>.toName
+        let declName := String.Pos.Raw.extract s ⟨1⟩ s.endPos |>.toName
         .ok <| .const declName
       else if c == 'f' then
-        let id := ⟨s.extract ⟨1⟩ s.endPos |>.toName⟩
+        let id := ⟨String.Pos.Raw.extract s ⟨1⟩ s.endPos |>.toName⟩
         .ok <| .fvar id
       else
         .error "Expected string with prefix `c` or `f` in `FromJson` instance of `CompletionIdentifier`."
@@ -703,6 +702,25 @@ structure SignatureHelpParams extends TextDocumentPositionParams, WorkDoneProgre
 structure SignatureHelpOptions extends WorkDoneProgressOptions where
   triggerCharacters? : Option (Array String) := none
   retriggerCharacters? : Option (Array String) := none
+  deriving FromJson, ToJson
+
+structure DocumentColorParams extends WorkDoneProgressParams, PartialResultParams where
+  textDocument : TextDocumentIdentifier
+  deriving FromJson, ToJson
+
+structure Color where
+  red : Float
+  green : Float
+  blue : Float
+  alpha : Float
+  deriving FromJson, ToJson
+
+structure ColorInformation where
+  range : Range
+  color : Color
+  deriving FromJson, ToJson
+
+structure DocumentColorOptions extends WorkDoneProgressOptions where
   deriving FromJson, ToJson
 
 end Lsp

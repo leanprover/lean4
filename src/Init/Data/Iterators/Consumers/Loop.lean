@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Iterators.Consumers.Collect
 public import Init.Data.Iterators.Consumers.Monadic.Loop
-public import Init.Data.Iterators.Consumers.Partial
 
 public section
 

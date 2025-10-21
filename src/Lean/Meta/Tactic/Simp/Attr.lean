@@ -6,8 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Tactic.Simp.Types
-public import Lean.Meta.Tactic.Simp.SimpTheorems
 public import Lean.Meta.Tactic.Simp.Simproc
 
 public section
@@ -34,7 +32,7 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
           let prio ← getAttrParamOptPrio stx[3]
           if (← isProp info.sig.get.type) then
             addSimpTheorem ext declName post (inv := inv) attrKind prio
-          else if info.kind matches .defn then
+          else if getOriginalConstKind? (← getEnv) declName == some .defn then
             if inv then
               throwError m!"Invalid `←` modifier: `{.ofConstName declName}` is a declaration name to be unfolded"
                 ++ .note m!"The simplifier will automatically unfold definitions marked with the `[simp]` \

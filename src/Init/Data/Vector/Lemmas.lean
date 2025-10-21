@@ -6,11 +6,9 @@ Authors: Shreyas Srinivas, Francois Dorais, Kim Morrison
 module
 
 prelude
-public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
 public import Init.Data.Vector.Basic
 import all Init.Data.Vector.Basic
-public import Init.Data.Array.Attach
 public import Init.Data.Array.Find
 
 public section
@@ -2698,7 +2696,7 @@ theorem contains_iff_exists_mem_beq [BEq α] {xs : Vector α n} {a : α} :
 -- With `LawfulBEq α`, it would be better to use `contains_iff_mem` directly.
 grind_pattern contains_iff_exists_mem_beq => xs.contains a
 
-@[grind _=_]
+@[grind =]
 theorem contains_iff_mem [BEq α] [LawfulBEq α] {xs : Vector α n} {a : α} :
     xs.contains a ↔ a ∈ xs := by
   simp

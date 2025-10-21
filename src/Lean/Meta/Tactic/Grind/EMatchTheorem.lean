@@ -5,21 +5,11 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Basic
 public import Lean.Meta.Tactic.Grind.Theorems
 import Init.Grind.Util
-import Init.Grind.Tactics
-import Lean.Util.FoldConsts
-import Lean.Util.CollectFVars
-import Lean.Meta.Basic
-import Lean.Meta.InferType
-import Lean.Meta.Eqns
 import Lean.Meta.Tactic.Grind.Util
-import Lean.Message
-import Lean.Meta.Tactic.FVarSubst
 import Lean.Meta.Match.Basic
 import Lean.Meta.Tactic.TryThis
-import Lean.ExtraModUses
 public section
 namespace Lean.Meta.Grind
 /--
@@ -398,9 +388,16 @@ def EMatchTheorem.getProofWithFreshMVarLevels (thm : EMatchTheorem) : MetaM Expr
 
 private builtin_initialize ematchTheoremsExt : SimpleScopedEnvExtension EMatchTheorem (Theorems EMatchTheorem) ←
   registerSimpleScopedEnvExtension {
-      addEntry := Theorems.insert
-      initial  := {}
-    }
+    addEntry     := Theorems.insert
+    initial      := {}
+    exportEntry? := fun lvl e => do
+      -- export only annotations on public decls, like simp
+      let declName := match e.origin with
+        | .decl n => n
+        | _ => unreachable!  -- used only for tactic-local entries
+      guard (lvl == .private || !isPrivateName declName)
+      return e
+  }
 
 /-- Returns `true` if `declName` has been tagged as an E-match theorem using `[grind]`. -/
 def isEMatchTheorem (declName : Name) : CoreM Bool := do

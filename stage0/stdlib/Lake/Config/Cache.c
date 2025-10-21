@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Cache
-// Imports: public import Lake.Util.Log public import Lake.Config.Artifact public import Lake.Build.Trace import Lake.Config.InstallPath import Lake.Build.Actions import Lake.Util.Url import Lake.Util.Proc import Lake.Util.Reservoir import Lake.Util.IO
+// Imports: public import Lake.Util.Log public import Lake.Config.Artifact import Lake.Config.InstallPath import Lake.Build.Actions import Lake.Util.Url import Lake.Util.Proc import Lake.Util.Reservoir import Lake.Util.IO
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,7 +17,6 @@ LEAN_EXPORT lean_object* l_Lake_CacheService_withRepoScope___boxed(lean_object*,
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0_spec__2_spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_CacheMap_parse_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_____private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___at___Lake_CacheService_uploadArtifacts_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_CacheMap_insertCore___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Cache_revisionPath___boxed(lean_object*, lean_object*, lean_object*);
@@ -30,7 +29,6 @@ static lean_object* l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__3;
 lean_object* l_Lean_Json_compress(lean_object*);
 static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__3;
 LEAN_EXPORT lean_object* l_Lake_CacheService_uploadService(lean_object*, lean_object*, lean_object*);
-uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 static uint8_t l_Lake_CacheService_downloadArtifact___closed__6;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -46,7 +44,6 @@ LEAN_EXPORT lean_object* l_Lake_CacheService_artifactContentType;
 lean_object* l_System_FilePath_join(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__10;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_splitAux___at___String_split___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___Lake_CacheMap_get_x3f_spec__0_spec__0___redArg(uint64_t, lean_object*);
 lean_object* lean_io_remove_file(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_CacheService_downloadArtifacts_spec__0(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, size_t, size_t, uint8_t, lean_object*, lean_object*);
@@ -71,7 +68,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Prod_fromJson_x3f___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0_spec__8___closed__0;
 static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__4;
 LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifacts___elam__0(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_split___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0_spec__2_spec__2___redArg(uint64_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifacts___elam__0___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_CacheService_downloadArtifacts_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___Lake_CacheMap_get_x3f_spec__0___redArg___boxed(lean_object*, lean_object*);
@@ -103,7 +99,6 @@ static lean_object* l_Lake_CacheService_revisionUrl___closed__0;
 static lean_object* l_Lake_CacheService_downloadArtifact___closed__4;
 LEAN_EXPORT lean_object* l_Lake_Cache_getArtifact(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__8;
-LEAN_EXPORT lean_object* l_List_foldl___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_CacheMap_insertCore(uint64_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Cache_revisionDir___closed__0;
@@ -150,8 +145,6 @@ static lean_object* l_Lake_CacheService_downloadArtifact___closed__2;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lake_CacheService_downloadArtifact___closed__0;
 lean_object* l_Lake_createParentDirs(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_splitAux___at___String_split___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___Lake_CacheMap_get_x3f_spec__0_spec__0(lean_object*, uint64_t, lean_object*);
 static lean_object* l_Lake_CacheMap_parse___closed__1;
 static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__2;
@@ -190,14 +183,15 @@ LEAN_EXPORT lean_object* l_Lake_Cache_getArtifact_x3f(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Lake_Cache_getArtifactPaths___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0_spec__2_spec__3___redArg(lean_object*);
 lean_object* l_Lake_Hash_instHashable___lam__0___boxed(lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_CacheMap_schemaVersion;
-uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_CacheMap_get_x3f(uint64_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Cache_readOutputs_x3f(lean_object*, lean_object*, uint64_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifacts___elam__0___at_____private_Init_Data_Nat_Control_0__Nat_forM_loop___at___Lake_CacheService_uploadArtifacts_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instBEqOfDecidableEq___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_CacheMap_parse___elam__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_CacheService_revisionUrl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Cache_revisionDir(lean_object*);
@@ -209,18 +203,18 @@ LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifacts(lean_object*, lea
 lean_object* l_Lake_ArtifactDescr_ofFilePath_x3f(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_loadCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__1;
+LEAN_EXPORT lean_object* l_String_splitAux___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_CacheService_revisionUrl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__16;
 LEAN_EXPORT lean_object* l_Lake_Cache_writeMap(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_Cache_revisionPath___closed__0;
-lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Lake_Cache_writeMap_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Cache_artifactPath___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_prim_handle_mk(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_Cache_writeMap_spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 static lean_object* l_Lake_CacheMap_parse___closed__4;
 LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifact___at___Lake_CacheService_uploadArtifacts___elam__0_spec__0(lean_object*, uint64_t, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_foldl___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_CacheMap_updateFile_spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_CacheService_uploadArtifact___closed__0;
 static lean_object* l_Lake_CacheMap_load___closed__0;
@@ -233,6 +227,7 @@ LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at_____private_Lake_Config_C
 static lean_object* l_Lake_CacheService_reservoirService___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Cache_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0_spec__2_spec__3_spec__3_spec__3(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__1;
 static lean_object* l_Lake_CacheService_artifactUrl___closed__2;
@@ -260,8 +255,10 @@ static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__11;
 LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifact___at___Lake_CacheService_downloadArtifacts___elam__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_CacheMap_updateFile___closed__0;
 static lean_object* l_Lake_Cache_getArtifactPaths___closed__0;
+LEAN_EXPORT lean_object* l_String_splitAux___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Cache_getArtifactPaths___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__4;
 static lean_object* l_Lake_instInhabitedCache_default___closed__0;
@@ -303,17 +300,19 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Std_DH
 LEAN_EXPORT lean_object* l_Lake_Cache_writeMap___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_CacheMap_parse___elam__0___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_CacheMap_parse_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_nextPowerOfTwo(lean_object*);
+lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Cache_readOutputs_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifacts___elam__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_proc(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheService_appendScope___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_CacheMap_load(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_CacheService_reservoirService___boxed(lean_object*, lean_object*);
 static size_t l_Lake_CacheService_downloadArtifact___closed__7;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_CacheMap_updateFile_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at_____private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0_spec__2_spec__3_spec__3_spec__3___redArg(lean_object*, lean_object*);
 uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
+lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 static lean_object* l_Lake_Cache_getArtifact___closed__0;
 size_t lean_usize_sub(size_t, size_t);
 static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__3;
@@ -324,7 +323,6 @@ LEAN_EXPORT lean_object* l_Lake_Cache_writeOutputs___redArg(lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Lake_CacheMap_updateFile_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__2;
-LEAN_EXPORT lean_object* l_String_split___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Cache_writeOutputs___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lake_Cache_getArtifact_x3f___closed__0;
@@ -7527,7 +7525,7 @@ x_1 = l_Lake_CacheService_artifactContentType___closed__0;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_String_splitAux___at___String_split___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_String_splitAux___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; 
@@ -7577,17 +7575,7 @@ return x_17;
 }
 }
 }
-LEAN_EXPORT lean_object* l_String_split___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_box(0);
-x_4 = l_String_splitAux___at___String_split___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0_spec__0(x_1, x_2, x_2, x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_List_foldl___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__2(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_foldl___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -7611,36 +7599,29 @@ goto _start;
 LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheService_appendScope(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = l_String_split___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0(x_2);
-x_4 = l_List_foldl___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__2(x_1, x_3);
-lean_dec(x_3);
-return x_4;
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = lean_box(0);
+x_5 = l_String_splitAux___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0(x_2, x_3, x_3, x_4);
+x_6 = l_List_foldl___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__1(x_1, x_5);
+lean_dec(x_5);
+return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_String_splitAux___at___String_split___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_String_splitAux___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_String_splitAux___at___String_split___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0_spec__0(x_1, x_2, x_3, x_4);
+x_5 = l_String_splitAux___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0(x_1, x_2, x_3, x_4);
 lean_dec_ref(x_1);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_String_split___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_String_split___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_List_foldl___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__2___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_foldl___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_List_foldl___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__2(x_1, x_2);
+x_3 = l_List_foldl___at_____private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__1(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
@@ -8157,7 +8138,7 @@ x_92 = lean_string_append(x_90, x_91);
 lean_dec_ref(x_91);
 x_93 = l_Lake_CacheService_downloadArtifact___closed__2;
 x_94 = lean_string_append(x_92, x_93);
-x_95 = lean_string_append(x_94, x_87);
+x_95 = lean_string_append(x_94, x_88);
 x_96 = l_Lake_CacheService_downloadArtifact___closed__3;
 x_97 = lean_string_append(x_95, x_96);
 x_98 = lean_string_append(x_97, x_86);
@@ -8166,14 +8147,14 @@ x_100 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_100, 0, x_98);
 lean_ctor_set_uint8(x_100, sizeof(void*)*1, x_99);
 lean_inc_ref(x_6);
-x_101 = lean_apply_2(x_6, x_100, x_88);
+x_101 = lean_apply_2(x_6, x_100, x_87);
 x_102 = lean_ctor_get(x_101, 1);
 lean_inc(x_102);
 lean_dec_ref(x_101);
 x_103 = lean_unsigned_to_nat(0u);
 x_104 = l_Lake_Cache_getArtifactPaths___closed__0;
-lean_inc_ref(x_87);
-x_105 = l_Lake_download(x_86, x_87, x_104, x_104, x_102);
+lean_inc_ref(x_88);
+x_105 = l_Lake_download(x_86, x_88, x_104, x_104, x_102);
 x_106 = lean_ctor_get(x_105, 0);
 lean_inc(x_106);
 if (lean_obj_tag(x_106) == 0)
@@ -8191,7 +8172,7 @@ if (x_110 == 0)
 {
 lean_dec(x_109);
 lean_dec(x_108);
-x_14 = x_87;
+x_14 = x_88;
 x_15 = x_107;
 goto block_85;
 }
@@ -8203,7 +8184,7 @@ if (x_111 == 0)
 {
 lean_dec(x_109);
 lean_dec(x_108);
-x_14 = x_87;
+x_14 = x_88;
 x_15 = x_107;
 goto block_85;
 }
@@ -8220,7 +8201,7 @@ lean_dec(x_108);
 x_116 = lean_ctor_get(x_115, 1);
 lean_inc(x_116);
 lean_dec_ref(x_115);
-x_14 = x_87;
+x_14 = x_88;
 x_15 = x_116;
 goto block_85;
 }
@@ -8229,7 +8210,7 @@ goto block_85;
 else
 {
 uint8_t x_117; 
-lean_dec_ref(x_87);
+lean_dec_ref(x_88);
 x_117 = !lean_is_exclusive(x_105);
 if (x_117 == 0)
 {
@@ -8341,8 +8322,8 @@ block_148:
 {
 if (x_144 == 0)
 {
-x_87 = x_143;
-x_88 = x_145;
+x_87 = x_145;
+x_88 = x_143;
 goto block_142;
 }
 else
@@ -8362,8 +8343,8 @@ return x_147;
 }
 else
 {
-x_87 = x_143;
-x_88 = x_145;
+x_87 = x_145;
+x_88 = x_143;
 goto block_142;
 }
 }
@@ -11422,7 +11403,6 @@ return x_9;
 }
 lean_object* initialize_Lake_Util_Log(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Artifact(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Build_Trace(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_InstallPath(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Build_Actions(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Url(uint8_t builtin, lean_object*);
@@ -11438,9 +11418,6 @@ res = initialize_Lake_Util_Log(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Config_Artifact(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_Build_Trace(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Config_InstallPath(builtin, lean_io_mk_world());

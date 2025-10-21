@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Core
 public import Init.Grind.AC
 public import Std.Data.HashMap
 public import Lean.Meta.Tactic.Grind.Types

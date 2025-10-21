@@ -43,12 +43,13 @@ fun {α} {x} {xs} {y} {ys} h =>
     Classical.byContradiction
       (Lean.Grind.intro_with_eq (¬(x = y ∧ xs = ys)) (¬x = y ∨ ¬xs = ys) False (Lean.Grind.not_and (x = y) (xs = ys))
         fun h_1 =>
-        Eq.mp
-          (Eq.trans (Eq.symm (eq_true x_eq))
-            (Lean.Grind.eq_false_of_not_eq_true
-              (Eq.trans (Eq.symm (Lean.Grind.or_eq_of_eq_false_right (Lean.Grind.not_eq_of_eq_true (eq_true xs_eq))))
-                (eq_true h_1))))
-          True.intro)
+        id
+          (Eq.mp
+            (Eq.trans (Eq.symm (eq_true x_eq))
+              (Lean.Grind.eq_false_of_not_eq_true
+                (Eq.trans (Eq.symm (Lean.Grind.or_eq_of_eq_false_right (Lean.Grind.not_eq_of_eq_true (eq_true xs_eq))))
+                  (eq_true h_1))))
+            True.intro))
 -/
 #guard_msgs in #print ex3._proof_1_1
 

@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Data.Format
 public import Lean.Data.Json.FromToJson.Basic
 public import Lean.ToExpr
 
@@ -64,10 +63,10 @@ def getLine (fmap : FileMap) (x : Nat) : Nat :=
 
 partial def ofString (s : String) : FileMap :=
   let rec loop (i : String.Pos.Raw) (line : Nat) (ps : Array String.Pos.Raw) : FileMap :=
-    if s.atEnd i then { source := s, positions := ps.push i }
+    if i.atEnd s then { source := s, positions := ps.push i }
     else
-      let c := s.get i
-      let i := s.next i
+      let c := i.get s
+      let i := i.next s
       if c == '\n' then loop i (line+1) (ps.push i)
       else loop i line ps
   loop 0 1 #[0]
@@ -77,8 +76,8 @@ partial def toPosition (fmap : FileMap) (pos : String.Pos.Raw) : Position :=
   | { source := str, positions := ps } =>
     if ps.size >= 2 && pos <= ps.back! then
       let rec toColumn (i : String.Pos.Raw) (c : Nat) : Nat :=
-        if i == pos || str.atEnd i then c
-        else toColumn (str.next i) (c+1)
+        if i == pos || i.atEnd str then c
+        else toColumn (i.next str) (c+1)
       let rec loop (b e : Nat) :=
         let posB := ps[b]!
         if e == b + 1 then { line := fmap.getLine b, column := toColumn posB 0 }

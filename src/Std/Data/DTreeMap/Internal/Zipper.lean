@@ -14,8 +14,6 @@ public import Init.Data.Range.Polymorphic.Basic
 public import Std.Data.DTreeMap
 public import Std.Data.DTreeMap.Internal.Lemmas
 
-@[expose] public section
-
 
 namespace Std.DTreeMap.Internal
 open Std.Iterators

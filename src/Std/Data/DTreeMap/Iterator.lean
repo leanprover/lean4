@@ -6,7 +6,7 @@ Authors: Wojciech Różowski
 module
 
 prelude
-public import Std.Data.DTreeMap.Iterator
+public import Std.Data.DTreeMap.Raw.Iterator
 namespace Std.DTreeMap
 open Std.Iterators
 

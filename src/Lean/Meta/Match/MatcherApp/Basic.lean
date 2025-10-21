@@ -34,7 +34,7 @@ def matchMatcherApp? [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (alsoCases
     m (Option MatcherApp) := do
   unless e.isApp do return none
   if let .const declName declLevels := e.getAppFn then
-    if let some info ← getMatcherInfo? declName then
+    if let some info ← getMatcherInfo? declName (alsoCasesOn := alsoCasesOn) then
       let args := e.getAppArgs
       if args.size < info.arity then
         return none
@@ -49,28 +49,6 @@ def matchMatcherApp? [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (alsoCases
         altNumParams  := info.altNumParams
         alts          := args[(info.numParams + 1 + info.numDiscrs)...(info.numParams + 1 + info.numDiscrs + info.numAlts)]
         remaining     := args[(info.numParams + 1 + info.numDiscrs + info.numAlts)...args.size]
-      }
-
-    if alsoCasesOn && isCasesOnRecursor (← getEnv) declName then
-      let indName := declName.getPrefix
-      let .inductInfo info ← getConstInfo indName | return none
-      let args := e.getAppArgs
-      unless args.size >= info.numParams + 1 /- motive -/ + info.numIndices + 1 /- major -/ + info.numCtors do return none
-      let params     := args[*...info.numParams]
-      let motive     := args[info.numParams]!
-      let discrs     := args[(info.numParams + 1)...(info.numParams + 1 + info.numIndices + 1)]
-      let discrInfos := .replicate (info.numIndices + 1) {}
-      let alts       := args[(info.numParams + 1 + info.numIndices + 1)...(info.numParams + 1 + info.numIndices + 1 + info.numCtors)]
-      let remaining  := args[(info.numParams + 1 + info.numIndices + 1 + info.numCtors)...*]
-      let uElimPos?  := if info.levelParams.length == declLevels.length then none else some 0
-      let mut altNumParams := #[]
-      for ctor in info.ctors do
-        let .ctorInfo ctorInfo ← getConstInfo ctor | unreachable!
-        altNumParams := altNumParams.push ctorInfo.numFields
-      return some {
-        matcherName   := declName
-        matcherLevels := declLevels.toArray
-        uElimPos?, discrInfos, params, motive, discrs, alts, remaining, altNumParams
       }
 
   return none

@@ -202,7 +202,7 @@ private def onlyBlockOpeners : ParserFn := fun c s =>
   let lineStart := c.fileMap.lineStart position.line
   let ok : Bool := Id.run do
     let mut iter := {c.inputString.iter with i := lineStart}
-    while iter.i < s.pos && iter.hasNext && iter.i < c.rawEndPos do
+    while iter.i < s.pos && iter.hasNext && iter.i < c.endPos do
       if iter.curr.isDigit then
         while iter.curr.isDigit && iter.i < s.pos && iter.hasNext do
           iter := iter.next

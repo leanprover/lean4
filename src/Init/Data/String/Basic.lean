@@ -524,6 +524,13 @@ theorem Pos.Raw.lt_iff {i₁ i₂ : Pos.Raw} : i₁ < i₂ ↔ i₁.byteIdx < i�
 def endPos (s : String) : String.Pos.Raw :=
   s.rawEndPos
 
+/-- The start position of the string, as a `String.Pos.Raw.` -/
+def rawStartPos (_s : String) : String.Pos.Raw :=
+  0
+
+@[simp]
+theorem rawStartPos_eq {s : String} : s.rawStartPos = 0 := (rfl)
+
 @[simp]
 theorem byteIdx_rawEndPos {s : String} : s.rawEndPos.byteIdx = s.utf8ByteSize := rfl
 

@@ -37,6 +37,7 @@ static lean_object* l_Lean_Parser_Tactic_grindTrace___closed__6;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__29;
 static lean_object* l_Lean_Parser_Tactic_grindErase___closed__2;
 extern lean_object* l_Lean_Parser_Tactic_optConfig;
+LEAN_EXPORT lean_object* l_Lean_Grind_ConfigInteractive_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_grobner___closed__4;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__23;
 static lean_object* l_Lean_Parser_Tactic_grindParam___closed__2;
@@ -80,6 +81,7 @@ static lean_object* l_Lean_Parser_Tactic_grind___closed__13;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_grobner;
 LEAN_EXPORT lean_object* l_Lean_Grind_CutsatConfig_ctorIdx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_ConfigInteractive_ctorIdx(lean_object*);
 static lean_object* l_Lean_Grind_instBEqConfig___closed__0;
 extern lean_object* l_Lean_Parser_Tactic_Grind_grindSeq;
 static lean_object* l_Lean_Parser_Tactic_grindErase___closed__5;
@@ -987,6 +989,23 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Grind_instBEqConfig___closed__0;
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_ConfigInteractive_ctorIdx(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_ConfigInteractive_ctorIdx___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Grind_ConfigInteractive_ctorIdx(x_1);
+lean_dec_ref(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_NoopConfig_ctorIdx(lean_object* x_1) {

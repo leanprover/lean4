@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.WF.Rel
-// Imports: public import Lean.Meta.Tactic.Apply public import Lean.Meta.Tactic.Cases public import Lean.Meta.Tactic.Rename public import Lean.Elab.SyntheticMVars public import Lean.Elab.PreDefinition.Basic public import Lean.Elab.PreDefinition.TerminationMeasure public import Lean.Elab.PreDefinition.FixedParams public import Lean.Meta.ArgsPacker
+// Imports: public import Lean.Meta.Tactic.Rename public import Lean.Elab.PreDefinition.TerminationMeasure public import Lean.Elab.PreDefinition.FixedParams public import Lean.Meta.ArgsPacker
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1203,7 +1203,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_WF_checkCodomains_spec__13_spec__13___lam__0___closed__2;
 x_2 = lean_unsigned_to_nat(6u);
-x_3 = lean_unsigned_to_nat(37u);
+x_3 = lean_unsigned_to_nat(33u);
 x_4 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_WF_checkCodomains_spec__13_spec__13___lam__0___closed__1;
 x_5 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Elab_WF_checkCodomains_spec__13_spec__13___lam__0___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -6469,11 +6469,7 @@ lean_dec_ref(x_3);
 return x_16;
 }
 }
-lean_object* initialize_Lean_Meta_Tactic_Apply(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Cases(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Rename(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_SyntheticMVars(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_PreDefinition_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_TerminationMeasure(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_FixedParams(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_ArgsPacker(uint8_t builtin, lean_object*);
@@ -6482,19 +6478,7 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_PreDefinition_WF_Rel(uint8_t built
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_Tactic_Apply(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Cases(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Rename(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_SyntheticMVars(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_PreDefinition_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_PreDefinition_TerminationMeasure(builtin, lean_io_mk_world());

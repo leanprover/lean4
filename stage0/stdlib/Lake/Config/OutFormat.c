@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_ppModuleHeader_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instQueryJsonOfToJson___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OutFormat_noConfusion___redArg___lam__0___boxed(lean_object*);
@@ -67,6 +66,7 @@ LEAN_EXPORT lean_object* l_Lake_FormatQuery_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instFormatQueryOfQueryTextOfQueryJson___redArg(lean_object*, lean_object*);
 static lean_object* l_Lake_instToTextArray___redArg___lam__1___closed__9;
 static lean_object* l_Lake_instToTextArray___redArg___lam__1___closed__5;
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instToTextArray___redArg___lam__1___closed__6;
 LEAN_EXPORT lean_object* l_Lake_instQueryTextOfToText___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instQueryJsonUnit___lam__0(lean_object*);

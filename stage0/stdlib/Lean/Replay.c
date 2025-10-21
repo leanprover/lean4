@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Replay
-// Imports: public import Lean.CoreM public import Lean.AddDecl public import Lean.Util.FoldConsts
+// Imports: public import Lean.AddDecl
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4039,7 +4039,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Environment_Replay_replayConstant___closed__2;
 x_2 = lean_unsigned_to_nat(50u);
-x_3 = lean_unsigned_to_nat(78u);
+x_3 = lean_unsigned_to_nat(76u);
 x_4 = l_Lean_Environment_Replay_replayConstant___closed__1;
 x_5 = l_Lean_Environment_Replay_replayConstant___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -6512,21 +6512,13 @@ lean_dec_ref(x_1);
 return x_7;
 }
 }
-lean_object* initialize_Lean_CoreM(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_AddDecl(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Util_FoldConsts(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Replay(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_CoreM(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_AddDecl(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Util_FoldConsts(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_DHashMap_Internal_AssocList_get_x21___at___Std_DHashMap_Internal_Raw_u2080_Const_get_x21___at___Lean_Environment_Replay_replayConstant_spec__0_spec__0___redArg___closed__0 = _init_l_Std_DHashMap_Internal_AssocList_get_x21___at___Std_DHashMap_Internal_Raw_u2080_Const_get_x21___at___Lean_Environment_Replay_replayConstant_spec__0_spec__0___redArg___closed__0();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Guard
-// Imports: public import Init.Guard public import Lean.Elab.Command public import Lean.Elab.Tactic.Conv.Basic public import Lean.Meta.Basic public import Lean.Meta.Eval
+// Imports: public import Init.Guard public import Lean.Elab.Command public import Lean.Elab.Tactic.Conv.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -9000,8 +9000,6 @@ return x_4;
 lean_object* initialize_Init_Guard(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Command(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Conv_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Eval(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Guard(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -9014,12 +9012,6 @@ res = initialize_Lean_Elab_Command(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Conv_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Eval(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Tactic_GuardExpr_colon_toMatchKind___closed__0 = _init_l_Lean_Elab_Tactic_GuardExpr_colon_toMatchKind___closed__0();

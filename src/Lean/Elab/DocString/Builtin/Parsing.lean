@@ -46,12 +46,12 @@ def parseQuotedStrLit (p : ParserFn) (strLit : StrLit) : m Syntax := do
   let ⟨pos, _⟩ ← strLitRange strLit
   let pos ← do
     let mut pos := pos
-    if text.source.get pos == 'r' then
-      pos := text.source.next pos
-      while text.source.get pos == '#' do
-        pos := text.source.next pos
-    if text.source.get pos == '"' then
-      pure <| text.source.next pos
+    if pos.get text.source == 'r' then
+      pos := pos.next text.source
+      while pos.get text.source == '#' do
+        pos := pos.next text.source
+    if pos.get text.source == '"' then
+      pure <| pos.next text.source
     else
       throwErrorAt strLit "Not a quoted string literal"
   let str := strLit.getString
@@ -88,12 +88,12 @@ where
     | .none => .none
 
   nextn (str : String) (n : Nat) (p : String.Pos.Raw) : String.Pos.Raw :=
-    n.fold (init := p) fun _ _ _ => str.next p
+    n.fold (init := p) fun _ _ _ => p.next str
   posIndex (str : String) (p : String.Pos.Raw) : Nat := Id.run do
     let mut p := p
     let mut n := 0
     while p > 0 do
-      p := str.prev p
+      p := p.prev str
       n := n + 1
     return n
 

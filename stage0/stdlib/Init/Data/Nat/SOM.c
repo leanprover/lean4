@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.SOM
-// Imports: public import Init.Data.Nat.Linear public import Init.Data.List.BasicAux
+// Imports: public import Init.Data.List.BasicAux
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1214,16 +1214,12 @@ x_7 = l___private_Init_Data_Nat_SOM_0__Nat_SOM_Poly_add_go_match__1_splitter___r
 return x_7;
 }
 }
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_BasicAux(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Nat_SOM(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Nat_Linear(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_List_BasicAux(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

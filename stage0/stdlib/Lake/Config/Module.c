@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Module
-// Imports: public import Lake.Build.Trace public import Lake.Config.LeanLib public import Lake.Config.OutFormat import Lake.Util.OrdHashSet import Lake.Util.NativeLib import Lake.Util.FilePath
+// Imports: public import Lake.Config.LeanLib import Lake.Util.OrdHashSet import Lake.Util.NativeLib import Lake.Util.FilePath
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lake_Module_oleanPrivateFile(lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_bcFile_x3f(lean_object*);
 lean_object* l_String_dropSuffix_x3f(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanLib_findModuleBySrc_x3f___closed__3;
@@ -106,6 +105,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_findModule_x3f(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lake_Module_nativeFacets___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_System_FilePath_components(lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_LeanLib_findModuleBySrc_x3f___closed__2;
 static lean_object* l_Lake_Module_bcFile___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Module_oleanFile(lean_object*);
@@ -3710,9 +3710,7 @@ x_1 = l_Lake_Module_instCheckExists___closed__0;
 return x_1;
 }
 }
-lean_object* initialize_Lake_Build_Trace(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_LeanLib(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Config_OutFormat(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_OrdHashSet(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_NativeLib(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_FilePath(uint8_t builtin, lean_object*);
@@ -3721,13 +3719,7 @@ LEAN_EXPORT lean_object* initialize_Lake_Config_Module(uint8_t builtin, lean_obj
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Build_Trace(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Config_LeanLib(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_Config_OutFormat(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Util_OrdHashSet(builtin, lean_io_mk_world());

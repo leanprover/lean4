@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.LRAT.Internal.Assignment
-// Imports: public import Init.ByCases public import Std.Tactic.BVDecide.LRAT.Internal.Entails public import Std.Tactic.BVDecide.LRAT.Internal.PosFin public import Init.Grind
+// Imports: public import Std.Tactic.BVDecide.LRAT.Internal.Entails public import Std.Tactic.BVDecide.LRAT.Internal.PosFin public import Init.Grind
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1051,7 +1051,6 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Init_ByCases(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_Entails(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_PosFin(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind(uint8_t builtin, lean_object*);
@@ -1060,9 +1059,6 @@ LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_Assignment
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_ByCases(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Std_Tactic_BVDecide_LRAT_Internal_Entails(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

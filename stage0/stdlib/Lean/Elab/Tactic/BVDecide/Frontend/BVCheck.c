@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.BVDecide.Frontend.BVCheck
-// Imports: public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide public import Lean.Meta.Tactic.TryThis public import Std.Tactic.BVDecide.Syntax
+// Imports: public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide public import Lean.Meta.Tactic.TryThis
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4582,7 +4582,6 @@ return x_6;
 }
 lean_object* initialize_Lean_Elab_Tactic_BVDecide_Frontend_BVDecide(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_TryThis(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Tactic_BVDecide_Syntax(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_BVDecide_Frontend_BVCheck(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -4592,9 +4591,6 @@ res = initialize_Lean_Elab_Tactic_BVDecide_Frontend_BVDecide(builtin, lean_io_mk
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_TryThis(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Tactic_BVDecide_Syntax(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_List_foldl___at___Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_Elab_Tactic_BVDecide_Frontend_BVCheck_getSrcDir_spec__0_spec__1_spec__2___closed__0 = _init_l_List_foldl___at___Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_Elab_Tactic_BVDecide_Frontend_BVCheck_getSrcDir_spec__0_spec__1_spec__2___closed__0();

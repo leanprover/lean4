@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Widget.InteractiveDiagnostic
-// Imports: public import Lean.Server.Utils public import Lean.Widget.InteractiveGoal public import Init.Data.Slice.Array.Basic public import Init.Data.Array.Subarray.Split import Lean.Linter.UnusedVariables
+// Imports: public import Lean.Server.Utils public import Lean.Widget.InteractiveGoal public import Init.Data.Array.Subarray.Split import Lean.Linter.UnusedVariables
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16214,7 +16214,6 @@ return x_6;
 }
 lean_object* initialize_Lean_Server_Utils(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Widget_InteractiveGoal(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Slice_Array_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Subarray_Split(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Linter_UnusedVariables(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -16226,9 +16225,6 @@ res = initialize_Lean_Server_Utils(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Widget_InteractiveGoal(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Slice_Array_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_Subarray_Split(builtin, lean_io_mk_world());

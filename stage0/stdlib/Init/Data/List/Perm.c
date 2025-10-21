@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Perm
-// Imports: public import Init.Data.List.Pairwise public import Init.Data.List.Erase public import Init.Data.List.Find public import Init.Data.List.Attach import all Init.Data.List.Attach
+// Imports: public import Init.Data.List.Erase import all Init.Data.List.Attach
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -190,26 +190,14 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* initialize_Init_Data_List_Pairwise(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Erase(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Find(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Attach(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Attach(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_Perm(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_List_Pairwise(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_List_Erase(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_List_Find(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_List_Attach(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Attach(builtin, lean_io_mk_world());

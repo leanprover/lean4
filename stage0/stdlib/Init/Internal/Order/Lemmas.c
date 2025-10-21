@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Internal.Order.Lemmas
-// Imports: public import Init.Data.List.Control import all Init.Data.List.Control public import Init.Data.Option.Basic import all Init.Data.Option.Basic public import Init.Data.Array.Basic import all Init.Data.Array.Basic public import Init.Internal.Order.Basic
+// Imports: import all Init.Data.List.Control import all Init.Data.Option.Basic import all Init.Data.Array.Basic public import Init.Internal.Order.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -286,10 +286,7 @@ return x_6;
 }
 }
 lean_object* initialize_Init_Data_List_Control(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Control(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Option_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Option_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Internal_Order_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -300,16 +297,7 @@ _G_initialized = true;
 res = initialize_Init_Data_List_Control(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Control(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Option_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Option_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());

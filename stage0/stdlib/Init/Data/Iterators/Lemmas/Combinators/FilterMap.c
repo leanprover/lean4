@@ -231,7 +231,7 @@ _start:
 lean_object* x_10; 
 x_10 = l___private_Init_Data_Iterators_Lemmas_Combinators_FilterMap_0__Std_Iterators_Iter_step__filterMapWithPostcondition_match__3_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_4);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 return x_10;
 }
 }
@@ -740,7 +740,7 @@ _start:
 lean_object* x_10; 
 x_10 = l___private_Init_Data_Iterators_Lemmas_Combinators_FilterMap_0__Std_Iterators_Iter_forIn_x27__eq__match__step_match__3_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_4);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 return x_10;
 }
 }

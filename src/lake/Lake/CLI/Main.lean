@@ -195,7 +195,7 @@ def setConfigOpt (kvPair : String) : CliM PUnit :=
     if pos = kvPair.endPos then
       (kvPair.toName, "")
     else
-      (kvPair.extract 0 pos |>.toName, kvPair.extract (kvPair.next pos) kvPair.endPos)
+      (String.Pos.Raw.extract kvPair 0 pos |>.toName, String.Pos.Raw.extract kvPair (pos.next kvPair) kvPair.endPos)
   modifyThe LakeOptions fun opts =>
     {opts with configOpts := opts.configOpts.insert key val}
 
@@ -220,7 +220,7 @@ def lakeShortOption : (opt : Char) → CliM PUnit
 def validateRepo? (repo : String) : Option String := Id.run do
   unless repo.all isValidRepoChar do
     return "invalid characters in repository name"
-  match repo.split (· == '/') with
+  match repo.splitToList (· == '/') with
   | [owner, name] =>
     if owner.length > 39 then
       return "invalid repository name; owner must be at most 390 characters long"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.JsonRpc
-// Imports: public import Init.System.IO public import Lean.Data.Json.Stream public import Lean.Data.Json.FromToJson.Basic
+// Imports: public import Lean.Data.Json.Stream public import Lean.Data.Json.FromToJson.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -212,7 +212,6 @@ static lean_object* l_Lean_JsonRpc_instFromJsonNotification___redArg___lam__0___
 static lean_object* l_IO_FS_Stream_readNotificationAs___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_JsonRpc_ErrorCode_workerExited_elim___redArg___boxed(lean_object*);
 static lean_object* l_Lean_JsonRpc_instFromJsonErrorCode___lam__0___closed__26;
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 static lean_object* l_Lean_JsonRpc_instToJsonMessage___lam__0___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Data_JsonRpc_0__Lean_JsonRpc_messageMetaDataParser_spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_JsonRpc_ErrorCode_methodNotFound_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -329,6 +328,7 @@ lean_object* l_Lean_Json_Parser_num(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_JsonRpc_ErrorCode_parseError_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_JsonRpc_instToJsonMessage___lam__0___closed__4;
 static lean_object* l_Lean_JsonRpc_instToJsonMessage___lam__0___closed__8;
+uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_JsonRpc_instBEqNotification___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_JsonRpc_instInhabitedResponse___redArg(lean_object*);
 lean_object* l_Lean_Json_toStructured_x3f___redArg(lean_object*, lean_object*);
@@ -352,9 +352,9 @@ LEAN_EXPORT lean_object* l_Lean_JsonRpc_instFromJsonNotification(lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_JsonRpc_instCoeOutResponseErrorUnitMessage;
 lean_object* l_IO_FS_Stream_writeJson(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_JsonRpc_ErrorCode_workerCrashed_elim(lean_object*, uint8_t, lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 static lean_object* l_Lean_JsonRpc_instFromJsonErrorCode___lam__0___closed__9;
 static lean_object* l_Lean_JsonRpc_instToJsonErrorCode___lam__0___closed__16;
+lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 static lean_object* l_Lean_JsonRpc_instFromJsonErrorCode___lam__0___closed__31;
 LEAN_EXPORT lean_object* l_Lean_JsonRpc_instBEqRequest_beq___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_JsonRpc_Notification_ctorIdx___boxed(lean_object*, lean_object*);
@@ -16371,7 +16371,6 @@ x_6 = l_IO_FS_Stream_writeResponseErrorWithData___redArg(x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json_Stream(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json_FromToJson_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -16379,9 +16378,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Data_JsonRpc(uint8_t builtin, lean_obje
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_System_IO(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Data_Json_Stream(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

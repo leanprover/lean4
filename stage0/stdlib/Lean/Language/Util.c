@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Language.Util
-// Imports: public import Lean.Language.Basic public import Lean.CoreM public import Lean.Elab.InfoTree
+// Imports: public import Lean.Elab.InfoTree
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4076,20 +4076,12 @@ x_6 = l___private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go(x_5,
 return x_6;
 }
 }
-lean_object* initialize_Lean_Language_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_CoreM(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_InfoTree(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Language_Util(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Language_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_CoreM(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Elab_InfoTree(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

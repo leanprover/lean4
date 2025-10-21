@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Workspace
-// Imports: public import Lake.Config.Env public import Lake.Config.Module public import Lake.Config.LeanExe public import Lake.Config.ExternLib public import Lake.Config.FacetConfig public import Lake.Config.TargetConfig meta import all Lake.Util.OpaqueType
+// Imports: public import Lake.Config.Env public import Lake.Config.LeanExe public import Lake.Config.ExternLib public import Lake.Config.FacetConfig public import Lake.Config.TargetConfig meta import all Lake.Util.OpaqueType
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4205,7 +4205,6 @@ return x_3;
 }
 }
 lean_object* initialize_Lake_Config_Env(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Config_Module(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_LeanExe(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_ExternLib(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_FacetConfig(uint8_t builtin, lean_object*);
@@ -4217,9 +4216,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lake_Config_Env(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_Config_Module(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Config_LeanExe(builtin, lean_io_mk_world());

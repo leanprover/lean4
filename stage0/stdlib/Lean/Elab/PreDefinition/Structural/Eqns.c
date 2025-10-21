@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.Structural.Eqns
-// Imports: public import Lean.Meta.Basic public import Lean.Elab.PreDefinition.FixedParams import Lean.Elab.PreDefinition.EqnsUtils import Lean.Meta.Eqns import Lean.Meta.Tactic.Split import Lean.Meta.Tactic.Simp.Main import Lean.Meta.Tactic.Apply import Lean.Elab.PreDefinition.Basic import Lean.Elab.PreDefinition.Structural.Basic import Lean.Meta.Match.MatchEqs import Lean.Meta.Tactic.Rewrite
+// Imports: public import Lean.Elab.PreDefinition.FixedParams import Lean.Elab.PreDefinition.EqnsUtils import Lean.Meta.Tactic.Split import Lean.Meta.Tactic.Simp.Main import Lean.Elab.PreDefinition.Basic import Lean.Elab.PreDefinition.Structural.Basic import Lean.Meta.Match.MatchEqs import Lean.Meta.Tactic.Rewrite
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -12011,13 +12011,10 @@ return x_3;
 }
 }
 }
-lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_FixedParams(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_EqnsUtils(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Eqns(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Split(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Simp_Main(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Apply(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_Structural_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Match_MatchEqs(uint8_t builtin, lean_object*);
@@ -12027,25 +12024,16 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_PreDefinition_Structural_Eqns(uint
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Elab_PreDefinition_FixedParams(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_PreDefinition_EqnsUtils(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Eqns(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Split(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Simp_Main(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Apply(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_PreDefinition_Basic(builtin, lean_io_mk_world());

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.DocString.Builtin.Scopes
-// Imports: public import Lean.Elab.DocString import Lean.Elab.DocString.Builtin.Parsing import Lean.Parser.Basic
+// Imports: public import Lean.Elab.DocString import Lean.Elab.DocString.Builtin.Parsing
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,7 +17,6 @@ LEAN_EXPORT lean_object* l_Lean_Doc_DocScope_ctorIdx(lean_object*);
 static lean_object* l_Lean_Doc_parseQuotedStrLit___at___Lean_Doc_instFromDocArgDocScope___private__1_spec__6___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_Doc_instFromDocArgDocScope___private__1_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_throwErrorAt___at___Lean_Doc_instFromDocArgDocScope___private__1_spec__0_spec__0_spec__1___redArg___closed__0;
-uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_parseQuotedStrLit___at___Lean_Doc_instFromDocArgDocScope___private__1_spec__6___lam__1___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Doc_parseQuotedStrLit___at___Lean_Doc_instFromDocArgDocScope___private__1_spec__6_spec__6(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Doc_instFromDocArgDocScope___private__1___closed__9;
@@ -71,7 +70,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at__
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Doc_parseQuotedStrLit___at___Lean_Doc_instFromDocArgDocScope___private__1_spec__6_spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_imports___closed__18;
 static lean_object* l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_imports___closed__19;
-lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 uint8_t l_Lean_Parser_InputContext_atEnd(lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_instFromDocArgDocScope___private__1___closed__2;
 static lean_object* l_Lean_Doc_instFromDocArgDocScope___private__1___closed__3;
@@ -126,6 +124,7 @@ LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_Doc_instFromDocArgDocSc
 extern lean_object* l_Lean_Parser_ident;
 static lean_object* l_List_foldl___at___Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_throwErrorAt___at___Lean_Doc_instFromDocArgDocScope___private__1_spec__0_spec__0_spec__1_spec__2___closed__0;
 static lean_object* l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_imports___closed__10;
+uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_throwErrorAt___at___Lean_Doc_instFromDocArgDocScope___private__1_spec__0_spec__0_spec__1___redArg___closed__1;
 static lean_object* l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_imports___closed__8;
 lean_object* l_Lean_Parser_withCache(lean_object*, lean_object*);
@@ -144,6 +143,7 @@ lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_parseQuotedStrLit___at___Lean_Doc_instFromDocArgDocScope___private__1_spec__6___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_parseQuotedStrLit___at___Lean_Doc_instFromDocArgDocScope___private__1_spec__6___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_instFromDocArgDocScope___private__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 lean_object* lean_erase_macro_scopes(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_DocScope_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_instFromDocArgDocScope___private__1___lam__0(lean_object*, lean_object*);
@@ -1213,7 +1213,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_DocString_Builtin_Parsing_0__Lean_Doc_strLitRange___at___Lean_Doc_parseQuotedStrLit___at___Lean_Doc_instFromDocArgDocScope___private__1_spec__6_spec__7___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(23u);
+x_3 = lean_unsigned_to_nat(22u);
 x_4 = l___private_Lean_Elab_DocString_Builtin_Parsing_0__Lean_Doc_strLitRange___at___Lean_Doc_parseQuotedStrLit___at___Lean_Doc_instFromDocArgDocScope___private__1_spec__6_spec__7___redArg___closed__1;
 x_5 = l___private_Lean_Elab_DocString_Builtin_Parsing_0__Lean_Doc_strLitRange___at___Lean_Doc_parseQuotedStrLit___at___Lean_Doc_instFromDocArgDocScope___private__1_spec__6_spec__7___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -2475,7 +2475,6 @@ return x_1;
 }
 lean_object* initialize_Lean_Elab_DocString(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_DocString_Builtin_Parsing(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Parser_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_DocString_Builtin_Scopes(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -2485,9 +2484,6 @@ res = initialize_Lean_Elab_DocString(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_DocString_Builtin_Parsing(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Parser_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_imports___closed__0 = _init_l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_imports___closed__0();

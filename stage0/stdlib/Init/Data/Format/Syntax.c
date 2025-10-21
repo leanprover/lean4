@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Format.Syntax
-// Imports: public import Init.Data.Format.Macro public import Init.Data.Format.Instances public import Init.Meta import Init.Data.String.Basic import Init.Data.ToString.Name
+// Imports: public import Init.Data.Format.Macro public import Init.Data.Format.Instances public import Init.Meta import Init.Data.ToString.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_formatStxAux___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Syntax_formatStx(lean_object*, lean_object*, uint8_t);
@@ -46,6 +45,7 @@ static lean_object* l_Lean_Syntax_formatStxAux___closed__15;
 static lean_object* l_Lean_Syntax_formatStxAux___closed__1;
 lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_formatStx___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_formatStxAux___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instToFormatTSyntax(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_instToStringTSyntax___lam__0(lean_object*);
@@ -1048,7 +1048,6 @@ return x_2;
 lean_object* initialize_Init_Data_Format_Macro(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Format_Instances(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Meta(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_ToString_Name(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Format_Syntax(uint8_t builtin, lean_object* w) {
@@ -1062,9 +1061,6 @@ res = initialize_Init_Data_Format_Instances(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Meta(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_ToString_Name(builtin, lean_io_mk_world());

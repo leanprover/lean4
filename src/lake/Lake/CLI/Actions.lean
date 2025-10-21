@@ -60,7 +60,7 @@ public def Package.resolveDriver
   if driver.isEmpty then
     error s!"{pkgName}: no {kind} driver configured"
   else
-    match driver.split (· == '/') with
+    match driver.splitToList (· == '/') with
     | [pkg, driver] =>
       let some pkg ← findPackage? pkg.toName
         | error s!"{pkgName}: unknown {kind} driver package '{pkg}'"

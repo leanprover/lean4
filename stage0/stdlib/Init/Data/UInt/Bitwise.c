@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.UInt.Bitwise
-// Imports: public import Init.Data.BitVec.Basic import all Init.Data.BitVec.Basic public import Init.Data.UInt.Basic import all Init.Data.UInt.Basic public import Init.Data.UInt.Lemmas public import Init.Data.Fin.Bitwise
+// Imports: import all Init.Data.BitVec.Basic import all Init.Data.UInt.Basic public import Init.Data.UInt.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2902,11 +2902,8 @@ return x_4;
 }
 }
 lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Fin_Bitwise(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_UInt_Bitwise(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -2915,19 +2912,10 @@ _G_initialized = true;
 res = initialize_Init_Data_BitVec_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_UInt_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_UInt_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_UInt_Lemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Fin_Bitwise(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_commandDeclare__bitwise__uint__theorems_______closed__0 = _init_l_commandDeclare__bitwise__uint__theorems_______closed__0();

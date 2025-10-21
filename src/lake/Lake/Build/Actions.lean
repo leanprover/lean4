@@ -56,7 +56,7 @@ public def compileLeanModule
     ]
   }
   unless out.stdout.isEmpty do
-    let txt ← out.stdout.split (· == '\n') |>.foldlM (init := "") fun txt ln => do
+    let txt ← out.stdout.splitToList (· == '\n') |>.foldlM (init := "") fun txt ln => do
       if let .ok (msg : SerialMessage) := Json.parse ln >>= fromJson? then
         unless txt.isEmpty do
           logInfo s!"stdout:\n{txt}"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Lex.Basic
-// Imports: public import Init.Core import Init.Data.Array.Basic import Init.Data.Nat.Lemmas public import Init.Data.Range.Polymorphic.Iterators public import Init.Data.Range.Polymorphic.Nat import Init.Data.Iterators.Consumers
+// Imports: public import Init.Data.Range.Polymorphic.Iterators public import Init.Data.Range.Polymorphic.Nat import Init.Data.Iterators.Consumers
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1039,9 +1039,6 @@ x_7 = lean_box(x_6);
 return x_7;
 }
 }
-lean_object* initialize_Init_Core(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Range_Polymorphic_Nat(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Consumers(uint8_t builtin, lean_object*);
@@ -1050,15 +1047,6 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Array_Lex_Basic(uint8_t builtin, l
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Core(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Lemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

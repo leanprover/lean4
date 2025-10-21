@@ -13,13 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__10;
 static lean_object* l_Lake_Package_mkConfigString___closed__27;
 static lean_object* l_Lake_Package_mkConfigString___closed__1;
 lean_object* l_Lean_Core_getMaxHeartbeats(lean_object*);
-uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_mkConfigString___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_toString(lean_object*, lean_object*);
@@ -45,7 +43,6 @@ static lean_object* l_Lake_Package_mkConfigString___closed__13;
 LEAN_EXPORT lean_object* l_Lake_Package_mkConfigString(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_0__Lake_descopeTSyntax___redArg(lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
-lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___Lake_Package_mkConfigString_spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Name_quickCmp___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__12;
@@ -57,12 +54,12 @@ LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___Lake_Package_mkCon
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__16;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__6;
 static lean_object* l_Lake_Package_mkConfigString___closed__7;
 lean_object* lean_mk_io_user_error(lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__28;
 LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___Lake_Package_mkConfigString_spec__3___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__9;
 LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___Lake_Package_mkConfigString_spec__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__0;
@@ -80,6 +77,7 @@ static lean_object* l_Lake_Package_mkConfigString___closed__31;
 extern lean_object* l_Lean_NameSet_empty;
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___Lake_Package_mkConfigString_spec__0___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__2;
+uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* l_Lean_PrettyPrinter_ppModule(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -88,7 +86,9 @@ lean_object* l_Lake_Package_mkTomlConfig(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__20;
 static lean_object* l_Lake_Package_mkConfigString___closed__22;
 static lean_object* l_Lake_Package_mkConfigString___closed__11;
+lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 lean_object* lean_erase_macro_scopes(lean_object*);
 extern lean_object* l_Lean_firstFrontendMacroScope;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lake_CLI_Translate_0__Lake_descopeSyntax_spec__0(size_t, size_t, lean_object*);

@@ -15,7 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_stop_elim___redArg(lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__2;
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_pipeArg_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_termArg_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -80,6 +79,7 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_appArg_elim___redArg___boxed(lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_termArg_elim___redArg(lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__0___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_lineStart(lean_object*, lean_object*);
@@ -90,7 +90,6 @@ static lean_object* l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Ser
 static lean_object* l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__19;
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_stop_elim___redArg___boxed(lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__18;
@@ -130,6 +129,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_no
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__2___boxed(lean_object*, lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_continue_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -141,8 +141,8 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_m
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_appArg_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__0;
+lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rxo_Iterator_instIteratorLoop_loop___at___Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___redArg___lam__0(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -2101,15 +2101,15 @@ lean_dec(x_107);
 lean_dec(x_105);
 if (x_108 == 0)
 {
-x_92 = x_102;
-x_93 = x_103;
+x_92 = x_103;
+x_93 = x_102;
 x_94 = x_97;
 goto block_96;
 }
 else
 {
-x_92 = x_102;
-x_93 = x_103;
+x_92 = x_103;
+x_93 = x_102;
 x_94 = x_101;
 goto block_96;
 }
@@ -2488,9 +2488,9 @@ goto block_10;
 }
 block_96:
 {
-if (x_92 == 0)
-{
 if (x_93 == 0)
+{
+if (x_92 == 0)
 {
 if (x_94 == 0)
 {
@@ -3142,8 +3142,8 @@ x_50 = lean_nat_dec_lt(x_48, x_49);
 if (x_50 == 0)
 {
 lean_dec(x_49);
-x_8 = x_47;
-x_9 = x_44;
+x_8 = x_44;
+x_9 = x_47;
 x_10 = x_7;
 goto block_33;
 }
@@ -3152,8 +3152,8 @@ else
 if (x_50 == 0)
 {
 lean_dec(x_49);
-x_8 = x_47;
-x_9 = x_44;
+x_8 = x_44;
+x_9 = x_47;
 x_10 = x_7;
 goto block_33;
 }
@@ -3164,8 +3164,8 @@ x_51 = 0;
 x_52 = lean_usize_of_nat(x_49);
 lean_dec(x_49);
 x_53 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1(x_47, x_51, x_52);
-x_8 = x_47;
-x_9 = x_44;
+x_8 = x_44;
+x_9 = x_47;
 x_10 = x_53;
 goto block_33;
 }
@@ -3192,10 +3192,10 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; size_t x_14; size_t x_1
 x_11 = lean_box(0);
 x_12 = lean_box(0);
 x_13 = l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___closed__0;
-x_14 = lean_array_size(x_8);
+x_14 = lean_array_size(x_9);
 x_15 = 0;
-x_16 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0(x_4, x_13, x_12, x_10, x_7, x_8, x_14, x_15, x_13, x_9);
-lean_dec_ref(x_8);
+x_16 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0(x_4, x_13, x_12, x_10, x_7, x_9, x_14, x_15, x_13, x_8);
+lean_dec_ref(x_9);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; 

@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 static lean_object* l_Lean_Elab_initFn___closed__1____x40_Lean_Elab_AutoBound_323533819____hygCtx___hyg_4_;
-uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_isValidAutoBoundImplicitName___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn___closed__2____x40_Lean_Elab_AutoBound_366037992____hygCtx___hyg_4_;
 static lean_object* l_Lean_Elab_initFn___closed__4____x40_Lean_Elab_AutoBound_323533819____hygCtx___hyg_4_;
@@ -24,7 +23,6 @@ static lean_object* l_Lean_Elab_initFn___closed__0____x40_Lean_Elab_AutoBound_36
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_Elab_initFn____x40_Lean_Elab_AutoBound_366037992____hygCtx___hyg_4__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn___closed__7____x40_Lean_Elab_AutoBound_366037992____hygCtx___hyg_4_;
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 static lean_object* l_Lean_Elab_initFn___closed__3____x40_Lean_Elab_AutoBound_323533819____hygCtx___hyg_4_;
@@ -38,6 +36,7 @@ lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 static lean_object* l_Lean_Elab_initFn___closed__0____x40_Lean_Elab_AutoBound_323533819____hygCtx___hyg_4_;
 LEAN_EXPORT uint8_t l_String_anyAux___at_____private_Lean_Elab_AutoBound_0__Lean_Elab_isValidAutoBoundSuffix_spec__0(lean_object*, lean_object*, lean_object*);
+uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t l_Lean_isSubScriptAlnum(uint32_t);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
@@ -45,6 +44,7 @@ static lean_object* l_Lean_Elab_initFn___closed__3____x40_Lean_Elab_AutoBound_36
 LEAN_EXPORT lean_object* l_Lean_Elab_autoImplicit;
 LEAN_EXPORT lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound_323533819____hygCtx___hyg_4_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_relaxedAutoImplicit;
+lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn___closed__2____x40_Lean_Elab_AutoBound_323533819____hygCtx___hyg_4_;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 static lean_object* l_Lean_Elab_initFn___closed__5____x40_Lean_Elab_AutoBound_366037992____hygCtx___hyg_4_;

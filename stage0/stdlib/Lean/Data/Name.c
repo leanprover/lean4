@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Name
-// Imports: public import Init.Data.Ord.Basic import Init.Data.String.Basic import Init.Data.Ord.String import Init.Data.Ord.UInt
+// Imports: public import Init.Data.Ord.Basic import Init.Data.Ord.String import Init.Data.Ord.UInt
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,9 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_Name_getNumParts(lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Name_isInternalDetail___closed__6;
-uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_quickLt___boxed(lean_object*, lean_object*);
 uint8_t l_instDecidableEqOrdering(uint8_t, uint8_t);
 static lean_object* l_Lean_Name_isInternalDetail___closed__3;
@@ -52,7 +50,6 @@ uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_Name_isMetaprogramming___closed__2;
 LEAN_EXPORT uint8_t l_Lean_Name_cmp(lean_object*, lean_object*);
 lean_object* l_List_head_x3f___redArg(lean_object*);
-lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Data_Name_0__Lean_Name_isInternalDetail_matchPrefix(lean_object*, lean_object*);
 static lean_object* l_Lean_Name_isInternalDetail___closed__1;
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
@@ -64,6 +61,7 @@ static lean_object* l_Lean_Name_isMetaprogramming___lam__0___closed__1;
 LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___Lean_Name_isMetaprogramming_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Name_isMetaprogramming___closed__0;
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isSuffixOf___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isMetaprogramming___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_componentsRev(lean_object*);
@@ -91,6 +89,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_hasNum(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_updatePrefix(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isImplementationDetail___boxed(lean_object*);
+uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_eqStr___boxed(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
@@ -100,6 +99,7 @@ static lean_object* l_Lean_Name_getString_x21___closed__2;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_getString_x21(lean_object*);
+lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_getPrefix___boxed(lean_object*);
 uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
 static lean_object* l_Lean_Name_isImplementationDetail___closed__2;
@@ -210,7 +210,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Name_getString_x21___closed__2;
 x_2 = lean_unsigned_to_nat(15u);
-x_3 = lean_unsigned_to_nat(29u);
+x_3 = lean_unsigned_to_nat(28u);
 x_4 = l_Lean_Name_getString_x21___closed__1;
 x_5 = l_Lean_Name_getString_x21___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -1768,7 +1768,6 @@ return x_3;
 }
 }
 lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Ord_String(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Ord_UInt(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -1777,9 +1776,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_Ord_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Ord_String(builtin, lean_io_mk_world());

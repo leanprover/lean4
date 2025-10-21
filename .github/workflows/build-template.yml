@@ -102,7 +102,6 @@ jobs:
         if: matrix.cmultilib
       - name: Restore Cache
         id: restore-cache
-        if: matrix.name != 'Linux Lake (Cached)'
         uses: actions/cache/restore@v4
         with:
           # NOTE: must be in sync with `save` below and with `restore-cache` in `update-stage0.yml`
@@ -132,11 +131,7 @@ jobs:
           else
             echo "TARGET_STAGE=stage1" >> $GITHUB_ENV
           fi
-      - name: Download Lake Cache
-        if: matrix.name == 'Linux Lake (Cached)'
-        run: lake cache get --repo=${{ github.event.pull_request.head.repo.full_name || github.repository }}
-        continue-on-error: true
-      - name: Build
+      - name: Configure Build
         run: |
           ulimit -c unlimited  # coredumps
           [ -d build ] || mkdir build
@@ -173,6 +168,19 @@ jobs:
           fi
           # contortion to support empty OPTIONS with old macOS bash
           cmake .. --preset ${{ matrix.CMAKE_PRESET || 'release' }} -B . ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
+      - name: Build Stage 0
+        run: |
+          ulimit -c unlimited  # coredumps
+          cd build
+          time make stage0 -j$NPROC
+      - name: Download Lake Cache
+        if: matrix.name == 'Linux Lake (Cached)'
+        run: build/stage0/bin/lake cache get --repo=${{ github.event.pull_request.head.repo.full_name || github.repository }}
+        continue-on-error: true
+      - name: Build Target Stage
+        run: |
+          ulimit -c unlimited  # coredumps
+          cd build
           time make $TARGET_STAGE -j$NPROC
       # Should be done as early as possible and in particular *before* "Check rebootstrap" which
       # changes the state of stage1/
@@ -197,8 +205,8 @@ jobs:
         # shutdown
         if: matrix.name == 'Linux Lake' && !cancelled()
         run: |
-          lake build -o build/lake-mappings.json
-          lake cache put build/lake-mappings.json --repo=${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          build/stage0/bin/lake build -o build/lake-mappings.jsonl
+          build/stage0/bin/lake cache put build/lake-mappings.jsonl --repo=${{ github.event.pull_request.head.repo.full_name || github.repository }}
         env:
           LAKE_CACHE_KEY: ${{ secrets.LAKE_CACHE_KEY }}
           LAKE_ARTIFACT_ENDPOINT: ${{ secrets.LAKE_ARTIFACT_ENDPOINT }}

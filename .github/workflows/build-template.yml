@@ -168,11 +168,11 @@ jobs:
           fi
           # contortion to support empty OPTIONS with old macOS bash
           cmake .. --preset ${{ matrix.CMAKE_PRESET || 'release' }} -B . ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
-      - name: Build Stage 0
+      - name: Build Stage 0 & Configure Stage 1
         run: |
           ulimit -c unlimited  # coredumps
           cd build
-          time make stage0 -j$NPROC
+          time make stage1-configure -j$NPROC
       - name: Download Lake Cache
         if: matrix.name == 'Linux Lake (Cached)'
         run: |

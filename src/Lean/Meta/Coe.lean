@@ -152,7 +152,7 @@ Extensions for monads.
 
 3. If there is a monad lift from `m` to `n` and a coercion from `α` to `β`, we use
   ```
-  liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [MonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β
+  liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [MonadLiftT m n] [∀ a, CoeT α a β] [Functor n] (x : m α) : n β
   ```
 
 Note that approach 3 does not subsume 1 because it is only applicable if there is a coercion from `α` to `β` for all values in `α`.
@@ -189,8 +189,8 @@ def coerceMonadLift? (e expectedType : Expr) : MetaM (Option Expr) := do
   -- Need to save and restore the state in case `m` and `n` are defeq but not monads to prevent this procedure from having side effects.
   let saved ← saveState
   if (← isDefEq m n) then
-    let some monadInst ← isMonad? n | restoreState saved; return none
-    try expandCoe (← mkAppOptM ``Lean.Internal.coeM #[m, α, β, none, monadInst, e]) catch _ => restoreState saved; return none
+    let some functorInst ← isFunctor? n | restoreState saved; return none
+    try expandCoe (← mkAppOptM ``Lean.Internal.coeF #[m, α, β, none, functorInst, e]) catch _ => restoreState saved; return none
   else if autoLift.get (← getOptions) then
     try
       -- Construct lift from `m` to `n`
@@ -212,12 +212,12 @@ def coerceMonadLift? (e expectedType : Expr) : MetaM (Option Expr) := do
       if (← isDefEq expectedType eNewType) then
         return some eNew -- approach 2 worked
       else
-        let some monadInst ← isMonad? n | return none
+        let some functorInst ← isFunctor? n | return none
         let u ← getLevel α
         let v ← getLevel β
         let coeTInstType := Lean.mkForall `a BinderInfo.default α <| mkAppN (mkConst ``CoeT [u, v]) #[α, mkBVar 0, β]
         let .some coeTInstVal ← trySynthInstance coeTInstType | return none
-        let eNew ← expandCoe (mkAppN (Lean.mkConst ``Lean.Internal.liftCoeM [u_1, u_2, u_3]) #[m, n, α, β, monadLiftVal, coeTInstVal, monadInst, e])
+        let eNew ← expandCoe (mkAppN (Lean.mkConst ``Lean.Internal.liftCoeF [u_1, u_2, u_3]) #[m, n, α, β, monadLiftVal, coeTInstVal, functorInst, e])
         let eNewType ← inferType eNew
         unless (← isDefEq expectedType eNewType) do return none
         return some eNew -- approach 3 worked

@@ -96,12 +96,6 @@ instance {x : γ} {State : Type w} {iter}
   inferInstanceAs <| IteratorLoop (α := State) m n
 
 instance {x : γ} {State : Type w} {iter}
-    [Iterator (α := State) m β] [IteratorLoopPartial State m n] :
-    letI i : ToIterator x m β := .ofM State iter
-    IteratorLoopPartial (α := i.State) m n :=
-  inferInstanceAs <| IteratorLoopPartial (α := State) m n
-
-instance {x : γ} {State : Type w} {iter}
     [Iterator (α := State) m β] [IteratorSize State m] :
     letI i : ToIterator x m β := .ofM State iter
     IteratorSize (α := i.State) m :=

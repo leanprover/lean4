@@ -78,11 +78,6 @@ instance {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
   .defaultImplementation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
-    IteratorLoopPartial (ListIterator α) m n :=
-  .defaultImplementation
-
-@[always_inline, inline]
 instance {α : Type w} [Monad m] : IteratorSize (ListIterator α) m :=
   .defaultImplementation
 

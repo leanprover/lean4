@@ -374,8 +374,4 @@ public instance Flatten.instIteratorLoop [Monad m] [Monad n] [Iterator α m (Ite
     [Iterator α₂ m β] : IteratorLoop (Flatten α α₂ β m) m n :=
   .defaultImplementation
 
-public instance Flatten.instIteratorLoopPartial [Monad m] [Monad n] [Iterator α m (IterM (α := α₂) m β)]
-    [Iterator α₂ m β] : IteratorLoopPartial (Flatten α α₂ β m) m n :=
-  .defaultImplementation
-
 end Std.Iterators

@@ -140,17 +140,8 @@ instance Take.instIteratorLoop {n : Type x → Type x'} [Monad m] [Monad n] [Ite
     IteratorLoop (Take α m β) m n :=
   .defaultImplementation
 
-instance Take.instIteratorLoopPartial [Monad m] [Monad n] [Iterator α m β]
-    [MonadLiftT m n] :
-    IteratorLoopPartial (Take α m β) m n :=
-  .defaultImplementation
-
 instance {α : Type w} [Monad m] [Iterator α m β] [Finite α m] [IteratorLoop α m m] :
     IteratorSize (Take α m β) m :=
-  .defaultImplementation
-
-instance {α : Type w} [Monad m] [Iterator α m β] [IteratorLoopPartial α m m] :
-    IteratorSizePartial (Take α m β) m :=
   .defaultImplementation
 
 end Std.Iterators

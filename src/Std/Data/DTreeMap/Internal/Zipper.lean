@@ -1121,4 +1121,37 @@ theorem Roi.correct {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] (t
 
 end Roi
 
+section Rii
+
+public def RiiIterator [Ord α] (t : Impl α β) : Iter (α := Zipper α β) ((a : α) × β a) :=
+  ⟨Zipper.prependMap t .done⟩
+
+public theorem toList_riiIter {α β} [Ord α] [TransOrd α]
+    {t : Impl α β} :
+    (RiiIterator t : Iter (Sigma β)).toList =
+      t.toList := by
+  simp only [RiiIterator]
+  simp only [Zipper.toList_Zipper]
+  simp only [Zipper.prependMap_toList_eq_concat_toList, Zipper.toList, List.append_nil]
+
+public structure RiiSliceData (α : Type u) (β : α → Type v) [Ord α] where
+  treeMap : Impl α β
+  range : Rii α
+
+public abbrev RiiSlice α β [Ord α] := Slice (RiiSliceData α β)
+
+public instance {α : Type u} {β : α → Type v} [Ord α] : Rii.Sliceable (Impl α β) α (RiiSlice α β) where
+  mkSlice carrier range := ⟨carrier, range⟩
+
+public instance [Ord α] {s : RiiSlice α β} : ToIterator s Id ((a : α) × β a) :=
+  ToIterator.of (Zipper α β) (RiiIterator s.1.treeMap)
+
+theorem Rii.correct {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] (t : Impl α β) : t[*...*].toList = t.toList := by
+  simp only [Rii.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+    Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
+    Iter.toIter_toIterM]
+  rw [toList_riiIter]
+
+end Rii
+
 end Std.DTreeMap.Internal

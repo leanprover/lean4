@@ -1616,7 +1616,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
     | LValResolution.projFn baseStructName structName fieldName =>
       let f ← mkBaseProjections baseStructName structName f
       let some info := getFieldInfo? (← getEnv) baseStructName fieldName | unreachable!
-      if isInaccessiblePrivateName (← getEnv) info.projFn then
+      if (← isInaccessiblePrivateName info.projFn) then
         throwError "Field `{fieldName}` from structure `{structName}` is private"
       let projFn ← mkConst info.projFn
       let projFn ← addProjTermInfo lval.getRef projFn
@@ -1750,7 +1750,7 @@ where
       match resultTypeFn with
       | .const declName .. =>
         let env ← getEnv
-        if isInaccessiblePrivateName env declName then
+        if (← isInaccessiblePrivateName declName) then
           throwError "The private declaration `{.ofConstName declName}` is not accessible in the current context"
         -- Recall that the namespace for private declarations is non-private.
         let fullName := privateToUserName declName ++ id

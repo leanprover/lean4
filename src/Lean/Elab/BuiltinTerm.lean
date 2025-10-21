@@ -164,7 +164,7 @@ private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
     -- `by` switches from an exported to a private context, so we must disallow unassigned
     -- metavariables in the goal in this case as they could otherwise leak private data back into
     -- the exported context.
-    mkTacticMVar expectedType stx .term (delayOnMVars := (← getEnv).isExporting)
+    mkTacticMVar expectedType stx .term (delayOnMVars := (← getEnv).isExporting && !(← backward.proofsInPublic.getM))
   | none =>
     tryPostpone
     throwError ("invalid 'by' tactic, expected type has not been provided")

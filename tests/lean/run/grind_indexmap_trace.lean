@@ -239,7 +239,7 @@ example (m : IndexMap α β) (a a' : α) (b : β) :
 /--
 info: Try this:
   [apply] ⏎
-    instantiate only [= getElem_def, insert]
+    instantiate approx [= getElem_def, = mem_indices_of_mem, insert]
     instantiate only [= getElem?_neg, = getElem?_pos]
     cases #f590
     next =>
@@ -249,8 +249,7 @@ info: Try this:
         instantiate only [= Array.getElem_set]
       next =>
         instantiate only
-        instantiate approx [= HashMap.getElem_insert, = Array.size_push, size, = Array.getElem_push,
-          = HashMap.contains_insert, = HashMap.mem_insert, = Array.size_push]
+        instantiate only [= Array.getElem_push, size, = HashMap.getElem_insert, = HashMap.mem_insert]
     next =>
       instantiate only [= getElem_def, = mem_indices_of_mem]
       instantiate only [usr getElem_indices_lt]
@@ -272,7 +271,8 @@ example (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
 example (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
     (m.insert a b)[a'] = if h' : a' == a then b else m[a'] := by
   grind =>
-    instantiate only [= getElem_def, insert]
+    -- **TODO**: Check approx here
+    instantiate approx [= getElem_def, = mem_indices_of_mem, insert]
     instantiate only [= getElem?_neg, = getElem?_pos]
     cases #f590
     next =>
@@ -282,9 +282,8 @@ example (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
         instantiate only [= Array.getElem_set]
       next =>
         instantiate only
-        -- **TODO**: Investigate why we need `approx` here
-        instantiate approx [= HashMap.getElem_insert, = Array.size_push, size, = Array.getElem_push,
-          = HashMap.contains_insert, = HashMap.mem_insert, = Array.size_push]
+        instantiate only [= Array.getElem_push, size, = HashMap.getElem_insert,
+          = HashMap.mem_insert]
     next =>
       instantiate only [= getElem_def, = mem_indices_of_mem]
       instantiate only [usr getElem_indices_lt]

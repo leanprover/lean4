@@ -202,7 +202,7 @@ def Info.pos? (i : Info) : Option String.Pos.Raw :=
 def Info.tailPos? (i : Info) : Option String.Pos.Raw :=
   i.stx.getTailPos? (canonicalOnly := true)
 
-def Info.range? (i : Info) : Option String.Range :=
+def Info.range? (i : Info) : Option Lean.Syntax.Range :=
   i.stx.getRange? (canonicalOnly := true)
 
 def Info.contains (i : Info) (pos : String.Pos.Raw) (includeStop := false) : Bool :=

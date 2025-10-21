@@ -79,7 +79,7 @@ def handleHover (p : HoverParams)
     : RequestM (RequestTask (Option Hover)) := do
   let doc ← readDoc
   let text := doc.meta.text
-  let mkHover (s : String) (r : String.Range) : Hover :=
+  let mkHover (s : String) (r : Lean.Syntax.Range) : Hover :=
     let s := Hover.rewriteExamples s
     {
       contents := {
@@ -151,7 +151,7 @@ def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos.Raw) : ServerTa
           | return .pure (oldGoals, .proceed (foldChildren := false))
         let some (pos, tailPos, trailingPos) := getPositions stx
           | return .pure (oldGoals, .proceed (foldChildren := true))
-        let snapRange : String.Range := ⟨pos, trailingPos⟩
+        let snapRange : Lean.Syntax.Range := ⟨pos, trailingPos⟩
         -- When there is no trailing whitespace, we also consider snapshots directly before the
         -- cursor.
         let hasNoTrailingWhitespace := tailPos == trailingPos
@@ -163,7 +163,7 @@ def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos.Raw) : ServerTa
             | return (oldGoals, .proceed (foldChildren := true))
 
           let goals := infoTree.goalsAt? text hoverPos
-          let optimalSnapRange : String.Range := ⟨pos, tailPos⟩
+          let optimalSnapRange : Lean.Syntax.Range := ⟨pos, tailPos⟩
           let isOptimalGoalSet :=
             text.rangeContainsHoverPos optimalSnapRange hoverPos
                 (includeStop := hasNoTrailingWhitespace)

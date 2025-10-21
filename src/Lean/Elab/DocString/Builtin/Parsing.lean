@@ -13,7 +13,7 @@ open Lean.Parser
 
 public section
 
-private def strLitRange [Monad m] [MonadFileMap m] (s : StrLit) : m String.Range := do
+private def strLitRange [Monad m] [MonadFileMap m] (s : StrLit) : m Lean.Syntax.Range := do
   let pos := (s.raw.getPos? (canonicalOnly := true)).get!
   let endPos := s.raw.getTailPos? true |>.get!
   return ⟨pos, endPos⟩

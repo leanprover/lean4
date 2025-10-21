@@ -125,8 +125,10 @@ but is expected to have type
   false = false
 ---
 info: Try this:
-  [apply] Bool.casesOn (motive := fun t => b = t → b = b) b (fun h => Eq.symm h ▸ sorry)
-    (fun h => Eq.symm h ▸ Eq.refl true) (Eq.refl b)
+  [apply] (match (motive := ∀ (t : Bool), b = t → b = b) b with
+    | Bool.false => fun h => Eq.symm h ▸ sorry
+    | Bool.true => fun h => Eq.symm h ▸ Eq.refl true)
+    (Eq.refl b)
 -/
 #guard_msgs in
 example (b : Bool) : b = b := by?

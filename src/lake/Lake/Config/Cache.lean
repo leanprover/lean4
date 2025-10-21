@@ -482,7 +482,7 @@ public def downloadRevisionOutputs?
   (platform : String := "") (toolchain : String := "") (force := false)
 : LoggerIO (Option CacheMap) := do
   -- TODO: toolchain-scoped revision paths for system cache?
-  let path := cache.revisionPath rev localScope
+  let path := cache.revisionPath localScope rev
   if (← path.pathExists) && !force then
     return ← CacheMap.load path
   let url := service.revisionUrl rev remoteScope platform toolchain

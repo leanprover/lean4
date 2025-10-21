@@ -38,7 +38,7 @@ public def Zipper.prependMap : Impl α β → Zipper α β → Zipper α β
   | .leaf, it => it
   | .inner _ k v l r, it => prependMap l (.cons k v r it)
 
-def Zipper.prependMapGE [Ord α] (t : Impl α β) (lower_bound : α)
+public def Zipper.prependMapGE [Ord α] (t : Impl α β) (lower_bound : α)
     (it : Zipper α β) : Zipper α β :=
   match t with
   | .leaf => it
@@ -48,7 +48,7 @@ def Zipper.prependMapGE [Ord α] (t : Impl α β) (lower_bound : α)
     | .eq => .cons k v r it
     | .gt => prependMapGE r lower_bound it
 
-def Zipper.prependMapGT [Ord α] (t : Impl α β) (lower_bound : α)
+public def Zipper.prependMapGT [Ord α] (t : Impl α β) (lower_bound : α)
     (it : Zipper α β) : Zipper α β :=
   match t with
   | .leaf => it
@@ -780,24 +780,6 @@ public theorem toList_eq_takeWhile_LT {α β} [Ord α] [TransOrd α] {z : Zipper
 
 end Rxo
 
-section Rcx
-@[always_inline]
-public def Rcx [Ord α] (t : Impl α β) (lower_bound : α) : Iter (α := Zipper α β) ((a : α) × β a) :=
-  ⟨Zipper.prependMapGE t lower_bound .done⟩
-
-public theorem toList_rcxIter {α β} [Ord α] [TransOrd α]
-    {t : Impl α β} {t_ord : t.Ordered} {lower_bound : α} :
-    (Rcx t lower_bound : Iter (Sigma β)).toList =
-      t.toList.filter (fun e => (compare e.fst lower_bound).isGE) := by
-  simp only [Rcx]
-  simp only [Zipper.toList_Zipper]
-  rw [← Zipper.prepend_prune_LE_eq_prependMapGE]
-  simp only [Zipper.prependMap_toList_eq_concat_toList, Zipper.toList, List.append_nil]
-  apply Impl.prune_LE_eq_filter
-  exact t_ord
-
-end Rcx
-
 section Ric
 public structure RicSliceData (α : Type u) (β : α → Type v) [Ord α] where
   treeMap : Impl α β
@@ -1053,9 +1035,6 @@ public instance {α : Type u} {β : α → Type v} [Ord α] : Roc.Sliceable (Imp
 public instance [Ord α] {s : RocSlice α β} : ToIterator s Id ((a : α) × β a) :=
   ToIterator.of (RxcIterator α β) (RocIterator s.1.treeMap s.1.range.lower s.1.range.upper)
 
-def test : Impl Nat fun _ => Nat :=
-  .ofList [⟨1, 2⟩, ⟨5, 4⟩, ⟨3, 1⟩, ⟨2, 8⟩, ⟨7, 9⟩, ⟨10, 5⟩]
-
 theorem Roc.correct {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] (t : Impl α β)
     (ordered : t.Ordered) (lower_bound upper_bound : α) : t[lower_bound<...=upper_bound].toList = t.toList.filter (fun e => (compare e.fst lower_bound).isGT ∧ (compare e.fst upper_bound).isLE) := by
   simp only [Roc.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
@@ -1065,5 +1044,43 @@ theorem Roc.correct {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] (t
   . exact ordered
 
 end Roc
+
+section Rci
+@[always_inline]
+public def RciIterator [Ord α] (t : Impl α β) (lower_bound : α) : Iter (α := Zipper α β) ((a : α) × β a) :=
+  ⟨Zipper.prependMapGE t lower_bound .done⟩
+
+public theorem toList_rciIter {α β} [Ord α] [TransOrd α]
+    {t : Impl α β} {t_ord : t.Ordered} {lower_bound : α} :
+    (RciIterator t lower_bound : Iter (Sigma β)).toList =
+      t.toList.filter (fun e => (compare e.fst lower_bound).isGE) := by
+  simp only [RciIterator]
+  simp only [Zipper.toList_Zipper]
+  rw [← Zipper.prepend_prune_LE_eq_prependMapGE]
+  simp only [Zipper.prependMap_toList_eq_concat_toList, Zipper.toList, List.append_nil]
+  apply Impl.prune_LE_eq_filter
+  exact t_ord
+
+public structure RciSliceData (α : Type u) (β : α → Type v) [Ord α] where
+  treeMap : Impl α β
+  range : Rci α
+
+public abbrev RciSlice α β [Ord α] := Slice (RciSliceData α β)
+
+public instance {α : Type u} {β : α → Type v} [Ord α] : Rci.Sliceable (Impl α β) α (RciSlice α β) where
+  mkSlice carrier range := ⟨carrier, range⟩
+
+public instance [Ord α] {s : RciSlice α β} : ToIterator s Id ((a : α) × β a) :=
+  ToIterator.of (Zipper α β) (RciIterator s.1.treeMap s.1.range.lower)
+
+theorem Rci.correct {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] (t : Impl α β)
+    (ordered : t.Ordered) (lower_bound : α) : t[lower_bound...*].toList = t.toList.filter (fun e => (compare e.fst lower_bound).isGE) := by
+  simp only [Rci.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
+    Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
+    Iter.toIter_toIterM]
+  rw [toList_rciIter]
+  . exact ordered
+
+end Rci
 
 end Std.DTreeMap.Internal

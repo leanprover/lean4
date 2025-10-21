@@ -55,6 +55,11 @@ Tests for `String.Slice` functions
 #guard "red red green blue".toSlice.takeWhile "red " == "red red ".toSlice
 #guard "red green blue".toSlice.takeWhile (fun (_ : Char) => true) == "red green blue".toSlice
 
+#guard (" ".toSlice.dropWhile ' ' |>.takeWhile Char.isLower) == "".toSlice
+#guard (" ".toSlice.dropWhile ' ' |>.takeEndWhile Char.isLower) == "".toSlice
+#guard ("∃a∃".toSlice.drop 1 |>.takeWhile Char.isLower) == "a".toSlice
+#guard ("∃a∃".toSlice.dropEnd 1 |>.takeEndWhile Char.isLower) == "a".toSlice
+
 #guard "red green blue".toSlice.dropPrefix? "red " == some "green blue".toSlice
 #guard "red green blue".toSlice.dropPrefix? "reed " == none
 #guard "red green blue".toSlice.dropPrefix? 'r' == some "ed green blue".toSlice

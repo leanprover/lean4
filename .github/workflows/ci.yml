@@ -269,7 +269,19 @@ jobs:
                 // NOTE: `test-bench` currently seems to be broken on `ubuntu-latest`
                 "test-bench": large && level >= 2,
                 // We are not warning-free yet on all platforms, start here
-                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror",
+                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror -DUSE_LAKE_CACHE=ON",
+              },
+              {
+                "name": "Linux Lake (Cached)",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
+                "enabled": true,
+                "check-rebootstrap": level >= 1,
+                "check-stage3": level >= 2,
+                "test": true,
+                "secondary": true,
+                // NOTE: `test-bench` currently seems to be broken on `ubuntu-latest`
+                "test-bench": large && level >= 2,
+                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror -DUSE_LAKE_CACHE=ON",
               },
               {
                 "name": "Linux Reldebug",

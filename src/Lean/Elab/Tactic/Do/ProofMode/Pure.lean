@@ -6,9 +6,13 @@ Authors: Lars König, Mario Carneiro, Sebastian Graf
 module
 
 prelude
-public import Std.Tactic.Do.Syntax
-public import Lean.Elab.Tactic.Do.ProofMode.Focus
-public import Lean.Elab.Tactic.Meta
+public import Lean.Elab.Tactic.Basic
+public import Lean.Elab.Tactic.Do.ProofMode.MGoal
+import Std.Tactic.Do.Syntax
+import Lean.Elab.Tactic.Meta
+import Lean.Elab.Tactic.Do.ProofMode.Basic
+import Lean.Elab.Tactic.Do.ProofMode.Focus
+import Lean.Meta.Tactic.Rfl
 
 public section
 
@@ -21,14 +25,16 @@ open Lean Elab Tactic Meta
 -- It will provide a proof for Q ∧ H ⊢ₛ T
 -- if `k` produces a proof for Q ⊢ₛ T that may range over a pure proof h : φ.
 -- It calls `k` with the φ in H = ⌜φ⌝ and a proof `h : φ` thereof.
-def mPureCore (σs : Expr) (hyp : Expr) (name : TSyntax ``binderIdent)
-  (k : Expr /-φ:Prop-/ → Expr /-h:φ-/ → MetaM (α × MGoal × Expr)) : MetaM (α × MGoal × Expr) := do
+def mPureCore
+  [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m]
+  (σs : Expr) (hyp : Expr) (name : TSyntax ``binderIdent)
+  (k : Expr /-φ:Prop-/ → Expr /-h:φ-/ → m (α × MGoal × Expr)) : m (α × MGoal × Expr) := do
   let u ← mkFreshLevelMVar
   let φ ← mkFreshExprMVar (mkSort .zero)
   let inst ← synthInstance (mkApp3 (mkConst ``IsPure [u]) σs hyp φ)
-  let (name, ref) ← getFreshHypName name
+  let (name, ref) ← liftMetaM <| getFreshHypName name
   withLocalDeclD name φ fun h => do
-    addLocalVarInfo ref (← getLCtx) h φ
+    addLocalVarInfo ref (← liftMetaM <| getLCtx) h φ
     let (a, goal, prf /- : goal.toExpr -/) ← k φ h
     let prf ← mkLambdaFVars #[h] prf
     let prf := mkApp7 (mkConst ``Pure.thm [u]) σs goal.hyps hyp goal.target φ inst prf
@@ -38,10 +44,8 @@ def mPureCore (σs : Expr) (hyp : Expr) (name : TSyntax ``binderIdent)
 @[builtin_tactic Lean.Parser.Tactic.mpure]
 def elabMPure : Tactic
   | `(tactic| mpure $hyp) => do
-    let mvar ← getMainGoal
+    let (mvar, goal) ← mStartMainGoal
     mvar.withContext do
-    let g ← instantiateMVars <| ← mvar.getType
-    let some goal := parseMGoal? g | throwError "not in proof mode"
     let res ← goal.focusHypWithInfo hyp
     let (m, _new_goal, prf) ← mPureCore goal.σs res.focusHyp (← `(binderIdent| $hyp:ident)) fun _ _ => do
       let goal := res.restGoal goal
@@ -52,8 +56,87 @@ def elabMPure : Tactic
     replaceMainGoal [m.mvarId!]
   | _ => throwUnsupportedSyntax
 
-def MGoal.triviallyPure (goal : MGoal) : OptionT MetaM Expr := do
+-- NB: We do not use MVarId.intro because that would mean we require all callers to supply an MVarId.
+-- This function only knows about the hypothesis H=⌜φ⌝ to destruct.
+-- It will provide a proof for Q ∧ H ⊢ₛ T
+-- if `k` produces a proof for Q ⊢ₛ T that may range over a pure proof h : φ.
+-- It calls `k` with the φ in H = ⌜φ⌝ and a proof `h : φ` thereof.
+def mPureIntroCore [Monad m] [MonadLiftT MetaM m]
+  (goal : MGoal)
+  (k : Expr /-φ:Prop-/ → m (α × Expr)) : m (α × Expr) := do
+  let φ ← mkFreshExprMVar (mkSort .zero)
+  let inst ← synthInstance (mkApp3 (mkConst ``IsPure [goal.u]) goal.σs goal.target φ)
+  let (a, hφ) ← k φ
+  let prf := mkApp6 (mkConst ``Pure.intro [goal.u]) goal.σs goal.hyps goal.target φ inst hφ
+  return (a, prf)
+
+@[builtin_tactic Lean.Parser.Tactic.mpureIntro]
+def elabMPureIntro : Tactic
+  | `(tactic| mpure_intro) => do
+    let (mvar, goal) ← mStartMainGoal
+    mvar.withContext do
+    let (mv, prf) ← mPureIntroCore goal fun φ => do
+      let m ← mkFreshExprSyntheticOpaqueMVar φ (← mvar.getTag)
+      return (m.mvarId!, m)
+    mvar.assign prf
+    replaceMainGoal [mv]
+  | _ => throwUnsupportedSyntax
+
+partial def _root_.Lean.MVarId.applyRflAndAndIntro (mvar : MVarId) : MetaM Unit := do
+  -- The target might look like `(⌜?n = nₛ ∧ ?m = b⌝ s).down`, which we reduce to
+  -- `?n = nₛ ∧ ?m = b` by `whnfD`.
+  -- (Recall that `⌜s = 4⌝ s` is `SPred.pure (σs:=[Nat]) (s = 4) s` and `SPred.pure` is
+  -- semi-reducible.)
+  let ty ← whnfD (← mvar.getType)
+  trace[Elab.Tactic.Do.spec] "whnf: {ty}"
+  if ty.isAppOf ``True then
+    mvar.assign (mkConst ``True.intro)
+  else if let some (lhs, rhs) := ty.app2? ``And then
+    let hlhs ← mkFreshExprMVar lhs
+    let hrhs ← mkFreshExprMVar rhs
+    applyRflAndAndIntro hlhs.mvarId!
+    applyRflAndAndIntro hrhs.mvarId!
+    mvar.assign (mkApp4 (mkConst ``And.intro) lhs rhs hlhs hrhs)
+  else
+    mvar.setType ty
+    mvar.applyRfl
+
+def MGoal.pureRflAndAndIntro (goal : MGoal) : OptionT MetaM Expr := do
+  trace[Elab.Tactic.Do.spec] "pureRflAndAndIntro: {goal.target}"
+  try
+    let (_, prf) ← mPureIntroCore goal fun φ => do
+      trace[Elab.Tactic.Do.spec] "discharge? {φ}"
+      let m ← mkFreshExprMVar φ
+      m.mvarId!.applyRflAndAndIntro
+      trace[Elab.Tactic.Do.spec] "discharged: {φ}"
+      return ((), m)
+    return prf
+  catch _ => failure
+
+def MGoal.pureTrivial (goal : MGoal) : OptionT MetaM Expr := do
+  try
+    let (_, prf) ← mPureIntroCore goal fun φ => do
+      let m ← mkFreshExprMVar φ
+      try
+        -- First try to use rfl and And.intro directly.
+        -- This is more efficient than to elaborate the `trivial` tactic.
+        m.mvarId!.applyRflAndAndIntro
+      catch _ =>
+        let ([], _) ← runTactic m.mvarId! (← `(tactic| trivial))
+          | failure
+      return ((), m)
+    return prf
+  catch _ => failure
+
+/-
+def MGoal.pureRfl (goal : MGoal) : OptionT MetaM Expr := do
   let mv ← mkFreshExprMVar goal.toExpr
-  let ([], _) ← try runTactic mv.mvarId! (← `(tactic| apply $(mkIdent ``Std.Do.SPred.Tactic.Pure.intro); trivial)) catch _ => failure
+  let ([], _) ← try runTactic mv.mvarId! (← `(tactic| apply $(mkIdent ``Std.Do.SPred.Tactic.Pure.intro); rfl)) catch _ => failure
     | failure
   return mv
+def MGoal.pureRfl (goal : MGoal) : OptionT MetaM Expr := do
+  let mv ← mkFreshExprMVar goal.toExpr
+  let ([], _) ← try runTactic mv.mvarId! (← `(tactic| apply $(mkIdent ``Std.Do.SPred.Tactic.Pure.intro); rfl)) catch _ => failure
+    | failure
+  return mv
+-/

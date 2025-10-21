@@ -311,7 +311,7 @@ h✝ : as = []
 -/
 #guard_msgs in
 example : h bs = 1 → h as ≠ 0 := by
-  grind [h.eq_def] =>
+  grind -verbose [h.eq_def] =>
     instantiate
     cases #dce6
     next => skip
@@ -501,7 +501,7 @@ r p q : Prop
 -/
 #guard_msgs in
 example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → False := by
-  grind =>
+  grind -verbose =>
     rename_i h1 _ h2 _
     done
 

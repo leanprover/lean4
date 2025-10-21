@@ -426,7 +426,7 @@ where
   replaceMainGoal [{ goal with mvarId }]
 
 @[builtin_grind_tactic setOption] def elabSetOption : GrindTactic := fun stx => do
-  let options ← Elab.elabSetOption stx[1] stx[2]
-  withOptions (fun _ => options) do evalGrindTactic stx[4]
+  let options ← Elab.elabSetOption stx[1] stx[3]
+  withOptions (fun _ => options) do evalGrindTactic stx[5]
 
 end Lean.Elab.Tactic.Grind

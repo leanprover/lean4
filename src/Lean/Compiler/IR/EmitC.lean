@@ -15,7 +15,7 @@ public import Lean.Compiler.IR.Boxing
 public section
 
 namespace Lean.IR.EmitC
-open ExplicitBoxing (requiresBoxedVersion mkBoxedName isBoxedName)
+open ExplicitBoxing (isBoxedName)
 
 def leanMainFn := "_lean_main"
 

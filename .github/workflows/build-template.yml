@@ -177,8 +177,7 @@ jobs:
         if: matrix.name == 'Linux Lake (Cached)'
         run: |
           cd src
-          ../build/stage0/bin/lake cache get \
-            --repo=${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ../build/stage0/bin/lake cache get --repo=${{ github.repository }}
         continue-on-error: true
       - name: Build Target Stage
         run: |
@@ -205,13 +204,12 @@ jobs:
           key: ${{ steps.restore-cache.outputs.cache-primary-key }}
       - name: Upload Lake Cache
         # Caching on cancellation created some mysterious issues perhaps related to improper build
-        # shutdown
-        if: matrix.name == 'Linux Lake' && !cancelled()
+        # shutdown. Also, since this needs access to secrets, it cannot be run on forks.
+        if: matrix.name == 'Linux Lake' && !cancelled() && ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
         run: |
           cd src
           ../build/stage0/bin/lake build -o build/lake-mappings.jsonl
-          ../build/stage0/bin/lake cache put build/lake-mappings.jsonl \
-            --repo=${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ../build/stage0/bin/lake cache put build/lake-mappings.jsonl --repo=${{ github.repository }}
         env:
           LAKE_CACHE_KEY: ${{ secrets.LAKE_CACHE_KEY }}
           LAKE_ARTIFACT_ENDPOINT: ${{ secrets.LAKE_ARTIFACT_ENDPOINT }}

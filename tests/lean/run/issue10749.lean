@@ -7,6 +7,8 @@ def test (a : List Nat) : Nat :=
   | _ => 3
   | [] => 4
 
+-- Should have no `casesOn`
+
 /--
 info: def test.match_1.{u_1} : (motive : List Nat → Sort u_1) →
   (a : List Nat) → ((x : List Nat) → motive x) → (Unit → motive []) → motive a :=
@@ -39,6 +41,8 @@ def test3 (a : List Nat) (b : Bool) : Nat :=
   | _, true => 0
   | [], _ => 1
   | _, _ => 2
+
+-- Should have exactly two `casesOn`
 
 /--
 info: def test3.match_1.{u_1} : (motive : List Nat → Bool → Sort u_1) →

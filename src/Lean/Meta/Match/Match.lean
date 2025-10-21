@@ -784,7 +784,7 @@ so that the generated code branches in the order suggested by the user's code.
 private def firstRefutablePattern (p : Problem) : Option Nat :=
   match p.alts with
   | alt:: _ => alt.patterns.findIdx? (·.isRefutable)
-  | _ => unreachable!
+  | _ => none
 
 def isExFalsoTransition (p : Problem) : MetaM Bool := do
   if p.alts.isEmpty then

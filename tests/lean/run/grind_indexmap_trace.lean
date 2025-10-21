@@ -147,7 +147,7 @@ example (m : IndexMap α β) (a : α) (h : a ∈ m) :
 info: Try this:
   [apply] ⏎
     instantiate only [= mem_indices_of_mem, insert]
-    instantiate only [= getElem?_neg, = getElem?_pos, =_ HashMap.contains_iff_mem]
+    instantiate only [=_ HashMap.contains_iff_mem, = getElem?_neg, = getElem?_pos]
     instantiate only [=_ HashMap.contains_iff_mem]
     cases #4ed2
     next =>

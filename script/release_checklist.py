@@ -14,7 +14,7 @@ What this script does:
    - Verifies CMake version settings are correct
    - Confirms the release tag exists
    - Validates the release page exists on GitHub (created automatically by CI after tag push)
-   - Checks the release notes page on lean-lang.org (must be created manually)
+   - Checks the release notes page on lean-lang.org (updated while bumping the `reference-manual` repository)
 
    **IMPORTANT: If the release page doesn't exist, the script will skip checking
    downstream repositories and the master branch configuration. The preliminary

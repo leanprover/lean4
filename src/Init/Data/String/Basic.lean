@@ -1870,7 +1870,7 @@ theorem Pos.Raw.unoffsetBy_offsetBy {p q : Pos.Raw} : (p.offsetBy q).unoffsetBy 
 /-- Given a position in `s` that is at least `p₀`, obtain the corresponding position in
 `s.replaceStart p₀`. -/
 @[inline]
-def Slice.Pos.toReplaceStart {s : Slice} (p₀ : s.Pos) (pos : s.Pos) (h : p₀.offset ≤ pos.offset) :
+def Slice.Pos.toReplaceStart {s : Slice} (p₀ : s.Pos) (pos : s.Pos) (h : p₀ ≤ pos) :
     (s.replaceStart p₀).Pos where
   offset := pos.offset.unoffsetBy p₀.offset
   isValidForSlice := Pos.Raw.isValidForSlice_replaceStart.2 (by
@@ -1903,6 +1903,27 @@ theorem Slice.Pos.ofReplaceStart_inj {s : Slice} {p₀ : s.Pos} {pos pos' : (s.r
 theorem Slice.Pos.get_eq_get_ofReplaceStart {s : Slice} {p₀ : s.Pos} {pos : (s.replaceStart p₀).Pos} {h} :
     pos.get h = (ofReplaceStart pos).get (by rwa [← ofReplaceStart_endPos, ne_eq, ofReplaceStart_inj]) := by
   simp [Slice.Pos.get, Nat.add_assoc]
+
+/-- Given a position in `s.replaceEnd p₀`, obtain the corresponding position in `s`. -/
+@[inline]
+def Slice.Pos.ofReplaceEnd {s : Slice} {p₀ : s.Pos} (pos : (s.replaceEnd p₀).Pos) : s.Pos where
+  offset := pos.offset
+  isValidForSlice := (Pos.Raw.isValidForSlice_replaceEnd.1 pos.isValidForSlice).2
+
+@[simp]
+theorem Slice.Pos.offset_ofReplaceEnd {s : Slice} {p₀ : s.Pos} {pos : (s.replaceEnd p₀).Pos} :
+    (ofReplaceEnd pos).offset = pos.offset := (rfl)
+
+/-- Given a position in `s` that is at most `p₀`, obtain the corresponding position in `s.replaceEnd p₀`. -/
+@[inline]
+def Slice.Pos.toReplaceEnd {s : Slice} (p₀ : s.Pos) (pos : s.Pos) (h : pos ≤ p₀) :
+    (s.replaceEnd p₀).Pos where
+  offset := pos.offset
+  isValidForSlice := Pos.Raw.isValidForSlice_replaceEnd.2 ⟨h, pos.isValidForSlice⟩
+
+@[simp]
+theorem Slice.Pos.offset_toReplaceEnd {s : Slice} {p₀ : s.Pos} {pos : s.Pos} {h : pos ≤ p₀} :
+    (toReplaceEnd p₀ pos h).offset = pos.offset := (rfl)
 
 theorem Slice.Pos.copy_eq_append_get {s : Slice} {pos : s.Pos} (h : pos ≠ s.endPos) :
     ∃ t₁ t₂ : String, s.copy = t₁ ++ singleton (pos.get h) ++ t₂ ∧ t₁.utf8ByteSize = pos.offset.byteIdx := by

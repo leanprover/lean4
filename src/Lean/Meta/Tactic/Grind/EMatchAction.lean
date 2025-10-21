@@ -45,12 +45,30 @@ where
     | .app f a         => go f; go a
     | _ => return ()
 
+inductive Param where
+  | funDecl (declName : Name)
+  | globalThm (declName : Name) (kind : EMatchTheoremKind) (minIndexable : Bool)
+  | localThm (anchor : UInt64)
+
+def Param.lt (p₁ p₂ : Param) : Bool :=
+  if p₁.ctorIdx = p₂.ctorIdx then
+    match p₁, p₂ with
+    | .localThm a₁, .localThm a₂ => a₁ < a₂
+    | .funDecl f₁, .funDecl f₂ => f₁.lt f₂
+    | .globalThm n₁ k₁ m₁, .globalThm n₂ k₂ m₂ =>
+      if n₁ != n₂ then n₁.lt n₂
+      else if k₁ != k₂ then k₁.lt k₂
+      else m₁ < m₂
+    | _, _ => false
+  else
+    p₁.ctorIdx < p₂.ctorIdx
+
 /--
 Creates an `instantiate` tactic that takes the `usedThms` as parameters.
 -/
 def mkInstantiateTactic (goal : Goal) (usedThms : Array EMatchTheorem) (approx : Bool) : GrindM TGrind := goal.withContext do
   let numDigits ← getNumDigitsForLocalTheoremAnchors goal
-  let mut params : Array (TSyntax ``Parser.Tactic.Grind.thm) := #[]
+  let mut params : Array Param := #[]
   let mut foundFns : NameSet := {}
   let mut foundLocals : Std.HashSet Grind.Origin := {}
   for thm in usedThms do
@@ -60,21 +78,26 @@ def mkInstantiateTactic (goal : Goal) (usedThms : Array EMatchTheorem) (approx :
         if let some fnName ← isEqnThm? declName then
           unless foundFns.contains fnName do
             foundFns := foundFns.insert fnName
-            let param ← Grind.globalDeclToInstantiateParamSyntax declName thm.kind thm.minIndexable
-            params := params.push param
+            params := params.push <| .funDecl fnName
         else
-          let param ← Grind.globalDeclToInstantiateParamSyntax declName thm.kind thm.minIndexable
-          params := params.push param
+          params := params.push <| .globalThm declName thm.kind thm.minIndexable
       | _ => unless foundLocals.contains thm.origin do
         foundLocals := foundLocals.insert thm.origin
         let anchor ← getAnchor (← inferType thm.proof)
-        let param ← `(Parser.Tactic.Grind.thm| $(← mkAnchorSyntax numDigits anchor):anchor)
-        params := params.push param
-  match params.isEmpty, approx with
+        params := params.push <| .localThm anchor
+  params := params.qsort Param.lt
+  let paramStxs ← params.mapM fun param => do
+    match param with
+    | .funDecl declName =>
+      let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
+      `(Parser.Tactic.Grind.thm| $decl:ident)
+    | .globalThm declName kind minIndexable => Grind.globalDeclToInstantiateParamSyntax declName kind minIndexable
+    | .localThm anchor => `(Parser.Tactic.Grind.thm| $(← mkAnchorSyntax numDigits anchor):anchor)
+  match paramStxs.isEmpty, approx with
   | true,  false => `(grind| instantiate only)
-  | false, false => `(grind| instantiate only [$params,*])
+  | false, false => `(grind| instantiate only [$paramStxs,*])
   | true,  true  => `(grind| instantiate approx)
-  | false, true  => `(grind| instantiate approx [$params,*])
+  | false, true  => `(grind| instantiate approx [$paramStxs,*])
 
 def mkNewSeq (goal : Goal) (thms : Array EMatchTheorem) (seq : List TGrind) (approx : Bool) : GrindM (List TGrind) := do
   if thms.isEmpty then

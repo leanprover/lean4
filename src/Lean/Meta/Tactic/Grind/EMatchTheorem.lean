@@ -298,6 +298,16 @@ inductive EMatchTheoremKind where
   | user /- pattern specified using `grind_pattern` command -/
   deriving Inhabited, BEq, Repr, Hashable
 
+def EMatchTheoremKind.gen : EMatchTheoremKind → Bool
+  | .eqLhs gen | .eqRhs gen | .eqBoth gen | .bwd gen | .default gen => gen
+  | .eqBwd | .fwd | .rightLeft | .leftRight | .user => false
+
+def EMatchTheoremKind.lt (k₁ k₂ : EMatchTheoremKind) : Bool :=
+  if k₁.ctorIdx != k₂.ctorIdx then
+    k₁.ctorIdx < k₂.ctorIdx
+  else
+    k₁.gen < k₂.gen
+
 def EMatchTheoremKind.isEqLhs : EMatchTheoremKind → Bool
   | .eqLhs _ => true
   | _ => false
@@ -1149,15 +1159,6 @@ where
       else
         return none
     | _ => return none
-
-def EMatchTheoremKind.gen : EMatchTheoremKind → Bool
-  | .eqLhs gen => gen
-  | .eqRhs gen => gen
-  | .eqBoth gen => gen
-  | .default gen => gen
-  | .bwd gen => gen
-  | .eqBwd | .fwd | .rightLeft
-  | .leftRight | .user => false
 
 private def collectUsedPriorities (prios : SymbolPriorities) (searchPlaces : Array Expr) : Array Nat := Id.run do
   let mut s : Std.HashSet Nat := {}

@@ -154,10 +154,10 @@ partial def elabBasicStringCore (lit : String) (i : String.Pos.Raw := 0) (out :=
         | 'r'  => elabBasicStringCore lit next (out.push '\r')
         | '\"' => elabBasicStringCore lit next (out.push '"')
         | '\\' => elabBasicStringCore lit next (out.push '\\')
-        | 'u'  => elabUnicodeEscape (Substring.mk lit next lit.endPos |>.take 4)
-        | 'U'  => elabUnicodeEscape (Substring.mk lit next lit.endPos |>.take 8)
+        | 'u'  => elabUnicodeEscape (Substring.mk lit next lit.rawEndPos |>.take 4)
+        | 'U'  => elabUnicodeEscape (Substring.mk lit next lit.rawEndPos |>.take 8)
         | _ =>
-          let i := Substring.mk lit i lit.endPos |>.trimLeft |>.startPos
+          let i := Substring.mk lit i lit.rawEndPos |>.trimLeft |>.startPos
           elabBasicStringCore lit i out
     else
       elabBasicStringCore lit i (out.push curr)

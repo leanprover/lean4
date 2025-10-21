@@ -153,7 +153,7 @@ directory.
 -/
 def fileName (p : FilePath) : Option String :=
   let lastPart := match posOfLastSep p with
-    | some sepPos => String.Pos.Raw.extract p.toString (sepPos + '/') p.toString.endPos
+    | some sepPos => String.Pos.Raw.extract p.toString (sepPos + '/') p.toString.rawEndPos
     | none        => p.toString
   if lastPart.isEmpty || lastPart == "." || lastPart == ".." then none else some lastPart
 
@@ -192,7 +192,7 @@ def extension (p : FilePath) : Option String :=
   p.fileName.bind fun fname =>
     match fname.revPosOf '.' with
     | some 0   => none
-    | some pos => some <| String.Pos.Raw.extract fname (pos + '.') fname.endPos
+    | some pos => some <| String.Pos.Raw.extract fname (pos + '.') fname.rawEndPos
     | none     => none
 
 /--

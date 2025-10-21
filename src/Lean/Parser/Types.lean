@@ -50,18 +50,18 @@ structure InputContext where
   inputString : String
   fileName : String
   fileMap : FileMap
-  endPos : String.Pos.Raw := inputString.endPos
-  endPos_valid : endPos ≤ inputString.endPos := by simp
+  endPos : String.Pos.Raw := inputString.rawEndPos
+  endPos_valid : endPos ≤ inputString.rawEndPos := by simp
 
 instance : Inhabited InputContext where
-  default := ⟨"", default, default, "".endPos, String.Pos.Raw.mk_le_mk.mpr (Nat.le_refl _)⟩
+  default := ⟨"", default, default, "".rawEndPos, String.Pos.Raw.mk_le_mk.mpr (Nat.le_refl _)⟩
 
 
 namespace InputContext
 def mk
     (input fileName : String)
-    (endPos : String.Pos.Raw := input.endPos)
-    (endPos_valid : endPos ≤ input.endPos := by simp)
+    (endPos : String.Pos.Raw := input.rawEndPos)
+    (endPos_valid : endPos ≤ input.rawEndPos := by simp)
     (fileMap : FileMap := FileMap.ofString input) :
     InputContext where
   inputString := input
@@ -91,7 +91,7 @@ theorem not_atEnd_inputString {c : InputContext} {p : String.Pos.Raw} :
   intro h
   let {inputString, endPos := ⟨e⟩, endPos_valid, ..} := c
   cases p
-  simp only [String.endPos, String.Pos.Raw.mk_le_mk] at endPos_valid
+  simp only [String.rawEndPos, String.Pos.Raw.mk_le_mk] at endPos_valid
   simp_all [String.Pos.Raw.atEnd, InputContext.atEnd, String.Pos.Raw.mk_le_mk]
   exact Nat.lt_of_lt_of_le h endPos_valid
 
@@ -198,7 +198,7 @@ instance : Coe ParserContext InputContext := ⟨(·.toInputContext)⟩
 Modifies the ending position of a parser context.
 -/
 def ParserContext.setEndPos (c : ParserContext)
-    (endPos : String.Pos.Raw) (endPos_valid : endPos ≤ c.inputString.endPos) :
+    (endPos : String.Pos.Raw) (endPos_valid : endPos ≤ c.inputString.rawEndPos) :
     ParserContext :=
   { c with endPos, endPos_valid }
 
@@ -263,7 +263,7 @@ structure ParserCache where
   parserCache : Std.HashMap ParserCacheKey ParserCacheEntry
 
 def initCacheForInput (input : String) : ParserCache where
-  tokenCache  := { startPos := input.endPos + ' ' /- make sure it is not a valid position -/ }
+  tokenCache  := { startPos := input.rawEndPos + ' ' /- make sure it is not a valid position -/ }
   parserCache := {}
 
 /-- A syntax array with an inaccessible prefix, used for sound caching. -/

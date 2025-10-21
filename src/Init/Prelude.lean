@@ -3441,7 +3441,7 @@ Character positions (counting the Unicode code points rather than bytes) are rep
 `Nat`s. Indexing a `String` by a `String.Pos.Raw` takes constant time, while character positions need to
 be translated internally to byte positions, which takes linear time.
 
-A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.endPos` and `p` lies on a UTF-8
+A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.rawEndPos` and `p` lies on a UTF-8
 character boundary, see `String.Pos.IsValid`.
 
 There is another type, `String.ValidPos`, which bundles the validity predicate. Using `String.ValidPos`
@@ -3501,10 +3501,10 @@ def String.utf8ByteSize (s : @& String) : Nat :=
 /--
 A UTF-8 byte position that points at the end of a string, just after the last character.
 
-* `"abc".endPos = ⟨3⟩`
-* `"L∃∀N".endPos = ⟨8⟩`
+* `"abc".rawEndPos = ⟨3⟩`
+* `"L∃∀N".rawEndPos = ⟨8⟩`
 -/
-@[inline] def String.endPos (s : String) : String.Pos.Raw where
+@[inline] def String.rawEndPos (s : String) : String.Pos.Raw where
   byteIdx := utf8ByteSize s
 
 /--
@@ -3513,7 +3513,7 @@ Converts a `String` into a `Substring` that denotes the entire string.
 @[inline] def String.toSubstring (s : String) : Substring where
   str      := s
   startPos := {}
-  stopPos  := s.endPos
+  stopPos  := s.rawEndPos
 
 /--
 Converts a `String` into a `Substring` that denotes the entire string.

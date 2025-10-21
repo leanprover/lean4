@@ -402,7 +402,7 @@ def setupImports
     let progressDiagnostic := {
       range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
       -- make progress visible anywhere in the file
-      fullRange? := some ⟨⟨0, 0⟩, doc.text.utf8PosToLspPos doc.text.source.endPos⟩
+      fullRange? := some ⟨⟨0, 0⟩, doc.text.utf8PosToLspPos doc.text.source.rawEndPos⟩
       severity?  := DiagnosticSeverity.information
       message    := stderrLine
     }
@@ -630,7 +630,7 @@ section NotificationHandling
       use the \"Restart File\" command in your editor."
     let diagnostic := {
       range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
-      fullRange? := some ⟨⟨0, 0⟩, text.utf8PosToLspPos text.source.endPos⟩
+      fullRange? := some ⟨⟨0, 0⟩, text.utf8PosToLspPos text.source.rawEndPos⟩
       severity?  := DiagnosticSeverity.information
       message := importOutOfDataMessage
     }
@@ -1076,7 +1076,7 @@ where
   writeErrorDiag (doc : DocumentMeta) (err : Error) : IO Unit := do
     o.writeLspMessage <| mkPublishDiagnosticsNotification doc #[{
       range := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩,
-      fullRange? := some ⟨⟨0, 0⟩, doc.text.utf8PosToLspPos doc.text.source.endPos⟩
+      fullRange? := some ⟨⟨0, 0⟩, doc.text.utf8PosToLspPos doc.text.source.rawEndPos⟩
       severity? := DiagnosticSeverity.error
       message := err.toString }]
 

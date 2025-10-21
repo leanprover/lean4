@@ -97,19 +97,19 @@ variable [Monad m] [MonadStateOf ArgList m]
 /-- Splits a long option of the form `"--long foo bar"` into `--long` and `"foo bar"`. -/
 @[inline] public def longOptionOrSpace (handle : String → m α) (opt : String) : m α :=
   let pos := opt.posOf ' '
-  if pos = opt.endPos then
+  if pos = opt.rawEndPos then
     handle opt
   else do
-    consArg <| (pos.next opt).extract opt opt.endPos
+    consArg <| (pos.next opt).extract opt opt.rawEndPos
     handle <| String.Pos.Raw.extract opt 0 pos
 
 /-- Splits a long option of the form `--long=arg` into `--long` and `arg`. -/
 @[inline] public def longOptionOrEq (handle : String → m α) (opt : String) : m α :=
   let pos := opt.posOf '='
-  if pos = opt.endPos then
+  if pos = opt.rawEndPos then
     handle opt
   else do
-    consArg <| (pos.next opt).extract opt opt.endPos
+    consArg <| (pos.next opt).extract opt opt.rawEndPos
     handle <| String.Pos.Raw.extract opt 0 pos
 
 /-- Process a long option  of the form `--long`, `--long=arg`, `"--long arg"`. -/

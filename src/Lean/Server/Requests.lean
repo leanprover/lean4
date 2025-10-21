@@ -27,7 +27,7 @@ def Lean.FileMap.rangeContainsHoverPos (text : Lean.FileMap) (r : Lean.Syntax.Ra
   -- which always excludes a `hoverPos` at the very end of the file.
   -- For the purposes of the language server, we generally assume that ranges that extend to
   -- the end of the file also include a `hoverPos` at the very end of the file.
-  let isRangeAtEOF := r.stop == text.source.endPos
+  let isRangeAtEOF := r.stop == text.source.rawEndPos
   r.contains hoverPos (includeStop := includeStop || isRangeAtEOF)
 
 def Lean.FileMap.rangeOverlapsRequestedRange
@@ -37,7 +37,7 @@ def Lean.FileMap.rangeOverlapsRequestedRange
     (includeDocumentRangeStop := false)
     (includeRequestedRangeStop := false)
     : Bool :=
-  let isDocumentRangeAtEOF := documentRange.stop == text.source.endPos
+  let isDocumentRangeAtEOF := documentRange.stop == text.source.rawEndPos
   documentRange.overlaps requestedRange
     (includeFirstStop := includeDocumentRangeStop || isDocumentRangeAtEOF)
     (includeSecondStop := includeRequestedRangeStop)
@@ -49,7 +49,7 @@ def Lean.FileMap.rangeIncludesRequestedRange
     (includeDocumentRangeStop := false)
     (includeRequestedRangeStop := false)
     : Bool :=
-  let isDocumentRangeAtEOF := documentRange.stop == text.source.endPos
+  let isDocumentRangeAtEOF := documentRange.stop == text.source.rawEndPos
   documentRange.includes requestedRange
     (includeSuperStop := includeDocumentRangeStop || isDocumentRangeAtEOF)
     (includeSubStop := includeRequestedRangeStop)

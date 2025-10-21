@@ -1205,7 +1205,7 @@ private def mkSuggestion
       | pure m!""
     let text ← getFileMap
     let pre := String.Pos.Raw.extract text.source 0 b
-    let post := String.Pos.Raw.extract text.source e text.source.endPos
+    let post := String.Pos.Raw.extract text.source e text.source.rawEndPos
     let edits := newStrings.map fun (s, _, _) =>
       let lines := text.source.splitToList (· == '\n') |>.toArray
       let s' := pre ++ s ++ post

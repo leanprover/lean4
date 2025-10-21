@@ -110,7 +110,7 @@ def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMa
   let start := text.lspPosToUtf8Pos r.start
   let «end» := text.lspPosToUtf8Pos r.«end»
   let pre := String.Pos.Raw.extract text.source 0 start
-  let post := String.Pos.Raw.extract text.source «end» text.source.endPos
+  let post := String.Pos.Raw.extract text.source «end» text.source.rawEndPos
   -- `pre` and `post` already have normalized line endings, so only `newText` needs its endings normalized.
   -- Note: this assumes that editing never separates a `\r\n`.
   -- If `pre` ends with `\r` and `newText` begins with `\n`, the result is potentially inaccurate.
@@ -171,7 +171,7 @@ def mkFileProgressNotification (m : DocumentMeta) (processing : Array LeanFilePr
 def mkFileProgressAtPosNotification (m : DocumentMeta) (pos : String.Pos.Raw)
   (kind : LeanFileProgressKind := LeanFileProgressKind.processing) :
     JsonRpc.Notification Lsp.LeanFileProgressParams :=
-  mkFileProgressNotification m #[{ range := ⟨m.text.utf8PosToLspPos pos, m.text.utf8PosToLspPos m.text.source.endPos⟩, kind := kind }]
+  mkFileProgressNotification m #[{ range := ⟨m.text.utf8PosToLspPos pos, m.text.utf8PosToLspPos m.text.source.rawEndPos⟩, kind := kind }]
 
 /-- Constructs a `$/lean/fileProgress` notification marking processing as done. -/
 def mkFileProgressDoneNotification (m : DocumentMeta) : JsonRpc.Notification Lsp.LeanFileProgressParams :=

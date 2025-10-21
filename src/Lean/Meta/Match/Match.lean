@@ -249,6 +249,10 @@ private def reorientCnstrs (alt : Alt) : Alt :=
 /--
 Remove constraints of the form `lhs ≋ rhs` where `lhs` and `rhs` are definitionally equal,
 or `lhs` is a free variable.
+
+Dropping unsolved constraints where `lhs` is a free variable seems unsound, but simply leads to later
+errors about the type of the alternative not matching the goal type, which is arguably a bit more
+user-friendly than showing possibly match-compilation-internal variable names.
 -/
 private def filterTrivialCnstrs (alt : Alt) : MetaM Alt := do
    let cnstrs ← withExistingLocalDecls alt.fvarDecls do

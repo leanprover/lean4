@@ -175,7 +175,10 @@ jobs:
           time make stage0 -j$NPROC
       - name: Download Lake Cache
         if: matrix.name == 'Linux Lake (Cached)'
-        run: build/stage0/bin/lake cache get --repo=${{ github.event.pull_request.head.repo.full_name || github.repository }}
+        run: |
+          cd src
+          ../build/stage0/bin/lake cache get \
+            --repo=${{ github.event.pull_request.head.repo.full_name || github.repository }}
         continue-on-error: true
       - name: Build Target Stage
         run: |
@@ -205,8 +208,10 @@ jobs:
         # shutdown
         if: matrix.name == 'Linux Lake' && !cancelled()
         run: |
-          build/stage0/bin/lake build -o build/lake-mappings.jsonl
-          build/stage0/bin/lake cache put build/lake-mappings.jsonl --repo=${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          cd src
+          ../build/stage0/bin/lake build -o build/lake-mappings.jsonl
+          ../build/stage0/bin/lake cache put build/lake-mappings.jsonl \
+            --repo=${{ github.event.pull_request.head.repo.full_name || github.repository }}
         env:
           LAKE_CACHE_KEY: ${{ secrets.LAKE_CACHE_KEY }}
           LAKE_ARTIFACT_ENDPOINT: ${{ secrets.LAKE_ARTIFACT_ENDPOINT }}

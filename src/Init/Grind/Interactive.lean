@@ -88,6 +88,10 @@ syntax (name := showCases) "show_cases" ppSpace grindFilter : grind
 syntax (name := «showState») "show_state" ppSpace grindFilter : grind
 /-- Show active local theorems and their anchors for heuristic instantiation. -/
 syntax (name := showLocalThms) "show_local_thms" : grind
+/--
+`show_term tac` runs `tac`, then displays the generated proof in the InfoView.
+-/
+syntax (name := showTerm) "show_term " grindSeq : grind
 
 declare_syntax_cat grind_ref (behavior := both)
 
@@ -192,7 +196,7 @@ syntax (name := exposeNames) "expose_names" : grind
 /--
 `set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,
 but it sets the option only within the tactics `tacs`. -/
-syntax (name := setOption) "set_option " ident ppSpace optionValue " in " grindSeq : grind
+syntax (name := setOption) "set_option " (ident (noWs "." noWs ident)?) ppSpace optionValue " in " grindSeq : grind
 
 end Grind
 end Lean.Parser.Tactic

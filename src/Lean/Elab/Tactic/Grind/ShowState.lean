@@ -126,4 +126,10 @@ public def showState (filter : Filter) (isSilent := false) : GrindTacticM Unit :
   let msg := MessageData.trace { cls := `thms, collapsed := false } "Local theorems" msgs
   logInfo msg
 
+@[builtin_grind_tactic showTerm] def evalShowTerm : GrindTactic := fun stx => do
+  let `(grind| show_term $seq:grindSeq) := stx | throwUnsupportedSyntax
+  let mvarId := (← getMainGoal).mvarId
+  evalGrindTactic seq
+  mvarId.withContext do logInfo (← instantiateMVars (mkMVar mvarId))
+
 end Lean.Elab.Tactic.Grind

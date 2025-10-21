@@ -35,7 +35,7 @@ inductive SearchStep (s : Slice) where
   -/
   | rejected (startPos endPos : s.Pos)
   /--
-  The subslice starting at {name}`startPos` and ending at {name}`endPos` did not match the pattern.
+  The subslice starting at {name}`startPos` and ending at {name}`endPos` matches the pattern.
   -/
   | matched (startPos endPos : s.Pos)
 deriving Inhabited
@@ -98,44 +98,6 @@ where
   decreasing_by
     simp [Pos.Raw.lt_iff] at h ⊢
     omega
-
-variable {ρ : Type} {σ : Slice → Type}
-variable [∀ s, Std.Iterators.Iterator (σ s) Id (SearchStep s)]
-variable [∀ s, Std.Iterators.Finite (σ s) Id]
-
-/--
-Tries to skip the {name}`searcher` until the next {name}`SearchStep.matched` and return it. If no
-match is found until the end returns {name}`none`.
--/
-@[inline]
-def nextMatch (searcher : Std.Iter (α := σ s) (SearchStep s)) :
-    Option (Std.Iter (α := σ s) (SearchStep s) × s.Pos × s.Pos) :=
-  go searcher
-where
-  go [∀ s, Std.Iterators.Finite (σ s) Id] (searcher : Std.Iter (α := σ s) (SearchStep s)) :
-      Option (Std.Iter (α := σ s) (SearchStep s) × s.Pos × s.Pos) :=
-    match searcher.step with
-    | .yield it (.matched startPos endPos) _ => some (it, startPos, endPos)
-    | .yield it (.rejected ..) _ | .skip it .. => go it
-    | .done .. => none
-  termination_by Std.Iterators.Iter.finitelyManySteps searcher
-
-/--
-Tries to skip the {name}`searcher` until the next {name}`SearchStep.rejected` and return it. If no
-reject is found until the end returns {name}`none`.
--/
-@[inline]
-def nextReject (searcher : Std.Iter (α := σ s) (SearchStep s)) :
-    Option (Std.Iter (α := σ s) (SearchStep s) × s.Pos × s.Pos) :=
-  go searcher
-where
-  go [∀ s, Std.Iterators.Finite (σ s) Id] (searcher : Std.Iter (α := σ s) (SearchStep s)) :
-      Option (Std.Iter (α := σ s) (SearchStep s) × s.Pos × s.Pos) :=
-    match searcher.step with
-    | .yield it (.rejected startPos endPos) _ => some (it, startPos, endPos)
-    | .yield it (.matched ..) _ | .skip it .. => go it
-    | .done .. => none
-  termination_by Std.Iterators.Iter.finitelyManySteps searcher
 
 end Internal
 

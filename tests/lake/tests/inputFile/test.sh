@@ -15,6 +15,7 @@ test_out_diff <(cat << 'EOF'
 foo
 bar
 baz
+boo
 untraced
 untraced
 EOF
@@ -37,6 +38,7 @@ test_cmd diff -u --strip-trailing-cr <(echo foo) "`$LAKE query foo`"
 echo "# TEST: input_dir target"
 test_run query barz
 cat `$LAKE query barz` | diff -u --strip-trailing-cr <(cat << 'EOF'
+boo
 bar
 baz
 EOF
@@ -51,12 +53,15 @@ echo traced > inputs/barz/bar.txt
 test_eq "traced" exe test bar
 echo traced > inputs/barz/baz.txt
 test_eq "traced" exe test baz
+echo traced > inputs/barz/bam/boo.txt
+test_eq "traced" exe test boo
 
 # Test untraced dependencies
 echo "# TEST: Untraced dependencies"
 echo traced > inputs/untraced.txt
 echo traced > inputs/barz/untraced.txt
 test_out_diff <(cat << 'EOF'
+traced
 traced
 traced
 traced

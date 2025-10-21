@@ -776,13 +776,35 @@ def Pattern.isRefutable : Pattern → Bool
   | .ctor ..         => true
   | .val ..          => true
 
+/--
+Returns the index of the first pattern in the first alternative that is refutable
+(i.e. not a variable or inaccessible pattern). We want to handle these first
+so that the generated code branches in the order suggested by the user's code.
+-/
 private def firstRefutablePattern (p : Problem) : Option Nat :=
   match p.alts with
   | alt:: _ => alt.patterns.findIdx? (·.isRefutable)
-  | _ => none
+  | _ => unreachable!
+
+def isExFalsoTransition (p : Problem) : MetaM Bool := do
+  if p.alts.isEmpty then
+    withGoalOf p do
+      let targetType ← p.mvarId.getType
+      return !targetType.isFalse
+  else
+    return false
+
+def processExFalso (p : Problem) : MetaM Problem := do
+  let mvarId' ← p.mvarId.exfalso
+  return { p with mvarId := mvarId' }
 
 private partial def process (p : Problem) : StateRefT State MetaM Unit := do
   traceState p
+  if isDone p then
+    traceStep ("leaf")
+    processLeaf p
+    return
+
   let isInductive ← isCurrVarInductive p
   match firstRefutablePattern p with
   | some i =>
@@ -798,9 +820,10 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
       process p
       return
 
-  if isDone p then
-    traceStep ("leaf")
-    processLeaf p
+  if (← isExFalsoTransition p) then
+    traceStep ("ex falso")
+    let p ← processExFalso p
+    process p
   else if hasAsPattern p then
     traceStep ("as-pattern")
     let p ← processAsPattern p

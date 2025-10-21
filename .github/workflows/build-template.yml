@@ -205,7 +205,7 @@ jobs:
       - name: Upload Lake Cache
         # Caching on cancellation created some mysterious issues perhaps related to improper build
         # shutdown. Also, since this needs access to secrets, it cannot be run on forks.
-        if: matrix.name == 'Linux Lake' && !cancelled() && ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+        if: matrix.name == 'Linux Lake' && !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         run: |
           cd src
           ../build/stage0/bin/lake build -o build/lake-mappings.jsonl

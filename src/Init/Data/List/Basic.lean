@@ -572,6 +572,15 @@ theorem reverseAux_reverseAux {as bs cs : List α} :
   | nil => rfl
   | cons a as ih => simp [reverseAux, ih (bs := a::bs), ih (bs := [a])]
 
+
+theorem reverseAux_reverseAux_nil (as bs : List α) : reverseAux (reverseAux as bs) [] = reverseAux bs as := by
+  induction as generalizing bs with
+  | nil => rfl
+  | cons a as ih => simp [reverseAux, ih]
+
+@[simp] theorem reverse_reverse (as : List α) : as.reverse.reverse = as := by
+  simp only [reverse]; rw [reverseAux_reverseAux_nil]; rfl
+
 /-! ### append -/
 
 /--
@@ -647,6 +656,12 @@ theorem reverseAux_eq_append {as bs : List α} : reverseAux as bs = reverseAux a
 @[simp, grind =] theorem reverse_cons {a : α} {as : List α} : reverse (a :: as) = reverse as ++ [a] := by
   simp [reverse, reverseAux]
   rw [← reverseAux_eq_append]
+
+@[simp] theorem reverse_append (as bs : List α) : (as ++ bs).reverse = bs.reverse ++ as.reverse := by
+  induction as <;> simp_all
+
+theorem reverse_concat (l : List α) (a : α) : (l ++ [a]).reverse = a :: l.reverse := by
+  rw [reverse_append]; rfl
 
 /-! ### flatten -/
 

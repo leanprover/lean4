@@ -11,10 +11,8 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Lean.Language.Basic
 public import Lean.Language.Util
 public import Lean.Language.Lean.Types
-public import Lean.Parser.Module
 public import Lean.Elab.Import
 
 public section
@@ -317,7 +315,7 @@ def reparseOptions (opts : Options) : IO Options := do
       | unless weak do
           throw <| .userError s!"invalid -D parameter, unknown configuration option '{name}'
 
-If the option is defined in this library, use '-D{`weak ++ name}' to set it conditionally"
+If the option is defined in a library, use '-D{`weak ++ name}' to set it conditionally"
 
     let .ofString val := val
       | opts' := opts'.insert name val  -- Already parsed

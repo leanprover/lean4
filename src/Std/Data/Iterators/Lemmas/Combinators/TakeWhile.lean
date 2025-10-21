@@ -29,9 +29,9 @@ theorem Iter.step_takeWhile {α β} [Iterator α Id β] {P}
       | .done h => .done (.done h)) := by
   simp [Iter.takeWhile_eq, Iter.step, toIterM_toIter, IterM.step_takeWhile]
   generalize it.toIterM.step.run = step
-  cases step using PlausibleIterStep.casesOn
+  cases step.inflate using PlausibleIterStep.casesOn
   · simp only [IterM.Step.toPure_yield, PlausibleIterStep.yield, toIter_toIterM, toIterM_toIter]
-    cases P _ <;> rfl
+    cases P _ <;> simp
   · simp
   · simp
 

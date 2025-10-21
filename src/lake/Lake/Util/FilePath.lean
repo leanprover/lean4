@@ -65,15 +65,15 @@ public def modOfFilePath (path : FilePath) : Name :=
   let path := path.stripSuffix FilePath.pathSeparator.toString
   FilePath.components path |>.foldl .str .anonymous
 where
-  removeExts (s : String) (i := s.endPos) (e := s.endPos) :=
+  removeExts (s : String) (i := s.rawEndPos) (e := s.rawEndPos) :=
     if h : i = 0 then
-      s.extract 0 e
+      String.Pos.Raw.extract s 0 e
     else
-      have := String.prev_lt_of_pos s i h
-      let i' := s.prev i
-      let c  := s.get i'
+      have := String.Pos.Raw.prev_lt_of_pos s i h
+      let i' := i.prev s
+      let c  := i'.get s
       if c == FilePath.pathSeparator then
-        s.extract 0 e
+        String.Pos.Raw.extract s 0 e
       else if c == '.' then
         removeExts s i' i'
       else

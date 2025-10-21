@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.ToArray
-// Imports: public import Init.Data.List.Control import all Init.Data.List.Control public import Init.Data.List.Impl public import Init.Data.List.Nat.Erase public import Init.Data.List.Monadic public import Init.Data.List.Nat.InsertIdx public import Init.Data.Array.Basic import all Init.Data.Array.Basic public import Init.Data.Array.Set import all Init.Data.Array.Set
+// Imports: import all Init.Data.List.Control public import Init.Data.List.Monadic public import Init.Data.List.Nat.InsertIdx import all Init.Data.Array.Basic import all Init.Data.Array.Set
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -695,14 +695,9 @@ return x_7;
 }
 }
 lean_object* initialize_Init_Data_List_Control(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Control(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Impl(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Nat_Erase(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Monadic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Nat_InsertIdx(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Set(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Set(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_ToArray(uint8_t builtin, lean_object* w) {
@@ -712,15 +707,6 @@ _G_initialized = true;
 res = initialize_Init_Data_List_Control(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Control(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_List_Impl(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_List_Nat_Erase(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_List_Monadic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -728,12 +714,6 @@ res = initialize_Init_Data_List_Nat_InsertIdx(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Array_Set(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_Set(builtin, lean_io_mk_world());

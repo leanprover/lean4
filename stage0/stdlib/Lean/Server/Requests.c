@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Requests
-// Imports: public import Lean.DeclarationRange public import Lean.Data.Json.Basic public import Lean.Data.Lsp public import Lean.Elab.Command public import Lean.Server.RequestCancellation public import Lean.Server.ServerTask public import Lean.Server.FileSource public import Lean.Server.FileWorker.Utils public import Lean.Server.Rpc.Basic public import Std.Sync.Mutex
+// Imports: public import Lean.Server.RequestCancellation public import Lean.Server.FileSource public import Lean.Server.FileWorker.Utils public import Std.Sync.Mutex
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3673,7 +3673,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Server_RequestM_findCmdDataAtPos___lam__0___closed__2;
 x_2 = lean_unsigned_to_nat(8u);
-x_3 = lean_unsigned_to_nat(424u);
+x_3 = lean_unsigned_to_nat(418u);
 x_4 = l_Lean_Server_RequestM_findCmdDataAtPos___lam__0___closed__1;
 x_5 = l_Lean_Server_RequestM_findCmdDataAtPos___lam__0___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -10092,46 +10092,22 @@ lean_dec_ref(x_1);
 return x_4;
 }
 }
-lean_object* initialize_Lean_DeclarationRange(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Json_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Lsp(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Command(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_RequestCancellation(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Server_ServerTask(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_FileSource(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_FileWorker_Utils(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Server_Rpc_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Sync_Mutex(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_Requests(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_DeclarationRange(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_Json_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_Command(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Server_RequestCancellation(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Server_ServerTask(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Server_FileSource(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Server_FileWorker_Utils(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Server_Rpc_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Sync_Mutex(builtin, lean_io_mk_world());

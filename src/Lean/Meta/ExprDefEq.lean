@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Offset
 public import Lean.Meta.UnificationHint
 public import Lean.Util.OccursCheck
 

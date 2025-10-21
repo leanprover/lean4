@@ -6,18 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Util.FindMVar
-public import Lean.Util.CollectFVars
-public import Lean.Parser.Term
-public import Lean.Meta.Hint
-public import Lean.Meta.KAbstract
 public import Lean.Meta.Tactic.ElimInfo
-public import Lean.Elab.Term
 public import Lean.Elab.Binders
-public import Lean.Elab.SyntheticMVars
-public import Lean.Elab.Arg
 public import Lean.Elab.RecAppSyntax
-public import Lean.Meta.Hint
 
 public section
 
@@ -1261,8 +1252,11 @@ inductive LValResolution where
   The `baseName` is the base name of the type to search for in the parameter list. -/
   | localRec (baseName : Name) (fvar : Expr)
 
+private def mkLValError (e : Expr) (eType : Expr) (msg : MessageData) : MessageData :=
+  m!"{msg}{indentExpr e}\nhas type{indentExpr eType}"
+
 private def throwLValErrorAt (ref : Syntax) (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
-  throwErrorAt ref "{msg}{indentExpr e}\nhas type{indentExpr eType}"
+  throwErrorAt ref (mkLValError e eType msg)
 
 private def throwLValError (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α := do
   throwLValErrorAt (← getRef) e eType msg
@@ -1276,7 +1270,9 @@ private partial def findMethod? (structName fieldName : Name) : MetaM (Option (N
   let find? structName' : MetaM (Option (Name × Name)) := do
     let fullName := privateToUserName structName' ++ fieldName
     -- We do not want to make use of the current namespace for resolution.
-    let candidates := ResolveName.resolveGlobalName (← getEnv) Name.anonymous (← getOpenDecls) fullName
+    let candidates :=
+      (← withTheReader Core.Context ({ · with currNamespace := .anonymous }) do
+        resolveGlobalName fullName)
       |>.filter (fun (_, fieldList) => fieldList.isEmpty)
       |>.map Prod.fst
     match candidates with
@@ -1329,9 +1325,19 @@ where
     | some (_, p2) => prodArity p2 + 1
 
 private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM LValResolution := do
-  let throwInvalidFieldAt {α : Type} (ref : Syntax) (fieldName : String) (fullName : Name) : TermElabM α := do
-    throwLValErrorAt ref e eType <| ← mkUnknownIdentifierMessage (declHint := fullName)
-      m!"Invalid field `{fieldName}`: The environment does not contain `{fullName}`"
+  let throwInvalidFieldAt {α : Type} (ref : Syntax) (fieldName : String) (fullName : Name)
+      (declHint := Name.anonymous) : TermElabM α := do
+    let msg ←
+      -- ordering: put decl hint, if any, last
+      mkUnknownIdentifierMessage (declHint := declHint)
+        (mkLValError e eType
+          m!"Invalid field `{fieldName}`: The environment does not contain `{fullName}`")
+    -- HACK: Simulate previous embedding of tagged `mkUnknownIdentifierMessage`.
+    -- The "import unknown identifier" code action requires the tag to be present somewhere in the
+    -- message. But if it is at the root, the tag will also be shown to the user even though the
+    -- current help page does not address field notation, which should likely get its own help page
+    -- (if any).
+    throwErrorAt ref m!"{msg}{.nil}"
   if eType.isForall then
     match lval with
     | LVal.fieldName _ fieldName suffix? fullRef =>
@@ -1397,6 +1403,9 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     if let some (baseStructName, fullName) ← findMethod? structName (.mkSimple fieldName) then
       return LValResolution.const baseStructName structName fullName
     throwInvalidFieldAt fullRef fieldName fullName
+      -- Suggest a potential unreachable private name as hint. This does not cover structure
+      -- inheritance, nor `import all`.
+      (declHint := (mkPrivateName env structName).mkStr fieldName)
   | none, LVal.fieldName _ _ (some suffix) fullRef =>
     -- This may be a function constant whose implicit arguments have already been filled in:
     let c := e.getAppFn
@@ -1581,14 +1590,15 @@ where
 
 /-- Adds the `TermInfo` for the field of a projection. See `Lean.Parser.Term.identProjKind`. -/
 private def addProjTermInfo
-    (stx            : Syntax)
-    (e              : Expr)
-    (expectedType?  : Option Expr := none)
-    (lctx?          : Option LocalContext := none)
-    (elaborator     : Name := Name.anonymous)
-    (isBinder force : Bool := false)
+    (stx               : Syntax)
+    (e                 : Expr)
+    (expectedType?     : Option Expr := none)
+    (lctx?             : Option LocalContext := none)
+    (elaborator        : Name := Name.anonymous)
+    (isBinder force    : Bool := false)
+    (isDisplayableTerm : Bool := false)
     : TermElabM Expr :=
-  addTermInfo (Syntax.node .none Parser.Term.identProjKind #[stx]) e expectedType? lctx? elaborator isBinder force
+  addTermInfo (Syntax.node .none Parser.Term.identProjKind #[stx]) e expectedType? lctx? elaborator isBinder force isDisplayableTerm
 
 private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis : Bool)
     (f : Expr) (lvals : List LVal) : TermElabM Expr :=
@@ -1607,7 +1617,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
     | LValResolution.projFn baseStructName structName fieldName =>
       let f ← mkBaseProjections baseStructName structName f
       let some info := getFieldInfo? (← getEnv) baseStructName fieldName | unreachable!
-      if isInaccessiblePrivateName (← getEnv) info.projFn then
+      if (← isInaccessiblePrivateName info.projFn) then
         throwError "Field `{fieldName}` from structure `{structName}` is private"
       let projFn ← mkConst info.projFn
       let projFn ← addProjTermInfo lval.getRef projFn
@@ -1741,12 +1751,12 @@ where
       match resultTypeFn with
       | .const declName .. =>
         let env ← getEnv
-        if isInaccessiblePrivateName env declName then
+        if (← isInaccessiblePrivateName declName) then
           throwError "The private declaration `{.ofConstName declName}` is not accessible in the current context"
         -- Recall that the namespace for private declarations is non-private.
         let fullName := privateToUserName declName ++ id
         -- Resolve the name without making use of the current namespace, like in `findMethod?`.
-        let candidates := ResolveName.resolveGlobalName env Name.anonymous (← getOpenDecls) fullName
+        let candidates := ResolveName.resolveGlobalName env (← getOptions) Name.anonymous (← getOpenDecls) fullName
           |>.filter (fun (_, fieldList) => fieldList.isEmpty)
           |>.map Prod.fst
         if !candidates.isEmpty then

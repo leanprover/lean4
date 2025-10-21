@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Core
-public import Init.Grind.Attr
 public import Init.Grind.Interactive
 public section
 namespace Lean.Grind
@@ -157,6 +156,13 @@ structure Config where
   deriving Inhabited, BEq
 
 /--
+Configuration for interactive mode.
+We disable `clean := false`.
+-/
+structure ConfigInteractive extends Config where
+  clean := false
+
+/--
 A minimal configuration, with ematching and splitting disabled, and all solver modules turned off.
 `grind` will not do anything in this configuration,
 which can be used a starting point for minimal configurations.
@@ -209,14 +215,11 @@ namespace Lean.Parser.Tactic
 /-!
 `grind` tactic and related tactics.
 -/
-
 syntax grindErase    := "-" ident
-syntax grindLemma    := ppGroup((Attr.grindMod ppSpace)? ident)
 /--
 The `!` modifier instructs `grind` to consider only minimal indexable subexpressions
 when selecting patterns.
 -/
-syntax grindLemmaMin := ppGroup("!" (Attr.grindMod ppSpace)? ident)
 syntax grindParam    := grindErase <|> grindLemma <|> grindLemmaMin
 
 open Parser.Tactic.Grind

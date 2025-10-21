@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Language.Basic
-// Imports: public import Init.System.Promise public import Lean.Parser.Types public import Lean.Util.Trace
+// Imports: public import Lean.Parser.Types public import Lean.Util.Trace
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2944,7 +2944,7 @@ block_103:
 if (x_55 == 0)
 {
 lean_object* x_56; lean_object* x_57; lean_object* x_58; uint8_t x_59; uint8_t x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; 
-lean_dec(x_54);
+lean_dec(x_53);
 x_56 = lean_ctor_get(x_52, 0);
 lean_inc_ref(x_56);
 x_57 = lean_ctor_get(x_52, 1);
@@ -2969,7 +2969,7 @@ lean_dec(x_58);
 lean_dec_ref(x_57);
 lean_dec_ref(x_56);
 x_65 = lean_ctor_get_uint8(x_52, sizeof(void*)*5 + 2);
-x_27 = x_53;
+x_27 = x_54;
 x_28 = x_55;
 x_29 = x_52;
 x_30 = x_65;
@@ -2998,7 +2998,7 @@ lean_dec_ref(x_64);
 x_73 = lean_unbox(x_72);
 lean_dec(x_72);
 lean_ctor_set_uint8(x_52, sizeof(void*)*5 + 1, x_73);
-x_27 = x_53;
+x_27 = x_54;
 x_28 = x_55;
 x_29 = x_52;
 x_30 = x_60;
@@ -3022,7 +3022,7 @@ x_76 = lean_unbox(x_74);
 lean_dec(x_74);
 lean_ctor_set_uint8(x_75, sizeof(void*)*5 + 1, x_76);
 lean_ctor_set_uint8(x_75, sizeof(void*)*5 + 2, x_60);
-x_27 = x_53;
+x_27 = x_54;
 x_28 = x_55;
 x_29 = x_75;
 x_30 = x_60;
@@ -3042,7 +3042,7 @@ x_79 = lean_ctor_get(x_52, 4);
 lean_dec(x_79);
 x_80 = 2;
 x_81 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at_____private_Lean_Language_Basic_0__Lean_Language_reportMessages_spec__4_spec__4_spec__4_spec__5___closed__0;
-x_82 = l_Nat_reprFast(x_54);
+x_82 = l_Nat_reprFast(x_53);
 x_83 = lean_string_append(x_81, x_82);
 lean_dec_ref(x_82);
 x_84 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at_____private_Lean_Language_Basic_0__Lean_Language_reportMessages_spec__4_spec__4_spec__4_spec__5___closed__1;
@@ -3052,7 +3052,7 @@ lean_ctor_set(x_86, 0, x_85);
 x_87 = l_Lean_MessageData_ofFormat(x_86);
 lean_ctor_set(x_52, 4, x_87);
 lean_ctor_set_uint8(x_52, sizeof(void*)*5 + 1, x_80);
-x_27 = x_53;
+x_27 = x_54;
 x_28 = x_55;
 x_29 = x_52;
 x_30 = x_78;
@@ -3074,7 +3074,7 @@ lean_inc(x_88);
 lean_dec(x_52);
 x_94 = 2;
 x_95 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at_____private_Lean_Language_Basic_0__Lean_Language_reportMessages_spec__4_spec__4_spec__4_spec__5___closed__0;
-x_96 = l_Nat_reprFast(x_54);
+x_96 = l_Nat_reprFast(x_53);
 x_97 = lean_string_append(x_95, x_96);
 lean_dec_ref(x_96);
 x_98 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at_____private_Lean_Language_Basic_0__Lean_Language_reportMessages_spec__4_spec__4_spec__4_spec__5___closed__1;
@@ -3091,7 +3091,7 @@ lean_ctor_set(x_102, 4, x_101);
 lean_ctor_set_uint8(x_102, sizeof(void*)*5, x_91);
 lean_ctor_set_uint8(x_102, sizeof(void*)*5 + 1, x_94);
 lean_ctor_set_uint8(x_102, sizeof(void*)*5 + 2, x_92);
-x_27 = x_53;
+x_27 = x_54;
 x_28 = x_55;
 x_29 = x_102;
 x_30 = x_92;
@@ -3114,23 +3114,23 @@ uint8_t x_110;
 x_110 = lean_nat_dec_lt(x_107, x_105);
 if (x_110 == 0)
 {
-x_53 = x_105;
-x_54 = x_107;
+x_53 = x_107;
+x_54 = x_105;
 x_55 = x_51;
 goto block_103;
 }
 else
 {
-x_53 = x_105;
-x_54 = x_107;
+x_53 = x_107;
+x_54 = x_105;
 x_55 = x_110;
 goto block_103;
 }
 }
 else
 {
-x_53 = x_105;
-x_54 = x_107;
+x_53 = x_107;
+x_54 = x_105;
 x_55 = x_51;
 goto block_103;
 }
@@ -4527,7 +4527,6 @@ lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* initialize_Init_System_Promise(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_Types(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_Trace(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -4535,9 +4534,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Language_Basic(uint8_t builtin, lean_ob
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_System_Promise(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Parser_Types(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

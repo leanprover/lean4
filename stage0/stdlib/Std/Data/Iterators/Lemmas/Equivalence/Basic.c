@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Lemmas.Equivalence.Basic
-// Imports: public import Init.Control.Lawful.Basic public import Init.Ext public import Init.Internal.Order public import Init.Core public import Init.Data.Iterators.Basic public import Init.Data.Iterators.PostconditionMonad public import Std.Data.Iterators.Lemmas.Equivalence.HetT
+// Imports: public import Init.Internal.Order public import Init.Data.Iterators.Basic public import Std.Data.Iterators.Lemmas.Equivalence.HetT
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -130,34 +130,18 @@ lean_dec(x_5);
 return x_6;
 }
 }
-lean_object* initialize_Init_Control_Lawful_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Ext(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Internal_Order(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Core(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_PostconditionMonad(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Lemmas_Equivalence_HetT(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Lemmas_Equivalence_Basic(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_Lawful_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Ext(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Internal_Order(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Core(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_PostconditionMonad(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Lemmas_Equivalence_HetT(builtin, lean_io_mk_world());

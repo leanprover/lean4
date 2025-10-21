@@ -6,23 +6,15 @@ Author: David Thrane Christiansen
 
 module
 prelude
-public import Lean.Elab.DocString
 import Lean.Elab.DocString.Builtin.Parsing
 public import Lean.Elab.DocString.Builtin.Scopes
 public import Lean.Elab.DocString.Builtin.Postponed
-import Lean.DocString.Links
-public import Lean.DocString.Syntax
-public import Lean.Elab.InfoTree
-public meta import Lean.Elab.Term.TermElabM
 import Lean.Elab.Open
-public import Lean.Parser
-import Lean.Meta.Hint
 import Lean.Meta.Reduce
 import Lean.Elab.Tactic.Doc
 import Lean.Data.EditDistance
 public import Lean.Elab.DocString.Builtin.Keywords
 import Lean.Server.InfoUtils
-import Lean.Meta.Hint
 
 
 namespace Lean.Doc
@@ -34,6 +26,16 @@ open scoped Lean.Doc.Syntax
 set_option linter.missingDocs true
 
 public section
+
+/--
+As elaboration results are not added to the environment as part of constants, manually record
+references so that `shake` keeps their imports.
+-/
+private def elabExtraTerm (stx : Syntax) (expectedType? : Option Expr := none) : TermElabM Expr := do
+  let e ← elabTermAndSynthesize stx expectedType?
+  for c in e.getUsedConstants do
+    recordExtraModUseFromDecl (isMeta := false) c
+  return e
 
 /-- Create an identifier while directly copying info -/
 private def mkIdentFrom' (src : Syntax) (val : Name) : Ident :=
@@ -120,7 +122,7 @@ private def onlyCode [Monad m] [MonadError m] (xs : TSyntaxArray `inline) : m St
   else
     throwError "Expected precisely 1 code argument"
 
-private def strLitRange [Monad m] [MonadFileMap m] (s : StrLit) : m String.Range := do
+private def strLitRange [Monad m] [MonadFileMap m] (s : StrLit) : m Lean.Syntax.Range := do
   let pos := (s.raw.getPos? (canonicalOnly := true)).get!
   let endPos := s.raw.getTailPos? true |>.get!
   return ⟨pos, endPos⟩
@@ -166,7 +168,7 @@ def name (full : Option Ident := none) (scope : DocScope := .local)
             | none
           let ⟨_, pos⟩ ← tk1.getRange?
           let ⟨tailPos, _⟩ ← tk2.getRange?
-          pure <| Syntax.mkStrLit (text.source.extract pos tailPos) (info := .synthetic pos tailPos)
+          pure <| Syntax.mkStrLit (String.Pos.Raw.extract text.source pos tailPos) (info := .synthetic pos tailPos)
         if let some ref := ref? then
             m!"Remove surrounding whitespace:".hint #[s.getString.trim] (ref? := some ref)
         else pure m!""
@@ -262,7 +264,7 @@ def module (checked : flag true) (xs : TSyntaxArray `inline) : DocM (Inline Elab
           let some e := tk2.getPos?
             | pure none
           pure <| some {
-            span? := some (Syntax.mkStrLit ((← getFileMap).source.extract b e) (info := .synthetic b e)),
+            span? := some (Syntax.mkStrLit (String.Pos.Raw.extract (← getFileMap).source b e) (info := .synthetic b e)),
             previewSpan? := some ref,
             suggestion := "" : Meta.Hint.Suggestion
           }
@@ -578,7 +580,7 @@ def given (type : Option StrLit := none) (typeIsMeta : flag false) («show» : f
     let val : Option Expr ← do
       let valStx := stx[1][1]
       if valStx.isMissing then pure none
-      else some <$> elabTerm valStx (some ty')
+      else some <$> elabExtraTerm valStx (some ty')
     let fv ← mkFreshFVarId
     lctx :=
       if let some v := val then
@@ -596,8 +598,8 @@ def given (type : Option StrLit := none) (typeIsMeta : flag false) («show» : f
       let thisStr ←
         if let some ⟨b, e⟩ := stx[0].getRange? then
           if let some ⟨b', e'⟩ := stx[2][1].getRange? then
-            pure <| s!"{text.source.extract b e} : {text.source.extract b' e'}"
-          else pure <| text.source.extract b e
+            pure <| s!"{String.Pos.Raw.extract text.source b e} : {String.Pos.Raw.extract text.source b' e'}"
+          else pure <| String.Pos.Raw.extract text.source b e
         else
           failed := true
           break
@@ -645,7 +647,7 @@ def lean (name : Option Ident := none) (error warning «show» : flag false) (co
   -- TODO fallback for non-original syntax
   let pos := code.raw.getPos? true |>.get!
   let endPos := code.raw.getTailPos? true |>.get!
-  let endPos := if endPos ≤ text.source.endPos then endPos else text.source.endPos
+  let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
   let ictx :=
     mkInputContext text.source (← getFileName)
       (endPos := endPos) (endPos_valid := by simp only [endPos]; split <;> simp [*])
@@ -671,8 +673,8 @@ def lean (name : Option Ident := none) (error warning «show» : flag false) (co
   let mut output := #[]
   for msg in cmdState.messages.toArray do
     let b := text.ofPosition msg.pos
-    let e := msg.endPos |>.map text.ofPosition |>.getD (text.source.next b)
-    let msgStr := text.source.extract b e
+    let e := msg.endPos |>.map text.ofPosition |>.getD (b.next text.source)
+    let msgStr := String.Pos.Raw.extract text.source b e
     let msgStx := Syntax.mkStrLit msgStr (info := .synthetic b e (canonical := true))
     unless msg.isSilent do
       if name.isSome then output := output.push (msg.severity, ← msg.data.toString)
@@ -717,7 +719,7 @@ where
         (mkNullNode (#[name] ++ args)).getRange?
       | _ => none
     if let some ⟨b, e⟩ := range? then
-      let str := (← getFileMap).source.extract b e
+      let str := String.Pos.Raw.extract (← getFileMap).source b e
       let str := if str.startsWith "kw?" then "kw" ++ str.drop 3 else str
       let stx := Syntax.mkStrLit str (info := .synthetic b e (canonical := true))
       let suggs := suggestions.map (fun (s : String) => {suggestion := str ++ s})
@@ -955,7 +957,7 @@ def leanRole (type : Option StrLit := none) (xs : TSyntaxArray `inline) : DocM (
         if let some t := type then
           logErrorAt t m!"Ignoring `{s.getString}` in favor of type provided after colon"
         some <$> elabType stx[1][1]
-    withoutErrToSorry <| discard <| elabTerm stx[0] ty?
+    withoutErrToSorry <| discard <| elabExtraTerm stx[0] ty?
   let trees := (← getInfoTrees)
   if h : trees.size > 0 then
     let tree := trees[trees.size - 1]
@@ -978,7 +980,7 @@ def leanTerm (code : StrLit) : DocM (Block ElabInline ElabBlock) := do
         pure none
       else -- type after colon
         some <$> elabType stx[1][1]
-    withoutErrToSorry <| discard <| elabTerm stx[0] ty?
+    withoutErrToSorry <| discard <| elabExtraTerm stx[0] ty?
   -- The last info tree is the one we want
   let trees := (← getInfoTrees)
   if h : trees.size > 0 then
@@ -1086,8 +1088,8 @@ def assert' (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
       pure none
     else -- type after colon
       some <$> elabType stx[3][1]
-  let lhs ← elabTerm stx[0] ty?
-  let rhs ← elabTerm stx[2] ty?
+  let lhs ← elabExtraTerm stx[0] ty?
+  let rhs ← elabExtraTerm stx[2] ty?
   unless ← Meta.withTransparency .all <| Meta.isDefEq lhs rhs do
     throwErrorAt stx m!"Expected {lhs} = {rhs}, which is {← Meta.whnf lhs} = {← Meta.whnf rhs}, reducing to {← Meta.reduceAll lhs} = {← Meta.reduceAll rhs} but they are not equal."
   pure (.code s.getString)
@@ -1208,7 +1210,7 @@ def suggestLean (code : StrLit) : DocM (Array CodeSuggestion) := do
         withoutErrToSorry <|
         if stx[1][1].isMissing then pure none
         else some <$> elabType stx[1][1]
-      let tm ← withoutErrToSorry <| elabTerm stx[0] ty?
+      let tm ← withoutErrToSorry <| elabExtraTerm stx[0] ty?
     return #[.mk ``lean none none]
 
   catch | _ => return #[]
@@ -1227,7 +1229,7 @@ def suggestLeanTermBlock (code : StrLit) : DocM (Array CodeBlockSuggestion) := d
         withoutErrToSorry <|
         if stx[1][1].isMissing then pure none
         else some <$> elabType stx[1][1]
-      discard <| withoutErrToSorry <| elabTerm stx[0] ty?
+      discard <| withoutErrToSorry <| elabExtraTerm stx[0] ty?
     return #[.mk ``leanTerm none none]
   catch | _ => return #[]
 

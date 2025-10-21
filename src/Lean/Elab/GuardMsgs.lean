@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Elab.Notation
-public import Lean.Util.Diff
 public import Lean.Server.CodeActions.Attr
 
 public section
@@ -167,7 +166,7 @@ def WhitespaceMode.apply (mode : WhitespaceMode) (s : String) : String :=
   match mode with
   | .exact => s
   | .normalized => s.replace "\n" " "
-  | .lax => String.intercalate " " <| (s.split Char.isWhitespace).filter (!·.isEmpty)
+  | .lax => String.intercalate " " <| (s.splitToList Char.isWhitespace).filter (!·.isEmpty)
 
 /--
 Applies a message ordering mode.
@@ -182,7 +181,6 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
     let expected : String := (← dc?.mapM (getDocStringText ·)).getD ""
         |>.trim |> removeTrailingWhitespaceMarker
     let { whitespace, ordering, filterFn, reportPositions } ← parseGuardMsgsSpec spec?
-    let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
     -- do not forward snapshot as we don't want messages assigned to it to leak outside
     withReader ({ · with snap? := none }) do
       -- The `#guard_msgs` command is special-cased in `elabCommandTopLevel` to ensure linters only run once.
@@ -211,13 +209,13 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
     let res := "---\n".intercalate strings |>.trim
     if whitespace.apply expected == whitespace.apply res then
       -- Passed. Only put toPassthrough messages back on the message log
-      modify fun st => { st with messages := initMsgs ++ toPassthrough }
+      modify fun st => { st with messages := toPassthrough }
     else
       -- Failed. Put all the messages back on the message log and add an error
-      modify fun st => { st with messages := initMsgs ++ msgs }
+      modify fun st => { st with messages := msgs }
       let feedback :=
         if guard_msgs.diff.get (← getOptions) then
-          let diff := Diff.diff (expected.split (· == '\n')).toArray (res.split (· == '\n')).toArray
+          let diff := Diff.diff (expected.splitToList (· == '\n')).toArray (res.splitToList (· == '\n')).toArray
           Diff.linesToString diff
         else res
       logErrorAt tk m!"❌️ Docstring on `#guard_msgs` does not match generated message:\n\n{feedback}"

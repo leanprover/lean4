@@ -6,12 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Instances
-public import Lean.Compiler.InlineAttrs
 public import Lean.Compiler.LCNF.Closure
-public import Lean.Compiler.LCNF.Types
 public import Lean.Compiler.LCNF.MonadScope
-public import Lean.Compiler.LCNF.Internalize
 public import Lean.Compiler.LCNF.Level
 public import Lean.Compiler.LCNF.AuxDeclCache
 

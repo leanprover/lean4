@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
-// Imports: public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId public import Lean.Meta.Tactic.Grind.Arith.CommRing.SemiringM public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommSemiringM import Init.Grind.Ring.CommSemiringAdapter import Lean.Data.RArray import Lean.Meta.Tactic.Grind.Diseq import Lean.Meta.Tactic.Grind.ProofUtil import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr import Lean.Meta.Tactic.Grind.VarRename import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
+// Imports: public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommSemiringM import Lean.Data.RArray import Lean.Meta.Tactic.Grind.Diseq import Lean.Meta.Tactic.Grind.ProofUtil import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18869,7 +18869,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_derivToExprProof___closed__14;
 x_2 = lean_unsigned_to_nat(24u);
-x_3 = lean_unsigned_to_nat(216u);
+x_3 = lean_unsigned_to_nat(212u);
 x_4 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_derivToExprProof___closed__13;
 x_5 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_derivToExprProof___closed__12;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -19259,7 +19259,7 @@ block_71:
 {
 lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; 
 x_65 = l_Lean_Meta_Grind_Arith_CommRing_EqCnstr_toExprProof___closed__5;
-x_66 = l_Lean_mkApp10(x_62, x_56, x_59, x_61, x_64, x_60, x_57, x_58, x_65, x_50, x_53);
+x_66 = l_Lean_mkApp10(x_61, x_57, x_60, x_58, x_64, x_63, x_59, x_62, x_65, x_50, x_53);
 x_67 = lean_int_mul(x_38, x_47);
 lean_dec(x_47);
 lean_dec(x_38);
@@ -19283,7 +19283,7 @@ if (lean_is_scalar(x_55)) {
  x_70 = x_55;
 }
 lean_ctor_set(x_70, 0, x_69);
-lean_ctor_set(x_70, 1, x_63);
+lean_ctor_set(x_70, 1, x_56);
 return x_70;
 }
 block_91:
@@ -19303,10 +19303,10 @@ x_86 = l_Int_toNat(x_85);
 lean_dec(x_85);
 x_87 = l_Lean_instToExprInt_mkNat(x_86);
 x_88 = l_Lean_mkApp3(x_82, x_83, x_84, x_87);
-x_56 = x_79;
-x_57 = x_72;
-x_58 = x_74;
-x_59 = x_73;
+x_56 = x_72;
+x_57 = x_79;
+x_58 = x_73;
+x_59 = x_74;
 x_60 = x_75;
 x_61 = x_76;
 x_62 = x_77;
@@ -19320,10 +19320,10 @@ lean_object* x_89; lean_object* x_90;
 x_89 = l_Int_toNat(x_40);
 lean_dec(x_40);
 x_90 = l_Lean_instToExprInt_mkNat(x_89);
-x_56 = x_79;
-x_57 = x_72;
-x_58 = x_74;
-x_59 = x_73;
+x_56 = x_72;
+x_57 = x_79;
+x_58 = x_73;
+x_59 = x_74;
 x_60 = x_75;
 x_61 = x_76;
 x_62 = x_77;
@@ -19395,13 +19395,13 @@ x_128 = l_Int_toNat(x_127);
 lean_dec(x_127);
 x_129 = l_Lean_instToExprInt_mkNat(x_128);
 x_130 = l_Lean_mkApp3(x_124, x_125, x_126, x_129);
-x_72 = x_117;
-x_73 = x_106;
-x_74 = x_120;
-x_75 = x_113;
-x_76 = x_110;
-x_77 = x_92;
-x_78 = x_121;
+x_72 = x_121;
+x_73 = x_110;
+x_74 = x_117;
+x_75 = x_106;
+x_76 = x_92;
+x_77 = x_120;
+x_78 = x_113;
 x_79 = x_130;
 goto block_91;
 }
@@ -19410,13 +19410,13 @@ else
 lean_object* x_131; lean_object* x_132; 
 x_131 = l_Int_toNat(x_47);
 x_132 = l_Lean_instToExprInt_mkNat(x_131);
-x_72 = x_117;
-x_73 = x_106;
-x_74 = x_120;
-x_75 = x_113;
-x_76 = x_110;
-x_77 = x_92;
-x_78 = x_121;
+x_72 = x_121;
+x_73 = x_110;
+x_74 = x_117;
+x_75 = x_106;
+x_76 = x_92;
+x_77 = x_120;
+x_78 = x_113;
 x_79 = x_132;
 goto block_91;
 }
@@ -20297,7 +20297,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_mkImpEqExprProof___closed__1;
 x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(228u);
+x_3 = lean_unsigned_to_nat(224u);
 x_4 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_mkImpEqExprProof___closed__0;
 x_5 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_derivToExprProof___closed__12;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -29766,9 +29766,9 @@ x_117 = l_Int_toNat(x_116);
 lean_dec(x_116);
 x_118 = l_Lean_instToExprInt_mkNat(x_117);
 x_119 = l_Lean_mkApp3(x_113, x_114, x_115, x_118);
-x_14 = x_110;
+x_14 = x_109;
 x_15 = x_89;
-x_16 = x_109;
+x_16 = x_110;
 x_17 = x_106;
 x_18 = x_119;
 goto block_22;
@@ -29779,9 +29779,9 @@ lean_object* x_120; lean_object* x_121;
 x_120 = l_Int_toNat(x_103);
 lean_dec(x_103);
 x_121 = l_Lean_instToExprInt_mkNat(x_120);
-x_14 = x_110;
+x_14 = x_109;
 x_15 = x_89;
-x_16 = x_109;
+x_16 = x_110;
 x_17 = x_106;
 x_18 = x_121;
 goto block_22;
@@ -29887,10 +29887,10 @@ block_22:
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_19 = l_Lean_Meta_Grind_Arith_CommRing_EqCnstr_toExprProof___closed__5;
-x_20 = l_Lean_mkApp4(x_15, x_17, x_18, x_19, x_16);
+x_20 = l_Lean_mkApp4(x_15, x_17, x_18, x_19, x_14);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
-lean_ctor_set(x_21, 1, x_14);
+lean_ctor_set(x_21, 1, x_16);
 return x_21;
 }
 }
@@ -34853,19 +34853,15 @@ return x_59;
 }
 }
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_RingId(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_SemiringM(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_NonCommRingM(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_NonCommSemiringM(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_Ring_CommSemiringAdapter(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_RArray(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Diseq(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_ProofUtil(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_DenoteExpr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_SafePoly(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_ToExpr(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Grind_VarRename(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_VarRename(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Functions(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -34874,16 +34870,10 @@ _G_initialized = true;
 res = initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_RingId(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_SemiringM(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_NonCommRingM(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_NonCommSemiringM(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Grind_Ring_CommSemiringAdapter(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_RArray(builtin, lean_io_mk_world());
@@ -34904,13 +34894,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_ToExpr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_VarRename(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_VarRename(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Functions(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_toContextExpr___redArg___lam__1___closed__0 = _init_l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_toContextExpr___redArg___lam__1___closed__0();

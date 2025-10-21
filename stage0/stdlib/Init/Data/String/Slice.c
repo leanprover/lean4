@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Slice
-// Imports: public import Init.Data.String.Pattern public import Init.Data.Iterators.Consumers.Monadic.Collect public import Init.Data.Ord.Basic public import Init.Data.Iterators.Combinators.FilterMap
+// Imports: public import Init.Data.String.Pattern public import Init.Data.Ord.Basic public import Init.Data.Iterators.Combinators.FilterMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1010,7 +1010,7 @@ return x_58;
 else
 {
 lean_object* x_59; lean_object* x_60; 
-lean_dec_ref(x_1);
+lean_dec(x_1);
 x_59 = lean_box(2);
 x_60 = lean_apply_2(x_2, lean_box(0), x_59);
 return x_60;
@@ -1646,7 +1646,7 @@ return x_64;
 else
 {
 lean_object* x_65; lean_object* x_66; 
-lean_dec_ref(x_1);
+lean_dec(x_1);
 x_65 = lean_box(2);
 x_66 = lean_apply_2(x_2, lean_box(0), x_65);
 return x_66;
@@ -2820,7 +2820,7 @@ return x_67;
 else
 {
 lean_object* x_68; lean_object* x_69; 
-lean_dec_ref(x_1);
+lean_dec(x_1);
 x_68 = lean_box(2);
 x_69 = lean_apply_2(x_2, lean_box(0), x_68);
 return x_69;
@@ -6045,7 +6045,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_String_Slice_toNat_x21___closed__2;
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(1155u);
+x_3 = lean_unsigned_to_nat(1154u);
 x_4 = l_String_Slice_toNat_x21___closed__1;
 x_5 = l_String_Slice_toNat_x21___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -6233,7 +6233,6 @@ return x_3;
 }
 }
 lean_object* initialize_Init_Data_String_Pattern(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Consumers_Monadic_Collect(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Combinators_FilterMap(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -6242,9 +6241,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_String_Pattern(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers_Monadic_Collect(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Ord_Basic(builtin, lean_io_mk_world());

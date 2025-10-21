@@ -6,8 +6,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Init.System.Platform
-public import Init.Data.ToString.Basic
 public import Init.Data.String.Basic
 
 public section
@@ -79,8 +77,8 @@ There is no guarantee that two equivalent paths normalize to the same path.
 def normalize (p : FilePath) : FilePath := Id.run do
   let mut p := p
   -- normalize drive letter
-  if isWindows && p.toString.length >= 2 && (p.toString.get 0).isLower && p.toString.get ⟨1⟩ == ':' then
-    p := ⟨p.toString.set 0 (p.toString.get 0).toUpper⟩
+  if isWindows && p.toString.length >= 2 && p.toString.front.isLower && String.Pos.Raw.get p.toString ⟨1⟩ == ':' then
+    p := ⟨p.toString.capitalize⟩
   -- normalize separator
   unless pathSeparators.length == 1 do
     p := ⟨p.toString.map fun c => if pathSeparators.contains c then pathSeparator else c⟩
@@ -131,7 +129,7 @@ If the path is that of the root directory or the root of a drive letter, `none` 
 Otherwise, the path's parent directory is returned.
 -/
 def parent (p : FilePath) : Option FilePath :=
-  let extractParentPath := FilePath.mk <$> p.toString.extract {} <$> posOfLastSep p
+  let extractParentPath := FilePath.mk <$> String.Pos.Raw.extract p.toString {} <$> posOfLastSep p
   if p.isAbsolute then
     let lengthOfRootDirectory := if pathSeparators.contains p.toString.front then 1 else 3
     if p.toString.length == lengthOfRootDirectory then
@@ -139,7 +137,7 @@ def parent (p : FilePath) : Option FilePath :=
       none
     else if posOfLastSep p == some (String.Pos.Raw.mk (lengthOfRootDirectory - 1)) then
       -- `p` is a direct child of the root
-      some ⟨p.toString.extract 0 ⟨lengthOfRootDirectory⟩⟩
+      some ⟨String.Pos.Raw.extract p.toString 0 ⟨lengthOfRootDirectory⟩⟩
     else
       -- `p` is an absolute path with at least two subdirectories
       extractParentPath
@@ -155,7 +153,7 @@ directory.
 -/
 def fileName (p : FilePath) : Option String :=
   let lastPart := match posOfLastSep p with
-    | some sepPos => p.toString.extract (sepPos + '/') p.toString.endPos
+    | some sepPos => String.Pos.Raw.extract p.toString (sepPos + '/') p.toString.rawEndPos
     | none        => p.toString
   if lastPart.isEmpty || lastPart == "." || lastPart == ".." then none else some lastPart
 
@@ -175,7 +173,7 @@ def fileStem (p : FilePath) : Option String :=
   p.fileName.map fun fname =>
     match fname.revPosOf '.' with
     | some ⟨0⟩ => fname
-    | some pos => fname.extract 0 pos
+    | some pos => String.Pos.Raw.extract fname 0 pos
     | none     => fname
 
 /--
@@ -194,7 +192,7 @@ def extension (p : FilePath) : Option String :=
   p.fileName.bind fun fname =>
     match fname.revPosOf '.' with
     | some 0   => none
-    | some pos => some <| fname.extract (pos + '.') fname.endPos
+    | some pos => some <| String.Pos.Raw.extract fname (pos + '.') fname.rawEndPos
     | none     => none
 
 /--
@@ -274,7 +272,7 @@ Separates the entries in the `$PATH` (or `%PATH%`) environment variable by the c
 platform-dependent separator character.
 -/
 def parse (s : String) : SearchPath :=
-  s.split (fun c => SearchPath.separator == c) |>.map FilePath.mk
+  s.splitToList (fun c => SearchPath.separator == c) |>.map FilePath.mk
 
 /--
 Joins a list of paths into a suitable value for the current platform's `$PATH` (or `%PATH%`)

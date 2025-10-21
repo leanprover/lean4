@@ -902,6 +902,10 @@ private:
             throw exception(sstream() << "cannot evaluate `[init]` declaration '" << fn << "' in the same module");
         }
         push_frame(e.m_decl, m_arg_stack.size());
+        // `Unreachable` can be from `mkDummyExternDecl`, which may mean that we failed to run the
+        // initializer, suggesting some incorrect `meta` phase setup. Let's make sure we give a
+        // better signal than a segfault in that case.
+        lean_always_assert(fn_body_tag(decl_fun_body(e.m_decl)) != fn_body_kind::Unreachable);
         value r = eval_body(decl_fun_body(e.m_decl));
         pop_frame(r, decl_type(e.m_decl));
         if (!type_is_scalar(t)) {

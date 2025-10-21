@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-// Imports: public import Init.Data.Hashable public import Init.Data.BitVec.Lemmas public import Init.Data.RArray public import Std.Tactic.BVDecide.Bitblast.BoolExpr.Basic
+// Imports: public import Init.Data.Hashable public import Std.Tactic.BVDecide.Bitblast.BoolExpr.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3467,8 +3467,8 @@ goto block_24;
 block_15:
 {
 uint64_t x_10; uint64_t x_11; uint64_t x_12; uint64_t x_13; lean_object* x_14; 
-x_10 = lean_uint64_mix_hash(x_8, x_9);
-x_11 = lean_uint64_mix_hash(x_7, x_10);
+x_10 = lean_uint64_mix_hash(x_7, x_9);
+x_11 = lean_uint64_mix_hash(x_8, x_10);
 x_12 = lean_uint64_mix_hash(x_6, x_11);
 x_13 = lean_uint64_mix_hash(x_5, x_12);
 x_14 = lean_alloc_ctor(3, 3, 9);
@@ -3488,8 +3488,8 @@ case 0:
 {
 uint64_t x_18; 
 x_18 = lean_ctor_get_uint64(x_4, sizeof(void*)*2);
-x_7 = x_16;
-x_8 = x_17;
+x_7 = x_17;
+x_8 = x_16;
 x_9 = x_18;
 goto block_15;
 }
@@ -3497,8 +3497,8 @@ case 1:
 {
 uint64_t x_19; 
 x_19 = lean_ctor_get_uint64(x_4, sizeof(void*)*2);
-x_7 = x_16;
-x_8 = x_17;
+x_7 = x_17;
+x_8 = x_16;
 x_9 = x_19;
 goto block_15;
 }
@@ -3506,8 +3506,8 @@ case 3:
 {
 uint64_t x_20; 
 x_20 = lean_ctor_get_uint64(x_4, sizeof(void*)*3);
-x_7 = x_16;
-x_8 = x_17;
+x_7 = x_17;
+x_8 = x_16;
 x_9 = x_20;
 goto block_15;
 }
@@ -3515,8 +3515,8 @@ case 4:
 {
 uint64_t x_21; 
 x_21 = lean_ctor_get_uint64(x_4, sizeof(void*)*3);
-x_7 = x_16;
-x_8 = x_17;
+x_7 = x_17;
+x_8 = x_16;
 x_9 = x_21;
 goto block_15;
 }
@@ -3524,8 +3524,8 @@ case 5:
 {
 uint64_t x_22; 
 x_22 = lean_ctor_get_uint64(x_4, sizeof(void*)*5);
-x_7 = x_16;
-x_8 = x_17;
+x_7 = x_17;
+x_8 = x_16;
 x_9 = x_22;
 goto block_15;
 }
@@ -3533,8 +3533,8 @@ default:
 {
 uint64_t x_23; 
 x_23 = lean_ctor_get_uint64(x_4, sizeof(void*)*4);
-x_7 = x_16;
-x_8 = x_17;
+x_7 = x_17;
+x_8 = x_16;
 x_9 = x_23;
 goto block_15;
 }
@@ -6135,8 +6135,6 @@ return x_4;
 }
 }
 lean_object* initialize_Init_Data_Hashable(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_RArray(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BoolExpr_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic(uint8_t builtin, lean_object* w) {
@@ -6144,12 +6142,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_Hashable(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Lemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_RArray(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Tactic_BVDecide_Bitblast_BoolExpr_Basic(builtin, lean_io_mk_world());

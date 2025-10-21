@@ -9,9 +9,7 @@ prelude
 public import Lean.Data.Array
 public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.WF.Basic
-public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.ArgsPacker
-public import Lean.Meta.ForEachExpr
 public import Lean.Meta.Match.MatcherApp.Transform
 public import Lean.Meta.Tactic.Cleanup
 public import Lean.Util.HasConstCache
@@ -238,8 +236,8 @@ def solveDecreasingGoals (funNames : Array Name) (argsPacker : ArgsPacker) (decr
   instantiateMVars value
 
 def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsPacker)
-    (wfRel : Expr) (funNames : Array Name) (decrTactics : Array (Option DecreasingBy))
-    (opaqueProof : Bool) : TermElabM Expr := do
+    (wfRel : Expr) (funNames : Array Name) (decrTactics : Array (Option DecreasingBy)) :
+    TermElabM Expr := do
   let type ← instantiateForall preDef.type prefixArgs
   let (wfFix, varName) ← forallBoundedTelescope type (some 1) fun x type => do
     let x := x[0]!
@@ -249,7 +247,7 @@ def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsP
     let motive ← mkLambdaFVars #[x] type
     let rel := mkProj ``WellFoundedRelation 0 wfRel
     let wf  := mkProj ``WellFoundedRelation 1 wfRel
-    let wf ← if opaqueProof then mkAppM `Lean.opaqueId #[wf] else pure wf
+    let wf ← mkAppM `Lean.opaqueId #[wf]
     let varName ← x.fvarId!.getUserName -- See comment below.
     return (mkApp4 (mkConst ``WellFounded.fix [u, v]) α motive rel wf, varName)
   forallBoundedTelescope (← whnf (← inferType wfFix)).bindingDomain! (some 2) fun xs _ => do

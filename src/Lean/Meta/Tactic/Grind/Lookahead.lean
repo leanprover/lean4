@@ -9,7 +9,6 @@ public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.EMatch
-import Lean.Meta.Tactic.Grind.SearchM
 public section
 namespace Lean.Meta.Grind
 

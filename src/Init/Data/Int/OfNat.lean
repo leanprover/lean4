@@ -6,11 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Int.Lemmas
-public import Init.Data.Int.DivMod
 public import Init.Data.Int.Linear
 public import Init.GrindInstances.ToInt
-public import Init.Data.RArray
 
 public section
 

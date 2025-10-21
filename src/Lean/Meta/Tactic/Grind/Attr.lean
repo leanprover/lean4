@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.EMatchTheorem
 public import Lean.Meta.Tactic.Grind.Injective
 public import Lean.Meta.Tactic.Grind.Cases
 public import Lean.Meta.Tactic.Grind.ExtAttr
@@ -100,6 +99,10 @@ private def registerGrindAttr (minIndexable : Bool) (showInfo : Bool) : IO Unit 
     applicationTime := .afterCompilation
     add := fun declName stx attrKind => MetaM.run' do
       recordExtraModUseFromDecl (isMeta := false) declName
+      -- `[grind] def` should be allowed without `[expose]` so make body accessible unconditionally.
+      -- When the body is not available (i.e. the def equations are private), the attribute will not
+      -- be exported; see `ematchTheoremsExt.exportEntry?`.
+      withoutExporting do
       match (← getAttrKindFromOpt stx) with
       | .ematch .user => throwInvalidUsrModifier
       | .ematch k => addEMatchAttr declName attrKind k (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)

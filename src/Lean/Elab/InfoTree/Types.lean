@@ -11,8 +11,6 @@ public import Lean.Data.DeclarationRange
 public import Lean.Data.OpenDecl
 public import Lean.MetavarContext
 public import Lean.Environment
-public import Lean.Data.Json.Basic
-public import Lean.Server.Rpc.Basic
 public import Lean.Widget.Types
 
 public section
@@ -74,6 +72,8 @@ structure TermInfo extends ElabInfo where
   expectedType? : Option Expr
   expr : Expr
   isBinder : Bool := false
+  /-- Whether `expr` should always be displayed in the language server, e.g. in hovers. -/
+  isDisplayableTerm : Bool := false
   deriving Inhabited
 
 /--

@@ -6,24 +6,12 @@ Authors: Leonardo de Moura, Kyle Miller
 module
 
 prelude
-public import Lean.Util.ForEachExprWhere
-public import Lean.Util.ReplaceLevel
-public import Lean.Util.ReplaceExpr
-public import Lean.Util.CollectLevelParams
 public import Lean.Meta.Constructions
-public import Lean.Meta.CollectFVars
 public import Lean.Meta.SizeOf
-public import Lean.Meta.Injective
 public import Lean.Meta.MkIffOfInductiveProp
-public import Lean.Elab.Command
 public import Lean.Elab.Coinductive
-public import Lean.Elab.DefView
-public import Lean.Elab.DeclUtil
 public import Lean.Elab.Deriving.Basic
-public import Lean.Elab.DeclarationRange
-public import Lean.Parser.Command
 import Lean.Elab.ComputedFields
-import Lean.DocString.Extension
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CtorElim
 import Lean.Meta.IndPredBelow
@@ -1049,8 +1037,8 @@ private def mkInductiveDeclCore
   let view0 := views[0]!
   let isCoinductive := views.any (·.isCoinductive)
   if isCoinductive then
-    unless (←rs.allM (forallTelescopeReducing ·.type fun args body => pure body.isProp)) do
-      throwErrorAt view0.declId "`coinductive` keyword can only be used to define predicates"
+    if let some i ← rs.findIdxM? (forallTelescopeReducing ·.type fun _ body => pure !body.isProp) then
+      throwErrorAt views[i]!.declId "`coinductive` keyword can only be used to define predicates"
   let allUserLevelNames := rs[0]!.levelNames
   let isUnsafe          := view0.modifiers.isUnsafe
   let res ← withInductiveLocalDecls rs fun params indFVars => do
@@ -1123,7 +1111,6 @@ Term.withoutSavingRecAppSyntax do
 private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM FinalizeContext :=
   withElaboratedHeaders vars elabs fun vars elabs rs scopeLevelNames => do
     let res ← mkInductiveDeclCore addAndFinalizeInductiveDecl vars elabs rs scopeLevelNames
-    addTermInfoViews <| elabs.map (·.view)
     return res
 
 private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
@@ -1145,10 +1132,6 @@ private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
 
 def updateViewWithFunctorName (view : InductiveView) : InductiveView :=
   let newCtors := view.ctors.map (fun ctor => {ctor with declName := ctor.declName.updatePrefix (addFunctorPostfix ctor.declName.getPrefix)})
-  {view with declName := addFunctorPostfix view.declName, ctors := newCtors}
-
-def updateViewRemovingFunctorName (view : InductiveView) : InductiveView :=
-  let newCtors := view.ctors.map (fun ctor => {ctor with declName := ctor.declName.updatePrefix (removeFunctorPostfix ctor.declName.getPrefix)})
   {view with declName := addFunctorPostfix view.declName, ctors := newCtors}
 
 private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabStep1) : TermElabM FinalizeContext := do
@@ -1275,9 +1258,11 @@ private def elabInductiveViewsPostprocessing (views : Array InductiveView) (res 
       unless (views.any (·.isCoinductive)) do
         Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
 
+  -- Term info is added here so that docstrings are maximally available in the environment for hovers
+  runTermElabM fun _ => Term.withDeclName view0.declName <| withRef ref <| addTermInfoViews views
+
 private def elabInductiveViewsPostprocessingCoinductive (views : Array InductiveView)
      : CommandElabM Unit := do
-  let views := views.map updateViewRemovingFunctorName
   let view0 := views[0]!
   let ref := view0.ref
 
@@ -1298,6 +1283,9 @@ private def elabInductiveViewsPostprocessingCoinductive (views : Array Inductive
     for view in views do withRef view.declId <|
       unless (views.any (·.isCoinductive)) do
         Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
+
+  -- Term info is added here so that docstrings are maximally available in the environment for hovers
+  runTermElabM fun _ => Term.withDeclName view0.declName <| withRef ref <| addTermInfoViews views
 
 def InductiveViewToCoinductiveElab (e : InductiveElabStep1) : CoinductiveElabData where
   declId := e.view.declId
@@ -1321,7 +1309,6 @@ def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Uni
       elabFlatInductiveViews vars flatElabs
       discard <| flatElabs.mapM fun e => MetaM.run' do mkSumOfProducts e.view.declName
       elabCoinductive (flatElabs.map InductiveViewToCoinductiveElab)
-      addTermInfoViews <| elabs.map (·.view)
     elabInductiveViewsPostprocessingCoinductive (elabs.map (·.view))
   else
     let res ← runTermElabM fun vars => do

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.SyntheticMVars
-// Imports: public import Lean.Meta.Tactic.Util public import Lean.Util.NumObjs public import Lean.Util.ForEachExpr public import Lean.Util.OccursCheck public import Lean.Elab.Tactic.Basic public import Lean.Meta.AbstractNestedProofs
+// Imports: public import Lean.Util.NumObjs public import Lean.Util.ForEachExpr public import Lean.Util.OccursCheck public import Lean.Elab.Tactic.Basic public import Lean.Meta.AbstractNestedProofs
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5614,7 +5614,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizePendingInstMVar___lam__0___closed__2;
 x_2 = lean_unsigned_to_nat(26u);
-x_3 = lean_unsigned_to_nat(74u);
+x_3 = lean_unsigned_to_nat(73u);
 x_4 = l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizePendingInstMVar___lam__0___closed__1;
 x_5 = l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizePendingInstMVar___lam__0___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -11897,7 +11897,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizePendingInstMVar___lam__0___closed__2;
 x_2 = lean_unsigned_to_nat(11u);
-x_3 = lean_unsigned_to_nat(239u);
+x_3 = lean_unsigned_to_nat(238u);
 x_4 = l_Lean_Elab_Term_reportStuckSyntheticMVar___closed__0;
 x_5 = l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizePendingInstMVar___lam__0___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -32297,7 +32297,6 @@ x_5 = l_Lean_registerTraceClass(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* initialize_Lean_Meta_Tactic_Util(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_NumObjs(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_ForEachExpr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_OccursCheck(uint8_t builtin, lean_object*);
@@ -32308,9 +32307,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_SyntheticMVars(uint8_t builtin, le
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_Tactic_Util(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Util_NumObjs(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

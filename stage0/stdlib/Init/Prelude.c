@@ -660,6 +660,7 @@ LEAN_EXPORT lean_object* l_Lean_Macro_throwError___redArg(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Nat_succ_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_extractMacroScopes(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_interpolatedStrLitKind;
+static lean_object* l_Lean_hexnumKind___closed__1;
 LEAN_EXPORT lean_object* l_ShiftLeft_ctorIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_instInhabitedMethods_default___lam__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadWithReaderOfMonadWithReaderOf___redArg(lean_object*);
@@ -887,6 +888,7 @@ LEAN_EXPORT lean_object* l_List_lengthTRAux___redArg(lean_object*, lean_object*)
 LEAN_EXPORT lean_object* l_Lean_Name_casesOn___override___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instDecidableEqString(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Bool_not___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_hexnumKind;
 LEAN_EXPORT lean_object* l_Substring_bsize(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadQuotation_addMacroScope___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_appendCore(lean_object*, lean_object*);
@@ -1031,6 +1033,7 @@ LEAN_EXPORT lean_object* l_Lean_withRef_x3f(lean_object*, lean_object*, lean_obj
 LEAN_EXPORT uint8_t l_BitVec_decEq___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instLTNat;
 LEAN_EXPORT lean_object* l_Lean_MonadQuotation_ctorIdx(lean_object*, lean_object*);
+static lean_object* l_Lean_hexnumKind___closed__0;
 LEAN_EXPORT lean_object* l_MonadState_ctorIdx(lean_object*, lean_object*, lean_object*);
 static size_t l_instInhabitedUSize___closed__0;
 LEAN_EXPORT lean_object* l_USize_ctorIdx___boxed(lean_object*);
@@ -12458,6 +12461,31 @@ x_1 = l_Lean_numLitKind___closed__1;
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_hexnumKind___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("hexnum", 6, 6);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_hexnumKind___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_hexnumKind___closed__0;
+x_2 = l_Lean_Name_mkStr1(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_hexnumKind() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_hexnumKind___closed__1;
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_scientificLitKind___closed__0() {
 _start:
 {
@@ -17190,6 +17218,12 @@ l_Lean_numLitKind___closed__1 = _init_l_Lean_numLitKind___closed__1();
 lean_mark_persistent(l_Lean_numLitKind___closed__1);
 l_Lean_numLitKind = _init_l_Lean_numLitKind();
 lean_mark_persistent(l_Lean_numLitKind);
+l_Lean_hexnumKind___closed__0 = _init_l_Lean_hexnumKind___closed__0();
+lean_mark_persistent(l_Lean_hexnumKind___closed__0);
+l_Lean_hexnumKind___closed__1 = _init_l_Lean_hexnumKind___closed__1();
+lean_mark_persistent(l_Lean_hexnumKind___closed__1);
+l_Lean_hexnumKind = _init_l_Lean_hexnumKind();
+lean_mark_persistent(l_Lean_hexnumKind);
 l_Lean_scientificLitKind___closed__0 = _init_l_Lean_scientificLitKind___closed__0();
 lean_mark_persistent(l_Lean_scientificLitKind___closed__0);
 l_Lean_scientificLitKind___closed__1 = _init_l_Lean_scientificLitKind___closed__1();

@@ -6,11 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.AppBuilder
 public import Lean.Meta.Tactic.Induction
-public import Lean.Meta.Tactic.Injection
-public import Lean.Meta.Tactic.Assert
-public import Lean.Meta.Tactic.Subst
 public import Lean.Meta.Tactic.Acyclic
 public import Lean.Meta.Tactic.UnifyEq
 

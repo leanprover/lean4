@@ -5,14 +5,11 @@ Authors: David Thrane Christiansen
 -/
 module
 prelude
-public import Lean.ScopedEnvExtension
 import Std.Data.HashMap
-public import Lean.DocString.Types
 public import Lean.Elab.Term.TermElabM
 public import Lean.Elab.Command.Scope
 import Lean.DocString.Syntax
 import Lean.Meta.Hint
-import Lean.DocString.Markdown
 import Lean.BuiltinDocAttr
 
 set_option linter.missingDocs true
@@ -1207,12 +1204,12 @@ private def mkSuggestion
     let some ⟨b, e⟩ := ref.getRange?
       | pure m!""
     let text ← getFileMap
-    let pre := text.source.extract 0 b
-    let post := text.source.extract e text.source.endPos
+    let pre := String.Pos.Raw.extract text.source 0 b
+    let post := String.Pos.Raw.extract text.source e text.source.rawEndPos
     let edits := newStrings.map fun (s, _, _) =>
-      let lines := text.source.split (· == '\n') |>.toArray
+      let lines := text.source.splitToList (· == '\n') |>.toArray
       let s' := pre ++ s ++ post
-      let lines' := s'.split (· == '\n') |>.toArray
+      let lines' := s'.splitToList (· == '\n') |>.toArray
       let d := diff lines lines'
       toMessageData <| Diff.linesToString <| d.filter (·.1 != Action.skip)
     pure m!"\n\nHint: {hintTitle}\n{indentD <| m!"\n".joinSep edits.toList}"
@@ -1258,7 +1255,7 @@ public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline)
           catch | _ => pure ()
         unless suggestions.isEmpty do
           let text ← getFileMap
-          let str := text.source.extract b e
+          let str := String.Pos.Raw.extract text.source b e
           let ss : Array (String × Option String × Option String) ←
             suggestions.mapM fun {role, args, moreInfo} => do
               pure {
@@ -1376,7 +1373,7 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
           catch | _ => pure ()
         unless suggestions.isEmpty do
           let text ← getFileMap
-          let str := text.source.extract b e
+          let str := String.Pos.Raw.extract text.source b e
           let ss : Array (String × Option String × Option String) ←
             suggestions.mapM fun {name, args, moreInfo} => do
               pure {
@@ -1604,10 +1601,12 @@ private def warnUnusedRefs : DocM Unit := do
 /-- Elaborates a sequence of blocks into a document. -/
 public def elabBlocks (blocks : TSyntaxArray `block) :
     DocM (Array (Block ElabInline ElabBlock) × Array (Part ElabInline ElabBlock Empty)) := do
-  let (v, _) ← elabBlocks' 0 |>.run blocks
-  let res ← fixupBlocks v
-  warnUnusedRefs
-  return res
+  -- Users should not need to make import needed for embedded terms public
+  withoutExporting do
+    let (v, _) ← elabBlocks' 0 |>.run blocks
+    let res ← fixupBlocks v
+    warnUnusedRefs
+    return res
 
 /-- Elaborates a sequence of blocks into a module doc snippet. -/
 public def elabModSnippet

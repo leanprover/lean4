@@ -14,7 +14,7 @@ open Lean (Name)
 
 /-- Converts a snake case, kebab case, or lower camel case `String` to upper camel case. -/
 public def toUpperCamelCaseString (str : String) : String :=
-  let parts := str.split fun chr => chr == '_' || chr == '-'
+  let parts := str.splitToList fun chr => chr == '_' || chr == '-'
   String.join <| parts.map (·.capitalize)
 
 /-- Converts a snake case, kebab case, or lower camel case `Name` to upper camel case. -/

@@ -8,7 +8,6 @@ prelude
 public import Lean.HeadIndex
 public import Lean.Meta.Basic
 import Lean.Meta.Eqns
-import Lean.AddDecl
 public section
 namespace Lean.Meta.Grind
 /-!

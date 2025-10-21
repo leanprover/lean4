@@ -6,9 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Data.KVMap
-public import Lean.Data.Name
-public import Lean.Data.Format
 public import Lean.Compiler.ExternAttr
 
 public section

@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Match.MatchPatternAttr
 public import Lean.Meta.Hint
 public import Lean.Elab.Arg
 public import Lean.Elab.MatchAltView

@@ -7,11 +7,8 @@ Authors: Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Elab.Command
-public import Lean.Elab.Term
 public import Lean.Elab.Deriving.Basic
 
-public import Lean.Server.Rpc.Basic
 
 public section
 

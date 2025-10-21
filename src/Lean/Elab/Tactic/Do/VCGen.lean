@@ -6,18 +6,13 @@ Authors: Sebastian Graf
 module
 
 prelude
-import Std.Do.Triple
 import Lean.Elab.Tactic.Do.VCGen.Split
 import Lean.Elab.Tactic.Simp
-import Lean.Elab.Tactic.Do.ProofMode.Basic
-import Lean.Elab.Tactic.Do.ProofMode.Intro
 import Lean.Elab.Tactic.Do.ProofMode.Revert
 import Lean.Elab.Tactic.Do.ProofMode.Cases
 import Lean.Elab.Tactic.Do.ProofMode.Specialize
-import Lean.Elab.Tactic.Do.ProofMode.Pure
 import Lean.Elab.Tactic.Do.LetElim
 import Lean.Elab.Tactic.Do.Spec
-import Lean.Elab.Tactic.Do.Attr
 import Lean.Elab.Tactic.Do.Syntax
 import Lean.Elab.Tactic.Induction
 import Lean.Meta.Tactic.TryThis
@@ -150,7 +145,7 @@ where
         -- This is so that `mSpec` can frame hypotheses involving uninstantiated loop invariants.
         -- It is absolutely crucial that we do not lose these hypotheses in the inductive step.
         collectFreshMVars <| mIntroForallN goal (← TypeList.length goal.σs) fun goal =>
-          withDefault <| mSpec goal (fun _wp  => return specThm) name
+          mSpec goal (fun _wp  => return specThm) name (tryTrivial := false)
       catch ex =>
         trace[Elab.Tactic.Do.vcgen] "Failed to find spec for {wp}. Trying simp. Reason: {ex.toMessageData}"
         -- Last resort: Simp and try again
@@ -448,7 +443,7 @@ where
 @[builtin_tactic Lean.Parser.Tactic.mvcgen]
 def elabMVCGen : Tactic := fun stx => withMainContext do
   if mvcgen.warning.get (← getOptions) then
-    logWarningAt stx "The `mvcgen` tactic is new and its behavior may change in the future. This project has used `set_option mvcgen.warning true` to discourage its use."
+    logWarningAt stx "The `mvcgen` tactic is experimental and still under development. Avoid using it in production projects."
   let ctx ← mkSpecContext stx[1] stx[2]
   let fuel := match ctx.config.stepLimit with
     | some n => .limited n
@@ -478,3 +473,12 @@ def elabMVCGen : Tactic := fun stx => withMainContext do
   trace[Elab.Tactic.Do.vcgen] "before replacing main goal {← (invariants ++ vcs).mapM fun m => m.getTag}"
   replaceMainGoal (invariants ++ vcs).toList
   -- trace[Elab.Tactic.Do.vcgen] "replaced main goal, new: {← getGoals}"
+
+@[builtin_tactic Lean.Parser.Tactic.mvcgenHint]
+def elabMVCGenHint : Tactic := fun stx => withMainContext do
+  let stx' : TSyntax ``mvcgen := TSyntax.mk <| stx
+    |>.setKind ``Lean.Parser.Tactic.mvcgen
+    |>.modifyArgs (·.set! 0 (mkAtom "mvcgen") |>.push (mkNullNode #[← `(invariantAlts| invariants?)]) |>.push mkNullNode)
+  -- logInfo m!"{stx}\n{toString stx}\n{repr stx}"
+  -- logInfo m!"{stx'}\n{toString stx'}\n{repr stx'}"
+  Lean.Meta.Tactic.TryThis.addSuggestion stx stx'

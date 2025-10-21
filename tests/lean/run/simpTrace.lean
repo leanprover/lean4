@@ -21,7 +21,7 @@ def x4 := 1
 
 /--
 info: Try this:
-  simp only [x1_eq_x2, x2_eq_x3, x3_eq_x4]
+  [apply] simp only [x1_eq_x2, x2_eq_x3, x3_eq_x4]
 -/
 #guard_msgs in
 example : x1 = x4 := by
@@ -33,7 +33,7 @@ example : x1 = x4 := by
 
 /--
 info: Try this:
-  simp only [x1_eq_x2, x2_eq_x3, x3_eq_x4]
+  [apply] simp only [x1_eq_x2, x2_eq_x3, x3_eq_x4]
 -/
 #guard_msgs in
 example : x1 * x1 = x4 * x4 := by
@@ -54,7 +54,7 @@ def test : Nat → Nat
 
 /--
 info: Try this:
-  simp only [test]
+  [apply] simp only [test]
 -/
 #guard_msgs in
 example : [test 3, test 2, test 4, test 5, test 0] = [4, 9, 16, 0, 3] := by
@@ -66,7 +66,7 @@ example : [test 3, test 2, test 4, test 5, test 0] = [4, 9, 16, 0, 3] := by
 
 /--
 info: Try this:
-  simp only [a]
+  [apply] simp only [a]
 -/
 #guard_msgs in
 example : let a := 5; a = 5 := by
@@ -79,7 +79,7 @@ example : let a := 5; a = 5 := by
 
 /--
 info: Try this:
-  simp only [h]
+  [apply] simp only [h]
 ---
 error: unsolved goals
 a b : Nat
@@ -108,7 +108,7 @@ simproc dontRewriteY2 (y2) := fun _ => do
 info: was run
 ---
 info: Try this:
-  simp only [rewriteY1]
+  [apply] simp only [rewriteY1]
 -/
 #guard_msgs in
 example : y1 = y2 := by
@@ -116,7 +116,7 @@ example : y1 = y2 := by
 
 /--
 info: Try this:
-  simp only [Nat.reduceAdd]
+  [apply] simp only [Nat.reduceAdd]
 -/
 #guard_msgs in
 example : 1 + 1 = 2 := by
@@ -135,8 +135,8 @@ theorem wait_this_is_rewritten_backwards_and_wow_it's_very_clear_and_obvious : z
 
 /--
 info: Try this:
-  simp only [very_long_lemma_oh_no_can_you_please_stop_we're_getting_to_the_limit,
-      ← wait_this_is_rewritten_backwards_and_wow_it's_very_clear_and_obvious]
+  [apply] simp only [very_long_lemma_oh_no_can_you_please_stop_we're_getting_to_the_limit,
+    ← wait_this_is_rewritten_backwards_and_wow_it's_very_clear_and_obvious]
 -/
 #guard_msgs in
 example : z1 = z3 := by

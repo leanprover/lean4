@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Guard
-// Imports: public import Init.Guard public import Lean.Elab.Command public import Lean.Elab.Tactic.Conv.Basic public import Lean.Meta.Basic public import Lean.Meta.Eval
+// Imports: public import Init.Guard public import Lean.Elab.Command public import Lean.Elab.Tactic.Conv.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -6484,9 +6484,9 @@ lean_closure_set(x_33, 0, x_18);
 lean_closure_set(x_33, 1, x_32);
 lean_closure_set(x_33, 2, x_31);
 lean_closure_set(x_33, 3, x_30);
-lean_closure_set(x_33, 4, x_20);
-lean_closure_set(x_33, 5, x_19);
-x_34 = l_Lean_Elab_Tactic_withMainContext___redArg(x_33, x_26, x_25, x_22, x_21, x_29, x_24, x_28, x_23, x_27);
+lean_closure_set(x_33, 4, x_19);
+lean_closure_set(x_33, 5, x_22);
+x_34 = l_Lean_Elab_Tactic_withMainContext___redArg(x_33, x_21, x_20, x_27, x_26, x_24, x_23, x_29, x_25, x_28);
 return x_34;
 }
 block_58:
@@ -6529,17 +6529,17 @@ x_55 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_55, 0, x_53);
 x_56 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_56, 0, x_54);
-x_19 = x_38;
-x_20 = x_37;
-x_21 = x_42;
-x_22 = x_41;
-x_23 = x_46;
-x_24 = x_44;
-x_25 = x_40;
-x_26 = x_39;
-x_27 = x_47;
-x_28 = x_45;
-x_29 = x_43;
+x_19 = x_37;
+x_20 = x_40;
+x_21 = x_39;
+x_22 = x_38;
+x_23 = x_44;
+x_24 = x_43;
+x_25 = x_46;
+x_26 = x_42;
+x_27 = x_41;
+x_28 = x_47;
+x_29 = x_45;
 x_30 = x_55;
 x_31 = x_56;
 goto block_35;
@@ -6550,17 +6550,17 @@ else
 lean_object* x_57; 
 lean_dec(x_49);
 x_57 = lean_box(0);
-x_19 = x_38;
-x_20 = x_37;
-x_21 = x_42;
-x_22 = x_41;
-x_23 = x_46;
-x_24 = x_44;
-x_25 = x_40;
-x_26 = x_39;
-x_27 = x_47;
-x_28 = x_45;
-x_29 = x_43;
+x_19 = x_37;
+x_20 = x_40;
+x_21 = x_39;
+x_22 = x_38;
+x_23 = x_44;
+x_24 = x_43;
+x_25 = x_46;
+x_26 = x_42;
+x_27 = x_41;
+x_28 = x_47;
+x_29 = x_45;
 x_30 = x_57;
 x_31 = x_57;
 goto block_35;
@@ -6648,9 +6648,9 @@ x_84 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___la
 lean_closure_set(x_84, 0, x_70);
 lean_closure_set(x_84, 1, x_83);
 lean_closure_set(x_84, 2, x_82);
-lean_closure_set(x_84, 3, x_74);
+lean_closure_set(x_84, 3, x_72);
 lean_closure_set(x_84, 4, x_81);
-x_85 = l_Lean_Elab_Tactic_withMainContext___redArg(x_84, x_78, x_73, x_71, x_79, x_76, x_75, x_80, x_77, x_72);
+x_85 = l_Lean_Elab_Tactic_withMainContext___redArg(x_84, x_74, x_80, x_77, x_73, x_71, x_78, x_76, x_75, x_79);
 return x_85;
 }
 block_109:
@@ -6693,16 +6693,16 @@ x_106 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_106, 0, x_104);
 x_107 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_107, 0, x_105);
-x_71 = x_92;
-x_72 = x_98;
-x_73 = x_91;
-x_74 = x_88;
-x_75 = x_95;
-x_76 = x_94;
-x_77 = x_97;
-x_78 = x_90;
-x_79 = x_93;
-x_80 = x_96;
+x_71 = x_94;
+x_72 = x_88;
+x_73 = x_93;
+x_74 = x_90;
+x_75 = x_97;
+x_76 = x_96;
+x_77 = x_92;
+x_78 = x_95;
+x_79 = x_98;
+x_80 = x_91;
 x_81 = x_89;
 x_82 = x_106;
 x_83 = x_107;
@@ -6714,16 +6714,16 @@ else
 lean_object* x_108; 
 lean_dec(x_100);
 x_108 = lean_box(0);
-x_71 = x_92;
-x_72 = x_98;
-x_73 = x_91;
-x_74 = x_88;
-x_75 = x_95;
-x_76 = x_94;
-x_77 = x_97;
-x_78 = x_90;
-x_79 = x_93;
-x_80 = x_96;
+x_71 = x_94;
+x_72 = x_88;
+x_73 = x_93;
+x_74 = x_90;
+x_75 = x_97;
+x_76 = x_96;
+x_77 = x_92;
+x_78 = x_95;
+x_79 = x_98;
+x_80 = x_91;
 x_81 = x_89;
 x_82 = x_108;
 x_83 = x_108;
@@ -9000,8 +9000,6 @@ return x_4;
 lean_object* initialize_Init_Guard(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Command(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Conv_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Eval(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Guard(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -9014,12 +9012,6 @@ res = initialize_Lean_Elab_Command(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Conv_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Eval(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Tactic_GuardExpr_colon_toMatchKind___closed__0 = _init_l_Lean_Elab_Tactic_GuardExpr_colon_toMatchKind___closed__0();

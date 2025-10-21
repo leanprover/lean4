@@ -6,8 +6,6 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lake.Build.Fetch
-public import Lake.Build.Job.Basic
 import Lake.Build.Infos
 public import Lake.Build.Job.Monad
 import Lake.Config.Monad

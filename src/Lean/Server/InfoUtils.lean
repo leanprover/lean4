@@ -9,7 +9,6 @@ module
 prelude
 public import Lean.DocString
 public import Lean.PrettyPrinter
-public import Lean.Parser.Tactic.Doc
 meta import Lean.Parser.Term
 
 public section
@@ -203,7 +202,7 @@ def Info.pos? (i : Info) : Option String.Pos.Raw :=
 def Info.tailPos? (i : Info) : Option String.Pos.Raw :=
   i.stx.getTailPos? (canonicalOnly := true)
 
-def Info.range? (i : Info) : Option String.Range :=
+def Info.range? (i : Info) : Option Lean.Syntax.Range :=
   i.stx.getRange? (canonicalOnly := true)
 
 def Info.contains (i : Info) (pos : String.Pos.Raw) (includeStop := false) : Bool :=
@@ -212,7 +211,7 @@ def Info.contains (i : Info) (pos : String.Pos.Raw) (includeStop := false) : Boo
 def Info.size? (i : Info) : Option String.Pos.Raw := do
   let pos ← i.pos?
   let tailPos ← i.tailPos?
-  return tailPos - pos
+  return tailPos.unoffsetBy pos
 
 -- `Info` without position information are considered to have "infinite" size
 def Info.isSmaller (i₁ i₂ : Info) : Bool :=
@@ -225,7 +224,7 @@ def Info.occursInside? (i : Info) (hoverPos : String.Pos.Raw) : Option String.Po
   let headPos ← i.pos?
   let tailPos ← i.tailPos?
   guard (headPos ≤ hoverPos && hoverPos < tailPos)
-  return hoverPos - headPos
+  return hoverPos.unoffsetBy headPos
 
 def Info.occursInOrOnBoundary (i : Info) (hoverPos : String.Pos.Raw) : Bool := Id.run do
   let some headPos := i.pos?
@@ -238,7 +237,7 @@ def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextI
   let ts := t.deepestNodes fun ctx i _ => if p i then some (ctx, i) else none
 
   let infos := ts.filterMap fun (ci, i) => do
-    let diff := (← i.tailPos?) - (← i.pos?)
+    let diff := (← i.pos?).byteDistance (← i.tailPos?)
     return (diff, ci, i)
 
   infos.toArray.getMax? (fun a b => a.1 > b.1) |>.map fun (_, ci, i) => (ci, i)
@@ -306,7 +305,7 @@ partial def InfoTree.hoverableInfoAtM? [Monad m] (t : InfoTree) (hoverPos : Stri
       return none
     let priority : HoverableInfoPrio := {
       isHoverPosOnStop := r.stop == hoverPos
-      size := (r.stop - r.start).byteIdx
+      size := r.start.byteDistance r.stop
       isVariableInfo := info matches .ofTermInfo { expr := .fvar .., .. }
       isPartialTermInfo := info matches .ofPartialTermInfo ..
     }
@@ -393,15 +392,19 @@ where
         let eFmt ← PrettyPrinter.ppSignature c
         return (some { eFmt with fmt := f!"```lean\n{eFmt.fmt}\n```" }, ← fmtModule? c)
       let eFmt ← Meta.ppExpr e
+      let lctx ← getLCtx
       -- Try not to show too scary internals
       let showTerm :=
-        if let .fvar _ := e then
-          if let some ldecl := (← getLCtx).findFVar? e then
-            !ldecl.userName.hasMacroScopes
-          else
-            false
+        if ti.isDisplayableTerm then
+          true
         else
-          isAtomicFormat eFmt
+          if let .fvar _ := e then
+            if let some ldecl := lctx.findFVar? e then
+              !ldecl.userName.hasMacroScopes
+            else
+              false
+          else
+            isAtomicFormat eFmt
       let fmt := if showTerm then f!"{eFmt} : {tpFmt}" else tpFmt
       return (some f!"```lean\n{fmt}\n```", none)
     | Info.ofFieldInfo fi =>
@@ -450,7 +453,7 @@ partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String
       | return gs
     let trailSize := i.stx.getTrailingSize
     -- show info at EOF even if strictly outside token + trail
-    let atEOF := tailPos.byteIdx + trailSize == text.source.endPos.byteIdx
+    let atEOF := tailPos.byteIdx + trailSize == text.source.rawEndPos.byteIdx
     -- include at least one trailing character (see also `priority` below)
     if pos ≤ hoverPos ∧ (hoverPos.byteIdx < tailPos.byteIdx + max 1 trailSize || atEOF) then
       -- overwrite bottom-up results according to "innermost" heuristics documented above

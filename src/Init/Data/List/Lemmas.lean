@@ -7,13 +7,11 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.Bool
 public import Init.Data.Option.Lemmas
 public import Init.Data.List.BasicAux
 import all Init.Data.List.BasicAux
 public import Init.Data.List.Control
 import all Init.Data.List.Control
-public import Init.Control.Lawful.Basic
 public import Init.BinderPredicates
 
 public section
@@ -2932,7 +2930,7 @@ theorem contains_iff_exists_mem_beq [BEq α] {l : List α} {a : α} :
 -- With `LawfulBEq α`, it would be better to use `contains_iff_mem` directly.
 grind_pattern contains_iff_exists_mem_beq => l.contains a
 
-@[grind _=_]
+@[grind =]
 theorem contains_iff_mem [BEq α] [LawfulBEq α] {l : List α} {a : α} :
     l.contains a ↔ a ∈ l := by
   simp

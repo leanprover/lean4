@@ -6,13 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Basic
-public import Lean.Elab.PreDefinition.Eqns
 public import Lean.Elab.PreDefinition.FixedParams
-import Lean.Meta.Eqns
+import Lean.Elab.PreDefinition.EqnsUtils
 import Lean.Meta.Tactic.Split
 import Lean.Meta.Tactic.Simp.Main
-import Lean.Meta.Tactic.Apply
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Meta.Match.MatchEqs
@@ -24,7 +21,11 @@ open Eqns
 
 namespace Structural
 
-public structure EqnInfo extends EqnInfoCore where
+public structure EqnInfo where
+  declName    : Name
+  levelParams : List Name
+  type        : Expr
+  value       : Expr
   recArgPos : Nat
   declNames : Array Name
   fixedParamPerms : FixedParamPerms
@@ -52,6 +53,12 @@ where
           return ← withLocalDeclD `x (← inferType brecOnApp) fun x =>
             k brecOnApp x (mkAppN x extraArgs)
     throwError "could not find `.brecOn` application in{indentExpr e}"
+
+def deltaRHS? (mvarId : MVarId) (declName : Name) : MetaM (Option MVarId) := mvarId.withContext do
+  let target ← mvarId.getType'
+  let some (_, lhs, rhs) := target.eq? | return none
+  let some rhs ← delta? rhs.consumeMData (· == declName) | return none
+  mvarId.replaceTargetDefEq (← mkEq lhs rhs)
 
 /--
 Creates the proof of the unfolding theorem for `declName` with type `type`. It
@@ -151,12 +158,6 @@ public def registerEqnsInfo (preDef : PreDefinition) (declNames : Array Name) (r
   modifyEnv fun env => eqnInfoExt.insert env preDef.declName
     { preDef with recArgPos, declNames, fixedParamPerms }
 
-def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
-  if let some info := eqnInfoExt.find? (← getEnv) declName then
-    mkEqns declName info.declNames
-  else
-    return none
-
 /-- Generate the "unfold" lemma for `declName`. -/
 def mkUnfoldEq (declName : Name) (info : EqnInfo) : MetaM Name := do
   let name := mkEqLikeNameFor (← getEnv) info.declName unfoldThmSuffix
@@ -190,7 +191,6 @@ def getStructuralRecArgPosImp? (declName : Name) : CoreM (Option Nat) := do
 
 
 builtin_initialize
-  registerGetEqnsFn getEqnsFor?
   registerGetUnfoldEqnFn getUnfoldFor?
   registerTraceClass `Elab.definition.structural.eqns
 

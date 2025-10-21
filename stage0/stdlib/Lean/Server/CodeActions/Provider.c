@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.CodeActions.Provider
-// Imports: public import Std.Data.Iterators.Producers.Range public import Std.Data.Iterators.Combinators.StepSize public import Lean.Elab.BuiltinTerm public import Lean.Elab.BuiltinNotation public import Lean.Server.InfoUtils public import Lean.Server.CodeActions.Attr
+// Imports: public import Std.Data.Iterators.Producers.Range public import Std.Data.Iterators.Combinators.StepSize public import Lean.Elab.BuiltinTerm public import Lean.Elab.BuiltinNotation public import Lean.Server.CodeActions.Attr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2200,11 +2200,11 @@ goto block_19;
 block_15:
 {
 lean_object* x_12; lean_object* x_13; 
-x_12 = l___private_Lean_Server_CodeActions_Provider_0__Lean_CodeAction_findTactic_x3f_merge(x_1, x_10);
-lean_dec_ref(x_10);
+x_12 = l___private_Lean_Server_CodeActions_Provider_0__Lean_CodeAction_findTactic_x3f_merge(x_1, x_11);
+lean_dec_ref(x_11);
 x_13 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
-x_8 = x_11;
+x_8 = x_10;
 x_9 = x_13;
 goto _start;
 }
@@ -2212,8 +2212,8 @@ block_19:
 {
 if (lean_obj_tag(x_9) == 0)
 {
-x_10 = x_17;
-x_11 = x_16;
+x_10 = x_16;
+x_11 = x_17;
 goto block_15;
 }
 else
@@ -2221,8 +2221,8 @@ else
 lean_dec_ref(x_9);
 if (x_2 == 0)
 {
-x_10 = x_17;
-x_11 = x_16;
+x_10 = x_16;
+x_11 = x_17;
 goto block_15;
 }
 else
@@ -2618,22 +2618,22 @@ return x_33;
 block_47:
 {
 lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; 
-lean_inc(x_41);
-x_43 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_43, 0, x_41);
-lean_ctor_set(x_43, 1, x_23);
 lean_inc(x_40);
+x_43 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_43, 0, x_40);
+lean_ctor_set(x_43, 1, x_23);
+lean_inc(x_39);
 x_44 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_44, 0, x_43);
-lean_ctor_set(x_44, 1, x_40);
+lean_ctor_set(x_44, 1, x_39);
 x_45 = lean_alloc_ctor(1, 2, 1);
-lean_ctor_set(x_45, 0, x_39);
+lean_ctor_set(x_45, 0, x_41);
 lean_ctor_set(x_45, 1, x_44);
 lean_ctor_set_uint8(x_45, sizeof(void*)*2, x_42);
 x_46 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_46, 0, x_45);
-x_24 = x_40;
-x_25 = x_41;
+x_24 = x_39;
+x_25 = x_40;
 x_26 = x_46;
 goto block_38;
 }
@@ -2643,20 +2643,20 @@ if (x_51 == 0)
 {
 lean_object* x_56; uint8_t x_57; 
 lean_inc_ref(x_1);
-x_56 = lean_apply_1(x_1, x_52);
+x_56 = lean_apply_1(x_1, x_54);
 x_57 = lean_unbox(x_56);
-x_39 = x_55;
+x_39 = x_52;
 x_40 = x_53;
-x_41 = x_54;
+x_41 = x_55;
 x_42 = x_57;
 goto block_47;
 }
 else
 {
-lean_dec(x_52);
-x_39 = x_55;
+lean_dec(x_54);
+x_39 = x_52;
 x_40 = x_53;
-x_41 = x_54;
+x_41 = x_55;
 x_42 = x_9;
 goto block_47;
 }
@@ -2665,12 +2665,12 @@ block_66:
 {
 lean_object* x_63; lean_object* x_64; lean_object* x_65; 
 x_63 = lean_unsigned_to_nat(1u);
-x_64 = lean_nat_add(x_61, x_63);
-lean_dec(x_61);
+x_64 = lean_nat_add(x_59, x_63);
+lean_dec(x_59);
 x_65 = lean_nat_shiftr(x_64, x_63);
 lean_dec(x_64);
-x_52 = x_59;
-x_53 = x_60;
+x_52 = x_60;
+x_53 = x_61;
 x_54 = x_62;
 x_55 = x_65;
 goto block_58;
@@ -2718,10 +2718,10 @@ x_78 = l_Lean_Syntax_getNumArgs(x_72);
 x_79 = lean_nat_dec_lt(x_23, x_78);
 if (x_79 == 0)
 {
-x_59 = x_77;
+x_59 = x_78;
 x_60 = x_71;
-x_61 = x_78;
-x_62 = x_72;
+x_61 = x_72;
+x_62 = x_77;
 goto block_66;
 }
 else
@@ -2736,10 +2736,10 @@ lean_inc(x_83);
 lean_dec_ref(x_82);
 if (lean_obj_tag(x_83) == 0)
 {
-x_59 = x_77;
+x_59 = x_78;
 x_60 = x_71;
-x_61 = x_78;
-x_62 = x_72;
+x_61 = x_72;
+x_62 = x_77;
 goto block_66;
 }
 else
@@ -2749,9 +2749,9 @@ lean_dec(x_78);
 x_84 = lean_ctor_get(x_83, 0);
 lean_inc(x_84);
 lean_dec_ref(x_83);
-x_52 = x_77;
-x_53 = x_71;
-x_54 = x_72;
+x_52 = x_71;
+x_53 = x_72;
+x_54 = x_77;
 x_55 = x_84;
 goto block_58;
 }
@@ -4490,7 +4490,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_CodeAction_cmdCodeActionProvider_spec__2_spec__2___closed__2;
 x_2 = lean_unsigned_to_nat(48u);
-x_3 = lean_unsigned_to_nat(186u);
+x_3 = lean_unsigned_to_nat(185u);
 x_4 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_CodeAction_cmdCodeActionProvider_spec__2_spec__2___closed__1;
 x_5 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_CodeAction_cmdCodeActionProvider_spec__2_spec__2___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -5097,7 +5097,6 @@ lean_object* initialize_Std_Data_Iterators_Producers_Range(uint8_t builtin, lean
 lean_object* initialize_Std_Data_Iterators_Combinators_StepSize(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_BuiltinTerm(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_BuiltinNotation(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Server_InfoUtils(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_CodeActions_Attr(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_CodeActions_Provider(uint8_t builtin, lean_object* w) {
@@ -5114,9 +5113,6 @@ res = initialize_Lean_Elab_BuiltinTerm(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_BuiltinNotation(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Server_InfoUtils(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Server_CodeActions_Attr(builtin, lean_io_mk_world());

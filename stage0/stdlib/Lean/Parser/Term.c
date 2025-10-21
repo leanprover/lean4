@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Parser.Term
-// Imports: public import Lean.Parser.Attr public import Lean.Parser.Level public import Lean.Parser.Term.Basic public import Lean.Parser.Term.Basic meta import Lean.Parser.Term.Basic public import Lean.Parser.Term.Doc meta import Lean.Parser.Basic import Lean.DocString.Parser public import Lean.DocString.Formatter
+// Imports: public import Lean.Parser.Term.Basic meta import Lean.Parser.Term.Basic public import Lean.Parser.Term.Doc import Lean.DocString.Parser public import Lean.DocString.Formatter
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -71,7 +71,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_throwN
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_pipeProj___regBuiltin_Lean_Parser_Term_pipeProj_declRange__5___closed__0;
 static lean_object* l_Lean_Parser_Term_letOptEq___closed__9;
 static lean_object* l_Lean_Parser_Term_whereFinallySubsection_parenthesizer___closed__1;
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_suffices_formatter___closed__3;
 static lean_object* l_Lean_Parser_Term_letConfigItem_formatter___closed__0;
 static lean_object* l_Lean_Parser_Term_logNamedErrorAtMacro_formatter___closed__2;
@@ -2642,6 +2641,7 @@ static lean_object* l_Lean_Parser_Command_docComment___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_match___regBuiltin_Lean_Parser_Term_trueVal_parenthesizer__39(lean_object*);
 static lean_object* l_Lean_Parser_Term_attributes_formatter___closed__7;
 lean_object* l_Lean_Parser_symbol_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_letI___regBuiltin_Lean_Parser_Term_letI_docString__3___closed__0;
 static lean_object* l_Lean_Parser_Term_matchDiscr_formatter___closed__4;
 static lean_object* l_Lean_Parser_Term_let_formatter___closed__4;
@@ -3044,7 +3044,6 @@ static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_typeOf___re
 static lean_object* l_Lean_Parser_Term_forInMacro_parenthesizer___closed__4;
 static lean_object* l_Lean_Parser_Termination_terminationBy_formatter___closed__7;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_sort___regBuiltin_Lean_Parser_Term_sort_declRange__5___closed__5;
-lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_arrow___closed__0;
 static lean_object* l_Lean_Parser_Term_match_parenthesizer___closed__12;
 static lean_object* l_Lean_Parser_Term_local___closed__2;
@@ -4553,6 +4552,7 @@ static lean_object* l_Lean_Parser_Term_logNamedWarningAtMacro___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_ident___regBuiltin_Lean_Parser_Term_ident_declRange__3(lean_object*);
 static lean_object* l_Lean_Parser_Term_letDecl___closed__1;
 static lean_object* l___private_Lean_Parser_Term_0__Lean_Parser_Term_depArrow___regBuiltin_Lean_Parser_Term_depArrow_declRange__3___closed__2;
+lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_assert___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_letConfigItem_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Command_docComment___closed__7;
@@ -69233,13 +69233,9 @@ return x_133;
 }
 }
 }
-lean_object* initialize_Lean_Parser_Attr(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Parser_Level(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Parser_Term_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_Term_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_Term_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_Term_Doc(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Parser_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_DocString_Parser(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_DocString_Formatter(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -69247,15 +69243,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Parser_Term(uint8_t builtin, lean_objec
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Parser_Attr(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Parser_Level(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Parser_Term_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Parser_Term_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -69263,9 +69250,6 @@ res = initialize_Lean_Parser_Term_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Parser_Term_Doc(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Parser_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_DocString_Parser(builtin, lean_io_mk_world());

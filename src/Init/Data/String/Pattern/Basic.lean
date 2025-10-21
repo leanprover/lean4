@@ -35,7 +35,7 @@ inductive SearchStep (s : Slice) where
   -/
   | rejected (startPos endPos : s.Pos)
   /--
-  The subslice starting at {name}`startPos` and ending at {name}`endPos` did not match the pattern.
+  The subslice starting at {name}`startPos` and ending at {name}`endPos` matches the pattern.
   -/
   | matched (startPos endPos : s.Pos)
 deriving Inhabited
@@ -70,25 +70,25 @@ class ForwardPattern (ρ : Type) where
   Checks whether the slice starts with the pattern. If it does, the slice is returned with the
   prefix removed; otherwise the result is {name}`none`.
   -/
-  dropPrefix? : Slice → ρ → Option Slice
+  dropPrefix? : (s : Slice) → ρ → Option s.Pos
 
 namespace Internal
 
 @[extern "lean_slice_memcmp"]
 def memcmp (lhs rhs : @& Slice) (lstart : @& String.Pos.Raw) (rstart : @& String.Pos.Raw)
-    (len : @& String.Pos.Raw) (h1 : lstart + len ≤ lhs.utf8ByteSize)
-    (h2 : rstart + len ≤ rhs.utf8ByteSize) : Bool :=
+    (len : @& String.Pos.Raw) (h1 : len.offsetBy lstart ≤ lhs.rawEndPos)
+    (h2 : len.offsetBy rstart ≤ rhs.rawEndPos) : Bool :=
   go 0
 where
   go (curr : String.Pos.Raw) : Bool :=
     if h : curr < len then
       have hl := by
-        simp [Pos.Raw.le_iff] at h h1 ⊢
+        simp [Pos.Raw.le_iff, Pos.Raw.lt_iff] at h h1 ⊢
         omega
       have hr := by
-        simp [Pos.Raw.le_iff] at h h2 ⊢
+        simp [Pos.Raw.le_iff, Pos.Raw.lt_iff] at h h2 ⊢
         omega
-      if lhs.getUTF8Byte (lstart + curr) hl == rhs.getUTF8Byte (rstart + curr) hr then
+      if lhs.getUTF8Byte (curr.offsetBy lstart) hl == rhs.getUTF8Byte (curr.offsetBy rstart) hr then
         go curr.inc
       else
         false
@@ -96,46 +96,8 @@ where
       true
   termination_by len.byteIdx - curr.byteIdx
   decreasing_by
-    simp at h ⊢
+    simp [Pos.Raw.lt_iff] at h ⊢
     omega
-
-variable {ρ : Type} {σ : Slice → Type}
-variable [∀ s, Std.Iterators.Iterator (σ s) Id (SearchStep s)]
-variable [∀ s, Std.Iterators.Finite (σ s) Id]
-
-/--
-Tries to skip the {name}`searcher` until the next {name}`SearchStep.matched` and return it. If no
-match is found until the end returns {name}`none`.
--/
-@[inline]
-def nextMatch (searcher : Std.Iter (α := σ s) (SearchStep s)) :
-    Option (Std.Iter (α := σ s) (SearchStep s) × s.Pos × s.Pos) :=
-  go searcher
-where
-  go [∀ s, Std.Iterators.Finite (σ s) Id] (searcher : Std.Iter (α := σ s) (SearchStep s)) :
-      Option (Std.Iter (α := σ s) (SearchStep s) × s.Pos × s.Pos) :=
-    match searcher.step with
-    | .yield it (.matched startPos endPos) _ => some (it, startPos, endPos)
-    | .yield it (.rejected ..) _ | .skip it .. => go it
-    | .done .. => none
-  termination_by Std.Iterators.Iter.finitelyManySteps searcher
-
-/--
-Tries to skip the {name}`searcher` until the next {name}`SearchStep.rejected` and return it. If no
-reject is found until the end returns {name}`none`.
--/
-@[inline]
-def nextReject (searcher : Std.Iter (α := σ s) (SearchStep s)) :
-    Option (Std.Iter (α := σ s) (SearchStep s) × s.Pos × s.Pos) :=
-  go searcher
-where
-  go [∀ s, Std.Iterators.Finite (σ s) Id] (searcher : Std.Iter (α := σ s) (SearchStep s)) :
-      Option (Std.Iter (α := σ s) (SearchStep s) × s.Pos × s.Pos) :=
-    match searcher.step with
-    | .yield it (.rejected startPos endPos) _ => some (it, startPos, endPos)
-    | .yield it (.matched ..) _ | .skip it .. => go it
-    | .done .. => none
-  termination_by Std.Iterators.Iter.finitelyManySteps searcher
 
 end Internal
 
@@ -153,10 +115,10 @@ def defaultStartsWith (s : Slice) (pat : ρ) : Bool :=
   | _ => false
 
 @[specialize pat]
-def defaultDropPrefix? (s : Slice) (pat : ρ) : Option Slice :=
+def defaultDropPrefix? (s : Slice) (pat : ρ) : Option s.Pos :=
   let searcher := ToForwardSearcher.toSearcher s pat
   match searcher.step with
-  | .yield _ (.matched _ endPos) _ => some (s.replaceStart endPos)
+  | .yield _ (.matched _ endPos) _ => some endPos
   | _ => none
 
 @[always_inline, inline]
@@ -196,7 +158,7 @@ class BackwardPattern (ρ : Type) where
   Checks whether the slice ends with the pattern. If it does, the slice is returned with the
   suffix removed; otherwise the result is {name}`none`.
   -/
-  dropSuffix? : Slice → ρ → Option Slice
+  dropSuffix? : (s : Slice) → ρ → Option s.Pos
 
 namespace ToBackwardSearcher
 
@@ -212,10 +174,10 @@ def defaultEndsWith (s : Slice) (pat : ρ) : Bool :=
   | _ => false
 
 @[specialize pat]
-def defaultDropSuffix? (s : Slice) (pat : ρ) : Option Slice :=
+def defaultDropSuffix? (s : Slice) (pat : ρ) : Option s.Pos :=
   let searcher := ToBackwardSearcher.toSearcher s pat
   match searcher.step with
-  | .yield _ (.matched startPos _) _ => some (s.replaceEnd startPos)
+  | .yield _ (.matched startPos _) _ => some startPos
   | _ => none
 
 @[always_inline, inline]

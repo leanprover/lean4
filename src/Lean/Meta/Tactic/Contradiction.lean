@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.MatchUtil
 public import Lean.Meta.Tactic.Assumption
 public import Lean.Meta.Tactic.Cases
 public import Lean.Meta.Tactic.Apply

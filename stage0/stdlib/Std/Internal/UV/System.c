@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.UV.System
-// Imports: public import Init.System.IO public import Init.System.Promise public import Init.Data.SInt public import Std.Net
+// Imports: public import Init.System.Promise public import Init.Data.SInt public import Std.Net
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3504,7 +3504,6 @@ x_2 = lean_uv_get_available_memory(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_System_Promise(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_SInt(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Net(uint8_t builtin, lean_object*);
@@ -3513,9 +3512,6 @@ LEAN_EXPORT lean_object* initialize_Std_Internal_UV_System(uint8_t builtin, lean
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_System_IO(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_System_Promise(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

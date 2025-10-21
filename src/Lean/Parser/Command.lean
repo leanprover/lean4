@@ -6,10 +6,8 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Parser.Term
 public import Lean.Parser.Do
 import Lean.DocString.Parser
-public import Lean.DocString.Formatter
 meta import Lean.Parser.Basic
 
 public section
@@ -911,14 +909,15 @@ abbrev declModifiersT := declModifiers true
 builtin_initialize
   register_parser_alias (kind := ``declModifiers) "declModifiers"       declModifiersF
   register_parser_alias (kind := ``declModifiers) "nestedDeclModifiers" declModifiersT
-  register_parser_alias                                                 declId
-  register_parser_alias                                                 declSig
-  register_parser_alias                                                 declVal
-  register_parser_alias                                                 optDeclSig
-  register_parser_alias                                                 openDecl
-  register_parser_alias                                                 docComment
-  register_parser_alias                                                 plainDocComment
-  register_parser_alias                                                 visibility
+  register_parser_alias declId
+  register_parser_alias declSig
+  register_parser_alias declVal
+  register_parser_alias optDeclSig
+  register_parser_alias openDecl
+  register_parser_alias docComment
+  register_parser_alias plainDocComment
+  register_parser_alias visibility
+  register_parser_alias "optionValue" Command.optionValue
 
 /--
 Registers an error explanation.

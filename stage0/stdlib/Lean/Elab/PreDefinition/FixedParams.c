@@ -3668,7 +3668,7 @@ else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_11 = lean_array_uget(x_3, x_2);
-x_12 = lean_ctor_get(x_11, 6);
+x_12 = lean_ctor_get(x_11, 7);
 lean_inc_ref(x_12);
 lean_dec(x_11);
 lean_inc(x_7);
@@ -11720,7 +11720,7 @@ _start:
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; 
 x_15 = lean_array_fget_borrowed(x_1, x_9);
-x_16 = lean_ctor_get(x_15, 6);
+x_16 = lean_ctor_get(x_15, 7);
 x_17 = lean_alloc_closure((void*)(l_Std_Rxo_Iterator_instIteratorLoop_loop___at___Std_Rxo_Iterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__32_spec__32___redArg___lam__0___boxed), 6, 0);
 lean_inc_ref(x_5);
 lean_inc_ref(x_4);
@@ -11851,7 +11851,7 @@ _start:
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; lean_object* x_21; 
 x_16 = lean_array_fget_borrowed(x_1, x_10);
-x_17 = lean_ctor_get(x_16, 6);
+x_17 = lean_ctor_get(x_16, 7);
 x_18 = lean_alloc_closure((void*)(l_Std_Rxo_Iterator_instIteratorLoop_loop___at___Std_Rxo_Iterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__32_spec__32___redArg___lam__0___boxed), 6, 0);
 lean_inc_ref(x_5);
 lean_inc_ref(x_4);
@@ -18659,7 +18659,7 @@ x_10 = l_Lean_Elab_getFixedParamPerms___closed__0;
 x_11 = lean_unsigned_to_nat(0u);
 x_12 = lean_array_get(x_10, x_1, x_11);
 lean_dec_ref(x_1);
-x_13 = lean_ctor_get(x_12, 6);
+x_13 = lean_ctor_get(x_12, 7);
 lean_inc_ref(x_13);
 lean_dec_ref(x_12);
 x_14 = l_Lean_Elab_FixedParams_Info_mayBeFixed___closed__0;

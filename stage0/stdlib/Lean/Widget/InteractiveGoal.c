@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Widget.InteractiveGoal
-// Imports: public import Lean.Meta.PPGoal public import Lean.Widget.InteractiveCode public import Lean.Data.Lsp.Extra
+// Imports: public import Lean.Widget.InteractiveCode public import Lean.Data.Lsp.Extra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -12538,7 +12538,6 @@ x_13 = l_Lean_Widget_goalToInteractive___lam__0(x_11, x_12, x_3, x_4, x_5, x_6, 
 return x_13;
 }
 }
-lean_object* initialize_Lean_Meta_PPGoal(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Widget_InteractiveCode(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Extra(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -12546,9 +12545,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Widget_InteractiveGoal(uint8_t builtin,
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_PPGoal(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Widget_InteractiveCode(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

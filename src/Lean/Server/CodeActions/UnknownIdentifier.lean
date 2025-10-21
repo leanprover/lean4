@@ -6,12 +6,8 @@ Authors: Marc Huisinga
 module
 
 prelude
-public import Lean.Server.FileWorker.Utils
-public import Lean.Data.Lsp.Internal
-public import Lean.Server.Requests
 public import Lean.Server.Completion.CompletionInfoSelection
 public import Lean.Server.CodeActions.Basic
-public import Lean.Server.Completion.CompletionUtils
 
 public section
 
@@ -20,7 +16,7 @@ namespace Lean.Server.FileWorker
 open Lean.Lsp
 open Lean.Server.Completion
 
-private def compareRanges (r1 r2 : String.Range) : Ordering :=
+private def compareRanges (r1 r2 : Lean.Syntax.Range) : Ordering :=
   if r1.start < r2.start then
     .lt
   else if r1.start > r2.start then
@@ -32,8 +28,8 @@ private def compareRanges (r1 r2 : String.Range) : Ordering :=
   else
     .eq
 
-def waitUnknownIdentifierRanges (doc : EditableDocument) (requestedRange : String.Range)
-    : BaseIO (Array String.Range × Bool) := do
+def waitUnknownIdentifierRanges (doc : EditableDocument) (requestedRange : Lean.Syntax.Range)
+    : BaseIO (Array Lean.Syntax.Range × Bool) := do
   let text := doc.meta.text
   let some parsedSnap := RequestM.findCmdParsedSnap doc requestedRange.start |>.get
     | return (#[], false)
@@ -43,13 +39,13 @@ def waitUnknownIdentifierRanges (doc : EditableDocument) (requestedRange : Strin
   for msg in msgLog.unreported do
     if ! msg.data.hasTag (· == unknownIdentifierMessageTag) then
       continue
-    let msgRange : String.Range := ⟨text.ofPosition msg.pos, text.ofPosition <| msg.endPos.getD msg.pos⟩
+    let msgRange : Lean.Syntax.Range := ⟨text.ofPosition msg.pos, text.ofPosition <| msg.endPos.getD msg.pos⟩
     if ! msgRange.overlaps requestedRange
         (includeFirstStop := true) (includeSecondStop := true) then
       continue
     ranges := ranges.push msgRange
   let isAnyUnknownIdentifierMessage := ! ranges.isEmpty
-  let autoImplicitUsages : ServerTask (Std.TreeSet String.Range compareRanges) :=
+  let autoImplicitUsages : ServerTask (Std.TreeSet Lean.Syntax.Range compareRanges) :=
     tree.foldInfosInRange requestedRange ∅ fun ctx i acc => Id.run do
       let .ofTermInfo ti := i
         | return acc
@@ -65,7 +61,7 @@ def waitUnknownIdentifierRanges (doc : EditableDocument) (requestedRange : Strin
   return (ranges, isAnyUnknownIdentifierMessage)
 
 def waitAllUnknownIdentifierMessageRanges (doc : EditableDocument)
-    : BaseIO (Array String.Range) := do
+    : BaseIO (Array Lean.Syntax.Range) := do
   let text := doc.meta.text
   let snaps := Language.toSnapshotTree doc.initSnap |>.getAll
   let msgLog : MessageLog := snaps.map (·.diagnostics.msgLog) |>.foldl (· ++ ·) {}
@@ -73,11 +69,11 @@ def waitAllUnknownIdentifierMessageRanges (doc : EditableDocument)
   for msg in msgLog.unreported do
     if ! msg.data.hasTag (· == unknownIdentifierMessageTag) then
       continue
-    let msgRange : String.Range := ⟨text.ofPosition msg.pos, text.ofPosition <| msg.endPos.getD msg.pos⟩
+    let msgRange : Lean.Syntax.Range := ⟨text.ofPosition msg.pos, text.ofPosition <| msg.endPos.getD msg.pos⟩
     ranges := ranges.push msgRange
   let (cmdSnaps, _) := doc.cmdSnaps.waitAll.get
   for snap in cmdSnaps do
-    let autoImplicitUsages : Std.TreeSet String.Range compareRanges :=
+    let autoImplicitUsages : Std.TreeSet Lean.Syntax.Range compareRanges :=
       snap.infoTree.foldInfo (init := ∅) fun ctx i acc => Id.run do
         let .ofTermInfo ti := i
           | return acc
@@ -157,7 +153,7 @@ def computeDotQuery?
   if typeNames.isEmpty then
     return none
   return some {
-    identifier := text.source.extract pos tailPos
+    identifier := String.Pos.Raw.extract text.source pos tailPos
     openNamespaces := typeNames.map (.allExcept · #[])
     env := ctx.env
     determineInsertion decl :=
@@ -244,7 +240,7 @@ def importAllUnknownIdentifiersCodeAction (params : CodeActionParams) (kind : St
 def handleUnknownIdentifierCodeAction
     (id             : JsonRpc.RequestID)
     (params         : CodeActionParams)
-    (requestedRange : String.Range)
+    (requestedRange : Lean.Syntax.Range)
     (kind           : String)
     : RequestM (Array CodeAction) := do
   let rc ← read
@@ -319,7 +315,7 @@ def handleUnknownIdentifierCodeAction
 def handleResolveImportAllUnknownIdentifiersCodeAction?
     (id                      : JsonRpc.RequestID)
     (action                  : CodeAction)
-    (unknownIdentifierRanges : Array String.Range)
+    (unknownIdentifierRanges : Array Lean.Syntax.Range)
     : RequestM (Option CodeAction) := do
   let rc ← read
   let doc := rc.doc

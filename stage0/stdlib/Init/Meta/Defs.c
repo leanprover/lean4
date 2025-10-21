@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Meta.Defs
-// Imports: public import Init.Prelude import all Init.Prelude public import Init.MetaTypes public import Init.Syntax public import Init.Data.Array.GetLit public import Init.Data.Option.BasicAux public meta import Init.Data.Array.Basic public meta import Init.Syntax
+// Imports: import all Init.Prelude public import Init.Syntax public import Init.Data.Array.GetLit public import Init.Data.Option.BasicAux public meta import Init.Data.Array.Basic public meta import Init.Syntax
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -253,6 +253,7 @@ LEAN_EXPORT lean_object* l___private_Init_Meta_Defs_0__Lean_Syntax_updateLast___
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_getTrailing_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_instRepr_repr(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_TSyntax_getHexNumVal(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Meta_Defs_0__Lean_Syntax_decodeHexLitAux___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Syntax_isAtom(lean_object*);
@@ -287,6 +288,7 @@ static lean_object* l___private_Init_Meta_Defs_0__Lean_quoteArray___redArg___clo
 LEAN_EXPORT uint8_t l_Lean_isIdFirstAscii(uint8_t);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_mkCharLit___closed__0;
+static lean_object* l___private_Init_Meta_Defs_0__Lean_TSyntax_isHexNum_x3f___closed__0;
 static lean_object* l_Lean_Meta_instReprConfig_repr___redArg___closed__28;
 static lean_object* l_Lean_Parser_Tactic_getConfigItems___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_getConfigItems(lean_object*);
@@ -356,11 +358,13 @@ LEAN_EXPORT lean_object* l_Lean_Syntax_SepArray_ofElems___boxed(lean_object*, le
 static lean_object* l_Lean_Syntax_isInterpolatedStrLit_x3f___closed__0;
 LEAN_EXPORT lean_object* l_List_repr___at___Lean_Syntax_instRepr_repr_spec__4(lean_object*, lean_object*);
 lean_object* l_instReprSourceInfo_repr(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Meta_Defs_0__Lean_TSyntax_getHexNumSize_go___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_mkApp___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Quote_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_TSepArray_getElems___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instQuoteNameMkStr1___private__1(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_TSyntax_getHexNumSize(lean_object*);
 static lean_object* l_Lean_Meta_instReprConfig_repr___redArg___closed__22;
 LEAN_EXPORT lean_object* l_Lean_Syntax_isFieldIdx_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instQuoteNatNumLitKind;
@@ -512,6 +516,7 @@ LEAN_EXPORT lean_object* l_Lean_Syntax_decodeQuotedChar___boxed__const__5;
 LEAN_EXPORT lean_object* l_Lean_isIdEndEscape___boxed(lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Meta_Defs_0__Lean_Name_needsNoEscapeAsciiRest(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_instBEqPreresolved;
+LEAN_EXPORT lean_object* l_Lean_TSyntax_getHexNumVal___boxed(lean_object*);
 static lean_object* l_List_foldr___at___List_foldr___at___Substring_toName_spec__0_spec__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Syntax_isStrLit_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_decodeQuotedChar___boxed__const__2;
@@ -575,6 +580,7 @@ static lean_object* l_Lean_Syntax_instCoeIdentTSyntaxConsSyntaxNodeKindMkStr4Nil
 static lean_object* l_List_foldr___at___List_foldr___at___Substring_toName_spec__0_spec__0___closed__1;
 LEAN_EXPORT lean_object* l_Lean_isIdBeginEscape___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_TSyntax_instCoeConsSyntaxNodeKindNil___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_TSyntax_getHexNumSize___boxed(lean_object*);
 static lean_object* l_Lean_Meta_instReprEtaStructMode_repr___closed__5;
 LEAN_EXPORT lean_object* l_Array_mapSepElemsM(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instQuoteSubstringMkStr1___lam__0___closed__1;
@@ -750,6 +756,7 @@ lean_object* lean_string_pos_min(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT uint8_t l___private_Init_Meta_Defs_0__Lean_Name_needsNoEscapeAscii(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_mkOptConfig(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Meta_Defs_0__Lean_TSyntax_isHexNum_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Internal_hasLLVMBackend___boxed(lean_object*);
 static lean_object* l_Lean_TSyntax_expandInterpolatedStr___closed__13;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
@@ -899,6 +906,7 @@ static lean_object* l_Array_Array_repr___at___Lean_Syntax_instRepr_repr_spec__0_
 lean_object* l_Lean_Macro_expandMacro_x3f(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkCIdentFrom___closed__1;
 LEAN_EXPORT lean_object* l_Lean_TSyntax_getNat___boxed(lean_object*);
+static lean_object* l___private_Init_Meta_Defs_0__Lean_TSyntax_isHexNum_x3f___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instCoeOutTSyntaxArrayArray(lean_object*);
 static lean_object* l_Array_getSepElems___redArg___closed__3;
 uint8_t lean_string_isempty(lean_object*);
@@ -920,6 +928,7 @@ LEAN_EXPORT lean_object* l_Lean_TSyntax_expandInterpolatedStr___lam__2(lean_obje
 LEAN_EXPORT lean_object* l_Lean_TSyntax_expandInterpolatedStr___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Meta_Defs_0__Lean_Syntax_splitNameLitAux___lam__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_instReprConfig__1_repr___redArg___closed__1;
+LEAN_EXPORT lean_object* l___private_Init_Meta_Defs_0__Lean_TSyntax_isHexNum_x3f___boxed(lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Syntax_findAux_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_appendAfter___lam__0(lean_object*, lean_object*);
@@ -1047,6 +1056,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Rewrite_Config_ctorIdx(lean_object*);
 lean_object* lean_string_pos_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_toNat(lean_object*);
 static lean_object* l_Lean_Meta_instReprConfig_repr___redArg___closed__29;
+LEAN_EXPORT lean_object* l___private_Init_Meta_Defs_0__Lean_TSyntax_getHexNumSize_go(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_monadNameGeneratorLift(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_toolchain___closed__1;
 uint32_t l_Char_ofNat(lean_object*);
@@ -14368,7 +14378,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_foldr___at___List_foldr___at___Substring_toName_spec__0_spec__0___closed__2;
 x_2 = lean_unsigned_to_nat(10u);
-x_3 = lean_unsigned_to_nat(1130u);
+x_3 = lean_unsigned_to_nat(1132u);
 x_4 = l_List_foldr___at___List_foldr___at___Substring_toName_spec__0_spec__0___closed__1;
 x_5 = l_List_foldr___at___List_foldr___at___Substring_toName_spec__0_spec__0___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -15027,6 +15037,166 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_TSyntax_getNat(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l___private_Init_Meta_Defs_0__Lean_TSyntax_isHexNum_x3f___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("hexnum", 6, 6);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Init_Meta_Defs_0__Lean_TSyntax_isHexNum_x3f___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___private_Init_Meta_Defs_0__Lean_TSyntax_isHexNum_x3f___closed__0;
+x_2 = l_Lean_Name_mkStr1(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Meta_Defs_0__Lean_TSyntax_isHexNum_x3f(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l___private_Init_Meta_Defs_0__Lean_TSyntax_isHexNum_x3f___closed__1;
+x_3 = l_Lean_Syntax_isLit_x3f(x_2, x_1);
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_4; 
+x_4 = lean_box(0);
+return x_4;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_5 = lean_ctor_get(x_3, 0);
+lean_inc(x_5);
+lean_dec_ref(x_3);
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = l___private_Init_Meta_Defs_0__Lean_Syntax_decodeHexLitAux(x_5, x_6, x_6);
+lean_dec(x_5);
+return x_7;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Meta_Defs_0__Lean_TSyntax_isHexNum_x3f___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l___private_Init_Meta_Defs_0__Lean_TSyntax_isHexNum_x3f(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_TSyntax_getHexNumVal(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l___private_Init_Meta_Defs_0__Lean_TSyntax_isHexNum_x3f(x_1);
+if (lean_obj_tag(x_2) == 0)
+{
+lean_object* x_3; 
+x_3 = lean_unsigned_to_nat(0u);
+return x_3;
+}
+else
+{
+lean_object* x_4; 
+x_4 = lean_ctor_get(x_2, 0);
+lean_inc(x_4);
+lean_dec_ref(x_2);
+return x_4;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_TSyntax_getHexNumVal___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_TSyntax_getHexNumVal(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Meta_Defs_0__Lean_TSyntax_getHexNumSize_go(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; 
+x_4 = lean_string_utf8_at_end(x_1, x_2);
+if (x_4 == 0)
+{
+lean_object* x_5; uint32_t x_6; uint32_t x_7; uint8_t x_8; 
+x_5 = lean_string_utf8_next(x_1, x_2);
+x_6 = lean_string_utf8_get(x_1, x_2);
+lean_dec(x_2);
+x_7 = 95;
+x_8 = lean_uint32_dec_eq(x_6, x_7);
+if (x_8 == 0)
+{
+lean_object* x_9; lean_object* x_10; 
+x_9 = lean_unsigned_to_nat(1u);
+x_10 = lean_nat_add(x_3, x_9);
+lean_dec(x_3);
+x_2 = x_5;
+x_3 = x_10;
+goto _start;
+}
+else
+{
+x_2 = x_5;
+goto _start;
+}
+}
+else
+{
+lean_dec(x_2);
+return x_3;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Meta_Defs_0__Lean_TSyntax_getHexNumSize_go___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Init_Meta_Defs_0__Lean_TSyntax_getHexNumSize_go(x_1, x_2, x_3);
+lean_dec_ref(x_1);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_TSyntax_getHexNumSize(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l___private_Init_Meta_Defs_0__Lean_TSyntax_isHexNum_x3f___closed__1;
+x_3 = l_Lean_Syntax_isLit_x3f(x_2, x_1);
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_4; 
+x_4 = lean_unsigned_to_nat(0u);
+return x_4;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_5 = lean_ctor_get(x_3, 0);
+lean_inc(x_5);
+lean_dec_ref(x_3);
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = l___private_Init_Meta_Defs_0__Lean_TSyntax_getHexNumSize_go(x_5, x_6, x_6);
+lean_dec(x_5);
+return x_7;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_TSyntax_getHexNumSize___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_TSyntax_getHexNumSize(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -22302,8 +22472,6 @@ return x_6;
 }
 }
 lean_object* initialize_Init_Prelude(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Prelude(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_MetaTypes(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Syntax(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_GetLit(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Option_BasicAux(uint8_t builtin, lean_object*);
@@ -22315,12 +22483,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Prelude(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Prelude(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_MetaTypes(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Syntax(builtin, lean_io_mk_world());
@@ -22702,6 +22864,10 @@ l_List_foldr___at___List_foldr___at___Substring_toName_spec__0_spec__0___closed_
 lean_mark_persistent(l_List_foldr___at___List_foldr___at___Substring_toName_spec__0_spec__0___closed__2);
 l_List_foldr___at___List_foldr___at___Substring_toName_spec__0_spec__0___closed__3 = _init_l_List_foldr___at___List_foldr___at___Substring_toName_spec__0_spec__0___closed__3();
 lean_mark_persistent(l_List_foldr___at___List_foldr___at___Substring_toName_spec__0_spec__0___closed__3);
+l___private_Init_Meta_Defs_0__Lean_TSyntax_isHexNum_x3f___closed__0 = _init_l___private_Init_Meta_Defs_0__Lean_TSyntax_isHexNum_x3f___closed__0();
+lean_mark_persistent(l___private_Init_Meta_Defs_0__Lean_TSyntax_isHexNum_x3f___closed__0);
+l___private_Init_Meta_Defs_0__Lean_TSyntax_isHexNum_x3f___closed__1 = _init_l___private_Init_Meta_Defs_0__Lean_TSyntax_isHexNum_x3f___closed__1();
+lean_mark_persistent(l___private_Init_Meta_Defs_0__Lean_TSyntax_isHexNum_x3f___closed__1);
 l_Lean_TSyntax_getScientific___closed__0 = _init_l_Lean_TSyntax_getScientific___closed__0();
 lean_mark_persistent(l_Lean_TSyntax_getScientific___closed__0);
 l_Lean_TSyntax_getScientific___closed__1 = _init_l_Lean_TSyntax_getScientific___closed__1();

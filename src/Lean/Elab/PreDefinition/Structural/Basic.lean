@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Joachim Breitner
 module
 
 prelude
-public import Lean.Meta.Basic
 public import Lean.Meta.ForEachExpr
 
 public section

@@ -100,7 +100,7 @@ environment variable. If this environment variable is not set, a manual root pro
 built is used (typically this is the version corresponding to the current release). If no such root
 is available, the latest version of the manual is used.
 -/
-def rewriteManualLinksCore (s : String) : BaseIO (Array (String.Range × String) × String) := do
+def rewriteManualLinksCore (s : String) : BaseIO (Array (Lean.Syntax.Range × String) × String) := do
   let scheme := "lean-manual://"
   let mut out := ""
   let mut errors := #[]
@@ -152,7 +152,7 @@ where
   Returns `true` if `goal` is a prefix of the string at the position pointed to by `iter`.
   -/
   lookingAt (goal : String) (iter : String.Iterator) : Bool :=
-    iter.s.substrEq iter.i goal 0 goal.endPos.byteIdx
+    String.Pos.Raw.substrEq iter.s iter.i goal 0 goal.rawEndPos.byteIdx
 
 /--
 Rewrites Lean reference manual links in `docstring` to point at the reference manual.
@@ -169,7 +169,7 @@ The `lean-manual` URL scheme is used to link to the version of the Lean referenc
 corresponds to this version of Lean. Errors occurred while processing the links in this documentation
 comment:
 "# ++
-      String.join (errs.toList.map (fun (⟨s, e⟩, msg) => s!" * ```{docString.extract s e}```: {msg}\n\n"))
+      String.join (errs.toList.map (fun (⟨s, e⟩, msg) => s!" * ```{String.Pos.Raw.extract docString s e}```: {msg}\n\n"))
     return str ++ "\n\n" ++ errReport
   return str
 
@@ -187,4 +187,4 @@ def validateBuiltinDocString (docString : String) : IO Unit := do
   if !errs.isEmpty then
     throw <| IO.userError <|
       s!"Errors in builtin documentation comment:\n" ++
-      String.join (errs.toList.map fun (⟨s, e⟩, msg) => s!" * {repr <| docString.extract s e}:\n    {msg}\n")
+      String.join (errs.toList.map fun (⟨s, e⟩, msg) => s!" * {repr <| String.Pos.Raw.extract docString s e}:\n    {msg}\n")

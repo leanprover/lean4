@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init.System.IO
 public import Init.System.Promise
 public import Init.Data.SInt
 public import Std.Net
@@ -77,6 +76,15 @@ This function has different behavior depending on the state of the `Signal`:
 -/
 @[extern "lean_uv_signal_stop"]
 opaque stop (signal : @& Signal) : IO Unit
+
+/--
+This function has different behavior depending on the state of the `Signal`:
+- If it is initial or finished this is a no-op.
+- If it's running then it drops the accept promise and if it's not repeatable it sets
+  the signal handler to the initial state.
+-/
+@[extern "lean_uv_signal_cancel"]
+opaque cancel (signal : @& Signal) : IO Unit
 
 end Signal
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.MainM
-// Imports: public import Lake.Util.Log public import Lake.Util.Exit public import Lake.Util.Error
+// Imports: public import Lake.Util.Log public import Lake.Util.Exit
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2285,7 +2285,6 @@ return x_1;
 }
 lean_object* initialize_Lake_Util_Log(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Exit(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Util_Error(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Util_MainM(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -2295,9 +2294,6 @@ res = initialize_Lake_Util_Log(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Util_Exit(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_Util_Error(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instMonadMainM___closed__0 = _init_l_Lake_instMonadMainM___closed__0();

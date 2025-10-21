@@ -7,8 +7,6 @@ module
 
 prelude
 public import Init.Data.Nat.Lemmas
-public import Init.RCases
-public import Init.Data.Iterators.Basic
 public import Init.Data.Iterators.Consumers.Monadic.Collect
 public import Init.Data.Iterators.Consumers.Monadic.Loop
 public import Init.Data.Iterators.Internal.Termination
@@ -181,12 +179,12 @@ instance TakeWhile.instIterator [Monad m] [Iterator α m β] {P} :
     Iterator (TakeWhile α m β P) m β where
   IsPlausibleStep := TakeWhile.PlausibleStep
   step it := do
-    match ← it.internalState.inner.step with
+    match (← it.internalState.inner.step).inflate with
     | .yield it' out h => match ← (P out).operation with
-      | ⟨.up true, h'⟩ => pure <| .yield (it'.takeWhileWithPostcondition P) out (.yield h h')
-      | ⟨.up false, h'⟩ => pure <| .done (.rejected h h')
-    | .skip it' h => pure <| .skip (it'.takeWhileWithPostcondition P) (.skip h)
-    | .done h => pure <| .done (.done h)
+      | ⟨.up true, h'⟩ => pure <| .deflate <| .yield (it'.takeWhileWithPostcondition P) out (.yield h h')
+      | ⟨.up false, h'⟩ => pure <| .deflate <| .done (.rejected h h')
+    | .skip it' h => pure <| .deflate <| .skip (it'.takeWhileWithPostcondition P) (.skip h)
+    | .done h => pure <| .deflate <| .done (.done h)
 
 private def TakeWhile.instFinitenessRelation [Monad m] [Iterator α m β]
     [Finite α m] {P} :

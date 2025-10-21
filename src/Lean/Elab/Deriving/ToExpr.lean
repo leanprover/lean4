@@ -6,11 +6,8 @@ Authors: Kyle Miller
 module
 
 prelude
-import Lean.Meta.Transform
 import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util
-import Lean.ToLevel
-import Lean.ToExpr
 
 /-!
 # `ToExpr` deriving handler

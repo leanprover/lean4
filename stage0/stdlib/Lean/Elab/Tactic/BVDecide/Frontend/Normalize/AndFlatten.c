@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AndFlatten
-// Imports: public import Std.Tactic.BVDecide.Normalize.Bool public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic public import Lean.Meta.Tactic.Assert
+// Imports: public import Std.Tactic.BVDecide.Normalize.Bool public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3545,7 +3545,6 @@ return x_9;
 }
 lean_object* initialize_Std_Tactic_BVDecide_Normalize_Bool(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Assert(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_AndFlatten(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -3555,9 +3554,6 @@ res = initialize_Std_Tactic_BVDecide_Normalize_Bool(builtin, lean_io_mk_world())
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Assert(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_AndFlatten_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlatteningPass_trySplit___redArg___lam__0___closed__0 = _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_AndFlatten_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlatteningPass_trySplit___redArg___lam__0___closed__0();

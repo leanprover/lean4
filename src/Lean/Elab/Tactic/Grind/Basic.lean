@@ -167,12 +167,6 @@ where
 def throwNoGoalsToBeSolved : GrindTacticM α :=
   throwError "No goals to be solved"
 
-def done : GrindTacticM Unit := do
-  let gs ← getUnsolvedGoalMVarIds
-  unless gs.isEmpty do
-    Term.reportUnsolvedGoals gs
-    throwAbortTactic
-
 instance : MonadBacktrack SavedState GrindTacticM where
   saveState := Grind.saveState
   restoreState b := b.restore
@@ -189,31 +183,6 @@ def focus (k : GrindTacticM α) : GrindTacticM α := do
   let mvarIds' ← getUnsolvedGoals
   setGoals (mvarIds' ++ mvarIds)
   pure a
-
-/--
-Runs `tactic` with only the first unsolved goal as the goal, and expects it leave no goals.
-Fails if there are no goal to be solved.
--/
-def focusAndDone (tactic : GrindTacticM α) : GrindTacticM α :=
-  focus do
-    let a ← tactic
-    done
-    pure a
-
-/-- Close the main goal using the given tactic. If it fails, log the error and `admit` -/
-def closeUsingOrAdmit (tac : GrindTacticM Unit) : GrindTacticM Unit := do
-  /- Important: we must define `closeUsingOrAdmit` before we define
-     the instance `MonadExcept` for `GrindTacticM` since it backtracks the state including error messages. -/
-  let goal :: goals ← getUnsolvedGoals | throwNoGoalsToBeSolved
-  tryCatchRuntimeEx
-    (focusAndDone tac)
-    fun ex => do
-      if (← read).recover then
-        logException ex
-        admitGoal goal.mvarId
-        setGoals goals
-      else
-        throw ex
 
 /--
 Non-backtracking `try`/`catch`.
@@ -340,6 +309,43 @@ def liftSearchM (k : SearchM α) : GrindTacticM α := do
     throwError "`grind` internal error, `SearchM` action has pending choices, this is not supported yet."
   replaceMainGoal [state.goal]
   return a
+
+def done : GrindTacticM Unit := do
+  pruneSolvedGoals
+  let goals ← getGoals
+  unless goals.isEmpty do
+    let params := (← read).params
+    let results ← liftGrindM do goals.mapM fun goal => Grind.mkResult params (some goal)
+    let msgs ← results.mapM fun result => result.toMessageData
+    let msg := MessageData.joinSep msgs m!"\n\n"
+    logError <| MessageData.tagged `Tactic.unsolvedGoals <| m!"unsolved goals\n{msg}"
+    goals.forM fun goal => admitGoal goal.mvarId
+    throwAbortTactic
+
+/--
+Runs `tactic` with only the first unsolved goal as the goal, and expects it leave no goals.
+Fails if there are no goal to be solved.
+-/
+def focusAndDone (tactic : GrindTacticM α) : GrindTacticM α :=
+  focus do
+    let a ← tactic
+    done
+    pure a
+
+/-- Close the main goal using the given tactic. If it fails, log the error and `admit` -/
+def closeUsingOrAdmit (tac : GrindTacticM Unit) : GrindTacticM Unit := do
+  /- Important: we must define `closeUsingOrAdmit` before we define
+     the instance `MonadExcept` for `GrindTacticM` since it backtracks the state including error messages. -/
+  let goal :: goals ← getUnsolvedGoals | throwNoGoalsToBeSolved
+  tryCatchRuntimeEx
+    (focusAndDone tac)
+    fun ex => do
+      if (← read).recover then
+        logException ex
+        admitGoal goal.mvarId
+        setGoals goals
+      else
+        throw ex
 
 def GrindTacticM.run (x : GrindTacticM α) (ctx : Context) (s : State) : TermElabM (α × State) :=
   x ctx |>.run s

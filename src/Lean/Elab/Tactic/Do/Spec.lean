@@ -19,7 +19,7 @@ open Std.Do Do.SpecAttr Do.ProofMode
 builtin_initialize registerTraceClass `Elab.Tactic.Do.spec
 
 public def findSpec (database : SpecTheorems) (wp : Expr) : MetaM SpecTheorem := do
-  let_expr c@WP.wp _m _ps _instWP _α prog := wp | throwError "target not a wp application {wp}"
+  let_expr WP.wp _m _ps _instWP _α prog := wp | throwError "target not a wp application {wp}"
   let prog ← instantiateMVarsIfMVarApp prog
   let prog := prog.headBeta
   let candidates ← database.specs.getMatch prog
@@ -29,8 +29,21 @@ public def findSpec (database : SpecTheorems) (wp : Expr) : MetaM SpecTheorem :=
   let specs ← candidates.filterM fun spec => do
     let (_, _, _, type) ← spec.proof.instantiate
     trace[Elab.Tactic.Do.spec] "{spec.proof} instantiates to {type}"
-    let_expr Triple m ps instWP α specProg _P _Q := type | throwError "Not a triple: {type}"
-    isDefEq wp (mkApp5 (mkConst ``WP.wp c.constLevels!) m ps instWP α specProg)
+    let_expr c@Triple m ps instWP α specProg _P _Q := type | throwError "Not a triple: {type}"
+    let check := isDefEqGuarded wp (mkApp5 (mkConst ``WP.wp c.constLevels!) m ps instWP α specProg)
+    let b ← check
+    unless b do
+      -- Instantiation for this spec failed. When tracing is enabled, we want to see fine-grained
+      -- information why the defeq check failed, so we do it again.
+      withOptions (fun o =>
+        if o.getBool `trace.Elab.Tactic.Do.spec then
+          o |>.setBool `pp.universes true
+            |>.setBool `trace.Meta.isDefEq true
+        else
+          o) do
+      withTraceNode `Elab.Tactic.Do.spec (fun _ => return m!"Defeq check for {type} failed.") do
+      discard <| check
+    return b
   trace[Elab.Tactic.Do.spec] "Specs for {prog}: {specs.map (·.proof)}"
   if specs.isEmpty then throwError m!"No specs found for {indentExpr prog}\nCandidates: {candidates.map (·.proof)}"
   return specs[0]!

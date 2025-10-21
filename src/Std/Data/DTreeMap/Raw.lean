@@ -10,5 +10,3 @@ public import Std.Data.DTreeMap.Raw.Basic
 public import Std.Data.DTreeMap.Raw.AdditionalOperations
 public import Std.Data.DTreeMap.Raw.Lemmas
 public import Std.Data.DTreeMap.Raw.WF
-public import Std.Data.DTreeMap.Raw.Iterator
-public import Std.Data.DTreeMap.Raw.Slice

@@ -11,7 +11,6 @@ public import Init.Data.Iterators.Consumers
 public import Std.Data.Iterators.Lemmas.Producers.Slice
 public import Init.Data.Slice
 public import Init.Data.Range.Polymorphic.Basic
-public import Std.Data.DTreeMap
 public import Std.Data.DTreeMap.Internal.Lemmas
 
 

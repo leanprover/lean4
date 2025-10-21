@@ -102,6 +102,7 @@ jobs:
         if: matrix.cmultilib
       - name: Restore Cache
         id: restore-cache
+        if: matrix.name != 'Linux Lake (Cached)'
         uses: actions/cache/restore@v4
         with:
           # NOTE: must be in sync with `save` below and with `restore-cache` in `update-stage0.yml`
@@ -131,6 +132,10 @@ jobs:
           else
             echo "TARGET_STAGE=stage1" >> $GITHUB_ENV
           fi
+      - name: Download Lake Cache
+        if: matrix.name == 'Linux Lake (Cached)'
+        run: lake cache get --repo=${{ github.event.pull_request.head.repo.full_name || github.repository }}
+        continue-on-error: true
       - name: Build
         run: |
           ulimit -c unlimited  # coredumps
@@ -187,6 +192,17 @@ jobs:
             build/stage1/**/*.c
             build/stage1/**/*.c.o*' || '' }}
           key: ${{ steps.restore-cache.outputs.cache-primary-key }}
+      - name: Upload Lake Cache
+        # Caching on cancellation created some mysterious issues perhaps related to improper build
+        # shutdown
+        if: matrix.name == 'Linux Lake' && !cancelled()
+        run: |
+          lake build -o build/lake-mappings.json
+          lake cache put build/lake-mappings.json --repo=${{ github.event.pull_request.head.repo.full_name || github.repository }}
+        env:
+          LAKE_CACHE_KEY: ${{ secrets.LAKE_CACHE_KEY }}
+          LAKE_ARTIFACT_ENDPOINT: ${{ secrets.LAKE_ARTIFACT_ENDPOINT }}
+          LAKE_REVISION_ENDPOINT: ${{ secrets.LAKE_REVISION_ENDPOINT }}
       - name: Install
         run: |
           make -C build/$TARGET_STAGE install

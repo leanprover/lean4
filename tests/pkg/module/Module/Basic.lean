@@ -497,6 +497,10 @@ Note: A private declaration `S.s` (from the current module) exists but would nee
 #guard_msgs in
 @[expose] public def useS (s : S) := s.s
 
+/- `meta` should trump `noncomputable`. -/
+
 noncomputable section
+/-- error: Invalid `meta` definition `m`, `S.s` not marked `meta` -/
+#guard_msgs in
 meta def m := S.s
 end

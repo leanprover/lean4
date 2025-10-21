@@ -980,15 +980,14 @@ public instance {α : Type u} {β : α → Type v} [Ord α] : Roo.Sliceable (Imp
   mkSlice carrier range := ⟨carrier, range⟩
 
 public instance [Ord α] {s : RooSlice α β} : ToIterator s Id ((a : α) × β a) :=
-  ToIterator.of (RxoIterator α β) (RcoIterator s.1.treeMap s.1.range.lower s.1.range.upper)
-
+  ToIterator.of (RxoIterator α β) (RooIterator s.1.treeMap s.1.range.lower s.1.range.upper)
 
 public theorem Roo.correct {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] (t : Impl α β)
-    (ordered : t.Ordered) (lower_bound upper_bound : α) : t[lower_bound<...<upper_bound].toList = t.toList.filter (fun e => (compare e.fst lower_bound).isGE ∧ (compare e.fst upper_bound).isLT) := by
+    (ordered : t.Ordered) (lower_bound upper_bound : α) : t[lower_bound<...<upper_bound].toList = t.toList.filter (fun e => (compare e.fst lower_bound).isGT ∧ (compare e.fst upper_bound).isLT) := by
   simp only [Roo.Sliceable.mkSlice, Slice.toList_eq_toList_iter, Slice.iter,
     Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
     Iter.toIter_toIterM]
-  rw [toList_rcoIter]
+  rw [toList_rooIter]
   . exact ordered
 
 end Roo

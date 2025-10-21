@@ -56,7 +56,7 @@ open Meta
         (fun ival _ => do
           match ival.ctors with
           | [ctor] =>
-            if isInaccessiblePrivateName (← getEnv) ctor then
+            if (← isInaccessiblePrivateName ctor) then
               throwError "Invalid `⟨...⟩` notation: Constructor for `{ival.name}` is marked as private"
             let cinfo ← getConstInfoCtor ctor
             let numExplicitFields ← forallTelescopeReducing cinfo.type fun xs _ => do

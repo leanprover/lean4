@@ -23,22 +23,22 @@ theorem Iter.forIn'_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
     {f : (b : β) → it.IsPlausibleIndirectOutput b → γ → m (ForInStep γ)} :
     letI : ForIn' m (Iter (α := α) β) β _ := Iter.instForIn'
     ForIn'.forIn' it init f =
-      IterM.DefaultConsumers.forIn' (fun _ _ f x => f x.run) γ (fun _ _ _ => True)
-        IteratorLoop.wellFounded_of_finite it.toIterM init _ (fun _ => id)
-          (fun out h acc => (⟨·, .intro⟩) <$>
-            f out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc) := by
-  simp [instForIn', ForIn'.forIn', IteratorLoop.finiteForIn', hl.lawful (fun γ δ f x => f x.run),
-    IteratorLoop.defaultImplementation]
+      IterM.DefaultConsumers.forIn' (fun _ _ f x => f x.run) γ
+        it.toIterM init _ (fun _ => id)
+          (fun out h acc => f out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc) := by
+  simp only [instForIn', ForIn'.forIn', IteratorLoop.finiteForIn']
+  have : ∀ a b c, f a b c = (Subtype.val <$> (⟨·, trivial⟩) <$> f a b c) := by simp
+  simp +singlePass only [this]
+  rw [hl.lawful (fun _ _ f x => f x.run) (wf := IteratorLoop.wellFounded_of_finite)]
+  simp [IteratorLoop.defaultImplementation]
 
 theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
     {m : Type x → Type x'} [Monad m] [LawfulMonad m] [IteratorLoop α Id m]
     [hl : LawfulIteratorLoop α Id m] {γ : Type x} {it : Iter (α := α) β} {init : γ}
     {f : (b : β) → γ → m (ForInStep γ)} :
     ForIn.forIn it init f =
-      IterM.DefaultConsumers.forIn' (fun _ _ f c => f c.run) γ (fun _ _ _ => True)
-        IteratorLoop.wellFounded_of_finite it.toIterM init _ (fun _ => id)
-          (fun out _ acc => (⟨·, .intro⟩) <$>
-            f out acc) := by
+      IterM.DefaultConsumers.forIn' (fun _ _ f c => f c.run) γ
+        it.toIterM init _ (fun _ => id) (fun out _ acc => f out acc) := by
   simp [ForIn.forIn, forIn'_eq, -forIn'_eq_forIn]
 
 @[congr] theorem Iter.forIn'_congr {α β : Type w} {m : Type w → Type w'} [Monad m]
@@ -107,8 +107,10 @@ theorem Iter.forIn'_eq_match_step {α β : Type w} [Iterator α Id β]
             fun out h' acc => f out (.indirect ⟨_, rfl, h⟩ h') acc
       | .done _ => return init) := by
   simp only [forIn'_eq]
-  rw [IterM.DefaultConsumers.forIn'_eq_match_step]
-  simp only [bind_map_left, Iter.step]
+  rw [IterM.DefaultConsumers.forIn'_eq_match_step (fun _ _ _ => True) IteratorLoop.wellFounded_of_finite
+    (f' := fun a b c => (⟨·, trivial⟩) <$> f a (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr b) c)
+    (hf := by simp)]
+  simp only [Iter.step]
   cases it.toIterM.step.run.inflate using PlausibleIterStep.casesOn
   · simp only [IterM.Step.toPure_yield, PlausibleIterStep.yield, toIter_toIterM, toIterM_toIter]
     apply bind_congr
@@ -116,11 +118,21 @@ theorem Iter.forIn'_eq_match_step {α β : Type w} [Iterator α Id β]
     cases forInStep
     · simp
     · simp only
-      apply IterM.DefaultConsumers.forIn'_eq_forIn'
-      intros; congr
+      apply IterM.DefaultConsumers.forIn'_eq_forIn' (fun _ _ _ => True)
+        IteratorLoop.wellFounded_of_finite
+        (f' := fun a b c => (⟨·, trivial⟩) <$> f a (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr b) c)
+        (g' := fun a b c => (⟨·, trivial⟩) <$> f a (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr (.indirect ⟨_, rfl, ‹_›⟩ b)) c)
+      · simp
+      · simp
+      · simp
   · simp only
-    apply IterM.DefaultConsumers.forIn'_eq_forIn'
-    intros; congr
+    apply IterM.DefaultConsumers.forIn'_eq_forIn' (fun _ _ _ => True)
+      IteratorLoop.wellFounded_of_finite
+      (f' := fun a b c => (⟨·, trivial⟩) <$> f a (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr b) c)
+      (g' := fun a b c => (⟨·, trivial⟩) <$> f a (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr (.indirect ⟨_, rfl, ‹_›⟩ b)) c)
+    · simp
+    · simp
+    · simp
   · simp
 
 theorem Iter.forIn_eq_match_step {α β : Type w} [Iterator α Id β]

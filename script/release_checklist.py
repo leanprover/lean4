@@ -13,8 +13,15 @@ What this script does:
    - Checks that the release branch (releases/vX.Y.0) exists
    - Verifies CMake version settings are correct
    - Confirms the release tag exists
-   - Validates the release page exists on GitHub
-   - Checks the release notes page on lean-lang.org
+   - Validates the release page exists on GitHub (created automatically by CI after tag push)
+   - Checks the release notes page on lean-lang.org (must be created manually)
+
+   **IMPORTANT: If the release page doesn't exist, the script will skip checking
+   downstream repositories and the master branch configuration. The preliminary
+   infrastructure must be in place before the release process can proceed.**
+
+   **NOTE: The GitHub release page is created AUTOMATICALLY by CI after the tag is pushed.
+   DO NOT create it manually. Wait for CI to complete after pushing the tag.**
 
 2. For each downstream repository (batteries, mathlib4, etc.):
    - Checks if dependencies are ready (e.g., mathlib4 depends on batteries)
@@ -122,6 +129,39 @@ def release_page_exists(repo_url, tag_name, github_token):
     response = requests.get(api_url, headers=headers)
     return response.status_code == 200
 
+def get_tag_workflow_status(repo_url, tag_name, github_token):
+    """Get the status of CI workflows running for a specific tag."""
+    api_base = repo_url.replace("https://github.com/", "https://api.github.com/repos/")
+    headers = {'Authorization': f'token {github_token}'} if github_token else {}
+
+    # Get workflow runs for the tag
+    # GitHub's workflow runs API uses the branch/tag name in the 'head_branch' field
+    api_url = f"{api_base}/actions/runs?event=push&head_branch={tag_name}"
+    response = requests.get(api_url, headers=headers)
+
+    if response.status_code != 200:
+        return None
+
+    data = response.json()
+    workflow_runs = data.get('workflow_runs', [])
+
+    if not workflow_runs:
+        return None
+
+    # Get the most recent workflow run for this tag
+    run = workflow_runs[0]
+    status = run.get('status')
+    conclusion = run.get('conclusion')
+    workflow_name = run.get('name', 'CI')
+    run_id = run.get('id')
+
+    return {
+        'status': status,
+        'conclusion': conclusion,
+        'workflow_name': workflow_name,
+        'run_id': run_id
+    }
+
 def get_release_notes(tag_name):
     """Fetch release notes page title from lean-lang.org."""
     # Strip -rcX suffix if present for the URL
@@ -130,20 +170,17 @@ def get_release_notes(tag_name):
     try:
         response = requests.get(reference_url)
         response.raise_for_status() # Raise HTTPError for bad responses (4xx or 5xx)
-        
+
         # Extract title using regex
         match = re.search(r"<title>(.*?)</title>", response.text, re.IGNORECASE | re.DOTALL)
         if match:
             return match.group(1).strip()
         else:
-            print(f"  ⚠️ Could not find <title> tag in {reference_url}")
             return None
-            
-    except requests.exceptions.RequestException as e:
-        print(f"  ❌ Error fetching release notes from {reference_url}: {e}")
+
+    except requests.exceptions.RequestException:
         return None
-    except Exception as e:
-        print(f"  ❌ An unexpected error occurred while processing release notes: {e}")
+    except Exception:
         return None
 
 def get_branch_content(repo_url, branch, file_path, github_token):
@@ -512,29 +549,56 @@ def main():
             print(f"  ❌ Short commit hash {commit_hash[:SHORT_HASH_LENGTH]} is numeric and starts with 0, causing issues for version parsing. Try regenerating the last commit to get a new hash.")
             lean4_success = False
 
-    if not release_page_exists(lean_repo_url, toolchain, github_token):
-        print(f"  ❌ Release page for {toolchain} does not exist")
+    release_page_ready = release_page_exists(lean_repo_url, toolchain, github_token)
+    if not release_page_ready:
+        print(f"  ❌ Release page for {toolchain} does not exist (This will be created by CI.)")
+
+        # Check CI workflow status
+        workflow_status = get_tag_workflow_status(lean_repo_url, toolchain, github_token)
+        if workflow_status:
+            status = workflow_status['status']
+            conclusion = workflow_status['conclusion']
+            workflow_name = workflow_status['workflow_name']
+            run_id = workflow_status['run_id']
+            workflow_url = f"{lean_repo_url}/actions/runs/{run_id}"
+
+            if status == 'in_progress' or status == 'queued':
+                print(f"     🔄 {workflow_name} workflow is {status}: {workflow_url}")
+            elif status == 'completed':
+                if conclusion == 'success':
+                    print(f"     ✅ {workflow_name} workflow completed successfully: {workflow_url}")
+                elif conclusion == 'failure':
+                    print(f"     ❌ {workflow_name} workflow failed: {workflow_url}")
+                else:
+                    print(f"     ⚠️  {workflow_name} workflow completed with status: {conclusion}: {workflow_url}")
+            else:
+                print(f"     ℹ️  {workflow_name} workflow status: {status}: {workflow_url}")
+
         lean4_success = False
     else:
         print(f"  ✅ Release page for {toolchain} exists")
-        
-    # Check the actual release notes page title
+
+    # Check the actual release notes page title (informational only - does not block)
     actual_title = get_release_notes(toolchain)
     expected_title_prefix = f"Lean {toolchain.lstrip('v')}" # e.g., "Lean 4.19.0" or "Lean 4.19.0-rc1"
+    base_tag = toolchain.split('-')[0]
+    release_notes_url = f"https://lean-lang.org/doc/reference/latest/releases/{base_tag}/"
 
     if actual_title is None:
-        # Error already printed by get_release_notes
-        lean4_success = False
+        print(f"  ⚠️  Release notes not found at {release_notes_url} (this will be fixed while updating the reference-manual repository)")
     elif not actual_title.startswith(expected_title_prefix):
-        # Construct URL for the error message (using the base tag)
-        base_tag = toolchain.split('-')[0]
-        check_url = f"https://lean-lang.org/doc/reference/latest/releases/{base_tag}/"
-        print(f"  ❌ Release notes page title mismatch. Expected prefix '{expected_title_prefix}', got '{actual_title}'. Check {check_url}")
-        lean4_success = False
+        print(f"  ⚠️  Release notes page title mismatch. Expected prefix '{expected_title_prefix}', got '{actual_title}'. Check {release_notes_url}")
     else:
         print(f"  ✅ Release notes page title looks good ('{actual_title}').")
 
     repo_status["lean4"] = lean4_success
+
+    # If the release page doesn't exist, skip repository checks and master branch checks
+    # The preliminary infrastructure must be in place first
+    if not release_page_exists(lean_repo_url, toolchain, github_token):
+        print("\n⚠️  Release process blocked: preliminary Lean4 infrastructure incomplete.")
+        print("   Complete the steps above, then rerun this script to proceed with downstream repositories.")
+        return
 
     # Load repositories and perform further checks
     print("\nChecking repositories...")

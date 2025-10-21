@@ -16,14 +16,20 @@ These comments explain the scripts' behavior, which repositories get special han
 ## Process
 
 1. Run `script/release_checklist.py {version}` to check the current status
-2. Create a todo list tracking all repositories that need updates
-3. For each repository that needs updating:
+2. **CRITICAL: If preliminary lean4 checks fail, STOP immediately and alert the user**
+   - Check for: release branch exists, CMake version correct, tag exists, release page exists, release notes exist
+   - **IMPORTANT**: The release page is created AUTOMATICALLY by CI after pushing the tag - DO NOT create it manually
+   - The release notes page must be created manually by updating the lean-lang.org repository
+   - Wait for CI to complete and create the release page before proceeding
+   - Do NOT create any PRs or proceed with repository updates if these checks fail
+3. Create a todo list tracking all repositories that need updates
+4. For each repository that needs updating:
    - Run `script/release_steps.py {version} {repo_name}` to create the PR
    - Mark it complete when the PR is created
-4. After creating PRs, notify the user which PRs need review and merging
-5. Continuously rerun `script/release_checklist.py {version}` to check progress
-6. As PRs are merged, dependent repositories will become ready - create PRs for those as well
-7. Continue until all repositories are updated and the release is complete
+5. After creating PRs, notify the user which PRs need review and merging
+6. Continuously rerun `script/release_checklist.py {version}` to check progress
+7. As PRs are merged, dependent repositories will become ready - create PRs for those as well
+8. Continue until all repositories are updated and the release is complete
 
 ## Important Notes
 

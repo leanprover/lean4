@@ -35,7 +35,7 @@ theorem ValidPos.remainingBytes_next_lt_of_lt {p p' : String.ValidPos s} (h' : p
     p.remainingBytes < p'.remainingBytes := by
   simp only [ValidPos.lt_iff, Pos.Raw.lt_iff] at h' ⊢
   simp only [remainingBytes]
-  have : p.offset.byteIdx ≤ s.utf8ByteSize := p.isValid.le_endPos
+  have : p.offset.byteIdx ≤ s.utf8ByteSize := p.isValid.le_rawEndPos
   omega
 
 theorem ValidPos.lt_next {p : String.ValidPos s} (h) : p < p.next h := by

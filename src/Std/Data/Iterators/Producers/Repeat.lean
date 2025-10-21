@@ -72,10 +72,6 @@ instance RepeatIterator.instIteratorLoop {α : Type w} {f : α → α} {n : Type
     IteratorLoop (RepeatIterator α f) Id n :=
   .defaultImplementation
 
-instance RepeatIterator.instIteratorLoopPartial {α : Type w} {f : α → α} {n : Type w → Type w'}
-    [Monad n] : IteratorLoopPartial (RepeatIterator α f) Id n :=
-  .defaultImplementation
-
 instance RepeatIterator.instIteratorCollect {α : Type w} {f : α → α} {n : Type w → Type w'}
     [Monad n] : IteratorCollect (RepeatIterator α f) Id n :=
   .defaultImplementation

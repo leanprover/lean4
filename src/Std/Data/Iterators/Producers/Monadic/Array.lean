@@ -121,9 +121,4 @@ instance {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
     IteratorLoop (ArrayIterator α) m n :=
   .defaultImplementation
 
-@[always_inline, inline]
-instance {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
-    IteratorLoopPartial (ArrayIterator α) m n :=
-  .defaultImplementation
-
 end Std.Iterators

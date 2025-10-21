@@ -212,8 +212,4 @@ instance Take.instIteratorLoop {n : Type x → Type x'} [Monad m] [Monad n] [Ite
     IteratorLoop (Take α m) m n :=
   .defaultImplementation
 
-instance Take.instIteratorLoopPartial [Monad m] [Monad n] [Iterator α m β] :
-    IteratorLoopPartial (Take α m) m n :=
-  .defaultImplementation
-
 end Std.Iterators

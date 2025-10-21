@@ -53,16 +53,16 @@ An implementation of `for h : ... in ... do ...` notation for partial iterators.
 -/
 @[always_inline, inline]
 def Iter.Partial.instForIn' {α : Type w} {β : Type w} {n : Type x → Type x'} [Monad n]
-    [Iterator α Id β] [IteratorLoopPartial α Id n] :
+    [Iterator α Id β] [IteratorLoop α Id n] :
     ForIn' n (Iter.Partial (α := α) β) β ⟨fun it out => it.it.IsPlausibleIndirectOutput out⟩ where
   forIn' it init f :=
-    IteratorLoopPartial.forInPartial (α := α) (m := Id) (n := n) (fun _ _ f c => f c.run)
+    IteratorLoop.forIn (α := α) (m := Id) (n := n) (fun _ _ f c => f c.run) _
       it.it.toIterM init
       fun out h acc =>
         f out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc
 
 instance (α : Type w) (β : Type w) (n : Type x → Type x') [Monad n]
-    [Iterator α Id β] [IteratorLoopPartial α Id n] :
+    [Iterator α Id β] [IteratorLoop α Id n] :
     ForIn n (Iter.Partial (α := α) β) β :=
   haveI : ForIn' n (Iter.Partial (α := α) β) β _ := Iter.Partial.instForIn'
   instForInOfForIn'
@@ -73,7 +73,7 @@ instance {m : Type x → Type x'}
   forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)
 
 instance {m : Type x → Type x'}
-    {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoopPartial α Id m] [Monad m] :
+    {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoop α Id m] [Monad m] :
     ForM m (Iter.Partial (α := α) β) β where
   forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)
 
@@ -82,11 +82,6 @@ Folds a monadic function over an iterator from the left, accumulating a value st
 The accumulated value is combined with the each element of the list in order, using `f`.
 
 It is equivalent to `it.toList.foldlM`.
-
-This function requires a `Finite` instance proving that the iterator will finish after a finite
-number of steps. If the iterator is not finite or such an instance is not available, consider using
-`it.allowNontermination.foldM` instead of `it.foldM`. However, it is not possible to formally
-verify the behavior of the partial variant.
 -/
 @[always_inline, inline]
 def Iter.foldM {m : Type x → Type x'} [Monad m]
@@ -101,13 +96,12 @@ The accumulated value is combined with the each element of the list in order, us
 
 It is equivalent to `it.toList.foldlM`.
 
-This is a partial, potentially nonterminating, function. It is not possible to formally verify
-its behavior. If the iterator has a `Finite` instance, consider using `IterM.foldM` instead.
+This function is deprecated. Instead of `it.allowNontermination.foldM`, use `it.foldM`.
 -/
 @[always_inline, inline]
 def Iter.Partial.foldM {m : Type x → Type x'} [Monad m]
     {α : Type w} {β : Type w} {γ : Type x} [Iterator α Id β]
-    [IteratorLoopPartial α Id m] (f : γ → β → m γ)
+    [IteratorLoop α Id m] (f : γ → β → m γ)
     (init : γ) (it : Iter.Partial (α := α) β) : m γ :=
   ForIn.forIn it init (fun x acc => ForInStep.yield <$> f acc x)
 
@@ -116,11 +110,6 @@ Folds a function over an iterator from the left, accumulating a value starting w
 The accumulated value is combined with the each element of the list in order, using `f`.
 
 It is equivalent to `it.toList.foldl`.
-
-This function requires a `Finite` instance proving that the iterator will finish after a finite
-number of steps. If the iterator is not finite or such an instance is not available, consider using
-`it.allowNontermination.fold` instead of `it.fold`. However, it is not possible to formally
-verify the behavior of the partial variant.
 -/
 @[always_inline, inline]
 def Iter.fold {α : Type w} {β : Type w} {γ : Type x} [Iterator α Id β]
@@ -134,12 +123,11 @@ The accumulated value is combined with the each element of the list in order, us
 
 It is equivalent to `it.toList.foldl`.
 
-This is a partial, potentially nonterminating, function. It is not possible to formally verify
-its behavior. If the iterator has a `Finite` instance, consider using `IterM.fold` instead.
+This function is deprecated. Instead of `it.allowNontermination.fold`, use `it.fold`.
 -/
 @[always_inline, inline]
 def Iter.Partial.fold {α : Type w} {β : Type w} {γ : Type x} [Iterator α Id β]
-    [IteratorLoopPartial α Id Id] (f : γ → β → γ)
+    [IteratorLoop α Id Id] (f : γ → β → γ)
     (init : γ) (it : Iter.Partial (α := α) β) : γ :=
   ForIn.forIn (m := Id) it init (fun x acc => ForInStep.yield (f acc x))
 
@@ -221,15 +209,12 @@ def Iter.findSomeM? {α β : Type w} {γ : Type x} {m : Type x → Type w'} [Mon
     | none => return .yield none
     | some fx => return .done (some fx))
 
-@[inline, inherit_doc Iter.findSomeM?]
+@[inline, inherit_doc Iter.findSomeM?, deprecated Iter.findSomeM? (since := "2025-10-21")]
 def Iter.Partial.findSomeM? {α β : Type w} {γ : Type x} {m : Type x → Type w'} [Monad m]
-    [Iterator α Id β] [IteratorLoopPartial α Id m] (it : Iter.Partial (α := α) β)
+    [Iterator α Id β] [IteratorLoop α Id m] (it : Iter.Partial (α := α) β)
     (f : β → m (Option γ)) :
     m (Option γ) :=
-  ForIn.forIn it none (fun x _ => do
-    match ← f x with
-    | none => return .yield none
-    | some fx => return .done (some fx))
+  it.it.findSomeM? f
 
 /--
 Steps through the iterator until `f` returns `some` for an element, at which point iteration stops
@@ -242,11 +227,11 @@ def Iter.findSome? {α β : Type w} {γ : Type x} [Iterator α Id β]
     Option γ :=
   Id.run (it.findSomeM? (pure <| f ·))
 
-@[inline, inherit_doc Iter.findSome?]
+@[inline, inherit_doc Iter.findSome?, deprecated Iter.findSome? (since := "2025-10-21")]
 def Iter.Partial.findSome? {α β : Type w} {γ : Type x} [Iterator α Id β]
-    [IteratorLoopPartial α Id Id] (it : Iter.Partial (α := α) β) (f : β → Option γ) :
+    [IteratorLoop α Id Id] (it : Iter.Partial (α := α) β) (f : β → Option γ) :
     Option γ :=
-  Id.run (it.findSomeM? (pure <| f ·))
+  it.it.findSome? f
 
 /--
 Steps through the iterator until an element satisfies the monadic predicate `f`, at which point
@@ -259,11 +244,11 @@ def Iter.findM? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α
     m (Option β) :=
   it.findSomeM? (fun x => return if (← f x).down then some x else none)
 
-@[inline, inherit_doc Iter.findM?]
+@[inline, inherit_doc Iter.findM?, deprecated Iter.findM? (since := "2025-10-21")]
 def Iter.Partial.findM? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α Id β]
-    [IteratorLoopPartial α Id m] (it : Iter.Partial (α := α) β) (f : β → m (ULift Bool)) :
+    [IteratorLoop α Id m] (it : Iter.Partial (α := α) β) (f : β → m (ULift Bool)) :
     m (Option β) :=
-  it.findSomeM? (fun x => return if (← f x).down then some x else none)
+  it.it.findM? f
 
 /--
 Steps through the iterator until an element satisfies `f`, at which point iteration stops and the
@@ -274,10 +259,10 @@ def Iter.find? {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
     (it : Iter (α := α) β) (f : β → Bool) : Option β :=
   Id.run (it.findM? (pure <| .up <| f ·))
 
-@[inline, inherit_doc Iter.find?]
-def Iter.Partial.find? {α β : Type w} [Iterator α Id β] [IteratorLoopPartial α Id Id]
+@[inline, inherit_doc Iter.find?, deprecated Iter.find? (since := "2025-10-21")]
+def Iter.Partial.find? {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
     (it : Iter.Partial (α := α) β) (f : β → Bool) : Option β :=
-  Id.run (it.findM? (pure <| .up <| f ·))
+  it.it.find? f
 
 /--
 Steps through the whole iterator, counting the number of outputs emitted.
@@ -310,10 +295,10 @@ Steps through the whole iterator, counting the number of outputs emitted.
 
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
-@[always_inline, inline, expose]
-def Iter.Partial.count {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoopPartial α Id Id]
+@[always_inline, inline, expose, deprecated Iter.count (since := "2025-12-04")]
+def Iter.Partial.count {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
     (it : Iter.Partial (α := α) β) : Nat :=
-  it.it.toIterM.allowNontermination.count.run.down
+  it.it.toIterM.count.run.down
 
 /--
 Steps through the whole iterator, counting the number of outputs emitted.
@@ -322,9 +307,9 @@ Steps through the whole iterator, counting the number of outputs emitted.
 
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
-@[always_inline, inline, expose, deprecated Iter.Partial.count (since := "2025-10-29")]
-def Iter.Partial.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoopPartial α Id Id]
+@[always_inline, inline, expose, deprecated Iter.count (since := "2025-10-29")]
+def Iter.Partial.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
     (it : Iter.Partial (α := α) β) : Nat :=
-  it.count
+  it.it.count
 
 end Std.Iterators

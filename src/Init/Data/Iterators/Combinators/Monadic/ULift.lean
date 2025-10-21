@@ -128,10 +128,6 @@ instance Types.ULiftIterator.instIteratorLoop {o : Type x → Type x'} [Monad n]
     IteratorLoop (ULiftIterator α m n β lift) n o :=
   .defaultImplementation
 
-instance Types.ULiftIterator.instIteratorLoopPartial {o : Type x → Type x'} [Monad n] [Monad o] [Iterator α m β] :
-    IteratorLoopPartial (ULiftIterator α m n β lift) n o :=
-  .defaultImplementation
-
 instance Types.ULiftIterator.instIteratorCollect [Monad n] [Monad o] [Iterator α m β] :
     IteratorCollect (ULiftIterator α m n β lift) n o :=
   .defaultImplementation

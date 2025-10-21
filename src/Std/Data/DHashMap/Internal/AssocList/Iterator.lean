@@ -55,10 +55,6 @@ public instance {α : Type u} {β : α → Type v} {m : Type (max u v) → Type 
     IteratorLoop (AssocListIterator α β) Id m :=
   .defaultImplementation
 
-public instance {α : Type u} {β : α → Type v} {m : Type (max u v) → Type w''} [Monad m] :
-    IteratorLoopPartial (AssocListIterator α β) Id m :=
-  .defaultImplementation
-
 /--
 Internal implementation detail of the hash map. Returns a finite iterator on an associative list.
 -/

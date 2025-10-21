@@ -61,7 +61,6 @@ instance SubarrayIterator.instFinite : Finite (SubarrayIterator α) Id :=
 
 instance [Monad m] : IteratorCollect (SubarrayIterator α) Id m := .defaultImplementation
 instance [Monad m] : IteratorLoop (SubarrayIterator α) Id m := .defaultImplementation
-instance [Monad m] : IteratorLoopPartial (SubarrayIterator α) Id m := .defaultImplementation
 
 @[inline, expose]
 def Subarray.instToIterator :=

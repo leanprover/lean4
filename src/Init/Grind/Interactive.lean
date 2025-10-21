@@ -88,6 +88,10 @@ syntax (name := showCases) "show_cases" ppSpace grindFilter : grind
 syntax (name := «showState») "show_state" ppSpace grindFilter : grind
 /-- Show active local theorems and their anchors for heuristic instantiation. -/
 syntax (name := showLocalThms) "show_local_thms" : grind
+/--
+`show_term tac` runs `tac`, then displays the generated proof in the InfoView.
+-/
+syntax (name := showTerm) "show_term " grindSeq : grind
 
 declare_syntax_cat grind_ref (behavior := both)
 

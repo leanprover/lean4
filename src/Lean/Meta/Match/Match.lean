@@ -159,13 +159,32 @@ private def isVariableTransition (p : Problem) : Bool :=
     | .var _ :: _          => true
     | _                    => false
 
-private def isConstructorTransition (p : Problem) : Bool :=
-  (hasCtorPattern p || p.alts.isEmpty)
-  && p.alts.all fun alt => match alt.patterns with
-     | .ctor .. :: _        => true
-     | .var _ :: _          => true
-     | .inaccessible _ :: _ => true
-     | _                    => false
+private def getInductiveVal? (x : Expr) : MetaM (Option InductiveVal) := do
+  let xType ← inferType x
+  let xType ← whnfD xType
+  match xType.getAppFn with
+  | Expr.const constName _ =>
+    let cinfo ← getConstInfo constName
+    match cinfo with
+    | ConstantInfo.inductInfo val => return some val
+    | _ => return none
+  | _ => return none
+
+def isCurrVarInductive (p : Problem) : MetaM Bool := do
+  match p.vars with
+  | []   => return false
+  | x::_ => withGoalOf p do
+    let val? ← getInductiveVal? x
+    return val?.isSome
+
+private def isConstructorTransition (p : Problem) : MetaM Bool := do
+  return (← isCurrVarInductive p)
+    && (hasCtorPattern p || p.alts.isEmpty)
+    && p.alts.all fun alt => match alt.patterns with
+      | .ctor .. :: _        => true
+      | .var _ :: _          => true
+      | .inaccessible _ :: _ => true
+      | _                    => false
 
 private def isValueTransition (p : Problem) : Bool :=
   hasVarPattern p && hasValPattern p
@@ -447,17 +466,6 @@ private def expandInaccessibleIntoVar (alt : Alt) : MetaM Alt := do
         cnstrs := (x, e) :: alt.cnstrs
       }
 
-private def getInductiveVal? (x : Expr) : MetaM (Option InductiveVal) := do
-  let xType ← inferType x
-  let xType ← whnfD xType
-  match xType.getAppFn with
-  | Expr.const constName _ =>
-    let cinfo ← getConstInfo constName
-    match cinfo with
-    | ConstantInfo.inductInfo val => return some val
-    | _ => return none
-  | _ => return none
-
 private def hasRecursiveType (x : Expr) : MetaM Bool := do
   match (← getInductiveVal? x) with
   | some val => return val.isRec
@@ -728,13 +736,6 @@ private def throwNonSupported (p : Problem) : MetaM Unit :=
     let msg ← p.toMessageData
     throwError "Failed to compile pattern matching: Stuck at{indentD msg}"
 
-def isCurrVarInductive (p : Problem) : MetaM Bool := do
-  match p.vars with
-  | []   => return false
-  | x::_ => withGoalOf p do
-    let val? ← getInductiveVal? x
-    return val?.isSome
-
 private def checkNextPatternTypes (p : Problem) : MetaM Unit := do
   match p.vars with
   | []   => return ()
@@ -809,7 +810,6 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
     processLeaf p
     return
 
-  let isInductive ← isCurrVarInductive p
   match firstRefutablePattern p with
   | some i =>
     if i > 0 then
@@ -848,7 +848,7 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
     traceStep ("non variable")
     let p ← processNonVariable p
     process p
-  else if isInductive && isConstructorTransition p then
+  else if (← isConstructorTransition p) then
     let ps ← processConstructor p
     ps.forM process
   else if isVariableTransition p then

@@ -171,8 +171,7 @@ jobs:
       - name: Build Stage 0 & Configure Stage 1
         run: |
           ulimit -c unlimited  # coredumps
-          cd build
-          time make stage1-configure -j$NPROC
+          time make -C build stage1-configure -j$NPROC
       - name: Download Lake Cache
         if: matrix.name == 'Linux Lake (Cached)'
         run: |
@@ -182,8 +181,7 @@ jobs:
       - name: Build Target Stage
         run: |
           ulimit -c unlimited  # coredumps
-          cd build
-          time make $TARGET_STAGE -j$NPROC
+          time make -C build $TARGET_STAGE -j$NPROC
       # Should be done as early as possible and in particular *before* "Check rebootstrap" which
       # changes the state of stage1/
       - name: Save Cache

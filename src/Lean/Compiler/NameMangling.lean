@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Data.Name
-import Init.Data.String.Basic
+import Init.Data.String.Iterator
 
 public section
 

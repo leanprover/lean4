@@ -199,22 +199,22 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_Persiste
 LEAN_EXPORT uint64_t l___private_Lean_Meta_Tactic_Grind_Anchor_0__Lean_Meta_Grind_hashName(lean_object* x_1) {
 _start:
 {
-uint8_t x_2; uint8_t x_15; 
-x_15 = l_Lean_Name_hasMacroScopes(x_1);
-if (x_15 == 0)
+uint8_t x_2; uint8_t x_13; 
+x_13 = l_Lean_Name_hasMacroScopes(x_1);
+if (x_13 == 0)
 {
-uint8_t x_16; 
+uint8_t x_14; 
 lean_inc(x_1);
-x_16 = lean_is_inaccessible_user_name(x_1);
-x_2 = x_16;
-goto block_14;
+x_14 = lean_is_inaccessible_user_name(x_1);
+x_2 = x_14;
+goto block_12;
 }
 else
 {
-x_2 = x_15;
-goto block_14;
+x_2 = x_13;
+goto block_12;
 }
-block_14:
+block_12:
 {
 if (x_2 == 0)
 {
@@ -237,46 +237,35 @@ return x_6;
 }
 else
 {
-if (lean_obj_tag(x_1) == 0)
-{
 uint64_t x_7; 
+lean_dec(x_1);
 x_7 = 0;
 return x_7;
 }
+}
 else
 {
-lean_object* x_8; 
-x_8 = lean_ctor_get(x_1, 0);
-lean_inc(x_8);
+lean_object* x_8; uint64_t x_9; 
+x_8 = l_Lean_privateToUserName(x_1);
+x_9 = l_Lean_Name_hash___override(x_8);
+lean_dec(x_8);
+return x_9;
+}
+}
+else
+{
+uint64_t x_10; 
 lean_dec(x_1);
-x_1 = x_8;
-goto _start;
-}
+x_10 = 0;
+return x_10;
 }
 }
 else
 {
-lean_object* x_10; uint64_t x_11; 
-x_10 = l_Lean_privateToUserName(x_1);
-x_11 = l_Lean_Name_hash___override(x_10);
-lean_dec(x_10);
+uint64_t x_11; 
+lean_dec(x_1);
+x_11 = 0;
 return x_11;
-}
-}
-else
-{
-uint64_t x_12; 
-lean_dec(x_1);
-x_12 = 0;
-return x_12;
-}
-}
-else
-{
-uint64_t x_13; 
-lean_dec(x_1);
-x_13 = 0;
-return x_13;
 }
 }
 }
@@ -1812,7 +1801,8 @@ lean_object* x_58; uint64_t x_59; lean_object* x_60;
 x_58 = lean_ctor_get(x_55, 1);
 lean_inc(x_58);
 lean_dec_ref(x_55);
-x_59 = l_Lean_Name_hash___override(x_54);
+lean_inc(x_54);
+x_59 = l___private_Lean_Meta_Tactic_Grind_Anchor_0__Lean_Meta_Grind_hashName(x_54);
 x_60 = l_Lean_Meta_Grind_getAnchor___lam__0(x_1, x_59, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_58);
 lean_dec(x_8);
 lean_dec_ref(x_7);
@@ -2306,7 +2296,8 @@ lean_object* x_168; uint64_t x_169; lean_object* x_170;
 x_168 = lean_ctor_get(x_165, 1);
 lean_inc(x_168);
 lean_dec_ref(x_165);
-x_169 = l_Lean_Name_hash___override(x_164);
+lean_inc(x_164);
+x_169 = l___private_Lean_Meta_Tactic_Grind_Anchor_0__Lean_Meta_Grind_hashName(x_164);
 x_170 = l_Lean_Meta_Grind_getAnchor___lam__0(x_1, x_169, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_168);
 lean_dec(x_8);
 lean_dec_ref(x_7);

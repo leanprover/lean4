@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_formatStxAux___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Syntax_formatStx(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo(uint8_t, lean_object*, lean_object*);
@@ -961,7 +961,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Lean_Syntax_instToString___lam__0___closed__0;
 x_3 = lean_unsigned_to_nat(0u);
-x_4 = lean_format_pretty(x_1, x_2, x_3, x_3);
+x_4 = l_Std_Format_pretty(x_1, x_2, x_3, x_3);
 return x_4;
 }
 }
@@ -1024,7 +1024,7 @@ x_3 = 0;
 x_4 = l_Lean_Syntax_formatStx(x_1, x_2, x_3);
 x_5 = l_Lean_Syntax_instToString___lam__0___closed__0;
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = lean_format_pretty(x_4, x_5, x_6, x_6);
+x_7 = l_Std_Format_pretty(x_4, x_5, x_6, x_6);
 return x_7;
 }
 }

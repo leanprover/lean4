@@ -529,10 +529,10 @@ return x_11;
 block_18:
 {
 lean_object* x_17; 
-x_17 = lean_string_append(x_15, x_16);
+x_17 = lean_string_append(x_13, x_16);
 lean_dec_ref(x_16);
-x_3 = x_13;
-x_4 = x_14;
+x_3 = x_14;
+x_4 = x_15;
 x_5 = x_17;
 goto block_12;
 }
@@ -586,9 +586,9 @@ lean_object* x_37; lean_object* x_38;
 x_37 = lean_nat_abs(x_20);
 lean_dec(x_20);
 x_38 = l_Nat_reprFast(x_37);
-x_13 = x_22;
-x_14 = x_21;
-x_15 = x_34;
+x_13 = x_34;
+x_14 = x_22;
+x_15 = x_21;
 x_16 = x_38;
 goto block_18;
 }
@@ -606,9 +606,9 @@ lean_dec(x_41);
 x_44 = l_Nat_reprFast(x_43);
 x_45 = lean_string_append(x_42, x_44);
 lean_dec_ref(x_44);
-x_13 = x_22;
-x_14 = x_21;
-x_15 = x_34;
+x_13 = x_34;
+x_14 = x_22;
+x_15 = x_21;
 x_16 = x_45;
 goto block_18;
 }
@@ -617,11 +617,11 @@ goto block_18;
 block_53:
 {
 lean_object* x_52; 
-x_52 = lean_string_append(x_49, x_51);
+x_52 = lean_string_append(x_50, x_51);
 lean_dec_ref(x_51);
 x_19 = x_47;
 x_20 = x_48;
-x_21 = x_50;
+x_21 = x_49;
 x_22 = x_52;
 goto block_46;
 }
@@ -690,8 +690,8 @@ lean_dec(x_57);
 x_79 = l_Nat_reprFast(x_78);
 x_47 = x_63;
 x_48 = x_60;
-x_49 = x_75;
-x_50 = x_54;
+x_49 = x_54;
+x_50 = x_75;
 x_51 = x_79;
 goto block_53;
 }
@@ -711,8 +711,8 @@ x_86 = lean_string_append(x_83, x_85);
 lean_dec_ref(x_85);
 x_47 = x_63;
 x_48 = x_60;
-x_49 = x_75;
-x_50 = x_54;
+x_49 = x_54;
+x_50 = x_75;
 x_51 = x_86;
 goto block_53;
 }

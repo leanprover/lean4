@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std
-// Imports: import Std.Data import Std.Do import Std.Sat import Std.Sync import Std.Time import Std.Tactic import Std.Internal import Std.Net
+// Imports: public import Std.Data public import Std.Do public import Std.Sat public import Std.Sync public import Std.Time public import Std.Tactic public import Std.Internal public import Std.Net
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

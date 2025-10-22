@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_success___closed__3;
-lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_utf8RangeToLspRange(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___Lean_Meta_Tactic_TryThis_getInputWidth_spec__0___boxed(lean_object*, lean_object*);
 double lean_float_mul(double, double);
@@ -1114,13 +1114,13 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_o
 x_8 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
 x_9 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_9, 0, x_4);
+lean_ctor_set(x_9, 0, x_3);
 lean_ctor_set(x_9, 1, x_8);
 x_10 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
-lean_ctor_set(x_10, 1, x_6);
+lean_ctor_set(x_10, 1, x_4);
 x_11 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_11, 0, x_3);
+lean_ctor_set(x_11, 0, x_6);
 lean_ctor_set(x_11, 1, x_10);
 x_12 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_12, 0, x_5);
@@ -1176,10 +1176,10 @@ if (x_2 == 0)
 {
 lean_object* x_49; 
 x_49 = l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__8;
-x_3 = x_47;
-x_4 = x_48;
+x_3 = x_48;
+x_4 = x_44;
 x_5 = x_17;
-x_6 = x_44;
+x_6 = x_47;
 x_7 = x_49;
 goto block_14;
 }
@@ -1192,10 +1192,10 @@ x_52 = lean_string_append(x_50, x_51);
 lean_dec_ref(x_51);
 x_53 = l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__10;
 x_54 = lean_string_append(x_52, x_53);
-x_3 = x_47;
-x_4 = x_48;
+x_3 = x_48;
+x_4 = x_44;
 x_5 = x_17;
-x_6 = x_44;
+x_6 = x_47;
 x_7 = x_54;
 goto block_14;
 }
@@ -1862,7 +1862,8 @@ if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; 
 x_16 = lean_ctor_get(x_14, 0);
-x_17 = lean_format_pretty(x_16, x_10, x_3, x_4);
+x_17 = l_Std_Format_pretty(x_16, x_10, x_3, x_4);
+lean_dec(x_10);
 lean_ctor_set(x_14, 0, x_17);
 return x_14;
 }
@@ -1874,7 +1875,8 @@ x_19 = lean_ctor_get(x_14, 1);
 lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_14);
-x_20 = lean_format_pretty(x_18, x_10, x_3, x_4);
+x_20 = l_Std_Format_pretty(x_18, x_10, x_3, x_4);
+lean_dec(x_10);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_19);

@@ -543,6 +543,7 @@ return x_11;
 }
 else
 {
+lean_dec(x_7);
 return x_8;
 }
 }

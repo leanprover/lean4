@@ -192,6 +192,7 @@ where
           | .del .. => go worklist
         | none => go worklist
 
+set_option trace.compiler.ir.result true in
 /--
 Map the set of used proof steps to a new LRAT proof that has no holes in the sequence of proof
 identifiers.

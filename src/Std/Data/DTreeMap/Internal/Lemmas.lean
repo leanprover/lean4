@@ -3275,11 +3275,65 @@ variable (m₁ m₂ : Impl α β)
 
 variable {m₁ m₂}
 
+/- contains -/
+theorem contains_union_of_left [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} :
+    m₁.contains k → (m₁.union m₂ h₁.balanced h₂.balanced).contains k := by
+  simp_to_model [contains, union] using List.contains_insertList_of_left
+
+theorem contains_union_of_right [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} :
+    m₂.contains k → (m₁.union m₂ h₁.balanced h₂.balanced).contains k := by
+  simp_to_model [contains, union] using List.contains_insertList_of_right
+
 @[simp]
 theorem contains_union [TransOrd α] (h₁ : m₁.WF)
     (h₂ : m₂.WF) {k : α} :
     (m₁.union m₂ h₁.balanced h₂.balanced).contains k = (m₁.contains k || m₂.contains k) := by
   simp_to_model [contains, union] using List.containsKey_insertList_disj_of_containsKey
+
+
+theorem contains_union_iff [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} :
+    (m₁.union m₂ h₁.balanced h₂.balanced).contains k ↔ m₁.contains k ∨ m₂.contains k := by
+  simp_to_model [union, contains] using List.contains_insertList_iff
+
+theorem contains_of_contains_union_of_contains_eq_false_right [TransOrd  α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
+    (m₁.union m₂ h₁.balanced h₂.balanced).contains k → m₂.contains k = false → m₁.contains k := by
+  simp_to_model [union, contains] using List.contains_of_contains_insertList_of_contains_eq_false_right
+
+theorem contains_of_contains_union_of_contains_eq_false_left [TransOrd α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
+    (m₁.union m₂ h₁.balanced h₂.balanced).contains k → m₁.contains k = false → m₂.contains k := by
+  simp_to_model [union, contains] using List.contains_of_contains_insertList_of_contains_eq_false_left
+
+/- Equiv -/
+
+theorem union_insert_right_equiv_insert_union [TransOrd α]  {p : (a : α) × β a}
+    (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    Equiv (m₁.union (m₂.insert p.fst p.snd h₂.balanced).impl h₁.balanced h₂.insert.balanced) ((m₁.union m₂ h₁.balanced h₂.balanced).insert p.fst p.snd (@WF.union _ _ _ m₁ h₁ m₂ h₂).balanced).1 := by
+  simp_to_model [union, insert]
+  apply List.Perm.trans
+  . apply insertList_perm_of_perm_second
+    simp_to_model [insert]
+    . apply insertEntry_of_perm
+      . wf_trivial
+      . apply List.Perm.refl
+    . exact h₁.ordered.distinctKeys
+    . apply List.DistinctKeys.perm
+      . apply toListModel_insert
+        . wf_trivial
+      . apply List.DistinctKeys.insertEntry
+        . exact h₂.ordered.distinctKeys
+  . apply List.Perm.trans
+    . apply insertList_insertEntry_right_equiv_insertEntry_insertList
+      any_goals wf_trivial
+    . apply insertEntry_of_perm
+      . apply List.DistinctKeys.insertList
+        . wf_trivial
+      . apply List.Perm.symm
+        . apply toListModel_union_list (by wf_trivial) (by wf_trivial)
 
 
 end Union

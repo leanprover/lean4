@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.String.Extra
 public import Init.System.FilePath
+import Init.Data.String.TakeDrop
 
 public section
 

@@ -7,7 +7,7 @@ module
 
 prelude
 import Init.Data.Array.Basic
-public import Init.Data.String.Basic
+public import Init.Data.String.TakeDrop
 
 namespace Lake
 

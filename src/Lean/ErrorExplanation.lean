@@ -10,6 +10,7 @@ prelude
 public import Lean.Message
 public import Lean.EnvExtension
 public import Lean.DocString.Links
+import Init.Data.String.TakeDrop
 
 public section
 

@@ -240,12 +240,12 @@ def Iter.Partial.find? {α β : Type w} [Iterator α Id β] [IteratorLoop α Id 
     (it : Iter.Partial (α := α) β) (f : β → Bool) : Option β :=
   it.it.find? f
 
-@[always_inline, expose, inherit_doc IterM.size]
+@[always_inline, inline, expose, inherit_doc IterM.size]
 def Iter.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorSize α Id]
     (it : Iter (α := α) β) : Nat :=
   (IteratorSize.size it.toIterM).run.down
 
-@[always_inline, inherit_doc IterM.Partial.size]
+@[always_inline, inline, inherit_doc IterM.Partial.size]
 def Iter.Partial.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorSizePartial α Id]
     (it : Iter (α := α) β) : Nat :=
   (IteratorSizePartial.size it.toIterM).run.down

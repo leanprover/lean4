@@ -15,8 +15,7 @@ public section
 namespace Std.Iterators
 
 theorem IterM.DefaultConsumers.forIn'_eq_match_step {α β : Type w} {m : Type w → Type w'}
-    [Iterator α m β]
-    {n : Type x → Type x'} [Monad n] [LawfulMonad n]
+    [Iterator α m β] {n : Type x → Type x'} [Monad n] [LawfulMonad n]
     {lift : ∀ γ δ, (γ → n δ) → m γ → n δ} {γ : Type x}
     {it : IterM (α := α) m β} {init : γ}
     {P hP} {f : (b : β) → P b → (c : γ) → n (ForInStep γ)}

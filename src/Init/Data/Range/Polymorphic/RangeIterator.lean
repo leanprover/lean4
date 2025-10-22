@@ -512,7 +512,7 @@ where finally
     refine ⟨1, ?_⟩
     simpa [succMany?_one] using hs
 
-private theorem Iterator.instIteratorLoop.loop_eq_loopWf [UpwardEnumerable α] [LE α] [DecidableLE α]
+private theorem Iterator.instIteratorLoop.loop_eq_wf [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Monad n] [LawfulMonad n]
     {γ LargeEnough hl upperBound} {next hn} {acc} (Pl wf f) :
     loop γ LargeEnough hl upperBound acc next hn (fun out h₁ h₂ acc => Subtype.val <$> f out h₁ h₂ acc) =
@@ -620,7 +620,7 @@ instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α] [LE α] [Decidabl
     split; rotate_left
     · simp [Monadic.step_eq_step, Monadic.step, Internal.LawfulMonadLiftBindFunction.liftBind_pure]
     rename_i next _
-    rw [instIteratorLoop.loop_eq_loopWf Pl wf, instIteratorLoop.loopWf_eq (lift := lift)]
+    rw [instIteratorLoop.loop_eq_wf Pl wf, instIteratorLoop.loopWf_eq (lift := lift)]
     simp only [Monadic.step_eq_step, Monadic.step, instLawfulMonadLiftFunction.liftBind_pure,
       Shrink.inflate_deflate]
     split
@@ -1110,7 +1110,7 @@ where finally
     refine ⟨1, ?_⟩
     simpa [succMany?_one] using hs
 
-private theorem Iterator.instIteratorLoop.loop_eq_loopWf [UpwardEnumerable α] [LT α] [DecidableLT α]
+private theorem Iterator.instIteratorLoop.loop_eq_wf [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Monad n] [LawfulMonad n]
     {γ LargeEnough hl upperBound} {next hn} {acc} (Pl wf f) :
     loop γ LargeEnough hl upperBound acc next hn (fun out h₁ h₂ acc => Subtype.val <$> f out h₁ h₂ acc) =
@@ -1218,7 +1218,7 @@ instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α] [LT α] [Decidabl
     split; rotate_left
     · simp [Monadic.step_eq_step, Monadic.step, Internal.LawfulMonadLiftBindFunction.liftBind_pure]
     rename_i next _
-    rw [instIteratorLoop.loop_eq_loopWf Pl wf, instIteratorLoop.loopWf_eq (lift := lift)]
+    rw [instIteratorLoop.loop_eq_wf Pl wf, instIteratorLoop.loopWf_eq (lift := lift)]
     simp only [Monadic.step_eq_step, Monadic.step, instLawfulMonadLiftFunction.liftBind_pure,
       Shrink.inflate_deflate]
     split
@@ -1614,7 +1614,7 @@ where finally
     refine ⟨1, ?_⟩
     simpa [succMany?_one] using hs
 
-private theorem Iterator.instIteratorLoop.loop_eq_loopWf [UpwardEnumerable α]
+private theorem Iterator.instIteratorLoop.loop_eq_wf [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [Monad n] [LawfulMonad n]
     {γ LargeEnough hl} {next hn} {acc} (Pl wf f) :
     loop γ LargeEnough hl acc next hn (fun out h acc => Subtype.val <$> f out h acc) =
@@ -1707,7 +1707,7 @@ instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α]
     split; rotate_left
     · simp [Monadic.step_eq_step, Monadic.step, Internal.LawfulMonadLiftBindFunction.liftBind_pure]
     rename_i next _
-    rw [instIteratorLoop.loop_eq_loopWf Pl wf, instIteratorLoop.loopWf_eq (lift := lift)]
+    rw [instIteratorLoop.loop_eq_wf Pl wf, instIteratorLoop.loopWf_eq (lift := lift)]
     simp only [Monadic.step_eq_step, Monadic.step, instLawfulMonadLiftFunction.liftBind_pure,
       Shrink.inflate_deflate]
     apply bind_congr; intro forInStep

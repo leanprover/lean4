@@ -22,7 +22,7 @@ Returns `true` if adding the assignment `e := v` to `a` will falsify any asserte
 -/
 private partial def satisfyDiseqs (goal : Goal) (a : Std.HashMap Expr Rat) (e : Expr) (v : Int) : Bool := Id.run do
   let some parents := goal.parents.find? { expr := e } | return true
-  for parent in parents do
+  for parent in parents.elems do
     let_expr Eq _ lhs rhs := parent | continue
     let some root := goal.getRoot? parent | continue
     if root.isConstOf ``False then

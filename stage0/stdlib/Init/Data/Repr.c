@@ -16,7 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Prod_repr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Sum_repr___redArg___closed__2;
 static lean_object* l_instReprRaw___lam__0___closed__2;
-lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_reprStr___redArg(lean_object*, lean_object*);
 static lean_object* l_Bool_repr___redArg___closed__2;
 static lean_object* l_instReprRaw___lam__0___closed__0;
@@ -358,7 +358,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6;
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_apply_2(x_1, x_2, x_3);
 x_5 = l_reprStr___redArg___closed__0;
-x_6 = lean_format_pretty(x_4, x_5, x_3, x_3);
+x_6 = l_Std_Format_pretty(x_4, x_5, x_3, x_3);
 return x_6;
 }
 }
@@ -369,7 +369,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7;
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_apply_2(x_2, x_3, x_4);
 x_6 = l_reprStr___redArg___closed__0;
-x_7 = lean_format_pretty(x_5, x_6, x_4, x_4);
+x_7 = l_Std_Format_pretty(x_5, x_6, x_4, x_4);
 return x_7;
 }
 }

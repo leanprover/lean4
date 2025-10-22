@@ -16,3 +16,6 @@ public import Init.Data.String.Bootstrap
 public import Init.Data.String.Slice
 public import Init.Data.String.Pattern
 public import Init.Data.String.Stream
+public import Init.Data.String.PosRaw
+public import Init.Data.String.Substring
+public import Init.Data.String.TakeDrop

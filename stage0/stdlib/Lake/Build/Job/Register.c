@@ -23,6 +23,7 @@ lean_object* l_Substring_takeWhileAux(lean_object*, lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Lake_registerJob___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lake_ensureJob___redArg___closed__7;
 lean_object* lean_array_push(lean_object*, lean_object*);
+lean_object* l_instMonadST(lean_object*);
 lean_object* l_Lake_EStateT_instPure___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_EStateT_instMonad___redArg___lam__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_ensureJob___redArg___closed__17;
@@ -44,7 +45,6 @@ lean_object* l_Lake_EStateT_instFunctor___redArg(lean_object*);
 lean_object* l_Lake_EquipT_instMonadFinallyOfMonad___redArg(lean_object*);
 lean_object* l_IO_FS_withIsolatedStreams___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Array_shrink___redArg(lean_object*, lean_object*);
-lean_object* l_instMonadEIO(lean_object*);
 static lean_object* l_Lake_ensureJob___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lake_withRegisterJob___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_ensureJob___redArg___closed__1;
@@ -793,7 +793,7 @@ static lean_object* _init_l_Lake_ensureJob___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_instMonadEIO(lean_box(0));
+x_1 = l_instMonadST(lean_box(0));
 return x_1;
 }
 }

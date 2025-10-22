@@ -81,7 +81,19 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
 
         for (struct addrinfo* ai = res; ai != NULL; ai = ai->ai_next) {
             const struct sockaddr* sin_addr = (const struct sockaddr*)ai->ai_addr;
-            in_addr_storage* storage_addr =  (in_addr_storage*)sin_addr->sa_data;
+
+            in_addr_storage* storage_addr;
+
+            if (sin_addr->sa_family == AF_INET) {
+                struct sockaddr_in* ipv4 = (struct sockaddr_in*)sin_addr;
+                storage_addr = (in_addr_storage*)&(ipv4->sin_addr);
+            } else if (sin_addr->sa_family == AF_INET6) {
+                struct sockaddr_in6* ipv6 = (struct sockaddr_in6*)sin_addr;
+                storage_addr = (in_addr_storage*)&(ipv6->sin6_addr);
+            } else {
+                continue;
+            }
+
             lean_object* addr = lean_in_addr_storage_to_ip_addr((short)sin_addr->sa_family, storage_addr);
             arr = lean_array_push(arr, addr);
         }

@@ -11,6 +11,7 @@ public import Lake.Util.Error
 public import Lake.Util.EStateT
 public import Lean.Message
 public import Lake.Util.Lift
+import Init.Data.String.TakeDrop
 
 open Lean
 

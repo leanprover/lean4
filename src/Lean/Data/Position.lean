@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Data.Json.FromToJson.Basic
 public import Lean.ToExpr
+import Init.Data.String.Iterator
 
 public section
 

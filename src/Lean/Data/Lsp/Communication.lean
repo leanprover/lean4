@@ -8,6 +8,7 @@ module
 
 prelude
 public import Lean.Data.JsonRpc
+import Init.Data.String.TakeDrop
 
 public section
 

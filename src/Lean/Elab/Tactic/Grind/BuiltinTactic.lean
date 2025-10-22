@@ -242,7 +242,7 @@ where
     | .cases _ | .intro | .inj | .ext | .symbol _ =>
       throwError "invalid modifier"
 
-def logAnchor (numDigits : Nat) (anchorPrefix : UInt64) (e : Expr) : TermElabM Unit := do
+def logAnchor (e : Expr) : TermElabM Unit := do
   let stx ← getRef
   if e.isFVar || e.isConst then
     /-
@@ -260,12 +260,9 @@ def logAnchor (numDigits : Nat) (anchorPrefix : UInt64) (e : Expr) : TermElabM U
     Term.addTermInfo' stx e
   else
     /-
-    **Note**: only the `e`s type is displayed when hovering over the anchor.
-    We add a silent info with the anchor declaration.
+    **Note**: `e` and its type are displayed when hovering over the anchor.
     -/
-    Term.addTermInfo' stx e
-    logAt (severity := .information) (isSilent := true) stx
-       m!"#{anchorPrefixToString numDigits anchorPrefix} := {e}"
+    Term.addTermInfo' stx e (isDisplayableTerm := True)
 
 @[builtin_grind_tactic cases] def evalCases : GrindTactic := fun stx => do
   let `(grind| cases #$anchor:hexnum) := stx | throwUnsupportedSyntax
@@ -281,7 +278,7 @@ def logAnchor (numDigits : Nat) (anchorPrefix : UInt64) (e : Expr) : TermElabM U
           | throwError "`cases` tactic failed, case-split is not ready{indentExpr c.getExpr}"
         return (e, result)
     throwError "`cases` tactic failed, invalid anchor"
-  goal.withContext <| withRef anchor <| logAnchor numDigits val e
+  goal.withContext <| withRef anchor <| logAnchor e
   let goals ← goals.filterMapM fun goal => do
     let (goal, _) ← liftGrindM <| SearchM.run goal do
       intros genNew

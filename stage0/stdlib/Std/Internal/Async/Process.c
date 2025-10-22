@@ -65,9 +65,9 @@ static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__51;
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__52;
 lean_object* lean_nat_to_int(lean_object*);
+lean_object* l_instMonadEST(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__22;
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__43;
-lean_object* l_instMonadEIO(lean_object*);
 lean_object* lean_uint64_to_nat(uint64_t);
 lean_object* lean_uv_os_setpriority(uint64_t, uint64_t, lean_object*);
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats_repr___redArg___closed__9;
@@ -1678,7 +1678,7 @@ static lean_object* _init_l_Std_Internal_IO_Process_getResourceUsage___closed__0
 _start:
 {
 lean_object* x_1; 
-x_1 = l_instMonadEIO(lean_box(0));
+x_1 = l_instMonadEST(lean_box(0), lean_box(0));
 return x_1;
 }
 }

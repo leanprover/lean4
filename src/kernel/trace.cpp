@@ -122,9 +122,9 @@ scope_trace_env::~scope_trace_env() {
     get_disabled_trace_classes().resize(m_disable_sz);
 }
 
-extern "C" obj_res lean_io_eprint(obj_arg s, obj_arg w);
+extern "C" obj_res lean_io_eprint(obj_arg s);
 static void io_eprint(obj_arg s) {
-    object * r = lean_io_eprint(s, lean_io_mk_world());
+    object * r = lean_io_eprint(s);
     if (!lean_io_result_is_ok(r))
         lean_io_result_show_error(r);
     lean_dec(r);

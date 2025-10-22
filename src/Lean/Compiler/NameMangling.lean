@@ -39,7 +39,7 @@ theorem ValidPos.remainingBytes_next_lt_of_lt {p p' : String.ValidPos s} (h' : p
   omega
 
 theorem ValidPos.lt_next {p : String.ValidPos s} (h) : p < p.next h := by
-  simp only [next, lt_iff, Slice.Pos.ofset_ofSlice, Pos.Raw.lt_iff, Slice.Pos.byteIdx_offset_next,
+  simp only [next, lt_iff, Slice.Pos.offset_ofSlice, Pos.Raw.lt_iff, Slice.Pos.byteIdx_offset_next,
     offset_toSlice, Nat.lt_add_right_iff_pos]
   exact Char.utf8Size_pos _
 
@@ -92,7 +92,7 @@ theorem valid_of_checkLowerHex (h : checkLowerHex n s p) :
     specialize ih h.2
     refine cast ?_ ih
     congr 2
-    simp only [String.ValidPos.next, String.Slice.Pos.ofset_ofSlice,
+    simp only [String.ValidPos.next, String.Slice.Pos.offset_ofSlice,
       String.Slice.Pos.byteIdx_offset_next, String.ValidPos.offset_toSlice, Nat.succ_eq_add_one]
     change p.offset.byteIdx + ch.utf8Size + k = _
     rw [Char.utf8Size_eq_one_iff.mpr, Nat.add_assoc, Nat.add_comm 1]

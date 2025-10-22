@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringInt___lam__0(lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 static lean_object* l_instReprExcept___redArg___lam__0___closed__2;
@@ -844,7 +844,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_instToStringFormat___lam__0___closed__0;
 x_3 = lean_unsigned_to_nat(0u);
-x_4 = lean_format_pretty(x_1, x_2, x_3, x_3);
+x_4 = l_Std_Format_pretty(x_1, x_2, x_3, x_3);
 return x_4;
 }
 }

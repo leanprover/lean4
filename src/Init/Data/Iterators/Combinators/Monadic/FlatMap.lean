@@ -114,7 +114,7 @@ This combinator incurs an additional O(1) cost with each output of `it` or an in
 
 For each value emitted by the outer iterator `it`, this combinator calls `f`.
 -/
-@[always_inline, expose]
+@[always_inline, inline, expose]
 public def IterM.flatMapM {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β] [Iterator α₂ m γ]
     (f : β → m (IterM (α := α₂) m γ)) (it : IterM (α := α) m β) :=
@@ -195,7 +195,7 @@ This combinator incurs an additional O(1) cost with each output of `it` or an in
 
 For each value emitted by the outer iterator `it`, this combinator calls `f`.
 -/
-@[always_inline, expose]
+@[always_inline, inline, expose]
 public def IterM.flatMap {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β] [Iterator α₂ m γ]
     (f : β → IterM (α := α₂) m γ) (it : IterM (α := α) m β) :=

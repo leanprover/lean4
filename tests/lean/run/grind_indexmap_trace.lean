@@ -147,7 +147,7 @@ example (m : IndexMap α β) (a : α) (h : a ∈ m) :
 info: Try this:
   [apply] ⏎
     instantiate only [= mem_indices_of_mem, insert]
-    instantiate only [= getElem?_neg, = getElem?_pos, =_ HashMap.contains_iff_mem]
+    instantiate only [=_ HashMap.contains_iff_mem, = getElem?_neg, = getElem?_pos]
     cases #4ed2
     next =>
       cases #ffdf
@@ -179,7 +179,7 @@ example (m : IndexMap α β) (a a' : α) (b : β) :
 info: Try this:
   [apply] ⏎
     instantiate only [= mem_indices_of_mem, insert]
-    instantiate only [= getElem?_neg, = getElem?_pos, =_ HashMap.contains_iff_mem]
+    instantiate only [=_ HashMap.contains_iff_mem, = getElem?_neg, = getElem?_pos]
     cases #4ed2
     next =>
       cases #ffdf
@@ -247,19 +247,19 @@ info: Try this:
         instantiate only [= Array.getElem_set]
       next =>
         instantiate only
-        instantiate only [= Array.getElem_push, size, = HashMap.getElem_insert, = HashMap.mem_insert]
+        instantiate only [size, = HashMap.mem_insert, = HashMap.getElem_insert, = Array.getElem_push]
     next =>
-      instantiate only [= getElem_def, = mem_indices_of_mem]
+      instantiate only [= mem_indices_of_mem, = getElem_def]
       instantiate only [usr getElem_indices_lt]
       instantiate only [size]
       cases #ffdf
       next =>
         instantiate only [=_ WF]
-        instantiate only [= Array.getElem_set, = getElem?_neg, = getElem?_pos]
+        instantiate only [= getElem?_neg, = getElem?_pos, = Array.getElem_set]
         instantiate only [WF']
       next =>
         instantiate only
-        instantiate only [= Array.getElem_push, = HashMap.mem_insert, = HashMap.getElem_insert]
+        instantiate only [= HashMap.mem_insert, = HashMap.getElem_insert, = Array.getElem_push]
 -/
 #guard_msgs in
 example (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
@@ -298,8 +298,8 @@ example (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
 /--
 info: Try this:
   [apply] ⏎
-    instantiate only [insert, = mem_indices_of_mem, findIdx]
-    instantiate only [= getElem?_pos, = getElem?_neg]
+    instantiate only [findIdx, insert, = mem_indices_of_mem]
+    instantiate only [= getElem?_neg, = getElem?_pos]
     cases #1bba
     next => instantiate only [findIdx]
     next =>

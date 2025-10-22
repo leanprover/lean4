@@ -114,7 +114,7 @@ instance IteratorLoop.WithWF.instWellFoundedRelation
 /--
 This is the loop implementation of the default instance `IteratorLoop.defaultImplementation`.
 -/
-@[always_inline, expose]
+@[always_inline, inline, expose]
 def IterM.DefaultConsumers.forIn' {m : Type w → Type w'} {α : Type w} {β : Type w}
     [Iterator α m β]
     {n : Type x → Type x'} [Monad n]
@@ -169,7 +169,7 @@ This is the default implementation of the `IteratorLoop` class.
 It simply iterates through the iterator using `IterM.step`. For certain iterators, more efficient
 implementations are possible and should be used instead.
 -/
-@[always_inline, expose]
+@[always_inline, inline, expose]
 def IteratorLoop.defaultImplementation {α : Type w} {m : Type w → Type w'} {n : Type x → Type x'}
     [Monad n] [Iterator α m β] :
     IteratorLoop α m n where

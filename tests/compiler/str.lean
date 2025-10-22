@@ -1,3 +1,4 @@
+def main : IO Unit := pure () /- -- TODO: remove after stage0 update
 def showChars : Nat → String → String.Pos.Raw → IO Unit
 | 0,     _, _   => pure ()
 | n+1,   s, idx => do
@@ -27,3 +28,4 @@ IO.println ("ab".isPrefixOf "a") *>
 IO.println ("αb".isPrefixOf "αbc") *>
 IO.println ("\x00a").length *>
 pure 0
+-/

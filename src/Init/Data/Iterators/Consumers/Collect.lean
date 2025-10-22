@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Iterators.Consumers.Partial
+public import Init.Data.Iterators.Consumers.Total
 public import Init.Data.Iterators.Consumers.Monadic.Collect
 
 @[expose] public section
@@ -36,6 +37,12 @@ def Iter.Partial.toArray {α : Type w} {β : Type w}
     [Iterator α Id β] [IteratorCollect α Id Id] (it : Iter.Partial (α := α) β) : Array β :=
   it.it.toArray
 
+@[always_inline, inherit_doc IterM.Total.toArray]
+def Iter.Total.toArray {α : Type w} {β : Type w}
+    [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id] (it : Iter.Total (α := α) β) :
+    Array β :=
+  it.it.toArray
+
 @[always_inline, inherit_doc IterM.toListRev]
 def Iter.toListRev {α : Type w} {β : Type w}
     [Iterator α Id β] (it : Iter (α := α) β) : List β :=
@@ -46,6 +53,11 @@ def Iter.Partial.toListRev {α : Type w} {β : Type w}
     [Iterator α Id β] (it : Iter.Partial (α := α) β) : List β :=
   it.it.toListRev
 
+@[always_inline, inherit_doc IterM.Total.toListRev]
+def Iter.Total.toListRev {α : Type w} {β : Type w}
+    [Iterator α Id β] [Finite α Id] (it : Iter.Total (α := α) β) : List β :=
+  it.it.toListRev
+
 @[always_inline, inherit_doc IterM.toList]
 def Iter.toList {α : Type w} {β : Type w}
     [Iterator α Id β] [IteratorCollect α Id Id] (it : Iter (α := α) β) : List β :=
@@ -54,6 +66,12 @@ def Iter.toList {α : Type w} {β : Type w}
 @[always_inline, inherit_doc IterM.Partial.toList, deprecated Iter.toList (since := "2025-10-15")]
 def Iter.Partial.toList {α : Type w} {β : Type w}
     [Iterator α Id β] [IteratorCollect α Id Id] (it : Iter.Partial (α := α) β) : List β :=
+  it.it.toList
+
+@[always_inline, inherit_doc IterM.Total.toList]
+def Iter.Total.toList {α : Type w} {β : Type w}
+    [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id] (it : Iter.Total (α := α) β) :
+    List β :=
   it.it.toList
 
 end Std.Iterators

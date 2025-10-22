@@ -14,13 +14,25 @@ section ListIteratorBasic
 #guard_msgs in
 #eval [1, 2, 3].iter.toList
 
+/-- info: [1, 2, 3] -/
+#guard_msgs in
+#eval [1, 2, 3].iter.ensureTermination.toList
+
+/-- info: [3, 2, 1] -/
+#guard_msgs in
+#eval [1, 2, 3].iter.toListRev
+
+/-- info: [3, 2, 1] -/
+#guard_msgs in
+#eval [1, 2, 3].iter.ensureTermination.toListRev
+
 /-- info: #[1, 2, 3] -/
 #guard_msgs in
 #eval [1, 2, 3].iter.toArray
 
-/-- info: [1, 2, 3] -/
+/-- info: #[1, 2, 3] -/
 #guard_msgs in
-#eval [1, 2, 3].iter |>.allowNontermination.toList
+#eval [1, 2, 3].iter.ensureTermination.toArray
 
 /-- info: ([1, 2, 3].iterM IO).toList : IO (List Nat) -/
 #guard_msgs in
@@ -342,3 +354,38 @@ example : (Std.Iterators.Iter.empty Nat).toList = [] := by
   simp
 
 end Empty
+
+section Termination
+
+example := positives.toList
+example := positives.toListRev
+example := positives.toArray
+
+/--
+error: failed to synthesize
+  Std.Iterators.Finite (Std.Iterators.RepeatIterator Nat fun x => x + 1) Id
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#guard_msgs in
+example := positives.ensureTermination.toList
+
+/--
+error: failed to synthesize
+  Std.Iterators.Finite (Std.Iterators.RepeatIterator Nat fun x => x + 1) Id
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#guard_msgs in
+example := positives.ensureTermination.toListRev
+
+/--
+error: failed to synthesize
+  Std.Iterators.Finite (Std.Iterators.RepeatIterator Nat fun x => x + 1) Id
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#guard_msgs in
+example := positives.ensureTermination.toArray
+
+end Termination

@@ -1648,7 +1648,7 @@ def Slice.Pos.ofSlice {s : String} (pos : s.toSlice.Pos) : s.ValidPos where
   isValid := pos.isValidForSlice.ofSlice
 
 @[simp]
-theorem Slice.Pos.ofset_ofSlice {s : String} {pos : s.toSlice.Pos} : pos.ofSlice.offset = pos.offset := (rfl)
+theorem Slice.Pos.offset_ofSlice {s : String} {pos : s.toSlice.Pos} : pos.ofSlice.offset = pos.offset := (rfl)
 
 @[simp]
 theorem rawEndPos_toSlice {s : String} : s.toSlice.rawEndPos = s.endPos := by

@@ -100,7 +100,7 @@ theorem WF.getThenInsertIfNew? [Ord α] [LawfulEqOrd α] {t : Impl α β} {k v} 
   · exact h.insertIfNew
   · exact h
 
-theorem WF.union [Ord α] {t₁ t₂ : Impl α β} {h₁ : t₁.WF} {h₂ : t₂.WF} :
+theorem WF.union [Ord α] {t₁ : Impl α β} {h₁ : t₁.WF} {t₂ : Impl α β} {h₂ : t₂.WF} :
     (t₁.union t₂ h₁.balanced h₂.balanced).WF := by
   simp [Impl.union]
   split

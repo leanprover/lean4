@@ -514,6 +514,15 @@ abbrev IteratedSlowInsertionInto [Ord α] (t) :=
   { t' // ∀ {P : Impl α β → Prop}, P t → (∀ t'' a b, P t'' → P (t''.insert! a b)) → P t' }
 
 /--
+Computes the union of the given tree maps. If a key appears in both maps, the entry contains in
+the second argument will appear in the result.
+
+This function always merges the smaller map into the larger map.
+-/
+def union [Ord α] (t₁ t₂ : Impl α β) (h₁ : t₁.Balanced) (h₂ : t₂.Balanced) : Impl α β :=
+  if t₁.size ≤ t₂.size then (t₂.insertManyIfNew t₁ h₂) else (t₁.insertMany t₂ h₁)
+
+/--
 Slower version of `insertMany` which can be used in absence of balance information but still
 assumes the preconditions of `insertMany`, otherwise might panic.
 -/

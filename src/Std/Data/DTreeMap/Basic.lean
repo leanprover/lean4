@@ -1074,6 +1074,23 @@ def insertMany {ρ} [ForIn Id ρ ((a : α) × β a)] (t : DTreeMap α β cmp) (l
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.insertMany l t.wf.balanced, t.wf.insertMany⟩
 
 /--
+Inserts multiple mappings into the tree map by iterating over the given collection and calling
+`insert`. If the same key appears multiple times, the first occurrence takes precedence.
+-/
+@[inline]
+def insertManyIfNew {ρ} [ForIn Id ρ ((a : α) × β a)] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t.inner.insertManyIfNew l t.wf.balanced, t.wf.insertManyIfNew⟩
+
+/--
+Computes the union of the given tree maps. If a key appears in both maps, the entry contains in
+the second argument will appear in the result.
+
+This function always merges the smaller map into the larger map.
+-/
+def union (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
+    letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.union t₂.inner t₁.wf.balanced t₂.wf.balanced, sorry⟩
+
+/--
 Erases multiple mappings from the tree map by iterating over the given collection and calling
 `erase`.
 -/

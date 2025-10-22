@@ -100,6 +100,13 @@ theorem WF.getThenInsertIfNew? [Ord α] [LawfulEqOrd α] {t : Impl α β} {k v} 
   · exact h.insertIfNew
   · exact h
 
+theorem WF.union [Ord α] {t₁ t₂ : Impl α β} {h₁ : t₁.WF} {h₂ : t₂.WF} :
+    (t₁.union t₂ h₁.balanced h₂.balanced).WF := by
+  simp [Impl.union]
+  split
+  . apply WF.insertManyIfNew h₂
+  . apply WF.insertMany h₁
+
 section Const
 
 variable {β : Type v}

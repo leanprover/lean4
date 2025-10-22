@@ -71,6 +71,7 @@ LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldM___at___Lean_Language
 LEAN_EXPORT lean_object* l_Lean_Option_get___at_____private_Lean_Language_Basic_0__Lean_Language_reportMessages_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_bindIO___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_ReportingRange_skip_elim___redArg(lean_object*, lean_object*);
+lean_object* l_instMonadST(lean_object*);
 static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__22;
 static lean_object* l_Lean_Language_initFn___closed__0____x40_Lean_Language_Basic_709047587____hygCtx___hyg_4_;
 static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__21;
@@ -129,7 +130,6 @@ LEAN_EXPORT lean_object* l_Lean_Language_mkIncrementalProcessor___redArg(lean_ob
 LEAN_EXPORT lean_object* l_Lean_Language_instInhabitedSnapshotTree;
 static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__18;
 LEAN_EXPORT lean_object* l_Lean_Language_DynamicSnapshot_toTyped_x3f___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_instMonadEIO(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_instToSnapshotTreeSnapshotTree;
 static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__19;
 LEAN_EXPORT lean_object* l_Lean_Language_instInhabitedSnapshotTree_default;
@@ -1870,7 +1870,7 @@ static lean_object* _init_l_Lean_Language_SnapshotTask_cancelRec___redArg___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = l_instMonadEIO(lean_box(0));
+x_1 = l_instMonadST(lean_box(0));
 return x_1;
 }
 }
@@ -3436,7 +3436,6 @@ if (x_27 == 0)
 {
 lean_dec(x_26);
 lean_dec(x_25);
-lean_dec(x_23);
 lean_dec(x_22);
 return x_21;
 }
@@ -3448,7 +3447,6 @@ if (x_28 == 0)
 {
 lean_dec(x_26);
 lean_dec(x_25);
-lean_dec(x_23);
 lean_dec(x_22);
 return x_21;
 }
@@ -3547,7 +3545,6 @@ x_21 = lean_nat_dec_lt(x_9, x_20);
 if (x_21 == 0)
 {
 lean_dec(x_20);
-lean_dec(x_19);
 lean_dec(x_18);
 return x_17;
 }
@@ -3558,7 +3555,6 @@ x_22 = lean_nat_dec_le(x_20, x_20);
 if (x_22 == 0)
 {
 lean_dec(x_20);
-lean_dec(x_19);
 lean_dec(x_18);
 return x_17;
 }
@@ -3640,7 +3636,6 @@ x_41 = lean_nat_dec_lt(x_9, x_40);
 if (x_41 == 0)
 {
 lean_dec(x_40);
-lean_dec(x_39);
 lean_dec(x_38);
 return x_37;
 }
@@ -3651,7 +3646,6 @@ x_42 = lean_nat_dec_le(x_40, x_40);
 if (x_42 == 0)
 {
 lean_dec(x_40);
-lean_dec(x_39);
 lean_dec(x_38);
 return x_37;
 }
@@ -3869,7 +3863,6 @@ x_16 = lean_nat_dec_lt(x_14, x_15);
 if (x_16 == 0)
 {
 lean_dec(x_15);
-lean_dec(x_13);
 lean_dec(x_12);
 return x_11;
 }
@@ -3880,7 +3873,6 @@ x_17 = lean_nat_dec_le(x_15, x_15);
 if (x_17 == 0)
 {
 lean_dec(x_15);
-lean_dec(x_13);
 lean_dec(x_12);
 return x_11;
 }

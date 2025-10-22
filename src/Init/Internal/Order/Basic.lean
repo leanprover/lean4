@@ -11,7 +11,7 @@ public import Init.System.IO  -- for `MonoBind` instance
 import all Init.Control.Except  -- for `MonoBind` instance
 import all Init.Control.StateRef  -- for `MonoBind` instance
 import all Init.Control.Option  -- for `MonoBind` instance
-import all Init.System.IO  -- for `MonoBind` instance
+import all Init.System.ST  -- for `MonoBind` instance
 
 public section
 
@@ -921,16 +921,17 @@ theorem monotone_stateTRun [PartialOrder γ]
     monotone (fun (x : γ) => StateT.run (f x) s) :=
   monotone_apply s _ hmono
 
--- TODO: axiomatize these instances (ideally without `Nonempty ε`) when EIO is opaque
-noncomputable instance [Nonempty ε] : CCPO (EIO ε α) :=
+-- TODO: axiomatize these instances (ideally without `Nonempty ε`) when EIO and friends are opaque
+
+noncomputable instance [Nonempty ε] : CCPO (EST ε σ α) :=
   inferInstanceAs (CCPO ((s : _) → FlatOrder (.error Classical.ofNonempty (Classical.choice ⟨s⟩))))
 
-noncomputable instance [Nonempty ε] : MonoBind (EIO ε) where
+noncomputable instance [Nonempty ε] : MonoBind (EST ε σ) where
   bind_mono_left {_ _ a₁ a₂ f} h₁₂ := by
     intro s
     specialize h₁₂ s
     change FlatOrder.rel (a₁.bind f s) (a₂.bind f s)
-    simp only [EStateM.bind]
+    simp only [EST.bind]
     generalize a₁ s = a₁ at h₁₂; generalize a₂ s = a₂ at h₁₂
     cases h₁₂
     · exact .bot
@@ -938,10 +939,22 @@ noncomputable instance [Nonempty ε] : MonoBind (EIO ε) where
   bind_mono_right {_ _ a f₁ f₂} h₁₂ := by
     intro w
     change FlatOrder.rel (a.bind f₁ w) (a.bind f₂ w)
-    simp only [EStateM.bind]
+    simp only [EST.bind]
     split
     · apply h₁₂
     · exact .refl
+
+noncomputable instance [Nonempty α] : CCPO (ST σ α) :=
+  inferInstanceAs (CCPO ((s : _) → FlatOrder (.mk Classical.ofNonempty (Classical.choice ⟨s⟩))))
+
+noncomputable instance [Nonempty α] : CCPO (BaseIO α) :=
+  inferInstanceAs (CCPO (ST IO.RealWorld α))
+
+noncomputable instance [Nonempty ε] : CCPO (EIO ε α) :=
+  inferInstanceAs (CCPO (EST ε IO.RealWorld α))
+
+noncomputable instance [Nonempty ε] : MonoBind (EIO ε) :=
+  inferInstanceAs (MonoBind (EST ε IO.RealWorld))
 
 end mono_bind
 

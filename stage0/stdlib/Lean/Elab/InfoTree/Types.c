@@ -504,12 +504,13 @@ x_2 = l_Lean_Elab_instInhabitedTermInfo_default___closed__3;
 x_3 = lean_box(0);
 x_4 = l_Lean_Elab_instInhabitedTermInfo_default___closed__0;
 x_5 = l_Lean_Elab_instInhabitedElabInfo_default;
-x_6 = lean_alloc_ctor(0, 4, 1);
+x_6 = lean_alloc_ctor(0, 4, 2);
 lean_ctor_set(x_6, 0, x_5);
 lean_ctor_set(x_6, 1, x_4);
 lean_ctor_set(x_6, 2, x_3);
 lean_ctor_set(x_6, 3, x_2);
 lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_1);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4 + 1, x_1);
 return x_6;
 }
 }

@@ -14,7 +14,9 @@ public section
 namespace Lean
 namespace IR
 
-open Lean.Compiler (LCNF.CacheExtension LCNF.isTypeFormerType LCNF.toLCNFType LCNF.toMonoType)
+open Lean.Compiler (LCNF.CacheExtension LCNF.isTypeFormerType LCNF.toLCNFType LCNF.toMonoType
+  LCNF.TrivialStructureInfo LCNF.getOtherDeclBaseType LCNF.getParamTypes LCNF.instantiateForall
+  LCNF.Irrelevant.hasTrivialStructure?)
 
 def irTypeForEnum (numCtors : Nat) : IRType :=
   if numCtors == 1 then
@@ -30,6 +32,23 @@ def irTypeForEnum (numCtors : Nat) : IRType :=
 
 builtin_initialize irTypeExt : LCNF.CacheExtension Name IRType ←
   LCNF.CacheExtension.register
+
+builtin_initialize trivialStructureInfoExt :
+    LCNF.CacheExtension Name (Option LCNF.TrivialStructureInfo) ←
+  LCNF.CacheExtension.register
+
+/--
+The idea of this function is the same as in `ToMono`, however the notion of "irrelevancy" has
+changed because we now have the `void` type which can only be erased in impure context and thus at
+earliest at the conversion from mono to IR.
+-/
+def hasTrivialStructure? (declName : Name) : CoreM (Option LCNF.TrivialStructureInfo) := do
+  let isVoidType type := do
+    let type ← Meta.whnfD type
+    return type matches .proj ``Subtype 0 (.app (.const ``Void.nonemptyType []) _)
+  let irrelevantType type :=
+    Meta.isProp type <||> Meta.isTypeFormerType type <||> isVoidType type
+  LCNF.Irrelevant.hasTrivialStructure? trivialStructureInfoExt irrelevantType declName
 
 def nameToIRType (name : Name) : CoreM IRType := do
   match (← irTypeExt.find? name) with
@@ -51,7 +70,7 @@ where fillCache : CoreM IRType := do
     -- `Int` is specified as an inductive type with two constructors that have relevant arguments,
     -- but it has the same runtime representation as `Nat` and thus needs to be special-cased here.
     | ``Int => return .tobject
-    | ``lcRealWorld => return .tagged
+    | ``lcVoid => return .void
     | _ =>
       let env ← Lean.getEnv
       let some (.inductInfo inductiveVal) := env.find? name | return .tobject
@@ -83,13 +102,13 @@ private def isAnyProducingType (type : Lean.Expr) : Bool :=
   | .forallE _ _ b _ => isAnyProducingType b
   | _ => false
 
-def toIRType (type : Lean.Expr) : CoreM IRType := do
+partial def toIRType (type : Lean.Expr) : CoreM IRType := do
   match type with
-  | .const name _ => nameToIRType name
+  | .const name _ => visitApp name #[]
   | .app .. =>
     -- All mono types are in headBeta form.
     let .const name _ := type.getAppFn | unreachable!
-    nameToIRType name
+    visitApp name type.getAppArgs
   | .forallE _ _ b _ =>
     -- Type formers are erased, but can be used polymorphically as
     -- an arrow type producing `lcAny`. The runtime representation of
@@ -101,18 +120,28 @@ def toIRType (type : Lean.Expr) : CoreM IRType := do
       return .object
   | .mdata _ b => toIRType b
   | _ => unreachable!
+where
+  visitApp (declName : Name) (args : Array Lean.Expr) : CoreM IRType := do
+    if let some info ← hasTrivialStructure? declName then
+      let ctorType ← LCNF.getOtherDeclBaseType info.ctorName []
+      let monoType ← LCNF.toMonoType (LCNF.getParamTypes (← LCNF.instantiateForall ctorType args[*...info.numParams]))[info.fieldIdx]!
+      toIRType monoType
+    else
+      nameToIRType declName
 
 inductive CtorFieldInfo where
   | erased
   | object (i : Nat) (type : IRType)
   | usize  (i : Nat)
   | scalar (sz : Nat) (offset : Nat) (type : IRType)
+  | void
   deriving Inhabited
 
 namespace CtorFieldInfo
 
 def format : CtorFieldInfo → Format
   | erased => "◾"
+  | void => "void"
   | object i type => f!"obj@{i}:{type}"
   | usize i    => f!"usize@{i}"
   | scalar sz offset type => f!"scalar#{sz}@{offset}:{type}"
@@ -157,6 +186,7 @@ where fillCache := do
         pure <| .object i irFieldType
       | .usize => pure <| .usize 0
       | .erased => .pure <| .erased
+      | .void => .pure <| .void
       | .uint8 =>
         has1BScalar := true
         .pure <| .scalar 1 0 .uint8
@@ -183,7 +213,7 @@ where fillCache := do
       | .usize _ => do
         let i ← modifyGet fun nextIdx => (nextIdx, nextIdx + 1)
         return .usize i
-      | .object .. | .scalar .. | .erased => return field
+      | .object .. | .scalar .. | .erased | .void => return field
     let numUSize := nextIdx - numObjs
     let adjustScalarsForSize (fields : Array CtorFieldInfo) (size : Nat) (nextOffset : Nat)
         : Array CtorFieldInfo × Nat :=
@@ -195,7 +225,7 @@ where fillCache := do
             return .scalar sz offset type
           else
             return field
-        | .object .. | .usize _ | .erased => return field
+        | .object .. | .usize _ | .erased | .void => return field
     let mut nextOffset := 0
     if has8BScalar then
       ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 8 nextOffset

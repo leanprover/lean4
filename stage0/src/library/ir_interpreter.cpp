@@ -218,7 +218,8 @@ std::string format_fn_body_head(fn_body const & b) {
 }
 
 static bool type_is_scalar(type t) {
-    return t != type::Object && t != type::Tagged && t != type::TObject && t != type::Irrelevant;
+    return t != type::Object && t != type::Tagged && t != type::TObject && t != type::Irrelevant
+            && t != type::Void;
 }
 
 extern "C" object* lean_get_regular_init_fn_name_for(object* env, object* fn);
@@ -272,6 +273,7 @@ object * box_t(value v, type t) {
     case type::Tagged:
     case type::TObject:
     case type::Irrelevant:
+    case type::Void:
         return v.m_obj;
     case type::Struct:
     case type::Union:
@@ -290,6 +292,7 @@ value unbox_t(object * o, type t) {
     case type::UInt64:  return unbox_uint64(o);
     case type::USize:   return unbox_size_t(o);
     case type::Irrelevant:
+    case type::Void:
     case type::Object:
     case type::Tagged:
     case type::TObject:
@@ -520,6 +523,7 @@ private:
                     case type::UInt64: return cnstr_get_uint64(o, offset);
                     case type::USize:
                     case type::Irrelevant:
+                    case type::Void:
                     case type::Object:
                     case type::Tagged:
                     case type::TObject:
@@ -591,6 +595,7 @@ private:
                             case type::TObject:
                                 return n.to_obj_arg();
                             case type::Irrelevant:
+                            case type::Void:
                                 break;
                             case type::Union:
                             case type::Struct:
@@ -713,6 +718,7 @@ private:
                         case type::UInt64: cnstr_set_uint64(o, offset, v.m_num); break;
                         case type::USize:
                         case type::Irrelevant:
+                        case type::Void:
                         case type::Object:
                         case type::Tagged:
                         case type::TObject:
@@ -889,6 +895,7 @@ private:
                 case type::Tagged:
                 case type::TObject:
                 case type::Irrelevant:
+                case type::Void:
                     return *static_cast<object **>(e.m_native.m_addr);
                 case type::Struct:
                 case type::Union:
@@ -1156,7 +1163,7 @@ uint32 run_main(elab_environment const & env, options const & opts, list_ref<str
 /* runMain (env : Environment) (opts : Iptions) (args : List String) : BaseIO UInt32 */
 extern "C" LEAN_EXPORT obj_res lean_run_main(b_obj_arg env, b_obj_arg opts, b_obj_arg args, obj_arg) {
     uint32 ret = run_main(TO_REF(elab_environment, env), TO_REF(options, opts), TO_REF(list_ref<string_ref>, args));
-    return io_result_mk_ok(box(ret));
+    return lean_mk_baseio_out(box(ret));
 }
 
 extern "C" LEAN_EXPORT object * lean_eval_const(object * env, object * opts, object * c) {

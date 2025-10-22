@@ -16,7 +16,7 @@ extern "C" {
 static lean_object* l_Std_Format_initFn___closed__3____x40_Lean_Data_Format_3484694372____hygCtx___hyg_4_;
 LEAN_EXPORT lean_object* l_Lean_instToFormatProdNameDataValue___lam__0(lean_object*);
 extern lean_object* l_Std_Format_defIndent;
-lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Format_initFn___closed__1____x40_Lean_Data_Format_1056614795____hygCtx___hyg_4_;
 lean_object* l_Lean_Syntax_formatStx(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Format_initFn____x40_Lean_Data_Format_2495473732____hygCtx___hyg_4_(lean_object*);
@@ -688,7 +688,8 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6;
 x_3 = l_Std_Format_pretty_x27___closed__0;
 x_4 = l_Lean_Option_get___at___Std_Format_pretty_x27_spec__0(x_2, x_3);
 x_5 = lean_unsigned_to_nat(0u);
-x_6 = lean_format_pretty(x_1, x_4, x_5, x_5);
+x_6 = l_Std_Format_pretty(x_1, x_4, x_5, x_5);
+lean_dec(x_4);
 return x_6;
 }
 }

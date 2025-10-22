@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Data.DTreeMap.Internal.Ordered
 public import Std.Data.DTreeMap.Internal.Zipper
+public import Std.Data.DTreeMap.Raw.Basic
 
 namespace Std.DTreeMap.Raw
 open Std.Iterators

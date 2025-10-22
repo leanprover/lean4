@@ -6,13 +6,9 @@ Authors: Wojciech Różowski
 module
 
 prelude
-public import Init.Data.Iterators.Basic
-public import Init.Data.Iterators.Consumers
 public import Std.Data.Iterators.Lemmas.Producers.Slice
 public import Init.Data.Slice
-public import Init.Data.Range.Polymorphic.Basic
 public import Std.Data.DTreeMap.Internal.Lemmas
-
 
 namespace Std.DTreeMap.Internal
 open Std.Iterators

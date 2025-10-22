@@ -12,14 +12,31 @@ import Lean.Meta.Tactic.Grind.EMatchTheoremParam
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 namespace Lean.Meta.Grind.Action
 
+/-
+**Note**: The unique IDs created to instantiate theorems have the form `<prefix>.<num>`,
+where `<num>` corresponds to the instantiation order within a particular proof branch.
+Thus, by sorting the collected theorems using their corresponding unique IDs,
+we can construct an `instantiate` tactic that performs the instantiations using
+the original order.
+
+**Note**: It is unclear at this point whether this is a good strategy or not.
+The order in which things are asserted affects the proof found by `grind`.
+Thus, preserving the original order should intuitively help ensure that the generated
+tactic script for the continuation still closes the goal when combined with the
+generated `instantiate` tactic. However, it does not guarantee that the
+script can be successfully replayed, since we are filtering out instantiations that do
+not appear in the final proof term. Recall that a theorem instance may
+contribute to the proof search even if it does not appear in the final proof term.
+-/
+
 structure CollectState where
   visited       : Std.HashSet ExprPtr := {}
   collectedThms : Std.HashSet (Origin × EMatchTheoremKind) := {}
-  thms          : Array EMatchTheorem := #[]
+  idAndThms     : Array (Name × EMatchTheorem) := #[]
 
-def collect (e : Expr) (map : EMatch.InstanceMap) : Array EMatchTheorem :=
+def collect (e : Expr) (map : EMatch.InstanceMap) : Array (Name × EMatchTheorem) :=
   let (_, s) := go e |>.run {}
-  s.thms
+  s.idAndThms
 where
   go (e : Expr) : StateM CollectState Unit := do
     if isMarkedSubsingletonApp e then
@@ -35,7 +52,7 @@ where
       if let some thm := map[uniqueId]? then
         let key := (thm.origin, thm.kind)
         unless (← get).collectedThms.contains key do
-          modify fun s => { s with collectedThms := s.collectedThms.insert key, thms := s.thms.push thm }
+          modify fun s => { s with collectedThms := s.collectedThms.insert key, idAndThms := s.idAndThms.push (uniqueId, thm) }
     match e with
     | .lam _ d b _
     | .forallE _ d b _ => go d; go b
@@ -93,7 +110,10 @@ public def instantiate' : Action := fun goal kna kp => do
     | .closed seq =>
       if (← getConfig).trace then
         let proof ← instantiateMVars (mkMVar goal.mvarId)
-        let usedThms := collect proof map
+        let usedIdAndThms := collect proof map
+        -- **Note**: See note above. We want to sort here to reproduce the original instantiation order.
+        let usedIdAndThms := usedIdAndThms.qsort fun (id₁, _) (id₂, _) => id₁.lt id₂
+        let usedThms := usedIdAndThms.map (·.2)
         let newSeq ← mkNewSeq goal usedThms seq (approx := false)
         if (← checkSeqAt saved? goal newSeq) then
           return .closed newSeq

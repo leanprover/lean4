@@ -107,8 +107,10 @@ theorem Iter.forIn'_eq_match_step {α β : Type w} [Iterator α Id β]
             fun out h' acc => f out (.indirect ⟨_, rfl, h⟩ h') acc
       | .done _ => return init) := by
   simp only [forIn'_eq]
-  rw [IterM.DefaultConsumers.forIn'_eq_match_step (fun _ _ _ => True) IteratorLoop.wellFounded_of_finite
-    (f' := fun a b c => (⟨·, trivial⟩) <$> f a (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr b) c)
+  rw [IterM.DefaultConsumers.forIn'_eq_match_step (fun _ _ _ => True)
+    IteratorLoop.wellFounded_of_finite
+    (f' := fun a b c => (⟨·, trivial⟩) <$>
+        f a (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr b) c)
     (hf := by simp)]
   simp only [Iter.step]
   cases it.toIterM.step.run.inflate using PlausibleIterStep.casesOn
@@ -120,16 +122,20 @@ theorem Iter.forIn'_eq_match_step {α β : Type w} [Iterator α Id β]
     · simp only
       apply IterM.DefaultConsumers.forIn'_eq_forIn' (fun _ _ _ => True)
         IteratorLoop.wellFounded_of_finite
-        (f' := fun a b c => (⟨·, trivial⟩) <$> f a (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr b) c)
-        (g' := fun a b c => (⟨·, trivial⟩) <$> f a (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr (.indirect ⟨_, rfl, ‹_›⟩ b)) c)
+        (f' := fun a b c => (⟨·, trivial⟩) <$>
+            f a (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr b) c)
+        (g' := fun a b c => (⟨·, trivial⟩) <$>
+            f a (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr (.indirect ⟨_, rfl, ‹_›⟩ b)) c)
       · simp
       · simp
       · simp
   · simp only
     apply IterM.DefaultConsumers.forIn'_eq_forIn' (fun _ _ _ => True)
       IteratorLoop.wellFounded_of_finite
-      (f' := fun a b c => (⟨·, trivial⟩) <$> f a (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr b) c)
-      (g' := fun a b c => (⟨·, trivial⟩) <$> f a (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr (.indirect ⟨_, rfl, ‹_›⟩ b)) c)
+      (f' := fun a b c => (⟨·, trivial⟩) <$>
+          f a (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr b) c)
+      (g' := fun a b c => (⟨·, trivial⟩) <$>
+          f a (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr (.indirect ⟨_, rfl, ‹_›⟩ b)) c)
     · simp
     · simp
     · simp

@@ -47,7 +47,7 @@ macro_rules
     | apply WF.constInsertMany | apply WF.constInsertManyIfNewUnit
     | apply WF.alter | apply WF.constAlter
     | apply WF.modify | apply WF.constModify
-    | apply WF.filterMap | apply WF.filter | apply WF.map) <;> wf_trivial)
+    | apply WF.filterMap | apply WF.filter | apply WF.map | apply WF.union) <;> wf_trivial)
 
 /-- Internal implementation detail of the tree map -/
 scoped macro "empty" : tactic => `(tactic| { intros; simp_all [List.isEmpty_iff] } )
@@ -66,6 +66,7 @@ private meta def modifyMap : Std.HashMap Name Name :=
   .ofList
     [⟨`insert, ``toListModel_insert⟩,
      ⟨`insertIfNew, ``toListModel_insertIfNew⟩,
+     ⟨`union, ``toListModel_union_list⟩,
      ⟨`erase, ``toListModel_erase⟩,
      (`insertMany, ``toListModel_insertMany_list),
      (`Const.insertMany, ``Const.toListModel_insertMany_list),
@@ -3267,6 +3268,21 @@ theorem getD_insertManyIfNewUnit_empty_list
   simp
 
 end Const
+
+section Union
+
+variable (m₁ m₂ : Impl α β)
+
+variable {m₁ m₂}
+
+@[simp]
+theorem contains_union [TransOrd α] (h₁ : m₁.WF)
+    (h₂ : m₂.WF) {k : α} :
+    (m₁.union m₂ h₁.balanced h₂.balanced).contains k = (m₁.contains k || m₂.contains k) := by
+  simp_to_model [contains, union] using List.containsKey_insertList_disj_of_containsKey
+
+
+end Union
 
 section Alter
 

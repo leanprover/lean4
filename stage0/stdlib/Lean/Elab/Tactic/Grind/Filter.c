@@ -2424,7 +2424,6 @@ return x_37;
 }
 else
 {
-lean_dec(x_32);
 lean_dec(x_27);
 return x_30;
 }

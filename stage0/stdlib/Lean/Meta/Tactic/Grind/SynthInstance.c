@@ -1868,7 +1868,6 @@ if (x_13 == 0)
 {
 if (lean_obj_tag(x_10) == 0)
 {
-lean_dec(x_11);
 lean_dec_ref(x_10);
 return x_9;
 }
@@ -1882,7 +1881,6 @@ x_15 = l_Lean_instBEqInternalExceptionId_beq(x_12, x_14);
 lean_dec(x_14);
 if (x_15 == 0)
 {
-lean_dec(x_11);
 return x_9;
 }
 else
@@ -1914,7 +1912,6 @@ return x_19;
 }
 else
 {
-lean_dec(x_11);
 lean_dec(x_10);
 return x_9;
 }

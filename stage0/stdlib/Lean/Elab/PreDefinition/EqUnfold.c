@@ -498,7 +498,6 @@ return x_11;
 }
 else
 {
-lean_dec(x_7);
 return x_8;
 }
 }
@@ -564,7 +563,6 @@ if (x_63 == 0)
 lean_object* x_64; lean_object* x_65; uint8_t x_66; 
 x_64 = lean_ctor_get(x_56, 0);
 x_65 = lean_ctor_get(x_56, 1);
-lean_inc(x_65);
 lean_inc(x_64);
 x_66 = l_Lean_Exception_isInterrupt(x_64);
 if (x_66 == 0)
@@ -594,7 +592,6 @@ x_69 = lean_ctor_get(x_56, 1);
 lean_inc(x_69);
 lean_inc(x_68);
 lean_dec(x_56);
-lean_inc(x_69);
 lean_inc(x_68);
 x_70 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_70, 0, x_68);

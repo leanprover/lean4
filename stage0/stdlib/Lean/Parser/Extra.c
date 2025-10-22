@@ -5274,7 +5274,6 @@ if (x_33 == 0)
 {
 if (lean_obj_tag(x_30) == 0)
 {
-lean_dec(x_31);
 lean_dec_ref(x_30);
 lean_dec(x_27);
 x_16 = x_29;
@@ -5290,7 +5289,6 @@ x_35 = l_Lean_instBEqInternalExceptionId_beq(x_32, x_34);
 lean_dec(x_34);
 if (x_35 == 0)
 {
-lean_dec(x_31);
 lean_dec(x_27);
 x_16 = x_29;
 goto block_19;
@@ -5342,7 +5340,6 @@ goto block_22;
 }
 else
 {
-lean_dec(x_31);
 lean_dec(x_30);
 lean_dec(x_27);
 x_16 = x_29;

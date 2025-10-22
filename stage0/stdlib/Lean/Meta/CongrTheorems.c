@@ -10909,7 +10909,6 @@ lean_inc(x_12);
 x_13 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_hasCastLike(x_3);
 if (x_13 == 0)
 {
-lean_dec(x_12);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);

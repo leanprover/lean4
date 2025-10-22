@@ -1810,7 +1810,6 @@ x_90 = lean_nat_dec_lt(x_89, x_88);
 if (x_90 == 0)
 {
 lean_dec(x_88);
-lean_dec(x_87);
 lean_dec(x_86);
 lean_dec(x_83);
 lean_dec_ref(x_82);
@@ -2313,7 +2312,6 @@ x_198 = lean_nat_dec_lt(x_197, x_196);
 if (x_198 == 0)
 {
 lean_dec(x_196);
-lean_dec(x_195);
 lean_dec(x_194);
 lean_dec(x_191);
 lean_dec_ref(x_190);

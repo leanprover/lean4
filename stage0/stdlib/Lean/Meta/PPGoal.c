@@ -2472,7 +2472,6 @@ if (x_31 == 0)
 {
 lean_dec(x_30);
 lean_dec(x_29);
-lean_dec(x_27);
 lean_dec(x_26);
 lean_dec(x_2);
 return x_25;
@@ -2485,7 +2484,6 @@ if (x_32 == 0)
 {
 lean_dec(x_30);
 lean_dec(x_29);
-lean_dec(x_27);
 lean_dec(x_26);
 lean_dec(x_2);
 return x_25;
@@ -2589,7 +2587,6 @@ x_25 = lean_nat_dec_lt(x_13, x_24);
 if (x_25 == 0)
 {
 lean_dec(x_24);
-lean_dec(x_23);
 lean_dec(x_22);
 lean_dec(x_2);
 return x_21;
@@ -2601,7 +2598,6 @@ x_26 = lean_nat_dec_le(x_24, x_24);
 if (x_26 == 0)
 {
 lean_dec(x_24);
-lean_dec(x_23);
 lean_dec(x_22);
 lean_dec(x_2);
 return x_21;
@@ -2688,7 +2684,6 @@ x_45 = lean_nat_dec_lt(x_13, x_44);
 if (x_45 == 0)
 {
 lean_dec(x_44);
-lean_dec(x_43);
 lean_dec(x_42);
 lean_dec(x_2);
 return x_41;
@@ -2700,7 +2695,6 @@ x_46 = lean_nat_dec_le(x_44, x_44);
 if (x_46 == 0)
 {
 lean_dec(x_44);
-lean_dec(x_43);
 lean_dec(x_42);
 lean_dec(x_2);
 return x_41;

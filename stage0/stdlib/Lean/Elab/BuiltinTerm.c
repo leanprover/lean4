@@ -11547,7 +11547,6 @@ if (x_70 == 0)
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_dec(x_68);
 x_10 = x_60;
 x_11 = x_61;
 x_12 = x_62;
@@ -11739,7 +11738,6 @@ return x_107;
 }
 else
 {
-lean_dec(x_68);
 lean_dec(x_2);
 x_10 = x_60;
 x_11 = x_61;

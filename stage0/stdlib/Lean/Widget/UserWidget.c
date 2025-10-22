@@ -4638,8 +4638,8 @@ x_121 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Widget_initFn____
 lean_dec(x_118);
 if (lean_obj_tag(x_121) == 0)
 {
-x_58 = x_107;
-x_59 = x_115;
+x_58 = x_115;
+x_59 = x_107;
 x_60 = x_102;
 x_61 = x_110;
 x_62 = x_9;
@@ -4659,8 +4659,8 @@ x_123 = l_Lean_logWarning___at___Lean_Widget_initFn____x40_Lean_Widget_UserWidge
 x_124 = lean_ctor_get(x_123, 1);
 lean_inc(x_124);
 lean_dec_ref(x_123);
-x_58 = x_107;
-x_59 = x_115;
+x_58 = x_115;
+x_59 = x_107;
 x_60 = x_102;
 x_61 = x_110;
 x_62 = x_9;
@@ -4680,8 +4680,8 @@ lean_dec_ref(x_112);
 x_126 = lean_ctor_get(x_113, 0);
 lean_inc_ref(x_126);
 lean_dec(x_113);
-x_58 = x_107;
-x_59 = x_126;
+x_58 = x_126;
+x_59 = x_107;
 x_60 = x_102;
 x_61 = x_110;
 x_62 = x_9;
@@ -4878,13 +4878,13 @@ lean_dec_ref(x_68);
 x_70 = lean_ctor_get_uint64(x_61, sizeof(void*)*1);
 x_71 = lean_box(1);
 x_72 = lean_box(0);
-x_73 = l_Lean_SimplePersistentEnvExtension_getState___redArg(x_71, x_67, x_59, x_69, x_72);
+x_73 = l_Lean_SimplePersistentEnvExtension_getState___redArg(x_71, x_67, x_58, x_69, x_72);
 lean_dec(x_69);
 x_74 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Widget_initFn____x40_Lean_Widget_UserWidget_3570059497____hygCtx___hyg_2__spec__3___redArg(x_73, x_70);
 lean_dec(x_73);
 if (lean_obj_tag(x_74) == 0)
 {
-x_14 = x_58;
+x_14 = x_59;
 x_15 = x_60;
 x_16 = x_61;
 x_17 = x_62;
@@ -4921,7 +4921,7 @@ x_83 = l_Lean_logWarning___at___Lean_Widget_initFn____x40_Lean_Widget_UserWidget
 x_84 = lean_ctor_get(x_83, 1);
 lean_inc(x_84);
 lean_dec_ref(x_83);
-x_14 = x_58;
+x_14 = x_59;
 x_15 = x_60;
 x_16 = x_61;
 x_17 = x_62;
@@ -4951,7 +4951,7 @@ x_91 = l_Lean_logWarning___at___Lean_Widget_initFn____x40_Lean_Widget_UserWidget
 x_92 = lean_ctor_get(x_91, 1);
 lean_inc(x_92);
 lean_dec_ref(x_91);
-x_14 = x_58;
+x_14 = x_59;
 x_15 = x_60;
 x_16 = x_61;
 x_17 = x_62;

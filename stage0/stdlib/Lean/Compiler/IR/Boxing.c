@@ -28,6 +28,7 @@ lean_object* l_Lean_IR_Decl_elimDead(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExplicitBoxing_visitFnBody_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExplicitBoxing_requiresBoxedVersion___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_ExplicitBoxing_requiresBoxedVersion___closed__0;
+uint8_t l_Lean_IR_IRType_isVoid(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExplicitBoxing_withParams(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_maxIndex(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExplicitBoxing_getJPParams___boxed(lean_object*, lean_object*, lean_object*);
@@ -276,33 +277,40 @@ uint8_t x_4;
 x_4 = lean_usize_dec_eq(x_2, x_3);
 if (x_4 == 0)
 {
-lean_object* x_5; uint8_t x_6; lean_object* x_7; uint8_t x_8; uint8_t x_9; uint8_t x_14; 
+lean_object* x_5; uint8_t x_6; lean_object* x_7; uint8_t x_8; uint8_t x_9; uint8_t x_16; 
 x_5 = lean_array_uget(x_1, x_2);
 x_6 = lean_ctor_get_uint8(x_5, sizeof(void*)*2);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
-lean_dec_ref(x_5);
 x_8 = 1;
-x_14 = l_Lean_IR_IRType_isScalar(x_7);
+x_16 = l_Lean_IR_IRType_isScalar(x_7);
 lean_dec(x_7);
-if (x_14 == 0)
+if (x_16 == 0)
 {
 x_9 = x_6;
-goto block_13;
+goto block_15;
 }
 else
 {
-x_9 = x_14;
-goto block_13;
+x_9 = x_16;
+goto block_15;
 }
-block_13:
+block_15:
 {
 if (x_9 == 0)
 {
-size_t x_10; size_t x_11; 
-x_10 = 1;
-x_11 = lean_usize_add(x_2, x_10);
-x_2 = x_11;
+lean_object* x_10; uint8_t x_11; 
+x_10 = lean_ctor_get(x_5, 1);
+lean_inc(x_10);
+lean_dec_ref(x_5);
+x_11 = l_Lean_IR_IRType_isVoid(x_10);
+lean_dec(x_10);
+if (x_11 == 0)
+{
+size_t x_12; size_t x_13; 
+x_12 = 1;
+x_13 = lean_usize_add(x_2, x_12);
+x_2 = x_13;
 goto _start;
 }
 else
@@ -310,12 +318,18 @@ else
 return x_8;
 }
 }
+else
+{
+lean_dec_ref(x_5);
+return x_8;
+}
+}
 }
 else
 {
-uint8_t x_15; 
-x_15 = 0;
-return x_15;
+uint8_t x_17; 
+x_17 = 0;
+return x_17;
 }
 }
 }

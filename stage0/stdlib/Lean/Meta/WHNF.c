@@ -26507,7 +26507,6 @@ x_50 = lean_ctor_get(x_48, 1);
 lean_inc(x_50);
 if (lean_obj_tag(x_49) == 0)
 {
-lean_dec(x_50);
 lean_dec_ref(x_1);
 return x_48;
 }
@@ -26582,7 +26581,6 @@ x_67 = lean_ctor_get(x_65, 1);
 lean_inc(x_67);
 if (lean_obj_tag(x_66) == 0)
 {
-lean_dec(x_67);
 lean_dec_ref(x_1);
 return x_65;
 }
@@ -31007,7 +31005,6 @@ return x_121;
 }
 else
 {
-lean_dec(x_107);
 lean_dec(x_106);
 lean_dec(x_6);
 lean_dec_ref(x_5);
@@ -31658,7 +31655,6 @@ return x_121;
 }
 else
 {
-lean_dec(x_107);
 lean_dec(x_106);
 lean_dec(x_6);
 lean_dec_ref(x_5);
@@ -32373,7 +32369,6 @@ lean_inc(x_106);
 x_107 = l_Lean_Expr_isTypeAnnotation(x_105);
 if (x_107 == 0)
 {
-lean_dec(x_106);
 lean_dec(x_105);
 lean_dec(x_5);
 lean_dec_ref(x_4);
@@ -33025,7 +33020,6 @@ lean_inc(x_106);
 x_107 = l_Lean_Expr_isTypeAnnotation(x_105);
 if (x_107 == 0)
 {
-lean_dec(x_106);
 lean_dec(x_105);
 lean_dec(x_5);
 lean_dec_ref(x_4);

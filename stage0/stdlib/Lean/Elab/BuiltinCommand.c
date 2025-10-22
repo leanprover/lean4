@@ -10153,7 +10153,6 @@ if (x_13 == 0)
 {
 if (lean_obj_tag(x_11) == 0)
 {
-lean_dec(x_12);
 lean_dec_ref(x_11);
 lean_dec(x_4);
 lean_dec_ref(x_3);
@@ -10171,7 +10170,6 @@ x_16 = l_Lean_instBEqInternalExceptionId_beq(x_15, x_14);
 lean_dec(x_14);
 if (x_16 == 0)
 {
-lean_dec(x_12);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec(x_2);
@@ -10192,7 +10190,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_4);
 lean_dec_ref(x_3);
@@ -25576,7 +25573,6 @@ goto block_71;
 }
 else
 {
-lean_dec(x_77);
 lean_dec(x_76);
 x_65 = x_75;
 goto block_71;
@@ -26656,7 +26652,6 @@ goto block_71;
 }
 else
 {
-lean_dec(x_77);
 lean_dec(x_76);
 x_65 = x_75;
 goto block_71;

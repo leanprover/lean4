@@ -5725,7 +5725,7 @@ x_99 = lean_nat_dec_lt(x_97, x_5);
 if (x_99 == 0)
 {
 lean_dec_ref(x_6);
-x_64 = x_93;
+x_64 = x_94;
 x_65 = x_98;
 x_66 = x_95;
 x_67 = x_98;
@@ -5744,7 +5744,7 @@ lean_ctor_set(x_101, 1, x_100);
 lean_inc(x_15);
 lean_inc_ref(x_14);
 lean_inc_ref(x_12);
-x_102 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at_____private_Lean_Elab_Deriving_FromToJson_0__Lean_Elab_Deriving_FromToJson_mkToJsonBodyForInduct_mkAlts_spec__14___redArg(x_94, x_6, x_8, x_5, x_101, x_97, x_10, x_11, x_12, x_13, x_14, x_15, x_96);
+x_102 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at_____private_Lean_Elab_Deriving_FromToJson_0__Lean_Elab_Deriving_FromToJson_mkToJsonBodyForInduct_mkAlts_spec__14___redArg(x_93, x_6, x_8, x_5, x_101, x_97, x_10, x_11, x_12, x_13, x_14, x_15, x_96);
 if (lean_obj_tag(x_102) == 0)
 {
 lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; 
@@ -5763,7 +5763,7 @@ lean_inc(x_107);
 x_108 = lean_ctor_get(x_104, 1);
 lean_inc(x_108);
 lean_dec(x_104);
-x_64 = x_93;
+x_64 = x_94;
 x_65 = x_106;
 x_66 = x_107;
 x_67 = x_108;
@@ -5773,7 +5773,7 @@ goto block_92;
 else
 {
 uint8_t x_109; 
-lean_dec_ref(x_93);
+lean_dec_ref(x_94);
 lean_dec(x_15);
 lean_dec_ref(x_14);
 lean_dec(x_13);
@@ -5811,8 +5811,8 @@ x_118 = lean_unsigned_to_nat(0u);
 x_119 = lean_nat_dec_lt(x_118, x_114);
 if (x_119 == 0)
 {
-x_93 = x_116;
-x_94 = x_114;
+x_93 = x_114;
+x_94 = x_116;
 x_95 = x_7;
 x_96 = x_117;
 goto block_113;
@@ -5826,8 +5826,8 @@ lean_inc(x_121);
 x_122 = lean_ctor_get(x_120, 1);
 lean_inc(x_122);
 lean_dec_ref(x_120);
-x_93 = x_116;
-x_94 = x_114;
+x_93 = x_114;
+x_94 = x_116;
 x_95 = x_121;
 x_96 = x_122;
 goto block_113;

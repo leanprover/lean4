@@ -2892,7 +2892,6 @@ lean_inc_ref(x_1);
 x_108 = l_Lean_Expr_occurs(x_1, x_106);
 if (x_108 == 0)
 {
-lean_dec(x_107);
 lean_dec(x_106);
 lean_dec(x_6);
 lean_dec_ref(x_5);
@@ -3563,7 +3562,6 @@ lean_inc_ref(x_1);
 x_108 = l_Lean_Expr_occurs(x_1, x_106);
 if (x_108 == 0)
 {
-lean_dec(x_107);
 lean_dec(x_106);
 lean_dec(x_6);
 lean_dec_ref(x_5);
@@ -4963,7 +4961,6 @@ x_19 = l_Lean_Expr_occurs(x_2, x_17);
 lean_dec(x_17);
 if (x_19 == 0)
 {
-lean_dec(x_18);
 lean_dec(x_14);
 lean_dec_ref(x_13);
 lean_dec(x_12);

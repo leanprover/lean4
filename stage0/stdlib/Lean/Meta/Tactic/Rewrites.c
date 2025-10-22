@@ -5538,7 +5538,6 @@ return x_23;
 }
 else
 {
-lean_dec(x_16);
 return x_14;
 }
 }

@@ -896,7 +896,6 @@ if (x_15 == 0)
 {
 if (lean_obj_tag(x_12) == 0)
 {
-lean_dec(x_13);
 lean_dec_ref(x_12);
 lean_dec(x_9);
 lean_dec(x_6);
@@ -916,7 +915,6 @@ x_17 = l_Lean_instBEqInternalExceptionId_beq(x_14, x_16);
 lean_dec(x_16);
 if (x_17 == 0)
 {
-lean_dec(x_13);
 lean_dec(x_9);
 lean_dec(x_6);
 lean_dec_ref(x_5);
@@ -941,7 +939,6 @@ return x_21;
 }
 else
 {
-lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_9);
 lean_dec(x_6);
@@ -1007,7 +1004,6 @@ if (x_16 == 0)
 {
 if (lean_obj_tag(x_13) == 0)
 {
-lean_dec(x_14);
 lean_dec_ref(x_13);
 lean_dec(x_10);
 lean_dec(x_7);
@@ -1027,7 +1023,6 @@ x_18 = l_Lean_instBEqInternalExceptionId_beq(x_15, x_17);
 lean_dec(x_17);
 if (x_18 == 0)
 {
-lean_dec(x_14);
 lean_dec(x_10);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -1052,7 +1047,6 @@ return x_22;
 }
 else
 {
-lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_10);
 lean_dec(x_7);
@@ -12722,7 +12716,6 @@ if (x_21 == 0)
 {
 if (lean_obj_tag(x_18) == 0)
 {
-lean_dec(x_19);
 lean_dec_ref(x_18);
 lean_dec(x_15);
 lean_dec(x_6);
@@ -12742,7 +12735,6 @@ x_23 = l_Lean_instBEqInternalExceptionId_beq(x_20, x_22);
 lean_dec(x_22);
 if (x_23 == 0)
 {
-lean_dec(x_19);
 lean_dec(x_15);
 lean_dec(x_6);
 lean_dec_ref(x_5);
@@ -12766,7 +12758,6 @@ return x_26;
 }
 else
 {
-lean_dec(x_19);
 lean_dec(x_18);
 lean_dec(x_15);
 lean_dec(x_6);
@@ -17248,7 +17239,6 @@ if (lean_obj_tag(x_10) == 0)
 {
 lean_dec(x_11);
 lean_dec_ref(x_10);
-lean_dec(x_9);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 return x_6;
@@ -17264,7 +17254,6 @@ lean_dec(x_13);
 lean_dec(x_11);
 if (x_14 == 0)
 {
-lean_dec(x_9);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 return x_6;
@@ -17285,7 +17274,6 @@ else
 {
 lean_dec(x_11);
 lean_dec_ref(x_10);
-lean_dec(x_9);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 return x_6;
@@ -17386,7 +17374,6 @@ lean_object* x_49; lean_object* x_50; lean_object* x_51; uint8_t x_52;
 x_49 = lean_ctor_get(x_32, 0);
 x_50 = lean_ctor_get(x_32, 1);
 x_51 = l_Lean_PrettyPrinter_ParenthesizerM_orElse___redArg___closed__0;
-lean_inc(x_50);
 lean_inc(x_49);
 x_52 = l_Lean_Exception_isInterrupt(x_49);
 if (x_52 == 0)
@@ -17423,7 +17410,6 @@ lean_inc(x_55);
 lean_inc(x_54);
 lean_dec(x_32);
 x_56 = l_Lean_PrettyPrinter_ParenthesizerM_orElse___redArg___closed__0;
-lean_inc(x_55);
 lean_inc(x_54);
 x_57 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_57, 0, x_54);

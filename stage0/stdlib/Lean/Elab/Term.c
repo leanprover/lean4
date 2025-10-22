@@ -778,7 +778,6 @@ x_17 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__
 if (x_17 == 0)
 {
 lean_dec(x_16);
-lean_dec(x_14);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec(x_8);

@@ -9447,7 +9447,6 @@ return x_17;
 }
 else
 {
-lean_dec(x_14);
 lean_dec_ref(x_13);
 lean_dec(x_12);
 return x_15;

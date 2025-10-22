@@ -4235,7 +4235,6 @@ x_39 = lean_nat_dec_lt(x_38, x_14);
 if (x_39 == 0)
 {
 lean_dec(x_38);
-lean_dec(x_36);
 lean_dec(x_35);
 lean_dec(x_20);
 lean_dec_ref(x_19);

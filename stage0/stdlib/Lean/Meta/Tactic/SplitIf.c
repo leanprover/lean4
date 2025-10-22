@@ -4084,7 +4084,6 @@ block_26:
 if (x_18 == 0)
 {
 lean_dec(x_17);
-lean_dec(x_16);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);

@@ -10988,7 +10988,6 @@ if (x_27 == 0)
 lean_object* x_28; lean_object* x_29; 
 x_28 = lean_ctor_get(x_23, 0);
 x_29 = lean_ctor_get(x_23, 1);
-lean_inc(x_29);
 lean_inc(x_28);
 x_16 = x_23;
 x_17 = x_28;
@@ -11003,7 +11002,6 @@ x_31 = lean_ctor_get(x_23, 1);
 lean_inc(x_31);
 lean_inc(x_30);
 lean_dec(x_23);
-lean_inc(x_31);
 lean_inc(x_30);
 x_32 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_32, 0, x_30);
@@ -11028,7 +11026,6 @@ return x_14;
 }
 else
 {
-lean_dec(x_10);
 return x_11;
 }
 }
@@ -12565,7 +12562,6 @@ x_57 = l___private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_parserDescrC
 lean_dec_ref(x_15);
 if (x_57 == 0)
 {
-lean_dec(x_56);
 lean_dec_ref(x_16);
 return x_54;
 }
@@ -12814,7 +12810,6 @@ x_106 = l___private_Lean_Elab_DocString_Builtin_Keywords_0__Lean_Doc_parserDescr
 lean_dec_ref(x_73);
 if (x_106 == 0)
 {
-lean_dec(x_105);
 lean_dec_ref(x_74);
 return x_103;
 }
@@ -13300,7 +13295,6 @@ if (x_27 == 0)
 lean_object* x_28; lean_object* x_29; 
 x_28 = lean_ctor_get(x_23, 0);
 x_29 = lean_ctor_get(x_23, 1);
-lean_inc(x_29);
 lean_inc(x_28);
 x_16 = x_23;
 x_17 = x_28;
@@ -13315,7 +13309,6 @@ x_31 = lean_ctor_get(x_23, 1);
 lean_inc(x_31);
 lean_inc(x_30);
 lean_dec(x_23);
-lean_inc(x_31);
 lean_inc(x_30);
 x_32 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_32, 0, x_30);
@@ -13340,7 +13333,6 @@ return x_14;
 }
 else
 {
-lean_dec(x_10);
 return x_11;
 }
 }

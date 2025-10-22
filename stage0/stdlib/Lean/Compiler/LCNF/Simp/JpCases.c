@@ -7068,7 +7068,6 @@ else
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 lean_dec(x_19);
-lean_dec(x_18);
 lean_dec(x_13);
 x_23 = lean_ctor_get(x_16, 0);
 lean_inc(x_23);

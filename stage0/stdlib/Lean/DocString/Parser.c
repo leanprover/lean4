@@ -20591,7 +20591,6 @@ if (x_15 == 0)
 {
 if (lean_obj_tag(x_12) == 0)
 {
-lean_dec(x_13);
 lean_dec_ref(x_12);
 lean_dec(x_9);
 lean_dec(x_6);
@@ -20611,7 +20610,6 @@ x_17 = l_Lean_instBEqInternalExceptionId_beq(x_14, x_16);
 lean_dec(x_16);
 if (x_17 == 0)
 {
-lean_dec(x_13);
 lean_dec(x_9);
 lean_dec(x_6);
 lean_dec_ref(x_5);
@@ -20635,7 +20633,6 @@ return x_20;
 }
 else
 {
-lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_9);
 lean_dec(x_6);
@@ -20701,7 +20698,6 @@ if (x_15 == 0)
 {
 if (lean_obj_tag(x_12) == 0)
 {
-lean_dec(x_13);
 lean_dec_ref(x_12);
 lean_dec(x_9);
 lean_dec(x_6);
@@ -20721,7 +20717,6 @@ x_17 = l_Lean_instBEqInternalExceptionId_beq(x_14, x_16);
 lean_dec(x_16);
 if (x_17 == 0)
 {
-lean_dec(x_13);
 lean_dec(x_9);
 lean_dec(x_6);
 lean_dec_ref(x_5);
@@ -20745,7 +20740,6 @@ return x_20;
 }
 else
 {
-lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_9);
 lean_dec(x_6);

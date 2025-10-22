@@ -4394,7 +4394,6 @@ goto block_21;
 else
 {
 lean_dec(x_12);
-lean_dec(x_11);
 lean_dec(x_10);
 return x_9;
 }
@@ -4484,7 +4483,6 @@ goto block_24;
 else
 {
 lean_dec(x_15);
-lean_dec(x_14);
 lean_dec(x_13);
 return x_12;
 }
@@ -7668,7 +7666,6 @@ if (x_36 == 0)
 {
 lean_dec(x_35);
 lean_dec_ref(x_33);
-lean_dec(x_32);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -7682,7 +7679,6 @@ if (x_36 == 0)
 {
 lean_dec(x_35);
 lean_dec_ref(x_33);
-lean_dec(x_32);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);

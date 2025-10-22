@@ -3069,7 +3069,6 @@ goto block_27;
 else
 {
 lean_dec(x_28);
-lean_dec(x_22);
 lean_dec(x_21);
 lean_dec(x_16);
 return x_20;

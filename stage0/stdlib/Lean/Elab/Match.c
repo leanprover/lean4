@@ -33276,7 +33276,6 @@ x_20 = lean_nat_dec_lt(x_18, x_19);
 if (x_20 == 0)
 {
 lean_dec(x_19);
-lean_dec(x_17);
 lean_dec(x_2);
 return x_14;
 }
@@ -33285,7 +33284,6 @@ else
 if (x_20 == 0)
 {
 lean_dec(x_19);
-lean_dec(x_17);
 lean_dec(x_2);
 return x_14;
 }
@@ -41895,7 +41893,6 @@ goto block_130;
 }
 else
 {
-lean_dec(x_141);
 x_88 = x_131;
 x_89 = x_132;
 x_90 = x_133;

@@ -1653,7 +1653,6 @@ lean_inc_ref(x_14);
 x_18 = l_Lean_Expr_isTrue(x_14);
 if (x_18 == 0)
 {
-lean_dec(x_17);
 lean_dec(x_12);
 lean_dec(x_8);
 lean_dec_ref(x_7);

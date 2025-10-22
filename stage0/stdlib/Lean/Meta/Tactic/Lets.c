@@ -990,7 +990,6 @@ if (x_13 == 0)
 {
 lean_free_object(x_8);
 lean_dec(x_11);
-lean_dec(x_9);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_1);
@@ -1068,7 +1067,6 @@ return x_26;
 else
 {
 lean_free_object(x_8);
-lean_dec(x_9);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_1);
@@ -1079,7 +1077,6 @@ else
 {
 lean_free_object(x_8);
 lean_dec(x_11);
-lean_dec(x_9);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_1);
@@ -1158,7 +1155,6 @@ x_40 = lean_name_eq(x_38, x_39);
 if (x_40 == 0)
 {
 lean_dec(x_38);
-lean_dec(x_9);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_1);
@@ -1235,7 +1231,6 @@ return x_53;
 }
 else
 {
-lean_dec(x_9);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_1);
@@ -1245,7 +1240,6 @@ return x_7;
 else
 {
 lean_dec(x_38);
-lean_dec(x_9);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_1);

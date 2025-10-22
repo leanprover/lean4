@@ -3286,7 +3286,6 @@ lean_dec_ref(x_14);
 lean_dec_ref(x_13);
 lean_dec_ref(x_12);
 lean_dec_ref(x_11);
-lean_dec(x_10);
 return x_18;
 }
 }
@@ -4506,7 +4505,6 @@ lean_dec(x_18);
 lean_dec(x_17);
 lean_dec_ref(x_16);
 lean_dec_ref(x_15);
-lean_dec(x_14);
 lean_dec(x_13);
 lean_dec_ref(x_11);
 lean_dec_ref(x_10);

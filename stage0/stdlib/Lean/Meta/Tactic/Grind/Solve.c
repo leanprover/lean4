@@ -6143,7 +6143,6 @@ block_124:
 {
 if (x_30 == 0)
 {
-lean_dec(x_27);
 lean_dec(x_26);
 lean_dec(x_8);
 lean_dec_ref(x_7);
@@ -6602,7 +6601,6 @@ return x_123;
 }
 else
 {
-lean_dec(x_27);
 lean_dec(x_26);
 lean_dec(x_8);
 lean_dec_ref(x_7);

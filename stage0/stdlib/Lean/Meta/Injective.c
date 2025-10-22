@@ -7282,7 +7282,6 @@ goto block_32;
 }
 else
 {
-lean_dec(x_74);
 lean_dec(x_1);
 x_26 = x_72;
 goto block_32;

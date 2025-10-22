@@ -2837,6 +2837,7 @@ static inline lean_obj_res lean_void_mk(lean_obj_arg a) {
 static inline b_lean_obj_res lean_baseio_out_val(b_lean_obj_arg r) {
     // TODO: This function needs to become identity after we are done.
     return lean_ctor_get(r, 0);
+    // return r;
 }
 
 static inline lean_obj_res lean_mk_baseio_out(lean_obj_arg i) {
@@ -2845,6 +2846,7 @@ static inline lean_obj_res lean_mk_baseio_out(lean_obj_arg i) {
     lean_ctor_set(r, 0, i);
     lean_ctor_set(r, 1, lean_box(0));
     return r;
+    // return i;
 }
 
 static inline bool lean_io_result_is_ok(b_lean_obj_arg r) { return lean_ptr_tag(r) == 0; }

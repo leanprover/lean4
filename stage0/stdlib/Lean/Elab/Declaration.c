@@ -21385,7 +21385,6 @@ return x_99;
 }
 else
 {
-lean_dec(x_70);
 lean_dec(x_6);
 x_60 = x_68;
 goto block_67;

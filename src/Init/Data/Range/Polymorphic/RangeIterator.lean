@@ -452,7 +452,7 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LE α] [DecidableLE α
       loop γ (next ≤ ·) (fun a b hab hna => ?hle) upperBound init next ?hle'' (fun a ha₁ ha₂ c => f a ?hf c)
     | ⟨⟨none, _⟩⟩ => return init
   where
-    @[always_inline]
+    @[always_inline, inline]
     loop γ (LargeEnough : α → Prop) (hl : ∀ a b : α, a ≤ b → LargeEnough a → LargeEnough b)
         (upperBound : α) (acc : γ) (next : α) (h : LargeEnough next)
         (f : (out : α) → LargeEnough out → out ≤ upperBound → (c : γ) → n (ForInStep γ)) : n γ :=
@@ -1054,7 +1054,7 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LT α] [DecidableLT α
       loop γ (UpwardEnumerable.LE next ·) (fun a b hab hna => ?hle) upperBound init next ?hle'' (fun a ha₁ ha₂ c => f a ?hf c)
     | ⟨⟨none, _⟩⟩ => return init
   where
-    @[always_inline]
+    @[always_inline, inline]
     loop γ (LargeEnough : α → Prop) (hl : ∀ a b : α, UpwardEnumerable.LE a b → LargeEnough a → LargeEnough b)
         (upperBound : α) (acc : γ) (next : α) (h : LargeEnough next)
         (f : (out : α) → LargeEnough out → out < upperBound → (c : γ) → n (ForInStep γ)) : n γ :=
@@ -1565,7 +1565,7 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LawfulUpwardEnumerable
       loop γ (UpwardEnumerable.LE next ·) (fun a b hab hna => ?hle) init next ?hle'' (fun a ha c => f a ?hf c)
     | ⟨⟨none⟩⟩ => return init
   where
-    @[always_inline]
+    @[always_inline, inline]
     loop γ (LargeEnough : α → Prop) (hl : ∀ a b : α, UpwardEnumerable.LE a b → LargeEnough a → LargeEnough b)
         (acc : γ) (next : α) (h : LargeEnough next)
         (f : (out : α) → LargeEnough out → (c : γ) → n (ForInStep γ)) : n γ :=

@@ -9,7 +9,6 @@ prelude
 public import Init.System.IOError
 public import Init.System.FilePath
 public import Init.Data.Ord.UInt
-public import Init.Data.String.Extra
 
 public section
 

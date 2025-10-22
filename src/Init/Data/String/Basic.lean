@@ -2487,14 +2487,14 @@ theorem Pos.Raw.IsValid.set_of_le {s : String} {p : s.ValidPos} {c : Char} {hp :
 /-- Given a valid position in a string, obtain the corresponding position after setting a character on
 that string, provided that the position was before the changed position. -/
 @[inline]
-def ValidPos.setOfLE {s : String} (q p : s.ValidPos) (c : Char) (hp : p ≠ s.endValidPos)
+def ValidPos.toSetOfLE {s : String} (q p : s.ValidPos) (c : Char) (hp : p ≠ s.endValidPos)
     (hpq : q ≤ p) : (p.set c hp).ValidPos where
   offset := q.offset
   isValid := q.isValid.set_of_le hpq
 
 @[simp]
-theorem ValidPos.offset_setOfLE {s : String} {q p : s.ValidPos} {c : Char} {hp : p ≠ s.endValidPos}
-    {hpq : q ≤ p} : (q.setOfLE p c hp hpq).offset = q.offset := (rfl)
+theorem ValidPos.offset_toSetOfLE {s : String} {q p : s.ValidPos} {c : Char} {hp : p ≠ s.endValidPos}
+    {hpq : q ≤ p} : (q.toSetOfLE p c hp hpq).offset = q.offset := (rfl)
 
 /--
 Replaces the character at position `p` in the string `s` with the result of applying `f` to that
@@ -2517,14 +2517,14 @@ theorem Pos.Raw.IsValid.modify_of_le {s : String} {p : s.ValidPos} {f : Char →
 
 /-- Given a valid position in a string, obtain the corresponding position after modifying a character
 in that string, provided that the position was before the changed position. -/
-def ValidPos.modifyOfLE {s : String} (q p : s.ValidPos) (f : Char → Char)
+def ValidPos.toModifyOfLE {s : String} (q p : s.ValidPos) (f : Char → Char)
     (hp : p ≠ s.endValidPos) (hpq : q ≤ p) : (p.modify f hp).ValidPos where
   offset := q.offset
   isValid := q.isValid.modify_of_le hpq
 
 @[simp]
-theorem ValidPos.offset_modifyOfLE {s : String} {q p : s.ValidPos} {f : Char → Char}
-    {hp : p ≠ s.endValidPos} {hpq : q ≤ p} : (q.modifyOfLE p f hp hpq).offset = q.offset := (rfl)
+theorem ValidPos.offset_toModifyOfLE {s : String} {q p : s.ValidPos} {f : Char → Char}
+    {hp : p ≠ s.endValidPos} {hpq : q ≤ p} : (q.toModifyOfLE p f hp hpq).offset = q.offset := (rfl)
 
 /--
 Replaces the character at a specified position in a string with a new character. If the position is

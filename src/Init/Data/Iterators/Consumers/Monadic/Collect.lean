@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Iterators.Consumers.Monadic.Partial
+public import Init.Data.Iterators.Consumers.Monadic.Total
 public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 public import Init.Internal.ExtrinsicTermination
 
@@ -123,8 +124,11 @@ instance (α β : Type w) (m : Type w → Type w') (n : Type w → Type w'') [Mo
 
 /--
 Traverses the given iterator and stores the emitted values in an array.
+
+If the iterator is not finite, this function might run forever. The variant
+{lit}`it.ensureTermination.toArray` always terminates after finitely many steps.
 -/
-@[always_inline]
+@[always_inline, inline]
 def IterM.toArray {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
     [IteratorCollect α m m] (it : IterM (α := α) m β) : m (Array β) :=
   IteratorCollect.toArrayMapped (fun ⦃_⦄ => id) pure it
@@ -134,9 +138,21 @@ Traverses the given iterator and stores the emitted values in an array.
 
 This function is deprecated. Instead of `it.allowNontermination.toArray`, use `it.toArray`.
 -/
-@[always_inline, deprecated IterM.toArray (since := "2025-10-15")]
+@[always_inline, inline, deprecated IterM.toArray (since := "2025-10-15")]
 def IterM.Partial.toArray {α : Type w} {m : Type w → Type w'} {β : Type w} [Monad m]
     [Iterator α m β] (it : IterM.Partial (α := α) m β) [IteratorCollect α m m] : m (Array β) :=
+  it.it.toArray
+
+/--
+Traverses the given iterator and stores the emitted values in an array.
+
+This variant requires terminates after finitely many steps and requires a proof that the iterator is
+finite. If such a proof is not available, consider using `IterM.toArray`.
+-/
+@[always_inline, inline]
+def IterM.Total.toArray {α : Type w} {m : Type w → Type w'} {β : Type w} [Monad m]
+    [Iterator α m β] [Finite α m] (it : IterM.Total (α := α) m β) [IteratorCollect α m m] :
+    m (Array β) :=
   it.it.toArray
 
 end ToArray
@@ -144,6 +160,9 @@ end ToArray
 /--
 Traverses the given iterator and stores the emitted values in reverse order in a list. Because
 lists are prepend-only, this `toListRev` is usually more efficient that `toList`.
+
+If the iterator is not finite, this function might run forever. The variant
+{lit}`it.ensureTermination.toListRev` always terminates after finitely many steps.
 -/
 @[always_inline]
 def IterM.toListRev {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
@@ -170,8 +189,24 @@ partial def IterM.Partial.toListRev {α : Type w} {m : Type w → Type w'} [Mona
   it.it.toListRev
 
 /--
+Traverses the given iterator and stores the emitted values in reverse order in a list. Because
+lists are prepend-only, this `toListRev` is usually more efficient that `toList`.
+
+This variant requires terminates after finitely many steps and requires a proof that the iterator is
+finite. If such a proof is not available, consider using `IterM.toListRev`.
+-/
+@[always_inline, inline]
+def IterM.Total.toListRev {α : Type w} {m : Type w → Type w'} {β : Type w} [Monad m]
+    [Iterator α m β] [Finite α m] (it : IterM.Total (α := α) m β) :
+    m (List β) :=
+  it.it.toListRev
+
+/--
 Traverses the given iterator and stores the emitted values in a list. Because
 lists are prepend-only, `toListRev` is usually more efficient that `toList`.
+
+If the iterator is not finite, this function might run forever. The variant
+{lit}`it.ensureTermination.toList` always terminates after finitely many steps.
 -/
 @[always_inline]
 def IterM.toList {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
@@ -189,5 +224,18 @@ def IterM.Partial.toList {α : Type w} {m : Type w → Type w'} [Monad m] {β : 
     [Iterator α m β] (it : IterM.Partial (α := α) m β) [IteratorCollect α m m] :
     m (List β) :=
   Array.toList <$> it.it.toArray
+
+/--
+Traverses the given iterator and stores the emitted values in a list. Because
+lists are prepend-only, `toListRev` is usually more efficient that `toList`.
+
+This variant requires terminates after finitely many steps and requires a proof that the iterator is
+finite. If such a proof is not available, consider using `IterM.toList`.
+-/
+@[always_inline, inline]
+def IterM.Total.toList {α : Type w} {m : Type w → Type w'} {β : Type w} [Monad m]
+    [Iterator α m β] [Finite α m] (it : IterM.Total (α := α) m β) [IteratorCollect α m m] :
+    m (List β) :=
+  it.it.toList
 
 end Std.Iterators

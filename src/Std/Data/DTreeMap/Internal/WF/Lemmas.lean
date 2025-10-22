@@ -1580,9 +1580,31 @@ theorem insertMany_eq_foldl {_ : Ord α} {l : List ((a : α) × β a)} {t : Impl
     (t.insertMany l h).val = l.foldl (init := t) fun acc ⟨k, v⟩ => acc.insert! k v := by
   simp [insertMany, insert_eq_insert!, ← List.foldl_hom Subtype.val, List.forIn_pure_yield_eq_foldl]
 
+theorem insertMany_eq_foldl_tree {_ : Ord α} {t₁ : Impl α β} (h₁ : t₁.Balanced) {t₂ : Impl α β} (h₂ : t₂.Balanced):
+    (t₁.insertMany t₂ h₁).val = t₂.foldl (init := t₁) fun acc k v => acc.insert! k v := by
+  simp [foldl_eq_foldl]
+  rw [← insertMany_eq_foldl]
+  rotate_left
+  . exact h₁
+  . simp [insertMany, ← List.forIn_yield_eq_foldl]
+    simp [ForIn.forIn]
+    rw [forIn_eq_forIn_toListModel]
+    congr
+
 theorem insertManyIfNew_eq_foldl {_ : Ord α} {l : List ((a : α) × β a)} {t : Impl α β} (h : t.Balanced) :
     (t.insertManyIfNew l h).val = l.foldl (init := t) fun acc ⟨k, v⟩ => acc.insertIfNew! k v := by
   simp [insertManyIfNew, insertIfNew_eq_insertIfNew!, ← List.foldl_hom Subtype.val, List.forIn_pure_yield_eq_foldl]
+
+theorem insertManyIfNew_eq_foldl_tree {_ : Ord α} {t₁ : Impl α β} (h₁ : t₁.Balanced) {t₂ : Impl α β} (h₂ : t₂.Balanced):
+    (t₁.insertManyIfNew t₂ h₁).val = t₂.foldl (init := t₁) fun acc k v => acc.insertIfNew! k v := by
+  simp [foldl_eq_foldl]
+  rw [← insertManyIfNew_eq_foldl]
+  rotate_left
+  . exact h₁
+  . simp [insertManyIfNew, ← List.forIn_yield_eq_foldl]
+    simp [ForIn.forIn]
+    rw [forIn_eq_forIn_toListModel]
+    congr
 
 theorem insertMany_eq_insertMany! {_ : Ord α} {l : List ((a : α) × β a)}
     {t : Impl α β} (h : t.Balanced) :
@@ -1601,6 +1623,40 @@ theorem toListModel_insertMany_list {_ : Ord α} [BEq α] [LawfulBEqOrd α] [Tra
     exact insertList_perm_of_perm_first (toListModel_insert! h.balanced h.ordered)
       h.insert!.ordered.distinctKeys
 
+theorem toListModel_insertMany_impl {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd α]
+    {t₁ : Impl α β} (h₁ : t₁.WF) {t₂ : Impl α β} (h₂ : t₂.WF) :
+    List.Perm (t₁.insertMany t₂ h₁.balanced).val.toListModel (t₁.toListModel.insertList t₂.toListModel) := by
+  rw [insertMany_eq_foldl_tree]
+  rw [foldl_eq_foldl]
+  induction t₂.toListModel generalizing t₁ with
+  | nil => rfl
+  | cons e es ih =>
+    simp only [insertList, List.foldl_cons]
+    apply List.Perm.trans (@ih (t₁.insert! e.1 e.2) (h₁.insert!))
+    apply insertList_perm_of_perm_first
+    . apply toListModel_insert!
+      . exact h₁.balanced
+      . exact h₁.ordered
+    . apply h₁.insert!.ordered.distinctKeys
+  exact h₂.balanced
+
+theorem toListModel_insertManyIfNew_impl {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd α]
+    {t₁ : Impl α β} (h₁ : t₁.WF) {t₂ : Impl α β} (h₂ : t₂.WF) :
+    List.Perm (t₁.insertManyIfNew t₂ h₁.balanced).val.toListModel (t₁.toListModel.insertListIfNew t₂.toListModel) := by
+  rw [insertManyIfNew_eq_foldl_tree]
+  rw [foldl_eq_foldl]
+  induction t₂.toListModel generalizing t₁ with
+  | nil => rfl
+  | cons e es ih =>
+    simp only [insertListIfNew, List.foldl_cons]
+    apply List.Perm.trans (@ih (t₁.insertIfNew! e.1 e.2) (h₁.insertIfNew!))
+    apply insertListIfNew_perm_of_perm_first
+    . apply toListModel_insertIfNew!
+      . exact h₁.balanced
+      . exact h₁.ordered
+    . apply h₁.insertIfNew!.ordered.distinctKeys
+  exact h₂.balanced
+
 theorem toListModel_insertManyIfNew_list {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd α]
     {l : List ((a : α) × β a)}
     {t : Impl α β} (h : t.WF) :
@@ -1612,6 +1668,16 @@ theorem toListModel_insertManyIfNew_list {_ : Ord α} [BEq α] [LawfulBEqOrd α]
     refine (ih h.insertIfNew!).trans ?_
     exact insertListIfNew_perm_of_perm_first (toListModel_insertIfNew! h.balanced h.ordered)
       h.insertIfNew!.ordered.distinctKeys
+
+theorem toListModel_union_list {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd α]
+    {t₁ t₂ : Impl α β} (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    List.Perm (t₁.union t₂ h₁.balanced h₂.balanced).toListModel (t₁.toListModel.insertList t₂.toListModel) := by
+  unfold union
+  split
+  . apply List.Perm.trans
+    . apply toListModel_insertManyIfNew_impl h₂ h₁
+    . apply List.insertListIfNew_perm_insertList h₂.ordered.distinctKeys h₁.ordered.distinctKeys
+  . apply toListModel_insertMany_impl h₁ h₂
 
 theorem toListModel_insertMany!_list {_ : Ord α} [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} {t : Impl α β} (h : t.WF) :

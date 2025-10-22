@@ -37,7 +37,7 @@ Use a monadic action that may throw an exception by providing explicit success a
 continuations.
 -/
 @[always_inline, inline]
-def runK {ε α : Type u} (x : OptionCpsT m α) (s : ε) (ok : α → m β) (error : Unit → m β) : m β :=
+def runK {α : Type u} (x : OptionCpsT m α) (ok : α → m β) (error : Unit → m β) : m β :=
   x ok error
 
 /--

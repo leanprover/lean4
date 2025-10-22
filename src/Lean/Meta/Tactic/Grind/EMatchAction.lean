@@ -10,6 +10,7 @@ public import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.EMatchTheoremParam
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
+import Lean.Util.ParamMinimizer
 namespace Lean.Meta.Grind.Action
 
 /-

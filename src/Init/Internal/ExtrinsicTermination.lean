@@ -67,6 +67,8 @@ public def extrinsicFix [∀ a, Nonempty (C a)] (F : ∀ a, (∀ a', C a') → C
     let h := h.choose_spec.choose_spec
     h.1.fix F' a
   else
+    -- Return `opaqueFix F a` so that `implemented_by opaqueFix` is sound.
+    -- In effect, `extrinsicFix` is opaque if `TerminatesTotally F` is false.
     opaqueFix F a
 
 public def extrinsicFix_eq [∀ a, Nonempty (C a)] {F : ∀ a, (∀ a', C a') → C a}

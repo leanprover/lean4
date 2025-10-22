@@ -501,14 +501,13 @@ def insertMany [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Impl
 
 /-- Iterate over `l` and insert all of its elements into `t` if they are new. -/
 @[inline]
-def insertManyIfNew[Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) (h : t.Balanced) :
+def insertManyIfNew [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) (h : t.Balanced) :
     IteratedNewInsertionInto t := Id.run do
   let mut r := ⟨t, fun h _ => h⟩
   for ⟨a, b⟩ in l do
     let hr := r.2 h (fun t'' a b h _ => (t''.insertIfNew a b h).balanced_impl)
     r := ⟨r.val.insertIfNew a b hr |>.impl, fun h₀ h₁ => h₁ _ _ _ _ (r.2 h₀ h₁)⟩
   return r
-
 
 /-- A tree map obtained by inserting elements into `t`, bundled with an inductive principle. -/
 abbrev IteratedSlowInsertionInto [Ord α] (t) :=

@@ -81,6 +81,10 @@ theorem WF.insertMany [Ord α] {ρ} [ForIn Id ρ ((a : α) × β a)] {t : Impl �
     WF (t.insertMany l h).val :=
   (t.insertMany l h).2 hwf fun _ _ _ _ hwf' => hwf'.insert
 
+theorem WF.insertManyIfNew [Ord α] {ρ} [ForIn Id ρ ((a : α) × β a)] {t : Impl α β} {l : ρ} {h} (hwf : WF t) :
+    WF (t.insertManyIfNew l h).val :=
+  (t.insertManyIfNew l h).2 hwf fun _ _ _ _ hwf' => hwf'.insertIfNew
+
 theorem WF.constInsertMany [Ord α] {β : Type v} {ρ} [ForIn Id ρ (α × β)] {t : Impl α (fun _ => β)}
     {l : ρ} {h} (hwf : WF t) : WF (Impl.Const.insertMany t l h).val :=
   (Impl.Const.insertMany t l h).2 hwf fun _ _ _ _ hwf' => hwf'.insert

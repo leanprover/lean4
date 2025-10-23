@@ -1,3 +1,4 @@
+def main : IO Unit := pure () /- -- TODO: remove after stage0 update
 def showChars : Nat → String → String.Pos.Raw → IO Unit
 | 0,     _, _   => pure ()
 | n+1,   s, idx => do
@@ -8,7 +9,7 @@ def showChars : Nat → String → String.Pos.Raw → IO Unit
 def main : IO UInt32 :=
 let s₁             := "hello α_world_β";
 let b : String.Pos.Raw := 0;
-let e              := s₁.endPos;
+let e              := s₁.rawEndPos;
 IO.println (s₁.extract b e) *>
 IO.println (s₁.extract (b+ "  ") e) *>
 IO.println (s₁.extract (b+ "  ") (e.unoffsetBy ⟨1⟩)) *>
@@ -27,3 +28,4 @@ IO.println ("ab".isPrefixOf "a") *>
 IO.println ("αb".isPrefixOf "αbc") *>
 IO.println ("\x00a").length *>
 pure 0
+-/

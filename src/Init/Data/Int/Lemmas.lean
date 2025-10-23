@@ -6,8 +6,6 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 module
 
 prelude
-public import Init.Conv
-public import Init.NotationExtra
 public import Init.PropLemmas
 
 public section

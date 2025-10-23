@@ -1023,6 +1023,19 @@ theorem ofScientific_def' :
   · push_cast
     rfl
 
+/-!
+# min and max
+-/
+
+@[grind =] protected theorem max_def {n m : Rat} : max n m = if n ≤ m then m else n := rfl
+
+@[grind =] protected theorem min_def {n m : Rat} : min n m = if n ≤ m then n else m := rfl
+
+
+/-!
+# floor
+-/
+
 theorem floor_def (a : Rat) : a.floor = a.num / a.den := by
   rw [Rat.floor]
   split <;> simp_all

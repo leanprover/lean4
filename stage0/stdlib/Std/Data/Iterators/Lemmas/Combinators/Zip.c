@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Lemmas.Combinators.Zip
-// Imports: public import Std.Data.Iterators.Combinators.Take public import Std.Data.Iterators.Combinators.Zip public import Init.Data.Iterators.Consumers.Access public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Zip public import Std.Data.Iterators.Lemmas.Combinators.Take public import Init.Data.Iterators.Lemmas.Consumers
+// Imports: public import Std.Data.Iterators.Combinators.Zip public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Zip public import Std.Data.Iterators.Lemmas.Combinators.Take
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -187,7 +187,7 @@ _start:
 lean_object* x_8; 
 x_8 = l___private_Std_Data_Iterators_Lemmas_Combinators_Zip_0__Std_Iterators_Iter_step__intermediateZip_match__3_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 return x_8;
 }
 }
@@ -244,7 +244,7 @@ _start:
 lean_object* x_10; 
 x_10 = l___private_Std_Data_Iterators_Lemmas_Combinators_Zip_0__Std_Iterators_Iter_step__intermediateZip_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_4);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 return x_10;
 }
 }
@@ -301,7 +301,7 @@ _start:
 lean_object* x_10; 
 x_10 = l___private_Std_Data_Iterators_Lemmas_Combinators_Zip_0__Std_Iterators_Iter_atIdxSlow_x3f_match__3_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_4);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 return x_10;
 }
 }
@@ -405,33 +405,21 @@ lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* initialize_Std_Data_Iterators_Combinators_Take(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_Iterators_Combinators_Zip(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Consumers_Access(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_Monadic_Zip(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_Take(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Lemmas_Consumers(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_Iterators_Combinators_Zip(uint8_t builtin);
+lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_Monadic_Zip(uint8_t builtin);
+lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_Take(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_Zip(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_Zip(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_Iterators_Combinators_Take(builtin, lean_io_mk_world());
+res = initialize_Std_Data_Iterators_Combinators_Zip(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Combinators_Zip(builtin, lean_io_mk_world());
+res = initialize_Std_Data_Iterators_Lemmas_Combinators_Monadic_Zip(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers_Access(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Lemmas_Combinators_Monadic_Zip(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Lemmas_Combinators_Take(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Lemmas_Consumers(builtin, lean_io_mk_world());
+res = initialize_Std_Data_Iterators_Lemmas_Combinators_Take(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

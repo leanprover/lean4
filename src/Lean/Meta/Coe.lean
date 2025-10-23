@@ -6,8 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Transform
-public import Lean.Meta.SynthInstance
 public import Lean.Meta.AppBuilder
 import Lean.ExtraModUses
 

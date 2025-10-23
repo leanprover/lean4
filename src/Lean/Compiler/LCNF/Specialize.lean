@@ -6,13 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Compiler.Specialize
 public import Lean.Compiler.LCNF.Simp
 public import Lean.Compiler.LCNF.SpecInfo
-public import Lean.Compiler.LCNF.PrettyPrinter
 public import Lean.Compiler.LCNF.ToExpr
 public import Lean.Compiler.LCNF.Level
-public import Lean.Compiler.LCNF.PhaseExt
 public import Lean.Compiler.LCNF.MonadScope
 public import Lean.Compiler.LCNF.Closure
 public import Lean.Compiler.LCNF.FVarUtil

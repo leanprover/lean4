@@ -9,7 +9,6 @@ needed for Core and SimpLemmas.
 module
 
 prelude
-public import Init.Core
 public import Init.NotationExtra
 
 public section

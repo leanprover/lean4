@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Lawful.Instances
-// Imports: public import Init.Control.Lawful.Basic public import Init.Control.Except import all Init.Control.Except public import Init.Control.Option import all Init.Control.Option public import Init.Control.State import all Init.Control.State public import Init.Control.StateRef public import Init.Ext
+// Imports: public import Init.Control.Lawful.Basic import all Init.Control.Except public import Init.Control.Option import all Init.Control.Option import all Init.Control.State public import Init.Control.StateRef
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -215,45 +215,33 @@ x_9 = l___private_Init_Control_Lawful_Instances_0__Option_elim_match__1_splitter
 return x_9;
 }
 }
-lean_object* initialize_Init_Control_Lawful_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Control_Except(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Control_Except(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Control_Option(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Control_Option(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Control_State(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Control_State(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Control_StateRef(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Ext(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Control_Lawful_Basic(uint8_t builtin);
+lean_object* initialize_Init_Control_Except(uint8_t builtin);
+lean_object* initialize_Init_Control_Option(uint8_t builtin);
+lean_object* initialize_Init_Control_Option(uint8_t builtin);
+lean_object* initialize_Init_Control_State(uint8_t builtin);
+lean_object* initialize_Init_Control_StateRef(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Control_Lawful_Instances(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Control_Lawful_Instances(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_Lawful_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Control_Lawful_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Except(builtin, lean_io_mk_world());
+res = initialize_Init_Control_Except(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Except(builtin, lean_io_mk_world());
+res = initialize_Init_Control_Option(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Option(builtin, lean_io_mk_world());
+res = initialize_Init_Control_Option(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Option(builtin, lean_io_mk_world());
+res = initialize_Init_Control_State(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_State(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_State(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_StateRef(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Ext(builtin, lean_io_mk_world());
+res = initialize_Init_Control_StateRef(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

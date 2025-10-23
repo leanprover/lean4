@@ -6,8 +6,6 @@ Author: Markus Himmel
 module
 
 prelude
-public import Init.Data.List.Lemmas
-import Init.Data.List.Lemmas
 public import Init.Data.UInt.Bitwise
 import Init.Data.Char.Lemmas
 public import Init.Data.ByteArray.Basic
@@ -136,19 +134,19 @@ public theorem String.utf8EncodeChar_eq_utf8EncodeCharFast : @utf8EncodeChar = @
   cases Decidable.em (c.val ≤ 0x7ff) <;> simp [*]
   cases Decidable.em (c.val ≤ 0xffff) <;> simp [*]
 
-theorem String.utf8EncodeChar_eq_singleton {c : Char} : c.utf8Size = 1 →
+public theorem String.utf8EncodeChar_eq_singleton {c : Char} : c.utf8Size = 1 →
     String.utf8EncodeChar c = [c.val.toUInt8] := by
   rw [← length_utf8EncodeChar]
   fun_cases utf8EncodeChar
   all_goals simp_all; try rfl
 
-theorem String.utf8EncodeChar_eq_cons_cons {c : Char} : c.utf8Size = 2 →
+public theorem String.utf8EncodeChar_eq_cons_cons {c : Char} : c.utf8Size = 2 →
     String.utf8EncodeChar c = [(c.val >>>  6).toUInt8 &&& 0x1f ||| 0xc0, c.val.toUInt8 &&& 0x3f ||| 0x80] := by
   rw [← length_utf8EncodeChar, utf8EncodeChar_eq_utf8EncodeCharFast]
   fun_cases utf8EncodeCharFast
   all_goals simp_all <;> (repeat' apply And.intro) <;> rfl
 
-theorem String.utf8EncodeChar_eq_cons_cons_cons {c : Char} : c.utf8Size = 3 →
+public theorem String.utf8EncodeChar_eq_cons_cons_cons {c : Char} : c.utf8Size = 3 →
     String.utf8EncodeChar c =
     [(c.val >>> 12).toUInt8 &&& 0x0f ||| 0xe0,
      (c.val >>>  6).toUInt8 &&& 0x3f ||| 0x80,
@@ -157,7 +155,7 @@ theorem String.utf8EncodeChar_eq_cons_cons_cons {c : Char} : c.utf8Size = 3 →
   fun_cases utf8EncodeCharFast
   all_goals simp_all <;> (repeat' apply And.intro) <;> rfl
 
-theorem String.utf8EncodeChar_eq_cons_cons_cons_cons {c : Char} : c.utf8Size = 4 →
+public theorem String.utf8EncodeChar_eq_cons_cons_cons_cons {c : Char} : c.utf8Size = 4 →
     String.utf8EncodeChar c =
     [(c.val >>> 18).toUInt8 &&& 0x07 ||| 0xf0,
      (c.val >>> 12).toUInt8 &&& 0x3f ||| 0x80,
@@ -1466,7 +1464,8 @@ public theorem ByteArray.isUTF8FirstByte_getElem_zero_utf8EncodeChar_append {c :
 public theorem ByteArray.isUTF8FirstByte_of_isSome_utf8DecodeChar? {b : ByteArray} {i : Nat}
     (h : (utf8DecodeChar? b i).isSome) : (b[i]'(lt_size_of_isSome_utf8DecodeChar? h)).IsUTF8FirstByte := by
   rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract] at h
-  suffices ((b.extract i b.size)[0]'(lt_size_of_isSome_utf8DecodeChar? h)).IsUTF8FirstByte by
+  suffices ((b.extract i b.size)[0]'
+      (by simpa using lt_size_of_isSome_utf8DecodeChar? h)).IsUTF8FirstByte by
     simpa [ByteArray.getElem_extract, Nat.add_zero] using this
   obtain ⟨c, hc⟩ := Option.isSome_iff_exists.1 h
   conv => congr; congr; rw [eq_of_utf8DecodeChar?_eq_some hc]

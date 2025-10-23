@@ -8,7 +8,6 @@ module
 prelude
 public import Lake.Util.Log
 public import Lake.Config.Artifact
-public import Lake.Build.Trace
 import Lake.Config.InstallPath
 import Lake.Build.Actions
 import Lake.Util.Url
@@ -48,7 +47,7 @@ def checkSchemaVersion (inputName : String) (line : String) : LogIO Unit := do
 public partial def parse (inputName : String) (contents : String) : LoggerIO CacheMap := do
   let rec loop (i : Nat) (cache : CacheMap) (stopPos pos : String.Pos.Raw) := do
     let lfPos := contents.posOfAux '\n' stopPos pos
-    let line := contents.extract pos lfPos
+    let line := String.Pos.Raw.extract contents pos lfPos
     if line.trim.isEmpty then
       return cache
     let cache ← id do
@@ -58,17 +57,17 @@ public partial def parse (inputName : String) (contents : String) : LoggerIO Cac
       | .error e =>
         logWarning s!"{inputName}: invalid JSON on line {i}: {e}"
         return cache
-    if h : contents.atEnd lfPos then
+    if h : lfPos.atEnd contents then
       return cache
     else
-      loop (i+1) cache stopPos (contents.next' lfPos h)
-  let lfPos := contents.posOfAux '\n' contents.endPos 0
-  let line := contents.extract 0 lfPos
+      loop (i+1) cache stopPos (lfPos.next' contents h)
+  let lfPos := contents.posOfAux '\n' contents.rawEndPos 0
+  let line := String.Pos.Raw.extract contents 0 lfPos
   checkSchemaVersion inputName line.trim
-  if h : contents.atEnd lfPos then
+  if h : lfPos.atEnd contents then
     return {}
   else
-    loop 2 {} contents.endPos (contents.next' lfPos h)
+    loop 2 {} contents.rawEndPos (lfPos.next' contents h)
 
 @[inline] private partial def loadCore
   (h : IO.FS.Handle) (fileName : String)
@@ -370,7 +369,7 @@ toolchain and platform information in a manner similar to Reservoir.
 public def artifactContentType : String := "application/vnd.reservoir.artifact"
 
 private def appendScope (endpoint : String) (scope : String) : String :=
-  scope.split (· == '/') |>.foldl (init := endpoint) fun s component =>
+  scope.splitToList (· == '/') |>.foldl (init := endpoint) fun s component =>
     uriEncode component s |>.push '/'
 
 private def s3ArtifactUrl (contentHash : Hash) (service : CacheService) (scope : String)  : String :=
@@ -483,7 +482,7 @@ public def downloadRevisionOutputs?
   (platform : String := "") (toolchain : String := "") (force := false)
 : LoggerIO (Option CacheMap) := do
   -- TODO: toolchain-scoped revision paths for system cache?
-  let path := cache.revisionPath rev localScope
+  let path := cache.revisionPath localScope rev
   if (← path.pathExists) && !force then
     return ← CacheMap.load path
   let url := service.revisionUrl rev remoteScope platform toolchain

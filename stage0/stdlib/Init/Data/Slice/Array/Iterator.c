@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Slice.Array.Iterator
-// Imports: public import Init.Core public import Init.Data.Slice.Array.Basic import Init.Data.Iterators.Combinators.Attach import Init.Data.Iterators.Combinators.FilterMap public import Init.Data.Iterators.Combinators.ULift public import Init.Data.Iterators.Consumers.Collect public import Init.Data.Iterators.Consumers.Loop public import Init.Data.Range.Polymorphic.Basic import all Init.Data.Range.Polymorphic.Basic public import Init.Data.Range.Polymorphic.Nat public import Init.Data.Range.Polymorphic.Iterators public import Init.Data.Slice.Operations import Init.Omega
+// Imports: public import Init.Data.Slice.Array.Basic import Init.Data.Iterators.Combinators.Attach public import Init.Data.Iterators.Combinators.ULift import all Init.Data.Range.Polymorphic.Basic public import Init.Data.Range.Polymorphic.Iterators public import Init.Data.Slice.Operations import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1418,61 +1418,37 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Core(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Slice_Array_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Combinators_Attach(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Combinators_FilterMap(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Combinators_ULift(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Consumers_Collect(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Consumers_Loop(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Range_Polymorphic_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Range_Polymorphic_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Range_Polymorphic_Nat(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Slice_Operations(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Omega(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Slice_Array_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Combinators_Attach(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Combinators_ULift(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
+lean_object* initialize_Init_Data_Slice_Operations(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Slice_Array_Iterator(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Slice_Array_Iterator(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Core(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Slice_Array_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Slice_Array_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Iterators_Combinators_Attach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Combinators_Attach(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Iterators_Combinators_ULift(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Combinators_FilterMap(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Range_Polymorphic_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Combinators_ULift(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers_Collect(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Slice_Operations(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers_Loop(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_Nat(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Slice_Operations(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Omega(builtin, lean_io_mk_world());
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_instIteratorStateSubarrayId___redArg___closed__0 = _init_l_instIteratorStateSubarrayId___redArg___closed__0();

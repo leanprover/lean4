@@ -313,7 +313,7 @@ the logical model.
 Examples:
  * `(7 : Int).natAbs = 7`
  * `(0 : Int).natAbs = 0`
- * `((-11 : Int).natAbs = 11`
+ * `(-11 : Int).natAbs = 11`
 -/
 @[extern "lean_nat_abs", expose]
 def natAbs (m : @& Int) : Nat :=

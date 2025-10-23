@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Core
-public import Init.Grind.Attr
 public import Init.Grind.Interactive
 public section
 namespace Lean.Grind
@@ -17,6 +16,12 @@ Passed to `grind` using, for example, the `grind (config := { matchEqs := true }
 structure Config where
   /-- If `trace` is `true`, `grind` records used E-matching theorems and case-splits. -/
   trace : Bool := false
+  /-- If `lax` is `true`, `grind` will silently ignore any parameters referring to non-existent theorems
+  or for which no patterns can be generated. -/
+  lax : Bool := false
+  /-- If `premises` is `true`, `grind` will invoke the currently configured premise selecor on the current goal,
+  and add attempt to use the resulting suggestions as premises to the `grind` tactic. -/
+  premises : Bool := false
   /-- Maximum number of case-splits in a proof search branch. It does not include splits performed during normalization. -/
   splits : Nat := 9
   /-- Maximum number of E-matching (aka heuristic theorem instantiation) rounds before each case split. -/
@@ -157,6 +162,13 @@ structure Config where
   deriving Inhabited, BEq
 
 /--
+Configuration for interactive mode.
+We disable `clean := false`.
+-/
+structure ConfigInteractive extends Config where
+  clean := false
+
+/--
 A minimal configuration, with ematching and splitting disabled, and all solver modules turned off.
 `grind` will not do anything in this configuration,
 which can be used a starting point for minimal configurations.
@@ -209,14 +221,11 @@ namespace Lean.Parser.Tactic
 /-!
 `grind` tactic and related tactics.
 -/
-
 syntax grindErase    := "-" ident
-syntax grindLemma    := ppGroup((Attr.grindMod ppSpace)? ident)
 /--
 The `!` modifier instructs `grind` to consider only minimal indexable subexpressions
 when selecting patterns.
 -/
-syntax grindLemmaMin := ppGroup("!" (Attr.grindMod ppSpace)? ident)
 syntax grindParam    := grindErase <|> grindLemma <|> grindLemmaMin
 
 open Parser.Tactic.Grind

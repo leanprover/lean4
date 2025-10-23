@@ -10,6 +10,7 @@ prelude
 public import Lean.Message
 public import Lean.EnvExtension
 public import Lean.DocString.Links
+import Init.Data.String.TakeDrop
 
 public section
 
@@ -298,11 +299,11 @@ where
   `none` if `line` is not a header of the appropriate form.
   -/
   matchHeader (level : Nat) (title? : Option String) (line : String) : Option String := do
-    let octsEndPos := line.nextWhile (· == '#') 0
+    let octsEndPos := String.Pos.Raw.nextWhile line (· == '#') 0
     guard (octsEndPos.byteIdx == level)
-    guard (line.get octsEndPos == ' ')
-    let titleStartPos := line.next octsEndPos
-    let title := Substring.mk line titleStartPos line.endPos |>.toString
+    guard (octsEndPos.get line == ' ')
+    let titleStartPos := octsEndPos.next line
+    let title := Substring.mk line titleStartPos line.rawEndPos |>.toString
     let titleMatches : Bool := match title? with
       | some expectedTitle => title == expectedTitle
       | none => true

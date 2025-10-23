@@ -2161,7 +2161,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_TreeSet_getGE_x21___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(23u);
+x_3 = lean_unsigned_to_nat(22u);
 x_4 = l_Std_TreeSet_getGE_x21___redArg___closed__1;
 x_5 = l_Std_TreeSet_getGE_x21___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -5091,13 +5091,13 @@ lean_dec_ref(x_2);
 return x_4;
 }
 }
-lean_object* initialize_Std_Data_TreeMap_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_TreeMap_Basic(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Data_TreeSet_Basic(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Data_TreeSet_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_TreeMap_Basic(builtin, lean_io_mk_world());
+res = initialize_Std_Data_TreeMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___auto___closed__0____x40_Std_Data_TreeSet_Basic_2624796985____hygCtx___hyg_15_ = _init_l___auto___closed__0____x40_Std_Data_TreeSet_Basic_2624796985____hygCtx___hyg_15_();

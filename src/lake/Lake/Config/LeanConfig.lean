@@ -6,7 +6,6 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lean.Util.LeanOptions
 public import Lake.Build.Target.Basic
 public import Lake.Config.Dynlib
 public import Lake.Config.MetaClasses

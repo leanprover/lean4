@@ -6,15 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Grind.ToInt
 import all Init.Grind.ToInt
-public import Init.Grind.Module.Basic
 public import Init.Grind.Ring.ToInt
-public import Init.Data.Int.DivMod.Basic
-public import Init.Data.Int.Lemmas
-public import Init.Data.Int.Order
-public import Init.Data.Fin.Lemmas
-public import Init.Data.UInt.Lemmas
 public import Init.Data.SInt.Lemmas
 
 public section

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.KVMap
-// Imports: public import Init.Data.List.Impl public import Init.Data.Format.Syntax public import Init.Data.ToString.Name
+// Imports: public import Init.Data.Format.Syntax public import Init.Data.ToString.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,7 +19,7 @@ LEAN_EXPORT lean_object* l_Lean_KVMap_getSyntax(lean_object*, lean_object*, lean
 static lean_object* l_Lean_KVMap_instToString___closed__1;
 lean_object* l_Lean_Name_reprPrec(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KVMap_updateNat(lean_object*, lean_object*, lean_object*);
-lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KVMap_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instCoeBoolDataValue___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedKVMap_default;
@@ -1560,7 +1560,7 @@ x_25 = 0;
 x_26 = l_Lean_Syntax_formatStx(x_23, x_24, x_25);
 x_27 = l_Lean_DataValue_str___closed__3;
 x_28 = lean_unsigned_to_nat(0u);
-x_29 = lean_format_pretty(x_26, x_27, x_28, x_28);
+x_29 = l_Std_Format_pretty(x_26, x_27, x_28, x_28);
 return x_29;
 }
 }
@@ -4191,21 +4191,17 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Data_List_Impl(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Format_Syntax(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_ToString_Name(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Format_Syntax(uint8_t builtin);
+lean_object* initialize_Init_Data_ToString_Name(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Data_KVMap(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Data_KVMap(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_List_Impl(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Format_Syntax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Format_Syntax(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_ToString_Name(builtin, lean_io_mk_world());
+res = initialize_Init_Data_ToString_Name(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instInhabitedDataValue_default___closed__0 = _init_l_Lean_instInhabitedDataValue_default___closed__0();

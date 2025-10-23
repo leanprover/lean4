@@ -6,9 +6,6 @@ Authors: Gabriel Ebner, Mario Carneiro, Thomas Murrills
 module
 
 prelude
-public import Lean.CoreM
-public import Lean.Message
-public import Lean.Elab.InfoTree.Types
 public import Lean.Data.Lsp.Basic
 public import Lean.PrettyPrinter
 
@@ -27,21 +24,6 @@ namespace Lean.Meta.Tactic.TryThis
 open PrettyPrinter
 
 /-! # Code action information -/
-
-/-- A packet of information about a "Try this" suggestion
-that we store in the infotree for the associated code action to retrieve. -/
-structure TryThisInfo : Type where
-  /-- The textual range to be replaced by one of the suggestions. -/
-  range : Lsp.Range
-  /--
-  A list of suggestions for the user to choose from.
-  Each suggestion may optionally come with an override for the code action title.
-  -/
-  suggestionTexts : Array (String × Option String)
-  /-- The prefix to display before the code action for a "Try this" suggestion if no custom code
-  action title is provided. If not provided, `"Try this: "` is used. -/
-  codeActionPrefix? : Option String
-  deriving TypeName
 
 /-! # `Suggestion` data -/
 
@@ -175,17 +157,34 @@ attribute [deprecated "The `style?` property is not used anymore." (since := "20
 
 /- Use `toMessageData` of the suggestion text. -/
 instance : ToMessageData Suggestion where
-  toMessageData s := toMessageData s.suggestion
+  toMessageData s := s.messageData?.getD (toMessageData s.suggestion)
 
 instance : Coe SuggestionText Suggestion where
   coe t := { suggestion := t }
 
+/--
+A packet of information about a "Try this" suggestion
+that we store in the infotree for the associated code action to retrieve.
+-/
+structure TryThisInfo : Type where
+  /-- Suggestion edit as it will be applied to the editor document. -/
+  edit : Lsp.TextEdit
+  /-- Title of the code action that is displayed in the code action selection dialog. -/
+  codeActionTitle : String
+  /--
+  Original suggestion that this `TryThisInfo` was derived from.
+  Stored so that meta-code downstream can extract the suggestions
+  produced by a tactic from the `InfoTree`.
+  -/
+  suggestion : Suggestion
+  deriving TypeName
+
 /-! # Formatting -/
 
-/-- Yields `(indent, column)` given a `FileMap` and a `String.Range`, where `indent` is the number
+/-- Yields `(indent, column)` given a `FileMap` and a `Lean.Syntax.Range`, where `indent` is the number
 of spaces by which the line that first includes `range` is initially indented, and `column` is the
 column `range` starts at in that line. -/
-def getIndentAndColumn (map : FileMap) (range : String.Range) : Nat × Nat :=
+def getIndentAndColumn (map : FileMap) (range : Lean.Syntax.Range) : Nat × Nat :=
   let start := map.source.findLineStart range.start
   let body := map.source.findAux (· ≠ ' ') range.start start
   (start.byteDistance body, start.byteDistance range.start)
@@ -226,54 +225,16 @@ def prettyExtra (s : SuggestionText) (w : Option Nat := none)
 
 end SuggestionText
 
-/-- Converts a `Suggestion` to `Json` in `CoreM`. We need `CoreM` in order to pretty-print syntax.
+def Suggestion.pretty (s : Suggestion) (w : Option Nat := none) (indent column : Nat := 0) :
+    CoreM String := do
+  s.suggestion.prettyExtra w indent column
 
-This also returns a `String × Option String` consisting of the pretty-printed text and any custom
-code action title if `toCodeActionTitle?` is provided.
-
-If `w := none`, then `w := getInputWidth (← getOptions)` is used.
--/
-def Suggestion.toJsonAndInfoM (s : Suggestion) (w : Option Nat := none) (indent column : Nat := 0) :
-    CoreM (Json × String × Option String) := do
-  let text ← s.suggestion.prettyExtra w indent column
-  let mut json := [("suggestion", (text : Json))]
-  if let some preInfo := s.preInfo? then json := ("preInfo", preInfo) :: json
-  if let some postInfo := s.postInfo? then json := ("postInfo", postInfo) :: json
-  return (Json.mkObj json, text, s.toCodeActionTitle?.map (· text))
-
-/--
-Represents processed data for a collection of suggestions that can be passed to a widget and pushed
-in an info leaf.
-
-It contains the following data:
-* `suggestions`: tuples of the form `(j, t, p)` where `j` is JSON containing a suggestion and its
-  pre- and post-info, `t` is the text to be inserted by the suggestion, and `p` is the code action
-  prefix thereof.
-* `info`: the `TryThisInfo` data corresponding to a collection of suggestions
-* `range`: the range at which the suggestion is to be applied.
--/
-structure ProcessedSuggestions where
-  suggestions : Array (Json × String × Option String)
-  info : Elab.Info
-  range : Lsp.Range
-
-/--
-Processes an array of `Suggestion`s into data that can be used to construct a code-action info leaf
-and "try this" widget.
--/
-def processSuggestions (ref : Syntax) (range : String.Range) (suggestions : Array Suggestion)
-    (codeActionPrefix? : Option String) : CoreM ProcessedSuggestions := do
+def Suggestion.processEdit (s : Suggestion) (range : Lean.Syntax.Range) : CoreM Lsp.TextEdit := do
   let map ← getFileMap
   -- FIXME: this produces incorrect results when `by` is at the beginning of the line, i.e.
   -- replacing `tac` in `by tac`, because the next line will only be 2 space indented
   -- (less than `tac` which starts at column 3)
   let (indent, column) := getIndentAndColumn map range
-  let suggestions ← suggestions.mapM (·.toJsonAndInfoM (indent := indent) (column := column))
-  let suggestionTexts := suggestions.map (·.2)
-  let ref := Syntax.ofRange <| ref.getRange?.getD range
+  let newText ← s.pretty (indent := indent) (column := column)
   let range := map.utf8RangeToLspRange range
-  let info := .ofCustomInfo {
-    stx := ref
-    value := Dynamic.mk { range, suggestionTexts, codeActionPrefix? : TryThisInfo }
-  }
-  return { info, suggestions, range }
+  return { range, newText }

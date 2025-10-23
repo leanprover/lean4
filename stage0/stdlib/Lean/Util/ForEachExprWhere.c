@@ -1186,17 +1186,17 @@ x_11 = l_Lean_ForEachExprWhere_visit(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_1
 return x_11;
 }
 }
-lean_object* initialize_Lean_Expr(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Util_MonadCache(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Expr(uint8_t builtin);
+lean_object* initialize_Lean_Util_MonadCache(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Util_ForEachExprWhere(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Util_ForEachExprWhere(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Expr(builtin, lean_io_mk_world());
+res = initialize_Lean_Expr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_MonadCache(builtin, lean_io_mk_world());
+res = initialize_Lean_Util_MonadCache(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_ForEachExprWhere_cacheSize___closed__0 = _init_l_Lean_ForEachExprWhere_cacheSize___closed__0();

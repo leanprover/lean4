@@ -8,9 +8,10 @@ module
 
 prelude
 
-import Init.Data.Repr
 import Init.Data.Ord
 public import Lean.DocString.Types
+public import Init.Data.String.TakeDrop
+import Init.Data.String.Iterator
 
 set_option linter.missingDocs true
 

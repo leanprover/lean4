@@ -6,8 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.RCases
-public import Init.Data.Iterators.Basic
 public import Init.Data.Iterators.Consumers.Monadic.Partial
 public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 
@@ -142,7 +140,8 @@ def IterM.DefaultConsumers.forIn' {m : Type w → Type w'} {α : Type w} {β : T
     (P : β → Prop) (hP : ∀ b, it.IsPlausibleIndirectOutput b → P b)
     (f : (b : β) → P b → (c : γ) → n (Subtype (plausible_forInStep b c))) : n γ :=
   haveI : WellFounded _ := wf
-  (lift _ _ · it.step) fun
+  (lift _ _ · it.step) fun s =>
+    match s.inflate with
     | .yield it' out h => do
       match ← f out (hP _ <| .direct ⟨_, h⟩) init with
       | ⟨.yield c, _⟩ =>
@@ -220,7 +219,8 @@ partial def IterM.DefaultConsumers.forInPartial {m : Type w → Type w'} {α : T
     (lift : ∀ γ δ, (γ → n δ) → m γ → n δ) (γ : Type x)
     (it : IterM (α := α) m β) (init : γ)
     (f : (b : β) → it.IsPlausibleIndirectOutput b → (c : γ) → n (ForInStep γ)) : n γ :=
-  (lift _ _ · it.step) fun
+  (lift _ _ · it.step) fun s =>
+      match s.inflate with
       | .yield it' out h => do
         match ← f out (.direct ⟨_, h⟩) init with
         | .yield c =>
@@ -578,6 +578,60 @@ def IterM.Partial.all {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] [IteratorLoopPartial α m m]
     (p : β → Bool) (it : IterM.Partial (α := α) m β) : m (ULift Bool) := do
   it.allM (fun x => pure (.up (p x)))
+
+@[inline]
+def IterM.findSomeM? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] [Finite α m] (it : IterM (α := α) m β) (f : β → m (Option γ)) :
+    m (Option γ) :=
+  ForIn.forIn it none (fun x _ => do
+    match ← f x with
+    | none => return .yield none
+    | some fx => return .done (some fx))
+
+@[inline]
+def IterM.Partial.findSomeM? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoopPartial α m m] (it : IterM.Partial (α := α) m β) (f : β → m (Option γ)) :
+    m (Option γ) :=
+  ForIn.forIn it none (fun x _ => do
+    match ← f x with
+    | none => return .yield none
+    | some fx => return .done (some fx))
+
+@[inline]
+def IterM.findSome? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] [Finite α m] (it : IterM (α := α) m β) (f : β → Option γ) :
+    m (Option γ) :=
+  it.findSomeM? (pure <| f ·)
+
+@[inline]
+def IterM.Partial.findSome? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoopPartial α m m] (it : IterM.Partial (α := α) m β) (f : β → Option γ) :
+    m (Option γ) :=
+  it.findSomeM? (pure <| f ·)
+
+@[inline]
+def IterM.findM? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] [Finite α m] (it : IterM (α := α) m β) (f : β → m (ULift Bool)) :
+    m (Option β) :=
+  it.findSomeM? (fun x => return if (← f x).down then some x else none)
+
+@[inline]
+def IterM.Partial.findM? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoopPartial α m m] (it : IterM.Partial (α := α) m β) (f : β → m (ULift Bool)) :
+    m (Option β) :=
+  it.findSomeM? (fun x => return if (← f x).down then some x else none)
+
+@[inline]
+def IterM.find? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] [Finite α m] (it : IterM (α := α) m β) (f : β → Bool) :
+    m (Option β) :=
+  it.findM? (pure <| .up <| f ·)
+
+@[inline]
+def IterM.Partial.find? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoopPartial α m m] (it : IterM.Partial (α := α) m β) (f : β → Bool) :
+    m (Option β) :=
+  it.findM? (pure <| .up <| f ·)
 
 section Size
 

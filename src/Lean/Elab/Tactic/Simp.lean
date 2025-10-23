@@ -8,13 +8,8 @@ module
 prelude
 public import Lean.Meta.Tactic.Simp
 public import Lean.Meta.Tactic.Simp.LoopProtection
-public import Lean.Meta.Tactic.Replace
-public import Lean.Meta.Hint
 public import Lean.Elab.BuiltinNotation
-public import Lean.Elab.Tactic.Basic
-public import Lean.Elab.Tactic.ElabTerm
 public import Lean.Elab.Tactic.Location
-public import Lean.Elab.Tactic.Config
 
 public section
 

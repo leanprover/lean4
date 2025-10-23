@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Data.Format
 public import Lean.Data.Json.Basic
-public import Init.Data.List.Impl
 
 public section
 

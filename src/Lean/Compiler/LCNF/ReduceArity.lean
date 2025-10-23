@@ -6,9 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Compiler.LCNF.CompilerM
-public import Lean.Compiler.LCNF.PhaseExt
-public import Lean.Compiler.LCNF.InferType
 public import Lean.Compiler.LCNF.Internalize
 
 public section

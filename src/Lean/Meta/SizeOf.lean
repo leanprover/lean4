@@ -6,10 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.List.BasicAux
 public import Lean.AddDecl
 public import Lean.Meta.AppBuilder
-public import Lean.Meta.Instances
 public import Lean.DefEqAttrib
 
 public section

@@ -6,10 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Expr
 public import Lean.ToLevel
-public import Init.Data.BitVec.Basic
-public import Init.Data.SInt.Basic
 
 public section
 universe u

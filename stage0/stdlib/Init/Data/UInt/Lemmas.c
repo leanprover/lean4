@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.UInt.Lemmas
-// Imports: public import Init.Data.UInt.Basic import all Init.Data.UInt.Basic public import Init.Data.UInt.BasicAux import all Init.Data.UInt.BasicAux public import Init.Data.Fin.Lemmas public import Init.Data.Fin.Bitwise import all Init.Data.Fin.Bitwise public import Init.Data.BitVec.BasicAux import all Init.Data.BitVec.BasicAux public import Init.Data.BitVec.Basic import all Init.Data.BitVec.Basic public import Init.Data.BitVec.Lemmas public import Init.Data.Nat.Div.Lemmas public import Init.System.Platform public import Init.Data.Order.Factories import Init.Data.Order.Lemmas
+// Imports: public import Init.Data.UInt.Basic import all Init.Data.UInt.Basic import all Init.Data.UInt.BasicAux public import Init.Data.Fin.Bitwise import all Init.Data.Fin.Bitwise import all Init.Data.BitVec.BasicAux import all Init.Data.BitVec.Basic public import Init.Data.BitVec.Lemmas public import Init.System.Platform import Init.Data.Order.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15319,73 +15319,49 @@ lean_dec(x_1);
 return x_54;
 }
 }
-lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_UInt_BasicAux(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_UInt_BasicAux(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Fin_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Fin_Bitwise(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Fin_Bitwise(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_BitVec_BasicAux(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_BitVec_BasicAux(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Nat_Div_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_System_Platform(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Order_Factories(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_UInt_BasicAux(uint8_t builtin);
+lean_object* initialize_Init_Data_Fin_Bitwise(uint8_t builtin);
+lean_object* initialize_Init_Data_Fin_Bitwise(uint8_t builtin);
+lean_object* initialize_Init_Data_BitVec_BasicAux(uint8_t builtin);
+lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_System_Platform(uint8_t builtin);
+lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_UInt_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_UInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_UInt_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_UInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_UInt_BasicAux(builtin, lean_io_mk_world());
+res = initialize_Init_Data_UInt_BasicAux(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_UInt_BasicAux(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Fin_Bitwise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Fin_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Fin_Bitwise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Fin_Bitwise(builtin, lean_io_mk_world());
+res = initialize_Init_Data_BitVec_BasicAux(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Fin_Bitwise(builtin, lean_io_mk_world());
+res = initialize_Init_Data_BitVec_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_BasicAux(builtin, lean_io_mk_world());
+res = initialize_Init_Data_BitVec_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_BasicAux(builtin, lean_io_mk_world());
+res = initialize_Init_System_Platform(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Lemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Div_Lemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_System_Platform(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Order_Factories(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Order_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Order_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_commandDeclare__uint__theorems_______closed__0 = _init_l_commandDeclare__uint__theorems_______closed__0();

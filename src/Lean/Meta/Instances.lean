@@ -7,8 +7,6 @@ module
 
 prelude
 public import Init.Data.Range.Polymorphic.Stream
-public import Lean.ScopedEnvExtension
-public import Lean.Meta.GlobalInstances
 public import Lean.Meta.DiscrTree
 public import Lean.Meta.CollectMVars
 

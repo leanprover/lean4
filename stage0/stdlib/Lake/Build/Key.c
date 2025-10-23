@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Key
-// Imports: public import Init.Data.Order public import Init.Data.ToString.Basic import Lake.Util.Name import Lake.Config.Kinds
+// Imports: public import Init.Data.Order import Lake.Util.Name import Lake.Config.Kinds import Init.Data.String.TakeDrop
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lake_PartialBuildKey_instToString;
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_reprPrec(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildKey_packageTarget_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PartialBuildKey_toString___lam__0(lean_object*);
@@ -78,6 +77,7 @@ LEAN_EXPORT lean_object* l_Lake_PartialBuildKey_toString(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedBuildKey_default;
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildKey_toSimpleString(lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instReprBuildKey_repr___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Build_Key_0__Lake_PartialBuildKey_parse_parseTarget___closed__6;
 static lean_object* l_Lake_PartialBuildKey_parse___closed__6;
@@ -2381,25 +2381,25 @@ x_5 = l___private_Lake_Build_Key_0__Lake_BuildKey_quickCmp_match__9_splitter___r
 return x_5;
 }
 }
-lean_object* initialize_Init_Data_Order(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_ToString_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Util_Name(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Config_Kinds(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Order(uint8_t builtin);
+lean_object* initialize_Lake_Util_Name(uint8_t builtin);
+lean_object* initialize_Lake_Config_Kinds(uint8_t builtin);
+lean_object* initialize_Init_Data_String_TakeDrop(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Build_Key(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Build_Key(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Order(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ToString_Basic(builtin, lean_io_mk_world());
+res = initialize_Lake_Util_Name(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Name(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_Kinds(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_Kinds(builtin, lean_io_mk_world());
+res = initialize_Init_Data_String_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instInhabitedBuildKey_default___closed__0 = _init_l_Lake_instInhabitedBuildKey_default___closed__0();

@@ -738,25 +738,25 @@ lean_dec_ref(x_7);
 return x_8;
 }
 }
-lean_object* initialize_Init_Dynamic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_System_FilePath(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_NameMap_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_ToString_Name(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Dynamic(uint8_t builtin);
+lean_object* initialize_Init_System_FilePath(uint8_t builtin);
+lean_object* initialize_Lean_Data_NameMap_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_ToString_Name(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Config_Dependency(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Config_Dependency(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Dynamic(builtin, lean_io_mk_world());
+res = initialize_Init_Dynamic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_System_FilePath(builtin, lean_io_mk_world());
+res = initialize_Init_System_FilePath(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_NameMap_Basic(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_NameMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ToString_Name(builtin, lean_io_mk_world());
+res = initialize_Init_Data_ToString_Name(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instInhabitedDependencySrc_default___closed__0 = _init_l_Lake_instInhabitedDependencySrc_default___closed__0();

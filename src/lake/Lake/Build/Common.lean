@@ -6,7 +6,6 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lean.Data.Json
 public import Lake.Build.Job.Monad
 public import Lake.Config.Monad
 public import Lake.Util.JsonObject
@@ -689,9 +688,9 @@ public def inputDir
   (path : FilePath) (text : Bool) (filter : FilePath → Bool)
 : SpawnM (Job (Array FilePath)) := do
   let job ← Job.async do
-    let fs ← path.readDir
-    let ps := fs.filterMap fun f =>
-      if filter f.path then some f.path else none
+    let ps ← (← path.walkDir).filterM fun p =>
+      -- Always filter out directories as they cannot be hashed anyway
+      return !(← p.isDir) && filter p
     -- Makes the order of files consistent across platforms
     let ps := ps.qsort (toString · < toString ·)
     return ps

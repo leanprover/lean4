@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.Diff
-// Imports: public import Init.Data.Array.Subarray.Split public import Init.Data.Slice.Array.Iterator public import Init.Data.Range public import Std.Data.HashMap.Basic public import Init.Omega import Init.Data.Iterators.Combinators.ULift public import Init.Data.String.Basic
+// Imports: public import Init.Data.Array.Subarray.Split public import Init.Data.Slice.Array.Iterator public import Init.Data.Range public import Std.Data.HashMap.Basic import Init.Data.Iterators.Combinators.ULift public import Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3352,37 +3352,33 @@ lean_dec_ref(x_2);
 return x_6;
 }
 }
-lean_object* initialize_Init_Data_Array_Subarray_Split(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Slice_Array_Iterator(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Range(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_HashMap_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Omega(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Combinators_ULift(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Subarray_Split(uint8_t builtin);
+lean_object* initialize_Init_Data_Slice_Array_Iterator(uint8_t builtin);
+lean_object* initialize_Init_Data_Range(uint8_t builtin);
+lean_object* initialize_Std_Data_HashMap_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Combinators_ULift(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Util_Diff(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Util_Diff(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Array_Subarray_Split(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_Subarray_Split(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Slice_Array_Iterator(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Slice_Array_Iterator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Range(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Range(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_HashMap_Basic(builtin, lean_io_mk_world());
+res = initialize_Std_Data_HashMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Iterators_Combinators_ULift(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Combinators_ULift(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Diff_instReprAction_repr___closed__0 = _init_l_Lean_Diff_instReprAction_repr___closed__0();

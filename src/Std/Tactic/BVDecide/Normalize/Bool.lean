@@ -6,8 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Init.SimpLemmas
-public import Init.Data.Bool
 public import Init.Data.BitVec.Lemmas
 public import Init.Data.BitVec.Decidable
 import Init.Data.BEq

@@ -63,6 +63,7 @@ static lean_object* l_Lean_Lsp_instFromJsonRpcRef_fromJson___closed__4;
 static lean_object* l_Lean_Server_instRpcEncodableOfFromJsonOfToJson___redArg___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Server_rpcReleaseRef(size_t, lean_object*);
 static lean_object* l_Lean_Server_instRpcEncodableOption___redArg___lam__1___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Server_WithRpcRef_mk___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_eraseAux___at___Lean_PersistentHashMap_erase___at___Lean_Server_rpcReleaseRef_spec__12_spec__12___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_find_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -110,7 +111,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_eraseAux___at___Lean_Persisten
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Server_rpcReleaseRef_spec__3_spec__3_spec__5(lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_fromJson_x3f___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_Server_rpcReleaseRef_spec__0___redArg___boxed(lean_object*, lean_object*);
-lean_object* lean_st_ref_take(lean_object*, lean_object*);
+lean_object* lean_st_ref_take(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_erase___at___Lean_Server_rpcReleaseRef_spec__12___redArg(lean_object*, size_t);
 lean_object* l_instMonadExceptOfMonadExceptOf___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instHashableRpcRef;
@@ -133,8 +134,9 @@ LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName_rpcE
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_erase___at___Lean_Server_rpcReleaseRef_spec__8___redArg___boxed(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 lean_object* l_instMonadExceptOfExceptTOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_WithRpcRef_mk(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_WithRpcRef_mk(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_instFromJsonRpcRef_fromJson_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_WithRpcRef_mk___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Server_rpcReleaseRef_spec__3_spec__3_spec__5___redArg(size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_rpcStoreRef___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodableOption___redArg(lean_object*);
@@ -142,7 +144,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedWithRpcRef___redArg(lean_obj
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonRpcRef;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___Lean_Server_rpcReleaseRef_spec__3(lean_object*, lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_Server_instRpcEncodableOfFromJsonOfToJson___redArg___closed__19;
-lean_object* lean_st_mk_ref(lean_object*, lean_object*);
+lean_object* lean_st_mk_ref(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_rpcGetRef(lean_object*, lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_Server_instRpcEncodableArray___redArg___closed__6;
 lean_object* lean_array_to_list(lean_object*);
@@ -234,7 +236,7 @@ LEAN_EXPORT lean_object* l_Array_idxOfAux___at___Array_finIdxOf_x3f___at___Lean_
 static lean_object* l_Lean_Server_rpcGetRef___redArg___closed__1;
 lean_object* l_Option_fromJson_x3f___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNode___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Server_rpcReleaseRef_spec__3_spec__3_spec__3___redArg(lean_object*, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_WithRpcRef_mk___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_WithRpcRef_mk___redArg(lean_object*);
 static lean_object* l_Lean_Server_instRpcEncodableOfFromJsonOfToJson___redArg___closed__0;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Lsp_instBEqRpcRef_beq(size_t, size_t);
@@ -268,7 +270,8 @@ static lean_object* l_Lean_Server_rpcStoreRef___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName_rpcDecode___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_WithRpcRef_ctorIdx___boxed(lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
+lean_object* lean_st_ref_set(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_Rpc_Basic_1605303199____hygCtx___hyg_2____boxed(lean_object*);
 static lean_object* l_Lean_Lsp_instHashableRpcRef___closed__0;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_Server_rpcReleaseRef_spec__0_spec__0___redArg(lean_object*, size_t, size_t);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
@@ -296,7 +299,7 @@ static lean_object* l_Lean_Lsp_instFromJsonRpcRef_fromJson___closed__3;
 lean_object* l_ExceptT_instMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodableStateMRpcObjectStore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_Server_rpcReleaseRef_spec__0_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_Rpc_Basic_1605303199____hygCtx___hyg_2_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_Rpc_Basic_1605303199____hygCtx___hyg_2_();
 static lean_object* l_Lean_Lsp_instFromJsonRpcRef_fromJson___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodableOption___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -823,30 +826,23 @@ x_2 = lean_box_usize(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_Rpc_Basic_1605303199____hygCtx___hyg_2_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_Rpc_Basic_1605303199____hygCtx___hyg_2_() {
 _start:
 {
-lean_object* x_2; lean_object* x_3; uint8_t x_4; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Lean_Server_initFn___boxed__const__1____x40_Lean_Server_Rpc_Basic_1605303199____hygCtx___hyg_2_;
-x_3 = lean_st_mk_ref(x_2, x_1);
-x_4 = !lean_is_exclusive(x_3);
-if (x_4 == 0)
-{
-return x_3;
+x_3 = lean_st_mk_ref(x_2);
+x_4 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_4, 0, x_3);
+return x_4;
 }
-else
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_3, 0);
-x_6 = lean_ctor_get(x_3, 1);
-lean_inc(x_6);
-lean_inc(x_5);
-lean_dec(x_3);
-x_7 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_7, 0, x_5);
-lean_ctor_set(x_7, 1, x_6);
-return x_7;
 }
+LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_Rpc_Basic_1605303199____hygCtx___hyg_2____boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Server_initFn____x40_Lean_Server_Rpc_Basic_1605303199____hygCtx___hyg_2_();
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Server_WithRpcRef_mk___redArg___closed__0() {
@@ -857,59 +853,45 @@ x_1 = l_Lean_Server_freshWithRpcRefId;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_WithRpcRef_mk___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Server_WithRpcRef_mk___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; size_t x_7; size_t x_8; size_t x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_3 = l_Lean_Server_WithRpcRef_mk___redArg___closed__0;
-x_4 = lean_st_ref_take(x_3, x_2);
-x_5 = lean_ctor_get(x_4, 0);
-lean_inc(x_5);
-x_6 = lean_ctor_get(x_4, 1);
-lean_inc(x_6);
-lean_dec_ref(x_4);
-x_7 = 1;
-x_8 = lean_unbox_usize(x_5);
-x_9 = lean_usize_add(x_8, x_7);
-x_10 = lean_box_usize(x_9);
-x_11 = lean_st_ref_set(x_3, x_10, x_6);
-x_12 = !lean_is_exclusive(x_11);
-if (x_12 == 0)
-{
-lean_object* x_13; lean_object* x_14; size_t x_15; 
-x_13 = lean_ctor_get(x_11, 0);
-lean_dec(x_13);
-x_14 = lean_alloc_ctor(0, 1, sizeof(size_t)*1);
-lean_ctor_set(x_14, 0, x_1);
-x_15 = lean_unbox_usize(x_5);
-lean_dec(x_5);
-lean_ctor_set_usize(x_14, 1, x_15);
-lean_ctor_set(x_11, 0, x_14);
-return x_11;
-}
-else
-{
-lean_object* x_16; lean_object* x_17; size_t x_18; lean_object* x_19; 
-x_16 = lean_ctor_get(x_11, 1);
-lean_inc(x_16);
-lean_dec(x_11);
-x_17 = lean_alloc_ctor(0, 1, sizeof(size_t)*1);
-lean_ctor_set(x_17, 0, x_1);
-x_18 = lean_unbox_usize(x_5);
-lean_dec(x_5);
-lean_ctor_set_usize(x_17, 1, x_18);
-x_19 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_19, 0, x_17);
-lean_ctor_set(x_19, 1, x_16);
-return x_19;
+x_4 = lean_st_ref_take(x_3);
+x_5 = lean_unbox_usize(x_4);
+lean_dec(x_4);
+x_6 = 1;
+x_7 = lean_usize_add(x_5, x_6);
+x_8 = lean_box_usize(x_7);
+x_9 = lean_st_ref_set(x_3, x_8);
+x_10 = lean_alloc_ctor(0, 1, sizeof(size_t)*1);
+lean_ctor_set(x_10, 0, x_1);
+lean_ctor_set_usize(x_10, 1, x_5);
+return x_10;
 }
 }
-}
-LEAN_EXPORT lean_object* l_Lean_Server_WithRpcRef_mk(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_Server_WithRpcRef_mk(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lean_Server_WithRpcRef_mk___redArg(x_2, x_3);
+x_4 = l_Lean_Server_WithRpcRef_mk___redArg(x_2);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_WithRpcRef_mk___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Server_WithRpcRef_mk___redArg(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_WithRpcRef_mk___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Server_WithRpcRef_mk(x_1, x_2);
 return x_4;
 }
 }
@@ -4926,17 +4908,17 @@ x_3 = l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName___redArg(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Dynamic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Json_FromToJson_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Dynamic(uint8_t builtin);
+lean_object* initialize_Lean_Data_Json_FromToJson_Basic(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Server_Rpc_Basic(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Server_Rpc_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Dynamic(builtin, lean_io_mk_world());
+res = initialize_Init_Dynamic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Json_FromToJson_Basic(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_Json_FromToJson_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Lsp_instInhabitedRpcRef_default___closed__0 = _init_l_Lean_Lsp_instInhabitedRpcRef_default___closed__0();
@@ -4990,7 +4972,7 @@ l_Lean_Lsp_instToStringRpcRef = _init_l_Lean_Lsp_instToStringRpcRef();
 lean_mark_persistent(l_Lean_Lsp_instToStringRpcRef);
 l_Lean_Server_initFn___boxed__const__1____x40_Lean_Server_Rpc_Basic_1605303199____hygCtx___hyg_2_ = _init_l_Lean_Server_initFn___boxed__const__1____x40_Lean_Server_Rpc_Basic_1605303199____hygCtx___hyg_2_();
 lean_mark_persistent(l_Lean_Server_initFn___boxed__const__1____x40_Lean_Server_Rpc_Basic_1605303199____hygCtx___hyg_2_);
-if (builtin) {res = l_Lean_Server_initFn____x40_Lean_Server_Rpc_Basic_1605303199____hygCtx___hyg_2_(lean_io_mk_world());
+if (builtin) {res = l_Lean_Server_initFn____x40_Lean_Server_Rpc_Basic_1605303199____hygCtx___hyg_2_();
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Server_freshWithRpcRefId = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Server_freshWithRpcRefId);

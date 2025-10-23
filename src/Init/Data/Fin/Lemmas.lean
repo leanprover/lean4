@@ -8,10 +8,6 @@ module
 prelude
 public import Init.Data.Nat.Lemmas
 public import Init.Ext
-public import Init.ByCases
-public import Init.Conv
-public import Init.Omega
-public import Init.Data.Order.Factories
 import Init.Data.Order.Lemmas
 
 @[expose] public section

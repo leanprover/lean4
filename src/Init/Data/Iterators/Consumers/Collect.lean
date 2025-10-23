@@ -78,7 +78,7 @@ lists are prepend-only, this `toListRev` is usually more efficient that `toList`
 
 This function is deprecated. Instead of `it.allowNontermination.toListRev`, use `it.toListRev`.
 -/
-@[always_inline, inline, deprecated Iter.toListRev (since := "2025-10-16")]
+@[always_inline, inline, deprecated Iter.toListRev (since := "2025-10-23")]
 def Iter.Partial.toListRev {α : Type w} {β : Type w}
     [Iterator α Id β] (it : Iter.Partial (α := α) β) : List β :=
   it.it.toListRev

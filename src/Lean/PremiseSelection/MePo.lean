@@ -24,29 +24,13 @@ namespace Lean.PremiseSelection.MePo
 
 builtin_initialize registerTraceClass `mepo
 
-local instance : Zero (NameMap Nat) := ⟨∅⟩
-local instance : Add (NameMap Nat) where
-  add x y := y.foldl (init := x) fun x' n c => x'.insert n (x'.getD n 0 + c)
-
-public builtin_initialize symbolFrequencyExt : PersistentEnvExtension (NameMap Nat) Empty (NameMap Nat) ←
-  registerPersistentEnvExtension {
-    name            := `symbolFrequency
-    mkInitial       := pure ∅
-    addImportedFn   := fun mapss _ => pure <|
-      mapss.foldl (init := 0) fun acc maps => maps.foldl (init := acc) fun acc map => acc + map
-    addEntryFn      := nofun
-    exportEntriesFnEx := fun env _ _ =>
-      let r := env.constants.map₂.foldl (init := (∅ : NameMap Nat)) (fun acc n ci =>
-        if n.isInternalDetail then
-          acc
-        else
-          ci.type.foldConsts (init := acc) fun n' acc => acc.alter n' fun i? => some (i?.getD 0 + 1))
-      #[r]
-    statsFn         := fun _ => "symbol frequency extension"
-  }
-
-public def symbolFrequency (env : Environment) (n : Name) : Nat :=
-  symbolFrequencyExt.getState env |>.getD n 0
+def symbolFrequency (env : Environment) : NameMap Nat := Id.run do
+  -- TODO: ideally this would use a precomputed frequency map, as this is too slow.
+  let mut map := {}
+  for (_, ci) in env.constants do
+    for n' in ci.type.getUsedConstantsAsSet do
+      map := map.alter n' fun i? => some (i?.getD 0 + 1)
+  return map
 
 def weightedScore (weight : Name → Float) (relevant candidate : NameSet) : Float :=
   let S := candidate
@@ -103,7 +87,8 @@ public def mepoSelector (useRarity : Bool) (p : Float := 0.6) (c : Float := 2.4)
   let constants ← g.getConstants
   let env ← getEnv
   let score := if useRarity then
-    frequencyScore (symbolFrequency env)
+    let frequency := symbolFrequency env
+    frequencyScore (frequency.getD · 0)
   else
     unweightedScore
   let accept := fun ci => return !isDeniedPremise env ci.name

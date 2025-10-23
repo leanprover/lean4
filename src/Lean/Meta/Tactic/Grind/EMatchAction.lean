@@ -142,6 +142,7 @@ public def instantiate' : Action := fun goal kna kp => do
         -- We must have at least the ones used in the proof
         let initMask ← mkMask map usedThms
         let testMask (mask : Array Bool) : GrindM Bool := do
+          checkSystem "`grind` `instantiate` tactic parameter optimizer"
           let thms := maskToThms allThms mask
           let newSeq ← mkNewSeq goal thms seq (approx := false)
           checkSeqAt saved? goal newSeq

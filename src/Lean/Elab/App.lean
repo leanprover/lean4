@@ -1340,7 +1340,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     throwErrorAt ref m!"{msg}{.nil}"
   if eType.isForall then
     match lval with
-    | LVal.fieldName _ fieldName suffix? fullRef =>
+    | LVal.fieldName ref fieldName suffix? _fullRef =>
       let fullName := Name.str `Function fieldName
       if (← getEnv).contains fullName then
         return LValResolution.const `Function `Function fullName
@@ -1349,7 +1349,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
            been a field in the `Function` namespace, so we needn't wait to check if this is actually
            a constant. If `suffix?` is non-`none`, we prefer to throw the "unknown constant" error
            (because of monad namespaces like `IO` and auxiliary declarations like `mutual_induct`) -/
-        throwInvalidFieldAt fullRef fieldName fullName
+        throwInvalidFieldAt ref fieldName fullName
     | .fieldIdx .. =>
       throwLValError e eType "Invalid projection: Projections cannot be used on functions"
   else if eType.getAppFn.isMVar then
@@ -1386,7 +1386,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
         throwError m!"Invalid projection: Index `{idx}` is invalid for this structure; {bounds}"
           ++ .note m!"The expression{inlineExpr e}has type{inlineExpr eType}which has only {numFields} {fields}"
           ++ tupleHint
-  | some structName, LVal.fieldName _ fieldName _ fullRef =>
+  | some structName, LVal.fieldName ref fieldName _ _ => withRef ref do
     let env ← getEnv
     if isStructure env structName then
       if let some baseStructName := findField? env structName (Name.mkSimple fieldName) then
@@ -1402,15 +1402,15 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     -- Then search the environment
     if let some (baseStructName, fullName) ← findMethod? structName (.mkSimple fieldName) then
       return LValResolution.const baseStructName structName fullName
-    throwInvalidFieldAt fullRef fieldName fullName
+    throwInvalidFieldAt ref fieldName fullName
       -- Suggest a potential unreachable private name as hint. This does not cover structure
       -- inheritance, nor `import all`.
       (declHint := (mkPrivateName env structName).mkStr fieldName)
-  | none, LVal.fieldName _ _ (some suffix) fullRef =>
+  | none, LVal.fieldName ref _ (some suffix) _fullRef =>
     -- This may be a function constant whose implicit arguments have already been filled in:
     let c := e.getAppFn
     if c.isConst then
-      throwUnknownConstantAt fullRef (c.constName! ++ suffix)
+      throwUnknownConstantAt ref (c.constName! ++ suffix)
     else
       throwInvalidFieldNotation e eType
   | _, _ => throwInvalidFieldNotation e eType
@@ -1619,7 +1619,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
       let some info := getFieldInfo? (← getEnv) baseStructName fieldName | unreachable!
       if (← isInaccessiblePrivateName info.projFn) then
         throwError "Field `{fieldName}` from structure `{structName}` is private"
-      let projFn ← mkConst info.projFn
+      let projFn ← withRef lval.getRef <| mkConst info.projFn
       let projFn ← addProjTermInfo lval.getRef projFn
       if lvals.isEmpty then
         let namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f, suppressDeps := true }
@@ -1629,7 +1629,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
         loop f lvals
     | LValResolution.const baseStructName structName constName =>
       let f ← if baseStructName != structName then mkBaseProjections baseStructName structName f else pure f
-      let projFn ← mkConst constName
+      let projFn ← withRef lval.getRef <| mkConst constName
       let projFn ← addProjTermInfo lval.getRef projFn
       if lvals.isEmpty then
         let (args, namedArgs) ← addLValArg baseStructName f args namedArgs projFn explicit

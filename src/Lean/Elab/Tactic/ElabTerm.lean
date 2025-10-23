@@ -500,7 +500,7 @@ where
       let refl := mkExpectedPropHint reflBoolTrue eq
       return mkApp3 (mkConst ``of_decide_eq_true) expectedType inst refl
     else
-      -- Diagnose the failure lazily, so that there is no performance impact if `decide` isn't being used interactively.
+      -- Diagnose the failure, lazily so that there is no performance impact if `decide` isn't being used interactively.
       throwError MessageData.ofLazyM (es := #[expectedType]) do
         diagnose expectedType dec r
 

@@ -1161,7 +1161,7 @@ end
 
 @[inline]
 instance exists_prop_decidable {p} (P : p → Prop)
-    [Decidable p] [∀ h, Decidable (P h)] : Decidable (∃ h, P h) :=
+    [Decidable p] [∀ h, Decidable (P h)] : Decidable (Exists P) :=
   if h : p then
     decidable_of_decidable_of_iff ⟨fun h2 => ⟨h, h2⟩, fun ⟨_, h2⟩ => h2⟩
   else isFalse fun ⟨h', _⟩ => h h'

@@ -1527,6 +1527,204 @@ theorem getD_unitOfList {l : List α} {k : α} {fallback : Unit} :
     getD (unitOfList l cmp) k fallback = () :=
   DTreeMap.Const.getD_unitOfList
 
+section Union
+
+variable (t₁ t₂ : TreeMap α β cmp)
+
+variable {t₁ t₂}
+
+@[simp]
+theorem union_eq : t₁.union t₂ = t₁ ∪ t₂ := by
+  simp only [Union.union]
+
+/- contains -/
+@[simp]
+theorem contains_union [TransCmp cmp] {k : α} :
+    (t₁ ∪ t₂).contains k = (t₁.contains k || t₂.contains k) :=
+  DTreeMap.contains_union
+
+/- mem -/
+theorem mem_union_of_left [TransCmp cmp] {k : α} :
+    k ∈ t₁ → k ∈ t₁ ∪ t₂ :=
+  DTreeMap.mem_union_of_left
+
+theorem mem_union_of_right [TransCmp cmp] {k : α} :
+    k ∈ t₂ → k ∈ t₁ ∪ t₂ :=
+  DTreeMap.mem_union_of_right
+
+@[simp]
+theorem mem_union_iff [TransCmp cmp] {k : α} :
+    k ∈ t₁ ∪ t₂ ↔ k ∈ t₁ ∨ k ∈ t₂ :=
+  DTreeMap.mem_union_iff
+
+theorem mem_of_mem_union_of_not_mem_right [TransCmp cmp] {k : α} :
+    k ∈ t₁ ∪ t₂ → ¬k ∈ t₂ → k ∈ t₁ :=
+  DTreeMap.mem_of_mem_union_of_not_mem_right
+
+theorem mem_of_mem_union_of_not_mem_left [TransCmp cmp]
+    {k : α} :
+    k ∈ t₁ ∪ t₂ → ¬k ∈ t₁ → k ∈ t₂ :=
+  DTreeMap.mem_of_mem_union_of_not_mem_left
+
+/- Equiv -/
+theorem union_insert_right_equiv_union_insert [TransCmp cmp] {p : (_ : α) × β}
+    :
+    (t₁ ∪ (t₂.insert p.fst p.snd)).Equiv ((t₁ ∪ t₂).insert p.fst p.snd) :=
+  ⟨DTreeMap.union_insert_right_equiv_union_insert⟩
+
+/- get? -/
+theorem get?_union [TransCmp cmp]
+    {k : α} :
+    (t₁ ∪ t₂).get? k = (t₂.get? k).or (t₁.get? k) :=
+  DTreeMap.Const.get?_union
+
+theorem get?_union_of_not_mem_left [TransCmp cmp]
+    {k : α} (not_mem : ¬k ∈ t₁) :
+    (t₁ ∪ t₂).get? k = t₂.get? k :=
+  DTreeMap.Const.get?_union_of_not_mem_left not_mem
+
+theorem get?_union_of_not_mem_right [TransCmp cmp]
+    {k : α} (not_mem : ¬k ∈ t₂) :
+    (t₁ ∪ t₂).get? k = t₁.get? k :=
+  DTreeMap.Const.get?_union_of_not_mem_right not_mem
+
+/- get -/
+theorem get_union_of_mem_right [TransCmp cmp]
+    {k : α} (mem : k ∈ t₂) :
+    (t₁ ∪ t₂).get k (mem_union_of_right mem) = t₂.get k mem :=
+  DTreeMap.Const.get_union_of_mem_right mem
+
+theorem get_union_of_not_mem_left [TransCmp cmp]
+    {k : α} (not_mem : ¬k ∈ t₁) {h'} :
+    (t₁ ∪ t₂).get k h' = t₂.get k (mem_of_mem_union_of_not_mem_left h' not_mem) :=
+  DTreeMap.Const.get_union_of_not_mem_left not_mem
+
+theorem get_union_of_not_mem_right [TransCmp cmp]
+    {k : α} (not_mem : ¬k ∈ t₂) {h'} :
+    (t₁ ∪ t₂).get k h' = t₁.get k (mem_of_mem_union_of_not_mem_right h' not_mem) :=
+  DTreeMap.Const.get_union_of_not_mem_right not_mem
+
+/- getD -/
+theorem getD_union [TransCmp cmp]
+    {k : α} {fallback : β} :
+    (t₁ ∪ t₂).getD k fallback = t₂.getD k (t₁.getD k fallback) :=
+  DTreeMap.Const.getD_union
+
+theorem getD_union_of_not_mem_left [TransCmp cmp]
+    {k : α} {fallback : β} (not_mem : ¬k ∈ t₁) :
+    (t₁ ∪ t₂).getD k fallback = t₂.getD k fallback :=
+  DTreeMap.Const.getD_union_of_not_mem_left not_mem
+
+theorem getD_union_of_not_mem_right [TransCmp cmp]
+    {k : α} {fallback : β} (not_mem : ¬k ∈ t₂)  :
+    (t₁ ∪ t₂).getD k fallback = t₁.getD k fallback :=
+  DTreeMap.Const.getD_union_of_not_mem_right not_mem
+
+/- get! -/
+theorem get!_union [TransCmp cmp]
+    {k : α} [Inhabited β] :
+    (t₁ ∪ t₂).get! k = t₂.getD k (t₁.get! k) :=
+  DTreeMap.Const.get!_union
+
+theorem get!_union_of_not_mem_left [TransCmp cmp]
+    {k : α} [Inhabited β] (not_mem : ¬k ∈ t₁) :
+    (t₁ ∪ t₂).get! k = t₂.get! k :=
+  DTreeMap.Const.get!_union_of_not_mem_left not_mem
+
+theorem get!_union_of_not_mem_right [TransCmp cmp]
+    {k : α} [Inhabited β] (not_mem : ¬k ∈ t₂)  :
+    (t₁ ∪ t₂).get! k = t₁.get! k :=
+  DTreeMap.Const.get!_union_of_not_mem_right not_mem
+
+/- getKey? -/
+theorem getKey?_union [TransCmp cmp]
+    {k : α} :
+    (t₁ ∪ t₂).getKey? k = (t₂.getKey? k).or (t₁.getKey? k) :=
+  DTreeMap.getKey?_union
+
+theorem getKey?_union_of_not_mem_left [TransCmp cmp]
+
+    {k : α} (not_mem : ¬k ∈ t₁) :
+    (t₁ ∪ t₂).getKey? k = t₂.getKey? k :=
+  DTreeMap.getKey?_union_of_not_mem_left not_mem
+
+theorem getKey?_union_of_not_mem_right [TransCmp cmp]
+
+    {k : α} (not_mem : ¬k ∈ t₂) :
+    (t₁ ∪ t₂).getKey? k = t₁.getKey? k :=
+  DTreeMap.getKey?_union_of_not_mem_right not_mem
+
+/- getKey -/
+theorem getKey_union_of_mem_right [TransCmp cmp]
+    {k : α} (mem : k ∈ t₂) :
+    (t₁ ∪ t₂).getKey k (mem_union_of_right mem) = t₂.getKey k mem :=
+  DTreeMap.getKey_union_of_mem_right mem
+
+theorem getKey_union_of_not_mem_left [TransCmp cmp]
+    {k : α} (not_mem : ¬k ∈ t₁) {h'} :
+    (t₁ ∪ t₂).getKey k h' = t₂.getKey k (mem_of_mem_union_of_not_mem_left h' not_mem) :=
+  DTreeMap.getKey_union_of_not_mem_left not_mem
+
+theorem getKey_union_of_not_mem_right [TransCmp cmp]
+    {k : α} (not_mem : ¬k ∈ t₂) {h'} :
+    (t₁ ∪ t₂).getKey k h' = t₁.getKey k (mem_of_mem_union_of_not_mem_right h' not_mem) :=
+  DTreeMap.getKey_union_of_not_mem_right not_mem
+
+/- getKeyD -/
+theorem getKeyD_union [TransCmp cmp] {k fallback : α} :
+    (t₁ ∪ t₂).getKeyD k fallback = t₂.getKeyD k (t₁.getKeyD k fallback) :=
+  DTreeMap.getKeyD_union
+
+theorem getKeyD_union_of_not_mem_left [TransCmp cmp] {k fallback : α} (mem : ¬k ∈ t₁) :
+    (t₁ ∪ t₂).getKeyD k fallback = t₂.getKeyD k fallback :=
+  DTreeMap.getKeyD_union_of_not_mem_left mem
+
+theorem getKeyD_union_of_not_mem_right [TransCmp cmp] {k fallback : α} (mem : ¬k ∈ t₂) :
+    (t₁ ∪ t₂).getKeyD k fallback = t₁.getKeyD k fallback :=
+   DTreeMap.getKeyD_union_of_not_mem_right mem
+
+/- getKey! -/
+theorem getKey!_union [TransCmp cmp] [Inhabited α]
+    {k : α} :
+    (t₁ ∪ t₂).getKey! k = t₂.getKeyD k (t₁.getKey! k) :=
+  DTreeMap.getKey!_union
+
+theorem getKey!_union_of_not_mem_left [Inhabited α]
+    [TransCmp cmp] {k : α}
+    (not_mem : ¬k ∈ t₁) :
+    (t₁ ∪ t₂).getKey! k = t₂.getKey! k :=
+  DTreeMap.getKey!_union_of_not_mem_left not_mem
+
+theorem getKey!_union_of_not_mem_right [Inhabited α]
+    [TransCmp cmp] {k : α}
+    (not_mem : ¬k ∈ t₂) :
+    (t₁ ∪ t₂).getKey! k = t₁.getKey! k :=
+  DTreeMap.getKey!_union_of_not_mem_right not_mem
+
+/- size -/
+theorem size_union_of_not_mem [TransCmp cmp] : (∀ (a : α), a ∈ t₁ → ¬a ∈ t₂) →
+    (t₁ ∪ t₂).size = t₁.size + t₂.size :=
+  DTreeMap.size_union_of_not_mem
+
+theorem size_left_le_size_union [TransCmp cmp] : t₁.size ≤ (t₁ ∪ t₂).size :=
+  DTreeMap.size_left_le_size_union
+
+theorem size_right_le_size_union [TransCmp cmp] : t₂.size ≤ (t₁ ∪ t₂).size :=
+  DTreeMap.size_right_le_size_union
+
+theorem size_union_le_size_add_size [TransCmp cmp]
+    :
+    (t₁ ∪ t₂).size ≤ t₁.size + t₂.size :=
+  DTreeMap.size_union_le_size_add_size
+
+/- isEmpty -/
+@[simp]
+theorem isEmpty_union [TransCmp cmp] :
+    (t₁ ∪ t₂).isEmpty = (t₁.isEmpty && t₂.isEmpty) :=
+  DTreeMap.isEmpty_union
+
+end Union
+
 section Alter
 
 theorem isEmpty_alter_eq_isEmpty_erase [TransCmp cmp] {k : α}

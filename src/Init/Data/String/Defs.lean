@@ -186,6 +186,76 @@ theorem endPos_eq_zero_iff {b : String} : b.rawEndPos = 0 ↔ b = "" :=
   rawEndPos_eq_zero_iff
 
 /--
+Adds multiple repetitions of a character to the end of a string.
+
+Returns `s`, with `n` repetitions of `c` at the end. Internally, the implementation repeatedly calls
+`String.push`, so the string is modified in-place if there is a unique reference to it.
+
+Examples:
+ * `"indeed".pushn '!' 2 = "indeed!!"`
+ * `"indeed".pushn '!' 0 = "indeed"`
+ * `"".pushn ' ' 4 = "    "`
+-/
+@[inline] def pushn (s : String) (c : Char) (n : Nat) : String :=
+  n.repeat (fun s => s.push c) s
+
+theorem pushn_eq_repeat_push {s : String} {c : Char} {n : Nat} :
+    s.pushn c n = n.repeat (fun s => s.push c) s := (rfl)
+
+@[export lean_string_pushn]
+def Internal.pushnImpl (s : String) (c : Char) (n : Nat) : String :=
+  String.pushn s c n
+
+/--
+Checks whether a string is empty.
+
+Empty strings are equal to `""` and have length and end position `0`.
+
+Examples:
+ * `"".isEmpty = true`
+ * `"empty".isEmpty = false`
+ * `" ".isEmpty = false`
+-/
+@[inline] def isEmpty (s : String) : Bool :=
+  s.utf8ByteSize == 0
+
+@[export lean_string_isempty]
+def Internal.isEmptyImpl (s : String) : Bool :=
+  String.isEmpty s
+
+/--
+Appends all the strings in a list of strings, in order.
+
+Use `String.intercalate` to place a separator string between the strings in a list.
+
+Examples:
+ * `String.join ["gr", "ee", "n"] = "green"`
+ * `String.join ["b", "", "l", "", "ue"] = "blue"`
+ * `String.join [] = ""`
+-/
+@[inline] def join (l : List String) : String :=
+  l.foldl (fun r s => r ++ s) ""
+
+/--
+Appends the strings in a list of strings, placing the separator `s` between each pair.
+
+Examples:
+ * `", ".intercalate ["red", "green", "blue"] = "red, green, blue"`
+ * `" and ".intercalate ["tea", "coffee"] = "tea and coffee"`
+ * `" | ".intercalate ["M", "", "N"] = "M |  | N"`
+-/
+def intercalate (s : String) : List String → String
+  | []      => ""
+  | a :: as => go a s as
+where go (acc : String) (s : String) : List String → String
+  | a :: as => go (acc ++ s ++ a) s as
+  | []      => acc
+
+@[export lean_string_intercalate]
+def Internal.intercalateImpl (s : String) : List String → String :=
+  String.intercalate s
+
+/--
 Predicate for validity of positions inside a `String`.
 
 There are multiple equivalent definitions for validity.
@@ -218,6 +288,10 @@ Examples:
 structure Pos.Raw.IsValid (s : String) (off : String.Pos.Raw) : Prop where private mk ::
   le_rawEndPos : off ≤ s.rawEndPos
   isValidUTF8_extract_zero : (s.bytes.extract 0 off.byteIdx).IsValidUTF8
+
+theorem Pos.Raw.IsValid.le_utf8ByteSize {s : String} {off : String.Pos.Raw} (h : off.IsValid s) :
+    off.byteIdx ≤ s.utf8ByteSize := by
+  simpa [Pos.Raw.le_iff] using h.le_rawEndPos
 
 theorem Pos.Raw.isValid_iff_isValidUTF8_extract_zero {s : String} {p : Pos.Raw} :
     p.IsValid s ↔ p ≤ s.rawEndPos ∧ (s.bytes.extract 0 p.byteIdx).IsValidUTF8 :=
@@ -371,8 +445,12 @@ theorem Slice.byteIdx_rawEndPos {s : Slice} : s.rawEndPos.byteIdx = s.utf8ByteSi
 
 /-- Criterion for validity of positions in string slices. -/
 structure Pos.Raw.IsValidForSlice (s : Slice) (p : Pos.Raw) : Prop where
-  le_utf8ByteSize : p ≤ s.rawEndPos
+  le_rawEndPos : p ≤ s.rawEndPos
   isValid_offsetBy : (p.offsetBy s.startInclusive.offset).IsValid s.str
+
+theorem Pos.Raw.IsValidForSlice.le_utf8ByteSize {s : Slice} {p : Pos.Raw}
+    (h : p.IsValidForSlice s) : p.byteIdx ≤ s.utf8ByteSize := by
+  simpa [Pos.Raw.le_iff] using h.le_rawEndPos
 
 /--
 Accesses the indicated byte in the UTF-8 encoding of a string slice.
@@ -479,7 +557,7 @@ instance {s : Slice} (l r : s.Pos) : Decidable (l < r) :=
 @[inline, expose]
 def Slice.Pos.byte {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : UInt8 :=
   s.getUTF8Byte pos.offset (by
-    have := pos.isValidForSlice.le_utf8ByteSize
+    have := pos.isValidForSlice.le_rawEndPos
     simp_all [Pos.ext_iff, String.Pos.Raw.ext_iff, Pos.Raw.le_iff, Pos.Raw.lt_iff]
     omega)
 

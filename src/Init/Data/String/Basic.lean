@@ -893,7 +893,7 @@ theorem Slice.Pos.offset_str {s : Slice} {pos : s.Pos} :
 @[simp]
 theorem Slice.Pos.offset_str_le_offset_endExclusive {s : Slice} {pos : s.Pos} :
     pos.str.offset ≤ s.endExclusive.offset := by
-  have := pos.isValidForSlice.le_utf8ByteSize
+  have := pos.isValidForSlice.le_rawEndPos
   have := s.startInclusive_le_endExclusive
   simp only [Pos.Raw.le_iff, byteIdx_rawEndPos, utf8ByteSize_eq, offset_str,
     Pos.Raw.byteIdx_offsetBy, ValidPos.le_iff] at *
@@ -1012,7 +1012,7 @@ theorem Slice.utf8ByteSize_replaceStartEnd {s : Slice} {newStart newEnd : s.Pos}
 theorem Pos.Raw.isValidForSlice_replaceStart {s : Slice} {p : s.Pos} {off : Pos.Raw} :
     off.IsValidForSlice (s.replaceStart p) ↔ (off.offsetBy p.offset).IsValidForSlice s := by
   refine ⟨fun ⟨h₁, h₂⟩ => ⟨?_, ?_⟩, fun ⟨h₁, h₂⟩ => ⟨?_, ?_⟩⟩
-  · have := p.isValidForSlice.le_utf8ByteSize
+  · have := p.isValidForSlice.le_rawEndPos
     simp_all [le_iff]
     omega
   · simpa [Pos.Raw.offsetBy_assoc] using h₂
@@ -1025,7 +1025,7 @@ theorem Pos.Raw.isValidForSlice_replaceEnd {s : Slice} {p : s.Pos} {off : Pos.Ra
   refine ⟨fun ⟨h₁, h₂⟩ => ⟨?_, ?_, ?_⟩, fun ⟨h₁, ⟨h₂, h₃⟩⟩ => ⟨?_, ?_⟩⟩
   · simpa using h₁
   · simp only [Slice.rawEndPos_replaceEnd] at h₁
-    exact Pos.Raw.le_trans h₁ p.isValidForSlice.le_utf8ByteSize
+    exact Pos.Raw.le_trans h₁ p.isValidForSlice.le_rawEndPos
   · simpa using h₂
   · simpa using h₁
   · simpa using h₃
@@ -1297,7 +1297,7 @@ theorem Slice.Pos.ofReplaceStart_startPos {s : Slice} {pos : s.Pos} :
 @[simp]
 theorem Slice.Pos.ofReplaceStart_endPos {s : Slice} {pos : s.Pos} :
     ofReplaceStart (s.replaceStart pos).endPos = s.endPos := by
-  have := pos.isValidForSlice.le_utf8ByteSize
+  have := pos.isValidForSlice.le_rawEndPos
   simp_all [Pos.ext_iff, String.Pos.Raw.ext_iff, Pos.Raw.le_iff]
 
 theorem Slice.Pos.ofReplaceStart_inj {s : Slice} {p₀ : s.Pos} {pos pos' : (s.replaceStart p₀).Pos} :
@@ -1388,7 +1388,7 @@ theorem Slice.Pos.lt_next {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos} :
 @[inline, expose]
 def Slice.Pos.prevAux {s : Slice} (pos : s.Pos) (h : pos ≠ s.startPos) : String.Pos.Raw :=
   go (pos.offset.byteIdx - 1) (by
-    have := pos.isValidForSlice.le_utf8ByteSize
+    have := pos.isValidForSlice.le_rawEndPos
     simp [Pos.Raw.le_iff, Pos.ext_iff] at ⊢ this h
     omega)
 where
@@ -1603,7 +1603,7 @@ theorem Slice.Pos.prevAux_lt_self {s : Slice} {p : s.Pos} {h} : p.prevAux h < p.
   omega
 
 theorem Slice.Pos.prevAux_lt_rawEndPos {s : Slice} {p : s.Pos} {h} : p.prevAux h < s.rawEndPos :=
-  Pos.Raw.lt_of_lt_of_le prevAux_lt_self p.isValidForSlice.le_utf8ByteSize
+  Pos.Raw.lt_of_lt_of_le prevAux_lt_self p.isValidForSlice.le_rawEndPos
 
 @[simp]
 theorem Slice.Pos.prev_ne_endPos {s : Slice} {p : s.Pos} {h} : p.prev h ≠ s.endPos := by
@@ -2256,73 +2256,6 @@ Examples:
 @[inline] def splitOn (s : String) (sep : String := " ") : List String :=
   if sep == "" then [s] else splitOnAux s sep 0 0 0 []
 
-/--
-Adds multiple repetitions of a character to the end of a string.
-
-Returns `s`, with `n` repetitions of `c` at the end. Internally, the implementation repeatedly calls
-`String.push`, so the string is modified in-place if there is a unique reference to it.
-
-Examples:
- * `"indeed".pushn '!' 2 = "indeed!!"`
- * `"indeed".pushn '!' 0 = "indeed"`
- * `"".pushn ' ' 4 = "    "`
--/
-@[inline] def pushn (s : String) (c : Char) (n : Nat) : String :=
-  n.repeat (fun s => s.push c) s
-
-@[export lean_string_pushn]
-def Internal.pushnImpl (s : String) (c : Char) (n : Nat) : String :=
-  String.pushn s c n
-
-/--
-Checks whether a string is empty.
-
-Empty strings are equal to `""` and have length and end position `0`.
-
-Examples:
- * `"".isEmpty = true`
- * `"empty".isEmpty = false`
- * `" ".isEmpty = false`
--/
-@[inline] def isEmpty (s : String) : Bool :=
-  s.rawEndPos == 0
-
-@[export lean_string_isempty]
-def Internal.isEmptyImpl (s : String) : Bool :=
-  String.isEmpty s
-
-/--
-Appends all the strings in a list of strings, in order.
-
-Use `String.intercalate` to place a separator string between the strings in a list.
-
-Examples:
- * `String.join ["gr", "ee", "n"] = "green"`
- * `String.join ["b", "", "l", "", "ue"] = "blue"`
- * `String.join [] = ""`
--/
-@[inline] def join (l : List String) : String :=
-  l.foldl (fun r s => r ++ s) ""
-
-/--
-Appends the strings in a list of strings, placing the separator `s` between each pair.
-
-Examples:
- * `", ".intercalate ["red", "green", "blue"] = "red, green, blue"`
- * `" and ".intercalate ["tea", "coffee"] = "tea and coffee"`
- * `" | ".intercalate ["M", "", "N"] = "M |  | N"`
--/
-def intercalate (s : String) : List String → String
-  | []      => ""
-  | a :: as => go a s as
-where go (acc : String) (s : String) : List String → String
-  | a :: as => go (acc ++ s ++ a) s as
-  | []      => acc
-
-@[export lean_string_intercalate]
-def Internal.intercalateImpl (s : String) : List String → String :=
-  String.intercalate s
-
 
 def offsetOfPosAux (s : String) (pos : Pos.Raw) (i : Pos.Raw) (offset : Nat) : Nat :=
   if i >= pos then offset
@@ -2592,7 +2525,7 @@ theorem length_singleton {c : Char} : (String.singleton c).length = 1 := by
   simp [← length_data]
 
 @[simp] theorem length_pushn (c : Char) (n : Nat) : (pushn s c n).length = s.length + n := by
-  unfold pushn; induction n <;> simp [Nat.repeat, Nat.add_assoc, *]
+  rw [pushn_eq_repeat_push]; induction n <;> simp [Nat.repeat, Nat.add_assoc, *]
 
 @[simp] theorem length_append (s t : String) : (s ++ t).length = s.length + t.length := by
   simp [← length_data]

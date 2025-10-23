@@ -513,9 +513,12 @@ def insertManyIfNew [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t :
 abbrev IteratedSlowInsertionInto [Ord α] (t) :=
   { t' // ∀ {P : Impl α β → Prop}, P t → (∀ t'' a b, P t'' → P (t''.insert! a b)) → P t' }
 
+/-- A tree map obtained by inserting elements into `t` if they are new, bundled with an inductive principle. -/
+abbrev IteratedSlowNewInsertionInto [Ord α] (t) :=
+  { t' // ∀ {P : Impl α β → Prop}, P t → (∀ t'' a b, P t'' → P (t''.insertIfNew! a b)) → P t' }
+
 /--
-Computes the union of the given tree maps. If a key appears in both maps, the entry contains in
-the second argument will appear in the result.
+Computes the union of the given tree maps. If a key appears in both maps, the entry contains in the second argument will appear in the result.
 
 This function always merges the smaller map into the larger map.
 -/
@@ -533,6 +536,24 @@ def insertMany! [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Imp
   for ⟨a, b⟩ in l do
     r := ⟨r.val.insert! a b, fun h₀ h₁ => h₁ _ _ _ (r.2 h₀ h₁)⟩
   return r
+
+/--
+Slower version of `insertManyIfNew` which can be used in absence of balance information but still
+assumes the preconditions of `insertManyIfNew`, otherwise might panic.
+-/
+@[inline]
+def insertManyIfNew! [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) :
+    IteratedSlowNewInsertionInto t := Id.run do
+  let mut r := ⟨t, fun h _ => h⟩
+  for ⟨a, b⟩ in l do
+    r := ⟨r.val.insertIfNew! a b, fun h₀ h₁ => h₁ _ _ _ (r.2 h₀ h₁)⟩
+  return r
+
+/--
+Slower version of `union` which can be used in absence of balance information but still assumes the preconditions of `union`, otherwise might panic.
+-/
+def union! [Ord α] (t₁ t₂ : Impl α β) : Impl α β :=
+  if t₁.size ≤ t₂.size then (t₂.insertManyIfNew! t₁) else (t₁.insertMany! t₂)
 
 namespace Const
 

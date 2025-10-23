@@ -7,12 +7,14 @@ module
 
 prelude
 import Lean.Meta.Tactic.Ext
-import Lean.Elab.DeclarationRange
 import Lean.Elab.Tactic.RCases
 import Lean.Elab.Tactic.Repeat
 import Lean.Elab.Tactic.BuiltinTactic
 import Lean.Elab.Command
 import Lean.Linter.Basic
+-- These public imports are needed because for now we make `extCore` public.
+public import Lean.Expr
+public import Lean.Elab.Term.TermElabM
 
 /-!
 # Implementation of the `@[ext]` attribute
@@ -110,7 +112,7 @@ def realizeExtTheorem (structName : Name) (flat : Bool) : Elab.Command.CommandEl
     try
       Elab.Command.liftTermElabM <| withoutErrToSorry <| withDeclName extName do
         let type ← mkExtType structName flat
-        let pf ← withSynthesize do
+        let pf ← withoutExporting <| withSynthesize do
           let indVal ← getConstInfoInduct structName
           let params := Array.replicate indVal.numParams (← `(_))
           Elab.Term.elabTermEnsuringType (expectedType? := type) (implicitLambda := false)
@@ -147,7 +149,7 @@ def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
       let info ← getConstInfo extName
       Elab.Command.liftTermElabM <| withoutErrToSorry <| withDeclName extIffName do
         let type ← mkExtIffType extName
-        let pf ← withSynthesize do
+        let pf ← withoutExporting <| withSynthesize do
           Elab.Term.elabTermEnsuringType (expectedType? := type) <| ← `(by
             intros
             refine ⟨?_, ?_⟩
@@ -176,8 +178,7 @@ def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
 ### Attribute
 -/
 
-abbrev extExtension := Meta.Ext.extExtension
-abbrev getExtTheorems := Meta.Ext.getExtTheorems
+open Ext
 
 builtin_initialize registerBuiltinAttribute {
   name := `ext
@@ -218,7 +219,8 @@ builtin_initialize registerBuiltinAttribute {
 -/
 
 /-- Apply a single extensionality theorem to `goal`. -/
-def applyExtTheoremAt (goal : MVarId) : MetaM (List MVarId) := goal.withContext do
+-- Tis is public for now as it is used internally in `aesop`.
+public def applyExtTheoremAt (goal : MVarId) : MetaM (List MVarId) := goal.withContext do
   let tgt ← goal.getType'
   unless tgt.isAppOfArity ``Eq 3 do
     throwError "This extensionality tactic only applies to equalities, not{indentExpr tgt}"
@@ -296,7 +298,8 @@ in extensionality theorems like `funext`. Returns a list of subgoals.
 This is built on top of `withExtN`, running in `TermElabM` to build the list of new subgoals.
 (And, for each goal, the patterns consumed.)
 -/
-def extCore (g : MVarId) (pats : List (TSyntax `rcasesPat))
+-- This is public as it is used in the implementation of `rcongr` in Batteries.
+public def extCore (g : MVarId) (pats : List (TSyntax `rcasesPat))
     (depth := 100) (failIfUnchanged := true) :
     TermElabM (Nat × Array (MVarId × List (TSyntax `rcasesPat))) := do
   StateT.run (m := TermElabM) (s := #[])

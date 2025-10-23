@@ -8,7 +8,6 @@ module
 prelude
 public import Std.Data.DTreeMap.Raw.WF
 public import Std.Data.TreeMap.Raw.AdditionalOperations
-public import Std.Data.TreeMap.Raw.Basic
 
 @[expose] public section
 

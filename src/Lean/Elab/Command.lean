@@ -6,14 +6,10 @@ Authors: Leonardo de Moura, Gabriel Ebner
 module
 
 prelude
-public import Init.Data.Range.Polymorphic.Stream
 public import Lean.Meta.Diagnostics
 public import Lean.Elab.Binders
 public import Lean.Elab.Command.Scope
-public import Lean.Elab.SyntheticMVars
 public import Lean.Elab.SetOption
-public import Lean.Language.Basic
-public import Lean.Meta.ForEachExpr
 public meta import Lean.Parser.Command
 import Lean.ExtraModUses
 

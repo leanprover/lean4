@@ -6,9 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Range.Polymorphic.Instances
-public import Init.Data.Order.Lemmas
-public import Init.Data.UInt
 import Init.Omega
 public import Init.Data.Range.Polymorphic.BitVec
 

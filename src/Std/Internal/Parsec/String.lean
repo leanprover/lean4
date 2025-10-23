@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.Internal.Parsec.Basic
-public import Init.Data.String.Basic
+public import Init.Data.String.Iterator
 
 public section
 

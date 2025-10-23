@@ -316,6 +316,18 @@ This function ensures that the value is used linearly.
 
 @[inline, inherit_doc Raw.any] def any (m : DHashMap α β) (p : (a : α) → β a → Bool) : Bool :=
   m.1.any p
+/--
+Computes the union of the given hash maps. If a key appears in both maps, the entry contains in
+the second argument will appear in the result.
+
+This function always merges the smaller map into the larger map, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : DHashMap α β) : DHashMap α β where
+  inner := Raw₀.union ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩
+  wf := Std.DHashMap.Raw.WF.union₀ m₁.2 m₂.2
+
+instance [BEq α] [Hashable α] : Union (DHashMap α β) := ⟨union⟩
 
 section Unverified
 
@@ -337,12 +349,6 @@ section Unverified
 @[inline, inherit_doc Raw.valuesArray] def valuesArray {β : Type v}
     (m : DHashMap α (fun _ => β)) : Array β :=
   m.1.valuesArray
-
-/-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
-@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : DHashMap α β) : DHashMap α β :=
-  m₂.fold (init := m₁) fun acc x => acc.insert x
-
-instance [BEq α] [Hashable α] : Union (DHashMap α β) := ⟨union⟩
 
 @[inline, inherit_doc Raw.Const.unitOfArray] def Const.unitOfArray [BEq α] [Hashable α] (l : Array α) :
     DHashMap α (fun _ => Unit) :=

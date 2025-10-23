@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.LeanConfig
-// Imports: public import Lean.Util.LeanOptions public import Lake.Build.Target.Basic public import Lake.Config.Dynlib public import Lake.Config.MetaClasses meta import all Lake.Config.Meta import Lake.Util.Name
+// Imports: public import Lake.Build.Target.Basic public import Lake.Config.Dynlib public import Lake.Config.MetaClasses meta import all Lake.Config.Meta import Lake.Util.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -24,7 +24,6 @@ LEAN_EXPORT lean_object* l_Lake_BuildType_minSizeRel_elim(lean_object*, uint8_t,
 static lean_object* l_Lake_BuildType_leancArgs___closed__14;
 LEAN_EXPORT lean_object* l_Lake_LeanConfig_leanOptions___proj___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Backend_default_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 static lean_object* l_Lake_BuildType_leanOptions___closed__2;
 static lean_object* l_Lake_Backend_ofString_x3f___closed__5;
 LEAN_EXPORT lean_object* l_Array_Array_repr___at___Lake_instReprLeanConfig_repr_spec__13(lean_object*);
@@ -110,7 +109,6 @@ static lean_object* l_Lake_instReprLeanConfig_repr___redArg___closed__37;
 LEAN_EXPORT lean_object* l_Lake_BuildType_noConfusion___redArg(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_LeanConfig_moreLinkObjs___proj___lam__0(lean_object*);
 static lean_object* l_Lake_instReprLeanConfig_repr___redArg___closed__11;
-lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_Array_Array_repr___at___Lake_instReprLeanConfig_repr_spec__5(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___Array_Array_repr___at___Lake_instReprLeanConfig_repr_spec__5_spec__5___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanConfig_weakLeancArgs___proj;
@@ -323,6 +321,7 @@ static lean_object* l_Lake_LeanConfig___fields___closed__27;
 static lean_object* l_Array_Array_repr___at___Lake_instReprLeanConfig_repr_spec__0___closed__2;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanConfig_instConfigInfo___closed__12;
+uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Backend_orPreferLeft(uint8_t, uint8_t);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lake_instReprBuildType_repr___closed__3;
@@ -363,6 +362,7 @@ LEAN_EXPORT lean_object* l_Lake_BuildType_ctorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lake_Backend_llvm_elim___redArg___boxed(lean_object*);
 static lean_object* l_Array_Array_repr___at___Lake_instReprLeanConfig_repr_spec__0___closed__1;
 LEAN_EXPORT lean_object* l_Lake_LeanConfig_moreLeanArgs___proj___lam__0___boxed(lean_object*);
+lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
 static lean_object* l_Lake_instReprLeanConfig_repr___redArg___closed__14;
 static lean_object* l_Lake_instReprLeanConfig_repr___redArg___closed__15;
 LEAN_EXPORT lean_object* l_Lake_Backend_toCtorIdx(uint8_t);
@@ -7761,33 +7761,29 @@ x_1 = l_Lake_LeanConfig_instEmptyCollection___closed__0;
 return x_1;
 }
 }
-lean_object* initialize_Lean_Util_LeanOptions(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Build_Target_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Config_Dynlib(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Config_MetaClasses(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Config_Meta(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Util_Name(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Build_Target_Basic(uint8_t builtin);
+lean_object* initialize_Lake_Config_Dynlib(uint8_t builtin);
+lean_object* initialize_Lake_Config_MetaClasses(uint8_t builtin);
+lean_object* initialize_Lake_Config_Meta(uint8_t builtin);
+lean_object* initialize_Lake_Util_Name(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Config_LeanConfig(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Config_LeanConfig(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Util_LeanOptions(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_Target_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Target_Basic(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_Dynlib(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_Dynlib(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_MetaClasses(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_MetaClasses(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_Meta(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_Meta(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_Util_Name(builtin, lean_io_mk_world());
+res = initialize_Lake_Util_Name(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instReprBackend_repr___closed__0 = _init_l_Lake_instReprBackend_repr___closed__0();

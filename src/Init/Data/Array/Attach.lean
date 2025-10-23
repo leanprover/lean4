@@ -6,10 +6,7 @@ Authors: Joachim Breitner, Mario Carneiro
 module
 
 prelude
-public import Init.Data.Array.Mem
-public import Init.Data.Array.Lemmas
 public import Init.Data.Array.Count
-public import Init.Data.List.Attach
 import all Init.Data.List.Attach
 
 public section

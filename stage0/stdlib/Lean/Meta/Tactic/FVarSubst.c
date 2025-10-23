@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.FVarSubst
-// Imports: public import Lean.Data.AssocList public import Lean.Expr public import Lean.LocalContext public import Lean.Util.ReplaceExpr
+// Imports: public import Lean.Data.AssocList public import Lean.LocalContext public import Lean.Util.ReplaceExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -767,25 +767,21 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Lean_Data_AssocList(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Expr(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_LocalContext(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Util_ReplaceExpr(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_AssocList(uint8_t builtin);
+lean_object* initialize_Lean_LocalContext(uint8_t builtin);
+lean_object* initialize_Lean_Util_ReplaceExpr(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_FVarSubst(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_FVarSubst(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Data_AssocList(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_AssocList(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Expr(builtin, lean_io_mk_world());
+res = initialize_Lean_LocalContext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_LocalContext(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Util_ReplaceExpr(builtin, lean_io_mk_world());
+res = initialize_Lean_Util_ReplaceExpr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_instInhabitedFVarSubst_default = _init_l_Lean_Meta_instInhabitedFVarSubst_default();

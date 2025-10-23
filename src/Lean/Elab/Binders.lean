@@ -6,14 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Elab.Quotation.Precheck
-public import Lean.Elab.Term
-public import Lean.Elab.BindersUtil
-public import Lean.Elab.SyntheticMVars
-public import Lean.Elab.PreDefinition.TerminationHint
 public import Lean.Elab.Match
-public import Lean.Compiler.MetaAttr
-meta import Lean.Parser.Term
 meta import Lean.Parser.Tactic
 import Lean.Linter.Basic
 

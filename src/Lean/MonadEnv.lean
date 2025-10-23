@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Environment
 public import Lean.Elab.Exception
-public import Lean.Declaration
 public import Lean.Log
 public import Lean.AuxRecursor
 public import Lean.Compiler.Old

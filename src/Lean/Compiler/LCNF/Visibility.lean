@@ -6,8 +6,6 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Lean.Compiler.LCNF.PhaseExt
-public import Lean.Compiler.MetaAttr
 public import Lean.Compiler.ImplementedByAttr
 import Lean.ExtraModUses
 import Lean.Compiler.Options

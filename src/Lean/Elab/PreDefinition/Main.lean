@@ -7,10 +7,8 @@ module
 
 prelude
 public import Lean.Util.SCC
-public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.Structural
 public import Lean.Elab.PreDefinition.WF.Main
-public import Lean.Elab.PreDefinition.MkInhabitant
 public import Lean.Elab.PreDefinition.PartialFixpoint
 
 public section

@@ -7,27 +7,17 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 module
 
 prelude
-public import Init.System.IO
 public import Std.Sync.Channel
 
-public import Lean.Environment
 
-public import Lean.Data.Lsp
-public import Lean.Data.Json.FromToJson.Basic
 
-public import Lean.LoadDynlib
 public import Lean.Language.Lean
 
-public import Lean.Server.Utils
-public import Lean.Server.AsyncList
-public import Lean.Server.References
 
 public import Lean.Server.FileWorker.Utils
 public import Lean.Server.FileWorker.RequestHandling
 public import Lean.Server.FileWorker.WidgetRequests
 public import Lean.Server.FileWorker.SetupFile
-public import Lean.Server.Rpc.Basic
-public import Lean.Widget.InteractiveDiagnostic
 public import Lean.Server.Completion.ImportCompletion
 public import Lean.Server.CodeActions.UnknownIdentifier
 
@@ -412,7 +402,7 @@ def setupImports
     let progressDiagnostic := {
       range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
       -- make progress visible anywhere in the file
-      fullRange? := some ⟨⟨0, 0⟩, doc.text.utf8PosToLspPos doc.text.source.endPos⟩
+      fullRange? := some ⟨⟨0, 0⟩, doc.text.utf8PosToLspPos doc.text.source.rawEndPos⟩
       severity?  := DiagnosticSeverity.information
       message    := stderrLine
     }
@@ -640,7 +630,7 @@ section NotificationHandling
       use the \"Restart File\" command in your editor."
     let diagnostic := {
       range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
-      fullRange? := some ⟨⟨0, 0⟩, text.utf8PosToLspPos text.source.endPos⟩
+      fullRange? := some ⟨⟨0, 0⟩, text.utf8PosToLspPos text.source.rawEndPos⟩
       severity?  := DiagnosticSeverity.information
       message := importOutOfDataMessage
     }
@@ -1086,7 +1076,7 @@ where
   writeErrorDiag (doc : DocumentMeta) (err : Error) : IO Unit := do
     o.writeLspMessage <| mkPublishDiagnosticsNotification doc #[{
       range := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩,
-      fullRange? := some ⟨⟨0, 0⟩, doc.text.utf8PosToLspPos doc.text.source.endPos⟩
+      fullRange? := some ⟨⟨0, 0⟩, doc.text.utf8PosToLspPos doc.text.source.rawEndPos⟩
       severity? := DiagnosticSeverity.error
       message := err.toString }]
 

@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Util.Recognizers
-public import Lean.Meta.Basic
 public import Lean.Meta.CtorRecognizer
 
 public section

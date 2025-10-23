@@ -151,7 +151,7 @@ def compileEmbeddedParsers : ParserDescr → MetaM Unit
 /-- Precondition: `α` must match `ctx.tyName`. -/
 unsafe def registerParserCompiler {α} (ctx : Context α) : IO Unit := do
   Parser.registerParserAttributeHook {
-    postAdd := fun catName constName builtin => do
+    postAdd := fun catName constName builtin => withoutExporting do  -- needs to look through defs
       let info ← getConstInfo constName
       if info.type.isConstOf ``Lean.ParserDescr || info.type.isConstOf ``Lean.TrailingParserDescr then
         let d ← evalConstCheck ParserDescr `Lean.ParserDescr constName <|>

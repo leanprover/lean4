@@ -10,6 +10,7 @@ public import Lean.Compiler.FFI
 public import Lake.Config.Dynlib
 public import Lake.Config.Defaults
 public import Lake.Util.NativeLib
+import Init.Data.String.Modify
 
 open System Lean.Compiler.FFI
 
@@ -36,11 +37,11 @@ public structure ElanInstall where
   go "" 0
 where
   go (acc : String) (pos : String.Pos.Raw) : FilePath :=
-    if h : toolchain.atEnd pos then
+    if h : pos.atEnd toolchain then
       FilePath.mk acc
     else
-      let c := toolchain.get' pos h
-      let pos' := toolchain.next' pos h
+      let c := pos.get' toolchain h
+      let pos' := pos.next' toolchain h
       if c = '/' then
         go (acc ++ "--") pos'
       else if c = ':'  then

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.OutFormat
-// Imports: public import Lean.Setup
+// Imports: public import Lean.Setup public import Init.Data.String.TakeDrop
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_ppModuleHeader_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instQueryJsonOfToJson___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OutFormat_noConfusion___redArg___lam__0___boxed(lean_object*);
@@ -67,6 +66,7 @@ LEAN_EXPORT lean_object* l_Lake_FormatQuery_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instFormatQueryOfQueryTextOfQueryJson___redArg(lean_object*, lean_object*);
 static lean_object* l_Lake_instToTextArray___redArg___lam__1___closed__9;
 static lean_object* l_Lake_instToTextArray___redArg___lam__1___closed__5;
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instToTextArray___redArg___lam__1___closed__6;
 LEAN_EXPORT lean_object* l_Lake_instQueryTextOfToText___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instQueryJsonUnit___lam__0(lean_object*);
@@ -1220,13 +1220,17 @@ x_1 = l___private_Lake_Config_OutFormat_0__Lake_instQueryTextModuleHeader___clos
 return x_1;
 }
 }
-lean_object* initialize_Lean_Setup(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Setup(uint8_t builtin);
+lean_object* initialize_Init_Data_String_TakeDrop(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Config_OutFormat(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Config_OutFormat(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Setup(builtin, lean_io_mk_world());
+res = initialize_Lean_Setup(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instToTextJson___closed__0 = _init_l_Lake_instToTextJson___closed__0();

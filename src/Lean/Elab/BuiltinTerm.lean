@@ -6,13 +6,13 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Closure
 public import Lean.Meta.Diagnostics
 public import Lean.Elab.Open
 public import Lean.Elab.SetOption
 public import Lean.Elab.Eval
 meta import Lean.Parser.Command
 import Lean.ExtraModUses
+import Lean.Compiler.NoncomputableAttr
 
 public section
 
@@ -164,7 +164,7 @@ private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
     -- `by` switches from an exported to a private context, so we must disallow unassigned
     -- metavariables in the goal in this case as they could otherwise leak private data back into
     -- the exported context.
-    mkTacticMVar expectedType stx .term (delayOnMVars := (← getEnv).isExporting)
+    mkTacticMVar expectedType stx .term (delayOnMVars := (← getEnv).isExporting && !(← backward.proofsInPublic.getM))
   | none =>
     tryPostpone
     throwError ("invalid 'by' tactic, expected type has not been provided")
@@ -384,10 +384,12 @@ private opaque evalFilePath (stx : Syntax) : TermElabM System.FilePath
       let name ← mkAuxDeclName `_private
       withoutExporting do
         let e ← elabTermAndSynthesize e expectedType?
-        -- Inline as changing visibility should not affect run time.
-        -- Eventually we would like to be more conscious about inlining of instance fields,
-        -- irrespective of `private` use.
-        mkAuxDefinitionFor name e <* setInlineAttribute name
+        let compile := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))
+        let e ← mkAuxDefinitionFor (compile := compile) name e
+        if compile then
+          -- Inline as changing visibility should not affect run time.
+          setInlineAttribute name
+        return e
     else
       elabTerm e expectedType?
   | _ => throwUnsupportedSyntax

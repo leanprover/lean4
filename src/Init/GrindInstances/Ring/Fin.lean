@@ -6,12 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Zero
 import all Init.Data.Zero
-public import Init.Grind.Ring.Basic
 public import Init.GrindInstances.ToInt
 import all Init.GrindInstances.ToInt
-public import Init.Data.Fin.Lemmas
 
 public section
 

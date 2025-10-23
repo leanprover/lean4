@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Data.Json.Parser
-public import Lean.Data.Json.FromToJson.Basic
 public import Lean.Util.LeanOptions
 
 public section

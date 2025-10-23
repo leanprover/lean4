@@ -8,7 +8,6 @@ module
 prelude
 import Std.Data.TreeMap.Lemmas
 import Std.Data.DTreeMap.Lemmas
-public import Std.Data.TreeSet.Basic
 public import Std.Data.TreeSet.AdditionalOperations
 
 @[expose] public section

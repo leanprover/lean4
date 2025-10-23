@@ -8,7 +8,6 @@ prelude
 public import Init.Grind.Lemmas
 public import Lean.Meta.Tactic.Simp.Main
 public import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons

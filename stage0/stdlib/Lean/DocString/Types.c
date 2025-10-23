@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.DocString.Types
-// Imports: public import Init.Data.Repr public import Init.Data.Ord import Init.Data.Nat.Compare
+// Imports: public import Init.Data.Ord import Init.Data.Nat.Compare
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -6672,11 +6672,11 @@ if (lean_is_scalar(x_54)) {
  x_59 = x_54;
  lean_ctor_set_tag(x_59, 5);
 }
-lean_ctor_set(x_59, 0, x_55);
+lean_ctor_set(x_59, 0, x_57);
 lean_ctor_set(x_59, 1, x_58);
 x_60 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_60, 0, x_59);
-lean_ctor_set(x_60, 1, x_57);
+lean_ctor_set(x_60, 1, x_55);
 x_61 = l_Array_Array_repr___redArg(x_7, x_53);
 x_62 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_62, 0, x_60);
@@ -6705,9 +6705,9 @@ x_73 = l_Int_repr(x_52);
 lean_dec(x_52);
 x_74 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_74, 0, x_73);
-x_55 = x_70;
+x_55 = x_69;
 x_56 = x_68;
-x_57 = x_69;
+x_57 = x_70;
 x_58 = x_74;
 goto block_67;
 }
@@ -6720,9 +6720,9 @@ lean_dec(x_52);
 x_77 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_77, 0, x_76);
 x_78 = l_Repr_addAppParen(x_77, x_75);
-x_55 = x_70;
+x_55 = x_69;
 x_56 = x_68;
-x_57 = x_69;
+x_57 = x_70;
 x_58 = x_78;
 goto block_67;
 }
@@ -8033,21 +8033,17 @@ lean_dec_ref(x_10);
 return x_11;
 }
 }
-lean_object* initialize_Init_Data_Repr(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Ord(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Nat_Compare(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Ord(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Compare(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_DocString_Types(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_DocString_Types(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Repr(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Ord(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Ord(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Compare(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Nat_Compare(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Doc_instReprMathMode_repr___closed__0 = _init_l_Lean_Doc_instReprMathMode_repr___closed__0();

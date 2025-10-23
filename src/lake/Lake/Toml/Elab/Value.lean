@@ -67,7 +67,7 @@ def decodeMantissa (s : String) : Nat × Nat :=
   (m, if e ≥ s.length then 0 else e)
 
 def decodeFrExp (s : String) : Nat × Int :=
-  match s.split (fun c => c == 'E' || c == 'e') with
+  match s.splitToList (fun c => c == 'E' || c == 'e') with
   | [m, exp] =>
     let exp := decodeDecInt exp
     let (m, dotExp) := decodeMantissa m
@@ -128,16 +128,16 @@ def decodeHexDigits (s : Substring) : Nat :=
   s.foldl (init := 0) fun n c => n*16 + decodeHexDigit c
 
 partial def elabBasicStringCore (lit : String) (i : String.Pos.Raw := 0) (out := "") : CoreM String := do
-  if h : lit.atEnd i then
+  if h : i.atEnd lit then
     return out
   else
-    let curr := lit.get' i h
-    let i := lit.next' i h
+    let curr := i.get' lit h
+    let i := i.next' lit h
     if curr == '\\' then
-      if h : lit.atEnd i then
+      if h : i.atEnd lit then
         return out
       else
-        let curr := lit.get' i h
+        let curr := i.get' lit h
         let elabUnicodeEscape escape :=
           let val := decodeHexDigits escape
           if h : val.isValidChar then
@@ -145,18 +145,19 @@ partial def elabBasicStringCore (lit : String) (i : String.Pos.Raw := 0) (out :=
             elabBasicStringCore lit escape.stopPos (out.push ch)
           else
             throwError "invalid unicode escape `{escape}`"
+        let next := i.next' lit h
         match curr with
-        | 'b'  => elabBasicStringCore lit (lit.next' i h) (out.push '\x08')
-        | 't'  => elabBasicStringCore lit (lit.next' i h) (out.push '\t')
-        | 'n'  => elabBasicStringCore lit (lit.next' i h) (out.push '\n')
-        | 'f'  => elabBasicStringCore lit (lit.next' i h) (out.push '\x0C')
-        | 'r'  => elabBasicStringCore lit (lit.next' i h) (out.push '\r')
-        | '\"' => elabBasicStringCore lit (lit.next' i h) (out.push '"')
-        | '\\' => elabBasicStringCore lit (lit.next' i h) (out.push '\\')
-        | 'u'  => elabUnicodeEscape (Substring.mk lit (lit.next' i h) lit.endPos |>.take 4)
-        | 'U'  => elabUnicodeEscape (Substring.mk lit (lit.next' i h) lit.endPos |>.take 8)
+        | 'b'  => elabBasicStringCore lit next (out.push '\x08')
+        | 't'  => elabBasicStringCore lit next (out.push '\t')
+        | 'n'  => elabBasicStringCore lit next (out.push '\n')
+        | 'f'  => elabBasicStringCore lit next (out.push '\x0C')
+        | 'r'  => elabBasicStringCore lit next (out.push '\r')
+        | '\"' => elabBasicStringCore lit next (out.push '"')
+        | '\\' => elabBasicStringCore lit next (out.push '\\')
+        | 'u'  => elabUnicodeEscape (Substring.mk lit next lit.rawEndPos |>.take 4)
+        | 'U'  => elabUnicodeEscape (Substring.mk lit next lit.rawEndPos |>.take 8)
         | _ =>
-          let i := Substring.mk lit i lit.endPos |>.trimLeft |>.startPos
+          let i := Substring.mk lit i lit.rawEndPos |>.trimLeft |>.startPos
           elabBasicStringCore lit i out
     else
       elabBasicStringCore lit i (out.push curr)

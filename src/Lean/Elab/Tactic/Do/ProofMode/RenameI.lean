@@ -6,7 +6,6 @@ Authors: Lars König, Mario Carneiro, Sebastian Graf
 module
 
 prelude
-public import Std.Tactic.Do.Syntax
 public import Lean.Elab.Tactic.Do.ProofMode.Basic
 
 namespace Lean.Elab.Tactic.Do.ProofMode

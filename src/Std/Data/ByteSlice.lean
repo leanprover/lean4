@@ -6,8 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init.Core
-public import Init.GetElem
 public import Init.Data.ByteArray
 public import Init.Data.Slice.Basic
 public import Init.Data.Slice.Notation

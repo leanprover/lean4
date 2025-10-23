@@ -16352,17 +16352,17 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* initialize_Std_Do_SPred_SPred(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Do_SPred_Notation_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Do_SPred_SPred(uint8_t builtin);
+lean_object* initialize_Std_Do_SPred_Notation_Basic(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Do_SPred_Notation(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Do_SPred_Notation(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Do_SPred_SPred(builtin, lean_io_mk_world());
+res = initialize_Std_Do_SPred_SPred(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Do_SPred_Notation_Basic(builtin, lean_io_mk_world());
+res = initialize_Std_Do_SPred_Notation_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Do_term_u231c___u231d___closed__0 = _init_l_Std_Do_term_u231c___u231d___closed__0();

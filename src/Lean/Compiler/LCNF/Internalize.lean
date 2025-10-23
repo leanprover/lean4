@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Compiler.LCNF.Types
 public import Lean.Compiler.LCNF.Bind
-public import Lean.Compiler.LCNF.CompilerM
 
 public section
 

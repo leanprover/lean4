@@ -6,8 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Basic
-public import Init.Data.Iterators.Consumers.Collect
 public import Init.Data.Iterators.Consumers.Loop
 public import Init.Data.Iterators.Internal.Termination
 
@@ -72,15 +70,15 @@ inductive Drop.PlausibleStep [Iterator α m β] (it : IterM (α := Drop α m β)
 instance Drop.instIterator [Monad m] [Iterator α m β] : Iterator (Drop α m β) m β where
   IsPlausibleStep := Drop.PlausibleStep
   step it := do
-    match ← it.internalState.inner.step with
+    match (← it.internalState.inner.step).inflate with
     | .yield it' out h =>
       match h' : it.internalState.remaining with
-      | 0 => pure <| .yield (it'.drop 0) out (.yield h h')
-      | k + 1 => pure <| .skip (it'.drop k) (.drop h h')
+      | 0 => pure <| .deflate <| .yield (it'.drop 0) out (.yield h h')
+      | k + 1 => pure <| .deflate <| .skip (it'.drop k) (.drop h h')
     | .skip it' h =>
-      pure <| .skip (it'.drop it.internalState.remaining) (.skip h)
+      pure <| .deflate <| .skip (it'.drop it.internalState.remaining) (.skip h)
     | .done h =>
-      pure <| .done (.done h)
+      pure <| .deflate <| .done (.done h)
 
 private def Drop.FiniteRel (m : Type w → Type w') [Iterator α m β] [Finite α m] :
     IterM (α := Drop α m β) m β → IterM (α := Drop α m β) m β → Prop :=

@@ -10,7 +10,6 @@ prelude
 public import Lean.Data.Lsp.Basic
 public import Lean.Data.Lsp.Utf16
 
-public import Lean.Message
 
 public section
 

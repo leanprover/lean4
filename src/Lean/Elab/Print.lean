@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Meta.Eqns
-public import Lean.Util.CollectAxioms
 public import Lean.Elab.Command
 import Lean.PrettyPrinter.Delaborator.Builtins
 

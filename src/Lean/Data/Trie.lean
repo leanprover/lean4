@@ -175,7 +175,7 @@ partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos.Raw)
     | node1 v c' t', i, res =>
       let res := if v.isSome then v else res
       if h : i < endByte then
-        let c := s.getUTF8Byte ⟨i⟩ (by simp; omega)
+        let c := s.getUTF8Byte ⟨i⟩ (by simp [String.Pos.Raw.lt_iff]; omega)
         if c == c'
         then loop t' (i + 1) res
         else res
@@ -184,7 +184,7 @@ partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos.Raw)
     | node v cs ts, i, res =>
       let res := if v.isSome then v else res
       if h : i < endByte then
-        let c := s.getUTF8Byte ⟨i⟩ (by simp; omega)
+        let c := s.getUTF8Byte ⟨i⟩ (by simp [String.Pos.Raw.lt_iff]; omega)
         match cs.findIdx? (· == c) with
         | none => res
         | some idx => loop ts[idx]! (i + 1) res

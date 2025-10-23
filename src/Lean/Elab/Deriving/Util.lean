@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Elab.Term
 public import Lean.Elab.Command
-meta import Lean.Parser.Command
 import Lean.Elab.DeclNameGen
 
 public section

@@ -847,13 +847,13 @@ x_6 = l___private_Init_Data_Array_InsertionSort_0__Array_insertionSort_traverse_
 return x_6;
 }
 }
-lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Array_InsertionSort(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Array_InsertionSort(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___auto___closed__0____x40_Init_Data_Array_InsertionSort_427563794____hygCtx___hyg_6_ = _init_l___auto___closed__0____x40_Init_Data_Array_InsertionSort_427563794____hygCtx___hyg_6_();

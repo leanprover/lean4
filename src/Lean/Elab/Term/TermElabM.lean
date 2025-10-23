@@ -6,9 +6,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.ReservedNameAction
-public import Lean.Meta.AppBuilder
-public import Lean.Meta.CollectMVars
 public import Lean.Meta.Coe
 public import Lean.Util.CollectLevelMVars
 public import Lean.Linter.Deprecated
@@ -18,8 +15,6 @@ public import Lean.Elab.Level
 public import Lean.Elab.PreDefinition.TerminationHint
 public import Lean.Elab.DeclarationRange
 public import Lean.Elab.WhereFinally
-public import Lean.Elab.Util
-public import Lean.Language.Basic
 public import Lean.Elab.InfoTree.InlayHints
 public meta import Lean.Parser.Term
 
@@ -940,6 +935,8 @@ private def applyAttributesCore
     return
   withDeclName declName do
     for attr in attrs do
+      -- Use same visibility as for other signature elements, independent of call site
+      withExporting (isExporting := attr.kind != .local && !isPrivateName declName) do
       withTraceNode `Elab.attribute (fun _ => pure m!"applying [{attr.stx}]") do
       withRef attr.stx do withLogging do
       let env ← getEnv
@@ -1318,13 +1315,13 @@ def isTacticOrPostponedHole? (e : Expr) : TermElabM (Option MVarId) := do
   | _ => pure none
 
 def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none)
-    (lctx? : Option LocalContext := none) (isBinder := false) :
+    (lctx? : Option LocalContext := none) (isBinder := false) (isDisplayableTerm := false) :
     TermElabM (Sum Info MVarId) := do
   match (← isTacticOrPostponedHole? e) with
   | some mvarId => return Sum.inr mvarId
   | none =>
     let e := removeSaveInfoAnnotation e
-    return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType?, isBinder }
+    return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType?, isBinder, isDisplayableTerm }
 
 def mkPartialTermInfo (elaborator : Name) (stx : Syntax) (expectedType? : Option Expr := none)
     (lctx? : Option LocalContext := none) :
@@ -1348,18 +1345,21 @@ is a constant they will see the constant's doc string.
 -/
 def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none)
     (lctx? : Option LocalContext := none) (elaborator := Name.anonymous)
-    (isBinder := false) (force := false) : TermElabM Expr := do
+    (isBinder := false) (force := false) (isDisplayableTerm := false): TermElabM Expr := do
   if (← read).inPattern && !force then
     return mkPatternWithRef e stx
   else
     discard <| withInfoContext'
       (pure ())
-      (fun _ => mkTermInfo elaborator stx e expectedType? lctx? isBinder)
+      (fun _ => mkTermInfo elaborator stx e expectedType? lctx? isBinder isDisplayableTerm)
       (mkPartialTermInfo elaborator stx expectedType? lctx?)
     return e
 
-def addTermInfo' (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) (elaborator := Name.anonymous) (isBinder := false) : TermElabM Unit :=
+def addTermInfo' (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none)
+    (lctx? : Option LocalContext := none) (elaborator := Name.anonymous) (isBinder := false)
+    (isDisplayableTerm := false) : TermElabM Unit :=
   discard <| addTermInfo stx e expectedType? lctx? elaborator isBinder
+    (isDisplayableTerm := isDisplayableTerm)
 
 def withInfoContext' (stx : Syntax) (x : TermElabM Expr)
     (mkInfo : Expr → TermElabM (Sum Info MVarId)) (mkInfoOnError : TermElabM Info) :
@@ -1387,10 +1387,11 @@ def getBodyInfo? : Info → Option BodyInfo
 
 def withTermInfoContext' (elaborator : Name) (stx : Syntax) (x : TermElabM Expr)
     (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none)
-    (isBinder : Bool := false) :
+    (isBinder : Bool := false) (isDisplayableTerm : Bool := false):
     TermElabM Expr :=
   withInfoContext' stx x
-    (mkTermInfo elaborator stx (expectedType? := expectedType?) (lctx? := lctx?) (isBinder := isBinder))
+    (mkTermInfo elaborator stx (expectedType? := expectedType?) (lctx? := lctx?)
+      (isBinder := isBinder) (isDisplayableTerm := isDisplayableTerm))
     (mkPartialTermInfo elaborator stx (expectedType? := expectedType?) (lctx? := lctx?))
 
 /--
@@ -1974,7 +1975,7 @@ where
     let env ← getEnv
     -- check for scope errors before trying auto implicits
     if env.isExporting then
-      if let [(npriv, _)] ← withEnv (env.setExporting false) <| resolveGlobalName n then
+      if let [(npriv, _)] ← withoutExporting <| resolveGlobalName (enableLog := false) n then
         throwUnknownIdentifierAt (declHint := npriv) stx m!"Unknown identifier `{.ofConstName n}`"
     if (← read).autoBoundImplicit &&
           !(← read).autoBoundImplicitForbidden n &&

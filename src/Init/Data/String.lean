@@ -21,3 +21,4 @@ public import Init.Data.String.PosRaw
 public import Init.Data.String.Substring
 public import Init.Data.String.TakeDrop
 public import Init.Data.String.Modify
+public import Init.Data.String.Termination

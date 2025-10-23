@@ -2283,248 +2283,248 @@ end Const
 
 section Union
 
-variable (m₁ m₂ : Raw α β cmp)
+variable (t₁ t₂ : Raw α β cmp)
 
-variable {m₁ m₂}
+variable {t₁ t₂}
 
 @[simp]
-theorem union_eq : m₁.union m₂ = m₁ ∪ m₂ := by
+theorem union_eq : t₁.union t₂ = t₁ ∪ t₂ := by
   simp only [Union.union]
 
 /- contains -/
 @[simp]
-theorem contains_union [TransCmp cmp] (h₁ : m₁.WF)
-    (h₂ : m₂.WF) {k : α} :
-    (m₁ ∪ m₂).contains k = (m₁.contains k || m₂.contains k) := by
+theorem contains_union [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) {k : α} :
+    (t₁ ∪ t₂).contains k = (t₁.contains k || t₂.contains k) := by
   simp only [Union.union]
   exact Impl.contains_union! h₁ h₂
 
 /- mem -/
-theorem mem_union_of_left [TransCmp cmp] (h₁ : m₁.WF)
-    (h₂ : m₂.WF) {k : α} :
-    k ∈ m₁ → k ∈ m₁ ∪ m₂ := by
+theorem mem_union_of_left [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) {k : α} :
+    k ∈ t₁ → k ∈ t₁ ∪ t₂ := by
   simp only [Union.union, Membership.mem]
   exact Impl.contains_union!_of_left h₁ h₂
 
-theorem mem_union_of_right [TransCmp cmp] (h₁ : m₁.WF)
-    (h₂ : m₂.WF) {k : α} :
-    k ∈ m₂ → k ∈ m₁ ∪ m₂ := by
+theorem mem_union_of_right [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) {k : α} :
+    k ∈ t₂ → k ∈ t₁ ∪ t₂ := by
   simp only [Union.union, Membership.mem]
   exact Impl.contains_union!_of_right h₁ h₂
 
 @[simp]
-theorem mem_union_iff [TransCmp cmp] (h₁ : m₁.WF)
-    (h₂ : m₂.WF) {k : α} :
-    k ∈ m₁ ∪ m₂ ↔ k ∈ m₁ ∨ k ∈ m₂ := by
+theorem mem_union_iff [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) {k : α} :
+    k ∈ t₁ ∪ t₂ ↔ k ∈ t₁ ∨ k ∈ t₂ := by
   simp only [Union.union, Membership.mem]
   exact Impl.contains_union!_iff h₁ h₂
 
-theorem mem_of_mem_union_of_not_mem_right [TransCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
-    k ∈ m₁ ∪ m₂ → ¬k ∈ m₂ → k ∈ m₁ := by
+theorem mem_of_mem_union_of_not_mem_right [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α} :
+    k ∈ t₁ ∪ t₂ → ¬k ∈ t₂ → k ∈ t₁ := by
   simp only [Union.union]
   rw [← contains_eq_false_iff_not_mem]
   simp only [mem_iff_contains]
   exact Impl.contains_of_contains_union!_of_contains_eq_false_right h₁ h₂
 
 theorem mem_of_mem_union_of_not_mem_left [TransCmp cmp]
-    (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
-    k ∈ m₁ ∪ m₂ → ¬k ∈ m₁ → k ∈ m₂ := by
+    (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α} :
+    k ∈ t₁ ∪ t₂ → ¬k ∈ t₁ → k ∈ t₂ := by
   simp only [Union.union]
   rw [← contains_eq_false_iff_not_mem]
   exact Impl.contains_of_contains_union!_of_contains_eq_false_left h₁ h₂
 
 /- Equiv -/
 theorem union_insert_right_equiv_union_insert [TransCmp cmp] {p : (a : α) × β a}
-    (h₁ : m₁.WF) (h₂ : m₂.WF) :
-    (m₁ ∪ (m₂.insert p.fst p.snd)).Equiv ((m₁ ∪ m₂).insert p.fst p.snd) := by
+    (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (t₁ ∪ (t₂.insert p.fst p.snd)).Equiv ((t₁ ∪ t₂).insert p.fst p.snd) := by
   simp only [Union.union]
   constructor
   exact Impl.union!_insert_right_equiv_insert_union! h₁ h₂
 
 /- get? -/
-theorem get?_union [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF)
+theorem get?_union [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
     {k : α} :
-    (m₁ ∪ m₂).get? k = (m₂.get? k).or (m₁.get? k) := by
+    (t₁ ∪ t₂).get? k = (t₂.get? k).or (t₁.get? k) := by
   simp only [Union.union]
   exact Impl.get?_union! h₁ h₂
 
-theorem get?_union_of_not_mem_left [TransCmp cmp] [LawfulEqCmp cmp]  (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (not_mem : ¬k ∈ m₁) :
-    (m₁ ∪ m₂).get? k = m₂.get? k := by
+theorem get?_union_of_not_mem_left [TransCmp cmp] [LawfulEqCmp cmp]  (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} (not_mem : ¬k ∈ t₁) :
+    (t₁ ∪ t₂).get? k = t₂.get? k := by
   revert not_mem
   simp only [Union.union]
   rw [← contains_eq_false_iff_not_mem]
   exact Impl.get?_union!_of_contains_eq_false_left h₁ h₂
 
-theorem get?_union_of_not_mem_right [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (not_mem : ¬k ∈ m₂) :
-    (m₁ ∪ m₂).get? k = m₁.get? k := by
+theorem get?_union_of_not_mem_right [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} (not_mem : ¬k ∈ t₂) :
+    (t₁ ∪ t₂).get? k = t₁.get? k := by
   revert not_mem
   simp only [Union.union]
   rw [← contains_eq_false_iff_not_mem]
   exact Impl.get?_union!_of_contains_eq_false_right h₁ h₂
 
 /- get -/
-theorem get_union_of_mem_right [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (mem : k ∈ m₂) :
-    (m₁ ∪ m₂).get k (mem_union_of_right h₁ h₂ mem) = m₂.get k mem := by
+theorem get_union_of_mem_right [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} (mem : k ∈ t₂) :
+    (t₁ ∪ t₂).get k (mem_union_of_right h₁ h₂ mem) = t₂.get k mem := by
   rw [mem_iff_contains] at mem
   revert mem
   simp only [Union.union]
   exact Impl.get_union!_of_contains_right h₁ h₂
 
-theorem get_union_of_not_mem_left [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (not_mem : ¬k ∈ m₁) {h'} :
-    (m₁ ∪ m₂).get k h' = m₂.get k (mem_of_mem_union_of_not_mem_left h₁ h₂ h' not_mem) := by
+theorem get_union_of_not_mem_left [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} (not_mem : ¬k ∈ t₁) {h'} :
+    (t₁ ∪ t₂).get k h' = t₂.get k (mem_of_mem_union_of_not_mem_left h₁ h₂ h' not_mem) := by
   rw [← contains_eq_false_iff_not_mem] at not_mem
   simp only [Union.union]
   exact Impl.get_union!_of_contains_eq_false_left h₁ h₂ not_mem
 
-theorem get_union_of_not_mem_right [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (not_mem : ¬k ∈ m₂) {h'} :
-    (m₁ ∪ m₂).get k h' = m₁.get k (mem_of_mem_union_of_not_mem_right h₁ h₂ h' not_mem) := by
+theorem get_union_of_not_mem_right [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} (not_mem : ¬k ∈ t₂) {h'} :
+    (t₁ ∪ t₂).get k h' = t₁.get k (mem_of_mem_union_of_not_mem_right h₁ h₂ h' not_mem) := by
   rw [← contains_eq_false_iff_not_mem] at not_mem
   simp only [Union.union]
   exact Impl.get_union!_of_contains_eq_false_right h₁ h₂ not_mem
 
 /- getD -/
-theorem getD_union [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF)
+theorem getD_union [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
     {k : α} {fallback : β k} :
-    (m₁ ∪ m₂).getD k fallback = m₂.getD k (m₁.getD k fallback) := by
+    (t₁ ∪ t₂).getD k fallback = t₂.getD k (t₁.getD k fallback) := by
   simp only [Union.union]
   exact Impl.getD_union! h₁ h₂
 
-theorem getD_union_of_not_mem_left [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} {fallback : β k} (not_mem : ¬k ∈ m₁) :
-    (m₁ ∪ m₂).getD k fallback = m₂.getD k fallback := by
+theorem getD_union_of_not_mem_left [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} {fallback : β k} (not_mem : ¬k ∈ t₁) :
+    (t₁ ∪ t₂).getD k fallback = t₂.getD k fallback := by
   rw [← contains_eq_false_iff_not_mem] at not_mem
   revert not_mem
   simp only [Union.union]
   exact Impl.getD_union!_of_contains_eq_false_left h₁ h₂
 
-theorem getD_union_of_not_mem_right [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} {fallback : β k} (not_mem : ¬k ∈ m₂)  :
-    (m₁ ∪ m₂).getD k fallback = m₁.getD k fallback := by
+theorem getD_union_of_not_mem_right [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} {fallback : β k} (not_mem : ¬k ∈ t₂)  :
+    (t₁ ∪ t₂).getD k fallback = t₁.getD k fallback := by
   rw [← contains_eq_false_iff_not_mem] at not_mem
   simp only [Union.union]
   exact Impl.getD_union!_of_contains_eq_false_right h₁ h₂ not_mem
 
 /- get! -/
-theorem get!_union [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF)
+theorem get!_union [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
     {k : α} [Inhabited (β k)] :
-    (m₁ ∪ m₂).get! k = m₂.getD k (m₁.get! k) := by
+    (t₁ ∪ t₂).get! k = t₂.getD k (t₁.get! k) := by
   simp only [Union.union]
   exact Impl.get!_union! h₁ h₂
 
-theorem get!_union_of_not_mem_left [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} [Inhabited (β k)] (not_mem : ¬k ∈ m₁) :
-    (m₁ ∪ m₂).get! k = m₂.get! k := by
+theorem get!_union_of_not_mem_left [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} [Inhabited (β k)] (not_mem : ¬k ∈ t₁) :
+    (t₁ ∪ t₂).get! k = t₂.get! k := by
   rw [← contains_eq_false_iff_not_mem] at not_mem
   simp only [Union.union]
   exact Impl.get!_union!_of_contains_eq_false_left h₁ h₂ not_mem
 
-theorem get!_union_of_not_mem_right [TransCmp cmp] [LawfulEqCmp cmp]  (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} [Inhabited (β k)] (not_mem : ¬k ∈ m₂)  :
-    (m₁ ∪ m₂).get! k = m₁.get! k := by
+theorem get!_union_of_not_mem_right [TransCmp cmp] [LawfulEqCmp cmp]  (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} [Inhabited (β k)] (not_mem : ¬k ∈ t₂)  :
+    (t₁ ∪ t₂).get! k = t₁.get! k := by
   rw [← contains_eq_false_iff_not_mem] at not_mem
   simp only [Union.union]
   exact Impl.get!_union!_of_contains_eq_false_right h₁ h₂ not_mem
 
 /- getKey? -/
 theorem getKey?_union [TransCmp cmp]
-    (h₁ : m₁.WF) (h₂ : m₂.WF)
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
     {k : α} :
-    (m₁ ∪ m₂).getKey? k = (m₂.getKey? k).or (m₁.getKey? k) := by
+    (t₁ ∪ t₂).getKey? k = (t₂.getKey? k).or (t₁.getKey? k) := by
   simp only [Union.union]
   exact Impl.getKey?_union! h₁ h₂
 
 theorem getKey?_union_of_not_mem_left [TransCmp cmp]
-    (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (not_mem : ¬k ∈ m₁) :
-    (m₁ ∪ m₂).getKey? k = m₂.getKey? k := by
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} (not_mem : ¬k ∈ t₁) :
+    (t₁ ∪ t₂).getKey? k = t₂.getKey? k := by
   rw [← contains_eq_false_iff_not_mem] at not_mem
   simp only [Union.union]
   exact Impl.getKey?_union!_of_contains_eq_false_left h₁ h₂ not_mem
 
 theorem getKey?_union_of_not_mem_right [TransCmp cmp]
-    (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (not_mem : ¬k ∈ m₂) :
-    (m₁ ∪ m₂).getKey? k = m₁.getKey? k := by
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} (not_mem : ¬k ∈ t₂) :
+    (t₁ ∪ t₂).getKey? k = t₁.getKey? k := by
   rw [← contains_eq_false_iff_not_mem] at not_mem
   simp only [Union.union]
   exact Impl.getKey?_union!_of_contains_eq_false_right h₁ h₂ not_mem
 
 /- getKey -/
-theorem getKey_union_of_mem_right [TransCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (mem : k ∈ m₂) :
-    (m₁ ∪ m₂).getKey k (mem_union_of_right h₁ h₂ mem) = m₂.getKey k mem := by
+theorem getKey_union_of_mem_right [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} (mem : k ∈ t₂) :
+    (t₁ ∪ t₂).getKey k (mem_union_of_right h₁ h₂ mem) = t₂.getKey k mem := by
   rw [mem_iff_contains] at mem
   simp only [Union.union]
   exact Impl.getKey_union!_of_contains_right h₁ h₂ mem
 
-theorem getKey_union_of_not_mem_left [TransCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (not_mem : ¬k ∈ m₁) {h'} :
-    (m₁ ∪ m₂).getKey k h' = m₂.getKey k (mem_of_mem_union_of_not_mem_left h₁ h₂ h' not_mem) := by
+theorem getKey_union_of_not_mem_left [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} (not_mem : ¬k ∈ t₁) {h'} :
+    (t₁ ∪ t₂).getKey k h' = t₂.getKey k (mem_of_mem_union_of_not_mem_left h₁ h₂ h' not_mem) := by
   rw [← contains_eq_false_iff_not_mem] at not_mem
   simp only [Union.union]
   exact Impl.getKey_union!_of_contains_eq_false_left h₁ h₂ not_mem
 
-theorem getKey_union_of_not_mem_right [TransCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    {k : α} (not_mem : ¬k ∈ m₂) {h'} :
-    (m₁ ∪ m₂).getKey k h' = m₁.getKey k (mem_of_mem_union_of_not_mem_right h₁ h₂ h' not_mem) := by
+theorem getKey_union_of_not_mem_right [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} (not_mem : ¬k ∈ t₂) {h'} :
+    (t₁ ∪ t₂).getKey k h' = t₁.getKey k (mem_of_mem_union_of_not_mem_right h₁ h₂ h' not_mem) := by
   rw [← contains_eq_false_iff_not_mem] at not_mem
   simp only [Union.union]
   exact Impl.getKey_union!_of_contains_eq_false_right h₁ h₂ not_mem
 
 /- getKeyD -/
-theorem getKeyD_union [TransCmp cmp] (h₁ : m₁.WF)
-    (h₂ : m₂.WF) {k fallback : α} :
-    (m₁ ∪ m₂).getKeyD k fallback = m₂.getKeyD k (m₁.getKeyD k fallback) := by
+theorem getKeyD_union [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) {k fallback : α} :
+    (t₁ ∪ t₂).getKeyD k fallback = t₂.getKeyD k (t₁.getKeyD k fallback) := by
   simp only [Union.union]
   exact Impl.getKeyD_union! h₁ h₂
 
-theorem getKeyD_union_of_not_mem_left [TransCmp cmp] (h₁ : m₁.WF)
-    (h₂ : m₂.WF) {k fallback : α} (mem : ¬k ∈ m₁) :
-    (m₁ ∪ m₂).getKeyD k fallback = m₂.getKeyD k fallback := by
+theorem getKeyD_union_of_not_mem_left [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) {k fallback : α} (mem : ¬k ∈ t₁) :
+    (t₁ ∪ t₂).getKeyD k fallback = t₂.getKeyD k fallback := by
   rw [← contains_eq_false_iff_not_mem] at mem
   simp only [Union.union]
   exact Impl.getKeyD_union!_of_contains_eq_false_left h₁ h₂ mem
 
-theorem getKeyD_union_of_not_mem_right [TransCmp cmp] (h₁ : m₁.WF)
-    (h₂ : m₂.WF) {k fallback : α} (mem : ¬k ∈ m₂) :
-    (m₁ ∪ m₂).getKeyD k fallback = m₁.getKeyD k fallback := by
+theorem getKeyD_union_of_not_mem_right [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) {k fallback : α} (mem : ¬k ∈ t₂) :
+    (t₁ ∪ t₂).getKeyD k fallback = t₁.getKeyD k fallback := by
   rw [← contains_eq_false_iff_not_mem] at mem
   simp only [Union.union]
   exact Impl.getKeyD_union!_of_contains_eq_false_right h₁ h₂ mem
 
 /- getKey! -/
 theorem getKey!_union [TransCmp cmp] [Inhabited α]
-    (h₁ : m₁.WF)
-    (h₂ : m₂.WF) {k : α} :
-    (m₁ ∪ m₂).getKey! k = m₂.getKeyD k (m₁.getKey! k) := by
+    (h₁ : t₁.WF)
+    (h₂ : t₂.WF) {k : α} :
+    (t₁ ∪ t₂).getKey! k = t₂.getKeyD k (t₁.getKey! k) := by
   simp only [Union.union]
   exact Impl.getKey!_union! h₁ h₂
 
 theorem getKey!_union_of_not_mem_left [Inhabited α]
-    [TransCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α}
-    (not_mem : ¬k ∈ m₁) :
-    (m₁ ∪ m₂).getKey! k = m₂.getKey! k := by
+    [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α}
+    (not_mem : ¬k ∈ t₁) :
+    (t₁ ∪ t₂).getKey! k = t₂.getKey! k := by
   rw [← contains_eq_false_iff_not_mem] at not_mem
   simp only [Union.union]
   exact Impl.getKey!_union!_of_contains_eq_false_left h₁ h₂ not_mem
 
 theorem getKey!_union_of_not_mem_right [Inhabited α]
-    [TransCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α}
-    (not_mem : ¬k ∈ m₂) :
-    (m₁ ∪ m₂).getKey! k = m₁.getKey! k := by
+    [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α}
+    (not_mem : ¬k ∈ t₂) :
+    (t₁ ∪ t₂).getKey! k = t₁.getKey! k := by
   rw [← contains_eq_false_iff_not_mem] at not_mem
   simp only [Union.union]
   exact Impl.getKey!_union!_of_contains_eq_false_right h₁ h₂ not_mem
 
 /- size -/
-theorem size_union_of_not_mem [TransCmp cmp] (h₁ : m₁.WF)
-    (h₂ : m₂.WF) : (∀ (a : α), a ∈ m₁ → ¬a ∈ m₂) →
-    (m₁ ∪ m₂).size = m₁.size + m₂.size := by
+theorem size_union_of_not_mem [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) : (∀ (a : α), a ∈ t₁ → ¬a ∈ t₂) →
+    (t₁ ∪ t₂).size = t₁.size + t₂.size := by
   intro hyp
   conv at hyp =>
     ext
@@ -2534,26 +2534,26 @@ theorem size_union_of_not_mem [TransCmp cmp] (h₁ : m₁.WF)
   simp only [Union.union]
   exact Impl.size_union!_of_not_mem h₁ h₂ hyp
 
-theorem size_left_le_size_union [TransCmp cmp] (h₁ : m₁.WF)
-    (h₂ : m₂.WF) : m₁.size ≤ (m₁ ∪ m₂).size := by
+theorem size_left_le_size_union [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) : t₁.size ≤ (t₁ ∪ t₂).size := by
   simp only [Union.union]
   exact Impl.size_left_le_size_union! h₁ h₂
 
-theorem size_right_le_size_union [TransCmp cmp] (h₁ : m₁.WF)
-    (h₂ : m₂.WF) : m₂.size ≤ (m₁ ∪ m₂).size := by
+theorem size_right_le_size_union [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) : t₂.size ≤ (t₁ ∪ t₂).size := by
   simp only [Union.union]
   exact Impl.size_right_le_size_union! h₁ h₂
 
 theorem size_union_le_size_add_size [TransCmp cmp]
-    (h₁ : m₁.WF) (h₂ : m₂.WF) :
-    (m₁ ∪ m₂).size ≤ m₁.size + m₂.size := by
+    (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (t₁ ∪ t₂).size ≤ t₁.size + t₂.size := by
   simp only [Union.union]
   exact Impl.size_union!_le_size_add_size h₁ h₂
 
 /- isEmpty -/
 @[simp]
-theorem isEmpty_union [TransCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF) :
-    (m₁ ∪ m₂).isEmpty = (m₁.isEmpty && m₂.isEmpty) := by
+theorem isEmpty_union [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (t₁ ∪ t₂).isEmpty = (t₁.isEmpty && t₂.isEmpty) := by
   simp only [Union.union]
   exact Impl.isEmpty_union! h₁ h₂
 

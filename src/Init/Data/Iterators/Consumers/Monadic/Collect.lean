@@ -138,7 +138,7 @@ Traverses the given iterator and stores the emitted values in an array.
 
 This function is deprecated. Instead of `it.allowNontermination.toArray`, use `it.toArray`.
 -/
-@[always_inline, inline, deprecated IterM.toArray (since := "2025-10-15")]
+@[always_inline, inline, deprecated IterM.toArray (since := "2025-10-23")]
 def IterM.Partial.toArray {α : Type w} {m : Type w → Type w'} {β : Type w} [Monad m]
     [Iterator α m β] (it : IterM.Partial (α := α) m β) [IteratorCollect α m m] : m (Array β) :=
   it.it.toArray
@@ -183,7 +183,7 @@ lists are prepend-only, this `toListRev` is usually more efficient that `toList`
 
 This function is deprecated. Instead of `it.allowNontermination.toListRev`, use `it.toListRev`.
 -/
-@[always_inline, inline, deprecated IterM.toListRev (since := "2025-10-16")]
+@[always_inline, inline, deprecated IterM.toListRev (since := "2025-10-23")]
 partial def IterM.Partial.toListRev {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
     [Iterator α m β] (it : IterM.Partial (α := α) m β) : m (List β) :=
   it.it.toListRev
@@ -219,7 +219,7 @@ lists are prepend-only, `toListRev` is usually more efficient that `toList`.
 
 This function is deprecated. Instead of `it.allowNontermination.toList`, use `it.toList`.
 -/
-@[always_inline, inline, deprecated IterM.toList (since := "2025-10-15")]
+@[always_inline, inline, deprecated IterM.toList (since := "2025-10-23")]
 def IterM.Partial.toList {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
     [Iterator α m β] (it : IterM.Partial (α := α) m β) [IteratorCollect α m m] :
     m (List β) :=

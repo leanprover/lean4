@@ -893,7 +893,7 @@ theorem Slice.Pos.offset_str {s : Slice} {pos : s.Pos} :
 @[simp]
 theorem Slice.Pos.offset_str_le_offset_endExclusive {s : Slice} {pos : s.Pos} :
     pos.str.offset ≤ s.endExclusive.offset := by
-  have := pos.isValidForSlice.le_utf8ByteSize
+  have := pos.isValidForSlice.le_rawEndPos
   have := s.startInclusive_le_endExclusive
   simp only [Pos.Raw.le_iff, byteIdx_rawEndPos, utf8ByteSize_eq, offset_str,
     Pos.Raw.byteIdx_offsetBy, ValidPos.le_iff] at *
@@ -1012,7 +1012,7 @@ theorem Slice.utf8ByteSize_replaceStartEnd {s : Slice} {newStart newEnd : s.Pos}
 theorem Pos.Raw.isValidForSlice_replaceStart {s : Slice} {p : s.Pos} {off : Pos.Raw} :
     off.IsValidForSlice (s.replaceStart p) ↔ (off.offsetBy p.offset).IsValidForSlice s := by
   refine ⟨fun ⟨h₁, h₂⟩ => ⟨?_, ?_⟩, fun ⟨h₁, h₂⟩ => ⟨?_, ?_⟩⟩
-  · have := p.isValidForSlice.le_utf8ByteSize
+  · have := p.isValidForSlice.le_rawEndPos
     simp_all [le_iff]
     omega
   · simpa [Pos.Raw.offsetBy_assoc] using h₂
@@ -1025,7 +1025,7 @@ theorem Pos.Raw.isValidForSlice_replaceEnd {s : Slice} {p : s.Pos} {off : Pos.Ra
   refine ⟨fun ⟨h₁, h₂⟩ => ⟨?_, ?_, ?_⟩, fun ⟨h₁, ⟨h₂, h₃⟩⟩ => ⟨?_, ?_⟩⟩
   · simpa using h₁
   · simp only [Slice.rawEndPos_replaceEnd] at h₁
-    exact Pos.Raw.le_trans h₁ p.isValidForSlice.le_utf8ByteSize
+    exact Pos.Raw.le_trans h₁ p.isValidForSlice.le_rawEndPos
   · simpa using h₂
   · simpa using h₁
   · simpa using h₃
@@ -1297,7 +1297,7 @@ theorem Slice.Pos.ofReplaceStart_startPos {s : Slice} {pos : s.Pos} :
 @[simp]
 theorem Slice.Pos.ofReplaceStart_endPos {s : Slice} {pos : s.Pos} :
     ofReplaceStart (s.replaceStart pos).endPos = s.endPos := by
-  have := pos.isValidForSlice.le_utf8ByteSize
+  have := pos.isValidForSlice.le_rawEndPos
   simp_all [Pos.ext_iff, String.Pos.Raw.ext_iff, Pos.Raw.le_iff]
 
 theorem Slice.Pos.ofReplaceStart_inj {s : Slice} {p₀ : s.Pos} {pos pos' : (s.replaceStart p₀).Pos} :
@@ -1388,7 +1388,7 @@ theorem Slice.Pos.lt_next {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos} :
 @[inline, expose]
 def Slice.Pos.prevAux {s : Slice} (pos : s.Pos) (h : pos ≠ s.startPos) : String.Pos.Raw :=
   go (pos.offset.byteIdx - 1) (by
-    have := pos.isValidForSlice.le_utf8ByteSize
+    have := pos.isValidForSlice.le_rawEndPos
     simp [Pos.Raw.le_iff, Pos.ext_iff] at ⊢ this h
     omega)
 where
@@ -1603,7 +1603,7 @@ theorem Slice.Pos.prevAux_lt_self {s : Slice} {p : s.Pos} {h} : p.prevAux h < p.
   omega
 
 theorem Slice.Pos.prevAux_lt_rawEndPos {s : Slice} {p : s.Pos} {h} : p.prevAux h < s.rawEndPos :=
-  Pos.Raw.lt_of_lt_of_le prevAux_lt_self p.isValidForSlice.le_utf8ByteSize
+  Pos.Raw.lt_of_lt_of_le prevAux_lt_self p.isValidForSlice.le_rawEndPos
 
 @[simp]
 theorem Slice.Pos.prev_ne_endPos {s : Slice} {p : s.Pos} {h} : p.prev h ≠ s.endPos := by

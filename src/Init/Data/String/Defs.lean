@@ -219,6 +219,10 @@ structure Pos.Raw.IsValid (s : String) (off : String.Pos.Raw) : Prop where priva
   le_rawEndPos : off ≤ s.rawEndPos
   isValidUTF8_extract_zero : (s.bytes.extract 0 off.byteIdx).IsValidUTF8
 
+theorem Pos.Raw.IsValid.le_utf8ByteSize {s : String} {off : String.Pos.Raw} (h : off.IsValid s) :
+    off.byteIdx ≤ s.utf8ByteSize := by
+  simpa [Pos.Raw.le_iff] using h.le_rawEndPos
+
 theorem Pos.Raw.isValid_iff_isValidUTF8_extract_zero {s : String} {p : Pos.Raw} :
     p.IsValid s ↔ p ≤ s.rawEndPos ∧ (s.bytes.extract 0 p.byteIdx).IsValidUTF8 :=
   ⟨fun ⟨h₁, h₂⟩ => ⟨h₁, h₂⟩, fun ⟨h₁, h₂⟩ => ⟨h₁, h₂⟩⟩
@@ -371,8 +375,12 @@ theorem Slice.byteIdx_rawEndPos {s : Slice} : s.rawEndPos.byteIdx = s.utf8ByteSi
 
 /-- Criterion for validity of positions in string slices. -/
 structure Pos.Raw.IsValidForSlice (s : Slice) (p : Pos.Raw) : Prop where
-  le_utf8ByteSize : p ≤ s.rawEndPos
+  le_rawEndPos : p ≤ s.rawEndPos
   isValid_offsetBy : (p.offsetBy s.startInclusive.offset).IsValid s.str
+
+theorem Pos.Raw.IsValidForSlice.le_utf8ByteSize {s : Slice} {p : Pos.Raw}
+    (h : p.IsValidForSlice s) : p.byteIdx ≤ s.utf8ByteSize := by
+  simpa [Pos.Raw.le_iff] using h.le_rawEndPos
 
 /--
 Accesses the indicated byte in the UTF-8 encoding of a string slice.
@@ -479,7 +487,7 @@ instance {s : Slice} (l r : s.Pos) : Decidable (l < r) :=
 @[inline, expose]
 def Slice.Pos.byte {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : UInt8 :=
   s.getUTF8Byte pos.offset (by
-    have := pos.isValidForSlice.le_utf8ByteSize
+    have := pos.isValidForSlice.le_rawEndPos
     simp_all [Pos.ext_iff, String.Pos.Raw.ext_iff, Pos.Raw.le_iff, Pos.Raw.lt_iff]
     omega)
 

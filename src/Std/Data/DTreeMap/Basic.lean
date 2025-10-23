@@ -1090,6 +1090,8 @@ This function always merges the smaller map into the larger map.
 def union (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
     letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.union t₂.inner t₁.wf.balanced t₂.wf.balanced, @Impl.WF.union α β _ t₁.inner t₁.wf t₂.inner t₂.wf⟩
 
+instance : Union (DTreeMap α β cmp) := ⟨union⟩
+
 /--
 Erases multiple mappings from the tree map by iterating over the given collection and calling
 `erase`.

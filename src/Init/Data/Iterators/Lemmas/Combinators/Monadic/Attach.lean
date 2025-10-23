@@ -18,7 +18,7 @@ variable {α : Type w} {m : Type w → Type w'} {β : Type w} {P : β → Prop}
 
 theorem IterM.step_attachWith [Iterator α m β] [Monad m] {it : IterM (α := α) m β} {hP} :
     (it.attachWith P hP).step =
-      (fun s => ⟨Types.Attach.Monadic.modifyStep (it.attachWith P hP) s, s, rfl⟩) <$> it.step :=
+      (fun s => .deflate ⟨Types.Attach.Monadic.modifyStep (it.attachWith P hP) s.inflate, s.inflate, rfl⟩) <$> it.step :=
   rfl
 
 @[simp]
@@ -32,7 +32,7 @@ theorem IterM.map_unattach_toList_attachWith [Iterator α m β] [Monad m]
   simp only [bind_pure_comp, bind_map_left, map_bind]
   apply bind_congr
   intro step
-  cases step using PlausibleIterStep.casesOn
+  cases step.inflate using PlausibleIterStep.casesOn
   · rename_i it' out hp
     simp only [IterM.attachWith] at ihy
     simp [Types.Attach.Monadic.modifyStep,

@@ -50,18 +50,18 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardCharSearcher s) Id (Search
     | .done => it.internalState.currPos = s.endPos
   step := fun ⟨currPos, needle⟩ =>
     if h1 : currPos = s.endPos then
-      pure ⟨.done, by simp [h1]⟩
+      pure (.deflate ⟨.done, by simp [h1]⟩)
     else
       let nextPos := currPos.next h1
       let nextIt := ⟨nextPos, needle⟩
       if h2 : currPos.get h1 = needle then
-        pure ⟨.yield nextIt (.matched currPos nextPos), by simp [h1, h2, nextIt, nextPos]⟩
+        pure (.deflate ⟨.yield nextIt (.matched currPos nextPos), by simp [h1, h2, nextIt, nextPos]⟩)
       else
-        pure ⟨.yield nextIt (.rejected currPos nextPos), by simp [h1, h2, nextIt, nextPos]⟩
+        pure (.deflate ⟨.yield nextIt (.rejected currPos nextPos), by simp [h1, h2, nextIt, nextPos]⟩)
 
 def finitenessRelation : Std.Iterators.FinitenessRelation (ForwardCharSearcher s) Id where
   rel := InvImage WellFoundedRelation.rel
-      (fun it => s.utf8ByteSize.byteIdx - it.internalState.currPos.offset.byteIdx)
+      (fun it => s.utf8ByteSize - it.internalState.currPos.offset.byteIdx)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
@@ -119,14 +119,14 @@ instance (s : Slice) : Std.Iterators.Iterator (BackwardCharSearcher s) Id (Searc
     | .done => it.internalState.currPos = s.startPos
   step := fun ⟨currPos, needle⟩ =>
     if h1 : currPos = s.startPos then
-      pure ⟨.done, by simp [h1]⟩
+      pure (.deflate ⟨.done, by simp [h1]⟩)
     else
       let nextPos := currPos.prev h1
       let nextIt := ⟨nextPos, needle⟩
       if h2 : nextPos.get Pos.prev_ne_endPos = needle then
-        pure ⟨.yield nextIt (.matched nextPos currPos), by simp [h1, h2, nextIt, nextPos]⟩
+        pure (.deflate ⟨.yield nextIt (.matched nextPos currPos), by simp [h1, h2, nextIt, nextPos]⟩)
       else
-        pure ⟨.yield nextIt (.rejected nextPos currPos), by simp [h1, h2, nextIt, nextPos]⟩
+        pure (.deflate ⟨.yield nextIt (.rejected nextPos currPos), by simp [h1, h2, nextIt, nextPos]⟩)
 
 def finitenessRelation : Std.Iterators.FinitenessRelation (BackwardCharSearcher s) Id where
   rel := InvImage WellFoundedRelation.rel
@@ -139,7 +139,7 @@ def finitenessRelation : Std.Iterators.FinitenessRelation (BackwardCharSearcher 
     · cases h
       obtain ⟨_, h1, h2, _⟩ := h'
       have h3 := Pos.offset_prev_lt_offset (h := h1)
-      simp [Pos.ext_iff, String.Pos.Raw.ext_iff] at h2 h3
+      simp [Pos.ext_iff, String.Pos.Raw.ext_iff, String.Pos.Raw.lt_iff] at h2 h3
       omega
     · cases h'
     · cases h

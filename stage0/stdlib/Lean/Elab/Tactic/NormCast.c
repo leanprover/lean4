@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.NormCast
-// Imports: public import Lean.Meta.Tactic.NormCast public import Lean.Elab.Tactic.Conv.Simp public import Lean.Elab.ElabRules
+// Imports: public import Lean.Meta.Tactic.NormCast public import Lean.Elab.Tactic.Conv.Simp
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18745,7 +18745,6 @@ return x_4;
 }
 lean_object* initialize_Lean_Meta_Tactic_NormCast(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Conv_Simp(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_ElabRules(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_NormCast(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -18755,9 +18754,6 @@ res = initialize_Lean_Meta_Tactic_NormCast(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Conv_Simp(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_ElabRules(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Elab_Tactic_NormCast_0__Lean_Elab_Tactic_NormCast_initFn___closed__0____x40_Lean_Elab_Tactic_NormCast_1508164376____hygCtx___hyg_2_ = _init_l___private_Lean_Elab_Tactic_NormCast_0__Lean_Elab_Tactic_NormCast_initFn___closed__0____x40_Lean_Elab_Tactic_NormCast_1508164376____hygCtx___hyg_2_();

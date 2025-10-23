@@ -6,14 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Util.Sorry
-public import Lean.Widget.Types
-public import Lean.Message
-public import Lean.DocString.Links
 -- This import is necessary to ensure that any users of the `logNamedError` macros have access to
 -- all declared explanations:
 public import Lean.ErrorExplanations
-public import Lean.Data.Json.Basic
 
 public section
 

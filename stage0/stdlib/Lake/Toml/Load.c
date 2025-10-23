@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Toml.Load
-// Imports: public import Lean.Message public import Lean.Parser.Types public import Lake.Toml.Data.Value import Lean.Parser import Lake.Toml.Elab import Lake.Util.Message
+// Imports: public import Lean.Parser.Types public import Lake.Toml.Data.Value import Lean.Parser import Lake.Toml.Elab import Lake.Util.Message
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1203,7 +1203,6 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* initialize_Lean_Message(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_Types(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Toml_Data_Value(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser(uint8_t builtin, lean_object*);
@@ -1214,9 +1213,6 @@ LEAN_EXPORT lean_object* initialize_Lake_Toml_Load(uint8_t builtin, lean_object*
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Message(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Parser_Types(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

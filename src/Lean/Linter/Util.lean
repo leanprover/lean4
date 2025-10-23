@@ -6,7 +6,6 @@ Authors: Lars König
 module
 
 prelude
-public import Lean.Data.Options
 public import Lean.Server.InfoUtils
 public import Lean.Linter.Basic
 

@@ -11,7 +11,6 @@ public import Init.System.Uri
 public import Lean.Data.Lsp.Communication
 public import Lean.Data.Lsp.Diagnostics
 public import Lean.Data.Lsp.Extra
-public import Lean.Data.Lsp.TextSync
 public import Lean.Server.InfoUtils
 
 public section
@@ -110,8 +109,8 @@ with `newText`.
 def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMap :=
   let start := text.lspPosToUtf8Pos r.start
   let «end» := text.lspPosToUtf8Pos r.«end»
-  let pre := text.source.extract 0 start
-  let post := text.source.extract «end» text.source.endPos
+  let pre := String.Pos.Raw.extract text.source 0 start
+  let post := String.Pos.Raw.extract text.source «end» text.source.endPos
   -- `pre` and `post` already have normalized line endings, so only `newText` needs its endings normalized.
   -- Note: this assumes that editing never separates a `\r\n`.
   -- If `pre` ends with `\r` and `newText` begins with `\n`, the result is potentially inaccurate.

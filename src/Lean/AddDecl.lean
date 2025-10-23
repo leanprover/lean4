@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.CoreM
 public import Lean.Meta.Sorry
-public import Lean.Namespace
 public import Lean.Util.CollectAxioms
 
 public section
@@ -37,7 +35,7 @@ private def isNamespaceName : Name → Bool
 private def registerNamePrefixes (env : Environment) (name : Name) : Environment :=
   match name with
     | .str _ s =>
-      if s.get 0 == '_' then
+      if s.front == '_' then
         -- Do not register namespaces that only contain internal declarations.
         env
       else
@@ -130,7 +128,7 @@ def addDecl (decl : Declaration) (forceExpose := false) : CoreM Unit := do
     | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
     | _ => return (← doAdd)
 
-  if decl.getTopLevelNames.all isPrivateName then
+  if decl.getTopLevelNames.all isPrivateName && !(← ResolveName.backward.privateInPublic.getM) then
     exportedInfo? := none
   else
     -- preserve original constant kind in extension if different from exported one

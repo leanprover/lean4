@@ -6,8 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.RCases
-public import Init.Data.Iterators.Basic
 public import Init.Data.Iterators.Consumers.Monadic.Partial
 public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 
@@ -142,7 +140,8 @@ def IterM.DefaultConsumers.forIn' {m : Type w → Type w'} {α : Type w} {β : T
     (P : β → Prop) (hP : ∀ b, it.IsPlausibleIndirectOutput b → P b)
     (f : (b : β) → P b → (c : γ) → n (Subtype (plausible_forInStep b c))) : n γ :=
   haveI : WellFounded _ := wf
-  (lift _ _ · it.step) fun
+  (lift _ _ · it.step) fun s =>
+    match s.inflate with
     | .yield it' out h => do
       match ← f out (hP _ <| .direct ⟨_, h⟩) init with
       | ⟨.yield c, _⟩ =>
@@ -220,7 +219,8 @@ partial def IterM.DefaultConsumers.forInPartial {m : Type w → Type w'} {α : T
     (lift : ∀ γ δ, (γ → n δ) → m γ → n δ) (γ : Type x)
     (it : IterM (α := α) m β) (init : γ)
     (f : (b : β) → it.IsPlausibleIndirectOutput b → (c : γ) → n (ForInStep γ)) : n γ :=
-  (lift _ _ · it.step) fun
+  (lift _ _ · it.step) fun s =>
+      match s.inflate with
       | .yield it' out h => do
         match ← f out (.direct ⟨_, h⟩) init with
         | .yield c =>
@@ -415,6 +415,223 @@ def IterM.Partial.drain {α : Type w} {m : Type w → Type w'} [Monad m] {β : T
     [Iterator α m β] (it : IterM.Partial (α := α) m β) [IteratorLoopPartial α m m] :
     m PUnit :=
   it.fold (γ := PUnit) (fun _ _ => .unit) .unit
+
+set_option doc.verso true in
+/--
+Returns {lean}`ULift.up true` if the monadic predicate {name}`p` returns {lean}`ULift.up true` for
+any element emitted by the iterator {name}`it`.
+
+{lit}`O(|xs|)`. Short-circuits upon encountering the first match. The elements in {name}`it` are
+examined in order of iteration.
+
+This function requires a {name}`Finite` instance proving that the iterator will finish after a
+finite number of steps. If the iterator is not finite or such an instance is not available,
+consider using {lit}`it.allowNontermination.anyM` instead of {lean}`it.anyM`. However, it is not
+possible to formally verify the behavior of the partial variant.
+-/
+@[specialize]
+def IterM.anyM {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [Finite α m]
+    (p : β → m (ULift Bool)) (it : IterM (α := α) m β) : m (ULift Bool) :=
+  ForIn.forIn it (ULift.up false) (fun x _ => do
+    if (← p x).down then
+      return .done (.up true)
+    else
+      return .yield (.up false))
+
+set_option doc.verso true in
+/--
+Returns {lean}`ULift.up true` if the monadic predicate {name}`p` returns {lean}`ULift.up true` for
+any element emitted by the iterator {name}`it`.
+
+{lit}`O(|xs|)`. Short-circuits upon encountering the first match. The elements in {name}`it` are
+examined in order of iteration.
+
+This is a partial, potentially nonterminating, function. It is not possible to formally verify
+its behavior. If the iterator has a {name}`Finite` instance, consider using {name}`IterM.anyM`
+instead.
+-/
+@[specialize]
+def IterM.Partial.anyM {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoopPartial α m m]
+    (p : β → m (ULift Bool)) (it : IterM.Partial (α := α) m β) : m (ULift Bool) :=
+  ForIn.forIn it (ULift.up false) (fun x _ => do
+    if (← p x).down then
+      return .done (.up true)
+    else
+      return .yield (.up false))
+
+set_option doc.verso true in
+/--
+Returns {lean}`ULift.up true` if the pure predicate {name}`p` returns {lean}`true` for
+any element emitted by the iterator {name}`it`.
+
+{lit}`O(|xs|)`. Short-circuits upon encountering the first match. The elements in {name}`it` are
+examined in order of iteration.
+
+This function requires a {name}`Finite` instance proving that the iterator will finish after a
+finite number of steps. If the iterator is not finite or such an instance is not available,
+consider using {lit}`it.allowNontermination.any` instead of {lean}`it.any`. However, it is not
+possible to formally verify the behavior of the partial variant.
+-/
+@[inline]
+def IterM.any {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [Finite α m]
+    (p : β → Bool) (it : IterM (α := α) m β) : m (ULift Bool) := do
+  it.anyM (fun x => pure (.up (p x)))
+
+set_option doc.verso true in
+/--
+Returns {lean}`ULift.up true` if the pure predicate {name}`p` returns {lean}`true` for
+any element emitted by the iterator {name}`it`.
+
+{lit}`O(|xs|)`. Short-circuits upon encountering the first match. The elements in {name}`it` are
+examined in order of iteration.
+
+This is a partial, potentially nonterminating, function. It is not possible to formally verify
+its behavior. If the iterator has a {name}`Finite` instance, consider using {name}`IterM.any`
+instead.
+-/
+@[inline]
+def IterM.Partial.any {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoopPartial α m m]
+    (p : β → Bool) (it : IterM.Partial (α := α) m β) : m (ULift Bool) := do
+  it.anyM (fun x => pure (.up (p x)))
+
+set_option doc.verso true in
+/--
+Returns {lean}`ULift.up true` if the monadic predicate {name}`p` returns {lean}`ULift.up true` for
+all elements emitted by the iterator {name}`it`.
+
+{lit}`O(|xs|)`. Short-circuits upon encountering the first mismatch. The elements in {name}`it` are
+examined in order of iteration.
+
+This function requires a {name}`Finite` instance proving that the iterator will finish after a
+finite number of steps. If the iterator is not finite or such an instance is not available,
+consider using {lit}`it.allowNontermination.allM` instead of {lean}`it.allM`. However, it is not
+possible to formally verify the behavior of the partial variant.
+-/
+@[specialize]
+def IterM.allM {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [Finite α m]
+    (p : β → m (ULift Bool)) (it : IterM (α := α) m β) : m (ULift Bool) := do
+  ForIn.forIn it (ULift.up true) (fun x _ => do
+    if (← p x).down then
+      return .yield (.up true)
+    else
+      return .done (.up false))
+set_option doc.verso true in
+/--
+Returns {lean}`ULift.up true` if the monadic predicate {name}`p` returns {lean}`ULift.up true` for
+all elements emitted by the iterator {name}`it`.
+
+{lit}`O(|xs|)`. Short-circuits upon encountering the first mismatch. The elements in {name}`it` are
+examined in order of iteration.
+
+This is a partial, potentially nonterminating, function. It is not possible to formally verify
+its behavior. If the iterator has a {name}`Finite` instance, consider using {name}`IterM.allM`
+instead.
+-/
+@[specialize]
+def IterM.Partial.allM {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoopPartial α m m]
+    (p : β → m (ULift Bool)) (it : IterM.Partial (α := α) m β) : m (ULift Bool) := do
+  ForIn.forIn it (ULift.up true) (fun x _ => do
+    if (← p x).down then
+      return .yield (.up true)
+    else
+      return .done (.up false))
+
+set_option doc.verso true in
+/--
+Returns {lean}`ULift.up true` if the pure predicate {name}`p` returns {lean}`true` for
+all elements emitted by the iterator {name}`it`.
+
+{lit}`O(|xs|)`. Short-circuits upon encountering the first mismatch. The elements in {name}`it` are
+examined in order of iteration.
+
+This function requires a {name}`Finite` instance proving that the iterator will finish after a
+finite number of steps. If the iterator is not finite or such an instance is not available,
+consider using {lit}`it.allowNontermination.all` instead of {lean}`it.all`. However, it is not
+possible to formally verify the behavior of the partial variant.
+-/
+@[inline]
+def IterM.all {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [Finite α m]
+    (p : β → Bool) (it : IterM (α := α) m β) : m (ULift Bool) := do
+  it.allM (fun x => pure (.up (p x)))
+
+set_option doc.verso true in
+/--
+Returns {lean}`ULift.up true` if the pure predicate {name}`p` returns {lean}`true` for
+all elements emitted by the iterator {name}`it`.
+
+{lit}`O(|xs|)`. Short-circuits upon encountering the first mismatch. The elements in {name}`it` are
+examined in order of iteration.
+
+This is a partial, potentially nonterminating, function. It is not possible to formally verify
+its behavior. If the iterator has a {name}`Finite` instance, consider using {name}`IterM.all`
+instead.
+-/
+@[inline]
+def IterM.Partial.all {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoopPartial α m m]
+    (p : β → Bool) (it : IterM.Partial (α := α) m β) : m (ULift Bool) := do
+  it.allM (fun x => pure (.up (p x)))
+
+@[inline]
+def IterM.findSomeM? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] [Finite α m] (it : IterM (α := α) m β) (f : β → m (Option γ)) :
+    m (Option γ) :=
+  ForIn.forIn it none (fun x _ => do
+    match ← f x with
+    | none => return .yield none
+    | some fx => return .done (some fx))
+
+@[inline]
+def IterM.Partial.findSomeM? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoopPartial α m m] (it : IterM.Partial (α := α) m β) (f : β → m (Option γ)) :
+    m (Option γ) :=
+  ForIn.forIn it none (fun x _ => do
+    match ← f x with
+    | none => return .yield none
+    | some fx => return .done (some fx))
+
+@[inline]
+def IterM.findSome? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] [Finite α m] (it : IterM (α := α) m β) (f : β → Option γ) :
+    m (Option γ) :=
+  it.findSomeM? (pure <| f ·)
+
+@[inline]
+def IterM.Partial.findSome? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoopPartial α m m] (it : IterM.Partial (α := α) m β) (f : β → Option γ) :
+    m (Option γ) :=
+  it.findSomeM? (pure <| f ·)
+
+@[inline]
+def IterM.findM? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] [Finite α m] (it : IterM (α := α) m β) (f : β → m (ULift Bool)) :
+    m (Option β) :=
+  it.findSomeM? (fun x => return if (← f x).down then some x else none)
+
+@[inline]
+def IterM.Partial.findM? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoopPartial α m m] (it : IterM.Partial (α := α) m β) (f : β → m (ULift Bool)) :
+    m (Option β) :=
+  it.findSomeM? (fun x => return if (← f x).down then some x else none)
+
+@[inline]
+def IterM.find? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] [Finite α m] (it : IterM (α := α) m β) (f : β → Bool) :
+    m (Option β) :=
+  it.findM? (pure <| .up <| f ·)
+
+@[inline]
+def IterM.Partial.find? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoopPartial α m m] (it : IterM.Partial (α := α) m β) (f : β → Bool) :
+    m (Option β) :=
+  it.findM? (pure <| .up <| f ·)
 
 section Size
 

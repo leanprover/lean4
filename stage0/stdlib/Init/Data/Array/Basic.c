@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Basic
-// Imports: public import Init.WFTactics public import Init.Data.Nat.Basic public import Init.Data.Fin.Basic public import Init.Data.UInt.BasicAux public import Init.GetElem public import Init.Data.List.ToArrayImpl import all Init.Data.List.ToArrayImpl public import Init.Data.Array.Set import all Init.Data.Array.Set
+// Imports: public import Init.GetElem public import Init.Data.List.ToArrayImpl import all Init.Data.List.ToArrayImpl public import Init.Data.Array.Set import all Init.Data.Array.Set
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2238,7 +2238,7 @@ lean_ctor_set(x_6, 0, x_3);
 lean_ctor_set(x_6, 1, x_1);
 x_7 = l_Array_swapAt_x21___redArg___closed__0;
 x_8 = l_Array_swapAt_x21___redArg___closed__1;
-x_9 = lean_unsigned_to_nat(437u);
+x_9 = lean_unsigned_to_nat(433u);
 x_10 = lean_unsigned_to_nat(4u);
 x_11 = l_Array_swapAt_x21___redArg___closed__2;
 x_12 = l_Nat_reprFast(x_2);
@@ -2279,7 +2279,7 @@ lean_ctor_set(x_7, 0, x_4);
 lean_ctor_set(x_7, 1, x_2);
 x_8 = l_Array_swapAt_x21___redArg___closed__0;
 x_9 = l_Array_swapAt_x21___redArg___closed__1;
-x_10 = lean_unsigned_to_nat(437u);
+x_10 = lean_unsigned_to_nat(433u);
 x_11 = lean_unsigned_to_nat(4u);
 x_12 = l_Array_swapAt_x21___redArg___closed__2;
 x_13 = l_Nat_reprFast(x_3);
@@ -6856,7 +6856,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_findSome_x21___redArg___closed__1;
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(1219u);
+x_3 = lean_unsigned_to_nat(1213u);
 x_4 = l_Array_findSome_x21___redArg___closed__0;
 x_5 = l_Array_swapAt_x21___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -9939,7 +9939,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_eraseIdx_x21___redArg___closed__1;
 x_2 = lean_unsigned_to_nat(47u);
-x_3 = lean_unsigned_to_nat(1812u);
+x_3 = lean_unsigned_to_nat(1800u);
 x_4 = l_Array_eraseIdx_x21___redArg___closed__0;
 x_5 = l_Array_swapAt_x21___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -10144,7 +10144,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_eraseIdx_x21___redArg___closed__1;
 x_2 = lean_unsigned_to_nat(7u);
-x_3 = lean_unsigned_to_nat(1895u);
+x_3 = lean_unsigned_to_nat(1882u);
 x_4 = l_Array_insertIdx_x21___redArg___closed__0;
 x_5 = l_Array_swapAt_x21___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -11801,10 +11801,6 @@ x_3 = l_Array_instToString___redArg(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_WFTactics(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Nat_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Fin_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_UInt_BasicAux(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_GetElem(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_ToArrayImpl(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_ToArrayImpl(uint8_t builtin, lean_object*);
@@ -11815,18 +11811,6 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_WFTactics(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Fin_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_UInt_BasicAux(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_GetElem(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Int.DivMod.Bootstrap
-public import Init.Data.Int.Order
 
 public section
 

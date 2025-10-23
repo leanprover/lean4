@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition
-// Imports: public import Lean.Elab.PreDefinition.Basic public import Lean.Elab.PreDefinition.Structural public import Lean.Elab.PreDefinition.Main public import Lean.Elab.PreDefinition.MkInhabitant public import Lean.Elab.PreDefinition.WF public import Lean.Elab.PreDefinition.Eqns public import Lean.Elab.PreDefinition.Nonrec.Eqns public import Lean.Elab.PreDefinition.EqUnfold
+// Imports: public import Lean.Elab.PreDefinition.Basic public import Lean.Elab.PreDefinition.Structural public import Lean.Elab.PreDefinition.Main public import Lean.Elab.PreDefinition.MkInhabitant public import Lean.Elab.PreDefinition.WF public import Lean.Elab.PreDefinition.EqnsUtils public import Lean.Elab.PreDefinition.Eqns public import Lean.Elab.PreDefinition.EqUnfold
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,8 +18,8 @@ lean_object* initialize_Lean_Elab_PreDefinition_Structural(uint8_t builtin, lean
 lean_object* initialize_Lean_Elab_PreDefinition_Main(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_MkInhabitant(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_WF(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_PreDefinition_EqnsUtils(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_Eqns(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_PreDefinition_Nonrec_Eqns(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_EqUnfold(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_PreDefinition(uint8_t builtin, lean_object* w) {
@@ -41,10 +41,10 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_PreDefinition_WF(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_PreDefinition_Eqns(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_PreDefinition_EqnsUtils(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_PreDefinition_Nonrec_Eqns(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_PreDefinition_Eqns(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_PreDefinition_EqUnfold(builtin, lean_io_mk_world());

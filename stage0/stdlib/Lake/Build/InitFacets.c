@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.InitFacets
-// Imports: public import Lake.Util.Name public import Lake.Config.FacetConfig import Lake.Build.Module import Lake.Build.Package import Lake.Build.Library import Lake.Build.Executable import Lake.Build.ExternLib import Lake.Build.InputFile
+// Imports: public import Lake.Config.FacetConfig import Lake.Build.Module import Lake.Build.Package import Lake.Build.Library import Lake.Build.Executable import Lake.Build.ExternLib import Lake.Build.InputFile
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1251,7 +1251,6 @@ x_1 = l_Lake_initFacetConfigs___closed__13;
 return x_1;
 }
 }
-lean_object* initialize_Lake_Util_Name(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_FacetConfig(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Build_Module(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Build_Package(uint8_t builtin, lean_object*);
@@ -1264,9 +1263,6 @@ LEAN_EXPORT lean_object* initialize_Lake_Build_InitFacets(uint8_t builtin, lean_
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Util_Name(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Config_FacetConfig(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

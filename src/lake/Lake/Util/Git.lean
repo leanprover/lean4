@@ -6,9 +6,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 module
 
 prelude
-public import Init.System.IO
 public import Init.Data.ToString
-public import Lake.Util.Log
 public import Lake.Util.Proc
 
 open System
@@ -103,7 +101,7 @@ public def getHeadRevisions (repo : GitRepo) (n : Nat := 0) : LogIO (Array Strin
   let args := #["rev-list", "HEAD"]
   let args := if n != 0 then args ++ #["-n", toString n] else args
   let revs ← repo.captureGit args
-  return revs.split (· == '\n') |>.toArray
+  return revs.splitToList (· == '\n') |>.toArray
 
 public def resolveRemoteRevision (rev : String) (remote := Git.defaultRemote) (repo : GitRepo) : LogIO String := do
   if Git.isFullObjectName rev then return rev
@@ -122,7 +120,7 @@ public def revisionExists (rev : String) (repo : GitRepo) : BaseIO Bool := do
 
 public def getTags (repo : GitRepo) : BaseIO (List String) := do
   let some out ← repo.captureGit? #["tag"] | return []
-  return out.split (· == '\n')
+  return out.splitToList (· == '\n')
 
 public def findTag? (rev : String := "HEAD") (repo : GitRepo) : BaseIO (Option String) := do
   repo.captureGit? #["describe", "--tags", "--exact-match", rev]

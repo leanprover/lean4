@@ -35,7 +35,7 @@ inductive SearchStep (s : Slice) where
   -/
   | rejected (startPos endPos : s.Pos)
   /--
-  The subslice starting at {name}`startPos` and ending at {name}`endPos` did not match the pattern.
+  The subslice starting at {name}`startPos` and ending at {name}`endPos` matches the pattern.
   -/
   | matched (startPos endPos : s.Pos)
 deriving Inhabited
@@ -76,19 +76,19 @@ namespace Internal
 
 @[extern "lean_slice_memcmp"]
 def memcmp (lhs rhs : @& Slice) (lstart : @& String.Pos.Raw) (rstart : @& String.Pos.Raw)
-    (len : @& String.Pos.Raw) (h1 : lstart + len ≤ lhs.utf8ByteSize)
-    (h2 : rstart + len ≤ rhs.utf8ByteSize) : Bool :=
+    (len : @& String.Pos.Raw) (h1 : len.offsetBy lstart ≤ lhs.rawEndPos)
+    (h2 : len.offsetBy rstart ≤ rhs.rawEndPos) : Bool :=
   go 0
 where
   go (curr : String.Pos.Raw) : Bool :=
     if h : curr < len then
       have hl := by
-        simp [Pos.Raw.le_iff] at h h1 ⊢
+        simp [Pos.Raw.le_iff, Pos.Raw.lt_iff] at h h1 ⊢
         omega
       have hr := by
-        simp [Pos.Raw.le_iff] at h h2 ⊢
+        simp [Pos.Raw.le_iff, Pos.Raw.lt_iff] at h h2 ⊢
         omega
-      if lhs.getUTF8Byte (lstart + curr) hl == rhs.getUTF8Byte (rstart + curr) hr then
+      if lhs.getUTF8Byte (curr.offsetBy lstart) hl == rhs.getUTF8Byte (curr.offsetBy rstart) hr then
         go curr.inc
       else
         false
@@ -96,46 +96,8 @@ where
       true
   termination_by len.byteIdx - curr.byteIdx
   decreasing_by
-    simp at h ⊢
+    simp [Pos.Raw.lt_iff] at h ⊢
     omega
-
-variable {ρ : Type} {σ : Slice → Type}
-variable [∀ s, Std.Iterators.Iterator (σ s) Id (SearchStep s)]
-variable [∀ s, Std.Iterators.Finite (σ s) Id]
-
-/--
-Tries to skip the {name}`searcher` until the next {name}`SearchStep.matched` and return it. If no
-match is found until the end returns {name}`none`.
--/
-@[inline]
-def nextMatch (searcher : Std.Iter (α := σ s) (SearchStep s)) :
-    Option (Std.Iter (α := σ s) (SearchStep s) × s.Pos × s.Pos) :=
-  go searcher
-where
-  go [∀ s, Std.Iterators.Finite (σ s) Id] (searcher : Std.Iter (α := σ s) (SearchStep s)) :
-      Option (Std.Iter (α := σ s) (SearchStep s) × s.Pos × s.Pos) :=
-    match searcher.step with
-    | .yield it (.matched startPos endPos) _ => some (it, startPos, endPos)
-    | .yield it (.rejected ..) _ | .skip it .. => go it
-    | .done .. => none
-  termination_by Std.Iterators.Iter.finitelyManySteps searcher
-
-/--
-Tries to skip the {name}`searcher` until the next {name}`SearchStep.rejected` and return it. If no
-reject is found until the end returns {name}`none`.
--/
-@[inline]
-def nextReject (searcher : Std.Iter (α := σ s) (SearchStep s)) :
-    Option (Std.Iter (α := σ s) (SearchStep s) × s.Pos × s.Pos) :=
-  go searcher
-where
-  go [∀ s, Std.Iterators.Finite (σ s) Id] (searcher : Std.Iter (α := σ s) (SearchStep s)) :
-      Option (Std.Iter (α := σ s) (SearchStep s) × s.Pos × s.Pos) :=
-    match searcher.step with
-    | .yield it (.rejected startPos endPos) _ => some (it, startPos, endPos)
-    | .yield it (.matched ..) _ | .skip it .. => go it
-    | .done .. => none
-  termination_by Std.Iterators.Iter.finitelyManySteps searcher
 
 end Internal
 

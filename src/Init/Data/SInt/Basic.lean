@@ -89,7 +89,7 @@ abbrev Int8.size : Nat := 256
 /--
 Obtain the `BitVec` that contains the 2's complement representation of the `Int8`.
 -/
-@[inline] def Int8.toBitVec (x : Int8) : BitVec 8 := x.toUInt8.toBitVec
+@[inline] def Int8.toBitVec (x : Int8) : BitVec 8 := x.toUInt8.toBitVec --
 
 theorem Int8.toBitVec.inj : {x y : Int8} → x.toBitVec = y.toBitVec → x = y
   | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl

@@ -384,7 +384,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_String_Pattern_Basic_0__String_Sl
 _start:
 {
 lean_object* x_4; 
-lean_inc_ref(x_1);
+lean_inc(x_1);
 lean_inc_ref(x_2);
 x_4 = lean_apply_2(x_1, x_2, x_3);
 switch (lean_obj_tag(x_4)) {
@@ -407,7 +407,7 @@ else
 {
 uint8_t x_8; 
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 x_8 = !lean_is_exclusive(x_4);
 if (x_8 == 0)
 {
@@ -488,7 +488,7 @@ default:
 {
 lean_object* x_25; 
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 x_25 = lean_box(0);
 return x_25;
 }
@@ -584,7 +584,7 @@ lean_object* x_11;
 x_11 = l___private_Init_Data_String_Pattern_Basic_0__String_Slice_Pattern_Internal_nextMatch_go_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_4);
 lean_dec_ref(x_3);
-lean_dec_ref(x_2);
+lean_dec(x_2);
 return x_11;
 }
 }
@@ -608,7 +608,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_String_Pattern_Basic_0__String_Sl
 _start:
 {
 lean_object* x_4; 
-lean_inc_ref(x_1);
+lean_inc(x_1);
 lean_inc_ref(x_2);
 x_4 = lean_apply_2(x_1, x_2, x_3);
 switch (lean_obj_tag(x_4)) {
@@ -621,7 +621,7 @@ if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 x_6 = !lean_is_exclusive(x_4);
 if (x_6 == 0)
 {
@@ -710,7 +710,7 @@ default:
 {
 lean_object* x_25; 
 lean_dec_ref(x_2);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 x_25 = lean_box(0);
 return x_25;
 }
@@ -806,7 +806,7 @@ lean_object* x_11;
 x_11 = l___private_Init_Data_String_Pattern_Basic_0__String_Slice_Pattern_Internal_nextReject_go_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_4);
 lean_dec_ref(x_3);
-lean_dec_ref(x_2);
+lean_dec(x_2);
 return x_11;
 }
 }
@@ -980,7 +980,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 lean_inc(x_2);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 x_3 = lean_alloc_closure((void*)(l_String_Slice_Pattern_ForwardPattern_defaultStartsWith___boxed), 6, 4);
 lean_closure_set(x_3, 0, lean_box(0));
 lean_closure_set(x_3, 1, lean_box(0));
@@ -1002,7 +1002,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 lean_inc(x_4);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 x_5 = lean_alloc_closure((void*)(l_String_Slice_Pattern_ForwardPattern_defaultStartsWith___boxed), 6, 4);
 lean_closure_set(x_5, 0, lean_box(0));
 lean_closure_set(x_5, 1, lean_box(0));
@@ -1210,7 +1210,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 lean_inc(x_2);
-lean_inc_ref(x_1);
+lean_inc(x_1);
 x_3 = lean_alloc_closure((void*)(l_String_Slice_Pattern_ToBackwardSearcher_defaultEndsWith___boxed), 6, 4);
 lean_closure_set(x_3, 0, lean_box(0));
 lean_closure_set(x_3, 1, lean_box(0));
@@ -1232,7 +1232,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 lean_inc(x_4);
-lean_inc_ref(x_3);
+lean_inc(x_3);
 x_5 = lean_alloc_closure((void*)(l_String_Slice_Pattern_ToBackwardSearcher_defaultEndsWith___boxed), 6, 4);
 lean_closure_set(x_5, 0, lean_box(0));
 lean_closure_set(x_5, 1, lean_box(0));

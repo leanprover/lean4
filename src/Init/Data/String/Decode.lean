@@ -6,8 +6,6 @@ Author: Markus Himmel
 module
 
 prelude
-public import Init.Data.List.Lemmas
-import Init.Data.List.Lemmas
 public import Init.Data.UInt.Bitwise
 import Init.Data.Char.Lemmas
 public import Init.Data.ByteArray.Basic
@@ -136,19 +134,19 @@ public theorem String.utf8EncodeChar_eq_utf8EncodeCharFast : @utf8EncodeChar = @
   cases Decidable.em (c.val ≤ 0x7ff) <;> simp [*]
   cases Decidable.em (c.val ≤ 0xffff) <;> simp [*]
 
-theorem String.utf8EncodeChar_eq_singleton {c : Char} : c.utf8Size = 1 →
+public theorem String.utf8EncodeChar_eq_singleton {c : Char} : c.utf8Size = 1 →
     String.utf8EncodeChar c = [c.val.toUInt8] := by
   rw [← length_utf8EncodeChar]
   fun_cases utf8EncodeChar
   all_goals simp_all; try rfl
 
-theorem String.utf8EncodeChar_eq_cons_cons {c : Char} : c.utf8Size = 2 →
+public theorem String.utf8EncodeChar_eq_cons_cons {c : Char} : c.utf8Size = 2 →
     String.utf8EncodeChar c = [(c.val >>>  6).toUInt8 &&& 0x1f ||| 0xc0, c.val.toUInt8 &&& 0x3f ||| 0x80] := by
   rw [← length_utf8EncodeChar, utf8EncodeChar_eq_utf8EncodeCharFast]
   fun_cases utf8EncodeCharFast
   all_goals simp_all <;> (repeat' apply And.intro) <;> rfl
 
-theorem String.utf8EncodeChar_eq_cons_cons_cons {c : Char} : c.utf8Size = 3 →
+public theorem String.utf8EncodeChar_eq_cons_cons_cons {c : Char} : c.utf8Size = 3 →
     String.utf8EncodeChar c =
     [(c.val >>> 12).toUInt8 &&& 0x0f ||| 0xe0,
      (c.val >>>  6).toUInt8 &&& 0x3f ||| 0x80,
@@ -157,7 +155,7 @@ theorem String.utf8EncodeChar_eq_cons_cons_cons {c : Char} : c.utf8Size = 3 →
   fun_cases utf8EncodeCharFast
   all_goals simp_all <;> (repeat' apply And.intro) <;> rfl
 
-theorem String.utf8EncodeChar_eq_cons_cons_cons_cons {c : Char} : c.utf8Size = 4 →
+public theorem String.utf8EncodeChar_eq_cons_cons_cons_cons {c : Char} : c.utf8Size = 4 →
     String.utf8EncodeChar c =
     [(c.val >>> 18).toUInt8 &&& 0x07 ||| 0xf0,
      (c.val >>> 12).toUInt8 &&& 0x3f ||| 0x80,
@@ -1424,22 +1422,22 @@ public theorem isUTF8FirstByte_getElem_zero_utf8EncodeChar {c : Char} :
   simp
 
 @[expose]
-public def utf8ByteSize (c : UInt8) (_h : c.IsUTF8FirstByte) : String.Pos.Raw :=
+public def utf8ByteSize (c : UInt8) (_h : c.IsUTF8FirstByte) : Nat :=
   if c &&& 0x80 = 0 then
-    ⟨1⟩
+    1
   else if c &&& 0xe0 = 0xc0 then
-    ⟨2⟩
+    2
   else if c &&& 0xf0 = 0xe0 then
-    ⟨3⟩
+    3
   else
-    ⟨4⟩
+    4
 
-def _root_.ByteArray.utf8DecodeChar?.FirstByte.utf8ByteSize : FirstByte → String.Pos.Raw
-  | .invalid => ⟨0⟩
-  | .done => ⟨1⟩
-  | .oneMore => ⟨2⟩
-  | .twoMore => ⟨3⟩
-  | .threeMore => ⟨4⟩
+def _root_.ByteArray.utf8DecodeChar?.FirstByte.utf8ByteSize : FirstByte → Nat
+  | .invalid => 0
+  | .done => 1
+  | .oneMore => 2
+  | .twoMore => 3
+  | .threeMore => 4
 
 theorem utf8ByteSize_eq_utf8ByteSize_parseFirstByte {c : UInt8} {h : c.IsUTF8FirstByte} :
     c.utf8ByteSize h = (parseFirstByte c).utf8ByteSize := by
@@ -1477,9 +1475,9 @@ public theorem ByteArray.isUTF8FirstByte_of_validateUTF8At  {b : ByteArray} {i :
   simp only [validateUTF8At_eq_isSome_utf8DecodeChar?]
   exact isUTF8FirstByte_of_isSome_utf8DecodeChar?
 
-theorem Char.byteIdx_utf8ByteSize_getElem_utf8EncodeChar {c : Char} :
-    (((String.utf8EncodeChar c)[0]'(by simp [c.utf8Size_pos])).utf8ByteSize
-      UInt8.isUTF8FirstByte_getElem_zero_utf8EncodeChar).byteIdx = c.utf8Size := by
+theorem Char.utf8ByteSize_getElem_utf8EncodeChar {c : Char} :
+    ((String.utf8EncodeChar c)[0]'(by simp [c.utf8Size_pos])).utf8ByteSize
+      UInt8.isUTF8FirstByte_getElem_zero_utf8EncodeChar = c.utf8Size := by
   rw [UInt8.utf8ByteSize_eq_utf8ByteSize_parseFirstByte]
   obtain (hc|hc|hc|hc) := c.utf8Size_eq
   · rw [parseFirstByte_utf8EncodeChar_eq_done hc, FirstByte.utf8ByteSize, hc]
@@ -1489,7 +1487,7 @@ theorem Char.byteIdx_utf8ByteSize_getElem_utf8EncodeChar {c : Char} :
 
 public theorem ByteArray.utf8Size_utf8DecodeChar {b : ByteArray} {i} {h} :
     (utf8DecodeChar b i h).utf8Size =
-      ((b[i]'(lt_size_of_isSome_utf8DecodeChar? h)).utf8ByteSize (isUTF8FirstByte_of_isSome_utf8DecodeChar? h)).byteIdx := by
-  rw [← Char.byteIdx_utf8ByteSize_getElem_utf8EncodeChar]
+      (b[i]'(lt_size_of_isSome_utf8DecodeChar? h)).utf8ByteSize (isUTF8FirstByte_of_isSome_utf8DecodeChar? h) := by
+  rw [← Char.utf8ByteSize_getElem_utf8EncodeChar]
   simp only [List.getElem_eq_getElem_toByteArray, utf8EncodeChar_utf8DecodeChar]
   simp [ByteArray.getElem_extract]

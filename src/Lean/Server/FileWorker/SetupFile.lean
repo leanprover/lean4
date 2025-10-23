@@ -6,10 +6,8 @@ Authors: Sebastian Ullrich, Marc Huisinga
 module
 
 prelude
-public import Init.System.IO
 public import Lean.Server.Utils
 public import Lean.Util.LakePath
-public import Lean.LoadDynlib
 public import Lean.Server.ServerTask
 
 public section

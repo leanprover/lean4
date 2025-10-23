@@ -7,15 +7,8 @@ Authors: David Thrane Christiansen
 module
 
 prelude
-import Lean.Environment
-import Lean.Exception
-import Lean.Log
 import Lean.Elab.DocString
-import Lean.DocString.Extension
-import Lean.DocString.Links
-import Lean.Parser.Types
 public import Lean.DocString.Parser
-import Lean.ResolveName
 public import Lean.Elab.Term.TermElabM
 import Std.Data.HashMap
 
@@ -45,7 +38,7 @@ def validateDocComment
   for (⟨start, stop⟩, err) in errs do
     -- Report errors at their actual location if possible
     if let some pos := pos? then
-      let urlStx : Syntax := .atom (.synthetic (pos + start) (pos + stop)) (str.extract start stop)
+      let urlStx : Syntax := .atom (.synthetic (start.offsetBy pos) (stop.offsetBy pos)) (String.Pos.Raw.extract str start stop)
       logErrorAt urlStx err
     else
       logError err
@@ -72,7 +65,7 @@ def parseVersoDocString
     | throwErrorAt docComment m!"Documentation comment has no source location, cannot parse"
 
   -- Skip trailing `-/`
-  let endPos := text.source.prev <| text.source.prev endPos
+  let endPos := String.Pos.Raw.prev text.source <| endPos.prev text.source
   let endPos := if endPos ≤ text.source.endPos then endPos else text.source.endPos
   have endPos_valid : endPos ≤ text.source.endPos := by
     unfold endPos

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.PackageConfig
-// Imports: public import Init.Dynamic public import Lake.Util.Version public import Lake.Config.Pattern public import Lake.Config.Defaults public import Lake.Config.LeanConfig public import Lake.Config.WorkspaceConfig meta import all Lake.Config.Meta
+// Imports: public import Init.Dynamic public import Lake.Util.Version public import Lake.Config.Pattern public import Lake.Config.LeanConfig public import Lake.Config.WorkspaceConfig meta import all Lake.Config.Meta
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13064,7 +13064,6 @@ return x_1;
 lean_object* initialize_Init_Dynamic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Version(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Pattern(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Config_Defaults(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_LeanConfig(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_WorkspaceConfig(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Meta(uint8_t builtin, lean_object*);
@@ -13080,9 +13079,6 @@ res = initialize_Lake_Util_Version(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Config_Pattern(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_Config_Defaults(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Config_LeanConfig(builtin, lean_io_mk_world());

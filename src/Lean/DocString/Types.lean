@@ -8,7 +8,6 @@ module
 
 prelude
 
-public import Init.Data.Repr
 public import Init.Data.Ord
 import Init.Data.Nat.Compare
 

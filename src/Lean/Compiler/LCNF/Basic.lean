@@ -6,11 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.List.BasicAux
-public import Lean.Expr
 public import Lean.Meta.Instances
 public import Lean.Compiler.ExternAttr
-public import Lean.Compiler.InlineAttrs
 public import Lean.Compiler.Specialize
 public import Lean.Compiler.LCNF.Types
 

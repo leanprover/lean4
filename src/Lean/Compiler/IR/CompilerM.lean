@@ -6,13 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.CoreM
-public import Lean.Environment
-public import Lean.Compiler.IR.Basic
 public import Lean.Compiler.IR.Format
-public import Lean.Compiler.MetaAttr
 public import Lean.Compiler.ExportAttr
 public import Lean.Compiler.LCNF.PhaseExt
+import Lean.Compiler.InitAttr
 
 public section
 
@@ -148,10 +145,19 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
 
 @[export lean_ir_export_entries]
 private def exportIREntries (env : Environment) : Array (Name × Array EnvExtensionEntry) :=
-  let decls := declMapExt.getEntries env |>.foldl (init := #[]) fun decls decl => decls.push decl
+  let irDecls := declMapExt.getEntries env |>.foldl (init := #[]) fun decls decl => decls.push decl
   -- safety: cast to erased type
-  let entries : Array EnvExtensionEntry := unsafe unsafeCast <| sortDecls decls
-  #[(``declMapExt, entries)]
+  let irEntries : Array EnvExtensionEntry := unsafe unsafeCast <| sortDecls irDecls
+
+  -- see `regularInitAttr.filterExport`
+  let initDecls : Array (Name × Name) := regularInitAttr.ext.getState env
+      |>.2.foldl (fun a n p => a.push (n, p)) #[]
+      |>.qsort (fun a b => Name.quickLt a.1 b.1)
+  -- safety: cast to erased type
+  let initDecls : Array EnvExtensionEntry := unsafe unsafeCast initDecls
+
+  #[(declMapExt.name, irEntries),
+    (Lean.regularInitAttr.ext.name, initDecls)]
 
 @[export lean_ir_find_env_decl]
 def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=

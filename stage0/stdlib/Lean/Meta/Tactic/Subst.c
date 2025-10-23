@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Subst
-// Imports: public import Lean.Meta.AppBuilder public import Lean.Meta.MatchUtil public import Lean.Meta.Tactic.Util public import Lean.Meta.Tactic.Revert public import Lean.Meta.Tactic.Assert public import Lean.Meta.Tactic.Intro public import Lean.Meta.Tactic.Clear public import Lean.Meta.Tactic.FVarSubst
+// Imports: public import Lean.Meta.AppBuilder public import Lean.Meta.MatchUtil public import Lean.Meta.Tactic.Assert
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2364,7 +2364,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_substCore___lam__1___closed__6;
 x_2 = lean_unsigned_to_nat(22u);
-x_3 = lean_unsigned_to_nat(69u);
+x_3 = lean_unsigned_to_nat(64u);
 x_4 = l_Lean_Meta_substCore___lam__1___closed__5;
 x_5 = l_Lean_Meta_substCore___lam__1___closed__4;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -13119,12 +13119,7 @@ return x_5;
 }
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_MatchUtil(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Util(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Revert(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Assert(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Intro(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Clear(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_FVarSubst(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Subst(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -13136,22 +13131,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_MatchUtil(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Util(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Revert(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Assert(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Intro(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Clear(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_FVarSubst(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_panic___at___Lean_Meta_substCore_spec__1___closed__0 = _init_l_panic___at___Lean_Meta_substCore_spec__1___closed__0();

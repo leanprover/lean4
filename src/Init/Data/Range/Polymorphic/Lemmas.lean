@@ -8,13 +8,10 @@ module
 prelude
 public import Init.Data.Iterators.Lemmas.Consumers.Loop
 import Init.Data.Iterators.Lemmas.Consumers.Collect
-public import Init.Data.Range.Polymorphic.Basic
 import all Init.Data.Range.Polymorphic.Basic
-public import Init.Data.Range.Polymorphic.RangeIterator
 import all Init.Data.Range.Polymorphic.RangeIterator
 public import Init.Data.Range.Polymorphic.Iterators
 import all Init.Data.Range.Polymorphic.Iterators
-public import Init.Data.Iterators.Consumers.Loop
 import all Init.Data.Iterators.Consumers.Loop
 import Init.Data.Array.Monadic
 

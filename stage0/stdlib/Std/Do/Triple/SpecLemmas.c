@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Do.Triple.SpecLemmas
-// Imports: public import Std.Do.Triple.Basic public import Std.Do.WP public import Init.Data.Range.Polymorphic.UpwardEnumerable public import Init.Data.Range.Polymorphic.PRange public import Init.Data.Range.Polymorphic.Iterators import Init.Data.Range.Polymorphic public import Init.Data.Iterators.Lemmas.Combinators.FilterMap
+// Imports: public import Std.Do.Triple.Basic public import Init.Data.Range.Polymorphic.Iterators import Init.Data.Range.Polymorphic public import Init.Data.Iterators.Lemmas.Combinators.FilterMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -901,9 +901,6 @@ return x_6;
 }
 }
 lean_object* initialize_Std_Do_Triple_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Do_WP(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Range_Polymorphic_UpwardEnumerable(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Range_Polymorphic_PRange(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Range_Polymorphic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(uint8_t builtin, lean_object*);
@@ -913,15 +910,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Std_Do_Triple_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Do_WP(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_UpwardEnumerable(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_PRange(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin, lean_io_mk_world());

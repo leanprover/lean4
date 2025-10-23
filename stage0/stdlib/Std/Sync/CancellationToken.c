@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sync.CancellationToken
-// Imports: public import Std.Data public import Init.System.Promise public import Init.Data.Queue public import Std.Sync.Mutex public import Std.Internal.Async.Select
+// Imports: public import Std.Data public import Init.Data.Queue public import Std.Sync.Mutex public import Std.Internal.Async.Select
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2989,7 +2989,6 @@ return x_6;
 }
 }
 lean_object* initialize_Std_Data(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_System_Promise(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Queue(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Sync_Mutex(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Internal_Async_Select(uint8_t builtin, lean_object*);
@@ -2999,9 +2998,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Std_Data(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_System_Promise(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Queue(builtin, lean_io_mk_world());

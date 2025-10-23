@@ -6,8 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Basic
-import Lean.Meta.CtorRecognizer
-import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Clear
 import Lean.Meta.AppBuilder
 

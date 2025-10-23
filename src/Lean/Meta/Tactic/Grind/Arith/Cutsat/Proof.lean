@@ -5,14 +5,10 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Grind.Ring.CommSolver
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Init.Data.Int.OfNat
-import Lean.Data.RArray
 import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.ProofUtil
-import Lean.Meta.Tactic.Grind.VarRename
-import Lean.Meta.Tactic.Simp.Arith.Int.Basic
 import Lean.Meta.Tactic.Simp.Arith.Int.Simp
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util

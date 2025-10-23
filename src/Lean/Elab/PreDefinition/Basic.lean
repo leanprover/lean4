@@ -6,19 +6,11 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.ShareCommon
-public import Lean.Compiler.MetaAttr
 public import Lean.Compiler.NoncomputableAttr
-public import Lean.Util.CollectLevelParams
-public import Lean.Util.NumObjs
 public import Lean.Util.NumApps
-public import Lean.Meta.AbstractNestedProofs
-public import Lean.Meta.ForEachExpr
 public import Lean.Meta.Eqns
-public import Lean.Meta.LetToHave
 public import Lean.Elab.RecAppSyntax
 public import Lean.Elab.DefView
-public import Lean.Elab.PreDefinition.TerminationHint
 
 public section
 
@@ -217,8 +209,9 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
     addDecl decl
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
     match preDef.modifiers.computeKind with
-    | .meta          => modifyEnv (addMeta · preDef.declName)
-    | .noncomputable => modifyEnv (addNoncomputable · preDef.declName)
+    -- Tags may have been added by `elabMutualDef` already, but that is not the only caller
+    | .meta          => if !isMeta (← getEnv) preDef.declName then modifyEnv (addMeta · preDef.declName)
+    | .noncomputable => if !isNoncomputable (← getEnv) preDef.declName then modifyEnv (addNoncomputable · preDef.declName)
     | _              =>
       if !preDef.kind.isTheorem then
         modifyEnv (addNotMeta · preDef.declName)

@@ -8,10 +8,7 @@ module
 prelude
 public import Lean.Runtime
 public import Lean.Compiler.ClosedTermCache
-public import Lean.Compiler.ExternAttr
-public import Lean.Compiler.IR.Basic
 public import Lean.Compiler.IR.CompilerM
-public import Lean.Compiler.IR.FreeVars
 public import Lean.Compiler.IR.ElimDeadVars
 public import Lean.Compiler.IR.ToIRType
 public import Lean.Data.AssocList

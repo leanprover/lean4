@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.AC.Main
-// Imports: public import Init.Data.AC public import Lean.Meta.AppBuilder public import Lean.Meta.Tactic.Refl public import Lean.Meta.Tactic.Simp.Main public import Lean.Elab.Tactic.Rewrite
+// Imports: public import Lean.Meta.Tactic.Refl public import Lean.Meta.Tactic.Simp.Main public import Lean.Elab.Tactic.Rewrite
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -6056,7 +6056,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_AC_buildNormProof___closed__4;
 x_2 = lean_unsigned_to_nat(52u);
-x_3 = lean_unsigned_to_nat(133u);
+x_3 = lean_unsigned_to_nat(131u);
 x_4 = l_Lean_Meta_AC_buildNormProof___closed__3;
 x_5 = l_Lean_Meta_AC_buildNormProof___closed__2;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -9833,15 +9833,15 @@ x_33 = l_Lean_Syntax_getArg(x_29, x_14);
 lean_dec(x_29);
 x_34 = l_Lean_Elab_Tactic_expandLocation(x_33);
 lean_dec(x_33);
-x_15 = x_6;
-x_16 = x_2;
+x_15 = x_8;
+x_16 = x_4;
 x_17 = x_10;
-x_18 = x_8;
+x_18 = x_3;
 x_19 = x_9;
-x_20 = x_4;
-x_21 = x_7;
-x_22 = x_3;
-x_23 = x_5;
+x_20 = x_6;
+x_21 = x_2;
+x_22 = x_5;
+x_23 = x_7;
 x_24 = x_34;
 goto block_27;
 }
@@ -9854,15 +9854,15 @@ x_35 = l_Lean_Meta_AC_evalNf0___closed__2;
 x_36 = lean_alloc_ctor(1, 1, 1);
 lean_ctor_set(x_36, 0, x_35);
 lean_ctor_set_uint8(x_36, sizeof(void*)*1, x_12);
-x_15 = x_6;
-x_16 = x_2;
+x_15 = x_8;
+x_16 = x_4;
 x_17 = x_10;
-x_18 = x_8;
+x_18 = x_3;
 x_19 = x_9;
-x_20 = x_4;
-x_21 = x_7;
-x_22 = x_3;
-x_23 = x_5;
+x_20 = x_6;
+x_21 = x_2;
+x_22 = x_5;
+x_23 = x_7;
 x_24 = x_36;
 goto block_27;
 }
@@ -9872,7 +9872,7 @@ lean_object* x_25; lean_object* x_26;
 x_25 = lean_alloc_closure((void*)(l_Lean_Meta_AC_evalNf0___lam__0___boxed), 11, 2);
 lean_closure_set(x_25, 0, x_24);
 lean_closure_set(x_25, 1, x_14);
-x_26 = l_Lean_Elab_Tactic_withMainContext___redArg(x_25, x_16, x_22, x_20, x_23, x_15, x_21, x_18, x_19, x_17);
+x_26 = l_Lean_Elab_Tactic_withMainContext___redArg(x_25, x_21, x_18, x_16, x_22, x_20, x_23, x_15, x_19, x_17);
 return x_26;
 }
 }
@@ -10217,8 +10217,6 @@ x_5 = l_Lean_registerTraceClass(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* initialize_Init_Data_AC(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Refl(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Simp_Main(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Rewrite(uint8_t builtin, lean_object*);
@@ -10227,12 +10225,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_AC_Main(uint8_t builtin, le
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_AC(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_AppBuilder(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Refl(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Toml.Elab.Expression
-// Imports: public import Lake.Toml.Grammar public import Lake.Toml.Elab.Value meta import all Lake.Toml.Grammar
+// Imports: public import Lake.Toml.Elab.Value meta import all Lake.Toml.Grammar
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -9249,7 +9249,6 @@ lean_dec(x_4);
 return x_19;
 }
 }
-lean_object* initialize_Lake_Toml_Grammar(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Toml_Elab_Value(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Toml_Grammar(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -9257,9 +9256,6 @@ LEAN_EXPORT lean_object* initialize_Lake_Toml_Elab_Expression(uint8_t builtin, l
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Toml_Grammar(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Toml_Elab_Value(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

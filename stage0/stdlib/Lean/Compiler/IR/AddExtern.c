@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.AddExtern
-// Imports: public import Lean.CoreM public import Lean.Compiler.BorrowedAnnotation public import Lean.Compiler.ExternAttr public import Lean.Compiler.IR.Basic public import Lean.Compiler.IR.Boxing public import Lean.Compiler.IR.CompilerM public import Lean.Compiler.IR.ToIRType public import Lean.Compiler.LCNF.MonoTypes
+// Imports: public import Lean.Compiler.IR.Boxing
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -703,41 +703,13 @@ return x_81;
 }
 }
 }
-lean_object* initialize_Lean_CoreM(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_BorrowedAnnotation(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_ExternAttr(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_IR_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_IR_Boxing(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_IR_CompilerM(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_IR_ToIRType(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_LCNF_MonoTypes(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_IR_AddExtern(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_CoreM(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Compiler_BorrowedAnnotation(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Compiler_ExternAttr(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Compiler_IR_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_Boxing(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Compiler_IR_CompilerM(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Compiler_IR_ToIRType(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_MonoTypes(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_IR_addExtern___closed__0 = _init_l_Lean_IR_addExtern___closed__0();

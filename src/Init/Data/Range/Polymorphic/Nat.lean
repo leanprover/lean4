@@ -9,7 +9,6 @@ prelude
 import Init.Data.Nat.Lemmas
 public import Init.Data.Nat.Order
 public import Init.Data.Range.Polymorphic.Instances
-public import Init.Data.Order.Classes
 public import Init.Data.Order.Lemmas
 
 set_option doc.verso true

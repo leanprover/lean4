@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Canonicalizer
-// Imports: public import Lean.Util.ShareCommon public import Lean.Meta.Basic public import Lean.Meta.FunInfo public import Std.Data.HashMap.Raw
+// Imports: public import Lean.Util.ShareCommon public import Lean.Meta.FunInfo public import Std.Data.HashMap.Raw
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4636,7 +4636,6 @@ return x_10;
 }
 }
 lean_object* initialize_Lean_Util_ShareCommon(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_FunInfo(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_HashMap_Raw(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -4645,9 +4644,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Util_ShareCommon(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_FunInfo(builtin, lean_io_mk_world());

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Do.WP.SimpLemmas
-// Imports: public import Std.Do.WP.Basic public import Std.Do.WP.Monad
+// Imports: public import Std.Do.WP.Monad
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -300,16 +300,12 @@ x_8 = l___private_Std_Do_WP_SimpLemmas_0__EStateM_tryCatch_match__1_splitter___r
 return x_8;
 }
 }
-lean_object* initialize_Std_Do_WP_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Do_WP_Monad(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Do_WP_SimpLemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Do_WP_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Std_Do_WP_Monad(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

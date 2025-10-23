@@ -6,10 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.List.BasicAux
-public import Lean.Expr
-public import Lean.Environment
-public import Lean.Attributes
 public import Lean.ProjFns
 public import Lean.Meta.Basic
 

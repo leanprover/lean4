@@ -6,11 +6,8 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Lean.Util.ForEachExprWhere
-public import Lean.Meta.CtorRecognizer
 public import Lean.Meta.Match.Match
 public import Lean.Meta.GeneralizeVars
-public import Lean.Meta.ForEachExpr
 public import Lean.Elab.BindersUtil
 public import Lean.Elab.PatternVar
 public import Lean.Elab.Quotation.Precheck
@@ -165,7 +162,7 @@ def getMatchAlt : Syntax → Option MatchAltView
   | alt@`(matchAltExpr| | $patterns,* => $rhs) => some {
           ref      := alt,
           patterns := patterns,
-          lhs      := alt[1],
+          lhs      := alt[1], -- this is the ref `$patterns,*`
           rhs      := rhs
         }
   | _ => none
@@ -759,13 +756,13 @@ end ToDepElimPattern
 def withDepElimPatterns (patternVarDecls : Array PatternVarDecl) (ps : Array Expr) (matchType : Expr) (k : Array LocalDecl → Array Pattern → Expr → TermElabM α) : TermElabM α := do
   ToDepElimPattern.main patternVarDecls ps matchType k
 
-private def withElaboratedLHS {α} (ref : Syntax) (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (lhsStx : Syntax) (numDiscrs : Nat) (matchType : Expr)
+private def withElaboratedLHS {α} (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (lhsStx : Syntax) (numDiscrs : Nat) (matchType : Expr)
     (k : AltLHS → Expr → TermElabM α) : ExceptT PatternElabException TermElabM α := do
   let (patterns, matchType) ← withSynthesize <| withRef lhsStx <| elabPatterns patternStxs numDiscrs matchType
   id (α := TermElabM α) do
     trace[Elab.match] "patterns: {patterns}"
     withDepElimPatterns patternVarDecls patterns matchType fun localDecls patterns matchType => do
-      k { ref := ref, fvarDecls := localDecls.toList, patterns := patterns.toList } matchType
+      k { ref := lhsStx, fvarDecls := localDecls.toList, patterns := patterns.toList } matchType
 
 /--
   Try to clear the free variables in `toClear` and auxiliary discriminants, and then execute `k` in the updated local context.
@@ -817,7 +814,7 @@ private def elabMatchAltView (discrs : Array Discr) (alt : MatchAltView) (matchT
     let (patternVars, alt) ← collectPatternVars alt
     trace[Elab.match] "patternVars: {patternVars}"
     withPatternVars patternVars fun patternVarDecls => do
-      withElaboratedLHS alt.ref patternVarDecls alt.patterns alt.lhs discrs.size matchType fun altLHS matchType =>
+      withElaboratedLHS patternVarDecls alt.patterns alt.lhs discrs.size matchType fun altLHS matchType =>
         withEqs discrs altLHS.patterns fun eqs =>
           withLocalInstances altLHS.fvarDecls do
             trace[Elab.match] "elabMatchAltView: {matchType}"

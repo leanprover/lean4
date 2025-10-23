@@ -9,8 +9,6 @@ module
 prelude
 public import Lean.Elab.Eval
 public import Lean.Server.Rpc.RequestHandling
-public import Lean.Widget.Types
-meta import Lean.Parser.Term
 meta import Lean.Elab.Command
 
 public section
@@ -67,6 +65,7 @@ builtin_initialize widgetModuleAttrImpl : AttributeImpl ←
         "Registers a widget module. Its type must implement Lean.Widget.ToModule."
       applicationTime := .afterCompilation
       add             := fun decl stx kind => Prod.fst <$> MetaM.run do
+        withoutExporting do  -- result should be private anyway
         Attribute.Builtin.ensureNoArgs stx
         unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
         let e ← mkAppM ``ToModule.toModule #[.const decl []]

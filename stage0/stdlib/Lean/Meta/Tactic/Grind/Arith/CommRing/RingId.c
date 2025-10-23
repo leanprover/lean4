@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
-// Imports: public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM import Init.Grind.Ring.Field import Init.Grind.Ring.Envelope import Lean.Meta.Tactic.Grind.Simp import Lean.Meta.Tactic.Grind.SynthInstance import Lean.Meta.Tactic.Grind.Arith.Insts
+// Imports: public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM import Init.Grind.Ring.Field import Init.Grind.Ring.Envelope import Lean.Meta.Tactic.Grind.Simp import Lean.Meta.Tactic.Grind.Arith.Insts
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -6237,7 +6237,6 @@ lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_RingM(uint8_t buil
 lean_object* initialize_Init_Grind_Ring_Field(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Ring_Envelope(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Simp(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Grind_SynthInstance(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Insts(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_RingId(uint8_t builtin, lean_object* w) {
@@ -6254,9 +6253,6 @@ res = initialize_Init_Grind_Ring_Envelope(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Simp(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_SynthInstance(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Arith_Insts(builtin, lean_io_mk_world());

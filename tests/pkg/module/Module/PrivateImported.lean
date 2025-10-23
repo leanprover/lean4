@@ -21,3 +21,7 @@ Note: A public declaration `f` exists but is imported privately; consider adding
 -/
 #guard_msgs in
 @[expose] public def h : True := f
+
+/-! `initialize` should be run even if imported IR-only. -/
+
+public def publicDefOfPrivatelyInitialized := initialized

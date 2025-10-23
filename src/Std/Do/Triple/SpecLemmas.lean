@@ -7,9 +7,6 @@ module
 
 prelude
 public import Std.Do.Triple.Basic
-public import Std.Do.WP
-public import Init.Data.Range.Polymorphic.UpwardEnumerable
-public import Init.Data.Range.Polymorphic.PRange
 public import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic
 

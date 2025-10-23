@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.RArray
-// Imports: public import Init.Data.RArray public import Lean.Meta.InferType public import Lean.Meta.DecLevel public import Lean.ToExpr
+// Imports: public import Lean.Meta.DecLevel
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -426,25 +426,13 @@ x_10 = l_Lean_RArray_toExpr___redArg(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_10;
 }
 }
-lean_object* initialize_Init_Data_RArray(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_InferType(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_DecLevel(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_ToExpr(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_RArray(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_RArray(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_InferType(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_DecLevel(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_ToExpr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_RArray_toExpr___redArg___closed__0 = _init_l_Lean_RArray_toExpr___redArg___closed__0();

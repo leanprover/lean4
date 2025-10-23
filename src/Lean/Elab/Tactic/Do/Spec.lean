@@ -6,13 +6,11 @@ Authors: Lars König, Mario Carneiro, Sebastian Graf
 module
 
 prelude
-public import Lean.Elab.Tactic.Do.ProofMode.Basic
 public import Lean.Elab.Tactic.Do.ProofMode.Intro
 public import Lean.Elab.Tactic.Do.ProofMode.Pure
 public import Lean.Elab.Tactic.Do.ProofMode.Frame
 public import Lean.Elab.Tactic.Do.ProofMode.Assumption
 public import Lean.Elab.Tactic.Do.Attr
-public import Std.Do.Triple
 
 namespace Lean.Elab.Tactic.Do
 open Lean Elab Tactic Meta

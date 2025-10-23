@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Parser.Basic
 public import Lean.ScopedEnvExtension
-import Lean.PrivateName
 import Lean.BuiltinDocAttr
 
 public section
@@ -664,7 +663,7 @@ inductive ParserResolution where
   | alias (p : ParserAliasValue)
 
 /-- Resolve the given parser name and return a list of candidates. -/
-def resolveParserNameCore (env : Environment) (currNamespace : Name)
+private def resolveParserNameCore (env : Environment) (opts : Options) (currNamespace : Name)
     (openDecls : List OpenDecl) (ident : Ident) : List ParserResolution := Id.run do
   let ⟨.ident (val := val) (preresolved := pre) ..⟩ := ident | return []
 
@@ -685,7 +684,7 @@ def resolveParserNameCore (env : Environment) (currNamespace : Name)
   if isParserCategory env erased then
     return [.category erased]
 
-  let resolved ← ResolveName.resolveGlobalName env currNamespace openDecls val |>.filterMap fun
+  let resolved ← ResolveName.resolveGlobalName env opts currNamespace openDecls val |>.filterMap fun
     | (name, []) => (isParser name).map fun isDescr => .parser name isDescr
     | _ => none
   unless resolved.isEmpty do
@@ -699,11 +698,11 @@ def resolveParserNameCore (env : Environment) (currNamespace : Name)
 
 /-- Resolve the given parser name and return a list of candidates. -/
 def ParserContext.resolveParserName (ctx : ParserContext) (id : Ident) : List ParserResolution :=
-  Parser.resolveParserNameCore ctx.env ctx.currNamespace ctx.openDecls id
+  Parser.resolveParserNameCore ctx.env ctx.options ctx.currNamespace ctx.openDecls id
 
 /-- Resolve the given parser name and return a list of candidates. -/
 def resolveParserName (id : Ident) : CoreM (List ParserResolution) :=
-  return resolveParserNameCore (← getEnv) (← getCurrNamespace) (← getOpenDecls) id
+  return resolveParserNameCore (← getEnv) (← getOptions) (← getCurrNamespace) (← getOpenDecls) id
 
 def parserOfStackFn (offset : Nat) : ParserFn := fun ctx s => Id.run do
   let stack := s.stxStack

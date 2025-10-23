@@ -6,11 +6,9 @@ Authors: Arthur Paulino, Gabriel Ebner, Mario Carneiro
 module
 
 prelude
-public import Lean.Meta.Tactic.Assumption
 public import Lean.Meta.Tactic.TryThis
 public import Lean.Elab.Tactic.Simp
 public import Lean.Elab.App
-public import Lean.Linter.Basic
 
 public section
 

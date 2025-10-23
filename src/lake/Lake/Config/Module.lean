@@ -6,9 +6,7 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lake.Build.Trace
 public import Lake.Config.LeanLib
-public import Lake.Config.OutFormat
 import Lake.Util.OrdHashSet
 import Lake.Util.NativeLib
 import Lake.Util.FilePath

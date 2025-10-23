@@ -8,8 +8,6 @@ module
 prelude
 public import Init.System.IOError
 public import Init.System.FilePath
-public import Init.System.ST
-public import Init.Data.Ord.Basic
 public import Init.Data.Ord.UInt
 public import Init.Data.String.Extra
 
@@ -398,7 +396,7 @@ If `nBytes` is `0`, returns immediately with an empty buffer.
 /--
 Pauses execution for the specified number of milliseconds.
 -/
-def sleep (ms : UInt32) : BaseIO Unit :=
+opaque sleep (ms : UInt32) : BaseIO Unit :=
   -- TODO: add a proper primitive for IO.sleep
   fun s => dbgSleep ms fun _ => EStateM.Result.ok () s
 

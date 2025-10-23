@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Async.Select
-// Imports: public import Init.Data.Array.Basic public import Init.Data.Random public import Std.Internal.Async.Basic import Init.Data.ByteArray.Extra
+// Imports: public import Init.Data.Random public import Std.Internal.Async.Basic import Init.Data.ByteArray.Extra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -6049,7 +6049,6 @@ x_12 = l_Std_Internal_IO_Async_Selectable_combine___redArg___lam__2(x_1, x_9, x_
 return x_12;
 }
 }
-lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Random(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Internal_Async_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_ByteArray_Extra(uint8_t builtin, lean_object*);
@@ -6058,9 +6057,6 @@ LEAN_EXPORT lean_object* initialize_Std_Internal_Async_Select(uint8_t builtin, l
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Random(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

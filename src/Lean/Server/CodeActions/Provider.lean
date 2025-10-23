@@ -10,7 +10,6 @@ public import Std.Data.Iterators.Producers.Range
 public import Std.Data.Iterators.Combinators.StepSize
 public import Lean.Elab.BuiltinTerm
 public import Lean.Elab.BuiltinNotation
-public import Lean.Server.InfoUtils
 public import Lean.Server.CodeActions.Attr
 
 public section

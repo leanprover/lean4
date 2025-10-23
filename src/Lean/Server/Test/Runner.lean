@@ -7,7 +7,6 @@ Authors: Sebastian Ullrich, Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Data.Lsp
 public import Lean.Widget
 import Lean.Server.FileWorker.WidgetRequests
 public import Lean.Server.GoTo
@@ -639,11 +638,11 @@ def processGenericRequest : RunnerM Unit := do
 def processDirective (ws directive : String) (directiveTargetLineNo : Nat) : RunnerM Unit := do
   let directive := directive.drop 1
   let colon := directive.posOf ':'
-  let method := directive.extract 0 colon |>.trim
+  let method := String.Pos.Raw.extract directive 0 colon |>.trim
   -- TODO: correctly compute in presence of Unicode
   let directiveTargetColumn := ws.endPos + "--"
   let pos : Lsp.Position := { line := directiveTargetLineNo, character := directiveTargetColumn.byteIdx }
-  let params := if colon < directive.endPos then directive.extract (colon + ':') directive.endPos |>.trim else "{}"
+  let params := if colon < directive.endPos then String.Pos.Raw.extract directive (colon + ':') directive.endPos |>.trim else "{}"
   modify fun s => { s with pos, method, params }
   match method with
   -- `delete: "foo"` deletes the given string's number of characters at the given position.

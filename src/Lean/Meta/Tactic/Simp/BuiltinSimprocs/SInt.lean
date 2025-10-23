@@ -6,9 +6,6 @@ Authors: Leonardo de Moura, Markus Himmel
 module
 
 prelude
-public import Lean.Meta.LitValues
-public import Init.Data.SInt.Lemmas
-public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int
 
 public section

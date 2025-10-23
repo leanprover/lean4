@@ -6,9 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Elab.PreDefinition.Basic
-public import Lean.Elab.PreDefinition.TerminationMeasure
-public import Lean.Elab.PreDefinition.Mutual
 public import Lean.Elab.PreDefinition.WF.PackMutual
 public import Lean.Elab.PreDefinition.WF.FloatRecApp
 public import Lean.Elab.PreDefinition.WF.Rel
@@ -53,10 +50,11 @@ def wfRecursion (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDe
     -- No termination_by here, so use GuessLex to infer one
     guessLex preDefs unaryPreDefProcessed fixedParamPerms argsPacker
 
-  let opaqueProof := !
-    preDefs.any fun preDef =>
-      preDef.modifiers.attrs.any fun a =>
-        a.name = `reducible || a.name = `semireducible
+  -- Warn about likely unwanted reducibility attributes
+  preDefs.forM fun preDef =>
+    preDef.modifiers.attrs.forM fun a => do
+      if a.name = `reducible || a.name = `semireducible then
+        logWarningAt a.stx s!"marking functions defined by well-founded recursion as `{a.name}` is not effective"
 
   let preDefNonRec ← forallBoundedTelescope unaryPreDef.type fixedParamPerms.numFixed fun fixedArgs type => do
     let type ← whnfForall type
@@ -67,7 +65,7 @@ def wfRecursion (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDe
       trace[Elab.definition.wf] "wfRel: {wfRel}"
       let (value, envNew) ← withoutModifyingEnv' do
         addAsAxiom unaryPreDef
-        let value ← mkFix unaryPreDefProcessed fixedArgs argsPacker wfRel (preDefs.map (·.declName)) (preDefs.map (·.termination.decreasingBy?)) opaqueProof
+        let value ← mkFix unaryPreDefProcessed fixedArgs argsPacker wfRel (preDefs.map (·.declName)) (preDefs.map (·.termination.decreasingBy?))
         eraseRecAppSyntaxExpr value
       /- `mkFix` invokes `decreasing_tactic` which may add auxiliary theorems to the environment. -/
       let value ← unfoldDeclsFrom envNew value

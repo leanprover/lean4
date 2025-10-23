@@ -6,12 +6,7 @@ Authors: Leonardo de Moura, Gabriel Ebner
 module
 
 prelude
-public import Lean.Compiler.BorrowedAnnotation
-public import Lean.Meta.KAbstract
-public import Lean.Meta.Closure
-public import Lean.Meta.MatchUtil
 public import Lean.Compiler.ImplementedByAttr
-public import Lean.Elab.SyntheticMVars
 public import Lean.Elab.Eval
 public import Lean.Elab.Binders
 meta import Lean.Parser.Do

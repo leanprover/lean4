@@ -6,10 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Zero
-public import Init.Data.Int.DivMod.Lemmas
 public import Init.Data.Int.LemmasAux
-public import Init.Data.Int.Pow
 public import Init.TacticsExtra
 public import Init.Grind.Module.Basic
 

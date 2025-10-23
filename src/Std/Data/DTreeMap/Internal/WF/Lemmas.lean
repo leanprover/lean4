@@ -6,10 +6,7 @@ Authors: Markus Himmel, Paul Reichert
 module
 
 prelude
-public import Init.Data.Option.List
-public import Init.Data.Array.Bootstrap
 public import Std.Data.DTreeMap.Internal.Model
-public import Std.Data.Internal.Cut
 import all Std.Data.Internal.List.Associative
 
 @[expose] public section

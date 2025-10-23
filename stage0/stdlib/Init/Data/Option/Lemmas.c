@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Option.Lemmas
-// Imports: public import Init.Data.Option.BasicAux import all Init.Data.Option.BasicAux public import Init.Data.Option.Instances import all Init.Data.Option.Instances public import Init.Data.BEq public import Init.Classical public import Init.Ext public import Init.Grind.Tactics
+// Imports: import all Init.Data.Option.BasicAux public import Init.Data.Option.Instances import all Init.Data.Option.Instances public import Init.Data.BEq public import Init.Classical public import Init.Ext
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -416,21 +416,16 @@ return x_10;
 }
 }
 lean_object* initialize_Init_Data_Option_BasicAux(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Option_BasicAux(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Option_Instances(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Option_Instances(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BEq(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Classical(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Ext(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_Tactics(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Option_BasicAux(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Option_BasicAux(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -447,9 +442,6 @@ res = initialize_Init_Classical(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Ext(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Grind_Tactics(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

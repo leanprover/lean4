@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Format
-// Imports: public import Std.Time.Notation.Spec public import Std.Time.Format.Basic import all Std.Time.Format.Basic public import Std.Time.Internal.Bounded
+// Imports: public import Std.Time.Notation.Spec public import Std.Time.Format.Basic import all Std.Time.Format.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -7180,7 +7180,6 @@ return x_2;
 lean_object* initialize_Std_Time_Notation_Spec(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time_Format_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time_Format_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Time_Internal_Bounded(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Time_Format(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -7193,9 +7192,6 @@ res = initialize_Std_Time_Format_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Time_Format_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Time_Internal_Bounded(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Time_Formats_iso8601___closed__0 = _init_l_Std_Time_Formats_iso8601___closed__0();

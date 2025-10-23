@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DHashMap.Internal.WF
-// Imports: import all Std.Data.Internal.List.Associative import all Std.Data.DHashMap.Raw public import Std.Data.DHashMap.Basic import all Std.Data.DHashMap.Internal.Defs public import Std.Data.DHashMap.Internal.Model import all Std.Data.DHashMap.Internal.AssocList.Basic public import Std.Data.DHashMap.Internal.AssocList.Lemmas
+// Imports: import all Std.Data.Internal.List.Associative import all Std.Data.DHashMap.Raw import all Std.Data.DHashMap.Internal.Defs public import Std.Data.DHashMap.Internal.Model import all Std.Data.DHashMap.Internal.AssocList.Basic import all Std.Data.DHashMap.RawDef
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -408,11 +408,10 @@ return x_6;
 }
 lean_object* initialize_Std_Data_Internal_List_Associative(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_DHashMap_Raw(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DHashMap_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_DHashMap_Internal_Defs(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_DHashMap_Internal_Model(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_DHashMap_Internal_AssocList_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DHashMap_Internal_AssocList_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_DHashMap_RawDef(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_DHashMap_Internal_WF(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -424,9 +423,6 @@ lean_dec_ref(res);
 res = initialize_Std_Data_DHashMap_Raw(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Std_Data_DHashMap_Internal_Defs(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -436,7 +432,7 @@ lean_dec_ref(res);
 res = initialize_Std_Data_DHashMap_Internal_AssocList_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Internal_AssocList_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Std_Data_DHashMap_RawDef(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.AssocList
-// Imports: public import Init.Control.Id public import Init.Data.List.Impl
+// Imports: public import Init.Data.List.Impl
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1441,16 +1441,12 @@ lean_dec(x_3);
 return x_4;
 }
 }
-lean_object* initialize_Init_Control_Id(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Impl(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_AssocList(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_Id(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_List_Impl(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

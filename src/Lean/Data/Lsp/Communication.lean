@@ -7,7 +7,6 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 module
 
 prelude
-public import Init.System.IO
 public import Lean.Data.JsonRpc
 
 public section

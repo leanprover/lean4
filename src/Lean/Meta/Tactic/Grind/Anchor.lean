@@ -23,9 +23,12 @@ def hashName (n : Name) : UInt64 :=
   else if isPrivateName n then
     hash (privateToUserName n)
   else if n.isInternal then
-    match n with
-    | .str p _ | .num p _ => hashName p
-    | _ => 0
+    /-
+    **Note** We consider hashing the prefix, but it was not good enough.
+    For example, an internal name may depend on the name of theorem being defined.
+    Moreover, changing a `theorem` to an `example` would break anchors.
+    -/
+    0
   else
     hash n
 
@@ -45,8 +48,10 @@ public partial def getAnchor (e : Expr) : GrindM UInt64 := do
       "instability". Recall that `match` auxiliary declarations are reused.
       -/
       if (← isMatcher declName) then pure 0
-      else pure <| hash declName
-    | .fvar fvarId => pure <| hashName (← fvarId.getDecl).userName
+      else pure <| hashName declName
+    | .fvar fvarId =>
+      let userName := (← fvarId.getDecl).userName
+      pure <| hashName userName
     | .mdata _ b => getAnchor b
     | .letE n v t b _ =>
       pure <| mix (hashName n) <| mix (← getAnchor t) <| mix (← getAnchor v) (← getAnchor b)
@@ -86,5 +91,45 @@ Example: `isAnchorPrefix 4 0x0c88 0x0c88ab10ef20206a` returns `true`
 public def isAnchorPrefix (numHexDigits : Nat) (anchorPrefix : UInt64) (anchor : UInt64) : Bool :=
   let shift := 64 - numHexDigits.toUInt64*4
   anchorPrefix == anchor >>> shift
+
+public class HasAnchor (α : Type u) where
+  getAnchor : α → UInt64
+
+/--
+Returns the number of digits needed to distinguish the anchors in `es`
+-/
+public def getNumDigitsForAnchors [HasAnchor α] (es : Array α) : Nat :=
+  go 4
+where
+  go (numDigits : Nat) : Nat := Id.run do
+    if 4*numDigits  < 64 then
+      let shift := 64 - 4*numDigits
+      let mut found : Std.HashSet UInt64 := {}
+      for e in es do
+        let a := HasAnchor.getAnchor e
+        let a' := a >>> shift.toUInt64
+        if found.contains a' then
+          return (← go (numDigits+1))
+        else
+          found  := found.insert a'
+      return numDigits
+    else
+      return numDigits
+  termination_by 64 - 4*numDigits
+
+public structure ExprWithAnchor where
+  e      : Expr
+  anchor : UInt64
+
+public instance : HasAnchor ExprWithAnchor where
+  getAnchor e := e.anchor
+
+public def mkAnchorSyntaxFromPrefix (numDigits : Nat) (anchorPrefix : UInt64) : CoreM (TSyntax ``Parser.Tactic.Grind.anchor) := do
+  let hexnum := mkNode `hexnum #[mkAtom (anchorPrefixToString numDigits anchorPrefix)]
+  `(Parser.Tactic.Grind.anchor| #$hexnum)
+
+public def mkAnchorSyntax (numDigits : Nat) (anchor : UInt64) : CoreM (TSyntax ``Parser.Tactic.Grind.anchor) := do
+  let anchorPrefix := anchor >>> (64 - 4*numDigits.toUInt64)
+  mkAnchorSyntaxFromPrefix numDigits anchorPrefix
 
 end Lean.Meta.Grind

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Dyadic.Round
-// Imports: public import Init.Data.Dyadic.Basic import all Init.Data.Dyadic.Instances import Init.Data.Int.Bitwise.Lemmas import Init.Grind.Ordered.Rat import Init.Grind.Ordered.Field
+// Imports: public import Init.Data.Dyadic.Basic import all Init.Data.Dyadic.Instances import Init.Grind.Ordered.Rat import Init.Grind.Ordered.Field
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -86,7 +86,6 @@ return x_5;
 }
 lean_object* initialize_Init_Data_Dyadic_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Dyadic_Instances(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Int_Bitwise_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Ordered_Rat(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Ordered_Field(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -98,9 +97,6 @@ res = initialize_Init_Data_Dyadic_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Dyadic_Instances(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Int_Bitwise_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_Ordered_Rat(builtin, lean_io_mk_world());

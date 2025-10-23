@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Marc Huisinga
 module
 
 prelude
-public import Init.Prelude
 public import Lean.Meta.WHNF
 
 public section
@@ -15,16 +14,16 @@ partial def String.charactersIn (a b : String) : Bool :=
   go ⟨0⟩ ⟨0⟩
 where
   go (aPos bPos : String.Pos.Raw) : Bool :=
-    if ha : a.atEnd aPos then
+    if ha : aPos.atEnd a then
       true
-    else if hb : b.atEnd bPos then
+    else if hb : bPos.atEnd b then
       false
     else
-      let ac := a.get' aPos ha
-      let bc := b.get' bPos hb
-      let bPos := b.next' bPos hb
+      let ac := aPos.get' a ha
+      let bc := bPos.get' b hb
+      let bPos := bPos.next' b hb
       if ac == bc then
-        let aPos := a.next' aPos ha
+        let aPos := aPos.next' a ha
         go aPos bPos
       else
         go aPos bPos
@@ -41,13 +40,13 @@ structure ContextualizedCompletionInfo where
   ctx       : ContextInfo
   info      : CompletionInfo
 
-def minimizeGlobalIdentifierInContext (currNamespace : Name) (openDecls : List OpenDecl) (id : Name)
+partial def minimizeGlobalIdentifierInContext (currNamespace : Name) (openDecls : List OpenDecl) (id : Name)
     : Name := Id.run do
-  let mut minimized := shortenIn id currNamespace
+  let mut minimized := shortenInCurrentNamespace id currNamespace
   for openDecl in openDecls do
     let candidate? := match openDecl with
       | .simple ns except =>
-        let candidate := shortenIn id ns
+        let candidate := shortenInOpenNamespace id ns
         if ! except.contains candidate then
           some candidate
         else
@@ -62,13 +61,20 @@ def minimizeGlobalIdentifierInContext (currNamespace : Name) (openDecls : List O
         minimized := candidate
   return minimized
 where
-  shortenIn (id : Name) (contextNamespace : Name) : Name :=
-    if contextNamespace matches .anonymous then
+  shortenInCurrentNamespace (id : Name) (currentNamespace : Name) : Name :=
+    if currentNamespace matches .anonymous then
       id
-    else if contextNamespace.isPrefixOf id then
-      id.replacePrefix contextNamespace .anonymous
     else
+      let maybeShortened := shortenInOpenNamespace id currentNamespace
+      if maybeShortened != id then
+        maybeShortened
+      else
+        shortenInCurrentNamespace id currentNamespace.getPrefix
+  shortenInOpenNamespace (id : Name) (openNamespace : Name) : Name :=
+    if openNamespace == id then
       id
+    else
+      id.replacePrefix openNamespace .anonymous
 
 def unfoldDefinitionGuarded? (e : Expr) : MetaM (Option Expr) :=
   try Lean.Meta.unfoldDefinition? e catch _ => pure none

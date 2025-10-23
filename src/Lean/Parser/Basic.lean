@@ -937,7 +937,7 @@ private def isToken (idStartPos idStopPos : String.Pos.Raw) (tk : Option Token) 
   | some tk =>
      -- if a token is both a symbol and a valid identifier (i.e. a keyword),
      -- we want it to be recognized as a symbol
-    tk.endPos ≥ idStopPos - idStartPos
+    tk.utf8ByteSize ≥ idStartPos.byteDistance idStopPos
 
 
 def mkTokenAndFixPos (startPos : String.Pos.Raw) (tk : Option Token) : ParserFn := fun c s =>
@@ -1160,12 +1160,12 @@ def nonReservedSymbolNoAntiquot (sym : String) (includeIdent := false) : Parser 
 
 partial def strAux (sym : String) (errorMsg : String) (j : String.Pos.Raw) :ParserFn :=
   let rec parse (j c s) :=
-    if h₁ : sym.atEnd j then s
+    if h₁ : j.atEnd sym then s
     else
       let i := s.pos
       if h₂ : c.atEnd i then s.mkError errorMsg
-      else if sym.get' j h₁ != c.get' i h₂ then s.mkError errorMsg
-      else parse (sym.next' j h₁) c (s.next' c i h₂)
+      else if j.get' sym h₁ != c.get' i h₂ then s.mkError errorMsg
+      else parse (j.next' sym h₁) c (s.next' c i h₂)
   parse j
 
 def checkTailWs (prev : Syntax) : Bool :=

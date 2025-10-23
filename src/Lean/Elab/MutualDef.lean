@@ -6,19 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Parser.Term
-public import Lean.Meta.Closure
-public import Lean.Meta.Check
-public import Lean.Meta.Transform
-public import Lean.PrettyPrinter.Delaborator.Options
-public import Lean.Elab.Command
-public import Lean.Elab.Match
-public import Lean.Elab.DefView
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.PreDefinition.Main
-public import Lean.Elab.PreDefinition.TerminationHint
-public import Lean.Elab.DeclarationRange
-public import Lean.Elab.WhereFinally
 
 public section
 
@@ -377,7 +366,7 @@ private def expandWhereStructInst : Macro := fun whereStx => do
   let endOfStructureTkInfo : SourceInfo :=
     match structureStxTailInfo with
     | some (SourceInfo.original _ _ trailing _) =>
-      let tokenPos := trailing.str.prev trailing.stopPos
+      let tokenPos := trailing.stopPos.prev trailing.str
       let tokenEndPos := trailing.stopPos
       .synthetic tokenPos tokenEndPos true
     | _ => .none
@@ -547,6 +536,14 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
               -- leads to more section variables being included than necessary
               instantiateMVarsProfiling val
         let val ← mkLambdaFVars xs val
+        if header.type?.isNone && (← getEnv).header.isModule && !(← getEnv).isExporting &&
+            !isPrivateName header.declName && header.kind != .example then
+          -- If the type of a non-exposed definition was elided, we need to check after the fact
+          -- whether it is in fact well-formed.
+          withRef header.declId do
+          withExporting do
+            let type ← instantiateMVars type
+            Meta.check type
         if linter.unusedSectionVars.get (← getOptions) && !header.type.hasSorry && !val.hasSorry then
           let unusedVars ← vars.filterMapM fun var => do
             let varDecl ← var.fvarId!.getDecl
@@ -1191,8 +1188,16 @@ where
     let tacPromises ← views.mapM fun _ => IO.Promise.new
     let expandedDeclIds ← views.mapM fun view => withRef view.headerRef do
       Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
+    for view in views, declId in expandedDeclIds do
+      -- Add tags early so elaboration can access them
+      match view.modifiers.computeKind with
+      | .meta          => modifyEnv (addMeta · declId.declName)
+      | .noncomputable => modifyEnv (addNoncomputable · declId.declName)
+      | .regular       => pure ()
     withExporting (isExporting :=
       -- `example`s are always private unless explicitly marked `public`
+      -- (it would be more consistent to give them a private name as well but that exposes that
+      -- encoded name in e.g. kernel errors where it's hard to replace it)
       views.any (fun view => view.kind != .example || view.modifiers.isPublic) &&
       expandedDeclIds.any (!isPrivateName ·.declName)) do
     let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises

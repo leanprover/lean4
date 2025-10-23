@@ -7,7 +7,6 @@ module
 
 prelude
 public import Std.Tactic.Do.Syntax
-public import Lean.Elab.Tactic.Do.ProofMode.MGoal
 public import Lean.Elab.Tactic.Do.ProofMode.Focus
 public import Lean.Elab.Tactic.Meta
 

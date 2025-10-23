@@ -363,6 +363,10 @@ instance : MonadExcept Exception TacticM where
 def withoutRecover (x : TacticM α) : TacticM α :=
   withReader (fun ctx => { ctx with recover := false }) x
 
+/-- Execute `x` with error recovery disabled -/
+def withRecover (recover : Bool) (x : TacticM α) : TacticM α :=
+  withReader (fun ctx => { ctx with recover }) x
+
 /--
 Like `throwErrorAt`, but, if recovery is enabled, logs the error instead.
 -/

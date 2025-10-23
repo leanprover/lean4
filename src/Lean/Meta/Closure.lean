@@ -183,7 +183,7 @@ def pushLocalDecl (newFVarId : FVarId) (userName : Name) (type : Expr) (bi := Bi
   -- Since we put these before all let declarations in the type,
   -- reduce all the let declarations we have so far
   let mut decl := .cdecl default newFVarId userName type bi .default
-  for ldecl in (← get).newLetDecls do
+  for ldecl in (← get).newLetDecls.reverse do
     decl := decl.replaceFVarId ldecl.fvarId ldecl.value
   modify fun s => { s with newLocalDecls := s.newLocalDecls.push decl }
 

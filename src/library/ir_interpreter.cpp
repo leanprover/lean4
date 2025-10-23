@@ -49,6 +49,7 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #include "library/init_attribute.h"
 #include "util/nat.h"
 #include "util/option_declarations.h"
+#include "util/name_hash_map.h"
 
 #ifndef LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE
 #define LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE true
@@ -204,7 +205,7 @@ static string_ref * g_boxed_mangled_suffix = nullptr;
 static name * g_interpreter_prefer_native = nullptr;
 
 // constants (lacking native declarations) initialized by `lean_run_init`
-static name_map<object *> * g_init_globals;
+static name_hash_map<object *> * g_init_globals;
 
 // reuse the compiler's name mangling to compute native symbol names
 extern "C" object * lean_name_mangle(object * n, object * pre);
@@ -364,7 +365,7 @@ struct native_symbol_cache_entry {
 
 // Caches native symbol lookup successes _and_ failures; we assume no native code is loaded or
 // unloaded after the interpreter is first invoked, so this can be a global cache.
-name_map<native_symbol_cache_entry> * g_native_symbol_cache;
+name_hash_map<native_symbol_cache_entry> * g_native_symbol_cache;
 // could be `shared_mutex` with C++17
 std::shared_timed_mutex * g_native_symbol_cache_mutex;
 
@@ -391,7 +392,7 @@ class interpreter {
       value m_val;
     };
     // caches values of nullary functions ("constants")
-    name_map<constant_cache_entry> m_constant_cache;
+    name_hash_map<constant_cache_entry> m_constant_cache;
     struct symbol_cache_entry {
         // looking up IR from .oleans is slow enough to warrant its own cache; but as local IR can
         // be backtracked, this cache needs to be local as well.
@@ -399,7 +400,7 @@ class interpreter {
         native_symbol_cache_entry m_native;
     };
     // caches symbol lookup successes _and_ failures
-    name_map<symbol_cache_entry> m_symbol_cache;
+    name_hash_map<symbol_cache_entry> m_symbol_cache;
 
     /** \brief Get current stack frame */
     inline frame & get_frame() {
@@ -816,20 +817,23 @@ private:
 
     /** \brief Return cached lookup result for given unmangled function name in the current binary. */
     symbol_cache_entry lookup_symbol(name const & fn) {
-        if (symbol_cache_entry const * e = m_symbol_cache.find(fn)) {
-            return *e;
+        auto e = m_symbol_cache.find(fn);
+        if (e != m_symbol_cache.end()) {
+            return e->second;
         }
         std::shared_lock<std::shared_timed_mutex> lock(*g_native_symbol_cache_mutex);
-        if (native_symbol_cache_entry const * ne = g_native_symbol_cache->find(fn)) {
-            symbol_cache_entry e_new { get_decl(fn), *ne };
-            m_symbol_cache.insert(fn, e_new);
+        auto ne = g_native_symbol_cache->find(fn);
+        if (ne != g_native_symbol_cache->end()) {
+            symbol_cache_entry e_new { get_decl(fn), ne->second };
+            m_symbol_cache.insert({ fn, e_new });
             return e_new;
         }
         lock.unlock();
         std::unique_lock<std::shared_timed_mutex> unique_lock(*g_native_symbol_cache_mutex);
-        if (native_symbol_cache_entry const * ne = g_native_symbol_cache->find(fn)) {
-            symbol_cache_entry e_new { get_decl(fn), *ne };
-            m_symbol_cache.insert(fn, e_new);
+        ne = g_native_symbol_cache->find(fn);
+        if (ne != g_native_symbol_cache->end()) {
+            symbol_cache_entry e_new { get_decl(fn), ne->second };
+            m_symbol_cache.insert({ fn, e_new });
             return e_new;
         }
         symbol_cache_entry e_new { get_decl(fn), {nullptr, false} };
@@ -851,8 +855,8 @@ private:
                 }
             }
         }
-        g_native_symbol_cache->insert(fn, e_new.m_native);
-        m_symbol_cache.insert(fn, e_new);
+        g_native_symbol_cache->insert({ fn, e_new.m_native });
+        m_symbol_cache.insert({ fn, e_new });
         return e_new;
     }
 
@@ -867,15 +871,19 @@ private:
 
     /** \brief Evaluate nullary function ("constant"). */
     value load(name const & fn, type t) {
-        if (constant_cache_entry const * cached = m_constant_cache.find(fn)) {
-            if (!cached->m_is_scalar) {
-                inc(cached->m_val.m_obj);
+        auto cached_entry = m_constant_cache.find(fn);
+        if (cached_entry != m_constant_cache.end()) {
+            auto cached = cached_entry->second;
+            if (!cached.m_is_scalar) {
+                inc(cached.m_val.m_obj);
             }
-            return cached->m_val;
+            return cached.m_val;
         }
-        if (object * const * o = g_init_globals->find(fn)) {
+        auto o_entry = g_init_globals->find(fn);
+        if (o_entry != g_init_globals->end()) {
             // persistent, so no `inc` needed
-            return type_is_scalar(t) ? unbox_t(*o, t) : *o;
+            auto o = o_entry->second;
+            return type_is_scalar(t) ? unbox_t(o, t) : o;
         }
 
         symbol_cache_entry e = lookup_symbol(fn);
@@ -918,7 +926,7 @@ private:
         if (!type_is_scalar(t)) {
             inc(r.m_obj);
         }
-        m_constant_cache.insert(fn, constant_cache_entry { type_is_scalar(t), r });
+        m_constant_cache.insert({ fn, constant_cache_entry { type_is_scalar(t), r } });
         return r;
     }
 
@@ -1040,11 +1048,12 @@ public:
     interpreter(interpreter const &) = delete;
 
     ~interpreter() {
-        for_each(m_constant_cache, [](name const &, constant_cache_entry const & e) {
+        for (auto& it: m_constant_cache) {
+            auto e = it.second;
             if (!e.m_is_scalar) {
                 dec(e.m_val.m_obj);
             }
-        });
+        }
     }
 
     /** A variant of `call` designed for external uses.
@@ -1121,7 +1130,7 @@ public:
                 if (e.m_native.m_addr) {
                     *((object **)e.m_native.m_addr) = o;
                 } else {
-                    g_init_globals->insert(decl, o);
+                    g_init_globals->insert({ decl, o });
                 }
                 return lean_io_result_mk_ok(box(0));
             } else {
@@ -1207,14 +1216,14 @@ void initialize_ir_interpreter() {
     ir::g_boxed_mangled_suffix = new string_ref("___boxed");
     mark_persistent(ir::g_boxed_mangled_suffix->raw());
     ir::g_interpreter_prefer_native = new name({"interpreter", "prefer_native"});
-    ir::g_init_globals = new name_map<object *>();
+    ir::g_init_globals = new name_hash_map<object *>();
     register_bool_option(*ir::g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE, "(interpreter) whether to use precompiled code where available");
     DEBUG_CODE({
         register_trace_class({"interpreter"});
         register_trace_class({"interpreter", "call"});
         register_trace_class({"interpreter", "step"});
     });
-    ir::g_native_symbol_cache = new name_map<ir::native_symbol_cache_entry>();
+    ir::g_native_symbol_cache = new name_hash_map<ir::native_symbol_cache_entry>();
     ir::g_native_symbol_cache_mutex = new std::shared_timed_mutex();
 }
 

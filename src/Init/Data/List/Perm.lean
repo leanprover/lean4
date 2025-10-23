@@ -516,6 +516,9 @@ theorem Perm.eq_of_pairwise : ∀ {l₁ l₂ : List α}
       h₁.tail h₂.tail h
     simp_all
 
+@[deprecated Perm.eq_of_pairwise (since := "2025-10-23")]
+abbrev Perm.eq_of_sorted := @Perm.eq_of_pairwise
+
 theorem Nodup.perm {l l' : List α} (hR : l.Nodup) (hl : l ~ l') : l'.Nodup :=
   Pairwise.perm hR hl (by intro x y h h'; simp_all)
 

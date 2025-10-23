@@ -281,7 +281,7 @@ def logAnchor (e : Expr) : TermElabM Unit := do
   goal.withContext <| withRef anchor <| logAnchor e
   let goals ← goals.filterMapM fun goal => do
     let (goal, _) ← liftGrindM <| SearchM.run goal do
-      intros genNew
+      intros genNew; discard <| assertAll
       getGoal
     if goal.inconsistent then
       return none

@@ -379,7 +379,7 @@ def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM
     -- **Note**: We use `withCheapCasesOnly` to ensure multiple goals are not created.
     -- We will add support for this case in the future.
     let (goal, _) ← withCheapCasesOnly <| SearchM.run goal do
-      intros 0
+      intros 0; discard <| assertAll
       getGoal
     let goals := if goal.inconsistent then [] else [goal]
     let ctx ← readThe Meta.Grind.Context

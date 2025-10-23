@@ -239,7 +239,9 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
       let newFVarId ← mkFreshFVarId
       match (← fvarId.getDecl) with
       | .cdecl _ _ userName type bi _ =>
+        trace[Meta.Closure] "starting decl {userName} : {type}"
         let type ← collect type
+        trace[Meta.Closure] "visiting decl {userName} : {type} as {mkFVar newFVarId}"
         pushLocalDecl newFVarId userName type bi
         pushArg (mkFVar fvarId)
       | .ldecl _ _ userName type val nondep _ =>
@@ -312,9 +314,9 @@ def mkValueTypeClosureAux (type : Expr) (value : Expr) : ClosureM (Expr × Expr)
 
 def mkValueTypeClosure (type : Expr) (value : Expr) (zetaDelta : Bool) : MetaM MkValueTypeClosureResult := do
   let ((type, value), s) ← ((mkValueTypeClosureAux type value).run { zetaDelta }).run {}
-  let newLocalDecls := s.newLocalDecls.reverse
-  let newArgs       := s.exprArgs.reverse
-  let newLetDecls   := s.newLetDecls.reverse
+  let newLocalDecls := s.newLocalDecls
+  let newArgs       := s.exprArgs
+  let newLetDecls   := s.newLetDecls
   let type  := mkForall newLocalDecls (mkForall newLetDecls type)
   let value := mkLambda newLocalDecls (mkLambda newLetDecls value)
   pure {

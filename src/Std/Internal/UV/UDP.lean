@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init.System.IO
 public import Init.System.Promise
 public import Std.Net
 
@@ -55,7 +54,7 @@ Sends data through an UDP socket. The `addr` parameter specifies the destination
 is `none`, the data is sent to the default peer address set by `connect`.
 -/
 @[extern "lean_uv_udp_send"]
-opaque send (socket : @& Socket) (data : ByteArray) (addr : @& Option SocketAddress) : IO (IO.Promise (Except IO.Error Unit))
+opaque send (socket : @& Socket) (data : Array ByteArray) (addr : @& Option SocketAddress) : IO (IO.Promise (Except IO.Error Unit))
 
 /--
 Receives data from an UDP socket. `size` is for the maximum bytes to receive. The promise

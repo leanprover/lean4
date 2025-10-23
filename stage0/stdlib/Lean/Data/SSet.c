@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.SSet
-// Imports: Lean.Data.SMap
+// Imports: public import Lean.Data.SMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

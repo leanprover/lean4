@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Widget.Types
-// Imports: Lean.Server.Rpc.Basic
+// Imports: public import Lean.Server.Rpc.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

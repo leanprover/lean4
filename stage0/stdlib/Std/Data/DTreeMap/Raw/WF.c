@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DTreeMap.Raw.WF
-// Imports: Std.Data.DTreeMap.Internal.Lemmas Std.Data.DTreeMap.Raw.AdditionalOperations Std.Data.DTreeMap.Raw.Basic
+// Imports: import Std.Data.DTreeMap.Internal.Lemmas public import Std.Data.DTreeMap.Raw.AdditionalOperations
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22,7 +22,6 @@ return lean_box(0);
 }
 lean_object* initialize_Std_Data_DTreeMap_Internal_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_DTreeMap_Raw_AdditionalOperations(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DTreeMap_Raw_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_DTreeMap_Raw_WF(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -32,9 +31,6 @@ res = initialize_Std_Data_DTreeMap_Internal_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_DTreeMap_Raw_AdditionalOperations(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Data_DTreeMap_Raw_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

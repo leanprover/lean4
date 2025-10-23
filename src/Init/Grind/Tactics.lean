@@ -4,13 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Grind.Attr
 public import Init.Core
-
+public import Init.Grind.Interactive
 public section
-
 namespace Lean.Grind
 /--
 The configuration for `grind`.
@@ -98,8 +95,16 @@ structure Config where
   zeta := true
   /--
   When `true` (default: `true`), uses procedure for handling equalities over commutative rings.
+  This solver also support commutative semirings, fields, and normalizer non-commutative rings and
+  semirings.
   -/
   ring := true
+  /--
+  Maximum number of steps performed by the `ring` solver.
+  A step is counted whenever one polynomial is used to simplify another.
+  For example, given `x^2 + 1` and `x^2 * y^3 + x * y`, the first can be
+  used to simplify the second to `-1 * y^3 + x * y`.
+  -/
   ringSteps := 10000
   /--
   When `true` (default: `true`), uses procedure for handling linear arithmetic for `IntModule`, and
@@ -114,6 +119,12 @@ structure Config where
   When `true` (default: `true`), uses procedure for handling associative (and commutative) operators.
   -/
   ac := true
+  /--
+  Maximum number of steps performed by the `ac` solver.
+  A step is counted whenever one AC equation is used to simplify another.
+  For example, given `ma x z = w` and `max x (max y z) = x`, the first can be
+  used to simplify the second to `max w y = x`.
+  -/
   acSteps := 1000
   /--
   Maximum exponent eagerly evaluated while computing bounds for `ToInt` and
@@ -124,7 +135,32 @@ structure Config where
   When `true` (default: `true`), automatically creates an auxiliary theorem to store the proof.
   -/
   abstractProof := true
+  /--
+  When `true` (default: `true`), enables the procedure for handling injective functions.
+  In this mode, `grind` takes into account theorems such as:
+  ```
+  @[grind inj] theorem double_inj : Function.Injective double
+  ```
+  -/
+  inj := true
+  /--
+  When `true` (default: `true`), enables the procedure for handling orders that implement
+  at least `Std.IsPreorder`
+  -/
+  order := true
+  /--
+  When `true` (default: `true`), enables the legacy module `offset`. This module will be deleted in
+  the future.
+  -/
+  offset := true
   deriving Inhabited, BEq
+
+/--
+Configuration for interactive mode.
+We disable `clean := false`.
+-/
+structure ConfigInteractive extends Config where
+  clean := false
 
 /--
 A minimal configuration, with ematching and splitting disabled, and all solver modules turned off.
@@ -179,10 +215,14 @@ namespace Lean.Parser.Tactic
 /-!
 `grind` tactic and related tactics.
 -/
+syntax grindErase    := "-" ident
+/--
+The `!` modifier instructs `grind` to consider only minimal indexable subexpressions
+when selecting patterns.
+-/
+syntax grindParam    := grindErase <|> grindLemma <|> grindLemmaMin
 
-syntax grindErase := "-" ident
-syntax grindLemma := ppGroup((Attr.grindMod ppSpace)? ident)
-syntax grindParam := grindErase <|> grindLemma
+open Parser.Tactic.Grind
 
 /--
 `grind` is a tactic inspired by modern SMT solvers. **Picture a virtual whiteboard**:
@@ -454,7 +494,7 @@ example (as : Array α) (lo hi i j : Nat) :
 syntax (name := grind)
   "grind" optConfig (&" only")?
   (" [" withoutPosition(grindParam,*) "]")?
-  (&" on_failure " term)? : tactic
+  (" => " grindSeq)? : tactic
 
 /--
 `grind?` takes the same arguments as `grind`, but reports an equivalent call to `grind only`
@@ -464,7 +504,7 @@ theorems in a local invocation.
 syntax (name := grindTrace)
   "grind?" optConfig (&" only")?
   (" [" withoutPosition(grindParam,*) "]")?
-  (&" on_failure " term)? : tactic
+  : tactic
 
 /--
 `cutsat` solves linear integer arithmetic goals.

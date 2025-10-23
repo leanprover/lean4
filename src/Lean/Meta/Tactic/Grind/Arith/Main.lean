@@ -6,8 +6,8 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
+import Init.Grind.Propagator
 import Lean.Meta.Tactic.Grind.PropagatorAttr
-import Lean.Meta.Tactic.Grind.Arith.Offset.Types
 import Lean.Meta.Tactic.Grind.Arith.Offset.Main
 import Lean.Meta.Tactic.Grind.Arith.Offset.Proof
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr

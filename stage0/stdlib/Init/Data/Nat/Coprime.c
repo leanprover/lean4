@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Coprime
-// Imports: Init.Data.Nat.Gcd
+// Imports: public import Init.Data.Nat.Gcd
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

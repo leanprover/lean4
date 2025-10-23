@@ -6,8 +6,7 @@ Authors: Leonardo de Moura and Sebastian Ullrich
 module
 
 prelude
-public import Init.Meta
-import Init.Data.String.Extra
+public import Init.Data.String.Extra
 
 /-!
 Here we give the. implementation of `Name.toString`. There is also a private implementation in
@@ -26,19 +25,19 @@ namespace Lean.Name
 -- If you change this, also change the corresponding function in `Init.Meta`.
 private partial def needsNoEscapeAsciiRest (s : String) (i : Nat) : Bool :=
   if h : i < s.utf8ByteSize then
-    let c := s.getUtf8Byte i h
+    let c := s.getUTF8Byte ⟨i⟩ h
     isIdRestAscii c && needsNoEscapeAsciiRest s (i + 1)
   else
     true
 
 -- If you change this, also change the corresponding function in `Init.Meta`.
 @[inline] private def needsNoEscapeAscii (s : String) (h : s.utf8ByteSize > 0) : Bool :=
-  let c := s.getUtf8Byte 0 h
+  let c := s.getUTF8Byte 0 h
   isIdFirstAscii c && needsNoEscapeAsciiRest s 1
 
 -- If you change this, also change the corresponding function in `Init.Meta`.
 @[inline] private def needsNoEscape (s : String) (h : s.utf8ByteSize > 0) : Bool :=
-  needsNoEscapeAscii s h || isIdFirst (s.get 0) && (s.toSubstring.drop 1).all isIdRest
+  needsNoEscapeAscii s h || isIdFirst s.front && (s.toSubstring.drop 1).all isIdRest
 
 -- If you change this, also change the corresponding function in `Init.Meta`.
 @[inline] private def escape (s : String) : String :=

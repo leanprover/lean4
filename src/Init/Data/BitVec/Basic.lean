@@ -6,11 +6,8 @@ Authors: Joe Hendrix, Wojciech Nawrocki, Leonardo de Moura, Mario Carneiro, Alex
 module
 
 prelude
-public import Init.Data.Fin.Basic
 public import Init.Data.Nat.Bitwise.Lemmas
-public import Init.Data.Nat.Power2
 public import Init.Data.Int.Bitwise.Basic
-public import Init.Data.BitVec.BasicAux
 
 @[expose] public section
 
@@ -28,10 +25,6 @@ of SMT-LIB v2.
 set_option linter.missingDocs true
 
 namespace BitVec
-
-@[inline, deprecated BitVec.ofNatLT (since := "2025-02-13"), inherit_doc BitVec.ofNatLT]
-protected def ofNatLt {n : Nat} (i : Nat) (p : i < 2 ^ n) : BitVec n :=
-  BitVec.ofNatLT i p
 
 section Nat
 
@@ -873,5 +866,8 @@ def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
 
 /-- Count the number of leading zeros. -/
 def clz (x : BitVec w) : BitVec w := clzAuxRec x (w - 1)
+
+/-- Count the number of trailing zeros. -/
+def ctz (x : BitVec w) : BitVec w := (x.reverse).clz
 
 end BitVec

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.Structural
-// Imports: Lean.Elab.PreDefinition.Structural.Main
+// Imports: public import Lean.Elab.PreDefinition.Structural.Main
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

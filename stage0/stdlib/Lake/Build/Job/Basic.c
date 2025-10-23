@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Job.Basic
-// Imports: Lake.Util.Log Lake.Util.Task Lake.Util.Opaque Lake.Build.Trace Lake.Build.Data
+// Imports: public import Lake.Util.Log public import Lake.Util.Task public import Lake.Util.Opaque public import Lake.Build.Trace public import Lake.Build.Data
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -125,6 +125,7 @@ LEAN_EXPORT lean_object* l_Lake_JobAction_fetch_elim___boxed(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lake_JobAction_merge___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_cast___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_mapOk___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_pure___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_JobAction_replay_elim___redArg(lean_object*);
 static lean_object* l_Lake_instReprJobAction___closed__0;
@@ -412,9 +413,14 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lake_JobAction_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_3;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = l_Lake_JobAction_ctorIdx(x_1);
+x_4 = l_Lake_JobAction_ctorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+x_6 = lean_alloc_closure((void*)(l_Lake_JobAction_noConfusion___redArg___lam__0___boxed), 1, 0);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
@@ -810,83 +816,36 @@ return x_6;
 LEAN_EXPORT uint8_t l_Lake_instOrdJobAction_ord(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-switch (x_1) {
-case 0:
-{
-if (x_2 == 0)
-{
-uint8_t x_3; 
-x_3 = 1;
-return x_3;
-}
-else
-{
-uint8_t x_4; 
-x_4 = 0;
-return x_4;
-}
-}
-case 1:
-{
-switch (x_2) {
-case 0:
-{
-uint8_t x_5; 
-x_5 = 2;
-return x_5;
-}
-case 1:
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = l_Lake_JobAction_ctorIdx(x_1);
+x_4 = l_Lake_JobAction_ctorIdx(x_2);
+x_5 = lean_nat_dec_lt(x_3, x_4);
+if (x_5 == 0)
 {
 uint8_t x_6; 
-x_6 = 1;
-return x_6;
-}
-default: 
+x_6 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+if (x_6 == 0)
 {
 uint8_t x_7; 
-x_7 = 0;
+x_7 = 2;
 return x_7;
 }
-}
-}
-case 2:
-{
-switch (x_2) {
-case 2:
+else
 {
 uint8_t x_8; 
 x_8 = 1;
 return x_8;
 }
-case 3:
-{
-uint8_t x_9; 
-x_9 = 0;
-return x_9;
-}
-default: 
-{
-uint8_t x_10; 
-x_10 = 2;
-return x_10;
-}
-}
-}
-default: 
-{
-if (x_2 == 3)
-{
-uint8_t x_11; 
-x_11 = 1;
-return x_11;
 }
 else
 {
-uint8_t x_12; 
-x_12 = 2;
-return x_12;
-}
-}
+uint8_t x_9; 
+lean_dec(x_4);
+lean_dec(x_3);
+x_9 = 0;
+return x_9;
 }
 }
 }

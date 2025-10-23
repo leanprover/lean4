@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Meta.Eqns
-public import Lean.Util.CollectAxioms
 public import Lean.Elab.Command
 import Lean.PrettyPrinter.Delaborator.Builtins
 
@@ -60,6 +59,9 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
   if isProtected (← getEnv) id then
     m := m ++ "protected "
 
+  if isMeta (← getEnv) id then
+    m := m ++ "meta "
+
   if sig then
     return m!"{m}{kind} {id'}{levelParamsToMessageData levelParams} : {type}"
   else
@@ -91,6 +93,19 @@ private def printInduct (id : Name) (levelParams : List Name) (numParams : Nat) 
   for ctor in ctors do
     let cinfo ← getConstInfo ctor
     m := m ++ Format.line ++ ctor ++ " : " ++ cinfo.type
+  logInfo m
+
+private def printRecursor (recInfo : RecursorVal) : CommandElabM Unit := do
+  let mut m ← mkHeader "recursor" recInfo.name recInfo.levelParams recInfo.type (if recInfo.isUnsafe then .unsafe else .safe)
+  m := m ++ Format.line ++ m!"number of parameters: {recInfo.numParams}"
+  m := m ++ Format.line ++ m!"number of indices: {recInfo.numIndices}"
+  m := m ++ Format.line ++ m!"number of motives: {recInfo.numMotives}"
+  m := m ++ Format.line ++ m!"number of minors: {recInfo.numMinors}"
+  if recInfo.k then
+    m := m ++ Format.line ++ m!"supports k-like reduction"
+  m := m ++ Format.line ++ "rules:"
+  for rule in recInfo.rules do
+    m := m ++ Format.line ++ m!"for {rule.ctor} ({rule.nfields} fields): {rule.rhs}"
   logInfo m
 
 /--
@@ -193,7 +208,7 @@ private def printIdCore (sigOnly : Bool) (id : Name) : CommandElabM Unit := do
   | ConstantInfo.opaqueInfo  { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "opaque" id us t (if u then .unsafe else .safe)
   | ConstantInfo.quotInfo  { levelParams := us, type := t, .. } => printQuot id us t
   | ConstantInfo.ctorInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "constructor" id us t (if u then .unsafe else .safe)
-  | ConstantInfo.recInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "recursor" id us t (if u then .unsafe else .safe)
+  | ConstantInfo.recInfo recInfo => printRecursor recInfo
   | ConstantInfo.inductInfo { levelParams := us, numParams, type := t, ctors, isUnsafe := u, .. } =>
     if isStructure env id then
       printStructure id us numParams t ctors[0]! u

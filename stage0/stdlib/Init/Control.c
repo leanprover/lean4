@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control
-// Imports: Init.Control.Basic Init.Control.State Init.Control.StateRef Init.Control.Id Init.Control.Except Init.Control.Reader Init.Control.Option Init.Control.Lawful Init.Control.StateCps Init.Control.ExceptCps
+// Imports: public import Init.Control.Basic public import Init.Control.State public import Init.Control.StateRef public import Init.Control.Id public import Init.Control.Except public import Init.Control.Reader public import Init.Control.Option public import Init.Control.Lawful public import Init.Control.StateCps public import Init.Control.ExceptCps
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -6,11 +6,9 @@ Authors: Kyle Miller
 module
 
 prelude
-public import Lean.Meta.InferType
 public import Lean.Meta.WHNF
 public import Lean.PrettyPrinter.Delaborator.Attributes
 public import Lean.PrettyPrinter.Delaborator.Options
-public import Lean.Structure
 
 public section
 

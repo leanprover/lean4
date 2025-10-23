@@ -1,13 +1,12 @@
-
 import Lean
-
-
-open Lean Doc Elab Term
 
 set_option doc.verso true
 
+/-!
+This test checks that the basic features of Verso docstrings work.
+-/
 
-
+open Lean Doc Elab Term
 
 
 @[doc_code_block]
@@ -23,6 +22,7 @@ def d (s : TSyntaxArray `block) : DocM (Block ElabInline ElabBlock) := do
  -/
 def oneLine := "one line"
 
+set_option doc.verso false
 /--
 x
 yz
@@ -74,6 +74,8 @@ def x (y : Nat) : Nat := y * 5
 #eval show TermElabM Unit from do (← findDocString? (← getEnv) ``x).forM (IO.println ·.quote)
 
 
+set_option doc.verso true
+
 /--
 {name}`inst`
 -/
@@ -121,7 +123,8 @@ To prove that a relation {name}`P` holds universally for the natural numbers (th
 
 : Inductive step
 
-  {lean}`P` relates non-zero {given}`m` to {given}`n` if it relates {lean}`n % m` to {lean}`m`.
+  {lean}`P` relates non-zero {given (type :="Nat")}`m` to {given}`n` if it relates {lean}`n % m` to
+  {lean}`m`.
 
 This follows the computational behavior of {name}`gcd`.
 -/
@@ -197,12 +200,18 @@ def a := "a"
 def b := "b"
 end A
 
-/-- error: Unknown constant `a` -/
+/--
+error: Unknown constant `a`
+
+Hint: Insert a fully-qualified name:
+  {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲A̲.̲a̲)̲}`a`
+-/
 #guard_msgs in
 /--
-{name}`a`
+role {name}`a` here
 -/
 def testDef := 15
+
 
 #guard_msgs in
 /--
@@ -220,7 +229,13 @@ def testDef' := 15
 -/
 def testDef'' := 15
 
-/-- error: Unknown constant `b` -/
+/--
+error: Unknown constant `b`
+
+Hint: Insert a fully-qualified name:
+  • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲A̲.̲b̲)̲}`b`
+  • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲M̲e̲t̲a̲.̲G̲r̲i̲n̲d̲.̲A̲r̲i̲t̲h̲.̲C̲u̲t̲s̲a̲t̲.̲D̲v̲d̲S̲o̲l̲u̲t̲i̲o̲n̲.̲b̲)̲}`b`
+-/
 #guard_msgs in
 /--
 {open A only:=a}
@@ -282,6 +297,46 @@ Examples:
 def somethingElse := ()
 
 /--
+error: Unknown attribute `int`
+
+Hint: Use a known attribute:
+  • ini̲t
+  • i̵n̵e̲x̲t
+---
+error: Unknown attribute `samp`
+
+Hint: Use a known attribute:
+  • s̵a̵m̵p̵s̲i̲m̲p̲
+  • s̵a̵m̵p̵s̲y̲m̲m̲
+  • s̵a̵m̵p̵c̲s̲i̲m̲p̲
+---
+error: Unknown attribute `inlone`
+
+Hint: Use a known attribute:
+  • i̵n̵l̵o̵n̵e̵i̲n̲l̲i̲n̲e̲
+  • inl̵o̵n̵e̵i̲t̲
+-/
+#guard_msgs in
+/--
+Suggestions are as well.
+ * {attr}`int`
+ * {attr}`@[samp, inlone]`
+-/
+def otherAttr := ()
+
+/--
+error: Unknown constant `Constraint.add`
+
+Hint: Insert a fully-qualified name:
+  {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲O̲m̲e̲g̲a̲.̲C̲o̲n̲s̲t̲r̲a̲i̲n̲t̲.̲a̲d̲d̲)̲}`Constraint.add`
+-/
+#guard_msgs in
+/--
+{name}`Constraint.add`
+-/
+def nameErrSuggestions := ()
+
+/--
 Options control Lean.
 Examples:
  * Use the {option}`pp.all` to control showing all the details
@@ -289,7 +344,7 @@ Examples:
 -/
 def somethingElseAgain := ()
 
-
+/- Commented out for bootstrapping
 /--
 error: Unknown option `pp.alll`
 ---
@@ -308,13 +363,14 @@ Examples:
  * {option}`set_option pp.all "true"` to set it
 -/
 def somethingElseAgain' := ()
-
+-/
 
 /--
 {kw (cat := term)}`Type` {kw (of := termIfLet)}`if`
 -/
 def somethingElseAgain'' := ()
 
+/- Commented out for bootstrapping
 /--
 info:
 
@@ -326,7 +382,7 @@ Hint: Specify the syntax kind:
 {kw?}`Type`
 -/
 def somethingElseAgain''' := ()
-
+-/
 
 /--
 {syntaxCat}`term`
@@ -355,6 +411,123 @@ def yetMore := ()
 def yetMore' := ()
 
 #check yetMore'
+
+-- Test that only actual attributes lead to suggestions
+/--
+warning: Code element could be more specific.
+
+Hint: Insert a role to document it:
+  • {̲a̲t̲t̲r̲}̲`instance`
+  • {̲k̲w̲ ̲(̲o̲f̲ ̲:̲=̲ ̲L̲e̲a̲n̲.̲P̲a̲r̲s̲e̲r̲.̲A̲t̲t̲r̲.̲i̲n̲s̲t̲a̲n̲c̲e̲)̲}̲`instance` (in `attr`)
+  • {̲s̲y̲n̲t̲a̲x̲ ̲a̲t̲t̲r̲}̲`instance`
+  • Use the `lit` role:
+    {̲l̲i̲t̲}̲`instance`
+    to mark the code as literal text and disable suggestions
+---
+warning: Code element could be more specific.
+
+Hint: Insert a role to document it:
+  • {̲a̲t̲t̲r̲}̲`term_elab`
+  • {̲g̲i̲v̲e̲n̲}̲`term_elab`
+  • Use the `lit` role:
+    {̲l̲i̲t̲}̲`term_elab`
+    to mark the code as literal text and disable suggestions
+---
+warning: Code element could be more specific.
+
+Hint: Insert a role to document it:
+  • {̲g̲i̲v̲e̲n̲}̲`instantiation`
+  • Use the `lit` role:
+    {̲l̲i̲t̲}̲`instantiation`
+    to mark the code as literal text and disable suggestions
+-/
+#guard_msgs in
+/--
+This one has its own parser: `instance`
+This one is an identifier: `term_elab`
+This is not an attribute: `instantiation`
+-/
+def attrSuggestionTest := ()
+
+/--
+error: Module is not transitively imported by the current module.
+
+Hint: Either disable the existence check or use an imported module:
+  {module ̲-̲c̲h̲e̲c̲k̲e̲d̲}`NonExistent`
+---
+error: Module is not transitively imported by the current module.
+
+Hint: Either disable the existence check or use an imported module:
+  • {module ̲-̲c̲h̲e̲c̲k̲e̲d̲}`Laen.Data.Jsn`
+  • {module}`L̵a̵e̵n̵.̵D̵a̵t̵a̵.̵J̵s̵n̵L̲e̲a̲n̲.̲D̲a̲t̲a̲.̲J̲s̲o̲n̲`
+---
+error: Module is not transitively imported by the current module.
+
+Hint: Either disable the existence check or use an imported module:
+  • {module ̲-̲c̲h̲e̲c̲k̲e̲d̲}`Lean.Data.jso`
+  • {module}`L̵e̵a̵n̵.̵D̵a̵t̵a̵.̵j̵s̵o̵L̲e̲a̲n̲.̲D̲a̲t̲a̲.̲J̲s̲o̲n̲`
+  • {module}`L̵e̵a̵n̵.̵D̵a̵t̵a̵.̵j̵s̵o̵L̲e̲a̲n̲.̲D̲a̲t̲a̲.̲L̲s̲p̲`
+-/
+#guard_msgs in
+/--
+Error, no suggestions:
+{module}`NonExistent`
+
+Error, one suggestions:
+{module}`Laen.Data.Jsn`
+
+No error:
+{module -checked}`NonExistent`
+
+Error, two suggestions:
+{module}`Lean.Data.jso`
+
+No error:
+{module}`Lean.Data.Json`
+-/
+def talksAboutModules := ()
+
+/--
+warning: Code element could be more specific.
+
+Hint: Insert a role to document it:
+  • {̲m̲o̲d̲u̲l̲e̲}̲`Lean.Data.Json.Basic`
+  • Use the `lit` role:
+    {̲l̲i̲t̲}̲`Lean.Data.Json.Basic`
+    to mark the code as literal text and disable suggestions
+-/
+#guard_msgs in
+/--
+`Lean.Data.Json.Basic`
+-/
+def moduleSuggestionTest := ()
+
+/-!
+These are tests for the current workarounds for intra-module forward references.
+-/
+
+-- Saves the docs as text, then causes them to be elaborated later:
+set_option doc.verso false
+/--
+Less than {name}`seven`.
+-/
+def five : Nat := 5
+set_option doc.verso true
+
+-- For this one, the docs are just added later.
+def four : Nat := 4
+
+/--
+More than {name}`five`.
+-/
+def seven : Nat := 7
+
+docs_to_verso five
+
+/--
+Less than {name}`seven`.
+-/
+add_decl_doc four
 
 /-
 TODO test:

@@ -6,14 +6,12 @@ Authors: Mario Carneiro
 module
 
 prelude
-public import Init.Data.Option.BasicAux
 import all Init.Data.Option.BasicAux
 public import Init.Data.Option.Instances
 import all Init.Data.Option.Instances
 public import Init.Data.BEq
 public import Init.Classical
 public import Init.Ext
-public import Init.Grind.Tactics
 
 public section
 
@@ -52,7 +50,7 @@ theorem get_of_mem : ∀ {o : Option α} (h : isSome o), a ∈ o → o.get h = a
 theorem get_of_eq_some : ∀ {o : Option α} (h : isSome o), o = some a → o.get h = a
   | _, _, rfl => rfl
 
-@[simp, grind] theorem not_mem_none (a : α) : a ∉ (none : Option α) := nofun
+@[simp, grind ←] theorem not_mem_none (a : α) : a ∉ (none : Option α) := nofun
 
 theorem getD_of_ne_none {x : Option α} (hx : x ≠ none) (y : α) : some (x.getD y) = x := by
   cases x; {contradiction}; rw [getD_some]

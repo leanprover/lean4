@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Apply
-// Imports: Lean.Util.FindMVar Lean.Meta.SynthInstance Lean.Meta.CollectMVars Lean.Meta.Tactic.Util Lean.PrettyPrinter Lean.Meta.AppBuilder
+// Imports: public import Lean.Meta.Tactic.Util public import Lean.PrettyPrinter import Lean.Meta.AppBuilder
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -6258,8 +6258,8 @@ x_31 = x_88;
 x_32 = x_77;
 x_33 = x_68;
 x_34 = x_70;
-x_35 = x_67;
-x_36 = x_83;
+x_35 = x_83;
+x_36 = x_67;
 x_37 = x_90;
 x_38 = x_87;
 goto block_56;
@@ -6277,8 +6277,8 @@ x_31 = x_88;
 x_32 = x_77;
 x_33 = x_68;
 x_34 = x_70;
-x_35 = x_67;
-x_36 = x_83;
+x_35 = x_83;
+x_36 = x_67;
 x_37 = x_90;
 x_38 = x_87;
 goto block_56;
@@ -6301,8 +6301,8 @@ x_31 = x_88;
 x_32 = x_77;
 x_33 = x_68;
 x_34 = x_70;
-x_35 = x_67;
-x_36 = x_83;
+x_35 = x_83;
+x_36 = x_67;
 x_37 = x_96;
 x_38 = x_97;
 goto block_56;
@@ -6467,9 +6467,9 @@ block_29:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_18 = lean_array_to_list(x_17);
-x_19 = l_List_appendTR___redArg(x_15, x_18);
+x_19 = l_List_appendTR___redArg(x_12, x_18);
 lean_inc(x_19);
-x_20 = l_List_forM___at___Lean_MVarId_apply_spec__8(x_19, x_16, x_13, x_11, x_14, x_12);
+x_20 = l_List_forM___at___Lean_MVarId_apply_spec__8(x_19, x_16, x_13, x_11, x_14, x_15);
 lean_dec(x_14);
 lean_dec_ref(x_11);
 lean_dec(x_13);
@@ -6525,7 +6525,7 @@ return x_28;
 block_56:
 {
 lean_object* x_39; 
-x_39 = l_Lean_Meta_getMVarsNoDelayed(x_36, x_35, x_33, x_30, x_34, x_38);
+x_39 = l_Lean_Meta_getMVarsNoDelayed(x_35, x_36, x_33, x_30, x_34, x_38);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; 
@@ -6537,8 +6537,8 @@ lean_dec_ref(x_39);
 lean_inc(x_34);
 lean_inc_ref(x_30);
 lean_inc(x_33);
-lean_inc_ref(x_35);
-x_42 = l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_reorderGoals(x_37, x_32, x_35, x_33, x_30, x_34, x_41);
+lean_inc_ref(x_36);
+x_42 = l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_reorderGoals(x_37, x_32, x_36, x_33, x_30, x_34, x_41);
 if (lean_obj_tag(x_42) == 0)
 {
 lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; uint8_t x_47; 
@@ -6555,11 +6555,11 @@ if (x_47 == 0)
 lean_dec(x_45);
 lean_dec(x_40);
 x_11 = x_30;
-x_12 = x_44;
+x_12 = x_43;
 x_13 = x_33;
 x_14 = x_34;
-x_15 = x_43;
-x_16 = x_35;
+x_15 = x_44;
+x_16 = x_36;
 x_17 = x_46;
 goto block_29;
 }
@@ -6572,11 +6572,11 @@ if (x_48 == 0)
 lean_dec(x_45);
 lean_dec(x_40);
 x_11 = x_30;
-x_12 = x_44;
+x_12 = x_43;
 x_13 = x_33;
 x_14 = x_34;
-x_15 = x_43;
-x_16 = x_35;
+x_15 = x_44;
+x_16 = x_36;
 x_17 = x_46;
 goto block_29;
 }
@@ -6589,11 +6589,11 @@ lean_dec(x_45);
 x_51 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_MVarId_apply_spec__9(x_43, x_40, x_49, x_50, x_46);
 lean_dec(x_40);
 x_11 = x_30;
-x_12 = x_44;
+x_12 = x_43;
 x_13 = x_33;
 x_14 = x_34;
-x_15 = x_43;
-x_16 = x_35;
+x_15 = x_44;
+x_16 = x_36;
 x_17 = x_51;
 goto block_29;
 }
@@ -6602,7 +6602,7 @@ goto block_29;
 else
 {
 lean_dec(x_40);
-lean_dec_ref(x_35);
+lean_dec_ref(x_36);
 lean_dec(x_34);
 lean_dec(x_33);
 lean_dec_ref(x_30);
@@ -6613,7 +6613,7 @@ else
 {
 uint8_t x_52; 
 lean_dec_ref(x_37);
-lean_dec_ref(x_35);
+lean_dec_ref(x_36);
 lean_dec(x_34);
 lean_dec(x_33);
 lean_dec_ref(x_30);
@@ -12168,9 +12168,6 @@ x_10 = l_Lean_MVarId_withContext___at___Lean_MVarId_apply_spec__11___redArg(x_1,
 return x_10;
 }
 }
-lean_object* initialize_Lean_Util_FindMVar(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_SynthInstance(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_CollectMVars(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Util(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_PrettyPrinter(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin, lean_object*);
@@ -12179,15 +12176,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Apply(uint8_t builtin, lean
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Util_FindMVar(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_SynthInstance(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_CollectMVars(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Util(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

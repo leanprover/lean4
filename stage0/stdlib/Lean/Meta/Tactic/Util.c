@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Util
-// Imports: Lean.Util.ForEachExprWhere Lean.Meta.Basic Lean.Meta.PPGoal Lean.Meta.AppBuilder
+// Imports: public import Lean.Util.ForEachExprWhere public import Lean.Meta.PPGoal import Lean.Meta.AppBuilder
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5766,8 +5766,8 @@ lean_dec_ref(x_40);
 x_45 = l_Lean_LocalDecl_hasValue(x_24, x_31);
 if (x_45 == 0)
 {
-x_25 = x_34;
-x_26 = x_44;
+x_25 = x_44;
+x_26 = x_34;
 goto block_30;
 }
 else
@@ -5781,8 +5781,8 @@ goto block_19;
 }
 else
 {
-x_25 = x_34;
-x_26 = x_44;
+x_25 = x_44;
+x_26 = x_34;
 goto block_30;
 }
 }
@@ -5832,9 +5832,9 @@ lean_object* x_27; lean_object* x_28; lean_object* x_29;
 x_27 = l_Lean_LocalDecl_fvarId(x_24);
 lean_dec(x_24);
 x_28 = lean_box(0);
-x_29 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_MVarId_getNondepPropHyps_spec__13___redArg(x_25, x_27, x_28);
+x_29 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_MVarId_getNondepPropHyps_spec__13___redArg(x_26, x_27, x_28);
 x_13 = x_29;
-x_14 = x_26;
+x_14 = x_25;
 goto block_19;
 }
 }
@@ -6483,8 +6483,8 @@ lean_dec_ref(x_38);
 x_43 = l_Lean_LocalDecl_hasValue(x_22, x_29);
 if (x_43 == 0)
 {
-x_23 = x_32;
-x_24 = x_42;
+x_23 = x_42;
+x_24 = x_32;
 goto block_28;
 }
 else
@@ -6498,8 +6498,8 @@ goto block_17;
 }
 else
 {
-x_23 = x_32;
-x_24 = x_42;
+x_23 = x_42;
+x_24 = x_32;
 goto block_28;
 }
 }
@@ -6549,9 +6549,9 @@ lean_object* x_25; lean_object* x_26; lean_object* x_27;
 x_25 = l_Lean_LocalDecl_fvarId(x_22);
 lean_dec(x_22);
 x_26 = lean_box(0);
-x_27 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_MVarId_getNondepPropHyps_spec__13___redArg(x_23, x_25, x_26);
+x_27 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___Lean_MVarId_getNondepPropHyps_spec__13___redArg(x_24, x_25, x_26);
 x_11 = x_27;
-x_12 = x_24;
+x_12 = x_23;
 goto block_17;
 }
 }
@@ -11693,7 +11693,6 @@ return x_5;
 }
 }
 lean_object* initialize_Lean_Util_ForEachExprWhere(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_PPGoal(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -11702,9 +11701,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Util_ForEachExprWhere(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_PPGoal(builtin, lean_io_mk_world());

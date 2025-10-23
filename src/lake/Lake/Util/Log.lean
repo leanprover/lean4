@@ -6,9 +6,6 @@ Authors: Mac Malone
 module
 
 prelude
-public import Init.System.IO
-public import Init.Data.Repr
-public import Init.Data.Ord.Basic
 public import Lean.Data.Json
 public import Lake.Util.Error
 public import Lake.Util.EStateT
@@ -409,6 +406,16 @@ from an `ELogT` (e.g., `LogIO`).
   let log ← getLog
   return (a, log.takeFrom iniPos)
 
+/-- If `x` produces any logs, group them into an error block. -/
+@[inline] public def throwIfLogs [Monad m] [MonadStateOf Log m] [MonadExceptOf Log.Pos m] (x : m α) : m α := do
+  let iniPos ← getLogPos
+  let a ← x
+  let endPos ← getLogPos
+  if iniPos ≠ endPos then
+    throw iniPos
+  else
+    return a
+
 /-- Performs `x` and backtracks any error to the log position before `x`. -/
 @[inline] public def withLogErrorPos
   [Monad m] [MonadStateOf Log m] [MonadExceptOf Log.Pos m] (self : m α)
@@ -576,28 +583,49 @@ a `failure` in the new monad.
 
 end ELogT
 
+/-- Configuration options for Lake logging. -/
+public structure LogConfig where
+  /--
+  Fail if entries of at least this level have been logged.
+
+  Unlike some build systems, this does **NOT** convert such log entries to
+  errors, and it does not necessarily abort execution when warnings are logged.
+
+  **NOTE:** Some logging monads do not support this option (e.g., `LoggerIO`).
+  -/
+  failLv : LogLevel := .error
+  /-- The minimum log level for an log entry to be reported. -/
+  outLv : LogLevel := .info
+  /-- Whether to use ANSI escape codes in log output. -/
+  ansiMode : AnsiMode := .auto
+  /-- Where to write logs. -/
+  out : OutStream := .stderr
+
+@[inline] public def LogConfig.getLogger [MonadLiftT BaseIO m] (self : LogConfig) : BaseIO (MonadLog m) := do
+  self.out.getLogger self.outLv self.ansiMode
+
 /-- A monad equipped with a log, a log error position, and the ability to perform I/O. -/
 public abbrev LogIO := ELogT BaseIO
 
-public instance : MonadLift IO LogIO := ⟨MonadError.runIO⟩
-
 namespace LogIO
 
+public instance : MonadLift IO LogIO := ⟨MonadError.runIO⟩
+
 /--
-Runs a `LogIO` action in `BaseIO`.
-Prints log entries of at least `minLv` to `out`.
+Runs a `LogIO` action in `BaseIO` using the specified log configuration.
+
+Returns `none` if the action fails or if an entry of at least `LogConfig.failLv` has been logged.
+On failure, all logs will be printed, ignoring the  `LogConfig.outLv` setting.
 -/
-@[inline] public def toBaseIO (self : LogIO α)
-  (minLv := LogLevel.info) (ansiMode := AnsiMode.auto) (out := OutStream.stderr)
+@[inline] public def toBaseIO
+  (self : LogIO α) (cfg : LogConfig := {})
 : BaseIO (Option α) := do
-  let logger ← out.getLogger minLv ansiMode
   let (a?, log) ← self.run? {}
-  replay log logger
-  return a?
-where
-  -- avoid specialization of this call at each call site
-  replay (log : Log) (logger : MonadLog BaseIO) : BaseIO Unit :=
-    log.replay (logger := logger)
+  let failed := a?.isNone ∨ cfg.failLv ≤ log.maxLv
+  let outLv := if failed then .trace else cfg.outLv
+  let logger ← cfg.out.getLogger outLv cfg.ansiMode
+  log.replay (logger := logger)
+  return if failed  then none else a?
 
 -- deprecated 2024-05-18, reversed 2024-10-18
 public abbrev captureLog := @ELogT.run?
@@ -609,31 +637,31 @@ A monad equipped with a log function and the ability to perform I/O.
 Unlike `LogIO`, log entries are not retained by the monad but instead eagerly
 passed to the log function.
 -/
-public abbrev LoggerIO := MonadLogT BaseIO (EIO PUnit)
+public abbrev LoggerIO := MonadLogT BaseIO (EIO Unit)
+
+namespace LoggerIO
 
 public instance : MonadError LoggerIO := ⟨MonadLog.error⟩
 public instance : MonadLift IO LoggerIO := ⟨MonadError.runIO⟩
 public instance : MonadLift LogIO LoggerIO := ⟨ELogT.replayLog⟩
 
-namespace LoggerIO
-
 /--
-Runs a `LoggerIO` action in `BaseIO`.
-Prints log entries of at least `minLv` to `out`.
+Runs a `LoggerIO` action in `BaseIO` using the specified log configuration.
+
+Does not support `LogConfig.failLv`.
 -/
 @[inline] public def toBaseIO
-  (self : LoggerIO α)
-  (minLv := LogLevel.info) (ansiMode := AnsiMode.auto) (out := OutStream.stderr)
-: BaseIO (Option α) := do
-  (·.toOption) <$> (self.run (← out.getLogger minLv ansiMode)).toBaseIO
+  (self : LoggerIO α) (cfg : LogConfig := {})
+: BaseIO (Option α) := do (·.toOption) <$> (self.run (← cfg.getLogger)).toBaseIO
 
+/-- Runs a `LoggerIO` action in `BaseIO` and returns the produced log. -/
 public def captureLog (self : LoggerIO α) : BaseIO (Option α × Log) := do
   let ref ← IO.mkRef ({} : Log)
   let e ← self.run ⟨fun e => ref.modify (·.push e)⟩ |>.toBaseIO
   return (e.toOption, ← ref.get)
 
 -- For parity with `LogIO.run?`
-public abbrev run? := @captureLog
+@[inherit_doc captureLog] public abbrev run? := @captureLog
 
 -- For parity with `LogIO.run?'`
 @[inline] public def run?'

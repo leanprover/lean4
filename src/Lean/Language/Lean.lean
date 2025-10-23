@@ -11,10 +11,8 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Lean.Language.Basic
 public import Lean.Language.Util
 public import Lean.Language.Lean.Types
-public import Lean.Parser.Module
 public import Lean.Elab.Import
 
 public section
@@ -239,7 +237,7 @@ open Lean.Parser
 /-- Lean-specific processing context. -/
 structure LeanProcessingContext extends ProcessingContext where
   /-- Position of the first file difference if there was a previous invocation. -/
-  firstDiffPos? : Option String.Pos
+  firstDiffPos? : Option String.Pos.Raw
 
 /-- Monad transformer holding all relevant data for Lean processing. -/
 abbrev LeanProcessingT m := ReaderT LeanProcessingContext m
@@ -267,7 +265,7 @@ def LeanProcessingM.run (act : LeanProcessingM α) (oldInputCtx? : Option InputC
 Returns true if there was a previous run and the given position is before any textual change
 compared to it.
 -/
-def isBeforeEditPos (pos : String.Pos) : LeanProcessingM Bool := do
+def isBeforeEditPos (pos : String.Pos.Raw) : LeanProcessingM Bool := do
   return (← read).firstDiffPos?.any (pos < ·)
 
 /--
@@ -317,7 +315,7 @@ def reparseOptions (opts : Options) : IO Options := do
       | unless weak do
           throw <| .userError s!"invalid -D parameter, unknown configuration option '{name}'
 
-If the option is defined in this library, use '-D{`weak ++ name}' to set it conditionally"
+If the option is defined in a library, use '-D{`weak ++ name}' to set it conditionally"
 
     let .ofString val := val
       | opts' := opts'.insert name val  -- Already parsed
@@ -341,7 +339,7 @@ If the option is defined in this library, use '-D{`weak ++ name}' to set it cond
 
   return opts'
 
-private def getNiceCommandStartPos? (stx : Syntax) : Option String.Pos := do
+private def getNiceCommandStartPos? (stx : Syntax) : Option String.Pos.Raw := do
   let mut stx := stx
   if stx[0].isOfKind ``Command.declModifiers then
     -- modifiers are morally before the actual declaration
@@ -743,7 +741,7 @@ where
         -- We're definitely off the fast-forwarding path now
         parseCmd none parserState cmdState next (sync := false) elabCmdCancelTk ctx
 
-  doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos)
+  doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos.Raw)
       (snap : SnapshotBundle DynamicSnapshot) (cancelTk : IO.CancelToken) :
       LeanProcessingM Command.State := do
     let ctx ← read

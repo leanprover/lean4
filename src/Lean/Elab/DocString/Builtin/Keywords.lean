@@ -6,16 +6,13 @@ Author: David Thrane Christiansen
 
 module
 prelude
-public import Lean.Elab.DocString
 public import Lean.Elab.DocString.Builtin.Scopes
 public import Lean.Elab.DocString.Builtin.Postponed
-import Lean.DocString.Links
+public meta import Lean.Elab.DocString.Builtin.Postponed
 public import Lean.DocString.Syntax
 public import Lean.Elab.InfoTree
-public meta import Lean.Elab.Term.TermElabM
 import Lean.Elab.Open
 public import Lean.Parser
-import Lean.Meta.Hint
 import Lean.Meta.Reduce
 import Lean.Elab.Tactic.Doc
 import Lean.Data.EditDistance
@@ -333,7 +330,7 @@ private def withAtoms (cat : Name) (atoms : List String) : TermElabM (Array Name
 private def kwImpl (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .anonymous)
     (suggest : Bool)
     (s : StrLit) : TermElabM (Inline ElabInline) := do
-  let atoms := s.getString |>.split (·.isWhitespace)
+  let atoms := s.getString |>.splitToList (·.isWhitespace)
   let env ← getEnv
   let parsers := Lean.Parser.parserExtension.getState env
   let cat' := cat.getId
@@ -416,7 +413,7 @@ where
         (mkNullNode (#[name] ++ args)).getRange?
       | _ => none
     if let some ⟨b, e⟩ := range? then
-      let str := (← getFileMap).source.extract b e
+      let str := String.Pos.Raw.extract (← getFileMap).source b e
       let str := if str.startsWith "kw?" then "kw" ++ str.drop 3 else str
       let stx := Syntax.mkStrLit str (info := .synthetic b e (canonical := true))
       let suggs := suggestions.map (fun (s : String) => {suggestion := str ++ s})
@@ -446,14 +443,6 @@ public def kw? (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .anony
     (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   kwImpl (cat := cat) (of := of) true s
-
-/--
-A postponed check that a syntax kind name exists.
--/
-structure PostponedKind where
-  /-- The kind's name. -/
-  name : Name
-deriving TypeName
 
 /--
 Checks that a syntax kind name exists.
@@ -506,7 +495,7 @@ Suggests the `kw` role, if applicable.
 -/
 @[builtin_doc_code_suggestions]
 public def suggestKw (code : StrLit) : DocM (Array CodeSuggestion) := do
-  let atoms := code.getString |>.split (·.isWhitespace)
+  let atoms := code.getString |>.splitToList (·.isWhitespace)
   let env ← getEnv
   let parsers := Lean.Parser.parserExtension.getState env
   let cats := parsers.categories.toArray

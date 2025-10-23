@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Compiler.LCNF.Basic
-public import Lean.Compiler.LCNF.Types
 
 public section
 
@@ -142,7 +141,7 @@ partial def evalApp (declName : Name) (args : Array Arg) : FixParamM Unit := do
     -- Recursive call to the function being analyzed
     for h : i in *...main.params.size do
       if _h : i < args.size then
-        have : i < main.params.size := h.2
+        have : i < main.params.size := h
         let param := main.params[i]
         let val ← evalArg args[i]
         unless val == .val i || val == .erased do

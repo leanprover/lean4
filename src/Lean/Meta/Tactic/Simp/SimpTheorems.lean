@@ -6,14 +6,12 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.ScopedEnvExtension
-public import Lean.Util.Recognizers
 public import Lean.Meta.DiscrTree
 public import Lean.Meta.Tactic.AuxLemma
-public import Lean.DefEqAttrib
 public import Lean.DocString
 import Lean.Meta.AppBuilder
 import Lean.Meta.Eqns
+import Lean.ExtraModUses
 
 public section
 
@@ -384,6 +382,8 @@ Because some theorems lead to multiple `SimpTheorems` (in particular conjunction
 -/
 def mkSimpTheoremFromConst (declName : Name) (post := true) (inv := false)
     (prio : Nat := eval_prio default) : MetaM (Array SimpTheorem) := do
+  -- If the theorem is used definitionally, it will not be visible in the proof term.
+  recordExtraModUseFromDecl (isMeta := false) declName
   let cinfo ← getConstVal declName
   let us := cinfo.levelParams.map mkLevelParam
   let origin := .decl declName post inv
@@ -395,6 +395,8 @@ def mkSimpTheoremFromConst (declName : Name) (post := true) (inv := false)
       let mut r := #[]
       for (val, type) in (← preprocess val type inv (isGlobal := true)) do
         let auxName ← mkAuxLemma (kind? := `_simp) cinfo.levelParams type val (inferRfl := true)
+          (forceExpose := true)  -- These kinds of theorems are small and `to_additive` may need to
+                                 -- unfold them.
         r := r.push <| (← do mkSimpTheoremCore origin (mkConst auxName us) #[] (mkConst auxName) post prio (noIndexAtArgs := false))
       return r
     else
@@ -665,6 +667,16 @@ def mkSimpExt (name : Name := by exact decl_name%) : IO SimpExtension :=
     name     := name
     initial  := {}
     addEntry := fun d e => d.addSimpEntry e
+    exportEntry? := fun lvl e => do
+      -- export only annotations on public decls
+      let declName := match e with
+        | .thm t => match t.origin with
+          | .decl n _ _ => n
+          | _ => unreachable!
+        | .toUnfold n => n
+        | .toUnfoldThms n _ => n
+      guard (lvl == .private || !isPrivateName declName)
+      return e
   }
 
 abbrev SimpExtensionMap := Std.HashMap Name SimpExtension

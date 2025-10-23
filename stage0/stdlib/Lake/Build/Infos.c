@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Infos
-// Imports: Lake.Build.Info Lake.Config.LeanExe Lake.Config.ExternLib Lake.Config.InputFile Lake.Build.Facets Lake.Build.Data
+// Imports: public import Lake.Build.Info public import Lake.Config.LeanExe public import Lake.Config.ExternLib public import Lake.Config.InputFile meta import all Lake.Build.Data
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2234,7 +2234,6 @@ lean_object* initialize_Lake_Build_Info(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_LeanExe(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_ExternLib(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_InputFile(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Build_Facets(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Build_Data(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Build_Infos(uint8_t builtin, lean_object* w) {
@@ -2251,9 +2250,6 @@ res = initialize_Lake_Config_ExternLib(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Config_InputFile(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_Build_Facets(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Build_Data(builtin, lean_io_mk_world());

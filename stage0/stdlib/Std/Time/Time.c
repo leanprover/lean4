@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Time
-// Imports: Std.Time.Time.Basic Std.Time.Time.HourMarker Std.Time.Time.PlainTime
+// Imports: public import Std.Time.Time.Basic public import Std.Time.Time.HourMarker public import Std.Time.Time.PlainTime
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

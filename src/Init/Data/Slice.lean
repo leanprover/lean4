@@ -10,6 +10,7 @@ public import Init.Data.Slice.Basic
 public import Init.Data.Slice.Notation
 public import Init.Data.Slice.Operations
 public import Init.Data.Slice.Array
+public import Init.Data.Slice.Lemmas
 
 public section
 

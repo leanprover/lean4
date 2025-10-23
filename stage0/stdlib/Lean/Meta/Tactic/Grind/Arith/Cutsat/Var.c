@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
-// Imports: Lean.Meta.Tactic.Grind.Arith.Cutsat.Types Lean.Meta.IntInstTesters Lean.Meta.Tactic.Grind.Simp Lean.Meta.Tactic.Grind.Arith.Cutsat.Util Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
+// Imports: public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types import Lean.Meta.Tactic.Grind.Simp import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1926,7 +1926,7 @@ block_26:
 uint8_t x_20; 
 lean_inc(x_19);
 lean_inc(x_2);
-x_20 = l_List_elem___redArg(x_18, x_2, x_19);
+x_20 = l_List_elem___redArg(x_16, x_2, x_19);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; 
@@ -1936,15 +1936,15 @@ lean_closure_set(x_21, 0, x_2);
 lean_closure_set(x_21, 1, x_19);
 lean_closure_set(x_21, 2, x_13);
 x_22 = l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Var_0__Lean_Meta_Grind_Arith_Cutsat_registerNonlinearOcc___closed__0;
-x_23 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_modifyStateImpl___redArg(x_22, x_21, x_16, x_17);
-lean_dec(x_16);
+x_23 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_modifyStateImpl___redArg(x_22, x_21, x_17, x_18);
+lean_dec(x_17);
 return x_23;
 }
 else
 {
 lean_object* x_24; lean_object* x_25; 
 lean_dec(x_19);
-lean_dec(x_16);
+lean_dec(x_17);
 lean_dec(x_13);
 lean_dec(x_2);
 x_24 = lean_box(0);
@@ -1954,7 +1954,7 @@ if (lean_is_scalar(x_15)) {
  x_25 = x_15;
 }
 lean_ctor_set(x_25, 0, x_24);
-lean_ctor_set(x_25, 1, x_17);
+lean_ctor_set(x_25, 1, x_18);
 return x_25;
 }
 }
@@ -1980,9 +1980,9 @@ if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; 
 x_36 = lean_box(0);
-x_16 = x_27;
-x_17 = x_32;
-x_18 = x_34;
+x_16 = x_34;
+x_17 = x_27;
+x_18 = x_32;
 x_19 = x_36;
 goto block_26;
 }
@@ -1992,9 +1992,9 @@ lean_object* x_37;
 x_37 = lean_ctor_get(x_35, 0);
 lean_inc(x_37);
 lean_dec_ref(x_35);
-x_16 = x_27;
-x_17 = x_32;
-x_18 = x_34;
+x_16 = x_34;
+x_17 = x_27;
+x_18 = x_32;
 x_19 = x_37;
 goto block_26;
 }
@@ -8632,9 +8632,7 @@ return x_29;
 }
 }
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_IntInstTesters(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Simp(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Util(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Nat(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_ToInt(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -8645,13 +8643,7 @@ _G_initialized = true;
 res = initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_IntInstTesters(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Simp(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Util(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Nat(builtin, lean_io_mk_world());

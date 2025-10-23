@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Data.Rat.Lemmas
 import Init.Data.Int.Bitwise.Lemmas
-import Init.Data.Int.DivMod.Lemmas
+import Init.Hints
 
 /-!
 # The dyadic rationals

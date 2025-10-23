@@ -600,6 +600,7 @@ theorem ofScientific_true_def : Rat.ofScientific m true e = mkRat m (10 ^ e) := 
 theorem ofScientific_false_def : Rat.ofScientific m false e = (m * 10 ^ e : Nat) := by
   unfold Rat.ofScientific; rfl
 
+-- See also `ofScientific_def'` below.
 theorem ofScientific_def : Rat.ofScientific m s e =
     if s then mkRat m (10 ^ e) else (m * 10 ^ e : Nat) := by
   cases s; exact ofScientific_false_def; exact ofScientific_true_def
@@ -1006,6 +1007,21 @@ theorem intCast_nonpos {a : Int} :
 theorem intCast_neg_iff {a : Int} :
     (a : Rat) < 0 ↔ a < 0 :=
   Rat.intCast_lt_intCast
+
+/--
+Alternative statement of `ofScientific_def`.
+-/
+@[grind =]
+theorem ofScientific_def' :
+    (OfScientific.ofScientific m s e : Rat) = m * (10 ^ (if s then -e else e : Int)) := by
+  change Rat.ofScientific _ _ _ = _
+  rw [ofScientific_def]
+  split
+  · rw [Rat.zpow_neg, ← Rat.div_def, Rat.zpow_natCast, mkRat_eq_div]
+    push_cast
+    rfl
+  · push_cast
+    rfl
 
 theorem floor_def (a : Rat) : a.floor = a.num / a.den := by
   rw [Rat.floor]

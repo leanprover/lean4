@@ -6,14 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Util.Sorry
-public import Lean.Widget.Types
-public import Lean.Message
-public import Lean.DocString.Links
 -- This import is necessary to ensure that any users of the `logNamedError` macros have access to
 -- all declared explanations:
 public import Lean.ErrorExplanations
-public import Lean.Data.Json.Basic
 
 public section
 
@@ -44,9 +39,9 @@ instance (m n) [MonadLift m n] [MonadLog m] : MonadLog n where
 variable [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
 
 /--
-Return the position (as `String.pos`) associated with the current reference syntax (i.e., the syntax object returned by `getRef`.)
+Return the position (as `String.Pos.Raw`) associated with the current reference syntax (i.e., the syntax object returned by `getRef`.)
 -/
-def getRefPos : m String.Pos := do
+def getRefPos : m String.Pos.Raw := do
   let ref ← MonadLog.getRef
   return ref.getPos?.getD 0
 

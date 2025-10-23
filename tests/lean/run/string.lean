@@ -1,3 +1,5 @@
+module
+
 /-!
 # Tests for `String` functions
 -/
@@ -36,16 +38,16 @@ Examples from documentation (added in https://github.com/leanprover/lean4/pull/4
 #test "".toList = []
 #test "\n".toList = ['\n']
 
--- Pos.isValid
-#test String.Pos.isValid "abc" ⟨0⟩ = true
-#test String.Pos.isValid "abc" ⟨1⟩ = true
-#test String.Pos.isValid "abc" ⟨3⟩ = true
-#test String.Pos.isValid "abc" ⟨4⟩ = false
-#test String.Pos.isValid "𝒫(A)" ⟨0⟩ = true
-#test String.Pos.isValid "𝒫(A)" ⟨1⟩ = false
-#test String.Pos.isValid "𝒫(A)" ⟨2⟩ = false
-#test String.Pos.isValid "𝒫(A)" ⟨3⟩ = false
-#test String.Pos.isValid "𝒫(A)" ⟨4⟩ = true
+-- Pos.Raw.isValid
+#test String.Pos.Raw.isValid "abc" ⟨0⟩ = true
+#test String.Pos.Raw.isValid "abc" ⟨1⟩ = true
+#test String.Pos.Raw.isValid "abc" ⟨3⟩ = true
+#test String.Pos.Raw.isValid "abc" ⟨4⟩ = false
+#test String.Pos.Raw.isValid "𝒫(A)" ⟨0⟩ = true
+#test String.Pos.Raw.isValid "𝒫(A)" ⟨1⟩ = false
+#test String.Pos.Raw.isValid "𝒫(A)" ⟨2⟩ = false
+#test String.Pos.Raw.isValid "𝒫(A)" ⟨3⟩ = false
+#test String.Pos.Raw.isValid "𝒫(A)" ⟨4⟩ = true
 
 -- get
 #test "abc".get ⟨1⟩ = 'b'
@@ -99,7 +101,7 @@ Examples from documentation (added in https://github.com/leanprover/lean4/pull/4
 #test lean.atEnd ⟨8⟩ = true
 
 -- get'
-def getInBounds? (s : String) (p : String.Pos) : Option Char :=
+def getInBounds? (s : String) (p : String.Pos.Raw) : Option Char :=
   if h : s.atEnd p then none else some (s.get' p h)
 
 #test "L∃∀N".get' ⟨2⟩ (by decide) = (default : Char)
@@ -111,7 +113,7 @@ def getInBounds? (s : String) (p : String.Pos) : Option Char :=
 #test getInBounds? lean ⟨4⟩ = some '∀'
 
 -- next'
-def next? (s : String) (p : String.Pos) : Option Char :=
+def next? (s : String) (p : String.Pos.Raw) : Option Char :=
   if h : s.atEnd p then none else s.get (s.next' p h)
 
 #test let abc := "abc"; abc.get (abc.next' 0 (by decide)) = 'b'
@@ -166,3 +168,32 @@ Behavior of `String.next` (`lean_string_utf8_next`) in special cases (see issue 
 #test "L∃∀N".next ⟨2 ^ 128 - 1⟩ = ⟨2 ^ 128⟩ -- large non-scalar
 #test "L∃∀N".next ⟨2 ^ 63 - 1⟩ = ⟨2 ^ 63⟩ -- scalar boundary (64-bit)
 #test "L∃∀N".next ⟨2 ^ 31 - 1⟩ = ⟨2 ^ 31⟩ -- scalar boundary (32-bit)
+
+-- ofByteArray
+#test (String.ofByteArray ByteArray.empty (by simp)) = ""
+#test (String.ofByteArray ⟨#[76, 226, 136, 131, 226, 136, 128, 78]⟩ (.intro ['L', '∃', '∀', 'N'] rfl)) = lean
+
+#test "abc".pos? ⟨4⟩ = none
+#test "L∃∀N".pos? ⟨2⟩ = none
+
+#test ("abc".pos ⟨1⟩ (by decide)).get (by decide) = 'b'
+#test ("abc".pos ⟨3⟩ (by decide)).get? = none
+#test ("L∃∀N".pos ⟨1⟩ (by decide)).get (by decide) = '∃'
+
+#test (("L∃∀N".pos ⟨0⟩ (by decide)).next (by decide)).offset = ⟨1⟩
+#test (("L∃∀N".pos ⟨1⟩ (by decide)).next (by decide)).offset = ⟨4⟩
+#test (("L∃∀N".pos ⟨4⟩ (by decide)).next (by decide)).offset = ⟨7⟩
+#test (("L∃∀N".pos ⟨7⟩ (by decide)).next (by decide)).offset = ⟨8⟩
+
+#test ("L∃∀N".pos ⟨0⟩ (by decide)).next?.map (·.offset) = some ⟨1⟩
+#test ("L∃∀N".pos ⟨8⟩ (by decide)).next? = none
+#test ("L∃∀N".pos ⟨0⟩ (by decide)).next!.offset = ⟨1⟩
+
+#test (("L∃∀N".pos ⟨1⟩ (by decide)).prev (by decide)).offset = ⟨0⟩
+#test (("L∃∀N".pos ⟨4⟩ (by decide)).prev (by decide)).offset = ⟨1⟩
+#test (("L∃∀N".pos ⟨7⟩ (by decide)).prev (by decide)).offset = ⟨4⟩
+#test (("L∃∀N".pos ⟨8⟩ (by decide)).prev (by decide)).offset = ⟨7⟩
+
+#test ("L∃∀N".pos ⟨1⟩ (by decide)).prev?.map (·.offset) = some ⟨0⟩
+#test ("L∃∀N".pos ⟨0⟩ (by decide)).prev? = none
+#test ("L∃∀N".pos ⟨1⟩ (by decide)).prev!.offset = ⟨0⟩

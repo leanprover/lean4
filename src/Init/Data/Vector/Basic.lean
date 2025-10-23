@@ -7,10 +7,6 @@ Authors: Shreyas Srinivas, François G. Dorais, Kim Morrison
 module
 
 prelude
-public meta import Init.Coe
-public import Init.Data.Stream
-public import Init.Data.Array.Lemmas
-public import Init.Data.Array.MapIdx
 public import Init.Data.Array.InsertIdx
 public import Init.Data.Array.Range
 public import Init.Data.Range
@@ -547,11 +543,6 @@ instance : ForM m (Vector α n) α where
 @[simp] theorem forM_eq_forM [Monad m] (f : α → m PUnit) :
     Vector.forM v f = forM v f := rfl
 
-/-! ### ToStream instance -/
-
-@[no_expose]
-instance : ToStream (Vector α n) (Subarray α) where
-  toStream xs := xs.toArray[*...*]
 
 /-! ### Lexicographic ordering -/
 

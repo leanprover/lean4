@@ -57,19 +57,19 @@ def takeNamePart (ss : Substring) (pre : Name) : (Substring × Name) :=
       let startPos := ss.startPos
       let ss := ss.dropWhile (!isIdEndEscape ·)
       if isIdEndEscape ss.front then
-        let id := ss.str.extract startPos ss.startPos
+        let id := String.Pos.Raw.extract ss.str startPos ss.startPos
         (ss, Name.str pre id)
       else
         (ss, .anonymous)
     else if isIdFirst curr then
       let startPos := ss.startPos
       let ss := ss.drop 1 |>.dropWhile isIdRest
-      let id := ss.str.extract startPos ss.startPos
+      let id := String.Pos.Raw.extract ss.str startPos ss.startPos
       (ss, Name.str pre id)
     else if curr.isDigit then
       let startPos := ss.startPos
       let ss := ss.drop 1 |>.dropWhile Char.isDigit
-      let digits := ss.str.extract startPos ss.startPos
+      let digits := String.Pos.Raw.extract ss.str startPos ss.startPos
       let n := (Syntax.decodeNatLitVal? digits).get!
       (ss, Name.num pre n)
     else
@@ -89,9 +89,9 @@ partial def takeName (ss : Substring) : (Substring × Name) :=
 def Glob.ofString? (v : String) : Option Glob := do
   let (ss, n) := takeName v.toSubstring
   if n.isAnonymous then failure
-  if h : ss.str.atEnd ss.startPos then
+  if h : ss.startPos.atEnd ss.str then
     return .one n
-  else if ss.str.get' ss.startPos h == '.' then
+  else if ss.startPos.get' ss.str h == '.' then
     match (ss.drop 1).front with
     | '+' => return .submodules n
     | '*' => return .andSubmodules n
@@ -245,7 +245,7 @@ public instance : DecodeToml PathPatDescr := ⟨PathPatDescr.decodeToml⟩
 public def decodeVersionTags (v : Value) : EDecodeM StrPat :=
   inline <| Pattern.decodeToml (presets := versionTagPresets) v
 
-public instance : DecodeField (PackageConfig n) `versionTags where
+public instance : DecodeField (PackageConfig p n) `versionTags where
   decodeField := decodeFieldCore `versionTags decodeVersionTags
 
 -- for `platformIndependent`, `releaseRepo`, `buildArchive`, etc.
@@ -358,13 +358,15 @@ section
 -- we can't use `in` as it is parsed as a single command and so the option would not influence the
 -- parser.
 set_option internal.parseQuotWithCurrentStage false
-private def genDecodeToml
+private meta def genDecodeToml
   (cmds : Array Command)
-  (tyName : Name) [info : ConfigInfo tyName]  (takesName : Bool)
+  (tyName : Name) [info : ConfigInfo tyName]
   (exclude : Array Name := {})
 : MacroM (Array Command) := do
   let init ← `(TomlFieldInfos.empty)
-  let ty := if takesName then Syntax.mkCApp tyName #[mkIdent `n] else mkCIdent tyName
+  let tyArgs := info.arity.fold (init := Array.emptyWithCapacity info.arity) fun i _ as =>
+    as.push (mkIdent <| .mkSimple s!"x_{i+1}")
+  let ty := Syntax.mkCApp tyName tyArgs
   let infos ← info.fields.foldlM (init := init) fun infos {name, parent, ..} =>
     if parent || exclude.contains name then
       return infos
@@ -382,16 +384,16 @@ end
 local macro "gen_toml_decoders%" : command => do
   let cmds := #[]
   -- Targets
-  let cmds ← genDecodeToml cmds ``LeanConfig false
-  let cmds ← genDecodeToml cmds ``LeanLibConfig true
+  let cmds ← genDecodeToml cmds ``LeanConfig
+  let cmds ← genDecodeToml cmds ``LeanLibConfig
     (exclude := #[`nativeFacets])
-  let cmds ← genDecodeToml cmds ``LeanExeConfig true
+  let cmds ← genDecodeToml cmds ``LeanExeConfig
     (exclude := #[`nativeFacets])
-  let cmds ← genDecodeToml cmds ``InputFileConfig true
-  let cmds ← genDecodeToml cmds ``InputDirConfig true
+  let cmds ← genDecodeToml cmds ``InputFileConfig
+  let cmds ← genDecodeToml cmds ``InputDirConfig
   -- Package
-  let cmds ← genDecodeToml cmds ``WorkspaceConfig false
-  let cmds ← genDecodeToml cmds ``PackageConfig true
+  let cmds ← genDecodeToml cmds ``WorkspaceConfig
+  let cmds ← genDecodeToml cmds ``PackageConfig
   return ⟨mkNullNode cmds⟩
 
 gen_toml_decoders%
@@ -435,14 +437,15 @@ public def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
   match (← loadToml ictx |>.toBaseIO) with
   | .ok table =>
     let .ok pkg errs := EStateM.run (s := #[]) do
-      let name ← stringToLegalOrSimpleName <$> table.tryDecode `name
-      let config ← @PackageConfig.decodeToml name table
+      let origName ← stringToLegalOrSimpleName <$> table.tryDecode `name
+      let name := if cfg.pkgName.isAnonymous then origName else cfg.pkgName
+      let config ← @PackageConfig.decodeToml name origName table
       let (targetDecls, targetDeclMap) ← decodeTargetDecls name table
       let defaultTargets ← table.tryDecodeD `defaultTargets #[]
       let defaultTargets := defaultTargets.map stringToLegalOrSimpleName
       let depConfigs ← table.tryDecodeD `require #[]
       return {
-        name := name
+        name, origName
         dir := cfg.pkgDir
         relDir := cfg.relPkgDir
         configFile := cfg.configFile

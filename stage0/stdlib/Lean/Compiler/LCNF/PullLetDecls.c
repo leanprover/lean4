@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.PullLetDecls
-// Imports: Lean.Compiler.LCNF.CompilerM Lean.Compiler.LCNF.DependsOn Lean.Compiler.LCNF.Types Lean.Compiler.LCNF.PassManager
+// Imports: public import Lean.Compiler.LCNF.DependsOn public import Lean.Compiler.LCNF.PassManager
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1546,7 +1546,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Compiler_LCNF_PullLetDecls_pullDecls___lam__0___closed__2;
 x_2 = lean_unsigned_to_nat(9u);
-x_3 = lean_unsigned_to_nat(319u);
+x_3 = lean_unsigned_to_nat(316u);
 x_4 = l_Lean_Compiler_LCNF_PullLetDecls_pullDecls___lam__0___closed__1;
 x_5 = l_Lean_Compiler_LCNF_PullLetDecls_pullDecls___lam__0___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -1652,8 +1652,8 @@ if (x_17 == 0)
 lean_object* x_18; lean_object* x_19; 
 lean_dec_ref(x_1);
 x_18 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_18, 0, x_16);
-lean_ctor_set(x_18, 1, x_15);
+lean_ctor_set(x_18, 0, x_15);
+lean_ctor_set(x_18, 1, x_16);
 x_19 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_19, 0, x_18);
 lean_ctor_set(x_19, 1, x_14);
@@ -1677,8 +1677,8 @@ if (x_25 == 0)
 lean_object* x_26; lean_object* x_27; 
 lean_dec_ref(x_1);
 x_26 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_26, 0, x_24);
-lean_ctor_set(x_26, 1, x_23);
+lean_ctor_set(x_26, 0, x_23);
+lean_ctor_set(x_26, 1, x_24);
 x_27 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_27, 0, x_26);
 lean_ctor_set(x_27, 1, x_22);
@@ -1740,8 +1740,8 @@ x_48 = lean_usize_dec_eq(x_46, x_47);
 if (x_48 == 0)
 {
 x_14 = x_43;
-x_15 = x_42;
-x_16 = x_37;
+x_15 = x_37;
+x_16 = x_42;
 x_17 = x_48;
 goto block_21;
 }
@@ -1752,8 +1752,8 @@ x_49 = lean_ptr_addr(x_44);
 x_50 = lean_ptr_addr(x_37);
 x_51 = lean_usize_dec_eq(x_49, x_50);
 x_14 = x_43;
-x_15 = x_42;
-x_16 = x_37;
+x_15 = x_37;
+x_16 = x_42;
 x_17 = x_51;
 goto block_21;
 }
@@ -1774,8 +1774,8 @@ x_58 = lean_usize_dec_eq(x_56, x_57);
 if (x_58 == 0)
 {
 x_22 = x_53;
-x_23 = x_52;
-x_24 = x_37;
+x_23 = x_37;
+x_24 = x_52;
 x_25 = x_58;
 goto block_29;
 }
@@ -1786,8 +1786,8 @@ x_59 = lean_ptr_addr(x_54);
 x_60 = lean_ptr_addr(x_37);
 x_61 = lean_usize_dec_eq(x_59, x_60);
 x_22 = x_53;
-x_23 = x_52;
-x_24 = x_37;
+x_23 = x_37;
+x_24 = x_52;
 x_25 = x_61;
 goto block_29;
 }
@@ -1907,8 +1907,8 @@ x_89 = lean_usize_dec_eq(x_87, x_88);
 if (x_89 == 0)
 {
 x_14 = x_84;
-x_15 = x_83;
-x_16 = x_77;
+x_15 = x_77;
+x_16 = x_83;
 x_17 = x_89;
 goto block_21;
 }
@@ -1919,8 +1919,8 @@ x_90 = lean_ptr_addr(x_85);
 x_91 = lean_ptr_addr(x_77);
 x_92 = lean_usize_dec_eq(x_90, x_91);
 x_14 = x_84;
-x_15 = x_83;
-x_16 = x_77;
+x_15 = x_77;
+x_16 = x_83;
 x_17 = x_92;
 goto block_21;
 }
@@ -1941,8 +1941,8 @@ x_99 = lean_usize_dec_eq(x_97, x_98);
 if (x_99 == 0)
 {
 x_22 = x_94;
-x_23 = x_93;
-x_24 = x_77;
+x_23 = x_77;
+x_24 = x_93;
 x_25 = x_99;
 goto block_29;
 }
@@ -1953,8 +1953,8 @@ x_100 = lean_ptr_addr(x_95);
 x_101 = lean_ptr_addr(x_77);
 x_102 = lean_usize_dec_eq(x_100, x_101);
 x_22 = x_94;
-x_23 = x_93;
-x_24 = x_77;
+x_23 = x_77;
+x_24 = x_93;
 x_25 = x_102;
 goto block_29;
 }
@@ -3834,22 +3834,14 @@ x_5 = l_Lean_registerTraceClass(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* initialize_Lean_Compiler_LCNF_CompilerM(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_DependsOn(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_LCNF_Types(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_PassManager(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_PullLetDecls(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Compiler_LCNF_CompilerM(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_DependsOn(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_Types(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_PassManager(builtin, lean_io_mk_world());

@@ -605,6 +605,9 @@ theorem natAbs_of_nonneg {a : Int} (H : 0 ≤ a) : (natAbs a : Int) = a :=
   match a, eq_ofNat_of_zero_le H with
   | _, ⟨_, rfl⟩ => rfl
 
+theorem ofNat_natAbs_of_nonneg {a : Int} (h : 0 ≤ a) : (natAbs a : Int) = a :=
+  natAbs_of_nonneg h
+
 theorem ofNat_natAbs_of_nonpos {a : Int} (H : a ≤ 0) : (natAbs a : Int) = -a := by
   rw [← natAbs_neg, natAbs_of_nonneg (Int.neg_nonneg_of_nonpos H)]
 
@@ -1346,8 +1349,6 @@ theorem neg_of_sign_eq_neg_one : ∀ {a : Int}, sign a = -1 → a < 0
   | succ _ => Int.mul_one _
   | 0 => Int.mul_zero _
   | -[_+1] => Int.mul_neg_one _
-
-@[deprecated mul_sign_self (since := "2025-02-24")] abbrev mul_sign := @mul_sign_self
 
 @[simp] theorem sign_mul_self (i : Int) : sign i * i = natAbs i := by
   rw [Int.mul_comm, mul_sign_self]

@@ -8,13 +8,9 @@ module
 prelude
 public import Lean.Meta.Tactic.Constructor
 public import Lean.Meta.Tactic.Assert
-public import Lean.Meta.Tactic.AuxLemma
 public import Lean.Meta.Tactic.Cleanup
-public import Lean.Meta.Tactic.Clear
 public import Lean.Meta.Tactic.Rename
-public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.Tactic.Config
-public import Lean.Elab.SyntheticMVars
 
 public section
 
@@ -434,7 +430,14 @@ private unsafe def elabNativeDecideCoreUnsafe (tacticName : Name) (expectedType 
     hints := .abbrev
     safety := .safe
   }
-  addAndCompile decl
+  try
+    -- disable async codegen so we can catch its exceptions; we don't want to report `evalConst`
+    -- failures below when the actual reason was a codegen failure
+    withOptions (Elab.async.set · false) do
+      addAndCompile decl
+  catch ex =>
+    throwError m!"Tactic `{tacticName}` failed. Error: {ex.toMessageData}"
+
   -- get instance from `d`
   let s := d.appArg!
   let rflPrf ← mkEqRefl (toExpr true)
@@ -497,7 +500,10 @@ where
       let refl := mkExpectedPropHint reflBoolTrue eq
       return mkApp3 (mkConst ``of_decide_eq_true) expectedType inst refl
     else
-      diagnose expectedType dec r
+      -- Diagnose the failure lazily, so that there is no performance impact if `decide` isn't being used interactively.
+      throwError MessageData.ofLazyM (es := #[expectedType]) do
+        diagnose expectedType dec r
+
   doKernel (expectedType : Expr) : TacticM Expr := do
     let pf ← mkDecideProof expectedType
     -- Get instance from `pf`
@@ -513,65 +519,67 @@ where
       let lemmaName ← withOptions (Elab.async.set · false) do
         mkAuxLemma lemmaLevels expectedType pf
       return mkConst lemmaName (lemmaLevels.map .param)
-    catch _ =>
-      diagnose expectedType (mkApp2 (mkConst ``Decidable.decide) expectedType s) none
-  diagnose {α : Type} (expectedType b : Expr) (r? : Option Expr) : TacticM α :=
-    -- Diagnose the failure, lazily so that there is no performance impact if `decide` isn't being used interactively.
-    throwError MessageData.ofLazyM (es := #[expectedType]) do
-      let r ← r?.getDM (withAtLeastTransparency .default <| whnf b)
-      if r.isConstOf ``Bool.true then
-        return m!"\
-          Tactic `{tacticName}` failed. Internal error: The elaborator is able to reduce the \
-          `{.ofConstName ``Decidable}` instance, but the kernel is not able to"
-      else if r.isConstOf ``Bool.false then
-        return m!"\
-          Tactic `{tacticName}` proved that the proposition\
-          {indentExpr expectedType}\n\
-          is false"
-      -- Re-reduce the instance and collect diagnostics, to get all unfolded Decidable instances
-      let (reason, unfoldedInsts) ← withoutModifyingState <| withOptions (fun opt => diagnostics.set opt true) do
-        modifyDiag (fun _ => {})
-        let reason ← withAtLeastTransparency .default <| blameDecideReductionFailure b
-        let unfolded := (← get).diag.unfoldCounter.foldl (init := #[]) fun cs n _ => cs.push n
-        let unfoldedInsts ← unfolded |>.qsort Name.lt |>.filterMapM fun n => do
-          let e ← mkConstWithLevelParams n
-          if (← Meta.isClass? (← inferType e)) == ``Decidable then
-            return m!"`{.ofConst e}`"
-          else
-            return none
-        return (reason, unfoldedInsts)
-      let stuckMsg :=
-        if unfoldedInsts.isEmpty then
-          m!"Reduction got stuck at{indentExpr reason}"
-        else
-          let instances := if unfoldedInsts.size == 1 then "instance" else "instances"
-          m!"After unfolding the {instances} {.andList unfoldedInsts.toList}, \
-          reduction got stuck at{indentExpr reason}"
-      let hint :=
-        if reason.isAppOf ``Eq.rec then
-          .hint' m!"Reduction got stuck on `▸` ({.ofConstName ``Eq.rec}), \
-            which suggests that one of the `{.ofConstName ``Decidable}` instances is defined using tactics such as `rw` or `simp`. \
-            To avoid tactics, make use of functions such as \
-            `{.ofConstName ``inferInstanceAs}` or `{.ofConstName ``decidable_of_decidable_of_iff}` \
-            to alter a proposition."
-        else if reason.isAppOf ``Classical.choice then
-          .hint' m!"Reduction got stuck on `{.ofConstName ``Classical.choice}`, \
-            which indicates that a `{.ofConstName ``Decidable}` instance \
-            is defined using classical reasoning, proving an instance exists rather than giving a concrete construction. \
-            The `{tacticName}` tactic works by evaluating a decision procedure via reduction, \
-            and it cannot make progress with such instances. \
-            This can occur due to the `open scoped Classical` command, which enables the instance \
-            `{.ofConstName ``Classical.propDecidable}`."
-        else
-          MessageData.nil
-      let s := b.appArg!
+    catch ex =>
+      -- Diagnose the failure, lazily so that there is no performance impact if `decide` isn't being used interactively.
+      throwError MessageData.ofLazyM (es := #[expectedType]) do
+        let dec := mkApp2 (mkConst ``Decidable.decide) expectedType s
+        let r ← withAtLeastTransparency .default <| whnf dec
+        if r.isConstOf ``true then
+          return m!"\
+            Tactic `{tacticName}` failed. The elaborator is able to reduce the \
+            `{.ofConstName ``Decidable}` instance, but the kernel fails with:\n\
+            {indentD ex.toMessageData}"
+        diagnose expectedType dec r
+
+  diagnose (expectedType b : Expr) (r : Expr) : MetaM MessageData :=
+    if r.isConstOf ``false then
       return m!"\
-        Tactic `{tacticName}` failed for proposition\
+        Tactic `{tacticName}` proved that the proposition\
         {indentExpr expectedType}\n\
-        because its `{.ofConstName ``Decidable}` instance\
-        {indentExpr s}\n\
-        did not reduce to `{.ofConstName ``isTrue}` or `{.ofConstName ``isFalse}`.\n\n\
-        {stuckMsg}{hint}"
+        is false"
+    -- Re-reduce the instance and collect diagnostics, to get all unfolded Decidable instances
+    let (reason, unfoldedInsts) ← withoutModifyingState <| withOptions (fun opt => diagnostics.set opt true) do
+      modifyDiag (fun _ => {})
+      let reason ← withAtLeastTransparency .default <| blameDecideReductionFailure s
+      let unfolded := (← get).diag.unfoldCounter.foldl (init := #[]) fun cs n _ => cs.push n
+      let unfoldedInsts ← unfolded |>.qsort Name.lt |>.filterMapM fun n => do
+        let e ← mkConstWithLevelParams n
+        if (← Meta.isClass? (← inferType e)) == ``Decidable then
+          return m!"`{.ofConst e}`"
+        else
+          return none
+      return (reason, unfoldedInsts)
+    let stuckMsg :=
+      if unfoldedInsts.isEmpty then
+        m!"Reduction got stuck at the `{.ofConstName ``Decidable}` instance{indentExpr reason}"
+      else
+        let instances := if unfoldedInsts.size == 1 then "instance" else "instances"
+        m!"After unfolding the {instances} {.andList unfoldedInsts.toList}, \
+        reduction got stuck at the `{.ofConstName ``Decidable}` instance{indentExpr reason}"
+    let hint :=
+      if reason.isAppOf ``Eq.rec then
+        .hint' m!"Reduction got stuck on `▸` ({.ofConstName ``Eq.rec}), \
+          which suggests that one of the `{.ofConstName ``Decidable}` instances is defined using tactics such as `rw` or `simp`. \
+          To avoid tactics, make use of functions such as \
+          `{.ofConstName ``inferInstanceAs}` or `{.ofConstName ``decidable_of_decidable_of_iff}` \
+          to alter a proposition."
+      else if reason.isAppOf ``Classical.choice then
+        .hint' m!"Reduction got stuck on `{.ofConstName ``Classical.choice}`, \
+          which indicates that a `{.ofConstName ``Decidable}` instance \
+          is defined using classical reasoning, proving an instance exists rather than giving a concrete construction. \
+          The `{tacticName}` tactic works by evaluating a decision procedure via reduction, \
+          and it cannot make progress with such instances. \
+          This can occur due to the `open scoped Classical` command, which enables the instance \
+          `{.ofConstName ``Classical.propDecidable}`."
+      else
+        MessageData.nil
+    return m!"\
+      Tactic `{tacticName}` failed for proposition\
+      {indentExpr expectedType}\n\
+      because its `{.ofConstName ``Decidable}` instance\
+      {indentExpr s}\n\
+      did not reduce to `{.ofConstName ``isTrue}` or `{.ofConstName ``isFalse}`.\n\n\
+      {stuckMsg}{hint}"
 
 declare_config_elab elabDecideConfig Parser.Tactic.DecideConfig
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Combinators.Take
-// Imports: Std.Data.Iterators.Combinators.Monadic.Take
+// Imports: public import Std.Data.Iterators.Combinators.Monadic.Take
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

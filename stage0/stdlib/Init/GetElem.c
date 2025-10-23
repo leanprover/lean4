@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.GetElem
-// Imports: Init.Util
+// Imports: public import Init.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3665,7 +3665,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 lean_dec(x_3);
 x_4 = l_outOfBounds___redArg___closed__0;
 x_5 = l_List_get_x21Internal___redArg___closed__0;
-x_6 = lean_unsigned_to_nat(328u);
+x_6 = lean_unsigned_to_nat(323u);
 x_7 = lean_unsigned_to_nat(18u);
 x_8 = l_List_get_x21Internal___redArg___closed__1;
 x_9 = l_mkPanicMessageWithDecl(x_4, x_5, x_6, x_7, x_8);

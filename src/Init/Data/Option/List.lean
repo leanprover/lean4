@@ -7,9 +7,7 @@ module
 
 prelude
 public import Init.Data.List.Lemmas
-public import Init.Data.List.Control
 import all Init.Data.List.Control
-public import Init.Data.Option.Instances
 import all Init.Data.Option.Instances
 
 public section
@@ -43,7 +41,7 @@ namespace Option
     o.toList.foldr f a = o.elim a (fun b => f b a) := by
   cases o <;> simp
 
-@[simp, grind]
+@[simp, grind ←]
 theorem pairwise_toList {P : α → α → Prop} {o : Option α} : o.toList.Pairwise P := by
   cases o <;> simp
 

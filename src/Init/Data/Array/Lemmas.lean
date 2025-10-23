@@ -6,17 +6,10 @@ Authors: Mario Carneiro, Kim Morrison
 module
 
 prelude
-public import Init.Data.Nat.Lemmas
-public import Init.Data.List.Range
-public import Init.Data.List.Nat.TakeDrop
-public import Init.Data.List.Nat.Modify
 public import Init.Data.List.Nat.Basic
-public import Init.Data.List.Monadic
-public import Init.Data.List.OfFn
 public import Init.Data.Array.Mem
 public import Init.Data.Array.DecidableEq
 public import Init.Data.Range.Lemmas
-public import Init.TacticsExtra
 public import Init.Data.List.ToArray
 import all Init.Data.List.Control
 import all Init.Data.Array.Basic
@@ -80,9 +73,6 @@ theorem ne_empty_of_size_pos (h : 0 < xs.size) : xs ≠ #[] := by
 @[simp] theorem size_eq_zero_iff : xs.size = 0 ↔ xs = #[] :=
   ⟨eq_empty_of_size_eq_zero, fun h => h ▸ rfl⟩
 
-@[deprecated size_eq_zero_iff (since := "2025-02-24")]
-abbrev size_eq_zero := @size_eq_zero_iff
-
 theorem eq_empty_iff_size_eq_zero : xs = #[] ↔ xs.size = 0 :=
   size_eq_zero_iff.symm
 
@@ -107,16 +97,9 @@ theorem exists_mem_of_size_eq_add_one {xs : Array α} (h : xs.size = n + 1) : �
 theorem size_pos_iff {xs : Array α} : 0 < xs.size ↔ xs ≠ #[] :=
   Nat.pos_iff_ne_zero.trans (not_congr size_eq_zero_iff)
 
-@[deprecated size_pos_iff (since := "2025-02-24")]
-abbrev size_pos := @size_pos_iff
-
 theorem size_eq_one_iff {xs : Array α} : xs.size = 1 ↔ ∃ a, xs = #[a] := by
   cases xs
   simpa using List.length_eq_one_iff
-
-@[deprecated size_eq_one_iff (since := "2025-02-24")]
-abbrev size_eq_one := @size_eq_one_iff
-
 
 /-! ## L[i] and L[i]? -/
 
@@ -371,6 +354,7 @@ abbrev getElem?_mkArray := @getElem?_replicate
 
 /-! ### mem -/
 
+@[grind ←]
 theorem not_mem_empty (a : α) : ¬ a ∈ #[] := by simp
 
 @[simp, grind =] theorem mem_push {xs : Array α} {x y : α} : x ∈ xs.push y ↔ x ∈ xs ∨ x = y := by
@@ -542,17 +526,11 @@ theorem isEmpty_eq_false_iff_exists_mem {xs : Array α} :
 @[simp] theorem isEmpty_iff {xs : Array α} : xs.isEmpty ↔ xs = #[] := by
   cases xs <;> simp
 
-@[deprecated isEmpty_iff (since := "2025-02-17")]
-abbrev isEmpty_eq_true := @isEmpty_iff
-
 @[grind →]
 theorem empty_of_isEmpty {xs : Array α} (h : xs.isEmpty) : xs = #[] := Array.isEmpty_iff.mp h
 
 @[simp] theorem isEmpty_eq_false_iff {xs : Array α} : xs.isEmpty = false ↔ xs ≠ #[] := by
   cases xs <;> simp
-
-@[deprecated isEmpty_eq_false_iff (since := "2025-02-17")]
-abbrev isEmpty_eq_false := @isEmpty_eq_false_iff
 
 theorem isEmpty_iff_size_eq_zero {xs : Array α} : xs.isEmpty ↔ xs.size = 0 := by
   rw [isEmpty_iff, size_eq_zero_iff]
@@ -1474,7 +1452,7 @@ theorem forall_mem_filter {p : α → Bool} {xs : Array α} {P : α → Prop} :
     (∀ (i) (_ : i ∈ xs.filter p), P i) ↔ ∀ (j) (_ : j ∈ xs), p j → P j := by
   simp
 
-@[grind] theorem getElem_filter {xs : Array α} {p : α → Bool} {i : Nat} (h : i < (xs.filter p).size) :
+@[grind ←] theorem getElem_filter {xs : Array α} {p : α → Bool} {i : Nat} (h : i < (xs.filter p).size) :
     p (xs.filter p)[i] :=
   (mem_filter.mp (getElem_mem h)).2
 
@@ -2996,11 +2974,6 @@ theorem _root_.List.toArray_drop {l : List α} {k : Nat} :
     (l.drop k).toArray = l.toArray.extract k := by
   rw [List.drop_eq_extract, List.extract_toArray, List.size_toArray]
 
-@[deprecated extract_size (since := "2025-02-27")]
-theorem take_size {xs : Array α} : xs.take xs.size = xs := by
-  cases xs
-  simp
-
 /-! ### shrink -/
 
 @[simp] private theorem size_shrink_loop {xs : Array α} {n : Nat} : (shrink.loop n xs).size = xs.size - n := by
@@ -3251,7 +3224,7 @@ rather than `(arr.push a).size` as the argument.
   simp [← foldrM_push, h]
 
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
-@[simp, grind] theorem _root_.List.foldrM_push_eq_append [Monad m] [LawfulMonad m] {l : List α} {f : α → m β} {xs : Array β} :
+@[simp, grind! ←] theorem _root_.List.foldrM_push_eq_append [Monad m] [LawfulMonad m] {l : List α} {f : α → m β} {xs : Array β} :
     l.foldrM (fun x xs => xs.push <$> f x) xs = do return xs ++ (← l.reverse.mapM f).toArray := by
   induction l with
   | nil => simp
@@ -3264,7 +3237,7 @@ rather than `(arr.push a).size` as the argument.
     simp
 
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
-@[simp, grind] theorem _root_.List.foldlM_push_eq_append [Monad m] [LawfulMonad m] {l : List α} {f : α → m β} {xs : Array β} :
+@[simp, grind! ←] theorem _root_.List.foldlM_push_eq_append [Monad m] [LawfulMonad m] {l : List α} {f : α → m β} {xs : Array β} :
     l.foldlM (fun xs x => xs.push <$> f x) xs = do return xs ++ (← l.mapM f).toArray := by
   induction l generalizing xs <;> simp [*]
 
@@ -3338,7 +3311,7 @@ rather than `(arr.push a).size` as the argument.
   foldrM_push' h
 
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
-@[simp, grind] theorem foldl_push_eq_append {as : Array α} {bs : Array β} {f : α → β} (w : stop = as.size) :
+@[simp, grind! ←] theorem foldl_push_eq_append {as : Array α} {bs : Array β} {f : α → β} (w : stop = as.size) :
     as.foldl (fun acc a => acc.push (f a)) bs 0 stop = bs ++ as.map f := by
   subst w
   rcases as with ⟨as⟩
@@ -3347,14 +3320,14 @@ rather than `(arr.push a).size` as the argument.
   induction as generalizing bs <;> simp [*]
 
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
-@[simp, grind] theorem foldl_cons_eq_append {as : Array α} {bs : List β} {f : α → β} (w : stop = as.size) :
+@[simp, grind! ←] theorem foldl_cons_eq_append {as : Array α} {bs : List β} {f : α → β} (w : stop = as.size) :
     as.foldl (fun acc a => (f a) :: acc) bs 0 stop = (as.map f).reverse.toList ++ bs := by
   subst w
   rcases as with ⟨as⟩
   simp
 
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
-@[simp, grind] theorem foldr_cons_eq_append {as : Array α} {bs : List β} {f : α → β} (w : start = as.size) :
+@[simp, grind! ←] theorem foldr_cons_eq_append {as : Array α} {bs : List β} {f : α → β} (w : start = as.size) :
     as.foldr (fun a acc => (f a) :: acc) bs start 0 = (as.map f).toList ++ bs := by
   subst w
   rcases as with ⟨as⟩
@@ -3368,7 +3341,7 @@ rather than `(arr.push a).size` as the argument.
   simp
 
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
-@[simp, grind] theorem _root_.List.foldr_push_eq_append {l : List α} {f : α → β} {xs : Array β} :
+@[simp, grind! ←] theorem _root_.List.foldr_push_eq_append {l : List α} {f : α → β} {xs : Array β} :
     l.foldr (fun x xs => xs.push (f x)) xs = xs ++ (l.reverse.map f).toArray := by
   induction l <;> simp [*]
 
@@ -3378,7 +3351,7 @@ rather than `(arr.push a).size` as the argument.
   induction l <;> simp [*]
 
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
-@[simp, grind] theorem _root_.List.foldl_push_eq_append {l : List α} {f : α → β} {xs : Array β} :
+@[simp, grind! ←] theorem _root_.List.foldl_push_eq_append {l : List α} {f : α → β} {xs : Array β} :
     l.foldl (fun xs x => xs.push (f x)) xs = xs ++ (l.map f).toArray := by
   induction l generalizing xs <;> simp [*]
 
@@ -3396,28 +3369,28 @@ theorem _root_.List.foldr_push {l : List α} {as : Array α} : l.foldr (fun a bs
   rw [List.foldr_eq_foldl_reverse, List.foldl_push_eq_append']
 
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
-@[simp, grind] theorem foldr_append_eq_append {xs : Array α} {f : α → Array β} {ys : Array β} :
+@[simp, grind! ←] theorem foldr_append_eq_append {xs : Array α} {f : α → Array β} {ys : Array β} :
     xs.foldr (f · ++ ·) ys = (xs.map f).flatten ++ ys := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
   induction xs <;> simp_all [Function.comp_def, flatten_toArray]
 
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
-@[simp, grind] theorem foldl_append_eq_append {xs : Array α} {f : α → Array β} {ys : Array β} :
+@[simp, grind! ←] theorem foldl_append_eq_append {xs : Array α} {f : α → Array β} {ys : Array β} :
     xs.foldl (· ++ f ·) ys = ys ++ (xs.map f).flatten := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
   induction xs generalizing ys <;> simp_all [Function.comp_def, flatten_toArray]
 
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
-@[simp, grind] theorem foldr_flip_append_eq_append {xs : Array α} {f : α → Array β} {ys : Array β} :
+@[simp, grind! ←] theorem foldr_flip_append_eq_append {xs : Array α} {f : α → Array β} {ys : Array β} :
     xs.foldr (fun x acc => acc ++ f x) ys = ys ++ (xs.map f).reverse.flatten := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
   induction xs generalizing ys <;> simp_all [Function.comp_def, flatten_toArray]
 
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
-@[simp, grind] theorem foldl_flip_append_eq_append {xs : Array α} {f : α → Array β} {ys : Array β} :
+@[simp, grind! ←] theorem foldl_flip_append_eq_append {xs : Array α} {f : α → Array β} {ys : Array β} :
     xs.foldl (fun acc y => f y ++ acc) ys = (xs.map f).reverse.flatten ++ ys:= by
   rcases xs with ⟨l⟩
   rcases ys with ⟨l'⟩
@@ -3585,8 +3558,6 @@ theorem foldr_eq_foldl_reverse {xs : Array α} {f : α → β → β} {b} :
     as.foldr (fun a xs => Array.push xs (f a)) bs start 0 = bs ++ (as.map f).reverse := by
   subst w
   rw [foldr_eq_foldl_reverse, foldl_push_eq_append rfl, map_reverse]
-
-@[deprecated foldr_push_eq_append (since := "2025-02-09")] abbrev foldr_flip_push_eq_append := @foldr_push_eq_append
 
 theorem foldl_assoc {op : α → α → α} [ha : Std.Associative op] {xs : Array α} {a₁ a₂} :
      xs.foldl op (op a₁ a₂) = op a₁ (xs.foldl op a₂) := by
@@ -3783,7 +3754,7 @@ theorem contains_iff_exists_mem_beq [BEq α] {xs : Array α} {a : α} :
 -- With `LawfulBEq α`, it would be better to use `contains_iff_mem` directly.
 grind_pattern contains_iff_exists_mem_beq => xs.contains a
 
-@[grind _=_]
+@[grind =]
 theorem contains_iff_mem [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
     xs.contains a ↔ a ∈ xs := by
   simp
@@ -4712,44 +4683,3 @@ namespace List
       simp_all
 
 end List
-
-/-! ### Deprecations -/
-namespace Array
-
-set_option linter.deprecated false in
-@[deprecated "`get?` is deprecated" (since := "2025-02-12"), simp]
-theorem get?_eq_getElem? (xs : Array α) (i : Nat) : xs.get? i = xs[i]? := rfl
-
-@[deprecated getD_eq_getD_getElem? (since := "2025-02-12")] abbrev getD_eq_get? := @getD_eq_getD_getElem?
-
-set_option linter.deprecated false in
-@[deprecated getElem!_eq_getD (since := "2025-02-12")]
-theorem get!_eq_getD [Inhabited α] (xs : Array α) : xs.get! n = xs.getD n default := rfl
-
-set_option linter.deprecated false in
-@[deprecated "Use `a[i]!` instead of `a.get! i`." (since := "2025-02-12")]
-theorem get!_eq_getD_getElem? [Inhabited α] (xs : Array α) (i : Nat) :
-    xs.get! i = xs[i]?.getD default := by
-  by_cases p : i < xs.size <;>
-  simp [get!, getD_eq_getD_getElem?, p]
-
-set_option linter.deprecated false in
-@[deprecated get!_eq_getD_getElem? (since := "2025-02-12")] abbrev get!_eq_getElem? := @get!_eq_getD_getElem?
-
-set_option linter.deprecated false in
-@[deprecated "`Array.get?` is deprecated, use `a[i]?` instead." (since := "2025-02-12")]
-theorem get?_eq_get?_toList (xs : Array α) (i : Nat) : xs.get? i = xs.toList.get? i := by
-  simp [← getElem?_toList]
-
-set_option linter.deprecated false in
-@[deprecated get!_eq_getD_getElem? (since := "2025-02-12")] abbrev get!_eq_get? := @get!_eq_getD_getElem?
-
-/-! ### set -/
-
-@[deprecated getElem?_set_self (since := "2025-02-27")] abbrev get?_set_eq := @getElem?_set_self
-@[deprecated getElem?_set_ne (since := "2025-02-27")] abbrev get?_set_ne := @getElem?_set_ne
-@[deprecated getElem?_set (since := "2025-02-27")] abbrev get?_set := @getElem?_set
-@[deprecated get_set (since := "2025-02-27")] abbrev get_set := @getElem_set
-@[deprecated get_set_ne (since := "2025-02-27")] abbrev get_set_ne := @getElem_set_ne
-
-end Array

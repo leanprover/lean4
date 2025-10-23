@@ -7,8 +7,6 @@ module
 
 prelude
 public import Init.Ext
-public import Init.SimpLemmas
-public import Init.Meta
 
 public section
 
@@ -147,7 +145,7 @@ class LawfulMonad (m : Type u → Type v) [Monad m] : Prop extends LawfulApplica
 
 export LawfulMonad (bind_pure_comp bind_map pure_bind bind_assoc)
 attribute [simp] pure_bind bind_assoc bind_pure_comp
-attribute [grind] pure_bind
+attribute [grind <=] pure_bind
 
 @[simp] theorem bind_pure [Monad m] [LawfulMonad m] (x : m α) : x >>= pure = x := by
   change x >>= (fun a => pure (id a)) = x
@@ -252,6 +250,7 @@ instance : LawfulMonad Id := by
 @[simp] theorem run_map (x : Id α) (f : α → β) : (f <$> x).run = f x.run := rfl
 @[simp] theorem run_bind (x : Id α) (f : α → Id β) : (x >>= f).run = (f x.run).run := rfl
 @[simp] theorem run_pure (a : α) : (pure a : Id α).run = a := rfl
+@[simp] theorem pure_run (a : Id α) : pure a.run = a := rfl
 @[simp] theorem run_seqRight (x y : Id α) : (x *> y).run = y.run := rfl
 @[simp] theorem run_seqLeft (x y : Id α) : (x <* y).run = x.run := rfl
 @[simp] theorem run_seq (f : Id (α → β)) (x : Id α) : (f <*> x).run = f.run x.run := rfl

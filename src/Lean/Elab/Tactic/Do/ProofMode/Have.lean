@@ -6,7 +6,6 @@ Authors: Sebastian Graf
 module
 
 prelude
-public import Std.Tactic.Do.Syntax
 public import Lean.Elab.Tactic.Do.ProofMode.Cases
 public import Lean.Elab.Tactic.Do.ProofMode.Specialize
 

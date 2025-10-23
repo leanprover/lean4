@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.PrettyPrinter.Delaborator
-// Imports: Lean.PrettyPrinter.Delaborator.Options Lean.PrettyPrinter.Delaborator.SubExpr Lean.PrettyPrinter.Delaborator.TopDownAnalyze Lean.PrettyPrinter.Delaborator.Basic Lean.PrettyPrinter.Delaborator.Builtins
+// Imports: public import Lean.PrettyPrinter.Delaborator.Options public import Lean.PrettyPrinter.Delaborator.SubExpr public import Lean.PrettyPrinter.Delaborator.TopDownAnalyze public import Lean.PrettyPrinter.Delaborator.Basic public import Lean.PrettyPrinter.Delaborator.Builtins
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -7,15 +7,8 @@ Authors: David Thrane Christiansen
 module
 
 prelude
-import Lean.Environment
-import Lean.Exception
-import Lean.Log
 import Lean.Elab.DocString
-import Lean.DocString.Extension
-import Lean.DocString.Links
-import Lean.Parser.Types
-import Lean.DocString.Parser
-import Lean.ResolveName
+public import Lean.DocString.Parser
 public import Lean.Elab.Term.TermElabM
 import Std.Data.HashMap
 
@@ -45,28 +38,25 @@ def validateDocComment
   for (⟨start, stop⟩, err) in errs do
     -- Report errors at their actual location if possible
     if let some pos := pos? then
-      let urlStx : Syntax := .atom (.synthetic (pos + start) (pos + stop)) (str.extract start stop)
+      let urlStx : Syntax := .atom (.synthetic (start.offsetBy pos) (stop.offsetBy pos)) (String.Pos.Raw.extract str start stop)
       logErrorAt urlStx err
     else
       logError err
 
-
-open Lean.Doc in
-open Parser in
+open Lean.Parser Command in
 /--
-Adds a Verso docstring to the specified declaration, which should already be present in the
-environment.
+Parses a docstring as Verso, returning the syntax if successful.
 
-`binders` should be the syntax of the parameters to the constant that is being documented, as a null
-node that contains a sequence of bracketed binders. It is used to allow interactive features such as
-document highlights and “find references” to work for documented parameters. If no parameter binders
-are available, pass `Syntax.missing` or an empty null node.
-
+When not successful, parser errors are logged.
 -/
-def versoDocString
-    (declName : Name) (binders : Syntax) (docComment : TSyntax `Lean.Parser.Command.docComment) :
-    TermElabM (Array (Doc.Block ElabInline ElabBlock) × Array (Doc.Part ElabInline ElabBlock Empty)) := do
-
+def parseVersoDocString
+    [Monad m] [MonadFileMap m] [MonadError m] [MonadEnv m] [MonadOptions m] [MonadLog m]
+    [MonadResolveName m]
+    (docComment : TSyntax [``docComment, ``moduleDoc]) : m (Option Syntax) := do
+  if docComment.raw.getKind == ``docComment then
+    match docComment.raw[0] with
+    | docStx@(.node _ ``versoCommentBody _) => return docStx[1]?
+    | _ => pure ()
   let text ← getFileMap
   -- TODO fallback to string version without nice interactivity
   let some startPos := docComment.raw[1].getPos? (canonicalOnly := true)
@@ -75,7 +65,7 @@ def versoDocString
     | throwErrorAt docComment m!"Documentation comment has no source location, cannot parse"
 
   -- Skip trailing `-/`
-  let endPos := text.source.prev <| text.source.prev endPos
+  let endPos := String.Pos.Raw.prev text.source <| endPos.prev text.source
   let endPos := if endPos ≤ text.source.endPos then endPos else text.source.endPos
   have endPos_valid : endPos ≤ text.source.endPos := by
     unfold endPos
@@ -93,7 +83,7 @@ def versoDocString
   }
   let s := mkParserState text.source |>.setPos startPos
   -- TODO parse one block at a time for error recovery purposes
-  let s := (Doc.Parser.document).run ictx pmctx (getTokenTable env) s
+  let s := Doc.Parser.document.run ictx pmctx (getTokenTable env) s
 
   if !s.allErrors.isEmpty then
     for (pos, _, err) in s.allErrors do
@@ -103,11 +93,42 @@ def versoDocString
         -- TODO end position
         data := err.toString
       }
-    return (#[], #[])
-  else
-    let stx := s.stxStack.back
-    let stx := stx.getArgs
-    Doc.elabBlocks (stx.map (⟨·⟩)) |>.exec declName binders
+    return none
+  return some s.stxStack.back
+
+
+
+open Lean.Doc in
+open Lean.Parser.Command in
+/--
+Elaborates a Verso docstring for the specified declaration, which should already be present in the
+environment.
+
+`binders` should be the syntax of the parameters to the constant that is being documented, as a null
+node that contains a sequence of bracketed binders. It is used to allow interactive features such as
+document highlights and “find references” to work for documented parameters. If no parameter binders
+are available, pass `Syntax.missing` or an empty null node.
+-/
+
+def versoDocString
+    (declName : Name) (binders : Syntax) (docComment : TSyntax ``docComment) :
+    TermElabM (Array (Doc.Block ElabInline ElabBlock) × Array (Doc.Part ElabInline ElabBlock Empty)) := do
+  if let some stx ← parseVersoDocString docComment then
+    Doc.elabBlocks (stx.getArgs.map (⟨·⟩)) |>.exec declName binders
+  else return (#[], #[])
+
+open Lean.Doc Parser in
+open Lean.Parser.Command in
+/--
+Parses and elaborates a Verso module docstring.
+-/
+def versoModDocString
+    (range : DeclarationRange) (doc : TSyntax ``document) :
+    TermElabM VersoModuleDocs.Snippet := do
+  let level := getVersoModuleDocs (← getEnv) |>.terminalNesting |>.map (· + 1)
+  Doc.elabModSnippet range (doc.raw.getArgs.map (⟨·⟩)) (level.getD 0) |>.execForModule
+
+
 
 open Lean.Doc in
 open Parser in
@@ -131,7 +152,7 @@ def versoDocStringFromString
   }
   let s := mkParserState docComment
   -- TODO parse one block at a time for error recovery purposes
-  let s := (Doc.Parser.document).run ictx pmctx (getTokenTable env) s
+  let s := Doc.Parser.document.run ictx pmctx (getTokenTable env) s
 
   if !s.allErrors.isEmpty then
     for (pos, _, err) in s.allErrors do
@@ -178,13 +199,28 @@ Adds an elaborated Verso docstring to the environment.
 -/
 def addVersoDocStringCore [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] [MonadError m]
     (declName : Name) (docs : VersoDocString) : m Unit := do
-  let throwImported {α} : m α :=
-    throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
+  -- The decl name can be anonymous due to attempts to elaborate incomplete syntax. If the name is
+  -- anonymous, the `MapDeclarationExtension.insert` panics due to not being on the right async
+  -- branch. Better to just do nothing.
+  if declName.isAnonymous then return
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
-    throwImported
+    throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
   modifyEnv fun env =>
     versoDocStringExt.insert env declName docs
 
+/--
+Adds an elaborated Verso module docstring to the environment.
+-/
+def addVersoModDocStringCore [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] [MonadError m]
+  (docs : VersoModuleDocs.Snippet) : m Unit := do
+  if (getMainModuleDoc (← getEnv)).isEmpty then
+    match addVersoModuleDocSnippet (← getEnv) docs with
+    | .error e => throwError "Error adding module docs: {indentD <| toMessageData e}"
+    | .ok env' => setEnv env'
+  else
+    throwError m!"Can't add Verso-format module docs because there is already Markdown-format content present."
+
+open Lean.Parser.Command in
 /--
 Adds a Verso docstring to the environment.
 
@@ -194,7 +230,7 @@ document highlights and “find references” to work for documented parameters.
 are available, pass `Syntax.missing` or an empty null node.
 -/
 def addVersoDocString
-    (declName : Name) (binders : Syntax) (docComment : TSyntax `Lean.Parser.Command.docComment) :
+    (declName : Name) (binders : Syntax) (docComment : TSyntax ``docComment) :
     TermElabM Unit := do
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
     throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
@@ -278,3 +314,20 @@ def addDocString'
   match docString? with
   | some docString => addDocString declName binders docString
   | none => return ()
+
+
+open Lean.Parser.Command in
+open Lean.Doc.Parser in
+/--
+Adds a Verso docstring to the environment.
+
+`binders` should be the syntax of the parameters to the constant that is being documented, as a null
+node that contains a sequence of bracketed binders. It is used to allow interactive features such as
+document highlights and “find references” to work for documented parameters. If no parameter binders
+are available, pass `Syntax.missing` or an empty null node.
+-/
+def addVersoModDocString
+    (range : DeclarationRange) (docComment : TSyntax ``document) :
+    TermElabM Unit := do
+  let snippet ← versoModDocString range docComment
+  addVersoModDocStringCore snippet

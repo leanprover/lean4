@@ -6,15 +6,11 @@ Authors: Lars König, Mario Carneiro, Sebastian Graf
 module
 
 prelude
-public import Lean.Elab.Tactic.Do.ProofMode.Basic
 public import Lean.Elab.Tactic.Do.ProofMode.Intro
 public import Lean.Elab.Tactic.Do.ProofMode.Pure
 public import Lean.Elab.Tactic.Do.ProofMode.Frame
 public import Lean.Elab.Tactic.Do.ProofMode.Assumption
 public import Lean.Elab.Tactic.Do.Attr
-public import Std.Do.Triple
-
-public section
 
 namespace Lean.Elab.Tactic.Do
 open Lean Elab Tactic Meta
@@ -22,7 +18,7 @@ open Std.Do Do.SpecAttr Do.ProofMode
 
 builtin_initialize registerTraceClass `Elab.Tactic.Do.spec
 
-def findSpec (database : SpecTheorems) (wp : Expr) : MetaM SpecTheorem := do
+public def findSpec (database : SpecTheorems) (wp : Expr) : MetaM SpecTheorem := do
   let_expr c@WP.wp _m _ps _instWP _α prog := wp | throwError "target not a wp application {wp}"
   let prog ← instantiateMVarsIfMVarApp prog
   let prog := prog.headBeta
@@ -139,7 +135,7 @@ def dischargeMGoal (goal : MGoal) (goalTag : Name) : n Expr := do
 /--
   Returns the proof and the list of new unassigned MVars.
 -/
-def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name) : n Expr := do
+public def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name) : n Expr := do
   -- First instantiate `fun s => ...` in the target via repeated `mintro ∀s`.
   mIntroForallN goal goal.target.consumeMData.getNumHeadLambdas fun goal => do
   -- Elaborate the spec for the wp⟦e⟧ app in the target
@@ -159,7 +155,16 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name
   mTryFrame goal fun goal => do
 
   -- Fully instantiate the specThm without instantiating its MVars to `wp` yet
-  let (_, _, spec, specTy) ← specThm.proof.instantiate
+  let (mvars, _, spec, specTy) ← specThm.proof.instantiate
+
+  -- Instantiation creates `.natural` MVars, which possibly get instantiated by the def eq checks
+  -- below when they occur in `P` or `Q`.
+  -- That's good for many such as MVars ("schematic variables"), but problematic for MVars
+  -- corresponding to `Invariant`s, which should end up as user goals.
+  -- To prevent accidental instantiation, we mark all `Invariant` MVars as synthetic opaque.
+  for mvar in mvars do
+    let ty ← mvar.mvarId!.getType
+    if ty.isAppOf ``Invariant then mvar.mvarId!.setKind .syntheticOpaque
 
   -- Apply the spec to the excess arguments of the `wp⟦e⟧ Q` application
   let T := goal.target.consumeMData
@@ -168,10 +173,24 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name
   let excessArgs := (args.extract 4 args.size).reverse
 
   -- Actually instantiate the specThm using the expected type computed from `wp`.
-  let_expr f@Triple m ps instWP α prog P Q := specTy | do liftMetaM (throwError "target not a Triple application {specTy}")
+  let_expr f@Triple m ps instWP α prog P Q := specTy
+    | liftMetaM <| throwError "target not a Triple application {specTy}"
   let wp' := mkApp5 (mkConst ``WP.wp f.constLevels!) m ps instWP α prog
   unless (← withAssignableSyntheticOpaque <| isDefEq wp wp') do
     Term.throwTypeMismatchError none wp wp' spec
+
+  -- Try synthesizing synthetic MVars. We don't have the convenience of `TermElabM`, hence
+  -- this poor man's version of `TermElabM.synthesizeSyntheticMVars`.
+  -- We do so after the def eq call so that instance resolution is likely to succeed.
+  -- If it _doesn't_ succeed now, then the spec theorem leaves behind an additional subgoal.
+  -- We'll add a trace message if that happens.
+  for mvar in mvars do
+    let mvar := mvar.mvarId!
+    if (← mvar.getKind) matches .synthetic && !(← liftMetaM <| mvar.isAssigned) then
+      match ← trySynthInstance (← mvar.getType) with
+      | .some prf => liftMetaM <| mvar.assign prf
+      | .none => continue
+      | .undef => liftMetaM <| do trace[Elab.Tactic.Do.spec] "Failed to synthesize synthetic MVar {mvar} from unifying {specTy} against {prog}.\nThis likely leaves behind an additional subgoal."
 
   let P ← instantiateMVarsIfMVarApp P
   let Q ← instantiateMVarsIfMVarApp Q
@@ -214,9 +233,9 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name
 @[builtin_tactic Lean.Parser.Tactic.mspecNoBind]
 def elabMSpecNoBind : Tactic
   | `(tactic| mspec_no_bind $[$spec]?) => do
-    let (mvar, goal) ← mStartMVar (← getMainGoal)
+    let (mvar, goal) ← mStartMainGoal
     mvar.withContext do
-    let (prf, goals) ← collectFreshMVars <| mSpec goal (elabSpec spec) (← getMainTag)
+    let (prf, goals) ← collectFreshMVars <| mSpec goal (elabSpec spec) (← mvar.getTag)
     mvar.assign prf
     replaceMainGoal goals.toList
   | _ => throwUnsupportedSyntax

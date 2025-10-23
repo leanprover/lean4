@@ -6,12 +6,8 @@ Authors: Marc Huisinga
 module
 
 prelude
-public import Lean.Server.FileWorker.Utils
-public import Lean.Data.Lsp.Internal
-public import Lean.Server.Requests
 public import Lean.Server.Completion.CompletionInfoSelection
 public import Lean.Server.CodeActions.Basic
-public import Lean.Server.Completion.CompletionUtils
 
 public section
 
@@ -20,16 +16,25 @@ namespace Lean.Server.FileWorker
 open Lean.Lsp
 open Lean.Server.Completion
 
-structure UnknownIdentifierInfo where
-  paramsRange : String.Range
-  diagRange   : String.Range
+private def compareRanges (r1 r2 : String.Range) : Ordering :=
+  if r1.start < r2.start then
+    .lt
+  else if r1.start > r2.start then
+    .gt
+  else if r1.stop < r2.stop then
+    .lt
+  else if r1.stop > r2.stop then
+    .gt
+  else
+    .eq
 
 def waitUnknownIdentifierRanges (doc : EditableDocument) (requestedRange : String.Range)
-    : BaseIO (Array String.Range) := do
+    : BaseIO (Array String.Range × Bool) := do
   let text := doc.meta.text
   let some parsedSnap := RequestM.findCmdParsedSnap doc requestedRange.start |>.get
-    | return #[]
-  let msgLog := Language.toSnapshotTree parsedSnap.elabSnap |>.collectMessagesInRange requestedRange |>.get
+    | return (#[], false)
+  let tree := Language.toSnapshotTree parsedSnap.elabSnap
+  let msgLog := tree.collectMessagesInRange requestedRange |>.get
   let mut ranges := #[]
   for msg in msgLog.unreported do
     if ! msg.data.hasTag (· == unknownIdentifierMessageTag) then
@@ -39,20 +44,47 @@ def waitUnknownIdentifierRanges (doc : EditableDocument) (requestedRange : Strin
         (includeFirstStop := true) (includeSecondStop := true) then
       continue
     ranges := ranges.push msgRange
-  return ranges
+  let isAnyUnknownIdentifierMessage := ! ranges.isEmpty
+  let autoImplicitUsages : ServerTask (Std.TreeSet String.Range compareRanges) :=
+    tree.foldInfosInRange requestedRange ∅ fun ctx i acc => Id.run do
+      let .ofTermInfo ti := i
+        | return acc
+      let some r := ti.stx.getRange? (canonicalOnly := true)
+        | return acc
+      if ! ti.expr.isFVar then
+        return acc
+      if ! ctx.autoImplicits.contains ti.expr then
+        return acc
+      return acc.insert r
+  let autoImplicitUsages := autoImplicitUsages.get.toArray
+  ranges := ranges ++ autoImplicitUsages
+  return (ranges, isAnyUnknownIdentifierMessage)
 
-def waitAllUnknownIdentifierRanges (doc : EditableDocument)
+def waitAllUnknownIdentifierMessageRanges (doc : EditableDocument)
     : BaseIO (Array String.Range) := do
   let text := doc.meta.text
-  let msgLog : MessageLog := Language.toSnapshotTree doc.initSnap
-    |>.getAll.map (·.diagnostics.msgLog)
-    |>.foldl (· ++ ·) {}
+  let snaps := Language.toSnapshotTree doc.initSnap |>.getAll
+  let msgLog : MessageLog := snaps.map (·.diagnostics.msgLog) |>.foldl (· ++ ·) {}
   let mut ranges := #[]
   for msg in msgLog.unreported do
     if ! msg.data.hasTag (· == unknownIdentifierMessageTag) then
       continue
     let msgRange : String.Range := ⟨text.ofPosition msg.pos, text.ofPosition <| msg.endPos.getD msg.pos⟩
     ranges := ranges.push msgRange
+  let (cmdSnaps, _) := doc.cmdSnaps.waitAll.get
+  for snap in cmdSnaps do
+    let autoImplicitUsages : Std.TreeSet String.Range compareRanges :=
+      snap.infoTree.foldInfo (init := ∅) fun ctx i acc => Id.run do
+        let .ofTermInfo ti := i
+          | return acc
+        let some r := ti.stx.getRange? (canonicalOnly := true)
+          | return acc
+        if ! ti.expr.isFVar then
+          return acc
+        if ! ctx.autoImplicits.contains ti.expr then
+          return acc
+        return acc.insert r
+    ranges := ranges ++ autoImplicitUsages.toArray
   return ranges
 
 structure Insertion where
@@ -121,7 +153,7 @@ def computeDotQuery?
   if typeNames.isEmpty then
     return none
   return some {
-    identifier := text.source.extract pos tailPos
+    identifier := String.Pos.Raw.extract text.source pos tailPos
     openNamespaces := typeNames.map (.allExcept · #[])
     env := ctx.env
     determineInsertion decl :=
@@ -167,7 +199,7 @@ def computeDotIdQuery?
 
 def computeQueries
     (doc          : EditableDocument)
-    (requestedPos : String.Pos)
+    (requestedPos : String.Pos.Raw)
     : RequestM (Array Query) := do
   let text := doc.meta.text
   let some (stx, infoTree) := RequestM.findCmdDataAtPos doc requestedPos (includeStop := true) |>.get
@@ -209,6 +241,7 @@ def handleUnknownIdentifierCodeAction
     (id             : JsonRpc.RequestID)
     (params         : CodeActionParams)
     (requestedRange : String.Range)
+    (kind           : String)
     : RequestM (Array CodeAction) := do
   let rc ← read
   let doc := rc.doc
@@ -251,7 +284,7 @@ def handleUnknownIdentifierCodeAction
       if ! isDeclInEnv then
         unknownIdentifierCodeActions := unknownIdentifierCodeActions.push {
           title := s!"Import {insertion.fullName} from {mod}"
-          kind? := "quickfix"
+          kind? := kind
           edit? := WorkspaceEdit.ofTextDocumentEdit {
             textDocument := doc.versionedIdentifier
             edits := #[
@@ -268,7 +301,7 @@ def handleUnknownIdentifierCodeAction
       else
         unknownIdentifierCodeActions := unknownIdentifierCodeActions.push {
           title := s!"Change to {insertion.fullName}"
-          kind? := "quickfix"
+          kind? := kind
           edit? := WorkspaceEdit.ofTextDocumentEdit {
             textDocument := doc.versionedIdentifier
             edits := #[insertion.edit]

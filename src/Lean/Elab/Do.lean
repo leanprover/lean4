@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Elab.Term
 public import Lean.Elab.BindersUtil
 public import Lean.Elab.PatternVar
 public import Lean.Elab.Quotation.Util
@@ -1540,9 +1539,9 @@ mutual
         ```
         into
         ```
-        let s := toStream ys
+        let s := Std.toStream ys
         for x in xs do
-          match Stream.next? s with
+          match Std.Stream.next? s with
           | none => break
           | some (y, s') =>
             s := s'
@@ -1560,11 +1559,11 @@ mutual
       withFreshMacroScope do
         /- Recall that `@` (explicit) disables `coeAtOutParam`.
            We used `@` at `Stream` functions to make sure `resultIsOutParamSupport` is not used. -/
-        let toStreamApp ← withRef ys `(@toStream _ _ _ $ys)
+        let toStreamApp ← withRef ys `(@Std.toStream _ _ _ $ys)
         let auxDo ←
           `(do let mut s := $toStreamApp:term
                for $doForDecls:doForDecl,* do
-                 match @Stream.next? _ _ _ s with
+                 match @Std.Stream.next? _ _ _ s with
                  | none => break
                  | some ($y, s') =>
                    s := s'
@@ -1621,7 +1620,7 @@ mutual
     let optMotive := doMatch[2]
     let discrs    := doMatch[3]
     let matchAlts := doMatch[5][0].getArgs -- Array of `doMatchAlt`
-    let matchAlts ← matchAlts.foldlM (init := #[]) fun result matchAlt => return result ++ (← liftMacroM <| expandMatchAlt matchAlt)
+    let matchAlts ← matchAlts.foldlM (init := #[]) fun result matchAlt => return result ++ (expandMatchAlt matchAlt)
     let alts ←  matchAlts.mapM fun matchAlt => do
       let patterns := matchAlt[1][0]
       let vars ← getPatternsVarsEx patterns.getSepArgs

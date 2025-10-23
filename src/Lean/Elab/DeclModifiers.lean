@@ -6,10 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Structure
-public import Lean.Elab.Attributes
 public import Lean.DocString.Add
-public import Lean.Parser.Command
 meta import Lean.Parser.Command
 
 public section
@@ -79,7 +76,7 @@ inductive RecKind where
 /-- Codegen-relevant modifiers. -/
 inductive ComputeKind where
   | regular | «meta» | «noncomputable»
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 /-- Flags and data added to declarations (eg docstrings, attributes, `private`, `unsafe`, `partial`, ...). -/
 structure Modifiers where
@@ -162,7 +159,7 @@ def expandOptDocComment? [Monad m] [MonadError m] (optDocComment : Syntax) : m (
   match optDocComment.getOptional? with
   | none   => return none
   | some s => match s[1] with
-    | .atom _ val => return some (val.extract 0 (val.endPos - ⟨2⟩))
+    | .atom _ val => return some (String.Pos.Raw.extract val 0 (val.endPos.unoffsetBy ⟨2⟩))
     | _           => throwErrorAt s "unexpected doc string{indentD s[1]}"
 
 section Methods

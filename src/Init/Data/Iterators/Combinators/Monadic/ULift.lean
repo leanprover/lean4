@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Basic
 public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.Consumers.Monadic
 
@@ -19,6 +18,7 @@ universe v u v' u'
 section ULiftT
 
 /-- `ULiftT.{v, u}` shrinks a monad on `Type max u v` to a monad on `Type u`. -/
+@[expose]  -- for codegen
 def ULiftT (n : Type max u v → Type v') (α : Type u) := n (ULift.{v} α)
 
 /-- Returns the underlying `n`-monadic representation of a `ULiftT n α` value. -/
@@ -89,9 +89,9 @@ instance Types.ULiftIterator.instIterator [Iterator α m β] [Monad n] :
       step = ULiftIterator.Monadic.modifyStep step'
   step it := do
     let step := (← (lift it.internalState.inner.step).run).down
-    return ⟨Monadic.modifyStep step.val, ?hp⟩
+    return .deflate ⟨Monadic.modifyStep step.inflate.val, ?hp⟩
   where finally
-    case hp => exact ⟨step.val, step.property, rfl⟩
+    case hp => exact ⟨step.inflate.val, step.inflate.property, rfl⟩
 
 def Types.ULiftIterator.instFinitenessRelation [Iterator α m β] [Finite α m] [Monad n] :
     FinitenessRelation (ULiftIterator α m n β lift) n where

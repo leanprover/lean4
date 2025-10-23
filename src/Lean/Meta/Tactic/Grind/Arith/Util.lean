@@ -7,7 +7,6 @@ module
 prelude
 public import Init.Grind.Ring.Basic
 public import Lean.Meta.SynthInstance
-public import Lean.Meta.Basic
 public import Init.Data.Rat.Basic
 public section
 namespace Lean.Meta.Grind.Arith
@@ -101,6 +100,8 @@ def isArithTerm (e : Expr) : Bool :=
   | HSMul.hSMul _ _ _ _ _ _ => true
   | Neg.neg _ _ _ => true
   | OfNat.ofNat _ _ _ => true
+  | NatCast.natCast _ _ _ => true
+  | IntCast.intCast _ _ _ => true
   | _ => false
 
 /-- Quote `e` using `「` and `」` if `e` is an arithmetic term that is being treated as a variable. -/

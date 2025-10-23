@@ -6,16 +6,13 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time.Internal
 public import Std.Time.Time.Unit.Minute
-public import Std.Time.Time.Unit.Second
 
 public section
 
 namespace Std
 namespace Time
 namespace Hour
-open Std.Internal
 open Internal
 
 set_option linter.all true

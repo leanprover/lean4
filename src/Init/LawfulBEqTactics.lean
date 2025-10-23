@@ -6,9 +6,6 @@ Authors: Joachim Breitner
 
 module
 prelude
-public import Init.Prelude
-public import Init.Notation
-public import Init.Tactics
 public import Init.Core
 import Init.Data.Bool
 import Init.ByCases
@@ -21,7 +18,7 @@ macro "deriving_ReflEq_tactic" : tactic => `(tactic|(
   intro x
   induction x
   all_goals
-    simp only [ BEq.refl, ↓reduceDIte, Bool.and_true, *, reduceBEq ]
+    simp only [ BEq.refl, ↓reduceDIte, Bool.and_true, *, reduceBEq ,reduceCtorIdx]
 ))
 
 theorem and_true_curry {a b : Bool} {P : Prop}
@@ -99,6 +96,6 @@ macro "deriving_LawfulEq_tactic" : tactic => `(tactic|(
     intro y
     cases y
     all_goals
-      simp only [reduceBEq]
+      simp only [reduceBEq, reduceCtorIdx]
       repeat deriving_LawfulEq_tactic_step
 ))

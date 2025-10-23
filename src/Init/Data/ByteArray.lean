@@ -7,6 +7,6 @@ module
 
 prelude
 public import Init.Data.ByteArray.Basic
+public import Init.Data.ByteArray.Bootstrap
 public import Init.Data.ByteArray.Extra
-
-public section
+public import Init.Data.ByteArray.Lemmas

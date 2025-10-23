@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.StateRef
-// Imports: Init.System.ST
+// Imports: public import Init.System.ST
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

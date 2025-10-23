@@ -8,7 +8,6 @@ module
 prelude
 public import Lake.Util.Log
 public import Lake.Util.Exit
-public import Lake.Util.Error
 
 namespace Lake
 
@@ -78,24 +77,18 @@ public instance : MonadLog MainM := .stderr
 public instance : MonadError MainM := ⟨MainM.error⟩
 public instance : MonadLift IO MainM := ⟨MonadError.runIO⟩
 
-@[inline] public def runLogIO (x : LogIO α)
-  (minLv := LogLevel.info) (ansiMode := AnsiMode.auto) (out := OutStream.stderr)
-: MainM α := do
-  match (← x.run {}) with
-  | .ok a  log => replay log (← out.getLogger minLv ansiMode); return a
-  | .error _ log => replay log (← out.getLogger .trace ansiMode); exit 1
-where
-  -- avoid specialization of this call at each call site
-  replay (log : Log) (logger : MonadLog BaseIO) : BaseIO Unit :=
-    log.replay (logger := logger)
+@[inline] public def runLogIO
+  (x : LogIO α) (cfg : LogConfig := {})
+: MainM α := do (← x.toBaseIO cfg).getDM do exit 1
 
-public instance (priority := low) : MonadLift LogIO MainM := ⟨runLogIO⟩
+public def liftLogIO (x : LogIO α) : MainM α := runLogIO x
 
-@[inline] public def runLoggerIO (x : LoggerIO α)
-  (minLv := LogLevel.info) (ansiMode := AnsiMode.auto) (out := OutStream.stderr)
-: MainM α := do
-  let some a ← x.run (← out.getLogger minLv ansiMode) |>.toBaseIO
-    | exit 1
-  return a
+public instance (priority := low) : MonadLift LogIO MainM := ⟨liftLogIO⟩
 
-public instance (priority := low) : MonadLift LoggerIO MainM := ⟨runLoggerIO⟩
+@[inline] public def runLoggerIO
+  (x : LoggerIO α) (cfg : LogConfig := {})
+: MainM α := do (← x.toBaseIO cfg).getDM do exit 1
+
+public def liftLoggerIO (x : LoggerIO α) : MainM α := runLoggerIO x
+
+public instance (priority := low) : MonadLift LoggerIO MainM := ⟨liftLoggerIO⟩

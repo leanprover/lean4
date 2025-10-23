@@ -7,19 +7,12 @@ Authors: Joachim Breitner
 module
 
 prelude
-public import Lean.Meta.Basic
-public import Lean.Meta.Match.MatcherApp.Transform
-public import Lean.Meta.Check
-public import Lean.Meta.Tactic.Subst
-public import Lean.Meta.Injective -- for elimOptParam
-public import Lean.Meta.ArgsPacker
-public import Lean.Meta.PProdN
-public import Lean.Meta.Tactic.Apply
-public import Lean.Elab.PreDefinition.PartialFixpoint.Eqns
-public import Lean.Elab.Command
-public import Lean.Meta.Tactic.ElimInfo
-
-public section
+import Lean.Meta.Match.MatcherApp.Transform
+import Lean.Meta.Injective -- for elimOptParam
+import Lean.Meta.ArgsPacker
+import Lean.Elab.PreDefinition.PartialFixpoint.Eqns
+import Lean.Meta.Tactic.ElimInfo
+import Init.Internal.Order.Basic
 
 namespace Lean.Elab.PartialFixpoint
 
@@ -42,7 +35,7 @@ partial def mkAdmProj (packedInst : Expr) (i : Nat) (e : Expr) : MetaM Expr := d
     assert! i == 0
     return e
 
-@[expose] def CCPOProdProjs (n : Nat) (inst : Expr) : Array Expr := Id.run do
+def CCPOProdProjs (n : Nat) (inst : Expr) : Array Expr := Id.run do
   let mut insts := #[inst]
   while insts.size < n do
     let inst := insts.back!
@@ -62,7 +55,7 @@ The optional parameter `reducePremise` (false by default) indicates whether we n
 -/
 def unfoldPredRel (predType : Expr) (lhs rhs : Expr) (fixpointType : PartialFixpointType) (reducePremise : Bool := false) : MetaM Expr := do
   guard <| isLatticeTheoretic fixpointType
-  forallTelescope predType fun ts _ => do
+  forallTelescopeReducing predType fun ts _ => do
     let mut lhs : Expr := mkAppN lhs ts
     let rhs : Expr := mkAppN rhs ts
     if reducePremise then
@@ -282,8 +275,7 @@ def deriveInduction (name : Name) (isMutual : Bool) : MetaM Unit := do
     -- Prune unused level parameters, preserving the original order
     let us := infos[0]!.levelParams.filter (params.contains ·)
 
-    addDecl <| Declaration.thmDecl
-      { name := inductName, levelParams := us, type := eTyp, value := e' }
+    addDecl <| (←mkThmOrUnsafeDef { name := inductName, levelParams := us, type := eTyp, value := e' })
 
 def isInductName (env : Environment) (name : Name) : Bool := Id.run do
   let .str p s := name | return false
@@ -368,7 +360,7 @@ def mkOptionAdm (motive : Expr) : MetaM Expr := do
     inst ← mkAppOptM ``admissible_pi #[none, none, none, none, inst]
     for y in ys.reverse do
       inst ← mkLambdaFVars #[y] inst
-      inst ← mkAppOptM ``admissible_pi_apply #[none, none, none, none, inst]
+      inst ← mkAppOptM ``Order.admissible_pi_apply #[none, none, none, none, inst]
     pure inst
 
 def derivePartialCorrectness (name : Name) (isConclusionMutual : Bool) : MetaM Unit := do

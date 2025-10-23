@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.Lemmas.Basic
-// Imports: Init.Data.Iterators.Basic
+// Imports: public import Init.Data.Iterators.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -75,7 +75,7 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Std_Iterators_Iter_inductSteps(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 return x_8;
 }
 }
@@ -111,7 +111,7 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Std_Iterators_Iter_inductSkips(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 return x_8;
 }
 }

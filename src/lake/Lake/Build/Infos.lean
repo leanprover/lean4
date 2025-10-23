@@ -10,7 +10,6 @@ public import Lake.Build.Info
 public import Lake.Config.LeanExe
 public import Lake.Config.ExternLib
 public import Lake.Config.InputFile
-public import Lake.Build.Facets
 meta import all Lake.Build.Data
 
 /-!

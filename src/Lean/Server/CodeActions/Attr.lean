@@ -17,9 +17,6 @@ public section
 * Attribute `@[hole_code_action]` collects code actions which will be called
   on each occurrence of a hole (`_`, `?_` or `sorry`).
 
-* Attribute `@[tactic_code_action]` collects code actions which will be called
-  on each occurrence of a tactic.
-
 * Attribute `@[command_code_action]` collects code actions which will be called
   on each occurrence of a command.
 -/
@@ -57,6 +54,7 @@ builtin_initialize
       Attribute.Builtin.ensureNoArgs stx
       unless kind == AttributeKind.global do
         throwAttrMustBeGlobal `hole_code_action kind
+      ensureAttrDeclIsMeta `hole_code_action decl kind
       if (IR.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
       modifyEnv (holeCodeActionExt.addEntry · (decl, ← mkHoleCodeAction decl))
   }
@@ -125,9 +123,11 @@ builtin_initialize
     add := fun decl stx kind => do
       unless kind == AttributeKind.global do
         throwAttrMustBeGlobal `command_code_action kind
+      ensureAttrDeclIsMeta `command_code_action decl kind
       let `(attr| command_code_action $args*) := stx | return
       let args ← args.mapM realizeGlobalConstNoOverloadWithInfo
       if (IR.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
+      args.forM (recordExtraModUseFromDecl (isMeta := false))
       modifyEnv (cmdCodeActionExt.addEntry · (⟨decl, args⟩, ← mkCommandCodeAction decl))
   }
 

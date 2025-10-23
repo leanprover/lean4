@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.FloatArray.Basic
 public import Lean.CoreM
-public import Lean.MonadEnv
 public import Lean.Util.Recognizers
 
 public section
@@ -41,7 +40,7 @@ structure CasesInfo where
   arity        : Nat
   numParams    : Nat
   discrPos     : Nat
-  altsRange    : Std.PRange ⟨.closed, .open⟩ Nat
+  altsRange    : Std.Rco Nat
   altNumParams : Array Nat
   motivePos    : Nat
 

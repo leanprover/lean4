@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Conv.Rewrite
-// Imports: Lean.Elab.Tactic.Rewrite Lean.Elab.Tactic.Conv.Basic
+// Imports: public import Lean.Elab.Tactic.Rewrite public import Lean.Elab.Tactic.Conv.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

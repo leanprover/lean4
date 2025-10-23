@@ -7,16 +7,10 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 module
 
 prelude
-public import Init.System.IO
-public import Std.Sync.Mutex
-public import Init.Data.ByteArray
 
 public import Lean.Data.FuzzyMatching
-public import Lean.Data.Lsp
-public import Lean.Server.Utils
 public import Lean.Server.Requests
 public import Lean.Server.References
-public import Lean.Server.ServerTask
 public import Lean.Server.Completion.CompletionUtils
 public import Init.Data.List.Sort
 
@@ -229,11 +223,11 @@ end Utils
 section FileWorker
 
   structure FileWorker where
-    doc      : DocumentMeta
-    proc     : Process.Child workerCfg
-    exitCode : Std.Mutex (Option UInt32)
-    commTask : ServerTask WorkerEvent
-    state    : Std.Mutex WorkerState
+    doc       : DocumentMeta
+    proc      : Process.Child workerCfg
+    exitCode  : Std.Mutex (Option UInt32)
+    commTask? : Option (ServerTask WorkerEvent)
+    state     : Std.Mutex WorkerState
 
   namespace FileWorker
 
@@ -451,9 +445,6 @@ section ServerM
       | return false
     return (← getFileWorker? uri).isSome
 
-  def getFileWorkerMod? (uri : DocumentUri) : ServerM (Option Name) := do
-    return (← getFileWorker? uri).map (·.doc.mod)
-
   def eraseFileWorker (uri : DocumentUri) : ServerM Unit := do
     let s ← read
     s.importData.modify (·.eraseImportsOf uri)
@@ -512,22 +503,19 @@ section ServerM
     st.hLog.flush
 
   def handleILeanHeaderInfo (fw : FileWorker) (params : LeanILeanHeaderInfoParams) : ServerM Unit := do
+    let module := fw.doc.mod
     let uri := fw.doc.uri
-    let some module ← getFileWorkerMod? uri
-      | return
     modifyReferencesIO (·.updateWorkerImports module uri params.version params.directImports)
 
   def handleIleanInfoUpdate (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
+    let module := fw.doc.mod
     let uri := fw.doc.uri
-    let some module ← getFileWorkerMod? uri
-      | return
     modifyReferencesIO (·.updateWorkerRefs module uri params.version params.references)
 
   def handleIleanInfoFinal (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
     let s ← read
+    let module := fw.doc.mod
     let uri := fw.doc.uri
-    let some module ← getFileWorkerMod? uri
-      | return
     s.referenceData.atomically do
       let rd ← get
       let rd ← rd.modifyReferencesM (·.finalizeWorkerRefs module uri params.version params.references)
@@ -676,9 +664,9 @@ section ServerM
     s.importData.modify fun importData =>
       importData.update fw.doc.uri (.ofList params.importClosure.toList)
 
-  def findDefinitions (p : TextDocumentPositionParams) : ServerM (Array Location) := do
-    let some module ← getFileWorkerMod? p.textDocument.uri
-      | return #[]
+  def findDefinitions (fw : FileWorker) (p : TextDocumentPositionParams) :
+      ServerM (Array Location) := do
+    let module := fw.doc.mod
     let references ← getReferences
     let mut definitions := #[]
     for ident in references.findAt module p.position (includeStop := true) do
@@ -713,7 +701,7 @@ section ServerM
     | _ =>
       Except.error "Got message that isn't a response in `parseResponseResult?`."
 
-  def bendLocationLinks (req : JsonRpc.Request Json) (r : Array LeanLocationLink) :
+  def bendLocationLinks (fw : FileWorker) (req : JsonRpc.Request Json) (r : Array LeanLocationLink) :
       ServerM Json := do
     let refs ← getReferences
     let r : Array LeanLocationLink := r.filterMap fun ll => Id.run do
@@ -735,12 +723,12 @@ section ServerM
       -- The file worker produced fallback location links.
       -- Let's see if we can obtain better ones using the .ileans, just to be safe.
       let params' ← parseParams TextDocumentPositionParams req.param
-      let definitions ← findDefinitions params'
+      let definitions ← findDefinitions fw params'
       if ! definitions.isEmpty then
         return toJson definitions
     return toJson <| r.map (·.toLocationLink)
 
-  def handleResponseSpecialCases (req : JsonRpc.Request Json) (resp : String) :
+  def handleResponseSpecialCases (fw : FileWorker) (req : JsonRpc.Request Json) (resp : String) :
       ServerM String := do
     match req.method with
     | "textDocument/definition"
@@ -748,7 +736,7 @@ section ServerM
     | "textDocument/typeDefinition" =>
       match parseResponseResult? (Array LeanLocationLink) resp with
       | .ok r =>
-        let result ← bendLocationLinks req r
+        let result ← bendLocationLinks fw req r
         return JsonRpc.Message.response req.id result |> toJson |>.compress
       | .error _ =>
         return resp
@@ -816,7 +804,7 @@ section ServerM
           -- This ensures that this scenario can't occur, and we only emit responses for requests
           -- that were still pending.
           if let some req := req? then
-            let resp ← handleResponseSpecialCases req msg
+            let resp ← handleResponseSpecialCases fw req msg
             o.writeSerializedLspMessage resp
         | .responseError id code _ _ => do
           let wasPending ← erasePendingRequest uri id
@@ -875,11 +863,15 @@ section ServerM
       doc := { m with dependencyBuildMode := updatedDependencyBuildMode}
       proc := workerProc
       exitCode
-      commTask := Task.pure WorkerEvent.terminated
+      commTask? := none
       state := ← Std.Mutex.new WorkerState.running
     }
+    -- Adds `fw` without `commTask` so that `forwardMessages` can find it in `fileWorkersRef`.
+    -- At the time of writing this comment, this isn't necessary since `forwardMessages` never uses
+    -- `fileWorkersRef`, but it's still good to prevent potential future race conditions.
+    updateFileWorkers fw
     let commTask ← forwardMessages fw
-    let fw : FileWorker := { fw with commTask := commTask }
+    let fw : FileWorker := { fw with commTask? := some commTask }
     fw.stdin.writeLspRequest ⟨0, "initialize", st.initParams⟩
     fw.stdin.writeLspNotification {
       method := "textDocument/didOpen"
@@ -1422,8 +1414,10 @@ section MessageHandling
             }
         let some lastFinalizedVersion := (← get).finalizedWorkerILeanVersions[uri]?
           | deferResponse
+            return
         if lastFinalizedVersion < version then
           deferResponse
+          return
         ctx.hOut.writeLspResponse {
           id
           result := ⟨⟩
@@ -1504,8 +1498,11 @@ section MainLoop
     let workers ← st.fileWorkersRef.get
     let mut workerTasks := #[]
     for (_, fw) in workers.fileWorkers do
-      if !((← getWorkerState fw) matches WorkerState.crashed) then
-        workerTasks := workerTasks.push <| fw.commTask.mapCheap (ServerEvent.workerEvent fw)
+      let some commTask := fw.commTask?
+        | continue
+      if (← getWorkerState fw) matches WorkerState.crashed then
+        continue
+      workerTasks := workerTasks.push <| commTask.mapCheap (ServerEvent.workerEvent fw)
 
     let ev ← ServerTask.waitAny (workerTasks.toList ++ [clientTask]) (by simp)
     match ev with
@@ -1597,8 +1594,12 @@ def mkLeanServerCapabilities : ServerCapabilities := {
   signatureHelpProvider? := some {
     triggerCharacters? := some #[" "]
   }
+  colorProvider? := some {}
   experimental? := some {
     moduleHierarchyProvider? := some {}
+    rpcProvider? := some {
+      highlightMatchesProvider? := some {}
+    }
   }
 }
 
@@ -1734,9 +1735,9 @@ def watchdogMain (args : List String) : IO UInt32 := do
   let e ← IO.getStderr
   try
     initAndRunWatchdog args i o e
-    IO.Process.exit 0 -- Terminate all tasks of this process
+    IO.Process.forceExit 0 -- Terminate all tasks of this process
   catch err =>
     e.putStrLn s!"Watchdog error: {err}"
-    IO.Process.exit 1 -- Terminate all tasks of this process
+    IO.Process.forceExit 1 -- Terminate all tasks of this process
 
 end Lean.Server.Watchdog

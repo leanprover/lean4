@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Ord
-// Imports: Init.Data.Ord.Basic Init.Data.Ord.BitVec Init.Data.Ord.SInt Init.Data.Ord.String Init.Data.Ord.UInt Init.Data.Ord.Vector
+// Imports: public import Init.Data.Ord.Basic public import Init.Data.Ord.BitVec public import Init.Data.Ord.SInt public import Init.Data.Ord.String public import Init.Data.Ord.UInt public import Init.Data.Ord.Vector public import Init.Data.Ord.Array
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,6 +19,7 @@ lean_object* initialize_Init_Data_Ord_SInt(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Ord_String(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Ord_UInt(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Ord_Vector(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Ord_Array(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Ord(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -40,6 +41,9 @@ res = initialize_Init_Data_Ord_UInt(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Ord_Vector(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Ord_Array(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

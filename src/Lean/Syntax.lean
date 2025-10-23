@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Slice
 public import Init.Data.Hashable
-public import Lean.Data.Name
 public import Lean.Data.Format
 public import Init.Data.Option.Coe
 
@@ -19,11 +18,11 @@ A position range inside a string. This type is mostly in combination with syntax
 as there might not be a single underlying string in this case that could be used for a `Substring`.
 -/
 protected structure String.Range where
-  start : String.Pos
-  stop  : String.Pos
+  start : String.Pos.Raw
+  stop  : String.Pos.Raw
   deriving Inhabited, Repr, BEq, Hashable
 
-def String.Range.contains (r : String.Range) (pos : String.Pos) (includeStop := false) : Bool :=
+def String.Range.contains (r : String.Range) (pos : String.Pos.Raw) (includeStop := false) : Bool :=
   r.start <= pos && (if includeStop then pos <= r.stop else pos < r.stop)
 
 /--
@@ -241,18 +240,18 @@ partial def hasIdent (id : Name) : Syntax → Bool
 @[inline] def rewriteBottomUp (fn : Syntax → Syntax) (stx : Syntax) : Syntax :=
   Id.run <| stx.rewriteBottomUpM (pure <| fn ·)
 
-private def updateInfo : SourceInfo → String.Pos → String.Pos → SourceInfo
+private def updateInfo : SourceInfo → String.Pos.Raw → String.Pos.Raw → SourceInfo
   | SourceInfo.original lead pos trail endPos, leadStart, trailStop =>
     SourceInfo.original { lead with startPos := leadStart } pos { trail with stopPos := trailStop } endPos
   | info, _, _ => info
 
-private def chooseNiceTrailStop (trail : Substring) : String.Pos :=
-trail.startPos + trail.posOf '\n'
+private def chooseNiceTrailStop (trail : Substring) : String.Pos.Raw :=
+  (trail.posOf '\n').offsetBy trail.startPos
 
 /-- Remark: the State `String.Pos` is the `SourceInfo.trailing.stopPos` of the previous token,
    or the beginning of the String. -/
 @[inline]
-private def updateLeadingAux : Syntax → StateM String.Pos (Option Syntax)
+private def updateLeadingAux : Syntax → StateM String.Pos.Raw (Option Syntax)
   | atom info@(SourceInfo.original _ _ trail _) val => do
     let trailStop := chooseNiceTrailStop trail
     let newInfo := updateInfo info (← get) trailStop
@@ -318,10 +317,10 @@ def identComponents (stx : Syntax) (nFields? : Option Nat := none) : List Syntax
           rawComps
       if nameComps.length == rawComps.length then
         return nameComps.zip rawComps |>.map fun (id, ss) =>
-          let off := ss.startPos - rawStr.startPos
+          let off := ss.startPos.unoffsetBy rawStr.startPos
           let lead := if off == 0 then lead else "".toSubstring
           let trail := if ss.stopPos == rawStr.stopPos then trail else "".toSubstring
-          let info := original lead (pos + off) trail (pos + off + ⟨ss.bsize⟩)
+          let info := original lead (pos.offsetBy off) trail (pos.offsetBy off |>.offsetBy ⟨ss.bsize⟩)
           ident info ss id []
     -- if re-parsing failed, just give them all the same span
     nameComps.map fun n => ident si n.toString.toSubstring n []

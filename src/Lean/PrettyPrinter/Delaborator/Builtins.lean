@@ -6,14 +6,11 @@ Authors: Sebastian Ullrich, Leonardo de Moura, Gabriel Ebner, Mario Carneiro
 module
 
 prelude
-public import Lean.PrettyPrinter.Delaborator.Attributes
 public import Lean.PrettyPrinter.Delaborator.Basic
-public import Lean.PrettyPrinter.Delaborator.SubExpr
-public import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
-public import Lean.Parser.Term
-meta import Lean.Parser.Command
 public import Lean.Meta.CoeAttr
 public import Lean.Meta.Structure
+import Lean.Parser.Command
+meta import Lean.Parser.Command
 
 public section
 
@@ -1160,8 +1157,8 @@ def delabOfScientific : Delab := whenNotPPOption getPPExplicit <| whenPPOption g
   if s && e == str.length then
     return Syntax.mkScientificLit ("0." ++ str)
   else if s && e < str.length then
-    let mStr := str.extract 0 ⟨str.length - e⟩
-    let eStr := str.extract ⟨str.length - e⟩ ⟨str.length⟩
+    let mStr := String.Pos.Raw.extract str 0 ⟨str.length - e⟩
+    let eStr := String.Pos.Raw.extract str ⟨str.length - e⟩ ⟨str.length⟩
     return Syntax.mkScientificLit (mStr ++ "." ++ eStr)
   else
     return Syntax.mkScientificLit (str ++ "e" ++ (if s then "-" else "") ++ toString e)
@@ -1317,41 +1314,83 @@ def delabRange : Delab := whenPPOption getPPNotation do
   | none,       some step => `([: $stop : $step])
   | none,       none      => `([: $stop])
 
-@[builtin_delab app.Std.PRange.mk]
-def delabPRange : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do
-  -- Std.PRange.mk : {shape : Std.PRange.RangeShape} → {α : Type u} →
-  --   (lower : Std.PRange.Bound shape.lower α) → (upper : Std.PRange.Bound shape.upper α) → Std.PRange shape α
-  guard <| (← getExpr).getAppNumArgs == 4
-  let reflectBoundShape (e : Expr) : Option Std.PRange.BoundShape := match e.constName? with
-    | some ``Std.PRange.BoundShape.closed => Std.PRange.BoundShape.closed
-    | some ``Std.PRange.BoundShape.open => Std.PRange.BoundShape.open
-    | some ``Std.PRange.BoundShape.unbounded => Std.PRange.BoundShape.unbounded
-    | _ => failure
-  let reflectRangeShape (e : Expr) : Option Std.PRange.RangeShape := do
-    -- Std.PRange.RangeShape.mk (lower upper : Std.PRange.BoundShape) : Std.PRange.RangeShape
-    guard <| e.isAppOfArity ``Std.PRange.RangeShape.mk 2
-    let lower := e.appFn!.appArg!
-    let upper := e.appArg!
-    return ⟨← reflectBoundShape lower, ← reflectBoundShape upper⟩
-  let some shape := reflectRangeShape ((← getExpr).getArg! 0) | failure
+@[builtin_delab app.Std.Rcc.mk]
+def delabRcc : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do
+  -- Std.Rcc.mk : {α : Type u} → (lo hi : α) → Std.Rcc α
+  guard <| (← getExpr).getAppNumArgs == 3
   -- Lower bound
   let a ← withAppFn <| withAppArg delab
   -- Upper bound
   let b ← withAppArg delab
-  match shape with
-  | ⟨.closed, .closed⟩       => `($a...=$b)
-  | ⟨.unbounded, .closed⟩    => `(*...=$b)
-  | ⟨.closed, .unbounded⟩    => `($a...*)
-  | ⟨.unbounded, .unbounded⟩ => `(*...*)
-  | ⟨.open, .closed⟩         => `($a<...=$b)
-  | ⟨.open, .unbounded⟩      => `($a<...*)
-  | ⟨.closed, .open⟩         => `($a...$b)
-  | ⟨.unbounded, .open⟩      => `(*...$b)
-  | ⟨.open, .open⟩           => `($a<...$b)
-  -- The remaining cases are aliases for explicit `<` upper bound notation:
-  -- | ⟨.closed, .open⟩    => `($a...<$b)
-  -- | ⟨.unbounded, .open⟩ => `(*...<$b)
-  -- | ⟨.open, .open⟩      => `($a<...<$b)
+  `($a...=$b)
+
+@[builtin_delab app.Std.Rco.mk]
+def delabRco : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do
+  -- Std.Rco.mk : {α : Type u} → (lo hi : α) → Std.Rco α
+  guard <| (← getExpr).getAppNumArgs == 3
+  -- Lower bound
+  let a ← withAppFn <| withAppArg delab
+  -- Upper bound
+  let b ← withAppArg delab
+  `($a...$b)
+
+@[builtin_delab app.Std.Rci.mk]
+def delabRci : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do
+  -- Std.Rci.mk : {α : Type u} → (lo : α) → Std.Rci α
+  guard <| (← getExpr).getAppNumArgs == 2
+  -- Lower bound
+  let b ← withAppArg delab
+  `($b...*)
+
+@[builtin_delab app.Std.Roc.mk]
+def delabRoc : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do
+  -- Std.Roc.mk : {α : Type u} → (lo hi : α) → Std.Roc α
+  guard <| (← getExpr).getAppNumArgs == 3
+  -- Lower bound
+  let a ← withAppFn <| withAppArg delab
+  -- Upper bound
+  let b ← withAppArg delab
+  `($a<...=$b)
+
+@[builtin_delab app.Std.Roo.mk]
+def delabRoo : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do
+  -- Std.Roo.mk : {α : Type u} → (lo hi : α) → Std.Roo α
+  guard <| (← getExpr).getAppNumArgs == 3
+  -- Lower bound
+  let a ← withAppFn <| withAppArg delab
+  -- Upper bound
+  let b ← withAppArg delab
+  `($a<...$b)
+
+@[builtin_delab app.Std.Roi.mk]
+def delabRoi : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do
+  -- Std.Roi.mk : {α : Type u} → (lo : α) → Std.Roi α
+  guard <| (← getExpr).getAppNumArgs == 2
+  -- Lower bound
+  let b ← withAppArg delab
+  `($b<...*)
+
+@[builtin_delab app.Std.Ric.mk]
+def delabRic : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do
+  -- Std.Ric.mk : {α : Type u} → (hi : α) → Std.Ric α
+  guard <| (← getExpr).getAppNumArgs == 2
+  -- Upper bound
+  let b ← withAppArg delab
+  `(*...=$b)
+
+@[builtin_delab app.Std.Rio.mk]
+def delabRio : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do
+  -- Std.Rio.mk : {α : Type u} → (lo hi : α) → Std.Rio α
+  guard <| (← getExpr).getAppNumArgs == 2
+  -- Upper bound
+  let b ← withAppArg delab
+  `(*...$b)
+
+@[builtin_delab app.Std.Rii.mk]
+def delabRii : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do
+  -- Std.Rii.mk : {α : Type u} → (lo hi : α) → Std.Rii α
+  guard <| (← getExpr).getAppNumArgs == 1
+  `(*...*)
 
 partial def delabDoElems : DelabM (List Syntax) := do
   let e ← getExpr
@@ -1462,7 +1501,7 @@ def delabSorry : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExp
 open Parser Command Term in
 @[run_builtin_parser_attribute_hooks]
 -- use `termParser` instead of `declId` so we can reuse `delabConst`
-meta def declSigWithId := leading_parser termParser maxPrec >> declSig
+def declSigWithId := leading_parser termParser maxPrec >> declSig
 
 private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax :=
   env.evalConstCheck Syntax opts ``Syntax constName

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Script
-// Imports: Init.Dynamic Init.System.IO Lake.Util.Exit Lake.Config.Context
+// Imports: public import Init.Dynamic public import Init.System.IO public import Lake.Util.Exit public import Lake.Config.Context
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

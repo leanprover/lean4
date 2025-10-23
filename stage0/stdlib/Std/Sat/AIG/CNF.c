@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sat.AIG.CNF
-// Imports: Std.Sat.CNF Std.Sat.AIG.Basic Std.Sat.AIG.Lemmas
+// Imports: public import Std.Sat.CNF public import Std.Sat.AIG.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -217,10 +217,10 @@ lean_inc(x_3);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_3);
 lean_ctor_set(x_13, 1, x_12);
-lean_inc(x_10);
+lean_inc(x_9);
 x_14 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_10);
+lean_ctor_set(x_14, 1, x_9);
 x_15 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_15, 0, x_8);
 lean_ctor_set(x_15, 1, x_14);
@@ -239,7 +239,7 @@ lean_ctor_set(x_22, 0, x_3);
 lean_ctor_set(x_22, 1, x_21);
 x_23 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_23, 0, x_22);
-lean_ctor_set(x_23, 1, x_10);
+lean_ctor_set(x_23, 1, x_9);
 x_24 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_24, 0, x_20);
 lean_ctor_set(x_24, 1, x_23);
@@ -254,7 +254,7 @@ x_28 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_28, 0, x_15);
 lean_ctor_set(x_28, 1, x_27);
 x_29 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_29, 0, x_9);
+lean_ctor_set(x_29, 0, x_10);
 lean_ctor_set(x_29, 1, x_28);
 return x_29;
 }
@@ -278,15 +278,15 @@ if (x_5 == 0)
 {
 uint8_t x_37; 
 x_37 = 1;
-x_9 = x_36;
-x_10 = x_34;
+x_9 = x_34;
+x_10 = x_36;
 x_11 = x_37;
 goto block_30;
 }
 else
 {
-x_9 = x_36;
-x_10 = x_34;
+x_9 = x_34;
+x_10 = x_36;
 x_11 = x_6;
 goto block_30;
 }
@@ -1399,7 +1399,6 @@ return x_27;
 }
 }
 lean_object* initialize_Std_Sat_CNF(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Sat_AIG_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Sat_AIG_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Sat_AIG_CNF(uint8_t builtin, lean_object* w) {
@@ -1407,9 +1406,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Std_Sat_CNF(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Sat_AIG_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Sat_AIG_Lemmas(builtin, lean_io_mk_world());

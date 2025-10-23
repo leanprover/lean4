@@ -10,7 +10,6 @@ public import Std.Data.Iterators.Producers.Range
 public import Std.Data.Iterators.Combinators.StepSize
 public import Lean.Elab.BuiltinTerm
 public import Lean.Elab.BuiltinNotation
-public import Lean.Server.InfoUtils
 public import Lean.Server.CodeActions.Attr
 
 public section
@@ -80,12 +79,12 @@ This is a pure syntax pass, without regard to elaboration information.
 
 The return value is either a selected tactic, or a selected point in a tactic sequence.
 -/
-partial def findTactic? (preferred : String.Pos → Bool) (range : String.Range)
+partial def findTactic? (preferred : String.Pos.Raw → Bool) (range : String.Range)
     (root : Syntax) : Option FindTacticResult := do _ ← visit root; ← go [] root
 where
   /-- Returns `none` if we should not visit this syntax at all, and `some false` if we only
   want to visit it in "extended" mode (where we include trailing characters). -/
-  visit (stx : Syntax) (prev? : Option String.Pos := none) : Option Bool := do
+  visit (stx : Syntax) (prev? : Option String.Pos.Raw := none) : Option Bool := do
     let left ← stx.getPos? true
     guard <| prev?.getD left ≤ range.start
     let .original (endPos := right) (trailing := trailing) .. := stx.getTailInfo | none
@@ -102,7 +101,7 @@ where
   /-- Main recursion for `findTactic?`. This takes a `stack` context and a root syntax `stx`,
   and returns the best `FindTacticResult` it can find. It returns `none` (abort) if two or more
   results are found, and `some none` (none yet) if no results are found. -/
-  go (stack : Syntax.Stack) (stx : Syntax) (prev? : Option String.Pos := none) :
+  go (stack : Syntax.Stack) (stx : Syntax) (prev? : Option String.Pos.Raw := none) :
       Option (Option FindTacticResult) := do
     if stx.getKind == ``Parser.Tactic.tacticSeq then
       -- TODO: this implementation is a bit too strict about the beginning of tacticSeqs.

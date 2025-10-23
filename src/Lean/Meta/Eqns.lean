@@ -6,9 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.ReservedNameAction
-public import Lean.AddDecl
-public import Lean.Meta.Basic
 public import Lean.Meta.Match.MatcherInfo
 public import Lean.DefEqAttrib
 public import Lean.Meta.LetToHave
@@ -172,9 +169,8 @@ builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
 /--
 Simple equation theorem for nonrecursive definitions.
 -/
-private def mkSimpleEqThm (declName : Name) : MetaM (Option Name) := do
+def mkSimpleEqThm (declName : Name) (name : Name) : MetaM (Option Name) := do
   if let some (.defnInfo info) := (← getEnv).find? declName then
-    let name := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
     realizeConst declName name (doRealize name info)
     return some name
   else
@@ -186,10 +182,10 @@ where doRealize name info := do
     -- Note: if this definition was added using `def`, then `letToHave` has already been applied to the body.
     let type  ← letToHave type
     let value ← mkLambdaFVars xs (← mkEqRefl lhs)
-    addDecl <| Declaration.thmDecl {
+    addDecl <| (←mkThmOrUnsafeDef {
       name, type, value
       levelParams := info.levelParams
-    }
+    })
     inferDefEqAttr name -- should always succeed
 
 /--
@@ -313,7 +309,8 @@ def getUnfoldEqnFor? (declName : Name) (nonRec := false) : MetaM (Option Name) :
             return some r
       else
         if nonRec then
-          return (← mkSimpleEqThm declName)
+          let name := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
+          return (← mkSimpleEqThm declName name)
     return none
   if let some r := r? then
     unless r == unfoldName do
@@ -330,5 +327,8 @@ builtin_initialize
           if suffix == unfoldThmSuffix then
             return (← MetaM.run' <| getUnfoldEqnFor? declName (nonRec := true)).isSome
       return false
+
+  registerTraceClass `Elab.definition.eqns
+
 
 end Lean.Meta

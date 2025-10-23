@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Do.SPred.DerivedLaws
-// Imports: Init.ByCases Std.Do.SPred.Laws
+// Imports: public import Init.ByCases public import Std.Do.SPred.Laws
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Combinators.Monadic.StepSize
-// Imports: Init.Data.Iterators.Basic Init.Data.Iterators.Internal.Termination Init.Data.Iterators.Consumers.Monadic.Access Init.Data.Iterators.Consumers.Monadic.Collect Init.Data.Iterators.Consumers.Monadic.Loop
+// Imports: public import Init.Data.Iterators.Internal.Termination public import Init.Data.Iterators.Consumers.Monadic.Access public import Init.Data.Iterators.Consumers.Monadic.Collect public import Init.Data.Iterators.Consumers.Monadic.Loop
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -520,7 +520,6 @@ lean_dec(x_4);
 return x_7;
 }
 }
-lean_object* initialize_Init_Data_Iterators_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Internal_Termination(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Consumers_Monadic_Access(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Consumers_Monadic_Collect(uint8_t builtin, lean_object*);
@@ -530,9 +529,6 @@ LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Combinators_Monadic_StepS
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Iterators_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Internal_Termination(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

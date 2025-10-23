@@ -14,7 +14,6 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Inv
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 /-- Returns `some ringId` if `a` and `b` are elements of the same ring. -/
@@ -486,29 +485,31 @@ abbrev PropagateEqMap := Std.HashMap (Int × Poly) (Expr × RingExpr)
 /--
 Propagates implied equalities.
 -/
-private def propagateEqs : RingM Unit := do
-  if (← isInconsistent) then return ()
+private def propagateEqs : RingM Bool := do
+  if (← isInconsistent) then return false
   /-
   This is a very simple procedure that does not use any indexing data-structure.
   We don't even cache the simplified polynomials.
   TODO: optimize
   TODO: support for semiring
   -/
-  let mut map : PropagateEqMap := {}
-  for a in (← getRing).vars do
-    if (← checkMaxSteps) then return ()
-    let some ra ← toRingExpr? a | unreachable!
-    map ← process map a ra
-  for (a, ra) in (← getCommRing).denoteEntries do
-    if (← checkMaxSteps) then return ()
-    map ← process map a ra
+  let go : StateT (Bool × PropagateEqMap) RingM Unit := do
+    for a in (← getRing).vars do
+      if (← checkMaxSteps) then return ()
+      let some ra ← toRingExpr? a | unreachable!
+      process a ra
+    for (a, ra) in (← getCommRing).denoteEntries do
+      if (← checkMaxSteps) then return ()
+      process a ra
+  let (_, (propagated, _)) ← go.run (false, {})
+  return propagated
 where
-  process (map : PropagateEqMap) (a : Expr) (ra : RingExpr) : RingM PropagateEqMap := do
+  process (a : Expr) (ra : RingExpr) : StateT (Bool × PropagateEqMap) RingM Unit := do
     let d : PolyDerivation := .input (← ra.toPolyM)
     let d ← d.simplify
     let k := d.getMultiplier
     trace_goal[grind.debug.ring.impEq] "{a}, {k}, {← d.p.denoteExpr}"
-    if let some (b, rb) := map[(k, d.p)]? then
+    if let some (b, rb) :=  (← get).2[(k, d.p)]? then
       -- TODO: use `isEqv` more effectively
       unless (← isEqv a b) do
         let p ← (ra.sub rb).toPolyM
@@ -519,40 +520,44 @@ where
             -- Given the multiplier `k' = d.getMultiplier`, we have that `k*(a - b) = 0`,
             -- but we cannot eliminate the `k` because we don't have `noZeroDivisors`.
             trace_goal[grind.ring.impEq] "skip: {← mkEq a b}, k: {k}, noZeroDivisors: false"
-            return map.insert (k, d.p) (a, ra)
+            modify fun (propagated, map) => (propagated, map.insert (k, d.p) (a, ra))
+            return ()
         trace_goal[grind.ring.impEq] "{← mkEq a b}, {k}, {← p.denoteExpr}"
         propagateEq a b ra rb d
-      return map
+        modify fun s => (true, s.2)
     else
-      return map.insert (k, d.p) (a, ra)
+      modify fun (propagated, map) => (propagated, map.insert (k, d.p) (a, ra))
 
-def checkRing : RingM Bool := do
-  unless (← needCheck) do return false
+def checkRing : RingM CheckResult := do
+  unless (← needCheck) do return .none
   trace_goal[grind.debug.ring.check] "{(← getRing).type}"
   repeat
     checkSystem "ring"
     let some c ← getNext? | break
     trace_goal[grind.debug.ring.check] "{← c.denoteExpr}"
     c.addToBasis
-    if (← isInconsistent) then return true
-    if (← checkMaxSteps) then return true
+    if (← isInconsistent) then return .closed
+    if (← checkMaxSteps) then return .progress
   checkDiseqs
-  propagateEqs
+  if (← propagateEqs) then return .propagated
   modifyCommRing fun s => { s with recheck := false }
-  return true
+  return .progress
 
-def check : GoalM Bool := do profileitM Exception "grind ring" (← getOptions) do
-  if (← checkMaxSteps) then return false
-  let mut progress := false
+def check : GoalM CheckResult := do profileitM Exception "grind ring" (← getOptions) do
+  if (← checkMaxSteps) then return .none
+  let mut result : CheckResult := .none
   checkInvariants
   try
     for ringId in *...(← get').rings.size do
       let r ← RingM.run ringId checkRing
-      progress := progress || r
+      result := result.join r
       if (← isInconsistent) then
-        return true
-    return progress
+        return .closed
+    return result
   finally
     checkInvariants
+
+def check' : GoalM Bool :=
+  return (← check) != .none
 
 end Lean.Meta.Grind.Arith.CommRing

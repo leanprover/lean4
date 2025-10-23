@@ -6,9 +6,7 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Basic
 public import Init.Data.Iterators.Internal.Termination
-public import Init.Data.Iterators.Consumers.Collect
 public import Init.Data.Iterators.Consumers.Loop
 
 public section
@@ -43,7 +41,8 @@ instance Attach.instIterator {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] {P : β → Prop} :
     Iterator (Attach α m P) m { out : β // P out } where
   IsPlausibleStep it step := ∃ step', Monadic.modifyStep it step' = step
-  step it := (fun step => ⟨Monadic.modifyStep it step, step, rfl⟩) <$> it.internalState.inner.step
+  step it := (fun step => .deflate ⟨Monadic.modifyStep it step.inflate, step.inflate, rfl⟩) <$>
+      it.internalState.inner.step
 
 def Attach.instFinitenessRelation {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] [Finite α m] {P : β → Prop} :

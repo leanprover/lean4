@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.EquipT
-// Imports: Init.Control.Except
+// Imports: public import Init.Control.Except
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

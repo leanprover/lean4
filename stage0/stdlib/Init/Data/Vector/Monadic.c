@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector.Monadic
-// Imports: Init.Data.Vector.Basic Init.Data.Vector.Basic Init.Data.Vector.Lemmas Init.Data.Vector.Attach Init.Data.Array.Monadic Init.Control.Lawful.Lemmas
+// Imports: import all Init.Data.Vector.Basic public import Init.Data.Vector.Attach
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -84,11 +84,7 @@ return x_6;
 }
 }
 lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Vector_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Vector_Attach(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Monadic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Control_Lawful_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Vector_Monadic(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -97,19 +93,7 @@ _G_initialized = true;
 res = initialize_Init_Data_Vector_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Vector_Lemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Vector_Attach(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Array_Monadic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_Lawful_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

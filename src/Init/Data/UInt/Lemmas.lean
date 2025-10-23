@@ -8,19 +8,13 @@ module
 prelude
 public import Init.Data.UInt.Basic
 import all Init.Data.UInt.Basic
-public import Init.Data.UInt.BasicAux
 import all Init.Data.UInt.BasicAux
-public import Init.Data.Fin.Lemmas
 public import Init.Data.Fin.Bitwise
 import all Init.Data.Fin.Bitwise
-public import Init.Data.BitVec.BasicAux
 import all Init.Data.BitVec.BasicAux
-public import Init.Data.BitVec.Basic
 import all Init.Data.BitVec.Basic
 public import Init.Data.BitVec.Lemmas
-public import Init.Data.Nat.Div.Lemmas
 public import Init.System.Platform
-public import Init.Data.Order.Factories
 import Init.Data.Order.Lemmas
 
 public section
@@ -42,9 +36,6 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
 
   @[simp] theorem toNat_ofBitVec : (ofBitVec a).toNat = a.toNat := (rfl)
 
-  @[deprecated toNat_ofBitVec (since := "2025-02-12")]
-  theorem toNat_mk : (ofBitVec a).toNat = a.toNat := (rfl)
-
   @[simp] theorem toNat_ofNat' {n : Nat} : (ofNat n).toNat = n % 2 ^ $bits := BitVec.toNat_ofNat ..
 
   -- Not `simp` because we have simprocs which will avoid the modulo.
@@ -52,33 +43,13 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
 
   @[simp] theorem toNat_ofNatLT {n : Nat} {h : n < size} : (ofNatLT n h).toNat = n := BitVec.toNat_ofNatLT ..
 
-  @[deprecated toNat_ofNatLT (since := "2025-02-13")]
-  theorem toNat_ofNatCore {n : Nat} {h : n < size} : (ofNatLT n h).toNat = n := BitVec.toNat_ofNatLT ..
-
   @[simp] theorem toFin_val (x : $typeName) : x.toFin.val = x.toNat := (rfl)
-  @[deprecated toFin_val (since := "2025-02-12")]
-  theorem val_val_eq_toNat (x : $typeName) : x.toFin.val = x.toNat := (rfl)
 
   @[simp] theorem toNat_toBitVec (x : $typeName) : x.toBitVec.toNat = x.toNat := (rfl)
   @[simp] theorem toFin_toBitVec (x : $typeName) : x.toBitVec.toFin = x.toFin := (rfl)
 
-  @[deprecated toNat_toBitVec (since := "2025-02-21")]
-  theorem toNat_toBitVec_eq_toNat (x : $typeName) : x.toBitVec.toNat = x.toNat := (rfl)
-
   @[simp] theorem ofBitVec_toBitVec : ∀ (a : $typeName), ofBitVec a.toBitVec = a
     | ⟨_, _⟩ => rfl
-
-  @[deprecated ofBitVec_toBitVec (since := "2025-02-21")]
-  theorem ofBitVec_toBitVec_eq : ∀ (a : $typeName), ofBitVec a.toBitVec = a :=
-    ofBitVec_toBitVec
-
-  @[deprecated ofBitVec_toBitVec_eq (since := "2025-02-12")]
-  theorem mk_toBitVec_eq : ∀ (a : $typeName), ofBitVec a.toBitVec = a
-    | ⟨_, _⟩ => rfl
-
-  @[deprecated "Use `toNat_toBitVec` and `toNat_ofNat_of_lt`." (since := "2025-03-05")]
-  theorem toBitVec_eq_of_lt {a : Nat} : a < size → (ofNat a).toBitVec.toNat = a :=
-    Nat.mod_eq_of_lt
 
   theorem toBitVec_ofNat' (n : Nat) : (ofNat n).toBitVec = BitVec.ofNat _ n := (rfl)
 
@@ -140,17 +111,10 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
   protected theorem eq_of_toFin_eq {a b : $typeName} (h : a.toFin = b.toFin) : a = b := by
     rcases a with ⟨⟨_⟩⟩; rcases b with ⟨⟨_⟩⟩; simp_all [toFin]
   open $typeName (eq_of_toFin_eq) in
-  @[deprecated eq_of_toFin_eq (since := "2025-02-12")]
-  protected theorem eq_of_val_eq {a b : $typeName} (h : a.toFin = b.toFin) : a = b :=
-    eq_of_toFin_eq h
 
   open $typeName (eq_of_toFin_eq) in
   protected theorem toFin_inj {a b : $typeName} : a.toFin = b.toFin ↔ a = b :=
     Iff.intro eq_of_toFin_eq (congrArg toFin)
-  open $typeName (toFin_inj) in
-  @[deprecated toFin_inj (since := "2025-02-12")]
-  protected theorem val_inj {a b : $typeName} : a.toFin = b.toFin ↔ a = b :=
-    toFin_inj
 
   open $typeName (eq_of_toBitVec_eq) in
   protected theorem toBitVec_ne_of_ne {a b : $typeName} (h : a ≠ b) : a.toBitVec ≠ b.toBitVec :=
@@ -236,17 +200,12 @@ instance : LawfulOrderLT $typeName where
 
   @[simp]
   theorem toFin_ofNat (n : Nat) : toFin (no_index (OfNat.ofNat n)) = OfNat.ofNat n := (rfl)
-  @[deprecated toFin_ofNat (since := "2025-02-12")]
-  theorem val_ofNat (n : Nat) : toFin (no_index (OfNat.ofNat n)) = OfNat.ofNat n := (rfl)
 
   @[simp, int_toBitVec]
   theorem toBitVec_ofNat (n : Nat) : toBitVec (no_index (OfNat.ofNat n)) = BitVec.ofNat _ n := (rfl)
 
   @[simp]
   theorem ofBitVec_ofNat (n : Nat) : ofBitVec (BitVec.ofNat _ n) = OfNat.ofNat n := (rfl)
-
-  @[deprecated ofBitVec_ofNat (since := "2025-02-12")]
-  theorem mk_ofNat (n : Nat) : ofBitVec (BitVec.ofNat _ n) = OfNat.ofNat n := (rfl)
 
   @[simp, int_toBitVec] protected theorem toBitVec_add {a b : $typeName} : (a + b).toBitVec = a.toBitVec + b.toBitVec := (rfl)
   @[simp, int_toBitVec] protected theorem toBitVec_sub {a b : $typeName} : (a - b).toBitVec = a.toBitVec - b.toBitVec := (rfl)
@@ -3163,3 +3122,15 @@ protected theorem USize.sub_lt {a b : USize} (hb : 0 < b) (hab : b ≤ a) : a - 
   rw [lt_iff_toNat_lt, USize.toNat_sub_of_le _ _ hab]
   refine Nat.sub_lt ?_ (USize.lt_iff_toNat_lt.1 hb)
   exact USize.lt_iff_toNat_lt.1 (USize.lt_of_lt_of_le hb hab)
+
+theorem UInt8.lt_add_one {c : UInt8} (h : c ≠ -1) : c < c + 1 :=
+  UInt8.lt_iff_toBitVec_lt.2 (BitVec.lt_add_one (by simpa [← UInt8.toBitVec_inj] using h))
+theorem UInt16.lt_add_one {c : UInt16} (h : c ≠ -1) : c < c + 1 :=
+  UInt16.lt_iff_toBitVec_lt.2 (BitVec.lt_add_one (by simpa [← UInt16.toBitVec_inj] using h))
+theorem UInt32.lt_add_one {c : UInt32} (h : c ≠ -1) : c < c + 1 :=
+  UInt32.lt_iff_toBitVec_lt.2 (BitVec.lt_add_one (by simpa [← UInt32.toBitVec_inj] using h))
+theorem UInt64.lt_add_one {c : UInt64} (h : c ≠ -1) : c < c + 1 :=
+  UInt64.lt_iff_toBitVec_lt.2 (BitVec.lt_add_one (by simpa [← UInt64.toBitVec_inj] using h))
+theorem USize.lt_add_one {c : USize} (h : c ≠ -1) : c < c + 1 :=
+  USize.lt_iff_toBitVec_lt.2 (BitVec.lt_add_one
+    (by simpa [← USize.toBitVec_inj, BitVec.neg_one_eq_allOnes] using h))

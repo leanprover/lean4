@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Ordered.Module
-// Imports: Init.Data.Int.Order Init.Grind.Module.Basic Init.Grind.Ordered.Order
+// Imports: public import Init.Grind.Module.Basic public import Init.Grind.Ordered.Order
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Init_Data_Int_Order(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Module_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Ordered_Order(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -21,9 +20,6 @@ LEAN_EXPORT lean_object* initialize_Init_Grind_Ordered_Module(uint8_t builtin, l
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Int_Order(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Grind_Module_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

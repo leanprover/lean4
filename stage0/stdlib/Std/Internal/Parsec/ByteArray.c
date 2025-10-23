@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Parsec.ByteArray
-// Imports: Std.Internal.Parsec.Basic Init.Data.ByteArray.Basic Init.Data.String.Extra Std.Data.ByteSlice
+// Imports: public import Std.Internal.Parsec.Basic public import Init.Data.String.Extra public import Std.Data.ByteSlice
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3316,7 +3316,6 @@ return x_4;
 }
 }
 lean_object* initialize_Std_Internal_Parsec_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_ByteArray_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_String_Extra(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_ByteSlice(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -3325,9 +3324,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Std_Internal_Parsec_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_ByteArray_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Extra(builtin, lean_io_mk_world());

@@ -1,6 +1,6 @@
 module
 reset_grind_attrs%
-public section -- TODO: workaround for private declaration + dot-notation issue
+
 attribute [grind] List.append_assoc List.cons_append List.nil_append
 
 inductive Tree (β : Type v) where
@@ -62,7 +62,7 @@ where
      : toListTR.go t acc = t.toList ++ acc := by
     induction t generalizing acc <;> grind [toListTR.go, toList]
 
-@[csimp] theorem Tree.toList_eq_toListTR_csimp
+@[local csimp] theorem Tree.toList_eq_toListTR_csimp
                  : @Tree.toList = @Tree.toListTR := by
   grind [toList_eq_toListTR]
 

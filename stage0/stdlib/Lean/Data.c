@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data
-// Imports: Lean.Data.AssocList Lean.Data.Format Lean.Data.Json Lean.Data.JsonRpc Lean.Data.KVMap Lean.Data.LBool Lean.Data.LOption Lean.Data.Lsp Lean.Data.Name Lean.Data.NameMap Lean.Data.OpenDecl Lean.Data.Options Lean.Data.PersistentArray Lean.Data.PersistentHashMap Lean.Data.PersistentHashSet Lean.Data.Position Lean.Data.PrefixTree Lean.Data.SMap Lean.Data.Trie Lean.Data.Xml Lean.Data.NameTrie Lean.Data.RBTree Lean.Data.RBMap Lean.Data.RArray
+// Imports: public import Lean.Data.AssocList public import Lean.Data.Format public import Lean.Data.Json public import Lean.Data.JsonRpc public import Lean.Data.KVMap public import Lean.Data.LBool public import Lean.Data.LOption public import Lean.Data.Lsp public import Lean.Data.Name public import Lean.Data.NameMap public import Lean.Data.OpenDecl public import Lean.Data.Options public import Lean.Data.PersistentArray public import Lean.Data.PersistentHashMap public import Lean.Data.PersistentHashSet public import Lean.Data.Position public import Lean.Data.PrefixTree public import Lean.Data.SMap public import Lean.Data.Trie public import Lean.Data.Xml public import Lean.Data.NameTrie public import Lean.Data.RBTree public import Lean.Data.RBMap public import Lean.Data.RArray
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

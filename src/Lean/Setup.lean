@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Data.Json.Parser
-public import Lean.Data.Json.FromToJson.Basic
 public import Lean.Util.LeanOptions
 
 public section
@@ -27,14 +26,16 @@ structure Import where
   importAll  : Bool := false
   /-- Whether to activate this import when the current module itself is imported. -/
   isExported : Bool := true
-  /-- Whether all definitions (transitively) reachable through the -/
+  /-- Whether to import IR for all definitions (transitively) reachable. -/
   isMeta     : Bool := false
   deriving Repr, Inhabited, ToJson, FromJson,
     BEq, Hashable -- needed by Lake (in `Lake.Load.Elab.Lean`)
 
 instance : Coe Name Import := ⟨({module := ·})⟩
 
-instance : ToString Import := ⟨fun imp => toString imp.module⟩
+instance : ToString Import := ⟨fun imp =>
+  s!"{if imp.isExported then "public " else ""}{if imp.isMeta then "meta " else ""}import \
+    {if imp.importAll then "all " else ""}{imp.module}"⟩
 
 /-- Abstract structure of a module's header. -/
 structure ModuleHeader where

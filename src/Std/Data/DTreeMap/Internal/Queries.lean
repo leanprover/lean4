@@ -7,9 +7,9 @@ module
 
 prelude
 public import Init.Data.Nat.Compare
-public import Std.Data.DTreeMap.Internal.Def
 public import Std.Data.DTreeMap.Internal.Balanced
 public import Std.Data.DTreeMap.Internal.Ordered
+import Init.BinderPredicates
 
 @[expose] public section
 

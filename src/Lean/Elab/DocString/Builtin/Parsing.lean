@@ -6,8 +6,7 @@ Author: David Thrane Christiansen
 module
 prelude
 import Lean.Elab.DocString
-import Lean.Parser.Extension
-public import Lean.Parser.Types
+public import Lean.Parser.Extension
 
 namespace Lean.Doc
 open Lean.Parser
@@ -47,12 +46,12 @@ def parseQuotedStrLit (p : ParserFn) (strLit : StrLit) : m Syntax := do
   let ⟨pos, _⟩ ← strLitRange strLit
   let pos ← do
     let mut pos := pos
-    if text.source.get pos == 'r' then
-      pos := text.source.next pos
-      while text.source.get pos == '#' do
-        pos := text.source.next pos
-    if text.source.get pos == '"' then
-      pure <| text.source.next pos
+    if pos.get text.source == 'r' then
+      pos := pos.next text.source
+      while pos.get text.source == '#' do
+        pos := pos.next text.source
+    if pos.get text.source == '"' then
+      pure <| pos.next text.source
     else
       throwErrorAt strLit "Not a quoted string literal"
   let str := strLit.getString
@@ -74,27 +73,27 @@ def parseQuotedStrLit (p : ParserFn) (strLit : StrLit) : m Syntax := do
   else
     throwError ((s.mkError "end of input").toErrorMsg ictx)
 where
-  reposition (text : FileMap) (posOfStr : String.Pos) (str : String) (posInStr : String.Pos) : String.Pos :=
+  reposition (text : FileMap) (posOfStr : String.Pos.Raw) (str : String) (posInStr : String.Pos.Raw) : String.Pos.Raw :=
     nextn text.source (posIndex str posInStr) posOfStr
-  repositionSyntax (text : FileMap) (posOfStr : String.Pos) (str : String) : Syntax → Syntax
+  repositionSyntax (text : FileMap) (posOfStr : String.Pos.Raw) (str : String) : Syntax → Syntax
     | .node info k args => .node (repositionInfo text posOfStr str info) k (args.map (repositionSyntax text posOfStr str))
     | .ident info sub x pre => .ident (repositionInfo text posOfStr str info) sub x pre
     | .atom info s => .atom (repositionInfo text posOfStr str info) s
     | .missing => .missing
-  repositionInfo (text : FileMap) (posOfStr : String.Pos) (str : String) : SourceInfo → SourceInfo
+  repositionInfo (text : FileMap) (posOfStr : String.Pos.Raw) (str : String) : SourceInfo → SourceInfo
     | .original _ pos _ endPos =>
       .synthetic (reposition text posOfStr str pos) (reposition text posOfStr str endPos) true
     | .synthetic pos endPos c =>
       .synthetic (reposition text posOfStr str pos) (reposition text posOfStr str endPos) c
     | .none => .none
 
-  nextn (str : String) (n : Nat) (p : String.Pos) : String.Pos :=
-    n.fold (init := p) fun _ _ _ => str.next p
-  posIndex (str : String) (p : String.Pos) : Nat := Id.run do
+  nextn (str : String) (n : Nat) (p : String.Pos.Raw) : String.Pos.Raw :=
+    n.fold (init := p) fun _ _ _ => p.next str
+  posIndex (str : String) (p : String.Pos.Raw) : Nat := Id.run do
     let mut p := p
     let mut n := 0
     while p > 0 do
-      p := str.prev p
+      p := p.prev str
       n := n + 1
     return n
 

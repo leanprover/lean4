@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.DateTime.Timestamp
-// Imports: Std.Time.Internal Init.System.IO Std.Time.Time Std.Time.Date Std.Time.Duration
+// Imports: public import Init.System.IO public import Std.Time.Duration
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -495,11 +495,11 @@ return x_24;
 block_32:
 {
 lean_object* x_30; lean_object* x_31; 
-x_30 = l_Std_Time_instToStringDuration_leftPad(x_27, x_29);
+x_30 = l_Std_Time_instToStringDuration_leftPad(x_28, x_29);
 lean_dec_ref(x_29);
 x_31 = lean_string_append(x_26, x_30);
 lean_dec_ref(x_30);
-x_7 = x_28;
+x_7 = x_27;
 x_8 = x_31;
 goto block_25;
 }
@@ -526,8 +526,8 @@ x_43 = lean_nat_abs(x_35);
 lean_dec(x_35);
 x_44 = l_Nat_reprFast(x_43);
 x_26 = x_40;
-x_27 = x_41;
-x_28 = x_37;
+x_27 = x_37;
+x_28 = x_41;
 x_29 = x_44;
 goto block_32;
 }
@@ -546,8 +546,8 @@ x_50 = l_Nat_reprFast(x_49);
 x_51 = lean_string_append(x_48, x_50);
 lean_dec_ref(x_50);
 x_26 = x_40;
-x_27 = x_41;
-x_28 = x_37;
+x_27 = x_37;
+x_28 = x_41;
 x_29 = x_51;
 goto block_32;
 }
@@ -2123,26 +2123,14 @@ lean_dec_ref(x_1);
 return x_3;
 }
 }
-lean_object* initialize_Std_Time_Internal(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Time_Time(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Time_Date(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time_Duration(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Time_DateTime_Timestamp(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Time_Internal(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_System_IO(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Time_Time(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Time_Date(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Time_Duration(builtin, lean_io_mk_world());

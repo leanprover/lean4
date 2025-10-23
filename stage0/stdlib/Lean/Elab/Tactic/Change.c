@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Change
-// Imports: Lean.Meta.Tactic.Replace Lean.Elab.Tactic.Location
+// Imports: public import Lean.Meta.Tactic.Replace public import Lean.Elab.Tactic.Location
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2172,17 +2172,17 @@ else
 lean_object* x_47; 
 x_47 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_47, 0, x_43);
-x_16 = x_8;
-x_17 = x_2;
-x_18 = x_6;
-x_19 = x_5;
-x_20 = x_3;
-x_21 = x_10;
-x_22 = x_34;
-x_23 = x_36;
-x_24 = x_7;
-x_25 = x_9;
-x_26 = x_4;
+x_16 = x_36;
+x_17 = x_7;
+x_18 = x_3;
+x_19 = x_8;
+x_20 = x_9;
+x_21 = x_4;
+x_22 = x_2;
+x_23 = x_6;
+x_24 = x_5;
+x_25 = x_10;
+x_26 = x_34;
 x_27 = x_47;
 goto block_31;
 }
@@ -2193,17 +2193,17 @@ else
 lean_object* x_48; 
 lean_dec(x_38);
 x_48 = lean_box(0);
-x_16 = x_8;
-x_17 = x_2;
-x_18 = x_6;
-x_19 = x_5;
-x_20 = x_3;
-x_21 = x_10;
-x_22 = x_34;
-x_23 = x_36;
-x_24 = x_7;
-x_25 = x_9;
-x_26 = x_4;
+x_16 = x_36;
+x_17 = x_7;
+x_18 = x_3;
+x_19 = x_8;
+x_20 = x_9;
+x_21 = x_4;
+x_22 = x_2;
+x_23 = x_6;
+x_24 = x_5;
+x_25 = x_10;
+x_26 = x_34;
 x_27 = x_48;
 goto block_31;
 }
@@ -2213,7 +2213,7 @@ lean_object* x_28; lean_object* x_29; lean_object* x_30;
 x_28 = l_Lean_mkOptionalNode(x_27);
 x_29 = l_Lean_Elab_Tactic_expandOptLocation(x_28);
 lean_dec(x_28);
-x_30 = l_Lean_Elab_Tactic_withLocation(x_29, x_23, x_22, x_15, x_17, x_20, x_26, x_19, x_18, x_24, x_16, x_25, x_21);
+x_30 = l_Lean_Elab_Tactic_withLocation(x_29, x_16, x_26, x_15, x_22, x_18, x_21, x_24, x_23, x_17, x_19, x_20, x_25);
 lean_dec(x_29);
 return x_30;
 }

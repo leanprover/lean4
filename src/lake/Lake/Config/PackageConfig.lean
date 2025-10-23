@@ -9,7 +9,6 @@ prelude
 public import Init.Dynamic
 public import Lake.Util.Version
 public import Lake.Config.Pattern
-public import Lake.Config.Defaults
 public import Lake.Config.LeanConfig
 public import Lake.Config.WorkspaceConfig
 meta import all Lake.Config.Meta
@@ -24,7 +23,7 @@ namespace Lake
 
 set_option linter.unusedVariables false in
 /-- A `Package`'s declarative configuration. -/
-public configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig where
+public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig, LeanConfig where
   /-- **For internal use.** Whether this package is Lean itself. -/
   bootstrap : Bool := false
 
@@ -294,6 +293,16 @@ public configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanCo
   the `LAKE_ARTIFACT_CACHE` environment variable is set to true.
   -/
   enableArtifactCache?, enableArtifactCache : Option Bool := none
+
+  /--
+  Whether, when the local artifact cache is enabled, Lake should copy all cached
+  artifacts into the build directory. This ensures the build results are available
+  to external consumers who expect them in the build directory.
+
+  Defaults to `false`.
+  -/
+  restoreAllArtifacts : Bool := false
+
   /--
   Whether native libraries (of this package) should be prefixed with `lib` on Windows.
 
@@ -304,13 +313,27 @@ public configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanCo
   Defaults to `false`.
   -/
   libPrefixOnWindows : Bool := false
+
+  /--
+  Whether downstream packages can `import all` modules of this package.
+
+  If enabled, downstream users will be able to access the `private` internals of modules,
+  including definition bodies not marked as `@[expose]`.
+  This may also, in the future, prevent compiler optimization which rely on `private`
+  definitions being inaccessible outside their own package.
+
+  Defaults to `false`.
+  -/
+  allowImportAll : Bool := false
+
 deriving Inhabited
 
-/-- The package's name. -/
-public abbrev PackageConfig.name (_ : PackageConfig n) := n
+/-- The package's name as specified by the author. -/
+public abbrev PackageConfig.origName (_ : PackageConfig p n) := n
 
 /-- A package declaration from a configuration written in Lean. -/
 public structure PackageDecl where
   name : Name
-  config : PackageConfig name
+  origName : Name
+  config : PackageConfig name origName
   deriving TypeName

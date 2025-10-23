@@ -9,7 +9,6 @@ module
 prelude
 public import Lean.Server.Utils
 public import Lean.Widget.InteractiveGoal
-public import Init.Data.Slice.Array.Basic
 public import Init.Data.Array.Subarray.Split
 import Lean.Linter.UnusedVariables
 
@@ -46,6 +45,10 @@ inductive MsgEmbed where
       (children : StrictOrLazy (Array (TaggedText MsgEmbed)) (WithRpcRef LazyTraceChildren))
   deriving Inhabited, RpcEncodable
 
+abbrev InteractiveMessage := TaggedText MsgEmbed
+
+instance : TypeName InteractiveMessage := unsafe (TypeName.mk _ ``InteractiveMessage)
+
 /-- The `message` field is the text of a message
 possibly containing interactive *embeds* of type `MsgEmbed`.
 We maintain the invariant that embeds are stored in `.tag`s with empty `.text` subtrees,
@@ -53,7 +56,7 @@ i.e., `.tag embed (.text "")`.
 
 Client-side display algorithms render tags in a custom way,
 ignoring the nested text. -/
-abbrev InteractiveDiagnostic := Lsp.DiagnosticWith (TaggedText MsgEmbed)
+abbrev InteractiveDiagnostic := Lsp.DiagnosticWith InteractiveMessage
 
 deriving instance RpcEncodable for Lsp.DiagnosticWith
 
@@ -63,8 +66,8 @@ open MsgEmbed
 partial def toDiagnostic (diag : InteractiveDiagnostic) : Lsp.Diagnostic :=
   { diag with message := prettyTt diag.message }
 where
-  prettyTt (tt : TaggedText MsgEmbed) : String :=
-    let tt : TaggedText MsgEmbed := tt.rewrite fun
+  prettyTt (tt : InteractiveMessage) : String :=
+    let tt : InteractiveMessage := tt.rewrite fun
       | .expr tt,      _ => .text tt.stripTags
       | .goal g,       _ => .text (toString g.pretty)
       | .widget _ alt, _ => .text $ prettyTt alt
@@ -78,7 +81,7 @@ private def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPCo
   currNamespace := nCtx.currNamespace, openDecls := nCtx.openDecls
 }
 
-/-! The `msgToInteractive` algorithm turns a `MessageData` into `TaggedText MsgEmbed` in two stages.
+/-! The `msgToInteractive` algorithm turns a `MessageData` into `InteractiveMessage` in two stages.
 
 First, in `msgToInteractiveAux` we produce a `Format` object whose `.tag` nodes refer to `EmbedFmt`
 objects stored in an auxiliary array. Only the most shallow `.tag` in every branch through the
@@ -86,11 +89,11 @@ objects stored in an auxiliary array. Only the most shallow `.tag` in every bran
 object (possibly including further `.tag`s), is processed. For example, if the output is
 `.tag (.expr ctx infos) fmt` then tags in the nested `fmt` object refer to elements of `infos`.
 
-In the second stage, we recursively transform such a `Format` into `TaggedText MsgEmbed` according
+In the second stage, we recursively transform such a `Format` into `InteractiveMessage` according
 to the rule above by first pretty-printing it and then grabbing data referenced by the tags from
 all the nested arrays (such as the `infos` array in the example above).
 
-We cannot easily do the translation in a single `MessageData → TaggedText MsgEmbed` step because
+We cannot easily do the translation in a single `MessageData → InteractiveMessage` step because
 that would effectively require reimplementing the (stateful, to keep track of indentation)
 `Format.prettyM` algorithm.
 -/
@@ -191,11 +194,11 @@ where
           f!"{children.size - blockSize} more entries..." more
     else children
 
-partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent : Nat := 0) : IO (TaggedText MsgEmbed) := do
+partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent : Nat := 0) : IO InteractiveMessage := do
   if !hasWidgets then
     return (TaggedText.prettyTagged (← msgData.format)).rewrite fun _ tt => .text tt.stripTags
   let (fmt, embeds) ← msgToInteractiveAux msgData
-  let rec fmtToTT (fmt : Format) (indent : Nat) : IO (TaggedText MsgEmbed) :=
+  let rec fmtToTT (fmt : Format) (indent : Nat) : IO InteractiveMessage :=
     (TaggedText.prettyTagged fmt indent).rewriteM fun (n, col) tt =>
       match embeds[n]! with
         | .code ctx infos => do

@@ -4,25 +4,38 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Util.ForEachExpr
 public import Lean.Meta.Tactic.Grind.Types
-
+import Lean.Util.ForEachExpr
 public section
-
 namespace Lean.Meta.Grind
+
+/-- Helper type for implementing `finish?` and `grind?` -/
+inductive ProofStep where
+  | solver (id : Nat)
+  | lookahead | mbtc
+  | instantiate (thms : List EMatchTheorem) (usedThms : List EMatchTheorem)
+  deriving Inhabited
+
+/-- Helper type for implementing `finish?` and `grind?` -/
+inductive ProofTrace where
+  | done
+  | sep (s : ProofStep) (k : ProofTrace)
+  | cases (info : SplitInfo) (alts : List ProofTrace)
+  deriving Inhabited
+
 /--
 A `choice` (aka backtracking) point in the search tree.
 -/
 structure Choice where
+  info?       : Option SplitInfo
   /--
   Goal where the case-split was performed.
-  Invariant: `goalOld.mvarId` is not assigned.
+  Invariant: `goalPending.mvarId` is not assigned.
   -/
   goalPending : Goal
   /--
-  Expression to be assigned to `goalOld.mvarId` if it is not possible to perform
+  Expression to be assigned to `goalPending.mvarId` if it is not possible to perform
   non-chronological backtracking.
   `proof` is often a `casesOn` application containing meta-variables.
   -/
@@ -31,11 +44,14 @@ structure Choice where
   Subgoals that still need to be processed.
   -/
   todo       : List Goal
+  traces     : Array ProofTrace := #[]
   generation : Nat
   deriving Inhabited
 
 structure SearchM.State where
-  goal : Goal
+  goal        : Goal
+  steps       : Array ProofStep := #[]
+  trace?      : Option ProofTrace := none
   choiceStack : List Choice := []
 
 abbrev SearchM := StateRefT SearchM.State GrindM
@@ -69,7 +85,7 @@ update current goal using `s`.
 - If there are more than one `s :: ss`, we create a choice point using the current
 goal as the pending goal, and update the current goal with `s`.
 -/
-def mkChoice (proof : Expr) (subgoals : List Goal) (generation : Nat) : SearchM Unit := do
+def mkChoice (proof : Expr) (subgoals : List Goal) (generation : Nat) (info? : Option SplitInfo := none) : SearchM Unit := do
   assert! !(← isInconsistent)
   match subgoals with
   | [] =>
@@ -82,21 +98,12 @@ def mkChoice (proof : Expr) (subgoals : List Goal) (generation : Nat) : SearchM 
     let goalPending ← getGoal
     modify fun s => { s with
       goal := subgoal
-      choiceStack := { goalPending, proof, generation, todo := subgoals } :: s.choiceStack
+      choiceStack := { info?, goalPending, proof, generation, todo := subgoals } :: s.choiceStack
     }
 
 /--
-Create an auxiliary metavariable with the same type and tag of the metavariable
-associated with the current goal.
-We use this function to perform `cases` on the current goal without eagerly assigning it.
+Returns the maximum free variable id occurring in `e`
 -/
-def mkAuxMVarForCurrGoal : SearchM MVarId := withCurrGoalContext do
-  let mvarId := (← getGoal).mvarId
-  let tag ← mvarId.getTag
-  let type ← mvarId.getType
-  let mvarNew ← mkFreshExprSyntheticOpaqueMVar type tag
-  return mvarNew.mvarId!
-
 private def findMaxFVarIdx? (e : Expr) : MetaM (Option Nat) := do
   let go (e : Expr) : StateT (Option Nat) MetaM Bool := do
     unless e.hasFVar do return false
@@ -127,7 +134,7 @@ private def closeLastPending (falseProof : Expr) : SearchM Unit := do
     resetChoiceStack
 
 /--
-Auxliary function for implementing `nextGoal`.
+Auxiliary function for implementing `nextGoal`.
 It is similar to `nextGoal`, but uses chronological backtracking.
 We use it when we cannot extract a proof of `False` from proof used to close the current goal.
 Returns `some gen` if a new goal was found for a choice point with generation `gen`,
@@ -190,14 +197,14 @@ def nextGoal? : SearchM (Option Nat) := do
     let mvarDecl ← choice.goalPending.mvarId.getDecl
     let numIndices := mvarDecl.lctx.numIndices
     if maxFVarIdx < numIndices then
-      -- `falseProof` can close `choice.goalOld` since all its free-variables are in scope.
+      -- `falseProof` can close `choice.goalPending` since all its free-variables are in scope.
       choice.goalPending.mvarId.assignFalseProof falseProof
       -- keep looking at next choice point
       -- Remark: we may be able to find other choice points using falseProof.
       choices := choices'
     else match choice.todo with
       | [] =>
-        -- All subgoals have been solved. We can finally assign `choice.proof` to `goalOld.mvarId`.
+        -- All subgoals have been solved. We can finally assign `choice.proof` to `goalPending.mvarId`.
         let proof ← instantiateMVars choice.proof
         choice.goalPending.mvarId.assign proof
         if (← isTargetFalse choice.goalPending.mvarId) then

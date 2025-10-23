@@ -8,10 +8,8 @@ module
 prelude
 public import Lean.Meta.RecursorInfo
 public import Lean.Meta.SynthInstance
-public import Lean.Meta.Tactic.Util
 public import Lean.Meta.Tactic.Revert
 public import Lean.Meta.Tactic.Intro
-public import Lean.Meta.Tactic.Clear
 public import Lean.Meta.Tactic.FVarSubst
 
 public section

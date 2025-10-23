@@ -11,7 +11,6 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Init.System.Promise
 public import Lean.Parser.Types
 public import Lean.Util.Trace
 
@@ -316,9 +315,7 @@ private def reportMessages (msgLog : MessageLog) (opts : Options)
     let numErrors := numErrors + (if msg.severity matches .error then 1 else 0)
     let maxErrorsReached := maxErrors.get opts != 0 && numErrors > maxErrors.get opts
     let msg : Message :=
-      if maxErrorsReached then {
-        fileName := ""
-        pos := ⟨0, 0⟩
+      if maxErrorsReached then { msg with
         data := s!"maximum number of errors ({maxErrors.get opts}; from option `maxErrors`) reached, exiting"
         severity := .error
       } else if let some severity := severityOverrides.find? msg.kind then

@@ -6,11 +6,12 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Lean.Parser.Extension
+public import Lean.Parser.Extension
 meta import Lean.Parser.Command
 public import Lean.KeyedDeclsAttribute
-public import Lean.Elab.Exception
 import Lean.BuiltinDocAttr
+public import Lean.ExtraModUses
+import all Init.Prelude  -- for `Lean.Macro.State.expandedMacroDecls` access
 
 public section
 
@@ -120,8 +121,10 @@ unsafe def mkElabAttribute (γ) (attrBuiltinName attrName : Name) (parserNamespa
     evalKey       := fun _ stx => do
       let kind ← syntaxNodeKindOfAttrParam parserNamespace stx
       /- Recall that a `SyntaxNodeKind` is often the name of the parser, but this is not always true, and we must check it. -/
-      if (← getEnv).contains kind && (← getInfoState).enabled then
-        addConstInfo stx[1] kind none
+      if (← getEnv).contains kind then
+        recordExtraModUseFromDecl (isMeta := false) kind
+        if (← getInfoState).enabled then
+          addConstInfo stx[1] kind none
       return kind
     onAdded       := fun builtin declName kind => do
       if builtin then
@@ -155,6 +158,8 @@ def expandMacroImpl? (env : Environment) : Syntax → MacroM (Option (Name × Ex
   for e in macroAttribute.getEntries env stx.getKind do
     try
       let stx' ← withFreshMacroScope (e.value stx)
+      if !e.isBuiltin then
+        modify fun st => { st with expandedMacroDecls := e.declName :: st.expandedMacroDecls }
       return (e.declName, Except.ok stx')
     catch
       | Macro.Exception.unsupportedSyntax => pure ()
@@ -173,6 +178,7 @@ instance (m n) [MonadLift m n] [MonadQuotation n] [MonadMacroAdapter m] : MonadM
 
 def liftMacroM [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLiftT IO m] (x : MacroM α) : m α := do
   let env  ← getEnv
+  let opts ← getOptions
   let currNamespace ← getCurrNamespace
   let openDecls ← getOpenDecls
   let methods := Macro.mkMethods {
@@ -184,7 +190,7 @@ def liftMacroM [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [M
     hasDecl          := fun declName => return env.contains declName
     getCurrNamespace := return currNamespace
     resolveNamespace := fun n => return ResolveName.resolveNamespace env currNamespace openDecls n
-    resolveGlobalName := fun n => return ResolveName.resolveGlobalName env currNamespace openDecls n
+    resolveGlobalName := fun n => return ResolveName.resolveGlobalName env opts currNamespace openDecls n
   }
   match x { methods        := methods
             ref            := ← getRef
@@ -201,6 +207,8 @@ def liftMacroM [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [M
     else
       throwErrorAt ref msg
   | EStateM.Result.ok a s =>
+    for n in s.expandedMacroDecls do
+      recordExtraModUseFromDecl (isMeta := true) n
     MonadMacroAdapter.setNextMacroScope s.macroScope
     s.traceMsgs.reverse.forM fun (clsName, msg) => trace clsName fun _ => msg
     return a

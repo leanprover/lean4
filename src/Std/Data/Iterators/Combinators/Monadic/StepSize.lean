@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Basic
 public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.Consumers.Monadic.Access
 public import Init.Data.Iterators.Consumers.Monadic.Collect
@@ -33,7 +32,7 @@ instance [Iterator α m β] [IteratorAccess α m] [Monad m] :
         (step.mapIterator (Types.StepSizeIterator.inner ∘ IterM.internalState)) ∧
       ∀ it' out, step = .yield it' out →
         it'.internalState.n = it.internalState.n ∧ it'.internalState.nextIdx = it.internalState.n
-  step it := (fun s => ⟨s.1.mapIterator (⟨⟨it.internalState.n, it.internalState.n, ·⟩⟩), by
+  step it := (fun s => .deflate ⟨s.1.mapIterator (⟨⟨it.internalState.n, it.internalState.n, ·⟩⟩), by
       simp only [IterStep.mapIterator_mapIterator]
       refine cast ?_ s.property
       rw (occs := [1]) [← IterStep.mapIterator_id (step := s.val)]

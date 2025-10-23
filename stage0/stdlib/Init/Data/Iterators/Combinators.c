@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.Combinators
-// Imports: Init.Data.Iterators.Combinators.Monadic Init.Data.Iterators.Combinators.FilterMap Init.Data.Iterators.Combinators.ULift
+// Imports: public import Init.Data.Iterators.Combinators.Monadic public import Init.Data.Iterators.Combinators.FilterMap public import Init.Data.Iterators.Combinators.FlatMap public import Init.Data.Iterators.Combinators.ULift
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* initialize_Init_Data_Iterators_Combinators_Monadic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Combinators_FilterMap(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Iterators_Combinators_FlatMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Combinators_ULift(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_Combinators(uint8_t builtin, lean_object* w) {
@@ -25,6 +26,9 @@ res = initialize_Init_Data_Iterators_Combinators_Monadic(builtin, lean_io_mk_wor
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Combinators_FilterMap(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Combinators_FlatMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Combinators_ULift(builtin, lean_io_mk_world());

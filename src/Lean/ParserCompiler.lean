@@ -107,6 +107,10 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
           name := c', levelParams := []
           type := ty, value := value, hints := ReducibilityHints.opaque, safety := DefinitionSafety.safe
         }
+        -- usually `meta` is infered during compilation for auxiliary definitions, but as
+        -- `ctx.combinatorAttr` may enforce correct use of the modifier, infer now.
+        if isMeta (← getEnv) c then
+          modifyEnv (addMeta · c')
         addAndCompile decl
         modifyEnv (ctx.combinatorAttr.setDeclFor · c c')
         if cinfo.type.isConst then
@@ -147,7 +151,7 @@ def compileEmbeddedParsers : ParserDescr → MetaM Unit
 /-- Precondition: `α` must match `ctx.tyName`. -/
 unsafe def registerParserCompiler {α} (ctx : Context α) : IO Unit := do
   Parser.registerParserAttributeHook {
-    postAdd := fun catName constName builtin => do
+    postAdd := fun catName constName builtin => withoutExporting do  -- needs to look through defs
       let info ← getConstInfo constName
       if info.type.isConstOf ``Lean.ParserDescr || info.type.isConstOf ``Lean.TrailingParserDescr then
         let d ← evalConstCheck ParserDescr `Lean.ParserDescr constName <|>

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.DocString.Syntax
-// Imports: Init.Prelude Init.Notation Lean.Parser.Types Lean.Syntax Lean.Parser.Extra Lean.Parser.Term Lean.Parser.Term
+// Imports: public import Lean.Parser.Term.Basic meta import Lean.Parser.Term.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 static lean_object* l_Lean_Doc_Syntax_inline__math___closed__1;
 lean_object* l_Lean_Parser_sepByIndent_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_Syntax_display__math___closed__4;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_image___regBuiltin_Lean_Doc_Syntax_image_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_display__math___closed__1;
 static lean_object* l_Lean_Doc_Syntax_doc__arg_quot___closed__3;
 static lean_object* l_Lean_Doc_Syntax_codeblock___closed__10;
@@ -26,7 +27,9 @@ static lean_object* l_Lean_Doc_Syntax_metadataContents_parenthesizer___closed__0
 static lean_object* l_Lean_Doc_Syntax_arg__val_quot___closed__4;
 static lean_object* l_Lean_Doc_Syntax_named___closed__2;
 static lean_object* l_Lean_Doc_Syntax_url___closed__1;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_footnote__ref___regBuiltin_Lean_Doc_Syntax_footnote__ref_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_ol___closed__2;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_anon___regBuiltin_Lean_Doc_Syntax_anon_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_ul___closed__1;
 static lean_object* l_Lean_Doc_Syntax_ol___closed__7;
 static lean_object* l_Lean_Doc_Syntax_desc___closed__2;
@@ -36,6 +39,7 @@ extern lean_object* l_Lean_Parser_pushNone;
 static lean_object* l_Lean_Doc_Syntax_li___closed__6;
 static lean_object* l_Lean_Doc_Syntax_metadataContents___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_bold;
+lean_object* l_Lean_addBuiltinDocString(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_footnote__ref;
 static lean_object* l_Lean_Doc_Syntax_doc__arg_quot___closed__9;
 static lean_object* l_Lean_Doc_Syntax_metadataContents___closed__11;
@@ -50,6 +54,7 @@ static lean_object* l_Lean_Doc_Syntax_arg__num___closed__5;
 static lean_object* l_Lean_Doc_Syntax_header___closed__5;
 static lean_object* l_Lean_Doc_Syntax_header___closed__9;
 static lean_object* l_Lean_Doc_Syntax_dl___closed__6;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_dl___regBuiltin_Lean_Doc_Syntax_dl_docString__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Category_arg__val;
 static lean_object* l_Lean_Doc_Syntax_arg__ident___closed__2;
 static lean_object* l_Lean_Doc_Syntax_named__no__paren___closed__0;
@@ -63,12 +68,14 @@ static lean_object* l_Lean_Doc_Syntax_blockquote___closed__2;
 static lean_object* l_Lean_Doc_Syntax_header___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_named__no__paren;
 static lean_object* l_Lean_Doc_Syntax_ref___closed__0;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ref___regBuiltin_Lean_Doc_Syntax_ref_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_desc__item_quot___closed__6;
 static lean_object* l_Lean_Doc_Syntax_footnote___closed__4;
 static lean_object* l_Lean_Doc_Syntax_arg__num___closed__4;
 static lean_object* l_Lean_Doc_Syntax_list__item_quot___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_metadataContents;
 static lean_object* l_Lean_Doc_Syntax_desc__item_quot___closed__7;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_codeblock___regBuiltin_Lean_Doc_Syntax_codeblock_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_linebreak___closed__3;
 static lean_object* l_Lean_Doc_Syntax_para___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_arg__ident;
@@ -76,13 +83,16 @@ static lean_object* l_Lean_Doc_Syntax_emph___closed__9;
 static lean_object* l_Lean_Doc_Syntax_metadataContents_formatter___closed__1;
 static lean_object* l_Lean_Doc_Syntax_footnote__ref___closed__2;
 static lean_object* l_Lean_Doc_Syntax_metadataContents_parenthesizer___closed__2;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_inline__math___regBuiltin_Lean_Doc_Syntax_inline__math_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_desc___closed__1;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_footnote__ref___regBuiltin_Lean_Doc_Syntax_footnote__ref_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_inline_quot___closed__7;
 static lean_object* l_Lean_Doc_Syntax_emph___closed__4;
 static lean_object* l_Lean_Doc_Syntax_arg__str___closed__3;
 static lean_object* l_Lean_Doc_Syntax_directive___closed__3;
 static lean_object* l_Lean_Doc_Syntax_arg__val_quot___closed__17;
 static lean_object* l_Lean_Doc_Syntax_desc___closed__3;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_url___regBuiltin_Lean_Doc_Syntax_url_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_directive___closed__4;
 static lean_object* l_Lean_Doc_Syntax_linebreak___closed__4;
 static lean_object* l_Lean_Doc_Syntax_metadata__block___closed__8;
@@ -91,6 +101,7 @@ static lean_object* l_Lean_Doc_Syntax_dl___closed__4;
 static lean_object* l_Lean_Doc_Syntax_linebreak___closed__1;
 static lean_object* l_Lean_Doc_Syntax_link__ref___closed__1;
 static lean_object* l_Lean_Doc_Syntax_arg__val_quot___closed__6;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_named___regBuiltin_Lean_Doc_Syntax_named_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_inline__math___closed__3;
 static lean_object* l_Lean_Doc_Syntax_desc___closed__0;
 static lean_object* l_Lean_Doc_Syntax_inline_quot___closed__4;
@@ -98,9 +109,12 @@ static lean_object* l_Lean_Doc_Syntax_inline_quot___closed__8;
 static lean_object* l_Lean_Doc_Syntax_bold___closed__5;
 lean_object* l_Lean_Parser_checkLinebreakBefore(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_link__ref___closed__2;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_footnote___regBuiltin_Lean_Doc_Syntax_footnote_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_display__math___closed__2;
 static lean_object* l_Lean_Doc_Syntax_command___closed__6;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_command___regBuiltin_Lean_Doc_Syntax_command_docString__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_desc;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_role___regBuiltin_Lean_Doc_Syntax_role_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_arg__num___closed__1;
 lean_object* l_Lean_Parser_orelse(lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_Syntax_list__item_quot___closed__2;
@@ -109,11 +123,13 @@ static lean_object* l_Lean_Doc_Syntax_role___closed__1;
 static lean_object* l_Lean_Doc_Syntax_text___closed__0;
 static lean_object* l_Lean_Doc_Syntax_metadata__block___closed__0;
 static lean_object* l_Lean_Doc_Syntax_named__no__paren___closed__2;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_metadata__block___regBuiltin_Lean_Doc_Syntax_metadata__block_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_link__target_quot___closed__1;
 static lean_object* l_Lean_Doc_Syntax_codeblock___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_flag__on;
 static lean_object* l_Lean_Doc_Syntax_link__ref___closed__5;
 static lean_object* l_Lean_Doc_Syntax_link__ref___closed__3;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_para___regBuiltin_Lean_Doc_Syntax_para_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_role___closed__3;
 static lean_object* l_Lean_Doc_Syntax_block_quot___closed__6;
 static lean_object* l_Lean_Doc_Syntax_link__target_quot___closed__7;
@@ -121,11 +137,14 @@ LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_block_quot;
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_anon;
 static lean_object* l_Lean_Doc_Syntax_codeblock___closed__4;
 static lean_object* l_Lean_Doc_Syntax_desc___closed__5;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_desc___regBuiltin_Lean_Doc_Syntax_desc_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_metadataContents___closed__4;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_flag__on___regBuiltin_Lean_Doc_Syntax_flag__on_docString__1___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_image;
 static lean_object* l_Lean_Doc_Syntax_para___closed__5;
 static lean_object* l_Lean_Doc_Syntax_directive___closed__5;
 static lean_object* l_Lean_Doc_Syntax_role___closed__10;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_code___regBuiltin_Lean_Doc_Syntax_code_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_image___closed__3;
 static lean_object* l_Lean_Doc_Syntax_ol___closed__11;
 static lean_object* l_Lean_Doc_Syntax_codeblock___closed__14;
@@ -143,6 +162,7 @@ static lean_object* l_Lean_Doc_Syntax_bold___closed__1;
 static lean_object* l_Lean_Doc_Syntax_header___closed__8;
 static lean_object* l_Lean_Doc_Syntax_footnote___closed__0;
 static lean_object* l_Lean_Doc_Syntax_flag__off___closed__3;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_command___regBuiltin_Lean_Doc_Syntax_command_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_image___closed__1;
 static lean_object* l_Lean_Doc_Syntax_ref___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_doc__arg_quot;
@@ -176,6 +196,7 @@ static lean_object* l_Lean_Doc_Syntax_arg__val_quot___closed__16;
 static lean_object* l_Lean_Doc_Syntax_desc__item_quot___closed__8;
 static lean_object* l_Lean_Doc_Syntax_block_quot___closed__0;
 static lean_object* l_Lean_Doc_Syntax_blockquote___closed__4;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_named___regBuiltin_Lean_Doc_Syntax_named_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_ul___closed__2;
 static lean_object* l_Lean_Doc_Syntax_role___closed__9;
 static lean_object* l_Lean_Doc_Syntax_command___closed__4;
@@ -190,23 +211,30 @@ static lean_object* l_Lean_Doc_Syntax_arg__str___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_metadataContents_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_Syntax_blockquote___closed__0;
 static lean_object* l_Lean_Doc_Syntax_arg__num___closed__3;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_anon___regBuiltin_Lean_Doc_Syntax_anon_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_directive___closed__11;
 static lean_object* l_Lean_Doc_Syntax_emph___closed__2;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_header___regBuiltin_Lean_Doc_Syntax_header_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_footnote__ref___closed__4;
 static lean_object* l_Lean_Doc_Syntax_role___closed__13;
 static lean_object* l_Lean_Doc_Syntax_metadataContents___closed__15;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_directive___regBuiltin_Lean_Doc_Syntax_directive_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_named___closed__7;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_url___regBuiltin_Lean_Doc_Syntax_url_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_inline__math___closed__4;
 static lean_object* l_Lean_Doc_Syntax_role___closed__8;
 static lean_object* l_Lean_Doc_Syntax_text___closed__1;
 static lean_object* l_Lean_Doc_Syntax_codeblock___closed__7;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_directive___regBuiltin_Lean_Doc_Syntax_directive_docString__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_li;
 static lean_object* l_Lean_Doc_Syntax_command___closed__3;
 static lean_object* l_Lean_Doc_Syntax_role___closed__0;
 static lean_object* l_Lean_Doc_Syntax_metadata__block___closed__1;
 static lean_object* l_Lean_Doc_Syntax_image___closed__4;
 static lean_object* l_Lean_Doc_Syntax_anon___closed__2;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_image___regBuiltin_Lean_Doc_Syntax_image_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_header___closed__2;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_para___regBuiltin_Lean_Doc_Syntax_para_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_named___closed__3;
 static lean_object* l_Lean_Doc_Syntax_arg__val_quot___closed__0;
 static lean_object* l_Lean_Doc_Syntax_anon___closed__0;
@@ -216,9 +244,11 @@ static lean_object* l_Lean_Doc_Syntax_dl___closed__1;
 static lean_object* l_Lean_Doc_Syntax_link___closed__4;
 static lean_object* l_Lean_Doc_Syntax_desc___closed__6;
 static lean_object* l_Lean_Doc_Syntax_arg__str___closed__0;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_flag__off___regBuiltin_Lean_Doc_Syntax_flag__off_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_metadataContents___closed__16;
 static lean_object* l_Lean_Doc_Syntax_inline_quot___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_named;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_emph___regBuiltin_Lean_Doc_Syntax_emph_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_role___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_role;
 static lean_object* l_Lean_Doc_Syntax_metadataContents___closed__0;
@@ -238,6 +268,7 @@ static lean_object* l_Lean_Doc_Syntax_link__target_quot___closed__6;
 static lean_object* l_Lean_Doc_Syntax_metadataContents___closed__5;
 static lean_object* l_Lean_Doc_Syntax_li___closed__0;
 static lean_object* l_Lean_Doc_Syntax_codeblock___closed__13;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_link__ref___regBuiltin_Lean_Doc_Syntax_link__ref_docString__1(lean_object*);
 lean_object* l_Lean_Parser_symbol_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_Syntax_named__no__paren___closed__1;
 static lean_object* l_Lean_Doc_Syntax_metadataContents___closed__2;
@@ -259,11 +290,13 @@ static lean_object* l_Lean_Doc_Syntax_arg__ident___closed__3;
 static lean_object* l_Lean_Doc_Syntax_link__ref___closed__4;
 static lean_object* l_Lean_Doc_Syntax_arg__val_quot___closed__9;
 static lean_object* l_Lean_Doc_Syntax_doc__arg_quot___closed__0;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_li___regBuiltin_Lean_Doc_Syntax_li_docString__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_ref;
 static lean_object* l_Lean_Doc_Syntax_list__item_quot___closed__8;
 static lean_object* l_Lean_Doc_Syntax_directive___closed__10;
 static lean_object* l_Lean_Doc_Syntax_metadataContents_formatter___closed__2;
 static lean_object* l_Lean_Doc_Syntax_li___closed__4;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ul___regBuiltin_Lean_Doc_Syntax_ul_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_inline_quot___closed__1;
 static lean_object* l_Lean_Doc_Syntax_block_quot___closed__8;
 static lean_object* l_Lean_Doc_Syntax_image___closed__6;
@@ -278,13 +311,16 @@ static lean_object* l_Lean_Doc_Syntax_inline__math___closed__0;
 static lean_object* l_Lean_Doc_Syntax_metadataContents___closed__14;
 static lean_object* l_Lean_Doc_Syntax_link__target_quot___closed__0;
 static lean_object* l_Lean_Doc_Syntax_directive___closed__6;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_li___regBuiltin_Lean_Doc_Syntax_li_docString__1___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Parser_Category_block;
 static lean_object* l_Lean_Doc_Syntax_link___closed__6;
 static lean_object* l_Lean_Doc_Syntax_metadataContents___closed__7;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_named__no__paren___regBuiltin_Lean_Doc_Syntax_named__no__paren_docString__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Category_link__target;
 static lean_object* l_Lean_Doc_Syntax_block_quot___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_para;
 static lean_object* l_Lean_Doc_Syntax_directive___closed__2;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_blockquote___regBuiltin_Lean_Doc_Syntax_blockquote_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_inline_quot___closed__0;
 static lean_object* l_Lean_Doc_Syntax_dl___closed__5;
 static lean_object* l_Lean_Doc_Syntax_named___closed__5;
@@ -293,6 +329,7 @@ static lean_object* l_Lean_Doc_Syntax_metadataContents___closed__8;
 lean_object* l_Lean_Parser_andthen(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_symbol_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_Syntax_doc__arg_quot___closed__2;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ol___regBuiltin_Lean_Doc_Syntax_ol_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_inline_quot___closed__2;
 static lean_object* l_Lean_Doc_Syntax_arg__str___closed__6;
 static lean_object* l_Lean_Doc_Syntax_role___closed__4;
@@ -307,18 +344,22 @@ static lean_object* l_Lean_Doc_Syntax_footnote__ref___closed__0;
 static lean_object* l_Lean_Doc_Syntax_bold___closed__2;
 static lean_object* l_Lean_Doc_Syntax_arg__val_quot___closed__1;
 static lean_object* l_Lean_Doc_Syntax_desc__item_quot___closed__5;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_flag__off___regBuiltin_Lean_Doc_Syntax_flag__off_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_doc__arg_quot___closed__7;
 static lean_object* l_Lean_Doc_Syntax_codeblock___closed__5;
 lean_object* l_Lean_Parser_Term_structInstField_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_Syntax_emph___closed__0;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_header___regBuiltin_Lean_Doc_Syntax_header_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_named__no__paren___closed__4;
 static lean_object* l_Lean_Doc_Syntax_arg__val_quot___closed__8;
 static lean_object* l_Lean_Doc_Syntax_ul___closed__3;
 static lean_object* l_Lean_Doc_Syntax_ref___closed__6;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_display__math___regBuiltin_Lean_Doc_Syntax_display__math_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_blockquote___closed__3;
 static lean_object* l_Lean_Doc_Syntax_list__item_quot___closed__6;
 static lean_object* l_Lean_Doc_Syntax_footnote___closed__6;
 static lean_object* l_Lean_Doc_Syntax_doc__arg_quot___closed__1;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ul___regBuiltin_Lean_Doc_Syntax_ul_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_inline_quot___closed__3;
 static lean_object* l_Lean_Doc_Syntax_metadata__block___closed__6;
 static lean_object* l_Lean_Doc_Syntax_directive___closed__14;
@@ -343,6 +384,7 @@ static lean_object* l_Lean_Doc_Syntax_doc__arg_quot___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_arg__val_quot;
 static lean_object* l_Lean_Doc_Syntax_metadataContents___closed__10;
 static lean_object* l_Lean_Doc_Syntax_code___closed__3;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_metadata__block___regBuiltin_Lean_Doc_Syntax_metadata__block_docString__1___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_ol;
 static lean_object* l_Lean_Doc_Syntax_footnote___closed__1;
 static lean_object* l_Lean_Doc_Syntax_list__item_quot___closed__5;
@@ -374,22 +416,27 @@ static lean_object* l_Lean_Doc_Syntax_block_quot___closed__1;
 static lean_object* l_Lean_Doc_Syntax_linebreak___closed__5;
 lean_object* l_Lean_Parser_Term_structInstFields_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_Syntax_anon___closed__1;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_role___regBuiltin_Lean_Doc_Syntax_role_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_directive___closed__7;
 static lean_object* l_Lean_Doc_Syntax_footnote__ref___closed__6;
 static lean_object* l_Lean_Doc_Syntax_codeblock___closed__12;
 static lean_object* l_Lean_Doc_Syntax_url___closed__3;
 static lean_object* l_Lean_Doc_Syntax_directive___closed__8;
 static lean_object* l_Lean_Doc_Syntax_header___closed__0;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_link__ref___regBuiltin_Lean_Doc_Syntax_link__ref_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_para___closed__6;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_footnote___regBuiltin_Lean_Doc_Syntax_footnote_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_ul___closed__6;
 static lean_object* l_Lean_Doc_Syntax_link___closed__0;
 static lean_object* l_Lean_Doc_Syntax_para___closed__7;
 static lean_object* l_Lean_Doc_Syntax_arg__val_quot___closed__14;
 static lean_object* l_Lean_Doc_Syntax_header___closed__1;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_link___regBuiltin_Lean_Doc_Syntax_link_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_image___closed__7;
 static lean_object* l_Lean_Doc_Syntax_list__item_quot___closed__9;
 static lean_object* l_Lean_Doc_Syntax_flag__on___closed__0;
 static lean_object* l_Lean_Doc_Syntax_display__math___closed__5;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ol___regBuiltin_Lean_Doc_Syntax_ol_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_link___closed__7;
 static lean_object* l_Lean_Doc_Syntax_bold___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_arg__num;
@@ -399,17 +446,21 @@ lean_object* l_Lean_Parser_sepBy(lean_object*, lean_object*, lean_object*, uint8
 static lean_object* l_Lean_Doc_Syntax_metadataContents___closed__13;
 static lean_object* l_Lean_Doc_Syntax_named___closed__0;
 static lean_object* l_Lean_Doc_Syntax_image___closed__0;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_inline__math___regBuiltin_Lean_Doc_Syntax_inline__math_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_desc__item_quot___closed__4;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ref___regBuiltin_Lean_Doc_Syntax_ref_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_para___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_url;
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_linebreak;
 static lean_object* l_Lean_Doc_Syntax_desc__item_quot___closed__9;
 static lean_object* l_Lean_Doc_Syntax_footnote___closed__5;
 static lean_object* l_Lean_Doc_Syntax_ul___closed__5;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_desc___regBuiltin_Lean_Doc_Syntax_desc_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_linebreak___closed__2;
 static lean_object* l_Lean_Doc_Syntax_arg__str___closed__7;
 static lean_object* l_Lean_Doc_Syntax_role___closed__6;
 static lean_object* l_Lean_Doc_Syntax_doc__arg_quot___closed__4;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_bold___regBuiltin_Lean_Doc_Syntax_bold_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_named__no__paren___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_metadata__block;
 static lean_object* l_Lean_Doc_Syntax_arg__str___closed__5;
@@ -418,6 +469,8 @@ static lean_object* l_Lean_Doc_Syntax_flag__off___closed__2;
 static lean_object* l_Lean_Doc_Syntax_metadataContents___closed__18;
 static lean_object* l_Lean_Doc_Syntax_codeblock___closed__1;
 static lean_object* l_Lean_Doc_Syntax_codeblock___closed__6;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_blockquote___regBuiltin_Lean_Doc_Syntax_blockquote_docString__1___closed__0;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_emph___regBuiltin_Lean_Doc_Syntax_emph_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_bold___closed__0;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_arg__val_quot___closed__3;
@@ -427,6 +480,7 @@ LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_blockquote;
 static lean_object* l_Lean_Doc_Syntax_metadata__block___closed__9;
 static lean_object* l_Lean_Doc_Syntax_directive___closed__1;
 static lean_object* l_Lean_Doc_Syntax_named___closed__8;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_flag__on___regBuiltin_Lean_Doc_Syntax_flag__on_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_emph___closed__5;
 static lean_object* l_Lean_Doc_Syntax_ref___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_arg__str;
@@ -442,6 +496,7 @@ static lean_object* l_Lean_Doc_Syntax_bold___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Parser_Category_doc__arg;
 static lean_object* l_Lean_Doc_Syntax_ref___closed__7;
 static lean_object* l_Lean_Doc_Syntax_role___closed__11;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_code___regBuiltin_Lean_Doc_Syntax_code_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_li___closed__1;
 static lean_object* l_Lean_Doc_Syntax_metadataContents___closed__17;
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_inline_quot;
@@ -449,10 +504,14 @@ static lean_object* l_Lean_Doc_Syntax_metadataContents_formatter___closed__0;
 static lean_object* l_Lean_Doc_Syntax_url___closed__4;
 static lean_object* l_Lean_Doc_Syntax_role___closed__5;
 static lean_object* l_Lean_Doc_Syntax_code___closed__5;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_display__math___regBuiltin_Lean_Doc_Syntax_display__math_docString__1___closed__0;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_bold___regBuiltin_Lean_Doc_Syntax_bold_docString__1___closed__0;
 static lean_object* l_Lean_Doc_Syntax_arg__val_quot___closed__2;
+static lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_dl___regBuiltin_Lean_Doc_Syntax_dl_docString__1___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_link__target_quot;
 static lean_object* l_Lean_Doc_Syntax_para___closed__0;
 static lean_object* l_Lean_Doc_Syntax_command___closed__2;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_codeblock___regBuiltin_Lean_Doc_Syntax_codeblock_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_list__item_quot___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Doc_Syntax_emph;
 static lean_object* l_Lean_Doc_Syntax_arg__val_quot___closed__10;
@@ -472,6 +531,7 @@ static lean_object* l_Lean_Doc_Syntax_arg__val_quot___closed__15;
 lean_object* l_Lean_Parser_Term_structInstField_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_Syntax_inline__math___closed__2;
 static lean_object* l_Lean_Doc_Syntax_dl___closed__0;
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_link___regBuiltin_Lean_Doc_Syntax_link_docString__1(lean_object*);
 static lean_object* l_Lean_Doc_Syntax_image___closed__5;
 static lean_object* l_Lean_Doc_Syntax_ref___closed__5;
 static lean_object* _init_l_Lean_Doc_Syntax_arg__val_quot___closed__0() {
@@ -1076,6 +1136,24 @@ x_1 = l_Lean_Doc_Syntax_anon___closed__2;
 return x_1;
 }
 }
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_anon___regBuiltin_Lean_Doc_Syntax_anon_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Anonymous positional argument ", 30, 30);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_anon___regBuiltin_Lean_Doc_Syntax_anon_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_anon___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_anon___regBuiltin_Lean_Doc_Syntax_anon_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l_Lean_Doc_Syntax_named___closed__0() {
 _start:
 {
@@ -1210,6 +1288,24 @@ x_1 = l_Lean_Doc_Syntax_named___closed__10;
 return x_1;
 }
 }
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_named___regBuiltin_Lean_Doc_Syntax_named_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Named argument ", 15, 15);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_named___regBuiltin_Lean_Doc_Syntax_named_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_named___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_named___regBuiltin_Lean_Doc_Syntax_named_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l_Lean_Doc_Syntax_named__no__paren___closed__0() {
 _start:
 {
@@ -1278,6 +1374,16 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Doc_Syntax_named__no__paren___closed__4;
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_named__no__paren___regBuiltin_Lean_Doc_Syntax_named__no__paren_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_named__no__paren___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_named___regBuiltin_Lean_Doc_Syntax_named_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Doc_Syntax_flag__on___closed__0() {
@@ -1354,6 +1460,24 @@ x_1 = l_Lean_Doc_Syntax_flag__on___closed__5;
 return x_1;
 }
 }
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_flag__on___regBuiltin_Lean_Doc_Syntax_flag__on_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Boolean flag, turned on ", 24, 24);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_flag__on___regBuiltin_Lean_Doc_Syntax_flag__on_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_flag__on___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_flag__on___regBuiltin_Lean_Doc_Syntax_flag__on_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l_Lean_Doc_Syntax_flag__off___closed__0() {
 _start:
 {
@@ -1426,6 +1550,24 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Doc_Syntax_flag__off___closed__5;
 return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_flag__off___regBuiltin_Lean_Doc_Syntax_flag__off_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Boolean flag, turned off ", 25, 25);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_flag__off___regBuiltin_Lean_Doc_Syntax_flag__off_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_flag__off___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_flag__off___regBuiltin_Lean_Doc_Syntax_flag__off_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Doc_Syntax_link__target_quot___closed__0() {
@@ -1627,6 +1769,24 @@ x_1 = l_Lean_Doc_Syntax_url___closed__4;
 return x_1;
 }
 }
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_url___regBuiltin_Lean_Doc_Syntax_url_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("A URL target, written explicitly. Use square brackets for a named target. ", 74, 74);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_url___regBuiltin_Lean_Doc_Syntax_url_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_url___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_url___regBuiltin_Lean_Doc_Syntax_url_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l_Lean_Doc_Syntax_ref___closed__0() {
 _start:
 {
@@ -1731,6 +1891,24 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Doc_Syntax_ref___closed__8;
 return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ref___regBuiltin_Lean_Doc_Syntax_ref_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("A named reference to a URL defined elsewhere. Use parentheses to write the URL here. ", 85, 85);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ref___regBuiltin_Lean_Doc_Syntax_ref_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_ref___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ref___regBuiltin_Lean_Doc_Syntax_ref_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Doc_Syntax_inline_quot___closed__0() {
@@ -2021,6 +2199,24 @@ x_1 = l_Lean_Doc_Syntax_emph___closed__9;
 return x_1;
 }
 }
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_emph___regBuiltin_Lean_Doc_Syntax_emph_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Emphasis, often rendered as italics.\n\nEmphasis may be nested by using longer sequences of `_` for the outer delimiters. For example:\n```\nRemember: __always butter the _rugbrød_ before adding toppings!__\n```\nHere, the outer `__` is used to emphasize the instructions, while the inner `_` indicates the use of\na non-English word.\n", 329, 328);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_emph___regBuiltin_Lean_Doc_Syntax_emph_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_emph___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_emph___regBuiltin_Lean_Doc_Syntax_emph_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l_Lean_Doc_Syntax_bold___closed__0() {
 _start:
 {
@@ -2107,6 +2303,24 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Doc_Syntax_bold___closed__6;
 return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_bold___regBuiltin_Lean_Doc_Syntax_bold_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Bold emphasis.\n\nA single `*` suffices to make text bold. Using `_` for emphasis.\n\nBold text may be nested by using longer sequences of `*` for the outer delimiters.\n", 165, 165);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_bold___regBuiltin_Lean_Doc_Syntax_bold_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_bold___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_bold___regBuiltin_Lean_Doc_Syntax_bold_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Doc_Syntax_link___closed__0() {
@@ -2211,6 +2425,24 @@ x_1 = l_Lean_Doc_Syntax_link___closed__7;
 return x_1;
 }
 }
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_link___regBuiltin_Lean_Doc_Syntax_link_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("A link. The link's target may either be a concrete URL (written in parentheses) or a named URL\n(written in square brackets).\n", 125, 125);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_link___regBuiltin_Lean_Doc_Syntax_link_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_link___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_link___regBuiltin_Lean_Doc_Syntax_link_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l_Lean_Doc_Syntax_image___closed__0() {
 _start:
 {
@@ -2313,6 +2545,24 @@ x_1 = l_Lean_Doc_Syntax_image___closed__7;
 return x_1;
 }
 }
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_image___regBuiltin_Lean_Doc_Syntax_image_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("An image, with alternate text and a URL.\n\nThe alternate text is a plain string, rather than Verso markup.\n\nThe image URL may either be a concrete URL (written in parentheses) or a named URL (written in\nsquare brackets).\n", 220, 220);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_image___regBuiltin_Lean_Doc_Syntax_image_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_image___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_image___regBuiltin_Lean_Doc_Syntax_image_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l_Lean_Doc_Syntax_footnote___closed__0() {
 _start:
 {
@@ -2399,6 +2649,24 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Doc_Syntax_footnote___closed__6;
 return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_footnote___regBuiltin_Lean_Doc_Syntax_footnote_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("A footnote use site.\n\nFootnotes must be defined elsewhere using the `[^NAME]: TEXT` syntax.\n", 92, 92);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_footnote___regBuiltin_Lean_Doc_Syntax_footnote_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_footnote___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_footnote___regBuiltin_Lean_Doc_Syntax_footnote_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Doc_Syntax_linebreak___closed__0() {
@@ -2561,6 +2829,24 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Doc_Syntax_code___closed__6;
 return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_code___regBuiltin_Lean_Doc_Syntax_code_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Literal code.\n\nCode may begin with any non-zero number of backticks. It must be terminated with the same number,\nand it may not contain a sequence of backticks that is at least as long as its starting or ending\ndelimiters.\n\nIf the first and last characters are space, and it contains at least one non-space character, then\nthe resulting string has a single space stripped from each end. Thus, ``` `` `x `` ``` represents\n``\"`x\"``, not ``\" `x \"``.\n", 447, 447);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_code___regBuiltin_Lean_Doc_Syntax_code_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_code___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_code___regBuiltin_Lean_Doc_Syntax_code_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Doc_Syntax_role___closed__0() {
@@ -2737,6 +3023,24 @@ x_1 = l_Lean_Doc_Syntax_role___closed__13;
 return x_1;
 }
 }
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_role___regBuiltin_Lean_Doc_Syntax_role_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("A _role_: an extension to the Verso document language in an inline position.\n\nText is given a role using the following syntax: `{NAME ARGS*}[CONTENT]`. The `NAME` is an\nidentifier that determines which role is being used, akin to a function name. Each of the `ARGS` may\nhave the following forms:\n* A value, which is a string literal, natural number, or identifier\n* A named argument, of the form `(NAME := VALUE)`\n* A flag, of the form `+NAME` or `-NAME`\n\nThe `CONTENT` is a sequence of inline content. If there is only one piece of content and it has\nbeginning and ending delimiters (e.g. code literals, links, or images, but not ordinary text), then\nthe `[` and `]` may be omitted. In particular, `` {NAME ARGS*}`x` `` is equivalent to\n``{NAME ARGS*}[`x`]``.\n", 761, 761);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_role___regBuiltin_Lean_Doc_Syntax_role_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_role___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_role___regBuiltin_Lean_Doc_Syntax_role_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l_Lean_Doc_Syntax_inline__math___closed__0() {
 _start:
 {
@@ -2811,6 +3115,24 @@ x_1 = l_Lean_Doc_Syntax_inline__math___closed__5;
 return x_1;
 }
 }
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_inline__math___regBuiltin_Lean_Doc_Syntax_inline__math_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Inline mathematical notation (equivalent to LaTeX's `$` notation) ", 66, 66);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_inline__math___regBuiltin_Lean_Doc_Syntax_inline__math_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_inline__math___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_inline__math___regBuiltin_Lean_Doc_Syntax_inline__math_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l_Lean_Doc_Syntax_display__math___closed__0() {
 _start:
 {
@@ -2883,6 +3205,24 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Doc_Syntax_display__math___closed__5;
 return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_display__math___regBuiltin_Lean_Doc_Syntax_display__math_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Display-mode mathematical notation ", 35, 35);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_display__math___regBuiltin_Lean_Doc_Syntax_display__math_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_display__math___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_display__math___regBuiltin_Lean_Doc_Syntax_display__math_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Doc_Syntax_block_quot___closed__0() {
@@ -3229,6 +3569,24 @@ x_1 = l_Lean_Doc_Syntax_li___closed__6;
 return x_1;
 }
 }
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_li___regBuiltin_Lean_Doc_Syntax_li_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("A list item ", 12, 12);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_li___regBuiltin_Lean_Doc_Syntax_li_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_li___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_li___regBuiltin_Lean_Doc_Syntax_li_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l_Lean_Doc_Syntax_desc__item_quot___closed__0() {
 _start:
 {
@@ -3478,6 +3836,24 @@ x_1 = l_Lean_Doc_Syntax_desc___closed__9;
 return x_1;
 }
 }
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_desc___regBuiltin_Lean_Doc_Syntax_desc_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("A description of an item ", 25, 25);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_desc___regBuiltin_Lean_Doc_Syntax_desc_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_desc___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_desc___regBuiltin_Lean_Doc_Syntax_desc_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l_Lean_Doc_Syntax_para___closed__0() {
 _start:
 {
@@ -3595,6 +3971,24 @@ x_1 = l_Lean_Doc_Syntax_para___closed__9;
 return x_1;
 }
 }
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_para___regBuiltin_Lean_Doc_Syntax_para_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Paragraph ", 10, 10);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_para___regBuiltin_Lean_Doc_Syntax_para_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_para___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_para___regBuiltin_Lean_Doc_Syntax_para_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l_Lean_Doc_Syntax_ul___closed__0() {
 _start:
 {
@@ -3695,6 +4089,24 @@ x_1 = l_Lean_Doc_Syntax_ul___closed__7;
 return x_1;
 }
 }
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ul___regBuiltin_Lean_Doc_Syntax_ul_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Unordered List ", 15, 15);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ul___regBuiltin_Lean_Doc_Syntax_ul_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_ul___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ul___regBuiltin_Lean_Doc_Syntax_ul_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l_Lean_Doc_Syntax_dl___closed__0() {
 _start:
 {
@@ -3793,6 +4205,24 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Doc_Syntax_dl___closed__7;
 return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_dl___regBuiltin_Lean_Doc_Syntax_dl_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Description list ", 17, 17);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_dl___regBuiltin_Lean_Doc_Syntax_dl_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_dl___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_dl___regBuiltin_Lean_Doc_Syntax_dl_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Doc_Syntax_ol___closed__0() {
@@ -3941,6 +4371,24 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Doc_Syntax_ol___closed__11;
 return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ol___regBuiltin_Lean_Doc_Syntax_ol_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Ordered list ", 13, 13);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ol___regBuiltin_Lean_Doc_Syntax_ol_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_ol___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ol___regBuiltin_Lean_Doc_Syntax_ol_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Doc_Syntax_codeblock___closed__0() {
@@ -4120,6 +4568,24 @@ x_1 = l_Lean_Doc_Syntax_codeblock___closed__14;
 return x_1;
 }
 }
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_codeblock___regBuiltin_Lean_Doc_Syntax_codeblock_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("A code block that contains literal code.\n\nCode blocks have the following syntax:\n````\n```(NAME ARGS*)\?\nCONTENT\n```\n````\n\n`CONTENT` is a literal string. If the `CONTENT` contains a sequence of three or more backticks, then\nthe opening and closing ` ``` ` (called _fences_) should have more backticks than the longest\nsequence in `CONTENT`. Additionally, the opening and closing fences should have the same number of\nbackticks.\n\nIf `NAME` and `ARGS` are not provided, then the code block represents literal text. If provided, the\n`NAME` is an identifier that selects an interpretation of the block. Unlike Markdown, this name is\nnot necessarily the language in which the code is written, though many custom code blocks are, in\npractice, named after the language that they contain. `NAME` is more akin to a function name. Each\nof the `ARGS` may have the following forms:\n* A value, which is a string literal, natural number, or identifier\n* A named argument, of the form `(NAME := VALUE)`\n* A flag, of the form `+NAME` or `-NAME`\n\nThe `CONTENT` is interpreted according to the indentation of the fences. If the fences are indented\n`n` spaces, then `n` spaces are removed from the start of each line of `CONTENT`.\n", 1210, 1210);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_codeblock___regBuiltin_Lean_Doc_Syntax_codeblock_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_codeblock___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_codeblock___regBuiltin_Lean_Doc_Syntax_codeblock_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l_Lean_Doc_Syntax_blockquote___closed__0() {
 _start:
 {
@@ -4192,6 +4658,24 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Doc_Syntax_blockquote___closed__5;
 return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_blockquote___regBuiltin_Lean_Doc_Syntax_blockquote_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("A quotation, which contains a sequence of blocks that are at least as indented as the `>`.\n", 91, 91);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_blockquote___regBuiltin_Lean_Doc_Syntax_blockquote_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_blockquote___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_blockquote___regBuiltin_Lean_Doc_Syntax_blockquote_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Doc_Syntax_link__ref___closed__0() {
@@ -4280,6 +4764,24 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Doc_Syntax_link__ref___closed__6;
 return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_link__ref___regBuiltin_Lean_Doc_Syntax_link__ref_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("A named URL that can be used in links and images.\n", 50, 50);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_link__ref___regBuiltin_Lean_Doc_Syntax_link__ref_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_link__ref___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_link__ref___regBuiltin_Lean_Doc_Syntax_link__ref_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Doc_Syntax_footnote__ref___closed__0() {
@@ -4382,6 +4884,24 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Doc_Syntax_footnote__ref___closed__7;
 return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_footnote__ref___regBuiltin_Lean_Doc_Syntax_footnote__ref_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("A footnote definition.\n", 23, 23);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_footnote__ref___regBuiltin_Lean_Doc_Syntax_footnote__ref_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_footnote__ref___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_footnote__ref___regBuiltin_Lean_Doc_Syntax_footnote__ref_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Doc_Syntax_directive___closed__0() {
@@ -4565,6 +5085,24 @@ x_1 = l_Lean_Doc_Syntax_directive___closed__14;
 return x_1;
 }
 }
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_directive___regBuiltin_Lean_Doc_Syntax_directive_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("A _directive_, which is an extension to the Verso language in block position.\n\nDirectives have the following syntax:\n```\n:::NAME ARGS*\nCONTENT*\n:::\n```\n\nThe `NAME` is an identifier that determines which directive is being used, akin to a function name.\nEach of the `ARGS` may have the following forms:\n* A value, which is a string literal, natural number, or identifier\n* A named argument, of the form `(NAME := VALUE)`\n* A flag, of the form `+NAME` or `-NAME`\n\nThe `CONTENT` is a sequence of block content. Directives may be nested by using more colons in\nthe outer directive. For example:\n```\n::::outer +flag (arg := 5)\nA paragraph.\n:::inner \"label\"\n* 1\n* 2\n:::\n::::\n```\n\n", 674, 674);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_directive___regBuiltin_Lean_Doc_Syntax_directive_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_directive___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_directive___regBuiltin_Lean_Doc_Syntax_directive_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l_Lean_Doc_Syntax_header___closed__0() {
 _start:
 {
@@ -4693,6 +5231,24 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Doc_Syntax_header___closed__9;
 return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_header___regBuiltin_Lean_Doc_Syntax_header_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("A header\n\nHeaders must be correctly nested to form a tree structure. The first header in a document must\nstart with `#`, and subsequent headers must have at most one more `#` than the preceding header.\n", 202, 202);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_header___regBuiltin_Lean_Doc_Syntax_header_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_header___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_header___regBuiltin_Lean_Doc_Syntax_header_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Doc_Syntax_metadataContents___closed__0() {
@@ -5004,6 +5560,24 @@ x_1 = l_Lean_Doc_Syntax_metadata__block___closed__9;
 return x_1;
 }
 }
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_metadata__block___regBuiltin_Lean_Doc_Syntax_metadata__block_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Metadata for the preceding header.\n", 35, 35);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_metadata__block___regBuiltin_Lean_Doc_Syntax_metadata__block_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_metadata__block___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_metadata__block___regBuiltin_Lean_Doc_Syntax_metadata__block_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l_Lean_Doc_Syntax_metadataContents_formatter___closed__0() {
 _start:
 {
@@ -5191,37 +5765,35 @@ x_1 = l_Lean_Doc_Syntax_command___closed__7;
 return x_1;
 }
 }
-lean_object* initialize_Init_Prelude(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Notation(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Parser_Types(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Syntax(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Parser_Extra(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Parser_Term(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Parser_Term(uint8_t builtin, lean_object*);
+static lean_object* _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_command___regBuiltin_Lean_Doc_Syntax_command_docString__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("A block-level command, which invokes an extension during documentation processing.\n\nThe `NAME` is an identifier that determines which command is being used, akin to a function name.\nEach of the `ARGS` may have the following forms:\n* A value, which is a string literal, natural number, or identifier\n* A named argument, of the form `(NAME := VALUE)`\n* A flag, of the form `+NAME` or `-NAME`\n", 390, 390);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_command___regBuiltin_Lean_Doc_Syntax_command_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Doc_Syntax_command___closed__1;
+x_3 = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_command___regBuiltin_Lean_Doc_Syntax_command_docString__1___closed__0;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
+lean_object* initialize_Lean_Parser_Term_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Parser_Term_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_DocString_Syntax(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Prelude(builtin, lean_io_mk_world());
+res = initialize_Lean_Parser_Term_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Notation(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Parser_Types(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Syntax(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Parser_Extra(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Parser_Term(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Parser_Term(builtin, lean_io_mk_world());
+res = initialize_Lean_Parser_Term_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Doc_Syntax_arg__val_quot___closed__0 = _init_l_Lean_Doc_Syntax_arg__val_quot___closed__0();
@@ -5344,7 +5916,12 @@ l_Lean_Doc_Syntax_anon___closed__2 = _init_l_Lean_Doc_Syntax_anon___closed__2();
 lean_mark_persistent(l_Lean_Doc_Syntax_anon___closed__2);
 l_Lean_Doc_Syntax_anon = _init_l_Lean_Doc_Syntax_anon();
 lean_mark_persistent(l_Lean_Doc_Syntax_anon);
-l_Lean_Doc_Syntax_named___closed__0 = _init_l_Lean_Doc_Syntax_named___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_anon___regBuiltin_Lean_Doc_Syntax_anon_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_anon___regBuiltin_Lean_Doc_Syntax_anon_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_anon___regBuiltin_Lean_Doc_Syntax_anon_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_anon___regBuiltin_Lean_Doc_Syntax_anon_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_named___closed__0 = _init_l_Lean_Doc_Syntax_named___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_named___closed__0);
 l_Lean_Doc_Syntax_named___closed__1 = _init_l_Lean_Doc_Syntax_named___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_named___closed__1);
@@ -5368,7 +5945,12 @@ l_Lean_Doc_Syntax_named___closed__10 = _init_l_Lean_Doc_Syntax_named___closed__1
 lean_mark_persistent(l_Lean_Doc_Syntax_named___closed__10);
 l_Lean_Doc_Syntax_named = _init_l_Lean_Doc_Syntax_named();
 lean_mark_persistent(l_Lean_Doc_Syntax_named);
-l_Lean_Doc_Syntax_named__no__paren___closed__0 = _init_l_Lean_Doc_Syntax_named__no__paren___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_named___regBuiltin_Lean_Doc_Syntax_named_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_named___regBuiltin_Lean_Doc_Syntax_named_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_named___regBuiltin_Lean_Doc_Syntax_named_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_named___regBuiltin_Lean_Doc_Syntax_named_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_named__no__paren___closed__0 = _init_l_Lean_Doc_Syntax_named__no__paren___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_named__no__paren___closed__0);
 l_Lean_Doc_Syntax_named__no__paren___closed__1 = _init_l_Lean_Doc_Syntax_named__no__paren___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_named__no__paren___closed__1);
@@ -5380,7 +5962,10 @@ l_Lean_Doc_Syntax_named__no__paren___closed__4 = _init_l_Lean_Doc_Syntax_named__
 lean_mark_persistent(l_Lean_Doc_Syntax_named__no__paren___closed__4);
 l_Lean_Doc_Syntax_named__no__paren = _init_l_Lean_Doc_Syntax_named__no__paren();
 lean_mark_persistent(l_Lean_Doc_Syntax_named__no__paren);
-l_Lean_Doc_Syntax_flag__on___closed__0 = _init_l_Lean_Doc_Syntax_flag__on___closed__0();
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_named__no__paren___regBuiltin_Lean_Doc_Syntax_named__no__paren_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_flag__on___closed__0 = _init_l_Lean_Doc_Syntax_flag__on___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_flag__on___closed__0);
 l_Lean_Doc_Syntax_flag__on___closed__1 = _init_l_Lean_Doc_Syntax_flag__on___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_flag__on___closed__1);
@@ -5394,7 +5979,12 @@ l_Lean_Doc_Syntax_flag__on___closed__5 = _init_l_Lean_Doc_Syntax_flag__on___clos
 lean_mark_persistent(l_Lean_Doc_Syntax_flag__on___closed__5);
 l_Lean_Doc_Syntax_flag__on = _init_l_Lean_Doc_Syntax_flag__on();
 lean_mark_persistent(l_Lean_Doc_Syntax_flag__on);
-l_Lean_Doc_Syntax_flag__off___closed__0 = _init_l_Lean_Doc_Syntax_flag__off___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_flag__on___regBuiltin_Lean_Doc_Syntax_flag__on_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_flag__on___regBuiltin_Lean_Doc_Syntax_flag__on_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_flag__on___regBuiltin_Lean_Doc_Syntax_flag__on_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_flag__on___regBuiltin_Lean_Doc_Syntax_flag__on_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_flag__off___closed__0 = _init_l_Lean_Doc_Syntax_flag__off___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_flag__off___closed__0);
 l_Lean_Doc_Syntax_flag__off___closed__1 = _init_l_Lean_Doc_Syntax_flag__off___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_flag__off___closed__1);
@@ -5408,7 +5998,12 @@ l_Lean_Doc_Syntax_flag__off___closed__5 = _init_l_Lean_Doc_Syntax_flag__off___cl
 lean_mark_persistent(l_Lean_Doc_Syntax_flag__off___closed__5);
 l_Lean_Doc_Syntax_flag__off = _init_l_Lean_Doc_Syntax_flag__off();
 lean_mark_persistent(l_Lean_Doc_Syntax_flag__off);
-l_Lean_Doc_Syntax_link__target_quot___closed__0 = _init_l_Lean_Doc_Syntax_link__target_quot___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_flag__off___regBuiltin_Lean_Doc_Syntax_flag__off_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_flag__off___regBuiltin_Lean_Doc_Syntax_flag__off_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_flag__off___regBuiltin_Lean_Doc_Syntax_flag__off_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_flag__off___regBuiltin_Lean_Doc_Syntax_flag__off_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_link__target_quot___closed__0 = _init_l_Lean_Doc_Syntax_link__target_quot___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_link__target_quot___closed__0);
 l_Lean_Doc_Syntax_link__target_quot___closed__1 = _init_l_Lean_Doc_Syntax_link__target_quot___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_link__target_quot___closed__1);
@@ -5444,7 +6039,12 @@ l_Lean_Doc_Syntax_url___closed__4 = _init_l_Lean_Doc_Syntax_url___closed__4();
 lean_mark_persistent(l_Lean_Doc_Syntax_url___closed__4);
 l_Lean_Doc_Syntax_url = _init_l_Lean_Doc_Syntax_url();
 lean_mark_persistent(l_Lean_Doc_Syntax_url);
-l_Lean_Doc_Syntax_ref___closed__0 = _init_l_Lean_Doc_Syntax_ref___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_url___regBuiltin_Lean_Doc_Syntax_url_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_url___regBuiltin_Lean_Doc_Syntax_url_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_url___regBuiltin_Lean_Doc_Syntax_url_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_url___regBuiltin_Lean_Doc_Syntax_url_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_ref___closed__0 = _init_l_Lean_Doc_Syntax_ref___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_ref___closed__0);
 l_Lean_Doc_Syntax_ref___closed__1 = _init_l_Lean_Doc_Syntax_ref___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_ref___closed__1);
@@ -5464,7 +6064,12 @@ l_Lean_Doc_Syntax_ref___closed__8 = _init_l_Lean_Doc_Syntax_ref___closed__8();
 lean_mark_persistent(l_Lean_Doc_Syntax_ref___closed__8);
 l_Lean_Doc_Syntax_ref = _init_l_Lean_Doc_Syntax_ref();
 lean_mark_persistent(l_Lean_Doc_Syntax_ref);
-l_Lean_Doc_Syntax_inline_quot___closed__0 = _init_l_Lean_Doc_Syntax_inline_quot___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ref___regBuiltin_Lean_Doc_Syntax_ref_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ref___regBuiltin_Lean_Doc_Syntax_ref_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ref___regBuiltin_Lean_Doc_Syntax_ref_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ref___regBuiltin_Lean_Doc_Syntax_ref_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_inline_quot___closed__0 = _init_l_Lean_Doc_Syntax_inline_quot___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_inline_quot___closed__0);
 l_Lean_Doc_Syntax_inline_quot___closed__1 = _init_l_Lean_Doc_Syntax_inline_quot___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_inline_quot___closed__1);
@@ -5518,7 +6123,12 @@ l_Lean_Doc_Syntax_emph___closed__9 = _init_l_Lean_Doc_Syntax_emph___closed__9();
 lean_mark_persistent(l_Lean_Doc_Syntax_emph___closed__9);
 l_Lean_Doc_Syntax_emph = _init_l_Lean_Doc_Syntax_emph();
 lean_mark_persistent(l_Lean_Doc_Syntax_emph);
-l_Lean_Doc_Syntax_bold___closed__0 = _init_l_Lean_Doc_Syntax_bold___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_emph___regBuiltin_Lean_Doc_Syntax_emph_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_emph___regBuiltin_Lean_Doc_Syntax_emph_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_emph___regBuiltin_Lean_Doc_Syntax_emph_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_emph___regBuiltin_Lean_Doc_Syntax_emph_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_bold___closed__0 = _init_l_Lean_Doc_Syntax_bold___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_bold___closed__0);
 l_Lean_Doc_Syntax_bold___closed__1 = _init_l_Lean_Doc_Syntax_bold___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_bold___closed__1);
@@ -5534,7 +6144,12 @@ l_Lean_Doc_Syntax_bold___closed__6 = _init_l_Lean_Doc_Syntax_bold___closed__6();
 lean_mark_persistent(l_Lean_Doc_Syntax_bold___closed__6);
 l_Lean_Doc_Syntax_bold = _init_l_Lean_Doc_Syntax_bold();
 lean_mark_persistent(l_Lean_Doc_Syntax_bold);
-l_Lean_Doc_Syntax_link___closed__0 = _init_l_Lean_Doc_Syntax_link___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_bold___regBuiltin_Lean_Doc_Syntax_bold_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_bold___regBuiltin_Lean_Doc_Syntax_bold_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_bold___regBuiltin_Lean_Doc_Syntax_bold_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_bold___regBuiltin_Lean_Doc_Syntax_bold_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_link___closed__0 = _init_l_Lean_Doc_Syntax_link___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_link___closed__0);
 l_Lean_Doc_Syntax_link___closed__1 = _init_l_Lean_Doc_Syntax_link___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_link___closed__1);
@@ -5552,7 +6167,12 @@ l_Lean_Doc_Syntax_link___closed__7 = _init_l_Lean_Doc_Syntax_link___closed__7();
 lean_mark_persistent(l_Lean_Doc_Syntax_link___closed__7);
 l_Lean_Doc_Syntax_link = _init_l_Lean_Doc_Syntax_link();
 lean_mark_persistent(l_Lean_Doc_Syntax_link);
-l_Lean_Doc_Syntax_image___closed__0 = _init_l_Lean_Doc_Syntax_image___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_link___regBuiltin_Lean_Doc_Syntax_link_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_link___regBuiltin_Lean_Doc_Syntax_link_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_link___regBuiltin_Lean_Doc_Syntax_link_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_link___regBuiltin_Lean_Doc_Syntax_link_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_image___closed__0 = _init_l_Lean_Doc_Syntax_image___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_image___closed__0);
 l_Lean_Doc_Syntax_image___closed__1 = _init_l_Lean_Doc_Syntax_image___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_image___closed__1);
@@ -5570,7 +6190,12 @@ l_Lean_Doc_Syntax_image___closed__7 = _init_l_Lean_Doc_Syntax_image___closed__7(
 lean_mark_persistent(l_Lean_Doc_Syntax_image___closed__7);
 l_Lean_Doc_Syntax_image = _init_l_Lean_Doc_Syntax_image();
 lean_mark_persistent(l_Lean_Doc_Syntax_image);
-l_Lean_Doc_Syntax_footnote___closed__0 = _init_l_Lean_Doc_Syntax_footnote___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_image___regBuiltin_Lean_Doc_Syntax_image_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_image___regBuiltin_Lean_Doc_Syntax_image_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_image___regBuiltin_Lean_Doc_Syntax_image_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_image___regBuiltin_Lean_Doc_Syntax_image_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_footnote___closed__0 = _init_l_Lean_Doc_Syntax_footnote___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_footnote___closed__0);
 l_Lean_Doc_Syntax_footnote___closed__1 = _init_l_Lean_Doc_Syntax_footnote___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_footnote___closed__1);
@@ -5586,7 +6211,12 @@ l_Lean_Doc_Syntax_footnote___closed__6 = _init_l_Lean_Doc_Syntax_footnote___clos
 lean_mark_persistent(l_Lean_Doc_Syntax_footnote___closed__6);
 l_Lean_Doc_Syntax_footnote = _init_l_Lean_Doc_Syntax_footnote();
 lean_mark_persistent(l_Lean_Doc_Syntax_footnote);
-l_Lean_Doc_Syntax_linebreak___closed__0 = _init_l_Lean_Doc_Syntax_linebreak___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_footnote___regBuiltin_Lean_Doc_Syntax_footnote_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_footnote___regBuiltin_Lean_Doc_Syntax_footnote_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_footnote___regBuiltin_Lean_Doc_Syntax_footnote_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_footnote___regBuiltin_Lean_Doc_Syntax_footnote_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_linebreak___closed__0 = _init_l_Lean_Doc_Syntax_linebreak___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_linebreak___closed__0);
 l_Lean_Doc_Syntax_linebreak___closed__1 = _init_l_Lean_Doc_Syntax_linebreak___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_linebreak___closed__1);
@@ -5616,7 +6246,12 @@ l_Lean_Doc_Syntax_code___closed__6 = _init_l_Lean_Doc_Syntax_code___closed__6();
 lean_mark_persistent(l_Lean_Doc_Syntax_code___closed__6);
 l_Lean_Doc_Syntax_code = _init_l_Lean_Doc_Syntax_code();
 lean_mark_persistent(l_Lean_Doc_Syntax_code);
-l_Lean_Doc_Syntax_role___closed__0 = _init_l_Lean_Doc_Syntax_role___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_code___regBuiltin_Lean_Doc_Syntax_code_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_code___regBuiltin_Lean_Doc_Syntax_code_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_code___regBuiltin_Lean_Doc_Syntax_code_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_code___regBuiltin_Lean_Doc_Syntax_code_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_role___closed__0 = _init_l_Lean_Doc_Syntax_role___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_role___closed__0);
 l_Lean_Doc_Syntax_role___closed__1 = _init_l_Lean_Doc_Syntax_role___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_role___closed__1);
@@ -5646,7 +6281,12 @@ l_Lean_Doc_Syntax_role___closed__13 = _init_l_Lean_Doc_Syntax_role___closed__13(
 lean_mark_persistent(l_Lean_Doc_Syntax_role___closed__13);
 l_Lean_Doc_Syntax_role = _init_l_Lean_Doc_Syntax_role();
 lean_mark_persistent(l_Lean_Doc_Syntax_role);
-l_Lean_Doc_Syntax_inline__math___closed__0 = _init_l_Lean_Doc_Syntax_inline__math___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_role___regBuiltin_Lean_Doc_Syntax_role_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_role___regBuiltin_Lean_Doc_Syntax_role_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_role___regBuiltin_Lean_Doc_Syntax_role_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_role___regBuiltin_Lean_Doc_Syntax_role_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_inline__math___closed__0 = _init_l_Lean_Doc_Syntax_inline__math___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_inline__math___closed__0);
 l_Lean_Doc_Syntax_inline__math___closed__1 = _init_l_Lean_Doc_Syntax_inline__math___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_inline__math___closed__1);
@@ -5660,7 +6300,12 @@ l_Lean_Doc_Syntax_inline__math___closed__5 = _init_l_Lean_Doc_Syntax_inline__mat
 lean_mark_persistent(l_Lean_Doc_Syntax_inline__math___closed__5);
 l_Lean_Doc_Syntax_inline__math = _init_l_Lean_Doc_Syntax_inline__math();
 lean_mark_persistent(l_Lean_Doc_Syntax_inline__math);
-l_Lean_Doc_Syntax_display__math___closed__0 = _init_l_Lean_Doc_Syntax_display__math___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_inline__math___regBuiltin_Lean_Doc_Syntax_inline__math_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_inline__math___regBuiltin_Lean_Doc_Syntax_inline__math_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_inline__math___regBuiltin_Lean_Doc_Syntax_inline__math_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_inline__math___regBuiltin_Lean_Doc_Syntax_inline__math_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_display__math___closed__0 = _init_l_Lean_Doc_Syntax_display__math___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_display__math___closed__0);
 l_Lean_Doc_Syntax_display__math___closed__1 = _init_l_Lean_Doc_Syntax_display__math___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_display__math___closed__1);
@@ -5674,7 +6319,12 @@ l_Lean_Doc_Syntax_display__math___closed__5 = _init_l_Lean_Doc_Syntax_display__m
 lean_mark_persistent(l_Lean_Doc_Syntax_display__math___closed__5);
 l_Lean_Doc_Syntax_display__math = _init_l_Lean_Doc_Syntax_display__math();
 lean_mark_persistent(l_Lean_Doc_Syntax_display__math);
-l_Lean_Doc_Syntax_block_quot___closed__0 = _init_l_Lean_Doc_Syntax_block_quot___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_display__math___regBuiltin_Lean_Doc_Syntax_display__math_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_display__math___regBuiltin_Lean_Doc_Syntax_display__math_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_display__math___regBuiltin_Lean_Doc_Syntax_display__math_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_display__math___regBuiltin_Lean_Doc_Syntax_display__math_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_block_quot___closed__0 = _init_l_Lean_Doc_Syntax_block_quot___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_block_quot___closed__0);
 l_Lean_Doc_Syntax_block_quot___closed__1 = _init_l_Lean_Doc_Syntax_block_quot___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_block_quot___closed__1);
@@ -5738,7 +6388,12 @@ l_Lean_Doc_Syntax_li___closed__6 = _init_l_Lean_Doc_Syntax_li___closed__6();
 lean_mark_persistent(l_Lean_Doc_Syntax_li___closed__6);
 l_Lean_Doc_Syntax_li = _init_l_Lean_Doc_Syntax_li();
 lean_mark_persistent(l_Lean_Doc_Syntax_li);
-l_Lean_Doc_Syntax_desc__item_quot___closed__0 = _init_l_Lean_Doc_Syntax_desc__item_quot___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_li___regBuiltin_Lean_Doc_Syntax_li_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_li___regBuiltin_Lean_Doc_Syntax_li_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_li___regBuiltin_Lean_Doc_Syntax_li_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_li___regBuiltin_Lean_Doc_Syntax_li_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_desc__item_quot___closed__0 = _init_l_Lean_Doc_Syntax_desc__item_quot___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_desc__item_quot___closed__0);
 l_Lean_Doc_Syntax_desc__item_quot___closed__1 = _init_l_Lean_Doc_Syntax_desc__item_quot___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_desc__item_quot___closed__1);
@@ -5784,7 +6439,12 @@ l_Lean_Doc_Syntax_desc___closed__9 = _init_l_Lean_Doc_Syntax_desc___closed__9();
 lean_mark_persistent(l_Lean_Doc_Syntax_desc___closed__9);
 l_Lean_Doc_Syntax_desc = _init_l_Lean_Doc_Syntax_desc();
 lean_mark_persistent(l_Lean_Doc_Syntax_desc);
-l_Lean_Doc_Syntax_para___closed__0 = _init_l_Lean_Doc_Syntax_para___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_desc___regBuiltin_Lean_Doc_Syntax_desc_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_desc___regBuiltin_Lean_Doc_Syntax_desc_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_desc___regBuiltin_Lean_Doc_Syntax_desc_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_desc___regBuiltin_Lean_Doc_Syntax_desc_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_para___closed__0 = _init_l_Lean_Doc_Syntax_para___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_para___closed__0);
 l_Lean_Doc_Syntax_para___closed__1 = _init_l_Lean_Doc_Syntax_para___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_para___closed__1);
@@ -5806,7 +6466,12 @@ l_Lean_Doc_Syntax_para___closed__9 = _init_l_Lean_Doc_Syntax_para___closed__9();
 lean_mark_persistent(l_Lean_Doc_Syntax_para___closed__9);
 l_Lean_Doc_Syntax_para = _init_l_Lean_Doc_Syntax_para();
 lean_mark_persistent(l_Lean_Doc_Syntax_para);
-l_Lean_Doc_Syntax_ul___closed__0 = _init_l_Lean_Doc_Syntax_ul___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_para___regBuiltin_Lean_Doc_Syntax_para_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_para___regBuiltin_Lean_Doc_Syntax_para_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_para___regBuiltin_Lean_Doc_Syntax_para_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_para___regBuiltin_Lean_Doc_Syntax_para_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_ul___closed__0 = _init_l_Lean_Doc_Syntax_ul___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_ul___closed__0);
 l_Lean_Doc_Syntax_ul___closed__1 = _init_l_Lean_Doc_Syntax_ul___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_ul___closed__1);
@@ -5824,7 +6489,12 @@ l_Lean_Doc_Syntax_ul___closed__7 = _init_l_Lean_Doc_Syntax_ul___closed__7();
 lean_mark_persistent(l_Lean_Doc_Syntax_ul___closed__7);
 l_Lean_Doc_Syntax_ul = _init_l_Lean_Doc_Syntax_ul();
 lean_mark_persistent(l_Lean_Doc_Syntax_ul);
-l_Lean_Doc_Syntax_dl___closed__0 = _init_l_Lean_Doc_Syntax_dl___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ul___regBuiltin_Lean_Doc_Syntax_ul_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ul___regBuiltin_Lean_Doc_Syntax_ul_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ul___regBuiltin_Lean_Doc_Syntax_ul_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ul___regBuiltin_Lean_Doc_Syntax_ul_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_dl___closed__0 = _init_l_Lean_Doc_Syntax_dl___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_dl___closed__0);
 l_Lean_Doc_Syntax_dl___closed__1 = _init_l_Lean_Doc_Syntax_dl___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_dl___closed__1);
@@ -5842,7 +6512,12 @@ l_Lean_Doc_Syntax_dl___closed__7 = _init_l_Lean_Doc_Syntax_dl___closed__7();
 lean_mark_persistent(l_Lean_Doc_Syntax_dl___closed__7);
 l_Lean_Doc_Syntax_dl = _init_l_Lean_Doc_Syntax_dl();
 lean_mark_persistent(l_Lean_Doc_Syntax_dl);
-l_Lean_Doc_Syntax_ol___closed__0 = _init_l_Lean_Doc_Syntax_ol___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_dl___regBuiltin_Lean_Doc_Syntax_dl_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_dl___regBuiltin_Lean_Doc_Syntax_dl_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_dl___regBuiltin_Lean_Doc_Syntax_dl_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_dl___regBuiltin_Lean_Doc_Syntax_dl_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_ol___closed__0 = _init_l_Lean_Doc_Syntax_ol___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_ol___closed__0);
 l_Lean_Doc_Syntax_ol___closed__1 = _init_l_Lean_Doc_Syntax_ol___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_ol___closed__1);
@@ -5868,7 +6543,12 @@ l_Lean_Doc_Syntax_ol___closed__11 = _init_l_Lean_Doc_Syntax_ol___closed__11();
 lean_mark_persistent(l_Lean_Doc_Syntax_ol___closed__11);
 l_Lean_Doc_Syntax_ol = _init_l_Lean_Doc_Syntax_ol();
 lean_mark_persistent(l_Lean_Doc_Syntax_ol);
-l_Lean_Doc_Syntax_codeblock___closed__0 = _init_l_Lean_Doc_Syntax_codeblock___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ol___regBuiltin_Lean_Doc_Syntax_ol_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ol___regBuiltin_Lean_Doc_Syntax_ol_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ol___regBuiltin_Lean_Doc_Syntax_ol_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_ol___regBuiltin_Lean_Doc_Syntax_ol_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_codeblock___closed__0 = _init_l_Lean_Doc_Syntax_codeblock___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_codeblock___closed__0);
 l_Lean_Doc_Syntax_codeblock___closed__1 = _init_l_Lean_Doc_Syntax_codeblock___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_codeblock___closed__1);
@@ -5900,7 +6580,12 @@ l_Lean_Doc_Syntax_codeblock___closed__14 = _init_l_Lean_Doc_Syntax_codeblock___c
 lean_mark_persistent(l_Lean_Doc_Syntax_codeblock___closed__14);
 l_Lean_Doc_Syntax_codeblock = _init_l_Lean_Doc_Syntax_codeblock();
 lean_mark_persistent(l_Lean_Doc_Syntax_codeblock);
-l_Lean_Doc_Syntax_blockquote___closed__0 = _init_l_Lean_Doc_Syntax_blockquote___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_codeblock___regBuiltin_Lean_Doc_Syntax_codeblock_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_codeblock___regBuiltin_Lean_Doc_Syntax_codeblock_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_codeblock___regBuiltin_Lean_Doc_Syntax_codeblock_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_codeblock___regBuiltin_Lean_Doc_Syntax_codeblock_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_blockquote___closed__0 = _init_l_Lean_Doc_Syntax_blockquote___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_blockquote___closed__0);
 l_Lean_Doc_Syntax_blockquote___closed__1 = _init_l_Lean_Doc_Syntax_blockquote___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_blockquote___closed__1);
@@ -5914,7 +6599,12 @@ l_Lean_Doc_Syntax_blockquote___closed__5 = _init_l_Lean_Doc_Syntax_blockquote___
 lean_mark_persistent(l_Lean_Doc_Syntax_blockquote___closed__5);
 l_Lean_Doc_Syntax_blockquote = _init_l_Lean_Doc_Syntax_blockquote();
 lean_mark_persistent(l_Lean_Doc_Syntax_blockquote);
-l_Lean_Doc_Syntax_link__ref___closed__0 = _init_l_Lean_Doc_Syntax_link__ref___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_blockquote___regBuiltin_Lean_Doc_Syntax_blockquote_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_blockquote___regBuiltin_Lean_Doc_Syntax_blockquote_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_blockquote___regBuiltin_Lean_Doc_Syntax_blockquote_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_blockquote___regBuiltin_Lean_Doc_Syntax_blockquote_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_link__ref___closed__0 = _init_l_Lean_Doc_Syntax_link__ref___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_link__ref___closed__0);
 l_Lean_Doc_Syntax_link__ref___closed__1 = _init_l_Lean_Doc_Syntax_link__ref___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_link__ref___closed__1);
@@ -5930,7 +6620,12 @@ l_Lean_Doc_Syntax_link__ref___closed__6 = _init_l_Lean_Doc_Syntax_link__ref___cl
 lean_mark_persistent(l_Lean_Doc_Syntax_link__ref___closed__6);
 l_Lean_Doc_Syntax_link__ref = _init_l_Lean_Doc_Syntax_link__ref();
 lean_mark_persistent(l_Lean_Doc_Syntax_link__ref);
-l_Lean_Doc_Syntax_footnote__ref___closed__0 = _init_l_Lean_Doc_Syntax_footnote__ref___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_link__ref___regBuiltin_Lean_Doc_Syntax_link__ref_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_link__ref___regBuiltin_Lean_Doc_Syntax_link__ref_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_link__ref___regBuiltin_Lean_Doc_Syntax_link__ref_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_link__ref___regBuiltin_Lean_Doc_Syntax_link__ref_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_footnote__ref___closed__0 = _init_l_Lean_Doc_Syntax_footnote__ref___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_footnote__ref___closed__0);
 l_Lean_Doc_Syntax_footnote__ref___closed__1 = _init_l_Lean_Doc_Syntax_footnote__ref___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_footnote__ref___closed__1);
@@ -5948,7 +6643,12 @@ l_Lean_Doc_Syntax_footnote__ref___closed__7 = _init_l_Lean_Doc_Syntax_footnote__
 lean_mark_persistent(l_Lean_Doc_Syntax_footnote__ref___closed__7);
 l_Lean_Doc_Syntax_footnote__ref = _init_l_Lean_Doc_Syntax_footnote__ref();
 lean_mark_persistent(l_Lean_Doc_Syntax_footnote__ref);
-l_Lean_Doc_Syntax_directive___closed__0 = _init_l_Lean_Doc_Syntax_directive___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_footnote__ref___regBuiltin_Lean_Doc_Syntax_footnote__ref_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_footnote__ref___regBuiltin_Lean_Doc_Syntax_footnote__ref_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_footnote__ref___regBuiltin_Lean_Doc_Syntax_footnote__ref_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_footnote__ref___regBuiltin_Lean_Doc_Syntax_footnote__ref_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_directive___closed__0 = _init_l_Lean_Doc_Syntax_directive___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_directive___closed__0);
 l_Lean_Doc_Syntax_directive___closed__1 = _init_l_Lean_Doc_Syntax_directive___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_directive___closed__1);
@@ -5980,7 +6680,12 @@ l_Lean_Doc_Syntax_directive___closed__14 = _init_l_Lean_Doc_Syntax_directive___c
 lean_mark_persistent(l_Lean_Doc_Syntax_directive___closed__14);
 l_Lean_Doc_Syntax_directive = _init_l_Lean_Doc_Syntax_directive();
 lean_mark_persistent(l_Lean_Doc_Syntax_directive);
-l_Lean_Doc_Syntax_header___closed__0 = _init_l_Lean_Doc_Syntax_header___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_directive___regBuiltin_Lean_Doc_Syntax_directive_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_directive___regBuiltin_Lean_Doc_Syntax_directive_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_directive___regBuiltin_Lean_Doc_Syntax_directive_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_directive___regBuiltin_Lean_Doc_Syntax_directive_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_header___closed__0 = _init_l_Lean_Doc_Syntax_header___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_header___closed__0);
 l_Lean_Doc_Syntax_header___closed__1 = _init_l_Lean_Doc_Syntax_header___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_header___closed__1);
@@ -6002,7 +6707,12 @@ l_Lean_Doc_Syntax_header___closed__9 = _init_l_Lean_Doc_Syntax_header___closed__
 lean_mark_persistent(l_Lean_Doc_Syntax_header___closed__9);
 l_Lean_Doc_Syntax_header = _init_l_Lean_Doc_Syntax_header();
 lean_mark_persistent(l_Lean_Doc_Syntax_header);
-l_Lean_Doc_Syntax_metadataContents___closed__0 = _init_l_Lean_Doc_Syntax_metadataContents___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_header___regBuiltin_Lean_Doc_Syntax_header_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_header___regBuiltin_Lean_Doc_Syntax_header_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_header___regBuiltin_Lean_Doc_Syntax_header_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_header___regBuiltin_Lean_Doc_Syntax_header_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_metadataContents___closed__0 = _init_l_Lean_Doc_Syntax_metadataContents___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_metadataContents___closed__0);
 l_Lean_Doc_Syntax_metadataContents___closed__1 = _init_l_Lean_Doc_Syntax_metadataContents___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_metadataContents___closed__1);
@@ -6066,7 +6776,12 @@ l_Lean_Doc_Syntax_metadata__block___closed__9 = _init_l_Lean_Doc_Syntax_metadata
 lean_mark_persistent(l_Lean_Doc_Syntax_metadata__block___closed__9);
 l_Lean_Doc_Syntax_metadata__block = _init_l_Lean_Doc_Syntax_metadata__block();
 lean_mark_persistent(l_Lean_Doc_Syntax_metadata__block);
-l_Lean_Doc_Syntax_metadataContents_formatter___closed__0 = _init_l_Lean_Doc_Syntax_metadataContents_formatter___closed__0();
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_metadata__block___regBuiltin_Lean_Doc_Syntax_metadata__block_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_metadata__block___regBuiltin_Lean_Doc_Syntax_metadata__block_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_metadata__block___regBuiltin_Lean_Doc_Syntax_metadata__block_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_metadata__block___regBuiltin_Lean_Doc_Syntax_metadata__block_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l_Lean_Doc_Syntax_metadataContents_formatter___closed__0 = _init_l_Lean_Doc_Syntax_metadataContents_formatter___closed__0();
 lean_mark_persistent(l_Lean_Doc_Syntax_metadataContents_formatter___closed__0);
 l_Lean_Doc_Syntax_metadataContents_formatter___closed__1 = _init_l_Lean_Doc_Syntax_metadataContents_formatter___closed__1();
 lean_mark_persistent(l_Lean_Doc_Syntax_metadataContents_formatter___closed__1);
@@ -6096,7 +6811,12 @@ l_Lean_Doc_Syntax_command___closed__7 = _init_l_Lean_Doc_Syntax_command___closed
 lean_mark_persistent(l_Lean_Doc_Syntax_command___closed__7);
 l_Lean_Doc_Syntax_command = _init_l_Lean_Doc_Syntax_command();
 lean_mark_persistent(l_Lean_Doc_Syntax_command);
-return lean_io_result_mk_ok(lean_box(0));
+l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_command___regBuiltin_Lean_Doc_Syntax_command_docString__1___closed__0 = _init_l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_command___regBuiltin_Lean_Doc_Syntax_command_docString__1___closed__0();
+lean_mark_persistent(l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_command___regBuiltin_Lean_Doc_Syntax_command_docString__1___closed__0);
+if (builtin) {res = l___private_Lean_DocString_Syntax_0__Lean_Doc_Syntax_command___regBuiltin_Lean_Doc_Syntax_command_docString__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus
 }

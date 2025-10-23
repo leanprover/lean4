@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Lemmas.Combinators.Drop
-// Imports: Std.Data.Iterators.Combinators.Drop Std.Data.Iterators.Lemmas.Combinators.Monadic.Drop Std.Data.Iterators.Lemmas.Combinators.Take Init.Data.Iterators.Lemmas.Consumers
+// Imports: public import Std.Data.Iterators.Combinators.Drop public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Drop public import Std.Data.Iterators.Lemmas.Combinators.Take
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -189,7 +189,7 @@ _start:
 lean_object* x_10; 
 x_10 = l___private_Std_Data_Iterators_Lemmas_Combinators_Drop_0__Std_Iterators_Iter_step__drop_match__3_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_4);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 return x_10;
 }
 }
@@ -246,7 +246,6 @@ return x_5;
 lean_object* initialize_Std_Data_Iterators_Combinators_Drop(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_Monadic_Drop(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_Take(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Lemmas_Consumers(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Lemmas_Combinators_Drop(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -259,9 +258,6 @@ res = initialize_Std_Data_Iterators_Lemmas_Combinators_Monadic_Drop(builtin, lea
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Lemmas_Combinators_Take(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Lemmas_Consumers(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

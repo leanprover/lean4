@@ -179,18 +179,27 @@ decl_kind decl_tag(decl const & a) { return is_scalar(a.raw()) ? static_cast<dec
 fun_id const & decl_fun_id(decl const & b) { return cnstr_get_ref_t<fun_id>(b, 0); }
 array_ref<param> const & decl_params(decl const & b) { return cnstr_get_ref_t<array_ref<param>>(b, 1); }
 type decl_type(decl const & b) { return cnstr_get_type(b, 2); }
-fn_body const & decl_fun_body(decl const & b) { lean_assert(decl_tag(b) == decl_kind::Fun); return cnstr_get_ref_t<fn_body>(b, 3); }
+fn_body const & decl_fun_body(decl const & b) {
+    if (decl_tag(b) != decl_kind::Fun) {
+        throw exception(sstream() << "(interpreter) IR of declaration '" << decl_fun_id(b) << "' not available; this may point to a missing `meta` check in a metaprogram");
+    }
+    return cnstr_get_ref_t<fn_body>(b, 3);
+}
 
 extern "C" object * lean_ir_find_env_decl(object * env, object * n);
 option_ref<decl> find_ir_decl(elab_environment const & env, name const & n) {
     return option_ref<decl>(lean_ir_find_env_decl(env.to_obj_arg(), n.to_obj_arg()));
 }
 
+extern "C" object * lean_ir_find_env_decl_boxed(object * env, object * n);
+option_ref<decl> find_ir_decl_boxed(elab_environment const & env, name const & n) {
+    return option_ref<decl>(lean_ir_find_env_decl_boxed(env.to_obj_arg(), n.to_obj_arg()));
+}
+
 extern "C" double lean_float_of_nat(lean_obj_arg a);
 extern "C" float lean_float32_of_nat(lean_obj_arg a);
 
 static string_ref * g_mangle_prefix = nullptr;
-static string_ref * g_boxed_suffix = nullptr;
 static string_ref * g_boxed_mangled_suffix = nullptr;
 static name * g_interpreter_prefer_native = nullptr;
 
@@ -893,7 +902,10 @@ private:
             throw exception(sstream() << "cannot evaluate `[init]` declaration '" << fn << "' in the same module");
         }
         push_frame(e.m_decl, m_arg_stack.size());
-        lean_always_assert(decl_tag(e.m_decl) == decl_kind::Fun);
+        // `Unreachable` can be from `mkDummyExternDecl`, which may mean that we failed to run the
+        // initializer, suggesting some incorrect `meta` phase setup. Let's make sure we give a
+        // better signal than a segfault in that case.
+        lean_always_assert(fn_body_tag(decl_fun_body(e.m_decl)) != fn_body_kind::Unreachable);
         value r = eval_body(decl_fun_body(e.m_decl));
         pop_frame(r, decl_type(e.m_decl));
         if (!type_is_scalar(t)) {
@@ -1047,7 +1059,7 @@ public:
             } else {
                 // `lookup_symbol` does not prefer the boxed version for interpreted functions, so check manually.
                 decl d = e.m_decl;
-                if (option_ref<decl> d_boxed = find_ir_decl(m_env, fn + *g_boxed_suffix)) {
+                if (option_ref<decl> d_boxed = find_ir_decl_boxed(m_env, fn)) {
                     d = *d_boxed.get();
                 }
                 r = mk_stub_closure(d, 0, nullptr);
@@ -1185,8 +1197,6 @@ extern "C" LEAN_EXPORT object * lean_run_init(object * env, object * opts, objec
 void initialize_ir_interpreter() {
     ir::g_mangle_prefix = new string_ref("l_");
     mark_persistent(ir::g_mangle_prefix->raw());
-    ir::g_boxed_suffix = new string_ref("_boxed");
-    mark_persistent(ir::g_boxed_suffix->raw());
     ir::g_boxed_mangled_suffix = new string_ref("___boxed");
     mark_persistent(ir::g_boxed_mangled_suffix->raw());
     ir::g_interpreter_prefer_native = new name({"interpreter", "prefer_native"});
@@ -1207,7 +1217,6 @@ void finalize_ir_interpreter() {
     delete ir::g_init_globals;
     delete ir::g_interpreter_prefer_native;
     delete ir::g_boxed_mangled_suffix;
-    delete ir::g_boxed_suffix;
     delete ir::g_mangle_prefix;
 }
 }

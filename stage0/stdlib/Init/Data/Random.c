@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Random
-// Imports: Init.System.IO Init.Data.ByteArray.Extra
+// Imports: public import Init.System.IO import Init.Data.ByteArray.Extra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

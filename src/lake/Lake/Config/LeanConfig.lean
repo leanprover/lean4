@@ -6,7 +6,6 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lean.Util.LeanOptions
 public import Lake.Build.Target.Basic
 public import Lake.Config.Dynlib
 public import Lake.Config.MetaClasses
@@ -118,7 +117,7 @@ public def leancArgs : BuildType → Array String
 | release => #["-O3", "-DNDEBUG"]
 
 public def ofString? (s : String) : Option BuildType :=
-  match s with
+  match s.decapitalize with
   | "debug" => some .debug
   | "relWithDebInfo" => some .relWithDebInfo
   | "minSizeRel" => some .minSizeRel

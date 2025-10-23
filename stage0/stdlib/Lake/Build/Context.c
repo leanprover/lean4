@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Context
-// Imports: Lake.Util.Log Lake.Config.Context Lake.Build.Job.Basic
+// Imports: public import Lake.Config.Context public import Lake.Build.Job.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -82,8 +82,8 @@ LEAN_EXPORT uint8_t l_Lake_BuildConfig_showProgress(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; uint8_t x_3; 
-x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*1 + 2);
-x_3 = lean_ctor_get_uint8(x_1, sizeof(void*)*1 + 3);
+x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*2 + 2);
+x_3 = lean_ctor_get_uint8(x_1, sizeof(void*)*2 + 3);
 if (x_2 == 0)
 {
 goto block_8;
@@ -298,7 +298,7 @@ LEAN_EXPORT uint8_t l_Lake_getIsOldMode___redArg___lam__0(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*1);
+x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*2);
 return x_2;
 }
 }
@@ -354,7 +354,7 @@ LEAN_EXPORT uint8_t l_Lake_getTrustHash___redArg___lam__0(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*1 + 1);
+x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*2 + 1);
 return x_2;
 }
 }
@@ -402,7 +402,7 @@ LEAN_EXPORT uint8_t l_Lake_getNoBuild___redArg___lam__0(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*1 + 2);
+x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*2 + 2);
 return x_2;
 }
 }
@@ -450,7 +450,7 @@ LEAN_EXPORT uint8_t l_Lake_getVerbosity___redArg___lam__0(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*1 + 3);
+x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*2 + 3);
 return x_2;
 }
 }
@@ -612,7 +612,6 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* initialize_Lake_Util_Log(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Context(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Build_Job_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -620,9 +619,6 @@ LEAN_EXPORT lean_object* initialize_Lake_Build_Context(uint8_t builtin, lean_obj
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Util_Log(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Config_Context(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -9,7 +9,6 @@ prelude
 public import Lean.Elab.Tactic.Omega.Core
 public import Lean.Elab.Tactic.FalseOrByContra
 public import Lean.Elab.Tactic.Config
-public import Lean.Meta.Closure
 public import Lean.Meta.Tactic.Simp.Attr
 import Lean.Elab.Tactic.BuiltinTactic
 
@@ -675,6 +674,8 @@ open Lean Elab Tactic Parser.Tactic
 
 /-- The `omega` tactic, for resolving integer and natural linear arithmetic problems. -/
 def omegaTactic (cfg : OmegaConfig) : TacticM Unit := do
+  -- Conservatively expect all of `Init.Omega` to be imported.
+  recordExtraModUse (isMeta := false) `Init.Omega
   liftMetaFinishingTactic fun g => do
     if debug.terminalTacticsAsSorry.get (← getOptions) then
       g.admit
@@ -707,8 +708,3 @@ def evalOmega : Tactic
 builtin_initialize bitvec_to_nat : SimpExtension ←
   registerSimpAttr `bitvec_to_nat
     "simp lemmas converting `BitVec` goals to `Nat` goals"
-
-@[deprecated bitvec_to_nat (since := "2025-02-10")]
-builtin_initialize bvOmegaSimpExtension : SimpExtension ←
-  registerSimpAttr `bv_toNat
-    "simp lemmas converting `BitVec` goals to `Nat` goals, for the `bv_omega` preprocessor"

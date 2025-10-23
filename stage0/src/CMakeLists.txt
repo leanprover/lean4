@@ -34,7 +34,14 @@ if (NOT LEAN_PLATFORM_TARGET)
     OUTPUT_VARIABLE LEAN_PLATFORM_TARGET OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
-set(LEAN_EXTRA_LINKER_FLAGS "" CACHE STRING "Additional flags used by the linker")
+set(LEAN_EXTRA_LINKER_FLAGS_DEFAULT "")
+# Use lld by default, if available
+find_program(LLD_PATH lld)
+if(LLD_PATH)
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS_DEFAULT " -fuse-ld=lld")
+endif()
+
+set(LEAN_EXTRA_LINKER_FLAGS ${LEAN_EXTRA_LINKER_FLAGS_DEFAULT} CACHE STRING "Additional flags used by the linker")
 set(LEAN_EXTRA_CXX_FLAGS "" CACHE STRING "Additional flags used by the C++ compiler")
 set(LEAN_TEST_VARS "LEAN_CC=${CMAKE_C_COMPILER}" CACHE STRING "Additional environment variables used when running tests")
 
@@ -82,6 +89,7 @@ option(USE_MIMALLOC "use mimalloc" ON)
 # development-specific options
 option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" OFF)
 option(USE_LAKE "Use Lake instead of lean.mk for building core libs from language server" ON)
+option(USE_LAKE_CACHE "Use the Lake artifact cache for stage 1 builds (requires USE_LAKE)" OFF)
 
 set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
 set(LEANC_CC              ${CMAKE_C_COMPILER}          CACHE STRING "C compiler to use in `leanc`")
@@ -797,6 +805,9 @@ install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/" DESTINATION lib
 
 # symlink source into expected installation location for go-to-definition, if file system allows it
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src)
+# get rid of all files in `src/lean` that may have been loaded from the cache
+# (at the time of writing this, this is the case for some lake test .c files)
+file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/src/lean)
 if(${STAGE} EQUAL 0)
   file(CREATE_LINK ${CMAKE_SOURCE_DIR}/../../src ${CMAKE_BINARY_DIR}/src/lean RESULT _IGNORE_RES SYMBOLIC)
 else()
@@ -823,10 +834,13 @@ if(LEAN_INSTALL_PREFIX)
   set(CMAKE_INSTALL_PREFIX "${LEAN_INSTALL_PREFIX}/lean-${LEAN_VERSION_STRING}${LEAN_INSTALL_SUFFIX}")
 endif()
 
-if (STAGE GREATER 1)
+
+if (USE_LAKE_CACHE AND STAGE EQUAL 1)
+  set(LAKE_ARTIFACT_CACHE_TOML "true")
+else()
   # The build of stage2+ may depend on local changes made to src/ that are not reflected by the
   # commit hash in stage1/bin/lean, so we make sure to disable the global cache
-  string(APPEND LEAN_EXTRA_LAKEFILE_TOML "\n\nenableArtifactCache = false")
+  set(LAKE_ARTIFACT_CACHE_TOML "false")
 endif()
 
 # Escape for `make`. Yes, twice.
@@ -844,15 +858,13 @@ endfunction()
 string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_CC "${LEANC_CC}")
 string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_FLAGS "${LEANC_INTERNAL_FLAGS}")
 string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_LINKER_FLAGS "${LEANC_INTERNAL_LINKER_FLAGS}")
-set(LEANC_OPTS_TOML "${LEANC_OPTS} ${LEANC_EXTRA_CC_FLAGS} ${LEANC_INTERNAL_FLAGS}")
-set(LINK_OPTS_TOML "${LEANC_INTERNAL_LINKER_FLAGS} -L${CMAKE_BINARY_DIR}/lib/lean ${LEAN_EXTRA_LINKER_FLAGS}")
 
 toml_escape("${LEAN_EXTRA_MAKE_OPTS}" LEAN_EXTRA_OPTS_TOML)
-toml_escape("${LEANC_OPTS_TOML}" LEANC_OPTS_TOML)
-toml_escape("${LINK_OPTS_TOML}" LINK_OPTS_TOML)
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  set(LAKE_LIB_PREFIX "lib")
+if(${CMAKE_BUILD_TYPE} MATCHES "Debug|Release|RelWithDebInfo|MinSizeRel")
+  set(CMAKE_BUILD_TYPE_TOML "${CMAKE_BUILD_TYPE}")
+else()
+  set(CMAKE_BUILD_TYPE_TOML "Release")
 endif()
 
 if(USE_LAKE)

@@ -123,29 +123,55 @@ open Meta in
 Convert a Lean type into a LCNF type used by the code generator.
 -/
 partial def toLCNFType (type : Expr) : MetaM Expr := do
-  if ← isProp type then
-    return erasedExpr
-  let type ← whnfEta type
-  match type with
-  | .sort u     => return .sort u
-  | .const ..   => visitApp type #[]
-  | .lam n d b bi =>
-    withLocalDecl n bi d fun x => do
-      let d ← toLCNFType d
-      let b ← toLCNFType (b.instantiate1 x)
-      if b.isErased then
-        return b
-      else
-        return Expr.lam n d (b.abstract #[x]) bi
-  | .forallE .. => visitForall type #[]
-  | .app ..  => type.withApp visitApp
-  | .fvar .. => visitApp type #[]
-  | .proj ``Subtype 0 (.const ``IO.RealWorld.nonemptyType []) =>
-    return mkConst ``lcRealWorld
-  | _        => return mkConst ``lcAny
+  let res ← go type
+  if (← getEnv).header.isModule then
+    -- Under the module system, `type` may reduce differently in different modules, leading to
+    -- IR-level mismatches and thus undefined behavior. We want to make this part independent of the
+    -- current module and its view of the environment but until then, we force the user to make
+    -- involved type definitions exposed by checking whether we would infer a different type in the
+    -- public scope. We ignore failed inference in the public scope because it can easily fail when
+    -- compiling private declarations using private types, and even if that private code should
+    -- escape into different modules, it can only generate a static error there, not a
+    -- miscompilation.
+    -- Note that always using `withExporting` would not always be correct either because it is
+    -- ignored in non-`module`s and thus mismatches with upstream `module`s may again occur.
+    let res'? ← observing <| withExporting <| go type
+    if let .ok res' := res'? then
+      if res != res' then
+        throwError "Compilation failed, locally inferred compilation type{indentD res}\n\
+          differs from type{indentD res'}\n\
+          that would be inferred in other modules. This usually means that a type `def` involved \
+          with the mentioned declarations needs to be `@[expose]`d. This is a current compiler \
+          limitation for `module`s that may be lifted in the future."
+  return res
 where
+  go type := do
+    if ← isProp type then
+      return erasedExpr
+    let type ← whnfEta type
+    match type with
+    | .sort u     => return .sort u
+    | .const ..   => visitApp type #[]
+    | .lam n d b bi =>
+      withLocalDecl n bi d fun x => do
+        let d ← go d
+        let b ← go (b.instantiate1 x)
+        if b.isErased then
+          return b
+        else
+          return Expr.lam n d (b.abstract #[x]) bi
+    | .forallE .. => visitForall type #[]
+    | .app ..  => type.withApp visitApp
+    | .fvar .. => visitApp type #[]
+    | .proj ``Subtype 0 (.const ``IO.RealWorld.nonemptyType []) =>
+      return mkConst ``lcRealWorld
+    | _        => return mkConst ``lcAny
+
   whnfEta (type : Expr) : MetaM Expr := do
-    let type ← whnf type
+    -- We increase transparency here to unfold type aliases of functions that are declared as
+    -- `irreducible`, such that they end up being represented as C functions.
+    let type ← withTransparency .all do
+      whnf type
     let type' := type.eta
     if type' != type then
       whnfEta type'
@@ -158,12 +184,12 @@ where
       let d := d.instantiateRev xs
       withLocalDecl n bi d fun x => do
         let isBorrowed := isMarkedBorrowed d
-        let mut d := (← toLCNFType d).abstract xs
+        let mut d := (← go d).abstract xs
         if isBorrowed then
           d := markBorrowed d
         return .forallE n d (← visitForall b (xs.push x)) bi
     | _ =>
-      let e ← toLCNFType (e.instantiateRev xs)
+      let e ← go (e.instantiateRev xs)
       return e.abstract xs
 
   visitApp (f : Expr) (args : Array Expr) := do
@@ -178,7 +204,7 @@ where
       if ← isProp arg <||> isPropFormer arg then
         result := mkApp result erasedExpr
       else if ← isTypeFormer arg then
-        result := mkApp result (← toLCNFType arg)
+        result := mkApp result (← go arg)
       else
         result := mkApp result (mkConst ``lcAny)
     return result

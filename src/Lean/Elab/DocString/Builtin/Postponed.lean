@@ -6,10 +6,6 @@ Author: David Thrane Christiansen
 module
 prelude
 
-public import Init.System.IO
-public import Lean.Environment
-public import Lean.ToExpr
-public import Lean.CoreM
 public import Lean.Elab.Term.TermElabM
 import Lean.Elab.DocString
 
@@ -172,3 +168,21 @@ def checkPostponed : TermElabM Unit := do
           stats.failed.map (·.toMessageData)
 
   logInfo msg
+
+/--
+A postponed check that a syntax kind name exists.
+-/
+structure PostponedKind where
+  /-- The kind's name. -/
+  name : Name
+deriving TypeName
+
+/--
+A name that will be checked to exist later.
+-/
+structure PostponedName where
+  /--
+  The name to check for.
+  -/
+  name : Name
+deriving TypeName

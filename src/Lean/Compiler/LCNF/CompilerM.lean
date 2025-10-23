@@ -6,8 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.CoreM
-public import Lean.Compiler.LCNF.Basic
 public import Lean.Compiler.LCNF.LCtx
 public import Lean.Compiler.LCNF.ConfigOptions
 

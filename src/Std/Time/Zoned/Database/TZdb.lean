@@ -6,9 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time.DateTime
-public import Std.Time.Zoned.TimeZone
-public import Std.Time.Zoned.ZoneRules
 public import Std.Time.Zoned.Database.Basic
 
 public section

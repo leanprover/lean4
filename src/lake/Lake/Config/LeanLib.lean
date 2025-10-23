@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lake.Config.ConfigTarget
-import Lake.Util.NativeLib
+public import Lake.Util.NativeLib
 
 namespace Lake
 open Lean System
@@ -52,17 +52,19 @@ The names of the library's root modules
 @[inline] public def isBuildableModule (mod : Name) (self : LeanLib) : Bool :=
   self.config.isBuildableModule mod
 
-/-- The name of the library artifact. -/
-@[inline] public def libName (self : LeanLib) : String :=
-  self.config.libName
-
 /-- Whether this library's native binaries should be prefixed with `lib` on Windows. -/
 @[inline] public def libPrefixOnWindows (self : LeanLib) : Bool :=
   self.config.libPrefixOnWindows || self.pkg.libPrefixOnWindows
 
+/-- The name of the native library (e.g., what is passed to `-l`). -/
+public def libName (self : LeanLib) : String :=
+  if self.libPrefixOnWindows && System.Platform.isWindows then
+    s!"lib{self.config.libName}"
+  else self.config.libName
+
 /-- The file name of the library's static binary (i.e., its `.a`) -/
 @[inline] public def staticLibFileName (self : LeanLib) : FilePath :=
-  nameToStaticLib self.config.libName self.libPrefixOnWindows
+  nameToStaticLib self.libName
 
 /-- The path to the static library in the package's `libDir`. -/
 @[inline] public def staticLibFile (self : LeanLib) : FilePath :=
@@ -74,7 +76,7 @@ The names of the library's root modules
 
 /-- The file name of the library's shared binary (i.e., its `dll`, `dylib`, or `so`) . -/
 @[inline] public def sharedLibFileName (self : LeanLib) : FilePath :=
-  nameToSharedLib self.config.libName self.libPrefixOnWindows
+  nameToSharedLib self.libName
 
 /-- The path to the shared library in the package's `libDir`. -/
 @[inline] public def sharedLibFile (self : LeanLib) : FilePath :=
@@ -138,6 +140,13 @@ then the default (which is C for now).
 -/
 @[inline] public def backend (self : LeanLib) : Backend :=
   Backend.orPreferLeft self.config.backend self.pkg.backend
+
+/--
+Whether downstream packages can `import all` modules of this library.
+Enabled if either the library or the package enables it.
+-/
+@[inline] public def allowImportAll (self : LeanLib) : Bool :=
+  self.config.allowImportAll || self.pkg.allowImportAll
 
 /--
 The dynamic libraries to load for modules of this library.

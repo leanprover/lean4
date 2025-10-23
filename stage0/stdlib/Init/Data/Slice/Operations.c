@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Slice.Operations
-// Imports: Init.Data.Slice.Basic Init.Data.Slice.Notation Init.Data.Iterators.ToIterator
+// Imports: public import Init.Data.Slice.Basic public import Init.Data.Slice.Notation public import Init.Data.Iterators.ToIterator
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -158,7 +158,7 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Std_Slice_size(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 lean_dec(x_3);
 return x_7;
 }
@@ -220,7 +220,7 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Std_Slice_toArray(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 lean_dec(x_3);
 return x_8;
 }
@@ -268,7 +268,7 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Std_Slice_toList(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 lean_dec(x_3);
 return x_8;
 }
@@ -496,7 +496,7 @@ _start:
 {
 lean_object* x_13; 
 x_13 = l_Std_Slice_foldlM(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 lean_dec(x_8);
 return x_13;
 }
@@ -546,7 +546,7 @@ _start:
 {
 lean_object* x_11; 
 x_11 = l_Std_Slice_foldl(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 lean_dec(x_6);
 return x_11;
 }

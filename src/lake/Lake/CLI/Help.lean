@@ -36,6 +36,7 @@ COMMANDS:
   pack                  pack build artifacts into an archive for distribution
   unpack                unpack build artifacts from an distributed archive
   upload <tag>          upload build artifacts to a GitHub release
+  cache                 manage the Lake cache
   script                manage and run workspace scripts
   scripts               shorthand for `lake script list`
   run <script>          shorthand for `lake script run`
@@ -113,7 +114,7 @@ def helpBuild :=
 "Build targets
 
 USAGE:
-  lake build [<targets>...]
+  lake build [<targets>...] [-o <mappings>]
 
 A target is specified with a string of the form:
 
@@ -155,8 +156,14 @@ TARGET EXAMPLES:        build the ...
   @a/+A:c               C file of module `A` of package `a`
   :foo                  facet `foo` of the root package
 
-A bare `lake build` command will build the default target(s) of the root package.
-Package dependencies are not updated during a build."
+A bare `lake build` command will build the default target(s) of the root
+package. Package dependencies are not updated during a build.
+
+With the Lake cache enabled, the `-o` option will cause Lake to track the
+input-to-outputs mappings of targets in the root package touched during the
+build and write them to the specified file at the end of the build. These
+mappings can then be used to upload build artifacts to a remote cache with
+`lake cache put`."
 
 def helpQuery :=
 "Build targets and output results
@@ -303,6 +310,105 @@ USAGE:
 If no package is specified, deletes the build directories of every package in
 the workspace. Otherwise, just deletes those of the specified packages."
 
+def helpCacheCli :=
+"Manage the Lake cache
+
+USAGE:
+  lake cache <COMMAND>
+
+COMMANDS:
+  get [<mappings>]      download artifacts into the Lake cache
+  put <mappings>        upload artifacts to a remote cache
+
+See `lake cache help <command>` for more information on a specific command."
+
+def helpCacheGet :=
+"Download artifacts from a remote service into the Lake cache
+
+USAGE:
+  lake cache get [<mappings>]
+
+OPTIONS:
+  --max-revs=<n>                  backtrack up to n revisions (default: 100)
+  --rev=<commit-hash>             uses this exact revision to lookup artifacts
+  --repo=<github-repo>            GitHub repository of the package or a fork
+  --platform=<target-triple>      with Reservoir or --repo, sets the platform
+  --toolchain=<name>              with Reservoir or --repo, sets the toolchain
+  --scope=<remote-scope>          scope for a custom endpoint
+
+Downloads artifacts for packages in the workspace from a remote cache service.
+The cache service used can be configured via the environment variables:
+
+  LAKE_CACHE_ARTIFACT_ENDPOINT  base URL for artifact downloads
+  LAKE_CACHE_REVISION_ENDPOINT  base URL for the mapping download
+
+If neither of these are set, Lake will use Reservoir.
+
+If an input-to-outputs mappings file, `--scope`, or `--repo` is provided,
+Lake will download artifacts for the root package. Otherwise, it will use
+Reservoir to download artifacts for each dependency in workspace (in order).
+Non-Reservoir dependencies will be skipped.
+
+To determine the artifacts to download, Lake searches for input-to-output
+mappings for a given build of the package via the cache service. This mapping
+is identified by a Git revision and prefixed with a scope derived from the
+package's name, GitHub repository, Lean toolchain, and current platform.
+The exact configuration can be customized using options.
+
+For Reservoir, setting `--repo` will make Lake lookup artifacts for the root
+package by a repository name, rather than the package's. This can be used to
+download artifacts for a fork of the Reservoir package (if such artifacts are
+available). The `--platform` and `--toolchain` options can be used to download
+artifacts for a different platform/toolchain configuration than Lake detects.
+For a custom endpoint, the full prefix Lake uses can be set via  `--scope`.
+
+If `--rev` is not set, Lake uses the package's current revision to lookup
+artifacts. If no mappings are found, Lake will backtrack the Git history up to
+`--max-revs`, looking for a revision with mappings. If `--max-revs` is 0, Lake
+will search the repository's entire history (or as far as Git will allow).
+
+If a download for an artifact fails or the download process for a whole
+package fails, Lake will report this and continue on to the next. Once done,
+if any download failed, Lake will exit with a nonzero status code."
+
+def helpCachePut :=
+"Upload artifacts from the Lake cache to a remote service
+
+USAGE:
+  lake cache put <mappings> <scope-option>
+
+Uploads the input-to-outputs mappings contained in the specified file along
+with the corresponding output artifacts to a remote cache. The cache service
+used is configured via the environment variables:
+
+  LAKE_CACHE_KEY                  authentication key for requests
+  LAKE_CACHE_ARTIFACT_ENDPOINT    base URL for artifact uploads
+  LAKE_CACHE_REVISION_ENDPOINT    base URL for the mapping upload
+
+Files are uploaded using the AWS Signature Version 4 authentication protocol
+via `curl`. Thus, the service should generally be an S3-compatible bucket.
+
+Since Lake does not currently use cryptographically secure hashes for
+artifacts and outputs, uploads to the cache are prefixed with a scope to avoid
+clashes. This scoped is configured with the following options:
+
+  --scope=<remote-scope>          sets a fixed scope
+  --repo=<github-repo>            uses the repository + toolchain & platform
+  --toolchain=<name>              with --repo, sets the toolchain
+  --platform=<target-triple>      with --repo, sets the platform
+
+At least one of `--scope` or `--repo` must be set. If `--repo` is used, Lake
+will produce a scope by augmenting the repository with toolchain and platform
+information as it deems necessary. If `--scope` is set, Lake will use the
+specified scope verbatim.
+
+Artifacts are uploaded to the artifact endpoint with a file name derived
+from their Lake content hash (and prefixed by the repository or scope).
+The mappings file is uploaded to the revision endpoint with a file name
+derived from the package's current Git revision (and prefixed by the
+full scope). As such, the command will warn if the the work tree currently
+has changes."
+
 def helpScriptCli :=
 "Manage Lake scripts
 
@@ -314,7 +420,7 @@ COMMANDS:
   run <script>          run a script
   doc <script>          print the docstring of a given script
 
-See `lake help <command>` for more information on a specific command."
+See `lake script help <command>` for more information on a specific command."
 
 def helpScriptList :=
 "List available scripts
@@ -430,6 +536,11 @@ public def helpScript : (cmd : String) → String
 | "doc"                 => helpScriptDoc
 | _                     => helpScriptCli
 
+public def helpCache : (cmd : String) → String
+| "get"                 => helpCacheGet
+| "put"                 => helpCachePut
+| _                     => helpCacheCli
+
 public def help : (cmd : String) → String
 | "new"                 => helpNew
 | "init"                => helpInit
@@ -440,6 +551,7 @@ public def help : (cmd : String) → String
 | "pack"                => helpPack
 | "unpack"              => helpUnpack
 | "upload"              => helpUpload
+| "cache"               => helpCacheCli
 | "test"                => helpTest
 | "check-test"          => helpCheckTest
 | "lint"                => helpLint

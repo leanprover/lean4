@@ -7,27 +7,17 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 module
 
 prelude
-public import Init.System.IO
 public import Std.Sync.Channel
 
-public import Lean.Environment
 
-public import Lean.Data.Lsp
-public import Lean.Data.Json.FromToJson.Basic
 
-public import Lean.LoadDynlib
 public import Lean.Language.Lean
 
-public import Lean.Server.Utils
-public import Lean.Server.AsyncList
-public import Lean.Server.References
 
 public import Lean.Server.FileWorker.Utils
 public import Lean.Server.FileWorker.RequestHandling
 public import Lean.Server.FileWorker.WidgetRequests
 public import Lean.Server.FileWorker.SetupFile
-public import Lean.Server.Rpc.Basic
-public import Lean.Widget.InteractiveDiagnostic
 public import Lean.Server.Completion.ImportCompletion
 public import Lean.Server.CodeActions.UnknownIdentifier
 
@@ -289,10 +279,11 @@ This option can only be set on the command line, not in the lakefile or via `set
     handleFinished (t : SnapshotTask SnapshotTree) :
         StateT ReportSnapshotsState BaseIO (Array (SnapshotTask SnapshotTree)) := do
       if (← IO.hasFinished t.task) then
-        handleNode t.task.get
+        let node ← IO.wait t.task
+        handleNode node
         -- limit children's reported range to that of the parent, if any, to avoid strange
         -- non-monotonic progress updates; replace `inherit` children's ranges with parent's
-        let ts := t.task.get.children.map (fun t' => { t' with reportingRange :=
+        let ts := node.children.map (fun t' => { t' with reportingRange :=
           -- NOTE: as `t.reportingRange?` has already gone through this transformation, it should be
           -- either `some` or `skip` at this point
           match t.reportingRange, t'.reportingRange with
@@ -401,7 +392,7 @@ def setupImports
     -- same process and instead ask the watchdog to restart the worker
     IO.sleep 200  -- give user time to make further edits before restart
     unless (← IO.checkCanceled) do
-      IO.Process.exit 2  -- signal restart request to watchdog
+      IO.Process.forceExit 2  -- signal restart request to watchdog
     -- should not be visible to user as task is already canceled
     return .error { diagnostics := .empty, result? := none, metaSnap := default }
 
@@ -802,7 +793,7 @@ section MessageHandling
       if data.providerName != importAllUnknownIdentifiersProvider then
         return none
       return some <| ← RequestM.asTask do
-        let unknownIdentifierRanges ← waitAllUnknownIdentifierRanges st.doc
+        let unknownIdentifierRanges ← waitAllUnknownIdentifierMessageRanges st.doc
         if unknownIdentifierRanges.isEmpty then
           let p := toJson params
           return { response? := p, serialized := p.compress, isComplete := true }
@@ -826,7 +817,7 @@ section MessageHandling
         let isSourceAction := params.context.only?.any fun only =>
             only.contains "source" || only.contains "source.organizeImports"
         if isSourceAction then
-          let unknownIdentifierRanges ← waitAllUnknownIdentifierRanges doc
+          let unknownIdentifierRanges ← waitAllUnknownIdentifierMessageRanges doc
           if unknownIdentifierRanges.isEmpty then
             return r
           let .ok (codeActions : Array CodeAction) := fromJson? response
@@ -835,9 +826,14 @@ section MessageHandling
           return { r with response? := response, serialized := response.compress }
         else
           let requestedRange := doc.meta.text.lspRangeToUtf8Range params.range
-          let unknownIdentifierRanges ← waitUnknownIdentifierRanges doc requestedRange
+          let (unknownIdentifierRanges, isAnyUnknownIdentifierMessage) ← waitUnknownIdentifierRanges doc requestedRange
           if unknownIdentifierRanges.isEmpty then
             return r
+          let kind :=
+            if isAnyUnknownIdentifierMessage then
+              "quickfix"
+            else
+              "refactor"
           let .ok (codeActions : Array CodeAction) := fromJson? response
             | return r
           RequestM.checkCancelled
@@ -845,7 +841,7 @@ section MessageHandling
           -- we only do it when the user has stopped typing for a second.
           IO.sleep 1000
           RequestM.checkCancelled
-          let unknownIdentifierCodeActions ← handleUnknownIdentifierCodeAction id params requestedRange
+          let unknownIdentifierCodeActions ← handleUnknownIdentifierCodeAction id params requestedRange kind
           let response := toJson <| codeActions ++ unknownIdentifierCodeActions
           return { r with response? := response, serialized := response.compress }
     | _ =>
@@ -940,7 +936,7 @@ section MainLoop
       if ← task.hasFinished then
         -- Handler tasks are constructed so that the only possible errors here
         -- are failures of writing a response into the stream.
-        if let Except.error e := task.get then
+        if let Except.error e ← task.wait then
           throwServerError s!"Failed responding to request {id}: {e}"
         pure <| acc.erase id
       else pure acc
@@ -1090,9 +1086,9 @@ def workerMain (opts : Options) : IO UInt32 := do
   let e ← IO.getStderr
   try
     initAndRunWorker i o e opts
-    IO.Process.exit 0 -- Terminate all tasks of this process
+    IO.Process.forceExit 0 -- Terminate all tasks of this process
   catch err =>
     e.putStrLn err.toString
-    IO.Process.exit 1 -- Terminate all tasks of this process
+    IO.Process.forceExit 1 -- Terminate all tasks of this process
 
 end Lean.Server.FileWorker

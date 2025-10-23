@@ -6,19 +6,13 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Init.Data.Nat.Bitwise.Basic
 import all Init.Data.Nat.Bitwise.Basic
 public import Init.Data.SInt.Basic
 import all Init.Data.SInt.Basic
-public import Init.Data.BitVec.Basic
 import all Init.Data.BitVec.Basic
-public import Init.Data.BitVec.Lemmas
 public import Init.Data.BitVec.Bitblast
-public import Init.Data.Int.LemmasAux
-public import Init.Data.UInt.Basic
 import all Init.Data.UInt.Basic
 public import Init.Data.UInt.Lemmas
-public import Init.System.Platform
 import Init.Data.Order.Lemmas
 
 public section
@@ -36,6 +30,12 @@ macro "declare_int_theorems" typeName:ident _bits:term:arg : command => do
 
   theorem toBitVec_inj {a b : $typeName} : a.toBitVec = b.toBitVec ↔ a = b :=
     ⟨toBitVec.inj, (· ▸ rfl)⟩
+  theorem ofBitVec_inj {a b : BitVec $_bits} : ofBitVec a = ofBitVec b ↔ a = b := by
+    apply Iff.intro <;> (rintro h; cases h; rfl)
+  theorem eq_iff_ofBitVec_eq {a b : BitVec $_bits} : a = b ↔ ofBitVec a = ofBitVec b :=
+    ofBitVec_inj.symm
+  theorem ne_iff_ofBitVec_ne {a b : BitVec $_bits} : a ≠ b ↔ ofBitVec a ≠ ofBitVec b := by
+    simp [ofBitVec_inj]
   @[int_toBitVec] theorem eq_iff_toBitVec_eq {a b : $typeName} : a = b ↔ a.toBitVec = b.toBitVec :=
     toBitVec_inj.symm
   @[int_toBitVec] theorem ne_iff_toBitVec_ne {a b : $typeName} : a ≠ b ↔ a.toBitVec ≠ b.toBitVec :=
@@ -1296,6 +1296,13 @@ theorem Int64.toISize_ofIntTruncate {n : Int} (h₁ : -2 ^ 63 ≤ n) (h₂ : n <
   BitVec.eq_of_toInt_eq (by rw [toInt_toBitVec, toInt_minValue,
     BitVec.toInt_intMin_of_pos (by cases System.Platform.numBits_eq <;> simp_all)])
 
+@[simp, int_toBitVec] theorem Int8.toBitVec_maxValue : maxValue.toBitVec = BitVec.intMax _ := (rfl)
+@[simp, int_toBitVec] theorem Int16.toBitVec_maxValue : maxValue.toBitVec = BitVec.intMax _ := (rfl)
+@[simp, int_toBitVec] theorem Int32.toBitVec_maxValue : maxValue.toBitVec = BitVec.intMax _ := (rfl)
+@[simp, int_toBitVec] theorem Int64.toBitVec_maxValue : maxValue.toBitVec = BitVec.intMax _ := (rfl)
+@[simp, int_toBitVec] theorem ISize.toBitVec_maxValue : maxValue.toBitVec = BitVec.intMax _ :=
+  BitVec.eq_of_toInt_eq (by rw [toInt_toBitVec, toInt_maxValue, BitVec.toInt_intMax])
+
 @[simp] theorem Int16.toInt8_neg (x : Int16) : (-x).toInt8 = -x.toInt8 := Int8.toBitVec.inj (by simp)
 @[simp] theorem Int32.toInt8_neg (x : Int32) : (-x).toInt8 = -x.toInt8 := Int8.toBitVec.inj (by simp)
 @[simp] theorem Int64.toInt8_neg (x : Int64) : (-x).toInt8 = -x.toInt8 := Int8.toBitVec.inj (by simp)
@@ -2503,6 +2510,17 @@ protected theorem ISize.neg_add {a b : ISize} : - (a + b) = -a - b := ISize.toBi
   rw [Int64.sub_eq_add_neg, Int64.neg_add, Int64.sub_neg, Int64.add_comm, ← Int64.sub_eq_add_neg]
 @[simp] protected theorem ISize.neg_sub {a b : ISize} : -(a - b) = b - a := by
   rw [ISize.sub_eq_add_neg, ISize.neg_add, ISize.sub_neg, ISize.add_comm, ← ISize.sub_eq_add_neg]
+
+protected theorem Int8.sub_sub (a b c : Int8) : a - b - c = a - (b + c) := by
+  simp [Int8.sub_eq_add_neg, Int8.add_assoc, Int8.neg_add]
+protected theorem Int16.sub_sub (a b c : Int16) : a - b - c = a - (b + c) := by
+  simp [Int16.sub_eq_add_neg, Int16.add_assoc, Int16.neg_add]
+protected theorem Int32.sub_sub (a b c : Int32) : a - b - c = a - (b + c) := by
+  simp [Int32.sub_eq_add_neg, Int32.add_assoc, Int32.neg_add]
+protected theorem Int64.sub_sub (a b c : Int64) : a - b - c = a - (b + c) := by
+  simp [Int64.sub_eq_add_neg, Int64.add_assoc, Int64.neg_add]
+protected theorem ISize.sub_sub (a b c : ISize) : a - b - c = a - (b + c) := by
+  simp [ISize.sub_eq_add_neg, ISize.add_assoc, ISize.neg_add]
 
 @[simp] protected theorem Int8.add_left_inj {a b : Int8} (c : Int8) : (a + c = b + c) ↔ a = b := by
   simp [← Int8.toBitVec_inj]

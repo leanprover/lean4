@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Subtype
-// Imports: Init.Data.Subtype.Basic Init.Data.Subtype.Order Init.Data.Subtype.OrderExtra
+// Imports: public import Init.Data.Subtype.Basic public import Init.Data.Subtype.Order public import Init.Data.Subtype.OrderExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -6,9 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Core
-public import Init.SimpLemmas
-public import Init.Classical
 public import Init.ByCases
 public import Init.Grind.Util
 

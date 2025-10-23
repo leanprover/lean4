@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.OfScientific
-// Imports: Init.Meta Init.Data.Float Init.Data.Float32 Init.Data.Nat.Log2
+// Imports: public import Init.Data.Float32 public import Init.Data.Nat.Log2
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -519,8 +519,6 @@ x_3 = lean_box_float32(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Meta(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Float(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Float32(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Log2(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -528,12 +526,6 @@ LEAN_EXPORT lean_object* initialize_Init_Data_OfScientific(uint8_t builtin, lean
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Meta(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Float(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Float32(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

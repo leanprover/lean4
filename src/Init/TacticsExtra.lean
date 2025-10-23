@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Tactics
 public import Init.NotationExtra
 
 public section
@@ -16,7 +15,7 @@ Extra tactics and implementation for some tactics defined at `Init/Tactic.lean`
 -/
 namespace Lean.Parser.Tactic
 
-private def expandIfThenElse
+private meta def expandIfThenElse
     (ifTk thenTk elseTk pos neg : Syntax)
     (mkIf : Term → Term → MacroM Term) : MacroM (TSyntax `tactic) := do
   let mkCase tk holeOrTacticSeq mkName : MacroM (Term × Array (TSyntax `tactic)) := do

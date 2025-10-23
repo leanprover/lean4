@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Fin
-// Imports: Init.Data.Fin.Basic Init.Data.Fin.Log2 Init.Data.Fin.Iterate Init.Data.Fin.Fold Init.Data.Fin.Lemmas
+// Imports: public import Init.Data.Fin.Basic public import Init.Data.Fin.Log2 public import Init.Data.Fin.Iterate public import Init.Data.Fin.Fold public import Init.Data.Fin.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

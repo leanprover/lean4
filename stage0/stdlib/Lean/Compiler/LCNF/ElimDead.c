@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.ElimDead
-// Imports: Lean.Compiler.LCNF.CompilerM
+// Imports: public import Lean.Compiler.LCNF.CompilerM
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1137,7 +1137,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Compiler_LCNF_ElimDead_elimDead___closed__2;
 x_2 = lean_unsigned_to_nat(9u);
-x_3 = lean_unsigned_to_nat(319u);
+x_3 = lean_unsigned_to_nat(316u);
 x_4 = l_Lean_Compiler_LCNF_ElimDead_elimDead___closed__1;
 x_5 = l_Lean_Compiler_LCNF_ElimDead_elimDead___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -1815,8 +1815,8 @@ if (x_11 == 0)
 lean_object* x_12; lean_object* x_13; 
 lean_dec_ref(x_1);
 x_12 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_12, 0, x_10);
-lean_ctor_set(x_12, 1, x_8);
+lean_ctor_set(x_12, 0, x_8);
+lean_ctor_set(x_12, 1, x_10);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_9);
@@ -1840,8 +1840,8 @@ if (x_19 == 0)
 lean_object* x_20; lean_object* x_21; 
 lean_dec_ref(x_1);
 x_20 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_20, 0, x_18);
-lean_ctor_set(x_20, 1, x_16);
+lean_ctor_set(x_20, 0, x_16);
+lean_ctor_set(x_20, 1, x_18);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_17);
@@ -1956,9 +1956,9 @@ x_56 = lean_ptr_addr(x_33);
 x_57 = lean_usize_dec_eq(x_55, x_56);
 if (x_57 == 0)
 {
-x_8 = x_33;
+x_8 = x_51;
 x_9 = x_52;
-x_10 = x_51;
+x_10 = x_33;
 x_11 = x_57;
 goto block_15;
 }
@@ -1968,9 +1968,9 @@ size_t x_58; size_t x_59; uint8_t x_60;
 x_58 = lean_ptr_addr(x_53);
 x_59 = lean_ptr_addr(x_51);
 x_60 = lean_usize_dec_eq(x_58, x_59);
-x_8 = x_33;
+x_8 = x_51;
 x_9 = x_52;
-x_10 = x_51;
+x_10 = x_33;
 x_11 = x_60;
 goto block_15;
 }
@@ -1990,9 +1990,9 @@ x_66 = lean_ptr_addr(x_33);
 x_67 = lean_usize_dec_eq(x_65, x_66);
 if (x_67 == 0)
 {
-x_16 = x_33;
+x_16 = x_61;
 x_17 = x_62;
-x_18 = x_61;
+x_18 = x_33;
 x_19 = x_67;
 goto block_23;
 }
@@ -2002,9 +2002,9 @@ size_t x_68; size_t x_69; uint8_t x_70;
 x_68 = lean_ptr_addr(x_63);
 x_69 = lean_ptr_addr(x_61);
 x_70 = lean_usize_dec_eq(x_68, x_69);
-x_16 = x_33;
+x_16 = x_61;
 x_17 = x_62;
-x_18 = x_61;
+x_18 = x_33;
 x_19 = x_70;
 goto block_23;
 }

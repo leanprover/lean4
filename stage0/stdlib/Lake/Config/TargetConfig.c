@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.TargetConfig
-// Imports: Lake.Build.Fetch Lake.Config.OutFormat Lake.Util.OpaqueType
+// Imports: public import Lake.Build.Fetch meta import all Lake.Util.OpaqueType
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -546,7 +546,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_findTargetConfig_x3f(lean_object* x_1, l
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = lean_ctor_get(x_2, 11);
+x_3 = lean_ctor_get(x_2, 12);
 x_4 = l_Std_DTreeMap_Internal_Impl_get_x3f___at___Lake_Package_findTargetConfig_x3f_spec__0___redArg(x_3, x_1);
 if (lean_obj_tag(x_4) == 0)
 {
@@ -645,7 +645,6 @@ return x_3;
 }
 }
 lean_object* initialize_Lake_Build_Fetch(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Config_OutFormat(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_OpaqueType(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Config_TargetConfig(uint8_t builtin, lean_object* w) {
@@ -653,9 +652,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lake_Build_Fetch(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_Config_OutFormat(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Util_OpaqueType(builtin, lean_io_mk_world());

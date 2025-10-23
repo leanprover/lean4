@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.KVMap
-// Imports: Init.Data.List.Impl Init.Data.Format.Syntax Init.Data.ToString.Name
+// Imports: public import Init.Data.Format.Syntax public import Init.Data.ToString.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1152,8 +1152,8 @@ if (lean_is_scalar(x_74)) {
  lean_ctor_set_tag(x_80, 3);
 }
 lean_ctor_set(x_80, 0, x_79);
-x_3 = x_75;
-x_4 = x_76;
+x_3 = x_76;
+x_4 = x_75;
 x_5 = x_80;
 goto block_11;
 }
@@ -1171,8 +1171,8 @@ if (lean_is_scalar(x_74)) {
 }
 lean_ctor_set(x_83, 0, x_82);
 x_84 = l_Repr_addAppParen(x_83, x_81);
-x_3 = x_75;
-x_4 = x_76;
+x_3 = x_76;
+x_4 = x_75;
 x_5 = x_84;
 goto block_11;
 }
@@ -1225,10 +1225,10 @@ block_11:
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; 
 x_6 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_6, 0, x_4);
+lean_ctor_set(x_6, 0, x_3);
 lean_ctor_set(x_6, 1, x_5);
 x_7 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_7, 0, x_3);
+lean_ctor_set(x_7, 0, x_4);
 lean_ctor_set(x_7, 1, x_6);
 x_8 = 0;
 x_9 = lean_alloc_ctor(6, 1, 1);
@@ -4191,7 +4191,6 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Data_List_Impl(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Format_Syntax(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_ToString_Name(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -4199,9 +4198,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Data_KVMap(uint8_t builtin, lean_object
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_List_Impl(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Format_Syntax(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

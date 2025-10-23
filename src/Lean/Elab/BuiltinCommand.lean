@@ -6,33 +6,33 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Util.CollectLevelParams
-public import Lean.Util.CollectAxioms
 public import Lean.Meta.Reduce
-public import Lean.Elab.DeclarationRange
 public import Lean.Elab.Eval
 public import Lean.Elab.Command
 public import Lean.Elab.Open
-public import Lean.Elab.SetOption
-public import Init.System.Platform
-public import Lean.Meta.Hint
-public import Lean.Parser.Command
 
 public section
 
 namespace Lean.Elab.Command
 
 @[builtin_command_elab moduleDoc] def elabModuleDoc : CommandElab := fun stx => do
+  let some range ← Elab.getDeclarationRange? stx
+    | return  -- must be from partial syntax, ignore
+
   match stx[1] with
   | Syntax.atom _ val =>
-    let doc := val.extract 0 (val.endPos - ⟨2⟩)
-    let some range ← Elab.getDeclarationRange? stx
-      | return  -- must be from partial syntax, ignore
-    modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
-  | _ => throwErrorAt stx "unexpected module doc string{indentD stx[1]}"
+    if getVersoModuleDocs (← getEnv) |>.isEmpty then
+      let doc := String.Pos.Raw.extract val 0 (val.endPos.unoffsetBy ⟨2⟩)
+      modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
+    else
+      throwError m!"Can't add Markdown-format module docs because there is already Verso-format content present."
+  | Syntax.node _ ``Lean.Parser.Command.versoCommentBody args =>
+    runTermElabM fun _ => do
+      addVersoModDocString range ⟨args.getD 0 .missing⟩
+  | _ => throwErrorAt stx "unexpected module doc string{indentD <| stx}"
 
 private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : Name)
-    (isNoncomputable isPublic : Bool := false) (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) :
+    (isNoncomputable isPublic isMeta : Bool := false) (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) :
     CommandElabM Unit := do
   modify fun s => { s with
     env    := s.env.registerNamespace newNamespace,
@@ -40,6 +40,7 @@ private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : N
       header := header, currNamespace := newNamespace
       isNoncomputable := s.scopes.head!.isNoncomputable || isNoncomputable
       isPublic := s.scopes.head!.isPublic || isPublic
+      isMeta := s.scopes.head!.isMeta || isMeta
       attrs := s.scopes.head!.attrs ++ attrs
     } :: s.scopes
   }
@@ -47,7 +48,7 @@ private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : N
   if isNewNamespace then
     activateScoped newNamespace
 
-private def addScopes (header : Name) (isNewNamespace : Bool) (isNoncomputable isPublic : Bool := false)
+private def addScopes (header : Name) (isNewNamespace : Bool) (isNoncomputable isPublic isMeta : Bool := false)
     (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) : CommandElabM Unit :=
   go header
 where go
@@ -55,7 +56,7 @@ where go
   | .str p header => do
     go p
     let currNamespace ← getCurrNamespace
-    addScope isNewNamespace header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace) isNoncomputable isPublic attrs
+    addScope isNewNamespace header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace) isNoncomputable isPublic isMeta attrs
   | _ => throwError "invalid scope"
 
 private def addNamespace (header : Name) : CommandElabM Unit :=
@@ -92,16 +93,16 @@ private def checkEndHeader : Name → List Scope → Option Name
 
 @[builtin_command_elab «section»] def elabSection : CommandElab := fun stx => do
   match stx with
-  | `(Parser.Command.section| $[@[expose%$expTk]]? $[public%$publicTk]? $[noncomputable%$ncTk]? section $(header?)?) =>
+  | `(Parser.Command.section| $[@[expose%$expTk]]? $[public%$publicTk]? $[noncomputable%$ncTk]? $[meta%$metaTk]? section $(header?)?) =>
     -- TODO: allow more attributes?
     let attrs ← if expTk.isSome then
       pure [← `(Parser.Term.attrInstance| expose)]
     else
       pure []
     if let some header := header? then
-      addScopes (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) header.getId
+      addScopes (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (isMeta := metaTk.isSome) (attrs := attrs) header.getId
     else
-      addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) "" (← getCurrNamespace)
+      addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (isMeta := metaTk.isSome) (attrs := attrs) "" (← getCurrNamespace)
   | _                        => throwUnsupportedSyntax
 
 @[builtin_command_elab InternalSyntax.end_local_scope] def elabEndLocalScope : CommandElab := fun _ => do
@@ -225,7 +226,10 @@ private def throwUnnecessaryScopeName (header : Name) : CommandElabM Unit := do
   throwError m!"Unexpected name `{header}` after `end`: The current section is unnamed" ++ hint
 
 @[builtin_command_elab «end»] def elabEnd : CommandElab := fun stx => do
-  let header? := (stx.getArg 1).getOptionalIdent?
+  let `(end $[$header? $[.%$trailingDotTk?$_]?]?) := stx
+    | throwUnsupportedSyntax
+  let header? := header?.map (·.getId)
+  let danglingDot := trailingDotTk?.join.isSome
   let endSize : Nat := match header? with
     | none   => 1
     | some n => n.getNumParts
@@ -235,12 +239,14 @@ private def throwUnnecessaryScopeName (header : Name) : CommandElabM Unit := do
     throwNoScope
   match header? with
   | none        =>
+    addCompletionInfo <| .endSection stx none false <| scopes.map (·.header)
     if let some name := innermostScopeName? scopes then
       throwMissingName name
   | some header =>
     if endSize >= numScopes then
       throwTooManyScopeComponents header scopes
     else
+      addCompletionInfo <| .endSection stx header danglingDot <| scopes.map (·.header)
       let scopesName := nameOfScopes scopes endSize
       if scopesName != header then
         if scopesName == .anonymous then

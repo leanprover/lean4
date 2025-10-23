@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.BitVec.Bitblast
-// Imports: Init.Data.Nat.Bitwise.Basic Init.Data.Nat.Bitwise.Basic Init.Data.Nat.Mod Init.Data.Int.DivMod Init.Data.Int.DivMod Init.Data.Int.LemmasAux Init.Data.BitVec.Basic Init.Data.BitVec.Basic Init.Data.BitVec.Decidable Init.Data.BitVec.Lemmas Init.Data.BitVec.Folds
+// Imports: import all Init.Data.Nat.Bitwise.Basic public import Init.Data.Int.DivMod import all Init.Data.Int.DivMod import all Init.Data.BitVec.Basic public import Init.Data.BitVec.Decidable public import Init.Data.BitVec.Folds import Init.BinderPredicates
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1302,33 +1302,34 @@ return x_7;
 LEAN_EXPORT uint8_t l_BitVec_resRec___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_5 = lean_unsigned_to_nat(0u);
-x_6 = lean_unsigned_to_nat(1u);
-x_7 = lean_nat_sub(x_4, x_6);
-x_8 = lean_nat_dec_eq(x_7, x_5);
-if (x_8 == 1)
-{
-uint8_t x_9; 
-lean_dec(x_7);
-lean_dec(x_4);
-x_9 = l_BitVec_aandRec___redArg(x_1, x_2, x_3, x_6);
-return x_9;
-}
-else
+x_6 = lean_nat_dec_eq(x_4, x_5);
+x_7 = lean_unsigned_to_nat(1u);
+x_8 = lean_nat_sub(x_4, x_7);
+x_9 = lean_nat_dec_eq(x_8, x_5);
+if (x_9 == 1)
 {
 uint8_t x_10; 
-x_10 = l_BitVec_resRec___redArg(x_1, x_2, x_3, x_7);
-if (x_10 == 0)
+lean_dec(x_8);
+lean_dec(x_4);
+x_10 = l_BitVec_aandRec___redArg(x_1, x_2, x_3, x_7);
+return x_10;
+}
+else
 {
 uint8_t x_11; 
-x_11 = l_BitVec_aandRec___redArg(x_1, x_2, x_3, x_4);
-return x_11;
+x_11 = l_BitVec_resRec___redArg(x_1, x_2, x_3, x_8);
+if (x_11 == 0)
+{
+uint8_t x_12; 
+x_12 = l_BitVec_aandRec___redArg(x_1, x_2, x_3, x_4);
+return x_12;
 }
 else
 {
 lean_dec(x_4);
-return x_10;
+return x_11;
 }
 }
 }
@@ -1469,16 +1470,12 @@ return x_10;
 }
 }
 lean_object* initialize_Init_Data_Nat_Bitwise_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Nat_Bitwise_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Nat_Mod(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_DivMod(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_DivMod(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BitVec_Decidable(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BitVec_Folds(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_BinderPredicates(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_BitVec_Bitblast(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1487,22 +1484,10 @@ _G_initialized = true;
 res = initialize_Init_Data_Nat_Bitwise_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Bitwise_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Mod(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Int_DivMod(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Int_DivMod(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Int_LemmasAux(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_BitVec_Basic(builtin, lean_io_mk_world());
@@ -1511,10 +1496,10 @@ lean_dec_ref(res);
 res = initialize_Init_Data_BitVec_Decidable(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_BitVec_Folds(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Folds(builtin, lean_io_mk_world());
+res = initialize_Init_BinderPredicates(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

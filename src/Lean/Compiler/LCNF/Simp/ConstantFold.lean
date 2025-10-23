@@ -7,9 +7,7 @@ module
 
 prelude
 public import Init.Data.UInt.Log2
-public import Lean.Compiler.LCNF.CompilerM
 public import Lean.Compiler.LCNF.InferType
-public import Lean.Compiler.LCNF.PassManager
 
 public section
 
@@ -101,23 +99,31 @@ instance : Literal Bool where
   getLit := getBoolLit
   mkLit := mkBoolLit
 
-private partial def getLitAux [Inhabited α] (fvarId : FVarId) (ofNat : Nat → α) (ofNatName : Name) : CompilerM (Option α) := do
+private def getLitAux (fvarId : FVarId) (ofNat : Nat → α) (ofNatName : Name) : CompilerM (Option α) := do
   let some (.const declName _ #[.fvar fvarId]) ← findLetValue? fvarId | return none
   unless declName == ofNatName do return none
   let some natLit ← getLit fvarId | return none
   return ofNat natLit
 
-def mkNatWrapperInstance [Inhabited α] (ofNat : Nat → α) (ofNatName : Name) (toNat : α → Nat) : Literal α where
+def mkNatWrapperInstance (ofNat : Nat → α) (ofNatName : Name) (toNat : α → Nat) : Literal α where
   getLit := (getLitAux · ofNat ofNatName)
   mkLit x := do
     let helperId ← mkAuxLit <| toNat x
     return .const ofNatName [] #[.fvar helperId]
 
-instance : Literal UInt8 := mkNatWrapperInstance UInt8.ofNat ``UInt8.ofNat UInt8.toNat
-instance : Literal UInt16 := mkNatWrapperInstance UInt16.ofNat ``UInt16.ofNat UInt16.toNat
-instance : Literal UInt32 := mkNatWrapperInstance UInt32.ofNat ``UInt32.ofNat UInt32.toNat
-instance : Literal UInt64 := mkNatWrapperInstance UInt64.ofNat ``UInt64.ofNat UInt64.toNat
 instance : Literal Char := mkNatWrapperInstance Char.ofNat ``Char.ofNat Char.toNat
+
+def mkUIntInstance (matchLit : LitValue → Option α) (litValueCtor : α → LitValue) : Literal α where
+  getLit fvarId := do
+    let some (.lit litVal) ← findLetValue? fvarId | return none
+    return matchLit litVal
+  mkLit x :=
+    return .lit <| litValueCtor x
+
+instance : Literal UInt8 := mkUIntInstance (fun | .uint8 x => some x | _ => none) .uint8
+instance : Literal UInt16 := mkUIntInstance (fun | .uint16 x => some x | _ => none) .uint16
+instance : Literal UInt32 := mkUIntInstance (fun | .uint32 x => some x | _ => none) .uint32
+instance : Literal UInt64 := mkUIntInstance (fun | .uint64 x => some x | _ => none) .uint64
 
 end Literals
 
@@ -386,7 +392,7 @@ def relationFolders : List (Name × Folder) := [
   (``UInt64.decLt, Folder.mkBinaryDecisionProcedure UInt64.decLt),
   (``UInt64.decLe, Folder.mkBinaryDecisionProcedure UInt64.decLe),
   (``Bool.decEq, Folder.mkBinaryDecisionProcedure Bool.decEq),
-  (``Bool.decEq, Folder.mkBinaryDecisionProcedure String.decEq)
+  (``String.decEq, Folder.mkBinaryDecisionProcedure String.decEq)
 ]
 
 def conversionFolders : List (Name × Folder) := [

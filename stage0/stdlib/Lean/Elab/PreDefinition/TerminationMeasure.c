@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.TerminationMeasure
-// Imports: Lean.Parser.Term Lean.Elab.Term Lean.Elab.Binders Lean.Elab.SyntheticMVars Lean.Elab.PreDefinition.TerminationHint Lean.PrettyPrinter.Delaborator.Basic
+// Imports: public import Lean.Elab.Binders
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1275,7 +1275,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_TerminationMeasure_elab___lam__1___closed__2;
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(23u);
+x_3 = lean_unsigned_to_nat(22u);
 x_4 = l_Lean_Elab_TerminationMeasure_elab___lam__1___closed__1;
 x_5 = l_Lean_Elab_TerminationMeasure_elab___lam__1___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -1509,7 +1509,7 @@ lean_dec(x_36);
 x_38 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_38, 0, x_37);
 x_39 = 0;
-x_40 = l_Lean_Meta_forallBoundedTelescope___at___Lean_Elab_TerminationMeasure_elab_spec__0___redArg(x_35, x_38, x_27, x_39, x_39, x_30, x_34, x_33, x_32, x_29, x_28, x_31);
+x_40 = l_Lean_Meta_forallBoundedTelescope___at___Lean_Elab_TerminationMeasure_elab_spec__0___redArg(x_35, x_38, x_27, x_39, x_39, x_31, x_30, x_34, x_32, x_33, x_28, x_29);
 return x_40;
 }
 block_52:
@@ -1520,12 +1520,12 @@ lean_object* x_49; lean_object* x_50;
 x_49 = l_Lean_Elab_TerminationMeasure_elab___lam__1___closed__3;
 x_50 = l_panic___at___Lean_Elab_TerminationMeasure_elab_spec__1(x_49);
 x_28 = x_47;
-x_29 = x_46;
-x_30 = x_42;
-x_31 = x_48;
+x_29 = x_48;
+x_30 = x_43;
+x_31 = x_42;
 x_32 = x_45;
-x_33 = x_44;
-x_34 = x_43;
+x_33 = x_46;
+x_34 = x_44;
 x_35 = x_50;
 goto block_41;
 }
@@ -1536,12 +1536,12 @@ x_51 = lean_ctor_get(x_8, 0);
 lean_inc(x_51);
 lean_dec_ref(x_8);
 x_28 = x_47;
-x_29 = x_46;
-x_30 = x_42;
-x_31 = x_48;
+x_29 = x_48;
+x_30 = x_43;
+x_31 = x_42;
 x_32 = x_45;
-x_33 = x_44;
-x_34 = x_43;
+x_33 = x_46;
+x_34 = x_44;
 x_35 = x_51;
 goto block_41;
 }
@@ -1666,7 +1666,7 @@ lean_dec(x_87);
 x_89 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_89, 0, x_88);
 x_90 = 0;
-x_91 = l_Lean_Meta_forallBoundedTelescope___at___Lean_Elab_TerminationMeasure_elab_spec__0___redArg(x_86, x_89, x_78, x_90, x_90, x_81, x_85, x_84, x_83, x_80, x_79, x_82);
+x_91 = l_Lean_Meta_forallBoundedTelescope___at___Lean_Elab_TerminationMeasure_elab_spec__0___redArg(x_86, x_89, x_78, x_90, x_90, x_82, x_81, x_85, x_83, x_84, x_79, x_80);
 return x_91;
 }
 block_103:
@@ -1677,12 +1677,12 @@ lean_object* x_100; lean_object* x_101;
 x_100 = l_Lean_Elab_TerminationMeasure_elab___lam__1___closed__3;
 x_101 = l_panic___at___Lean_Elab_TerminationMeasure_elab_spec__1(x_100);
 x_79 = x_98;
-x_80 = x_97;
-x_81 = x_93;
-x_82 = x_99;
+x_80 = x_99;
+x_81 = x_94;
+x_82 = x_93;
 x_83 = x_96;
-x_84 = x_95;
-x_85 = x_94;
+x_84 = x_97;
+x_85 = x_95;
 x_86 = x_101;
 goto block_92;
 }
@@ -1693,12 +1693,12 @@ x_102 = lean_ctor_get(x_8, 0);
 lean_inc(x_102);
 lean_dec_ref(x_8);
 x_79 = x_98;
-x_80 = x_97;
-x_81 = x_93;
-x_82 = x_99;
+x_80 = x_99;
+x_81 = x_94;
+x_82 = x_93;
 x_83 = x_96;
-x_84 = x_95;
-x_85 = x_94;
+x_84 = x_97;
+x_85 = x_95;
 x_86 = x_102;
 goto block_92;
 }
@@ -1901,7 +1901,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_TerminationMeasure_elab___lam__4___closed__2;
 x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(58u);
+x_3 = lean_unsigned_to_nat(53u);
 x_4 = l_Lean_Elab_TerminationMeasure_elab___lam__4___closed__1;
 x_5 = l_Lean_Elab_TerminationMeasure_elab___lam__4___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -2584,7 +2584,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_TerminationMeasure_structuralArg___lam__0___closed__1;
 x_2 = lean_unsigned_to_nat(8u);
-x_3 = lean_unsigned_to_nat(97u);
+x_3 = lean_unsigned_to_nat(92u);
 x_4 = l_Lean_Elab_TerminationMeasure_structuralArg___lam__0___closed__0;
 x_5 = l_Lean_Elab_TerminationMeasure_elab___lam__4___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -2634,7 +2634,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_TerminationMeasure_structuralArg___closed__0;
 x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(94u);
+x_3 = lean_unsigned_to_nat(89u);
 x_4 = l_Lean_Elab_TerminationMeasure_structuralArg___lam__0___closed__0;
 x_5 = l_Lean_Elab_TerminationMeasure_elab___lam__4___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -4383,33 +4383,13 @@ lean_dec(x_1);
 return x_9;
 }
 }
-lean_object* initialize_Lean_Parser_Term(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Term(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Binders(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_SyntheticMVars(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_PreDefinition_TerminationHint(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_PrettyPrinter_Delaborator_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_PreDefinition_TerminationMeasure(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Parser_Term(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_Term(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Elab_Binders(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_SyntheticMVars(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_PreDefinition_TerminationHint(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_PrettyPrinter_Delaborator_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_instInhabitedTerminationMeasure_default___closed__0 = _init_l_Lean_Elab_instInhabitedTerminationMeasure_default___closed__0();

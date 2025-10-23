@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Ext
-// Imports: Init.Data.ToString.Macro Init.TacticsExtra Init.RCases
+// Imports: public import Init.Data.ToString.Macro public import Init.TacticsExtra public import Init.RCases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

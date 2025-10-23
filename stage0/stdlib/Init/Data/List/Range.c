@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Range
-// Imports: Init.Data.List.Pairwise Init.Data.List.Zip
+// Imports: public import Init.Data.List.Pairwise public import Init.Data.List.Zip
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

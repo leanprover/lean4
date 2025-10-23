@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.ElimDeadBranches
-// Imports: Lean.Compiler.IR.Format Lean.Compiler.IR.Basic Lean.Compiler.IR.CompilerM
+// Imports: public import Lean.Compiler.IR.CompilerM
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2228,7 +2228,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_IR_UnreachableBranches_Value_addChoice___closed__2;
 x_2 = lean_unsigned_to_nat(12u);
-x_3 = lean_unsigned_to_nat(49u);
+x_3 = lean_unsigned_to_nat(47u);
 x_4 = l_Lean_IR_UnreachableBranches_Value_addChoice___closed__1;
 x_5 = l_Lean_IR_UnreachableBranches_Value_addChoice___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -7963,7 +7963,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_IR_UnreachableBranches_interpFnBody___closed__2;
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(23u);
+x_3 = lean_unsigned_to_nat(22u);
 x_4 = l_Lean_IR_UnreachableBranches_interpFnBody___closed__1;
 x_5 = l_Lean_IR_UnreachableBranches_interpFnBody___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -8530,7 +8530,7 @@ block_47:
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; 
 lean_inc(x_36);
-x_41 = l_Lean_IR_UnreachableBranches_interpFnBody(x_36, x_39, x_40);
+x_41 = l_Lean_IR_UnreachableBranches_interpFnBody(x_36, x_38, x_40);
 x_42 = lean_ctor_get(x_41, 1);
 lean_inc(x_42);
 lean_dec_ref(x_41);
@@ -8543,7 +8543,7 @@ lean_dec(x_33);
 lean_inc(x_1);
 x_45 = l_outOfBounds___redArg(x_1);
 x_14 = x_42;
-x_15 = x_38;
+x_15 = x_39;
 x_16 = x_45;
 goto block_22;
 }
@@ -8555,7 +8555,7 @@ lean_inc(x_1);
 x_46 = l_Lean_PersistentArray_get_x21___redArg(x_1, x_43, x_33);
 lean_dec(x_33);
 x_14 = x_42;
-x_15 = x_38;
+x_15 = x_39;
 x_16 = x_46;
 goto block_22;
 }
@@ -8580,8 +8580,8 @@ x_54 = lean_nat_dec_lt(x_8, x_52);
 if (x_54 == 0)
 {
 lean_dec(x_52);
-x_38 = x_48;
-x_39 = x_53;
+x_38 = x_53;
+x_39 = x_48;
 x_40 = x_7;
 goto block_47;
 }
@@ -8592,8 +8592,8 @@ x_55 = lean_nat_dec_le(x_52, x_52);
 if (x_55 == 0)
 {
 lean_dec(x_52);
-x_38 = x_48;
-x_39 = x_53;
+x_38 = x_53;
+x_39 = x_48;
 x_40 = x_7;
 goto block_47;
 }
@@ -8608,8 +8608,8 @@ x_59 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_
 x_60 = lean_ctor_get(x_59, 1);
 lean_inc(x_60);
 lean_dec_ref(x_59);
-x_38 = x_48;
-x_39 = x_53;
+x_38 = x_53;
+x_39 = x_48;
 x_40 = x_60;
 goto block_47;
 }
@@ -9977,20 +9977,12 @@ x_5 = l_Lean_registerTraceClass(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* initialize_Lean_Compiler_IR_Format(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_IR_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_IR_CompilerM(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_IR_ElimDeadBranches(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Compiler_IR_Format(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Compiler_IR_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_CompilerM(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

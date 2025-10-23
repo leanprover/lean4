@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.DeclarationRange
-// Imports: Lean.Data.DeclarationRange Lean.MonadEnv
+// Imports: public import Lean.MonadEnv
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -661,16 +661,12 @@ x_10 = l_Lean_findDeclarationRanges_x3f___redArg___lam__5(x_1, x_2, x_3, x_4, x_
 return x_10;
 }
 }
-lean_object* initialize_Lean_Data_DeclarationRange(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_MonadEnv(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_DeclarationRange(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Data_DeclarationRange(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_MonadEnv(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

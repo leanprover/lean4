@@ -6,13 +6,12 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Lean.CoreM
 public import Lean.Parser.Extension
 public import Lean.Parser.StrInterpolation
-public import Lean.KeyedDeclsAttribute
 public import Lean.ParserCompiler.Attribute
 public import Lean.PrettyPrinter.Basic
 public import Lean.PrettyPrinter.Delaborator.Options
+import Lean.ExtraModUses
 
 public section
 
@@ -84,8 +83,10 @@ unsafe builtin_initialize formatterAttribute : KeyedDeclsAttribute Formatter ←
       -- synthesize a formatter for it immediately, so we just check for a declaration in this case
       unless (builtin && (env.find? id).isSome) || Parser.isValidSyntaxNodeKind env id do
         throwError "Invalid `[formatter]` argument: Unknown syntax kind `{id}`"
-      if (← getEnv).contains id && (← Elab.getInfoState).enabled then
-        Elab.addConstInfo stx id none
+      if (← getEnv).contains id then
+        recordExtraModUseFromDecl (isMeta := false) id
+        if (← Elab.getInfoState).enabled then
+          Elab.addConstInfo stx id none
       pure id
   }
 
@@ -199,7 +200,7 @@ def group (x : Formatter) : Formatter := do
 
 /-- If `pos?` has a position, run `x` and tag its results with that position,
 if they are not already tagged. Otherwise just run `x`. -/
-def withMaybeTag (pos? : Option String.Pos) (x : FormatterM Unit) : Formatter := do
+def withMaybeTag (pos? : Option String.Pos.Raw) (x : FormatterM Unit) : Formatter := do
   if let some p := pos? then
     concat x
     modify fun st => {
@@ -240,11 +241,11 @@ opaque mkAntiquot.formatter' (name : String) (kind : SyntaxNodeKind) (anonymous 
 @[extern "lean_pretty_printer_formatter_interpret_parser_descr"]
 opaque interpretParserDescr' : ParserDescr → CoreM Formatter
 
-private def SourceInfo.getExprPos? : SourceInfo → Option String.Pos
+private def SourceInfo.getExprPos? : SourceInfo → Option String.Pos.Raw
   | SourceInfo.synthetic (pos := pos) .. => pos
   | _ => none
 
-def getExprPos? : Syntax → Option String.Pos
+def getExprPos? : Syntax → Option String.Pos.Raw
   | Syntax.node info _ _ => SourceInfo.getExprPos? info
   | Syntax.atom info _ => SourceInfo.getExprPos? info
   | Syntax.ident info _ _ _ => SourceInfo.getExprPos? info
@@ -503,6 +504,7 @@ def visitAtom (k : SyntaxNodeKind) : Formatter := do
 @[combinator_formatter strLitNoAntiquot, expose] def strLitNoAntiquot.formatter := visitAtom strLitKind
 @[combinator_formatter nameLitNoAntiquot, expose] def nameLitNoAntiquot.formatter := visitAtom nameLitKind
 @[combinator_formatter numLitNoAntiquot, expose] def numLitNoAntiquot.formatter := visitAtom numLitKind
+
 @[combinator_formatter scientificLitNoAntiquot, expose] def scientificLitNoAntiquot.formatter := visitAtom scientificLitKind
 @[combinator_formatter fieldIdx, expose] def fieldIdx.formatter := visitAtom fieldIdxKind
 
@@ -567,6 +569,8 @@ def interpolatedStr.formatter (p : Formatter) : Formatter := do
     | some str => push str *> goLeft
     | none     => p
 
+@[combinator_formatter hexnumNoAntiquot, expose] def hexnum.formatter := visitAtom hexnumKind
+
 @[combinator_formatter _root_.ite, expose, macro_inline] def ite {_ : Type} (c : Prop) [Decidable c] (t e : Formatter) : Formatter :=
   if c then t else e
 
@@ -609,7 +613,7 @@ instance : Std.Format.MonadPrettyFormat M where
   pushOutput s := do
     let lineEnd := s.find (· == '\n')
     if lineEnd < s.endPos then
-      let s := (s.extract 0 lineEnd).trimRight ++ continuation
+      let s := (String.Pos.Raw.extract s 0 lineEnd).trimRight ++ continuation
       modify fun st => { st with line := st.line.append s }
       throw ()
     else

@@ -7,12 +7,7 @@ module
 
 prelude
 public import Lean.Util.RecDepth
-public import Lean.Util.Trace
-public import Lean.Log
 public import Lean.ResolveName
-public import Lean.Elab.InfoTree.Types
-public import Lean.MonadEnv
-public import Lean.Elab.Exception
 public import Lean.Language.Basic
 
 public section
@@ -408,7 +403,9 @@ itself after calling `act` as well as by reuse-handling code such as the one sup
 
 /-- Restore backtrackable parts of the state. -/
 def SavedState.restore (b : SavedState) : CoreM Unit :=
-  modify fun s => { s with env := b.env, messages := b.messages, infoState := b.infoState }
+  modify fun s => { s with
+      env := b.env, messages := b.messages, infoState := b.infoState
+      snapshotTasks := b.snapshotTasks }
 
 private def mkFreshNameImp (n : Name) : CoreM Name := do
   withFreshMacroScope do

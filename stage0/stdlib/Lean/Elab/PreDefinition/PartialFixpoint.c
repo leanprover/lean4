@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.PartialFixpoint
-// Imports: Lean.Elab.PreDefinition.PartialFixpoint.Eqns Lean.Elab.PreDefinition.PartialFixpoint.Main Lean.Elab.PreDefinition.PartialFixpoint.Induction
+// Imports: public import Lean.Elab.PreDefinition.PartialFixpoint.Eqns public import Lean.Elab.PreDefinition.PartialFixpoint.Main public import Lean.Elab.PreDefinition.PartialFixpoint.Induction
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

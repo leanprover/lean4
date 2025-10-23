@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.Simp.SimpM
-// Imports: Lean.Compiler.ImplementedByAttr Lean.Compiler.LCNF.Renaming Lean.Compiler.LCNF.ElimDead Lean.Compiler.LCNF.AlphaEqv Lean.Compiler.LCNF.PrettyPrinter Lean.Compiler.LCNF.Bind Lean.Compiler.LCNF.Internalize Lean.Compiler.LCNF.Simp.JpCases Lean.Compiler.LCNF.Simp.DiscrM Lean.Compiler.LCNF.Simp.FunDeclInfo Lean.Compiler.LCNF.Simp.Config
+// Imports: public import Lean.Compiler.ImplementedByAttr public import Lean.Compiler.LCNF.Renaming public import Lean.Compiler.LCNF.ElimDead public import Lean.Compiler.LCNF.AlphaEqv public import Lean.Compiler.LCNF.PrettyPrinter public import Lean.Compiler.LCNF.Simp.JpCases public import Lean.Compiler.LCNF.Simp.FunDeclInfo public import Lean.Compiler.LCNF.Simp.Config
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4146,7 +4146,7 @@ block_116:
 {
 lean_object* x_104; 
 lean_inc(x_2);
-x_104 = l_Lean_Compiler_LCNF_getDecl_x3f___redArg(x_2, x_101, x_99, x_97);
+x_104 = l_Lean_Compiler_LCNF_getDecl_x3f___redArg(x_2, x_97, x_102, x_96);
 if (lean_obj_tag(x_104) == 0)
 {
 lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; 
@@ -4164,13 +4164,13 @@ uint8_t x_109;
 x_109 = 0;
 x_11 = x_108;
 x_12 = x_109;
-x_13 = x_98;
-x_14 = x_102;
-x_15 = x_96;
-x_16 = x_101;
+x_13 = x_101;
+x_14 = x_99;
+x_15 = x_95;
+x_16 = x_97;
 x_17 = x_100;
-x_18 = x_95;
-x_19 = x_99;
+x_18 = x_98;
+x_19 = x_102;
 x_20 = x_106;
 goto block_94;
 }
@@ -4184,13 +4184,13 @@ x_111 = l_Lean_Compiler_LCNF_Decl_inlineIfReduceAttr(x_110);
 lean_dec(x_110);
 x_11 = x_108;
 x_12 = x_111;
-x_13 = x_98;
-x_14 = x_102;
-x_15 = x_96;
-x_16 = x_101;
+x_13 = x_101;
+x_14 = x_99;
+x_15 = x_95;
+x_16 = x_97;
 x_17 = x_100;
-x_18 = x_95;
-x_19 = x_99;
+x_18 = x_98;
+x_19 = x_102;
 x_20 = x_106;
 goto block_94;
 }
@@ -4199,7 +4199,7 @@ else
 {
 uint8_t x_112; 
 lean_dec(x_103);
-lean_dec_ref(x_98);
+lean_dec_ref(x_101);
 lean_dec(x_2);
 x_112 = !lean_is_exclusive(x_104);
 if (x_112 == 0)
@@ -4231,14 +4231,14 @@ if (lean_obj_tag(x_126) == 0)
 {
 lean_object* x_127; 
 x_127 = lean_unsigned_to_nat(0u);
-x_95 = x_122;
-x_96 = x_119;
-x_97 = x_124;
-x_98 = x_117;
-x_99 = x_123;
+x_95 = x_119;
+x_96 = x_124;
+x_97 = x_120;
+x_98 = x_122;
+x_99 = x_118;
 x_100 = x_121;
-x_101 = x_120;
-x_102 = x_118;
+x_101 = x_117;
+x_102 = x_123;
 x_103 = x_127;
 goto block_116;
 }
@@ -4248,14 +4248,14 @@ lean_object* x_128;
 x_128 = lean_ctor_get(x_126, 0);
 lean_inc(x_128);
 lean_dec_ref(x_126);
-x_95 = x_122;
-x_96 = x_119;
-x_97 = x_124;
-x_98 = x_117;
-x_99 = x_123;
+x_95 = x_119;
+x_96 = x_124;
+x_97 = x_120;
+x_98 = x_122;
+x_99 = x_118;
 x_100 = x_121;
-x_101 = x_120;
-x_102 = x_118;
+x_101 = x_117;
+x_102 = x_123;
 x_103 = x_128;
 goto block_116;
 }
@@ -7786,10 +7786,7 @@ lean_object* initialize_Lean_Compiler_LCNF_Renaming(uint8_t builtin, lean_object
 lean_object* initialize_Lean_Compiler_LCNF_ElimDead(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_AlphaEqv(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_PrettyPrinter(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_LCNF_Bind(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_LCNF_Internalize(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_Simp_JpCases(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_LCNF_Simp_DiscrM(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_Simp_FunDeclInfo(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_Simp_Config(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -7812,16 +7809,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_PrettyPrinter(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_Bind(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_Internalize(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_Simp_JpCases(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_Simp_DiscrM(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_Simp_FunDeclInfo(builtin, lean_io_mk_world());

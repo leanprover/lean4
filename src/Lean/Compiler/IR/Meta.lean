@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Compiler.IR.CompilerM
-public import Lean.Compiler.MetaAttr
 
 public section
 
@@ -44,7 +43,7 @@ partial def inferMeta (decls : Array Decl) : CompilerM Unit := do
   if !(← getEnv).header.isModule then
     return
   for decl in decls do
-    if metaExt.isTagged (← getEnv) decl.name then
+    if isMeta (← getEnv) decl.name then
       trace[compiler.ir.inferMeta] m!"Marking {decl.name} as meta because it is tagged with `meta`"
       modifyEnv (setDeclMeta · decl.name)
       setClosureMeta decl

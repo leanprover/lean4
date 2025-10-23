@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.MacroTrace
-// Imports: Init.Data.ToString.Macro Init.Meta
+// Imports: public import Init.Data.ToString.Macro public import Init.Meta
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

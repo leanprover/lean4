@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Range.Polymorphic.Instances
-public import Init.Data.Order.Classes
 public import Init.Data.Int.Order
 import Init.Omega
 
@@ -24,7 +23,7 @@ instance : LawfulUpwardEnumerable Int where
     simp only [UpwardEnumerable.LT, UpwardEnumerable.succMany?, Option.some.injEq]
     omega
   succMany?_zero := by simp [UpwardEnumerable.succMany?]
-  succMany?_succ? := by
+  succMany?_add_one := by
     simp only [UpwardEnumerable.succMany?, UpwardEnumerable.succ?,
       Option.bind_some, Option.some.injEq]
     omega
@@ -37,29 +36,27 @@ instance : LawfulUpwardEnumerableLE Int where
     simp [UpwardEnumerable.LE, UpwardEnumerable.succMany?, Int.le_def, Int.nonneg_def,
       Int.sub_eq_iff_eq_add', eq_comm (a := y)]
 
-instance : LawfulOrderLT Int := inferInstance
 instance : LawfulUpwardEnumerableLT Int := inferInstance
 instance : LawfulUpwardEnumerableLT Int := inferInstance
-instance : LawfulUpwardEnumerableLowerBound .closed Int := inferInstance
-instance : LawfulUpwardEnumerableUpperBound .closed Int := inferInstance
-instance : LawfulUpwardEnumerableLowerBound .open Int := inferInstance
-instance : LawfulUpwardEnumerableUpperBound .open Int := inferInstance
 
-instance : RangeSize .closed Int where
-  size bound a := (bound + 1 - a).toNat
+instance : Rxc.HasSize Int where
+  size lo hi := (hi + 1 - lo).toNat
 
-instance : RangeSize .open Int := RangeSize.openOfClosed
-
-instance : LawfulRangeSize .closed Int where
-  size_eq_zero_of_not_isSatisfied bound x := by
-    simp only [SupportsUpperBound.IsSatisfied, RangeSize.size]
+instance : Rxc.LawfulHasSize Int where
+  size_eq_zero_of_not_le lo hi := by
+    simp only [Rxc.HasSize.size]
     omega
-  size_eq_one_of_succ?_eq_none bound x := by
-    simp [SupportsUpperBound.IsSatisfied, RangeSize.size, UpwardEnumerable.succ?]
+  size_eq_one_of_succ?_eq_none lo hi := by
+    simp [Rxc.HasSize.size, UpwardEnumerable.succ?]
 
   size_eq_succ_of_succ?_eq_some bound init x := by
-    simp only [SupportsUpperBound.IsSatisfied, UpwardEnumerable.succ?, RangeSize.size,
-      Option.some.injEq]
+    simp only [UpwardEnumerable.succ?, Rxc.HasSize.size, Option.some.injEq]
     omega
+
+instance : Rxc.IsAlwaysFinite Int := inferInstance
+
+instance : Rxo.HasSize Int := .ofClosed
+instance : Rxo.LawfulHasSize Int := inferInstance
+instance : Rxo.IsAlwaysFinite Int := inferInstance
 
 end Std.PRange

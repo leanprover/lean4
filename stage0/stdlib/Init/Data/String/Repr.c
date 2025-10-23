@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Repr
-// Imports: Init.Data.String.Basic Init.Data.ToString.Basic
+// Imports: public import Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,9 +15,7 @@ extern "C" {
 #endif
 static lean_object* l_instReprIterator___lam__0___closed__3;
 LEAN_EXPORT lean_object* l_String_anyAux___at___String_isInt_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___String_toInt_x21_spec__0(lean_object*);
-uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 extern lean_object* l_Int_instInhabited;
 lean_object* l_Substring_toNat_x3f(lean_object*);
 lean_object* l_String_toNat_x3f(lean_object*);
@@ -27,12 +25,12 @@ static lean_object* l_instReprIterator___lam__0___closed__6;
 LEAN_EXPORT lean_object* l_String_toInt_x3f(lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringIterator___lam__0___boxed(lean_object*);
-lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 static lean_object* l_String_toInt_x21___closed__0;
 static lean_object* l_instReprIterator___lam__0___closed__5;
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_instReprIterator___lam__0___boxed(lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_instReprIterator___lam__0___closed__2;
 static lean_object* l_instReprIterator___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_instToStringIterator___lam__0(lean_object*);
@@ -41,12 +39,14 @@ LEAN_EXPORT uint8_t l_String_anyAux___at___String_isInt_spec__0(uint8_t, lean_ob
 static lean_object* l_instReprIterator___lam__0___closed__0;
 lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_instReprIterator;
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_toInt_x21(lean_object*);
 LEAN_EXPORT uint8_t l_String_isInt(lean_object*);
 LEAN_EXPORT lean_object* l_String_isInt___boxed(lean_object*);
@@ -544,16 +544,12 @@ return x_5;
 }
 }
 lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_ToString_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String_Repr(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_ToString_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_instReprIterator___lam__0___closed__0 = _init_l_instReprIterator___lam__0___closed__0();

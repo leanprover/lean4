@@ -6,9 +6,7 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lake.Build.Trace
 public import Lake.Config.LeanLib
-public import Lake.Config.OutFormat
 import Lake.Util.OrdHashSet
 import Lake.Util.NativeLib
 import Lake.Util.FilePath
@@ -164,6 +162,9 @@ public def dynlibSuffix := "-1"
 
 @[inline] public def backend (self : Module) : Backend :=
   self.lib.backend
+
+@[inline] public def allowImportAll (self : Module) : Bool :=
+  self.lib.allowImportAll
 
 @[inline] public def dynlibs (self : Module) : TargetArray Dynlib :=
   self.lib.dynlibs

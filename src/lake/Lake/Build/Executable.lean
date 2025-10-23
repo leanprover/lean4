@@ -6,9 +6,7 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lake.Util.Name
 public import Lake.Config.FacetConfig
-import Lake.Config.OutFormat
 import Lake.Build.Job.Register
 import Lake.Build.Target.Fetch
 import Lake.Build.Common

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.MkInhabitant
-// Imports: Lean.Meta.AppBuilder Lean.PrettyPrinter
+// Imports: public import Lean.Meta.AppBuilder public import Lean.PrettyPrinter
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

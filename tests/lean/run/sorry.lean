@@ -70,9 +70,9 @@ Showing source position when surfacing differences.
 error: Type mismatch
   sorry
 has type
-  sorry `«sorry:77:43»
+  sorry `«lean.run.sorry:77:43»
 but is expected to have type
-  sorry `«sorry:77:25»
+  sorry `«lean.run.sorry:77:25»
 -/
 #guard_msgs in example : sorry := (sorry : sorry)
 
@@ -98,7 +98,7 @@ error: Unknown identifier `a`
 ---
 error: Unknown identifier `b`
 ---
-trace: ⊢ sorry `«sorry:106:10» = sorry `«sorry:106:14»
+trace: ⊢ sorry `«lean.run.sorry:106:10» = sorry `«lean.run.sorry:106:14»
 -/
 #guard_msgs in
 set_option autoImplicit false in

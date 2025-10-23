@@ -6,11 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
 public import Init.Data.Array.Lemmas
-public import Init.Data.List.Nat.Erase
-public import Init.Data.List.Nat.Basic
 
 public section
 
@@ -323,6 +320,13 @@ abbrev erase_mkArray_self := @erase_replicate_self
 abbrev erase_mkArray_ne := @erase_replicate_ne
 
 end erase
+
+/-! ### eraseIdxIfInBounds -/
+
+@[grind =]
+theorem eraseIdxIfInBounds_eq {xs : Array α} {i : Nat} :
+    xs.eraseIdxIfInBounds i = if h : i < xs.size then xs.eraseIdx i else xs := by
+  simp [eraseIdxIfInBounds]
 
 /-! ### eraseIdx -/
 

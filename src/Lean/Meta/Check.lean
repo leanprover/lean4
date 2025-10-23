@@ -6,8 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.InferType
 public import Lean.Meta.Sorry
+import Lean.AddDecl
 
 public section
 
@@ -206,13 +206,13 @@ def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr)
     (trailing? : Option MessageData := none) (trailingExprs : Array Expr := #[])
     : MetaM MessageData := do
   return MessageData.ofLazyM (es := #[givenType, expectedType] ++ trailingExprs) do
-    try
+    let mut msg ← (try
       let givenTypeType ← inferType givenType
       let expectedTypeType ← inferType expectedType
       if (← isDefEqGuarded givenTypeType expectedTypeType) then
         let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
         let trailing := trailing?.map (m!"\n" ++ ·) |>.getD .nil
-        return m!"has type{indentExpr givenType}\n\
+        pure m!"has type{indentExpr givenType}\n\
           but is expected to have type{indentExpr expectedType}{trailing}"
       else
         let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
@@ -220,12 +220,25 @@ def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr)
         let trailing := match trailing? with
           | none => inlineExprTrailing expectedTypeType
           | some trailing => inlineExpr expectedTypeType ++ trailing
-        return m!"has type{indentExpr givenType}\nof sort{inlineExpr givenTypeType}\
+        pure m!"has type{indentExpr givenType}\nof sort{inlineExpr givenTypeType}\
           but is expected to have type{indentExpr expectedType}\nof sort{trailing}"
     catch _ =>
       let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
       let trailing := trailing?.map (m!"\n" ++ ·) |>.getD .nil
-      return m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}{trailing}"
+      pure m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}{trailing}")
+    let env ← getEnv
+    if env.header.isModule then
+      let origDiag := (← get).diag
+      let _ ← observing <| withOptions (diagnostics.set · true)  <| isDefEq givenType expectedType
+      let blocked := (← get).diag.unfoldAxiomCounter.toList.filterMap fun (n, count) => do
+        let count := count - origDiag.unfoldAxiomCounter.findD n 0
+        guard <| count > 0 && getOriginalConstKind? env n matches some .defn
+        return m!"{.ofConstName n} ↦ {count}"
+      if !blocked.isEmpty then
+        msg := msg ++ MessageData.note m!"The following definitions were not unfolded because \
+          their definition is not exposed:{indentD <| .joinSep blocked Format.line}"
+      modify ({ · with diag := origDiag })
+    return msg
 
 def throwAppTypeMismatch (f a : Expr) : MetaM α := do
   -- Clarify that `a` is "last" only if it may be confused with some preceding argument; otherwise,

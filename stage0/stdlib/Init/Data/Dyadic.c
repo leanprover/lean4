@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Dyadic
-// Imports: Init.Data.Dyadic.Basic Init.Data.Dyadic.Instances Init.Data.Dyadic.Round Init.Data.Dyadic.Inv
+// Imports: public import Init.Data.Dyadic.Basic public import Init.Data.Dyadic.Instances public import Init.Data.Dyadic.Round public import Init.Data.Dyadic.Inv
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

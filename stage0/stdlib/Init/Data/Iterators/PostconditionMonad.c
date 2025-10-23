@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.PostconditionMonad
-// Imports: Init.Control.Lawful.Basic Init.Data.Subtype.Basic Init.PropLemmas
+// Imports: public import Init.Control.Lawful.Basic public import Init.Data.Subtype.Basic public import Init.PropLemmas public import Init.Control.Lawful.MonadLift.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22,6 +22,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators_PostconditionT_ctorIdx___boxed(lean_obj
 LEAN_EXPORT lean_object* l_Std_Iterators_instMonadPostconditionT___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_PostconditionT_lift(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instMonadPostconditionT___redArg___lam__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_instMonadLiftPostconditionT___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instFunctorPostconditionT___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instMonadPostconditionT___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_PostconditionT_liftMap(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -43,10 +44,12 @@ static lean_object* l_Std_Iterators_PostconditionT_pbind___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Std_Iterators_PostconditionT_liftWithProperty___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instFunctorPostconditionT___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instMonadPostconditionT___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_instMonadLiftPostconditionT(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instMonadPostconditionT___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_PostconditionT_pbind___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instMonadPostconditionT___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instMonadPostconditionT___redArg___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_instMonadLiftPostconditionT___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_PostconditionT_lift___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_PostconditionT_map___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instMonadPostconditionT___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -704,9 +707,35 @@ lean_dec(x_5);
 return x_6;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Iterators_instMonadLiftPostconditionT___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_apply_2(x_1, lean_box(0), x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_instMonadLiftPostconditionT___redArg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Std_Iterators_instMonadLiftPostconditionT___redArg___lam__0), 3, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_instMonadLiftPostconditionT(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_Iterators_instMonadLiftPostconditionT___redArg(x_3);
+return x_4;
+}
+}
 lean_object* initialize_Init_Control_Lawful_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Subtype_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_PropLemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Control_Lawful_MonadLift_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_PostconditionMonad(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -719,6 +748,9 @@ res = initialize_Init_Data_Subtype_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_PropLemmas(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_Lawful_MonadLift_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Iterators_PostconditionT_pbind___redArg___closed__0 = _init_l_Std_Iterators_PostconditionT_pbind___redArg___closed__0();

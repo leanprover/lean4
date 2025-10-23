@@ -24,10 +24,6 @@ using the `fetch` function defined in this module.
 
 namespace Lake
 
-/-- The internal core monad of Lake builds. **Not intended for user use.** -/
-@[deprecated "Deprecated without replacement." (since := "2025-02-22")]
-public abbrev CoreBuildM := BuildT LogIO
-
 /-- A type alias for `Option Package` that assists monad type class synthesis. -/
 @[expose] public def CurrPackage := Option Package
 

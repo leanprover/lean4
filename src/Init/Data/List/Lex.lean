@@ -6,9 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.List.Lemmas
 public import Init.Data.List.Nat.TakeDrop
-public import Init.Data.Order.Factories
 import Init.Data.Order.Lemmas
 
 public section

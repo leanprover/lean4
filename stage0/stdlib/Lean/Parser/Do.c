@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Parser.Do
-// Imports: Lean.Parser.Term
+// Imports: public import Lean.Parser.Term
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13430,7 +13430,7 @@ static lean_object* _init_l___private_Lean_Parser_Do_0__Lean_Parser_Term_doFor__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`for x in e do s`  iterates over `e` assuming `e`'s type has an instance of the `ForIn` typeclass.\n`break` and `continue` are supported inside `for` loops.\n`for x in e, x2 in e2, ... do s` iterates of the given collections in parallel,\nuntil at least one of them is exhausted.\nThe types of `e2` etc. must implement the `ToStream` typeclass.\n", 341, 341);
+x_1 = lean_mk_string_unchecked("`for x in e do s`  iterates over `e` assuming `e`'s type has an instance of the `ForIn` typeclass.\n`break` and `continue` are supported inside `for` loops.\n`for x in e, x2 in e2, ... do s` iterates of the given collections in parallel,\nuntil at least one of them is exhausted.\nThe types of `e2` etc. must implement the `Std.ToStream` typeclass.\n", 345, 345);
 return x_1;
 }
 }

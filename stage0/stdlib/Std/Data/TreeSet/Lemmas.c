@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.TreeSet.Lemmas
-// Imports: Std.Data.TreeMap.Lemmas Std.Data.DTreeMap.Lemmas Std.Data.TreeSet.Basic Std.Data.TreeSet.AdditionalOperations
+// Imports: import Std.Data.TreeMap.Lemmas import Std.Data.DTreeMap.Lemmas public import Std.Data.TreeSet.AdditionalOperations
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -32,7 +32,6 @@ return x_3;
 }
 lean_object* initialize_Std_Data_TreeMap_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_DTreeMap_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_TreeSet_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_TreeSet_AdditionalOperations(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_TreeSet_Lemmas(uint8_t builtin, lean_object* w) {
@@ -43,9 +42,6 @@ res = initialize_Std_Data_TreeMap_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_DTreeMap_Lemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Data_TreeSet_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_TreeSet_AdditionalOperations(builtin, lean_io_mk_world());

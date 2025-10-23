@@ -7,8 +7,8 @@ module
 
 prelude
 public import Lean.AddDecl
-public import Lean.MonadEnv
 public import Lean.Elab.InfoTree.Main
+import Init.Data.Range.Polymorphic.Stream
 
 public section
 
@@ -62,34 +62,14 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref
       | none =>
         if isIOUnit decl.type then pure Name.anonymous
         else throwError "initialization function must have type `IO Unit`"
-    afterImport := fun entries => do
-      let ctx ← read
-      if runAfterImport && (← isInitializerExecutionEnabled) then
-        for mod in ctx.env.header.moduleNames,
-            modEntries in entries do
-          -- any native Lean code reachable by the interpreter (i.e. from shared
-          -- libraries with their corresponding module in the Environment) must
-          -- first be initialized
-          if (← runModInit mod) then
-            continue
-          -- If no native code for the module is available, run `[init]` decls manually.
-          -- All other constants (nullary functions) are lazily initialized by the interpreter.
-          if modEntries.isEmpty then
-            -- If there are no `[init]` decls, don't bother walking through all module decls.
-            -- We do this after trying `runModInit` as that one may also efficiently initialize
-            -- nullary functions.
-            continue
-          -- As `[init]` decls can have global side effects, ensure we run them at most once,
-          -- just like the compiled code does.
-          if (← interpretedModInits.get).contains mod then
-            continue
-          interpretedModInits.modify (·.insert mod)
-          for (decl, initDecl) in modEntries do
-            if initDecl.isAnonymous then
-              let initFn ← IO.ofExcept <| ctx.env.evalConst (IO Unit) ctx.opts decl
-              initFn
-            else
-              runInit ctx.env ctx.opts decl initDecl
+    -- Save `meta initialize` in .olean; `initialize`s of any kind will be stored in .ir by
+    -- `exportIREntries` analogously to `Lean.IR.declMapExt` so we can run them when meta-imported,
+    -- even without the .olean file.
+    filterExport := fun env declName _ =>
+      -- TODO: The interpreter currently depends on `[builtin_init]` to be exported for
+      -- `prefer_native` handling but this is incorrect with private imports anyway and should be
+      -- replaced by consulting a builtin list.
+      !runAfterImport || isMeta env declName
   }
 
 @[implemented_by registerInitAttrUnsafe]
@@ -160,12 +140,44 @@ def hasInitAttr (env : Environment) (fn : Name) : Bool :=
 def setBuiltinInitAttr (env : Environment) (declName : Name) (initFnName : Name := Name.anonymous) : Except String Environment :=
   builtinInitAttr.setParam env declName initFnName
 
-def declareBuiltin (forDecl : Name) (value : Expr) : CoreM Unit := do
-  let name ← mkAuxDeclName (kind := `_regBuiltin ++ forDecl)
-  let type := mkApp (mkConst `IO) (mkConst `Unit)
-  let decl := Declaration.defnDecl { name, levelParams := [], type, value, hints := ReducibilityHints.opaque,
-                                     safety := DefinitionSafety.safe }
-  addAndCompile decl
-  IO.ofExcept (setBuiltinInitAttr (← getEnv) name) >>= setEnv
+def declareBuiltin (forDecl : Name) (value : Expr) : CoreM Unit :=
+  -- can always be private, not referenced directly except through emitted C code
+  withoutExporting do
+  -- TODO: needs an update-stage0 + prefer_native=true for breaking symbol name
+  withExporting do
+    let name ← mkAuxDeclName (kind := `_regBuiltin ++ forDecl)
+    let type := mkApp (mkConst `IO) (mkConst `Unit)
+    let decl := Declaration.defnDecl { name, levelParams := [], type, value, hints := ReducibilityHints.opaque,
+                                       safety := DefinitionSafety.safe }
+    addAndCompile decl
+    IO.ofExcept (setBuiltinInitAttr (← getEnv) name) >>= setEnv
+
+@[export lean_run_init_attrs]
+private unsafe def runInitAttrs (env : Environment) (opts : Options) : IO Unit := do
+  if (← isInitializerExecutionEnabled) then
+    for mod in env.header.moduleNames, modIdx in 0...* do
+      -- any native Lean code reachable by the interpreter (i.e. from shared
+      -- libraries with their corresponding module in the Environment) must
+      -- first be initialized
+      if (← runModInit mod) then
+        continue
+      -- As `[init]` decls can have global side effects, ensure we run them at most once,
+      -- just like the compiled code does.
+      if (← interpretedModInits.get).contains mod then
+        continue
+      interpretedModInits.modify (·.insert mod)
+      let modEntries := regularInitAttr.ext.getModuleEntries env modIdx
+      -- `getModuleIREntries` is identical to `getModuleEntries` if we loaded only one of .olean/.ir
+      -- so deduplicate (these lists should be very short)
+      let modEntries := modEntries ++ (regularInitAttr.ext.getModuleIREntries env modIdx).filter (!modEntries.contains ·)
+      for (decl, initDecl) in modEntries do
+        -- Skip initializers we do not have IR for; they should not be reachable by interpretation.
+        if !Elab.inServer.get opts && getIRPhases env decl == .runtime then
+          continue
+        if initDecl.isAnonymous then
+          let initFn ← IO.ofExcept <| env.evalConst (IO Unit) opts decl
+          initFn
+        else
+          runInit env opts decl initDecl
 
 end Lean

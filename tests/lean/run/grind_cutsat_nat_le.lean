@@ -32,17 +32,17 @@ example (a b : Int) : a + b = Int.ofNat 2 → a - 2 = -b := by
   grind
 
 /--
-trace: [grind.cutsat.assert] -1*↑a ≤ 0
-[grind.cutsat.assert] -1*↑b ≤ 0
+trace: [grind.cutsat.assert] -1*「↑a」 ≤ 0
+[grind.cutsat.assert] -1*「↑b」 ≤ 0
+[grind.cutsat.assert] -1*「↑c」 ≤ 0
 [grind.cutsat.assert] -1*「↑a * ↑b」 ≤ 0
-[grind.cutsat.assert] -1*↑c ≤ 0
-[grind.cutsat.assert] -1*「↑a * ↑b + -1 * ↑c + 1」 + 「↑a * ↑b」 + -1*↑c + 1 = 0
-[grind.cutsat.assert] 「↑a * ↑b」 + -1*↑c + 1 ≤ 0
-[grind.cutsat.assert] -1*↑0 = 0
-[grind.cutsat.assert] ↑c = 0
+[grind.cutsat.assert] -1*「↑a * ↑b + -1 * ↑c + 1」 + 「↑a * ↑b」 + -1*「↑c」 + 1 = 0
+[grind.cutsat.assert] 「↑a * ↑b」 + -1*「↑c」 + 1 ≤ 0
+[grind.cutsat.assert] -1*「↑0」 = 0
+[grind.cutsat.assert] 「↑c」 = 0
 [grind.cutsat.assert] 0 ≤ 0
 [grind.cutsat.assert] 「↑a * ↑b」 + 1 ≤ 0
-[grind.cutsat.assert] -1*↑0 + ↑c = 0
+[grind.cutsat.assert] -1*「↑0」 + 「↑c」 = 0
 [grind.cutsat.assert] 1 ≤ 0
 -/
 #guard_msgs (trace) in

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.DeclarationRange
-// Imports: Lean.Data.Position
+// Imports: public import Lean.Data.Position
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

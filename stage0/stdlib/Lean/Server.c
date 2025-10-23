@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server
-// Imports: Lean.Server.Watchdog Lean.Server.FileWorker Lean.Server.Rpc Lean.Server.CodeActions Lean.Server.Test
+// Imports: public import Lean.Server.Watchdog public import Lean.Server.FileWorker public import Lean.Server.Rpc public import Lean.Server.CodeActions public import Lean.Server.Test
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

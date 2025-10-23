@@ -6,7 +6,6 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Basic
 import all Init.Data.List.Basic
 public import Init.Data.List.Lemmas
 
@@ -164,9 +163,6 @@ theorem take_set {l : List α} {i j : Nat} {a : α} :
     cases l with
     | nil => simp
     | cons hd tl => cases j <;> simp_all
-
-@[deprecated take_set (since := "2025-02-17")]
-abbrev set_take := @take_set
 
 theorem drop_set {l : List α} {i j : Nat} {a : α} :
     (l.set j a).drop i = if j < i then l.drop i else (l.drop i).set (j - i) a := by

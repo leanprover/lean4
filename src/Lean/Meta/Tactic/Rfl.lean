@@ -6,7 +6,6 @@ Authors: Newell Jensen, Thomas Murrills, Joachim Breitner
 module
 
 prelude
-public import Lean.Meta.Tactic.Apply
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.Tactic.Refl
 

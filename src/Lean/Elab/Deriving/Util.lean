@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Elab.Term
 public import Lean.Elab.Command
-meta import Lean.Parser.Command
 import Lean.Elab.DeclNameGen
 
 public section
@@ -77,9 +75,10 @@ def withoutExposeFromCtors (typeName : Name) (cont : CommandElabM α) : CommandE
   for typeName in indVal.all do
     typeInfos := typeInfos.push (← getConstInfoInduct typeName)
   if typeInfos.any (·.ctors.any isPrivateName) then
-    -- The topmost scope should be the one form
-    if (← getScope).attrs.any (· matches `(Parser.Term.attrInstance| expose)) then
-      throwError "cannot use `deriving ... @[expose]` with `{.ofConstName typeName}` as it has one or more private constructors"
+    if !isPrivateName typeName then
+      -- The topmost scope should be the one from the `deriving` command itself
+      if (← getScope).attrs.any (· matches `(Parser.Term.attrInstance| expose)) then
+        throwError "cannot use `deriving ... @[expose]` with `{.ofConstName typeName}` as it has one or more private constructors"
     withScope (fun sc => { sc with
         attrs := sc.attrs.filter (!· matches `(Parser.Term.attrInstance| expose)) }) cont
   else cont

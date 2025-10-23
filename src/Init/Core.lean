@@ -8,7 +8,6 @@ notation, basic datatypes and type classes
 module
 
 prelude
-public meta import Init.Prelude
 public import Init.SizeOf
 
 public section
@@ -144,8 +143,9 @@ Computed values are cached, so the value is not recomputed.
   x.fn ()
 
 -- Ensure `Thunk.fn` is still computable even if it shouldn't be accessed directly.
-@[inline] private def Thunk.fnImpl (x : Thunk α) : Unit → α := fun _ => x.get
-@[csimp] private theorem Thunk.fn_eq_fnImpl : @Thunk.fn = @Thunk.fnImpl := rfl
+/-- Implementation detail. -/
+@[inline] def Thunk.fnImpl (x : Thunk α) : Unit → α := fun _ => x.get
+@[csimp] theorem Thunk.fn_eq_fnImpl : @Thunk.fn = @Thunk.fnImpl := rfl
 
 /--
 Constructs a new thunk that forces `x` and then applies `x` to the result. Upon forcing, the result
@@ -1580,6 +1580,7 @@ instance {p q : Prop} [d : Decidable (p ↔ q)] : Decidable (p = q) :=
 
 gen_injective_theorems% Array
 gen_injective_theorems% BitVec
+gen_injective_theorems% ByteArray
 gen_injective_theorems% Char
 gen_injective_theorems% DoResultBC
 gen_injective_theorems% DoResultPR
@@ -1604,7 +1605,7 @@ gen_injective_theorems% PSigma
 gen_injective_theorems% PSum
 gen_injective_theorems% Sigma
 gen_injective_theorems% String
-gen_injective_theorems% String.Pos
+gen_injective_theorems% String.Pos.Raw
 gen_injective_theorems% Substring
 gen_injective_theorems% Subtype
 gen_injective_theorems% Sum

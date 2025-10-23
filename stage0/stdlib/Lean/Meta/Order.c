@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Order
-// Imports: Lean.Meta.InferType Lean.Meta.PProdN Lean.Meta.AppBuilder Init.Internal.Order.Basic
+// Imports: public import Lean.Meta.PProdN public import Lean.Meta.AppBuilder public import Init.Internal.Order.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1798,7 +1798,6 @@ x_11 = lean_box(x_10);
 return x_11;
 }
 }
-lean_object* initialize_Lean_Meta_InferType(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_PProdN(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Internal_Order_Basic(uint8_t builtin, lean_object*);
@@ -1807,9 +1806,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Order(uint8_t builtin, lean_object
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_InferType(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_PProdN(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -44,5 +44,3 @@ public import Lean.Compiler.LCNF.Closure
 public import Lean.Compiler.LCNF.LambdaLifting
 public import Lean.Compiler.LCNF.ReduceArity
 public import Lean.Compiler.LCNF.Probing
-
-public section

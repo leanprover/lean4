@@ -6,7 +6,10 @@ Authors: Markus Himmel, Paul Reichert, Robin Arnez
 module
 
 prelude
-public import Init.Data.Ord.Basic
+import Init.Data.List.Lemmas
+import Init.Data.Array.DecidableEq
+public import Init.Data.Ord.Array
+public import Init.Data.BEq
 
 public section
 

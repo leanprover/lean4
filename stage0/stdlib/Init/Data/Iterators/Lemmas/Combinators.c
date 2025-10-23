@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.Lemmas.Combinators
-// Imports: Init.Data.Iterators.Lemmas.Combinators.Attach Init.Data.Iterators.Lemmas.Combinators.Monadic Init.Data.Iterators.Lemmas.Combinators.FilterMap Init.Data.Iterators.Lemmas.Combinators.ULift
+// Imports: public import Init.Data.Iterators.Lemmas.Combinators.Attach public import Init.Data.Iterators.Lemmas.Combinators.Monadic public import Init.Data.Iterators.Lemmas.Combinators.FilterMap public import Init.Data.Iterators.Lemmas.Combinators.FlatMap public import Init.Data.Iterators.Lemmas.Combinators.ULift
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_Attach(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_Monadic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_FlatMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_ULift(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators(uint8_t builtin, lean_object* w) {
@@ -29,6 +30,9 @@ res = initialize_Init_Data_Iterators_Lemmas_Combinators_Monadic(builtin, lean_io
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Lemmas_Combinators_FlatMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Lemmas_Combinators_ULift(builtin, lean_io_mk_world());

@@ -32,11 +32,9 @@ public import Lean.Util.TestExtern
 public import Lean.Util.OccursCheck
 public import Lean.Util.HasConstCache
 public import Lean.Util.Heartbeats
-public import Lean.Util.SearchPath
 public import Lean.Util.SafeExponentiation
 public import Lean.Util.NumObjs
 public import Lean.Util.NumApps
 public import Lean.Util.FVarSubset
 public import Lean.Util.SortExprs
-
-public section
+public import Lean.Util.Reprove

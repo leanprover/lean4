@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Notation
-// Imports: Init.Coe
+// Imports: public import Init.Coe
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -27007,7 +27007,7 @@ static lean_object* _init_l_Lean_guardMsgsCmd___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("docComment", 10, 10);
+x_1 = lean_mk_string_unchecked("plainDocComment", 15, 15);
 return x_1;
 }
 }

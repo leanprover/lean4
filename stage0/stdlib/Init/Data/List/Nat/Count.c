@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Nat.Count
-// Imports: Init.Data.List.Count Init.Data.Nat.Lemmas
+// Imports: public import Init.Data.List.Count public import Init.Data.Nat.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

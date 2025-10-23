@@ -6,16 +6,10 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Core
 public import Init.Data.Slice.Array.Basic
 import Init.Data.Iterators.Combinators.Attach
-import Init.Data.Iterators.Combinators.FilterMap
-import Init.Data.Iterators.Combinators.ULift
-public import Init.Data.Iterators.Consumers.Collect
-public import Init.Data.Iterators.Consumers.Loop
-public import Init.Data.Range.Polymorphic.Basic
+public import Init.Data.Iterators.Combinators.ULift
 import all Init.Data.Range.Polymorphic.Basic
-public import Init.Data.Range.Polymorphic.Nat
 public import Init.Data.Range.Polymorphic.Iterators
 public import Init.Data.Slice.Operations
 import Init.Omega
@@ -31,17 +25,15 @@ open Std Slice PRange Iterators
 
 variable {shape : RangeShape} {α : Type u}
 
-@[no_expose]
 instance {s : Subarray α} : ToIterator s Id α :=
   .of _
-    (PRange.Internal.iter (s.internalRepresentation.start...<s.internalRepresentation.stop)
+    (Rco.Internal.iter (s.internalRepresentation.start...<s.internalRepresentation.stop)
       |>.attachWith (· < s.internalRepresentation.array.size) ?h
       |>.uLift
       |>.map fun | .up i => s.internalRepresentation.array[i.1])
 where finally
   case h =>
-    simp only [Internal.isPlausibleIndirectOutput_iter_iff, Membership.mem,
-      SupportsUpperBound.IsSatisfied, and_imp]
+    simp only [Rco.Internal.isPlausibleIndirectOutput_iter_iff, Membership.mem, and_imp]
     intro out _ h
     have := s.internalRepresentation.stop_le_array_size
     omega

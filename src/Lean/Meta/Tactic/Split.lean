@@ -99,6 +99,24 @@ private def throwInternalMisuseError [Monad m] [MonadError m] (msg : MessageData
   throwError msg ++ .note m!"This error typically occurs when the `split` tactic's internal functions have been used in a new metaprogram"
 
 /--
+Split works best if all discriminants are already free variables. If they are not, it will generalize
+them, but that may fail if the motive is dependent. So to avoid that, we first generalize all
+non-FVar discriminants that are propositions; because of proof irrelvance, that's much simpler.
+-/
+private partial def generalizeMatchPropDiscrs (mvarId : MVarId) (discrs : Array Expr) : MetaM (Array Expr × MVarId) := mvarId.withContext do
+  let mut mvarId := mvarId
+  let mut discrs' := #[]
+  for discr in discrs do
+    if !discr.isFVar then
+      if(← isProof discr) then
+        let (fvarIds, mvarId') ← mvarId.generalize #[{expr := discr}]
+        mvarId := mvarId'
+        discrs' := discrs'.push (mkFVar fvarIds[0]!)
+        continue
+    discrs' := discrs'.push discr
+  return (discrs', mvarId)
+
+/--
   This method makes sure each discriminant is a free variable.
   Return the tuple `(discrsNew, discrEqs, mvarId)`. `discrsNew` in an array representing the new discriminants, `discrEqs` is an array of auxiliary equality hypotheses
   that connect the new discriminants to the original terms they represent.
@@ -130,6 +148,7 @@ private def throwInternalMisuseError [Monad m] [MonadError m] (msg : MessageData
 -/
 private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : Name) (motiveType : Expr) (discrs : Array Expr) : MetaM (Array FVarId × Array FVarId × MVarId) := mvarId.withContext do
   if discrs.all (·.isFVar) then
+    trace[split.debug] "no need to generalize discriminants, all are fvars"
     return (discrs.map (·.fvarId!), #[], mvarId)
   let some matcherInfo ← getMatcherInfo? matcherDeclName | unreachable!
   let numDiscrEqs := matcherInfo.getNumDiscrEqs -- Number of `h : discr = pattern` equations
@@ -172,7 +191,9 @@ private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : N
       unless (← foundRef.get) do
         throwInternalMisuseError m!"Internal error in `split` tactic: Failed to find match-expression discriminants"
       let targetNew ← mkForallFVars (discrVars ++ eqs) targetNew
-      unless (← isTypeCorrect targetNew) do
+      try check targetNew
+      catch e =>
+        trace[split.debug] "targetNew not type correct:{indentExpr targetNew}\n{e.toMessageData}"
         throw <| Exception.internal discrGenExId
       return (targetNew, rfls)
     let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew (← mvarId.getTag)
@@ -235,6 +256,8 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
   let splitterPre := mkAppN (mkConst matchEqns.splitterName us.toList) params
   let motiveType := (← whnfForall (← inferType splitterPre)).bindingDomain!
   trace[split.debug] "applyMatchSplitter\n{mvarId}"
+  let (discrs, mvarId) ← generalizeMatchPropDiscrs mvarId discrs
+  trace[split.debug] "after generalizeMatchPropDiscrs\n{mvarId}"
   let (discrFVarIds, discrEqs, mvarId) ← generalizeMatchDiscrs mvarId matcherDeclName motiveType discrs
   trace[split.debug] "after generalizeMatchDiscrs\n{mvarId}"
   let mvarId ← generalizeTargetsEq mvarId motiveType (discrFVarIds.map mkFVar)

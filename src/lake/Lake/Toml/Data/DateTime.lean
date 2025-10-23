@@ -7,6 +7,8 @@ module
 
 prelude
 public import Lake.Util.Date
+import Lake.Util.String
+import Init.Data.String.Basic
 
 /-!
 # TOML Date-Time
@@ -61,9 +63,9 @@ public def ofValid? (hour minute second : Nat) : Option Time := do
   return {hour, minute, second}
 
 public def ofString? (t : String) : Option Time := do
-  match t.split (· == ':') with
+  match t.splitToList (· == ':') with
   | [h,m,s] =>
-    match s.split (· == '.') with
+    match s.splitToList (· == '.') with
     | [s,f] =>
       let time ← ofValid? (← h.toNat?) (← m.toNat?) (← s.toNat?)
       return {time with fracExponent := f.length-1, fracMantissa := ← f.toNat?}
@@ -99,14 +101,14 @@ public instance : Coe Time DateTime := ⟨DateTime.localTime⟩
 namespace DateTime
 
 public def ofString? (dt : String) : Option DateTime := do
-  match dt.split (fun c => c == 'T' || c == 't' || c == ' ') with
+  match dt.splitToList (fun c => c == 'T' || c == 't' || c == ' ') with
   | [d,t] =>
     let d ← Date.ofString? d
     if t.back == 'Z' || t.back == 'z' then
       return offsetDateTime d (← Time.ofString? <| t.dropRight 1)
-    else if let [t,o] := t.split (· == '+') then
+    else if let [t,o] := t.splitToList (· == '+') then
       return offsetDateTime d (← Time.ofString? t) <| some (false, ← Time.ofString? o)
-    else if let [t,o] := t.split (· == '-') then
+    else if let [t,o] := t.splitToList (· == '-') then
       return offsetDateTime d (← Time.ofString? t) <| some (true, ← Time.ofString? o)
     else
       return localDateTime d (← Time.ofString? t)

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Widget
-// Imports: Lean.Widget.InteractiveCode Lean.Widget.InteractiveDiagnostic Lean.Widget.InteractiveGoal Lean.Widget.TaggedText Lean.Widget.UserWidget
+// Imports: public import Lean.Widget.InteractiveCode public import Lean.Widget.InteractiveDiagnostic public import Lean.Widget.InteractiveGoal public import Lean.Widget.TaggedText public import Lean.Widget.UserWidget public import Lean.Widget.Commands
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,7 @@ lean_object* initialize_Lean_Widget_InteractiveDiagnostic(uint8_t builtin, lean_
 lean_object* initialize_Lean_Widget_InteractiveGoal(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Widget_TaggedText(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Widget_UserWidget(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Widget_Commands(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Widget(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -36,6 +37,9 @@ res = initialize_Lean_Widget_TaggedText(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Widget_UserWidget(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Widget_Commands(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

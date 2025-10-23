@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Producers.Monadic.Array
-// Imports: Init.Data.Nat.Lemmas Init.RCases Init.Data.Iterators.Consumers Init.Data.Iterators.Internal.Termination
+// Imports: public import Init.Data.Iterators.Consumers public import Init.Data.Iterators.Internal.Termination
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -530,8 +530,6 @@ lean_closure_set(x_8, 5, x_7);
 return x_8;
 }
 }
-lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_RCases(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Consumers(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Iterators_Internal_Termination(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -539,12 +537,6 @@ LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Producers_Monadic_Array(u
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Nat_Lemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_RCases(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Consumers(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

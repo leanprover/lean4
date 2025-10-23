@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas
-// Imports: Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Pred
+// Imports: public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Pred
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

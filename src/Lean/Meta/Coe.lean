@@ -6,9 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Transform
-public import Lean.Meta.SynthInstance
 public import Lean.Meta.AppBuilder
+import Lean.ExtraModUses
 
 public section
 
@@ -32,6 +31,15 @@ coercions.
 def isCoeDecl (env : Environment) (declName : Name) : Bool :=
   coeDeclAttr.hasTag env declName
 
+/-- Recurse through projection functions (e.g. `(f a b c).fst.snd` => `f`) -/
+private partial def recProjTarget (e : Expr) (nm : Name := e.getAppFn.constName!) : MetaM Name := do
+  let some info ← getProjectionFnInfo? nm | return nm
+  let target := e.getArgD info.numParams (.sort .zero)
+  if target.getAppFn.isConst then
+    recProjTarget target
+  else
+    return nm
+
 /-- Expand coercions occurring in `e` -/
 partial def expandCoe (e : Expr) : MetaM Expr :=
   withReducibleAndInstances do
@@ -40,6 +48,13 @@ partial def expandCoe (e : Expr) : MetaM Expr :=
       if f.isConst then
         let declName := f.constName!
         if isCoeDecl (← getEnv) declName then
+          /-
+          Unfolding an instance projection corresponds to unfolding the target of the projection
+          (and then reducing the projection). Thus we can recursively visit projections before
+          recording the declaration. We shouldn't need to record any other arguments because they
+          should still appear after unfolding (unless there are unused variables in the instances).
+          -/
+          recordExtraModUseFromDecl (isMeta := false) (← recProjTarget e)
           if let some e ← unfoldDefinition? e then
             return .visit e.headBeta
       return .continue

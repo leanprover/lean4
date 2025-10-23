@@ -9,7 +9,6 @@ prelude
 public import Lean.Parser.Syntax
 public import Lean.Meta.Tactic.Simp.RegisterCommand
 public import Lean.Elab.Command
-public import Lean.Elab.SetOption
 public import Lean.Linter.Util
 
 public section
@@ -87,12 +86,15 @@ builtin_initialize
     applicationTime := .afterCompilation
     add             := fun declName stx kind => do
       unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
+      if !builtin then
+        ensureAttrDeclIsMeta name declName kind
       let env ← getEnv
       unless builtin || (env.getModuleIdxFor? declName).isNone do
         throwAttrDeclInImportedModule name declName
       let decl ← getConstInfo declName
       let fnNameStx ← Attribute.Builtin.getIdent stx
       let key ← Elab.realizeGlobalConstNoOverloadWithInfo fnNameStx
+      recordExtraModUseFromDecl (isMeta := false) key
       unless decl.levelParams.isEmpty && (decl.type == .const ``Handler [] || decl.type == .const ``SimpleHandler []) do
         throwError m!"Unexpected type for missing docs handler: Expected `{.ofConstName ``Handler}` or \
           `{.ofConstName ``SimpleHandler}`, but `{declName}` has type{indentExpr decl.type}"
@@ -123,6 +125,10 @@ def hasInheritDoc (attrs : Syntax) : Bool :=
   attrs[0][1].getSepArgs.any fun attr =>
     attr[1].isOfKind ``Parser.Attr.simple &&
     attr[1][0].getId.eraseMacroScopes == `inherit_doc
+
+def hasTacticAlt (attrs : Syntax) : Bool :=
+  attrs[0][1].getSepArgs.any fun attr =>
+    attr[1].isOfKind ``Parser.Attr.tactic_alt
 
 def declModifiersPubNoDoc (mods : Syntax) : CommandElabM Bool := do
   let isPublic := if (← getEnv).header.isModule && !(← getScope).isPublic then
@@ -158,7 +164,7 @@ def checkDecl : SimpleHandler := fun stx => do
           lintField rest[1][0] stx[1] "computed field"
   else if rest.getKind == ``«structure» then
     unless rest[4][2].isNone do
-      let redecls : Std.HashSet String.Pos :=
+      let redecls : Std.HashSet String.Pos.Raw :=
         (← get).infoState.trees.foldl (init := {}) fun s tree =>
           tree.foldInfo (init := s) fun _ info s =>
             if let .ofFieldRedeclInfo info := info then
@@ -199,13 +205,13 @@ def checkMixfix : SimpleHandler := fun stx => do
 
 @[builtin_missing_docs_handler «syntax»]
 def checkSyntax : SimpleHandler := fun stx => do
-  if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] then
+  if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] && !hasTacticAlt stx[1] then
     if stx[5].isNone then lint stx[3] "syntax"
     else lintNamed stx[5][0][3] "syntax"
 
-def mkSimpleHandler (name : String) : SimpleHandler := fun stx => do
+def mkSimpleHandler (name : String) (declNameStxIdx := 2) : SimpleHandler := fun stx => do
   if stx[0].isNone then
-    lintNamed stx[2] name
+    lintNamed stx[declNameStxIdx] name
 
 @[builtin_missing_docs_handler syntaxAbbrev]
 def checkSyntaxAbbrev : SimpleHandler := mkSimpleHandler "syntax"
@@ -215,13 +221,13 @@ def checkSyntaxCat : SimpleHandler := mkSimpleHandler "syntax category"
 
 @[builtin_missing_docs_handler «macro»]
 def checkMacro : SimpleHandler := fun stx => do
-  if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] then
+  if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] && !hasTacticAlt stx[1] then
     if stx[5].isNone then lint stx[3] "macro"
     else lintNamed stx[5][0][3] "macro"
 
 @[builtin_missing_docs_handler «elab»]
 def checkElab : SimpleHandler := fun stx => do
-  if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] then
+  if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] && !hasTacticAlt stx[1] then
     if stx[5].isNone then lint stx[3] "elab"
     else lintNamed stx[5][0][3] "elab"
 
@@ -234,10 +240,12 @@ def checkClassAbbrev : SimpleHandler := fun stx => do
 def checkSimpLike : SimpleHandler := mkSimpleHandler "simp-like tactic"
 
 @[builtin_missing_docs_handler Option.registerBuiltinOption]
-def checkRegisterBuiltinOption : SimpleHandler := mkSimpleHandler "option"
+def checkRegisterBuiltinOption : SimpleHandler := mkSimpleHandler (declNameStxIdx := 3) "option"
 
 @[builtin_missing_docs_handler Option.registerOption]
-def checkRegisterOption : SimpleHandler := mkSimpleHandler "option"
+def checkRegisterOption : SimpleHandler := fun stx => do
+  if (← declModifiersPubNoDoc stx[0]) then
+    lintNamed stx[2] "option"
 
 @[builtin_missing_docs_handler registerSimpAttr]
 def checkRegisterSimpAttr : SimpleHandler := mkSimpleHandler "simp attr"

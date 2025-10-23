@@ -6,19 +6,11 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.ShareCommon
-public import Lean.Compiler.MetaAttr
 public import Lean.Compiler.NoncomputableAttr
-public import Lean.Util.CollectLevelParams
-public import Lean.Util.NumObjs
 public import Lean.Util.NumApps
-public import Lean.Meta.AbstractNestedProofs
-public import Lean.Meta.ForEachExpr
 public import Lean.Meta.Eqns
-public import Lean.Meta.LetToHave
 public import Lean.Elab.RecAppSyntax
 public import Lean.Elab.DefView
-public import Lean.Elab.PreDefinition.TerminationHint
 
 public section
 
@@ -42,6 +34,7 @@ structure PreDefinition where
   modifiers   : Modifiers
   declName    : Name
   binders     : Syntax
+  numSectionVars : Nat := 0
   type        : Expr
   value       : Expr
   termination : TerminationHints
@@ -160,20 +153,6 @@ private def reportTheoremDiag (d : TheoremVal) : TermElabM Unit := do
       -- let info
       logInfo <| MessageData.trace { cls := `theorem } m!"{d.name}" (#[sizeMsg] ++ constOccsMsg)
 
--- TODO: should become part of the compiler to deal with erasure
-private def checkMeta (preDef : PreDefinition) : TermElabM Unit := do
-  preDef.value.forEach' fun e => do
-    if e.isAutoParam then
-      return false
-    if let .const c .. := e then
-      match getIRPhases (← getEnv) c, preDef.modifiers.isMeta with
-      | .runtime, true =>
-        throwError "Invalid meta definition, `{.ofConstName c}` must be `meta` to access"
-      | .comptime, false =>
-        throwError "Invalid definition, may not access `meta` declaration `{.ofConstName c}`"
-      | _, _ => pure ()
-    return true
-
 /--
 Adds the docstring, if relevant.
 
@@ -231,10 +210,12 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
     addDecl decl
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
     match preDef.modifiers.computeKind with
-    | .meta          => modifyEnv (addMeta · preDef.declName)
-    | .noncomputable => modifyEnv (addNoncomputable · preDef.declName)
-    | _              => pure ()
-    checkMeta preDef
+    -- Tags may have been added by `elabMutualDef` already, but that is not the only caller
+    | .meta          => if !isMeta (← getEnv) preDef.declName then modifyEnv (addMeta · preDef.declName)
+    | .noncomputable => if !isNoncomputable (← getEnv) preDef.declName then modifyEnv (addNoncomputable · preDef.declName)
+    | _              =>
+      if !preDef.kind.isTheorem then
+        modifyEnv (addNotMeta · preDef.declName)
     if compile && shouldGenCodeFor preDef then
       compileDecl decl
     if applyAttrAfterCompilation then

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Toml.Data.Value
-// Imports: Init.Data.Float Lake.Toml.Data.Dict Lake.Toml.Data.DateTime
+// Imports: public import Init.Data.Float public import Lake.Toml.Data.Dict public import Lake.Toml.Data.DateTime import Lake.Util.String import Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,9 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at___Lake_Toml_instBEqValue_beq_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_float_elim___redArg(lean_object*, lean_object*);
-uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_ppTable___boxed(lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 LEAN_EXPORT lean_object* l___private_Lake_Toml_Data_Value_0__Lake_Toml_ppTable_appendKeyval(lean_object*, lean_object*, lean_object*);
@@ -64,7 +62,6 @@ static lean_object* l_String_foldlAux___at___Lake_Toml_ppString_spec__0___closed
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_Toml_ppTable_spec__6_spec__6___closed__0;
 static lean_object* l_Lake_Toml_ppInlineTable___closed__0;
 static lean_object* l_Lake_Toml_instBEqValue___closed__0;
-lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Toml_RBDict_beq___at___Lake_Toml_instBEqValue_beq_spec__1___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_float_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at___Lake_Toml_RBDict_beq___at___Lake_Toml_instBEqValue_beq_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -85,6 +82,7 @@ LEAN_EXPORT lean_object* l_Lake_Toml_Value_array_elim___redArg(lean_object*, lea
 lean_object* l_Lake_Toml_DateTime_toString(lean_object*);
 LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___Lake_Toml_ppTable_spec__0(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_ppTable___closed__0;
 static lean_object* l_Lake_Toml_instToStringValue___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake_Toml_ppInlineArray_spec__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -94,7 +92,6 @@ LEAN_EXPORT lean_object* l_Lake_Toml_Table_mkEmpty(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_table(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_ppKey___closed__0;
-lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_dateTime_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___Lake_Toml_ppTable_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_ppString___boxed(lean_object*);
@@ -117,6 +114,7 @@ LEAN_EXPORT lean_object* l_Lake_Toml_ppInlineArray(lean_object*);
 static lean_object* l_String_foldlAux___at___Lake_Toml_ppString_spec__0___closed__6;
 static lean_object* l_String_foldlAux___at___Lake_Toml_ppString_spec__0___closed__2;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 static lean_object* l_String_foldlAux___at___Lake_Toml_ppString_spec__0___closed__4;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_float_to_string(double);
@@ -141,8 +139,10 @@ LEAN_EXPORT lean_object* l_Lake_Toml_Value_ctorElim___boxed(lean_object*, lean_o
 static lean_object* l_Lake_Toml_Table_empty___closed__0;
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_String_foldlAux___at___Lake_Toml_ppString_spec__0___closed__1;
+lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_ppInlineArray___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_integer_elim___redArg(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_ppString___closed__0;
 static lean_object* l_String_foldlAux___at___Lake_Toml_ppString_spec__0___closed__0;
 lean_object* l_String_intercalate(lean_object*, lean_object*);
@@ -2062,7 +2062,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_Toml_ppTable_spec__3_spec__3___closed__4;
 x_2 = lean_unsigned_to_nat(17u);
-x_3 = lean_unsigned_to_nat(123u);
+x_3 = lean_unsigned_to_nat(125u);
 x_4 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_Toml_ppTable_spec__3_spec__3___closed__3;
 x_5 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_Toml_ppTable_spec__3_spec__3___closed__2;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3117,6 +3117,8 @@ return x_2;
 lean_object* initialize_Init_Data_Float(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Toml_Data_Dict(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Toml_Data_DateTime(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Util_String(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Toml_Data_Value(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -3129,6 +3131,12 @@ res = initialize_Lake_Toml_Data_Dict(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Toml_Data_DateTime(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Util_String(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_Toml_instInhabitedValue_default___closed__0 = _init_l_Lake_Toml_instInhabitedValue_default___closed__0();

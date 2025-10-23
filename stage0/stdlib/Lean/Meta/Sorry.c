@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Sorry
-// Imports: Lean.Data.Lsp.Utf16 Lean.Meta.ForEachExpr Lean.Meta.InferType Lean.Util.Recognizers
+// Imports: public import Lean.Data.Lsp.Utf16 public import Lean.Meta.ForEachExpr public import Lean.Meta.InferType public import Lean.Util.Recognizers
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -350,8 +350,8 @@ if (x_2 == 0)
 {
 lean_object* x_33; 
 x_33 = l_Lean_Meta_mkSorry___closed__5;
-x_8 = x_30;
-x_9 = x_32;
+x_8 = x_32;
+x_9 = x_30;
 x_10 = x_33;
 goto block_13;
 }
@@ -359,8 +359,8 @@ else
 {
 lean_object* x_34; 
 x_34 = l_Lean_Meta_mkSorry___closed__8;
-x_8 = x_30;
-x_9 = x_32;
+x_8 = x_32;
+x_9 = x_30;
 x_10 = x_34;
 goto block_13;
 }
@@ -415,8 +415,8 @@ if (x_2 == 0)
 {
 lean_object* x_46; 
 x_46 = l_Lean_Meta_mkSorry___closed__5;
-x_8 = x_42;
-x_9 = x_45;
+x_8 = x_45;
+x_9 = x_42;
 x_10 = x_46;
 goto block_13;
 }
@@ -424,8 +424,8 @@ else
 {
 lean_object* x_47; 
 x_47 = l_Lean_Meta_mkSorry___closed__8;
-x_8 = x_42;
-x_9 = x_45;
+x_8 = x_45;
+x_9 = x_42;
 x_10 = x_47;
 goto block_13;
 }
@@ -460,10 +460,10 @@ return x_51;
 block_13:
 {
 lean_object* x_11; lean_object* x_12; 
-x_11 = l_Lean_mkAppB(x_9, x_1, x_10);
+x_11 = l_Lean_mkAppB(x_8, x_1, x_10);
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
-lean_ctor_set(x_12, 1, x_8);
+lean_ctor_set(x_12, 1, x_9);
 return x_12;
 }
 }

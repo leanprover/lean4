@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.ScopedEnvExtension
 public import Lean.Compiler.InitAttr
-public import Lean.Meta.DiscrTree
 public import Lean.Meta.Tactic.Simp.Types
 
 public section
@@ -371,7 +369,8 @@ def mkSimprocExt (name : Name := by exact decl_name%) (ref? : Option (IO.Ref Sim
     addEntry      := fun s e => s.addCore e.keys e.declName e.post e.proc
   }
 
-def addSimprocAttr (ext : SimprocExtension) (declName : Name) (stx : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
+def addSimprocAttr (attrName : Name) (ext : SimprocExtension) (declName : Name) (stx : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
+  ensureAttrDeclIsMeta attrName declName attrKind
   let go : MetaM Unit := do
     let post := if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
     addSimprocAttrCore ext declName attrKind post
@@ -383,7 +382,7 @@ def mkSimprocAttr (attrName : Name) (attrDescr : String) (ext : SimprocExtension
     name  := attrName
     descr := attrDescr
     applicationTime := AttributeApplicationTime.afterCompilation
-    add   := addSimprocAttr ext
+    add   := addSimprocAttr attrName ext
     erase := eraseSimprocAttr ext
   }
 

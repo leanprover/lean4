@@ -7,12 +7,7 @@ module
 
 prelude
 public import Lean.DeclarationRange
-public import Lean.Data.Options
-public import Lean.DocString.Links
-public import Lean.MonadEnv
-public import Init.Data.String.Extra
-public import Lean.DocString.Types
-import Lean.DocString.Markdown
+public import Lean.DocString.Markdown
 
 public section
 
@@ -38,7 +33,7 @@ instance : Repr ElabInline where
       .group (.nestD ("{ name :=" ++ .line ++ repr v.name)) ++ .line ++
       .group (.nestD ("val :=" ++ .line ++ "Dynamic.mk " ++ repr v.val.typeName ++ " _ }"))
 
-private instance : Doc.MarkdownInline ElabInline where
+instance : Doc.MarkdownInline ElabInline where
   -- TODO extensibility
   toMarkdown go _i content := content.forM go
 
@@ -59,7 +54,7 @@ instance : Repr ElabBlock where
 
 
 -- TODO extensible toMarkdown
-private instance : Doc.MarkdownBlock ElabInline ElabBlock where
+instance : Doc.MarkdownBlock ElabInline ElabBlock where
   toMarkdown _goI goB _b content := content.forM goB
 
 structure VersoDocString where
@@ -214,5 +209,211 @@ def getModuleDoc? (env : Environment) (moduleName : Name) : Option (Array Module
 
 def getDocStringText [Monad m] [MonadError m] (stx : TSyntax `Lean.Parser.Command.docComment) : m String :=
   match stx.raw[1] with
-  | Syntax.atom _ val => return val.extract 0 (val.endPos - ⟨2⟩)
-  | _                 => throwErrorAt stx "unexpected doc string{indentD stx.raw[1]}"
+  | Syntax.atom _ val =>
+    return String.Pos.Raw.extract val 0 (val.endPos.unoffsetBy ⟨2⟩)
+  | Syntax.node _ `Lean.Parser.Command.versoCommentBody _ =>
+    match stx.raw[1][0] with
+    | Syntax.atom _ val =>
+      return String.Pos.Raw.extract val 0 (val.endPos.unoffsetBy ⟨2⟩)
+    | _ =>
+      throwErrorAt stx "unexpected doc string{indentD stx}"
+  | _ =>
+    throwErrorAt stx "unexpected doc string{indentD stx}"
+
+
+
+/--
+A snippet of a Verso module text.
+
+A snippet consists of text followed by subsections. Because the sequence of snippets that occur in a
+source file are conceptually a single document, they have a consistent header nesting structure.
+This means that initial textual content of a snippet is a continuation of the text at the end of the
+prior snippet.
+
+The actual hierarchical structure of the document is reconstructed from the sequence of snippets.
+
+The _terminal nesting_ of a sequence of snippets is 0 if there are no sections in the sequence.
+Otherwise, it is one greater than the nesting of the last snippet's last section. The module
+docstring elaborator maintains the invariant that each snippet's first section's level is at most
+the terminal nesting of the preceding snippets, and that the level of each section within a snippet
+is at most one greater than the preceding section's level.
+-/
+structure VersoModuleDocs.Snippet where
+  /-- Text to be inserted after the prior snippet's ending text. -/
+  text : Array (Doc.Block ElabInline ElabBlock) := #[]
+  /--
+  A sequence of parts with their absolute document nesting levels and header positions.
+  None of these parts may contain sub-parts.
+  -/
+  sections : Array (Nat × DeclarationRange × Doc.Part ElabInline ElabBlock Empty) := #[]
+  /--
+  The location of the snippet in the source file.
+  -/
+  declarationRange : DeclarationRange
+deriving Inhabited, Repr
+
+namespace VersoModuleDocs.Snippet
+
+def canNestIn (level : Nat) (snippet : Snippet) : Bool :=
+  if let some s := snippet.sections[0]? then s.1 ≤ level + 1 else true
+
+def terminalNesting (snippet : Snippet) : Option Nat :=
+  if let some s := snippet.sections.back? then s.1
+  else none
+
+def addBlock (snippet : Snippet) (block : Doc.Block ElabInline ElabBlock) : Snippet :=
+  if h : snippet.sections.size = 0 then
+    { snippet with text := snippet.text.push block }
+  else
+    { snippet with
+      sections[snippet.sections.size - 1].2.2.content :=
+        snippet.sections[snippet.sections.size - 1].2.2.content.push block }
+
+def addPart (snippet : Snippet) (level : Nat) (range : DeclarationRange) (part : Doc.Part ElabInline ElabBlock Empty) : Snippet :=
+  { snippet with
+    sections := snippet.sections.push (level, range, part) }
+
+end VersoModuleDocs.Snippet
+
+open Lean Doc ToMarkdown MarkdownM in
+instance : ToMarkdown VersoModuleDocs.Snippet where
+  toMarkdown
+    | {text, sections, ..} => do
+      text.forM toMarkdown
+      endBlock
+      for (level, _, part) in sections do
+        push ("".pushn '#' (level + 1))
+        push " "
+        for i in part.title do toMarkdown i
+        endBlock
+        for b in part.content do toMarkdown b
+        endBlock
+
+structure VersoModuleDocs where
+  snippets : PersistentArray VersoModuleDocs.Snippet := {}
+  terminalNesting : Option Nat := snippets.findSomeRev? (·.terminalNesting)
+deriving Inhabited
+
+instance : Repr VersoModuleDocs where
+  reprPrec v _ :=
+    .group <| .nest 2 <|
+      "{ " ++
+      (.group <| .nest 2 <| "snippets := " ++ .line ++ repr v.snippets.toArray) ++ .line ++
+      (.group <| .nest 2 <| "snippets := " ++ .line ++ repr v.snippets.toArray) ++
+      " }"
+
+namespace VersoModuleDocs
+
+def isEmpty (docs : VersoModuleDocs) : Bool := docs.snippets.isEmpty
+
+def canAdd (docs : VersoModuleDocs) (snippet : Snippet) : Bool :=
+  if let some level := docs.terminalNesting then
+    snippet.canNestIn level
+  else true
+
+
+def add (docs : VersoModuleDocs) (snippet : Snippet) : Except String VersoModuleDocs := do
+  unless docs.canAdd snippet do
+    throw "Can't nest this snippet here"
+
+  return { docs with
+    snippets := docs.snippets.push snippet,
+    terminalNesting := snippet.terminalNesting
+  }
+
+def add! (docs : VersoModuleDocs) (snippet : Snippet) : VersoModuleDocs :=
+  let ok :=
+    if let some level := docs.terminalNesting then
+      snippet.canNestIn level
+    else true
+  if not ok then
+    panic! "Can't nest this snippet here"
+  else
+    { docs with
+      snippets := docs.snippets.push snippet,
+      terminalNesting := snippet.terminalNesting
+    }
+
+
+private structure DocFrame where
+  content : Array (Doc.Block ElabInline ElabBlock)
+  priorParts : Array (Doc.Part ElabInline ElabBlock Empty)
+  titleString : String
+  title : Array (Doc.Inline ElabInline)
+
+private structure DocContext where
+  content : Array (Doc.Block ElabInline ElabBlock)
+  priorParts : Array (Doc.Part ElabInline ElabBlock Empty)
+  context : Array DocFrame
+
+private def DocContext.level (ctx : DocContext) : Nat := ctx.context.size
+
+private def DocContext.close (ctx : DocContext) : Except String DocContext := do
+  if h : ctx.context.size = 0 then
+    throw "Can't close a section: none are open"
+  else
+    let last := ctx.context.back
+    pure {
+      content := last.content,
+      priorParts := last.priorParts.push {
+        title := last.title,
+        titleString := last.titleString,
+        metadata := none,
+        content := ctx.content,
+        subParts := ctx.priorParts,
+      },
+      context := ctx.context.pop
+    }
+
+private partial def DocContext.closeAll (ctx : DocContext) : Except String DocContext := do
+  if ctx.context.size = 0 then
+    return ctx
+  else
+    (← ctx.close).closeAll
+
+private partial def DocContext.addPart (ctx : DocContext) (partLevel : Nat) (part : Doc.Part ElabInline ElabBlock Empty) : Except String DocContext := do
+  if partLevel > ctx.level then throw s!"Invalid nesting: expected at most {ctx.level} but got {partLevel}"
+  else if partLevel = ctx.level then pure { ctx with priorParts := ctx.priorParts.push part }
+  else
+    let ctx ← ctx.close
+    ctx.addPart partLevel part
+
+private def DocContext.addBlocks (ctx : DocContext) (blocks : Array (Doc.Block ElabInline ElabBlock)) : Except String DocContext := do
+  if ctx.priorParts.isEmpty then pure { ctx with content := ctx.content ++ blocks }
+  else throw "Can't add content after sub-parts"
+
+private def DocContext.addSnippet (ctx : DocContext) (snippet : Snippet) : Except String DocContext := do
+  let mut ctx ← ctx.addBlocks snippet.text
+  for (l, _, p) in snippet.sections do
+    ctx ← ctx.addPart l p
+  return ctx
+
+def assemble (docs : VersoModuleDocs) : Except String VersoDocString := do
+  let mut ctx : DocContext := {content := #[], priorParts := #[], context := #[]}
+  for snippet in docs.snippets do
+    ctx ← ctx.addSnippet snippet
+  ctx ← ctx.closeAll
+  return { text := ctx.content, subsections := ctx.priorParts }
+
+end VersoModuleDocs
+
+private builtin_initialize versoModuleDocExt :
+    SimplePersistentEnvExtension VersoModuleDocs.Snippet VersoModuleDocs ← registerSimplePersistentEnvExtension {
+  addImportedFn := fun _ => {}
+  addEntryFn    := fun s e => s.add! e
+  exportEntriesFnEx? := some fun _ _ es level =>
+    if level < .server then
+      #[]
+    else
+      es.toArray
+}
+
+
+def getVersoModuleDocs (env : Environment) : VersoModuleDocs :=
+  versoModuleDocExt.getState env
+
+def addVersoModuleDocSnippet (env : Environment) (snippet : VersoModuleDocs.Snippet) : Except String Environment :=
+  let docs := getVersoModuleDocs env
+  if docs.canAdd snippet then
+    pure <| versoModuleDocExt.addEntry env snippet
+  else throw s!"Can't add - incorrect nesting {docs.terminalNesting.map (s!"(expected at most {·})") |>.getD ""})"

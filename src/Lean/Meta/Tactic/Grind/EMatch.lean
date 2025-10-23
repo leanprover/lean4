@@ -8,9 +8,11 @@ prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Util.CollectLevelMVars
 import Lean.Meta.Tactic.Grind.Core
+import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.ProveEq
 import Lean.Meta.Tactic.Grind.SynthInstance
+import Lean.Meta.Tactic.Grind.Simp
 public section
 namespace Lean.Meta.Grind
 namespace EMatch
@@ -65,16 +67,43 @@ structure Context where
   initApp : Expr := default
   deriving Inhabited
 
+/--
+A mapping `uniqueId ↦ thm`, where `uniqueId` is an auxiliary marker used to wrap a theorem instantiation proof of `thm`
+using a `Expr.mdata`. The `uniqueId`s are created using `mkFreshId`.
+-/
+abbrev InstanceMap := Std.HashMap Name EMatchTheorem
+
+private def thmInstanceKey := `_grind_thm_instance
+
+private def markTheoremInstanceProof (proof : Expr) (uniqueId : Name) : Expr :=
+  Expr.mdata (KVMap.empty.insert thmInstanceKey uniqueId) proof
+
+/-- Returns `some uniqueId` if `proof` was marked using `markTheoremInstanceProof` -/
+def isTheoremInstanceProof? (proof : Expr) : Option Name :=
+  match proof with
+  | .mdata d _ =>
+    match d.find thmInstanceKey with
+    | some (DataValue.ofName uniqueId) => some uniqueId
+    | _ => none
+  | _ => none
+
 /-- State for the E-matching monad -/
 structure SearchState where
   /-- Choices that still have to be processed. -/
   choiceStack  : List Choice := []
+  /--
+  When tracing is enabled track instances here. See comment at `InstanceMap`
+  -/
+  instanceMap : InstanceMap := {}
   deriving Inhabited
 
 abbrev M := ReaderT Context $ StateRefT SearchState GoalM
 
 def M.run' (x : M α) : GoalM α :=
   x {} |>.run' {}
+
+def M.run (x : M α) : GoalM (α × SearchState) :=
+  x {} |>.run {}
 
 @[inline] private abbrev withInitApp (e : Expr) (x : M α) : M α :=
   withReader (fun ctx => { ctx with initApp := e }) x
@@ -422,6 +451,12 @@ private def getUnassignedLevelMVars (e : Expr) : MetaM (Array LMVarId) := do
   let us := collectLevelMVars {} e |>.result
   us.filterM fun u => isLevelMVarAssignable u
 
+/-- Similar to `reportIssue!`, but only reports issue if `grind.debug` is set to `true` -/
+-- **Note**: issues reported by the E-matching module are too distractive. We only
+-- report them if `set_option grind.debug true`
+macro "reportEMatchIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
+  expandReportDbgIssueMacro s.raw
+
 /--
 Stores new theorem instance in the state.
 Recall that new instances are internalized later, after a full round of ematching.
@@ -435,7 +470,7 @@ private def addNewInstance (thm : EMatchTheorem) (proof : Expr) (generation : Na
   if !us.isEmpty then
     let pps ← assignUnassignedLevelMVars us proof prop
     if pps.isEmpty then
-      reportIssue! "failed to instantiate `{thm.origin.pp}`, proposition contains universe metavariables{indentExpr prop}"
+      reportEMatchIssue! "failed to instantiate `{thm.origin.pp}`, proposition contains universe metavariables{indentExpr prop}"
       return ()
     for (proof, prop) in pps do
       go proof prop
@@ -445,6 +480,15 @@ where
   go (proof prop : Expr) : M Unit := do
     let mut proof := proof
     let mut prop := prop
+    if (← getConfig).trace then
+      /-
+      **Note**: It is incorrect to use `mkFreshId` here because we use `withFreshNGen` at
+      `instantiateTheorem`. So, we generate an unique id by using the number of instances generated so far.
+      The code relies on the fact that `addTheoremInstance` bumps this counter.
+      -/
+      let uniqueId := Name.num `_grind_inst (← getNumTheoremInstances)
+      proof := markTheoremInstanceProof proof uniqueId
+      modify fun s => { s with instanceMap := s.instanceMap.insert uniqueId thm }
     if (← isMatchEqLikeDeclName thm.origin.key) then
       prop ← annotateMatchEqnType prop (← read).initApp
       -- We must add a hint here because `annotateMatchEqnType` introduces `simpMatchDiscrsOnly` and
@@ -464,7 +508,7 @@ private def synthesizeInsts (mvars : Array Expr) (bis : Array BinderInfo) : Opti
     if bi.isInstImplicit && !(← mvar.mvarId!.isAssigned) then
       let type ← inferType mvar
       unless (← synthInstanceAndAssign mvar type) do
-        reportIssue! "failed to synthesize instance when instantiating {thm.origin.pp}{indentExpr type}"
+        reportEMatchIssue! "failed to synthesize instance when instantiating {thm.origin.pp}{indentExpr type}"
         failure
 
 private def preprocessGeneralizedPatternRHS (lhs : Expr) (rhs : Expr) (origin : Origin) (expectedType : Expr) : OptionT (StateT Choice M) Expr := do
@@ -476,12 +520,12 @@ private def preprocessGeneralizedPatternRHS (lhs : Expr) (rhs : Expr) (origin : 
   if (← isEqv lhs rhs) then
     return rhs
   else
-    reportIssue! "invalid generalized pattern at `{origin.pp}`\nwhen processing argument with type{indentExpr expectedType}\nfailed to prove{indentExpr lhs}\nis equal to{indentExpr rhs}"
+    reportEMatchIssue! "invalid generalized pattern at `{origin.pp}`\nwhen processing argument with type{indentExpr expectedType}\nfailed to prove{indentExpr lhs}\nis equal to{indentExpr rhs}"
     failure
 
 private def assignGeneralizedPatternProof (mvarId : MVarId) (eqProof : Expr) (origin : Origin) : OptionT (StateT Choice M) Unit := do
   unless (← mvarId.checkedAssign eqProof) do
-    reportIssue! "invalid generalized pattern at `{origin.pp}`\nfailed to assign {mkMVar mvarId}\nwith{indentExpr eqProof}"
+    reportEMatchIssue! "invalid generalized pattern at `{origin.pp}`\nfailed to assign {mkMVar mvarId}\nwith{indentExpr eqProof}"
     failure
 
 /-- Helper function for `applyAssignment. -/
@@ -497,7 +541,7 @@ private def processDelayed (mvars : Array Expr) (i : Nat) (h : i < mvars.size) :
     let rhs ← preprocessGeneralizedPatternRHS lhs rhs thm.origin mvarIdType
     assignGeneralizedPatternProof mvarId (← mkHEqProof lhs rhs) thm.origin
   | _ =>
-    reportIssue! "invalid generalized pattern at `{thm.origin.pp}`\nequality type expected{indentExpr mvarIdType}"
+    reportEMatchIssue! "invalid generalized pattern at `{thm.origin.pp}`\nequality type expected{indentExpr mvarIdType}"
     failure
 
 /-- Helper function for `applyAssignment. -/
@@ -530,7 +574,7 @@ private def processUnassigned (mvars : Array Expr) (i : Nat) (v : Expr) (h : i <
     if (← isProp vType) then
       modify (unassign · bidx)
     else
-      reportIssue! "type error constructing proof for {thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
+      reportEMatchIssue! "type error constructing proof for {thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
       failure
   if (← isDefEqD mvarIdType vType) then
     unless (← mvarId.checkedAssign v) do unassignOrFail
@@ -589,7 +633,7 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
   assert! c.assignment.size == numParams
   let (mvars, bis, _) ← forallMetaBoundedTelescope (← inferType proof) numParams
   if mvars.size != thm.numParams then
-    reportIssue! "unexpected number of parameters at {thm.origin.pp}"
+    reportEMatchIssue! "unexpected number of parameters at {thm.origin.pp}"
     return ()
   let (some _, c) ← applyAssignment mvars |>.run c | return ()
   let some _ ← synthesizeInsts mvars bis | return ()
@@ -599,7 +643,7 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
   else
     let mvars ← mvars.filterM fun mvar => return !(← mvar.mvarId!.isAssigned)
     if let some mvarBad ← mvars.findM? fun mvar => return !(← isProof mvar) then
-      reportIssue! "failed to instantiate {thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
+      reportEMatchIssue! "failed to instantiate {thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
     let proof ← mkLambdaFVars (binderInfoForMVars := .default) mvars (← instantiateMVars proof)
     addNewInstance thm proof c.gen
 
@@ -698,25 +742,49 @@ end EMatch
 open EMatch
 
 /-- Performs one round of E-matching, and returns new instances. -/
-private def ematchCore : GoalM Unit := do profileitM Exception "grind ematch" (← getOptions) do
+private def ematchCore (extraThms : Array EMatchTheorem) : GoalM InstanceMap := do profileitM Exception "grind ematch" (← getOptions) do
   let go (thms newThms : PArray EMatchTheorem) : EMatch.M Unit := do
     withReader (fun ctx => { ctx with useMT := true }) <| ematchTheorems thms
-    withReader (fun ctx => { ctx with useMT := false }) <| ematchTheorems newThms
+    withReader (fun ctx => { ctx with useMT := false }) do
+      ematchTheorems newThms
+      extraThms.forM ematchTheorem
   if (← checkMaxInstancesExceeded <||> checkMaxEmatchExceeded) then
-    return ()
+    return {}
   else
-    go (← get).ematch.thms (← get).ematch.newThms |>.run'
+    let (_, s) ← go (← get).ematch.thms (← get).ematch.newThms |>.run
     modify fun s => { s with
       ematch.thms      := s.ematch.thms ++ s.ematch.newThms
       ematch.newThms   := {}
       ematch.gmt       := s.ematch.gmt + 1
       ematch.num       := s.ematch.num + 1
     }
+    return s.instanceMap
 
-/-- Performs one round of E-matching, and returns `true` if new instances were generated. -/
-def ematch : GoalM Bool := do
+/--
+Performs one round of E-matching, and returns `true` if new instances were generated.
+Recall that the mapping is nonempty only if tracing is enabled.
+-/
+def ematch' (extraThms : Array EMatchTheorem := #[]) : GoalM (Bool × InstanceMap) := do
   let numInstances := (← get).ematch.numInstances
-  ematchCore
+  let map ← ematchCore extraThms
+  return ((← get).ematch.numInstances != numInstances, map)
+
+/--
+Performs one round of E-matching, and returns `true` if new instances were generated.
+-/
+def ematch (extraThms : Array EMatchTheorem := #[]) : GoalM Bool :=
+  return (← ematch' extraThms).1
+
+/-- Performs one round of E-matching using the giving theorems, and returns `true` if new instances were generated. -/
+def ematchOnly (thms : Array EMatchTheorem) : GoalM Bool := do
+  let numInstances := (← get).ematch.numInstances
+  go |>.run'
   return (← get).ematch.numInstances != numInstances
+where
+  go : EMatch.M Unit := do profileitM Exception "grind ematch" (← getOptions) do
+    withReader (fun ctx => { ctx with useMT := false }) do
+      if (← checkMaxInstancesExceeded <||> checkMaxEmatchExceeded) then
+        return ()
+      thms.forM ematchTheorem
 
 end Lean.Meta.Grind

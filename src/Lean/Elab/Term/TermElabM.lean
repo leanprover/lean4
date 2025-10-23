@@ -6,9 +6,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.ReservedNameAction
-public import Lean.Meta.AppBuilder
-public import Lean.Meta.CollectMVars
 public import Lean.Meta.Coe
 public import Lean.Util.CollectLevelMVars
 public import Lean.Linter.Deprecated
@@ -18,8 +15,6 @@ public import Lean.Elab.Level
 public import Lean.Elab.PreDefinition.TerminationHint
 public import Lean.Elab.DeclarationRange
 public import Lean.Elab.WhereFinally
-public import Lean.Elab.Util
-public import Lean.Language.Basic
 public import Lean.Elab.InfoTree.InlayHints
 public meta import Lean.Parser.Term
 
@@ -202,35 +197,6 @@ namespace Tactic
 structure State where
   goals : List MVarId
   deriving Inhabited
-
-/--
-  Snapshots are used to implement the `save` tactic.
-  This tactic caches the state of the system, and allows us to "replay"
-  expensive proofs efficiently. This is only relevant implementing the
-  LSP server.
--/
-structure Snapshot where
-  core   : Core.State
-  «meta» : Meta.State
-  term   : Term.State
-  tactic : Tactic.State
-  stx    : Syntax
-
-/--
-  Key for the cache used to implement the `save` tactic.
--/
-structure CacheKey where
-  mvarId : MVarId -- TODO: should include all goals
-  pos    : String.Pos
-  deriving BEq, Hashable, Inhabited
-
-/--
-  Cache for the `save` tactic.
--/
-structure Cache where
-   pre  : PHashMap CacheKey Snapshot := {}
-   post : PHashMap CacheKey Snapshot := {}
-   deriving Inhabited
 
 section Snapshot
 open Language
@@ -634,6 +600,9 @@ def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := return (← getMCtx
 instance : MonadParentDecl TermElabM where
   getParentDeclName? := getDeclName?
 
+instance : MonadAutoImplicits TermElabM where
+  getAutoImplicits := return (← read).autoBoundImplicits.toArray
+
 /--
 Executes `x` in the context of the given declaration name. Ensures that the info tree is set up
 correctly and adjusts the declaration name generator to generate names below this name, resetting
@@ -966,6 +935,8 @@ private def applyAttributesCore
     return
   withDeclName declName do
     for attr in attrs do
+      -- Use same visibility as for other signature elements, independent of call site
+      withExporting (isExporting := attr.kind != .local && !isPrivateName declName) do
       withTraceNode `Elab.attribute (fun _ => pure m!"applying [{attr.stx}]") do
       withRef attr.stx do withLogging do
       let env ← getEnv
@@ -1786,7 +1757,7 @@ partial def withAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
       let rec loop (s : SavedState) : TermElabM α := withIncRecDepth do
         checkSystem "auto-implicit"
         try
-          k
+          withSaveAutoImplicitInfoContext k
         catch
           | ex => match isAutoBoundImplicitLocalException? ex with
             | some n =>
@@ -1840,7 +1811,7 @@ Adds an `InlayHintInfo` for the fvar auto implicits in `autos` at `inlayHintPos`
 The inserted inlay hint has a hover that denotes the type of the auto-implicit (with meta-variables)
 and can be inserted at `inlayHintPos`.
 -/
-def addAutoBoundImplicitsInlayHint (autos : Array Expr) (inlayHintPos : String.Pos) : TermElabM Unit := do
+def addAutoBoundImplicitsInlayHint (autos : Array Expr) (inlayHintPos : String.Pos.Raw) : TermElabM Unit := do
   -- If the list of auto-implicits contains a non-type fvar, then the list of auto-implicits will
   -- also contain an mvar that denotes the type of the non-type fvar.
   -- For example, the auto-implicit `x` in a type `Foo x` for `Foo.{u} {α : Sort u} (x : α) : Type`
@@ -1889,7 +1860,7 @@ def addAutoBoundImplicitsInlayHint (autos : Array Expr) (inlayHintPos : String.P
   Remark: we cannot simply replace every occurrence of `addAutoBoundImplicitsOld` with this one because a particular
   use-case may not be able to handle the metavariables in the array being given to `k`.
 -/
-def addAutoBoundImplicits (xs : Array Expr) (inlayHintPos? : Option String.Pos) : TermElabM (Array Expr) := do
+def addAutoBoundImplicits (xs : Array Expr) (inlayHintPos? : Option String.Pos.Raw) : TermElabM (Array Expr) := do
   let autos := (← read).autoBoundImplicits
   go autos.toList #[]
 where
@@ -1916,7 +1887,7 @@ where
   The type `type` is modified during the process if type depends on `xs`.
   We use this method to simplify the conversion of code using `autoBoundImplicitsOld` to `autoBoundImplicits`.
 -/
-def addAutoBoundImplicits' (xs : Array Expr) (type : Expr) (k : Array Expr → Expr → TermElabM α) (inlayHintPos? : Option String.Pos := none) : TermElabM α := do
+def addAutoBoundImplicits' (xs : Array Expr) (type : Expr) (k : Array Expr → Expr → TermElabM α) (inlayHintPos? : Option String.Pos.Raw := none) : TermElabM α := do
   let xs ← addAutoBoundImplicits xs inlayHintPos?
   if xs.all (·.isFVar) then
     k xs type
@@ -2000,7 +1971,7 @@ where
     let env ← getEnv
     -- check for scope errors before trying auto implicits
     if env.isExporting then
-      if let [(npriv, _)] ← withEnv (env.setExporting false) <| resolveGlobalName n then
+      if let [(npriv, _)] ← withoutExporting <| resolveGlobalName (enableLog := false) n then
         throwUnknownIdentifierAt (declHint := npriv) stx m!"Unknown identifier `{.ofConstName n}`"
     if (← read).autoBoundImplicit &&
           !(← read).autoBoundImplicitForbidden n &&

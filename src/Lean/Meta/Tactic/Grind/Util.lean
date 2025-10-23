@@ -4,18 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Simproc
-public import Init.Grind.Tactics
-public import Lean.Meta.AbstractNestedProofs
-public import Lean.Meta.Transform
-public import Lean.Meta.Tactic.Util
-public import Lean.Meta.Tactic.Clear
 public import Lean.Meta.Tactic.Simp.Simproc
-
+import Init.Simproc
+import Lean.Meta.AbstractNestedProofs
+import Lean.Meta.Tactic.Clear
 public section
-
 namespace Lean.Meta.Grind
 /--
 Throws an exception if target of the given goal contains metavariables.

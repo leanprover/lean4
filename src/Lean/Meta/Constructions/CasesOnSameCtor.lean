@@ -8,8 +8,6 @@ module
 
 prelude
 public import Lean.Meta.Basic
-import Lean.AddDecl
-import Lean.Meta.AppBuilder
 import Lean.Meta.CompletionName
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CtorElim
@@ -219,13 +217,6 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
         Elab.Term.elabAsElim.setTag declName
         Match.addMatcherInfo declName matcherInfo
         setInlineAttribute declName
-
-        -- Pragmatic hack:
-        -- Normally a matcher is not marked as an aux recursor. We still do that here
-        -- because this makes the elaborator unfold it more eagerily, it seems,
-        -- and this works around issues with the structural recursion equation generator
-        -- (see #10195).
-        modifyEnv fun env => markAuxRecursor env declName
 
         enableRealizationsForConst declName
         compileDecl decl

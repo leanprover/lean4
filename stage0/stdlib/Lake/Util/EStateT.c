@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.EStateT
-// Imports: Init.Control.State
+// Imports: public import Init.Control.State
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

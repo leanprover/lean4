@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Zoned.Database
-// Imports: Std.Time.Zoned.ZonedDateTime Std.Time.Zoned.Database.Basic Std.Time.Zoned.Database.TZdb Std.Time.Zoned.Database.Windows Init.System.Platform
+// Imports: public import Std.Time.Zoned.ZonedDateTime public import Std.Time.Zoned.Database.Basic public import Std.Time.Zoned.Database.TZdb public import Std.Time.Zoned.Database.Windows
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -610,7 +610,6 @@ lean_object* initialize_Std_Time_Zoned_ZonedDateTime(uint8_t builtin, lean_objec
 lean_object* initialize_Std_Time_Zoned_Database_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time_Zoned_Database_TZdb(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time_Zoned_Database_Windows(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_System_Platform(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Time_Zoned_Database(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -626,9 +625,6 @@ res = initialize_Std_Time_Zoned_Database_TZdb(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Time_Zoned_Database_Windows(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_System_Platform(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Time_Database_defaultGetZoneRules___closed__0 = _init_l_Std_Time_Database_defaultGetZoneRules___closed__0();

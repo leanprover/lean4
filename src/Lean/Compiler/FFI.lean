@@ -6,7 +6,6 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Init.Data.Array.Basic
 public import Init.System.FilePath
 import Init.Data.String.Basic
 

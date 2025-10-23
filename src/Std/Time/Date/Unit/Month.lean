@@ -13,7 +13,6 @@ public section
 namespace Std
 namespace Time
 namespace Month
-open Std.Internal
 open Internal
 
 set_option linter.all true

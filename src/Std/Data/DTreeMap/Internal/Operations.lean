@@ -6,9 +6,9 @@ Authors: Markus Himmel, Paul Reichert
 module
 
 prelude
-public import Init.Data.Nat.Compare
 public import Std.Data.DTreeMap.Internal.Balancing
 public import Std.Data.DTreeMap.Internal.Queries
+public import Init.Data.List.Control
 
 @[expose] public section
 

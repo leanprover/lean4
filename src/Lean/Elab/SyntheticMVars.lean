@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Meta.Tactic.Util
 public import Lean.Util.NumObjs
 public import Lean.Util.ForEachExpr
 public import Lean.Util.OccursCheck

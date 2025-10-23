@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Target.Basic
-// Imports: Lake.Build.Key
+// Imports: public import Lake.Build.Key
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -49,7 +49,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_Target_ctorIdx(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_3;
 }
 }
@@ -204,7 +204,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lake_Target_instCoePartialBuildKey___lam__0(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
+lean_inc_ref(x_1);
 return x_1;
 }
 }
@@ -221,7 +221,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_Target_instCoePartialBuildKey___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }

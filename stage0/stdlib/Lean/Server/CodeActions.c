@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.CodeActions
-// Imports: Lean.Server.CodeActions.Attr Lean.Server.CodeActions.Basic Lean.Server.CodeActions.Provider
+// Imports: public import Lean.Server.CodeActions.Attr public import Lean.Server.CodeActions.Basic public import Lean.Server.CodeActions.Provider
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Omega.Coeffs
-// Imports: Init.Omega.IntList Init.Omega.IntList
+// Imports: public import Init.Omega.IntList import all Init.Omega.IntList
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

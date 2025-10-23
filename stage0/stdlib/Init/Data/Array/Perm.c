@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Perm
-// Imports: Init.Data.List.Nat.Perm Init.Data.Array.Basic Init.Data.Array.Basic Init.Data.Array.Lemmas
+// Imports: public import Init.Data.List.Nat.Perm import all Init.Data.Array.Basic public import Init.Data.Array.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -548,7 +548,6 @@ return lean_box(0);
 }
 lean_object* initialize_Init_Data_List_Nat_Perm(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Array_Perm(uint8_t builtin, lean_object* w) {
@@ -556,9 +555,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_List_Nat_Perm(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());

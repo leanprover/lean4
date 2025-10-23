@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.VarRename
-// Imports: Init.Prelude Init.Data.Array.QSort Std.Data.HashSet
+// Imports: public import Init.Data.Array.QSort public import Std.Data.HashSet public import Init.Data.Hashable
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -774,21 +774,21 @@ goto block_17;
 block_9:
 {
 uint8_t x_6; 
-lean_dec(x_3);
+lean_dec(x_2);
 x_6 = lean_nat_dec_le(x_5, x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; 
 lean_dec(x_4);
 lean_inc(x_5);
-x_7 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Meta_Grind_FoundVars_toArray_spec__0___redArg(x_2, x_5, x_5);
+x_7 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Meta_Grind_FoundVars_toArray_spec__0___redArg(x_3, x_5, x_5);
 lean_dec(x_5);
 return x_7;
 }
 else
 {
 lean_object* x_8; 
-x_8 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Meta_Grind_FoundVars_toArray_spec__0___redArg(x_2, x_5, x_4);
+x_8 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Meta_Grind_FoundVars_toArray_spec__0___redArg(x_3, x_5, x_4);
 lean_dec(x_4);
 return x_8;
 }
@@ -808,16 +808,16 @@ x_16 = lean_nat_dec_le(x_12, x_15);
 if (x_16 == 0)
 {
 lean_inc(x_15);
-x_2 = x_10;
-x_3 = x_11;
+x_2 = x_11;
+x_3 = x_10;
 x_4 = x_15;
 x_5 = x_15;
 goto block_9;
 }
 else
 {
-x_2 = x_10;
-x_3 = x_11;
+x_2 = x_11;
+x_3 = x_10;
 x_4 = x_15;
 x_5 = x_12;
 goto block_9;
@@ -1374,21 +1374,21 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Init_Prelude(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_QSort(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_HashSet(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Hashable(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_VarRename(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Prelude(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Array_QSort(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_HashSet(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Hashable(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_Grind_instAndThenVarCollector = _init_l_Lean_Meta_Grind_instAndThenVarCollector();

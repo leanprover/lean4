@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Dynlib
-// Imports: Lake.Config.OutFormat
+// Imports: public import Lake.Config.OutFormat
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

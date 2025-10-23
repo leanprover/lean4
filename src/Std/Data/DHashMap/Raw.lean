@@ -6,9 +6,9 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Init.Data.BEq
-public import Init.Data.Hashable
+public import Init.Data.LawfulHashable
 public import Std.Data.DHashMap.Internal.Defs
+import all Std.Data.DHashMap.Internal.Defs
 
 public section
 
@@ -401,20 +401,6 @@ by `foldM`. -/
 def foldRev (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
   Id.run (Internal.foldRevM (pure <| f · · ·) init b)
 
-/-- Carries out a monadic action on each mapping in the hash map in some order. -/
-@[inline] def forM (f : (a : α) → β a → m PUnit) (b : Raw α β) : m PUnit :=
-  b.buckets.forM (AssocList.forM f)
-
-/-- Support for the `for` loop construct in `do` blocks. -/
-@[inline] def forIn (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (b : Raw α β) : m δ :=
-  ForIn.forIn b.buckets init (fun bucket acc => bucket.forInStep acc f)
-
-instance : ForM m (Raw α β) ((a : α) × β a) where
-  forM m f := m.forM (fun a b => f ⟨a, b⟩)
-
-instance : ForIn m (Raw α β) ((a : α) × β a) where
-  forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
-
 namespace Const
 
 variable {β : Type v}
@@ -469,6 +455,25 @@ only those mappings where the function returns `some` value.
 @[inline] def keysArray (m : Raw α β) : Array α :=
   m.fold (fun acc k _ => acc.push k) (.emptyWithCapacity m.size)
 
+/--
+Computes the union of the given hash maps. If a key appears in both maps, the entry contains in
+the second argument will appear in the result.
+
+This function always merges the smaller map into the larger map, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
+  if h₁ : 0 < m₁.buckets.size then
+    if h₂ : 0 < m₂.buckets.size then
+      Raw₀.union ⟨m₁, h₁⟩ ⟨m₂, h₂⟩
+    else
+      m₁
+  else
+    m₂
+
+instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
+
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -514,12 +519,6 @@ This is mainly useful to implement `HashSet.insertMany`, so if you are consideri
   if h : 0 < m.buckets.size then
     (Raw₀.Const.insertManyIfNewUnit ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
-
-/-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
-@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
-  m₂.fold (init := m₁) fun acc x => acc.insert x
-
-instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
 
 /-- Creates a hash map from an array of keys, associating the value `()` with each key.
 
@@ -712,6 +711,16 @@ theorem WF.Const.ofList {β : Type v} [BEq α] [Hashable α] {l : List (α × β
 theorem WF.Const.unitOfList [BEq α] [Hashable α] {l : List α} :
     (Const.unitOfList l : Raw α (fun _ => Unit)).WF :=
   Const.insertManyIfNewUnit WF.empty
+
+theorem WF.union₀ [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (Raw₀.union ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩).val.WF := by
+  simp only [Raw₀.union]
+  split
+  . exact (Raw₀.insertManyIfNew ⟨m₂, h₂.size_buckets_pos⟩ m₁).2 _ WF.insertIfNew₀ h₂
+  . exact (Raw₀.insertMany ⟨m₁, h₁.size_buckets_pos⟩ m₂).2 _ WF.insert₀ h₁
+
+theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.union m₂ : Raw α β).WF := by
+  simp [Std.DHashMap.Raw.union, h₁.size_buckets_pos, h₂.size_buckets_pos]
+  exact WF.union₀ h₁ h₂
 
 end WF
 

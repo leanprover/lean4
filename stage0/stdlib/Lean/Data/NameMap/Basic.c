@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.NameMap.Basic
-// Imports: Std.Data.HashSet.Basic Std.Data.TreeSet.Basic Lean.Data.SSet Lean.Data.Name
+// Imports: public import Std.Data.HashSet.Basic public import Std.Data.TreeSet.Basic public import Lean.Data.SSet public import Lean.Data.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

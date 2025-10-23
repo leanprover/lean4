@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Sum.Lemmas
-// Imports: Init.Data.Sum.Basic Init.Data.Sum.Basic Init.Ext
+// Imports: public import Init.Data.Sum.Basic import all Init.Data.Sum.Basic public import Init.Ext
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

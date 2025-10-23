@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Internal.UnitVal
-// Imports: Init.Data.Order.Ord Init.Data.Rat.Basic
+// Imports: public import Init.Data.Order.Ord public import Init.Data.Rat.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

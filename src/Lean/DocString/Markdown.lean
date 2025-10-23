@@ -8,7 +8,6 @@ module
 
 prelude
 
-import Init.Data.Repr
 import Init.Data.Ord
 public import Lean.DocString.Types
 
@@ -85,11 +84,20 @@ Generates Markdown, rendering the result from the final state, without producing
 public def MarkdownM.run' (act : MarkdownM Unit) (context : Context := {}) (state : State := {}) : String :=
   act.run context state |>.2
 
-private def MarkdownM.push (txt : String) : MarkdownM Unit := modify (·.push txt)
+/--
+Adds a string to the current Markdown output.
+-/
+public def MarkdownM.push (txt : String) : MarkdownM Unit := modify (·.push txt)
 
-private def MarkdownM.endBlock : MarkdownM Unit := modify (·.endBlock)
+/--
+Terminates the current block.
+-/
+public def MarkdownM.endBlock : MarkdownM Unit := modify (·.endBlock)
 
-private def MarkdownM.indent: MarkdownM α → MarkdownM α :=
+/--
+Increases the indentation level by one.
+-/
+public def MarkdownM.indent: MarkdownM α → MarkdownM α :=
   withReader fun st => { st with linePrefix := st.linePrefix ++ "  " }
 
 /--
@@ -159,6 +167,41 @@ private def quoteCode (str : String) : String := Id.run do
   let str := if str.startsWith "`" || str.endsWith "`" then " " ++ str ++ " " else str
   backticks ++ str ++ backticks
 
+private partial def trimLeft (inline : Inline i) : (String × Inline i) := go [inline]
+where
+  go : List (Inline i) → String × Inline i
+    | [] => ("", .empty)
+    | .text s :: more =>
+      if s.all (·.isWhitespace) then
+        let (pre, post) := go more
+        (s ++ pre, post)
+      else
+        let s1 := s.takeWhile (·.isWhitespace)
+        let s2 := s.drop s1.length
+        (s1, .text s2 ++ .concat more.toArray)
+    | .concat xs :: more => go (xs.toList ++ more)
+    | here :: more => ("", here ++ .concat more.toArray)
+
+private partial def trimRight (inline : Inline i) : (Inline i × String) := go [inline]
+where
+  go : List (Inline i) → Inline i × String
+    | [] => (.empty, "")
+    | .text s :: more =>
+      if s.all (·.isWhitespace) then
+        let (pre, post) := go more
+        (pre, post ++ s)
+      else
+        let s1 := s.takeRightWhile (·.isWhitespace)
+        let s2 := s.dropRight s1.length
+        (.concat more.toArray.reverse ++ .text s2, s1)
+    | .concat xs :: more => go (xs.reverse.toList ++ more)
+    | here :: more => (.concat more.toArray.reverse ++ here, "")
+
+private def trim (inline : Inline i) : (String × Inline i × String) :=
+  let (pre, more) := trimLeft inline
+  let (mid, post) := trimRight more
+  (pre, mid, post)
+
 open MarkdownM in
 private partial def inlineMarkdown [MarkdownInline i] : Inline i → MarkdownM Unit
   | .text s =>
@@ -166,19 +209,25 @@ private partial def inlineMarkdown [MarkdownInline i] : Inline i → MarkdownM U
   | .linebreak s => do
     push <| s.replace "\n" ("\n" ++ (← read).linePrefix )
   | .emph xs => do
+    let (pre, mid, post) := trim (.concat xs)
+    push pre
     unless (← read).inEmph do
       push "*"
     withReader (fun ρ => { ρ with inEmph := true }) do
-      for i in xs do inlineMarkdown i
+      inlineMarkdown mid
     unless (← read).inEmph do
       push "*"
+    push post
   | .bold xs => do
+    let (pre, mid, post) := trim (.concat xs)
+    push pre
     unless (← read).inBold do
       push "**"
     withReader (fun ρ => { ρ with inEmph := true }) do
-      for i in xs do inlineMarkdown i
+      inlineMarkdown mid
     unless (← read).inBold do
       push "**"
+    push post
   | .concat xs =>
     for i in xs do inlineMarkdown i
   | .link content url => do

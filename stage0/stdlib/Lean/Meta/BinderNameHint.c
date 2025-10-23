@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.BinderNameHint
-// Imports: Lean.Util.FindExpr Lean.Meta.Basic Init.BinderNameHint
+// Imports: public import Lean.Meta.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -276,7 +276,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Meta_BinderNameHint_0__Lean_exitScope___closed__2;
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(28u);
+x_3 = lean_unsigned_to_nat(26u);
 x_4 = l___private_Lean_Meta_BinderNameHint_0__Lean_exitScope___closed__1;
 x_5 = l___private_Lean_Meta_BinderNameHint_0__Lean_exitScope___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -343,7 +343,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Meta_BinderNameHint_0__Lean_rememberName___closed__1;
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(32u);
+x_3 = lean_unsigned_to_nat(30u);
 x_4 = l___private_Lean_Meta_BinderNameHint_0__Lean_rememberName___closed__0;
 x_5 = l___private_Lean_Meta_BinderNameHint_0__Lean_exitScope___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -421,7 +421,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Meta_BinderNameHint_0__Lean_rememberName___closed__1;
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(36u);
+x_3 = lean_unsigned_to_nat(34u);
 x_4 = l___private_Lean_Meta_BinderNameHint_0__Lean_makeFresh___closed__0;
 x_5 = l___private_Lean_Meta_BinderNameHint_0__Lean_exitScope___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -1350,7 +1350,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Meta_BinderNameHint_0__Lean_Expr_resolveBinderNameHint_go___closed__1;
 x_2 = lean_unsigned_to_nat(10u);
-x_3 = lean_unsigned_to_nat(74u);
+x_3 = lean_unsigned_to_nat(72u);
 x_4 = l___private_Lean_Meta_BinderNameHint_0__Lean_Expr_resolveBinderNameHint_go___closed__0;
 x_5 = l___private_Lean_Meta_BinderNameHint_0__Lean_exitScope___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3210,21 +3210,13 @@ return x_22;
 }
 }
 }
-lean_object* initialize_Lean_Util_FindExpr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_BinderNameHint(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_BinderNameHint(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Util_FindExpr(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_BinderNameHint(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Expr_hasBinderNameHint___lam__0___closed__0 = _init_l_Lean_Expr_hasBinderNameHint___lam__0___closed__0();

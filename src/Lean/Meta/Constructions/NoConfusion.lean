@@ -243,9 +243,10 @@ def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
               -- computation that `noConfusionType h` is equal to `$kType → P`
               let kType ← mkNoConfusionCtorArg ctor P
               let kType := kType.beta (xs ++ fields1 ++ fields2)
-              withLocalDeclD `k kType fun k =>
+              withLocalDeclD `k kType fun k => do
                 let e := mkConst noConfusionName (v :: us)
                 let e := mkAppN e (xs ++ indices ++ #[P, ctor1, ctor2, h, k])
+                let e ← mkExpectedTypeHint e P
                 mkLambdaFVars (xs ++ #[P] ++ ys ++ #[h, k]) e
       let name := ctor.str "noConfusion"
       addDecl (.defnDecl (← mkDefinitionValInferringUnsafe

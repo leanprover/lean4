@@ -10,5 +10,3 @@ public import Std.Do.WP.Basic
 public import Std.Do.WP.Monad
 public import Std.Do.WP.IO
 public import Std.Do.WP.SimpLemmas
-
-@[expose] public section

@@ -6,21 +6,15 @@ Author: David Thrane Christiansen
 
 module
 prelude
-public import Lean.Elab.DocString
 import Lean.Elab.DocString.Builtin.Parsing
 public import Lean.Elab.DocString.Builtin.Scopes
 public import Lean.Elab.DocString.Builtin.Postponed
-import Lean.DocString.Links
-public import Lean.DocString.Syntax
-public import Lean.Elab.InfoTree
-public meta import Lean.Elab.Term.TermElabM
 import Lean.Elab.Open
-public import Lean.Parser
-import Lean.Meta.Hint
 import Lean.Meta.Reduce
 import Lean.Elab.Tactic.Doc
 import Lean.Data.EditDistance
 public import Lean.Elab.DocString.Builtin.Keywords
+import Lean.Server.InfoUtils
 
 
 namespace Lean.Doc
@@ -32,6 +26,16 @@ open scoped Lean.Doc.Syntax
 set_option linter.missingDocs true
 
 public section
+
+/--
+As elaboration results are not added to the environment as part of constants, manually record
+references so that `shake` keeps their imports.
+-/
+private def elabExtraTerm (stx : Syntax) (expectedType? : Option Expr := none) : TermElabM Expr := do
+  let e ← elabTermAndSynthesize stx expectedType?
+  for c in e.getUsedConstants do
+    recordExtraModUseFromDecl (isMeta := false) c
+  return e
 
 /-- Create an identifier while directly copying info -/
 private def mkIdentFrom' (src : Syntax) (val : Name) : Ident :=
@@ -54,6 +58,7 @@ structure Data.Local where
   /-- The local variable's type. -/
   type : Expr
 deriving TypeName
+
 
 /-- The code represents a tactic. -/
 structure Data.Tactic where
@@ -79,16 +84,12 @@ structure Data.Attribute where
   stx : Syntax
 deriving TypeName
 
-/-- The code represents syntax to set an option. -/
-structure Data.SetOption where
-  /-- The `set_option ...` syntax. -/
-  stx : Syntax
-deriving TypeName
-
 /-- The code represents an option. -/
 structure Data.Option where
   /-- The option's name. -/
   name : Name
+  /-- The option's declaration name. -/
+  declName : Name
 deriving TypeName
 
 
@@ -106,6 +107,13 @@ structure Data.Syntax where
   stx : Lean.Syntax
 deriving TypeName
 
+/-- The code represents a module name. -/
+structure Data.ModuleName where
+  /-- The module. -/
+  «module» : Name
+deriving TypeName
+
+
 private def onlyCode [Monad m] [MonadError m] (xs : TSyntaxArray `inline) : m StrLit := do
   if h : xs.size = 1 then
     match xs[0] with
@@ -120,16 +128,6 @@ private def strLitRange [Monad m] [MonadFileMap m] (s : StrLit) : m String.Range
   return ⟨pos, endPos⟩
 
 /--
-A name that will be checked to exist later.
--/
-structure PostponedName where
-  /--
-  The name to check for.
-  -/
-  name : Name
-deriving TypeName
-
-/--
 Checks that a name exists when it is expected to.
 -/
 meta def checkNameExists : PostponedCheckHandler := fun _ info => do
@@ -137,13 +135,45 @@ meta def checkNameExists : PostponedCheckHandler := fun _ info => do
     | throwError "Expected `{.ofConstName ``PostponedName}`, got `{.ofConstName info.typeName}`"
   discard <| realizeGlobalConstNoOverload (mkIdent name)
 
+private def getQualified (x : Name) : DocM (Array Name) := do
+  -- We don't want to check whether the empty name is a suffix of names
+  if x.isAnonymous then return #[]
+  let names := (← getEnv).constants.toList
+  let names := names.filterMap fun (y, _) => if !isPrivateName y && x.isSuffixOf y then some y else none
+  names.toArray.mapM fun y => do
+    let y ← unresolveNameGlobalAvoidingLocals y
+    pure y
+
+open Lean.Doc
+
 /--
 Displays a name, without attempting to elaborate implicit arguments.
 -/
 @[builtin_doc_role]
-def name (full : Option Ident := none) (scope : DocScope := .local) (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def name (full : Option Ident := none) (scope : DocScope := .local)
+    (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   let x := s.getString.toName
+  if x.isAnonymous then
+    let h ←
+      if s.getString != s.getString.trim && !s.getString.trim.isEmpty then
+        -- Like Markdown, Verso code elements that start and end with a space will strip the space,
+        -- to allow code with leading or trailing backticks. But our suggestions shouldn't prefer
+        -- that form here. Thus, the suggestion uses the delimiter positions instead of the string
+        -- literal.
+        let text ← getFileMap
+        let ref? := do
+          let stx ← (xs : Array Syntax)[0]?
+          let `(inline|code(%$tk1 $_ )%$tk2) := stx
+            | none
+          let ⟨_, pos⟩ ← tk1.getRange?
+          let ⟨tailPos, _⟩ ← tk2.getRange?
+          pure <| Syntax.mkStrLit (String.Pos.Raw.extract text.source pos tailPos) (info := .synthetic pos tailPos)
+        if let some ref := ref? then
+            m!"Remove surrounding whitespace:".hint #[s.getString.trim] (ref? := some ref)
+        else pure m!""
+      else pure m!""
+    throwErrorAt s "Not a valid name.{h}"
   let n := mkIdentFrom' s x
   if let some r := full then
     unless x.isSuffixOf r.getId do
@@ -172,7 +202,20 @@ def name (full : Option Ident := none) (scope : DocScope := .local) (xs : TSynta
         addConstInfo n x
         pure x
       else
-        realizeGlobalConstNoOverloadWithInfo n
+        try
+          realizeGlobalConstNoOverloadWithInfo n
+        catch
+          | err => do
+            let ref ← getRef
+            if let `(inline|role{$_x $_args*}%$tok[$_*]) := ref then
+              let ss ← getQualified n.raw.getId
+              let h ←
+                if ss.isEmpty then pure m!""
+                else m!"Insert a fully-qualified name:".hint (ref? := some tok) <|
+                  ss.map fun x => { suggestion := s!" (full := {x})" ++ "}", previewSpan? := ref}
+              logErrorAt s m!"{err.toMessageData}{h}"
+            else logErrorAt s m!"{err.toMessageData}"
+            return .code s!"{n.raw.getId}"
     return .other (.mk ``Data.Const (.mk (Data.Const.mk x))) #[.code s.getString]
   | .import xs =>
     let name :=
@@ -186,6 +229,61 @@ def name (full : Option Ident := none) (scope : DocScope := .local) (xs : TSynta
       info := .mk { name : PostponedName }
     }
     return .other { name := ``PostponedCheck, val := .mk val } #[.code s.getString]
+
+private def similarNames (x : Name) (xs : Array Name) : Array Name := Id.run do
+  let s := x.toString
+  let mut threshold := if s.length < 5 then 1 else if s.length < 8 then 2 else 3
+  let mut candidates := #[]
+  for x in xs do
+    if let some d ← levenshtein s x.toString threshold then
+      if d < threshold then threshold := d
+      if d ≤ threshold then candidates := candidates.push (x, d)
+  -- Only keep the smallest distance
+  return candidates.filterMap fun (x, d) => do
+    guard (d ≤ threshold)
+    pure x
+
+/--
+Displays a name, without attempting to elaborate implicit arguments.
+-/
+@[builtin_doc_role]
+def module (checked : flag true) (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+  let s ← onlyCode xs
+  let x := s.getString.toName
+  let n := mkIdentFrom' s x
+  if checked then
+    let env ← getEnv
+    if x ∉ env.header.moduleNames then
+      let ss := similarNames x env.header.moduleNames
+      let ref ← getRef
+      let unchecked : Option Meta.Hint.Suggestion ←
+        match ref with
+        | `(inline|role{$x +checked}%$tk2[$_]) =>
+          let some b := x.raw.getTailPos?
+            | pure none
+          let some e := tk2.getPos?
+            | pure none
+          pure <| some {
+            span? := some (Syntax.mkStrLit (String.Pos.Raw.extract (← getFileMap).source b e) (info := .synthetic b e)),
+            previewSpan? := some ref,
+            suggestion := "" : Meta.Hint.Suggestion
+          }
+        | `(inline|role{$_}%$tk2[$_]) =>
+          pure <| some {
+            span? := some tk2
+            previewSpan? := some ref,
+            suggestion := " -checked}": Meta.Hint.Suggestion
+          }
+        | _ => pure none
+      let ss := unchecked.toArray ++ ss.map fun x =>
+        { suggestion := x.toString, span? := some n, previewSpan? := some ref }
+      let h ←
+        if ss.isEmpty then pure m!""
+        else m!"Either disable the existence check or use an imported module:".hint ss (ref? := some ref)
+      logErrorAt n m!"Module is not transitively imported by the current module.{h}"
+
+  return .other {name := ``Data.ModuleName, val := .mk (Data.ModuleName.mk x)} #[.code s.getString]
+
 
 private def introduceAntiquotes (stx : Syntax) : DocM Unit :=
   discard <| stx.rewriteBottomUpM fun stx' =>
@@ -312,8 +410,12 @@ def attr (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
 
     try
       let stx ← parseStrLit attributes.fn s
-      let `(attributes|@[$_attrs,*]) := stx
+      let `(attributes|@[$attrs,*]) := stx
         | throwError "Not `@[attribute]` syntax"
+      for a in (attrs : Array Syntax) do
+        -- here `a` is of kind `attrInstance`, which is `("scoped" <|> "local")? attr`
+        validateAttr a[1]
+
       return .other {name := ``Data.Attributes, val := .mk <| Data.Attributes.mk stx} #[
         .code s.getString
       ]
@@ -322,20 +424,7 @@ def attr (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
 
     try
       let stx ← parseStrLit attrParser.fn s
-      if stx.getKind == ``Lean.Parser.Attr.simple then
-        let attrName := stx[0].getId.eraseMacroScopes
-        unless isAttribute (← getEnv) attrName do
-          let nameStr := attrName.toString
-          let threshold := max 2 (nameStr.length / 3)
-          let attrs := getAttributeNames (← getEnv) |>.toArray |>.filterMap fun x =>
-            let x := x.toString
-            levenshtein x nameStr threshold |>.map (x, ·)
-          let attrs := attrs.qsort (fun (_, i) (_, j) => i < j) |>.map (·.1)
-          let hint ←
-            if attrs.isEmpty then pure m!""
-            else m!"Use a known attribute:".hint attrs (ref? := s)
-          logErrorAt stx m!"Unknown attribute `{attrName}`{hint}"
-
+      validateAttr stx
       return .other {name := ``Data.Attribute, val := .mk <| Data.Attribute.mk stx} #[
         .code s.getString
       ]
@@ -343,6 +432,21 @@ def attr (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
       | e => exns := exns.push e
 
     throwOrNest m!"Couldn't parse attributes" exns
+where
+  validateAttr (stx : Syntax) : DocM Unit := do
+    if stx.getKind == ``Lean.Parser.Attr.simple then
+      let attrName := stx[0].getId.eraseMacroScopes
+      unless isAttribute (← getEnv) attrName do
+        let nameStr := attrName.toString
+        let threshold := max 2 (nameStr.length / 3)
+        let attrs := getAttributeNames (← getEnv) |>.toArray |>.filterMap fun x =>
+          let x := x.toString
+          levenshtein x nameStr threshold |>.map (x, ·)
+        let attrs := attrs.qsort (fun (_, i) (_, j) => i < j) |>.map (·.1)
+        let hint ←
+          if attrs.isEmpty then pure m!""
+          else m!"Use a known attribute:".hint attrs (ref? := stx)
+        logErrorAt stx m!"Unknown attribute `{attrName}`{hint}"
 
 private def optionNameAndVal (stx : Syntax) : DocM (Ident × DataValue) := do
   let id := stx[1]
@@ -356,71 +460,6 @@ private def optionNameAndVal (stx : Syntax) : DocM (Ident × DataValue) := do
     else throwErrorAt val m!"Invalid option value. Expected a string, a number, `true`, or `false`,\
       but got {val}."
   return (⟨id⟩, val)
-
-open Lean.Parser.Command («set_option») in
-/--
-A reference to an option.
-
-In `` {option}`O` ``, `O` can be either:
- * The name of an option (e.g. `pp.all`)
- * Syntax to set an option to a particular value (e.g. `set_option pp.all true`)
--/
-@[builtin_doc_role]
-def option (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
-  let s ← onlyCode xs
-  withRef s do
-    let spec : Syntax ⊕ Syntax ←
-      try
-        let stx ← parseStrLit «set_option».fn s
-        pure (Sum.inl stx)
-      catch
-      | e1 =>
-        try
-          -- Here it's important to get the partial syntax in order to add completion info,
-          -- but then abort processing.
-          let (stx, err) ← parseStrLit' (nodeFn nullKind identWithPartialTrailingDot.fn) s
-          addCompletionInfo <| CompletionInfo.option stx[0]
-          if err then throw e1 else pure (Sum.inr stx[0])
-        catch
-        | e2 =>
-          throwOrNest m!"Expected an option name or a valid `set_option`" #[e1, e2]
-    match spec with
-    | .inl stx =>
-      let (id, val) ← optionNameAndVal stx
-      -- For completion purposes, we discard `val` and any later arguments. We include the first
-      -- argument (the keyword) for position information in case `id` is `missing`.
-      addCompletionInfo <| CompletionInfo.option (stx.setArgs (stx.getArgs[*...3]))
-      let optionName := id.getId.eraseMacroScopes
-      try
-        let decl ← getOptionDecl optionName
-        pushInfoLeaf <| .ofOptionInfo { stx := id, optionName, declName := decl.declName }
-        validateOptionValue optionName decl val
-
-        return .other {name := ``Data.SetOption, val := .mk <| Data.SetOption.mk stx} #[
-          .code s.getString
-        ]
-      catch
-        | e =>
-          let ref := e.getRef
-          let ref ← if ref.isMissing then getRef else pure ref
-          logErrorAt ref e.toMessageData
-          return .code s.getString
-    | .inr stx =>
-      let optionName := stx.getId.eraseMacroScopes
-      try
-        let decl ← getOptionDecl optionName
-        pushInfoLeaf <| .ofOptionInfo { stx, optionName, declName := decl.declName }
-
-        return .other {name := ``Data.Option, val := .mk <| Data.Option.mk optionName} #[
-          .code s.getString
-        ]
-      catch
-        | e =>
-          let ref := e.getRef
-          let ref ← if ref.isMissing then getRef else pure ref
-          logErrorAt ref e.toMessageData
-          return .code s.getString
-
 
 private def validateCat (x : Ident) : DocM Bool := do
   let c := x.getId
@@ -449,7 +488,7 @@ def syntaxCat (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
 
 private partial def onlyIdent : Syntax → Bool
   | .node _ _ args =>
-    let nonEmpty := args.filter isEmpty
+    let nonEmpty := args.filter (!isEmpty ·)
     if h : nonEmpty.size = 1 then onlyIdent nonEmpty[0]
     else false
   | .ident .. => true
@@ -457,7 +496,7 @@ private partial def onlyIdent : Syntax → Bool
 where
   isEmpty : Syntax → Bool
   | .node _ _ xs =>
-    xs.size = 0 || xs.all isEmpty
+    xs.all isEmpty
   | _ => false
 
 /--
@@ -541,7 +580,7 @@ def given (type : Option StrLit := none) (typeIsMeta : flag false) («show» : f
     let val : Option Expr ← do
       let valStx := stx[1][1]
       if valStx.isMissing then pure none
-      else some <$> elabTerm valStx (some ty')
+      else some <$> elabExtraTerm valStx (some ty')
     let fv ← mkFreshFVarId
     lctx :=
       if let some v := val then
@@ -559,8 +598,8 @@ def given (type : Option StrLit := none) (typeIsMeta : flag false) («show» : f
       let thisStr ←
         if let some ⟨b, e⟩ := stx[0].getRange? then
           if let some ⟨b', e'⟩ := stx[2][1].getRange? then
-            pure <| s!"{text.source.extract b e} : {text.source.extract b' e'}"
-          else pure <| text.source.extract b e
+            pure <| s!"{String.Pos.Raw.extract text.source b e} : {String.Pos.Raw.extract text.source b' e'}"
+          else pure <| String.Pos.Raw.extract text.source b e
         else
           failed := true
           break
@@ -634,8 +673,8 @@ def lean (name : Option Ident := none) (error warning «show» : flag false) (co
   let mut output := #[]
   for msg in cmdState.messages.toArray do
     let b := text.ofPosition msg.pos
-    let e := msg.endPos |>.map text.ofPosition |>.getD (text.source.next b)
-    let msgStr := text.source.extract b e
+    let e := msg.endPos |>.map text.ofPosition |>.getD (b.next text.source)
+    let msgStr := String.Pos.Raw.extract text.source b e
     let msgStx := Syntax.mkStrLit msgStr (info := .synthetic b e (canonical := true))
     unless msg.isSilent do
       if name.isSome then output := output.push (msg.severity, ← msg.data.toString)
@@ -680,7 +719,7 @@ where
         (mkNullNode (#[name] ++ args)).getRange?
       | _ => none
     if let some ⟨b, e⟩ := range? then
-      let str := (← getFileMap).source.extract b e
+      let str := String.Pos.Raw.extract (← getFileMap).source b e
       let str := if str.startsWith "kw?" then "kw" ++ str.drop 3 else str
       let stx := Syntax.mkStrLit str (info := .synthetic b e (canonical := true))
       let suggs := suggestions.map (fun (s : String) => {suggestion := str ++ s})
@@ -726,31 +765,6 @@ where
       (x, s, d.getD target.length)
     withDistance.qsort (fun (_, _, d1) (_, _, d2) => d1 < d2) |>.map fun (x, s, _) => (x, s)
 
-private def leanTermContents : ParserFn :=
-  whitespace >>
-  (node nullKind (termParser >> optional (symbol ":" >> termParser))).fn
-
-/--
-Treats the provided term as Lean syntax in the documentation's scope.
--/
-@[builtin_doc_role lean]
-def leanRole (type : Option StrLit := none) (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
-  let s ← onlyCode xs
-  let stx ← parseStrLit leanTermContents s
-  let ty? ←
-    withoutErrToSorry <| do
-    if stx[1][1].isMissing then -- no colon
-      if let some tyStr := type then
-        let stx ← parseQuotedStrLit (whitespace >> termParser.fn) tyStr
-        some <$> elabType stx
-      else pure none
-    else -- type after colon
-      if let some t := type then
-        logErrorAt t m!"Ignoring `{s.getString}` in favor of type provided after colon"
-      some <$> elabType stx[1][1]
-  withoutErrToSorry <| discard <| elabTerm stx[0] ty?
-  pure (.code s.getString)
-
 /--
 Indicates that a code element is intended as just a literal string, with no further meaning.
 
@@ -762,19 +776,293 @@ def lit (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   pure (.code s.getString)
 
 /--
+Semantic highlighting included on syntax from elaborated terms in documentation.
+-/
+inductive DocHighlight where
+  /-- The text represents the indicated constant. -/
+  | const (name : Name) (signature : Format)
+  /--
+  The text represents the indicated local variable.
+
+  The `fvarId` is not connected to a local context, but it can be useful for tracking bindings
+  across elaborated fragments of syntax.
+  -/
+  | var (userName : Name) (fvarId : FVarId) (type : Format)
+  /--
+  The text represents the name of a field. `name` and `signature` refer to the projection function.
+  -/
+  | field (name : Name) (signature : Format)
+  /--
+  The text represents the name of a compiler option.
+  -/
+  | option (name declName : Name)
+  /--
+  The text is an atom, such as `if` or `def`.
+  -/
+  | keyword
+  /--
+  The text is an atom that represents a literal, such as a string literal.
+
+  `isLitKind` returns `true` for `kind`.
+  -/
+  | literal (kind : SyntaxNodeKind) (type? : Option Format)
+
+/--
+A code snippet contained within a docstring. Code snippets consist of a series of strings, which are
+optionally associated with highlighting information.
+-/
+structure DocCode where
+  /--
+  The highlighted strings.
+  -/
+  code : Array (String × Option DocHighlight) := #[]
+
+/--
+Adds the provided string `str`, with optional highlighting `hl?`, to the end of the code.
+-/
+def DocCode.push (code : DocCode) (str : String) (hl? : Option DocHighlight := none) : DocCode :=
+  { code with code := code.code.push (str, hl?) }
+
+instance : HAppend DocCode String DocCode where
+  hAppend
+    | ⟨c⟩, s => ⟨c.push (s, none)⟩
+
+instance : Append DocCode where
+  append
+    | ⟨c1⟩, ⟨c2⟩ => ⟨c1 ++ c2⟩
+
+/--
+The code represents an elaborated Lean term.
+-/
+structure Data.LeanTerm where
+  /--
+  The highlighted code to be displayed.
+  -/
+  term : DocCode := {}
+deriving TypeName
+
+/-- The code represents syntax to set an option. -/
+structure Data.SetOption where
+  /-- The `set_option ...` syntax. -/
+  term : DocCode := {}
+deriving TypeName
+
+private partial def highlightSyntax
+    [Monad m] [MonadLiftT IO m]
+    (tree : InfoTree) (stx : Syntax) : m DocCode := do
+  (go stx).run {} <&> (·.2)
+where
+  go (stx : Syntax) : StateT DocCode m Unit := do
+    match stx with
+    | .node info kind args =>
+      emitLeading info
+      if isLitKind kind then
+        match args with
+        | #[.atom info' str] =>
+          emitLeading info'
+          let ty? ← typeFromInfo <| tree.deepestNodes fun ci i _ =>
+            if i.stx == stx then some (ci, i) else none
+          emit str (some <| .literal kind ty?)
+          emitTrailing info'
+          emitTrailing info
+          return
+        | _ => pure ()
+      args.forM go
+      emitTrailing info
+    | .ident info _x str _pre =>
+      -- TODO: find projections in the info tree as well as syntactically (see comment on
+      -- `identProjKind`)
+      let docInfo? ← toDocInfo <| tree.deepestNodes fun ci i _ =>
+        if i.stx == stx then some (ci, i) else none
+      emitLeading info
+      emit str.toString docInfo?
+      emitTrailing info
+    | .atom info str =>
+      emitLeading info
+      emit str (some .keyword)
+      emitTrailing info
+    | .missing => return
+
+  emit (code : String) (info? : Option DocHighlight := none) : StateT DocCode m Unit :=
+    modify (fun st => st.push code info?)
+
+  emitLeading : SourceInfo → StateT DocCode m Unit
+  | .original leading .. => emit leading.toString
+  | _ => pure ()
+
+  emitTrailing : SourceInfo → StateT DocCode m Unit
+  | .original _ _ trailing .. => emit trailing.toString
+  | _ => pure ()
+
+  typeFromInfo (infos : List (ContextInfo × Info)) : m (Option Format) := do
+    for (ci, i) in infos do
+      if let some ty ← ci.runMetaM i.lctx do
+        (← i.type?).mapM (PrettyPrinter.ppExpr)
+      then return some ty
+    return none
+
+  toDocInfo (infos : List (ContextInfo × Info)) : m (Option DocHighlight) := do
+    let mut best := none
+    for (ci, i) in infos do
+      match i with
+      | .ofTermInfo ti =>
+        if let some (.var ..) := best then
+          if let .const n _ := ti.expr then
+            let sig ← ci.runMetaM ti.lctx <| PrettyPrinter.ppSignature n
+            best := some <| .const n sig.fmt
+        else if best.isNone then
+          match ti.expr with
+          | .const n .. =>
+            let sig ← ci.runMetaM ti.lctx <| PrettyPrinter.ppSignature n
+            best := some <| .const n sig.fmt
+          | .fvar fvid =>
+            let docInfo? ← ci.runMetaM ti.lctx do
+              if let some ldecl := (← getLCtx).find? fvid then
+                let type ← PrettyPrinter.ppExpr ldecl.type
+                pure <| some <| .var ldecl.userName fvid type
+              else pure none
+            if let some docInfo := docInfo? then
+              best := some docInfo
+          | _ => continue
+      | .ofFieldInfo fi =>
+        let docInfo ← ci.runMetaM fi.lctx do
+          let sig ← PrettyPrinter.ppSignature fi.projName
+          pure <| .field fi.projName sig.fmt
+        best := some docInfo
+      | .ofOptionInfo oi =>
+        best := some <| .option oi.optionName oi.declName
+      | _ => continue
+    return best
+
+private def leanTermContents : ParserFn :=
+  whitespace >>
+  (node nullKind (termParser >> optional (symbol ":" >> termParser))).fn
+
+/--
+Treats the provided term as Lean syntax in the documentation's scope.
+-/
+@[builtin_doc_role lean]
+def leanRole (type : Option StrLit := none) (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+  let s ← onlyCode xs
+  let stx ← parseStrLit leanTermContents s
+  withSaveInfoContext do
+    let ty? ←
+      withoutErrToSorry <| do
+      if stx[1][1].isMissing then -- no colon
+        if let some tyStr := type then
+          let stx ← parseQuotedStrLit (whitespace >> termParser.fn) tyStr
+          some <$> elabType stx
+        else pure none
+      else -- type after colon
+        if let some t := type then
+          logErrorAt t m!"Ignoring `{s.getString}` in favor of type provided after colon"
+        some <$> elabType stx[1][1]
+    withoutErrToSorry <| discard <| elabExtraTerm stx[0] ty?
+  let trees := (← getInfoTrees)
+  if h : trees.size > 0 then
+    let tree := trees[trees.size - 1]
+    let tm := Data.LeanTerm.mk (← highlightSyntax tree stx)
+    return .other {name := ``Data.LeanTerm, val := .mk tm} #[.code s.getString]
+  else
+    -- No info
+    return .code s.getString
+
+/--
 Treats the provided term as Lean syntax in the documentation's scope.
 -/
 @[builtin_doc_code_block]
 def leanTerm (code : StrLit) : DocM (Block ElabInline ElabBlock) := do
   let stx ← parseStrLit leanTermContents code
-  let ty? ←
-    withoutErrToSorry <|
-    if stx[1][1].isMissing then -- no colon
-      pure none
-    else -- type after colon
-      some <$> elabType stx[1][1]
-  withoutErrToSorry <| discard <| elabTerm stx[0] ty?
-  pure (.code code.getString)
+  withSaveInfoContext do
+    let ty? ←
+      withoutErrToSorry <|
+      if stx[1][1].isMissing then -- no colon
+        pure none
+      else -- type after colon
+        some <$> elabType stx[1][1]
+    withoutErrToSorry <| discard <| elabExtraTerm stx[0] ty?
+  -- The last info tree is the one we want
+  let trees := (← getInfoTrees)
+  if h : trees.size > 0 then
+    let tree := trees[trees.size - 1]
+    let tm := Data.LeanTerm.mk (← highlightSyntax tree stx)
+    return .other {name := ``Data.LeanTerm, val := .mk tm} #[.code code.getString]
+  else
+    -- No info
+    return .code code.getString
+
+
+open Lean.Parser.Command («set_option») in
+/--
+A reference to an option.
+
+In `` {option}`O` ``, `O` can be either:
+ * The name of an option (e.g. `pp.all`)
+ * Syntax to set an option to a particular value (e.g. `set_option pp.all true`)
+-/
+@[builtin_doc_role]
+def option (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+  let s ← onlyCode xs
+  withRef s do
+    let spec : Syntax ⊕ Syntax ←
+      try
+        let stx ← parseStrLit «set_option».fn s
+        pure (Sum.inl stx)
+      catch
+      | e1 =>
+        try
+          -- Here it's important to get the partial syntax in order to add completion info,
+          -- but then abort processing.
+          let (stx, err) ← parseStrLit' (nodeFn nullKind identWithPartialTrailingDot.fn) s
+          addCompletionInfo <| CompletionInfo.option stx[0]
+          if err then throw e1 else pure (Sum.inr stx[0])
+        catch
+        | e2 =>
+          throwOrNest m!"Expected an option name or a valid `set_option`" #[e1, e2]
+    match spec with
+    | .inl stx =>
+      let (id, val) ← optionNameAndVal stx
+      -- For completion purposes, we discard `val` and any later arguments. We include the first
+      -- argument (the keyword) for position information in case `id` is `missing`.
+      addCompletionInfo <| CompletionInfo.option (stx.setArgs (stx.getArgs[*...3]))
+      let optionName := id.getId.eraseMacroScopes
+      try
+        let decl ← getOptionDecl optionName
+        pushInfoLeaf <| .ofOptionInfo { stx := id, optionName, declName := decl.declName }
+        validateOptionValue optionName decl val
+        let code := #[
+          ("set_option", some .keyword), (" ", none),
+          (toString stx[1][0].getId, some <| .option optionName decl.declName), (" ", none),
+          (toString stx[2].getAtomVal, some <| .literal stx[2].getKind none)
+        ]
+        return .other {name := ``Data.SetOption, val := .mk <| Data.SetOption.mk ⟨code⟩} #[
+          .code s.getString
+        ]
+      catch
+        | e =>
+          let ref := e.getRef
+          let ref ← if ref.isMissing then getRef else pure ref
+          logErrorAt ref e.toMessageData
+          return .code s.getString
+    | .inr stx =>
+      let optionName := stx.getId.eraseMacroScopes
+      try
+        let decl ← getOptionDecl optionName
+        pushInfoLeaf <| .ofOptionInfo { stx, optionName, declName := decl.declName }
+
+        return .other {
+          name := ``Data.Option,
+          val := .mk <| Data.Option.mk optionName decl.declName
+        } #[
+          .code s.getString
+        ]
+      catch
+        | e =>
+          let ref := e.getRef
+          let ref ← if ref.isMissing then getRef else pure ref
+          logErrorAt ref e.toMessageData
+          return .code s.getString
+
 
 private def assertContents : ParserFn :=
   whitespace >>
@@ -800,8 +1088,8 @@ def assert' (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
       pure none
     else -- type after colon
       some <$> elabType stx[3][1]
-  let lhs ← elabTerm stx[0] ty?
-  let rhs ← elabTerm stx[2] ty?
+  let lhs ← elabExtraTerm stx[0] ty?
+  let rhs ← elabExtraTerm stx[2] ty?
   unless ← Meta.withTransparency .all <| Meta.isDefEq lhs rhs do
     throwErrorAt stx m!"Expected {lhs} = {rhs}, which is {← Meta.whnf lhs} = {← Meta.whnf rhs}, reducing to {← Meta.reduceAll lhs} = {← Meta.reduceAll rhs} but they are not equal."
   pure (.code s.getString)
@@ -894,7 +1182,7 @@ def suggestName (code : StrLit) : DocM (Array CodeSuggestion) := do
     | _ =>
     if let some (_, []) := (← resolveLocalName stx.getId) then
       suggestions := suggestions.push <| .mk ``name none none
-    else
+    else if stx.getId.components.length == 1 then
       suggestions := suggestions.push <| .mk ``given none none
   return suggestions
 
@@ -922,8 +1210,9 @@ def suggestLean (code : StrLit) : DocM (Array CodeSuggestion) := do
         withoutErrToSorry <|
         if stx[1][1].isMissing then pure none
         else some <$> elabType stx[1][1]
-      discard <| withoutErrToSorry <| elabTerm stx[0] ty?
+      let tm ← withoutErrToSorry <| elabExtraTerm stx[0] ty?
     return #[.mk ``lean none none]
+
   catch | _ => return #[]
 
 /--
@@ -940,7 +1229,7 @@ def suggestLeanTermBlock (code : StrLit) : DocM (Array CodeBlockSuggestion) := d
         withoutErrToSorry <|
         if stx[1][1].isMissing then pure none
         else some <$> elabType stx[1][1]
-      discard <| withoutErrToSorry <| elabTerm stx[0] ty?
+      discard <| withoutErrToSorry <| elabExtraTerm stx[0] ty?
     return #[.mk ``leanTerm none none]
   catch | _ => return #[]
 
@@ -986,8 +1275,14 @@ def suggestAttr (code : StrLit) : DocM (Array CodeSuggestion) := do
   catch
     | _ => pure ()
   try
-    discard <| parseStrLit attrParser.fn code
-    return #[.mk ``attr none none]
+    let stx ← parseStrLit attrParser.fn code
+    if stx.getKind == ``Lean.Parser.Attr.simple then
+      let attrName := stx[0].getId.eraseMacroScopes
+      if isAttribute (← getEnv) attrName then
+        return #[.mk ``attr none none]
+      else return #[]
+    else
+      return #[.mk ``attr none none]
   catch
     | _ => pure ()
   return #[]
@@ -1044,3 +1339,15 @@ def suggestSyntax (code : StrLit) : DocM (Array CodeSuggestion) := do
 
   candidates.mapM fun cat => do
     return .mk ``«syntax» (some s!"{cat}") none
+
+/--
+Suggests the `module` role, if applicable.
+-/
+@[builtin_doc_code_suggestions]
+def suggestModule (code : StrLit) : DocM (Array CodeSuggestion) := do
+  let env ← getEnv
+  let moduleNames := env.header.moduleNames
+  let s := code.getString
+  if moduleNames.any (·.toString == s) then
+    return #[.mk ``module none none]
+  else return #[]

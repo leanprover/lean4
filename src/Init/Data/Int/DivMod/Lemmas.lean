@@ -6,13 +6,8 @@ Authors: Jeremy Avigad, Mario Carneiro, Kim Morrison, Markus Himmel
 module
 
 prelude
-public import Init.Data.Int.DivMod.Bootstrap
-public import Init.Data.Nat.Lemmas
 public import Init.Data.Nat.Div.Lemmas
-public import Init.Data.Int.Order
-public import Init.Data.Int.Lemmas
-public import Init.Data.Nat.Dvd
-public import Init.RCases
+import Init.TacticsExtra
 
 public section
 
@@ -122,8 +117,8 @@ theorem eq_one_of_mul_eq_one_right {a b : Int} (H : 0 ≤ a) (H' : a * b = 1) : 
 theorem eq_one_of_mul_eq_one_left {a b : Int} (H : 0 ≤ b) (H' : a * b = 1) : b = 1 :=
   eq_one_of_mul_eq_one_right (b := a) H <| by rw [Int.mul_comm, H']
 
-instance decidableDvd : DecidableRel (α := Int) (· ∣ ·) := fun _ _ =>
-  decidable_of_decidable_of_iff (dvd_iff_emod_eq_zero ..).symm
+instance decidableDvd : DecidableRel (α := Int) (· ∣ ·) := fun a b =>
+  decidable_of_decidable_of_iff (p := b % a = 0) (by exact (dvd_iff_emod_eq_zero ..).symm)
 
 protected theorem mul_dvd_mul_iff_left {a b c : Int} (h : a ≠ 0) : (a * b) ∣ (a * c) ↔ b ∣ c :=
   ⟨by rintro ⟨d, h'⟩; exact ⟨d, by rw [Int.mul_assoc] at h'; exact (mul_eq_mul_left_iff h).mp h'⟩,

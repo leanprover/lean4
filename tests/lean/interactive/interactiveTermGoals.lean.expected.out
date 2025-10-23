@@ -1,0 +1,264 @@
+{"textDocument": {"uri": "file:///interactiveTermGoals.lean"},
+ "position": {"line": 2, "character": 14}}
+{"type":
+ {"tag":
+  [{"subexprPos": "/", "info": {"p": "1"}},
+   {"append":
+    [{"tag": [{"subexprPos": "/0/1", "info": {"p": "2"}}, {"text": "0"}]},
+     {"text": " < "},
+     {"tag": [{"subexprPos": "/1", "info": {"p": "3"}}, {"text": "2"}]}]}]},
+ "term": {"p": "0"},
+ "range":
+ {"start": {"line": 2, "character": 2}, "end": {"line": 2, "character": 51}},
+ "hyps": [],
+ "ctx": {"p": "4"}}
+{"textDocument": {"uri": "file:///interactiveTermGoals.lean"},
+ "position": {"line": 2, "character": 15}}
+{"type":
+ {"tag":
+  [{"subexprPos": "/", "info": {"p": "1"}},
+   {"append":
+    [{"tag": [{"subexprPos": "/0/1", "info": {"p": "2"}}, {"text": "0"}]},
+     {"text": " < "},
+     {"tag": [{"subexprPos": "/1", "info": {"p": "3"}}, {"text": "1"}]}]}]},
+ "term": {"p": "0"},
+ "range":
+ {"start": {"line": 2, "character": 15}, "end": {"line": 2, "character": 30}},
+ "hyps": [],
+ "ctx": {"p": "4"}}
+{"textDocument": {"uri": "file:///interactiveTermGoals.lean"},
+ "position": {"line": 2, "character": 16}}
+{"type":
+ {"tag":
+  [{"subexprPos": "/", "info": {"p": "1"}},
+   {"append":
+    [{"tag": [{"subexprPos": "/0/1", "info": {"p": "2"}}, {"text": "0"}]},
+     {"text": " < "},
+     {"tag": [{"subexprPos": "/1", "info": {"p": "3"}}, {"text": "1"}]}]}]},
+ "term": {"p": "0"},
+ "range":
+ {"start": {"line": 2, "character": 15}, "end": {"line": 2, "character": 30}},
+ "hyps": [],
+ "ctx": {"p": "4"}}
+{"textDocument": {"uri": "file:///interactiveTermGoals.lean"},
+ "position": {"line": 2, "character": 31}}
+{"type":
+ {"tag":
+  [{"subexprPos": "/", "info": {"p": "1"}},
+   {"append":
+    [{"tag": [{"subexprPos": "/0/1", "info": {"p": "2"}}, {"text": "1"}]},
+     {"text": " < "},
+     {"tag": [{"subexprPos": "/1", "info": {"p": "3"}}, {"text": "2"}]}]}]},
+ "term": {"p": "0"},
+ "range":
+ {"start": {"line": 2, "character": 31}, "end": {"line": 2, "character": 51}},
+ "hyps": [],
+ "ctx": {"p": "4"}}
+{"textDocument": {"uri": "file:///interactiveTermGoals.lean"},
+ "position": {"line": 2, "character": 48}}
+{"type":
+ {"tag":
+  [{"subexprPos": "/", "info": {"p": "1"}},
+   {"append":
+    [{"tag": [{"subexprPos": "/0/1", "info": {"p": "2"}}, {"text": "1"}]},
+     {"text": " < "},
+     {"tag": [{"subexprPos": "/1", "info": {"p": "3"}}, {"text": "2"}]}]}]},
+ "term": {"p": "0"},
+ "range":
+ {"start": {"line": 2, "character": 32}, "end": {"line": 2, "character": 50}},
+ "hyps": [],
+ "ctx": {"p": "4"}}
+{"textDocument": {"uri": "file:///interactiveTermGoals.lean"},
+ "position": {"line": 11, "character": 10}}
+{"type":
+ {"tag":
+  [{"subexprPos": "/", "info": {"p": "2"}},
+   {"append":
+    [{"text": "Option "},
+     {"tag": [{"subexprPos": "/1", "info": {"p": "3"}}, {"text": "Unit"}]}]}]},
+ "term": {"p": "0"},
+ "range":
+ {"start": {"line": 11, "character": 2}, "end": {"line": 11, "character": 19}},
+ "hyps":
+ [{"type": {"tag": [{"subexprPos": "/", "info": {"p": "1"}}, {"text": "Int"}]},
+   "names": ["y"],
+   "fvarIds": []}],
+ "ctx": {"p": "4"}}
+{"textDocument": {"uri": "file:///interactiveTermGoals.lean"},
+ "position": {"line": 16, "character": 17}}
+{"type":
+ {"tag":
+  [{"subexprPos": "/", "info": {"p": "2"}},
+   {"append":
+    [{"tag":
+      [{"subexprPos": "/0/1", "info": {"p": "3"}},
+       {"append":
+        [{"tag":
+          [{"subexprPos": "/0/1/0/0", "info": {"p": "4"}}, {"text": "?m"}]},
+         {"text": " "},
+         {"tag":
+          [{"subexprPos": "/0/1/0/1", "info": {"p": "5"}}, {"text": "m"}]},
+         {"text": " "},
+         {"tag":
+          [{"subexprPos": "/0/1/1", "info": {"p": "6"}}, {"text": "n"}]}]}]},
+     {"text": " < "},
+     {"tag": [{"subexprPos": "/1", "info": {"p": "7"}}, {"text": "n"}]}]}]},
+ "term": {"p": "0"},
+ "range":
+ {"start": {"line": 16, "character": 17}, "end": {"line": 16, "character": 18}},
+ "hyps":
+ [{"type": {"tag": [{"subexprPos": "/", "info": {"p": "1"}}, {"text": "Nat"}]},
+   "names": ["m", "n"],
+   "fvarIds": []}],
+ "ctx": {"p": "8"}}
+{"textDocument": {"uri": "file:///interactiveTermGoals.lean"},
+ "position": {"line": 16, "character": 18}}
+{"type":
+ {"tag":
+  [{"subexprPos": "/", "info": {"p": "2"}},
+   {"append":
+    [{"tag":
+      [{"subexprPos": "/0/1", "info": {"p": "3"}},
+       {"append":
+        [{"tag":
+          [{"subexprPos": "/0/1/0/0", "info": {"p": "4"}}, {"text": "?m"}]},
+         {"text": " "},
+         {"tag":
+          [{"subexprPos": "/0/1/0/1", "info": {"p": "5"}}, {"text": "m"}]},
+         {"text": " "},
+         {"tag":
+          [{"subexprPos": "/0/1/1", "info": {"p": "6"}}, {"text": "n"}]}]}]},
+     {"text": " < "},
+     {"tag": [{"subexprPos": "/1", "info": {"p": "7"}}, {"text": "n"}]}]}]},
+ "term": {"p": "0"},
+ "range":
+ {"start": {"line": 16, "character": 17}, "end": {"line": 16, "character": 18}},
+ "hyps":
+ [{"type": {"tag": [{"subexprPos": "/", "info": {"p": "1"}}, {"text": "Nat"}]},
+   "names": ["m", "n"],
+   "fvarIds": []}],
+ "ctx": {"p": "8"}}
+{"textDocument": {"uri": "file:///interactiveTermGoals.lean"},
+ "position": {"line": 20, "character": 18}}
+{"type": {"tag": [{"subexprPos": "/", "info": {"p": "1"}}, {"text": "True"}]},
+ "term": {"p": "0"},
+ "range":
+ {"start": {"line": 20, "character": 18}, "end": {"line": 20, "character": 23}},
+ "hyps": [],
+ "ctx": {"p": "2"}}
+{"textDocument": {"uri": "file:///interactiveTermGoals.lean"},
+ "position": {"line": 24, "character": 2}}
+{"type":
+ {"tag":
+  [{"subexprPos": "/", "info": {"p": "1"}},
+   {"append":
+    [{"text": "∀ ("},
+     {"tag": [{"subexprPos": "/", "info": {"p": "2"}}, {"text": "n"}]},
+     {"text": " : "},
+     {"tag": [{"subexprPos": "/0", "info": {"p": "3"}}, {"text": "Nat"}]},
+     {"text": "), "},
+     {"tag":
+      [{"subexprPos": "/1", "info": {"p": "4"}},
+       {"append":
+        [{"tag": [{"subexprPos": "/1/0/1", "info": {"p": "5"}}, {"text": "n"}]},
+         {"text": " < "},
+         {"tag":
+          [{"subexprPos": "/1/1", "info": {"p": "6"}},
+           {"append":
+            [{"tag":
+              [{"subexprPos": "/1/1/0/1", "info": {"p": "7"}}, {"text": "n"}]},
+             {"text": " + "},
+             {"tag":
+              [{"subexprPos": "/1/1/1", "info": {"p": "8"}},
+               {"text": "42"}]}]}]}]}]}]}]},
+ "term": {"p": "0"},
+ "range":
+ {"start": {"line": 24, "character": 2}, "end": {"line": 24, "character": 74}},
+ "hyps": [],
+ "ctx": {"p": "9"}}
+{"textDocument": {"uri": "file:///interactiveTermGoals.lean"},
+ "position": {"line": 24, "character": 6}}
+{"type": {"tag": [{"subexprPos": "/", "info": {"p": "1"}}, {"text": "Nat"}]},
+ "term": {"p": "0"},
+ "range":
+ {"start": {"line": 24, "character": 6}, "end": {"line": 24, "character": 7}},
+ "hyps": [],
+ "ctx": {"p": "2"}}
+{"textDocument": {"uri": "file:///interactiveTermGoals.lean"},
+ "position": {"line": 30, "character": 6}}
+{"type":
+ {"tag":
+  [{"subexprPos": "/", "info": {"p": "2"}},
+   {"append":
+    [{"text": "∀ ("},
+     {"tag": [{"subexprPos": "/", "info": {"p": "3"}}, {"text": "n "}]},
+     {"tag": [{"subexprPos": "/", "info": {"p": "4"}}, {"text": "m"}]},
+     {"text": " : "},
+     {"tag": [{"subexprPos": "/1/0", "info": {"p": "5"}}, {"text": "Nat"}]},
+     {"text": "), "},
+     {"tag":
+      [{"subexprPos": "/1/1", "info": {"p": "6"}},
+       {"append":
+        [{"tag":
+          [{"subexprPos": "/1/1/0/1", "info": {"p": "7"}},
+           {"append":
+            [{"tag":
+              [{"subexprPos": "/1/1/0/1/0/1", "info": {"p": "8"}},
+               {"text": "n"}]},
+             {"text": " + "},
+             {"tag":
+              [{"subexprPos": "/1/1/0/1/1", "info": {"p": "9"}},
+               {"text": "m"}]}]}]},
+         {"text": " = "},
+         {"tag":
+          [{"subexprPos": "/1/1/1", "info": {"p": "10"}},
+           {"append":
+            [{"tag":
+              [{"subexprPos": "/1/1/1/0/1", "info": {"p": "11"}},
+               {"text": "m"}]},
+             {"text": " + "},
+             {"tag":
+              [{"subexprPos": "/1/1/1/1", "info": {"p": "12"}},
+               {"text": "n"}]}]}]}]}]}]}]},
+ "term": {"p": "0"},
+ "range":
+ {"start": {"line": 30, "character": 6}, "end": {"line": 30, "character": 18}},
+ "hyps":
+ [{"type": {"tag": [{"subexprPos": "/", "info": {"p": "1"}}, {"text": "Nat"}]},
+   "names": ["n"],
+   "fvarIds": []}],
+ "ctx": {"p": "13"}}
+{"textDocument": {"uri": "file:///interactiveTermGoals.lean"},
+ "position": {"line": 32, "character": 8}}
+{"type":
+ {"tag":
+  [{"subexprPos": "/", "info": {"p": "2"}},
+   {"append":
+    [{"tag": [{"subexprPos": "/0/1", "info": {"p": "3"}}, {"text": "n"}]},
+     {"text": " < "},
+     {"tag":
+      [{"subexprPos": "/1", "info": {"p": "4"}},
+       {"append":
+        [{"tag": [{"subexprPos": "/1/0/1", "info": {"p": "5"}}, {"text": "n"}]},
+         {"text": " + "},
+         {"tag":
+          [{"subexprPos": "/1/1", "info": {"p": "6"}}, {"text": "1"}]}]}]}]}]},
+ "term": {"p": "0"},
+ "range":
+ {"start": {"line": 32, "character": 8}, "end": {"line": 32, "character": 26}},
+ "hyps":
+ [{"type": {"tag": [{"subexprPos": "/", "info": {"p": "1"}}, {"text": "Nat"}]},
+   "names": ["n"],
+   "fvarIds": []}],
+ "ctx": {"p": "7"}}
+{"textDocument": {"uri": "file:///interactiveTermGoals.lean"},
+ "position": {"line": 35, "character": 14}}
+{"type": {"tag": [{"subexprPos": "/", "info": {"p": "2"}}, {"text": "Nat"}]},
+ "term": {"p": "0"},
+ "range":
+ {"start": {"line": 35, "character": 14}, "end": {"line": 35, "character": 15}},
+ "hyps":
+ [{"type": {"tag": [{"subexprPos": "/", "info": {"p": "1"}}, {"text": "Nat"}]},
+   "names": ["n"],
+   "fvarIds": []}],
+ "ctx": {"p": "3"}}

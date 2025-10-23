@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Do.SPred.Notation.Basic
-// Imports: Std.Do.SPred.SPred Init.NotationExtra
+// Imports: public import Std.Do.SPred.SPred import Init.NotationExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

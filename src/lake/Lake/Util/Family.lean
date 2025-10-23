@@ -7,10 +7,8 @@ module
 
 prelude
 public import Init.Prelude
+public meta import Init.Data.ToString.Name
 import Init.Data.ToString
-meta import Init.Meta
-meta import Init.Data.String.Basic
-meta import Init.Data.ToString.Name
 
 /-!
 # Open Type Families in Lean

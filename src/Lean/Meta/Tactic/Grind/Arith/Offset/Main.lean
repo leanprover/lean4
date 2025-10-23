@@ -8,7 +8,6 @@ prelude
 public import Init.Grind.Offset
 public import Lean.Meta.Tactic.Grind.Arith.Offset.Types
 import Lean.Meta.Tactic.Grind.Arith.Offset.Proof
-import Lean.Meta.Tactic.Grind.Arith.Offset.Util
 public section
 namespace Lean.Meta.Grind.Arith.Offset
 /-!
@@ -332,6 +331,7 @@ private def alreadyInternalized (e : Expr) : GoalM Bool := do
   return s.cnstrs.contains { expr := e } || s.nodeMap.contains { expr := e }
 
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
+  unless (← getConfig).offset do return ()
   if (← alreadyInternalized e) then
     return ()
   let z ← getNatZeroExpr

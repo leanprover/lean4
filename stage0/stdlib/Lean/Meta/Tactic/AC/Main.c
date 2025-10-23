@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.AC.Main
-// Imports: Init.Data.AC Lean.Meta.AppBuilder Lean.Meta.Tactic.Refl Lean.Meta.Tactic.Simp.Main Lean.Elab.Tactic.Rewrite
+// Imports: public import Lean.Meta.Tactic.Refl public import Lean.Meta.Tactic.Simp.Main public import Lean.Elab.Tactic.Rewrite
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -84,7 +84,7 @@ LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Meta_AC_rewriteUnno
 static lean_object* l___private_Lean_Meta_Tactic_AC_Main_0__Lean_Meta_AC_acRflTactic___regBuiltin_Lean_Meta_AC_acRflTactic__1___closed__5;
 static lean_object* l_Lean_Meta_AC_preContext___closed__6;
 static lean_object* l_Lean_Meta_AC_toACExpr___closed__1;
-lean_object* l_Lean_MVarId_refl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MVarId_refl(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_AC_rewriteUnnormalized___closed__7;
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
@@ -6056,7 +6056,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_AC_buildNormProof___closed__4;
 x_2 = lean_unsigned_to_nat(52u);
-x_3 = lean_unsigned_to_nat(133u);
+x_3 = lean_unsigned_to_nat(131u);
 x_4 = l_Lean_Meta_AC_buildNormProof___closed__3;
 x_5 = l_Lean_Meta_AC_buildNormProof___closed__2;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -8138,39 +8138,40 @@ lean_inc_ref(x_2);
 x_7 = l_Lean_Meta_AC_rewriteUnnormalized(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; 
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 lean_dec_ref(x_7);
-x_10 = l_Lean_MVarId_refl(x_8, x_2, x_3, x_4, x_5, x_9);
-return x_10;
+x_10 = 1;
+x_11 = l_Lean_MVarId_refl(x_8, x_10, x_2, x_3, x_4, x_5, x_9);
+return x_11;
 }
 else
 {
-uint8_t x_11; 
+uint8_t x_12; 
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-x_11 = !lean_is_exclusive(x_7);
-if (x_11 == 0)
+x_12 = !lean_is_exclusive(x_7);
+if (x_12 == 0)
 {
 return x_7;
 }
 else
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_12 = lean_ctor_get(x_7, 0);
-x_13 = lean_ctor_get(x_7, 1);
+lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_13 = lean_ctor_get(x_7, 0);
+x_14 = lean_ctor_get(x_7, 1);
+lean_inc(x_14);
 lean_inc(x_13);
-lean_inc(x_12);
 lean_dec(x_7);
-x_14 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_14, 0, x_12);
-lean_ctor_set(x_14, 1, x_13);
-return x_14;
+x_15 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_15, 0, x_13);
+lean_ctor_set(x_15, 1, x_14);
+return x_15;
 }
 }
 }
@@ -9834,13 +9835,13 @@ x_34 = l_Lean_Elab_Tactic_expandLocation(x_33);
 lean_dec(x_33);
 x_15 = x_8;
 x_16 = x_4;
-x_17 = x_2;
-x_18 = x_9;
-x_19 = x_5;
-x_20 = x_7;
-x_21 = x_3;
-x_22 = x_10;
-x_23 = x_6;
+x_17 = x_10;
+x_18 = x_3;
+x_19 = x_9;
+x_20 = x_6;
+x_21 = x_2;
+x_22 = x_5;
+x_23 = x_7;
 x_24 = x_34;
 goto block_27;
 }
@@ -9855,13 +9856,13 @@ lean_ctor_set(x_36, 0, x_35);
 lean_ctor_set_uint8(x_36, sizeof(void*)*1, x_12);
 x_15 = x_8;
 x_16 = x_4;
-x_17 = x_2;
-x_18 = x_9;
-x_19 = x_5;
-x_20 = x_7;
-x_21 = x_3;
-x_22 = x_10;
-x_23 = x_6;
+x_17 = x_10;
+x_18 = x_3;
+x_19 = x_9;
+x_20 = x_6;
+x_21 = x_2;
+x_22 = x_5;
+x_23 = x_7;
 x_24 = x_36;
 goto block_27;
 }
@@ -9871,7 +9872,7 @@ lean_object* x_25; lean_object* x_26;
 x_25 = lean_alloc_closure((void*)(l_Lean_Meta_AC_evalNf0___lam__0___boxed), 11, 2);
 lean_closure_set(x_25, 0, x_24);
 lean_closure_set(x_25, 1, x_14);
-x_26 = l_Lean_Elab_Tactic_withMainContext___redArg(x_25, x_17, x_21, x_16, x_19, x_23, x_20, x_15, x_18, x_22);
+x_26 = l_Lean_Elab_Tactic_withMainContext___redArg(x_25, x_21, x_18, x_16, x_22, x_20, x_23, x_15, x_19, x_17);
 return x_26;
 }
 }
@@ -10216,8 +10217,6 @@ x_5 = l_Lean_registerTraceClass(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* initialize_Init_Data_AC(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Refl(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Simp_Main(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Rewrite(uint8_t builtin, lean_object*);
@@ -10226,12 +10225,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_AC_Main(uint8_t builtin, le
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_AC(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_AppBuilder(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Refl(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -99,11 +99,6 @@ expands all let-variables occurring in the target expression.
 namespace Lean.Meta
 namespace Closure
 
-structure ToProcessElement where
-  fvarId : FVarId
-  newFVarId : FVarId
-  deriving Inhabited
-
 structure Context where
   zetaDelta : Bool
 
@@ -114,12 +109,9 @@ structure State where
   nextLevelIdx          : Nat := 1
   levelArgs             : Array Level := #[]
   newLocalDecls         : Array LocalDecl := #[]
-  newLocalDeclsForMVars : Array LocalDecl := #[]
   newLetDecls           : Array LocalDecl := #[]
   nextExprIdx           : Nat := 1
-  exprMVarArgs          : Array Expr := #[]
-  exprFVarArgs          : Array Expr := #[]
-  toProcess             : Array ToProcessElement := #[]
+  exprArgs              : Array Expr := #[]
 
 abbrev ClosureM := ReaderT Context $ StateRefT State MetaM
 
@@ -184,8 +176,12 @@ def mkNextUserName : ClosureM Name := do
   modify fun s => { s with nextExprIdx := s.nextExprIdx + 1 }
   pure n
 
-def pushToProcess (elem : ToProcessElement) : ClosureM Unit :=
-  modify fun s => { s with toProcess := s.toProcess.push elem }
+def pushFVarArg (e : Expr) : ClosureM Unit :=
+  modify fun s => { s with exprArgs := s.exprArgs.push e }
+
+def pushLocalDecl (newFVarId : FVarId) (userName : Name) (type : Expr) (bi := BinderInfo.default) : ClosureM Unit := do
+  modify fun s => { s with newLocalDecls := s.newLocalDecls.push <| .cdecl default newFVarId userName type bi .default }
+
 
 partial def collectExprAux (e : Expr) : ClosureM Expr := do
   let collect (e : Expr) := visitExpr collectExprAux e
@@ -230,8 +226,8 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
       else
         pure e
     modify fun s => { s with
-      newLocalDeclsForMVars := s.newLocalDeclsForMVars.push $ .cdecl default newFVarId userName type .default .default,
-      exprMVarArgs          := s.exprMVarArgs.push e'
+      newLocalDecls := s.newLocalDecls.push $ .cdecl default newFVarId userName type .default .default,
+      exprArgs      := s.exprArgs.push e'
     }
     return mkFVar newFVarId
   | Expr.fvar fvarId =>
@@ -239,76 +235,39 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
     | true, some value => collect (← preprocess value)
     | _,    _          =>
       let newFVarId ← mkFreshFVarId
-      pushToProcess ⟨fvarId, newFVarId⟩
+      match (← fvarId.getDecl) with
+      | .cdecl _ _ userName type bi _ =>
+        let type ← collect type
+        pushLocalDecl newFVarId userName type bi
+        pushFVarArg (mkFVar fvarId)
+      | .ldecl _ _ userName type val nondep _ =>
+        let zetaDeltaFVarIds ← getZetaDeltaFVarIds
+        -- Note: If `nondep` is true then `zetaDeltaFVarIds.contains fvarId` must be false.
+        if nondep || !zetaDeltaFVarIds.contains fvarId then
+          /- Non-dependent let-decl
+
+              Recall that if `fvarId` is in `zetaDeltaFVarIds`, then we zetaDelta-expanded it
+              during type checking (see `check` at `collectExpr`).
+
+              Our type checker may zetaDelta-expand declarations that are not needed, but this
+              check is conservative, and seems to work well in practice. -/
+          let type ← collect type
+          pushLocalDecl newFVarId userName type
+          pushFVarArg (mkFVar fvarId)
+        else
+          /- Dependent let-decl -/
+          let type ← collect type
+          let val  ← collect val
+          modify fun s => { s with newLetDecls := s.newLetDecls.push <| .ldecl default newFVarId userName type val false .default }
+          /- We don't want to interleave let and lambda declarations in our closure. So, we expand any occurrences of newFVarId
+            at `newLocalDecls` -/
+          modify fun s => { s with newLocalDecls := s.newLocalDecls.map (·.replaceFVarId newFVarId val) }
       return mkFVar newFVarId
   | e => pure e
 
 def collectExpr (e : Expr) : ClosureM Expr := do
   let e ← preprocess e
   visitExpr collectExprAux e
-
-partial def pickNextToProcessAux (lctx : LocalContext) (i : Nat) (toProcess : Array ToProcessElement) (elem : ToProcessElement)
-    : ToProcessElement × Array ToProcessElement :=
-  if h : i < toProcess.size then
-    let elem' := toProcess[i]
-    if (lctx.get! elem.fvarId).index < (lctx.get! elem'.fvarId).index then
-      pickNextToProcessAux lctx (i+1) (toProcess.set i elem) elem'
-    else
-      pickNextToProcessAux lctx (i+1) toProcess elem
-  else
-    (elem, toProcess)
-
-def pickNextToProcess? : ClosureM (Option ToProcessElement) := do
-  let lctx ← getLCtx
-  let s ← get
-  if s.toProcess.isEmpty then
-    pure none
-  else
-    modifyGet fun s =>
-      let elem      := s.toProcess.back!
-      let toProcess := s.toProcess.pop
-      let (elem, toProcess) := pickNextToProcessAux lctx 0 toProcess elem
-      (some elem, { s with toProcess := toProcess })
-
-def pushFVarArg (e : Expr) : ClosureM Unit :=
-  modify fun s => { s with exprFVarArgs := s.exprFVarArgs.push e }
-
-def pushLocalDecl (newFVarId : FVarId) (userName : Name) (type : Expr) (bi := BinderInfo.default) : ClosureM Unit := do
-  let type ← collectExpr type
-  modify fun s => { s with newLocalDecls := s.newLocalDecls.push <| .cdecl default newFVarId userName type bi .default }
-
-partial def process : ClosureM Unit := do
-  match (← pickNextToProcess?) with
-  | none => pure ()
-  | some ⟨fvarId, newFVarId⟩ =>
-    match (← fvarId.getDecl) with
-    | .cdecl _ _ userName type bi _ =>
-      pushLocalDecl newFVarId userName type bi
-      pushFVarArg (mkFVar fvarId)
-      process
-    | .ldecl _ _ userName type val nondep _ =>
-      let zetaDeltaFVarIds ← getZetaDeltaFVarIds
-      -- Note: If `nondep` is true then `zetaDeltaFVarIds.contains fvarId` must be false.
-      if nondep || !zetaDeltaFVarIds.contains fvarId then
-        /- Non-dependent let-decl
-
-            Recall that if `fvarId` is in `zetaDeltaFVarIds`, then we zetaDelta-expanded it
-            during type checking (see `check` at `collectExpr`).
-
-            Our type checker may zetaDelta-expand declarations that are not needed, but this
-            check is conservative, and seems to work well in practice. -/
-        pushLocalDecl newFVarId userName type
-        pushFVarArg (mkFVar fvarId)
-        process
-      else
-        /- Dependent let-decl -/
-        let type ← collectExpr type
-        let val  ← collectExpr val
-        modify fun s => { s with newLetDecls := s.newLetDecls.push <| .ldecl default newFVarId userName type val false .default }
-        /- We don't want to interleave let and lambda declarations in our closure. So, we expand any occurrences of newFVarId
-           at `newLocalDecls` -/
-        modify fun s => { s with newLocalDecls := s.newLocalDecls.map (·.replaceFVarId newFVarId val) }
-        process
 
 @[inline] def mkBinding (isLambda : Bool) (decls : Array LocalDecl) (b : Expr) : Expr :=
   let xs := decls.map LocalDecl.toExpr
@@ -347,70 +306,12 @@ def mkValueTypeClosureAux (type : Expr) (value : Expr) : ClosureM (Expr × Expr)
   withTrackingZetaDelta do
     let type  ← collectExpr type
     let value ← collectExpr value
-    process
     pure (type, value)
-
-private structure TopoSort where
-  tempMark  : FVarIdHashSet := {}
-  doneMark  : FVarIdHashSet := {}
-  newDecls : Array LocalDecl := #[]
-  newArgs : Array Expr := #[]
-
-/--
-By construction, the `newLocalDecls` for fvars are in dependency order, but those for MVars may not be,
-and need to be interleaved appropriately. This we do a “topological insertion sort” of these.
-We care about efficiency for the common case of many fvars and no mvars.
--/
-private partial def sortDecls (sortedDecls : Array LocalDecl) (sortedArgs : Array Expr)
-  (toSortDecls : Array LocalDecl) (toSortArgs : Array Expr) : CoreM (Array LocalDecl × Array Expr):= do
-  assert! sortedDecls.size = sortedArgs.size
-  assert! toSortDecls.size = toSortArgs.size
-  if toSortDecls.isEmpty then
-    return (sortedDecls, sortedArgs)
-  trace[Meta.Closure] "MVars to abstract, topologically sorting the abstracted variables"
-  let mut m : Std.HashMap FVarId (LocalDecl × Expr) := {}
-  for decl in sortedDecls, arg in sortedArgs do
-    m := m.insert decl.fvarId (decl, arg)
-  for decl in toSortDecls, arg in toSortArgs do
-    m := m.insert decl.fvarId (decl, arg)
-
-  let rec visit (fvarId : FVarId) : StateT TopoSort CoreM Unit := do
-    let some (decl, arg) := m.get? fvarId | return
-    if (← get).doneMark.contains decl.fvarId then
-      return ()
-    trace[Meta.Closure] "Sorting decl {mkFVar decl.fvarId} : {decl.type}"
-    if (← get).tempMark.contains decl.fvarId then
-      throwError "cycle detected in sorting abstracted variables"
-    assert! !decl.isLet (allowNondep := true) -- should all be cdecls
-    modify fun s => { s with tempMark := s.tempMark.insert decl.fvarId }
-    let type := decl.type
-    type.forEach' fun e => do
-      if e.hasFVar then
-        if e.isFVar then
-          visit e.fvarId!
-        return true
-      else
-        return false
-    modify fun s => { s with
-      newDecls := s.newDecls.push decl
-      newArgs := s.newArgs.push arg
-      doneMark := s.doneMark.insert decl.fvarId
-    }
-
-  let s₀ := { newDecls := .emptyWithCapacity m.size, newArgs := .emptyWithCapacity m.size }
-  StateT.run' (s := s₀) do
-    for decl in sortedDecls do
-      visit decl.fvarId
-    for decl in toSortDecls do
-      visit decl.fvarId
-    let {newDecls, newArgs, .. } ← get
-    trace[Meta.Closure] "Sorted fvars: {newDecls.map (mkFVar ·.fvarId)}"
-    return (newDecls, newArgs)
 
 def mkValueTypeClosure (type : Expr) (value : Expr) (zetaDelta : Bool) : MetaM MkValueTypeClosureResult := do
   let ((type, value), s) ← ((mkValueTypeClosureAux type value).run { zetaDelta }).run {}
-  let (newLocalDecls, newArgs) ← sortDecls s.newLocalDecls.reverse s.exprFVarArgs.reverse
-                                           s.newLocalDeclsForMVars s.exprMVarArgs
+  let newLocalDecls := s.newLocalDecls.reverse
+  let newArgs       := s.exprArgs.reverse
   let newLetDecls   := s.newLetDecls.reverse
   let type  := mkForall newLocalDecls (mkForall newLetDecls type)
   let value := mkLambda newLocalDecls (mkLambda newLetDecls value)

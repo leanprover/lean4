@@ -31,16 +31,6 @@ end Substring
 namespace String
 
 /--
-Replaces the current character in the string.
-
-Does nothing if the iterator is at the end of the string. If both the replacement character and the
-replaced character are 7-bit ASCII characters and the string is not shared, then it is updated
-in-place and not copied.
--/
-@[inline] def Iterator.setCurr : Iterator → Char → Iterator
-  | ⟨s, i⟩, c => ⟨i.set s c, i⟩
-
-/--
 Interprets a string as the decimal representation of a natural number, returning it. Panics if the
 string does not contain a decimal natural number.
 
@@ -89,6 +79,16 @@ macro_rules
   `(tactic| with_reducible apply String.Iterator.sizeOf_next_lt_of_atEnd; assumption)
 
 namespace Iterator
+
+/--
+Replaces the current character in the string.
+
+Does nothing if the iterator is at the end of the string. If both the replacement character and the
+replaced character are 7-bit ASCII characters and the string is not shared, then it is updated
+in-place and not copied.
+-/
+@[inline] def setCurr : Iterator → Char → Iterator
+  | ⟨s, i⟩, c => ⟨i.set s c, i⟩
 
 /--
 Moves the iterator forward until the Boolean predicate `p` returns `true` for the iterator's current

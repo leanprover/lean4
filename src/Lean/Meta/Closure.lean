@@ -13,6 +13,7 @@ import Lean.AddDecl
 import Lean.Util.FoldConsts
 import Lean.Meta.Check
 import Lean.Meta.Tactic.AuxLemma
+import Lean.Util.ForEachExpr
 
 /-!
 
@@ -377,10 +378,68 @@ def mkValueTypeClosureAux (type : Expr) (value : Expr) : ClosureM (Expr × Expr)
     process
     pure (type, value)
 
+private structure TopoSort where
+  tempMark  : FVarIdHashSet := {}
+  doneMark  : FVarIdHashSet := {}
+  newDecls : Array LocalDecl := #[]
+  newArgs : Array Expr := #[]
+
+/--
+By constrction, the `newLocalDecls` for fvars are in dependency order, but those for MVars may not be,
+and need to be interleaved appropriately. This we do a “topological insertion sort” of these.
+We care about efficiency for the common case of many fvars and no mvars.
+-/
+private partial def sortDecls (sortedDecls : Array LocalDecl) (sortedArgs : Array Expr)
+  (toSortDecls : Array LocalDecl) (toSortArgs : Array Expr) : CoreM (Array LocalDecl × Array Expr):= do
+  assert! sortedDecls.size = sortedArgs.size
+  assert! toSortDecls.size = toSortArgs.size
+  if toSortDecls.isEmpty then
+    return (sortedDecls, sortedArgs)
+  trace[Meta.Closure] "MVars to abstract, topologically sorting the abstracted variables"
+  let mut m : Std.HashMap FVarId (LocalDecl × Expr) := {}
+  for decl in sortedDecls, arg in sortedArgs do
+    m := m.insert decl.fvarId (decl, arg)
+  for decl in toSortDecls, arg in toSortArgs do
+    m := m.insert decl.fvarId (decl, arg)
+
+  let rec visit (fvarId : FVarId) : StateT TopoSort CoreM Unit := do
+    let some (decl, arg) := m.get? fvarId | return
+    if (← get).doneMark.contains decl.fvarId then
+      return ()
+    trace[Meta.Closure] "Sorting decl {mkFVar decl.fvarId} : {decl.type}"
+    if (← get).tempMark.contains decl.fvarId then
+      throwError "cycle detected in sorting abstracted variables"
+    assert! !decl.isLet (allowNondep := true) -- should all be cdecls
+    modify fun s => { s with tempMark := s.tempMark.insert decl.fvarId }
+    let type := decl.type
+    type.forEach' fun e => do
+      if e.hasFVar then
+        if e.isFVar then
+          visit e.fvarId!
+        return true
+      else
+        return false
+    modify fun s => { s with
+      newDecls := s.newDecls.push decl
+      newArgs := s.newArgs.push arg
+      doneMark := s.doneMark.insert decl.fvarId
+    }
+
+  let s₀ := { newDecls := .emptyWithCapacity m.size, newArgs := .emptyWithCapacity m.size }
+  StateT.run' (s := s₀) do
+    for decl in sortedDecls do
+      visit decl.fvarId
+    for decl in toSortDecls do
+      visit decl.fvarId
+    let {newDecls, newArgs, .. } ← get
+    trace[Meta.Closure] "Sorted fvars: {newDecls.map (mkFVar ·.fvarId)}"
+    return (newDecls, newArgs)
+
 public def mkValueTypeClosure (type : Expr) (value : Expr) (zetaDelta : Bool) : MetaM MkValueTypeClosureResult := do
   let hasAuxDecls := (← getLCtx).any (·.isAuxDecl)
-  let ((type, value), s) ← ((mkValueTypeClosureAux type value).run { zetaDelta , hasAuxDecls}).run {}
-  let newLocalDecls := s.newLocalDecls.reverse ++ s.newLocalDeclsForMVars
+  let ((type, value), s) ← ((mkValueTypeClosureAux type value).run { zetaDelta, hasAuxDecls }).run {}
+  let (newLocalDecls, newArgs) ← sortDecls s.newLocalDecls.reverse s.exprFVarArgs.reverse
+                                           s.newLocalDeclsForMVars s.exprMVarArgs
   let newLetDecls   := s.newLetDecls.reverse
   let type  := mkForall newLocalDecls (mkForall newLetDecls type)
   let value := mkLambda newLocalDecls (mkLambda newLetDecls value)
@@ -389,7 +448,7 @@ public def mkValueTypeClosure (type : Expr) (value : Expr) (zetaDelta : Bool) : 
     value       := value,
     levelParams := s.levelParams,
     levelArgs   := s.levelArgs,
-    exprArgs    := s.exprFVarArgs.reverse ++ s.exprMVarArgs
+    exprArgs    := newArgs
   }
 
 end Closure
@@ -424,5 +483,8 @@ public def mkAuxTheorem (type : Expr) (value : Expr) (zetaDelta : Bool := false)
   let result ← Closure.mkValueTypeClosure type value zetaDelta
   let name ← mkAuxLemma (kind? := kind?) (cache := cache) result.levelParams.toList result.type result.value
   return mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
+
+builtin_initialize
+  registerTraceClass `Meta.Closure
 
 end Lean.Meta

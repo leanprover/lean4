@@ -2559,6 +2559,93 @@ theorem isEmpty_union [TransCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF) :
 
 end Union
 
+namespace Const
+
+variable {β : Type v} {m₁ m₂ : Raw α (fun _ => β) cmp}
+
+theorem get?_union [TransCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
+    Const.get? (m₁ ∪ m₂) k = (Const.get? m₂ k).or (Const.get? m₁ k) := by
+  simp only [Union.union]
+  exact Impl.Const.get?_union! h₁ h₂
+
+theorem get?_union_of_not_mem_left [TransCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (not_mem : ¬k ∈ m₁) :
+    Const.get? (m₁ ∪ m₂) k = Const.get? m₂ k := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  simp only [Union.union]
+  exact Impl.Const.get?_union!_of_contains_eq_false_left h₁ h₂ not_mem
+
+theorem get?_union_of_not_mem_right [TransCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (not_mem : ¬k ∈ m₂) :
+    Const.get? (m₁ ∪ m₂) k = Const.get? m₁ k := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  simp only [Union.union]
+  exact Impl.Const.get?_union!_of_contains_eq_false_right h₁ h₂ not_mem
+
+/- get -/
+theorem get_union_of_mem_right [TransCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (mem : k ∈ m₂) :
+    Const.get (m₁ ∪ m₂) k (mem_union_of_right h₁ h₂ mem) = Const.get m₂ k mem := by
+  rw [mem_iff_contains] at mem
+  simp only [Union.union]
+  exact Impl.Const.get_union!_of_contains_right h₁ h₂ mem
+
+theorem get_union_of_not_mem_left [TransCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (not_mem : ¬k ∈ m₁) {h'} :
+    Const.get (m₁ ∪ m₂) k h' = Const.get m₂ k (mem_of_mem_union_of_not_mem_left h₁ h₂ h' not_mem) := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  simp only [Union.union]
+  exact Impl.Const.get_union!_of_contains_eq_false_left h₁ h₂ not_mem
+
+theorem get_union_of_not_mem_right [TransCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (not_mem : ¬k ∈ m₂) {h'} :
+    Const.get (m₁ ∪ m₂) k h' = Const.get m₁ k (mem_of_mem_union_of_not_mem_right h₁ h₂ h' not_mem) := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  simp only [Union.union]
+  exact Impl.Const.get_union!_of_contains_eq_false_right h₁ h₂ not_mem
+
+/- getD -/
+theorem getD_union [TransCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} {fallback : β} :
+    Const.getD (m₁ ∪ m₂) k fallback = Const.getD m₂ k (Const.getD m₁ k fallback) := by
+  simp only [Union.union]
+  exact Impl.Const.getD_union! h₁ h₂
+
+theorem getD_union_of_not_mem_left [TransCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β} (not_mem : ¬k ∈ m₁) :
+    Const.getD (m₁ ∪ m₂) k fallback = Const.getD m₂ k fallback := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  simp only [Union.union]
+  exact Impl.Const.getD_union!_of_contains_eq_false_left h₁ h₂ not_mem
+
+theorem getD_union_of_not_mem_right [TransCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} {fallback : β} (not_mem : ¬k ∈ m₂) :
+    Const.getD (m₁ ∪ m₂) k fallback = Const.getD m₁ k fallback := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  simp only [Union.union]
+  exact Impl.Const.getD_union!_of_contains_eq_false_right h₁ h₂ not_mem
+
+/- get! -/
+theorem get!_union [TransCmp cmp] [Inhabited β] (h₁ : m₁.WF) (h₂ : m₂.WF) {k : α} :
+    Const.get! (m₁ ∪ m₂) k = Const.getD m₂ k (Const.get! m₁ k) := by
+  simp only [Union.union]
+  exact Impl.Const.get!_union! h₁ h₂
+
+theorem get!_union_of_not_mem_left [TransCmp cmp] [Inhabited β] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (not_mem : ¬k ∈ m₁) :
+    Const.get! (m₁ ∪ m₂) k = Const.get! m₂ k := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  simp only [Union.union]
+  exact Impl.Const.get!_union!_of_contains_eq_false_left h₁ h₂ not_mem
+
+theorem get!_union_of_not_mem_right [TransCmp cmp] [Inhabited β] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} (not_mem : ¬k ∈ m₂) :
+    Const.get! (m₁ ∪ m₂) k = Const.get! m₁ k := by
+  rw [← contains_eq_false_iff_not_mem ] at not_mem
+  simp only [Union.union]
+  exact Impl.Const.get!_union!_of_contains_eq_false_right h₁ h₂ not_mem
+
+end Const
+
 section Alter
 
 theorem isEmpty_alter_eq_isEmpty_erase [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α}

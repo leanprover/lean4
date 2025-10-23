@@ -25,10 +25,22 @@ the original order.
 The order in which things are asserted affects the proof found by `grind`.
 Thus, preserving the original order should intuitively help ensure that the generated
 tactic script for the continuation still closes the goal when combined with the
-generated `instantiate` tactic. However, it does not guarantee that the
-script can be successfully replayed, since we are filtering out instantiations that do
-not appear in the final proof term. Recall that a theorem instance may
-contribute to the proof search even if it does not appear in the final proof term.
+generated `instantiate` tactic.
+
+**Note**: We use a simple parameter optimizer for computing the `instantiate` tactic parameter.
+We have a lower and upper bound for their parameters
+The lower bound consists of the theorems actually used in the proof term, while the upper
+bound includes all the theorems instantiated in a particular theorem instantiation step.
+The lower bound is often sufficient to replay the proof, but in some cases, additional
+theorems must be included because a theorem instantiation may contribute to the proof by
+providing terms and many not be present in the final proof term.
+
+**Note*: If an working `instantiate [...]` tactic cannot be produced, we produce the
+tactic `instantiate approx` to indicate that this step is approximate and tweaking is needed.
+We currently used unlimited budget for find the optimal parameter setting. We will add
+a parameter to set the maximum number of iterations. After this implemented, we may generate
+`instantiate only approx [...]` to indicate the parameter search has been interrupted and
+a non-minimal set of parameters was used.
 -/
 
 structure CollectState where
@@ -93,7 +105,7 @@ def mkInstantiateTactic (goal : Goal) (usedThms : Array EMatchTheorem) (approx :
   | true,  false => `(grind| instantiate only)
   | false, false => `(grind| instantiate only [$params,*])
   | true,  true  => `(grind| instantiate approx)
-  | false, true  => `(grind| instantiate approx [$params,*])
+  | false, true  => `(grind| instantiate only approx [$params,*])
 
 def mkNewSeq (goal : Goal) (thms : Array EMatchTheorem) (seq : List TGrind) (approx : Bool) : GrindM (List TGrind) := do
   if thms.isEmpty then

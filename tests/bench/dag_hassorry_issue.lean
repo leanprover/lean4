@@ -1,5 +1,4 @@
 import Lean
-def main : IO Unit := pure () #exit -- TODO: remove after stage0 update
 
 open Lean
 

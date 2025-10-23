@@ -1,5 +1,4 @@
 import Lean
-def main : IO Unit := pure () /- -- TODO: remove after stage0 update
 
 open Lean
 
@@ -9,4 +8,3 @@ IO.println e
 IO.println s!"hash: {e.hash}"
 IO.println e.getAppArgs
 pure 0
--/

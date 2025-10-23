@@ -280,6 +280,7 @@ def logAnchor (e : Expr) : TermElabM Unit := do
     throwError "`cases` tactic failed, invalid anchor"
   goal.withContext <| withRef anchor <| logAnchor e
   let goals ← goals.filterMapM fun goal => do
+    let goal := { goal with ematch.num := 0 }
     let (goal, _) ← liftGrindM <| SearchM.run goal do
       intros genNew; discard <| assertAll
       getGoal

@@ -2256,73 +2256,6 @@ Examples:
 @[inline] def splitOn (s : String) (sep : String := " ") : List String :=
   if sep == "" then [s] else splitOnAux s sep 0 0 0 []
 
-/--
-Adds multiple repetitions of a character to the end of a string.
-
-Returns `s`, with `n` repetitions of `c` at the end. Internally, the implementation repeatedly calls
-`String.push`, so the string is modified in-place if there is a unique reference to it.
-
-Examples:
- * `"indeed".pushn '!' 2 = "indeed!!"`
- * `"indeed".pushn '!' 0 = "indeed"`
- * `"".pushn ' ' 4 = "    "`
--/
-@[inline] def pushn (s : String) (c : Char) (n : Nat) : String :=
-  n.repeat (fun s => s.push c) s
-
-@[export lean_string_pushn]
-def Internal.pushnImpl (s : String) (c : Char) (n : Nat) : String :=
-  String.pushn s c n
-
-/--
-Checks whether a string is empty.
-
-Empty strings are equal to `""` and have length and end position `0`.
-
-Examples:
- * `"".isEmpty = true`
- * `"empty".isEmpty = false`
- * `" ".isEmpty = false`
--/
-@[inline] def isEmpty (s : String) : Bool :=
-  s.rawEndPos == 0
-
-@[export lean_string_isempty]
-def Internal.isEmptyImpl (s : String) : Bool :=
-  String.isEmpty s
-
-/--
-Appends all the strings in a list of strings, in order.
-
-Use `String.intercalate` to place a separator string between the strings in a list.
-
-Examples:
- * `String.join ["gr", "ee", "n"] = "green"`
- * `String.join ["b", "", "l", "", "ue"] = "blue"`
- * `String.join [] = ""`
--/
-@[inline] def join (l : List String) : String :=
-  l.foldl (fun r s => r ++ s) ""
-
-/--
-Appends the strings in a list of strings, placing the separator `s` between each pair.
-
-Examples:
- * `", ".intercalate ["red", "green", "blue"] = "red, green, blue"`
- * `" and ".intercalate ["tea", "coffee"] = "tea and coffee"`
- * `" | ".intercalate ["M", "", "N"] = "M |  | N"`
--/
-def intercalate (s : String) : List String → String
-  | []      => ""
-  | a :: as => go a s as
-where go (acc : String) (s : String) : List String → String
-  | a :: as => go (acc ++ s ++ a) s as
-  | []      => acc
-
-@[export lean_string_intercalate]
-def Internal.intercalateImpl (s : String) : List String → String :=
-  String.intercalate s
-
 
 def offsetOfPosAux (s : String) (pos : Pos.Raw) (i : Pos.Raw) (offset : Nat) : Nat :=
   if i >= pos then offset
@@ -2592,7 +2525,7 @@ theorem length_singleton {c : Char} : (String.singleton c).length = 1 := by
   simp [← length_data]
 
 @[simp] theorem length_pushn (c : Char) (n : Nat) : (pushn s c n).length = s.length + n := by
-  unfold pushn; induction n <;> simp [Nat.repeat, Nat.add_assoc, *]
+  rw [pushn_eq_repeat_push]; induction n <;> simp [Nat.repeat, Nat.add_assoc, *]
 
 @[simp] theorem length_append (s t : String) : (s ++ t).length = s.length + t.length := by
   simp [← length_data]

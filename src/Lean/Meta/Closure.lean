@@ -399,8 +399,10 @@ private partial def sortDecls (sortedDecls : Array LocalDecl) (sortedArgs : Arra
 
   let s₀ := { newDecls := .emptyWithCapacity m.size, newArgs := .emptyWithCapacity m.size }
   StateT.run' (s := s₀) do
-    for (i, _) in m do
-      visit i
+    for decl in sortedDecls do
+      visit decl.fvarId
+    for decl in toSortDecls do
+      visit decl.fvarId
     let {newDecls, newArgs, .. } ← get
     trace[Meta.Closure] "Sorted fvars: {newDecls.map (mkFVar ·.fvarId)}"
     return (newDecls, newArgs)

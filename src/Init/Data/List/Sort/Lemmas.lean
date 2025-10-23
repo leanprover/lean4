@@ -77,22 +77,19 @@ theorem splitInTwo_cons_cons_zipIdx_snd (i : Nat) (l : List α) :
       congr
       ext <;> simp; omega
 
-
-
-
 theorem splitInTwo_fst_pairwise (l : { l : List α // l.length = n }) (h : Pairwise le l.1) : Pairwise le (splitInTwo l).1.1 := by
   rw [splitInTwo_fst]
   exact h.take
 
 @[deprecated splitInTwo_fst_pairwise (since := "2025-10-23")]
-abbrev splitInTwo_fst_sorted := splitInTwo_fst_pairwise
+abbrev splitInTwo_fst_sorted := @splitInTwo_fst_pairwise
 
 theorem splitInTwo_snd_pairwise (l : { l : List α // l.length = n }) (h : Pairwise le l.1) : Pairwise le (splitInTwo l).2.1 := by
   rw [splitInTwo_snd]
   exact h.drop
 
 @[deprecated splitInTwo_snd_pairwise (since := "2025-10-23")]
-abbrev splitInTwo_snd_sorted := splitInTwo_fst_pairwise
+abbrev splitInTwo_snd_sorted := @splitInTwo_fst_pairwise
 
 theorem splitInTwo_fst_le_splitInTwo_snd {l : { l : List α // l.length = n }} (h : Pairwise le l.1) :
     ∀ a b, a ∈ (splitInTwo l).1.1 → b ∈ (splitInTwo l).2.1 → le a b := by

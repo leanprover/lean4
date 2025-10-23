@@ -368,44 +368,42 @@ private partial def sortDecls (sortedDecls : Array LocalDecl) (sortedArgs : Arra
   if toSortDecls.isEmpty then
     return (sortedDecls, sortedArgs)
   trace[Meta.Closure] "MVars to abstract, topologically sorting the abstracted variables"
-  let decls := sortedDecls ++ toSortDecls
-  let args  := sortedArgs ++ toSortArgs
-  let mut declIndices : FVarIdMap Nat := {}
-  for i in [: decls.size] do
-    declIndices := declIndices.insert decls[i]!.fvarId i
+  let mut m : Std.HashMap FVarId (LocalDecl × Expr) := {}
+  for decl in sortedDecls, arg in sortedArgs do
+    m := m.insert decl.fvarId (decl, arg)
+  for decl in toSortDecls, arg in toSortArgs do
+    m := m.insert decl.fvarId (decl, arg)
 
-  let rec visit (i : Nat) : StateT TopoSort CoreM Unit := do
-    let decl := decls[i]!
-    assert! !decl.isLet (allowNondep := true) -- should all be cdecls
+  let rec visit (fvarId : FVarId) : StateT TopoSort CoreM Unit := do
+    let some (decl, arg) := m.get? fvarId | return
     if (← get).doneMark.contains decl.fvarId then
       return ()
     trace[Meta.Closure] "Sorting decl {mkFVar decl.fvarId} : {decl.type}"
     if (← get).tempMark.contains decl.fvarId then
       throwError "cycle detected in sorting abstracted variables"
+    assert! !decl.isLet (allowNondep := true) -- should all be cdecls
     modify fun s => { s with tempMark := s.tempMark.insert decl.fvarId }
     let type := decl.type
     type.forEach' fun e => do
       if e.hasFVar then
         if e.isFVar then
-          if let some i := declIndices.get? e.fvarId! then
-            visit i
+          visit e.fvarId!
         return true
       else
         return false
     modify fun s => { s with
       newDecls := s.newDecls.push decl
-      newArgs := s.newArgs.push args[i]!
+      newArgs := s.newArgs.push arg
       doneMark := s.doneMark.insert decl.fvarId
     }
 
-  let s₀ := { newDecls := .emptyWithCapacity decls.size, newArgs := .emptyWithCapacity decls.size }
+  let s₀ := { newDecls := .emptyWithCapacity m.size, newArgs := .emptyWithCapacity m.size }
   StateT.run' (s := s₀) do
-    for i in [: decls.size] do
+    for (i, _) in m do
       visit i
     let {newDecls, newArgs, .. } ← get
     trace[Meta.Closure] "Sorted fvars: {newDecls.map (mkFVar ·.fvarId)}"
     return (newDecls, newArgs)
-
 
 def mkValueTypeClosure (type : Expr) (value : Expr) (zetaDelta : Bool) : MetaM MkValueTypeClosureResult := do
   let ((type, value), s) ← ((mkValueTypeClosureAux type value).run { zetaDelta }).run {}

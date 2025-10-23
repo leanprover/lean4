@@ -2,12 +2,12 @@ import Lean
 
 open Lean Meta
 
-set_option trace.Meta.Closure true
+-- set_option trace.Meta.Closure true
 
 /--
 info: before: h.2
 ---
-info: after: _proof_3 ?m.1 h
+info: after: _proof_2 ?m.1 h
 -/
 #guard_msgs(pass trace, all) in
 run_meta do

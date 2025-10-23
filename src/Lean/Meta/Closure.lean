@@ -176,12 +176,16 @@ def mkNextUserName : ClosureM Name := do
   modify fun s => { s with nextExprIdx := s.nextExprIdx + 1 }
   pure n
 
-def pushFVarArg (e : Expr) : ClosureM Unit :=
+def pushArg (e : Expr) : ClosureM Unit :=
   modify fun s => { s with exprArgs := s.exprArgs.push e }
 
 def pushLocalDecl (newFVarId : FVarId) (userName : Name) (type : Expr) (bi := BinderInfo.default) : ClosureM Unit := do
-  modify fun s => { s with newLocalDecls := s.newLocalDecls.push <| .cdecl default newFVarId userName type bi .default }
-
+  -- Since we put these before all let declarations in the type,
+  -- reduce all the let declarations we have so far
+  let mut decl := .cdecl default newFVarId userName type bi .default
+  for ldecl in (← get).newLetDecls do
+    decl := decl.replaceFVarId ldecl.fvarId ldecl.value
+  modify fun s => { s with newLocalDecls := s.newLocalDecls.push decl }
 
 partial def collectExprAux (e : Expr) : ClosureM Expr := do
   let collect (e : Expr) := visitExpr collectExprAux e
@@ -225,10 +229,8 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
           mkLambdaFVars args <| mkAppN e args
       else
         pure e
-    modify fun s => { s with
-      newLocalDecls := s.newLocalDecls.push $ .cdecl default newFVarId userName type .default .default,
-      exprArgs      := s.exprArgs.push e'
-    }
+    pushLocalDecl newFVarId userName type .default
+    pushArg e'
     return mkFVar newFVarId
   | Expr.fvar fvarId =>
     match (← read).zetaDelta, (← fvarId.getValue?) with
@@ -239,7 +241,7 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
       | .cdecl _ _ userName type bi _ =>
         let type ← collect type
         pushLocalDecl newFVarId userName type bi
-        pushFVarArg (mkFVar fvarId)
+        pushArg (mkFVar fvarId)
       | .ldecl _ _ userName type val nondep _ =>
         let zetaDeltaFVarIds ← getZetaDeltaFVarIds
         -- Note: If `nondep` is true then `zetaDeltaFVarIds.contains fvarId` must be false.
@@ -253,7 +255,7 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
               check is conservative, and seems to work well in practice. -/
           let type ← collect type
           pushLocalDecl newFVarId userName type
-          pushFVarArg (mkFVar fvarId)
+          pushArg (mkFVar fvarId)
         else
           /- Dependent let-decl -/
           let type ← collect type

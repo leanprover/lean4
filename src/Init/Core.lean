@@ -1159,12 +1159,7 @@ variable {p q : Prop}
   decidable_of_decidable_of_iff (p := p) (h ▸ Iff.rfl)
 end
 
-@[macro_inline] instance {p q} [Decidable p] [Decidable q] : Decidable (p → q) :=
-  if hp : p then
-    if hq : q then isTrue (fun _ => hq)
-    else isFalse (fun h => absurd (h hp) hq)
-  else isTrue (fun h => absurd h hp)
-
+@[inline]
 instance {p q} [Decidable p] [Decidable q] : Decidable (p ↔ q) :=
   if hp : p then
     if hq : q then

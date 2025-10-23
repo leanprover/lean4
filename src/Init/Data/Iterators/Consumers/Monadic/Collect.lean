@@ -126,7 +126,7 @@ instance (α β : Type w) (m : Type w → Type w') (n : Type w → Type w'') [Mo
 Traverses the given iterator and stores the emitted values in an array.
 
 If the iterator is not finite, this function might run forever. The variant
-{lit}`it.ensureTermination.toArray` always terminates after finitely many steps.
+`it.ensureTermination.toArray` always terminates after finitely many steps.
 -/
 @[always_inline, inline]
 def IterM.toArray {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
@@ -146,7 +146,7 @@ def IterM.Partial.toArray {α : Type w} {m : Type w → Type w'} {β : Type w} [
 /--
 Traverses the given iterator and stores the emitted values in an array.
 
-This variant requires terminates after finitely many steps and requires a proof that the iterator is
+This variant terminates after finitely many steps and requires a proof that the iterator is
 finite. If such a proof is not available, consider using `IterM.toArray`.
 -/
 @[always_inline, inline]
@@ -162,14 +162,14 @@ Traverses the given iterator and stores the emitted values in reverse order in a
 lists are prepend-only, this `toListRev` is usually more efficient that `toList`.
 
 If the iterator is not finite, this function might run forever. The variant
-{lit}`it.ensureTermination.toListRev` always terminates after finitely many steps.
+`it.ensureTermination.toListRev` always terminates after finitely many steps.
 -/
-@[always_inline]
+@[always_inline, inline]
 def IterM.toListRev {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
     [Iterator α m β] (it : IterM (α := α) m β) : m (List β) :=
   go it []
 where
-  @[always_inline]
+  @[always_inline, inline]
   go (it : IterM m β) acc :=
     extrinsicFix₂ (fun it acc recur => do
       match (← it.step).inflate with
@@ -183,7 +183,7 @@ lists are prepend-only, this `toListRev` is usually more efficient that `toList`
 
 This function is deprecated. Instead of `it.allowNontermination.toListRev`, use `it.toListRev`.
 -/
-@[always_inline, deprecated IterM.toListRev (since := "2025-10-16")]
+@[always_inline, inline, deprecated IterM.toListRev (since := "2025-10-16")]
 partial def IterM.Partial.toListRev {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
     [Iterator α m β] (it : IterM.Partial (α := α) m β) : m (List β) :=
   it.it.toListRev
@@ -192,7 +192,7 @@ partial def IterM.Partial.toListRev {α : Type w} {m : Type w → Type w'} [Mona
 Traverses the given iterator and stores the emitted values in reverse order in a list. Because
 lists are prepend-only, this `toListRev` is usually more efficient that `toList`.
 
-This variant requires terminates after finitely many steps and requires a proof that the iterator is
+This variant terminates after finitely many steps and requires a proof that the iterator is
 finite. If such a proof is not available, consider using `IterM.toListRev`.
 -/
 @[always_inline, inline]
@@ -206,9 +206,9 @@ Traverses the given iterator and stores the emitted values in a list. Because
 lists are prepend-only, `toListRev` is usually more efficient that `toList`.
 
 If the iterator is not finite, this function might run forever. The variant
-{lit}`it.ensureTermination.toList` always terminates after finitely many steps.
+`it.ensureTermination.toList` always terminates after finitely many steps.
 -/
-@[always_inline]
+@[always_inline, inline]
 def IterM.toList {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
     [Iterator α m β] [IteratorCollect α m m] (it : IterM (α := α) m β) : m (List β) :=
   Array.toList <$> IterM.toArray it
@@ -219,7 +219,7 @@ lists are prepend-only, `toListRev` is usually more efficient that `toList`.
 
 This function is deprecated. Instead of `it.allowNontermination.toList`, use `it.toList`.
 -/
-@[always_inline, deprecated IterM.toList (since := "2025-10-15")]
+@[always_inline, inline, deprecated IterM.toList (since := "2025-10-15")]
 def IterM.Partial.toList {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
     [Iterator α m β] (it : IterM.Partial (α := α) m β) [IteratorCollect α m m] :
     m (List β) :=
@@ -229,7 +229,7 @@ def IterM.Partial.toList {α : Type w} {m : Type w → Type w'} [Monad m] {β : 
 Traverses the given iterator and stores the emitted values in a list. Because
 lists are prepend-only, `toListRev` is usually more efficient that `toList`.
 
-This variant requires terminates after finitely many steps and requires a proof that the iterator is
+This variant terminates after finitely many steps and requires a proof that the iterator is
 finite. If such a proof is not available, consider using `IterM.toList`.
 -/
 @[always_inline, inline]

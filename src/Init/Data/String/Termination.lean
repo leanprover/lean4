@@ -18,6 +18,7 @@ namespace String
 
 namespace Slice.Pos
 
+/-- The number of bytes between `p` and the end position. This number decreases as `p` advances. -/
 def remainingBytes {s : Slice} (p : s.Pos) : Nat :=
   p.offset.byteDistance s.endPos.offset
 
@@ -90,6 +91,7 @@ end Slice.Pos
 
 namespace ValidPos
 
+/-- The number of bytes between `p` and the end position. This number decreases as `p` advances. -/
 def remainingBytes {s : String} (p : s.ValidPos) : Nat :=
   p.toSlice.remainingBytes
 

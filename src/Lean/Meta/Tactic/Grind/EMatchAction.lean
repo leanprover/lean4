@@ -7,10 +7,11 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Action
 public import Lean.Meta.Tactic.Grind.Intro
+import Lean.Util.ParamMinimizer
 import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.EMatchTheoremParam
+import Lean.Meta.Tactic.Grind.EMatchTheoremPtr
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
-import Lean.Util.ParamMinimizer
 namespace Lean.Meta.Grind.Action
 
 /-
@@ -33,11 +34,11 @@ contribute to the proof search even if it does not appear in the final proof ter
 structure CollectState where
   visited       : Std.HashSet ExprPtr := {}
   collectedThms : Std.HashSet (Origin × EMatchTheoremKind) := {}
-  idAndThms     : Array (Name × EMatchTheorem) := #[]
+  thms          : Array EMatchTheorem := #[]
 
-def collect (e : Expr) (map : EMatch.InstanceMap) : Array (Name × EMatchTheorem) :=
+def collect (e : Expr) (map : EMatch.InstanceMap) : Array EMatchTheorem :=
   let (_, s) := go e |>.run {}
-  s.idAndThms
+  s.thms
 where
   go (e : Expr) : StateM CollectState Unit := do
     if isMarkedSubsingletonApp e then
@@ -53,7 +54,7 @@ where
       if let some thm := map[uniqueId]? then
         let key := (thm.origin, thm.kind)
         unless (← get).collectedThms.contains key do
-          modify fun s => { s with collectedThms := s.collectedThms.insert key, idAndThms := s.idAndThms.push (uniqueId, thm) }
+          modify fun s => { s with collectedThms := s.collectedThms.insert key, thms := s.thms.push thm }
     match e with
     | .lam _ d b _
     | .forallE _ d b _ => go d; go b
@@ -100,8 +101,33 @@ def mkNewSeq (goal : Goal) (thms : Array EMatchTheorem) (seq : List TGrind) (app
   else
     return ((← mkInstantiateTactic goal thms approx) :: seq)
 
-def getAllTheorems (map : EMatch.InstanceMap) : Array EMatchTheorem :=
-  map.toArray.map (·.2)
+abbrev EMatchTheoremIds := Std.HashMap EMatchTheoremPtr Nat
+
+def getAllTheorems (map : EMatch.InstanceMap) : Array EMatchTheorem × EMatchTheoremIds := Id.run do
+  let idAndThms := map.toArray
+  -- **Note**: See note above. We want to sort here to reproduce the original instantiation order.
+  let idAndThms := idAndThms.qsort fun (id₁, _) (id₂, _) => id₁.lt id₂
+  let mut map := {}
+  let mut thms := #[]
+  for (_, thm) in idAndThms do
+    unless map.contains { thm } do
+      map  := map.insert { thm } thms.size
+      thms := thms.push thm
+  return (thms, map)
+
+def mkMask (map : EMatchTheoremIds) (thms : Array EMatchTheorem) : CoreM (Array Bool) := do
+  let mut result := Array.replicate map.size false
+  for thm in thms do
+    let some i := map.get? { thm } | throwError "`grind` internal error, theorem index not found"
+    result := result.set! i true
+  return result
+
+def maskToThms (thms : Array EMatchTheorem) (mask : Array Bool) : Array EMatchTheorem := Id.run do
+  let mut result := #[]
+  for h : i in *...mask.size do
+    if mask[i] then
+      result := result.push thms[i]!
+  return result
 
 public def instantiate' : Action := fun goal kna kp => do
   let saved? ← saveStateIfTracing
@@ -111,17 +137,20 @@ public def instantiate' : Action := fun goal kna kp => do
     | .closed seq =>
       if (← getConfig).trace then
         let proof ← instantiateMVars (mkMVar goal.mvarId)
-        let usedIdAndThms := collect proof map
-        -- **Note**: See note above. We want to sort here to reproduce the original instantiation order.
-        let usedIdAndThms := usedIdAndThms.qsort fun (id₁, _) (id₂, _) => id₁.lt id₂
-        let usedThms := usedIdAndThms.map (·.2)
-        let newSeq ← mkNewSeq goal usedThms seq (approx := false)
-        if (← checkSeqAt saved? goal newSeq) then
-          return .closed newSeq
-        else
-          let allThms := getAllTheorems map
-          let newSeq ← mkNewSeq goal allThms seq (approx := true)
-          return .closed newSeq
+        let usedThms := collect proof map
+        let (allThms, map) := getAllTheorems map
+        -- We must have at least the ones used in the proof
+        let initMask ← mkMask map usedThms
+        let testMask (mask : Array Bool) : GrindM Bool := do
+          let thms := maskToThms allThms mask
+          let newSeq ← mkNewSeq goal thms seq (approx := false)
+          checkSeqAt saved? goal newSeq
+        let r ← Util.ParamMinimizer.search initMask testMask
+        let newSeq ← match r.status with
+          | .missing => mkNewSeq goal #[] seq (approx := true)
+          | .approx => mkNewSeq goal (maskToThms allThms r.paramMask) seq (approx := true)
+          | .precise => mkNewSeq goal (maskToThms allThms r.paramMask) seq (approx := false)
+        return .closed newSeq
       else
         return .closed []
     | r => return r

@@ -8,7 +8,7 @@ prelude
 public import Init.Data.Array.Basic
 public import Init.While
 public import Init.Data.Range.Polymorphic
-namespace Lean.ParamMinimizer
+namespace Lean.Util.ParamMinimizer
 /-!
 A very simple parameter minimizer.
 -/
@@ -185,7 +185,7 @@ the result is `.approx`.  If no configuration satisfies `test`, the result is
 
 `maxCalls = 0` disables the call budget limit.
 -/
-public def paramMinimizer
+public def search
     [Monad m]
     (initialMask : Array Bool)
     (test : Array Bool → m Bool)
@@ -202,4 +202,4 @@ public def paramMinimizer
     .missing
   return { paramMask := s.cur, numCalls := s.numCalls, status }
 
-end Lean.ParamMinimizer
+end Lean.Util.ParamMinimizer

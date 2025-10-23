@@ -357,7 +357,7 @@ private structure TopoSort where
   newArgs : Array Expr := #[]
 
 /--
-By constrction, the `newLocalDecls` for fvars are in dependency order, but those for MVars may not be,
+By construction, the `newLocalDecls` for fvars are in dependency order, but those for MVars may not be,
 and need to be interleaved appropriately. This we do a “topological insertion sort” of these.
 We care about efficiency for the common case of many fvars and no mvars.
 -/

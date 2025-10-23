@@ -12,6 +12,7 @@ import all Init.Data.String.Basic
 public import Init.Data.String.Iterator
 import all Init.Data.String.Iterator
 public import Init.Data.String.Substring
+public import Init.Data.String.Modify
 
 public section
 
@@ -28,6 +29,16 @@ position is within the original substring.
 end Substring
 
 namespace String
+
+/--
+Replaces the current character in the string.
+
+Does nothing if the iterator is at the end of the string. If both the replacement character and the
+replaced character are 7-bit ASCII characters and the string is not shared, then it is updated
+in-place and not copied.
+-/
+@[inline] def Iterator.setCurr : Iterator → Char → Iterator
+  | ⟨s, i⟩, c => ⟨i.set s c, i⟩
 
 /--
 Interprets a string as the decimal representation of a natural number, returning it. Panics if the

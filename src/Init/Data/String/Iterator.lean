@@ -145,16 +145,6 @@ This function is faster that `String.Iterator.next` due to avoiding a run-time b
   | ⟨s, i⟩ => ⟨s, i.next' s (by simpa only [hasNext, rawEndPos, decide_eq_true_eq, Pos.Raw.atEnd, ge_iff_le, Nat.not_le] using h)⟩
 
 /--
-Replaces the current character in the string.
-
-Does nothing if the iterator is at the end of the string. If both the replacement character and the
-replaced character are 7-bit ASCII characters and the string is not shared, then it is updated
-in-place and not copied.
--/
-@[inline] def setCurr : Iterator → Char → Iterator
-  | ⟨s, i⟩, c => ⟨i.set s c, i⟩
-
-/--
 Moves the iterator's position to the end of the string, just past the last character.
 -/
 @[inline] def toEnd : Iterator → Iterator

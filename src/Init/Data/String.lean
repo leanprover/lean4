@@ -19,3 +19,4 @@ public import Init.Data.String.Stream
 public import Init.Data.String.PosRaw
 public import Init.Data.String.Substring
 public import Init.Data.String.TakeDrop
+public import Init.Data.String.Modify

@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.DeclarationRange
 public import Lean.DocString.Markdown
+public import Init.Data.String.Extra
 
 public section
 

@@ -84,7 +84,7 @@ where
       | .done => return acc) it acc
 
 /--
-This is the default implementation of the `IteratorLoop` class.
+This is the default implementation of the `IteratorCollect` class.
 It simply iterates through the iterator using `IterM.step`, incrementally building up the desired
 data structure. For certain iterators, more efficient implementations are possible and should be
 used instead.

@@ -198,5 +198,10 @@ syntax (name := exposeNames) "expose_names" : grind
 but it sets the option only within the tactics `tacs`. -/
 syntax (name := setOption) "set_option " (ident (noWs "." noWs ident)?) ppSpace optionValue " in " grindSeq : grind
 
+/--
+Proves `<term>` using the current `grind` state and default search strategy.
+-/
+syntax (name := haveSilent) "have" (ppSpace ident)? ppSpace ": " term : grind
+
 end Grind
 end Lean.Parser.Tactic

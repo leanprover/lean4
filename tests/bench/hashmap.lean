@@ -195,7 +195,7 @@ def List.getfirst (l : List α) (n : Nat) :=
 def benchNativeAny (size : Nat) : IO Float := do
     let mut set := Std.HashSet.emptyWithCapacity (α := Nat) size
     let checks := size * REP
-    let mut i := 0
+    let mut i := 1
 
     while i < size do
       set := set.insert i
@@ -216,7 +216,7 @@ def benchNativeAny (size : Nat) : IO Float := do
 def benchIterAny (size : Nat) : IO Float := do
     let mut set := Std.HashSet.emptyWithCapacity (α := Nat) size
     let checks := size * REP
-    let mut i := 0
+    let mut i := 1
 
     while i < size do
       set := set.insert i

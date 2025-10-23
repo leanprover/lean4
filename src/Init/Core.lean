@@ -1160,6 +1160,20 @@ variable {p q : Prop}
 end
 
 @[inline]
+instance exists_prop_decidable {p} (P : p → Prop)
+    [Decidable p] [∀ h, Decidable (P h)] : Decidable (∃ h, P h) :=
+  if h : p then
+    decidable_of_decidable_of_iff ⟨fun h2 => ⟨h, h2⟩, fun ⟨_, h2⟩ => h2⟩
+  else isFalse fun ⟨h', _⟩ => h h'
+
+@[inline]
+instance forall_prop_decidable {p} (P : p → Prop)
+    [Decidable p] [∀ h, Decidable (P h)] : Decidable (∀ h, P h) :=
+  if h : p then
+    decidable_of_decidable_of_iff ⟨fun h2 _ => h2, fun al => al h⟩
+  else isTrue fun h2 => absurd h2 h
+
+@[inline]
 instance {p q} [Decidable p] [Decidable q] : Decidable (p ↔ q) :=
   if hp : p then
     if hq : q then

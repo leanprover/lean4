@@ -11,6 +11,7 @@ public import Lake.Config.Dynlib
 public import Lake.Config.MetaClasses
 meta import all Lake.Config.Meta
 import Lake.Util.Name
+import Init.Data.String.Modify
 
 open System Lean
 

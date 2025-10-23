@@ -9,6 +9,7 @@ prelude
 public import Init.Data.String.Basic
 public import Init.Data.String.Bootstrap
 public import Init.Data.String.Decode
+public import Init.Data.String.Defs
 public import Init.Data.String.Extra
 public import Init.Data.String.Lemmas
 public import Init.Data.String.Repr
@@ -19,3 +20,4 @@ public import Init.Data.String.Stream
 public import Init.Data.String.PosRaw
 public import Init.Data.String.Substring
 public import Init.Data.String.TakeDrop
+public import Init.Data.String.Modify

@@ -12,6 +12,7 @@ public import Lake.Util.EStateT
 public import Lean.Message
 public import Lake.Util.Lift
 import Init.Data.String.TakeDrop
+import Init.Data.String.Modify
 
 open Lean
 

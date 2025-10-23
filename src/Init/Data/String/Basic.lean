@@ -7,8 +7,21 @@ module
 
 prelude
 public import Init.Data.String.Decode
+public import Init.Data.String.Defs
 public import Init.Data.String.PosRaw
 import Init.Data.ByteArray.Lemmas
+import Init.Data.Char.Lemmas
+
+/-!
+# Strings
+
+This file builds on the UTF-8 verification in `Init.Data.String.Decode` and the preliminary
+material in `Init.Data.String.Defs` to get the theory of strings off the ground. In particular,
+in this file we construct the decoding function `String.data : String → List Char` and show that
+it is a two-sided inverse to `List.asString : List Char → String`. This in turn enables us to
+understand the validity predicate on positions in terms of lists of characters, which forms the
+basis for all further verification for strings.
+-/
 
 public section
 
@@ -17,50 +30,13 @@ universe u
 section
 
 @[simp]
-theorem List.utf8Encode_nil : List.utf8Encode [] = ByteArray.empty := by simp [utf8Encode]
-
-theorem List.utf8Encode_singleton {c : Char} : [c].utf8Encode = (String.utf8EncodeChar c).toByteArray := by
-  simp [utf8Encode]
-
-@[simp]
-theorem List.utf8Encode_append {l l' : List Char} :
-    (l ++ l').utf8Encode = l.utf8Encode ++ l'.utf8Encode := by
-  simp [utf8Encode]
-
-theorem List.utf8Encode_cons {c : Char} {l : List Char} : (c :: l).utf8Encode = [c].utf8Encode ++ l.utf8Encode := by
-  rw [← singleton_append, List.utf8Encode_append]
+theorem String.utf8ByteSize_singleton {c : Char} : (String.singleton c).utf8ByteSize = c.utf8Size := by
+  simp [← size_bytes, List.utf8Encode_singleton]
 
 theorem List.isUTF8FirstByte_getElem_utf8Encode_singleton {c : Char} {i : Nat} {hi : i < [c].utf8Encode.size} :
     UInt8.IsUTF8FirstByte [c].utf8Encode[i] ↔ i = 0 := by
   simp [List.utf8Encode_singleton, UInt8.isUTF8FirstByte_getElem_utf8EncodeChar]
 
-@[simp]
-theorem String.utf8EncodeChar_ne_nil {c : Char} : String.utf8EncodeChar c ≠ [] := by
-  fun_cases String.utf8EncodeChar with simp
-
-@[simp]
-theorem List.utf8Encode_eq_empty {l : List Char} : l.utf8Encode = ByteArray.empty ↔ l = [] := by
-  simp [utf8Encode, ← List.eq_nil_iff_forall_not_mem]
-
-theorem ByteArray.isValidUTF8_utf8Encode {l : List Char} : IsValidUTF8 l.utf8Encode :=
-  .intro l rfl
-
-@[simp]
-theorem ByteArray.isValidUTF8_empty : IsValidUTF8 ByteArray.empty :=
-  .intro [] (by simp)
-
-theorem Char.isValidUTF8_toByteArray_utf8EncodeChar {c : Char} :
-    ByteArray.IsValidUTF8 (String.utf8EncodeChar c).toByteArray :=
-  .intro [c] (by simp [List.utf8Encode_singleton])
-
-theorem ByteArray.IsValidUTF8.append {b b' : ByteArray} (h : IsValidUTF8 b) (h' : IsValidUTF8 b') :
-    IsValidUTF8 (b ++ b') := by
-  rcases h with ⟨m, rfl⟩
-  rcases h' with ⟨m', rfl⟩
-  exact .intro (m ++ m') (by simp)
-
-@[simp]
-theorem Char.toUInt8_val {c : Char} : c.val.toUInt8 = c.toUInt8 := rfl
 
 theorem ByteArray.IsValidUTF8.push {b : ByteArray} (h : IsValidUTF8 b) {c : Char} (hc : c.utf8Size = 1) :
     IsValidUTF8 (b.push c.toUInt8) := by
@@ -223,14 +199,6 @@ instance {b : ByteArray} : Decidable b.IsValidUTF8 :=
 
 /--
 Decodes an array of bytes that encode a string as [UTF-8](https://en.wikipedia.org/wiki/UTF-8) into
-the corresponding string.
--/
-@[inline, expose]
-def String.fromUTF8 (a : @& ByteArray) (h : a.IsValidUTF8) : String :=
-  .ofByteArray a h
-
-/--
-Decodes an array of bytes that encode a string as [UTF-8](https://en.wikipedia.org/wiki/UTF-8) into
 the corresponding string, or returns `none` if the array is not a valid UTF-8 encoding of a string.
 -/
 @[inline, expose] def String.fromUTF8? (a : ByteArray) : Option String :=
@@ -243,45 +211,6 @@ the corresponding string, or panics if the array is not a valid UTF-8 encoding o
 @[inline, expose] def String.fromUTF8! (a : ByteArray) : String :=
   if h : a.IsValidUTF8 then fromUTF8 a h else panic! "invalid UTF-8 string"
 
-/--
-Encodes a string in UTF-8 as an array of bytes.
--/
-@[extern "lean_string_to_utf8"]
-def String.toUTF8 (a : @& String) : ByteArray :=
-  a.bytes
-
-@[simp] theorem String.toUTF8_eq_bytes {s : String} : s.toUTF8 = s.bytes := (rfl)
-
-@[simp] theorem String.bytes_empty : "".bytes = ByteArray.empty := (rfl)
-
-/--
-Appends two strings. Usually accessed via the `++` operator.
-
-The internal implementation will perform destructive updates if the string is not shared.
-
-Examples:
- * `"abc".append "def" = "abcdef"`
- * `"abc" ++ "def" = "abcdef"`
- * `"" ++ "" = ""`
--/
-@[extern "lean_string_append", expose]
-def String.append (s : String) (t : @& String) : String where
-  bytes := s.bytes ++ t.bytes
-  isValidUTF8 := s.isValidUTF8.append t.isValidUTF8
-
-instance : Append String where
-  append s t := s.append t
-
-@[simp]
-theorem String.bytes_append {s t : String} : (s ++ t).bytes = s.bytes ++ t.bytes := (rfl)
-
-theorem String.bytes_inj {s t : String} : s.bytes = t.bytes ↔ s = t := by
-  refine ⟨fun h => ?_, (· ▸ rfl)⟩
-  rcases s with ⟨s⟩
-  rcases t with ⟨t⟩
-  subst h
-  rfl
-
 @[simp]
 theorem String.empty_append {s : String} : "" ++ s = s := by
   simp [← String.bytes_inj]
@@ -289,9 +218,6 @@ theorem String.empty_append {s : String} : "" ++ s = s := by
 @[simp]
 theorem String.append_empty {s : String} : s ++ "" = s := by
   simp [← String.bytes_inj]
-
-@[simp] theorem List.bytes_asString {l : List Char} : l.asString.bytes = l.utf8Encode := by
-  simp [List.asString, String.mk]
 
 @[simp]
 theorem List.asString_nil : List.asString [] = "" := by
@@ -335,11 +261,6 @@ theorem String.Internal.size_toArray {b : String} : (String.Internal.toArray b).
 
 @[simp]
 theorem String.length_data {b : String} : b.data.length = b.length := (rfl)
-
-theorem String.exists_eq_asString (s : String) :
-    ∃ l : List Char, s = l.asString := by
-  rcases s with ⟨_, ⟨l, rfl⟩⟩
-  refine ⟨l, by simp [← String.bytes_inj]⟩
 
 private theorem ByteArray.utf8Decode?go_eq_utf8Decode?go_extract {b : ByteArray} {fuel i : Nat} {hi : i ≤ b.size} {hf} {acc : Array Char} :
     utf8Decode?.go b fuel i acc hi hf = (utf8Decode?.go (b.extract i b.size) fuel 0 #[] (by simp) (by simp [hf])).map (acc ++ ·) := by
@@ -440,68 +361,20 @@ theorem String.utf8encode_data {b : String} : b.data.utf8Encode = b.bytes := by
   rwa [← List.bytes_asString]
 
 @[simp]
-theorem String.utf8ByteSize_empty : "".utf8ByteSize = 0 := (rfl)
+theorem String.data_eq_nil_iff {b : String} : b.data = [] ↔ b = "" := by
+  rw [← List.asString_inj, asString_data, List.asString_nil]
 
 @[simp]
-theorem String.utf8ByteSize_append {s t : String} :
-    (s ++ t).utf8ByteSize = s.utf8ByteSize + t.utf8ByteSize := by
-  simp [utf8ByteSize]
+theorem List.asString_eq_empty_iff {l : List Char} : l.asString = "" ↔ l = [] := by
+  rw [← String.data_inj, List.data_asString, String.data_empty]
 
 @[simp]
-theorem String.size_bytes {s : String} : s.bytes.size = s.utf8ByteSize := rfl
-
-@[simp]
-theorem String.bytes_push {s : String} {c : Char} : (s.push c).bytes = s.bytes ++ [c].utf8Encode := by
-  simp [push]
-
--- This is just to keep the proof of `set_next_add` below from breaking; if that lemma goes away
--- or the proof is rewritten, it can be removed.
-private noncomputable def String.utf8ByteSize' : String → Nat
-  | s => go s.data
-where
-  go : List Char → Nat
-  | []    => 0
-  | c::cs => go cs + c.utf8Size
-
-private theorem String.utf8ByteSize'_eq (s : String) : s.utf8ByteSize' = s.utf8ByteSize := by
-  suffices ∀ l, utf8ByteSize'.go l = l.asString.utf8ByteSize by
-    obtain ⟨m, rfl⟩ := s.exists_eq_asString
-    rw [utf8ByteSize', this, asString_data]
-  intro l
-  induction l with
-  | nil => simp [utf8ByteSize'.go]
-  | cons c cs ih =>
-    rw [utf8ByteSize'.go, ih, ← List.singleton_append, List.asString_append,
-      utf8ByteSize_append, Nat.add_comm]
-    congr
-    rw [← size_bytes, List.bytes_asString, List.utf8Encode_singleton,
-      List.size_toByteArray, length_utf8EncodeChar]
+theorem List.length_asString {l : List Char} : l.asString.length = l.length := by
+  rw [← String.length_data, List.data_asString]
 
 end
 
 namespace String
-
-
-@[deprecated rawEndPos (since := "2025-10-20")]
-def endPos (s : String) : String.Pos.Raw :=
-  s.rawEndPos
-
-/-- The start position of the string, as a `String.Pos.Raw.` -/
-def rawStartPos (_s : String) : String.Pos.Raw :=
-  0
-
-@[simp]
-theorem rawStartPos_eq {s : String} : s.rawStartPos = 0 := (rfl)
-
-@[simp]
-theorem byteIdx_rawEndPos {s : String} : s.rawEndPos.byteIdx = s.utf8ByteSize := rfl
-
-@[deprecated byteIdx_rawEndPos (since := "2025-10-20")]
-theorem byteIdx_endPos {s : String} : s.rawEndPos.byteIdx = s.utf8ByteSize := rfl
-
-@[simp]
-theorem utf8ByteSize_ofByteArray {b : ByteArray} {h} :
-    (String.ofByteArray b h).utf8ByteSize = b.size := rfl
 
 instance : LT String :=
   ⟨fun s₁ s₂ => s₁.data < s₂.data⟩
@@ -537,45 +410,6 @@ Examples:
 @[inline, expose]
 def toList (s : String) : List Char :=
   s.data
-
-/--
-Predicate for validity of positions inside a `String`.
-
-There are multiple equivalent definitions for validity.
-
-We say that a position is valid if the string obtained by taking all of the bytes up to, but
-excluding, the given position, is valid UTF-8; see `Pos.isValid_iff_isValidUTF8_extract_zero`.
-
-Similarly, a position is valid if the string obtained by taking all of the bytes starting at the
-given position is valid UTF-8; see `Pos.isValid_iff_isValidUTF8_extract_utf8ByteSize`.
-
-An equivalent condition is that the position is the length of the UTF-8 encoding of
-some prefix of the characters of the string; see `Pos.isValid_iff_exists_append` and
-`Pos.isValid_iff_exists_take_data`.
-
-Another equivalent condition that can be checked efficiently is that the position is either the
-end position or strictly smaller than the end position and the byte at the position satisfies
-`UInt8.IsUTF8FirstByte`; see `Pos.isValid_iff_isUTF8FirstByte`.
-
-Examples:
- * `String.Pos.IsValid "abc" ⟨0⟩`
- * `String.Pos.IsValid "abc" ⟨1⟩`
- * `String.Pos.IsValid "abc" ⟨3⟩`
- * `¬ String.Pos.IsValid "abc" ⟨4⟩`
- * `String.Pos.IsValid "𝒫(A)" ⟨0⟩`
- * `¬ String.Pos.IsValid "𝒫(A)" ⟨1⟩`
- * `¬ String.Pos.IsValid "𝒫(A)" ⟨2⟩`
- * `¬ String.Pos.IsValid "𝒫(A)" ⟨3⟩`
- * `String.Pos.IsValid "𝒫(A)" ⟨4⟩`
--/
-structure Pos.Raw.IsValid (s : String) (off : String.Pos.Raw) : Prop where private mk ::
-  le_rawEndPos : off ≤ s.rawEndPos
-  isValidUTF8_extract_zero : (s.bytes.extract 0 off.byteIdx).IsValidUTF8
-
-@[deprecated le_rawEndPos (since := "2025-10-20")]
-theorem Pos.Raw.IsValid.le_endPos {s : String} {off : String.Pos.Raw} (h : off.IsValid s) :
-    off ≤ s.rawEndPos :=
-  h.le_rawEndPos
 
 theorem _root_.List.isPrefix_of_utf8Encode_append_eq_utf8Encode {l m : List Char} (b : ByteArray)
     (h : l.utf8Encode ++ b = m.utf8Encode) : l <+: m := by
@@ -632,29 +466,8 @@ theorem Pos.Raw.isValid_iff_exists_append {s : String} {p : Pos.Raw} :
     apply String.Pos.Raw.ext
     simp [Nat.min_eq_left this]
   · rintro ⟨s₁, s₂, rfl, rfl⟩
-    refine ⟨by simp [Pos.Raw.le_iff], ?_⟩
+    refine isValid_iff_isValidUTF8_extract_zero.2 ⟨by simp [Pos.Raw.le_iff], ?_⟩
     simpa [ByteArray.extract_append_eq_left] using s₁.isValidUTF8
-
-@[simp]
-theorem Pos.Raw.isValid_zero {s : String} : (0 : Pos.Raw).IsValid s where
-  le_rawEndPos := by simp [Pos.Raw.le_iff]
-  isValidUTF8_extract_zero := by simp
-
-@[simp]
-theorem Pos.Raw.isValid_rawEndPos {s : String} : s.rawEndPos.IsValid s where
-  le_rawEndPos := by simp
-  isValidUTF8_extract_zero := by simp [← size_bytes, s.isValidUTF8]
-
-@[simp]
-theorem Pos.Raw.isValid_empty_iff {p : Pos.Raw} : p.IsValid "" ↔ p = 0 := by
-  refine ⟨?_, ?_⟩
-  · rintro ⟨h₁, h₂⟩
-    simp only [le_iff, byteIdx_rawEndPos, utf8ByteSize_empty, Nat.le_zero_eq] at h₁
-    ext
-    omega
-  · rintro rfl
-    simp
-
 theorem Pos.Raw.isValid_asString {l : List Char} {p : Pos.Raw} :
     p.IsValid l.asString ↔ ∃ i, p.byteIdx = (l.take i).asString.utf8ByteSize := by
   rw [isValid_iff_exists_append]
@@ -673,17 +486,6 @@ theorem Pos.Raw.isValid_iff_exists_take_data {s : String} {p : Pos.Raw} :
     p.IsValid s ↔ ∃ i, p.byteIdx = (s.data.take i).asString.utf8ByteSize := by
   obtain ⟨l, rfl⟩ := s.exists_eq_asString
   simp [isValid_asString]
-
-@[simp]
-theorem bytes_singleton {c : Char} : (String.singleton c).bytes = [c].utf8Encode := by
-  simp [singleton]
-
-theorem singleton_eq_asString {c : Char} : String.singleton c = [c].asString := by
-  simp [← String.bytes_inj]
-
-@[simp]
-theorem utf8ByteSize_singleton {c : Char} : (String.singleton c).utf8ByteSize = c.utf8Size := by
-  simp [← size_bytes, List.utf8Encode_singleton]
 
 @[simp]
 theorem Pos.Raw.isValid_singleton {c : Char} {p : Pos.Raw} :
@@ -729,10 +531,6 @@ theorem Pos.Raw.IsValid.append_left {t : String} {p : Pos.Raw} (h : p.IsValid t)
 theorem Pos.Raw.IsValid.append_right {s : String} {p : Pos.Raw} (h : p.IsValid s) (t : String) :
     p.IsValid (s ++ t) :=
   isValid_append.2 (Or.inl h)
-
-@[simp]
-theorem append_singleton {s : String} {c : Char} : s ++ singleton c = s.push c := by
-  simp [← bytes_inj]
 
 theorem Pos.Raw.isValid_push {s : String} {c : Char} {p : Pos.Raw} :
     p.IsValid (s.push c) ↔ p.IsValid s ∨ p = s.rawEndPos + c := by
@@ -903,22 +701,18 @@ theorem Pos.Raw.isValidUTF8_extract_iff {s : String} (p₁ p₂ : Pos.Raw) (hle 
       have := h.isUTF8FirstByte_getElem_zero
       simp only [ByteArray.size_extract, Nat.min_eq_left hle'', hlt', ByteArray.getElem_extract, Nat.add_zero] at this
       simp [getUTF8Byte, this trivial]
-    refine ⟨h₁, ⟨hle', ?_⟩⟩
+    refine ⟨h₁, isValid_iff_isValidUTF8_extract_zero.2 ⟨hle', ?_⟩⟩
     rw [ByteArray.extract_eq_extract_append_extract p₁.byteIdx (by simp) hle]
     exact h₁.isValidUTF8_extract_zero.append h
   · refine fun h => h.elim (by rintro rfl; simp) (fun ⟨h₁, h₂⟩ => ?_)
     let t : String := ⟨_, h₂.isValidUTF8_extract_zero⟩
     have htb : t.bytes = s.bytes.extract 0 p₂.byteIdx := rfl
     have ht : p₁.IsValid t := by
-      refine ⟨?_, ?_⟩
+      refine isValid_iff_isValidUTF8_extract_zero.2 ⟨?_, ?_⟩
       · simpa [le_iff, t, Nat.min_eq_left hle'', ← size_bytes]
       · simpa [htb, ByteArray.extract_extract, Nat.min_eq_left (le_iff.1 hle)] using h₁.isValidUTF8_extract_zero
     simpa [htb, ByteArray.extract_extract, Nat.zero_add, Nat.min_eq_left hle'', ← size_bytes]
       using ht.isValidUTF8_extract_utf8ByteSize
-
-theorem Pos.Raw.isValid_iff_isValidUTF8_extract_zero {s : String} {p : Pos.Raw} :
-    p.IsValid s ↔ p ≤ s.rawEndPos ∧ (s.bytes.extract 0 p.byteIdx).IsValidUTF8 :=
-  ⟨fun ⟨h₁, h₂⟩ => ⟨h₁, h₂⟩, fun ⟨h₁, h₂⟩ => ⟨h₁, h₂⟩⟩
 
 theorem Pos.Raw.isValid_iff_isValidUTF8_extract_utf8ByteSize {s : String} {p : Pos.Raw} :
     p.IsValid s ↔ p ≤ s.rawEndPos ∧ (s.bytes.extract p.byteIdx s.utf8ByteSize).IsValidUTF8 := by
@@ -927,54 +721,6 @@ theorem Pos.Raw.isValid_iff_isValidUTF8_extract_utf8ByteSize {s : String} {p : P
   obtain (rfl|h₂) := h₂
   · simp
   · exact h₂.1
-
-/--
-A `ValidPos s` is a byte offset in `s` together with a proof that this position is at a UTF-8
-character boundary.
--/
-@[ext]
-structure ValidPos (s : String) where
-  /-- The underlying byte offset of the `ValidPos`. -/
-  offset : Pos.Raw
-  /-- The proof that `offset` is valid for the string `s`. -/
-  isValid : offset.IsValid s
-deriving @[expose] DecidableEq
-
-/-- The start position of `s`, as an `s.ValidPos`. -/
-@[inline, expose]
-def startValidPos (s : String) : s.ValidPos where
-  offset := 0
-  isValid := by simp
-
-instance {s : String} : Inhabited s.ValidPos where
-  default := s.startValidPos
-
-@[simp]
-theorem offset_startValidPos {s : String} : s.startValidPos.offset = 0 := (rfl)
-
-/-- The past-the-end position of `s`, as an `s.ValidPos`. -/
-@[inline, expose]
-def endValidPos (s : String) : s.ValidPos where
-  offset := s.rawEndPos
-  isValid := by simp
-
-instance {s : String} : LE s.ValidPos where
-  le l r := l.offset ≤ r.offset
-
-instance {s : String} : LT s.ValidPos where
-  lt l r := l.offset < r.offset
-
-theorem ValidPos.le_iff {s : String} {l r : s.ValidPos} : l ≤ r ↔ l.offset ≤ r.offset :=
-  Iff.rfl
-
-theorem ValidPos.lt_iff {s : String} {l r : s.ValidPos} : l < r ↔ l.offset < r.offset :=
-  Iff.rfl
-
-instance {s : String} (l r : s.ValidPos) : Decidable (l ≤ r) :=
-  decidable_of_iff' _ ValidPos.le_iff
-
-instance {s : String} (l r : s.ValidPos) : Decidable (l < r) :=
-  decidable_of_iff' _ ValidPos.lt_iff
 
 theorem ValidPos.isValidUTF8_extract {s : String} (pos₁ pos₂ : s.ValidPos) :
     (s.bytes.extract pos₁.offset.byteIdx pos₂.offset.byteIdx).IsValidUTF8 := by
@@ -987,105 +733,6 @@ theorem ValidPos.isValidUTF8_extract {s : String} (pos₁ pos₂ : s.ValidPos) :
         omega
       · have := Pos.Raw.le_iff.1 pos₂.isValid.le_rawEndPos
         rwa [size_bytes, ← byteIdx_rawEndPos]
-
-/--
-A region or slice of some underlying string.
-
-A slice consists of a string together with the start and end byte positions of a region of
-interest. Actually extracting a substring requires copying and memory allocation, while many
-slices of the same underlying string may exist with very little overhead. While this could be achieved by tracking the bounds by hand, the slice API is much more convenient.
-
-`String.Slice` bundles proofs to ensure that the start and end positions always delineate a valid
-string. For this reason, it should be preferred over `Substring`.
--/
-structure Slice where
-  /-- The underlying strings. -/
-  str : String
-  /-- The byte position of the start of the string slice. -/
-  startInclusive : str.ValidPos
-  /-- The byte position of the end of the string slice. -/
-  endExclusive : str.ValidPos
-  /-- The slice is not degenerate (but it may be empty). -/
-  startInclusive_le_endExclusive : startInclusive ≤ endExclusive
-
-instance : Inhabited Slice where
-  default := ⟨"", "".startValidPos, "".startValidPos, by simp [ValidPos.le_iff]⟩
-
-/--
-Returns a slice that contains the entire string.
--/
-@[inline, expose] -- expose for the defeq `s.toSlice.str = s`.
-def toSlice (s : String) : Slice where
-  str := s
-  startInclusive := s.startValidPos
-  endExclusive := s.endValidPos
-  startInclusive_le_endExclusive := by simp [ValidPos.le_iff, Pos.Raw.le_iff]
-
-/-- The number of bytes of the UTF-8 encoding of the string slice. -/
-@[expose]
-def Slice.utf8ByteSize (s : Slice) : Nat :=
-  s.startInclusive.offset.byteDistance s.endExclusive.offset
-
-theorem Slice.utf8ByteSize_eq {s : Slice} :
-    s.utf8ByteSize = s.endExclusive.offset.byteIdx - s.startInclusive.offset.byteIdx := (rfl)
-
-instance : HAdd Pos.Raw Slice Pos.Raw where
-  hAdd p s := { byteIdx := p.byteIdx + s.utf8ByteSize }
-
-instance : HAdd Slice Pos.Raw Pos.Raw where
-  hAdd s p := { byteIdx := s.utf8ByteSize + p.byteIdx }
-
-instance : HSub Pos.Raw Slice Pos.Raw where
-  hSub p s := { byteIdx := p.byteIdx - s.utf8ByteSize }
-
-@[simp]
-theorem Pos.Raw.byteIdx_add_slide {p : Pos.Raw} {s : Slice} :
-    (p + s).byteIdx = p.byteIdx + s.utf8ByteSize := rfl
-
-@[simp]
-theorem Pos.Raw.byteIdx_slice_add {s : Slice} {p : Pos.Raw} :
-    (s + p).byteIdx = s.utf8ByteSize + p.byteIdx := rfl
-
-@[simp]
-theorem Pos.Raw.byteIdx_sub_slice {p : Pos.Raw} {s : Slice} :
-    (p - s).byteIdx = p.byteIdx - s.utf8ByteSize := rfl
-
-/-- The end position of a slice, as a `Pos.Raw`. -/
-@[expose]
-def Slice.rawEndPos (s : Slice) : Pos.Raw where
-  byteIdx := s.utf8ByteSize
-
-@[simp]
-theorem Slice.byteIdx_rawEndPos {s : Slice} : s.rawEndPos.byteIdx = s.utf8ByteSize := (rfl)
-
-/-- Criterion for validity of positions in string slices. -/
-structure Pos.Raw.IsValidForSlice (s : Slice) (p : Pos.Raw) : Prop where
-  le_utf8ByteSize : p ≤ s.rawEndPos
-  isValid_offsetBy : (p.offsetBy s.startInclusive.offset).IsValid s.str
-
-/--
-Accesses the indicated byte in the UTF-8 encoding of a string slice.
-
-At runtime, this function is implemented by efficient, constant-time code.
--/
-@[inline, expose]
-def Slice.getUTF8Byte (s : Slice) (p : Pos.Raw) (h : p < s.rawEndPos) : UInt8 :=
-  s.str.getUTF8Byte (p.offsetBy s.startInclusive.offset) (by
-    have := s.endExclusive.isValid.le_rawEndPos
-    simp only [Pos.Raw.lt_iff, byteIdx_rawEndPos, utf8ByteSize_eq, Pos.Raw.le_iff, byteIdx_rawEndPos,
-      Pos.Raw.byteIdx_offsetBy] at *
-    omega)
-
-/--
-Accesses the indicated byte in the UTF-8 encoding of the string slice, or panics if the position
-is out-of-bounds.
--/
-@[expose]
-def Slice.getUTF8Byte! (s : Slice) (p : String.Pos.Raw) : UInt8 :=
-  if h : p < s.rawEndPos then
-    s.getUTF8Byte p h
-  else
-    panic! "String slice access is out of bounds."
 
 @[extern "lean_string_utf8_extract"]
 def ValidPos.extract {s : @& String} (b e : @& s.ValidPos) : String where
@@ -1125,6 +772,7 @@ theorem Slice.isUTF8FirstByte_utf8ByteAt_zero {s : Slice} {h} :
 @[simp]
 theorem Pos.Raw.isValid_copy_iff {s : Slice} {p : Pos.Raw} :
     p.IsValid s.copy ↔ p.IsValidForSlice s := by
+  rw [isValid_iff_isValidUTF8_extract_zero]
   refine ⟨fun ⟨h₁, h₂⟩ => ⟨?_, ?_⟩, fun ⟨h₁, h₂⟩ => ⟨?_, ?_⟩⟩
   · simpa using h₁
   · have := s.startInclusive_le_endExclusive
@@ -1150,83 +798,6 @@ theorem Pos.Raw.isValid_copy_iff {s : Slice} {p : Pos.Raw} :
     · have := s.endExclusive.isValid.le_rawEndPos
       simp_all [le_iff]
       omega
-
-/--
-A `Slice.Pos s` is a byte offset in `s` together with a proof that this position is at a UTF-8
-character boundary.
--/
-@[ext]
-structure Slice.Pos (s : Slice) where
-  /-- The underlying byte offset of the `Slice.Pos`. -/
-  offset : String.Pos.Raw
-  /-- The proof that `offset` is valid for the string slice `s`. -/
-  isValidForSlice : offset.IsValidForSlice s
-deriving @[expose] DecidableEq
-
-/-- The start position of `s`, as an `s.Pos`. -/
-@[inline, expose]
-def Slice.startPos (s : Slice) : s.Pos where
-  offset := 0
-  isValidForSlice := ⟨by simp [Pos.Raw.le_iff], by simpa using s.startInclusive.isValid⟩
-
-@[simp]
-theorem Slice.offset_startPos {s : Slice} : s.startPos.offset = 0 := (rfl)
-
-instance {s : Slice} : Inhabited s.Pos where
-  default := s.startPos
-
-@[simp]
-theorem Slice.offset_startInclusive_add_self {s : Slice} :
-    s.startInclusive.offset + s = s.endExclusive.offset := by
-  have := s.startInclusive_le_endExclusive
-  simp_all [String.Pos.Raw.ext_iff, ValidPos.le_iff, Pos.Raw.le_iff, utf8ByteSize_eq]
-
-@[simp]
-theorem Pos.Raw.offsetBy_rawEndPos_left {p : Pos.Raw} {s : String} :
-    s.rawEndPos.offsetBy p = p + s := by
-  simp [Pos.Raw.ext_iff]
-
-@[simp]
-theorem Pos.Raw.offsetBy_rawEndPos_right {p : Pos.Raw} {s : String} :
-    p.offsetBy s.rawEndPos = s + p := by
-  simp [Pos.Raw.ext_iff]
-
-@[simp]
-theorem Pos.Raw.offsetBy_sliceRawEndPos_left {p : Pos.Raw} {s : Slice} :
-    s.rawEndPos.offsetBy p = p + s := by
-  simp [Pos.Raw.ext_iff]
-
-@[simp]
-theorem Pos.Raw.offsetBy_sliceRawEndPos_right {p : Pos.Raw} {s : Slice} :
-    p.offsetBy s.rawEndPos = s + p := by
-  simp [Pos.Raw.ext_iff]
-
-/-- The past-the-end position of `s`, as an `s.Pos`. -/
-@[inline, expose]
-def Slice.endPos (s : Slice) : s.Pos where
-  offset := s.rawEndPos
-  isValidForSlice := ⟨by simp, by simpa using s.endExclusive.isValid⟩
-
-@[simp]
-theorem Slice.offset_endPos {s : Slice} : s.endPos.offset = s.rawEndPos := (rfl)
-
-instance {s : Slice} : LE s.Pos where
-  le l r := l.offset ≤ r.offset
-
-instance {s : Slice} : LT s.Pos where
-  lt l r := l.offset < r.offset
-
-theorem Slice.Pos.le_iff {s : Slice} {l r : s.Pos} : l ≤ r ↔ l.offset ≤ r.offset :=
-  Iff.rfl
-
-theorem Slice.Pos.lt_iff {s : Slice} {l r : s.Pos} : l < r ↔ l.offset < r.offset :=
-  Iff.rfl
-
-instance {s : Slice} (l r : s.Pos) : Decidable (l ≤ r) :=
-  decidable_of_iff' _ Slice.Pos.le_iff
-
-instance {s : Slice} (l r : s.Pos) : Decidable (l < r) :=
-  decidable_of_iff' _ Slice.Pos.lt_iff
 
 theorem Pos.Raw.isValidForSlice_iff_isUTF8FirstByte {s : Slice} {p : Pos.Raw} :
     p.IsValidForSlice s ↔ (p = s.rawEndPos ∨ (∃ (h : p < s.rawEndPos), (s.getUTF8Byte p h).IsUTF8FirstByte)) := by
@@ -1303,14 +874,6 @@ theorem Pos.Raw.isValidForSlice_iff_isSome_utf8DecodeChar? {s : Slice} {p : Pos.
     rintro (rfl|⟨h₁, h₂⟩)
     · simp
     · exact Or.inr ⟨h₁, ByteArray.isUTF8FirstByte_of_isSome_utf8DecodeChar? h₂⟩
-
-/-- Returns the byte at a position in a slice that is not the end position. -/
-@[inline, expose]
-def Slice.Pos.byte {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : UInt8 :=
-  s.getUTF8Byte pos.offset (by
-    have := pos.isValidForSlice.le_utf8ByteSize
-    simp_all [Pos.ext_iff, String.Pos.Raw.ext_iff, Pos.Raw.le_iff, Pos.Raw.lt_iff]
-    omega)
 
 theorem Slice.Pos.isUTF8FirstByte_byte {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos} :
     (pos.byte h).IsUTF8FirstByte :=
@@ -1503,9 +1066,6 @@ theorem endExclusive_toSlice {s : String} : s.toSlice.endExclusive = s.endValidP
 theorem str_toSlice {s : String} : s.toSlice.str = s := rfl
 
 @[simp]
-theorem offset_endValidPos {s : String} : s.endValidPos.offset = s.rawEndPos := (rfl)
-
-@[simp]
 theorem copy_toSlice {s : String} : s.toSlice.copy = s := by
   simp [← bytes_inj, Slice.bytes_copy, ← size_bytes]
 
@@ -1607,40 +1167,8 @@ theorem ValidPos.isUTF8FirstByte_byte {s : String} {pos : s.ValidPos} {h : pos �
   Slice.Pos.isUTF8FirstByte_byte
 
 @[simp]
-theorem append_left_inj {s₁ s₂ : String} (t : String) :
-    s₁ ++ t = s₂ ++ t ↔ s₁ = s₂ := by
-  simp [← String.data_inj]
-
-theorem append_assoc {s₁ s₂ s₃ : String} : s₁ ++ s₂ ++ s₃ = s₁ ++ (s₂ ++ s₃) := by
-  simp [← String.data_inj]
-
-@[simp]
-theorem utf8ByteSize_eq_zero_iff {s : String} : s.utf8ByteSize = 0 ↔ s = "" := by
-  refine ⟨fun h => ?_, fun h => h ▸ utf8ByteSize_empty⟩
-  simpa [← bytes_inj, ← ByteArray.size_eq_zero_iff] using h
-
-theorem rawEndPos_eq_zero_iff {b : String} : b.rawEndPos = 0 ↔ b = "" := by
-  simp
-
-@[deprecated rawEndPos_eq_zero_iff (since := "2025-10-20")]
-theorem endPos_eq_zero_iff {b : String} : b.rawEndPos = 0 ↔ b = "" :=
-  rawEndPos_eq_zero_iff
-
-@[simp]
 theorem startValidPos_eq_endValidPos_iff {b : String} : b.startValidPos = b.endValidPos ↔ b = "" := by
   simp [← utf8ByteSize_eq_zero_iff, ValidPos.ext_iff, Eq.comm (b := b.rawEndPos)]
-
-@[simp]
-theorem data_eq_nil_iff {b : String} : b.data = [] ↔ b = "" := by
-  rw [← List.asString_inj, asString_data, List.asString_nil]
-
-@[simp]
-theorem _root_.List.asString_eq_empty_iff {l : List Char} : l.asString = "" ↔ l = [] := by
-  rw [← data_inj, List.data_asString, data_empty]
-
-@[simp]
-theorem _root_.List.length_asString {l : List Char} : l.asString.length = l.length := by
-  rw [← String.length_data, List.data_asString]
 
 theorem isSome_utf8DecodeChar?_zero {b : String} (hb : b ≠ "") : (b.bytes.utf8DecodeChar? 0).isSome := by
   refine (((Pos.Raw.isValid_iff_isSome_utf8DecodeChar? (s := b)).1 Pos.Raw.isValid_zero).elim ?_ id)
@@ -2280,131 +1808,6 @@ theorem Pos.Raw.isValidForSlice_stringReplaceStart {s : String} {p : s.ValidPos}
   rw [replaceStart, isValidForSlice_replaceStart, isValidForSlice_toSlice_iff,
     ValidPos.offset_toSlice]
 
-/--
-Replaces the character at a specified position in a string with a new character.
-
-If both the replacement character and the replaced character are 7-bit ASCII characters and the
-string is not shared, then it is updated in-place and not copied.
-
-Examples:
-* `("abc".pos ⟨1⟩ (by decide)).set 'B' (by decide) = "aBc"`
-* `("L∃∀N".pos ⟨4⟩ (by decide)).set 'X' (by decide) = "L∃XN"`
--/
-@[extern "lean_string_utf8_set", expose]
-def ValidPos.set {s : String} (p : s.ValidPos) (c : Char) (hp : p ≠ s.endValidPos) : String :=
-  if hc : c.utf8Size = 1 ∧ (p.byte hp).utf8ByteSize isUTF8FirstByte_byte = 1 then
-    .ofByteArray (s.bytes.set p.offset.byteIdx c.toUInt8 (p.byteIdx_lt_utf8ByteSize hp)) (by
-      rw [ByteArray.set_eq_push_extract_append_extract, ← hc.2, utf8ByteSize_byte,
-        ← ValidPos.byteIdx_offset_next]
-      refine ByteArray.IsValidUTF8.append ?_ (p.next hp).isValid.isValidUTF8_extract_utf8ByteSize
-      exact p.isValid.isValidUTF8_extract_zero.push hc.1)
-  else
-    (s.replaceEnd p).copy ++ singleton c ++ (s.replaceStart (p.next hp)).copy
-
-theorem ValidPos.set_eq_append {s : String} {p : s.ValidPos} {c : Char} {hp} :
-    p.set c hp = (s.replaceEnd p).copy ++ singleton c ++ (s.replaceStart (p.next hp)).copy := by
-  rw [set]
-  split
-  · rename_i h
-    simp [← bytes_inj, ByteArray.set_eq_push_extract_append_extract, Slice.bytes_copy,
-      List.utf8Encode_singleton, String.utf8EncodeChar_eq_singleton h.1, utf8ByteSize_byte ▸ h.2]
-  · rfl
-
-theorem Pos.Raw.IsValid.set_of_le {s : String} {p : s.ValidPos} {c : Char} {hp : p ≠ s.endValidPos}
-    {q : Pos.Raw} (hq : q.IsValid s) (hpq : q ≤ p.offset) : q.IsValid (p.set c hp) := by
-  rw [ValidPos.set_eq_append, String.append_assoc]
-  apply append_right
-  rw [isValid_copy_iff, isValidForSlice_stringReplaceEnd]
-  exact ⟨hpq, hq⟩
-
-/-- Given a valid position in a string, obtain the corresponding position after setting a character on
-that string, provided that the position was before the changed position. -/
-@[inline]
-def ValidPos.toSetOfLE {s : String} (q p : s.ValidPos) (c : Char) (hp : p ≠ s.endValidPos)
-    (hpq : q ≤ p) : (p.set c hp).ValidPos where
-  offset := q.offset
-  isValid := q.isValid.set_of_le hpq
-
-@[simp]
-theorem ValidPos.offset_toSetOfLE {s : String} {q p : s.ValidPos} {c : Char} {hp : p ≠ s.endValidPos}
-    {hpq : q ≤ p} : (q.toSetOfLE p c hp hpq).offset = q.offset := (rfl)
-
-/--
-Replaces the character at position `p` in the string `s` with the result of applying `f` to that
-character.
-
-If both the replacement character and the replaced character are 7-bit ASCII characters and the
-string is not shared, then it is updated in-place and not copied.
-
-Examples:
-* `("abc".pos ⟨1⟩ (by decide)).modify Char.toUpper (by decide) = "aBc"`
--/
-def ValidPos.modify {s : String} (p : s.ValidPos) (f : Char → Char) (hp : p ≠ s.endValidPos) :
-    String :=
-  p.set (f <| p.get hp) hp
-
-theorem Pos.Raw.IsValid.modify_of_le {s : String} {p : s.ValidPos} {f : Char → Char}
-    {hp : p ≠ s.endValidPos} {q : Pos.Raw} (hq : q.IsValid s) (hpq : q ≤ p.offset) :
-    q.IsValid (p.modify f hp) :=
-  set_of_le hq hpq
-
-/-- Given a valid position in a string, obtain the corresponding position after modifying a character
-in that string, provided that the position was before the changed position. -/
-def ValidPos.toModifyOfLE {s : String} (q p : s.ValidPos) (f : Char → Char)
-    (hp : p ≠ s.endValidPos) (hpq : q ≤ p) : (p.modify f hp).ValidPos where
-  offset := q.offset
-  isValid := q.isValid.modify_of_le hpq
-
-@[simp]
-theorem ValidPos.offset_toModifyOfLE {s : String} {q p : s.ValidPos} {f : Char → Char}
-    {hp : p ≠ s.endValidPos} {hpq : q ≤ p} : (q.toModifyOfLE p f hp hpq).offset = q.offset := (rfl)
-
-/--
-Replaces the character at a specified position in a string with a new character. If the position is
-invalid, the string is returned unchanged.
-
-If both the replacement character and the replaced character are 7-bit ASCII characters and the
-string is not shared, then it is updated in-place and not copied.
-
-This is a legacy function. The recommended alternative is `String.ValidPos.set`, combined with
-`String.pos` or another means of obtaining a `String.ValidPos`.
-
-Examples:
-* `"abc".set ⟨1⟩ 'B' = "aBc"`
-* `"abc".set ⟨3⟩ 'D' = "abc"`
-* `"L∃∀N".set ⟨4⟩ 'X' = "L∃XN"`
-* `"L∃∀N".set ⟨2⟩ 'X' = "L∃∀N"` because `'∃'` is a multi-byte character, so the byte index `2` is an
-  invalid position.
--/
-@[extern "lean_string_utf8_set", expose]
-def Pos.Raw.set : String → (@& Pos.Raw) → Char → String
-  | s, i, c => (Pos.Raw.utf8SetAux c s.data 0 i).asString
-
-@[extern "lean_string_utf8_set", expose, deprecated Pos.Raw.set (since := "2025-10-14")]
-def set : String → (@& Pos.Raw) → Char → String
-  | s, i, c => (Pos.Raw.utf8SetAux c s.data 0 i).asString
-
-/--
-Replaces the character at position `p` in the string `s` with the result of applying `f` to that
-character. If `p` is an invalid position, the string is returned unchanged.
-
-If both the replacement character and the replaced character are 7-bit ASCII characters and the
-string is not shared, then it is updated in-place and not copied.
-
-This is a legacy function. The recommended alternative is `String.ValidPos.set`, combined with
-`String.pos` or another means of obtaining a `String.ValidPos`.
-
-Examples:
-* `"abc".modify ⟨1⟩ Char.toUpper = "aBc"`
-* `"abc".modify ⟨3⟩ Char.toUpper = "abc"`
--/
-@[expose]
-def Pos.Raw.modify (s : String) (i : Pos.Raw) (f : Char → Char) : String :=
-  i.set s (f (i.get s))
-
-@[expose, inherit_doc Pos.Raw.modify, deprecated Pos.Raw.modify (since := "2025-10-10")]
-def modify (s : String) (i : Pos.Raw) (f : Char → Char) : String :=
-  i.set s (f (i.get s))
 
 /--
 Returns the next position in a string after position `p`. If `p` is not a valid position or
@@ -2853,10 +2256,6 @@ Examples:
 @[inline] def splitOn (s : String) (sep : String := " ") : List String :=
   if sep == "" then [s] else splitOnAux s sep 0 0 0 []
 
-instance : Inhabited String := ⟨""⟩
-
-instance : Append String := ⟨String.append⟩
-
 /--
 Adds multiple repetitions of a character to the end of a string.
 
@@ -3063,54 +2462,6 @@ theorem Pos.Raw.utf8SetAux_of_gt (c' : Char) : ∀ (cs : List Char) {i p : Pos.R
     rw [utf8SetAux, if_neg (mt (congrArg (·.1)) (Ne.symm <| Nat.ne_of_lt h)), utf8SetAux_of_gt c' cs]
     exact Nat.lt_of_lt_of_le h (Nat.le_add_right ..)
 
-theorem set_next_add (s : String) (i : Pos.Raw) (c : Char) (b₁ b₂)
-    (h : (i.next s).1 + b₁ = s.rawEndPos.1 + b₂) :
-  (i.next (i.set s c)).1 + b₁ = (i.set s c).rawEndPos.1 + b₂ := by
-  simp [Pos.Raw.next, Pos.Raw.get, Pos.Raw.set, rawEndPos, ← utf8ByteSize'_eq, utf8ByteSize'] at h ⊢
-  rw [Nat.add_comm i.1, Nat.add_assoc] at h ⊢
-  let rec foo : ∀ cs a b₁ b₂,
-    (Pos.Raw.utf8GetAux cs a i).utf8Size + b₁ = utf8ByteSize'.go cs + b₂ →
-    (Pos.Raw.utf8GetAux (Pos.Raw.utf8SetAux c cs a i) a i).utf8Size + b₁ = utf8ByteSize'.go (Pos.Raw.utf8SetAux c cs a i) + b₂
-  | [], _, _, _, h => h
-  | c'::cs, a, b₁, b₂, h => by
-    unfold Pos.Raw.utf8SetAux
-    apply iteInduction (motive := fun p => (Pos.Raw.utf8GetAux p a i).utf8Size + b₁ = utf8ByteSize'.go p + b₂) <;>
-      intro h' <;> simp [Pos.Raw.utf8GetAux, h', utf8ByteSize'.go] at h ⊢
-    next =>
-      rw [Nat.add_assoc, Nat.add_left_comm] at h ⊢; rw [Nat.add_left_cancel h]
-    next =>
-      rw [Nat.add_assoc] at h ⊢
-      refine foo cs (a + c') b₁ (c'.utf8Size + b₂) h
-  exact foo s.data 0 _ _ h
-
-theorem mapAux_lemma (s : String) (i : Pos.Raw) (c : Char) (h : ¬i.atEnd s) :
-    (i.set s c).rawEndPos.1 - (i.next (i.set s c)).1 < s.rawEndPos.1 - i.1 := by
-  suffices (i.set s c).rawEndPos.1 - (i.next (i.set s c)).1 = s.rawEndPos.1 - (i.next s).1 by
-    rw [this]
-    apply Nat.sub_lt_sub_left (Nat.gt_of_not_le (mt decide_eq_true h)) (Pos.Raw.lt_next ..)
-  have := set_next_add s i c (s.rawEndPos.byteIdx - (i.next s).byteIdx) 0
-  have := set_next_add s i c 0 ((i.next s).byteIdx - s.rawEndPos.byteIdx)
-  omega
-
-@[specialize] def mapAux (f : Char → Char) (i : Pos.Raw) (s : String) : String :=
-  if h : i.atEnd s then s
-  else
-    let c := f (i.get s)
-    have := mapAux_lemma s i c h
-    let s := i.set s c
-    mapAux f (i.next s) s
-termination_by s.rawEndPos.1 - i.1
-
-/--
-Applies the function `f` to every character in a string, returning a string that contains the
-resulting characters.
-
-Examples:
- * `"abc123".map Char.toUpper = "ABC123"`
- * `"".map Char.toUpper = ""`
--/
-@[inline] def map (f : Char → Char) (s : String) : String :=
-  mapAux f 0 s
 
 /--
 Checks whether the string can be interpreted as the decimal representation of a natural number.
@@ -3204,32 +2555,6 @@ def Internal.isPrefixOfImpl (p : String) (s : String) : Bool :=
   String.isPrefixOf p s
 
 /--
-In the string `s`, replaces all occurrences of `pattern` with `replacement`.
-
-Examples:
-* `"red green blue".replace "e" "" = "rd grn blu"`
-* `"red green blue".replace "ee" "E" = "red grEn blue"`
-* `"red green blue".replace "e" "E" = "rEd grEEn bluE"`
--/
-def replace (s pattern replacement : String) : String :=
-  if h : pattern.rawEndPos.1 = 0 then s
-  else
-    have hPatt := Nat.zero_lt_of_ne_zero h
-    let rec loop (acc : String) (accStop pos : String.Pos.Raw) :=
-      if h : pos.byteIdx + pattern.rawEndPos.byteIdx > s.rawEndPos.byteIdx then
-        acc ++ accStop.extract s s.rawEndPos
-      else
-        have := Nat.lt_of_lt_of_le (Nat.add_lt_add_left hPatt _) (Nat.ge_of_not_lt h)
-        if Pos.Raw.substrEq s pos pattern 0 pattern.rawEndPos.byteIdx then
-          have := Nat.sub_lt_sub_left this (Nat.add_lt_add_left hPatt _)
-          loop (acc ++ accStop.extract s pos ++ replacement) (pos + pattern) (pos + pattern)
-        else
-          have := Nat.sub_lt_sub_left this (Pos.Raw.lt_next s pos)
-          loop acc accStop (pos.next s)
-      termination_by s.rawEndPos.1 - pos.1
-    loop "" 0 0
-
-/--
 Returns the position of the beginning of the line that contains the position `pos`.
 
 Lines are ended by `'\n'`, and the returned position is either `0 : String.Pos` or immediately after
@@ -3242,79 +2567,11 @@ def findLineStart (s : String) (pos : String.Pos.Raw) : String.Pos.Raw :=
 
 end String
 
-
-namespace String
-
-
-/--
-Replaces each character in `s` with the result of applying `Char.toUpper` to it.
-
-`Char.toUpper` has no effect on characters outside of the range `'a'`–`'z'`.
-
-Examples:
-* `"orange".toUpper = "ORANGE"`
-* `"abc123".toUpper = "ABC123"`
--/
-@[inline] def toUpper (s : String) : String :=
-  s.map Char.toUpper
-
-/--
-Replaces each character in `s` with the result of applying `Char.toLower` to it.
-
-`Char.toLower` has no effect on characters outside of the range `'A'`–`'Z'`.
-
-Examples:
-* `"ORANGE".toLower = "orange"`
-* `"Orange".toLower = "orange"`
-* `"ABc123".toLower = "abc123"`
--/
-@[inline] def toLower (s : String) : String :=
-  s.map Char.toLower
-
-/--
-Replaces the first character in `s` with the result of applying `Char.toUpper` to it. Returns the
-empty string if the string is empty.
-
-`Char.toUpper` has no effect on characters outside of the range `'a'`–`'z'`.
-
-Examples:
-* `"orange".capitalize = "Orange"`
-* `"ORANGE".capitalize = "ORANGE"`
-* `"".capitalize = ""`
--/
-@[inline] def capitalize (s : String) : String :=
-  (0 : Pos.Raw).set s <| (0 : Pos.Raw).get s |>.toUpper
-
-@[export lean_string_capitalize]
-def Internal.capitalizeImpl (s : String) : String :=
-  String.capitalize s
-
-/--
-Replaces the first character in `s` with the result of applying `Char.toLower` to it. Returns the
-empty string if the string is empty.
-
-`Char.toLower` has no effect on characters outside of the range `'A'`–`'Z'`.
-
-Examples:
-* `"Orange".decapitalize = "orange"`
-* `"ORANGE".decapitalize = "oRANGE"`
-* `"".decapitalize = ""`
--/
-@[inline] def decapitalize (s : String) :=
-  (0 : Pos.Raw).set s <| (0 : Pos.Raw).get s |>.toLower
-
-end String
-
 namespace String
 
 @[ext]
 theorem ext {s₁ s₂ : String} (h : s₁.data = s₂.data) : s₁ = s₂ :=
   data_injective h
-
-@[simp] theorem default_eq : default = "" := rfl
-
-@[simp]
-theorem mk_eq_asString (s : List Char) : String.mk s = List.asString s := rfl
 
 @[simp] theorem length_empty : "".length = 0 := by simp [← length_data, data_empty]
 
@@ -3327,9 +2584,6 @@ theorem singleton_eq {c : Char} : String.singleton c = [c].asString := by
 @[simp]
 theorem length_singleton {c : Char} : (String.singleton c).length = 1 := by
   simp [← length_data]
-
-theorem push_eq_append (c : Char) : String.push s c = s ++ singleton c := by
-  simp
 
 @[simp] theorem data_push (c : Char) : (String.push s c).data = s.data ++ [c] := by
   simp [← append_singleton]
@@ -3385,8 +2639,6 @@ attribute [simp] toSubstring'
 end String
 
 namespace Char
-
-theorem toString_eq_singleton {c : Char} : c.toString = String.singleton c := rfl
 
 @[simp] theorem length_toString (c : Char) : c.toString.length = 1 := by
   simp [toString_eq_singleton]

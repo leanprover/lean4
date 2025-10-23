@@ -1591,9 +1591,22 @@ theorem insertMany_eq_foldl_tree {_ : Ord α} {t₁ : Impl α β} (h₁ : t₁.B
     rw [forIn_eq_forIn_toListModel]
     congr
 
+theorem insertMany!_eq_foldl_tree {_ : Ord α} {t₁ : Impl α β} {t₂ : Impl α β}:
+    (t₁.insertMany! t₂).val = t₂.foldl (init := t₁) fun acc k v => acc.insert! k v := by
+  simp [foldl_eq_foldl]
+  rw [← insertMany!_eq_foldl]
+  simp [insertMany!, ← List.forIn_yield_eq_foldl]
+  simp [ForIn.forIn]
+  rw [forIn_eq_forIn_toListModel]
+  congr
+
 theorem insertManyIfNew_eq_foldl {_ : Ord α} {l : List ((a : α) × β a)} {t : Impl α β} (h : t.Balanced) :
     (t.insertManyIfNew l h).val = l.foldl (init := t) fun acc ⟨k, v⟩ => acc.insertIfNew! k v := by
   simp [insertManyIfNew, insertIfNew_eq_insertIfNew!, ← List.foldl_hom Subtype.val, List.forIn_pure_yield_eq_foldl]
+
+theorem insertManyIfNew!_eq_foldl {_ : Ord α} {l : List ((a : α) × β a)} {t : Impl α β} :
+    (t.insertManyIfNew! l).val = l.foldl (init := t) fun acc ⟨k, v⟩ => acc.insertIfNew! k v := by
+  simp [insertManyIfNew!, ← List.foldl_hom Subtype.val, List.forIn_pure_yield_eq_foldl]
 
 theorem insertManyIfNew_eq_foldl_tree {_ : Ord α} {t₁ : Impl α β} (h₁ : t₁.Balanced) {t₂ : Impl α β} :
     (t₁.insertManyIfNew t₂ h₁).val = t₂.foldl (init := t₁) fun acc k v => acc.insertIfNew! k v := by
@@ -1606,10 +1619,29 @@ theorem insertManyIfNew_eq_foldl_tree {_ : Ord α} {t₁ : Impl α β} (h₁ : t
     rw [forIn_eq_forIn_toListModel]
     congr
 
+theorem insertManyIfNew!_eq_foldl_tree {_ : Ord α} {t₁ : Impl α β} {t₂ : Impl α β}:
+    (t₁.insertManyIfNew! t₂).val = t₂.foldl (init := t₁) fun acc k v => acc.insertIfNew! k v := by
+  simp [foldl_eq_foldl]
+  rw [← insertManyIfNew!_eq_foldl]
+  simp [insertManyIfNew!, ← List.forIn_yield_eq_foldl]
+  simp [ForIn.forIn]
+  rw [forIn_eq_forIn_toListModel]
+  congr
+
 theorem insertMany_eq_insertMany! {_ : Ord α} {l : List ((a : α) × β a)}
     {t : Impl α β} (h : t.Balanced) :
     (t.insertMany l h).val = (t.insertMany! l).val := by
   simp only [insertMany_eq_foldl, insertMany!_eq_foldl]
+
+theorem insertManyIfNew_eq_insertManyIfNew! {_ : Ord α} {l : List ((a : α) × β a)}
+    {t : Impl α β} (h : t.Balanced) :
+    (t.insertMany l h).val = (t.insertMany! l).val := by
+  simp only [insertMany_eq_foldl, insertMany!_eq_foldl]
+
+theorem insertMany_eq_insertMany!_tree {_ : Ord α}
+    {t₁ t₂ : Impl α β} (h : t₁.Balanced) :
+    (t₁.insertManyIfNew t₂ h).val = (t₁.insertManyIfNew! t₂).val := by
+  simp only [insertManyIfNew_eq_foldl_tree, insertManyIfNew!_eq_foldl_tree]
 
 theorem toListModel_insertMany_list {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd α]
     {l : List ((a : α) × β a)}

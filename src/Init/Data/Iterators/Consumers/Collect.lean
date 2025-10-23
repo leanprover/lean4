@@ -43,7 +43,7 @@ Traverses the given iterator and stores the emitted values in an array.
 
 This function is deprecated. Instead of `it.allowNontermination.toArray`, use `it.toArray`.
 -/
-@[always_inline, inline, deprecated Iter.toArray (since := "2025-10-15")]
+@[always_inline, inline, deprecated Iter.toArray (since := "2025-10-23")]
 def Iter.Partial.toArray {α : Type w} {β : Type w}
     [Iterator α Id β] [IteratorCollect α Id Id] (it : Iter.Partial (α := α) β) : Array β :=
   it.it.toArray
@@ -113,7 +113,7 @@ lists are prepend-only, `toListRev` is usually more efficient that `toList`.
 
 This function is deprecated. Instead of `it.allowNontermination.toList`, use `it.toList`.
 -/
-@[always_inline, deprecated Iter.toList (since := "2025-10-15")]
+@[always_inline, deprecated Iter.toList (since := "2025-10-23")]
 def Iter.Partial.toList {α : Type w} {β : Type w}
     [Iterator α Id β] [IteratorCollect α Id Id] (it : Iter.Partial (α := α) β) : List β :=
   it.it.toList

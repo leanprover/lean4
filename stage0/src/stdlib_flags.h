@@ -1,5 +1,6 @@
 #include "util/options.h"
 
+// update stage0 pls
 namespace lean {
 options get_default_options() {
     options opts;

@@ -205,6 +205,7 @@ static string_ref * g_boxed_mangled_suffix = nullptr;
 static name * g_interpreter_prefer_native = nullptr;
 
 // constants (lacking native declarations) initialized by `lean_run_init`
+// We can assume this variable is never written to and read from in parallel; see `enableInitializersExecution`.
 static name_hash_map<object *> * g_init_globals;
 
 // reuse the compiler's name mangling to compute native symbol names

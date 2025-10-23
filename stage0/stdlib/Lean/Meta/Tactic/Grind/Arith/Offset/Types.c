@@ -28,19 +28,20 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_offsetExt;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedState_default___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_ToPropagate_ctorElim___redArg(lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_initFn____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_initFn____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2_();
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_ProofInfo_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_ToPropagate_eqTrue_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedProofInfo_default___closed__0;
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_initFn____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__1(lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedPersistentArray_default(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_ToPropagate_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_initFn___closed__2____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_ToPropagate_eqFalse_elim___redArg(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_registerSolverExtension___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_initFn___lam__0____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2_(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_registerSolverExtension___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_initFn___lam__0____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedState_default;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_ToPropagate_eqFalse_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedToPropagate_default___closed__0;
@@ -59,6 +60,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_ToPropagate_eq_elim___re
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedState_default___closed__0;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedState;
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_initFn___lam__0____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_ProofInfo_ctorIdx(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_initFn___closed__3____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedProofInfo;
@@ -442,13 +444,12 @@ x_1 = l_Lean_Meta_Grind_Arith_Offset_instInhabitedState_default;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_initFn___lam__0____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_initFn___lam__0____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2_(lean_object* x_1) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
@@ -507,28 +508,44 @@ lean_ctor_set(x_4, 7, x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_initFn____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_initFn____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2_() {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Lean_Meta_Grind_Arith_Offset_initFn___closed__3____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2_;
-x_3 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_Offset_initFn___lam__0____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2_), 2, 1);
+x_3 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_Offset_initFn___lam__0____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2____boxed), 2, 1);
 lean_closure_set(x_3, 0, x_2);
-x_4 = l_Lean_Meta_Grind_registerSolverExtension___redArg(x_3, x_1);
+x_4 = l_Lean_Meta_Grind_registerSolverExtension___redArg(x_3);
 return x_4;
 }
 }
-lean_object* initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Offset_Util(uint8_t builtin, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_initFn___lam__0____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2____boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Meta_Grind_Arith_Offset_initFn___lam__0____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2_(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_initFn____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2____boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Meta_Grind_Arith_Offset_initFn____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2_();
+return x_2;
+}
+}
+lean_object* initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Offset_Util(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Offset_Types(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Offset_Types(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_Tactic_Grind_Types(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Grind_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_Arith_Offset_Util(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Grind_Arith_Offset_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__0 = _init_l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrNodeId___lam__0___closed__0();
@@ -577,7 +594,7 @@ l_Lean_Meta_Grind_Arith_Offset_initFn___closed__2____x40_Lean_Meta_Tactic_Grind_
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_initFn___closed__2____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2_);
 l_Lean_Meta_Grind_Arith_Offset_initFn___closed__3____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2_ = _init_l_Lean_Meta_Grind_Arith_Offset_initFn___closed__3____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2_();
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_initFn___closed__3____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2_);
-if (builtin) {res = l_Lean_Meta_Grind_Arith_Offset_initFn____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2_(lean_io_mk_world());
+if (builtin) {res = l_Lean_Meta_Grind_Arith_Offset_initFn____x40_Lean_Meta_Tactic_Grind_Arith_Offset_Types_2760965230____hygCtx___hyg_2_();
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Meta_Grind_Arith_Offset_offsetExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_offsetExt);

@@ -1709,33 +1709,33 @@ x_1 = l_Lake_instTypeNameInputDirDecl_unsafe__1;
 return x_1;
 }
 }
-lean_object* initialize_Lake_Config_Opaque(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Config_LeanLibConfig(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Config_LeanExeConfig(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Config_ExternLibConfig(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Config_InputFileConfig(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Util_Name(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Config_Opaque(uint8_t builtin);
+lean_object* initialize_Lake_Config_LeanLibConfig(uint8_t builtin);
+lean_object* initialize_Lake_Config_LeanExeConfig(uint8_t builtin);
+lean_object* initialize_Lake_Config_ExternLibConfig(uint8_t builtin);
+lean_object* initialize_Lake_Config_InputFileConfig(uint8_t builtin);
+lean_object* initialize_Lake_Util_Name(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Config_ConfigDecl(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Config_ConfigDecl(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Config_Opaque(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_Opaque(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_LeanLibConfig(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_LeanLibConfig(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_LeanExeConfig(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_LeanExeConfig(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_ExternLibConfig(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_ExternLibConfig(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_InputFileConfig(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_InputFileConfig(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Name(builtin, lean_io_mk_world());
+res = initialize_Lake_Util_Name(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instImpl___closed__0____x40_Lake_Config_ConfigDecl_1050678479____hygCtx___hyg_67_ = _init_l_Lake_instImpl___closed__0____x40_Lake_Config_ConfigDecl_1050678479____hygCtx___hyg_67_();

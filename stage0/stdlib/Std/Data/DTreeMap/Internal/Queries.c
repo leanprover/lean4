@@ -10157,25 +10157,25 @@ x_9 = l_Std_DTreeMap_Internal_Impl_Const_getEntryLT___redArg(x_3, x_5, x_6);
 return x_9;
 }
 }
-lean_object* initialize_Init_Data_Nat_Compare(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DTreeMap_Internal_Balanced(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DTreeMap_Internal_Ordered(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_BinderPredicates(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Nat_Compare(uint8_t builtin);
+lean_object* initialize_Std_Data_DTreeMap_Internal_Balanced(uint8_t builtin);
+lean_object* initialize_Std_Data_DTreeMap_Internal_Ordered(uint8_t builtin);
+lean_object* initialize_Init_BinderPredicates(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Data_DTreeMap_Internal_Queries(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Data_DTreeMap_Internal_Queries(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Nat_Compare(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Nat_Compare(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DTreeMap_Internal_Balanced(builtin, lean_io_mk_world());
+res = initialize_Std_Data_DTreeMap_Internal_Balanced(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DTreeMap_Internal_Ordered(builtin, lean_io_mk_world());
+res = initialize_Std_Data_DTreeMap_Internal_Ordered(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_BinderPredicates(builtin, lean_io_mk_world());
+res = initialize_Init_BinderPredicates(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_DTreeMap_Internal_Impl_term___x7em_____closed__0 = _init_l_Std_DTreeMap_Internal_Impl_term___x7em_____closed__0();

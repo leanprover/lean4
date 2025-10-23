@@ -97,13 +97,13 @@ lean_dec(x_4);
 return x_6;
 }
 }
-lean_object* initialize_Init_Data_List_Sublist(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Sublist(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_List_Count(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_List_Count(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_List_Sublist(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Sublist(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

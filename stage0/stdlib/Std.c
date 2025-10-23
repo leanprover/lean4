@@ -13,41 +13,41 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Std_Data(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Do(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Sat(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Sync(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Time(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Tactic(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Internal(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Net(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data(uint8_t builtin);
+lean_object* initialize_Std_Do(uint8_t builtin);
+lean_object* initialize_Std_Sat(uint8_t builtin);
+lean_object* initialize_Std_Sync(uint8_t builtin);
+lean_object* initialize_Std_Time(uint8_t builtin);
+lean_object* initialize_Std_Tactic(uint8_t builtin);
+lean_object* initialize_Std_Internal(uint8_t builtin);
+lean_object* initialize_Std_Net(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data(builtin, lean_io_mk_world());
+res = initialize_Std_Data(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Do(builtin, lean_io_mk_world());
+res = initialize_Std_Do(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat(builtin, lean_io_mk_world());
+res = initialize_Std_Sat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sync(builtin, lean_io_mk_world());
+res = initialize_Std_Sync(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Time(builtin, lean_io_mk_world());
+res = initialize_Std_Time(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Tactic(builtin, lean_io_mk_world());
+res = initialize_Std_Tactic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Internal(builtin, lean_io_mk_world());
+res = initialize_Std_Internal(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Net(builtin, lean_io_mk_world());
+res = initialize_Std_Net(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

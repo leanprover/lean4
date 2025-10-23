@@ -12350,33 +12350,33 @@ x_6 = l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_
 return x_6;
 }
 }
-lean_object* initialize_Std_Data_Internal_List_Associative(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DHashMap_Internal_Defs(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DHashMap_Internal_WF(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DHashMap_Raw(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DHashMap_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DHashMap_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_Internal_List_Associative(uint8_t builtin);
+lean_object* initialize_Std_Data_DHashMap_Internal_Defs(uint8_t builtin);
+lean_object* initialize_Std_Data_DHashMap_Internal_WF(uint8_t builtin);
+lean_object* initialize_Std_Data_DHashMap_Raw(uint8_t builtin);
+lean_object* initialize_Std_Data_DHashMap_Basic(uint8_t builtin);
+lean_object* initialize_Std_Data_DHashMap_Basic(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Data_DHashMap_Internal_RawLemmas(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Data_DHashMap_Internal_RawLemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_Internal_List_Associative(builtin, lean_io_mk_world());
+res = initialize_Std_Data_Internal_List_Associative(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Internal_Defs(builtin, lean_io_mk_world());
+res = initialize_Std_Data_DHashMap_Internal_Defs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Internal_WF(builtin, lean_io_mk_world());
+res = initialize_Std_Data_DHashMap_Internal_WF(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Raw(builtin, lean_io_mk_world());
+res = initialize_Std_Data_DHashMap_Raw(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Basic(builtin, lean_io_mk_world());
+res = initialize_Std_Data_DHashMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Basic(builtin, lean_io_mk_world());
+res = initialize_Std_Data_DHashMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_DHashMap_Internal_Raw_u2080_tacticWf__trivial___closed__0 = _init_l_Std_DHashMap_Internal_Raw_u2080_tacticWf__trivial___closed__0();

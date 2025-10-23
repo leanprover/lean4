@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.DocString.Markdown
-// Imports: import Init.Data.Ord public import Lean.DocString.Types
+// Imports: import Init.Data.Ord public import Lean.DocString.Types public import Init.Data.String.TakeDrop import Init.Data.String.Iterator
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5927,17 +5927,25 @@ x_6 = l_Lean_Doc_instToMarkdownPartOfMarkdownInlineOfMarkdownBlock___redArg(x_4,
 return x_6;
 }
 }
-lean_object* initialize_Init_Data_Ord(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_DocString_Types(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Ord(uint8_t builtin);
+lean_object* initialize_Lean_DocString_Types(uint8_t builtin);
+lean_object* initialize_Init_Data_String_TakeDrop(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Iterator(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_DocString_Markdown(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_DocString_Markdown(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Ord(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Ord(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_DocString_Types(builtin, lean_io_mk_world());
+res = initialize_Lean_DocString_Types(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_TakeDrop(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Iterator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_DocString_Markdown_0__Lean_Doc_MarkdownM_combineBlocks___closed__0 = _init_l___private_Lean_DocString_Markdown_0__Lean_Doc_MarkdownM_combineBlocks___closed__0();

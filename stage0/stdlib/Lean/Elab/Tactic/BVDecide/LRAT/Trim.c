@@ -2131,10 +2131,10 @@ block_19:
 lean_object* x_16; lean_object* x_17; 
 x_16 = l_Array_append___redArg(x_12, x_15);
 lean_dec_ref(x_15);
-x_17 = l_Array_append___redArg(x_16, x_14);
-lean_dec_ref(x_14);
+x_17 = l_Array_append___redArg(x_16, x_13);
+lean_dec_ref(x_13);
 x_1 = x_17;
-x_3 = x_13;
+x_3 = x_14;
 goto _start;
 }
 block_40:
@@ -2194,8 +2194,8 @@ if (x_34 == 0)
 {
 lean_dec(x_32);
 lean_dec_ref(x_31);
-x_13 = x_20;
-x_14 = x_30;
+x_13 = x_30;
+x_14 = x_20;
 x_15 = x_33;
 goto block_19;
 }
@@ -2207,8 +2207,8 @@ if (x_35 == 0)
 {
 lean_dec(x_32);
 lean_dec_ref(x_31);
-x_13 = x_20;
-x_14 = x_30;
+x_13 = x_30;
+x_14 = x_20;
 x_15 = x_33;
 goto block_19;
 }
@@ -2220,8 +2220,8 @@ x_37 = lean_usize_of_nat(x_32);
 lean_dec(x_32);
 x_38 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Elab_Tactic_BVDecide_LRAT_Trim_0__Lean_Elab_Tactic_BVDecide_LRAT_trim_useAnalysis_go_spec__2(x_31, x_36, x_37, x_33);
 lean_dec_ref(x_31);
-x_13 = x_20;
-x_14 = x_30;
+x_13 = x_30;
+x_14 = x_20;
 x_15 = x_38;
 goto block_19;
 }
@@ -2971,25 +2971,25 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Init_Data_Nat_Fold(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Tactic_BVDecide_LRAT_Actions(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_HashMap(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Range_Polymorphic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Nat_Fold(uint8_t builtin);
+lean_object* initialize_Std_Tactic_BVDecide_LRAT_Actions(uint8_t builtin);
+lean_object* initialize_Std_Data_HashMap(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_BVDecide_LRAT_Trim(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_BVDecide_LRAT_Trim(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Nat_Fold(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Nat_Fold(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Tactic_BVDecide_LRAT_Actions(builtin, lean_io_mk_world());
+res = initialize_Std_Tactic_BVDecide_LRAT_Actions(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_HashMap(builtin, lean_io_mk_world());
+res = initialize_Std_Data_HashMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Range_Polymorphic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findInitialId___closed__0 = _init_l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findInitialId___closed__0();

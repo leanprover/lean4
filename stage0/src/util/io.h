@@ -51,9 +51,4 @@ template<typename T> T get_io_scalar_result(object * o) {
     }
 }
 
-template<typename T> T get_baseio_scalar_result(object * o) {
-    T r = unbox(lean_baseio_out_val(o));
-    dec(o);
-    return r;
-}
 }

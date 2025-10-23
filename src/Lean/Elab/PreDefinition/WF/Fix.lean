@@ -221,8 +221,10 @@ def solveDecreasingGoals (funNames : Array Name) (argsPacker : ArgsPacker) (decr
           let type ← goal.getType
           let some ref := getRecAppSyntax? (← goal.getType)
             | throwError "MVar not annotated as a recursive call:{indentExpr type}"
+          goal.setType type.mdataExpr!
           withRef ref <| applyDefaultDecrTactic goal
       | some decrTactic => withRef decrTactic.ref do
+        goals.forM fun goal => do goal.setType (← goal.getType).mdataExpr!
         unless goals.isEmpty do -- unlikely to be empty
           -- make info from `runTactic` available
           goals.forM fun goal => pushInfoTree (.hole goal)

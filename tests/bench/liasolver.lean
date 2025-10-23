@@ -7,7 +7,6 @@ import Lean.Data.AssocList
 import Std.Data.HashMap
 import Std.Data.Iterators.Producers.Range
 import Std.Data.Iterators.Combinators.StepSize
-def main : IO Unit := pure () #exit -- TODO: remove after stage0 update
 
 open Lean
 

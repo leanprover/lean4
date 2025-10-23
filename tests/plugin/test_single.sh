@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-exit 0 # TODO: remove after stage0 update
 source ../common.sh
 
 # LEAN_EXPORTING needs to be defined for .c files included in shared libraries

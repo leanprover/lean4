@@ -8,11 +8,13 @@ module
 prelude
 public import Init.Data.String.Basic
 import Init.Data.ByteArray.Lemmas
+import Init.Data.Char.Lemmas
 
 /-!
 # Modification operations on strings
 
-This file
+This file contains operations on strings which modify the string, like `set` or `map`.
+There will usually not be a `String.Slice` version of these operations.
 -/
 
 public section

@@ -202,7 +202,9 @@ builtin_initialize premiseSelectorExt : EnvExtension (Option Selector) ←
 def select (m : MVarId) (c : Config := {}) : MetaM (Array Suggestion) := do
   let some selector := premiseSelectorExt.getState (← getEnv) |
     throwError "No premise selector registered. \
-      (Note the Lean does not provide a default premise selector, these must be installed by a downstream library.)"
+      (Note that Lean does not provide a default premise selector, \
+      these must be provided by a downstream library, \
+      and configured using `set_premise_selector`.)"
   selector m c
 
 /-!
@@ -223,6 +225,8 @@ open Lean Elab Command in
 @[builtin_command_elab setPremiseSelectorCmd, inherit_doc setPremiseSelectorCmd]
 def elabSetPremiseSelector : CommandElab
   | `(command| set_premise_selector $selector) => do
+    if `Lean.PremiseSelection.Basic ∉ (← getEnv).header.moduleNames then
+      logWarning "Add `import Lean.PremiseSelection.Basic` before using the `set_premise_selector` command."
     let selector ← liftTermElabM do
       try
         let selectorTerm ← Term.elabTermEnsuringType selector (some (Expr.const ``Selector []))

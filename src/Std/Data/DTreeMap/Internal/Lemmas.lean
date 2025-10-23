@@ -3376,7 +3376,7 @@ theorem union_insert_right_equiv_insert_union [TransOrd α]  {p : (a : α) × β
       . apply List.Perm.symm
         . apply toListModel_union_list (by wf_trivial) (by wf_trivial)
 
-theorem union!_insert_right_equiv_insert_union [TransOrd α]  {p : (a : α) × β a}
+theorem union!_insert_right_equiv_insert_union! [TransOrd α]  {p : (a : α) × β a}
     (h₁ : m₁.WF) (h₂ : m₂.WF) :
     Equiv (m₁.union! (m₂.insert! p.fst p.snd)) ((m₁.union! m₂).insert! p.fst p.snd) := by
   rw [← union_eq_union!, ← union_eq_union!]
@@ -3574,6 +3574,13 @@ theorem get!_union_of_contains_eq_false_left [TransOrd α] [LawfulEqOrd α] (h�
   intro contains_eq_false
   apply List.getValueCastD_insertList_of_contains_eq_false_left
   all_goals wf_trivial
+
+theorem get!_union!_of_contains_eq_false_left [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    {k : α} [Inhabited (β k)] (contains_eq_false : m₁.contains k = false) :
+    (m₁.union! m₂).get! k = m₂.get! k := by
+  rw [← union_eq_union!]
+  apply get!_union_of_contains_eq_false_left h₁ h₂ contains_eq_false
+  all_goals assumption
 
 theorem get!_union_of_contains_eq_false_right [TransOrd α] [LawfulEqOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF)
     {k : α} [Inhabited (β k)] (contains_eq_false : m₂.contains k = false)  :

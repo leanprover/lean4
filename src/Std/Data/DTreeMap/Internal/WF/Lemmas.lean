@@ -1731,6 +1731,17 @@ theorem WF.insertMany! {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ ((a : α) ×
     {t : Impl α β} (h : t.WF) : (t.insertMany! l).1.WF :=
   (t.insertMany! l).2 h (fun _ _ _ h' => h'.insert!)
 
+theorem WF.insertManyIfNew! {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ ((a : α) × β a)] {l : ρ}
+    {t : Impl α β} (h : t.WF) : (t.insertManyIfNew! l).1.WF :=
+  (t.insertManyIfNew! l).2 h (fun _ _ _ h' => h'.insertIfNew!)
+
+theorem WF.union! {_ : Ord α} [TransOrd α]
+    {t₁ : Impl α β} (h₁ : t₁.WF) {t₂ : Impl α β} (h₂ : t₂.WF) : (t₁.union! t₂).WF := by
+  simp [Impl.union!]
+  split
+  . exact WF.insertManyIfNew! h₂
+  . exact WF.insertMany! h₁
+
 theorem WF.constInsertMany! {β : Type v} {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ (α × β)] {l : ρ}
     {t : Impl α β} (h : t.WF) : (Const.insertMany! t l).1.WF :=
   (Const.insertMany! t l).2 h (fun _ _ _ h' => h'.insert!)

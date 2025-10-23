@@ -764,6 +764,8 @@ This function always merges the smaller map into the larger map.
 def union (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.union! t₂.inner⟩
 
+instance : Union (Raw α β cmp) := ⟨union⟩
+
 @[inline, inherit_doc DTreeMap.eraseMany]
 def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.eraseMany! l⟩

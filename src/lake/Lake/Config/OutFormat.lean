@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Setup
+public import Init.Data.String.TakeDrop
 
 open Lean
 

@@ -16,7 +16,7 @@ extern "C" {
 static uint8_t l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWs___closed__3;
 uint8_t lean_uint8_sub(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_ByteArray_takeUntilUpTo___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_skipWhile_findEnd(lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint32_to_uint8(uint32_t);
 uint8_t lean_byte_array_fget(lean_object*, lean_object*);
@@ -390,7 +390,7 @@ x_12 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_12, 0, x_11);
 x_13 = l_Std_Internal_Parsec_ByteArray_Parser_run___redArg___closed__1;
 x_14 = lean_unsigned_to_nat(0u);
-x_15 = lean_format_pretty(x_12, x_13, x_14, x_14);
+x_15 = l_Std_Format_pretty(x_12, x_13, x_14, x_14);
 x_16 = lean_string_append(x_10, x_15);
 lean_dec_ref(x_15);
 x_17 = l_Std_Internal_Parsec_ByteArray_Parser_run___redArg___closed__2;

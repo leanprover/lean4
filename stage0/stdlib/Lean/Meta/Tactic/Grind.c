@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind
-// Imports: public import Lean.Meta.Tactic.Grind.Attr public import Lean.Meta.Tactic.Grind.RevertAll public import Lean.Meta.Tactic.Grind.Types public import Lean.Meta.Tactic.Grind.Util public import Lean.Meta.Tactic.Grind.Cases public import Lean.Meta.Tactic.Grind.Injection public import Lean.Meta.Tactic.Grind.Core public import Lean.Meta.Tactic.Grind.Canon public import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons public import Lean.Meta.Tactic.Grind.Inv public import Lean.Meta.Tactic.Grind.Proof public import Lean.Meta.Tactic.Grind.Propagate public import Lean.Meta.Tactic.Grind.PP public import Lean.Meta.Tactic.Grind.Simp public import Lean.Meta.Tactic.Grind.Ctor public import Lean.Meta.Tactic.Grind.Parser public import Lean.Meta.Tactic.Grind.EMatchTheorem public import Lean.Meta.Tactic.Grind.EMatch public import Lean.Meta.Tactic.Grind.Main public import Lean.Meta.Tactic.Grind.CasesMatch public import Lean.Meta.Tactic.Grind.Arith public import Lean.Meta.Tactic.Grind.Ext public import Lean.Meta.Tactic.Grind.MatchCond public import Lean.Meta.Tactic.Grind.MatchDiscrOnly public import Lean.Meta.Tactic.Grind.Diseq public import Lean.Meta.Tactic.Grind.MBTC public import Lean.Meta.Tactic.Grind.Lookahead public import Lean.Meta.Tactic.Grind.LawfulEqCmp public import Lean.Meta.Tactic.Grind.ReflCmp public import Lean.Meta.Tactic.Grind.SynthInstance public import Lean.Meta.Tactic.Grind.AC public import Lean.Meta.Tactic.Grind.VarRename public import Lean.Meta.Tactic.Grind.ProofUtil public import Lean.Meta.Tactic.Grind.PropagateInj public import Lean.Meta.Tactic.Grind.Order public import Lean.Meta.Tactic.Grind.Anchor public import Lean.Meta.Tactic.Grind.Action public import Lean.Meta.Tactic.Grind.EMatchAction
+// Imports: public import Lean.Meta.Tactic.Grind.Attr public import Lean.Meta.Tactic.Grind.RevertAll public import Lean.Meta.Tactic.Grind.Types public import Lean.Meta.Tactic.Grind.Util public import Lean.Meta.Tactic.Grind.Cases public import Lean.Meta.Tactic.Grind.Injection public import Lean.Meta.Tactic.Grind.Core public import Lean.Meta.Tactic.Grind.Canon public import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons public import Lean.Meta.Tactic.Grind.Inv public import Lean.Meta.Tactic.Grind.Proof public import Lean.Meta.Tactic.Grind.Propagate public import Lean.Meta.Tactic.Grind.PP public import Lean.Meta.Tactic.Grind.Simp public import Lean.Meta.Tactic.Grind.Ctor public import Lean.Meta.Tactic.Grind.Parser public import Lean.Meta.Tactic.Grind.EMatchTheorem public import Lean.Meta.Tactic.Grind.EMatch public import Lean.Meta.Tactic.Grind.Main public import Lean.Meta.Tactic.Grind.CasesMatch public import Lean.Meta.Tactic.Grind.Arith public import Lean.Meta.Tactic.Grind.Ext public import Lean.Meta.Tactic.Grind.MatchCond public import Lean.Meta.Tactic.Grind.MatchDiscrOnly public import Lean.Meta.Tactic.Grind.Diseq public import Lean.Meta.Tactic.Grind.MBTC public import Lean.Meta.Tactic.Grind.Lookahead public import Lean.Meta.Tactic.Grind.LawfulEqCmp public import Lean.Meta.Tactic.Grind.ReflCmp public import Lean.Meta.Tactic.Grind.SynthInstance public import Lean.Meta.Tactic.Grind.AC public import Lean.Meta.Tactic.Grind.VarRename public import Lean.Meta.Tactic.Grind.ProofUtil public import Lean.Meta.Tactic.Grind.PropagateInj public import Lean.Meta.Tactic.Grind.Order public import Lean.Meta.Tactic.Grind.Anchor public import Lean.Meta.Tactic.Grind.Action public import Lean.Meta.Tactic.Grind.EMatchTheoremParam public import Lean.Meta.Tactic.Grind.EMatchAction
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3740,6 +3740,7 @@ lean_object* initialize_Lean_Meta_Tactic_Grind_PropagateInj(uint8_t builtin, lea
 lean_object* initialize_Lean_Meta_Tactic_Grind_Order(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Anchor(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Action(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_EMatchTheoremParam(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_EMatchAction(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind(uint8_t builtin, lean_object* w) {
@@ -3855,6 +3856,9 @@ res = initialize_Lean_Meta_Tactic_Grind_Anchor(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Action(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Grind_EMatchTheoremParam(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_EMatchAction(builtin, lean_io_mk_world());

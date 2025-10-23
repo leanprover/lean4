@@ -22,7 +22,10 @@ open Lean
 
 namespace Lean.PremiseSelection.MePo
 
+builtin_initialize registerTraceClass `mepo
+
 def symbolFrequency (env : Environment) : NameMap Nat := Id.run do
+  -- TODO: ideally this would use a precomputed frequency map, as this is too slow.
   let mut map := {}
   for (_, ci) in env.constants do
     for n' in ci.type.getUsedConstantsAsSet do
@@ -32,9 +35,9 @@ def symbolFrequency (env : Environment) : NameMap Nat := Id.run do
 def weightedScore (weight : Name → Float) (relevant candidate : NameSet) : Float :=
   let S := candidate
   let R := relevant ∩ S
-  let R' := S \ R
+  let R' := (S \ R).size.toFloat
   let M := R.foldl (fun acc n => acc + weight n) 0
-  M / (M + R'.size.toFloat)
+  M / (M + R')
 
 -- This function is taken from the MePo paper and needs to be tuned.
 def weightFunction (n : Nat) := 1.0 + 2.0 / (n.log2.toFloat + 1.0)
@@ -44,23 +47,29 @@ def frequencyScore (frequency : Name → Nat) (relevant candidate : NameSet) : F
 
 def unweightedScore (relevant candidate : NameSet) : Float := weightedScore (fun _ => 1) relevant candidate
 
-def mepo (initialRelevant : NameSet) (score : NameSet → NameSet → Float) (accept : ConstantInfo → CoreM Bool) (p : Float) (c : Float) : CoreM (Array (Name × Float)) := do
+def mepo (initialRelevant : NameSet) (score : NameSet → NameSet → Float) (accept : ConstantInfo → CoreM Bool)
+    (maxSuggestions : Nat) (p : Float) (c : Float) : CoreM (Array Suggestion) := do
   let env ← getEnv
   let mut p := p
   let mut candidates := #[]
   let mut relevant := initialRelevant
-  let mut accepted : Array (Name × Float) := {}
+  let mut accepted : Array Suggestion := {}
   for (n, ci) in env.constants do
     if ← accept ci then
       candidates := candidates.push (n, ci.type.getUsedConstantsAsSet)
-  while candidates.size > 0 do
-    let (newAccepted, candidates') := candidates.map (fun (n, c) => (n, c, score relevant c)) |>.partition fun (_, _, s) => p ≤ s
+  while candidates.size > 0 && accepted.size < maxSuggestions do
+    trace[mepo] m!"Considering candidates with threshold {p}."
+    trace[mepo] m!"Current relevant set: {relevant.toList}."
+    let (newAccepted, candidates') := candidates.map
+      (fun (n, c) => (n, c, score relevant c))
+      |>.partition fun (_, _, s) => p ≤ s
     if newAccepted.isEmpty then return accepted
-    accepted := newAccepted.foldl (fun acc (n, _, s) => acc.push (n, s)) accepted
+    trace[mepo] m!"Accepted {newAccepted.map fun (n, _, s) => (n, s)}."
+    accepted := newAccepted.foldl (fun acc (n, _, s) => acc.push { name := n, score := s }) accepted
     candidates := candidates'.map fun (n, c, _) => (n, c)
     relevant := newAccepted.foldl (fun acc (_, ns, _) => acc ++ ns) relevant
     p := p + (1 - p) / c
-  return accepted
+  return accepted.qsort (fun a b => a.score > b.score)
 
 open Lean Meta MVarId in
 def _root_.Lean.MVarId.getConstants (g : MVarId) : MetaM NameSet := withContext g do
@@ -74,7 +83,6 @@ end MePo
 open MePo
 
 -- The values of p := 0.6 and c := 2.4 are taken from the MePo paper, and need to be tuned.
--- When retrieving ≤32 premises for use by downstream automation, Thomas Zhu suggests that c := 0.5 is optimal.
 public def mepoSelector (useRarity : Bool) (p : Float := 0.6) (c : Float := 2.4) : Selector := fun g config => do
   let constants ← g.getConstants
   let env ← getEnv
@@ -84,10 +92,7 @@ public def mepoSelector (useRarity : Bool) (p : Float := 0.6) (c : Float := 2.4)
   else
     unweightedScore
   let accept := fun ci => return !isDeniedPremise env ci.name
-  let suggestions ← mepo constants score accept p c
+  let suggestions ← mepo constants score accept config.maxSuggestions p c
   let suggestions := suggestions
-    |>.map (fun (n, s) => { name := n, score := s })
     |>.reverse  -- we favor constants that appear at the end of `env.constants`
-  match config.maxSuggestions? with
-  | none => return suggestions
-  | some k => return suggestions.take k
+  return suggestions.take config.maxSuggestions

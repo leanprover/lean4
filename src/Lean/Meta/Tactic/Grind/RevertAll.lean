@@ -21,6 +21,9 @@ def getOriginalName? (name : Name) : Option Name := do
   | .str p s => if s == grindMark then some p else none
   | _ => none
 
+def markGrindName (userName : Name) : Name :=
+  Name.str userName grindMark
+
 /--
 Helper tactic for marking accessible names in the local context.
 This is a trick used during `grind` preprocessing when `clean := false`.
@@ -41,7 +44,7 @@ def _root_.Lean.MVarId.markAccessible (mvarId : MVarId) : MetaM MVarId := mvarId
         continue
       if localDecl.userName.hasMacroScopes then
         continue
-      let markedName := Name.str localDecl.userName grindMark
+      let markedName := markGrindName localDecl.userName
       lctx := lctx.setUserName localDecl.fvarId markedName
   let mvarNew ← Meta.mkFreshExprMVarAt lctx mvarDecl.localInstances mvarDecl.type MetavarKind.syntheticOpaque mvarDecl.userName
   mvarId.assign mvarNew

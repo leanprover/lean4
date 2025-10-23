@@ -9,8 +9,23 @@ prelude
 import all Init.Data.ByteArray.Basic
 public import Init.Data.String.Basic
 import all Init.Data.String.Basic
+public import Init.Data.String.Iterator
+import all Init.Data.String.Iterator
+public import Init.Data.String.Substring
 
 public section
+
+namespace Substring
+
+/--
+Returns an iterator into the underlying string, at the substring's starting position. The ending
+position is discarded, so the iterator alone cannot be used to determine whether its current
+position is within the original substring.
+-/
+@[inline] def toIterator : Substring → String.Iterator
+  | ⟨s, b, _⟩ => ⟨s, b⟩
+
+end Substring
 
 namespace String
 

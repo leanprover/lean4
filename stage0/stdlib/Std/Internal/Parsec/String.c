@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT uint32_t l_Std_Internal_Parsec_String_instInputIteratorCharRaw___lam__5(lean_object*, lean_object*);
-lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Internal_Parsec_String_Parser_run___redArg___closed__2;
 lean_object* lean_uint32_to_nat(uint32_t);
 static lean_object* l_Std_Internal_Parsec_String_digit___closed__1;
@@ -313,7 +313,7 @@ x_12 = l_Nat_reprFast(x_10);
 x_13 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
 x_14 = l_Std_Internal_Parsec_String_Parser_run___redArg___closed__1;
-x_15 = lean_format_pretty(x_13, x_14, x_3, x_3);
+x_15 = l_Std_Format_pretty(x_13, x_14, x_3, x_3);
 x_16 = lean_string_append(x_11, x_15);
 lean_dec_ref(x_15);
 x_17 = l_Std_Internal_Parsec_String_Parser_run___redArg___closed__2;

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Util.CollectFVars
 public import Lean.Util.CollectLevelParams
@@ -38,3 +37,4 @@ public import Lean.Util.NumApps
 public import Lean.Util.FVarSubset
 public import Lean.Util.SortExprs
 public import Lean.Util.Reprove
+public import Lean.Util.ParamMinimizer

@@ -10,6 +10,7 @@ public import Init.System.FilePath
 public import Std.Data.TreeMap.Basic
 public import Lean.Data.Name
 import Lake.Util.Name
+import Init.Data.String.TakeDrop
 
 open System Lean
 

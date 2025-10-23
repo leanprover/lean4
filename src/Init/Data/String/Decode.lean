@@ -1464,7 +1464,8 @@ public theorem ByteArray.isUTF8FirstByte_getElem_zero_utf8EncodeChar_append {c :
 public theorem ByteArray.isUTF8FirstByte_of_isSome_utf8DecodeChar? {b : ByteArray} {i : Nat}
     (h : (utf8DecodeChar? b i).isSome) : (b[i]'(lt_size_of_isSome_utf8DecodeChar? h)).IsUTF8FirstByte := by
   rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract] at h
-  suffices ((b.extract i b.size)[0]'(lt_size_of_isSome_utf8DecodeChar? h)).IsUTF8FirstByte by
+  suffices ((b.extract i b.size)[0]'
+      (by simpa using lt_size_of_isSome_utf8DecodeChar? h)).IsUTF8FirstByte by
     simpa [ByteArray.getElem_extract, Nat.add_zero] using this
   obtain ⟨c, hc⟩ := Option.isSome_iff_exists.1 h
   conv => congr; congr; rw [eq_of_utf8DecodeChar?_eq_some hc]

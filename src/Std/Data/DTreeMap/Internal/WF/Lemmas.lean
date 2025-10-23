@@ -1633,12 +1633,17 @@ theorem insertMany_eq_insertMany! {_ : Ord α} {l : List ((a : α) × β a)}
     (t.insertMany l h).val = (t.insertMany! l).val := by
   simp only [insertMany_eq_foldl, insertMany!_eq_foldl]
 
+theorem insertMany_eq_insertMany!_tree {_ : Ord α}
+    {t₁ t₂: Impl α β} (h : t₁.Balanced) :
+    (t₁.insertMany t₂ h).val = (t₁.insertMany! t₂).val := by
+  simp only [insertMany_eq_foldl_tree, insertMany!_eq_foldl_tree]
+
 theorem insertManyIfNew_eq_insertManyIfNew! {_ : Ord α} {l : List ((a : α) × β a)}
     {t : Impl α β} (h : t.Balanced) :
     (t.insertMany l h).val = (t.insertMany! l).val := by
   simp only [insertMany_eq_foldl, insertMany!_eq_foldl]
 
-theorem insertMany_eq_insertMany!_tree {_ : Ord α}
+theorem insertManyIfNew_eq_insertManyIfNew!_tree {_ : Ord α}
     {t₁ t₂ : Impl α β} (h : t₁.Balanced) :
     (t₁.insertManyIfNew t₂ h).val = (t₁.insertManyIfNew! t₂).val := by
   simp only [insertManyIfNew_eq_foldl_tree, insertManyIfNew!_eq_foldl_tree]
@@ -1708,6 +1713,14 @@ theorem toListModel_union_list {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd
     . apply toListModel_insertManyIfNew_impl h₂
     . apply List.insertListIfNew_perm_insertList h₂.ordered.distinctKeys h₁.ordered.distinctKeys
   . apply toListModel_insertMany_impl h₁
+
+theorem union_eq_union! [Ord α]
+    {t₁ t₂ : Impl α β} (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (t₁.union t₂ h₁.balanced h₂.balanced) = t₁.union! t₂ := by
+  simp [union, union!]
+  split
+  . apply insertManyIfNew_eq_insertManyIfNew!_tree
+  . apply insertMany_eq_insertMany!_tree
 
 theorem toListModel_insertMany!_list {_ : Ord α} [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} {t : Impl α β} (h : t.WF) :

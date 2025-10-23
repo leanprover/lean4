@@ -531,7 +531,7 @@ where
             {indentD ex.toMessageData}"
         diagnose expectedType dec r
 
-  diagnose (expectedType b : Expr) (r : Expr) : MetaM MessageData :=
+  diagnose (expectedType b : Expr) (r : Expr) : MetaM MessageData := do
     if r.isConstOf ``false then
       return m!"\
         Tactic `{tacticName}` proved that the proposition\
@@ -540,7 +540,7 @@ where
     -- Re-reduce the instance and collect diagnostics, to get all unfolded Decidable instances
     let (reason, unfoldedInsts) ← withoutModifyingState <| withOptions (fun opt => diagnostics.set opt true) do
       modifyDiag (fun _ => {})
-      let reason ← withAtLeastTransparency .default <| blameDecideReductionFailure s
+      let reason ← withAtLeastTransparency .default <| blameDecideReductionFailure b
       let unfolded := (← get).diag.unfoldCounter.foldl (init := #[]) fun cs n _ => cs.push n
       let unfoldedInsts ← unfolded |>.qsort Name.lt |>.filterMapM fun n => do
         let e ← mkConstWithLevelParams n
@@ -573,6 +573,7 @@ where
           `{.ofConstName ``Classical.propDecidable}`."
       else
         MessageData.nil
+    let s := b.appArg!
     return m!"\
       Tactic `{tacticName}` failed for proposition\
       {indentExpr expectedType}\n\

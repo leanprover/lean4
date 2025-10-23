@@ -102,6 +102,7 @@ def evalCheck (tacticName : Name) (k : GoalM Bool)
     let progress ← k
     unless progress do
       throwError "`{tacticName}` failed"
+    processNewFacts
     unless (← Grind.getConfig).verbose do
       return ()
     if (← get).inconsistent then

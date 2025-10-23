@@ -66,7 +66,7 @@ def checkMatchCondParent (e : Expr) (parent : Expr) : GoalM Bool := do
 
 def checkParents (e : Expr) : GoalM Unit := do
   if (← isRoot e) then
-    for parent in (← getParents e) do
+    for parent in (← getParents e).elems do
       if isMatchCond parent then
         unless (← checkMatchCondParent e parent) do
           throwError "e: {e}, parent: {parent}"

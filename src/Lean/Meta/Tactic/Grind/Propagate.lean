@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind
-import Lean.Meta.Tactic.Grind.Proof
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Ext

@@ -57,19 +57,19 @@ def takeNamePart (ss : Substring) (pre : Name) : (Substring × Name) :=
       let startPos := ss.startPos
       let ss := ss.dropWhile (!isIdEndEscape ·)
       if isIdEndEscape ss.front then
-        let id := ss.str.extract startPos ss.startPos
+        let id := String.Pos.Raw.extract ss.str startPos ss.startPos
         (ss, Name.str pre id)
       else
         (ss, .anonymous)
     else if isIdFirst curr then
       let startPos := ss.startPos
       let ss := ss.drop 1 |>.dropWhile isIdRest
-      let id := ss.str.extract startPos ss.startPos
+      let id := String.Pos.Raw.extract ss.str startPos ss.startPos
       (ss, Name.str pre id)
     else if curr.isDigit then
       let startPos := ss.startPos
       let ss := ss.drop 1 |>.dropWhile Char.isDigit
-      let digits := ss.str.extract startPos ss.startPos
+      let digits := String.Pos.Raw.extract ss.str startPos ss.startPos
       let n := (Syntax.decodeNatLitVal? digits).get!
       (ss, Name.num pre n)
     else
@@ -89,9 +89,9 @@ partial def takeName (ss : Substring) : (Substring × Name) :=
 def Glob.ofString? (v : String) : Option Glob := do
   let (ss, n) := takeName v.toSubstring
   if n.isAnonymous then failure
-  if h : ss.str.atEnd ss.startPos then
+  if h : ss.startPos.atEnd ss.str then
     return .one n
-  else if ss.str.get' ss.startPos h == '.' then
+  else if ss.startPos.get' ss.str h == '.' then
     match (ss.drop 1).front with
     | '+' => return .submodules n
     | '*' => return .andSubmodules n

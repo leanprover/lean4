@@ -9,7 +9,6 @@ prelude
 public import Lean.Elab.Tactic.ElabTerm
 import Lean.Elab.Tactic.Induction
 import Lean.Elab.Tactic.Generalize
-import Lean.Meta.Tactic.Induction
 import Lean.Meta.Tactic.Replace
 
 namespace Lean.Elab.Tactic.RCases

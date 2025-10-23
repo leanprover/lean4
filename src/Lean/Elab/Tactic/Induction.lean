@@ -6,22 +6,22 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Meta.Basic
 public import Lean.Meta.Tactic.ElimInfo
 public import Lean.Elab.Tactic.ElabTerm
-import Lean.Util.CollectFVars
-import Lean.AuxRecursor
-import Lean.Parser.Term
-import Lean.Meta.RecursorInfo
-import Lean.Meta.CollectMVars
-import Lean.Meta.Tactic.FunIndInfo
-import Lean.Meta.Tactic.Induction
-import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.FunIndCollect
-import Lean.Meta.GeneralizeVars
 import Lean.Elab.App
-import Lean.Elab.Match
 import Lean.Elab.Tactic.Generalize
+
+public section
+
+register_builtin_option tactic.customEliminators : Bool := {
+  defValue := true
+  group    := "tactic"
+  descr    := "enable using custom eliminators in the 'induction' and 'cases' tactics \
+    defined using the '@[induction_eliminator]' and '@[cases_eliminator]' attributes"
+}
+
+end
 
 namespace Lean.Elab.Tactic
 open Meta
@@ -397,6 +397,7 @@ where
 
     -- `checkAltNames` may have looked at arbitrary alternatives, so we need to disable incremental
     -- processing of alternatives if it had any effect lest we end up with stale messages
+    let tacSnaps := if (← MonadLog.hasErrors) then #[] else tacSnaps
     Term.withoutTacticIncrementality (cond := (← MonadLog.hasErrors)) do
 
     let mut alts := alts
@@ -776,13 +777,6 @@ def elabTermForElim (stx : Syntax) : TermElabM Expr := do
     else
       return e
 
-register_builtin_option tactic.customEliminators : Bool := {
-  defValue := true
-  group    := "tactic"
-  descr    := "enable using custom eliminators in the 'induction' and 'cases' tactics \
-    defined using the '@[induction_eliminator]' and '@[cases_eliminator]' attributes"
-}
-
 -- `optElimId` is of the form `("using" term)?`
 def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (induction : Bool) : TacticM ElimInfo := do
   let getBaseName? (elimName : Name) : MetaM (Option Name) := do
@@ -863,7 +857,9 @@ Returns
 
 Modifies the current goal when generalizing.
 -/
-def elabElimTargets (targets : Array Syntax) : TacticM (Array Expr × Array (Ident × FVarId)) :=
+-- This is public for now as it is used in Mathlib's `induction'` and `cases'` tactics,
+-- which are no longer used in Mathlib, but are still prevalent in downstream projects.
+public def elabElimTargets (targets : Array Syntax) : TacticM (Array Expr × Array (Ident × FVarId)) :=
   withMainContext do
     let infos : Array ElimTargetInfo ← targets.mapM fun target => do
       let view ← mkTargetView target
@@ -917,7 +913,9 @@ def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
           result := result.push expr
       return (result, [mvarId])
 
-def checkInductionTargets (targets : Array Expr) : MetaM Unit := do
+-- This is public for now as it is used in Mathlib's `induction'` tactic,
+-- which is no longer used in Mathlib, but still prevalent in downstream projects.
+public def checkInductionTargets (targets : Array Expr) : MetaM Unit := do
   let mut foundFVars : FVarIdSet := {}
   for target in targets do
     unless target.isFVar do

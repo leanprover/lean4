@@ -6,10 +6,6 @@ Authors: Cameron Zwarich
 module
 
 prelude
-public import Lean.Compiler.LCNF.Basic
-public import Lean.Compiler.LCNF.InferType
-public import Lean.Compiler.LCNF.MonoTypes
-public import Lean.Compiler.LCNF.PassManager
 public import Lean.Compiler.LCNF.PrettyPrinter
 
 public section

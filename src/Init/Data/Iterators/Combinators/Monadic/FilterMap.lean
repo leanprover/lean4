@@ -6,8 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Basic
-public import Init.Data.Iterators.Consumers.Collect
 public import Init.Data.Iterators.Consumers.Loop
 public import Init.Data.Iterators.PostconditionMonad
 public import Init.Data.Iterators.Internal.Termination
@@ -96,7 +94,7 @@ it.filterMapWithPostcondition     ---a'-----c'-------⊥
 **Termination properties:**
 
 * `Finite` instance: only if `it` is finite
-* `Productive` instance: only if `it` is finite`
+* `Productive` instance: only if `it` is finite
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For example, if `f` never returns `none`, then
@@ -149,13 +147,13 @@ instance FilterMap.instIterator {α β γ : Type w} {m : Type w → Type w'} {n 
   step it :=
     letI : MonadLift m n := ⟨lift (α := _)⟩
     do
-      match ← it.internalState.inner.step with
+      match (← it.internalState.inner.step).inflate with
       | .yield it' out h => do
         match ← (f out).operation with
-        | ⟨none, h'⟩ => pure <| .skip (it'.filterMapWithPostcondition f) (by exact .yieldNone h h')
-        | ⟨some out', h'⟩ => pure <| .yield (it'.filterMapWithPostcondition f) out' (by exact .yieldSome h h')
-      | .skip it' h => pure <| .skip (it'.filterMapWithPostcondition f) (by exact .skip h)
-      | .done h => pure <| .done (.done h)
+        | ⟨none, h'⟩ => pure <| .deflate <| .skip (it'.filterMapWithPostcondition f) (by exact .yieldNone h h')
+        | ⟨some out', h'⟩ => pure <| .deflate <| .yield (it'.filterMapWithPostcondition f) out' (by exact .yieldSome h h')
+      | .skip it' h => pure <| .deflate <| .skip (it'.filterMapWithPostcondition f) (by exact .skip h)
+      | .done h => pure <| .deflate <| .done (.done h)
 
 instance {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} [Monad n] [Iterator α m β]
     {lift : ⦃α : Type w⦄ → m α → n α}

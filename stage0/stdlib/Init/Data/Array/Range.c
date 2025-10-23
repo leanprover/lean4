@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Range
-// Imports: public import Init.Data.Array.Lemmas public import Init.Data.Array.Basic import all Init.Data.Array.Basic public import Init.Data.Array.OfFn import all Init.Data.Array.OfFn public import Init.Data.Array.MapIdx public import Init.Data.Array.Zip public import Init.Data.List.Nat.Range
+// Imports: import all Init.Data.Array.Basic import all Init.Data.Array.OfFn public import Init.Data.Array.MapIdx public import Init.Data.Array.Zip
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -437,41 +437,25 @@ x_1 = l___auto___closed__30____x40_Init_Data_Array_Range_4110789332____hygCtx___
 return x_1;
 }
 }
-lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_OfFn(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_OfFn(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_MapIdx(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Zip(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Nat_Range(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_OfFn(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_MapIdx(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Zip(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Array_Range(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Array_Range(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Array_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_OfFn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_MapIdx(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_OfFn(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Array_OfFn(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Array_MapIdx(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Array_Zip(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_List_Nat_Range(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_Zip(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___auto___closed__0____x40_Init_Data_Array_Range_4110789332____hygCtx___hyg_6_ = _init_l___auto___closed__0____x40_Init_Data_Array_Range_4110789332____hygCtx___hyg_6_();

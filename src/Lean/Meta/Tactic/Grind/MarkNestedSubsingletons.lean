@@ -7,10 +7,6 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind.Util
-import Lean.Util.PtrSet
-import Lean.Meta.Transform
-import Lean.Meta.Basic
-import Lean.Meta.InferType
 import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.Util
 public section

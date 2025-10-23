@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Util.Trace
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search
@@ -21,6 +20,7 @@ public import Lean.Meta.Tactic.Grind.Arith.Cutsat.MBTC
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.VarRename
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Action
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 builtin_initialize registerTraceClass `grind.cutsat
@@ -49,9 +49,9 @@ builtin_initialize
     (internalize := Cutsat.internalize)
     (newEq       := Cutsat.processNewEq)
     (newDiseq    := Cutsat.processNewDiseq)
+    (action      := Action.lia)
     (check       := Cutsat.check)
     (checkInv    := Cutsat.checkInvariants)
     (mbtc        := Cutsat.mbtc)
-    (mkTactic?   := return some (← `(grind| lia)))
 
 end Lean.Meta.Grind.Arith.Cutsat

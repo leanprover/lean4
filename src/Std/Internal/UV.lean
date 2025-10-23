@@ -6,8 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init.System.IO
-public import Init.System.Promise
 
 public import Std.Internal.UV.Loop
 public import Std.Internal.UV.Timer

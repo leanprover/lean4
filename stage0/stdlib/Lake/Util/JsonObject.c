@@ -205,7 +205,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lake_JsonObject_insertJson_spec__0___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(35u);
-x_3 = lean_unsigned_to_nat(273u);
+x_3 = lean_unsigned_to_nat(272u);
 x_4 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lake_JsonObject_insertJson_spec__0___redArg___closed__1;
 x_5 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lake_JsonObject_insertJson_spec__0___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -218,7 +218,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lake_JsonObject_insertJson_spec__0___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(21u);
-x_3 = lean_unsigned_to_nat(274u);
+x_3 = lean_unsigned_to_nat(273u);
 x_4 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lake_JsonObject_insertJson_spec__0___redArg___closed__1;
 x_5 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lake_JsonObject_insertJson_spec__0___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -247,7 +247,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lake_JsonObject_insertJson_spec__0___redArg___closed__6;
 x_2 = lean_unsigned_to_nat(35u);
-x_3 = lean_unsigned_to_nat(179u);
+x_3 = lean_unsigned_to_nat(178u);
 x_4 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lake_JsonObject_insertJson_spec__0___redArg___closed__5;
 x_5 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lake_JsonObject_insertJson_spec__0___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -260,7 +260,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lake_JsonObject_insertJson_spec__0___redArg___closed__6;
 x_2 = lean_unsigned_to_nat(21u);
-x_3 = lean_unsigned_to_nat(180u);
+x_3 = lean_unsigned_to_nat(179u);
 x_4 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lake_JsonObject_insertJson_spec__0___redArg___closed__5;
 x_5 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lake_JsonObject_insertJson_spec__0___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -4736,13 +4736,13 @@ lean_dec(x_3);
 return x_5;
 }
 }
-lean_object* initialize_Lean_Data_Json(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Json(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Util_JsonObject(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Util_JsonObject(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Data_Json(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_Json(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_JsonObject_instCoeJson = _init_l_Lake_JsonObject_instCoeJson();

@@ -6,12 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.SimpLemmas
-public import Init.PropLemmas
-public import Init.Classical
-public import Init.ByCases
 public import Init.Data.Int.Linear
-public import Init.Data.Int.Pow
 public import Init.Grind.Ring.Field
 
 public section

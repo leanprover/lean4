@@ -6,9 +6,6 @@ Authors: Gabriel Ebner, Mario Carneiro, Thomas Murrills
 module
 
 prelude
-public import Lean.CoreM
-public import Lean.Message
-public import Lean.Elab.InfoTree.Types
 public import Lean.Data.Lsp.Basic
 public import Lean.PrettyPrinter
 
@@ -184,10 +181,10 @@ structure TryThisInfo : Type where
 
 /-! # Formatting -/
 
-/-- Yields `(indent, column)` given a `FileMap` and a `String.Range`, where `indent` is the number
+/-- Yields `(indent, column)` given a `FileMap` and a `Lean.Syntax.Range`, where `indent` is the number
 of spaces by which the line that first includes `range` is initially indented, and `column` is the
 column `range` starts at in that line. -/
-def getIndentAndColumn (map : FileMap) (range : String.Range) : Nat × Nat :=
+def getIndentAndColumn (map : FileMap) (range : Lean.Syntax.Range) : Nat × Nat :=
   let start := map.source.findLineStart range.start
   let body := map.source.findAux (· ≠ ' ') range.start start
   (start.byteDistance body, start.byteDistance range.start)
@@ -232,7 +229,7 @@ def Suggestion.pretty (s : Suggestion) (w : Option Nat := none) (indent column :
     CoreM String := do
   s.suggestion.prettyExtra w indent column
 
-def Suggestion.processEdit (s : Suggestion) (range : String.Range) : CoreM Lsp.TextEdit := do
+def Suggestion.processEdit (s : Suggestion) (range : Lean.Syntax.Range) : CoreM Lsp.TextEdit := do
   let map ← getFileMap
   -- FIXME: this produces incorrect results when `by` is at the beginning of the line, i.e.
   -- replacing `tac` in `by tac`, because the next line will only be 2 space indented

@@ -6,7 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Init.Data.SInt.Basic
 public import Std.Tactic.BVDecide.Normalize.BitVec
 public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
 

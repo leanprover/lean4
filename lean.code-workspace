@@ -15,7 +15,8 @@
 	],
 	"settings": {
 		// Open terminal at root, not current workspace folder
-		"terminal.integrated.cwd": "${workspaceFolder:.}",
+		// (there is not way to directly refer to the root folder included as `.` above)
+		"terminal.integrated.cwd": "${workspaceFolder:src}/..",
 		"files.insertFinalNewline": true,
 		"files.trimTrailingWhitespace": true,
 		"cmake.buildDirectory": "${workspaceFolder}/build/release",

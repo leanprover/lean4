@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Sort.Impl
-// Imports: public import Init.Data.List.Sort.Basic import all Init.Data.List.Sort.Basic public import Init.Data.List.Sort.Lemmas
+// Imports: import all Init.Data.List.Sort.Basic public import Init.Data.List.Sort.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1708,21 +1708,17 @@ x_8 = l___private_Init_Data_List_Sort_Impl_0__List_mergeSort_match__1_splitter__
 return x_8;
 }
 }
-lean_object* initialize_Init_Data_List_Sort_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Sort_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Sort_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Sort_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Sort_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_List_Sort_Impl(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_List_Sort_Impl(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_List_Sort_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Sort_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Sort_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_List_Sort_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Sort_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___auto___closed__0____x40_Init_Data_List_Sort_Impl_1090525452____hygCtx___hyg_6_ = _init_l___auto___closed__0____x40_Init_Data_List_Sort_Impl_1090525452____hygCtx___hyg_6_();

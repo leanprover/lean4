@@ -87,3 +87,15 @@ example (n : Nat) : n = n := by
   | one => simp
   | succ => simp
 --^ collectDiagnostics
+
+/-!
+"Missing alternative name" should not stick around.
+-/
+-- RESET
+example (n : Nat) : n = n := by
+  induction n with
+  | zero => simp
+  |  -- insert here
+  --^ sync
+  --^ insert: "succ => sorry"
+  --^ collectDiagnostics

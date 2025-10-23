@@ -68,6 +68,7 @@ lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__0_spec__1_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_removeSelfSet_spec__0(lean_object*, size_t, size_t, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2____boxed(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__13____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_searchAndExpand(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*);
@@ -81,7 +82,7 @@ uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 static lean_object* l_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___closed__0;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__0_spec__1_spec__1_spec__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___Lean_IR_ExpandResetReuse_isSelfSet_spec__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -132,7 +133,7 @@ static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_ini
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Std_DHashMap_Internal_Raw_u2080_insert___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__0_spec__1_spec__1_spec__1___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_();
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_releaseUnreadFields___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_IR_ExpandResetReuse_isSelfSSet(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__19____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_;
@@ -4261,32 +4262,40 @@ x_3 = l_Lean_Name_num___override(x_2, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_() {
 _start:
 {
 lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__3____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_;
 x_3 = 1;
 x_4 = l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__30____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_;
-x_5 = l_Lean_registerTraceClass(x_2, x_3, x_4, x_1);
+x_5 = l_Lean_registerTraceClass(x_2, x_3, x_4);
 return x_5;
 }
 }
-lean_object* initialize_Lean_Compiler_IR_CompilerM(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_IR_NormIds(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_IR_FreeVars(uint8_t builtin, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2____boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_();
+return x_2;
+}
+}
+lean_object* initialize_Lean_Compiler_IR_CompilerM(uint8_t builtin);
+lean_object* initialize_Lean_Compiler_IR_NormIds(uint8_t builtin);
+lean_object* initialize_Lean_Compiler_IR_FreeVars(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Compiler_IR_ExpandResetReuse(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Compiler_IR_ExpandResetReuse(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Compiler_IR_CompilerM(builtin, lean_io_mk_world());
+res = initialize_Lean_Compiler_IR_CompilerM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_IR_NormIds(builtin, lean_io_mk_world());
+res = initialize_Lean_Compiler_IR_NormIds(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_IR_FreeVars(builtin, lean_io_mk_world());
+res = initialize_Lean_Compiler_IR_FreeVars(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___closed__0 = _init_l_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___closed__0();
@@ -4369,7 +4378,7 @@ l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__29____
 lean_mark_persistent(l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__29____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_);
 l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__30____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_ = _init_l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__30____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_();
 lean_mark_persistent(l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__30____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_);
-if (builtin) {res = l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_(lean_io_mk_world());
+if (builtin) {res = l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn____x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }return lean_io_result_mk_ok(lean_box(0));

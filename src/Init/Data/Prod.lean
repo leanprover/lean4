@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.SimpLemmas
 public import Init.NotationExtra
 
 public section

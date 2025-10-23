@@ -6,10 +6,8 @@ Authors: Joe Hendrix, Harun Khan
 module
 
 prelude
-public import Init.Data.BitVec.Basic
 import all Init.Data.BitVec.Basic
 public import Init.Data.BitVec.Lemmas
-public import Init.Data.Nat.Lemmas
 public import Init.Data.Fin.Iterate
 
 public section

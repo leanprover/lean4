@@ -224,6 +224,21 @@ instance {m : Type v → Type w} : ForIn m (Raw α) α where
 @[inline] def toArray (m : Raw α) : Array α :=
   m.inner.keysArray
 
+/--
+Computes the union of the given hash sets.
+
+This function always merges the smaller set into the larger set, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α) : Raw α :=
+  ⟨HashMap.Raw.union m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : Union (Raw α) := ⟨union⟩
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
+
 /-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
 @[inline] def all (m : Raw α) (p : α → Bool) : Bool := m.inner.all (fun x _ => p x)
 
@@ -253,12 +268,6 @@ in the collection will be present in the returned hash set.
 -/
 @[inline] def ofArray [BEq α] [Hashable α] (l : Array α) : Raw α :=
   ⟨HashMap.Raw.unitOfArray l⟩
-
-/-- Computes the union of the given hash sets, by traversing `m₂` and inserting its elements into `m₁`. -/
-@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α) : Raw α :=
-  m₂.fold (init := m₁) fun acc x => acc.insert x
-
-instance [BEq α] [Hashable α] : Union (Raw α) := ⟨union⟩
 
 /--
 Returns the number of buckets in the internal representation of the hash set. This function may
@@ -313,6 +322,9 @@ theorem WF.insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] {m :
 theorem WF.ofList [BEq α] [Hashable α] {l : List α} :
     (ofList l : Raw α).WF :=
   ⟨HashMap.Raw.WF.unitOfList⟩
+
+theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁.union m₂).WF :=
+  ⟨HashMap.Raw.WF.union h₁.out h₂.out⟩
 
 end Raw
 

@@ -8,19 +8,13 @@ module
 prelude
 public import Init.Data.UInt.Basic
 import all Init.Data.UInt.Basic
-public import Init.Data.UInt.BasicAux
 import all Init.Data.UInt.BasicAux
-public import Init.Data.Fin.Lemmas
 public import Init.Data.Fin.Bitwise
 import all Init.Data.Fin.Bitwise
-public import Init.Data.BitVec.BasicAux
 import all Init.Data.BitVec.BasicAux
-public import Init.Data.BitVec.Basic
 import all Init.Data.BitVec.Basic
 public import Init.Data.BitVec.Lemmas
-public import Init.Data.Nat.Div.Lemmas
 public import Init.System.Platform
-public import Init.Data.Order.Factories
 import Init.Data.Order.Lemmas
 
 public section

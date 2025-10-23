@@ -8,8 +8,6 @@ module
 prelude
 public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.Consumers.Access
-public import Init.Data.Iterators.Consumers.Loop
-public import Init.Data.Iterators.Consumers.Collect
 public import Init.Data.Range.Polymorphic.PRange
 public import Init.Data.List.Sublist
 
@@ -89,7 +87,7 @@ theorem Iterator.step_eq_monadicStep [UpwardEnumerable α] [LE α] [DecidableLE 
 instance [UpwardEnumerable α] [LE α] [DecidableLE α] :
     Iterator (Rxc.Iterator α) Id α where
   IsPlausibleStep it step := step = Iterator.Monadic.step it
-  step it := pure ⟨Iterator.Monadic.step it, rfl⟩
+  step it := pure <| .deflate <| ⟨Iterator.Monadic.step it, rfl⟩
 
 theorem Iterator.Monadic.isPlausibleStep_iff [UpwardEnumerable α] [LE α] [DecidableLE α]
     {it : IterM (α := Rxc.Iterator α) Id α} {step} :
@@ -98,7 +96,7 @@ theorem Iterator.Monadic.isPlausibleStep_iff [UpwardEnumerable α] [LE α] [Deci
 
 theorem Iterator.Monadic.step_eq_step [UpwardEnumerable α] [LE α] [DecidableLE α]
     {it : IterM (α := Rxc.Iterator α) Id α} :
-    it.step = pure ⟨Iterator.Monadic.step it, isPlausibleStep_iff.mpr rfl⟩ := by
+    it.step = pure (.deflate ⟨Iterator.Monadic.step it, isPlausibleStep_iff.mpr rfl⟩) := by
   simp [IterM.step, Iterators.Iterator.step]
 
 theorem Iterator.isPlausibleStep_iff [UpwardEnumerable α] [LE α] [DecidableLE α]
@@ -562,7 +560,7 @@ theorem Iterator.instIteratorLoop.loop_eq [UpwardEnumerable α] [LE α] [Decidab
         rw [IterM.DefaultConsumers.forIn']
         simp only [Monadic.step_eq_step, Monadic.step, ↓reduceIte, *,
           Internal.LawfulMonadLiftBindFunction.liftBind_pure]
-        rw [loop_eq (lift := lift)]
+        rw [loop_eq (lift := lift), Shrink.inflate_deflate]
         apply bind_congr
         intro step
         split
@@ -666,7 +664,7 @@ theorem Iterator.step_eq_monadicStep [UpwardEnumerable α] [LT α] [DecidableLT 
 instance [UpwardEnumerable α] [LT α] [DecidableLT α] :
     Iterator (Rxo.Iterator α) Id α where
   IsPlausibleStep it step := step = Iterator.Monadic.step it
-  step it := pure ⟨Iterator.Monadic.step it, rfl⟩
+  step it := pure (.deflate ⟨Iterator.Monadic.step it, rfl⟩)
 
 theorem Iterator.Monadic.isPlausibleStep_iff [UpwardEnumerable α] [LT α] [DecidableLT α]
     {it : IterM (α := Rxo.Iterator α) Id α} {step} :
@@ -675,7 +673,7 @@ theorem Iterator.Monadic.isPlausibleStep_iff [UpwardEnumerable α] [LT α] [Deci
 
 theorem Iterator.Monadic.step_eq_step [UpwardEnumerable α] [LT α] [DecidableLT α]
     {it : IterM (α := Rxo.Iterator α) Id α} :
-    it.step = pure ⟨Iterator.Monadic.step it, isPlausibleStep_iff.mpr rfl⟩ := by
+    it.step = pure (.deflate ⟨Iterator.Monadic.step it, isPlausibleStep_iff.mpr rfl⟩) := by
   simp [IterM.step, Iterators.Iterator.step]
 
 theorem Iterator.isPlausibleStep_iff [UpwardEnumerable α] [LT α] [DecidableLT α]
@@ -1139,7 +1137,7 @@ theorem Iterator.instIteratorLoop.loop_eq [UpwardEnumerable α] [LT α] [Decidab
         rw [IterM.DefaultConsumers.forIn']
         simp only [Monadic.step_eq_step, Monadic.step, ↓reduceIte, *,
           Internal.LawfulMonadLiftBindFunction.liftBind_pure]
-        rw [loop_eq (lift := lift)]
+        rw [loop_eq (lift := lift), Shrink.inflate_deflate]
         apply bind_congr
         intro step
         split
@@ -1233,7 +1231,7 @@ theorem Iterator.step_eq_monadicStep [UpwardEnumerable α]
 instance [UpwardEnumerable α] :
     Iterator (Rxi.Iterator α) Id α where
   IsPlausibleStep it step := step = Iterator.Monadic.step it
-  step it := pure ⟨Iterator.Monadic.step it, rfl⟩
+  step it := pure (.deflate ⟨Iterator.Monadic.step it, rfl⟩)
 
 theorem Iterator.Monadic.isPlausibleStep_iff [UpwardEnumerable α]
     {it : IterM (α := Rxi.Iterator α) Id α} {step} :
@@ -1242,7 +1240,7 @@ theorem Iterator.Monadic.isPlausibleStep_iff [UpwardEnumerable α]
 
 theorem Iterator.Monadic.step_eq_step [UpwardEnumerable α]
     {it : IterM (α := Rxi.Iterator α) Id α} :
-    it.step = pure ⟨Iterator.Monadic.step it, isPlausibleStep_iff.mpr rfl⟩ := by
+    it.step = pure (.deflate ⟨Iterator.Monadic.step it, isPlausibleStep_iff.mpr rfl⟩) := by
   simp [IterM.step, Iterators.Iterator.step]
 
 theorem Iterator.isPlausibleStep_iff [UpwardEnumerable α]
@@ -1615,7 +1613,7 @@ theorem Iterator.instIteratorLoop.loop_eq [UpwardEnumerable α]
         rw [IterM.DefaultConsumers.forIn']
         simp only [Monadic.step_eq_step, Monadic.step, *,
           Internal.LawfulMonadLiftBindFunction.liftBind_pure]
-        rw [loop_eq (lift := lift)]
+        rw [loop_eq (lift := lift), Shrink.inflate_deflate]
         apply bind_congr
         intro step
         split
@@ -1644,7 +1642,7 @@ instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α]
     simp only [Internal.LawfulMonadLiftBindFunction.liftBind_pure]
     split
     · rename_i it f next upperBound f'
-      rw [instIteratorLoop.loop_eq (lift := lift)]
+      rw [instIteratorLoop.loop_eq (lift := lift), Shrink.inflate_deflate]
       apply bind_congr
       intro step
       split

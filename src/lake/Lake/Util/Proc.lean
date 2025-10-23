@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lake.Util.Log
+import Init.Data.String.TakeDrop
 
 namespace Lake
 

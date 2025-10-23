@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Version
-// Imports: public import Init.Prelude import Init.Data.ToString import Init.Meta import Init.Data.String.Basic
+// Imports: public import Init.Prelude import Init.Data.ToString import Init.Data.String.TakeDrop
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_version_specialDesc___closed__5;
 static lean_object* l_Lake_uiVersionString___closed__4;
 static lean_object* l_Lake_uiVersionString___closed__1;
@@ -43,6 +42,7 @@ extern lean_object* l_Lean_versionString;
 static lean_object* l_Lake_versionStringCore___closed__0;
 static lean_object* l_Lake_versionStringCore___closed__4;
 static lean_object* l_Lake_uiVersionString___closed__0;
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_versionStringCore___closed__3;
 static uint8_t l_Lake_version_specialDesc___closed__8;
 static lean_object* l_Lake_versionString___closed__0;
@@ -463,25 +463,21 @@ x_1 = l_Lake_uiVersionString___closed__7;
 return x_1;
 }
 }
-lean_object* initialize_Init_Prelude(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_ToString(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Meta(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Prelude(uint8_t builtin);
+lean_object* initialize_Init_Data_ToString(uint8_t builtin);
+lean_object* initialize_Init_Data_String_TakeDrop(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Version(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Version(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Prelude(builtin, lean_io_mk_world());
+res = initialize_Init_Prelude(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ToString(builtin, lean_io_mk_world());
+res = initialize_Init_Data_ToString(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Meta(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_String_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_version_major = _init_l_Lake_version_major();

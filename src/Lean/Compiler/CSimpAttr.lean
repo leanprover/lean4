@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.ScopedEnvExtension
 public import Lean.Util.Recognizers
-public import Lean.Util.ReplaceExpr
 
 public section
 

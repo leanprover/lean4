@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Widget.Basic
-// Imports: public import Lean.Elab.InfoTree public import Lean.Message public import Lean.Server.Rpc.Basic public import Lean.Server.InfoUtils public import Lean.Widget.Types
+// Imports: public import Lean.Elab.InfoTree public import Lean.Server.InfoUtils
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -188,29 +188,17 @@ x_1 = l_Lean_Widget_instImpl____x40_Lean_Widget_Basic_173954553____hygCtx___hyg_
 return x_1;
 }
 }
-lean_object* initialize_Lean_Elab_InfoTree(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Message(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Server_Rpc_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Server_InfoUtils(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Widget_Types(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_InfoTree(uint8_t builtin);
+lean_object* initialize_Lean_Server_InfoUtils(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Widget_Basic(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Widget_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_InfoTree(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_InfoTree(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Message(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Server_Rpc_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Server_InfoUtils(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Widget_Types(builtin, lean_io_mk_world());
+res = initialize_Lean_Server_InfoUtils(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Widget_instImpl___closed__0____x40_Lean_Widget_Basic_2038268869____hygCtx___hyg_3_ = _init_l_Lean_Widget_instImpl___closed__0____x40_Lean_Widget_Basic_2038268869____hygCtx___hyg_3_();

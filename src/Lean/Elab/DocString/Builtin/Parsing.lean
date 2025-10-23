@@ -7,14 +7,13 @@ module
 prelude
 import Lean.Elab.DocString
 public import Lean.Parser.Extension
-public import Lean.Parser.Types
 
 namespace Lean.Doc
 open Lean.Parser
 
 public section
 
-private def strLitRange [Monad m] [MonadFileMap m] (s : StrLit) : m String.Range := do
+private def strLitRange [Monad m] [MonadFileMap m] (s : StrLit) : m Lean.Syntax.Range := do
   let pos := (s.raw.getPos? (canonicalOnly := true)).get!
   let endPos := s.raw.getTailPos? true |>.get!
   return ⟨pos, endPos⟩
@@ -26,7 +25,7 @@ def parseStrLit (p : ParserFn) (s : StrLit) : m Syntax := do
   let text ← getFileMap
   let env ← getEnv
   let ⟨pos, endPos⟩ ← strLitRange s
-  let endPos := if endPos ≤ text.source.endPos then endPos else text.source.endPos
+  let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
   let ictx :=
     mkInputContext text.source (← getFileName)
       (endPos := endPos) (endPos_valid := by simp only [endPos]; split <;> simp [*])
@@ -47,12 +46,12 @@ def parseQuotedStrLit (p : ParserFn) (strLit : StrLit) : m Syntax := do
   let ⟨pos, _⟩ ← strLitRange strLit
   let pos ← do
     let mut pos := pos
-    if text.source.get pos == 'r' then
-      pos := text.source.next pos
-      while text.source.get pos == '#' do
-        pos := text.source.next pos
-    if text.source.get pos == '"' then
-      pure <| text.source.next pos
+    if pos.get text.source == 'r' then
+      pos := pos.next text.source
+      while pos.get text.source == '#' do
+        pos := pos.next text.source
+    if pos.get text.source == '"' then
+      pure <| pos.next text.source
     else
       throwErrorAt strLit "Not a quoted string literal"
   let str := strLit.getString
@@ -89,12 +88,12 @@ where
     | .none => .none
 
   nextn (str : String) (n : Nat) (p : String.Pos.Raw) : String.Pos.Raw :=
-    n.fold (init := p) fun _ _ _ => str.next p
+    n.fold (init := p) fun _ _ _ => p.next str
   posIndex (str : String) (p : String.Pos.Raw) : Nat := Id.run do
     let mut p := p
     let mut n := 0
     while p > 0 do
-      p := str.prev p
+      p := p.prev str
       n := n + 1
     return n
 
@@ -102,7 +101,7 @@ def parseStrLit' (p : ParserFn) (s : StrLit) : m (Syntax × Bool) := do
   let text ← getFileMap
   let env ← getEnv
   let endPos := s.raw.getTailPos? true |>.get!
-  let endPos := if endPos ≤ text.source.endPos then endPos else text.source.endPos
+  let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
   let ictx :=
     mkInputContext text.source (← getFileName)
       (endPos := endPos) (endPos_valid := by simp only [endPos]; split <;> simp [*])

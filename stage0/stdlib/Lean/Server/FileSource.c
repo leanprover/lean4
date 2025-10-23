@@ -87,10 +87,12 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_FileSource_ctorIdx(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceVersionedTextDocumentIdentifier___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceDidOpenTextDocumentParams___lam__0___boxed(lean_object*);
 static lean_object* l_Lean_Lsp_instInhabitedFileIdent_default___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceDocumentColorParams;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceCodeActionParams___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceSignatureHelpParams___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceWaitForDiagnosticsParams___lam__0(lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceDocumentColorParams___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_FileIdent_ctorElim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceRpcCallParams___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceDidCloseTextDocumentParams___lam__0(lean_object*);
@@ -109,6 +111,7 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceReferenceParams___lam__0(lean_
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceLocation;
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceSemanticTokensRangeParams;
+LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceDocumentColorParams___lam__0(lean_object*);
 static lean_object* l_Lean_Lsp_instInhabitedFileIdent_default___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceDidChangeTextDocumentParams___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_CompletionItem_getFileSource_x21_spec__1___boxed(lean_object*, lean_object*);
@@ -956,6 +959,34 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceDocumentColorParams___lam__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_ctor_get(x_1, 2);
+lean_inc_ref(x_2);
+x_3 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_3, 0, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Lsp_instFileSourceDocumentColorParams() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Lsp_instFileSourceDocumentColorParams___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceDocumentColorParams___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Lsp_instFileSourceDocumentColorParams___lam__0(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_panic___at___Lean_Lsp_CompletionItem_getFileSource_x21_spec__0(lean_object* x_1) {
 _start:
 {
@@ -1143,7 +1174,7 @@ block_9:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_3 = l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__0;
 x_4 = l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__1;
-x_5 = lean_unsigned_to_nat(151u);
+x_5 = lean_unsigned_to_nat(154u);
 x_6 = lean_unsigned_to_nat(22u);
 x_7 = l_mkPanicMessageWithDecl(x_3, x_4, x_5, x_6, x_2);
 lean_dec_ref(x_2);
@@ -1177,13 +1208,13 @@ x_1 = l_Lean_Lsp_instFileSourceCompletionItem___closed__0;
 return x_1;
 }
 }
-lean_object* initialize_Lean_Data_Lsp(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Lsp(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Server_FileSource(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Server_FileSource(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Data_Lsp(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_Lsp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Lsp_instInhabitedFileIdent_default___closed__0 = _init_l_Lean_Lsp_instInhabitedFileIdent_default___closed__0();
@@ -1264,6 +1295,8 @@ l_Lean_Lsp_instFileSourceInlayHintParams = _init_l_Lean_Lsp_instFileSourceInlayH
 lean_mark_persistent(l_Lean_Lsp_instFileSourceInlayHintParams);
 l_Lean_Lsp_instFileSourceSignatureHelpParams = _init_l_Lean_Lsp_instFileSourceSignatureHelpParams();
 lean_mark_persistent(l_Lean_Lsp_instFileSourceSignatureHelpParams);
+l_Lean_Lsp_instFileSourceDocumentColorParams = _init_l_Lean_Lsp_instFileSourceDocumentColorParams();
+lean_mark_persistent(l_Lean_Lsp_instFileSourceDocumentColorParams);
 l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__0 = _init_l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__0();
 lean_mark_persistent(l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__0);
 l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__1 = _init_l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__1();

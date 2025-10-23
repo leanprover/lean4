@@ -7,16 +7,10 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 module
 
 prelude
-public import Init.System.IO
-public import Std.Sync.Mutex
-public import Init.Data.ByteArray
 
 public import Lean.Data.FuzzyMatching
-public import Lean.Data.Lsp
-public import Lean.Server.Utils
 public import Lean.Server.Requests
 public import Lean.Server.References
-public import Lean.Server.ServerTask
 public import Lean.Server.Completion.CompletionUtils
 public import Init.Data.List.Sort
 

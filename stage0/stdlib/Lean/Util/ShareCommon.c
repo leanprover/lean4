@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.ShareCommon
-// Imports: public import Init.ShareCommon public import Std.Data.HashSet.Basic public import Std.Data.HashMap.Basic public import Lean.Data.PersistentHashMap public import Lean.Data.PersistentHashSet
+// Imports: public import Init.ShareCommon public import Std.Data.HashSet.Basic public import Lean.Data.PersistentHashSet
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2946,29 +2946,21 @@ x_3 = l_Lean_ShareCommon_shareCommon___redArg(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_ShareCommon(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_HashSet_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_HashMap_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_PersistentHashMap(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_PersistentHashSet(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_ShareCommon(uint8_t builtin);
+lean_object* initialize_Std_Data_HashSet_Basic(uint8_t builtin);
+lean_object* initialize_Lean_Data_PersistentHashSet(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Util_ShareCommon(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Util_ShareCommon(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_ShareCommon(builtin, lean_io_mk_world());
+res = initialize_Init_ShareCommon(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_HashSet_Basic(builtin, lean_io_mk_world());
+res = initialize_Std_Data_HashSet_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_HashMap_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_PersistentHashMap(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_PersistentHashSet(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_PersistentHashSet(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_ShareCommon_objectFactory = _init_l_Lean_ShareCommon_objectFactory();

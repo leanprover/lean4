@@ -8,7 +8,6 @@ module
 prelude
 public import Std.Tactic.BVDecide.LRAT.Parser
 public import Lean.CoreM
-public import Std.Internal.Parsec
 
 public section
 

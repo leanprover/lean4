@@ -78,8 +78,8 @@ static bool g_initializing = true;
 extern "C" LEAN_EXPORT void lean_io_mark_end_initialization() {
     g_initializing = false;
 }
-extern "C" LEAN_EXPORT obj_res lean_io_initializing(obj_arg) {
-    return io_result_mk_ok(box(g_initializing));
+extern "C" LEAN_EXPORT uint8_t lean_io_initializing() {
+    return g_initializing;
 }
 
 static obj_res mk_file_not_found_error(b_obj_arg fname) {
@@ -116,49 +116,49 @@ MK_THREAD_LOCAL_GET(object_ref, get_stream_current_stdout, g_stream_stdout);
 MK_THREAD_LOCAL_GET(object_ref, get_stream_current_stderr, g_stream_stderr);
 
 /* getStdin : BaseIO FS.Stream */
-extern "C" LEAN_EXPORT obj_res lean_get_stdin(obj_arg /* w */) {
-    return io_result_mk_ok(get_stream_current_stdin().to_obj_arg());
+extern "C" LEAN_EXPORT obj_res lean_get_stdin() {
+    return get_stream_current_stdin().to_obj_arg();
 }
 
 /* getStdout : BaseIO FS.Stream */
-extern "C" LEAN_EXPORT obj_res lean_get_stdout(obj_arg /* w */) {
-    return io_result_mk_ok(get_stream_current_stdout().to_obj_arg());
+extern "C" LEAN_EXPORT obj_res lean_get_stdout() {
+    return get_stream_current_stdout().to_obj_arg();
 }
 
 /* getStderr : BaseIO FS.Stream */
-extern "C" LEAN_EXPORT obj_res lean_get_stderr(obj_arg /* w */) {
-    return io_result_mk_ok(get_stream_current_stderr().to_obj_arg());
+extern "C" LEAN_EXPORT obj_res lean_get_stderr() {
+    return get_stream_current_stderr().to_obj_arg();
 }
 
 /* setStdin  : FS.Stream -> BaseIO FS.Stream */
-extern "C" LEAN_EXPORT obj_res lean_get_set_stdin(obj_arg h, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_get_set_stdin(obj_arg h) {
     object_ref & x = get_stream_current_stdin();
     object * r = x.steal();
     x = object_ref(h);
-    return io_result_mk_ok(r);
+    return r;
 }
 
 /* setStdout  : FS.Stream -> BaseIO FS.Stream */
-extern "C" LEAN_EXPORT obj_res lean_get_set_stdout(obj_arg h, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_get_set_stdout(obj_arg h) {
     object_ref & x = get_stream_current_stdout();
     object * r = x.steal();
     x = object_ref(h);
-    return io_result_mk_ok(r);
+    return r;
 }
 
 /* setStderr  : FS.Stream -> BaseIO FS.Stream */
-extern "C" LEAN_EXPORT obj_res lean_get_set_stderr(obj_arg h, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_get_set_stderr(obj_arg h) {
     object_ref & x = get_stream_current_stderr();
     object * r = x.steal();
     x = object_ref(h);
-    return io_result_mk_ok(r);
+    return r;
 }
 
 static FILE * io_get_handle(lean_object * hfile) {
     return static_cast<FILE *>(lean_get_external_data(hfile));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_decode_io_error(int errnum, b_obj_arg fname) {
+extern "C" LEAN_EXPORT obj_res lean_decode_io_error(int errnum, b_lean_obj_arg fname) {
     object * details = mk_string(strerror(errnum));
     // Keep in sync with lean_decode_uv_error below
     switch (errnum) {
@@ -255,7 +255,7 @@ extern "C" LEAN_EXPORT obj_res lean_decode_io_error(int errnum, b_obj_arg fname)
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_obj_arg fname) {
+extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_lean_obj_arg fname) {
     object * details = mk_string(uv_strerror(errnum));
     // Keep in sync with lean_decode_io_error above
     switch (errnum) {
@@ -369,7 +369,7 @@ obj_res mk_embedded_nul_error(b_obj_arg str) {
 }
 
 /* IO.setAccessRights (filename : @& String) (mode : UInt32) : IO Unit */
-extern "C" LEAN_EXPORT obj_res lean_chmod (b_obj_arg filename, uint32_t mode, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_chmod (b_obj_arg filename, uint32_t mode) {
     const char* fname = string_cstr(filename);
     if (strlen(fname) != lean_string_size(filename) - 1) {
         return mk_embedded_nul_error(filename);
@@ -382,7 +382,7 @@ extern "C" LEAN_EXPORT obj_res lean_chmod (b_obj_arg filename, uint32_t mode, ob
 }
 
 /* Handle.mk (filename : @& String) (mode : FS.Mode) : IO Handle */
-extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_mk(b_obj_arg filename, uint8 mode, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_mk(b_obj_arg filename, uint8 mode) {
     int flags = 0;
 #ifdef LEAN_WINDOWS
     // do not translate line endings
@@ -431,7 +431,7 @@ static inline HANDLE win_handle(FILE * fp) {
 }
 
 /* Handle.lock : (@& Handle) → (exclusive : Bool) → IO Unit */
-extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_lock(b_obj_arg h, uint8_t x, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_lock(b_obj_arg h, uint8_t x) {
     OVERLAPPED o = {0};
     HANDLE wh = win_handle(io_get_handle(h));
     DWORD flags = x ? LOCKFILE_EXCLUSIVE_LOCK : 0;
@@ -443,7 +443,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_lock(b_obj_arg h, uint8_t x, 
 }
 
 /* Handle.tryLock : (@& Handle) → (exclusive : Bool) → IO Bool */
-extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_try_lock(b_obj_arg h, uint8_t x, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_try_lock(b_obj_arg h, uint8_t x) {
     OVERLAPPED o = {0};
     HANDLE wh = win_handle(io_get_handle(h));
     DWORD flags = (x ? LOCKFILE_EXCLUSIVE_LOCK : 0) | LOCKFILE_FAIL_IMMEDIATELY;
@@ -459,7 +459,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_try_lock(b_obj_arg h, uint8_t
 }
 
 /* Handle.unlock : (@& Handle) → IO Unit */
-extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_unlock(b_obj_arg h, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_unlock(b_obj_arg h) {
     OVERLAPPED o = {0};
     HANDLE wh = win_handle(io_get_handle(h));
     if (UnlockFileEx(wh, 0, MAXDWORD, MAXDWORD, &o)) {
@@ -477,7 +477,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_unlock(b_obj_arg h, obj_arg /
 #else
 
 /* Handle.lock : (@& Handle) → (exclusive : Bool) → IO Unit */
-extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_lock(b_obj_arg h,  uint8_t x, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_lock(b_obj_arg h, uint8_t x) {
     FILE * fp = io_get_handle(h);
     if (!flock(fileno(fp), x ? LOCK_EX : LOCK_SH)) {
         return io_result_mk_ok(box(0));
@@ -487,7 +487,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_lock(b_obj_arg h,  uint8_t x,
 }
 
 /* Handle.tryLock : (@& Handle) → (exclusive : Bool) → IO Bool */
-extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_try_lock(b_obj_arg h, uint8_t x, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_try_lock(b_obj_arg h, uint8_t x) {
     FILE * fp = io_get_handle(h);
     if (!flock(fileno(fp), (x ? LOCK_EX : LOCK_SH) | LOCK_NB)) {
         return io_result_mk_ok(box(1));
@@ -501,7 +501,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_try_lock(b_obj_arg h, uint8_t
 }
 
 /* Handle.unlock : (@& Handle) → IO Unit */
-extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_unlock(b_obj_arg h, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_unlock(b_obj_arg h) {
     FILE * fp = io_get_handle(h);
     if (!flock(fileno(fp), LOCK_UN)) {
         return io_result_mk_ok(box(0));
@@ -513,7 +513,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_unlock(b_obj_arg h, obj_arg /
 #endif
 
 /* Handle.isTty : (@& Handle) → BaseIO Bool */
-extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_is_tty(b_obj_arg h, obj_arg /* w */) {
+extern "C" LEAN_EXPORT uint8_t lean_io_prim_handle_is_tty(b_obj_arg h) {
     FILE * fp = io_get_handle(h);
 #ifdef LEAN_WINDOWS
     /*
@@ -533,21 +533,21 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_is_tty(b_obj_arg h, obj_arg /
     and Lean does not support pre-Windows 10.
     */
     DWORD mode;
-    return io_result_mk_ok(box(GetConsoleMode(win_handle(fp), &mode) != 0));
+    return GetConsoleMode(win_handle(fp), &mode) != 0;
 #else
     // We ignore errors for consistency with Windows.
-    return io_result_mk_ok(box(isatty(fileno(fp))));
+    return isatty(fileno(fp));
 #endif
 }
 
 /* Handle.isEof : (@& Handle) → BaseIO Bool */
-extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_is_eof(b_obj_arg h, obj_arg /* w */) {
+extern "C" LEAN_EXPORT uint8_t lean_io_prim_handle_is_eof(b_obj_arg h) {
     FILE * fp = io_get_handle(h);
-    return io_result_mk_ok(box(std::feof(fp) != 0));
+    return std::feof(fp) != 0;
 }
 
 /* Handle.flush : (@& Handle) → IO Unit */
-extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_flush(b_obj_arg h, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_flush(b_obj_arg h) {
     FILE * fp = io_get_handle(h);
     if (!std::fflush(fp)) {
         return io_result_mk_ok(box(0));
@@ -557,7 +557,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_flush(b_obj_arg h, obj_arg /*
 }
 
 /* Handle.rewind : (@& Handle) → IO Unit */
-extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_rewind(b_obj_arg h, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_rewind(b_obj_arg h) {
     FILE * fp = io_get_handle(h);
     if (!std::fseek(fp, 0, SEEK_SET)) {
         return io_result_mk_ok(box(0));
@@ -567,7 +567,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_rewind(b_obj_arg h, obj_arg /
 }
 
 /* Handle.truncate : (@& Handle) → IO Unit */
-extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_truncate(b_obj_arg h, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_truncate(b_obj_arg h) {
     FILE * fp = io_get_handle(h);
 #ifdef LEAN_WINDOWS
     if (!_chsize_s(_fileno(fp), _ftelli64(fp))) {
@@ -581,7 +581,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_truncate(b_obj_arg h, obj_arg
 }
 
 /* Handle.read : (@& Handle) → USize → IO ByteArray */
-extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_read(b_obj_arg h, usize nbytes, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_read(b_obj_arg h, usize nbytes) {
     FILE * fp = io_get_handle(h);
     obj_res res = lean_alloc_sarray(1, 0, nbytes);
     usize n = std::fread(lean_sarray_cptr(res), 1, nbytes, fp);
@@ -599,7 +599,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_read(b_obj_arg h, usize nbyte
 }
 
 /* Handle.write : (@& Handle) → (@& ByteArray) → IO Unit */
-extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_write(b_obj_arg h, b_obj_arg buf, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_write(b_obj_arg h, b_obj_arg buf) {
     FILE * fp = io_get_handle(h);
     usize n = lean_sarray_size(buf);
     usize m = std::fwrite(lean_sarray_cptr(buf), 1, n, fp);
@@ -611,7 +611,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_write(b_obj_arg h, b_obj_arg 
 }
 
 /* Handle.getLine : (@& Handle) → IO Unit */
-extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_get_line(b_obj_arg h) {
     FILE * fp = io_get_handle(h);
 
     std::string result;
@@ -635,7 +635,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg
 }
 
 /* Handle.putStr : (@& Handle) → (@& String) → IO Unit */
-extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_put_str(b_obj_arg h, b_obj_arg s, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_put_str(b_obj_arg h, b_obj_arg s) {
     FILE * fp = io_get_handle(h);
     usize n = lean_string_size(s) - 1; // - 1 to ignore the terminal NULL byte.
     usize m = std::fwrite(lean_string_cstr(s), 1, n, fp);
@@ -647,7 +647,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_put_str(b_obj_arg h, b_obj_ar
 }
 
 /* Std.Time.Timestamp.now : IO Timestamp */
-extern "C" LEAN_EXPORT obj_res lean_get_current_time(obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_get_current_time() {
     using namespace std::chrono;
 
     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
@@ -664,7 +664,7 @@ extern "C" LEAN_EXPORT obj_res lean_get_current_time(obj_arg /* w */) {
 }
 
 /* Std.Time.Database.Windows.getNextTransition : @&String -> Int64 -> Bool -> IO (Option (Int64 × TimeZone)) */
-extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezone_str, uint64_t tm_obj, uint8 default_time, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezone_str, uint64_t tm_obj, uint8 default_time) {
 #if defined(LEAN_WINDOWS)
     UErrorCode status = U_ZERO_ERROR;
     const char* dst_name_id = lean_string_cstr(timezone_str);
@@ -778,7 +778,7 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
 }
 
 /* Std.Time.Database.Windows.getLocalTimeZoneIdentifierAt : Int64 → IO String */
-extern "C" LEAN_EXPORT obj_res lean_get_windows_local_timezone_id_at(uint64_t tm_obj, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_get_windows_local_timezone_id_at(uint64_t tm_obj) {
 #if defined(LEAN_WINDOWS)
     UErrorCode status = U_ZERO_ERROR;
     UCalendar* cal = ucal_open(NULL, -1, NULL, UCAL_GREGORIAN, &status);
@@ -817,23 +817,23 @@ extern "C" LEAN_EXPORT obj_res lean_get_windows_local_timezone_id_at(uint64_t tm
 }
 
 /* monoMsNow : BaseIO Nat */
-extern "C" LEAN_EXPORT obj_res lean_io_mono_ms_now(obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_mono_ms_now() {
     static_assert(sizeof(std::chrono::milliseconds::rep) <= sizeof(uint64), "size of std::chrono::nanoseconds::rep may not exceed 64");
     auto now = std::chrono::steady_clock::now();
     auto tm = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
-    return io_result_mk_ok(uint64_to_nat(tm.count()));
+    return uint64_to_nat(tm.count());
 }
 
 /* monoNanosNow : BaseIO Nat */
-extern "C" LEAN_EXPORT obj_res lean_io_mono_nanos_now(obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_mono_nanos_now() {
     static_assert(sizeof(std::chrono::nanoseconds::rep) <= sizeof(uint64), "size of std::chrono::nanoseconds::rep may not exceed 64");
     auto now = std::chrono::steady_clock::now();
     auto tm = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch());
-    return io_result_mk_ok(uint64_to_nat(tm.count()));
+    return uint64_to_nat(tm.count());
 }
 
 /* getRandomBytes (nBytes : USize) : IO ByteArray */
-extern "C" LEAN_EXPORT obj_res lean_io_get_random_bytes (size_t nbytes, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_get_random_bytes (size_t nbytes) {
     // Adapted from https://github.com/rust-random/getrandom/blob/30308ae845b0bf3839e5a92120559eaf56048c28/src/
 
     if (nbytes == 0) return io_result_mk_ok(lean_alloc_sarray(1, 0, 0));
@@ -894,9 +894,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_random_bytes (size_t nbytes, obj_arg 
 }
 
 /* timeit {α : Type} (msg : @& String) (fn : IO α) : IO α */
-extern "C" LEAN_EXPORT obj_res lean_io_timeit(b_obj_arg msg, obj_arg fn, obj_arg w) {
+extern "C" LEAN_EXPORT obj_res lean_io_timeit(b_obj_arg msg, obj_arg fn) {
     auto start = std::chrono::steady_clock::now();
-    w = apply_1(fn, w);
+    obj_arg w = apply_1(fn, lean_io_mk_world());
     auto end   = std::chrono::steady_clock::now();
     auto diff  = std::chrono::duration<double>(end - start);
     sstream out;
@@ -911,33 +911,33 @@ extern "C" LEAN_EXPORT obj_res lean_io_timeit(b_obj_arg msg, obj_arg fn, obj_arg
 }
 
 /* allocprof {α : Type} (msg : @& String) (fn : IO α) : IO α */
-extern "C" LEAN_EXPORT obj_res lean_io_allocprof(b_obj_arg msg, obj_arg fn, obj_arg w) {
+extern "C" LEAN_EXPORT obj_res lean_io_allocprof(b_obj_arg msg, obj_arg fn) {
     std::ostringstream out;
     obj_res res;
     {
         allocprof prof(out, string_cstr(msg));
-        res = apply_1(fn, w);
+        res = apply_1(fn, lean_io_mk_world());
     }
     io_eprintln(mk_string(out.str()));
     return res;
 }
 
 /* getNumHeartbeats : BaseIO Nat */
-extern "C" LEAN_EXPORT obj_res lean_io_get_num_heartbeats(obj_arg /* w */) {
-    return io_result_mk_ok(lean_uint64_to_nat(get_num_heartbeats()));
+extern "C" LEAN_EXPORT obj_res lean_io_get_num_heartbeats() {
+    return lean_uint64_to_nat(get_num_heartbeats());
 }
 
 /* setHeartbeats (count : Nat) : BaseIO Unit */
-extern "C" LEAN_EXPORT obj_res lean_io_set_heartbeats(obj_arg count, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_set_heartbeats(obj_arg count) {
     set_heartbeats(lean_uint64_of_nat(count));
     lean_dec(count);
-    return io_result_mk_ok(box(0));
+    return box(0);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_getenv(b_obj_arg env_var, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_getenv(b_obj_arg env_var) {
     const char* env_var_str = string_cstr(env_var);
     if (strlen(env_var_str) != lean_string_size(env_var) - 1) {
-        return io_result_mk_ok(mk_option_none());
+        return mk_option_none();
     }
 #if defined(LEAN_EMSCRIPTEN)
     // HACK(WN): getenv doesn't seem to work in Emscripten even though it should
@@ -958,21 +958,21 @@ extern "C" LEAN_EXPORT obj_res lean_io_getenv(b_obj_arg env_var, obj_arg) {
     if (val) {
         object * valLean = mk_string(val);
         free(val);
-        return io_result_mk_ok(mk_option_some(valLean));
+        return mk_option_some(valLean);
     } else {
-        return io_result_mk_ok(mk_option_none());
+        return mk_option_none();
     }
 #else
     char * val = std::getenv(env_var_str);
     if (val) {
-        return io_result_mk_ok(mk_option_some(mk_string(val)));
+        return mk_option_some(mk_string(val));
     } else {
-        return io_result_mk_ok(mk_option_none());
+        return mk_option_none();
     }
 #endif
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_realpath(obj_arg filename, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_realpath(obj_arg filename) {
     const char* fname = string_cstr(filename);
     if (strlen(fname) != lean_string_size(filename) - 1) {
         obj_res res = mk_embedded_nul_error(filename);
@@ -1034,7 +1034,7 @@ structure DirEntry where
 
 constant readDir : @& FilePath → IO (Array DirEntry)
 */
-extern "C" LEAN_EXPORT obj_res lean_io_read_dir(b_obj_arg dirname, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_read_dir(b_obj_arg dirname) {
     const char* dirname_ptr = string_cstr(dirname);
     if (strlen(dirname_ptr) != lean_string_size(dirname) - 1) {
         return mk_embedded_nul_error(dirname);
@@ -1109,7 +1109,7 @@ static obj_res metadata_core(struct stat const & st) {
     return io_result_mk_ok(mdata);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_metadata(b_obj_arg filename, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_metadata(b_obj_arg filename) {
     const char* fname = string_cstr(filename);
     if (strlen(fname) != lean_string_size(filename) - 1) {
         return mk_embedded_nul_error(filename);
@@ -1121,9 +1121,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_metadata(b_obj_arg filename, obj_arg) {
     return metadata_core(st);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_symlink_metadata(b_obj_arg filename, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_symlink_metadata(b_obj_arg filename) {
 #ifdef LEAN_WINDOWS
-    return lean_io_metadata(filename, io_mk_world());
+    return lean_io_metadata(filename);
 #else
     const char* fname = string_cstr(filename);
     if (strlen(fname) != lean_string_size(filename) - 1) {
@@ -1137,7 +1137,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_symlink_metadata(b_obj_arg filename, obj_
 #endif
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_create_dir(b_obj_arg p, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_create_dir(b_obj_arg p) {
     const char* str = string_cstr(p);
     if (strlen(str) != lean_string_size(p) - 1) {
         return mk_embedded_nul_error(p);
@@ -1153,7 +1153,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_dir(b_obj_arg p, obj_arg) {
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_remove_dir(b_obj_arg p, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_remove_dir(b_obj_arg p) {
     const char* str = string_cstr(p);
     if (strlen(str) != lean_string_size(p) - 1) {
         return mk_embedded_nul_error(p);
@@ -1165,7 +1165,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_remove_dir(b_obj_arg p, obj_arg) {
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to, lean_object * /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to) {
     const char* from_str = string_cstr(from);
     if (strlen(from_str) != lean_string_size(from) - 1) {
         return mk_embedded_nul_error(from);
@@ -1197,7 +1197,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to, lean
 }
 
 /* hardLink (orig link : @& FilePath) : IO Unit */
-extern "C" LEAN_EXPORT obj_res lean_io_hard_link(b_obj_arg orig, b_obj_arg link, lean_object * /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_hard_link(b_obj_arg orig, b_obj_arg link) {
     const char* orig_str = string_cstr(orig);
     if (strlen(orig_str) != lean_string_size(orig) - 1) {
         return mk_embedded_nul_error(orig);
@@ -1307,7 +1307,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempdir(lean_object * /* w */) {
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_remove_file(b_obj_arg filename, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_remove_file(b_obj_arg filename) {
     const char* fname = string_cstr(filename);
     if (strlen(fname) != lean_string_size(filename) - 1) {
         return mk_embedded_nul_error(filename);
@@ -1319,7 +1319,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_remove_file(b_obj_arg filename, obj_arg) 
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_app_path(obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_app_path() {
 #if defined(LEAN_WINDOWS)
     HMODULE hModule = GetModuleHandle(NULL);
     char path[MAX_PATH];
@@ -1374,7 +1374,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_app_path(obj_arg) {
 #endif
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_current_dir(obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_current_dir() {
     char buffer[PATH_MAX];
     char * cwd = getcwd(buffer, sizeof(buffer));
     if (cwd) {
@@ -1386,14 +1386,14 @@ extern "C" LEAN_EXPORT obj_res lean_io_current_dir(obj_arg) {
 
 // =======================================
 // ST ref primitives
-extern "C" LEAN_EXPORT obj_res lean_st_mk_ref(obj_arg a, obj_arg) {
+
+
+extern "C" LEAN_EXPORT obj_res lean_st_mk_ref(obj_arg a) {
     lean_ref_object * o = (lean_ref_object*)lean_alloc_small_object(sizeof(lean_ref_object));
     lean_set_st_header((lean_object*)o, LeanRef, 0);
     o->m_value = a;
-    return io_result_mk_ok((lean_object*)o);
+    return (lean_object*)o;
 }
-
-static object * g_io_error_nullptr_read = nullptr;
 
 static inline atomic<object*> * mt_ref_val_addr(object * o) {
     return reinterpret_cast<atomic<object*> *>(&(lean_to_ref(o)->m_value));
@@ -1412,7 +1412,7 @@ static inline atomic<object*> * mt_ref_val_addr(object * o) {
 */
 static inline bool ref_maybe_mt(b_obj_arg ref) { return lean_is_mt(ref) || lean_is_persistent(ref); }
 
-extern "C" LEAN_EXPORT obj_res lean_st_ref_get(b_obj_arg ref, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_st_ref_get(b_obj_arg ref) {
     if (ref_maybe_mt(ref)) {
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
         while (true) {
@@ -1428,36 +1428,36 @@ extern "C" LEAN_EXPORT obj_res lean_st_ref_get(b_obj_arg ref, obj_arg) {
                     /* this may happen if another thread wrote `ref` */
                     dec(tmp);
                 }
-                return io_result_mk_ok(val);
+                return val;
             }
         }
     } else {
         object * val = lean_to_ref(ref)->m_value;
         lean_assert(val != nullptr);
         inc(val);
-        return io_result_mk_ok(val);
+        return val;
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_st_ref_take(b_obj_arg ref, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_st_ref_take(b_obj_arg ref) {
     if (ref_maybe_mt(ref)) {
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
         while (true) {
             object * val = val_addr->exchange(nullptr);
             if (val != nullptr)
-                return io_result_mk_ok(val);
+                return val;
         }
     } else {
         object * val = lean_to_ref(ref)->m_value;
         lean_assert(val != nullptr);
         lean_to_ref(ref)->m_value = nullptr;
-        return io_result_mk_ok(val);
+        return val;
     }
 }
 
 static_assert(sizeof(atomic<unsigned short>) == sizeof(unsigned short), "`atomic<unsigned short>` and `unsigned short` must have the same size"); // NOLINT
 
-extern "C" LEAN_EXPORT obj_res lean_st_ref_set(b_obj_arg ref, obj_arg a, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_st_ref_set(b_obj_arg ref, obj_arg a) {
     if (ref_maybe_mt(ref)) {
         /* We must mark `a` as multi-threaded if `ref` is marked as multi-threaded.
            Reason: our runtime relies on the fact that a single-threaded object
@@ -1467,16 +1467,16 @@ extern "C" LEAN_EXPORT obj_res lean_st_ref_set(b_obj_arg ref, obj_arg a, obj_arg
         object * old_a = val_addr->exchange(a);
         if (old_a != nullptr)
             dec(old_a);
-        return io_result_mk_ok(box(0));
+        return box(0);
     } else {
         if (lean_to_ref(ref)->m_value != nullptr)
             dec(lean_to_ref(ref)->m_value);
         lean_to_ref(ref)->m_value = a;
-        return io_result_mk_ok(box(0));
+        return box(0);
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_st_ref_swap(b_obj_arg ref, obj_arg a, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_st_ref_swap(b_obj_arg ref, obj_arg a) {
     if (ref_maybe_mt(ref)) {
         /* See io_ref_write */
         mark_mt(a);
@@ -1484,94 +1484,92 @@ extern "C" LEAN_EXPORT obj_res lean_st_ref_swap(b_obj_arg ref, obj_arg a, obj_ar
         while (true) {
             object * old_a = val_addr->exchange(a);
             if (old_a != nullptr)
-                return io_result_mk_ok(old_a);
+                return old_a;
         }
     } else {
         object * old_a = lean_to_ref(ref)->m_value;
         if (old_a == nullptr)
-            return io_result_mk_error(g_io_error_nullptr_read);
+            lean_internal_panic("null reference read");
         lean_to_ref(ref)->m_value = a;
-        return io_result_mk_ok(old_a);
+        return old_a;
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_st_ref_ptr_eq(b_obj_arg ref1, b_obj_arg ref2, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_st_ref_ptr_eq(b_obj_arg ref1, b_obj_arg ref2) {
     // TODO(Leo): ref_maybe_mt
     bool r = lean_to_ref(ref1)->m_value == lean_to_ref(ref2)->m_value;
-    return io_result_mk_ok(box(r));
+    return box(r);
 }
 
-/* {α : Type} (act : BaseIO α) (_ : IO.RealWorld) : α */
-static obj_res lean_io_as_task_fn(obj_arg act, obj_arg) {
+/* {α : Type} (act : BaseIO α) : α */
+static obj_res lean_io_as_task_fn(obj_arg act) {
     object_ref r(apply_1(act, io_mk_world()));
-    return object_ref(io_result_get_value(r.raw()), true).steal();
+    return object_ref(r.raw(), true).steal();
 }
 
 /* asTask {α : Type} (act : BaseIO α) (prio : Nat) : BaseIO (Task α) */
-extern "C" LEAN_EXPORT obj_res lean_io_as_task(obj_arg act, obj_arg prio, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_as_task(obj_arg act, obj_arg prio) {
     object * c = lean_alloc_closure((void*)lean_io_as_task_fn, 2, 1);
     lean_closure_set(c, 0, act);
     object * t = lean_task_spawn_core(c, lean_unbox(prio), /* keep_alive */ true);
-    return io_result_mk_ok(t);
+    return t;
 }
 
 /* {α β : Type} (f : α → BaseIO β) (a : α) : β */
 static obj_res lean_io_bind_task_fn(obj_arg f, obj_arg a) {
     object_ref r(apply_2(f, a, io_mk_world()));
-    return object_ref(io_result_get_value(r.raw()), true).steal();
+    return object_ref(r.raw(), true).steal();
 }
 
 /*  mapTask (f : α → BaseIO β) (t : Task α) (prio : Nat) (sync : Bool) : BaseIO (Task β) */
-extern "C" LEAN_EXPORT obj_res lean_io_map_task(obj_arg f, obj_arg t, obj_arg prio, uint8 sync,
-        obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_map_task(obj_arg f, obj_arg t, obj_arg prio, uint8 sync) {
     object * c = lean_alloc_closure((void*)lean_io_bind_task_fn, 2, 1);
     lean_closure_set(c, 0, f);
     object * t2 = lean_task_map_core(c, t, lean_unbox(prio), sync, /* keep_alive */ true);
-    return io_result_mk_ok(t2);
+    return t2;
 }
 
 /*  bindTask (t : Task α) (f : α → BaseIO (Task β)) (prio : Nat) (sync : Bool) : BaseIO (Task β) */
-extern "C" LEAN_EXPORT obj_res lean_io_bind_task(obj_arg t, obj_arg f, obj_arg prio, uint8 sync,
-        obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_bind_task(obj_arg t, obj_arg f, obj_arg prio, uint8 sync) {
     object * c = lean_alloc_closure((void*)lean_io_bind_task_fn, 2, 1);
     lean_closure_set(c, 0, f);
     object * t2 = lean_task_bind_core(t, c, lean_unbox(prio), sync, /* keep_alive */ true);
-    return io_result_mk_ok(t2);
+    return t2;
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_check_canceled(obj_arg) {
-    return io_result_mk_ok(box(lean_io_check_canceled_core()));
+extern "C" LEAN_EXPORT uint8_t lean_io_check_canceled() {
+    return lean_io_check_canceled_core();
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_cancel(b_obj_arg t, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_cancel(b_obj_arg t) {
     lean_io_cancel_core(t);
-    return io_result_mk_ok(box(0));
+    return box(0);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_get_task_state(b_obj_arg t, obj_arg) {
-    return io_result_mk_ok(box(lean_io_get_task_state_core(t)));
+extern "C" LEAN_EXPORT uint8_t lean_io_get_task_state(b_obj_arg t) {
+    return lean_io_get_task_state_core(t);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_wait(obj_arg t, obj_arg) {
-    return io_result_mk_ok(lean_task_get_own(t));
+extern "C" LEAN_EXPORT obj_res lean_io_wait(obj_arg t) {
+    return lean_task_get_own(t);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_exit(uint8_t code, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_exit(uint8_t code) {
     exit(code);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_force_exit(uint8_t code, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_io_force_exit(uint8_t code) {
     std::_Exit((int)code);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_runtime_mark_multi_threaded(obj_arg a, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_runtime_mark_multi_threaded(obj_arg a) {
     lean_mark_mt(a);
-    return io_result_mk_ok(a);
+    return a;
 }
 
-extern "C" LEAN_EXPORT obj_res lean_runtime_mark_persistent(obj_arg a, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_runtime_mark_persistent(obj_arg a) {
     lean_mark_persistent(a);
-    return io_result_mk_ok(a);
+    return a;
 }
 
 #if defined(__has_feature)
@@ -1580,13 +1578,13 @@ extern "C" LEAN_EXPORT obj_res lean_runtime_mark_persistent(obj_arg a, obj_arg /
 #endif
 #endif
 
-extern "C" LEAN_EXPORT obj_res lean_runtime_forget(obj_arg o, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_runtime_forget(obj_arg o) {
 #if defined(__has_feature)
 #if __has_feature(address_sanitizer)
     __lsan_ignore_object(o);
 #endif
 #endif
-    return io_result_mk_ok(box(0));
+    return box(0);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_option_get_or_block(obj_arg o_opt) {
@@ -1604,8 +1602,6 @@ extern "C" LEAN_EXPORT obj_res lean_option_get_or_block(obj_arg o_opt) {
 }
 
 void initialize_io() {
-    g_io_error_nullptr_read = lean_mk_io_user_error(mk_ascii_string_unchecked("null reference read"));
-    mark_persistent(g_io_error_nullptr_read);
     g_io_handle_external_class = lean_register_external_class(io_handle_finalizer, io_handle_foreach);
 #if defined(LEAN_WINDOWS)
     _setmode(_fileno(stdout), _O_BINARY);

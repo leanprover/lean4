@@ -22,7 +22,7 @@ private def getAssignmentExt? (e : Expr) : GoalM (Option Rat) := do
     return none
   else if type == Nat.mkType then
     -- TODO: improve this case.
-    for parent in (← getParents e) do
+    for parent in (← getParents e).elems do
       let_expr NatCast.natCast _ inst _ := parent | pure ()
       let_expr instNatCastInt := inst | pure ()
       return (← getAssignment? (← get) parent)

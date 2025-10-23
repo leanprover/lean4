@@ -7,13 +7,11 @@ module
 
 prelude
 public import Lean.Meta.SynthInstance
-public import Lean.Meta.CtorRecognizer
 public import Lean.Util.FindMVar
 public import Lean.Util.FindLevelMVar
 public import Lean.Util.CollectLevelParams
 public import Lean.Util.ReplaceLevel
 public import Lean.PrettyPrinter.Delaborator.FieldNotation
-public import Lean.PrettyPrinter.Delaborator.Options
 public import Lean.PrettyPrinter.Delaborator.SubExpr
 public import Lean.Elab.Config
 

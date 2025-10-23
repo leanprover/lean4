@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.Combinators.Monadic.FilterMap
-// Imports: public import Init.Data.Iterators.Basic public import Init.Data.Iterators.Consumers.Collect public import Init.Data.Iterators.Consumers.Loop public import Init.Data.Iterators.PostconditionMonad public import Init.Data.Iterators.Internal.Termination
+// Imports: public import Init.Data.Iterators.Consumers.Loop public import Init.Data.Iterators.PostconditionMonad public import Init.Data.Iterators.Internal.Termination
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1163,29 +1163,21 @@ lean_dec_ref(x_6);
 return x_11;
 }
 }
-lean_object* initialize_Init_Data_Iterators_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Consumers_Collect(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Consumers_Loop(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_PostconditionMonad(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Internal_Termination(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Iterators_Consumers_Loop(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_PostconditionMonad(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Internal_Termination(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_Combinators_Monadic_FilterMap(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_Combinators_Monadic_FilterMap(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Iterators_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Iterators_Consumers_Loop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers_Collect(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Iterators_PostconditionMonad(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers_Loop(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_PostconditionMonad(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Internal_Termination(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Iterators_Internal_Termination(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Iterators_instIteratorCollectFilterMapOfMonad___redArg___lam__0___closed__0 = _init_l_Std_Iterators_instIteratorCollectFilterMapOfMonad___redArg___lam__0___closed__0();

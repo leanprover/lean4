@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Sort.Basic
-// Imports: public import Init.Data.List.Impl public import Init.Data.List.Nat.TakeDrop
+// Imports: public import Init.Data.List.Nat.TakeDrop
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1109,17 +1109,13 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* initialize_Init_Data_List_Impl(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_List_Sort_Basic(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_List_Sort_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_List_Impl(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_List_Nat_TakeDrop(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Nat_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___auto___closed__0____x40_Init_Data_List_Sort_Basic_4066133138____hygCtx___hyg_8_ = _init_l___auto___closed__0____x40_Init_Data_List_Sort_Basic_4066133138____hygCtx___hyg_8_();

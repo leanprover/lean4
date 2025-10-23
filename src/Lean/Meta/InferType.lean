@@ -129,6 +129,12 @@ private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Exp
 def throwTypeExpected {α} (type : Expr) : MetaM α :=
   throwError "type expected{indentExpr type}"
 
+/--
+If `type : sort` and `sort` reduces to `Sort u` for some `u`, then `getLevel type` returns `u`.
+
+If `sort` is an assignable MVar, then `getLevel type` produces a fresh level metavariable `?u`,
+assigns the MVar to `Sort ?u` and returns `?u`.
+-/
 def getLevel (type : Expr) : MetaM Level := do
   let typeType ← inferType type
   let typeType ← whnfD typeType

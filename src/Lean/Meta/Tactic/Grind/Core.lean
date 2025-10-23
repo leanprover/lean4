@@ -6,8 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-import Init.Grind.Util
-import Lean.Meta.LitValues
 import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Ctor
@@ -50,7 +48,7 @@ This is an auxiliary function performed while merging equivalence classes.
 -/
 private def removeParents (root : Expr) : GoalM ParentSet := do
   let parents ← getParents root
-  for parent in parents do
+  for parent in parents.elems do
     -- Recall that we may have `Expr.forallE` in `parents` because of `ForallProp.lean`
     if (← pure (isCongrRelevant parent) <&&> isCongrRoot parent) then
       trace_goal[grind.debug.parent] "remove: {parent}"
@@ -62,7 +60,7 @@ Reinserts parents into the congruence table and detect new equalities.
 This is an auxiliary function performed while merging equivalence classes.
 -/
 private def reinsertParents (parents : ParentSet) : GoalM Unit := do
-  for parent in parents do
+  for parent in parents.elems do
     if (← pure (isCongrRelevant parent) <&&> isCongrRoot parent) then
       trace_goal[grind.debug.parent] "reinsert: {parent}"
       addCongrTable parent
@@ -90,7 +88,7 @@ The modification time is used to decide which terms are considered during e-matc
 -/
 private partial def updateMT (root : Expr) : GoalM Unit := do
   let gmt := (← get).ematch.gmt
-  for parent in (← getParents root) do
+  for parent in (← getParents root).elems do
     let node ← getENode parent
     if node.mt < gmt then
       setENode parent { node with mt := gmt }
@@ -105,8 +103,8 @@ def propagateBeta (lams : Array Expr) (fns : Array Expr) : GoalM Unit := do
   let lamRoot ← getRoot lams.back!
   trace_goal[grind.debug.beta] "fns: {fns}, lams: {lams}"
   for fn in fns do
-    trace_goal[grind.debug.beta] "fn: {fn}, parents: {(← getParents fn).toArray}"
-    for parent in (← getParents fn) do
+    trace_goal[grind.debug.beta] "fn: {fn}, parents: {(← getParents fn).elems}"
+    for parent in (← getParents fn).elems do
       let mut args := #[]
       let mut curr := parent
       trace_goal[grind.debug.beta] "parent: {parent}"
@@ -232,7 +230,7 @@ where
     unless (← isInconsistent) do
       updateMT rhsRoot.self
     unless (← isInconsistent) do
-      for parent in parents do
+      for parent in parents.elems do
         propagateUp parent
       for e in toPropagateDown do
         propagateDown e

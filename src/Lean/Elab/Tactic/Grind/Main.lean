@@ -82,24 +82,28 @@ private def warnRedundantEMatchArg (s : Grind.EMatchTheorems) (declName : Name) 
       pure m!"{ks}"
   logWarning m!"this parameter is redundant, environment already contains `{declName}` annotated with `{kinds}`"
 
-def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.grindParam) (only : Bool) : MetaM Grind.Params := do
+def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.grindParam) (only : Bool) (lax : Bool := false) :
+    MetaM Grind.Params := do
   let mut params := params
   for p in ps do
-    match p with
-    | `(Parser.Tactic.grindParam| - $id:ident) =>
-      let declName ← realizeGlobalConstNoOverloadWithInfo id
-      if let some declName ← Grind.isCasesAttrCandidate? declName false then
-        Grind.ensureNotBuiltinCases declName
-        params := { params with casesTypes := (← params.casesTypes.eraseDecl declName) }
-      else if (← Grind.isInjectiveTheorem declName) then
-        params := { params with inj := params.inj.erase (.decl declName) }
-      else
-        params := { params with ematch := (← params.ematch.eraseDecl declName) }
-    | `(Parser.Tactic.grindParam| $[$mod?:grindMod]? $id:ident) =>
-      params ← processParam params p mod? id (minIndexable := false)
-    | `(Parser.Tactic.grindParam| ! $[$mod?:grindMod]? $id:ident) =>
-      params ← processParam params p mod? id (minIndexable := true)
-    | _ => throwError "unexpected `grind` parameter{indentD p}"
+    try
+      match p with
+      | `(Parser.Tactic.grindParam| - $id:ident) =>
+        let declName ← realizeGlobalConstNoOverloadWithInfo id
+        if let some declName ← Grind.isCasesAttrCandidate? declName false then
+          Grind.ensureNotBuiltinCases declName
+          params := { params with casesTypes := (← params.casesTypes.eraseDecl declName) }
+        else if (← Grind.isInjectiveTheorem declName) then
+          params := { params with inj := params.inj.erase (.decl declName) }
+        else
+          params := { params with ematch := (← params.ematch.eraseDecl declName) }
+      | `(Parser.Tactic.grindParam| $[$mod?:grindMod]? $id:ident) =>
+        params ← processParam params p mod? id (minIndexable := false)
+      | `(Parser.Tactic.grindParam| ! $[$mod?:grindMod]? $id:ident) =>
+        params ← processParam params p mod? id (minIndexable := true)
+      | _ => throwError "unexpected `grind` parameter{indentD p}"
+    catch ex =>
+      if !lax then throw ex
   return params
 where
   ensureNoMinIndexable (minIndexable : Bool) : MetaM Unit := do
@@ -208,7 +212,7 @@ def mkGrindParams (config : Grind.Config) (only : Bool) (ps :  TSyntaxArray ``Pa
   let inj ← if only then pure default else Grind.getInjectiveTheorems
   let casesTypes ← if only then pure default else Grind.getCasesTypes
   let params := { params with ematch, casesTypes, inj }
-  let params ← elabGrindParams params ps only
+  let params ← elabGrindParams params ps only (lax := config.lax)
   trace[grind.debug.inj] "{params.inj.getOrigins.map (·.pp)}"
   return params
 

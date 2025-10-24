@@ -161,6 +161,7 @@ partial def mkSizeOfFn (recName : Name) (declName : Name): MetaM Unit := do
               safety      := DefinitionSafety.safe
               hints       := ReducibilityHints.abbrev
             }
+            enableRealizationsForConst declName
 
 /--
   Create `sizeOf` functions for all inductive datatypes in the mutual inductive declaration containing `typeName`
@@ -518,6 +519,7 @@ def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
                         hints       := .abbrev
                       }
                     addInstance instDeclName AttributeKind.global (eval_prio default)
+                    enableRealizationsForConst instDeclName
           if genSizeOfSpec.get (← getOptions) then
             mkSizeOfSpecTheorems indInfo.all.toArray fns recMap
 

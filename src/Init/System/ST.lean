@@ -31,7 +31,7 @@ A restricted version of `IO` in which mutable state is the only side effect.
 
 It is possible to run `ST` computations in a non-monadic context using `runST`.
 -/
-abbrev ST (σ : Type) (α : Type) := Void σ → ST.Out σ α
+@[expose] def ST (σ : Type) (α : Type) := Void σ → ST.Out σ α
 
 namespace ST
 

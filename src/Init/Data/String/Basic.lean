@@ -468,6 +468,7 @@ theorem Pos.Raw.isValid_iff_exists_append {s : String} {p : Pos.Raw} :
   · rintro ⟨s₁, s₂, rfl, rfl⟩
     refine isValid_iff_isValidUTF8_extract_zero.2 ⟨by simp [Pos.Raw.le_iff], ?_⟩
     simpa [ByteArray.extract_append_eq_left] using s₁.isValidUTF8
+
 theorem Pos.Raw.isValid_asString {l : List Char} {p : Pos.Raw} :
     p.IsValid l.asString ↔ ∃ i, p.byteIdx = (l.take i).asString.utf8ByteSize := by
   rw [isValid_iff_exists_append]
@@ -1827,6 +1828,11 @@ theorem startInclusive_replaceEnd {s : String} {p : s.ValidPos} :
 @[simp]
 theorem endExclusive_replaceEnd {s : String} {p : s.ValidPos} :
     (s.replaceEnd p).endExclusive = p := by
+  simp [replaceEnd]
+
+@[simp]
+theorem rawEndPos_replaceEnd {s : String} {p : s.ValidPos} :
+    (s.replaceEnd p).rawEndPos = p.offset := by
   simp [replaceEnd]
 
 theorem Pos.Raw.isValidForSlice_stringReplaceEnd {s : String} {p : s.ValidPos} {q : Pos.Raw} :

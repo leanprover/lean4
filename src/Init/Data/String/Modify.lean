@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.String.Basic
+public import Init.Data.String.Termination
 import Init.Data.ByteArray.Lemmas
 import Init.Data.Char.Lemmas
 
@@ -70,6 +71,81 @@ def ValidPos.toSetOfLE {s : String} (q p : s.ValidPos) (c : Char) (hp : p ≠ s.
 theorem ValidPos.offset_toSetOfLE {s : String} {q p : s.ValidPos} {c : Char} {hp : p ≠ s.endValidPos}
     {hpq : q ≤ p} : (q.toSetOfLE p c hp hpq).offset = q.offset := (rfl)
 
+-- TODO: move
+theorem Pos.Raw.isValid_of_eq_rawEndPos {s : String} {p : Pos.Raw} (h : p = s.rawEndPos) :
+    p.IsValid s := by
+  subst h
+  exact isValid_rawEndPos
+
+theorem Pos.Raw.isValid_add_char_set {s : String} {p : s.ValidPos} {c : Char} {hp} :
+    (p.offset + c).IsValid (p.set c hp) :=
+  ValidPos.set_eq_append ▸ IsValid.append_right (isValid_of_eq_rawEndPos (by simp [Pos.Raw.ext_iff])) _
+
+/-- The position just after the position that changed in a `ValidPos.set` call. -/
+@[inline]
+def ValidPos.pastSet {s : String} (p : s.ValidPos) (c : Char) (hp) : (p.set c hp).ValidPos where
+  offset := p.offset + c
+  isValid := Pos.Raw.isValid_add_char_set
+
+@[simp]
+theorem ValidPos.offset_pastSet {s : String} {p : s.ValidPos} {c : Char} {hp} :
+    (p.pastSet c hp).offset = p.offset + c := (rfl)
+
+@[inline]
+def ValidPos.appendRight {s : String} (p : s.ValidPos) (t : String) : (s ++ t).ValidPos where
+  offset := p.offset
+  isValid := p.isValid.append_right t
+
+/--
+We say that `p` splits `s` into `t₁` and `t₂` if `s = t₁ ++ t₂` and `p` is the position between `t₁`
+and `t₂`.
+-/
+structure ValidPos.Splits {s : String} (p : s.ValidPos) (t₁ t₂ : String) : Prop where
+  eq_append : s = t₁ ++ t₂
+  offset_eq_rawEndPos : p.offset = t₁.rawEndPos
+
+/--
+We say that `p` splits `s` into `t₁` and `t₂` if `s = t₁ ++ t₂` and `p` is the position between `t₁`
+and `t₂`.
+-/
+structure Slice.Pos.Splits {s : Slice} (p : s.Pos) (t₁ t₂ : String) : Prop where
+  splits_toCopy : p.toCopy.Splits t₁ t₂
+
+theorem Slice.Pos.Splits.eq_append {s : Slice} {p : s.Pos} {t₁ t₂ : String} (h : p.Splits t₁ t₂) :
+    s.copy = t₁ ++ t₂ :=
+  h.splits_toCopy.eq_append
+
+theorem Slice.Pos.Splits.offset_eq_rawEndPos {s : Slice} {p : s.Pos} {t₁ t₂ : String}
+    (h : p.Splits t₁ t₂) : p.offset = t₁.rawEndPos := by
+  simpa using h.splits_toCopy.offset_eq_rawEndPos
+
+theorem ValidPos.Splits.remainingBytes_eq {s : String} {p : s.ValidPos} {t₁ t₂}
+    (h : p.Splits t₁ t₂) : p.remainingBytes = t₂.utf8ByteSize := by
+  simp [ValidPos.remainingBytes_eq, h.eq_append, h.offset_eq_rawEndPos]
+
+@[simp]
+theorem Slice.Pos.remainingBytes_toCopy {s : Slice} {p : s.Pos} :
+    p.toCopy.remainingBytes = p.remainingBytes := by
+  simp [remainingBytes_eq, ValidPos.remainingBytes_eq, Slice.utf8ByteSize_eq]
+
+theorem Slice.Pos.Splits.remainingBytes_eq {s : Slice} {p : s.Pos} {t₁ t₂} (h : p.Splits t₁ t₂) :
+    p.remainingBytes = t₂.utf8ByteSize := by
+  simpa using h.splits_toCopy.remainingBytes_eq
+
+theorem ValidPos.splits {s : String} (p : s.ValidPos) :
+    p.Splits (s.replaceEnd p).copy (s.replaceStart p).copy where
+  eq_append := by simp [← bytes_inj, Slice.bytes_copy, ← size_bytes]
+  offset_eq_rawEndPos := by simp
+
+theorem ValidPos.splits_pastSet {s : String} {p : s.ValidPos} {c : Char} {hp} :
+    (p.pastSet c hp).Splits ((s.replaceEnd p).copy ++ singleton c) (s.replaceStart (p.next hp)).copy where
+  eq_append := set_eq_append
+  offset_eq_rawEndPos := by simp [Pos.Raw.ext_iff]
+
+theorem remainingBytes_pastSet {s : String} {p : s.ValidPos} {c : Char} {hp} :
+    (p.pastSet c hp).remainingBytes = (p.next hp).remainingBytes := by
+  rw [(p.next hp).splits.remainingBytes_eq, p.splits_pastSet.remainingBytes_eq]
+
 /--
 Replaces the character at position `p` in the string `s` with the result of applying `f` to that
 character.
@@ -80,6 +156,7 @@ string is not shared, then it is updated in-place and not copied.
 Examples:
 * `("abc".pos ⟨1⟩ (by decide)).modify Char.toUpper (by decide) = "aBc"`
 -/
+@[inline]
 def ValidPos.modify {s : String} (p : s.ValidPos) (f : Char → Char) (hp : p ≠ s.endValidPos) :
     String :=
   p.set (f <| p.get hp) hp
@@ -91,6 +168,7 @@ theorem Pos.Raw.IsValid.modify_of_le {s : String} {p : s.ValidPos} {f : Char →
 
 /-- Given a valid position in a string, obtain the corresponding position after modifying a character
 in that string, provided that the position was before the changed position. -/
+@[inline]
 def ValidPos.toModifyOfLE {s : String} (q p : s.ValidPos) (f : Char → Char)
     (hp : p ≠ s.endValidPos) (hpq : q ≤ p) : (p.modify f hp).ValidPos where
   offset := q.offset
@@ -99,6 +177,15 @@ def ValidPos.toModifyOfLE {s : String} (q p : s.ValidPos) (f : Char → Char)
 @[simp]
 theorem ValidPos.offset_toModifyOfLE {s : String} {q p : s.ValidPos} {f : Char → Char}
     {hp : p ≠ s.endValidPos} {hpq : q ≤ p} : (q.toModifyOfLE p f hp hpq).offset = q.offset := (rfl)
+
+@[inline]
+def ValidPos.pastModify {s : String} (p : s.ValidPos) (f : Char → Char)
+    (hp : p ≠ s.endValidPos) : (p.modify f hp).ValidPos :=
+  p.pastSet _ _
+
+theorem remainingBytes_pastModify {s : String} {p : s.ValidPos} {f : Char → Char} {hp} :
+    (p.pastModify f hp).remainingBytes = (p.next hp).remainingBytes :=
+  remainingBytes_pastSet
 
 /--
 Replaces the character at a specified position in a string with a new character. If the position is
@@ -207,6 +294,15 @@ theorem mapAux_lemma (s : String) (i : Pos.Raw) (c : Char) (h : ¬i.atEnd s) :
     let s := i.set s c
     mapAux f (i.next s) s
 termination_by s.rawEndPos.1 - i.1
+
+@[specialize] def mapAuxNew (f : Char → Char) (s : String) (p : s.ValidPos) : String :=
+  if h : p = s.endValidPos then
+    s
+  else
+    mapAuxNew f (p.modify f h) (p.pastModify _ _)
+termination_by p.remainingBytes
+decreasing_by
+  simp [remainingBytes_pastModify, ← ValidPos.lt_iff_remainingBytes_lt]
 
 /--
 Applies the function `f` to every character in a string, returning a string that contains the

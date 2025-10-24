@@ -87,6 +87,29 @@ theorem eq_next_of_next?_eq_some {s : Slice} {p q : s.Pos} :
     (h : p.next? = some q) → q = p.next (ne_endPos_of_next?_eq_some h) := by
   simpa [next?] using fun _ h => h.symm
 
+theorem ne_startPos_of_prev?_eq_some {s : Slice} {p q : s.Pos} :
+    p.prev? = some q → p ≠ s.startPos := by
+  simpa [prev?] using fun h _ => h
+
+theorem eq_prev_of_prev?_eq_some {s : Slice} {p q : s.Pos} :
+    (h : p.prev? = some q) → q = p.prev (ne_startPos_of_prev?_eq_some h) := by
+  simpa [prev?] using fun _ h => h.symm
+
+@[simp]
+theorem le_refl {s : Slice} (p : s.Pos) : p ≤ p := by
+  simp [le_iff]
+
+theorem lt_trans {s : Slice} {p q r : s.Pos} : p < q → q < r → p < r := by
+  simpa [Pos.lt_iff, Pos.Raw.lt_iff] using Nat.lt_trans
+
+@[simp]
+theorem lt_next_next {s : Slice} {p : s.Pos} {h h'} : p < (p.next h).next h' :=
+  lt_trans p.lt_next (p.next h).lt_next
+
+@[simp]
+theorem prev_prev_lt {s : Slice} {p : s.Pos} {h h'} : (p.prev h).prev h' < p :=
+  lt_trans (p.prev h).prev_lt p.prev_lt
+
 end Slice.Pos
 
 namespace ValidPos
@@ -151,6 +174,10 @@ theorem map_toSlice_next? {s : String} {p : s.ValidPos} :
     p.next?.map ValidPos.toSlice = p.toSlice.next? := by
   simp [next?]
 
+theorem map_toSlice_prev? {s : String} {p : s.ValidPos} :
+    p.prev?.map ValidPos.toSlice = p.toSlice.prev? := by
+  simp [prev?]
+
 theorem ne_endValidPos_of_next?_eq_some {s : String} {p q : s.ValidPos}
     (h : p.next? = some q) : p ≠ s.endValidPos :=
   ne_of_apply_ne ValidPos.toSlice (Slice.Pos.ne_endPos_of_next?_eq_some
@@ -160,6 +187,16 @@ theorem eq_next_of_next?_eq_some {s : String} {p q : s.ValidPos} (h : p.next? = 
     q = p.next (ne_endValidPos_of_next?_eq_some h) := by
   simpa only [← toSlice_inj, toSlice_next] using Slice.Pos.eq_next_of_next?_eq_some
     (by simpa [ValidPos.map_toSlice_next?] using congrArg (·.map toSlice) h)
+
+theorem ne_startValidPos_of_prev?_eq_some {s : String} {p q : s.ValidPos}
+    (h : p.prev? = some q) : p ≠ s.startValidPos :=
+  ne_of_apply_ne ValidPos.toSlice (Slice.Pos.ne_startPos_of_prev?_eq_some
+    (by simpa only [ValidPos.map_toSlice_prev?, Option.map_some] using congrArg (·.map toSlice) h))
+
+theorem eq_prev_of_prev?_eq_some {s : String} {p q : s.ValidPos} (h : p.prev? = some q) :
+    q = p.prev (ne_startValidPos_of_prev?_eq_some h) := by
+  simpa only [← toSlice_inj, toSlice_prev] using Slice.Pos.eq_prev_of_prev?_eq_some
+    (by simpa [ValidPos.map_toSlice_prev?] using congrArg (·.map toSlice) h)
 
 @[simp]
 theorem le_refl {s : String} (p : s.ValidPos) : p ≤ p := by
@@ -172,9 +209,19 @@ theorem lt_trans {s : String} {p q r : s.ValidPos} : p < q → q < r → p < r :
 theorem lt_next_next {s : String} {p : s.ValidPos} {h h'} : p < (p.next h).next h' :=
   lt_trans p.lt_next (p.next h).lt_next
 
+@[simp]
+theorem prev_prev_lt {s : String} {p : s.ValidPos} {h h'} : (p.prev h).prev h' < p :=
+  lt_trans (p.prev h).prev_lt p.prev_lt
+
 end ValidPos
 
-macro_rules | `(tactic| decreasing_trivial) => `(tactic| (simp [ValidPos.eq_next_of_next?_eq_some (by assumption)]) <;> done)
-macro_rules | `(tactic| decreasing_trivial) => `(tactic| (simp [Slice.Pos.eq_next_of_next?_eq_some (by assumption)]) <;> done)
+-- TODO: activate after benchmarking
+-- macro_rules | `(tactic| decreasing_trivial) => `(tactic|
+--   (simp [
+--     ValidPos.eq_next_of_next?_eq_some (by assumption),
+--     ValidPos.eq_prev_of_prev?_eq_some (by assumption),
+--     Slice.Pos.eq_next_of_next?_eq_some (by assumption),
+--     Slice.Pos.eq_prev_of_prev?_eq_some (by assumption),
+--   ]) <;> done)
 
 end String

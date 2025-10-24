@@ -551,11 +551,11 @@ where
       return (reason, unfoldedInsts)
     let stuckMsg :=
       if unfoldedInsts.isEmpty then
-        m!"Reduction got stuck at the `{.ofConstName ``Decidable}` instance{indentExpr reason}"
+        m!"Reduction got stuck{indentExpr reason}"
       else
         let instances := if unfoldedInsts.size == 1 then "instance" else "instances"
         m!"After unfolding the {instances} {.andList unfoldedInsts.toList}, \
-        reduction got stuck at the `{.ofConstName ``Decidable}` instance{indentExpr reason}"
+        reduction got stuck at{indentExpr reason}"
     let hint :=
       if reason.isAppOf ``Eq.rec then
         .hint' m!"Reduction got stuck on `▸` ({.ofConstName ``Eq.rec}), \

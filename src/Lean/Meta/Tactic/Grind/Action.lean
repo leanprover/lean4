@@ -123,7 +123,15 @@ def loop (n : Nat) (x : Action) : Action := fun goal _ kp =>
 Runs action `a` on the given `goal`.
 -/
 def run (goal : Goal) (a : Action) : GrindM ActionResult := do
-  let k := fun goal => if goal.inconsistent then return .closed [] else return .stuck [goal]
+  let k := fun goal => do
+    if goal.inconsistent then
+      return .closed []
+    else if (← getConfig).trace then
+      goal.mvarId.admit
+      let sorryTac ← `(grind| sorry)
+      return .closed [sorryTac]
+    else
+      return .stuck [goal]
   a goal k k
 
 /--

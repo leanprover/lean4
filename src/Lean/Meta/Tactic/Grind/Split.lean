@@ -294,7 +294,12 @@ hypotheses introduced during case analysis. If the proof is of the form `fun _ _
 -/
 private def getFalseProof? (mvarId : MVarId) : MetaM (Option Expr) := mvarId.withContext do
   let proof ← instantiateMVars (mkMVar mvarId)
-  go proof
+  if proof.hasSyntheticSorry then
+    /- **Note**: We do not perform non-chronological backtracking if the proof
+    contains synthetic `sorry`. -/
+    return none
+  else
+    go proof
 where
   go (proof : Expr) : MetaM (Option Expr) := do
     match_expr proof with
@@ -344,11 +349,25 @@ private def isCompressibleAlts (alts : Array (List (TSyntax `grind))) : Bool :=
   else
     true
 
+def isSorryAlt (alt : List (TSyntax `grind)) : Bool :=
+  match alt with
+  | [tac] => match tac with
+    | `(grind| sorry) => true
+    | _ => false
+  | _ => false
+
 private def mkCasesResultSeq (cases : TSyntax `grind) (alts : Array (List (TSyntax `grind)))
     (compress : Bool) : CoreM (List (TSyntax `grind)) := do
   if compress && isCompressibleAlts alts then
-    if h : alts.size > 0 then
-      return [(← mkCasesAndThen cases alts[0]!)]
+    if alts.size > 0 then
+      let firstAlt := alts[0]!
+      if isSorryAlt firstAlt then
+        /-
+        **Note**: It is a bit pointless to return a script of the form `cases #<anchor> <;> sorry`
+        -/
+        return firstAlt
+      else
+        return [(← mkCasesAndThen cases firstAlt)]
     else
       return [cases]
   else

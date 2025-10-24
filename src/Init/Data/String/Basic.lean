@@ -758,6 +758,10 @@ theorem Slice.utf8ByteSize_copy {s : Slice} :
 theorem Slice.rawEndPos_copy {s : Slice} : s.copy.rawEndPos = s.rawEndPos := by
   simp [Pos.Raw.ext_iff, utf8ByteSize_eq]
 
+@[simp]
+theorem copy_toSlice {s : String} : s.toSlice.copy = s := by
+  simp [← bytes_inj, Slice.bytes_copy, ← size_bytes]
+
 theorem Slice.getUTF8Byte_eq_getUTF8Byte_copy {s : Slice} {p : Pos.Raw} {h : p < s.rawEndPos} :
     s.getUTF8Byte p h = s.copy.getUTF8Byte p (by simpa) := by
   simp [getUTF8Byte, String.getUTF8Byte, bytes_copy, ByteArray.getElem_extract]
@@ -1056,19 +1060,6 @@ position. -/
 @[expose]
 def Slice.Pos.get! {s : Slice} (pos : s.Pos) : Char :=
   if h : pos = s.endPos then panic! "Cannot retrieve character at end position" else pos.get h
-
-@[simp]
-theorem startInclusive_toSlice {s : String} : s.toSlice.startInclusive = s.startValidPos := rfl
-
-@[simp]
-theorem endExclusive_toSlice {s : String} : s.toSlice.endExclusive = s.endValidPos := rfl
-
-@[simp]
-theorem str_toSlice {s : String} : s.toSlice.str = s := rfl
-
-@[simp]
-theorem copy_toSlice {s : String} : s.toSlice.copy = s := by
-  simp [← bytes_inj, Slice.bytes_copy, ← size_bytes]
 
 @[simp]
 theorem Pos.Raw.isValidForSlice_toSlice_iff {s : String} {p : Pos.Raw} :
@@ -1579,6 +1570,10 @@ theorem ValidPos.offset_cast {s t : String} {pos : s.ValidPos} {h : s = t} :
 
 @[simp]
 theorem ValidPos.cast_rfl {s : String} {pos : s.ValidPos} : pos.cast rfl = pos :=
+  ValidPos.ext (by simp)
+
+theorem ValidPos.toCopy_toSlice_eq_cast {s : String} (p : s.ValidPos) :
+    p.toSlice.toCopy = p.cast copy_toSlice.symm :=
   ValidPos.ext (by simp)
 
 /-- Given a byte position within a string slice, obtains the smallest valid position that is

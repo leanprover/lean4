@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.String.Basic
+public import Init.Data.String.Lemmas.Splits
 
 /-!
 # Helpers for termination arguments about functions operating on strings
@@ -213,15 +214,44 @@ theorem lt_next_next {s : String} {p : s.ValidPos} {h h'} : p < (p.next h).next 
 theorem prev_prev_lt {s : String} {p : s.ValidPos} {h h'} : (p.prev h).prev h' < p :=
   lt_trans (p.prev h).prev_lt p.prev_lt
 
+theorem Splits.remainingBytes_eq {s : String} {p : s.ValidPos} {t₁ t₂}
+    (h : p.Splits t₁ t₂) : p.remainingBytes = t₂.utf8ByteSize := by
+  simp [ValidPos.remainingBytes_eq, h.eq_append, h.offset_eq_rawEndPos]
+
 end ValidPos
 
--- TODO: activate after benchmarking
--- macro_rules | `(tactic| decreasing_trivial) => `(tactic|
---   (simp [
---     ValidPos.eq_next_of_next?_eq_some (by assumption),
---     ValidPos.eq_prev_of_prev?_eq_some (by assumption),
---     Slice.Pos.eq_next_of_next?_eq_some (by assumption),
---     Slice.Pos.eq_prev_of_prev?_eq_some (by assumption),
---   ]) <;> done)
+namespace Slice.Pos
+
+@[simp]
+theorem remainingBytes_toCopy {s : Slice} {p : s.Pos} :
+    p.toCopy.remainingBytes = p.remainingBytes := by
+  simp [remainingBytes_eq, ValidPos.remainingBytes_eq, Slice.utf8ByteSize_eq]
+
+theorem Splits.remainingBytes_eq {s : Slice} {p : s.Pos} {t₁ t₂} (h : p.Splits t₁ t₂) :
+    p.remainingBytes = t₂.utf8ByteSize := by
+  simpa using h.toCopy.remainingBytes_eq
+
+end Slice.Pos
+
+macro_rules | `(tactic| decreasing_trivial) => `(tactic|
+  (with_reducible change (_ : Slice.Pos _) < _
+   simp [
+    Slice.Pos.eq_next_of_next?_eq_some (by assumption),
+  ]) <;> done)
+macro_rules | `(tactic| decreasing_trivial) => `(tactic|
+  (with_reducible change (_ : Slice.Pos _) < _
+   simp [
+    Slice.Pos.eq_prev_of_prev?_eq_some (by assumption),
+  ]) <;> done)
+macro_rules | `(tactic| decreasing_trivial) => `(tactic|
+  (with_reducible change (_ : String.ValidPos _) < _
+   simp [
+    ValidPos.eq_next_of_next?_eq_some (by assumption),
+  ]) <;> done)
+macro_rules | `(tactic| decreasing_trivial) => `(tactic|
+  (with_reducible change (_ : String.ValidPos _) < _
+   simp [
+    ValidPos.eq_prev_of_prev?_eq_some (by assumption),
+  ]) <;> done)
 
 end String

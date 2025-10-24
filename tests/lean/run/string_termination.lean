@@ -1,5 +1,7 @@
 module
 
+-- Test that termination proofs for stepping through a string with `next` and `prev` works.
+
 def isConsonant (i : String.ValidPos str) : Bool :=
   match i.get! with
   | 'a' | 'e' | 'i' | 'o' | 'u' => false

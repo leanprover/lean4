@@ -71,12 +71,6 @@ def ValidPos.toSetOfLE {s : String} (q p : s.ValidPos) (c : Char) (hp : p ≠ s.
 theorem ValidPos.offset_toSetOfLE {s : String} {q p : s.ValidPos} {c : Char} {hp : p ≠ s.endValidPos}
     {hpq : q ≤ p} : (q.toSetOfLE p c hp hpq).offset = q.offset := (rfl)
 
--- TODO: move
-theorem Pos.Raw.isValid_of_eq_rawEndPos {s : String} {p : Pos.Raw} (h : p = s.rawEndPos) :
-    p.IsValid s := by
-  subst h
-  exact isValid_rawEndPos
-
 theorem Pos.Raw.isValid_add_char_set {s : String} {p : s.ValidPos} {c : Char} {hp} :
     (p.offset + c).IsValid (p.set c hp) :=
   ValidPos.set_eq_append ▸ IsValid.append_right (isValid_of_eq_rawEndPos (by simp [Pos.Raw.ext_iff])) _
@@ -95,47 +89,6 @@ theorem ValidPos.offset_pastSet {s : String} {p : s.ValidPos} {c : Char} {hp} :
 def ValidPos.appendRight {s : String} (p : s.ValidPos) (t : String) : (s ++ t).ValidPos where
   offset := p.offset
   isValid := p.isValid.append_right t
-
-/--
-We say that `p` splits `s` into `t₁` and `t₂` if `s = t₁ ++ t₂` and `p` is the position between `t₁`
-and `t₂`.
--/
-structure ValidPos.Splits {s : String} (p : s.ValidPos) (t₁ t₂ : String) : Prop where
-  eq_append : s = t₁ ++ t₂
-  offset_eq_rawEndPos : p.offset = t₁.rawEndPos
-
-/--
-We say that `p` splits `s` into `t₁` and `t₂` if `s = t₁ ++ t₂` and `p` is the position between `t₁`
-and `t₂`.
--/
-structure Slice.Pos.Splits {s : Slice} (p : s.Pos) (t₁ t₂ : String) : Prop where
-  splits_toCopy : p.toCopy.Splits t₁ t₂
-
-theorem Slice.Pos.Splits.eq_append {s : Slice} {p : s.Pos} {t₁ t₂ : String} (h : p.Splits t₁ t₂) :
-    s.copy = t₁ ++ t₂ :=
-  h.splits_toCopy.eq_append
-
-theorem Slice.Pos.Splits.offset_eq_rawEndPos {s : Slice} {p : s.Pos} {t₁ t₂ : String}
-    (h : p.Splits t₁ t₂) : p.offset = t₁.rawEndPos := by
-  simpa using h.splits_toCopy.offset_eq_rawEndPos
-
-theorem ValidPos.Splits.remainingBytes_eq {s : String} {p : s.ValidPos} {t₁ t₂}
-    (h : p.Splits t₁ t₂) : p.remainingBytes = t₂.utf8ByteSize := by
-  simp [ValidPos.remainingBytes_eq, h.eq_append, h.offset_eq_rawEndPos]
-
-@[simp]
-theorem Slice.Pos.remainingBytes_toCopy {s : Slice} {p : s.Pos} :
-    p.toCopy.remainingBytes = p.remainingBytes := by
-  simp [remainingBytes_eq, ValidPos.remainingBytes_eq, Slice.utf8ByteSize_eq]
-
-theorem Slice.Pos.Splits.remainingBytes_eq {s : Slice} {p : s.Pos} {t₁ t₂} (h : p.Splits t₁ t₂) :
-    p.remainingBytes = t₂.utf8ByteSize := by
-  simpa using h.splits_toCopy.remainingBytes_eq
-
-theorem ValidPos.splits {s : String} (p : s.ValidPos) :
-    p.Splits (s.replaceEnd p).copy (s.replaceStart p).copy where
-  eq_append := by simp [← bytes_inj, Slice.bytes_copy, ← size_bytes]
-  offset_eq_rawEndPos := by simp
 
 theorem ValidPos.splits_pastSet {s : String} {p : s.ValidPos} {c : Char} {hp} :
     (p.pastSet c hp).Splits ((s.replaceEnd p).copy ++ singleton c) (s.replaceStart (p.next hp)).copy where
@@ -178,6 +131,7 @@ def ValidPos.toModifyOfLE {s : String} (q p : s.ValidPos) (f : Char → Char)
 theorem ValidPos.offset_toModifyOfLE {s : String} {q p : s.ValidPos} {f : Char → Char}
     {hp : p ≠ s.endValidPos} {hpq : q ≤ p} : (q.toModifyOfLE p f hp hpq).offset = q.offset := (rfl)
 
+/-- The position just after the position that was modified in a `ValidPos.modify` call. -/
 @[inline]
 def ValidPos.pastModify {s : String} (p : s.ValidPos) (f : Char → Char)
     (hp : p ≠ s.endValidPos) : (p.modify f hp).ValidPos :=
@@ -234,72 +188,11 @@ def Pos.Raw.modify (s : String) (i : Pos.Raw) (f : Char → Char) : String :=
 def modify (s : String) (i : Pos.Raw) (f : Char → Char) : String :=
   i.set s (f (i.get s))
 
--- This is just to keep the proof of `set_next_add` below from breaking; if that lemma goes away
--- or the proof is rewritten, it can be removed.
-private noncomputable def utf8ByteSize' : String → Nat
-  | s => go s.data
-where
-  go : List Char → Nat
-  | []    => 0
-  | c::cs => go cs + c.utf8Size
-
-private theorem utf8ByteSize'_eq (s : String) : s.utf8ByteSize' = s.utf8ByteSize := by
-  suffices ∀ l, utf8ByteSize'.go l = l.asString.utf8ByteSize by
-    obtain ⟨m, rfl⟩ := s.exists_eq_asString
-    rw [utf8ByteSize', this, asString_data]
-  intro l
-  induction l with
-  | nil => simp [utf8ByteSize'.go]
-  | cons c cs ih =>
-    rw [utf8ByteSize'.go, ih, ← List.singleton_append, List.asString_append,
-      utf8ByteSize_append, Nat.add_comm]
-    congr
-    rw [← size_bytes, List.bytes_asString, List.utf8Encode_singleton,
-      List.size_toByteArray, length_utf8EncodeChar]
-
-theorem set_next_add (s : String) (i : Pos.Raw) (c : Char) (b₁ b₂)
-    (h : (i.next s).1 + b₁ = s.rawEndPos.1 + b₂) :
-  (i.next (i.set s c)).1 + b₁ = (i.set s c).rawEndPos.1 + b₂ := by
-  simp [Pos.Raw.next, Pos.Raw.get, Pos.Raw.set, rawEndPos, ← utf8ByteSize'_eq, utf8ByteSize'] at h ⊢
-  rw [Nat.add_comm i.1, Nat.add_assoc] at h ⊢
-  let rec foo : ∀ cs a b₁ b₂,
-    (Pos.Raw.utf8GetAux cs a i).utf8Size + b₁ = utf8ByteSize'.go cs + b₂ →
-    (Pos.Raw.utf8GetAux (Pos.Raw.utf8SetAux c cs a i) a i).utf8Size + b₁ = utf8ByteSize'.go (Pos.Raw.utf8SetAux c cs a i) + b₂
-  | [], _, _, _, h => h
-  | c'::cs, a, b₁, b₂, h => by
-    unfold Pos.Raw.utf8SetAux
-    apply iteInduction (motive := fun p => (Pos.Raw.utf8GetAux p a i).utf8Size + b₁ = utf8ByteSize'.go p + b₂) <;>
-      intro h' <;> simp [Pos.Raw.utf8GetAux, h', utf8ByteSize'.go] at h ⊢
-    next =>
-      rw [Nat.add_assoc, Nat.add_left_comm] at h ⊢; rw [Nat.add_left_cancel h]
-    next =>
-      rw [Nat.add_assoc] at h ⊢
-      refine foo cs (a + c') b₁ (c'.utf8Size + b₂) h
-  exact foo s.data 0 _ _ h
-
-theorem mapAux_lemma (s : String) (i : Pos.Raw) (c : Char) (h : ¬i.atEnd s) :
-    (i.set s c).rawEndPos.1 - (i.next (i.set s c)).1 < s.rawEndPos.1 - i.1 := by
-  suffices (i.set s c).rawEndPos.1 - (i.next (i.set s c)).1 = s.rawEndPos.1 - (i.next s).1 by
-    rw [this]
-    apply Nat.sub_lt_sub_left (Nat.gt_of_not_le (mt decide_eq_true h)) (Pos.Raw.lt_next ..)
-  have := set_next_add s i c (s.rawEndPos.byteIdx - (i.next s).byteIdx) 0
-  have := set_next_add s i c 0 ((i.next s).byteIdx - s.rawEndPos.byteIdx)
-  omega
-
-@[specialize] def mapAux (f : Char → Char) (i : Pos.Raw) (s : String) : String :=
-  if h : i.atEnd s then s
-  else
-    let c := f (i.get s)
-    have := mapAux_lemma s i c h
-    let s := i.set s c
-    mapAux f (i.next s) s
-termination_by s.rawEndPos.1 - i.1
-
-@[specialize] def mapAuxNew (f : Char → Char) (s : String) (p : s.ValidPos) : String :=
+@[specialize] def mapAux (f : Char → Char) (s : String) (p : s.ValidPos) : String :=
   if h : p = s.endValidPos then
     s
   else
-    mapAuxNew f (p.modify f h) (p.pastModify _ _)
+    mapAux f (p.modify f h) (p.pastModify f h)
 termination_by p.remainingBytes
 decreasing_by
   simp [remainingBytes_pastModify, ← ValidPos.lt_iff_remainingBytes_lt]
@@ -313,7 +206,7 @@ Examples:
  * `"".map Char.toUpper = ""`
 -/
 @[inline] def map (f : Char → Char) (s : String) : String :=
-  mapAux f 0 s
+  mapAux f s s.startValidPos
 
 /--
 In the string `s`, replaces all occurrences of `pattern` with `replacement`.

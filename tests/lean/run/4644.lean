@@ -33,7 +33,7 @@ because its `Decidable` instance
 did not reduce to `isTrue` or `isFalse`.
 
 After unfolding the instances `instDecidableEqBool`, `Bool.decEq`, and `Nat.decLe`, reduction got stuck at
-  sorted_from_var #[0, 3, 3, 5, 8, 10, 10, 10] 0
+  sorted_to_var #[0, 3, 3, 5, 8, 10, 10, 10] (#[0, 3, 3, 5, 8, 10, 10, 10].size - 2) ⋯
 -/
 #guard_msgs in
 example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] := by

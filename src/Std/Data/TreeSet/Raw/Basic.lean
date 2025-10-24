@@ -332,6 +332,16 @@ def merge (t₁ t₂ : Raw α cmp) : Raw α cmp :=
 def insertMany {ρ} [ForIn Id ρ α] (t : Raw α cmp) (l : ρ) : Raw α cmp :=
   ⟨TreeMap.Raw.insertManyIfNewUnit t.inner l⟩
 
+/--
+Computes the union of the given tree sets.
+
+This function always merges the smaller set into the larger set.
+-/
+def union (t₁ t₂ : Raw α cmp) : Raw α cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨TreeMap.Raw.union t₁.inner t₂.inner⟩
+
+instance : Union (Raw α cmp) := ⟨union⟩
+
 @[inline, inherit_doc TreeSet.empty]
 def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α cmp) (l : ρ) : Raw α cmp :=
   ⟨t.inner.eraseMany l⟩

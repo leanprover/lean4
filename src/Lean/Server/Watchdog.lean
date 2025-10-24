@@ -400,8 +400,8 @@ section ServerM
     { rd with finalizedWorkerILeanVersions := f finalized }
 
   inductive LogMsg where
-    | deserialized (direction : Logging.MessageDirection) (msg : JsonRpc.Message)
-    | serialized (direction : Logging.MessageDirection) (msg : String)
+    | deserialized (direction : MessageDirection) (msg : JsonRpc.Message)
+    | serialized (direction : MessageDirection) (msg : String)
     deriving Inhabited
 
   structure LogData where

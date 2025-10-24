@@ -400,6 +400,24 @@ Namely:
 def parseMessageMetaData (input : String) : Except String MessageMetaData :=
   messageMetaDataParser input |>.run input
 
+public inductive MessageDirection where
+  | clientToServer
+  | serverToClient
+  deriving Inhabited, FromJson, ToJson
+
+inductive MessageKind where
+  | request
+  | notification
+  | response
+  | responseError
+  deriving FromJson, ToJson
+
+def MessageKind.ofMessage : Message → MessageKind
+  | .request .. => .request
+  | .notification .. => .notification
+  | .response .. => .response
+  | .responseError .. => .responseError
+
 end Lean.JsonRpc
 
 namespace IO.FS.Stream

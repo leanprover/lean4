@@ -91,24 +91,6 @@ where
   method? : Option MessageMethod :=
     messageMethod? msg <|> (do pending.get? (← messageId? msg))
 
-public inductive MessageDirection where
-  | clientToServer
-  | serverToClient
-  deriving Inhabited, FromJson, ToJson
-
-inductive MessageKind where
-  | request
-  | notification
-  | response
-  | responseError
-  deriving FromJson, ToJson
-
-def MessageKind.ofMessage : JsonRpc.Message → MessageKind
-  | .request .. => .request
-  | .notification .. => .notification
-  | .response .. => .response
-  | .responseError .. => .responseError
-
 local instance : ToJson Std.Time.ZonedDateTime where
   toJson dt := dt.toISO8601String
 
@@ -119,13 +101,13 @@ local instance : FromJson Std.Time.ZonedDateTime where
 
 structure LogEntry where
   time : Std.Time.ZonedDateTime
-  direction : MessageDirection
-  kind : MessageKind
+  direction : JsonRpc.MessageDirection
+  kind : JsonRpc.MessageKind
   msg : JsonRpc.Message
   deriving FromJson, ToJson
 
 public def writeLogEntry (cfg : LogConfig) (pending : Std.HashMap JsonRpc.RequestID MessageMethod)
-    (log : IO.FS.Handle) (direction : MessageDirection) (msg : JsonRpc.Message) : IO Unit := do
+    (log : IO.FS.Handle) (direction : JsonRpc.MessageDirection) (msg : JsonRpc.Message) : IO Unit := do
   if ! isMsgAllowed cfg pending msg then
     return
   let entry : LogEntry := {

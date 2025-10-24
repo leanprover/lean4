@@ -6,7 +6,8 @@ Author: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Data.String.Basic
+public import Init.Data.String.Substring
+public import Init.Data.String.Iterator
 
 public section
 

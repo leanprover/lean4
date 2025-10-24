@@ -1,0 +1,5 @@
+name = "fooA"
+
+[[lean_lib]]
+name = "FooA"
+leanOptions.experimental.module = true

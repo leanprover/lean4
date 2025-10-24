@@ -145,7 +145,7 @@ where
         -- This is so that `mSpec` can frame hypotheses involving uninstantiated loop invariants.
         -- It is absolutely crucial that we do not lose these hypotheses in the inductive step.
         collectFreshMVars <| mIntroForallN goal (← TypeList.length goal.σs) fun goal =>
-          withDefault <| mSpec goal (fun _wp  => return specThm) name
+          mSpec goal (fun _wp  => return specThm) name (tryTrivial := false)
       catch ex =>
         trace[Elab.Tactic.Do.vcgen] "Failed to find spec for {wp}. Trying simp. Reason: {ex.toMessageData}"
         -- Last resort: Simp and try again

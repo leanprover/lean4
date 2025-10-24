@@ -6,8 +6,9 @@ Authors: Chris Lovett
 module
 
 prelude
-public import Init.Data.String.Extra
 public import Init.System.FilePath
+import Init.Data.String.TakeDrop
+import Init.Data.String.Modify
 
 public section
 

@@ -530,17 +530,17 @@ lean_closure_set(x_8, 5, x_7);
 return x_8;
 }
 }
-lean_object* initialize_Init_Data_Iterators_Consumers(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Internal_Termination(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Iterators_Consumers(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Internal_Termination(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Producers_Monadic_Array(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Producers_Monadic_Array(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Iterators_Consumers(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Iterators_Consumers(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Internal_Termination(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Iterators_Internal_Termination(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Iterators_instIteratorCollectArrayIteratorOfMonad___redArg___lam__0___closed__0 = _init_l_Std_Iterators_instIteratorCollectArrayIteratorOfMonad___redArg___lam__0___closed__0();

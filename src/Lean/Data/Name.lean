@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Ord.Basic
+import Init.Data.String.TakeDrop
 import Init.Data.Ord.String
 import Init.Data.Ord.UInt
 

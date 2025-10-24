@@ -2585,33 +2585,33 @@ lean_dec(x_5);
 return x_6;
 }
 }
-lean_object* initialize_Init_Data_Option_Attach(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Perm(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_Internal_List_Defs(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_Internal_List_Defs(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Order_Ord(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Subtype_Order(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Option_Attach(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Perm(uint8_t builtin);
+lean_object* initialize_Std_Data_Internal_List_Defs(uint8_t builtin);
+lean_object* initialize_Std_Data_Internal_List_Defs(uint8_t builtin);
+lean_object* initialize_Init_Data_Order_Ord(uint8_t builtin);
+lean_object* initialize_Init_Data_Subtype_Order(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Data_Internal_List_Associative(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Data_Internal_List_Associative(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Option_Attach(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Option_Attach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Perm(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Perm(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Internal_List_Defs(builtin, lean_io_mk_world());
+res = initialize_Std_Data_Internal_List_Defs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Internal_List_Defs(builtin, lean_io_mk_world());
+res = initialize_Std_Data_Internal_List_Defs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Order_Ord(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Order_Ord(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Subtype_Order(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Subtype_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Internal_List_getValueCast_x21___redArg___closed__0 = _init_l_Std_Internal_List_getValueCast_x21___redArg___closed__0();

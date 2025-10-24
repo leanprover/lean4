@@ -3777,17 +3777,17 @@ lean_dec_ref(x_2);
 return x_4;
 }
 }
-lean_object* initialize_Std_Data_TreeMap_Raw_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_TreeSet_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_TreeMap_Raw_Basic(uint8_t builtin);
+lean_object* initialize_Std_Data_TreeSet_Basic(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Data_TreeSet_Raw_Basic(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Data_TreeSet_Raw_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_TreeMap_Raw_Basic(builtin, lean_io_mk_world());
+res = initialize_Std_Data_TreeMap_Raw_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_TreeSet_Basic(builtin, lean_io_mk_world());
+res = initialize_Std_Data_TreeSet_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___auto___closed__0____x40_Std_Data_TreeSet_Raw_Basic_3909766596____hygCtx___hyg_15_ = _init_l___auto___closed__0____x40_Std_Data_TreeSet_Raw_Basic_3909766596____hygCtx___hyg_15_();

@@ -543,4 +543,27 @@ example : (a : Point Nat) → p a → x ≠ y → False := by
     cases #6ccb
     sorry
 
+opaque q : Nat → Nat → Prop
+axiom qax : x ≠ y → q x y
+
+example : x > y + 1 → q x y := by
+  grind =>
+    have h : x > y
+    have : x ≠ y
+    have : x > y := h
+    instantiate [qax]
+
+/--
+error: `finish` failed
+x y : Nat
+h✝² : y + 2 ≤ x
+h✝¹ : ¬q x y
+h✝ : x ≤ y + 2
+⊢ False
+-/
+#guard_msgs in
+example : x > y + 1 → q x y := by
+  grind -verbose =>
+    have h : x > y + 2
+
 end Ex1

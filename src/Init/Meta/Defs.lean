@@ -1550,7 +1550,7 @@ def expandInterpolatedStr (interpStr : TSyntax interpolatedStrKind) (type : Term
 
 def getDocString (stx : TSyntax `Lean.Parser.Command.docComment) : String :=
   match stx.raw[1] with
-  | Syntax.atom _ val => String.Internal.extract val 0 (String.Pos.Raw.Internal.sub val.endPos ⟨2⟩)
+  | Syntax.atom _ val => String.Internal.extract val 0 (String.Pos.Raw.Internal.sub val.rawEndPos ⟨2⟩)
   | _                 => ""
 
 end TSyntax

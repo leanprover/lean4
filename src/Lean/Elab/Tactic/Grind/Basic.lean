@@ -176,12 +176,12 @@ Runs `x` with only the first unsolved goal as the goal.
 Fails if there are no goal to be solved.
 -/
 def focus (k : GrindTacticM α) : GrindTacticM α := do
-  let mvarId :: mvarIds ← getUnsolvedGoals
+  let goal :: goals ← getUnsolvedGoals
     | throwNoGoalsToBeSolved
-  setGoals [mvarId]
+  setGoals [goal]
   let a ← k
-  let mvarIds' ← getUnsolvedGoals
-  setGoals (mvarIds' ++ mvarIds)
+  let goals' ← getUnsolvedGoals
+  setGoals (goals' ++ goals)
   pure a
 
 /--
@@ -379,7 +379,7 @@ def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM
     -- **Note**: We use `withCheapCasesOnly` to ensure multiple goals are not created.
     -- We will add support for this case in the future.
     let (goal, _) ← withCheapCasesOnly <| SearchM.run goal do
-      intros 0
+      intros 0; discard <| assertAll
       getGoal
     let goals := if goal.inconsistent then [] else [goal]
     let ctx ← readThe Meta.Grind.Context

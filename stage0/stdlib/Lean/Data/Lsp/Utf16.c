@@ -768,21 +768,21 @@ return x_30;
 }
 }
 }
-lean_object* initialize_Init_Data_String(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Lsp_BasicAux(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_DeclarationRange(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_String(uint8_t builtin);
+lean_object* initialize_Lean_Data_Lsp_BasicAux(uint8_t builtin);
+lean_object* initialize_Lean_DeclarationRange(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Data_Lsp_Utf16(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Data_Lsp_Utf16(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_String(builtin, lean_io_mk_world());
+res = initialize_Init_Data_String(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_BasicAux(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_Lsp_BasicAux(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_DeclarationRange(builtin, lean_io_mk_world());
+res = initialize_Lean_DeclarationRange(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

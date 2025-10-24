@@ -26,7 +26,8 @@ lean_object* l_Lean_Macro_throwUnsupported___redArg(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_expandBinders___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_expandBinderType___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_PrettyPrinter_Formatter_orelse_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_binder_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_orelse_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instReprBinderSyntaxView_repr___redArg___closed__20;
 static lean_object* l_Lake_expandBinderCore___closed__6;
 static lean_object* l_Lake_instReprBinderSyntaxView_repr___redArg___closed__5;
@@ -82,7 +83,7 @@ static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___
 static lean_object* l_Lake_mkHoleFrom___closed__5;
 LEAN_EXPORT lean_object* l_Lake_BinderSyntaxView_mkArgument(lean_object*);
 static lean_object* l_Lake_expandBinder___closed__0;
-LEAN_EXPORT lean_object* l_Lake_binder_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_binder_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getNumArgs(lean_object*);
 static lean_object* l_Lake_instReprBinderSyntaxView_repr___redArg___closed__4;
 LEAN_EXPORT lean_object* l_Lake_expandBinderIdent(lean_object*, lean_object*, lean_object*);
@@ -100,13 +101,14 @@ size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Array_mkArray1___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instCoeNamedArgumentArgument;
 LEAN_EXPORT lean_object* l_Lake_instCoeBinderIdentFunBinder;
+lean_object* l_Lean_Parser_Term_binderIdent_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instCoeTermArgument___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_expandBinderCore(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Parser_Term_binderIdent_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_expandBinderCore_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_BinderSyntaxView_mkArgument___closed__1;
 static lean_object* l_Lake_BinderSyntaxView_mkBinder___closed__8;
 static lean_object* l_Lake_BinderSyntaxView_mkBinder___closed__11;
+LEAN_EXPORT lean_object* l_Lake_binder_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instReprBinderSyntaxView_repr___redArg___closed__8;
 static lean_object* l_Lake_instReprBinderSyntaxView_repr___redArg___closed__7;
 static lean_object* l_Lake_BinderSyntaxView_mkFunBinder___closed__15;
@@ -119,7 +121,6 @@ LEAN_EXPORT lean_object* l_Lake_instCoeIdentBinderIdent;
 lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lake_BinderSyntaxView_mkFunBinder___closed__21;
 LEAN_EXPORT lean_object* l_Lake_expandOptType(lean_object*, lean_object*);
-lean_object* l_Lean_Parser_Term_binderIdent_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Option_repr___at___Lake_instReprBinderSyntaxView_repr_spec__0___closed__1;
 static lean_object* l_Lake_expandBinderCore___closed__1;
 lean_object* l_Lean_Syntax_getKind(lean_object*);
@@ -159,7 +160,7 @@ static lean_object* l_Lake_expandBinderCore___closed__3;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_mkDepArrow_spec__0(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lake_expandBinderCore___closed__4;
 static lean_object* l_Lake_BinderSyntaxView_mkFunBinder___closed__8;
-LEAN_EXPORT lean_object* l_Lake_binder_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_binder_formatter(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_expandBinders(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_mkHoleFrom___closed__3;
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -197,9 +198,10 @@ static lean_object* l_Lake_BinderSyntaxView_mkBinder___closed__12;
 LEAN_EXPORT lean_object* l_Lake_instCoeTermArgument;
 static lean_object* l_Lake_BinderSyntaxView_mkBinder___closed__10;
 LEAN_EXPORT lean_object* l_Lake_getBinderIds___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instCoeBinderIdentBinder;
 LEAN_EXPORT lean_object* l_Lake_instCoeEllipsisArgument;
+lean_object* l_Lean_Parser_Term_binderIdent_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instReprBinderSyntaxView_repr___redArg___closed__12;
 lean_object* l_Lean_Parser_Term_bracketedBinder_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_firstFrontendMacroScope;
@@ -411,7 +413,7 @@ static lean_object* _init_l_Lake_binder_formatter___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Term_binderIdent_formatter), 5, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Term_binderIdent_formatter___boxed), 5, 0);
 return x_1;
 }
 }
@@ -426,21 +428,29 @@ lean_closure_set(x_3, 0, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_binder_formatter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lake_binder_formatter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = l_Lake_binder_formatter___closed__0;
 x_7 = l_Lake_binder_formatter___closed__1;
-x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x_4, x_5);
+x_8 = l_Lean_PrettyPrinter_Formatter_orelse_formatter(x_6, x_7, x_1, x_2, x_3, x_4);
 return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_binder_formatter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lake_binder_formatter(x_1, x_2, x_3, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l_Lake_binder_parenthesizer___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Term_binderIdent_parenthesizer), 5, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Term_binderIdent_parenthesizer___boxed), 5, 0);
 return x_1;
 }
 }
@@ -455,14 +465,22 @@ lean_closure_set(x_3, 0, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_binder_parenthesizer(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lake_binder_parenthesizer(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = l_Lake_binder_parenthesizer___closed__0;
 x_7 = l_Lake_binder_parenthesizer___closed__1;
-x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2, x_3, x_4, x_5);
+x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2, x_3, x_4);
 return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_binder_parenthesizer___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lake_binder_parenthesizer(x_1, x_2, x_3, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l_Lake_binder___closed__0() {
@@ -3301,17 +3319,17 @@ x_15 = l_Lean_Syntax_node5(x_7, x_8, x_10, x_3, x_12, x_3, x_14);
 return x_15;
 }
 }
-lean_object* initialize_Lean_Parser_Term(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Parser_Term(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Parser_Term(uint8_t builtin);
+lean_object* initialize_Lean_Parser_Term(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Util_Binder(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Util_Binder(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Parser_Term(builtin, lean_io_mk_world());
+res = initialize_Lean_Parser_Term(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Parser_Term(builtin, lean_io_mk_world());
+res = initialize_Lean_Parser_Term(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instCoeTermArgument = _init_l_Lake_instCoeTermArgument();

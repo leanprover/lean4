@@ -3459,33 +3459,33 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Int_Cooper(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Int_Gcd(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_AC(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_AC(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_LawfulBEqTactics(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Cooper(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Gcd(uint8_t builtin);
+lean_object* initialize_Init_Data_AC(uint8_t builtin);
+lean_object* initialize_Init_Data_AC(uint8_t builtin);
+lean_object* initialize_Init_LawfulBEqTactics(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Int_Linear(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Int_Linear(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Int_LemmasAux(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Int_LemmasAux(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Cooper(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Int_Cooper(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Gcd(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Int_Gcd(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_AC(builtin, lean_io_mk_world());
+res = initialize_Init_Data_AC(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_AC(builtin, lean_io_mk_world());
+res = initialize_Init_Data_AC(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_LawfulBEqTactics(builtin, lean_io_mk_world());
+res = initialize_Init_LawfulBEqTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Int_Linear_instInhabitedExpr_default___closed__0 = _init_l_Int_Linear_instInhabitedExpr_default___closed__0();

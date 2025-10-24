@@ -444,7 +444,7 @@ def splitNext (stopAtFirstFailure := true) (compress := true) : Action := fun go
     | kna goal
   let cExpr := c.getExpr
   let gen := goal.getGeneration cExpr
-  let x : Action := splitCore c numCases isRec stopAtFirstFailure compress >> intros gen
+  let x : Action := splitCore c numCases isRec stopAtFirstFailure compress >> intros gen >> assertAll
   x goal kna kp
 
 end Action
@@ -503,7 +503,7 @@ Tries to perform a case-split using `c`. Returns `none` if `c` has already been 
 is not ready.
 -/
 def split? (c : SplitInfo) : SearchM (Option (List Goal × Nat)) := do
-  let .ready numCases isRec ← checkSplitStatus c | return none
+  let .ready numCases isRec _ ← checkSplitStatus c | return none
   let mvarId := (← getGoal).mvarId
   return some (← splitCore mvarId c numCases isRec)
 

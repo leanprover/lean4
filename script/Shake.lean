@@ -563,14 +563,14 @@ def main (args : List String) : IO UInt32 := do
       if remove.contains mod || seen.contains mod then
         out := out ++ text.extract pos stx.raw.getPos?.get!
         -- We use the end position of the syntax, but include whitespace up to the first newline
-        pos := text.findAux (· == '\n') text.endPos stx.raw.getTailPos?.get! + ⟨1⟩
+        pos := text.findAux (· == '\n') text.rawEndPos stx.raw.getTailPos?.get! + ⟨1⟩
       seen := seen.insert mod
     out := out ++ text.extract pos insertion
     for mod in add do
       if !seen.contains mod then
         seen := seen.insert mod
         out := out ++ s!"{mod}\n"
-    out := out ++ text.extract insertion text.endPos
+    out := out ++ text.extract insertion text.rawEndPos
 
     IO.FS.writeFile path out
     return count + 1

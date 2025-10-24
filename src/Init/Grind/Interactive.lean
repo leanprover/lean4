@@ -98,8 +98,17 @@ declare_syntax_cat grind_ref (behavior := both)
 syntax:max anchor : grind_ref
 syntax term : grind_ref
 
+/--
+Performs a case-split on a logical connective, `match`-expression, `if-then-else`-expression,
+or inductive predicate. The argument is an anchor referencing one of the case-split candidates
+in the `grind` state. You can use `cases?` to select a specific candidate using a code action.
+-/
 syntax (name := cases) "cases " grind_ref : grind
 
+/--
+A variant of `cases` that provides a code-action for selecting one of the candidate case-splits
+available in the `grind` state.
+-/
 syntax (name := casesTrace) "cases?" grindFilter : grind
 
 /-- `done` succeeds iff there are no remaining goals. -/
@@ -111,6 +120,14 @@ syntax (name := finish) "finish" : grind
 /-- `finish?` tries to close the current goal using `grind`'s default strategy and suggests a tactic script. -/
 syntax (name := finishTrace) "finish?" : grind
 
+/--
+The `have` tactic is for adding opaque definitions and hypotheses to the local context of the main goal.
+The definitions forget their associated value and cannot be unfolded.
+
+* `have h : t := e` adds the hypothesis `h : t` if `e` is a term of type `t`.
+* `have h := e` uses the type of `e` for `t`.
+* `have : t := e` and `have := e` use `this` for the name of the hypothesis.
+-/
 syntax (name := «have») "have" letDecl : grind
 
 /-- Executes the given tactic block to close the current goal. -/
@@ -128,6 +145,11 @@ Usually `· tac`, which enforces that the goal is closed by `tac`, should be pre
 -/
 syntax (name := focus) "focus " grindSeq : grind
 
+/--
+`next => tac` focuses on the next goal and solves it using `tac`, or else fails.
+`next x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with
+inaccessible names to the given names.
+-/
 syntax (name := next) "next " binderIdent* " => " grindSeq : grind
 
 /--

@@ -457,8 +457,6 @@ def Slice.rawEndPos (s : Slice) : Pos.Raw where
 @[simp]
 theorem Slice.byteIdx_rawEndPos {s : Slice} : s.rawEndPos.byteIdx = s.utf8ByteSize := (rfl)
 
-
-
 /-- Criterion for validity of positions in string slices. -/
 structure Pos.Raw.IsValidForSlice (s : Slice) (p : Pos.Raw) : Prop where
   le_rawEndPos : p ≤ s.rawEndPos

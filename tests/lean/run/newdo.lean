@@ -26,6 +26,12 @@ def List.forBreak_ {α : Type u} {m : Type w → Type x} [Monad m] (xs : List α
   | [] => pure ⟨⟩
   | x :: xs => body x (fun _ => forBreak_ xs body) (fun _ => pure ⟨⟩)
 
+@[specialize]
+def List.forBreak_special {α : Type u} {m : Type w → Type x} [Monad m] (xs : List α) (body : α → OptionCpsT (StateT σ (ExceptCpsT ε m)) PUnit) : StateT σ (ExceptCpsT ε m) PUnit :=
+  match xs with
+  | [] => pure ⟨⟩
+  | x :: xs => body x (fun _ => forBreak_ xs body) (fun _ => pure ⟨⟩)
+
 instance : Foldable (List α) α where
   foldr := List.foldr
   foldl := List.foldl
@@ -1237,6 +1243,98 @@ info: (let w := 23;
     if x < 20 then y := y - 2; break
     x := x + i
   return w + x + y + z)
+
+/--
+info: (let w := 23;
+  let x := 42;
+  let y := 0;
+  let z := 1;
+  do
+  let r ←
+    forIn [1, 2, 3] ⟨x, y, z⟩ fun i r =>
+        let x := r.fst;
+        let x_1 := r.snd;
+        let y := x_1.fst;
+        let z := x_1.snd;
+        let __do_jp := fun x y z y_1 =>
+          let __do_jp := fun x y y_2 =>
+            let __do_jp := fun x y y_3 =>
+              let x := x + i;
+              do
+              pure PUnit.unit
+              pure (ForInStep.yield ⟨x, y, z⟩);
+            if x < 20 then
+              let y := y - 2;
+              pure (ForInStep.done ⟨x, y, z⟩)
+            else do
+              let y_3 ← pure PUnit.unit
+              __do_jp x y y_3;
+          if x > 10 then
+            let x := x + 3;
+            pure (ForInStep.yield ⟨x, y, z⟩)
+          else do
+            let y_2 ← pure PUnit.unit
+            __do_jp x y y_2;
+        if x = 3 then
+          let z := z + i;
+          do
+          let y_1 ← pure PUnit.unit
+          __do_jp x y z y_1
+        else do
+          let y_1 ← pure PUnit.unit
+          __do_jp x y z y_1
+  match r with
+    | ⟨x, y, z⟩ => pure (w + x + y + z)).run : Nat
+-/
+#guard_msgs (info) in
+#check (Id.run do
+  let mut w := 23
+  let mut x := 42
+  let mut y := 0
+  let mut z := 1
+  for i in [1,2,3] do
+    if x = 3 then z := z + i
+    if x > 10 then x := x + 3; continue
+    if x < 20 then y := y - 2; break
+    x := x + i
+  return w + x + y + z)
+
+def ExceptT.runCatch [Monad m] (x : ExceptT α m α) : m α :=
+  (·.casesOn id id) <$> x.run
+
+set_option trace.compiler.ir.boxing true in
+example := Id.run <| ExceptCpsT.runCatch do
+  let w := 23;
+  let x := 42;
+  let y := 0;
+  let z := 1;
+  do
+  let r ←
+    (List.forBreak_ (m:=StateT (Nat × Nat × Nat) (ExceptCpsT Nat Id)) [1, 2, 3] fun i β «continue» «break» (s : Nat × Nat × Nat) =>
+            let x := s.fst;
+            let s := s.snd;
+            let y := s.fst;
+            let z := s.snd;
+            let __do_jp := fun z =>
+              if x > 10 then
+                let x_1 := x + 3;
+                throw x_1
+              else
+                if x < 20 then
+                  let y_1 := y - 2;
+                  «break» () (x, y - 2, z)
+                else «continue» PUnit.unit (x + i, y, z);
+            if x = 3 then
+              let z := z + i;
+              __do_jp z
+            else __do_jp z).run
+        (x, y, z)
+  let r : Nat × Nat × Nat := r.snd
+  let x : Nat := r.fst
+  let r : Nat × Nat := r.snd
+  let y : Nat := r.fst
+  let z : Nat := r.snd
+  pure (w + x + y + z)
 
 set_option trace.compiler.ir.boxing true in
 -- set_option trace.Compiler true in

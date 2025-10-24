@@ -2174,7 +2174,7 @@ theorem mem_union_iff [EquivBEq α] [LawfulHashable α] {k : α} :
 theorem mem_of_mem_union_of_not_mem_right [EquivBEq α]
     [LawfulHashable α] {k : α} :
     k ∈ m₁ ∪ m₂ → ¬k ∈ m₂ → k ∈ m₁ :=
-    m₁.inductionOn₂ m₂ fun _ _ => DHashMap.mem_of_mem_union_of_not_mem_right
+  m₁.inductionOn₂ m₂ fun _ _ => DHashMap.mem_of_mem_union_of_not_mem_right
 
 theorem mem_of_mem_union_of_not_mem_left [EquivBEq α]
     [LawfulHashable α] {k : α} :

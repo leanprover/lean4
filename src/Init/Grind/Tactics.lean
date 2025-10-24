@@ -16,6 +16,12 @@ Passed to `grind` using, for example, the `grind (config := { matchEqs := true }
 structure Config where
   /-- If `trace` is `true`, `grind` records used E-matching theorems and case-splits. -/
   trace : Bool := false
+  /-- If `lax` is `true`, `grind` will silently ignore any parameters referring to non-existent theorems
+  or for which no patterns can be generated. -/
+  lax : Bool := false
+  /-- If `premises` is `true`, `grind` will invoke the currently configured premise selecor on the current goal,
+  and add attempt to use the resulting suggestions as premises to the `grind` tactic. -/
+  premises : Bool := false
   /-- Maximum number of case-splits in a proof search branch. It does not include splits performed during normalization. -/
   splits : Nat := 9
   /-- Maximum number of E-matching (aka heuristic theorem instantiation) rounds before each case split. -/

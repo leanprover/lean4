@@ -162,6 +162,13 @@ theorem Spec.monadLift_ExceptT [Monad m] [WPMonad m ps] (x : m α) (Q : PostCond
     (wp⟦x⟧ (fun a => Q.1 a, Q.2.2))
     Q := by simp [Triple, SPred.entails.refl]
 
+@[spec]
+theorem Spec.monadLift_OptionT [Monad m] [WPMonad m ps] (x : m α) (Q : PostCond α (.except PUnit ps)) :
+  Triple (ps:=.except PUnit ps)
+    (MonadLift.monadLift x : OptionT m α)
+    (wp⟦x⟧ (fun a => Q.1 a, Q.2.2))
+    Q := by simp [Triple, SPred.entails.refl]
+
 /-! # `MonadLiftT` -/
 
 attribute [spec] liftM instMonadLiftTOfMonadLift instMonadLiftT
@@ -183,8 +190,16 @@ theorem Spec.monadMap_ExceptT [Monad m] [WP m ps]
     (f : ∀{β}, m β → m β) {α} (x : ExceptT ε m α) (Q : PostCond α (.except ε ps)) :
   Triple (ps:=.except ε ps)
     (MonadFunctor.monadMap (m:=m) f x)
-    (wp⟦f x.run⟧ (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2))
-    Q := by simp only [Triple, WP.monadMap_ExceptT]; rfl
+    (wp⟦f x.run⟧ (fun e => e.casesOn Q.2.1 Q.1, Q.2.2))
+    Q := by simp [Triple]
+
+@[spec]
+theorem Spec.monadMap_OptionT [Monad m] [WP m ps]
+    (f : ∀{β}, m β → m β) {α} (x : OptionT m α) (Q : PostCond α (.except PUnit ps)) :
+  Triple (ps:=.except PUnit ps)
+    (MonadFunctor.monadMap (m:=m) f x)
+    (wp⟦f x.run⟧ (fun o => o.casesOn (Q.2.1 ⟨⟩) Q.1, Q.2.2))
+    Q := by simp [Triple]
 
 /-! # `MonadFunctorT` -/
 
@@ -226,6 +241,14 @@ theorem Spec.liftWith_ExceptT [Monad m] [WPMonad m ps]
       Q := by simp [Triple]
 
 @[spec]
+theorem Spec.liftWith_OptionT [Monad m] [WPMonad m ps]
+  (f : (∀{β}, OptionT m β → m (Option β)) → m α) :
+    Triple (ps := .except PUnit ps)
+      (MonadControl.liftWith (m:=m) f)
+      (wp⟦f (fun x => x.run)⟧ (Q.1, Q.2.2))
+      Q := by simp [Triple]
+
+@[spec]
 theorem Spec.restoreM_StateT [Monad m] [WPMonad m ps] (x : m (α × σ)) :
     Triple
       (MonadControl.restoreM x : StateT σ m α)
@@ -243,8 +266,15 @@ theorem Spec.restoreM_ReaderT [Monad m] [WPMonad m ps] (x : m α) :
 theorem Spec.restoreM_ExceptT [Monad m] [WPMonad m ps] (x : m (Except ε α)) :
     Triple (ps := .except ε ps)
       (MonadControl.restoreM x : ExceptT ε m α)
-      (wp⟦x⟧ (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2))
-      Q := by simp [Triple]; rfl
+      (wp⟦x⟧ (fun e => e.casesOn Q.2.1 Q.1, Q.2.2))
+      Q := by simp [Triple]
+
+@[spec]
+theorem Spec.restoreM_OptionT [Monad m] [WPMonad m ps] (x : m (Option α)) :
+    Triple (ps := .except PUnit ps)
+      (MonadControl.restoreM x : OptionT m α)
+      (wp⟦x⟧ (fun e => e.casesOn (Q.2.1 ⟨⟩) Q.1, Q.2.2))
+      Q := by simp [Triple]
 
 /-! # `MonadControlT` -/
 
@@ -359,6 +389,46 @@ theorem Spec.orElse_Except (Q : PostCond α (.except ε .pure)) :
     Triple (OrElse.orElse x h : Except ε α) (spred(wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2))) spred(Q) := by
   simp [Triple]
 
+/-! # `OptionT` -/
+
+@[spec]
+theorem Spec.run_OptionT [WP m ps] (x : OptionT m α) :
+  Triple (ps:=ps)
+    (x.run : m (Option α))
+    (wp⟦x⟧ (fun a => Q.1 (.some a), fun _ => Q.1 .none, Q.2))
+    Q := by simp [Triple]
+
+@[spec]
+theorem Spec.throw_OptionT [Monad m] [WPMonad m ps] :
+    Triple (MonadExceptOf.throw e : OptionT m α) (spred(Q.2.1 e)) spred(Q) := by
+  simp [Triple]
+
+@[spec]
+theorem Spec.tryCatch_OptionT [Monad m] [WPMonad m ps] (Q : PostCond α (.except PUnit ps)) :
+    Triple (MonadExceptOf.tryCatch x h : OptionT m α) (spred(wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2))) spred(Q) := by
+  simp [Triple]
+
+@[spec]
+theorem Spec.orElse_OptionT [Monad m] [WPMonad m ps] (Q : PostCond α (.except PUnit ps)) :
+    Triple (OrElse.orElse x h : OptionT m α) (spred(wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2))) spred(Q) := by
+  simp [Triple]
+
+/-! # `Option` -/
+
+@[spec]
+theorem Spec.throw_Option [Monad m] [WPMonad m ps] :
+  Triple (MonadExceptOf.throw e : Option α) (spred(Q.2.1 e)) spred(Q) := SPred.entails.rfl
+
+@[spec]
+theorem Spec.tryCatch_Option (Q : PostCond α (.except PUnit .pure)) :
+    Triple (MonadExceptOf.tryCatch x h : Option α) (spred(wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2))) spred(Q) := by
+  simp [Triple]
+
+@[spec]
+theorem Spec.orElse_Option (Q : PostCond α (.except PUnit .pure)) :
+    Triple (OrElse.orElse x h : Option α) (spred(wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2))) spred(Q) := by
+  simp [Triple]
+
 /-! # `EStateM` -/
 
 @[spec]
@@ -428,7 +498,19 @@ theorem Spec.throw_StateT [WP m ps] [Monad m] [MonadExceptOf ε m] (Q : PostCond
 theorem Spec.throw_ExceptT_lift [WP m ps] [MonadExceptOf ε m] (Q : PostCond α (.except ε' ps)) :
   Triple (ps:=.except ε' ps)
     (MonadExceptOf.throw e : ExceptT ε' m α)
-    (wp⟦MonadExceptOf.throw (ε:=ε) e : m (Except ε' α)⟧ (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2))
+    (wp⟦MonadExceptOf.throw (ε:=ε) e : m (Except ε' α)⟧ (fun e => e.casesOn Q.2.1 Q.1, Q.2.2))
+    Q := by
+  simp [Triple]
+  apply (wp _).mono
+  simp
+  intro x
+  split <;> rfl
+
+@[spec]
+theorem Spec.throw_Option_lift [WP m ps] [MonadExceptOf ε m] (Q : PostCond α (.except PUnit ps)) :
+  Triple (ps:=.except PUnit ps)
+    (MonadExceptOf.throw e : OptionT m α)
+    (wp⟦MonadExceptOf.throw (ε:=ε) e : m (Option α)⟧ (fun o => o.casesOn (Q.2.1 ⟨⟩) Q.1, Q.2.2))
     Q := by
   simp [Triple]
   apply (wp _).mono
@@ -449,7 +531,20 @@ theorem Spec.tryCatch_ExceptT_lift [WP m ps] [MonadExceptOf ε m] (Q : PostCond 
     Triple
       (ps:=.except ε' ps)
       (MonadExceptOf.tryCatch x h : ExceptT ε' m α)
-      (wp⟦MonadExceptOf.tryCatch (ε:=ε) x h : m (Except ε' α)⟧ (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2))
+      (wp⟦MonadExceptOf.tryCatch (ε:=ε) x h : m (Except ε' α)⟧ (fun e => e.casesOn Q.2.1 Q.1, Q.2.2))
+      Q := by
+  simp only [Triple]
+  apply (wp _).mono
+  simp
+  intro x
+  split <;> rfl
+
+@[spec]
+theorem Spec.tryCatch_OptionT_lift [WP m ps] [MonadExceptOf ε m] (Q : PostCond α (.except PUnit ps)) :
+    Triple
+      (ps:=.except PUnit ps)
+      (MonadExceptOf.tryCatch x h : OptionT m α)
+      (wp⟦MonadExceptOf.tryCatch (ε:=ε) x h : m (Option α)⟧ (fun o => o.casesOn (Q.2.1 ⟨⟩) Q.1, Q.2.2))
       Q := by
   simp only [Triple]
   apply (wp _).mono
@@ -459,7 +554,15 @@ theorem Spec.tryCatch_ExceptT_lift [WP m ps] [MonadExceptOf ε m] (Q : PostCond 
 
 /-! # Lifting `OrElse` -/
 
+end Std.Do
+
 /-! # `ForIn` -/
+
+namespace Std.Do
+
+universe u₁ u₂ v
+variable {α : Type u₁} {β : Type (max u₁ u₂)} {m : Type (max u₁ u₂) → Type v} {ps : PostShape.{max u₁ u₂}}
+variable [Monad m] [WPMonad m ps]
 
 /--
 The type of loop invariants used by the specifications of `for ... in ...` loops.
@@ -476,7 +579,7 @@ After leaving the loop, the cursor's prefix is `xs` and the suffix is empty.
 During the induction step, the invariant holds for a suffix with head element `x`.
 After running the loop body, the invariant then holds after shifting `x` to the prefix.
 -/
-abbrev Invariant {α : Type u} (xs : List α) (β : Type u) (ps : PostShape) :=
+abbrev Invariant {α : Type u₁} (xs : List α) (β : Type u₂) (ps : PostShape.{max u₁ u₂}) :=
   PostCond (List.Cursor xs × β) ps
 
 /--
@@ -508,8 +611,7 @@ abbrev Invariant.withEarlyReturn
    onExcept⟩
 
 @[spec]
-theorem Spec.forIn'_list {α β : Type u}
-    [Monad m] [WPMonad m ps]
+theorem Spec.forIn'_list
     {xs : List α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
     (inv : Invariant xs β ps)
     (step : ∀ pref cur suff (h : xs = pref ++ cur :: suff) b,
@@ -544,8 +646,7 @@ theorem Spec.forIn'_list {α β : Type u}
         exact this
 
 -- using the postcondition as a constant invariant:
-theorem Spec.forIn'_list_const_inv {α β : Type u}
-    [Monad m] [WPMonad m ps]
+theorem Spec.forIn'_list_const_inv
     {xs : List α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
     {inv : PostCond β ps}
     (step : ∀ x (hx : x ∈ xs) b,
@@ -557,8 +658,7 @@ theorem Spec.forIn'_list_const_inv {α β : Type u}
   Spec.forIn'_list (fun p => inv.1 p.2, inv.2) (fun _p c _s h b => step c (by simp [h]) b)
 
 @[spec]
-theorem Spec.forIn_list {α β : Type u}
-    [Monad m] [WPMonad m ps]
+theorem Spec.forIn_list
     {xs : List α} {init : β} {f : α → β → m (ForInStep β)}
     (inv : Invariant xs β ps)
     (step : ∀ pref cur suff (h : xs = pref ++ cur :: suff) b,
@@ -573,8 +673,7 @@ theorem Spec.forIn_list {α β : Type u}
   exact Spec.forIn'_list inv step
 
 -- using the postcondition as a constant invariant:
-theorem Spec.forIn_list_const_inv {α β : Type u}
-    [Monad m] [WPMonad m ps]
+theorem Spec.forIn_list_const_inv
     {xs : List α} {init : β} {f : α → β → m (ForInStep β)}
     {inv : PostCond β ps}
     (step : ∀ hd b,
@@ -586,8 +685,7 @@ theorem Spec.forIn_list_const_inv {α β : Type u}
   Spec.forIn_list (fun p => inv.1 p.2, inv.2) (fun _p c _s _h b => step c b)
 
 @[spec]
-theorem Spec.foldlM_list {α β : Type u}
-    [Monad m] [WPMonad m ps]
+theorem Spec.foldlM_list
     {xs : List α} {init : β} {f : β → α → m β}
     (inv : Invariant xs β ps)
     (step : ∀ pref cur suff (h : xs = pref ++ cur :: suff) b,
@@ -604,8 +702,7 @@ theorem Spec.foldlM_list {α β : Type u}
   exact step
 
 -- using the postcondition as a constant invariant:
-theorem Spec.foldlM_list_const_inv {α β : Type u}
-    [Monad m] [WPMonad m ps]
+theorem Spec.foldlM_list_const_inv
     {xs : List α} {init : β} {f : β → α → m β}
     {inv : PostCond β ps}
     (step : ∀ hd b,
@@ -617,7 +714,7 @@ theorem Spec.foldlM_list_const_inv {α β : Type u}
     Spec.foldlM_list (fun p => inv.1 p.2, inv.2) (fun _p c _s _h b => step c b)
 
 @[spec]
-theorem Spec.forIn'_range {β : Type} {m : Type → Type v} {ps : PostShape}
+theorem Spec.forIn'_range {β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     {xs : Std.Range} {init : β} {f : (a : Nat) → a ∈ xs → β → m (ForInStep β)}
     (inv : Invariant xs.toList β ps)
@@ -633,7 +730,7 @@ theorem Spec.forIn'_range {β : Type} {m : Type → Type v} {ps : PostShape}
   apply Spec.forIn'_list inv (fun c hcur b => step c hcur b)
 
 @[spec]
-theorem Spec.forIn_range {β : Type} {m : Type → Type v} {ps : PostShape}
+theorem Spec.forIn_range {β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     {xs : Std.Range} {init : β} {f : Nat → β → m (ForInStep β)}
     (inv : Invariant xs.toList β ps)
@@ -650,7 +747,7 @@ theorem Spec.forIn_range {β : Type} {m : Type → Type v} {ps : PostShape}
 
 open Std.PRange in
 @[spec]
-theorem Spec.forIn'_rcc {α β : Type u}
+theorem Spec.forIn'_rcc {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     [LE α] [DecidableLE α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
@@ -669,7 +766,7 @@ theorem Spec.forIn'_rcc {α β : Type u}
 
 open Std.PRange in
 @[spec]
-theorem Spec.forIn_rcc {α β : Type u}
+theorem Spec.forIn_rcc {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     [LE α] [DecidableLE α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
@@ -688,7 +785,7 @@ theorem Spec.forIn_rcc {α β : Type u}
 
 open Std.PRange in
 @[spec]
-theorem Spec.forIn'_rco {α β : Type u}
+theorem Spec.forIn'_rco {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     [LE α] [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
@@ -707,7 +804,7 @@ theorem Spec.forIn'_rco {α β : Type u}
 
 open Std.PRange in
 @[spec]
-theorem Spec.forIn_rco {α β : Type u}
+theorem Spec.forIn_rco {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     [LE α] [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
@@ -726,7 +823,7 @@ theorem Spec.forIn_rco {α β : Type u}
 
 open Std.PRange in
 @[spec]
-theorem Spec.forIn'_rci {α β : Type u}
+theorem Spec.forIn'_rci {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     [LE α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
@@ -745,7 +842,7 @@ theorem Spec.forIn'_rci {α β : Type u}
 
 open Std.PRange in
 @[spec]
-theorem Spec.forIn_rci {α β : Type u}
+theorem Spec.forIn_rci {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     [LE α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
@@ -764,7 +861,7 @@ theorem Spec.forIn_rci {α β : Type u}
 
 open Std.PRange in
 @[spec]
-theorem Spec.forIn'_roc {α β : Type u}
+theorem Spec.forIn'_roc {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     [LE α] [DecidableLE α] [LT α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
@@ -783,7 +880,7 @@ theorem Spec.forIn'_roc {α β : Type u}
 
 open Std.PRange in
 @[spec]
-theorem Spec.forIn_roc {α β : Type u}
+theorem Spec.forIn_roc {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     [LE α] [DecidableLE α] [LT α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
@@ -802,7 +899,7 @@ theorem Spec.forIn_roc {α β : Type u}
 
 open Std.PRange in
 @[spec]
-theorem Spec.forIn'_roo {α β : Type u}
+theorem Spec.forIn'_roo {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
@@ -821,7 +918,7 @@ theorem Spec.forIn'_roo {α β : Type u}
 
 open Std.PRange in
 @[spec]
-theorem Spec.forIn_roo {α β : Type u}
+theorem Spec.forIn_roo {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
@@ -840,7 +937,7 @@ theorem Spec.forIn_roo {α β : Type u}
 
 open Std.PRange in
 @[spec]
-theorem Spec.forIn'_roi {α β : Type u}
+theorem Spec.forIn'_roi {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
@@ -859,7 +956,7 @@ theorem Spec.forIn'_roi {α β : Type u}
 
 open Std.PRange in
 @[spec]
-theorem Spec.forIn_roi {α β : Type u}
+theorem Spec.forIn_roi {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
@@ -878,7 +975,7 @@ theorem Spec.forIn_roi {α β : Type u}
 
 open Std.PRange in
 @[spec]
-theorem Spec.forIn'_ric {α β : Type u}
+theorem Spec.forIn'_ric {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α] [LawfulUpwardEnumerableLE α]
@@ -897,7 +994,7 @@ theorem Spec.forIn'_ric {α β : Type u}
 
 open Std.PRange in
 @[spec]
-theorem Spec.forIn_ric {α β : Type u}
+theorem Spec.forIn_ric {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α] [LawfulUpwardEnumerableLE α]
@@ -916,7 +1013,7 @@ theorem Spec.forIn_ric {α β : Type u}
 
 open Std.PRange in
 @[spec]
-theorem Spec.forIn'_rio {α β : Type u}
+theorem Spec.forIn'_rio {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α] [LawfulUpwardEnumerableLT α]
@@ -935,7 +1032,7 @@ theorem Spec.forIn'_rio {α β : Type u}
 
 open Std.PRange in
 @[spec]
-theorem Spec.forIn_rio {α β : Type u}
+theorem Spec.forIn_rio {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α] [LawfulUpwardEnumerableLT α]
@@ -954,7 +1051,7 @@ theorem Spec.forIn_rio {α β : Type u}
 
 open Std.PRange in
 @[spec]
-theorem Spec.forIn'_rii {α β : Type u}
+theorem Spec.forIn'_rii {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     [Least? α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
@@ -973,7 +1070,7 @@ theorem Spec.forIn'_rii {α β : Type u}
 
 open Std.PRange in
 @[spec]
-theorem Spec.forIn_rii {α β : Type u}
+theorem Spec.forIn_rii {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     [Least? α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
@@ -991,7 +1088,7 @@ theorem Spec.forIn_rii {α β : Type u}
   apply Spec.forIn'_rii inv step
 
 @[spec]
-theorem Spec.forIn'_array {α β : Type u}
+theorem Spec.forIn'_array {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     {xs : Array α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
     (inv : Invariant xs.toList β ps)
@@ -1008,7 +1105,7 @@ theorem Spec.forIn'_array {α β : Type u}
   apply Spec.forIn'_list inv step
 
 @[spec]
-theorem Spec.forIn_array {α β : Type u}
+theorem Spec.forIn_array {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     {xs : Array α} {init : β} {f : α → β → m (ForInStep β)}
     (inv : Invariant xs.toList β ps)
@@ -1025,7 +1122,7 @@ theorem Spec.forIn_array {α β : Type u}
   apply Spec.forIn_list inv step
 
 @[spec]
-theorem Spec.foldlM_array {α β : Type u}
+theorem Spec.foldlM_array {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     {xs : Array α} {init : β} {f : β → α → m β}
     (inv : Invariant xs.toList β ps)

@@ -308,7 +308,7 @@ def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask GetWidgetsRespo
           |>.mapM fun _ => do
             let uwd ← evalUserWidgetDefinition wi.id
             return uwd.name
-        return { wi with range? := String.Range.toLspRange filemap <$> Syntax.getRange? wi.stx, name? }
+        return { wi with range? := Lean.Syntax.Range.toLspRange filemap <$> Syntax.getRange? wi.stx, name? }
       return { widgets := ws' ++ ws }
     | _ => return ⟨∅⟩
 

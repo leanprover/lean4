@@ -1717,13 +1717,13 @@ x_8 = l___private_Std_Do_WP_Basic_0__Std_Do_EStateM_instWP_match__1_splitter___r
 return x_8;
 }
 }
-lean_object* initialize_Std_Do_PredTrans(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Do_PredTrans(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Do_WP_Basic(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Do_WP_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Do_PredTrans(builtin, lean_io_mk_world());
+res = initialize_Std_Do_PredTrans(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Do_termWp_u27e6___x3a___u27e7___closed__0 = _init_l_Std_Do_termWp_u27e6___x3a___u27e7___closed__0();

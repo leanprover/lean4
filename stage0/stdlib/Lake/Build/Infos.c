@@ -2230,29 +2230,29 @@ lean_ctor_set(x_8, 3, x_5);
 return x_8;
 }
 }
-lean_object* initialize_Lake_Build_Info(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Config_LeanExe(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Config_ExternLib(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Config_InputFile(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Build_Data(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Build_Info(uint8_t builtin);
+lean_object* initialize_Lake_Config_LeanExe(uint8_t builtin);
+lean_object* initialize_Lake_Config_ExternLib(uint8_t builtin);
+lean_object* initialize_Lake_Config_InputFile(uint8_t builtin);
+lean_object* initialize_Lake_Build_Data(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Build_Infos(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Build_Infos(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Build_Info(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_Info(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_LeanExe(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_LeanExe(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_ExternLib(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_ExternLib(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_InputFile(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_InputFile(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Data(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_Data(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instDataKindModule___closed__0 = _init_l_Lake_instDataKindModule___closed__0();

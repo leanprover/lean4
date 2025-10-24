@@ -1672,17 +1672,17 @@ x_11 = l_Lean_Omega_LinearCombo_sub(x_7, x_10);
 return x_11;
 }
 }
-lean_object* initialize_Init_Omega_Coeffs(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Omega_Coeffs(uint8_t builtin);
+lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Omega_LinearCombo(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Omega_LinearCombo(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Omega_Coeffs(builtin, lean_io_mk_world());
+res = initialize_Init_Omega_Coeffs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ToString_Macro(builtin, lean_io_mk_world());
+res = initialize_Init_Data_ToString_Macro(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_List_foldl___at___List_foldl___at___Std_Format_joinSep___at___List_repr_x27___at___Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0_spec__0_spec__0___closed__0 = _init_l_List_foldl___at___List_foldl___at___Std_Format_joinSep___at___List_repr_x27___at___Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0_spec__0_spec__0___closed__0();

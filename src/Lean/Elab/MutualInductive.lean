@@ -15,6 +15,7 @@ import Lean.Elab.ComputedFields
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CtorElim
 import Lean.Meta.IndPredBelow
+import Lean.Meta.Injective
 
 public section
 

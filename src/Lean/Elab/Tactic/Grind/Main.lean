@@ -9,11 +9,13 @@ public import Lean.Meta.Tactic.Grind.Main
 public import Lean.Meta.Tactic.TryThis
 public import Lean.Elab.Command
 public import Lean.Elab.Tactic.Config
+public import Lean.PremiseSelection.Basic
 import Lean.Meta.Tactic.Grind.SimpUtil
 import Lean.Meta.Tactic.Grind.EMatchTheoremParam
 import Lean.Elab.Tactic.Grind.Basic
 import Lean.Elab.MutualDef
 meta import Lean.Meta.Tactic.Grind.Parser
+
 public section
 namespace Lean.Elab.Tactic
 open Meta
@@ -82,24 +84,50 @@ private def warnRedundantEMatchArg (s : Grind.EMatchTheorems) (declName : Name) 
       pure m!"{ks}"
   logWarning m!"this parameter is redundant, environment already contains `{declName}` annotated with `{kinds}`"
 
-def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.grindParam) (only : Bool) : MetaM Grind.Params := do
+private def parseModifier (s : String) : CoreM Grind.AttrKind := do
+  let stx := Parser.runParserCategory (← getEnv) `Lean.Parser.Attr.grindMod s
+  match stx with
+  | .ok stx => Grind.getAttrKindCore stx
+  | _ => throwError "unexpected modifier {s}"
+
+open PremiseSelection in
+def elabGrindParams
+    (params : Grind.Params) (ps : TSyntaxArray ``Parser.Tactic.grindParam) (only : Bool)
+    (premises : Array Suggestion := #[]) (lax : Bool := false) :
+    MetaM Grind.Params := do
   let mut params := params
   for p in ps do
-    match p with
-    | `(Parser.Tactic.grindParam| - $id:ident) =>
-      let declName ← realizeGlobalConstNoOverloadWithInfo id
-      if let some declName ← Grind.isCasesAttrCandidate? declName false then
-        Grind.ensureNotBuiltinCases declName
-        params := { params with casesTypes := (← params.casesTypes.eraseDecl declName) }
-      else if (← Grind.isInjectiveTheorem declName) then
-        params := { params with inj := params.inj.erase (.decl declName) }
-      else
-        params := { params with ematch := (← params.ematch.eraseDecl declName) }
-    | `(Parser.Tactic.grindParam| $[$mod?:grindMod]? $id:ident) =>
-      params ← processParam params p mod? id (minIndexable := false)
-    | `(Parser.Tactic.grindParam| ! $[$mod?:grindMod]? $id:ident) =>
-      params ← processParam params p mod? id (minIndexable := true)
-    | _ => throwError "unexpected `grind` parameter{indentD p}"
+    try
+      match p with
+      | `(Parser.Tactic.grindParam| - $id:ident) =>
+        let declName ← realizeGlobalConstNoOverloadWithInfo id
+        if let some declName ← Grind.isCasesAttrCandidate? declName false then
+          Grind.ensureNotBuiltinCases declName
+          params := { params with casesTypes := (← params.casesTypes.eraseDecl declName) }
+        else if (← Grind.isInjectiveTheorem declName) then
+          params := { params with inj := params.inj.erase (.decl declName) }
+        else
+          params := { params with ematch := (← params.ematch.eraseDecl declName) }
+      | `(Parser.Tactic.grindParam| $[$mod?:grindMod]? $id:ident) =>
+        params ← processParam params p mod? id (minIndexable := false)
+      | `(Parser.Tactic.grindParam| ! $[$mod?:grindMod]? $id:ident) =>
+        params ← processParam params p mod? id (minIndexable := true)
+      | _ => throwError "unexpected `grind` parameter{indentD p}"
+    catch ex =>
+      if !lax then throw ex
+  for p in premises do
+    let attr ← match p.flag with
+    | some flag => parseModifier flag
+    | none => pure <| .ematch (.default false)
+    match attr with
+    | .ematch kind =>
+      params ← addEMatchTheorem params (mkIdent p.name) p.name kind false
+    | _ =>
+      -- We could actually support arbitrary grind modifiers,
+      -- and call `processParam` rather than `addEMatchTheorem`,
+      -- but this would require a larger refactor.
+      -- Let's only do this if there is a prospect of a premise selector supprting this.
+      throwError "unexpected modifier {p.flag}"
   return params
 where
   ensureNoMinIndexable (minIndexable : Bool) : MetaM Unit := do
@@ -202,13 +230,20 @@ where
     | _ =>
       throwError "invalid `grind` parameter, `{.ofConstName declName}` is not a theorem, definition, or inductive type"
 
-def mkGrindParams (config : Grind.Config) (only : Bool) (ps :  TSyntaxArray ``Parser.Tactic.grindParam) : MetaM Grind.Params := do
+def mkGrindParams
+    (config : Grind.Config) (only : Bool) (ps : TSyntaxArray ``Parser.Tactic.grindParam) (mvarId : MVarId) :
+    MetaM Grind.Params := do
   let params ← Grind.mkParams config
   let ematch ← if only then pure default else Grind.getEMatchTheorems
   let inj ← if only then pure default else Grind.getInjectiveTheorems
   let casesTypes ← if only then pure default else Grind.getCasesTypes
   let params := { params with ematch, casesTypes, inj }
-  let params ← elabGrindParams params ps only
+  let premises ← if config.premises then
+    let suggestions ← PremiseSelection.select mvarId
+    pure suggestions
+  else
+    pure #[]
+  let params ← elabGrindParams params ps only premises (lax := config.lax)
   trace[grind.debug.inj] "{params.inj.getOrigins.map (·.pp)}"
   return params
 
@@ -222,7 +257,7 @@ def grind
     mvarId.admit
     return {}
   mvarId.withContext do
-    let params ← mkGrindParams config only ps
+    let params ← mkGrindParams config only ps mvarId
     let type ← mvarId.getType
     let mvar' ← mkFreshExprSyntheticOpaqueMVar type
     let finalize (result : Grind.Result) : TacticM Grind.Trace := do

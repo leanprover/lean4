@@ -122,7 +122,7 @@ private def onlyCode [Monad m] [MonadError m] (xs : TSyntaxArray `inline) : m St
   else
     throwError "Expected precisely 1 code argument"
 
-private def strLitRange [Monad m] [MonadFileMap m] (s : StrLit) : m String.Range := do
+private def strLitRange [Monad m] [MonadFileMap m] (s : StrLit) : m Lean.Syntax.Range := do
   let pos := (s.raw.getPos? (canonicalOnly := true)).get!
   let endPos := s.raw.getTailPos? true |>.get!
   return ⟨pos, endPos⟩
@@ -647,7 +647,7 @@ def lean (name : Option Ident := none) (error warning «show» : flag false) (co
   -- TODO fallback for non-original syntax
   let pos := code.raw.getPos? true |>.get!
   let endPos := code.raw.getTailPos? true |>.get!
-  let endPos := if endPos ≤ text.source.endPos then endPos else text.source.endPos
+  let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
   let ictx :=
     mkInputContext text.source (← getFileName)
       (endPos := endPos) (endPos_valid := by simp only [endPos]; split <;> simp [*])

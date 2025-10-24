@@ -701,7 +701,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_Compiler_LCNF_Expr_mapFVarM___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec_ref(x_1);
+lean_dec(x_1);
 return x_5;
 }
 }
@@ -4149,13 +4149,13 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* initialize_Lean_Compiler_LCNF_CompilerM(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_LCNF_CompilerM(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_FVarUtil(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_FVarUtil(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Compiler_LCNF_CompilerM(builtin, lean_io_mk_world());
+res = initialize_Lean_Compiler_LCNF_CompilerM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Compiler_LCNF_Expr_mapFVarM___redArg___closed__0 = _init_l_Lean_Compiler_LCNF_Expr_mapFVarM___redArg___closed__0();

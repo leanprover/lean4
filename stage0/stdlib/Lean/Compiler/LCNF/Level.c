@@ -2717,17 +2717,17 @@ return x_26;
 }
 }
 }
-lean_object* initialize_Lean_Util_CollectLevelParams(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_LCNF_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Util_CollectLevelParams(uint8_t builtin);
+lean_object* initialize_Lean_Compiler_LCNF_Basic(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_Level(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_Level(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Util_CollectLevelParams(builtin, lean_io_mk_world());
+res = initialize_Lean_Util_CollectLevelParams(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_Basic(builtin, lean_io_mk_world());
+res = initialize_Lean_Compiler_LCNF_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_panic___at___Lean_Compiler_LCNF_NormLevelParam_normLevel_spec__8___closed__0 = _init_l_panic___at___Lean_Compiler_LCNF_NormLevelParam_normLevel_spec__8___closed__0();

@@ -717,21 +717,21 @@ x_1 = l_Lake_WorkspaceConfig_packagesDir___proj___lam__3___closed__0;
 return x_1;
 }
 }
-lean_object* initialize_Lake_Config_Defaults(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Config_MetaClasses(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Config_Meta(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Config_Defaults(uint8_t builtin);
+lean_object* initialize_Lake_Config_MetaClasses(uint8_t builtin);
+lean_object* initialize_Lake_Config_Meta(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Config_WorkspaceConfig(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Config_WorkspaceConfig(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Config_Defaults(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_Defaults(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_MetaClasses(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_MetaClasses(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_Meta(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_Meta(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instInhabitedWorkspaceConfig_default___closed__0 = _init_l_Lake_instInhabitedWorkspaceConfig_default___closed__0();

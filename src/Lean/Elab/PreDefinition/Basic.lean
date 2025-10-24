@@ -134,7 +134,10 @@ private def shouldGenCodeFor (preDef : PreDefinition) : Bool :=
   !preDef.kind.isTheorem && !preDef.modifiers.isNoncomputable
 
 private def compileDecl (decl : Declaration) : TermElabM Unit := do
-  Lean.compileDecl (logErrors := !(← read).isNoncomputableSection) decl
+  Lean.compileDecl
+    -- `meta` should disregard `noncomputable section`
+    (logErrors := !(← read).isNoncomputableSection || decl.getTopLevelNames.any (isMeta (← getEnv)))
+    decl
 
 register_builtin_option diagnostics.threshold.proofSize : Nat := {
   defValue := 16384

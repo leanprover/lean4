@@ -73,7 +73,7 @@ def finitenessRelation : Std.Iterators.FinitenessRelation (ForwardCharPredSearch
       obtain ⟨_, h1, h2, _⟩ := h'
       have h3 := Char.utf8Size_pos (it.internalState.currPos.get h1)
       have h4 := it.internalState.currPos.isValidForSlice.le_utf8ByteSize
-      simp [Pos.ext_iff, String.Pos.Raw.ext_iff, Pos.Raw.le_iff] at h1 h2 h4
+      simp [Pos.ext_iff, String.Pos.Raw.ext_iff] at h1 h2 h4
       omega
     · cases h'
     · cases h

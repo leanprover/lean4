@@ -70,7 +70,7 @@ class ForwardPattern (ρ : Type) where
   Checks whether the slice starts with the pattern. If it does, the slice is returned with the
   prefix removed; otherwise the result is {name}`none`.
   -/
-  dropPrefix? : Slice → ρ → Option Slice
+  dropPrefix? : (s : Slice) → ρ → Option s.Pos
 
 namespace Internal
 
@@ -115,10 +115,10 @@ def defaultStartsWith (s : Slice) (pat : ρ) : Bool :=
   | _ => false
 
 @[specialize pat]
-def defaultDropPrefix? (s : Slice) (pat : ρ) : Option Slice :=
+def defaultDropPrefix? (s : Slice) (pat : ρ) : Option s.Pos :=
   let searcher := ToForwardSearcher.toSearcher s pat
   match searcher.step with
-  | .yield _ (.matched _ endPos) _ => some (s.replaceStart endPos)
+  | .yield _ (.matched _ endPos) _ => some endPos
   | _ => none
 
 @[always_inline, inline]
@@ -158,7 +158,7 @@ class BackwardPattern (ρ : Type) where
   Checks whether the slice ends with the pattern. If it does, the slice is returned with the
   suffix removed; otherwise the result is {name}`none`.
   -/
-  dropSuffix? : Slice → ρ → Option Slice
+  dropSuffix? : (s : Slice) → ρ → Option s.Pos
 
 namespace ToBackwardSearcher
 
@@ -174,10 +174,10 @@ def defaultEndsWith (s : Slice) (pat : ρ) : Bool :=
   | _ => false
 
 @[specialize pat]
-def defaultDropSuffix? (s : Slice) (pat : ρ) : Option Slice :=
+def defaultDropSuffix? (s : Slice) (pat : ρ) : Option s.Pos :=
   let searcher := ToBackwardSearcher.toSearcher s pat
   match searcher.step with
-  | .yield _ (.matched startPos _) _ => some (s.replaceEnd startPos)
+  | .yield _ (.matched startPos _) _ => some startPos
   | _ => none
 
 @[always_inline, inline]

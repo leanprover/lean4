@@ -236,7 +236,7 @@ theorem Pure.thm {P Q T : SPred σs} {φ : Prop} [IsPure Q φ] (h : φ → P ⊢
   · intro hp
     exact and_elim_l.trans (h hp)
 /-- A generalization of `pure_intro` exploiting `IsPure`. -/
-theorem Pure.intro {P Q : SPred σs} {φ : Prop} [IsPure Q φ] (hp : φ) : P ⊢ₛ Q := (pure_intro hp).trans IsPure.to_pure.mpr
+theorem Pure.intro {P Q : SPred σs} {φ : Prop} [IsPure Q φ] (hφ : φ) : P ⊢ₛ Q := (pure_intro hφ).trans IsPure.to_pure.mpr
 theorem Revert.revert {P Q H T : SPred σs} (hfoc : P ⊣⊢ₛ Q ∧ H) (h : Q ⊢ₛ H → T) : P ⊢ₛ T := hfoc.mp.trans (imp_elim h)
 theorem Specialize.imp_stateful {P P' Q R : SPred σs}
     (hrefocus : P ∧ (Q → R) ⊣⊢ₛ P' ∧ Q) : P ∧ (Q → R) ⊢ₛ P ∧ R := by

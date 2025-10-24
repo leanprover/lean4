@@ -602,8 +602,40 @@ instance : BEq (CongrKey enodeMap) where
 
 abbrev CongrTable (enodeMap : ENodeMap) := PHashSet (CongrKey enodeMap)
 
--- Remark: we cannot use pointer addresses here because we have to traverse the tree.
-abbrev ParentSet := Std.TreeSet Expr Expr.quickComp
+/-
+**Note**: If inserting elements in a `ParentSet` becomes a performance bottleneck,
+we can add an extra field `Std.HashSet ExprPtr` for detecting whether the `ParentSet` already
+contains an element or not.
+
+**Note**: We used to implement `ParentSet`s as
+```abbrev ParentSet := Std.TreeSet Expr Expr.quickComp```
+This representation created proof stability issues.
+For example, we traverse this set to implement congruence closure.
+There is no non-determinism here, but the traversal depends on the `Expr`
+hash code, which is very sensitive to changes in a `.lean` file.
+Thus, minor changes may affect the proof found by `grind`. We found examples
+where proving the same goal multiple times in the same file produced different
+proofs.
+When we inspected the hash codes, they were completely different.
+Using `Expr.comp` does not help because it still relies on internal free variable IDs.
+One might think we can just reset them at the beginning of the `grind` search, but
+this is not sufficient. When tactics such as `finish?` generate the final tactic
+script, we remove unnecessary case splits. Removing case splits affects the generated
+free variable IDs, which in turn affects the result of Expr.comp :(
+-/
+structure ParentSet where
+  parents : List Expr := []
+  deriving Inhabited
+
+def ParentSet.insert (ps : ParentSet) (p : Expr) : ParentSet :=
+  { ps with parents := ps.parents.insert p }
+
+def ParentSet.isEmpty (ps : ParentSet) : Bool :=
+  ps.parents.isEmpty
+
+def ParentSet.elems (ps : ParentSet) : List Expr :=
+  ps.parents
+
 abbrev ParentMap := PHashMap ExprPtr ParentSet
 
 /--
@@ -1128,7 +1160,7 @@ Copy `parents` to the parents of `root`.
 -/
 def copyParentsTo (parents : ParentSet) (root : Expr) : GoalM Unit := do
   let mut curr := if let some parents := (← get).parents.find? { expr := root } then parents else {}
-  for parent in parents do
+  for parent in parents.elems do
     curr := curr.insert parent
   modify fun s => { s with parents := s.parents.insert { expr := root } curr }
 
@@ -1176,7 +1208,7 @@ For each equality `b = c` in `parents`, executes `k b c` IF
 - `b = c` is equal to `False`, and
 -/
 @[inline] def forEachDiseq (parents : ParentSet) (k : (lhs : Expr) → (rhs : Expr) → GoalM Unit) : GoalM Unit := do
-  for parent in parents do
+  for parent in parents.elems do
     let_expr Eq _ b c := parent | continue
     if (← isEqFalse parent) then
       if (← isEqv b c) then

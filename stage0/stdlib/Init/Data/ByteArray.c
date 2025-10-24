@@ -13,25 +13,25 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Init_Data_ByteArray_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_ByteArray_Bootstrap(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_ByteArray_Extra(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_ByteArray_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_ByteArray_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_ByteArray_Bootstrap(uint8_t builtin);
+lean_object* initialize_Init_Data_ByteArray_Extra(uint8_t builtin);
+lean_object* initialize_Init_Data_ByteArray_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_ByteArray(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_ByteArray(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_ByteArray_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_ByteArray_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ByteArray_Bootstrap(builtin, lean_io_mk_world());
+res = initialize_Init_Data_ByteArray_Bootstrap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ByteArray_Extra(builtin, lean_io_mk_world());
+res = initialize_Init_Data_ByteArray_Extra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ByteArray_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_ByteArray_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

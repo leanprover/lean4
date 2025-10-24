@@ -177,7 +177,7 @@ private def finitenessRelation :
           apply Prod.Lex.right'
           · simp
           · have haux := np.isValidForSlice.le_utf8ByteSize
-            simp [Slice.Pos.lt_iff, String.Pos.Raw.le_iff, String.Pos.Raw.lt_iff] at h1' haux ⊢
+            simp [Slice.Pos.lt_iff, String.Pos.Raw.lt_iff] at h1' haux ⊢
             omega
         · apply Prod.Lex.left
           simp [h']
@@ -218,9 +218,9 @@ def startsWith (s : Slice) (pat : Slice) : Bool :=
     false
 
 @[inline]
-def dropPrefix? (s : Slice) (pat : Slice) : Option Slice :=
+def dropPrefix? (s : Slice) (pat : Slice) : Option s.Pos :=
   if startsWith s pat then
-    some <| s.replaceStart <| s.pos! <| pat.rawEndPos.offsetBy s.startPos.offset
+    some <| s.pos! <| pat.rawEndPos.offsetBy s.startPos.offset
   else
     none
 
@@ -254,9 +254,9 @@ def endsWith (s : Slice) (pat : Slice) : Bool :=
     false
 
 @[inline]
-def dropSuffix? (s : Slice) (pat : Slice) : Option Slice :=
+def dropSuffix? (s : Slice) (pat : Slice) : Option s.Pos :=
   if endsWith s pat then
-    some <| s.replaceEnd <| s.pos! <| s.endPos.offset.unoffsetBy pat.rawEndPos
+    some <| s.pos! <| s.endPos.offset.unoffsetBy pat.rawEndPos
   else
     none
 

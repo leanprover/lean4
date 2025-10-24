@@ -1586,8 +1586,7 @@ theorem insertMany_eq_foldl_tree {_ : Ord α} {t₁ : Impl α β} (h₁ : t₁.B
   rw [← insertMany_eq_foldl]
   rotate_left
   . exact h₁
-  . simp [insertMany, ← List.forIn_yield_eq_foldl]
-    simp [ForIn.forIn]
+  . simp only [insertMany, pure, ForIn.forIn, Id.run_bind]
     rw [forIn_eq_forIn_toListModel]
     congr
 
@@ -1595,8 +1594,7 @@ theorem insertMany!_eq_foldl_tree {_ : Ord α} {t₁ : Impl α β} {t₂ : Impl 
     (t₁.insertMany! t₂).val = t₂.foldl (init := t₁) fun acc k v => acc.insert! k v := by
   simp [foldl_eq_foldl]
   rw [← insertMany!_eq_foldl]
-  simp [insertMany!, ← List.forIn_yield_eq_foldl]
-  simp [ForIn.forIn]
+  simp only [insertMany!, pure, ForIn.forIn, Id.run_bind]
   rw [forIn_eq_forIn_toListModel]
   congr
 
@@ -1614,8 +1612,7 @@ theorem insertManyIfNew_eq_foldl_tree {_ : Ord α} {t₁ : Impl α β} (h₁ : t
   rw [← insertManyIfNew_eq_foldl]
   rotate_left
   . exact h₁
-  . simp [insertManyIfNew, ← List.forIn_yield_eq_foldl]
-    simp [ForIn.forIn]
+  . simp only [insertManyIfNew, ForIn.forIn, pure, Id.run_bind]
     rw [forIn_eq_forIn_toListModel]
     congr
 
@@ -1623,8 +1620,7 @@ theorem insertManyIfNew!_eq_foldl_tree {_ : Ord α} {t₁ : Impl α β} {t₂ : 
     (t₁.insertManyIfNew! t₂).val = t₂.foldl (init := t₁) fun acc k v => acc.insertIfNew! k v := by
   simp [foldl_eq_foldl]
   rw [← insertManyIfNew!_eq_foldl]
-  simp [insertManyIfNew!, ← List.forIn_yield_eq_foldl]
-  simp [ForIn.forIn]
+  simp only [insertManyIfNew!, ForIn.forIn, pure, Id.run_bind]
   rw [forIn_eq_forIn_toListModel]
   congr
 

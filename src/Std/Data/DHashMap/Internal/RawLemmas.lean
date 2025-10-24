@@ -2724,6 +2724,24 @@ theorem contains_of_contains_union_of_contains_eq_false_left [EquivBEq α]
   simp_to_model [union, contains] using List.contains_of_contains_insertList_of_contains_eq_false_left
 
 /- Equiv -/
+theorem union_equiv_congr_left {m₃ : Raw₀ α β} [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (equiv : m₁.1.Equiv m₂.1) :
+    (m₁.union m₃).1.Equiv (m₂.union m₃).1 := by
+  revert equiv
+  simp_to_model [union]
+  intro equiv
+  apply @List.insertList_perm_of_perm_first _ _ _ _ (toListModel m₁.val.buckets) (toListModel m₂.val.buckets) (toListModel m₃.val.buckets) equiv
+  wf_trivial
+
+theorem union_equiv_congr_right {m₃ : Raw₀ α β} [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (equiv : m₂.1.Equiv m₃.1) :
+    (m₁.union m₂).1.Equiv (m₁.union m₃).1 := by
+  revert equiv
+  simp_to_model [union]
+  intro equiv
+  apply @List.insertList_perm_of_perm_second _ _ _ _ (toListModel m₂.val.buckets) (toListModel m₃.val.buckets) (toListModel m₁.val.buckets) equiv
+  all_goals wf_trivial
+
 theorem union_insert_right_equiv_insert_union [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
     (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
     (m₁.union (m₂.insert p.fst p.snd)).1.Equiv ((m₁.union m₂).insert p.fst p.snd).1 := by

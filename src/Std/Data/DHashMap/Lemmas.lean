@@ -1816,6 +1816,16 @@ theorem mem_of_mem_union_of_not_mem_left [EquivBEq α]
   exact @Raw₀.contains_of_contains_union_of_contains_eq_false_left _ _ _ _ ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ _ _ m₁.2 m₂.2 k h₁ h₂
 
 /- Equiv -/
+theorem union_equiv_congr_left {m₃ : DHashMap α β} [EquivBEq α] [LawfulHashable α]
+    (equiv : m₁.1.Equiv m₂.1) :
+    (m₁.union m₃).1.Equiv (m₂.union m₃).1 :=
+  @Raw₀.union_equiv_congr_left α β _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ ⟨m₃.1, m₃.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 m₃.2 equiv
+
+theorem union_equiv_congr_right {m₃ : DHashMap α β} [EquivBEq α] [LawfulHashable α]
+    (equiv : m₂.1.Equiv m₃.1) :
+    (m₁.union m₂).1.Equiv (m₁.union m₃).1 :=
+  @Raw₀.union_equiv_congr_right α β _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ ⟨m₃.1, m₃.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 m₃.2 equiv
+
 theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a} :
     (m₁ ∪ (m₂.insert p.fst p.snd)) ~m ((m₁ ∪ m₂).insert p.fst p.snd) :=
   ⟨@Raw₀.union_insert_right_equiv_insert_union _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ p m₁.2 m₂.2⟩

@@ -83,7 +83,7 @@ def pliftOn {γ : Sort w} (m : ExtDHashMap α β) (f : (a : DHashMap α β) → 
   m.1.pliftOn (fun a ha => f a (by cases m; cases ha; rfl)) (fun _ _ _ _ h' => h _ _ _ _ h')
 
 @[induction_eliminator, cases_eliminator, elab_as_elim]
-theorem inductionOn {motive : ExtDHashMap α β → Prop} (m : ExtDHashMap α β)
+theorem  inductionOn {motive : ExtDHashMap α β → Prop} (m : ExtDHashMap α β)
     (mk : (a : DHashMap α β) → motive (mk a)) : motive m :=
   (m.1.inductionOn fun _ => mk _ : motive ⟨m.1⟩)
 

@@ -93,8 +93,8 @@ theorem normalize_spec (assign : Std.HashMap Nat Bool) (e : IfExpr) :
   next => grind => finish?
   next => grind => finish?
   next => grind => finish?
-  next => grind => finish -- TODO: ensure `finish?` works here
-  next => grind => finish -- TODO: ensure `finish?` works here
+  next => grind => finish?
+  next => grind => finish?
   next => grind => finish?
 
 example (assign : Std.HashMap Nat Bool) (e : IfExpr) :
@@ -108,6 +108,6 @@ example (assign : Std.HashMap Nat Bool) (e : IfExpr) :
   next => grind => finish?
   next => grind => finish?
   next => grind => finish?
-  next => grind => finish -- TODO: ensure `finish?` works here
-  next => grind => finish -- TODO: ensure `finish?` works here
+  next => grind => finish?
+  next => grind => finish?
   next => grind => finish?

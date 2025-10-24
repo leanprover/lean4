@@ -793,7 +793,18 @@ theorem mem_of_mem_union_of_not_mem_left [EquivBEq α]
     k ∈ m₁ ∪ m₂ → ¬k ∈ m₁ → k ∈ m₂ :=
   @HashMap.mem_of_mem_union_of_not_mem_left _ _ _ _ m₁.inner m₂.inner _ _  k
 
-/- getKey? -/
+/- Equiv -/
+theorem union_equiv_congr_left {m₃ : HashSet α} [EquivBEq α] [LawfulHashable α]
+    (equiv : m₁ ~m m₂) :
+    (m₁ ∪ m₃) ~m (m₂ ∪ m₃) :=
+  ⟨HashMap.union_equiv_congr_left equiv.1⟩
+
+theorem union_equiv_congr_right {m₃ : HashSet α} [EquivBEq α] [LawfulHashable α]
+    (equiv : m₂ ~m m₃) :
+    (m₁ ∪ m₂) ~m (m₁ ∪ m₃) :=
+  ⟨HashMap.union_equiv_congr_right equiv.1⟩
+
+/- get? -/
 theorem get?_union [EquivBEq α] [LawfulHashable α] {k : α} :
     (m₁ ∪ m₂).get? k = (m₂.get? k).or (m₁.get? k) :=
   @HashMap.getKey?_union _ _ _ _ m₁.inner m₂.inner _ _  k

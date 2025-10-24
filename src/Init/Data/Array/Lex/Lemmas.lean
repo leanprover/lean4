@@ -140,7 +140,7 @@ protected theorem lt_of_le_of_lt [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrd
 @[deprecated Array.lt_of_le_of_lt (since := "2025-08-01")]
 protected theorem lt_of_le_of_lt' [LT α]
     [i₁ : Std.Asymm (· < · : α → α → Prop)]
-    [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
+    [i₂ : Std.Tricho (· < · : α → α → Prop)]
     [i₃ : Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
     {xs ys zs : Array α} (h₁ : xs ≤ ys) (h₂ : ys < zs) : xs < zs :=
   letI := LE.ofLT α
@@ -154,7 +154,7 @@ protected theorem le_trans [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α]
 @[deprecated Array.le_trans (since := "2025-08-01")]
 protected theorem le_trans' [LT α]
     [i₁ : Std.Asymm (· < · : α → α → Prop)]
-    [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
+    [i₂ : Std.Tricho (· < · : α → α → Prop)]
     [i₃ : Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
     {xs ys zs : Array α} (h₁ : xs ≤ ys) (h₂ : ys ≤ zs) : xs ≤ zs :=
   letI := LE.ofLT α
@@ -191,7 +191,7 @@ protected theorem le_of_lt [LT α]
 
 protected theorem le_iff_lt_or_eq [LT α]
     [Std.Irrefl (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)]
+    [Std.Tricho (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     {xs ys : Array α} : xs ≤ ys ↔ xs < ys ∨ xs = ys := by
   simpa using List.le_iff_lt_or_eq (l₁ := xs.toList) (l₂ := ys.toList)
@@ -280,7 +280,7 @@ protected theorem lt_iff_exists [LT α] {xs ys : Array α} :
 
 protected theorem le_iff_exists [LT α]
     [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)] {xs ys : Array α} :
+    [Std.Tricho (· < · : α → α → Prop)] {xs ys : Array α} :
     xs ≤ ys ↔
       (xs = ys.take xs.size) ∨
         (∃ (i : Nat) (h₁ : i < xs.size) (h₂ : i < ys.size),
@@ -299,7 +299,7 @@ theorem append_left_lt [LT α] {xs ys zs : Array α} (h : ys < zs) :
 
 theorem append_left_le [LT α]
     [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)]
+    [Std.Tricho (· < · : α → α → Prop)]
     {xs ys zs : Array α} (h : ys ≤ zs) :
     xs ++ ys ≤ xs ++ zs := by
   cases xs
@@ -322,9 +322,9 @@ protected theorem map_lt [LT α] [LT β]
 
 protected theorem map_le [LT α] [LT β]
     [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)]
+    [Std.Tricho (· < · : α → α → Prop)]
     [Std.Asymm (· < · : β → β → Prop)]
-    [Std.Antisymm (¬ · < · : β → β → Prop)]
+    [Std.Tricho (· < · : β → β → Prop)]
     {xs ys : Array α} {f : α → β} (w : ∀ x y, x < y → f x < f y) (h : xs ≤ ys) :
     map f xs ≤ map f ys := by
   cases xs

@@ -1817,14 +1817,14 @@ theorem mem_of_mem_union_of_not_mem_left [EquivBEq α]
 
 /- Equiv -/
 theorem union_equiv_congr_left {m₃ : DHashMap α β} [EquivBEq α] [LawfulHashable α]
-    (equiv : m₁.1.Equiv m₂.1) :
-    (m₁.union m₃).1.Equiv (m₂.union m₃).1 :=
-  @Raw₀.union_equiv_congr_left α β _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ ⟨m₃.1, m₃.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 m₃.2 equiv
+    (equiv : m₁ ~m m₂) :
+    (m₁ ∪ m₃) ~m (m₂ ∪ m₃) :=
+  ⟨@Raw₀.union_equiv_congr_left α β _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ ⟨m₃.1, m₃.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 m₃.2 equiv.1⟩
 
 theorem union_equiv_congr_right {m₃ : DHashMap α β} [EquivBEq α] [LawfulHashable α]
-    (equiv : m₂.1.Equiv m₃.1) :
-    (m₁.union m₂).1.Equiv (m₁.union m₃).1 :=
-  @Raw₀.union_equiv_congr_right α β _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ ⟨m₃.1, m₃.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 m₃.2 equiv
+    (equiv : m₂ ~m m₃) :
+    (m₁ ∪ m₂) ~m (m₁ ∪ m₃) :=
+  ⟨@Raw₀.union_equiv_congr_right α β _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ ⟨m₃.1, m₃.2.size_buckets_pos⟩ _ _ m₁.2 m₂.2 m₃.2 equiv.1⟩
 
 theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a} :
     (m₁ ∪ (m₂.insert p.fst p.snd)) ~m ((m₁ ∪ m₂).insert p.fst p.snd) :=

@@ -78,6 +78,10 @@ def lift {γ : Sort w} (f : DHashMap α β → γ) (h : ∀ a b, a ~m b → f a 
   m.1.lift f h
 
 /-- Internal implementation detail of the hash map. -/
+def lift₂ {γ : Sort w} (f : DHashMap α β → DHashMap α β → γ) (h : ∀ a b c d, a ~m c → b ~m d → f a b = f c d) (m₁ m₂ : ExtDHashMap α β) : γ :=
+  Quotient.lift₂ f h m₁.inner m₂.inner
+
+/-- Internal implementation detail of the hash map. -/
 def pliftOn {γ : Sort w} (m : ExtDHashMap α β) (f : (a : DHashMap α β) → m = mk a → γ)
     (h : ∀ a b h₁ h₂, a ~m b → f a h₁ = f b h₂) : γ :=
   m.1.pliftOn (fun a ha => f a (by cases m; cases ha; rfl)) (fun _ _ _ _ h' => h _ _ _ _ h')
@@ -347,7 +351,17 @@ def Const.insertManyIfNewUnit [EquivBEq α] [LawfulHashable α] {ρ : Type w}
     m := ⟨m.1.insertIfNew a (), fun _ init step => step (m.2 _ init step)⟩
   return m.1
 
--- TODO (after verification): partition, union
+theorem union_congr [EquivBEq α] [LawfulHashable α] (a b c d : DHashMap α β) (h₁ : a ~m c) (h₂ : b ~m d) : a ∪ b ~m c ∪ d :=
+  DHashMap.Equiv.trans (DHashMap.union_equiv_congr_left h₁) (DHashMap.union_equiv_congr_right h₂)
+
+@[inline, inherit_doc DHashMap.union]
+def union [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtDHashMap α β) : ExtDHashMap α β := lift₂ (fun x y : DHashMap α β => mk (x.union y))
+  (fun a b c d equiv₁ equiv₂ => by
+    simp only [DHashMap.union_eq, mk'.injEq]
+    apply Quotient.sound
+    apply union_congr
+    . exact equiv₁
+    . exact equiv₂) m₁ m₂
 
 @[inline, inherit_doc DHashMap.Const.unitOfArray]
 def Const.unitOfArray [BEq α] [Hashable α] (l : Array α) :

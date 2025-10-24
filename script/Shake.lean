@@ -292,7 +292,7 @@ and `endPos` is the position of the end of the header.
 -/
 def parseHeaderFromString (text path : String) :
     IO (System.FilePath × Parser.InputContext ×
-      TSyntaxArray ``Parser.Module.import × String.Pos.Raw) := do
+      TSyntax ``Parser.Module.header × String.Pos.Raw) := do
   let inputCtx := Parser.mkInputContext text path
   let (header, parserState, msgs) ← Parser.parseHeader inputCtx
   if !msgs.toList.isEmpty then -- skip this file if there are parse errors
@@ -301,7 +301,7 @@ def parseHeaderFromString (text path : String) :
   -- the insertion point for `add` is the first newline after the imports
   let insertion := header.raw.getTailPos?.getD parserState.pos
   let insertion := text.findAux (· == '\n') text.endPos insertion + '\n'
-  pure (path, inputCtx, .mk header.raw[2].getArgs, insertion)
+  pure (path, inputCtx, header, insertion)
 
 /-- Parse a source file to extract the location of the import lines, for edits and error messages.
 
@@ -310,12 +310,17 @@ and `endPos` is the position of the end of the header.
 -/
 def parseHeader (srcSearchPath : SearchPath) (mod : Name) :
     IO (System.FilePath × Parser.InputContext ×
-      TSyntaxArray ``Parser.Module.import × String.Pos.Raw) := do
+      TSyntax ``Parser.Module.header × String.Pos.Raw) := do
   -- Parse the input file
   let some path ← srcSearchPath.findModuleWithExt "lean" mod
     | throw <| .userError s!"error: failed to find source file for {mod}"
   let text ← IO.FS.readFile path
   parseHeaderFromString text path.toString
+
+def decodeHeader : TSyntax ``Parser.Module.header → Option (TSyntax `module) × Option (TSyntax `prelude) × TSyntaxArray ``Parser.Module.import
+  | `(Parser.Module.header| $[module%$moduleTk?]? $[prelude%$preludeTk?]? $imports*) =>
+    (moduleTk?.map .mk, preludeTk?.map .mk, imports)
+  | _ => unreachable!
 
 def decodeImport : TSyntax ``Parser.Module.import → Import
   | `(Parser.Module.import| $[public%$pubTk?]? $[meta%$metaTk?]? import $[all%$allTk?]? $id) =>
@@ -332,11 +337,14 @@ def decodeImport : TSyntax ``Parser.Module.import → Import
 * `addOnly`: if true, only add missing imports, do not remove unused ones
 -/
 def visitModule (srcSearchPath : SearchPath)
-    (i : Nat) (needs : Needs) (preserve : Needs) (edits : Edits) (imports : TSyntaxArray ``Parser.Module.import)
+    (i : Nat) (needs : Needs) (preserve : Needs) (edits : Edits) (headerStx : TSyntax ``Parser.Module.header)
     (addOnly := false) (githubStyle := false) (explain := false) : StateT State IO Edits := do
   let s ← get
   -- Do transitive reduction of `needs` in `deps`.
   let mut deps := needs
+  let (_, prelude?, imports) := decodeHeader headerStx
+  if prelude?.isNone then
+    deps := deps.union .pub {s.env.getModuleIdx? `Init |>.get!}
   for imp in imports do
     if addOnly || imp.raw.getTrailing?.any (·.toString.toSlice.contains "shake: keep") then
       let imp := decodeImport imp
@@ -398,7 +406,8 @@ def visitModule (srcSearchPath : SearchPath)
 
   if githubStyle then
     try
-      let (path, inputCtx, imports, endHeader) ← parseHeader srcSearchPath s.modNames[i]!
+      let (path, inputCtx, stx, endHeader) ← parseHeader srcSearchPath s.modNames[i]!
+      let (_, _, imports) := decodeHeader stx
       for stx in imports do
         if toRemove.any fun imp => imp == decodeImport stx then
           let pos := inputCtx.fileMap.toPosition stx.raw.getPos?.get!
@@ -554,9 +563,9 @@ def main (args : List String) : IO UInt32 := do
   let mut revNeeds : Needs := default
   for i in [0:s.mods.size], t in needs, header in headers do
     match header.get with
-    | .ok (_, _, imports, _) =>
+    | .ok (_, _, stx, _) =>
       edits ← visitModule (addOnly := !pkg.isPrefixOf s.modNames[i]!)
-        srcSearchPath i t.get revNeeds edits imports args.githubStyle args.explain
+        srcSearchPath i t.get revNeeds edits stx args.githubStyle args.explain
       if isExtraRevModUse s.env i then
         revNeeds := revNeeds.union .priv {i}
     | .error e =>
@@ -573,7 +582,8 @@ def main (args : List String) : IO UInt32 := do
     let add : Array Import := add.qsortOrd
 
     -- Parse the input file
-    let .ok (path, inputCtx, imports, insertion) := header?.get | continue
+    let .ok (path, inputCtx, stx, insertion) := header?.get | continue
+    let (_, _, imports) := decodeHeader stx
     let text := inputCtx.fileMap.source
 
     -- Calculate the edit result

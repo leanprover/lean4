@@ -8,6 +8,8 @@ module
 
 prelude
 public import Lean.Syntax
+import Init.Data.String.TakeDrop
+import Init.Data.String.Iterator
 
 public section
 
@@ -100,7 +102,7 @@ environment variable. If this environment variable is not set, a manual root pro
 built is used (typically this is the version corresponding to the current release). If no such root
 is available, the latest version of the manual is used.
 -/
-def rewriteManualLinksCore (s : String) : BaseIO (Array (String.Range × String) × String) := do
+def rewriteManualLinksCore (s : String) : BaseIO (Array (Lean.Syntax.Range × String) × String) := do
   let scheme := "lean-manual://"
   let mut out := ""
   let mut errors := #[]
@@ -152,7 +154,7 @@ where
   Returns `true` if `goal` is a prefix of the string at the position pointed to by `iter`.
   -/
   lookingAt (goal : String) (iter : String.Iterator) : Bool :=
-    String.Pos.Raw.substrEq iter.s iter.i goal 0 goal.endPos.byteIdx
+    String.Pos.Raw.substrEq iter.s iter.i goal 0 goal.rawEndPos.byteIdx
 
 /--
 Rewrites Lean reference manual links in `docstring` to point at the reference manual.

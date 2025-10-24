@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.ToString
 public import Lake.Util.Proc
+import Init.Data.String.TakeDrop
 
 open System
 namespace Lake

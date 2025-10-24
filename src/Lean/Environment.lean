@@ -21,6 +21,7 @@ public import Lean.PrivateName
 public import Lean.LoadDynlib
 public import Init.Dynamic
 import Init.Data.Slice
+import Init.Data.String.TakeDrop
 
 public section
 

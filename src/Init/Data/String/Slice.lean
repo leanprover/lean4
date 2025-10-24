@@ -329,7 +329,7 @@ Examples:
 -/
 @[inline]
 def dropPrefix? [ForwardPattern ρ] (s : Slice) (pat : ρ) : Option Slice :=
-  ForwardPattern.dropPrefix? s pat
+  (ForwardPattern.dropPrefix? s pat).map s.replaceStart
 
 /--
 If {name}`pat` matches a prefix of {name}`s`, returns the remainder. Returns {name}`s` unmodified
@@ -435,18 +435,18 @@ Examples:
 -/
 @[inline]
 partial def takeWhile [ForwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
-  go s
+  go s.startPos
 where
   @[specialize pat]
-  go (curr : Slice) : Slice :=
-    if let some nextCurr := dropPrefix? curr pat then
-      if curr.startInclusive.offset < nextCurr.startInclusive.offset then
+  go (curr : s.Pos) : Slice :=
+    if let some nextCurr := ForwardPattern.dropPrefix? (s.replaceStart curr) pat then
+      if (s.replaceStart curr).startPos < nextCurr then
         -- TODO: need lawful patterns to show this terminates
-        go nextCurr
+        go (Pos.ofReplaceStart nextCurr)
       else
-        s.replaceEnd <| s.pos! <| curr.startInclusive.offset
+        s.replaceEnd curr
     else
-      s.replaceEnd <| s.pos! <| curr.startInclusive.offset
+      s.replaceEnd curr
 
 /--
 Finds the position of the first match of the pattern {name}`pat` in a slice {name}`true`. If there
@@ -638,7 +638,7 @@ Examples:
 -/
 @[inline]
 def dropSuffix? [BackwardPattern ρ] (s : Slice) (pat : ρ) : Option Slice :=
-  BackwardPattern.dropSuffix? s pat
+  (BackwardPattern.dropSuffix? s pat).map s.replaceEnd
 
 /--
 If {name}`pat` matches a suffix of {name}`s`, returns the remainder. Returns {name}`s` unmodified
@@ -743,18 +743,18 @@ Examples:
 -/
 @[inline]
 partial def takeEndWhile [BackwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
-  go s
+  go s.endPos
 where
   @[specialize pat]
-  go (curr : Slice) : Slice :=
-    if let some nextCurr := dropSuffix? curr pat then
-      if nextCurr.endExclusive.offset < curr.endExclusive.offset then
+  go (curr : s.Pos) : Slice :=
+    if let some nextCurr := BackwardPattern.dropSuffix? (s.replaceEnd curr) pat then
+      if nextCurr < (s.replaceEnd curr).endPos then
         -- TODO: need lawful patterns to show this terminates
-        go nextCurr
+        go (Pos.ofReplaceEnd nextCurr)
       else
-        s.replaceStart <| s.pos! <| curr.endExclusive.offset
+        s.replaceStart curr
     else
-      s.replaceStart <| s.pos! <| curr.endExclusive.offset
+      s.replaceStart curr
 
 /--
 Finds the position of the first match of the pattern {name}`pat` in a slice {name}`true`, starting
@@ -861,7 +861,7 @@ private def finitenessRelation [Pure m] :
       obtain ⟨h1, h2, _⟩ := h'
       have h3 := Char.utf8Size_pos (it.internalState.currPos.get h1)
       have h4 := it.internalState.currPos.isValidForSlice.le_utf8ByteSize
-      simp [Pos.ext_iff, String.Pos.Raw.ext_iff, Pos.Raw.le_iff] at h1 h2 h4
+      simp [Pos.ext_iff, String.Pos.Raw.ext_iff] at h1 h2 h4
       omega
     · cases h'
     · cases h

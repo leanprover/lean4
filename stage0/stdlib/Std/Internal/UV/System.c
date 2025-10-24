@@ -17,9 +17,9 @@ LEAN_EXPORT lean_object* l_Array_Array_repr___at___Std_Internal_UV_System_instRe
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osGetPasswd___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_getProcessTitle___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instInhabitedCPUInfo_default;
-lean_object* lean_uv_getrusage(lean_object*);
+lean_object* lean_uv_getrusage();
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__17;
-lean_object* lean_uv_get_constrained_memory(lean_object*);
+lean_object* lean_uv_get_constrained_memory();
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instReprPasswdInfo;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_CPUInfo_ctorIdx___boxed(lean_object*);
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__48;
@@ -27,8 +27,8 @@ static lean_object* l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___c
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instReprCPUTimes;
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__11;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instInhabitedCPUTimes;
-lean_object* lean_uv_os_getpriority(uint64_t, lean_object*);
-lean_object* lean_uv_os_getenv(lean_object*, lean_object*);
+lean_object* lean_uv_os_getpriority(uint64_t);
+lean_object* lean_uv_os_getenv(lean_object*);
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__44;
 static lean_object* l_Option_repr___at___Std_Internal_UV_System_instReprPasswdInfo_repr_spec__0___closed__2;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_setProcessTitle___boxed(lean_object*, lean_object*);
@@ -69,11 +69,11 @@ static lean_object* l_Std_Internal_UV_System_instReprPasswdInfo_repr___redArg___
 static lean_object* l_Array_Array_repr___at___Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__2;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instReprUnameInfo_repr___redArg(lean_object*);
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__12;
-lean_object* lean_uv_os_getpid(lean_object*);
-lean_object* lean_uv_hrtime(lean_object*);
+lean_object* lean_uv_os_getpid();
+lean_object* lean_uv_hrtime();
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__32;
 static lean_object* l_Array_Array_repr___at___Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__8;
-lean_object* lean_uv_get_total_memory(lean_object*);
+lean_object* lean_uv_get_total_memory();
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_PasswdInfo_ctorIdx(lean_object*);
 static lean_object* l_Std_Internal_UV_System_instReprPasswdInfo_repr___redArg___closed__0;
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__29;
@@ -92,8 +92,8 @@ static lean_object* l_Std_Internal_UV_System_instReprCPUInfo_repr___redArg___clo
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__9;
 static lean_object* l_Std_Internal_UV_System_instReprPasswdInfo_repr___redArg___closed__6;
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__36;
-lean_object* lean_uv_get_process_title(lean_object*);
-lean_object* lean_uv_os_uname(lean_object*);
+lean_object* lean_uv_get_process_title();
+lean_object* lean_uv_os_uname();
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__4;
 static lean_object* l_Array_Array_repr___at___Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__3;
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__20;
@@ -103,10 +103,10 @@ static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___clos
 lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__35;
 static lean_object* l_Std_Internal_UV_System_instReprCPUInfo_repr___redArg___closed__7;
-lean_object* lean_uv_cpu_info(lean_object*);
+lean_object* lean_uv_cpu_info();
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__6;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instReprPasswdInfo_repr___redArg(lean_object*);
-lean_object* lean_uv_os_get_passwd(lean_object*);
+lean_object* lean_uv_os_get_passwd();
 static lean_object* l_Std_Internal_UV_System_instInhabitedCPUTimes_default___closed__0;
 static lean_object* l_Std_Internal_UV_System_instReprPasswdInfo_repr___redArg___closed__11;
 LEAN_EXPORT lean_object* l_List_foldl___at___Std_Format_joinSep___at___Array_Array_repr___at___Std_Internal_UV_System_instReprGroupInfo_repr_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
@@ -124,7 +124,7 @@ lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__30;
 static lean_object* l_Std_Internal_UV_System_instReprUnameInfo_repr___redArg___closed__8;
 LEAN_EXPORT lean_object* l_Option_repr___at___Std_Internal_UV_System_instReprPasswdInfo_repr_spec__0___boxed(lean_object*, lean_object*);
-lean_object* lean_uv_os_unsetenv(lean_object*, lean_object*);
+lean_object* lean_uv_os_unsetenv(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Internal_UV_System_instReprRUsage_repr_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_UnameInfo_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instReprCPUInfo;
@@ -136,13 +136,13 @@ static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___clos
 static lean_object* l_Std_Internal_UV_System_instReprCPUInfo___closed__0;
 static lean_object* l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__1;
 static lean_object* l_Std_Internal_UV_System_instReprUnameInfo___closed__0;
-lean_object* lean_uv_os_setpriority(uint64_t, uint64_t, lean_object*);
+lean_object* lean_uv_os_setpriority(uint64_t, uint64_t);
 static lean_object* l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__1;
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__26;
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__2;
 static lean_object* l_Std_Internal_UV_System_instReprPasswdInfo_repr___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_RUsage_ctorIdx(lean_object*);
-lean_object* lean_uv_chdir(lean_object*, lean_object*);
+lean_object* lean_uv_chdir(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_hrtime___boxed(lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__7;
@@ -158,10 +158,10 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_GroupInfo_ctorIdx___boxed(lean
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_cwd___boxed(lean_object*);
 static lean_object* l_Std_Internal_UV_System_instInhabitedGroupInfo_default___closed__0;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instReprRUsage;
-lean_object* lean_uv_os_gethostname(lean_object*);
+lean_object* lean_uv_os_gethostname();
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instReprGroupInfo;
 static lean_object* l_Std_Internal_UV_System_instInhabitedRUsage_default___closed__1;
-lean_object* lean_uv_os_tmpdir(lean_object*);
+lean_object* lean_uv_os_tmpdir();
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instReprCPUInfo_repr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_availableMemory___boxed(lean_object*);
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__31;
@@ -177,7 +177,7 @@ static lean_object* l_Array_Array_repr___at___Std_Internal_UV_System_instReprGro
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__0;
 static lean_object* l_Std_Internal_UV_System_instReprUnameInfo_repr___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_chdir___boxed(lean_object*, lean_object*);
-lean_object* lean_uv_random(uint64_t, lean_object*);
+lean_object* lean_uv_random(uint64_t);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instInhabitedPasswdInfo;
 static lean_object* l_Std_Internal_UV_System_instInhabitedCPUInfo_default___closed__1;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_random___boxed(lean_object*, lean_object*);
@@ -186,8 +186,8 @@ static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___clos
 static lean_object* l_Std_Internal_UV_System_instReprPasswdInfo_repr___redArg___closed__3;
 static lean_object* l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Option_repr___at___Std_Internal_UV_System_instReprPasswdInfo_repr_spec__1(lean_object*, lean_object*);
-lean_object* lean_uv_os_homedir(lean_object*);
-lean_object* lean_uv_os_environ(lean_object*);
+lean_object* lean_uv_os_homedir();
+lean_object* lean_uv_os_environ();
 static lean_object* l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__3;
 static lean_object* l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__12;
 static lean_object* l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__9;
@@ -210,10 +210,10 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instReprGroupInfo_repr___redAr
 static lean_object* l_Std_Internal_UV_System_instReprPasswdInfo_repr___redArg___closed__2;
 static lean_object* l_Std_Internal_UV_System_instReprCPUInfo_repr___redArg___closed__5;
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__10;
-lean_object* lean_uv_set_process_title(lean_object*, lean_object*);
+lean_object* lean_uv_set_process_title(lean_object*);
 static lean_object* l_Option_repr___at___Std_Internal_UV_System_instReprPasswdInfo_repr_spec__0___closed__0;
-lean_object* lean_uv_uptime(lean_object*);
-lean_object* lean_uv_os_get_group(uint64_t, lean_object*);
+lean_object* lean_uv_uptime();
+lean_object* lean_uv_os_get_group(uint64_t);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__4;
 static lean_object* l_Std_Internal_UV_System_instReprPasswdInfo___closed__0;
@@ -224,25 +224,25 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_uptime___boxed(lean_object*);
 static lean_object* l_Std_Internal_UV_System_instInhabitedUnameInfo_default___closed__0;
 static lean_object* l_Array_Array_repr___at___Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__6;
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__13;
-lean_object* lean_uv_exepath(lean_object*);
+lean_object* lean_uv_exepath();
 static lean_object* l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__0;
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__42;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osGetGroup___boxed(lean_object*, lean_object*);
-lean_object* lean_uv_get_available_memory(lean_object*);
+lean_object* lean_uv_get_available_memory();
 static lean_object* l_Std_Internal_UV_System_instReprPasswdInfo_repr___redArg___closed__9;
 static lean_object* l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__13;
 static lean_object* l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__8;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_getrusage___boxed(lean_object*);
 static lean_object* l_Std_Internal_UV_System_instInhabitedPasswdInfo_default___closed__0;
-lean_object* lean_uv_os_setenv(lean_object*, lean_object*, lean_object*);
+lean_object* lean_uv_os_setenv(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__37;
-lean_object* lean_uv_cwd(lean_object*);
+lean_object* lean_uv_cwd();
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__38;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__25;
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___Array_Array_repr___at___Std_Internal_UV_System_instReprGroupInfo_repr_spec__0_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osSetPriority___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* lean_uv_get_free_memory(lean_object*);
+lean_object* lean_uv_get_free_memory();
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_totalMemory___boxed(lean_object*);
 static lean_object* l_Std_Internal_UV_System_instReprGroupInfo_repr___redArg___closed__6;
 static lean_object* l_Std_Internal_UV_System_instReprCPUInfo_repr___redArg___closed__3;
@@ -257,7 +257,7 @@ static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___clos
 LEAN_EXPORT lean_object* l_Option_repr___at___Std_Internal_UV_System_instReprPasswdInfo_repr_spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__43;
 static lean_object* l_Std_Internal_UV_System_instReprGroupInfo___closed__0;
-lean_object* lean_uv_os_getppid(lean_object*);
+lean_object* lean_uv_os_getppid();
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_UnameInfo_ctorIdx___boxed(lean_object*);
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__27;
 static lean_object* l_Array_Array_repr___at___Std_Internal_UV_System_instReprGroupInfo_repr_spec__0___closed__0;
@@ -3273,7 +3273,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_getProcessTitle___boxed(lean_o
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_uv_get_process_title(x_1);
+x_2 = lean_uv_get_process_title();
 return x_2;
 }
 }
@@ -3281,7 +3281,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_setProcessTitle___boxed(lean_o
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_uv_set_process_title(x_1, x_2);
+x_3 = lean_uv_set_process_title(x_1);
 lean_dec_ref(x_1);
 return x_3;
 }
@@ -3290,7 +3290,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_uptime___boxed(lean_object* x_
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_uv_uptime(x_1);
+x_2 = lean_uv_uptime();
 return x_2;
 }
 }
@@ -3298,7 +3298,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osGetPid___boxed(lean_object* 
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_uv_os_getpid(x_1);
+x_2 = lean_uv_os_getpid();
 return x_2;
 }
 }
@@ -3306,7 +3306,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osGetPpid___boxed(lean_object*
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_uv_os_getppid(x_1);
+x_2 = lean_uv_os_getppid();
 return x_2;
 }
 }
@@ -3314,7 +3314,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_cpuInfo___boxed(lean_object* x
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_uv_cpu_info(x_1);
+x_2 = lean_uv_cpu_info();
 return x_2;
 }
 }
@@ -3322,7 +3322,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_cwd___boxed(lean_object* x_1) 
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_uv_cwd(x_1);
+x_2 = lean_uv_cwd();
 return x_2;
 }
 }
@@ -3330,7 +3330,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_chdir___boxed(lean_object* x_1
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_uv_chdir(x_1, x_2);
+x_3 = lean_uv_chdir(x_1);
 return x_3;
 }
 }
@@ -3338,7 +3338,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osHomedir___boxed(lean_object*
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_uv_os_homedir(x_1);
+x_2 = lean_uv_os_homedir();
 return x_2;
 }
 }
@@ -3346,7 +3346,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osTmpdir___boxed(lean_object* 
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_uv_os_tmpdir(x_1);
+x_2 = lean_uv_os_tmpdir();
 return x_2;
 }
 }
@@ -3354,7 +3354,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osGetPasswd___boxed(lean_objec
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_uv_os_get_passwd(x_1);
+x_2 = lean_uv_os_get_passwd();
 return x_2;
 }
 }
@@ -3364,7 +3364,7 @@ _start:
 uint64_t x_3; lean_object* x_4; 
 x_3 = lean_unbox_uint64(x_1);
 lean_dec(x_1);
-x_4 = lean_uv_os_get_group(x_3, x_2);
+x_4 = lean_uv_os_get_group(x_3);
 return x_4;
 }
 }
@@ -3372,7 +3372,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osEnviron___boxed(lean_object*
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_uv_os_environ(x_1);
+x_2 = lean_uv_os_environ();
 return x_2;
 }
 }
@@ -3380,7 +3380,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osGetenv___boxed(lean_object* 
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_uv_os_getenv(x_1, x_2);
+x_3 = lean_uv_os_getenv(x_1);
 return x_3;
 }
 }
@@ -3388,7 +3388,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osSetenv___boxed(lean_object* 
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_uv_os_setenv(x_1, x_2, x_3);
+x_4 = lean_uv_os_setenv(x_1, x_2);
 return x_4;
 }
 }
@@ -3396,7 +3396,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osUnsetenv___boxed(lean_object
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_uv_os_unsetenv(x_1, x_2);
+x_3 = lean_uv_os_unsetenv(x_1);
 return x_3;
 }
 }
@@ -3404,7 +3404,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osGetHostname___boxed(lean_obj
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_uv_os_gethostname(x_1);
+x_2 = lean_uv_os_gethostname();
 return x_2;
 }
 }
@@ -3414,7 +3414,7 @@ _start:
 uint64_t x_3; lean_object* x_4; 
 x_3 = lean_unbox_uint64(x_1);
 lean_dec(x_1);
-x_4 = lean_uv_os_getpriority(x_3, x_2);
+x_4 = lean_uv_os_getpriority(x_3);
 return x_4;
 }
 }
@@ -3426,7 +3426,7 @@ x_4 = lean_unbox_uint64(x_1);
 lean_dec(x_1);
 x_5 = lean_unbox_uint64(x_2);
 lean_dec(x_2);
-x_6 = lean_uv_os_setpriority(x_4, x_5, x_3);
+x_6 = lean_uv_os_setpriority(x_4, x_5);
 return x_6;
 }
 }
@@ -3434,7 +3434,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osUname___boxed(lean_object* x
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_uv_os_uname(x_1);
+x_2 = lean_uv_os_uname();
 return x_2;
 }
 }
@@ -3442,7 +3442,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_hrtime___boxed(lean_object* x_
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_uv_hrtime(x_1);
+x_2 = lean_uv_hrtime();
 return x_2;
 }
 }
@@ -3452,7 +3452,7 @@ _start:
 uint64_t x_3; lean_object* x_4; 
 x_3 = lean_unbox_uint64(x_1);
 lean_dec(x_1);
-x_4 = lean_uv_random(x_3, x_2);
+x_4 = lean_uv_random(x_3);
 return x_4;
 }
 }
@@ -3460,7 +3460,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_getrusage___boxed(lean_object*
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_uv_getrusage(x_1);
+x_2 = lean_uv_getrusage();
 return x_2;
 }
 }
@@ -3468,7 +3468,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_exePath___boxed(lean_object* x
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_uv_exepath(x_1);
+x_2 = lean_uv_exepath();
 return x_2;
 }
 }
@@ -3476,7 +3476,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_freeMemory___boxed(lean_object
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_uv_get_free_memory(x_1);
+x_2 = lean_uv_get_free_memory();
 return x_2;
 }
 }
@@ -3484,7 +3484,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_totalMemory___boxed(lean_objec
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_uv_get_total_memory(x_1);
+x_2 = lean_uv_get_total_memory();
 return x_2;
 }
 }
@@ -3492,7 +3492,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_constrainedMemory___boxed(lean
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_uv_get_constrained_memory(x_1);
+x_2 = lean_uv_get_constrained_memory();
 return x_2;
 }
 }
@@ -3500,25 +3500,25 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_availableMemory___boxed(lean_o
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_uv_get_available_memory(x_1);
+x_2 = lean_uv_get_available_memory();
 return x_2;
 }
 }
-lean_object* initialize_Init_System_Promise(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_SInt(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Net(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_System_Promise(uint8_t builtin);
+lean_object* initialize_Init_Data_SInt(uint8_t builtin);
+lean_object* initialize_Std_Net(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Internal_UV_System(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Internal_UV_System(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_System_Promise(builtin, lean_io_mk_world());
+res = initialize_Init_System_Promise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_SInt(builtin, lean_io_mk_world());
+res = initialize_Init_Data_SInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Net(builtin, lean_io_mk_world());
+res = initialize_Std_Net(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__0 = _init_l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__0();

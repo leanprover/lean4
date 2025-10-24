@@ -89,15 +89,15 @@ def leanPosToLspPos (text : FileMap) : Lean.Position → Lsp.Position
 def utf8PosToLspPos (text : FileMap) (pos : String.Pos.Raw) : Lsp.Position :=
   text.leanPosToLspPos (text.toPosition pos)
 
-/-- Gets the LSP range from a `String.Range`. -/
-def utf8RangeToLspRange (text : FileMap) (range : String.Range) : Lsp.Range :=
+/-- Gets the LSP range from a `Lean.Syntax.Range`. -/
+def utf8RangeToLspRange (text : FileMap) (range : Lean.Syntax.Range) : Lsp.Range :=
   { start := text.utf8PosToLspPos range.start, «end» := text.utf8PosToLspPos range.stop }
 
 /-- Gets the LSP range of syntax `stx`. -/
 def lspRangeOfStx? (text : FileMap) (stx : Syntax) (canonicalOnly := false) : Option Lsp.Range :=
   text.utf8RangeToLspRange <$> stx.getRange? canonicalOnly
 
-def lspRangeToUtf8Range (text : FileMap) (range : Lsp.Range) : String.Range :=
+def lspRangeToUtf8Range (text : FileMap) (range : Lsp.Range) : Lean.Syntax.Range :=
   { start := text.lspPosToUtf8Pos range.start, stop := text.lspPosToUtf8Pos range.end }
 
 end FileMap

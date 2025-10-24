@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Data.Json
 public import Lake.Util.Date
+import Init.Data.String.TakeDrop
 
 /-! # Version
 
@@ -95,7 +96,7 @@ public def StdVer.parse (ver : String) : Except String StdVer := do
     SemVerCore.parse ver
   else
     let core ← SemVerCore.parse <| String.Pos.Raw.extract ver 0 sepPos
-    let specialDescr := String.Pos.Raw.extract ver (sepPos.next' ver h) ver.endPos
+    let specialDescr := String.Pos.Raw.extract ver (sepPos.next' ver h) ver.rawEndPos
     if specialDescr.isEmpty then
       throw "invalid version: '-' suffix cannot be empty"
     return {toSemVerCore := core, specialDescr}
@@ -140,9 +141,9 @@ public instance : Coe LeanVer ToolchainVer := ⟨ToolchainVer.release⟩
 public def ofString (ver : String) : ToolchainVer := Id.run do
   let colonPos := ver.posOf ':'
   let (origin, tag) :=
-    if h : colonPos < ver.endPos then
-      let pos := colonPos.next' ver (by simp_all [String.endPos, String.Pos.Raw.atEnd, String.Pos.Raw.lt_iff])
-      (String.Pos.Raw.extract ver 0 colonPos, String.Pos.Raw.extract ver pos ver.endPos)
+    if h : colonPos < ver.rawEndPos then
+      let pos := colonPos.next' ver (by simp_all [String.rawEndPos, String.Pos.Raw.atEnd, String.Pos.Raw.lt_iff])
+      (String.Pos.Raw.extract ver 0 colonPos, String.Pos.Raw.extract ver pos ver.rawEndPos)
     else
       ("", ver)
   let noOrigin := origin.isEmpty

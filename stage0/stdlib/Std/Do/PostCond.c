@@ -3488,7 +3488,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = l_Std_Do_PostShape_args(x_1);
-x_5 = l_Std_Do_SVal_curry___redArg(x_4, x_2);
+x_5 = l_Std_Do_SVal_curry___redArg(x_4, lean_box(0));
 return x_5;
 }
 }
@@ -4624,13 +4624,13 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* initialize_Std_Do_SPred(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Do_SPred(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Do_PostCond(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Do_PostCond(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Do_SPred(builtin, lean_io_mk_world());
+res = initialize_Std_Do_SPred(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Do_term___u22a2_u2091_____closed__0 = _init_l_Std_Do_term___u22a2_u2091_____closed__0();

@@ -451,8 +451,8 @@ set_option linter.unusedVariables.funArgs false in
 -- Note: `crlfToLf` preserves logical line and column numbers for each character.
 def mkInputContext (input : String) (fileName : String)
     (normalizeLineEndings := true)
-    (endPos := input.endPos)
-    (endPos_valid : endPos ≤ input.endPos := by simp) :
+    (endPos := input.rawEndPos)
+    (endPos_valid : endPos ≤ input.rawEndPos := by simp) :
     InputContext :=
   let text := FileMap.ofString input
   let next := if normalizeLineEndings then
@@ -464,7 +464,7 @@ def mkInputContext (input : String) (fileName : String)
     (text, endPos)
   let text := next.1
   let endPos' := next.2
-  if h : endPos' ≤ text.source.endPos then
+  if h : endPos' ≤ text.source.rawEndPos then
     .mk text.source fileName (fileMap := text) (endPos := endPos') (endPos_valid := h)
   else
     .mk text.source fileName (fileMap := text)

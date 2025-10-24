@@ -112,12 +112,22 @@ def propagatePending : OrderM Unit := do
         pushEq ue ve h
 
 /--
+Returns `true` if `e` is already `True` in the `grind` core.
+Recall that `e` may be an auxiliary term created for a term `e'` (see `cnstrsMapInv`).
+-/
+private def isAlreadyTrue (e : Expr) : OrderM Bool := do
+  if let some (e', _) := (← get').cnstrsMapInv.find? { expr := e } then
+    alreadyInternalized e' <&&> isEqTrue e'
+  else
+    alreadyInternalized e <&&> isEqTrue e
+
+/--
 Given `e` represented by constraint `c` (from `u` to `v`).
 Checks whether `e = True` can be propagated using the path `u --(k)--> v`.
 If it can, adds a new entry to propagation list.
 -/
 def checkEqTrue (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : OrderM Bool := do
-  if (← alreadyInternalized e <&&> isEqTrue e) then return true
+  if (← isAlreadyTrue e) then return true
   let k' := c.getWeight
   trace[grind.debug.order.check_eq_true] "{← getExpr u}, {← getExpr v}, {k}, {k'}, {← c.pp}"
   if k ≤ k' then
@@ -127,12 +137,22 @@ def checkEqTrue (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : Orde
     return false
 
 /--
+Returns `true` if `e` is already `False` in the `grind` core.
+Recall that `e` may be an auxiliary term created for a term `e'` (see `cnstrsMapInv`).
+-/
+private def isAlreadyFalse (e : Expr) : OrderM Bool := do
+  if let some (e', _) := (← get').cnstrsMapInv.find? { expr := e } then
+    alreadyInternalized e' <&&> isEqFalse e'
+  else
+    alreadyInternalized e <&&> isEqFalse e
+
+/--
 Given `e` represented by constraint `c` (from `v` to `u`).
 Checks whether `e = False` can be propagated using the path `u --(k)--> v`.
 If it can, adds a new entry to propagation list.
 -/
 def checkEqFalse (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : OrderM Bool := do
-  if (← alreadyInternalized e <&&> isEqFalse e) then return true
+  if (← isAlreadyFalse e) then return true
   let k' := c.getWeight
   trace[grind.debug.order.check_eq_false] "{← getExpr u}, {← getExpr v}, {k}, {k'} {← c.pp}"
   if (k + k').isNeg  then
@@ -168,8 +188,8 @@ def checkEq (u v : NodeId) (k : Weight) : OrderM Unit := do
 
 /-- Finds constrains and equalities to be propagated. -/
 def checkToPropagate (u v : NodeId) (k : Weight) : OrderM Unit := do
-  updateCnstrsOf u v fun c e => return !(← checkEqTrue u v k c e)
-  updateCnstrsOf v u fun c e => return !(← checkEqFalse u v k c e)
+  updateCnstrsOf u v fun c e => checkEqTrue u v k c e
+  updateCnstrsOf v u fun c e => checkEqFalse u v k c e
   checkEq u v k
 
 /--

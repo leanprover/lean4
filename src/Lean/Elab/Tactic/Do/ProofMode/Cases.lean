@@ -6,8 +6,11 @@ Authors: Lars König, Mario Carneiro, Sebastian Graf
 module
 
 prelude
-public import Lean.Elab.Tactic.Do.ProofMode.Pure
-public import Lean.Elab.Tactic.Do.ProofMode.Intro
+public import Lean.Elab.Tactic.Do.ProofMode.MGoal
+public import Std.Tactic.Do.Syntax
+import Lean.Elab.Tactic.Do.ProofMode.Pure
+import Lean.Elab.Tactic.Do.ProofMode.Intro
+import Lean.Elab.Tactic.Do.ProofMode.Focus
 
 public section
 

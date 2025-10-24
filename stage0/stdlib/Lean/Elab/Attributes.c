@@ -18,7 +18,7 @@ static lean_object* l_Lean_Elab_instToFormatAttribute___lam__0___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_toAttributeKind(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabAttr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabAttr___redArg___lam__6(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_toAttributeKind___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_elabAttrs___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_mkAttrKindGlobal___closed__6;
@@ -306,7 +306,7 @@ x_12 = 0;
 x_13 = l_Lean_Syntax_formatStx(x_4, x_11, x_12);
 x_14 = l_Lean_Elab_instToFormatAttribute___lam__0___closed__1;
 x_15 = lean_unsigned_to_nat(0u);
-x_16 = lean_format_pretty(x_13, x_14, x_15, x_15);
+x_16 = l_Std_Format_pretty(x_13, x_14, x_15, x_15);
 x_17 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
 x_18 = lean_alloc_ctor(5, 2, 0);
@@ -1318,17 +1318,17 @@ lean_dec(x_13);
 return x_14;
 }
 }
-lean_object* initialize_Lean_Elab_Util(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Parser_Term(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_Util(uint8_t builtin);
+lean_object* initialize_Lean_Parser_Term(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Elab_Attributes(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Elab_Attributes(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_Util(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Parser_Term(builtin, lean_io_mk_world());
+res = initialize_Lean_Parser_Term(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_instInhabitedAttribute_default___closed__0 = _init_l_Lean_Elab_instInhabitedAttribute_default___closed__0();

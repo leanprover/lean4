@@ -261,7 +261,7 @@ def shellMain
         IO.eprintln s!"unknown language '{langId}'\n";
         return 1
       -- Remove up to `\n`
-      pure <| String.Pos.Raw.extract contents endLinePos contents.endPos
+      pure <| String.Pos.Raw.extract contents endLinePos contents.rawEndPos
     else
       pure contents
   let setup? ← setupFileName?.mapM ModuleSetup.load

@@ -11801,29 +11801,29 @@ x_3 = l_Array_instToString___redArg(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_GetElem(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_ToArrayImpl(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_ToArrayImpl(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Set(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Set(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_GetElem(uint8_t builtin);
+lean_object* initialize_Init_Data_List_ToArrayImpl(uint8_t builtin);
+lean_object* initialize_Init_Data_List_ToArrayImpl(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Set(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Set(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_GetElem(builtin, lean_io_mk_world());
+res = initialize_Init_GetElem(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_ToArrayImpl(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_ToArrayImpl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_ToArrayImpl(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_ToArrayImpl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Set(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_Set(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Set(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_Set(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_term_x23_x5b___x2c_x5d___closed__0 = _init_l_term_x23_x5b___x2c_x5d___closed__0();

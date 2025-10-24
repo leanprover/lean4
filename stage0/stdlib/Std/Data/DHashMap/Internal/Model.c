@@ -2785,29 +2785,29 @@ lean_dec(x_4);
 return x_6;
 }
 }
-lean_object* initialize_Init_Data_Array_TakeDrop(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DHashMap_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DHashMap_Internal_Defs(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DHashMap_Internal_HashesTo(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DHashMap_Internal_AssocList_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_TakeDrop(uint8_t builtin);
+lean_object* initialize_Std_Data_DHashMap_Basic(uint8_t builtin);
+lean_object* initialize_Std_Data_DHashMap_Internal_Defs(uint8_t builtin);
+lean_object* initialize_Std_Data_DHashMap_Internal_HashesTo(uint8_t builtin);
+lean_object* initialize_Std_Data_DHashMap_Internal_AssocList_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Data_DHashMap_Internal_Model(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Data_DHashMap_Internal_Model(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Array_TakeDrop(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Basic(builtin, lean_io_mk_world());
+res = initialize_Std_Data_DHashMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Internal_Defs(builtin, lean_io_mk_world());
+res = initialize_Std_Data_DHashMap_Internal_Defs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Internal_HashesTo(builtin, lean_io_mk_world());
+res = initialize_Std_Data_DHashMap_Internal_HashesTo(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Internal_AssocList_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Std_Data_DHashMap_Internal_AssocList_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_DHashMap_Internal_Raw_u2080_get_x21_u2098___redArg___closed__0 = _init_l_Std_DHashMap_Internal_Raw_u2080_get_x21_u2098___redArg___closed__0();

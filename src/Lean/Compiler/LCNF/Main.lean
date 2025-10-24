@@ -133,10 +133,12 @@ def showDecl (phase : Phase) (declName : Name) : CoreM Format := do
   let some decl ← getDeclAt? declName phase | return "<not-available>"
   ppDecl' decl
 
-@[export lean_lcnf_compile_decls]
 def main (declNames : Array Name) : CoreM Unit := do
   withTraceNode `Compiler (fun _ => return m!"compiling: {declNames}") do
     CompilerM.run <| discard <| PassManager.run declNames
+
+builtin_initialize
+  compileDeclsRef.set main
 
 builtin_initialize
   registerTraceClass `Compiler.init (inherited := true)

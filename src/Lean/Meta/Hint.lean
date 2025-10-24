@@ -398,7 +398,7 @@ where
     else
       have := Nat.sub_lt_sub_left (Nat.gt_of_not_le (mt decide_eq_true h)) (String.Pos.Raw.lt_next s _)
       if (i.get s).isWhitespace then
-        let skipped := (Substring.mk s i s.endPos).takeWhile (·.isWhitespace)
+        let skipped := (Substring.mk s i s.rawEndPos).takeWhile (·.isWhitespace)
         let i' := skipped.stopPos
         splitWordsAux s i' i' (r.push (String.Pos.Raw.extract s b i)) (ws.push (String.Pos.Raw.extract s i i'))
       else

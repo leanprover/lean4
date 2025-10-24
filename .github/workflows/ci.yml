@@ -200,8 +200,20 @@ jobs:
                 "test": true,
                 // NOTE: `test-speedcenter` currently seems to be broken on `ubuntu-latest`
                 "test-speedcenter": large && level >= 2,
-                // made explicit until it can be assumed to have propagated to PRs
-                "CMAKE_OPTIONS": "-DUSE_LAKE=ON",
+                // `-DUSE_LAKE=ON` made explicit until it can be assumed to have propagated to PRs
+                "CMAKE_OPTIONS": "-DUSE_LAKE=ON -DUSE_LAKE_CACHE=ON",
+              },
+              {
+                "name": "Linux Lake (Cached)",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
+                "enabled": true,
+                "check-rebootstrap": level >= 1,
+                "check-stage3": level >= 2,
+                "test": true,
+                "secondary": true,
+                // NOTE: `test-speedcenter` currently seems to be broken on `ubuntu-latest`
+                "test-speedcenter": large && level >= 2,
+                "CMAKE_OPTIONS": "-DUSE_LAKE=ON -DUSE_LAKE_CACHE=ON",
               },
               {
                 "name": "Linux Reldebug",

@@ -194,6 +194,18 @@ appearance.
   ⟨m.inner.insertManyIfNewUnit l⟩
 
 /--
+Computes the union of the given hash sets.
+
+This function always merges the smaller set into the larger set, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline]
+def union [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtHashSet α) : ExtHashSet α := ⟨ExtHashMap.union m₁.inner m₂.inner⟩
+
+instance [EquivBEq α] [LawfulHashable α] : Union (ExtHashSet α) := ⟨union⟩
+
+
+/--
 Creates a hash set from an array of elements. Note that unlike repeatedly calling `insert`, if the
 collection contains multiple elements that are equal (with regard to `==`), then the last element
 in the collection will be present in the returned hash set.

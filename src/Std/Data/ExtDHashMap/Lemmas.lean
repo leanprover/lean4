@@ -2342,6 +2342,81 @@ theorem isEmpty_union [EquivBEq α] [LawfulHashable α] :
 
 end Union
 
+namespace Const
+
+variable {β : Type v} {m₁ m₂ : ExtDHashMap α (fun _ => β)}
+
+/- get? -/
+theorem get?_union [EquivBEq α] [LawfulHashable α] {k : α} :
+    Const.get? (m₁.union m₂) k = (Const.get? m₂ k).or (Const.get? m₁ k) :=
+  m₁.inductionOn₂ m₂ fun _ _ => DHashMap.Const.get?_union
+
+theorem get?_union_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : ¬k ∈ m₁) :
+    Const.get? (m₁.union m₂) k = Const.get? m₂ k := by
+  revert not_mem
+  exact m₁.inductionOn₂ m₂ fun _ _ h => DHashMap.Const.get?_union_of_not_mem_left h
+
+theorem get?_union_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : ¬k ∈ m₂) :
+    Const.get? (m₁.union m₂) k = Const.get? m₁ k := by
+  revert not_mem
+  exact m₁.inductionOn₂ m₂ fun _ _ h => DHashMap.Const.get?_union_of_not_mem_right h
+
+/- get -/
+theorem get_union_of_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} (mem : m₂.contains k) :
+    Const.get (m₁.union m₂) k (mem_union_of_right mem) = Const.get m₂ k mem := by
+  revert mem
+  exact m₁.inductionOn₂ m₂ fun _ _ h => DHashMap.Const.get_union_of_mem_right h
+
+theorem get_union_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : ¬k ∈ m₁) {h'} :
+    Const.get (m₁.union m₂) k h' = Const.get m₂ k (mem_of_mem_union_of_not_mem_left h' not_mem) := by
+  revert not_mem h'
+  exact m₁.inductionOn₂ m₂ fun _ _ h => DHashMap.Const.get_union_of_not_mem_left h
+
+theorem get_union_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : ¬k ∈ m₂) {h'} :
+    Const.get (m₁.union m₂) k h' = Const.get m₁ k (mem_of_mem_union_of_not_mem_right h' not_mem) := by
+  revert not_mem h'
+  exact m₁.inductionOn₂ m₂ fun _ _ h => DHashMap.Const.get_union_of_not_mem_right h
+
+/- getD -/
+theorem getD_union [EquivBEq α] [LawfulHashable α] {k : α} {fallback : β} :
+    Const.getD (m₁.union m₂) k fallback = Const.getD m₂ k (Const.getD m₁ k fallback) :=
+  m₁.inductionOn₂ m₂ fun _ _ => DHashMap.Const.getD_union
+
+theorem getD_union_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k : α} {fallback : β} (not_mem : ¬k ∈ m₁) :
+    Const.getD (m₁.union m₂) k fallback = Const.getD m₂ k fallback := by
+  revert not_mem
+  exact m₁.inductionOn₂ m₂ fun _ _ h => DHashMap.Const.getD_union_of_not_mem_left h
+
+theorem getD_union_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} {fallback : β} (not_mem : ¬k ∈ m₂) :
+    Const.getD (m₁.union m₂) k fallback = Const.getD m₁ k fallback := by
+  revert not_mem
+  exact m₁.inductionOn₂ m₂ fun _ _ h => DHashMap.Const.getD_union_of_not_mem_right h
+
+/- get! -/
+theorem get!_union [EquivBEq α] [LawfulHashable α] [Inhabited β] {k : α} :
+    Const.get! (m₁.union m₂) k = Const.getD m₂ k (Const.get! m₁ k) :=
+  m₁.inductionOn₂ m₂ fun _ _ => DHashMap.Const.get!_union
+
+theorem get!_union_of_not_mem_left [EquivBEq α] [LawfulHashable α] [Inhabited β]
+    {k : α} (not_mem : ¬k ∈ m₁) :
+    Const.get! (m₁.union m₂) k = Const.get! m₂ k := by
+  revert not_mem
+  exact m₁.inductionOn₂ m₂ fun _ _ h => DHashMap.Const.get!_union_of_not_mem_left h
+
+theorem get!_union_of_not_mem_right [EquivBEq α] [LawfulHashable α] [Inhabited β]
+    {k : α} (not_mem : ¬k ∈ m₂) :
+    Const.get! (m₁.union m₂) k = Const.get! m₁ k := by
+  revert not_mem
+  exact m₁.inductionOn₂ m₂ fun _ _ h => DHashMap.Const.get!_union_of_not_mem_right h
+
+end Const
 
 variable {m : ExtDHashMap α β}
 

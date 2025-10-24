@@ -60,3 +60,42 @@ example (as bs cs : Array α) (v₁ v₂ : α)
         (h₆ : j < as.size)
         : cs[j] = as[j] := by
   grind => finish?
+
+set_option warn.sorry false
+
+/--
+info: Try this:
+  [apply] ⏎
+    cases #c4b6
+    next =>
+      ring
+      cases #8c9f
+      next => ring
+      next => sorry
+    next =>
+      ring
+      cases #8c9f
+      next => ring
+      next => sorry
+-/
+#guard_msgs in
+example {α : Type} [CommRing α] (a b c d e : α) :
+    (a^2 = c * b ∨ e^2 = d * c) →
+    (b^2 = d*c ∨ b^2 = c*d) →
+    a*b*(b*a) = c^2*b*d := by
+ grind => finish?
+
+/--
+info: Try this:
+  [apply] ⏎
+    instantiate only [= Nat.min_def]
+    cases #7640
+    next => sorry
+    next =>
+      ring
+      lia
+-/
+#guard_msgs in
+example (as : Array α) (lo hi i j : Nat) (h₁ : lo ≤ i) (_ : i < j) (_ : j ≤ hi) (_ : j < as.size)
+    (_ : ¬as.size = 0) : min lo (as.size - 1) < i := by
+  grind => finish?

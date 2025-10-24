@@ -19,11 +19,36 @@ This module provides typeclass instances and lemmas about order-related typeclas
 
 section AxiomaticInstances
 
+public theorem not_refl_iff_irrefl : Refl (¬ r · ·) ↔ Irrefl r :=
+  ⟨fun ⟨h⟩ => ⟨h⟩, fun ⟨h⟩ => ⟨h⟩⟩
+
+public theorem not_irrefl_iff_refl : Irrefl (¬ r · ·) ↔ Refl r :=
+  ⟨fun ⟨h⟩ => ⟨by simpa using h⟩, fun ⟨h⟩ => ⟨by simpa using h⟩⟩
+
+public theorem Refl.irrefl_of_refl_not {α : Type u} {r : α → α → Prop} [i : Refl (¬ r · ·)] :
+    Irrefl r := not_refl_iff_irrefl.mp i
+
+public theorem Irrefl.refl_of_irrefl_not {α : Type u} {r : α → α → Prop}
+    [i : Irrefl (¬ r · ·)] : Refl r := not_irrefl_iff_refl.mp i
+
 public instance (r : α → α → Prop) [Asymm r] : Irrefl r where
   irrefl a h := Asymm.asymm a a h h
 
+public instance (r : α → α → Prop) [Asymm r] : Antisymm r where
+  antisymm a b h h' := by simpa using Asymm.asymm a b h h'
+
 public instance {r : α → α → Prop} [Total r] : Refl r where
-  refl a := by simpa using Total.total a a
+  refl a := (Total.total a a).elim (·) (·)
+
+public instance {r : α → α → Prop} [Total r] : Tricho r where
+  tricho a b h h' := by simpa [h, h'] using Total.total (r := r) a b
+
+public instance Antisymm.tricho_of_antisymm_not {r : α → α → Prop} [i : Antisymm (¬ r · ·)] :
+    Tricho r where tricho a b h h' := i.antisymm a b h h'
+
+public instance Tricho.antisymm_of_tricho_not {r : α → α → Prop} [i : Tricho (¬ r · ·)] :
+    Antisymm r where
+  antisymm a b h h' := i.tricho a b (· h) (· h')
 
 public instance Total.asymm_of_total_not {r : α → α → Prop} [i : Total (¬ r · ·)] : Asymm r where
   asymm a b h := by cases i.total a b <;> trivial
@@ -33,6 +58,9 @@ public theorem Asymm.total_not {r : α → α → Prop} [i : Asymm r] : Total (�
     apply Classical.byCases (p := r a b) <;> intro hab
     · exact Or.inr <| i.asymm a b hab
     · exact Or.inl hab
+
+public instance Asymm.total_of_asymm_not {r : α → α → Prop} [i : Asymm (¬ r · ·)] : Total r where
+  total a b := by simpa using (Asymm.total_not (i := i)).total a b
 
 public instance {α : Type u} [LE α] [IsPartialOrder α] :
     Antisymm (α := α) (· ≤ ·) where
@@ -110,7 +138,7 @@ public instance {α : Type u} [LT α] [LE α] [LawfulOrderLT α] :
     intro h h'
     exact h.2.elim h'.1
 
-public instance {α : Type u} [LT α] [LE α] [IsPreorder α] [LawfulOrderLT α] :
+public instance {α : Type u} [LT α] [LE α] [LawfulOrderLT α] :
     Std.Irrefl (α := α) (· < ·) := inferInstance
 
 public instance {α : Type u} [LT α] [LE α] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) ]

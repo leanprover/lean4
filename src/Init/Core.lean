@@ -2523,8 +2523,7 @@ class Antisymm (r : α → α → Prop) : Prop where
   /-- An antisymmetric relation `r` satisfies `r a b → r b a → a = b`. -/
   antisymm (a b : α) : r a b → r b a → a = b
 
-/-- `Asymm r` means that the binary relation `r` is asymmetric, that is,
-`r a b → ¬ r b a`. -/
+/-- `Asymm r` means that the binary relation `r` is asymmetric, that is, `r a b → ¬ r b a`. -/
 class Asymm (r : α → α → Prop) : Prop where
   /-- An asymmetric relation satisfies `r a b → ¬ r b a`. -/
   asymm : ∀ a b, r a b → ¬r b a
@@ -2534,16 +2533,19 @@ class Symm (r : α → α → Prop) : Prop where
   /-- A symmetric relation satisfies `r a b → r b a`. -/
   symm : ∀ a b, r a b → r b a
 
-/-- `Total X r` means that the binary relation `r` on `X` is total, that is, that for any
-`x y : X` we have `r x y` or `r y x`. -/
+/-- `Total X r` means that the binary relation `r` on `X` is total, that is, `r a b` or `r b a`. -/
 class Total (r : α → α → Prop) : Prop where
-  /-- A total relation satisfies `r a b ∨ r b a`. -/
+  /-- A total relation satisfies `r a b` or `r b a`. -/
   total : ∀ a b, r a b ∨ r b a
 
-/-- `Irrefl r` means the binary relation `r` is irreflexive, that is, `r x x` never
-holds. -/
+/-- `Irrefl r` means the binary relation `r` is irreflexive, that is, `r x x` never holds. -/
 class Irrefl (r : α → α → Prop) : Prop where
   /-- An irreflexive relation satisfies `¬ r a a`. -/
   irrefl : ∀ a, ¬r a a
+
+/-- `Tricho r` says that `r` is trichotomous, that is, `¬ r a b → ¬ r b a → a = b`. -/
+class Tricho (r : α → α → Prop) : Prop where
+  /-- An trichotomous relation `r` satisfies `¬ r a b → ¬ r b a → a = b`. -/
+  tricho (a b : α) : ¬ r a b → ¬ r b a → a = b
 
 end Std

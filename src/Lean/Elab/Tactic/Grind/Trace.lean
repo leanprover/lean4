@@ -20,7 +20,8 @@ def withTracing (x : GrindTacticM α) : GrindTacticM α := do
 
 def mkFinish (maxIterations : Nat) : IO Action := do
   let solvers ← Solvers.mkAction
-  return Action.checkTactic >> (Action.done <|> solvers <|> Action.instantiate <|> Action.splitNext).loop maxIterations
+  let step : Action := Action.done <|> solvers <|> Action.instantiate <|> Action.splitNext <|> Action.mbtc
+  return Action.checkTactic (warnOnly := true) >> step.loop maxIterations
 
 def maxIterations := 1000 -- **TODO**: Add option
 

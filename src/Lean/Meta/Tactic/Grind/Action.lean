@@ -282,21 +282,26 @@ def checkSeqAt (s? : Option SavedState) (goal : Goal) (seq : List TGrind) : Grin
 /--
 Helper action that checks whether the resulting tactic script produced by its continuation
 can close the original goal.
+If `warnOnly = true`, just generates a warning message instead of an error
 -/
-def checkTactic : Action := fun goal _ kp => do
+def checkTactic (warnOnly : Bool) : Action := fun goal _ kp => do
   let s ← saveStateIfTracing
   let r ← kp goal
   match r with
   | .closed seq =>
     unless (← checkSeqAt s goal seq) do
-      throwError "generated tactic cannot close the goal{indentD (← mkGrindNext seq)}\nInitial goal\n{goal.mvarId}"
+      let m := m!"generated tactic cannot close the goal{indentD (← mkGrindNext seq)}\nInitial goal\n{goal.mvarId}"
+      if warnOnly then
+        logWarning m
+      else
+        throwError m
     return r
   | _ => return r
 
 /--
 Helper action for satellite solvers that use `CheckResult`.
 -/
-def solverAction (check : GoalM CheckResult) (mkTac : GrindM (TSyntax `grind)) : Action := fun goal kna kp => do
+def solverAction (check : GoalM CheckResult) (mkTac : GrindM TGrind) : Action := fun goal kna kp => do
   let saved? ← saveStateIfTracing
   let (result, goal') ← GoalM.run goal check
   match result with

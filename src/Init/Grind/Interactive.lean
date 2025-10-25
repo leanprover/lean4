@@ -225,5 +225,10 @@ Proves `<term>` using the current `grind` state and default search strategy.
 -/
 syntax (name := haveSilent) "have" (ppSpace ident)? ppSpace ": " term : grind
 
+/--
+Adds new case-splits using model-based theory combination.
+-/
+syntax (name := mbtc) "mbtc" : grind
+
 end Grind
 end Lean.Parser.Tactic

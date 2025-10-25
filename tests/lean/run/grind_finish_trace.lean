@@ -134,3 +134,25 @@ info: Try this:
 example (a : Array (BitVec 64)) (i : Nat) (v : BitVec 64)
     : (_ : i < a.size) → (_ : i + 1 < a.size) → (a.set i v)[i+1] + a[i+1] = 2*a[i+1] := by
   grind => finish?
+
+/--
+info: Try this:
+  [apply] ⏎
+    mbtc
+    cases #a6c8
+-/
+#guard_msgs in
+example (f : Nat → Nat) (x : Nat)
+    : x ≠ 0 → x ≤ 1 → f x = 2 → f 1 = 2 := by
+  grind => finish?
+
+/--
+info: Try this:
+  [apply] ⏎
+    mbtc
+    cases #beb4
+-/
+#guard_msgs in
+example (f : Int → Int → Int) (x y : Int)
+    : 0 ≤ x → x ≠ 0 → x ≤ 1 → f x y = 2 → f 1 y = 2 := by
+  grind => finish?

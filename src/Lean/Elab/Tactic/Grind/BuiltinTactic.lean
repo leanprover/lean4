@@ -429,4 +429,13 @@ where
   let options ← Elab.elabSetOption stx[1] stx[3]
   withOptions (fun _ => options) do evalGrindTactic stx[5]
 
+@[builtin_grind_tactic mbtc] def elabMBTC : GrindTactic := fun _ => do
+  liftGoalM do
+    discard <| Solvers.check
+    if (← get).inconsistent then
+      return ()
+    let progress ← Solvers.mbtc
+    unless progress do
+      throwError "`mbtc` tactic failed to generate new candidate case-splits."
+
 end Lean.Elab.Tactic.Grind

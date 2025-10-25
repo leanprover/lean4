@@ -225,7 +225,7 @@ Appends a new tactic syntax to a successful result.
 Used by leaf actions to record the tactic that produced progress.
 If `(← getConfig).trace` is `false`, it just returns `r`.
 -/
-def concatTactic (r : ActionResult) (mk : GrindM (TSyntax `grind)) : GrindM ActionResult := do
+def concatTactic (r : ActionResult) (mk : GrindM TGrind) : GrindM ActionResult := do
   if (← getConfig).trace then
     match r with
     | .closed seq =>
@@ -236,7 +236,7 @@ def concatTactic (r : ActionResult) (mk : GrindM (TSyntax `grind)) : GrindM Acti
     return r
 
 /-- Returns `.closed [← mk]` if tracing is enabled, and `.closed []` otherwise. -/
-def closeWith (mk : GrindM (TSyntax `grind)) : GrindM ActionResult := do
+def closeWith (mk : GrindM TGrind) : GrindM ActionResult := do
   if (← getConfig).trace then
     return .closed [(← mk)]
   else
@@ -247,7 +247,7 @@ A terminal action which closes the goal or not.
 This kind of action may make progress, but we only include `mkTac` into the resulting tactic sequence
 if it closed the goal.
 -/
-def terminalAction (check : GoalM Bool) (mkTac : GrindM (TSyntax `grind)) : Action := fun goal kna kp => do
+def terminalAction (check : GoalM Bool) (mkTac : GrindM TGrind) : Action := fun goal kna kp => do
   let (progress, goal') ← GoalM.run goal check
   if progress then
     if goal'.inconsistent then
@@ -331,6 +331,24 @@ def solverAction (check : GoalM CheckResult) (mkTac : GrindM TGrind) : Action :=
     else
       kp goal'
   | .closed     => closeWith mkTac
+
+def mbtc : Action := fun goal kna kp => do
+  let saved? ← saveStateIfTracing
+  let (progress, goal') ← GoalM.run goal Solvers.mbtc
+  if progress then
+    if (← getConfig).trace then
+      match (← kp goal') with
+      | .closed seq =>
+        if (← checkSeqAt saved? goal seq) then
+          return .closed seq
+        else
+          let tac ← `(grind| mbtc)
+          return .closed (tac :: seq)
+      | r => return r
+    else
+      kp goal'
+  else
+    kna goal'
 
 section
 /-!

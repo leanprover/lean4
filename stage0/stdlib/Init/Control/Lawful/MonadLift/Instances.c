@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Lawful.MonadLift.Instances
-// Imports: Init.Control.Option Init.Control.Except Init.Control.ExceptCps Init.Control.StateRef Init.Control.StateCps Init.Control.Lawful.MonadLift.Lemmas Init.Control.Lawful.Instances
+// Imports: import all Init.Control.Option import all Init.Control.Except public import Init.Control.ExceptCps import all Init.Control.ExceptCps import all Init.Control.StateRef public import Init.Control.StateCps import all Init.Control.StateCps import all Init.Control.Id public import Init.Control.Lawful.MonadLift.Lemmas public import Init.Control.Lawful.Instances
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -35,7 +35,7 @@ else
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = lean_apply_1(x_2, x_4);
 return x_5;
 }
@@ -76,7 +76,7 @@ lean_object* x_4; lean_object* x_5;
 lean_dec(x_3);
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = lean_apply_1(x_2, x_4);
 return x_5;
 }
@@ -86,7 +86,7 @@ lean_object* x_6; lean_object* x_7;
 lean_dec(x_2);
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_7 = lean_apply_1(x_3, x_6);
 return x_7;
 }
@@ -109,7 +109,7 @@ lean_object* x_4; lean_object* x_5;
 lean_dec(x_2);
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = lean_apply_1(x_3, x_4);
 return x_5;
 }
@@ -119,7 +119,7 @@ lean_object* x_6; lean_object* x_7;
 lean_dec(x_3);
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_7 = lean_apply_1(x_2, x_6);
 return x_7;
 }
@@ -133,37 +133,49 @@ x_7 = l___private_Init_Control_Lawful_MonadLift_Instances_0__ExceptT_bindCont_ma
 return x_7;
 }
 }
-lean_object* initialize_Init_Control_Option(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Control_Except(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Control_ExceptCps(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Control_StateRef(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Control_StateCps(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Control_Lawful_MonadLift_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Control_Lawful_Instances(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Control_Option(uint8_t builtin);
+lean_object* initialize_Init_Control_Except(uint8_t builtin);
+lean_object* initialize_Init_Control_ExceptCps(uint8_t builtin);
+lean_object* initialize_Init_Control_ExceptCps(uint8_t builtin);
+lean_object* initialize_Init_Control_StateRef(uint8_t builtin);
+lean_object* initialize_Init_Control_StateCps(uint8_t builtin);
+lean_object* initialize_Init_Control_StateCps(uint8_t builtin);
+lean_object* initialize_Init_Control_Id(uint8_t builtin);
+lean_object* initialize_Init_Control_Lawful_MonadLift_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Control_Lawful_Instances(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Control_Lawful_MonadLift_Instances(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Control_Lawful_MonadLift_Instances(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_Option(builtin, lean_io_mk_world());
+res = initialize_Init_Control_Option(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Except(builtin, lean_io_mk_world());
+res = initialize_Init_Control_Except(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_ExceptCps(builtin, lean_io_mk_world());
+res = initialize_Init_Control_ExceptCps(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_StateRef(builtin, lean_io_mk_world());
+res = initialize_Init_Control_ExceptCps(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_StateCps(builtin, lean_io_mk_world());
+res = initialize_Init_Control_StateRef(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Lawful_MonadLift_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Control_StateCps(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Lawful_Instances(builtin, lean_io_mk_world());
+res = initialize_Init_Control_StateCps(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_Id(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_Lawful_MonadLift_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_Lawful_Instances(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

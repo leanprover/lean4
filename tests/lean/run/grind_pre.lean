@@ -1,3 +1,4 @@
+module
 abbrev f (a : α) := a
 set_option grind.debug true
 set_option grind.debug.proofs true
@@ -11,7 +12,7 @@ left : a = true
 right : b = true ∨ c = true
 left_1 : p
 right_1 : q
-h_1 : b = false ∨ a = false
+h_1 : (b && a) = false
 ⊢ False
 [grind] Goal diagnostics
   [facts] Asserted facts
@@ -19,20 +20,26 @@ h_1 : b = false ∨ a = false
     [prop] b = true ∨ c = true
     [prop] p
     [prop] q
-    [prop] b = false ∨ a = false
+    [prop] (b && a) = false
   [eqc] True propositions
     [prop] p
     [prop] q
-    [prop] b = false ∨ a = false
     [prop] b = true ∨ c = true
-    [prop] b = false
     [prop] c = true
   [eqc] False propositions
-    [prop] a = false
     [prop] b = true
   [eqc] Equivalence classes
     [eqc] {a, c, true}
-    [eqc] {b, false}
+    [eqc] {b, false, b && a}
+  [assoc] Operator `and`
+    [basis] Basis
+      [_] a = true
+    [diseqs] Disequalities
+      [_] b ≠ true
+    [properties] Properties
+      [_] commutative
+      [_] idempotent
+      [_] identity: `true`
 -/
 #guard_msgs (error) in
 theorem ex (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
@@ -43,14 +50,14 @@ attribute [local grind cases eager] Or
 
 /--
 error: `grind` failed
-case grind.2.1
+case grind.2
 a b c : Bool
 p q : Prop
 left : a = true
 h_1 : c = true
 left_1 : p
 right_1 : q
-h_3 : b = false
+h_2 : (b && a) = false
 ⊢ False
 [grind] Goal diagnostics
   [facts] Asserted facts
@@ -58,16 +65,23 @@ h_3 : b = false
     [prop] c = true
     [prop] p
     [prop] q
-    [prop] b = false
+    [prop] (b && a) = false
   [eqc] True propositions
     [prop] p
     [prop] q
   [eqc] Equivalence classes
     [eqc] {a, c, true}
-    [eqc] {b, false}
+    [eqc] {b, false, b && a}
+  [assoc] Operator `and`
+    [basis] Basis
+      [_] a = true
+    [properties] Properties
+      [_] commutative
+      [_] idempotent
+      [_] identity: `true`
 [grind] Diagnostics
   [cases] Cases instances
-    [cases] Or ↦ 3
+    [cases] Or ↦ 1
 -/
 #guard_msgs (error) in
 theorem ex2 (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
@@ -107,8 +121,8 @@ bs : List Point
 b₂ : Nat
 b₃ : Int
 head_eq : a₁ = b₁
-h_1 : a₂ = b₂
-h_2 : a₃ = b₃
+x_eq : a₂ = b₂
+y_eq : a₃ = b₃
 tail_eq_1 : as = bs
 ⊢ False
 [grind] Goal diagnostics

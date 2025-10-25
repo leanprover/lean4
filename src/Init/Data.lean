@@ -6,44 +6,49 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Basic
-import Init.Data.Nat
-import Init.Data.Bool
-import Init.Data.BitVec
-import Init.Data.Cast
-import Init.Data.Char
-import Init.Data.String
-import Init.Data.List
-import Init.Data.Int
-import Init.Data.Array
-import Init.Data.Array.Subarray.Split
-import Init.Data.ByteArray
-import Init.Data.FloatArray
-import Init.Data.Fin
-import Init.Data.UInt
-import Init.Data.SInt
-import Init.Data.Float
-import Init.Data.Float32
-import Init.Data.Option
-import Init.Data.Ord
-import Init.Data.Random
-import Init.Data.ToString
-import Init.Data.Range
-import Init.Data.Hashable
-import Init.Data.OfScientific
-import Init.Data.Format
-import Init.Data.Stream
-import Init.Data.Prod
-import Init.Data.AC
-import Init.Data.Queue
-import Init.Data.Sum
-import Init.Data.BEq
-import Init.Data.Subtype
-import Init.Data.ULift
-import Init.Data.PLift
-import Init.Data.Zero
-import Init.Data.NeZero
-import Init.Data.Function
-import Init.Data.RArray
-import Init.Data.Vector
-import Init.Data.Iterators
+public import Init.Data.Nat
+public import Init.Data.Bool
+public import Init.Data.BitVec
+public import Init.Data.Cast
+public import Init.Data.Char
+public import Init.Data.String
+public import Init.Data.List
+public import Init.Data.Int
+public import Init.Data.Array
+public import Init.Data.Array.Subarray.Split
+public import Init.Data.ByteArray
+public import Init.Data.FloatArray
+public import Init.Data.Fin
+public import Init.Data.UInt
+public import Init.Data.SInt
+public import Init.Data.Float
+public import Init.Data.Float32
+public import Init.Data.Option
+public import Init.Data.Ord
+public import Init.Data.Random
+public import Init.Data.ToString
+public import Init.Data.Range
+public import Init.Data.Hashable
+public import Init.Data.LawfulHashable
+public import Init.Data.OfScientific
+public import Init.Data.Format
+public import Init.Data.Stream
+public import Init.Data.Prod
+public import Init.Data.AC
+public import Init.Data.Queue
+public import Init.Data.Sum
+public import Init.Data.BEq
+public import Init.Data.Subtype
+public import Init.Data.ULift
+public import Init.Data.PLift
+public import Init.Data.Zero
+public import Init.Data.NeZero
+public import Init.Data.Function
+public import Init.Data.RArray
+public import Init.Data.Vector
+public import Init.Data.Iterators
+public import Init.Data.Range.Polymorphic
+public import Init.Data.Slice
+public import Init.Data.Order
+public import Init.Data.Rat
+public import Init.Data.Dyadic

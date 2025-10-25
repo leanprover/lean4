@@ -8,9 +8,9 @@ The State monad transformer.
 module
 
 prelude
-import Init.Control.Basic
-import Init.Control.Id
-import Init.Control.Except
+public import Init.Control.Except
+
+public section
 
 set_option linter.missingDocs true
 

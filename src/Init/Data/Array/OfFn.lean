@@ -7,10 +7,10 @@ module
 
 prelude
 import all Init.Data.Array.Basic
-import Init.Data.Array.Lemmas
-import Init.Data.Array.Monadic
-import Init.Data.List.OfFn
-import Init.Data.List.FinRange
+public import Init.Data.Array.Monadic
+public import Init.Data.List.FinRange
+
+public section
 
 /-!
 # Theorems about `Array.ofFn`

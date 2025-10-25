@@ -3,8 +3,17 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.DHashMap.Internal.WF
+import all Std.Data.Internal.List.Associative
+import all Std.Data.DHashMap.Internal.Defs
+public import Std.Data.DHashMap.Internal.WF
+import all Std.Data.DHashMap.Raw
+import all Std.Data.DHashMap.Basic
+meta import Std.Data.DHashMap.Basic
+
+public section
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on
@@ -73,7 +82,7 @@ namespace Raw₀
 variable (m : Raw₀ α β)
 
 @[simp]
-theorem size_emptyWithCapacity {c} : (emptyWithCapacity c : Raw₀ α β).1.size = 0 := rfl
+theorem size_emptyWithCapacity {c} : (emptyWithCapacity c : Raw₀ α β).1.size = 0 := (rfl)
 
 set_option linter.missingDocs false in
 @[deprecated size_emptyWithCapacity (since := "2025-03-12")]
@@ -96,7 +105,7 @@ macro_rules
       | apply Raw.WF.alter₀ | apply Raw.WF.modify₀
       | apply Raw.WF.constAlter₀ | apply Raw.WF.constModify₀
       | apply Raw₀.wf_insertMany₀ | apply Raw₀.Const.wf_insertMany₀
-      | apply Raw₀.Const.wf_insertManyIfNewUnit₀
+      | apply Raw₀.Const.wf_insertManyIfNewUnit₀ | apply Raw₀.wf_union₀
       | apply Raw.WF.filter₀ | apply Raw₀.wf_map₀ | apply Raw₀.wf_filterMap₀
       | apply Raw.WF.emptyWithCapacity₀) <;> wf_trivial)
 
@@ -105,12 +114,13 @@ scoped macro "empty" : tactic => `(tactic| { intros; simp_all [List.isEmpty_iff]
 
 open Lean
 
-private def modifyMap : Std.DHashMap Name (fun _ => Name) :=
+private meta def modifyMap : Std.DHashMap Name (fun _ => Name) :=
   .ofList
     [⟨`insert, ``toListModel_insert⟩,
      ⟨`erase, ``toListModel_erase⟩,
      ⟨`insertIfNew, ``toListModel_insertIfNew⟩,
      ⟨`insertMany, ``toListModel_insertMany_list⟩,
+     ⟨`union, ``toListModel_union⟩,
      ⟨`Const.insertMany, ``Const.toListModel_insertMany_list⟩,
      ⟨`Const.insertManyIfNewUnit, ``Const.toListModel_insertManyIfNewUnit_list⟩,
      ⟨`alter, ``toListModel_alter⟩,
@@ -129,7 +139,7 @@ private theorem perm_keys_congr_left {α : Type u} {β : α → Type v} {l l' : 
     {l₂ : List α} (h : l.Perm l') : (List.keys l).Perm l₂ ↔ (List.keys l').Perm l₂ := by
   simp [List.keys_eq_map, perm_map_congr_left h]
 
-private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSyntax `term))) :=
+private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSyntax `term))) :=
   .ofList
     [⟨`isEmpty, (``Raw.isEmpty_eq_isEmpty, #[`(_root_.List.Perm.isEmpty_eq)])⟩,
      ⟨`contains, (``contains_eq_containsKey, #[`(containsKey_of_perm)])⟩,
@@ -155,6 +165,9 @@ private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSynta
      ⟨`foldRev, (``Raw.foldRev_eq_foldr_toListModel, #[])⟩,
      ⟨`forIn, (``Raw.forIn_eq_forIn_toListModel, #[])⟩,
      ⟨`forM, (``Raw.forM_eq_forM_toListModel, #[])⟩,
+     ⟨`toArray, (``Raw.toArray_eq_toArray_toListModel, #[])⟩,
+     ⟨`keysArray, (``Raw.keysArray_eq_toArray_keys_toListModel, #[])⟩,
+     ⟨`Const.toArray, (``Raw.Const.toArray_eq_toArray_map_toListModel, #[])⟩,
      ⟨`Equiv, (``Raw.equiv_iff_toListModel_perm,
       #[`(_root_.List.Perm.congr_left), `(_root_.List.Perm.congr_right)])⟩]
 
@@ -323,6 +336,10 @@ theorem contains_eq_isSome_get? [LawfulBEq α] (h : m.1.WF) {a : α} :
     m.contains a = (m.get? a).isSome := by
   simp_to_model [contains, get?] using List.containsKey_eq_isSome_getValueCast?
 
+theorem get?_eq_some_iff [LawfulBEq α] (h : m.1.WF) {k : α} {v : β k} :
+    m.get? k = some v ↔ ∃ h : m.contains k, m.get k h = v := by
+  simp_to_model [contains, get?, get] using List.getValueCast?_eq_some_iff
+
 theorem get?_eq_none [LawfulBEq α] (h : m.1.WF) {a : α} :
     m.contains a = false → m.get? a = none := by
   simp_to_model [contains, get?] using List.getValueCast?_eq_none
@@ -361,6 +378,10 @@ theorem get?_insert_self [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α}
 theorem contains_eq_isSome_get? [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} :
     m.contains a = (get? m a).isSome := by
   simp_to_model [contains, Const.get?] using List.containsKey_eq_isSome_getValue?
+
+theorem get?_eq_some_iff [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} {v : β} :
+    get? m k = some v ↔ ∃ h : m.contains k, get m k h = v := by
+  simp_to_model [contains, Const.get?, Const.get] using List.getValue?_eq_some_iff
 
 theorem get?_eq_none [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} :
     m.contains a = false → get? m a = none := by
@@ -689,6 +710,10 @@ theorem getKey?_beq [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} :
 theorem getKey?_eq_some [LawfulBEq α] (h : m.1.WF) {a : α} :
     m.contains a → m.getKey? a = some a := by
   simp_to_model [getKey?, contains] using List.getKey?_eq_some
+
+theorem getKey?_eq_some_iff [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k k' : α} :
+    m.getKey? k = some k' ↔ ∃ h : m.contains k, m.getKey k h = k' := by
+  simp_to_model [contains, getKey?, getKey] using List.getKey?_eq_some_iff'
 
 theorem getKey?_congr [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {k k' : α} (h : k == k') :
@@ -1100,10 +1125,141 @@ theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
 
 end Const
 
+omit [Hashable α] [BEq α] in
+theorem toArray_keys_eq_keysArray :
+    m.1.keys.toArray = m.1.keysArray := by
+  simp_to_model
+
+omit [Hashable α] [BEq α] in
+theorem toList_keysArray_eq_keys :
+    m.1.keysArray.toList = m.1.keys := by
+  simp_to_model
+
+@[simp]
+theorem size_keysArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    m.1.keysArray.size = m.1.size := by
+  simp [← toArray_keys_eq_keysArray, h]
+
+@[simp]
+theorem isEmpty_keysArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    m.1.keysArray.isEmpty = m.1.isEmpty := by
+  simp [← toArray_keys_eq_keysArray, h]
+
+@[simp]
+theorem contains_keysArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
+    m.1.keysArray.contains k = m.contains k := by
+  simp [← toArray_keys_eq_keysArray, h]
+
+@[simp]
+theorem mem_keysArray [LawfulBEq α] (h : m.1.WF) {k : α} :
+    k ∈ m.1.keysArray ↔ m.contains k := by
+  simp [← toArray_keys_eq_keysArray, h]
+
+theorem forall_mem_keysArray_iff_forall_contains_getKey [EquivBEq α] [LawfulHashable α]
+    (h : m.1.WF) {p : α → Prop} :
+    (∀ k ∈ m.1.keysArray, p k) ↔ ∀ (k : α) (h : m.contains k), p (m.getKey k h) := by
+  simp [← toArray_keys_eq_keysArray, h, forall_mem_keys_iff_forall_contains_getKey]
+
+theorem contains_of_mem_keysArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α}
+    (h' : k ∈ m.1.keysArray) : m.contains k :=
+  (contains_keysArray m h).symm.trans (Array.contains_eq_true_of_mem h')
+
+omit [Hashable α] [BEq α] in
+theorem toArray_toList_eq_toArray :
+    m.1.toList.toArray = m.1.toArray := by
+  simp_to_model
+
+omit [Hashable α] [BEq α] in
+theorem toList_toArray_eq_toList :
+    m.1.toArray.toList = m.1.toList := by
+  simp_to_model
+
+theorem map_fst_toArray_eq_keysArray [EquivBEq α] [LawfulHashable α] :
+    m.1.toArray.map Sigma.fst = m.1.keysArray := by
+  simp [← toArray_keys_eq_keysArray, ← toArray_toList_eq_toArray, map_fst_toList_eq_keys]
+
+theorem size_toArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    m.1.toArray.size = m.1.size := by
+  simp [← toArray_toList_eq_toArray, length_toList, h]
+
+theorem isEmpty_toArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    m.1.toArray.isEmpty = m.1.isEmpty := by
+  simp [← toArray_toList_eq_toArray, isEmpty_toList, h]
+
+theorem mem_toArray_iff_get?_eq_some [LawfulBEq α] (h : m.1.WF)
+    {k : α} {v : β k} :
+    ⟨k, v⟩ ∈ m.1.toArray ↔ m.get? k = some v := by
+  simp [← toArray_toList_eq_toArray, mem_toList_iff_get?_eq_some, h]
+
+theorem find?_toArray_eq_some_iff_get?_eq_some [LawfulBEq α]
+    (h : m.1.WF) {k : α} {v : β k} :
+    m.1.toArray.find? (·.1 == k) = some ⟨k, v⟩ ↔ m.get? k = some v := by
+  simp [← toArray_toList_eq_toArray, find?_toList_eq_some_iff_get?_eq_some, h]
+
+theorem find?_toArray_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    (h : m.1.WF) {k : α} :
+    m.1.toArray.find? (·.1 == k) = none ↔ m.contains k = false := by
+  -- does not work if removing the only because it rewrites it away
+  simp only [← toArray_toList_eq_toArray, List.find?_toArray, find?_toList_eq_none_iff_contains_eq_false, h]
+
+namespace Const
+
+variable {β : Type v} (m : Raw₀ α (fun _ => β))
+
+omit [Hashable α] [BEq α] in
+theorem toArray_toList_eq_toArray :
+    (Raw.Const.toList m.1).toArray = Raw.Const.toArray m.1 := by
+  simp_to_model
+
+omit [Hashable α] [BEq α] in
+theorem toList_toArray_eq_toList :
+    (Raw.Const.toArray m.1).toList = Raw.Const.toList m.1 := by
+  simp_to_model
+
+theorem map_fst_toArray_eq_keysArray [EquivBEq α] [LawfulHashable α] :
+    (Raw.Const.toArray m.1).map Prod.fst = m.1.keysArray := by
+  simp [← toArray_toList_eq_toArray, List.map_toArray, ← toArray_keys_eq_keysArray, map_fst_toList_eq_keys]
+
+theorem size_toArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    (Raw.Const.toArray m.1).size = m.1.size := by
+  simp [← toArray_toList_eq_toArray, length_toList, h]
+
+theorem isEmpty_toArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    (Raw.Const.toArray m.1).isEmpty = m.1.isEmpty := by
+  simp [← toArray_toList_eq_toArray, isEmpty_toList, h]
+
+theorem mem_toArray_iff_get?_eq_some [LawfulBEq α] (h : m.1.WF)
+    {k : α} {v : β} :
+    (k, v) ∈ Raw.Const.toArray m.1 ↔ get? m k = some v := by
+  simp [← toArray_toList_eq_toArray, mem_toList_iff_get?_eq_some, h]
+
+theorem get?_eq_some_iff_exists_beq_and_mem_toArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {k : α} {v : β} :
+    get? m k = some v ↔ ∃ (k' : α), k == k' ∧ (k', v) ∈ Raw.Const.toArray m.1 := by
+  simp [← toArray_toList_eq_toArray, get?_eq_some_iff_exists_beq_and_mem_toList, h]
+
+theorem find?_toArray_eq_some_iff_getKey?_eq_some_and_get?_eq_some
+    [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k k' : α} {v : β} :
+    (Raw.Const.toArray m.1).find? (fun a => a.1 == k) = some ⟨k', v⟩ ↔
+      m.getKey? k = some k' ∧ get? m k = some v := by
+  simp [← toArray_toList_eq_toArray, List.find?_toArray, find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some, h]
+
+theorem find?_toArray_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    (h : m.1.WF) {k : α} :
+    (Raw.Const.toArray m.1).find? (·.1 == k) = none ↔ m.contains k = false := by
+  simp only [← toArray_toList_eq_toArray, List.find?_toArray, h, find?_toList_eq_none_iff_contains_eq_false]
+
+theorem mem_toArray_iff_getKey?_eq_some_and_get?_eq_some [EquivBEq α] [LawfulHashable α]
+    (h : m.1.WF) {k: α} {v : β} :
+    (k, v) ∈ (Raw.Const.toArray m.1) ↔ m.getKey? k = some k ∧ get? m k = some v := by
+  simp [← toArray_toList_eq_toArray, h, mem_toList_iff_getKey?_eq_some_and_get?_eq_some]
+
+end Const
+
 section monadic
 
 -- The types are redefined because fold/for does not need BEq/Hashable
-variable {α : Type u} {β : α → Type v} (m : Raw₀ α β) {δ : Type w} {m' : Type w → Type w}
+variable {α : Type u} {β : α → Type v} (m : Raw₀ α β) {δ : Type w} {m' : Type w → Type w'}
 
 theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m']
     {f : δ → (a : α) → β a → m' δ} {init : δ} :
@@ -1192,6 +1348,99 @@ theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
     {f : α → β → δ → m' (ForInStep δ)} {init : δ} :
     m.1.forIn f init = ForIn.forIn (Raw.Const.toList m.1) init (fun a b => f a.1 a.2 b) := by
   simp_to_model [forIn, Const.toList] using List.forIn_eq_forIn_toProd
+
+end Const
+
+theorem foldM_eq_foldlM_toArray [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → β a → m' δ} {init : δ} :
+    m.1.foldM f init = m.1.toArray.foldlM (fun a b => f a b.1 b.2) init := by
+  simp [← toArray_toList_eq_toArray, foldM_eq_foldlM_toList]
+
+theorem fold_eq_foldl_toArray {f : δ → (a : α) → β a → δ} {init : δ} :
+    m.1.fold f init = m.1.toArray.foldl (fun a b => f a b.1 b.2) init := by
+  simp [← toArray_toList_eq_toArray, fold_eq_foldl_toList]
+
+theorem foldRevM_eq_foldrM_toArray [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → β a → m' δ} {init : δ} :
+    Raw.Internal.foldRevM f init m.1 = m.1.toArray.foldrM (fun a b => f b a.1 a.2) init := by
+  simp [← toArray_toList_eq_toArray, foldRevM_eq_foldrM_toList]
+
+theorem foldRev_eq_foldr_toArray {f : δ → (a : α) → β a → δ} {init : δ} :
+    Raw.Internal.foldRev f init m.1 = m.1.toArray.foldr (fun a b => f b a.1 a.2) init := by
+  simp [← toArray_toList_eq_toArray, foldRev_eq_foldr_toList]
+
+theorem forM_eq_forM_toArray [Monad m'] [LawfulMonad m'] {f : (a : α) → β a → m' PUnit} :
+    m.1.forM f = m.1.toArray.forM (fun a => f a.1 a.2) := by
+  rw [← toArray_toList_eq_toArray, List.forM_toArray', forM_eq_forM_toList]
+  rfl
+
+theorem forIn_eq_forIn_toArray [Monad m'] [LawfulMonad m']
+    {f : (a : α) → β a → δ → m' (ForInStep δ)} {init : δ} :
+    m.1.forIn f init = ForIn.forIn m.1.toArray init (fun a b => f a.1 a.2 b) := by
+  simp [← toArray_toList_eq_toArray, forIn_eq_forIn_toList]
+
+theorem foldM_eq_foldlM_keysArray [Monad m'] [LawfulMonad m']
+    {f : δ → α → m' δ} {init : δ} :
+    m.1.foldM (fun d a _ => f d a) init = m.1.keysArray.foldlM f init := by
+  simp [← toArray_keys_eq_keysArray, foldM_eq_foldlM_keys]
+
+theorem fold_eq_foldl_keysArray {f : δ → α → δ} {init : δ} :
+    m.1.fold (fun d a _ => f d a) init = m.1.keysArray.foldl f init := by
+  simp [← toArray_keys_eq_keysArray, fold_eq_foldl_keys]
+
+theorem foldRevM_eq_foldrM_keysArray [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → m' δ} {init : δ} :
+    Raw.Internal.foldRevM (fun d a _ => f d a) init m.1 =
+      m.1.keysArray.foldrM (fun a b => f b a) init := by
+  simp [← toArray_keys_eq_keysArray, foldRevM_eq_foldrM_keys]
+
+theorem foldRev_eq_foldr_keysArray {f : δ → (a : α) → δ} {init : δ} :
+    Raw.Internal.foldRev (fun d a _ => f d a) init m.1 =
+      m.1.keysArray.foldr (fun a b => f b a) init := by
+  simp [← toArray_keys_eq_keysArray, foldRev_eq_foldr_keys]
+
+theorem forM_eq_forM_keysArray [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
+    m.1.forM (fun a _ => f a) = m.1.keysArray.forM f := by
+  rw [← toArray_keys_eq_keysArray, List.forM_toArray', forM_eq_forM_keys]
+  rfl
+
+theorem forIn_eq_forIn_keysArray [Monad m'] [LawfulMonad m']
+    {f : α → δ → m' (ForInStep δ)} {init : δ} :
+    m.1.forIn (fun a _ d => f a d) init = ForIn.forIn m.1.keysArray init f := by
+  simp [← toArray_keys_eq_keysArray, forIn_eq_forIn_keys]
+
+namespace Const
+
+variable {β : Type v} (m : Raw₀ α (fun _ => β))
+
+theorem foldM_eq_foldlM_toArray [Monad m'] [LawfulMonad m']
+    {f : δ → α → β → m' δ} {init : δ} :
+    m.1.foldM f init = (Raw.Const.toArray m.1).foldlM (fun a b => f a b.1 b.2) init := by
+  simp [← toArray_toList_eq_toArray, foldM_eq_foldlM_toList]
+
+theorem fold_eq_foldl_toArray {f : δ → α → β → δ} {init : δ} :
+    m.1.fold f init = (Raw.Const.toArray m.1).foldl (fun a b => f a b.1 b.2) init := by
+  simp [← toArray_toList_eq_toArray, fold_eq_foldl_toList]
+
+theorem foldRevM_eq_foldrM_toArray [Monad m'] [LawfulMonad m']
+    {f : δ → α → β → m' δ} {init : δ} :
+    Raw.Internal.foldRevM f init m.1 =
+      (Raw.Const.toArray m.1).foldrM (fun a b => f b a.1 a.2) init := by
+  simp [← toArray_toList_eq_toArray, foldRevM_eq_foldrM_toList]
+
+theorem foldRev_eq_foldr_toArray {f : δ → α → β → δ} {init : δ} :
+    Raw.Internal.foldRev f init m.1 = (Raw.Const.toArray m.1).foldr (fun a b => f b a.1 a.2) init := by
+  simp [← toArray_toList_eq_toArray, foldRev_eq_foldr_toList]
+
+theorem forM_eq_forM_toArray [Monad m'] [LawfulMonad m'] {f : α → β → m' PUnit} :
+    m.1.forM f = (Raw.Const.toArray m.1).forM (fun a => f a.1 a.2) := by
+  rw [← toArray_toList_eq_toArray, List.forM_toArray', forM_eq_forM_toList]
+  rfl
+
+theorem forIn_eq_forIn_toArray [Monad m'] [LawfulMonad m']
+    {f : α → β → δ → m' (ForInStep δ)} {init : δ} :
+    m.1.forIn f init = ForIn.forIn (Raw.Const.toArray m.1) init (fun a b => f a.1 a.2 b) := by
+  simp [← toArray_toList_eq_toArray, forIn_eq_forIn_toList]
 
 end Const
 
@@ -1703,7 +1952,7 @@ theorem getKey!_insertManyIfNewUnit_list_of_contains_eq_false_of_mem [EquivBEq �
 
 theorem getKey!_insertManyIfNewUnit_list_of_contains [EquivBEq α] [LawfulHashable α]
     [Inhabited α] (h : m.1.WF) {l : List α} {k : α} :
-    m.contains k → getKey! (insertManyIfNewUnit m l).1 k = getKey! m k  := by
+    m.contains k → getKey! (insertManyIfNewUnit m l).1 k = getKey! m k := by
   simp_to_model [Const.insertManyIfNewUnit, contains, getKey!]
     using List.getKey!_insertListIfNewUnit_of_contains
 
@@ -1777,12 +2026,12 @@ theorem get?_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h : m.1
 
 theorem get_insertManyIfNewUnit_list
     {l : List α} {k : α} {h} :
-    get (insertManyIfNewUnit m l).1 k h = ()  := by
+    get (insertManyIfNewUnit m l).1 k h = () := by
   simp
 
 theorem get!_insertManyIfNewUnit_list
     {l : List α} {k : α} :
-    get! (insertManyIfNewUnit m l).1 k = ()  := by
+    get! (insertManyIfNewUnit m l).1 k = () := by
   simp
 
 theorem getD_insertManyIfNewUnit_list
@@ -2407,7 +2656,7 @@ abbrev get?_insertManyIfNewUnit_empty_list := @get?_insertManyIfNewUnit_emptyWit
 
 theorem get_insertManyIfNewUnit_emptyWithCapacity_list
     {l : List α} {k : α} {h} :
-    get (insertManyIfNewUnit (emptyWithCapacity : Raw₀ α (fun _ => Unit)) l) k h = ()  := by
+    get (insertManyIfNewUnit (emptyWithCapacity : Raw₀ α (fun _ => Unit)) l) k h = () := by
   simp
 
 set_option linter.missingDocs false in
@@ -2416,7 +2665,7 @@ abbrev get_insertManyIfNewUnit_empty_list := @get_insertManyIfNewUnit_emptyWithC
 
 theorem get!_insertManyIfNewUnit_emptyWithCapacity_list
     {l : List α} {k : α} :
-    get! (insertManyIfNewUnit (emptyWithCapacity : Raw₀ α (fun _ => Unit)) l) k = ()  := by
+    get! (insertManyIfNewUnit (emptyWithCapacity : Raw₀ α (fun _ => Unit)) l) k = () := by
   simp
 
 set_option linter.missingDocs false in
@@ -2435,6 +2684,382 @@ abbrev getD_insertManyIfNewUnit_empty_list := @getD_insertManyIfNewUnit_emptyWit
 end Const
 
 end insertMany
+
+section Union
+
+variable (m₁ m₂ : Raw₀ α β)
+
+variable {m₁ m₂}
+
+/- contains -/
+theorem contains_union_of_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k : α} :
+    m₁.contains k → (m₁.union m₂).contains k := by
+  simp_to_model [contains, union] using List.contains_insertList_of_left
+
+theorem contains_union_of_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k : α} :
+    m₂.contains k → (m₁.union m₂).contains k := by
+  simp_to_model [contains, union] using List.contains_insertList_of_right
+
+@[simp]
+theorem contains_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k : α} :
+    (m₁.union m₂).contains k = (m₁.contains k || m₂.contains k) := by
+  simp_to_model [contains, union] using List.containsKey_insertList_disj_of_containsKey
+
+theorem contains_union_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k : α} :
+    (m₁.union m₂).contains k ↔ m₁.contains k ∨ m₂.contains k := by
+  simp_to_model [union, contains] using List.contains_insertList_iff
+
+theorem contains_of_contains_union_of_contains_eq_false_right [EquivBEq α]
+    [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
+    (m₁.union m₂).contains k → m₂.contains k = false → m₁.contains k := by
+  simp_to_model [union, contains] using List.contains_of_contains_insertList_of_contains_eq_false_right
+
+theorem contains_of_contains_union_of_contains_eq_false_left [EquivBEq α]
+    [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
+    (m₁.union m₂).contains k → m₁.contains k = false → m₂.contains k := by
+  simp_to_model [union, contains] using List.contains_of_contains_insertList_of_contains_eq_false_left
+
+/- Equiv -/
+theorem union_insert_right_equiv_insert_union [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a}
+    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
+    (m₁.union (m₂.insert p.fst p.snd)).1.Equiv ((m₁.union m₂).insert p.fst p.snd).1 := by
+  simp_to_model [union, insert]
+  apply List.Perm.trans
+  . apply insertList_perm_of_perm_second
+    simp_to_model [insert]
+    . apply insertEntry_of_perm
+      . wf_trivial
+      . apply List.Perm.refl
+    . constructor
+      rw [← Raw.keys_eq_keys_toListModel]
+      exact m₁.distinct_keys h₁
+    . apply List.DistinctKeys.perm
+      . apply toListModel_insert
+        . wf_trivial
+      . apply List.DistinctKeys.insertEntry
+        . constructor
+          rw [← Raw.keys_eq_keys_toListModel]
+          exact m₂.distinct_keys h₂
+  . apply List.Perm.trans
+    . apply insertList_insertEntry_right_equiv_insertEntry_insertList
+      any_goals wf_trivial
+    . apply insertEntry_of_perm
+      . apply List.DistinctKeys.insertList
+        . wf_trivial
+      . apply List.Perm.symm
+        . apply toListModel_union (by wf_trivial) (by wf_trivial)
+
+/- get? -/
+theorem get?_union [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} :
+    (m₁.union m₂).get? k = (m₂.get? k).or (m₁.get? k) := by
+  simp_to_model [union, get?] using List.getValueCast?_of_insertList
+
+theorem get?_union_of_contains_eq_false_left [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_eq_false : m₁.contains k = false) :
+    (m₁.union m₂).get? k = m₂.get? k := by
+  revert contains_eq_false
+  simp_to_model [union, contains, get?] using getValueCast?_insertList_of_contains_eq_false_left
+
+theorem get?_union_of_contains_eq_false_right [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_eq_false : m₂.contains k = false) :
+    (m₁.union m₂).get? k = m₁.get? k := by
+  simp_to_model [union, get?, contains] using List.getValueCast?_insertList_of_contains_eq_false
+  revert contains_eq_false
+  simp_to_model [contains]
+  simp only [containsKey_eq_contains_map_fst, List.contains_eq_mem, List.mem_map,
+    decide_eq_false_iff_not, not_exists, not_and, imp_self]
+
+/- get -/
+theorem get_union_of_contains_right [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_right : m₂.contains k) :
+    (m₁.union m₂).get k (contains_union_of_right h₁ h₂ contains_right) = m₂.get k contains_right := by
+  revert contains_right
+  simp_to_model [union, get, contains]
+  intro contains_right
+  apply List.getValueCast_insertList_of_contains_right
+  all_goals wf_trivial
+
+theorem get_union_of_contains_eq_false_left [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_eq_false : m₁.contains k = false) {h'} :
+    (m₁.union m₂).get k h' = m₂.get k (contains_of_contains_union_of_contains_eq_false_left h₁ h₂ h' contains_eq_false) := by
+  revert contains_eq_false
+  simp_to_model [union, contains, get] using List.getValueCast_insertList_of_contains_eq_false_left
+
+theorem get_union_of_contains_eq_false_right [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_eq_false : m₂.contains k = false) {h'} :
+    (m₁.union m₂).get k h' = m₁.get k (contains_of_contains_union_of_contains_eq_false_right h₁ h₂ h' contains_eq_false) := by
+  revert contains_eq_false
+  simp_to_model [union, get, contains]
+  intro contains_eq_false
+  apply List.getValueCast_insertList_of_contains_eq_false
+  . rw [← List.containsKey_eq_contains_map_fst]
+    exact contains_eq_false
+
+/- getD -/
+theorem getD_union [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} {fallback : β k} :
+    (m₁.union m₂).getD k fallback = m₂.getD k (m₁.getD k fallback) := by
+  simp_to_model [union, getD, contains] using List.getValueCastD_of_insertList
+
+theorem getD_union_of_contains_eq_false_left [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} {fallback : β k} (contains_eq_false : m₁.contains k = false) :
+    (m₁.union m₂).getD k fallback = m₂.getD k fallback := by
+  revert contains_eq_false
+  simp_to_model [union, contains, getD]
+  intro contains_eq_false
+  apply List.getValueCastD_insertList_of_contains_eq_false_left
+  all_goals wf_trivial
+
+theorem getD_union_of_contains_eq_false_right [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} {fallback : β k} (contains_eq_false : m₂.contains k = false)  :
+    (m₁.union m₂).getD k fallback = m₁.getD k fallback := by
+  revert contains_eq_false
+  simp_to_model [union, getD, contains]
+  intro contains_eq_false
+  apply List.getValueCastD_insertList_of_contains_eq_false
+  . rw [← List.containsKey_eq_contains_map_fst]
+    exact contains_eq_false
+
+/- get! -/
+theorem get!_union [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} [Inhabited (β k)] :
+    (m₁.union m₂).get! k = m₂.getD k (m₁.get! k) := by
+  simp_to_model [union, get!, getD, contains]
+  apply List.getValueCastD_of_insertList
+  all_goals wf_trivial
+
+theorem get!_union_of_contains_eq_false_left [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} [Inhabited (β k)] (contains_eq_false : m₁.contains k = false) :
+    (m₁.union m₂).get! k = m₂.get! k := by
+  revert contains_eq_false
+  simp_to_model [union, contains, get!]
+  intro contains_eq_false
+  apply List.getValueCastD_insertList_of_contains_eq_false_left
+  all_goals wf_trivial
+
+theorem get!_union_of_contains_eq_false_right [LawfulBEq α]  (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} [Inhabited (β k)] (contains_eq_false : m₂.contains k = false)  :
+    (m₁.union m₂).get! k = m₁.get! k := by
+  revert contains_eq_false
+  simp_to_model [union, get!, contains]
+  intro contains_eq_false
+  apply List.getValueCastD_insertList_of_contains_eq_false
+  . rw [← List.containsKey_eq_contains_map_fst]
+    exact contains_eq_false
+
+/- getKey? -/
+theorem getKey?_union [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} :
+    (m₁.union m₂).getKey? k = (m₂.getKey? k).or (m₁.getKey? k) := by
+  simp_to_model [union, contains, getKey?] using List.getKey?_insertList
+
+theorem getKey?_union_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (not_mem : m₁.contains k = false) :
+    (m₁.union m₂).getKey? k = m₂.getKey? k := by
+  revert not_mem
+  simp_to_model [contains, getKey?, union]
+  intro not_mem
+  apply List.getKey?_insertList_of_contains_eq_false_left
+  all_goals wf_trivial
+
+theorem getKey?_union_of_contains_eq_false_right [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (not_mem : m₂.contains k = false) :
+    (m₁.union m₂).getKey? k = m₁.getKey? k := by
+  revert not_mem
+  simp_to_model [contains, getKey?, union]
+  intro not_mem
+  apply List.getKey?_insertList_of_contains_eq_false_right
+  . exact not_mem
+
+/- getKey -/
+theorem getKey_union_of_contains_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (mem : m₂.contains k) :
+    (m₁.union m₂).getKey k (contains_union_of_right h₁ h₂ mem) = m₂.getKey k mem := by
+  simp_to_model [union, contains, getKey] using List.getKey_insertList_of_contains_right
+
+theorem getKey_union_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_eq_false : m₁.contains k = false) {h'} :
+    (m₁.union m₂).getKey k h' = m₂.getKey k (contains_of_contains_union_of_contains_eq_false_left h₁ h₂ h' contains_eq_false) := by
+  revert contains_eq_false
+  simp_to_model [union, contains, getKey] using List.getKey_insertList_of_contains_eq_false_left
+
+theorem getKey_union_of_contains_eq_false_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_eq_false : m₂.contains k = false) {h'} :
+    (m₁.union m₂).getKey k h' = m₁.getKey k (contains_of_contains_union_of_contains_eq_false_right h₁ h₂ h' contains_eq_false) := by
+  revert contains_eq_false
+  simp_to_model [union, getKey, contains]
+  intro contains_eq_false
+  apply List.getKey_insertList_of_contains_eq_false
+  . rw [← List.containsKey_eq_contains_map_fst]
+    exact contains_eq_false
+
+/- getKeyD -/
+theorem getKeyD_union [EquivBEq α]
+    [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k fallback : α} :
+    (m₁.union m₂).getKeyD k fallback = m₂.getKeyD k (m₁.getKeyD k fallback) := by
+  simp_to_model [union, getKeyD] using getKeyD_insertList
+
+theorem getKeyD_union_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k fallback : α} (h' : m₁.contains k = false) :
+    (m₁.union m₂).getKeyD k fallback = m₂.getKeyD k fallback := by
+  revert h'
+  simp_to_model [contains, union, getKeyD]
+  intro h'
+  apply List.getKeyD_insertList_of_contains_eq_false_left
+  . wf_trivial
+  . wf_trivial
+  . exact h'
+
+theorem getKeyD_union_of_contains_eq_false_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) {k fallback : α} (h' : m₂.contains k = false) :
+    (m₁.union m₂).getKeyD k fallback = m₁.getKeyD k fallback := by
+  revert h'
+  simp_to_model [contains, union, getKeyD]
+  intro h'
+  apply List.getKeyD_insertList_of_contains_eq_false_right h'
+
+/- getKey! -/
+theorem getKey!_union [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    (h₁ : m₁.1.WF)
+    (h₂ : m₂.1.WF) {k : α} :
+    (m₁.union m₂).getKey! k = m₂.getKeyD k (m₁.getKey! k) := by
+  simp_to_model [union, getKey!, getKeyD] using List.getKeyD_insertList
+
+theorem getKey!_union_of_contains_eq_false_left [Inhabited α]
+    [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α}
+    (h' : m₁.contains k = false) :
+    (m₁.union m₂).getKey! k = m₂.getKey! k := by
+  revert h'
+  simp_to_model [getKey!, contains, union] using List.getKeyD_insertList_of_contains_eq_false_left
+
+theorem getKey!_union_of_contains_eq_false_right [Inhabited α]
+    [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α}
+    (h' : m₂.contains k = false) :
+    (m₁.union m₂).getKey! k = m₁.getKey! k := by
+  revert h'
+  simp_to_model [contains, union, getKey!] using List.getKeyD_insertList_of_contains_eq_false_right
+
+/- size -/
+theorem size_union_of_not_mem [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) : (∀ (a : α), m₁.contains a → m₂.contains a = false) →
+    (m₁.union m₂).1.size = m₁.1.size + m₂.1.size := by
+  simp_to_model [union, size, contains] using List.length_insertList_distinct
+
+theorem size_left_le_size_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) : m₁.1.size ≤ (m₁.union m₂).1.size := by
+  simp_to_model [union, size] using List.length_le_length_insertList
+
+theorem size_right_le_size_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
+    (h₂ : m₂.val.WF) : m₂.1.size ≤ (m₁.union m₂).1.size := by
+  simp_to_model [union, size] using List.length_right_le_length_insertList
+
+theorem size_union_le_size_add_size [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
+    (m₁.union m₂).1.size ≤ m₁.1.size + m₂.1.size := by
+  simp_to_model [union, size] using List.length_insertList_le
+
+/- isEmpty -/
+@[simp]
+theorem isEmpty_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
+    (m₁.union m₂).1.isEmpty = (m₁.1.isEmpty && m₂.1.isEmpty) := by
+  simp_to_model [isEmpty, union] using List.isEmpty_insertList
+end Union
+
+namespace Const
+
+variable {β : Type v} {m₁ m₂ : Raw₀ α (fun _ => β)}
+
+/- get? -/
+theorem get?_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
+    Const.get? (m₁.union m₂) k = (Const.get? m₂ k).or (Const.get? m₁ k) := by
+  simp_to_model [union, Const.get?] using List.getValue?_insertList
+
+theorem get?_union_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_eq_false : m₁.contains k = false) :
+    Const.get? (m₁.union m₂) k = Const.get? m₂ k := by
+  revert contains_eq_false
+  simp_to_model [union, contains, Const.get?] using List.getValue?_insertList_of_contains_eq_false_left
+
+theorem get?_union_of_contains_eq_false_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_eq_false : m₂.contains k = false) :
+    Const.get? (m₁.union m₂) k = Const.get? m₁ k := by
+  revert contains_eq_false
+  simp_to_model [union, Const.get?, contains]
+  intro contains_eq_false
+  apply List.getValue?_insertList_of_contains_eq_false_right contains_eq_false
+
+/- get -/
+theorem get_union_of_contains_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (h : m₂.contains k) :
+    Const.get (m₁.union m₂) k (contains_union_of_right h₁ h₂ h) = Const.get m₂ k h := by
+  revert h
+  simp_to_model [union, contains, Const.get]
+  intro h
+  apply List.getValue_insertList_of_contains_right
+  all_goals wf_trivial
+
+theorem get_union_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_eq_false : m₁.contains k = false) {h'} :
+    Const.get (m₁.union m₂) k h' = Const.get m₂ k (contains_of_contains_union_of_contains_eq_false_left h₁ h₂ h' contains_eq_false) := by
+  revert contains_eq_false
+  simp_to_model [union, contains, Const.get] using List.getValue_insertList_of_contains_eq_false_left
+
+theorem get_union_of_contains_eq_false_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_eq_false : m₂.contains k = false) {h'} :
+    Const.get (m₁.union m₂) k h' = Const.get m₁ k (contains_of_contains_union_of_contains_eq_false_right h₁ h₂ h' contains_eq_false) := by
+  revert contains_eq_false
+  simp_to_model [union, Const.get, contains]
+  intro contains_eq_false
+  apply List.getValue_insertList_of_contains_eq_false_right contains_eq_false
+
+/- getD -/
+theorem getD_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} {fallback : β} :
+    Const.getD (m₁.union m₂) k fallback = Const.getD m₂ k (Const.getD m₁ k fallback) := by
+  simp_to_model [union, Const.getD] using List.getValueD_insertList
+
+theorem getD_union_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} {fallback : β} (contains_eq_false : m₁.contains k = false) :
+    Const.getD (m₁.union m₂) k fallback = Const.getD m₂ k fallback  := by
+  revert contains_eq_false
+  simp_to_model [union, contains, Const.getD] using List.getValueD_insertList_of_contains_eq_false_left
+
+theorem getD_union_of_contains_eq_false_right [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} {fallback : β} (contains_eq_false : m₂.contains k = false) :
+    Const.getD (m₁.union m₂) k fallback = Const.getD m₁ k fallback := by
+  revert contains_eq_false
+  simp_to_model [union, Const.getD, contains]
+  intro contains_eq_false
+  apply List.getValueD_insertList_of_contains_eq_false_right contains_eq_false
+
+/- get! -/
+theorem get!_union [EquivBEq α] [LawfulHashable α] [Inhabited β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
+    Const.get! (m₁.union m₂) k = Const.getD m₂ k (Const.get! m₁ k) := by
+  simp_to_model [union, Const.getD, Const.get!] using List.getValueD_insertList
+
+theorem get!_union_of_contains_eq_false_left [EquivBEq α] [LawfulHashable α] [Inhabited β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_eq_false : m₁.contains k = false) :
+    Const.get! (m₁.union m₂) k = Const.get! m₂ k  := by
+  revert contains_eq_false
+  simp_to_model [union, contains, Const.get!] using List.getValueD_insertList_of_contains_eq_false_left
+
+theorem get!_union_of_contains_eq_false_right [EquivBEq α] [LawfulHashable α] [Inhabited β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_eq_false : m₂.contains k = false) :
+    Const.get! (m₁.union m₂) k = Const.get! m₁ k := by
+  revert contains_eq_false
+  simp_to_model [union, Const.get!, contains]
+  intro contains_eq_false
+  apply List.getValueD_insertList_of_contains_eq_false_right contains_eq_false
+
+end Const
 
 section Alter
 
@@ -3810,7 +4435,7 @@ theorem get?_map' [EquivBEq α] [LawfulHashable α]
       (fun _ h' => (contains_eq_isSome_get? m h).trans (Option.isSome_of_mem h')) := by
   simp_to_model [map, Const.get?, contains, getKey] using Const.getValue?_map
 
-theorem get?_map [LawfulBEq α] [LawfulHashable α]
+theorem get?_map [LawfulBEq α]
     {f : α → β → γ} {k : α} (h : m.1.WF) :
     Const.get? (m.map f) k = (Const.get? m k).map (f k) := by
   simp [get?_map' m h, getKey_eq m h]
@@ -3828,7 +4453,7 @@ theorem get_map' [EquivBEq α] [LawfulHashable α]
         (Const.get m k (contains_of_contains_map m h h'))) := by
   simp_to_model [map, getKey, Const.get, contains] using List.getValue_map
 
-theorem get_map [LawfulBEq α] [LawfulHashable α]
+theorem get_map [LawfulBEq α]
     {f : α → β → γ} {k : α} (h : m.1.WF) {h'} :
     Const.get (m.map f) k h' = f k (Const.get m k (contains_of_contains_map m h h')) := by
   simp [get_map' m h, getKey_eq m h]
@@ -3841,7 +4466,7 @@ theorem get!_map' [EquivBEq α] [LawfulHashable α] [Inhabited γ]
         (fun _ h' => (contains_eq_isSome_get? m h).trans (Option.isSome_of_mem h'))).get! := by
   simp_to_model [map, getKey, Const.get!, Const.get?, contains] using List.Const.getValue!_map
 
-theorem get!_map [LawfulBEq α] [LawfulHashable α] [Inhabited γ]
+theorem get!_map [LawfulBEq α] [Inhabited γ]
     {f : α → β → γ} {k : α} (h : m.1.WF) :
     Const.get! (m.map f) k = ((Const.get? m k).map (f k)).get! := by
   simp [get!_map' m h, getKey_eq m h]
@@ -3859,7 +4484,7 @@ theorem getD_map' [EquivBEq α] [LawfulHashable α]
         (fun _ h' => (contains_eq_isSome_get? m h).trans (Option.isSome_of_mem h'))).getD fallback := by
   simp_to_model [map, getKey, Const.getD, Const.get?, contains] using List.Const.getValueD_map
 
-theorem getD_map [LawfulBEq α] [LawfulHashable α]
+theorem getD_map [LawfulBEq α]
     {f : α → β → γ} {k : α} {fallback : γ} (h : m.1.WF) :
     Const.getD (m.map f) k fallback = ((Const.get? m k).map (f k)).getD fallback := by
   simp [getD_map' m h, getKey_eq m h]

@@ -6,8 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Core
-import Init.Omega
+public import Init.Omega
+
+public section
 
 namespace Lean.Grind
 abbrev isLt (x y : Nat) : Bool := x < y

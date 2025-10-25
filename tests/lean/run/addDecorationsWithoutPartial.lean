@@ -36,8 +36,10 @@ unsafe def replaceUnsafeM (size : USize) (e : Expr) (f? : (e' : Expr) → sizeOf
         | e                      => pure e
   visit e
 
+private def notAnExpr : Unit × Unit := ⟨⟨⟩, ⟨⟩⟩
+
 unsafe def initCache : State :=
-  { keys    := mkArray cacheSize.toNat (cast lcProof ()), -- `()` is not a valid `Expr`
+  { keys    := mkArray cacheSize.toNat (cast lcProof notAnExpr), -- `notAnExpr` is not a valid `Expr`
     results := mkArray cacheSize.toNat default }
 
 unsafe def replaceUnsafe (e : Expr) (f? : (e' : Expr) → sizeOf e' ≤ sizeOf e → Option Expr) : Expr :=

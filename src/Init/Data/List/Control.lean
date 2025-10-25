@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Control.Basic
-import Init.Control.Id
-import Init.Control.Lawful
+public import Init.Control.Lawful
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -102,6 +102,20 @@ def forA {m : Type u → Type v} [Applicative m] {α : Type w} (as : List α) (f
   | []      => pure ⟨⟩
   | a :: as => f a *> forA as f
 
+/--
+Applies the monadic action `f` to the corresponding elements of two lists, left-to-right, stopping
+at the end of the shorter list. `zipWithM f as bs` is equivalent to `mapM id (zipWith f as bs)`
+for lawful `Monad` instances.
+
+This implementation is tail recursive. `List.zipWithM'` is a a non-tail-recursive variant that may
+be more convenient to reason about.
+-/
+@[inline, expose]
+def zipWithM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type x} {γ : Type u} (f : α → β → m γ) (as : List α) (bs : List β) : m (List γ) :=
+  let rec @[specialize] loop
+    | a::as, b::bs, acc => do loop as bs (acc.push (← f a b))
+    | _, _, acc => pure acc.toList
+  loop as bs #[]
 
 @[specialize]
 def filterAuxM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) : List α → List α → m (List α)
@@ -389,6 +403,21 @@ def findSomeM? {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f 
     | some b => pure (some b)
     | none   => findSomeM? f as
 
+@[simp, grind =]
+theorem findSomeM?_nil [Monad m] {α : Type w} {β : Type u}
+    {f : α → m (Option β)} :
+    ([] : List α).findSomeM? f = pure none :=
+  (rfl)
+
+@[grind =]
+theorem findSomeM?_cons [Monad m] {α : Type w} {β : Type u}
+    {f : α → m (Option β)} {a : α} {as : List α} :
+    (a::as).findSomeM? f = (do
+      match ← f a with
+      | some b => return some b
+      | none => as.findSomeM? f) :=
+  (rfl)
+
 @[simp]
 theorem findSomeM?_pure [Monad m] [LawfulMonad m] {f : α → Option β} {as : List α} :
     findSomeM? (m := m) (pure <| f ·) as = pure (as.findSome? f) := by
@@ -409,6 +438,10 @@ theorem idRun_findSomeM? (f : α → Id (Option β)) (as : List α) :
 theorem findSomeM?_id (f : α → Id (Option β)) (as : List α) :
     findSomeM? (m := Id) f as = as.findSome? f :=
   findSomeM?_pure
+
+theorem findSome?_eq_findSomeM? {f : α → Option β} {as : List α} :
+    as.findSome? f = (as.findSomeM? (pure (f := Id) <| f ·)).run := by
+  simp
 
 theorem findM?_eq_findSomeM? [Monad m] [LawfulMonad m] {p : α → m Bool} {as : List α} :
     as.findM? p = as.findSomeM? fun a => return if (← p a) then some a else none := by

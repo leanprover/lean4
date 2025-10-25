@@ -7,7 +7,9 @@ module
 
 prelude
 import all Init.Data.List.OfFn
-import Init.Data.List.Monadic
+public import Init.Data.List.Monadic
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -21,7 +23,7 @@ Examples:
  * `List.finRange 0 = ([] : List (Fin 0))`
  * `List.finRange 2 = ([0, 1] : List (Fin 2))`
 -/
-def finRange (n : Nat) : List (Fin n) := ofFn fun i => i
+@[expose] def finRange (n : Nat) : List (Fin n) := ofFn fun i => i
 
 @[simp, grind =] theorem length_finRange {n : Nat} : (List.finRange n).length = n := by
   simp [List.finRange]
@@ -44,7 +46,7 @@ theorem finRange_succ_last {n} :
       getElem_map, Fin.castSucc_mk, getElem_singleton]
     split
     · rfl
-    · next h => exact Fin.eq_last_of_not_lt h
+    next h => exact Fin.eq_last_of_not_lt h
 
 @[grind _=_]
 theorem finRange_reverse {n} : (finRange n).reverse = (finRange n).map Fin.rev := by
@@ -55,7 +57,7 @@ theorem finRange_reverse {n} : (finRange n).reverse = (finRange n).map Fin.rev :
     conv => rhs; rw [finRange_succ]
     rw [reverse_append, reverse_cons, reverse_nil, nil_append, singleton_append, ← map_reverse,
       map_cons, ih, map_map, map_map]
-    congr; funext
+    congr 2; funext
     simp [Fin.rev_succ]
 
 end List

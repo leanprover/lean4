@@ -3,16 +3,16 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Try
-import Init.Grind.Tactics
-import Lean.Meta.Tactic.ExposeNames
-import Lean.Meta.Tactic.Try
-import Lean.Meta.Tactic.TryThis
-import Lean.Elab.Tactic.Config
-import Lean.Elab.Tactic.SimpTrace
-import Lean.Elab.Tactic.LibrarySearch
-import Lean.Elab.Tactic.Grind
+public import Lean.Meta.Tactic.ExposeNames
+public import Lean.Meta.Tactic.Try
+public import Lean.Elab.Tactic.SimpTrace
+public import Lean.Elab.Tactic.LibrarySearch
+public import Lean.Elab.Tactic.Grind
+
+public section
 
 namespace Lean.Elab.Tactic
 open Meta
@@ -168,7 +168,7 @@ private def getTacsSolvedAll (tacs2 : Array (Array (TSyntax `tactic))) : Array (
   else
     let mut r := #[]
     for tac2 in tacs2[0]! do
-      if tacs2[1:].all (·.contains tac2) then
+      if tacs2[1...*].all (·.contains tac2) then
         r := r.push tac2
     return r
 
@@ -184,7 +184,7 @@ private def getKindsSolvedAll (tacss : Array (Array (TSyntax `tactic))) : Array 
     let mut r := #[]
     for tacs0 in tacss[0]! do
       let k := tacs0.raw.getKind
-      if tacss[1:].all fun tacs => tacs.any fun tac => tac.raw.getKind == k then
+      if tacss[1...*].all fun tacs => tacs.any fun tac => tac.raw.getKind == k then
         r := r.push k
     return r
 
@@ -199,8 +199,8 @@ private def evalSuggestAtomic (tac : TSyntax `tactic) : TacticM (TSyntax `tactic
 
 private def grindTraceToGrind (tac : TSyntax `tactic) : TacticM (TSyntax `tactic) := do
   match tac with
-  | `(tactic| grind? $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?) =>
-    `(tactic| grind $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?)
+  | `(tactic| grind? $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]?) =>
+    `(tactic| grind $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]?)
   | _ => throwUnsupportedSyntax
 
 private def simpTraceToSimp (tac : TSyntax `tactic) : TacticM (TSyntax `tactic) := do
@@ -285,7 +285,7 @@ private def mergeAll? (tacs : Array (TSyntax `tactic)) : TryTacticM (Option (TSy
   if tacs.any fun tac => tac.raw.getKind != tac0.raw.getKind then
     return none
   let mut tac := tac0
-  for h : i in [1:tacs.size] do
+  for h : i in 1...tacs.size do
     let some tac' := merge? tac tacs[i]
       | return none
     tac := tac'
@@ -380,14 +380,14 @@ where
 
 private def evalSuggestGrindTrace : TryTactic := fun tac => do
   match tac with
-  | `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?) =>
+  | `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]?) =>
     let config ← elabGrindConfig configStx
     let config := { config with trace := (← read).config.only, verbose := false }
     let tac ← grindTraceToGrind tac
-    let trace ← evalGrindCore tac config only params fallback?
+    let trace ← evalGrindCore tac config only params none
     trace[try.debug] "`grind` succeeded"
     if (← read).config.only then
-      let tac' ← mkGrindOnly configStx fallback? trace
+      let tac' ← mkGrindOnly configStx trace
       mkTrySuggestions #[tac, tac']
     else
       return tac
@@ -432,7 +432,7 @@ private def evalSuggestChain (tac1 tac2 : TSyntax `tactic) : TryTacticM (TSyntax
 private def evalSuggestSeq (tacs : Array (TSyntax `tactic)) : TryTacticM (TSyntax `tactic) := do
   if (← read).terminal then
     let mut result := #[]
-    for i in [:tacs.size - 1] do
+    for i in *...(tacs.size - 1 : Nat) do
       result := appendSeq result (← withNonTerminal <| evalSuggest tacs[i]!)
     let suggestions ← getSuggestionOfTactic (← evalSuggest tacs.back!) |>.mapM fun tac =>
       mkSeq (appendSeq result tac) (terminal := true)
@@ -582,7 +582,7 @@ def evalAndSuggest (tk : Syntax) (tac : TSyntax `tactic) (config : Try.Config :=
     evalSuggest tac |>.run { terminal := true, root := tac, config }
   catch _ =>
     throwEvalAndSuggestFailed config
-  let s := (getSuggestions tac')[:config.max].toArray
+  let s := (getSuggestions tac')[*...config.max].toArray
   if s.isEmpty then
     throwEvalAndSuggestFailed config
   else

@@ -3,10 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.ScopedEnvExtension
-import Lean.Util.Recognizers
-import Lean.Util.ReplaceExpr
+public import Lean.ScopedEnvExtension
+public import Lean.Util.Recognizers
+
+public section
 
 namespace Lean.Compiler
 namespace CSimp
@@ -33,10 +36,11 @@ builtin_initialize ext : SimpleScopedEnvExtension Entry State ←
   }
 
 private def isConstantReplacement? (declName : Name) : CoreM (Option Entry) := do
-  let info ← getConstInfo declName
+  let info ← getConstVal declName
   match info.type.eq? with
-  | some (_, Expr.const fromDeclName us .., Expr.const toDeclName vs ..) =>
-    if us == vs then
+  | some (_, Expr.const fromDeclName us, Expr.const toDeclName vs) =>
+    let set := Std.HashSet.ofList us
+    if set.size == us.length && set.all Level.isParam && us == vs then
       return some { fromDeclName, toDeclName, thmName := declName }
     else
       return none
@@ -69,10 +73,10 @@ private def initFn :=
     descr := "simplification theorem for the compiler"
     add   := fun declName stx attrKind => do
       Attribute.Builtin.ensureNoArgs stx
+      ensureAttrDeclIsPublic `csimp declName attrKind
       discard <| add declName attrKind
   }
 
-@[export lean_csimp_replace_constants]
 def replaceConstants (env : Environment) (e : Expr) : Expr :=
   let s := ext.getState env
   e.replace fun e =>

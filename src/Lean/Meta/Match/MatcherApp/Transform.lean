@@ -4,11 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
 
+module
+
 prelude
-import Lean.Meta.Match
-import Lean.Meta.InferType
-import Lean.Meta.Check
-import Lean.Meta.Tactic.Split
+public import Lean.Meta.Match
+public import Lean.Meta.Tactic.Split
+
+public section
 
 namespace Lean.Meta.MatcherApp
 
@@ -149,8 +151,8 @@ def refineThrough (matcherApp : MatcherApp) (e : Expr) : MetaM (Array Expr) :=
     let auxType ← inferType aux
     forallTelescope auxType fun altAuxs _ => do
       let altAuxTys ← altAuxs.mapM (inferType ·)
-      (Array.zip matcherApp.altNumParams altAuxTys).mapM fun (altNumParams, altAuxTy) => do
-        forallBoundedTelescope altAuxTy altNumParams fun fvs body => do
+      matcherApp.altNumParams.zipWithM (bs := altAuxTys) fun altNumParams altAuxTy => do
+        forallBoundedTelescope altAuxTy (some altNumParams) fun fvs body => do
           unless fvs.size = altNumParams do
             throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
           -- extract type from our synthetic equality
@@ -222,7 +224,7 @@ def transform
     (addEqualities : Bool := false)
     (onParams : Expr → n Expr := pure)
     (onMotive : Array Expr → Expr → n Expr := fun _ e => pure e)
-    (onAlt : Nat → Expr → Expr → n Expr := fun _ _ e => pure e)
+    (onAlt : Nat → Expr → Array Expr → Expr → n Expr := fun _ _ _ e => pure e)
     (onRemaining : Array Expr → n (Array Expr) := pure) :
     n MatcherApp := do
 
@@ -299,7 +301,7 @@ def transform
     let altTypes ← inferArgumentTypesN matcherApp.alts.size aux2
 
     let mut alts' := #[]
-    for altIdx in [:matcherApp.alts.size],
+    for altIdx in *...matcherApp.alts.size,
         alt in matcherApp.alts,
         numParams in matcherApp.altNumParams,
         splitterNumParams in matchEqns.splitterAltNumParams,
@@ -312,9 +314,10 @@ def transform
         forallBoundedTelescope altType (splitterNumParams - ys.size) fun ys2 altType => do
           forallBoundedTelescope altType numDiscrEqs fun ys3 altType => do
             forallBoundedTelescope altType extraEqualities fun ys4 altType => do
-              let alt ← try instantiateLambda alt (args ++ ys3)
+              let altParams := args ++ ys3
+              let alt ← try instantiateLambda alt altParams
                         catch _ => throwError "unexpected matcher application, insufficient number of parameters in alternative"
-              let alt' ← onAlt altIdx altType alt
+              let alt' ← onAlt altIdx altType altParams alt
               mkLambdaFVars (ys ++ ys2 ++ ys3 ++ ys4) alt'
       alts' := alts'.push alt'
 
@@ -340,7 +343,7 @@ def transform
     let altTypes ← inferArgumentTypesN matcherApp.alts.size aux
 
     let mut alts' := #[]
-    for altIdx in [:matcherApp.alts.size],
+    for altIdx in *...matcherApp.alts.size,
         alt in matcherApp.alts,
         numParams in matcherApp.altNumParams,
         altType in altTypes do
@@ -350,7 +353,7 @@ def transform
           let names ← lambdaTelescope alt fun xs _ => xs.mapM (·.fvarId!.getUserName)
           withUserNames xs names do
             let alt ← instantiateLambda alt xs
-            let alt' ← onAlt altIdx altType alt
+            let alt' ← onAlt altIdx altType xs alt
             mkLambdaFVars (xs ++ ys4) alt'
       alts' := alts'.push alt'
 
@@ -403,8 +406,8 @@ def inferMatchType (matcherApp : MatcherApp) : MetaM MatcherApp := do
       let propAlts ← matcherApp.alts.mapM fun termAlt =>
         lambdaTelescope termAlt fun xs termAltBody => do
           -- We have alt parameters and parameters corresponding to the extra args
-          let xs1 := xs[0 : xs.size - nExtra]
-          let xs2 := xs[xs.size - nExtra : xs.size]
+          let xs1 := xs[*...(xs.size - nExtra)]
+          let xs2 := xs[(xs.size - nExtra)...xs.size]
           -- logInfo m!"altIH: {xs} => {altIH}"
           let altType ← inferType termAltBody
           for x in xs2 do
@@ -424,7 +427,7 @@ def inferMatchType (matcherApp : MatcherApp) : MetaM MatcherApp := do
       }
       mkArrowN extraParams typeMatcherApp.toExpr
     )
-    (onAlt := fun _altIdx expAltType alt => do
+    (onAlt := fun _altIdx expAltType _altParams alt => do
       let altType ← inferType alt
       let eq ← mkEq expAltType altType
       let proof ← mkFreshExprSyntheticOpaqueMVar eq

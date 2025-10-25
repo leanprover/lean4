@@ -8,7 +8,9 @@ The State monad transformer using IO references.
 module
 
 prelude
-import Init.System.ST
+public import Init.System.ST
+
+public section
 
 set_option linter.missingDocs true
 

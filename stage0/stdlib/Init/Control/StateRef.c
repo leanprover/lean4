@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.StateRef
-// Imports: Init.System.ST
+// Imports: public import Init.System.ST
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -109,13 +109,13 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_1, 1);
 lean_inc(x_6);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_8 = lean_alloc_closure((void*)(l_ST_Prim_mkRef___boxed), 4, 3);
 lean_closure_set(x_8, 0, lean_box(0));
 lean_closure_set(x_8, 1, lean_box(0));
@@ -137,13 +137,13 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_9 = lean_ctor_get(x_4, 0);
-lean_inc(x_9);
+lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_4, 1);
 lean_inc(x_10);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_12 = lean_alloc_closure((void*)(l_ST_Prim_mkRef___boxed), 4, 3);
 lean_closure_set(x_12, 0, lean_box(0));
 lean_closure_set(x_12, 1, lean_box(0));
@@ -166,7 +166,7 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_4 = lean_apply_2(x_1, lean_box(0), x_3);
 return x_4;
 }
@@ -176,13 +176,13 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_1, 1);
 lean_inc(x_6);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_8 = lean_alloc_closure((void*)(l_ST_Prim_mkRef___boxed), 4, 3);
 lean_closure_set(x_8, 0, lean_box(0));
 lean_closure_set(x_8, 1, lean_box(0));
@@ -209,13 +209,13 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_9 = lean_ctor_get(x_4, 0);
-lean_inc(x_9);
+lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_4, 1);
 lean_inc(x_10);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_12 = lean_alloc_closure((void*)(l_ST_Prim_mkRef___boxed), 4, 3);
 lean_closure_set(x_12, 0, lean_box(0));
 lean_closure_set(x_12, 1, lean_box(0));
@@ -468,7 +468,7 @@ _start:
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = lean_apply_2(x_5, lean_box(0), x_3);
 return x_6;
 }
@@ -487,7 +487,7 @@ _start:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = lean_ctor_get(x_1, 1);
 lean_inc(x_6);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc(x_5);
 x_7 = lean_alloc_closure((void*)(l_StateRefT_x27_instMonadExceptOf___redArg___lam__1), 3, 2);
 lean_closure_set(x_7, 0, x_4);
@@ -501,7 +501,7 @@ LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadExceptOf___redArg(lean_object*
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_2 = lean_alloc_closure((void*)(l_StateRefT_x27_instMonadExceptOf___redArg___lam__0___boxed), 4, 1);
 lean_closure_set(x_2, 0, x_1);
 x_3 = lean_alloc_closure((void*)(l_StateRefT_x27_instMonadExceptOf___redArg___lam__2), 5, 1);
@@ -516,7 +516,7 @@ LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadExceptOf(lean_object* x_1, lea
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_inc(x_5);
+lean_inc_ref(x_5);
 x_6 = lean_alloc_closure((void*)(l_StateRefT_x27_instMonadExceptOf___redArg___lam__0___boxed), 4, 1);
 lean_closure_set(x_6, 0, x_5);
 x_7 = lean_alloc_closure((void*)(l_StateRefT_x27_instMonadExceptOf___redArg___lam__2), 5, 1);
@@ -570,13 +570,13 @@ lean_closure_set(x_5, 0, x_4);
 return x_5;
 }
 }
-lean_object* initialize_Init_System_ST(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_System_ST(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Control_StateRef(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Control_StateRef(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_System_ST(builtin, lean_io_mk_world());
+res = initialize_Init_System_ST(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_StateRefT_x27_instMonadLift___closed__0 = _init_l_StateRefT_x27_instMonadLift___closed__0();

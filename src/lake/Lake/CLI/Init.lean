@@ -3,11 +3,13 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
+module
+
 prelude
+public import Lake.Config.Env
+public import Lake.Config.Lang
 import Lake.Util.Git
-import Lake.Util.Sugar
 import Lake.Util.Version
-import Lake.Config.Lang
 import Lake.Config.Package
 import Lake.Config.Workspace
 import Lake.Load.Config
@@ -19,7 +21,7 @@ open Git System
 open Lean (Name)
 
 /-- The default module of an executable in `std` package. -/
-def defaultExeRoot : Name := `Main
+public def defaultExeRoot : Name := `Main
 
 def gitignoreContents :=
 s!"/{defaultLakeDir}
@@ -169,7 +171,6 @@ package {repr pkgName} where
   keywords := #[\"math\"]
   leanOptions := #[
     ⟨`pp.unicode.fun, true⟩, -- pretty-prints `fun a ↦ b`
-    ⟨`autoImplicit, false⟩,
     ⟨`relaxedAutoImplicit, false⟩,
     ⟨`maxSynthPendingDepth, .ofNat 3⟩,
     ⟨`weak.linter.mathlibStandardSet, true⟩,
@@ -190,7 +191,6 @@ defaultTargets = [{repr libRoot}]
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
-autoImplicit = false
 relaxedAutoImplicit = false
 weak.linter.mathlibStandardSet = true
 maxSynthPendingDepth = 3
@@ -239,7 +239,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: leanprover/lean-action@v1
 "
 
@@ -262,7 +262,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: leanprover/lean-action@v1
       - uses: leanprover-community/docgen-action@v1
 "
@@ -294,7 +294,7 @@ jobs:
       issues: write        # Grants permission to create or update issues
       pull-requests: write # Grants permission to create or update pull requests
     needs: check-for-updates
-    if: ${{ needs.check-for-updates.outputs.is-update-available }}
+    if: ${{ needs.check-for-updates.outputs.is-update-available == 'true' }}
     strategy: # Runs for each update discovered by the `check-for-updates` job.
       max-parallel: 1 # Ensures that the PRs/issues are created in order.
       matrix:
@@ -337,13 +337,13 @@ jobs:
 "
 
 /-- Lake package template identifier. -/
-inductive InitTemplate
+public inductive InitTemplate
 | std | exe | lib | mathLax | math
 deriving Repr, DecidableEq
 
-instance : Inhabited InitTemplate := ⟨.std⟩
+public instance : Inhabited InitTemplate := ⟨.std⟩
 
-def InitTemplate.ofString? : String → Option InitTemplate
+public def InitTemplate.ofString? : String → Option InitTemplate
 | "std" => some .std
 | "exe" => some .exe
 | "lib" => some .lib
@@ -409,7 +409,10 @@ def createLeanActionWorkflow (dir : FilePath) (tmp : InitTemplate) : LogIO PUnit
     logVerbose s!"created create-release CI workflow at '{workflowFile}'"
 
 /-- Initialize a new Lake package in the given directory with the given name. -/
-def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLang) (env : Lake.Env) : LoggerIO PUnit := do
+def initPkg
+  (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLang)
+  (env : Lake.Env) (offline := false)
+: LoggerIO PUnit := do
   let configFile :=  dir / defaultConfigFile.addExtension lang.fileExtension
   if (← configFile.pathExists) then
     error "package already initialized"
@@ -469,7 +472,7 @@ def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLa
       repo.quietInit
       unless upstreamBranch = "master" do
         repo.checkoutBranch upstreamBranch
-    else
+    catch _ =>
       logWarning "failed to initialize git repository"
 
   -- update `.gitignore` with additional entries for Lake
@@ -483,14 +486,16 @@ def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLa
   [1]: https://github.com/leanprover/lean4/issues/2518
   -/
   let toolchainFile := dir / toolchainFileName
-  if tmp = .mathLax || tmp = .math then
+  if !offline && (tmp matches .mathLax | .math) then
     logInfo "downloading mathlib `lean-toolchain` file"
     try
       download mathToolchainBlobUrl toolchainFile
     catch errPos =>
-      logError "failed to download mathlib 'lean-toolchain' file; \
+      logError s!"failed to download mathlib 'lean-toolchain' file; \
         you can manually copy it from:\n  {mathToolchainUrl}"
       throw errPos
+    -- Create a manifest file based on the dependencies.
+    updateManifest { lakeEnv := env, wsDir := dir }
   else
     if env.toolchain.isEmpty then
       -- Empty githash implies dev build
@@ -502,17 +507,16 @@ def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLa
     else
       IO.FS.writeFile toolchainFile <| env.toolchain ++ "\n"
 
-  -- Create a manifest file based on the dependencies.
-  if tmp = .mathLax || tmp = .math then
-    updateManifest { lakeEnv := env, wsDir := dir }
-
 def validatePkgName (pkgName : String) : LogIO PUnit := do
   if pkgName.isEmpty || pkgName.all (· == '.') || pkgName.any (· ∈ ['/', '\\']) then
     error s!"illegal package name '{pkgName}'"
   if pkgName.toLower ∈ ["init", "lean", "lake", "main"] then
     error "reserved package name"
 
-def init (name : String) (tmp : InitTemplate) (lang : ConfigLang) (env : Lake.Env) (cwd : FilePath := ".") : LoggerIO PUnit := do
+public def init
+  (name : String) (tmp : InitTemplate) (lang : ConfigLang)
+  (env : Lake.Env) (cwd : FilePath := ".") (offline := false)
+: LoggerIO PUnit := do
   let name ← id do
     if name == "." then
       let path ← IO.FS.realPath cwd
@@ -524,13 +528,16 @@ def init (name : String) (tmp : InitTemplate) (lang : ConfigLang) (env : Lake.En
   let name := name.trim
   validatePkgName name
   IO.FS.createDirAll cwd
-  initPkg cwd (stringToLegalOrSimpleName name) tmp lang env
+  initPkg cwd (stringToLegalOrSimpleName name) tmp lang env offline
 
-def new (name : String) (tmp : InitTemplate) (lang : ConfigLang)  (env : Lake.Env) (cwd : FilePath := ".") : LoggerIO PUnit := do
+public def new
+  (name : String) (tmp : InitTemplate) (lang : ConfigLang)
+  (env : Lake.Env) (cwd : FilePath := ".") (offline := false)
+: LoggerIO PUnit := do
   let name := name.trim
   validatePkgName name
   let name := stringToLegalOrSimpleName name
   let dirName := dotlessName name
   let dir := cwd / dirName
   IO.FS.createDirAll dir
-  initPkg dir name tmp lang env
+  initPkg dir name tmp lang env offline

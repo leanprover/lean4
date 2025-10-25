@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Id
-// Imports: Init.Core
+// Imports: public import Init.Core
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,7 @@ LEAN_EXPORT lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Id_instOfNat___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Id_run___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Id_instOfNat___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Id_instMonadLiftTOfPure___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Id_run(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Id_run___boxed(lean_object*, lean_object*);
@@ -26,6 +27,7 @@ LEAN_EXPORT lean_object* l_Id_instOfNat(lean_object*, lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Id_instMonad___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Id_instOfNat___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Id_instMonadLiftTOfPure___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Id_instMonad___lam__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Id_hasBind___closed__0;
@@ -34,6 +36,7 @@ LEAN_EXPORT lean_object* l_Id_instMonad;
 LEAN_EXPORT lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Id_run___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Id_instMonadLiftTOfPure(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Id_instMonad___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
@@ -236,13 +239,38 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* initialize_Init_Core(uint8_t builtin, lean_object*);
+LEAN_EXPORT lean_object* l_Id_instMonadLiftTOfPure___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_apply_2(x_1, lean_box(0), x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Id_instMonadLiftTOfPure___redArg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Id_instMonadLiftTOfPure___redArg___lam__0), 3, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Id_instMonadLiftTOfPure(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Id_instMonadLiftTOfPure___redArg(x_2);
+return x_3;
+}
+}
+lean_object* initialize_Init_Core(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Control_Id(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Control_Id(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Core(builtin, lean_io_mk_world());
+res = initialize_Init_Core(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Id_instMonad = _init_l_Id_instMonad();

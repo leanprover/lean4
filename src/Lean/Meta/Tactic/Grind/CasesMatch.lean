@@ -3,12 +3,14 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Cases
+public import Lean.Meta.Tactic.Util
+import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Match.MatcherApp
 import Lean.Meta.Tactic.Grind.MatchCond
-
+import Lean.Meta.Tactic.Grind.Simp
+public section
 namespace Lean.Meta.Grind
 
 /-- Returns `true` if `e` is of the form `∀ ..., _ = _ ... -> False` -/

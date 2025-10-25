@@ -3,11 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Nat.Lemmas
-import Init.RCases
-import Init.Data.Iterators.Consumers
-import Init.Data.Iterators.Internal.Termination
+public import Init.Data.Iterators.Consumers
+public import Init.Data.Iterators.Internal.Termination
+
+@[expose] public section
 
 /-!
 # Array iterator
@@ -81,7 +83,7 @@ instance {α : Type w} [Pure m] : Iterator (ArrayIterator α) m α where
       it.internalState.array[it.internalState.pos] = out
     | .skip _ => False
     | .done => it.internalState.pos ≥ it.internalState.array.size
-  step it := pure <| if h : it.internalState.pos < it.internalState.array.size then
+  step it := pure <| .deflate <| if h : it.internalState.pos < it.internalState.array.size then
         .yield
           ⟨⟨it.internalState.array, it.internalState.pos + 1⟩⟩
           it.internalState.array[it.internalState.pos]
@@ -106,23 +108,27 @@ private def ArrayIterator.finitenessRelation [Pure m] :
     · cases h'
     · cases h
 
-instance [Pure m] : Finite (ArrayIterator α) m :=
-  Finite.of_finitenessRelation ArrayIterator.finitenessRelation
+instance [Pure m] : Finite (ArrayIterator α) m := by
+  exact Finite.of_finitenessRelation ArrayIterator.finitenessRelation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] [Monad n] : IteratorCollect (ArrayIterator α) m n :=
+instance {α : Type w} [Monad m] {n : Type w → Type w''} [Monad n] :
+    IteratorCollect (ArrayIterator α) m n :=
   .defaultImplementation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] [Monad n] : IteratorCollectPartial (ArrayIterator α) m n :=
+instance {α : Type w} [Monad m] {n : Type w → Type w''} [Monad n] :
+    IteratorCollectPartial (ArrayIterator α) m n :=
   .defaultImplementation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] [Monad n] : IteratorLoop (ArrayIterator α) m n :=
+instance {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
+    IteratorLoop (ArrayIterator α) m n :=
   .defaultImplementation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] [Monad n] : IteratorLoopPartial (ArrayIterator α) m n :=
+instance {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
+    IteratorLoopPartial (ArrayIterator α) m n :=
   .defaultImplementation
 
 @[always_inline, inline]

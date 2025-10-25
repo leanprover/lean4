@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Sublist
-// Imports: Init.Data.List.TakeDrop
+// Imports: public import Init.Data.List.TakeDrop
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_instBEqOfDecidableEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isPrefixOf___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_instDecidableIsPrefixOfDecidableEq(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Sublist_0__List_filterMap_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -27,6 +26,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_List_Sublist_0__List_filterMap_ma
 LEAN_EXPORT uint8_t l_List_instDecidableIsPrefixOfDecidableEq___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Sublist_0__List_isSublist_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Sublist_0__List_filterMap_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_instBEqOfDecidableEq___redArg(lean_object*);
 uint8_t l_List_isSublist___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_instDecidableSublistOfDecidableEq___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_instDecidableIsSuffixOfDecidableEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -91,7 +91,7 @@ else
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = lean_apply_1(x_3, x_4);
 return x_5;
 }
@@ -152,12 +152,12 @@ x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_1, 1);
 lean_inc(x_9);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_10 = lean_ctor_get(x_2, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_2, 1);
 lean_inc(x_11);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_12 = lean_apply_4(x_5, x_8, x_9, x_10, x_11);
 return x_12;
 }
@@ -176,8 +176,7 @@ LEAN_EXPORT uint8_t l_List_instDecidableSublistOfDecidableEq___redArg(lean_objec
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(x_4, 0, x_1);
+x_4 = l_instBEqOfDecidableEq___redArg(x_1);
 x_5 = l_List_isSublist___redArg(x_4, x_2, x_3);
 return x_5;
 }
@@ -212,8 +211,7 @@ LEAN_EXPORT uint8_t l_List_instDecidableIsPrefixOfDecidableEq___redArg(lean_obje
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(x_4, 0, x_1);
+x_4 = l_instBEqOfDecidableEq___redArg(x_1);
 x_5 = l_List_isPrefixOf___redArg(x_4, x_2, x_3);
 return x_5;
 }
@@ -248,8 +246,7 @@ LEAN_EXPORT uint8_t l_List_instDecidableIsSuffixOfDecidableEq___redArg(lean_obje
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(x_4, 0, x_1);
+x_4 = l_instBEqOfDecidableEq___redArg(x_1);
 x_5 = l_List_isSuffixOf___redArg(x_4, x_2, x_3);
 return x_5;
 }
@@ -280,13 +277,13 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-lean_object* initialize_Init_Data_List_TakeDrop(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_TakeDrop(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_List_Sublist(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_List_Sublist(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_List_TakeDrop(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

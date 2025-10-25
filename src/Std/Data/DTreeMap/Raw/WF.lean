@@ -3,10 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
 import Std.Data.DTreeMap.Internal.Lemmas
-import Std.Data.DTreeMap.Raw.AdditionalOperations
-import Std.Data.DTreeMap.Raw.Basic
+public import Std.Data.DTreeMap.Raw.AdditionalOperations
+
+@[expose] public section
 
 /-!
 # Well-formedness proofs for raw dependent tree maps
@@ -25,7 +28,7 @@ universe u v
 namespace Std.DTreeMap.Raw.WF
 
 variable {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} {t : Raw α β cmp}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 theorem empty : (empty : Raw α β cmp).WF :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.WF.empty⟩

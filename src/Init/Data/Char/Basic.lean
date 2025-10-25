@@ -6,7 +6,9 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Data.UInt.BasicAux
+public import Init.Data.UInt.BasicAux
+
+@[expose] public section
 
 /-- Determines if the given integer is a valid [Unicode scalar value](https://www.unicode.org/glossary/#unicode_scalar_value).
 

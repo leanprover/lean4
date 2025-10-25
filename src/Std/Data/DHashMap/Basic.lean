@@ -3,8 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.DHashMap.Raw
+public import Std.Data.DHashMap.Raw
+import all Std.Data.DHashMap.Raw
+
+public section
 
 /-!
 # Dependent hash maps
@@ -26,9 +31,9 @@ For implementation notes, see the docstring of the module `Std.Data.DHashMap.Int
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v w
+universe u v w w'
 
-variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w} [Monad m]
+variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w'} [Monad m]
 
 variable {_ : BEq α} {_ : Hashable α}
 
@@ -40,7 +45,7 @@ open DHashMap.Internal DHashMap.Internal.List
 Dependent hash maps.
 
 This is a simple separate-chaining hash table. The data of the hash map consists of a cached size
-and an array of buckets, where each bucket is a linked list of key-value pais. The number of buckets
+and an array of buckets, where each bucket is a linked list of key-value pairs. The number of buckets
 is always a power of two. The hash map doubles its size upon inserting an element such that the
 number of elements is more than 75% of the number of buckets.
 
@@ -294,6 +299,31 @@ This function ensures that the value is used linearly.
   ⟨(Raw₀.Const.insertManyIfNewUnit ⟨m.1, m.2.size_buckets_pos⟩ l).1,
    (Raw₀.Const.insertManyIfNewUnit ⟨m.1, m.2.size_buckets_pos⟩ l).2 _ Raw.WF.insertIfNew₀ m.2⟩
 
+@[inline, inherit_doc Raw.toArray] def toArray (m : DHashMap α β) :
+    Array ((a : α) × β a) :=
+  m.1.toArray
+
+@[inline, inherit_doc Raw.Const.toArray] def Const.toArray {β : Type v}
+    (m : DHashMap α (fun _ => β)) : Array (α × β) :=
+  Raw.Const.toArray m.1
+
+@[inline, inherit_doc Raw.keysArray] def keysArray (m : DHashMap α β) :
+    Array α :=
+  m.1.keysArray
+
+/--
+Computes the union of the given hash maps. If a key appears in both maps, the entry contains in
+the second argument will appear in the result.
+
+This function always merges the smaller map into the larger map, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : DHashMap α β) : DHashMap α β where
+  inner := Raw₀.union ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩
+  wf := Std.DHashMap.Raw.WF.union₀ m₁.2 m₂.2
+
+instance [BEq α] [Hashable α] : Union (DHashMap α β) := ⟨union⟩
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -307,18 +337,6 @@ section Unverified
     else
       (l, r.insert a b)
 
-@[inline, inherit_doc Raw.toArray] def toArray (m : DHashMap α β) :
-    Array ((a : α) × β a) :=
-  m.1.toArray
-
-@[inline, inherit_doc Raw.Const.toArray] def Const.toArray {β : Type v}
-    (m : DHashMap α (fun _ => β)) : Array (α × β) :=
-  Raw.Const.toArray m.1
-
-@[inline, inherit_doc Raw.keysArray] def keysArray (m : DHashMap α β) :
-    Array α :=
-  m.1.keysArray
-
 @[inline, inherit_doc Raw.values] def values {β : Type v}
     (m : DHashMap α (fun _ => β)) : List β :=
   m.1.values
@@ -326,12 +344,6 @@ section Unverified
 @[inline, inherit_doc Raw.valuesArray] def valuesArray {β : Type v}
     (m : DHashMap α (fun _ => β)) : Array β :=
   m.1.valuesArray
-
-/-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
-@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : DHashMap α β) : DHashMap α β :=
-  m₂.fold (init := m₁) fun acc x => acc.insert x
-
-instance [BEq α] [Hashable α] : Union (DHashMap α β) := ⟨union⟩
 
 @[inline, inherit_doc Raw.Const.unitOfArray] def Const.unitOfArray [BEq α] [Hashable α] (l : Array α) :
     DHashMap α (fun _ => Unit) :=

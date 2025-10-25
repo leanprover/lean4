@@ -3,9 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.RefVec
-import Std.Sat.AIG.LawfulVecOperator
+public import Std.Sat.AIG.LawfulVecOperator
+
+@[expose] public section
 
 namespace Std
 namespace Sat
@@ -193,13 +196,11 @@ theorem go_get_aux {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVe
   · dsimp only at hgo
     rw [← hgo]
     intro hfoo
-    rw [go_get_aux]
-    rw [AIG.RefVec.get_push_ref_lt]
-    · simp only [Ref.cast, Ref.mk.injEq]
-      rw [AIG.RefVec.get_cast]
-      · simp
-      · assumption
-    · apply go_le_size
+    rw [go_get_aux (hfoo := go_le_size ..)]; case hidx => omega
+    rw [AIG.RefVec.get_push_ref_lt (hidx := hidx)]
+    simp only [Ref.cast, Ref.mk.injEq]
+    rw [AIG.RefVec.get_cast]
+    simp
   · dsimp only at hgo
     rw [← hgo]
     simp only [Nat.le_refl, get, Ref.cast_eq, Ref.mk.injEq, true_implies]
@@ -258,7 +259,7 @@ theorem denote_go {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       rw [← hgo]
-      rw [go_get]
+      rw [go_get]; case hidx => omega
       rw [AIG.RefVec.get_push_ref_eq']
       · simp only [← heq]
         rw [go_denote_mem_prefix]

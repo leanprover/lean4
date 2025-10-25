@@ -6,9 +6,11 @@ Authors: Jeremy Avigad, Leonardo de Moura, Mario Carneiro, Markus Himmel
 module
 
 prelude
-import Init.Data.Nat.Dvd
-import Init.NotationExtra
-import Init.RCases
+public import Init.Data.Nat.Dvd
+public import Init.NotationExtra
+public import Init.RCases
+
+public section
 
 namespace Nat
 

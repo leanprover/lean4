@@ -3,13 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Option.Lemmas
-import Std.Data.Iterators.Producers.Repeat
-import Init.Data.Iterators.Consumers.Access
-import Init.Data.Iterators.Consumers.Collect
-import Std.Data.Iterators.Combinators.Take
-import Std.Data.Iterators.Lemmas.Combinators.Take
+public import Std.Data.Iterators.Producers.Repeat
+public import Std.Data.Iterators.Lemmas.Combinators.Take
+
+@[expose] public section
 
 namespace Std.Iterators
 
@@ -17,7 +17,7 @@ variable {α : Type w} {f : α → α} {init : α}
 
 theorem Iter.step_repeat :
     (Iter.repeat f init).step = .yield (Iter.repeat f (f init)) init ⟨rfl, rfl⟩ := by
-  rfl
+  simp [«repeat», Iter.step, Iter.toIterM, IterM.step, Iterator.step, IterM.toIter]
 
 theorem Iter.atIdxSlow?_zero_repeat :
     (Iter.repeat f init).atIdxSlow? 0 = some init := by

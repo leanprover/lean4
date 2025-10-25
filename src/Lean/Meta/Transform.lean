@@ -3,8 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Basic
+public import Lean.Meta.Basic
+
+public section
 
 namespace Lean
 
@@ -187,6 +191,9 @@ def zetaDeltaFVars (e : Expr) (fvars : Array FVarId) : MetaM Expr :=
 def unfoldDeclsFrom (biggerEnv : Environment) (e : Expr) : CoreM Expr := do
   withoutModifyingEnv do
     let env ← getEnv
+    -- There might have been nested proof abstractions, which yield private helper theoresms, so
+    -- make sure we can find them. They will later be re-abstracted again.
+    let biggerEnv := biggerEnv.setExporting false
     setEnv biggerEnv -- `e` has declarations from `biggerEnv` that are not in `env`
     let pre (e : Expr) : CoreM TransformStep := do
       let .const declName us := e | return .continue
@@ -198,6 +205,49 @@ def unfoldDeclsFrom (biggerEnv : Environment) (e : Expr) : CoreM Expr := do
       else
         return .done e
     Core.transform e (pre := pre)
+
+/--
+Unfolds theorems that are applied to a `f x₁ .. xₙ` where `f` is in the given array, and
+`n ≤ SectionVars`, i.e. an unsaturated application of `f`.
+
+This is used tounfoldIfArgIsAppOf undo proof abstraction for termination checking, as otherwise the bare
+occurrence of the recursive function prevents termination checking from succeeding.
+
+Usually, the argument is just `f` (the constant), arising from `mkAuxTheorem` abstracting over the
+aux decl representing `f`. If the mutual function is defined within the scope of `variable` commands,
+it is `f x y` where `x y` are the variables in scope, so we use the `numSectionVars` to recognize that
+while avoiding to unfold theorems applied to saturated applications of `f`.
+
+This unfolds from the private environment. The resulting definitions are (usually) not
+exposed anyways.
+-/
+def unfoldIfArgIsAppOf (fnNames : Array Name) (numSectionVars : Nat) (e : Expr) : CoreM Expr := withoutExporting do
+  let env ← getEnv
+  -- Unfold abstracted proofs
+  Core.transform e
+    (pre := fun e => e.withAppRev fun f revArgs => do
+      if f.isConst then
+        /-
+        How do we avoid unfolding declarations where the user happened to
+        have called with the recursive function as an unsaturated argument?
+        Such cases are not caught by the following check,
+        because such explicit recursive calls would always have a
+        isRecApp mdata wrapper around.
+        This is arguably somewhat fragile, but it works for now.
+        Alternatives if this breaks:
+         * Keep a local env extension to reliably recognize abstracted proofs
+         * Avoid abstracting over implementation detail applications
+        (The code below is restricted to theorems, as otherwise it would unfold
+        matchers, which can also abstract over recursive calls without an `mdata` wrapper, #2102.)
+        -/
+        if revArgs.any isInterestingArg then
+          if let some info@(.thmInfo _) := env.find? f.constName! then
+            return .visit <| (← instantiateValueLevelParams info f.constLevels!).betaRev revArgs
+      return .continue)
+  where
+    isInterestingArg (a : Expr) : Bool := a.withApp fun af axs =>
+      af.isConst && fnNames.any fun f => af.constName! == f && axs.size ≤ numSectionVars
+
 
 def eraseInaccessibleAnnotations (e : Expr) : CoreM Expr :=
   Core.transform e (post := fun e => return .done <| if let some e := inaccessible? e then e else e)

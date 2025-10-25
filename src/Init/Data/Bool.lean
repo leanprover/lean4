@@ -6,8 +6,9 @@ Authors: F. G. Dorais
 module
 
 prelude
-import Init.NotationExtra
+public import Init.NotationExtra
 
+public section
 
 namespace Bool
 
@@ -694,3 +695,23 @@ but may be used locally.
 
 @[simp] theorem Subtype.beq_iff {α : Type u} [BEq α] {p : α → Prop} {x y : {a : α // p a}} :
     (x == y) = (x.1 == y.1) := rfl
+
+/-! ### Proof by reflection support  -/
+
+@[expose] protected noncomputable def Bool.and' (a b : Bool) : Bool :=
+  Bool.rec false b a
+
+@[expose] protected noncomputable def Bool.or' (a b : Bool) : Bool :=
+  Bool.rec b true a
+
+@[expose] protected noncomputable def Bool.not' (a : Bool) : Bool :=
+  Bool.rec true false a
+
+@[simp] theorem Bool.and'_eq_and (a b : Bool) : a.and' b = a.and b := by
+  cases a <;> simp [Bool.and']
+
+@[simp] theorem Bool.or'_eq_or (a b : Bool) : a.or' b = a.or b := by
+  cases a <;> simp [Bool.or']
+
+@[simp] theorem Bool.not'_eq_not (a : Bool) : a.not' = a.not := by
+  cases a <;> simp [Bool.not']

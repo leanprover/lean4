@@ -3,10 +3,14 @@ Copyright (c) 2022 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro
 -/
+module
+
 prelude
-import Lean.Elab.ElabRules
-import Lean.Elab.Tactic.Simp
-import Lean.Meta.Tactic.TryThis
+public import Lean.Elab.ElabRules
+public import Lean.Elab.Tactic.Simp
+public import Lean.Meta.Tactic.TryThis
+
+public section
 
 /-!
 # `simp?` tactic

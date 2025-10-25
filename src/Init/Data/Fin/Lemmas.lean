@@ -6,12 +6,13 @@ Authors: Mario Carneiro, Leonardo de Moura
 module
 
 prelude
-import Init.Data.Nat.Lemmas
-import Init.Data.Int.DivMod.Lemmas
-import Init.Ext
-import Init.ByCases
-import Init.Conv
-import Init.Omega
+public import Init.Data.Nat.Lemmas
+public import Init.Ext
+import Init.Data.Order.Lemmas
+
+@[expose] public section
+
+open Std
 
 namespace Fin
 
@@ -19,12 +20,12 @@ namespace Fin
 
 @[deprecated ofNat_zero (since := "2025-05-28")] abbrev ofNat'_zero := @ofNat_zero
 
-theorem mod_def (a m : Fin n) : a % m = Fin.mk (a % m) (Nat.lt_of_le_of_lt (Nat.mod_le _ _) a.2) :=
+theorem mod_def (a m : Fin n) : a % m = Fin.mk (a.val % m.val) (Nat.lt_of_le_of_lt (Nat.mod_le _ _) a.2) :=
   rfl
 
-theorem mul_def (a b : Fin n) : a * b = Fin.mk ((a * b) % n) (Nat.mod_lt _ a.pos) := rfl
+theorem mul_def (a b : Fin n) : a * b = Fin.mk ((a.val * b.val) % n) (Nat.mod_lt _ a.pos) := rfl
 
-theorem sub_def (a b : Fin n) : a - b = Fin.mk (((n - b) + a) % n) (Nat.mod_lt _ a.pos) := rfl
+theorem sub_def (a b : Fin n) : a - b = Fin.mk (((n - b.val) + a.val) % n) (Nat.mod_lt _ a.pos) := rfl
 
 theorem pos' : ∀ [Nonempty (Fin n)], 0 < n | ⟨i⟩ => i.pos
 
@@ -75,7 +76,7 @@ theorem mk_val (i : Fin n) : (⟨i, i.isLt⟩ : Fin n) = i := Fin.eta ..
 
 @[deprecated ofNat_self (since := "2025-05-28")] abbrev ofNat'_self := @ofNat_self
 
-@[simp] theorem ofNat_val_eq_self [NeZero n] (x : Fin n) : (Fin.ofNat n x) = x := by
+@[simp] theorem ofNat_val_eq_self [NeZero n] (x : Fin n) : (Fin.ofNat n x.val) = x := by
   ext
   rw [val_ofNat, Nat.mod_eq_of_lt]
   exact x.2
@@ -115,8 +116,6 @@ Non-trivial loops lead to undesirable and counterintuitive elaboration behavior.
 For example, for `x : Fin k` and `n : Nat`,
 it causes `x < n` to be elaborated as `x < ↑n` rather than `↑x < n`,
 silently introducing wraparound arithmetic.
-
-Note: as of 2025-06-03, Mathlib has such a coercion for `Fin n` anyway!
 -/
 @[expose]
 def instNatCast (n : Nat) [NeZero n] : NatCast (Fin n) where
@@ -249,7 +248,17 @@ protected theorem le_antisymm_iff {x y : Fin n} : x = y ↔ x ≤ y ∧ y ≤ x 
 protected theorem le_antisymm {x y : Fin n} (h1 : x ≤ y) (h2 : y ≤ x) : x = y :=
   Fin.le_antisymm_iff.2 ⟨h1, h2⟩
 
-@[simp, grind =] theorem val_rev (i : Fin n) : rev i = n - (i + 1) := rfl
+instance instIsLinearOrder : IsLinearOrder (Fin n) := by
+  apply IsLinearOrder.of_le
+  case le_antisymm => constructor; apply Fin.le_antisymm
+  case le_total => constructor; apply Fin.le_total
+  case le_trans => constructor; apply Fin.le_trans
+
+instance : LawfulOrderLT (Fin n) where
+  lt_iff := by
+    simp [← Fin.not_le, Decidable.imp_iff_not_or, Std.Total.total]
+
+@[simp, grind =] theorem val_rev (i : Fin n) : (rev i).val = n - (i + 1) := rfl
 
 @[simp] theorem rev_rev (i : Fin n) : rev (rev i) = i := Fin.ext <| by
   rw [val_rev, val_rev, ← Nat.sub_sub, Nat.sub_sub_self (by exact i.2), Nat.add_sub_cancel]
@@ -313,7 +322,9 @@ theorem subsingleton_iff_le_one : Subsingleton (Fin n) ↔ n ≤ 1 := by
   (match n with | 0 | 1 | n+2 => ?_) <;> try simp
   · exact ⟨nofun⟩
   · exact ⟨fun ⟨0, _⟩ ⟨0, _⟩ => rfl⟩
-  · exact fun h => by have := zero_lt_one (n := n); simp_all [h.elim 0 1]
+  · have : ¬ n + 2 ≤ 1 := by simp [Nat.not_le]
+    simp only [this, iff_false]
+    exact fun h => by have := zero_lt_one (n := n); simp_all [h.elim 0 1]
 
 instance subsingleton_zero : Subsingleton (Fin 0) := subsingleton_iff_le_one.2 (by decide)
 
@@ -484,8 +495,10 @@ theorem succ_succ_ne_one (a : Fin n) : Fin.succ (Fin.succ a) ≠ 1 :=
   ext
   simp
 
-@[simp] theorem cast_trans {k : Nat} (h : n = m) (h' : m = k) {i : Fin n} :
+@[simp, grind =] theorem cast_cast {k : Nat} (h : n = m) (h' : m = k) {i : Fin n} :
     (i.cast h).cast h' = i.cast (Eq.trans h h') := rfl
+
+@[deprecated cast_cast (since := "2025-09-03")] abbrev cast_trans := @cast_cast
 
 theorem castLE_of_eq {m n : Nat} (h : m = n) {h' : m ≤ n} : castLE h' = Fin.cast h := rfl
 
@@ -515,7 +528,7 @@ theorem cast_castAdd_left {n n' m : Nat} (i : Fin n') (h : n' + m = n + m) :
     (i.castAdd m').cast h = i.castAdd m := rfl
 
 theorem castAdd_castAdd {m n p : Nat} (i : Fin m) :
-    (i.castAdd n).castAdd p = (i.castAdd (n + p)).cast (Nat.add_assoc ..).symm  := rfl
+    (i.castAdd n).castAdd p = (i.castAdd (n + p)).cast (Nat.add_assoc ..).symm := rfl
 
 /-- The cast of the successor is the successor of the cast. See `Fin.succ_cast_eq` for rewriting in
 the reverse direction. -/
@@ -898,16 +911,21 @@ theorem exists_fin_succ {P : Fin (n + 1) → Prop} : (∃ i, P i) ↔ P 0 ∨ �
   ⟨fun ⟨i, h⟩ => Fin.cases Or.inl (fun i hi => Or.inr ⟨i, hi⟩) i h, fun h =>
     (h.elim fun h => ⟨0, h⟩) fun ⟨i, hi⟩ => ⟨i.succ, hi⟩⟩
 
-theorem forall_fin_one {p : Fin 1 → Prop} : (∀ i, p i) ↔ p 0 :=
+@[simp] theorem forall_fin_zero {p : Fin 0 → Prop} : (∀ i, p i) ↔ True :=
+  ⟨fun _ => trivial, fun _ ⟨_, h⟩ => False.elim <| Nat.not_lt_zero _ h⟩
+
+@[simp] theorem exists_fin_zero {p : Fin 0 → Prop} : (∃ i, p i) ↔ False := by simp
+
+@[simp] theorem forall_fin_one {p : Fin 1 → Prop} : (∀ i, p i) ↔ p 0 :=
   ⟨fun h => h _, fun h i => Subsingleton.elim i 0 ▸ h⟩
 
-theorem exists_fin_one {p : Fin 1 → Prop} : (∃ i, p i) ↔ p 0 :=
+@[simp] theorem exists_fin_one {p : Fin 1 → Prop} : (∃ i, p i) ↔ p 0 :=
   ⟨fun ⟨i, h⟩ => Subsingleton.elim i 0 ▸ h, fun h => ⟨_, h⟩⟩
 
-theorem forall_fin_two {p : Fin 2 → Prop} : (∀ i, p i) ↔ p 0 ∧ p 1 :=
+@[simp] theorem forall_fin_two {p : Fin 2 → Prop} : (∀ i, p i) ↔ p 0 ∧ p 1 :=
   forall_fin_succ.trans <| and_congr_right fun _ => forall_fin_one
 
-theorem exists_fin_two {p : Fin 2 → Prop} : (∃ i, p i) ↔ p 0 ∨ p 1 :=
+@[simp] theorem exists_fin_two {p : Fin 2 → Prop} : (∃ i, p i) ↔ p 0 ∨ p 1 :=
   exists_fin_succ.trans <| or_congr_right exists_fin_one
 
 theorem fin_two_eq_of_eq_zero_iff : ∀ {a b : Fin 2}, (a = 0 ↔ b = 0) → a = b := by
@@ -925,24 +943,34 @@ For the induction:
 -/
 @[elab_as_elim] def reverseInduction {motive : Fin (n + 1) → Sort _} (last : motive (Fin.last n))
     (cast : ∀ i : Fin n, motive i.succ → motive (castSucc i)) (i : Fin (n + 1)) : motive i :=
-  if hi : i = Fin.last n then _root_.cast (congrArg motive hi.symm) last
-  else
-    let j : Fin n := ⟨i, Nat.lt_of_le_of_ne (Nat.le_of_lt_succ i.2) fun h => hi (Fin.ext h)⟩
-    cast _ (reverseInduction last cast j.succ)
-termination_by n + 1 - i
-decreasing_by decreasing_with
-  -- FIXME: we put the proof down here to avoid getting a dummy `have` in the definition
-  try simp only [Nat.succ_sub_succ_eq_sub]
-  exact Nat.add_sub_add_right .. ▸ Nat.sub_lt_sub_left i.2 (Nat.lt_succ_self i)
+  let rec go (j : Nat) (h) (h2 : i ≤ j) (x : motive ⟨j, h⟩) : motive i :=
+    if hi : i.1 = j then _root_.cast (by simp [← hi]) x
+    else match j with
+      | 0 => by omega
+      | j + 1 => go j (by omega) (by omega) (cast ⟨j, by omega⟩ x)
+  go _ _ (by omega) last
 
 @[simp] theorem reverseInduction_last {n : Nat} {motive : Fin (n + 1) → Sort _} {zero succ} :
     (reverseInduction zero succ (Fin.last n) : motive (Fin.last n)) = zero := by
-  rw [reverseInduction]; simp
+  rw [reverseInduction, reverseInduction.go]; simp
+
+private theorem reverseInduction_castSucc_aux {n : Nat} {motive : Fin (n + 1) → Sort _} {succ}
+    (i : Fin n) (j : Nat) (h) (h2 : i.1 < j) (zero : motive ⟨j, h⟩) :
+    reverseInduction.go (motive := motive) succ i.castSucc j h (Nat.le_of_lt h2) zero =
+      succ i (reverseInduction.go succ i.succ j h h2 zero) := by
+  induction j generalizing i with
+  | zero => omega
+  | succ j ih =>
+    rw [reverseInduction.go, dif_neg (by exact Nat.ne_of_lt h2)]
+    by_cases hij : i = j
+    · subst hij; simp [reverseInduction.go]
+    dsimp only
+    rw [ih _ _ (by omega), eq_comm, reverseInduction.go, dif_neg (by change i.1 + 1 ≠ _; omega)]
 
 @[simp] theorem reverseInduction_castSucc {n : Nat} {motive : Fin (n + 1) → Sort _} {zero succ}
     (i : Fin n) : reverseInduction (motive := motive) zero succ (castSucc i) =
       succ i (reverseInduction zero succ i.succ) := by
-  rw [reverseInduction, dif_neg (Fin.ne_of_lt (Fin.castSucc_lt_last i))]; rfl
+  rw [reverseInduction, reverseInduction_castSucc_aux _ _ _ i.isLt, reverseInduction]
 
 /--
 Proves a statement by cases on the underlying `Nat` value in a `Fin (n + 1)`, checking whether the

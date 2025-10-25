@@ -1,0 +1,9 @@
+name = "useB"
+
+[[lean_lib]]
+name = "UseB"
+leanOptions.experimental.module = true
+
+[[require]]
+name = "fooB"
+path = "../fooB"

@@ -3,10 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jannis Limperg, Kim Morrison
 -/
+module
+
 prelude
-import Lean.Meta.WHNF
-import Lean.Meta.Transform
-import Lean.Meta.DiscrTreeTypes
+public import Lean.Meta.WHNF
+public import Lean.Meta.DiscrTreeTypes
+
+public section
 
 namespace Lean.Meta.DiscrTree
 /-!
@@ -48,15 +51,6 @@ namespace Lean.Meta.DiscrTree
      unifiers.
   2- Distinguish partial applications `f a`, `f a b`, and `f a b c`.
 -/
-
-def Key.ctorIdx : Key → Nat
-  | .star     => 0
-  | .other    => 1
-  | .lit ..   => 2
-  | .fvar ..  => 3
-  | .const .. => 4
-  | .arrow    => 5
-  | .proj ..  => 6
 
 def Key.lt : Key → Key → Bool
   | .lit v₁,        .lit v₂        => v₁ < v₂
@@ -123,7 +117,7 @@ where
 
   goN (num : Nat) : StateRefT (List Key) CoreM (Array MessageData) := do
     let mut r := #[]
-    for _ in [: num] do
+    for _ in *...num do
       r := r.push (← go)
     return r
 
@@ -535,7 +529,7 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
       else if let some matcherInfo := isMatcherAppCore? (← getEnv) e then
         -- A matcher application is stuck is one of the discriminants has a metavariable
         let args := e.getAppArgs
-        for arg in args[matcherInfo.getFirstDiscrPos: matcherInfo.getFirstDiscrPos + matcherInfo.numDiscrs] do
+        for arg in args[matcherInfo.getFirstDiscrPos...(matcherInfo.getFirstDiscrPos + matcherInfo.numDiscrs)] do
           if arg.hasExprMVar then
             Meta.throwIsDefEqStuck
       else if (← isRec c) then

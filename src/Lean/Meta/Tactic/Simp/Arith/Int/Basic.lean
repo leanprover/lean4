@@ -3,15 +3,17 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Int.Linear
-import Lean.Util.SortExprs
-import Lean.Meta.Check
-import Lean.Meta.Offset
-import Lean.Meta.IntInstTesters
-import Lean.Meta.AppBuilder
-import Lean.Meta.KExprMap
-import Lean.Data.RArray
+public import Init.Data.Int.Linear
+public import Lean.Util.SortExprs
+public import Lean.Meta.IntInstTesters
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.KExprMap
+public import Lean.Data.RArray
+
+public section
 
 namespace Int.Linear
 

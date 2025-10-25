@@ -11,6 +11,7 @@ permissions:
 jobs:
   grove-build:
     runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success' && github.repository == 'leanprover/lean4'
 
     steps:
       - name: Retrieve information about the original workflow
@@ -29,8 +30,8 @@ jobs:
           # Check if it's a push to master (no PR number and target branch is master)
           if [ -z "${{ steps.workflow-info.outputs.pullRequestNumber }}" ]; then
             if [ "${{ github.event.workflow_run.head_branch }}" = "master" ]; then
-              echo "Push to master detected. Skipping for now, to be enabled later."
-              echo "should-run=false" >> "$GITHUB_OUTPUT"
+              echo "Push to master detected. Running Grove."
+              echo "should-run=true" >> "$GITHUB_OUTPUT"
             else
               echo "Push to non-master branch, skipping"
               echo "should-run=false" >> "$GITHUB_OUTPUT"
@@ -39,7 +40,7 @@ jobs:
             # Check if it's a PR with grove label
             PR_LABELS='${{ steps.workflow-info.outputs.pullRequestLabels }}'
             if echo "$PR_LABELS" | grep -q '"grove"'; then
-              echo "PR with grove label detected"
+              echo "PR with grove label detected. Running Grove."
               echo "should-run=true" >> "$GITHUB_OUTPUT"
             else
               echo "PR without grove label, skipping"
@@ -50,10 +51,10 @@ jobs:
       - name: Fetch upstream invalidated facts
         if: ${{ steps.should-run.outputs.should-run == 'true' && steps.workflow-info.outputs.pullRequestNumber != '' }}
         id: fetch-upstream
-        uses: TwoFx/grove-action/fetch-upstream@v0
+        uses: TwoFx/grove-action/fetch-upstream@v0.4
         with:
           artifact-name: grove-invalidated-facts
-          base-ref: ${{ steps.workflow-info.outputs.targetCommitSha }}
+          base-ref: master
 
       - name: Download toolchain for this commit
         if: ${{ steps.should-run.outputs.should-run == 'true' }}
@@ -63,7 +64,7 @@ jobs:
           commit: ${{ steps.workflow-info.outputs.sourceHeadSha }}
           workflow: ci.yml
           path: artifacts
-          name: build-Linux.*
+          name: "build-Linux release"
           name_is_regexp: true
 
       - name: Unpack toolchain
@@ -94,7 +95,7 @@ jobs:
       - name: Build
         if: ${{ steps.should-run.outputs.should-run == 'true' }}
         id: build
-        uses: TwoFx/grove-action/build@v0
+        uses: TwoFx/grove-action/build@v0.4
         with:
           project-path: doc/std/grove
           script-name: grove-stdlib
@@ -102,23 +103,14 @@ jobs:
           comment-artifact-name: grove-comment
           toolchain-id: lean4
           toolchain-path: artifacts/${{ steps.unpack-toolchain.outputs.lean-dir }}
-
-      - name: Download artifact
-        if: ${{ steps.should-run.outputs.should-run == 'true' }}
-        id: download-artifact
-        uses: dawidd6/action-download-artifact@v7
-        with:
-          run_id: ${{ github.event.workflow_run.id }}
-          name: "grove-frontend"
-          path: _out
-          allow_forks: true
+          project-ref: ${{ steps.workflow-info.outputs.sourceHeadSha }}
 
       # deploy-alias computes a URL component for the PR preview. This
       # is so we can have a stable name to use for feedback on draft
       # material.
       - id: deploy-alias
         if: ${{ steps.should-run.outputs.should-run == 'true' }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         name: Compute Alias
         with:
           result-encoding: string
@@ -136,7 +128,7 @@ jobs:
         id: deploy-draft
         uses: nwtgck/actions-netlify@v3.0
         with:
-          publish-dir: _out/
+          publish-dir: ${{ steps.build.outputs.out-path }}
           production-deploy: false
           github-token: ${{ secrets.GITHUB_TOKEN }}
           alias: ${{ steps.deploy-alias.outputs.result }}
@@ -148,30 +140,6 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: "1cacfa39-a11c-467c-99e7-2e01d7b4089e"
-
-      - name: Download comment
-        if: ${{ steps.should-run.outputs.should-run == 'true' && steps.workflow-info.outputs.pullRequestNumber != '' }}
-        id: download-comment
-        uses: dawidd6/action-download-artifact@v7
-        with:
-          run_id: ${{ github.event.workflow_run.id }}
-          name: "grove-comment"
-          path: _comment
-          allow_forks: true
-
-      - name: Read comment file
-        if: ${{ steps.should-run.outputs.should-run == 'true' && steps.workflow-info.outputs.pullRequestNumber != '' }}
-        id: read-comment
-        run: |
-          if [ -f "_comment/comment.txt" ]; then
-            {
-              echo "comment-content<<EOF"
-              cat "_comment/comment.txt"
-              echo "EOF"
-            } >> "$GITHUB_OUTPUT"
-          else
-            echo "comment-content=" >> "$GITHUB_OUTPUT"
-          fi
 
       # actions-netlify cannot add deploy links to a PR because it assumes a
       # pull_request context, not a workflow_run context, see
@@ -185,9 +153,9 @@ jobs:
           header: preview-comment
           recreate: true
           message: |
-            [Grove](${{ steps.deploy-draft.outputs.deploy-url }}).
+            [Grove](${{ steps.deploy-draft.outputs.deploy-url }}) for revision ${{ steps.workflow-info.outputs.sourceHeadSha }}.
 
-            ${{ steps.read-comment.outputs.comment-content }}
+            ${{ steps.build.outputs.comment-text }}
         env:
           PR_NUMBER: ${{ steps.workflow-info.outputs.pullRequestNumber }}
           PR_HEADSHA: ${{ steps.workflow-info.outputs.sourceHeadSha }}

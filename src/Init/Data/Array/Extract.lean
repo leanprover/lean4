@@ -6,8 +6,9 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Array.Lemmas
-import Init.Data.List.Nat.TakeDrop
+public import Init.Data.Array.Lemmas
+
+public section
 
 /-!
 # Lemmas about `Array.extract`
@@ -46,15 +47,45 @@ theorem size_extract_of_le {as : Array α} {i j : Nat} (h : j ≤ as.size) :
   simp
   omega
 
-@[simp, grind =]
-theorem extract_push {as : Array α} {b : α} {start stop : Nat} (h : stop ≤ as.size) :
+@[grind =]
+theorem extract_push {as : Array α} {b : α} {start stop : Nat} :
+    (as.push b).extract start stop =
+      if stop ≤ as.size then
+        as.extract start stop
+      else if start ≤ as.size then
+        (as.extract start as.size).push b
+      else #[] := by
+  split
+  · ext i h₁ h₂
+    · simp
+      omega
+    · simp only [size_extract, size_push] at h₁ h₂
+      simp only [getElem_extract, getElem_push]
+      rw [dif_pos (by omega)]
+  · split
+    · ext i h₁ h₂
+      · simp
+        omega
+      · simp only [size_extract, size_push] at h₁ h₂
+        simp only [getElem_extract, getElem_push]
+        split <;> rename_i h₃
+        · split
+          · rfl
+          · simp_all
+            omega
+        · split <;> rename_i h₄
+          · simp at h₄
+            omega
+          · rfl
+    · ext i h₁ h₂
+      · simp
+        omega
+      · simp at h₂
+
+@[simp]
+theorem extract_push_of_le {as : Array α} {b : α} {start stop : Nat} (h : stop ≤ as.size) :
     (as.push b).extract start stop = as.extract start stop := by
-  ext i h₁ h₂
-  · simp
-    omega
-  · simp only [size_extract, size_push] at h₁ h₂
-    simp only [getElem_extract, getElem_push]
-    rw [dif_pos (by omega)]
+  rw [extract_push, if_pos h]
 
 @[simp, grind =]
 theorem extract_eq_pop {as : Array α} {stop : Nat} (h : stop = as.size - 1) :

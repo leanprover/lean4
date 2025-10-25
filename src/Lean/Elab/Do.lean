@@ -3,12 +3,15 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Term
-import Lean.Elab.BindersUtil
-import Lean.Elab.PatternVar
-import Lean.Elab.Quotation.Util
-import Lean.Parser.Do
+public import Lean.Elab.BindersUtil
+public import Lean.Elab.PatternVar
+public import Lean.Elab.Quotation.Util
+meta import Lean.Parser.Do
+
+public section
 
 -- HACK: avoid code explosion until heuristics are improved
 set_option compiler.reuse false
@@ -239,7 +242,7 @@ def Code.getRef? : Code → Option Syntax
   | .matchExpr ref ..    => ref
   | .jmp ref ..          => ref
 
-abbrev VarSet := RBMap Name Syntax Name.cmp
+abbrev VarSet := Std.TreeMap Name Syntax Name.cmp
 
 /-- A code block, and the collection of variables updated by it. -/
 structure CodeBlock where
@@ -247,12 +250,12 @@ structure CodeBlock where
   uvars : VarSet := {} -- set of variables updated by `code`
 
 private def varSetToArray (s : VarSet) : Array Var :=
-  s.fold (fun xs _ x => xs.push x) #[]
+  s.foldl (fun xs _ x => xs.push x) #[]
 
 private def varsToMessageData (vars : Array Var) : MessageData :=
   MessageData.joinSep (vars.toList.map fun n => MessageData.ofName (n.getId.simpMacroScopes)) " "
 
-partial def CodeBlocl.toMessageData (codeBlock : CodeBlock) : MessageData :=
+partial def CodeBlock.toMessageData (codeBlock : CodeBlock) : MessageData :=
   let us := MessageData.ofList <| (varSetToArray codeBlock.uvars).toList.map MessageData.ofSyntax
   let rec loop : Code → MessageData
     | .decl xs _ k           => m!"let {varsToMessageData xs} := ...\n{loop k}"
@@ -365,7 +368,7 @@ def mkFreshJP (ps : Array (Var × Bool)) (body : Code) : TermElabM JPDecl := do
     pure #[(y.raw, false)]
   else
     pure ps
-  -- Remark: the compiler frontend implemented in C++ currently detects jointpoints created by
+  -- Remark: the compiler frontend implemented in C++ currently detects join points created by
   -- the "do" notation by testing the name. See hack at method `visit_let` at `lcnf.cpp`
   -- We will remove this hack when we re-implement the compiler frontend in Lean.
   let name ← mkFreshUserName `__do_jp
@@ -387,7 +390,7 @@ def eraseOptVar (rs : VarSet) (x? : Option Var) : VarSet :=
   | none   => rs
   | some x => rs.insert x.getId x
 
-/-- Create a new jointpoint for `c`, and jump to it with the variables `rs` -/
+/-- Create a new join point for `c`, and jump to it with the variables `rs` -/
 def mkSimpleJmp (ref : Syntax) (rs : VarSet) (c : Code) : StateRefT (Array JPDecl) TermElabM Code := do
   let xs := varSetToArray rs
   let jp ← addFreshJP (xs.map fun x => (x, true)) c
@@ -397,8 +400,8 @@ def mkSimpleJmp (ref : Syntax) (rs : VarSet) (c : Code) : StateRefT (Array JPDec
   else
     return Code.jmp ref jp xs
 
-/-- Create a new joinpoint that takes `rs` and `val` as arguments. `val` must be syntax representing a pure value.
-   The body of the joinpoint is created using `mkJPBody yFresh`, where `yFresh`
+/-- Create a new join point that takes `rs` and `val` as arguments. `val` must be syntax representing a pure value.
+   The body of the join point is created using `mkJPBody yFresh`, where `yFresh`
    is a fresh variable created by this method. -/
 def mkJmp (ref : Syntax) (rs : VarSet) (val : Syntax) (mkJPBody : Syntax → MacroM Code) : StateRefT (Array JPDecl) TermElabM Code := do
   let xs := varSetToArray rs
@@ -540,7 +543,7 @@ partial def extendUpdatedVars (c : CodeBlock) (ws : VarSet) : TermElabM CodeBloc
     pure { c with uvars := ws }
 
 private def union (s₁ s₂ : VarSet) : VarSet :=
-  s₁.fold (·.insert ·) s₂
+  s₁.foldl (·.insert ·) s₂
 
 /--
 Given two code blocks `c₁` and `c₂`, make sure they have the same set of updated variables.
@@ -1099,7 +1102,7 @@ def mkJoinPoint (j : Name) (ps : Array (Syntax × Bool)) (body : Syntax) (k : Sy
   let pTypes ← ps.mapM fun ⟨id, useTypeOf⟩ => do if useTypeOf then `(type_of% $id) else `(_)
   let ps     := ps.map (·.1)
   /-
-  We use `let_delayed` instead of `let` for joinpoints to make sure `$k` is elaborated before `$body`.
+  We use `let_delayed` instead of `let` for join points to make sure `$k` is elaborated before `$body`.
   By elaborating `$k` first, we "learn" more about `$body`'s type.
   For example, consider the following example `do` expression
   ```
@@ -1119,7 +1122,7 @@ def mkJoinPoint (j : Name) (ps : Array (Syntax × Bool)) (body : Syntax) (k : Sy
   else
     jp ()
   ```
-  If we use the regular `let` instead of `let_delayed`, the joinpoint `jp` will be elaborated and its type will be inferred to be `Unit → IO (IO.Ref Bool)`.
+  If we use the regular `let` instead of `let_delayed`, the join point `jp` will be elaborated and its type will be inferred to be `Unit → IO (IO.Ref Bool)`.
   Then, we get a typing error at `jp ()`. By using `let_delayed`, we first elaborate `if x > 0 ...` and learn that `jp` has type `Unit → IO Unit`.
   Then, we get the expected type mismatch error at `IO.mkRef true`. -/
   `(let_delayed $(← mkIdentFromRef j):ident $[($ps : $pTypes)]* : $((← read).m) _ := $body; $k)
@@ -1536,9 +1539,9 @@ mutual
         ```
         into
         ```
-        let s := toStream ys
+        let s := Std.toStream ys
         for x in xs do
-          match Stream.next? s with
+          match Std.Stream.next? s with
           | none => break
           | some (y, s') =>
             s := s'
@@ -1556,11 +1559,11 @@ mutual
       withFreshMacroScope do
         /- Recall that `@` (explicit) disables `coeAtOutParam`.
            We used `@` at `Stream` functions to make sure `resultIsOutParamSupport` is not used. -/
-        let toStreamApp ← withRef ys `(@toStream _ _ _ $ys)
+        let toStreamApp ← withRef ys `(@Std.toStream _ _ _ $ys)
         let auxDo ←
           `(do let mut s := $toStreamApp:term
                for $doForDecls:doForDecl,* do
-                 match @Stream.next? _ _ _ s with
+                 match @Std.Stream.next? _ _ _ s with
                  | none => break
                  | some ($y, s') =>
                    s := s'
@@ -1578,7 +1581,7 @@ mutual
       -- semantic no-op that replaces the `uvars`' position information (which all point inside the loop)
       -- with that of the respective mutable declarations outside the loop, which allows the language
       -- server to identify them as conceptually identical variables
-      let uvars := uvars.map fun v => ctx.mutableVars.findD v.getId v
+      let uvars := uvars.map fun v => ctx.mutableVars.getD v.getId v
       let uvarsTuple ← liftMacroM do mkTuple uvars
       if hasReturn forInBodyCodeBlock.code then
         let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
@@ -1617,7 +1620,7 @@ mutual
     let optMotive := doMatch[2]
     let discrs    := doMatch[3]
     let matchAlts := doMatch[5][0].getArgs -- Array of `doMatchAlt`
-    let matchAlts ← matchAlts.foldlM (init := #[]) fun result matchAlt => return result ++ (← liftMacroM <| expandMatchAlt matchAlt)
+    let matchAlts ← matchAlts.foldlM (init := #[]) fun result matchAlt => return result ++ (expandMatchAlt matchAlt)
     let alts ←  matchAlts.mapM fun matchAlt => do
       let patterns := matchAlt[1][0]
       let vars ← getPatternsVarsEx patterns.getSepArgs

@@ -1,10 +1,13 @@
-import Lean
+module
+meta import Lean
+#exit
+
 def f (a : Nat) := a + a + a
 def g (a : Nat) := a + a
 
 -- Prints the equivalence class containing a `f` application
 open Lean Meta Grind in
-def fallback : Fallback := do
+meta def fallback : Fallback := do
   let #[n, _] ← filterENodes fun e => return e.self.isApp && e.self.isAppOf ``f | unreachable!
   let eqc ← getEqc n.self (sort := true)
   trace[Meta.debug] eqc

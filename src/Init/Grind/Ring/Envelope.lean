@@ -6,9 +6,13 @@ Authors: Leonardo de Moura, Kim Morrison
 module
 
 prelude
-import Init.Grind.Ring.Basic
-import Init.Grind.Ordered.Ring
+public import Init.Grind.Ordered.Ring
+public import Init.Data.AC
 import all Init.Data.AC
+
+@[expose] public section
+
+open Std
 
 namespace Lean.Grind.Ring
 
@@ -41,8 +45,7 @@ theorem r_sym {a b : α × α} : r α a b → r α b a := by
   cases a; cases b; simp [r]; intro h w; refine ⟨h, ?_⟩; simp [w, Semiring.add_comm]
 
 theorem r_trans {a b c : α × α} : r α a b → r α b c → r α a c := by
-  cases a; cases b; cases c;
-  next a₁ a₂ b₁ b₂ c₁ c₂ =>
+  obtain ⟨a₁, a₂⟩ := a; obtain ⟨b₁, b₂⟩ := b; obtain ⟨c₁, c₂⟩ := c
   simp [r]
   intro k₁ h₁ k₂ h₂
   refine ⟨(k₁ + k₂ + b₁ + b₂), ?_⟩
@@ -139,37 +142,33 @@ def Q.ind {β : Q α → Prop} (mk : ∀ (a : α × α), β (Q.mk a)) (q : Q α)
         exact ⟨k, h.symm⟩)
 
 attribute [local simp]
-  Quot.liftOn Semiring.add_zero Semiring.zero_add Semiring.mul_one Semiring.one_mul
+  Quot.liftOn Semiring.add_zero AddCommMonoid.zero_add Semiring.mul_one Semiring.one_mul
   Semiring.natCast_zero Semiring.natCast_one Semiring.mul_zero Semiring.zero_mul
 
 theorem neg_add_cancel (a : Q α) : add (neg a) a = natCast 0 := by
-  induction a using Quot.ind
-  next a =>
-  cases a; simp
+  obtain ⟨⟨_, _⟩⟩ := a
+  simp
   apply Quot.sound; simp; refine ⟨0, ?_⟩; ac_rfl
 
 theorem add_comm (a b : Q α) : add a b = add b a := by
-  induction a using Quot.ind
-  induction b using Quot.ind
-  next a b =>
-  cases a; cases b; simp; apply Quot.sound; simp; refine ⟨0, ?_⟩; ac_rfl
+  obtain ⟨⟨_, _⟩⟩ := a
+  obtain ⟨⟨_, _⟩⟩ := b
+  simp; apply Quot.sound; simp; refine ⟨0, ?_⟩; ac_rfl
 
 theorem add_zero (a : Q α) : add a (natCast 0) = a := by
   induction a using Quot.ind
   next a => cases a; simp
 
 theorem add_assoc (a b c : Q α) : add (add a b) c = add a (add b c) := by
-  induction a using Quot.ind
-  induction b using Quot.ind
-  induction c using Quot.ind
-  next a b c =>
-  cases a; cases b; cases c; simp; apply Quot.sound; simp; refine ⟨0, ?_⟩; ac_rfl
+  obtain ⟨⟨_, _⟩⟩ := a
+  obtain ⟨⟨_, _⟩⟩ := b
+  obtain ⟨⟨_, _⟩⟩ := c
+  simp; apply Quot.sound; simp; refine ⟨0, ?_⟩; ac_rfl
 
 theorem sub_eq_add_neg (a b : Q α) : sub a b = add a (neg b) := by
-  induction a using Quot.ind
-  induction b using Quot.ind
-  next a b =>
-  cases a; cases b; simp; apply Quot.sound; simp; refine ⟨0, ?_⟩; ac_rfl
+  obtain ⟨⟨_, _⟩⟩ := a
+  obtain ⟨⟨_, _⟩⟩ := b
+  simp; apply Quot.sound; simp; refine ⟨0, ?_⟩; ac_rfl
 
 theorem intCast_neg (i : Int) : intCast (α := α) (-i) = neg (intCast i) := by
   simp; split <;> split <;> simp
@@ -186,64 +185,78 @@ theorem ofNat_succ (a : Nat) : natCast (α := α) (a + 1) = add (natCast a) (nat
   simp; apply Quot.sound; simp [Semiring.natCast_add]
 
 theorem mul_assoc (a b c : Q α) : mul (mul a b) c = mul a (mul b c) := by
-  induction a using Quot.ind
-  induction b using Quot.ind
-  induction c using Quot.ind
-  next a b c =>
-  cases a; cases b; cases c; simp; apply Quot.sound
+  obtain ⟨⟨_, _⟩⟩ := a
+  obtain ⟨⟨_, _⟩⟩ := b
+  obtain ⟨⟨_, _⟩⟩ := c
+  simp; apply Quot.sound
   simp [Semiring.left_distrib, Semiring.right_distrib]; refine ⟨0, ?_⟩; ac_rfl
 
 theorem mul_one (a : Q α) : mul a (natCast 1) = a := by
-  induction a using Quot.ind
-  next a => cases a; simp
+obtain ⟨⟨_, _⟩⟩ := a; simp
 
 theorem one_mul (a : Q α) : mul (natCast 1) a = a := by
-  induction a using Quot.ind
-  next a => cases a; simp
+  obtain ⟨⟨_, _⟩⟩ := a; simp
 
 theorem zero_mul (a : Q α) : mul (natCast 0) a = natCast 0 := by
-  induction a using Quot.ind
-  next a => cases a; simp
+  obtain ⟨⟨_, _⟩⟩ := a; simp
 
 theorem mul_zero (a : Q α) : mul a (natCast 0) = natCast 0 := by
-  induction a using Quot.ind
-  next a => cases a; simp
+  obtain ⟨⟨_, _⟩⟩ := a; simp
 
 theorem left_distrib (a b c : Q α) : mul a (add b c) = add (mul a b) (mul a c) := by
-  induction a using Quot.ind
-  induction b using Quot.ind
-  induction c using Quot.ind
-  next a b c =>
-  cases a; cases b; cases c; simp; apply Quot.sound
+  obtain ⟨⟨_, _⟩⟩ := a
+  obtain ⟨⟨_, _⟩⟩ := b
+  obtain ⟨⟨_, _⟩⟩ := c
+  simp; apply Quot.sound
   simp [Semiring.left_distrib]; refine ⟨0, ?_⟩; ac_rfl
 
 theorem right_distrib (a b c : Q α) : mul (add a b) c = add (mul a c) (mul b c) := by
-  induction a using Quot.ind
-  induction b using Quot.ind
-  induction c using Quot.ind
-  next a b c =>
-  cases a; cases b; cases c; simp; apply Quot.sound
+  obtain ⟨⟨_, _⟩⟩ := a
+  obtain ⟨⟨_, _⟩⟩ := b
+  obtain ⟨⟨_, _⟩⟩ := c
+  simp; apply Quot.sound
   simp [Semiring.right_distrib]; refine ⟨0, ?_⟩; ac_rfl
 
-def hPow (a : Q α) (n : Nat)  : Q α :=
+def npow (a : Q α) (n : Nat)  : Q α :=
   match n with
   | 0 => natCast 1
-  | n+1 => mul (hPow a n) a
+  | n+1 => mul (npow a n) a
 
-private theorem pow_zero (a : Q α) : hPow a 0 = natCast 1 := rfl
+theorem pow_zero (a : Q α) : npow a 0 = natCast 1 := rfl
 
-private theorem pow_succ (a : Q α) (n : Nat) : hPow a (n+1) = mul (hPow a n) a := rfl
+theorem pow_succ (a : Q α) (n : Nat) : npow a (n+1) = mul (npow a n) a := rfl
+
+def nsmul (n : Nat) (a : Q α) : Q α :=
+  mul (natCast n) a
+
+def zsmul (i : Int) (a : Q α) : Q α :=
+  mul (intCast i) a
+
+theorem neg_zsmul (i : Int) (a : Q α) : zsmul (-i) a = neg (zsmul i a) := by
+  obtain ⟨⟨_, _⟩⟩ := a
+  simp [zsmul]
+  split <;> rename_i h₁
+  · split <;> rename_i h₂
+    · omega
+    · simp
+  · split <;> rename_i h₂
+    · simp
+    · have : i = 0 := by omega
+      simp [this]
 
 def ofSemiring : Ring (Q α) := {
+  nsmul := ⟨nsmul⟩
+  zsmul := ⟨zsmul⟩
   ofNat   := fun n => ⟨natCast n⟩
   natCast := ⟨natCast⟩
   intCast := ⟨intCast⟩
-  add, sub, mul, neg, hPow
+  npow := ⟨npow⟩
+  add, sub, mul, neg,
   add_comm, add_assoc, add_zero
   neg_add_cancel, sub_eq_add_neg
   mul_one, one_mul, zero_mul, mul_zero, mul_assoc,
   left_distrib, right_distrib, pow_zero, pow_succ,
-  intCast_neg, ofNat_succ
+  intCast_neg, ofNat_succ, neg_zsmul
 }
 
 attribute [instance] ofSemiring
@@ -262,6 +275,9 @@ attribute [instance] ofSemiring
 attribute [-simp] Q.mk
 
 /-! Embedding theorems -/
+
+theorem toQ_zero : toQ (0 : α) = (0 : Q α) := by
+  simp; apply Quot.sound; simp
 
 theorem toQ_add (a b : α) : toQ (a + b) = toQ a + toQ b := by
   simp
@@ -316,17 +332,15 @@ instance [Semiring α] [AddRightCancel α] [NoNatZeroDivisors α] : NoNatZeroDiv
   no_nat_zero_divisors := by
     intro k a b h₁ h₂
     replace h₂ : mul (natCast k) a = mul (natCast k) b := h₂
-    induction a using Quot.ind
-    induction b using Quot.ind
-    next a b =>
-    rcases a with ⟨a₁, a₂⟩
-    rcases b with ⟨b₁, b₂⟩
+    obtain ⟨⟨a₁, a₂⟩⟩ := a
+    obtain ⟨⟨b₁, b₂⟩⟩ := b
     simp [mul] at h₂
     replace h₂ := Q.exact h₂
     simp [r] at h₂
     rcases h₂ with ⟨k', h₂⟩
     replace h₂ := AddRightCancel.add_right_cancel _ _ _ h₂
-    simp [← Semiring.left_distrib] at h₂
+    simp only [← Semiring.left_distrib] at h₂
+    simp only [← Semiring.nsmul_eq_natCast_mul] at h₂
     replace h₂ := NoNatZeroDivisors.no_nat_zero_divisors k (a₁ + b₂) (a₂ + b₁) h₁ h₂
     apply Quot.sound; simp [r]; exists 0; simp [h₂]
 
@@ -350,7 +364,7 @@ instance {p} [Semiring α] [AddRightCancel α] [IsCharP α p] : IsCharP (OfSemir
       apply Quot.sound
       exists 0; simp [← Semiring.ofNat_eq_natCast, this]
 
-instance [Preorder α] [OrderedAdd α] : LE (OfSemiring.Q α) where
+instance [LE α] [IsPreorder α] [OrderedAdd α] : LE (OfSemiring.Q α) where
   le a b := Q.liftOn₂ a b (fun (a, b) (c, d) => a + d ≤ b + c)
     (by intro (a₁, b₁) (a₂, b₂) (a₃, b₃) (a₄, b₄)
         simp; intro k₁ h₁ k₂ h₂
@@ -366,23 +380,23 @@ instance [Preorder α] [OrderedAdd α] : LE (OfSemiring.Q α) where
         rw [this]; clear this
         rw [← OrderedAdd.add_le_left_iff])
 
-@[local simp] theorem mk_le_mk [Preorder α] [OrderedAdd α] {a₁ a₂ b₁ b₂ : α}  :
+instance [LE α] [IsPreorder α] [OrderedAdd α] : LT (OfSemiring.Q α) where
+  lt a b := a ≤ b ∧ ¬b ≤ a
+
+@[local simp] theorem mk_le_mk [LE α] [IsPreorder α] [OrderedAdd α] {a₁ a₂ b₁ b₂ : α}  :
     Q.mk (a₁, a₂) ≤ Q.mk (b₁, b₂) ↔ a₁ + b₂ ≤ a₂ + b₁ := by
   rfl
 
-instance [Preorder α] [OrderedAdd α] : Preorder (OfSemiring.Q α) where
+instance [LE α] [IsPreorder α] [OrderedAdd α] : IsPreorder (OfSemiring.Q α) where
   le_refl a := by
-    induction a using Quot.ind
-    next a =>
-    rcases a with ⟨a₁, a₂⟩
+    obtain ⟨⟨a₁, a₂⟩⟩ := a
     change Q.mk _ ≤ Q.mk _
     simp only [mk_le_mk]
-    simp [Semiring.add_comm]; exact Preorder.le_refl (a₁ + a₂)
+    simp [Semiring.add_comm]; exact le_refl (a₁ + a₂)
   le_trans {a b c} h₁ h₂ := by
-    induction a using Q.ind
-    induction b using Q.ind
-    induction c using Q.ind
-    next a b c =>
+    induction a using Q.ind with | _ a
+    induction b using Q.ind with | _ b
+    induction c using Q.ind with | _ c
     rcases a with ⟨a₁, a₂⟩; rcases b with ⟨b₁, b₂⟩; rcases c with ⟨c₁, c₂⟩
     simp only [mk_le_mk] at h₁ h₂ ⊢
     rw [OrderedAdd.add_le_left_iff (b₁ + b₂)]
@@ -392,30 +406,28 @@ instance [Preorder α] [OrderedAdd α] : Preorder (OfSemiring.Q α) where
     rw [this]; clear this
     exact OrderedAdd.add_le_add h₁ h₂
 
-@[local simp] private theorem mk_lt_mk [Preorder α] [OrderedAdd α] {a₁ a₂ b₁ b₂ : α}  :
+@[local simp] private theorem mk_lt_mk [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] {a₁ a₂ b₁ b₂ : α}  :
     Q.mk (a₁, a₂) < Q.mk (b₁, b₂) ↔ a₁ + b₂ < a₂ + b₁ := by
-  simp [Preorder.lt_iff_le_not_le, Semiring.add_comm]
+  simp [lt_iff_le_and_not_ge, Semiring.add_comm]
 
-@[local simp] private theorem mk_pos [Preorder α] [OrderedAdd α] {a₁ a₂ : α} :
+@[local simp] private theorem mk_pos [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] {a₁ a₂ : α} :
     0 < Q.mk (a₁, a₂) ↔ a₂ < a₁ := by
-  simp [← toQ_ofNat, toQ, mk_lt_mk, Semiring.zero_add]
+  simp [← toQ_ofNat, toQ, mk_lt_mk, AddCommMonoid.zero_add]
 
 @[local simp]
-theorem toQ_le [Preorder α] [OrderedAdd α] {a b : α} : toQ a ≤ toQ b ↔ a ≤ b := by
+theorem toQ_le [LE α] [IsPreorder α] [OrderedAdd α] {a b : α} : toQ a ≤ toQ b ↔ a ≤ b := by
   simp
 
 @[local simp]
-theorem toQ_lt [Preorder α] [OrderedAdd α] {a b : α} : toQ a < toQ b ↔ a < b := by
-  simp [Preorder.lt_iff_le_not_le]
+theorem toQ_lt [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] {a b : α} : toQ a < toQ b ↔ a < b := by
+  simp [lt_iff_le_and_not_ge]
 
-instance [Preorder α] [OrderedAdd α] : OrderedAdd (OfSemiring.Q α) where
+instance [LE α] [IsPreorder α] [OrderedAdd α] : OrderedAdd (OfSemiring.Q α) where
   add_le_left_iff := by
     intro a b c
-    induction a using Quot.ind
-    induction b using Quot.ind
-    induction c using Quot.ind
-    next a b c =>
-    rcases a with ⟨a₁, a₂⟩; rcases b with ⟨b₁, b₂⟩; rcases c with ⟨c₁, c₂⟩
+    obtain ⟨⟨a₁, a₂⟩⟩ := a
+    obtain ⟨⟨b₁, b₂⟩⟩ := b
+    obtain ⟨⟨c₁, c₂⟩⟩ := c
     change a₁ + b₂ ≤ a₂ + b₁ ↔ (a₁ + c₁) + _ ≤ _
     have : a₁ + c₁ + (b₂ + c₂) = a₁ + b₂ + (c₁ + c₂) := by ac_rfl
     rw [this]; clear this
@@ -424,16 +436,15 @@ instance [Preorder α] [OrderedAdd α] : OrderedAdd (OfSemiring.Q α) where
     rw [← OrderedAdd.add_le_left_iff]
 
 -- This perhaps works in more generality than `ExistsAddOfLT`?
-instance [Preorder α] [OrderedRing α] [ExistsAddOfLT α] : OrderedRing (OfSemiring.Q α) where
+instance [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] [ExistsAddOfLT α] : OrderedRing (OfSemiring.Q α) where
   zero_lt_one := by
     rw [← toQ_ofNat, ← toQ_ofNat, toQ_lt]
     exact OrderedRing.zero_lt_one
   mul_lt_mul_of_pos_left := by
     intro a b c h₁ h₂
-    induction a using Q.ind
-    induction b using Q.ind
-    induction c using Q.ind
-    next a b c =>
+    induction a using Q.ind with | _ a
+    induction b using Q.ind with | _ b
+    induction c using Q.ind with | _ c
     rcases a with ⟨a₁, a₂⟩; rcases b with ⟨b₁, b₂⟩; rcases c with ⟨c₁, c₂⟩
     simp at h₁ h₂ ⊢
     obtain ⟨d, d_pos, rfl⟩ := ExistsAddOfLT.exists_add_of_le h₂
@@ -448,10 +459,9 @@ instance [Preorder α] [OrderedRing α] [ExistsAddOfLT α] : OrderedRing (OfSemi
     simpa [Semiring.left_distrib] using OrderedRing.mul_lt_mul_of_pos_left h₁ d_pos
   mul_lt_mul_of_pos_right := by
     intro a b c h₁ h₂
-    induction a using Q.ind
-    induction b using Q.ind
-    induction c using Q.ind
-    next a b c =>
+    induction a using Q.ind with | _ a
+    induction b using Q.ind with | _ b
+    induction c using Q.ind with | _ c
     rcases a with ⟨a₁, a₂⟩; rcases b with ⟨b₁, b₂⟩; rcases c with ⟨c₁, c₂⟩
     simp at h₁ h₂ ⊢
     obtain ⟨d, d_pos, rfl⟩ := ExistsAddOfLT.exists_add_of_le h₂
@@ -490,10 +500,9 @@ variable {α}
 attribute [local simp] OfSemiring.Q.mk OfSemiring.Q.liftOn₂ Semiring.add_zero
 
 theorem mul_comm (a b : OfSemiring.Q α) : OfSemiring.mul a b = OfSemiring.mul b a := by
-  induction a using Quot.ind
-  induction b using Quot.ind
-  next a b =>
-  cases a; cases b; apply Quot.sound; refine ⟨0, ?_⟩; simp; ac_rfl
+  obtain ⟨⟨a₁, a₂⟩⟩ := a
+  obtain ⟨⟨b₁, b₂⟩⟩ := b
+  apply Quot.sound; refine ⟨0, ?_⟩; simp; ac_rfl
 
 def ofCommSemiring : CommRing (OfSemiring.Q α) :=
   { OfSemiring.ofSemiring with
@@ -501,6 +510,16 @@ def ofCommSemiring : CommRing (OfSemiring.Q α) :=
 
 attribute [instance] ofCommSemiring
 
-end OfCommSemiring
+/-
+Remark: `↑a` is notation for `OfSemiring.toQ a`.
+We want to hide `OfSemiring.toQ` applications in the diagnostic information produced by
+the `ring` procedure in `grind`.
+-/
+@[app_unexpander OfSemiring.toQ]
+meta def toQUnexpander : PrettyPrinter.Unexpander := fun stx => do
+  match stx with
+  | `($_ $a:term) => `(↑$a)
+  | _ => throw ()
 
+end OfCommSemiring
 end Lean.Grind.CommRing

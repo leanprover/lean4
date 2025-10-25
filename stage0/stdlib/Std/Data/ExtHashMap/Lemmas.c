@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.ExtHashMap.Lemmas
-// Imports: Std.Data.ExtHashMap.Basic Std.Data.ExtDHashMap.Lemmas
+// Imports: public import Std.Data.ExtHashMap.Basic import all Std.Data.ExtDHashMap.Basic public import Std.Data.ExtDHashMap.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -31,7 +31,7 @@ else
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = lean_apply_1(x_2, x_4);
 return x_5;
 }
@@ -63,17 +63,21 @@ lean_dec(x_5);
 return x_6;
 }
 }
-lean_object* initialize_Std_Data_ExtHashMap_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_ExtDHashMap_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_ExtHashMap_Basic(uint8_t builtin);
+lean_object* initialize_Std_Data_ExtDHashMap_Basic(uint8_t builtin);
+lean_object* initialize_Std_Data_ExtDHashMap_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Data_ExtHashMap_Lemmas(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Data_ExtHashMap_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_ExtHashMap_Basic(builtin, lean_io_mk_world());
+res = initialize_Std_Data_ExtHashMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_ExtDHashMap_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Std_Data_ExtDHashMap_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_ExtDHashMap_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

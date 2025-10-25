@@ -6,8 +6,10 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.TakeDrop
-import Init.Data.Function
+public import Init.Data.List.TakeDrop
+public import Init.Data.Function
+
+public section
 
 /-!
 # Lemmas about `List.zip`, `List.zipWith`, `List.zipWithAll`, and `List.unzip`.
@@ -40,7 +42,7 @@ theorem zipWith_self {f : α → α → δ} : ∀ {l : List α}, zipWith f l l =
   | [] => rfl
   | _ :: _ => congrArg _ zipWith_self
 
-@[deprecated zipWith_self (since := "2025-01-29")] abbrev zipWith_same := @zipWith_self
+
 
 /--
 See also `getElem?_zipWith'` for a variant
@@ -125,7 +127,7 @@ theorem zipWith_foldl_eq_zip_foldl {f : α → β → γ} {i : δ} {g : δ → �
 theorem zipWith_eq_nil_iff {f : α → β → γ} {l l'} : zipWith f l l' = [] ↔ l = [] ∨ l' = [] := by
   cases l <;> cases l' <;> simp
 
-@[grind =]
+@[simp, grind =]
 theorem map_zipWith {δ : Type _} {f : α → β} {g : γ → δ → α} {l : List γ} {l' : List δ} :
     map f (zipWith g l l') = zipWith (fun x y => f (g x y)) l l' := by
   induction l generalizing l' with
@@ -272,11 +274,9 @@ theorem zip_map {f : α → γ} {g : β → δ} :
   | _, [] => by simp only [map, zip_nil_right]
   | _ :: _, _ :: _ => by simp only [map, zip_cons_cons, zip_map, Prod.map]
 
-@[grind _=_]
 theorem zip_map_left {f : α → γ} {l₁ : List α} {l₂ : List β} :
     zip (l₁.map f) l₂ = (zip l₁ l₂).map (Prod.map f id) := by rw [← zip_map, map_id]
 
-@[grind _=_]
 theorem zip_map_right {f : β → γ} {l₁ : List α} {l₂ : List β} :
     zip l₁ (l₂.map f) = (zip l₁ l₂).map (Prod.map id f) := by rw [← zip_map, map_id]
 
@@ -304,7 +304,7 @@ theorem of_mem_zip {a b} : ∀ {l₁ : List α} {l₂ : List β}, (a, b) ∈ zip
     cases h
     case head => simp
     case tail h =>
-    · have := of_mem_zip h
+      have := of_mem_zip h
       exact ⟨Mem.tail _ this.1, Mem.tail _ this.2⟩
 
 theorem map_fst_zip :

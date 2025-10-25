@@ -3,12 +3,12 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Cameron Zwarich
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.Basic
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.LCNF.MonoTypes
-import Lean.Compiler.LCNF.PassManager
-import Lean.Compiler.LCNF.PrettyPrinter
+public import Lean.Compiler.LCNF.PrettyPrinter
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace StructProjCases
@@ -22,13 +22,13 @@ def findStructCtorInfo? (typeName : Name) : CoreM (Option ConstructorVal) := do
 def mkFieldParamsForCtorType (ctorType : Expr) (numParams : Nat) (numFields : Nat)
     : CompilerM (Array Param) := do
   let mut type := ctorType
-  for _ in [0:numParams] do
+  for _ in *...numParams do
     match type with
     | .forallE _ _ body _ =>
       type := body
     | _ => unreachable!
   let mut fields := Array.emptyWithCapacity numFields
-  for _ in [0:numFields] do
+  for _ in *...numFields do
     match type with
     | .forallE name fieldType body _ =>
       let param ← mkParam name (← toMonoType fieldType) false

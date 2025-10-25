@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Zip
-// Imports: Init.Data.Array.Basic Init.Data.Array.TakeDrop Init.Data.List.Zip
+// Imports: import all Init.Data.Array.Basic public import Init.Data.Array.TakeDrop
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -50,10 +50,10 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9;
 lean_dec(x_4);
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_8 = lean_ctor_get(x_2, 0);
 lean_inc(x_8);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_9 = lean_apply_2(x_3, x_7, x_8);
 return x_9;
 }
@@ -93,10 +93,10 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9;
 lean_dec(x_4);
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_8 = lean_ctor_get(x_2, 0);
 lean_inc(x_8);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_9 = lean_apply_2(x_3, x_7, x_8);
 return x_9;
 }
@@ -215,21 +215,17 @@ lean_dec(x_6);
 return x_8;
 }
 }
-lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_TakeDrop(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Zip(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_TakeDrop(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Array_Zip(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Array_Zip(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_TakeDrop(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_List_Zip(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

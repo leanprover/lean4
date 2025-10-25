@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.MapIdx
-// Imports: Init.Data.Array.Basic Init.Data.Array.Lemmas Init.Data.Array.Attach Init.Data.Array.OfFn Init.Data.List.MapIdx
+// Imports: import all Init.Data.Array.Basic public import Init.Data.Array.OfFn public import Init.Data.List.MapIdx import all Init.Data.List.MapIdx
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -72,7 +72,7 @@ lean_object* x_9;
 x_9 = l___private_Init_Data_Array_MapIdx_0__Array_mapFinIdxM_map_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_5);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_9;
 }
 }
@@ -94,7 +94,7 @@ x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_1, 1);
 lean_inc(x_7);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_8 = lean_apply_4(x_4, x_6, x_7, x_2, lean_box(0));
 return x_8;
 }
@@ -135,7 +135,7 @@ x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_1, 1);
 lean_inc(x_7);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_8 = lean_apply_3(x_4, x_6, x_7, x_2);
 return x_8;
 }
@@ -149,29 +149,25 @@ x_8 = l___private_Init_Data_Array_MapIdx_0__List_mapIdx_go_match__1_splitter___r
 return x_8;
 }
 }
-lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Attach(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_OfFn(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_MapIdx(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_OfFn(uint8_t builtin);
+lean_object* initialize_Init_Data_List_MapIdx(uint8_t builtin);
+lean_object* initialize_Init_Data_List_MapIdx(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Array_MapIdx(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Array_MapIdx(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_OfFn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Attach(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_MapIdx(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_OfFn(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_List_MapIdx(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_MapIdx(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

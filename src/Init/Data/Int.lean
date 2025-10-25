@@ -6,15 +6,15 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Int.Basic
-import Init.Data.Int.Bitwise
-import Init.Data.Int.Compare
-import Init.Data.Int.DivMod
-import Init.Data.Int.Gcd
-import Init.Data.Int.Lemmas
-import Init.Data.Int.LemmasAux
-import Init.Data.Int.Order
-import Init.Data.Int.Pow
-import Init.Data.Int.Cooper
-import Init.Data.Int.Linear
-import Init.Data.Int.OfNat
+public import Init.Data.Int.Basic
+public import Init.Data.Int.Bitwise
+public import Init.Data.Int.Compare
+public import Init.Data.Int.DivMod
+public import Init.Data.Int.Gcd
+public import Init.Data.Int.Lemmas
+public import Init.Data.Int.LemmasAux
+public import Init.Data.Int.Order
+public import Init.Data.Int.Pow
+public import Init.Data.Int.Cooper
+public import Init.Data.Int.Linear
+public import Init.Data.Int.OfNat

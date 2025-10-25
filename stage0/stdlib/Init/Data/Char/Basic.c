@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Char.Basic
-// Imports: Init.Data.UInt.BasicAux
+// Imports: public import Init.Data.UInt.BasicAux
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -160,7 +160,6 @@ _start:
 {
 uint8_t x_2; uint32_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Char_ofUInt8(x_2);
 x_4 = lean_box_uint32(x_3);
 return x_4;
@@ -550,13 +549,13 @@ x_4 = lean_box_uint32(x_3);
 return x_4;
 }
 }
-lean_object* initialize_Init_Data_UInt_BasicAux(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_UInt_BasicAux(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Char_Basic(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Char_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_UInt_BasicAux(builtin, lean_io_mk_world());
+res = initialize_Init_Data_UInt_BasicAux(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Char_instLT = _init_l_Char_instLT();

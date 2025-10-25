@@ -1,5 +1,4 @@
 import Std.Data.Iterators
-import Std.Data.Iterators.Producers.Empty
 
 section ListIteratorBasic
 
@@ -122,6 +121,22 @@ example (l : List Nat) :
     return s) = l.iter.fold (init := 0) (· + ·) := by
   simp
 
+def forInIO (l : List Nat) : IO Nat := do
+  let mut s := 0
+  for x in l.iter do
+    IO.println s!"adding {x}"
+    s := s + x
+  return s
+
+/--
+info: adding 1
+adding 2
+---
+info: 3
+-/
+#guard_msgs in
+#eval forInIO [1, 2]
+
 end Loop
 
 section Take
@@ -211,6 +226,25 @@ example : ([1, 2, 3].iter.map (· * 2)).toList = [2, 4, 6] := by
 
 example : ([1, 2, 3].iter.filter (· % 2 = 0)).toList = [2] := by
   simp
+
+example : ([1, 2, 3].iter.map (· * 2)).fold (init := 0) (· + ·) = 12 := by
+  rw [Std.Iterators.Iter.fold_map, ← Std.Iterators.Iter.foldl_toList]
+  simp
+
+-- This test ensures that the `foldM_mapM` lemma is applicable without producing
+-- monad-lifting diamonds. The test is so abstract because using three concrete monads and
+-- liftings between them would make the test too complicated.
+example {α : Type} {m n o : Type → Type} [Monad m] [Monad n] [Monad o]
+    [LawfulMonad m] [LawfulMonad n] [LawfulMonad o]
+    [MonadLift m n] [MonadLift n o] [LawfulMonadLift m n] [LawfulMonadLift n o]
+    [Std.Iterators.Iterator α m Nat] [Std.Iterators.Finite α m]
+    [Std.Iterators.IteratorLoop α m n] [Std.Iterators.IteratorLoop α m o]
+    [Std.Iterators.IteratorLoop α m o]
+    [Std.Iterators.LawfulIteratorLoop α m n] [Std.Iterators.LawfulIteratorLoop α m o]
+    [Std.Iterators.LawfulIteratorLoop α m o]
+    (it : Std.Iterators.IterM (α := α) m Nat) (f : Nat → n Nat) (g : Nat → Nat → o Nat) :
+    (it.mapM f).foldM g init = it.foldM (fun b a => do g b (← f a)) init := by
+  rw [Std.Iterators.IterM.foldM_mapM]
 
 /--
 info: Lean

@@ -3,29 +3,33 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Init.Grind.Tactics
-import Init.Data.Queue
-import Std.Data.TreeSet
-import Lean.HeadIndex
-import Lean.Meta.Basic
-import Lean.Meta.CongrTheorems
-import Lean.Meta.AbstractNestedProofs
-import Lean.Meta.Tactic.Simp.Types
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Ext
+public import Lean.Meta.Tactic.Simp.Types
+public import Lean.Meta.Tactic.Grind.AlphaShareCommon
+public import Lean.Meta.Tactic.Grind.Attr
+public import Lean.Meta.Tactic.Grind.CheckResult
+public import Init.Data.Queue
 import Lean.Meta.Tactic.Grind.ExprPtr
-import Lean.Meta.Tactic.Grind.AlphaShareCommon
-import Lean.Meta.Tactic.Grind.Attr
+import Lean.HeadIndex
 import Lean.Meta.Tactic.Grind.ExtAttr
-import Lean.Meta.Tactic.Grind.Cases
-import Lean.Meta.Tactic.Grind.Arith.Types
-import Lean.Meta.Tactic.Grind.EMatchTheorem
-
+import Lean.Meta.AbstractNestedProofs
+import Lean.Meta.Match.MatchEqsExt
+import Lean.PrettyPrinter
+meta import Lean.Parser.Do
+public section
 namespace Lean.Meta.Grind
 
 /-- We use this auxiliary constant to mark delayed congruence proofs. -/
 def congrPlaceholderProof := mkConst (Name.mkSimple "[congruence]")
+
+/-- Similar to `isDefEq`, but ensures default transparency is used. -/
+def isDefEqD (t s : Expr) : MetaM Bool :=
+  withDefault <| isDefEq t s
+
+/-- Similar to `isDefEq`, but ensures that only reducible definitions and instances can be reduced. -/
+def isDefEqI (t s : Expr) : MetaM Bool :=
+  withReducibleAndInstances <| isDefEq t s
 
 /--
 Returns `true` if `e` is `True`, `False`, or a literal value.
@@ -53,6 +57,11 @@ register_builtin_option grind.warning : Bool := {
   descr    := "generate a warning whenever `grind` is used"
 }
 
+/-- Opaque solver extension state. -/
+opaque SolverExtensionStateSpec : (α : Type) × Inhabited α := ⟨Unit, ⟨()⟩⟩
+@[expose] def SolverExtensionState : Type := SolverExtensionStateSpec.fst
+instance : Inhabited SolverExtensionState := SolverExtensionStateSpec.snd
+
 /--
 Case-split source. That is, where it came from.
 We store the current source in the `grind` context.
@@ -72,16 +81,19 @@ inductive SplitSource where
     existsProp (e : Expr)
   | /-- Input goal -/
     input
+  | /-- Injectivity theorem. -/
+    inj (origin : Origin)
   deriving Inhabited
 
-def SplitSource.toMessageData : SplitSource → MetaM MessageData
-  | .ematch origin => return m!"E-matching {← origin.pp}"
-  | .ext declName => return m!"Extensionality {declName}"
-  | .mbtc a b i => return m!"Model-based theory combination at argument #{i} of{indentExpr a}\nand{indentExpr b}"
-  | .beta e => return m!"Beta-reduction of{indentExpr e}"
-  | .forallProp e => return m!"Forall propagation at{indentExpr e}"
-  | .existsProp e => return m!"Exists propagation at{indentExpr e}"
-  | .input => return m!"Initial goal"
+def SplitSource.toMessageData : SplitSource → MessageData
+  | .ematch origin => m!"E-matching {origin.pp}"
+  | .ext declName => m!"Extensionality {declName}"
+  | .mbtc a b i => m!"Model-based theory combination at argument #{i} of{indentExpr a}\nand{indentExpr b}"
+  | .beta e => m!"Beta-reduction of{indentExpr e}"
+  | .forallProp e => m!"Forall propagation at{indentExpr e}"
+  | .existsProp e => m!"Exists propagation at{indentExpr e}"
+  | .input => "Initial goal"
+  | .inj origin => m!"Injectivity {origin.pp}"
 
 /-- Context for `GrindM` monad. -/
 structure Context where
@@ -106,11 +118,15 @@ structure Context where
   reportMVarIssue : Bool := true
   /-- Current source of case-splits. -/
   splitSource  : SplitSource := .input
+  /-- Symbol priorities for inferring E-matching patterns -/
+  symPrios     : SymbolPriorities
   trueExpr     : Expr
   falseExpr    : Expr
   natZExpr     : Expr
   btrueExpr    : Expr
   bfalseExpr   : Expr
+  ordEqExpr    : Expr -- `Ordering.eq`
+  intExpr      : Expr -- `Int`
 
 /-- Key for the congruence theorem cache. -/
 structure CongrTheoremCacheKey where
@@ -126,8 +142,9 @@ instance : Hashable CongrTheoremCacheKey where
   hash a := mixHash (hashPtrExpr a.f) (hash a.numArgs)
 
 structure EMatchTheoremTrace where
-  origin : Origin
-  kind   : EMatchTheoremKind
+  origin       : Origin
+  kind         : EMatchTheoremKind
+  minIndexable : Bool
   deriving BEq, Hashable
 
 /--
@@ -163,7 +180,7 @@ structure SplitDiagInfo where
 
 /-- State for the `GrindM` monad. -/
 structure State where
-  /-- `ShareCommon` (aka `Hashconsing`) state. -/
+  /-- `ShareCommon` (aka `Hash-consing`) state. -/
   scState    : AlphaShareCommon.State := {}
   /--
   Congruence theorems generated so far. Recall that for constant symbols
@@ -188,15 +205,52 @@ structure State where
   counters   : Counters := {}
   /-- Split diagnostic information. This information is only collected when `set_option diagnostics true` -/
   splitDiags : PArray SplitDiagInfo := {}
+  /--
+  Mapping from binary functions `f` to a theorem `thm : ∀ a b, f a b = .eq → a = b`
+  if it implements the `LawfulEqCmp` type class.
+  -/
+  lawfulEqCmpMap : PHashMap ExprPtr (Option Expr) := {}
+  /--
+  Mapping from binary functions `f` to a theorem `thm : ∀ a, f a a = .eq`
+  if it implements the `ReflCmp` type class.
+  -/
+  reflCmpMap : PHashMap ExprPtr (Option Expr) := {}
+  /--
+  Cached anchors (aka stable hash codes) for terms in the `grind` state.
+  -/
+  anchors : PHashMap ExprPtr UInt64 := {}
+
+instance : Nonempty State :=
+  .intro {}
 
 private opaque MethodsRefPointed : NonemptyType.{0}
-private def MethodsRef : Type := MethodsRefPointed.type
-instance : Nonempty MethodsRef := MethodsRefPointed.property
+def MethodsRef : Type := MethodsRefPointed.type
+instance : Nonempty MethodsRef := by exact MethodsRefPointed.property
 
 abbrev GrindM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
 
 @[inline] def mapGrindM [MonadControlT GrindM m] [Monad m] (f : {α : Type} → GrindM α → GrindM α) {α} (x : m α) : m α :=
   controlAt GrindM fun runInBase => f <| runInBase x
+
+/--
+Backtrackable state for the `GrindM` monad.
+-/
+structure SavedState where
+  «meta» : Meta.SavedState
+  grind  : State
+  deriving Nonempty
+
+protected def saveState : GrindM SavedState :=
+  return { «meta» := (← Meta.saveState), grind := (← get) }
+
+/-- Restore backtrackable parts of the state. -/
+def SavedState.restore (b : SavedState) : GrindM Unit := do
+  b.meta.restore
+  set b.grind
+
+instance : MonadBacktrack SavedState GrindM where
+  saveState      := Grind.saveState
+  restoreState s := s.restore
 
 /--
 `withoutReportingMVarIssues x` executes `x` without reporting metavariables found during internalization.
@@ -236,11 +290,29 @@ def getBoolFalseExpr : GrindM Expr := do
 def getNatZeroExpr : GrindM Expr := do
   return (← readThe Context).natZExpr
 
+/-- Returns the internalized `Ordering.eq`.  -/
+def getOrderingEqExpr : GrindM Expr := do
+  return (← readThe Context).ordEqExpr
+
+/-- Returns the internalized `Int`.  -/
+def getIntExpr : GrindM Expr := do
+  return (← readThe Context).intExpr
+
+def resetAnchors : GrindM Unit := do
+  modify fun s => { s with anchors := {} }
+
 def cheapCasesOnly : GrindM Bool :=
   return (← readThe Context).cheapCases
 
+def withCheapCasesOnly (k : GrindM α) : GrindM α :=
+  withTheReader Grind.Context (fun ctx => { ctx with cheapCases := true }) k
+
 def reportMVarInternalization : GrindM Bool :=
   return (← readThe Context).reportMVarIssue
+
+/-- Returns symbol priorities for inferring E-matching patterns. -/
+def getSymbolPriorities : GrindM SymbolPriorities := do
+  return (← readThe Context).symPrios
 
 /--
 Returns `true` if `declName` is the name of a `match` equation or a `match` congruence equation.
@@ -257,7 +329,11 @@ private def incCounter [Hashable α] [BEq α] (s : PHashMap α Nat) (k : α) : P
 private def saveEMatchTheorem (thm : EMatchTheorem) : GrindM Unit := do
   if (← getConfig).trace then
     unless (← isMatchEqLikeDeclName thm.origin.key) do
-      modify fun s => { s with trace.thms := s.trace.thms.insert { origin := thm.origin, kind := thm.kind } }
+      modify fun s => { s with trace.thms := s.trace.thms.insert {
+          origin := thm.origin
+          kind := thm.kind
+          minIndexable := thm.minIndexable
+      } }
   modify fun s => { s with counters.thm := incCounter s.counters.thm thm.origin }
 
 def saveCases (declName : Name) (eager : Bool) : GrindM Unit := do
@@ -333,7 +409,7 @@ def reportIssue (msg : MessageData) : GrindM Unit := do
   -/
   trace[grind.issues] msg
 
-private def expandReportIssueMacro (s : Syntax) : MacroM (TSyntax `doElem) := do
+private meta def expandReportIssueMacro (s : Syntax) : MacroM (TSyntax `doElem) := do
   let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
   `(doElem| do
     if (← getConfig).verbose then
@@ -342,8 +418,37 @@ private def expandReportIssueMacro (s : Syntax) : MacroM (TSyntax `doElem) := do
 macro "reportIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
   expandReportIssueMacro s.raw
 
+/-- Similar to `expandReportIssueMacro`, but only reports issue if `grind.debug` is set to `true` -/
+meta def expandReportDbgIssueMacro (s : Syntax) : MacroM (TSyntax `doElem) := do
+  let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
+  `(doElem| do
+    if (← getConfig).verbose then
+      if grind.debug.get (← getOptions) then
+        reportIssue $msg)
+
+/-- Similar to `reportIssue!`, but only reports issue if `grind.debug` is set to `true` -/
+macro "reportDbgIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
+  expandReportDbgIssueMacro s.raw
+
 /--
-Stores information for a node in the egraph.
+Each E-node may have "solver terms" attached to them.
+Each term is an element of the equivalence class that the
+solver cares about. Each solver is responsible for marking the terms they care about.
+The `grind` core propagates equalities and disequalities to the theory solvers
+using these "marked" terms. The root of the equivalence class
+contains a list of representatives sorted by solver id. Note that many E-nodes
+do not have any solver terms attached to them.
+
+"Solver terms" are referenced as "theory variables" in the SMT literature.
+The SMT solver Z3 uses a similar representation.
+-/
+inductive SolverTerms where
+  | nil
+  | next (solverId : Nat) (e : Expr) (rest : SolverTerms)
+  deriving Inhabited, Repr
+
+/--
+Stores information for a node in the E-graph.
 Each internalized expression `e` has an `ENode` associated with it.
 -/
 structure ENode where
@@ -386,30 +491,8 @@ structure ENode where
   generation : Nat := 0
   /-- Modification time -/
   mt : Nat := 0
-  /--
-  The `offset?` field is used to propagate equalities from the `grind` congruence closure module
-  to the offset constraints module. When `grind` merges two equivalence classes, and both have
-  an associated `offset?` set to `some e`, the equality is propagated. This field is
-  assigned during the internalization of offset terms.
-  -/
-  offset? : Option Expr := none
-  /--
-  The `cutsat?` field is used to propagate equalities from the `grind` congruence closure module
-  to the cutsat module. Its implementation is similar to the `offset?` field.
-  -/
-  cutsat? : Option Expr := none
-  /--
-  The `ring?` field is used to propagate equalities from the `grind` congruence closure module
-  to the comm ring module. Its implementation is similar to the `offset?` field.
-  -/
-  ring? : Option Expr := none
-  /--
-  The `linarith?` field is used to propagate equalities from the `grind` congruence closure module
-  to the linarith module. Its implementation is similar to the `offset?` field.
-  -/
-  linarith? : Option Expr := none
-  -- Remark: we expect to have builtin support for offset constraints, cutsat, comm ring, and linarith.
-  -- If the number of satellite solvers increases, we may add support for an arbitrary solvers like done in Z3.
+  /-- Solver terms attached to this E-node. -/
+  sTerms : SolverTerms := .nil
   deriving Inhabited, Repr
 
 def ENode.isRoot (n : ENode) :=
@@ -423,7 +506,15 @@ inductive NewFact where
   | eq (lhs rhs proof : Expr) (isHEq : Bool)
   | fact (prop proof : Expr) (generation : Nat)
 
-abbrev ENodeMap := PHashMap ExprPtr ENode
+def NewFact.toExpr : NewFact → MetaM Expr
+  | .eq lhs rhs _ _ => mkEq lhs rhs
+  | .fact p _ _ => return p
+
+-- This type should be considered opaque outside this module.
+@[expose]  -- for codegen
+def ENodeMap := PHashMap ExprPtr ENode
+instance : Inhabited ENodeMap where
+  default := private (id {})  -- TODO(sullrich): `id` works around `private` not respecting the expected type
 
 /--
 Key for the congruence table.
@@ -451,6 +542,7 @@ private def congrHash (enodes : ENodeMap) (e : Expr) : UInt64 :=
     mixHash (hashRoot enodes d) (hashRoot enodes b)
   else match_expr e with
   | Grind.nestedProof p _ => hashRoot enodes p
+  | Grind.nestedDecidable p _ => mixHash 13 (hashRoot enodes p)
   | Eq _ lhs rhs => goEq lhs rhs
   | _ => go e 17
 where
@@ -474,12 +566,12 @@ private partial def isCongruent (enodes : ENodeMap) (a b : Expr) : Bool :=
   | Grind.nestedProof p₁ _ =>
     let_expr Grind.nestedProof p₂ _ := b | false
     hasSameRoot enodes p₁ p₂
-  | Eq α₁ lhs₁ rhs₁ =>
-    let_expr Eq α₂ lhs₂ rhs₂ := b | false
-    if isSameExpr α₁ α₂ then
-      goEq lhs₁ rhs₁ lhs₂ rhs₂
-    else
-      go a b
+  | Grind.nestedDecidable p₁ _ =>
+    let_expr Grind.nestedDecidable p₂ _ := b | false
+    hasSameRoot enodes p₁ p₂
+  | Eq _ lhs₁ rhs₁ =>
+    let_expr Eq _ lhs₂ rhs₂ := b | false
+    goEq lhs₁ rhs₁ lhs₂ rhs₂
   | _ =>
     if a.isApp && b.isApp then
       go a b
@@ -499,15 +591,47 @@ where
       hasSameRoot enodes a b
 
 instance : Hashable (CongrKey enodeMap) where
-  hash k := congrHash enodeMap k.e
+  hash k := private congrHash enodeMap k.e
 
 instance : BEq (CongrKey enodeMap) where
-  beq k1 k2 := isCongruent enodeMap k1.e k2.e
+  beq k1 k2 := private isCongruent enodeMap k1.e k2.e
 
 abbrev CongrTable (enodeMap : ENodeMap) := PHashSet (CongrKey enodeMap)
 
--- Remark: we cannot use pointer addresses here because we have to traverse the tree.
-abbrev ParentSet := Std.TreeSet Expr Expr.quickComp
+/-
+**Note**: If inserting elements in a `ParentSet` becomes a performance bottleneck,
+we can add an extra field `Std.HashSet ExprPtr` for detecting whether the `ParentSet` already
+contains an element or not.
+
+**Note**: We used to implement `ParentSet`s as
+```abbrev ParentSet := Std.TreeSet Expr Expr.quickComp```
+This representation created proof stability issues.
+For example, we traverse this set to implement congruence closure.
+There is no non-determinism here, but the traversal depends on the `Expr`
+hash code, which is very sensitive to changes in a `.lean` file.
+Thus, minor changes may affect the proof found by `grind`. We found examples
+where proving the same goal multiple times in the same file produced different
+proofs.
+When we inspected the hash codes, they were completely different.
+Using `Expr.comp` does not help because it still relies on internal free variable IDs.
+One might think we can just reset them at the beginning of the `grind` search, but
+this is not sufficient. When tactics such as `finish?` generate the final tactic
+script, we remove unnecessary case splits. Removing case splits affects the generated
+free variable IDs, which in turn affects the result of Expr.comp :(
+-/
+structure ParentSet where
+  parents : List Expr := []
+  deriving Inhabited
+
+def ParentSet.insert (ps : ParentSet) (p : Expr) : ParentSet :=
+  { ps with parents := ps.parents.insert p }
+
+def ParentSet.isEmpty (ps : ParentSet) : Bool :=
+  ps.parents.isEmpty
+
+def ParentSet.elems (ps : ParentSet) : List Expr :=
+  ps.parents
+
 abbrev ParentMap := PHashMap ExprPtr ParentSet
 
 /--
@@ -547,11 +671,18 @@ structure NewRawFact where
   splitSource  : SplitSource
   deriving Inhabited
 
+structure CanonArgKey where
+  f   : Expr
+  i   : Nat
+  arg : Expr
+  deriving BEq, Hashable
+
 /-- Canonicalizer state. See `Canon.lean` for additional details. -/
 structure Canon.State where
   argMap     : PHashMap (Expr × Nat) (List (Expr × Expr)) := {}
   canon      : PHashMap Expr Expr := {}
   proofCanon : PHashMap Expr Expr := {}
+  canonArg   : PHashMap CanonArgKey Expr := {}
   deriving Inhabited
 
 /-- Trace information for a case split. -/
@@ -687,11 +818,30 @@ structure Clean.State where
   next : PHashMap Name Nat := {}
   deriving Inhabited
 
+/--
+Cache for `Unit`-like types. It maps the type to its element.
+We say a type is `Unit`-like if it is a subsingleton and is inhabited.
+-/
+structure UnitLike.State where
+  map : PHashMap ExprPtr (Option Expr) := {}
+  deriving Inhabited
+
+structure InjectiveInfo where
+  inv : Expr
+  heq : Expr
+  deriving Inhabited
+
+/-- State for injective theorem support. -/
+structure Injective.State where
+  thms : InjectiveTheorems
+  fns  : PHashMap ExprPtr InjectiveInfo := {}
+  deriving Inhabited
+
 /-- The `grind` goal. -/
 structure Goal where
   mvarId       : MVarId
   canon        : Canon.State := {}
-  private enodeMap : ENodeMap := {}
+  enodeMap     : ENodeMap := default
   exprs        : PArray Expr := {}
   parents      : ParentMap := {}
   congrTable   : CongrTable enodeMap := {}
@@ -715,12 +865,14 @@ structure Goal where
   extThms      : PHashMap ExprPtr (Array Ext.ExtTheorem) := {}
   /-- State of the E-matching module. -/
   ematch       : EMatch.State
+  /-- State of the injective function procedure. -/
+  inj          : Injective.State
   /-- State of the case-splitting module. -/
   split        : Split.State := {}
-  /-- State of arithmetic procedures. -/
-  arith        : Arith.State := {}
   /-- State of the clean name generator. -/
   clean        : Clean.State := {}
+  /-- Solver states. -/
+  sstates      : Array SolverExtensionState := #[]
   deriving Inhabited
 
 def Goal.hasSameRoot (g : Goal) (a b : Expr) : Bool :=
@@ -782,6 +934,10 @@ def addNewRawFact (proof : Expr) (prop : Expr) (generation : Nat) (splitSource :
         which is not definitionally equal with `reducible` transparency setting}"
   modify fun s => { s with newRawFacts := s.newRawFacts.enqueue { proof, prop, generation, splitSource } }
 
+/-- Returns the number of theorem instances generated so far. -/
+def getNumTheoremInstances : GoalM Nat := do
+  return (← get).ematch.numInstances
+
 /-- Adds a new theorem instance produced using E-matching. -/
 def addTheoremInstance (thm : EMatchTheorem) (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
   saveEMatchTheorem thm
@@ -824,10 +980,15 @@ def Goal.getENode (goal : Goal) (e : Expr) : CoreM ENode := do
 def getENode (e : Expr) : GoalM ENode := do
   (← get).getENode e
 
+def Goal.getGeneration (goal : Goal) (e : Expr) : Nat :=
+  if let some n := goal.getENode? e then
+    n.generation
+  else
+    0
+
 /-- Returns the generation of the given term. Is assumes it has been internalized -/
-def getGeneration (e : Expr) : GoalM Nat := do
-  let some n ← getENode? e | return 0
-  return n.generation
+def getGeneration (e : Expr) : GoalM Nat :=
+  return (← get).getGeneration e
 
 /-- Returns `true` if `e` is in the equivalence class of `True`. -/
 def isEqTrue (e : Expr) : GoalM Bool := do
@@ -932,8 +1093,8 @@ def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   modify fun s => { s with newFacts := s.newFacts.push <| .eq lhs rhs proof isHEq }
 
 /-- Return `true` if `a` and `b` have the same type. -/
-def hasSameType (a b : Expr) : MetaM Bool :=
-  withDefault do isDefEq (← inferType a) (← inferType b)
+def hasSameType (a b : Expr) : MetaM Bool := do
+  isDefEqD (← inferType a) (← inferType b)
 
 @[inline] def pushEqHEq (lhs rhs proof : Expr) : GoalM Unit := do
   if (← hasSameType lhs rhs) then
@@ -995,7 +1156,7 @@ Copy `parents` to the parents of `root`.
 -/
 def copyParentsTo (parents : ParentSet) (root : Expr) : GoalM Unit := do
   let mut curr := if let some parents := (← get).parents.find? { expr := root } then parents else {}
-  for parent in parents do
+  for parent in parents.elems do
     curr := curr.insert parent
   modify fun s => { s with parents := s.parents.insert { expr := root } curr }
 
@@ -1018,7 +1179,7 @@ def mkENodeCore (e : Expr) (interpreted ctor : Bool) (generation : Nat) : GoalM 
 
 /--
 Creates an `ENode` for `e` if one does not already exist.
-This method assumes `e` has been hashconsed.
+This method assumes `e` has been hash-consed.
 -/
 def mkENode (e : Expr) (generation : Nat) : GoalM Unit := do
   if (← alreadyInternalized e) then return ()
@@ -1033,209 +1194,28 @@ def setENode (e : Expr) (n : ENode) : GoalM Unit :=
   }
 
 /--
-Notifies the offset constraint module that `a = b` where
-`a` and `b` are terms that have been internalized by this module.
--/
-@[extern "lean_process_new_offset_eq"] -- forward definition
-opaque Arith.Offset.processNewEq (a b : Expr) : GoalM Unit
-
-/-- Returns `true` if `e` is a numeral and has type `Nat`. -/
-def isNatNum (e : Expr) : Bool := Id.run do
-  let_expr OfNat.ofNat _ _ inst := e | false
-  let_expr instOfNatNat _ := inst | false
-  true
-
-/--
-Marks `e` as a term of interest to the offset constraint module.
-If the root of `e`s equivalence class has already a term of interest,
-a new equality is propagated to the offset module.
--/
-def markAsOffsetTerm (e : Expr) : GoalM Unit := do
-  let root ← getRootENode e
-  if let some e' := root.offset? then
-    Arith.Offset.processNewEq e e'
-  else
-    setENode root.self { root with offset? := some e }
-
-/--
-Notifies the cutsat module that `a = b` where
-`a` and `b` are terms that have been internalized by this module.
--/
-@[extern "lean_process_cutsat_eq"] -- forward definition
-opaque Arith.Cutsat.processNewEq (a b : Expr) : GoalM Unit
-
-/--
-Notifies the cutsat module that `a ≠ b` where
-`a` and `b` are terms that have been internalized by this module.
--/
-@[extern "lean_process_cutsat_diseq"] -- forward definition
-opaque Arith.Cutsat.processNewDiseq (a b : Expr) : GoalM Unit
-
-/-- Returns `true` if `e` is a nonegative numeral and has type `Int`. -/
-def isNonnegIntNum (e : Expr) : Bool := Id.run do
-  let_expr OfNat.ofNat _ _ inst := e | false
-  let_expr instOfNat _ := inst | false
-  true
-
-/-- Returns `true` if `e` is a numeral and has type `Int`. -/
-def isIntNum (e : Expr) : Bool :=
-  match_expr e with
-  | Neg.neg _ inst e => Id.run do
-    let_expr Int.instNegInt := inst | false
-    isNonnegIntNum e
-  | _ => isNonnegIntNum e
-
-/-- Returns `true` if `e` is a numeral supported by cutsat. -/
-def isNum (e : Expr) : Bool :=
-  isNatNum e || isIntNum e
-
-/--
 Returns `true` if type of `t` is definitionally equal to `α`
 -/
-def hasType (t α : Expr) : MetaM Bool :=
-  withDefault do isDefEq (← inferType t) α
+def hasType (t α : Expr) : MetaM Bool := do
+  isDefEqD (← inferType t) α
 
 /--
 For each equality `b = c` in `parents`, executes `k b c` IF
 - `b = c` is equal to `False`, and
 -/
 @[inline] def forEachDiseq (parents : ParentSet) (k : (lhs : Expr) → (rhs : Expr) → GoalM Unit) : GoalM Unit := do
-  for parent in parents do
+  for parent in parents.elems do
     let_expr Eq _ b c := parent | continue
     if (← isEqFalse parent) then
-      k b c
-
-/--
-Given `lhs` and `rhs` that are known to be disequal, checks whether
-`lhs` and `rhs` have cutsat terms `e₁` and `e₂` attached to them,
-and invokes process `Arith.Cutsat.processNewDiseq e₁ e₂`
--/
-def propagateCutsatDiseq (lhs rhs : Expr) : GoalM Unit := do
-  let some lhs ← get? lhs | return ()
-  let some rhs ← get? rhs | return ()
-  -- Recall that core can take care of disequalities of the form `1≠2`.
-  unless isNum lhs && isNum rhs do
-    Arith.Cutsat.processNewDiseq lhs rhs
-where
-  get? (a : Expr) : GoalM (Option Expr) := do
-    let root ← getRootENode a
-    if isNum root.self then
-      return some root.self
-    return root.cutsat?
-
-/--
-Traverses disequalities in `parents`, and propagate the ones relevant to the
-cutsat module.
--/
-def propagateCutsatDiseqs (parents : ParentSet) : GoalM Unit := do
-  forEachDiseq parents propagateCutsatDiseq
-
-/--
-Marks `e` as a term of interest to the cutsat module.
-If the root of `e`s equivalence class has already a term of interest,
-a new equality is propagated to the cutsat module.
--/
-def markAsCutsatTerm (e : Expr) : GoalM Unit := do
-  let root ← getRootENode e
-  if let some e' := root.cutsat? then
-    Arith.Cutsat.processNewEq e e'
-  else
-    setENode root.self { root with cutsat? := some e }
-    propagateCutsatDiseqs (← getParents root.self)
-
-/--
-Notifies the comm ring module that `a = b` where
-`a` and `b` are terms that have been internalized by this module.
--/
-@[extern "lean_process_ring_eq"] -- forward definition
-opaque Arith.CommRing.processNewEq (a b : Expr) : GoalM Unit
-
-/--
-Notifies the comm ring module that `a ≠ b` where
-`a` and `b` are terms that have been internalized by this module.
--/
-@[extern "lean_process_ring_diseq"] -- forward definition
-opaque Arith.CommRing.processNewDiseq (a b : Expr) : GoalM Unit
-
-/--
-Given `lhs` and `rhs` that are known to be disequal, checks whether
-`lhs` and `rhs` have ring terms `e₁` and `e₂` attached to them,
-and invokes process `Arith.CommRing.processNewDiseq e₁ e₂`
--/
-def propagateCommRingDiseq (lhs rhs : Expr) : GoalM Unit := do
-  let some lhs ← get? lhs | return ()
-  let some rhs ← get? rhs | return ()
-  Arith.CommRing.processNewDiseq lhs rhs
-where
-  get? (a : Expr) : GoalM (Option Expr) := do
-    return (← getRootENode a).ring?
-
-/--
-Traverses disequalities in `parents`, and propagate the ones relevant to the
-comm ring module.
--/
-def propagateCommRingDiseqs (parents : ParentSet) : GoalM Unit := do
-  forEachDiseq parents propagateCommRingDiseq
-
-/--
-Marks `e` as a term of interest to the ring module.
-If the root of `e`s equivalence class has already a term of interest,
-a new equality is propagated to the ring module.
--/
-def markAsCommRingTerm (e : Expr) : GoalM Unit := do
-  let root ← getRootENode e
-  if let some e' := root.ring? then
-    Arith.CommRing.processNewEq e e'
-  else
-    setENode root.self { root with ring? := some e }
-    propagateCommRingDiseqs (← getParents root.self)
-
-/--
-Notifies the linarith module that `a = b` where
-`a` and `b` are terms that have been internalized by this module.
--/
-@[extern "lean_process_linarith_eq"] -- forward definition
-opaque Arith.Linear.processNewEq (a b : Expr) : GoalM Unit
-
-/--
-Notifies the linarith module that `a ≠ b` where
-`a` and `b` are terms that have been internalized by this module.
--/
-@[extern "lean_process_linarith_diseq"] -- forward definition
-opaque Arith.Linear.processNewDiseq (a b : Expr) : GoalM Unit
-
-/--
-Given `lhs` and `rhs` that are known to be disequal, checks whether
-`lhs` and `rhs` have linarith terms `e₁` and `e₂` attached to them,
-and invokes process `Arith.Linear.processNewDiseq e₁ e₂`
--/
-def propagateLinarithDiseq (lhs rhs : Expr) : GoalM Unit := do
-  let some lhs ← get? lhs | return ()
-  let some rhs ← get? rhs | return ()
-  Arith.Linear.processNewDiseq lhs rhs
-where
-  get? (a : Expr) : GoalM (Option Expr) := do
-    return (← getRootENode a).linarith?
-
-/--
-Traverses disequalities in `parents`, and propagate the ones relevant to the
-linarith module.
--/
-def propagateLinarithDiseqs (parents : ParentSet) : GoalM Unit := do
-  forEachDiseq parents propagateLinarithDiseq
-
-/--
-Marks `e` as a term of interest to the linarith module.
-If the root of `e`s equivalence class has already a term of interest,
-a new equality is propagated to the linarith module.
--/
-def markAsLinarithTerm (e : Expr) : GoalM Unit := do
-  let root ← getRootENode e
-  if let some e' := root.linarith? then
-    Arith.Linear.processNewEq e e'
-  else
-    setENode root.self { root with linarith? := some e }
-    propagateLinarithDiseqs (← getParents root.self)
+      if (← isEqv b c) then
+        /-
+        Remark: if `b` and `c` are already in the same equivalence class,
+        there is an inconsistency in the TODO queue already, and we can interrupt
+        propagation
+        -/
+        return ()
+      else
+        k b c
 
 /-- Returns `true` is `e` is the root of its congruence class. -/
 def isCongrRoot (e : Expr) : GoalM Bool := do
@@ -1326,9 +1306,30 @@ If type of `mvarId` is not `False`, then use `False.elim`.
 def _root_.Lean.MVarId.assignFalseProof (mvarId : MVarId) (falseProof : Expr) : MetaM Unit := mvarId.withContext do
   let target ← mvarId.getType
   if target.isFalse then
-    mvarId.assign falseProof
+    /-
+    **Note**: We add the marker to assist `getFalseExpr?` used to implement
+    non-chronological backtracking. -/
+    mvarId.assign (mkExpectedPropHint falseProof (mkConst ``False))
   else
     mvarId.assign (← mkFalseElim target falseProof)
+
+/--
+`goal.withContext x` executes `x` using the given metavariable `LocalContext` and `LocalInstances`.
+The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
+different from the current ones. -/
+@[inline] def Goal.withContext [MonadControlT MetaM m] [Monad m] (goal : Goal) : m α → m α :=
+  goal.mvarId.withContext
+
+/--
+Creates an auxiliary metavariable with the same type and context of `goal.mvarId`.
+We use this function to perform `cases` on the current goal without eagerly assigning it.
+-/
+def Goal.mkAuxMVar (goal : Goal) : MetaM MVarId := goal.withContext do
+  let mvarId := goal.mvarId
+  let tag ← mvarId.getTag
+  let type ← mvarId.getType
+  let mvarNew ← mkFreshExprSyntheticOpaqueMVar type tag
+  return mvarNew.mvarId!
 
 /--
 Closes the current goal using the given proof of `False` and
@@ -1384,12 +1385,13 @@ def forEachEqcRoot (f : ENode → GoalM Unit) : GoalM Unit := do
       f n
 
 abbrev Propagator := Expr → GoalM Unit
-abbrev Fallback := GoalM Unit
+abbrev EvalTactic := Goal → TSyntax `grind → GrindM (List Goal)
+def EvalTactic.skip : EvalTactic := fun goal _ => return [goal]
 
 structure Methods where
   propagateUp   : Propagator := fun _ => return ()
   propagateDown : Propagator := fun _ => return ()
-  fallback      : Fallback := pure ()
+  evalTactic    : EvalTactic := EvalTactic.skip
   deriving Inhabited
 
 def Methods.toMethodsRef (m : Methods) : MethodsRef :=
@@ -1407,15 +1409,8 @@ def propagateUp (e : Expr) : GoalM Unit := do
 def propagateDown (e : Expr) : GoalM Unit := do
   (← getMethods).propagateDown e
 
-def applyFallback : GoalM Unit := do
-  let fallback : GoalM Unit := (← getMethods).fallback
-  fallback
-
-def Goal.getGeneration (goal : Goal) (e : Expr) : Nat :=
-  if let some n := goal.getENode? e then
-    n.generation
-  else
-    0
+def evalTactic (goal : Goal) (stx : TSyntax `grind) : GrindM (List Goal) := do
+  (← getMethods).evalTactic goal stx
 
 /-- Returns expressions in the given expression equivalence class. -/
 partial def Goal.getEqc (goal : Goal) (e : Expr) (sort := false) : List Expr :=
@@ -1513,14 +1508,6 @@ def getExtTheorems (type : Expr) : GoalM (Array Ext.ExtTheorem) := do
     modify fun s => { s with extThms := s.extThms.insert { expr := type } thms }
     return thms
 
-/--
-Helper function for instantiating a type class `type`, and
-then using the result to perform `isDefEq x val`.
--/
-def synthesizeInstanceAndAssign (x type : Expr) : MetaM Bool := do
-  let .some val ← trySynthInstance type | return false
-  isDefEq x val
-
 /-- Add a new lookahead candidate. -/
 def addLookaheadCandidate (sinfo : SplitInfo) : GoalM Unit := do
   trace_goal[grind.lookahead.add] "{sinfo.getExpr}"
@@ -1538,5 +1525,359 @@ def withoutModifyingState (x : GoalM α) : GoalM α := do
     x
   finally
     set saved
+
+/-- Canonicalizes nested types, type formers, and instances in `e`. -/
+@[extern "lean_grind_canon"] -- Forward definition
+opaque canon (e : Expr) : GoalM Expr
+
+/-!
+`Action` is the *control interface* for `grind`’s search steps. It is defined in
+Continuation-Passing Style (CPS).
+See `Grind/Action.lean` for additional details.
+-/
+
+abbrev TGrind := TSyntax `grind
+
+/-- Result type for a `grind` Action -/
+inductive ActionResult where
+  | /--
+    The goal has been closed, and you can use `seq` to close the goal efficiently.
+    -/
+    closed (seq : List TGrind)
+  | /--
+    The action could not make further progress.
+    `gs` are subgoals that could not be closed. They are used for producing error messages.
+    -/
+    stuck (gs : List Goal)
+
+abbrev ActionCont : Type :=
+  Goal → GrindM ActionResult
+
+abbrev Action : Type :=
+  Goal → (kna : ActionCont) → (kp : ActionCont) → GrindM ActionResult
+
+@[expose] def Action.notApplicable : Action := fun goal kna _ =>
+  kna goal
+
+instance : Inhabited Action where
+  default := Action.notApplicable
+
+/-!
+Solver Extensions
+-/
+
+/--
+Solver extension, can only be generated by `registerSolverExtension` that allocates a unique index
+for this extension into each goal's extension state's array.
+-/
+structure SolverExtension (σ : Type) where private mk ::
+  id          : Nat
+  mkInitial   : IO σ
+  internalize : Expr → (parent? : Option Expr) → GoalM Unit
+  newEq       : Expr → Expr → GoalM Unit
+  newDiseq    : Expr → Expr → GoalM Unit
+  mbtc        : GoalM Bool
+  action      : Action
+  check       : GoalM Bool -- **TODO**: Consider deleting `check` in the future.
+  checkInv    : GoalM Unit
+  deriving Inhabited
+
+private builtin_initialize solverExtensionsRef : IO.Ref (Array (SolverExtension SolverExtensionState)) ← IO.mkRef #[]
+
+/--
+Registers a new solver extension for `grind`.
+Solver extensions can only be registered during initialization.
+Reason: We do not use any synchronization primitive to access `solverExtensionsRef`.
+-/
+def registerSolverExtension {σ : Type} (mkInitial : IO σ) : IO (SolverExtension σ) := do
+  unless (← initializing) do
+    throw (IO.userError "failed to register `grind` solver, extensions can only be registered during initialization")
+  let exts ← solverExtensionsRef.get
+  let id := exts.size
+  let ext : SolverExtension σ := {
+    id, mkInitial
+    internalize := fun _ _ => return ()
+    newEq := fun _ _ => return ()
+    newDiseq := fun _ _ => return ()
+    action := Action.notApplicable
+    check := fun _ _ => return false
+    checkInv := fun _ _ => return ()
+    mbtc := fun _ _ => return false
+  }
+  solverExtensionsRef.modify fun exts => exts.push (unsafe unsafeCast ext)
+  return ext
+
+/--
+Sets methods/handlers for solver extension `ext`.
+Solver extension methods can only be registered during initialization.
+Reason: We do not use any synchronization primitive to access `solverExtensionsRef`.
+-/
+def SolverExtension.setMethods (ext : SolverExtension σ)
+    (internalize : Expr → (parent? : Option Expr) → GoalM Unit := fun _ _  => return ())
+    (newEq       : Expr → Expr → GoalM Unit := fun _ _ => return ())
+    (newDiseq    : Expr → Expr → GoalM Unit := fun _ _ => return ())
+    (mbtc        : GoalM Bool := return false)
+    (action      : Action := Action.notApplicable)
+    (check       : GoalM Bool := return false)
+    (checkInv    : GoalM Unit := return ())
+    : IO Unit := do
+  unless (← initializing) do
+    throw (IO.userError "failed to register `grind` solver, extensions can only be registered during initialization")
+  unless ext.id < (← solverExtensionsRef.get).size do
+    throw (IO.userError "failed to register `grind` solver methods, invalid solver id")
+  solverExtensionsRef.modify fun exts => exts.modify ext.id fun s => { s with
+    internalize, newEq, newDiseq, mbtc, action, check, checkInv
+  }
+
+/-- Returns initial state for registered solvers. -/
+def Solvers.mkInitialStates : IO (Array SolverExtensionState) := do
+  let exts ← solverExtensionsRef.get
+  exts.mapM fun ext => ext.mkInitial
+
+instance : Inhabited (GoalM σ) where
+  default := throwError "<GoalM action default value>"
+
+private unsafe def SolverExtension.modifyStateImpl (ext : SolverExtension σ) (f : σ → σ) : GoalM Unit := do
+  modify fun s => { s with
+    sstates := s.sstates.modify ext.id fun solverState => unsafeCast (f (unsafeCast solverState))
+  }
+
+@[implemented_by SolverExtension.modifyStateImpl]
+opaque SolverExtension.modifyState (ext : SolverExtension σ) (f : σ → σ) : GoalM Unit
+
+private unsafe def SolverExtension.getStateCoreImpl (ext : SolverExtension σ) (goal : Goal) : IO σ :=
+  return unsafeCast goal.sstates[ext.id]!
+
+@[implemented_by SolverExtension.getStateCoreImpl]
+opaque SolverExtension.getStateCore (ext : SolverExtension σ) (goal : Goal) : IO σ
+
+def SolverExtension.getState (ext : SolverExtension σ) : GoalM σ := do
+  ext.getStateCore (← get)
+
+/-- Internalizes given expression in all registered solvers. -/
+def Solvers.internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
+  (← solverExtensionsRef.get).forM fun ext => ext.internalize e parent?
+
+/-- Checks invariants of all registered solvers. -/
+def Solvers.checkInvariants : GoalM Unit := do
+  (← solverExtensionsRef.get).forM fun ext => ext.checkInv
+
+/--
+Performs (expensive) satisfiability checks in all registered solvers,
+and returns the solver ids that made progress.
+-/
+def Solvers.check? : GoalM (Option (Array Nat)) := do
+  let mut result := #[]
+  for ext in (← solverExtensionsRef.get) do
+    if (← isInconsistent) then
+      return some result
+    if (← ext.check) then
+      result := result.push ext.id
+  if !result.isEmpty then
+    processNewFacts
+    return some result
+  else
+    return none
+
+def Solvers.check : GoalM Bool := do
+  return !(← check?).isNone
+
+/-- Invokes model-based theory combination extensions in all registered solvers. -/
+def Solvers.mbtc : GoalM Bool := do
+  let mut result := false
+  for ext in (← solverExtensionsRef.get) do
+    if (← ext.mbtc) then
+      result := true
+  return result
+
+/--
+Sequential conjunction: executes both `x` and `y`.
+
+- Runs `x` and always runs `y` afterward, regardless of whether `x` made progress.
+- It is not applicable only if both `x` and `y` are not applicable.
+-/
+def Action.andAlso (x y : Action) : Action := fun goal kna kp => do
+  x goal (fun goal => y goal kna kp) (fun goal => y goal kp kp)
+
+/-
+Creates an action that tries all solver extensions. It uses the `Action.andAlso`
+to combine them.
+-/
+def Solvers.mkAction : IO Action := do
+  let exts ← solverExtensionsRef.get
+  let rec go (i : Nat) (acc : Action) : Action :=
+    if h : i < exts.size then
+      go (i+1) (acc.andAlso exts[i].action)
+    else
+      acc
+  if h : 0 < exts.size then
+    return go 1 exts[0].action
+  else
+    return Action.notApplicable
+
+/--
+Given a new disequality `lhs ≠ rhs`, propagates it to relevant theories.
+-/
+def Solvers.propagateDiseqs (lhs rhs : Expr) : GoalM Unit := do
+  go (← getRootENode lhs).sTerms (← getRootENode rhs).sTerms
+where
+  go (lhsTerms rhsTerms : SolverTerms) : GoalM Unit := do
+    match lhsTerms, rhsTerms with
+    | .nil, _ => return ()
+    | _, .nil => return ()
+    | .next id₁ lhs lhsTerms, .next id₂ rhs rhsTerms =>
+      if id₁ == id₂ then
+        (← solverExtensionsRef.get)[id₁]!.newDiseq lhs rhs
+        go lhsTerms rhsTerms
+      else if id₁ < id₂ then
+        go lhsTerms (.next id₂ rhs rhsTerms)
+      else
+        go (.next id₁ lhs lhsTerms) rhsTerms
+
+private def propagateDiseqOf (id : Nat) (lhs rhs : Expr) : GoalM Unit := do
+  visitLhs (← getRootENode lhs).sTerms
+where
+  visitLhs (sTerms : SolverTerms) : GoalM Unit := do
+    match sTerms with
+    | .nil => return ()
+    | .next id' e sTerms =>
+      if id == id' then
+        visitRhs e (← getRootENode rhs).sTerms
+      else if id < id' then
+        return ()
+      else
+        visitLhs sTerms
+
+  visitRhs (lhsTerm : Expr) (sTerms : SolverTerms) : GoalM Unit := do
+    match sTerms with
+    | .nil => return ()
+    | .next id' e sTerms =>
+      if id == id' then
+        let rhsTerm := e
+        (← solverExtensionsRef.get)[id]!.newDiseq lhsTerm rhsTerm
+      else if id < id' then
+        return ()
+      else
+        visitRhs lhsTerm sTerms
+
+def isSameSolverTerms (a b : SolverTerms) : Bool :=
+  unsafe ptrEq a b
+
+def SolverExtension.markTerm (ext : SolverExtension σ) (e : Expr) : GoalM Unit := do
+  let root ← getRootENode e
+  let id := ext.id
+  let rec go (sTerms : SolverTerms) : GoalM SolverTerms := do
+    match sTerms with
+    | .nil => return .next id e .nil
+    | .next id' e' sTerms' =>
+      if id == id' then
+        (← solverExtensionsRef.get)[id]!.newEq e e'
+        return sTerms
+      else if id < id' then
+        return .next id e sTerms
+      else
+        let sTermsNew ← go sTerms'
+        if isSameSolverTerms sTermsNew sTerms' then
+          return sTerms
+        else
+          return .next id' e' sTermsNew
+  let sTermsNew ← go root.sTerms
+  unless isSameSolverTerms sTermsNew root.sTerms do
+    setENode root.self { root with sTerms := sTermsNew }
+    forEachDiseq (← getParents root.self) (propagateDiseqOf id)
+
+/--
+Returns `some t` if `t` is the solver term for `ext` associated with `e`.
+-/
+def SolverExtension.getTerm (ext : SolverExtension σ) (e : ENode) : Option Expr :=
+  go ext.id e.sTerms
+where
+  go (solverId : Nat) : SolverTerms → Option Expr
+    | .nil => none
+    | .next id t rest => if id == solverId then some t else go solverId rest
+
+/--
+Returns `true` if the root of `e`s equivalence class is already attached to a term
+of the given solver.
+-/
+def SolverExtension.hasTermAtRoot (ext : SolverExtension σ) (e : Expr) : GoalM Bool := do
+  return go ext.id (← getRootENode e).sTerms
+where
+  go (solverId : Nat) : SolverTerms → Bool
+    | .nil => false
+    | .next id _ rest => id == solverId || go solverId rest
+
+private inductive PendingSolverPropagationsData where
+  | nil
+  | eq (solverId : Nat) (lhs rhs : Expr) (rest : PendingSolverPropagationsData)
+  | diseqs (solverId : Nat) (ps : ParentSet) (rest : PendingSolverPropagationsData)
+
+structure PendingSolverPropagations where private mk ::
+  private data : PendingSolverPropagationsData
+
+def Solvers.mergeTerms (rhsRoot lhsRoot : ENode) : GoalM PendingSolverPropagations := do
+  let (sTerms, data) ← go rhsRoot.sTerms lhsRoot.sTerms
+  unless sTerms matches .nil do
+    -- We have to retrieve the node because other fields have been updated
+    let rhsRoot ← getENode rhsRoot.self
+    setENode rhsRoot.self { rhsRoot with sTerms }
+  return { data }
+where
+  toPendingDiseqs (sTerms : SolverTerms) (ps : ParentSet) : PendingSolverPropagationsData :=
+    match sTerms with
+    | .nil => .nil
+    | .next id _ sTerms => .diseqs id ps (toPendingDiseqs sTerms ps)
+
+  go (rhsTerms : SolverTerms) (lhsTerms : SolverTerms) : GoalM (SolverTerms × PendingSolverPropagationsData) := do
+    match rhsTerms, lhsTerms with
+    | .nil,     .nil     => return (.nil, .nil)
+    | .nil,     .next .. => return (lhsTerms, toPendingDiseqs lhsTerms (← getParents rhsRoot.self))
+    | .next .., .nil     => return (rhsTerms, toPendingDiseqs rhsTerms (← getParents lhsRoot.self))
+    | .next id₁ rhs rhsTerms, .next id₂ lhs lhsTerms =>
+      if id₁ == id₂ then
+        let (s, p) ← go rhsTerms lhsTerms
+        return (.next id₁ rhs s, .eq id₁ lhs rhs p)
+      else if id₁ < id₂ then
+        let (s, p) ← go rhsTerms (.next id₂ lhs lhsTerms)
+        return (.next id₁ rhs s, .diseqs id₁ (← getParents lhsRoot.self) p)
+      else
+        let (s, p) ← go (.next id₁ rhs rhsTerms) lhsTerms
+        return (.next id₂ lhs s, .diseqs id₂ (← getParents rhsRoot.self) p)
+
+def PendingSolverPropagations.propagate (p : PendingSolverPropagations) : GoalM Unit := do
+  go p.data
+where
+  go (p : PendingSolverPropagationsData) : GoalM Unit := do
+    match p with
+    | .nil => return ()
+    | .eq solverId lhs rhs rest =>
+      (← solverExtensionsRef.get)[solverId]!.newEq lhs rhs
+      go rest
+    | .diseqs solverId parentSet rest =>
+      forEachDiseq parentSet (propagateDiseqOf solverId)
+      go rest
+
+def anchorPrefixToString (numDigits : Nat) (anchorPrefix : UInt64) : String :=
+  let cs := Nat.toDigits 16 anchorPrefix.toNat
+  let n := cs.length
+  let zs := List.replicate (numDigits - n) '0'
+  let cs := zs ++ cs
+  cs.asString
+
+def anchorToString (numDigits : Nat) (anchor : UInt64) : String :=
+  anchorPrefixToString numDigits (anchor >>> (64 - 4*numDigits.toUInt64))
+
+/--
+Returns activated `match`-declaration equations.
+Recall that in tactics such as `instantiate only [...]`, `match`-declarations are always instantiated.
+-/
+def Goal.getActiveMatchEqTheorems (goal : Goal) : CoreM (Array EMatchTheorem) := do
+  let k (thms : Array EMatchTheorem) (thm : EMatchTheorem) : CoreM (Array EMatchTheorem) := do
+    if (← isMatchEqLikeDeclName thm.origin.key) then
+      return thms.push thm
+    else
+      return thms
+  let result ← goal.ematch.newThms.foldlM k #[]
+  goal.ematch.thms.foldlM k result
 
 end Lean.Meta.Grind

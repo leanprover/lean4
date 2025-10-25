@@ -3,17 +3,19 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.Specialize
-import Lean.Compiler.LCNF.Simp
-import Lean.Compiler.LCNF.SpecInfo
-import Lean.Compiler.LCNF.PrettyPrinter
-import Lean.Compiler.LCNF.ToExpr
-import Lean.Compiler.LCNF.Level
-import Lean.Compiler.LCNF.PhaseExt
-import Lean.Compiler.LCNF.MonadScope
-import Lean.Compiler.LCNF.Closure
-import Lean.Compiler.LCNF.FVarUtil
+public import Lean.Compiler.LCNF.Simp
+public import Lean.Compiler.LCNF.SpecInfo
+public import Lean.Compiler.LCNF.ToExpr
+public import Lean.Compiler.LCNF.Level
+public import Lean.Compiler.LCNF.MonadScope
+public import Lean.Compiler.LCNF.Closure
+public import Lean.Compiler.LCNF.FVarUtil
+import all Lean.Compiler.LCNF.ToExpr
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace Specialize
@@ -32,6 +34,11 @@ builtin_initialize specCacheExt : SimplePersistentEnvExtension CacheEntry Cache 
   registerSimplePersistentEnvExtension {
     addEntryFn    := addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries addEntry {} es).switch
+    exportEntriesFnEx? := some fun _ _ entries level =>
+      if level == .private then
+        entries.toArray
+      else
+        #[]
     asyncMode     := .sync
     replay?       := some <| SimplePersistentEnvExtension.replayOfFilter
       (!·.contains ·.key) addEntry
@@ -53,6 +60,7 @@ structure Context where
   Set of let-declarations in scope that do not depend on parameters.
   -/
   ground : FVarIdSet := {}
+  underApplied : FVarIdSet := {}
   /--
   Name of the declaration being processed
   -/
@@ -76,16 +84,38 @@ def isGround [TraverseFVar α] (e : α) : SpecializeM Bool := do
   return allFVar (s.contains ·) e
 
 @[inline] def withLetDecl (decl : LetDecl) (x : SpecializeM α) : SpecializeM α := do
-  let grd ← isGround decl.value
+  let grd ← isGround decl.value <||> (pure (← isArrowClass? decl.type).isSome)
+  let isUnderApplied ←
+    match decl.value with
+    | .const fnName _ args =>
+      match ← getDecl? fnName with
+      -- This ascription to `Bool` is required to avoid this being inferred as `Prop`,
+      -- even with a type specified on the `let` binding.
+      | some { params, .. } => pure ((args.size < params.size) : Bool)
+      | none => pure false
+    | .fvar fnFVarId args =>
+      match ← findFunDecl? fnFVarId with
+      -- This ascription to `Bool` is required to avoid this being inferred as `Prop`,
+      -- even with a type specified on the `let` binding.
+      | some { params, .. } => pure ((args.size < params.size) : Bool)
+      | none => pure false
+    | _ => pure false
   let fvarId := decl.fvarId
-  withReader (fun { scope, ground, declName } => { declName, scope := scope.insert fvarId, ground := if grd then ground.insert fvarId else ground }) x
+  withReader (x := x) fun ctx => { ctx with
+    scope := ctx.scope.insert fvarId
+    underApplied := if isUnderApplied then ctx.underApplied.insert fvarId else ctx.underApplied
+    ground := if grd then ctx.ground.insert fvarId else ctx.ground
+  }
 
 @[inline] def withFunDecl (decl : FunDecl) (x : SpecializeM α) : SpecializeM α := do
   let ctx ← read
   let grd := allFVar (x := decl.value) fun fvarId =>
     !(ctx.scope.contains fvarId) || ctx.ground.contains fvarId
   let fvarId := decl.fvarId
-  withReader (fun { scope, ground, declName } => { declName, scope := scope.insert fvarId, ground := if grd then ground.insert fvarId else ground }) x
+  withReader (x := x) fun ctx => { ctx with
+    scope := ctx.scope.insert fvarId
+    ground := if grd then ctx.ground.insert fvarId else ctx.ground
+  }
 
 namespace Collector
 /-!
@@ -150,7 +180,9 @@ def collect (paramsInfo : Array SpecParamInfo) (args : Array Arg) : SpecializeM 
   let lctx := (← getThe CompilerM.State).lctx
   let abstract (fvarId : FVarId) : Bool :=
     -- We convert let-declarations that are not ground into parameters
-    !lctx.funDecls.contains fvarId && !ctx.ground.contains fvarId
+    !lctx.funDecls.contains fvarId &&
+    !ctx.underApplied.contains fvarId &&
+    !ctx.ground.contains fvarId
   Closure.run (inScope := ctx.scope.contains) (abstract := abstract) do
     let mut argMask := #[]
     for paramInfo in paramsInfo, arg in args do
@@ -243,7 +275,7 @@ where
         -- Keep the parameter
         let param := { param with type := param.type.instantiateLevelParamsNoCache decl.levelParams us }
         params := params.push (← internalizeParam param)
-    for param in decl.params[argMask.size:] do
+    for param in decl.params[argMask.size...*] do
       let param := { param with type := param.type.instantiateLevelParamsNoCache decl.levelParams us }
       params := params.push (← internalizeParam param)
     let code := code.instantiateValueLevelParams decl.levelParams us
@@ -266,7 +298,7 @@ def getRemainingArgs (paramsInfo : Array SpecParamInfo) (args : Array Arg) : Arr
   for info in paramsInfo, arg in args do
     if info matches .other then
       result := result.push arg
-  return result ++ args[paramsInfo.size:]
+  return result ++ args[paramsInfo.size...*]
 
 def paramsToGroundVars (params : Array Param) : CompilerM FVarIdSet :=
   params.foldlM (init := {}) fun r p => do

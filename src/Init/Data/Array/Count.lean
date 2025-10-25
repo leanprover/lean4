@@ -7,8 +7,10 @@ module
 
 prelude
 import all Init.Data.Array.Basic
-import Init.Data.Array.Lemmas
-import Init.Data.List.Nat.Count
+public import Init.Data.Array.Lemmas
+public import Init.Data.List.Nat.Count
+
+public section
 
 /-!
 # Lemmas about `Array.countP` and `Array.count`.
@@ -60,7 +62,7 @@ theorem size_eq_countP_add_countP {xs : Array α} : xs.size = countP p xs + coun
   rcases xs with ⟨xs⟩
   simp [List.length_eq_countP_add_countP (p := p)]
 
-@[grind _=_]
+@[grind =]
 theorem countP_eq_size_filter {xs : Array α} : countP p xs = (filter p xs).size := by
   rcases xs with ⟨xs⟩
   simp [List.countP_eq_length_filter]

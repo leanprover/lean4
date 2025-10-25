@@ -1,3 +1,4 @@
+module
 opaque g : Nat → Nat
 
 set_option trace.Meta.debug true
@@ -85,3 +86,22 @@ info: appV_assoc': [@appV #6 #5 (@HAdd.hAdd `[Nat] `[Nat] `[Nat] `[instHAdd] #4 
 @[grind? =]
 theorem appV_assoc' (a : Vector α n) (b : Vector α m) (c : Vector α n') :
         appV a (appV b c) ≍ appV (appV a b) c := sorry
+
+
+example (p : Prop) (h₁ h₂ : Decidable p) : h₁ = h₂ := by
+  grind
+
+example (p q : Prop) (h₁ : Decidable p) (h₂ : Decidable (p ∧ q)) : (p ↔ q) → h₁ ≍ h₂ := by
+  grind
+
+example (a₁ a₂ : α) (b₁ b₂ : β) : a₁ ≍ b₁ → a₂ ≍ b₂ → (a₁ = a₂) = (b₁ = b₂) := by
+  grind
+
+example (a₁ a₂ : α) (b₁ b₂ : β) : a₁ ≍ b₁ → a₂ ≍ b₂ → (a₁ = a₂) = (b₂ = b₁) := by
+  grind
+
+example (a₁ a₂ : α) (b₁ b₂ : β) : a₁ ≍ b₁ → a₂ ≍ b₂ → (a₁ = a₂) ≍ (b₁ = b₂) := by
+  grind
+
+example (a₁ a₂ : α) (b₁ b₂ : β) : a₁ ≍ b₁ → a₂ ≍ b₂ → (a₁ = a₂) ≍ (b₂ = b₁) := by
+  grind

@@ -194,7 +194,7 @@ error: Invalid
 
 Hint: Use one of these instead
   • first second thir̵d̵ ̵f̵o̵u̵r̵t̵h̵ ̵f̵i̵f̵t̵h̵
-  • f̵i̵r̵st̵ ̵s̵econd t̵h̵i̵r̵d̵ ̵fourth fifth
+  • f̵i̵r̵s̵t̵ ̵second t̵h̵i̵r̵d̵ ̵fourth fifth
   • f̵i̵r̵s̵t̵ ̵s̵e̵c̵o̵n̵d̵ ̵t̵h̵i̵r̵d̵ ̵f̵o̵u̵r̵t̵h̵ ̵f̵i̵f̵t̵h̵f̲i̲ ̲s̲e̲ ̲t̲h̲ ̲f̲o̲ ̲f̲i̲
   • f̵i̵r̵s̵t̵ ̵s̵e̵c̵o̵n̵d̵ ̵t̵h̵i̵r̵d̵ ̵f̵o̵u̵r̵t̵h̵ ̵f̵i̵f̵t̵h̵s̲e̲c̲o̲n̲d̲
 -/
@@ -211,7 +211,7 @@ error: Invalid
 
 Hint: Try one of these
   • let x := 4̵2̵
-    ̵3̲1̲;̲  ̵2̵ ̵*̵ ̵x
+    ̵ ̵ ̵2̵ ̵*̵3̲1̲;̲ x
   • l̵e̵t̵ ̵x̵ ̵:̵=̵ ̵4̵2̵
     ̵ ̵ ̵2̵ ̵*̵ ̵x̵l̲e̲t̲ ̲(̲a̲,̲ ̲b̲,̲ ̲c̲)̲ ̲:̲=̲ ̲(̲1̲,̲ ̲2̲,̲ ̲3̲)̲
     ̲ ̲ ̲b̲
@@ -222,3 +222,55 @@ Hint: Try one of these
 #check suggest_replacement%
   let x := 42
   2 * x
+
+/-! ## Forced diff granularities -/
+
+namespace DiffGranularity
+scoped syntax "select " "granularity " term : command
+
+open Elab in
+elab_rules : command
+  | `(command| select granularity $t) => do
+    let tp := mkConst ``DiffGranularity
+    let g ← unsafe Command.runTermElabM (fun _ =>
+      Term.elabTerm t tp >>= monadLift ∘ evalExpr DiffGranularity tp)
+    let hint ← Command.liftCoreM <| MessageData.hint m!"Hint" #[{
+      suggestion :=
+        if g matches .all then
+          -- Ensure we wouldn't have used `.all` by default
+          "selected granularity .all"
+        else
+          "many granularity words not matching the source"
+      diffGranularity := g
+    }]
+    logInfo hint
+
+/--
+info:
+
+Hint: Hint
+  s̵e̵m̲a̲n̲y̲ ̲g̲r̲a̲n̲u̲le̵c̵a̲r̲i̲ty̲ w̲o̲r̲d̲s̲ ̲n̲o̲t̲ ̲m̲a̲t̲c̲h̲i̲n̲gr̵a̵n̵u̵l̵a̵r̵i̵ ̲ty̵h̲e̲ .̵c̵h̵a̵s̲o̲u̲rc̲e̲
+-/
+#guard_msgs (whitespace := exact) in
+select granularity .char
+
+/--
+info:
+
+Hint: Hint
+  s̵e̵l̵e̵c̵t̵m̲a̲n̲y̲ granularity .̵w̵o̵r̵d̵w̲o̲r̲d̲s̲ ̲n̲o̲t̲ ̲m̲a̲t̲c̲h̲i̲n̲g̲ ̲t̲h̲e̲ ̲s̲o̲u̲r̲c̲e̲
+-/
+#guard_msgs (whitespace := exact) in
+select granularity .word
+
+/--
+info:
+
+Hint: Hint
+  s̵e̵l̵e̵c̵t̵ ̵g̵r̵a̵n̵u̵l̵a̵r̵i̵t̵y̵ ̵.̵a̵l̵l̵s̲e̲l̲e̲c̲t̲e̲d̲ ̲g̲r̲a̲n̲u̲l̲a̲r̲i̲t̲y̲ ̲.̲a̲l̲l̲
+-/
+#guard_msgs (whitespace := exact) in
+select granularity .all
+
+
+end DiffGranularity

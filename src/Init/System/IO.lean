@@ -1,28 +1,41 @@
 /-
 Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich, Mac Malone
+Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich, Mac Malone, Henrik Böving
 -/
 module
 
 prelude
-import Init.System.IOError
-import Init.System.FilePath
-import Init.System.ST
-import Init.Data.Ord
-import Init.Data.String.Extra
+public import Init.System.IOError
+public import Init.System.FilePath
+public import Init.Data.Ord.UInt
+import Init.Data.String.TakeDrop
+
+public section
 
 open System
 
+opaque IO.RealWorld.nonemptyType : NonemptyType.{0}
 /--
 A representation of “the real world” that's used in `IO` monads to ensure that `IO` actions are not
 reordered.
 -/
-/- Like <https://hackage.haskell.org/package/ghc-Prim-0.5.2.0/docs/GHC-Prim.html#t:RealWorld>.
-   Makes sure we never reorder `IO` operations.
+@[expose] def IO.RealWorld : Type := IO.RealWorld.nonemptyType.type
 
-   TODO: mark opaque -/
-def IO.RealWorld : Type := Unit
+instance IO.RealWorld.instNonempty : Nonempty IO.RealWorld :=
+  by exact IO.RealWorld.nonemptyType.property
+
+/--
+An `IO` monad that cannot throw exceptions.
+-/
+@[expose] def BaseIO (α : Type) := ST IO.RealWorld α
+
+instance : Monad BaseIO := inferInstanceAs (Monad (ST IO.RealWorld))
+instance : MonadFinally BaseIO := inferInstanceAs (MonadFinally (ST IO.RealWorld))
+
+@[always_inline, inline]
+def BaseIO.map (f : α → β) (x : BaseIO α) : BaseIO β :=
+  f <$> x
 
 /--
 A monad that can have side effects on the external world or throw exceptions of type `ε`.
@@ -37,21 +50,7 @@ A monad that can have side effects on the external world or throw exceptions of 
    def getWorld : IO (IO.RealWorld) := get
    ```
 -/
-@[expose] def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
-
-instance : Monad (EIO ε) := inferInstanceAs (Monad (EStateM ε IO.RealWorld))
-instance : MonadFinally (EIO ε) := inferInstanceAs (MonadFinally (EStateM ε IO.RealWorld))
-instance : MonadExceptOf ε (EIO ε) := inferInstanceAs (MonadExceptOf ε (EStateM ε IO.RealWorld))
-instance : OrElse (EIO ε α) := ⟨MonadExcept.orElse⟩
-instance [Inhabited ε] : Inhabited (EIO ε α) := inferInstanceAs (Inhabited (EStateM ε IO.RealWorld α))
-
-/--
-An `IO` monad that cannot throw exceptions.
--/
-@[expose] def BaseIO := EIO Empty
-
-instance : Monad BaseIO := inferInstanceAs (Monad (EIO Empty))
-instance : MonadFinally BaseIO := inferInstanceAs (MonadFinally (EIO Empty))
+@[expose] def EIO (ε : Type) (α : Type) : Type := EST ε IO.RealWorld α
 
 /--
 Runs a `BaseIO` action, which cannot throw an exception, in any other `EIO` monad.
@@ -62,7 +61,7 @@ lifting](lean-manual://section/lifting-monads) rather being than called explicit
 @[always_inline, inline]
 def BaseIO.toEIO (act : BaseIO α) : EIO ε α :=
   fun s => match act s with
-  | EStateM.Result.ok a s => EStateM.Result.ok a s
+  | .mk a s => .ok a s
 
 instance : MonadLift BaseIO (EIO ε) := ⟨BaseIO.toEIO⟩
 
@@ -73,8 +72,8 @@ action that returns an `Except` value.
 @[always_inline, inline]
 def EIO.toBaseIO (act : EIO ε α) : BaseIO (Except ε α) :=
   fun s => match act s with
-  | EStateM.Result.ok a s     => EStateM.Result.ok (Except.ok a) s
-  | EStateM.Result.error ex s => EStateM.Result.ok (Except.error ex) s
+  | .ok a s     => .mk (.ok a) s
+  | .error ex s => .mk (.error ex) s
 
 /--
 Handles any exception that might be thrown by an `EIO ε` action, transforming it into an
@@ -83,8 +82,25 @@ exception-free `BaseIO` action.
 @[always_inline, inline]
 def EIO.catchExceptions (act : EIO ε α) (h : ε → BaseIO α) : BaseIO α :=
   fun s => match act s with
-  | EStateM.Result.ok a s     => EStateM.Result.ok a s
-  | EStateM.Result.error ex s => h ex s
+  | .ok a s     => .mk a s
+  | .error ex s => h ex s
+
+instance : Monad (EIO ε) := inferInstanceAs (Monad (EST ε IO.RealWorld))
+instance : MonadFinally (EIO ε) := inferInstanceAs (MonadFinally (EST ε IO.RealWorld))
+instance : MonadExceptOf ε (EIO ε) := inferInstanceAs (MonadExceptOf ε (EST ε IO.RealWorld))
+instance : OrElse (EIO ε α) := ⟨MonadExcept.orElse⟩
+instance [Inhabited ε] : Inhabited (EIO ε α) := inferInstanceAs (Inhabited (EST ε IO.RealWorld α))
+
+@[always_inline, inline]
+def EIO.map (f : α → β) (x : EIO ε α) : EIO ε β :=
+  f <$> x
+
+@[always_inline, inline]
+protected def EIO.throw (e : ε) : EIO ε α := throw e
+
+@[always_inline, inline]
+protected def EIO.tryCatch (x : EIO ε α) (handle : ε → EIO ε α) : EIO ε α :=
+  MonadExceptOf.tryCatch x handle
 
 /--
 Converts an `Except ε` action into an `EIO ε` action.
@@ -92,10 +108,20 @@ Converts an `Except ε` action into an `EIO ε` action.
 If the `Except ε` action throws an exception, then the resulting `EIO ε` action throws the same
 exception. Otherwise, the value is returned.
 -/
+@[always_inline, inline]
 def EIO.ofExcept (e : Except ε α) : EIO ε α :=
   match e with
   | Except.ok a    => pure a
   | Except.error e => throw e
+
+@[always_inline, inline]
+def EIO.adapt (f : ε → ε') (m : EIO ε α) : EIO ε' α :=
+  fun s => match m s with
+  | .ok a s => .ok a s
+  | .error e s => .error (f e) s
+
+@[deprecated EIO.adapt (since := "2025-09-29"), always_inline, inline]
+def EIO.adaptExcept (f : ε → ε') (m : EIO ε α) : EIO ε' α := EIO.adapt f m
 
 open IO (Error) in
 /--
@@ -117,7 +143,7 @@ Converts an `EIO ε` action into an `IO` action by translating any exceptions th
 `IO.Error`s using `f`.
 -/
 @[inline] def EIO.toIO (f : ε → IO.Error) (act : EIO ε α) : IO α :=
-  act.adaptExcept f
+  act.adapt f
 
 /--
 Converts an `EIO ε` action that might throw an exception of type `ε` into an exception-free `IO`
@@ -130,7 +156,7 @@ action that returns an `Except` value.
 Runs an `IO` action in some other `EIO` monad, using `f` to translate `IO` exceptions.
 -/
 @[inline] def IO.toEIO (f : IO.Error → ε) (act : IO α) : EIO ε α :=
-  act.adaptExcept f
+  act.adapt f
 
 /- After we inline `EState.run'`, the closed term `((), ())` is generated, where the second `()`
    represents the "initial world". We don't want to cache this closed term. So, we disable
@@ -150,8 +176,8 @@ duplicate, or delete calls to this function. The side effect may even be hoisted
 causing the side effect to occur at initialization time, even if it would otherwise never be called.
 -/
 @[noinline] unsafe def unsafeBaseIO (fn : BaseIO α) : α :=
-  match fn.run () with
-  | EStateM.Result.ok a _ => a
+  match fn (unsafeCast Unit.unit) with
+  | .mk a _ => a
 
 /--
 Executes arbitrary side effects in a pure context, with exceptions indicated via `Except`. This a
@@ -394,9 +420,9 @@ If `nBytes` is `0`, returns immediately with an empty buffer.
 /--
 Pauses execution for the specified number of milliseconds.
 -/
-def sleep (ms : UInt32) : BaseIO Unit :=
+opaque sleep (ms : UInt32) : BaseIO Unit :=
   -- TODO: add a proper primitive for IO.sleep
-  fun s => dbgSleep ms fun _ => EStateM.Result.ok () s
+  fun s => dbgSleep ms fun _ => .mk () s
 
 /--
 Runs `act` in a separate `Task`, with priority `prio`. Because `IO` actions may throw an exception
@@ -530,13 +556,6 @@ Waits for the task to finish, then returns its result.
 -/
 @[extern "lean_io_wait"] opaque wait (t : Task α) : BaseIO α :=
   return t.get
-
-/--
-Waits until any of the tasks in the list has finished, then return its result.
--/
-@[extern "lean_io_wait_any"] opaque waitAny (tasks : @& List (Task α))
-    (h : tasks.length > 0 := by exact Nat.zero_lt_succ _) : BaseIO α :=
-  return tasks[0].get
 
 /--
 Returns the number of _heartbeats_ that have occurred during the current thread's execution. The
@@ -860,6 +879,18 @@ This function coincides with the [POSIX `rename`
 function](https://pubs.opengroup.org/onlinepubs/9699919799/functions/rename.html).
 -/
 @[extern "lean_io_rename"] opaque rename (old new : @& FilePath) : IO Unit
+
+/--
+Creates a new hard link.
+
+The `link` path will be a link pointing to the `orig` path.
+Note that systems often require these two paths to both be located on the same filesystem.
+If `orig` names a symbolic link, it is platform-specific whether the symbolic link is followed.
+
+This function coincides with the [POSIX `link`
+function](https://pubs.opengroup.org/onlinepubs/9699919799/functions/link.html).
+-/
+@[extern "lean_io_hard_link"] opaque hardLink (orig link : @& FilePath) : IO Unit
 
 /--
 Creates a temporary file in the most secure manner possible, returning both a `Handle` to the
@@ -1348,7 +1379,7 @@ output, or error streams.
 For `IO.Process.Stdio.piped`, this type is `IO.FS.Handle`. Otherwise, it is `Unit`, because no
 communication is possible.
 -/
-def Stdio.toHandleType : Stdio → Type
+@[expose] def Stdio.toHandleType : Stdio → Type
   | Stdio.piped   => FS.Handle
   | Stdio.inherit => Unit
   | Stdio.null    => Unit
@@ -1474,13 +1505,21 @@ structure Output where
   stderr   : String
 
 /--
-Runs a process to completion and captures its output and exit code. The child process is run with a
-null standard input, and the current process blocks until it has run to completion.
+Runs a process to completion and captures its output and exit code.
+The child process is run with a null standard input or the specified input if provided,
+and the current process blocks until it has run to completion.
 
 The specifications of standard input, output, and error handles in `args` are ignored.
 -/
-def output (args : SpawnArgs) : IO Output := do
-  let child ← spawn { args with stdout := .piped, stderr := .piped, stdin := .null }
+def output (args : SpawnArgs) (input? : Option String := none) : IO Output := do
+  let child ←
+    if let some input := input? then
+      let (stdin, child) ← (← spawn { args with stdout := .piped, stderr := .piped, stdin := .piped }).takeStdin
+      stdin.putStr input
+      stdin.flush
+      pure child
+    else
+      spawn { args with stdout := .piped, stderr := .piped, stdin := .null }
   let stdout ← IO.asTask child.stdout.readToEnd Task.Priority.dedicated
   let stderr ← child.stderr.readToEnd
   let exitCode ← child.wait
@@ -1488,12 +1527,15 @@ def output (args : SpawnArgs) : IO Output := do
   pure { exitCode := exitCode, stdout := stdout, stderr := stderr }
 
 /--
-Runs a process to completion, blocking until it terminates. If the child process terminates
-successfully with exit code 0, its standard output is returned. An exception is thrown if it
-terminates with any other exit code.
+Runs a process to completion, blocking until it terminates.
+The child process is run with a null standard input or the specified input if provided,
+If the child process terminates successfully with exit code 0, its standard output is returned.
+An exception is thrown if it terminates with any other exit code.
+
+The specifications of standard input, output, and error handles in `args` are ignored.
 -/
-def run (args : SpawnArgs) : IO String := do
-  let out ← output args
+def run (args : SpawnArgs) (input? : Option String := none) : IO String := do
+  let out ← output args input?
   if out.exitCode != 0 then
     throw <| IO.userError s!"process '{args.cmd}' exited with code {out.exitCode}\
       \nstderr:\
@@ -1505,6 +1547,15 @@ Terminates the current process with the provided exit code. `0` indicates succes
 indicate failure.
 -/
 @[extern "lean_io_exit"] opaque exit : UInt8 → IO α
+
+/--
+Terminates the current process with the provided exit code. `0` indicates success, all other values
+indicate failure.
+
+Calling this function is equivalent to calling
+[`std::_Exit`](https://en.cppreference.com/w/cpp/utility/program/_Exit.html).
+-/
+@[extern "lean_io_force_exit"] opaque forceExit : UInt8 → IO α
 
 end Process
 
@@ -1580,7 +1631,10 @@ the `IO` monad.
 -/
 abbrev Ref (α : Type) := ST.Ref IO.RealWorld α
 
-instance : MonadLift (ST IO.RealWorld) BaseIO := ⟨id⟩
+instance : MonadLift (ST IO.RealWorld) BaseIO where
+  monadLift mx := fun s =>
+    match mx s with
+    | .mk s a => .mk s a
 
 /--
 Creates a new mutable reference cell that contains `a`.
@@ -1715,7 +1769,7 @@ def readToEnd (s : Stream) : IO String := do
   match String.fromUTF8? data with
   | some s => return s
   | none => throw <| .userError s!"Tried to read from stream containing non UTF-8 data."
-  
+
 /--
 Reads the entire remaining contents of the stream as a UTF-8-encoded array of lines.
 

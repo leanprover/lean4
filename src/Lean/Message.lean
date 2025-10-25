@@ -5,13 +5,14 @@ Author: Sebastian Ullrich, Leonardo de Moura
 
 Message type used by the Lean frontend
 -/
+module
+
 prelude
-import Lean.Data.Position
-import Lean.Data.OpenDecl
-import Lean.MetavarContext
-import Lean.Environment
-import Lean.Util.PPExt
-import Lean.Util.Sorry
+public import Init.Data.Slice.Array
+public import Lean.Util.PPExt
+public import Lean.Util.Sorry
+
+public section
 
 namespace Lean
 
@@ -441,13 +442,19 @@ code.
 def errorNameSuffix := "_namedError"
 
 /--
+Creates a tag (i.e., message kind) for an error message with (user-facing) name `errorName`.
+-/
+def kindOfErrorName (errorName : Name) : Name :=
+  .str errorName errorNameSuffix
+
+/--
 Produces a `MessageData` tagged with an identifier for error `name`.
 
 Note: this function generally should not be called directly; instead, use the macros `logNamedError`
 and `throwNamedError`.
 -/
 def MessageData.tagWithErrorName (msg : MessageData) (name : Name) : MessageData :=
-  .tagged (.str name errorNameSuffix) msg
+  .tagged (kindOfErrorName name) msg
 
 /--
 If the provided name is labeled as a diagnostic name, removes the label and returns the
@@ -563,7 +570,7 @@ def add (msg : Message) (log : MessageLog) : MessageLog :=
 protected def append (l₁ l₂ : MessageLog) : MessageLog where
   reported := l₁.reported ++ l₂.reported
   unreported := l₁.unreported ++ l₂.unreported
-  loggedKinds := l₁.loggedKinds.union l₂.loggedKinds
+  loggedKinds := l₁.loggedKinds.merge l₂.loggedKinds
 
 instance : Append MessageLog :=
   ⟨MessageLog.append⟩
@@ -618,7 +625,9 @@ actually rendered. Consider using this function in lazy message data to avoid un
 computation for messages that are not displayed.
 -/
 private def MessageData.formatLength (ctx : PPContext) (msg : MessageData) : BaseIO Nat := do
-  let { env, mctx, lctx, opts, ..} := ctx
+  let { env, mctx, lctx, opts, currNamespace, openDecls } := ctx
+  -- Simulate the naming context that will be added to the actual message
+  let msg := MessageData.withNamingContext { currNamespace, openDecls } msg
   let fmt ← msg.format (some { env, mctx, lctx, opts })
   return fmt.pretty.length
 
@@ -638,9 +647,24 @@ def inlineExpr (e : Expr) (maxInlineLength := 30) : MessageData :=
       if (← msg.formatLength ctx) > maxInlineLength then
         return indentD msg ++ "\n"
       else
-        return " " ++ msg ++ " ")
+        return " `" ++ msg ++ "` ")
     (fun mctx => instantiateMVarsCore mctx e |>.1.hasSyntheticSorry)
-    (fun () => return " " ++ MessageData.ofExpr e ++ " ")
+    (fun () => return " `" ++ MessageData.ofExpr e ++ "` ")
+
+/--
+See `Lean.inlineExpr`. This variation is to be used when the expression is the trailing element of a
+message; it does not append a newline or space after the expression.
+-/
+def inlineExprTrailing (e : Expr) (maxInlineLength := 30) : MessageData :=
+  .lazy
+    (fun ctx => do
+      let msg := MessageData.ofExpr e
+      if (← msg.formatLength ctx) > maxInlineLength then
+        return indentD msg
+      else
+        return " `" ++ msg ++ "`")
+    (fun mctx => instantiateMVarsCore mctx e |>.1.hasSyntheticSorry)
+    (fun () => return " `" ++ MessageData.ofExpr e ++ "`")
 
 /-- Atom quotes -/
 def aquote (msg : MessageData) : MessageData :=
@@ -679,7 +703,7 @@ class ToMessageData (α : Type) where
 export ToMessageData (toMessageData)
 
 def stringToMessageData (str : String) : MessageData :=
-  let lines := str.split (· == '\n')
+  let lines := str.splitToList (· == '\n')
   let lines := lines.map (MessageData.ofFormat ∘ format)
   MessageData.joinSep lines (MessageData.ofFormat Format.line)
 
@@ -696,7 +720,7 @@ instance : ToMessageData MVarId        := ⟨MessageData.ofGoal⟩
 instance : ToMessageData MessageData   := ⟨id⟩
 instance [ToMessageData α] : ToMessageData (List α)  := ⟨fun as => MessageData.ofList <| as.map toMessageData⟩
 instance [ToMessageData α] : ToMessageData (Array α) := ⟨fun as => toMessageData as.toList⟩
-instance [ToMessageData α] : ToMessageData (Subarray α) := ⟨fun as => toMessageData as.toArray.toList⟩
+instance [ToMessageData α] : ToMessageData (Subarray α) := ⟨fun as => toMessageData as.toList⟩
 instance [ToMessageData α] : ToMessageData (Option α) := ⟨fun | none => "none" | some e => "some (" ++ toMessageData e ++ ")"⟩
 instance [ToMessageData α] [ToMessageData β] : ToMessageData (α × β) :=
   ⟨fun (a, b) => .paren <| toMessageData a ++ "," ++ Format.line ++ toMessageData b⟩

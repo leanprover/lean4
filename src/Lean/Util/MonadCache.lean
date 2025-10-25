@@ -3,9 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Control.StateRef
-import Std.Data.HashMap.Basic
+public import Std.Data.HashMap.Basic
+
+public section
 
 namespace Lean
 /-- Interface for caching results.  -/
@@ -56,7 +59,7 @@ instance {α β : Type} {m : Type → Type} [BEq α] [Hashable α] [Monad m] [Mo
 
 end MonadHashMapCacheAdapter
 
-def MonadCacheT {ω} (α β : Type) (m : Type → Type) [STWorld ω m] [BEq α] [Hashable α] := StateRefT (Std.HashMap α β) m
+@[expose] def MonadCacheT {ω} (α β : Type) (m : Type → Type) [STWorld ω m] [BEq α] [Hashable α] := StateRefT (Std.HashMap α β) m
 
 namespace MonadCacheT
 
@@ -80,7 +83,7 @@ instance [Alternative m] : Alternative (MonadCacheT α β m) := inferInstanceAs 
 end MonadCacheT
 
 /- Similar to `MonadCacheT`, but using `StateT` instead of `StateRefT` -/
-def MonadStateCacheT (α β : Type) (m : Type → Type) [BEq α] [Hashable α] := StateT (Std.HashMap α β) m
+@[expose] def MonadStateCacheT (α β : Type) (m : Type → Type) [BEq α] [Hashable α] := StateT (Std.HashMap α β) m
 
 namespace MonadStateCacheT
 

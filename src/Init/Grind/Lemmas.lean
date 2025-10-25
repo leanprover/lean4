@@ -6,11 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Core
-import Init.SimpLemmas
-import Init.Classical
-import Init.ByCases
-import Init.Grind.Util
+public import Init.ByCases
+public import Init.Grind.Util
+
+public section
 
 namespace Lean.Grind
 
@@ -76,6 +75,9 @@ theorem eq_eq_of_eq_true_right {a b : Prop} (h : b = True) : (a = b) = a := by s
 theorem eq_congr  {α : Sort u} {a₁ b₁ a₂ b₂ : α} (h₁ : a₁ = a₂) (h₂ : b₁ = b₂) : (a₁ = b₁) = (a₂ = b₂) := by simp [*]
 theorem eq_congr' {α : Sort u} {a₁ b₁ a₂ b₂ : α} (h₁ : a₁ = b₂) (h₂ : b₁ = a₂) : (a₁ = b₁) = (a₂ = b₂) := by rw [h₁, h₂, Eq.comm (a := a₂)]
 
+theorem heq_congr  {α : Sort u} {β : Sort u} {a₁ b₁ : α} {a₂ b₂ : β} (h₁ : a₁ ≍ a₂) (h₂ : b₁ ≍ b₂) : (a₁ = b₁) = (a₂ = b₂) := by cases h₁; cases h₂; rfl
+theorem heq_congr' {α : Sort u} {β : Sort u} {a₁ b₁ : α} {a₂ b₂ : β} (h₁ : a₁ ≍ b₂) (h₂ : b₁ ≍ a₂) : (a₁ = b₁) = (a₂ = b₂) := by cases h₁; cases h₂; rw [@Eq.comm _ a₁]
+
 /-! Ne -/
 
 theorem ne_of_ne_of_eq_left {α : Sort u} {a b c : α} (h₁ : a = b) (h₂ : b ≠ c) : a ≠ c := by simp [*]
@@ -128,6 +130,11 @@ theorem Bool.eq_true_of_not_eq_false' {a : Bool} (h : ¬ a = false) : a = true :
 
 theorem Bool.false_of_not_eq_self {a : Bool} (h : (!a) = a) : False := by
   by_cases a <;> simp_all
+
+theorem Bool.ne_of_eq_true_of_eq_false {a b : Bool} (h₁ : a = true) (h₂ : b = false) : (a = b) = False := by
+  cases a <;> cases b <;> simp_all
+theorem Bool.ne_of_eq_false_of_eq_true {a b : Bool} (h₁ : a = false) (h₂ : b = true) : (a = b) = False := by
+  cases a <;> cases b <;> simp_all
 
 /- The following two helper theorems are used to case-split `a = b` representing `iff`. -/
 theorem of_eq_eq_true {a b : Prop} (h : (a = b) = True) : (a ∧ b) ∨ (¬ a ∧ ¬ b) := by

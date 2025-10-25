@@ -6,12 +6,14 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.Sublist
+public import Init.Data.List.Sublist
+
+public section
 
 /-!
 # Lemmas about `List.countP` and `List.count`.
 
-Because we mark `countP_eq_length_filter` and `count_eq_countP` with `@[grind _=_]`,
+Because we mark `countP_eq_length_filter` with `@[grind =]`,
 we don't need many other `@[grind]` annotations here.
 -/
 
@@ -64,7 +66,7 @@ theorem length_eq_countP_add_countP (p : α → Bool) {l : List α} : length l =
       · rfl
       · simp [h]
 
-@[grind _=_]  -- This to quite aggressive, as it introduces `filter` based reasoning whenever we see `countP`.
+@[grind =]  -- This to quite aggressive, as it introduces `filter` based reasoning whenever we see `countP`.
 theorem countP_eq_length_filter {l : List α} : countP p l = (filter p l).length := by
   induction l with
   | nil => rfl
@@ -102,7 +104,6 @@ theorem countP_replicate {p : α → Bool} {a : α} {n : Nat} :
   simp only [countP_eq_length_filter, filter_replicate]
   split <;> simp
 
-@[grind]
 theorem boole_getElem_le_countP {p : α → Bool} {l : List α} {i : Nat} (h : i < l.length) :
     (if p l[i] then 1 else 0) ≤ l.countP p := by
   induction l generalizing i with
@@ -115,6 +116,8 @@ theorem boole_getElem_le_countP {p : α → Bool} {l : List α} {i : Nat} (h : i
       simp only [getElem_cons_succ, countP_cons]
       specialize ih h
       exact le_add_right_of_le ih
+
+grind_pattern boole_getElem_le_countP => l.countP p, l[i]
 
 theorem Sublist.countP_le (s : l₁ <+ l₂) : countP p l₁ ≤ countP p l₂ := by
   simp only [countP_eq_length_filter]
@@ -140,9 +143,10 @@ grind_pattern IsInfix.countP_le => l₁ <:+: l₂, countP p l₂
 
 -- See `Init.Data.List.Nat.Count` for `Sublist.le_countP : countP p l₂ - (l₂.length - l₁.length) ≤ countP p l₁`.
 
-@[grind]
 theorem countP_tail_le (l) : countP p l.tail ≤ countP p l :=
   (tail_sublist l).countP_le
+
+grind_pattern countP_tail_le => countP p l.tail
 
 -- See `Init.Data.List.Nat.Count` for `le_countP_tail : countP p l - 1 ≤ countP p l.tail`.
 
@@ -219,7 +223,7 @@ variable [BEq α]
 
 @[simp, grind =] theorem count_nil {a : α} : count a [] = 0 := rfl
 
-@[grind]
+@[grind =]
 theorem count_cons {a b : α} {l : List α} :
     count a (b :: l) = count a l + if b == a then 1 else 0 := by
   simp [count, countP_cons]
@@ -233,7 +237,7 @@ theorem count_eq_countP' {a : α} : count a = countP (· == a) := by
 theorem count_eq_length_filter {a : α} {l : List α} : count a l = (filter (· == a) l).length := by
   simp [count, countP_eq_length_filter]
 
-@[grind]
+@[grind =]
 theorem count_tail : ∀ {l : List α} {a : α},
       l.tail.count a = l.count a - if l.head? == some a then 1 else 0
   | [], a => by simp
@@ -286,11 +290,12 @@ theorem count_flatten {a : α} {l : List (List α)} : count a l.flatten = (l.map
 @[simp, grind =] theorem count_reverse {a : α} {l : List α} : count a l.reverse = count a l := by
   simp only [count_eq_countP, countP_eq_length_filter, filter_reverse, length_reverse]
 
-@[grind]
 theorem boole_getElem_le_count {a : α} {l : List α} {i : Nat} (h : i < l.length) :
     (if l[i] == a then 1 else 0) ≤ l.count a := by
   rw [count_eq_countP]
   apply boole_getElem_le_countP (p := (· == a))
+
+grind_pattern boole_getElem_le_count => l.count a, l[i]
 
 variable [LawfulBEq α]
 
@@ -375,7 +380,7 @@ theorem count_filterMap {α} [BEq β] {b : β} {f : α → Option β} {l : List 
 theorem count_flatMap {α} [BEq β] {l : List α} {f : α → List β} {x : β} :
     count x (l.flatMap f) = sum (map (count x ∘ f) l) := countP_flatMap
 
-@[grind]
+@[grind =]
 theorem count_erase {a b : α} :
     ∀ {l : List α}, count a (l.erase b) = count a l - if b == a then 1 else 0
   | [] => by simp

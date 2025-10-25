@@ -3,8 +3,14 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
+public import Lake.Config.FacetConfig
+import Lake.Build.Job.Register
+import Lake.Build.Target.Fetch
 import Lake.Build.Common
+import Lake.Build.Infos
 
 namespace Lake
 open System (FilePath)
@@ -13,8 +19,8 @@ open System (FilePath)
 The build function definition for a Lean executable.
 -/
 
-def LeanExe.recBuildExe (self : LeanExe) : FetchM (Job FilePath) :=
-  withRegisterJob s!"{self.name}:exe" do
+private def LeanExe.recBuildExe (self : LeanExe) : FetchM (Job FilePath) :=
+  withRegisterJob s!"{self.name}:exe" <| withCurrPackage self.pkg do
   /-
   Remark: We must build the root before we fetch the transitive imports
   so that errors in the import block of transitive imports will not kill this
@@ -43,21 +49,21 @@ def LeanExe.recBuildExe (self : LeanExe) : FetchM (Job FilePath) :=
   buildLeanExe self.file objJobs libJobs self.weakLinkArgs self.linkArgs self.sharedLean
 
 /-- The facet configuration for the builtin `LeanExe.exeFacet`. -/
-def LeanExe.exeFacetConfig : LeanExeFacetConfig exeFacet :=
+public def LeanExe.exeFacetConfig : LeanExeFacetConfig exeFacet :=
   mkFacetJobConfig recBuildExe
 
-def LeanExe.recBuildDefault (lib : LeanExe) : FetchM (Job FilePath) :=
+private def LeanExe.recBuildDefault (lib : LeanExe) : FetchM (Job FilePath) :=
   lib.exe.fetch
 
 /-- The facet configuration for the builtin `ExternLib.dynlibFacet`. -/
-def LeanExe.defaultFacetConfig : LeanExeFacetConfig defaultFacet :=
+public def LeanExe.defaultFacetConfig : LeanExeFacetConfig defaultFacet :=
   mkFacetJobConfig recBuildDefault (memoize := false)
 
 /--
 A name-configuration map for the initial set of
 Lean executable facets (e.g., `exe`).
 -/
-def LeanExe.initFacetConfigs : DNameMap LeanExeFacetConfig :=
+public def LeanExe.initFacetConfigs : DNameMap LeanExeFacetConfig :=
   DNameMap.empty
   |>.insert defaultFacet defaultFacetConfig
   |>.insert exeFacet exeFacetConfig

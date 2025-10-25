@@ -7,9 +7,10 @@ module
 
 prelude
 import all Init.Data.Array.Basic
-import Init.Data.BEq
-import Init.Data.List.Nat.BEq
-import Init.ByCases
+public import Init.Data.BEq
+public import Init.Data.List.Nat.BEq
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.

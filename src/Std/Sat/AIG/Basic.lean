@@ -3,9 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Data.HashSet
-import Init.Data.Vector.Basic
+public import Std.Data.HashSet
+public import Init.Data.Vector.Basic
+public import Init.Data.Hashable
+
+@[expose] public section
 
 namespace Std
 namespace Sat
@@ -27,8 +32,8 @@ node which consists of a `Nat` describing the input node and a `Bool` saying whe
 on the input.
 -/
 structure Fanin where
-  private of ::
-    private val : Nat
+  ofRaw ::
+    val : Nat
   deriving Hashable, Repr, DecidableEq, Inhabited
 
 namespace Fanin
@@ -194,7 +199,7 @@ theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α 
     split
     · apply ih
       simp [hfound]
-    · next hbounds =>
+    next hbounds =>
       exfalso
       apply hbounds
       specialize ih _ hfound
@@ -213,7 +218,7 @@ theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α 
       | false =>
         apply ih
         simpa [BEq.symm_false heq] using hfound
-    · next hbounds =>
+    next hbounds =>
       simp only [HashMap.getElem?_insert] at hfound
       match heq : decl == decl' with
       | true =>
@@ -496,7 +501,7 @@ macro_rules
 | `(⟦$aig, $ref, $assign⟧) => `(denote $assign (Entrypoint.mk $aig $ref))
 
 @[app_unexpander AIG.denote]
-def unexpandDenote : Lean.PrettyPrinter.Unexpander
+meta def unexpandDenote : Lean.PrettyPrinter.Unexpander
   | `($(_) {aig := $aig, start := $start, inv := $hbound} $assign) =>
     `(⟦$aig, ⟨$start, $hbound⟩, $assign⟧)
   | `($(_) $entry $assign) => `(⟦$entry, $assign⟧)

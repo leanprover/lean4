@@ -3,11 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.Iterators.Combinators.Take
-import Init.Data.Iterators.Consumers.Access
-import Std.Data.Iterators.Lemmas.Combinators.Monadic.Take
-import Init.Data.Iterators.Lemmas.Consumers
+public import Std.Data.Iterators.Combinators.Take
+public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Take
+public import Init.Data.Iterators.Lemmas.Consumers
+
+@[expose] public section
 
 namespace Std.Iterators
 
@@ -31,7 +34,7 @@ theorem Iter.step_take {α β} [Iterator α Id β] {n : Nat}
   case succ k =>
     simp only [Id.run_bind]
     generalize it.toIterM.step.run = step
-    cases step using PlausibleIterStep.casesOn <;>
+    cases step.inflate using PlausibleIterStep.casesOn <;>
       simp [PlausibleIterStep.yield, PlausibleIterStep.skip, PlausibleIterStep.done]
 
 theorem Iter.atIdxSlow?_take {α β}
@@ -57,7 +60,7 @@ theorem Iter.toList_take_of_finite {α β} [Iterator α Id β] {n : Nat}
     [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {it : Iter (α := α) β} :
     (it.take n).toList = it.toList.take n := by
-  induction it using Iter.inductSteps generalizing n with | step it ihy ihs =>
+  induction it using Iter.inductSteps generalizing n with | step it ihy ihs
   rw [Iter.toList_eq_match_step, Iter.toList_eq_match_step, Iter.step_take]
   cases n
   case zero => simp

@@ -6,4 +6,4 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Data.FloatArray.Basic
+public import Init.Data.FloatArray.Basic

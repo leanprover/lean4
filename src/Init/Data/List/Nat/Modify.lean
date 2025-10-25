@@ -7,8 +7,9 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.Nat.TakeDrop
-import Init.Data.List.Nat.Erase
+public import Init.Data.List.Nat.Erase
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -174,7 +175,7 @@ theorem modifyHead_eq_modify_zero (f : α → α) (l : List α) :
   | n, [], _+1 => by cases n <;> rfl
   | 0, _ :: l, j+1 => by cases h : l[j]? <;> simp [h, modify]
   | i+1, a :: l, j+1 => by
-    simp only [modify_succ_cons, getElem?_cons_succ, Nat.reduceEqDiff, Option.map_eq_map]
+    simp only [modify_succ_cons, getElem?_cons_succ, Option.map_eq_map]
     refine (getElem?_modify f i l j).trans ?_
     cases h' : l[j]? <;> by_cases h : i = j <;>
       simp [h, Option.map]

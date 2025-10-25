@@ -3,11 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Iterators.Basic
-import Init.Data.Iterators.Consumers.Collect
-import Init.Data.Iterators.Consumers.Loop
-import Init.Data.Iterators.Internal.Termination
+public import Init.Data.Iterators.Consumers.Loop
+public import Init.Data.Iterators.Internal.Termination
+
+@[expose] public section
 
 /-!
 This file provides the iterator combinator `IterM.drop`.
@@ -68,15 +70,15 @@ inductive Drop.PlausibleStep [Iterator α m β] (it : IterM (α := Drop α m β)
 instance Drop.instIterator [Monad m] [Iterator α m β] : Iterator (Drop α m β) m β where
   IsPlausibleStep := Drop.PlausibleStep
   step it := do
-    match ← it.internalState.inner.step with
+    match (← it.internalState.inner.step).inflate with
     | .yield it' out h =>
       match h' : it.internalState.remaining with
-      | 0 => pure <| .yield (it'.drop 0) out (.yield h h')
-      | k + 1 => pure <| .skip (it'.drop k) (.drop h h')
+      | 0 => pure <| .deflate <| .yield (it'.drop 0) out (.yield h h')
+      | k + 1 => pure <| .deflate <| .skip (it'.drop k) (.drop h h')
     | .skip it' h =>
-      pure <| .skip (it'.drop it.internalState.remaining) (.skip h)
+      pure <| .deflate <| .skip (it'.drop it.internalState.remaining) (.skip h)
     | .done h =>
-      pure <| .done (.done h)
+      pure <| .deflate <| .done (.done h)
 
 private def Drop.FiniteRel (m : Type w → Type w') [Iterator α m β] [Finite α m] :
     IterM (α := Drop α m β) m β → IterM (α := Drop α m β) m β → Prop :=
@@ -110,7 +112,7 @@ private def Drop.instFinitenessRelation [Iterator α m β] [Monad m]
 
 instance Drop.instFinite [Iterator α m β] [Monad m] [Finite α m] :
     Finite (Drop α m β) m :=
-  Finite.of_finitenessRelation instFinitenessRelation
+  by exact Finite.of_finitenessRelation instFinitenessRelation
 
 private def Drop.ProductiveRel (m : Type w → Type w') [Iterator α m β] [Productive α m] :
     IterM (α := Drop α m β) m β → IterM (α := Drop α m β) m β → Prop :=
@@ -148,21 +150,21 @@ private def Drop.instProductivenessRelation [Iterator α m β] [Monad m]
 
 instance Drop.instProductive [Iterator α m β] [Monad m] [Productive α m] :
     Productive (Drop α m β) m :=
-  Productive.of_productivenessRelation instProductivenessRelation
+  by exact Productive.of_productivenessRelation instProductivenessRelation
 
-instance Drop.instIteratorCollect [Monad m] [Monad n] [Iterator α m β] [Finite α m] :
+instance Drop.instIteratorCollect {n : Type w → Type w'} [Monad m] [Monad n] [Iterator α m β] [Finite α m] :
     IteratorCollect (Drop α m β) m n :=
   .defaultImplementation
 
-instance Drop.instIteratorCollectPartial [Monad m] [Monad n] [Iterator α m β] :
+instance Drop.instIteratorCollectPartial {n : Type w → Type w'} [Monad m] [Monad n] [Iterator α m β] :
     IteratorCollectPartial (Drop α m β) m n :=
   .defaultImplementation
 
-instance Drop.instIteratorLoop [Monad m] [Monad n] [Iterator α m β] :
+instance Drop.instIteratorLoop {n : Type x → Type x'} [Monad m] [Monad n] [Iterator α m β] :
     IteratorLoop (Drop α m β) m n :=
   .defaultImplementation
 
-instance Drop.instIteratorLoopPartial [Monad m] [Monad n] [Iterator α m β] :
+instance Drop.instIteratorLoopPartial {n : Type x → Type x'} [Monad m] [Monad n] [Iterator α m β] :
     IteratorLoopPartial (Drop α m β) m n :=
   .defaultImplementation
 

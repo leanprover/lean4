@@ -3,9 +3,11 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Grind.Types
-
+public import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.SynthInstance
+public section
 namespace Lean.Meta.Grind
 /-! Extensionality theorems support. -/
 
@@ -20,7 +22,7 @@ def instantiateExtTheorem (thm : Ext.ExtTheorem) (e : Expr) : GoalM Unit := with
   for mvar in mvars, bi in bis do
     if bi.isInstImplicit && !(← mvar.mvarId!.isAssigned) then
       let type ← inferType mvar
-      unless (← synthesizeInstanceAndAssign mvar type) do
+      unless (← synthInstanceAndAssign mvar type) do
         reportIssue! "failed to synthesize instance when instantiating extensionality theorem `{thm.declName}` for {indentExpr e}"
         return ()
   -- Remark: `proof c mvars` has type `e`

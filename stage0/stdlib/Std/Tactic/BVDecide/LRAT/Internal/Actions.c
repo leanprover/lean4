@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.LRAT.Internal.Actions
-// Imports: Std.Tactic.BVDecide.LRAT.Actions Std.Tactic.BVDecide.LRAT.Internal.Clause
+// Imports: public import Std.Tactic.BVDecide.LRAT.Actions public import Std.Tactic.BVDecide.LRAT.Internal.Clause
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,13 +16,14 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_natLiteralToPosFinLiteral(lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_intToLiteral___closed__0;
 lean_object* lean_nat_to_int(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_intToLiteral___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction_spec__0(lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction_spec__0(lean_object*, size_t, size_t, lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 uint8_t l_instDecidableNot___redArg(uint8_t);
 size_t lean_usize_add(size_t, size_t);
@@ -192,7 +193,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; 
@@ -215,31 +216,31 @@ if (x_9 == 0)
 lean_object* x_10; 
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_10 = lean_box(0);
 return x_10;
 }
 else
 {
-lean_object* x_11; uint8_t x_12; uint8_t x_13; 
-x_11 = l_Std_Tactic_BVDecide_LRAT_Internal_intToLiteral___closed__0;
-x_12 = lean_int_dec_eq(x_7, x_11);
-x_13 = l_instDecidableNot___redArg(x_12);
-if (x_13 == 0)
+lean_object* x_11; lean_object* x_12; uint8_t x_13; uint8_t x_14; 
+x_11 = lean_unsigned_to_nat(0u);
+x_12 = l_Std_Tactic_BVDecide_LRAT_Internal_intToLiteral___closed__0;
+x_13 = lean_int_dec_eq(x_7, x_12);
+x_14 = l_instDecidableNot___redArg(x_13);
+if (x_14 == 0)
 {
-lean_object* x_14; 
+lean_object* x_15; 
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_4);
-x_14 = lean_box(0);
-return x_14;
+lean_dec_ref(x_4);
+x_15 = lean_box(0);
+return x_15;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; size_t x_20; size_t x_21; lean_object* x_22; 
-x_15 = lean_box(0);
-x_16 = lean_array_uset(x_4, x_3, x_15);
-x_17 = lean_int_dec_lt(x_11, x_7);
+lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; size_t x_20; size_t x_21; lean_object* x_22; 
+x_16 = lean_array_uset(x_4, x_3, x_11);
+x_17 = lean_int_dec_lt(x_12, x_7);
 lean_dec(x_7);
 x_18 = lean_box(x_17);
 x_19 = lean_alloc_ctor(0, 2, 0);
@@ -263,7 +264,6 @@ switch (lean_obj_tag(x_2)) {
 case 0:
 {
 uint8_t x_3; 
-lean_dec(x_1);
 x_3 = !lean_is_exclusive(x_2);
 if (x_3 == 0)
 {
@@ -300,14 +300,13 @@ x_11 = lean_ctor_get(x_2, 1);
 x_12 = lean_ctor_get(x_2, 2);
 x_13 = lean_array_size(x_11);
 x_14 = 0;
-x_15 = l_Array_mapMUnsafe_map___at___Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction_spec__0(x_1, x_13, x_14, x_11);
+x_15 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction_spec__0(x_1, x_13, x_14, x_11);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; 
 lean_free_object(x_2);
-lean_dec(x_12);
+lean_dec_ref(x_12);
 lean_dec(x_10);
-lean_dec(x_1);
 x_16 = lean_box(0);
 return x_16;
 }
@@ -316,14 +315,14 @@ else
 lean_object* x_17; lean_object* x_18; 
 x_17 = lean_ctor_get(x_15, 0);
 lean_inc(x_17);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 x_18 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray(x_1, x_17);
 lean_dec(x_17);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; 
 lean_free_object(x_2);
-lean_dec(x_12);
+lean_dec_ref(x_12);
 lean_dec(x_10);
 x_19 = lean_box(0);
 return x_19;
@@ -366,13 +365,12 @@ lean_inc(x_24);
 lean_dec(x_2);
 x_27 = lean_array_size(x_25);
 x_28 = 0;
-x_29 = l_Array_mapMUnsafe_map___at___Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction_spec__0(x_1, x_27, x_28, x_25);
+x_29 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction_spec__0(x_1, x_27, x_28, x_25);
 if (lean_obj_tag(x_29) == 0)
 {
 lean_object* x_30; 
-lean_dec(x_26);
+lean_dec_ref(x_26);
 lean_dec(x_24);
-lean_dec(x_1);
 x_30 = lean_box(0);
 return x_30;
 }
@@ -381,13 +379,13 @@ else
 lean_object* x_31; lean_object* x_32; 
 x_31 = lean_ctor_get(x_29, 0);
 lean_inc(x_31);
-lean_dec(x_29);
+lean_dec_ref(x_29);
 x_32 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray(x_1, x_31);
 lean_dec(x_31);
 if (lean_obj_tag(x_32) == 0)
 {
 lean_object* x_33; 
-lean_dec(x_26);
+lean_dec_ref(x_26);
 lean_dec(x_24);
 x_33 = lean_box(0);
 return x_33;
@@ -445,11 +443,10 @@ lean_free_object(x_39);
 lean_dec(x_46);
 lean_dec(x_45);
 lean_free_object(x_2);
-lean_dec(x_44);
-lean_dec(x_43);
+lean_dec_ref(x_44);
+lean_dec_ref(x_43);
 lean_dec(x_42);
 lean_dec(x_41);
-lean_dec(x_1);
 x_48 = lean_box(0);
 return x_48;
 }
@@ -466,11 +463,10 @@ lean_free_object(x_39);
 lean_dec(x_46);
 lean_dec(x_45);
 lean_free_object(x_2);
-lean_dec(x_44);
-lean_dec(x_43);
+lean_dec_ref(x_44);
+lean_dec_ref(x_43);
 lean_dec(x_42);
 lean_dec(x_41);
-lean_dec(x_1);
 x_52 = lean_box(0);
 return x_52;
 }
@@ -479,7 +475,7 @@ else
 size_t x_53; size_t x_54; lean_object* x_55; 
 x_53 = lean_array_size(x_42);
 x_54 = 0;
-x_55 = l_Array_mapMUnsafe_map___at___Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction_spec__0(x_1, x_53, x_54, x_42);
+x_55 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction_spec__0(x_1, x_53, x_54, x_42);
 if (lean_obj_tag(x_55) == 0)
 {
 lean_object* x_56; 
@@ -487,10 +483,9 @@ lean_free_object(x_39);
 lean_dec(x_46);
 lean_dec(x_45);
 lean_free_object(x_2);
-lean_dec(x_44);
-lean_dec(x_43);
+lean_dec_ref(x_44);
+lean_dec_ref(x_43);
 lean_dec(x_41);
-lean_dec(x_1);
 x_56 = lean_box(0);
 return x_56;
 }
@@ -499,7 +494,7 @@ else
 lean_object* x_57; lean_object* x_58; 
 x_57 = lean_ctor_get(x_55, 0);
 lean_inc(x_57);
-lean_dec(x_55);
+lean_dec_ref(x_55);
 x_58 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray(x_1, x_57);
 lean_dec(x_57);
 if (lean_obj_tag(x_58) == 0)
@@ -509,8 +504,8 @@ lean_free_object(x_39);
 lean_dec(x_46);
 lean_dec(x_45);
 lean_free_object(x_2);
-lean_dec(x_44);
-lean_dec(x_43);
+lean_dec_ref(x_44);
+lean_dec_ref(x_43);
 lean_dec(x_41);
 x_59 = lean_box(0);
 return x_59;
@@ -562,11 +557,10 @@ lean_object* x_71;
 lean_dec(x_69);
 lean_dec(x_68);
 lean_free_object(x_2);
-lean_dec(x_67);
-lean_dec(x_66);
+lean_dec_ref(x_67);
+lean_dec_ref(x_66);
 lean_dec(x_65);
 lean_dec(x_64);
-lean_dec(x_1);
 x_71 = lean_box(0);
 return x_71;
 }
@@ -582,11 +576,10 @@ lean_object* x_75;
 lean_dec(x_69);
 lean_dec(x_68);
 lean_free_object(x_2);
-lean_dec(x_67);
-lean_dec(x_66);
+lean_dec_ref(x_67);
+lean_dec_ref(x_66);
 lean_dec(x_65);
 lean_dec(x_64);
-lean_dec(x_1);
 x_75 = lean_box(0);
 return x_75;
 }
@@ -595,17 +588,16 @@ else
 size_t x_76; size_t x_77; lean_object* x_78; 
 x_76 = lean_array_size(x_65);
 x_77 = 0;
-x_78 = l_Array_mapMUnsafe_map___at___Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction_spec__0(x_1, x_76, x_77, x_65);
+x_78 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction_spec__0(x_1, x_76, x_77, x_65);
 if (lean_obj_tag(x_78) == 0)
 {
 lean_object* x_79; 
 lean_dec(x_69);
 lean_dec(x_68);
 lean_free_object(x_2);
-lean_dec(x_67);
-lean_dec(x_66);
+lean_dec_ref(x_67);
+lean_dec_ref(x_66);
 lean_dec(x_64);
-lean_dec(x_1);
 x_79 = lean_box(0);
 return x_79;
 }
@@ -614,7 +606,7 @@ else
 lean_object* x_80; lean_object* x_81; 
 x_80 = lean_ctor_get(x_78, 0);
 lean_inc(x_80);
-lean_dec(x_78);
+lean_dec_ref(x_78);
 x_81 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray(x_1, x_80);
 lean_dec(x_80);
 if (lean_obj_tag(x_81) == 0)
@@ -623,8 +615,8 @@ lean_object* x_82;
 lean_dec(x_69);
 lean_dec(x_68);
 lean_free_object(x_2);
-lean_dec(x_67);
-lean_dec(x_66);
+lean_dec_ref(x_67);
+lean_dec_ref(x_66);
 lean_dec(x_64);
 x_82 = lean_box(0);
 return x_82;
@@ -692,11 +684,10 @@ lean_object* x_96;
 lean_dec(x_94);
 lean_dec(x_93);
 lean_dec(x_92);
-lean_dec(x_91);
-lean_dec(x_90);
+lean_dec_ref(x_91);
+lean_dec_ref(x_90);
 lean_dec(x_89);
 lean_dec(x_88);
-lean_dec(x_1);
 x_96 = lean_box(0);
 return x_96;
 }
@@ -712,11 +703,10 @@ lean_object* x_100;
 lean_dec(x_94);
 lean_dec(x_93);
 lean_dec(x_92);
-lean_dec(x_91);
-lean_dec(x_90);
+lean_dec_ref(x_91);
+lean_dec_ref(x_90);
 lean_dec(x_89);
 lean_dec(x_88);
-lean_dec(x_1);
 x_100 = lean_box(0);
 return x_100;
 }
@@ -725,17 +715,16 @@ else
 size_t x_101; size_t x_102; lean_object* x_103; 
 x_101 = lean_array_size(x_89);
 x_102 = 0;
-x_103 = l_Array_mapMUnsafe_map___at___Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction_spec__0(x_1, x_101, x_102, x_89);
+x_103 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction_spec__0(x_1, x_101, x_102, x_89);
 if (lean_obj_tag(x_103) == 0)
 {
 lean_object* x_104; 
 lean_dec(x_94);
 lean_dec(x_93);
 lean_dec(x_92);
-lean_dec(x_91);
-lean_dec(x_90);
+lean_dec_ref(x_91);
+lean_dec_ref(x_90);
 lean_dec(x_88);
-lean_dec(x_1);
 x_104 = lean_box(0);
 return x_104;
 }
@@ -744,7 +733,7 @@ else
 lean_object* x_105; lean_object* x_106; 
 x_105 = lean_ctor_get(x_103, 0);
 lean_inc(x_105);
-lean_dec(x_103);
+lean_dec_ref(x_103);
 x_106 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray(x_1, x_105);
 lean_dec(x_105);
 if (lean_obj_tag(x_106) == 0)
@@ -753,8 +742,8 @@ lean_object* x_107;
 lean_dec(x_94);
 lean_dec(x_93);
 lean_dec(x_92);
-lean_dec(x_91);
-lean_dec(x_90);
+lean_dec_ref(x_91);
+lean_dec_ref(x_90);
 lean_dec(x_88);
 x_107 = lean_box(0);
 return x_107;
@@ -800,7 +789,6 @@ return x_112;
 default: 
 {
 uint8_t x_113; 
-lean_dec(x_1);
 x_113 = !lean_is_exclusive(x_2);
 if (x_113 == 0)
 {
@@ -825,7 +813,7 @@ return x_117;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 size_t x_5; size_t x_6; lean_object* x_7; 
@@ -833,22 +821,31 @@ x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
-x_7 = l_Array_mapMUnsafe_map___at___Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction_spec__0(x_1, x_5, x_6, x_4);
+x_7 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction_spec__0(x_1, x_5, x_6, x_4);
 lean_dec(x_1);
 return x_7;
 }
 }
-lean_object* initialize_Std_Tactic_BVDecide_LRAT_Actions(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_Clause(uint8_t builtin, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+lean_object* initialize_Std_Tactic_BVDecide_LRAT_Actions(uint8_t builtin);
+lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_Clause(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_Actions(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_Actions(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Tactic_BVDecide_LRAT_Actions(builtin, lean_io_mk_world());
+res = initialize_Std_Tactic_BVDecide_LRAT_Actions(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Tactic_BVDecide_LRAT_Internal_Clause(builtin, lean_io_mk_world());
+res = initialize_Std_Tactic_BVDecide_LRAT_Internal_Clause(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Tactic_BVDecide_LRAT_Internal_intToLiteral___closed__0 = _init_l_Std_Tactic_BVDecide_LRAT_Internal_intToLiteral___closed__0();

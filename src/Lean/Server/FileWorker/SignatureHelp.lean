@@ -3,10 +3,16 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Server.InfoUtils
-import Lean.Data.Lsp
-import Init.Data.List.Sort.Basic
+public import Lean.Server.InfoUtils
+public import Lean.Data.Lsp
+public import Init.Data.List.Sort.Basic
+import Lean.PrettyPrinter.Delaborator
+meta import Lean.Parser.Term
+
+public section
 
 namespace Lean.Server.FileWorker.SignatureHelp
 
@@ -78,7 +84,7 @@ inductive SearchControl where
   /-- Stop the search through a syntax stack. -/
   | stop
 
-private def lineCommentPosition? (s : String) : Option String.Pos := Id.run do
+private def lineCommentPosition? (s : String) : Option String.Pos.Raw := Id.run do
   let mut it := s.mkIterator
   while h : it.hasNext do
     let pos := it.pos
@@ -92,18 +98,18 @@ private def lineCommentPosition? (s : String) : Option String.Pos := Id.run do
           return some pos
   return none
 
-private def isPositionInLineComment (text : FileMap) (pos : String.Pos) : Bool := Id.run do
+private def isPositionInLineComment (text : FileMap) (pos : String.Pos.Raw) : Bool := Id.run do
   let requestedLineNumber := text.toPosition pos |>.line
   let lineStartPos := text.lineStart requestedLineNumber
   let lineEndPos := text.lineStart (requestedLineNumber + 1)
-  let line := text.source.extract lineStartPos lineEndPos
+  let line := String.Pos.Raw.extract text.source lineStartPos lineEndPos
   let some lineCommentPos := lineCommentPosition? line
     | return false
-  return pos >= lineStartPos + lineCommentPos
+  return pos >= lineCommentPos.offsetBy lineStartPos
 
 open CandidateKind in
 def findSignatureHelp? (text : FileMap) (ctx? : Option Lsp.SignatureHelpContext) (cmdStx : Syntax)
-    (tree : Elab.InfoTree) (requestedPos : String.Pos) : IO (Option Lsp.SignatureHelp) := do
+    (tree : Elab.InfoTree) (requestedPos : String.Pos.Raw) : IO (Option Lsp.SignatureHelp) := do
   -- HACK: Since comments are whitespace, the signature help can trigger on comments.
   -- This is especially annoying on end-of-line comments, as the signature help will trigger on
   -- every space in the comment.
@@ -119,7 +125,7 @@ def findSignatureHelp? (text : FileMap) (ctx? : Option Lsp.SignatureHelpContext)
     | return none
   let stack := stack.toArray.map (·.1)
   let mut candidates : Array Candidate := #[]
-  for h:i in [0:stack.size] do
+  for h:i in *...stack.size do
     let stx := stack[i]
     let parent := stack[i+1]?.getD .missing
     let (kind?, control) := determineCandidateKind stx parent

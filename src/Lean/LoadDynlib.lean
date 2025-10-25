@@ -3,20 +3,25 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Init.System.IO
+public import Init.System.IO
+import Init.Data.String.TakeDrop
+
+public section
 
 namespace Lean
 
 private opaque DynlibImpl : NonemptyType.{0}
 /-- A dynamic library handle. -/
 def Dynlib := DynlibImpl.type
-instance : Nonempty Dynlib := DynlibImpl.property
+instance : Nonempty Dynlib := by exact DynlibImpl.property
 
 private opaque Dynlib.SymbolImpl (dynlib : Dynlib) : NonemptyType.{0}
 /-- A reference to a symbol within a dynamic library. -/
 def Dynlib.Symbol (dynlib : Dynlib) := SymbolImpl dynlib |>.type
-instance : Nonempty (Dynlib.Symbol dynlib) := Dynlib.SymbolImpl dynlib |>.property
+instance : Nonempty (Dynlib.Symbol dynlib) := by exact Dynlib.SymbolImpl dynlib |>.property
 
 /--
 Dynamically loads a shared library.
@@ -34,7 +39,7 @@ opaque Dynlib.get? (dynlib : @& Dynlib) (sym : @& String) : Option dynlib.Symbol
 /--
 Runs a module initializer function.
 The symbol should have the signature `(builtin : Bool) → IO Unit`
-(e.g., `initialize_Foo(uint8_t builtin, obj_arg)`).
+(e.g., `initialize_Foo(uint8_t builtin)`).
 
 This function is unsafe because there is no guarantee the symbol has the
 expected signature. An invalid symbol can thus produce undefined behavior.

@@ -3,10 +3,13 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.PrettyPrinter.Delaborator.Options
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.Internalize
+public import Lean.PrettyPrinter.Delaborator.Options
+public import Lean.Compiler.LCNF.Internalize
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -19,7 +22,7 @@ abbrev M := ReaderT LocalContext CompilerM
 private def join (as : Array α) (f : α → M Format) : M Format := do
   if h : 0 < as.size then
     let mut result ← f as[0]
-    for a in as[1:] do
+    for a in as[1...*] do
       result := f!"{result} {← f a}"
     return result
   else

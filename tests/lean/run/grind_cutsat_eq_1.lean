@@ -1,9 +1,9 @@
+module
 set_option grind.debug true
 open Int.Linear
 
 /--
 trace: [grind.cutsat.assert] -1*「b + f a + 1」 + b + f a + 1 = 0
-[grind.cutsat.assert] -1*「1」 + 1 = 0
 [grind.cutsat.assert] -1*「0」 = 0
 [grind.cutsat.assert] 「b + f a + 1」 = 0
 -/

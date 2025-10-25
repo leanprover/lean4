@@ -3,18 +3,21 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Language.Lean
-import Lean.Util.Profile
-import Lean.Server.References
-import Lean.Util.Profiler
+public import Lean.Language.Lean
+public import Lean.Server.References
+public import Lean.Util.Profiler
+
+public section
 
 namespace Lean.Elab.Frontend
 
 structure State where
   commandState : Command.State
   parserState  : Parser.ModuleParserState
-  cmdPos       : String.Pos
+  cmdPos       : String.Pos.Raw
   commands     : Array Syntax := #[]
 deriving Nonempty
 
@@ -42,10 +45,7 @@ def setCommandState (commandState : Command.State) : FrontendM Unit :=
 
 def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit := do
   runCommandElabM do
-    let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
     Command.elabCommandTopLevel stx
-    let mut msgs := (← get).messages
-    modify ({ · with messages := initMsgs ++ msgs })
 
 def updateCmdPos : FrontendM Unit := do
   modify fun s => { s with cmdPos := s.parserState.pos }

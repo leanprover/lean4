@@ -3,9 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Notation
-import Init.Simproc
+public import Init.Simproc
+
+@[expose] public section
 
 set_option linter.missingDocs true -- keep it documented
 
@@ -24,7 +27,7 @@ structure BVDecideConfig where
   -/
   binaryProofs : Bool := true
   /--
-  Canonicalize with respect to associativity and commutativitiy.
+  Canonicalize with respect to associativity and commutativity.
   -/
   acNf : Bool := false
   /--
@@ -83,14 +86,14 @@ bv_check "proof.lrat"
 -/
 syntax (name := bvCheck) "bv_check " optConfig str : tactic
 
-@[inherit_doc bvDecideMacro]
+@[tactic_alt bvDecideMacro]
 syntax (name := bvDecide) "bv_decide" optConfig : tactic
 
 
-@[inherit_doc bvTraceMacro]
+@[tactic_alt bvTraceMacro]
 syntax (name := bvTrace) "bv_decide?" optConfig : tactic
 
-@[inherit_doc bvNormalizeMacro]
+@[tactic_alt bvNormalizeMacro]
 syntax (name := bvNormalize) "bv_normalize" optConfig : tactic
 
 end Tactic

@@ -3,11 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Structure
-import Lean.Meta.SynthInstance
-import Lean.Meta.Check
-import Lean.Meta.DecLevel
+public import Lean.Meta.SynthInstance
+public import Lean.Meta.DecLevel
+import Lean.Meta.SameCtorUtils
+import Lean.Data.Array
+
+public section
 
 namespace Lean.Meta
 
@@ -34,9 +38,10 @@ def mkExpectedTypeHint (e : Expr) (expectedType : Expr) : MetaM Expr := do
   return mkExpectedTypeHintCore e expectedType u
 
 /--
-`mkLetFun x v e` creates the encoding for the `let_fun x := v; e` expression.
+`mkLetFun x v e` creates `letFun v (fun x => e)`.
 The expression `x` can either be a free variable or a metavariable, and the function suitably abstracts `x` in `e`.
 -/
+@[deprecated mkLetFVars (since := "2026-06-29")]
 def mkLetFun (x : Expr) (v : Expr) (e : Expr) : MetaM Expr := do
   -- If `x` is an `ldecl`, then the result of `mkLambdaFVars` is a let expression.
   let ensureLambda : Expr → Expr
@@ -107,7 +112,7 @@ private def hasTypeMsg (e type : Expr) : MessageData :=
   m!"{indentExpr e}\nhas type{indentExpr type}"
 
 private def throwAppBuilderException {α} (op : Name) (msg : MessageData) : MetaM α :=
-  throwError "AppBuilder for '{op}', {msg}"
+  throwError "AppBuilder for `{op}`, {msg}"
 
 /-- Given `h : a = b`, returns a proof of `b = a`. -/
 def mkEqSymm (h : Expr) : MetaM Expr := do
@@ -471,9 +476,48 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
   | none           => throwAppBuilderException `noConfusion ("equality expected" ++ hasTypeMsg h type)
   | some (α, a, b) =>
     let α ← whnfD α
-    matchConstInduct α.getAppFn (fun _ => throwAppBuilderException `noConfusion ("inductive type expected" ++ indentExpr α)) fun v us => do
+    matchConstInduct α.getAppFn (fun _ => throwAppBuilderException `noConfusion ("inductive type expected" ++ indentExpr α)) fun indVal us => do
       let u ← getLevel target
-      return mkAppN (mkConst (Name.mkStr v.name "noConfusion") (u :: us)) (α.getAppArgs ++ #[target, a, b, h])
+      if let some (ctorA, ys1) ← constructorApp? a then
+       if let some (ctorB, ys2) ← constructorApp? b then
+        -- Special case for different manifest constructors, where we can use `ctorIdx`
+        if ctorA.cidx ≠ ctorB.cidx then
+          let ctorIdxName := Name.mkStr indVal.name "ctorIdx"
+          if (← hasConst ctorIdxName) && (← hasConst `noConfusion_of_Nat) then
+            let ctorIdx := mkAppN (mkConst ctorIdxName us) α.getAppArgs
+            let v ← getLevel α
+            return mkApp2 (mkConst ``False.elim [u]) target <|
+              mkAppN (mkConst `noConfusion_of_Nat [v]) #[α, ctorIdx, a, b, h]
+
+        -- Special case for same constructors, where we can maybe use the per-constructor
+        -- noConfusion definition with its type already manifest
+        if ctorA.cidx = ctorB.cidx then
+          -- Nullary constructors, the construction is trivial
+          if ctorA.numFields = 0 then
+            return ← withLocalDeclD `P target fun P => mkLambdaFVars #[P] P
+
+          let noConfusionName := ctorA.name.str "noConfusion"
+          if (← hasConst noConfusionName) then
+            let xs := α.getAppArgs[:ctorA.numParams]
+            let noConfusion := mkAppN (mkConst noConfusionName (u :: us)) xs
+            let fields1 : Array Expr := ys1[ctorA.numParams:]
+            let fields2 : Array Expr := ys2[ctorA.numParams:]
+            let mask ← occursInCtorTypeMask ctorA.name
+            assert! mask.size = ctorA.numFields
+            let mut ok := true
+            let mut fields2' := #[]
+            for m in mask, f1 in fields1, f2 in fields2 do
+              if m then
+                unless (← isDefEq f1 f2) do
+                  ok := false
+                  break
+              else
+                fields2' := fields2'.push f2
+            if ok then
+              return mkAppN noConfusion (#[target] ++ fields1 ++ fields2' ++ #[h])
+
+      -- Fall back: Use generic theorem
+      return mkAppN (mkConst (Name.mkStr indVal.name "noConfusion") (u :: us)) (α.getAppArgs ++ #[target, a, b, h])
 
 /-- Given a `monad` and `e : α`, makes `pure e`.-/
 def mkPure (monad : Expr) (e : Expr) : MetaM Expr :=
@@ -710,6 +754,20 @@ def mkIffOfEq (h : Expr) : MetaM Expr := do
     return h.appArg!
   else
     mkAppM ``Iff.of_eq #[h]
+
+/--
+Given proofs `hᵢ : pᵢ`, returns a proof for `p₁ ∧ ... ∧ pₙ`.
+Roughly, `mkAndIntroN hs : mkAndN (← hs.mapM inferType)`.
+-/
+def mkAndIntroN (hs : List Expr) : MetaM Expr := (·.1) <$> go hs
+  where
+    go : List Expr → MetaM (Expr × Expr)
+      | [] => return (mkConst ``True.intro, mkConst ``True)
+      | [h] => return (h, ← inferType h)
+      | h :: hs => do
+        let (h', p') ← go hs
+        let p ← inferType h
+        return (mkApp4 (mkConst ``And.intro) p p' h h', mkApp2 (mkConst ``And) p p')
 
 builtin_initialize do
   registerTraceClass `Meta.appBuilder

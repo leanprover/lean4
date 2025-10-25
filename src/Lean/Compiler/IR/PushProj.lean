@@ -3,10 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.IR.Basic
-import Lean.Compiler.IR.FreeVars
-import Lean.Compiler.IR.NormIds
+public import Lean.Compiler.IR.FreeVars
+public import Lean.Compiler.IR.NormIds
+
+public section
 
 namespace Lean.IR
 
@@ -53,5 +56,7 @@ def Decl.pushProj (d : Decl) : Decl :=
   match d with
   | .fdecl (body := b) .. => d.updateBody! b.pushProj |>.normalizeIds
   | other => other
+
+builtin_initialize registerTraceClass `compiler.ir.push_proj (inherited := true)
 
 end Lean.IR

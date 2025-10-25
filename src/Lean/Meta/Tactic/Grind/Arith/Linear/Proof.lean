@@ -3,13 +3,21 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Grind.Arith.Util
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
-import Lean.Meta.Tactic.Grind.Arith.Linear.Util
+public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
+public import Lean.Meta.Tactic.Grind.Arith.Util
+import Init.Grind.Module.OfNatModule
+import Lean.Data.RArray
 import Lean.Meta.Tactic.Grind.Arith.Linear.ToExpr
 import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
-
+import Lean.Meta.Tactic.Grind.Diseq
+import Lean.Meta.Tactic.Grind.ProofUtil
+import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
+import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
+import Lean.Meta.Tactic.Grind.Arith.Linear.VarRename
+import Lean.Meta.Tactic.Grind.Arith.Linear.OfNatModule
+public section
 namespace Lean.Meta.Grind.Arith.Linear
 
 open CommRing (RingExpr)
@@ -18,35 +26,20 @@ open CommRing (RingExpr)
 Returns a context of type `RArray α` containing the variables of the given structure, where
 `α` is `(← getStruct).type`.
 -/
-def toContextExpr : LinearM Expr := do
+def toContextExpr (vars : Array Expr) : LinearM Expr := do
   let struct ← getStruct
-  if h : 0 < struct.vars.size then
-    RArray.toExpr struct.type id (RArray.ofFn (struct.vars[·]) h)
+  if h : 0 < vars.size then
+    RArray.toExpr struct.type id (RArray.ofFn (vars[·]) h)
   else
-    RArray.toExpr struct.type id (RArray.leaf struct.zero)
-
-/--
-Similar to `toContextExpr`, but for the `CommRing` module.
-Recall that this module interfaces with the `CommRing` module and their variable contexts
-may not be necessarily identical. For example, for this module, the term `x*y` does not have an interpretation
-and we have a "variable" representing it, but it is interpreted in the `CommRing` module, and such
-variable does not exist there. On the other direction, suppose we have the inequality `z < 0`, and
-`z` does not occur in any equality or disequality. Then, the `CommRing` does not even "see" `z`, and
-`z` does not occur in its context, but it occurs in the variable context created by this module.
--/
-def toRingContextExpr : LinearM Expr := do
-  if (← isCommRing) then
-    withRingM do CommRing.toContextExpr
-  else
-    let struct ← getStruct
     RArray.toExpr struct.type id (RArray.leaf struct.zero)
 
 structure ProofM.State where
-  cache       : Std.HashMap UInt64 Expr := {}
-  polyMap     : Std.HashMap Poly Expr := {}
-  exprMap     : Std.HashMap LinExpr Expr := {}
-  ringPolyMap : Std.HashMap CommRing.Poly Expr := {}
-  ringExprMap : Std.HashMap RingExpr Expr := {}
+  cache         : Std.HashMap UInt64 Expr := {}
+  varDecls      : Std.HashMap Var Expr := {}
+  polyDecls     : Std.HashMap Poly Expr := {}
+  exprDecls     : Std.HashMap LinExpr Expr := {}
+  ringPolyDecls : Std.HashMap CommRing.Poly Expr := {}
+  ringExprDecls : Std.HashMap RingExpr Expr := {}
 
 structure ProofM.Context where
   ctx     : Expr
@@ -75,47 +68,82 @@ private abbrev caching (c : α) (k : ProofM Expr) : ProofM Expr := do
     modify fun s => { s with cache := s.cache.insert addr h }
     return h
 
+local macro "declare! " decls:ident a:ident : term =>
+  `(do if let some x := (← get).$decls[$a]? then
+         return x
+       let x := mkFVar (← mkFreshFVarId);
+       modify fun s => { s with $decls:ident := (s.$decls).insert $a x };
+       return x)
+
+def mkVarDecl (x : Var) : ProofM Expr := do
+  declare! varDecls x
+
 def mkPolyDecl (p : Poly) : ProofM Expr := do
-  if let some x := (← get).polyMap[p]? then
-    return x
-  let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with polyMap := s.polyMap.insert p x }
-  return x
+  declare! polyDecls p
 
 def mkExprDecl (e : LinExpr) : ProofM Expr := do
-  if let some x := (← get).exprMap[e]? then
-    return x
-  let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with exprMap := s.exprMap.insert e x }
-  return x
+  declare! exprDecls e
 
 def mkRingPolyDecl (p : CommRing.Poly) : ProofM Expr := do
-  if let some x := (← get).ringPolyMap[p]? then
-    return x
-  let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with ringPolyMap := s.ringPolyMap.insert p x }
-  return x
+  declare! ringPolyDecls p
 
 def mkRingExprDecl (e : RingExpr) : ProofM Expr := do
-  if let some x := (← get).ringExprMap[e]? then
-    return x
-  let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with ringExprMap := s.ringExprMap.insert e x }
-  return x
+  declare! ringExprDecls e
+
+private def mkContext (h : Expr) : ProofM Expr := do
+  let varDecls     := (← get).varDecls
+  let polyDecls    := (← get).polyDecls
+  let exprDecls    := (← get).exprDecls
+  let usedVars     :=
+    collectMapVars varDecls collectVar >>
+    collectMapVars polyDecls (·.collectVars) >>
+    collectMapVars exprDecls (·.collectVars) <| {}
+  let vars'        := usedVars.toArray
+  let varRename    := mkVarRename vars'
+  let vars         := (← getStruct).vars
+  let vars         := vars'.map fun x => vars[x]!
+  let varFVars     := vars'.map fun x => varDecls[x]?.getD default
+  let varIdsAsExpr := List.range vars'.size |>.toArray |>.map toExpr
+  let h := h.replaceFVars varFVars varIdsAsExpr
+  let h := mkLetOfMap exprDecls h `e (mkConst ``Grind.Linarith.Expr) fun e => toExpr <| e.renameVars varRename
+  let h := mkLetOfMap polyDecls h `p (mkConst ``Grind.Linarith.Poly) fun p => toExpr <| p.renameVars varRename
+  let h := h.abstract #[(← read).ctx]
+  if h.hasLooseBVars then
+    let struct ← getStruct
+    let ctxType := mkApp (mkConst ``RArray [struct.u]) struct.type
+    let ctxVal ← toContextExpr vars
+    return .letE `ctx ctxType ctxVal h (nondep := false)
+  else
+    return h
+
+private def mkRingContext (h : Expr) : ProofM Expr := do
+  unless (← isCommRing) do return h
+  let ring ← withRingM do CommRing.getRing
+  let vars := ring.vars
+  let usedVars     := collectMapVars (← get).ringPolyDecls (·.collectVars) >> collectMapVars (← get).ringExprDecls (·.collectVars) <| {}
+  let vars'        := usedVars.toArray
+  let varRename    := mkVarRename vars'
+  let vars         := vars'.map fun x => vars[x]!
+  let h := mkLetOfMap (← get).ringExprDecls h `re (mkConst ``Grind.CommRing.Expr) fun e => toExpr <| e.renameVars varRename
+  let h := mkLetOfMap (← get).ringPolyDecls h `rp (mkConst ``Grind.CommRing.Poly) fun p => toExpr <| p.renameVars varRename
+  let h := h.abstract #[(← read).ringCtx]
+  if h.hasLooseBVars then
+    let struct ← getStruct
+    let ctxType := mkApp (mkConst ``RArray [struct.u]) struct.type
+    let ctxVal ← toContextExpr vars
+    return .letE `rctx ctxType ctxVal h (nondep := false)
+  else
+    return h
 
 private abbrev withProofContext (x : ProofM Expr) : LinearM Expr := do
-  let struct ← getStruct
-  withLetDecl `ctx  (mkApp (mkConst ``RArray [struct.u]) struct.type) (← toContextExpr) fun ctx => do
-  withLetDecl `rctx (mkApp (mkConst ``RArray [struct.u]) struct.type) (← toRingContextExpr) fun ringCtx =>
+  let ctx := mkFVar (← mkFreshFVarId)
+  let ringCtx := mkFVar (← mkFreshFVarId)
   go { ctx, ringCtx } |>.run' {}
 where
   go : ProofM Expr := do
     let h ← x
-    let h ← mkLetOfMap (← get).polyMap h `p (mkConst ``Grind.Linarith.Poly) toExpr
-    let h ← mkLetOfMap (← get).exprMap h `e (mkConst ``Grind.Linarith.Expr) toExpr
-    let h ← mkLetOfMap (← get).ringPolyMap h `rp (mkConst ``Grind.CommRing.Poly) toExpr
-    let h ← mkLetOfMap (← get).ringExprMap h `re (mkConst ``Grind.CommRing.Expr) toExpr
-    mkLetFVars #[(← getContext), (← getRingContext)] h
+    let h ← mkRingContext h
+    mkContext h
 
 /--
 Returns the prefix of a theorem with name `declName` where the first three arguments are
@@ -135,29 +163,38 @@ private def mkIntModNoNatDivThmPrefix (declName : Name) : ProofM Expr := do
 
 /--
 Returns the prefix of a theorem with name `declName` where the first four arguments are
-`{α} [IntModule α] [Preorder α] (ctx : Context α)`
+`{α} [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] (ctx : Context α)`
 -/
 private def mkIntModPreThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp4 (mkConst declName [s.u]) s.type s.intModuleInst (← getPreorderInst) (← getContext)
+  return mkApp7 (mkConst declName [s.u]) s.type s.intModuleInst (← getLEInst) (← getLTInst) (← getLawfulOrderLTInst) (← getIsPreorderInst) (← getContext)
 
 /--
 Returns the prefix of a theorem with name `declName` where the first five arguments are
-`{α} [IntModule α] [Preorder α] [OrderedAdd α] (ctx : Context α)`
-This is the most common theorem prefix at `Linarith.lean`
+`{α} [IntModule α] [LE α] [IsPreorder α] [OrderedAdd α] (ctx : Context α)`
+This is one of the most common theorem prefixes at `Linarith.lean`
 -/
 private def mkIntModPreOrdThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp5 (mkConst declName [s.u]) s.type s.intModuleInst (← getPreorderInst) (← getOrderedAddInst) (← getContext)
+  return mkApp6 (mkConst declName [s.u]) s.type s.intModuleInst (← getLEInst) (← getIsPreorderInst) (← getOrderedAddInst) (← getContext)
 
 /--
 Returns the prefix of a theorem with name `declName` where the first five arguments are
-`{α} [IntModule α] [LinearOrder α] [OrderedAdd α] (ctx : Context α)`
+`{α} [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] (ctx : Context α)`
+This is one of the most common theorem prefixes at `Linarith.lean`
+-/
+private def mkIntModLawfulPreOrdThmPrefix (declName : Name) : ProofM Expr := do
+  let s ← getStruct
+  return mkApp8 (mkConst declName [s.u]) s.type s.intModuleInst (← getLEInst) (← getLTInst) (← getLawfulOrderLTInst) (← getIsPreorderInst) (← getOrderedAddInst) (← getContext)
+
+/--
+Returns the prefix of a theorem with name `declName` where the first five arguments are
+`{α} [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedAdd α] (ctx : Context α)`
 This is the most common theorem prefix at `Linarith.lean`
 -/
 private def mkIntModLinOrdThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp5 (mkConst declName [s.u]) s.type s.intModuleInst (← getLinearOrderInst) (← getOrderedAddInst) (← getContext)
+  return mkApp8 (mkConst declName [s.u]) s.type s.intModuleInst (← getLEInst) (← getLTInst) (← getLawfulOrderLTInst) (← getIsLinearOrderInst) (← getOrderedAddInst) (← getContext)
 
 /--
 Returns the prefix of a theorem with name `declName` where the first three arguments are
@@ -169,89 +206,147 @@ private def mkCommRingThmPrefix (declName : Name) : ProofM Expr := do
 
 /--
 Returns the prefix of a theorem with name `declName` where the first five arguments are
-`{α} [CommRing α] [Preorder α] [OrderedRing α] (rctx : Context α)`
+`{α} [CommRing α] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (rctx : Context α)`
 -/
 private def mkCommRingPreOrdThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp5 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getPreorderInst) (← getOrderedRingInst) (← getRingContext)
+  return mkApp7 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getLEInst) (← getLTInst) (← getIsPreorderInst) (← getOrderedRingInst) (← getRingContext)
 
 /--
 Returns the prefix of a theorem with name `declName` where the first five arguments are
-`{α} [CommRing α] [LinearOrder α] [OrderedRing α] (rctx : Context α)`
+`{α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (rctx : Context α)`
+-/
+private def mkCommRingLawfulPreOrdThmPrefix (declName : Name) : ProofM Expr := do
+  let s ← getStruct
+  return mkApp8 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getLEInst) (← getLTInst) (← getLawfulOrderLTInst) (← getIsPreorderInst) (← getOrderedRingInst) (← getRingContext)
+
+/--
+Returns the prefix of a theorem with name `declName` where the first five arguments are
+`{α} [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] [OrderedRing α] (rctx : Context α)`
 -/
 private def mkCommRingLinOrdThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp5 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getLinearOrderInst) (← getOrderedRingInst) (← getRingContext)
+  return mkApp8 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getLEInst) (← getLTInst) (← getLawfulOrderLTInst) (← getIsLinearOrderInst) (← getOrderedRingInst) (← getRingContext)
 
 mutual
 partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' do
   match c'.h with
   | .core e lhs rhs =>
-    let h ← mkIntModPreOrdThmPrefix (if c'.strict then ``Grind.Linarith.lt_norm else ``Grind.Linarith.le_norm)
-    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue (mkOfEqTrueCore e (← mkEqTrueProof e))
+    let h ← if c'.strict then mkIntModLawfulPreOrdThmPrefix ``Grind.Linarith.lt_norm else mkIntModPreOrdThmPrefix ``Grind.Linarith.le_norm
+    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue (mkOfEqTrueCore e (← mkEqTrueProof e))
   | .notCore e lhs rhs =>
     let h ← mkIntModLinOrdThmPrefix (if c'.strict then ``Grind.Linarith.not_le_norm else ``Grind.Linarith.not_lt_norm)
-    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
+    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
   | .coreCommRing e lhs rhs p' lhs' =>
-    let h' ← mkCommRingPreOrdThmPrefix (if c'.strict then ``Grind.CommRing.lt_norm else ``Grind.CommRing.le_norm)
-    let h' := mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl p') reflBoolTrue (mkOfEqTrueCore e (← mkEqTrueProof e))
-    let h ← mkIntModPreOrdThmPrefix (if c'.strict then ``Grind.Linarith.lt_norm else ``Grind.Linarith.le_norm)
-    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) reflBoolTrue h'
+    let h' ← if c'.strict then mkCommRingLawfulPreOrdThmPrefix ``Grind.CommRing.lt_norm else mkCommRingPreOrdThmPrefix ``Grind.CommRing.le_norm
+    let h' := mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl p') eagerReflBoolTrue (mkOfEqTrueCore e (← mkEqTrueProof e))
+    let h ← if c'.strict then mkIntModLawfulPreOrdThmPrefix ``Grind.Linarith.lt_norm else mkIntModPreOrdThmPrefix ``Grind.Linarith.le_norm
+    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) eagerReflBoolTrue h'
   | .notCoreCommRing e lhs rhs p' lhs' =>
     let h' ← mkCommRingLinOrdThmPrefix (if c'.strict then ``Grind.CommRing.not_le_norm else ``Grind.CommRing.not_lt_norm)
-    let h' := mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl p') reflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
-    let h ← mkIntModPreOrdThmPrefix (if c'.strict then ``Grind.Linarith.lt_norm else ``Grind.Linarith.le_norm)
-    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) reflBoolTrue h'
+    let h' := mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl p') eagerReflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
+    let h ← if c'.strict then mkIntModLawfulPreOrdThmPrefix ``Grind.Linarith.lt_norm else mkIntModPreOrdThmPrefix ``Grind.Linarith.le_norm
+    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) eagerReflBoolTrue h'
+  | .coreOfNat e natStructId lhs rhs =>
+    let h' ← OfNatModuleM.run natStructId do
+      let a := e.appFn!.appArg!
+      let b := e.appArg!
+      let ns ← getNatStruct
+      let (a', ha) ← ofNatModule a
+      let (b', hb) ← ofNatModule b
+      let h := if c'.strict then
+        mkApp7 (mkConst ``Grind.IntModule.OfNatModule.of_lt [ns.u]) ns.type ns.natModuleInst ns.leInst?.get! ns.ltInst?.get!
+          ns.lawfulOrderLTInst?.get! ns.isPreorderInst?.get! ns.orderedAddInst?.get!
+      else
+        mkApp5 (mkConst ``Grind.IntModule.OfNatModule.of_le [ns.u]) ns.type ns.natModuleInst ns.leInst?.get!
+          ns.isPreorderInst?.get! ns.orderedAddInst?.get!
+      return mkApp7 h a b a' b' ha hb (mkOfEqTrueCore e (← mkEqTrueProof e))
+    let h ← if c'.strict then mkIntModLawfulPreOrdThmPrefix ``Grind.Linarith.lt_norm else mkIntModPreOrdThmPrefix ``Grind.Linarith.le_norm
+    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h'
+  | .notCoreOfNat e natStructId lhs rhs =>
+    let h' ← OfNatModuleM.run natStructId do
+      let a := e.appFn!.appArg!
+      let b := e.appArg!
+      let ns ← getNatStruct
+      let (a', ha) ← ofNatModule a
+      let (b', hb) ← ofNatModule b
+      let h := if c'.strict then
+        mkApp5 (mkConst ``Grind.IntModule.OfNatModule.of_not_le [ns.u]) ns.type ns.natModuleInst ns.leInst?.get!
+          ns.isPreorderInst?.get! ns.orderedAddInst?.get!
+      else
+        mkApp7 (mkConst ``Grind.IntModule.OfNatModule.of_not_lt [ns.u]) ns.type ns.natModuleInst ns.leInst?.get! ns.ltInst?.get!
+          ns.lawfulOrderLTInst?.get! ns.isPreorderInst?.get! ns.orderedAddInst?.get!
+      return mkApp7 h a b a' b' ha hb (mkOfEqFalseCore e (← mkEqFalseProof e))
+    let h ← mkIntModLinOrdThmPrefix (if c'.strict then ``Grind.Linarith.not_le_norm else ``Grind.Linarith.not_lt_norm)
+    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h'
   | .combine c₁ c₂ =>
-    let (declName, c₁, c₂) :=
+    let (pre, c₁, c₂) :=
       match c₁.strict, c₂.strict with
-      | true, true => (``Grind.Linarith.lt_lt_combine, c₁, c₂)
-      | true, false => (``Grind.Linarith.le_lt_combine, c₂, c₁)
-      | false, true => (``Grind.Linarith.le_lt_combine, c₁, c₂)
-      | false, false => (``Grind.Linarith.le_le_combine, c₁, c₂)
-    return mkApp6 (← mkIntModPreOrdThmPrefix declName) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p) reflBoolTrue
+      | true, true => (mkIntModLawfulPreOrdThmPrefix ``Grind.Linarith.lt_lt_combine, c₁, c₂)
+      | true, false => (mkIntModLawfulPreOrdThmPrefix ``Grind.Linarith.le_lt_combine, c₂, c₁)
+      | false, true => (mkIntModLawfulPreOrdThmPrefix ``Grind.Linarith.le_lt_combine, c₁, c₂)
+      | false, false => (mkIntModPreOrdThmPrefix ``Grind.Linarith.le_le_combine, c₁, c₂)
+    return mkApp6 (← pre) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p) eagerReflBoolTrue
       (← c₁.toExprProof) (← c₂.toExprProof)
   | .oneGtZero =>
     let s ← getStruct
-    let h := mkApp5 (mkConst ``Grind.Linarith.zero_lt_one [s.u]) s.type (← getRingInst) (← getPreorderInst) (← getOrderedRingInst) (← getContext)
-    return mkApp3 h (← mkPolyDecl c'.p) reflBoolTrue (← mkEqRefl (← getOne))
+    let h := mkApp8 (mkConst ``Grind.Linarith.zero_lt_one [s.u]) s.type (← getRingInst) (← getLEInst) (← getLTInst) (← getLawfulOrderLTInst) (← getIsPreorderInst) (← getOrderedRingInst) (← getContext)
+    return mkApp3 h (← mkPolyDecl c'.p) eagerReflBoolTrue (← mkEqRefl (← getOne))
   | .ofEq a b la lb =>
     let h ← mkIntModPreOrdThmPrefix ``Grind.Linarith.le_of_eq
-    return mkApp5 h (← mkExprDecl la) (← mkExprDecl lb) (← mkPolyDecl c'.p) reflBoolTrue (← mkEqProof a b)
+    return mkApp5 h (← mkExprDecl la) (← mkExprDecl lb) (← mkPolyDecl c'.p) eagerReflBoolTrue (← mkEqProof a b)
+  | .ofEqOfNat a b natStructId la lb =>
+    let h' ← OfNatModuleM.run natStructId do
+      let ns ← getNatStruct
+      let (a', ha) ← ofNatModule a
+      let (b', hb) ← ofNatModule b
+      return mkApp9 (mkConst ``Grind.IntModule.OfNatModule.of_eq [ns.u]) ns.type ns.natModuleInst
+        a b a' b' ha hb (← mkEqProof a b)
+    let h ← mkIntModPreOrdThmPrefix ``Grind.Linarith.le_of_eq
+    return mkApp5 h (← mkExprDecl la) (← mkExprDecl lb) (← mkPolyDecl c'.p) eagerReflBoolTrue h'
   | .ofCommRingEq a b la lb p' lhs' =>
     let h' ← mkCommRingThmPrefix ``Grind.CommRing.eq_norm
-    let h' := mkApp5 h' (← mkRingExprDecl la) (← mkRingExprDecl lb) (← mkRingPolyDecl p') reflBoolTrue (← mkEqProof a b)
+    let h' := mkApp5 h' (← mkRingExprDecl la) (← mkRingExprDecl lb) (← mkRingPolyDecl p') eagerReflBoolTrue (← mkEqProof a b)
     let h ← mkIntModPreOrdThmPrefix ``Grind.Linarith.le_of_eq
-    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) reflBoolTrue h'
+    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) eagerReflBoolTrue h'
   | .dec h => return mkFVar h
   | .ofDiseqSplit c₁ fvarId h _ =>
     let hFalse ← h.toExprProofCore
     let lt ← getLtFn
     let hNot := mkLambda `h .default (mkApp2 lt (← c₁.p.denoteExpr) (← getZero)) (hFalse.abstract #[mkFVar fvarId])
     let h ← mkIntModLinOrdThmPrefix ``Grind.Linarith.diseq_split_resolve
-    return mkApp5 h (← mkPolyDecl c₁.p) (← mkPolyDecl c'.p) reflBoolTrue (← c₁.toExprProof) hNot
-  | _ => throwError "not implemented yet"
+    return mkApp5 h (← mkPolyDecl c₁.p) (← mkPolyDecl c'.p) eagerReflBoolTrue (← c₁.toExprProof) hNot
+  | .subst .. | .norm .. =>  throwError "NIY"
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do
   match c'.h with
   | .core a b lhs rhs =>
     let h ← mkIntModThmPrefix ``Grind.Linarith.diseq_norm
-    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue (← mkDiseqProof a b)
+    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue (← mkDiseqProof a b)
   | .coreCommRing a b lhs rhs p' lhs' =>
     let h' ← mkCommRingThmPrefix ``Grind.CommRing.diseq_norm
-    let h' := mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl p') reflBoolTrue (← mkDiseqProof a b)
+    let h' := mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl p') eagerReflBoolTrue (← mkDiseqProof a b)
     let h ← mkIntModThmPrefix ``Grind.Linarith.diseq_norm
-    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) reflBoolTrue h'
+    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) eagerReflBoolTrue h'
+  | .coreOfNat a b natStructId lhs rhs =>
+    let h ← OfNatModuleM.run natStructId do
+      let ns ← getNatStruct
+      let (a', ha) ← ofNatModule a
+      let (b', hb) ← ofNatModule b
+      return mkApp10 (mkConst ``Grind.IntModule.OfNatModule.of_diseq [ns.u]) ns.type ns.natModuleInst ns.addRightCancelInst?.get!
+        a b a' b' ha hb (← mkDiseqProof a b)
+    return mkApp5 (← mkIntModThmPrefix ``Grind.Linarith.diseq_norm)
+      (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h
   | .neg c =>
     let h ← mkIntModThmPrefix ``Grind.Linarith.diseq_neg
-    return mkApp4 h (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
+    return mkApp4 h (← mkPolyDecl c.p) (← mkPolyDecl c'.p) eagerReflBoolTrue (← c.toExprProof)
   | .subst k₁ k₂ c₁ c₂ =>
     let h ← mkIntModNoNatDivThmPrefix ``Grind.Linarith.eq_diseq_subst
     return mkApp8 h (toExpr k₁) (toExpr k₂) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
-      reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+      eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
   | .subst1 k c₁ c₂ =>
     let h ← mkIntModThmPrefix ``Grind.Linarith.eq_diseq_subst1
-    return mkApp7 h (toExpr k) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p) reflBoolTrue
+    return mkApp7 h (toExpr k) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p) eagerReflBoolTrue
       (← c₁.toExprProof) (← c₂.toExprProof)
   | .oneNeZero => throwError "not implemented yet"
 
@@ -259,17 +354,26 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
   match c'.h with
   | .core a b lhs rhs =>
     let h ← mkIntModThmPrefix ``Grind.Linarith.eq_norm
-    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue (← mkEqProof a b)
+    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue (← mkEqProof a b)
   | .coreCommRing .. => throwError "not implemented yet"
+  | .coreOfNat a b natStructId lhs rhs =>
+    let h' ← OfNatModuleM.run natStructId do
+      let ns ← getNatStruct
+      let (a', ha) ← ofNatModule a
+      let (b', hb) ← ofNatModule b
+      return mkApp9 (mkConst ``Grind.IntModule.OfNatModule.of_eq [ns.u]) ns.type ns.natModuleInst
+        a b a' b' ha hb (← mkEqProof a b)
+    let h ← mkIntModThmPrefix ``Grind.Linarith.eq_norm
+    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h'
   | .neg c =>
     let h ← mkIntModThmPrefix ``Grind.Linarith.eq_neg
-    return mkApp4 h (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
+    return mkApp4 h (← mkPolyDecl c.p) (← mkPolyDecl c'.p) eagerReflBoolTrue (← c.toExprProof)
   | .coeff k c =>
     let h ← mkIntModNoNatDivThmPrefix ``Grind.Linarith.eq_coeff
-    return mkApp5 h (← mkPolyDecl c.p) (← mkPolyDecl c'.p) (toExpr k) reflBoolTrue (← c.toExprProof)
+    return mkApp5 h (← mkPolyDecl c.p) (← mkPolyDecl c'.p) (toExpr k) eagerReflBoolTrue (← c.toExprProof)
   | .subst x c₁ c₂ =>
     let h ← mkIntModThmPrefix ``Grind.Linarith.eq_eq_subst
-    return mkApp7 h (toExpr x) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p) reflBoolTrue
+    return mkApp7 h (← mkVarDecl x) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p) eagerReflBoolTrue
       (← c₁.toExprProof) (← c₂.toExprProof)
 
 partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do
@@ -299,8 +403,8 @@ mutual
 
 partial def IneqCnstr.collectDecVars (c' : IneqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .core .. | .notCore .. | .coreCommRing .. | .notCoreCommRing ..
-  | .oneGtZero | .ofEq .. | .ofCommRingEq .. => return ()
+  | .core .. | .notCore .. | .coreCommRing .. | .notCoreCommRing .. | .coreOfNat .. | .notCoreOfNat ..
+  | .oneGtZero | .ofEq .. | .ofEqOfNat .. | .ofCommRingEq .. => return ()
   | .combine c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
   | .norm c₁ _ => c₁.collectDecVars
   | .dec h => markAsFound h
@@ -311,14 +415,14 @@ partial def IneqCnstr.collectDecVars (c' : IneqCnstr) : CollectDecVarsM Unit := 
 -- Actually, it cannot even contain decision variables in the current implementation.
 partial def DiseqCnstr.collectDecVars (c' : DiseqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .core .. | .coreCommRing .. | .oneNeZero => return ()
+  | .core .. | .coreCommRing .. | .coreOfNat .. | .oneNeZero => return ()
   | .neg c => c.collectDecVars
   | .subst _ _ c₁ c₂ | .subst1 _ c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
 
 partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
   | .subst _ c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
-  | .core .. | .coreCommRing .. => return ()
+  | .core .. | .coreCommRing .. | .coreOfNat .. => return ()
   | .neg c | .coeff _ c => c.collectDecVars
 
 end

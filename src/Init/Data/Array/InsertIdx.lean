@@ -6,8 +6,9 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Array.Lemmas
-import Init.Data.List.Nat.InsertIdx
+public import Init.Data.Array.Lemmas
+
+public section
 
 /-!
 # insertIdx

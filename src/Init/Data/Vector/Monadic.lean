@@ -7,10 +7,9 @@ module
 
 prelude
 import all Init.Data.Vector.Basic
-import Init.Data.Vector.Lemmas
-import Init.Data.Vector.Attach
-import Init.Data.Array.Monadic
-import Init.Control.Lawful.Lemmas
+public import Init.Data.Vector.Attach
+
+public section
 
 /-!
 # Lemmas about `Vector.forIn'` and `Vector.forIn`.

@@ -3,8 +3,13 @@ Copyright (c) 2017 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Jacob von Raumer
 -/
+module
+
 prelude
+public import Lean.Elab.Tactic.ElabTerm
 import Lean.Elab.Tactic.Induction
+import Lean.Elab.Tactic.Generalize
+import Lean.Meta.Tactic.Replace
 
 namespace Lean.Elab.Tactic.RCases
 open Meta Parser Tactic
@@ -13,18 +18,18 @@ open Meta Parser Tactic
 Enables the 'unused rcases pattern' linter. This will warn when a pattern is ignored by
 `rcases`, `rintro`, `ext` and similar tactics.
 -/
-register_option linter.unusedRCasesPattern : Bool := {
+public register_option linter.unusedRCasesPattern : Bool := {
   defValue := true
   descr := "enable the 'unused rcases pattern' linter"
 }
 
-instance : Coe Ident (TSyntax `rcasesPat) where
+public instance : Coe Ident (TSyntax `rcasesPat) where
   coe stx := Unhygienic.run `(rcasesPat| $stx:ident)
-instance : Coe (TSyntax `rcasesPat) (TSyntax ``rcasesPatMed) where
+public instance : Coe (TSyntax `rcasesPat) (TSyntax ``rcasesPatMed) where
   coe stx := Unhygienic.run `(rcasesPatMed| $stx:rcasesPat)
-instance : Coe (TSyntax ``rcasesPatMed) (TSyntax ``rcasesPatLo) where
+public instance : Coe (TSyntax ``rcasesPatMed) (TSyntax ``rcasesPatLo) where
   coe stx := Unhygienic.run `(rcasesPatLo| $stx:rcasesPatMed)
-instance : Coe (TSyntax `rcasesPat) (TSyntax `rintroPat) where
+public instance : Coe (TSyntax `rcasesPat) (TSyntax `rintroPat) where
   coe stx := Unhygienic.run `(rintroPat| $stx:rcasesPat)
 
 -- These frequently cause bootstrapping issues. Commented out for now, using `List/-Σ-/` and `List/-Π-/` instead.
@@ -54,7 +59,7 @@ the type being destructed, the extra patterns will match on the last element, me
 `p1 | p2 | p3` will act like `p1 | (p2 | p3)` when matching `a1 ∨ a2 ∨ a3`. If matching against a
 type with 3 constructors,  `p1 | (p2 | p3)` will act like `p1 | (p2 | p3) | _` instead.
 -/
-inductive RCasesPatt : Type
+public inductive RCasesPatt : Type
   /-- A parenthesized expression, used for hovers -/
   | paren (ref : Syntax) : RCasesPatt → RCasesPatt
   /-- A named pattern like `foo` -/
@@ -243,34 +248,6 @@ def processConstructors (ref : Syntax) (params : Nat) (altVarNames : Array AltVa
 
 open Elab Tactic
 
--- TODO(Mario): this belongs in core
-/-- Like `Lean.Meta.subst`, but preserves the `FVarSubst`. -/
-def subst' (goal : MVarId) (hFVarId : FVarId)
-    (fvarSubst : FVarSubst := {}) : MetaM (FVarSubst × MVarId) := do
-  let hLocalDecl ← hFVarId.getDecl
-  let error {α} _ : MetaM α := throwTacticEx `subst goal
-    m!"invalid equality proof, it is not of the form (x = t) or (t = x){indentExpr hLocalDecl.type}"
-  let some (_, lhs, rhs) ← matchEq? hLocalDecl.type | error ()
-  let substReduced (newType : Expr) (symm : Bool) : MetaM (FVarSubst × MVarId) := do
-    let goal ← goal.assert hLocalDecl.userName newType (mkFVar hFVarId)
-    let (hFVarId', goal) ← goal.intro1P
-    let goal ← goal.clear hFVarId
-    substCore goal hFVarId' (symm := symm) (tryToSkip := true) (fvarSubst := fvarSubst)
-  let rhs' ← whnf rhs
-  if rhs'.isFVar then
-    if rhs != rhs' then
-      substReduced (← mkEq lhs rhs') true
-    else
-      substCore goal hFVarId (symm := true) (tryToSkip := true) (fvarSubst := fvarSubst)
-  else
-    let lhs' ← whnf lhs
-    if lhs'.isFVar then
-      if lhs != lhs' then
-        substReduced (← mkEq lhs' rhs) false
-      else
-        substCore goal hFVarId (symm := false) (tryToSkip := true) (fvarSubst := fvarSubst)
-    else error ()
-
 mutual
 
 /--
@@ -289,17 +266,17 @@ This will match a pattern `pat` against a local hypothesis `e`.
   match, with updated values for `g` , `fs`, `clears`, and `a`.
 -/
 partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e : Expr) (a : α)
-    (pat : RCasesPatt) (cont : MVarId → FVarSubst → Array FVarId → α → TermElabM α) :
+    (pat : RCasesPatt) (cont : MVarId → FVarSubst → Array FVarId → α → Term.TermElabM α) :
     TermElabM α := do
   let asFVar : Expr → MetaM _
     | .fvar e => pure e
-    | e => throwError "rcases tactic failed: {e} is not a fvar"
+    | e => throwError "Tactic `rcases` failed: `{e}` is not a free variable"
   withRef pat.ref <| g.withContext do match pat with
   | .one ref `rfl =>
     Term.synthesizeSyntheticMVarsNoPostponing
     -- Note: the mdata prevents the span from getting highlighted like a variable
     Term.addTermInfo' ref (.mdata {} e)
-    let (fs, g) ← subst' g (← asFVar (fs.apply e)) fs
+    let (fs, g) ← substEq g (← asFVar (fs.apply e)) fs
     cont g fs clears a
   | .one ref _ =>
     if e.isFVar then
@@ -314,7 +291,7 @@ partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e 
     let e := fs.apply e
     let etype ← inferType e
     unless ← isDefEq etype expected do
-      Term.throwTypeMismatchError "rcases: scrutinee" expected etype e
+      Term.throwTypeMismatchError "Tactic `rcases` failed: scrutinee" expected etype e
     let g ← if let .fvar e := e then g.replaceLocalDeclDefEq e expected else pure g
     rcasesCore g fs clears e a pat cont
   | .paren ref p
@@ -328,7 +305,7 @@ partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e 
     Term.synthesizeSyntheticMVarsNoPostponing
     let type ← whnfD (← inferType e)
     let failK {α} _ : TermElabM α :=
-      throwError "rcases tactic failed: {e} : {type} is not an inductive datatype"
+      throwError "Tactic `rcases` failed: `{e} : {type}` is not an inductive datatype"
     let (r, subgoals) ← matchConst type.getAppFn failK fun
       | ConstantInfo.quotInfo info, _ => do
         unless info.kind matches QuotKind.type do failK ()
@@ -436,19 +413,19 @@ def generalizeExceptFVar (goal : MVarId) (args : Array GeneralizeArg) :
     else
       result := result.push (mkFVar fvarIdsNew[j]!)
       j := j+1
-  pure (result, fvarIdsNew[j:], goal)
+  pure (result, fvarIdsNew[j...*], goal)
 
 /--
 Given a list of targets of the form `e` or `h : e`, and a pattern, match all the targets
 against the pattern. Returns the list of produced subgoals.
 -/
-def rcases (tgts : Array (Option Ident × Syntax))
+public def rcases (tgts : Array (Option Ident × Syntax))
   (pat : RCasesPatt) (g : MVarId) : TermElabM (List MVarId) := Term.withSynthesize do
   let pats ← match tgts.size with
   | 0 => return [g]
   | 1 => pure [pat]
   | _ => pure (processConstructor pat.ref (tgts.map fun _ => {}) false 0 pat.asTuple.2).2
-  let (pats, args) := Array.unzip <|← (tgts.zip pats.toArray).mapM fun ((hName?, tgt), pat) => do
+  let (pats, args) := Array.unzip <|← tgts.zipWithM (bs := pats.toArray) fun (hName?, tgt) pat => do
     let (pat, ty) ← match pat with
     | .typed ref pat ty => withRef ref do
       let ty ← Term.elabType ty
@@ -489,7 +466,7 @@ partial def expandRIntroPat (pat : TSyntax `rintroPat)
   | _ => acc
 
 /-- Expand a list of `rintroPat` into an equivalent list of `rcasesPat` patterns. -/
-partial def expandRIntroPats (pats : Array (TSyntax `rintroPat))
+public partial def expandRIntroPats (pats : Array (TSyntax `rintroPat))
     (acc : Array (TSyntax `rcasesPat) := #[]) (ty? : Option Term := none) :
     Array (TSyntax `rcasesPat) :=
   pats.foldl (fun acc p => expandRIntroPat p acc ty?) acc
@@ -524,7 +501,7 @@ partial def rintroContinue (g : MVarId) (fs : FVarSubst) (clears : Array FVarId)
     (cont : MVarId → FVarSubst → Array FVarId → α → TermElabM α) : TermElabM α := do
   g.withContext (loop 0 g fs clears a)
 where
-  /-- Runs `rintroContinue` on `pats[i:]` -/
+  /-- Runs `rintroContinue` on `pats[i...*]` -/
   loop i g fs clears a := do
     if h : i < pats.size then
       rintroCore g fs clears a ref pats[i] ty? (loop (i+1))
@@ -536,7 +513,7 @@ end
 The implementation of the `rintro` tactic. It takes a list of patterns `pats` and
 an optional type ascription `ty?` and introduces the patterns, resulting in zero or more goals.
 -/
-def rintro (pats : TSyntaxArray `rintroPat) (ty? : Option Term)
+public def rintro (pats : TSyntaxArray `rintroPat) (ty? : Option Term)
     (g : MVarId) : TermElabM (List MVarId) := Term.withSynthesize do
   (·.toList) <$> rintroContinue g {} #[] .missing pats ty? #[] finish
 

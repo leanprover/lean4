@@ -3,8 +3,12 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro, Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.DHashMap.Internal.AssocList.Basic
+public import Std.Data.DHashMap.Internal.AssocList.Basic
+
+public section
 
 /-!
 # Definition of `DHashMap.Raw`
@@ -16,9 +20,11 @@ This file defines the type `Std.Data.DHashMap.Raw`. All of its functions are def
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v
+universe u v w w'
 
 namespace Std.DHashMap
+
+open Internal
 
 /--
 Dependent hash maps without a bundled well-formedness invariant, suitable for use in nested
@@ -30,7 +36,7 @@ The hash table is backed by an `Array`. Users should make sure that the hash map
 avoid expensive copies.
 
 This is a simple separate-chaining hash table. The data of the hash map consists of a cached size
-and an array of buckets, where each bucket is a linked list of key-value pais. The number of buckets
+and an array of buckets, where each bucket is a linked list of key-value pairs. The number of buckets
 is always a power of two. The hash map doubles its size upon inserting an element such that the
 number of elements is more than 75% of the number of buckets.
 
@@ -45,5 +51,25 @@ structure Raw (α : Type u) (β : α → Type v) where
   size : Nat
   /-- Internal implementation detail of the hash map -/
   buckets : Array (DHashMap.Internal.AssocList α β)
+
+namespace Raw
+
+variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w'}
+
+/-- Carries out a monadic action on each mapping in the hash map in some order. -/
+@[inline] def forM [Monad m] (f : (a : α) → β a → m PUnit) (b : Raw α β) : m PUnit :=
+  b.buckets.forM (AssocList.forM f)
+
+/-- Support for the `for` loop construct in `do` blocks. -/
+@[inline] def forIn [Monad m] (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (b : Raw α β) : m δ :=
+  ForIn.forIn b.buckets init (fun bucket acc => bucket.forInStep acc f)
+
+instance x : ForM m (Raw α β) ((a : α) × β a) where
+  forM m f := m.forM (fun a b => f ⟨a, b⟩)
+
+instance : ForIn m (Raw α β) ((a : α) × β a) where
+  forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
+
+end Raw
 
 end Std.DHashMap

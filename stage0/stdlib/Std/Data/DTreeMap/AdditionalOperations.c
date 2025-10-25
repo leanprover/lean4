@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DTreeMap.AdditionalOperations
-// Imports: Std.Data.DTreeMap.Raw.Basic Std.Data.DTreeMap.Internal.WF.Lemmas
+// Imports: public import Std.Data.DTreeMap.Raw.Basic public import Std.Data.DTreeMap.Internal.WF.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -27,7 +27,6 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Const_getEntryGT(lean_object*, lean_obje
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_getEntryLT___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_filterMap___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_getEntryGE(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_AdditionalOperations_0__instCoeTypeForall__std(lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_getKeyLE___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_getEntryLT___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_getEntryGE___redArg(lean_object*, lean_object*, lean_object*);
@@ -56,9 +55,10 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_getKeyLT___redArg(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Const_getEntryLT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_getEntryLE___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Const_getEntryGE(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_instCoeTypeForall__2(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_filterMap(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_getKeyGE___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_AdditionalOperations_0__instCoeTypeForall__std(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_instCoeTypeForall__2(lean_object* x_1) {
 _start:
 {
 return lean_box(0);
@@ -85,7 +85,7 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Std_DTreeMap_filterMap(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 return x_7;
 }
 }
@@ -110,7 +110,7 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Std_DTreeMap_map(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 return x_7;
 }
 }
@@ -306,17 +306,17 @@ x_8 = l_Std_DTreeMap_Internal_Impl_Const_getEntryLT___redArg(x_2, x_6, x_5);
 return x_8;
 }
 }
-lean_object* initialize_Std_Data_DTreeMap_Raw_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DTreeMap_Internal_WF_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_DTreeMap_Raw_Basic(uint8_t builtin);
+lean_object* initialize_Std_Data_DTreeMap_Internal_WF_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Data_DTreeMap_AdditionalOperations(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Data_DTreeMap_AdditionalOperations(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_DTreeMap_Raw_Basic(builtin, lean_io_mk_world());
+res = initialize_Std_Data_DTreeMap_Raw_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DTreeMap_Internal_WF_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Std_Data_DTreeMap_Internal_WF_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

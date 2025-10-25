@@ -6,8 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Meta
-import Init.Omega
+public import Init.Omega
+
+public section
 
 namespace Std
 -- We put `Range` in `Init` because we want the notation `[i:j]`  without importing `Std`

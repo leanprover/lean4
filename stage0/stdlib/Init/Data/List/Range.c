@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Range
-// Imports: Init.Data.List.Pairwise Init.Data.List.Zip
+// Imports: public import Init.Data.List.Pairwise public import Init.Data.List.Zip
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -69,17 +69,17 @@ lean_dec(x_3);
 return x_7;
 }
 }
-lean_object* initialize_Init_Data_List_Pairwise(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Zip(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Pairwise(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Zip(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_List_Range(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_List_Range(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_List_Pairwise(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Pairwise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Zip(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Zip(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

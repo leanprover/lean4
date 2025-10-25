@@ -6,8 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Omega.Coeffs
-import Init.Data.ToString.Macro
+public import Init.Omega.Coeffs
+public import Init.Data.ToString.Macro
+
+public section
 
 /-!
 # Linear combinations
@@ -31,9 +33,15 @@ deriving DecidableEq, Repr
 
 namespace LinearCombo
 
+private def join (l : List String) : String :=
+  l.foldl (init := "") (fun sofar next => String.Internal.append sofar next)
+
+private local instance : Append String where
+  append := String.Internal.append
+
 instance : ToString LinearCombo where
-  toString lc :=
-    s!"{lc.const}{String.join <| lc.coeffs.toList.zipIdx.map fun ⟨c, i⟩ => s!" + {c} * x{i+1}"}"
+  toString lc := private
+    s!"{lc.const}{join <| lc.coeffs.toList.zipIdx.map fun ⟨c, i⟩ => s!" + {c} * x{i+1}"}"
 
 instance : Inhabited LinearCombo := ⟨{const := 1}⟩
 

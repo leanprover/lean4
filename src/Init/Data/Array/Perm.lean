@@ -6,9 +6,11 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.List.Nat.Perm
+public import Init.Data.List.Nat.Perm
 import all Init.Data.Array.Basic
-import Init.Data.Array.Lemmas
+public import Init.Data.Array.Lemmas
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.

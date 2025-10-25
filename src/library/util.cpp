@@ -805,17 +805,6 @@ name get_dep_cases_on(environment const &, name const & n) {
     return name(n, g_cases_on);
 }
 
-extern "C" object * lean_mk_unsafe_rec_name(object *);
-extern "C" object * lean_is_unsafe_rec_name(object *);
-
-name mk_unsafe_rec_name(name const & n) {
-    return name(lean_mk_unsafe_rec_name(n.to_obj_arg()));
-}
-
-optional<name> is_unsafe_rec_name(name const & n) {
-    return option_ref<name>(lean_is_unsafe_rec_name(n.to_obj_arg())).get();
-}
-
 static std::string * g_short_version_string = nullptr;
 std::string const & get_short_version_string() { return *g_short_version_string; }
 

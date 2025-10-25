@@ -7,9 +7,9 @@ module
 
 prelude
 import all Init.Data.Vector.Basic
-import Init.Data.Vector.Lemmas
-import Init.Data.Vector.Monadic
-import Init.Data.Array.OfFn
+public import Init.Data.Vector.Monadic
+
+public section
 
 /-!
 # Theorems about `Vector.ofFn`

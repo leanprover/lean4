@@ -3,12 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Init.Data.Nat.Compare
-import Std.Data.DTreeMap.Internal.Def
-import Std.Data.DTreeMap.Internal.Balanced
-import Std.Data.DTreeMap.Internal.Ordered
-import Std.Classes.Ord.Basic
+public import Init.Data.Nat.Compare
+public import Std.Data.DTreeMap.Internal.Balanced
+public import Std.Data.DTreeMap.Internal.Ordered
+import Init.BinderPredicates
+
+@[expose] public section
 
 /-!
 # Low-level implementation of the size-bounded tree
@@ -19,12 +22,12 @@ This file contains the basic definition implementing the functionality of the si
 set_option autoImplicit false
 set_option linter.all true
 
-universe u v w
+universe u v w w'
 
-variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
+variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w'}
 
 namespace Std.DTreeMap.Internal.Impl
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 /-- Two tree maps are equivalent in the sense of Equiv iff all the keys and values are equal. -/
 structure Equiv (t t' : Impl α β) where

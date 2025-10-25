@@ -3,13 +3,15 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Nat.Lemmas
-import Init.RCases
-import Init.Data.Iterators.Basic
-import Init.Data.Iterators.Consumers.Monadic.Collect
-import Init.Data.Iterators.Consumers.Monadic.Loop
-import Init.Data.Iterators.Internal.Termination
+public import Init.Data.Nat.Lemmas
+public import Init.Data.Iterators.Consumers.Monadic.Collect
+public import Init.Data.Iterators.Consumers.Monadic.Loop
+public import Init.Data.Iterators.Internal.Termination
+
+@[expose] public section
 
 /-!
 This module provides the iterator combinator `IterM.take`.
@@ -17,7 +19,7 @@ This module provides the iterator combinator `IterM.take`.
 
 namespace Std.Iterators
 
-variable {α : Type w} {m : Type w → Type w'} {n : Type w → Type w''} {β : Type w}
+variable {α : Type w} {m : Type w → Type w'} {β : Type w}
 
 /--
 The internal state of the `IterM.take` iterator combinator.
@@ -76,12 +78,12 @@ instance Take.instIterator [Monad m] [Iterator α m β] : Iterator (Take α m β
   IsPlausibleStep := Take.PlausibleStep
   step it :=
     match h : it.internalState.remaining with
-    | 0 => pure <| .done (.depleted h)
+    | 0 => pure <| .deflate <| .done (.depleted h)
     | k + 1 => do
-      match ← it.internalState.inner.step with
-      | .yield it' out h' => pure <| .yield (it'.take k) out (.yield h' h)
-      | .skip it' h' => pure <| .skip (it'.take (k + 1)) (.skip h' h)
-      | .done h' => pure <| .done (.done h')
+      match (← it.internalState.inner.step).inflate with
+      | .yield it' out h' => pure <| .deflate <| .yield (it'.take k) out (.yield h' h)
+      | .skip it' h' => pure <| .deflate <| .skip (it'.take (k + 1)) (.skip h' h)
+      | .done h' => pure <| .deflate <| .done (.done h')
 
 def Take.Rel (m : Type w → Type w') [Monad m] [Iterator α m β] [Productive α m] :
     IterM (α := Take α m β) m β → IterM (α := Take α m β) m β → Prop :=
@@ -128,23 +130,22 @@ private def Take.instFinitenessRelation [Monad m] [Iterator α m β]
 
 instance Take.instFinite [Monad m] [Iterator α m β] [Productive α m] :
     Finite (Take α m β) m :=
-  Finite.of_finitenessRelation instFinitenessRelation
+  by exact Finite.of_finitenessRelation instFinitenessRelation
 
-instance Take.instIteratorCollect [Monad m] [Monad n] [Iterator α m β] [Productive α m] :
+instance Take.instIteratorCollect {n : Type w → Type w'} [Monad m] [Monad n] [Iterator α m β] :
     IteratorCollect (Take α m β) m n :=
   .defaultImplementation
 
-instance Take.instIteratorCollectPartial [Monad m] [Monad n] [Iterator α m β] :
+instance Take.instIteratorCollectPartial {n : Type w → Type w'} [Monad m] [Monad n] [Iterator α m β] :
     IteratorCollectPartial (Take α m β) m n :=
   .defaultImplementation
 
-instance Take.instIteratorLoop [Monad m] [Monad n] [Iterator α m β]
-    [IteratorLoop α m n] [MonadLiftT m n] :
+instance Take.instIteratorLoop {n : Type x → Type x'} [Monad m] [Monad n] [Iterator α m β] :
     IteratorLoop (Take α m β) m n :=
   .defaultImplementation
 
 instance Take.instIteratorLoopPartial [Monad m] [Monad n] [Iterator α m β]
-    [IteratorLoopPartial α m n] [MonadLiftT m n] :
+    [MonadLiftT m n] :
     IteratorLoopPartial (Take α m β) m n :=
   .defaultImplementation
 

@@ -7,9 +7,10 @@ module
 
 prelude
 import all Init.Data.Array.Basic
-import Init.Data.Array.Zip
 import all Init.Data.Vector.Basic
-import Init.Data.Vector.Lemmas
+public import Init.Data.Vector.Lemmas
+
+public section
 
 /-!
 # Lemmas about `Vector.zip`, `Vector.zipWith`, `Vector.zipWithAll`, and `Vector.unzip`.
@@ -203,11 +204,9 @@ theorem zip_map {f : α → γ} {g : β → δ} {as : Vector α n} {bs : Vector 
   rcases bs with ⟨bs, h⟩
   simp [Array.zip_map]
 
-@[grind _=_]
 theorem zip_map_left {f : α → γ} {as : Vector α n} {bs : Vector β n} :
     zip (as.map f) bs = (zip as bs).map (Prod.map f id) := by rw [← zip_map, map_id]
 
-@[grind _=_]
 theorem zip_map_right {f : β → γ} {as : Vector α n} {bs : Vector β n} :
     zip as (bs.map f) = (zip as bs).map (Prod.map id f) := by rw [← zip_map, map_id]
 

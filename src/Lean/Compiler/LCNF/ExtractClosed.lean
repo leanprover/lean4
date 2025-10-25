@@ -3,15 +3,15 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Cameron Zwarich
 -/
+module
+
 prelude
-import Lean.Compiler.ClosedTermCache
-import Lean.Compiler.NeverExtractAttr
-import Lean.Compiler.LCNF.Basic
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.LCNF.Internalize
-import Lean.Compiler.LCNF.MonoTypes
-import Lean.Compiler.LCNF.PassManager
-import Lean.Compiler.LCNF.ToExpr
+public import Lean.Compiler.ClosedTermCache
+public import Lean.Compiler.NeverExtractAttr
+public import Lean.Compiler.LCNF.Internalize
+public import Lean.Compiler.LCNF.ToExpr
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace ExtractClosed
@@ -149,8 +149,7 @@ def extractClosed : Pass where
   phase := .mono
   name := `extractClosed
   run := fun decls => do
-    -- Reuse the option from the old compiler for now.
-    if (← getOptions).getBool `compiler.extract_closed true then
+    if (← getConfig).extractClosed then
       decls.foldlM (init := #[]) fun newDecls decl =>
         return newDecls ++ (← decl.extractClosed decls)
     else

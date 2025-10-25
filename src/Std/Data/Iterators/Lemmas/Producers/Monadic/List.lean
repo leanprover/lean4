@@ -3,12 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Iterators.Consumers
-import Init.Data.Iterators.Lemmas.Consumers.Monadic
-import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
-import Std.Data.Iterators.Producers.Monadic.List
-import Std.Data.Iterators.Lemmas.Equivalence.Basic
+public import Init.Data.Iterators.Lemmas.Consumers.Monadic
+public import Std.Data.Iterators.Producers.Monadic.List
+public import Std.Data.Iterators.Lemmas.Equivalence.Basic
+
+@[expose] public section
 
 /-!
 # Lemmas about list iterators
@@ -24,18 +26,18 @@ variable {m : Type w → Type w'} {n : Type w → Type w''} [Monad m] {β : Type
 
 @[simp]
 theorem _root_.List.step_iterM_nil :
-    (([] : List β).iterM m).step = pure ⟨.done, rfl⟩ := by
+    (([] : List β).iterM m).step = pure (.deflate ⟨.done, rfl⟩) := by
   simp only [IterM.step, Iterator.step]; rfl
 
 @[simp]
 theorem _root_.List.step_iterM_cons {x : β} {xs : List β} :
-    ((x :: xs).iterM m).step = pure ⟨.yield (xs.iterM m) x, rfl⟩ := by
+    ((x :: xs).iterM m).step = pure (.deflate ⟨.yield (xs.iterM m) x, rfl⟩) := by
   simp only [List.iterM, IterM.step, Iterator.step]; rfl
 
 theorem _root_.List.step_iterM {l : List β} :
     (l.iterM m).step = match l with
-      | [] => pure ⟨.done, rfl⟩
-      | x :: xs => pure ⟨.yield (xs.iterM m) x, rfl⟩ := by
+      | [] => pure (.deflate ⟨.done, rfl⟩)
+      | x :: xs => pure (.deflate ⟨.yield (xs.iterM m) x, rfl⟩) := by
   cases l <;> simp [List.step_iterM_cons, List.step_iterM_nil]
 
 theorem ListIterator.toArrayMapped_iterM [Monad n] [LawfulMonad n]

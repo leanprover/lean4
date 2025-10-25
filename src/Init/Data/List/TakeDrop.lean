@@ -7,7 +7,9 @@ module
 
 prelude
 import all Init.Data.List.Basic
-import Init.Data.List.Lemmas
+public import Init.Data.List.Lemmas
+
+public section
 
 /-!
 # Lemmas about `List.take` and `List.drop`.
@@ -66,9 +68,9 @@ theorem take_of_length_le {l : List α} (h : l.length ≤ i) : take i l = l := b
 theorem lt_length_of_take_ne_self {l : List α} {i} (h : l.take i ≠ l) : i < l.length :=
   gt_of_not_le (mt take_of_length_le h)
 
-@[simp] theorem drop_length {l : List α} : l.drop l.length = [] := drop_of_length_le (Nat.le_refl _)
+@[simp, grind =] theorem drop_length {l : List α} : l.drop l.length = [] := drop_of_length_le (Nat.le_refl _)
 
-@[simp] theorem take_length {l : List α} : l.take l.length = l := take_of_length_le (Nat.le_refl _)
+@[simp, grind =] theorem take_length {l : List α} : l.take l.length = l := take_of_length_le (Nat.le_refl _)
 
 @[simp]
 theorem getElem_cons_drop : ∀ {l : List α} {i : Nat} (h : i < l.length),
@@ -161,9 +163,6 @@ theorem take_set {l : List α} {i j : Nat} {a : α} :
     cases l with
     | nil => simp
     | cons hd tl => cases j <;> simp_all
-
-@[deprecated take_set (since := "2025-02-17")]
-abbrev set_take := @take_set
 
 theorem drop_set {l : List α} {i j : Nat} {a : α} :
     (l.set j a).drop i = if j < i then l.drop i else (l.drop i).set (j - i) a := by

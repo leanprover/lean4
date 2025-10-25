@@ -45,7 +45,7 @@
       return _x.4
 [Compiler.result] size: 5
     def foo._closed_9 : Syntax :=
-      let _x.1 := [] _;
+      let _x.1 := [] ◾;
       let _x.2 := foo._closed_8;
       let _x.3 := foo._closed_6;
       let _x.4 := foo._closed_0;
@@ -66,19 +66,19 @@
       let _x.1 := Syntax.missing;
       let _x.2 := 1;
       let _x.3 := false;
-      let _x.4 := @SourceInfo.fromRef _x.1 _x.3;
-      let _x.5 := "UnhygienicMain";
-      let _x.6 := Name.mkStr1 _x.5;
-      let _x.7 := "term_+_";
-      let _x.8 := Name.mkStr1 _x.7;
-      let _x.9 := "a";
-      let _x.10 := String.toSubstring' _x.9;
-      let _x.11 := Name.mkStr1 _x.9;
-      let _x.12 := addMacroScope _x.6 _x.11 _x.2;
-      let _x.13 := [] _;
-      let _x.14 := Syntax.ident _x.4 _x.10 _x.12 _x.13;
-      let _x.15 := "+";
-      let _x.16 := Syntax.atom _x.4 _x.15;
+      let _x.4 := foo._closed_0;
+      let _x.5 := foo._closed_1;
+      let _x.6 := foo._closed_2;
+      let _x.7 := foo._closed_3;
+      let _x.8 := foo._closed_4;
+      let _x.9 := foo._closed_5;
+      let _x.10 := foo._closed_6;
+      let _x.11 := foo._closed_7;
+      let _x.12 := foo._closed_8;
+      let _x.13 := [] ◾;
+      let _x.14 := foo._closed_9;
+      let _x.15 := foo._closed_10;
+      let _x.16 := foo._closed_11;
       let _x.17 := Nat.reprFast n;
       let _x.18 := SourceInfo.none;
       let _x.19 := @Syntax.mkNumLit _x.17 _x.18;

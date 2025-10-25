@@ -6,11 +6,11 @@ Authors: Mario Carneiro, Markus Himmel
 module
 
 prelude
-import Init.Data.Int.Basic
-import Init.Data.Nat.Gcd
-import Init.Data.Nat.Lcm
-import Init.Data.Int.DivMod.Lemmas
-import Init.Data.Int.Pow
+public import Init.Data.Nat.Lcm
+public import Init.Data.Int.DivMod.Lemmas
+public import Init.Data.Int.Pow
+
+public section
 
 /-!
 Definition and lemmas for gcd and lcm over Int

@@ -7,11 +7,13 @@ module
 
 prelude
 import all Init.Data.UInt.Basic
-import Init.Data.UInt.Bitwise
+public import Init.Data.UInt.Bitwise
 import all Init.Data.BitVec.Basic
 import all Init.Data.BitVec.Lemmas
 import all Init.Data.SInt.Basic
-import Init.Data.SInt.Lemmas
+public import Init.Data.SInt.Lemmas
+
+public section
 
 set_option hygiene false in
 macro "declare_bitwise_int_theorems" typeName:ident bits:term:arg : command =>

@@ -7,8 +7,9 @@ Authors: Dany Fabian
 module
 
 prelude
-import Init.Classical
-import Init.ByCases
+public import Init.ByCases
+
+@[expose] public section
 
 namespace Lean.Data.AC
 inductive Expr

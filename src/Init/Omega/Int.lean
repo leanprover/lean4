@@ -6,8 +6,9 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Int.DivMod.Bootstrap
-import Init.Data.Int.Order
+public import Init.Data.Int.DivMod.Bootstrap
+
+public section
 
 /-!
 # Lemmas about `Nat`, `Int`, and `Fin` needed internally by `omega`.
@@ -122,7 +123,7 @@ theorem ofNat_natAbs (a : Int) : (a.natAbs : Int) = if 0 ≤ a then a else -a :=
   split <;> rename_i n
   · simp only [Int.ofNat_eq_coe]
     rw [if_pos (Int.natCast_nonneg n)]
-  · simp; rfl
+  · simp
 
 theorem natAbs_dichotomy {a : Int} : 0 ≤ a ∧ a.natAbs = a ∨ a < 0 ∧ a.natAbs = -a := by
   by_cases h : 0 ≤ a
@@ -155,10 +156,10 @@ theorem add_le_zero_iff_le_neg {a b : Int} : a + b ≤ 0 ↔ a ≤ - b := by
   rw [add_le_iff_le_sub, Int.zero_sub]
 theorem add_le_zero_iff_le_neg' {a b : Int} : a + b ≤ 0 ↔ b ≤ -a := by
   rw [Int.add_comm, add_le_zero_iff_le_neg]
-theorem add_nonnneg_iff_neg_le {a b : Int} : 0 ≤ a + b ↔ -b ≤ a := by
+theorem add_nonneg_iff_neg_le {a b : Int} : 0 ≤ a + b ↔ -b ≤ a := by
   rw [le_add_iff_sub_le, Int.zero_sub]
-theorem add_nonnneg_iff_neg_le' {a b : Int} : 0 ≤ a + b ↔ -a ≤ b := by
-  rw [Int.add_comm, add_nonnneg_iff_neg_le]
+theorem add_nonneg_iff_neg_le' {a b : Int} : 0 ≤ a + b ↔ -a ≤ b := by
+  rw [Int.add_comm, add_nonneg_iff_neg_le]
 
 theorem ofNat_fst_mk {β} {x : Nat} {y : β} : (Prod.mk x y).fst = (x : Int) := rfl
 theorem ofNat_snd_mk {α} {x : α} {y : Nat} : (Prod.mk x y).snd = (y : Int) := rfl

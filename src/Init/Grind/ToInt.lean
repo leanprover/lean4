@@ -6,7 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Int.DivMod.Lemmas
+public import Init.Data.Int.DivMod.Lemmas
+import Init.LawfulBEqTactics
+
+public section
 
 /-!
 # Typeclasses for types that can be embedded into an interval of `Int`.
@@ -35,16 +38,17 @@ inductive IntInterval : Type where
     io (hi : Int)
   | /-- The infinite interval `(-∞, ∞)`. -/
     ii
+  deriving BEq, ReflBEq, LawfulBEq, DecidableEq, Inhabited
 
 namespace IntInterval
 
 /-- The interval `[0, 2^n)`. -/
-abbrev uint (n : Nat) := IntInterval.co 0 (2 ^ n)
+@[expose] abbrev uint (n : Nat) := IntInterval.co 0 (2 ^ n)
 /-- The interval `[-2^(n-1), 2^(n-1))`. -/
-abbrev sint (n : Nat) := IntInterval.co (-(2 ^ (n - 1))) (2 ^ (n - 1))
+@[expose] abbrev sint (n : Nat) := IntInterval.co (-(2 ^ (n - 1))) (2 ^ (n - 1))
 
 /-- The lower bound of the interval, if finite. -/
-def lo? (i : IntInterval) : Option Int :=
+@[expose] def lo? (i : IntInterval) : Option Int :=
   match i with
   | co lo _ => some lo
   | ci lo => some lo
@@ -52,23 +56,21 @@ def lo? (i : IntInterval) : Option Int :=
   | ii => none
 
 /-- The upper bound of the interval, if finite. -/
-def hi? (i : IntInterval) : Option Int :=
+@[expose] def hi? (i : IntInterval) : Option Int :=
   match i with
   | co _ hi => some hi
   | ci _ => none
   | io hi => some hi
   | ii => none
 
-@[simp]
-def nonEmpty (i : IntInterval) : Bool :=
+@[simp, expose] def nonEmpty (i : IntInterval) : Bool :=
   match i with
   | co lo hi => lo < hi
   | ci _ => true
   | io _ => true
   | ii => true
 
-@[simp]
-def isFinite (i : IntInterval) : Bool :=
+@[simp, expose] def isFinite (i : IntInterval) : Bool :=
   match i with
   | co _ _ => true
   | ci _
@@ -93,7 +95,7 @@ instance : Membership Int IntInterval where
 theorem nonEmpty_of_mem {x : Int} {i : IntInterval} (h : x ∈ i) : i.nonEmpty := by
   cases i <;> simp_all <;> omega
 
-@[simp]
+@[simp, expose]
 def wrap (i : IntInterval) (x : Int) : Int :=
   match i with
   | co lo hi => (x - lo) % (hi - lo) + lo
@@ -352,5 +354,16 @@ def Sub.of_sub_eq_add_neg {α : Type u} [_root_.Add α] [_root_.Neg α] [_root_.
     conv => rhs; rw [wrap_add h, ToInt.wrap_toInt]
 
 end ToInt
+
+/-
+Remark: `↑a` is notation for `ToInt.toInt a`.
+We want to hide `Lean.Grind.ToInt.toInt` applications in the counterexamples produced by
+the `cutsat` procedure in `grind`.
+-/
+@[app_unexpander ToInt.toInt]
+meta def toIntUnexpander : PrettyPrinter.Unexpander := fun stx => do
+  match stx with
+  | `($_ $a:term) => `(↑$a)
+  | _ => throw ()
 
 end Lean.Grind

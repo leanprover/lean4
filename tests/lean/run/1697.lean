@@ -1,6 +1,6 @@
 
 /--
-error: tactic 'decide' proved that the proposition
+error: Tactic `decide` proved that the proposition
   False
 is false
 -/

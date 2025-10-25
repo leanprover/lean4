@@ -3,10 +3,12 @@ Copyright (c) 2022 Henrik Böving. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.PassManager
-import Lean.Compiler.LCNF.PhaseExt
+public import Lean.Compiler.LCNF.PhaseExt
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -165,10 +167,10 @@ def count : Probe α Nat := fun data => return #[data.size]
 def sum : Probe Nat Nat := fun data => return #[data.foldl (init := 0) (·+·)]
 
 @[inline]
-def tail (n : Nat) : Probe α α := fun data => return data[data.size - n:]
+def tail (n : Nat) : Probe α α := fun data => return data[(data.size - n)...*]
 
 @[inline]
-def head (n : Nat) : Probe α α := fun data => return data[:n]
+def head (n : Nat) : Probe α α := fun data => return data[*...n]
 
 def runOnDeclsNamed (declNames : Array Name) (probe : Probe Decl β) (phase : Phase := Phase.base): CoreM (Array β) := do
   let ext := getExt phase
@@ -189,7 +191,7 @@ def runGlobally (probe : Probe Decl β) (phase : Phase := Phase.base) : CoreM (A
   let ext := getExt phase
   let env ← getEnv
   let mut decls := #[]
-  for modIdx in [:env.allImportedModuleNames.size] do
+  for modIdx in *...env.allImportedModuleNames.size do
     decls := decls.append <| ext.getModuleEntries env modIdx
   probe decls |>.run (phase := phase)
 

@@ -3,11 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.ScopedEnvExtension
-import Lean.Meta.GlobalInstances
-import Lean.Meta.DiscrTree
-import Lean.Meta.CollectMVars
+public import Init.Data.Range.Polymorphic.Stream
+public import Lean.Meta.DiscrTree
+public import Lean.Meta.CollectMVars
+
+public section
 
 namespace Lean.Meta
 
@@ -82,13 +85,15 @@ def Instances.eraseCore (d : Instances) (declName : Name) : Instances :=
 
 def Instances.erase [Monad m] [MonadError m] (d : Instances) (declName : Name) : m Instances := do
   unless d.instanceNames.contains declName do
-    throwError "'{declName}' does not have [instance] attribute"
+    throwError "`{.ofConstName declName}` does not have [instance] attribute"
   return d.eraseCore declName
 
 builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry Instances ←
   registerSimpleScopedEnvExtension {
     initial  := {}
     addEntry := addInstanceEntry
+    exportEntry? := fun level e =>
+      guard (level == .private || e.globalName?.any (!isPrivateName ·)) *> e
   }
 
 private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
@@ -147,7 +152,7 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
     if let .const className .. := classTy.getAppFn then
       forallTelescopeReducing (← inferType classTy.getAppFn) fun args _ => do
       let mut pos := (getOutParamPositions? (← getEnv) className).getD #[]
-      for arg in args, i in [:args.size] do
+      for arg in args, i in *...args.size do
         if (← inferType arg).isAppOf ``semiOutParam then
           pos := pos.push i
       return pos
@@ -173,7 +178,7 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
   -- These are assumed to not be mvars during TC search (or at least not assignable)
   let tyOutParams ← getSemiOutParamPositionsOf ty
   let tyArgs := ty.getAppArgs
-  for tyArg in tyArgs, i in [:tyArgs.size] do
+  for tyArg in tyArgs, i in *...tyArgs.size do
     unless tyOutParams.contains i do
       assignMVarsIn tyArg
 
@@ -193,7 +198,7 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
       let argTy ← whnf argTy
       let argOutParams ← getSemiOutParamPositionsOf argTy
       let argTyArgs := argTy.getAppArgs
-      for i in [:argTyArgs.size], argTyArg in argTyArgs do
+      for i in *...argTyArgs.size, argTyArg in argTyArgs do
         if !argOutParams.contains i && argTyArg.hasExprMVar then
           return false
       return true
@@ -283,7 +288,7 @@ structure DefaultInstanceEntry where
   instanceName : Name
   priority     : Nat
 
-abbrev PrioritySet := RBTree Nat (fun x y => compare y x)
+abbrev PrioritySet := Std.TreeSet Nat (fun x y => compare y x)
 
 structure DefaultInstances where
   defaultInstances : NameMap (List (Name × Nat)) := {}
@@ -304,15 +309,15 @@ builtin_initialize defaultInstanceExtension : SimplePersistentEnvExtension Defau
 
 def addDefaultInstance (declName : Name) (prio : Nat := 0) : MetaM Unit := do
   match (← getEnv).find? declName with
-  | none => throwError "unknown constant '{declName}'"
+  | none => throwError "Unknown constant `{.ofConstName declName}`"
   | some info =>
     forallTelescopeReducing info.type fun _ type => do
       match type.getAppFn with
       | Expr.const className _ =>
         unless isClass (← getEnv) className do
-          throwError "invalid default instance '{declName}', it has type '({className} ...)', but {className}' is not a type class"
+          throwError "invalid default instance `{.ofConstName declName}`, it has type `({className} ...)`, but `{.ofConstName className}` is not a type class"
         setEnv <| defaultInstanceExtension.addEntry (← getEnv) { className := className, instanceName := declName, priority := prio }
-      | _ => throwError "invalid default instance '{declName}', type must be of the form '(C ...)' where 'C' is a type class"
+      | _ => throwError "invalid default instance `{.ofConstName declName}`, type must be of the form `(C ...)` where `C` is a type class"
 
 builtin_initialize
   registerBuiltinAttribute {
@@ -320,7 +325,7 @@ builtin_initialize
     descr := "type class default instance"
     add   := fun declName stx kind => do
       let prio ← getAttrParamOptPrio stx[1]
-      unless kind == AttributeKind.global do throwError "invalid attribute 'default_instance', must be global"
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal `default_instance kind
       discard <| addDefaultInstance declName prio |>.run {} {}
   }
   registerTraceClass `Meta.synthOrder

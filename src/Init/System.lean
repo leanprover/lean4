@@ -6,8 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.System.IO
-import Init.System.Platform
-import Init.System.Uri
-import Init.System.Mutex
-import Init.System.Promise
+public import Init.System.IO
+public import Init.System.Platform
+public import Init.System.Uri
+public import Init.System.Promise

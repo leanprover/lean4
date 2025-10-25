@@ -3,8 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.DHashMap.Basic
+public import Std.Data.DHashMap.Basic
+import all Std.Data.DHashMap.Basic
+
+public section
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on
@@ -26,9 +31,9 @@ namespace Raw
 
 -- TODO: the next two lemmas need to be renamed, but there is a bootstrapping obstacle.
 
-theorem empty_eq [BEq α] [Hashable α] {c : Nat} : (Raw.emptyWithCapacity c : Raw α β) = (Raw₀.emptyWithCapacity c).1 := rfl
+theorem empty_eq {c : Nat} : (Raw.emptyWithCapacity c : Raw α β) = (Raw₀.emptyWithCapacity c).1 := (rfl)
 
-theorem emptyc_eq [BEq α] [Hashable α] : (∅ : Raw α β) = Raw₀.emptyWithCapacity.1 := rfl
+theorem emptyc_eq : (∅ : Raw α β) = Raw₀.emptyWithCapacity.1 := (rfl)
 
 theorem insert_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a : α} {b : β a} :
     m.insert a b = (Raw₀.insert ⟨m, h.size_buckets_pos⟩ a b).1 := by
@@ -76,7 +81,7 @@ theorem contains_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a : α} :
 
 theorem get_eq [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {a : α} {h : a ∈ m} :
     m.get a h = Raw₀.get ⟨m, by change dite .. = true at h; split at h <;> simp_all⟩ a
-      (by change dite .. = true at h; split at h <;> simp_all) := rfl
+      (by change dite .. = true at h; split at h <;> simp_all) := (rfl)
 
 theorem getD_eq [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} (h : m.WF) {a : α}
     {fallback : β a} : m.getD a fallback = Raw₀.getD ⟨m, h.size_buckets_pos⟩ a fallback := by
@@ -92,7 +97,7 @@ theorem getKey?_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a : α} :
 
 theorem getKey_eq [BEq α] [Hashable α] {m : Raw α β} {a : α} {h : a ∈ m} :
     m.getKey a h = Raw₀.getKey ⟨m, by change dite .. = true at h; split at h <;> simp_all⟩ a
-      (by change dite .. = true at h; split at h <;> simp_all) := rfl
+      (by change dite .. = true at h; split at h <;> simp_all) := (rfl)
 
 theorem getKeyD_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a fallback : α} :
     m.getKeyD a fallback = Raw₀.getKeyD ⟨m, h.size_buckets_pos⟩ a fallback := by
@@ -136,6 +141,10 @@ theorem modify_eq [BEq α] [LawfulBEq α] [Hashable α] {m : Raw α β} (h : m.W
     m.modify k f = Raw₀.modify ⟨m, h.size_buckets_pos⟩ k f := by
   simp [Raw.modify, h.size_buckets_pos]
 
+theorem union_eq [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    m₁.union m₂ = Raw₀.union ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩ := by
+  simp [Raw.union, h₁.size_buckets_pos, h₂.size_buckets_pos]
+
 section
 
 variable {β : Type v}
@@ -168,7 +177,7 @@ theorem Const.get_eq [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {a : α} 
     Raw.Const.get m a h = Raw₀.Const.get
       ⟨m, by change dite .. = true at h; split at h <;> simp_all⟩ a
       (by change dite .. = true at h; split at h <;> simp_all) :=
-  rfl
+  (rfl)
 
 theorem Const.getD_eq [BEq α] [Hashable α] {m : Raw α (fun _ => β)} (h : m.WF) {a : α}
     {fallback : β} : Raw.Const.getD m a fallback =

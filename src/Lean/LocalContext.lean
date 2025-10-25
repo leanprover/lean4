@@ -3,11 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Nat.Control
-import Lean.Data.PersistentArray
-import Lean.Expr
-import Lean.Hygiene
+public import Init.Data.Nat.Control
+public import Lean.Data.PersistentArray
+public import Lean.Expr
+
+public section
 
 namespace Lean
 
@@ -70,7 +73,8 @@ inductive LocalDecl where
     `ldecl`s are `cdecl`s (for example, when reverting variables). As a consequence, nondep `ldecl`s may
     have type-incorrect values. This design decision allows metaprograms to not have to think about nondep `ldecl`s,
     so long as `LocalDecl` values are consumed through `LocalDecl.isLet` and `LocalDecl.value?` with `(allowNondep := false)`.
-    **Rule:** never use `(generalizeNondepLet := false)` in `mkBinding`-family functions within a local context you do not own.
+    **Rule:** never use `(generalizeNondepLet := false)` in `mkBinding`-family functions
+    on a local context entry you did not create.
     See `LocalDecl.setNondep` for some additional discussion.
   - Where then do nondep ldecls come from? Common functions are `Meta.mapLetDecl`, `Meta.withLetDecl`, and `Meta.letTelescope`.
     The `have` term syntax makes use of a nondep ldecl as well.
@@ -426,15 +430,30 @@ def renameUserName (lctx : LocalContext) (fromName : Name) (toName : Name) : Loc
         auxDeclToFullName }
 
 /--
-  Low-level function for updating the local context.
-  Assumptions about `f`, the resulting nested expressions must be definitionally equal to their original values,
-  the `index` nor `fvarId` are modified.  -/
+Low-level function for updating the local context.
+Assumptions about `f`, the resulting nested expressions must be definitionally equal to their original values,
+and neither the `index` nor `fvarId` are modified.
+-/
 @[inline] def modifyLocalDecl (lctx : LocalContext) (fvarId : FVarId) (f : LocalDecl → LocalDecl) : LocalContext :=
   match lctx with
   | { fvarIdToDecl := map, decls := decls, auxDeclToFullName } =>
     match lctx.find? fvarId with
     | none      => lctx
     | some decl =>
+      let decl := f decl
+      { fvarIdToDecl := map.insert decl.fvarId decl
+        decls        := decls.set decl.index decl
+        auxDeclToFullName }
+
+/--
+Low-level function for updating every declaration in the local context.
+Assumptions about `f`, the resulting nested expressions must be definitionally equal to their original values,
+and neither the `index` nor `fvarId` are modified.
+-/
+def modifyLocalDecls (lctx : LocalContext) (f : LocalDecl → LocalDecl) : LocalContext :=
+  lctx.decls.foldl (init := lctx) fun
+    | lctx, none => lctx
+    | { fvarIdToDecl := map, decls := decls, auxDeclToFullName }, some decl =>
       let decl := f decl
       { fvarIdToDecl := map.insert decl.fvarId decl
         decls        := decls.set decl.index decl
@@ -522,7 +541,7 @@ partial def isSubPrefixOfAux (a₁ a₂ : PArray (Option LocalDecl)) (exceptFVar
 def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) (exceptFVars : Array Expr := #[]) : Bool :=
   isSubPrefixOfAux lctx₁.decls lctx₂.decls exceptFVars 0 0
 
-@[inline] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (b : Expr) (generalizeNondepLet := false) : Expr :=
+@[inline] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (b : Expr) (usedLetOnly : Bool := true) (generalizeNondepLet := false) : Expr :=
   let b := b.abstract xs
   xs.size.foldRev (init := b) fun i _ b =>
     let x := xs[i]
@@ -538,7 +557,7 @@ def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) (exceptFVars : Array Expr := 
     | some (.ldecl _ _ n ty val nondep _) =>
       if nondep && generalizeNondepLet then
         handleCDecl n ty .default
-      else if b.hasLooseBVar 0 then
+      else if !usedLetOnly || b.hasLooseBVar 0 then
         let ty  := ty.abstractRange i xs
         let val := val.abstractRange i xs
         mkLet n ty val b nondep
@@ -548,13 +567,13 @@ def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) (exceptFVars : Array Expr := 
 
 /-- Creates the expression `fun x₁ .. xₙ => b` for free variables `xs = #[x₁, .., xₙ]`,
 suitably abstracting `b` and the types for each of the `xᵢ`. -/
-def mkLambda (lctx : LocalContext) (xs : Array Expr) (b : Expr) (generalizeNondepLet := false) : Expr :=
-  mkBinding true lctx xs b generalizeNondepLet
+def mkLambda (lctx : LocalContext) (xs : Array Expr) (b : Expr) (usedLetOnly : Bool := true) (generalizeNondepLet := false) : Expr :=
+  mkBinding true lctx xs b usedLetOnly generalizeNondepLet
 
 /-- Creates the expression `(x₁:α₁) → .. → (xₙ:αₙ) → b` for free variables `xs = #[x₁, .., xₙ]`,
 suitably abstracting `b` and the types for each of the `xᵢ`, `αᵢ`. -/
-def mkForall (lctx : LocalContext) (xs : Array Expr) (b : Expr) (generalizeNondepLet := false) : Expr :=
-  mkBinding false lctx xs b generalizeNondepLet
+def mkForall (lctx : LocalContext) (xs : Array Expr) (b : Expr) (usedLetOnly : Bool := true) (generalizeNondepLet := false) : Expr :=
+  mkBinding false lctx xs b usedLetOnly generalizeNondepLet
 
 @[inline] def anyM [Monad m] (lctx : LocalContext) (p : LocalDecl → m Bool) : m Bool :=
   lctx.decls.anyM fun d => match d with

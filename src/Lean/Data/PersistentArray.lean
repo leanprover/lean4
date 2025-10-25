@@ -3,12 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Nat.Fold
-import Init.Data.Array.Basic
-import Init.NotationExtra
-import Init.Data.ToString.Macro
-import Init.Data.UInt.Basic
+public import Init.Data.Nat.Fold
+public import Init.Data.UInt.Basic
+import Init.Data.String.Basic
+
+public section
 
 universe u v w
 

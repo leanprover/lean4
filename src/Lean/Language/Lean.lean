@@ -8,12 +8,14 @@ recompilation
 Authors: Sebastian Ullrich
 -/
 
+module
+
 prelude
-import Lean.Language.Basic
-import Lean.Language.Util
-import Lean.Language.Lean.Types
-import Lean.Parser.Module
-import Lean.Elab.Import
+public import Lean.Language.Util
+public import Lean.Language.Lean.Types
+public import Lean.Elab.Import
+
+public section
 
 /-!
 # Note [Incremental Parsing]
@@ -235,7 +237,7 @@ open Lean.Parser
 /-- Lean-specific processing context. -/
 structure LeanProcessingContext extends ProcessingContext where
   /-- Position of the first file difference if there was a previous invocation. -/
-  firstDiffPos? : Option String.Pos
+  firstDiffPos? : Option String.Pos.Raw
 
 /-- Monad transformer holding all relevant data for Lean processing. -/
 abbrev LeanProcessingT m := ReaderT LeanProcessingContext m
@@ -256,14 +258,14 @@ ruled out.
 def LeanProcessingM.run (act : LeanProcessingM α) (oldInputCtx? : Option InputContext) :
     ProcessingM α := do
   -- compute position of syntactic change once
-  let firstDiffPos? := oldInputCtx?.map (·.input.firstDiffPos (← read).input)
+  let firstDiffPos? := oldInputCtx?.map (·.inputString.firstDiffPos (← read).inputString)
   ReaderT.adapt ({ · with firstDiffPos? }) act
 
 /--
 Returns true if there was a previous run and the given position is before any textual change
 compared to it.
 -/
-def isBeforeEditPos (pos : String.Pos) : LeanProcessingM Bool := do
+def isBeforeEditPos (pos : String.Pos.Raw) : LeanProcessingM Bool := do
   return (← read).firstDiffPos?.any (pos < ·)
 
 /--
@@ -313,7 +315,7 @@ def reparseOptions (opts : Options) : IO Options := do
       | unless weak do
           throw <| .userError s!"invalid -D parameter, unknown configuration option '{name}'
 
-If the option is defined in this library, use '-D{`weak ++ name}' to set it conditionally"
+If the option is defined in a library, use '-D{`weak ++ name}' to set it conditionally"
 
     let .ofString val := val
       | opts' := opts'.insert name val  -- Already parsed
@@ -337,7 +339,7 @@ If the option is defined in this library, use '-D{`weak ++ name}' to set it cond
 
   return opts'
 
-private def getNiceCommandStartPos? (stx : Syntax) : Option String.Pos := do
+private def getNiceCommandStartPos? (stx : Syntax) : Option String.Pos.Raw := do
   let mut stx := stx
   if stx[0].isOfKind ``Command.declModifiers then
     -- modifiers are morally before the actual declaration
@@ -388,7 +390,7 @@ where
       -- they are passed separately from `old`
       if let some oldSuccess := old.result? then
         -- make sure to update ranges of all reused tasks
-        let progressRange? := some ⟨newParserState.pos, ctx.input.endPos⟩
+        let progressRange? := .some ⟨newParserState.pos, ctx.endPos⟩
         return {
           ictx
           stx := newStx
@@ -399,12 +401,12 @@ where
           result? := some {
             parserState := newParserState
             processedSnap := (← oldSuccess.processedSnap.bindIO
-                (cancelTk? := none) (reportingRange? := progressRange?) (sync := true) fun oldProcessed => do
+                (cancelTk? := none) (reportingRange := progressRange?) (sync := true) fun oldProcessed => do
               if let some oldProcSuccess := oldProcessed.result? then
                 -- also wait on old command parse snapshot as parsing is cheap and may allow for
                 -- elaboration reuse
                 oldProcSuccess.firstCmdSnap.bindIO (sync := true)
-                    (cancelTk? := none) (reportingRange? := progressRange?) fun oldCmd => do
+                    (cancelTk? := none) (reportingRange := progressRange?) fun oldCmd => do
                   let prom ← IO.Promise.new
                   let cancelTk ← IO.CancelToken.new
                   parseCmd oldCmd newParserState oldProcSuccess.cmdState prom (sync := true) cancelTk ctx
@@ -474,7 +476,7 @@ where
   processHeader (stx : HeaderSyntax) (parserState : Parser.ModuleParserState) :
       LeanProcessingM (SnapshotTask HeaderProcessedSnapshot) := do
     let ctx ← read
-    SnapshotTask.ofIO none none (some ⟨0, ctx.input.endPos⟩) <|
+    SnapshotTask.ofIO none none (.some ⟨0, ctx.endPos⟩) <|
     ReaderT.run (r := ctx) <|  -- re-enter reader in new task
     withHeaderExceptions (α := HeaderProcessedSnapshot) ({ · with result? := none, metaSnap := default }) do
       let setup ← match (← setupImports stx) with
@@ -484,7 +486,7 @@ where
       let startTime := (← IO.monoNanosNow).toFloat / 1000000000
       let mut opts := setup.opts
       -- HACK: no better way to enable in core with `USE_LAKE` off
-      if (`Init).isPrefixOf setup.mainModuleName then
+      if setup.mainModuleName.getRoot ∈ [`Init, `Std, `Lean, `Lake, `LakeMain] then
         opts := experimental.module.setIfNotSet opts true
       if !stx.raw[0].isNone && !experimental.module.get opts then
         throw <| IO.Error.userError "`module` keyword is experimental and not enabled here"
@@ -565,7 +567,7 @@ where
             parseCmd oldNext newParserState oldResult.cmdState newProm sync cancelTk ctx
         prom.resolve <| { old with nextCmdSnap? := some {
           stx? := none
-          reportingRange? := some ⟨newParserState.pos, ctx.input.endPos⟩
+          reportingRange := .some ⟨newParserState.pos, ctx.endPos⟩
           task := newProm.result!
           cancelTk? := cancelTk
         } }
@@ -641,13 +643,13 @@ where
         (stx, parserState)
       -- report terminal tasks on first line of decl such as not to hide incremental tactics'
       -- progress
-      let initRange? := getNiceCommandStartPos? stx |>.map fun pos => ⟨pos, pos⟩
+      let initRange? := .ofOptionInheriting <| getNiceCommandStartPos? stx |>.map fun pos => ⟨pos, pos⟩
       let next? ← if Parser.isTerminalCommand stx then pure none
         -- for now, wait on "command finished" snapshot before parsing next command
         else some <$> IO.Promise.new
       let nextCmdSnap? := next?.map ({
         stx? := none
-        reportingRange? := some ⟨parserState.pos, ctx.input.endPos⟩
+        reportingRange := .some ⟨parserState.pos, ctx.endPos⟩
         cancelTk? := parseCancelTk
         task := ·.result!
       })
@@ -662,9 +664,9 @@ where
         elabSnap := {
           diagnostics := .empty
           elabSnap := { stx? := stx', task := elabPromise.result!, cancelTk? := some elabCmdCancelTk }
-          resultSnap := { stx? := stx', reportingRange? := initRange?, task := resultPromise.result!, cancelTk? := none }
-          infoTreeSnap := { stx? := stx', reportingRange? := initRange?, task := finishedPromise.result!, cancelTk? := none }
-          reportSnap := { stx? := none, reportingRange? := initRange?, task := reportPromise.result!, cancelTk? := none }
+          resultSnap := { stx? := stx', reportingRange := initRange?, task := resultPromise.result!, cancelTk? := none }
+          infoTreeSnap := { stx? := stx', reportingRange := initRange?, task := finishedPromise.result!, cancelTk? := none }
+          reportSnap := { stx? := none, reportingRange := initRange?, task := reportPromise.result!, cancelTk? := none }
         }
       }
       let cmdState ← doElab stx cmdState beginPos
@@ -731,7 +733,7 @@ where
         .mk { diagnostics := .empty } <|
           cmdState.snapshotTasks.push {
             stx? := none
-            reportingRange? := initRange?
+            reportingRange := initRange?
             task := traceTask
             cancelTk? := none
           }
@@ -739,7 +741,7 @@ where
         -- We're definitely off the fast-forwarding path now
         parseCmd none parserState cmdState next (sync := false) elabCmdCancelTk ctx
 
-  doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos)
+  doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos.Raw)
       (snap : SnapshotBundle DynamicSnapshot) (cancelTk : IO.CancelToken) :
       LeanProcessingM Command.State := do
     let ctx ← read

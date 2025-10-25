@@ -6,8 +6,10 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Consumers.Monadic
-import Init.Data.Iterators.Consumers.Access
-import Init.Data.Iterators.Consumers.Collect
-import Init.Data.Iterators.Consumers.Loop
-import Init.Data.Iterators.Consumers.Partial
+public import Init.Data.Iterators.Consumers.Monadic
+public import Init.Data.Iterators.Consumers.Access
+public import Init.Data.Iterators.Consumers.Collect
+public import Init.Data.Iterators.Consumers.Loop
+public import Init.Data.Iterators.Consumers.Partial
+
+public import Init.Data.Iterators.Consumers.Stream

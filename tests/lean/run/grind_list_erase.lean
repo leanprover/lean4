@@ -1,3 +1,5 @@
+module
+@[expose] public section -- TODO: remove after `congr_eq` fixed
 open List
 
 theorem eraseP_eq_nil_iff {xs : List α} {p : α → Bool} : xs.eraseP p = [] ↔ xs = [] ∨ ∃ x, p x ∧ xs = [x] := by

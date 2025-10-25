@@ -3,11 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.ScopedEnvExtension
-import Lean.Util.Recognizers
-import Lean.Util.CollectMVars
-import Lean.Meta.Basic
+public import Lean.Util.Recognizers
+public import Lean.Util.CollectMVars
+public import Lean.Meta.Basic
+
+public section
 
 namespace Lean.Meta
 
@@ -54,11 +57,11 @@ def mkSimpCongrTheorem (declName : Name) (prio : Nat) : MetaM SimpCongrTheorem :
   let c ← mkConstWithLevelParams declName
   let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType c)
   match type.eqOrIff? with
-  | none => throwError "invalid 'congr' theorem, equality expected{indentExpr type}"
+  | none => throwError "Invalid `congr` theorem: Theorem is not an equality or iff{indentExpr type}"
   | some (lhs, rhs) =>
     lhs.withApp fun lhsFn lhsArgs => rhs.withApp fun rhsFn rhsArgs => do
       unless lhsFn.isConst && rhsFn.isConst && lhsFn.constName! == rhsFn.constName! && lhsArgs.size == rhsArgs.size do
-        throwError "invalid 'congr' theorem, equality left/right-hand sides must be applications of the same function{indentExpr type}"
+        throwError "Invalid `congr` theorem: The left- and right-hand sides of the equality are not applications of the same function{indentExpr type}"
       let mut foundMVars : MVarIdSet := {}
       for lhsArg in lhsArgs do
         for mvarId in (lhsArg.collectMVars {}).result do
@@ -75,18 +78,18 @@ def mkSimpCongrTheorem (declName : Name) (prio : Nat) : MetaM SimpCongrTheorem :
               for y in ys do
                 let yType ← inferType y
                 unless onlyMVarsAt yType foundMVars do
-                  throwError "invalid 'congr' theorem, argument #{j+1} of parameter #{i+1} contains unresolved parameter{indentExpr yType}"
+                  throwError "Invalid `congr` theorem: Argument #{j+1} of parameter #{i+1} contains unresolved parameter{indentExpr yType}"
                 j := j + 1
               unless onlyMVarsAt xLhs foundMVars do
-                throwError "invalid 'congr' theorem, parameter #{i+1} is not a valid hypothesis, the left-hand-side contains unresolved parameters{indentExpr xLhs}"
+                throwError "Invalid `congr` theorem: Parameter #{i+1} is not a valid hypothesis because its left-hand side contains unresolved parameters{indentExpr xLhs}"
               let xRhsFn := xRhs.getAppFn
               unless xRhsFn.isMVar do
-                throwError "invalid 'congr' theorem, parameter #{i+1} is not a valid hypothesis, the right-hand-side head is not a metavariable{indentExpr xRhs}"
+                throwError "Invalid `congr` theorem: Parameter #{i+1} is not a valid hypothesis because its right-hand side head is not a metavariable{indentExpr xRhs}"
               unless !foundMVars.contains xRhsFn.mvarId! do
-                throwError "invalid 'congr' theorem, parameter #{i+1} is not a valid hypothesis, the right-hand-side head was already resolved{indentExpr xRhs}"
+                throwError "Invalid `congr` theorem: Parameter #{i+1} is not a valid hypothesis because its right-hand side head was already resolved{indentExpr xRhs}"
               for arg in xRhs.getAppArgs do
                 unless arg.isFVar do
-                  throwError "invalid 'congr' theorem, parameter #{i+1} is not a valid hypothesis, the right-hand-side argument is not local variable{indentExpr xRhs}"
+                  throwError "Invalid `congr` theorem: Parameter #{i+1} is not a valid hypothesis because its right-hand side argument is not a local variable{indentExpr xRhs}"
               pure (some xRhsFn)
           match rhsFn? with
           | none       => pure ()

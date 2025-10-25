@@ -6,8 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Nat.Linear
-import Init.Data.List.BasicAux
+public import Init.Data.List.BasicAux
+
+public section
 
 namespace Nat.SOM
 

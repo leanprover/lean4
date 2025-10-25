@@ -4,10 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Data.Lsp.Capabilities
-import Lean.Data.Lsp.Workspace
-import Lean.Data.Json
+public import Lean.Data.Lsp.Capabilities
+public import Lean.Data.Lsp.Workspace
+
+public section
 
 /-! Functionality to do with initializing and shutting down
 the server ("General Messages" section of LSP spec). -/

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Producers.Repeat
-// Imports: Init.Data.Iterators.Consumers.Monadic Init.Data.Iterators.Internal.Termination
+// Imports: public import Init.Data.Iterators.Consumers.Monadic public import Init.Data.Iterators.Internal.Termination
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,6 +17,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators_RepeatIterator_instIteratorCollect(lean
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMappedPartial(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Iter_repeat___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_RepeatIterator_ctorIdx(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_RepeatIterator_instIteratorLoopPartial___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_RepeatIterator_instIteratorCollect___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorRepeatIteratorId___redArg___lam__0(lean_object*, lean_object*);
@@ -32,6 +33,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators_Iter_repeat(lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Producers_Repeat_0__Std_Iterators_RepeatIterator_instProductivenessRelation(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Producers_Repeat_0__Std_Iterators_RepeatIterator_instProductivenessRelation___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_RepeatIterator_instIteratorLoop(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_RepeatIterator_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_RepeatIterator_instIteratorLoop___redArg(lean_object*, lean_object*);
 static lean_object* l_Std_Iterators_RepeatIterator_instIteratorCollect___redArg___lam__0___closed__0;
 lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -39,6 +41,24 @@ lean_object* l_Std_Iterators_IterM_DefaultConsumers_forInPartial___redArg(lean_o
 lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_RepeatIterator_instIteratorLoopPartial___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_RepeatIterator_instIteratorCollectPartial___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_RepeatIterator_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_unsigned_to_nat(0u);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iterators_RepeatIterator_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_Iterators_RepeatIterator_ctorIdx(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorRepeatIteratorId___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -237,17 +257,17 @@ x_5 = l_Std_Iterators_RepeatIterator_instIteratorCollectPartial___redArg(x_2, x_
 return x_5;
 }
 }
-lean_object* initialize_Init_Data_Iterators_Consumers_Monadic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Internal_Termination(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Iterators_Consumers_Monadic(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Internal_Termination(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Producers_Repeat(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Producers_Repeat(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Iterators_Consumers_Monadic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Iterators_Consumers_Monadic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Internal_Termination(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Iterators_Internal_Termination(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Iterators_RepeatIterator_instIteratorCollect___redArg___lam__0___closed__0 = _init_l_Std_Iterators_RepeatIterator_instIteratorCollect___redArg___lam__0___closed__0();

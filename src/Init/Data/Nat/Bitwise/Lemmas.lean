@@ -7,12 +7,13 @@ Authors: Joe Hendrix
 module
 
 prelude
-import Init.Data.Bool
-import Init.Data.Int.Pow
+public import Init.Data.Int.Pow
 import all Init.Data.Nat.Bitwise.Basic
-import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Simproc
-import Init.TacticsExtra
+public import Init.Data.Nat.Simproc
+public import Init.TacticsExtra
+import Init.BinderPredicates
+
+public section
 
 /-
 This module defines properties of the bitwise operations on Natural numbers.
@@ -76,8 +77,7 @@ noncomputable def div2Induction {motive : Nat → Sort u}
     simp only [HAnd.hAnd, AndOp.and, land] at andz
     simp only [HAnd.hAnd, AndOp.and, land]
     unfold bitwise
-    cases mod_two_eq_zero_or_one x with | _ p =>
-      simp [xz, p, andz]
+    cases mod_two_eq_zero_or_one x with | _ p => simp [xz, p, andz]
 
 /-! ### testBit -/
 
@@ -180,9 +180,8 @@ theorem exists_testBit_ne_of_ne {x y : Nat} (p : x ≠ y) : ∃ i, testBit x i �
         apply Exists.intro 0
         simp only [testBit_zero]
         revert lsb_diff
-        cases mod_two_eq_zero_or_one x with | _ p =>
-          cases mod_two_eq_zero_or_one y with | _ q =>
-            simp [p,q]
+        cases mod_two_eq_zero_or_one x with
+        | _ p => cases mod_two_eq_zero_or_one y with | _ q => simp [p,q]
 
 @[deprecated exists_testBit_ne_of_ne (since := "2025-04-04")]
 abbrev ne_implies_bit_diff := @exists_testBit_ne_of_ne
@@ -258,8 +257,7 @@ private theorem succ_mod_two : succ x % 2 = 1 - x % 2 := by
 
 private theorem testBit_succ_zero : testBit (x + 1) 0 = !(testBit x 0) := by
   simp only [testBit_eq_decide_div_mod_eq, Nat.pow_zero, Nat.div_one, succ_mod_two]
-  cases Nat.mod_two_eq_zero_or_one x with | _ p =>
-    simp [p]
+  cases Nat.mod_two_eq_zero_or_one x with | _ p => simp [p]
 
 theorem testBit_two_pow_add_eq (x i : Nat) : testBit (2^i + x) i = !(testBit x i) := by
   simp only [testBit_eq_decide_div_mod_eq, add_div_left, Nat.two_pow_pos, succ_mod_two]
@@ -275,8 +273,7 @@ theorem testBit_mul_two_pow_add_eq (a b i : Nat) :
           testBit_mul_two_pow_add_eq a,
           testBit_two_pow_add_eq,
           Nat.succ_mod_two]
-    cases mod_two_eq_zero_or_one a with
-    | _ p => simp [p]
+    cases mod_two_eq_zero_or_one a with | _ p => simp [p]
 
 theorem testBit_two_pow_add_gt {i j : Nat} (j_lt_i : j < i) (x : Nat) :
     testBit (2^i + x) j = testBit x j := by
@@ -585,22 +582,23 @@ protected theorem or_assoc (x y z : Nat) : (x ||| y) ||| z = x ||| (y ||| z) := 
    apply Nat.eq_of_testBit_eq
    simp [Bool.or_assoc]
 
-@[grind _=_]
+@[grind =]
 theorem and_or_distrib_left (x y z : Nat) : x &&& (y ||| z) = (x &&& y) ||| (x &&& z) := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.and_or_distrib_left]
 
-@[grind _=_]
-theorem and_distrib_right (x y z : Nat) : (x ||| y) &&& z = (x &&& z) ||| (y &&& z) := by
+@[grind =]
+theorem and_or_distrib_right (x y z : Nat) : (x ||| y) &&& z = (x &&& z) ||| (y &&& z) := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.and_or_distrib_right]
 
-@[grind _=_]
+@[deprecated and_or_distrib_right (since := "2025-10-02")]
+abbrev and_distrib_right := and_or_distrib_right
+
 theorem or_and_distrib_left (x y z : Nat) : x ||| (y &&& z) = (x ||| y) &&& (x ||| z) := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.or_and_distrib_left]
 
-@[grind _=_]
 theorem or_and_distrib_right (x y z : Nat) : (x &&& y) ||| z = (x ||| z) &&& (y ||| z) := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.or_and_distrib_right]
@@ -639,7 +637,7 @@ theorem or_mod_two_pow : (a ||| b) % 2 ^ n = a % 2 ^ n ||| b % 2 ^ n :=
 
 @[simp, grind =] theorem testBit_xor (x y i : Nat) :
     (x ^^^ y).testBit i = ((x.testBit i) ^^ (y.testBit i)) := by
-  simp [HXor.hXor, Xor.xor, xor, testBit_bitwise ]
+  simp [HXor.hXor, XorOp.xor, xor, testBit_bitwise ]
 
 @[simp, grind =] theorem zero_xor (x : Nat) : 0 ^^^ x = x := by
    apply Nat.eq_of_testBit_eq
@@ -676,12 +674,12 @@ instance : Std.LawfulCommIdentity (α := Nat) (· ^^^ ·) 0 where
 theorem xor_lt_two_pow {x y n : Nat} (left : x < 2^n) (right : y < 2^n) : x ^^^ y < 2^n :=
   bitwise_lt_two_pow left right
 
-@[grind _=_]
+@[grind =]
 theorem and_xor_distrib_right {a b c : Nat} : (a ^^^ b) &&& c = (a &&& c) ^^^ (b &&& c) := by
   apply Nat.eq_of_testBit_eq
   simp [Bool.and_xor_distrib_right]
 
-@[grind _=_]
+@[grind =]
 theorem and_xor_distrib_left {a b c : Nat} : a &&& (b ^^^ c) = (a &&& b) ^^^ (a &&& c) := by
   apply Nat.eq_of_testBit_eq
   simp [Bool.and_xor_distrib_left]
@@ -848,11 +846,16 @@ theorem shiftLeft_add_eq_or_of_lt {b : Nat} (b_lt : b < 2^i) (a : Nat) :
   rw [shiftLeft_eq, Nat.mul_comm]
   rw [two_pow_add_eq_or_of_lt b_lt]
 
+@[simp]
+theorem shiftLeft_eq_zero_iff {a n : Nat} : a <<< n = 0 ↔ a = 0 := by
+  simp [shiftLeft_eq, mul_eq_zero]
+
+instance {a n : Nat} [NeZero a] : NeZero (a <<< n) := ⟨mt shiftLeft_eq_zero_iff.mp (NeZero.ne _)⟩
+
 /-! ### le -/
 
 theorem le_of_testBit {n m : Nat} (h : ∀ i, n.testBit i = true → m.testBit i = true) : n ≤ m := by
-  induction n using div2Induction generalizing m
-  next n ih =>
+  induction n using div2Induction generalizing m with | _ n ih
   have : n / 2 ≤ m / 2 := by
     rcases n with (_|n)
     · simp

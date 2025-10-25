@@ -5,7 +5,7 @@ open Std
 
 open Std.Internal.IO.Async
 
-def wait (ms : Nat) (ref : Std.Mutex Nat) (val : Nat) : Async Unit := do
+def wait (ms : UInt32) (ref : Std.Mutex Nat) (val : Nat) : Async Unit := do
   ref.atomically (·.modify (· * val))
   IO.sleep ms
   ref.atomically (·.modify (· + val))
@@ -23,7 +23,7 @@ def sequential : Async Unit := do
 
 def conc : Async Unit := do
   let ref ← Std.Mutex.new 0
-  discard <| concurrently (wait 200 ref 1) (wait 400 ref 2)
+  discard <| Async.concurrently (wait 200 ref 1) (wait 1000 ref 2)
   ref.atomically (·.modify (· * 10))
   assert! (← ref.atomically (·.get)) == 30
 
@@ -31,7 +31,7 @@ def conc : Async Unit := do
 
 def racer : Async Unit := do
   let ref ← Std.Mutex.new 0
-  race (wait 200 ref 1) (wait 400 ref 2)
+  Async.race (wait 200 ref 1) (wait 1000 ref 2)
   ref.atomically (·.modify (· * 10))
   assert! (← ref.atomically (·.get)) == 10
 
@@ -39,7 +39,7 @@ def racer : Async Unit := do
 
 def concAll : Async Unit := do
   let ref ← Std.Mutex.new 0
-  discard <| concurrentlyAll #[(wait 200 ref 1), (wait 400 ref 2)]
+  discard <| Async.concurrentlyAll #[(wait 200 ref 1), (wait 1000 ref 2)]
   ref.atomically (·.modify (· * 10))
   assert! (← ref.atomically (·.get)) == 30
 
@@ -47,8 +47,31 @@ def concAll : Async Unit := do
 
 def racerAll : Async Unit := do
   let ref ← Std.Mutex.new 0
-  raceAll #[(wait 200 ref 1), (wait 400 ref 2)]
+  Async.raceAll #[(wait 200 ref 1), (wait 1000 ref 2)]
   ref.atomically (·.modify (· * 10))
   assert! (← ref.atomically (·.get)) == 10
 
 #eval do (← racerAll.toEIO).block
+
+def racerAllNotCancels : Async Unit := do
+  let ref ← Std.Mutex.new 0
+  Async.raceAll #[(wait 200 ref 1), (wait 700 ref 2)]
+  ref.atomically (·.modify (· * 10))
+  IO.sleep 1000
+  assert! (← ref.atomically (·.get)) == 12
+
+#eval do (← racerAllNotCancels.toEIO).block
+
+def racerAllError : Async Unit := do
+  let ref ← Std.Mutex.new 0
+  Async.raceAll #[(wait 400 ref 2), throw (IO.userError "error wins")]
+
+/-- error: error wins -/
+#guard_msgs in
+#eval do (← racerAllError.toEIO).block
+
+def racerAllErrorLost : Async Unit := do
+  let result ← Async.raceAll #[(do IO.sleep 1000; throw (IO.userError "error wins")) , (do IO.sleep 200; pure 10)]
+  assert! result = 10
+
+#eval do (← racerAllErrorLost.toEIO).block

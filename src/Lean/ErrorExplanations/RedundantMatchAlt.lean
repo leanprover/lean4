@@ -3,8 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joseph Rotella
 -/
+module
+
 prelude
-import Lean.ErrorExplanation
+public import Lean.ErrorExplanation
+meta import Lean.ErrorExplanation
+
+public section
 
 /--
 This error occurs when an alternative in a pattern match can never be reached: any values that would

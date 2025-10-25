@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector.Lemmas
-// Imports: Init.Data.Array.Basic Init.Data.Vector.Basic Init.Data.Array.Attach Init.Data.Array.Find
+// Imports: import all Init.Data.Array.Basic public import Init.Data.Vector.Basic import all Init.Data.Vector.Basic public import Init.Data.Array.Find
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -21,6 +21,7 @@ LEAN_EXPORT lean_object* l_Vector_instDecidableForallVectorSucc___redArg___boxed
 LEAN_EXPORT uint8_t l_Vector_instDecidableExistsAndMemOfDecidablePred___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Vector_instDecidableForallVectorSucc(lean_object*, lean_object*, lean_object*, uint8_t);
 uint8_t l_Nat_decidableBallLT___redArg(lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Vector_instDecidableForallVectorSucc___redArg(uint8_t);
 LEAN_EXPORT uint8_t l_Vector_instDecidableForallVectorZero___redArg(uint8_t);
 LEAN_EXPORT uint8_t l_Vector_instDecidableForallForallMemOfDecidablePred(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -38,7 +39,6 @@ LEAN_EXPORT lean_object* l_Vector_instDecidableForallForallMemOfDecidablePred___
 LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Lemmas_0__Vector_foldl__filterMap_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Vector_instDecidableMemOfLawfulBEq___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Lemmas_0__Array_foldl__filterMap_x27_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Vector_instDecidableExistsVectorSucc(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT uint8_t l_Vector_instDecidableExistsAndMemOfDecidablePred(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Lemmas_0__Array_foldl__filterMap_x27_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
@@ -62,10 +62,10 @@ LEAN_EXPORT uint8_t l_Vector_instDecidableForallForallMemOfDecidablePred___redAr
 _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_5 = lean_array_fget(x_1, x_3);
+x_5 = lean_array_fget_borrowed(x_1, x_3);
+lean_inc(x_5);
 x_6 = lean_apply_1(x_2, x_5);
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 return x_7;
 }
 }
@@ -94,7 +94,7 @@ _start:
 uint8_t x_5; lean_object* x_6; 
 x_5 = l_Vector_instDecidableForallForallMemOfDecidablePred___redArg___lam__0(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -123,10 +123,10 @@ LEAN_EXPORT uint8_t l_Vector_instDecidableExistsAndMemOfDecidablePred___redArg__
 _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_5 = lean_array_fget(x_1, x_3);
+x_5 = lean_array_fget_borrowed(x_1, x_3);
+lean_inc(x_5);
 x_6 = lean_apply_1(x_2, x_5);
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 return x_7;
 }
 }
@@ -155,7 +155,7 @@ _start:
 uint8_t x_5; lean_object* x_6; 
 x_5 = l_Vector_instDecidableExistsAndMemOfDecidablePred___redArg___lam__0(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -229,7 +229,7 @@ else
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = lean_apply_1(x_2, x_4);
 return x_5;
 }
@@ -275,7 +275,7 @@ else
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = lean_apply_1(x_2, x_4);
 return x_5;
 }
@@ -316,9 +316,7 @@ return x_1;
 LEAN_EXPORT uint8_t l_Vector_instDecidableForallVectorZero(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
 _start:
 {
-uint8_t x_4; 
-x_4 = l_Vector_instDecidableForallVectorZero___redArg(x_3);
-return x_4;
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Vector_instDecidableForallVectorZero___redArg___boxed(lean_object* x_1) {
@@ -326,7 +324,6 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Vector_instDecidableForallVectorZero___redArg(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -337,7 +334,6 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Vector_instDecidableForallVectorZero(x_1, x_2, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -360,7 +356,6 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Vector_instDecidableForallVectorSucc___redArg(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -371,7 +366,6 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 x_6 = l_Vector_instDecidableForallVectorSucc(x_1, x_2, x_3, x_5);
 lean_dec(x_2);
 x_7 = lean_box(x_6);
@@ -400,7 +394,6 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Vector_instDecidableExistsVectorZero___redArg(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -411,7 +404,6 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Vector_instDecidableExistsVectorZero(x_1, x_2, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -438,7 +430,6 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Vector_instDecidableExistsVectorSucc___redArg(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -449,32 +440,31 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 x_6 = l_Vector_instDecidableExistsVectorSucc(x_1, x_2, x_3, x_5);
 lean_dec(x_2);
 x_7 = lean_box(x_6);
 return x_7;
 }
 }
-lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Attach(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Find(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Find(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Vector_Lemmas(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Vector_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Vector_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Attach(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Vector_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Find(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_Find(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

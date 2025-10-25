@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.BitVec.Decidable
-// Imports: Init.Data.BitVec.Bootstrap
+// Imports: public import Init.Data.BitVec.Bootstrap import Init.Ext
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -61,9 +61,7 @@ return x_1;
 LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVecZero(lean_object* x_1, uint8_t x_2) {
 _start:
 {
-uint8_t x_3; 
-x_3 = l_BitVec_instDecidableForallBitVecZero___redArg(x_2);
-return x_3;
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVecZero___redArg___boxed(lean_object* x_1) {
@@ -71,7 +69,6 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_BitVec_instDecidableForallBitVecZero___redArg(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -82,7 +79,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_BitVec_instDecidableForallBitVecZero(x_1, x_3);
 x_5 = lean_box(x_4);
 return x_5;
@@ -105,7 +101,6 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_BitVec_instDecidableForallBitVecSucc___redArg(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -116,9 +111,8 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 x_6 = l_BitVec_instDecidableForallBitVecSucc(x_1, x_2, x_3, x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_1);
 x_7 = lean_box(x_6);
 return x_7;
@@ -146,7 +140,6 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_BitVec_instDecidableExistsBitVecZero___redArg(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -157,7 +150,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_BitVec_instDecidableExistsBitVecZero(x_1, x_3);
 x_5 = lean_box(x_4);
 return x_5;
@@ -184,7 +176,6 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_BitVec_instDecidableExistsBitVecSucc___redArg(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -195,9 +186,8 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 x_6 = l_BitVec_instDecidableExistsBitVecSucc(x_1, x_2, x_3, x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_1);
 x_7 = lean_box(x_6);
 return x_7;
@@ -210,7 +200,6 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_5 = l_BitVec_cons(x_1, x_2, x_4);
 x_6 = lean_apply_1(x_3, x_5);
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 return x_7;
 }
 }
@@ -250,7 +239,6 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_5 = l_BitVec_instDecidableForallBitVec___redArg___closed__0;
 x_6 = lean_apply_1(x_2, x_5);
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 return x_7;
 }
 else
@@ -279,7 +267,6 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_BitVec_instDecidableForallBitVec___redArg___lam__0(x_1, x_5, x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_1);
@@ -292,7 +279,6 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_BitVec_instDecidableForallBitVec___redArg___lam__1(x_1, x_2, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -325,7 +311,6 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8;
 x_5 = l_BitVec_cons(x_1, x_2, x_4);
 x_6 = lean_apply_1(x_3, x_5);
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 x_8 = l_instDecidableNot___redArg(x_7);
 return x_8;
 }
@@ -357,7 +342,6 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8;
 x_5 = l_BitVec_instDecidableForallBitVec___redArg___closed__0;
 x_6 = lean_apply_1(x_2, x_5);
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 x_8 = l_BitVec_instDecidableExistsBitVecZero___redArg(x_7);
 return x_8;
 }
@@ -388,7 +372,6 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_BitVec_instDecidableExistsBitVec___redArg___lam__0(x_1, x_5, x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_1);
@@ -401,7 +384,6 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_BitVec_instDecidableExistsBitVec___redArg___lam__1(x_1, x_2, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -427,13 +409,17 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
-lean_object* initialize_Init_Data_BitVec_Bootstrap(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_BitVec_Bootstrap(uint8_t builtin);
+lean_object* initialize_Init_Ext(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_BitVec_Decidable(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_BitVec_Decidable(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_BitVec_Bootstrap(builtin, lean_io_mk_world());
+res = initialize_Init_Data_BitVec_Bootstrap(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Ext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_BitVec_instDecidableForallBitVec___redArg___closed__0 = _init_l_BitVec_instDecidableForallBitVec___redArg___closed__0();

@@ -6,9 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Nat.Basic
-import Init.Data.Nat.Div.Basic
-import Init.Coe
+public import Init.Data.Nat.Div.Basic
+
+public section
 
 namespace Nat
 
@@ -95,7 +95,7 @@ def shiftRight : @& Nat → @& Nat → Nat
 
 instance : AndOp Nat := ⟨Nat.land⟩
 instance : OrOp Nat := ⟨Nat.lor⟩
-instance : Xor Nat := ⟨Nat.xor⟩
+instance : XorOp Nat := ⟨Nat.xor⟩
 instance : ShiftLeft Nat := ⟨Nat.shiftLeft⟩
 instance : ShiftRight Nat := ⟨Nat.shiftRight⟩
 
@@ -135,7 +135,7 @@ of a number.
 /--
 Returns `true` if the `(n+1)`th least significant bit is `1`, or `false` if it is `0`.
 -/
-def testBit (m n : Nat) : Bool :=
+@[expose] def testBit (m n : Nat) : Bool :=
   -- `1 &&& n` is faster than `n &&& 1` for big `n`.
   1 &&& (m >>> n) != 0
 

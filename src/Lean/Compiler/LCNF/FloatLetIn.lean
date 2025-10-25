@@ -3,11 +3,13 @@ Copyright (c) 2022 Henrik Böving. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.FVarUtil
-import Lean.Compiler.LCNF.PassManager
-import Lean.Compiler.LCNF.Types
+public import Lean.Compiler.LCNF.FVarUtil
+public import Lean.Compiler.LCNF.PassManager
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -28,7 +30,7 @@ inductive Decision where
   default
 |
   /--
-  Dont move this declaration it is needed where it is right now.
+  Don't move this declaration it is needed where it is right now.
   -/
   dont
 |

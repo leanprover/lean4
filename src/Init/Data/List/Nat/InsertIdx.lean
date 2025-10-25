@@ -6,7 +6,9 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.Nat.Modify
+public import Init.Data.List.Nat.Modify
+
+public section
 
 /-!
 # insertIdx
@@ -194,9 +196,6 @@ theorem getElem_insertIdx_of_gt {l : List α} {x : α} {i j : Nat} (hn : i < j)
         | zero => omega
         | succ j => simp
 
-@[deprecated getElem_insertIdx_of_gt (since := "2025-02-04")]
-abbrev getElem_insertIdx_of_ge := @getElem_insertIdx_of_gt
-
 @[grind =]
 theorem getElem_insertIdx {l : List α} {x : α} {i j : Nat} (h : j < (l.insertIdx i x).length) :
     (l.insertIdx i x)[j] =
@@ -258,9 +257,6 @@ theorem getElem?_insertIdx_self {l : List α} {x : α} {i : Nat} :
 theorem getElem?_insertIdx_of_gt {l : List α} {x : α} {i j : Nat} (h : i < j) :
     (l.insertIdx i x)[j]? = l[j - 1]? := by
   rw [getElem?_insertIdx, if_neg (by omega), if_neg (by omega)]
-
-@[deprecated getElem?_insertIdx_of_gt (since := "2025-02-04")]
-abbrev getElem?_insertIdx_of_ge := @getElem?_insertIdx_of_gt
 
 end InsertIdx
 

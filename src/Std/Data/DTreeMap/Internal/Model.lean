@@ -3,10 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.DTreeMap.Internal.WF.Defs
-import Std.Data.DTreeMap.Internal.Cell
-import Std.Data.Internal.Cut
+public import Std.Data.DTreeMap.Internal.WF.Defs
+public import Std.Data.DTreeMap.Internal.Cell
+
+@[expose] public section
 
 /-!
 # Model implementations of tree map functions
@@ -102,7 +105,7 @@ inductive ExplorationStep [Ord α] (k : α → Ordering) where
       recursion will terminate. -/
   | eq : List ((a : α) × β a) → Cell α β k → List ((a : α) × β a) → ExplorationStep k
   /-- Needle was larger than key at this node: return key-value pair and unexplored left subtree,
-      recursion will containue in right subtree. -/
+      recursion will continue in right subtree. -/
   | gt : List ((a : α) × β a) → (a : α) → k a = .gt → β a → ExplorationStep k
 
 /-- General tree-traversal function. Internal implementation detail of the tree map -/

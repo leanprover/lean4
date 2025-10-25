@@ -3,11 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.Iterators.Combinators.Drop
-import Std.Data.Iterators.Lemmas.Combinators.Monadic.Drop
-import Std.Data.Iterators.Lemmas.Combinators.Take
-import Init.Data.Iterators.Lemmas.Consumers
+public import Std.Data.Iterators.Combinators.Drop
+public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Drop
+public import Std.Data.Iterators.Lemmas.Combinators.Take
+
+@[expose] public section
 
 namespace Std.Iterators
 
@@ -27,8 +30,7 @@ theorem Iter.step_drop {α β} [Iterator α Id β] {n : Nat}
     | .done h => .done (.done h)) := by
   simp only [drop_eq, step, toIterM_toIter, IterM.step_drop, Id.run_bind]
   generalize it.toIterM.step.run = step
-  obtain ⟨step, h⟩ := step
-  cases step <;> cases n <;>
+  cases step.inflate using PlausibleIterStep.casesOn <;> cases n <;>
     simp [PlausibleIterStep.yield, PlausibleIterStep.skip, PlausibleIterStep.done]
 
 theorem Iter.atIdxSlow?_drop {α β}
@@ -37,7 +39,7 @@ theorem Iter.atIdxSlow?_drop {α β}
     (it.drop k).atIdxSlow? l = it.atIdxSlow? (l + k) := by
   induction k generalizing it <;> induction l generalizing it
   all_goals
-    induction it using Iter.inductSkips with | step it ih =>
+    induction it using Iter.inductSkips with | step it ih
     rw [atIdxSlow?.eq_def, atIdxSlow?.eq_def, step_drop]
     cases it.step using PlausibleIterStep.casesOn <;> simp [*]
 

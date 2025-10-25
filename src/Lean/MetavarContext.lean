@@ -3,10 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.ShareCommon
-import Lean.Util.MonadCache
-import Lean.LocalContext
+public import Init.ShareCommon
+public import Lean.Util.MonadCache
+public import Lean.LocalContext
+import Init.Data.Slice
+
+public section
 
 namespace Lean
 
@@ -591,6 +596,16 @@ run_meta do
   let e' ← instantiateMVars e
   -- e' is `Nat.succ 42`, `?m.773` is assigned to `42`
 ```
+
+There are a few gotchas concerning delayed assignments.
+
+* Regular assignments take precedence over delayed ones. This happens when an error occurs, in which
+  case Lean assigns `sorry` to all unassigned metavariables, delayed assigned or not.
+* Unless a delayed assigned metavariable `?m := fun fvars => ?pending` is fully applied to its free
+  variables `fvars`, it will not be instantiated to `?pending`.
+* A delayed assigned metavariable `?m := fun fvars => ?pending` that occurs fully applied `?m fvars`
+  will not be instantiated to `?pending` unless (1) `?pending` is assigned, and (2) the
+  assignment to `?pending` is ground (i.e., does not contain unassigned metavariables).
 -/
 def instantiateMVars [Monad m] [MonadMCtx m] (e : Expr) : m Expr := do
   if !e.hasMVar then
@@ -606,7 +621,7 @@ def instantiateLCtxMVars [Monad m] [MonadMCtx m] (lctx : LocalContext) : m Local
      match ldecl with
      | .cdecl _ fvarId userName type _ .auxDecl =>
         let type ← instantiateMVars type
-        let .some fullName := auxDeclToFullName.find? fvarId
+        let .some fullName := auxDeclToFullName.get? fvarId
           | panic! s!"Invalid auxiliary declaration found in local context: \
                       {userName} does not have an associated full name."
         return lctx.mkAuxDecl fvarId userName type fullName
@@ -640,7 +655,7 @@ structure State where
 
 private abbrev M := StateM State
 
-instance : MonadMCtx M where
+private instance : MonadMCtx M where
   getMCtx := return (← get).mctx
   modifyMCtx f := modify fun s => { s with mctx := f s.mctx }
 
@@ -694,7 +709,7 @@ private def shouldVisit (e : Expr) : M Bool := do
       | _                    => pure false
   visit e
 
-@[inline] partial def main (pf : FVarId → Bool) (pm : MVarId → Bool) (e : Expr) : M Bool :=
+@[inline] private partial def main (pf : FVarId → Bool) (pm : MVarId → Bool) (e : Expr) : M Bool :=
   if !e.hasFVar && !e.hasMVar then pure false else dep pf pm e
 
 end DependsOn
@@ -932,7 +947,7 @@ structure State where
   cache          : Std.HashMap ExprStructEq Expr := {}
 
 structure Context where
-  mainModule         : Name
+  quotContext        : Name
   preserveOrder      : Bool
   /-- When creating binders for abstracted metavariables, we use the following `BinderInfo`. -/
   binderInfoForMVars : BinderInfo := BinderInfo.implicit
@@ -948,7 +963,7 @@ instance : MonadMCtx M where
 
 private def mkFreshBinderName (n : Name := `x) : M Name := do
   let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
-  return addMacroScope (← read).mainModule n fresh
+  return addMacroScope (← read).quotContext n fresh
 
 def preserveOrder : M Bool :=
   return (← read).preserveOrder
@@ -960,7 +975,7 @@ instance : MonadHashMapCacheAdapter ExprStructEq Expr M where
 /-- Return the local declaration of the free variable `x` in `xs` with the smallest index -/
 private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) : LocalDecl := Id.run do
   let mut d : LocalDecl := lctx.getFVar! xs[0]!
-  for x in xs[1:] do
+  for x in xs[1...*] do
     if x.isFVar then
       let curr := lctx.getFVar! x
       if curr.index < d.index then
@@ -1270,11 +1285,15 @@ This function trusts that `xs` has all forward dependencies that appear in `e` a
 - If `usedLetOnly := true` then `let` expressions are created only for used (let-) variables.
 - If `generalizeNondepLet := true` then nondependent let variables become `forall` or `lambda` expressions
   according to the value of `usedOnly`.
-  Generally, `generalizeNondepLet` should be `true` *unless* `mkBinding` is being used when leaving a telescope combinator (like `Meta.lambdaLetTelescope`).
-  This needs to be `true` when making terms that should remain type correct with respect to the same `lctx`;
-  for example, if `e' ← mkBinding true lctx xs e (generalizeNondepLet := true)` and `xs' ← xs.filterM (FVarId.isLetVar · false)`,
-  then one has that `mkAppN e' xs'` is definitionally equal to `e` with respect to `lctx`.
-  **Note:** `generalizeNondepLet := true` is the common case, so `mkBinding` API uses it as the default.
+  Generally, `generalizeNondepLet` should be `true`
+  *unless* all nondep entries in `xs` have known provenance,
+  e.g. when leaving a telescope combinator like `Meta.lambdaLetTelescope`.
+  See also `LocalDecl.ldecl`.
+  - This needs to be `true` when making terms that should remain type correct with respect to the same `lctx`;
+    for example, if `e' ← mkBinding true lctx xs e (generalizeNondepLet := true)`
+    and `xs' ← xs.filterM (FVarId.isLetVar · false)`,
+    then one has that `mkAppN e' xs'` is definitionally equal to `e` with respect to `lctx`.
+  - **Note:** `generalizeNondepLet := true` is the common case, so `mkBinding` API uses it as the default.
 -/
 def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) (usedOnly : Bool) (usedLetOnly : Bool) (etaReduce : Bool) (generalizeNondepLet : Bool) : M Expr := do
   let e ← abstractRange xs xs.size e
@@ -1316,20 +1335,20 @@ def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Exp
 end MkBinding
 
 structure MkBindingM.Context where
-  mainModule : Name
-  lctx       : LocalContext
+  quotContext : Name
+  lctx        : LocalContext
 
 abbrev MkBindingM := ReaderT MkBindingM.Context MkBinding.MCore
 
 def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool) : MkBindingM Expr := fun ctx =>
-  MkBinding.elimMVarDeps xs e { preserveOrder, mainModule := ctx.mainModule }
+  MkBinding.elimMVarDeps xs e { preserveOrder, quotContext := ctx.quotContext }
 
 def revert (xs : Array Expr) (mvarId : MVarId) (preserveOrder : Bool) : MkBindingM (Expr × Array Expr) := fun ctx =>
-  MkBinding.revert xs mvarId { preserveOrder, mainModule := ctx.mainModule }
+  MkBinding.revert xs mvarId { preserveOrder, quotContext := ctx.quotContext }
 
 def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce := false) (generalizeNondepLet := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr := fun ctx =>
   let mvarIdsToAbstract := xs.foldl (init := {}) fun s x => if x.isMVar then s.insert x.mvarId! else s
-  MkBinding.mkBinding isLambda ctx.lctx xs e usedOnly usedLetOnly etaReduce generalizeNondepLet { preserveOrder := false, binderInfoForMVars, mvarIdsToAbstract, mainModule := ctx.mainModule }
+  MkBinding.mkBinding isLambda ctx.lctx xs e usedOnly usedLetOnly etaReduce generalizeNondepLet { preserveOrder := false, binderInfoForMVars, mvarIdsToAbstract, quotContext := ctx.quotContext }
 
 @[inline] def mkLambda (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce := false) (generalizeNondepLet := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr :=
   mkBinding (isLambda := true) xs e usedOnly usedLetOnly etaReduce generalizeNondepLet binderInfoForMVars
@@ -1338,10 +1357,10 @@ def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool :=
   mkBinding (isLambda := false) xs e usedOnly usedLetOnly false generalizeNondepLet binderInfoForMVars
 
 @[inline] def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MkBindingM Expr := fun ctx =>
-  MkBinding.abstractRange xs n e { preserveOrder := false, mainModule := ctx.mainModule }
+  MkBinding.abstractRange xs n e { preserveOrder := false, quotContext := ctx.quotContext }
 
 @[inline] def collectForwardDeps (toRevert : Array Expr) (preserveOrder : Bool) (generalizeNondepLet := true) : MkBindingM (Array Expr) := fun ctx =>
-  MkBinding.collectForwardDeps ctx.lctx toRevert generalizeNondepLet { preserveOrder, mainModule := ctx.mainModule }
+  MkBinding.collectForwardDeps ctx.lctx toRevert generalizeNondepLet { preserveOrder, quotContext := ctx.quotContext }
 
 /--
   `isWellFormed lctx e` returns true iff

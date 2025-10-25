@@ -3,10 +3,11 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
+public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind.Lemmas
-import Lean.Meta.Tactic.Grind.Types
-
+public section
 namespace Lean.Meta.Grind
 
 private def isEqProof (h : Expr) : MetaM Bool := do
@@ -68,7 +69,7 @@ Recall that this expression must exist since it is the root itself in the
 worst case.
 -/
 private def findCommon (lhs rhs : Expr) : GoalM Expr := do
-  let mut visited : RBMap Nat Expr compare := {}
+  let mut visited : Std.TreeMap Nat Expr := {}
   let mut it := lhs
   -- Mark elements found following the path from `lhs` to the root.
   repeat
@@ -80,7 +81,7 @@ private def findCommon (lhs rhs : Expr) : GoalM Expr := do
   it := rhs
   repeat
     let n ← getENode it
-    if let some common := visited.find? n.idx then
+    if let some common := visited.get? n.idx then
       return common
     let some target := n.target? | unreachable! --
     it := target
@@ -122,6 +123,19 @@ mutual
     let q  := rhs.appFn!.appArg!
     let hq := rhs.appArg!
     let h  := mkApp5 (mkConst ``Lean.Grind.nestedProof_congr) p q (← mkEqProofCore p q false) hp hq
+    mkEqOfHEqIfNeeded h heq
+
+  /--
+  Given `lhs` and `rhs` proof terms of the form `nestedDecidable p hp` and `nestedDecidable q hq`,
+  constructs a congruence proof for `nestedDecidable p hp ≍ nestedDecidable q hq`.
+  `p` and `q` are in the same equivalence class.
+  -/
+  private partial def mkNestedDecidableCongr (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
+    let p  := lhs.appFn!.appArg!
+    let hp := lhs.appArg!
+    let q  := rhs.appFn!.appArg!
+    let hq := rhs.appArg!
+    let h  := mkApp5 (mkConst ``Lean.Grind.nestedDecidable_congr) p q (← mkEqProofCore p q false) hp hq
     mkEqOfHEqIfNeeded h heq
 
   /--
@@ -193,12 +207,15 @@ mutual
         let proof ← mkEqNDRec motive proof fEq
         mkEqOfHEqIfNeeded proof heq
 
-  private partial def mkEqCongrProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
+  private partial def mkEqCongrProof (lhs rhs : Expr) : GoalM Expr := do
     let_expr f@Eq α₁ a₁ b₁ := lhs | unreachable!
     let_expr Eq α₂ a₂ b₂ := rhs | unreachable!
     let us := f.constLevels!
     if !isSameExpr α₁ α₂ then
-      mkHCongrProof lhs rhs heq
+      if (← get).hasSameRoot a₁ a₂ && (← get).hasSameRoot b₁ b₂ then
+        return mkApp8 (mkConst ``Grind.heq_congr us) α₁ α₂ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ a₂ true) (← mkEqProofCore b₁ b₂ true)
+      else
+        return mkApp8 (mkConst ``Grind.heq_congr' us) α₁ α₂ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ b₂ true) (← mkEqProofCore b₁ a₂ true)
     else if (← get).hasSameRoot a₁ a₂ && (← get).hasSameRoot b₁ b₂ then
       return mkApp7 (mkConst ``Grind.eq_congr us) α₁ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ a₂ false) (← mkEqProofCore b₁ b₂ false)
     else
@@ -217,10 +234,13 @@ mutual
       let g := rhs.getAppFn
       let numArgs := lhs.getAppNumArgs
       assert! rhs.getAppNumArgs == numArgs
-      if f.isConstOf ``Lean.Grind.nestedProof && g.isConstOf ``Lean.Grind.nestedProof && numArgs == 2 then
+      if numArgs == 2 && f.isConstOf ``Grind.nestedProof && g.isConstOf ``Grind.nestedProof then
         mkNestedProofCongr lhs rhs heq
-      else if f.isConstOf ``Eq && g.isConstOf ``Eq && numArgs == 3 then
-        mkEqCongrProof lhs rhs heq
+      else if numArgs == 2 && f.isConstOf ``Grind.nestedDecidable && g.isConstOf ``Grind.nestedDecidable then
+        mkNestedDecidableCongr lhs rhs heq
+      else if numArgs == 3 && f.isConstOf ``Eq && g.isConstOf ``Eq then
+        let r ← mkEqCongrProof lhs rhs
+        if heq then mkHEqOfEq r else return r
       else if (← isCongrDefaultProofTarget lhs rhs f g numArgs) then
         mkCongrDefaultProof lhs rhs heq
       else

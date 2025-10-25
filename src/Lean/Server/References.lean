@@ -4,13 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Joscha Mennicken
 -/
+module
+
 prelude
-import Lean.Data.Lsp.Internal
-import Lean.Data.Lsp.Extra
-import Lean.Server.Utils
-import Std.Data.TreeMap
-import Lean.Elab.Import
-import Std.Data.TreeSet.Basic
+public import Lean.Data.Lsp.Internal
+public import Lean.Server.Utils
+public import Lean.Elab.Import
+
+public section
 
 /-! # Representing collected and deduplicated definitions and usages -/
 
@@ -87,7 +88,12 @@ def toLspRefInfo (i : RefInfo) : BaseIO Lsp.RefInfo := do
     let .ok parentDeclRanges? ← EIO.toBaseIO <| ref.ci.runCoreM do
         let some parentDeclName := parentDeclName?
           | return none
-        findDeclarationRanges? parentDeclName
+        -- Use `local` as it avoids unnecessary blocking, which is especially important when called
+        -- from the snapshot reporter. Specifically, if `ref` is from a tactic of an async theorem,
+        -- `parentDeclName` will not be available in the current environment and we would block only
+        -- to return `none` in the end anyway. At the end of elaboration, we rerun this function on
+        -- the full info tree with the main environment, so the access will succeed immediately.
+        return declRangeExt.find? (asyncMode := .local) (← getEnv) parentDeclName
       -- we only use `CoreM` to get access to a `MonadEnv`, but these are currently all `IO`
       | unreachable!
     return {
@@ -244,6 +250,8 @@ def identOf (ci : ContextInfo) (i : Info) : Option (RefIdent × Bool) := do
     some (RefIdent.const (← getModuleContainingDecl? ci.env fi.projName).toString fi.projName.toString, false)
   | Info.ofOptionInfo oi =>
     some (RefIdent.const (← getModuleContainingDecl? ci.env oi.declName).toString oi.declName.toString, false)
+  | Info.ofDocElabInfo dei =>
+    some (RefIdent.const (← getModuleContainingDecl? ci.env dei.name).toString dei.name.toString, false)
   | _ => none
 
 /-- Finds all references in `trees`. -/
@@ -413,7 +421,7 @@ has a name or uri that is not identical to the others.
 -/
 def ModuleImport.collapseIdenticalImports? (identicalImports : Array ModuleImport) : Option ModuleImport := do
   let mut acc ← identicalImports[0]?
-  for h:i in [1:identicalImports.size] do
+  for h:i in 1...identicalImports.size do
     let «import» := identicalImports[i]
     guard <| acc.module == «import».module
     guard <| acc.uri == «import».uri
@@ -561,13 +569,13 @@ def updateWorkerImports
     (directImports : Array ImportInfo)
     : IO References := do
   let directImports ← DirectImports.convertImportInfos directImports
-  let some { version := currVersion, .. } := self.workers[name]?
+  let some workerRefs := self.workers[name]?
     | return { self with workers := self.workers.insert name { moduleUri, version, directImports, refs := ∅} }
-  match compare version currVersion with
+  match compare version workerRefs.version with
   | .lt => return self
   | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports, refs := ∅} }
   | .eq =>
-    let refs := self.workers.get? name |>.map (·.refs) |>.getD ∅
+    let refs := workerRefs.refs
     return { self with
       workers := self.workers.insert name { moduleUri, version, directImports, refs }
     }
@@ -584,17 +592,17 @@ def updateWorkerRefs
     (version   : Nat)
     (refs      : Lsp.ModuleRefs)
     : IO References := do
-  let some { version := currVersion, .. } := self.workers[name]?
+  let some workerRefs := self.workers[name]?
     | return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, refs } }
-  match compare version currVersion with
+  let directImports := workerRefs.directImports
+  match compare version workerRefs.version with
   | .lt => return self
-  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, refs } }
+  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports, refs } }
   | .eq =>
-    let current := self.workers.getD name { moduleUri, version, directImports := ∅, refs := Std.TreeMap.empty }
-    let mergedRefs := refs.foldl (init := current.refs) fun m ident info =>
+    let mergedRefs := refs.foldl (init := workerRefs.refs) fun m ident info =>
       m.getD ident Lsp.RefInfo.empty |>.merge info |> m.insert ident
     return { self with
-      workers := self.workers.insert name { moduleUri, version, directImports := current.directImports, refs := mergedRefs }
+      workers := self.workers.insert name { moduleUri, version, directImports, refs := mergedRefs }
     }
 
 /--
@@ -608,13 +616,13 @@ def finalizeWorkerRefs
     (version   : Nat)
     (refs      : Lsp.ModuleRefs)
     : IO References := do
-  let some { version := currVersion, .. } := self.workers[name]?
+  let some workerRefs := self.workers[name]?
     | return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, refs } }
-  match compare version currVersion with
+  let directImports := workerRefs.directImports
+  match compare version workerRefs.version with
   | .lt => return self
-  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, refs} }
+  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports, refs} }
   | .eq =>
-    let directImports := self.workers.get? name |>.map (·.directImports) |>.getD ∅
     return { self with workers := self.workers.insert name { moduleUri, version, directImports, refs } }
 
 /-- Erases all worker references in `self` for the worker managing `name`. -/

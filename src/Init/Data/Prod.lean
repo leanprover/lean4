@@ -6,8 +6,9 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.SimpLemmas
-import Init.NotationExtra
+public import Init.NotationExtra
+
+public section
 
 namespace Prod
 

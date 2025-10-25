@@ -3,11 +3,14 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Dany Fabian
 -/
+module
+
 prelude
-import Lean.Meta.Transform
-import Lean.Elab.Deriving.Basic
-import Lean.Elab.Deriving.Util
-import Lean.Data.Json.FromToJson
+public import Lean.Elab.Deriving.Basic
+public import Lean.Elab.Deriving.Util
+meta import Lean.Parser.Do
+
+public section
 
 namespace Lean.Elab.Deriving.FromToJson
 open Lean.Elab.Command
@@ -71,16 +74,16 @@ where
         let alt ← forallTelescopeReducing ctorInfo.type fun xs _ => do
           let mut patterns := #[]
           -- add `_` pattern for indices
-          for _ in [:indVal.numIndices] do
+          for _ in *...indVal.numIndices do
             patterns := patterns.push (← `(_))
           let mut ctorArgs := #[]
           -- add `_` for inductive parameters, they are inaccessible
-          for _ in [:indVal.numParams] do
+          for _ in *...indVal.numParams do
             ctorArgs := ctorArgs.push (← `(_))
           -- bound constructor arguments and their types
           let mut binders := #[]
           let mut userNames := #[]
-          for i in [:ctorInfo.numFields] do
+          for i in *...ctorInfo.numFields do
             let x := xs[indVal.numParams + i]!
             let localDecl ← x.fvarId!.getDecl
             if !localDecl.userName.hasMacroScopes then
@@ -119,7 +122,7 @@ where
     let alt ← do forallTelescopeReducing ctorInfo.type fun xs _ => do
         let mut binders   := #[]
         let mut userNames := #[]
-        for i in [:ctorInfo.numFields] do
+        for i in *...ctorInfo.numFields do
           let x := xs[indVal.numParams + i]!
           let localDecl ← x.fvarId!.getDecl
           if !localDecl.userName.hasMacroScopes then
@@ -166,9 +169,9 @@ def mkToJsonAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   if ctx.usePartial then
     let letDecls ← mkLocalInstanceLetDecls ctx ``ToJson header.argNames
     body ← mkLet letDecls body
-    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Json := $body:term)
+    `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Json := $body:term)
   else
-    `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Json := $body:term)
+    `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Json := $body:term)
 
 def mkFromJsonBody (ctx : Context) (e : Expr) : TermElabM Term := do
   let indName := e.getAppFn.constName!
@@ -188,14 +191,14 @@ def mkFromJsonAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   if ctx.usePartial || indval.isRec then
     let letDecls ← mkLocalInstanceLetDecls ctx ``FromJson header.argNames
     body ← mkLet letDecls body
-    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Except String $(← mkInductiveApp ctx.typeInfos[i]! header.argNames) := $body:term)
+    `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Except String $(← mkInductiveApp ctx.typeInfos[i]! header.argNames) := $body:term)
   else
-    `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Except String $(← mkInductiveApp ctx.typeInfos[i]! header.argNames) := $body:term)
+    `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Except String $(← mkInductiveApp ctx.typeInfos[i]! header.argNames) := $body:term)
 
 
 def mkToJsonMutualBlock (ctx : Context) : TermElabM Command := do
   let mut auxDefs := #[]
-  for i in [:ctx.typeInfos.size] do
+  for i in *...ctx.typeInfos.size do
     auxDefs := auxDefs.push (← mkToJsonAuxFunction ctx i)
   `(mutual
      $auxDefs:command*
@@ -203,20 +206,20 @@ def mkToJsonMutualBlock (ctx : Context) : TermElabM Command := do
 
 def mkFromJsonMutualBlock (ctx : Context) : TermElabM Command := do
   let mut auxDefs := #[]
-  for i in [:ctx.typeInfos.size] do
+  for i in *...ctx.typeInfos.size do
     auxDefs := auxDefs.push (← mkFromJsonAuxFunction ctx i)
   `(mutual
      $auxDefs:command*
     end)
 
 private def mkToJsonInstance (declName : Name) : TermElabM (Array Command) := do
-  let ctx ← mkContext "toJson" declName
+  let ctx ← mkContext ``ToJson "toJson" declName
   let cmds := #[← mkToJsonMutualBlock ctx] ++ (← mkInstanceCmds ctx ``ToJson #[declName])
   trace[Elab.Deriving.toJson] "\n{cmds}"
   return cmds
 
 private def mkFromJsonInstance (declName : Name) : TermElabM (Array Command) := do
-  let ctx ← mkContext "fromJson" declName
+  let ctx ← mkContext ``FromJson "fromJson" declName
   let cmds := #[← mkFromJsonMutualBlock ctx] ++ (← mkInstanceCmds ctx ``FromJson #[declName])
   trace[Elab.Deriving.fromJson] "\n{cmds}"
   return cmds

@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.CNF.RelabelFin
-import Std.Tactic.BVDecide.LRAT.Internal.Formula
+public import Std.Sat.CNF.RelabelFin
+public import Std.Tactic.BVDecide.LRAT.Internal.Formula
+
+@[expose] public section
 
 namespace Std.Tactic.BVDecide
 
@@ -133,7 +137,7 @@ theorem CNF.unsat_of_convertLRAT_unsat (cnf : CNF Nat) :
   rcases hlclause with ⟨reflectClause, ⟨hrclause1, hrclause2⟩⟩
   simp only [CNF.eval, List.all_eq_true] at h2
   split at hrclause2
-  · next heq =>
+  next heq =>
     rw [← heq] at hrclause2
     simp only [Option.some.injEq] at hrclause2
     simp [CNF.Clause.convertLRAT_sat_of_sat reflectClause hrclause2, h2 reflectClause hrclause1]

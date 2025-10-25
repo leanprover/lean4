@@ -8,9 +8,10 @@ The Except monad transformer.
 module
 
 prelude
-import Init.Control.Basic
-import Init.Control.Id
-import Init.Coe
+public import Init.Control.Basic
+public import Init.Control.Id
+
+@[expose] public section
 
 namespace Except
 variable {ε : Type u}

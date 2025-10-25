@@ -6,11 +6,11 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Array.MapIdx
 import all Init.Data.Array.Basic
 import all Init.Data.Vector.Basic
-import Init.Data.Vector.Attach
-import Init.Data.Vector.Lemmas
+public import Init.Data.Vector.Attach
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -95,18 +95,7 @@ theorem mem_zipIdx_iff_getElem? {x : α × Nat} {xs : Vector α n} :
   rcases xs with ⟨xs, rfl⟩
   simp [Array.mem_zipIdx_iff_getElem?]
 
-@[deprecated toList_zipIdx (since := "2025-01-27")]
-abbrev toList_zipWithIndex := @toList_zipIdx
-@[deprecated getElem_zipIdx (since := "2025-01-27")]
-abbrev getElem_zipWithIndex := @getElem_zipIdx
-@[deprecated mk_mem_zipIdx_iff_le_and_getElem?_sub (since := "2025-01-27")]
-abbrev mk_mem_zipWithIndex_iff_le_and_getElem?_sub := @mk_mem_zipIdx_iff_le_and_getElem?_sub
-@[deprecated mk_mem_zipIdx_iff_getElem? (since := "2025-01-27")]
-abbrev mk_mem_zipWithIndex_iff_getElem? := @mk_mem_zipIdx_iff_getElem?
-@[deprecated mem_zipIdx_iff_le_and_getElem?_sub (since := "2025-01-27")]
-abbrev mem_zipWithIndex_iff_le_and_getElem?_sub := @mem_zipIdx_iff_le_and_getElem?_sub
-@[deprecated mem_zipIdx_iff_getElem? (since := "2025-01-27")]
-abbrev mem_zipWithIndex_iff_getElem? := @mem_zipIdx_iff_getElem?
+
 
 /-! ### mapFinIdx -/
 
@@ -254,8 +243,7 @@ theorem mapIdx_eq_zipIdx_map {xs : Vector α n} {f : Nat → α → β} :
     xs.mapIdx f = xs.zipIdx.map fun ⟨a, i⟩ => f i a := by
   ext <;> simp
 
-@[deprecated mapIdx_eq_zipIdx_map (since := "2025-01-27")]
-abbrev mapIdx_eq_zipWithIndex_map := @mapIdx_eq_zipIdx_map
+
 
 @[grind =]
 theorem mapIdx_append {xs : Vector α n} {ys : Vector α m} :

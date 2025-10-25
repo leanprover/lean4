@@ -6,8 +6,9 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Grind.Ring.Basic
-import Init.Grind.ToInt
+public import Init.Grind.Ring.Basic
+
+public section
 
 namespace Lean.Grind
 

@@ -6,10 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.List.Sublist
-import Init.Data.List.Nat.Basic
-import Init.Data.List.Nat.TakeDrop
-import Init.Data.Nat.Lemmas
+public import Init.Data.List.Nat.Basic
+public import Init.Data.List.Nat.TakeDrop
+
+public section
 
 /-!
 # Further lemmas about `List.IsSuffix` / `List.IsPrefix` / `List.IsInfix`.

@@ -1,3 +1,4 @@
+module
 open List
 
 theorem findSome?_eq_none_iff : findSome? p l = none ↔ ∀ x ∈ l, p x = none := by
@@ -7,7 +8,7 @@ theorem findSome?_isSome_iff {f : α → Option β} {l : List α} :
     (l.findSome? f).isSome ↔ ∃ x, x ∈ l ∧ (f x).isSome := by
   induction l with grind
 
-attribute [grind] Option.isSome_iff_ne_none -- Can we add this?
+attribute [grind! ←] Option.isSome_iff_ne_none -- Can we add this?
 
 theorem Sublist.findSome?_eq_none {l₁ l₂ : List α} (h : l₁ <+ l₂) :
     l₂.findSome? f = none → l₁.findSome? f = none := by
@@ -41,12 +42,13 @@ example (xs : List Nat) (h : 3 ∈ xs) : xs[xs.findIdx (· ≤ 5)] = 4 → 2 ≤
 example (xs : List Nat) (h : ∀ x, x ∈ xs → x > 7) : xs.find? (· ≤ 5) = none := by grind
 example (xs : List Nat) (h : ∀ x, x ∈ xs → x > 7) : xs.findIdx (· ≤ 5) = xs.length := by grind
 
-/-- If `¬ p xs[j]` for all `j < i`, then `i ≤ xs.findIdx p`. -/
+-- The following two theorems are abusing `grind`.
+-- They instantiate the local hypothesis using `j < i` and `j ≤ i` as the patterns.
+
 theorem le_findIdx_of_not {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs.length)
     (h2 : ∀ j (hji : j < i), p (xs[j]'(Nat.lt_trans hji h)) = false) : i ≤ xs.findIdx p := by
   grind
 
-/-- If `¬ p xs[j]` for all `j ≤ i`, then `i < xs.findIdx p`. -/
 theorem lt_findIdx_of_not {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs.length)
     (h2 : ∀ j (hji : j ≤ i), ¬p (xs[j]'(Nat.lt_of_le_of_lt hji h))) : i < xs.findIdx p := by
   grind

@@ -7,9 +7,13 @@ module
 
 prelude
 
-import Init.ByCases
-import Init.RCases
+public import Init.System.IO  -- for `MonoBind` instance
 import all Init.Control.Except  -- for `MonoBind` instance
+import all Init.Control.StateRef  -- for `MonoBind` instance
+import all Init.Control.Option  -- for `MonoBind` instance
+import all Init.System.ST  -- for `MonoBind` instance
+
+public section
 
 /-!
 This module contains some basic definitions and results from domain theory, intended to be used as
@@ -354,7 +358,7 @@ inductive iterates (f : α → α) : α → Prop where
   | sup {c : α → Prop} (hc : chain c) (hi : ∀ x, c x → iterates f x) : iterates f (csup c)
 
 theorem chain_iterates {f : α → α} (hf : monotone f) : chain (iterates f) := by
-  intros x y hx hy
+  intro x y hx hy
   induction hx generalizing y
   case step x hx ih =>
     induction hy
@@ -415,14 +419,14 @@ The least fixpoint of a monotone function is the least upper bound of its transf
 
 The `monotone f` assumption is not strictly necessarily for the definition, but without this the
 definition is not very meaningful and it simplifies applying theorems like `fix_eq` if every use of
-`fix` already has the monotonicty requirement.
+`fix` already has the monotonicity requirement.
 
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
 def fix (f : α → α) (hmono : monotone f) := csup (iterates f)
 
 /--
-The main fixpoint theorem for fixedpoints of monotone functions in chain-complete partial orders.
+The main fixpoint theorem for fixed points of monotone functions in chain-complete partial orders.
 
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
@@ -541,12 +545,6 @@ def admissible_pi_apply [∀ x, CCPO (β x)] (P : ∀ x, β x → Prop) (hadm : 
 end fun_order
 
 section monotone_lemmas
-
-theorem monotone_letFun
-    {α : Sort u} {β : Sort v} {γ : Sort w} [PartialOrder α] [PartialOrder β]
-    (v : γ) (k : α → γ → β)
-    (hmono : ∀ y, monotone (fun x => k x y)) :
-  monotone fun (x : α) => letFun v (k x) := hmono v
 
 @[partial_fixpoint_monotone]
 theorem monotone_ite
@@ -793,14 +791,14 @@ on `m` is monotone in both arguments with regard to that order.
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
 class MonoBind (m : Type u → Type v) [Bind m] [∀ α, PartialOrder (m α)] where
-  bind_mono_left {a₁ a₂ : m α} {f : α → m b} (h : a₁ ⊑ a₂) : a₁ >>= f ⊑ a₂ >>= f
-  bind_mono_right {a : m α} {f₁ f₂ : α → m b} (h : ∀ x, f₁ x ⊑ f₂ x) : a >>= f₁ ⊑ a >>= f₂
+  bind_mono_left {a₁ a₂ : m α} {f : α → m β} (h : a₁ ⊑ a₂) : a₁ >>= f ⊑ a₂ >>= f
+  bind_mono_right {a : m α} {f₁ f₂ : α → m β} (h : ∀ x, f₁ x ⊑ f₂ x) : a >>= f₁ ⊑ a >>= f₂
 
 @[partial_fixpoint_monotone]
 theorem monotone_bind
     (m : Type u → Type v) [Bind m] [∀ α, PartialOrder (m α)] [MonoBind m]
     {α β : Type u}
-    {γ : Type w} [PartialOrder γ]
+    {γ : Sort w} [PartialOrder γ]
     (f : γ → m α) (g : γ → α → m β)
     (hmono₁ : monotone f)
     (hmono₂ : monotone g) :
@@ -826,9 +824,9 @@ theorem Option.admissible_eq_some (P : Prop) (y : α) :
     admissible (fun (x : Option α) => x = some y → P) := by
   apply admissible_flatOrder; simp
 
-instance [Monad m] [inst : ∀ α, PartialOrder (m α)] : PartialOrder (ExceptT ε m α) := inst _
-instance [Monad m] [∀ α, PartialOrder (m α)] [inst : ∀ α, CCPO (m α)] : CCPO (ExceptT ε m α) := inst _
-instance [Monad m] [∀ α, PartialOrder (m α)] [∀ α, CCPO (m α)] [MonoBind m] : MonoBind (ExceptT ε m) where
+instance [inst : ∀ α, PartialOrder (m α)] : PartialOrder (ExceptT ε m α) := inst _
+instance [inst : ∀ α, CCPO (m α)] : CCPO (ExceptT ε m α) := inst _
+instance [Monad m] [∀ α, PartialOrder (m α)] [MonoBind m] : MonoBind (ExceptT ε m) where
   bind_mono_left h₁₂ := by
     apply MonoBind.bind_mono_left (m := m)
     exact h₁₂
@@ -838,6 +836,125 @@ instance [Monad m] [∀ α, PartialOrder (m α)] [∀ α, CCPO (m α)] [MonoBind
     cases x
     · apply PartialOrder.rel_refl
     · apply h₁₂
+
+@[partial_fixpoint_monotone]
+theorem monotone_exceptTRun [PartialOrder γ]
+    [Monad m] [∀ α, PartialOrder (m α)]
+    (f : γ → ExceptT ε m α) (hmono : monotone f) :
+    monotone (fun (x : γ) => ExceptT.run (f x)) :=
+  hmono
+
+instance [inst : ∀ α, PartialOrder (m α)] : PartialOrder (OptionT m α) := inst _
+instance [inst : ∀ α, CCPO (m α)] : CCPO (OptionT m α) := inst _
+instance [Monad m] [∀ α, PartialOrder (m α)] [MonoBind m] : MonoBind (OptionT m) where
+  bind_mono_left h₁₂ := by
+    apply MonoBind.bind_mono_left (m := m)
+    exact h₁₂
+  bind_mono_right h₁₂ := by
+    apply MonoBind.bind_mono_right (m := m)
+    intro x
+    cases x
+    · apply PartialOrder.rel_refl
+    · apply h₁₂
+
+@[partial_fixpoint_monotone]
+theorem monotone_optionTRun [PartialOrder γ]
+    [Monad m] [∀ α, PartialOrder (m α)]
+    (f : γ → OptionT m α) (hmono : monotone f) :
+    monotone (fun (x : γ) => OptionT.run (f x)) :=
+  hmono
+
+instance [inst : PartialOrder (m α)] : PartialOrder (ReaderT ρ m α) := instOrderPi
+instance [inst : CCPO (m α)] : CCPO (ReaderT ρ m α) := instCCPOPi
+instance [Monad m] [∀ α, PartialOrder (m α)] [MonoBind m] : MonoBind (ReaderT ρ m) where
+  bind_mono_left h₁₂ := by
+    intro x
+    apply MonoBind.bind_mono_left (m := m)
+    exact h₁₂ x
+  bind_mono_right h₁₂ := by
+    intro x
+    apply MonoBind.bind_mono_right (m := m)
+    intro y
+    apply h₁₂
+
+@[partial_fixpoint_monotone]
+theorem monotone_readerTRun [PartialOrder γ]
+    [Monad m] [PartialOrder (m α)]
+    (f : γ → ReaderT σ m α) (hmono : monotone f) (s : σ) :
+    monotone (fun (x : γ) => ReaderT.run (f x) s) :=
+  monotone_apply s _ hmono
+
+instance [inst : PartialOrder (m α)] : PartialOrder (StateRefT' ω σ m α) := instOrderPi
+instance [inst : CCPO (m α)] : CCPO (StateRefT' ω σ m α) := instCCPOPi
+instance [Monad m] [∀ α, PartialOrder (m α)] [MonoBind m] : MonoBind (StateRefT' ω σ m) :=
+  inferInstanceAs (MonoBind (ReaderT _ _))
+
+@[partial_fixpoint_monotone]
+theorem monotone_stateRefT'Run [PartialOrder γ]
+    [Monad m] [MonadLiftT (ST ω) m] [∀ α, PartialOrder (m α)] [MonoBind m]
+    (f : γ → StateRefT' ω σ m α) (hmono : monotone f) (s : σ) :
+    monotone (fun (x : γ) => StateRefT'.run (f x) s) := by
+  apply monotone_bind
+  · apply monotone_const
+  · refine monotone_of_monotone_apply _ fun ref => ?_
+    apply monotone_bind
+    · exact monotone_apply _ _ hmono
+    · apply monotone_const
+
+instance [inst : ∀ α, PartialOrder (m α)] : PartialOrder (StateT σ m α) := instOrderPi
+instance [inst : ∀ α, CCPO (m α)] : CCPO (StateT σ m α) := instCCPOPi
+instance [Monad m] [∀ α, PartialOrder (m α)] [MonoBind m] : MonoBind (StateT ρ m) where
+  bind_mono_left h₁₂ := by
+    intro x
+    apply MonoBind.bind_mono_left (m := m)
+    exact h₁₂ x
+  bind_mono_right h₁₂ := by
+    intro x
+    apply MonoBind.bind_mono_right (m := m)
+    intro y
+    apply h₁₂
+
+@[partial_fixpoint_monotone]
+theorem monotone_stateTRun [PartialOrder γ]
+    [Monad m] [∀ α, PartialOrder (m α)]
+    (f : γ → StateT σ m α) (hmono : monotone f) (s : σ) :
+    monotone (fun (x : γ) => StateT.run (f x) s) :=
+  monotone_apply s _ hmono
+
+-- TODO: axiomatize these instances (ideally without `Nonempty ε`) when EIO and friends are opaque
+
+noncomputable instance [Nonempty ε] : CCPO (EST ε σ α) :=
+  inferInstanceAs (CCPO ((s : _) → FlatOrder (.error Classical.ofNonempty (Classical.choice ⟨s⟩))))
+
+noncomputable instance [Nonempty ε] : MonoBind (EST ε σ) where
+  bind_mono_left {_ _ a₁ a₂ f} h₁₂ := by
+    intro s
+    specialize h₁₂ s
+    change FlatOrder.rel (a₁.bind f s) (a₂.bind f s)
+    simp only [EST.bind]
+    generalize a₁ s = a₁ at h₁₂; generalize a₂ s = a₂ at h₁₂
+    cases h₁₂
+    · exact .bot
+    · exact .refl
+  bind_mono_right {_ _ a f₁ f₂} h₁₂ := by
+    intro w
+    change FlatOrder.rel (a.bind f₁ w) (a.bind f₂ w)
+    simp only [EST.bind]
+    split
+    · apply h₁₂
+    · exact .refl
+
+noncomputable instance [Nonempty α] : CCPO (ST σ α) :=
+  inferInstanceAs (CCPO ((s : _) → FlatOrder (.mk Classical.ofNonempty (Classical.choice ⟨s⟩))))
+
+noncomputable instance [Nonempty α] : CCPO (BaseIO α) :=
+  inferInstanceAs (CCPO (ST IO.RealWorld α))
+
+noncomputable instance [Nonempty ε] : CCPO (EIO ε α) :=
+  inferInstanceAs (CCPO (EST ε IO.RealWorld α))
+
+noncomputable instance [Nonempty ε] : MonoBind (EIO ε) :=
+  inferInstanceAs (MonoBind (EST ε IO.RealWorld))
 
 end mono_bind
 
@@ -925,7 +1042,7 @@ instance ReverseImplicationOrder.instCompleteLattice : CompleteLattice ReverseIm
       exact l
       exact cy
     case mpr =>
-      intros h y cy ccy
+      intro h y cy ccy
       apply h
       exact ccy
       exact y

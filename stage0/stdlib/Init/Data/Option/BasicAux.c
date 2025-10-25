@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Option.BasicAux
-// Imports: Init.Data.Option.Basic Init.Util
+// Imports: public import Init.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -53,7 +53,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Option_get_x21___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(21u);
+x_3 = lean_unsigned_to_nat(22u);
 x_4 = l_Option_get_x21___redArg___closed__1;
 x_5 = l_Option_get_x21___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -118,17 +118,13 @@ lean_dec(x_3);
 return x_4;
 }
 }
-lean_object* initialize_Init_Data_Option_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Util(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Util(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Option_BasicAux(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Option_BasicAux(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Option_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Util(builtin, lean_io_mk_world());
+res = initialize_Init_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Option_get_x21___redArg___closed__0 = _init_l_Option_get_x21___redArg___closed__0();

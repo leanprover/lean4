@@ -3,10 +3,12 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Meta.Transform
-import Lean.Meta.Match.MatcherApp.Basic
-import Lean.Elab.Tactic.Simp
+public import Lean.Elab.Tactic.Simp
+
+public section
 
 /-!
 This module implements the preprocessing of function definitions involved in well-founded recursion.
@@ -73,7 +75,9 @@ private def getSimpContext : MetaM Simp.Context := do
   Simp.mkContext
     (simpTheorems  := #[simpTheorems])
     (congrTheorems := {})
-    (config        := { Simp.neutralConfig with dsimp := true })
+    -- Remark: we use `congrConsts` because this module uses `withoutModifyingEnv`
+    -- which would erase any congruence lemmas realized in the `withoutModifyingEnv` block.
+    (config        := { Simp.neutralConfig with dsimp := true, congrConsts := false })
 
 def isWfParam? (e : Expr) : Option Expr :=
   if e.isAppOfArity ``wfParam 2 then
@@ -150,7 +154,7 @@ builtin_dsimproc paramLet (_) := fun e => do
 
 /--
 Transforms non-Prop `have`s to `let`s, so that the values can be used in GuessLex and decreasing-by proofs.
-These `have`s may have been introdued by `simp`, which converts `let`s to `have`s.
+These `have`s may have been introduced by `simp`, which converts `let`s to `have`s.
 -/
 private def nonPropHaveToLet (e : Expr) : MetaM Expr := do
   Meta.transform e (pre := fun e => do
@@ -176,6 +180,8 @@ private def nonPropHaveToLet (e : Expr) : MetaM Expr := do
 def preprocess (e : Expr) : MetaM Simp.Result := do
   unless wf.preprocess.get (← getOptions) do
     return { expr := e }
+  -- Transform `let`s to `have`s to enable `simp` entering let bodies.
+  let e ← letToHave e
   lambdaTelescope e fun xs _ => do
     -- Annotate all xs with `wfParam`
     let xs' ← xs.mapM mkWfParam
@@ -193,15 +199,15 @@ def preprocess (e : Expr) : MetaM Simp.Result := do
       e.withApp fun f as => do
         if f.isConstOf ``wfParam then
           if h : as.size ≥ 2 then
-            return .continue (mkAppN as[1] as[2:])
+            return .continue (mkAppN as[1] as[2...*])
         return .continue
 
     -- Transform `have`s to `let`s for non-propositions.
-    let e'' ← nonPropHaveToLet e''
+    let e''' ← nonPropHaveToLet e''
 
-    let result := { result with expr := e'' }
+    trace[Elab.definition.wf] "Attach-introduction:{indentExpr e'}\nto{indentExpr result.expr}\ncleand up to {indentExpr e'''}"
 
-    trace[Elab.definition.wf] "Attach-introduction:{indentExpr e'}\nto{indentExpr result.expr}"
+    let result := { result with expr := e''' }
     result.addLambdas xs
 
 end Lean.Elab.WF

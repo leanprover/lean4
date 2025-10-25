@@ -1,0 +1,38 @@
+name: Check awaiting-manual label
+
+on:
+  merge_group:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+jobs:
+  check-awaiting-manual:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check awaiting-manual label
+        id: check-awaiting-manual-label
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { labels, number: prNumber } = context.payload.pull_request;
+            const hasAwaiting = labels.some(label => label.name == "awaiting-manual");
+            const hasBreaks = labels.some(label => label.name == "breaks-manual");
+            const hasBuilds = labels.some(label => label.name == "builds-manual");
+
+            if (hasAwaiting && hasBreaks) {
+              core.setFailed('PR has both "awaiting-manual" and "breaks-manual" labels.');
+            } else if (hasAwaiting && !hasBreaks && !hasBuilds) {
+              core.info('PR is marked "awaiting-manual" but neither "breaks-manual" nor "builds-manual" labels are present.');
+              core.setOutput('awaiting', 'true');
+            }
+      
+      - name: Wait for manual compatibility
+        if: github.event_name == 'pull_request' && steps.check-awaiting-manual-label.outputs.awaiting == 'true'
+        run: |
+          echo "::notice title=Awaiting manual::PR is marked 'awaiting-manual' but neither 'breaks-manual' nor 'builds-manual' labels are present."
+          echo "This check will remain in progress until the PR is updated with appropriate manual compatibility labels."
+          # Keep the job running indefinitely to show "in progress" status
+          while true; do
+            sleep 3600  # Sleep for 1 hour at a time
+          done

@@ -8,10 +8,10 @@ module
 prelude
 import all Init.Data.Array.Basic
 import all Init.Data.Vector.Basic
-import Init.Data.Vector.Lemmas
-import Init.Data.Vector.Zip
-import Init.Data.Vector.MapIdx
-import Init.Data.Array.Range
+public import Init.Data.Vector.Zip
+public import Init.Data.Vector.MapIdx
+
+public section
 
 /-!
 # Lemmas about `Vector.range'`, `Vector.range`, and `Vector.zipIdx`

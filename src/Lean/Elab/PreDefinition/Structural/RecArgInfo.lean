@@ -3,11 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.Meta.ForEachExpr
-import Lean.Elab.PreDefinition.FixedParams
-import Lean.Elab.PreDefinition.Structural.IndGroupInfo
+public import Lean.Elab.PreDefinition.FixedParams
+public import Lean.Elab.PreDefinition.Structural.IndGroupInfo
+
+public section
 
 namespace Lean.Elab.Structural
 
@@ -55,7 +57,7 @@ def RecArgInfo.pickIndicesMajor (info : RecArgInfo) (xs : Array Expr) : (Array E
     indexMajorArgs := indexMajorArgs.push xs[j]!
   -- Then the other arguments, in the order they appear in `xs`
   let mut otherVaryingArgs := #[]
-  for h : i in [:xs.size] do
+  for h : i in *...xs.size do
     unless indexMajorPos.contains i do
       unless info.fixedParamPerm.isFixed i do
         otherVaryingArgs := otherVaryingArgs.push xs[i]

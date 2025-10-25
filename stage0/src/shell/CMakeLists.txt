@@ -180,14 +180,36 @@ FOREACH(T ${LEANTESTS})
   endif()
 ENDFOREACH(T)
 
+# LEAN INTERACTIVE PROJECT SERVER TESTS
+file(GLOB_RECURSE LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/interactive/projects/*Test.lean")
+FOREACH(T ${LEANTESTS})
+  if(NOT T MATCHES "\\.#")
+    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+    add_test(NAME "leaninteractiveprojecttest_${T_NAME}"
+             WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/interactive/projects"
+             COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T}")
+  endif()
+ENDFOREACH(T)
+
+# LEAN DOCSTRING PARSER TESTS
+file(GLOB_RECURSE LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/docparse/*_[0-9][0-9][0-9][0-9]")
+FOREACH(T ${LEANTESTS})
+  if(NOT T MATCHES "\\.#" AND NOT T MATCHES "run.lean")
+    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+    add_test(NAME "leandocparsetest_${T_NAME}"
+             WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/docparse"
+             COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
+  endif()
+ENDFOREACH(T)
+
 # Create a lake test for each test and examples subdirectory of `lake`
 # which contains a `test.sh` file, excluding the following test(s):
 # bootstrap: too slow
 # toolchain: requires elan to download toolchain
 # online: downloads remote repositories
 file(GLOB_RECURSE LEANLAKETESTS
-  #"${LEAN_SOURCE_DIR}/lake/tests/test.sh"
-  "${LEAN_SOURCE_DIR}/lake/examples/test.sh")
+  #"${LEAN_SOURCE_DIR}/../tests/lake/tests/test.sh"
+  "${LEAN_SOURCE_DIR}/../tests/lake/examples/test.sh")
 FOREACH(T ${LEANLAKETESTS})
   if(NOT T MATCHES ".*(lake-packages|bootstrap|toolchain|online).*")
     GET_FILENAME_COMPONENT(T_DIR ${T} DIRECTORY)

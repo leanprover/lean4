@@ -3,12 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Option.Lemmas
-import Init.Data.Iterators.Basic
-import Init.Data.Iterators.Consumers.Collect
-import Init.Data.Iterators.Consumers.Loop
-import Init.Data.Iterators.Internal.Termination
+public import Init.Data.Option.Lemmas
+public import Init.Data.Iterators.Consumers.Loop
+public import Init.Data.Iterators.Internal.Termination
+
+@[expose] public section
 
 /-!
 
@@ -17,73 +19,6 @@ import Init.Data.Iterators.Internal.Termination
 This file provides an iterator combinator `IterM.zip` that combines two iterators into an iterator
 of pairs.
 -/
-
-namespace Std.Internal.Option
-
-/- TODO: move this to Init.Data.Option -/
-namespace SomeLtNone
-
-/--
-Lifts an ordering relation to `Option`, such that `none` is the greatest element.
-
-It can be understood as adding a distinguished greatest element, represented by `none`, to both `α`
-and `β`.
-
-Caution: Given `LT α`, `Option.SomeLtNone.lt LT.lt` differs from the `LT (Option α)` instance,
-which is implemented by `Option.lt Lt.lt`.
-
-Examples:
- * `Option.lt (fun n k : Nat => n < k) none none = False`
- * `Option.lt (fun n k : Nat => n < k) none (some 3) = False`
- * `Option.lt (fun n k : Nat => n < k) (some 3) none = True`
- * `Option.lt (fun n k : Nat => n < k) (some 4) (some 5) = True`
- * `Option.lt (fun n k : Nat => n < k) (some 4) (some 4) = False`
--/
-def lt {α} (r : α → α → Prop) : Option α → Option α → Prop
-  | none, _ => false
-  | some _, none => true
-  | some a', some a => r a' a
-
-end SomeLtNone
-
-/- TODO: Move these to Init.Data.Option.Lemmas in a separate PR -/
-theorem wellFounded_lt {α} {rel : α → α → Prop} (h : WellFounded rel) :
-    WellFounded (Option.lt rel) := by
-  refine ⟨fun x => ?_⟩
-  have hn : Acc (Option.lt rel) none := by
-    refine Acc.intro none ?_
-    intro y hyx
-    cases y <;> cases hyx
-  cases x
-  · exact hn
-  · rename_i x
-    induction h.apply x
-    rename_i x' h ih
-    refine Acc.intro _ ?_
-    intro y hyx'
-    cases y
-    · exact hn
-    · exact ih _ hyx'
-
-theorem SomeLtNone.wellFounded_lt {α} {r : α → α → Prop} (h : WellFounded r) :
-    WellFounded (SomeLtNone.lt r) := by
-  refine ⟨?_⟩
-  intro x
-  constructor
-  intro x' hlt
-  match x' with
-  | none => contradiction
-  | some x' =>
-    clear hlt
-    induction h.apply x'
-    rename_i ih
-    constructor
-    intro x'' hlt'
-    match x'' with
-    | none => contradiction
-    | some x'' => exact ih x'' hlt'
-
-end Std.Internal.Option
 
 namespace Std.Iterators
 open Std.Internal
@@ -133,21 +68,21 @@ instance Zip.instIterator [Monad m] :
   step it :=
     match hm : it.internalState.memoizedLeft with
     | none => do
-      match ← it.internalState.left.step with
+      match (← it.internalState.left.step).inflate with
       | .yield it₁' out hp =>
-          pure <| .skip ⟨⟨it₁', (some ⟨out, _, _, hp⟩), it.internalState.right⟩⟩ (.yieldLeft hm hp)
+          pure <| .deflate <| .skip ⟨⟨it₁', (some ⟨out, _, _, hp⟩), it.internalState.right⟩⟩ (.yieldLeft hm hp)
       | .skip it₁' hp =>
-          pure <| .skip ⟨⟨it₁', none, it.internalState.right⟩⟩ (.skipLeft hm hp)
+          pure <| .deflate <| .skip ⟨⟨it₁', none, it.internalState.right⟩⟩ (.skipLeft hm hp)
       | .done hp =>
-          pure <| .done (.doneLeft hm hp)
+          pure <| .deflate <| .done (.doneLeft hm hp)
     | some out₁ => do
-      match ← it.internalState.right.step with
+      match (← it.internalState.right.step).inflate with
       | .yield it₂' out₂ hp =>
-          pure <| .yield ⟨⟨it.internalState.left, none, it₂'⟩⟩ (out₁, out₂) (.yieldRight hm hp)
+          pure <| .deflate <| .yield ⟨⟨it.internalState.left, none, it₂'⟩⟩ (out₁, out₂) (.yieldRight hm hp)
       | .skip it₂' hp =>
-          pure <| .skip ⟨⟨it.internalState.left, (some out₁), it₂'⟩⟩ (.skipRight hm hp)
+          pure <| .deflate <| .skip ⟨⟨it.internalState.left, (some out₁), it₂'⟩⟩ (.skipRight hm hp)
       | .done hp =>
-          pure <| .done (.doneRight hm hp)
+          pure <| .deflate <| .done (.doneRight hm hp)
 
 /--
 Given two iterators `left` and `right`, `left.zip right` is an iterator that yields pairs of

@@ -6,7 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Core
+public import Init.Core
+
+public section
 
 namespace Lean
 
@@ -92,7 +94,7 @@ structure Config where
   -/
   decide            : Bool := false
   /--
-  When `true` (default: `false`), unfolds definitions.
+  When `true` (default: `false`), unfolds applications of functions defined by pattern matching, when one of the patterns applies.
   This can be enabled using the `simp!` syntax.
   -/
   autoUnfold        : Bool := false
@@ -123,7 +125,6 @@ structure Config where
   -/
   zetaUnused : Bool := true
   /--
-  (Unimplemented)
   When `false` (default: `true`), then disables zeta reduction of `have` expressions.
   If `zeta` is `false`, then this option has no effect.
   Unused `have`s are still removed if `zeta` or `zetaUnused` are true.
@@ -139,7 +140,7 @@ def defaultMaxSteps := 100000
 
 /--
 The configuration for `simp`.
-Passed to `simp` using, for example, the `simp (config := {contextual := true})` syntax.
+Passed to `simp` using, for example, the `simp +contextual` or `simp (maxSteps := 100000)` syntax.
 
 See also `Lean.Meta.Simp.neutralConfig` and `Lean.Meta.DSimp.Config`.
 -/
@@ -160,7 +161,7 @@ structure Config where
   -/
   contextual        : Bool := false
   /--
-  When true (default: `true`) then the simplifier caches the result of simplifying each subexpression, if possible.
+  When true (default: `true`) then the simplifier caches the result of simplifying each sub-expression, if possible.
   -/
   memoize           : Bool := true
   /--
@@ -207,7 +208,7 @@ structure Config where
   /--  When `true` (default: `false`), simplifies simple arithmetic expressions. -/
   arith             : Bool := false
   /--
-  When `true` (default: `false`), unfolds definitions.
+  When `true` (default: `false`), unfolds applications of functions defined by pattern matching, when one of the patterns applies.
   This can be enabled using the `simp!` syntax.
   -/
   autoUnfold        : Bool := false
@@ -251,28 +252,44 @@ structure Config where
   -/
   implicitDefEqProofs : Bool := true
   /--
-  When `true` (default : `true`), then `simp` will remove unused `let` and `have` expressions:
+  When `true` (default : `true`), then `simp` removes unused `let` and `have` expressions:
   `let x := v; e` simplifies to `e` when `x` does not occur in `e`.
+  This option takes precedence over `zeta` and `zetaHave`.
   -/
   zetaUnused : Bool := true
   /--
-  When `true` (default : `true`), then simps will catch runtime exceptions and
-  convert them into `simp` exceptions.
+  When `true` (default : `true`), then `simp` catches runtime exceptions and
+  converts them into `simp` exceptions.
   -/
   catchRuntime : Bool := true
   /--
-  (Unimplemented)
   When `false` (default: `true`), then disables zeta reduction of `have` expressions.
   If `zeta` is `false`, then this option has no effect.
   Unused `have`s are still removed if `zeta` or `zetaUnused` are true.
   -/
   zetaHave : Bool := true
   /--
-  (Unimplemented)
   When `true` (default : `true`), then `simp` will attempt to transform `let`s into `have`s
   if they are non-dependent. This only applies when `zeta := false`.
   -/
   letToHave : Bool := true
+  /--
+  When `true` (default: `true`), `simp` tries to realize constant `f.congr_simp`
+  when constructing an auxiliary congruence proof for `f`.
+  This option exists because the termination prover uses `simp` and `withoutModifyingEnv`
+  while constructing the termination proof. Thus, any constant realized by `simp`
+  is deleted.
+  -/
+  congrConsts : Bool := true
+  /--
+  When `true` (default: `true`), the bitvector simprocs use `BitVec.ofNat` for representing
+  bitvector literals.
+  -/
+  bitVecOfNat : Bool := true
+  /--
+  When `true` (default: `true`), the `^` simprocs generate an warning it the exponents are too big.
+  -/
+  warnExponents : Bool := true
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`

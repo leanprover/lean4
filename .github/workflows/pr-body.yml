@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Check PR body
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const { title, body, labels, draft } = context.payload.pull_request;

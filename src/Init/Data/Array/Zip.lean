@@ -7,8 +7,9 @@ module
 
 prelude
 import all Init.Data.Array.Basic
-import Init.Data.Array.TakeDrop
-import Init.Data.List.Zip
+public import Init.Data.Array.TakeDrop
+
+public section
 
 /-!
 # Lemmas about `Array.zip`, `Array.zipWith`, `Array.zipWithAll`, and `Array.unzip`.
@@ -116,7 +117,7 @@ theorem zipWith_foldl_eq_zip_foldl {f : α → β → γ} {i : δ} :
 theorem zipWith_eq_empty_iff {f : α → β → γ} {as : Array α} {bs : Array β} : zipWith f as bs = #[] ↔ as = #[] ∨ bs = #[] := by
   cases as <;> cases bs <;> simp
 
-@[grind =]
+@[simp, grind =]
 theorem map_zipWith {δ : Type _} {f : α → β} {g : γ → δ → α} {cs : Array γ} {ds : Array δ} :
     map f (zipWith g cs ds) = zipWith (fun x y => f (g x y)) cs ds := by
   cases cs
@@ -228,11 +229,9 @@ theorem zip_map {f : α → γ} {g : β → δ} {as : Array α} {bs : Array β} 
   cases bs
   simp [List.zip_map]
 
-@[grind _=_]
 theorem zip_map_left {f : α → γ} {as : Array α} {bs : Array β} :
     zip (as.map f) bs = (zip as bs).map (Prod.map f id) := by rw [← zip_map, map_id]
 
-@[grind _=_]
 theorem zip_map_right {f : β → γ} {as : Array α} {bs : Array β} :
     zip as (bs.map f) = (zip as bs).map (Prod.map id f) := by rw [← zip_map, map_id]
 
@@ -351,6 +350,15 @@ theorem map_zipWithAll {δ : Type _} {f : α → β} {g : Option γ → Option �
 
 @[deprecated zipWithAll_replicate (since := "2025-03-18")]
 abbrev zipWithAll_mkArray := @zipWithAll_replicate
+
+/-! ### zipWithM -/
+
+@[simp, grind =]
+theorem zipWithM_eq_mapM_id_zipWith {m : Type v → Type w} [Monad m] [LawfulMonad m] {f : α → β → m γ} {as : Array α} {bs : Array β} :
+    zipWithM f as bs = mapM id (zipWith f as bs) := by
+  cases as
+  cases bs
+  simp [List.zipWithM_toArray, ← List.zipWithM'_eq_zipWithM]
 
 /-! ### unzip -/
 

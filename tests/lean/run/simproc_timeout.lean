@@ -280,7 +280,7 @@ variable {α : Type _}
 
 variable [Primcodable α]
 
-theorem list_get? : Primrec₂ (@List.get? α) := sorry
+theorem list_get? : Primrec₂ (@List.get?Internal α) := sorry
 
 end Primrec
 
@@ -329,8 +329,8 @@ instance instDenumerable : Denumerable Code :=
 open Primrec
 
 private def lup (L : List (List (Option Nat))) (p : Nat × Code) (n : Nat) := do
-  let l ← L.get? (encode p)
-  let o ← l.get? n
+  let l ← L.get?Internal (encode p)
+  let o ← l.get?Internal n
   o
 
 -- This used to work in under 20000, but need over 6 million after leanprover/lean4#3124

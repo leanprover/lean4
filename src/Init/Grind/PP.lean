@@ -6,7 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.NotationExtra
+public import Init.NotationExtra
+public meta import Init.Data.String.Basic
+
+public section
 
 namespace Lean.Grind
 /-!

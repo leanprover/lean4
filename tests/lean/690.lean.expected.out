@@ -1,4 +1,4 @@
-690.lean:3:2-3:29: error: Too many variable names provided at alternative 'step': 3 provided, but 2 expected
+690.lean:3:2-3:29: error: Too many variable names provided at alternative `step`: 3 provided, but 2 expected
 case step
 a b m✝ : Nat
 hStep : a.le m✝

@@ -3,8 +3,13 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Elab.Util
+public import Lean.Elab.Util
+import Lean.Parser.Term
+
+public section
 namespace Lean.Elab
 
 structure Attribute where
@@ -31,7 +36,7 @@ def toAttributeKind (attrKindStx : Syntax) : MacroM AttributeKind := do
     return AttributeKind.global
   else if attrKindStx[0][0].getKind == ``Lean.Parser.Term.scoped then
     if (← Macro.getCurrNamespace).isAnonymous then
-      throw <| Macro.Exception.error (← getRef) "scoped attributes must be used inside namespaces"
+      throw <| Macro.Exception.error (← getRef) "Scoped attributes must be used inside namespaces"
     return AttributeKind.scoped
   else
     return AttributeKind.local
@@ -48,9 +53,9 @@ def elabAttr [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMa
     pure attr[0].getId.eraseMacroScopes
   else match attr.getKind with
     | .str _ s => pure <| Name.mkSimple s
-    | _ => throwErrorAt attr  "unknown attribute"
+    | _ => throwErrorAt attr  "Unknown attribute"
   let .ok _impl := getAttributeImpl (← getEnv) attrName
-    | throwError "unknown attribute [{attrName}]"
+    | throwError "Unknown attribute `[{attrName}]`"
   /- The `AttrM` does not have sufficient information for expanding macros in `args`.
      So, we expand them before here before we invoke the attributer handlers implemented using `AttrM`. -/
   return { kind := attrKind, name := attrName, stx := attr }

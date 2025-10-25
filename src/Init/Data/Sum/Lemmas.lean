@@ -6,8 +6,11 @@ Authors: Mario Carneiro, Yury G. Kudryashov
 module
 
 prelude
+public import Init.Data.Sum.Basic
 import all Init.Data.Sum.Basic
-import Init.Ext
+public import Init.Ext
+
+public section
 
 /-!
 # Disjoint union of types

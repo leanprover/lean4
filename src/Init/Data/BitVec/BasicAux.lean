@@ -6,7 +6,9 @@ Authors: Joe Hendrix, Wojciech Nawrocki, Leonardo de Moura, Mario Carneiro, Alex
 module
 
 prelude
-import Init.Data.Fin.Basic
+public import Init.Data.Fin.Basic
+
+public section
 
 set_option linter.missingDocs true
 
@@ -18,13 +20,6 @@ This module exists to provide the very basic `BitVec` definitions required for
 namespace BitVec
 
 section Nat
-
-/--
-The bitvector with value `i mod 2^n`.
--/
-@[expose, match_pattern]
-protected def ofNat (n : Nat) (i : Nat) : BitVec n where
-  toFin := Fin.ofNat (2^n) i
 
 instance instOfNat : OfNat (BitVec n) i where ofNat := .ofNat n i
 

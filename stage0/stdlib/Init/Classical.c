@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Classical
-// Imports: Init.PropLemmas
+// Imports: public import Init.PropLemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22,17 +22,15 @@ _start:
 {
 if (x_1 == 0)
 {
-lean_object* x_2; uint8_t x_3; 
-x_2 = lean_box(1);
-x_3 = lean_unbox(x_2);
-return x_3;
+uint8_t x_2; 
+x_2 = 1;
+return x_2;
 }
 else
 {
-lean_object* x_4; uint8_t x_5; 
-x_4 = lean_box(0);
-x_5 = lean_unbox(x_4);
-return x_5;
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
 }
 }
 }
@@ -49,7 +47,6 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Classical_decidable__of__decidable__not___redArg(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -60,19 +57,18 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Classical_decidable__of__decidable__not(x_1, x_3);
 x_5 = lean_box(x_4);
 return x_5;
 }
 }
-lean_object* initialize_Init_PropLemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_PropLemmas(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Classical(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Classical(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_PropLemmas(builtin, lean_io_mk_world());
+res = initialize_Init_PropLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

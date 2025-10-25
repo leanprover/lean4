@@ -3,13 +3,15 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.ReservedNameAction
-import Lean.AddDecl
-import Lean.Meta.Basic
+public import Lean.Meta.Match.MatcherInfo
+public import Lean.DefEqAttrib
+public import Lean.Meta.LetToHave
 import Lean.Meta.AppBuilder
-import Lean.Meta.Match.MatcherInfo
-import Lean.DefEqAttrib
+
+public section
 
 namespace Lean.Meta
 
@@ -44,7 +46,7 @@ This information is populated by the `PreDefinition` module, but the simplifier
 uses when unfolding declarations.
 -/
 builtin_initialize recExt : TagDeclarationExtension ←
-  mkTagDeclarationExtension `recExt (asyncMode := .async)
+  mkTagDeclarationExtension `recExt (asyncMode := .async .asyncEnv)
 
 /--
 Marks the given declaration as recursive.
@@ -114,7 +116,7 @@ builtin_initialize registerReservedNamePredicate fun env n => Id.run do
   else
     false
 
-def GetEqnsFn := Name → MetaM (Option (Array Name))
+@[expose] def GetEqnsFn := Name → MetaM (Option (Array Name))
 
 private builtin_initialize getEqnsFnsRef : IO.Ref (List GetEqnsFn) ← IO.mkRef []
 
@@ -167,9 +169,8 @@ builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
 /--
 Simple equation theorem for nonrecursive definitions.
 -/
-private def mkSimpleEqThm (declName : Name) : MetaM (Option Name) := do
+def mkSimpleEqThm (declName : Name) (name : Name) : MetaM (Option Name) := do
   if let some (.defnInfo info) := (← getEnv).find? declName then
-    let name := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
     realizeConst declName name (doRealize name info)
     return some name
   else
@@ -178,11 +179,13 @@ where doRealize name info := do
   lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
     let lhs := mkAppN (mkConst info.name <| info.levelParams.map mkLevelParam) xs
     let type  ← mkForallFVars xs (← mkEq lhs body)
+    -- Note: if this definition was added using `def`, then `letToHave` has already been applied to the body.
+    let type  ← letToHave type
     let value ← mkLambdaFVars xs (← mkEqRefl lhs)
-    addDecl <| Declaration.thmDecl {
+    addDecl <| (←mkThmOrUnsafeDef {
       name, type, value
       levelParams := info.levelParams
-    }
+    })
     inferDefEqAttr name -- should always succeed
 
 /--
@@ -253,7 +256,7 @@ def generateEagerEqns (declName : Name) : MetaM Unit := do
     trace[Elab.definition.eqns] "generating eager equations for {declName}"
     let _ ← getEqnsFor?Core declName
 
-def GetUnfoldEqnFn := Name → MetaM (Option Name)
+@[expose] def GetUnfoldEqnFn := Name → MetaM (Option Name)
 
 private builtin_initialize getUnfoldEqnFnsRef : IO.Ref (List GetUnfoldEqnFn) ← IO.mkRef []
 
@@ -306,7 +309,8 @@ def getUnfoldEqnFor? (declName : Name) (nonRec := false) : MetaM (Option Name) :
             return some r
       else
         if nonRec then
-          return (← mkSimpleEqThm declName)
+          let name := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
+          return (← mkSimpleEqThm declName name)
     return none
   if let some r := r? then
     unless r == unfoldName do
@@ -323,5 +327,8 @@ builtin_initialize
           if suffix == unfoldThmSuffix then
             return (← MetaM.run' <| getUnfoldEqnFor? declName (nonRec := true)).isSome
       return false
+
+  registerTraceClass `Elab.definition.eqns
+
 
 end Lean.Meta

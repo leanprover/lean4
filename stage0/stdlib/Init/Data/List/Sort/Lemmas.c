@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Sort.Lemmas
-// Imports: Init.Data.List.Perm Init.Data.List.Sort.Basic Init.Data.List.Nat.Range Init.Data.Bool
+// Imports: public import Init.Data.List.Perm public import Init.Data.List.Sort.Basic import all Init.Data.List.Sort.Basic public import Init.Data.List.Nat.Range
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -46,12 +46,12 @@ x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_1, 1);
 lean_inc(x_9);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_10 = lean_ctor_get(x_2, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_2, 1);
 lean_inc(x_11);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_12 = lean_apply_4(x_5, x_8, x_9, x_10, x_11);
 return x_12;
 }
@@ -82,29 +82,29 @@ else
 lean_object* x_7; 
 lean_dec(x_3);
 x_7 = lean_ctor_get(x_1, 1);
-lean_inc(x_7);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; 
 lean_dec(x_5);
 x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_9 = lean_apply_2(x_4, x_8, x_2);
 return x_9;
 }
 else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_inc_ref(x_7);
 lean_dec(x_4);
 x_10 = lean_ctor_get(x_1, 0);
 lean_inc(x_10);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_11 = lean_ctor_get(x_7, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_7, 1);
 lean_inc(x_12);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_13 = lean_apply_4(x_5, x_10, x_11, x_12, x_2);
 return x_13;
 }
@@ -119,25 +119,25 @@ x_8 = l___private_Init_Data_List_Sort_Lemmas_0__List_mergeSort_match__1_splitter
 return x_8;
 }
 }
-lean_object* initialize_Init_Data_List_Perm(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Sort_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Nat_Range(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Bool(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Perm(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Sort_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Sort_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Nat_Range(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_List_Sort_Lemmas(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_List_Sort_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_List_Perm(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Perm(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Sort_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Sort_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Nat_Range(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Sort_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Bool(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Nat_Range(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

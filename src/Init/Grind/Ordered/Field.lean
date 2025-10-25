@@ -6,14 +6,18 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Grind.Ring.Field
-import Init.Grind.Ordered.Ring
+public import Init.Grind.Ring.Field
+public import Init.Grind.Ordered.Ring
+
+public section
+
+open Std
 
 namespace Lean.Grind
 
 namespace Field.IsOrdered
 
-variable {R : Type u} [Field R] [LinearOrder R] [OrderedRing R]
+variable {R : Type u} [Field R] [LE R] [LT R] [LawfulOrderLT R] [IsLinearOrder R] [OrderedRing R]
 
 open OrderedAdd
 open OrderedRing

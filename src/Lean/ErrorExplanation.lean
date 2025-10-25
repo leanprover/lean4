@@ -3,11 +3,17 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joseph Rotella
 -/
+module
+
 prelude
 
-import Lean.Message
-import Lean.EnvExtension
-import Lean.DocString.Links
+public import Lean.Message
+public import Lean.EnvExtension
+public import Lean.DocString.Links
+import Init.Data.String.TakeDrop
+import Init.Data.String.Extra
+
+public section
 
 namespace Lean
 
@@ -89,7 +95,7 @@ where
   upToWs (nonempty : Bool) : Parser String := fun it =>
     let it' := it.find fun c => c.isWhitespace
     if nonempty && it'.pos == it.pos then
-      .error it' "Expected a nonempty string"
+      .error it' (.other "Expected a nonempty string")
     else
       .success it' (it.extract it')
 
@@ -176,7 +182,7 @@ private abbrev ValidationM := Parsec ValidationState
 private def ValidationM.run (p : ValidationM α) (input : String) : Except (Nat × String) α :=
   match p (.ofSource input) with
   | .success _ res => Except.ok res
-  | .error s err  => Except.error (s.getLineNumber, err)
+  | .error s err  => Except.error (s.getLineNumber, toString err)
 
 /--
 Matches `p` as many times as possible, followed by EOF. If `p` cannot be matched prior to the end
@@ -286,7 +292,7 @@ where
   labelingExampleErrors {α} (header : String) (x : ValidationM α) : ValidationM α := fun s =>
     match x s with
     | res@(.success ..) => res
-    | .error s' msg => .error s' s!"Example '{header}' is malformed: {msg}"
+    | .error s' msg => .error s' (.other s!"Example '{header}' is malformed: {msg}")
 
   /--
   If `line` is a level-`level` header and, if `title?` is non-`none`, its title is `title?`,
@@ -294,11 +300,11 @@ where
   `none` if `line` is not a header of the appropriate form.
   -/
   matchHeader (level : Nat) (title? : Option String) (line : String) : Option String := do
-    let octsEndPos := line.nextWhile (· == '#') 0
+    let octsEndPos := String.Pos.Raw.nextWhile line (· == '#') 0
     guard (octsEndPos.byteIdx == level)
-    guard (line.get octsEndPos == ' ')
-    let titleStartPos := line.next octsEndPos
-    let title := Substring.mk line titleStartPos line.endPos |>.toString
+    guard (octsEndPos.get line == ' ')
+    let titleStartPos := octsEndPos.next line
+    let title := Substring.mk line titleStartPos line.rawEndPos |>.toString
     let titleMatches : Bool := match title? with
       | some expectedTitle => title == expectedTitle
       | none => true

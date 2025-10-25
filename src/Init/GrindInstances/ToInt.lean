@@ -7,14 +7,10 @@ module
 
 prelude
 import all Init.Grind.ToInt
-import Init.Grind.Module.Basic
-import Init.Grind.Ring.ToInt
-import Init.Data.Int.DivMod.Basic
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
-import Init.Data.Fin.Lemmas
-import Init.Data.UInt.Lemmas
-import Init.Data.SInt.Lemmas
+public import Init.Grind.Ring.ToInt
+public import Init.Data.SInt.Lemmas
+
+public section
 
 namespace Lean.Grind
 

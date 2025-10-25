@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.TreeMap.Basic
+public import Std.Data.TreeMap.Basic
+
+@[expose] public section
 
 /-!
 # Tree sets
@@ -15,7 +19,7 @@ Lemmas about the operations on `Std.Data.TreeSet` will be available in the
 module `Std.Data.TreeSet.Lemmas`.
 
 See the module `Std.Data.TreeSet.Raw.Basic` for a variant of this type which is safe to use in
-nested inductive types.
+nested inductive types and `Std.Data.ExtTreeSet.Basic` for a variant with extensionality.
 -/
 
 set_option autoImplicit false
@@ -50,6 +54,10 @@ To avoid expensive copies, users should make sure that the tree set is used line
 Internally, the tree sets are represented as size-bounded trees, a type of self-balancing binary
 search tree with efficient order statistic lookups.
 
+For use in proofs, the type `Std.ExtTreeSet` of extensional tree sets should be preferred. This
+type comes with several extensionality lemmas and provides the same functions but requires a
+`TransCmp` instance to work with.
+
 These tree sets contain a bundled well-formedness invariant, which means that they cannot
 be used in nested inductive types. For these use cases, `Std.TreeSet.Raw` and
 `Std.TreeSet.Raw.WF` unbundle the invariant from the tree set. When in doubt, prefer
@@ -83,7 +91,7 @@ structure Equiv (m₁ m₂ : TreeSet α cmp) where
 
 @[inherit_doc] scoped infix:50 " ~m " => Equiv
 
-@[simp]
+@[simp, grind =]
 theorem empty_eq_emptyc : (empty : TreeSet α cmp) = ∅ :=
   rfl
 
@@ -377,18 +385,10 @@ ascending order.
 def foldlM {m δ} [Monad m] (f : δ → (a : α) → m δ) (init : δ) (t : TreeSet α cmp) : m δ :=
   t.inner.foldlM (fun c a _ => f c a) init
 
-@[inline, inherit_doc foldlM, deprecated foldlM (since := "2025-02-12")]
-def foldM (f : δ → (a : α) → m δ) (init : δ) (t : TreeSet α cmp) : m δ :=
-  t.foldlM f init
-
 /-- Folds the given function over the elements of the tree set in ascending order. -/
 @[inline]
 def foldl (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
   t.inner.foldl (fun c a _ => f c a) init
-
-@[inline, inherit_doc foldl, deprecated foldl (since := "2025-02-12")]
-def fold (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
-  t.foldl f init
 
 /--
 Monadically computes a value by folding the given function over the elements in the tree set in
@@ -402,10 +402,6 @@ def foldrM {m δ} [Monad m] (f : (a : α) → δ → m δ) (init : δ) (t : Tree
 @[inline]
 def foldr (f : (a : α) → δ → δ) (init : δ) (t : TreeSet α cmp) : δ :=
   t.inner.foldr (fun a _ acc => f a acc) init
-
-@[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
-def revFold (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
-  foldr (fun a acc => f acc a) init t
 
 /-- Partitions a tree set into two tree sets based on a predicate. -/
 @[inline]
@@ -444,28 +440,20 @@ def all (t : TreeSet α cmp) (p : α → Bool) : Bool :=
 /-- Transforms the tree set into a list of elements in ascending order. -/
 @[inline]
 def toList (t : TreeSet α cmp) : List α :=
-  t.inner.inner.inner.foldr (fun a _ l => a :: l) ∅
+  t.inner.keys
 
 /-- Transforms a list into a tree set. -/
 def ofList (l : List α) (cmp : α → α → Ordering := by exact compare) : TreeSet α cmp :=
   ⟨TreeMap.unitOfList l cmp⟩
 
-@[inline, inherit_doc ofList, deprecated ofList (since := "2025-02-12")]
-def fromList (l : List α) (cmp : α → α → Ordering) : TreeSet α cmp :=
-  ofList l cmp
-
 /-- Transforms the tree set into an array of elements in ascending order. -/
 @[inline]
 def toArray (t : TreeSet α cmp) : Array α :=
-  t.foldl (init := ∅) fun acc k => acc.push k
+  t.inner.keysArray
 
 /-- Transforms an array into a tree set. -/
 def ofArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : TreeSet α cmp :=
   ⟨TreeMap.unitOfArray a cmp⟩
-
-@[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-12")]
-def fromArray (a : Array α) (cmp : α → α → Ordering) : TreeSet α cmp :=
-  ofArray a cmp
 
 /--
 Returns a set that contains all mappings of `t₁` and `t₂.

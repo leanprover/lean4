@@ -3,13 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Attributes
-import Lean.Elab.Binders
-import Lean.Elab.DeclModifiers
-import Lean.Elab.SyntheticMVars
-import Lean.Elab.DeclarationRange
-import Lean.Elab.MutualDef
+public import Lean.Elab.MutualDef
+
+public section
 
 namespace Lean.Elab.Term
 open Meta
@@ -49,12 +48,13 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
       let declName := parentName?.getD Name.anonymous ++ shortDeclName
       if decls.any fun decl => decl.declName == declName then
         withRef declId do
-          throwError "'{declName}' has already been declared"
+          throwError "`{.ofConstName declName}` has already been declared"
+      let binders := decl[1]
       checkNotAlreadyDeclared declName
       applyAttributesAt declName attrs AttributeApplicationTime.beforeElaboration
-      addDocString' declName docStr?
+      addDocString' declName binders docStr?
       addDeclarationRangesFromSyntax declName decl declId
-      let binders := decl[1].getArgs
+      let binders := binders.getArgs
       let typeStx := expandOptType declId decl[2]
       let (type, binderIds) ← elabBindersEx binders fun xs => do
           let type ← elabType typeStx
@@ -89,7 +89,7 @@ private def elabLetRecDeclValues (view : LetRecView) : TermElabM (Array Expr) :=
   view.decls.mapM fun view => do
     forallBoundedTelescope view.type view.binderIds.size fun xs type => do
       -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
-      for h : i in [0:view.binderIds.size] do
+      for h : i in *...view.binderIds.size do
         addLocalVarInfo view.binderIds[i] xs[i]!
       withDeclName view.declName do
         withInfoContext' view.valStx
@@ -104,19 +104,22 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
   for view in views do
     if letRecsToLiftCurr.any fun toLift => toLift.declName == view.declName then
       withRef view.ref do
-        throwError "'{view.declName}' has already been declared"
+        throwError "`{view.declName}` has already been declared"
   let lctx ← getLCtx
   let localInstances ← getLocalInstances
 
   let toLift ← views.mapIdxM fun i view => do
     let value := values[i]!
     let termination := view.termination.rememberExtraParams view.binderIds.size value
+    let env ← getEnv
     pure {
       ref            := view.ref
       fvarId         := fvars[i]!.fvarId!
       attrs          := view.attrs
       shortDeclName  := view.shortDeclName
-      declName       := view.declName
+      declName       :=
+        if env.isExporting || !env.header.isModule then view.declName
+        else mkPrivateName env view.declName
       parentName?    := view.parentName?
       lctx
       localInstances

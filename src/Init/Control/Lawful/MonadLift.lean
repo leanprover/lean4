@@ -6,6 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Control.Lawful.MonadLift.Basic
-import Init.Control.Lawful.MonadLift.Lemmas
-import Init.Control.Lawful.MonadLift.Instances
+public import Init.Control.Lawful.MonadLift.Basic
+public import Init.Control.Lawful.MonadLift.Lemmas
+public import Init.Control.Lawful.MonadLift.Instances

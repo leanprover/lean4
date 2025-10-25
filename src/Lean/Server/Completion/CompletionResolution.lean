@@ -3,32 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Server.Completion.CompletionItemData
-import Lean.Server.Completion.CompletionInfoSelection
-import Lean.Linter.Deprecated
+public import Lean.Data.Lsp
+public import Lean.Server.Completion.CompletionInfoSelection
+public import Lean.Linter.Deprecated
+
+public section
 
 namespace Lean.Lsp
-
-/--
-Identifier that is sent from the server to the client as part of the `CompletionItem.data?` field.
-Needed to resolve the `CompletionItem` when the client sends a `completionItem/resolve` request
-for that item, again containing the `data?` field provided by the server.
--/
-inductive CompletionIdentifier where
-  | const (declName : Name)
-  | fvar  (id       : FVarId)
-  deriving FromJson, ToJson
-
-/--
-`CompletionItemData` that contains additional information to identify the item
-in order to resolve it.
--/
-structure ResolvableCompletionItemData extends CompletionItemData where
-  /-- Position of the completion info that this completion item was created from. -/
-  cPos : Nat
-  id?  : Option CompletionIdentifier
-  deriving FromJson, ToJson
 
 private partial def consumeImplicitPrefix (e : Expr) (k : Expr → MetaM α) : MetaM α := do
   match e with
@@ -105,7 +89,7 @@ in the context found at `hoverPos` in `infoTree`.
 -/
 def resolveCompletionItem?
     (fileMap           : FileMap)
-    (hoverPos          : String.Pos)
+    (hoverPos          : String.Pos.Raw)
     (cmdStx            : Syntax)
     (infoTree          : InfoTree)
     (item              : CompletionItem)

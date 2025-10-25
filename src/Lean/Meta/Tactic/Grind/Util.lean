@@ -3,15 +3,13 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
+public import Lean.Meta.Tactic.Simp.Simproc
 import Init.Simproc
-import Init.Grind.Tactics
 import Lean.Meta.AbstractNestedProofs
-import Lean.Meta.Transform
-import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Clear
-import Lean.Meta.Tactic.Simp.Simproc
-
+public section
 namespace Lean.Meta.Grind
 /--
 Throws an exception if target of the given goal contains metavariables.
@@ -50,17 +48,36 @@ should not be unfolded by `unfoldReducible`.
 def isGrindGadget (declName : Name) : Bool :=
   declName == ``Grind.EqMatch
 
+def isUnfoldReducibleTarget (e : Expr) : CoreM Bool := do
+  let env ← getEnv
+  return Option.isSome <| e.find? fun e => Id.run do
+    let .const declName _ := e | return false
+    if getReducibilityStatusCore env declName matches .reducible then
+      -- Remark: it is wasteful to unfold projection functions since
+      -- kernel projections are folded again in the `foldProjs` preprocessing step.
+      return !isGrindGadget declName && !env.isProjectionFn declName
+    else
+      return false
+
+/--
+Auxiliary function for implementing `unfoldReducible` and `unfoldReducibleSimproc`.
+Performs a single step.
+-/
+def unfoldReducibleStep (e : Expr) : MetaM TransformStep := do
+  let .const declName _ := e.getAppFn | return .continue
+  unless (← isReducible declName) do return .continue
+  if isGrindGadget declName then return .continue
+  -- See comment at isUnfoldReducibleTarget.
+  if (← getEnv).isProjectionFn declName then return .continue
+  let some v ← unfoldDefinition? e | return .continue
+  return .visit v
+
 /--
 Unfolds all `reducible` declarations occurring in `e`.
 -/
-def unfoldReducible (e : Expr) : MetaM Expr :=
-  let pre (e : Expr) : MetaM TransformStep := do
-    let .const declName _ := e.getAppFn | return .continue
-    unless (← isReducible declName) do return .continue
-    if isGrindGadget declName then return .continue
-    let some v ← unfoldDefinition? e | return .continue
-    return .visit v
-  Core.transform e (pre := pre)
+def unfoldReducible (e : Expr) : MetaM Expr := do
+  if !(← isUnfoldReducibleTarget e) then return e
+  Meta.transform e (pre := unfoldReducibleStep)
 
 /--
 Unfolds all `reducible` declarations occurring in the goal's target.
@@ -88,14 +105,16 @@ def _root_.Lean.MVarId.byContra? (mvarId : MVarId) : MetaM (Option MVarId) := mv
   return mvarNew.mvarId!
 
 /--
-Clears auxiliary decls used to encode recursive declarations.
-`grind` eliminates them to ensure they are not accidentally used by its proof automation.
+Clears auxiliary **and** implementation detail decls used to encode recursive declarations and
+implementation details.
+- `grind` eliminates auxiliary declarations to ensure they are not accidentally used by its proof automation.
+- `grind` eliminates implementation detail declarations because they have a support role.
 -/
-def _root_.Lean.MVarId.clearAuxDecls (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+def _root_.Lean.MVarId.clearImplDetails (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   mvarId.checkNotAssigned `grind.clear_aux_decls
   let mut toClear := []
   for localDecl in (← getLCtx) do
-    if localDecl.isAuxDecl then
+    if localDecl.isImplementationDetail then
       toClear := localDecl.fvarId :: toClear
   if toClear.isEmpty then
     return mvarId
@@ -104,8 +123,10 @@ def _root_.Lean.MVarId.clearAuxDecls (mvarId : MVarId) : MetaM MVarId := mvarId.
     try
       mvarId ← mvarId.clear fvarId
     catch _ =>
-      let userName := (← fvarId.getDecl).userName
-      throwTacticEx `grind mvarId m!"the goal mentions the declaration `{userName}`, which is being defined. To avoid circular reasoning, try rewriting the goal to eliminate `{userName}` before using `grind`."
+      let decl ← fvarId.getDecl
+      if decl.isAuxDecl then
+        let userName := decl.userName
+        throwTacticEx `grind mvarId m!"the goal mentions the declaration `{userName}`, which is being defined. To avoid circular reasoning, try rewriting the goal to eliminate `{userName}` before using `grind`."
   return mvarId
 
 /--
@@ -116,6 +137,7 @@ Recall that we still have to process `Expr.forallE` because of `ForallProp.lean`
 Moreover, we may not want to reduce `p → q` to `¬p ∨ q` when `(p q : Prop)`.
 -/
 def eraseIrrelevantMData (e : Expr) : CoreM Expr := do
+  if Option.isNone <| e.find? fun e => e.isMData then return e
   let pre (e : Expr) := do
     match e with
     | .letE .. | .lam .. => return .done e
@@ -127,6 +149,7 @@ def eraseIrrelevantMData (e : Expr) : CoreM Expr := do
 Converts nested `Expr.proj`s into projection applications if possible.
 -/
 def foldProjs (e : Expr) : MetaM Expr := do
+  if Option.isNone <| e.find? fun e => e.isProj then return e
   let post (e : Expr) := do
     let .proj structName idx s := e | return .done e
     let some info := getStructureInfo? (← getEnv) structName |
@@ -144,17 +167,27 @@ def foldProjs (e : Expr) : MetaM Expr := do
         F ⟶ G
       ```
       We should make `mkProjection` more robust.
+
+      The `mkProjection` function may create new kernel projections. So, we must use `.visit`.
       -/
-      return .done (← withDefault <| mkProjection s fieldName)
+      return .visit (← withDefault <| mkProjection s fieldName)
     else
       trace[grind.issues] "found `Expr.proj` with invalid field index `{idx}`{indentExpr e}"
       return .done e
   Meta.transform e (post := post)
 
+/-- Quick filter for checking whether we can skip `normalizeLevels`. -/
+private def levelsAlreadyNormalized (e : Expr) : Bool :=
+  Option.isNone <| e.find? fun
+    | .const _ us => us.any (! ·.isAlreadyNormalizedCheap)
+    | .sort u => !u.isAlreadyNormalizedCheap
+    | _ => false
+
 /--
 Normalizes universe levels in constants and sorts.
 -/
 def normalizeLevels (e : Expr) : CoreM Expr := do
+  if levelsAlreadyNormalized e then return e
   let pre (e : Expr) := do
     match e with
     | .sort u => return .done <| e.updateSort! u.normalize
@@ -164,7 +197,7 @@ def normalizeLevels (e : Expr) : CoreM Expr := do
 
 /--
 Normalizes the given expression using the `grind` simplification theorems and simprocs.
-This function is used for normalzing E-matching patterns. Note that it does not return a proof.
+This function is used for normalizing E-matching patterns. Note that it does not return a proof.
 -/
 @[extern "lean_grind_normalize"] -- forward definition
 opaque normalize (e : Expr) (config : Grind.Config) : MetaM Expr
@@ -221,5 +254,11 @@ def isIte (e : Expr) :=
 
 def isDIte (e : Expr) :=
   e.isAppOf ``dite && e.getAppNumArgs >= 5
+
+def getBinOp (e : Expr) : Option Expr :=
+  if !e.isApp then none else
+  let f := e.appFn!
+  if !f.isApp then none else
+  some f.appFn!
 
 end Lean.Meta.Grind

@@ -3,10 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide
-import Lean.Meta.Tactic.TryThis
-import Std.Tactic.BVDecide.Syntax
+public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide
+public import Lean.Meta.Tactic.TryThis
+
+public section
 
 /-!
 This modules provides the implementation of `bv_check`.
@@ -25,7 +28,7 @@ def getSrcDir : TermElabM System.FilePath := do
   let ctx ← readThe Lean.Core.Context
   let srcPath := System.FilePath.mk ctx.fileName
   let some srcDir := srcPath.parent
-    | throwError "cannot compute parent directory of '{srcPath}'"
+    | throwError "cannot compute parent directory of `{srcPath}`"
   return srcDir
 
 def mkContext (lratPath : System.FilePath) (cfg : BVDecideConfig) : TermElabM TacticContext := do

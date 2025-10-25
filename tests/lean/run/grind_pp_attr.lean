@@ -1,3 +1,4 @@
+module
 import Lean.Elab.Command
 
 open Lean Elab Command
@@ -8,7 +9,6 @@ def test (stx : Syntax) : CommandElabM Unit := do
   if let some fmt := fmt then
   let st := fmt.pretty
   dbg_trace st
-
 
 /--
 info: @[grind =]
@@ -57,3 +57,19 @@ example :=
 -/
 #guard_msgs in
 run_cmd test (← `(@[grind ←=] example := 0))
+
+/--
+info: @[grind]
+example :=
+  0
+-/
+#guard_msgs in
+run_cmd test (← `(@[grind] example := 0))
+
+/--
+info: @[grind ← gen]
+example :=
+  0
+-/
+#guard_msgs in
+run_cmd test (← `(@[grind ← gen] example := 0))

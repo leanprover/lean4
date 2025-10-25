@@ -1,9 +1,7 @@
 open scoped Classical
 
 /--
-error: tactic 'native_decide' failed, could not evaluate decidable instance. Error: (interpreter) unknown declaration 'ohno._nativeDecide_1_1'
----
-error: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'Classical.propDecidable', which is 'noncomputable'
+error: Tactic `native_decide` failed. Error: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'Classical.propDecidable', which is 'noncomputable'
 -/
 #guard_msgs in
 theorem ohno : False := by

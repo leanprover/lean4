@@ -1,7 +1,7 @@
 (some Init.Prelude)
 (some Lean.CoreM)
-(some Lean.Elab.Term)
+(some Lean.Elab.Term.TermElabM)
 (some Std.Data.HashMap.Basic)
 none
 none
-moduleOf.lean:16:0-16:5: error: unknown constant 'foo'
+moduleOf.lean:16:0-16:5: error(lean.unknownIdentifier): Unknown constant `foo`

@@ -3,12 +3,14 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Marc Huisinga
 -/
+module
+
 prelude
-import Init.System.IO
-import Lean.Server.Utils
-import Lean.Util.LakePath
-import Lean.LoadDynlib
-import Lean.Server.ServerTask
+public import Lean.Server.Utils
+public import Lean.Util.LakePath
+public import Lean.Server.ServerTask
+
+public section
 
 namespace Lean.Server.FileWorker
 

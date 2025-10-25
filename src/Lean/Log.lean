@@ -3,14 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.Sorry
-import Lean.Widget.Types
-import Lean.Message
-import Lean.DocString.Links
 -- This import is necessary to ensure that any users of the `logNamedError` macros have access to
 -- all declared explanations:
-import Lean.ErrorExplanations
+public import Lean.ErrorExplanations
+
+public section
 
 namespace Lean
 
@@ -39,9 +39,9 @@ instance (m n) [MonadLift m n] [MonadLog m] : MonadLog n where
 variable [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
 
 /--
-Return the position (as `String.pos`) associated with the current reference syntax (i.e., the syntax object returned by `getRef`.)
+Return the position (as `String.Pos.Raw`) associated with the current reference syntax (i.e., the syntax object returned by `getRef`.)
 -/
-def getRefPos : m String.Pos := do
+def getRefPos : m String.Pos.Raw := do
   let ref ← MonadLog.getRef
   return ref.getPos?.getD 0
 
@@ -66,6 +66,7 @@ A widget for displaying error names and explanation links.
 def errorDescriptionWidget : Widget.Module where
   javascript := "
 import { createElement } from 'react';
+
 export default function ({ code, explanationUrl }) {
   const sansText = { fontFamily: 'var(--vscode-font-family)' }
 
@@ -73,7 +74,8 @@ export default function ({ code, explanationUrl }) {
     createElement('span', { style: sansText }, 'Error code: '), code])
   const brSpan = createElement('span', {}, '\\n')
   const linkSpan = createElement('span', { style: sansText },
-    createElement('a', { href: explanationUrl }, 'View explanation'))
+    createElement('a', { href: explanationUrl, target: '_blank', rel: 'noreferrer noopener' },
+      'View explanation'))
 
   const all = createElement('div', { style: { marginTop: '1em' } }, [codeSpan, brSpan, linkSpan])
   return all
@@ -84,21 +86,29 @@ If `msg` is tagged as a named error, appends the error description widget displa
 corresponding error name and explanation link. Otherwise, returns `msg` unaltered.
 -/
 private def MessageData.appendDescriptionWidgetIfNamed (msg : MessageData) : MessageData :=
-  match errorNameOfKind? msg.kind with
+  let kind := stripNestedTags msg.kind
+  match errorNameOfKind? kind with
   | some errorName =>
     let url := manualRoot ++ s!"find/?domain={errorExplanationManualDomain}&name={errorName}"
     let inst := {
       id := ``errorDescriptionWidget
       javascriptHash := errorDescriptionWidget.javascriptHash
-      props := return json% {
-        code: $(toString errorName),
-        explanationUrl: $url
-      }
+      props := return Json.mkObj [
+        ("code", toString errorName),
+        ("explanationUrl", url)
+      ]
     }
     -- Note: we do not generate corresponding message data for the widget because it pollutes
     -- console output
     msg.composePreservingKind <| .ofWidget inst .nil
   | none => msg
+where
+  /-- Remove any `` `nested `` name components prepended by `throwNestedTacticEx`. -/
+  stripNestedTags : Name → Name
+  | .str p "nested" => stripNestedTags p
+  | .str p s => .str (stripNestedTags p) s
+  | .num p n => .num (stripNestedTags p) n
+  | .anonymous => .anonymous
 
 /--
 Log the message `msgData` at the position provided by `ref` with the given `severity`.
@@ -113,9 +123,7 @@ def logAt (ref : Syntax) (msgData : MessageData)
     let pos    := ref.getPos?.getD 0
     let endPos := ref.getTailPos?.getD pos
     let fileMap ← getFileMap
-    -- TODO: change to `msgData.appendDescriptionWidgetIfNamed` once error explanation support is
-    -- added to the manual
-    let msgData ← addMessageContext msgData
+    let msgData ← addMessageContext msgData.appendDescriptionWidgetIfNamed
     logMessage {
       fileName := (← getFileName)
       pos := fileMap.toPosition pos

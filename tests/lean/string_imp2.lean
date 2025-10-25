@@ -20,7 +20,7 @@ it₁.remainingToString ++ "-" ++ it₂.remainingToString
 #eval "αβγ".mkIterator.next.1
 #eval "αβγ".mkIterator.next.next.1
 #eval "αβγ".mkIterator.next.2
-#eval "αβ".1
+#eval "αβ".data
 #eval "αβ".push 'a'
 #eval g "α"
 #eval "".mkIterator.curr

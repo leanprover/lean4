@@ -3,13 +3,17 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
+module
+
 prelude
-import Lean.Meta.Check
-import Lean.ReservedNameAction
-import Lean.AddDecl
-import Lean.Meta.Transform
-import Lean.Util.CollectFVars
-import Lean.Util.CollectMVars
+public import Lean.Meta.Check
+public import Lean.ReservedNameAction
+public import Lean.AddDecl
+public import Lean.Meta.Transform
+public import Lean.Util.CollectFVars
+public import Lean.Util.CollectMVars
+
+public section
 
 /-!
 # Transforming nondependent `let`s into `have`s
@@ -41,7 +45,7 @@ Optimizations, present and future:
   however checking for `let`s is O(n), so we only try this for expressions with a small `approxDepth`.
   (We can consider precomputing this somehow.)
   - The cache is currently responsible for the check.
-  - We also do it before entering telescopes, to avoid unnecesasry fvar overhead.
+  - We also do it before entering telescopes, to avoid unnecessary fvar overhead.
 - If we are not currently inside a `let`, then we do not need to do full typechecking.
 - We try to reuse Exprs to promote subexpression sharing.
 - We might consider not transforming lets to haves if we are in a proof that is not inside a `let`.
@@ -372,11 +376,11 @@ private partial def visitProj (e : Expr) (structName : Name) (idx : Nat) (struct
     let structTypeArgs := structType.getAppArgs
     if structVal.numParams + structVal.numIndices != structTypeArgs.size then
       failed ()
-    let mut ctorType ← inferType <| mkAppN (mkConst ctorVal.name structLvls) structTypeArgs[:structVal.numParams]
+    let mut ctorType ← inferType <| mkAppN (mkConst ctorVal.name structLvls) structTypeArgs[*...structVal.numParams]
     let mut args := #[]
     let mut j := 0
     let mut lastFieldTy : Expr := default
-    for i in [:idx+1] do
+    for i in *...=idx do
       unless ctorType.isForall do
         ctorType ← whnf <| ctorType.instantiateRevRange j i args
         j := i
@@ -434,7 +438,7 @@ The `Meta.letToHave` trace class logs errors and messages.
 def letToHave (e : Expr) : MetaM Expr := do
   profileitM Exception "let-to-have transformation" (← getOptions) do
     let e ← instantiateMVars e
-    LetToHave.main e
+    withoutExporting <| LetToHave.main e
 
 builtin_initialize
   registerTraceClass `Meta.letToHave

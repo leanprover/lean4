@@ -7,9 +7,10 @@ module
 
 prelude
 import all Init.Data.BitVec.Basic
-import Init.Data.BitVec.Lemmas
-import Init.Data.Nat.Lemmas
-import Init.Data.Fin.Iterate
+public import Init.Data.BitVec.Lemmas
+public import Init.Data.Fin.Iterate
+
+public section
 
 set_option linter.missingDocs true
 

@@ -3,10 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Check
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Apply
+public import Lean.Meta.Tactic.Apply
+
+public section
 
 namespace Lean.Meta
 
@@ -37,7 +39,7 @@ def _root_.Lean.MVarId.existsIntro (mvarId : MVarId) (w : Expr) : MetaM MVarId :
       fun _ us cval => do
         if cval.numFields < 2 then
           throwTacticEx `exists mvarId "constructor must have at least two fields"
-        let ctor := mkAppN (Lean.mkConst cval.name us) target.getAppArgs[:cval.numParams]
+        let ctor := mkAppN (Lean.mkConst cval.name us) target.getAppArgs[*...cval.numParams]
         let ctorType ← inferType ctor
         let (mvars, _, _) ← forallMetaTelescopeReducing ctorType (some (cval.numFields-2))
         let f := mkAppN ctor mvars

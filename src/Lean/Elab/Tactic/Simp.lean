@@ -3,16 +3,15 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Simp
-import Lean.Meta.Tactic.Simp.LoopProtection
-import Lean.Meta.Tactic.Replace
-import Lean.Meta.Hint
-import Lean.Elab.BuiltinNotation
-import Lean.Elab.Tactic.Basic
-import Lean.Elab.Tactic.ElabTerm
-import Lean.Elab.Tactic.Location
-import Lean.Elab.Tactic.Config
+public import Lean.Meta.Tactic.Simp
+public import Lean.Meta.Tactic.Simp.LoopProtection
+public import Lean.Elab.BuiltinNotation
+public import Lean.Elab.Tactic.Location
+
+public section
 
 namespace Lean.Elab.Tactic
 open Meta
@@ -174,7 +173,9 @@ private def elabDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (id : Origin
       return .addEntries <| thms.map (SimpEntry.thm ·)
     else
       if inv then
-        throwError "invalid '←' modifier, '{declName}' is a declaration name to be unfolded"
+        throwError m!"Invalid `←` modifier: `{.ofConstName declName}` is a declaration name to be unfolded"
+          ++ .hint' m!"The simplifier cannot \"refold\" definitions by name. Use `rw` for this instead,
+                      or use the `←` simp modifier with an equational lemma for `{.ofConstName declName}`."
       if kind == .dsimp then
         return .addEntries #[.toUnfold declName]
       else
@@ -186,9 +187,10 @@ private def elabDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (id : Origin
       let thms ← mkSimpTheoremFromExpr id #[] e (post := post) (inv := inv) (config := config)
       return .addEntries <| thms.map (SimpEntry.thm ·)
     else if !decl.isLet then
-      throwError "invalid argument, variable is not a proposition or let-declaration"
+      throwError "Invalid argument: Variable `{e}` is not a proposition or let-declaration"
     else if inv then
-      throwError "invalid '←' modifier, '{e}' is a let-declaration name to be unfolded"
+      throwError m!"Invalid `←` modifier: `{e}` is a let-declaration name to be unfolded"
+        ++ .note "The simplifier cannot \"refold\" local declarations by name"
     else
       return .addLetToUnfold fvarId
   else
@@ -430,9 +432,9 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
     TacticM MkSimpContextResult := do
   if !stx[2].isNone then
     if kind == SimpKind.simpAll then
-      throwError "'simp_all' tactic does not support 'discharger' option"
+      throwError "Tactic `simp_all` does not support the `discharger` option"
     if kind == SimpKind.dsimp then
-      throwError "'dsimp' tactic does not support 'discharger' option"
+      throwError "Tactic `dsimp` does not support the `discharger' option"
   let dischargeWrapper ← mkDischargeWrapper stx[2]
   let simpOnly := !stx[simpOnlyPos].isNone
   let simpTheorems ← if simpOnly then
@@ -574,7 +576,7 @@ and different simp arguments may be used in each step.)
 def warnUnusedSimpArgs (simpArgs : Array (Syntax × ElabSimpArgResult)) (usedSimps : Simp.UsedSimps) : MetaM Unit := do
   if simpArgs.isEmpty then return
   let mut mask : Array Bool := #[]
-  for h : i in [:simpArgs.size] do
+  for h : i in *...simpArgs.size do
     let (ref, arg) := simpArgs[i]
     let used ←
       match arg with
@@ -598,7 +600,7 @@ def warnUnusedSimpArgs (simpArgs : Array (Syntax × ElabSimpArgResult)) (usedSim
 where
   /--
   For equational theorems, usedTheorems record the declaration name. So if the user
-  specified `foo.eq_1`, we get `foo` in `usedTheores`, but we still want to mark
+  specified `foo.eq_1`, we get `foo` in `usedTheorems`, but we still want to mark
   `foo.eq_1` as used.
   (cf. `recordSimpTheorem`)
   This may lead to unused, explicitly given `foo.eq_1` to not be warned about. Ok for now,

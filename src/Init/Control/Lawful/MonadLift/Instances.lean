@@ -8,11 +8,16 @@ module
 prelude
 import all Init.Control.Option
 import all Init.Control.Except
+public import Init.Control.ExceptCps
 import all Init.Control.ExceptCps
 import all Init.Control.StateRef
+public import Init.Control.StateCps
 import all Init.Control.StateCps
-import Init.Control.Lawful.MonadLift.Lemmas
-import Init.Control.Lawful.Instances
+import all Init.Control.Id
+public import Init.Control.Lawful.MonadLift.Lemmas
+public import Init.Control.Lawful.Instances
+
+public section
 
 universe u v w x
 
@@ -54,10 +59,6 @@ end ReaderT
 namespace OptionT
 
 variable [Monad m] [LawfulMonad m]
-
-@[simp]
-theorem lift_pure {α : Type u} (a : α) : OptionT.lift (pure a : m α) = pure a := by
-  simp only [OptionT.lift, OptionT.mk, bind_pure_comp, map_pure, pure, OptionT.pure]
 
 @[simp]
 theorem lift_bind {α β : Type u} (ma : m α) (f : α → m β) :
@@ -135,3 +136,11 @@ instance {ε : Type u} [Monad m] [LawfulMonad m] : LawfulMonadLift m (ExceptCpsT
     simp only [bind_assoc]
 
 end ExceptCpsT
+
+namespace Id
+
+instance [Monad m] [LawfulMonad m] : LawfulMonadLiftT Id m where
+  monadLift_pure a := by simp [monadLift]
+  monadLift_bind a f := by simp [monadLift]
+
+end Id

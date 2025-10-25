@@ -7,9 +7,9 @@
 /.github/ @kim-em
 /RELEASES.md @kim-em
 /src/kernel/ @leodemoura
-/src/library/compiler/ @zwarich
+/src/library/compiler/ @hargoniX
 /src/lake/ @tydeu
-/src/Lean/Compiler/ @leodemoura @zwarich
+/src/Lean/Compiler/ @leodemoura @hargoniX
 /src/Lean/Data/Lsp/ @mhuisi
 /src/Lean/Elab/Deriving/ @kim-em
 /src/Lean/Elab/Tactic/ @kim-em
@@ -45,3 +45,10 @@
 /src/Std/Tactic/BVDecide/ @hargoniX
 /src/Lean/Elab/Tactic/BVDecide/ @hargoniX
 /src/Std/Sat/ @hargoniX
+/src/Std/Do @sgraf812
+/src/Std/Tactic/Do @sgraf812
+/src/Lean/Elab/Tactic/Do @sgraf812
+/src/Init/Data/Range/Polymorphic @datokrat
+/src/Init/Data/Slice @datokrat
+/src/Init/Data/Iterators @datokrat
+/src/Std/Data/Iterators @datokrat

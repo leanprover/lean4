@@ -19,7 +19,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_msgLog(lean_object*);
 static lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_endPos___boxed(lean_object*);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
-static lean_object* l_panic___at___Lean_Server_Snapshots_Snapshot_infoTree_spec__0___closed__0;
+static lean_object* l_panic___at___00Lean_Server_Snapshots_Snapshot_infoTree_spec__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_isAtEnd___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runCommandElabM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_ctorIdx___boxed(lean_object*);
@@ -58,7 +58,7 @@ lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_msgLog___boxed(lean_object*);
 static lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_endPos(lean_object*);
-LEAN_EXPORT lean_object* l_panic___at___Lean_Server_Snapshots_Snapshot_infoTree_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_panic___at___00Lean_Server_Snapshots_Snapshot_infoTree_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -133,7 +133,7 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_panic___at___Lean_Server_Snapshots_Snapshot_infoTree_spec__0___closed__0() {
+static lean_object* _init_l_panic___at___00Lean_Server_Snapshots_Snapshot_infoTree_spec__0___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -141,11 +141,11 @@ x_1 = l_Lean_Elab_instInhabitedInfoTree_default;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at___Lean_Server_Snapshots_Snapshot_infoTree_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_panic___at___00Lean_Server_Snapshots_Snapshot_infoTree_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_panic___at___Lean_Server_Snapshots_Snapshot_infoTree_spec__0___closed__0;
+x_2 = l_panic___at___00Lean_Server_Snapshots_Snapshot_infoTree_spec__0___closed__0;
 x_3 = lean_panic_fn(x_2, x_1);
 return x_3;
 }
@@ -210,13 +210,13 @@ if (x_9 == 0)
 lean_object* x_10; lean_object* x_11; 
 lean_dec_ref(x_6);
 x_10 = l_Lean_Server_Snapshots_Snapshot_infoTree___closed__3;
-x_11 = l_panic___at___Lean_Server_Snapshots_Snapshot_infoTree_spec__0(x_10);
+x_11 = l_panic___at___00Lean_Server_Snapshots_Snapshot_infoTree_spec__0(x_10);
 return x_11;
 }
 else
 {
 lean_object* x_12; lean_object* x_13; uint8_t x_14; 
-x_12 = l_panic___at___Lean_Server_Snapshots_Snapshot_infoTree_spec__0___closed__0;
+x_12 = l_panic___at___00Lean_Server_Snapshots_Snapshot_infoTree_spec__0___closed__0;
 x_13 = lean_unsigned_to_nat(0u);
 x_14 = lean_nat_dec_lt(x_13, x_7);
 if (x_14 == 0)
@@ -467,8 +467,8 @@ lean_dec_ref(res);
 res = initialize_Lean_Widget_InteractiveDiagnostic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_panic___at___Lean_Server_Snapshots_Snapshot_infoTree_spec__0___closed__0 = _init_l_panic___at___Lean_Server_Snapshots_Snapshot_infoTree_spec__0___closed__0();
-lean_mark_persistent(l_panic___at___Lean_Server_Snapshots_Snapshot_infoTree_spec__0___closed__0);
+l_panic___at___00Lean_Server_Snapshots_Snapshot_infoTree_spec__0___closed__0 = _init_l_panic___at___00Lean_Server_Snapshots_Snapshot_infoTree_spec__0___closed__0();
+lean_mark_persistent(l_panic___at___00Lean_Server_Snapshots_Snapshot_infoTree_spec__0___closed__0);
 l_Lean_Server_Snapshots_Snapshot_infoTree___closed__0 = _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__0();
 lean_mark_persistent(l_Lean_Server_Snapshots_Snapshot_infoTree___closed__0);
 l_Lean_Server_Snapshots_Snapshot_infoTree___closed__1 = _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__1();

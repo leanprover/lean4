@@ -74,7 +74,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_parseLow
 uint8_t lean_uint32_dec_lt(uint32_t, uint32_t);
 uint32_t lean_uint32_land(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_needDisambiguation___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at_____private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_checkLowerHex_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_parseLowerHex___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__String_mangleAux(lean_object*, lean_object*, lean_object*);
@@ -90,7 +90,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_nat_lor(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_mangle(lean_object*);
 uint32_t l_Char_ofNat(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at_____private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0(uint32_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0(uint32_t, lean_object*, lean_object*);
 LEAN_EXPORT uint32_t l___private_Lean_Compiler_NameMangling_0__String_digitChar___redArg(uint32_t x_1) {
 _start:
 {
@@ -1287,7 +1287,7 @@ return x_3;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at_____private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0(uint32_t x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0(uint32_t x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -1392,7 +1392,7 @@ lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean
 x_62 = lean_unsigned_to_nat(1u);
 x_63 = lean_nat_shiftr(x_5, x_62);
 lean_dec(x_5);
-x_64 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at_____private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0(x_18, x_63, x_4);
+x_64 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0(x_18, x_63, x_4);
 x_65 = lean_nat_add(x_11, x_54);
 lean_inc_ref(x_1);
 x_66 = l___private_Lean_Compiler_NameMangling_0__Lean_parseLowerHex___redArg(x_54, x_1, x_11, x_9);
@@ -1412,7 +1412,7 @@ lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; uint
 x_70 = lean_unsigned_to_nat(1u);
 x_71 = lean_nat_shiftr(x_5, x_70);
 lean_dec(x_5);
-x_72 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at_____private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0(x_18, x_71, x_4);
+x_72 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0(x_18, x_71, x_4);
 x_73 = l_Lean_Name_str___override(x_3, x_72);
 x_74 = 48;
 x_75 = lean_uint32_dec_eq(x_8, x_74);
@@ -1462,7 +1462,7 @@ lean_dec(x_6);
 x_87 = lean_unsigned_to_nat(1u);
 x_88 = lean_nat_shiftr(x_5, x_87);
 lean_dec(x_5);
-x_89 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at_____private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0(x_18, x_88, x_4);
+x_89 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0(x_18, x_88, x_4);
 x_90 = lean_string_push(x_89, x_8);
 x_2 = x_11;
 x_4 = x_90;
@@ -1499,7 +1499,7 @@ x_20 = l_String_mangle___closed__0;
 x_21 = lean_unsigned_to_nat(1u);
 x_22 = lean_nat_shiftr(x_5, x_21);
 lean_dec(x_5);
-x_23 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at_____private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0(x_18, x_22, x_20);
+x_23 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0(x_18, x_22, x_20);
 x_24 = lean_string_push(x_23, x_8);
 x_2 = x_11;
 x_3 = x_19;
@@ -1533,7 +1533,7 @@ lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean
 x_31 = lean_unsigned_to_nat(1u);
 x_32 = lean_nat_shiftr(x_5, x_31);
 lean_dec(x_5);
-x_33 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at_____private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0(x_18, x_32, x_4);
+x_33 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0(x_18, x_32, x_4);
 x_34 = lean_nat_add(x_11, x_29);
 lean_inc_ref(x_1);
 x_35 = l___private_Lean_Compiler_NameMangling_0__Lean_parseLowerHex___redArg(x_29, x_1, x_11, x_9);
@@ -1573,7 +1573,7 @@ lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean
 x_44 = lean_unsigned_to_nat(1u);
 x_45 = lean_nat_shiftr(x_5, x_44);
 lean_dec(x_5);
-x_46 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at_____private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0(x_18, x_45, x_4);
+x_46 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0(x_18, x_45, x_4);
 x_47 = lean_nat_add(x_11, x_42);
 lean_inc_ref(x_1);
 x_48 = l___private_Lean_Compiler_NameMangling_0__Lean_parseLowerHex___redArg(x_42, x_1, x_11, x_9);
@@ -1598,7 +1598,7 @@ x_95 = 95;
 x_96 = lean_unsigned_to_nat(1u);
 x_97 = lean_nat_shiftr(x_5, x_96);
 lean_dec(x_5);
-x_98 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at_____private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0(x_95, x_97, x_4);
+x_98 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0(x_95, x_97, x_4);
 x_99 = l_Lean_Name_str___override(x_3, x_98);
 return x_99;
 }
@@ -1624,13 +1624,13 @@ lean_dec(x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at_____private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint32_t x_4; lean_object* x_5; 
 x_4 = lean_unbox_uint32(x_1);
 lean_dec(x_1);
-x_5 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at_____private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0(x_4, x_2, x_3);
+x_5 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__0(x_4, x_2, x_3);
 return x_5;
 }
 }

@@ -15,7 +15,7 @@ extern "C" {
 #endif
 static lean_object* l_Lake_instReprSemVerCore_repr___redArg___closed__7;
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_SemVerCore_parse_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_SemVerCore_parse_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instReprSemVerCore___closed__0;
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_ctorElim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_DecodeVersion_ctorIdx___boxed(lean_object*, lean_object*);
@@ -71,7 +71,7 @@ static lean_object* l_Lake_instInhabitedStdVer_default___closed__1;
 LEAN_EXPORT lean_object* l_Lake_StdVer_ctorIdx(lean_object*);
 static lean_object* l_Lake_instReprSemVerCore_repr___redArg___closed__12;
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_release_elim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at___Lake_instReprSemVerCore_repr_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lake_instReprSemVerCore_repr_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_instToString;
 LEAN_EXPORT lean_object* l_Lake_instToJsonStdVer;
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_instLT;
@@ -103,14 +103,14 @@ LEAN_EXPORT lean_object* l_Lake_instInhabitedStdVer;
 lean_object* l_Lake_instReprDate_repr___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instLEStdVer;
 LEAN_EXPORT lean_object* l_Lake_StdVer_toString(lean_object*);
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___Lake_ToolchainVer_ofFile_x3f_spec__1___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00Lake_ToolchainVer_ofFile_x3f_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_instDecidableEqSemVerCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_DecodeVersion_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_casesOn___override___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMaxSemVerCore___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_normalizeToolchain(lean_object*);
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___Lake_ToolchainVer_ofFile_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00Lake_ToolchainVer_ofFile_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instReprSemVerCore_repr___redArg___closed__8;
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_toString___override___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMinStdVer___lam__0___boxed(lean_object*, lean_object*);
@@ -160,7 +160,7 @@ static lean_object* l_Lake_ToolchainVer_defaultOrigin___closed__0;
 static lean_object* l_Lake_instReprSemVerCore_repr___redArg___closed__1;
 static lean_object* l_Lake_SemVerCore_parse___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_SemVerCore_parse_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_SemVerCore_parse_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instLTSemVerCore;
 LEAN_EXPORT lean_object* l_Lake_instDecidableEqSemVerCore___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_ToolchainVer_ofString___closed__5;
@@ -195,7 +195,7 @@ uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_other_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_SemVerCore_parse___lam__0(lean_object*, lean_object*);
 static lean_object* l_Lake_StdVer_parse___closed__0;
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___Lake_ToolchainVer_ofFile_x3f_spec__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00Lake_ToolchainVer_ofFile_x3f_spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_release_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instCoeSemVerCoreStdVer;
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_ble___boxed(lean_object*, lean_object*);
@@ -234,7 +234,7 @@ static lean_object* l_Lake_StdVer_toString___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instMaxStdVer;
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_nightly___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instReprToolchainVer;
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___Lake_ToolchainVer_ofFile_x3f_spec__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00Lake_ToolchainVer_ofFile_x3f_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_nightly_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_SemVerCore_toString___closed__0;
 static lean_object* l_Lake_instReprToolchainVer_repr___closed__7;
@@ -312,7 +312,7 @@ x_1 = l_Lake_instInhabitedSemVerCore_default;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Lake_instReprSemVerCore_repr_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lake_instReprSemVerCore_repr_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -882,7 +882,7 @@ lean_dec_ref(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_SemVerCore_parse_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_SemVerCore_parse_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; 
@@ -1026,7 +1026,7 @@ _start:
 lean_object* x_2; lean_object* x_7; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = lean_box(0);
-x_17 = l_String_splitAux___at___Lake_SemVerCore_parse_spec__0(x_1, x_15, x_15, x_16);
+x_17 = l_String_splitAux___at___00Lake_SemVerCore_parse_spec__0(x_1, x_15, x_15, x_16);
 if (lean_obj_tag(x_17) == 0)
 {
 x_7 = x_17;
@@ -1192,11 +1192,11 @@ goto block_6;
 }
 }
 }
-LEAN_EXPORT lean_object* l_String_splitAux___at___Lake_SemVerCore_parse_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_String_splitAux___at___00Lake_SemVerCore_parse_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_String_splitAux___at___Lake_SemVerCore_parse_spec__0(x_1, x_2, x_3, x_4);
+x_5 = l_String_splitAux___at___00Lake_SemVerCore_parse_spec__0(x_1, x_2, x_3, x_4);
 lean_dec_ref(x_1);
 return x_5;
 }
@@ -3586,7 +3586,7 @@ return x_69;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___Lake_ToolchainVer_ofFile_x3f_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00Lake_ToolchainVer_ofFile_x3f_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_7; uint8_t x_9; 
@@ -3662,7 +3662,7 @@ goto block_6;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___Lake_ToolchainVer_ofFile_x3f_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00Lake_ToolchainVer_ofFile_x3f_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -3751,8 +3751,8 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_ctor_get(x_3, 0);
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_string_utf8_byte_size(x_5);
-x_8 = l_Substring_takeWhileAux___at___Lake_ToolchainVer_ofFile_x3f_spec__0(x_5, x_7, x_6);
-x_9 = l_Substring_takeRightWhileAux___at___Lake_ToolchainVer_ofFile_x3f_spec__1(x_5, x_8, x_7);
+x_8 = l_Substring_takeWhileAux___at___00Lake_ToolchainVer_ofFile_x3f_spec__0(x_5, x_7, x_6);
+x_9 = l_Substring_takeRightWhileAux___at___00Lake_ToolchainVer_ofFile_x3f_spec__1(x_5, x_8, x_7);
 x_10 = lean_string_utf8_extract(x_5, x_8, x_9);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -3771,8 +3771,8 @@ lean_inc(x_13);
 lean_dec(x_3);
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_string_utf8_byte_size(x_13);
-x_16 = l_Substring_takeWhileAux___at___Lake_ToolchainVer_ofFile_x3f_spec__0(x_13, x_15, x_14);
-x_17 = l_Substring_takeRightWhileAux___at___Lake_ToolchainVer_ofFile_x3f_spec__1(x_13, x_16, x_15);
+x_16 = l_Substring_takeWhileAux___at___00Lake_ToolchainVer_ofFile_x3f_spec__0(x_13, x_15, x_14);
+x_17 = l_Substring_takeRightWhileAux___at___00Lake_ToolchainVer_ofFile_x3f_spec__1(x_13, x_16, x_15);
 x_18 = lean_string_utf8_extract(x_13, x_16, x_17);
 lean_dec(x_17);
 lean_dec(x_16);
@@ -3833,21 +3833,21 @@ return x_28;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___Lake_ToolchainVer_ofFile_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___00Lake_ToolchainVer_ofFile_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Substring_takeWhileAux___at___Lake_ToolchainVer_ofFile_x3f_spec__0(x_1, x_2, x_3);
+x_4 = l_Substring_takeWhileAux___at___00Lake_ToolchainVer_ofFile_x3f_spec__0(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___Lake_ToolchainVer_ofFile_x3f_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at___00Lake_ToolchainVer_ofFile_x3f_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Substring_takeRightWhileAux___at___Lake_ToolchainVer_ofFile_x3f_spec__1(x_1, x_2, x_3);
+x_4 = l_Substring_takeRightWhileAux___at___00Lake_ToolchainVer_ofFile_x3f_spec__1(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_4;

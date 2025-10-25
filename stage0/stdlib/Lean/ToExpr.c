@@ -70,7 +70,7 @@ LEAN_EXPORT lean_object* l_Lean_instToExprUSize___lam__0___boxed(lean_object*);
 static lean_object* l_Lean_instToExprInt_mkNat___closed__6;
 static lean_object* l_Lean_instToExprUInt16___lam__0___closed__1;
 static lean_object* l_Lean_instToExprArrayOfToLevel___redArg___lam__0___closed__1;
-LEAN_EXPORT lean_object* l_panic___at_____private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr_spec__0(lean_object*);
 static lean_object* l_Lean_instToExprInt32___closed__0;
 LEAN_EXPORT lean_object* l_Lean_instToExprOptionOfToLevel___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instToExprPreresolved___closed__1;
@@ -2541,7 +2541,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at_____private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -2666,7 +2666,7 @@ lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_20 = l___private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr___closed__7;
-x_21 = l_panic___at_____private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr_spec__0(x_20);
+x_21 = l_panic___at___00__private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr_spec__0(x_20);
 return x_21;
 }
 }

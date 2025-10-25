@@ -52,7 +52,7 @@ static lean_object* l_Lake_WorkspaceConfig___fields___closed__1;
 static lean_object* l_Lake_WorkspaceConfig___fields___closed__3;
 static uint8_t l_Lake_WorkspaceConfig_instConfigInfo___closed__11;
 LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig_instConfigFields;
-lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instReprWorkspaceConfig_repr___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig_packagesDir___proj___lam__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig_packagesDir___proj___lam__0(lean_object*);
@@ -93,7 +93,7 @@ lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, l
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedWorkspaceConfig_default;
 static lean_object* l_Lake_instReprWorkspaceConfig_repr___redArg___closed__1;
-LEAN_EXPORT lean_object* l_Nat_cast___at___Lake_instReprWorkspaceConfig_repr_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lake_instReprWorkspaceConfig_repr_spec__0(lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig_ctorIdx(lean_object* x_1) {
 _start:
@@ -136,7 +136,7 @@ x_1 = l_Lake_instInhabitedWorkspaceConfig_default___closed__0;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___Lake_instReprWorkspaceConfig_repr_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lake_instReprWorkspaceConfig_repr_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -515,7 +515,7 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
-x_4 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
+x_4 = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
 return x_4;
 }
 }

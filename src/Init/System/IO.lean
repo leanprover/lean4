@@ -1143,12 +1143,17 @@ def pathExists (p : FilePath) : BaseIO Bool :=
 
 /--
 Traverses a filesystem starting at the path `p` and exploring directories that satisfy `enter`,
-returning the paths visited.
+returning the paths visited. Symbolic links are not followed by default. This behaviour can be
+changed by setting `followLinks` to `true`.
 
 The traversal is a preorder traversal, in which parent directories occur prior to any of their
-children. Symbolic links are followed.
+children.
+
+Note: `walkDir` does not keep track of already visited directories. It is therefore possible to
+get stuck in an infinite recursion when `followLinks` is set to `true` on a directory structure
+that contains a cycle, for example by containing a symbolic link pointing to its parent directory.
 -/
-partial def walkDir (p : FilePath) (enter : FilePath → IO Bool := fun _ => pure true) : IO (Array FilePath) :=
+partial def walkDir (p : FilePath) (enter : FilePath → IO Bool := fun _ => pure true) (followLinks : Bool := false) : IO (Array FilePath) :=
   Prod.snd <$> StateT.run (go p) #[]
 where
   go p := do
@@ -1156,12 +1161,11 @@ where
       return ()
     for d in (← p.readDir) do
       modify (·.push d.path)
-      match (← d.path.metadata.toBaseIO) with
+      match (← d.path.symlinkMetadata.toBaseIO) with
       | .ok { type := .symlink, .. } =>
-        let p' ← FS.realPath d.path
-        if (← p'.isDir) then
-          -- do not call `enter` on a non-directory symlink
-          if (← enter p) then
+        if followLinks then
+          let p' ← FS.realPath d.path
+          if (← p'.isDir) then
             go p'
       | .ok { type := .dir, .. } => go d.path
       | .ok _ => pure ()

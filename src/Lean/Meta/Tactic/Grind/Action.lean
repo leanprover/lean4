@@ -257,22 +257,6 @@ def terminalAction (check : GoalM Bool) (mkTac : GrindM (TSyntax `grind)) : Acti
   else
     kna goal'
 
-/--
-Helper action for satellite solvers that use `CheckResult`.
--/
-def solverAction (check : GoalM CheckResult) (mkTac : GrindM (TSyntax `grind)) : Action := fun goal kna kp => do
-  let (result, goal') ← GoalM.run goal check
-  match result with
-  | .none       => kna goal'
-  | .progress   => kp goal'
-  | .propagated =>
-    let goal' ← GoalM.run' goal' processNewFacts
-    if goal'.inconsistent then
-      closeWith mkTac
-    else
-      concatTactic (← kp goal') mkTac
-  | .closed     => closeWith mkTac
-
 def saveStateIfTracing : GrindM (Option SavedState) := do
   if (← getConfig).trace then
     return some (← saveState)
@@ -308,6 +292,40 @@ def checkTactic : Action := fun goal _ kp => do
       throwError "generated tactic cannot close the goal{indentD (← mkGrindNext seq)}\nInitial goal\n{goal.mvarId}"
     return r
   | _ => return r
+
+/--
+Helper action for satellite solvers that use `CheckResult`.
+-/
+def solverAction (check : GoalM CheckResult) (mkTac : GrindM (TSyntax `grind)) : Action := fun goal kna kp => do
+  let saved? ← saveStateIfTracing
+  let (result, goal') ← GoalM.run goal check
+  match result with
+  | .none       => kna goal'
+  | .progress   => kp goal'
+  | .propagated =>
+    let goal' ← GoalM.run' goal' processNewFacts
+    if goal'.inconsistent then
+      closeWith mkTac
+    else if (← getConfig).trace then
+      match (← kp goal') with
+      | .closed seq =>
+        /-
+        **Note**: Check whether the progress made by this solver was actually used to close the goal.
+        This is not just an optimization, if we include an unnecessary step, we may fail to replay
+        the generated script when `cases` steps are pruned using non-chronological backtracking (NCB).
+        For example, when executing `finish?`, we may have performed a `cases #<anchor>` step
+        that enabled `ring` to propagate a new fact. If this fact is not used in the final proof,
+        and the corresponding `cases #<anchor>` step is pruned by NCB, the `ring` step will fail during replay.
+        -/
+        if (← checkSeqAt saved? goal seq) then
+          return .closed seq
+        else
+          let tac ← mkTac
+          return .closed (tac :: seq)
+      | r => return r
+    else
+      kp goal'
+  | .closed     => closeWith mkTac
 
 section
 /-!

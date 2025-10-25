@@ -176,7 +176,7 @@ example (f : Int → Int) (x y : Int)
 example (f : Int → Int) (x y : Int)
     : 0 ≤ x → x ≤ 2 → f 0 = y → f 1 = y → f 2 = y → f x = y := by
   grind =>
-    -- Again, we can use `have` to goal the proof with `mbtc`
+    -- Again, we can use `have` to golf the proof with `mbtc`
     have : x ≠ 0
     have : x ≠ 1
     have : x ≠ 2
